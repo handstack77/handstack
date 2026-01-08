@@ -1,5 +1,5 @@
 /*!
-HandStack Javascript Library v2026.1.2
+HandStack Javascript Library v2026.1.9
 https://handshake.kr
 
 Copyright 2025, HandStack
@@ -175,7 +175,7 @@ class Module {
 }
 
 Module.ancestor = Object;
-Module.version = 'v2026.1.2';
+Module.version = 'v2026.1.9';
 
 const syn = { Module };
 syn.Config = {
@@ -7779,495 +7779,382 @@ if (typeof module !== 'undefined' && module.exports) {
                 }
                 syn.$l.eventLog('$w.executeTransaction', '서비스 호출에 필요한 거래 정보 확인 필요', 'Error');
                 fallback(config, transactionObject);
-                return;
+                throw new Error('서비스 호출에 필요한 거래 정보 확인 필요');
             }
 
-            const serviceID = syn.Config.SystemID + syn.Config.Environment.substring(0, 1) + ($string.isNullOrEmpty(syn.Config.LoadModuleID) == true ? '' : syn.Config.LoadModuleID);
-            let apiService = null;
-            let apiServices = syn.$w.getStorage('apiServices', false);
-            if (globalRoot.devicePlatform === 'node') {
-                if (apiServices) {
-                    apiService = apiServices[serviceID];
-                    if (apiService) {
-                        if ($object.isNullOrUndefined(apiServices.BearerToken) == true && globalRoot.bearerToken) {
-                            apiServices.BearerToken = globalRoot.bearerToken;
-                            syn.$w.setStorage('apiServices', apiServices, false);
-                        }
-                    }
-                    else if (syn.Config.DomainAPIServer != null) {
-                        apiService = syn.Config.DomainAPIServer;
-                        apiServices = apiServices || {};
-                        if (token || globalRoot.bearerToken) {
-                            apiServices.BearerToken = token || globalRoot.bearerToken;
-                        }
-                        apiServices[serviceID] = apiService;
-                        syn.$w.setStorage('apiServices', apiServices, false);
-                    }
-                    else {
-                        syn.$l.eventLog('$w.executeTransaction', '서비스 호출에 필요한 DomainAPIServer 정보 확인 필요', 'Error');
-                        fallback(config, transactionObject);
-                    }
-                }
-                else {
-                    if (syn.Config.DomainAPIServer != null) {
-                        apiService = syn.Config.DomainAPIServer;
-                        apiServices = apiServices || {};
-                        if (token || globalRoot.bearerToken) {
-                            apiServices.BearerToken = token || globalRoot.bearerToken;
-                        }
-                        apiServices[serviceID] = apiService;
-                        syn.$w.setStorage('apiServices', apiServices, false);
-                    }
-                    else {
-                        syn.$l.eventLog('$w.executeTransaction', '서비스 호출에 필요한 DomainAPIServer 정보 확인 필요', 'Error');
-                        fallback(config, transactionObject);
-                    }
-                }
-            }
-            else {
-                if (apiServices) {
-                    apiService = apiServices[serviceID];
-                    if (apiService) {
-                        if ((apiServices.BearerToken == null || apiServices.BearerToken == undefined) && window.bearerToken) {
-                            apiServices.BearerToken = window.bearerToken;
-                            syn.$w.setStorage('apiServices', apiServices, false);
-                        }
-                    }
-                    else if (syn.Config.DomainAPIServer != null) {
-                        apiService = syn.Config.DomainAPIServer;
-                        apiServices = apiServices || {};
-                        if (window.bearerToken) {
-                            apiServices.BearerToken = window.bearerToken;
-                        }
-                        apiServices[serviceID] = apiService;
-                        syn.$w.setStorage('apiServices', apiServices, false);
-                    }
-                    else {
-                        syn.$l.eventLog('$w.executeTransaction', '서비스 호출에 필요한 DomainAPIServer 정보 확인 필요', 'Error');
-                        fallback(config, transactionObject);
-                    }
-                }
-                else {
-                    if (syn.Config.DomainAPIServer != null) {
-                        apiService = syn.Config.DomainAPIServer;
-                        apiServices = apiServices || {};
-                        if (window.bearerToken) {
-                            apiServices.BearerToken = window.bearerToken;
-                        }
-                        apiServices[serviceID] = apiService;
-                        syn.$w.setStorage('apiServices', apiServices, false);
-                    }
-                    else {
-                        syn.$l.eventLog('$w.executeTransaction', '서비스 호출에 필요한 DomainAPIServer 정보 확인 필요', 'Error');
-                        fallback(config, transactionObject);
-                    }
-                }
-            }
-
-            apiServices = syn.$w.getStorage('apiServices', false);
-            if (apiServices) {
-                apiService = apiServices[serviceID];
-            }
-
-            if (apiService == null) {
-                syn.$l.eventLog('$w.executeTransaction', 'apiService 확인 필요', 'Fatal');
+            let apiService = syn.Config.DomainAPIServer;
+            if ($object.isNullOrUndefined(apiService) == true) {
+                syn.$l.eventLog('$w.executeTransaction', '서비스 호출에 필요한 DomainAPIServer 정보 확인 필요', 'Error');
                 fallback(config, transactionObject);
+                throw new Error('서비스 호출에 필요한 DomainAPIServer 정보 확인 필요');
+            }
+
+            let ipAddress = syn.$w.getStorage('ipAddress', false);
+            if ($object.isNullOrUndefined(ipAddress) == true && globalRoot.devicePlatform === 'node') {
+                ipAddress = apiService.IP;
+            }
+
+            if ($object.isNullOrUndefined(ipAddress) == true) {
+                ipAddress = await syn.$b.getIpAddress();
+            }
+
+            if ($object.isNullOrUndefined(ipAddress) == true) {
+                ipAddress = 'localhost';
+            }
+
+            syn.$w.setStorage('ipAddress', ipAddress, false);
+
+            let url = '';
+            if (apiService.Port && apiService.Port != '') {
+                url = '{0}://{1}:{2}{3}'.format(apiService.Protocol, apiService.IP, apiService.Port, apiService.Path);
             }
             else {
-                if (apiService.exceptionText) {
-                    syn.$l.eventLog('$w.executeTransaction', 'apiService 확인 필요 SystemID: {0}, ServerType: {1}, Message: {2}'.format(config.systemID, syn.Config.Environment.substring(0, 1), apiService.exceptionText), 'Fatal');
-                    fallback(config, transactionObject);
-                    return;
-                }
+                url = '{0}://{1}{2}'.format(apiService.Protocol, apiService.IP, apiService.Path);
+            }
 
-                let ipAddress = syn.$w.getStorage('ipAddress', false);
-                if ($object.isNullOrUndefined(ipAddress) == true && globalRoot.devicePlatform === 'node') {
-                    ipAddress = apiService.IP;
-                }
+            const installType = syn.$w.Variable && syn.$w.Variable.InstallType ? syn.$w.Variable.InstallType : 'L';
+            const environment = syn.Config && syn.Config.Environment ? syn.Config.Environment.substring(0, 1) : 'D';
+            const machineTypeID = syn.Config && syn.Config.Transaction ? syn.Config.Transaction.MachineTypeID.substring(0, 1) : 'W';
+            const programID = (syn.$w.Variable && syn.$w.Variable.ProgramID ? syn.$w.Variable.ProgramID : config.programID).padStart(8, '0');
+            const businessID = config.businessID.padStart(3, '0').substring(0, 3);
+            const transactionID = transactionObject.transactionID.padStart(6, '0').substring(0, 6);
+            const functionID = transactionObject.functionID.padStart(4, '0').substring(0, 4);
+            const tokenID = (syn.$w.User && syn.$w.User.TokenID ? syn.$w.User.TokenID : syn.$l.random(6)).padStart(6, '0').substring(0, 6);
+            const requestTime = $date.toString(new Date(), 's').substring(0, 6);
+            // -- 36바이트 = 설치구분 1자리(L: Local, C: Cloud, O: Onpremise) + 환경 ID 1자리 + 애플리케이션 ID 8자리 + 프로젝트 ID 3자리 + 거래 ID 6자리 + 기능 ID 4자리 + 시스템 구분 1자리 (W: WEB, P: Program, S: SVR, E: EXT) + ClientTokenID 6자리 + Timestamp (HHmmss) 6자리
+            const requestID = `${installType}${environment}${programID}${businessID}${transactionID}${functionID}${machineTypeID}${tokenID}${requestTime}`.toUpperCase();
+            let globalID = '';
 
-                if ($object.isNullOrUndefined(ipAddress) == true) {
-                    ipAddress = await syn.$b.getIpAddress();
-                }
+            if ($string.isNullOrEmpty(syn.Config.FindGlobalIDServer) == false) {
+                apiService.GlobalID = await syn.$r.httpFetch(syn.Config.FindGlobalIDServer).send({
+                    applicationID: programID,
+                    projectID: businessID,
+                    transactionID: transactionID,
+                    serviceID: functionID,
+                    screenID: transactionObject.screenID,
+                    tokenID: tokenID
+                }, {
+                    method: 'POST',
+                    redirect: 'follow',
+                    timeout: 3000
+                });
+            }
 
-                if ($object.isNullOrUndefined(ipAddress) == true) {
-                    ipAddress = 'localhost';
-                }
+            if ($string.isNullOrEmpty(apiService.GlobalID) == false) {
+                globalID = apiService.GlobalID;
+            }
+            else {
+                globalID = requestID;
+            }
 
-                syn.$w.setStorage('ipAddress', ipAddress, false);
+            const clientTag = syn.Config.SystemID.concat('|', syn.Config.HostName, '|', syn.Config.Program.ProgramName, '|', syn.Config.Environment.substring(0, 1));
+            const userID = globalRoot.devicePlatform == 'browser' ? (syn.$w.User ? syn.$w.User.UserID : '') : syn.Config.Program.ProgramName;
+            const fingerPrint = globalRoot.devicePlatform == 'browser' ? syn.$b.fingerPrint(userID, ipAddress) : `${syn.$c.sha256(clientTag)}|${clientTag}|${$date.toString(new Date(), 'f')}`;
+            const deviceID = fingerPrint.substring(0, 64);
 
-                let url = '';
-                if (apiService.Port && apiService.Port != '') {
-                    url = '{0}://{1}:{2}{3}'.format(apiService.Protocol, apiService.IP, apiService.Port, apiService.Path);
-                }
-                else {
-                    url = '{0}://{1}{2}'.format(apiService.Protocol, apiService.IP, apiService.Path);
-                }
-
-                const installType = syn.$w.Variable && syn.$w.Variable.InstallType ? syn.$w.Variable.InstallType : 'L';
-                const environment = syn.Config && syn.Config.Environment ? syn.Config.Environment.substring(0, 1) : 'D';
-                const machineTypeID = syn.Config && syn.Config.Transaction ? syn.Config.Transaction.MachineTypeID.substring(0, 1) : 'W';
-                const programID = (syn.$w.Variable && syn.$w.Variable.ProgramID ? syn.$w.Variable.ProgramID : config.programID).padStart(8, '0');
-                const businessID = config.businessID.padStart(3, '0').substring(0, 3);
-                const transactionID = transactionObject.transactionID.padStart(6, '0').substring(0, 6);
-                const functionID = transactionObject.functionID.padStart(4, '0').substring(0, 4);
-                const tokenID = (syn.$w.User && syn.$w.User.TokenID ? syn.$w.User.TokenID : syn.$l.random(6)).padStart(6, '0').substring(0, 6);
-                const requestTime = $date.toString(new Date(), 's').substring(0, 6);
-                // -- 36바이트 = 설치구분 1자리(L: Local, C: Cloud, O: Onpremise) + 환경 ID 1자리 + 애플리케이션 ID 8자리 + 프로젝트 ID 3자리 + 거래 ID 6자리 + 기능 ID 4자리 + 시스템 구분 1자리 (W: WEB, P: Program, S: SVR, E: EXT) + ClientTokenID 6자리 + Timestamp (HHmmss) 6자리
-                const requestID = `${installType}${environment}${programID}${businessID}${transactionID}${functionID}${machineTypeID}${tokenID}${requestTime}`.toUpperCase();
-                let globalID = '';
-
-                if ($string.isNullOrEmpty(syn.Config.FindGlobalIDServer) == false) {
-                    apiService.GlobalID = await syn.$r.httpFetch(syn.Config.FindGlobalIDServer).send({
-                        applicationID: programID,
-                        projectID: businessID,
-                        transactionID: transactionID,
-                        serviceID: functionID,
-                        screenID: transactionObject.screenID,
-                        tokenID: tokenID
-                    }, {
-                        method: 'POST',
-                        redirect: 'follow',
-                        timeout: 3000
-                    });
-                }
-
-                if ($string.isNullOrEmpty(apiService.GlobalID) == false) {
-                    globalID = apiService.GlobalID;
-                }
-                else {
-                    globalID = requestID;
-                }
-
-                const clientTag = syn.Config.SystemID.concat('|', syn.Config.HostName, '|', syn.Config.Program.ProgramName, '|', syn.Config.Environment.substring(0, 1));
-                const userID = globalRoot.devicePlatform == 'browser' ? (syn.$w.User ? syn.$w.User.UserID : '') : syn.Config.Program.ProgramName;
-                const fingerPrint = globalRoot.devicePlatform == 'browser' ? syn.$b.fingerPrint(userID, ipAddress) : `${syn.$c.sha256(clientTag)}|${clientTag}|${$date.toString(new Date(), 'f')}`;
-                const deviceID = fingerPrint.substring(0, 64);
-
-                const transactionRequest = {
-                    accessToken: token || globalRoot.bearerToken || apiServices.BearerToken,
-                    action: 'SYN', // "SYN: Request/Response, PSH: Execute/None, ACK: Subscribe",
-                    kind: 'BIZ', // "DBG: Debug, BIZ: Business, URG: Urgent, FIN: Finish",
-                    clientTag: clientTag,
-                    loadOptions: {
-                        encryptionType: syn.Config.Transaction.EncryptionType, // "P:Plain, F:Full, H:Header, B:Body",
-                        encryptionKey: syn.Config.Transaction.EncryptionKey, // "P:프로그램, K:KMS 서버, G:GlobalID 키",
-                        platform: globalRoot.devicePlatform == 'browser' ? syn.$b.platform : globalRoot.devicePlatform,
-                        programID: syn.$w.Variable?.ProgramID || ''
-                    },
-                    requestID: requestID,
-                    version: syn.Config.Transaction.ProtocolVersion,
-                    environment: syn.Config.Environment.substring(0, 1),
-                    system: {
-                        programID: config.programID,
-                        moduleID: transactionObject.moduleID || (globalRoot.devicePlatform == 'browser' ? globalRoot[syn.$w.pageScript].config.moduleID : undefined) || (globalRoot.devicePlatform == 'browser' ? location.pathname.split('/').filter(Boolean)[0] : undefined) || syn.Config.ModuleID,
-                        version: syn.Config.SystemVersion,
-                        routes: [
-                            {
-                                systemID: config.systemID,
-                                requestTick: (new Date()).getTime()
-                            }
-                        ],
-                        localeID: syn.Config.Program.LocaleID,
-                        hostName: globalRoot.devicePlatform == 'browser' ? location.host : syn.Config.HostName,
-                        pathName: globalRoot.devicePlatform == 'browser' ? location.pathname : '',
-                        deviceID: syn.$w.Variable?.DeviceID || deviceID || config.programID,
-                    },
-                    interface: {
-                        devicePlatform: globalRoot.devicePlatform,
-                        interfaceID: syn.Config.Transaction.MachineTypeID,
-                        sourceIP: ipAddress,
-                        sourcePort: 0,
-                        sourceMAC: '',
-                        connectionType: globalRoot.devicePlatform == 'node' ? 'unknown' : navigator.connection?.effectiveType,
-                        timeout: syn.Config.TransactionTimeout
-                    },
-                    transaction: {
-                        globalID: globalID,
-                        businessID: config.businessID,
-                        transactionID: transactionObject.transactionID,
-                        functionID: transactionObject.functionID,
-                        commandType: transactionObject.options ? (transactionObject.options.commandType || 'D') : 'D',
-                        simulationType: syn.Config.Transaction.SimulationType, // "D:더미 P:운영 T:테스트",
-                        terminalGroupID: globalRoot.devicePlatform == 'browser' ? (syn.$w.User ? '{0}|{1}'.format(syn.$w.User.CompanyID, syn.$w.User.DepartmentID) : '') : syn.Config.Program.BranchCode,
-                        operatorID: userID,
-                        screenID: transactionObject.screenID,
-                        startTraceID: transactionObject.startTraceID,
-                        dataFormat: syn.Config.Transaction.DataFormat,
-                        compressionYN: syn.Config.Transaction.CompressionYN,
-                        transactionToken: transactionObject.transactionToken
-                    },
-                    payLoad: {
-                        property: {},
-                        dataMapInterface: '',
-                        dataMapCount: [],
-                        dataMapSet: []
-                    }
-                };
-
-                if (syn.$w.transactionLoadOptions) {
-                    syn.$w.transactionLoadOptions(transactionRequest.loadOptions, transactionObject);
-                }
-
-                if ($object.isNullOrUndefined(transactionObject.options) == false) {
-                    for (const key in transactionObject.options) {
-                        const item = transactionObject.options[key];
-
-                        if (key == 'encryptionType' || key == 'encryptionKey' || key == 'platform') {
-                            fallback(config, transactionObject);
-                            throw new Error('{0} 옵션 사용 불가'.format(key));
+            const transactionRequest = {
+                accessToken: token || globalRoot.bearerToken,
+                action: 'SYN', // "SYN: Request/Response, PSH: Execute/None, ACK: Subscribe",
+                kind: 'BIZ', // "DBG: Debug, BIZ: Business, URG: Urgent, FIN: Finish",
+                clientTag: clientTag,
+                loadOptions: {
+                    encryptionType: syn.Config.Transaction.EncryptionType, // "P:Plain, F:Full, H:Header, B:Body",
+                    encryptionKey: syn.Config.Transaction.EncryptionKey, // "P:프로그램, K:KMS 서버, G:GlobalID 키",
+                    platform: globalRoot.devicePlatform == 'browser' ? syn.$b.platform : globalRoot.devicePlatform,
+                    programID: syn.$w.Variable?.ProgramID || ''
+                },
+                requestID: requestID,
+                version: syn.Config.Transaction.ProtocolVersion,
+                environment: syn.Config.Environment.substring(0, 1),
+                system: {
+                    programID: config.programID,
+                    moduleID: transactionObject.moduleID || (globalRoot.devicePlatform == 'browser' ? globalRoot[syn.$w.pageScript].config.moduleID : undefined) || (globalRoot.devicePlatform == 'browser' ? location.pathname.split('/').filter(Boolean)[0] : undefined) || syn.Config.ModuleID,
+                    version: syn.Config.SystemVersion,
+                    routes: [
+                        {
+                            systemID: config.systemID,
+                            requestTick: (new Date()).getTime()
                         }
-                        else {
-                            transactionRequest.loadOptions[key] = item;
-                        }
-                    }
-
-                    const dynamic = transactionRequest.loadOptions['dynamic'];
-                    if ($string.isNullOrEmpty(dynamic) == false && $string.toBoolean(dynamic) == false) {
-                        delete transactionRequest.loadOptions['dynamic'];
-                        delete transactionRequest.loadOptions['authorize'];
-                        delete transactionRequest.loadOptions['commandType'];
-                        delete transactionRequest.loadOptions['returnType'];
-                        delete transactionRequest.loadOptions['transactionScope'];
-                        delete transactionRequest.loadOptions['transactionLog'];
-                    }
-
-                    const action = transactionRequest.loadOptions['action'];
-                    if ($string.isNullOrEmpty(action) == false) {
-                        transactionRequest.action = action;
-                        delete transactionRequest.loadOptions['action'];
-                    }
-
-                    const kind = transactionRequest.loadOptions['kind'];
-                    if ($string.isNullOrEmpty(kind) == false) {
-                        transactionRequest.kind = kind;
-                        delete transactionRequest.loadOptions['kind'];
-                    }
-
-                    delete transactionRequest.loadOptions['message'];
+                    ],
+                    localeID: syn.Config.Program.LocaleID,
+                    hostName: globalRoot.devicePlatform == 'browser' ? location.host : syn.Config.HostName,
+                    pathName: globalRoot.devicePlatform == 'browser' ? location.pathname : '',
+                    deviceID: syn.$w.Variable?.DeviceID || deviceID || config.programID,
+                },
+                interface: {
+                    devicePlatform: globalRoot.devicePlatform,
+                    interfaceID: syn.Config.Transaction.MachineTypeID,
+                    sourceIP: ipAddress,
+                    sourcePort: 0,
+                    sourceMAC: '',
+                    connectionType: globalRoot.devicePlatform == 'node' ? 'unknown' : navigator.connection?.effectiveType,
+                    timeout: syn.Config.TransactionTimeout
+                },
+                transaction: {
+                    globalID: globalID,
+                    businessID: config.businessID,
+                    transactionID: transactionObject.transactionID,
+                    functionID: transactionObject.functionID,
+                    commandType: transactionObject.options ? (transactionObject.options.commandType || 'D') : 'D',
+                    simulationType: syn.Config.Transaction.SimulationType, // "D:더미 P:운영 T:테스트",
+                    terminalGroupID: globalRoot.devicePlatform == 'browser' ? (syn.$w.User ? '{0}|{1}'.format(syn.$w.User.CompanyID, syn.$w.User.DepartmentID) : '') : syn.Config.Program.BranchCode,
+                    operatorID: userID,
+                    screenID: transactionObject.screenID,
+                    startTraceID: transactionObject.startTraceID,
+                    dataFormat: syn.Config.Transaction.DataFormat,
+                    compressionYN: syn.Config.Transaction.CompressionYN,
+                    transactionToken: transactionObject.transactionToken
+                },
+                payLoad: {
+                    property: {},
+                    dataMapInterface: '',
+                    dataMapCount: [],
+                    dataMapSet: []
                 }
+            };
 
-                const mod = context[syn.$w.pageScript];
-                if (mod && mod.hook.payLoadProperty) {
-                    let property = {};
-                    property = mod.hook.payLoadProperty(transactionObject.transactionID, transactionObject.functionID);
-                    if ($object.isNullOrUndefined(property) == true) {
-                        property = {};
-                    }
+            if (syn.$w.transactionLoadOptions) {
+                syn.$w.transactionLoadOptions(transactionRequest.loadOptions, transactionObject);
+            }
 
-                    transactionRequest.payLoad.property = property;
-                }
+            if ($object.isNullOrUndefined(transactionObject.options) == false) {
+                for (const key in transactionObject.options) {
+                    const item = transactionObject.options[key];
 
-                if (config.transactions) {
-                    const transactions = config.transactions.filter(function (item) {
-                        return item.functionID == transactionObject.functionID;
-                    });
-
-                    if (transactions.length == 1) {
-                        const transaction = transactions[0];
-
-                        const inputs = transaction.inputs.map(function (item) { return item.requestType; }).join(',');
-                        const outputs = transaction.outputs.map(function (item) { return item.responseType; }).join(',');
-                        transactionRequest.payLoad.dataMapInterface = '{0}|{1}'.format(inputs, outputs);
-                    }
-                }
-                else if (transactionObject.dataMapInterface) {
-                    transactionRequest.payLoad.dataMapInterface = transactionObject.dataMapInterface;
-                }
-
-                if (transactionRequest.transaction.dataFormat == 'J' || transactionRequest.transaction.dataFormat == 'T') {
-                }
-                else {
-                    fallback(config, transactionObject);
-                    throw new Error('transaction.dataFormat 확인 필요: {0}'.format(transactionRequest.transaction.dataFormat));
-                }
-
-                transactionRequest.payLoad.dataMapCount = transactionObject.inputsItemCount;
-                transactionRequest.payLoad.dataMapSet = [];
-                transactionRequest.payLoad.dataMapSetRaw = [];
-                const length = transactionObject.inputs.length;
-
-                for (let i = 0; i < length; i++) {
-                    const inputs = transactionObject.inputs[i];
-
-                    const reqInputs = [];
-                    for (let j = 0; j < inputs.length; j++) {
-                        const item = inputs[j];
-
-                        reqInputs.push({
-                            id: item.prop,
-                            value: item.val
-                        });
-                    }
-
-                    if (syn.Config.Transaction.CompressionYN == 'Y') {
-                        if (transactionRequest.transaction.dataFormat == 'J') {
-                            transactionRequest.payLoad.dataMapSetRaw.push(syn.$c.LZString.compressToBase64(JSON.stringify(reqInputs)));
-                        }
-                        else {
-                            transactionRequest.payLoad.dataMapSetRaw.push(syn.$c.LZString.compressToBase64($object.toCSV(reqInputs, { delimeter: '｜', newline: '↵' })));
-                        }
+                    if (key == 'encryptionType' || key == 'encryptionKey' || key == 'platform') {
+                        fallback(config, transactionObject);
+                        throw new Error('{0} 옵션 사용 불가'.format(key));
                     }
                     else {
-                        if (transactionRequest.transaction.dataFormat == 'J') {
-                            transactionRequest.payLoad.dataMapSet.push(reqInputs);
-                        }
-                        else {
-                            transactionRequest.payLoad.dataMapSetRaw.push($object.toCSV(reqInputs, { delimeter: '｜', newline: '↵' }));
-                        }
+                        transactionRequest.loadOptions[key] = item;
                     }
                 }
 
-                if (globalThis.devicePlatform != 'node' && transactionRequest.action == 'PSH') {
-                    const blob = new Blob([JSON.stringify(transactionRequest)], { type: 'application/json; charset=UTF-8' });
-                    navigator.sendBeacon(url, blob);
+                const dynamic = transactionRequest.loadOptions['dynamic'];
+                if ($string.isNullOrEmpty(dynamic) == false && $string.toBoolean(dynamic) == false) {
+                    delete transactionRequest.loadOptions['dynamic'];
+                    delete transactionRequest.loadOptions['authorize'];
+                    delete transactionRequest.loadOptions['commandType'];
+                    delete transactionRequest.loadOptions['returnType'];
+                    delete transactionRequest.loadOptions['transactionScope'];
+                    delete transactionRequest.loadOptions['transactionLog'];
+                }
 
-                    if (syn.$w.domainTransactionLoaderEnd) {
-                        syn.$w.domainTransactionLoaderEnd();
+                const action = transactionRequest.loadOptions['action'];
+                if ($string.isNullOrEmpty(action) == false) {
+                    transactionRequest.action = action;
+                    delete transactionRequest.loadOptions['action'];
+                }
+
+                const kind = transactionRequest.loadOptions['kind'];
+                if ($string.isNullOrEmpty(kind) == false) {
+                    transactionRequest.kind = kind;
+                    delete transactionRequest.loadOptions['kind'];
+                }
+
+                delete transactionRequest.loadOptions['message'];
+            }
+
+            const mod = context[syn.$w.pageScript];
+            if (mod && mod.hook.payLoadProperty) {
+                let property = {};
+                property = mod.hook.payLoadProperty(transactionObject.transactionID, transactionObject.functionID);
+                if ($object.isNullOrUndefined(property) == true) {
+                    property = {};
+                }
+
+                transactionRequest.payLoad.property = property;
+            }
+
+            if (config.transactions) {
+                const transactions = config.transactions.filter(function (item) {
+                    return item.functionID == transactionObject.functionID;
+                });
+
+                if (transactions.length == 1) {
+                    const transaction = transactions[0];
+
+                    const inputs = transaction.inputs.map(function (item) { return item.requestType; }).join(',');
+                    const outputs = transaction.outputs.map(function (item) { return item.responseType; }).join(',');
+                    transactionRequest.payLoad.dataMapInterface = '{0}|{1}'.format(inputs, outputs);
+                }
+            }
+            else if (transactionObject.dataMapInterface) {
+                transactionRequest.payLoad.dataMapInterface = transactionObject.dataMapInterface;
+            }
+
+            if (transactionRequest.transaction.dataFormat == 'J' || transactionRequest.transaction.dataFormat == 'T') {
+            }
+            else {
+                fallback(config, transactionObject);
+                throw new Error('transaction.dataFormat 확인 필요: {0}'.format(transactionRequest.transaction.dataFormat));
+            }
+
+            transactionRequest.payLoad.dataMapCount = transactionObject.inputsItemCount;
+            transactionRequest.payLoad.dataMapSet = [];
+            transactionRequest.payLoad.dataMapSetRaw = [];
+            const length = transactionObject.inputs.length;
+
+            for (let i = 0; i < length; i++) {
+                const inputs = transactionObject.inputs[i];
+
+                const reqInputs = [];
+                for (let j = 0; j < inputs.length; j++) {
+                    const item = inputs[j];
+
+                    reqInputs.push({
+                        id: item.prop,
+                        value: item.val
+                    });
+                }
+
+                if (syn.Config.Transaction.CompressionYN == 'Y') {
+                    if (transactionRequest.transaction.dataFormat == 'J') {
+                        transactionRequest.payLoad.dataMapSetRaw.push(syn.$c.LZString.compressToBase64(JSON.stringify(reqInputs)));
                     }
-
-                    if (syn.$w.closeProgressMessage) {
-                        syn.$w.closeProgressMessage();
+                    else {
+                        transactionRequest.payLoad.dataMapSetRaw.push(syn.$c.LZString.compressToBase64($object.toCSV(reqInputs, { delimeter: '｜', newline: '↵' })));
                     }
                 }
                 else {
-                    const xhr = syn.$w.xmlHttp();
-                    xhr.open(syn.$w.method, url, true);
-                    xhr.setRequestHeader('Accept-Language', syn.$w.localeID);
-                    xhr.setRequestHeader('Server-SystemID', config.systemID || syn.Config.SystemID);
-                    xhr.setRequestHeader('Server-BusinessID', config.businessID);
+                    if (transactionRequest.transaction.dataFormat == 'J') {
+                        transactionRequest.payLoad.dataMapSet.push(reqInputs);
+                    }
+                    else {
+                        transactionRequest.payLoad.dataMapSetRaw.push($object.toCSV(reqInputs, { delimeter: '｜', newline: '↵' }));
+                    }
+                }
+            }
 
-                    if (syn.Environment) {
-                        const environment = syn.Environment;
-                        if (environment.Header) {
-                            for (const item in environment.Header) {
-                                xhr.setRequestHeader(item, environment.Header[item]);
-                            }
+            if (globalThis.devicePlatform != 'node' && transactionRequest.action == 'PSH') {
+                const blob = new Blob([JSON.stringify(transactionRequest)], { type: 'application/json; charset=UTF-8' });
+                navigator.sendBeacon(url, blob);
+
+                if (syn.$w.domainTransactionLoaderEnd) {
+                    syn.$w.domainTransactionLoaderEnd();
+                }
+
+                if (syn.$w.closeProgressMessage) {
+                    syn.$w.closeProgressMessage();
+                }
+            }
+            else {
+                const xhr = syn.$w.xmlHttp();
+                xhr.open(syn.$w.method, url, true);
+                xhr.setRequestHeader('Accept-Language', syn.$w.localeID);
+                xhr.setRequestHeader('Server-SystemID', config.systemID || syn.Config.SystemID);
+                xhr.setRequestHeader('Server-BusinessID', config.businessID);
+
+                if (syn.Environment) {
+                    const environment = syn.Environment;
+                    if (environment.Header) {
+                        for (const item in environment.Header) {
+                            xhr.setRequestHeader(item, environment.Header[item]);
                         }
                     }
+                }
 
-                    if (syn.$w.setServiceClientHeader) {
-                        if (syn.$w.setServiceClientHeader(xhr) == false) {
-                            syn.$l.eventLog('$w.executeTransaction', 'setServiceClientHeader 전송 안함', 'Warning');
+                if (syn.$w.setServiceClientHeader) {
+                    if (syn.$w.setServiceClientHeader(xhr) == false) {
+                        syn.$l.eventLog('$w.executeTransaction', 'setServiceClientHeader 전송 안함', 'Warning');
+                        fallback(config, transactionObject);
+                        return;
+                    }
+                }
+
+                if (async !== undefined && xhr.async == true) {
+                    xhr.async = async;
+
+                    if (xhr.async == false) {
+                        xhr.setRequestHeader('X-Requested-With', 'HandStack ServiceClient');
+                        xhr.setRequestHeader('Content-Type', 'application/json');
+                        xhr.send(transactionRequest);
+
+                        return xhr;
+                    }
+                }
+
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState === 4) {
+                        if (xhr.status !== 200) {
+                            if (xhr.status == 0) {
+                                syn.$l.eventLog('$w.executeTransaction', 'X-Requested 전송 오류', 'Fatal');
+                            }
+                            else {
+                                syn.$l.eventLog('$w.executeTransaction', '응답 상태 - {0}: '.format(xhr.statusText) + xhr.responseText, 'Error');
+                            }
+
+                            if (syn.$w.domainTransactionLoaderEnd) {
+                                syn.$w.domainTransactionLoaderEnd();
+                            }
                             fallback(config, transactionObject);
                             return;
                         }
-                    }
 
-                    if (async !== undefined && xhr.async == true) {
-                        xhr.async = async;
-
-                        if (xhr.async == false) {
-                            xhr.setRequestHeader('X-Requested-With', 'HandStack ServiceClient');
-                            xhr.setRequestHeader('Content-Type', 'application/json');
-                            xhr.send(transactionRequest);
-
-                            return xhr;
-                        }
-                    }
-
-                    xhr.onreadystatechange = function () {
-                        if (xhr.readyState === 4) {
-                            if (xhr.status !== 200) {
-                                if (xhr.status == 0) {
-                                    syn.$l.eventLog('$w.executeTransaction', 'X-Requested 전송 오류', 'Fatal');
-                                }
-                                else {
-                                    syn.$l.eventLog('$w.executeTransaction', '응답 상태 - {0}: '.format(xhr.statusText) + xhr.responseText, 'Error');
-                                }
-
-                                if (syn.$w.domainTransactionLoaderEnd) {
-                                    syn.$w.domainTransactionLoaderEnd();
-                                }
+                        if (syn.$w.clientTag && syn.$w.serviceClientInterceptor) {
+                            if (syn.$w.serviceClientInterceptor(syn.$w.clientTag, xhr) === false) {
+                                syn.$l.eventLog('$w.executeTransaction', 'serviceClientInterceptor 전송 안함', 'Warning');
                                 fallback(config, transactionObject);
                                 return;
                             }
+                        }
 
-                            if (syn.$w.clientTag && syn.$w.serviceClientInterceptor) {
-                                if (syn.$w.serviceClientInterceptor(syn.$w.clientTag, xhr) === false) {
-                                    syn.$l.eventLog('$w.executeTransaction', 'serviceClientInterceptor 전송 안함', 'Warning');
-                                    fallback(config, transactionObject);
-                                    return;
-                                }
-                            }
+                        try {
+                            const transactionResponse = JSON.parse(xhr.responseText);
+                            if (transactionObject.transactionResult == true) {
+                                if (transactionResponse.acknowledge == 1) {
+                                    const jsonResult = [];
+                                    const message = transactionResponse.message;
+                                    if (transactionResponse.result.dataSet != null && transactionResponse.result.dataSet.length > 0) {
+                                        const dataMapItem = transactionResponse.result.dataSet;
+                                        message.additions.push({ code: 'dataSetMeta', text: transactionResponse.result.dataSetMeta });
+                                        message.additions.push({ code: 'dataMapCount', text: transactionResponse.result.dataMapCount });
+                                        const length = dataMapItem.length;
+                                        for (let i = 0; i < length; i++) {
+                                            const item = dataMapItem[i];
+                                            const dataSetMeta = transactionResponse.result.dataSetMeta[i];
 
-                            try {
-                                const transactionResponse = JSON.parse(xhr.responseText);
-                                if (transactionObject.transactionResult == true) {
-                                    if (transactionResponse.acknowledge == 1) {
-                                        const jsonResult = [];
-                                        const message = transactionResponse.message;
-                                        if (transactionResponse.result.dataSet != null && transactionResponse.result.dataSet.length > 0) {
-                                            const dataMapItem = transactionResponse.result.dataSet;
-                                            message.additions.push({ code: 'dataSetMeta', text: transactionResponse.result.dataSetMeta });
-                                            message.additions.push({ code: 'dataMapCount', text: transactionResponse.result.dataMapCount });
-                                            const length = dataMapItem.length;
-                                            for (let i = 0; i < length; i++) {
-                                                const item = dataMapItem[i];
-                                                const dataSetMeta = transactionResponse.result.dataSetMeta[i];
+                                            if (transactionResponse.transaction.simulationType == syn.$w.dynamicType.CodeHelp) {
+                                                jsonResult.push({
+                                                    id: item.id,
+                                                    value: item.value
+                                                });
+                                                continue;
+                                            }
 
-                                                if (transactionResponse.transaction.simulationType == syn.$w.dynamicType.CodeHelp) {
+                                            if (transactionResponse.transaction.dataFormat == 'J') {
+                                                if (transactionResponse.transaction.compressionYN == 'Y') {
+                                                    jsonResult.push({
+                                                        id: item.id,
+                                                        value: JSON.parse(syn.$c.LZString.decompressFromBase64(item.value))
+                                                    });
+                                                }
+                                                else {
                                                     jsonResult.push({
                                                         id: item.id,
                                                         value: item.value
                                                     });
-                                                    continue;
                                                 }
+                                            }
+                                            else {
+                                                if (config.transactions) {
+                                                    const transaction = config.transactions.find(function (item) {
+                                                        return item.functionID == transactionObject.functionID;
+                                                    });
 
-                                                if (transactionResponse.transaction.dataFormat == 'J') {
-                                                    if (transactionResponse.transaction.compressionYN == 'Y') {
-                                                        jsonResult.push({
-                                                            id: item.id,
-                                                            value: JSON.parse(syn.$c.LZString.decompressFromBase64(item.value))
-                                                        });
-                                                    }
-                                                    else {
-                                                        jsonResult.push({
-                                                            id: item.id,
-                                                            value: item.value
-                                                        });
-                                                    }
-                                                }
-                                                else {
-                                                    if (config.transactions) {
-                                                        const transaction = config.transactions.find(function (item) {
-                                                            return item.functionID == transactionObject.functionID;
-                                                        });
+                                                    if (transaction) {
+                                                        let value = null;
+                                                        if ($object.isEmpty(item.value) == false) {
+                                                            value = transactionResponse.transaction.compressionYN == 'Y' ? syn.$c.LZString.decompressFromBase64(item.value) : item.value;
+                                                            const meta = $string.toParameterObject(dataSetMeta);
+                                                            value = $string.toJson(value, { delimeter: '｜', newline: '↵', meta: meta });
 
-                                                        if (transaction) {
-                                                            let value = null;
-                                                            if ($object.isEmpty(item.value) == false) {
-                                                                value = transactionResponse.transaction.compressionYN == 'Y' ? syn.$c.LZString.decompressFromBase64(item.value) : item.value;
-                                                                const meta = $string.toParameterObject(dataSetMeta);
-                                                                value = $string.toJson(value, { delimeter: '｜', newline: '↵', meta: meta });
-
-                                                                const outputMapping = transaction.outputs[i];
-                                                                if (outputMapping.responseType == 'Form') {
-                                                                    value = dataSetMeta;
-                                                                    if ($object.isNullOrUndefined(value) == true) {
-                                                                        value = {};
-                                                                    }
+                                                            const outputMapping = transaction.outputs[i];
+                                                            if (outputMapping.responseType == 'Form') {
+                                                                value = dataSetMeta;
+                                                                if ($object.isNullOrUndefined(value) == true) {
+                                                                    value = {};
                                                                 }
-                                                                else {
-                                                                    if ($object.isNullOrUndefined(value) == true) {
-                                                                        value = [];
-                                                                    }
-                                                                }
-                                                            }
-
-                                                            jsonResult.push({
-                                                                id: item.id,
-                                                                value: value
-                                                            });
-                                                        }
-                                                    }
-                                                    else {
-                                                        let value = transactionResponse.transaction.compressionYN == 'Y' ? syn.$c.LZString.decompressFromBase64(item.value) : item.value;
-                                                        const meta = $string.toParameterObject(dataSetMeta);
-                                                        value = $string.toJson(value, { delimeter: '｜', newline: '↵', meta: meta });
-                                                        if (item.id.startsWith('Form') == true) {
-                                                            value = dataSetMeta;
-                                                            if ($object.isNullOrUndefined(value) == true) {
-                                                                value = {};
                                                             }
                                                             else {
                                                                 if ($object.isNullOrUndefined(value) == true) {
@@ -8282,135 +8169,156 @@ if (typeof module !== 'undefined' && module.exports) {
                                                         });
                                                     }
                                                 }
+                                                else {
+                                                    let value = transactionResponse.transaction.compressionYN == 'Y' ? syn.$c.LZString.decompressFromBase64(item.value) : item.value;
+                                                    const meta = $string.toParameterObject(dataSetMeta);
+                                                    value = $string.toJson(value, { delimeter: '｜', newline: '↵', meta: meta });
+                                                    if (item.id.startsWith('Form') == true) {
+                                                        value = dataSetMeta;
+                                                        if ($object.isNullOrUndefined(value) == true) {
+                                                            value = {};
+                                                        }
+                                                        else {
+                                                            if ($object.isNullOrUndefined(value) == true) {
+                                                                value = [];
+                                                            }
+                                                        }
+                                                    }
+
+                                                    jsonResult.push({
+                                                        id: item.id,
+                                                        value: value
+                                                    });
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    if (callback) {
+                                        const addtionalData = {};
+                                        if (message.additions && message.additions.length > 0) {
+                                            for (let i = 0; i < message.additions.length; i++) {
+                                                const addition = message.additions[i];
+
+                                                if ($string.isNullOrEmpty(addition.code) == false && $object.isNullOrUndefined(addtionalData[addition.code]) == true) {
+                                                    addtionalData[addition.code] = addition.text;
+                                                }
                                             }
                                         }
 
-                                        if (callback) {
-                                            const addtionalData = {};
-                                            if (message.additions && message.additions.length > 0) {
-                                                for (let i = 0; i < message.additions.length; i++) {
-                                                    const addition = message.additions[i];
+                                        try {
+                                            callback(jsonResult, addtionalData, transactionResponse.correlationID);
+                                        } catch (error) {
+                                            syn.$l.eventLog('$w.executeTransaction callback', `executeTransaction 콜백 오류: ${error}`, 'Error');
+                                            fallback(config, transactionObject);
+                                        }
+                                    }
+                                }
+                                else {
+                                    const errorText = transactionResponse.exceptionText;
+                                    const errorMessage = '거래: {0}, 기능: {1} 수행 중 예외 정보 확인이 필요합니다\nGlobalID: {2}'.format(transactionRequest.transaction.transactionID, transactionRequest.transaction.functionID, transactionRequest.transaction.globalID);
+                                    if (syn.$w.serviceClientException) {
+                                        syn.$w.serviceClientException('요청 정보 확인', errorMessage, errorText);
+                                    }
+                                    syn.$l.eventLog('$w.executeTransaction', `거래 실행 오류: ${errorText}`, 'Warning');
+                                    fallback(config, transactionObject);
 
-                                                    if ($string.isNullOrEmpty(addition.code) == false && $object.isNullOrUndefined(addtionalData[addition.code]) == true) {
-                                                        addtionalData[addition.code] = addition.text;
-                                                    }
-                                                }
-                                            }
-
-                                            try {
-                                                callback(jsonResult, addtionalData, transactionResponse.correlationID);
-                                            } catch (error) {
-                                                syn.$l.eventLog('$w.executeTransaction callback', `executeTransaction 콜백 오류: ${error}`, 'Error');
-                                                fallback(config, transactionObject);
-                                            }
+                                    if (globalRoot.devicePlatform === 'browser') {
+                                        if ($this && $this.hook && $this.hook.frameEvent) {
+                                            $this.hook.frameEvent('transactionException', {
+                                                transactionID: transactionRequest.transaction.transactionID,
+                                                functionID: transactionRequest.transaction.functionID,
+                                                errorText: errorText,
+                                                errorMessage: errorMessage
+                                            });
                                         }
                                     }
                                     else {
-                                        const errorText = transactionResponse.exceptionText;
-                                        const errorMessage = '거래: {0}, 기능: {1} 수행 중 예외 정보 확인이 필요합니다\nGlobalID: {2}'.format(transactionRequest.transaction.transactionID, transactionRequest.transaction.functionID, transactionRequest.transaction.globalID);
-                                        if (syn.$w.serviceClientException) {
-                                            syn.$w.serviceClientException('요청 정보 확인', errorMessage, errorText);
-                                        }
-                                        syn.$l.eventLog('$w.executeTransaction', `거래 실행 오류: ${errorText}`, 'Warning');
-                                        fallback(config, transactionObject);
-
-                                        if (globalRoot.devicePlatform === 'browser') {
-                                            if ($this && $this.hook && $this.hook.frameEvent) {
-                                                $this.hook.frameEvent('transactionException', {
-                                                    transactionID: transactionRequest.transaction.transactionID,
-                                                    functionID: transactionRequest.transaction.functionID,
-                                                    errorText: errorText,
-                                                    errorMessage: errorMessage
-                                                });
-                                            }
-                                        }
-                                        else {
-                                            if (callback) {
-                                                try {
-                                                    callback([], null, transactionResponse.correlationID); // Pass correlationID even on error
-                                                } catch (error) {
-                                                    syn.$l.eventLog('$w.executeTransaction callback', `executeTransaction 콜백 오류: ${error}`, 'Error');
-                                                }
+                                        if (callback) {
+                                            try {
+                                                callback([], null, transactionResponse.correlationID); // Pass correlationID even on error
+                                            } catch (error) {
+                                                syn.$l.eventLog('$w.executeTransaction callback', `executeTransaction 콜백 오류: ${error}`, 'Error');
                                             }
                                         }
                                     }
                                 }
-                                else {
-                                    if (callback) {
-                                        if (transactionResponse && transactionResponse.acknowledge && transactionResponse.acknowledge == 1) {
-                                            try {
-                                                if (transactionResponse.result.dataSet != null && transactionResponse.result.dataSet.length > 0) {
-                                                    const dataMapItem = transactionResponse.result.dataSet;
-                                                    const length = dataMapItem.length;
-                                                    for (let i = 0; i < length; i++) {
-                                                        const item = dataMapItem[i];
-                                                        if (transactionResponse.transaction.dataFormat == 'J') {
-                                                            if (transactionResponse.transaction.compressionYN == 'Y') {
-                                                                item.value = JSON.parse(syn.$c.LZString.decompressFromBase64(item.value));
-                                                            }
-                                                        }
-                                                        else {
-                                                            item.value = transactionResponse.transaction.compressionYN == 'Y' ? syn.$c.LZString.decompressFromBase64(item.value) : item.value;
+                            }
+                            else {
+                                if (callback) {
+                                    if (transactionResponse && transactionResponse.acknowledge && transactionResponse.acknowledge == 1) {
+                                        try {
+                                            if (transactionResponse.result.dataSet != null && transactionResponse.result.dataSet.length > 0) {
+                                                const dataMapItem = transactionResponse.result.dataSet;
+                                                const length = dataMapItem.length;
+                                                for (let i = 0; i < length; i++) {
+                                                    const item = dataMapItem[i];
+                                                    if (transactionResponse.transaction.dataFormat == 'J') {
+                                                        if (transactionResponse.transaction.compressionYN == 'Y') {
+                                                            item.value = JSON.parse(syn.$c.LZString.decompressFromBase64(item.value));
                                                         }
                                                     }
+                                                    else {
+                                                        item.value = transactionResponse.transaction.compressionYN == 'Y' ? syn.$c.LZString.decompressFromBase64(item.value) : item.value;
+                                                    }
                                                 }
-                                            } catch (error) {
-                                                syn.$l.eventLog('$w.executeTransaction', `executeTransaction 오류: ${error}`, 'Error');
-                                                fallback(config, transactionObject);
                                             }
-                                        }
-
-                                        try {
-                                            callback(transactionResponse, null, transactionResponse.correlationID);
                                         } catch (error) {
-                                            syn.$l.eventLog('$w.executeTransaction callback', `executeTransaction 콜백 오류: ${error}`, 'Error');
+                                            syn.$l.eventLog('$w.executeTransaction', `executeTransaction 오류: ${error}`, 'Error');
                                             fallback(config, transactionObject);
                                         }
                                     }
-                                }
-                            }
-                            catch (error) {
-                                const errorMessage = '거래: {0}, 기능: {1} 수행 중 예외 정보 확인이 필요합니다\nGlobalID: {2}'.format(transactionRequest.transaction.transactionID, transactionRequest.transaction.functionID, transactionRequest.transaction.globalID);
-                                if (syn.$w.serviceClientException) {
-                                    syn.$w.serviceClientException('요청 정보 확인', errorMessage, error.stack);
-                                }
-                                syn.$l.eventLog('$w.executeTransaction', `executeTransaction 오류: ${error}`, 'Error');
-                                fallback(config, transactionObject);
 
-                                if (globalRoot.devicePlatform === 'browser') {
-                                    if ($this && $this.hook && $this.hook.frameEvent) {
-                                        $this.hook.frameEvent('transactionError', {
-                                            transactionID: transactionRequest.transaction.transactionID,
-                                            functionID: transactionRequest.transaction.functionID,
-                                            errorText: error.message,
-                                            errorMessage: errorMessage
-                                        });
+                                    try {
+                                        callback(transactionResponse, null, transactionResponse.correlationID);
+                                    } catch (error) {
+                                        syn.$l.eventLog('$w.executeTransaction callback', `executeTransaction 콜백 오류: ${error}`, 'Error');
+                                        fallback(config, transactionObject);
                                     }
                                 }
-                                else {
-                                    if (callback) {
-                                        try {
-                                            callback([], null);
-                                        } catch (error) {
-                                            syn.$l.eventLog('$w.executeTransaction callback', `executeTransaction 콜백 오류: ${error}`, 'Error');
-                                            fallback(config, transactionObject);
-                                        }
-                                    }
-                                }
-                            }
-
-                            if (syn.$w.domainTransactionLoaderEnd) {
-                                syn.$w.domainTransactionLoaderEnd();
                             }
                         }
-                    }
-                    syn.$l.eventLog('$w.executeTransaction', `거래 GlobalID: ${transactionRequest.transaction.globalID}`, 'Verbose');
+                        catch (error) {
+                            const errorMessage = '거래: {0}, 기능: {1} 수행 중 예외 정보 확인이 필요합니다\nGlobalID: {2}'.format(transactionRequest.transaction.transactionID, transactionRequest.transaction.functionID, transactionRequest.transaction.globalID);
+                            if (syn.$w.serviceClientException) {
+                                syn.$w.serviceClientException('요청 정보 확인', errorMessage, error.stack);
+                            }
+                            syn.$l.eventLog('$w.executeTransaction', `executeTransaction 오류: ${error}`, 'Error');
+                            fallback(config, transactionObject);
 
-                    xhr.setRequestHeader('X-Requested-With', 'HandStack ServiceClient');
-                    xhr.setRequestHeader('Content-Type', 'application/json');
-                    xhr.timeout = syn.Config.TransactionTimeout;
-                    xhr.send(JSON.stringify(transactionRequest));
+                            if (globalRoot.devicePlatform === 'browser') {
+                                if ($this && $this.hook && $this.hook.frameEvent) {
+                                    $this.hook.frameEvent('transactionError', {
+                                        transactionID: transactionRequest.transaction.transactionID,
+                                        functionID: transactionRequest.transaction.functionID,
+                                        errorText: error.message,
+                                        errorMessage: errorMessage
+                                    });
+                                }
+                            }
+                            else {
+                                if (callback) {
+                                    try {
+                                        callback([], null);
+                                    } catch (error) {
+                                        syn.$l.eventLog('$w.executeTransaction callback', `executeTransaction 콜백 오류: ${error}`, 'Error');
+                                        fallback(config, transactionObject);
+                                    }
+                                }
+                            }
+                        }
+
+                        if (syn.$w.domainTransactionLoaderEnd) {
+                            syn.$w.domainTransactionLoaderEnd();
+                        }
+                    }
                 }
+                syn.$l.eventLog('$w.executeTransaction', `거래 GlobalID: ${transactionRequest.transaction.globalID}`, 'Verbose');
+
+                xhr.setRequestHeader('X-Requested-With', 'HandStack ServiceClient');
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                xhr.timeout = syn.Config.TransactionTimeout;
+                xhr.send(JSON.stringify(transactionRequest));
             }
         },
 
