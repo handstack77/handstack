@@ -29,6 +29,7 @@ using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.AspNetCore.Cors.Infrastructure;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -110,6 +111,8 @@ namespace ack
             GlobalConfiguration.SessionCookieName = appSettings.GetSection("SessionState").Exists() == true && bool.Parse(appSettings["SessionState:IsSession"].ToStringSafe("false")) == true ? appSettings["SessionState:SessionCookieName"].ToStringSafe("") : "";
             GlobalConfiguration.CookiePrefixName = appSettings["CookiePrefixName"].ToStringSafe("HandStack");
             GlobalConfiguration.UserSignExpire = int.Parse(appSettings["UserSignExpire"].ToStringSafe("1440"));
+            GlobalConfiguration.ProxyBasePath = appSettings["ProxyBasePath"].ToStringSafe("");
+            GlobalConfiguration.IsAntiforgeryToken = bool.Parse(appSettings["IsAntiforgeryToken"].ToStringSafe("false"));
 
             GlobalConfiguration.HardwareID = GetHardwareID();
             Console.WriteLine($"Current Hardware ID: {GlobalConfiguration.HardwareID}");
@@ -408,16 +411,25 @@ namespace ack
 
             services.AddProblemDetails();
             services.AddHttpContextAccessor();
-            services.AddAntiforgery(options =>
+
+            if (GlobalConfiguration.IsAntiforgeryToken == true)
             {
-                options.Cookie.Name = "X-CSRF-TOKEN";
-                options.Cookie.HttpOnly = true;
-                options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
-                options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict;
-                options.HeaderName = "X-CSRF-TOKEN";
-                options.FormFieldName = "__RequestVerificationToken";
-            });
-            services.AddDataProtection();
+                string applicationName = GlobalConfiguration.EntryBasePath.Replace("\\", "").Replace("/", "").Replace(":", "");
+                string protectionKeysPath = PathExtensions.Join(GlobalConfiguration.EntryBasePath, "..", "cache", "protection-keys");
+                services.AddAntiforgery(options =>
+                {
+                    options.Cookie.Name = "X-CSRF-TOKEN";
+                    options.Cookie.HttpOnly = true;
+                    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+                    options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict;
+                    options.HeaderName = "X-CSRF-TOKEN";
+                    options.FormFieldName = "__RequestVerificationToken";
+                });
+                services.AddDataProtection()
+                    .PersistKeysToFileSystem(new DirectoryInfo(protectionKeysPath))
+                    .SetApplicationName(applicationName);
+            }
+
             services.AddRouting(options =>
             {
                 options.LowercaseUrls = true;
@@ -560,7 +572,11 @@ namespace ack
             .AddRazorPagesOptions(options =>
             {
                 options.Conventions.Add(new PageRouteTransformerConvention(new SlugifyParameterTransformer()));
-                options.Conventions.ConfigureFilter(new IgnoreAntiforgeryTokenAttribute());
+
+                if (GlobalConfiguration.IsAntiforgeryToken == true)
+                {
+                    options.Conventions.ConfigureFilter(new IgnoreAntiforgeryTokenAttribute());
+                }
             });
 
             if (useProxyForward == true)
@@ -819,6 +835,21 @@ namespace ack
                 app.UseHttpLogging();
             }
 
+            if (string.IsNullOrEmpty(GlobalConfiguration.ProxyBasePath) == false)
+            {
+                string proxyBasePath = "/" + GlobalConfiguration.ProxyBasePath;
+                app.UsePathBase(proxyBasePath);
+                app.Use((context, next) =>
+                {
+                    if (context.Request.PathBase != proxyBasePath)
+                    {
+                        context.Response.StatusCode = 404;
+                        return Task.CompletedTask;
+                    }
+                    return next();
+                });
+            }
+
             GlobalConfiguration.ContentTypeProvider = new FileExtensionContentTypeProvider();
 
             try
@@ -963,8 +994,8 @@ namespace ack
             {
                 app.UseMiddleware<CaseInsensitiveStaticFileMiddleware>(physicalPath);
                 app.UseDefaultFiles();
-                // wwwroot 디렉토리내 파일들은 Cache-Control 값을 적용
-                app.UseStaticFiles(new StaticFileOptions
+
+                var staticFileOptions = new StaticFileOptions
                 {
                     FileProvider = new PhysicalFileProvider(physicalPath),
                     ServeUnknownFileTypes = true,
@@ -1005,7 +1036,9 @@ namespace ack
                             httpContext.Context.Response.Headers.Append("p3p", "CP=\"ALL ADM DEV PSAi COM OUR OTRo STP IND ONL\"");
                         }
                     }
-                });
+                };
+
+                app.UseStaticFiles(staticFileOptions);
             }
 
             if (GlobalConfiguration.IsSwaggerUI == true)

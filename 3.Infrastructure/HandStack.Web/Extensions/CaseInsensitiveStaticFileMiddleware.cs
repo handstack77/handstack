@@ -41,7 +41,7 @@ namespace HandStack.Web.Extensions
                     var file = directoryContents?.FirstOrDefault(f => f.Name.Equals(Path.GetFileName(path), StringComparison.OrdinalIgnoreCase));
                     if (file != null)
                     {
-                        context.Request.Path = PathExtensions.Combine(Path.GetDirectoryName(path).ToStringSafe(), file.Name);
+                        context.Request.Path = Path.Join(Path.GetDirectoryName(path).ToStringSafe(), file.Name).Replace('\\', '/');
                     }
                 }
             }

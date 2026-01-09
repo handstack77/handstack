@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace HandStack.Web.Extensions
 {
@@ -91,6 +93,12 @@ namespace HandStack.Web.Extensions
 
             if (isHtmlPage)
             {
+                if (GlobalConfiguration.IsAntiforgeryToken == false)
+                {
+                    await _next(context);
+                    return;
+                }
+
                 IAntiforgery antiforgery;
                 try
                 {
@@ -98,7 +106,6 @@ namespace HandStack.Web.Extensions
                 }
                 catch
                 {
-                    Console.WriteLine($"view Antiforgery 서비스 확인 필요");
                     await _next(context);
                     return;
                 }

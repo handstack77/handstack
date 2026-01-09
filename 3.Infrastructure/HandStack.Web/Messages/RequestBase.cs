@@ -25,7 +25,7 @@ namespace HandStack.Web.Messages
         public DateTime? AcceptDateTime { get; set; }
 
         [JsonProperty("accessToken")]
-        public string AccessToken { get; set; }
+        public string? AccessToken { get; set; }
 
         [JsonProperty("action"), Description("'SYN: Request/Response, PSH: Execute/None, ACK: Subscribe'")]
         public string Action { get; set; }

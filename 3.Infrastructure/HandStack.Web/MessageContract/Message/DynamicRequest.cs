@@ -23,7 +23,7 @@ namespace HandStack.Web.MessageContract.Message
 
         public string ClientTag;
 
-        public string AccessToken;
+        public string? AccessToken;
 
         public string Version;
 

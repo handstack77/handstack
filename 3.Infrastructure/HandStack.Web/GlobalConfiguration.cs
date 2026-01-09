@@ -121,6 +121,8 @@ namespace HandStack.Web
         public static Dictionary<string, LicenseItem> LoadModuleLicenses { get; set; } = new Dictionary<string, LicenseItem>();
 
         public static string DefaultCulture => "ko-KR";
+        public static string ProxyBasePath = "";
+        public static bool IsAntiforgeryToken = false;
 
         public static string GetBaseDirectoryPath(string? basePath, string? defaultPath = "")
         {

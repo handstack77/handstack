@@ -585,7 +585,7 @@ namespace transact.Areas.transact.Controllers
 
                 if (ModuleConfiguration.IsValidationRequest == true)
                 {
-                    if (request.System.Routes.Count == 0 || distributedCache.Get(request.Transaction.GlobalID) == null)
+                    if (ModuleConfiguration.BypassGlobalIDTransactions.Contains(request.Transaction.TransactionID) == false && (request.System.Routes.Count == 0 || distributedCache.Get(request.Transaction.GlobalID) == null))
                     {
                         response.ExceptionText = "잘못된 요청";
                         return Content(JsonConvert.SerializeObject(response), "application/json");

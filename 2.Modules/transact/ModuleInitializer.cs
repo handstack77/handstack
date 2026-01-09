@@ -100,6 +100,7 @@ namespace transact
                             ModuleConfiguration.AllowRequestTransactions.Add(item.Key, item.Value);
                         }
 
+                        ModuleConfiguration.BypassGlobalIDTransactions = moduleConfig.BypassGlobalIDTransactions;
                         ModuleConfiguration.AllowClientIP = moduleConfig.AllowClientIP;
                         ModuleConfiguration.IsConfigure = true;
                     }

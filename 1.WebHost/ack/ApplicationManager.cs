@@ -87,11 +87,11 @@ namespace ack
             GlobalConfiguration.ServerLocalIP = GetLocalIPv4Address();
             if (string.IsNullOrEmpty(GlobalConfiguration.ServerDevCertFilePath) == true)
             {
-                Log.Information($"ack LocalIP: {GlobalConfiguration.ServerLocalIP}, Port: {port} Start...");
+                Log.Information($"ack LocalIP: {GlobalConfiguration.ServerLocalIP}, Port: {port}, ProxyBasePath: {GlobalConfiguration.ProxyBasePath} Start...");
             }
             else
             {
-                Log.Information($"ack LocalIP: {GlobalConfiguration.ServerLocalIP}, Port: {port}, SslPort: {GlobalConfiguration.ServerDevCertSslPort} Start...");
+                Log.Information($"ack LocalIP: {GlobalConfiguration.ServerLocalIP}, Port: {port}, ProxyBasePath: {GlobalConfiguration.ProxyBasePath}, SslPort: {GlobalConfiguration.ServerDevCertSslPort} Start...");
             }
 
             GlobalConfiguration.IsRunning = true;
