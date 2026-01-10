@@ -19,7 +19,7 @@ namespace HandStack.Web.Extensions
 
         public async Task InvokeAsync(HttpContext context)
         {
-            var requestPath = context.Request.Path.Value ?? string.Empty;
+            var requestPath = GetOriginalPath(context);
             if (requestPath.Contains("/api/", StringComparison.OrdinalIgnoreCase))
             {
                 await _next(context);
@@ -27,8 +27,8 @@ namespace HandStack.Web.Extensions
             }
 
             string proxyBasePath = string.IsNullOrEmpty(GlobalConfiguration.ProxyBasePath) ? "" : "/" + GlobalConfiguration.ProxyBasePath;
-            var isHtmlPage = (context.Request.PathBase == proxyBasePath && requestPath.EndsWith(".html", StringComparison.OrdinalIgnoreCase)) || requestPath == "/";
-            var isCssFile = context.Request.PathBase == proxyBasePath && requestPath.EndsWith(".css", StringComparison.OrdinalIgnoreCase);
+            var isHtmlPage = (requestPath.StartsWith(proxyBasePath) == true && requestPath.EndsWith(".html", StringComparison.OrdinalIgnoreCase)) || requestPath == "/";
+            var isCssFile = requestPath.StartsWith(proxyBasePath) == true && requestPath.EndsWith(".css", StringComparison.OrdinalIgnoreCase);
 
             if ((isHtmlPage == true || isCssFile == true) && string.IsNullOrEmpty(GlobalConfiguration.ProxyBasePath) == false)
             {
@@ -118,6 +118,59 @@ namespace HandStack.Web.Extensions
             }
 
             await _next(context);
+        }
+
+        private string GetOriginalPath(HttpContext context)
+        {
+            if (context.Request.Headers.TryGetValue("X-Original-URL", out var originalUrl))
+            {
+                var url = originalUrl.ToString();
+                if (!string.IsNullOrEmpty(url))
+                {
+                    var urlWithoutQuery = url.Split('?')[0];
+                    return urlWithoutQuery;
+                }
+            }
+
+            if (context.Request.Headers.TryGetValue("X-Original-Uri", out var originalUri))
+            {
+                var uri = originalUri.ToString();
+                if (!string.IsNullOrEmpty(uri))
+                {
+                    var uriWithoutQuery = uri.Split('?')[0];
+                    return uriWithoutQuery;
+                }
+            }
+
+            if (context.Request.Headers.TryGetValue("X-Forwarded-Path", out var forwardedPath))
+            {
+                var path = forwardedPath.ToString();
+                if (!string.IsNullOrEmpty(path))
+                {
+                    return path;
+                }
+            }
+
+            if (context.Request.Headers.TryGetValue("X-Forwarded-Prefix", out var forwardedPrefix))
+            {
+                var prefix = forwardedPrefix.ToString().TrimEnd('/');
+                var currentPath = context.Request.Path.Value ?? string.Empty;
+                if (!string.IsNullOrEmpty(prefix))
+                {
+                    return prefix + currentPath;
+                }
+            }
+
+            if (context.Request.Headers.TryGetValue("X-Original-Path", out var originalPath))
+            {
+                var path = originalPath.ToString();
+                if (!string.IsNullOrEmpty(path))
+                {
+                    return path;
+                }
+            }
+
+            return context.Request.Path.Value ?? string.Empty;
         }
 
         private string RewriteAbsolutePaths(string content, string basePath, bool isHtml, bool isCss)
