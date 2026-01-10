@@ -8472,7 +8472,12 @@
             if (window.tinymce) {
             }
             else {
-                syn.$w.loadScript('/lib/tinymce/tinymce.min.js');
+                if (syn.Config && $string.isNullOrEmpty(syn.Config.ProxyPathName) == false) {
+                    syn.$w.loadScript(`/${syn.Config.ProxyPathName}/lib/tinymce/tinymce.min.js`);
+                }
+                else {
+                    syn.$w.loadScript('/lib/tinymce/tinymce.min.js');
+                }
             }
         },
 

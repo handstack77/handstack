@@ -21,11 +21,21 @@
         concreate() {
             if (globalRoot.devicePlatform == 'browser') {
                 if ($string.toBoolean(syn.Config.IsReportifyModule) == true && !window.PDFObject) {
-                    syn.$w.loadScript('/lib/pdfobject/pdfobject.min.js');
+                    if (syn.Config && $string.isNullOrEmpty(syn.Config.ProxyPathName) == false) {
+                        syn.$w.loadScript(`/${syn.Config.ProxyPathName}/lib/pdfobject/pdfobject.min.js`);
+                    }
+                    else {
+                        syn.$w.loadScript('/lib/pdfobject/pdfobject.min.js');
+                    }
                 }
 
                 if ($string.toBoolean(syn.Config.IsReportifyModule) == true && !window.printJS) {
-                    syn.$w.loadScript('/lib/print-js/print.min.js');
+                    if (syn.Config && $string.isNullOrEmpty(syn.Config.ProxyPathName) == false) {
+                        syn.$w.loadScript(`/${syn.Config.ProxyPathName}/lib/print-js/print.min.js`);
+                    }
+                    else {
+                        syn.$w.loadScript('/lib/print-js/print.min.js');
+                    }
                 }
             }
             else if (globalRoot.devicePlatform == 'node') {

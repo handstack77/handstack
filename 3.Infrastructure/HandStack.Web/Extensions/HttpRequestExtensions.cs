@@ -37,7 +37,7 @@ namespace HandStack.Web.Extensions
                 inputStream.Position = 0;
             }
 
-            using var reader = new StreamReader(inputStream, encoding, detectEncodingFromByteOrderMarks: false, bufferSize: 1024, leaveOpen: true);
+            using var reader = new StreamReader(inputStream, encoding, detectEncodingFromByteOrderMarks: false, bufferSize: -1, leaveOpen: true);
             var body = await reader.ReadToEndAsync();
 
             if (inputStream.CanSeek == true)

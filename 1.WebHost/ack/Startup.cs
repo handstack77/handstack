@@ -841,7 +841,7 @@ namespace ack
                 app.UsePathBase(proxyBasePath);
                 app.Use((context, next) =>
                 {
-                    if (context.Request.PathBase != proxyBasePath)
+                    if (context.Request.PathBase.HasValue == true && context.Request.PathBase.Equals(proxyBasePath, StringComparison.OrdinalIgnoreCase) == false)
                     {
                         context.Response.StatusCode = 404;
                         return Task.CompletedTask;
@@ -1117,6 +1117,10 @@ namespace ack
                 });
             });
 
+            if (string.IsNullOrEmpty(GlobalConfiguration.ProxyBasePath) == false)
+            {
+                app.UseMiddleware<HtmlProxyBasePathInjectionMiddleware>();
+            }
             app.UseMiddleware<HtmxTokenInjectionMiddleware>();
             app.UseRouting();
 

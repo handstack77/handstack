@@ -23,6 +23,7 @@
         remainingReadyIntervalID: null,
         remainingReadyCount: 0,
         intersectionObservers: {},
+        proxyBasePath: '',
 
         defaultControlOptions: {
             value: '',
@@ -3368,7 +3369,7 @@
                 }, {
                     method: 'POST',
                     redirect: 'follow',
-                    timeout: 3000
+                    timeout: 30000
                 });
             }
 
@@ -4043,6 +4044,10 @@
             syn.Config.DataSourceFilePath = path.join(process.cwd(), '..', 'modules', 'dbclient', 'module.json');
         }
 
+        if (syn.Config && $string.isNullOrEmpty(syn.Config.ProxyPathName) == false) {
+            $webform.proxyBasePath = `/${syn.Config.ProxyPathName}`;
+        }
+
         const browserOnlyMethods = [
             'activeControl', 'contentLoaded', 'addReadyCount', 'removeReadyCount', 'createSelection',
             'getTriggerOptions', 'scrollToTop', 'setFavicon', 'fileDownload', 'pseudoStyle', 'pseudoStyles',
@@ -4081,6 +4086,9 @@
         if (context.synConfig) {
             syn.Config = syn.$w.argumentsExtend(syn.Config, synConfig);
             context.synConfig = undefined;
+            if (syn.Config && $string.isNullOrEmpty(syn.Config.ProxyPathName) == false) {
+                $webform.proxyBasePath = `/${syn.Config.ProxyPathName}`;
+            }
 
             globalRoot.isLoadConfig = true;
             setTimeout(async function () {
@@ -4090,6 +4098,9 @@
         else {
             $webform.loadJson('/' + (context.synConfigName || 'syn.config.json') + urlArgs, null, function (setting, json) {
                 syn.Config = syn.$w.argumentsExtend(syn.Config, json);
+                if (syn.Config && $string.isNullOrEmpty(syn.Config.ProxyPathName) == false) {
+                    $webform.proxyBasePath = `/${syn.Config.ProxyPathName}`;
+                }
 
                 globalRoot.isLoadConfig = true;
                 setTimeout(async function () {

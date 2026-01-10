@@ -6907,6 +6907,7 @@ if (typeof module !== 'undefined' && module.exports) {
         remainingReadyIntervalID: null,
         remainingReadyCount: 0,
         intersectionObservers: {},
+        proxyBasePath: '',
 
         defaultControlOptions: {
             value: '',
@@ -10927,6 +10928,10 @@ if (typeof module !== 'undefined' && module.exports) {
             syn.Config.DataSourceFilePath = path.join(process.cwd(), '..', 'modules', 'dbclient', 'module.json');
         }
 
+        if (syn.Config && $string.isNullOrEmpty(syn.Config.ProxyPathName) == false) {
+            $webform.proxyBasePath = `/${syn.Config.ProxyPathName}`;
+        }
+
         const browserOnlyMethods = [
             'activeControl', 'contentLoaded', 'addReadyCount', 'removeReadyCount', 'createSelection',
             'getTriggerOptions', 'scrollToTop', 'setFavicon', 'fileDownload', 'pseudoStyle', 'pseudoStyles',
@@ -10965,6 +10970,9 @@ if (typeof module !== 'undefined' && module.exports) {
         if (context.synConfig) {
             syn.Config = syn.$w.argumentsExtend(syn.Config, synConfig);
             context.synConfig = undefined;
+            if (syn.Config && $string.isNullOrEmpty(syn.Config.ProxyPathName) == false) {
+                $webform.proxyBasePath = `/${syn.Config.ProxyPathName}`;
+            }
 
             globalRoot.isLoadConfig = true;
             setTimeout(async function () {
@@ -10974,6 +10982,9 @@ if (typeof module !== 'undefined' && module.exports) {
         else {
             $webform.loadJson('/' + (context.synConfigName || 'syn.config.json') + urlArgs, null, function (setting, json) {
                 syn.Config = syn.$w.argumentsExtend(syn.Config, json);
+                if (syn.Config && $string.isNullOrEmpty(syn.Config.ProxyPathName) == false) {
+                    $webform.proxyBasePath = `/${syn.Config.ProxyPathName}`;
+                }
 
                 globalRoot.isLoadConfig = true;
                 setTimeout(async function () {
@@ -11030,11 +11041,21 @@ if (typeof module !== 'undefined' && module.exports) {
         concreate() {
             if (globalRoot.devicePlatform == 'browser') {
                 if ($string.toBoolean(syn.Config.IsReportifyModule) == true && !window.PDFObject) {
-                    syn.$w.loadScript('/lib/pdfobject/pdfobject.min.js');
+                    if (syn.Config && $string.isNullOrEmpty(syn.Config.ProxyPathName) == false) {
+                        syn.$w.loadScript(`/${syn.Config.ProxyPathName}/lib/pdfobject/pdfobject.min.js`);
+                    }
+                    else {
+                        syn.$w.loadScript('/lib/pdfobject/pdfobject.min.js');
+                    }
                 }
 
                 if ($string.toBoolean(syn.Config.IsReportifyModule) == true && !window.printJS) {
-                    syn.$w.loadScript('/lib/print-js/print.min.js');
+                    if (syn.Config && $string.isNullOrEmpty(syn.Config.ProxyPathName) == false) {
+                        syn.$w.loadScript(`/${syn.Config.ProxyPathName}/lib/print-js/print.min.js`);
+                    }
+                    else {
+                        syn.$w.loadScript('/lib/print-js/print.min.js');
+                    }
                 }
             }
             else if (globalRoot.devicePlatform == 'node') {
