@@ -86,7 +86,7 @@
             }
             else {
                 if (syn.Config && $string.isNullOrEmpty(syn.Config.ProxyPathName) == false) {
-                    syn.$w.loadScript(`/${syn.Config.ProxyPathName}/lib/tinymce/tinymce.min.js`);
+                    syn.$w.loadScript(`${syn.$w.proxyBasePath}/lib/tinymce/tinymce.min.js`);
                 }
                 else {
                     syn.$w.loadScript('/lib/tinymce/tinymce.min.js');

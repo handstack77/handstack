@@ -22,7 +22,7 @@
             if (globalRoot.devicePlatform == 'browser') {
                 if ($string.toBoolean(syn.Config.IsReportifyModule) == true && !window.PDFObject) {
                     if (syn.Config && $string.isNullOrEmpty(syn.Config.ProxyPathName) == false) {
-                        syn.$w.loadScript(`/${syn.Config.ProxyPathName}/lib/pdfobject/pdfobject.min.js`);
+                        syn.$w.loadScript(`${syn.$w.proxyBasePath}/lib/pdfobject/pdfobject.min.js`);
                     }
                     else {
                         syn.$w.loadScript('/lib/pdfobject/pdfobject.min.js');
@@ -31,7 +31,7 @@
 
                 if ($string.toBoolean(syn.Config.IsReportifyModule) == true && !window.printJS) {
                     if (syn.Config && $string.isNullOrEmpty(syn.Config.ProxyPathName) == false) {
-                        syn.$w.loadScript(`/${syn.Config.ProxyPathName}/lib/print-js/print.min.js`);
+                        syn.$w.loadScript(`${syn.$w.proxyBasePath}/lib/print-js/print.min.js`);
                     }
                     else {
                         syn.$w.loadScript('/lib/print-js/print.min.js');

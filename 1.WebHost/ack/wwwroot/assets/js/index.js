@@ -7792,7 +7792,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
             let ipAddress = syn.$w.getStorage('ipAddress', false);
             if ($object.isNullOrUndefined(ipAddress) == true && globalRoot.devicePlatform === 'node') {
-                ipAddress = apiService.IP;
+                ipAddress = apiService.ClientIP;
             }
 
             if ($object.isNullOrUndefined(ipAddress) == true) {
@@ -7837,7 +7837,7 @@ if (typeof module !== 'undefined' && module.exports) {
                 }, {
                     method: 'POST',
                     redirect: 'follow',
-                    timeout: 3000
+                    timeout: 30000
                 });
             }
 
@@ -8498,6 +8498,7 @@ if (typeof module !== 'undefined' && module.exports) {
                 console.info('Node.js 환경설정 로드. 파일 경로: {0}'.format(filePath));
                 var data = fs.readFileSync(filePath, 'utf8');
                 syn.Config = JSON.parse(data);
+                syn.Config.LoadFilePath = filePath;
 
                 process.env.SYN_LogMinimumLevel = syn.Config.LogMinimumLevel || 'trace';
                 process.env.SYN_FileLogBasePath = syn.Config.FileLogBasePath || path.join(process.cwd(), '..', 'log', 'function', 'javascript');
@@ -8513,7 +8514,7 @@ if (typeof module !== 'undefined' && module.exports) {
         }
 
         if (syn.Config && $string.isNullOrEmpty(syn.Config.ProxyPathName) == false) {
-            $webform.proxyBasePath = `/${syn.Config.ProxyPathName}`;
+            $webform.proxyBasePath = (syn.Config.IsProxyServe == true && syn.Config.ProxyPathName.length > 0) ? `/${syn.Config.ProxyPathName}` : '';
         }
 
         const browserOnlyMethods = [
@@ -8555,7 +8556,7 @@ if (typeof module !== 'undefined' && module.exports) {
             syn.Config = syn.$w.argumentsExtend(syn.Config, synConfig);
             context.synConfig = undefined;
             if (syn.Config && $string.isNullOrEmpty(syn.Config.ProxyPathName) == false) {
-                $webform.proxyBasePath = `/${syn.Config.ProxyPathName}`;
+                $webform.proxyBasePath = (syn.Config.IsProxyServe == true && syn.Config.ProxyPathName.length > 0) ? `/${syn.Config.ProxyPathName}` : '';
             }
 
             globalRoot.isLoadConfig = true;
@@ -8567,7 +8568,7 @@ if (typeof module !== 'undefined' && module.exports) {
             $webform.loadJson('/' + (context.synConfigName || 'syn.config.json') + urlArgs, null, function (setting, json) {
                 syn.Config = syn.$w.argumentsExtend(syn.Config, json);
                 if (syn.Config && $string.isNullOrEmpty(syn.Config.ProxyPathName) == false) {
-                    $webform.proxyBasePath = `/${syn.Config.ProxyPathName}`;
+                    $webform.proxyBasePath = (syn.Config.IsProxyServe == true && syn.Config.ProxyPathName.length > 0) ? `/${syn.Config.ProxyPathName}` : '';
                 }
 
                 globalRoot.isLoadConfig = true;
@@ -8626,7 +8627,7 @@ if (typeof module !== 'undefined' && module.exports) {
             if (globalRoot.devicePlatform == 'browser') {
                 if ($string.toBoolean(syn.Config.IsReportifyModule) == true && !window.PDFObject) {
                     if (syn.Config && $string.isNullOrEmpty(syn.Config.ProxyPathName) == false) {
-                        syn.$w.loadScript(`/${syn.Config.ProxyPathName}/lib/pdfobject/pdfobject.min.js`);
+                        syn.$w.loadScript(`${syn.$w.proxyBasePath}/lib/pdfobject/pdfobject.min.js`);
                     }
                     else {
                         syn.$w.loadScript('/lib/pdfobject/pdfobject.min.js');
@@ -8635,7 +8636,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
                 if ($string.toBoolean(syn.Config.IsReportifyModule) == true && !window.printJS) {
                     if (syn.Config && $string.isNullOrEmpty(syn.Config.ProxyPathName) == false) {
-                        syn.$w.loadScript(`/${syn.Config.ProxyPathName}/lib/print-js/print.min.js`);
+                        syn.$w.loadScript(`${syn.$w.proxyBasePath}/lib/print-js/print.min.js`);
                     }
                     else {
                         syn.$w.loadScript('/lib/print-js/print.min.js');

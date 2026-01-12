@@ -3324,7 +3324,7 @@
 
             let ipAddress = syn.$w.getStorage('ipAddress', false);
             if ($object.isNullOrUndefined(ipAddress) == true && globalRoot.devicePlatform === 'node') {
-                ipAddress = apiService.IP;
+                ipAddress = apiService.ClientIP;
             }
 
             if ($object.isNullOrUndefined(ipAddress) == true) {
@@ -4030,6 +4030,7 @@
                 console.info('Node.js 환경설정 로드. 파일 경로: {0}'.format(filePath));
                 var data = fs.readFileSync(filePath, 'utf8');
                 syn.Config = JSON.parse(data);
+                syn.Config.LoadFilePath = filePath;
 
                 process.env.SYN_LogMinimumLevel = syn.Config.LogMinimumLevel || 'trace';
                 process.env.SYN_FileLogBasePath = syn.Config.FileLogBasePath || path.join(process.cwd(), '..', 'log', 'function', 'javascript');
@@ -4045,7 +4046,7 @@
         }
 
         if (syn.Config && $string.isNullOrEmpty(syn.Config.ProxyPathName) == false) {
-            $webform.proxyBasePath = `/${syn.Config.ProxyPathName}`;
+            $webform.proxyBasePath = (syn.Config.IsProxyServe == true && syn.Config.ProxyPathName.length > 0) ? `/${syn.Config.ProxyPathName}` : '';
         }
 
         const browserOnlyMethods = [
@@ -4087,7 +4088,7 @@
             syn.Config = syn.$w.argumentsExtend(syn.Config, synConfig);
             context.synConfig = undefined;
             if (syn.Config && $string.isNullOrEmpty(syn.Config.ProxyPathName) == false) {
-                $webform.proxyBasePath = `/${syn.Config.ProxyPathName}`;
+                $webform.proxyBasePath = (syn.Config.IsProxyServe == true && syn.Config.ProxyPathName.length > 0) ? `/${syn.Config.ProxyPathName}` : '';
             }
 
             globalRoot.isLoadConfig = true;
@@ -4099,7 +4100,7 @@
             $webform.loadJson('/' + (context.synConfigName || 'syn.config.json') + urlArgs, null, function (setting, json) {
                 syn.Config = syn.$w.argumentsExtend(syn.Config, json);
                 if (syn.Config && $string.isNullOrEmpty(syn.Config.ProxyPathName) == false) {
-                    $webform.proxyBasePath = `/${syn.Config.ProxyPathName}`;
+                    $webform.proxyBasePath = (syn.Config.IsProxyServe == true && syn.Config.ProxyPathName.length > 0) ? `/${syn.Config.ProxyPathName}` : '';
                 }
 
                 globalRoot.isLoadConfig = true;
