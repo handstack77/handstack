@@ -19,7 +19,7 @@ BEGIN 
         "Type" NVARCHAR2(1),
         "UserID" NVARCHAR2(32),
         "CreatedAt" TIMESTAMP,
-        "IpAddress" NVARCHAR2(15),
+        "IpAddress" NVARCHAR2(50),
         "DeviceID" NVARCHAR2(64),
         "ProgramID" NVARCHAR2(32),
         CONSTRAINT "PK_{TableName}" PRIMARY KEY ("LogNo")

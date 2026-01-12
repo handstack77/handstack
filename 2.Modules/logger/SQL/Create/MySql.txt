@@ -19,7 +19,7 @@ CREATE TABLE `{TableName}` (
     `Type` varchar(1) CHARACTER SET utf8mb4 NULL COMMENT '업무 구분',
     `UserID` varchar(32) CHARACTER SET utf8mb4 NULL COMMENT '입력자 ID',
     `CreatedAt` datetime CHARACTER SET utf8mb4 NULL COMMENT '입력 일시',
-    `IpAddress` varchar(15) CHARACTER SET utf8mb4 NULL COMMENT 'IP 주소',
+    `IpAddress` varchar(50) CHARACTER SET utf8mb4 NULL COMMENT 'IP 주소',
     `DeviceID` varchar(64) CHARACTER SET utf8mb4 NULL COMMENT '단말 ID',
     `ProgramID` varchar(32) CHARACTER SET utf8mb4 NULL COMMENT '프로그램 ID',
     CONSTRAINT `PK_{TableName}` PRIMARY KEY (`LogNo`)

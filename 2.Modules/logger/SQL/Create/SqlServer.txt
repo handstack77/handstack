@@ -17,7 +17,7 @@ CREATE TABLE [{TableName}] (
     [Type] nvarchar(1) NULL,
     [UserID] nvarchar(32) NULL,
     [CreatedAt] datetime2 NULL,
-    [IpAddress] varchar(15) NULL,
+    [IpAddress] varchar(50) NULL,
     [DeviceID] varchar(64) NULL,
     [ProgramID] varchar(50) NULL,
     CONSTRAINT [PK_{TableName}] PRIMARY KEY ([LogNo])

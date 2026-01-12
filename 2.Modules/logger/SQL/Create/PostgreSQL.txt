@@ -17,7 +17,7 @@ CREATE TABLE {TableName} (
     "Type" character varying(1) NULL,
     "UserID" character varying(32) NULL,
     "CreatedAt" timestamp without time zone NULL,
-    "IpAddress" character varying(15) NULL,
+    "IpAddress" character varying(50) NULL,
     "DeviceID" character varying(64) NULL,
     "ProgramID" character varying(32) NULL,
     CONSTRAINT "PK_{TableName}" PRIMARY KEY ("LogNo")
