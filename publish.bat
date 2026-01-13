@@ -23,12 +23,8 @@ REM x64, x86, arm64
 set arch_mode=%4
 if "%arch_mode%" == "" set arch_mode=x64
 
-REM false, true
-set trysignassembly=%5
-if "%trysignassembly%" == "" set trysignassembly=false
-
 REM 사용자 지정 publish 경로
-set publish_path=%6
+set publish_path=%5
 if "%publish_path%" == "" set publish_path=%HANDSTACK_SRC%\..\publish\%os_mode%-%arch_mode%
 
 REM 설정에 따라 Optimize 옵션 설정
@@ -61,20 +57,6 @@ if "%action_mode%" == "publish" (
 echo os_mode: %os_mode%, action_mode: %action_mode%, configuration_mode: %configuration_mode%, arch_mode: %arch_mode%, optimize: %optimize_flag%, rid: %rid%, publish_path: %publish_path%
 
 rmdir /s /q %publish_path%
-rmdir /s /q %HANDSTACK_SRC%\3.Infrastructure\Assemblies
-
-if "%trysignassembly%" == "true" (
-    echo Enabling assembly signing for build...
-    node signassembly.js true
-)
-
-REM Infrastructure 프로젝트들 빌드/퍼블리시
-dotnet build --configuration Debug --arch %arch_mode% --os %os_mode% 3.Infrastructure\HandStack.Core\HandStack.Core.csproj
-dotnet build --configuration Debug --arch %arch_mode% --os %os_mode% 3.Infrastructure\HandStack.Data\HandStack.Data.csproj
-dotnet build --configuration Debug --arch %arch_mode% --os %os_mode% 3.Infrastructure\HandStack.Web\HandStack.Web.csproj
-dotnet build --configuration Release --arch %arch_mode% --os %os_mode% 3.Infrastructure\HandStack.Core\HandStack.Core.csproj
-dotnet build --configuration Release --arch %arch_mode% --os %os_mode% 3.Infrastructure\HandStack.Data\HandStack.Data.csproj
-dotnet build --configuration Release --arch %arch_mode% --os %os_mode% 3.Infrastructure\HandStack.Web\HandStack.Web.csproj
 
 REM WebHost 프로젝트들 빌드/퍼블리시
 dotnet %action_mode% %dotnet_options% 1.WebHost\ack\ack.csproj --output %publish_path%\handstack\app
@@ -116,11 +98,6 @@ dotnet build %dotnet_options% 2.Modules\repository\repository.csproj --output %p
 dotnet build %dotnet_options% 2.Modules\transact\transact.csproj --output %publish_path%\handstack\modules\transact
 dotnet build %dotnet_options% 2.Modules\wwwroot\wwwroot.csproj --output %publish_path%\handstack\modules\wwwroot
 dotnet build %dotnet_options% 2.Modules\checkup\checkup.csproj --output %publish_path%\handstack\modules\checkup
-
-if "%trysignassembly%" == "true" (
-    echo Reverting assembly signing to False...
-    node signassembly.js false
-)
 
 REM 파일 복사
 if exist "%HANDSTACK_HOME%\contracts" (

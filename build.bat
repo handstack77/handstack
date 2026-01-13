@@ -1,35 +1,11 @@
 @echo off
 chcp 65001
 
-set trysignassembly=%1
-if "%trysignassembly%" == "" set trysignassembly=false
-
 setlocal
 
 rem Clean previous builds
 dotnet restore handstack.sln
 dotnet clean handstack.sln
-
-rem Build Infrastructure projects first
-if "%trysignassembly%" == "true" (
-    echo Enabling assembly signing for build...
-    node signassembly.js true
-)
-
-echo Building HandStack.Core...
-dotnet build "3.Infrastructure\HandStack.Core\HandStack.Core.csproj" -c Debug
-dotnet build "3.Infrastructure\HandStack.Core\HandStack.Core.csproj" -c Release
-if %errorlevel% neq 0 goto :error
-
-echo Building HandStack.Data...
-dotnet build "3.Infrastructure\HandStack.Data\HandStack.Data.csproj" -c Debug
-dotnet build "3.Infrastructure\HandStack.Data\HandStack.Data.csproj" -c Release
-if %errorlevel% neq 0 goto :error
-
-echo Building HandStack.Web...
-dotnet build "3.Infrastructure\HandStack.Web\HandStack.Web.csproj" -c Debug
-dotnet build "3.Infrastructure\HandStack.Web\HandStack.Web.csproj" -c Release
-if %errorlevel% neq 0 goto :error
 
 rem Build Modules projects (consider their internal dependencies if any)
 echo Building wwwroot...
@@ -89,11 +65,6 @@ if %errorlevel% neq 0 goto :error
 echo Building bundling CLI...
 dotnet build "4.Tool\CLI\bundling\bundling.csproj" -c Debug
 if %errorlevel% neq 0 goto :error
-
-if "%trysignassembly%" == "true" (
-    echo Reverting assembly signing to False...
-    node signassembly.js false
-)
 
 echo All projects built successfully.
 goto :eof

@@ -19,14 +19,9 @@ configuration_mode=${3:-Release}
 # x64, x86, arm64
 arch_mode=${4:-x64}
 
-# x64, x86, arm64
-trysignassembly=${5:false}
-
 # Optional custom publish path
 default_publish_path="${HANDSTACK_SRC}/../publish/${os_mode}-${arch_mode}"
-publish_path=${6:$default_publish_path}
-
-echo "os_mode: $os_mode, action_mode: $action_mode, configuration_mode: $configuration_mode, arch_mode: $arch_mode, publish_path: $publish_path"
+publish_path=${5:$default_publish_path}
 
 optimize_flag="-p:Optimize=true"
 if [ "$configuration_mode" == "Debug" ]; then
@@ -69,11 +64,10 @@ else
     dotnet_options="$optimize_flag --configuration $configuration_mode --arch $arch_mode --os $os_mode"
 fi
 
-echo "운영체제: $os_mode, 액션모드: $action_mode, 구성모드: $configuration_mode, 아키텍처: $arch_mode, RID: $rid, 출력경로: $publish_path"
+echo "os_mode: $os_mode, action_mode: $action_mode, configuration_mode: $configuration_mode, arch_mode: $arch_mode, publish_path: $publish_path"
 
 # 기존 출력 디렉토리 삭제
 rm -rf "$publish_path"
-rm -rf "$HANDSTACK_SRC/3.Infrastructure/Assemblies"
 
 # post-build 스크립트의 줄바꿈 문자 수정 및 실행 권한 부여 함수
 fix_post_build_script() {
@@ -95,20 +89,6 @@ fix_post_build_script "2.Modules/repository/post-build.sh"
 fix_post_build_script "2.Modules/transact/post-build.sh"
 fix_post_build_script "2.Modules/wwwroot/post-build.sh"
 fix_post_build_script "4.Tool/CLI/handstack/post-build.sh"
-
-echo "Enabling assembly signing for build..."
-if [ "trysignassembly" == "true" ]; then
-    node signassembly.js true
-fi
-
-# Infrastructure 프로젝트들 빌드/퍼블리시
-dotnet build --configuration Debug --arch $arch_mode --os $os_mode 3.Infrastructure/HandStack.Core/HandStack.Core.csproj
-dotnet build --configuration Debug --arch $arch_mode --os $os_mode 3.Infrastructure/HandStack.Data/HandStack.Data.csproj
-dotnet build --configuration Debug --arch $arch_mode --os $os_mode 3.Infrastructure/HandStack.Web/HandStack.Web.csproj
-dotnet build --configuration Release --arch $arch_mode --os $os_mode 3.Infrastructure/HandStack.Core/HandStack.Core.csproj
-dotnet build --configuration Release --arch $arch_mode --os $os_mode 3.Infrastructure/HandStack.Data/HandStack.Data.csproj
-dotnet build --configuration Release --arch $arch_mode --os $os_mode 3.Infrastructure/HandStack.Web/HandStack.Web.csproj
-
 
 # WebHost 프로젝트들 빌드/퍼블리시
 echo "WebHost 프로젝트 빌드/퍼블리시 중..."
@@ -161,11 +141,6 @@ for module in "${modules[@]}"; do
     
     dotnet build $dotnet_options "$project_path" --output "$publish_path/handstack/modules/$module_name"
 done
-
-echo "Reverting assembly signing to False..."
-if [ "trysignassembly" == "true" ]; then
-    node signassembly.js false
-fi
 
 # 추가 파일들 복사
 echo "추가 파일 복사 중..."

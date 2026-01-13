@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.3.11206.111 d18.3
+VisualStudioVersion = 18.3.11206.111
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3.Infrastructure", "3.Infrastructure", "{62D4FF65-F118-4D0E-8518-C6F4679EA63E}"
 EndProject
@@ -15,6 +15,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 		.gitattributes = .gitattributes
 		.gitignore = .gitignore
+		assemblies.bat = assemblies.bat
+		assemblies.sh = assemblies.sh
 		build.bat = build.bat
 		build.sh = build.sh
 		docker-compose.yml = docker-compose.yml
@@ -113,6 +115,31 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "bundling", "4.Tool\CLI\bund
 	EndProjectSection
 EndProject
 Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "node-cli", "4.Tool\CLI\node-cli\node-cli.esproj", "{EE008B04-5011-D0A1-7C27-29447DD8C9D4}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Assemblies", "Assemblies", "{D2111503-7F71-4E89-9C9B-0AF8DE84B8A5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Debug", "Debug", "{E3141097-1F6F-4471-907F-D84D1E1C97F1}"
+	ProjectSection(SolutionItems) = preProject
+		3.Infrastructure\Assemblies\Debug\HandStack.Core.deps.json = 3.Infrastructure\Assemblies\Debug\HandStack.Core.deps.json
+		3.Infrastructure\Assemblies\Debug\HandStack.Core.dll = 3.Infrastructure\Assemblies\Debug\HandStack.Core.dll
+		3.Infrastructure\Assemblies\Debug\HandStack.Core.pdb = 3.Infrastructure\Assemblies\Debug\HandStack.Core.pdb
+		3.Infrastructure\Assemblies\Debug\HandStack.Data.deps.json = 3.Infrastructure\Assemblies\Debug\HandStack.Data.deps.json
+		3.Infrastructure\Assemblies\Debug\HandStack.Data.dll = 3.Infrastructure\Assemblies\Debug\HandStack.Data.dll
+		3.Infrastructure\Assemblies\Debug\HandStack.Data.pdb = 3.Infrastructure\Assemblies\Debug\HandStack.Data.pdb
+		3.Infrastructure\Assemblies\Debug\HandStack.Web.deps.json = 3.Infrastructure\Assemblies\Debug\HandStack.Web.deps.json
+		3.Infrastructure\Assemblies\Debug\HandStack.Web.dll = 3.Infrastructure\Assemblies\Debug\HandStack.Web.dll
+		3.Infrastructure\Assemblies\Debug\HandStack.Web.pdb = 3.Infrastructure\Assemblies\Debug\HandStack.Web.pdb
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Release", "Release", "{7E2683ED-4D65-430D-A1CE-766C3370AA07}"
+	ProjectSection(SolutionItems) = preProject
+		3.Infrastructure\Assemblies\Release\HandStack.Core.deps.json = 3.Infrastructure\Assemblies\Release\HandStack.Core.deps.json
+		3.Infrastructure\Assemblies\Release\HandStack.Core.dll = 3.Infrastructure\Assemblies\Release\HandStack.Core.dll
+		3.Infrastructure\Assemblies\Release\HandStack.Data.deps.json = 3.Infrastructure\Assemblies\Release\HandStack.Data.deps.json
+		3.Infrastructure\Assemblies\Release\HandStack.Data.dll = 3.Infrastructure\Assemblies\Release\HandStack.Data.dll
+		3.Infrastructure\Assemblies\Release\HandStack.Web.deps.json = 3.Infrastructure\Assemblies\Release\HandStack.Web.deps.json
+		3.Infrastructure\Assemblies\Release\HandStack.Web.dll = 3.Infrastructure\Assemblies\Release\HandStack.Web.dll
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -218,9 +245,12 @@ Global
 		{433451DE-9D82-2A46-5E6E-AEF90F848D10} = {FA291842-9FD5-4508-A423-7421803FDA88}
 		{79FE27BD-1544-305A-7D6F-392B30ECDBA1} = {FA291842-9FD5-4508-A423-7421803FDA88}
 		{EE008B04-5011-D0A1-7C27-29447DD8C9D4} = {FA291842-9FD5-4508-A423-7421803FDA88}
+		{D2111503-7F71-4E89-9C9B-0AF8DE84B8A5} = {62D4FF65-F118-4D0E-8518-C6F4679EA63E}
+		{E3141097-1F6F-4471-907F-D84D1E1C97F1} = {D2111503-7F71-4E89-9C9B-0AF8DE84B8A5}
+		{7E2683ED-4D65-430D-A1CE-766C3370AA07} = {D2111503-7F71-4E89-9C9B-0AF8DE84B8A5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {0075CE72-935C-4F87-A6BA-989C82F06F8F}
 		VisualSVNWorkingCopyRoot = .
+		SolutionGuid = {0075CE72-935C-4F87-A6BA-989C82F06F8F}
 	EndGlobalSection
 EndGlobal

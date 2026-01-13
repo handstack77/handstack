@@ -348,7 +348,7 @@ namespace bundling
                 */
                 var bundle = parseResult.GetValue(optionBundle);
 
-                var base64BundleFile = bundle;
+                string base64BundleFile = bundle.ToStringSafe();
                 var bundleFile = JsonConvert.DeserializeObject<BundleFile>(base64BundleFile.DecodeBase64());
                 if (bundleFile != null)
                 {
