@@ -166,7 +166,7 @@
 
     $auigrid.extend({
         name: 'syn.uicontrols.$auigrid',
-        version: 'v2025.01.06',
+        version: 'v2025.01.14',
 
         gridControls: [],
         gridCodeDatas: [],
@@ -1247,8 +1247,8 @@
                     syn.$m.addClass('headerItem2', 'hidden');
                 }
                 else {
-                    syn.$m.addClass('headerItem4', 'hidden');
                     syn.$m.addClass('headerItem5', 'hidden');
+                    syn.$m.addClass('headerItem6', 'hidden');
                     $auigrid.currentDataField = evt.dataField.replaceAll(',', '_');
                 }
 
