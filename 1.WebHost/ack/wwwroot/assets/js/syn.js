@@ -1,5 +1,5 @@
 /*!
-HandStack Javascript Library v2026.1.9
+HandStack Javascript Library v2026.1.14
 https://handshake.kr
 
 Copyright 2025, HandStack
@@ -175,7 +175,7 @@ class Module {
 }
 
 Module.ancestor = Object;
-Module.version = 'v2026.1.9';
+Module.version = 'v2026.1.14';
 
 const syn = { Module };
 syn.Config = {
@@ -9961,19 +9961,23 @@ if (typeof module !== 'undefined' && module.exports) {
         fetchImage(url, fallbackUrl) {
             return new Promise((resolve, reject) => {
                 const image = new Image();
-                image.src = url;
+                let isFallbackAttempted = false;
+
                 image.addEventListener('load', () => {
                     resolve(image);
                 });
 
                 image.addEventListener('error', error => {
-                    if (!fallbackUrl || image.src === fallbackUrl) {
+                    if (!fallbackUrl || isFallbackAttempted) {
                         reject(error);
                     } else {
+                        isFallbackAttempted = true;
                         syn.$l.eventLog('$w.fetchImage', `이미지 로딩 실패. Fallback 시도: ${fallbackUrl}`, 'Information');
                         image.src = fallbackUrl;
                     }
                 });
+
+                image.src = url;
             });
         },
 
