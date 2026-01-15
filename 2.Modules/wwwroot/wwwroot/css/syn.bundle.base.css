@@ -10308,20 +10308,23 @@ ul.fancytree-container {
 
 .aui-grid-row-depth1-style {
     font-weight: bold;
-    color: #eaeaea;
-    background: #5d5d5d;
+    color: var(--tblr-gray-300-fg) !important;
+    --tblr-bg-opacity: 1;
+    background-color: color-mix(in srgb, var(--tblr-gray-300) calc(var(--tblr-bg-opacity) * 100%), transparent) !important;
 }
 
 .aui-grid-row-depth2-style {
     font-weight: bold;
-    color: #5d5d5d;
-    background: #bdbdbd;
+    color: var(--tblr-gray-200-fg) !important;
+    --tblr-bg-opacity: 1;
+    background-color: color-mix(in srgb, var(--tblr-gray-200) calc(var(--tblr-bg-opacity) * 100%), transparent) !important;
 }
 
 .aui-grid-row-depth3-style {
     font-weight: bold;
-    color: #5d5d5d;
-    background: #eaeaea;
+    color: var(--tblr-gray-100-fg) !important;
+    --tblr-bg-opacity: 1;
+    background-color: color-mix(in srgb, var(--tblr-gray-100) calc(var(--tblr-bg-opacity) * 100%), transparent) !important;
 }
 
 .aui-grid-row-depth-default-style {

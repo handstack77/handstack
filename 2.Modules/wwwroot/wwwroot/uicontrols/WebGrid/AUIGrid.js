@@ -166,7 +166,7 @@
 
     $auigrid.extend({
         name: 'syn.uicontrols.$auigrid',
-        version: 'v2025.01.14',
+        version: 'v2025.01.15',
 
         gridControls: [],
         gridCodeDatas: [],
@@ -1058,7 +1058,15 @@
                                         message: '유효한 날짜 형식으로 입력해주세요.'
                                     };
                                 }
-                            }
+                            };
+                            columnInfo.labelFunction = function (rowIndex, columnIndex, value, headerText, item) {
+                                var date = new Date(value);
+                                if (isNaN(date.getTime()) || !value) {
+                                    return '';
+                                }
+
+                                return AUIGrid.formatDate(value, 'yyyy-mm-dd');
+                            };
                             break;
                         case 'time':
                             let timeFormat = $string.toBoolean(columnInfo.showTimeSecond) == true ? 'HH:MM:ss' : 'HH:MM';
@@ -1086,7 +1094,7 @@
                                 hourInterval: 1,
                                 minList: columnInfo.minList || [0, 30],
                                 hourList: columnInfo.hourList || [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
-                            }
+                            };
                             break;
                         case 'sparkline':
                             columnInfo.renderer = {
@@ -1242,9 +1250,11 @@
                 syn.$m.removeClass('headerItem3', 'hidden');
                 syn.$m.removeClass('headerItem4', 'hidden');
                 syn.$m.removeClass('headerItem5', 'hidden');
+                syn.$m.removeClass('headerItem6', 'hidden');
                 if ($string.isNullOrEmpty(evt.dataField) == true) {
                     syn.$m.addClass('headerItem1', 'hidden');
                     syn.$m.addClass('headerItem2', 'hidden');
+                    syn.$m.addClass('headerItem4', 'hidden');
                 }
                 else {
                     syn.$m.addClass('headerItem5', 'hidden');
@@ -1284,8 +1294,6 @@
                     AUIGrid.clearSortingAll(gridID);
                     break;
                 case 'headerItem4':
-                    var colIndex = AUIGrid.getSelectedIndex(gridID)[1];
-                    $auigrid.currentDataField = AUIGrid.getDataFieldByColumnIndex(gridID, colIndex);
                     AUIGrid.hideColumnByDataField(gridID, $auigrid.currentDataField);
                     break;
                 case 'headerItem5':
@@ -1293,6 +1301,7 @@
                     $('#headerItemUL span.ui-icon[data]').addClass('ui-icon-check').removeClass('ui-icon-blank');
                     break;
                 case 'headerItem6':
+                    AUIGrid.showAllColumns(gridID);
                     const columnInfos = AUIGrid.getColumnInfoList(gridID);
                     for (let i = 0, length = columnInfos.length; i < length; i++) {
                         const columnInfo = columnInfos[i];
