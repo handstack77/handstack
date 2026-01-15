@@ -75,7 +75,7 @@ namespace HandStack.Web.Extensions
                     if (isHtmlPage == true)
                     {
                         var baseTag = $"<base href=\"{basePath}\" />";
-                        var headPattern = @"<head[^>]*>";
+                        var headPattern = @"<head(\s+[^>]*)?>";
 
                         if (Regex.IsMatch(content, headPattern, RegexOptions.IgnoreCase | RegexOptions.Singleline))
                         {
@@ -88,7 +88,7 @@ namespace HandStack.Web.Extensions
                         }
                         else
                         {
-                            var htmlPattern = @"<html[^>]*>";
+                            var htmlPattern = @"<html(\s+[^>]*)?>";
                             if (Regex.IsMatch(content, htmlPattern, RegexOptions.IgnoreCase | RegexOptions.Singleline))
                             {
                                 content = Regex.Replace(
