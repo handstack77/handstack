@@ -70,11 +70,11 @@ namespace HandStack.Web.Extensions
                     }
 
                     var basePath = proxyBasePath + "/";
-                    content = RewriteAbsolutePaths(content, basePath, isHtmlPage, isCssFile);
+                    content = RewriteAbsolutePaths(content, isHtmlPage, isCssFile);
 
                     if (isHtmlPage == true)
                     {
-                        var baseTag = $"<base href=\"{basePath}\" />";
+                        var baseTag = $"<base href=\"{basePath}\" issuer=\"{GlobalConfiguration.ApplicationName}\" />";
                         var headPattern = @"<head(\s+[^>]*)?>";
 
                         if (Regex.IsMatch(content, headPattern, RegexOptions.IgnoreCase | RegexOptions.Singleline))
@@ -173,70 +173,37 @@ namespace HandStack.Web.Extensions
             return context.Request.Path.Value ?? string.Empty;
         }
 
-        private string RewriteAbsolutePaths(string content, string basePath, bool isHtml, bool isCss)
+        private string RewriteAbsolutePaths(string content, bool isHtml, bool isCss)
         {
-            var basePathTrimmed = basePath.TrimEnd('/');
+            if (string.IsNullOrEmpty(content) == true)
+            {
+                return content;
+            }
 
-            if (isHtml)
+            if (isHtml == true)
             {
                 content = Regex.Replace(
                     content,
-                    @"((?:src|href|action|data|poster|background|content)\s*=\s*[""'])(/(?!/))",
+                    @"(?<prefix>(?:src|href|action|data|poster|background|content)\s*=\s*)(?<quote>[""']?)(?<slash>/(?!/))",
                     match =>
                     {
-                        var prefix = match.Groups[1].Value;
-                        var path = match.Groups[2].Value;
+                        var prefix = match.Groups["prefix"].Value;
+                        var quote = match.Groups["quote"].Value;
 
-                        if (path.StartsWith(basePathTrimmed + "/"))
-                        {
-                            return match.Value;
-                        }
-
-                        var relativePath = path.TrimStart('/');
-                        return $"{prefix}{relativePath}";
-                    },
-                    RegexOptions.IgnoreCase
-                );
-
-                content = Regex.Replace(
-                    content,
-                    @"url\s*\(\s*([""']?)(/(?!/)[^""')]+)([""']?)\s*\)",
-                    match =>
-                    {
-                        var quote1 = match.Groups[1].Value;
-                        var path = match.Groups[2].Value;
-                        var quote2 = match.Groups[3].Value;
-
-                        if (path.StartsWith(basePathTrimmed + "/"))
-                        {
-                            return match.Value;
-                        }
-
-                        var relativePath = path.TrimStart('/');
-                        return $"url({quote1}{relativePath}{quote2})";
+                        return $"{prefix}{quote}";
                     },
                     RegexOptions.IgnoreCase
                 );
             }
 
-            if (isCss)
+            if (isHtml == true || isCss == true)
             {
                 content = Regex.Replace(
                     content,
-                    @"url\s*\(\s*([""']?)(/(?!/)[^""')]+)([""']?)\s*\)",
+                    @"(?<prefix>url\s*\(\s*)(?<quote>[""']?)(?<slash>/(?!/))",
                     match =>
                     {
-                        var quote1 = match.Groups[1].Value;
-                        var path = match.Groups[2].Value;
-                        var quote2 = match.Groups[3].Value;
-
-                        if (path.StartsWith(basePathTrimmed + "/"))
-                        {
-                            return match.Value;
-                        }
-
-                        var relativePath = path.TrimStart('/');
-                        return $"url({quote1}{relativePath}{quote2})";
+                        return $"{match.Groups["prefix"].Value}{match.Groups["quote"].Value}";
                     },
                     RegexOptions.IgnoreCase
                 );
