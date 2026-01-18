@@ -379,6 +379,7 @@ namespace ack
 
             GlobalConfiguration.UnhandledExceptions.Add(exception);
 
+            Log.Fatal(exception, "처리 되지 않은 오류가 발생했습니다");
             Console.WriteLine("처리 되지 않은 오류가 발생했습니다: " + exception.Message);
         }
 
