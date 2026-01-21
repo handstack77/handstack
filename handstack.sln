@@ -141,6 +141,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Release", "Release", "{7E26
 		3.Infrastructure\Assemblies\Release\HandStack.Web.dll = 3.Infrastructure\Assemblies\Release\HandStack.Web.dll
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ports", "4.Tool\CLI\ports\ports.csproj", "{DEE516A6-5AD5-47D3-8147-152D708151DC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -221,6 +223,10 @@ Global
 		{EE008B04-5011-D0A1-7C27-29447DD8C9D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EE008B04-5011-D0A1-7C27-29447DD8C9D4}.Release|Any CPU.Build.0 = Release|Any CPU
 		{EE008B04-5011-D0A1-7C27-29447DD8C9D4}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{DEE516A6-5AD5-47D3-8147-152D708151DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DEE516A6-5AD5-47D3-8147-152D708151DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DEE516A6-5AD5-47D3-8147-152D708151DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DEE516A6-5AD5-47D3-8147-152D708151DC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -248,9 +254,10 @@ Global
 		{D2111503-7F71-4E89-9C9B-0AF8DE84B8A5} = {62D4FF65-F118-4D0E-8518-C6F4679EA63E}
 		{E3141097-1F6F-4471-907F-D84D1E1C97F1} = {D2111503-7F71-4E89-9C9B-0AF8DE84B8A5}
 		{7E2683ED-4D65-430D-A1CE-766C3370AA07} = {D2111503-7F71-4E89-9C9B-0AF8DE84B8A5}
+		{DEE516A6-5AD5-47D3-8147-152D708151DC} = {FA291842-9FD5-4508-A423-7421803FDA88}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		VisualSVNWorkingCopyRoot = .
 		SolutionGuid = {0075CE72-935C-4F87-A6BA-989C82F06F8F}
+		VisualSVNWorkingCopyRoot = .
 	EndGlobalSection
 EndGlobal
