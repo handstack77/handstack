@@ -3363,7 +3363,7 @@
             let globalID = '';
 
             if ($string.isNullOrEmpty(syn.Config.FindGlobalIDServer) == false) {
-                apiService.GlobalID = await syn.$r.httpFetch(syn.Config.FindGlobalIDServer).send({
+                const result = await syn.$r.httpFetch(syn.Config.FindGlobalIDServer).send({
                     applicationID: programID,
                     projectID: businessID,
                     transactionID: transactionID,
@@ -3375,6 +3375,12 @@
                     redirect: 'follow',
                     timeout: 30000
                 });
+
+                if (result && !result.error) {
+                    apiService.GlobalID = result;
+                } else {
+                    console.error(`GlobalID 조회 실패: ${syn.Config.FindGlobalIDServer}, ${result?.error}`);
+                }
             }
 
             if ($string.isNullOrEmpty(apiService.GlobalID) == false) {

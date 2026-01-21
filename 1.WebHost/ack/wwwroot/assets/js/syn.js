@@ -1,5 +1,5 @@
 /*!
-HandStack Javascript Library v2026.1.14
+HandStack Javascript Library v2026.1.20
 https://handshake.kr
 
 Copyright 2025, HandStack
@@ -175,7 +175,7 @@ class Module {
 }
 
 Module.ancestor = Object;
-Module.version = 'v2026.1.14';
+Module.version = 'v2026.1.20';
 
 const syn = { Module };
 syn.Config = {
@@ -10247,7 +10247,7 @@ if (typeof module !== 'undefined' && module.exports) {
             let globalID = '';
 
             if ($string.isNullOrEmpty(syn.Config.FindGlobalIDServer) == false) {
-                apiService.GlobalID = await syn.$r.httpFetch(syn.Config.FindGlobalIDServer).send({
+                const result = await syn.$r.httpFetch(syn.Config.FindGlobalIDServer).send({
                     applicationID: programID,
                     projectID: businessID,
                     transactionID: transactionID,
@@ -10259,6 +10259,12 @@ if (typeof module !== 'undefined' && module.exports) {
                     redirect: 'follow',
                     timeout: 30000
                 });
+
+                if (result && !result.error) {
+                    apiService.GlobalID = result;
+                } else {
+                    console.error(`GlobalID 조회 실패: ${syn.Config.FindGlobalIDServer}, ${result?.error}`);
+                }
             }
 
             if ($string.isNullOrEmpty(apiService.GlobalID) == false) {
