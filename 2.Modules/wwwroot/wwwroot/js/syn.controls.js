@@ -10498,7 +10498,7 @@
 
     $auigrid.extend({
         name: 'syn.uicontrols.$auigrid',
-        version: 'v2025.01.15',
+        version: 'v2025.01.23',
 
         gridControls: [],
         gridCodeDatas: [],
@@ -10529,6 +10529,7 @@
             enableMovingColumn: false,
             wordWrap: false,
             editable: true,
+            copyWithHeaderText: true,
             enterKeyColumnBase: true,
             selectionMode: 'multipleCells',
             hoverMode: 'singleRow',
