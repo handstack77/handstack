@@ -1,5 +1,5 @@
-/*!
-HandStack Javascript Library v2026.1.20
+﻿/*!
+HandStack Javascript Library v2026.1.26
 https://handshake.kr
 
 Copyright 2025, HandStack
@@ -175,7 +175,7 @@ class Module {
 }
 
 Module.ancestor = Object;
-Module.version = 'v2026.1.20';
+Module.version = 'v2026.1.26';
 
 const syn = { Module };
 syn.Config = {
@@ -493,7 +493,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
         // const shareData = {
         //     title: 'HandStack',
-        //     text: 'HandStack 의 목표는 개발자가 좋아하고 기업이 신뢰하는 비즈니스 앱 개발 플랫폼을 구축하는 것입니다.',
+        //     text: 'HandStack 의 목표는 개발자가 좋아하고 기업이 신뢰하는 비즈니스 앱 '시스템'을 제공 하는 것입니다.',
         //     url: 'https://handstack.kr',
         //     files: Array.from(files) // 지원하는 환경에서만 가능
         // }
@@ -11255,8 +11255,8 @@ if (typeof module !== 'undefined' && module.exports) {
                     for (var i = 0, length = reportWorkItems.length; i < length; i++) {
                         var item = reportWorkItems[i];
 
-                        if (documentOffset && $object.isNumber(documentOffset) == true && documentOffset > 0 && item.document > -1) {
-                            item.document = item.document + documentOffset;
+                        if (documentOffset && $object.isNumber(documentOffset) == true && documentOffset > -1) {
+                            item.document = documentOffset;
                         }
 
                         if ($object.isNullOrUndefined(item.bind) == true) {

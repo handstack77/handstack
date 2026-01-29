@@ -1,5 +1,5 @@
 /*!
-HandStack Javascript Library v2026.1.20
+HandStack Javascript Library v2026.1.26
 https://handshake.kr
 
 Copyright 2025, HandStack
@@ -175,7 +175,7 @@ class Module {
 }
 
 Module.ancestor = Object;
-Module.version = 'v2026.1.20';
+Module.version = 'v2026.1.26';
 
 const syn = { Module };
 syn.Config = {
@@ -8839,8 +8839,8 @@ if (typeof module !== 'undefined' && module.exports) {
                     for (var i = 0, length = reportWorkItems.length; i < length; i++) {
                         var item = reportWorkItems[i];
 
-                        if (documentOffset && $object.isNumber(documentOffset) == true && documentOffset > 0 && item.document > -1) {
-                            item.document = item.document + documentOffset;
+                        if (documentOffset && $object.isNumber(documentOffset) == true && documentOffset > -1) {
+                            item.document = documentOffset;
                         }
 
                         if ($object.isNullOrUndefined(item.bind) == true) {
