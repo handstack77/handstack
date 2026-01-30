@@ -212,7 +212,6 @@
             for (i = 0; i < totalCount; i += step) {
                 offsets.push(i);
             }
-            offsets.push(i);
             return offsets;
         },
 

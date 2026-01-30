@@ -109,9 +109,15 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="../../3.Infrastructure/HandStack.Core/HandStack.Core.csproj" />
-        <ProjectReference Include="../../3.Infrastructure/HandStack.Data/HandStack.Data.csproj" />
-        <ProjectReference Include="../../3.Infrastructure/HandStack.Web/HandStack.Web.csproj" />
+        <Reference Include="HandStack.Core">
+            <HintPath>../../3.Infrastructure/Assemblies/$(Configuration)/HandStack.Core.dll</HintPath>
+        </Reference>
+        <Reference Include="HandStack.Web">
+            <HintPath>../../3.Infrastructure/Assemblies/$(Configuration)/HandStack.Web.dll</HintPath>
+        </Reference>
+        <Reference Include="HandStack.Data">
+            <HintPath>../../3.Infrastructure/Assemblies/$(Configuration)/HandStack.Data.dll</HintPath>
+        </Reference>
     </ItemGroup>
 
     <ItemGroup>
