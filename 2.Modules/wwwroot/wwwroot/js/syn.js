@@ -1,5 +1,5 @@
 /*!
-HandStack Javascript Library v2026.1.30
+HandStack Javascript Library v2026.2.2
 https://handshake.kr
 
 Copyright 2025, HandStack
@@ -175,7 +175,7 @@ class Module {
 }
 
 Module.ancestor = Object;
-Module.version = 'v2026.1.30';
+Module.version = 'v2026.2.2';
 
 const syn = { Module };
 syn.Config = {
@@ -7768,6 +7768,7 @@ if (typeof module !== 'undefined' && module.exports) {
                 }, syn.$w.pageReadyTimeout);
             };
 
+            syn.$w.mappingModule = syn.$w.getLoaderQueryString('mappingModule') == null ? true : $string.toBoolean(syn.$w.getLoaderQueryString('mappingModule'));
             if (syn.$w.mappingModule == true) {
                 var module = {};
                 if (syn.$l.get('moduleScript')) {
@@ -7824,6 +7825,15 @@ if (typeof module !== 'undefined' && module.exports) {
                 pageLoad();
                 syn.$w.isPageLoad = true;
             }
+        },
+
+        getLoaderQueryString(name) {
+            var currentScript = document.currentScript || document.querySelector('script[src*="syn.loader.js"]');
+            if (currentScript && currentScript.src) {
+                const params = new URLSearchParams(new URL(currentScript.src).search);
+                return params.get(name);
+            }
+            return null;
         },
 
         addReadyCount() {

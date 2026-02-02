@@ -884,6 +884,7 @@
                 }, syn.$w.pageReadyTimeout);
             };
 
+            syn.$w.mappingModule = syn.$w.getLoaderQueryString('mappingModule') == null ? true : $string.toBoolean(syn.$w.getLoaderQueryString('mappingModule'));
             if (syn.$w.mappingModule == true) {
                 var module = {};
                 if (syn.$l.get('moduleScript')) {
@@ -940,6 +941,15 @@
                 pageLoad();
                 syn.$w.isPageLoad = true;
             }
+        },
+
+        getLoaderQueryString(name) {
+            var currentScript = document.currentScript || document.querySelector('script[src*="syn.loader.js"]');
+            if (currentScript && currentScript.src) {
+                const params = new URLSearchParams(new URL(currentScript.src).search);
+                return params.get(name);
+            }
+            return null;
         },
 
         addReadyCount() {
