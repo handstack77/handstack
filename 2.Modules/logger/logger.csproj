@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Razor">
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
     <PropertyGroup>
         <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
         <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
@@ -9,7 +9,7 @@
         <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
         <PlatformTarget>AnyCPU</PlatformTarget>
         <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
-        <BaseOutputPath></BaseOutputPath>
+        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
         <OutputType>Library</OutputType>
         <NoWarn>NU1903;ASP0023;NU1608;</NoWarn>
     </PropertyGroup>
@@ -41,12 +41,8 @@
         <PackageReference Include="Polly" Version="8.6.5" />
         <PackageReference Include="RestSharp" Version="113.1.0" />
         <PackageReference Include="Serilog" Version="4.3.0" />
-        <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
-        <PackageReference Include="Serilog.Extensions.Logging" Version="10.0.0" />
         <PackageReference Include="System.Data.SQLite" Version="2.0.2" />
         <PackageReference Include="SourceGear.sqlite3" Version="3.50.4.5" />
-        <PackageReference Include="System.Linq.Dynamic.Core" Version="1.7.1" />
-        <PackageReference Include="System.Runtime.Caching" Version="10.0.2" />
     </ItemGroup>
 
     <ItemGroup>
@@ -81,19 +77,22 @@
     </Target>
 
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-        <!-- HandStack.* 파일 삭제 -->
-        <ItemGroup>
-            <HandStackFilesToDelete Include="$(TargetDir)HandStack.*" />
-        </ItemGroup>
-        <Delete Files="@(HandStackFilesToDelete)" ContinueOnError="WarnAndContinue" />
-
-        <!-- HANDSTACK_HOME/modules/logger로 미러링 -->
         <PropertyGroup>
-            <ModuleDestinationDir>$(HANDSTACK_HOME)/modules/logger</ModuleDestinationDir>
+            <AppSourceDir>$(HANDSTACK_HOME)/app</AppSourceDir>
+        </PropertyGroup>
+
+        <ItemGroup>
+            <AppSourceFiles Include="$(AppSourceDir)/**/*.*" />
+            <TargetFilesToCheck Include="$(TargetDir)%(AppSourceFiles.Filename)%(AppSourceFiles.Extension)"
+                                Condition="Exists('$(TargetDir)%(AppSourceFiles.Filename)%(AppSourceFiles.Extension)')" />
+        </ItemGroup>
+        <Delete Files="@(TargetFilesToCheck)" ContinueOnError="WarnAndContinue" />
+
+        <PropertyGroup>
+            <ModuleDestinationDir>$(HANDSTACK_HOME)/modules/$(MSBuildProjectName)</ModuleDestinationDir>
         </PropertyGroup>
         <MakeDir Directories="$(ModuleDestinationDir)" Condition="!Exists('$(ModuleDestinationDir)')" />
 
-        <!-- TargetDir의 모든 파일을 재귀적으로 복사 (미러링) -->
         <ItemGroup>
             <SourceFilesForMirroring Include="$(TargetDir)**\*" />
         </ItemGroup>

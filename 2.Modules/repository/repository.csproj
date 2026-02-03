@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Razor">
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
     <PropertyGroup>
         <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
         <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
@@ -9,7 +9,7 @@
         <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
         <PlatformTarget>AnyCPU</PlatformTarget>
         <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
-        <BaseOutputPath></BaseOutputPath>
+        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
         <OutputType>Library</OutputType>
         <NoWarn>NU1903;ASP0023;NU1608;</NoWarn>
     </PropertyGroup>
@@ -35,15 +35,9 @@
         <PackageReference Include="CacheManager.Core" Version="2.0.0" />
         <PackageReference Include="Google.Cloud.Storage.V1" Version="4.13.0" />
         <PackageReference Include="MediatR" Version="12.5.0" />
-        <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="10.0.2" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
         <PackageReference Include="RestSharp" Version="113.1.0" />
         <PackageReference Include="Serilog" Version="4.3.0" />
-        <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
-        <PackageReference Include="Serilog.Extensions.Hosting" Version="10.0.0" />
-        <PackageReference Include="Serilog.Extensions.Logging" Version="10.0.0" />
-        <PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
-        <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
         <PackageReference Include="SkiaSharp" Version="2.88.9" />
         <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.9" />
         <PackageReference Include="System.Data.SQLite" Version="2.0.2" />
@@ -82,42 +76,22 @@
     </Target>
 
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-        <!-- HandStack.* 파일 삭제 -->
-        <ItemGroup>
-            <HandStackFilesToDelete Include="$(TargetDir)HandStack.*" />
-        </ItemGroup>
-        <Delete Files="@(HandStackFilesToDelete)" ContinueOnError="WarnAndContinue" />
-
-        <!-- publish 폴더에서 복사할 DLL 목록 정의 -->
         <PropertyGroup>
-            <PublishSourceDir>$(ProjectDir)Assemblies</PublishSourceDir>
+            <AppSourceDir>$(HANDSTACK_HOME)/app</AppSourceDir>
         </PropertyGroup>
 
-        <ItemGroup Condition="Exists('$(PublishSourceDir)')">
-            <DepsFullPathsToCopy Include="@(DepsToCopy->'$(PublishSourceDir)/%(Identity)')" />
+        <ItemGroup>
+            <AppSourceFiles Include="$(AppSourceDir)/**/*.*" />
+            <TargetFilesToCheck Include="$(TargetDir)%(AppSourceFiles.Filename)%(AppSourceFiles.Extension)"
+                                Condition="Exists('$(TargetDir)%(AppSourceFiles.Filename)%(AppSourceFiles.Extension)')" />
         </ItemGroup>
+        <Delete Files="@(TargetFilesToCheck)" ContinueOnError="WarnAndContinue" />
 
-        <!-- 현재 런타임에 맞는 네이티브 라이브러리 복사 -->
-        <ItemGroup Condition="Exists('$(PublishSourceDir)')">
-            <NativeLibs Include="$(PublishSourceDir)/runtimes/win-x64/native/libSkiaSharp.dll" Condition="'$(RuntimeIdentifier)' == 'win-x64'" />
-            <NativeLibs Include="$(PublishSourceDir)/runtimes/win-arm64/native/libSkiaSharp.dll" Condition="'$(RuntimeIdentifier)' == 'win-arm64'" />
-            <NativeLibs Include="$(PublishSourceDir)/runtimes/linux-x64/native/libSkiaSharp.so" Condition="'$(RuntimeIdentifier)' == 'linux-x64'" />
-            <NativeLibs Include="$(PublishSourceDir)/runtimes/linux-arm64/native/libSkiaSharp.so" Condition="'$(RuntimeIdentifier)' == 'linux-arm64'" />
-            <NativeLibs Include="$(PublishSourceDir)/runtimes/osx/native/libSkiaSharp.dylib" Condition="'$(RuntimeIdentifier)' == 'osx-x64'" />
-            <NativeLibs Include="$(PublishSourceDir)/runtimes/osx/native/libSkiaSharp.dylib" Condition="'$(RuntimeIdentifier)' == 'osx-arm64'" />
-
-            <DepsFullPathsToCopy Include="@(NativeLibs)" />
-        </ItemGroup>
-
-        <Copy SourceFiles="@(DepsFullPathsToCopy)" DestinationFolder="$(TargetDir)" SkipUnchangedFiles="true" Condition="Exists('$(PublishSourceDir)') AND '@(DepsFullPathsToCopy)' != ''" />
-
-        <!-- HANDSTACK_HOME/modules/repository로 미러링 -->
         <PropertyGroup>
-            <ModuleDestinationDir>$(HANDSTACK_HOME)/modules/repository</ModuleDestinationDir>
+            <ModuleDestinationDir>$(HANDSTACK_HOME)/modules/$(MSBuildProjectName)</ModuleDestinationDir>
         </PropertyGroup>
         <MakeDir Directories="$(ModuleDestinationDir)" Condition="!Exists('$(ModuleDestinationDir)')" />
 
-        <!-- TargetDir의 모든 파일을 재귀적으로 복사 (미러링) -->
         <ItemGroup>
             <SourceFilesForMirroring Include="$(TargetDir)**\*" />
         </ItemGroup>

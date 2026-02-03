@@ -31,66 +31,29 @@
         <Optimize>False</Optimize>
     </PropertyGroup>
 
-    <ItemGroup Label="ack">
-        <PackageReference Include="FreeSpire.XLS" Version="14.2.0" />
-        <PackageReference Include="IronSoftware.System.Drawing" Version="2025.9.3" />
+    <ItemGroup Label="ack, HandStack Library">
+        <PackageReference Include="BouncyCastle.Cryptography" Version="2.6.2" />
+        <PackageReference Include="Dapper" Version="2.1.66" />
+        <PackageReference Include="HtmlAgilityPack" Version="1.12.4" />
         <PackageReference Include="LiteDB" Version="5.0.21" />
         <PackageReference Include="MediatR" Version="12.5.0" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="10.0.2" />
         <PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.NewtonsoftJson" Version="10.0.2" />
         <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="10.0.2" />
+        <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.4" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.2" />
         <PackageReference Include="Microsoft.Extensions.Caching.SqlServer" Version="10.0.2" />
         <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="10.0.2" />
         <PackageReference Include="Microsoft.Extensions.Hosting.Systemd" Version="10.0.2" />
         <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="10.0.2" />
-        <PackageReference Include="Microsoft.SemanticKernel" Version="1.70.0" />
-        <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.22.1" />
-        <PackageReference Include="PDFsharp" Version="6.2.4" />
-        <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="9.0.0" />
-        <PackageReference Include="Pomelo.Extensions.Caching.MySql" Version="2.2.1" />
-        <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
-        <PackageReference Include="SoapFormatter" Version="1.1.9" />
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.0" />
-        <PackageReference Include="System.CommandLine" Version="2.0.2" />
-        <PackageReference Include="System.Drawing.Common" Version="10.0.2" />
-        <PackageReference Include="System.ServiceModel.Duplex" Version="6.0.*" />
-        <PackageReference Include="System.ServiceModel.Federation" Version="10.0.652802" />
-        <PackageReference Include="System.ServiceModel.Http" Version="10.0.652802" />
-        <PackageReference Include="System.ServiceModel.NetTcp" Version="10.0.652802" />
-        <PackageReference Include="System.ServiceModel.Primitives" Version="10.0.652802" />
-        <PackageReference Include="System.ServiceModel.Security" Version="6.0.*" />
-        <PackageReference Include="System.ServiceModel.Syndication" Version="10.0.2" />
-        <PackageReference Include="YamlDotNet" Version="16.3.0" />
-    </ItemGroup>
-
-    <ItemGroup Label="dbclient, function, logger, repository, transact, wwwroot">
-        <PackageReference Include="AWSSDK.S3" Version="4.0.17.3" />
-        <PackageReference Include="Azure.Storage.Blobs" Version="12.27.0" />
-        <PackageReference Include="CacheManager.Core" Version="2.0.0" />
-        <PackageReference Include="ChoETL.JSON.NETStandard" Version="1.2.1.71" />
-        <PackageReference Include="Dapper" Version="2.1.66" />
-        <PackageReference Include="Google.Cloud.Storage.V1" Version="4.13.0" />
-        <PackageReference Include="HtmlAgilityPack" Version="1.12.4" />
-        <PackageReference Include="Jering.Javascript.NodeJS" Version="7.0.0" />
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.2" />
-        <PackageReference Include="Microsoft.CodeAnalysis.Compilers" Version="5.0.0" />
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0" />
-        <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.4" />
+        <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="10.0.2" />
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.2" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.2" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.2" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite.Core" Version="10.0.2" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.2" />
+        <PackageReference Include="Microsoft.Win32.SystemEvents" Version="10.0.2" />
+        <PackageReference Include="murmurhash" Version="1.0.3" />
         <PackageReference Include="MySql.Data" Version="9.6.0" />
-        <PackageReference Include="MySql.EntityFrameworkCore" Version="10.0.1" />
-        <PackageReference Include="NCalcSync" Version="5.11.0" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
         <PackageReference Include="Npgsql" Version="10.0.1" />
-        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0" />
         <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="23.26.100" />
-        <PackageReference Include="Oracle.EntityFrameworkCore" Version="10.23.26100" />
-        <PackageReference Include="Polly" Version="8.6.5" />
-        <PackageReference Include="pythonnet" Version="3.0.5" />
         <PackageReference Include="RestSharp" Version="113.1.0" />
         <PackageReference Include="Serilog" Version="4.3.0" />
         <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
@@ -100,12 +63,17 @@
         <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
         <PackageReference Include="SkiaSharp" Version="2.88.9" />
         <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.9" />
-        <PackageReference Include="Sqids" Version="3.2.0" />
-        <PackageReference Include="System.Data.SQLite" Version="2.0.2" />
         <PackageReference Include="SourceGear.sqlite3" Version="3.50.4.5" />
+        <PackageReference Include="Sqids" Version="3.2.0" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.0" />
+        <PackageReference Include="System.CodeDom" Version="10.0.2" />
+        <PackageReference Include="System.CommandLine" Version="2.0.2" />
+        <PackageReference Include="System.Configuration.ConfigurationManager" Version="10.0.2" />
+        <PackageReference Include="System.Data.SQLite" Version="2.0.2" />
+        <PackageReference Include="System.Drawing.Common" Version="10.0.2" />
         <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.15.0" />
-        <PackageReference Include="System.Linq.Dynamic.Core" Version="1.7.1" />
-        <PackageReference Include="System.Runtime.Caching" Version="10.0.2" />
+        <PackageReference Include="System.Reactive" Version="6.1.0" />
+        <PackageReference Include="YamlDotNet" Version="16.3.0" />
     </ItemGroup>
 
     <ItemGroup>

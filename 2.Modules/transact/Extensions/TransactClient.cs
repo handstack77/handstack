@@ -22,8 +22,6 @@ using HandStack.Web.MessageContract.Message;
 
 using MediatR;
 
-using MySqlX.XDevAPI.Common;
-
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
