@@ -92,7 +92,10 @@
             <TargetFilesToCheck Include="$(TargetDir)%(AppSourceFiles.Filename)%(AppSourceFiles.Extension)"
                                 Condition="Exists('$(TargetDir)%(AppSourceFiles.Filename)%(AppSourceFiles.Extension)')" />
         </ItemGroup>
+
         <Delete Files="@(TargetFilesToCheck)" ContinueOnError="WarnAndContinue" />
+
+        <RemoveDir Directories="$(TargetDir)runtimes" Condition="Exists('$(TargetDir)runtimes')" />
 
         <PropertyGroup>
             <ModuleDestinationDir>$(HANDSTACK_HOME)/modules/$(MSBuildProjectName)</ModuleDestinationDir>
