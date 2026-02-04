@@ -251,6 +251,7 @@ namespace ack
                     {
                         eventArgs.Cancel = true;
                         applicationManager.Stop();
+                        Environment.Exit(0);
                     };
 
                     AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(HandleException);
