@@ -2173,7 +2173,7 @@
 }
 
 .aui-grid .column-readonly {
-    background-color: rgba(var(--tblr-muted-rgb), 0.1) !important;
+    background-color: rgba(var(--tblr-muted-rgb), 0.02) !important;
 }
 
 .aui-grid .column-important {
