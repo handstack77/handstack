@@ -1,5 +1,5 @@
 /*!
-HandStack Javascript Library v2026.1.20
+HandStack Javascript Library v2026.2.2
 https://handshake.kr
 
 Copyright 2025, HandStack
@@ -175,7 +175,7 @@ class Module {
 }
 
 Module.ancestor = Object;
-Module.version = 'v2026.1.20';
+Module.version = 'v2026.2.2';
 
 const syn = { Module };
 syn.Config = {
@@ -5352,6 +5352,7 @@ if (typeof module !== 'undefined' && module.exports) {
                 }, syn.$w.pageReadyTimeout);
             };
 
+            syn.$w.mappingModule = syn.$w.getLoaderQueryString('mappingModule') == null ? true : $string.toBoolean(syn.$w.getLoaderQueryString('mappingModule'));
             if (syn.$w.mappingModule == true) {
                 var module = {};
                 if (syn.$l.get('moduleScript')) {
@@ -5408,6 +5409,15 @@ if (typeof module !== 'undefined' && module.exports) {
                 pageLoad();
                 syn.$w.isPageLoad = true;
             }
+        },
+
+        getLoaderQueryString(name) {
+            var currentScript = document.currentScript || document.querySelector('script[src*="syn.loader.js"]');
+            if (currentScript && currentScript.src) {
+                const params = new URLSearchParams(new URL(currentScript.src).search);
+                return params.get(name);
+            }
+            return null;
         },
 
         addReadyCount() {
@@ -8827,7 +8837,6 @@ if (typeof module !== 'undefined' && module.exports) {
             for (i = 0; i < totalCount; i += step) {
                 offsets.push(i);
             }
-            offsets.push(i);
             return offsets;
         },
 
@@ -8839,8 +8848,8 @@ if (typeof module !== 'undefined' && module.exports) {
                     for (var i = 0, length = reportWorkItems.length; i < length; i++) {
                         var item = reportWorkItems[i];
 
-                        if (documentOffset && $object.isNumber(documentOffset) == true && documentOffset > 0 && item.document > -1) {
-                            item.document = item.document + documentOffset;
+                        if (documentOffset && $object.isNumber(documentOffset) == true && documentOffset > -1) {
+                            item.document = documentOffset;
                         }
 
                         if ($object.isNullOrUndefined(item.bind) == true) {

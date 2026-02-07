@@ -212,7 +212,6 @@
             for (i = 0; i < totalCount; i += step) {
                 offsets.push(i);
             }
-            offsets.push(i);
             return offsets;
         },
 
@@ -224,8 +223,8 @@
                     for (var i = 0, length = reportWorkItems.length; i < length; i++) {
                         var item = reportWorkItems[i];
 
-                        if (documentOffset && $object.isNumber(documentOffset) == true && documentOffset > 0 && item.document > -1) {
-                            item.document = item.document + documentOffset;
+                        if (documentOffset && $object.isNumber(documentOffset) == true && documentOffset > -1) {
+                            item.document = documentOffset;
                         }
 
                         if ($object.isNullOrUndefined(item.bind) == true) {

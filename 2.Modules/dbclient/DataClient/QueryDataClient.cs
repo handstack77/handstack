@@ -5544,8 +5544,7 @@ TransactionException:
             }
             else
             {
-                var baseSequence = databaseTransactionObjects.Count - 1;
-                result = databaseTransactionObjects[baseSequence];
+                result = databaseTransactionObjects.FirstOrDefault() ?? throw new InvalidOperationException("생성된 기본 트랜잭션 객체가 존재하지 않습니다.");
             }
 
             return result;

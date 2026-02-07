@@ -139,7 +139,7 @@ for module in "${modules[@]}"; do
     IFS=':' read -r project_path module_name <<< "$module"
     echo "$module_name 모듈 처리 중..."
     
-    dotnet build $dotnet_options "$project_path" --output "$publish_path/handstack/modules/$module_name"
+    dotnet build -p:Optimize=$optimize_flag --configuration $configuration_mode "$project_path" --output "$publish_path/handstack/modules/$module_name"
 done
 
 # 추가 파일들 복사

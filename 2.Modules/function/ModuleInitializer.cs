@@ -37,7 +37,6 @@ using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
-using Microsoft.SemanticKernel;
 
 using MySql.Data.MySqlClient;
 
@@ -576,7 +575,6 @@ namespace function
             CultureInfo? cultureInfo = null;
             Encoding? encoding = null;
             Regex? regex = null;
-            Kernel? kernel = null;
             XmlDocument? xmlDocument = null;
             MySqlDbType? mySqlDbType = null;
             NpgsqlDbType? npgsqlDbType = null;

@@ -4,7 +4,6 @@ using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Management;
 using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
@@ -33,6 +32,7 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
@@ -307,36 +307,6 @@ namespace ack
                 if (cacheType == "Memory")
                 {
                     services.AddDistributedMemoryCache();
-                }
-                else if (cacheType == "MySql")
-                {
-                    services.AddDistributedMySqlCache(options =>
-                    {
-                        options.ConnectionString = appSettings["SessionState:MySqlConnectionString"].ToStringSafe();
-                        options.SchemaName = appSettings["SessionState:MySqlSchemaName"].ToStringSafe();
-                        options.TableName = appSettings["SessionState:MySqlTableName"].ToStringSafe();
-
-                        if (options.ConnectionString == "" || options.SchemaName == "" || options.TableName == "")
-                        {
-                            Log.Error("[{LogCategory}] " + "MySql Cache 환경설정 확인 필요", "Startup/ConfigureServices");
-                            throw new Exception("MySql Cache 환경설정 확인 필요");
-                        }
-                    });
-                }
-                else if (cacheType == "SqlServer")
-                {
-                    services.AddDistributedSqlServerCache(options =>
-                    {
-                        options.ConnectionString = appSettings["SessionState:SqlServerConnectionString"].ToStringSafe();
-                        options.SchemaName = appSettings["SessionState:SqlServerSchemaName"].ToStringSafe();
-                        options.TableName = appSettings["SessionState:SqlServerTableName"].ToStringSafe();
-
-                        if (options.ConnectionString == "" || options.SchemaName == "" || options.TableName == "")
-                        {
-                            Log.Error("[{LogCategory}] " + "SqlServer Cache 환경설정 확인 필요", "Startup/ConfigureServices");
-                            throw new Exception("SqlServer Cache 환경설정 확인 필요");
-                        }
-                    });
                 }
                 else if (cacheType == "Redis")
                 {
@@ -1721,15 +1691,7 @@ namespace ack
 
         protected string GetWindowsHardwareID()
         {
-            var result = "";
-#pragma warning disable CA1416 // 플랫폼 호환성 유효성 검사
-            var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_Processor");
-            foreach (ManagementObject obj in searcher.Get())
-            {
-                result = obj["ProcessorId"].ToStringSafe("HANDSTACK_HOSTACCESSID");
-            }
-#pragma warning restore CA1416 // 플랫폼 호환성 유효성 검사
-            return result;
+            return ExecuteWindowsCommand("wmic csproduct get uuid").Replace("UUID", "").Trim();
         }
 
         protected string GetLinuxHardwareID()
@@ -1742,9 +1704,31 @@ namespace ack
             return ExecuteBashCommand("ioreg -rd1 -c IOPlatformExpertDevice | grep IOPlatformUUID | awk '{print $3}' | sed 's/\\\"//g'");
         }
 
+        protected string ExecuteWindowsCommand(string command)
+        {
+            var result = "HANDSTACK_HOSTACCESSID";
+            var psi = new ProcessStartInfo("cmd.exe", "/c " + command)
+            {
+                RedirectStandardOutput = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+
+            using (var process = Process.Start(psi))
+            {
+                if (process != null)
+                {
+                    string output = process.StandardOutput.ReadToEnd();
+                    process.WaitForExit();
+                    result = output.Trim();
+                }
+            }
+            return result;
+        }
+
         protected string ExecuteBashCommand(string command)
         {
-            var result = "";
+            var result = "HANDSTACK_HOSTACCESSID";
             var psi = new ProcessStartInfo
             {
                 FileName = "/bin/bash",
@@ -1758,11 +1742,9 @@ namespace ack
             {
                 if (process != null)
                 {
-                    result = process.StandardOutput.ReadToEnd().Trim();
-                }
-                else
-                {
-                    result = "HANDSTACK_HOSTACCESSID";
+                    string output = process.StandardOutput.ReadToEnd();
+                    process.WaitForExit();
+                    result = output.Trim();
                 }
             }
             return result;

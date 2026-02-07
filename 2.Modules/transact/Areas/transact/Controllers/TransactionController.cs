@@ -1150,7 +1150,8 @@ namespace transact.Areas.transact.Controllers
                             }
                             catch
                             {
-                                response.ExceptionText = $"{request.Transaction.OperatorID}: BearerToken 정보가 훼손되거나 확인 할 수 없습니다. 다시 로그인 해야 합니다.";
+                                response.ExceptionText = $"{request.Transaction.OperatorID}: BearerToken 정보 확인 필요.";
+                                logger.Warning("[{LogCategory}] " + response.ExceptionText + $"Request JSON: {JsonConvert.SerializeObject(request)}", "Transaction/Execute");
                                 return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                             }
                         }
@@ -1335,7 +1336,7 @@ namespace transact.Areas.transact.Controllers
                                     }
                                     catch
                                     {
-                                        response.ExceptionText = $"{userID}: BearerToken 정보가 훼손되거나 확인 할 수 없습니다. 다시 로그인 해야 합니다.";
+                                        response.ExceptionText = $"{userID}: BearerToken 정보가 훼손되거나 확인 할 수 없습니다.";
                                         return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                                     }
                                 }
