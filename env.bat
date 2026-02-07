@@ -19,3 +19,13 @@ set "HANDSTACK_HOME=%PARENT_DIR%\build\handstack"
 
 echo HANDSTACK_SRC: %HANDSTACK_SRC%
 echo HANDSTACK_HOME: %HANDSTACK_HOME%
+
+REM winget install --id Microsoft.Powershell --source winget
+REM pwsh
+REM $targetFiles = @("post-build.sh", "build.sh", "task.sh", "setting.sh", "publish.sh", "install.sh", "env.sh")
+REM Get-ChildItem -Path . -Recurse -Include $targetFiles | ForEach-Object {
+REM     $content = Get-Content $_.FullName -Raw
+REM     $content = $content -replace "`r`n", "`n"
+REM     Set-Content -Path $_.FullName -Value $content -NoNewline -Encoding UTF8
+REM     Write-Host "Converted: $($_.FullName)"
+REM }
