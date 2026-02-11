@@ -1,9 +1,6 @@
 @echo off
 chcp 65001
 
-REM task.bat copy
-REM handstack task --file=C:/projects/qcn.qrame/tools/cli/qrame/task.json --value=module:build
-
 set TASK_COMMAND=%1
 if "%TASK_COMMAND%" == "" set TASK_COMMAND=
 
