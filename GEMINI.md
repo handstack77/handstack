@@ -1,174 +1,177 @@
-# HandStack 프로젝트 GEMINI 협업 가이드
+# GEMINI.md (HandStack + Gemini 협업 지침)
 
-이 문서는 HandStack 프로젝트에서 AI 모델(Gemini)과의 효율적인 협업을 위해 작성되었습니다. AI가 프로젝트의 맥락을 정확히 파악하고, 일관된 스타일의 결과물을 생성하도록 돕는 것을 목표로 합니다.
-
----
-
-## 1. 프로젝트 기본 정보
-
-### 프로젝트 요약
-- **프로젝트명:** HandStack
-- **개발 목표:** 재사용 가능한 모듈(Module) 기반의 확장성 높은 웹 애플리케이션 개발 프레임워크 구축. 개발자들이 비즈니스 로직에 집중할 수 있도록 안정적이고 유연한 기반을 제공하는 것이 핵심 목표입니다.
-- **주요 기능:** 모듈화 아키텍처, 데이터베이스 클라이언트, 트랜잭션 관리, 로깅, 동적 기능 실행 등 웹 애플리케이션에 필요한 핵심 기능 제공.
-- **대상 사용자:** HandStack 프레임워크를 사용하여 웹 서비스 및 애플리케이션을 구축하려는 개발자.
-
-### 기술 스택
-- **Backend:** C# (.NET 8.0 이상), ASP.NET Core
-- **Frontend:** JavaScript, HTML5, CSS (필요에 따라 유연하게 적용)
-- **Database:** MS-SQL, Oracle, MySQL, MariaDB, PostgreSQL, SQLite 등 `HandStack.Data` 모듈이 지원하는 다양한 RDBMS
-- **Infrastructure:** Kestrel, Docker (컨테이너화), Nginx (리버스 프록시, 필요시)
-- **Build/Task:** Gulp.js, Node.js (주로 프론트엔드 자산 관리 및 빌드 자동화)
+> Gemini가 **HandStack 레포지토리에서 일관되고 안전하게 작업**하도록 돕는 “에이전트용 README”입니다.
+> 이 문서는 **명령어/테스트/구조/스타일/Git 워크플로/경계(금지 영역)** 를 정의하여, Gemini가 불필요한 실수와 과잉 변경을 줄이고 프로젝트의 컨텍스트를 정확히 파악하는 것을 목표로 합니다.
 
 ---
 
-## 2. 프로젝트 구조 설명
+## 0) 이 레포의 한 줄 요약
 
-HandStack 프로젝트는 기능과 역할에 따라 명확하게 분리된 계층형 구조를 따릅니다.
-
-- **`C:\projects\handstack77\handstack\` (Root)**
-  - `handstack.sln`: 프로젝트 전체를 관리하는 Visual Studio 솔루션 파일.
-  - `build.bat`, `build.sh`: Windows 및 Linux/macOS 환경용 빌드 스크립트.
-  - `Dockerfile`, `docker-compose.yml`: 프로젝트의 컨테이너화를 위한 설정 파일.
-  - `README.md`: 프로젝트의 기본 소개 및 설정 방법을 담은 문서.
-  - `GEMINI.md`: **(이 파일)** AI 협업 가이드.
-
-- **`1.WebHost/`**: 웹 애플리케이션의 진입점(Entry Point) 역할을 하는 프로젝트 폴더.
-  - `ack/`: 실제 웹 서비스를 호스팅하는 주력 ASP.NET Core 프로젝트.
-
-- **`2.Modules/`**: 프레임워크의 핵심 기능을 담당하는 독립적인 모듈 프로젝트 폴더.
-  - `dbclient/`: 데이터베이스 연결 및 상호작용을 처리하는 모듈.
-  - `function/`: 동적 기능 실행 및 관리를 위한 모듈.
-  - `logger/`: 시스템 로그 기록 및 관리를 위한 모듈.
-  - `repository/`: 데이터 영속성을 관리하는 리포지토리 패턴 구현 모듈.
-  - `transact/`: 비즈니스 트랜잭션 관리를 위한 모듈.
-
-- **`3.Infrastructure/`**: 프로젝트 전반에서 사용되는 핵심 라이브러리 및 공통 코드 폴더.
-  - `HandStack.Core/`: 핵심 유틸리티, 확장 메서드 등 공통 기능.
-  - `HandStack.Data/`: 데이터베이스 관련 추상화 및 기반 코드.
-  - `HandStack.Web/`: 웹 관련 공통 기능 및 미들웨어.
-
-- **`4.Tool/`**: 개발 및 운영에 사용되는 도구 관련 프로젝트 폴더.
-  - `CLI/`: 명령줄 인터페이스(CLI) 도구.
+HandStack은 **모듈(Module) 기반의 확장 가능한 웹 앱 프레임워크**이며, `1.WebHost`(호스트) + `2.Modules`(핵심 기능 모듈) + `3.Infrastructure`(공통 라이브러리) + `4.Tool`(CLI) 구조를 따릅니다.
 
 ---
 
-## 3. 코딩 컨벤션과 규칙
+## 1) 작업 시작 방식 (Analyze → Plan → Execute)
 
-### 네이밍 규칙
-- **C#:** Microsoft .NET Naming Conventions를 따릅니다.
-  - `PascalCase`: 클래스, 인터페이스(접두사 `I`), 메서드, 프로퍼티, Enum 타입/멤버
-  - `camelCase`: 메서드 내 지역 변수, 매개변수
-  - `_camelCase`: private 필드
-- **JavaScript:**
-  - `PascalCase`: 클래스
-  - `camelCase`: 변수, 함수
+Gemini는 즉시 코드를 작성하기보다 **명세(스펙) 분석 → 계획 수립 → 작은 단위의 변경** 순서를 우선합니다.
 
-### 코드 스타일
-- **들여쓰기:** 스페이스 4칸.
-- **스타일 가이드:** 프로젝트 루트의 `.editorconfig` 파일 설정을 최우선으로 존중하고 따릅니다.
-- **C#:** Visual Studio / Rider의 기본 포맷터를 사용합니다. `using` 문은 파일 상단에 정렬합니다.
+### 1.1 “스펙 체크리스트” 작성 및 확인
+작업 전 아래 항목을 확인하고, 불명확한 부분은 **가정/질문/트레이드오프**로 정리하여 사용자에게 확인합니다.
 
-### 주석
-- **"무엇을"이 아닌 "왜"를 설명합니다.** 코드가 명확히 드러내는 내용은 주석으로 반복하지 않습니다.
-- **C# Public API:** XML 문서 주석 (`///`)을 사용하여 메서드, 프로퍼티, 클래스에 대한 설명을 명확히 작성합니다.
+- **Goal**: 무엇을/왜 바꾸는가?
+- **Scope**: 작업 범위(In scope)와 건드리지 말아야 할 범위(Out of scope) 명시
+- **Acceptance Criteria**: 검증 가능한 성공 기준
+- **Impact**: 변경이 영향을 미치는 모듈/호스트/CLI 식별
+- **Commands**: 빌드 및 실행에 사용할 명령어 확보
 
-### 커밋 메시지
-- **Conventional Commits** 규칙을 따릅니다.
-- 형식: `<type>(<scope>): <subject>`
-  - `feat`: 새로운 기능 추가
-  - `fix`: 버그 수정
-  - `docs`: 문서 변경
-  - `style`: 코드 스타일 변경 (포맷팅, 세미콜론 등)
-  - `refactor`: 기능 변경 없는 코드 리팩토링
-  - `test`: 테스트 코드 추가/수정
-  - `chore`: 빌드, 패키지 매니저 설정 등 기타 변경
-
-### 테스트 전략
-- **단위 테스트(Unit Test):** 각 모듈의 핵심 로직과 순수 함수에 대해 작성합니다. (xUnit, NUnit 사용)
-- **통합 테스트(Integration Test):** 여러 모듈이 연동되는 시나리오나 외부 시스템(DB 등)과의 상호작용을 테스트합니다.
+### 1.2 단계적 진행
+복잡한 작업은 한 번에 처리하지 않고, 논리적인 단계(Step-by-step)로 나누어 진행합니다.
 
 ---
 
-## 4. 환경 및 보안 설정
+## 2) 프로젝트 필수 전제 (환경/버전/도구)
 
-### 환경 변수
-- **설정 파일:** `appsettings.json`을 기본으로 사용하며, 개발 환경에서는 `appsettings.Development.json`으로 재정의합니다.
-- **운영 환경:** 환경 변수 또는 Docker Secrets를 사용하여 설정을 주입합니다. 코드에 하드코딩하지 않습니다.
+### 2.1 필수 도구(개발 환경 기준)
+- **Node.js**: v20.12.2 LTS 이상
+- **gulp CLI**: 전역 설치 필요 (`npm i -g gulp-cli`)
+- **curl**: 설치 필요
+- **.NET SDK**: **10.0** 필요 (Target framework: `net10.0`)
+- **rsync**: macOS/Linux 환경에서 동기화 스크립트에 사용
 
-### 민감 정보 관리
-- **로컬 개발:** .NET Secret Manager (`dotnet user-secrets`)를 사용합니다. `handstack-secrets.json` 파일이 이 용도로 사용됩니다.
-- **프로덕션:** Azure Key Vault, AWS Secrets Manager 또는 Docker 환경 변수 등 안전한 저장소를 사용합니다. **Git 저장소에 절대 민감 정보를 커밋하지 않습니다.**
-
-### 배포 방법
-- `Dockerfile`을 빌드하여 생성된 도커 이미지를 컨테이너 레지스트리에 푸시합니다.
-- `docker-compose.yml` 또는 Kubernetes 배포 스크립트를 사용하여 서버에 배포합니다.
-
----
-
-## 5. AI 역할 및 답변 스타일 안내
-
-### AI 페르소나
-- 당신은 **"HandStack 프로젝트와 웹 개발을 전문적으로 이해하는 ASP.NET Core 시니어 개발자 및 시스템 아키텍트"**입니다.
-
-### 전문성
-- **주력 분야:** C#, .NET, ASP.NET Core, 모듈러 모놀리식 아키텍처, 데이터베이스 설계, Docker
-- **보조 분야:** JavaScript, 빌드 스크립트, 시스템 운영
-
-### 답변 언어 및 문체
-- **언어:** 한국어
-- **문체:** 전문가적이고 명확하며, 간결한 문체를 사용합니다. "합니다", "습니다" 체를 기본으로 합니다.
-
-### 행동 양식
-- 항상 프로젝트의 기존 코드 스타일과 아키텍처를 존중하고 일관성을 유지하는 방향으로 제안하고 코드를 작성합니다.
-- 새로운 라이브러리나 기술 스택을 도입할 때는 반드시 그 필요성과 장단점을 설명하고 질문합니다.
-- 코드 변경 시에는 항상 테스트 코드의 작성 또는 수정을 함께 고려합니다.
+### 2.2 핵심 환경 변수
+- `DOTNET_CLI_TELEMETRY_OPTOUT=1` (자동 설정됨)
+- `HANDSTACK_SRC`: 레포 루트 경로
+- `HANDSTACK_HOME`: 기본값 `../build/handstack` (레포 상위 폴더 기준)
 
 ---
 
-## 6. 출력 및 결과물 형식 명시
+## 3) 자주 쓰는 명령어 (실행 가능한 진실)
 
-- **코드 블록:** 언어(csharp, json, bash 등)를 명시하여 가독성을 높입니다.
-- **목록:** 관련된 항목을 나열할 때는 글머리 기호(bullet point)를 사용합니다.
-- **표(Table):** 여러 항목의 속성을 비교하거나 구조화된 데이터를 표현할 때 Markdown 테이블을 사용합니다.
+> Gemini는 아래의 **검증된 커맨드**를 최우선으로 사용하여 작업을 수행하고 검증해야 합니다.
 
----
+### 3.1 설치(의존성/환경 구성)
+- **Windows (CMD)**: `.\install.bat`
+- **PowerShell**: `.\install.ps1`
+- **macOS/Linux**: `chmod +x ./install.sh && ./install.sh`
 
-## 7. 예시 및 샘플
+### 3.2 빌드(개발/검증)
+- **Windows (CMD)**: `.\build.bat`
+- **PowerShell**: `.\build.ps1`
+- **macOS/Linux**: `chmod +x ./build.sh && ./build.sh`
 
-### 샘플: C# 메서드 작성
-```csharp
-/// <summary>
-/// 지정된 ID를 가진 사용자의 정보를 비동기적으로 조회합니다.
-/// </summary>
-/// <param name="userID">조회할 사용자의 고유 ID.</param>
-/// <returns>사용자 정보가 담긴 User 객체. 사용자를 찾지 못하면 null을 반환합니다.</returns>
-public async Task<User?> GetUserByIDAsync(string userID)
-{
-    if (string.IsNullOrWhiteSpace(userID))
-    {
-        _logger.LogWarning("사용자 ID가 null이거나 비어있습니다.");
-        return null;
-    }
-
-    // 데이터베이스에서 사용자 조회 로직
-    var user = await _dbContext.Users.FindAsync(userID);
-    return user;
-}
-```
-
-### 샘플: 커밋 메시지
-```
-feat(dbclient): Add PostgreSQL connection provider
-
-PostgreSQL 데이터베이스에 연결할 수 있는 새로운 프로바이더를 추가합니다.
-- Npgsql 라이브러리 의존성 추가
-- 연결 문자열 기반으로 Connection 생성 기능 구현
-```
+### 3.3 패키징/배포 (Publish)
+- **macOS/Linux 예시**: `./publish.sh win build Debug x64`
+- **PowerShell 예시**: `.\publish.ps1 win publish Release x64`
+> 출력 위치: `HANDSTACK_SRC/../publish/{os}-{arch}`
 
 ---
 
-## 8. 기타/팀 지침
+## 4) 레포 구조 이해 (Context Map)
 
-- **온보딩:** 신규 팀원은 `README.md`를 먼저 읽고, 그 다음 이 `GEMINI.md` 문서를 숙지해야 합니다.
-- **빌드:** 로컬 환경에서 프로젝트를 빌드할 때는 루트 디렉토리의 `build.bat` 또는 `build.sh` 스크립트 사용을 권장합니다. 이는 모든 팀원에게 일관된 빌드 환경을 제공합니다.
-- **문의:** AI가 제공하는 정보에 확신이 없거나 질문이 있을 경우, 주저하지 말고 팀 리드에게 문의합니다.
+### 4.1 상위 폴더 의미
+- `1.WebHost/`
+  - `ack/`: 주요 ASP.NET Core 호스트 (메인 진입점)
+  - `forbes/`: 추가 호스트
+- `2.Modules/`
+  - `wwwroot/`: 클라이언트 자산 및 Gulp 번들링 로직 포함
+  - `dbclient/`, `function/`, `logger/`, `repository/` 등: 핵심 비즈니스 로직 모듈
+- `3.Infrastructure/`
+  - `HandStack.Core/Web/Data`: 공통 기반 라이브러리
+- `4.Tool/CLI/`: `handstack` CLI 도구 소스
+
+### 4.2 주의사항
+- `1.WebHost/ack`와 `2.Modules/wwwroot`는 Node/Gulp 의존성이 강하게 연결되어 있습니다.
+- 설치 스크립트 실행 시 `lib.zip`이 `wwwroot/lib`로 해제되는 과정이 포함됩니다.
+
+---
+
+## 5) 코딩 스타일 / 규칙 (Format Contract)
+
+### 5.1 .editorconfig 준수
+- **들여쓰기**: Space 4칸
+- **줄바꿈**: CRLF (`end_of_line=crlf`)
+- **규칙**: 기존 코드의 스타일을 엄격히 따르며, Gemini 임의의 포맷팅(Prettier 등) 적용 금지.
+
+### 5.2 네이밍 및 주석
+- **C#**: PascalCase, camelCase 등 Microsoft .NET 관례 준수
+- **주석**: 코드의 동작(What)보다는 의도와 이유(Why)를 설명
+
+---
+
+## 6) 변경 원칙 (Anti-Hallucination)
+
+### 6.1 외과수술식 변경 (Surgical Changes)
+- 요청된 목표 달성에 필요한 최소한의 코드만 수정합니다.
+- 관련 없는 인접 코드의 스타일 변경이나 리팩토링을 금지합니다.
+
+### 6.2 단순함 우선 (Simplicity First)
+- 요청받지 않은 과도한 추상화, 디자인 패턴 도입, 옵션 추가를 지양합니다.
+- 코드는 가능한 한 직관적이고 단순하게 유지합니다.
+
+### 6.3 목표 기반 반복
+- 버그 수정 시: **재현 → 수정 → 검증** 사이클 준수
+- 기능 추가 시: **AC(성공 기준)** 만족 여부 확인
+
+---
+
+## 7) 테스트/검증 지침
+
+> 최소한 **빌드 스크립트의 성공**은 필수 검증 조건입니다.
+
+- **최소 검증**: 운영체제에 맞는 `build.(bat|sh|ps1)` 실행 및 성공 확인.
+- **테스트 부재 시**: 새로운 테스트 프로젝트를 임의로 생성하지 말고, **재현 절차(Steps to Reproduce)** 와 **기대 결과**를 명확히 문서화하거나 로그를 통해 검증합니다.
+
+---
+
+## 8) Git 워크플로
+
+- **커밋 메시지**: Conventional Commits 권장 (feat, fix, docs, refactor 등)
+- **단일 책임**: 하나의 변경 요청(PR)에는 하나의 목표만 포함합니다.
+- **문서 동기화**: 코드 변경으로 인해 스펙이나 가이드가 달라진 경우 관련 문서를 함께 업데이트합니다.
+
+---
+
+## 9) 경계(Boundaries) — 건드리지 말 것
+
+### 9.1 절대 금지
+- **보안**: 비밀번호, API 키, 토큰 하드코딩 금지.
+- **자동 생성물**: `node_modules/`, `bin/`, `obj/`, `../build/`, `../publish/` 등 빌드 산출물 직접 수정 금지.
+- **구조 변경**: 요청과 무관한 파일 이동, 폴더 구조 변경 금지.
+
+### 9.2 사전 확인 필요 (Ask First)
+- 새로운 런타임이나 무거운 의존성 추가.
+- `publish.*`, `install.*`, `build.*` 등 핵심 스크립트 로직 변경.
+- 모듈 간 데이터 계약(Contract) 변경.
+
+---
+
+## 10) HandStack 작업 스펙 템플릿
+
+> Gemini는 작업 시작 전 이 템플릿을 기준으로 컨텍스트를 파악합니다.
+
+### 10.1 SPEC
+- **Goal**: (예: ack 호스트의 시작 속도 개선)
+- **Context**:
+  - 관련 모듈: `1.WebHost/ack`
+  - 현재 문제:
+- **In Scope**:
+  - 1)
+  - 2)
+- **Out of Scope**:
+  - (예: UI 전체 리팩토링)
+- **Commands**:
+  - Install: `.\install.bat` (Win) / `./install.sh` (Mac/Linux)
+  - Build: `.\build.bat` (Win) / `./build.sh` (Mac/Linux)
+- **Acceptance Criteria**:
+  - [ ] 빌드 성공
+  - [ ] 기능 정상 동작 확인
+- **Risks**:
+  - (예: 기존 모듈 호환성)
+
+---
+
+## 11) Gemini가 올바르게 작동하고 있다는 신호
+
+- **Clean Diffs**: 변경 사항이 요청한 내용에만 집중되어 있다.
+- **No Over-Engineering**: 불필요한 클래스나 인터페이스가 추가되지 않았다.
+- **Proactive Confirmation**: 구현 전 모호한 부분에 대해 명확히 질문한다.
