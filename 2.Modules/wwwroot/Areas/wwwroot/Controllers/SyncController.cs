@@ -1,19 +1,21 @@
-using System;
-using System.IO;
+﻿using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 
+using HandStack.Web.Common;
+
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 
-namespace forbes.wwwroot.Controllers
+namespace wwwroot.Areas.wwwroot.Controllers
 {
-    [Route("wwwroot/api/[controller]")]
+    [Area("wwwroot")]
+    [Route("[area]/api/[controller]")]
     [ApiController]
-    public class SyncController : ControllerBase
+    public class SyncController : BaseController
     {
         private readonly IConfiguration configuration;
 
@@ -57,17 +59,6 @@ namespace forbes.wwwroot.Controllers
 
             return Ok(result.Message);
         }
-
-        public static async Task<SyncForwardResult> UploadAndRefreshFromFileAsync(string fileSyncServer, string moduleName, WatcherChangeTypes changeTypes, string filePath, string fullFilePath)
-        {
-            var uploadResult = await SyncForwarder.ForwardUploadFromFileAsync(fileSyncServer, moduleName, changeTypes.ToString(), filePath, fullFilePath);
-            if (!uploadResult.Success)
-            {
-                return uploadResult;
-            }
-
-            return await SyncForwarder.ForwardRefreshAsync(fileSyncServer, moduleName, changeTypes.ToString(), filePath);
-        }
     }
 
     public class SyncUploadRequest
@@ -84,7 +75,7 @@ namespace forbes.wwwroot.Controllers
         public string FilePath { get; set; } = "";
     }
 
-    public sealed class SyncForwardResult
+    internal sealed class SyncForwardResult
     {
         public bool Success { get; }
         public string Message { get; }
@@ -103,21 +94,6 @@ namespace forbes.wwwroot.Controllers
             Timeout = TimeSpan.FromSeconds(10)
         };
 
-        public static async Task<SyncForwardResult> ForwardUploadFromFileAsync(string fileSyncServer, string moduleName, string changeType, string filePath, string fullFilePath, CancellationToken cancellationToken = default)
-        {
-            using var formData = CreateFormData(moduleName, changeType, filePath);
-
-            if (!changeType.Equals(WatcherChangeTypes.Deleted.ToString(), StringComparison.OrdinalIgnoreCase) && File.Exists(fullFilePath))
-            {
-                var stream = File.OpenRead(fullFilePath);
-                var streamContent = new StreamContent(stream);
-                streamContent.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
-                formData.Add(streamContent, "file", Path.GetFileName(fullFilePath));
-            }
-
-            return await PostUploadAsync(fileSyncServer, formData, cancellationToken);
-        }
-
         public static async Task<SyncForwardResult> ForwardUploadAsync(string fileSyncServer, string moduleName, string changeType, string filePath, IFormFile? file, CancellationToken cancellationToken = default)
         {
             using var formData = CreateFormData(moduleName, changeType, filePath);
@@ -129,7 +105,19 @@ namespace forbes.wwwroot.Controllers
                 formData.Add(streamContent, "file", file.FileName);
             }
 
-            return await PostUploadAsync(fileSyncServer, formData, cancellationToken);
+            string uploadUrl = BuildUrl(fileSyncServer, "wwwroot/api/sync/upload");
+            try
+            {
+                using var response = await HttpClient.PostAsync(uploadUrl, formData, cancellationToken);
+                string responseText = await response.Content.ReadAsStringAsync(cancellationToken);
+                return response.IsSuccessStatusCode
+                    ? new SyncForwardResult(true, responseText)
+                    : new SyncForwardResult(false, $"Upload failed. statusCode: {(int)response.StatusCode}, response: {responseText}");
+            }
+            catch (Exception exception)
+            {
+                return new SyncForwardResult(false, $"Upload exception: {exception.Message}");
+            }
         }
 
         public static async Task<SyncForwardResult> ForwardRefreshAsync(string fileSyncServer, string moduleName, string changeType, string filePath, CancellationToken cancellationToken = default)
@@ -150,24 +138,6 @@ namespace forbes.wwwroot.Controllers
             catch (Exception exception)
             {
                 return new SyncForwardResult(false, $"Refresh exception: {exception.Message}");
-            }
-        }
-
-        private static async Task<SyncForwardResult> PostUploadAsync(string fileSyncServer, MultipartFormDataContent formData, CancellationToken cancellationToken)
-        {
-            string uploadUrl = BuildUrl(fileSyncServer, "wwwroot/api/sync/upload");
-
-            try
-            {
-                using var response = await HttpClient.PostAsync(uploadUrl, formData, cancellationToken);
-                string responseText = await response.Content.ReadAsStringAsync(cancellationToken);
-                return response.IsSuccessStatusCode
-                    ? new SyncForwardResult(true, responseText)
-                    : new SyncForwardResult(false, $"Upload failed. statusCode: {(int)response.StatusCode}, response: {responseText}");
-            }
-            catch (Exception exception)
-            {
-                return new SyncForwardResult(false, $"Upload exception: {exception.Message}");
             }
         }
 

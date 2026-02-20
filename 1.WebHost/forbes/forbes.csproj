@@ -33,9 +33,6 @@
     </ItemGroup>
     
     <ItemGroup>
-        <Compile Remove="build/**" />
-        <None Remove="wwwroot/Controllers/**" />
-        <Compile Include="wwwroot/Controllers/**/*.cs" />
         <None Include="wwwroot/**" />
         <None Update="wwwroot/**">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

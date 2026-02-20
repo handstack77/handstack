@@ -9,7 +9,6 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using forbes.Extensions;
-using forbes.wwwroot.Controllers;
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -80,7 +79,6 @@ namespace forbes
                     }
                 });
             });
-            builder.Services.AddControllers();
             builder.Services.AddDirectoryBrowser();
 
             var app = builder.Build();
@@ -93,7 +91,6 @@ namespace forbes
 
             TraceLogger.Init(entryDirectoryPath);
             TraceLogger.Info($"Server Started at: {entryDirectoryPath}");
-            app.MapControllers();
 
             ForbesConfiguration.StaticFileCacheMaxAge = builder.Configuration.GetValue<int>("StaticFileCacheMaxAge", 0);
             StartContractFileMonitoring(builder.Configuration, entryDirectoryPath);
@@ -256,7 +253,7 @@ namespace forbes
                         relativePath = "/" + relativePath;
                     }
 
-                    var syncResult = await SyncController.UploadAndRefreshFromFileAsync(fileSyncServer, monitorTarget.ModuleName, changeTypes, relativePath, fileInfo.FullName);
+                    var syncResult = await ContractSyncClient.UploadAndRefreshFromFileAsync(fileSyncServer, monitorTarget.ModuleName, changeTypes, relativePath, fileInfo.FullName);
                     if (!syncResult.Success)
                     {
                         TraceLogger.Error($"Contract sync failed. module: {monitorTarget.ModuleName}, path: {relativePath}, message: {syncResult.Message}");
