@@ -1,4 +1,4 @@
-﻿(function (context) {
+(function (context) {
     'use strict';
     const $browser = context.$browser || new syn.module();
     const doc = context.document;
@@ -60,14 +60,14 @@
             const testFontSize = '72px';
 
             const baseWidths = {};
-            const testElement = document.createElement('span');
+            const testElement = doc.createElement('span');
             testElement.style.position = 'absolute';
             testElement.style.visibility = 'hidden';
             testElement.style.top = '-9999px';
             testElement.style.left = '-9999px';
             testElement.style.fontSize = testFontSize;
             testElement.textContent = testString;
-            document.body.appendChild(testElement);
+            doc.body.appendChild(testElement);
 
             baseFonts.forEach(baseFont => {
                 testElement.style.fontFamily = baseFont;
@@ -90,7 +90,7 @@
                 }
             }
 
-            document.body.removeChild(testElement);
+            doc.body.removeChild(testElement);
 
             const uniqueFonts = [...new Set(availableFonts)];
             uniqueFonts.sort();
@@ -235,13 +235,7 @@
         },
 
         canShare(data) {
-            if (!context.navigator?.share) {
-                return false;
-            }
-            if (data && context.navigator.canShare) {
-                return context.navigator.canShare(data);
-            }
-            return true;
+            return !!context.navigator?.share && (!data || !context.navigator.canShare || context.navigator.canShare(data));
         },
 
         // const shareData = {
@@ -256,14 +250,14 @@
                 try {
                     await context.navigator.share(data);
                     syn.$l.eventLog('$b.share', '공유 UI가 성공적으로 호출되었습니다.', 'Information');
-                    return Promise.resolve();
+                    return;
                 } catch (error) {
                     if (error.name !== 'AbortError') {
                         syn.$l.eventLog('$b.share', 'Web Share API 에러:', 'Error', error);
                     } else {
                         syn.$l.eventLog('$b.share', '사용자가 공유를 취소했습니다.', 'Information');
                     }
-                    return Promise.reject(error);
+                    throw error;
                 }
             } else {
                 syn.$l.eventLog('$b.share', 'Web Share API가 지원되지 않습니다.', 'Warning');
@@ -271,7 +265,7 @@
                     const textToCopy = data.url || data.text;
                     await syn.$w.copyToClipboard(textToCopy);
                 }
-                return Promise.reject(new Error('Web Share API가 지원되지 않습니다.'));
+                throw new Error('Web Share API가 지원되지 않습니다.');
             }
         },
 

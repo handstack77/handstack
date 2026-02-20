@@ -1,4 +1,4 @@
-﻿(function (context) {
+(function (context) {
     'use strict';
     const $dimension = context.$dimension || new syn.module();
     const doc = context.document;
@@ -180,7 +180,7 @@
 
             let effectiveMaxWidth = maxWidth;
             if ($object.isNumber(maxWidth)) {
-                effectiveMaxWidth = `${maxWidth} px`;
+                effectiveMaxWidth = `${maxWidth}px`;
             }
 
             let measuredWidth = this.measureWidth(text, fontSize);
@@ -198,7 +198,7 @@
             }
 
             if (!isNaN(numericMaxWidth) && numericWidth > numericMaxWidth) {
-                measuredWidth = `${numericMaxWidth} px`;
+                measuredWidth = `${numericMaxWidth}px`;
             }
 
             const measuredHeight = this.measureHeight(text, measuredWidth, fontSize);

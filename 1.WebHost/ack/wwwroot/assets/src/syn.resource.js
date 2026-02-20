@@ -1,4 +1,4 @@
-﻿(function (context) {
+(function (context) {
     'use strict';
     var $resource = context.$resource || new syn.module();
     var document = context.document;
@@ -168,31 +168,26 @@
         },
 
         getControl(el) {
-            var result = null;
             if ($object.isString(el) == true) {
                 el = syn.$l.get(el);
             }
 
-            if ($object.isNullOrUndefined(el) == false) {
-                var elID = el.id;
-                var tag = el.tagName;
-                var key = el.getAttribute('i18n-key');
-
-                if ($string.isNullOrEmpty(elID) == true) {
-                    result = $resource.translateControls.find(function (item) { return item.tag == tag && item.key == key; });
-                }
-                else {
-                    result = $resource.translateControls.find(function (item) { return item.elID == elID && item.tag == tag && item.key == key; });
-                }
+            if ($object.isNullOrUndefined(el) == true) {
+                return null;
             }
 
-            return result;
+            var elID = el.id;
+            var tag = el.tagName;
+            var key = el.getAttribute('i18n-key');
+            if ($string.isNullOrEmpty(elID) == true) {
+                return $resource.translateControls.find(function (item) { return item.tag == tag && item.key == key; });
+            }
+
+            return $resource.translateControls.find(function (item) { return item.elID == elID && item.tag == tag && item.key == key; });
         },
 
         translatePage() {
-            $resource.translateControls.forEach(function (control) {
-                $resource.translateControl(control);
-            });
+            $resource.translateControls.forEach(control => $resource.translateControl(control));
         },
 
         translateElement(el, options) {

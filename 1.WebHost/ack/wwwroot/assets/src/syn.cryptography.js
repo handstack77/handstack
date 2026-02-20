@@ -1,4 +1,4 @@
-﻿(function (context) {
+(function (context) {
     'use strict';
     const $cryptography = context.$cryptography || new syn.module();
     const encoder = new TextEncoder();
@@ -89,8 +89,6 @@
 
         // syn.$c.generateHMAC().then((signature) => { debugger; });
         async generateHMAC(key, message) {
-            let result = null;
-
             const keyData = encoder.encode(key);
             const messageData = encoder.encode(message);
             const cryptoKey = await crypto.subtle.importKey(
@@ -102,19 +100,17 @@
             );
 
             const signature = await crypto.subtle.sign('HMAC', cryptoKey, messageData);
-            result = Array.from(new Uint8Array(signature)).map(b => b.toString(16).padStart(2, '0')).join('');
-            return result;
+            return Array.from(new Uint8Array(signature)).map(b => b.toString(16).padStart(2, '0')).join('');
         },
 
         // syn.$c.verifyHMAC('handstack', 'hello world', '25a00a2d55bbb313329c8abba5aebc8b282615876544c5be236d75d1418fc612').then((result) => { debugger; });
         async verifyHMAC(key, message, signature) {
-            return await $cryptography.generateHMAC(key, message) === signature;
+            return $cryptography.generateHMAC(key, message).then(value => value === signature);
         },
 
         // syn.$c.generateRSAKey().then((cryptoKey) => { debugger; });
         async generateRSAKey() {
-            let result = null;
-            result = await window.crypto.subtle.generateKey(
+            return await window.crypto.subtle.generateKey(
                 {
                     name: "RSA-OAEP",
                     modulusLength: 2048,
@@ -124,16 +120,15 @@
                 true,
                 ['encrypt', 'decrypt']
             );
-            return result;
         },
 
         // syn.$c.exportCryptoKey(cryptoKey.publicKey, true).then((result) => { debugger; });
         async exportCryptoKey(cryptoKey, isPublic) {
             let result = '';
             isPublic = $string.toBoolean(isPublic);
-            const exportLabel = isPublic == true ? 'PUBLIC' : 'PRIVATE';
+            const exportLabel = isPublic ? 'PUBLIC' : 'PRIVATE';
             const exported = await window.crypto.subtle.exportKey(
-                (isPublic == true ? 'spki' : 'pkcs8'),
+                (isPublic ? 'spki' : 'pkcs8'),
                 cryptoKey
             );
             const exportedAsString = String.fromCharCode.apply(null, new Uint8Array(exported));
@@ -149,18 +144,17 @@
 
         // syn.$c.importCryptoKey('-----BEGIN PUBLIC KEY-----...-----END PUBLIC KEY-----', true).then((result) => { debugger; });
         async importCryptoKey(pem, isPublic) {
-            let result = null;
             isPublic = $string.toBoolean(isPublic);
-            const exportLabel = isPublic == true ? 'PUBLIC' : 'PRIVATE';
+            const exportLabel = isPublic ? 'PUBLIC' : 'PRIVATE';
             const pemHeader = `-----BEGIN ${exportLabel} KEY-----`;
             const pemFooter = `-----END ${exportLabel} KEY-----`;
             const pemContents = pem.substring(pemHeader.length, pem.length - pemFooter.length).replaceAll('\n', '');
             const binaryDerString = window.atob(pemContents);
             const binaryDer = syn.$l.stringToArrayBuffer(binaryDerString);
-            const importMode = isPublic == true ? ['encrypt'] : ['decrypt'];
+            const importMode = isPublic ? ['encrypt'] : ['decrypt'];
 
-            result = await crypto.subtle.importKey(
-                (isPublic == true ? 'spki' : 'pkcs8'),
+            return await crypto.subtle.importKey(
+                (isPublic ? 'spki' : 'pkcs8'),
                 binaryDer,
                 {
                     name: 'RSA-OAEP',
@@ -169,13 +163,10 @@
                 true,
                 importMode
             );
-            return result;
         },
 
         // syn.$c.rsaEncode('hello world', result).then((result) => { debugger; });
         async rsaEncode(text, publicKey) {
-            let result = null;
-
             const data = encoder.encode(text);
             const encrypted = await crypto.subtle.encrypt(
                 {
@@ -185,13 +176,11 @@
                 data
             );
 
-            result = $cryptography.base64Encode(new Uint8Array(encrypted));
-            return result;
+            return $cryptography.base64Encode(new Uint8Array(encrypted));
         },
 
         // syn.$c.rsaDecode(encryptData, result).then((result) => { debugger; });
         async rsaDecode(encryptedData, privateKey) {
-            let result = null;
             const encrypted = new Uint8Array($cryptography.base64Decode(encryptedData).split(',').map(Number));
             const decrypted = await crypto.subtle.decrypt(
                 {
@@ -201,8 +190,7 @@
                 encrypted
             );
 
-            result = decoder.decode(decrypted);
-            return result;
+            return decoder.decode(decrypted);
         },
 
         generateIV(key, ivLength) {
@@ -220,7 +208,6 @@
         },
 
         async aesEncode(text, key, algorithm, keyLength) {
-            let result = null;
             key = key || '';
             algorithm = algorithm || 'AES-CBC'; // AES-CBC, AES-GCM
             keyLength = keyLength || 256; // 128, 256
@@ -246,12 +233,10 @@
                 data
             );
 
-            result = {
+            return {
                 iv: $cryptography.base64Encode(iv),
                 encrypted: $cryptography.base64Encode(new Uint8Array(encrypted))
             };
-
-            return result;
         },
 
         async aesDecode(encryptedData, key, algorithm, keyLength) {
@@ -286,15 +271,13 @@
         },
 
         async sha(message, algorithms) {
-            let result = '';
             algorithms = algorithms || 'SHA-1'; // SHA-1,SHA-2,SHA-224,SHA-256,SHA-384,SHA-512,SHA3-224,SHA3-256,SHA3-384,SHA3-512,SHAKE128,SHAKE256
 
             const data = encoder.encode(message);
             const hash = await crypto.subtle.digest(algorithms, data);
-            result = Array.from(new Uint8Array(hash))
+            return Array.from(new Uint8Array(hash))
                 .map(b => b.toString(16).padStart(2, '0'))
                 .join('');
-            return result;
         },
 
         sha256(s) {

@@ -1,4 +1,4 @@
-﻿(function (context) {
+(function (context) {
     'use strict';
     const $library = context.$library || new syn.module();
     let doc = null;
@@ -56,19 +56,58 @@
             findAllByArgs(el, type) {
                 return items.filter(item => item.el === el && item.type === type);
             },
+            has(el, type, handler) {
+                for (let i = 0; i < items.length; i++) {
+                    const item = items[i];
+                    if (item.el === el && item.type === type) {
+                        if (typeof handler !== 'function' || item.handler === handler) {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            },
             getAll() {
                 return [...items];
             },
             flush() {
-                this.getAll().forEach(({ el, type, handler, options = {} }) => {
-                    if (el.removeEventListener) {
-                        el.removeEventListener(type, handler, options);
+                for (let i = items.length - 1; i >= 0; i--) {
+                    const item = items[i];
+                    if (item.el && item.el.removeEventListener) {
+                        item.el.removeEventListener(item.type, item.handler, item.options || {});
                     }
-                });
+                }
                 items.length = 0;
             }
         });
     })();
+
+    const selectNodes = (query, all, logSource) => {
+        if (!$object.isString(query)) {
+            return [];
+        }
+
+        try {
+            if (query.startsWith('//') || query.startsWith('.//')) {
+                const xpathResult = doc.evaluate(query, doc, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+                const nodes = [];
+                for (let i = 0; i < xpathResult.snapshotLength; i++) {
+                    nodes.push(xpathResult.snapshotItem(i));
+                }
+                return all ? nodes : (nodes[0] ? [nodes[0]] : []);
+            }
+
+            if (all) {
+                return Array.from(doc.querySelectorAll(query));
+            }
+
+            const element = doc.querySelector(query);
+            return element ? [element] : [];
+        } catch (e) {
+            syn.$l.eventLog(logSource, `잘못된 셀렉터 "${query}": ${e}`, 'Warning');
+            return [];
+        }
+    };
 
     $library.extend({
         prefixs: Object.freeze(['webkit', 'moz', 'ms', 'o', '']),
@@ -297,11 +336,7 @@
             el = this.getElement(el);
             if (!el) return false;
 
-            if (typeof handler === 'function') {
-                return this.events.findByArgs(el, type, handler).length > 0;
-            } else {
-                return this.events.findAllByArgs(el, type).length > 0;
-            }
+            return this.events.has(el, type, handler);
         },
 
         trigger(el, type, value) {
@@ -381,20 +416,9 @@
 
             const results = [];
             queries.forEach(query => {
-                if ($object.isString(query)) {
-                    try {
-                        if (query.startsWith('//') || query.startsWith('.//')) {
-                            const xpathResult = doc.evaluate(query, doc, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-                            for (let i = 0; i < xpathResult.snapshotLength; i++) {
-                                results.push(xpathResult.snapshotItem(i));
-                            }
-                        } else {
-                            const el = doc.querySelector(query);
-                            if (el) results.push(el);
-                        }
-                    } catch (e) {
-                        syn.$l.eventLog('$l.querySelector', `잘못된 셀렉터 "${query}": ${e}`, 'Warning');
-                    }
+                const nodes = selectNodes(query, false, '$l.querySelector');
+                if (nodes[0]) {
+                    results.push(nodes[0]);
                 }
             });
 
@@ -417,19 +441,9 @@
             if (globalRoot.devicePlatform === 'node' || !doc) return [];
             let results = [];
             queries.forEach(query => {
-                if ($object.isString(query)) {
-                    try {
-                        if (query.startsWith('//') || query.startsWith('.//')) {
-                            const xpathResult = doc.evaluate(query, doc, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-                            for (let i = 0; i < xpathResult.snapshotLength; i++) {
-                                results.push(xpathResult.snapshotItem(i));
-                            }
-                        } else {
-                            results = results.concat(Array.from(doc.querySelectorAll(query)));
-                        }
-                    } catch (e) {
-                        syn.$l.eventLog('$l.querySelectorAll', `잘못된 셀렉터 "${query}": ${e}`, 'Warning');
-                    }
+                const nodes = selectNodes(query, true, '$l.querySelectorAll');
+                if (nodes.length > 0) {
+                    results.push(...nodes);
                 }
             });
             return results;

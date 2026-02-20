@@ -1,7 +1,6 @@
-﻿(function (context) {
+(function (context) {
     'use strict';
     const $keyboard = context.$keyboard || new syn.module();
-    const $o = context.$object;
     const $l = context.$library;
 
     $keyboard.extend({

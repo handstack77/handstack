@@ -1,9 +1,6 @@
-﻿(function (context) {
+(function (context) {
     'use strict';
     const $validation = context.$validation || new syn.module();
-    const $o = context.$object;
-    const $s = context.$string;
-    const $l = context.$library;
     const $this = context.$this;
 
     $validation.extend({

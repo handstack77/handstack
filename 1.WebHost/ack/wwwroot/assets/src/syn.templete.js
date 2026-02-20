@@ -1,10 +1,9 @@
-﻿/// <summary>
+/// <summary>
 /// (개발용) 신규 모듈 개발 템플릿입니다.
 /// </summary>
 (function (context) {
     'use strict';
     const $templete = context.$templete || new syn.module();
-    let doc = context.document;
 
     $templete.extend({
         method() {
@@ -24,13 +23,6 @@ if (typeof module === 'object' && module.exports) {
 (function ($templete) {
     if (!$templete) {
         $templete = new syn.module();
-    }
-
-    let doc = null;
-    if (typeof module === 'object' && module.exports) {
-    }
-    else {
-        doc = window.document;
     }
 
     $templete.extend({

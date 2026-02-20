@@ -1,4 +1,4 @@
-﻿(function (context) {
+(function (context) {
     'use strict';
     const $network = context.$network || new syn.module();
 
@@ -287,8 +287,12 @@
                                 const transaction = createTransaction(id, origin, data.callbacks || []);
                                 receivedRequests[id] = {};
                                 try {
-                                    const processedParams = params;
+                                    let processedParams = params;
                                     if (Array.isArray(data.callbacks)) {
+                                        if (processedParams === null || processedParams === undefined || typeof processedParams !== 'object') {
+                                            processedParams = {};
+                                        }
+
                                         data.callbacks.forEach(path => {
                                             const pathItems = path.split('/');
                                             let currentParamLevel = processedParams;

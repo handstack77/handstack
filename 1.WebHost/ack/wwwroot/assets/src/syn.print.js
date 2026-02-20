@@ -1,4 +1,4 @@
-﻿(function (context) {
+(function (context) {
     'use strict';
     var $print = context.$print || new syn.module();
 
@@ -130,7 +130,7 @@
         },
 
         addAtWorkItem(workItems, document, worksheet, datafield, target, nextDirection) {
-            nextDirection = nextDirection || true;
+            nextDirection = nextDirection === undefined ? true : nextDirection;
 
             var index = workItems.findIndex(item =>
                 item.document === document &&

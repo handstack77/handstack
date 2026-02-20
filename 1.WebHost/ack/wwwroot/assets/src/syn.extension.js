@@ -1,4 +1,4 @@
-﻿(function (context) {
+(function (context) {
     'use strict';
     const $date = context.$date || new syn.module();
     const $array = context.$array || new syn.module();
@@ -84,9 +84,7 @@
             };
         }
 
-        if (globalRoot.devicePlatform === 'node') {
-        }
-        else {
+        if (globalRoot.devicePlatform !== 'node') {
             if (!Element.prototype.matches) {
                 Element.prototype.matches = Element.prototype.msMatchesSelector || Element.prototype.webkitMatchesSelector;
             }
@@ -717,14 +715,13 @@
         },
 
         toNumber(val) {
-            var result = 0;
             try {
-                result = parseFloat(($object.isNullOrUndefined(val) == true ? 0 : val) === 0 || val === '' ? '0' : val.toString().replace(/,/g, ''));
+                const effectiveValue = $object.isNullOrUndefined(val) ? 0 : val;
+                return parseFloat((effectiveValue === 0 || val === '') ? '0' : effectiveValue.toString().replace(/,/g, ''));
             } catch (error) {
                 syn.$l.eventLog('$string.toNumber', error, 'Warning');
+                return 0;
             }
-
-            return result;
         },
 
         capitalize(val) {

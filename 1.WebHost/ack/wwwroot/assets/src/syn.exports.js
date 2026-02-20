@@ -1,4 +1,4 @@
-﻿/// <summary>
+/// <summary>
 /// Node.js 용 exports 기능
 /// </summary>
 if (globalRoot.devicePlatform === 'node') {
@@ -31,7 +31,6 @@ if (globalRoot.devicePlatform === 'node') {
 
     if (syn && !syn.initializeModuleScript) {
         syn.initializeModuleScript = function (functionID, moduleFileName) {
-            var result = null;
             if (moduleFileName) {
                 try {
                     var fileDirectory = path.dirname(moduleFileName);
@@ -69,11 +68,8 @@ if (globalRoot.devicePlatform === 'node') {
                         logger.setLevel((process.env.SYN_LogMinimumLevel || 'trace'));
                         functionModule.logger = logger;
                         syn.functionModules[moduleID] = functionModule;
-                        result = moduleID;
                     }
-                    else {
-                        result = moduleID;
-                    }
+                    return moduleID;
                 } catch (error) {
                     console.log(error);
                 }
@@ -82,14 +78,13 @@ if (globalRoot.devicePlatform === 'node') {
                 console.log(moduleFileName + ' 모듈 확인 필요');
             }
 
-            return result;
+            return null;
         };
     }
 
     if (syn && !syn.getModuleLibrary) {
         syn.getModuleLibrary = function (moduleID, moduleFileName) {
-            var result = null;
-            result = syn.functionModules[moduleID];
+            var result = syn.functionModules[moduleID];
             if ($object.isNullOrUndefined(result) == true && moduleFileName) {
                 syn.initializeModuleScript(moduleID, moduleFileName);
                 result = syn.functionModules[moduleID];

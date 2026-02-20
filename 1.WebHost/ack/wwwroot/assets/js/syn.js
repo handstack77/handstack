@@ -307,14 +307,14 @@ if (typeof module !== 'undefined' && module.exports) {
             const testFontSize = '72px';
 
             const baseWidths = {};
-            const testElement = document.createElement('span');
+            const testElement = doc.createElement('span');
             testElement.style.position = 'absolute';
             testElement.style.visibility = 'hidden';
             testElement.style.top = '-9999px';
             testElement.style.left = '-9999px';
             testElement.style.fontSize = testFontSize;
             testElement.textContent = testString;
-            document.body.appendChild(testElement);
+            doc.body.appendChild(testElement);
 
             baseFonts.forEach(baseFont => {
                 testElement.style.fontFamily = baseFont;
@@ -337,7 +337,7 @@ if (typeof module !== 'undefined' && module.exports) {
                 }
             }
 
-            document.body.removeChild(testElement);
+            doc.body.removeChild(testElement);
 
             const uniqueFonts = [...new Set(availableFonts)];
             uniqueFonts.sort();
@@ -482,13 +482,7 @@ if (typeof module !== 'undefined' && module.exports) {
         },
 
         canShare(data) {
-            if (!context.navigator?.share) {
-                return false;
-            }
-            if (data && context.navigator.canShare) {
-                return context.navigator.canShare(data);
-            }
-            return true;
+            return !!context.navigator?.share && (!data || !context.navigator.canShare || context.navigator.canShare(data));
         },
 
         // const shareData = {
@@ -503,14 +497,14 @@ if (typeof module !== 'undefined' && module.exports) {
                 try {
                     await context.navigator.share(data);
                     syn.$l.eventLog('$b.share', '공유 UI가 성공적으로 호출되었습니다.', 'Information');
-                    return Promise.resolve();
+                    return;
                 } catch (error) {
                     if (error.name !== 'AbortError') {
                         syn.$l.eventLog('$b.share', 'Web Share API 에러:', 'Error', error);
                     } else {
                         syn.$l.eventLog('$b.share', '사용자가 공유를 취소했습니다.', 'Information');
                     }
-                    return Promise.reject(error);
+                    throw error;
                 }
             } else {
                 syn.$l.eventLog('$b.share', 'Web Share API가 지원되지 않습니다.', 'Warning');
@@ -518,7 +512,7 @@ if (typeof module !== 'undefined' && module.exports) {
                     const textToCopy = data.url || data.text;
                     await syn.$w.copyToClipboard(textToCopy);
                 }
-                return Promise.reject(new Error('Web Share API가 지원되지 않습니다.'));
+                throw new Error('Web Share API가 지원되지 않습니다.');
             }
         },
 
@@ -1236,7 +1230,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
             let effectiveMaxWidth = maxWidth;
             if ($object.isNumber(maxWidth)) {
-                effectiveMaxWidth = `${maxWidth} px`;
+                effectiveMaxWidth = `${maxWidth}px`;
             }
 
             let measuredWidth = this.measureWidth(text, fontSize);
@@ -1254,7 +1248,7 @@ if (typeof module !== 'undefined' && module.exports) {
             }
 
             if (!isNaN(numericMaxWidth) && numericWidth > numericMaxWidth) {
-                measuredWidth = `${numericMaxWidth} px`;
+                measuredWidth = `${numericMaxWidth}px`;
             }
 
             const measuredHeight = this.measureHeight(text, measuredWidth, fontSize);
@@ -1359,8 +1353,6 @@ if (typeof module !== 'undefined' && module.exports) {
 
         // syn.$c.generateHMAC().then((signature) => { debugger; });
         async generateHMAC(key, message) {
-            let result = null;
-
             const keyData = encoder.encode(key);
             const messageData = encoder.encode(message);
             const cryptoKey = await crypto.subtle.importKey(
@@ -1372,19 +1364,17 @@ if (typeof module !== 'undefined' && module.exports) {
             );
 
             const signature = await crypto.subtle.sign('HMAC', cryptoKey, messageData);
-            result = Array.from(new Uint8Array(signature)).map(b => b.toString(16).padStart(2, '0')).join('');
-            return result;
+            return Array.from(new Uint8Array(signature)).map(b => b.toString(16).padStart(2, '0')).join('');
         },
 
         // syn.$c.verifyHMAC('handstack', 'hello world', '25a00a2d55bbb313329c8abba5aebc8b282615876544c5be236d75d1418fc612').then((result) => { debugger; });
         async verifyHMAC(key, message, signature) {
-            return await $cryptography.generateHMAC(key, message) === signature;
+            return $cryptography.generateHMAC(key, message).then(value => value === signature);
         },
 
         // syn.$c.generateRSAKey().then((cryptoKey) => { debugger; });
         async generateRSAKey() {
-            let result = null;
-            result = await window.crypto.subtle.generateKey(
+            return await window.crypto.subtle.generateKey(
                 {
                     name: "RSA-OAEP",
                     modulusLength: 2048,
@@ -1394,16 +1384,15 @@ if (typeof module !== 'undefined' && module.exports) {
                 true,
                 ['encrypt', 'decrypt']
             );
-            return result;
         },
 
         // syn.$c.exportCryptoKey(cryptoKey.publicKey, true).then((result) => { debugger; });
         async exportCryptoKey(cryptoKey, isPublic) {
             let result = '';
             isPublic = $string.toBoolean(isPublic);
-            const exportLabel = isPublic == true ? 'PUBLIC' : 'PRIVATE';
+            const exportLabel = isPublic ? 'PUBLIC' : 'PRIVATE';
             const exported = await window.crypto.subtle.exportKey(
-                (isPublic == true ? 'spki' : 'pkcs8'),
+                (isPublic ? 'spki' : 'pkcs8'),
                 cryptoKey
             );
             const exportedAsString = String.fromCharCode.apply(null, new Uint8Array(exported));
@@ -1419,18 +1408,17 @@ if (typeof module !== 'undefined' && module.exports) {
 
         // syn.$c.importCryptoKey('-----BEGIN PUBLIC KEY-----...-----END PUBLIC KEY-----', true).then((result) => { debugger; });
         async importCryptoKey(pem, isPublic) {
-            let result = null;
             isPublic = $string.toBoolean(isPublic);
-            const exportLabel = isPublic == true ? 'PUBLIC' : 'PRIVATE';
+            const exportLabel = isPublic ? 'PUBLIC' : 'PRIVATE';
             const pemHeader = `-----BEGIN ${exportLabel} KEY-----`;
             const pemFooter = `-----END ${exportLabel} KEY-----`;
             const pemContents = pem.substring(pemHeader.length, pem.length - pemFooter.length).replaceAll('\n', '');
             const binaryDerString = window.atob(pemContents);
             const binaryDer = syn.$l.stringToArrayBuffer(binaryDerString);
-            const importMode = isPublic == true ? ['encrypt'] : ['decrypt'];
+            const importMode = isPublic ? ['encrypt'] : ['decrypt'];
 
-            result = await crypto.subtle.importKey(
-                (isPublic == true ? 'spki' : 'pkcs8'),
+            return await crypto.subtle.importKey(
+                (isPublic ? 'spki' : 'pkcs8'),
                 binaryDer,
                 {
                     name: 'RSA-OAEP',
@@ -1439,13 +1427,10 @@ if (typeof module !== 'undefined' && module.exports) {
                 true,
                 importMode
             );
-            return result;
         },
 
         // syn.$c.rsaEncode('hello world', result).then((result) => { debugger; });
         async rsaEncode(text, publicKey) {
-            let result = null;
-
             const data = encoder.encode(text);
             const encrypted = await crypto.subtle.encrypt(
                 {
@@ -1455,13 +1440,11 @@ if (typeof module !== 'undefined' && module.exports) {
                 data
             );
 
-            result = $cryptography.base64Encode(new Uint8Array(encrypted));
-            return result;
+            return $cryptography.base64Encode(new Uint8Array(encrypted));
         },
 
         // syn.$c.rsaDecode(encryptData, result).then((result) => { debugger; });
         async rsaDecode(encryptedData, privateKey) {
-            let result = null;
             const encrypted = new Uint8Array($cryptography.base64Decode(encryptedData).split(',').map(Number));
             const decrypted = await crypto.subtle.decrypt(
                 {
@@ -1471,8 +1454,7 @@ if (typeof module !== 'undefined' && module.exports) {
                 encrypted
             );
 
-            result = decoder.decode(decrypted);
-            return result;
+            return decoder.decode(decrypted);
         },
 
         generateIV(key, ivLength) {
@@ -1490,7 +1472,6 @@ if (typeof module !== 'undefined' && module.exports) {
         },
 
         async aesEncode(text, key, algorithm, keyLength) {
-            let result = null;
             key = key || '';
             algorithm = algorithm || 'AES-CBC'; // AES-CBC, AES-GCM
             keyLength = keyLength || 256; // 128, 256
@@ -1516,12 +1497,10 @@ if (typeof module !== 'undefined' && module.exports) {
                 data
             );
 
-            result = {
+            return {
                 iv: $cryptography.base64Encode(iv),
                 encrypted: $cryptography.base64Encode(new Uint8Array(encrypted))
             };
-
-            return result;
         },
 
         async aesDecode(encryptedData, key, algorithm, keyLength) {
@@ -1556,15 +1535,13 @@ if (typeof module !== 'undefined' && module.exports) {
         },
 
         async sha(message, algorithms) {
-            let result = '';
             algorithms = algorithms || 'SHA-1'; // SHA-1,SHA-2,SHA-224,SHA-256,SHA-384,SHA-512,SHA3-224,SHA3-256,SHA3-384,SHA3-512,SHAKE128,SHAKE256
 
             const data = encoder.encode(message);
             const hash = await crypto.subtle.digest(algorithms, data);
-            result = Array.from(new Uint8Array(hash))
+            return Array.from(new Uint8Array(hash))
                 .map(b => b.toString(16).padStart(2, '0'))
                 .join('');
-            return result;
         },
 
         sha256(s) {
@@ -2169,7 +2146,6 @@ if (typeof module !== 'undefined' && module.exports) {
 (function (context) {
     'use strict';
     const $keyboard = context.$keyboard || new syn.module();
-    const $o = context.$object;
     const $l = context.$library;
 
     $keyboard.extend({
@@ -2368,9 +2344,6 @@ if (typeof module !== 'undefined' && module.exports) {
 (function (context) {
     'use strict';
     const $validation = context.$validation || new syn.module();
-    const $o = context.$object;
-    const $s = context.$string;
-    const $l = context.$library;
     const $this = context.$this;
 
     $validation.extend({
@@ -2784,9 +2757,7 @@ if (typeof module !== 'undefined' && module.exports) {
             };
         }
 
-        if (globalRoot.devicePlatform === 'node') {
-        }
-        else {
+        if (globalRoot.devicePlatform !== 'node') {
             if (!Element.prototype.matches) {
                 Element.prototype.matches = Element.prototype.msMatchesSelector || Element.prototype.webkitMatchesSelector;
             }
@@ -3417,14 +3388,13 @@ if (typeof module !== 'undefined' && module.exports) {
         },
 
         toNumber(val) {
-            var result = 0;
             try {
-                result = parseFloat(($object.isNullOrUndefined(val) == true ? 0 : val) === 0 || val === '' ? '0' : val.toString().replace(/,/g, ''));
+                const effectiveValue = $object.isNullOrUndefined(val) ? 0 : val;
+                return parseFloat((effectiveValue === 0 || val === '') ? '0' : effectiveValue.toString().replace(/,/g, ''));
             } catch (error) {
                 syn.$l.eventLog('$string.toNumber', error, 'Warning');
+                return 0;
             }
-
-            return result;
         },
 
         capitalize(val) {
@@ -4426,19 +4396,58 @@ if (typeof module !== 'undefined' && module.exports) {
             findAllByArgs(el, type) {
                 return items.filter(item => item.el === el && item.type === type);
             },
+            has(el, type, handler) {
+                for (let i = 0; i < items.length; i++) {
+                    const item = items[i];
+                    if (item.el === el && item.type === type) {
+                        if (typeof handler !== 'function' || item.handler === handler) {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            },
             getAll() {
                 return [...items];
             },
             flush() {
-                this.getAll().forEach(({ el, type, handler, options = {} }) => {
-                    if (el.removeEventListener) {
-                        el.removeEventListener(type, handler, options);
+                for (let i = items.length - 1; i >= 0; i--) {
+                    const item = items[i];
+                    if (item.el && item.el.removeEventListener) {
+                        item.el.removeEventListener(item.type, item.handler, item.options || {});
                     }
-                });
+                }
                 items.length = 0;
             }
         });
     })();
+
+    const selectNodes = (query, all, logSource) => {
+        if (!$object.isString(query)) {
+            return [];
+        }
+
+        try {
+            if (query.startsWith('//') || query.startsWith('.//')) {
+                const xpathResult = doc.evaluate(query, doc, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+                const nodes = [];
+                for (let i = 0; i < xpathResult.snapshotLength; i++) {
+                    nodes.push(xpathResult.snapshotItem(i));
+                }
+                return all ? nodes : (nodes[0] ? [nodes[0]] : []);
+            }
+
+            if (all) {
+                return Array.from(doc.querySelectorAll(query));
+            }
+
+            const element = doc.querySelector(query);
+            return element ? [element] : [];
+        } catch (e) {
+            syn.$l.eventLog(logSource, `잘못된 셀렉터 "${query}": ${e}`, 'Warning');
+            return [];
+        }
+    };
 
     $library.extend({
         prefixs: Object.freeze(['webkit', 'moz', 'ms', 'o', '']),
@@ -4667,11 +4676,7 @@ if (typeof module !== 'undefined' && module.exports) {
             el = this.getElement(el);
             if (!el) return false;
 
-            if (typeof handler === 'function') {
-                return this.events.findByArgs(el, type, handler).length > 0;
-            } else {
-                return this.events.findAllByArgs(el, type).length > 0;
-            }
+            return this.events.has(el, type, handler);
         },
 
         trigger(el, type, value) {
@@ -4751,20 +4756,9 @@ if (typeof module !== 'undefined' && module.exports) {
 
             const results = [];
             queries.forEach(query => {
-                if ($object.isString(query)) {
-                    try {
-                        if (query.startsWith('//') || query.startsWith('.//')) {
-                            const xpathResult = doc.evaluate(query, doc, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-                            for (let i = 0; i < xpathResult.snapshotLength; i++) {
-                                results.push(xpathResult.snapshotItem(i));
-                            }
-                        } else {
-                            const el = doc.querySelector(query);
-                            if (el) results.push(el);
-                        }
-                    } catch (e) {
-                        syn.$l.eventLog('$l.querySelector', `잘못된 셀렉터 "${query}": ${e}`, 'Warning');
-                    }
+                const nodes = selectNodes(query, false, '$l.querySelector');
+                if (nodes[0]) {
+                    results.push(nodes[0]);
                 }
             });
 
@@ -4787,19 +4781,9 @@ if (typeof module !== 'undefined' && module.exports) {
             if (globalRoot.devicePlatform === 'node' || !doc) return [];
             let results = [];
             queries.forEach(query => {
-                if ($object.isString(query)) {
-                    try {
-                        if (query.startsWith('//') || query.startsWith('.//')) {
-                            const xpathResult = doc.evaluate(query, doc, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-                            for (let i = 0; i < xpathResult.snapshotLength; i++) {
-                                results.push(xpathResult.snapshotItem(i));
-                            }
-                        } else {
-                            results = results.concat(Array.from(doc.querySelectorAll(query)));
-                        }
-                    } catch (e) {
-                        syn.$l.eventLog('$l.querySelectorAll', `잘못된 셀렉터 "${query}": ${e}`, 'Warning');
-                    }
+                const nodes = selectNodes(query, true, '$l.querySelectorAll');
+                if (nodes.length > 0) {
+                    results.push(...nodes);
                 }
             });
             return results;
@@ -5525,12 +5509,7 @@ if (typeof module !== 'undefined' && module.exports) {
 (function (context) {
     'use strict';
     const $request = context.$request || new syn.module();
-    let document = null;
-    if (globalRoot.devicePlatform === 'node') {
-    }
-    else {
-        document = context.document;
-    }
+    const document = globalRoot.devicePlatform === 'node' ? null : context.document;
 
     $request.extend({
         params: {},
@@ -5849,12 +5828,10 @@ if (typeof module !== 'undefined' && module.exports) {
                             return;
                         }
 
-                        if (callback) {
-                            callback({
-                                status: xhr.status,
-                                response: xhr.response
-                            });
-                        }
+                        callback({
+                            status: xhr.status,
+                            response: xhr.response
+                        });
                     }
                 }
 
@@ -5951,12 +5928,10 @@ if (typeof module !== 'undefined' && module.exports) {
                             return;
                         }
 
-                        if (callback) {
-                            callback({
-                                status: xhr.status,
-                                response: xhr.response
-                            });
-                        }
+                        callback({
+                            status: xhr.status,
+                            response: xhr.response
+                        });
                     }
                 }
                 xhr.send(formData);
@@ -6310,8 +6285,12 @@ if (typeof module !== 'undefined' && module.exports) {
                                 const transaction = createTransaction(id, origin, data.callbacks || []);
                                 receivedRequests[id] = {};
                                 try {
-                                    const processedParams = params;
+                                    let processedParams = params;
                                     if (Array.isArray(data.callbacks)) {
+                                        if (processedParams === null || processedParams === undefined || typeof processedParams !== 'object') {
+                                            processedParams = {};
+                                        }
+
                                         data.callbacks.forEach(path => {
                                             const pathItems = path.split('/');
                                             let currentParamLevel = processedParams;
@@ -6927,12 +6906,11 @@ if (typeof module !== 'undefined' && module.exports) {
         },
 
         setStorage(prop, val, isLocal = false, ttl) {
-            const storageKey = prop;
             const storageValue = JSON.stringify(val);
 
             if (globalRoot.devicePlatform === 'node') {
                 if (isLocal) {
-                    localStorage.setItem(storageKey, storageValue);
+                    localStorage.setItem(prop, storageValue);
                 } else {
                     const effectiveTTL = ttl ?? 1200000;
                     const now = Date.now();
@@ -6941,25 +6919,23 @@ if (typeof module !== 'undefined' && module.exports) {
                         expiry: now + effectiveTTL,
                         ttl: effectiveTTL
                     };
-                    localStorage.setItem(storageKey, JSON.stringify(item));
+                    localStorage.setItem(prop, JSON.stringify(item));
                 }
             } else {
                 const storage = isLocal ? localStorage : sessionStorage;
-                storage.setItem(storageKey, storageValue);
+                storage.setItem(prop, storageValue);
             }
 
             return this;
         },
 
         getStorage(prop, isLocal = false) {
-            const storageKey = prop;
-
             if (globalRoot.devicePlatform === 'node') {
                 if (isLocal) {
-                    const val = localStorage.getItem(storageKey);
+                    const val = localStorage.getItem(prop);
                     return val ? JSON.parse(val) : null;
                 } else {
-                    const itemStr = localStorage.getItem(storageKey);
+                    const itemStr = localStorage.getItem(prop);
                     if (!itemStr) return null;
 
                     try {
@@ -6967,7 +6943,7 @@ if (typeof module !== 'undefined' && module.exports) {
                         const now = Date.now();
 
                         if (now > item.expiry) {
-                            localStorage.removeItem(storageKey);
+                            localStorage.removeItem(prop);
                             return null;
                         }
 
@@ -6975,33 +6951,34 @@ if (typeof module !== 'undefined' && module.exports) {
                             ...item,
                             expiry: now + item.ttl,
                         };
-                        localStorage.setItem(storageKey, JSON.stringify(refreshedItem));
+                        localStorage.setItem(prop, JSON.stringify(refreshedItem));
                         return item.value;
 
                     } catch (e) {
-                        syn.$l.eventLog('$w.getStorage (Node)', `키 "${storageKey}"에 대한 스토리지 항목 파싱 오류: ${e}`, 'Error');
-                        localStorage.removeItem(storageKey);
+                        syn.$l.eventLog('$w.getStorage (Node)', `키 "${prop}"에 대한 스토리지 항목 파싱 오류: ${e}`, 'Error');
+                        localStorage.removeItem(prop);
                     }
                 }
             } else {
                 const storage = isLocal ? localStorage : sessionStorage;
-                if ($object.isString(storageKey) == true) {
-                    const val = storage.getItem(storageKey);
+                if ($object.isString(prop) == true) {
+                    const val = storage.getItem(prop);
                     try {
                         return val ? JSON.parse(val) : null;
                     } catch (e) {
-                        syn.$l.eventLog('$w.getStorage (Browser)', `키 "${storageKey}"에 대한 스토리지 항목 파싱 오류: ${e}`, 'Error');
-                        storage.removeItem(storageKey);
+                        syn.$l.eventLog('$w.getStorage (Browser)', `키 "${prop}"에 대한 스토리지 항목 파싱 오류: ${e}`, 'Error');
+                        storage.removeItem(prop);
                     }
                 }
-                else if ($object.isArray(storageKey) == true) {
+                else if ($object.isArray(prop) == true) {
                     let results = {};
                     for (let i = 0; i < storage.length; i++) {
                         const key = storage.key(i);
-                        if (storageKey.includes(key) == true) {
+                        if (prop.includes(key) == true) {
                             results[key] = storage.getItem(key);
                         }
                     }
+                    return results;
                 }
             }
 
@@ -11180,7 +11157,7 @@ if (typeof module !== 'undefined' && module.exports) {
         },
 
         addAtWorkItem(workItems, document, worksheet, datafield, target, nextDirection) {
-            nextDirection = nextDirection || true;
+            nextDirection = nextDirection === undefined ? true : nextDirection;
 
             var index = workItems.findIndex(item =>
                 item.document === document &&
@@ -11701,31 +11678,26 @@ if (typeof module !== 'undefined' && module.exports) {
         },
 
         getControl(el) {
-            var result = null;
             if ($object.isString(el) == true) {
                 el = syn.$l.get(el);
             }
 
-            if ($object.isNullOrUndefined(el) == false) {
-                var elID = el.id;
-                var tag = el.tagName;
-                var key = el.getAttribute('i18n-key');
-
-                if ($string.isNullOrEmpty(elID) == true) {
-                    result = $resource.translateControls.find(function (item) { return item.tag == tag && item.key == key; });
-                }
-                else {
-                    result = $resource.translateControls.find(function (item) { return item.elID == elID && item.tag == tag && item.key == key; });
-                }
+            if ($object.isNullOrUndefined(el) == true) {
+                return null;
             }
 
-            return result;
+            var elID = el.id;
+            var tag = el.tagName;
+            var key = el.getAttribute('i18n-key');
+            if ($string.isNullOrEmpty(elID) == true) {
+                return $resource.translateControls.find(function (item) { return item.tag == tag && item.key == key; });
+            }
+
+            return $resource.translateControls.find(function (item) { return item.elID == elID && item.tag == tag && item.key == key; });
         },
 
         translatePage() {
-            $resource.translateControls.forEach(function (control) {
-                $resource.translateControl(control);
-            });
+            $resource.translateControls.forEach(control => $resource.translateControl(control));
         },
 
         translateElement(el, options) {

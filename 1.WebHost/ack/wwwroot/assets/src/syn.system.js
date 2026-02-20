@@ -1,4 +1,4 @@
-﻿(function (context) {
+(function (context) {
     'use strict';
     var $system = context.$system || new syn.module();
 
@@ -100,8 +100,6 @@
         },
 
         getStatement(moduleID, statementID, parameters) {
-            var result = null;
-
             var moduleLibrary = syn.getModuleLibrary(moduleID);
             if (moduleLibrary) {
                 try {
@@ -111,7 +109,7 @@
                         var mybatisMapper = require('mybatis-mapper');
                         mybatisMapper.createMapper([featureSQLPath]);
                         mybatisMapper.featureSQLPath = featureSQLPath;
-                        result = mybatisMapper.getStatement('feature', statementID, parameters);
+                        return mybatisMapper.getStatement('feature', statementID, parameters);
                     }
                     else {
                         syn.$l.eventLog('getStatement', 'featureSQLPath - {0} 확인 필요'.format(featureSQLPath), 'Error');
@@ -124,7 +122,7 @@
                 syn.$l.eventLog('getStatement', 'ModuleID 확인 필요', 'Error');
             }
 
-            return result;
+            return null;
         },
 
         executeQuery(moduleID, statementID, parameters, callback) {

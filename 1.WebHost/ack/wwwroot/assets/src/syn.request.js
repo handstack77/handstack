@@ -1,12 +1,7 @@
-﻿(function (context) {
+(function (context) {
     'use strict';
     const $request = context.$request || new syn.module();
-    let document = null;
-    if (globalRoot.devicePlatform === 'node') {
-    }
-    else {
-        document = context.document;
-    }
+    const document = globalRoot.devicePlatform === 'node' ? null : context.document;
 
     $request.extend({
         params: {},
@@ -325,12 +320,10 @@
                             return;
                         }
 
-                        if (callback) {
-                            callback({
-                                status: xhr.status,
-                                response: xhr.response
-                            });
-                        }
+                        callback({
+                            status: xhr.status,
+                            response: xhr.response
+                        });
                     }
                 }
 
@@ -427,12 +420,10 @@
                             return;
                         }
 
-                        if (callback) {
-                            callback({
-                                status: xhr.status,
-                                response: xhr.response
-                            });
-                        }
+                        callback({
+                            status: xhr.status,
+                            response: xhr.response
+                        });
                     }
                 }
                 xhr.send(formData);

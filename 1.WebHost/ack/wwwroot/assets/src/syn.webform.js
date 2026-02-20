@@ -1,4 +1,4 @@
-﻿(function (context) {
+(function (context) {
     'use strict';
     const $webform = context.$webform || new syn.module();
     let doc = null;
@@ -43,12 +43,11 @@
         },
 
         setStorage(prop, val, isLocal = false, ttl) {
-            const storageKey = prop;
             const storageValue = JSON.stringify(val);
 
             if (globalRoot.devicePlatform === 'node') {
                 if (isLocal) {
-                    localStorage.setItem(storageKey, storageValue);
+                    localStorage.setItem(prop, storageValue);
                 } else {
                     const effectiveTTL = ttl ?? 1200000;
                     const now = Date.now();
@@ -57,25 +56,23 @@
                         expiry: now + effectiveTTL,
                         ttl: effectiveTTL
                     };
-                    localStorage.setItem(storageKey, JSON.stringify(item));
+                    localStorage.setItem(prop, JSON.stringify(item));
                 }
             } else {
                 const storage = isLocal ? localStorage : sessionStorage;
-                storage.setItem(storageKey, storageValue);
+                storage.setItem(prop, storageValue);
             }
 
             return this;
         },
 
         getStorage(prop, isLocal = false) {
-            const storageKey = prop;
-
             if (globalRoot.devicePlatform === 'node') {
                 if (isLocal) {
-                    const val = localStorage.getItem(storageKey);
+                    const val = localStorage.getItem(prop);
                     return val ? JSON.parse(val) : null;
                 } else {
-                    const itemStr = localStorage.getItem(storageKey);
+                    const itemStr = localStorage.getItem(prop);
                     if (!itemStr) return null;
 
                     try {
@@ -83,7 +80,7 @@
                         const now = Date.now();
 
                         if (now > item.expiry) {
-                            localStorage.removeItem(storageKey);
+                            localStorage.removeItem(prop);
                             return null;
                         }
 
@@ -91,33 +88,34 @@
                             ...item,
                             expiry: now + item.ttl,
                         };
-                        localStorage.setItem(storageKey, JSON.stringify(refreshedItem));
+                        localStorage.setItem(prop, JSON.stringify(refreshedItem));
                         return item.value;
 
                     } catch (e) {
-                        syn.$l.eventLog('$w.getStorage (Node)', `키 "${storageKey}"에 대한 스토리지 항목 파싱 오류: ${e}`, 'Error');
-                        localStorage.removeItem(storageKey);
+                        syn.$l.eventLog('$w.getStorage (Node)', `키 "${prop}"에 대한 스토리지 항목 파싱 오류: ${e}`, 'Error');
+                        localStorage.removeItem(prop);
                     }
                 }
             } else {
                 const storage = isLocal ? localStorage : sessionStorage;
-                if ($object.isString(storageKey) == true) {
-                    const val = storage.getItem(storageKey);
+                if ($object.isString(prop) == true) {
+                    const val = storage.getItem(prop);
                     try {
                         return val ? JSON.parse(val) : null;
                     } catch (e) {
-                        syn.$l.eventLog('$w.getStorage (Browser)', `키 "${storageKey}"에 대한 스토리지 항목 파싱 오류: ${e}`, 'Error');
-                        storage.removeItem(storageKey);
+                        syn.$l.eventLog('$w.getStorage (Browser)', `키 "${prop}"에 대한 스토리지 항목 파싱 오류: ${e}`, 'Error');
+                        storage.removeItem(prop);
                     }
                 }
-                else if ($object.isArray(storageKey) == true) {
+                else if ($object.isArray(prop) == true) {
                     let results = {};
                     for (let i = 0; i < storage.length; i++) {
                         const key = storage.key(i);
-                        if (storageKey.includes(key) == true) {
+                        if (prop.includes(key) == true) {
                             results[key] = storage.getItem(key);
                         }
                     }
+                    return results;
                 }
             }
 
