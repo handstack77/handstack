@@ -26,18 +26,21 @@ namespace ack.Services
             var currentId = Process.GetCurrentProcess().Id;
             while (!stoppingToken.IsCancellationRequested)
             {
-                var arguments = Environment.GetCommandLineArgs();
-                using var pipeServer = new NamedPipeServerStream(currentId.ToString(), PipeDirection.InOut, 1);
+                using var pipeServer = new NamedPipeServerStream(currentId.ToString(), PipeDirection.InOut, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
                 {
-                    await pipeServer.WaitForConnectionAsync();
                     try
                     {
+                        await pipeServer.WaitForConnectionAsync(stoppingToken);
                         var streamHelper = new StreamHelper(pipeServer);
                         streamHelper.WriteString("응답");
                         var filename = streamHelper.ReadString();
 
                         logger.Information("요청 file: {0} on user: {1}.", filename, pipeServer.GetImpersonationUserName());
                         streamHelper.WriteString("완료");
+                    }
+                    catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested == true)
+                    {
+                        break;
                     }
                     catch (Exception exception)
                     {

@@ -190,27 +190,31 @@ namespace ack
                     string? line;
                     while ((line = file.ReadLine()) != null)
                     {
-                        if (line.Contains("|") == true)
+                        var parts = line.Split('|', 3, StringSplitOptions.None);
+                        if (parts.Length != 3)
                         {
-                            var userWorkID = line.Split('|')[0];
-                            var tenantID = line.Split('|')[1];
-                            var path = line.Split('|')[2];
-                            try
+                            Log.Warning("[{LogCategory}] " + $"DisposeTenantApps 로그 형식 확인 필요: {line}", "Startup/ConfigureServices");
+                            continue;
+                        }
+
+                        var userWorkID = parts[0];
+                        var tenantID = parts[1];
+                        var path = parts[2];
+                        try
+                        {
+                            if (Directory.Exists(path) == true && path.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
                             {
-                                if (Directory.Exists(path) == true && path.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
-                                {
-                                    Log.Information("[{LogCategory}] " + $"DisposeTenantApps userWorkID: {userWorkID}, tenantID: {tenantID}", "Startup/ConfigureServices");
-                                    Directory.Delete(path, true);
-                                }
-                                else
-                                {
-                                    Log.Warning("[{LogCategory}] " + $"DisposeTenantApps 디렉토리 확인 필요: {path}", "Startup/ConfigureServices");
-                                }
+                                Log.Information("[{LogCategory}] " + $"DisposeTenantApps userWorkID: {userWorkID}, tenantID: {tenantID}", "Startup/ConfigureServices");
+                                Directory.Delete(path, true);
                             }
-                            catch (Exception exception)
+                            else
                             {
-                                Log.Error(exception, "[{LogCategory}] " + $"DisposeTenantApps 디렉토리 삭제 오류: {path}", "Startup/ConfigureServices");
+                                Log.Warning("[{LogCategory}] " + $"DisposeTenantApps 디렉토리 확인 필요: {path}", "Startup/ConfigureServices");
                             }
+                        }
+                        catch (Exception exception)
+                        {
+                            Log.Error(exception, "[{LogCategory}] " + $"DisposeTenantApps 디렉토리 삭제 오류: {path}", "Startup/ConfigureServices");
                         }
                     }
                 }

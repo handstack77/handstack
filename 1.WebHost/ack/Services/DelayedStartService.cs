@@ -21,13 +21,20 @@ namespace ack.Services
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            appLifetime.ApplicationStarted.Register(OnStarted);
+            appLifetime.ApplicationStarted.Register(() => _ = RunModuleConfigurationAsync());
             return Task.CompletedTask;
         }
 
-        private void OnStarted()
+        private async Task RunModuleConfigurationAsync()
         {
-            moduleConfigurationService.StartAsync(CancellationToken.None).Wait();
+            try
+            {
+                await moduleConfigurationService.StartAsync(CancellationToken.None);
+            }
+            catch (System.Exception exception)
+            {
+                logger.LogError(exception, "ModuleConfigurationService 시작 중 오류가 발생했습니다.");
+            }
         }
 
         public Task StopAsync(CancellationToken cancellationToken)

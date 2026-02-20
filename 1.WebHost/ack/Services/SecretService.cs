@@ -132,12 +132,26 @@ namespace ack.Services
                         return null;
                     }
 
-                    var keyItem = keyList
-                        .Where(k => k.Key == keyName && (k.Environment == client.Environment || k.Environment == "*"))
-                        .OrderBy(k => k.Environment == client.Environment ? 0 : 1)
-                        .FirstOrDefault();
+                    KeyItem? wildcardKeyItem = null;
+                    foreach (var keyItem in keyList)
+                    {
+                        if (keyItem.Key != keyName)
+                        {
+                            continue;
+                        }
 
-                    return keyItem;
+                        if (keyItem.Environment == client.Environment)
+                        {
+                            return keyItem;
+                        }
+
+                        if (keyItem.Environment == "*" && wildcardKeyItem == null)
+                        {
+                            wildcardKeyItem = keyItem;
+                        }
+                    }
+
+                    return wildcardKeyItem;
                 }
                 finally
                 {
@@ -177,7 +191,11 @@ namespace ack.Services
 
                 newKey.CreatedAt = DateTime.Now;
 
-                var keyList = secretData.Secrets[rule];
+                if (secretData.Secrets.TryGetValue(rule, out var keyList) == false)
+                {
+                    return (false, "키를 추가할 일치하는 규칙을 찾을 수 없습니다.");
+                }
+
                 var existingKey = keyList.FirstOrDefault(k => k.Key == newKey.Key && k.Environment == newKey.Environment);
                 if (existingKey != null)
                 {
@@ -217,7 +235,11 @@ namespace ack.Services
                     return (false, "클라이언트에 대한 일치하는 규칙을 찾을 수 없습니다.");
                 }
 
-                var keyList = secretData.Secrets[rule];
+                if (secretData.Secrets.TryGetValue(rule, out var keyList) == false)
+                {
+                    return (false, "클라이언트에 대한 일치하는 규칙을 찾을 수 없습니다.");
+                }
+
                 var keysToRemoveCount = keyList.RemoveAll(k => k.Key == keyName);
 
                 if (keysToRemoveCount == 0)
@@ -240,15 +262,25 @@ namespace ack.Services
             {
                 foreach (var rule in secretData.Secrets.Keys)
                 {
-                    var parts = rule.Split('|');
-                    if (parts.Length != 3)
+                    var firstSeparatorIndex = rule.IndexOf('|');
+                    if (firstSeparatorIndex < 0)
                     {
                         continue;
                     }
 
-                    bool machineIDMatch = parts[0] == client.MachineID || parts[0] == "*";
-                    bool ipMatch = parts[1] == client.IpAddress || parts[1] == "*";
-                    bool hostIDMatch = parts[2] == client.HostName || parts[2] == "*";
+                    var secondSeparatorIndex = rule.IndexOf('|', firstSeparatorIndex + 1);
+                    if (secondSeparatorIndex < 0 || secondSeparatorIndex == rule.Length - 1)
+                    {
+                        continue;
+                    }
+
+                    var machineRule = rule.Substring(0, firstSeparatorIndex);
+                    var ipRule = rule.Substring(firstSeparatorIndex + 1, secondSeparatorIndex - firstSeparatorIndex - 1);
+                    var hostRule = rule.Substring(secondSeparatorIndex + 1);
+
+                    bool machineIDMatch = machineRule == client.MachineID || machineRule == "*";
+                    bool ipMatch = ipRule == client.IpAddress || ipRule == "*";
+                    bool hostIDMatch = hostRule == client.HostName || hostRule == "*";
 
                     if (machineIDMatch && ipMatch && hostIDMatch)
                     {
