@@ -4117,17 +4117,26 @@
             });
         }
         else {
-            $webform.loadJson('/' + (context.synConfigName || 'syn.config.json') + urlArgs, null, function (setting, json) {
-                syn.Config = syn.$w.argumentsExtend(syn.Config, json);
-                if (syn.Config && $string.isNullOrEmpty(syn.Config.ProxyPathName) == false) {
-                    $webform.proxyBasePath = (syn.Config.IsProxyServe == true && syn.Config.ProxyPathName.length > 0) ? `/${syn.Config.ProxyPathName}` : '';
-                }
+            if (context.synConfigName) {
+                $webform.loadJson('/' + context.synConfigName + urlArgs, null, function (setting, json) {
+                    syn.Config = syn.$w.argumentsExtend(syn.Config, json);
+                    if (syn.Config && $string.isNullOrEmpty(syn.Config.ProxyPathName) == false) {
+                        $webform.proxyBasePath = (syn.Config.IsProxyServe == true && syn.Config.ProxyPathName.length > 0) ? `/${syn.Config.ProxyPathName}` : '';
+                    }
 
-                globalRoot.isLoadConfig = true;
-                setTimeout(async function () {
-                    await $webform.contentLoaded();
-                });
-            }, null, isAsyncLoad);
+                    globalRoot.isLoadConfig = true;
+                    setTimeout(async function () {
+                        await $webform.contentLoaded();
+                    });
+                }, null, isAsyncLoad);
+            }
+            else {
+                if (context.document.readyState === 'loading') {
+                    context.document.addEventListener('DOMContentLoaded', $webform.contentLoaded, { once: true });
+                } else {
+                    $webform.contentLoaded();
+                }
+            }
         }
 
         if (context.Configuration) {

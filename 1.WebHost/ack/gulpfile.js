@@ -4,6 +4,8 @@ var uglify = require('gulp-uglify');
 var uglifycss = require('gulp-uglifycss');
 var rename = require("gulp-rename");
 var javascriptObfuscator = require('gulp-javascript-obfuscator');
+var fs = require('fs/promises');
+var path = require('path');
 
 gulp.task('css', async function () {
     gulp.src('wwwroot/assets/css/**/*.css')
@@ -16,7 +18,7 @@ gulp.task('css', async function () {
 });
 
 gulp.task('scripts', async function () {
-    return gulp.src([
+    const sources = [
         'wwwroot/assets/src/syn.core.js',
         'wwwroot/assets/src/syn.browser.js',
         'wwwroot/assets/src/syn.manipulation.js',
@@ -32,9 +34,41 @@ gulp.task('scripts', async function () {
         'wwwroot/assets/src/syn.print.js',
         'wwwroot/assets/src/syn.resource.js',
         'wwwroot/assets/src/lang/syn.resource.ko-KR.js',
-    ])
-        .pipe(concat('syn.js'))
-        .pipe(gulp.dest('wwwroot/assets/js'));
+    ];
+
+    await new Promise((resolve, reject) => {
+        gulp.src(sources)
+            .pipe(concat('syn.js'))
+            .pipe(gulp.dest('wwwroot/assets/js'))
+            .on('end', resolve)
+            .on('error', reject);
+    });
+
+    const outDir = 'wwwroot/assets/js';
+    const synPath = path.join(outDir, 'syn.js');
+    const modulePath = path.join(outDir, 'module.js');
+
+    let content = await fs.readFile(synPath, 'utf8');
+
+    content += `
+export const $b = syn.$b;
+export const $m = syn.$m;
+export const $d = syn.$d;
+export const $c = syn.$c;
+export const $k = syn.$k;
+export const $v = syn.$v;
+export const $l = syn.$l;
+export const $r = syn.$r;
+export const $n = syn.$n;
+export const $w = syn.$w;
+export const $p = syn.$p;
+export const $res = syn.$res;
+
+export { syn, Module, globalRoot };
+export default syn;
+`;
+
+    await fs.writeFile(modulePath, content, 'utf8');
 });
 
 gulp.task('nodescripts', async function () {
@@ -53,6 +87,20 @@ gulp.task('nodescripts', async function () {
         .pipe(gulp.dest('wwwroot/assets/js'));
 });
 
+gulp.task('obfusesyn', async function () {
+    return gulp.src([
+        'wwwroot/assets/js/syn.js'
+    ])
+        .pipe(javascriptObfuscator({
+            compact: true
+        }))
+        .pipe(rename({
+            basename: "syn.min",
+            extname: ".js"
+        }))
+        .pipe(gulp.dest('wwwroot/assets/js'));
+});
+
 gulp.task('uglifysyn', async function () {
     return gulp.src([
         'wwwroot/assets/js/syn.js'
@@ -68,15 +116,16 @@ gulp.task('uglifysyn', async function () {
         .pipe(gulp.dest('wwwroot/assets/js'));
 });
 
-gulp.task('obfusesyn', async function () {
+gulp.task('uglifymodule', async function () {
     return gulp.src([
-        'wwwroot/assets/js/syn.js'
+        'wwwroot/assets/js/module.js'
     ])
-        .pipe(javascriptObfuscator({
-            compact: true
+        .pipe(uglify({
+            mangle: true,
+            compress: true
         }))
         .pipe(rename({
-            basename: "syn.min",
+            basename: "module.min",
             extname: ".js"
         }))
         .pipe(gulp.dest('wwwroot/assets/js'));
@@ -98,9 +147,9 @@ gulp.task('uglifyindex', async function () {
 });
 
 gulp.task('watch', async function () {
-    gulp.watch(files, gulp.series(['scripts', 'uglifysyn', 'nodescripts', 'uglifyindex']));
+    gulp.watch(files, gulp.series(['scripts', 'uglifysyn', 'uglifymodule', 'nodescripts', 'uglifyindex']));
 });
 
-gulp.task('default', gulp.series(['scripts', 'uglifysyn', 'nodescripts', 'uglifyindex']));
-gulp.task('syn', gulp.series(['scripts', 'uglifysyn']));
+gulp.task('default', gulp.series(['scripts', 'uglifysyn', 'uglifymodule', 'nodescripts', 'uglifyindex']));
+gulp.task('syn', gulp.series(['scripts', 'uglifysyn', 'uglifymodule']));
 gulp.task('nodejs', gulp.series(['nodescripts', 'uglifyindex']));

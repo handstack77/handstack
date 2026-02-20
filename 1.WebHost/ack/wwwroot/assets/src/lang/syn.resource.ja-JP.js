@@ -58,4 +58,4 @@
     $resource.add('saveExcelComplete', 'エクセル ファイルをダウンロードしました。');
     $resource.add('saveExcelFail', 'エクセル ファイル ダウンロードを失敗しました');
     $resource.add('notSupportContent', '支援しないコンテンツ タイプです。');
-})(globalRoot, $resource);
+})(globalRoot, globalRoot.$resource);

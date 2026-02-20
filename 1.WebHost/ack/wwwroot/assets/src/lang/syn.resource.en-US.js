@@ -58,4 +58,4 @@
     $resource.add('saveExcelComplete', 'Excel  A file was downloaded.');
     $resource.add('saveExcelFail', 'Excel  File  I failed in download.');
     $resource.add('notSupportContent', 'the contents-type which aren\'t supported.');
-})(globalRoot, $resource);
+})(globalRoot, globalRoot.$resource);

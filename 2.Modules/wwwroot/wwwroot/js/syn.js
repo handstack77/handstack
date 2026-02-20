@@ -1,5 +1,5 @@
 /*!
-HandStack Javascript Library v2026.2.2
+HandStack Javascript Library v2026.2.21
 https://handshake.kr
 
 Copyright 2025, HandStack
@@ -175,7 +175,7 @@ class Module {
 }
 
 Module.ancestor = Object;
-Module.version = 'v2026.2.2';
+Module.version = 'v2026.2.21';
 
 const syn = { Module };
 syn.Config = {
@@ -11001,17 +11001,26 @@ if (typeof module !== 'undefined' && module.exports) {
             });
         }
         else {
-            $webform.loadJson('/' + (context.synConfigName || 'syn.config.json') + urlArgs, null, function (setting, json) {
-                syn.Config = syn.$w.argumentsExtend(syn.Config, json);
-                if (syn.Config && $string.isNullOrEmpty(syn.Config.ProxyPathName) == false) {
-                    $webform.proxyBasePath = (syn.Config.IsProxyServe == true && syn.Config.ProxyPathName.length > 0) ? `/${syn.Config.ProxyPathName}` : '';
-                }
+            if (context.synConfigName) {
+                $webform.loadJson('/' + context.synConfigName + urlArgs, null, function (setting, json) {
+                    syn.Config = syn.$w.argumentsExtend(syn.Config, json);
+                    if (syn.Config && $string.isNullOrEmpty(syn.Config.ProxyPathName) == false) {
+                        $webform.proxyBasePath = (syn.Config.IsProxyServe == true && syn.Config.ProxyPathName.length > 0) ? `/${syn.Config.ProxyPathName}` : '';
+                    }
 
-                globalRoot.isLoadConfig = true;
-                setTimeout(async function () {
-                    await $webform.contentLoaded();
-                });
-            }, null, isAsyncLoad);
+                    globalRoot.isLoadConfig = true;
+                    setTimeout(async function () {
+                        await $webform.contentLoaded();
+                    });
+                }, null, isAsyncLoad);
+            }
+            else {
+                if (context.document.readyState === 'loading') {
+                    context.document.addEventListener('DOMContentLoaded', $webform.contentLoaded, { once: true });
+                } else {
+                    $webform.contentLoaded();
+                }
+            }
         }
 
         if (context.Configuration) {
@@ -11905,4 +11914,4 @@ if (typeof module !== 'undefined' && module.exports) {
     $resource.add('saveExcelComplete', '엑셀 파일을 다운로드 했습니다.');
     $resource.add('saveExcelFail', '엑셀 파일 다운로드를 실패 했습니다');
     $resource.add('notSupportContent', '지원 하지 않는 컨텐츠 타입입니다.');
-})(globalRoot, $resource);
+})(globalRoot, globalRoot.$resource);

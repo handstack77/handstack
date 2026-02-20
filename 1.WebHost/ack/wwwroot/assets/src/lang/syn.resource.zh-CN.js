@@ -58,4 +58,4 @@
     $resource.add('saveExcelComplete', '下载Excel 文件。');
     $resource.add('saveExcelFail', 'Excel 文件下载失败了');
     $resource.add('notSupportContent', '不支援的内容类型。');
-})(globalRoot, $resource);
+})(globalRoot, globalRoot.$resource);
