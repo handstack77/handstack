@@ -94,6 +94,10 @@
         <None Update="wwwroot/**">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
+        <None Include="AppTempletes/**" />
+        <None Update="AppTempletes/**">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
     <ItemGroup>

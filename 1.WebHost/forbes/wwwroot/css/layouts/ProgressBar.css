@@ -1,0 +1,45 @@
+.ui_progressbar {
+	position: fixed;
+	left: 0;
+	top: 0;
+	height: 100%;
+	width: 100%;
+	display: none;
+	z-index: 10000
+}
+
+	.ui_progressbar .overlay {
+		background: url("/img/common/bg_blank.png") repeat;
+		width: 100%;
+		height: 100%;
+		display: block
+	}
+
+	.ui_progressbar span {
+		display: inline-block;
+		vertical-align: middle
+	}
+
+	.ui_progressbar .progressBar {
+		background-color: rgba(55,55,55,0.7);
+		border-radius: 5px;
+		padding: 10px;
+		position: absolute;
+		top: 45%;
+		left: 50%;
+		margin-left: -100px;
+		min-width: 200px;
+		max-width: 500px
+	}
+
+	.ui_progressbar .loading {
+		width: 32px;
+		height: 32px;
+		background: url("/img/common/loading_rnd_32.gif") 0 0 no-repeat
+	}
+
+	.ui_progressbar .message {
+		color: #fff;
+		padding-left: 10px;
+		line-height: 16px
+	}

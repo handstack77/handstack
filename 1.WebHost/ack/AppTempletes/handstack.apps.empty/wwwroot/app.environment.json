@@ -1,0 +1,97 @@
+{
+    "Application": {
+        "LoaderPath": "/js/syn.domain.js",
+        "IsDebugMode": true,
+        "CodeHelpID": "SYS|SYS010|LD01"
+    },
+    "Cookie": {
+        "CustomCookie1": "ValueCookie1"
+    },
+    "Header": {
+        "CustomHeader1": "ValueHeader1"
+    },
+    "Definition": {
+        "BindingAction": "Replace",
+        "Styles": [
+            "/lib/tabler-core/dist/css/tabler.css",
+            "/lib/handsontable/dist/handsontable.full.css",
+            "/lib/tail.select.js/css/default/tail.select-light.css",
+            "/lib/ispin/dist/ispin.css",
+            "/lib/filedrop/filedrop.css",
+            "/js/css-checkbox/checkboxes.css",
+            "/js/color-picker/color-picker.css",
+            "/lib/codemirror/codemirror.css",
+            "/js/notifier/notifier.css",
+
+            "/css/layouts/Dialogs.css",
+            "/css/layouts/LoadingPage.css",
+            "/css/layouts/ProgressBar.css",
+            "/css/layouts/Tooltips.css",
+            "/css/layouts/WindowManager.css",
+            "/css/uicontrols/Control.css",
+
+            "/uicontrols/CheckBox/CheckBox.css",
+            "/uicontrols/ColorPicker/ColorPicker.css",
+            "/uicontrols/ContextMenu/ContextMenu.css",
+            "/uicontrols/DataSource/DataSource.css",
+            "/uicontrols/DatePicker/DatePicker.css",
+            "/uicontrols/DropDownCheckList/DropDownCheckList.css",
+            "/uicontrols/DropDownList/DropDownList.css",
+            "/uicontrols/FileClient/FileClient.css",
+            "/uicontrols/RadioButton/RadioButton.css",
+            "/uicontrols/TextArea/TextArea.css",
+            "/uicontrols/TextBox/TextBox.css",
+            "/uicontrols/HtmlEditor/HtmlEditor.css",
+            "/uicontrols/TreeView/TreeView.css",
+            "/uicontrols/WebGrid/WebGrid.css",
+
+            "/css/base.css",
+            "/lib/tabler-icons-webfont/dist/tabler-icons.css"
+        ],
+        "Scripts": [
+            "/lib/tabler-core/dist/js/tabler.min.js",
+            "/lib/jquery/jquery.js",
+            "/js/jquery.alertmodal/jquery.alertmodal.js",
+            "/lib/jquery-simplemodal/src/jquery.simplemodal.js",
+            "/lib/jquery.maskedinput/jquery.maskedinput.js",
+            "/js/jquery-wm/jquery.WM.js",
+            "/lib/papaparse/papaparse.js",
+            "/lib/xlsx/xlsx.core.min.js",
+            "/lib/handsontable/dist/handsontable.full.js",
+            "/lib/handsontable/languages/ko-KR.js",
+            "/lib/clipboard.js/clipboard.js",
+            "/js/color-picker/color-picker.js",
+            "/lib/ispin/dist/ispin.js",
+            "/lib/pikaday/pikaday.js",
+            "/lib/superplaceholder/superplaceholder.js",
+            "/lib/tail.select.js/js/tail.select.js",
+            "/lib/vanilla-masker/vanilla-masker.min.js",
+            "/lib/codemirror/codemirror.js",
+            "/lib/downloadjs/download.js",
+            "/lib/mustache/mustache.js",
+            "/lib/print-js/print.min.js",
+            "/js/notifier/notifier.js",
+            "/lib/master-css/index.js",
+            "/js/syn.js"
+        ],
+        "Controls": [
+            "/uicontrols/CheckBox/CheckBox.js",
+            "/uicontrols/CodePicker/CodePicker.js",
+            "/uicontrols/ColorPicker/ColorPicker.js",
+            "/uicontrols/ContextMenu/ContextMenu.js",
+            "/uicontrols/DataSource/DataSource.js",
+            "/uicontrols/DatePicker/DatePicker.js",
+            "/uicontrols/DatePeriodPicker/DatePeriodPicker.js",
+            "/uicontrols/DropDownCheckList/DropDownCheckList.js",
+            "/uicontrols/DropDownList/DropDownList.js",
+            "/uicontrols/FileClient/FileClient.js",
+            "/uicontrols/RadioButton/RadioButton.js",
+            "/uicontrols/TextArea/TextArea.js",
+            "/uicontrols/TextBox/TextBox.js",
+            "/uicontrols/SourceEditor/SourceEditor.js",
+            "/uicontrols/HtmlEditor/HtmlEditor.js",
+            "/uicontrols/TreeView/TreeView.js",
+            "/uicontrols/WebGrid/WebGrid.js"
+        ]
+    }
+}

@@ -2,9 +2,19 @@
     <PropertyGroup>
         <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
         <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
+        <OutputType>Exe</OutputType>
         <TargetFramework>net10.0</TargetFramework>
         <RuntimeIdentifiers>win-x64;linux-x64;osx-x64</RuntimeIdentifiers>
+        <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+        <PublishWithAspNetCoreTargetManifest>true</PublishWithAspNetCoreTargetManifest>
+        <TargetLatestRuntimePatch>false</TargetLatestRuntimePatch>
         <Nullable>enable</Nullable>
+        <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+        <PlatformTarget>AnyCPU</PlatformTarget>
+        <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+        <CompressionEnabled>false</CompressionEnabled>
+        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+        <NoWarn>NU1903;ASP0023;NU1608;</NoWarn>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -17,6 +27,10 @@
         <DebugType>portable</DebugType>
         <Optimize>False</Optimize>
     </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="System.CommandLine" Version="2.0.0" />
+    </ItemGroup>
     
     <ItemGroup>
         <Compile Remove="build/**" />
@@ -24,28 +38,9 @@
         <None Update="wwwroot/**">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
+        <None Include="Contracts/**" />
+        <None Update="Contracts/**">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
-
-    <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-        <RemoveDir Directories="$(TargetDir)" Condition="Exists('$(TargetDir)')" />
-    </Target>
-
-    <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-        <!-- TargetDir/wwwroot를 HANDSTACK_HOME/forbes로 복사 -->
-        <PropertyGroup>
-            <WwwrootSourceDir>$(TargetDir)wwwroot\</WwwrootSourceDir>
-            <ForbesDestinationDir>$(HANDSTACK_HOME)\forbes\</ForbesDestinationDir>
-        </PropertyGroup>
-        <MakeDir Directories="$(ForbesDestinationDir)" Condition="!Exists('$(ForbesDestinationDir)')" />
-
-        <!-- wwwroot의 모든 파일을 재귀적으로 복사 -->
-        <ItemGroup Condition="Exists('$(WwwrootSourceDir)')">
-            <WwwrootFilesToCopy Include="$(WwwrootSourceDir)**\*" />
-        </ItemGroup>
-        <Copy
-            SourceFiles="@(WwwrootFilesToCopy)"
-            DestinationFiles="@(WwwrootFilesToCopy->'$(ForbesDestinationDir)%(RecursiveDir)%(Filename)%(Extension)')"
-            SkipUnchangedFiles="true"
-            Condition="Exists('$(WwwrootSourceDir)')" />
-    </Target>
 </Project>

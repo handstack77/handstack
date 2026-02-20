@@ -1,0 +1,30 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>에디터내 이미지 파일 업로드</title>
+</head>
+<body style="display: none;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div class="attachFileWrap imageUpload">
+            <div class="attachContent">
+                <div class="textInfo">
+                    <span>
+                        최대 업로드 건수 <strong id="spnMaxUploadCount"></strong>
+                    </span> |
+                    <span>
+                        업로드 가능 건수 <strong id="spnRemainUploadCount"></strong>
+                    </span>
+                </div>
+                <ul id="divEditorImageFiles" class="fileList">
+                </ul>
+                <div class="fileInfo">
+                    <div id="divFileInfos" class="list-group list-group-flush list-group-hoverable"></div>
+                </div>
+            </div>
+        </div>
+        <syn_fileclient id="synFileClient" syn-options="{}"></syn_fileclient>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>
