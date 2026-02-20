@@ -29,7 +29,7 @@ namespace HandStack.Web.Extensions
 
         public void SetFileBasePath(string userWorkID, string applicationID)
         {
-            if (string.IsNullOrEmpty(applicationID) == false)
+            if (!string.IsNullOrEmpty(applicationID))
             {
                 connectionString = connectionString.Replace("{appBasePath}", PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID));
             }
@@ -380,3 +380,4 @@ namespace HandStack.Web.Extensions
         }
     }
 }
+

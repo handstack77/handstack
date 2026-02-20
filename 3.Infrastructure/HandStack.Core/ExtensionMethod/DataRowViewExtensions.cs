@@ -172,7 +172,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static Type? GetType(this DataRowView @this, string? fieldName, Type? defaultValue)
         {
-            if (string.IsNullOrEmpty(fieldName) == false)
+            if (!string.IsNullOrEmpty(fieldName))
             {
                 var classType = @this.GetString(fieldName);
 
@@ -224,3 +224,4 @@ namespace HandStack.Core.ExtensionMethod
         }
     }
 }
+

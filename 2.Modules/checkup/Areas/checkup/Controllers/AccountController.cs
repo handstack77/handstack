@@ -75,7 +75,7 @@ namespace checkup.Areas.checkup.Controllers
 
             var remoteClientIP = HttpContext.GetRemoteIpAddress();
 
-            if (string.IsNullOrEmpty(emailID) == false)
+            if (!string.IsNullOrEmpty(emailID))
             {
                 string? personNo = null;
 
@@ -104,7 +104,7 @@ namespace checkup.Areas.checkup.Controllers
                         {
                             PersonNo = sequentialIdGenerator.NewId().ToString("N"),
                             PersonID = emailID,
-                            PersonName = string.IsNullOrEmpty(userName) == true ? "" : userName,
+                            PersonName = string.IsNullOrEmpty(userName) ? "" : userName,
                         });
 
                         if (nonResults == null)
@@ -133,12 +133,12 @@ namespace checkup.Areas.checkup.Controllers
                         userName = item.PersonName;
                     }
 
-                    if (string.IsNullOrEmpty(userName) == true)
+                    if (string.IsNullOrEmpty(userName))
                     {
                         userName = emailID;
                     }
 
-                    if (string.IsNullOrEmpty(personNo) == true || string.IsNullOrEmpty(userName) == true)
+                    if (string.IsNullOrEmpty(personNo) || string.IsNullOrEmpty(userName))
                     {
                         entityResult.ErrorText = "SYS.USR010.GD02 결과 필요";
                         logger.Error("[{LogCategory}] " + $"{ModuleConfiguration.DatabaseContractPath}: ${entityResult.ErrorText}", "AccountController/InviteMember");
@@ -191,7 +191,7 @@ namespace checkup.Areas.checkup.Controllers
                     }
                 }
 
-                if (string.IsNullOrEmpty(personNo) == true)
+                if (string.IsNullOrEmpty(personNo))
                 {
                     entityResult.ErrorText = "SYS.USR010.GD02 결과 필요";
                     logger.Error("[{LogCategory}] " + $"{ModuleConfiguration.DatabaseContractPath}: ${entityResult.ErrorText}", "AccountController/Email");
@@ -225,10 +225,10 @@ namespace checkup.Areas.checkup.Controllers
             var linkUrl = $"/checkup/redirection.html?tick={DateTime.Now.Ticks}";
             var clientIP = HttpContext.GetRemoteIpAddress().ToStringSafe();
 
-            if (string.IsNullOrEmpty(userID) == false
-                && string.IsNullOrEmpty(issueID) == false
-                && string.IsNullOrEmpty(validID) == false
-                && string.IsNullOrEmpty(signID) == false)
+            if (!string.IsNullOrEmpty(userID)
+                && !string.IsNullOrEmpty(issueID)
+                && !string.IsNullOrEmpty(validID)
+                && !string.IsNullOrEmpty(signID))
             {
                 DateTime createdAt;
 
@@ -352,7 +352,7 @@ namespace checkup.Areas.checkup.Controllers
                                 {
                                     var claimType = item.GetString("ClaimType");
                                     var claimValue = item.GetString("ClaimValue").ToStringSafe();
-                                    if (string.IsNullOrEmpty(claimType) == false)
+                                    if (!string.IsNullOrEmpty(claimType))
                                     {
                                         var claim = new Claim(claimType, claimValue);
                                         if (claims.Contains(claim) == false)
@@ -431,7 +431,7 @@ namespace checkup.Areas.checkup.Controllers
                                 try
                                 {
                                     HttpContext.Request.Cookies.TryGetValue(GlobalConfiguration.SessionCookieName, out var cookieValue);
-                                    if (string.IsNullOrEmpty(cookieValue) == false)
+                                    if (!string.IsNullOrEmpty(cookieValue))
                                     {
                                         var protectedData = Convert.FromBase64String(cookieValue.SessionDecryptPad());
                                         var unprotectedData = dataProtector.Unprotect(protectedData);
@@ -583,7 +583,7 @@ namespace checkup.Areas.checkup.Controllers
         [HttpGet("[action]")]
         public async Task Logout(string? cookiePrefixName = "")
         {
-            if (string.IsNullOrEmpty(cookiePrefixName) == true)
+            if (string.IsNullOrEmpty(cookiePrefixName))
             {
                 cookiePrefixName = GlobalConfiguration.CookiePrefixName;
             }
@@ -614,3 +614,4 @@ namespace checkup.Areas.checkup.Controllers
         }
     }
 }
+

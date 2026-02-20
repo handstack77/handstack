@@ -195,7 +195,7 @@ namespace function.Areas.function.Controllers
                                             break;
                                     }
 
-                                    if (string.IsNullOrEmpty(fileExtension) == true)
+                                    if (string.IsNullOrEmpty(fileExtension))
                                     {
                                         Log.Logger.Error("[{LogCategory}] " + $"{scriptMapFile} 언어 타입 확인 필요", "ManagedController/ResetAppContract");
                                         continue;
@@ -208,15 +208,15 @@ namespace function.Areas.function.Controllers
                                         var header = functionScriptContract.Header;
                                         if (scriptMapFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
                                         {
-                                            header.ApplicationID = string.IsNullOrEmpty(header.ApplicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Parent?.Parent?.Name).ToStringSafe() : header.ApplicationID;
-                                            header.ProjectID = string.IsNullOrEmpty(header.ProjectID) == true ? (fileInfo.Directory?.Parent?.Name).ToStringSafe() : header.ProjectID;
-                                            header.TransactionID = string.IsNullOrEmpty(header.TransactionID) == true ? (fileInfo.Directory?.Name).ToStringSafe().Replace(fileInfo.Extension, "") : header.TransactionID;
+                                            header.ApplicationID = string.IsNullOrEmpty(header.ApplicationID) ? (fileInfo.Directory?.Parent?.Parent?.Parent?.Parent?.Name).ToStringSafe() : header.ApplicationID;
+                                            header.ProjectID = string.IsNullOrEmpty(header.ProjectID) ? (fileInfo.Directory?.Parent?.Name).ToStringSafe() : header.ProjectID;
+                                            header.TransactionID = string.IsNullOrEmpty(header.TransactionID) ? (fileInfo.Directory?.Name).ToStringSafe().Replace(fileInfo.Extension, "") : header.TransactionID;
                                         }
                                         else
                                         {
-                                            header.ApplicationID = string.IsNullOrEmpty(header.ApplicationID) == true ? (fileInfo.Directory?.Parent?.Name).ToStringSafe() : header.ApplicationID;
-                                            header.ProjectID = string.IsNullOrEmpty(header.ProjectID) == true ? (fileInfo.Directory?.Name).ToStringSafe() : header.ProjectID;
-                                            header.TransactionID = string.IsNullOrEmpty(header.TransactionID) == true ? fileInfo.Name.Replace(fileInfo.Extension, "") : header.TransactionID;
+                                            header.ApplicationID = string.IsNullOrEmpty(header.ApplicationID) ? (fileInfo.Directory?.Parent?.Name).ToStringSafe() : header.ApplicationID;
+                                            header.ProjectID = string.IsNullOrEmpty(header.ProjectID) ? (fileInfo.Directory?.Name).ToStringSafe() : header.ProjectID;
+                                            header.TransactionID = string.IsNullOrEmpty(header.TransactionID) ? fileInfo.Name.Replace(fileInfo.Extension, "") : header.TransactionID;
                                         }
 
                                         var items = functionScriptContract.Commands;
@@ -234,7 +234,7 @@ namespace function.Areas.function.Controllers
                                                 moduleScriptMap.IsHttpContext = header.IsHttpContext;
                                                 moduleScriptMap.ReferenceModuleID = header.ReferenceModuleID;
 
-                                                if (string.IsNullOrEmpty(item.EntryType) == true)
+                                                if (string.IsNullOrEmpty(item.EntryType))
                                                 {
                                                     moduleScriptMap.EntryType = $"{header.ApplicationID}.Function.{header.ProjectID}.{header.TransactionID}";
                                                 }
@@ -243,7 +243,7 @@ namespace function.Areas.function.Controllers
                                                     moduleScriptMap.EntryType = item.EntryType;
                                                 }
 
-                                                if (string.IsNullOrEmpty(item.EntryType) == true)
+                                                if (string.IsNullOrEmpty(item.EntryType))
                                                 {
                                                     moduleScriptMap.EntryMethod = item.ID;
                                                 }
@@ -252,7 +252,7 @@ namespace function.Areas.function.Controllers
                                                     moduleScriptMap.EntryMethod = item.EntryMethod;
                                                 }
 
-                                                moduleScriptMap.DataSourceID = string.IsNullOrEmpty(header.DataSourceID) == false ? header.DataSourceID : ModuleConfiguration.DefaultDataSourceID;
+                                                moduleScriptMap.DataSourceID = !string.IsNullOrEmpty(header.DataSourceID) ? header.DataSourceID : ModuleConfiguration.DefaultDataSourceID;
                                                 moduleScriptMap.LanguageType = header.LanguageType;
                                                 moduleScriptMap.ProgramPath = functionScriptFile;
                                                 moduleScriptMap.Timeout = item.Timeout;
@@ -372,3 +372,4 @@ namespace function.Areas.function.Controllers
         }
     }
 }
+

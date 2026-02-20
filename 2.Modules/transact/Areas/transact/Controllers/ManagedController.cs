@@ -172,12 +172,12 @@ namespace transact.Areas.transact.Controllers
                                         if (businessFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
                                         {
                                             var fileInfo = new FileInfo(businessFile);
-                                            businessContract.ApplicationID = string.IsNullOrEmpty(businessContract.ApplicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : businessContract.ApplicationID;
-                                            businessContract.ProjectID = string.IsNullOrEmpty(businessContract.ProjectID) == true ? (fileInfo.Directory?.Name).ToStringSafe() : businessContract.ProjectID;
-                                            businessContract.TransactionID = string.IsNullOrEmpty(businessContract.TransactionID) == true ? fileInfo.Name.Replace(fileInfo.Extension, "") : businessContract.TransactionID;
+                                            businessContract.ApplicationID = string.IsNullOrEmpty(businessContract.ApplicationID) ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : businessContract.ApplicationID;
+                                            businessContract.ProjectID = string.IsNullOrEmpty(businessContract.ProjectID) ? (fileInfo.Directory?.Name).ToStringSafe() : businessContract.ProjectID;
+                                            businessContract.TransactionID = string.IsNullOrEmpty(businessContract.TransactionID) ? fileInfo.Name.Replace(fileInfo.Extension, "") : businessContract.TransactionID;
                                         }
 
-                                        businessContract.TransactionProjectID = string.IsNullOrEmpty(businessContract.TransactionProjectID) == true ? businessContract.ProjectID : businessContract.TransactionProjectID;
+                                        businessContract.TransactionProjectID = string.IsNullOrEmpty(businessContract.TransactionProjectID) ? businessContract.ProjectID : businessContract.TransactionProjectID;
                                         if (businessContracts.ContainsKey(businessFile) == false && TransactionMapper.HasCount(businessContract.ApplicationID, businessContract.ProjectID, businessContract.TransactionID) == 0)
                                         {
                                             businessContracts.Add(businessFile, businessContract);
@@ -310,3 +310,4 @@ namespace transact.Areas.transact.Controllers
         }
     }
 }
+

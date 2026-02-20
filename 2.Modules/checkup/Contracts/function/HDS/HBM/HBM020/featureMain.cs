@@ -31,8 +31,8 @@ namespace HDS.Function.HBM
                 string userWorkID = dynamicParameters.Value("UserWorkID").ToStringSafe();
                 string applicationID = dynamicParameters.Value("ApplicationID").ToStringSafe();
 
-                if (string.IsNullOrEmpty(userWorkID) == true
-                    || string.IsNullOrEmpty(applicationID) == true)
+                if (string.IsNullOrEmpty(userWorkID)
+                    || string.IsNullOrEmpty(applicationID))
                 {
                     result.BuildExceptionData("Y", "Warning", "필수 요청 정보 확인 필요", typeMember);
                     goto TransactionException;
@@ -111,9 +111,9 @@ TransactionException:
             string applicationID = dynamicParameters.Value("ApplicationID").ToStringSafe();
             string publics = dynamicParameters.Value("WithPublics").ToStringSafe();
 
-            if (string.IsNullOrEmpty(userWorkID) == true
-                || string.IsNullOrEmpty(applicationID) == true
-                || string.IsNullOrEmpty(publics) == true
+            if (string.IsNullOrEmpty(userWorkID)
+                || string.IsNullOrEmpty(applicationID)
+                || string.IsNullOrEmpty(publics)
             )
             {
                 result.BuildExceptionData("Y", "Warning", "필수 요청 정보 확인 필요", typeMember);
@@ -161,3 +161,4 @@ TransactionException:
         }
     }
 }
+

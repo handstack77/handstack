@@ -167,7 +167,7 @@ namespace function.DataClient
                             }
 
                             dynamicParameter.Value = dynamicParameter.Value == null && moduleParameterMap.DefaultValue != "NULL" ? moduleParameterMap.DefaultValue : dynamicParameter.Value;
-                            dynamicParameter.DbType = string.IsNullOrEmpty(moduleParameterMap.DbType) == true ? dynamicParameter.DbType : moduleParameterMap.DbType;
+                            dynamicParameter.DbType = string.IsNullOrEmpty(moduleParameterMap.DbType) ? dynamicParameter.DbType : moduleParameterMap.DbType;
                             dynamicParameter.Length = moduleParameterMap.Length <= 0 ? -1 : moduleParameterMap.Length;
                             dynamicParameters.Add(dynamicParameter);
                         }
@@ -187,7 +187,7 @@ namespace function.DataClient
                         return;
                     }
 
-                    if (string.IsNullOrEmpty(moduleScriptMap.BeforeTransactionCommand) == false)
+                    if (!string.IsNullOrEmpty(moduleScriptMap.BeforeTransactionCommand))
                     {
                         var logData = "";
                         if (ModuleConfiguration.IsTransactionLogging == true)
@@ -210,7 +210,7 @@ namespace function.DataClient
                         var serviceParameters = new List<ServiceParameter>();
                         serviceParameters.Add(new ServiceParameter() { prop = "ProgramPath", val = programPath });
                         var beforeCommandResult = await businessApiClient.OnewayTransactionCommandAsync(transactionCommands, request.GlobalID, queryObject.QueryID, dynamicParameters, serviceParameters);
-                        if (string.IsNullOrEmpty(beforeCommandResult) == false)
+                        if (!string.IsNullOrEmpty(beforeCommandResult))
                         {
                             response.ExceptionText = $"ExecuteScriptMap.BeforeTransactionCommand Error: {beforeCommandResult}";
 
@@ -361,7 +361,7 @@ namespace function.DataClient
                         }
                     }
 
-                    if (string.IsNullOrEmpty(dataProvider) == false)
+                    if (!string.IsNullOrEmpty(dataProvider))
                     {
                         dataContext.dataProvider = dataProvider.Substring(1);
                         dataContext.connectionString = connectionString.Substring(1);
@@ -514,7 +514,7 @@ namespace function.DataClient
                                 });
                             }
 
-                            if (string.IsNullOrEmpty(moduleScriptMap.EntryType) == true || string.IsNullOrEmpty(moduleScriptMap.EntryMethod) == true)
+                            if (string.IsNullOrEmpty(moduleScriptMap.EntryType) || string.IsNullOrEmpty(moduleScriptMap.EntryMethod))
                             {
                                 response.ExceptionText = $"GlobalID: {request.GlobalID}, QueryID: {queryObject.QueryID}, Exception: EntryType, EntryMethod 확인 필요";
                             }
@@ -599,9 +599,9 @@ namespace function.DataClient
                         response.ExceptionText = $"GlobalID: {request.GlobalID}, QueryID: {queryObject.QueryID}, LanguageType 확인 필요: {moduleScriptMap.LanguageType}";
                     }
 
-                    if (string.IsNullOrEmpty(response.ExceptionText) == false)
+                    if (!string.IsNullOrEmpty(response.ExceptionText))
                     {
-                        if (string.IsNullOrEmpty(moduleScriptMap.FallbackTransactionCommand) == false)
+                        if (!string.IsNullOrEmpty(moduleScriptMap.FallbackTransactionCommand))
                         {
                             var logData = $"GlobalID={request.GlobalID}, QueryID={queryObject.QueryID}, FallbackTransactionCommand: {moduleScriptMap.FallbackTransactionCommand}, dynamicParameters={JsonConvert.SerializeObject(dynamicParameters)}";
                             if (ModuleConfiguration.IsLogServer == true)
@@ -618,7 +618,7 @@ namespace function.DataClient
 
                             var transactionCommands = moduleScriptMap.FallbackTransactionCommand.Split("|");
                             var fallbackCommandResult = businessApiClient.OnewayTransactionCommand(transactionCommands, request.GlobalID, queryObject.QueryID, dynamicParameters);
-                            if (string.IsNullOrEmpty(fallbackCommandResult) == false)
+                            if (!string.IsNullOrEmpty(fallbackCommandResult))
                             {
                                 response.ExceptionText = response.ExceptionText + $", ExecuteScriptMap.FallbackTransactionCommand Error: GlobalID={request.GlobalID}, QueryID={queryObject.QueryID}, CommandID={moduleScriptMap.FallbackTransactionCommand}, CommandResult={fallbackCommandResult}";
 
@@ -639,7 +639,7 @@ namespace function.DataClient
                         return;
                     }
 
-                    if (string.IsNullOrEmpty(moduleScriptMap.AfterTransactionCommand) == false)
+                    if (!string.IsNullOrEmpty(moduleScriptMap.AfterTransactionCommand))
                     {
                         var logData = $"executeResult: {executeResult}, AfterTransactionCommand: {moduleScriptMap.AfterTransactionCommand}, dynamicParameters={JsonConvert.SerializeObject(dynamicParameters)}";
                         if (ModuleConfiguration.IsLogServer == true)
@@ -658,7 +658,7 @@ namespace function.DataClient
                         var serviceParameters = new List<ServiceParameter>();
                         serviceParameters.Add(new ServiceParameter() { prop = "CommandResult", val = executeResult });
                         var afterCommandResult = businessApiClient.OnewayTransactionCommand(transactionCommands, request.GlobalID, queryObject.QueryID, dynamicParameters, serviceParameters);
-                        if (string.IsNullOrEmpty(afterCommandResult) == false)
+                        if (!string.IsNullOrEmpty(afterCommandResult))
                         {
                             response.ExceptionText = $"ExecuteScriptMap.AfterTransactionCommand Error: {afterCommandResult}";
 
@@ -939,3 +939,4 @@ namespace function.DataClient
         }
     }
 }
+

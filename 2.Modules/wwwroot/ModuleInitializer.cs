@@ -50,15 +50,15 @@ namespace wwwroot
                         var moduleConfig = moduleConfigJson.ModuleConfig;
                         ModuleConfiguration.ModuleID = moduleConfigJson.ModuleID;
                         ModuleConfiguration.Version = moduleConfigJson.Version;
-                        ModuleConfiguration.AuthorizationKey = string.IsNullOrEmpty(moduleConfig.AuthorizationKey) == false ? moduleConfig.AuthorizationKey : GlobalConfiguration.SystemID + GlobalConfiguration.RunningEnvironment + GlobalConfiguration.HostName;
+                        ModuleConfiguration.AuthorizationKey = !string.IsNullOrEmpty(moduleConfig.AuthorizationKey) ? moduleConfig.AuthorizationKey : GlobalConfiguration.SystemID + GlobalConfiguration.RunningEnvironment + GlobalConfiguration.HostName;
                         ModuleConfiguration.IsBundledWithHost = moduleConfigJson.IsBundledWithHost;
                         ModuleConfiguration.BusinessServerUrl = moduleConfig.BusinessServerUrl;
                         ModuleConfiguration.ContractBasePath = GlobalConfiguration.GetBaseDirectoryPath(moduleConfig.ContractBasePath);
                         ModuleConfiguration.WWWRootBasePath = GlobalConfiguration.GetBaseDirectoryPath(moduleConfig.WWWRootBasePath);
                         ModuleConfiguration.ModuleLogFilePath = GlobalConfiguration.GetBaseFilePath(moduleConfig.ModuleLogFilePath);
-                        ModuleConfiguration.IsModuleLogging = string.IsNullOrEmpty(moduleConfig.ModuleLogFilePath) == false;
+                        ModuleConfiguration.IsModuleLogging = !string.IsNullOrEmpty(moduleConfig.ModuleLogFilePath);
                         ModuleConfiguration.ModuleFilePath = GlobalConfiguration.GetBaseDirectoryPath(moduleConfig.ModuleFilePath);
-                        GlobalConfiguration.ContractRequestPath = string.IsNullOrEmpty(moduleConfig.ContractRequestPath) == true ? "view" : moduleConfig.ContractRequestPath;
+                        GlobalConfiguration.ContractRequestPath = string.IsNullOrEmpty(moduleConfig.ContractRequestPath) ? "view" : moduleConfig.ContractRequestPath;
 
                         ModuleConfiguration.IsConfigure = true;
                     }
@@ -138,10 +138,10 @@ namespace wwwroot
         public void Configure(IApplicationBuilder app, IWebHostEnvironment? environment, ICorsService corsService, ICorsPolicyProvider corsPolicyProvider)
         {
             var module = GlobalConfiguration.Modules.FirstOrDefault(p => p.ModuleID == typeof(ModuleInitializer).Assembly.GetName().Name);
-            if (string.IsNullOrEmpty(ModuleID) == false && module != null)
+            if (!string.IsNullOrEmpty(ModuleID) && module != null)
             {
                 var wwwrootContractBasePath = PathExtensions.Combine(ModuleConfiguration.ContractBasePath, GlobalConfiguration.ApplicationID);
-                if (string.IsNullOrEmpty(ModuleConfiguration.ContractBasePath) == false && Directory.Exists(wwwrootContractBasePath) == true)
+                if (!string.IsNullOrEmpty(ModuleConfiguration.ContractBasePath) && Directory.Exists(wwwrootContractBasePath) == true)
                 {
                     ModuleConfiguration.IsContractRequestPath = true;
                     app.UseStaticFiles(new StaticFileOptions
@@ -171,8 +171,8 @@ namespace wwwroot
                     });
                 }
 
-                var wwwrootDirectory = string.IsNullOrEmpty(ModuleConfiguration.WWWRootBasePath) == true ? PathExtensions.Combine(module.BasePath, "wwwroot") : ModuleConfiguration.WWWRootBasePath;
-                if (string.IsNullOrEmpty(wwwrootDirectory) == false && Directory.Exists(wwwrootDirectory) == true)
+                var wwwrootDirectory = string.IsNullOrEmpty(ModuleConfiguration.WWWRootBasePath) ? PathExtensions.Combine(module.BasePath, "wwwroot") : ModuleConfiguration.WWWRootBasePath;
+                if (!string.IsNullOrEmpty(wwwrootDirectory) && Directory.Exists(wwwrootDirectory) == true)
                 {
                     app.UseMiddleware<CaseInsensitiveStaticFileMiddleware>(wwwrootDirectory);
                     app.UseStaticFiles(new StaticFileOptions
@@ -263,3 +263,4 @@ namespace wwwroot
         }
     }
 }
+

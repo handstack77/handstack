@@ -55,14 +55,14 @@ namespace transact
                         var moduleConfig = moduleConfigJson.ModuleConfig;
                         ModuleConfiguration.ModuleID = moduleConfigJson.ModuleID;
                         ModuleConfiguration.Version = moduleConfigJson.Version;
-                        ModuleConfiguration.AuthorizationKey = string.IsNullOrEmpty(moduleConfig.AuthorizationKey) == false ? moduleConfig.AuthorizationKey : GlobalConfiguration.SystemID + GlobalConfiguration.RunningEnvironment + GlobalConfiguration.HostName;
+                        ModuleConfiguration.AuthorizationKey = !string.IsNullOrEmpty(moduleConfig.AuthorizationKey) ? moduleConfig.AuthorizationKey : GlobalConfiguration.SystemID + GlobalConfiguration.RunningEnvironment + GlobalConfiguration.HostName;
                         ModuleConfiguration.IsBundledWithHost = moduleConfigJson.IsBundledWithHost;
                         ModuleConfiguration.BusinessServerUrl = moduleConfig.BusinessServerUrl;
                         ModuleConfiguration.CircuitBreakResetSecond = moduleConfig.CircuitBreakResetSecond;
                         ModuleConfiguration.SystemID = moduleConfig.SystemID;
                         ModuleConfiguration.AvailableEnvironment = moduleConfig.AvailableEnvironment;
                         ModuleConfiguration.UseApiAuthorize = moduleConfig.UseApiAuthorize;
-                        ModuleConfiguration.TrustedProxyIP = string.IsNullOrEmpty(moduleConfig.TrustedProxyIP) == true ? "1.1.1.1" : moduleConfig.TrustedProxyIP;
+                        ModuleConfiguration.TrustedProxyIP = string.IsNullOrEmpty(moduleConfig.TrustedProxyIP) ? "1.1.1.1" : moduleConfig.TrustedProxyIP;
                         ModuleConfiguration.HasTrustedCheckIP = moduleConfig.HasTrustedCheckIP;
                         ModuleConfiguration.BypassAuthorizeIP = moduleConfig.BypassAuthorizeIP;
                         ModuleConfiguration.IsValidationRequest = moduleConfig.IsValidationRequest;
@@ -72,8 +72,8 @@ namespace transact
                         ModuleConfiguration.IsLogServer = moduleConfig.IsLogServer;
                         ModuleConfiguration.IsTransactAggregate = moduleConfig.IsTransactAggregate;
                         ModuleConfiguration.IsDataMasking = moduleConfig.IsDataMasking;
-                        ModuleConfiguration.MaskingChar = char.Parse((string.IsNullOrEmpty(moduleConfig.MaskingChar) == true || moduleConfig.MaskingChar.Length != 1) ? "*" : moduleConfig.MaskingChar);
-                        ModuleConfiguration.MaskingMethod = string.IsNullOrEmpty(moduleConfig.MaskingMethod) == true ? "Syn" : moduleConfig.MaskingMethod;
+                        ModuleConfiguration.MaskingChar = char.Parse((string.IsNullOrEmpty(moduleConfig.MaskingChar) || moduleConfig.MaskingChar.Length != 1) ? "*" : moduleConfig.MaskingChar);
+                        ModuleConfiguration.MaskingMethod = string.IsNullOrEmpty(moduleConfig.MaskingMethod) ? "Syn" : moduleConfig.MaskingMethod;
                         ModuleConfiguration.IsTransactionLogging = moduleConfig.IsTransactionLogging;
                         ModuleConfiguration.LogServerUrl = moduleConfig.LogServerUrl;
 
@@ -129,14 +129,14 @@ namespace transact
         private static LoggerConfiguration CreateLoggerConfiguration(string logFilePath)
         {
             var fileInfo = new FileInfo(logFilePath);
-            if (string.IsNullOrEmpty(fileInfo.DirectoryName) == false)
+            if (!string.IsNullOrEmpty(fileInfo.DirectoryName))
             {
                 if (fileInfo.Directory == null || fileInfo.Directory.Exists == false)
                 {
                     Directory.CreateDirectory(fileInfo.DirectoryName);
                 }
 
-                if (string.IsNullOrEmpty(GlobalConfiguration.ProcessName) == true)
+                if (string.IsNullOrEmpty(GlobalConfiguration.ProcessName))
                 {
                     logFilePath = fileInfo.FullName.Replace("\\", "/");
                 }
@@ -167,10 +167,10 @@ namespace transact
         public void Configure(IApplicationBuilder app, IWebHostEnvironment? environment, ICorsService corsService, ICorsPolicyProvider corsPolicyProvider)
         {
             var module = GlobalConfiguration.Modules.FirstOrDefault(p => p.ModuleID == ModuleID);
-            if (string.IsNullOrEmpty(ModuleID) == false && module != null)
+            if (!string.IsNullOrEmpty(ModuleID) && module != null)
             {
                 var wwwrootDirectory = PathExtensions.Combine(module.BasePath, "wwwroot", module.ModuleID);
-                if (string.IsNullOrEmpty(wwwrootDirectory) == false && Directory.Exists(wwwrootDirectory) == true)
+                if (!string.IsNullOrEmpty(wwwrootDirectory) && Directory.Exists(wwwrootDirectory) == true)
                 {
                     app.UseStaticFiles(new StaticFileOptions
                     {
@@ -248,3 +248,4 @@ namespace transact
         }
     }
 }
+

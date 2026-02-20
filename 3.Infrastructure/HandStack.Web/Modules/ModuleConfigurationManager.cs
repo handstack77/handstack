@@ -16,7 +16,7 @@ namespace HandStack.Web.Modules
         public IEnumerable<ModuleInfo> GetModules()
         {
             var modules = new List<ModuleInfo>();
-            if (string.IsNullOrEmpty(GlobalConfiguration.LoadModuleBasePath) == true)
+            if (string.IsNullOrEmpty(GlobalConfiguration.LoadModuleBasePath))
             {
                 GlobalConfiguration.LoadModuleBasePath = PathExtensions.Combine(GlobalConfiguration.EntryBasePath, @"modules");
             }
@@ -36,7 +36,7 @@ namespace HandStack.Web.Modules
                     return item == directoryInfo.Name;
                 });
 
-                if (string.IsNullOrEmpty(moduleID) == false)
+                if (!string.IsNullOrEmpty(moduleID))
                 {
                     DefaultModuleConfigJson? module = null;
                     var moduleSettingFilePath = PathExtensions.Combine(moduleBasePath, moduleSettingFile);
@@ -231,3 +231,4 @@ namespace HandStack.Web.Modules
         }
     }
 }
+

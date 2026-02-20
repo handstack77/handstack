@@ -29,7 +29,7 @@ namespace checkup.Extensions
                 var splits = requestPath.SplitAndTrim('/');
                 var userWorkID = splits.Count > 2 ? splits[1] : "";
                 var applicationID = splits.Count > 2 ? splits[2] : "";
-                if (string.IsNullOrEmpty(userWorkID) == false && string.IsNullOrEmpty(applicationID) == false)
+                if (!string.IsNullOrEmpty(userWorkID) && !string.IsNullOrEmpty(applicationID))
                 {
                     var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                     var directoryInfo = new DirectoryInfo(appBasePath);
@@ -40,7 +40,7 @@ namespace checkup.Extensions
                     }
                     else
                     {
-                        var token = httpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+                        var token = httpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(' ').Last();
                         if (token != null)
                         {
                             var isValidateToken = await jwtManager.ValidateJwtToken(token, userWorkID, applicationID);
@@ -57,4 +57,5 @@ namespace checkup.Extensions
         }
     }
 }
+
 

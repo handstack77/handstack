@@ -56,7 +56,7 @@ namespace HandStack.Core.ExpendObjects
                 {
                     writer.WriteAttributeString("type", "nil");
                 }
-                else if (string.IsNullOrEmpty(xmlType) == false)
+                else if (!string.IsNullOrEmpty(xmlType))
                 {
                     if (xmlType != "string")
                     {
@@ -119,7 +119,7 @@ namespace HandStack.Core.ExpendObjects
                         xmlType = reader.Value;
                     }
 
-                    if (string.IsNullOrEmpty(xmlType) == true)
+                    if (string.IsNullOrEmpty(xmlType))
                     {
                         xmlType = "string";
                     }
@@ -180,7 +180,7 @@ namespace HandStack.Core.ExpendObjects
         {
             Clear();
 
-            if (string.IsNullOrEmpty(xml) == true)
+            if (string.IsNullOrEmpty(xml))
             {
                 return true;
             }
@@ -209,3 +209,4 @@ namespace HandStack.Core.ExpendObjects
         }
     }
 }
+

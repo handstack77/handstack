@@ -75,7 +75,7 @@ namespace HandStack.Web.Extensions
         public static string GetBaseUrl(this HttpRequest request)
         {
             var protocol = request.GetHeaderValueAs<string>("X-Forwarded-Proto");
-            if (string.IsNullOrEmpty(protocol) == false)
+            if (!string.IsNullOrEmpty(protocol))
             {
                 request.Scheme = protocol;
             }
@@ -86,7 +86,7 @@ namespace HandStack.Web.Extensions
         public static string GetUrlAuthority(this HttpRequest request)
         {
             var protocol = request.GetHeaderValueAs<string>("X-Forwarded-Proto");
-            if (string.IsNullOrEmpty(protocol) == false)
+            if (!string.IsNullOrEmpty(protocol))
             {
                 request.Scheme = protocol;
             }
@@ -97,7 +97,7 @@ namespace HandStack.Web.Extensions
         public static string GetAbsoluteUrl(this HttpRequest request)
         {
             var protocol = request.GetHeaderValueAs<string>("X-Forwarded-Proto");
-            if (string.IsNullOrEmpty(protocol) == false)
+            if (!string.IsNullOrEmpty(protocol))
             {
                 request.Scheme = protocol;
             }
@@ -135,7 +135,7 @@ namespace HandStack.Web.Extensions
         {
             var result = DateTimeOffset.Now.TotalOffsetMinutes;
             var offsetMinutes = GetContainValue(request, "OffsetMinutes");
-            var timezoneOffsetMinutes = string.IsNullOrEmpty(offsetMinutes) == true ? result : offsetMinutes.ParseInt(result);
+            var timezoneOffsetMinutes = string.IsNullOrEmpty(offsetMinutes) ? result : offsetMinutes.ParseInt(result);
 
             return result;
         }
@@ -160,7 +160,7 @@ namespace HandStack.Web.Extensions
                 result = request.Headers[requestKey].ToString();
             }
 
-            if (string.IsNullOrEmpty(result) == true && string.IsNullOrEmpty(defaultValue) == false)
+            if (string.IsNullOrEmpty(result) && !string.IsNullOrEmpty(defaultValue))
             {
                 result = defaultValue;
             }
@@ -208,27 +208,27 @@ namespace HandStack.Web.Extensions
                 ip = httpContext.Request.GetHeaderValueAs<string>("X-Forwarded-For")?.SplitCsv()?.FirstOrDefault();
             }
 
-            if (string.IsNullOrEmpty(ip) == true && httpContext?.GetServerVariable("HTTP_X_FORWARDED_FOR") != null)
+            if (string.IsNullOrEmpty(ip) && httpContext?.GetServerVariable("HTTP_X_FORWARDED_FOR") != null)
             {
                 ip = httpContext?.GetServerVariable("HTTP_X_FORWARDED_FOR")?.ToString();
             }
 
-            if (string.IsNullOrEmpty(ip) == true && httpContext?.Connection?.RemoteIpAddress != null)
+            if (string.IsNullOrEmpty(ip) && httpContext?.Connection?.RemoteIpAddress != null)
             {
                 ip = httpContext.Connection.RemoteIpAddress.MapToIPv4().ToString();
             }
 
-            if (string.IsNullOrEmpty(ip) == true)
+            if (string.IsNullOrEmpty(ip))
             {
                 ip = httpContext?.Request.GetHeaderValueAs<string>("REMOTE_ADDR");
             }
 
-            if (string.IsNullOrEmpty(ip) == false && ip.Length > 7 && ip.Substring(0, 7) == "::ffff:")
+            if (!string.IsNullOrEmpty(ip) && ip.Length > 7 && ip.Substring(0, 7) == "::ffff:")
             {
                 ip = ip.Substring(7);
             }
 
-            if (ip == "::1" || ip == "0.0.0.1" || ip == "127.0.0.1" || (string.IsNullOrEmpty(ip) == true && httpContext?.Connection?.LocalIpAddress != null))
+            if (ip == "::1" || ip == "0.0.0.1" || ip == "127.0.0.1" || (string.IsNullOrEmpty(ip) && httpContext?.Connection?.LocalIpAddress != null))
             {
                 ip = httpContext?.Connection.LocalIpAddress?.MapToIPv4().ToString();
                 if (ip == "::1" || ip == "0.0.0.1" || ip == "127.0.0.1")
@@ -257,7 +257,7 @@ namespace HandStack.Web.Extensions
                 ip = httpContext.Request.GetHeaderValueAs<string>("X-Forwarded-For")?.SplitCsv()?.FirstOrDefault();
             }
 
-            if (string.IsNullOrEmpty(ip) == true && httpContext?.GetServerVariable("HTTP_X_FORWARDED_FOR") != null)
+            if (string.IsNullOrEmpty(ip) && httpContext?.GetServerVariable("HTTP_X_FORWARDED_FOR") != null)
             {
                 ip = httpContext?.GetServerVariable("HTTP_X_FORWARDED_FOR")?.ToString();
             }
@@ -267,17 +267,17 @@ namespace HandStack.Web.Extensions
                 return reportedClientIP;
             }
 
-            if (string.IsNullOrEmpty(ip) == true && httpContext?.Connection?.RemoteIpAddress != null)
+            if (string.IsNullOrEmpty(ip) && httpContext?.Connection?.RemoteIpAddress != null)
             {
                 ip = httpContext.Connection.RemoteIpAddress.MapToIPv4().ToString();
             }
 
-            if (string.IsNullOrEmpty(ip) == true)
+            if (string.IsNullOrEmpty(ip))
             {
                 ip = httpContext?.Request.GetHeaderValueAs<string>("REMOTE_ADDR");
             }
 
-            if (string.IsNullOrEmpty(ip) == false && ip.Length > 7 && ip.Substring(0, 7) == "::ffff:")
+            if (!string.IsNullOrEmpty(ip) && ip.Length > 7 && ip.Substring(0, 7) == "::ffff:")
             {
                 ip = ip.Substring(7);
             }
@@ -313,3 +313,4 @@ namespace HandStack.Web.Extensions
         }
     }
 }
+

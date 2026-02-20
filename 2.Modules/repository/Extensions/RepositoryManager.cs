@@ -234,17 +234,17 @@ namespace repository.Extensions
         public string GetCustomUrlPath(string customPath1, string customPath2, string customPath3)
         {
             var result = "";
-            if (string.IsNullOrEmpty(customPath1) == false)
+            if (!string.IsNullOrEmpty(customPath1))
             {
                 result += customPath1 + "/";
             }
 
-            if (string.IsNullOrEmpty(customPath2) == false)
+            if (!string.IsNullOrEmpty(customPath2))
             {
                 result += customPath2 + "/";
             }
 
-            if (string.IsNullOrEmpty(customPath3) == false)
+            if (!string.IsNullOrEmpty(customPath3))
             {
                 result += customPath3 + "/";
             }
@@ -255,17 +255,17 @@ namespace repository.Extensions
         public string GetCustomFileStoragePath(string customPath1, string customPath2, string customPath3)
         {
             var result = "";
-            if (string.IsNullOrEmpty(customPath1) == false)
+            if (!string.IsNullOrEmpty(customPath1))
             {
                 result += customPath1 + directoryPathFlag;
             }
 
-            if (string.IsNullOrEmpty(customPath2) == false)
+            if (!string.IsNullOrEmpty(customPath2))
             {
                 result += customPath2 + directoryPathFlag;
             }
 
-            if (string.IsNullOrEmpty(customPath3) == false)
+            if (!string.IsNullOrEmpty(customPath3))
             {
                 result += customPath3 + directoryPathFlag;
             }
@@ -287,7 +287,7 @@ namespace repository.Extensions
                 var i = 0;
                 var extension = Path.GetExtension(fileName);
 
-                if (string.IsNullOrEmpty(extension) == false)
+                if (!string.IsNullOrEmpty(extension))
                 {
                     fileName = fileName.Replace(extension, "");
                 }
@@ -323,7 +323,7 @@ namespace repository.Extensions
 
         public void Move(string sourceFileName, string destnationFileName)
         {
-            if (string.IsNullOrEmpty(sourceFileName) == false)
+            if (!string.IsNullOrEmpty(sourceFileName))
             {
                 var fileName = GetSavePath(sourceFileName);
                 if (File.Exists(fileName) == true)
@@ -335,7 +335,7 @@ namespace repository.Extensions
 
         public void Delete(string itemID)
         {
-            if (string.IsNullOrEmpty(itemID) == false)
+            if (!string.IsNullOrEmpty(itemID))
             {
                 var fileName = PathExtensions.Combine(this.PersistenceDirectoryPath, itemID);
                 if (File.Exists(fileName) == true)
@@ -374,3 +374,4 @@ namespace repository.Extensions
         }
     }
 }
+

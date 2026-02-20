@@ -111,7 +111,7 @@ namespace function.Areas.function.Controllers
                         {
                             case WatcherChangeTypes.Created:
                             case WatcherChangeTypes.Changed:
-                                if (string.IsNullOrEmpty(userWorkID) == false && string.IsNullOrEmpty(applicationID) == false)
+                                if (!string.IsNullOrEmpty(userWorkID) && !string.IsNullOrEmpty(applicationID))
                                 {
                                     var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                                     var itemPath = PathExtensions.Join(appBasePath, filePath);
@@ -149,7 +149,7 @@ namespace function.Areas.function.Controllers
                                 break;
                             case WatcherChangeTypes.Deleted:
                                 var existStatementMaps = new List<ModuleScriptMap>();
-                                if (string.IsNullOrEmpty(userWorkID) == false && string.IsNullOrEmpty(applicationID) == false)
+                                if (!string.IsNullOrEmpty(userWorkID) && !string.IsNullOrEmpty(applicationID))
                                 {
                                     var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                                     var directoryInfo = new DirectoryInfo(appBasePath);
@@ -225,7 +225,7 @@ namespace function.Areas.function.Controllers
             {
                 try
                 {
-                    if (string.IsNullOrEmpty(model.ApplicationID) == true || string.IsNullOrEmpty(model.ProjectID) == true)
+                    if (string.IsNullOrEmpty(model.ApplicationID) || string.IsNullOrEmpty(model.ProjectID))
                     {
                         return Content("필수 항목 확인", "text/html");
                     }
@@ -233,19 +233,19 @@ namespace function.Areas.function.Controllers
                     var queryResults = FunctionMapper.ScriptMappings.Select(p => p.Value).Where(p =>
                             p.ProjectID == model.ProjectID);
 
-                    if (string.IsNullOrEmpty(model.ApplicationID) == false)
+                    if (!string.IsNullOrEmpty(model.ApplicationID))
                     {
                         queryResults = queryResults.Where(p =>
                             p.ApplicationID == model.ApplicationID);
                     }
 
-                    if (string.IsNullOrEmpty(model.TransactionID) == false)
+                    if (!string.IsNullOrEmpty(model.TransactionID))
                     {
                         queryResults = queryResults.Where(p =>
                             p.TransactionID == model.TransactionID);
                     }
 
-                    if (string.IsNullOrEmpty(model.FunctionID) == false)
+                    if (!string.IsNullOrEmpty(model.FunctionID))
                     {
                         var queryFunctionID = model.FunctionID.Substring(0, model.FunctionID.Length - 2);
                         queryResults = queryResults.Where(p => p.ScriptID.Substring(0, p.ScriptID.Length - 2) == queryFunctionID);
@@ -321,12 +321,12 @@ namespace function.Areas.function.Controllers
             }
 
             response.CorrelationID = request.GlobalID;
-            if (string.IsNullOrEmpty(request.RequestID) == true)
+            if (string.IsNullOrEmpty(request.RequestID))
             {
                 request.RequestID = $"SELF_{GlobalConfiguration.SystemID}{GlobalConfiguration.HostName}{GlobalConfiguration.RunningEnvironment}{DateTime.Now:yyyyMMddHHmmssfff}";
             }
 
-            if (string.IsNullOrEmpty(request.GlobalID) == true)
+            if (string.IsNullOrEmpty(request.GlobalID))
             {
                 request.GlobalID = request.RequestID;
             }
@@ -371,7 +371,7 @@ namespace function.Areas.function.Controllers
                 acknowledge = response.Acknowledge == AcknowledgeType.Success ? "Y" : "N";
                 responseData = JsonConvert.SerializeObject(response);
 
-                if (string.IsNullOrEmpty(response.ExceptionText) == false)
+                if (!string.IsNullOrEmpty(response.ExceptionText))
                 {
                     if (ModuleConfiguration.IsLogServer == true)
                     {
@@ -425,3 +425,4 @@ namespace function.Areas.function.Controllers
         }
     }
 }
+

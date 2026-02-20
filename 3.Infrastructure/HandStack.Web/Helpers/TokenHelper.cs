@@ -19,7 +19,7 @@ namespace HandStack.Web.Helper
         {
             bearerToken = null;
 
-            if (string.IsNullOrEmpty(token) == true)
+            if (string.IsNullOrEmpty(token))
             {
                 return false;
             }
@@ -35,7 +35,7 @@ namespace HandStack.Web.Helper
                 var userID = tokenArray[0].DecodeBase64();
                 token = tokenArray[1];
                 var signature = tokenArray.Length > 2 ? (tokenArray[2] == GlobalConfiguration.HostAccessID.ToSHA256() ? userID.PaddingRight(32) : "") : userID.PaddingRight(32);
-                if (string.IsNullOrEmpty(signature) == true)
+                if (string.IsNullOrEmpty(signature))
                 {
                     Console.WriteLine($"토큰 검증 오류");
                     return false;
@@ -73,3 +73,4 @@ namespace HandStack.Web.Helper
         }
     }
 }
+

@@ -46,10 +46,10 @@ namespace HDS.Function.HUM
                 string applicationName = dynamicParameters.Value("ApplicationName").ToStringSafe();
                 string userNo = dynamicParameters.Value("UserNo").ToStringSafe();
 
-                if (string.IsNullOrEmpty(userWorkID) == true
-                    || string.IsNullOrEmpty(applicationID) == true
-                    || string.IsNullOrEmpty(applicationName) == true
-                    || string.IsNullOrEmpty(userNo) == true)
+                if (string.IsNullOrEmpty(userWorkID)
+                    || string.IsNullOrEmpty(applicationID)
+                    || string.IsNullOrEmpty(applicationName)
+                    || string.IsNullOrEmpty(userNo))
                 {
                     result.BuildExceptionData("Y", "Warning", "필수 요청 정보 확인 필요", typeMember);
                     goto TransactionException;
@@ -67,14 +67,14 @@ namespace HDS.Function.HUM
                         string? sourceDirectoryPath = appBasePath;
 
                         List<Menu> menus = new List<Menu>();
-                        if (string.IsNullOrEmpty(sourceDirectoryPath) == false && Directory.Exists(sourceDirectoryPath) == true)
+                        if (!string.IsNullOrEmpty(sourceDirectoryPath) && Directory.Exists(sourceDirectoryPath) == true)
                         {
                             DirectoryInfo directoryInfo = new DirectoryInfo(sourceDirectoryPath);
                             if (directoryInfo.Exists == true)
                             {
                                 Menu rootDirectory = new Menu();
                                 rootDirectory.menuID = applicationID;
-                                rootDirectory.menuName = string.IsNullOrEmpty(applicationName) == true ? applicationID : applicationName;
+                                rootDirectory.menuName = string.IsNullOrEmpty(applicationName) ? applicationID : applicationName;
 
                                 string projectType = string.Empty;
 
@@ -146,10 +146,10 @@ TransactionException:
             string itemPath = dynamicParameters.Value("ItemPath").ToStringSafe();
             string userNo = dynamicParameters.Value("UserNo").ToStringSafe();
 
-            if (string.IsNullOrEmpty(userWorkID) == true
-                || string.IsNullOrEmpty(applicationID) == true
-                || string.IsNullOrEmpty(itemPath) == true
-                || string.IsNullOrEmpty(userNo) == true)
+            if (string.IsNullOrEmpty(userWorkID)
+                || string.IsNullOrEmpty(applicationID)
+                || string.IsNullOrEmpty(itemPath)
+                || string.IsNullOrEmpty(userNo))
             {
                 result.BuildExceptionData("Y", "Warning", "필수 요청 정보 확인 필요", typeMember);
                 goto TransactionException;
@@ -166,7 +166,7 @@ TransactionException:
                 {
                     string? sourceItemPath = PathExtensions.Combine(appBasePath, itemPath);
 
-                    if (string.IsNullOrEmpty(sourceItemPath) == false && System.IO.File.Exists(sourceItemPath) == true)
+                    if (!string.IsNullOrEmpty(sourceItemPath) && System.IO.File.Exists(sourceItemPath) == true)
                     {
                         sourceText = LZStringHelper.CompressToBase64(System.IO.File.ReadAllText(sourceItemPath));
                     }
@@ -220,11 +220,11 @@ TransactionException:
             string itemPath = dynamicParameters.Value("ItemPath").ToStringSafe();
             string userNo = dynamicParameters.Value("UserNo").ToStringSafe();
 
-            if (string.IsNullOrEmpty(userWorkID) == true
-                || string.IsNullOrEmpty(applicationID) == true
-                || string.IsNullOrEmpty(compressBase64) == true
-                || string.IsNullOrEmpty(itemPath) == true
-                || string.IsNullOrEmpty(userNo) == true)
+            if (string.IsNullOrEmpty(userWorkID)
+                || string.IsNullOrEmpty(applicationID)
+                || string.IsNullOrEmpty(compressBase64)
+                || string.IsNullOrEmpty(itemPath)
+                || string.IsNullOrEmpty(userNo))
             {
                 result.BuildExceptionData("Y", "Warning", "필수 요청 정보 확인 필요", typeMember);
                 goto TransactionException;
@@ -241,7 +241,7 @@ TransactionException:
                 {
                     string? sourceItemPath = PathExtensions.Combine(appBasePath, itemPath);
 
-                    if (string.IsNullOrEmpty(sourceItemPath) == false && System.IO.File.Exists(sourceItemPath) == true)
+                    if (!string.IsNullOrEmpty(sourceItemPath) && System.IO.File.Exists(sourceItemPath) == true)
                     {
                         string? sourceText = LZStringHelper.DecompressFromBase64(compressBase64);
                         System.IO.File.WriteAllText(sourceItemPath, sourceText);
@@ -271,7 +271,7 @@ TransactionException:
         private void WWWRootFileMenu(string userWorkID, string applicationID, string projectType, string searchPattern, List<Menu> menus, DirectoryInfo directory, Menu rootDirectory, int level)
         {
             string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID) + "/";
-            foreach (var file in directory.GetFileInfos(SearchOption.TopDirectoryOnly, searchPattern.Split("|").Where(x => string.IsNullOrWhiteSpace(x) == false).ToArray()))
+            foreach (var file in directory.GetFileInfos(SearchOption.TopDirectoryOnly, searchPattern.Split("|").Where(x => !string.IsNullOrWhiteSpace(x)).ToArray()))
             {
                 Menu menuItem = new Menu();
                 menuItem.menuID = file.FullName.Replace("\\", "/").Replace(appBasePath, "");
@@ -304,3 +304,4 @@ TransactionException:
         }
     }
 }
+

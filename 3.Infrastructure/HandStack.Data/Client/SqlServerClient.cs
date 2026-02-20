@@ -188,7 +188,7 @@ namespace HandStack.Data.Client
                 }
             }
 
-            if (string.IsNullOrEmpty(parameterText) == false)
+            if (!string.IsNullOrEmpty(parameterText))
             {
                 parameterText = parameterText.Left(parameterText.Length - 1);
             }
@@ -649,3 +649,4 @@ namespace HandStack.Data.Client
         }
     }
 }
+

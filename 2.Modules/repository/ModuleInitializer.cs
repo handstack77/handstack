@@ -61,7 +61,7 @@ namespace repository
                         var moduleConfig = moduleConfigJson.ModuleConfig;
                         ModuleConfiguration.ModuleID = moduleConfigJson.ModuleID;
                         ModuleConfiguration.Version = moduleConfigJson.Version;
-                        ModuleConfiguration.AuthorizationKey = string.IsNullOrEmpty(moduleConfig.AuthorizationKey) == false ? moduleConfig.AuthorizationKey : GlobalConfiguration.SystemID + GlobalConfiguration.RunningEnvironment + GlobalConfiguration.HostName;
+                        ModuleConfiguration.AuthorizationKey = !string.IsNullOrEmpty(moduleConfig.AuthorizationKey) ? moduleConfig.AuthorizationKey : GlobalConfiguration.SystemID + GlobalConfiguration.RunningEnvironment + GlobalConfiguration.HostName;
                         ModuleConfiguration.IsBundledWithHost = moduleConfigJson.IsBundledWithHost;
                         ModuleConfiguration.FileServerUrl = moduleConfig.FileServerUrl;
                         ModuleConfiguration.BusinessServerUrl = moduleConfig.BusinessServerUrl;
@@ -77,7 +77,7 @@ namespace repository
                         ModuleConfiguration.ModuleBasePath = GlobalConfiguration.GetBaseDirectoryPath(moduleConfig.ModuleBasePath);
                         ModuleConfiguration.DatabaseContractPath = GlobalConfiguration.GetBaseDirectoryPath(moduleConfig.DatabaseContractPath, PathExtensions.Combine(ModuleConfiguration.ModuleBasePath, "Contracts", "dbclient"));
                         ModuleConfiguration.ModuleLogFilePath = GlobalConfiguration.GetBaseFilePath(moduleConfig.ModuleLogFilePath);
-                        ModuleConfiguration.IsModuleLogging = string.IsNullOrEmpty(moduleConfig.ModuleLogFilePath) == false;
+                        ModuleConfiguration.IsModuleLogging = !string.IsNullOrEmpty(moduleConfig.ModuleLogFilePath);
                         ModuleConfiguration.ModuleFilePath = GlobalConfiguration.GetBaseDirectoryPath(moduleConfig.ModuleFilePath);
 
                         ModuleConfiguration.AllowClientIP = moduleConfig.AllowClientIP;
@@ -108,7 +108,7 @@ namespace repository
         public void Configure(IApplicationBuilder app, IWebHostEnvironment? environment, ICorsService corsService, ICorsPolicyProvider corsPolicyProvider)
         {
             var module = GlobalConfiguration.Modules.FirstOrDefault(p => p.ModuleID == typeof(ModuleInitializer).Assembly.GetName().Name);
-            if (string.IsNullOrEmpty(ModuleID) == false && module != null)
+            if (!string.IsNullOrEmpty(ModuleID) && module != null)
             {
                 app.Use(async (context, next) =>
                 {
@@ -117,7 +117,7 @@ namespace repository
                 });
 
                 var wwwrootDirectory = PathExtensions.Combine(module.BasePath, "wwwroot", module.ModuleID);
-                if (string.IsNullOrEmpty(wwwrootDirectory) == false && Directory.Exists(wwwrootDirectory) == true)
+                if (!string.IsNullOrEmpty(wwwrootDirectory) && Directory.Exists(wwwrootDirectory) == true)
                 {
                     app.UseStaticFiles(new StaticFileOptions
                     {
@@ -150,7 +150,7 @@ namespace repository
                 {
                     if (item.StorageType == "FileSystem" && item.IsVirtualPath == true)
                     {
-                        if (string.IsNullOrEmpty(item.PhysicalPath) == true || (item.SettingFilePath.ToStringSafe().StartsWith(GlobalConfiguration.TenantAppBasePath) == true))
+                        if (string.IsNullOrEmpty(item.PhysicalPath) || (item.SettingFilePath.ToStringSafe().StartsWith(GlobalConfiguration.TenantAppBasePath) == true))
                         {
                             continue;
                         }
@@ -191,23 +191,23 @@ namespace repository
                                                     referer = referer.Substring(0, referer.Length - 1);
                                                 }
                                                 var host = httpContext.Context.Request.Host.ToString();
-                                                isResponse = (string.IsNullOrEmpty(referer) == false && (referer.IndexOf(host) > -1 || GlobalConfiguration.WithOrigins.IndexOf(referer) > -1));
+                                                isResponse = (!string.IsNullOrEmpty(referer) && (referer.IndexOf(host) > -1 || GlobalConfiguration.WithOrigins.IndexOf(referer) > -1));
                                             }
                                             break;
                                         case "private":
                                             var token = httpContext.Context.Request.Cookies["BearerToken"];
-                                            if (string.IsNullOrEmpty(token) == true)
+                                            if (string.IsNullOrEmpty(token))
                                             {
                                                 token = httpContext.Context.Request.Headers["BearerToken"];
                                             }
 
-                                            if (string.IsNullOrEmpty(token) == true)
+                                            if (string.IsNullOrEmpty(token))
                                             {
                                                 token = httpContext.Context.Request.Query["BearerToken"];
                                             }
 
                                             BearerToken? bearerToken = null;
-                                            if (string.IsNullOrEmpty(token) == false)
+                                            if (!string.IsNullOrEmpty(token))
                                             {
                                                 try
                                                 {
@@ -252,10 +252,10 @@ namespace repository
                                         .GetAwaiter().GetResult();
 
                                     var extension = httpContext.Context.Request.Query["ext"].ToString();
-                                    if (string.IsNullOrEmpty(extension) == false)
+                                    if (!string.IsNullOrEmpty(extension))
                                     {
                                         var mimeType = MimeHelper.GetMimeType("default" + extension);
-                                        if (string.IsNullOrEmpty(mimeType) == true)
+                                        if (string.IsNullOrEmpty(mimeType))
                                         {
                                             mimeType = "application/octet-stream";
                                         }
@@ -265,13 +265,13 @@ namespace repository
                                     else
                                     {
                                         var mimeType = httpContext.Context.Request.Query["mimeType"].ToString();
-                                        if (string.IsNullOrEmpty(mimeType) == false)
+                                        if (!string.IsNullOrEmpty(mimeType))
                                         {
                                             httpContext.Context.Response.ContentType = mimeType;
                                         }
                                         else
                                         {
-                                            if (string.IsNullOrEmpty(httpContext.File.PhysicalPath) == false && Path.HasExtension(httpContext.File.PhysicalPath) == false)
+                                            if (!string.IsNullOrEmpty(httpContext.File.PhysicalPath) && Path.HasExtension(httpContext.File.PhysicalPath) == false)
                                             {
                                                 mimeType = "text/html";
                                                 string filePath = httpContext.File.PhysicalPath;
@@ -418,3 +418,4 @@ namespace repository
         }
     }
 }
+

@@ -61,7 +61,7 @@ namespace dbclient.Extensions
             var request = context.HttpContext.Request;
             var contentType = request.ContentType;
             var path = request.Path.Value;
-            if (string.IsNullOrEmpty(contentType) == false && string.IsNullOrEmpty(path) == false && contentType.IndexOf("application/json") > -1 && path.StartsWith($"/{ModuleConfiguration.ModuleID}/api"))
+            if (!string.IsNullOrEmpty(contentType) && !string.IsNullOrEmpty(path) && contentType.IndexOf("application/json") > -1 && path.StartsWith($"/{ModuleConfiguration.ModuleID}/api"))
             {
                 return true;
             }
@@ -74,7 +74,7 @@ namespace dbclient.Extensions
             var request = context.HttpContext.Request;
             var contentType = context.HttpContext.Request.ContentType;
 
-            if (string.IsNullOrEmpty(contentType) == false)
+            if (!string.IsNullOrEmpty(contentType))
             {
                 DynamicRequest? dynamicRequest;
 
@@ -98,3 +98,4 @@ namespace dbclient.Extensions
         }
     }
 }
+

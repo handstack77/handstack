@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading.Tasks;
 
 using HandStack.Core.ExtensionMethod;
@@ -34,11 +33,17 @@ namespace wwwroot.Extensions
         {
             Dictionary<string, JToken>? result = null;
 
-            if (string.IsNullOrEmpty(transactionCommandID) == false)
+            if (!string.IsNullOrEmpty(transactionCommandID))
             {
                 try
                 {
-                    var transactionInfo = transactionCommandID.Split("|");
+                    var transactionInfo = transactionCommandID.Split('|');
+                    if (transactionInfo.Length < 4)
+                    {
+                        logger.Error("[{LogCategory}] " + $"transactionCommandID: {transactionCommandID}, Message: transactionCommandID 형식 확인 필요", "ModuleApiClient/TransactionDirect");
+                        return result;
+                    }
+
                     var transactionObject = new TransactionClientObject();
                     transactionObject.SystemID = TransactionConfig.Transaction.SystemID;
                     transactionObject.ProgramID = transactionInfo[0];
@@ -46,8 +51,7 @@ namespace wwwroot.Extensions
                     transactionObject.TransactionID = transactionInfo[2];
                     transactionObject.FunctionID = transactionInfo[3];
                     transactionObject.ScreenID = transactionObject.TransactionID;
-                    transactionObject.StartTraceID = string.IsNullOrEmpty(startTraceID) == true ? nameof(ModuleApiClient) : startTraceID;
-                    var stackTrace = new StackTrace();
+                    transactionObject.StartTraceID = string.IsNullOrEmpty(startTraceID) ? nameof(ModuleApiClient) : startTraceID;
 
                     if (serviceParameters != null)
                     {
@@ -74,3 +78,4 @@ namespace wwwroot.Extensions
         }
     }
 }
+

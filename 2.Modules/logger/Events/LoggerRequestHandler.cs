@@ -117,7 +117,7 @@ namespace logger.Events
         {
             try
             {
-                if (string.IsNullOrEmpty(loggerRequest.ApplicationID) == true)
+                if (string.IsNullOrEmpty(loggerRequest.ApplicationID))
                 {
                     logger.Warning("필수 요청 항목 확인 필요: " + JsonConvert.SerializeObject(loggerRequest));
                     return;
@@ -169,3 +169,4 @@ namespace logger.Events
         }
     }
 }
+

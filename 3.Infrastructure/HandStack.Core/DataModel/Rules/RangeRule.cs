@@ -32,7 +32,7 @@ namespace HandStack.Core.DataModel.Rules
             {
                 var value = GetPropertyValue(businessObject)?.ToString();
 
-                if (string.IsNullOrEmpty(value) == true || minValue == null || maxValue == null)
+                if (string.IsNullOrEmpty(value) || minValue == null || maxValue == null)
                 {
                     return false;
                 }
@@ -112,3 +112,4 @@ namespace HandStack.Core.DataModel.Rules
         }
     }
 }
+

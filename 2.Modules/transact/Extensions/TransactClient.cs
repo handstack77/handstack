@@ -135,7 +135,7 @@ namespace transact.Extensions
                         break;
                     case "S":
                         applicationResponse = await SequentialDataTransactionAsync(request, response, transactionInfo, transactionObject, businessModels, inputContracts, outputContracts);
-                        if (string.IsNullOrEmpty(applicationResponse.ExceptionText) == true)
+                        if (string.IsNullOrEmpty(applicationResponse.ExceptionText))
                         {
                             applicationResponse = await SequentialResultContractValidation(applicationResponse, request, response, transactionInfo, transactionObject, businessModels, outputContracts);
                         }
@@ -398,7 +398,7 @@ namespace transact.Extensions
             if (validationResult.IsValid == false)
             {
                 applicationResponse.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 정보에 출력 데이터 검증 규칙 및 DataTransactionAsync 확인 필요, 검증 정보 - '{string.Join(";", validationResult.Errors)}'";
-                if (string.IsNullOrEmpty(outputContract.FallbackTransaction) == false)
+                if (!string.IsNullOrEmpty(outputContract.FallbackTransaction))
                 {
                     try
                     {
@@ -435,7 +435,7 @@ namespace transact.Extensions
                         fallbackTransactionObject.Inputs.Add(serviceParameters);
 
                         string businessServerUrl = ModuleConfiguration.BusinessServerUrl;
-                        if (fallbackTransactionInfo.Length == 5 && string.IsNullOrEmpty(fallbackTransactionInfo[4]) == false)
+                        if (fallbackTransactionInfo.Length == 5 && !string.IsNullOrEmpty(fallbackTransactionInfo[4]))
                         {
                             businessServerUrl = fallbackTransactionInfo[4];
                         }
@@ -478,13 +478,13 @@ namespace transact.Extensions
 
                 applicationResponse = await SequentialRequestDataTransactionAsync(request, transactionObject, sequentialOption, sequentialinputContracts, sequentialOutputContracts);
 
-                if (string.IsNullOrEmpty(applicationResponse.ExceptionText) == false)
+                if (!string.IsNullOrEmpty(applicationResponse.ExceptionText))
                 {
                     return applicationResponse;
                 }
 
-                var transactionID = string.IsNullOrEmpty(sequentialOption.TransactionID) == true ? request.Transaction.TransactionID : sequentialOption.TransactionID;
-                var serviceID = string.IsNullOrEmpty(sequentialOption.ServiceID) == true ? transactionObject.ServiceID : sequentialOption.ServiceID;
+                var transactionID = string.IsNullOrEmpty(sequentialOption.TransactionID) ? request.Transaction.TransactionID : sequentialOption.TransactionID;
+                var serviceID = string.IsNullOrEmpty(sequentialOption.ServiceID) ? transactionObject.ServiceID : sequentialOption.ServiceID;
 
                 response.Result = new ResultType();
                 response.Result.DataSet = new List<DataMapItem>();
@@ -750,7 +750,7 @@ namespace transact.Extensions
 
         public async Task<ApplicationResponse> DummyDataTransaction(TransactionRequest request, TransactionResponse response, TransactionInfo transactionInfo, TransactionObject transactionObject, List<Model> businessModels, List<ModelInputContract> inputContracts, List<ModelOutputContract> outputContracts, ApplicationResponse applicationResponse)
         {
-            if (string.IsNullOrEmpty(applicationResponse.ExceptionText) == false)
+            if (!string.IsNullOrEmpty(applicationResponse.ExceptionText))
             {
                 return applicationResponse;
             }
@@ -1023,7 +1023,7 @@ namespace transact.Extensions
         {
             var applicationResponse = await RequestDataTransactionAsync(request, transactionInfo, transactionObject, inputContracts, outputContracts);
 
-            if (string.IsNullOrEmpty(applicationResponse.ExceptionText) == false)
+            if (!string.IsNullOrEmpty(applicationResponse.ExceptionText))
             {
                 return applicationResponse;
             }
@@ -1310,7 +1310,7 @@ namespace transact.Extensions
                 }
 
                 var matchPattern = masking.MatchPattern;
-                if (string.IsNullOrEmpty(matchPattern) == true)
+                if (string.IsNullOrEmpty(matchPattern))
                 {
                     jObject[targetFieldID] = targetFieldValue.Replace(0, targetFieldValue.Length, "".PadLeft(targetFieldValue.Length, ModuleConfiguration.MaskingChar));
                 }
@@ -1448,9 +1448,9 @@ namespace transact.Extensions
 
             try
             {
-                var businessID = string.IsNullOrEmpty(sequentialOption.TransactionProjectID) == true ? request.Transaction.BusinessID : sequentialOption.TransactionProjectID;
-                var transactionID = string.IsNullOrEmpty(sequentialOption.TransactionID) == true ? request.Transaction.TransactionID : sequentialOption.TransactionID;
-                var serviceID = string.IsNullOrEmpty(sequentialOption.ServiceID) == true ? transactionObject.ServiceID : sequentialOption.ServiceID;
+                var businessID = string.IsNullOrEmpty(sequentialOption.TransactionProjectID) ? request.Transaction.BusinessID : sequentialOption.TransactionProjectID;
+                var transactionID = string.IsNullOrEmpty(sequentialOption.TransactionID) ? request.Transaction.TransactionID : sequentialOption.TransactionID;
+                var serviceID = string.IsNullOrEmpty(sequentialOption.ServiceID) ? transactionObject.ServiceID : sequentialOption.ServiceID;
 
                 var transactionApplicationID = transactionObject.TransactionID.Split("|")[0];
                 var transactionProjectID = transactionObject.TransactionID.Split("|")[1];
@@ -1458,14 +1458,14 @@ namespace transact.Extensions
                 var routeSegmentID = $"{transactionApplicationID}|{transactionProjectID}|{sequentialOption.CommandType}|{request.Environment}";
 
                 var transactionUserWorkID = request.LoadOptions?.Get<string>("work-id").ToStringSafe();
-                if (string.IsNullOrEmpty(transactionUserWorkID) == false)
+                if (!string.IsNullOrEmpty(transactionUserWorkID))
                 {
                     routeSegmentID = transactionUserWorkID + "|" + routeSegmentID;
                 }
 
                 var messageServerUrl = TransactionMapper.GetRoutingCommandUri(routeSegmentID);
 
-                if (string.IsNullOrEmpty(messageServerUrl) == true)
+                if (string.IsNullOrEmpty(messageServerUrl))
                 {
                     responseObject.ExceptionText = $"routeSegmentID: {routeSegmentID} 환경변수 확인";
                     return responseObject;
@@ -1680,14 +1680,14 @@ namespace transact.Extensions
                 var routeSegmentID = $"{transactionApplicationID}|{transactionProjectID}|{request.Transaction.CommandType}|{request.Environment}";
 
                 var transactionUserWorkID = request.LoadOptions?.Get<string>("work-id").ToStringSafe();
-                if (string.IsNullOrEmpty(transactionUserWorkID) == false)
+                if (!string.IsNullOrEmpty(transactionUserWorkID))
                 {
                     routeSegmentID = transactionUserWorkID + "|" + routeSegmentID;
                 }
 
                 var messageServerUrl = TransactionMapper.GetRoutingCommandUri(routeSegmentID);
 
-                if (string.IsNullOrEmpty(messageServerUrl) == true)
+                if (string.IsNullOrEmpty(messageServerUrl))
                 {
                     responseObject.ExceptionText = $"routeSegmentID: {routeSegmentID} 환경변수 확인";
                     return responseObject;
@@ -1903,7 +1903,7 @@ namespace transact.Extensions
                     }
                     else
                     {
-                        if (string.IsNullOrEmpty(response.ExceptionText) == true)
+                        if (string.IsNullOrEmpty(response.ExceptionText))
                         {
                             responseObject.ExceptionText = $"GlobalID: {dynamicRequest.GlobalID} 거래 확인 필요";
                         }
@@ -2056,3 +2056,4 @@ namespace transact.Extensions
         }
     }
 }
+

@@ -42,7 +42,7 @@ namespace transact.Areas.transact.Controllers
                 if (isLogDbFile == true)
                 {
                     var connectionString = ModuleExtensions.GetLogDbConnectionString(userWorkID, applicationID, rollingID);
-                    if (string.IsNullOrEmpty(connectionString) == false)
+                    if (!string.IsNullOrEmpty(connectionString))
                     {
                         // resultType - L: List, V: Valid, E: Error
                         var featureID = resultType == "L" ? "LD01" : resultType == "V" ? "LD02" : "LD03";
@@ -88,7 +88,7 @@ namespace transact.Areas.transact.Controllers
                 if (isLogDbFile == true)
                 {
                     var connectionString = ModuleExtensions.GetLogDbConnectionString(userWorkID, applicationID, rollingID);
-                    if (string.IsNullOrEmpty(connectionString) == false)
+                    if (!string.IsNullOrEmpty(connectionString))
                     {
                         var format = "yyyyMMdd";
                         DateTime dtRequestDate;
@@ -135,3 +135,4 @@ namespace transact.Areas.transact.Controllers
         }
     }
 }
+

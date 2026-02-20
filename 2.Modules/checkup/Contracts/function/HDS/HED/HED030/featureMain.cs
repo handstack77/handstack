@@ -57,9 +57,9 @@ namespace HDS.Function.HED
                 string applicationID = dynamicParameters.Value("ApplicationID").ToStringSafe();
                 string deployID = dynamicParameters.Value("DeployID").ToStringSafe();
 
-                if (string.IsNullOrEmpty(userWorkID) == true
-                    || string.IsNullOrEmpty(applicationID) == true
-                    || string.IsNullOrEmpty(deployID) == true
+                if (string.IsNullOrEmpty(userWorkID)
+                    || string.IsNullOrEmpty(applicationID)
+                    || string.IsNullOrEmpty(deployID)
                 )
                 {
                     result.BuildExceptionData("Y", "Warning", "필수 요청 정보 확인 필요", typeMember);
@@ -114,7 +114,7 @@ namespace HDS.Function.HED
                                 }
                             }
 
-                            if (string.IsNullOrEmpty(protocol) == true || string.IsNullOrEmpty(host) == true)
+                            if (string.IsNullOrEmpty(protocol) || string.IsNullOrEmpty(host))
                             {
                             }
                             else
@@ -181,10 +181,10 @@ TransactionException:
                 string tableName = dynamicParameters.Value("TableName").ToStringSafe();
                 string deployID = dynamicParameters.Value("DeployID").ToStringSafe();
 
-                if (string.IsNullOrEmpty(userWorkID) == true
-                    || string.IsNullOrEmpty(applicationID) == true
-                    || string.IsNullOrEmpty(tableName) == true
-                    || string.IsNullOrEmpty(deployID) == true
+                if (string.IsNullOrEmpty(userWorkID)
+                    || string.IsNullOrEmpty(applicationID)
+                    || string.IsNullOrEmpty(tableName)
+                    || string.IsNullOrEmpty(deployID)
                 )
                 {
                     result.BuildExceptionData("Y", "Warning", "필수 요청 정보 확인 필요", typeMember);
@@ -239,7 +239,7 @@ TransactionException:
                                 }
                             }
 
-                            if (string.IsNullOrEmpty(protocol) == true || string.IsNullOrEmpty(host) == true)
+                            if (string.IsNullOrEmpty(protocol) || string.IsNullOrEmpty(host))
                             {
                             }
                             else
@@ -307,10 +307,10 @@ TransactionException:
                 string deployID = dynamicParameters.Value("DeployID").ToStringSafe();
                 string pageIndex = dynamicParameters.Value("PageIndex").ToStringSafe();
 
-                if (string.IsNullOrEmpty(userWorkID) == true
-                    || string.IsNullOrEmpty(applicationID) == true
-                    || string.IsNullOrEmpty(tableName) == true
-                    || string.IsNullOrEmpty(deployID) == true
+                if (string.IsNullOrEmpty(userWorkID)
+                    || string.IsNullOrEmpty(applicationID)
+                    || string.IsNullOrEmpty(tableName)
+                    || string.IsNullOrEmpty(deployID)
                 )
                 {
                     result.BuildExceptionData("Y", "Warning", "필수 요청 정보 확인 필요", typeMember);
@@ -365,7 +365,7 @@ TransactionException:
                                 }
                             }
 
-                            if (string.IsNullOrEmpty(protocol) == true || string.IsNullOrEmpty(host) == true)
+                            if (string.IsNullOrEmpty(protocol) || string.IsNullOrEmpty(host))
                             {
                             }
                             else
@@ -432,9 +432,9 @@ TransactionException:
                 string applicationID = dynamicParameters.Value("ApplicationID").ToStringSafe();
                 string deployID = dynamicParameters.Value("DeployID").ToStringSafe();
 
-                if (string.IsNullOrEmpty(userWorkID) == true
-                    || string.IsNullOrEmpty(applicationID) == true
-                    || string.IsNullOrEmpty(deployID) == true
+                if (string.IsNullOrEmpty(userWorkID)
+                    || string.IsNullOrEmpty(applicationID)
+                    || string.IsNullOrEmpty(deployID)
                 )
                 {
                     result.BuildExceptionData("Y", "Warning", "필수 요청 정보 확인 필요", typeMember);
@@ -489,7 +489,7 @@ TransactionException:
                                 }
                             }
 
-                            if (string.IsNullOrEmpty(protocol) == true || string.IsNullOrEmpty(host) == true)
+                            if (string.IsNullOrEmpty(protocol) || string.IsNullOrEmpty(host))
                             {
                             }
                             else
@@ -564,9 +564,9 @@ TransactionException:
                 string applicationID = dynamicParameters.Value("ApplicationID").ToStringSafe();
                 string deployID = dynamicParameters.Value("DeployID").ToStringSafe();
 
-                if (string.IsNullOrEmpty(userWorkID) == true
-                    || string.IsNullOrEmpty(applicationID) == true
-                    || string.IsNullOrEmpty(deployID) == true
+                if (string.IsNullOrEmpty(userWorkID)
+                    || string.IsNullOrEmpty(applicationID)
+                    || string.IsNullOrEmpty(deployID)
                 )
                 {
                     result.BuildExceptionData("Y", "Warning", "필수 요청 정보 확인 필요", typeMember);
@@ -621,7 +621,7 @@ TransactionException:
                                 }
                             }
 
-                            if (string.IsNullOrEmpty(protocol) == true || string.IsNullOrEmpty(host) == true)
+                            if (string.IsNullOrEmpty(protocol) || string.IsNullOrEmpty(host))
                             {
                             }
                             else
@@ -697,10 +697,10 @@ TransactionException:
                 string deployID = dynamicParameters.Value("DeployID").ToStringSafe();
                 string compressBase64 = dynamicParameters.Value("CompressBase64").ToStringSafe();
 
-                if (string.IsNullOrEmpty(userWorkID) == true
-                    || string.IsNullOrEmpty(applicationID) == true
-                    || string.IsNullOrEmpty(deployID) == true
-                    || string.IsNullOrEmpty(compressBase64) == true
+                if (string.IsNullOrEmpty(userWorkID)
+                    || string.IsNullOrEmpty(applicationID)
+                    || string.IsNullOrEmpty(deployID)
+                    || string.IsNullOrEmpty(compressBase64)
                 )
                 {
                     result.BuildExceptionData("Y", "Warning", "필수 요청 정보 확인 필요", typeMember);
@@ -755,7 +755,7 @@ TransactionException:
                                 }
                             }
 
-                            if (string.IsNullOrEmpty(protocol) == true || string.IsNullOrEmpty(host) == true)
+                            if (string.IsNullOrEmpty(protocol) || string.IsNullOrEmpty(host))
                             {
                             }
                             else
@@ -820,3 +820,4 @@ TransactionException:
         }
     }
 }
+

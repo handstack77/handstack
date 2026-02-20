@@ -45,7 +45,7 @@ namespace transact.Extensions
                     result.Errors.Add(jsonValidation.error);
                 }
             }
-            if (result.IsValid && string.IsNullOrEmpty(expressionRules) == false)
+            if (result.IsValid && !string.IsNullOrEmpty(expressionRules))
             {
                 var rules = expressionRules.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
                 foreach (var rule in rules)
@@ -130,7 +130,7 @@ namespace transact.Extensions
                         if (args.Parameters.Length == 2 && args.Parameters[0].Evaluate() is JObject jObject)
                         {
                             var propName = args.Parameters[1].Evaluate()?.ToString();
-                            if (string.IsNullOrEmpty(propName) == false)
+                            if (!string.IsNullOrEmpty(propName))
                             {
                                 args.Result = jObject.ContainsKey(propName);
                             }
@@ -140,7 +140,7 @@ namespace transact.Extensions
                         if (args.Parameters.Length == 2 && args.Parameters[0].Evaluate() is JObject jObj)
                         {
                             var propName = args.Parameters[1].Evaluate()?.ToString();
-                            if (string.IsNullOrEmpty(propName) == false && jObj.TryGetValue(propName, out var token) == true)
+                            if (!string.IsNullOrEmpty(propName) && jObj.TryGetValue(propName, out var token) == true)
                             {
                                 args.Result = ConvertJTokenToPrimitive(token);
                             }
@@ -171,7 +171,7 @@ namespace transact.Extensions
                         if (args.Parameters.Length == 2 && args.Parameters[0].Evaluate() is JArray arrForSum)
                         {
                             var propToSum = args.Parameters[1].Evaluate()?.ToString();
-                            if (string.IsNullOrEmpty(propToSum) == false)
+                            if (!string.IsNullOrEmpty(propToSum))
                             {
                                 args.Result = arrForSum.Children<JObject>()
                                     .Select(jo => jo.TryGetValue(propToSum, StringComparison.OrdinalIgnoreCase, out var token) ? token : null)
@@ -184,7 +184,7 @@ namespace transact.Extensions
                         if (args.Parameters.Length == 2 && args.Parameters[0].Evaluate() is JArray arrForAvg)
                         {
                             var propToAvg = args.Parameters[1].Evaluate()?.ToString();
-                            if (string.IsNullOrEmpty(propToAvg) == false)
+                            if (!string.IsNullOrEmpty(propToAvg))
                             {
                                 var values = arrForAvg.Children<JObject>()
                                     .Select(jo => jo.TryGetValue(propToAvg, StringComparison.OrdinalIgnoreCase, out var token) ? token : null)
@@ -199,7 +199,7 @@ namespace transact.Extensions
                         if (args.Parameters.Length == 2 && args.Parameters[0].Evaluate() is JArray arrForMin)
                         {
                             var propToMin = args.Parameters[1].Evaluate()?.ToString();
-                            if (string.IsNullOrEmpty(propToMin) == false)
+                            if (!string.IsNullOrEmpty(propToMin))
                             {
                                 var values = arrForMin.Children<JObject>()
                                     .Select(jo => jo.TryGetValue(propToMin, StringComparison.OrdinalIgnoreCase, out var token) ? token : null)
@@ -214,7 +214,7 @@ namespace transact.Extensions
                         if (args.Parameters.Length == 2 && args.Parameters[0].Evaluate() is JArray arrForMax)
                         {
                             var propToMax = args.Parameters[1].Evaluate()?.ToString();
-                            if (string.IsNullOrEmpty(propToMax) == false)
+                            if (!string.IsNullOrEmpty(propToMax))
                             {
                                 var values = arrForMax.Children<JObject>()
                                     .Select(jo => jo.TryGetValue(propToMax, StringComparison.OrdinalIgnoreCase, out var token) ? token : null)
@@ -229,7 +229,7 @@ namespace transact.Extensions
                         if (args.Parameters.Length == 2 && args.Parameters[0].Evaluate() is JArray arrToGroup)
                         {
                             var propToGroup = args.Parameters[1].Evaluate()?.ToString();
-                            if (string.IsNullOrEmpty(propToGroup) == false)
+                            if (!string.IsNullOrEmpty(propToGroup))
                             {
                                 var grouped = arrToGroup.Children<JObject>()
                                     .GroupBy(jo => jo.TryGetValue(propToGroup, StringComparison.OrdinalIgnoreCase, out var token) ? token.ToString() : "null_key")
@@ -405,3 +405,4 @@ namespace transact.Extensions
         }
     }
 }
+

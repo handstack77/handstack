@@ -54,7 +54,7 @@ namespace transact.Extensions
                         }
                     }
 
-                    if (string.IsNullOrEmpty(appBasePath) == false)
+                    if (!string.IsNullOrEmpty(appBasePath))
                     {
                         var tenantID = $"{userWorkID}|{applicationID}";
                         var businessFile = PathExtensions.Combine(appBasePath, "transact", projectID, transactionID + ".json");
@@ -123,10 +123,10 @@ namespace transact.Extensions
                                         }
 
                                         var fileInfo = new FileInfo(businessFile);
-                                        businessContract.ApplicationID = string.IsNullOrEmpty(businessContract.ApplicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : businessContract.ApplicationID;
-                                        businessContract.ProjectID = string.IsNullOrEmpty(businessContract.ProjectID) == true ? (fileInfo.Directory?.Name).ToStringSafe() : businessContract.ProjectID;
-                                        businessContract.TransactionID = string.IsNullOrEmpty(businessContract.TransactionID) == true ? fileInfo.Name.Replace(fileInfo.Extension, "") : businessContract.TransactionID;
-                                        businessContract.TransactionProjectID = string.IsNullOrEmpty(businessContract.TransactionProjectID) == true ? businessContract.ProjectID : businessContract.TransactionProjectID;
+                                        businessContract.ApplicationID = string.IsNullOrEmpty(businessContract.ApplicationID) ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : businessContract.ApplicationID;
+                                        businessContract.ProjectID = string.IsNullOrEmpty(businessContract.ProjectID) ? (fileInfo.Directory?.Name).ToStringSafe() : businessContract.ProjectID;
+                                        businessContract.TransactionID = string.IsNullOrEmpty(businessContract.TransactionID) ? fileInfo.Name.Replace(fileInfo.Extension, "") : businessContract.TransactionID;
+                                        businessContract.TransactionProjectID = string.IsNullOrEmpty(businessContract.TransactionProjectID) ? businessContract.ProjectID : businessContract.TransactionProjectID;
 
                                         BusinessMappings.Add(PathExtensions.Combine(businessFile), businessContract);
                                     }
@@ -175,7 +175,7 @@ namespace transact.Extensions
                     var appBasePath = string.Empty;
                     var baseDirectoryInfo = new DirectoryInfo(GlobalConfiguration.TenantAppBasePath);
 
-                    if (string.IsNullOrEmpty(userWorkID) == true)
+                    if (string.IsNullOrEmpty(userWorkID))
                     {
                         var directories = Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath, applicationID, SearchOption.AllDirectories);
                         foreach (var directory in directories)
@@ -196,7 +196,7 @@ namespace transact.Extensions
 
                     var tenantID = $"{userWorkID}|{applicationID}";
                     var settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
-                    if (string.IsNullOrEmpty(appBasePath) == false && File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
+                    if (!string.IsNullOrEmpty(appBasePath) && File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
                     {
                         var appSettingText = File.ReadAllText(settingFilePath);
                         var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
@@ -264,7 +264,7 @@ namespace transact.Extensions
 
                 var tenantID = $"{userWorkID}|{applicationID}";
                 var settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
-                if (string.IsNullOrEmpty(appBasePath) == false && File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
+                if (!string.IsNullOrEmpty(appBasePath) && File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
                 {
                     var appSettingText = File.ReadAllText(settingFilePath);
                     var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
@@ -500,10 +500,10 @@ namespace transact.Extensions
                                 }
                                 else
                                 {
-                                    businessContract.ApplicationID = string.IsNullOrEmpty(businessContract.ApplicationID) == true ? (fileInfo.Directory?.Parent?.Name).ToStringSafe() : businessContract.ApplicationID;
-                                    businessContract.ProjectID = string.IsNullOrEmpty(businessContract.ProjectID) == true ? (fileInfo.Directory?.Name).ToStringSafe() : businessContract.ProjectID;
-                                    businessContract.TransactionID = string.IsNullOrEmpty(businessContract.TransactionID) == true ? fileInfo.Name.Replace(fileInfo.Extension, "") : businessContract.TransactionID;
-                                    businessContract.TransactionProjectID = string.IsNullOrEmpty(businessContract.TransactionProjectID) == true ? businessContract.ProjectID : businessContract.TransactionProjectID;
+                                    businessContract.ApplicationID = string.IsNullOrEmpty(businessContract.ApplicationID) ? (fileInfo.Directory?.Parent?.Name).ToStringSafe() : businessContract.ApplicationID;
+                                    businessContract.ProjectID = string.IsNullOrEmpty(businessContract.ProjectID) ? (fileInfo.Directory?.Name).ToStringSafe() : businessContract.ProjectID;
+                                    businessContract.TransactionID = string.IsNullOrEmpty(businessContract.TransactionID) ? fileInfo.Name.Replace(fileInfo.Extension, "") : businessContract.TransactionID;
+                                    businessContract.TransactionProjectID = string.IsNullOrEmpty(businessContract.TransactionProjectID) ? businessContract.ProjectID : businessContract.TransactionProjectID;
 
                                     if (BusinessMappings.ContainsKey(businessFile) == false && HasCount(businessContract.ApplicationID, businessContract.ProjectID, businessContract.TransactionID) == 0)
                                     {
@@ -547,3 +547,4 @@ namespace transact.Extensions
         };
     }
 }
+

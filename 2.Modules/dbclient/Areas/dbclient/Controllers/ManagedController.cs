@@ -130,15 +130,15 @@ namespace dbclient.Areas.dbclient.Controllers
                                     var transactionID = (header?.Element("transaction")?.InnerText).ToStringSafe();
                                     if (filePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
                                     {
-                                        applicationID = string.IsNullOrEmpty(applicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : applicationID;
-                                        projectID = string.IsNullOrEmpty(projectID) == true ? (fileInfo.Directory?.Name).ToStringSafe() : projectID;
-                                        transactionID = string.IsNullOrEmpty(transactionID) == true ? fileInfo.Name.Replace(fileInfo.Extension, "") : transactionID;
+                                        applicationID = string.IsNullOrEmpty(applicationID) ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : applicationID;
+                                        projectID = string.IsNullOrEmpty(projectID) ? (fileInfo.Directory?.Name).ToStringSafe() : projectID;
+                                        transactionID = string.IsNullOrEmpty(transactionID) ? fileInfo.Name.Replace(fileInfo.Extension, "") : transactionID;
                                     }
                                     else
                                     {
-                                        applicationID = string.IsNullOrEmpty(applicationID) == true ? (fileInfo.Directory?.Parent?.Name).ToStringSafe() : applicationID;
-                                        projectID = string.IsNullOrEmpty(projectID) == true ? (fileInfo.Directory?.Name).ToStringSafe() : projectID;
-                                        transactionID = string.IsNullOrEmpty(transactionID) == true ? fileInfo.Name.Replace(fileInfo.Extension, "") : transactionID;
+                                        applicationID = string.IsNullOrEmpty(applicationID) ? (fileInfo.Directory?.Parent?.Name).ToStringSafe() : applicationID;
+                                        projectID = string.IsNullOrEmpty(projectID) ? (fileInfo.Directory?.Name).ToStringSafe() : projectID;
+                                        transactionID = string.IsNullOrEmpty(transactionID) ? fileInfo.Name.Replace(fileInfo.Extension, "") : transactionID;
                                     }
 
                                     var items = htmlDocument.DocumentNode.SelectNodes("//commands/statement");
@@ -153,7 +153,7 @@ namespace dbclient.Areas.dbclient.Controllers
                                                 statementMap.ProjectID = projectID;
                                                 statementMap.TransactionID = transactionID;
                                                 statementMap.DataSourceID = item.Attributes["datasource"] == null ? (header?.Element("datasource")?.InnerText).ToStringSafe() : item.Attributes["datasource"].Value;
-                                                if (string.IsNullOrEmpty(statementMap.DataSourceID) == true)
+                                                if (string.IsNullOrEmpty(statementMap.DataSourceID))
                                                 {
                                                     statementMap.DataSourceID = ModuleConfiguration.DefaultDataSourceID;
                                                 }
@@ -167,19 +167,19 @@ namespace dbclient.Areas.dbclient.Controllers
                                                 statementMap.SQL = item.InnerHtml;
 
                                                 var beforetransaction = item.Attributes["before"]?.Value;
-                                                if (string.IsNullOrEmpty(beforetransaction) == false)
+                                                if (!string.IsNullOrEmpty(beforetransaction))
                                                 {
                                                     statementMap.BeforeTransactionCommand = beforetransaction;
                                                 }
 
                                                 var aftertransaction = item.Attributes["after"]?.Value;
-                                                if (string.IsNullOrEmpty(aftertransaction) == false)
+                                                if (!string.IsNullOrEmpty(aftertransaction))
                                                 {
                                                     statementMap.AfterTransactionCommand = aftertransaction;
                                                 }
 
                                                 var fallbacktransaction = item.Attributes["fallback"]?.Value;
-                                                if (string.IsNullOrEmpty(fallbacktransaction) == false)
+                                                if (!string.IsNullOrEmpty(fallbacktransaction))
                                                 {
                                                     statementMap.FallbackTransactionCommand = fallbacktransaction;
                                                 }
@@ -266,10 +266,10 @@ namespace dbclient.Areas.dbclient.Controllers
                                             {
                                                 var dataSourceMap = new DataSourceMap();
                                                 dataSourceMap.ApplicationID = item.ApplicationID;
-                                                dataSourceMap.ProjectListID = item.ProjectID.Split(",").Where(s => string.IsNullOrWhiteSpace(s) == false).Distinct().ToList();
+                                                dataSourceMap.ProjectListID = item.ProjectID.Split(",").Where(s => !string.IsNullOrWhiteSpace(s)).Distinct().ToList();
                                                 dataSourceMap.DataProvider = (DataProviders)Enum.Parse(typeof(DataProviders), item.DataProvider);
                                                 dataSourceMap.ConnectionString = item.ConnectionString;
-                                                dataSourceMap.TransactionIsolationLevel = string.IsNullOrEmpty(item.TransactionIsolationLevel) == true ? "ReadCommitted" : item.TransactionIsolationLevel;
+                                                dataSourceMap.TransactionIsolationLevel = string.IsNullOrEmpty(item.TransactionIsolationLevel) ? "ReadCommitted" : item.TransactionIsolationLevel;
 
                                                 if (item.IsEncryption.ParseBool() == true)
                                                 {
@@ -370,3 +370,4 @@ namespace dbclient.Areas.dbclient.Controllers
         }
     }
 }
+

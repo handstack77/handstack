@@ -34,8 +34,8 @@ namespace HDS.Function.HAC
                 string userWorkID = dynamicParameters.Value("UserWorkID").ToStringSafe();
                 string applicationID = dynamicParameters.Value("ApplicationID").ToStringSafe();
 
-                if (string.IsNullOrEmpty(userWorkID) == true
-                    || string.IsNullOrEmpty(applicationID) == true)
+                if (string.IsNullOrEmpty(userWorkID)
+                    || string.IsNullOrEmpty(applicationID))
                 {
                     result.BuildExceptionData("Y", "Warning", "필수 요청 정보 확인 필요", typeMember);
                     goto TransactionException;
@@ -96,10 +96,10 @@ TransactionException:
                 string connectionString = dynamicParameters.Value("ConnectionString").ToStringSafe();
                 string provider = dynamicParameters.Value("DataProvider").ToStringSafe();
 
-                if (string.IsNullOrEmpty(userWorkID) == true
-                    || string.IsNullOrEmpty(applicationID) == true
-                    || string.IsNullOrEmpty(connectionString) == true
-                    || string.IsNullOrEmpty(provider) == true)
+                if (string.IsNullOrEmpty(userWorkID)
+                    || string.IsNullOrEmpty(applicationID)
+                    || string.IsNullOrEmpty(connectionString)
+                    || string.IsNullOrEmpty(provider))
                 {
                     result.BuildExceptionData("Y", "Warning", "필수 요청 정보 확인 필요", typeMember);
                     goto TransactionException;
@@ -212,13 +212,13 @@ TransactionException:
             string projectID = dynamicParameters.Value("ProjectID").ToStringSafe();
             string comment = dynamicParameters.Value("Comment").ToStringSafe();
 
-            if (string.IsNullOrEmpty(userWorkID) == true
-                || string.IsNullOrEmpty(applicationID) == true
-                || string.IsNullOrEmpty(connectionString) == true
-                || string.IsNullOrEmpty(provider) == true
-                || string.IsNullOrEmpty(pageMode) == true
-                || string.IsNullOrEmpty(dataSourceID) == true
-                || string.IsNullOrEmpty(projectID) == true
+            if (string.IsNullOrEmpty(userWorkID)
+                || string.IsNullOrEmpty(applicationID)
+                || string.IsNullOrEmpty(connectionString)
+                || string.IsNullOrEmpty(provider)
+                || string.IsNullOrEmpty(pageMode)
+                || string.IsNullOrEmpty(dataSourceID)
+                || string.IsNullOrEmpty(projectID)
             )
             {
                 result.BuildExceptionData("Y", "Warning", "필수 요청 정보 확인 필요", typeMember);
@@ -324,9 +324,9 @@ TransactionException:
             string applicationID = dynamicParameters.Value("ApplicationID").ToStringSafe();
             string dataSourceID = dynamicParameters.Value("DataSourceID").ToStringSafe();
 
-            if (string.IsNullOrEmpty(userWorkID) == true
-                || string.IsNullOrEmpty(applicationID) == true
-                || string.IsNullOrEmpty(dataSourceID) == true
+            if (string.IsNullOrEmpty(userWorkID)
+                || string.IsNullOrEmpty(applicationID)
+                || string.IsNullOrEmpty(dataSourceID)
             )
             {
                 result.BuildExceptionData("Y", "Warning", "필수 요청 정보 확인 필요", typeMember);
@@ -388,3 +388,4 @@ TransactionException:
         }
     }
 }
+

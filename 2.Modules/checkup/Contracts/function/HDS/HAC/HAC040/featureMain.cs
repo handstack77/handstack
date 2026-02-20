@@ -37,9 +37,9 @@ namespace HDS.Function.HAC
                 string applicationID = dynamicParameters.Value("ApplicationID").ToStringSafe();
                 string userNo = dynamicParameters.Value("UserNo").ToStringSafe();
 
-                if (string.IsNullOrEmpty(userWorkID) == true
-                    || string.IsNullOrEmpty(applicationID) == true
-                    || string.IsNullOrEmpty(userNo) == true)
+                if (string.IsNullOrEmpty(userWorkID)
+                    || string.IsNullOrEmpty(applicationID)
+                    || string.IsNullOrEmpty(userNo))
                 {
                     result.BuildExceptionData("Y", "Warning", "필수 요청 정보 확인 필요", typeMember);
                     goto TransactionException;
@@ -117,10 +117,10 @@ TransactionException:
                 string userNo = dynamicParameters.Value("UserNo").ToStringSafe();
                 string comment = dynamicParameters.Value("Comment").ToStringSafe();
 
-                if (string.IsNullOrEmpty(userWorkID) == true
-                    || string.IsNullOrEmpty(applicationID) == true
-                    || string.IsNullOrEmpty(applicationName) == true
-                    || string.IsNullOrEmpty(userNo) == true
+                if (string.IsNullOrEmpty(userWorkID)
+                    || string.IsNullOrEmpty(applicationID)
+                    || string.IsNullOrEmpty(applicationName)
+                    || string.IsNullOrEmpty(userNo)
                 )
                 {
                     result.BuildExceptionData("Y", "Warning", "필수 요청 정보 확인 필요", typeMember);
@@ -187,9 +187,9 @@ TransactionException:
                 string applicationID = dynamicParameters.Value("ApplicationID").ToStringSafe();
                 string userNo = dynamicParameters.Value("UserNo").ToStringSafe();
 
-                if (string.IsNullOrEmpty(userWorkID) == true
-                    || string.IsNullOrEmpty(applicationID) == true
-                    || string.IsNullOrEmpty(userNo) == true)
+                if (string.IsNullOrEmpty(userWorkID)
+                    || string.IsNullOrEmpty(applicationID)
+                    || string.IsNullOrEmpty(userNo))
                 {
                     result.BuildExceptionData("Y", "Warning", "필수 요청 정보 확인 필요", typeMember);
                     goto TransactionException;
@@ -230,3 +230,4 @@ TransactionException:
         }
     }
 }
+

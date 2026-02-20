@@ -33,7 +33,7 @@ namespace HandStack.Core.DataModel.Rules
                 switch (validationType)
                 {
                     case ValidationType.Integer:
-                        if (string.IsNullOrEmpty(propertyValue1) == true || string.IsNullOrEmpty(propertyValue2) == true)
+                        if (string.IsNullOrEmpty(propertyValue1) || string.IsNullOrEmpty(propertyValue2))
                         {
                             return false;
                         }
@@ -53,7 +53,7 @@ namespace HandStack.Core.DataModel.Rules
                         break;
 
                     case ValidationType.Double:
-                        if (string.IsNullOrEmpty(propertyValue1) == true || string.IsNullOrEmpty(propertyValue2) == true)
+                        if (string.IsNullOrEmpty(propertyValue1) || string.IsNullOrEmpty(propertyValue2))
                         {
                             return false;
                         }
@@ -73,7 +73,7 @@ namespace HandStack.Core.DataModel.Rules
                         break;
 
                     case ValidationType.Decimal:
-                        if (string.IsNullOrEmpty(propertyValue1) == true || string.IsNullOrEmpty(propertyValue2) == true)
+                        if (string.IsNullOrEmpty(propertyValue1) || string.IsNullOrEmpty(propertyValue2))
                         {
                             return false;
                         }
@@ -93,7 +93,7 @@ namespace HandStack.Core.DataModel.Rules
                         break;
 
                     case ValidationType.Date:
-                        if (string.IsNullOrEmpty(propertyValue1) == true || string.IsNullOrEmpty(propertyValue2) == true)
+                        if (string.IsNullOrEmpty(propertyValue1) || string.IsNullOrEmpty(propertyValue2))
                         {
                             return false;
                         }
@@ -134,3 +134,4 @@ namespace HandStack.Core.DataModel.Rules
         }
     }
 }
+

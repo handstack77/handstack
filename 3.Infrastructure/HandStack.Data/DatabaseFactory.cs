@@ -96,32 +96,7 @@ namespace HandStack.Data
                     break;
                 case DataProviders.SQLite:
                     SqlFactory = SQLiteFactory.Instance;
-
-                    var items = connectionString.Split(";");
-                    foreach (var item in items)
-                    {
-                        if (string.IsNullOrEmpty(item) == false)
-                        {
-                            if (item.IndexOf("file:") > -1)
-                            {
-                                var key = "file:";
-                                var offset = key.Length;
-                                var databaseFilePath = item.Substring(item.IndexOf(key) + offset, item.Length - item.IndexOf(key) - offset);
-                                var fileInfo = new FileInfo(databaseFilePath);
-                                if (fileInfo.Directory != null && fileInfo.Directory.Exists == false)
-                                {
-                                    Directory.CreateDirectory(fileInfo.Directory.FullName.Replace("\\", "/"));
-                                }
-
-                                if (fileInfo.Exists == false)
-                                {
-                                    SQLiteConnection.CreateFile(databaseFilePath);
-                                }
-
-                                break;
-                            }
-                        }
-                    }
+                    EnsureSQLiteDataFile(connectionString);
                     break;
             }
 
@@ -140,6 +115,35 @@ namespace HandStack.Data
 
                 databaseConnection.ConnectionString = ConnectionString;
                 databaseCommand.Connection = databaseConnection;
+            }
+        }
+
+        private static void EnsureSQLiteDataFile(string connectionString)
+        {
+            var items = connectionString.Split(";");
+            foreach (var item in items)
+            {
+                if (string.IsNullOrEmpty(item) || item.IndexOf("file:") < 0)
+                {
+                    continue;
+                }
+
+                var key = "file:";
+                var offset = key.Length;
+                var startIndex = item.IndexOf(key);
+                var databaseFilePath = item.Substring(startIndex + offset, item.Length - startIndex - offset);
+                var fileInfo = new FileInfo(databaseFilePath);
+                if (fileInfo.Directory != null && fileInfo.Directory.Exists == false)
+                {
+                    Directory.CreateDirectory(fileInfo.Directory.FullName.Replace("\\", "/"));
+                }
+
+                if (fileInfo.Exists == false)
+                {
+                    SQLiteConnection.CreateFile(databaseFilePath);
+                }
+
+                break;
             }
         }
 
@@ -634,3 +638,4 @@ namespace HandStack.Data
         }
     }
 }
+

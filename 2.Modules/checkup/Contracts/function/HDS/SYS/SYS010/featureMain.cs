@@ -51,9 +51,9 @@ namespace HDS.Function.SYS
                 string applicationID = dynamicParameters.Value("ApplicationID").ToStringSafe();
                 string applicationName = dynamicParameters.Value("ApplicationName").ToStringSafe();
 
-                if (string.IsNullOrEmpty(userWorkID) == true
-                    || string.IsNullOrEmpty(applicationID) == true
-                    || string.IsNullOrEmpty(applicationName) == true)
+                if (string.IsNullOrEmpty(userWorkID)
+                    || string.IsNullOrEmpty(applicationID)
+                    || string.IsNullOrEmpty(applicationName))
                 {
                     result.BuildExceptionData("Y", "Warning", "필수 요청 정보 확인 필요", typeMember);
                     goto TransactionException;
@@ -71,14 +71,14 @@ namespace HDS.Function.SYS
                         string? sourceDirectoryPath = appBasePath;
 
                         List<Menu> menus = new List<Menu>();
-                        if (string.IsNullOrEmpty(sourceDirectoryPath) == false && Directory.Exists(sourceDirectoryPath) == true)
+                        if (!string.IsNullOrEmpty(sourceDirectoryPath) && Directory.Exists(sourceDirectoryPath) == true)
                         {
                             DirectoryInfo directoryInfo = new DirectoryInfo(sourceDirectoryPath);
                             if (directoryInfo.Exists == true)
                             {
                                 Menu rootDirectory = new Menu();
                                 rootDirectory.menuID = applicationID;
-                                rootDirectory.menuName = string.IsNullOrEmpty(applicationName) == true ? applicationID : applicationName;
+                                rootDirectory.menuName = string.IsNullOrEmpty(applicationName) ? applicationID : applicationName;
                                 rootDirectory.parentMenuID = null;
                                 rootDirectory.parentMenuName = null;
                                 rootDirectory.showYN = "Y";
@@ -169,12 +169,12 @@ TransactionException:
                 string parentMenuID = dynamicParameters.Value("ParentMenuID").ToStringSafe();
                 string parentMenuName = dynamicParameters.Value("ParentMenuName").ToStringSafe();
 
-                if (string.IsNullOrEmpty(userWorkID) == true
-                    || string.IsNullOrEmpty(applicationID) == true
-                    || string.IsNullOrEmpty(applicationName) == true
-                    || string.IsNullOrEmpty(projectType) == true
-                    || string.IsNullOrEmpty(parentMenuID) == true
-                    || string.IsNullOrEmpty(parentMenuName) == true)
+                if (string.IsNullOrEmpty(userWorkID)
+                    || string.IsNullOrEmpty(applicationID)
+                    || string.IsNullOrEmpty(applicationName)
+                    || string.IsNullOrEmpty(projectType)
+                    || string.IsNullOrEmpty(parentMenuID)
+                    || string.IsNullOrEmpty(parentMenuName))
                 {
                     result.BuildExceptionData("Y", "Warning", "필수 요청 정보 확인 필요", typeMember);
                     goto TransactionException;
@@ -212,7 +212,7 @@ TransactionException:
                         }
 
                         List<Menu> menus = new List<Menu>();
-                        if (string.IsNullOrEmpty(sourceDirectoryPath) == false && Directory.Exists(sourceDirectoryPath) == true)
+                        if (!string.IsNullOrEmpty(sourceDirectoryPath) && Directory.Exists(sourceDirectoryPath) == true)
                         {
                             DirectoryInfo directoryInfo = new DirectoryInfo(sourceDirectoryPath);
                             if (directoryInfo.Exists == true)
@@ -287,8 +287,8 @@ TransactionException:
                 string userWorkID = dynamicParameters.Value("UserWorkID").ToStringSafe();
                 string applicationID = dynamicParameters.Value("ApplicationID").ToStringSafe();
 
-                if (string.IsNullOrEmpty(userWorkID) == true
-                    || string.IsNullOrEmpty(applicationID) == true
+                if (string.IsNullOrEmpty(userWorkID)
+                    || string.IsNullOrEmpty(applicationID)
                 )
                 {
                     result.BuildExceptionData("Y", "Warning", "필수 요청 정보 확인 필요", typeMember);
@@ -375,8 +375,8 @@ TransactionException:
                 string userWorkID = dynamicParameters.Value("UserWorkID").ToStringSafe();
                 string applicationID = dynamicParameters.Value("ApplicationID").ToStringSafe();
 
-                if (string.IsNullOrEmpty(userWorkID) == true
-                    || string.IsNullOrEmpty(applicationID) == true)
+                if (string.IsNullOrEmpty(userWorkID)
+                    || string.IsNullOrEmpty(applicationID))
                 {
                     result.BuildExceptionData("Y", "Warning", "필수 요청 정보 확인 필요", typeMember);
                     goto TransactionException;
@@ -463,9 +463,9 @@ TransactionException:
             string projectType = dynamicParameters.Value("ProjectType").ToStringSafe();
             string itemPath = dynamicParameters.Value("ItemPath").ToStringSafe();
 
-            if (string.IsNullOrEmpty(userWorkID) == true
-                || string.IsNullOrEmpty(applicationID) == true
-                || string.IsNullOrEmpty(itemPath) == true)
+            if (string.IsNullOrEmpty(userWorkID)
+                || string.IsNullOrEmpty(applicationID)
+                || string.IsNullOrEmpty(itemPath))
             {
                 result.BuildExceptionData("Y", "Warning", "필수 요청 정보 확인 필요", typeMember);
                 goto TransactionException;
@@ -482,7 +482,7 @@ TransactionException:
                 {
                     string? sourceItemPath = GetHostItemPath(appBasePath, projectType, itemPath);
 
-                    if (string.IsNullOrEmpty(sourceItemPath) == false && System.IO.File.Exists(sourceItemPath) == true)
+                    if (!string.IsNullOrEmpty(sourceItemPath) && System.IO.File.Exists(sourceItemPath) == true)
                     {
                         sourceText = LZStringHelper.CompressToBase64(System.IO.File.ReadAllText(sourceItemPath));
                     }
@@ -537,11 +537,11 @@ TransactionException:
             string projectType = dynamicParameters.Value("ProjectType").ToStringSafe();
             string itemPath = dynamicParameters.Value("ItemPath").ToStringSafe();
 
-            if (string.IsNullOrEmpty(applicationNo) == true
-                || string.IsNullOrEmpty(userWorkID) == true
-                || string.IsNullOrEmpty(applicationID) == true
-                || string.IsNullOrEmpty(compressBase64) == true
-                || string.IsNullOrEmpty(itemPath) == true)
+            if (string.IsNullOrEmpty(applicationNo)
+                || string.IsNullOrEmpty(userWorkID)
+                || string.IsNullOrEmpty(applicationID)
+                || string.IsNullOrEmpty(compressBase64)
+                || string.IsNullOrEmpty(itemPath))
             {
                 result.BuildExceptionData("Y", "Warning", "필수 요청 정보 확인 필요", typeMember);
                 goto TransactionException;
@@ -557,7 +557,7 @@ TransactionException:
                 {
                     string? sourceItemPath = GetHostItemPath(appBasePath, projectType, itemPath);
 
-                    if (string.IsNullOrEmpty(sourceItemPath) == false && System.IO.File.Exists(sourceItemPath) == true)
+                    if (!string.IsNullOrEmpty(sourceItemPath) && System.IO.File.Exists(sourceItemPath) == true)
                     {
                         string? sourceText = LZStringHelper.DecompressFromBase64(compressBase64);
                         System.IO.File.WriteAllText(sourceItemPath, sourceText);
@@ -596,10 +596,10 @@ TransactionException:
             string projectType = dynamicParameters.Value("ProjectType").ToStringSafe();
             string itemPath = dynamicParameters.Value("ItemPath").ToStringSafe();
 
-            if (string.IsNullOrEmpty(applicationNo) == true
-                || string.IsNullOrEmpty(userWorkID) == true
-                || string.IsNullOrEmpty(applicationID) == true
-                || string.IsNullOrEmpty(itemPath) == true)
+            if (string.IsNullOrEmpty(applicationNo)
+                || string.IsNullOrEmpty(userWorkID)
+                || string.IsNullOrEmpty(applicationID)
+                || string.IsNullOrEmpty(itemPath))
             {
                 result.BuildExceptionData("Y", "Warning", "필수 요청 정보 확인 필요", typeMember);
                 goto TransactionException;
@@ -622,7 +622,7 @@ TransactionException:
                 {
                     string? sourceItemPath = GetHostItemPath(appBasePath, "", itemPath);
 
-                    if (string.IsNullOrEmpty(sourceItemPath) == false && Directory.Exists(sourceItemPath) == false)
+                    if (!string.IsNullOrEmpty(sourceItemPath) && Directory.Exists(sourceItemPath) == false)
                     {
                         Directory.CreateDirectory(sourceItemPath);
                     }
@@ -661,11 +661,11 @@ TransactionException:
             string projectType = dynamicParameters.Value("ProjectType").ToStringSafe();
             string itemPath = dynamicParameters.Value("ItemPath").ToStringSafe();
 
-            if (string.IsNullOrEmpty(applicationNo) == true
-                    || string.IsNullOrEmpty(userWorkID) == true
-                    || string.IsNullOrEmpty(applicationID) == true
-                    || string.IsNullOrEmpty(compressBase64) == true
-                    || string.IsNullOrEmpty(itemPath) == true)
+            if (string.IsNullOrEmpty(applicationNo)
+                    || string.IsNullOrEmpty(userWorkID)
+                    || string.IsNullOrEmpty(applicationID)
+                    || string.IsNullOrEmpty(compressBase64)
+                    || string.IsNullOrEmpty(itemPath))
             {
                 result.BuildExceptionData("Y", "Warning", "필수 요청 정보 확인 필요", typeMember);
                 goto TransactionException;
@@ -681,7 +681,7 @@ TransactionException:
                 {
                     string? sourceItemPath = GetHostItemPath(appBasePath, projectType, itemPath);
 
-                    if (string.IsNullOrEmpty(sourceItemPath) == false && System.IO.File.Exists(sourceItemPath) == false)
+                    if (!string.IsNullOrEmpty(sourceItemPath) && System.IO.File.Exists(sourceItemPath) == false)
                     {
                         string? sourceText = LZStringHelper.DecompressFromBase64(compressBase64);
                         FileInfo file = new FileInfo(sourceItemPath);
@@ -725,10 +725,10 @@ TransactionException:
             string projectType = dynamicParameters.Value("ProjectType").ToStringSafe();
             string itemPath = dynamicParameters.Value("ItemPath").ToStringSafe();
 
-            if (string.IsNullOrEmpty(applicationNo) == true
-                || string.IsNullOrEmpty(userWorkID) == true
-                || string.IsNullOrEmpty(applicationID) == true
-                || string.IsNullOrEmpty(itemPath) == true)
+            if (string.IsNullOrEmpty(applicationNo)
+                || string.IsNullOrEmpty(userWorkID)
+                || string.IsNullOrEmpty(applicationID)
+                || string.IsNullOrEmpty(itemPath))
             {
                 result.BuildExceptionData("Y", "Warning", "필수 요청 정보 확인 필요", typeMember);
                 goto TransactionException;
@@ -751,7 +751,7 @@ TransactionException:
                 {
                     string? sourceItemPath = GetHostItemPath(appBasePath, "", itemPath);
 
-                    if (string.IsNullOrEmpty(sourceItemPath) == false && Directory.Exists(sourceItemPath) == true)
+                    if (!string.IsNullOrEmpty(sourceItemPath) && Directory.Exists(sourceItemPath) == true)
                     {
                         Directory.Delete(sourceItemPath, true);
                     }
@@ -789,10 +789,10 @@ TransactionException:
             string projectType = dynamicParameters.Value("ProjectType").ToStringSafe();
             string itemPath = dynamicParameters.Value("ItemPath").ToStringSafe();
 
-            if (string.IsNullOrEmpty(applicationNo) == true
-                || string.IsNullOrEmpty(userWorkID) == true
-                || string.IsNullOrEmpty(applicationID) == true
-                || string.IsNullOrEmpty(itemPath) == true)
+            if (string.IsNullOrEmpty(applicationNo)
+                || string.IsNullOrEmpty(userWorkID)
+                || string.IsNullOrEmpty(applicationID)
+                || string.IsNullOrEmpty(itemPath))
             {
                 result.BuildExceptionData("Y", "Warning", "필수 요청 정보 확인 필요", typeMember);
                 goto TransactionException;
@@ -808,7 +808,7 @@ TransactionException:
                 {
                     string? sourceItemPath = GetHostItemPath(appBasePath, projectType, itemPath);
 
-                    if (string.IsNullOrEmpty(sourceItemPath) == false && System.IO.File.Exists(sourceItemPath) == true)
+                    if (!string.IsNullOrEmpty(sourceItemPath) && System.IO.File.Exists(sourceItemPath) == true)
                     {
                         System.IO.File.Delete(sourceItemPath);
                     }
@@ -976,7 +976,7 @@ TransactionException:
                     menuDirectory.badge = "";
                     menus.Add(menuDirectory);
 
-                    foreach (var file in directoryInfo.GetFileInfos(SearchOption.AllDirectories, searchPattern.Split("|").Where(x => string.IsNullOrWhiteSpace(x) == false).ToArray()))
+                    foreach (var file in directoryInfo.GetFileInfos(SearchOption.AllDirectories, searchPattern.Split("|").Where(x => !string.IsNullOrWhiteSpace(x)).ToArray()))
                     {
                         Menu menuItem = new Menu();
                         menuItem.menuID = file.FullName.Replace("\\", "/").Replace(appBasePath, "");
@@ -1010,7 +1010,7 @@ TransactionException:
             }
             else
             {
-                foreach (var file in directory.GetFileInfos(SearchOption.TopDirectoryOnly, searchPattern.Split("|").Where(x => string.IsNullOrWhiteSpace(x) == false).ToArray()))
+                foreach (var file in directory.GetFileInfos(SearchOption.TopDirectoryOnly, searchPattern.Split("|").Where(x => !string.IsNullOrWhiteSpace(x)).ToArray()))
                 {
                     Menu menuItem = new Menu();
                     menuItem.menuID = file.FullName.Replace("\\", "/").Replace(appBasePath, "");
@@ -1044,3 +1044,4 @@ TransactionException:
         }
     }
 }
+

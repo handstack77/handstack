@@ -37,7 +37,7 @@ namespace logger.Entity
 
         public static DataSource? CheckSQLiteCreate(string applicationID)
         {
-            if (string.IsNullOrEmpty(applicationID) == true)
+            if (string.IsNullOrEmpty(applicationID))
             {
                 return null;
             }
@@ -61,7 +61,7 @@ namespace logger.Entity
                 }
 
                 var tenantID = $"{userWorkID}|{applicationID}";
-                if (string.IsNullOrEmpty(appBasePath) == false)
+                if (!string.IsNullOrEmpty(appBasePath))
                 {
                     var transactionLogBasePath = PathExtensions.Combine(appBasePath, ".managed", "sqlite");
                     if (Directory.Exists(transactionLogBasePath) == false)
@@ -187,3 +187,4 @@ namespace logger.Entity
         }
     }
 }
+

@@ -84,7 +84,7 @@ namespace function
                         var moduleConfig = moduleConfigJson.ModuleConfig;
                         ModuleConfiguration.ModuleID = moduleConfigJson.ModuleID;
                         ModuleConfiguration.Version = moduleConfigJson.Version;
-                        ModuleConfiguration.AuthorizationKey = string.IsNullOrEmpty(moduleConfig.AuthorizationKey) == false ? moduleConfig.AuthorizationKey : GlobalConfiguration.SystemID + GlobalConfiguration.RunningEnvironment + GlobalConfiguration.HostName;
+                        ModuleConfiguration.AuthorizationKey = !string.IsNullOrEmpty(moduleConfig.AuthorizationKey) ? moduleConfig.AuthorizationKey : GlobalConfiguration.SystemID + GlobalConfiguration.RunningEnvironment + GlobalConfiguration.HostName;
                         ModuleConfiguration.IsBundledWithHost = moduleConfigJson.IsBundledWithHost;
                         ModuleConfiguration.ModuleBasePath = GlobalConfiguration.GetBaseDirectoryPath(moduleConfig.ModuleBasePath);
                         ModuleConfiguration.BusinessServerUrl = moduleConfig.BusinessServerUrl;
@@ -98,7 +98,7 @@ namespace function
                         }
 
                         ModuleConfiguration.IsTransactionLogging = moduleConfig.IsTransactionLogging;
-                        ModuleConfiguration.ModuleLogFilePath = string.IsNullOrEmpty(moduleConfig.ModuleLogFilePath) == true ? "transaction.log" : new FileInfo(moduleConfig.ModuleLogFilePath).FullName.Replace("\\", "/");
+                        ModuleConfiguration.ModuleLogFilePath = string.IsNullOrEmpty(moduleConfig.ModuleLogFilePath) ? "transaction.log" : new FileInfo(moduleConfig.ModuleLogFilePath).FullName.Replace("\\", "/");
                         if (ModuleConfiguration.IsTransactionLogging == true)
                         {
                             var loggerConfiguration = CreateLoggerConfiguration(ModuleConfiguration.ModuleLogFilePath);
@@ -131,7 +131,7 @@ namespace function
 
                         if (ModuleConfiguration.EnablePythonDLL == true)
                         {
-                            if (string.IsNullOrEmpty(ModuleConfiguration.PythonDLLFilePath) == true || File.Exists(ModuleConfiguration.PythonDLLFilePath) == false)
+                            if (string.IsNullOrEmpty(ModuleConfiguration.PythonDLLFilePath) || File.Exists(ModuleConfiguration.PythonDLLFilePath) == false)
                             {
                                 var message = $"Python DLL 파일 확인 필요: {ModuleConfiguration.PythonDLLFilePath}";
                                 Log.Logger.Error("[{LogCategory}] " + message, $"{ModuleConfiguration.ModuleID} ModuleInitializer/ConfigureServices");
@@ -188,23 +188,23 @@ namespace function
                 services.AddNodeJS();
                 services.Configure<NodeJSProcessOptions>(options =>
                 {
-                    if (string.IsNullOrEmpty(ModuleConfiguration.ExecutablePath) == false)
+                    if (!string.IsNullOrEmpty(ModuleConfiguration.ExecutablePath))
                     {
                         options.ExecutablePath = ModuleConfiguration.ExecutablePath;
                     }
 
-                    if (string.IsNullOrEmpty(ModuleConfiguration.NodeAndV8Options) == false)
+                    if (!string.IsNullOrEmpty(ModuleConfiguration.NodeAndV8Options))
                     {
                         options.NodeAndV8Options = ModuleConfiguration.NodeAndV8Options;
                     }
 
                     var nodeEnvironmentVariables = new Dictionary<string, string>();
-                    if (string.IsNullOrEmpty(ModuleConfiguration.EnvironmentVariables) == false)
+                    if (!string.IsNullOrEmpty(ModuleConfiguration.EnvironmentVariables))
                     {
                         var environmentVariables = ModuleConfiguration.EnvironmentVariables.Split(";");
                         foreach (var item in environmentVariables)
                         {
-                            if (string.IsNullOrEmpty(item) == false)
+                            if (!string.IsNullOrEmpty(item))
                             {
                                 var keyValues = item.Split("=");
                                 nodeEnvironmentVariables.Add(keyValues[0].Trim(), keyValues[1].Trim());
@@ -309,7 +309,7 @@ namespace function
                     }
 
                     var watchPath = ModuleConfiguration.ContractBasePath.Count > 0 ? ModuleConfiguration.ContractBasePath[ModuleConfiguration.ContractBasePath.Count - 1] : "";
-                    if (string.IsNullOrEmpty(watchPath) == true)
+                    if (string.IsNullOrEmpty(watchPath))
                     {
                         options.EnableFileWatching = false;
                     }
@@ -333,14 +333,14 @@ namespace function
         private static LoggerConfiguration CreateLoggerConfiguration(string logFilePath)
         {
             var fileInfo = new FileInfo(logFilePath);
-            if (string.IsNullOrEmpty(fileInfo.DirectoryName) == false)
+            if (!string.IsNullOrEmpty(fileInfo.DirectoryName))
             {
                 if (fileInfo.Directory == null || fileInfo.Directory.Exists == false)
                 {
                     Directory.CreateDirectory(fileInfo.DirectoryName);
                 }
 
-                if (string.IsNullOrEmpty(GlobalConfiguration.ProcessName) == true)
+                if (string.IsNullOrEmpty(GlobalConfiguration.ProcessName))
                 {
                     logFilePath = fileInfo.FullName.Replace("\\", "/");
                 }
@@ -371,10 +371,10 @@ namespace function
         public void Configure(IApplicationBuilder app, IWebHostEnvironment? environment, ICorsService corsService, ICorsPolicyProvider corsPolicyProvider)
         {
             var module = GlobalConfiguration.Modules.FirstOrDefault(p => p.ModuleID == ModuleID);
-            if (string.IsNullOrEmpty(ModuleID) == false && module != null)
+            if (!string.IsNullOrEmpty(ModuleID) && module != null)
             {
                 var wwwrootDirectory = PathExtensions.Combine(module.BasePath, "wwwroot", module.ModuleID);
-                if (string.IsNullOrEmpty(wwwrootDirectory) == false && Directory.Exists(wwwrootDirectory) == true)
+                if (!string.IsNullOrEmpty(wwwrootDirectory) && Directory.Exists(wwwrootDirectory) == true)
                 {
                     app.UseStaticFiles(new StaticFileOptions
                     {
@@ -474,7 +474,7 @@ namespace function
             dynamic? result = null;
             try
             {
-                if (string.IsNullOrEmpty(dataContext.featureSQLPath) == true || string.IsNullOrEmpty(dataContext.connectionString) == true)
+                if (string.IsNullOrEmpty(dataContext.featureSQLPath) || string.IsNullOrEmpty(dataContext.connectionString))
                 {
                     Log.Error("[{LogCategory}] " + $"globalID: {dataContext.globalID}, featureID: {featureID}, dataSourceMap DataProvider의 DataSource 또는 featureSQL 확인 필요", "ModuleExtensions/ExecuteModuleSQL");
                 }
@@ -586,3 +586,4 @@ namespace function
         }
     }
 }
+

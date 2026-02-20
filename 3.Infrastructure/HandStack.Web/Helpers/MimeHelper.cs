@@ -498,7 +498,7 @@ namespace HandStack.Web.Helper
 
         public static string? GetMimeType(string fileName, string? mime = "application/octet-stream")
         {
-            if (string.IsNullOrEmpty(fileName) == true)
+            if (string.IsNullOrEmpty(fileName))
             {
                 return mime;
             }
@@ -515,7 +515,7 @@ namespace HandStack.Web.Helper
                 mimes.Add(extension, mime);
             }
 
-            if (string.IsNullOrEmpty(mime) == true)
+            if (string.IsNullOrEmpty(mime))
             {
                 return "application/octet-stream";
             }
@@ -524,3 +524,4 @@ namespace HandStack.Web.Helper
         }
     }
 }
+

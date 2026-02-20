@@ -65,7 +65,7 @@ namespace HandStack.Web.ApiClient
                             {
                                 var exception = apiService["ExceptionText"];
                                 var exceptionText = exception == null ? "" : exception.ToString();
-                                if (string.IsNullOrEmpty(exceptionText) == true)
+                                if (string.IsNullOrEmpty(exceptionText))
                                 {
                                     result = true;
                                     apiServices.Add(systemID + serverType, apiService);
@@ -126,7 +126,7 @@ namespace HandStack.Web.ApiClient
 
             try
             {
-                transactionObject.ReturnType = string.IsNullOrEmpty(transactionObject.ReturnType) == true ? "Json" : transactionObject.ReturnType;
+                transactionObject.ReturnType = string.IsNullOrEmpty(transactionObject.ReturnType) ? "Json" : transactionObject.ReturnType;
 
                 if (transactionObject.InputsItemCount.Count == 0)
                 {
@@ -140,7 +140,7 @@ namespace HandStack.Web.ApiClient
 
                 var client = new RestClient();
 
-                if (string.IsNullOrEmpty(GlobalConfiguration.FindGlobalIDServer) == false)
+                if (!string.IsNullOrEmpty(GlobalConfiguration.FindGlobalIDServer))
                 {
                     var idRequest = new RestRequest(GlobalConfiguration.FindGlobalIDServer, Method.Post);
                     idRequest.AddStringBody(JsonConvert.SerializeObject(new
@@ -156,7 +156,7 @@ namespace HandStack.Web.ApiClient
                     idRequest.AddHeader("cache-control", "no-cache");
                     var idResponse = await client.ExecuteAsync<string>(idRequest);
                     var globalID = idResponse.Data;
-                    if (string.IsNullOrEmpty(globalID) == false)
+                    if (!string.IsNullOrEmpty(globalID))
                     {
                         transactionRequest.Transaction.GlobalID = globalID;
                     }
@@ -322,7 +322,7 @@ namespace HandStack.Web.ApiClient
 
             try
             {
-                transactionObject.ReturnType = string.IsNullOrEmpty(transactionObject.ReturnType) == true ? "Json" : transactionObject.ReturnType;
+                transactionObject.ReturnType = string.IsNullOrEmpty(transactionObject.ReturnType) ? "Json" : transactionObject.ReturnType;
 
                 if (transactionObject.InputsItemCount.Count == 0)
                 {
@@ -338,7 +338,7 @@ namespace HandStack.Web.ApiClient
 
                 var client = new RestClient();
 
-                if (string.IsNullOrEmpty(GlobalConfiguration.FindGlobalIDServer) == false)
+                if (!string.IsNullOrEmpty(GlobalConfiguration.FindGlobalIDServer))
                 {
                     var idRequest = new RestRequest(GlobalConfiguration.FindGlobalIDServer, Method.Post);
                     idRequest.AddStringBody(JsonConvert.SerializeObject(new
@@ -354,7 +354,7 @@ namespace HandStack.Web.ApiClient
                     idRequest.AddHeader("cache-control", "no-cache");
                     var idResponse = await client.ExecuteAsync<string>(idRequest);
                     var globalID = idResponse.Data;
-                    if (string.IsNullOrEmpty(globalID) == false)
+                    if (!string.IsNullOrEmpty(globalID))
                     {
                         transactionRequest.Transaction.GlobalID = globalID;
                     }
@@ -572,7 +572,7 @@ namespace HandStack.Web.ApiClient
             transactionRequest.Transaction.SimulationType = transactionObject.SimulationType;
             transactionRequest.Transaction.TerminalGroupID = TransactionConfig.Program.BranchCode;
             transactionRequest.Transaction.OperatorID = TransactionConfig.OperatorUser.UserID;
-            transactionRequest.Transaction.ScreenID = string.IsNullOrEmpty(transactionObject.ScreenID) == true ? transactionObject.TransactionID : transactionObject.ScreenID;
+            transactionRequest.Transaction.ScreenID = string.IsNullOrEmpty(transactionObject.ScreenID) ? transactionObject.TransactionID : transactionObject.ScreenID;
             transactionRequest.Transaction.DataFormat = TransactionConfig.Transaction.DataFormat;
             transactionRequest.Transaction.CompressionYN = TransactionConfig.Transaction.CompressionYN;
             transactionRequest.Transaction.StartTraceID = transactionObject.StartTraceID;
@@ -784,3 +784,4 @@ namespace HandStack.Web.ApiClient
         }
     }
 }
+

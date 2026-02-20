@@ -44,7 +44,7 @@ namespace HandStack.Web.Extensions
                 var httpResponse = httpContext.Response;
 
                 var statusCode = httpResponse.StatusCode;
-                if (string.IsNullOrEmpty(httpRequest.ContentType) == false && httpRequest.ContentType.ToLower().IndexOf("application/json") > -1)
+                if (!string.IsNullOrEmpty(httpRequest.ContentType) && httpRequest.ContentType.ToLower().IndexOf("application/json") > -1)
                 {
                     httpResponse.ContentType = "application/json";
 
@@ -85,3 +85,4 @@ namespace HandStack.Web.Extensions
         }
     }
 }
+

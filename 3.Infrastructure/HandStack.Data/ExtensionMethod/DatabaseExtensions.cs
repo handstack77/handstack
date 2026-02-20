@@ -736,13 +736,13 @@ namespace HandStack.Data.ExtensionMethod
         {
             Tuple<string, List<SqlParameter>>? result = null;
 
-            if (string.IsNullOrEmpty(applicationID) == true || string.IsNullOrEmpty(projectID) == true || string.IsNullOrEmpty(fileID) == true || string.IsNullOrEmpty(queryID) == true)
+            if (string.IsNullOrEmpty(applicationID) || string.IsNullOrEmpty(projectID) || string.IsNullOrEmpty(fileID) || string.IsNullOrEmpty(queryID))
             {
                 return result;
             }
 
             var filePath = string.Empty;
-            if (string.IsNullOrEmpty(baseDirectoryPath) == false)
+            if (!string.IsNullOrEmpty(baseDirectoryPath))
             {
                 filePath = PathExtensions.Combine(baseDirectoryPath, applicationID, projectID, fileID + ".xml");
             }
@@ -764,7 +764,7 @@ namespace HandStack.Data.ExtensionMethod
                 {
                     var sqlParameters = new List<SqlParameter>();
                     var htmlNodes = statement.SelectNodes("param");
-                    if (htmlNodes != null && htmlNodes.Count > 0 && string.IsNullOrEmpty(parameters) == false)
+                    if (htmlNodes != null && htmlNodes.Count > 0 && !string.IsNullOrEmpty(parameters))
                     {
                         var keyValueParameters = JObject.Parse(parameters);
 
@@ -792,11 +792,11 @@ namespace HandStack.Data.ExtensionMethod
                                 var parameterType = paramNode.Attributes["type"].Value.ToString();
                                 if (statement.Attributes["native"]?.Value.ParseBool() == true)
                                 {
-                                    sqlParameter.SqlDbType = (SqlDbType)Enum.Parse(typeof(SqlDbType), string.IsNullOrEmpty(parameterType) == true ? "NVarChar" : parameterType);
+                                    sqlParameter.SqlDbType = (SqlDbType)Enum.Parse(typeof(SqlDbType), string.IsNullOrEmpty(parameterType) ? "NVarChar" : parameterType);
                                 }
                                 else
                                 {
-                                    sqlParameter.DbType = (DbType)Enum.Parse(typeof(DbType), string.IsNullOrEmpty(parameterType) == true ? "String" : parameterType);
+                                    sqlParameter.DbType = (DbType)Enum.Parse(typeof(DbType), string.IsNullOrEmpty(parameterType) ? "String" : parameterType);
                                 }
                                 sqlParameters.Add(sqlParameter);
                             }
@@ -842,7 +842,7 @@ namespace HandStack.Data.ExtensionMethod
                 {
                     var sqlParameters = new List<SqlParameter>();
                     var htmlNodes = statement.SelectNodes("param");
-                    if (htmlNodes != null && htmlNodes.Count > 0 && string.IsNullOrEmpty(parameters) == false)
+                    if (htmlNodes != null && htmlNodes.Count > 0 && !string.IsNullOrEmpty(parameters))
                     {
                         var keyValueParameters = JObject.Parse(parameters);
 
@@ -868,7 +868,7 @@ namespace HandStack.Data.ExtensionMethod
                                 var parameterValue = jValue.Value;
                                 sqlParameter.Value = parameterValue == null ? DBNull.Value : parameterValue.ToString();
                                 var parameterType = paramNode.Attributes["type"].Value.ToString();
-                                sqlParameter.SqlDbType = (SqlDbType)Enum.Parse(typeof(SqlDbType), string.IsNullOrEmpty(parameterType) == true ? "NVarChar" : parameterType);
+                                sqlParameter.SqlDbType = (SqlDbType)Enum.Parse(typeof(SqlDbType), string.IsNullOrEmpty(parameterType) ? "NVarChar" : parameterType);
                                 sqlParameters.Add(sqlParameter);
                             }
                         }
@@ -926,13 +926,13 @@ namespace HandStack.Data.ExtensionMethod
         {
             Tuple<string, List<MySqlParameter>>? result = null;
 
-            if (string.IsNullOrEmpty(applicationID) == true || string.IsNullOrEmpty(projectID) == true || string.IsNullOrEmpty(fileID) == true || string.IsNullOrEmpty(queryID) == true)
+            if (string.IsNullOrEmpty(applicationID) || string.IsNullOrEmpty(projectID) || string.IsNullOrEmpty(fileID) || string.IsNullOrEmpty(queryID))
             {
                 return result;
             }
 
             var filePath = string.Empty;
-            if (string.IsNullOrEmpty(baseDirectoryPath) == false)
+            if (!string.IsNullOrEmpty(baseDirectoryPath))
             {
                 filePath = PathExtensions.Combine(baseDirectoryPath, applicationID, projectID, fileID + ".xml");
             }
@@ -954,7 +954,7 @@ namespace HandStack.Data.ExtensionMethod
                 {
                     var sqlParameters = new List<MySqlParameter>();
                     var htmlNodes = statement.SelectNodes("param");
-                    if (htmlNodes != null && htmlNodes.Count > 0 && string.IsNullOrEmpty(parameters) == false)
+                    if (htmlNodes != null && htmlNodes.Count > 0 && !string.IsNullOrEmpty(parameters))
                     {
                         var keyValueParameters = JObject.Parse(parameters);
 
@@ -982,11 +982,11 @@ namespace HandStack.Data.ExtensionMethod
                                 var parameterType = paramNode.Attributes["type"].Value.ToString();
                                 if (statement.Attributes["native"]?.Value.ParseBool() == true)
                                 {
-                                    sqlParameter.MySqlDbType = (MySqlDbType)Enum.Parse(typeof(MySqlDbType), string.IsNullOrEmpty(parameterType) == true ? "VarChar" : parameterType);
+                                    sqlParameter.MySqlDbType = (MySqlDbType)Enum.Parse(typeof(MySqlDbType), string.IsNullOrEmpty(parameterType) ? "VarChar" : parameterType);
                                 }
                                 else
                                 {
-                                    sqlParameter.DbType = (DbType)Enum.Parse(typeof(DbType), string.IsNullOrEmpty(parameterType) == true ? "String" : parameterType);
+                                    sqlParameter.DbType = (DbType)Enum.Parse(typeof(DbType), string.IsNullOrEmpty(parameterType) ? "String" : parameterType);
                                 }
                                 sqlParameters.Add(sqlParameter);
                             }
@@ -1045,13 +1045,13 @@ namespace HandStack.Data.ExtensionMethod
         {
             Tuple<string, List<OracleParameter>>? result = null;
 
-            if (string.IsNullOrEmpty(applicationID) == true || string.IsNullOrEmpty(projectID) == true || string.IsNullOrEmpty(fileID) == true || string.IsNullOrEmpty(queryID) == true)
+            if (string.IsNullOrEmpty(applicationID) || string.IsNullOrEmpty(projectID) || string.IsNullOrEmpty(fileID) || string.IsNullOrEmpty(queryID))
             {
                 return result;
             }
 
             var filePath = string.Empty;
-            if (string.IsNullOrEmpty(baseDirectoryPath) == false)
+            if (!string.IsNullOrEmpty(baseDirectoryPath))
             {
                 filePath = PathExtensions.Combine(baseDirectoryPath, applicationID, projectID, fileID + ".xml");
             }
@@ -1073,7 +1073,7 @@ namespace HandStack.Data.ExtensionMethod
                 {
                     var sqlParameters = new List<OracleParameter>();
                     var htmlNodes = statement.SelectNodes("param");
-                    if (htmlNodes != null && htmlNodes.Count > 0 && string.IsNullOrEmpty(parameters) == false)
+                    if (htmlNodes != null && htmlNodes.Count > 0 && !string.IsNullOrEmpty(parameters))
                     {
                         var keyValueParameters = JObject.Parse(parameters);
 
@@ -1101,11 +1101,11 @@ namespace HandStack.Data.ExtensionMethod
                                 var parameterType = paramNode.Attributes["type"].Value.ToString();
                                 if (statement.Attributes["native"]?.Value.ParseBool() == true)
                                 {
-                                    sqlParameter.OracleDbType = (OracleDbType)Enum.Parse(typeof(OracleDbType), string.IsNullOrEmpty(parameterType) == true ? "NVarchar2" : parameterType);
+                                    sqlParameter.OracleDbType = (OracleDbType)Enum.Parse(typeof(OracleDbType), string.IsNullOrEmpty(parameterType) ? "NVarchar2" : parameterType);
                                 }
                                 else
                                 {
-                                    sqlParameter.DbType = (DbType)Enum.Parse(typeof(DbType), string.IsNullOrEmpty(parameterType) == true ? "String" : parameterType);
+                                    sqlParameter.DbType = (DbType)Enum.Parse(typeof(DbType), string.IsNullOrEmpty(parameterType) ? "String" : parameterType);
                                 }
                                 sqlParameters.Add(sqlParameter);
                             }
@@ -1164,13 +1164,13 @@ namespace HandStack.Data.ExtensionMethod
         {
             Tuple<string, List<NpgsqlParameter>>? result = null;
 
-            if (string.IsNullOrEmpty(applicationID) == true || string.IsNullOrEmpty(projectID) == true || string.IsNullOrEmpty(fileID) == true || string.IsNullOrEmpty(queryID) == true)
+            if (string.IsNullOrEmpty(applicationID) || string.IsNullOrEmpty(projectID) || string.IsNullOrEmpty(fileID) || string.IsNullOrEmpty(queryID))
             {
                 return result;
             }
 
             var filePath = string.Empty;
-            if (string.IsNullOrEmpty(baseDirectoryPath) == false)
+            if (!string.IsNullOrEmpty(baseDirectoryPath))
             {
                 filePath = PathExtensions.Combine(baseDirectoryPath, applicationID, projectID, fileID + ".xml");
             }
@@ -1192,7 +1192,7 @@ namespace HandStack.Data.ExtensionMethod
                 {
                     var sqlParameters = new List<NpgsqlParameter>();
                     var htmlNodes = statement.SelectNodes("param");
-                    if (htmlNodes != null && htmlNodes.Count > 0 && string.IsNullOrEmpty(parameters) == false)
+                    if (htmlNodes != null && htmlNodes.Count > 0 && !string.IsNullOrEmpty(parameters))
                     {
                         var keyValueParameters = JObject.Parse(parameters);
 
@@ -1220,11 +1220,11 @@ namespace HandStack.Data.ExtensionMethod
                                 var parameterType = paramNode.Attributes["type"].Value.ToString();
                                 if (statement.Attributes["native"]?.Value.ParseBool() == true)
                                 {
-                                    sqlParameter.NpgsqlDbType = (NpgsqlDbType)Enum.Parse(typeof(NpgsqlDbType), string.IsNullOrEmpty(parameterType) == true ? "Char" : parameterType);
+                                    sqlParameter.NpgsqlDbType = (NpgsqlDbType)Enum.Parse(typeof(NpgsqlDbType), string.IsNullOrEmpty(parameterType) ? "Char" : parameterType);
                                 }
                                 else
                                 {
-                                    sqlParameter.DbType = (DbType)Enum.Parse(typeof(DbType), string.IsNullOrEmpty(parameterType) == true ? "String" : parameterType);
+                                    sqlParameter.DbType = (DbType)Enum.Parse(typeof(DbType), string.IsNullOrEmpty(parameterType) ? "String" : parameterType);
                                 }
                                 sqlParameters.Add(sqlParameter);
                             }
@@ -1283,13 +1283,13 @@ namespace HandStack.Data.ExtensionMethod
         {
             Tuple<string, List<SQLiteParameter>>? result = null;
 
-            if (string.IsNullOrEmpty(applicationID) == true || string.IsNullOrEmpty(projectID) == true || string.IsNullOrEmpty(fileID) == true || string.IsNullOrEmpty(queryID) == true)
+            if (string.IsNullOrEmpty(applicationID) || string.IsNullOrEmpty(projectID) || string.IsNullOrEmpty(fileID) || string.IsNullOrEmpty(queryID))
             {
                 return result;
             }
 
             var filePath = string.Empty;
-            if (string.IsNullOrEmpty(baseDirectoryPath) == false)
+            if (!string.IsNullOrEmpty(baseDirectoryPath))
             {
                 filePath = PathExtensions.Combine(baseDirectoryPath, applicationID, projectID, fileID + ".xml");
             }
@@ -1308,7 +1308,7 @@ namespace HandStack.Data.ExtensionMethod
         {
             Tuple<string, List<SQLiteParameter>>? result = null;
 
-            if (File.Exists(filePath) == false || string.IsNullOrEmpty(queryID) == true)
+            if (File.Exists(filePath) == false || string.IsNullOrEmpty(queryID))
             {
                 return result;
             }
@@ -1325,7 +1325,7 @@ namespace HandStack.Data.ExtensionMethod
                 {
                     var sqlParameters = new List<SQLiteParameter>();
                     var htmlNodes = statement.SelectNodes("param");
-                    if (htmlNodes != null && htmlNodes.Count > 0 && string.IsNullOrEmpty(parameters) == false)
+                    if (htmlNodes != null && htmlNodes.Count > 0 && !string.IsNullOrEmpty(parameters))
                     {
                         var keyValueParameters = JObject.Parse(parameters);
 
@@ -1351,7 +1351,7 @@ namespace HandStack.Data.ExtensionMethod
                                 var parameterValue = jValue.Value;
                                 sqlParameter.Value = parameterValue == null ? DBNull.Value : parameterValue.ToString();
                                 var parameterType = paramNode.Attributes["type"].Value.ToString();
-                                sqlParameter.DbType = (DbType)Enum.Parse(typeof(DbType), string.IsNullOrEmpty(parameterType) == true ? "String" : parameterType);
+                                sqlParameter.DbType = (DbType)Enum.Parse(typeof(DbType), string.IsNullOrEmpty(parameterType) ? "String" : parameterType);
                                 sqlParameters.Add(sqlParameter);
                             }
                         }
@@ -1375,3 +1375,4 @@ namespace HandStack.Data.ExtensionMethod
         }
     }
 }
+

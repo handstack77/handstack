@@ -180,7 +180,7 @@ namespace HandStack.Core
 
         public static string? GetAssemblyDirectory(Assembly targetAssembly)
         {
-            var location = string.IsNullOrEmpty(targetAssembly.Location) == true ? AppContext.BaseDirectory : targetAssembly.Location;
+            var location = string.IsNullOrEmpty(targetAssembly.Location) ? AppContext.BaseDirectory : targetAssembly.Location;
             return Path.GetDirectoryName(location);
         }
 
@@ -706,7 +706,7 @@ namespace HandStack.Core
             object? result = null;
             var isEmpty = false;
 
-            if (string.IsNullOrEmpty(value) == true)
+            if (string.IsNullOrEmpty(value))
             {
                 isEmpty = true;
             }
@@ -917,7 +917,7 @@ namespace HandStack.Core
         public static T? DeSerializeXml<T>(string xml)
         {
             var result = default(T);
-            if (string.IsNullOrEmpty(xml) == true)
+            if (string.IsNullOrEmpty(xml))
             {
                 return default(T);
             }
@@ -1074,3 +1074,4 @@ namespace HandStack.Core
         }
     }
 }
+

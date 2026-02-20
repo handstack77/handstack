@@ -63,7 +63,7 @@ namespace HandStack.Core.ExtensionMethod
             builder.AddColumn("StackTrace", typeof(string));
             builder.AddColumn("TypeMember", typeof(string));
 
-            if (string.IsNullOrEmpty(error) == false)
+            if (!string.IsNullOrEmpty(error))
             {
                 builder.NewRow();
                 builder.SetValue(0, "Error", error);
@@ -100,3 +100,4 @@ namespace HandStack.Core.ExtensionMethod
         }
     }
 }
+

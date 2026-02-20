@@ -33,7 +33,7 @@ namespace checkup.Extensions
                 var splits = requestPath.SplitAndTrim('/');
                 var userWorkID = splits.Count > 2 ? splits[1] : "";
                 var applicationID = splits.Count > 2 ? splits[2] : "";
-                if (string.IsNullOrEmpty(applicationID) == false)
+                if (!string.IsNullOrEmpty(applicationID))
                 {
                     var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                     var directoryInfo = new DirectoryInfo(appBasePath);
@@ -63,7 +63,7 @@ namespace checkup.Extensions
                                     {
                                         var tenantAppBasePath = $"/{GlobalConfiguration.TenantAppRequestPath}/{userWorkID}/{applicationID}/wwwroot";
                                         var member = httpContext.Request.Cookies[$"{applicationID}.Member"];
-                                        if (string.IsNullOrEmpty(member) == true)
+                                        if (string.IsNullOrEmpty(member))
                                         {
                                             var isAllowAnonymous = false;
                                             var parent = "";
@@ -84,7 +84,7 @@ namespace checkup.Extensions
                                             else
                                             {
                                                 var requestRefererUrl = httpContext.Request.Headers.Referer.ToString();
-                                                if (string.IsNullOrEmpty(requestRefererUrl) == true)
+                                                if (string.IsNullOrEmpty(requestRefererUrl))
                                                 {
                                                     httpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
                                                     return;
@@ -159,4 +159,5 @@ namespace checkup.Extensions
         }
     }
 }
+
 

@@ -55,7 +55,7 @@ namespace HandStack.Web.Extensions
                     break;
             }
 
-            if (string.IsNullOrEmpty(dateFormat) == false)
+            if (!string.IsNullOrEmpty(dateFormat))
             {
                 file = file + "-" + date.ToString(dateFormat);
             }
@@ -90,3 +90,4 @@ namespace HandStack.Web.Extensions
 
     }
 }
+

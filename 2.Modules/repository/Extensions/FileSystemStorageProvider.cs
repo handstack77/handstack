@@ -91,7 +91,7 @@ namespace repository.Extensions
                 var i = 0;
                 var extension = Path.GetExtension(fileName);
 
-                if (string.IsNullOrEmpty(extension) == false)
+                if (!string.IsNullOrEmpty(extension))
                 {
                     fileName = fileName.Replace(extension, "");
                 }
@@ -114,3 +114,4 @@ namespace repository.Extensions
         }
     }
 }
+

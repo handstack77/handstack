@@ -57,7 +57,7 @@ namespace dbclient.Extensions
             this.globalID = globalID;
             this.queryID = queryID;
 
-            if (string.IsNullOrEmpty(logFilePath) != true)
+            if (!string.IsNullOrEmpty(logFilePath))
             {
                 var fileInfo = new FileInfo(logFilePath);
                 IsLogger = true;

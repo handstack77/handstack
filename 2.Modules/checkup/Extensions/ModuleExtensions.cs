@@ -32,57 +32,21 @@ namespace checkup.Extensions
         {
             existUser = scalarResults.ToString();
         }
-         */
+        */
         public static dynamic? ExecuteMetaSQL(ReturnType returnType, string queryID, object? parameters = null)
         {
-            dynamic? result = null;
-            var paths = queryID.Split(".");
-            if (paths.Length == 3)
-            {
-                try
-                {
-                    var parseParameters = parameters == null ? null : JsonConvert.SerializeObject(parameters);
-                    var sqlMeta = DatabaseExtensions.GetSQLiteMetaSQL(ModuleConfiguration.DatabaseContractPath, GlobalConfiguration.ApplicationID, paths[0], paths[1], paths[2], parseParameters);
-                    if (sqlMeta != null)
-                    {
-                        var adHocParameters = parseParameters == null ? null : JObject.Parse(parseParameters);
-                        var commandText = sqlMeta.Item1;
-                        commandText = DatabaseExtensions.RecursiveParameters(commandText, adHocParameters, "", false);
-
-                        using var sqliteClient = new SQLiteClient(ModuleConfiguration.ConnectionString);
-                        switch (returnType)
-                        {
-                            case ReturnType.NonQuery:
-                                result = sqliteClient.ExecuteNonQuery(commandText, sqlMeta.Item2);
-                                break;
-                            case ReturnType.Scalar:
-                                result = sqliteClient.ExecuteScalar(commandText, sqlMeta.Item2);
-                                break;
-                            case ReturnType.DataSet:
-                                result = sqliteClient.ExecuteDataSet(commandText, sqlMeta.Item2);
-                                break;
-                            case ReturnType.DataReader:
-                                result = sqliteClient.ExecuteReader(commandText, sqlMeta.Item2);
-                                break;
-                            case ReturnType.Dynamic:
-                                result = sqliteClient.ExecuteDynamic(commandText, sqlMeta.Item2);
-                                break;
-                        }
-                    }
-                }
-                catch (Exception exception)
-                {
-                    Log.Error(exception, "[{LogCategory}] " + $"returnType: {returnType}, queryID: {queryID}, parameters: {parameters}", "ModuleExtensions/ExecuteMetaSQL");
-                }
-            }
-
-            return result;
+            return ExecuteMetaSQLCore(ModuleConfiguration.ConnectionString, returnType, queryID, parameters);
         }
 
         public static dynamic? TenantAppExecuteMetaSQL(string connectionString, ReturnType returnType, string queryID, object? parameters = null)
         {
+            return ExecuteMetaSQLCore(connectionString, returnType, queryID, parameters);
+        }
+
+        private static dynamic? ExecuteMetaSQLCore(string connectionString, ReturnType returnType, string queryID, object? parameters = null)
+        {
             dynamic? result = null;
-            var paths = queryID.Split(".");
+            var paths = queryID.Split('.');
             if (paths.Length == 3)
             {
                 try

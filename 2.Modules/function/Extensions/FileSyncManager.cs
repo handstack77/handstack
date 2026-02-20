@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.IO;
 using System.Threading.Tasks;
@@ -15,40 +15,30 @@ namespace function.Extensions
     {
         public event ChangedFile? MonitoringFile;
 
+        private const char QueueDelimiter = '|';
+
         private bool isDesposed;
         private readonly FileSystemWatcher fileSystemWatcher;
         private readonly ConcurrentQueue<string> queue = new ConcurrentQueue<string>();
-        private ConcurrentDictionary<string, DateTime> lastEventTimes = new ConcurrentDictionary<string, DateTime>();
+        private readonly ConcurrentDictionary<string, DateTime> lastEventTimes = new ConcurrentDictionary<string, DateTime>();
 
         public FileSyncManager(string sourceRootDirectory, string filter)
         {
             fileSystemWatcher = new FileSystemWatcher(sourceRootDirectory);
 
-            if (string.IsNullOrEmpty(filter) == false)
+            if (!string.IsNullOrEmpty(filter))
             {
                 fileSystemWatcher.InternalBufferSize = 65536;
-                if (filter.IndexOf("|") > -1)
-                {
-                    foreach (var item in filter.Split("|"))
-                    {
-                        if (string.IsNullOrEmpty(item.Trim()) == false)
-                        {
-                            fileSystemWatcher.Filters.Add(item.Trim());
-                        }
-                    }
-                }
-                else
-                {
-                    fileSystemWatcher.Filter = filter;
-                }
+                ConfigureFilters(filter);
+
                 fileSystemWatcher.IncludeSubdirectories = true;
                 fileSystemWatcher.NotifyFilter = NotifyFilters.FileName | NotifyFilters.Size;
 
-                fileSystemWatcher.Created += (s, e) => queue.Enqueue("Created|" + e.FullPath);
-                fileSystemWatcher.Deleted += (s, e) => queue.Enqueue("Deleted|" + e.FullPath);
+                fileSystemWatcher.Created += (s, e) => EnqueueChange(WatcherChangeTypes.Created, e.FullPath);
+                fileSystemWatcher.Deleted += (s, e) => EnqueueChange(WatcherChangeTypes.Deleted, e.FullPath);
                 fileSystemWatcher.Changed += (s, e) =>
                 {
-                    var key = "Changed|" + e.FullPath;
+                    var key = $"{WatcherChangeTypes.Changed}{QueueDelimiter}{e.FullPath}";
                     var now = DateTime.Now;
 
                     if (lastEventTimes.TryGetValue(key, out var lastEventTime) && (now - lastEventTime).TotalMilliseconds < 100)
@@ -62,10 +52,10 @@ namespace function.Extensions
 
                 fileSystemWatcher.Renamed += (s, e) =>
                 {
-                    queue.Enqueue("Deleted|" + e.OldFullPath);
+                    EnqueueChange(WatcherChangeTypes.Deleted, e.OldFullPath);
                     if (File.Exists(e.FullPath) == true)
                     {
-                        queue.Enqueue("Created|" + e.FullPath);
+                        EnqueueChange(WatcherChangeTypes.Created, e.FullPath);
                     }
                 };
                 fileSystemWatcher.Error += HandleError;
@@ -74,17 +64,60 @@ namespace function.Extensions
             }
         }
 
+        private void ConfigureFilters(string filter)
+        {
+            if (filter.IndexOf(QueueDelimiter) > -1)
+            {
+                var filters = filter.Split(QueueDelimiter);
+                foreach (var item in filters)
+                {
+                    var trimItem = item.Trim();
+                    if (!string.IsNullOrEmpty(trimItem))
+                    {
+                        fileSystemWatcher.Filters.Add(trimItem);
+                    }
+                }
+
+                return;
+            }
+
+            fileSystemWatcher.Filter = filter;
+        }
+
+        private void EnqueueChange(WatcherChangeTypes watcherChangeTypes, string fullPath)
+        {
+            queue.Enqueue($"{watcherChangeTypes}{QueueDelimiter}{fullPath}");
+        }
+
+        private static bool TryParseQueueItem(string watchFilePath, out WatcherChangeTypes watcherChangeTypes, out string filePath)
+        {
+            watcherChangeTypes = default;
+            filePath = string.Empty;
+
+            var delimiterIndex = watchFilePath.IndexOf(QueueDelimiter);
+            if (delimiterIndex <= 0 || delimiterIndex >= watchFilePath.Length - 1)
+            {
+                return false;
+            }
+
+            var watcherText = watchFilePath.Substring(0, delimiterIndex);
+            if (Enum.TryParse(watcherText, out watcherChangeTypes) == false)
+            {
+                return false;
+            }
+
+            filePath = watchFilePath.Substring(delimiterIndex + 1);
+            return !string.IsNullOrEmpty(filePath);
+        }
+
         private async Task ProcessQueue()
         {
             while (true)
             {
                 if (queue.TryDequeue(out var watchFilePath) == true)
                 {
-                    if (string.IsNullOrEmpty(watchFilePath) == false)
+                    if (!string.IsNullOrEmpty(watchFilePath) && TryParseQueueItem(watchFilePath, out var watcherChangeTypes, out var filePath))
                     {
-                        var watcherChangeTypes = Enum.Parse<WatcherChangeTypes>(watchFilePath.Split("|")[0]);
-                        var filePath = watchFilePath.Split("|")[1];
-
                         if (watcherChangeTypes == WatcherChangeTypes.Deleted)
                         {
                             MonitoringFile?.Invoke(watcherChangeTypes, new FileInfo(filePath));
@@ -96,7 +129,7 @@ namespace function.Extensions
 
                         await Task.Delay(200);
 
-                        lastEventTimes.TryRemove(watchFilePath, out var lastEventTime);
+                        lastEventTimes.TryRemove(watchFilePath, out _);
                     }
                 }
                 else
@@ -148,3 +181,4 @@ namespace function.Extensions
         }
     }
 }
+

@@ -75,12 +75,12 @@ namespace function.Events
             }
 
             response.CorrelationID = request.GlobalID;
-            if (string.IsNullOrEmpty(request.RequestID) == true)
+            if (string.IsNullOrEmpty(request.RequestID))
             {
                 request.RequestID = $"SELF_{GlobalConfiguration.SystemID}{GlobalConfiguration.HostName}{GlobalConfiguration.RunningEnvironment}{DateTime.Now:yyyyMMddHHmmssfff}";
             }
 
-            if (string.IsNullOrEmpty(request.GlobalID) == true)
+            if (string.IsNullOrEmpty(request.GlobalID))
             {
                 request.GlobalID = request.RequestID;
             }
@@ -119,7 +119,7 @@ namespace function.Events
                         break;
                 }
 
-                if (string.IsNullOrEmpty(response.ExceptionText) == false)
+                if (!string.IsNullOrEmpty(response.ExceptionText))
                 {
                     if (ModuleConfiguration.IsLogServer == true)
                     {
@@ -156,7 +156,7 @@ namespace function.Events
                 if (request.ReturnType == ExecuteDynamicTypeObject.Xml)
                 {
                     var responseData = response.ResultObject as string;
-                    if (string.IsNullOrEmpty(responseData) == true)
+                    if (string.IsNullOrEmpty(responseData))
                     {
                         responseData = "<?xml version=\"1.0\" standalone=\"yes\"?><NewDataSet></NewDataSet>";
                     }
@@ -254,3 +254,4 @@ namespace function.Events
         }
     }
 }
+

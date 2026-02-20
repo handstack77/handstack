@@ -76,7 +76,7 @@ namespace HandStack.Web.Extensions
 
         public static List<string>? SplitCsv(this string csvList, bool nullOrWhitespaceInputReturnsNull = false)
         {
-            if (string.IsNullOrWhiteSpace(csvList) == true)
+            if (string.IsNullOrWhiteSpace(csvList))
             {
                 return nullOrWhitespaceInputReturnsNull ? null : new List<string>();
             }
@@ -129,3 +129,4 @@ namespace HandStack.Web.Extensions
         }
     }
 }
+

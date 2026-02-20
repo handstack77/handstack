@@ -59,7 +59,7 @@ namespace function.Builder
                 {
                     var compiledAssembly = compiledResult.Item1;
                     var errorText = compiledResult.Item2;
-                    if (string.IsNullOrEmpty(errorText) == true && compiledAssembly != null)
+                    if (string.IsNullOrEmpty(errorText) && compiledAssembly != null)
                     {
                         using var asm = new MemoryStream(compiledAssembly);
                         var assemblyLoadContext = new UnloadableAssemblyLoadContext();
@@ -73,7 +73,7 @@ namespace function.Builder
                 }
             }
 
-            if (entryAssembly != null && string.IsNullOrEmpty(typeName) == false && string.IsNullOrEmpty(methodName) == false && entryAssembly.GetTypes().Count() > 0)
+            if (entryAssembly != null && !string.IsNullOrEmpty(typeName) && !string.IsNullOrEmpty(methodName) && entryAssembly.GetTypes().Count() > 0)
             {
                 var myType = entryAssembly.GetType(typeName);
                 if (myType != null)
@@ -127,7 +127,7 @@ namespace function.Builder
                 {
                     var compiledAssembly = compiledResult.Item1;
                     var errorText = compiledResult.Item2;
-                    if (string.IsNullOrEmpty(errorText) == true && compiledAssembly != null)
+                    if (string.IsNullOrEmpty(errorText) && compiledAssembly != null)
                     {
                         using var asm = new MemoryStream(compiledAssembly);
                         var assemblyLoadContext = new UnloadableAssemblyLoadContext();
@@ -145,7 +145,7 @@ namespace function.Builder
                 }
             }
 
-            if (entryAssembly != null && string.IsNullOrEmpty(typeName) == false && string.IsNullOrEmpty(methodName) == false && entryAssembly.GetTypes().Count() > 0)
+            if (entryAssembly != null && !string.IsNullOrEmpty(typeName) && !string.IsNullOrEmpty(methodName) && entryAssembly.GetTypes().Count() > 0)
             {
                 var myType = entryAssembly.GetType(typeName);
                 if (myType != null)
@@ -189,7 +189,7 @@ namespace function.Builder
             {
                 var compiledAssembly = compiledResult.Item1;
                 var errorText = compiledResult.Item2;
-                if (string.IsNullOrEmpty(errorText) == false && compiledAssembly != null)
+                if (!string.IsNullOrEmpty(errorText) && compiledAssembly != null)
                 {
                     var executeResult = LoadAndExecute(httpContext, compiledAssembly, typeName, methodName, args);
 
@@ -217,7 +217,7 @@ namespace function.Builder
 
                 object? executeResult = null;
                 MethodInfo? entry = null;
-                if (string.IsNullOrEmpty(typeName) == false && string.IsNullOrEmpty(methodName) == false && assembly != null && assembly.GetTypes().Count() > 0)
+                if (!string.IsNullOrEmpty(typeName) && !string.IsNullOrEmpty(methodName) && assembly != null && assembly.GetTypes().Count() > 0)
                 {
                     var myType = assembly.GetType(typeName);
                     if (myType != null)
@@ -251,3 +251,4 @@ namespace function.Builder
         }
     }
 }
+

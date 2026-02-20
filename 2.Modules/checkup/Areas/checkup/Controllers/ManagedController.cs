@@ -111,7 +111,7 @@ namespace checkup.Areas.checkup.Controllers
         public ActionResult ResetAdministratorKey(string? oldPasswordKey = "")
         {
             ActionResult result = BadRequest();
-            if (string.IsNullOrEmpty(oldPasswordKey) == true)
+            if (string.IsNullOrEmpty(oldPasswordKey))
             {
                 result = BadRequest();
             }
@@ -166,3 +166,4 @@ namespace checkup.Areas.checkup.Controllers
         }
     }
 }
+

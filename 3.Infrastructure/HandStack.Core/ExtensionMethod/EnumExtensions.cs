@@ -12,7 +12,7 @@ namespace HandStack.Core.ExtensionMethod
                 return result;
             }
 
-            if (string.IsNullOrEmpty(defaultName) == false)
+            if (!string.IsNullOrEmpty(defaultName))
             {
                 if (Enum.TryParse(defaultName, true, out TEnum defaultResult) == true)
                 {
@@ -24,3 +24,4 @@ namespace HandStack.Core.ExtensionMethod
         }
     }
 }
+

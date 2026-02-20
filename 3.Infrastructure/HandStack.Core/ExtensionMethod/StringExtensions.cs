@@ -93,7 +93,7 @@ namespace HandStack.Core.ExtensionMethod
 
         private static long? DecodeFromBase36(string encoded)
         {
-            if (string.IsNullOrEmpty(encoded) == true)
+            if (string.IsNullOrEmpty(encoded))
             {
                 return null;
             }
@@ -363,7 +363,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static bool ParseBool(this string @this, bool defaultValue = false)
         {
-            if (string.IsNullOrEmpty(@this) == true)
+            if (string.IsNullOrEmpty(@this))
             {
                 return defaultValue;
             }
@@ -377,7 +377,7 @@ namespace HandStack.Core.ExtensionMethod
         {
             DateTime? result = null;
 
-            if (string.IsNullOrEmpty(@this) == true)
+            if (string.IsNullOrEmpty(@this))
             {
                 result = defaultValue;
             }
@@ -455,7 +455,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static string ToNumeric(this string @this)
         {
-            if (string.IsNullOrEmpty(@this) == false)
+            if (!string.IsNullOrEmpty(@this))
             {
                 var result = new char[@this.Length];
                 var i = 0;
@@ -494,7 +494,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static bool ToBoolean(this string? @this)
         {
-            if (string.IsNullOrEmpty(@this) == true)
+            if (string.IsNullOrEmpty(@this))
             {
                 return false;
             }
@@ -539,7 +539,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static string Replace(this string @this, string regexPattern, string replaceValue, bool ignoreCase)
         {
-            if (string.IsNullOrEmpty(@this) == true)
+            if (string.IsNullOrEmpty(@this))
             {
                 return @this;
             }
@@ -565,7 +565,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static string ToCamelCase(this string @this)
         {
-            if (string.IsNullOrEmpty(@this) == true)
+            if (string.IsNullOrEmpty(@this))
             {
                 return @this;
             }
@@ -813,7 +813,7 @@ namespace HandStack.Core.ExtensionMethod
                 try
                 {
                     var value = @this.ToString();
-                    if (string.IsNullOrEmpty(value) == true)
+                    if (string.IsNullOrEmpty(value))
                     {
                         result = false;
                     }
@@ -931,3 +931,4 @@ namespace HandStack.Core.ExtensionMethod
         }
     }
 }
+
