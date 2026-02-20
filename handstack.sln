@@ -76,9 +76,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HandStack.Data", "3.Infrastructure\HandStack.Data\HandStack.Data.csproj", "{6AE92154-8ADD-41C2-8C0F-CF1997EC9D2A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "forbes", "1.WebHost\forbes\forbes.csproj", "{26A81090-4BDA-4A0C-B017-0AF6A787D786}"
-	ProjectSection(ProjectDependencies) = postProject
-		{EFC7711F-7874-46A9-A8A3-7A93F53B7B63} = {EFC7711F-7874-46A9-A8A3-7A93F53B7B63}
-	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "4.Tool", "4.Tool", "{AED6D86D-3CC1-4D7B-80FD-1E7EBF83566F}"
 EndProject
@@ -257,7 +254,7 @@ Global
 		{DEE516A6-5AD5-47D3-8147-152D708151DC} = {FA291842-9FD5-4508-A423-7421803FDA88}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {0075CE72-935C-4F87-A6BA-989C82F06F8F}
 		VisualSVNWorkingCopyRoot = .
+		SolutionGuid = {0075CE72-935C-4F87-A6BA-989C82F06F8F}
 	EndGlobalSection
 EndGlobal

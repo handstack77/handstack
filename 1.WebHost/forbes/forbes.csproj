@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
     <PropertyGroup>
         <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
         <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
@@ -34,6 +34,8 @@
     
     <ItemGroup>
         <Compile Remove="build/**" />
+        <None Remove="wwwroot/Controllers/**" />
+        <Compile Include="wwwroot/Controllers/**/*.cs" />
         <None Include="wwwroot/**" />
         <None Update="wwwroot/**">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -42,5 +44,6 @@
         <None Update="Contracts/**">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
+        <Compile Remove="Contracts/function/**" />
     </ItemGroup>
 </Project>

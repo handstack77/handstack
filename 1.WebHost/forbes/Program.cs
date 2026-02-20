@@ -1,21 +1,21 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Parsing;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Net;
-using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 
+using forbes.Extensions;
+using forbes.wwwroot.Controllers;
+
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
-using Microsoft.Extensions.Options;
 
 namespace forbes
 {
@@ -80,6 +80,8 @@ namespace forbes
                     }
                 });
             });
+            builder.Services.AddControllers();
+            builder.Services.AddDirectoryBrowser();
 
             var app = builder.Build();
 
@@ -91,13 +93,37 @@ namespace forbes
 
             TraceLogger.Init(entryDirectoryPath);
             TraceLogger.Info($"Server Started at: {entryDirectoryPath}");
+            app.MapControllers();
 
-            GlobalConfiguration.StaticFileCacheMaxAge = builder.Configuration.GetValue<int>("StaticFileCacheMaxAge", 0);
+            ForbesConfiguration.StaticFileCacheMaxAge = builder.Configuration.GetValue<int>("StaticFileCacheMaxAge", 0);
+            StartContractFileMonitoring(builder.Configuration, entryDirectoryPath);
 
             string wwwRootBasePath = builder.Configuration["WWWRootBasePath"] ?? "";
             if (string.IsNullOrEmpty(wwwRootBasePath))
             {
                 wwwRootBasePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wwwroot");
+            }
+
+            string contractBasePath = builder.Configuration["ContractBasePath"] ?? "";
+            string contractRequestPath = builder.Configuration["ContractRequestPath"] ?? "view";
+            bool isContractRequestPath = false;
+
+            if (!string.IsNullOrEmpty(contractBasePath))
+            {
+                string contractDirectoryPath = Path.Combine(contractBasePath, "forbes");
+                if (Directory.Exists(contractDirectoryPath))
+                {
+                    isContractRequestPath = true;
+                    app.UseStaticFiles(new StaticFileOptions
+                    {
+                        FileProvider = new PhysicalFileProvider(contractDirectoryPath),
+                        RequestPath = "/" + contractRequestPath,
+                        ServeUnknownFileTypes = true
+                    });
+
+                    TraceLogger.Info($"Contract files serving from: {contractDirectoryPath}");
+                    TraceLogger.Info($"Contract request path: /{contractRequestPath}");
+                }
             }
 
             if (Directory.Exists(wwwRootBasePath))
@@ -116,7 +142,15 @@ namespace forbes
                     ServeUnknownFileTypes = true,
                     OnPrepareResponse = httpContext =>
                     {
-                        if (httpContext.Context.Request.Path.ToString().IndexOf("syn.loader.") > -1)
+                        if (isContractRequestPath && httpContext.Context.Request.Path.ToString().StartsWith($"/{contractRequestPath}/"))
+                        {
+                            httpContext.Context.Response.StatusCode = StatusCodes.Status404NotFound;
+                            httpContext.Context.Response.ContentLength = 0;
+                            httpContext.Context.Response.Body = Stream.Null;
+                            return;
+                        }
+
+                        if (httpContext.Context.Request.Path.ToString().IndexOf("syn.loader.", StringComparison.OrdinalIgnoreCase) > -1)
                         {
                             if (!httpContext.Context.Response.Headers.ContainsKey("Cache-Control"))
                             {
@@ -128,14 +162,14 @@ namespace forbes
                                 httpContext.Context.Response.Headers.Append("Expires", "-1");
                             }
                         }
-                        else if (GlobalConfiguration.StaticFileCacheMaxAge > 0)
+                        else if (ForbesConfiguration.StaticFileCacheMaxAge > 0)
                         {
                             if (httpContext.Context.Response.Headers.ContainsKey("Cache-Control"))
                             {
                                 httpContext.Context.Response.Headers.Remove("Cache-Control");
                             }
 
-                            httpContext.Context.Response.Headers.Append("Cache-Control", $"public, max-age={GlobalConfiguration.StaticFileCacheMaxAge}");
+                            httpContext.Context.Response.Headers.Append("Cache-Control", $"public, max-age={ForbesConfiguration.StaticFileCacheMaxAge}");
                         }
 
                         if (httpContext.Context.Response.Headers.ContainsKey("p3p"))
@@ -146,6 +180,19 @@ namespace forbes
                         httpContext.Context.Response.Headers.Append("p3p", "CP=\"ALL ADM DEV PSAi COM OUR OTRo STP IND ONL\"");
                     }
                 });
+
+                string libDirectoryPath = Path.Combine(wwwRootBasePath, "lib");
+                if (Directory.Exists(libDirectoryPath))
+                {
+                    app.UseDirectoryBrowser(new DirectoryBrowserOptions
+                    {
+                        FileProvider = new PhysicalFileProvider(libDirectoryPath),
+                        RequestPath = "/lib",
+                        RedirectToAppendTrailingSlash = false
+                    });
+
+                    TraceLogger.Info($"Directory browsing enabled for: {libDirectoryPath}");
+                }
 
                 TraceLogger.Info($"Static files serving from: {wwwRootBasePath}");
                 TraceLogger.Info($"Allowed CORS origins: {string.Join(", ", allowedOrigins)}");
@@ -159,6 +206,95 @@ namespace forbes
             return 0;
         }
 
+        private static void StartContractFileMonitoring(IConfiguration configuration, string entryDirectoryPath)
+        {
+            string fileSyncServer = configuration["FileSyncServer"] ?? "";
+            if (string.IsNullOrWhiteSpace(fileSyncServer))
+            {
+                TraceLogger.Info("FileSyncServer is empty. Contract file monitoring is disabled.");
+                return;
+            }
+
+            string contractsBasePath = configuration["ContractsBasePath"] ?? "";
+            if (string.IsNullOrWhiteSpace(contractsBasePath))
+            {
+                contractsBasePath = Path.Combine(entryDirectoryPath, "Contracts");
+            }
+
+            if (!Directory.Exists(contractsBasePath))
+            {
+                TraceLogger.Error($"ContractsBasePath not found: {contractsBasePath}");
+                return;
+            }
+
+            var monitorTargets = new (string ModuleName, string RelativePath, string Filter)[]
+            {
+                ("dbclient", "dbclient", "*.xml"),
+                ("function", "function", "*.*"),
+                ("transact", "transact", "*.json")
+            };
+
+            foreach (var monitorTarget in monitorTargets)
+            {
+                string watchBasePath = Path.Combine(contractsBasePath, monitorTarget.RelativePath);
+                if (!Directory.Exists(watchBasePath))
+                {
+                    continue;
+                }
+
+                var fileSyncManager = new FileSyncManager(watchBasePath, monitorTarget.Filter);
+                fileSyncManager.MonitoringFile += async (WatcherChangeTypes changeTypes, FileInfo fileInfo) =>
+                {
+                    if (!IsTargetContractFile(monitorTarget.ModuleName, fileInfo))
+                    {
+                        return;
+                    }
+
+                    string relativePath = fileInfo.FullName.Replace("\\", "/").Replace(watchBasePath.Replace("\\", "/"), "");
+                    if (!relativePath.StartsWith("/", StringComparison.Ordinal))
+                    {
+                        relativePath = "/" + relativePath;
+                    }
+
+                    var syncResult = await SyncController.UploadAndRefreshFromFileAsync(fileSyncServer, monitorTarget.ModuleName, changeTypes, relativePath, fileInfo.FullName);
+                    if (!syncResult.Success)
+                    {
+                        TraceLogger.Error($"Contract sync failed. module: {monitorTarget.ModuleName}, path: {relativePath}, message: {syncResult.Message}");
+                    }
+                    else
+                    {
+                        TraceLogger.Info($"Contract sync completed. module: {monitorTarget.ModuleName}, path: {relativePath}, changeType: {changeTypes}");
+                    }
+                };
+
+                fileSyncManager.Start();
+                ForbesConfiguration.ContractFileSyncManagers.Add(fileSyncManager);
+                TraceLogger.Info($"Contract file monitoring started. module: {monitorTarget.ModuleName}, path: {watchBasePath}");
+            }
+        }
+
+        private static bool IsTargetContractFile(string moduleName, FileInfo fileInfo)
+        {
+            if (moduleName == "dbclient")
+            {
+                return fileInfo.Extension.Equals(".xml", StringComparison.OrdinalIgnoreCase);
+            }
+
+            if (moduleName == "transact")
+            {
+                return fileInfo.Extension.Equals(".json", StringComparison.OrdinalIgnoreCase);
+            }
+
+            if (moduleName == "function")
+            {
+                return fileInfo.Name.StartsWith("featureMain", StringComparison.OrdinalIgnoreCase)
+                    || fileInfo.Name.Equals("featureMeta.json", StringComparison.OrdinalIgnoreCase)
+                    || fileInfo.Name.Equals("featureSQL.xml", StringComparison.OrdinalIgnoreCase);
+            }
+
+            return false;
+        }
+
         private static void WaitForDebuggerOrTimeout(int debugDelaySeconds)
         {
             var stopwatch = Stopwatch.StartNew();
@@ -169,18 +305,27 @@ namespace forbes
                     Console.WriteLine("디버거 연결을 건너뜁니다.");
                     break;
                 }
+
                 Thread.Sleep(100);
             }
+
             stopwatch.Stop();
 
-            if (Debugger.IsAttached) Console.WriteLine("디버거가 연결되었습니다!");
-            else Console.WriteLine("디버거 없이 계속 진행합니다...");
+            if (Debugger.IsAttached)
+            {
+                Console.WriteLine("디버거가 연결되었습니다!");
+            }
+            else
+            {
+                Console.WriteLine("디버거 없이 계속 진행합니다...");
+            }
         }
     }
 
-    internal static class GlobalConfiguration
+    internal static class ForbesConfiguration
     {
         public static int StaticFileCacheMaxAge { get; set; } = 0;
+        public static List<IDisposable> ContractFileSyncManagers { get; } = new List<IDisposable>();
     }
 
     internal static class TraceLogger
