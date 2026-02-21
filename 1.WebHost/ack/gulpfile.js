@@ -51,6 +51,11 @@ gulp.task('scripts', async function () {
     let content = await fs.readFile(synPath, 'utf8');
 
     content += `
+export const $date = globalRoot.$date;
+export const $array = globalRoot.$array;
+export const $string = globalRoot.$string;
+export const $number = globalRoot.$number;
+export const $object = globalRoot.$object;
 export const $b = syn.$b;
 export const $m = syn.$m;
 export const $d = syn.$d;

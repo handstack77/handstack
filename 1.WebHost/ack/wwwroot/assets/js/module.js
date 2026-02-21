@@ -11888,6 +11888,11 @@ if (typeof module !== 'undefined' && module.exports) {
     $resource.add('notSupportContent', '지원 하지 않는 컨텐츠 타입입니다.');
 })(globalRoot, globalRoot.$resource);
 
+export const $date = globalRoot.$date;
+export const $array = globalRoot.$array;
+export const $string = globalRoot.$string;
+export const $number = globalRoot.$number;
+export const $object = globalRoot.$object;
 export const $b = syn.$b;
 export const $m = syn.$m;
 export const $d = syn.$d;
