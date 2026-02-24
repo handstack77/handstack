@@ -153,6 +153,11 @@ namespace logger
                         ServeUnknownFileTypes = true,
                         OnPrepareResponse = httpContext =>
                         {
+                            if (WithOnlyIPFilter.TryRejectStaticFile(httpContext.Context, $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure") == true)
+                            {
+                                return;
+                            }
+
                             var policy = corsPolicyProvider.GetPolicyAsync(httpContext.Context, null)
                             .ConfigureAwait(false)
                             .GetAwaiter().GetResult();

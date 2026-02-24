@@ -151,6 +151,11 @@ namespace wwwroot
                         ServeUnknownFileTypes = true,
                         OnPrepareResponse = httpContext =>
                         {
+                            if (WithOnlyIPFilter.TryRejectStaticFile(httpContext.Context, $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure") == true)
+                            {
+                                return;
+                            }
+
                             var policy = corsPolicyProvider.GetPolicyAsync(httpContext.Context, null)
                             .ConfigureAwait(false)
                             .GetAwaiter().GetResult();
@@ -181,6 +186,11 @@ namespace wwwroot
                         ServeUnknownFileTypes = true,
                         OnPrepareResponse = httpContext =>
                         {
+                            if (WithOnlyIPFilter.TryRejectStaticFile(httpContext.Context, $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure") == true)
+                            {
+                                return;
+                            }
+
                             if (ModuleConfiguration.IsContractRequestPath == true)
                             {
                                 if (httpContext.Context.Request.Path.ToString().StartsWith($"/{GlobalConfiguration.ContractRequestPath}/") == true)

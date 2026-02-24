@@ -218,7 +218,14 @@ namespace checkup
                     app.UseStaticFiles(new StaticFileOptions
                     {
                         FileProvider = new PhysicalFileProvider(moduleAssets),
-                        RequestPath = "/assets"
+                        RequestPath = "/assets",
+                        OnPrepareResponse = httpContext =>
+                        {
+                            if (WithOnlyIPFilter.TryRejectStaticFile(httpContext.Context, $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure") == true)
+                            {
+                                return;
+                            }
+                        }
                     });
                 }
 
@@ -231,6 +238,11 @@ namespace checkup
                         ServeUnknownFileTypes = true,
                         OnPrepareResponse = httpContext =>
                         {
+                            if (WithOnlyIPFilter.TryRejectStaticFile(httpContext.Context, $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure") == true)
+                            {
+                                return;
+                            }
+
                             var policy = corsPolicyProvider.GetPolicyAsync(httpContext.Context, null)
                             .ConfigureAwait(false)
                             .GetAwaiter().GetResult();
@@ -261,6 +273,11 @@ namespace checkup
                         ServeUnknownFileTypes = true,
                         OnPrepareResponse = async httpContext =>
                         {
+                            if (WithOnlyIPFilter.TryRejectStaticFile(httpContext.Context, $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure") == true)
+                            {
+                                return;
+                            }
+
                             var isWithReferer = false;
                             var requestRefererUrl = httpContext.Context.Request.Headers.Referer.ToStringSafe();
                             var requestPath = httpContext.Context.Request.Path.ToString();

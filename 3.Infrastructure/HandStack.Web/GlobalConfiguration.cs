@@ -103,6 +103,7 @@ namespace HandStack.Web
         public static List<string> PhysicalFileProviders = new List<string>();
         public static List<string> DisposeTenantApps = new List<string>();
         public static List<string> WithOrigins = new List<string>();
+        public static List<string> WithOnlyIPs = new List<string>();
         public static string FindGlobalIDServer = "";
         public static List<Exception?> UnhandledExceptions = new List<Exception?>();
         public static JObject? DomainAPIServer = null;

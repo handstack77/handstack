@@ -36,6 +36,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.AspNetCore.StaticFiles;
@@ -230,6 +231,27 @@ namespace ack
                     if (string.IsNullOrEmpty(item.Value) == false)
                     {
                         GlobalConfiguration.WithOrigins.Add(item.Value);
+                    }
+                }
+            }
+
+            var allowOnlyIPs = appSettings.GetSection("WithOnlyIPs").Get<string[]>();
+            if (allowOnlyIPs == null || allowOnlyIPs.Length == 0)
+            {
+                allowOnlyIPs = configuration.GetSection("WithOnlyIPs").Get<string[]>();
+            }
+
+            if (allowOnlyIPs != null)
+            {
+                foreach (var item in allowOnlyIPs)
+                {
+                    var normalizeIP = WithOnlyIPFilter.NormalizeIPAddress(item);
+                    if (string.IsNullOrEmpty(normalizeIP) == false)
+                    {
+                        if (GlobalConfiguration.WithOnlyIPs.Contains(normalizeIP) == false)
+                        {
+                            GlobalConfiguration.WithOnlyIPs.Add(normalizeIP);
+                        }
                     }
                 }
             }
@@ -963,6 +985,26 @@ namespace ack
                 await next(context);
             });
 
+            if (GlobalConfiguration.WithOnlyIPs.Count > 0)
+            {
+                app.Use(async (context, next) =>
+                {
+                    if (IsStaticContentRequest(context.Request) == false)
+                    {
+                        await next();
+                        return;
+                    }
+
+                    if (IsAllowOnlyClientIP(context) == false)
+                    {
+                        await WriteIPForbiddenResponse(context);
+                        return;
+                    }
+
+                    await next();
+                });
+            }
+
             var physicalPath = PathExtensions.Combine(GlobalConfiguration.EntryBasePath, "wwwroot");
             if (Directory.Exists(physicalPath) == true)
             {
@@ -976,6 +1018,11 @@ namespace ack
                     ContentTypeProvider = GlobalConfiguration.ContentTypeProvider,
                     OnPrepareResponse = httpContext =>
                     {
+                        if (WithOnlyIPFilter.TryRejectStaticFile(httpContext.Context, "Startup/Configure") == true)
+                        {
+                            return;
+                        }
+
                         var policy = corsPolicyProvider.GetPolicyAsync(httpContext.Context, null)
                         .ConfigureAwait(false)
                         .GetAwaiter()
@@ -1097,6 +1144,26 @@ namespace ack
             }
             app.UseMiddleware<HtmxTokenInjectionMiddleware>();
             app.UseRouting();
+
+            if (GlobalConfiguration.WithOnlyIPs.Count > 0)
+            {
+                app.Use(async (context, next) =>
+                {
+                    if (IsApiControllerRequest(context) == false)
+                    {
+                        await next();
+                        return;
+                    }
+
+                    if (IsAllowOnlyClientIP(context) == false)
+                    {
+                        await WriteIPForbiddenResponse(context);
+                        return;
+                    }
+
+                    await next();
+                });
+            }
 
             if (GlobalConfiguration.WithOrigins.Count > 0)
             {
@@ -1607,6 +1674,61 @@ namespace ack
             {
                 Log.Error("[{LogCategory}]" + $"{destFileName} 실패. {exception.Message}", "Startup/contractsync");
             }
+        }
+
+        private bool IsAllowOnlyClientIP(HttpContext context)
+        {
+            return WithOnlyIPFilter.IsAllowed(context);
+        }
+
+        private static bool IsStaticContentRequest(HttpRequest request)
+        {
+            if (HttpMethods.IsGet(request.Method) == false && HttpMethods.IsHead(request.Method) == false)
+            {
+                return false;
+            }
+
+            var path = request.Path.Value;
+            if (string.IsNullOrEmpty(path) == true)
+            {
+                return false;
+            }
+
+            if (path == "/")
+            {
+                return true;
+            }
+
+            return Path.HasExtension(path);
+        }
+
+        private static bool IsApiControllerRequest(HttpContext context)
+        {
+            var actionDescriptor = context.GetEndpoint()?.Metadata.GetMetadata<ControllerActionDescriptor>();
+            if (actionDescriptor == null)
+            {
+                var path = context.Request.Path.Value;
+                if (string.IsNullOrEmpty(path) == true)
+                {
+                    return false;
+                }
+
+                return path.EndsWith("/api", StringComparison.OrdinalIgnoreCase) == true
+                    || path.IndexOf("/api/", StringComparison.OrdinalIgnoreCase) > -1;
+            }
+
+            return actionDescriptor.ControllerTypeInfo.IsDefined(typeof(ApiControllerAttribute), true)
+                || actionDescriptor.MethodInfo.IsDefined(typeof(ApiControllerAttribute), true);
+        }
+
+        private async Task WriteIPForbiddenResponse(HttpContext context)
+        {
+            var clientIP = WithOnlyIPFilter.GetClientIPAddress(context);
+            Log.Warning("[{LogCategory}] " + $"허용되지 않은 클라이언트 IP 접근 차단, Path: {context.Request.Path}, ClientIP: {clientIP}", "Startup/WithOnlyIPFilter");
+
+            context.Response.StatusCode = StatusCodes.Status403Forbidden;
+            context.Response.ContentType = Text.Plain;
+            await context.Response.WriteAsync("허용되지 않은 클라이언트 IP 입니다.");
         }
 
         protected string GetHostAccessID(string hostAccessID)

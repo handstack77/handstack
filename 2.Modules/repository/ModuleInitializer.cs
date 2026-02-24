@@ -126,6 +126,11 @@ namespace repository
                         ServeUnknownFileTypes = true,
                         OnPrepareResponse = httpContext =>
                         {
+                            if (WithOnlyIPFilter.TryRejectStaticFile(httpContext.Context, $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure") == true)
+                            {
+                                return;
+                            }
+
                             var policy = corsPolicyProvider.GetPolicyAsync(httpContext.Context, null)
                             .ConfigureAwait(false)
                             .GetAwaiter().GetResult();
@@ -172,6 +177,11 @@ namespace repository
                                 RequestPath = virtualPath,
                                 OnPrepareResponse = (httpContext) =>
                                 {
+                                    if (WithOnlyIPFilter.TryRejectStaticFile(httpContext.Context, $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure") == true)
+                                    {
+                                        return;
+                                    }
+
                                     var isResponse = true;
                                     var virtualAccessMethod = item.AccessMethod;
                                     switch (virtualAccessMethod)
