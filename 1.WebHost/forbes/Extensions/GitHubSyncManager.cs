@@ -56,7 +56,9 @@ namespace forbes.Extensions
                 return new GitHubSyncManager(string.Empty, productHeaderValue);
             }
 
-            string token = configuration[tokenKey] ?? string.Empty;
+            string token = configuration[tokenKey]
+                ?? configuration["FileSyncAccessToken"]
+                ?? string.Empty;
             string? entryDirectoryPath = configuration["EntryDirectoryPath"];
             string logDirectoryPath = string.IsNullOrWhiteSpace(entryDirectoryPath)
                 ? Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "tracelog")

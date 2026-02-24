@@ -59,7 +59,7 @@ namespace forbes
             }
 
             var builder = WebApplication.CreateBuilder(args);
-            builder.Configuration.AddJsonFile("github.json", optional: true, reloadOnChange: true);
+            builder.Configuration.AddJsonFile("sync-setting.json", optional: true, reloadOnChange: true);
             string[] allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
             builder.Services.AddCors(options =>
             {
@@ -275,6 +275,8 @@ namespace forbes
             string gitHubRepositoryName = configuration["GitHubRepositoryName"] ?? "";
             string gitHubRepositoryBranch = configuration["GitHubRepositoryBranch"] ?? "main";
             string gitHubRepositoryBasePath = configuration["GitHubRepositoryBasePath"] ?? "Contracts";
+            string userName = configuration["UserName"] ?? "";
+            string userEmail = configuration["UserEmail"] ?? "";
 
             if (string.IsNullOrWhiteSpace(gitHubRepositoryOwner) || string.IsNullOrWhiteSpace(gitHubRepositoryName))
             {
@@ -299,7 +301,9 @@ namespace forbes
                 gitHubRepositoryBranch,
                 gitHubRepositoryBasePath,
                 contractsBasePath,
-                monitorTargets);
+                monitorTargets,
+                userName,
+                userEmail);
 
             foreach (var monitorTarget in monitorTargets)
             {
@@ -321,7 +325,7 @@ namespace forbes
 
                         string relativePath = GetRelativePath(fileInfo.FullName, watchBasePath);
                         string gitHubPath = BuildGitHubRepositoryPath(gitHubRepositoryBasePath, monitorTarget.ModuleName, relativePath);
-                        string commitMessage = $"{monitorTarget.ModuleName}: {changeTypes} {relativePath} [machine:{Environment.MachineName}]";
+                        string commitMessage = BuildGitHubCommitMessage(monitorTarget.ModuleName, changeTypes.ToString(), relativePath, userName, userEmail);
 
                         if (changeTypes == WatcherChangeTypes.Deleted)
                         {
@@ -457,7 +461,9 @@ namespace forbes
             string gitHubRepositoryBranch,
             string gitHubRepositoryBasePath,
             string contractsBasePath,
-            (string ModuleName, string RelativePath, string Filter)[] monitorTargets)
+            (string ModuleName, string RelativePath, string Filter)[] monitorTargets,
+            string userName,
+            string userEmail)
         {
             TraceLogger.Info("GitHub 시작 동기화를 수행합니다.");
 
@@ -543,7 +549,7 @@ namespace forbes
                         string relativePath = GetRelativePath(localFilePath, localModulePath);
                         string gitHubPath = BuildGitHubRepositoryPath(gitHubRepositoryBasePath, monitorTarget.ModuleName, relativePath);
                         string fileContent = await File.ReadAllTextAsync(localFilePath);
-                        string commitMessage = $"{monitorTarget.ModuleName}: 초기 동기화 업로드 {relativePath} [machine:{Environment.MachineName}]";
+                        string commitMessage = BuildGitHubCommitMessage(monitorTarget.ModuleName, "초기 동기화 업로드", relativePath, userName, userEmail);
 
                         await gitHubSyncManager.UpsertFileAsync(
                             gitHubRepositoryOwner,
@@ -609,6 +615,20 @@ namespace forbes
             }
 
             return false;
+        }
+
+        private static string BuildGitHubCommitMessage(string moduleName, string action, string relativePath, string userName, string userEmail)
+        {
+            string normalizedUserName = (userName ?? "").Trim();
+            string normalizedUserEmail = (userEmail ?? "").Trim();
+            string userSegment = "";
+
+            if (!string.IsNullOrWhiteSpace(normalizedUserName) && !string.IsNullOrWhiteSpace(normalizedUserEmail))
+            {
+                userSegment = $" [user:{normalizedUserName}<{normalizedUserEmail}>]";
+            }
+
+            return $"{moduleName}: {action} {relativePath}{userSegment} [machine:{Environment.MachineName}]";
         }
 
         private static void WaitForDebuggerOrTimeout(int debugDelaySeconds)

@@ -1,9 +1,7 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -13,6 +11,8 @@ using HandStack.Web.Common;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+
+using wwwroot.Entity;
 
 namespace wwwroot.Areas.wwwroot.Controllers
 {
@@ -31,21 +31,20 @@ namespace wwwroot.Areas.wwwroot.Controllers
         [HttpPost("upload")]
         public async Task<IActionResult> Upload([FromForm] SyncUploadRequest request, IFormFile? file, CancellationToken cancellationToken)
         {
-            if (SyncPathPolicy.ShouldSkip(request.ModuleName, request.ChangeType, request.FilePath, out string skipReason))
+            if (!SyncRequest.TryCreate(request.ModuleName, request.ChangeType, request.FilePath, out SyncRequest syncRequest, out string errorMessage))
             {
-                return Ok(skipReason);
+                return BadRequest(errorMessage);
             }
 
-            string fileSyncServer = configuration["FileSyncServer"] ?? "";
-            if (string.IsNullOrWhiteSpace(fileSyncServer))
+            if (syncRequest.IsDeleteChange)
             {
-                return BadRequest("FileSyncServer is empty.");
+                return Ok("Delete changeType is ignored.");
             }
 
-            var result = await SyncForwarder.ForwardUploadAsync(fileSyncServer, request.ModuleName, request.ChangeType, request.FilePath, file, cancellationToken);
+            var result = await SyncProcessor.SaveUploadedFileAsync(syncRequest, file, cancellationToken);
             if (!result.Success)
             {
-                return StatusCode(StatusCodes.Status502BadGateway, result.Message);
+                return StatusCode(result.StatusCode, result.Message);
             }
 
             return Ok(result.Message);
@@ -54,18 +53,19 @@ namespace wwwroot.Areas.wwwroot.Controllers
         [HttpGet("refresh")]
         public async Task<IActionResult> Refresh([FromQuery] SyncRefreshRequest request, CancellationToken cancellationToken)
         {
-            if (SyncPathPolicy.ShouldSkip(request.ModuleName, request.ChangeType, request.FilePath, out string skipReason))
+            if (!SyncRequest.TryCreate(request.ModuleName, request.ChangeType, request.FilePath, out SyncRequest syncRequest, out string errorMessage))
             {
-                return Ok(skipReason);
+                return BadRequest(errorMessage);
             }
 
-            string fileSyncServer = configuration["FileSyncServer"] ?? "";
-            if (string.IsNullOrWhiteSpace(fileSyncServer))
+            if (syncRequest.IsDeleteChange)
             {
-                return BadRequest("FileSyncServer is empty.");
+                return Ok("Delete changeType is ignored.");
             }
 
-            var result = await SyncForwarder.ForwardRefreshAsync(fileSyncServer, request.ModuleName, request.ChangeType, request.FilePath, cancellationToken);
+            string? authorizationKey = Request.Headers["AuthorizationKey"].FirstOrDefault();
+            string host = Request.Host.HasValue ? Request.Host.Value : "localhost";
+            var result = await SyncProcessor.RefreshModuleAsync(Request.Scheme, host, syncRequest, authorizationKey, cancellationToken);
             if (!result.Success)
             {
                 return StatusCode(StatusCodes.Status502BadGateway, result.Message);
@@ -89,159 +89,226 @@ namespace wwwroot.Areas.wwwroot.Controllers
         public string FilePath { get; set; } = "";
     }
 
-    internal sealed class SyncForwardResult
+    internal sealed class SyncRequest
     {
-        public bool Success { get; }
-        public string Message { get; }
+        public string ModuleName { get; }
+        public string ChangeType { get; }
+        public string RelativeFilePath { get; }
+        public bool IsDeleteChange => ChangeType.Equals(WatcherChangeTypes.Deleted.ToString(), StringComparison.OrdinalIgnoreCase);
 
-        public SyncForwardResult(bool success, string message)
+        private SyncRequest(string moduleName, string changeType, string relativeFilePath)
         {
-            Success = success;
-            Message = message;
+            ModuleName = moduleName;
+            ChangeType = changeType;
+            RelativeFilePath = relativeFilePath;
+        }
+
+        public static bool TryCreate(string moduleName, string changeType, string filePath, out SyncRequest request, out string errorMessage)
+        {
+            request = null!;
+
+            string normalizedModuleName = (moduleName ?? "").Trim().ToLowerInvariant();
+            if (normalizedModuleName != "dbclient"
+                && normalizedModuleName != "transact"
+                && normalizedModuleName != "function"
+                && normalizedModuleName != "wwwroot")
+            {
+                errorMessage = "ModuleName is invalid.";
+                return false;
+            }
+
+            string normalizedChangeType = (changeType ?? "").Trim();
+            if (string.IsNullOrWhiteSpace(normalizedChangeType))
+            {
+                errorMessage = "ChangeType is empty.";
+                return false;
+            }
+
+            string normalizedRelativePath = (filePath ?? "").Replace("\\", "/").Trim().TrimStart('/');
+            if (string.IsNullOrWhiteSpace(normalizedRelativePath))
+            {
+                errorMessage = "FilePath is empty.";
+                return false;
+            }
+
+            request = new SyncRequest(normalizedModuleName, normalizedChangeType, normalizedRelativePath);
+            errorMessage = "";
+            return true;
         }
     }
 
-    internal static class SyncForwarder
+    internal sealed class SyncProcessResult
+    {
+        public bool Success { get; }
+        public string Message { get; }
+        public int StatusCode { get; }
+
+        private SyncProcessResult(bool success, int statusCode, string message)
+        {
+            Success = success;
+            StatusCode = statusCode;
+            Message = message;
+        }
+
+        public static SyncProcessResult Ok(string message)
+        {
+            return new SyncProcessResult(true, StatusCodes.Status200OK, message);
+        }
+
+        public static SyncProcessResult Fail(int statusCode, string message)
+        {
+            return new SyncProcessResult(false, statusCode, message);
+        }
+    }
+
+    internal static class SyncProcessor
     {
         private static readonly HttpClient HttpClient = new HttpClient
         {
             Timeout = TimeSpan.FromSeconds(10)
         };
 
-        public static async Task<SyncForwardResult> ForwardUploadAsync(string fileSyncServer, string moduleName, string changeType, string filePath, IFormFile? file, CancellationToken cancellationToken = default)
+        public static async Task<SyncProcessResult> SaveUploadedFileAsync(SyncRequest request, IFormFile? file, CancellationToken cancellationToken)
         {
-            using var formData = CreateFormData(moduleName, changeType, filePath);
-
-            if (file != null)
+            if (file == null || file.Length == 0)
             {
-                var streamContent = new StreamContent(file.OpenReadStream());
-                streamContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType ?? "application/octet-stream");
-                formData.Add(streamContent, "file", file.FileName);
+                return SyncProcessResult.Fail(StatusCodes.Status400BadRequest, "Upload file is empty.");
             }
 
-            string uploadUrl = BuildUrl(fileSyncServer, "wwwroot/api/sync/upload");
-            try
+            if (!TryResolveContractFilePath(request, out string contractFilePath, out string contractDirectoryPath, out string errorMessage))
             {
-                using var response = await HttpClient.PostAsync(uploadUrl, formData, cancellationToken);
-                string responseText = await response.Content.ReadAsStringAsync(cancellationToken);
-                return response.IsSuccessStatusCode
-                    ? new SyncForwardResult(true, responseText)
-                    : new SyncForwardResult(false, $"Upload failed. statusCode: {(int)response.StatusCode}, response: {responseText}");
+                return SyncProcessResult.Fail(StatusCodes.Status400BadRequest, errorMessage);
             }
-            catch (Exception exception)
+
+            if (!File.Exists(contractFilePath) && !Directory.Exists(contractDirectoryPath))
             {
-                return new SyncForwardResult(false, $"Upload exception: {exception.Message}");
+                return SyncProcessResult.Ok("Target directory or file does not exist. Sync skipped.");
             }
+
+            Directory.CreateDirectory(contractDirectoryPath);
+
+            await using (var outputStream = new FileStream(contractFilePath, FileMode.Create, FileAccess.Write, FileShare.None))
+            await using (var inputStream = file.OpenReadStream())
+            {
+                await inputStream.CopyToAsync(outputStream, cancellationToken);
+            }
+
+            return SyncProcessResult.Ok("Upload synchronized.");
         }
 
-        public static async Task<SyncForwardResult> ForwardRefreshAsync(string fileSyncServer, string moduleName, string changeType, string filePath, CancellationToken cancellationToken = default)
+        public static async Task<SyncProcessResult> RefreshModuleAsync(string scheme, string host, SyncRequest request, string? authorizationKey, CancellationToken cancellationToken)
         {
-            string refreshUrl = BuildUrl(fileSyncServer, "wwwroot/api/sync/refresh")
-                + $"?moduleName={Uri.EscapeDataString(moduleName)}"
-                + $"&changeType={Uri.EscapeDataString(changeType)}"
-                + $"&filePath={Uri.EscapeDataString(filePath)}";
-
-            try
+            if (request.ModuleName == "wwwroot")
             {
-                using var response = await HttpClient.GetAsync(refreshUrl, cancellationToken);
-                string responseText = await response.Content.ReadAsStringAsync(cancellationToken);
-                return response.IsSuccessStatusCode
-                    ? new SyncForwardResult(true, responseText)
-                    : new SyncForwardResult(false, $"Refresh failed. statusCode: {(int)response.StatusCode}, response: {responseText}");
-            }
-            catch (Exception exception)
-            {
-                return new SyncForwardResult(false, $"Refresh exception: {exception.Message}");
-            }
-        }
-
-        private static MultipartFormDataContent CreateFormData(string moduleName, string changeType, string filePath)
-        {
-            var formData = new MultipartFormDataContent();
-            formData.Add(new StringContent(moduleName ?? ""), "moduleName");
-            formData.Add(new StringContent(changeType ?? ""), "changeType");
-            formData.Add(new StringContent(filePath ?? ""), "filePath");
-            return formData;
-        }
-
-        private static string BuildUrl(string baseUrl, string relativePath)
-        {
-            return $"{baseUrl.TrimEnd('/')}/{relativePath.TrimStart('/')}";
-        }
-    }
-
-    internal static class SyncPathPolicy
-    {
-        public static bool ShouldSkip(string moduleName, string changeType, string filePath, out string reason)
-        {
-            if (changeType.Equals(WatcherChangeTypes.Deleted.ToString(), StringComparison.OrdinalIgnoreCase))
-            {
-                reason = "Delete changeType is ignored.";
-                return true;
+                return SyncProcessResult.Ok("wwwroot contract synchronized.");
             }
 
-            if (HasExistingContractPath(moduleName, filePath) == false)
+            string refreshPath;
+            if (request.ModuleName == "dbclient")
             {
-                reason = "Target directory or file does not exist. Sync skipped.";
-                return true;
+                refreshPath = "dbclient/api/query/refresh";
+            }
+            else if (request.ModuleName == "transact")
+            {
+                refreshPath = "transact/api/transaction/refresh";
+            }
+            else if (request.ModuleName == "function")
+            {
+                refreshPath = "function/api/execution/refresh";
+            }
+            else
+            {
+                return SyncProcessResult.Fail(StatusCodes.Status400BadRequest, "ModuleName is invalid.");
             }
 
-            reason = "";
-            return false;
+            string baseUrl = $"{scheme}://{host}".TrimEnd('/');
+            string refreshUrl = $"{baseUrl}/{refreshPath}"
+                + $"?changeType={Uri.EscapeDataString(request.ChangeType)}"
+                + $"&filePath={Uri.EscapeDataString(request.RelativeFilePath)}";
+
+            using var httpRequest = new HttpRequestMessage(HttpMethod.Get, refreshUrl);
+            string forwardedAuthorizationKey = string.IsNullOrWhiteSpace(authorizationKey)
+                ? $"{GlobalConfiguration.SystemID}{GlobalConfiguration.RunningEnvironment}{GlobalConfiguration.HostName}"
+                : authorizationKey;
+            if (!string.IsNullOrWhiteSpace(forwardedAuthorizationKey))
+            {
+                httpRequest.Headers.TryAddWithoutValidation("AuthorizationKey", forwardedAuthorizationKey);
+            }
+
+            using var response = await HttpClient.SendAsync(httpRequest, cancellationToken);
+            string responseText = await response.Content.ReadAsStringAsync(cancellationToken);
+            if (response.IsSuccessStatusCode)
+            {
+                return SyncProcessResult.Ok(responseText);
+            }
+
+            return SyncProcessResult.Fail(
+                StatusCodes.Status502BadGateway,
+                $"Refresh failed. statusCode: {(int)response.StatusCode}, response: {responseText}");
         }
 
-        private static bool HasExistingContractPath(string moduleName, string filePath)
+        private static bool TryResolveContractFilePath(SyncRequest request, out string contractFilePath, out string contractDirectoryPath, out string errorMessage)
         {
-            foreach (string contractBasePath in GetContractBasePaths(moduleName))
+            contractFilePath = "";
+            contractDirectoryPath = "";
+
+            string? contractBasePath = ResolveContractBasePath(request.ModuleName);
+            if (string.IsNullOrWhiteSpace(contractBasePath))
             {
-                if (Directory.Exists(contractBasePath) == false)
+                errorMessage = $"Contract base path not found. moduleName: {request.ModuleName}";
+                return false;
+            }
+
+            string normalizedBasePath = Path.GetFullPath(contractBasePath);
+            string candidatePath = Path.GetFullPath(Path.Combine(normalizedBasePath, request.RelativeFilePath.Replace('/', Path.DirectorySeparatorChar)));
+
+            if (!IsPathUnderBase(candidatePath, normalizedBasePath))
+            {
+                errorMessage = "FilePath is invalid.";
+                return false;
+            }
+
+            contractFilePath = candidatePath;
+            contractDirectoryPath = Path.GetDirectoryName(candidatePath) ?? normalizedBasePath;
+            errorMessage = "";
+            return true;
+        }
+
+        private static string? ResolveContractBasePath(string moduleName)
+        {
+            if (moduleName == "wwwroot")
+            {
+                if (!string.IsNullOrWhiteSpace(ModuleConfiguration.ContractBasePath))
                 {
-                    continue;
+                    return ModuleConfiguration.ContractBasePath;
                 }
 
-                if (TryResolveTargetPath(contractBasePath, filePath, out string targetPath, out string targetDirectoryPath) == false)
-                {
-                    continue;
-                }
-
-                if (File.Exists(targetPath)
-                    || Directory.Exists(targetPath)
-                    || (!string.IsNullOrWhiteSpace(targetDirectoryPath) && Directory.Exists(targetDirectoryPath)))
-                {
-                    return true;
-                }
+                string moduleContractPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Contracts", "wwwroot");
+                return Path.GetFullPath(moduleContractPath);
             }
 
-            return false;
-        }
-
-        private static IEnumerable<string> GetContractBasePaths(string moduleName)
-        {
             var module = GlobalConfiguration.Modules.FirstOrDefault(p => p.ModuleID.Equals(moduleName, StringComparison.OrdinalIgnoreCase));
             if (module != null && module.ContractBasePath.Count > 0)
             {
-                foreach (string basePath in module.ContractBasePath)
+                foreach (string item in module.ContractBasePath)
                 {
-                    string resolvedBasePath = ResolveBasePath(basePath);
-                    if (!string.IsNullOrWhiteSpace(resolvedBasePath))
+                    string resolvedPath = ResolveBasePath(item);
+                    if (!string.IsNullOrWhiteSpace(resolvedPath))
                     {
-                        yield return resolvedBasePath;
+                        return resolvedPath;
                     }
                 }
             }
 
             if (!string.IsNullOrWhiteSpace(GlobalConfiguration.LoadContractBasePath))
             {
-                yield return Path.GetFullPath(Path.Combine(GlobalConfiguration.LoadContractBasePath, moduleName));
+                return Path.GetFullPath(Path.Combine(GlobalConfiguration.LoadContractBasePath, moduleName));
             }
-            else
-            {
-                string entryBasePath = string.IsNullOrWhiteSpace(GlobalConfiguration.EntryBasePath)
-                    ? AppDomain.CurrentDomain.BaseDirectory
-                    : GlobalConfiguration.EntryBasePath;
 
-                yield return Path.GetFullPath(Path.Combine(entryBasePath, "..", "contracts", moduleName));
-            }
+            string entryBasePath = string.IsNullOrWhiteSpace(GlobalConfiguration.EntryBasePath)
+                ? AppDomain.CurrentDomain.BaseDirectory
+                : GlobalConfiguration.EntryBasePath;
+            return Path.GetFullPath(Path.Combine(entryBasePath, "..", "contracts", moduleName));
         }
 
         private static string ResolveBasePath(string basePath)
@@ -260,36 +327,7 @@ namespace wwwroot.Areas.wwwroot.Controllers
             string entryBasePath = string.IsNullOrWhiteSpace(GlobalConfiguration.EntryBasePath)
                 ? AppDomain.CurrentDomain.BaseDirectory
                 : GlobalConfiguration.EntryBasePath;
-
             return Path.GetFullPath(Path.Combine(entryBasePath, expandedPath));
-        }
-
-        private static bool TryResolveTargetPath(string contractBasePath, string filePath, out string targetPath, out string targetDirectoryPath)
-        {
-            targetPath = "";
-            targetDirectoryPath = "";
-
-            if (string.IsNullOrWhiteSpace(contractBasePath) || string.IsNullOrWhiteSpace(filePath))
-            {
-                return false;
-            }
-
-            string normalizedRelativePath = filePath.Replace("\\", "/").Trim().TrimStart('/');
-            if (string.IsNullOrWhiteSpace(normalizedRelativePath) || Path.IsPathRooted(normalizedRelativePath))
-            {
-                return false;
-            }
-
-            string normalizedBasePath = Path.GetFullPath(contractBasePath);
-            string candidatePath = Path.GetFullPath(Path.Combine(normalizedBasePath, normalizedRelativePath.Replace('/', Path.DirectorySeparatorChar)));
-            if (IsPathUnderBase(candidatePath, normalizedBasePath) == false)
-            {
-                return false;
-            }
-
-            targetPath = candidatePath;
-            targetDirectoryPath = Path.GetDirectoryName(candidatePath) ?? "";
-            return true;
         }
 
         private static bool IsPathUnderBase(string targetPath, string basePath)
