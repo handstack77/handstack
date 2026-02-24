@@ -44,11 +44,11 @@ namespace forbes.Extensions
                 string responseText = await response.Content.ReadAsStringAsync(cancellationToken);
                 return response.IsSuccessStatusCode
                     ? new ContractSyncResult(true, responseText)
-                    : new ContractSyncResult(false, $"Upload failed. statusCode: {(int)response.StatusCode}, response: {responseText}");
+                    : new ContractSyncResult(false, $"업로드 실패. 상태 코드: {(int)response.StatusCode}, 응답: {responseText}");
             }
             catch (Exception exception)
             {
-                return new ContractSyncResult(false, $"Upload exception: {exception.Message}");
+                return new ContractSyncResult(false, $"업로드 예외: {exception.Message}");
             }
         }
 
@@ -65,11 +65,11 @@ namespace forbes.Extensions
                 string responseText = await response.Content.ReadAsStringAsync(cancellationToken);
                 return response.IsSuccessStatusCode
                     ? new ContractSyncResult(true, responseText)
-                    : new ContractSyncResult(false, $"Refresh failed. statusCode: {(int)response.StatusCode}, response: {responseText}");
+                    : new ContractSyncResult(false, $"새로고침 실패. 상태 코드: {(int)response.StatusCode}, 응답: {responseText}");
             }
             catch (Exception exception)
             {
-                return new ContractSyncResult(false, $"Refresh exception: {exception.Message}");
+                return new ContractSyncResult(false, $"새로고침 예외: {exception.Message}");
             }
         }
 
