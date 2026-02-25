@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.IO;
 using System.Threading.Tasks;
@@ -22,7 +22,7 @@ namespace forbes.Extensions
         {
             fileSystemWatcher = new FileSystemWatcher(sourceRootDirectory);
 
-            if (!string.IsNullOrEmpty(filter))
+            if (!string.IsNullOrWhiteSpace(filter))
             {
                 fileSystemWatcher.InternalBufferSize = 65536;
                 ConfigureFilters(filter);
@@ -68,7 +68,7 @@ namespace forbes.Extensions
                 foreach (var item in filters)
                 {
                     var trimItem = item.Trim();
-                    if (!string.IsNullOrEmpty(trimItem))
+                    if (!string.IsNullOrWhiteSpace(trimItem))
                     {
                         fileSystemWatcher.Filters.Add(trimItem);
                     }
@@ -103,7 +103,7 @@ namespace forbes.Extensions
             }
 
             filePath = watchFilePath.Substring(delimiterIndex + 1);
-            return !string.IsNullOrEmpty(filePath);
+            return !string.IsNullOrWhiteSpace(filePath);
         }
 
         private async Task ProcessQueue()
@@ -112,7 +112,7 @@ namespace forbes.Extensions
             {
                 if (queue.TryDequeue(out var watchFilePath))
                 {
-                    if (!string.IsNullOrEmpty(watchFilePath) && TryParseQueueItem(watchFilePath, out var watcherChangeTypes, out var filePath))
+                    if (!string.IsNullOrWhiteSpace(watchFilePath) && TryParseQueueItem(watchFilePath, out var watcherChangeTypes, out var filePath))
                     {
                         if (watcherChangeTypes == WatcherChangeTypes.Deleted)
                         {

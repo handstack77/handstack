@@ -59,7 +59,7 @@ namespace forbes
             }
 
             var builder = WebApplication.CreateBuilder(args);
-            builder.Configuration.AddJsonFile("sync-setting.json", optional: true, reloadOnChange: true);
+            builder.Configuration.AddJsonFile("sync-secrets.json", optional: true, reloadOnChange: true);
             string[] allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
             builder.Services.AddCors(options =>
             {
@@ -84,7 +84,7 @@ namespace forbes
             var app = builder.Build();
 
             string entryDirectoryPath = builder.Configuration["EntryDirectoryPath"] as string ?? "";
-            if (string.IsNullOrEmpty(entryDirectoryPath) || !Directory.Exists(entryDirectoryPath))
+            if (string.IsNullOrWhiteSpace(entryDirectoryPath) || !Directory.Exists(entryDirectoryPath))
             {
                 entryDirectoryPath = AppDomain.CurrentDomain.BaseDirectory;
             }
@@ -95,7 +95,7 @@ namespace forbes
             await StartCodeSynchronization(builder.Configuration, entryDirectoryPath);
 
             string wwwRootBasePath = builder.Configuration["WWWRootBasePath"] ?? "";
-            if (string.IsNullOrEmpty(wwwRootBasePath))
+            if (string.IsNullOrWhiteSpace(wwwRootBasePath))
             {
                 wwwRootBasePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wwwroot");
             }
@@ -104,7 +104,7 @@ namespace forbes
             string contractRequestPath = builder.Configuration["ContractRequestPath"] ?? "view";
             bool isContractRequestPath = false;
 
-            if (!string.IsNullOrEmpty(contractBasePath))
+            if (!string.IsNullOrWhiteSpace(contractBasePath))
             {
                 string contractDirectoryPath = Path.Combine(contractBasePath, "forbes");
                 if (Directory.Exists(contractDirectoryPath))
@@ -221,6 +221,7 @@ namespace forbes
         private static void StartContractFileMonitoringByFileSync(IConfiguration configuration, string entryDirectoryPath)
         {
             string fileSyncServer = configuration["FileSyncServer"] ?? "";
+            string fileSyncAccessToken = configuration["FileSyncAccessToken"] ?? "";
             if (string.IsNullOrWhiteSpace(fileSyncServer))
             {
                 TraceLogger.Info("FileSyncServer 값이 비어 있어 FileSync 코드 동기화를 비활성화합니다.");
@@ -245,14 +246,14 @@ namespace forbes
                 var fileSyncManager = new FileSyncManager(watchBasePath, monitorTarget.Filter);
                 fileSyncManager.MonitoringFile += async (WatcherChangeTypes changeTypes, FileInfo fileInfo) =>
                 {
-                    if (!IsTargetContractFile(monitorTarget.ModuleName, fileInfo))
+                    if (!IsTargetContractFile(monitorTarget.ModuleName, fileInfo) || changeTypes == WatcherChangeTypes.Deleted)
                     {
                         return;
                     }
 
                     string relativePath = GetRelativePath(fileInfo.FullName, watchBasePath);
 
-                    var syncResult = await ContractSyncClient.UploadAndRefreshFromFileAsync(fileSyncServer, monitorTarget.ModuleName, changeTypes, relativePath, fileInfo.FullName);
+                    var syncResult = await ContractSyncClient.UploadAndRefreshFromFileAsync(fileSyncServer, fileSyncAccessToken, monitorTarget.ModuleName, changeTypes, relativePath, fileInfo.FullName);
                     if (!syncResult.Success)
                     {
                         TraceLogger.Error($"계약 동기화 실패. 모듈: {monitorTarget.ModuleName}, 경로: {relativePath}, 메시지: {syncResult.Message}");
@@ -374,7 +375,8 @@ namespace forbes
             {
                 ("dbclient", "dbclient", "*.xml"),
                 ("function", "function", "*.*"),
-                ("transact", "transact", "*.json")
+                ("transact", "transact", "*.json"),
+                ("wwwroot", "wwwroot", "*.*")
             };
         }
 
@@ -416,7 +418,7 @@ namespace forbes
             string modulePath = BuildGitHubModulePath(basePath, moduleName);
             string normalizedRelativePath = (relativePath ?? "").Replace("\\", "/").TrimStart('/');
 
-            if (!string.IsNullOrEmpty(modulePath))
+            if (!string.IsNullOrWhiteSpace(modulePath))
             {
                 return $"{modulePath}/{normalizedRelativePath}";
             }

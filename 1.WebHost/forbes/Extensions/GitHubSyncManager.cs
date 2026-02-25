@@ -57,7 +57,6 @@ namespace forbes.Extensions
             }
 
             string token = configuration[tokenKey]
-                ?? configuration["FileSyncAccessToken"]
                 ?? string.Empty;
             string? entryDirectoryPath = configuration["EntryDirectoryPath"];
             string logDirectoryPath = string.IsNullOrWhiteSpace(entryDirectoryPath)
@@ -491,7 +490,7 @@ namespace forbes.Extensions
 
         private static string DecodeContent(RepositoryContent repositoryContent)
         {
-            if (string.IsNullOrEmpty(repositoryContent.Content))
+            if (string.IsNullOrWhiteSpace(repositoryContent.Content))
             {
                 return string.Empty;
             }
