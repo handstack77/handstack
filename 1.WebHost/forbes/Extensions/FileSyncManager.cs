@@ -13,14 +13,26 @@ namespace forbes.Extensions
 
         private const char QueueDelimiter = '|';
 
+        private readonly bool isSyncEnabled = true;
         private bool isDisposed;
         private readonly FileSystemWatcher fileSystemWatcher;
         private readonly ConcurrentQueue<string> queue = new ConcurrentQueue<string>();
         private readonly ConcurrentDictionary<string, DateTime> lastEventTimes = new ConcurrentDictionary<string, DateTime>();
 
         public FileSyncManager(string sourceRootDirectory, string filter)
+            : this(sourceRootDirectory, filter, null)
+        {
+        }
+
+        public FileSyncManager(string sourceRootDirectory, string filter, string? fileSyncAccessToken)
         {
             fileSystemWatcher = new FileSystemWatcher(sourceRootDirectory);
+            if (fileSyncAccessToken != null && string.IsNullOrWhiteSpace(fileSyncAccessToken))
+            {
+                TraceLogger.Error("FileSync 동기화를 건너뜁니다. FileSyncAccessToken 값이 비어 있습니다.");
+                isSyncEnabled = false;
+                return;
+            }
 
             if (!string.IsNullOrWhiteSpace(filter))
             {
@@ -136,6 +148,11 @@ namespace forbes.Extensions
 
         public void Start()
         {
+            if (!isSyncEnabled)
+            {
+                return;
+            }
+
             fileSystemWatcher.EnableRaisingEvents = true;
         }
 

@@ -243,7 +243,7 @@ namespace forbes
                     continue;
                 }
 
-                var fileSyncManager = new FileSyncManager(watchBasePath, monitorTarget.Filter);
+                var fileSyncManager = new FileSyncManager(watchBasePath, monitorTarget.Filter, fileSyncAccessToken);
                 fileSyncManager.MonitoringFile += async (WatcherChangeTypes changeTypes, FileInfo fileInfo) =>
                 {
                     if (!IsTargetContractFile(monitorTarget.ModuleName, fileInfo) || changeTypes == WatcherChangeTypes.Deleted)
