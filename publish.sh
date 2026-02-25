@@ -139,7 +139,7 @@ for module in "${modules[@]}"; do
     IFS=':' read -r project_path module_name <<< "$module"
     echo "$module_name 모듈 처리 중..."
     
-    dotnet build -p:Optimize=$optimize_flag --configuration $configuration_mode --runtime $rid "$project_path" --output "$publish_path/handstack/modules/$module_name"
+    dotnet build -p:Optimize=$optimize_flag --configuration $configuration_mode "$project_path" --output "$publish_path/handstack/modules/$module_name"
 done
 
 # 추가 파일들 복사
@@ -195,6 +195,13 @@ find "${publish_path}/handstack" -type f \( -name "*.staticwebassets.endpoints.j
     if [ -f "$file" ]; then
         rm -f "$file" 2>/dev/null
     fi
+done
+
+# runtimes 디렉토리 정리 (win-x64, linux-x64, osx-x64만 유지)
+find "${publish_path}/handstack" -type d -name "runtimes" | while read -r runtimes_dir; do
+    find "$runtimes_dir" -mindepth 1 -maxdepth 1 -type d \
+        ! -name "win-x64" ! -name "linux-x64" ! -name "osx-x64" -exec rm -rf {} + 2>/dev/null || true
+    find "$runtimes_dir" -mindepth 1 -maxdepth 1 -type f -exec rm -f {} + 2>/dev/null || true
 done
 
 rsync -a --delete -q %HANDSTACK_SRC%/3.Infrastructure/Assemblies/ %publish_path%/handstack/assemblies/

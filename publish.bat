@@ -91,13 +91,13 @@ if exist "%contracts_path%" (
 )
 
 REM 모듈 빌드 (빌드 모드에서만, 퍼블리시는 위에서 처리됨)
-dotnet build -p:Optimize=%optimize_flag% --configuration %configuration_mode% --runtime %rid% 2.Modules\dbclient\dbclient.csproj --output %publish_path%\handstack\modules\dbclient
-dotnet build -p:Optimize=%optimize_flag% --configuration %configuration_mode% --runtime %rid% 2.Modules\function\function.csproj --output %publish_path%\handstack\modules\function
-dotnet build -p:Optimize=%optimize_flag% --configuration %configuration_mode% --runtime %rid% 2.Modules\logger\logger.csproj --output %publish_path%\handstack\modules\logger
-dotnet build -p:Optimize=%optimize_flag% --configuration %configuration_mode% --runtime %rid% 2.Modules\repository\repository.csproj --output %publish_path%\handstack\modules\repository
-dotnet build -p:Optimize=%optimize_flag% --configuration %configuration_mode% --runtime %rid% 2.Modules\transact\transact.csproj --output %publish_path%\handstack\modules\transact
-dotnet build -p:Optimize=%optimize_flag% --configuration %configuration_mode% --runtime %rid% 2.Modules\wwwroot\wwwroot.csproj --output %publish_path%\handstack\modules\wwwroot
-dotnet build -p:Optimize=%optimize_flag% --configuration %configuration_mode% --runtime %rid% 2.Modules\checkup\checkup.csproj --output %publish_path%\handstack\modules\checkup
+dotnet build -p:Optimize=%optimize_flag% --configuration %configuration_mode% 2.Modules\dbclient\dbclient.csproj --output %publish_path%\handstack\modules\dbclient
+dotnet build -p:Optimize=%optimize_flag% --configuration %configuration_mode% 2.Modules\function\function.csproj --output %publish_path%\handstack\modules\function
+dotnet build -p:Optimize=%optimize_flag% --configuration %configuration_mode% 2.Modules\logger\logger.csproj --output %publish_path%\handstack\modules\logger
+dotnet build -p:Optimize=%optimize_flag% --configuration %configuration_mode% 2.Modules\repository\repository.csproj --output %publish_path%\handstack\modules\repository
+dotnet build -p:Optimize=%optimize_flag% --configuration %configuration_mode% 2.Modules\transact\transact.csproj --output %publish_path%\handstack\modules\transact
+dotnet build -p:Optimize=%optimize_flag% --configuration %configuration_mode% 2.Modules\wwwroot\wwwroot.csproj --output %publish_path%\handstack\modules\wwwroot
+dotnet build -p:Optimize=%optimize_flag% --configuration %configuration_mode% 2.Modules\checkup\checkup.csproj --output %publish_path%\handstack\modules\checkup
 
 REM 파일 복사
 if exist "%HANDSTACK_HOME%\contracts" (
@@ -125,6 +125,20 @@ del /F /Q "%wwwroot_js_path%\js\syn.scripts.min.js" 2>nul
 for /r "%publish_path%\handstack" %%f in (*.staticwebassets.endpoints.json *.staticwebassets.runtime.json) do (
     if exist "%%f" (
         del /F /Q "%%f" 2>nul
+    )
+)
+
+REM runtimes 디렉토리 정리: win-x64 linux-x64 osx-x64만 유지
+for /d /r "%publish_path%\handstack" %%d in (runtimes) do (
+    if exist "%%d" (
+        for /d %%r in (%%d\*) do (
+            if /I not "%%~nxr"=="win-x64" if /I not "%%~nxr"=="linux-x64" if /I not "%%~nxr"=="osx-x64" (
+                rmdir /s /q "%%r" 2>nul
+            )
+        )
+        for %%f in (%%d\*) do (
+            if not exist "%%f\" del /F /Q "%%f" 2>nul
+        )
     )
 )
 
