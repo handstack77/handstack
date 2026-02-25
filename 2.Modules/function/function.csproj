@@ -1,9 +1,8 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+<Project Sdk="Microsoft.NET.Sdk.Razor">
     <PropertyGroup>
         <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
         <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
         <TargetFramework>net10.0</TargetFramework>
-        <RuntimeIdentifiers>win-x64;linux-x64;osx-x64</RuntimeIdentifiers>
         <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
         <PublishWithAspNetCoreTargetManifest>true</PublishWithAspNetCoreTargetManifest>
         <TargetLatestRuntimePatch>false</TargetLatestRuntimePatch>
@@ -103,6 +102,17 @@
 
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
         <PropertyGroup>
+            <RuntimesDir>$(MSBuildProjectDirectory)/bin/$(Configuration)/$(TargetFramework)/runtimes</RuntimesDir>
+        </PropertyGroup>
+        <ItemGroup Condition="Exists('$(RuntimesDir)')">
+            <RuntimeDirsToRemove Include="$([System.IO.Directory]::GetDirectories('$(RuntimesDir)'))" />
+            <RuntimeDirsToRemove Remove="$([System.IO.Path]::Combine('$(RuntimesDir)', 'win-x64'))" />
+            <RuntimeDirsToRemove Remove="$([System.IO.Path]::Combine('$(RuntimesDir)', 'linux-x64'))" />
+            <RuntimeDirsToRemove Remove="$([System.IO.Path]::Combine('$(RuntimesDir)', 'osx-x64'))" />
+            <RuntimeDirsToRemove Remove="$([System.IO.Path]::Combine('$(RuntimesDir)', 'osx-arm64'))" />
+        </ItemGroup>
+        <RemoveDir Directories="@(RuntimeDirsToRemove)" Condition="'@(RuntimeDirsToRemove)' != ''" />
+        <PropertyGroup>
             <AppSourceDir>$(HANDSTACK_HOME)/app</AppSourceDir>
         </PropertyGroup>
 
@@ -114,7 +124,6 @@
             <TargetFilesToCheck Remove="$(TargetDir)package-lock.json" />
         </ItemGroup>
         <Delete Files="@(TargetFilesToCheck)" ContinueOnError="WarnAndContinue" />
-
         <PropertyGroup>
             <ModuleDestinationDir>$(HANDSTACK_HOME)/modules/$(MSBuildProjectName)</ModuleDestinationDir>
         </PropertyGroup>

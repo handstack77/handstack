@@ -2,7 +2,6 @@
     <PropertyGroup>
         <OutputType>Exe</OutputType>
         <TargetFramework>net10.0</TargetFramework>
-        <RuntimeIdentifiers>win-x64;linux-x64;osx-x64</RuntimeIdentifiers>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
@@ -19,7 +18,17 @@
     </PropertyGroup>
 
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-        <!-- 이미 publish 중이면 스킵 -->
+        <PropertyGroup>
+            <RuntimesDir>$(MSBuildProjectDirectory)/bin/$(Configuration)/$(TargetFramework)/runtimes</RuntimesDir>
+        </PropertyGroup>
+        <ItemGroup Condition="Exists('$(RuntimesDir)')">
+            <RuntimeDirsToRemove Include="$([System.IO.Directory]::GetDirectories('$(RuntimesDir)'))" />
+            <RuntimeDirsToRemove Remove="$([System.IO.Path]::Combine('$(RuntimesDir)', 'win-x64'))" />
+            <RuntimeDirsToRemove Remove="$([System.IO.Path]::Combine('$(RuntimesDir)', 'linux-x64'))" />
+            <RuntimeDirsToRemove Remove="$([System.IO.Path]::Combine('$(RuntimesDir)', 'osx-x64'))" />
+            <RuntimeDirsToRemove Remove="$([System.IO.Path]::Combine('$(RuntimesDir)', 'osx-arm64'))" />
+        </ItemGroup>
+        <RemoveDir Directories="@(RuntimeDirsToRemove)" Condition="'@(RuntimeDirsToRemove)' != ''" />        <!-- 이미 publish 중이면 스킵 -->
         <PropertyGroup>
             <IsPublishing Condition="'$(IsPublishing)' == ''">false</IsPublishing>
         </PropertyGroup>

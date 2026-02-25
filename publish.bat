@@ -69,21 +69,6 @@ if "%action_mode%" == "publish" (
     dotnet %action_mode% -p:Optimize=%optimize_flag% --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% 4.Tool\CLI\edgeproxy\edgeproxy.csproj --output %publish_path%\handstack\app\cli
 )
 
-REM Forbes 파일 정리
-set forbes_path=%publish_path%\handstack\forbes
-if exist "%forbes_path%\wwwroot" (
-    robocopy %forbes_path%\wwwroot %forbes_path% /E /MOVE
-)
-for %%f in ("%forbes_path%\*") do (
-    if /i not "%%~nxf" == "wwwroot" (
-        if exist "%%f" (
-            if "%%~nxf" neq "." if "%%~nxf" neq ".." (
-                del /F /Q "%%f" 2>nul
-            )
-        )
-    )
-)
-
 REM Contracts 폴더 정리
 set contracts_path=%HANDSTACK_HOME%\contracts
 if exist "%contracts_path%" (
@@ -128,11 +113,11 @@ for /r "%publish_path%\handstack" %%f in (*.staticwebassets.endpoints.json *.sta
     )
 )
 
-REM runtimes 디렉토리 정리: win-x64 linux-x64 osx-x64만 유지
+REM runtimes 디렉토리 정리: 현재 publish 대상 RID(%rid%)만 유지
 for /d /r "%publish_path%\handstack" %%d in (runtimes) do (
     if exist "%%d" (
         for /d %%r in (%%d\*) do (
-            if /I not "%%~nxr"=="win-x64" if /I not "%%~nxr"=="linux-x64" if /I not "%%~nxr"=="osx-x64" (
+            if /I not "%%~nxr"=="%rid%" (
                 rmdir /s /q "%%r" 2>nul
             )
         )

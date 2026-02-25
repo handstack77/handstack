@@ -1,9 +1,8 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+<Project Sdk="Microsoft.NET.Sdk.Razor">
     <PropertyGroup>
         <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
         <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
         <TargetFramework>net10.0</TargetFramework>
-        <RuntimeIdentifiers>win-x64;linux-x64;osx-x64</RuntimeIdentifiers>
         <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
         <Nullable>enable</Nullable>
         <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
@@ -76,6 +75,10 @@
 
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
         <PropertyGroup>
+            <RuntimesDir>$(MSBuildProjectDirectory)/bin/$(Configuration)/$(TargetFramework)/runtimes</RuntimesDir>
+        </PropertyGroup>
+        <RemoveDir Directories="$(RuntimesDir)" Condition="Exists('$(RuntimesDir)')" />
+        <PropertyGroup>
             <AppSourceDir>$(HANDSTACK_HOME)/app</AppSourceDir>
         </PropertyGroup>
 
@@ -85,7 +88,6 @@
                                 Condition="Exists('$(TargetDir)%(AppSourceFiles.Filename)%(AppSourceFiles.Extension)')" />
         </ItemGroup>
         <Delete Files="@(TargetFilesToCheck)" ContinueOnError="WarnAndContinue" />
-
         <PropertyGroup>
             <ModuleDestinationDir>$(HANDSTACK_HOME)/modules/$(MSBuildProjectName)</ModuleDestinationDir>
         </PropertyGroup>

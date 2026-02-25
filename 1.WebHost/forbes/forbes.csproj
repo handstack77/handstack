@@ -1,10 +1,9 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
     <PropertyGroup>
         <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
         <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
         <OutputType>Exe</OutputType>
         <TargetFramework>net10.0</TargetFramework>
-        <RuntimeIdentifiers>win-x64;linux-x64;osx-x64</RuntimeIdentifiers>
         <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
         <PublishWithAspNetCoreTargetManifest>true</PublishWithAspNetCoreTargetManifest>
         <TargetLatestRuntimePatch>false</TargetLatestRuntimePatch>
@@ -67,4 +66,17 @@
     <ItemGroup>
       <None Include="bundleconfig.json" />
     </ItemGroup>
+    <Target Name="CleanupRuntimes" AfterTargets="Build">
+        <PropertyGroup>
+            <RuntimesDir>$(MSBuildProjectDirectory)/bin/$(Configuration)/$(TargetFramework)/runtimes</RuntimesDir>
+        </PropertyGroup>
+        <ItemGroup Condition="Exists('$(RuntimesDir)')">
+            <RuntimeDirsToRemove Include="$([System.IO.Directory]::GetDirectories('$(RuntimesDir)'))" />
+            <RuntimeDirsToRemove Remove="$([System.IO.Path]::Combine('$(RuntimesDir)', 'win-x64'))" />
+            <RuntimeDirsToRemove Remove="$([System.IO.Path]::Combine('$(RuntimesDir)', 'linux-x64'))" />
+            <RuntimeDirsToRemove Remove="$([System.IO.Path]::Combine('$(RuntimesDir)', 'osx-x64'))" />
+            <RuntimeDirsToRemove Remove="$([System.IO.Path]::Combine('$(RuntimesDir)', 'osx-arm64'))" />
+        </ItemGroup>
+        <RemoveDir Directories="@(RuntimeDirsToRemove)" Condition="'@(RuntimeDirsToRemove)' != ''" />
+    </Target>
 </Project>

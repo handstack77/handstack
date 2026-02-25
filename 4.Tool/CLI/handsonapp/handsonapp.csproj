@@ -3,7 +3,6 @@
         <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
         <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
         <TargetFramework>net10.0</TargetFramework>
-        <RuntimeIdentifiers>win-x64;linux-x64;osx-x64</RuntimeIdentifiers>
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
@@ -39,4 +38,17 @@
             <HintPath>../../../3.Infrastructure/Assemblies/$(Configuration)/HandStack.Core.dll</HintPath>
         </Reference>
     </ItemGroup>
+    <Target Name="CleanupRuntimes" AfterTargets="Build">
+        <PropertyGroup>
+            <RuntimesDir>$(MSBuildProjectDirectory)/bin/$(Configuration)/$(TargetFramework)/runtimes</RuntimesDir>
+        </PropertyGroup>
+        <ItemGroup Condition="Exists('$(RuntimesDir)')">
+            <RuntimeDirsToRemove Include="$([System.IO.Directory]::GetDirectories('$(RuntimesDir)'))" />
+            <RuntimeDirsToRemove Remove="$([System.IO.Path]::Combine('$(RuntimesDir)', 'win-x64'))" />
+            <RuntimeDirsToRemove Remove="$([System.IO.Path]::Combine('$(RuntimesDir)', 'linux-x64'))" />
+            <RuntimeDirsToRemove Remove="$([System.IO.Path]::Combine('$(RuntimesDir)', 'osx-x64'))" />
+            <RuntimeDirsToRemove Remove="$([System.IO.Path]::Combine('$(RuntimesDir)', 'osx-arm64'))" />
+        </ItemGroup>
+        <RemoveDir Directories="@(RuntimeDirsToRemove)" Condition="'@(RuntimeDirsToRemove)' != ''" />
+    </Target>
 </Project>

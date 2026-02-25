@@ -102,20 +102,6 @@ else
     dotnet $action_mode -p:Optimize=$optimize_flag --configuration $configuration_mode --arch $arch_mode --os $os_mode 4.Tool/CLI/edgeproxy/edgeproxy.csproj --output $publish_path/handstack/app/cli
 fi
 
-# Forbes 파일 처리
-echo "Forbes 파일 처리 중..."
-forbes_path="$publish_path/handstack/forbes"
-if [ -d "$forbes_path/wwwroot" ]; then
-    # wwwroot 내용을 상위 디렉토리로 이동
-    if [ "$(ls -A $forbes_path/wwwroot 2>/dev/null)" ]; then
-        mv "$forbes_path/wwwroot"/* "$forbes_path/" 2>/dev/null || true
-    fi
-    rm -rf "$forbes_path/wwwroot"
-fi
-
-# Forbes 디렉토리의 불필요한 파일들 삭제 (웹 콘텐츠만 유지)
-find "$forbes_path" -maxdepth 1 -type f \( -name "*.dll" -o -name "*.exe" -o -name "*.pdb" -o -name "*.json" -o -name "*.xml" \) -delete 2>/dev/null || true
-
 # Contracts 디렉토리 정리
 contracts_path="${HANDSTACK_HOME}/contracts"
 if [ -d "$contracts_path" ]; then
@@ -197,10 +183,10 @@ find "${publish_path}/handstack" -type f \( -name "*.staticwebassets.endpoints.j
     fi
 done
 
-# runtimes 디렉토리 정리 (win-x64, linux-x64, osx-x64만 유지)
+# runtimes 디렉토리 정리 (현재 publish 대상 RID만 유지)
 find "${publish_path}/handstack" -type d -name "runtimes" | while read -r runtimes_dir; do
     find "$runtimes_dir" -mindepth 1 -maxdepth 1 -type d \
-        ! -name "win-x64" ! -name "linux-x64" ! -name "osx-x64" -exec rm -rf {} + 2>/dev/null || true
+        ! -name "$rid" -exec rm -rf {} + 2>/dev/null || true
     find "$runtimes_dir" -mindepth 1 -maxdepth 1 -type f -exec rm -f {} + 2>/dev/null || true
 done
 
