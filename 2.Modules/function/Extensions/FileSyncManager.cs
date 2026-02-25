@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.IO;
 using System.Threading.Tasks;
@@ -26,7 +26,7 @@ namespace function.Extensions
         {
             fileSystemWatcher = new FileSystemWatcher(sourceRootDirectory);
 
-            if (!string.IsNullOrEmpty(filter))
+            if (!string.IsNullOrWhiteSpace(filter))
             {
                 fileSystemWatcher.InternalBufferSize = 65536;
                 ConfigureFilters(filter);
@@ -72,7 +72,7 @@ namespace function.Extensions
                 foreach (var item in filters)
                 {
                     var trimItem = item.Trim();
-                    if (!string.IsNullOrEmpty(trimItem))
+                    if (!string.IsNullOrWhiteSpace(trimItem))
                     {
                         fileSystemWatcher.Filters.Add(trimItem);
                     }
@@ -107,7 +107,7 @@ namespace function.Extensions
             }
 
             filePath = watchFilePath.Substring(delimiterIndex + 1);
-            return !string.IsNullOrEmpty(filePath);
+            return !string.IsNullOrWhiteSpace(filePath);
         }
 
         private async Task ProcessQueue()
@@ -116,7 +116,7 @@ namespace function.Extensions
             {
                 if (queue.TryDequeue(out var watchFilePath) == true)
                 {
-                    if (!string.IsNullOrEmpty(watchFilePath) && TryParseQueueItem(watchFilePath, out var watcherChangeTypes, out var filePath))
+                    if (!string.IsNullOrWhiteSpace(watchFilePath) && TryParseQueueItem(watchFilePath, out var watcherChangeTypes, out var filePath))
                     {
                         if (watcherChangeTypes == WatcherChangeTypes.Deleted)
                         {

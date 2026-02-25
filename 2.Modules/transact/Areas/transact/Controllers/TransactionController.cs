@@ -134,7 +134,7 @@ namespace transact.Areas.transact.Controllers
                         {
                             case WatcherChangeTypes.Created:
                             case WatcherChangeTypes.Changed:
-                                if (!string.IsNullOrEmpty(userWorkID) && !string.IsNullOrEmpty(applicationID))
+                                if (!string.IsNullOrWhiteSpace(userWorkID) && !string.IsNullOrWhiteSpace(applicationID))
                                 {
                                     var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                                     var businessFile = PathExtensions.Join(appBasePath, filePath);
@@ -199,13 +199,13 @@ namespace transact.Areas.transact.Controllers
                                                 businessContracts.Remove(businessFile);
                                             }
 
-                                            businessContract.TransactionProjectID = string.IsNullOrEmpty(businessContract.TransactionProjectID) ? businessContract.ProjectID : businessContract.TransactionProjectID;
+                                            businessContract.TransactionProjectID = string.IsNullOrWhiteSpace(businessContract.TransactionProjectID) ? businessContract.ProjectID : businessContract.TransactionProjectID;
 
                                             fileInfo = new FileInfo(businessFile);
-                                            businessContract.ApplicationID = string.IsNullOrEmpty(businessContract.ApplicationID) ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : businessContract.ApplicationID;
-                                            businessContract.ProjectID = string.IsNullOrEmpty(businessContract.ProjectID) ? (fileInfo.Directory?.Name).ToStringSafe() : businessContract.ProjectID;
-                                            businessContract.TransactionID = string.IsNullOrEmpty(businessContract.TransactionID) ? fileInfo.Name.Replace(fileInfo.Extension, "") : businessContract.TransactionID;
-                                            businessContract.TransactionProjectID = string.IsNullOrEmpty(businessContract.TransactionProjectID) ? businessContract.ProjectID : businessContract.TransactionProjectID;
+                                            businessContract.ApplicationID = string.IsNullOrWhiteSpace(businessContract.ApplicationID) ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : businessContract.ApplicationID;
+                                            businessContract.ProjectID = string.IsNullOrWhiteSpace(businessContract.ProjectID) ? (fileInfo.Directory?.Name).ToStringSafe() : businessContract.ProjectID;
+                                            businessContract.TransactionID = string.IsNullOrWhiteSpace(businessContract.TransactionID) ? fileInfo.Name.Replace(fileInfo.Extension, "") : businessContract.TransactionID;
+                                            businessContract.TransactionProjectID = string.IsNullOrWhiteSpace(businessContract.TransactionProjectID) ? businessContract.ProjectID : businessContract.TransactionProjectID;
 
                                             businessContracts.Add(businessFile, businessContract);
 
@@ -280,10 +280,10 @@ namespace transact.Areas.transact.Controllers
                                                 }
 
                                                 fileInfo = new FileInfo(businessFile);
-                                                businessContract.ApplicationID = string.IsNullOrEmpty(businessContract.ApplicationID) ? (fileInfo.Directory?.Parent?.Name).ToStringSafe() : businessContract.ApplicationID;
-                                                businessContract.ProjectID = string.IsNullOrEmpty(businessContract.ProjectID) ? (fileInfo.Directory?.Name).ToStringSafe() : businessContract.ProjectID;
-                                                businessContract.TransactionID = string.IsNullOrEmpty(businessContract.TransactionID) ? fileInfo.Name.Replace(fileInfo.Extension, "") : businessContract.TransactionID;
-                                                businessContract.TransactionProjectID = string.IsNullOrEmpty(businessContract.TransactionProjectID) ? businessContract.ProjectID : businessContract.TransactionProjectID;
+                                                businessContract.ApplicationID = string.IsNullOrWhiteSpace(businessContract.ApplicationID) ? (fileInfo.Directory?.Parent?.Name).ToStringSafe() : businessContract.ApplicationID;
+                                                businessContract.ProjectID = string.IsNullOrWhiteSpace(businessContract.ProjectID) ? (fileInfo.Directory?.Name).ToStringSafe() : businessContract.ProjectID;
+                                                businessContract.TransactionID = string.IsNullOrWhiteSpace(businessContract.TransactionID) ? fileInfo.Name.Replace(fileInfo.Extension, "") : businessContract.TransactionID;
+                                                businessContract.TransactionProjectID = string.IsNullOrWhiteSpace(businessContract.TransactionProjectID) ? businessContract.ProjectID : businessContract.TransactionProjectID;
 
                                                 businessContracts.Add(businessFile, businessContract, TimeSpan.FromDays(36500));
 
@@ -296,7 +296,7 @@ namespace transact.Areas.transact.Controllers
                                 }
                                 break;
                             case WatcherChangeTypes.Deleted:
-                                if (!string.IsNullOrEmpty(userWorkID) && !string.IsNullOrEmpty(applicationID))
+                                if (!string.IsNullOrWhiteSpace(userWorkID) && !string.IsNullOrWhiteSpace(applicationID))
                                 {
                                     var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                                     var directoryInfo = new DirectoryInfo(appBasePath);
@@ -356,7 +356,7 @@ namespace transact.Areas.transact.Controllers
                 try
                 {
                     var cacheKey = Request.Query["cacheKey"].ToString();
-                    if (string.IsNullOrEmpty(cacheKey))
+                    if (string.IsNullOrWhiteSpace(cacheKey))
                     {
                         var items = GetMemoryCacheKeys();
                         foreach (var item in items)
@@ -415,7 +415,7 @@ namespace transact.Areas.transact.Controllers
             foreach (var cacheKey in ModuleConfiguration.CacheKeys)
             {
                 string key = cacheKey.Key;
-                if (!string.IsNullOrEmpty(key) && key.StartsWith($"{ModuleConfiguration.ModuleID}|") == true)
+                if (!string.IsNullOrWhiteSpace(key) && key.StartsWith($"{ModuleConfiguration.ModuleID}|") == true)
                 {
                     result.Add(key);
                 }
@@ -494,13 +494,13 @@ namespace transact.Areas.transact.Controllers
                     var queryResults = TransactionMapper.BusinessMappings.Select(p => p.Value).Where(p =>
                             p.ApplicationID == model.ApplicationID);
 
-                    if (!string.IsNullOrEmpty(model.ProjectID))
+                    if (!string.IsNullOrWhiteSpace(model.ProjectID))
                     {
                         queryResults = queryResults.Where(p =>
                             p.ProjectID == model.ProjectID);
                     }
 
-                    if (!string.IsNullOrEmpty(model.TransactionID))
+                    if (!string.IsNullOrWhiteSpace(model.TransactionID))
                     {
                         queryResults = queryResults.Where(p =>
                             p.TransactionID == model.TransactionID);
@@ -574,9 +574,9 @@ namespace transact.Areas.transact.Controllers
                 var tenantAppRequestPath = $"{baseUrl}/{GlobalConfiguration.TenantAppRequestPath}/";
                 var transactionUserWorkID = request.LoadOptions?.Get<string>("work-id").ToStringSafe();
                 var transactionApplicationID = request.LoadOptions?.Get<string>("app-id").ToStringSafe();
-                request.System.ProgramID = !string.IsNullOrEmpty(transactionApplicationID) ? transactionApplicationID : request.System.ProgramID;
+                request.System.ProgramID = !string.IsNullOrWhiteSpace(transactionApplicationID) ? transactionApplicationID : request.System.ProgramID;
 
-                if (!string.IsNullOrEmpty(transactionUserWorkID))
+                if (!string.IsNullOrWhiteSpace(transactionUserWorkID))
                 {
                     transactionWorkID = transactionUserWorkID;
                 }
@@ -607,7 +607,7 @@ namespace transact.Areas.transact.Controllers
                     if (ModuleConfiguration.IsValidationGlobalID == true && ModuleConfiguration.BypassGlobalIDTransactions.Contains(request.Transaction.TransactionID) == false)
                     {
                         var findGlobalID = ModuleConfiguration.RequestGlobalIDList.FirstOrDefault(p => p == request.Transaction.GlobalID);
-                        if (!string.IsNullOrEmpty(findGlobalID))
+                        if (!string.IsNullOrWhiteSpace(findGlobalID))
                         {
                             response.ExceptionText = "중복 요청";
                             return Content(JsonConvert.SerializeObject(response), "application/json");
@@ -630,7 +630,7 @@ namespace transact.Areas.transact.Controllers
                         isAllowRequestTransactions = true;
                     }
                 }
-                else if (refererPath.StartsWith(tenantAppRequestPath) && !string.IsNullOrEmpty(transactionUserWorkID) && !string.IsNullOrEmpty(transactionApplicationID))
+                else if (refererPath.StartsWith(tenantAppRequestPath) && !string.IsNullOrWhiteSpace(transactionUserWorkID) && !string.IsNullOrWhiteSpace(transactionApplicationID))
                 {
                     isAllowRequestTransactions = true;
                 }
@@ -653,8 +653,8 @@ namespace transact.Areas.transact.Controllers
 
                 #region 입력 확인
 
-                if (string.IsNullOrEmpty(request.Action) ||
-                    string.IsNullOrEmpty(request.Kind) ||
+                if (string.IsNullOrWhiteSpace(request.Action) ||
+                    string.IsNullOrWhiteSpace(request.Kind) ||
                     request.System == null ||
                     request.Transaction == null ||
                     request.PayLoad == null ||
@@ -668,7 +668,7 @@ namespace transact.Areas.transact.Controllers
 
                 #region 입력 기본값 구성
 
-                if (string.IsNullOrEmpty(request.Transaction.DataFormat))
+                if (string.IsNullOrWhiteSpace(request.Transaction.DataFormat))
                 {
                     request.Transaction.DataFormat = "J";
                 }
@@ -696,7 +696,7 @@ namespace transact.Areas.transact.Controllers
                         {
                             foreach (var reqInput in reqInputs)
                             {
-                                if (string.IsNullOrEmpty(reqInput.FieldID))
+                                if (string.IsNullOrWhiteSpace(reqInput.FieldID))
                                 {
                                     reqInput.FieldID = "DEFAULT";
                                     reqInput.Value = "";
@@ -785,7 +785,7 @@ namespace transact.Areas.transact.Controllers
 
                 #region 입력 정보 검증
 
-                if (!string.IsNullOrEmpty(request.Environment))
+                if (!string.IsNullOrWhiteSpace(request.Environment))
                 {
                     if (ModuleConfiguration.AvailableEnvironment.Count == 0 || ModuleConfiguration.AvailableEnvironment.Contains(request.Environment) == false)
                     {
@@ -807,7 +807,7 @@ namespace transact.Areas.transact.Controllers
                 var encryptionType = request.LoadOptions?.Get<string>("encryptionType");
                 var encryptionKey = request.LoadOptions?.Get<string>("encryptionKey");
 
-                if (!string.IsNullOrEmpty(encryptionType) && !string.IsNullOrEmpty(encryptionKey))
+                if (!string.IsNullOrWhiteSpace(encryptionType) && !string.IsNullOrWhiteSpace(encryptionKey))
                 {
                     if (encryptionType == "F")
                     {
@@ -854,7 +854,7 @@ namespace transact.Areas.transact.Controllers
                 }
                 else
                 {
-                    if (string.IsNullOrEmpty(businessContract.TransactionApplicationID))
+                    if (string.IsNullOrWhiteSpace(businessContract.TransactionApplicationID))
                     {
                         businessContract.TransactionApplicationID = request.System.ProgramID;
                     }
@@ -894,7 +894,7 @@ namespace transact.Areas.transact.Controllers
                     transactionInfo.CommandType = dynamicCommandType;
                     transactionInfo.TransactionScope = dynamicTransactionScope;
                     transactionInfo.SequentialOptions = new List<SequentialOption>();
-                    transactionInfo.ReturnType = string.IsNullOrEmpty(dynamicReturnType) ? "Json" : dynamicReturnType;
+                    transactionInfo.ReturnType = string.IsNullOrWhiteSpace(dynamicReturnType) ? "Json" : dynamicReturnType;
                     transactionInfo.AccessScreenID = new List<string>() { request.Transaction.TransactionID };
                     transactionInfo.TransactionLog = dynamicTransactionLog;
                     transactionInfo.Inputs = new List<ModelInputContract>();
@@ -953,7 +953,7 @@ namespace transact.Areas.transact.Controllers
                 try
                 {
                     var isBypassAuthorizeIP = false;
-                    if (string.IsNullOrEmpty(ModuleConfiguration.BypassAuthorizeIP.FirstOrDefault(p => p == "*")) == false)
+                    if (string.IsNullOrWhiteSpace(ModuleConfiguration.BypassAuthorizeIP.FirstOrDefault(p => p == "*")) == false)
                     {
                         isBypassAuthorizeIP = true;
                     }
@@ -995,7 +995,7 @@ namespace transact.Areas.transact.Controllers
                             if (isAuthorized == false)
                             {
                                 var member = HttpContext.Request.Cookies[$"{GlobalConfiguration.CookiePrefixName}.Member"];
-                                if (!string.IsNullOrEmpty(member))
+                                if (!string.IsNullOrWhiteSpace(member))
                                 {
                                     var user = JsonConvert.DeserializeObject<UserAccount>(member.DecodeBase64());
                                     if (user != null)
@@ -1043,7 +1043,7 @@ namespace transact.Areas.transact.Controllers
                         var splits = refererPath.Replace(baseUrl, "").Split('/');
                         var userWorkID = splits.Length > 3 ? splits[2] : "";
                         var applicationID = splits.Length > 3 ? splits[3] : "";
-                        if (!string.IsNullOrEmpty(userWorkID) && !string.IsNullOrEmpty(applicationID))
+                        if (!string.IsNullOrWhiteSpace(userWorkID) && !string.IsNullOrWhiteSpace(applicationID))
                         {
                             var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                             var directoryInfo = new DirectoryInfo(appBasePath);
@@ -1058,7 +1058,7 @@ namespace transact.Areas.transact.Controllers
                     if (isTransactionTokenOnly == true)
                     {
                         var isTransactionTokenYN = false;
-                        if (!string.IsNullOrEmpty(request.Transaction.TransactionToken) && transactionInfo.TransactionTokens?.Contains(request.Transaction.TransactionToken) == true)
+                        if (!string.IsNullOrWhiteSpace(request.Transaction.TransactionToken) && transactionInfo.TransactionTokens?.Contains(request.Transaction.TransactionToken) == true)
                         {
                             isTransactionTokenYN = true;
                         }
@@ -1069,7 +1069,7 @@ namespace transact.Areas.transact.Controllers
                             return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                         }
                     }
-                    else if (string.IsNullOrEmpty(token) && userAccount != null)
+                    else if (string.IsNullOrWhiteSpace(token) && userAccount != null)
                     {
                         if (ModuleConfiguration.SystemID == requestSystemID && isBypassAuthorizeIP == true)
                         {
@@ -1122,7 +1122,7 @@ namespace transact.Areas.transact.Controllers
                             var isTransactionTokenYN = false;
                             if (transactionInfo.AuthorizeMethod == null || transactionInfo.AuthorizeMethod?.Contains("TransactionToken") == true)
                             {
-                                if (!string.IsNullOrEmpty(request.Transaction.TransactionToken) && transactionInfo.TransactionTokens?.Contains(request.Transaction.TransactionToken) == true)
+                                if (!string.IsNullOrWhiteSpace(request.Transaction.TransactionToken) && transactionInfo.TransactionTokens?.Contains(request.Transaction.TransactionToken) == true)
                                 {
                                     isTransactionTokenYN = true;
                                 }
@@ -1137,7 +1137,7 @@ namespace transact.Areas.transact.Controllers
                     }
                     else if (ModuleConfiguration.SystemID == requestSystemID && isBypassAuthorizeIP == true)
                     {
-                        if (!string.IsNullOrEmpty(token) && token.IndexOf(".") > -1 && !string.IsNullOrEmpty(request.Transaction.OperatorID))
+                        if (!string.IsNullOrWhiteSpace(token) && token.IndexOf(".") > -1 && !string.IsNullOrWhiteSpace(request.Transaction.OperatorID))
                         {
                             var tokenArray = token.Split(".");
                             var userID = tokenArray[0].DecodeBase64();
@@ -1163,7 +1163,7 @@ namespace transact.Areas.transact.Controllers
                             response.ExceptionText = $"SystemID: {requestSystemID} 확인 필요";
                             return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                         }
-                        else if (string.IsNullOrEmpty(token))
+                        else if (string.IsNullOrWhiteSpace(token))
                         {
                             var moduleScheme = $"{GlobalConfiguration.CookiePrefixName}.{request.System.ModuleID}.AuthenticationScheme";
                             var isRoleYN = false;
@@ -1210,7 +1210,7 @@ namespace transact.Areas.transact.Controllers
 
                             if (isRoleYN == false && transactionInfo.AuthorizeMethod == null || transactionInfo.AuthorizeMethod?.Contains("TransactionToken") == true)
                             {
-                                if (!string.IsNullOrEmpty(request.Transaction.TransactionToken) && transactionInfo.TransactionTokens?.Contains(request.Transaction.TransactionToken) == true)
+                                if (!string.IsNullOrWhiteSpace(request.Transaction.TransactionToken) && transactionInfo.TransactionTokens?.Contains(request.Transaction.TransactionToken) == true)
                                 {
                                     isRoleYN = true;
                                 }
@@ -1306,7 +1306,7 @@ namespace transact.Areas.transact.Controllers
                                 var isTransactionTokenYN = false;
                                 if (transactionInfo.AuthorizeMethod == null || transactionInfo.AuthorizeMethod?.Contains("TransactionToken") == true)
                                 {
-                                    if (!string.IsNullOrEmpty(request.Transaction.TransactionToken) && transactionInfo.TransactionTokens?.Contains(request.Transaction.TransactionToken) == true)
+                                    if (!string.IsNullOrWhiteSpace(request.Transaction.TransactionToken) && transactionInfo.TransactionTokens?.Contains(request.Transaction.TransactionToken) == true)
                                     {
                                         isTransactionTokenYN = true;
                                     }
@@ -1321,7 +1321,7 @@ namespace transact.Areas.transact.Controllers
                         }
                         else
                         {
-                            if (!string.IsNullOrEmpty(token))
+                            if (!string.IsNullOrWhiteSpace(token))
                             {
                                 if (token.IndexOf(".") > -1)
                                 {
@@ -1384,7 +1384,7 @@ namespace transact.Areas.transact.Controllers
                     {
                         var clientIP = HttpContext.GetRemoteIpAddress(bearerToken.ClientIP, ModuleConfiguration.TrustedProxyIP).ToStringSafe();
                         var verifyTokenID = bearerToken.Policy.VerifyTokenID;
-                        if (string.IsNullOrEmpty(verifyTokenID))
+                        if (string.IsNullOrWhiteSpace(verifyTokenID))
                         {
                             if (bearerToken.ClientIP != clientIP)
                             {
@@ -1419,7 +1419,7 @@ namespace transact.Areas.transact.Controllers
                 var businessModels = new List<Model>();
                 var inputContracts = new List<ModelInputContract>();
                 var outputContracts = new List<ModelOutputContract>();
-                if (refererPath.StartsWith(tenantAppRequestPath) == false && string.IsNullOrEmpty(transactionUserWorkID) && !string.IsNullOrEmpty(transactionInfo.RoutingCommandUri))
+                if (refererPath.StartsWith(tenantAppRequestPath) == false && string.IsNullOrWhiteSpace(transactionUserWorkID) && !string.IsNullOrWhiteSpace(transactionInfo.RoutingCommandUri))
                 {
                     if (transactionInfo.RoutingCommandUri.IndexOf("http") == -1)
                     {
@@ -1491,7 +1491,7 @@ namespace transact.Areas.transact.Controllers
                 else
                 {
                     // 거래 Inputs/Outpus 정보 확인
-                    if (!string.IsNullOrEmpty(request.PayLoad.DataMapInterface))
+                    if (!string.IsNullOrWhiteSpace(request.PayLoad.DataMapInterface))
                     {
                         if (transactionInfo.Inputs.Count == 0)
                         {
@@ -1499,7 +1499,7 @@ namespace transact.Areas.transact.Controllers
                             var inputs = dti[0].Split(",");
                             foreach (var item in inputs)
                             {
-                                if (!string.IsNullOrEmpty(item))
+                                if (!string.IsNullOrWhiteSpace(item))
                                 {
                                     transactionInfo.Inputs.Add(new ModelInputContract()
                                     {
@@ -1521,7 +1521,7 @@ namespace transact.Areas.transact.Controllers
                             var outputs = dti[1].Split(",");
                             foreach (var item in outputs)
                             {
-                                if (!string.IsNullOrEmpty(item))
+                                if (!string.IsNullOrWhiteSpace(item))
                                 {
                                     transactionInfo.Outputs.Add(new ModelOutputContract()
                                     {
@@ -1550,7 +1550,7 @@ namespace transact.Areas.transact.Controllers
                     transactionObject.GlobalID = request.Transaction.GlobalID;
                     transactionObject.TransactionID = string.Concat(businessContract.TransactionApplicationID
                         , "|"
-                        , string.IsNullOrEmpty(businessContract.TransactionProjectID) ? businessContract.ProjectID : businessContract.TransactionProjectID
+                        , string.IsNullOrWhiteSpace(businessContract.TransactionProjectID) ? businessContract.ProjectID : businessContract.TransactionProjectID
                         , "|"
                         , request.Transaction.TransactionID
                     );
@@ -1871,7 +1871,7 @@ namespace transact.Areas.transact.Controllers
 
                 request.Transaction.CommandType = transactionInfo.CommandType;
                 response.Transaction.CommandType = transactionInfo.CommandType;
-                if (refererPath.StartsWith(tenantAppRequestPath) == true && !string.IsNullOrEmpty(transactionUserWorkID) && !string.IsNullOrEmpty(transactionApplicationID))
+                if (refererPath.StartsWith(tenantAppRequestPath) == true && !string.IsNullOrWhiteSpace(transactionUserWorkID) && !string.IsNullOrWhiteSpace(transactionApplicationID))
                 {
                     if (ModuleConfiguration.AllowTenantTransactionCommands.IndexOf(transactionInfo.CommandType) > -1)
                     {
@@ -1895,7 +1895,7 @@ namespace transact.Areas.transact.Controllers
 
                 applicationResponse = await transactClient.ApplicationRequest(request, response, transactionInfo, transactionObject, businessModels, inputContracts, outputContracts, applicationResponse);
 
-                if (!string.IsNullOrEmpty(applicationResponse.ExceptionText))
+                if (!string.IsNullOrWhiteSpace(applicationResponse.ExceptionText))
                 {
                     response.ExceptionText = applicationResponse.ExceptionText;
                     return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
@@ -1989,7 +1989,7 @@ namespace transact.Areas.transact.Controllers
                                             foreach (var item in names)
                                             {
                                                 var data = value[item]?.ToString();
-                                                if (!string.IsNullOrEmpty(data))
+                                                if (!string.IsNullOrWhiteSpace(data))
                                                 {
                                                     if (data.StartsWith('"') == true)
                                                     {
@@ -2017,7 +2017,7 @@ namespace transact.Areas.transact.Controllers
                                                     foreach (var item in names)
                                                     {
                                                         var data = jtoken[item]?.ToString();
-                                                        if (!string.IsNullOrEmpty(data))
+                                                        if (!string.IsNullOrWhiteSpace(data))
                                                         {
                                                             if (data.ToString().StartsWith('"') == true)
                                                             {
@@ -2089,7 +2089,7 @@ namespace transact.Areas.transact.Controllers
                             }
                         }
 
-                        if (ModuleConfiguration.IsCodeDataCache == true && request.LoadOptions?.Get<string>("codeCacheYN").ToStringSafe().ParseBool() == true && !string.IsNullOrEmpty(cacheKey))
+                        if (ModuleConfiguration.IsCodeDataCache == true && request.LoadOptions?.Get<string>("codeCacheYN").ToStringSafe().ParseBool() == true && !string.IsNullOrWhiteSpace(cacheKey))
                         {
                             if (memoryCache.Get(cacheKey) == null)
                             {

@@ -29,7 +29,7 @@ namespace checkup.Extensions
                 var splits = requestPath.SplitAndTrim('/');
                 var userWorkID = splits.Count > 2 ? splits[1] : "";
                 var applicationID = splits.Count > 2 ? splits[2] : "";
-                if (!string.IsNullOrEmpty(userWorkID) && !string.IsNullOrEmpty(applicationID))
+                if (!string.IsNullOrWhiteSpace(userWorkID) && !string.IsNullOrWhiteSpace(applicationID))
                 {
                     var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                     var directoryInfo = new DirectoryInfo(appBasePath);

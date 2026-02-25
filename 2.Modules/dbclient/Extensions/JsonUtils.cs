@@ -161,7 +161,7 @@ namespace dbclient.Extensions
             text.Append(string.Join(", ", items));
             text.Append(")");
 
-            if (!string.IsNullOrEmpty(propertyName))
+            if (!string.IsNullOrWhiteSpace(propertyName))
             {
                 text.AppendFormat(" as {0}", propertyName);
             }
@@ -184,7 +184,7 @@ namespace dbclient.Extensions
             text.Append(string.Join(", ", items));
             text.Append("})");
 
-            if (!string.IsNullOrEmpty(propertyName))
+            if (!string.IsNullOrWhiteSpace(propertyName))
             {
                 text.AppendFormat(" as {0}", propertyName);
             }
@@ -208,7 +208,7 @@ namespace dbclient.Extensions
                 _ => throw new NotSupportedException($"'{node.Type}' JTokenType은 Dynamic Linq 캐스트 연산자로 변환할 수 없습니다")
             };
 
-            if (!string.IsNullOrEmpty(propertyName))
+            if (!string.IsNullOrWhiteSpace(propertyName))
             {
                 castText += $" as {propertyName}";
             }

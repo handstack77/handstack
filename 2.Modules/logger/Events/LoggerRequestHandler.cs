@@ -117,7 +117,7 @@ namespace logger.Events
         {
             try
             {
-                if (string.IsNullOrEmpty(loggerRequest.ApplicationID))
+                if (string.IsNullOrWhiteSpace(loggerRequest.ApplicationID))
                 {
                     logger.Warning("필수 요청 항목 확인 필요: " + JsonConvert.SerializeObject(loggerRequest));
                     return;

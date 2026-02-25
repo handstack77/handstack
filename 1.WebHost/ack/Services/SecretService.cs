@@ -36,7 +36,7 @@ namespace ack.Services
             var hostName = headers["HandStack-HostName"].FirstOrDefault();
             var environment = headers["HandStack-Environment"].FirstOrDefault();
 
-            if (string.IsNullOrEmpty(machineID) == true || string.IsNullOrEmpty(ipAddress) == true || string.IsNullOrEmpty(hostName) == true || string.IsNullOrEmpty(environment) == true)
+            if (string.IsNullOrWhiteSpace(machineID) == true || string.IsNullOrWhiteSpace(ipAddress) == true || string.IsNullOrWhiteSpace(hostName) == true || string.IsNullOrWhiteSpace(environment) == true)
             {
                 clientInfo = null;
                 return false;

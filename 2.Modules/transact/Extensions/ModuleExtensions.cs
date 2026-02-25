@@ -36,7 +36,7 @@ namespace transact.Extensions
                 Directory.CreateDirectory(transactionLogBasePath);
             }
 
-            if (string.IsNullOrEmpty(rollingID))
+            if (string.IsNullOrWhiteSpace(rollingID))
             {
                 var dateTime = DateTime.Now;
                 var day = CultureInfo.InvariantCulture.Calendar.GetDayOfWeek(dateTime);
@@ -85,7 +85,7 @@ namespace transact.Extensions
         {
             dynamic? result = null;
 
-            if (string.IsNullOrEmpty(connectionString))
+            if (string.IsNullOrWhiteSpace(connectionString))
             {
                 Log.Warning("[{LogCategory}] " + $"SQLite 연결문자열 확인 필요", "ModuleExtensions/ExecuteMetaSQL");
             }
@@ -135,7 +135,7 @@ namespace transact.Extensions
         {
             List<T>? result = null;
 
-            if (string.IsNullOrEmpty(connectionString))
+            if (string.IsNullOrWhiteSpace(connectionString))
             {
                 Log.Warning("[{LogCategory}] " + $"SQLite 연결문자열 확인 필요", "ModuleExtensions/ExecuteMetaSQL");
             }

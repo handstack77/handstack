@@ -20,7 +20,7 @@ namespace HandStack.Web
             }
 
             var clientIP = NormalizeIPAddress(context.GetRemoteIpAddress().ToStringSafe());
-            return string.IsNullOrEmpty(clientIP) == false && GlobalConfiguration.WithOnlyIPs.Contains(clientIP) == true;
+            return string.IsNullOrWhiteSpace(clientIP) == false && GlobalConfiguration.WithOnlyIPs.Contains(clientIP) == true;
         }
 
         public static bool TryRejectStaticFile(HttpContext context, string logCategory)

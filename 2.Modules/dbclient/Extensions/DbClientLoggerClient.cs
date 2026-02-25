@@ -142,7 +142,7 @@ namespace dbclient.Extensions
 
             try
             {
-                if (string.IsNullOrEmpty(hostUrl))
+                if (string.IsNullOrWhiteSpace(hostUrl))
                 {
                     fallbackFunction?.Invoke($"hostUrl 오류: {hostUrl}");
                     return restResponse;
@@ -345,7 +345,7 @@ namespace dbclient.Extensions
             string type, string flow, string level, string format, string message, string properties)
         {
             logMessage.GlobalID = globalID;
-            logMessage.Acknowledge = string.IsNullOrEmpty(acknowledge) ? "N" : acknowledge;
+            logMessage.Acknowledge = string.IsNullOrWhiteSpace(acknowledge) ? "N" : acknowledge;
             logMessage.ApplicationID = applicationID;
             logMessage.ProjectID = projectID;
             logMessage.TransactionID = transactionID;
@@ -389,7 +389,7 @@ namespace dbclient.Extensions
             var messageForLog = logMessage.Message;
             logMessage.Message = "";
             transactionLogger?.Information($"{logType} GlobalID: {logMessage.GlobalID}, {JsonConvert.SerializeObject(logMessage)}");
-            if (!string.IsNullOrEmpty(messageForLog))
+            if (!string.IsNullOrWhiteSpace(messageForLog))
             {
                 transactionLogger?.Information($"[{{LogCategory}}] {messageForLog}", logMessage.Properties);
             }

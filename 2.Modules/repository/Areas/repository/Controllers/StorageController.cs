@@ -248,9 +248,9 @@ namespace repository.Controllers
             var repositoryID = Request.Query["RepositoryID"].ToString();
             var sourceDependencyID = Request.Query["SourceDependencyID"].ToString();
             var targetDependencyID = Request.Query["TargetDependencyID"].ToString();
-            var businessID = string.IsNullOrEmpty(Request.Query["BusinessID"]) ? "0" : Request.Query["BusinessID"].ToString();
+            var businessID = string.IsNullOrWhiteSpace(Request.Query["BusinessID"]) ? "0" : Request.Query["BusinessID"].ToString();
 
-            if (string.IsNullOrEmpty(repositoryID) || string.IsNullOrEmpty(sourceDependencyID) || string.IsNullOrEmpty(targetDependencyID))
+            if (string.IsNullOrWhiteSpace(repositoryID) || string.IsNullOrWhiteSpace(sourceDependencyID) || string.IsNullOrWhiteSpace(targetDependencyID))
             {
                 var message = $"UpdateDependencyID 요청 정보가 유효하지 않습니다, repositoryID: {repositoryID}, sourceDependencyID: {sourceDependencyID}, targetDependencyID: {targetDependencyID}";
                 jsonContentResult.Message = message;
@@ -334,9 +334,9 @@ namespace repository.Controllers
             var repositoryID = Request.Query["RepositoryID"].ToString();
             var itemID = Request.Query["ItemID"].ToString();
             var changeFileName = Request.Query["FileName"].ToString();
-            var businessID = string.IsNullOrEmpty(Request.Query["BusinessID"]) ? "0" : Request.Query["BusinessID"].ToString();
+            var businessID = string.IsNullOrWhiteSpace(Request.Query["BusinessID"]) ? "0" : Request.Query["BusinessID"].ToString();
 
-            if (string.IsNullOrEmpty(repositoryID) || string.IsNullOrEmpty(itemID) || string.IsNullOrEmpty(changeFileName))
+            if (string.IsNullOrWhiteSpace(repositoryID) || string.IsNullOrWhiteSpace(itemID) || string.IsNullOrWhiteSpace(changeFileName))
             {
                 jsonContentResult.Message = $"UpdateFileName 요청 정보가 유효하지 않습니다, repositoryID: {repositoryID}, itemID: {itemID}, fileName: {changeFileName}";
                 return BadRequest(jsonContentResult.Message);
@@ -386,7 +386,7 @@ namespace repository.Controllers
                 var repositoryManager = new RepositoryManager();
                 repositoryManager.PersistenceDirectoryPath = repositoryManager.GetPhysicalPath(repository, customPath1, customPath2, customPath3);
                 var relativeDirectoryPath = repositoryManager.GetRelativePath(repository, customPath1, customPath2, customPath3);
-                var relativeDirectoryUrlPath = string.IsNullOrEmpty(relativeDirectoryPath) ? "" : relativeDirectoryPath;
+                var relativeDirectoryUrlPath = string.IsNullOrWhiteSpace(relativeDirectoryPath) ? "" : relativeDirectoryPath;
                 relativeDirectoryUrlPath = relativeDirectoryUrlPath.Length <= 1 ? "" : relativeDirectoryUrlPath.Substring(relativeDirectoryUrlPath.Length - 1) == "/" ? relativeDirectoryUrlPath : relativeDirectoryUrlPath + "/";
 
                 var isExistFile = false;
@@ -463,9 +463,9 @@ namespace repository.Controllers
             var applicationID = Request.Query["ApplicationID"].ToString();
             var repositoryID = Request.Query["RepositoryID"].ToString();
             var itemID = Request.Query["ItemID"].ToString();
-            var businessID = string.IsNullOrEmpty(Request.Query["BusinessID"]) ? "0" : Request.Query["BusinessID"].ToString();
+            var businessID = string.IsNullOrWhiteSpace(Request.Query["BusinessID"]) ? "0" : Request.Query["BusinessID"].ToString();
 
-            if (string.IsNullOrEmpty(applicationID) || string.IsNullOrEmpty(repositoryID) || string.IsNullOrEmpty(itemID))
+            if (string.IsNullOrWhiteSpace(applicationID) || string.IsNullOrWhiteSpace(repositoryID) || string.IsNullOrWhiteSpace(itemID))
             {
                 jsonContentResult.Message = $"GetItem 요청 정보가 유효하지 않습니다, repositoryID: {repositoryID}, dependencyID: {itemID}";
                 return Content(JsonConvert.SerializeObject(jsonContentResult), "application/json");
@@ -538,9 +538,9 @@ namespace repository.Controllers
             var applicationID = Request.Query["ApplicationID"].ToString();
             var repositoryID = Request.Query["RepositoryID"].ToString();
             var dependencyID = Request.Query["DependencyID"].ToString();
-            var businessID = string.IsNullOrEmpty(Request.Query["BusinessID"]) ? "0" : Request.Query["BusinessID"].ToString();
+            var businessID = string.IsNullOrWhiteSpace(Request.Query["BusinessID"]) ? "0" : Request.Query["BusinessID"].ToString();
 
-            if (string.IsNullOrEmpty(repositoryID) || string.IsNullOrEmpty(dependencyID))
+            if (string.IsNullOrWhiteSpace(repositoryID) || string.IsNullOrWhiteSpace(dependencyID))
             {
                 jsonContentResult.Message = $"GetItems 요청 정보가 유효하지 않습니다, repositoryID: {repositoryID}, dependencyID: {dependencyID}";
                 return Content(JsonConvert.SerializeObject(jsonContentResult), "application/json");
@@ -612,7 +612,7 @@ namespace repository.Controllers
         {
             var result = "{}";
 
-            if (!string.IsNullOrEmpty(repositoryID))
+            if (!string.IsNullOrWhiteSpace(repositoryID))
             {
                 var repository = moduleApiClient.GetRepository(applicationID, repositoryID);
 
@@ -647,9 +647,9 @@ namespace repository.Controllers
             var applicationID = Request.Query["ApplicationID"].ToString();
             var repositoryID = Request.Query["RepositoryID"].ToString();
             var dependencyID = Request.Query["DependencyID"].ToString();
-            var businessID = string.IsNullOrEmpty(Request.Query["BusinessID"]) ? "0" : Request.Query["BusinessID"].ToString();
+            var businessID = string.IsNullOrWhiteSpace(Request.Query["BusinessID"]) ? "0" : Request.Query["BusinessID"].ToString();
 
-            if (string.IsNullOrEmpty(repositoryID) || string.IsNullOrEmpty(dependencyID))
+            if (string.IsNullOrWhiteSpace(repositoryID) || string.IsNullOrWhiteSpace(dependencyID))
             {
                 result.Message = "UploadFile RepositoryID 또는 DependencyID 필수 요청 정보 필요";
                 return Content(JsonConvert.SerializeObject(result), "application/json");
@@ -662,13 +662,13 @@ namespace repository.Controllers
                 return Content(JsonConvert.SerializeObject(result), "application/json");
             }
 
-            var sortingNo = string.IsNullOrEmpty(Request.Query["SortingNo"]) ? 1 : Request.Query["SortingNo"].ToString().GetInt();
-            var saveFileName = string.IsNullOrEmpty(Request.Query["FileName"]) ? "" : Request.Query["FileName"].ToString();
-            var comment = string.IsNullOrEmpty(Request.Query["Comment"]) ? "" : Request.Query["Comment"].ToString();
-            var customPath1 = string.IsNullOrEmpty(Request.Query["CustomPath1"]) ? "" : Request.Query["CustomPath1"].ToString();
-            var customPath2 = string.IsNullOrEmpty(Request.Query["CustomPath2"]) ? "" : Request.Query["CustomPath2"].ToString();
-            var customPath3 = string.IsNullOrEmpty(Request.Query["CustomPath3"]) ? "" : Request.Query["CustomPath3"].ToString();
-            var userID = string.IsNullOrEmpty(Request.Query["UserID"]) ? "" : Request.Query["UserID"].ToString();
+            var sortingNo = string.IsNullOrWhiteSpace(Request.Query["SortingNo"]) ? 1 : Request.Query["SortingNo"].ToString().GetInt();
+            var saveFileName = string.IsNullOrWhiteSpace(Request.Query["FileName"]) ? "" : Request.Query["FileName"].ToString();
+            var comment = string.IsNullOrWhiteSpace(Request.Query["Comment"]) ? "" : Request.Query["Comment"].ToString();
+            var customPath1 = string.IsNullOrWhiteSpace(Request.Query["CustomPath1"]) ? "" : Request.Query["CustomPath1"].ToString();
+            var customPath2 = string.IsNullOrWhiteSpace(Request.Query["CustomPath2"]) ? "" : Request.Query["CustomPath2"].ToString();
+            var customPath3 = string.IsNullOrWhiteSpace(Request.Query["CustomPath3"]) ? "" : Request.Query["CustomPath3"].ToString();
+            var userID = string.IsNullOrWhiteSpace(Request.Query["UserID"]) ? "" : Request.Query["UserID"].ToString();
 
             RepositoryItems? repositoryItem = null;
             if (Request.HasFormContentType == true)
@@ -692,7 +692,7 @@ namespace repository.Controllers
                         var repositoryManager = new RepositoryManager();
                         repositoryManager.PersistenceDirectoryPath = repositoryManager.GetPhysicalPath(repository, customPath1, customPath2, customPath3);
                         var relativeDirectoryPath = repositoryManager.GetRelativePath(repository, customPath1, customPath2, customPath3);
-                        var relativeDirectoryUrlPath = string.IsNullOrEmpty(relativeDirectoryPath) ? "" : relativeDirectoryPath;
+                        var relativeDirectoryUrlPath = string.IsNullOrWhiteSpace(relativeDirectoryPath) ? "" : relativeDirectoryPath;
                         relativeDirectoryUrlPath = relativeDirectoryUrlPath.Length <= 1 ? "" : relativeDirectoryUrlPath.Substring(relativeDirectoryUrlPath.Length - 1) == "/" ? relativeDirectoryUrlPath : relativeDirectoryUrlPath + "/";
 
                         var storageProvider = storageProviderFactory.Create(repository, customPath1, customPath2, customPath3);
@@ -802,9 +802,9 @@ namespace repository.Controllers
                         var absolutePath = "";
                         var relativePath = "";
                         var policyPath = repositoryManager.GetPolicyPath(repository);
-                        var fileName = string.IsNullOrEmpty(saveFileName) ? file.FileName : saveFileName;
+                        var fileName = string.IsNullOrWhiteSpace(saveFileName) ? file.FileName : saveFileName;
                         var extension = Path.GetExtension(fileName);
-                        if (string.IsNullOrEmpty(extension))
+                        if (string.IsNullOrWhiteSpace(extension))
                         {
                             extension = Path.GetExtension(file.FileName);
                         }
@@ -831,7 +831,7 @@ namespace repository.Controllers
                         Stream fileStream = file.OpenReadStream();
                         fileStream.CopyTo(streamToUpload);
 
-                        if (repository.UploadTypeID == "Profile" && !string.IsNullOrEmpty(repository.UploadOptions))
+                        if (repository.UploadTypeID == "Profile" && !string.IsNullOrWhiteSpace(repository.UploadOptions))
                         {
                             var uploadOptions = ParseUploadOptions(repository.UploadOptions);
                             bool hasThumbnailX = uploadOptions.TryGetValue("ThumbnailX", out int thumbnailX);
@@ -896,7 +896,7 @@ namespace repository.Controllers
                                 if (repository.IsVirtualPath == true)
                                 {
                                     relativePath = relativeDirectoryUrlPath + repositoryItem.ItemID;
-                                    if (string.IsNullOrEmpty(repository.BlobItemUrl))
+                                    if (string.IsNullOrWhiteSpace(repository.BlobItemUrl))
                                     {
                                         absolutePath = $"//{repository.RepositoryID}.blob.core.windows.net/{repository.BlobContainerID.ToLower()}/";
                                         absolutePath = absolutePath + relativePath;
@@ -952,7 +952,7 @@ namespace repository.Controllers
 
                                 if (repository.IsVirtualPath == true)
                                 {
-                                    if (string.IsNullOrEmpty(repository.UserWorkID))
+                                    if (string.IsNullOrWhiteSpace(repository.UserWorkID))
                                     {
                                         relativePath = $"/{ModuleConfiguration.ModuleID}/{repository.ApplicationID}/{repository.RepositoryID}/";
                                         relativePath = relativePath + relativeDirectoryUrlPath + repositoryItem.ItemID;
@@ -1027,7 +1027,7 @@ namespace repository.Controllers
                 string? xFileName = Request.Headers["X-File-Name"];
                 string? xFileSize = Request.Headers["X-File-Size"];
 
-                if (string.IsNullOrEmpty(xFileName) || string.IsNullOrEmpty(xFileSize))
+                if (string.IsNullOrWhiteSpace(xFileName) || string.IsNullOrWhiteSpace(xFileSize))
                 {
                     result.Message = "업로드 파일 정보 없음";
                     return Content(JsonConvert.SerializeObject(result), "application/json");
@@ -1038,7 +1038,7 @@ namespace repository.Controllers
                     try
                     {
                         xFileName = WebUtility.UrlDecode(xFileName);
-                        var fileName = string.IsNullOrEmpty(saveFileName) ? xFileName : saveFileName;
+                        var fileName = string.IsNullOrWhiteSpace(saveFileName) ? xFileName : saveFileName;
                         var fileLength = xFileSize.GetLong();
 
                         if (repository.UploadSizeLimit < fileLength)
@@ -1050,7 +1050,7 @@ namespace repository.Controllers
                         var repositoryManager = new RepositoryManager();
                         repositoryManager.PersistenceDirectoryPath = repositoryManager.GetPhysicalPath(repository, customPath1, customPath2, customPath3);
                         var relativeDirectoryPath = repositoryManager.GetRelativePath(repository, customPath1, customPath2, customPath3);
-                        var relativeDirectoryUrlPath = string.IsNullOrEmpty(relativeDirectoryPath) ? "" : relativeDirectoryPath;
+                        var relativeDirectoryUrlPath = string.IsNullOrWhiteSpace(relativeDirectoryPath) ? "" : relativeDirectoryPath;
                         relativeDirectoryUrlPath = relativeDirectoryUrlPath.Length <= 1 ? "" : relativeDirectoryUrlPath.Substring(relativeDirectoryUrlPath.Length - 1) == "/" ? relativeDirectoryUrlPath : relativeDirectoryUrlPath + "/";
 
                         var storageProvider = storageProviderFactory.Create(repository, customPath1, customPath2, customPath3);
@@ -1148,7 +1148,7 @@ namespace repository.Controllers
                         var relativePath = "";
                         var policyPath = repositoryManager.GetPolicyPath(repository);
                         var extension = Path.GetExtension(fileName);
-                        if (string.IsNullOrEmpty(extension))
+                        if (string.IsNullOrWhiteSpace(extension))
                         {
                             extension = Path.GetExtension(xFileName);
                         }
@@ -1176,7 +1176,7 @@ namespace repository.Controllers
                         await Request.BodyReader.CopyToAsync(fileStream);
                         fileStream.CopyTo(streamToUpload);
 
-                        if (repository.UploadTypeID == "Profile" && !string.IsNullOrEmpty(repository.UploadOptions))
+                        if (repository.UploadTypeID == "Profile" && !string.IsNullOrWhiteSpace(repository.UploadOptions))
                         {
                             var uploadOptions = ParseUploadOptions(repository.UploadOptions);
 
@@ -1241,7 +1241,7 @@ namespace repository.Controllers
                                 if (repository.IsVirtualPath == true)
                                 {
                                     relativePath = relativeDirectoryUrlPath + repositoryItem.ItemID;
-                                    if (string.IsNullOrEmpty(repository.BlobItemUrl))
+                                    if (string.IsNullOrWhiteSpace(repository.BlobItemUrl))
                                     {
                                         absolutePath = $"//{repository.RepositoryID}.blob.core.windows.net/{repository.BlobContainerID.ToLower()}/";
                                         absolutePath = absolutePath + relativePath;
@@ -1294,7 +1294,7 @@ namespace repository.Controllers
 
                                 if (repository.IsVirtualPath == true)
                                 {
-                                    if (string.IsNullOrEmpty(repository.UserWorkID))
+                                    if (string.IsNullOrWhiteSpace(repository.UserWorkID))
                                     {
                                         relativePath = $"/{ModuleConfiguration.ModuleID}/{repository.ApplicationID}/{repository.RepositoryID}/";
                                         relativePath = relativePath + relativeDirectoryUrlPath + repositoryItem.ItemID;
@@ -1395,9 +1395,9 @@ namespace repository.Controllers
             var applicationID = Request.Query["ApplicationID"].ToString();
             var repositoryID = Request.Query["RepositoryID"].ToString();
             var dependencyID = Request.Query["DependencyID"].ToString();
-            var businessID = string.IsNullOrEmpty(Request.Query["BusinessID"]) ? "0" : Request.Query["BusinessID"].ToString();
+            var businessID = string.IsNullOrWhiteSpace(Request.Query["BusinessID"]) ? "0" : Request.Query["BusinessID"].ToString();
 
-            if (string.IsNullOrEmpty(repositoryID) || string.IsNullOrEmpty(dependencyID))
+            if (string.IsNullOrWhiteSpace(repositoryID) || string.IsNullOrWhiteSpace(dependencyID))
             {
                 result.Message = "UploadFiles RepositoryID 또는 DependencyID 필수 요청 정보 필요";
                 return Content(JsonConvert.SerializeObject(result), "application/json");
@@ -1410,14 +1410,14 @@ namespace repository.Controllers
                 return Content(JsonConvert.SerializeObject(result), "application/json");
             }
 
-            var saveFileName = string.IsNullOrEmpty(Request.Query["FileName"]) ? "" : Request.Query["FileName"].ToString();
+            var saveFileName = string.IsNullOrWhiteSpace(Request.Query["FileName"]) ? "" : Request.Query["FileName"].ToString();
             var comment = Request.Query["Comment"].ToString();
             var customPath1 = Request.Query["CustomPath1"].ToString();
             var customPath2 = Request.Query["CustomPath2"].ToString();
             var customPath3 = Request.Query["CustomPath3"].ToString();
-            var responseType = string.IsNullOrEmpty(Request.Query["responseType"]) ? "callback" : Request.Query["responseType"].ToString();
-            var userID = string.IsNullOrEmpty(Request.Query["UserID"]) ? "" : Request.Query["UserID"].ToString();
-            var callback = string.IsNullOrEmpty(Request.Query["Callback"]) ? "" : Request.Query["Callback"].ToString();
+            var responseType = string.IsNullOrWhiteSpace(Request.Query["responseType"]) ? "callback" : Request.Query["responseType"].ToString();
+            var userID = string.IsNullOrWhiteSpace(Request.Query["UserID"]) ? "" : Request.Query["UserID"].ToString();
+            var callback = string.IsNullOrWhiteSpace(Request.Query["Callback"]) ? "" : Request.Query["Callback"].ToString();
 
             RepositoryItems? repositoryItem = null;
 
@@ -1453,7 +1453,7 @@ namespace repository.Controllers
                 var repositoryManager = new RepositoryManager();
                 repositoryManager.PersistenceDirectoryPath = repositoryManager.GetPhysicalPath(repository, customPath1, customPath2, customPath3);
                 var relativeDirectoryPath = repositoryManager.GetRelativePath(repository, customPath1, customPath2, customPath3);
-                var relativeDirectoryUrlPath = string.IsNullOrEmpty(relativeDirectoryPath) ? "" : relativeDirectoryPath;
+                var relativeDirectoryUrlPath = string.IsNullOrWhiteSpace(relativeDirectoryPath) ? "" : relativeDirectoryPath;
                 relativeDirectoryUrlPath = relativeDirectoryUrlPath.Length <= 1 ? "" : relativeDirectoryUrlPath.Substring(relativeDirectoryUrlPath.Length - 1) == "/" ? relativeDirectoryUrlPath : relativeDirectoryUrlPath + "/";
                 var policyPath = repositoryManager.GetPolicyPath(repository);
 
@@ -1595,9 +1595,9 @@ namespace repository.Controllers
                         {
                             var absolutePath = "";
                             var relativePath = "";
-                            var fileName = string.IsNullOrEmpty(saveFileName) ? file.FileName : saveFileName;
+                            var fileName = string.IsNullOrWhiteSpace(saveFileName) ? file.FileName : saveFileName;
                             var extension = Path.GetExtension(fileName);
-                            if (string.IsNullOrEmpty(extension))
+                            if (string.IsNullOrWhiteSpace(extension))
                             {
                                 extension = Path.GetExtension(file.FileName);
                             }
@@ -1624,7 +1624,7 @@ namespace repository.Controllers
                             Stream fileStream = file.OpenReadStream();
                             fileStream.CopyTo(streamToUpload);
 
-                            if (repository.UploadTypeID == "Profile" && !string.IsNullOrEmpty(repository.UploadOptions))
+                            if (repository.UploadTypeID == "Profile" && !string.IsNullOrWhiteSpace(repository.UploadOptions))
                             {
                                 var uploadOptions = ParseUploadOptions(repository.UploadOptions);
                                 bool hasThumbnailX = uploadOptions.TryGetValue("ThumbnailX", out int thumbnailX);
@@ -1687,7 +1687,7 @@ namespace repository.Controllers
                                     if (repository.IsVirtualPath == true)
                                     {
                                         relativePath = relativeDirectoryUrlPath + repositoryItem.ItemID;
-                                        if (string.IsNullOrEmpty(repository.BlobItemUrl))
+                                        if (string.IsNullOrWhiteSpace(repository.BlobItemUrl))
                                         {
                                             absolutePath = $"//{repository.RepositoryID}.blob.core.windows.net/{repository.BlobContainerID.ToLower()}/";
                                             absolutePath = absolutePath + relativePath;
@@ -1743,7 +1743,7 @@ namespace repository.Controllers
 
                                     if (repository.IsVirtualPath == true)
                                     {
-                                        if (string.IsNullOrEmpty(repository.UserWorkID))
+                                        if (string.IsNullOrWhiteSpace(repository.UserWorkID))
                                         {
                                             relativePath = $"/{ModuleConfiguration.ModuleID}/{repository.ApplicationID}/{repository.RepositoryID}/";
                                             relativePath = relativePath + relativeDirectoryUrlPath + repositoryItem.ItemID;
@@ -1873,7 +1873,7 @@ namespace repository.Controllers
                     repositoryItems = await moduleApiClient.GetRepositoryItems(applicationID, repositoryID, dependencyID, businessID);
                 }
 
-                if (repositoryItems != null && repositoryItems.Count > 0 && !string.IsNullOrEmpty(callback))
+                if (repositoryItems != null && repositoryItems.Count > 0 && !string.IsNullOrWhiteSpace(callback))
                 {
                     if (responseType == "callback")
                     {
@@ -1984,7 +1984,7 @@ namespace repository.Controllers
 
             // 보안 검증 처리
 
-            if (string.IsNullOrEmpty(applicationID) || string.IsNullOrEmpty(repositoryID) || string.IsNullOrEmpty(itemID))
+            if (string.IsNullOrWhiteSpace(applicationID) || string.IsNullOrWhiteSpace(repositoryID) || string.IsNullOrWhiteSpace(itemID))
             {
                 downloadResult.Message = "DownloadFile RepositoryID 또는 ItemID 필수 요청 정보 필요";
                 result = StatusCode(StatusCodes.Status400BadRequest, downloadResult.Message);
@@ -2016,7 +2016,7 @@ namespace repository.Controllers
                     return BadRequest(errorText);
             }
 
-            if (!string.IsNullOrEmpty(disposition))
+            if (!string.IsNullOrWhiteSpace(disposition))
             {
                 Response.Headers["Content-Disposition"] = disposition;
             }
@@ -2040,7 +2040,7 @@ namespace repository.Controllers
 
             // 보안 검증 처리
 
-            if (string.IsNullOrEmpty(applicationID) || string.IsNullOrEmpty(repositoryID) || string.IsNullOrEmpty(itemID))
+            if (string.IsNullOrWhiteSpace(applicationID) || string.IsNullOrWhiteSpace(repositoryID) || string.IsNullOrWhiteSpace(itemID))
             {
                 downloadResult.Message = "HttpDownloadFile RepositoryID 또는 ItemID 필수 요청 정보 필요";
                 result = StatusCode(StatusCodes.Status400BadRequest, downloadResult.Message);
@@ -2059,7 +2059,7 @@ namespace repository.Controllers
             {
                 var isWithOrigin = false;
                 var requestRefererUrl = Request.Headers.Referer.ToString();
-                if (!string.IsNullOrEmpty(requestRefererUrl))
+                if (!string.IsNullOrWhiteSpace(requestRefererUrl))
                 {
                     var tenantAppRequestPath = $"/{GlobalConfiguration.TenantAppRequestPath}/";
                     if (requestRefererUrl.IndexOf(tenantAppRequestPath) > -1)
@@ -2144,7 +2144,7 @@ namespace repository.Controllers
                     return BadRequest(errorText);
             }
 
-            if (!string.IsNullOrEmpty(disposition))
+            if (!string.IsNullOrWhiteSpace(disposition))
             {
                 Response.Headers["Content-Disposition"] = disposition;
             }
@@ -2166,7 +2166,7 @@ namespace repository.Controllers
             var downloadResult = new DownloadResult();
             downloadResult.Result = false;
 
-            if (string.IsNullOrEmpty(repositoryID) || string.IsNullOrEmpty(fileName))
+            if (string.IsNullOrWhiteSpace(repositoryID) || string.IsNullOrWhiteSpace(fileName))
             {
                 downloadResult.Message = "VirtualDownloadFile RepositoryID 또는 fileName 필수 요청 정보 필요";
                 result = StatusCode(StatusCodes.Status400BadRequest, downloadResult.Message);
@@ -2185,7 +2185,7 @@ namespace repository.Controllers
             {
                 var isWithOrigin = false;
                 var requestRefererUrl = Request.Headers.Referer.ToString();
-                if (!string.IsNullOrEmpty(requestRefererUrl))
+                if (!string.IsNullOrWhiteSpace(requestRefererUrl))
                 {
                     var tenantAppRequestPath = $"/{GlobalConfiguration.TenantAppRequestPath}/";
                     if (requestRefererUrl.IndexOf(tenantAppRequestPath) > -1)
@@ -2205,7 +2205,7 @@ namespace repository.Controllers
                             }
                         }
 
-                        if (!string.IsNullOrEmpty(userWorkID) && Directory.Exists(appBasePath) == true)
+                        if (!string.IsNullOrWhiteSpace(userWorkID) && Directory.Exists(appBasePath) == true)
                         {
                             var settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
                             if (System.IO.File.Exists(settingFilePath) == true)
@@ -2254,7 +2254,7 @@ namespace repository.Controllers
 
             result = await VirtualFileDownload(downloadResult, applicationID, repositoryID, fileName, subDirectory);
 
-            if (!string.IsNullOrEmpty(disposition))
+            if (!string.IsNullOrWhiteSpace(disposition))
             {
                 Response.Headers["Content-Disposition"] = disposition;
             }
@@ -2276,7 +2276,7 @@ namespace repository.Controllers
             var deleteResult = new DeleteResult();
             deleteResult.Result = false;
 
-            if (string.IsNullOrEmpty(repositoryID) || string.IsNullOrEmpty(fileName))
+            if (string.IsNullOrWhiteSpace(repositoryID) || string.IsNullOrWhiteSpace(fileName))
             {
                 deleteResult.Message = "VirtualDeleteFile RepositoryID 또는 fileName 필수 요청 정보 필요";
                 result = StatusCode(StatusCodes.Status400BadRequest, deleteResult.Message);
@@ -2291,7 +2291,7 @@ namespace repository.Controllers
                 return result;
             }
 
-            if (string.IsNullOrEmpty(repositoryID) || string.IsNullOrEmpty(fileName))
+            if (string.IsNullOrWhiteSpace(repositoryID) || string.IsNullOrWhiteSpace(fileName))
             {
                 deleteResult.Message = "VirtualDeleteFile RepositoryID 또는 fileName 필수 요청 정보 필요";
                 result = StatusCode(StatusCodes.Status400BadRequest, deleteResult.Message);
@@ -2321,7 +2321,7 @@ namespace repository.Controllers
                         return result;
                     }
 
-                    var blobID = (!string.IsNullOrEmpty(applicationID) ? applicationID + "/" : "") + (!string.IsNullOrEmpty(subDirectory) ? subDirectory + "/" : "") + fileName;
+                    var blobID = (!string.IsNullOrWhiteSpace(applicationID) ? applicationID + "/" : "") + (!string.IsNullOrWhiteSpace(subDirectory) ? subDirectory + "/" : "") + fileName;
                     if (await storageProvider.FileExistsAsync(blobID) == true)
                     {
                         await storageProvider.DeleteAsync(blobID);
@@ -2336,12 +2336,12 @@ namespace repository.Controllers
                     break;
                 case "FileSystem":
                     var persistenceDirectoryPath = repository.PhysicalPath;
-                    if (!string.IsNullOrEmpty(applicationID))
+                    if (!string.IsNullOrWhiteSpace(applicationID))
                     {
                         persistenceDirectoryPath = PathExtensions.Combine(repository.PhysicalPath, applicationID);
                     }
 
-                    if (string.IsNullOrEmpty(subDirectory))
+                    if (string.IsNullOrWhiteSpace(subDirectory))
                     {
                         repositoryManager.PersistenceDirectoryPath = persistenceDirectoryPath;
                     }
@@ -2408,7 +2408,7 @@ namespace repository.Controllers
             var jsonContentResult = new JsonContentResult();
             jsonContentResult.Result = false;
 
-            if (string.IsNullOrEmpty(applicationID) || string.IsNullOrEmpty(repositoryID) || string.IsNullOrEmpty(itemID))
+            if (string.IsNullOrWhiteSpace(applicationID) || string.IsNullOrWhiteSpace(repositoryID) || string.IsNullOrWhiteSpace(itemID))
             {
                 jsonContentResult.Message = "RemoveItem RepositoryID 또는 ItemID 필수 요청 정보 필요";
                 return Content(JsonConvert.SerializeObject(jsonContentResult), "application/json");
@@ -2449,7 +2449,7 @@ namespace repository.Controllers
                     var repositoryManager = new RepositoryManager();
                     repositoryManager.PersistenceDirectoryPath = repositoryManager.GetRepositoryItemPath(repository, repositoryItem);
                     var relativeDirectoryPath = repositoryManager.GetRelativePath(repository, repositoryItem.CustomPath1, repositoryItem.CustomPath2, repositoryItem.CustomPath3);
-                    var relativeDirectoryUrlPath = string.IsNullOrEmpty(relativeDirectoryPath) ? "" : relativeDirectoryPath;
+                    var relativeDirectoryUrlPath = string.IsNullOrWhiteSpace(relativeDirectoryPath) ? "" : relativeDirectoryPath;
                     relativeDirectoryUrlPath = relativeDirectoryUrlPath.Length <= 1 ? "" : relativeDirectoryUrlPath.Substring(relativeDirectoryUrlPath.Length - 1) == "/" ? relativeDirectoryUrlPath : relativeDirectoryUrlPath + "/";
 
                     var storageProvider = storageProviderFactory.Create(repository, repositoryItem.CustomPath1, repositoryItem.CustomPath2, repositoryItem.CustomPath3);
@@ -2527,7 +2527,7 @@ namespace repository.Controllers
             var jsonContentResult = new JsonContentResult();
             jsonContentResult.Result = false;
 
-            if (string.IsNullOrEmpty(repositoryID) || string.IsNullOrEmpty(dependencyID))
+            if (string.IsNullOrWhiteSpace(repositoryID) || string.IsNullOrWhiteSpace(dependencyID))
             {
                 jsonContentResult.Message = "RepositoryID 또는 DependencyID 필수 요청 정보 필요";
                 return Content(JsonConvert.SerializeObject(jsonContentResult), "application/json");
@@ -2567,7 +2567,7 @@ namespace repository.Controllers
                     {
                         repositoryManager.PersistenceDirectoryPath = repositoryManager.GetRepositoryItemPath(repository, repositoryItem);
                         var relativeDirectoryPath = repositoryManager.GetRelativePath(repository, repositoryItem.CustomPath1, repositoryItem.CustomPath2, repositoryItem.CustomPath3);
-                        var relativeDirectoryUrlPath = string.IsNullOrEmpty(relativeDirectoryPath) ? "" : relativeDirectoryPath;
+                        var relativeDirectoryUrlPath = string.IsNullOrWhiteSpace(relativeDirectoryPath) ? "" : relativeDirectoryPath;
                         relativeDirectoryUrlPath = relativeDirectoryUrlPath.Length <= 1 ? "" : relativeDirectoryUrlPath.Substring(relativeDirectoryUrlPath.Length - 1) == "/" ? relativeDirectoryUrlPath : relativeDirectoryUrlPath + "/";
 
 
@@ -2644,7 +2644,7 @@ namespace repository.Controllers
         {
             ActionResult result;
 
-            if (string.IsNullOrEmpty(repositoryID) || string.IsNullOrEmpty(fileName))
+            if (string.IsNullOrWhiteSpace(repositoryID) || string.IsNullOrWhiteSpace(fileName))
             {
                 downloadResult.Message = "RepositoryID 또는 fileName 필수 요청 정보 필요";
                 result = StatusCode(StatusCodes.Status400BadRequest, downloadResult.Message);
@@ -2673,7 +2673,7 @@ namespace repository.Controllers
             {
                 var container = new BlobContainerClient(repository.BlobConnectionString, repository.BlobContainerID.ToLower());
                 await container.CreateIfNotExistsAsync(PublicAccessType.Blob);
-                var blobID = (!string.IsNullOrEmpty(applicationID) ? applicationID + "/" : "") + (!string.IsNullOrEmpty(subDirectory) ? subDirectory + "/" : "") + fileName;
+                var blobID = (!string.IsNullOrWhiteSpace(applicationID) ? applicationID + "/" : "") + (!string.IsNullOrWhiteSpace(subDirectory) ? subDirectory + "/" : "") + fileName;
                 var blob = container.GetBlobClient(blobID);
                 if (await blob.ExistsAsync() == true)
                 {
@@ -2698,12 +2698,12 @@ namespace repository.Controllers
             else
             {
                 var persistenceDirectoryPath = repository.PhysicalPath;
-                if (!string.IsNullOrEmpty(applicationID))
+                if (!string.IsNullOrWhiteSpace(applicationID))
                 {
                     persistenceDirectoryPath = PathExtensions.Combine(repository.PhysicalPath, applicationID);
                 }
 
-                if (string.IsNullOrEmpty(subDirectory))
+                if (string.IsNullOrWhiteSpace(subDirectory))
                 {
                     repositoryManager.PersistenceDirectoryPath = persistenceDirectoryPath;
                 }
@@ -2751,7 +2751,7 @@ namespace repository.Controllers
         {
             ActionResult result = NotFound();
 
-            if (string.IsNullOrEmpty(applicationID) || string.IsNullOrEmpty(repositoryID) || string.IsNullOrEmpty(itemID))
+            if (string.IsNullOrWhiteSpace(applicationID) || string.IsNullOrWhiteSpace(repositoryID) || string.IsNullOrWhiteSpace(itemID))
             {
                 downloadResult.Message = "RepositoryID 또는 itemID 필수 요청 정보 필요";
                 result = StatusCode(StatusCodes.Status400BadRequest, downloadResult.Message);
@@ -2796,7 +2796,7 @@ namespace repository.Controllers
 
             var repositoryManager = new RepositoryManager();
             var relativeDirectoryPath = repositoryManager.GetRelativePath(repository, repositoryItem.CustomPath1, repositoryItem.CustomPath2, repositoryItem.CustomPath3);
-            var relativeDirectoryUrlPath = string.IsNullOrEmpty(relativeDirectoryPath) ? "" : relativeDirectoryPath;
+            var relativeDirectoryUrlPath = string.IsNullOrWhiteSpace(relativeDirectoryPath) ? "" : relativeDirectoryPath;
             relativeDirectoryUrlPath = relativeDirectoryUrlPath.Length <= 1 ? "" : relativeDirectoryUrlPath.Substring(relativeDirectoryUrlPath.Length - 1) == "/" ? relativeDirectoryUrlPath : relativeDirectoryUrlPath + "/";
 
             var storageProvider = storageProviderFactory.Create(repository, repositoryItem.CustomPath1, repositoryItem.CustomPath2, repositoryItem.CustomPath3);
@@ -2828,7 +2828,7 @@ namespace repository.Controllers
                 }
 
                 string downloadFileName;
-                if (string.IsNullOrEmpty(Path.GetExtension(repositoryItem.FileName)) == true && !string.IsNullOrEmpty(repositoryItem.Extension))
+                if (string.IsNullOrWhiteSpace(Path.GetExtension(repositoryItem.FileName)) == true && !string.IsNullOrWhiteSpace(repositoryItem.Extension))
                 {
                     downloadFileName = string.Concat(repositoryItem.FileName, repositoryItem.Extension);
                 }
@@ -2867,7 +2867,7 @@ namespace repository.Controllers
         {
             ActionResult result = NotFound();
 
-            if (string.IsNullOrEmpty(applicationID) || string.IsNullOrEmpty(repositoryID) || string.IsNullOrEmpty(itemID))
+            if (string.IsNullOrWhiteSpace(applicationID) || string.IsNullOrWhiteSpace(repositoryID) || string.IsNullOrWhiteSpace(itemID))
             {
                 downloadResult.Message = "RepositoryID 또는 itemID 필수 요청 정보 필요";
                 result = StatusCode(StatusCodes.Status400BadRequest, downloadResult.Message);
@@ -2915,13 +2915,13 @@ namespace repository.Controllers
                 if (System.IO.File.Exists(filePath) == true)
                 {
                     var mimeType = repositoryItem.MimeType;
-                    if (string.IsNullOrEmpty(mimeType))
+                    if (string.IsNullOrWhiteSpace(mimeType))
                     {
                         mimeType = GetMimeType(repositoryItem.FileName);
                     }
 
                     string downloadFileName;
-                    if (string.IsNullOrEmpty(Path.GetExtension(repositoryItem.FileName)) == true && !string.IsNullOrEmpty(repositoryItem.Extension))
+                    if (string.IsNullOrWhiteSpace(Path.GetExtension(repositoryItem.FileName)) == true && !string.IsNullOrWhiteSpace(repositoryItem.Extension))
                     {
                         downloadFileName = string.Concat(repositoryItem.FileName, repositoryItem.Extension);
                     }
@@ -2969,7 +2969,7 @@ namespace repository.Controllers
         public string GetMimeType(string path)
         {
             var result = MimeHelper.GetMimeType(Path.GetFileName(path));
-            if (string.IsNullOrEmpty(result))
+            if (string.IsNullOrWhiteSpace(result))
             {
                 result = "application/octet-stream";
             }

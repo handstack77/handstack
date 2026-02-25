@@ -113,7 +113,7 @@ namespace ports
                 if (displayName.Equals("node", StringComparison.OrdinalIgnoreCase))
                 {
                     string? cwd = GetCwdForPid(item.Pid);
-                    if (!string.IsNullOrEmpty(cwd))
+                    if (!string.IsNullOrWhiteSpace(cwd))
                     {
                         string pkgPath = Path.Combine(cwd, "package.json");
                         if (File.Exists(pkgPath))
@@ -137,7 +137,7 @@ namespace ports
                     }
                 }
 
-                if (userOnly && (displayPath == "-" || string.IsNullOrEmpty(displayPath))) continue;
+                if (userOnly && (displayPath == "-" || string.IsNullOrWhiteSpace(displayPath))) continue;
 
                 displayData.Add((item.Port.ToString(), displayName, displayPath));
             }

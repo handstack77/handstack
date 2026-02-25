@@ -113,7 +113,7 @@ namespace checkup.Areas.checkup.Controllers
         {
             var remoteClientIP = HttpContext.GetRemoteIpAddress();
             string? authorizationKey = Request.Headers["AuthorizationKey"];
-            if (string.IsNullOrEmpty(authorizationKey) || ModuleConfiguration.AuthorizationKey != authorizationKey && User.Identity != null && User.Identity.IsAuthenticated == true)
+            if (string.IsNullOrWhiteSpace(authorizationKey) || ModuleConfiguration.AuthorizationKey != authorizationKey && User.Identity != null && User.Identity.IsAuthenticated == true)
             {
                 List<ServiceParameter>? serviceParameters = null;
                 if (queryParams != null)
@@ -153,7 +153,7 @@ namespace checkup.Areas.checkup.Controllers
                 {
                     var appSettingText = await System.IO.File.ReadAllTextAsync(settingFilePath);
                     var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
-                    if (appSetting != null && !string.IsNullOrEmpty(appSetting.SignInID))
+                    if (appSetting != null && !string.IsNullOrWhiteSpace(appSetting.SignInID))
                     {
                         var serviceParameters = new List<ServiceParameter>();
                         serviceParameters.Add("AccountSignNo", accountSignNo);
@@ -305,12 +305,12 @@ namespace checkup.Areas.checkup.Controllers
         {
             var result = new AuthenticateResponse();
             var cookieRefreshToken = Request.Cookies[$"{applicationID}.RefreshToken"];
-            if (!string.IsNullOrEmpty(cookieRefreshToken))
+            if (!string.IsNullOrWhiteSpace(cookieRefreshToken))
             {
                 refreshToken = cookieRefreshToken;
             }
 
-            if (!string.IsNullOrEmpty(applicationID) && !string.IsNullOrEmpty(refreshToken))
+            if (!string.IsNullOrWhiteSpace(applicationID) && !string.IsNullOrWhiteSpace(refreshToken))
             {
                 var ipAddress = HttpContext.GetRemoteIpAddress().ToStringSafe();
                 var userTokenResult = await userTokenService.GetUserResultByRefreshToken(refreshToken);
@@ -433,7 +433,7 @@ namespace checkup.Areas.checkup.Controllers
         public async Task<ActionResult> Get(string? applicationID, string userAccountID)
         {
             UserAccount? result = null;
-            if (!string.IsNullOrEmpty(applicationID) && !string.IsNullOrEmpty(userAccountID))
+            if (!string.IsNullOrWhiteSpace(applicationID) && !string.IsNullOrWhiteSpace(userAccountID))
             {
                 var userTokenResult = await userTokenService.GetUserAccountByID(applicationID, userAccountID);
                 var tupleResult = userTokenService.CreateUserInformation(userTokenResult);
@@ -452,12 +452,12 @@ namespace checkup.Areas.checkup.Controllers
         {
             var result = "";
             var cookieRefreshToken = Request.Cookies[$"{applicationID}.RefreshToken"];
-            if (!string.IsNullOrEmpty(cookieRefreshToken))
+            if (!string.IsNullOrWhiteSpace(cookieRefreshToken))
             {
                 refreshToken = cookieRefreshToken;
             }
 
-            if (!string.IsNullOrEmpty(applicationID) && !string.IsNullOrEmpty(refreshToken))
+            if (!string.IsNullOrWhiteSpace(applicationID) && !string.IsNullOrWhiteSpace(refreshToken))
             {
                 var userTokenResult = await userTokenService.GetUserResultByRefreshToken(refreshToken);
                 var tupleResult = userTokenService.CreateUserInformation(userTokenResult);
@@ -602,7 +602,7 @@ namespace checkup.Areas.checkup.Controllers
         public async Task<ActionResult> RefreshCorsOriginApp(string userWorkID, string applicationID, string appSecret)
         {
             ActionResult result = BadRequest();
-            if (string.IsNullOrEmpty(userWorkID) || string.IsNullOrEmpty(applicationID) || string.IsNullOrEmpty(appSecret))
+            if (string.IsNullOrWhiteSpace(userWorkID) || string.IsNullOrWhiteSpace(applicationID) || string.IsNullOrWhiteSpace(appSecret))
             {
                 result = BadRequest();
             }
@@ -659,7 +659,7 @@ namespace checkup.Areas.checkup.Controllers
         public async Task<ActionResult> RefreshOriginApp(string userWorkID, string applicationID, string appSecret)
         {
             ActionResult result = BadRequest();
-            if (string.IsNullOrEmpty(userWorkID) || string.IsNullOrEmpty(applicationID) || string.IsNullOrEmpty(appSecret))
+            if (string.IsNullOrWhiteSpace(userWorkID) || string.IsNullOrWhiteSpace(applicationID) || string.IsNullOrWhiteSpace(appSecret))
             {
                 result = BadRequest();
             }
@@ -715,7 +715,7 @@ namespace checkup.Areas.checkup.Controllers
         public async Task<ActionResult> RefreshRefererApp(string userWorkID, string applicationID, string appSecret)
         {
             ActionResult result = BadRequest();
-            if (string.IsNullOrEmpty(userWorkID) || string.IsNullOrEmpty(applicationID) || string.IsNullOrEmpty(appSecret))
+            if (string.IsNullOrWhiteSpace(userWorkID) || string.IsNullOrWhiteSpace(applicationID) || string.IsNullOrWhiteSpace(appSecret))
             {
                 result = BadRequest();
             }
@@ -772,7 +772,7 @@ namespace checkup.Areas.checkup.Controllers
         {
             ActionResult result = BadRequest();
 
-            if (ModuleConfiguration.ManagedAccessKey == accessKey && !string.IsNullOrEmpty(userWorkID) && !string.IsNullOrEmpty(applicationID))
+            if (ModuleConfiguration.ManagedAccessKey == accessKey && !string.IsNullOrWhiteSpace(userWorkID) && !string.IsNullOrWhiteSpace(applicationID))
             {
                 var module = GlobalConfiguration.Modules.FirstOrDefault(p => p.ModuleID == "wwwroot");
                 var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
@@ -959,7 +959,7 @@ namespace checkup.Areas.checkup.Controllers
         {
             ActionResult result = BadRequest();
 
-            if (!string.IsNullOrEmpty(applicationNo) && !string.IsNullOrEmpty(memberNo))
+            if (!string.IsNullOrWhiteSpace(applicationNo) && !string.IsNullOrWhiteSpace(memberNo))
             {
                 try
                 {
@@ -1044,9 +1044,9 @@ namespace checkup.Areas.checkup.Controllers
             }
 
             if (ModuleConfiguration.ManagedAccessKey == accessKey
-                && !string.IsNullOrEmpty(applicationName)
-                && !string.IsNullOrEmpty(memberNo)
-                && !string.IsNullOrEmpty(userWorkID))
+                && !string.IsNullOrWhiteSpace(applicationName)
+                && !string.IsNullOrWhiteSpace(memberNo)
+                && !string.IsNullOrWhiteSpace(userWorkID))
             {
                 // memberNo 확인 및 제한 조건 검증
                 var verifyMemberResults = ModuleExtensions.ExecuteMetaSQL(ReturnType.Dynamic, "SYS.SYS010.GD02", new
@@ -1159,7 +1159,7 @@ namespace checkup.Areas.checkup.Controllers
 
                 // Application logoItemID를 확인하여 LogoPath 업데이트
                 var logoPath = "";
-                if (!string.IsNullOrEmpty(logoItemID))
+                if (!string.IsNullOrWhiteSpace(logoItemID))
                 {
                     var mediatorRequest = new MediatorRequest()
                     {
@@ -1213,7 +1213,7 @@ namespace checkup.Areas.checkup.Controllers
                     createdAt = applicationResults;
                 }
 
-                if (string.IsNullOrEmpty(createdAt))
+                if (string.IsNullOrWhiteSpace(createdAt))
                 {
                     return BadRequest("어플리케이션 정보 또는 요청 정보 확인이 필요합니다");
                 }
@@ -1443,9 +1443,9 @@ namespace checkup.Areas.checkup.Controllers
             ActionResult result = BadRequest("요청 정보 확인이 필요합니다");
 
             if (ModuleConfiguration.ManagedAccessKey == accessKey
-                && !string.IsNullOrEmpty(applicationID)
-                && !string.IsNullOrEmpty(memberNo)
-                && !string.IsNullOrEmpty(userWorkID))
+                && !string.IsNullOrWhiteSpace(applicationID)
+                && !string.IsNullOrWhiteSpace(memberNo)
+                && !string.IsNullOrWhiteSpace(userWorkID))
             {
                 // memberNo 확인 및 제한 조건 검증
                 var verifyMemberResults = ModuleExtensions.ExecuteMetaSQL(ReturnType.Dynamic, "SYS.SYS010.GD04", new
@@ -1465,7 +1465,7 @@ namespace checkup.Areas.checkup.Controllers
                     applicationNo = item.ApplicationNo;
                 }
 
-                if (string.IsNullOrEmpty(applicationNo))
+                if (string.IsNullOrWhiteSpace(applicationNo))
                 {
                     return BadRequest("어플리케이션 정보 또는 요청 정보 확인이 필요합니다");
                 }
@@ -1647,7 +1647,7 @@ namespace checkup.Areas.checkup.Controllers
         {
             ActionResult result = NotFound();
 
-            if (ModuleConfiguration.ManagedAccessKey == accessKey && !string.IsNullOrEmpty(userWorkID) && !string.IsNullOrEmpty(applicationID))
+            if (ModuleConfiguration.ManagedAccessKey == accessKey && !string.IsNullOrWhiteSpace(userWorkID) && !string.IsNullOrWhiteSpace(applicationID))
             {
                 var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                 if (Directory.Exists(appBasePath) == true)
@@ -1677,9 +1677,9 @@ namespace checkup.Areas.checkup.Controllers
             ActionResult result = NotFound();
 
             if (ModuleConfiguration.ManagedAccessKey == accessKey
-                && !string.IsNullOrEmpty(userWorkID)
-                && !string.IsNullOrEmpty(applicationID)
-                && !string.IsNullOrEmpty(tableName)
+                && !string.IsNullOrWhiteSpace(userWorkID)
+                && !string.IsNullOrWhiteSpace(applicationID)
+                && !string.IsNullOrWhiteSpace(tableName)
             )
             {
                 var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
@@ -1742,9 +1742,9 @@ namespace checkup.Areas.checkup.Controllers
             ActionResult result = NotFound();
 
             if (ModuleConfiguration.ManagedAccessKey == accessKey
-                && !string.IsNullOrEmpty(userWorkID)
-                && !string.IsNullOrEmpty(applicationID)
-                && !string.IsNullOrEmpty(tableName)
+                && !string.IsNullOrWhiteSpace(userWorkID)
+                && !string.IsNullOrWhiteSpace(applicationID)
+                && !string.IsNullOrWhiteSpace(tableName)
             )
             {
                 var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
@@ -1778,7 +1778,7 @@ namespace checkup.Areas.checkup.Controllers
         {
             ActionResult result = BadRequest();
 
-            if (ModuleConfiguration.ManagedAccessKey == accessKey && !string.IsNullOrEmpty(userWorkID) && !string.IsNullOrEmpty(applicationID))
+            if (ModuleConfiguration.ManagedAccessKey == accessKey && !string.IsNullOrWhiteSpace(userWorkID) && !string.IsNullOrWhiteSpace(applicationID))
             {
                 var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                 if (Directory.Exists(appBasePath) == true)
@@ -1834,7 +1834,7 @@ namespace checkup.Areas.checkup.Controllers
         {
             ActionResult result = NotFound();
 
-            if (!string.IsNullOrEmpty(userWorkID) && !string.IsNullOrEmpty(applicationID) && !string.IsNullOrEmpty(downloadTokenID))
+            if (!string.IsNullOrWhiteSpace(userWorkID) && !string.IsNullOrWhiteSpace(applicationID) && !string.IsNullOrWhiteSpace(downloadTokenID))
             {
                 var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                 if (Directory.Exists(appBasePath) == true)
@@ -1867,7 +1867,7 @@ namespace checkup.Areas.checkup.Controllers
         {
             ActionResult result = BadRequest();
 
-            if (ModuleConfiguration.ManagedAccessKey == accessKey && !string.IsNullOrEmpty(userWorkID) && !string.IsNullOrEmpty(applicationID))
+            if (ModuleConfiguration.ManagedAccessKey == accessKey && !string.IsNullOrWhiteSpace(userWorkID) && !string.IsNullOrWhiteSpace(applicationID))
             {
                 var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                 if (Directory.Exists(appBasePath) == true)
@@ -1908,7 +1908,7 @@ namespace checkup.Areas.checkup.Controllers
             var applicationID = Request.Query["applicationID"].ToString();
             var uploadTokenID = Request.Query["uploadTokenID"].ToString();
 
-            if (string.IsNullOrEmpty(applicationID) || string.IsNullOrEmpty(userWorkID) || string.IsNullOrEmpty(uploadTokenID))
+            if (string.IsNullOrWhiteSpace(applicationID) || string.IsNullOrWhiteSpace(userWorkID) || string.IsNullOrWhiteSpace(uploadTokenID))
             {
                 return result = BadRequest("필수 요청 정보 확인 필요");
             }
@@ -2002,7 +2002,7 @@ namespace checkup.Areas.checkup.Controllers
                 compressBase64 = Request.GetContainValue("compressBase64");
             }
 
-            if (ModuleConfiguration.ManagedAccessKey == accessKey && !string.IsNullOrEmpty(userWorkID) && !string.IsNullOrEmpty(applicationID) && !string.IsNullOrEmpty(compressBase64))
+            if (ModuleConfiguration.ManagedAccessKey == accessKey && !string.IsNullOrWhiteSpace(userWorkID) && !string.IsNullOrWhiteSpace(applicationID) && !string.IsNullOrWhiteSpace(compressBase64))
             {
                 var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                 if (Directory.Exists(appBasePath) == true)
@@ -2013,7 +2013,7 @@ namespace checkup.Areas.checkup.Controllers
                         var connectionString = appDbConnectionString.Replace("{appBasePath}", appBasePath);
                         using var dbClient = new SQLiteClient(connectionString);
                         var executeSql = LZStringHelper.DecompressFromBase64(compressBase64);
-                        if (!string.IsNullOrEmpty(executeSql))
+                        if (!string.IsNullOrWhiteSpace(executeSql))
                         {
                             var affectedRows = dbClient.ExecuteNonQuery(executeSql, CommandType.Text);
                             result = Content(affectedRows.ToString(), "text/plain");
@@ -2031,13 +2031,13 @@ namespace checkup.Areas.checkup.Controllers
         {
             ActionResult result = NotFound();
 
-            if (ModuleConfiguration.ManagedAccessKey == accessKey && !string.IsNullOrEmpty(userWorkID) && !string.IsNullOrEmpty(applicationID) && !string.IsNullOrEmpty(packageNo))
+            if (ModuleConfiguration.ManagedAccessKey == accessKey && !string.IsNullOrWhiteSpace(userWorkID) && !string.IsNullOrWhiteSpace(applicationID) && !string.IsNullOrWhiteSpace(packageNo))
             {
                 var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                 if (Directory.Exists(appBasePath) == true)
                 {
                     var packageFilePath = PathExtensions.Combine(appBasePath, "publish", $"hostapp-{applicationID}-{packageNo}.zip");
-                    if (!string.IsNullOrEmpty(packageFilePath) && System.IO.File.Exists(packageFilePath) == true)
+                    if (!string.IsNullOrWhiteSpace(packageFilePath) && System.IO.File.Exists(packageFilePath) == true)
                     {
                         result = new PhysicalFileResult(packageFilePath, MimeHelper.GetMimeType(packageFilePath).ToStringSafe());
                     }
@@ -2065,11 +2065,11 @@ namespace checkup.Areas.checkup.Controllers
             var accessID = Request.Query["accessID"].ToString();
             var signID = Request.Query["signID"].ToString();
 
-            if (string.IsNullOrEmpty(userWorkID)
-                || string.IsNullOrEmpty(applicationID)
-                || string.IsNullOrEmpty(packageNo)
-                || string.IsNullOrEmpty(accessID)
-                || string.IsNullOrEmpty(signID)
+            if (string.IsNullOrWhiteSpace(userWorkID)
+                || string.IsNullOrWhiteSpace(applicationID)
+                || string.IsNullOrWhiteSpace(packageNo)
+                || string.IsNullOrWhiteSpace(accessID)
+                || string.IsNullOrWhiteSpace(signID)
                 || ($"{applicationID}|{packageNo}|{accessID}").ToSHA256() != signID
             )
             {
@@ -2139,11 +2139,11 @@ TransactionException:
             ActionResult result = BadRequest();
 
             var outputBuilder = new StringBuilder(65536);
-            if (string.IsNullOrEmpty(userWorkID)
-                || string.IsNullOrEmpty(applicationID)
-                || string.IsNullOrEmpty(packageNo)
-                || string.IsNullOrEmpty(accessID)
-                || string.IsNullOrEmpty(signID)
+            if (string.IsNullOrWhiteSpace(userWorkID)
+                || string.IsNullOrWhiteSpace(applicationID)
+                || string.IsNullOrWhiteSpace(packageNo)
+                || string.IsNullOrWhiteSpace(accessID)
+                || string.IsNullOrWhiteSpace(signID)
                 || ($"{applicationID}|{packageNo}|{accessID}").ToSHA256() != signID
             )
             {
@@ -2290,11 +2290,11 @@ TransactionException:
             ActionResult result = BadRequest();
 
             var outputBuilder = new StringBuilder(65536);
-            if (string.IsNullOrEmpty(userWorkID)
-                || string.IsNullOrEmpty(applicationID)
-                || string.IsNullOrEmpty(packageNo)
-                || string.IsNullOrEmpty(accessID)
-                || string.IsNullOrEmpty(signID)
+            if (string.IsNullOrWhiteSpace(userWorkID)
+                || string.IsNullOrWhiteSpace(applicationID)
+                || string.IsNullOrWhiteSpace(packageNo)
+                || string.IsNullOrWhiteSpace(accessID)
+                || string.IsNullOrWhiteSpace(signID)
                 || ($"{applicationID}|{packageNo}|{accessID}").ToSHA256() != signID
             )
             {
@@ -2415,7 +2415,7 @@ TransactionException:
                                                     outputBuilder.AppendLine($"E|{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}|{locationPath} 스크립트 파일 확인 필요 없음");
                                                 }
 
-                                                if (!string.IsNullOrEmpty(runScript))
+                                                if (!string.IsNullOrWhiteSpace(runScript))
                                                 {
                                                     try
                                                     {
@@ -2515,9 +2515,9 @@ TransactionException:
             var userWorkID = Request.Query["userWorkID"].ToString();
             var applicationID = Request.Query["applicationID"].ToString();
             var accessKey = Request.Query["accessKey"].ToString();
-            var userID = string.IsNullOrEmpty(Request.Query["userID"]) ? "" : Request.Query["userID"].ToString();
+            var userID = string.IsNullOrWhiteSpace(Request.Query["userID"]) ? "" : Request.Query["userID"].ToString();
 
-            if (string.IsNullOrEmpty(userWorkID) || string.IsNullOrEmpty(applicationID) || string.IsNullOrEmpty(accessKey))
+            if (string.IsNullOrWhiteSpace(userWorkID) || string.IsNullOrWhiteSpace(applicationID) || string.IsNullOrWhiteSpace(accessKey))
             {
                 return result = BadRequest("필수 요청 정보 확인 필요");
             }
@@ -2545,7 +2545,7 @@ TransactionException:
                             {
                                 var appWWWDirectoryPath = PathExtensions.Combine(appBasePath, "wwwroot");
 
-                                if (!string.IsNullOrEmpty(appWWWDirectoryPath) && Directory.Exists(appWWWDirectoryPath) == true)
+                                if (!string.IsNullOrWhiteSpace(appWWWDirectoryPath) && Directory.Exists(appWWWDirectoryPath) == true)
                                 {
                                     var saveFileName = file.FileName;
                                     var itemPhysicalPath = PathExtensions.Combine(appWWWDirectoryPath, saveFileName);
@@ -2579,7 +2579,7 @@ TransactionException:
             var requestRefererUrl = Request.Headers.Referer.ToStringSafe();
             var requestPath = Request.Path.ToString();
             var viewRequestPath = $"/{Request.Host}/{ModuleConfiguration.ModuleID}/view/";
-            if (!string.IsNullOrEmpty(requestRefererUrl) && requestRefererUrl.IndexOf(viewRequestPath) > -1 && ModuleConfiguration.ManagedAccessKey == accessKey)
+            if (!string.IsNullOrWhiteSpace(requestRefererUrl) && requestRefererUrl.IndexOf(viewRequestPath) > -1 && ModuleConfiguration.ManagedAccessKey == accessKey)
             {
                 var tenantID = $"{userWorkID}|{applicationID}";
                 var physicalPath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID, "wwwroot", "assets");
@@ -2589,7 +2589,7 @@ TransactionException:
                     Directory.CreateDirectory(physicalPath);
                 }
 
-                if (!string.IsNullOrEmpty(locationPath))
+                if (!string.IsNullOrWhiteSpace(locationPath))
                 {
                     List<string> physicalPaths =
                     [
@@ -2651,10 +2651,10 @@ TransactionException:
             var userWorkID = Request.Query["userWorkID"].ToString();
             var applicationID = Request.Query["applicationID"].ToString();
             var accessKey = Request.Query["accessKey"].ToString();
-            var locationPath = string.IsNullOrEmpty(Request.Query["locationPath"]) ? "" : Request.Query["locationPath"].ToString();
-            var userID = string.IsNullOrEmpty(Request.Query["userID"]) ? "" : Request.Query["userID"].ToString();
+            var locationPath = string.IsNullOrWhiteSpace(Request.Query["locationPath"]) ? "" : Request.Query["locationPath"].ToString();
+            var userID = string.IsNullOrWhiteSpace(Request.Query["userID"]) ? "" : Request.Query["userID"].ToString();
 
-            if (string.IsNullOrEmpty(userWorkID) || string.IsNullOrEmpty(applicationID) || string.IsNullOrEmpty(locationPath) || string.IsNullOrEmpty(accessKey))
+            if (string.IsNullOrWhiteSpace(userWorkID) || string.IsNullOrWhiteSpace(applicationID) || string.IsNullOrWhiteSpace(locationPath) || string.IsNullOrWhiteSpace(accessKey))
             {
                 return BadRequest("필수 요청 정보 확인 필요");
             }
@@ -2688,12 +2688,12 @@ TransactionException:
                                 locationPath = locationPath.Replace("\\", "/");
                                 var appAssetDirectoryPath = PathExtensions.Combine(appBasePath, "wwwroot", locationPath);
 
-                                if (!string.IsNullOrEmpty(appAssetDirectoryPath) && Directory.Exists(appAssetDirectoryPath) == true)
+                                if (!string.IsNullOrWhiteSpace(appAssetDirectoryPath) && Directory.Exists(appAssetDirectoryPath) == true)
                                 {
                                     var isCompressFile = false;
                                     var saveFileName = file.FileName;
                                     var extension = Path.GetExtension(saveFileName);
-                                    if (!string.IsNullOrEmpty(extension))
+                                    if (!string.IsNullOrWhiteSpace(extension))
                                     {
                                         extension = Path.GetExtension(saveFileName);
 
@@ -2741,11 +2741,11 @@ TransactionException:
         {
             ActionResult result = NotFound();
 
-            if (!string.IsNullOrEmpty(packageName))
+            if (!string.IsNullOrWhiteSpace(packageName))
             {
                 var options = new RestClientOptions("https://www.npmjs.com");
                 var client = new RestClient(options);
-                var request = new RestRequest($"/package/{packageName}/{(string.IsNullOrEmpty(version) ? "" : "v/" + version)}", Method.Get);
+                var request = new RestRequest($"/package/{packageName}/{(string.IsNullOrWhiteSpace(version) ? "" : "v/" + version)}", Method.Get);
                 var response = await client.ExecuteAsync(request);
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
@@ -2769,7 +2769,7 @@ TransactionException:
         {
             ActionResult result = NotFound();
 
-            if (!string.IsNullOrEmpty(packageName))
+            if (!string.IsNullOrWhiteSpace(packageName))
             {
                 var options = new RestClientOptions("https://www.nuget.org");
                 var client = new RestClient(options);
@@ -2802,14 +2802,14 @@ TransactionException:
                 return result;
             }
 
-            if (ModuleConfiguration.ManagedAccessKey == accessKey && !string.IsNullOrEmpty(userWorkID) && !string.IsNullOrEmpty(applicationID) && !string.IsNullOrEmpty(directoryName))
+            if (ModuleConfiguration.ManagedAccessKey == accessKey && !string.IsNullOrWhiteSpace(userWorkID) && !string.IsNullOrWhiteSpace(applicationID) && !string.IsNullOrWhiteSpace(directoryName))
             {
                 var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                 if (Directory.Exists(appBasePath) == true)
                 {
                     var sourceFilePath = GetHostItemPath(appBasePath, projectType, directoryName);
 
-                    if (!string.IsNullOrEmpty(sourceFilePath) && Directory.Exists(sourceFilePath) == false)
+                    if (!string.IsNullOrWhiteSpace(sourceFilePath) && Directory.Exists(sourceFilePath) == false)
                     {
                         Directory.CreateDirectory(sourceFilePath);
                         result = Ok();
@@ -2831,14 +2831,14 @@ TransactionException:
                 return result;
             }
 
-            if (ModuleConfiguration.ManagedAccessKey == accessKey && !string.IsNullOrEmpty(userWorkID) && !string.IsNullOrEmpty(applicationID) && !string.IsNullOrEmpty(directoryName))
+            if (ModuleConfiguration.ManagedAccessKey == accessKey && !string.IsNullOrWhiteSpace(userWorkID) && !string.IsNullOrWhiteSpace(applicationID) && !string.IsNullOrWhiteSpace(directoryName))
             {
                 var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                 if (Directory.Exists(appBasePath) == true)
                 {
                     var sourceFilePath = GetHostItemPath(appBasePath, projectType, directoryName);
 
-                    if (!string.IsNullOrEmpty(sourceFilePath) && Directory.Exists(sourceFilePath) == true)
+                    if (!string.IsNullOrWhiteSpace(sourceFilePath) && Directory.Exists(sourceFilePath) == true)
                     {
                         Directory.Delete(sourceFilePath, true);
                         result = Ok();
@@ -2860,7 +2860,7 @@ TransactionException:
                 return result;
             }
 
-            if (ModuleConfiguration.ManagedAccessKey == accessKey && !string.IsNullOrEmpty(userWorkID) && !string.IsNullOrEmpty(applicationID) && !string.IsNullOrEmpty(itemPath))
+            if (ModuleConfiguration.ManagedAccessKey == accessKey && !string.IsNullOrWhiteSpace(userWorkID) && !string.IsNullOrWhiteSpace(applicationID) && !string.IsNullOrWhiteSpace(itemPath))
             {
                 var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                 if (Directory.Exists(appBasePath) == true)
@@ -2875,7 +2875,7 @@ TransactionException:
                         sourceFilePath = GetHostItemPath(appBasePath, projectType, itemPath);
                     }
 
-                    if (!string.IsNullOrEmpty(sourceFilePath) && System.IO.File.Exists(sourceFilePath) == true)
+                    if (!string.IsNullOrWhiteSpace(sourceFilePath) && System.IO.File.Exists(sourceFilePath) == true)
                     {
                         System.IO.File.Delete(sourceFilePath);
                         result = Ok();
@@ -2897,13 +2897,13 @@ TransactionException:
                 return result;
             }
 
-            if (ModuleConfiguration.ManagedAccessKey == accessKey && !string.IsNullOrEmpty(userWorkID) && !string.IsNullOrEmpty(applicationID) && !string.IsNullOrEmpty(filePath))
+            if (ModuleConfiguration.ManagedAccessKey == accessKey && !string.IsNullOrWhiteSpace(userWorkID) && !string.IsNullOrWhiteSpace(applicationID) && !string.IsNullOrWhiteSpace(filePath))
             {
                 var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                 if (Directory.Exists(appBasePath) == true)
                 {
                     var sourceFilePath = GetHostItemPath(appBasePath, projectType, filePath);
-                    if (!string.IsNullOrEmpty(sourceFilePath) && System.IO.File.Exists(sourceFilePath) == true)
+                    if (!string.IsNullOrWhiteSpace(sourceFilePath) && System.IO.File.Exists(sourceFilePath) == true)
                     {
                         result = new PhysicalFileResult(sourceFilePath, MimeHelper.GetMimeType(sourceFilePath).ToStringSafe());
                     }
@@ -2930,14 +2930,14 @@ TransactionException:
                 compressBase64 = Request.GetContainValue("compressBase64");
             }
 
-            if (ModuleConfiguration.ManagedAccessKey == accessKey && !string.IsNullOrEmpty(userWorkID) && !string.IsNullOrEmpty(applicationID) && !string.IsNullOrEmpty(compressBase64) && !string.IsNullOrEmpty(filePath))
+            if (ModuleConfiguration.ManagedAccessKey == accessKey && !string.IsNullOrWhiteSpace(userWorkID) && !string.IsNullOrWhiteSpace(applicationID) && !string.IsNullOrWhiteSpace(compressBase64) && !string.IsNullOrWhiteSpace(filePath))
             {
                 var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                 if (Directory.Exists(appBasePath) == true)
                 {
                     var sourceFilePath = GetHostItemPath(appBasePath, projectType, filePath);
 
-                    if (!string.IsNullOrEmpty(sourceFilePath) && System.IO.File.Exists(sourceFilePath) == true)
+                    if (!string.IsNullOrWhiteSpace(sourceFilePath) && System.IO.File.Exists(sourceFilePath) == true)
                     {
                         var sourceText = LZStringHelper.DecompressFromBase64(compressBase64);
                         System.IO.File.WriteAllText(sourceFilePath, sourceText);
@@ -2955,7 +2955,7 @@ TransactionException:
         {
             ActionResult result = NotFound();
 
-            if (ModuleConfiguration.ManagedAccessKey == accessKey && !string.IsNullOrEmpty(userWorkID) && !string.IsNullOrEmpty(applicationID))
+            if (ModuleConfiguration.ManagedAccessKey == accessKey && !string.IsNullOrWhiteSpace(userWorkID) && !string.IsNullOrWhiteSpace(applicationID))
             {
                 var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                 if (Directory.Exists(appBasePath) == true)
@@ -2964,14 +2964,14 @@ TransactionException:
                     var sourceDirectoryPath = appBasePath;
 
                     var menus = new List<Menu>();
-                    if (!string.IsNullOrEmpty(sourceDirectoryPath) && Directory.Exists(sourceDirectoryPath) == true)
+                    if (!string.IsNullOrWhiteSpace(sourceDirectoryPath) && Directory.Exists(sourceDirectoryPath) == true)
                     {
                         var directoryInfo = new DirectoryInfo(sourceDirectoryPath);
                         if (directoryInfo.Exists == true)
                         {
                             var rootDirectory = new Menu();
                             rootDirectory.menuID = applicationID;
-                            rootDirectory.menuName = string.IsNullOrEmpty(applicationName) ? applicationID : applicationName;
+                            rootDirectory.menuName = string.IsNullOrWhiteSpace(applicationName) ? applicationID : applicationName;
                             rootDirectory.parentMenuID = null;
                             rootDirectory.parentMenuName = null;
                             rootDirectory.showYN = "Y";
@@ -3029,7 +3029,7 @@ TransactionException:
                 return result;
             }
 
-            if (ModuleConfiguration.ManagedAccessKey == accessKey && !string.IsNullOrEmpty(userWorkID) && !string.IsNullOrEmpty(applicationID) && !string.IsNullOrEmpty(projectType) && !string.IsNullOrEmpty(parentMenuID) && !string.IsNullOrEmpty(parentMenuName))
+            if (ModuleConfiguration.ManagedAccessKey == accessKey && !string.IsNullOrWhiteSpace(userWorkID) && !string.IsNullOrWhiteSpace(applicationID) && !string.IsNullOrWhiteSpace(projectType) && !string.IsNullOrWhiteSpace(parentMenuID) && !string.IsNullOrWhiteSpace(parentMenuName))
             {
                 var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID) + "/";
                 if (Directory.Exists(appBasePath) == true)
@@ -3057,7 +3057,7 @@ TransactionException:
                     }
 
                     var menus = new List<Menu>();
-                    if (!string.IsNullOrEmpty(sourceDirectoryPath) && Directory.Exists(sourceDirectoryPath) == true)
+                    if (!string.IsNullOrWhiteSpace(sourceDirectoryPath) && Directory.Exists(sourceDirectoryPath) == true)
                     {
                         var directoryInfo = new DirectoryInfo(sourceDirectoryPath);
                         if (directoryInfo.Exists == true)

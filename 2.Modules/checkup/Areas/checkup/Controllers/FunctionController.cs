@@ -51,7 +51,7 @@ namespace checkup.Areas.checkup.Controllers
             using DataSet? result = new DataSet();
             var httpContext = httpContextAccessor.HttpContext;
             string functionID = (httpContext?.Request.Query["functionID"]).ToStringSafe();
-            if (string.IsNullOrEmpty(functionID))
+            if (string.IsNullOrWhiteSpace(functionID))
             {
                 result.BuildExceptionData("Y", "Warning", $"functionID 확인 필요");
                 result.Tables.Add(new DataTable());
@@ -98,13 +98,13 @@ namespace checkup.Areas.checkup.Controllers
                 dataContext.connectionString = null;
             }
 
-            dataContext.globalID = !string.IsNullOrEmpty(dataContext.globalID) ? dataContext.globalID : $"OD00000{GlobalConfiguration.ApplicationID}{functionID.Replace(".", "")}F{now.ToString("HHmmss").ToSHA256().Substring(0, 6) + now.ToString("HHmmss")}";
-            dataContext.environment = !string.IsNullOrEmpty(dataContext.environment) ? dataContext.environment : "D";
-            dataContext.platform = !string.IsNullOrEmpty(dataContext.platform) ? dataContext.platform : "Windows"; // Windows, Linux, MacOS
-            dataContext.workingDirectoryPath = !string.IsNullOrEmpty(dataContext.workingDirectoryPath) ? dataContext.workingDirectoryPath : "../tmp/HDS/function/HDS_FN00";
+            dataContext.globalID = !string.IsNullOrWhiteSpace(dataContext.globalID) ? dataContext.globalID : $"OD00000{GlobalConfiguration.ApplicationID}{functionID.Replace(".", "")}F{now.ToString("HHmmss").ToSHA256().Substring(0, 6) + now.ToString("HHmmss")}";
+            dataContext.environment = !string.IsNullOrWhiteSpace(dataContext.environment) ? dataContext.environment : "D";
+            dataContext.platform = !string.IsNullOrWhiteSpace(dataContext.platform) ? dataContext.platform : "Windows"; // Windows, Linux, MacOS
+            dataContext.workingDirectoryPath = !string.IsNullOrWhiteSpace(dataContext.workingDirectoryPath) ? dataContext.workingDirectoryPath : "../tmp/HDS/function/HDS_FN00";
 
             string commandID = string.Empty;
-            var scriptMapFile = string.IsNullOrEmpty(ModuleConfiguration.ModuleBasePath) ? PathExtensions.Combine(ModuleConfiguration.ModuleBasePath, "featureTest.json") : PathExtensions.Combine(GlobalConfiguration.GetBaseDirectoryPath($"../modules/{ModuleConfiguration.ModuleID}"), "featureTest.json");
+            var scriptMapFile = string.IsNullOrWhiteSpace(ModuleConfiguration.ModuleBasePath) ? PathExtensions.Combine(ModuleConfiguration.ModuleBasePath, "featureTest.json") : PathExtensions.Combine(GlobalConfiguration.GetBaseDirectoryPath($"../modules/{ModuleConfiguration.ModuleID}"), "featureTest.json");
             if (System.IO.File.Exists(scriptMapFile) == true)
             {
                 var configData = System.IO.File.ReadAllText(scriptMapFile);
@@ -166,7 +166,7 @@ namespace checkup.Areas.checkup.Controllers
                 }
 
                 string? fileExtension = functionScriptContract.Header.LanguageType == "csharp" ? "cs" : null;
-                if (string.IsNullOrEmpty(fileExtension))
+                if (string.IsNullOrWhiteSpace(fileExtension))
                 {
                     result.BuildExceptionData("Y", "Warning", $"{functionScriptContract.Header.LanguageType} 언어 타입 확인 필요");
                     result.Tables.Add(new DataTable());
@@ -195,7 +195,7 @@ namespace checkup.Areas.checkup.Controllers
                 moduleScriptMap.IsHttpContext = header.IsHttpContext;
                 moduleScriptMap.ReferenceModuleID = header.ReferenceModuleID;
 
-                if (string.IsNullOrEmpty(item.EntryType))
+                if (string.IsNullOrWhiteSpace(item.EntryType))
                 {
                     moduleScriptMap.EntryType = $"{header.ApplicationID}.Function.{header.ProjectID}.{header.TransactionID}";
                 }
@@ -204,7 +204,7 @@ namespace checkup.Areas.checkup.Controllers
                     moduleScriptMap.EntryType = item.EntryType;
                 }
 
-                if (string.IsNullOrEmpty(item.EntryType))
+                if (string.IsNullOrWhiteSpace(item.EntryType))
                 {
                     moduleScriptMap.EntryMethod = item.ID;
                 }
@@ -249,7 +249,7 @@ namespace checkup.Areas.checkup.Controllers
                 return result;
             }
 
-            if (string.IsNullOrEmpty(dataContext.featureMeta.ApplicationID))
+            if (string.IsNullOrWhiteSpace(dataContext.featureMeta.ApplicationID))
             {
                 result.BuildExceptionData("Y", "Warning", $"Function 정보 확인 필요: {functionID}");
                 result.Tables.Add(new DataTable());
@@ -308,10 +308,10 @@ namespace checkup.Areas.checkup.Controllers
                 string applicationName = dynamicParameters.Value("ApplicationName").ToStringSafe();
                 string userNo = dynamicParameters.Value("UserNo").ToStringSafe();
 
-                if (string.IsNullOrEmpty(userWorkID)
-                    || string.IsNullOrEmpty(applicationID)
-                    || string.IsNullOrEmpty(applicationName)
-                    || string.IsNullOrEmpty(userNo))
+                if (string.IsNullOrWhiteSpace(userWorkID)
+                    || string.IsNullOrWhiteSpace(applicationID)
+                    || string.IsNullOrWhiteSpace(applicationName)
+                    || string.IsNullOrWhiteSpace(userNo))
                 {
                     result.BuildExceptionData("Y", "Warning", "필수 요청 정보 확인 필요", typeMember);
                     goto TransactionException;
@@ -329,14 +329,14 @@ namespace checkup.Areas.checkup.Controllers
                         string? sourceDirectoryPath = appBasePath;
 
                         List<Menu> menus = new List<Menu>();
-                        if (!string.IsNullOrEmpty(sourceDirectoryPath) && Directory.Exists(sourceDirectoryPath) == true)
+                        if (!string.IsNullOrWhiteSpace(sourceDirectoryPath) && Directory.Exists(sourceDirectoryPath) == true)
                         {
                             DirectoryInfo directoryInfo = new DirectoryInfo(sourceDirectoryPath);
                             if (directoryInfo.Exists == true)
                             {
                                 Menu rootDirectory = new Menu();
                                 rootDirectory.menuID = applicationID;
-                                rootDirectory.menuName = string.IsNullOrEmpty(applicationName) ? applicationID : applicationName;
+                                rootDirectory.menuName = string.IsNullOrWhiteSpace(applicationName) ? applicationID : applicationName;
 
                                 string projectType = string.Empty;
 
@@ -408,10 +408,10 @@ TransactionException:
             string itemPath = dynamicParameters.Value("ItemPath").ToStringSafe();
             string userNo = dynamicParameters.Value("UserNo").ToStringSafe();
 
-            if (string.IsNullOrEmpty(userWorkID)
-                || string.IsNullOrEmpty(applicationID)
-                || string.IsNullOrEmpty(itemPath)
-                || string.IsNullOrEmpty(userNo))
+            if (string.IsNullOrWhiteSpace(userWorkID)
+                || string.IsNullOrWhiteSpace(applicationID)
+                || string.IsNullOrWhiteSpace(itemPath)
+                || string.IsNullOrWhiteSpace(userNo))
             {
                 result.BuildExceptionData("Y", "Warning", "필수 요청 정보 확인 필요", typeMember);
                 goto TransactionException;
@@ -428,7 +428,7 @@ TransactionException:
                 {
                     string? sourceItemPath = PathExtensions.Combine(appBasePath, itemPath);
 
-                    if (!string.IsNullOrEmpty(sourceItemPath) && System.IO.File.Exists(sourceItemPath) == true)
+                    if (!string.IsNullOrWhiteSpace(sourceItemPath) && System.IO.File.Exists(sourceItemPath) == true)
                     {
                         sourceText = LZStringHelper.CompressToBase64(System.IO.File.ReadAllText(sourceItemPath));
                     }
@@ -482,11 +482,11 @@ TransactionException:
             string itemPath = dynamicParameters.Value("ItemPath").ToStringSafe();
             string userNo = dynamicParameters.Value("UserNo").ToStringSafe();
 
-            if (string.IsNullOrEmpty(userWorkID)
-                || string.IsNullOrEmpty(applicationID)
-                || string.IsNullOrEmpty(compressBase64)
-                || string.IsNullOrEmpty(itemPath)
-                || string.IsNullOrEmpty(userNo))
+            if (string.IsNullOrWhiteSpace(userWorkID)
+                || string.IsNullOrWhiteSpace(applicationID)
+                || string.IsNullOrWhiteSpace(compressBase64)
+                || string.IsNullOrWhiteSpace(itemPath)
+                || string.IsNullOrWhiteSpace(userNo))
             {
                 result.BuildExceptionData("Y", "Warning", "필수 요청 정보 확인 필요", typeMember);
                 goto TransactionException;
@@ -503,7 +503,7 @@ TransactionException:
                 {
                     string? sourceItemPath = PathExtensions.Combine(appBasePath, itemPath);
 
-                    if (!string.IsNullOrEmpty(sourceItemPath) && System.IO.File.Exists(sourceItemPath) == true)
+                    if (!string.IsNullOrWhiteSpace(sourceItemPath) && System.IO.File.Exists(sourceItemPath) == true)
                     {
                         string? sourceText = LZStringHelper.DecompressFromBase64(compressBase64);
                         System.IO.File.WriteAllText(sourceItemPath, sourceText);

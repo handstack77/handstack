@@ -1,7 +1,8 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -31,6 +32,11 @@ namespace wwwroot.Areas.wwwroot.Controllers
         [HttpPost("upload")]
         public async Task<IActionResult> Upload([FromForm] SyncUploadRequest request, IFormFile? file, CancellationToken cancellationToken)
         {
+            if (!TryValidateSyncRequest(out string authorizationError))
+            {
+                return Unauthorized(authorizationError);
+            }
+
             if (!SyncRequest.TryCreate(request.ModuleName, request.ChangeType, request.FilePath, out SyncRequest syncRequest, out string errorMessage))
             {
                 return BadRequest(errorMessage);
@@ -38,7 +44,7 @@ namespace wwwroot.Areas.wwwroot.Controllers
 
             if (syncRequest.IsDeleteChange)
             {
-                return Ok("Delete changeType is ignored.");
+                return Ok();
             }
 
             var result = await SyncProcessor.SaveUploadedFileAsync(syncRequest, file, cancellationToken);
@@ -53,6 +59,11 @@ namespace wwwroot.Areas.wwwroot.Controllers
         [HttpGet("refresh")]
         public async Task<IActionResult> Refresh([FromQuery] SyncRefreshRequest request, CancellationToken cancellationToken)
         {
+            if (!TryValidateSyncRequest(out string authorizationError))
+            {
+                return Unauthorized(authorizationError);
+            }
+
             if (!SyncRequest.TryCreate(request.ModuleName, request.ChangeType, request.FilePath, out SyncRequest syncRequest, out string errorMessage))
             {
                 return BadRequest(errorMessage);
@@ -60,7 +71,7 @@ namespace wwwroot.Areas.wwwroot.Controllers
 
             if (syncRequest.IsDeleteChange)
             {
-                return Ok("Delete changeType is ignored.");
+                return Ok();
             }
 
             string? authorizationKey = Request.Headers["AuthorizationKey"].FirstOrDefault();
@@ -72,6 +83,68 @@ namespace wwwroot.Areas.wwwroot.Controllers
             }
 
             return Ok(result.Message);
+        }
+
+        private bool TryValidateSyncRequest(out string errorMessage)
+        {
+            errorMessage = "";
+
+            if (ModuleConfiguration.FileSyncTokens.Count == 0)
+            {
+                errorMessage = "FileSync 토큰 설정 확인 필요.";
+                return false;
+            }
+
+            string authorizationHeader = Request.Headers["Authorization"].FirstOrDefault() ?? "";
+            if (string.IsNullOrWhiteSpace(authorizationHeader))
+            {
+                errorMessage = "Authorization 헤더 확인 필요.";
+                return false;
+            }
+
+            if (!TryReadBasicToken(authorizationHeader, out string token))
+            {
+                errorMessage = "Basic 인증 헤더 형식 확인 필요.";
+                return false;
+            }
+
+            if (!string.IsNullOrWhiteSpace(token) && !ModuleConfiguration.FileSyncTokens.Any(p => p.Equals(token, StringComparison.Ordinal)))
+            {
+                errorMessage = "동기화 인증 토큰 확인 필요.";
+                return false;
+            }
+
+            return true;
+        }
+
+        private static bool TryReadBasicToken(string authorizationHeader, out string token)
+        {
+            token = "";
+
+            const string basicPrefix = "Basic ";
+            if (!authorizationHeader.StartsWith(basicPrefix, StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            string basicPayload = authorizationHeader.Substring(basicPrefix.Length).Trim();
+            if (string.IsNullOrWhiteSpace(basicPayload))
+            {
+                return false;
+            }
+
+            try
+            {
+                string decodedCredential = Encoding.UTF8.GetString(Convert.FromBase64String(basicPayload));
+                int separatorIndex = decodedCredential.IndexOf(':');
+                token = separatorIndex >= 0 ? decodedCredential.Substring(0, separatorIndex).Trim() : decodedCredential.Trim();
+            }
+            catch (FormatException)
+            {
+                token = basicPayload;
+            }
+
+            return !string.IsNullOrWhiteSpace(token);
         }
     }
 
@@ -113,21 +186,21 @@ namespace wwwroot.Areas.wwwroot.Controllers
                 && normalizedModuleName != "function"
                 && normalizedModuleName != "wwwroot")
             {
-                errorMessage = "ModuleName is invalid.";
+                errorMessage = "모듈 명 확인 필요.";
                 return false;
             }
 
             string normalizedChangeType = (changeType ?? "").Trim();
             if (string.IsNullOrWhiteSpace(normalizedChangeType))
             {
-                errorMessage = "ChangeType is empty.";
+                errorMessage = "변경 타입 확인 필요.";
                 return false;
             }
 
             string normalizedRelativePath = (filePath ?? "").Replace("\\", "/").Trim().TrimStart('/');
             if (string.IsNullOrWhiteSpace(normalizedRelativePath))
             {
-                errorMessage = "FilePath is empty.";
+                errorMessage = "파일 정보 확인 필요.";
                 return false;
             }
 
@@ -172,7 +245,7 @@ namespace wwwroot.Areas.wwwroot.Controllers
         {
             if (file == null || file.Length == 0)
             {
-                return SyncProcessResult.Fail(StatusCodes.Status400BadRequest, "Upload file is empty.");
+                return SyncProcessResult.Fail(StatusCodes.Status400BadRequest, "업로드 파일이 비어 있습니다.");
             }
 
             if (!TryResolveContractFilePath(request, out string contractFilePath, out string contractDirectoryPath, out string errorMessage))
@@ -180,9 +253,9 @@ namespace wwwroot.Areas.wwwroot.Controllers
                 return SyncProcessResult.Fail(StatusCodes.Status400BadRequest, errorMessage);
             }
 
-            if (!File.Exists(contractFilePath) && !Directory.Exists(contractDirectoryPath))
+            if (!File.Exists(contractFilePath))
             {
-                return SyncProcessResult.Ok("Target directory or file does not exist. Sync skipped.");
+                return SyncProcessResult.Fail(StatusCodes.Status400BadRequest, "업로드 요청 무시.");
             }
 
             Directory.CreateDirectory(contractDirectoryPath);
@@ -193,14 +266,14 @@ namespace wwwroot.Areas.wwwroot.Controllers
                 await inputStream.CopyToAsync(outputStream, cancellationToken);
             }
 
-            return SyncProcessResult.Ok("Upload synchronized.");
+            return SyncProcessResult.Ok("업로드 동기화 완료.");
         }
 
         public static async Task<SyncProcessResult> RefreshModuleAsync(string scheme, string host, SyncRequest request, string? authorizationKey, CancellationToken cancellationToken)
         {
             if (request.ModuleName == "wwwroot")
             {
-                return SyncProcessResult.Ok("wwwroot contract synchronized.");
+                return SyncProcessResult.Ok("");
             }
 
             string refreshPath;
@@ -218,7 +291,7 @@ namespace wwwroot.Areas.wwwroot.Controllers
             }
             else
             {
-                return SyncProcessResult.Fail(StatusCodes.Status400BadRequest, "ModuleName is invalid.");
+                return SyncProcessResult.Fail(StatusCodes.Status400BadRequest, "모듈 명 확인 필요.");
             }
 
             string baseUrl = $"{scheme}://{host}".TrimEnd('/');
@@ -244,7 +317,7 @@ namespace wwwroot.Areas.wwwroot.Controllers
 
             return SyncProcessResult.Fail(
                 StatusCodes.Status502BadGateway,
-                $"Refresh failed. statusCode: {(int)response.StatusCode}, response: {responseText}");
+                $"리프레시 실패. 상태 코드: {(int)response.StatusCode}, 응답: {responseText}");
         }
 
         private static bool TryResolveContractFilePath(SyncRequest request, out string contractFilePath, out string contractDirectoryPath, out string errorMessage)
@@ -255,7 +328,7 @@ namespace wwwroot.Areas.wwwroot.Controllers
             string? contractBasePath = ResolveContractBasePath(request.ModuleName);
             if (string.IsNullOrWhiteSpace(contractBasePath))
             {
-                errorMessage = $"Contract base path not found. moduleName: {request.ModuleName}";
+                errorMessage = $"계약 기본 경로를 찾을 수 없습니다. 모듈 이름: {request.ModuleName}";
                 return false;
             }
 
@@ -264,7 +337,7 @@ namespace wwwroot.Areas.wwwroot.Controllers
 
             if (!IsPathUnderBase(candidatePath, normalizedBasePath))
             {
-                errorMessage = "FilePath is invalid.";
+                errorMessage = "파일 경로가 유효하지 않습니다.";
                 return false;
             }
 

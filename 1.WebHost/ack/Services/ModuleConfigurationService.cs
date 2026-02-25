@@ -31,7 +31,7 @@ namespace ack.Services
                 foreach (var item in GlobalConfiguration.ModuleConfigurationUrl)
                 {
                     moduleConfigurationUrl = item;
-                    if (string.IsNullOrEmpty(moduleConfigurationUrl) == false && Uri.TryCreate(moduleConfigurationUrl, UriKind.Absolute, out var uriResult) && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps) == true)
+                    if (string.IsNullOrWhiteSpace(moduleConfigurationUrl) == false && Uri.TryCreate(moduleConfigurationUrl, UriKind.Absolute, out var uriResult) && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps) == true)
                     {
                         logger.Information($"ModuleConfigurationUrl: {item} 요청");
 

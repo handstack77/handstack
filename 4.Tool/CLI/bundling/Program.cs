@@ -52,7 +52,7 @@ namespace bundling
             var optionDebug = new Option<bool?>("--debug") { Description = "프로그램 시작시 디버거에 프로세스가 연결 될 수 있도록 지연 후 시작됩니다.(기본값: 10초)", DefaultValueFactory = parseResult => false };
 
             var entryBasePath = AppDomain.CurrentDomain.BaseDirectory;
-            if (string.IsNullOrEmpty(entryBasePath) == true)
+            if (string.IsNullOrWhiteSpace(entryBasePath) == true)
             {
                 entryBasePath = AppDomain.CurrentDomain.BaseDirectory;
             }

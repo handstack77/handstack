@@ -27,14 +27,14 @@ namespace HandStack.Core.Helpers
         public static List<Tuple<int, string?, string?>> RunScript(string script, bool useShellExecute = false, bool redirectStandardError = false, bool redirectStandardOutput = false, bool createNoWindow = true, string? workingDirectory = null, bool? ignoreExitCode = false, string? echoPrefix = null)
         {
             var result = new List<Tuple<int, string?, string?>>();
-            if (!string.IsNullOrEmpty(script))
+            if (!string.IsNullOrWhiteSpace(script))
             {
                 var executeCommands = new List<string>();
                 var scripts = script.Split(Environment.NewLine);
                 foreach (var item in scripts)
                 {
                     var command = item.Trim();
-                    if (!string.IsNullOrEmpty(command))
+                    if (!string.IsNullOrWhiteSpace(command))
                     {
                         executeCommands.Add(command);
                     }
@@ -99,14 +99,14 @@ namespace HandStack.Core.Helpers
         public static List<int> RunScriptToConsole(string script, bool useShellExecute = false, bool createNoWindow = true, string? workingDirectory = null, bool? ignoreExitCode = false, string? echoPrefix = null)
         {
             var result = new List<int>();
-            if (!string.IsNullOrEmpty(script))
+            if (!string.IsNullOrWhiteSpace(script))
             {
                 var executeCommands = new List<string>();
                 var scripts = script.Split(Environment.NewLine);
                 foreach (var item in scripts)
                 {
                     var command = item.Trim();
-                    if (!string.IsNullOrEmpty(command))
+                    if (!string.IsNullOrWhiteSpace(command))
                     {
                         executeCommands.Add(command);
                     }
@@ -170,14 +170,14 @@ namespace HandStack.Core.Helpers
         public static Tuple<int, string> RunScriptToFileLog(string script, bool useShellExecute = false, bool createNoWindow = true, string? workingDirectory = null, bool? ignoreExitCode = false, string? echoPrefix = null, string? logFilePath = null)
         {
             var result = new Tuple<int, string>(-1, string.Empty);
-            if (!string.IsNullOrEmpty(script))
+            if (!string.IsNullOrWhiteSpace(script))
             {
                 var executeCommands = new List<string>();
                 var scripts = script.Split(Environment.NewLine);
                 foreach (var item in scripts)
                 {
                     var command = item.Trim();
-                    if (!string.IsNullOrEmpty(command))
+                    if (!string.IsNullOrWhiteSpace(command))
                     {
                         executeCommands.Add(command);
                     }

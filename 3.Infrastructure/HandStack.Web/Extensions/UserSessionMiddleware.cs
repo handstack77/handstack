@@ -31,7 +31,7 @@ namespace HandStack.Web.Extensions
             if (httpContext.Request.Path.Value != null && httpContext.Session.IsAvailable == true)
             {
                 var member = httpContext.Request.Cookies[$"{GlobalConfiguration.CookiePrefixName}.Member"];
-                if (!string.IsNullOrEmpty(member))
+                if (!string.IsNullOrWhiteSpace(member))
                 {
                     try
                     {
@@ -44,7 +44,7 @@ namespace HandStack.Web.Extensions
                             try
                             {
                                 httpContext.Request.Cookies.TryGetValue(GlobalConfiguration.SessionCookieName, out var cookieValue);
-                                if (!string.IsNullOrEmpty(cookieValue))
+                                if (!string.IsNullOrWhiteSpace(cookieValue))
                                 {
                                     var protectedData = Convert.FromBase64String(cookieValue.SessionDecryptPad());
                                     var unprotectedData = dataProtector.Unprotect(protectedData);
@@ -55,7 +55,7 @@ namespace HandStack.Web.Extensions
                             {
                             }
 
-                            if (!string.IsNullOrEmpty(contextSessionKey) && userSessionKey != contextSessionKey)
+                            if (!string.IsNullOrWhiteSpace(contextSessionKey) && userSessionKey != contextSessionKey)
                             {
                                 userAccount.SessionKey = contextSessionKey;
                                 var jsonAcount = JsonConvert.SerializeObject(userAccount);

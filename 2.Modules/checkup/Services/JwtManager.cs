@@ -42,7 +42,7 @@ namespace checkup.Services
                 if (appSetting != null)
                 {
                     var claims = new List<Claim>();
-                    if (!string.IsNullOrEmpty(userAccount.UserAccountID))
+                    if (!string.IsNullOrWhiteSpace(userAccount.UserAccountID))
                     {
                         claims.Add(new Claim("UserAccountID", userAccount.UserAccountID));
                     }
@@ -63,47 +63,47 @@ namespace checkup.Services
 
                     claims.Add(new Claim("Claims", JsonConvert.SerializeObject(userAccount.Claims)));
 
-                    if (!string.IsNullOrEmpty(userAccount.UserNo))
+                    if (!string.IsNullOrWhiteSpace(userAccount.UserNo))
                     {
                         claims.Add(new Claim("UserNo", userAccount.UserNo));
                     }
 
-                    if (!string.IsNullOrEmpty(userAccount.PositionName))
+                    if (!string.IsNullOrWhiteSpace(userAccount.PositionName))
                     {
                         claims.Add(new Claim("PositionName", userAccount.PositionName));
                     }
 
-                    if (!string.IsNullOrEmpty(userAccount.DepartmentName))
+                    if (!string.IsNullOrWhiteSpace(userAccount.DepartmentName))
                     {
                         claims.Add(new Claim("DepartmentName", userAccount.DepartmentName));
                     }
 
-                    if (!string.IsNullOrEmpty(userAccount.CompanyName))
+                    if (!string.IsNullOrWhiteSpace(userAccount.CompanyName))
                     {
                         claims.Add(new Claim("CompanyName", userAccount.CompanyName));
                     }
 
-                    if (!string.IsNullOrEmpty(userAccount.BirthDate))
+                    if (!string.IsNullOrWhiteSpace(userAccount.BirthDate))
                     {
                         claims.Add(new Claim("BirthDate", userAccount.BirthDate));
                     }
 
-                    if (!string.IsNullOrEmpty(userAccount.Gender))
+                    if (!string.IsNullOrWhiteSpace(userAccount.Gender))
                     {
                         claims.Add(new Claim("Gender", userAccount.Gender));
                     }
 
-                    if (!string.IsNullOrEmpty(userAccount.Address))
+                    if (!string.IsNullOrWhiteSpace(userAccount.Address))
                     {
                         claims.Add(new Claim("Address", userAccount.Address));
                     }
 
-                    if (!string.IsNullOrEmpty(userAccount.ExtendOption))
+                    if (!string.IsNullOrWhiteSpace(userAccount.ExtendOption))
                     {
                         claims.Add(new Claim("ExtendOption", userAccount.ExtendOption));
                     }
 
-                    if (!string.IsNullOrEmpty(userAccount.SessionKey))
+                    if (!string.IsNullOrWhiteSpace(userAccount.SessionKey))
                     {
                         claims.Add(new Claim("SessionKey", userAccount.SessionKey));
                     }
@@ -135,7 +135,7 @@ namespace checkup.Services
         public async Task<bool> ValidateJwtToken(string token, string userWorkID, string applicationID)
         {
             var result = false;
-            if (string.IsNullOrEmpty(token))
+            if (string.IsNullOrWhiteSpace(token))
             {
                 return result;
             }
@@ -195,7 +195,7 @@ namespace checkup.Services
         public async Task<UserAccount?> GetUserAccount(string token, string userWorkID, string applicationID)
         {
             UserAccount? result = null;
-            if (string.IsNullOrEmpty(token))
+            if (string.IsNullOrWhiteSpace(token))
             {
                 return result;
             }

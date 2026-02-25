@@ -60,7 +60,7 @@ namespace HandStack.Core.ExtensionMethod
 
             var buffer = new byte[2048];
             var path = @this.Location;
-            if (string.IsNullOrEmpty(path))
+            if (string.IsNullOrWhiteSpace(path))
             {
                 return DateTime.MinValue;
             }

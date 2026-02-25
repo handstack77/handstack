@@ -62,7 +62,7 @@ namespace logger.Areas.logger.Controllers
 
             try
             {
-                if (string.IsNullOrEmpty(logMessage.ApplicationID))
+                if (string.IsNullOrWhiteSpace(logMessage.ApplicationID))
                 {
                     logger.Warning("필수 요청 항목 확인 필요: " + JsonConvert.SerializeObject(logMessage));
                     return result;
@@ -103,7 +103,7 @@ namespace logger.Areas.logger.Controllers
 
             try
             {
-                if (string.IsNullOrEmpty(applicationID))
+                if (string.IsNullOrWhiteSpace(applicationID))
                 {
                     logger.Warning("필수 요청 항목 확인 필요: " + JsonConvert.SerializeObject(new
                     {
@@ -165,7 +165,7 @@ namespace logger.Areas.logger.Controllers
 
             try
             {
-                if (string.IsNullOrEmpty(applicationID) || string.IsNullOrEmpty(logNo))
+                if (string.IsNullOrWhiteSpace(applicationID) || string.IsNullOrWhiteSpace(logNo))
                 {
                     logger.Warning("필수 요청 항목 확인 필요: " + JsonConvert.SerializeObject(new
                     {

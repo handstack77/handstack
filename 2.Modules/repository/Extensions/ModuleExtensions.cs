@@ -37,7 +37,7 @@ namespace repository.Extensions
         {
             dynamic? result = null;
 
-            if (string.IsNullOrEmpty(repository.SQLiteConnectionString))
+            if (string.IsNullOrWhiteSpace(repository.SQLiteConnectionString))
             {
                 Log.Warning("[{LogCategory}] " + $"applicationID: {repository.ApplicationID}, repository: {repository.RepositoryID} SQLite 연결문자열 확인 필요", "ModuleExtensions/ExecuteMetaSQL");
             }
@@ -94,7 +94,7 @@ namespace repository.Extensions
         {
             List<T>? result = null;
 
-            if (string.IsNullOrEmpty(repository.SQLiteConnectionString))
+            if (string.IsNullOrWhiteSpace(repository.SQLiteConnectionString))
             {
                 Log.Warning("[{LogCategory}] " + $"applicationID: {repository.ApplicationID}, repository: {repository.RepositoryID} SQLite 연결문자열 확인 필요", "ModuleExtensions/ExecuteMetaSQL");
             }

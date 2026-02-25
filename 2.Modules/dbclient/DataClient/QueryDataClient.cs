@@ -52,7 +52,7 @@ namespace dbclient.DataClient
     ///     parameters.Add("@CodeGroupID", "hello world");
     ///     
     ///	    var dynamicResult = queryDataClient.ExecuteDirectSQLMap("DZAAA001L00", parameters);
-    ///	    if (string.IsNullOrEmpty(dynamicResult.ExceptionText))
+    ///	    if (string.IsNullOrWhiteSpace(dynamicResult.ExceptionText))
     ///	    {
     ///	    	List<DomainClient> clients = queryDataClient.DbConnection.Query<DomainClient>(dynamicResult.ParseSQL, dynamicResult.DynamicParameters).AsList();
     ///	    }
@@ -201,7 +201,7 @@ namespace dbclient.DataClient
                                 dynamicParameters.Add(
                                     dynamicParameter.ParameterName,
                                     dynamicParameter.Value == null && dbParameterMap.DefaultValue != "NULL" ? dbParameterMap.DefaultValue : dynamicParameter.Value,
-                                    (DbType)Enum.Parse(typeof(DbType), string.IsNullOrEmpty(dbParameterMap.DbType) ? dynamicParameter.DbType : dbParameterMap.DbType),
+                                    (DbType)Enum.Parse(typeof(DbType), string.IsNullOrWhiteSpace(dbParameterMap.DbType) ? dynamicParameter.DbType : dbParameterMap.DbType),
                                     (ParameterDirection)Enum.Parse(typeof(ParameterDirection), dbParameterMap.Direction),
                                     dbParameterMap.Length <= 0 ? -1 : dbParameterMap.Length
                                 );
@@ -297,7 +297,7 @@ namespace dbclient.DataClient
 
                 foreach (var item in transactionDynamicObjects)
                 {
-                    if (string.IsNullOrEmpty(item.Value.ConnectionString))
+                    if (string.IsNullOrWhiteSpace(item.Value.ConnectionString))
                     {
                         response.ExceptionText = $"{item.Key}에 대한 DataSourceID 데이터 원본 확인 필요";
                         return;
@@ -343,7 +343,7 @@ namespace dbclient.DataClient
                             {
                                 var baseFieldMapping = dynamicObject.BaseFieldMappings[baseFieldIndex];
 
-                                if (!string.IsNullOrEmpty(baseFieldMapping.BaseSequence))
+                                if (!string.IsNullOrWhiteSpace(baseFieldMapping.BaseSequence))
                                 {
                                     var baseSequenceMapping = int.Parse(baseFieldMapping.BaseSequence);
                                     if (baseSequence != baseSequenceMapping)
@@ -547,7 +547,7 @@ namespace dbclient.DataClient
                         }
                     }
 
-                    if (!string.IsNullOrEmpty(statementMap.BeforeTransactionCommand))
+                    if (!string.IsNullOrWhiteSpace(statementMap.BeforeTransactionCommand))
                     {
                         var logData = "";
                         if (ModuleConfiguration.IsTransactionLogging == true)
@@ -568,7 +568,7 @@ namespace dbclient.DataClient
 
                         var transactionCommands = statementMap.BeforeTransactionCommand.Split('|');
                         var beforeCommandResult = await businessApiClient.OnewayTransactionCommandAsync(transactionCommands, request.GlobalID, dynamicObject.QueryID, dynamicParameters);
-                        if (!string.IsNullOrEmpty(beforeCommandResult))
+                        if (!string.IsNullOrWhiteSpace(beforeCommandResult))
                         {
                             response.ExceptionText = $"ExecuteDynamicSQLMap.BeforeTransactionCommand Error: {beforeCommandResult}";
 
@@ -705,7 +705,7 @@ namespace dbclient.DataClient
                                                     var baseTable = ds.Tables[baseFieldRelation.BaseSequence];
                                                     if (baseTable != null)
                                                     {
-                                                        var baseColumnID = string.IsNullOrEmpty(baseFieldRelation.RelationFieldID) ? "_Children" : baseFieldRelation.RelationFieldID;
+                                                        var baseColumnID = string.IsNullOrWhiteSpace(baseFieldRelation.RelationFieldID) ? "_Children" : baseFieldRelation.RelationFieldID;
                                                         if (baseTable.Columns.Contains(baseColumnID) == false && baseFieldRelation.RelationMappings.Count > 0)
                                                         {
                                                             baseTable.Columns.Add(baseColumnID, typeof(object));
@@ -860,7 +860,7 @@ namespace dbclient.DataClient
                                     logger.Error("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMap");
                                 });
 
-                                if (!string.IsNullOrEmpty(statementMap.FallbackTransactionCommand))
+                                if (!string.IsNullOrWhiteSpace(statementMap.FallbackTransactionCommand))
                                 {
                                     logData = $"GlobalID={request.GlobalID}, QueryID={dynamicObject.QueryID}, FallbackTransactionCommand: {statementMap.FallbackTransactionCommand}, dynamicParameters={JsonConvert.SerializeObject(dynamicParameters)}";
                                     if (ModuleConfiguration.IsLogServer == true)
@@ -877,7 +877,7 @@ namespace dbclient.DataClient
 
                                     var transactionCommands = statementMap.FallbackTransactionCommand.Split('|');
                                     var fallbackCommandResult = businessApiClient.OnewayTransactionCommand(transactionCommands, request.GlobalID, dynamicObject.QueryID, dynamicParameters);
-                                    if (!string.IsNullOrEmpty(fallbackCommandResult))
+                                    if (!string.IsNullOrWhiteSpace(fallbackCommandResult))
                                     {
                                         response.ExceptionText = response.ExceptionText + $", ExecuteDynamicSQLMap.FallbackTransactionCommand Error: {fallbackCommandResult}";
 
@@ -920,7 +920,7 @@ namespace dbclient.DataClient
                             logger.Error("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMap");
                         });
 
-                        if (!string.IsNullOrEmpty(statementMap.FallbackTransactionCommand))
+                        if (!string.IsNullOrWhiteSpace(statementMap.FallbackTransactionCommand))
                         {
                             logData = $"GlobalID={request.GlobalID}, QueryID={dynamicObject.QueryID}, FallbackTransactionCommand: {statementMap.FallbackTransactionCommand}, dynamicParameters={JsonConvert.SerializeObject(dynamicParameters)}";
                             if (ModuleConfiguration.IsLogServer == true)
@@ -937,7 +937,7 @@ namespace dbclient.DataClient
 
                             var transactionCommands = statementMap.FallbackTransactionCommand.Split('|');
                             var fallbackCommandResult = businessApiClient.OnewayTransactionCommand(transactionCommands, request.GlobalID, dynamicObject.QueryID, dynamicParameters);
-                            if (!string.IsNullOrEmpty(fallbackCommandResult))
+                            if (!string.IsNullOrWhiteSpace(fallbackCommandResult))
                             {
                                 response.ExceptionText = response.ExceptionText + $", ExecuteDynamicSQLMap.FallbackTransactionCommand Error: {fallbackCommandResult}";
 
@@ -956,13 +956,13 @@ namespace dbclient.DataClient
                         }
                     }
 
-                    if (string.IsNullOrEmpty(response.ExceptionText))
+                    if (string.IsNullOrWhiteSpace(response.ExceptionText))
                     {
-                        if (!string.IsNullOrEmpty(statementMap.AfterTransactionCommand))
+                        if (!string.IsNullOrWhiteSpace(statementMap.AfterTransactionCommand))
                         {
                             var transactionCommands = statementMap.AfterTransactionCommand.Split('|');
                             var afterCommandResult = businessApiClient.OnewayTransactionCommand(transactionCommands, request.GlobalID, dynamicObject.QueryID, dynamicParameters);
-                            if (!string.IsNullOrEmpty(afterCommandResult))
+                            if (!string.IsNullOrWhiteSpace(afterCommandResult))
                             {
                                 response.ExceptionText = $"ExecuteDynamicSQLMap.AfterTransactionCommand Error: GlobalID={request.GlobalID}, QueryID={dynamicObject.QueryID}, CommandID={statementMap.AfterTransactionCommand}, CommandResult={afterCommandResult}";
                                 isCommandError = true;
@@ -1114,7 +1114,7 @@ TransactionException:
 
                 foreach (var item in transactionDynamicObjects)
                 {
-                    if (string.IsNullOrEmpty(item.Value.ConnectionString))
+                    if (string.IsNullOrWhiteSpace(item.Value.ConnectionString))
                     {
                         response.ExceptionText = $"{item.Key}에 대한 DataSourceID 데이터 원본 확인 필요";
                         return;
@@ -1158,7 +1158,7 @@ TransactionException:
                             {
                                 var baseFieldMapping = dynamicObject.BaseFieldMappings[baseFieldIndex];
 
-                                if (!string.IsNullOrEmpty(baseFieldMapping.BaseSequence))
+                                if (!string.IsNullOrWhiteSpace(baseFieldMapping.BaseSequence))
                                 {
                                     var baseSequenceMapping = int.Parse(baseFieldMapping.BaseSequence);
                                     if (baseSequence != baseSequenceMapping)
@@ -1361,7 +1361,7 @@ TransactionException:
                         }
                     }
 
-                    if (!string.IsNullOrEmpty(statementMap.BeforeTransactionCommand))
+                    if (!string.IsNullOrWhiteSpace(statementMap.BeforeTransactionCommand))
                     {
                         var logData = "";
                         if (ModuleConfiguration.IsTransactionLogging == true)
@@ -1382,7 +1382,7 @@ TransactionException:
 
                         var transactionCommands = statementMap.BeforeTransactionCommand.Split('|');
                         var beforeCommandResult = await businessApiClient.OnewayTransactionCommandAsync(transactionCommands, request.GlobalID, dynamicObject.QueryID, dynamicParameters);
-                        if (!string.IsNullOrEmpty(beforeCommandResult))
+                        if (!string.IsNullOrWhiteSpace(beforeCommandResult))
                         {
                             response.ExceptionText = $"ExecuteDynamicSQLMapToScalar.BeforeTransactionCommand Error: {beforeCommandResult}";
 
@@ -1539,7 +1539,7 @@ TransactionException:
                                     logger.Error("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMapToScalar");
                                 });
 
-                                if (!string.IsNullOrEmpty(statementMap.FallbackTransactionCommand))
+                                if (!string.IsNullOrWhiteSpace(statementMap.FallbackTransactionCommand))
                                 {
                                     logData = $"GlobalID={request.GlobalID}, QueryID={dynamicObject.QueryID}, FallbackTransactionCommand: {statementMap.FallbackTransactionCommand}, dynamicParameters={JsonConvert.SerializeObject(dynamicParameters)}";
                                     if (ModuleConfiguration.IsLogServer == true)
@@ -1556,7 +1556,7 @@ TransactionException:
 
                                     var transactionCommands = statementMap.FallbackTransactionCommand.Split('|');
                                     var fallbackCommandResult = businessApiClient.OnewayTransactionCommand(transactionCommands, request.GlobalID, dynamicObject.QueryID, dynamicParameters);
-                                    if (!string.IsNullOrEmpty(fallbackCommandResult))
+                                    if (!string.IsNullOrWhiteSpace(fallbackCommandResult))
                                     {
                                         response.ExceptionText = response.ExceptionText + $", ExecuteDynamicSQLMapToScalar.FallbackTransactionCommand Error: {fallbackCommandResult}";
 
@@ -1589,7 +1589,7 @@ TransactionException:
                             logger.Error("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMapToScalar");
                         });
 
-                        if (!string.IsNullOrEmpty(statementMap.FallbackTransactionCommand))
+                        if (!string.IsNullOrWhiteSpace(statementMap.FallbackTransactionCommand))
                         {
                             logData = $"GlobalID={request.GlobalID}, QueryID={dynamicObject.QueryID}, FallbackTransactionCommand: {statementMap.FallbackTransactionCommand}, dynamicParameters={JsonConvert.SerializeObject(dynamicParameters)}";
                             if (ModuleConfiguration.IsLogServer == true)
@@ -1606,7 +1606,7 @@ TransactionException:
 
                             var transactionCommands = statementMap.FallbackTransactionCommand.Split('|');
                             var fallbackCommandResult = businessApiClient.OnewayTransactionCommand(transactionCommands, request.GlobalID, dynamicObject.QueryID, dynamicParameters);
-                            if (!string.IsNullOrEmpty(fallbackCommandResult))
+                            if (!string.IsNullOrWhiteSpace(fallbackCommandResult))
                             {
                                 response.ExceptionText = response.ExceptionText + $", ExecuteDynamicSQLMapToScalar.FallbackTransactionCommand Error: {fallbackCommandResult}";
 
@@ -1625,13 +1625,13 @@ TransactionException:
                         }
                     }
 
-                    if (string.IsNullOrEmpty(response.ExceptionText))
+                    if (string.IsNullOrWhiteSpace(response.ExceptionText))
                     {
-                        if (!string.IsNullOrEmpty(statementMap.AfterTransactionCommand))
+                        if (!string.IsNullOrWhiteSpace(statementMap.AfterTransactionCommand))
                         {
                             var transactionCommands = statementMap.AfterTransactionCommand.Split('|');
                             var afterCommandResult = businessApiClient.OnewayTransactionCommand(transactionCommands, request.GlobalID, dynamicObject.QueryID, dynamicParameters);
-                            if (!string.IsNullOrEmpty(afterCommandResult))
+                            if (!string.IsNullOrWhiteSpace(afterCommandResult))
                             {
                                 response.ExceptionText = $"ExecuteDynamicSQLMapToScalar.AfterTransactionCommand Error: GlobalID={request.GlobalID}, QueryID={dynamicObject.QueryID}, CommandID={statementMap.AfterTransactionCommand}, CommandResult={afterCommandResult}";
                                 isCommandError = true;
@@ -1779,7 +1779,7 @@ TransactionException:
 
                 foreach (var item in transactionDynamicObjects)
                 {
-                    if (string.IsNullOrEmpty(item.Value.ConnectionString))
+                    if (string.IsNullOrWhiteSpace(item.Value.ConnectionString))
                     {
                         response.ExceptionText = $"{item.Key}에 대한 DataSourceID 데이터 원본 확인 필요";
                         return;
@@ -1822,7 +1822,7 @@ TransactionException:
                             {
                                 var baseFieldMapping = dynamicObject.BaseFieldMappings[baseFieldIndex];
 
-                                if (!string.IsNullOrEmpty(baseFieldMapping.BaseSequence))
+                                if (!string.IsNullOrWhiteSpace(baseFieldMapping.BaseSequence))
                                 {
                                     var baseSequenceMapping = int.Parse(baseFieldMapping.BaseSequence);
                                     if (baseSequence != baseSequenceMapping)
@@ -2025,7 +2025,7 @@ TransactionException:
                         }
                     }
 
-                    if (!string.IsNullOrEmpty(statementMap.BeforeTransactionCommand))
+                    if (!string.IsNullOrWhiteSpace(statementMap.BeforeTransactionCommand))
                     {
                         var logData = "";
                         if (ModuleConfiguration.IsTransactionLogging == true)
@@ -2046,7 +2046,7 @@ TransactionException:
 
                         var transactionCommands = statementMap.BeforeTransactionCommand.Split('|');
                         var beforeCommandResult = await businessApiClient.OnewayTransactionCommandAsync(transactionCommands, request.GlobalID, dynamicObject.QueryID, dynamicParameters);
-                        if (!string.IsNullOrEmpty(beforeCommandResult))
+                        if (!string.IsNullOrWhiteSpace(beforeCommandResult))
                         {
                             response.ExceptionText = $"ExecuteDynamicSQLMapToNonQuery.BeforeTransactionCommand Error: {beforeCommandResult}";
 
@@ -2208,7 +2208,7 @@ TransactionException:
                                     logger.Error("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMapToNonQuery");
                                 });
 
-                                if (!string.IsNullOrEmpty(statementMap.FallbackTransactionCommand))
+                                if (!string.IsNullOrWhiteSpace(statementMap.FallbackTransactionCommand))
                                 {
                                     logData = $"GlobalID={request.GlobalID}, QueryID={dynamicObject.QueryID}, FallbackTransactionCommand: {statementMap.FallbackTransactionCommand}, dynamicParameters={JsonConvert.SerializeObject(dynamicParameters)}";
                                     if (ModuleConfiguration.IsLogServer == true)
@@ -2225,7 +2225,7 @@ TransactionException:
 
                                     var transactionCommands = statementMap.FallbackTransactionCommand.Split('|');
                                     var fallbackCommandResult = businessApiClient.OnewayTransactionCommand(transactionCommands, request.GlobalID, dynamicObject.QueryID, dynamicParameters);
-                                    if (!string.IsNullOrEmpty(fallbackCommandResult))
+                                    if (!string.IsNullOrWhiteSpace(fallbackCommandResult))
                                     {
                                         response.ExceptionText = response.ExceptionText + $", ExecuteDynamicSQLMapToNonQuery.FallbackTransactionCommand Error: {fallbackCommandResult}";
 
@@ -2258,7 +2258,7 @@ TransactionException:
                             logger.Error("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMapToNonQuery");
                         });
 
-                        if (!string.IsNullOrEmpty(statementMap.FallbackTransactionCommand))
+                        if (!string.IsNullOrWhiteSpace(statementMap.FallbackTransactionCommand))
                         {
                             logData = $"GlobalID={request.GlobalID}, QueryID={dynamicObject.QueryID}, FallbackTransactionCommand: {statementMap.FallbackTransactionCommand}, dynamicParameters={JsonConvert.SerializeObject(dynamicParameters)}";
                             if (ModuleConfiguration.IsLogServer == true)
@@ -2275,7 +2275,7 @@ TransactionException:
 
                             var transactionCommands = statementMap.FallbackTransactionCommand.Split('|');
                             var fallbackCommandResult = businessApiClient.OnewayTransactionCommand(transactionCommands, request.GlobalID, dynamicObject.QueryID, dynamicParameters);
-                            if (!string.IsNullOrEmpty(fallbackCommandResult))
+                            if (!string.IsNullOrWhiteSpace(fallbackCommandResult))
                             {
                                 response.ExceptionText = response.ExceptionText + $", ExecuteDynamicSQLMapToNonQuery.FallbackTransactionCommand Error: {fallbackCommandResult}";
 
@@ -2294,13 +2294,13 @@ TransactionException:
                         }
                     }
 
-                    if (string.IsNullOrEmpty(response.ExceptionText))
+                    if (string.IsNullOrWhiteSpace(response.ExceptionText))
                     {
-                        if (!string.IsNullOrEmpty(statementMap.AfterTransactionCommand))
+                        if (!string.IsNullOrWhiteSpace(statementMap.AfterTransactionCommand))
                         {
                             var transactionCommands = statementMap.AfterTransactionCommand.Split('|');
                             var afterCommandResult = businessApiClient.OnewayTransactionCommand(transactionCommands, request.GlobalID, dynamicObject.QueryID, dynamicParameters);
-                            if (!string.IsNullOrEmpty(afterCommandResult))
+                            if (!string.IsNullOrWhiteSpace(afterCommandResult))
                             {
                                 response.ExceptionText = $"ExecuteDynamicSQLMapToNonQuery.AfterTransactionCommand Error: GlobalID={request.GlobalID}, QueryID={dynamicObject.QueryID}, CommandID={statementMap.AfterTransactionCommand}, CommandResult={afterCommandResult}";
                                 isCommandError = true;
@@ -2447,7 +2447,7 @@ TransactionException:
 
                 foreach (var item in transactionDynamicObjects)
                 {
-                    if (string.IsNullOrEmpty(item.Value.ConnectionString))
+                    if (string.IsNullOrWhiteSpace(item.Value.ConnectionString))
                     {
                         response.ExceptionText = $"{item.Key}에 대한 DataSourceID 데이터 원본 확인 필요";
                         return;
@@ -2487,7 +2487,7 @@ TransactionException:
                             {
                                 var baseFieldMapping = dynamicObject.BaseFieldMappings[baseFieldIndex];
 
-                                if (!string.IsNullOrEmpty(baseFieldMapping.BaseSequence))
+                                if (!string.IsNullOrWhiteSpace(baseFieldMapping.BaseSequence))
                                 {
                                     var baseSequenceMapping = int.Parse(baseFieldMapping.BaseSequence);
                                     if (baseSequence != baseSequenceMapping)
@@ -2689,7 +2689,7 @@ TransactionException:
                         }
                     }
 
-                    if (!string.IsNullOrEmpty(statementMap.BeforeTransactionCommand))
+                    if (!string.IsNullOrWhiteSpace(statementMap.BeforeTransactionCommand))
                     {
                         var logData = "";
                         if (ModuleConfiguration.IsTransactionLogging == true)
@@ -2710,7 +2710,7 @@ TransactionException:
 
                         var transactionCommands = statementMap.BeforeTransactionCommand.Split('|');
                         var beforeCommandResult = await businessApiClient.OnewayTransactionCommandAsync(transactionCommands, request.GlobalID, dynamicObject.QueryID, dynamicParameters);
-                        if (!string.IsNullOrEmpty(beforeCommandResult))
+                        if (!string.IsNullOrWhiteSpace(beforeCommandResult))
                         {
                             response.ExceptionText = $"ExecuteDynamicSQLMapToXml.BeforeTransactionCommand Error: {beforeCommandResult}";
 
@@ -2844,7 +2844,7 @@ TransactionException:
                                                     var baseTable = ds.Tables[baseFieldRelation.BaseSequence];
                                                     if (baseTable != null)
                                                     {
-                                                        var baseColumnID = string.IsNullOrEmpty(baseFieldRelation.RelationFieldID) ? "_Children" : baseFieldRelation.RelationFieldID;
+                                                        var baseColumnID = string.IsNullOrWhiteSpace(baseFieldRelation.RelationFieldID) ? "_Children" : baseFieldRelation.RelationFieldID;
                                                         if (baseTable.Columns.Contains(baseColumnID) == false && baseFieldRelation.RelationMappings.Count > 0)
                                                         {
                                                             baseTable.Columns.Add(baseColumnID, typeof(object));
@@ -2951,7 +2951,7 @@ TransactionException:
                                     logger.Error("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMapToXml");
                                 });
 
-                                if (!string.IsNullOrEmpty(statementMap.FallbackTransactionCommand))
+                                if (!string.IsNullOrWhiteSpace(statementMap.FallbackTransactionCommand))
                                 {
                                     logData = $"GlobalID={request.GlobalID}, QueryID={dynamicObject.QueryID}, FallbackTransactionCommand: {statementMap.FallbackTransactionCommand}, dynamicParameters={JsonConvert.SerializeObject(dynamicParameters)}";
                                     if (ModuleConfiguration.IsLogServer == true)
@@ -2968,7 +2968,7 @@ TransactionException:
 
                                     var transactionCommands = statementMap.FallbackTransactionCommand.Split('|');
                                     var fallbackCommandResult = businessApiClient.OnewayTransactionCommand(transactionCommands, request.GlobalID, dynamicObject.QueryID, dynamicParameters);
-                                    if (!string.IsNullOrEmpty(fallbackCommandResult))
+                                    if (!string.IsNullOrWhiteSpace(fallbackCommandResult))
                                     {
                                         response.ExceptionText = response.ExceptionText + $", ExecuteDynamicSQLMapToXml.FallbackTransactionCommand Error: {fallbackCommandResult}";
 
@@ -3001,7 +3001,7 @@ TransactionException:
                             logger.Error("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMapToXml");
                         });
 
-                        if (!string.IsNullOrEmpty(statementMap.FallbackTransactionCommand))
+                        if (!string.IsNullOrWhiteSpace(statementMap.FallbackTransactionCommand))
                         {
                             logData = $"GlobalID={request.GlobalID}, QueryID={dynamicObject.QueryID}, FallbackTransactionCommand: {statementMap.FallbackTransactionCommand}, dynamicParameters={JsonConvert.SerializeObject(dynamicParameters)}";
                             if (ModuleConfiguration.IsLogServer == true)
@@ -3018,7 +3018,7 @@ TransactionException:
 
                             var transactionCommands = statementMap.FallbackTransactionCommand.Split('|');
                             var fallbackCommandResult = businessApiClient.OnewayTransactionCommand(transactionCommands, request.GlobalID, dynamicObject.QueryID, dynamicParameters);
-                            if (!string.IsNullOrEmpty(fallbackCommandResult))
+                            if (!string.IsNullOrWhiteSpace(fallbackCommandResult))
                             {
                                 response.ExceptionText = response.ExceptionText + $", ExecuteDynamicSQLMapToXml.FallbackTransactionCommand Error: {fallbackCommandResult}";
 
@@ -3037,13 +3037,13 @@ TransactionException:
                         }
                     }
 
-                    if (string.IsNullOrEmpty(response.ExceptionText))
+                    if (string.IsNullOrWhiteSpace(response.ExceptionText))
                     {
-                        if (!string.IsNullOrEmpty(statementMap.AfterTransactionCommand))
+                        if (!string.IsNullOrWhiteSpace(statementMap.AfterTransactionCommand))
                         {
                             var transactionCommands = statementMap.AfterTransactionCommand.Split('|');
                             var afterCommandResult = businessApiClient.OnewayTransactionCommand(transactionCommands, request.GlobalID, dynamicObject.QueryID, dynamicParameters);
-                            if (!string.IsNullOrEmpty(afterCommandResult))
+                            if (!string.IsNullOrWhiteSpace(afterCommandResult))
                             {
                                 response.ExceptionText = $"ExecuteDynamicSQLMapToXml.AfterTransactionCommand Error: GlobalID={request.GlobalID}, QueryID={dynamicObject.QueryID}, CommandID={statementMap.AfterTransactionCommand}, CommandResult={afterCommandResult}";
                                 isCommandError = true;
@@ -3200,7 +3200,7 @@ TransactionException:
 
                 foreach (var item in transactionDynamicObjects)
                 {
-                    if (string.IsNullOrEmpty(item.Value.ConnectionString))
+                    if (string.IsNullOrWhiteSpace(item.Value.ConnectionString))
                     {
                         response.ExceptionText = $"{item.Key}에 대한 DataSourceID 데이터 원본 확인 필요";
                         return;
@@ -3296,7 +3296,7 @@ TransactionException:
                                                         -1
                                                     );
 
-                                                    adHocParameters.Add(GetParameterName(parameterName), string.IsNullOrEmpty(parameterValue) ? null : JToken.FromObject(parameterValue));
+                                                    adHocParameters.Add(GetParameterName(parameterName), string.IsNullOrWhiteSpace(parameterValue) ? null : JToken.FromObject(parameterValue));
                                                 }
                                             }
                                         }
@@ -3378,7 +3378,7 @@ TransactionException:
                         });
                     }
 
-                    if (string.IsNullOrEmpty(response.ExceptionText))
+                    if (string.IsNullOrWhiteSpace(response.ExceptionText))
                     {
                     }
                     else
@@ -3506,7 +3506,7 @@ TransactionException:
 
                 foreach (var item in transactionDynamicObjects)
                 {
-                    if (string.IsNullOrEmpty(item.Value.ConnectionString))
+                    if (string.IsNullOrWhiteSpace(item.Value.ConnectionString))
                     {
                         response.ExceptionText = $"{item.Key}에 대한 DataSourceID 데이터 원본 확인 필요";
                         return;
@@ -4021,7 +4021,7 @@ TransactionException:
 
                 foreach (var item in transactionDynamicObjects)
                 {
-                    if (string.IsNullOrEmpty(item.Value.ConnectionString))
+                    if (string.IsNullOrWhiteSpace(item.Value.ConnectionString))
                     {
                         response.ExceptionText = $"{item.Key}에 대한 DataSourceID 데이터 원본 확인 필요";
                         return;
@@ -4796,7 +4796,7 @@ TransactionException:
                         continue;
                     }
 
-                    if (dynamicParameter == null || string.IsNullOrEmpty(dynamicParameter.Value.ToStringSafe()) == true)
+                    if (dynamicParameter == null || string.IsNullOrWhiteSpace(dynamicParameter.Value.ToStringSafe()) == true)
                     {
                         if (dynamicParameter == null)
                         {
@@ -4845,11 +4845,11 @@ TransactionException:
                         switch (databaseProvider)
                         {
                             case DataProviders.SqlServer:
-                                dynamicDbType = (SqlDbType)Enum.Parse(typeof(SqlDbType), string.IsNullOrEmpty(dbParameterMap.DbType) ? dynamicParameter.DbType : dbParameterMap.DbType);
+                                dynamicDbType = (SqlDbType)Enum.Parse(typeof(SqlDbType), string.IsNullOrWhiteSpace(dbParameterMap.DbType) ? dynamicParameter.DbType : dbParameterMap.DbType);
                                 dynamicValue = dynamicParameter.Value;
                                 break;
                             case DataProviders.Oracle:
-                                dynamicDbType = (OracleDbType)Enum.Parse(typeof(OracleDbType), string.IsNullOrEmpty(dbParameterMap.DbType) ? dynamicParameter.DbType : dbParameterMap.DbType);
+                                dynamicDbType = (OracleDbType)Enum.Parse(typeof(OracleDbType), string.IsNullOrWhiteSpace(dbParameterMap.DbType) ? dynamicParameter.DbType : dbParameterMap.DbType);
                                 if (dynamicDbType == OracleDbType.Clob)
                                 {
                                     var oracleClobParameter = new OracleClobParameter(dynamicParameter.Value);
@@ -4865,15 +4865,15 @@ TransactionException:
                                 }
                                 break;
                             case DataProviders.MySQL:
-                                dynamicDbType = (MySqlDbType)Enum.Parse(typeof(MySqlDbType), string.IsNullOrEmpty(dbParameterMap.DbType) ? dynamicParameter.DbType : dbParameterMap.DbType);
+                                dynamicDbType = (MySqlDbType)Enum.Parse(typeof(MySqlDbType), string.IsNullOrWhiteSpace(dbParameterMap.DbType) ? dynamicParameter.DbType : dbParameterMap.DbType);
                                 dynamicValue = dynamicParameter.Value;
                                 break;
                             case DataProviders.PostgreSQL:
-                                dynamicDbType = (NpgsqlDbType)Enum.Parse(typeof(NpgsqlDbType), string.IsNullOrEmpty(dbParameterMap.DbType) ? dynamicParameter.DbType : dbParameterMap.DbType);
+                                dynamicDbType = (NpgsqlDbType)Enum.Parse(typeof(NpgsqlDbType), string.IsNullOrWhiteSpace(dbParameterMap.DbType) ? dynamicParameter.DbType : dbParameterMap.DbType);
                                 dynamicValue = dynamicParameter.Value;
                                 break;
                             case DataProviders.SQLite:
-                                dynamicDbType = (DbType)Enum.Parse(typeof(DbType), string.IsNullOrEmpty(dbParameterMap.DbType) ? dynamicParameter.DbType : dbParameterMap.DbType);
+                                dynamicDbType = (DbType)Enum.Parse(typeof(DbType), string.IsNullOrWhiteSpace(dbParameterMap.DbType) ? dynamicParameter.DbType : dbParameterMap.DbType);
                                 dynamicValue = dynamicParameter.Value;
                                 break;
                         }
@@ -4888,7 +4888,7 @@ TransactionException:
                     }
                     else
                     {
-                        var dynamicDbType = (DbType)Enum.Parse(typeof(DbType), string.IsNullOrEmpty(dbParameterMap.DbType) ? dynamicParameter.DbType : dbParameterMap.DbType);
+                        var dynamicDbType = (DbType)Enum.Parse(typeof(DbType), string.IsNullOrWhiteSpace(dbParameterMap.DbType) ? dynamicParameter.DbType : dbParameterMap.DbType);
 
                         if (dynamicDbType == DbType.String)
                         {
@@ -4898,7 +4898,7 @@ TransactionException:
                                 {
                                     dynamicParameter.Value = DBNull.Value;
                                 }
-                                else if (!string.IsNullOrEmpty(dbParameterMap.DefaultValue))
+                                else if (!string.IsNullOrWhiteSpace(dbParameterMap.DefaultValue))
                                 {
                                     dynamicParameter.Value = dbParameterMap.DefaultValue;
                                 }
@@ -4916,7 +4916,7 @@ TransactionException:
                                 {
                                     dynamicParameter.Value = DBNull.Value;
                                 }
-                                else if (!string.IsNullOrEmpty(dbParameterMap.DefaultValue))
+                                else if (!string.IsNullOrWhiteSpace(dbParameterMap.DefaultValue))
                                 {
                                     dynamicParameter.Value = dbParameterMap.DefaultValue;
                                 }
@@ -5170,7 +5170,7 @@ TransactionException:
                         if (transformParts.Length >= 2)
                         {
                             var defaultValue = transformParts[1];
-                            dynamicParameter.Value = string.IsNullOrEmpty(dynamicParameter.Value.ToStringSafe()) ? defaultValue : dynamicParameter.Value;
+                            dynamicParameter.Value = string.IsNullOrWhiteSpace(dynamicParameter.Value.ToStringSafe()) ? defaultValue : dynamicParameter.Value;
                         }
                         break;
 
@@ -5435,7 +5435,7 @@ TransactionException:
         private static Tuple<string, DataProviders, string>? GetConnectionInfomation(QueryObject queryObject, string applicationID, string projectID, string dataSourceID)
         {
             Tuple<string, DataProviders, string>? result = null;
-            if (!string.IsNullOrEmpty(dataSourceID))
+            if (!string.IsNullOrWhiteSpace(dataSourceID))
             {
                 var dataSourceMap = DatabaseMapper.GetDataSourceMap(queryObject, applicationID, projectID, dataSourceID);
                 if (dataSourceMap != null)
@@ -5525,8 +5525,8 @@ TransactionException:
 
                 if (request.IsTransaction == true)
                 {
-                    var isolationLevel = string.IsNullOrEmpty(statementMap.TransactionIsolationLevel) ? transactionDynamicObject.Value.TransactionIsolationLevel.ToStringSafe() : statementMap.TransactionIsolationLevel;
-                    isolationLevel = string.IsNullOrEmpty(isolationLevel) ? "ReadCommitted" : isolationLevel;
+                    var isolationLevel = string.IsNullOrWhiteSpace(statementMap.TransactionIsolationLevel) ? transactionDynamicObject.Value.TransactionIsolationLevel.ToStringSafe() : statementMap.TransactionIsolationLevel;
+                    isolationLevel = string.IsNullOrWhiteSpace(isolationLevel) ? "ReadCommitted" : isolationLevel;
                     if (Enum.TryParse<IsolationLevel>(isolationLevel, out var transactionIsolationLevel) == true)
                     {
                         databaseTransaction = connectionFactory.BeginTransaction(transactionIsolationLevel);
@@ -5552,7 +5552,7 @@ TransactionException:
 
         private static bool IsEmptySql(string? parseSQL)
         {
-            return string.IsNullOrEmpty(parseSQL)
+            return string.IsNullOrWhiteSpace(parseSQL)
                 || parseSQL.Replace(Environment.NewLine, string.Empty).Replace("\t", string.Empty).Trim().Length == 0;
         }
 

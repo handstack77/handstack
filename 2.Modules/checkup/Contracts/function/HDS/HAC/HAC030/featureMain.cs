@@ -53,8 +53,8 @@ namespace HDS.Function.HAC
                 string userWorkID = dynamicParameters.Value("UserWorkID").ToStringSafe();
                 string applicationID = dynamicParameters.Value("ApplicationID").ToStringSafe();
 
-                if (string.IsNullOrEmpty(userWorkID)
-                    || string.IsNullOrEmpty(applicationID))
+                if (string.IsNullOrWhiteSpace(userWorkID)
+                    || string.IsNullOrWhiteSpace(applicationID))
                 {
                     result.BuildExceptionData("Y", "Warning", "필수 요청 정보 확인 필요", typeMember);
                     goto TransactionException;
@@ -108,9 +108,9 @@ TransactionException:
                 string applicationID = dynamicParameters.Value("ApplicationID").ToStringSafe();
                 string messageServerUrl = dynamicParameters.Value("Uri").ToStringSafe();
 
-                if (string.IsNullOrEmpty(userWorkID)
-                    || string.IsNullOrEmpty(applicationID)
-                    || string.IsNullOrEmpty(messageServerUrl))
+                if (string.IsNullOrWhiteSpace(userWorkID)
+                    || string.IsNullOrWhiteSpace(applicationID)
+                    || string.IsNullOrWhiteSpace(messageServerUrl))
                 {
                     result.BuildExceptionData("Y", "Warning", "필수 요청 정보 확인 필요", typeMember);
                     goto TransactionException;
@@ -212,13 +212,13 @@ TransactionException:
             string uri = dynamicParameters.Value("Uri").ToStringSafe();
             string comment = dynamicParameters.Value("Comment").ToStringSafe();
 
-            if (string.IsNullOrEmpty(userWorkID)
-                || string.IsNullOrEmpty(applicationID)
-                || string.IsNullOrEmpty(pageMode)
-                || string.IsNullOrEmpty(projectID)
-                || string.IsNullOrEmpty(commandType)
-                || string.IsNullOrEmpty(environment)
-                || string.IsNullOrEmpty(uri)
+            if (string.IsNullOrWhiteSpace(userWorkID)
+                || string.IsNullOrWhiteSpace(applicationID)
+                || string.IsNullOrWhiteSpace(pageMode)
+                || string.IsNullOrWhiteSpace(projectID)
+                || string.IsNullOrWhiteSpace(commandType)
+                || string.IsNullOrWhiteSpace(environment)
+                || string.IsNullOrWhiteSpace(uri)
             )
             {
                 result.BuildExceptionData("Y", "Warning", "필수 요청 정보 확인 필요", typeMember);
@@ -332,11 +332,11 @@ TransactionException:
             string commandType = dynamicParameters.Value("CommandType").ToStringSafe();
             string environment = dynamicParameters.Value("Environment").ToStringSafe();
 
-            if (string.IsNullOrEmpty(userWorkID)
-                || string.IsNullOrEmpty(applicationID)
-                || string.IsNullOrEmpty(projectID)
-                || string.IsNullOrEmpty(commandType)
-                || string.IsNullOrEmpty(environment)
+            if (string.IsNullOrWhiteSpace(userWorkID)
+                || string.IsNullOrWhiteSpace(applicationID)
+                || string.IsNullOrWhiteSpace(projectID)
+                || string.IsNullOrWhiteSpace(commandType)
+                || string.IsNullOrWhiteSpace(environment)
             )
             {
                 result.BuildExceptionData("Y", "Warning", "필수 요청 정보 확인 필요", typeMember);

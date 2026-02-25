@@ -125,7 +125,7 @@ namespace HandStack.Core.Helpers
 
         public static string AesDecode(string encryptedData, string key = "0123456789abcdef0123456789abcdef", string iv = "", int keyLength = 256, CipherMode mode = CipherMode.CBC, PaddingMode padding = PaddingMode.PKCS7)
         {
-            var ivBytes = string.IsNullOrEmpty(iv) ? GenerateIV(key, 16) : Convert.FromBase64String(iv);
+            var ivBytes = string.IsNullOrWhiteSpace(iv) ? GenerateIV(key, 16) : Convert.FromBase64String(iv);
             var encryptedBytes = Convert.FromBase64String(encryptedData);
             var keyBytes = PadKey(key, keyLength / 8);
 

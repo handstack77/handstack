@@ -60,7 +60,7 @@ namespace logger
                         ModuleConfiguration.Version = moduleConfigJson.Version;
                         ModuleConfiguration.IsSQLiteCreateOnNotSettingRequest = moduleConfig.IsSQLiteCreateOnNotSettingRequest;
                         ModuleConfiguration.ModuleBasePath = GlobalConfiguration.GetBaseDirectoryPath(moduleConfig.ModuleBasePath, module.BasePath);
-                        ModuleConfiguration.AuthorizationKey = !string.IsNullOrEmpty(moduleConfig.AuthorizationKey) ? moduleConfig.AuthorizationKey : GlobalConfiguration.SystemID + GlobalConfiguration.RunningEnvironment + GlobalConfiguration.HostName;
+                        ModuleConfiguration.AuthorizationKey = !string.IsNullOrWhiteSpace(moduleConfig.AuthorizationKey) ? moduleConfig.AuthorizationKey : GlobalConfiguration.SystemID + GlobalConfiguration.RunningEnvironment + GlobalConfiguration.HostName;
                         ModuleConfiguration.IsBundledWithHost = moduleConfigJson.IsBundledWithHost;
                         ModuleConfiguration.BusinessServerUrl = moduleConfig.BusinessServerUrl;
                         ModuleConfiguration.LogDeleteRepeatSecond = moduleConfig.LogDeleteRepeatSecond;
@@ -141,10 +141,10 @@ namespace logger
         public void Configure(IApplicationBuilder app, IWebHostEnvironment? environment, ICorsService corsService, ICorsPolicyProvider corsPolicyProvider)
         {
             var module = GlobalConfiguration.Modules.FirstOrDefault(p => p.ModuleID == ModuleID);
-            if (!string.IsNullOrEmpty(ModuleID) && module != null)
+            if (!string.IsNullOrWhiteSpace(ModuleID) && module != null)
             {
                 var wwwrootDirectory = PathExtensions.Combine(module.BasePath, "wwwroot", module.ModuleID);
-                if (!string.IsNullOrEmpty(wwwrootDirectory) && Directory.Exists(wwwrootDirectory) == true)
+                if (!string.IsNullOrWhiteSpace(wwwrootDirectory) && Directory.Exists(wwwrootDirectory) == true)
                 {
                     app.UseStaticFiles(new StaticFileOptions
                     {

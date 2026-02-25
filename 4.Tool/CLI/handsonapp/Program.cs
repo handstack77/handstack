@@ -105,7 +105,7 @@ namespace handsonapp
                 }
             }
 
-            if (string.IsNullOrEmpty(workingDirectory) == false)
+            if (string.IsNullOrWhiteSpace(workingDirectory) == false)
             {
                 Environment.CurrentDirectory = workingDirectory;
             }
@@ -138,18 +138,18 @@ namespace handsonapp
                 port = 8080;
             }
 
-            if (string.IsNullOrEmpty(moduleID) == true)
+            if (string.IsNullOrWhiteSpace(moduleID) == true)
             {
                 moduleID = configuration["SyncModuleName"] ?? "";
             }
 
-            if (string.IsNullOrEmpty(moduleID) == true)
+            if (string.IsNullOrWhiteSpace(moduleID) == true)
             {
                 Console.WriteLine($"SyncModuleName: {moduleID} 확인 필요");
                 Environment.Exit(-1);
             }
 
-            if (string.IsNullOrEmpty(handstackHomePath) == true)
+            if (string.IsNullOrWhiteSpace(handstackHomePath) == true)
             {
                 handstackHomePath = configuration["HandStackBasePath"] ?? "";
             }
@@ -174,18 +174,18 @@ namespace handsonapp
 
             if (useContractUrlSync == true)
             {
-                if (string.IsNullOrEmpty(handstackUrl) == true)
+                if (string.IsNullOrWhiteSpace(handstackUrl) == true)
                 {
                     handstackUrl = configuration["HandStackUrl"] ?? "";
                 }
 
-                if (string.IsNullOrEmpty(hostAccessID) == true)
+                if (string.IsNullOrWhiteSpace(hostAccessID) == true)
                 {
                     hostAccessID = configuration["HandStackHostAccessID"] ?? "";
                 }
             }
 
-            if (string.IsNullOrEmpty(handstackHomePath) == true)
+            if (string.IsNullOrWhiteSpace(handstackHomePath) == true)
             {
                 handstackHomePath = Environment.GetEnvironmentVariable("HANDSTACK_HOME") ?? "";
             }
@@ -202,7 +202,7 @@ namespace handsonapp
                     {
                         app.UseDefaultFiles();
 
-                        if (string.IsNullOrEmpty(handstackHomePath) == false && Directory.Exists(handstackHomePath) == true && File.Exists(PathExtensions.Combine(handstackHomePath, "app", "ack.dll")) == true)
+                        if (string.IsNullOrWhiteSpace(handstackHomePath) == false && Directory.Exists(handstackHomePath) == true && File.Exists(PathExtensions.Combine(handstackHomePath, "app", "ack.dll")) == true)
                         {
                             var wwwRootBasePath = PathExtensions.Combine(handstackHomePath, "modules", "wwwroot", "wwwroot");
                             app.UseStaticFiles(new StaticFileOptions
@@ -261,7 +261,7 @@ namespace handsonapp
                                             }
                                         }
 
-                                        if (string.IsNullOrEmpty(handstackUrl) == false)
+                                        if (string.IsNullOrWhiteSpace(handstackUrl) == false)
                                         {
                                             await UploadFileAsync(moduleID, "dbclient", fileInfo.FullName.Replace("\\", "/"), destFilePath, changeTypes.ToString());
                                         }
@@ -296,7 +296,7 @@ namespace handsonapp
                                             }
                                         }
 
-                                        if (string.IsNullOrEmpty(handstackUrl) == false)
+                                        if (string.IsNullOrWhiteSpace(handstackUrl) == false)
                                         {
                                             await UploadFileAsync(moduleID, "function", fileInfo.FullName.Replace("\\", "/"), destFilePath, changeTypes.ToString());
                                         }
@@ -331,7 +331,7 @@ namespace handsonapp
                                             }
                                         }
 
-                                        if (string.IsNullOrEmpty(handstackUrl) == false)
+                                        if (string.IsNullOrWhiteSpace(handstackUrl) == false)
                                         {
                                             await UploadFileAsync(moduleID, "transact", fileInfo.FullName.Replace("\\", "/"), destFilePath, changeTypes.ToString());
                                         }
@@ -363,7 +363,7 @@ namespace handsonapp
                                             }
                                         }
 
-                                        if (string.IsNullOrEmpty(handstackUrl) == false)
+                                        if (string.IsNullOrWhiteSpace(handstackUrl) == false)
                                         {
                                             await UploadFileAsync(moduleID, "wwwroot", fileInfo.FullName.Replace("\\", "/"), destFilePath, changeTypes.ToString());
                                         }
@@ -373,7 +373,7 @@ namespace handsonapp
                                 WWWFileSyncManager.Start();
                             }
                         }
-                        else if (string.IsNullOrEmpty(handstackUrl) == false)
+                        else if (string.IsNullOrWhiteSpace(handstackUrl) == false)
                         {
                             var dbclientBasePath = PathExtensions.Combine(entryBasePath, "contracts", "dbclient");
                             if (Directory.Exists(dbclientBasePath) == true)
@@ -400,7 +400,7 @@ namespace handsonapp
                                     if (fileInfo.FullName.Replace("\\", "/").IndexOf(functionBasePath) > -1 && (changeTypes == WatcherChangeTypes.Deleted || changeTypes == WatcherChangeTypes.Created || changeTypes == WatcherChangeTypes.Changed))
                                     {
                                         var destFilePath = fileInfo.FullName.Replace("\\", "/").Replace(functionBasePath, "");
-                                        if (string.IsNullOrEmpty(handstackUrl) == false)
+                                        if (string.IsNullOrWhiteSpace(handstackUrl) == false)
                                         {
                                             await UploadFileAsync(moduleID, "function", fileInfo.FullName.Replace("\\", "/"), destFilePath, changeTypes.ToString());
                                         }
@@ -419,7 +419,7 @@ namespace handsonapp
                                     if (fileInfo.FullName.Replace("\\", "/").IndexOf(transactBasePath) > -1 && (changeTypes == WatcherChangeTypes.Deleted || changeTypes == WatcherChangeTypes.Created || changeTypes == WatcherChangeTypes.Changed))
                                     {
                                         var destFilePath = fileInfo.FullName.Replace("\\", "/").Replace(transactBasePath, "");
-                                        if (string.IsNullOrEmpty(handstackUrl) == false)
+                                        if (string.IsNullOrWhiteSpace(handstackUrl) == false)
                                         {
                                             await UploadFileAsync(moduleID, "transact", fileInfo.FullName.Replace("\\", "/"), destFilePath, changeTypes.ToString());
                                         }
@@ -438,7 +438,7 @@ namespace handsonapp
                                     if (fileInfo.FullName.Replace("\\", "/").IndexOf(wwwrootBasePath) > -1 && (changeTypes == WatcherChangeTypes.Deleted || changeTypes == WatcherChangeTypes.Created || changeTypes == WatcherChangeTypes.Changed))
                                     {
                                         var destFilePath = fileInfo.FullName.Replace("\\", "/").Replace(PathExtensions.Combine(wwwrootBasePath, "wwwroot"), "");
-                                        if (string.IsNullOrEmpty(handstackUrl) == false)
+                                        if (string.IsNullOrWhiteSpace(handstackUrl) == false)
                                         {
                                             await UploadFileAsync(moduleID, "wwwroot", fileInfo.FullName.Replace("\\", "/"), destFilePath, changeTypes.ToString());
                                         }
@@ -472,7 +472,7 @@ namespace handsonapp
             if (File.Exists(sourceFilePath) == true)
             {
                 var destDirectory = Path.GetDirectoryName(destAbsoluteFilePath);
-                if (string.IsNullOrEmpty(destDirectory) == false && Directory.Exists(destDirectory) == false)
+                if (string.IsNullOrWhiteSpace(destDirectory) == false && Directory.Exists(destDirectory) == false)
                 {
                     Directory.CreateDirectory(destDirectory);
                 }

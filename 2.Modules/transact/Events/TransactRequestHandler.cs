@@ -104,9 +104,9 @@ namespace transact.Events
             {
                 var transactionUserWorkID = request.LoadOptions?.Get<string>("work-id").ToStringSafe();
                 var transactionApplicationID = request.LoadOptions?.Get<string>("app-id").ToStringSafe();
-                request.System.ProgramID = !string.IsNullOrEmpty(transactionApplicationID) ? transactionApplicationID : request.System.ProgramID;
+                request.System.ProgramID = !string.IsNullOrWhiteSpace(transactionApplicationID) ? transactionApplicationID : request.System.ProgramID;
 
-                if (!string.IsNullOrEmpty(transactionUserWorkID))
+                if (!string.IsNullOrWhiteSpace(transactionUserWorkID))
                 {
                     transactionWorkID = transactionUserWorkID;
                 }
@@ -157,8 +157,8 @@ namespace transact.Events
 
                 #region 입력 확인
 
-                if (string.IsNullOrEmpty(request.Action) ||
-                    string.IsNullOrEmpty(request.Kind) ||
+                if (string.IsNullOrWhiteSpace(request.Action) ||
+                    string.IsNullOrWhiteSpace(request.Kind) ||
                     request.System == null ||
                     request.Transaction == null ||
                     request.PayLoad == null ||
@@ -172,7 +172,7 @@ namespace transact.Events
 
                 #region 입력 기본값 구성
 
-                if (string.IsNullOrEmpty(request.Transaction.DataFormat))
+                if (string.IsNullOrWhiteSpace(request.Transaction.DataFormat))
                 {
                     request.Transaction.DataFormat = "J";
                 }
@@ -200,7 +200,7 @@ namespace transact.Events
                         {
                             foreach (var reqInput in reqInputs)
                             {
-                                if (string.IsNullOrEmpty(reqInput.FieldID))
+                                if (string.IsNullOrWhiteSpace(reqInput.FieldID))
                                 {
                                     reqInput.FieldID = "DEFAULT";
                                     reqInput.Value = "";
@@ -289,7 +289,7 @@ namespace transact.Events
 
                 #region 입력 정보 검증
 
-                if (!string.IsNullOrEmpty(request.Environment))
+                if (!string.IsNullOrWhiteSpace(request.Environment))
                 {
                     if (ModuleConfiguration.AvailableEnvironment.Count == 0 || ModuleConfiguration.AvailableEnvironment.Contains(request.Environment) == false)
                     {
@@ -311,7 +311,7 @@ namespace transact.Events
                 var encryptionType = request.LoadOptions?.Get<string>("encryptionType");
                 var encryptionKey = request.LoadOptions?.Get<string>("encryptionKey");
 
-                if (!string.IsNullOrEmpty(encryptionType) && !string.IsNullOrEmpty(encryptionKey))
+                if (!string.IsNullOrWhiteSpace(encryptionType) && !string.IsNullOrWhiteSpace(encryptionKey))
                 {
                     if (encryptionType == "F")
                     {
@@ -358,7 +358,7 @@ namespace transact.Events
                 }
                 else
                 {
-                    if (string.IsNullOrEmpty(businessContract.TransactionApplicationID))
+                    if (string.IsNullOrWhiteSpace(businessContract.TransactionApplicationID))
                     {
                         businessContract.TransactionApplicationID = request.System.ProgramID;
                     }
@@ -398,7 +398,7 @@ namespace transact.Events
                     transactionInfo.CommandType = dynamicCommandType;
                     transactionInfo.TransactionScope = dynamicTransactionScope;
                     transactionInfo.SequentialOptions = new List<SequentialOption>();
-                    transactionInfo.ReturnType = string.IsNullOrEmpty(dynamicReturnType) ? "Json" : dynamicReturnType;
+                    transactionInfo.ReturnType = string.IsNullOrWhiteSpace(dynamicReturnType) ? "Json" : dynamicReturnType;
                     transactionInfo.AccessScreenID = new List<string>() { request.Transaction.TransactionID };
                     transactionInfo.TransactionLog = dynamicTransactionLog;
                     transactionInfo.Inputs = new List<ModelInputContract>();
@@ -456,7 +456,7 @@ namespace transact.Events
                 try
                 {
                     var isBypassAuthorizeIP = false;
-                    if (string.IsNullOrEmpty(ModuleConfiguration.BypassAuthorizeIP.FirstOrDefault(p => p == "*")) == false)
+                    if (string.IsNullOrWhiteSpace(ModuleConfiguration.BypassAuthorizeIP.FirstOrDefault(p => p == "*")) == false)
                     {
                         isBypassAuthorizeIP = true;
                     }
@@ -480,7 +480,7 @@ namespace transact.Events
 
                     if (ModuleConfiguration.SystemID == requestSystemID && isBypassAuthorizeIP == true)
                     {
-                        if (!string.IsNullOrEmpty(token) && token.IndexOf(".") > -1 && !string.IsNullOrEmpty(request.Transaction.OperatorID))
+                        if (!string.IsNullOrWhiteSpace(token) && token.IndexOf(".") > -1 && !string.IsNullOrWhiteSpace(request.Transaction.OperatorID))
                         {
                             var tokenArray = token.Split(".");
                             var userID = tokenArray[0].DecodeBase64();
@@ -496,7 +496,7 @@ namespace transact.Events
                             response.ExceptionText = $"SystemID: {requestSystemID} 확인 필요";
                             return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                         }
-                        else if (string.IsNullOrEmpty(token))
+                        else if (string.IsNullOrWhiteSpace(token))
                         {
                             if (ModuleConfiguration.UseApiAuthorize == true && transactionInfo.Authorize == true)
                             {
@@ -584,7 +584,7 @@ namespace transact.Events
                 }
 
                 // 거래 Inputs/Outpus 정보 확인
-                if (!string.IsNullOrEmpty(request.PayLoad.DataMapInterface))
+                if (!string.IsNullOrWhiteSpace(request.PayLoad.DataMapInterface))
                 {
                     if (transactionInfo.Inputs.Count == 0)
                     {
@@ -592,7 +592,7 @@ namespace transact.Events
                         var inputs = dti[0].Split(",");
                         foreach (var item in inputs)
                         {
-                            if (!string.IsNullOrEmpty(item))
+                            if (!string.IsNullOrWhiteSpace(item))
                             {
                                 transactionInfo.Inputs.Add(new ModelInputContract()
                                 {
@@ -614,7 +614,7 @@ namespace transact.Events
                         var outputs = dti[1].Split(",");
                         foreach (var item in outputs)
                         {
-                            if (!string.IsNullOrEmpty(item))
+                            if (!string.IsNullOrWhiteSpace(item))
                             {
                                 transactionInfo.Outputs.Add(new ModelOutputContract()
                                 {
@@ -637,7 +637,7 @@ namespace transact.Events
                 transactionObject.GlobalID = request.Transaction.GlobalID;
                 transactionObject.TransactionID = string.Concat(businessContract.TransactionApplicationID
                     , "|"
-                    , string.IsNullOrEmpty(businessContract.TransactionProjectID) ? businessContract.ProjectID : businessContract.TransactionProjectID
+                    , string.IsNullOrWhiteSpace(businessContract.TransactionProjectID) ? businessContract.ProjectID : businessContract.TransactionProjectID
                     , "|"
                     , request.Transaction.TransactionID
                 );
@@ -964,7 +964,7 @@ namespace transact.Events
 
                 applicationResponse = await transactClient.ApplicationRequest(request, response, transactionInfo, transactionObject, businessModels, inputContracts, outputContracts, applicationResponse);
 
-                if (!string.IsNullOrEmpty(applicationResponse.ExceptionText))
+                if (!string.IsNullOrWhiteSpace(applicationResponse.ExceptionText))
                 {
                     response.ExceptionText = applicationResponse.ExceptionText;
                     return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
@@ -1055,7 +1055,7 @@ namespace transact.Events
                                             foreach (var item in names)
                                             {
                                                 var data = Value[item]?.ToString();
-                                                if (!string.IsNullOrEmpty(data))
+                                                if (!string.IsNullOrWhiteSpace(data))
                                                 {
                                                     if (data.StartsWith('"') == true)
                                                     {
@@ -1083,7 +1083,7 @@ namespace transact.Events
                                                     foreach (var item in names)
                                                     {
                                                         var data = jtoken[item]?.ToString();
-                                                        if (!string.IsNullOrEmpty(data))
+                                                        if (!string.IsNullOrWhiteSpace(data))
                                                         {
                                                             if (data.ToString().StartsWith('"') == true)
                                                             {
@@ -1153,7 +1153,7 @@ namespace transact.Events
                             }
                         }
 
-                        if (ModuleConfiguration.IsCodeDataCache == true && request.LoadOptions?.Get<string>("codeCacheYN").ToStringSafe().ParseBool() == true && !string.IsNullOrEmpty(cacheKey))
+                        if (ModuleConfiguration.IsCodeDataCache == true && request.LoadOptions?.Get<string>("codeCacheYN").ToStringSafe().ParseBool() == true && !string.IsNullOrWhiteSpace(cacheKey))
                         {
                             if (memoryCache.Get(cacheKey) == null)
                             {

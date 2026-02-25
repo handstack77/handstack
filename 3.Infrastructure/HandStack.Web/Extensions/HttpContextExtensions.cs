@@ -16,7 +16,7 @@ namespace HandStack.Web.Extensions
 
         public static string MapPath(this HttpContext context, string? relativePath = null, IWebHostEnvironment? host = null, string? basePath = null, bool useAppBasePath = false)
         {
-            if (string.IsNullOrEmpty(relativePath))
+            if (string.IsNullOrWhiteSpace(relativePath))
             {
                 relativePath = "/";
             }
@@ -26,9 +26,9 @@ namespace HandStack.Web.Extensions
                 return relativePath;
             }
 
-            if (string.IsNullOrEmpty(basePath))
+            if (string.IsNullOrWhiteSpace(basePath))
             {
-                if (string.IsNullOrEmpty(WebRootPath) || string.IsNullOrEmpty(ContentRootPath))
+                if (string.IsNullOrWhiteSpace(WebRootPath) || string.IsNullOrWhiteSpace(ContentRootPath))
                 {
                     host ??= context.RequestServices.GetService(typeof(IWebHostEnvironment)) as IWebHostEnvironment;
                     WebRootPath = (host?.WebRootPath).ToStringSafe();

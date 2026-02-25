@@ -75,7 +75,7 @@ namespace dbclient.NativeParameters
         {
             var clob = new OracleClob(command.Connection as OracleConnection);
             var param = new OracleParameter(name, OracleDbType.Clob);
-            if (!string.IsNullOrEmpty(value))
+            if (!string.IsNullOrWhiteSpace(value))
             {
                 var bytes = Encoding.Unicode.GetBytes(value);
                 var length = bytes.Length;
@@ -99,7 +99,7 @@ namespace dbclient.NativeParameters
         public OracleClob GetClobValue(IDbConnection? connection)
         {
             var clob = new OracleClob(connection as OracleConnection);
-            if (!string.IsNullOrEmpty(value))
+            if (!string.IsNullOrWhiteSpace(value))
             {
                 var bytes = Encoding.Unicode.GetBytes(value);
                 var length = bytes.Length;

@@ -115,16 +115,16 @@ namespace checkup.Areas.checkup.Controllers
                 }
             }
 
-            if (!string.IsNullOrEmpty(applicationID)
-                && !string.IsNullOrEmpty(projectID)
-                && !string.IsNullOrEmpty(transactionID)
-                && !string.IsNullOrEmpty(serviceID)
-                && !string.IsNullOrEmpty(tokenID)
+            if (!string.IsNullOrWhiteSpace(applicationID)
+                && !string.IsNullOrWhiteSpace(projectID)
+                && !string.IsNullOrWhiteSpace(transactionID)
+                && !string.IsNullOrWhiteSpace(serviceID)
+                && !string.IsNullOrWhiteSpace(tokenID)
             )
             {
                 var isWithOrigin = false;
                 var requestRefererUrl = Request.Headers.Referer.ToString();
-                if (!string.IsNullOrEmpty(requestRefererUrl))
+                if (!string.IsNullOrWhiteSpace(requestRefererUrl))
                 {
                     for (var i = 0; i < GlobalConfiguration.WithOrigins.Count; i++)
                     {
@@ -155,7 +155,7 @@ namespace checkup.Areas.checkup.Controllers
                         transactionObject.BusinessID = projectID;
                         transactionObject.TransactionID = transactionID;
                         transactionObject.FunctionID = serviceID;
-                        transactionObject.ScreenID = string.IsNullOrEmpty(screenID) ? transactionID : screenID;
+                        transactionObject.ScreenID = string.IsNullOrWhiteSpace(screenID) ? transactionID : screenID;
 
                         var requestID = GetRequestID(transactionObject, tokenID);
                         if (distributedCache.Get(requestID) == null)
@@ -191,7 +191,7 @@ namespace checkup.Areas.checkup.Controllers
             var businessID = transactionObject.BusinessID.PadLeft(3, '0');
             var transactionID = transactionObject.TransactionID.PadLeft(6, '0');
             var functionID = transactionObject.FunctionID.PadLeft(4, '0');
-            tokenID = (string.IsNullOrEmpty(tokenID) ? TransactionConfig.Program.ClientTokenID : tokenID).PadLeft(6, '0');
+            tokenID = (string.IsNullOrWhiteSpace(tokenID) ? TransactionConfig.Program.ClientTokenID : tokenID).PadLeft(6, '0');
             var requestTime = DateTime.Now.ToString("HHmmss");
 
             // -- 36바이트 = 설치구분 1자리(L: Local, C: Cloud, O: Onpremise) + 환경 ID 1자리 + 어플리케이션 ID 8자리 + 프로젝트 ID 3자리 + 거래 ID 6자리 + 기능 ID 4자리 + 시스템 구분 1자리 (W: WEB, P: Program, S: SVR, E: EXT) + ClientTokenID 6자리 + Timestamp (HHmmss) 6자리
@@ -211,7 +211,7 @@ namespace checkup.Areas.checkup.Controllers
         public string GetSession(string key)
         {
             var result = HttpContext.Session.GetString(key);
-            if (string.IsNullOrEmpty(result))
+            if (string.IsNullOrWhiteSpace(result))
             {
                 result = "";
             }
@@ -322,7 +322,7 @@ namespace checkup.Areas.checkup.Controllers
         {
             ActionResult result = BadRequest();
 
-            if (string.IsNullOrEmpty(key))
+            if (string.IsNullOrWhiteSpace(key))
             {
                 result = Content(sqids.Encode(numbers), "text/html");
             }
@@ -343,7 +343,7 @@ namespace checkup.Areas.checkup.Controllers
         public ActionResult DecodeNo(string hash, string? key)
         {
             ActionResult result = BadRequest();
-            if (string.IsNullOrEmpty(key))
+            if (string.IsNullOrWhiteSpace(key))
             {
                 result = Content(string.Join(",", sqids.Decode(hash)), "text/html");
             }

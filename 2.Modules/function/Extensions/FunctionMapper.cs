@@ -178,7 +178,7 @@ namespace function.Extensions
                             }
                         }
 
-                        if (!string.IsNullOrEmpty(appBasePath))
+                        if (!string.IsNullOrWhiteSpace(appBasePath))
                         {
                             var tenantID = $"{userWorkID}|{applicationID}";
                             var scriptMapFile = PathExtensions.Combine(appBasePath, "function", projectID, transactionID, "featureMeta.json");
@@ -286,7 +286,7 @@ namespace function.Extensions
                             break;
                     }
 
-                    if (string.IsNullOrEmpty(fileExtension))
+                    if (string.IsNullOrWhiteSpace(fileExtension))
                     {
                         Log.Logger.Error("[{LogCategory}] " + $"{scriptMapFile} 언어 타입 확인 필요", "FunctionMapper/MergeContractFile");
                         return;
@@ -301,15 +301,15 @@ namespace function.Extensions
                         if (scriptMapFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
                         {
                             isTenantContractFile = true;
-                            header.ApplicationID = string.IsNullOrEmpty(header.ApplicationID) ? (fileInfo.Directory?.Parent?.Parent?.Parent?.Parent?.Name).ToStringSafe() : header.ApplicationID;
-                            header.ProjectID = string.IsNullOrEmpty(header.ProjectID) ? (fileInfo.Directory?.Parent?.Name).ToStringSafe() : header.ProjectID;
-                            header.TransactionID = string.IsNullOrEmpty(header.TransactionID) ? (fileInfo.Directory?.Name).ToStringSafe().Replace(fileInfo.Extension, "") : header.TransactionID;
+                            header.ApplicationID = string.IsNullOrWhiteSpace(header.ApplicationID) ? (fileInfo.Directory?.Parent?.Parent?.Parent?.Parent?.Name).ToStringSafe() : header.ApplicationID;
+                            header.ProjectID = string.IsNullOrWhiteSpace(header.ProjectID) ? (fileInfo.Directory?.Parent?.Name).ToStringSafe() : header.ProjectID;
+                            header.TransactionID = string.IsNullOrWhiteSpace(header.TransactionID) ? (fileInfo.Directory?.Name).ToStringSafe().Replace(fileInfo.Extension, "") : header.TransactionID;
                         }
                         else
                         {
-                            header.ApplicationID = string.IsNullOrEmpty(header.ApplicationID) ? (fileInfo.Directory?.Parent?.Name).ToStringSafe() : header.ApplicationID;
-                            header.ProjectID = string.IsNullOrEmpty(header.ProjectID) ? (fileInfo.Directory?.Name).ToStringSafe() : header.ProjectID;
-                            header.TransactionID = string.IsNullOrEmpty(header.TransactionID) ? fileInfo.Name.Replace(fileInfo.Extension, "") : header.TransactionID;
+                            header.ApplicationID = string.IsNullOrWhiteSpace(header.ApplicationID) ? (fileInfo.Directory?.Parent?.Name).ToStringSafe() : header.ApplicationID;
+                            header.ProjectID = string.IsNullOrWhiteSpace(header.ProjectID) ? (fileInfo.Directory?.Name).ToStringSafe() : header.ProjectID;
+                            header.TransactionID = string.IsNullOrWhiteSpace(header.TransactionID) ? fileInfo.Name.Replace(fileInfo.Extension, "") : header.TransactionID;
                         }
 
                         var items = functionScriptContract.Commands;
@@ -327,7 +327,7 @@ namespace function.Extensions
                                 moduleScriptMap.IsHttpContext = header.IsHttpContext;
                                 moduleScriptMap.ReferenceModuleID = header.ReferenceModuleID;
 
-                                if (string.IsNullOrEmpty(item.EntryType))
+                                if (string.IsNullOrWhiteSpace(item.EntryType))
                                 {
                                     moduleScriptMap.EntryType = $"{header.ApplicationID}.Function.{header.ProjectID}.{header.TransactionID}";
                                 }
@@ -336,7 +336,7 @@ namespace function.Extensions
                                     moduleScriptMap.EntryType = item.EntryType;
                                 }
 
-                                if (string.IsNullOrEmpty(item.EntryType))
+                                if (string.IsNullOrWhiteSpace(item.EntryType))
                                 {
                                     moduleScriptMap.EntryMethod = item.ID;
                                 }
@@ -345,7 +345,7 @@ namespace function.Extensions
                                     moduleScriptMap.EntryMethod = item.EntryMethod;
                                 }
 
-                                moduleScriptMap.DataSourceID = !string.IsNullOrEmpty(header.DataSourceID) ? header.DataSourceID : ModuleConfiguration.DefaultDataSourceID;
+                                moduleScriptMap.DataSourceID = !string.IsNullOrWhiteSpace(header.DataSourceID) ? header.DataSourceID : ModuleConfiguration.DefaultDataSourceID;
                                 moduleScriptMap.LanguageType = header.LanguageType;
                                 moduleScriptMap.ProgramPath = functionScriptFile;
                                 moduleScriptMap.Timeout = item.Timeout;
@@ -547,7 +547,7 @@ namespace function.Extensions
                                 break;
                         }
 
-                        if (string.IsNullOrEmpty(fileExtension))
+                        if (string.IsNullOrWhiteSpace(fileExtension))
                         {
                             logger.Error("[{LogCategory}] " + $"{scriptFilePath} 언어 타입 확인 필요", "FunctionMapper/AddScriptMap");
                             continue;
@@ -562,9 +562,9 @@ namespace function.Extensions
                             {
                                 isTenantContractFile = true;
                                 var fileInfo = new FileInfo(scriptMapFile);
-                                header.ApplicationID = string.IsNullOrEmpty(header.ApplicationID) ? (fileInfo.Directory?.Parent?.Parent?.Parent?.Parent?.Name).ToStringSafe() : header.ApplicationID;
-                                header.ProjectID = string.IsNullOrEmpty(header.ProjectID) ? (fileInfo.Directory?.Parent?.Name).ToStringSafe() : header.ProjectID;
-                                header.TransactionID = string.IsNullOrEmpty(header.TransactionID) ? (fileInfo.Directory?.Name).ToStringSafe().Replace(fileInfo.Extension, "") : header.TransactionID;
+                                header.ApplicationID = string.IsNullOrWhiteSpace(header.ApplicationID) ? (fileInfo.Directory?.Parent?.Parent?.Parent?.Parent?.Name).ToStringSafe() : header.ApplicationID;
+                                header.ProjectID = string.IsNullOrWhiteSpace(header.ProjectID) ? (fileInfo.Directory?.Parent?.Name).ToStringSafe() : header.ProjectID;
+                                header.TransactionID = string.IsNullOrWhiteSpace(header.TransactionID) ? (fileInfo.Directory?.Name).ToStringSafe().Replace(fileInfo.Extension, "") : header.TransactionID;
                             }
 
                             var items = functionScriptContract.Commands;
@@ -582,7 +582,7 @@ namespace function.Extensions
                                     moduleScriptMap.IsHttpContext = header.IsHttpContext;
                                     moduleScriptMap.ReferenceModuleID = header.ReferenceModuleID;
 
-                                    if (string.IsNullOrEmpty(item.EntryType))
+                                    if (string.IsNullOrWhiteSpace(item.EntryType))
                                     {
                                         moduleScriptMap.EntryType = $"{header.ApplicationID}.Function.{header.ProjectID}.{header.TransactionID}";
                                     }
@@ -591,7 +591,7 @@ namespace function.Extensions
                                         moduleScriptMap.EntryType = item.EntryType;
                                     }
 
-                                    if (string.IsNullOrEmpty(item.EntryType))
+                                    if (string.IsNullOrWhiteSpace(item.EntryType))
                                     {
                                         moduleScriptMap.EntryMethod = item.ID;
                                     }
@@ -600,7 +600,7 @@ namespace function.Extensions
                                         moduleScriptMap.EntryMethod = item.EntryMethod;
                                     }
 
-                                    moduleScriptMap.DataSourceID = !string.IsNullOrEmpty(header.DataSourceID) ? header.DataSourceID : ModuleConfiguration.DefaultDataSourceID;
+                                    moduleScriptMap.DataSourceID = !string.IsNullOrWhiteSpace(header.DataSourceID) ? header.DataSourceID : ModuleConfiguration.DefaultDataSourceID;
                                     moduleScriptMap.LanguageType = header.LanguageType;
                                     moduleScriptMap.ProgramPath = functionScriptFile;
                                     moduleScriptMap.Timeout = item.Timeout;
@@ -812,7 +812,7 @@ namespace function.Extensions
                                     break;
                             }
 
-                            if (string.IsNullOrEmpty(fileExtension))
+                            if (string.IsNullOrWhiteSpace(fileExtension))
                             {
                                 logger.Error("[{LogCategory}] " + $"{scriptMapFile} 언어 타입 확인 필요", "FunctionMapper/LoadContract");
                                 continue;
@@ -838,7 +838,7 @@ namespace function.Extensions
                                         moduleScriptMap.IsHttpContext = header.IsHttpContext;
                                         moduleScriptMap.ReferenceModuleID = header.ReferenceModuleID;
 
-                                        if (string.IsNullOrEmpty(item.EntryType))
+                                        if (string.IsNullOrWhiteSpace(item.EntryType))
                                         {
                                             moduleScriptMap.EntryType = $"{header.ApplicationID}.Function.{header.ProjectID}.{header.TransactionID}";
                                         }
@@ -847,7 +847,7 @@ namespace function.Extensions
                                             moduleScriptMap.EntryType = item.EntryType;
                                         }
 
-                                        if (string.IsNullOrEmpty(item.EntryType))
+                                        if (string.IsNullOrWhiteSpace(item.EntryType))
                                         {
                                             moduleScriptMap.EntryMethod = item.ID;
                                         }
@@ -856,7 +856,7 @@ namespace function.Extensions
                                             moduleScriptMap.EntryMethod = item.EntryMethod;
                                         }
 
-                                        moduleScriptMap.DataSourceID = !string.IsNullOrEmpty(header.DataSourceID) ? header.DataSourceID : ModuleConfiguration.DefaultDataSourceID;
+                                        moduleScriptMap.DataSourceID = !string.IsNullOrWhiteSpace(header.DataSourceID) ? header.DataSourceID : ModuleConfiguration.DefaultDataSourceID;
                                         moduleScriptMap.LanguageType = header.LanguageType;
                                         moduleScriptMap.ProgramPath = functionScriptFile;
                                         moduleScriptMap.Timeout = item.Timeout;

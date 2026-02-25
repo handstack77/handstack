@@ -50,13 +50,13 @@ namespace ack
             if (File.Exists("entrybasepath.txt") == true)
             {
                 var entryBasePath = File.ReadAllText("entrybasepath.txt");
-                if (string.IsNullOrEmpty(entryBasePath) == false)
+                if (string.IsNullOrWhiteSpace(entryBasePath) == false)
                 {
                     GlobalConfiguration.EntryBasePath = entryBasePath;
                 }
             }
 
-            if (string.IsNullOrEmpty(GlobalConfiguration.EntryBasePath) == true)
+            if (string.IsNullOrWhiteSpace(GlobalConfiguration.EntryBasePath) == true)
             {
                 GlobalConfiguration.EntryBasePath = AppDomain.CurrentDomain.BaseDirectory;
             }
@@ -88,7 +88,7 @@ namespace ack
             }
 
             var environmentName = Environment.GetEnvironmentVariable("ACK_ENVIRONMENT");
-            if (string.IsNullOrEmpty(environmentName) == true)
+            if (string.IsNullOrWhiteSpace(environmentName) == true)
             {
                 environmentName = "";
             }
@@ -121,7 +121,7 @@ namespace ack
 
                 try
                 {
-                    if (string.IsNullOrEmpty(pname) == false)
+                    if (string.IsNullOrWhiteSpace(pname) == false)
                     {
                         GlobalConfiguration.ProcessName = pname;
                     }
@@ -132,7 +132,7 @@ namespace ack
                     var configurationBuilder = new ConfigurationBuilder().AddJsonFile(appSettingsFilePath);
                     configurationBuilder.AddEnvironmentVariables();
 
-                    if (string.IsNullOrEmpty(key) == false && string.IsNullOrEmpty(settings) == false)
+                    if (string.IsNullOrWhiteSpace(key) == false && string.IsNullOrWhiteSpace(settings) == false)
                     {
                         var buffer = Encoding.UTF8.GetBytes(settings.DecryptAES(key));
                         using var stream = new MemoryStream(buffer);
@@ -155,7 +155,7 @@ namespace ack
 
                     GlobalConfiguration.ConfigurationRoot = configuration;
 
-                    if (string.IsNullOrEmpty(GlobalConfiguration.ProcessName) == false)
+                    if (string.IsNullOrWhiteSpace(GlobalConfiguration.ProcessName) == false)
                     {
                         var writeToSection = configuration.GetSection("Serilog:WriteTo");
                         foreach (var childSection in writeToSection.GetChildren())
@@ -164,10 +164,10 @@ namespace ack
                             if (sinkName == "File")
                             {
                                 var sinkFilePath = childSection.GetValue<string>("Args:path");
-                                if (string.IsNullOrEmpty(sinkFilePath) == false)
+                                if (string.IsNullOrWhiteSpace(sinkFilePath) == false)
                                 {
                                     var fileInfo = new FileInfo(sinkFilePath);
-                                    if (string.IsNullOrEmpty(fileInfo.DirectoryName) == false)
+                                    if (string.IsNullOrWhiteSpace(fileInfo.DirectoryName) == false)
                                     {
                                         if (fileInfo.Directory?.Exists == false)
                                         {
@@ -204,13 +204,13 @@ namespace ack
 
                     GlobalConfiguration.ExternalIPAddress = await GetExternalIPAddress();
 
-                    if (string.IsNullOrEmpty(modules) == false)
+                    if (string.IsNullOrWhiteSpace(modules) == false)
                     {
                         var loadModules = modules.Split(',', StringSplitOptions.RemoveEmptyEntries);
                         foreach (var item in loadModules)
                         {
                             var module = item.Trim();
-                            if (string.IsNullOrEmpty(module) == false)
+                            if (string.IsNullOrWhiteSpace(module) == false)
                             {
                                 GlobalConfiguration.ModuleNames.Add(module);
                             }
@@ -223,7 +223,7 @@ namespace ack
                         {
                             foreach (var item in loadModules)
                             {
-                                if (string.IsNullOrEmpty(item.Value) == false)
+                                if (string.IsNullOrWhiteSpace(item.Value) == false)
                                 {
                                     GlobalConfiguration.ModuleNames.Add(item.Value);
                                 }
@@ -329,7 +329,7 @@ namespace ack
                 }
             }
 
-            if (string.IsNullOrEmpty(ipAddress) == true)
+            if (string.IsNullOrWhiteSpace(ipAddress) == true)
             {
                 ipAddress = GetLocalIPAddress();
             }

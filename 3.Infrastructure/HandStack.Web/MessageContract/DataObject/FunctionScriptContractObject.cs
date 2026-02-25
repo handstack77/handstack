@@ -18,7 +18,7 @@ namespace HandStack.Web.MessageContract.DataObject
         public static FunctionScriptContract? FromJson(string json)
         {
             FunctionScriptContract? result = null;
-            if (string.IsNullOrEmpty(json))
+            if (string.IsNullOrWhiteSpace(json))
             {
                 throw new Exception($"json 내용 확인 필요: {json}");
             }

@@ -27,7 +27,7 @@ namespace ack.Extensions
             }
 
             var contentType = context.HttpContext.Request.ContentType;
-            if (string.IsNullOrEmpty(contentType) || contentType == "text/plain" || contentType == "application/octet-stream")
+            if (string.IsNullOrWhiteSpace(contentType) || contentType == "text/plain" || contentType == "application/octet-stream")
             {
                 return true;
             }
@@ -40,7 +40,7 @@ namespace ack.Extensions
             var request = context.HttpContext.Request;
             var contentType = context.HttpContext.Request.ContentType;
 
-            if (string.IsNullOrEmpty(contentType) || contentType == "text/plain")
+            if (string.IsNullOrWhiteSpace(contentType) || contentType == "text/plain")
             {
                 using var reader = new StreamReader(request.Body);
                 var content = await reader.ReadToEndAsync();

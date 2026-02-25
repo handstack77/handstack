@@ -33,7 +33,7 @@ namespace checkup.Extensions
         {
             Dictionary<string, JToken>? result = null;
 
-            if (!string.IsNullOrEmpty(transactionCommandID))
+            if (!string.IsNullOrWhiteSpace(transactionCommandID))
             {
                 try
                 {
@@ -51,7 +51,7 @@ namespace checkup.Extensions
                     transactionObject.TransactionID = transactionInfo[2];
                     transactionObject.FunctionID = transactionInfo[3];
                     transactionObject.ScreenID = transactionObject.TransactionID;
-                    transactionObject.StartTraceID = string.IsNullOrEmpty(startTraceID) ? nameof(ModuleApiClient) : startTraceID;
+                    transactionObject.StartTraceID = string.IsNullOrWhiteSpace(startTraceID) ? nameof(ModuleApiClient) : startTraceID;
 
                     if (serviceParameters != null)
                     {

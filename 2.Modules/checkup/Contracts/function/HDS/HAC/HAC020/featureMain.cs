@@ -38,8 +38,8 @@ namespace HDS.Function.HAC
                 string userWorkID = dynamicParameters.Value("UserWorkID").ToStringSafe();
                 string applicationID = dynamicParameters.Value("ApplicationID").ToStringSafe();
 
-                if (string.IsNullOrEmpty(userWorkID)
-                    || string.IsNullOrEmpty(applicationID))
+                if (string.IsNullOrWhiteSpace(userWorkID)
+                    || string.IsNullOrWhiteSpace(applicationID))
                 {
                     result.BuildExceptionData("Y", "Warning", "필수 요청 정보 확인 필요", typeMember);
                     goto TransactionException;
@@ -96,10 +96,10 @@ TransactionException:
             string requestOrigin = dynamicParameters.Value("RequestOrigin").ToStringSafe();
             string repositoryID = dynamicParameters.Value("RepositoryID").ToStringSafe();
 
-            if (string.IsNullOrEmpty(userWorkID)
-                || string.IsNullOrEmpty(applicationID)
-                || string.IsNullOrEmpty(requestOrigin)
-                || string.IsNullOrEmpty(repositoryID))
+            if (string.IsNullOrWhiteSpace(userWorkID)
+                || string.IsNullOrWhiteSpace(applicationID)
+                || string.IsNullOrWhiteSpace(requestOrigin)
+                || string.IsNullOrWhiteSpace(repositoryID))
             {
                 result.BuildExceptionData("Y", "Warning", "필수 요청 정보 확인 필요", typeMember);
                 goto TransactionException;
@@ -193,14 +193,14 @@ TransactionException:
             string requestOrigin = dynamicParameters.Value("RequestOrigin").ToStringSafe();
             string createdAt = DateTime.Now.ToString("u");
 
-            if (string.IsNullOrEmpty(userWorkID)
-                || string.IsNullOrEmpty(applicationID)
-                || string.IsNullOrEmpty(pageMode)
-                || string.IsNullOrEmpty(repositoryID)
-                || string.IsNullOrEmpty(repositoryName)
-                || string.IsNullOrEmpty(storageType)
-                || string.IsNullOrEmpty(uploadTypeID)
-                || string.IsNullOrEmpty(requestOrigin)
+            if (string.IsNullOrWhiteSpace(userWorkID)
+                || string.IsNullOrWhiteSpace(applicationID)
+                || string.IsNullOrWhiteSpace(pageMode)
+                || string.IsNullOrWhiteSpace(repositoryID)
+                || string.IsNullOrWhiteSpace(repositoryName)
+                || string.IsNullOrWhiteSpace(storageType)
+                || string.IsNullOrWhiteSpace(uploadTypeID)
+                || string.IsNullOrWhiteSpace(requestOrigin)
             )
             {
                 result.BuildExceptionData("Y", "Warning", "필수 요청 정보 확인 필요", typeMember);
@@ -209,7 +209,7 @@ TransactionException:
 
             if (storageType == "FileSystem")
             {
-                if (string.IsNullOrEmpty(physicalPath))
+                if (string.IsNullOrWhiteSpace(physicalPath))
                 {
                     result.BuildExceptionData("Y", "Warning", "FileSystem 필수 요청 정보 확인 필요", typeMember);
                     goto TransactionException;
@@ -217,9 +217,9 @@ TransactionException:
             }
             else if (storageType == "AzureBlob")
             {
-                if (string.IsNullOrEmpty(blobContainerID)
-                    || string.IsNullOrEmpty(blobConnectionString)
-                    || string.IsNullOrEmpty(blobItemUrl)
+                if (string.IsNullOrWhiteSpace(blobContainerID)
+                    || string.IsNullOrWhiteSpace(blobConnectionString)
+                    || string.IsNullOrWhiteSpace(blobItemUrl)
                 )
                 {
                     result.BuildExceptionData("Y", "Warning", "AzureBlob 필수 요청 정보 확인 필요", typeMember);
@@ -396,10 +396,10 @@ TransactionException:
             string repositoryID = dynamicParameters.Value("RepositoryID").ToStringSafe();
             string requestOrigin = dynamicParameters.Value("RequestOrigin").ToStringSafe();
 
-            if (string.IsNullOrEmpty(userWorkID)
-                || string.IsNullOrEmpty(applicationID)
-                || string.IsNullOrEmpty(repositoryID)
-                || string.IsNullOrEmpty(requestOrigin)
+            if (string.IsNullOrWhiteSpace(userWorkID)
+                || string.IsNullOrWhiteSpace(applicationID)
+                || string.IsNullOrWhiteSpace(repositoryID)
+                || string.IsNullOrWhiteSpace(requestOrigin)
             )
             {
                 result.BuildExceptionData("Y", "Warning", "필수 요청 정보 확인 필요", typeMember);

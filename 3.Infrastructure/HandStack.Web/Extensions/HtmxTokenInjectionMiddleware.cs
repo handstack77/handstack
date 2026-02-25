@@ -71,7 +71,7 @@ namespace HandStack.Web.Extensions
                 {
                     var antiforgery = context.RequestServices.GetRequiredService<IAntiforgery>();
                     var tokens = antiforgery.GetAndStoreTokens(context);
-                    if (!string.IsNullOrEmpty(tokens.RequestToken))
+                    if (!string.IsNullOrWhiteSpace(tokens.RequestToken))
                     {
                         context.Response.Headers.Append("XSRF-TOKEN", tokens.RequestToken);
                     }
@@ -109,7 +109,7 @@ namespace HandStack.Web.Extensions
                 }
 
                 var tokens = antiforgery.GetAndStoreTokens(context);
-                if (!string.IsNullOrEmpty(tokens.RequestToken))
+                if (!string.IsNullOrWhiteSpace(tokens.RequestToken))
                 {
                     var originalBodyStream = context.Response.Body;
                     using var memoryStream = new MemoryStream();

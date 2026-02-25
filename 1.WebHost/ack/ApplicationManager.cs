@@ -85,7 +85,7 @@ namespace ack
             }
 
             GlobalConfiguration.ServerLocalIP = GetLocalIPv4Address();
-            if (string.IsNullOrEmpty(GlobalConfiguration.ServerDevCertFilePath) == true)
+            if (string.IsNullOrWhiteSpace(GlobalConfiguration.ServerDevCertFilePath) == true)
             {
                 Log.Information($"ack LocalIP: {GlobalConfiguration.ServerLocalIP}, Port: {port}, ProxyBasePath: {GlobalConfiguration.ProxyBasePath} Start...");
             }
@@ -167,7 +167,7 @@ namespace ack
                     webBuilder.UseKestrel((options) =>
                     {
                         options.ListenAnyIP(port);
-                        if (string.IsNullOrEmpty(GlobalConfiguration.ServerDevCertFilePath) == false && File.Exists(GlobalConfiguration.ServerDevCertFilePath) == true)
+                        if (string.IsNullOrWhiteSpace(GlobalConfiguration.ServerDevCertFilePath) == false && File.Exists(GlobalConfiguration.ServerDevCertFilePath) == true)
                         {
                             if (SocketExtensions.PortInUse(GlobalConfiguration.ServerDevCertSslPort) == true)
                             {

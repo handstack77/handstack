@@ -35,9 +35,9 @@ namespace HDS.Function.HFM
                 string applicationID = dynamicParameters.Value("ApplicationID").ToStringSafe();
                 string userNo = dynamicParameters.Value("UserNo").ToStringSafe();
 
-                if (string.IsNullOrEmpty(userWorkID)
-                    || string.IsNullOrEmpty(applicationID)
-                    || string.IsNullOrEmpty(userNo))
+                if (string.IsNullOrWhiteSpace(userWorkID)
+                    || string.IsNullOrWhiteSpace(applicationID)
+                    || string.IsNullOrWhiteSpace(userNo))
                 {
                     result.BuildExceptionData("Y", "Warning", "필수 요청 정보 확인 필요", typeMember);
                     goto TransactionException;

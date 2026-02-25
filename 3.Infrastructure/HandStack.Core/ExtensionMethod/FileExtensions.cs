@@ -139,7 +139,7 @@ namespace HandStack.Core.ExtensionMethod
             if (@this != null)
             {
                 var directoryName = Path.GetDirectoryName(@this.FullName.Replace("\\", "/"));
-                if (!string.IsNullOrEmpty(directoryName))
+                if (!string.IsNullOrWhiteSpace(directoryName))
                 {
                     var filePath = PathExtensions.Combine(directoryName, newName);
                     @this.MoveTo(filePath);

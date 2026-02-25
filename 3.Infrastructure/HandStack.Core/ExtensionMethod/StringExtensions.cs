@@ -46,7 +46,7 @@ namespace HandStack.Core.ExtensionMethod
             }
             else if (operationType == 'D')
             {
-                if (string.IsNullOrEmpty(processedInput))
+                if (string.IsNullOrWhiteSpace(processedInput))
                 {
                     return defaultEncodedResult;
                 }
@@ -93,7 +93,7 @@ namespace HandStack.Core.ExtensionMethod
 
         private static long? DecodeFromBase36(string encoded)
         {
-            if (string.IsNullOrEmpty(encoded))
+            if (string.IsNullOrWhiteSpace(encoded))
             {
                 return null;
             }
@@ -223,7 +223,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static bool IsNullOrEmpty(this string @this)
         {
-            return string.IsNullOrEmpty(@this);
+            return string.IsNullOrWhiteSpace(@this);
         }
 
         public static string Concat(this string @this, params string[] concatValues)
@@ -238,7 +238,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static string Left(this string @this, int length, bool isText = true)
         {
-            if (string.IsNullOrEmpty(@this) || length > @this.Length || length < 0)
+            if (string.IsNullOrWhiteSpace(@this) || length > @this.Length || length < 0)
             {
                 return @this;
             }
@@ -265,7 +265,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static string Right(this string @this, int length)
         {
-            if (string.IsNullOrEmpty(@this) || length > @this.Length || length < 0)
+            if (string.IsNullOrWhiteSpace(@this) || length > @this.Length || length < 0)
             {
                 return @this;
             }
@@ -363,7 +363,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static bool ParseBool(this string @this, bool defaultValue = false)
         {
-            if (string.IsNullOrEmpty(@this))
+            if (string.IsNullOrWhiteSpace(@this))
             {
                 return defaultValue;
             }
@@ -377,7 +377,7 @@ namespace HandStack.Core.ExtensionMethod
         {
             DateTime? result = null;
 
-            if (string.IsNullOrEmpty(@this))
+            if (string.IsNullOrWhiteSpace(@this))
             {
                 result = defaultValue;
             }
@@ -455,7 +455,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static string ToNumeric(this string @this)
         {
-            if (!string.IsNullOrEmpty(@this))
+            if (!string.IsNullOrWhiteSpace(@this))
             {
                 var result = new char[@this.Length];
                 var i = 0;
@@ -494,7 +494,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static bool ToBoolean(this string? @this)
         {
-            if (string.IsNullOrEmpty(@this))
+            if (string.IsNullOrWhiteSpace(@this))
             {
                 return false;
             }
@@ -539,7 +539,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static string Replace(this string @this, string regexPattern, string replaceValue, bool ignoreCase)
         {
-            if (string.IsNullOrEmpty(@this))
+            if (string.IsNullOrWhiteSpace(@this))
             {
                 return @this;
             }
@@ -565,7 +565,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static string ToCamelCase(this string @this)
         {
-            if (string.IsNullOrEmpty(@this))
+            if (string.IsNullOrWhiteSpace(@this))
             {
                 return @this;
             }
@@ -813,7 +813,7 @@ namespace HandStack.Core.ExtensionMethod
                 try
                 {
                     var value = @this.ToString();
-                    if (string.IsNullOrEmpty(value))
+                    if (string.IsNullOrWhiteSpace(value))
                     {
                         result = false;
                     }

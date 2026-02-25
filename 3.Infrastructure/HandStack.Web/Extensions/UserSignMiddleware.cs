@@ -37,7 +37,7 @@ namespace HandStack.Web.Extensions
         public async Task InvokeAsync(HttpContext httpContext)
         {
             var endpoint = httpContext.GetEndpoint();
-            if (string.IsNullOrEmpty(Path.GetExtension(httpContext.Request.Path)) == false || endpoint?.Metadata?.GetMetadata<IAllowAnonymous>() is object)
+            if (string.IsNullOrWhiteSpace(Path.GetExtension(httpContext.Request.Path)) == false || endpoint?.Metadata?.GetMetadata<IAllowAnonymous>() is object)
             {
             }
             else
@@ -119,7 +119,7 @@ namespace HandStack.Web.Extensions
                         else
                         {
                             var member = httpContext.Request.Cookies[$"{GlobalConfiguration.CookiePrefixName}.Member"];
-                            if (string.IsNullOrEmpty(member))
+                            if (string.IsNullOrWhiteSpace(member))
                             {
                                 httpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
                                 await httpContext.Response.WriteAsync("401 Unauthorized");
@@ -178,7 +178,7 @@ namespace HandStack.Web.Extensions
                                             {
                                                 var claimType = item.Key;
                                                 var claimValue = item.Value;
-                                                if (!string.IsNullOrEmpty(claimType))
+                                                if (!string.IsNullOrWhiteSpace(claimType))
                                                 {
                                                     var claim = new Claim(claimType, claimValue);
                                                     if (claims.Contains(claim) == false)
@@ -215,7 +215,7 @@ namespace HandStack.Web.Extensions
                                             try
                                             {
                                                 httpContext.Request.Cookies.TryGetValue(GlobalConfiguration.SessionCookieName, out var cookieValue);
-                                                if (!string.IsNullOrEmpty(cookieValue))
+                                                if (!string.IsNullOrWhiteSpace(cookieValue))
                                                 {
                                                     var protectedData = Convert.FromBase64String(cookieValue.SessionDecryptPad());
                                                     var unprotectedData = dataProtector.Unprotect(protectedData);
@@ -274,7 +274,7 @@ namespace HandStack.Web.Extensions
                             var splits = requestPath.Split('/');
                             var userWorkID = splits.Length > 3 ? splits[2] : "";
                             var applicationID = splits.Length > 3 ? splits[3] : "";
-                            if (!string.IsNullOrEmpty(applicationID))
+                            if (!string.IsNullOrWhiteSpace(applicationID))
                             {
                                 var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                                 var directoryInfo = new DirectoryInfo(appBasePath);

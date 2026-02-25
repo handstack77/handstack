@@ -52,9 +52,9 @@ namespace checkup
                         ModuleConfiguration.ModuleID = moduleConfigJson.ModuleID;
                         ModuleConfiguration.Version = moduleConfigJson.Version;
                         ModuleConfiguration.ManagedAccessKey = moduleConfig.ManagedAccessKey;
-                        ModuleConfiguration.EncryptionAES256Key = !string.IsNullOrEmpty(moduleConfig.EncryptionAES256Key)
+                        ModuleConfiguration.EncryptionAES256Key = !string.IsNullOrWhiteSpace(moduleConfig.EncryptionAES256Key)
                             && (moduleConfig.EncryptionAES256Key.Length == 16 || moduleConfig.EncryptionAES256Key.Length == 32) ? moduleConfig.EncryptionAES256Key : "1234567890123456";
-                        ModuleConfiguration.AuthorizationKey = !string.IsNullOrEmpty(moduleConfig.AuthorizationKey) ? moduleConfig.AuthorizationKey : GlobalConfiguration.SystemID + GlobalConfiguration.RunningEnvironment + GlobalConfiguration.HostName;
+                        ModuleConfiguration.AuthorizationKey = !string.IsNullOrWhiteSpace(moduleConfig.AuthorizationKey) ? moduleConfig.AuthorizationKey : GlobalConfiguration.SystemID + GlobalConfiguration.RunningEnvironment + GlobalConfiguration.HostName;
                         ModuleConfiguration.IsBundledWithHost = moduleConfigJson.IsBundledWithHost;
                         ModuleConfiguration.AdministratorEmailID = moduleConfig.AdministratorEmailID;
                         ModuleConfiguration.BusinessServerUrl = moduleConfig.BusinessServerUrl;
@@ -62,7 +62,7 @@ namespace checkup
                         ModuleConfiguration.DatabaseContractPath = GlobalConfiguration.GetBaseDirectoryPath(moduleConfig.DatabaseContractPath, PathExtensions.Combine(ModuleConfiguration.ModuleBasePath, "Contracts", "dbclient"));
                         ModuleConfiguration.WWWRootBasePath = GlobalConfiguration.GetBaseDirectoryPath(moduleConfig.WWWRootBasePath);
                         ModuleConfiguration.ModuleLogFilePath = GlobalConfiguration.GetBaseFilePath(moduleConfig.ModuleLogFilePath);
-                        ModuleConfiguration.IsModuleLogging = !string.IsNullOrEmpty(moduleConfig.ModuleLogFilePath);
+                        ModuleConfiguration.IsModuleLogging = !string.IsNullOrWhiteSpace(moduleConfig.ModuleLogFilePath);
                         ModuleConfiguration.ModuleFilePath = GlobalConfiguration.GetBaseDirectoryPath(moduleConfig.ModuleFilePath);
 
                         if (moduleConfig.ConnectionString.Contains('|'))
@@ -86,7 +86,7 @@ namespace checkup
                             ModuleConfiguration.ConnectionString = moduleConfig.ConnectionString;
                         }
 
-                        if (!string.IsNullOrEmpty(moduleConfig.ModuleConfigurationUrl))
+                        if (!string.IsNullOrWhiteSpace(moduleConfig.ModuleConfigurationUrl))
                         {
                             GlobalConfiguration.ModuleConfigurationUrl.Add(moduleConfig.ModuleConfigurationUrl);
                         }
@@ -199,7 +199,7 @@ namespace checkup
         public void Configure(IApplicationBuilder app, IWebHostEnvironment? environment, ICorsService corsService, ICorsPolicyProvider corsPolicyProvider)
         {
             var module = GlobalConfiguration.Modules.FirstOrDefault(p => p.ModuleID == typeof(ModuleInitializer).Assembly.GetName().Name);
-            if (!string.IsNullOrEmpty(ModuleID) && module != null)
+            if (!string.IsNullOrWhiteSpace(ModuleID) && module != null)
             {
                 app.Use(async (context, next) =>
                 {
@@ -210,10 +210,10 @@ namespace checkup
                 app.UseMiddleware<JwtMiddleware>();
                 app.UseMiddleware<TenantUserSignMiddleware>();
 
-                var wwwrootDirectory = string.IsNullOrEmpty(ModuleConfiguration.WWWRootBasePath) ? PathExtensions.Combine(module.BasePath, "wwwroot", module.ModuleID) : ModuleConfiguration.WWWRootBasePath;
+                var wwwrootDirectory = string.IsNullOrWhiteSpace(ModuleConfiguration.WWWRootBasePath) ? PathExtensions.Combine(module.BasePath, "wwwroot", module.ModuleID) : ModuleConfiguration.WWWRootBasePath;
 
                 var moduleAssets = PathExtensions.Combine(wwwrootDirectory, "assets");
-                if (!string.IsNullOrEmpty(moduleAssets) && Directory.Exists(moduleAssets) == true)
+                if (!string.IsNullOrWhiteSpace(moduleAssets) && Directory.Exists(moduleAssets) == true)
                 {
                     app.UseStaticFiles(new StaticFileOptions
                     {
@@ -229,7 +229,7 @@ namespace checkup
                     });
                 }
 
-                if (!string.IsNullOrEmpty(wwwrootDirectory) && Directory.Exists(wwwrootDirectory) == true)
+                if (!string.IsNullOrWhiteSpace(wwwrootDirectory) && Directory.Exists(wwwrootDirectory) == true)
                 {
                     app.UseStaticFiles(new StaticFileOptions
                     {
@@ -264,7 +264,7 @@ namespace checkup
                 if (Directory.Exists(GlobalConfiguration.TenantAppBasePath) == true)
                 {
                     var hostApps = Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath);
-                    var tenantAppRequestPath = string.IsNullOrEmpty(GlobalConfiguration.TenantAppRequestPath) ? "host" : GlobalConfiguration.TenantAppRequestPath;
+                    var tenantAppRequestPath = string.IsNullOrWhiteSpace(GlobalConfiguration.TenantAppRequestPath) ? "host" : GlobalConfiguration.TenantAppRequestPath;
 
                     app.UseStaticFiles(new StaticFileOptions
                     {
@@ -298,7 +298,7 @@ namespace checkup
                                     CorsPolicy? policy = null;
                                     if (ModuleConfiguration.TenantAppOrigins.ContainsKey(tenantID) == true)
                                     {
-                                        if (!string.IsNullOrEmpty(requestRefererUrl))
+                                        if (!string.IsNullOrWhiteSpace(requestRefererUrl))
                                         {
                                             var withOriginUris = ModuleConfiguration.TenantAppOrigins[tenantID];
                                             if (withOriginUris != null && withOriginUris.Count > 0)
@@ -345,7 +345,7 @@ namespace checkup
                                         }
                                     }
 
-                                    if (string.IsNullOrEmpty(requestRefererUrl))
+                                    if (string.IsNullOrWhiteSpace(requestRefererUrl))
                                     {
                                         var settingFilePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID, "settings.json");
                                         if (File.Exists(settingFilePath) == true)

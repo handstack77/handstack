@@ -58,7 +58,7 @@ namespace dbclient
                         var moduleConfig = moduleConfigJson.ModuleConfig;
                         ModuleConfiguration.ModuleID = moduleConfigJson.ModuleID;
                         ModuleConfiguration.Version = moduleConfigJson.Version;
-                        ModuleConfiguration.AuthorizationKey = !string.IsNullOrEmpty(moduleConfig.AuthorizationKey) ? moduleConfig.AuthorizationKey : GlobalConfiguration.SystemID + GlobalConfiguration.RunningEnvironment + GlobalConfiguration.HostName;
+                        ModuleConfiguration.AuthorizationKey = !string.IsNullOrWhiteSpace(moduleConfig.AuthorizationKey) ? moduleConfig.AuthorizationKey : GlobalConfiguration.SystemID + GlobalConfiguration.RunningEnvironment + GlobalConfiguration.HostName;
                         ModuleConfiguration.IsBundledWithHost = moduleConfigJson.IsBundledWithHost;
                         ModuleConfiguration.BusinessServerUrl = moduleConfig.BusinessServerUrl;
                         ModuleConfiguration.CircuitBreakResetSecond = moduleConfig.CircuitBreakResetSecond;
@@ -73,7 +73,7 @@ namespace dbclient
                         }
 
                         ModuleConfiguration.IsTransactionLogging = moduleConfig.IsTransactionLogging;
-                        ModuleConfiguration.ModuleLogFilePath = string.IsNullOrEmpty(moduleConfig.ModuleLogFilePath) ? "transaction.log" : new FileInfo(moduleConfig.ModuleLogFilePath).FullName.Replace("\\", "/");
+                        ModuleConfiguration.ModuleLogFilePath = string.IsNullOrWhiteSpace(moduleConfig.ModuleLogFilePath) ? "transaction.log" : new FileInfo(moduleConfig.ModuleLogFilePath).FullName.Replace("\\", "/");
                         if (ModuleConfiguration.IsTransactionLogging == true)
                         {
                             var loggerConfiguration = CreateLoggerConfiguration(ModuleConfiguration.ModuleLogFilePath);
@@ -81,7 +81,7 @@ namespace dbclient
                         }
 
                         ModuleConfiguration.IsProfileLogging = moduleConfig.IsProfileLogging;
-                        ModuleConfiguration.ProfileLogFilePath = string.IsNullOrEmpty(moduleConfig.ProfileLogFilePath) ? "profile.log" : new FileInfo(moduleConfig.ProfileLogFilePath).FullName.Replace("\\", "/");
+                        ModuleConfiguration.ProfileLogFilePath = string.IsNullOrWhiteSpace(moduleConfig.ProfileLogFilePath) ? "profile.log" : new FileInfo(moduleConfig.ProfileLogFilePath).FullName.Replace("\\", "/");
                         if (ModuleConfiguration.IsProfileLogging == true)
                         {
                             var loggerConfiguration = CreateLoggerConfiguration(ModuleConfiguration.ProfileLogFilePath);
@@ -99,7 +99,7 @@ namespace dbclient
                                     ApplicationID = item.ApplicationID,
                                     ProjectID = item.ProjectID,
                                     DataSourceID = item.DataSourceID,
-                                    TransactionIsolationLevel = string.IsNullOrEmpty(item.TransactionIsolationLevel) ? "ReadCommitted" : item.TransactionIsolationLevel,
+                                    TransactionIsolationLevel = string.IsNullOrWhiteSpace(item.TransactionIsolationLevel) ? "ReadCommitted" : item.TransactionIsolationLevel,
                                     DataProvider = item.DataProvider,
                                     ConnectionString = item.ConnectionString,
                                     IsEncryption = item.IsEncryption,
@@ -138,14 +138,14 @@ namespace dbclient
         private static LoggerConfiguration CreateLoggerConfiguration(string logFilePath)
         {
             var fileInfo = new FileInfo(logFilePath);
-            if (!string.IsNullOrEmpty(fileInfo.DirectoryName))
+            if (!string.IsNullOrWhiteSpace(fileInfo.DirectoryName))
             {
                 if (fileInfo.Directory == null || fileInfo.Directory.Exists == false)
                 {
                     Directory.CreateDirectory(fileInfo.DirectoryName);
                 }
 
-                if (string.IsNullOrEmpty(GlobalConfiguration.ProcessName))
+                if (string.IsNullOrWhiteSpace(GlobalConfiguration.ProcessName))
                 {
                     logFilePath = fileInfo.FullName.Replace("\\", "/");
                 }
@@ -176,10 +176,10 @@ namespace dbclient
         public void Configure(IApplicationBuilder app, IWebHostEnvironment? environment, ICorsService corsService, ICorsPolicyProvider corsPolicyProvider)
         {
             var module = GlobalConfiguration.Modules.FirstOrDefault(p => p.ModuleID == ModuleID);
-            if (!string.IsNullOrEmpty(ModuleID) && module != null)
+            if (!string.IsNullOrWhiteSpace(ModuleID) && module != null)
             {
                 var wwwrootDirectory = PathExtensions.Combine(module.BasePath, "wwwroot", module.ModuleID);
-                if (!string.IsNullOrEmpty(wwwrootDirectory) && Directory.Exists(wwwrootDirectory) == true)
+                if (!string.IsNullOrWhiteSpace(wwwrootDirectory) && Directory.Exists(wwwrootDirectory) == true)
                 {
                     app.UseStaticFiles(new StaticFileOptions
                     {

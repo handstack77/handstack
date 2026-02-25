@@ -144,7 +144,7 @@ namespace function.Extensions
 
             try
             {
-                if (string.IsNullOrEmpty(hostUrl))
+                if (string.IsNullOrWhiteSpace(hostUrl))
                 {
                     fallbackFunction?.Invoke($"hostUrl 오류: {hostUrl}");
                     return restResponse;
@@ -305,7 +305,7 @@ namespace function.Extensions
         {
             var logMessage = GetLogMessage();
             ConfigureLogMessage(logMessage, globalID, acknowledge,
-                string.IsNullOrEmpty(applicationID) ? GlobalConfiguration.ApplicationID : applicationID,
+                string.IsNullOrWhiteSpace(applicationID) ? GlobalConfiguration.ApplicationID : applicationID,
                 "", "", "", "A", "N", "V", "P", message, properties);
 
             EnqueueLog(logMessage, fallbackFunction, "Program");
@@ -348,7 +348,7 @@ namespace function.Extensions
             string type, string flow, string level, string format, string message, string properties)
         {
             logMessage.GlobalID = globalID;
-            logMessage.Acknowledge = string.IsNullOrEmpty(acknowledge) ? "N" : acknowledge;
+            logMessage.Acknowledge = string.IsNullOrWhiteSpace(acknowledge) ? "N" : acknowledge;
             logMessage.ApplicationID = applicationID;
             logMessage.ProjectID = projectID;
             logMessage.TransactionID = transactionID;
@@ -403,7 +403,7 @@ namespace function.Extensions
             else
             {
                 transactionLogger?.Information($"{logType} GlobalID: {logMessage.GlobalID}, {JsonConvert.SerializeObject(logMessage)}");
-                if (!string.IsNullOrEmpty(messageForLog))
+                if (!string.IsNullOrWhiteSpace(messageForLog))
                 {
                     transactionLogger?.Information($"[{{LogCategory}}] {messageForLog}", logMessage.Properties);
                 }

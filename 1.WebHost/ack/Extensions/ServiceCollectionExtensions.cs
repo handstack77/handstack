@@ -128,7 +128,7 @@ namespace ack.Extensions
                             throw;
                         }
 
-                        var assemblyFilePath = string.IsNullOrEmpty(assembly.Location) == true ? file.FullName.Replace("\\", "/") : assembly.Location;
+                        var assemblyFilePath = string.IsNullOrWhiteSpace(assembly.Location) == true ? file.FullName.Replace("\\", "/") : assembly.Location;
                         var loadedAssemblyVersion = FileVersionInfo.GetVersionInfo(assemblyFilePath).FileVersion;
                         var tryToLoadAssemblyVersion = FileVersionInfo.GetVersionInfo(file.FullName.Replace("\\", "/")).FileVersion;
 

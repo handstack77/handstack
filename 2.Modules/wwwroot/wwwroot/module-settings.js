@@ -12,7 +12,8 @@ let $module_settings = {
                 "ModuleLogFilePath": "../log/wwwroot/module.log",
                 "ContractRequestPath": "view",
                 "ContractBasePath": "../contracts/wwwroot",
-                "WWWRootBasePath": "../modules/wwwroot/wwwroot"
+                "WWWRootBasePath": "../modules/wwwroot/wwwroot",
+                "FileSyncTokens": []
             }
         },
         moduleConfig: null

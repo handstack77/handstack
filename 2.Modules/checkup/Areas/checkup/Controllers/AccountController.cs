@@ -75,7 +75,7 @@ namespace checkup.Areas.checkup.Controllers
 
             var remoteClientIP = HttpContext.GetRemoteIpAddress();
 
-            if (!string.IsNullOrEmpty(emailID))
+            if (!string.IsNullOrWhiteSpace(emailID))
             {
                 string? personNo = null;
 
@@ -104,7 +104,7 @@ namespace checkup.Areas.checkup.Controllers
                         {
                             PersonNo = sequentialIdGenerator.NewId().ToString("N"),
                             PersonID = emailID,
-                            PersonName = string.IsNullOrEmpty(userName) ? "" : userName,
+                            PersonName = string.IsNullOrWhiteSpace(userName) ? "" : userName,
                         });
 
                         if (nonResults == null)
@@ -133,12 +133,12 @@ namespace checkup.Areas.checkup.Controllers
                         userName = item.PersonName;
                     }
 
-                    if (string.IsNullOrEmpty(userName))
+                    if (string.IsNullOrWhiteSpace(userName))
                     {
                         userName = emailID;
                     }
 
-                    if (string.IsNullOrEmpty(personNo) || string.IsNullOrEmpty(userName))
+                    if (string.IsNullOrWhiteSpace(personNo) || string.IsNullOrWhiteSpace(userName))
                     {
                         entityResult.ErrorText = "SYS.USR010.GD02 결과 필요";
                         logger.Error("[{LogCategory}] " + $"{ModuleConfiguration.DatabaseContractPath}: ${entityResult.ErrorText}", "AccountController/InviteMember");
@@ -191,7 +191,7 @@ namespace checkup.Areas.checkup.Controllers
                     }
                 }
 
-                if (string.IsNullOrEmpty(personNo))
+                if (string.IsNullOrWhiteSpace(personNo))
                 {
                     entityResult.ErrorText = "SYS.USR010.GD02 결과 필요";
                     logger.Error("[{LogCategory}] " + $"{ModuleConfiguration.DatabaseContractPath}: ${entityResult.ErrorText}", "AccountController/Email");
@@ -225,10 +225,10 @@ namespace checkup.Areas.checkup.Controllers
             var linkUrl = $"/checkup/redirection.html?tick={DateTime.Now.Ticks}";
             var clientIP = HttpContext.GetRemoteIpAddress().ToStringSafe();
 
-            if (!string.IsNullOrEmpty(userID)
-                && !string.IsNullOrEmpty(issueID)
-                && !string.IsNullOrEmpty(validID)
-                && !string.IsNullOrEmpty(signID))
+            if (!string.IsNullOrWhiteSpace(userID)
+                && !string.IsNullOrWhiteSpace(issueID)
+                && !string.IsNullOrWhiteSpace(validID)
+                && !string.IsNullOrWhiteSpace(signID))
             {
                 DateTime createdAt;
 
@@ -352,7 +352,7 @@ namespace checkup.Areas.checkup.Controllers
                                 {
                                     var claimType = item.GetString("ClaimType");
                                     var claimValue = item.GetString("ClaimValue").ToStringSafe();
-                                    if (!string.IsNullOrEmpty(claimType))
+                                    if (!string.IsNullOrWhiteSpace(claimType))
                                     {
                                         var claim = new Claim(claimType, claimValue);
                                         if (claims.Contains(claim) == false)
@@ -431,7 +431,7 @@ namespace checkup.Areas.checkup.Controllers
                                 try
                                 {
                                     HttpContext.Request.Cookies.TryGetValue(GlobalConfiguration.SessionCookieName, out var cookieValue);
-                                    if (!string.IsNullOrEmpty(cookieValue))
+                                    if (!string.IsNullOrWhiteSpace(cookieValue))
                                     {
                                         var protectedData = Convert.FromBase64String(cookieValue.SessionDecryptPad());
                                         var unprotectedData = dataProtector.Unprotect(protectedData);
@@ -583,7 +583,7 @@ namespace checkup.Areas.checkup.Controllers
         [HttpGet("[action]")]
         public async Task Logout(string? cookiePrefixName = "")
         {
-            if (string.IsNullOrEmpty(cookiePrefixName))
+            if (string.IsNullOrWhiteSpace(cookiePrefixName))
             {
                 cookiePrefixName = GlobalConfiguration.CookiePrefixName;
             }

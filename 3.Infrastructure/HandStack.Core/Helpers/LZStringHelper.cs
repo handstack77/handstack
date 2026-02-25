@@ -578,7 +578,7 @@ namespace HandStack.Core.Helpers
 
         private static char FirstOrDefault(string value)
         {
-            if (string.IsNullOrEmpty(value))
+            if (string.IsNullOrWhiteSpace(value))
             {
                 return default(char);
             }

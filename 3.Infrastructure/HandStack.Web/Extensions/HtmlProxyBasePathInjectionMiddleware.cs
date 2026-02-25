@@ -26,11 +26,11 @@ namespace HandStack.Web.Extensions
                 return;
             }
 
-            string proxyBasePath = string.IsNullOrEmpty(GlobalConfiguration.ProxyBasePath) ? "" : "/" + GlobalConfiguration.ProxyBasePath;
+            string proxyBasePath = string.IsNullOrWhiteSpace(GlobalConfiguration.ProxyBasePath) ? "" : "/" + GlobalConfiguration.ProxyBasePath;
             var isHtmlPage = (requestPath.StartsWith(proxyBasePath) == true && requestPath.EndsWith(".html", StringComparison.OrdinalIgnoreCase)) || requestPath == "/";
             var isCssFile = requestPath.StartsWith(proxyBasePath) == true && requestPath.EndsWith(".css", StringComparison.OrdinalIgnoreCase);
 
-            if ((isHtmlPage == true || isCssFile == true) && !string.IsNullOrEmpty(GlobalConfiguration.ProxyBasePath))
+            if ((isHtmlPage == true || isCssFile == true) && !string.IsNullOrWhiteSpace(GlobalConfiguration.ProxyBasePath))
             {
                 var originalBodyStream = context.Response.Body;
                 using var memoryStream = new MemoryStream();
@@ -52,7 +52,7 @@ namespace HandStack.Web.Extensions
                         content = await reader.ReadToEndAsync();
                     }
 
-                    if (string.IsNullOrEmpty(content))
+                    if (string.IsNullOrWhiteSpace(content))
                     {
                         memoryStream.Seek(0, SeekOrigin.Begin);
                         context.Response.Body = originalBodyStream;
@@ -125,7 +125,7 @@ namespace HandStack.Web.Extensions
             if (context.Request.Headers.TryGetValue("X-Original-URL", out var originalUrl))
             {
                 var url = originalUrl.ToString();
-                if (!string.IsNullOrEmpty(url))
+                if (!string.IsNullOrWhiteSpace(url))
                 {
                     var urlWithoutQuery = url.Split('?')[0];
                     return urlWithoutQuery;
@@ -135,7 +135,7 @@ namespace HandStack.Web.Extensions
             if (context.Request.Headers.TryGetValue("X-Original-Uri", out var originalUri))
             {
                 var uri = originalUri.ToString();
-                if (!string.IsNullOrEmpty(uri))
+                if (!string.IsNullOrWhiteSpace(uri))
                 {
                     var uriWithoutQuery = uri.Split('?')[0];
                     return uriWithoutQuery;
@@ -145,7 +145,7 @@ namespace HandStack.Web.Extensions
             if (context.Request.Headers.TryGetValue("X-Forwarded-Path", out var forwardedPath))
             {
                 var path = forwardedPath.ToString();
-                if (!string.IsNullOrEmpty(path))
+                if (!string.IsNullOrWhiteSpace(path))
                 {
                     return path;
                 }
@@ -155,7 +155,7 @@ namespace HandStack.Web.Extensions
             {
                 var prefix = forwardedPrefix.ToString().TrimEnd('/');
                 var currentPath = context.Request.Path.Value ?? string.Empty;
-                if (!string.IsNullOrEmpty(prefix))
+                if (!string.IsNullOrWhiteSpace(prefix))
                 {
                     return prefix + currentPath;
                 }
@@ -164,7 +164,7 @@ namespace HandStack.Web.Extensions
             if (context.Request.Headers.TryGetValue("X-Original-Path", out var originalPath))
             {
                 var path = originalPath.ToString();
-                if (!string.IsNullOrEmpty(path))
+                if (!string.IsNullOrWhiteSpace(path))
                 {
                     return path;
                 }
@@ -175,7 +175,7 @@ namespace HandStack.Web.Extensions
 
         private string RewriteAbsolutePaths(string content, bool isHtml, bool isCss)
         {
-            if (string.IsNullOrEmpty(content))
+            if (string.IsNullOrWhiteSpace(content))
             {
                 return content;
             }

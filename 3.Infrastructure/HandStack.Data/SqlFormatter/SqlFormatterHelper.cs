@@ -12,7 +12,7 @@ namespace HandStack.Data.SqlFormatter
         // string? result = SqlFormatterHelper.Format(text, SqlLanguageMode.Value, new SqlFormatterOptions(IndentationMode.Value, uppercase: true, linesBetweenQueries: 2));
         internal static string Format(string sql, SqlLanguage language, SqlFormatterOptions options)
         {
-            if (string.IsNullOrEmpty(sql))
+            if (string.IsNullOrWhiteSpace(sql))
             {
                 return string.Empty;
             }

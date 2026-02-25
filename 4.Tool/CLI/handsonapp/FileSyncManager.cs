@@ -20,14 +20,14 @@ namespace handsonapp
         {
             fileSystemWatcher = new FileSystemWatcher(sourceRootDirectory);
 
-            if (string.IsNullOrEmpty(filter) == false)
+            if (string.IsNullOrWhiteSpace(filter) == false)
             {
                 fileSystemWatcher.InternalBufferSize = 65536;
                 if (filter.IndexOf("|") > -1)
                 {
                     foreach (var item in filter.Split("|"))
                     {
-                        if (string.IsNullOrEmpty(item.Trim()) == false)
+                        if (string.IsNullOrWhiteSpace(item.Trim()) == false)
                         {
                             fileSystemWatcher.Filters.Add(item.Trim());
                         }
@@ -76,7 +76,7 @@ namespace handsonapp
             {
                 if (queue.TryDequeue(out var watchFilePath) == true)
                 {
-                    if (string.IsNullOrEmpty(watchFilePath) == false)
+                    if (string.IsNullOrWhiteSpace(watchFilePath) == false)
                     {
                         var watcherChangeTypes = Enum.Parse<WatcherChangeTypes>(watchFilePath.Split("|")[0]);
                         var filePath = watchFilePath.Split("|")[1];

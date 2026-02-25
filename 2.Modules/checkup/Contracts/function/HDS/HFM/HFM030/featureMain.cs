@@ -60,9 +60,9 @@ namespace HDS.Function.HFM
                 string applicationID = dynamicParameters.Value("ApplicationID").ToStringSafe();
                 string userNo = dynamicParameters.Value("UserNo").ToStringSafe();
 
-                if (string.IsNullOrEmpty(userWorkID)
-                    || string.IsNullOrEmpty(applicationID)
-                    || string.IsNullOrEmpty(userNo))
+                if (string.IsNullOrWhiteSpace(userWorkID)
+                    || string.IsNullOrWhiteSpace(applicationID)
+                    || string.IsNullOrWhiteSpace(userNo))
                 {
                     result.BuildExceptionData("Y", "Warning", "필수 요청 정보 확인 필요", typeMember);
                     goto TransactionException;
@@ -95,7 +95,7 @@ namespace HDS.Function.HFM
                             int rowIndex = -1;
                             foreach (var referencedPackage in referencedPackages)
                             {
-                                if (!string.IsNullOrEmpty(referencedPackage.Key) && excludePackages.IndexOf($"{referencedPackage.Key}") == -1)
+                                if (!string.IsNullOrWhiteSpace(referencedPackage.Key) && excludePackages.IndexOf($"{referencedPackage.Key}") == -1)
                                 {
                                     rowIndex = rowIndex + 1;
                                     dataTableBuilder.NewRow();

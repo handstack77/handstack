@@ -18,7 +18,7 @@ namespace HandStack.Web.Extensions
         public CaseInsensitiveStaticFileMiddleware(RequestDelegate next, string directoryPath)
         {
             this.next = next;
-            if (string.IsNullOrEmpty(directoryPath))
+            if (string.IsNullOrWhiteSpace(directoryPath))
             {
                 directoryPath = GlobalConfiguration.WebRootPath;
             }
@@ -35,7 +35,7 @@ namespace HandStack.Web.Extensions
             if (fileProvider != null)
             {
                 var path = context.Request.Path.Value;
-                if (!string.IsNullOrEmpty(path))
+                if (!string.IsNullOrWhiteSpace(path))
                 {
                     var directoryContents = fileProvider.GetDirectoryContents(Path.GetDirectoryName(path).ToStringSafe());
                     var file = directoryContents?.FirstOrDefault(f => f.Name.Equals(Path.GetFileName(path), StringComparison.OrdinalIgnoreCase));

@@ -53,7 +53,7 @@ namespace HandStack.Web.MessageContract.DataObject
         public static UIContractObject? FromJson(string json)
         {
             UIContractObject? result = null;
-            if (string.IsNullOrEmpty(json))
+            if (string.IsNullOrWhiteSpace(json))
             {
                 throw new Exception($"json 내용 확인 필요: {json}");
             }

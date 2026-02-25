@@ -37,9 +37,9 @@ namespace {{applicationID}}.Function.{{projectID}}
                 string {{variableID}} = dynamicParameters.Value("{{id}}").ToStringSafe();
                 {{/params}}
 
-                if (string.IsNullOrEmpty(parameter)
+                if (string.IsNullOrWhiteSpace(parameter)
                     {{#params}}
-                    || string.IsNullOrEmpty({{variableID}})
+                    || string.IsNullOrWhiteSpace({{variableID}})
                     {{/params}}
                 )
                 {

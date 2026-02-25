@@ -76,12 +76,12 @@ namespace dbclient.Events
             }
 
             response.CorrelationID = request.GlobalID;
-            if (string.IsNullOrEmpty(request.RequestID))
+            if (string.IsNullOrWhiteSpace(request.RequestID))
             {
                 request.RequestID = $"SELF_{GlobalConfiguration.SystemID}{GlobalConfiguration.HostName}{GlobalConfiguration.RunningEnvironment}{DateTime.Now:yyyyMMddHHmmssfff}";
             }
 
-            if (string.IsNullOrEmpty(request.GlobalID))
+            if (string.IsNullOrWhiteSpace(request.GlobalID))
             {
                 request.GlobalID = request.RequestID;
             }
@@ -132,7 +132,7 @@ namespace dbclient.Events
                         break;
                 }
 
-                if (!string.IsNullOrEmpty(response.ExceptionText))
+                if (!string.IsNullOrWhiteSpace(response.ExceptionText))
                 {
                     if (ModuleConfiguration.IsLogServer == true)
                     {
@@ -169,7 +169,7 @@ namespace dbclient.Events
                 if (request.ReturnType == ExecuteDynamicTypeObject.Xml)
                 {
                     var responseData = response.ResultObject as string;
-                    if (string.IsNullOrEmpty(responseData))
+                    if (string.IsNullOrWhiteSpace(responseData))
                     {
                         responseData = "<?xml version=\"1.0\" standalone=\"yes\"?><NewDataSet></NewDataSet>";
                     }

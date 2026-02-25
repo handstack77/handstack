@@ -232,7 +232,7 @@ namespace HandStack.Core.Licensing
 
         private bool IsSigned
         {
-            get { return (!string.IsNullOrEmpty(Signature)); }
+            get { return (!string.IsNullOrWhiteSpace(Signature)); }
         }
 
         private void SetTag(string name, string value)

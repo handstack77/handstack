@@ -14,7 +14,7 @@ namespace HandStack.Core.Helpers
         {
             var buffer = new List<int>();
             var keyLength = 6;
-            if (string.IsNullOrEmpty(key))
+            if (string.IsNullOrWhiteSpace(key))
             {
                 key = key.ToSHA256().Substring(0, keyLength);
             }
@@ -38,7 +38,7 @@ namespace HandStack.Core.Helpers
         public static string Decrypt(string cipherText, string key = "")
         {
             var result = string.Empty;
-            if (string.IsNullOrEmpty(cipherText))
+            if (string.IsNullOrWhiteSpace(cipherText))
             {
                 return result;
             }
@@ -56,7 +56,7 @@ namespace HandStack.Core.Helpers
                 var passcode = source[1];
 
                 var keyLength = 6;
-                if (string.IsNullOrEmpty(key))
+                if (string.IsNullOrWhiteSpace(key))
                 {
                     key = key.ToSHA256().Substring(0, keyLength);
                 }

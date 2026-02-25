@@ -40,10 +40,10 @@ namespace HDS.Function.SYS
                 string startedAt = dynamicParameters.Value("StartedAt").ToStringSafe();
                 string endedAt = dynamicParameters.Value("EndedAt").ToStringSafe();
 
-                if (string.IsNullOrEmpty(userWorkID)
-                    || string.IsNullOrEmpty(applicationID)
-                    || string.IsNullOrEmpty(startedAt)
-                    || string.IsNullOrEmpty(endedAt)
+                if (string.IsNullOrWhiteSpace(userWorkID)
+                    || string.IsNullOrWhiteSpace(applicationID)
+                    || string.IsNullOrWhiteSpace(startedAt)
+                    || string.IsNullOrWhiteSpace(endedAt)
                 )
                 {
                     result.BuildExceptionData("Y", "Warning", "필수 요청 정보 확인 필요", typeMember);
@@ -103,9 +103,9 @@ TransactionException:
                 string applicationID = dynamicParameters.Value("ApplicationID").ToStringSafe();
                 string logNo = dynamicParameters.Value("LogNo").ToStringSafe();
 
-                if (string.IsNullOrEmpty(userWorkID)
-                    || string.IsNullOrEmpty(applicationID)
-                    || string.IsNullOrEmpty(logNo)
+                if (string.IsNullOrWhiteSpace(userWorkID)
+                    || string.IsNullOrWhiteSpace(applicationID)
+                    || string.IsNullOrWhiteSpace(logNo)
                 )
                 {
                     result.BuildExceptionData("Y", "Warning", "필수 요청 정보 확인 필요", typeMember);

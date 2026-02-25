@@ -46,7 +46,7 @@ namespace handstack
         {
             var exitCode = 0;
             var entryBasePath = AppDomain.CurrentDomain.BaseDirectory;
-            if (string.IsNullOrEmpty(entryBasePath) == true)
+            if (string.IsNullOrWhiteSpace(entryBasePath) == true)
             {
                 entryBasePath = AppDomain.CurrentDomain.BaseDirectory;
             }
@@ -57,7 +57,7 @@ namespace handstack
             }
 
             var environmentName = Environment.GetEnvironmentVariable("ACK_ENVIRONMENT");
-            if (string.IsNullOrEmpty(environmentName) == true)
+            if (string.IsNullOrWhiteSpace(environmentName) == true)
             {
                 environmentName = "";
             }
@@ -242,7 +242,7 @@ namespace handstack
                         }
 
                         var loadModules = setting.SelectToken("AppSettings.LoadModules");
-                        if (string.IsNullOrEmpty(moduleBasePath) == false && loadModules != null && loadModules.Count() > 0)
+                        if (string.IsNullOrWhiteSpace(moduleBasePath) == false && loadModules != null && loadModules.Count() > 0)
                         {
                             var wwwrootModuleBasePath = string.Empty;
                             var functionModuleBasePath = string.Empty;
@@ -252,7 +252,7 @@ namespace handstack
                             {
                                 var module = modules[i];
                                 var moduleID = module.ToString();
-                                if (string.IsNullOrEmpty(moduleID) == false)
+                                if (string.IsNullOrWhiteSpace(moduleID) == false)
                                 {
                                     var splits = settingFileName.SplitAndTrim('.');
                                     var programID = splits[0];
@@ -313,7 +313,7 @@ namespace handstack
                             Log.Information($"configuration appsettings source: {PathExtensions.GetFullPath(settingFilePath).Replace(sourceBasePath, "")}, target: {PathExtensions.GetFullPath(appSettingFilePath).Replace(targetBasePath, "")}");
 
                             var synConfigFilePath = PathExtensions.Combine(settingDirectoryPath, "synconfigs", settingFileName);
-                            if (File.Exists(synConfigFilePath) == true && string.IsNullOrEmpty(wwwrootModuleBasePath) == false)
+                            if (File.Exists(synConfigFilePath) == true && string.IsNullOrWhiteSpace(wwwrootModuleBasePath) == false)
                             {
                                 var synConfigFileInfo = new FileInfo(PathExtensions.Combine(wwwrootModuleBasePath, "wwwroot", "syn.config.json"));
                                 var appSynConfigFilePath = synConfigFileInfo.FullName;
@@ -322,7 +322,7 @@ namespace handstack
                             }
 
                             var nodeConfigFilePath = PathExtensions.Combine(settingDirectoryPath, "nodeconfigs", settingFileName);
-                            if (File.Exists(nodeConfigFilePath) == true && string.IsNullOrEmpty(functionModuleBasePath) == false)
+                            if (File.Exists(nodeConfigFilePath) == true && string.IsNullOrWhiteSpace(functionModuleBasePath) == false)
                             {
                                 var nodeConfigFileInfo = new FileInfo(PathExtensions.Combine(functionModuleBasePath, "node.config.json"));
                                 var appNodeConfigFilePath = nodeConfigFileInfo.FullName;
@@ -508,7 +508,7 @@ namespace handstack
                         {
                             var settingText = File.ReadAllText(settingFilePath);
                             var key = settingText.ToSHA256().Substring(0, 32);
-                            arguments = $"{arguments}{(string.IsNullOrEmpty(arguments) == true ? "" : " ")}--key={key} --appsettings={settingText.EncryptAES(key)}";
+                            arguments = $"{arguments}{(string.IsNullOrWhiteSpace(arguments) == true ? "" : " ")}--key={key} --appsettings={settingText.EncryptAES(key)}";
                         }
                         catch (Exception exception)
                         {
@@ -555,7 +555,7 @@ namespace handstack
                         {
                             var settingText = File.ReadAllText(settingFilePath);
                             var key = settingText.ToSHA256().Substring(0, 32);
-                            arguments = $"{arguments}{(string.IsNullOrEmpty(arguments) == true ? "" : " ")}--key={key} --appsettings={settingText.EncryptAES(key)}";
+                            arguments = $"{arguments}{(string.IsNullOrWhiteSpace(arguments) == true ? "" : " ")}--key={key} --appsettings={settingText.EncryptAES(key)}";
                         }
                         catch (Exception exception)
                         {
@@ -747,7 +747,7 @@ namespace handstack
                 switch (format)
                 {
                     case "base64":
-                        if (string.IsNullOrEmpty(options) == true)
+                        if (string.IsNullOrWhiteSpace(options) == true)
                         {
                             options = "string";
                         }
@@ -802,7 +802,7 @@ namespace handstack
                         }
                         break;
                     case "sqids":
-                        key = string.IsNullOrEmpty(key) == true ? "abcdefghijklmnopqrstuvwxyz1234567890" : key;
+                        key = string.IsNullOrWhiteSpace(key) == true ? "abcdefghijklmnopqrstuvwxyz1234567890" : key;
                         var sqids = new SqidsEncoder<int>(new()
                         {
                             Alphabet = key,
@@ -822,7 +822,7 @@ namespace handstack
                         }
                         break;
                     case "aes256":
-                        if (string.IsNullOrEmpty(key) == true)
+                        if (string.IsNullOrWhiteSpace(key) == true)
                         {
                             key = value.ToStringSafe().ToSHA256().Substring(0, 32);
                         }
@@ -830,7 +830,7 @@ namespace handstack
                         Log.Information($"key={key}, value={value.ToStringSafe().EncryptAES(key)}");
                         break;
                     case "syn":
-                        if (string.IsNullOrEmpty(key) == true)
+                        if (string.IsNullOrWhiteSpace(key) == true)
                         {
                             key = value.ToStringSafe().ToSHA256().Substring(6);
                         }
@@ -841,7 +841,7 @@ namespace handstack
                         Log.Information($"{value.ToStringSafe().ToSHA256()}");
                         break;
                     case "connectionstring":
-                        if (string.IsNullOrEmpty(key) == true)
+                        if (string.IsNullOrWhiteSpace(key) == true)
                         {
                             key = value.ToStringSafe().ToSHA256().Substring(0, 32);
                         }
@@ -887,7 +887,7 @@ namespace handstack
                         }
                         break;
                     case "sqids":
-                        key = string.IsNullOrEmpty(key) == true ? "abcdefghijklmnopqrstuvwxyz1234567890" : key;
+                        key = string.IsNullOrWhiteSpace(key) == true ? "abcdefghijklmnopqrstuvwxyz1234567890" : key;
                         var sqids = new SqidsEncoder<int>(new()
                         {
                             Alphabet = key,
@@ -904,7 +904,7 @@ namespace handstack
                         }
                         break;
                     case "aes256":
-                        if (string.IsNullOrEmpty(key) == true)
+                        if (string.IsNullOrWhiteSpace(key) == true)
                         {
                             key = value.ToStringSafe().ToSHA256().Substring(0, 32);
                         }
@@ -912,7 +912,7 @@ namespace handstack
                         Log.Information($"{value.ToStringSafe().DecryptAES(key)}");
                         break;
                     case "syn":
-                        if (string.IsNullOrEmpty(key) == true)
+                        if (string.IsNullOrWhiteSpace(key) == true)
                         {
                             key = value.ToStringSafe().ToSHA256().Substring(6);
                         }
@@ -975,7 +975,7 @@ namespace handstack
                             zipFileName = $"{zipFileName}.zip";
                         }
 
-                        if (string.IsNullOrEmpty(zipFileName) == true)
+                        if (string.IsNullOrWhiteSpace(zipFileName) == true)
                         {
                             zipFileName = PathExtensions.Combine(directory.Parent.FullName.Replace("\\", "/"), $"{directory.Name}.zip");
                         }
@@ -1062,7 +1062,7 @@ namespace handstack
                     var targetDirectoryPath = directory.FullName.Replace("\\", "/");
                     ZipFile.ExtractToDirectory(file.FullName.Replace("\\", "/"), targetDirectoryPath, true);
 
-                    if (string.IsNullOrEmpty(ignored) == false)
+                    if (string.IsNullOrWhiteSpace(ignored) == false)
                     {
                         ignoredDirectoryNames = ignored.SplitComma().ToArray();
                     }
@@ -1150,7 +1150,7 @@ namespace handstack
                 var file = parseResult.GetValue(optionFile);
                 var value = parseResult.GetValue(optionValue);
 
-                if (file != null && file.Exists == true && file.Name == "task.json" && string.IsNullOrEmpty(value) == false)
+                if (file != null && file.Exists == true && file.Name == "task.json" && string.IsNullOrWhiteSpace(value) == false)
                 {
                     var command = value.ToStringSafe();
                     if (command.StartsWith("*:") == true)
@@ -1188,7 +1188,7 @@ namespace handstack
                     {
                         if (item.Key == "$DATE_STRING")
                         {
-                            var dateString = DateTime.Now.ToString(string.IsNullOrEmpty(item.Value) == true ? "yyyy-MM-dd" : item.Value);
+                            var dateString = DateTime.Now.ToString(string.IsNullOrWhiteSpace(item.Value) == true ? "yyyy-MM-dd" : item.Value);
                             CommandHelper.EnvironmentVariables.Add(item.Key.Substring(1).ToUpper(), dateString);
                         }
                         else if (item.Key.StartsWith("$") == true)
@@ -1207,12 +1207,12 @@ namespace handstack
                         foreach (var item in task.environments.Where(p => p.Key.StartsWith("$") == true))
                         {
                             task.commands[i] = command.Replace(item.Key, item.Value);
-                            task.basepath = string.IsNullOrEmpty(task.basepath) == true ? "" : task.basepath.Replace(item.Key, item.Value);
+                            task.basepath = string.IsNullOrWhiteSpace(task.basepath) == true ? "" : task.basepath.Replace(item.Key, item.Value);
                         }
                     }
 
                     var scripts = string.Join(Environment.NewLine, task.commands);
-                    var workingDirectory = string.IsNullOrEmpty(task.basepath) == true ? (file?.DirectoryName).ToStringSafe() : task.basepath;
+                    var workingDirectory = string.IsNullOrWhiteSpace(task.basepath) == true ? (file?.DirectoryName).ToStringSafe() : task.basepath;
                     var scriptsResult = CommandHelper.RunScript(scripts, false, true, true, true, workingDirectory, task.ignoreExit);
 
                     var commandIndex = 1;
@@ -1397,7 +1397,7 @@ namespace handstack
                 var ddlFile = parseResult.GetValue(optionFile);
 
                 string? ddlFilePath = ddlFile?.FullName;
-                if (string.IsNullOrEmpty(ddlFilePath) == true || File.Exists(ddlFilePath) == false)
+                if (string.IsNullOrWhiteSpace(ddlFilePath) == true || File.Exists(ddlFilePath) == false)
                 {
                     Console.Error.WriteLine($"관리형 DLL 파일을 찾을 수 없습니다: {ddlFilePath}");
                 }

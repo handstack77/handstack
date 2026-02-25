@@ -40,7 +40,7 @@ namespace HandStack.Web.MessageContract.DataObject
         public static BusinessContract? FromJson(string json)
         {
             BusinessContract? result = null;
-            if (string.IsNullOrEmpty(json))
+            if (string.IsNullOrWhiteSpace(json))
             {
                 throw new Exception($"json 내용 확인 필요: {json}");
             }

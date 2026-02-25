@@ -335,7 +335,7 @@ namespace HandStack.Core.ExtensionMethod
 
             if (value is string && propertyInfo.PropertyType == typeof(DateTime?))
             {
-                if (value == null || string.IsNullOrEmpty(value.ToStringSafe()) == true)
+                if (value == null || string.IsNullOrWhiteSpace(value.ToStringSafe()) == true)
                 {
                     propertyInfo.SetValue(instance, value, null);
                 }

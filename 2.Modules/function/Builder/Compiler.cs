@@ -48,7 +48,7 @@ namespace function.Builder
             if (File.Exists(sourceFilePath))
             {
                 var module = GlobalConfiguration.Modules.FirstOrDefault(p => sourceFilePath.IndexOf(p.BasePath) > -1);
-                if (string.IsNullOrEmpty(moduleID))
+                if (string.IsNullOrWhiteSpace(moduleID))
                 {
                     module = GlobalConfiguration.Modules.FirstOrDefault(p => sourceFilePath.IndexOf(p.BasePath) > -1);
                 }
@@ -88,7 +88,7 @@ namespace function.Builder
 
         private static bool AddReferenceAssemblyFilePath(List<string> referenceAssemblyLocations, string assemblyFilePath)
         {
-            if (string.IsNullOrEmpty(assemblyFilePath))
+            if (string.IsNullOrWhiteSpace(assemblyFilePath))
             {
                 return false;
             }

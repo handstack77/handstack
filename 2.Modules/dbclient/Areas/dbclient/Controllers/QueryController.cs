@@ -111,7 +111,7 @@ namespace dbclient.Areas.dbclient.Controllers
                         {
                             case WatcherChangeTypes.Created:
                             case WatcherChangeTypes.Changed:
-                                if (!string.IsNullOrEmpty(userWorkID) && !string.IsNullOrEmpty(applicationID))
+                                if (!string.IsNullOrWhiteSpace(userWorkID) && !string.IsNullOrWhiteSpace(applicationID))
                                 {
                                     var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                                     var itemPath = PathExtensions.Join(appBasePath, filePath);
@@ -139,7 +139,7 @@ namespace dbclient.Areas.dbclient.Controllers
                                 break;
                             case WatcherChangeTypes.Deleted:
                                 var existStatementMaps = new List<StatementMap>();
-                                if (!string.IsNullOrEmpty(userWorkID) && !string.IsNullOrEmpty(applicationID))
+                                if (!string.IsNullOrWhiteSpace(userWorkID) && !string.IsNullOrWhiteSpace(applicationID))
                                 {
                                     var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                                     var directoryInfo = new DirectoryInfo(appBasePath);
@@ -215,7 +215,7 @@ namespace dbclient.Areas.dbclient.Controllers
                         FunctionID = functionID
                     };
 
-                    if (model == null || string.IsNullOrEmpty(model.ApplicationID) || string.IsNullOrEmpty(model.ProjectID))
+                    if (model == null || string.IsNullOrWhiteSpace(model.ApplicationID) || string.IsNullOrWhiteSpace(model.ProjectID))
                     {
                         return Content("필수 항목 확인", "text/html");
                     }
@@ -223,19 +223,19 @@ namespace dbclient.Areas.dbclient.Controllers
                     var queryResults = DatabaseMapper.StatementMappings.Select(p => p.Value).Where(p =>
                             p.ApplicationID == model.ApplicationID);
 
-                    if (!string.IsNullOrEmpty(model.ProjectID))
+                    if (!string.IsNullOrWhiteSpace(model.ProjectID))
                     {
                         queryResults = queryResults.Where(p =>
                             p.ProjectID == model.ProjectID);
                     }
 
-                    if (!string.IsNullOrEmpty(model.TransactionID))
+                    if (!string.IsNullOrWhiteSpace(model.TransactionID))
                     {
                         queryResults = queryResults.Where(p =>
                             p.TransactionID == model.TransactionID);
                     }
 
-                    if (!string.IsNullOrEmpty(model.FunctionID))
+                    if (!string.IsNullOrWhiteSpace(model.FunctionID))
                     {
                         var queryFunctionID = model.FunctionID.Substring(0, model.FunctionID.Length - 2);
                         queryResults = queryResults.Where(p => p.StatementID.Substring(0, p.StatementID.Length - 2) == queryFunctionID);
@@ -356,12 +356,12 @@ namespace dbclient.Areas.dbclient.Controllers
             }
 
             response.CorrelationID = request.GlobalID;
-            if (string.IsNullOrEmpty(request.RequestID))
+            if (string.IsNullOrWhiteSpace(request.RequestID))
             {
                 request.RequestID = $"SELF_{GlobalConfiguration.SystemID}{GlobalConfiguration.HostName}{GlobalConfiguration.RunningEnvironment}{DateTime.Now:yyyyMMddHHmmssfff}";
             }
 
-            if (string.IsNullOrEmpty(request.GlobalID))
+            if (string.IsNullOrWhiteSpace(request.GlobalID))
             {
                 request.GlobalID = request.RequestID;
             }
@@ -412,7 +412,7 @@ namespace dbclient.Areas.dbclient.Controllers
                         break;
                 }
 
-                if (!string.IsNullOrEmpty(response.ExceptionText))
+                if (!string.IsNullOrWhiteSpace(response.ExceptionText))
                 {
                     if (ModuleConfiguration.IsLogServer == true)
                     {
@@ -449,7 +449,7 @@ namespace dbclient.Areas.dbclient.Controllers
                 if (request.ReturnType == ExecuteDynamicTypeObject.Xml)
                 {
                     var responseData = response.ResultObject as string;
-                    if (string.IsNullOrEmpty(responseData))
+                    if (string.IsNullOrWhiteSpace(responseData))
                     {
                         responseData = "<?xml version=\"1.0\" standalone=\"yes\"?><NewDataSet></NewDataSet>";
                     }

@@ -32,7 +32,7 @@ namespace HandStack.Web
             }
 
             var value = configuration?[key];
-            if (!string.IsNullOrEmpty(value))
+            if (!string.IsNullOrWhiteSpace(value))
             {
                 return value;
             }
@@ -107,14 +107,14 @@ namespace HandStack.Web
 
             try
             {
-                if (string.IsNullOrEmpty(key))
+                if (string.IsNullOrWhiteSpace(key))
                 {
                     configuration.Bind(instance);
                 }
                 else
                 {
                     var value = configuration[key];
-                    if (!string.IsNullOrEmpty(value))
+                    if (!string.IsNullOrWhiteSpace(value))
                     {
                         return result;
                     }

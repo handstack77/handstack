@@ -33,7 +33,7 @@ namespace HandStack.Web.Encapsulation
 
         public PropertyBagEnricher Add(string key, object value, bool destructureObject = false)
         {
-            if (string.IsNullOrEmpty(key)) throw new ArgumentNullException(nameof(key));
+            if (string.IsNullOrWhiteSpace(key)) throw new ArgumentNullException(nameof(key));
 
             if (!properties.ContainsKey(key)) properties.Add(key, Tuple.Create(value, destructureObject));
 

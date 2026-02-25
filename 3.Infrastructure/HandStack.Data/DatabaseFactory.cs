@@ -123,7 +123,7 @@ namespace HandStack.Data
             var items = connectionString.Split(";");
             foreach (var item in items)
             {
-                if (string.IsNullOrEmpty(item) || item.IndexOf("file:") < 0)
+                if (string.IsNullOrWhiteSpace(item) || item.IndexOf("file:") < 0)
                 {
                     continue;
                 }

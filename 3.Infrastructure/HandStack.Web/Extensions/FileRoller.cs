@@ -55,7 +55,7 @@ namespace HandStack.Web.Extensions
                     break;
             }
 
-            if (!string.IsNullOrEmpty(dateFormat))
+            if (!string.IsNullOrWhiteSpace(dateFormat))
             {
                 file = file + "-" + date.ToString(dateFormat);
             }

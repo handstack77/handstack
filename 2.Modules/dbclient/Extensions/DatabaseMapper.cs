@@ -59,7 +59,7 @@ namespace dbclient.Extensions
                 {
                     var userWorkID = string.Empty;
                     var appBasePath = string.Empty;
-                    if (!string.IsNullOrEmpty(queryObject.TenantID))
+                    if (!string.IsNullOrWhiteSpace(queryObject.TenantID))
                     {
                         var items = queryObject.TenantID.SplitAndTrim('|');
                         userWorkID = items[0];
@@ -84,7 +84,7 @@ namespace dbclient.Extensions
 
                     var tenantID = $"{userWorkID}|{applicationID}";
                     var settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
-                    if (!string.IsNullOrEmpty(appBasePath) && File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
+                    if (!string.IsNullOrWhiteSpace(appBasePath) && File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
                     {
                         var appSettingText = File.ReadAllText(settingFilePath);
                         var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
@@ -118,7 +118,7 @@ namespace dbclient.Extensions
                                         dataSourceMap.ProjectListID = item.ProjectID.Split(",").Where(s => !string.IsNullOrWhiteSpace(s)).Distinct().ToList();
                                         dataSourceMap.DataProvider = (DataProviders)Enum.Parse(typeof(DataProviders), item.DataProvider);
                                         dataSourceMap.ConnectionString = item.ConnectionString;
-                                        dataSourceMap.TransactionIsolationLevel = string.IsNullOrEmpty(item.TransactionIsolationLevel) ? "ReadCommitted" : item.TransactionIsolationLevel;
+                                        dataSourceMap.TransactionIsolationLevel = string.IsNullOrWhiteSpace(item.TransactionIsolationLevel) ? "ReadCommitted" : item.TransactionIsolationLevel;
 
                                         if (item.IsEncryption.ParseBool() == true)
                                         {
@@ -154,7 +154,7 @@ namespace dbclient.Extensions
                 item.Value.ApplicationID == applicationID
                 && (item.Value.ProjectListID.IndexOf(projectID) > -1 || item.Value.ProjectListID.IndexOf("*") > -1)
                 && item.Key.DataSourceID == dataSourceID
-                && !string.IsNullOrEmpty(item.Key.TanantPattern)
+                && !string.IsNullOrWhiteSpace(item.Key.TanantPattern)
             ).ToList();
 
             for (var i = 0; i < dataSourceMaps.Count; i++)
@@ -189,7 +189,7 @@ namespace dbclient.Extensions
                     item.Value.ApplicationID == applicationID
                     && (item.Value.ProjectListID.IndexOf(projectID) > -1 || item.Value.ProjectListID.IndexOf("*") > -1)
                     && item.Key.DataSourceID == dataSourceID
-                    && string.IsNullOrEmpty(item.Key.TanantPattern)
+                    && string.IsNullOrWhiteSpace(item.Key.TanantPattern)
                 ).Value;
             }
 
@@ -225,7 +225,7 @@ namespace dbclient.Extensions
                         }
                     }
 
-                    if (!string.IsNullOrEmpty(appBasePath) && Directory.Exists(appBasePath) == true)
+                    if (!string.IsNullOrWhiteSpace(appBasePath) && Directory.Exists(appBasePath) == true)
                     {
                         var filePath = PathExtensions.Combine(appBasePath, "dbclient", projectID, transactionID + ".xml");
                         try
@@ -240,7 +240,7 @@ namespace dbclient.Extensions
                                 var signatureKey = (header?.Element("signaturekey")?.InnerText).ToStringSafe();
                                 var encryptCommands = (header?.Element("encryptcommands")?.InnerText).ToStringSafe();
 
-                                if (!string.IsNullOrEmpty(signatureKey) && !string.IsNullOrEmpty(encryptCommands))
+                                if (!string.IsNullOrWhiteSpace(signatureKey) && !string.IsNullOrWhiteSpace(encryptCommands))
                                 {
                                     var licenseItem = GlobalConfiguration.LoadModuleLicenses.Values.FirstOrDefault(li => li.AssemblyToken == signatureKey);
                                     if (licenseItem == null)
@@ -260,15 +260,15 @@ namespace dbclient.Extensions
                                 transactionID = (header?.Element("transaction")?.InnerText).ToStringSafe();
                                 if (filePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
                                 {
-                                    applicationID = string.IsNullOrEmpty(applicationID) ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : applicationID;
-                                    projectID = string.IsNullOrEmpty(projectID) ? (fileInfo.Directory?.Name).ToStringSafe() : projectID;
-                                    transactionID = string.IsNullOrEmpty(transactionID) ? fileInfo.Name.Replace(fileInfo.Extension, "") : transactionID;
+                                    applicationID = string.IsNullOrWhiteSpace(applicationID) ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : applicationID;
+                                    projectID = string.IsNullOrWhiteSpace(projectID) ? (fileInfo.Directory?.Name).ToStringSafe() : projectID;
+                                    transactionID = string.IsNullOrWhiteSpace(transactionID) ? fileInfo.Name.Replace(fileInfo.Extension, "") : transactionID;
                                 }
                                 else
                                 {
-                                    applicationID = string.IsNullOrEmpty(applicationID) ? (fileInfo.Directory?.Parent?.Name).ToStringSafe() : applicationID;
-                                    projectID = string.IsNullOrEmpty(projectID) ? (fileInfo.Directory?.Name).ToStringSafe() : projectID;
-                                    transactionID = string.IsNullOrEmpty(transactionID) ? fileInfo.Name.Replace(fileInfo.Extension, "") : transactionID;
+                                    applicationID = string.IsNullOrWhiteSpace(applicationID) ? (fileInfo.Directory?.Parent?.Name).ToStringSafe() : applicationID;
+                                    projectID = string.IsNullOrWhiteSpace(projectID) ? (fileInfo.Directory?.Name).ToStringSafe() : projectID;
+                                    transactionID = string.IsNullOrWhiteSpace(transactionID) ? fileInfo.Name.Replace(fileInfo.Extension, "") : transactionID;
                                 }
 
                                 var items = htmlDocument.DocumentNode.SelectNodes("//commands/statement");
@@ -283,7 +283,7 @@ namespace dbclient.Extensions
                                             statementMap.ProjectID = projectID;
                                             statementMap.TransactionID = transactionID;
                                             statementMap.DataSourceID = item.Attributes["datasource"] == null ? (header?.Element("datasource")?.InnerText).ToStringSafe() : item.Attributes["datasource"].Value;
-                                            if (string.IsNullOrEmpty(statementMap.DataSourceID))
+                                            if (string.IsNullOrWhiteSpace(statementMap.DataSourceID))
                                             {
                                                 statementMap.DataSourceID = ModuleConfiguration.DefaultDataSourceID;
                                             }
@@ -297,19 +297,19 @@ namespace dbclient.Extensions
                                             statementMap.SQL = item.InnerHtml;
 
                                             var beforetransaction = item.Attributes["before"]?.Value;
-                                            if (!string.IsNullOrEmpty(beforetransaction))
+                                            if (!string.IsNullOrWhiteSpace(beforetransaction))
                                             {
                                                 statementMap.BeforeTransactionCommand = beforetransaction;
                                             }
 
                                             var aftertransaction = item.Attributes["after"]?.Value;
-                                            if (!string.IsNullOrEmpty(aftertransaction))
+                                            if (!string.IsNullOrWhiteSpace(aftertransaction))
                                             {
                                                 statementMap.AfterTransactionCommand = aftertransaction;
                                             }
 
                                             var fallbacktransaction = item.Attributes["fallback"]?.Value;
-                                            if (!string.IsNullOrEmpty(fallbacktransaction))
+                                            if (!string.IsNullOrWhiteSpace(fallbacktransaction))
                                             {
                                                 statementMap.FallbackTransactionCommand = fallbacktransaction;
                                             }
@@ -471,7 +471,7 @@ namespace dbclient.Extensions
                             var signatureKey = (header?.Element("signaturekey")?.InnerText).ToStringSafe();
                             var encryptCommands = (header?.Element("encryptcommands")?.InnerText).ToStringSafe();
 
-                            if (!string.IsNullOrEmpty(signatureKey) && !string.IsNullOrEmpty(encryptCommands))
+                            if (!string.IsNullOrWhiteSpace(signatureKey) && !string.IsNullOrWhiteSpace(encryptCommands))
                             {
                                 var licenseItem = GlobalConfiguration.LoadModuleLicenses.Values.FirstOrDefault(li => li.AssemblyToken == signatureKey);
                                 if (licenseItem == null)
@@ -493,15 +493,15 @@ namespace dbclient.Extensions
                             if (filePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
                             {
                                 isTenantContractFile = true;
-                                applicationID = string.IsNullOrEmpty(applicationID) ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : applicationID;
-                                projectID = string.IsNullOrEmpty(projectID) ? (fileInfo.Directory?.Name).ToStringSafe() : projectID;
-                                transactionID = string.IsNullOrEmpty(transactionID) ? fileInfo.Name.Replace(fileInfo.Extension, "") : transactionID;
+                                applicationID = string.IsNullOrWhiteSpace(applicationID) ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : applicationID;
+                                projectID = string.IsNullOrWhiteSpace(projectID) ? (fileInfo.Directory?.Name).ToStringSafe() : projectID;
+                                transactionID = string.IsNullOrWhiteSpace(transactionID) ? fileInfo.Name.Replace(fileInfo.Extension, "") : transactionID;
                             }
                             else
                             {
-                                applicationID = string.IsNullOrEmpty(applicationID) ? (fileInfo.Directory?.Parent?.Name).ToStringSafe() : applicationID;
-                                projectID = string.IsNullOrEmpty(projectID) ? (fileInfo.Directory?.Name).ToStringSafe() : projectID;
-                                transactionID = string.IsNullOrEmpty(transactionID) ? fileInfo.Name.Replace(fileInfo.Extension, "") : transactionID;
+                                applicationID = string.IsNullOrWhiteSpace(applicationID) ? (fileInfo.Directory?.Parent?.Name).ToStringSafe() : applicationID;
+                                projectID = string.IsNullOrWhiteSpace(projectID) ? (fileInfo.Directory?.Name).ToStringSafe() : projectID;
+                                transactionID = string.IsNullOrWhiteSpace(transactionID) ? fileInfo.Name.Replace(fileInfo.Extension, "") : transactionID;
                             }
 
                             var items = htmlDocument.DocumentNode.SelectNodes("//commands/statement");
@@ -516,7 +516,7 @@ namespace dbclient.Extensions
                                         statementMap.ProjectID = projectID;
                                         statementMap.TransactionID = transactionID;
                                         statementMap.DataSourceID = item.Attributes["datasource"] == null ? (header?.Element("datasource")?.InnerText).ToStringSafe() : item.Attributes["datasource"].Value;
-                                        if (string.IsNullOrEmpty(statementMap.DataSourceID))
+                                        if (string.IsNullOrWhiteSpace(statementMap.DataSourceID))
                                         {
                                             statementMap.DataSourceID = ModuleConfiguration.DefaultDataSourceID;
                                         }
@@ -530,19 +530,19 @@ namespace dbclient.Extensions
                                         statementMap.SQL = item.InnerHtml;
 
                                         var beforetransaction = item.Attributes["before"]?.Value;
-                                        if (!string.IsNullOrEmpty(beforetransaction))
+                                        if (!string.IsNullOrWhiteSpace(beforetransaction))
                                         {
                                             statementMap.BeforeTransactionCommand = beforetransaction;
                                         }
 
                                         var aftertransaction = item.Attributes["after"]?.Value;
-                                        if (!string.IsNullOrEmpty(aftertransaction))
+                                        if (!string.IsNullOrWhiteSpace(aftertransaction))
                                         {
                                             statementMap.AfterTransactionCommand = aftertransaction;
                                         }
 
                                         var fallbacktransaction = item.Attributes["fallback"]?.Value;
-                                        if (!string.IsNullOrEmpty(fallbacktransaction))
+                                        if (!string.IsNullOrWhiteSpace(fallbacktransaction))
                                         {
                                             statementMap.FallbackTransactionCommand = fallbacktransaction;
                                         }
@@ -697,7 +697,7 @@ namespace dbclient.Extensions
                 result = result + ConvertChildren(childNode, parameters);
             }
 
-            if (string.IsNullOrEmpty(result))
+            if (string.IsNullOrWhiteSpace(result))
             {
                 result = "";
             }
@@ -823,7 +823,7 @@ namespace dbclient.Extensions
         {
             var result = "";
             var collectionName = htmlNode.Attributes["collection"]?.Value;
-            if (string.IsNullOrEmpty(collectionName))
+            if (string.IsNullOrWhiteSpace(collectionName))
             {
                 return "";
             }
@@ -851,13 +851,13 @@ namespace dbclient.Extensions
                             var childrenText = ConvertChildren(childNode, foreachParam);
                             childrenText = Regex.Replace(childrenText, "^\\s*$", "");
 
-                            if (!string.IsNullOrEmpty(childrenText))
+                            if (!string.IsNullOrWhiteSpace(childrenText))
                             {
                                 foreachText = foreachText + childrenText;
                             }
                         }
 
-                        if (!string.IsNullOrEmpty(foreachText))
+                        if (!string.IsNullOrWhiteSpace(foreachText))
                         {
                             foreachTexts.Add(foreachText);
                         }
@@ -1059,7 +1059,7 @@ namespace dbclient.Extensions
                             var signatureKey = (header?.Element("signaturekey")?.InnerText).ToStringSafe();
                             var encryptCommands = (header?.Element("encryptcommands")?.InnerText).ToStringSafe();
 
-                            if (!string.IsNullOrEmpty(signatureKey) && !string.IsNullOrEmpty(encryptCommands))
+                            if (!string.IsNullOrWhiteSpace(signatureKey) && !string.IsNullOrWhiteSpace(encryptCommands))
                             {
                                 var licenseItem = GlobalConfiguration.LoadModuleLicenses.Values.FirstOrDefault(li => li.AssemblyToken == signatureKey);
                                 if (licenseItem == null)
@@ -1079,15 +1079,15 @@ namespace dbclient.Extensions
                             var transactionID = (header?.Element("transaction")?.InnerText).ToStringSafe();
                             if (sqlMapFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
                             {
-                                applicationID = string.IsNullOrEmpty(applicationID) ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : applicationID;
-                                projectID = string.IsNullOrEmpty(projectID) ? (fileInfo.Directory?.Name).ToStringSafe() : projectID;
-                                transactionID = string.IsNullOrEmpty(transactionID) ? fileInfo.Name.Replace(fileInfo.Extension, "") : transactionID;
+                                applicationID = string.IsNullOrWhiteSpace(applicationID) ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : applicationID;
+                                projectID = string.IsNullOrWhiteSpace(projectID) ? (fileInfo.Directory?.Name).ToStringSafe() : projectID;
+                                transactionID = string.IsNullOrWhiteSpace(transactionID) ? fileInfo.Name.Replace(fileInfo.Extension, "") : transactionID;
                             }
                             else
                             {
-                                applicationID = string.IsNullOrEmpty(applicationID) ? (fileInfo.Directory?.Parent?.Name).ToStringSafe() : applicationID;
-                                projectID = string.IsNullOrEmpty(projectID) ? (fileInfo.Directory?.Name).ToStringSafe() : projectID;
-                                transactionID = string.IsNullOrEmpty(transactionID) ? fileInfo.Name.Replace(fileInfo.Extension, "") : transactionID;
+                                applicationID = string.IsNullOrWhiteSpace(applicationID) ? (fileInfo.Directory?.Parent?.Name).ToStringSafe() : applicationID;
+                                projectID = string.IsNullOrWhiteSpace(projectID) ? (fileInfo.Directory?.Name).ToStringSafe() : projectID;
+                                transactionID = string.IsNullOrWhiteSpace(transactionID) ? fileInfo.Name.Replace(fileInfo.Extension, "") : transactionID;
                             }
 
                             var items = htmlDocument.DocumentNode.SelectNodes("//commands/statement");
@@ -1102,7 +1102,7 @@ namespace dbclient.Extensions
                                         statementMap.ProjectID = projectID;
                                         statementMap.TransactionID = transactionID;
                                         statementMap.DataSourceID = item.Attributes["datasource"] == null ? (header?.Element("datasource")?.InnerText).ToStringSafe() : item.Attributes["datasource"].Value;
-                                        if (string.IsNullOrEmpty(statementMap.DataSourceID))
+                                        if (string.IsNullOrWhiteSpace(statementMap.DataSourceID))
                                         {
                                             statementMap.DataSourceID = ModuleConfiguration.DefaultDataSourceID;
                                         }
@@ -1116,19 +1116,19 @@ namespace dbclient.Extensions
                                         statementMap.SQL = item.InnerHtml;
 
                                         var beforetransaction = item.Attributes["before"]?.Value;
-                                        if (!string.IsNullOrEmpty(beforetransaction))
+                                        if (!string.IsNullOrWhiteSpace(beforetransaction))
                                         {
                                             statementMap.BeforeTransactionCommand = beforetransaction;
                                         }
 
                                         var aftertransaction = item.Attributes["after"]?.Value;
-                                        if (!string.IsNullOrEmpty(aftertransaction))
+                                        if (!string.IsNullOrWhiteSpace(aftertransaction))
                                         {
                                             statementMap.AfterTransactionCommand = aftertransaction;
                                         }
 
                                         var fallbacktransaction = item.Attributes["fallback"]?.Value;
-                                        if (!string.IsNullOrEmpty(fallbacktransaction))
+                                        if (!string.IsNullOrWhiteSpace(fallbacktransaction))
                                         {
                                             statementMap.FallbackTransactionCommand = fallbacktransaction;
                                         }
@@ -1198,7 +1198,7 @@ namespace dbclient.Extensions
                         p.Value.ApplicationID == item.ApplicationID
                         && p.Value.ProjectListID.SequenceEqual(item.ProjectID.Split(",").Where(s => !string.IsNullOrWhiteSpace(s)).Distinct().ToList())
                         && p.Key.DataSourceID == item.DataSourceID
-                        && (!string.IsNullOrEmpty(p.Key.TanantPattern) && p.Key.TanantPattern == item.TanantPattern && p.Key.TanantValue == item.TanantValue)
+                        && (!string.IsNullOrWhiteSpace(p.Key.TanantPattern) && p.Key.TanantPattern == item.TanantPattern && p.Key.TanantValue == item.TanantValue)
                     ).ToList();
 
                     if (dataSourceMaps.Count == 0)
@@ -1208,7 +1208,7 @@ namespace dbclient.Extensions
                         dataSourceMap.ProjectListID = item.ProjectID.Split(",").Where(s => !string.IsNullOrWhiteSpace(s)).Distinct().ToList();
                         dataSourceMap.DataProvider = (DataProviders)Enum.Parse(typeof(DataProviders), item.DataProvider);
                         dataSourceMap.ConnectionString = item.ConnectionString;
-                        dataSourceMap.TransactionIsolationLevel = string.IsNullOrEmpty(item.TransactionIsolationLevel) ? "ReadCommitted" : item.TransactionIsolationLevel;
+                        dataSourceMap.TransactionIsolationLevel = string.IsNullOrWhiteSpace(item.TransactionIsolationLevel) ? "ReadCommitted" : item.TransactionIsolationLevel;
 
                         if (item.IsEncryption.ParseBool() == true)
                         {

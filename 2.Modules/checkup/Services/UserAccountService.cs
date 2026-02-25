@@ -55,12 +55,12 @@ namespace checkup.Services
                         LoginedAt = DateTime.Now
                     };
 
-                    if (string.IsNullOrEmpty(userAccount.UserID) || string.IsNullOrEmpty(userAccount.UserName) || string.IsNullOrEmpty(userAccount.Email))
+                    if (string.IsNullOrWhiteSpace(userAccount.UserID) || string.IsNullOrWhiteSpace(userAccount.UserName) || string.IsNullOrWhiteSpace(userAccount.Email))
                     {
                         return null;
                     }
 
-                    if (string.IsNullOrEmpty(userAccount.UserNo))
+                    if (string.IsNullOrWhiteSpace(userAccount.UserNo))
                     {
                         userAccount.UserNo = userAccount.UserID;
                     }
@@ -88,7 +88,7 @@ namespace checkup.Services
 
                     Dictionary<string, string>? memberClaims = null;
                     var accountClaims = token["Claims"].ToStringSafe();
-                    if (!string.IsNullOrEmpty(accountClaims))
+                    if (!string.IsNullOrWhiteSpace(accountClaims))
                     {
                         try
                         {
@@ -106,7 +106,7 @@ namespace checkup.Services
                         {
                             var claimType = item.Key;
                             var claimValue = item.Value;
-                            if (!string.IsNullOrEmpty(claimType))
+                            if (!string.IsNullOrWhiteSpace(claimType))
                             {
                                 var claim = new Claim(claimType, claimValue);
                                 if (claims.Contains(claim) == false)
@@ -200,7 +200,7 @@ namespace checkup.Services
 
         public async Task RevokeDescendantRefreshTokens(RefreshToken refreshToken, UserAccount userAccount, string ipAddress)
         {
-            if (!string.IsNullOrEmpty(refreshToken.ReplacedByToken))
+            if (!string.IsNullOrWhiteSpace(refreshToken.ReplacedByToken))
             {
                 var serviceParameters = new List<ServiceParameter>();
                 serviceParameters.Add("RefreshToken", refreshToken.ReplacedByToken);

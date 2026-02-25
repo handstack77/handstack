@@ -1,4 +1,6 @@
-﻿using HandStack.Web;
+﻿using System.Collections.Generic;
+
+using HandStack.Web;
 
 namespace wwwroot.Entity
 {
@@ -30,6 +32,8 @@ namespace wwwroot.Entity
 
         public string ModuleLogFilePath { get; set; }
 
+        public List<string> FileSyncTokens { get; set; }
+
         public ModuleConfig()
         {
             AuthorizationKey = "";
@@ -40,6 +44,7 @@ namespace wwwroot.Entity
             ModuleFilePath = "";
             IsModuleLogging = false;
             ModuleLogFilePath = "";
+            FileSyncTokens = new List<string>();
         }
     }
 }

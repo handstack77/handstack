@@ -58,7 +58,7 @@ namespace wwwroot.Areas.wwwroot.Controllers
         {
             var triggerId = Request.GetTriggerId();
 
-            if (!string.IsNullOrEmpty(triggerId))
+            if (!string.IsNullOrWhiteSpace(triggerId))
             {
                 System.Console.WriteLine($"삭제 요청이 {triggerId} 요소에서 트리거됨");
             }
@@ -74,7 +74,7 @@ namespace wwwroot.Areas.wwwroot.Controllers
         {
             var promptResponse = Request.GetPromptResponse();
 
-            if (!string.IsNullOrEmpty(promptResponse))
+            if (!string.IsNullOrWhiteSpace(promptResponse))
             {
                 model.Name = promptResponse;
             }

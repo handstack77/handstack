@@ -26,7 +26,7 @@ namespace repository.Extensions
                 RegionEndpoint = RegionEndpoint.GetBySystemName(repository.AwsRegion)
             };
 
-            if (!string.IsNullOrEmpty(repository.AwsServiceUrl))
+            if (!string.IsNullOrWhiteSpace(repository.AwsServiceUrl))
             {
                 config.ServiceURL = repository.AwsServiceUrl;
                 config.ForcePathStyle = true;

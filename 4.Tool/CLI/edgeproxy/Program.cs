@@ -28,7 +28,7 @@ namespace edgeproxy
 
             var host = builder.Build();
             var handstackHome = Environment.GetEnvironmentVariable("HANDSTACK_HOME");
-            if (string.IsNullOrEmpty(handstackHome))
+            if (string.IsNullOrWhiteSpace(handstackHome))
             {
                 Console.WriteLine("HANDSTACK_HOME 환경변수가 설정되지 않았습니다.");
                 Environment.Exit(1);

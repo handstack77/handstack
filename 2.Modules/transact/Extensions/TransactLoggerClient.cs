@@ -156,7 +156,7 @@ namespace transact.Extensions
 
             try
             {
-                if (string.IsNullOrEmpty(hostUrl))
+                if (string.IsNullOrWhiteSpace(hostUrl))
                 {
                     fallbackFunction?.Invoke($"hostUrl 오류: {hostUrl}");
                     return restResponse;
@@ -361,7 +361,7 @@ namespace transact.Extensions
         {
             var logMessage = GetLogMessage();
             logMessage.GlobalID = request.Transaction.GlobalID;
-            logMessage.Acknowledge = string.IsNullOrEmpty(acknowledge) ? "N" : acknowledge;
+            logMessage.Acknowledge = string.IsNullOrWhiteSpace(acknowledge) ? "N" : acknowledge;
             logMessage.ApplicationID = request.System.ProgramID;
             logMessage.ProjectID = request.Transaction.BusinessID;
             logMessage.TransactionID = request.Transaction.TransactionID;
@@ -384,7 +384,7 @@ namespace transact.Extensions
         {
             var logMessage = GetLogMessage();
             logMessage.GlobalID = response.Transaction.GlobalID;
-            logMessage.Acknowledge = string.IsNullOrEmpty(acknowledge) ? "N" : acknowledge;
+            logMessage.Acknowledge = string.IsNullOrWhiteSpace(acknowledge) ? "N" : acknowledge;
             logMessage.ApplicationID = response.System.ProgramID;
             logMessage.ProjectID = response.Transaction.BusinessID;
             logMessage.TransactionID = response.Transaction.TransactionID;
@@ -455,7 +455,7 @@ namespace transact.Extensions
                     break;
                 default:
                     transactionLogger?.Information($"{logType} GlobalID: {logMessage.GlobalID}, {JsonConvert.SerializeObject(logMessage)}");
-                    if (!string.IsNullOrEmpty(messageForLog))
+                    if (!string.IsNullOrWhiteSpace(messageForLog))
                     {
                         transactionLogger?.Information($"[{{LogCategory}}] {messageForLog}", logMessage.Properties);
                     }
@@ -477,7 +477,7 @@ namespace transact.Extensions
                     {
                         var applicationID = request.System.ProgramID;
                         var connectionString = ModuleExtensions.GetLogDbConnectionString(userWorkID, applicationID);
-                        if (!string.IsNullOrEmpty(connectionString))
+                        if (!string.IsNullOrWhiteSpace(connectionString))
                         {
                             var acceptDateTime = (DateTime)request.AcceptDateTime;
                             ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, connectionString, "TAG.TAG010.MD01", new
@@ -515,7 +515,7 @@ namespace transact.Extensions
                     {
                         var applicationID = response.System.ProgramID;
                         var connectionString = ModuleExtensions.GetLogDbConnectionString(userWorkID, applicationID);
-                        if (!string.IsNullOrEmpty(connectionString))
+                        if (!string.IsNullOrWhiteSpace(connectionString))
                         {
                             var acceptDateTime = (DateTime)response.AcceptDateTime;
                             var currentDateTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");

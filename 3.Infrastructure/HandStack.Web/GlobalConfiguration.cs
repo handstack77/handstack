@@ -128,15 +128,15 @@ namespace HandStack.Web
         public static string GetBaseDirectoryPath(string? basePath, string? defaultPath = "")
         {
             basePath = Environment.ExpandEnvironmentVariables(basePath.ToStringSafe());
-            basePath = string.IsNullOrEmpty(basePath) ? "" : (basePath.StartsWith(".") == true ? Path.GetFullPath(basePath, EntryBasePath) : new DirectoryInfo(basePath).FullName.Replace("\\", "/"));
-            if (string.IsNullOrEmpty(basePath) && !string.IsNullOrEmpty(defaultPath))
+            basePath = string.IsNullOrWhiteSpace(basePath) ? "" : (basePath.StartsWith(".") == true ? Path.GetFullPath(basePath, EntryBasePath) : new DirectoryInfo(basePath).FullName.Replace("\\", "/"));
+            if (string.IsNullOrWhiteSpace(basePath) && !string.IsNullOrWhiteSpace(defaultPath))
             {
                 basePath = defaultPath;
             }
 
             basePath = basePath.Replace("\\", "/");
 
-            if (!string.IsNullOrEmpty(basePath) && Directory.Exists(basePath) == false)
+            if (!string.IsNullOrWhiteSpace(basePath) && Directory.Exists(basePath) == false)
             {
                 try
                 {
@@ -145,7 +145,7 @@ namespace HandStack.Web
                 catch
                 {
                     var filePath = Path.GetDirectoryName(basePath);
-                    if (!string.IsNullOrEmpty(filePath))
+                    if (!string.IsNullOrWhiteSpace(filePath))
                     {
                         Directory.CreateDirectory(filePath);
                     }
@@ -157,20 +157,20 @@ namespace HandStack.Web
         public static string GetBaseFilePath(string? basePath, string? defaultPath = "")
         {
             basePath = Environment.ExpandEnvironmentVariables(basePath.ToStringSafe());
-            basePath = string.IsNullOrEmpty(basePath) ? "" : (basePath.StartsWith(".") == true ? Path.GetFullPath(basePath, EntryBasePath) : new FileInfo(basePath).FullName.Replace("\\", "/"));
-            if (string.IsNullOrEmpty(basePath) && !string.IsNullOrEmpty(defaultPath))
+            basePath = string.IsNullOrWhiteSpace(basePath) ? "" : (basePath.StartsWith(".") == true ? Path.GetFullPath(basePath, EntryBasePath) : new FileInfo(basePath).FullName.Replace("\\", "/"));
+            if (string.IsNullOrWhiteSpace(basePath) && !string.IsNullOrWhiteSpace(defaultPath))
             {
                 basePath = defaultPath;
             }
 
             basePath = basePath.Replace("\\", "/");
 
-            if (!string.IsNullOrEmpty(basePath) && File.Exists(basePath) == false)
+            if (!string.IsNullOrWhiteSpace(basePath) && File.Exists(basePath) == false)
             {
                 try
                 {
                     var directoryPath = Path.GetDirectoryName(basePath);
-                    if (!string.IsNullOrEmpty(directoryPath) && Directory.Exists(directoryPath) == false)
+                    if (!string.IsNullOrWhiteSpace(directoryPath) && Directory.Exists(directoryPath) == false)
                     {
                         Directory.CreateDirectory(directoryPath);
                     }

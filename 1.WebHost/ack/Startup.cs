@@ -100,7 +100,7 @@ namespace ack
             GlobalConfiguration.ApplicationVersion = (Assembly.GetEntryAssembly()?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion.ToString()).ToStringSafe("1.0.0");
             GlobalConfiguration.BusinessServerUrl = appSettings["BusinessServerUrl"].ToStringSafe();
             GlobalConfiguration.RunningEnvironment = appSettings["RunningEnvironment"].ToStringSafe();
-            GlobalConfiguration.HostName = string.IsNullOrEmpty(appSettings["HostName"].ToStringSafe()) == true ? Dns.GetHostName() : appSettings["HostName"].ToStringSafe();
+            GlobalConfiguration.HostName = string.IsNullOrWhiteSpace(appSettings["HostName"].ToStringSafe()) == true ? Dns.GetHostName() : appSettings["HostName"].ToStringSafe();
             GlobalConfiguration.SystemName = Dns.GetHostName();
             GlobalConfiguration.HostAccessID = GetHostAccessID(appSettings["HostAccessID"].ToStringSafe());
             GlobalConfiguration.SystemID = appSettings["SystemID"].ToStringSafe();
@@ -158,7 +158,7 @@ namespace ack
             GlobalConfiguration.WebRootPath = environment.WebRootPath;
 
             GlobalConfiguration.TenantAppRequestPath = appSettings["TenantAppRequestPath"].ToStringSafe();
-            GlobalConfiguration.TenantAppBasePath = GlobalConfiguration.GetBaseDirectoryPath(appSettings["TenantAppBasePath"], $"{(string.IsNullOrEmpty(Environment.GetEnvironmentVariable("HANDSTACK_HOME")) == true ? ".." : Environment.GetEnvironmentVariable("HANDSTACK_HOME"))}{Path.DirectorySeparatorChar}tenants");
+            GlobalConfiguration.TenantAppBasePath = GlobalConfiguration.GetBaseDirectoryPath(appSettings["TenantAppBasePath"], $"{(string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("HANDSTACK_HOME")) == true ? ".." : Environment.GetEnvironmentVariable("HANDSTACK_HOME"))}{Path.DirectorySeparatorChar}tenants");
             GlobalConfiguration.BatchProgramBasePath = GlobalConfiguration.GetBaseDirectoryPath(appSettings["BatchProgramBasePath"]);
             GlobalConfiguration.CreateAppTempPath = GlobalConfiguration.GetBaseDirectoryPath(appSettings["CreateAppTempPath"]);
             GlobalConfiguration.ForbesBasePath = GlobalConfiguration.GetBaseDirectoryPath(appSettings["ForbesBasePath"]);
@@ -228,7 +228,7 @@ namespace ack
             {
                 foreach (var item in withOrigins)
                 {
-                    if (string.IsNullOrEmpty(item.Value) == false)
+                    if (string.IsNullOrWhiteSpace(item.Value) == false)
                     {
                         GlobalConfiguration.WithOrigins.Add(item.Value);
                     }
@@ -246,7 +246,7 @@ namespace ack
                 foreach (var item in allowOnlyIPs)
                 {
                     var normalizeIP = WithOnlyIPFilter.NormalizeIPAddress(item);
-                    if (string.IsNullOrEmpty(normalizeIP) == false)
+                    if (string.IsNullOrWhiteSpace(normalizeIP) == false)
                     {
                         if (GlobalConfiguration.WithOnlyIPs.Contains(normalizeIP) == false)
                         {
@@ -283,7 +283,7 @@ namespace ack
             TransactionConfig.Program.InstallType = appSettings["InstallType"].ToStringSafe();
             TransactionConfig.Program.ProgramVersion = GlobalConfiguration.ApplicationVersion;
             TransactionConfig.Program.ProgramName = GlobalConfiguration.ApplicationName;
-            TransactionConfig.Program.ClientTokenID = string.IsNullOrEmpty(GlobalConfiguration.ProcessID) == true ? Guid.NewGuid().ToString("N").Substring(0, 6) : GlobalConfiguration.ProcessID.PadLeft(6, '0');
+            TransactionConfig.Program.ClientTokenID = string.IsNullOrWhiteSpace(GlobalConfiguration.ProcessID) == true ? Guid.NewGuid().ToString("N").Substring(0, 6) : GlobalConfiguration.ProcessID.PadLeft(6, '0');
             TransactionConfig.Transaction.SystemID = GlobalConfiguration.SystemID;
             TransactionConfig.Transaction.MachineName = GlobalConfiguration.HostName;
             TransactionConfig.Transaction.RunningEnvironment = GlobalConfiguration.RunningEnvironment;
@@ -327,7 +327,7 @@ namespace ack
 
             services.AddMemoryCache();
 
-            if (string.IsNullOrEmpty(GlobalConfiguration.SessionCookieName) == false)
+            if (string.IsNullOrWhiteSpace(GlobalConfiguration.SessionCookieName) == false)
             {
                 var cacheType = appSettings["SessionState:CacheType"].ToStringSafe();
                 if (cacheType == "Memory")
@@ -371,13 +371,13 @@ namespace ack
                 });
 
                 var authenticationLoginPath = appSettings["AuthenticationLoginPath"].ToStringSafe();
-                if (string.IsNullOrEmpty(authenticationLoginPath) == true)
+                if (string.IsNullOrWhiteSpace(authenticationLoginPath) == true)
                 {
                     authenticationLoginPath = "/account/login";
                 }
 
                 var authenticationLogoutPath = appSettings["AuthenticationLogoutPath"].ToStringSafe();
-                if (string.IsNullOrEmpty(authenticationLogoutPath) == true)
+                if (string.IsNullOrWhiteSpace(authenticationLogoutPath) == true)
                 {
                     authenticationLogoutPath = "/account/logout";
                 }
@@ -591,7 +591,7 @@ namespace ack
                     var forwards = appSettings.GetSection("ForwardProxyIP").AsEnumerable();
                     foreach (var item in forwards)
                     {
-                        if (string.IsNullOrEmpty(item.Value) == false)
+                        if (string.IsNullOrWhiteSpace(item.Value) == false)
                         {
                             options.KnownProxies.Add(IPAddress.Parse(item.Value));
                         }
@@ -616,7 +616,7 @@ namespace ack
             {
                 var ackLicenseKey = appSettings["LicenseKey"].ToStringSafe();
                 var ackLicenseSignature = appSettings["LicenseSignature"].ToStringSafe();
-                if (string.IsNullOrEmpty(ackLicenseKey) == false && string.IsNullOrEmpty(ackLicenseSignature) == false)
+                if (string.IsNullOrWhiteSpace(ackLicenseKey) == false && string.IsNullOrWhiteSpace(ackLicenseSignature) == false)
                 {
                     try
                     {
@@ -703,7 +703,7 @@ namespace ack
                 if (module.Assembly != null)
                 {
                     string assemblyPublicKey = module.Assembly.GetPublicKey();
-                    if (string.IsNullOrEmpty(assemblyPublicKey) == false)
+                    if (string.IsNullOrWhiteSpace(assemblyPublicKey) == false)
                     {
                         if (GlobalConfiguration.LoadModuleLicenses.ContainsKey(module.ModuleID) == false)
                         {
@@ -831,7 +831,7 @@ namespace ack
                 app.UseHttpLogging();
             }
 
-            if (string.IsNullOrEmpty(GlobalConfiguration.ProxyBasePath) == false)
+            if (string.IsNullOrWhiteSpace(GlobalConfiguration.ProxyBasePath) == false)
             {
                 string proxyBasePath = "/" + GlobalConfiguration.ProxyBasePath;
                 app.UsePathBase(proxyBasePath);
@@ -885,17 +885,17 @@ namespace ack
                             if (publicRole != null)
                             {
                                 var pattern = "";
-                                if (string.IsNullOrEmpty(publicRole.ApplicationID) == false)
+                                if (string.IsNullOrWhiteSpace(publicRole.ApplicationID) == false)
                                 {
                                     pattern = pattern + $"[\\/]{publicRole.ApplicationID}";
                                 }
 
-                                if (string.IsNullOrEmpty(publicRole.ProjectID) == false)
+                                if (string.IsNullOrWhiteSpace(publicRole.ProjectID) == false)
                                 {
                                     pattern = pattern + $"[\\/]{publicRole.ProjectID}";
                                 }
 
-                                if (string.IsNullOrEmpty(publicRole.TransactionID) == false)
+                                if (string.IsNullOrWhiteSpace(publicRole.TransactionID) == false)
                                 {
                                     pattern = pattern + $"[\\/]{publicRole.TransactionID}";
                                 }
@@ -912,7 +912,7 @@ namespace ack
                         if (isAuthorized == false)
                         {
                             var member = context.Request.Cookies[$"{GlobalConfiguration.CookiePrefixName}.Member"];
-                            if (string.IsNullOrEmpty(member) == false)
+                            if (string.IsNullOrWhiteSpace(member) == false)
                             {
                                 var user = JsonConvert.DeserializeObject<UserAccount>(member.DecodeBase64());
                                 if (user != null)
@@ -926,17 +926,17 @@ namespace ack
                                             if (roles.Intersect(userRoles).Any() == true)
                                             {
                                                 var pattern = "";
-                                                if (string.IsNullOrEmpty(permissionRole.ApplicationID) == false)
+                                                if (string.IsNullOrWhiteSpace(permissionRole.ApplicationID) == false)
                                                 {
                                                     pattern = pattern + $"[\\/]{permissionRole.ApplicationID}";
                                                 }
 
-                                                if (string.IsNullOrEmpty(permissionRole.ProjectID) == false)
+                                                if (string.IsNullOrWhiteSpace(permissionRole.ProjectID) == false)
                                                 {
                                                     pattern = pattern + $"[\\/]{permissionRole.ProjectID}";
                                                 }
 
-                                                if (string.IsNullOrEmpty(permissionRole.TransactionID) == false)
+                                                if (string.IsNullOrWhiteSpace(permissionRole.TransactionID) == false)
                                                 {
                                                     pattern = pattern + $"[\\/]{permissionRole.TransactionID}";
                                                 }
@@ -1073,7 +1073,7 @@ namespace ack
                 app.UseDeveloperExceptionPage();
             }
 
-            if (string.IsNullOrEmpty(GlobalConfiguration.ServerDevCertFilePath) == false && File.Exists(GlobalConfiguration.ServerDevCertFilePath) == true && string.IsNullOrEmpty(GlobalConfiguration.ServerDevCertPassword) == false)
+            if (string.IsNullOrWhiteSpace(GlobalConfiguration.ServerDevCertFilePath) == false && File.Exists(GlobalConfiguration.ServerDevCertFilePath) == true && string.IsNullOrWhiteSpace(GlobalConfiguration.ServerDevCertPassword) == false)
             {
                 app.UseHsts();
             }
@@ -1138,7 +1138,7 @@ namespace ack
                 });
             });
 
-            if (string.IsNullOrEmpty(GlobalConfiguration.ProxyBasePath) == false)
+            if (string.IsNullOrWhiteSpace(GlobalConfiguration.ProxyBasePath) == false)
             {
                 app.UseMiddleware<HtmlProxyBasePathInjectionMiddleware>();
             }
@@ -1196,7 +1196,7 @@ namespace ack
             }
 
 
-            if (string.IsNullOrEmpty(GlobalConfiguration.SessionCookieName) == false)
+            if (string.IsNullOrWhiteSpace(GlobalConfiguration.SessionCookieName) == false)
             {
                 app.UseSession();
                 app.UseMiddleware<UserSessionMiddleware>();
@@ -1221,10 +1221,10 @@ namespace ack
                         var destModuleBasePath = string.Empty;
                         var destContractModuleBasePath = string.Empty;
                         var handstackHomePath = Environment.GetEnvironmentVariable("HANDSTACK_HOME") ?? "";
-                        if (string.IsNullOrEmpty(handstackHomePath) == false)
+                        if (string.IsNullOrWhiteSpace(handstackHomePath) == false)
                         {
                             var hostAccessID = context.Request.GetContainValue("hostAccessID");
-                            if (string.IsNullOrEmpty(hostAccessID) == false && GlobalConfiguration.HostAccessID == hostAccessID)
+                            if (string.IsNullOrWhiteSpace(hostAccessID) == false && GlobalConfiguration.HostAccessID == hostAccessID)
                             {
                                 var form = await context.Request.ReadFormAsync();
                                 var file = form.Files["file"];
@@ -1233,7 +1233,7 @@ namespace ack
                                 var destFilePath = form["destFilePath"].ToString();
                                 var changeType = form["changeType"].ToString();
 
-                                if (string.IsNullOrEmpty(moduleID) == true || string.IsNullOrEmpty(destFilePath) == true || string.IsNullOrEmpty(changeType) == true || (changeType != "Deleted" && (file == null || file.Length == 0)))
+                                if (string.IsNullOrWhiteSpace(moduleID) == true || string.IsNullOrWhiteSpace(destFilePath) == true || string.IsNullOrWhiteSpace(changeType) == true || (changeType != "Deleted" && (file == null || file.Length == 0)))
                                 {
                                     context.Response.StatusCode = StatusCodes.Status400BadRequest;
                                     return;
@@ -1259,7 +1259,7 @@ namespace ack
                                         break;
                                 }
 
-                                if (string.IsNullOrEmpty(destModuleBasePath) == true || string.IsNullOrEmpty(destContractModuleBasePath) == true)
+                                if (string.IsNullOrWhiteSpace(destModuleBasePath) == true || string.IsNullOrWhiteSpace(destContractModuleBasePath) == true)
                                 {
                                     context.Response.StatusCode = StatusCodes.Status400BadRequest;
                                     return;
@@ -1316,7 +1316,7 @@ namespace ack
                     try
                     {
                         var hostAccessID = context.Request.GetContainValue("hostAccessID");
-                        if (string.IsNullOrEmpty(hostAccessID) == false && GlobalConfiguration.HostAccessID == hostAccessID)
+                        if (string.IsNullOrWhiteSpace(hostAccessID) == false && GlobalConfiguration.HostAccessID == hostAccessID)
                         {
                             var applicationManager = ApplicationManager.Load();
                             applicationManager.Stop();
@@ -1339,7 +1339,7 @@ namespace ack
                     try
                     {
                         var hostAccessID = context.Request.GetContainValue("hostAccessID");
-                        if (!string.IsNullOrEmpty(hostAccessID) && GlobalConfiguration.HostAccessID == hostAccessID)
+                        if (!string.IsNullOrWhiteSpace(hostAccessID) && GlobalConfiguration.HostAccessID == hostAccessID)
                         {
                             var result = new
                             {
@@ -1449,7 +1449,7 @@ namespace ack
                         var secretService = context.RequestServices.GetRequiredService<SecretService>();
 
                         var keyName = context.Request.RouteValues["name"]?.ToString();
-                        if (string.IsNullOrEmpty(keyName))
+                        if (string.IsNullOrWhiteSpace(keyName))
                         {
                             context.Response.StatusCode = StatusCodes.Status400BadRequest;
                             await context.Response.WriteAsync("키 이름이 필요합니다.");
@@ -1537,7 +1537,7 @@ namespace ack
                             newKey = JsonConvert.DeserializeObject<KeyItem>(body);
                         }
 
-                        if (newKey == null || string.IsNullOrEmpty(newKey.Key) || string.IsNullOrEmpty(newKey.Value))
+                        if (newKey == null || string.IsNullOrWhiteSpace(newKey.Key) || string.IsNullOrWhiteSpace(newKey.Value))
                         {
                             context.Response.StatusCode = StatusCodes.Status400BadRequest;
                             await context.Response.WriteAsync("요청 본문에 Key와 Value 필드는 필수입니다.");
@@ -1545,7 +1545,7 @@ namespace ack
                         }
 
                         var encryptQuery = context.Request.Query["encrypt"].ToStringSafe();
-                        if (string.IsNullOrEmpty(encryptQuery) == false && encryptQuery.ToBoolean() == true)
+                        if (string.IsNullOrWhiteSpace(encryptQuery) == false && encryptQuery.ToBoolean() == true)
                         {
                             var vaultKey = (secretService.SystemVaultKey + "|" + newKey.Key.PadRight(32, '0')).Substring(0, 32);
                             newKey.Value = newKey.Value.EncryptAES(vaultKey);
@@ -1588,7 +1588,7 @@ namespace ack
                         var secretService = context.RequestServices.GetRequiredService<SecretService>();
 
                         var keyName = context.Request.RouteValues["name"]?.ToString();
-                        if (string.IsNullOrEmpty(keyName))
+                        if (string.IsNullOrWhiteSpace(keyName))
                         {
                             context.Response.StatusCode = StatusCodes.Status400BadRequest;
                             await context.Response.WriteAsync("키 이름이 필요합니다.");
@@ -1656,7 +1656,7 @@ namespace ack
         protected async Task CopyFileAsync(MemoryStream sourceStream, string destAbsoluteFilePath)
         {
             var destDirectory = Path.GetDirectoryName(destAbsoluteFilePath);
-            if (string.IsNullOrEmpty(destDirectory) == false && Directory.Exists(destDirectory) == false)
+            if (string.IsNullOrWhiteSpace(destDirectory) == false && Directory.Exists(destDirectory) == false)
             {
                 Directory.CreateDirectory(destDirectory);
             }
@@ -1689,7 +1689,7 @@ namespace ack
             }
 
             var path = request.Path.Value;
-            if (string.IsNullOrEmpty(path) == true)
+            if (string.IsNullOrWhiteSpace(path) == true)
             {
                 return false;
             }
@@ -1708,7 +1708,7 @@ namespace ack
             if (actionDescriptor == null)
             {
                 var path = context.Request.Path.Value;
-                if (string.IsNullOrEmpty(path) == true)
+                if (string.IsNullOrWhiteSpace(path) == true)
                 {
                     return false;
                 }

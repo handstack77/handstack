@@ -52,10 +52,10 @@ namespace HandStack.Web.Messages
 
         public virtual bool ValidRequest(RequestBase request, ResponseBase response)
         {
-            if (string.IsNullOrEmpty(request.RequestID)
-                || string.IsNullOrEmpty(request.Action)
-                || string.IsNullOrEmpty(request.Kind)
-                || string.IsNullOrEmpty(request.Environment)
+            if (string.IsNullOrWhiteSpace(request.RequestID)
+                || string.IsNullOrWhiteSpace(request.Action)
+                || string.IsNullOrWhiteSpace(request.Kind)
+                || string.IsNullOrWhiteSpace(request.Environment)
             )
             {
                 response.Acknowledge = AcknowledgeType.Failure;

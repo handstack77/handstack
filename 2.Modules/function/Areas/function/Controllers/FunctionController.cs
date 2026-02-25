@@ -48,7 +48,7 @@ namespace function.Areas.function.Controllers
             using var result = new DataSet();
             var httpContext = httpContextAccessor.HttpContext;
             var functionID = (httpContext?.Request.Query["functionID"]).ToStringSafe();
-            if (string.IsNullOrEmpty(functionID))
+            if (string.IsNullOrWhiteSpace(functionID))
             {
                 result.BuildExceptionData("Y", "Warning", $"functionID 확인 필요");
                 result.Tables.Add(new DataTable());
@@ -95,13 +95,13 @@ namespace function.Areas.function.Controllers
                 dataContext.connectionString = null;
             }
 
-            dataContext.globalID = !string.IsNullOrEmpty(dataContext.globalID) ? dataContext.globalID : $"OD00000{GlobalConfiguration.ApplicationID}{functionID.Replace(".", "")}F{now.ToString("HHmmss").ToSHA256().Substring(0, 6) + now.ToString("HHmmss")}";
-            dataContext.environment = !string.IsNullOrEmpty(dataContext.environment) ? dataContext.environment : "D";
-            dataContext.platform = !string.IsNullOrEmpty(dataContext.platform) ? dataContext.platform : "Windows"; // Windows, Linux, MacOS
-            dataContext.workingDirectoryPath = !string.IsNullOrEmpty(dataContext.workingDirectoryPath) ? dataContext.workingDirectoryPath : "../tmp/HDS/function/HDS_FN00";
+            dataContext.globalID = !string.IsNullOrWhiteSpace(dataContext.globalID) ? dataContext.globalID : $"OD00000{GlobalConfiguration.ApplicationID}{functionID.Replace(".", "")}F{now.ToString("HHmmss").ToSHA256().Substring(0, 6) + now.ToString("HHmmss")}";
+            dataContext.environment = !string.IsNullOrWhiteSpace(dataContext.environment) ? dataContext.environment : "D";
+            dataContext.platform = !string.IsNullOrWhiteSpace(dataContext.platform) ? dataContext.platform : "Windows"; // Windows, Linux, MacOS
+            dataContext.workingDirectoryPath = !string.IsNullOrWhiteSpace(dataContext.workingDirectoryPath) ? dataContext.workingDirectoryPath : "../tmp/HDS/function/HDS_FN00";
 
             var commandID = string.Empty;
-            var scriptMapFile = string.IsNullOrEmpty(ModuleConfiguration.ModuleBasePath) ? PathExtensions.Combine(ModuleConfiguration.ModuleBasePath, "featureTest.json") : PathExtensions.Combine(GlobalConfiguration.GetBaseDirectoryPath($"../modules/{ModuleConfiguration.ModuleID}"), "featureTest.json");
+            var scriptMapFile = string.IsNullOrWhiteSpace(ModuleConfiguration.ModuleBasePath) ? PathExtensions.Combine(ModuleConfiguration.ModuleBasePath, "featureTest.json") : PathExtensions.Combine(GlobalConfiguration.GetBaseDirectoryPath($"../modules/{ModuleConfiguration.ModuleID}"), "featureTest.json");
             if (System.IO.File.Exists(scriptMapFile) == true)
             {
                 var configData = System.IO.File.ReadAllText(scriptMapFile);
@@ -163,7 +163,7 @@ namespace function.Areas.function.Controllers
                 }
 
                 var fileExtension = functionScriptContract.Header.LanguageType == "csharp" ? "cs" : null;
-                if (string.IsNullOrEmpty(fileExtension))
+                if (string.IsNullOrWhiteSpace(fileExtension))
                 {
                     result.BuildExceptionData("Y", "Warning", $"{functionScriptContract.Header.LanguageType} 언어 타입 확인 필요");
                     result.Tables.Add(new DataTable());
@@ -192,7 +192,7 @@ namespace function.Areas.function.Controllers
                 moduleScriptMap.IsHttpContext = header.IsHttpContext;
                 moduleScriptMap.ReferenceModuleID = header.ReferenceModuleID;
 
-                if (string.IsNullOrEmpty(item.EntryType))
+                if (string.IsNullOrWhiteSpace(item.EntryType))
                 {
                     moduleScriptMap.EntryType = $"{header.ApplicationID}.Function.{header.ProjectID}.{header.TransactionID}";
                 }
@@ -201,7 +201,7 @@ namespace function.Areas.function.Controllers
                     moduleScriptMap.EntryType = item.EntryType;
                 }
 
-                if (string.IsNullOrEmpty(item.EntryType))
+                if (string.IsNullOrWhiteSpace(item.EntryType))
                 {
                     moduleScriptMap.EntryMethod = item.ID;
                 }
@@ -246,7 +246,7 @@ namespace function.Areas.function.Controllers
                 return result;
             }
 
-            if (string.IsNullOrEmpty(dataContext.featureMeta.ApplicationID))
+            if (string.IsNullOrWhiteSpace(dataContext.featureMeta.ApplicationID))
             {
                 result.BuildExceptionData("Y", "Warning", $"Function 정보 확인 필요: {functionID}");
                 result.Tables.Add(new DataTable());
