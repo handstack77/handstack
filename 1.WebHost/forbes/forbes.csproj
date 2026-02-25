@@ -29,6 +29,12 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <Reference Include="HandStack.Core">
+            <HintPath>../../3.Infrastructure/Assemblies/$(Configuration)/HandStack.Core.dll</HintPath>
+        </Reference>
+    </ItemGroup>
+
+    <ItemGroup>
         <PackageReference Include="Octokit" Version="14.0.0" />
         <PackageReference Include="System.CommandLine" Version="2.0.0" />
     </ItemGroup>
@@ -52,5 +58,13 @@
         </None>
         <Compile Remove="Backup/**" />
         <Compile Remove="Contracts/function/**" />
+    </ItemGroup>
+    
+    <ItemGroup>
+      <Content Remove="bundleconfig.json" />
+    </ItemGroup>
+    
+    <ItemGroup>
+      <None Include="bundleconfig.json" />
     </ItemGroup>
 </Project>

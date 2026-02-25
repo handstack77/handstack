@@ -100,26 +100,37 @@ namespace forbes
                 wwwRootBasePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wwwroot");
             }
 
-            string contractBasePath = builder.Configuration["ContractBasePath"] ?? "";
-            string contractRequestPath = builder.Configuration["ContractRequestPath"] ?? "view";
+            string contractViewPath = builder.Configuration["ContractViewPath"] ?? "";
+            if (string.IsNullOrWhiteSpace(contractViewPath))
+            {
+                string contractsBasePath = ResolveContractsBasePath(builder.Configuration, entryDirectoryPath);
+                if (Directory.Exists(contractsBasePath))
+                {
+                    contractViewPath = Path.Combine(contractsBasePath, "wwwroot", "HDS");
+                }
+            }
+            string contractRequestPath = "view";
             bool isContractRequestPath = false;
 
-            if (!string.IsNullOrWhiteSpace(contractBasePath))
+            if (!string.IsNullOrWhiteSpace(contractViewPath))
             {
-                string contractDirectoryPath = Path.Combine(contractBasePath, "forbes");
-                if (Directory.Exists(contractDirectoryPath))
+                if (Directory.Exists(contractViewPath))
                 {
                     isContractRequestPath = true;
                     app.UseStaticFiles(new StaticFileOptions
                     {
-                        FileProvider = new PhysicalFileProvider(contractDirectoryPath),
+                        FileProvider = new PhysicalFileProvider(contractViewPath),
                         RequestPath = "/" + contractRequestPath,
                         ServeUnknownFileTypes = true
                     });
 
-                    TraceLogger.Info($"계약 파일 제공 경로: {contractDirectoryPath}");
+                    TraceLogger.Info($"계약 파일 제공 경로: {contractViewPath}");
                     TraceLogger.Info($"계약 파일 요청 경로: /{contractRequestPath}");
                 }
+            }
+            else
+            {
+                TraceLogger.Error($"ContractViewPath 경로를 찾을 수 없습니다: {contractViewPath}");
             }
 
             if (Directory.Exists(wwwRootBasePath))

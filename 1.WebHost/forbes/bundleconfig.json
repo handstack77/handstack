@@ -1,0 +1,8 @@
+[
+    {
+        "outputFileName": "wwwroot/js/syn.loader.min.js",
+        "inputFiles": [
+            "wwwroot/js/syn.loader.js"
+        ]
+    }
+]
