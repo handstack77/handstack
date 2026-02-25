@@ -1,10 +1,144 @@
-﻿<!DOCTYPE html>
-<html>
+﻿<!doctype html>
+<html lang="ko">
 <head>
-    <meta charset="utf-8" />
-    <title></title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>forbes sync-secrets 관리</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/core/dist/css/tabler.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont/tabler-icons.min.css" />
+    <style>
+        .status-pill {
+            min-width: 110px;
+            text-align: center;
+        }
+
+        .form-section-title {
+            font-size: 0.875rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            color: #6c757d;
+            text-transform: uppercase;
+        }
+    </style>
 </head>
 <body>
-    helloworld from forbes
+    <div class="page">
+        <header class="navbar navbar-expand-md d-print-none">
+            <div class="container-xl">
+                <h1 class="navbar-brand mb-0">
+                    <i class="ti ti-key me-2"></i>
+                    sync-secrets 설정 관리
+                </h1>
+                <div class="ms-auto d-flex align-items-center gap-2">
+                    <span id="connectionBadge" class="badge bg-green-lt status-pill">연결 확인 중</span>
+                    <button id="btnReload" type="button" class="btn btn-outline-primary btn-sm">
+                        <i class="ti ti-refresh me-1"></i>새로고침
+                    </button>
+                    <button id="btnSave" type="button" class="btn btn-primary btn-sm">
+                        <i class="ti ti-device-floppy me-1"></i>저장
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <div class="page-wrapper">
+            <div class="page-header d-print-none">
+                <div class="container-xl">
+                    <div class="row g-2 align-items-center">
+                        <div class="col">
+                            <h2 class="page-title">forbes 개발 서버 동기화 비밀 설정</h2>
+                            <div class="text-secondary">
+                                관리 대상: <code>sync-secrets.json</code>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <label class="form-check form-switch mb-0">
+                                <input id="chkAutoReload" class="form-check-input" type="checkbox" checked />
+                                <span class="form-check-label">실시간 감시</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="page-body">
+                <div class="container-xl">
+                    <div id="globalAlert" class="alert alert-info" role="alert">
+                        설정 파일을 불러오는 중입니다.
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title mb-0">
+                                <i class="ti ti-file-text me-1"></i>sync-secrets.json
+                            </h3>
+                            <div class="card-actions d-flex gap-2">
+                                <span id="sourceFileBadge" class="badge bg-secondary-lt">원본: -</span>
+                                <span id="dirtyBadge" class="badge bg-yellow-lt d-none">편집 중</span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3 d-flex justify-content-between text-secondary small">
+                                <span id="lastWriteText">마지막 변경: -</span>
+                                <span id="statusText">상태: 대기</span>
+                            </div>
+
+                            <form id="secretsForm" autocomplete="off">
+                                <div class="mb-3 form-section-title">사용자 정보</div>
+                                <div class="row g-3 mb-4">
+                                    <div class="col-12 col-lg-6">
+                                        <label class="form-label" for="txtUserName">UserName</label>
+                                        <input id="txtUserName" type="text" class="form-control" placeholder="GitHub 커밋 작성자 이름" />
+                                    </div>
+                                    <div class="col-12 col-lg-6">
+                                        <label class="form-label" for="txtUserEmail">UserEmail</label>
+                                        <input id="txtUserEmail" type="email" class="form-control" placeholder="GitHub 커밋 작성자 이메일" />
+                                    </div>
+                                </div>
+
+                                <div class="mb-3 form-section-title">FileSync</div>
+                                <div class="row g-3 mb-4">
+                                    <div class="col-12">
+                                        <label class="form-label" for="txtFileSyncServer">FileSyncServer</label>
+                                        <input id="txtFileSyncServer" type="url" class="form-control" placeholder="FileSync 대상 서버 URL (예: http://localhost:8421)" />
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label" for="txtFileSyncAccessToken">FileSyncAccessToken</label>
+                                        <input id="txtFileSyncAccessToken" type="password" class="form-control" placeholder="FileSync 호출 인증 토큰 (Basic 인증용)" />
+                                    </div>
+                                </div>
+
+                                <div class="mb-3 form-section-title">GitHub</div>
+                                <div class="row g-3">
+                                    <div class="col-12">
+                                        <label class="form-label" for="txtGitHubPersonalAccessToken">GitHubPersonalAccessToken</label>
+                                        <input id="txtGitHubPersonalAccessToken" type="password" class="form-control" placeholder="GitHub API 토큰 (repo/workflow 권한)" />
+                                    </div>
+                                    <div class="col-12 col-lg-6">
+                                        <label class="form-label" for="txtGitHubRepositoryOwner">GitHubRepositoryOwner</label>
+                                        <input id="txtGitHubRepositoryOwner" type="text" class="form-control" placeholder="저장소 소유자/조직명 (예: Junworks77)" />
+                                    </div>
+                                    <div class="col-12 col-lg-6">
+                                        <label class="form-label" for="txtGitHubRepositoryName">GitHubRepositoryName</label>
+                                        <input id="txtGitHubRepositoryName" type="text" class="form-control" placeholder="저장소 이름 (예: forbes-project)" />
+                                    </div>
+                                    <div class="col-12 col-lg-6">
+                                        <label class="form-label" for="txtGitHubRepositoryBranch">GitHubRepositoryBranch</label>
+                                        <input id="txtGitHubRepositoryBranch" type="text" class="form-control" placeholder="기본 브랜치 (예: main)" />
+                                    </div>
+                                    <div class="col-12 col-lg-6">
+                                        <label class="form-label" for="txtGitHubRepositoryBasePath">GitHubRepositoryBasePath</label>
+                                        <input id="txtGitHubRepositoryBasePath" type="text" class="form-control" placeholder="저장소 내 계약 루트 경로 (예: Contracts)" />
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="index.js"></script>
 </body>
 </html>
