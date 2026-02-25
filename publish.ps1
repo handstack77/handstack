@@ -159,8 +159,6 @@ if ($ActionMode -eq "publish") {
     $dotnetOptions = @(
         "-p:Optimize=$optimizeFlag",
         "--configuration", $ConfigurationMode,
-        "--arch", $ArchMode,
-        "--os", $OsMode,
         "--runtime", $rid,
         "--self-contained", "false"
     )
@@ -174,10 +172,11 @@ else {
     )
 }
 
-# 모듈 빌드용 옵션 (모듈은 OS/아키텍처 독립적으로 빌드)
+# 모듈 빌드용 옵션 (대상 RID에 맞는 런타임 자산만 포함)
 $moduleBuildOptions = @(
     "-p:Optimize=$optimizeFlag",
-    "--configuration", $ConfigurationMode
+    "--configuration", $ConfigurationMode,
+    "--runtime", $rid
 )
 
 # 주요 경로 변수
@@ -289,7 +288,7 @@ Write-Host "contracts 폴더 정리 중..."
 $contractsPath = [System.IO.Path]::Combine($env:HANDSTACK_HOME, "contracts")
 Remove-SafeItem -Path $contractsPath
 
-# 모듈 프로젝트 빌드. 각 모듈을 빌드하여 handstack/modules 하위 디렉터리에 출력합니다. 모듈은 OS/아키텍처에 독립적이므로 공통 빌드 옵션을 사용합니다.
+# 모듈 프로젝트 빌드. 각 모듈을 빌드하여 handstack/modules 하위 디렉터리에 출력합니다. 대상 RID 기준으로 런타임 자산을 제한합니다.
 
 Write-Host ""
 Write-Host "모듈 프로젝트 빌드 시작..."
@@ -344,6 +343,19 @@ foreach ($file in $packageFiles) {
     Copy-Item -Path $file.FullName -Destination $destFile -Force
 }
 Write-Host "  package 파일 복사 완료"
+
+# wwwroot package*.* 파일 복사 (package.json, package-lock.json)
+$wwwrootModuleDir = [System.IO.Path]::Combine("2.Modules", "wwwroot")
+$wwwrootPackageFiles = Get-ChildItem -Path $wwwrootModuleDir -Filter "package*.*" -File -ErrorAction SilentlyContinue
+$wwwrootPackageDestDir = [System.IO.Path]::Combine($handstackOutput, "modules", "wwwroot")
+if (-not (Test-Path $wwwrootPackageDestDir)) {
+    New-Item -ItemType Directory -Path $wwwrootPackageDestDir -Force | Out-Null
+}
+foreach ($file in $wwwrootPackageFiles) {
+    $destFile = [System.IO.Path]::Combine($wwwrootPackageDestDir, $file.Name)
+    Copy-Item -Path $file.FullName -Destination $destFile -Force
+}
+Write-Host "  wwwroot package 파일 복사 완료"
 
 # 빌드 과정에서 생성된 불필요한 파일들을 삭제합니다:
 #   - wwwroot/lib 디렉터리 전체 (npm install로 재설치 대상)

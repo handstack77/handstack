@@ -56,7 +56,7 @@
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
         </None>
-        <Compile Remove="Backup/**" />
+        <Compile Remove="publish/**" />
         <Compile Remove="Contracts/function/**" />
     </ItemGroup>
     

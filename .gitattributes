@@ -2,7 +2,7 @@
 # Set default behavior to automatically normalize line endings.
 ###############################################################################
 * text=auto
-*.bat text eol=lf
+*.bat text eol=crlf
 *.sh text eol=lf
 *.ps1 text eol=lf
 

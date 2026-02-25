@@ -47,15 +47,6 @@ if ! grep -q "DOTNET_CLI_TELEMETRY_OPTOUT" "$PROFILE_FILE"; then
     echo 'export DOTNET_CLI_TELEMETRY_OPTOUT=1' >> "$PROFILE_FILE"
 fi
 
-# HANDSTACK_SRC 설정 (중복 제거 후 추가)
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    sed -i '' '/export HANDSTACK_SRC=/d' "$PROFILE_FILE"
-else
-    sed -i '/export HANDSTACK_SRC=/d' "$PROFILE_FILE"
-fi
-echo "export HANDSTACK_SRC=\"$current_path\"" >> "$PROFILE_FILE"
-export HANDSTACK_SRC="$current_path"
-
 # PARENT_DIR 계산
 PARENT_DIR="$(dirname "$current_path")"
 
@@ -72,7 +63,6 @@ fi
 echo "export HANDSTACK_HOME=\"$HANDSTACK_HOME\"" >> "$PROFILE_FILE"
 export HANDSTACK_HOME="$HANDSTACK_HOME"
 
-echo "HANDSTACK_SRC: $HANDSTACK_SRC"
 echo "HANDSTACK_HOME: $HANDSTACK_HOME"
 
 # 개발 환경 설정 (ack.csproj 존재 시)

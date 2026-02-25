@@ -59,7 +59,7 @@ esac
 
 # 액션 모드에 따른 dotnet 명령어 옵션 설정
 if [ "$action_mode" == "publish" ]; then
-    dotnet_options="$optimize_flag --configuration $configuration_mode --arch $arch_mode --os $os_mode --runtime $rid --self-contained false"
+    dotnet_options="$optimize_flag --configuration $configuration_mode --runtime $rid --self-contained false"
 else
     dotnet_options="$optimize_flag --configuration $configuration_mode --arch $arch_mode --os $os_mode"
 fi
@@ -139,7 +139,7 @@ for module in "${modules[@]}"; do
     IFS=':' read -r project_path module_name <<< "$module"
     echo "$module_name 모듈 처리 중..."
     
-    dotnet build -p:Optimize=$optimize_flag --configuration $configuration_mode "$project_path" --output "$publish_path/handstack/modules/$module_name"
+    dotnet build -p:Optimize=$optimize_flag --configuration $configuration_mode --runtime $rid "$project_path" --output "$publish_path/handstack/modules/$module_name"
 done
 
 # 추가 파일들 복사
@@ -158,6 +158,12 @@ fi
 # Package 파일들 복사
 if ls 2.Modules/function/package*.* 1> /dev/null 2>&1; then
     rsync -av --progress 2.Modules/function/package*.* "$publish_path/handstack/"
+fi
+
+# wwwroot Package 파일들 복사
+if ls 2.Modules/wwwroot/package*.* 1> /dev/null 2>&1; then
+    mkdir -p "$publish_path/handstack/modules/wwwroot"
+    rsync -av --progress 2.Modules/wwwroot/package*.* "$publish_path/handstack/modules/wwwroot/"
 fi
 
 # wwwroot JavaScript 파일 정리

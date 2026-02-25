@@ -49,7 +49,7 @@ if "%os_mode%" == "win" (
 
 REM dotnet 명령어 옵션 설정
 if "%action_mode%" == "publish" (
-    set dotnet_options=-p:Optimize=%optimize_flag% --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --runtime %rid% --self-contained false
+    set dotnet_options=-p:Optimize=%optimize_flag% --configuration %configuration_mode% --runtime %rid% --self-contained false
 ) else (
     set dotnet_options=-p:Optimize=%optimize_flag% --configuration %configuration_mode% --arch %arch_mode% --os %os_mode%
 )
@@ -91,13 +91,13 @@ if exist "%contracts_path%" (
 )
 
 REM 모듈 빌드 (빌드 모드에서만, 퍼블리시는 위에서 처리됨)
-dotnet build -p:Optimize=%optimize_flag% --configuration %configuration_mode% 2.Modules\dbclient\dbclient.csproj --output %publish_path%\handstack\modules\dbclient
-dotnet build -p:Optimize=%optimize_flag% --configuration %configuration_mode% 2.Modules\function\function.csproj --output %publish_path%\handstack\modules\function
-dotnet build -p:Optimize=%optimize_flag% --configuration %configuration_mode% 2.Modules\logger\logger.csproj --output %publish_path%\handstack\modules\logger
-dotnet build -p:Optimize=%optimize_flag% --configuration %configuration_mode% 2.Modules\repository\repository.csproj --output %publish_path%\handstack\modules\repository
-dotnet build -p:Optimize=%optimize_flag% --configuration %configuration_mode% 2.Modules\transact\transact.csproj --output %publish_path%\handstack\modules\transact
-dotnet build -p:Optimize=%optimize_flag% --configuration %configuration_mode% 2.Modules\wwwroot\wwwroot.csproj --output %publish_path%\handstack\modules\wwwroot
-dotnet build -p:Optimize=%optimize_flag% --configuration %configuration_mode% 2.Modules\checkup\checkup.csproj --output %publish_path%\handstack\modules\checkup
+dotnet build -p:Optimize=%optimize_flag% --configuration %configuration_mode% --runtime %rid% 2.Modules\dbclient\dbclient.csproj --output %publish_path%\handstack\modules\dbclient
+dotnet build -p:Optimize=%optimize_flag% --configuration %configuration_mode% --runtime %rid% 2.Modules\function\function.csproj --output %publish_path%\handstack\modules\function
+dotnet build -p:Optimize=%optimize_flag% --configuration %configuration_mode% --runtime %rid% 2.Modules\logger\logger.csproj --output %publish_path%\handstack\modules\logger
+dotnet build -p:Optimize=%optimize_flag% --configuration %configuration_mode% --runtime %rid% 2.Modules\repository\repository.csproj --output %publish_path%\handstack\modules\repository
+dotnet build -p:Optimize=%optimize_flag% --configuration %configuration_mode% --runtime %rid% 2.Modules\transact\transact.csproj --output %publish_path%\handstack\modules\transact
+dotnet build -p:Optimize=%optimize_flag% --configuration %configuration_mode% --runtime %rid% 2.Modules\wwwroot\wwwroot.csproj --output %publish_path%\handstack\modules\wwwroot
+dotnet build -p:Optimize=%optimize_flag% --configuration %configuration_mode% --runtime %rid% 2.Modules\checkup\checkup.csproj --output %publish_path%\handstack\modules\checkup
 
 REM 파일 복사
 if exist "%HANDSTACK_HOME%\contracts" (
