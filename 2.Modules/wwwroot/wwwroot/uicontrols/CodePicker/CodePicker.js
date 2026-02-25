@@ -9,7 +9,7 @@
     $codepicker.extend({
         name: 'syn.uicontrols.$codepicker',
         version: 'v2025.12.11',
-        codeHelpUrl: '/assets/shared/codehelp/index2.html',
+        codeHelpUrl: `${syn.$w.proxyBasePath}/arha/assets/shared/codehelp/index2.html`,
         defaultSetting: {
             dataSourceID: null,
             storeSourceID: null,

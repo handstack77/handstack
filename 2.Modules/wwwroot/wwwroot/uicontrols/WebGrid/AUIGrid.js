@@ -172,7 +172,7 @@
         gridCodeDatas: [],
         nowHeaderMenuVisible: false,
         currentDataField: null,
-        codeHelpUrl: '/assets/shared/codehelp/index2.html',
+        codeHelpUrl: `${syn.$w.proxyBasePath}/arha/assets/shared/codehelp/index2.html`,
         gridOptions: {
             headerHeight: 40,
             rowHeight: 40,
