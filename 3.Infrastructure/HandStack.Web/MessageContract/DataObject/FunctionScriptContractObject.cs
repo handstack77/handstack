@@ -90,18 +90,12 @@ namespace HandStack.Web.MessageContract.DataObject
         }
     }
 
+    [JsonConverter(typeof(FunctionParamConverter))]
     public partial class FunctionParam
     {
-        [JsonProperty("id")]
         public string ID { get; set; }
-
-        [JsonProperty("type")]
         public string Type { get; set; }
-
-        [JsonProperty("length")]
         public int Length { get; set; }
-
-        [JsonProperty("value")]
         public string? Value { get; set; }
 
         public FunctionParam()
@@ -161,7 +155,6 @@ namespace HandStack.Web.MessageContract.DataObject
 
     public static class FunctionScriptContractSerialize
     {
-        public static string ToJson(this FunctionScriptContract self) => JsonConvert.SerializeObject(self, ConverterSetting.Settings);
+        public static string ToJson(this FunctionScriptContract self)            => JsonConvert.SerializeObject(self, ConverterSetting.Settings);
     }
 }
-
