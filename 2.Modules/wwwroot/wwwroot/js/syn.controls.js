@@ -8059,7 +8059,7 @@
 
     $sourceeditor.extend({
         name: 'syn.uicontrols.$sourceeditor',
-        version: 'v2025.3.1',
+        version: 'v2026.2.25',
         editorPendings: [],
         editorControls: [],
         defaultSetting: {
@@ -8083,6 +8083,16 @@
             triggerConfig: null
         },
 
+        concreate() {
+            if (window.monaco) {
+            }
+            else {
+                if (!$string.isNullOrEmpty(syn.Config.DomainBaseUrl) && syn.Config.DomainBaseUrl !== location.origin) {
+                    $sourceeditor.defaultSetting.basePath = $sourceeditor.defaultSetting.basePath.replace('/lib/monaco-editor/min/vs', `${syn.Config.DomainBaseUrl}/lib/monaco-editor/min/vs`);
+                }
+            }
+        },
+
         controlLoad(elID, setting) {
             if (window.monaco) {
                 $sourceeditor.lazyControlLoad(elID, setting);
@@ -8091,7 +8101,7 @@
                 syn.$w.loadScript($sourceeditor.defaultSetting.basePath + '/loader.js', 'monacosourceeditor', () => {
                     if (window.require) {
                         require.config({
-                            paths: { 'vs': syn.uicontrols.$sourceeditor.defaultSetting.basePath },
+                            paths: { 'vs': $sourceeditor.defaultSetting.basePath },
                             'vs/nls': {
                                 availableLanguages: {
                                     '*': 'ko'
@@ -8400,7 +8410,7 @@
 
     $htmleditor.extend({
         name: 'syn.uicontrols.$htmleditor',
-        version: 'v2025.11.20',
+        version: 'v2026.2.25',
         userWorkID: '',
         applicationID: '',
         editorPendings: [],
@@ -8472,11 +8482,23 @@
             if (window.tinymce) {
             }
             else {
-                if (syn.Config && $string.isNullOrEmpty(syn.Config.ProxyPathName) == false) {
-                    syn.$w.loadScript(`${syn.$w.proxyBasePath}/lib/tinymce/tinymce.min.js`);
+                if ($string.isNullOrEmpty(syn.Config.DomainBaseUrl) == true || syn.Config.DomainBaseUrl == location.origin) {
+                    if (syn.Config && $string.isNullOrEmpty(syn.Config.ProxyPathName) == false) {
+                        syn.$w.loadScript(`${syn.$w.proxyBasePath}/lib/tinymce/tinymce.min.js`);
+                    }
+                    else {
+                        syn.$w.loadScript('/lib/tinymce/tinymce.min.js');
+                    }
                 }
                 else {
-                    syn.$w.loadScript('/lib/tinymce/tinymce.min.js');
+                    if (syn.Config && $string.isNullOrEmpty(syn.Config.ProxyPathName) == false) {
+                        syn.$w.loadScript(`${syn.Config.DomainBaseUrl}${syn.$w.proxyBasePath}/lib/tinymce/tinymce.min.js`);
+                    }
+                    else {
+                        syn.$w.loadScript(`${syn.Config.DomainBaseUrl}/lib/tinymce/tinymce.min.js`);
+                    }
+
+                    $htmleditor.defaultSetting.viewerHtml = $htmleditor.defaultSetting.viewerHtml.replace(/<base href="\/">/, `<base href="${syn.Config.DomainBaseUrl}/">`);
                 }
             }
         },

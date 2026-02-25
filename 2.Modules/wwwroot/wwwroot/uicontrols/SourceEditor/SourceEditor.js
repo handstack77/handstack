@@ -6,7 +6,7 @@
 
     $sourceeditor.extend({
         name: 'syn.uicontrols.$sourceeditor',
-        version: 'v2025.3.1',
+        version: 'v2026.2.25',
         editorPendings: [],
         editorControls: [],
         defaultSetting: {
@@ -30,6 +30,16 @@
             triggerConfig: null
         },
 
+        concreate() {
+            if (window.monaco) {
+            }
+            else {
+                if (!$string.isNullOrEmpty(syn.Config.DomainBaseUrl) && syn.Config.DomainBaseUrl !== location.origin) {
+                    $sourceeditor.defaultSetting.basePath = $sourceeditor.defaultSetting.basePath.replace('/lib/monaco-editor/min/vs', `${syn.Config.DomainBaseUrl}/lib/monaco-editor/min/vs`);
+                }
+            }
+        },
+
         controlLoad(elID, setting) {
             if (window.monaco) {
                 $sourceeditor.lazyControlLoad(elID, setting);
@@ -38,7 +48,7 @@
                 syn.$w.loadScript($sourceeditor.defaultSetting.basePath + '/loader.js', 'monacosourceeditor', () => {
                     if (window.require) {
                         require.config({
-                            paths: { 'vs': syn.uicontrols.$sourceeditor.defaultSetting.basePath },
+                            paths: { 'vs': $sourceeditor.defaultSetting.basePath },
                             'vs/nls': {
                                 availableLanguages: {
                                     '*': 'ko'

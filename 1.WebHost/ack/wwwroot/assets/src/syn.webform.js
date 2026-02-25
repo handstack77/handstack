@@ -1,4 +1,4 @@
-(function (context) {
+﻿(function (context) {
     'use strict';
     const $webform = context.$webform || new syn.module();
     let doc = null;
@@ -4104,6 +4104,14 @@
         globalRoot.isLoadConfig = false;
         if (context.synConfig) {
             syn.Config = syn.$w.argumentsExtend(syn.Config, synConfig);
+            const server = syn.Config?.DomainAPIServer;
+            if ($string.isNullOrWhiteSpace(syn.Config.DomainBaseUrl) == true && server) {
+                const protocol = server.Protocol || 'http';
+                const host = server.IP || 'localhost';
+                const port = server.Port ? `:${server.Port}` : '';
+                syn.Config.DomainBaseUrl = `${protocol}://${host}${port}`;
+            }
+
             context.synConfig = undefined;
             if (syn.Config && $string.isNullOrEmpty(syn.Config.ProxyPathName) == false) {
                 $webform.proxyBasePath = (syn.Config.IsProxyServe == true && syn.Config.ProxyPathName.length > 0) ? `/${syn.Config.ProxyPathName}` : '';
@@ -4120,6 +4128,13 @@
                     syn.Config = syn.$w.argumentsExtend(syn.Config, json);
                     if (syn.Config && $string.isNullOrEmpty(syn.Config.ProxyPathName) == false) {
                         $webform.proxyBasePath = (syn.Config.IsProxyServe == true && syn.Config.ProxyPathName.length > 0) ? `/${syn.Config.ProxyPathName}` : '';
+                    }
+
+                    if ($string.isNullOrWhiteSpace(syn.Config.DomainBaseUrl) == true && server) {
+                        const protocol = server.Protocol || 'http';
+                        const host = server.IP || 'localhost';
+                        const port = server.Port ? `:${server.Port}` : '';
+                        syn.Config.DomainBaseUrl = `${protocol}://${host}${port}`;
                     }
 
                     globalRoot.isLoadConfig = true;

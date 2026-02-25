@@ -1,4 +1,4 @@
-(function (context) {
+﻿(function (context) {
     'use strict';
     const $date = context.$date || new syn.module();
     const $array = context.$array || new syn.module();
@@ -632,6 +632,10 @@
         },
 
         isNullOrEmpty(val) {
+            return val === undefined || val === null || String(val) === '';
+        },
+
+        isNullOrWhiteSpace(val) {
             return val === undefined || val === null || String(val).trim() === '';
         },
 

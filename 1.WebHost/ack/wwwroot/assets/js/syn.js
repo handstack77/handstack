@@ -1,5 +1,5 @@
 /*!
-HandStack Javascript Library v2026.2.21
+HandStack Javascript Library v2026.2.25
 https://handshake.kr
 
 Copyright 2025, HandStack
@@ -175,7 +175,7 @@ class Module {
 }
 
 Module.ancestor = Object;
-Module.version = 'v2026.2.21';
+Module.version = 'v2026.2.25';
 
 const syn = { Module };
 syn.Config = {
@@ -3305,6 +3305,10 @@ if (typeof module !== 'undefined' && module.exports) {
         },
 
         isNullOrEmpty(val) {
+            return val === undefined || val === null || String(val) === '';
+        },
+
+        isNullOrWhiteSpace(val) {
             return val === undefined || val === null || String(val).trim() === '';
         },
 
@@ -10967,6 +10971,14 @@ if (typeof module !== 'undefined' && module.exports) {
         globalRoot.isLoadConfig = false;
         if (context.synConfig) {
             syn.Config = syn.$w.argumentsExtend(syn.Config, synConfig);
+            const server = syn.Config?.DomainAPIServer;
+            if ($string.isNullOrWhiteSpace(syn.Config.DomainBaseUrl) == true && server) {
+                const protocol = server.Protocol || 'http';
+                const host = server.IP || 'localhost';
+                const port = server.Port ? `:${server.Port}` : '';
+                syn.Config.DomainBaseUrl = `${protocol}://${host}${port}`;
+            }
+
             context.synConfig = undefined;
             if (syn.Config && $string.isNullOrEmpty(syn.Config.ProxyPathName) == false) {
                 $webform.proxyBasePath = (syn.Config.IsProxyServe == true && syn.Config.ProxyPathName.length > 0) ? `/${syn.Config.ProxyPathName}` : '';
@@ -10983,6 +10995,13 @@ if (typeof module !== 'undefined' && module.exports) {
                     syn.Config = syn.$w.argumentsExtend(syn.Config, json);
                     if (syn.Config && $string.isNullOrEmpty(syn.Config.ProxyPathName) == false) {
                         $webform.proxyBasePath = (syn.Config.IsProxyServe == true && syn.Config.ProxyPathName.length > 0) ? `/${syn.Config.ProxyPathName}` : '';
+                    }
+
+                    if ($string.isNullOrWhiteSpace(syn.Config.DomainBaseUrl) == true && server) {
+                        const protocol = server.Protocol || 'http';
+                        const host = server.IP || 'localhost';
+                        const port = server.Port ? `:${server.Port}` : '';
+                        syn.Config.DomainBaseUrl = `${protocol}://${host}${port}`;
                     }
 
                     globalRoot.isLoadConfig = true;
