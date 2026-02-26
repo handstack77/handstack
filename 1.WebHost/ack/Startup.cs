@@ -32,12 +32,11 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
+using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Configuration;
@@ -46,6 +45,7 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
+using Microsoft.Win32;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -1744,6 +1744,7 @@ namespace ack
             {
                 if (hostAccessID == result)
                 {
+                    string? hostID = string.Empty;
                     try
                     {
                         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == true)
@@ -1759,10 +1760,22 @@ namespace ack
                             result = GetMacHardwareID();
                         }
                     }
-                    catch (Exception exception)
+                    catch
                     {
-                        Log.Logger.Warning(exception, "[{LogCategory}] " + $"HostAccessID 확인 오류", $"Startup/GetHostAccessID");
+                        if (string.IsNullOrWhiteSpace(hostID))
+                        {
+                            hostID = Environment.GetEnvironmentVariable("HOSTNAME");
+                        }
+
+                        if (string.IsNullOrWhiteSpace(hostID))
+                        {
+                            hostID = Environment.MachineName;
+                        }
+
+                        Log.Logger.Information("[{LogCategory}] " + $"HardwareID 확인 폴백", $"Startup/GetHostAccessID");
                     }
+
+                    result = string.IsNullOrWhiteSpace(hostID) == false ? hostID : GlobalConfiguration.HostAccessID;
                 }
                 else
                 {
@@ -1786,25 +1799,38 @@ namespace ack
             {
                 if (GlobalConfiguration.HostAccessID == result)
                 {
+                    string? hostID = string.Empty;
                     try
                     {
                         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == true)
                         {
-                            result = GetWindowsHardwareID();
+                            hostID = GetWindowsHardwareID();
                         }
                         else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) == true)
                         {
-                            result = GetLinuxHardwareID();
+                            hostID = GetLinuxHardwareID();
                         }
                         else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) == true)
                         {
-                            result = GetMacHardwareID();
+                            hostID = GetMacHardwareID();
                         }
                     }
-                    catch (Exception exception)
+                    catch
                     {
-                        Log.Logger.Warning(exception, "[{LogCategory}] " + $"HardwareID 확인 오류", $"Startup/GetHostAccessID");
+                        if (string.IsNullOrWhiteSpace(hostID))
+                        {
+                            hostID = Environment.GetEnvironmentVariable("HOSTNAME");
+                        }
+
+                        if (string.IsNullOrWhiteSpace(hostID))
+                        {
+                            hostID = Environment.MachineName;
+                        }
+
+                        Log.Logger.Information("[{LogCategory}] " + $"HardwareID 확인 폴백", $"Startup/GetHostAccessID");
                     }
+
+                    result = string.IsNullOrWhiteSpace(hostID) == false ? hostID : GlobalConfiguration.HostAccessID;
                 }
                 else
                 {
@@ -1817,12 +1843,26 @@ namespace ack
 
         protected string GetWindowsHardwareID()
         {
-            return ExecuteWindowsCommand("wmic csproduct get uuid").Replace("UUID", "").Trim();
+            using var key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Cryptography");
+            return (key?.GetValue("MachineGuid")).ToStringSafe();
         }
 
         protected string GetLinuxHardwareID()
         {
-            return ExecuteBashCommand("dmidecode -s system-uuid");
+            string[] paths = { "/etc/machine-id", "/var/lib/dbus/machine-id" };
+            foreach (var path in paths)
+            {
+                if (File.Exists(path))
+                {
+                    var id = File.ReadAllText(path).Trim();
+                    if (!string.IsNullOrWhiteSpace(id))
+                    {
+                        return id;
+                    }
+                }
+            }
+
+            return "";
         }
 
         protected string GetMacHardwareID()
