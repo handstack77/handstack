@@ -563,6 +563,7 @@ namespace ack
                 MinLength = 8,
             }));
             services.AddSingleton<SecretService>();
+            services.AddSingleton<RuntimeConfigurationService>();
 
             services.AddRazorPages()
             .AddRazorPagesOptions(options =>
@@ -1401,6 +1402,186 @@ namespace ack
                     }
                 });
 
+                RequestDelegate getGlobalConfiguration = async context =>
+                {
+                    try
+                    {
+                        if (IsValidHostAccessRequest(context, out var hostAccessID) == false)
+                        {
+                            Log.Warning("[{LogCategory}] HostAccessID 확인 필요: " + hostAccessID.ToStringSafe(), "Startup/globalconfiguration");
+                            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                            return;
+                        }
+
+                        var runtimeConfigurationService = context.RequestServices.GetRequiredService<RuntimeConfigurationService>();
+                        var result = runtimeConfigurationService.GetGlobalConfigurationSnapshot();
+
+                        context.Response.Headers.ContentType = "application/json; charset=utf-8";
+                        await context.Response.WriteAsJsonAsync(result, new System.Text.Json.JsonSerializerOptions
+                        {
+                            WriteIndented = true,
+                            PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase
+                        });
+                    }
+                    catch (Exception exception)
+                    {
+                        Log.Error(exception, "[{LogCategory}] 런타임 전역 설정 조회 실패", "Startup/globalconfiguration");
+                        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                    }
+                };
+
+                RequestDelegate applyGlobalConfiguration = async context =>
+                {
+                    try
+                    {
+                        if (IsValidHostAccessRequest(context, out var hostAccessID) == false)
+                        {
+                            Log.Warning("[{LogCategory}] HostAccessID 확인 필요: " + hostAccessID.ToStringSafe(), "Startup/globalconfiguration/apply");
+                            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                            return;
+                        }
+
+                        GlobalConfigurationApplyRequest? request = null;
+                        using (var reader = new StreamReader(context.Request.Body))
+                        {
+                            var body = await reader.ReadToEndAsync();
+                            if (string.IsNullOrWhiteSpace(body) == false)
+                            {
+                                request = JsonConvert.DeserializeObject<GlobalConfigurationApplyRequest>(body);
+                            }
+                        }
+
+                        if (request == null || request.Values.Count == 0)
+                        {
+                            context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                            await context.Response.WriteAsync("요청 본문 values 확인 필요");
+                            return;
+                        }
+
+                        var runtimeConfigurationService = context.RequestServices.GetRequiredService<RuntimeConfigurationService>();
+                        var result = runtimeConfigurationService.ApplyGlobalConfiguration(request);
+
+                        context.Response.StatusCode = result.Errors.Count > 0 ? StatusCodes.Status400BadRequest : StatusCodes.Status200OK;
+                        context.Response.Headers.ContentType = "application/json; charset=utf-8";
+                        await context.Response.WriteAsJsonAsync(result, new System.Text.Json.JsonSerializerOptions
+                        {
+                            WriteIndented = true,
+                            PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase
+                        });
+                    }
+                    catch (JsonException)
+                    {
+                        context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                        await context.Response.WriteAsync("요청 본문 JSON 형식 확인 필요");
+                    }
+                    catch (Exception exception)
+                    {
+                        Log.Error(exception, "[{LogCategory}] 런타임 전역 설정 반영 실패", "Startup/globalconfiguration/apply");
+                        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                    }
+                };
+
+                RequestDelegate getModuleMediatorConfiguration = async context =>
+                {
+                    try
+                    {
+                        if (IsValidHostAccessRequest(context, out var hostAccessID) == false)
+                        {
+                            Log.Warning("[{LogCategory}] HostAccessID 확인 필요: " + hostAccessID.ToStringSafe(), "Startup/moduleconfiguration/mediatr");
+                            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                            return;
+                        }
+
+                        var runtimeConfigurationService = context.RequestServices.GetRequiredService<RuntimeConfigurationService>();
+                        var result = runtimeConfigurationService.GetModuleMediatorConfigurationSnapshot();
+
+                        context.Response.Headers.ContentType = "application/json; charset=utf-8";
+                        await context.Response.WriteAsJsonAsync(result, new System.Text.Json.JsonSerializerOptions
+                        {
+                            WriteIndented = true,
+                            PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase
+                        });
+                    }
+                    catch (Exception exception)
+                    {
+                        Log.Error(exception, "[{LogCategory}] 모듈 MediatR 설정 조회 실패", "Startup/moduleconfiguration/mediatr");
+                        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                    }
+                };
+
+                RequestDelegate applyModuleMediatorConfiguration = async context =>
+                {
+                    try
+                    {
+                        if (IsValidHostAccessRequest(context, out var hostAccessID) == false)
+                        {
+                            Log.Warning("[{LogCategory}] HostAccessID 확인 필요: " + hostAccessID.ToStringSafe(), "Startup/moduleconfiguration/mediatr/apply");
+                            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                            return;
+                        }
+
+                        var moduleID = context.Request.RouteValues["moduleID"]?.ToStringSafe();
+                        if (string.IsNullOrWhiteSpace(moduleID) == true)
+                        {
+                            context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                            await context.Response.WriteAsync("moduleID 확인 필요");
+                            return;
+                        }
+
+                        ModuleMediatorConfigurationApplyRequest? request = null;
+                        using (var reader = new StreamReader(context.Request.Body))
+                        {
+                            var body = await reader.ReadToEndAsync();
+                            if (string.IsNullOrWhiteSpace(body) == false)
+                            {
+                                request = JsonConvert.DeserializeObject<ModuleMediatorConfigurationApplyRequest>(body);
+                            }
+                        }
+
+                        if (request == null)
+                        {
+                            context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                            await context.Response.WriteAsync("요청 본문 JSON 형식 확인 필요");
+                            return;
+                        }
+
+                        var runtimeConfigurationService = context.RequestServices.GetRequiredService<RuntimeConfigurationService>();
+                        var result = runtimeConfigurationService.ApplyModuleMediatorConfiguration(moduleID, request);
+
+                        var isModuleNotFound = result.Errors.Any(p => p.IndexOf("not found", StringComparison.OrdinalIgnoreCase) > -1);
+                        context.Response.StatusCode = isModuleNotFound == true
+                            ? StatusCodes.Status404NotFound
+                            : (result.Errors.Count > 0 ? StatusCodes.Status400BadRequest : StatusCodes.Status200OK);
+
+                        context.Response.Headers.ContentType = "application/json; charset=utf-8";
+                        await context.Response.WriteAsJsonAsync(result, new System.Text.Json.JsonSerializerOptions
+                        {
+                            WriteIndented = true,
+                            PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase
+                        });
+                    }
+                    catch (JsonException)
+                    {
+                        context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                        await context.Response.WriteAsync("요청 본문 JSON 형식 확인 필요");
+                    }
+                    catch (Exception exception)
+                    {
+                        Log.Error(exception, "[{LogCategory}] 모듈 MediatR 설정 반영 실패", "Startup/moduleconfiguration/mediatr/apply");
+                        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                    }
+                };
+
+                endpoints.MapGet("/globalconfiguration", getGlobalConfiguration);
+                endpoints.MapGet("/globalconfigration", getGlobalConfiguration);
+                endpoints.MapPost("/globalconfiguration/apply", applyGlobalConfiguration);
+                endpoints.MapPost("/globalconfigration/apply", applyGlobalConfiguration);
+
+                endpoints.MapGet("/moduleconfiguration/mediatr", getModuleMediatorConfiguration);
+                endpoints.MapGet("/moduleconfigration/mediatr", getModuleMediatorConfiguration);
+                endpoints.MapPost("/moduleconfiguration/mediatr/{moduleID}/apply", applyModuleMediatorConfiguration);
+                endpoints.MapPost("/moduleconfigration/mediatr/{moduleID}/apply", applyModuleMediatorConfiguration);
+
                 endpoints.MapGet("/checkip", async context =>
                 {
                     context.Response.Headers["Content-Type"] = "text/html";
@@ -1674,6 +1855,12 @@ namespace ack
             {
                 Log.Error("[{LogCategory}]" + $"{destFileName} 실패. {exception.Message}", "Startup/contractsync");
             }
+        }
+
+        private static bool IsValidHostAccessRequest(HttpContext context, out string hostAccessID)
+        {
+            hostAccessID = context.Request.GetContainValue("hostAccessID").ToStringSafe();
+            return string.IsNullOrWhiteSpace(hostAccessID) == false && GlobalConfiguration.HostAccessID == hostAccessID;
         }
 
         private bool IsAllowOnlyClientIP(HttpContext context)
