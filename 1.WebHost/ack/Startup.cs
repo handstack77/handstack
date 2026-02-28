@@ -576,16 +576,16 @@ namespace ack
                 }
             });
 
+            if (useHttpLogging == true)
+            {
+                services.AddHttpLogging(options =>
+                {
+                    options.LoggingFields = HttpLoggingFields.RequestPropertiesAndHeaders;
+                });
+            }
+
             if (useProxyForward == true)
             {
-                if (useHttpLogging == true)
-                {
-                    services.AddHttpLogging(options =>
-                    {
-                        options.LoggingFields = HttpLoggingFields.RequestPropertiesAndHeaders;
-                    });
-                }
-
                 services.Configure<ForwardedHeadersOptions>(options =>
                 {
                     options.ForwardedHeaders = ForwardedHeaders.All;
