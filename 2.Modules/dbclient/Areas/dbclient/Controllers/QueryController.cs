@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 using dbclient.Encapsulation;
 using dbclient.Entity;
+using dbclient.Events;
 using dbclient.Extensions;
 
 using HandStack.Core.ExtensionMethod;
@@ -15,6 +16,8 @@ using HandStack.Web.Common;
 using HandStack.Web.Extensions;
 using HandStack.Web.MessageContract.Enumeration;
 using HandStack.Web.MessageContract.Message;
+
+using MediatR;
 
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
@@ -35,12 +38,14 @@ namespace dbclient.Areas.dbclient.Controllers
         private Serilog.ILogger logger { get; }
 
         private IQueryDataClient dataClient { get; }
+        private readonly IMediator mediator;
 
-        public QueryController(Serilog.ILogger logger, IQueryDataClient dataClient, DbClientLoggerClient loggerClient)
+        public QueryController(Serilog.ILogger logger, IQueryDataClient dataClient, DbClientLoggerClient loggerClient, IMediator mediator)
         {
             this.logger = logger;
             this.loggerClient = loggerClient;
             this.dataClient = dataClient;
+            this.mediator = mediator;
         }
 
         // http://localhost:8421/dbclient/api/query/has
@@ -81,7 +86,7 @@ namespace dbclient.Areas.dbclient.Controllers
 
         // http://localhost:8421/dbclient/api/query/refresh?changeType=Created&filePath=HDS/ZZD/TST010.xml
         [HttpGet("[action]")]
-        public ActionResult Refresh(string changeType, string filePath, string? userWorkID, string? applicationID)
+        public async Task<ActionResult> Refresh(string changeType, string filePath, string? userWorkID, string? applicationID)
         {
             ActionResult result = NotFound();
             if (HttpContext.IsAllowAuthorization() == false)
@@ -90,96 +95,9 @@ namespace dbclient.Areas.dbclient.Controllers
             }
             else
             {
-                var actionResult = false;
-
                 try
                 {
-                    if (filePath.StartsWith(Path.DirectorySeparatorChar) == true)
-                    {
-                        filePath = filePath.Substring(1);
-                    }
-
-                    logger.Information("[{LogCategory}] " + $"WatcherChangeTypes: {changeType}, FilePath: {filePath}", "Query/Refresh");
-
-                    var fileInfo = new FileInfo(filePath);
-
-                    var businessContracts = DatabaseMapper.StatementMappings;
-                    lock (businessContracts)
-                    {
-                        var watcherChangeTypes = (WatcherChangeTypes)Enum.Parse(typeof(WatcherChangeTypes), changeType);
-                        switch (watcherChangeTypes)
-                        {
-                            case WatcherChangeTypes.Created:
-                            case WatcherChangeTypes.Changed:
-                                if (!string.IsNullOrWhiteSpace(userWorkID) && !string.IsNullOrWhiteSpace(applicationID))
-                                {
-                                    var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
-                                    var itemPath = PathExtensions.Join(appBasePath, filePath);
-                                    var directoryInfo = new DirectoryInfo(appBasePath);
-                                    if (directoryInfo.Exists == true && System.IO.File.Exists(itemPath) == true && fileInfo.Extension == ".xml" == true)
-                                    {
-                                        logger.Information("[{LogCategory}] " + $"Add TenantApp StatementMap FilePath: {filePath}", "Query/Refresh");
-                                        actionResult = DatabaseMapper.AddStatementMap(filePath, true, logger);
-                                    }
-                                }
-                                else
-                                {
-                                    foreach (var basePath in ModuleConfiguration.ContractBasePath)
-                                    {
-                                        var itemPath = PathExtensions.Join(basePath, filePath);
-                                        var directoryInfo = new DirectoryInfo(basePath);
-                                        if (directoryInfo.Exists == true && System.IO.File.Exists(itemPath) == true && fileInfo.Extension == ".xml" == true)
-                                        {
-                                            logger.Information("[{LogCategory}] " + $"Add StatementMap FilePath: {filePath}", "Query/Refresh");
-                                            actionResult = DatabaseMapper.AddStatementMap(filePath, true, logger);
-                                            break;
-                                        }
-                                    }
-                                }
-                                break;
-                            case WatcherChangeTypes.Deleted:
-                                var existStatementMaps = new List<StatementMap>();
-                                if (!string.IsNullOrWhiteSpace(userWorkID) && !string.IsNullOrWhiteSpace(applicationID))
-                                {
-                                    var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
-                                    var directoryInfo = new DirectoryInfo(appBasePath);
-                                    if (directoryInfo.Exists == true)
-                                    {
-                                        existStatementMaps = DatabaseMapper.StatementMappings.Select(p => p.Value).Where(p =>
-                                            p.ApplicationID == applicationID &&
-                                            p.ProjectID == fileInfo.Directory?.Name &&
-                                            p.TransactionID == fileInfo.Name.Replace(fileInfo.Extension, "")).ToList();
-                                    }
-                                }
-                                else
-                                {
-                                    existStatementMaps = DatabaseMapper.StatementMappings.Select(p => p.Value).Where(p =>
-                                        p.ApplicationID == fileInfo.Directory?.Parent?.Name &&
-                                        p.ProjectID == fileInfo.Directory?.Name &&
-                                        p.TransactionID == fileInfo.Name.Replace(fileInfo.Extension, "")).ToList();
-                                }
-
-                                if (existStatementMaps.Count > 0)
-                                {
-                                    var mapStrings = new List<string>();
-                                    for (var i = 0; i < existStatementMaps.Count; i++)
-                                    {
-                                        var item = existStatementMaps[i];
-                                        mapStrings.Add($"{item.ApplicationID}|{item.ProjectID}|{item.TransactionID}|{item.StatementID}");
-                                    }
-
-                                    for (var i = 0; i < mapStrings.Count; i++)
-                                    {
-                                        var item = existStatementMaps[i];
-                                        var items = mapStrings[i].SplitAndTrim('|');
-                                        logger.Information("[{LogCategory}] " + $"Delete StatementMap ApplicationID: {item.ApplicationID}, ProjectID: {item.ProjectID}, TransactionID: {item.TransactionID}, FunctionID: {item.StatementID}", "Query/Refresh");
-                                        DatabaseMapper.Remove(items[0], items[1], items[2], items[3]);
-                                    }
-                                }
-                                break;
-                        }
-                    }
-
+                    var actionResult = await mediator.Send(new QueryRefreshRequest(changeType, filePath, userWorkID, applicationID));
                     result = Content(JsonConvert.SerializeObject(actionResult), "application/json");
                 }
                 catch (Exception exception)

@@ -102,6 +102,7 @@ namespace repository
                 services.AddScoped<ModuleApiClient>();
                 services.AddSingleton<IStorageProviderFactory, StorageProviderFactory>();
                 services.AddTransient<IRequestHandler<RepositoryRequest, object?>, RepositoryRequestHandler>();
+                services.AddTransient<IRequestHandler<StorageRefreshRequest, bool>, StorageRefreshRequestHandler>();
             }
         }
 
@@ -379,6 +380,7 @@ namespace repository
                     }
                 }
 
+                var mediator = app.ApplicationServices.GetService<IMediator>();
                 var client = new RestClient();
                 foreach (var basePath in ModuleConfiguration.ContractBasePath)
                 {
@@ -390,22 +392,17 @@ namespace repository
                             if (GlobalConfiguration.IsRunning == true && fileInfo.FullName.Replace("\\", "/").IndexOf(basePath) > -1 && (changeTypes == WatcherChangeTypes.Deleted || changeTypes == WatcherChangeTypes.Created || changeTypes == WatcherChangeTypes.Changed))
                             {
                                 var filePath = fileInfo.FullName.Replace("\\", "/").Replace(basePath, "");
-                                var hostUrl = $"http://localhost:{GlobalConfiguration.OriginPort}/repository/api/storage/refresh?changeType={changeTypes}&filePath={filePath}";
-
-                                var request = new RestRequest(hostUrl, Method.Get);
-                                request.Timeout = TimeSpan.FromSeconds(3);
-                                request.AddHeader("AuthorizationKey", ModuleConfiguration.AuthorizationKey);
                                 try
                                 {
-                                    var response = await client.ExecuteAsync(request);
-                                    if (response.StatusCode != HttpStatusCode.OK)
+                                    var actionResult = await mediator!.Send(new StorageRefreshRequest(changeTypes.ToString(), filePath, null, null));
+                                    if (actionResult == false && changeTypes != WatcherChangeTypes.Deleted)
                                     {
-                                        Log.Warning("[{LogCategory}] " + $"{filePath} 파일 갱신 확인 필요. {response.Content.ToStringSafe()}", $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure");
+                                        Log.Warning("[{LogCategory}] " + $"{filePath} 파일 갱신 확인 필요.", $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure");
                                     }
                                 }
                                 catch (Exception exception)
                                 {
-                                    Log.Error(exception, "[{LogCategory}] " + $"{filePath} 파일 서버 확인 필요.", $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure");
+                                    Log.Error(exception, "[{LogCategory}] " + $"{filePath} 파일 갱신 확인 필요.", $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure");
                                 }
                             }
                         };

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 using function.Encapsulation;
 using function.Entity;
+using function.Events;
 using function.Extensions;
 
 using HandStack.Core.ExtensionMethod;
@@ -15,6 +16,8 @@ using HandStack.Web.Extensions;
 using HandStack.Web.MessageContract.DataObject;
 using HandStack.Web.MessageContract.Enumeration;
 using HandStack.Web.MessageContract.Message;
+
+using MediatR;
 
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
@@ -35,12 +38,14 @@ namespace function.Areas.function.Controllers
         private Serilog.ILogger logger { get; }
 
         private IFunctionClient dataClient { get; }
+        private readonly IMediator mediator;
 
-        public ExecutionController(Serilog.ILogger logger, FunctionLoggerClient loggerClient, IFunctionClient dataClient)
+        public ExecutionController(Serilog.ILogger logger, FunctionLoggerClient loggerClient, IFunctionClient dataClient, IMediator mediator)
         {
             this.logger = logger;
             this.loggerClient = loggerClient;
             this.dataClient = dataClient;
+            this.mediator = mediator;
         }
 
         /// http://localhost:8421/api/execution/has
@@ -81,7 +86,7 @@ namespace function.Areas.function.Controllers
 
         // http://localhost:8421/function/api/execution/refresh?changeType=Created&filePath=EWP/ZZD/TST010/featureMain.js
         [HttpGet("[action]")]
-        public ActionResult Refresh(string changeType, string filePath, string? userWorkID, string? applicationID)
+        public async Task<ActionResult> Refresh(string changeType, string filePath, string? userWorkID, string? applicationID)
         {
             ActionResult result = NotFound();
             if (HttpContext.IsAllowAuthorization() == false)
@@ -90,106 +95,9 @@ namespace function.Areas.function.Controllers
             }
             else
             {
-                var actionResult = false;
-
                 try
                 {
-                    if (filePath.StartsWith(Path.DirectorySeparatorChar) == true)
-                    {
-                        filePath = filePath.Substring(1);
-                    }
-
-                    logger.Information("[{LogCategory}] " + $"WatcherChangeTypes: {changeType}, FilePath: {filePath}", "Query/Refresh");
-
-                    var fileInfo = new FileInfo(filePath);
-
-                    var businessContracts = FunctionMapper.ScriptMappings;
-                    lock (businessContracts)
-                    {
-                        var watcherChangeTypes = (WatcherChangeTypes)Enum.Parse(typeof(WatcherChangeTypes), changeType);
-                        switch (watcherChangeTypes)
-                        {
-                            case WatcherChangeTypes.Created:
-                            case WatcherChangeTypes.Changed:
-                                if (!string.IsNullOrWhiteSpace(userWorkID) && !string.IsNullOrWhiteSpace(applicationID))
-                                {
-                                    var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
-                                    var itemPath = PathExtensions.Join(appBasePath, filePath);
-                                    var directoryInfo = new DirectoryInfo(appBasePath);
-                                    if (directoryInfo.Exists == true && System.IO.File.Exists(itemPath) == true && (fileInfo.Name.StartsWith("featureMain.") == true || fileInfo.Name == "featureMeta.json" || fileInfo.Name == "featureSQL.xml") == true)
-                                    {
-                                        if (fileInfo.Extension != ".json")
-                                        {
-                                            filePath = filePath.Replace(fileInfo.Name, "featureMeta.json");
-                                        }
-
-                                        logger.Information("[{LogCategory}] " + $"Add TenantApp ModuleScriptMap FilePath: {filePath}", "Query/Refresh");
-                                        actionResult = FunctionMapper.AddScriptMap(filePath, true, logger);
-                                    }
-                                }
-                                else
-                                {
-                                    foreach (var basePath in ModuleConfiguration.ContractBasePath)
-                                    {
-                                        var itemPath = PathExtensions.Join(basePath, filePath);
-                                        var directoryInfo = new DirectoryInfo(basePath);
-                                        if (directoryInfo.Exists == true && System.IO.File.Exists(itemPath) == true && (fileInfo.Name.StartsWith("featureMain.") == true || fileInfo.Name == "featureMeta.json" || fileInfo.Name == "featureSQL.xml") == true)
-                                        {
-                                            if (fileInfo.Extension != ".json")
-                                            {
-                                                filePath = filePath.Replace(fileInfo.Name, "featureMeta.json");
-                                            }
-
-                                            logger.Information("[{LogCategory}] " + $"Add ModuleScriptMap FilePath: {filePath}", "Query/Refresh");
-                                            actionResult = FunctionMapper.AddScriptMap(filePath, true, logger);
-                                            break;
-                                        }
-                                    }
-                                }
-                                break;
-                            case WatcherChangeTypes.Deleted:
-                                var existStatementMaps = new List<ModuleScriptMap>();
-                                if (!string.IsNullOrWhiteSpace(userWorkID) && !string.IsNullOrWhiteSpace(applicationID))
-                                {
-                                    var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
-                                    var directoryInfo = new DirectoryInfo(appBasePath);
-                                    if (directoryInfo.Exists == true)
-                                    {
-                                        existStatementMaps = FunctionMapper.ScriptMappings.Select(p => p.Value).Where(p =>
-                                            p.ApplicationID == applicationID &&
-                                            p.ProjectID == fileInfo.Directory?.Parent?.Name &&
-                                            p.TransactionID == fileInfo.Directory?.Name).ToList();
-                                    }
-                                }
-                                else
-                                {
-                                    existStatementMaps = FunctionMapper.ScriptMappings.Select(p => p.Value).Where(p =>
-                                        p.ApplicationID == GlobalConfiguration.ApplicationID &&
-                                        p.ProjectID == fileInfo.Directory?.Parent?.Name &&
-                                        p.TransactionID == fileInfo.Directory?.Name).ToList();
-                                }
-
-                                if (existStatementMaps.Count > 0)
-                                {
-                                    var mapStrings = new List<string>();
-                                    for (var i = 0; i < existStatementMaps.Count; i++)
-                                    {
-                                        var item = existStatementMaps[i];
-                                        mapStrings.Add($"{item.ApplicationID}|{item.ProjectID}|{item.TransactionID}|{item.ScriptID}");
-                                    }
-
-                                    for (var i = 0; i < mapStrings.Count; i++)
-                                    {
-                                        var item = existStatementMaps[i];
-                                        var items = mapStrings[i].SplitAndTrim('|');
-                                        logger.Information("[{LogCategory}] " + $"Delete ModuleScriptMap ApplicationID: {item.ApplicationID}, ProjectID: {item.ProjectID}, TransactionID: {item.TransactionID}, FunctionID: {item.ScriptID}", "Query/Refresh");
-                                        FunctionMapper.Remove(items[0], items[1], items[2], items[3]);
-                                    }
-                                }
-                                break;
-                        }
-                    }
-
+                    var actionResult = await mediator.Send(new ExecutionRefreshRequest(changeType, filePath, userWorkID, applicationID));
                     result = Content(JsonConvert.SerializeObject(actionResult), "application/json");
                 }
                 catch (Exception exception)

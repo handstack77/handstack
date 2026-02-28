@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -24,9 +24,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 
+using MediatR;
+
 using Newtonsoft.Json;
 
 using repository.Entity;
+using repository.Events;
 using repository.Extensions;
 using repository.Message;
 using repository.Services;
@@ -46,18 +49,20 @@ namespace repository.Controllers
         private readonly ModuleApiClient moduleApiClient;
         private readonly ISequentialIdGenerator sequentialIdGenerator;
         private readonly IStorageProviderFactory storageProviderFactory;
+        private readonly IMediator mediator;
 
         private ILogger logger { get; }
 
         private IConfiguration configuration { get; }
 
-        public StorageController(ModuleApiClient moduleApiClient, ISequentialIdGenerator sequentialIdGenerator, ILogger logger, IConfiguration configuration, IStorageProviderFactory storageProviderFactory)
+        public StorageController(ModuleApiClient moduleApiClient, ISequentialIdGenerator sequentialIdGenerator, ILogger logger, IConfiguration configuration, IStorageProviderFactory storageProviderFactory, IMediator mediator)
         {
             this.moduleApiClient = moduleApiClient;
             this.sequentialIdGenerator = sequentialIdGenerator;
             this.logger = logger;
             this.configuration = configuration;
             this.storageProviderFactory = storageProviderFactory;
+            this.mediator = mediator;
         }
 
         // http://localhost:8421/repository/api/storage/get-client-ip
@@ -69,7 +74,7 @@ namespace repository.Controllers
 
         // http://localhost:8421/repository/api/storage/refresh?changeType=Created&filePath=HDS/ZZW/TST010.json
         [HttpGet("[action]")]
-        public ActionResult Refresh(string changeType, string filePath, string? userWorkID, string? applicationID)
+        public async Task<ActionResult> Refresh(string changeType, string filePath, string? userWorkID, string? applicationID)
         {
             ActionResult result = NotFound();
             if (HttpContext.IsAllowAuthorization() == false)
@@ -78,120 +83,9 @@ namespace repository.Controllers
             }
             else
             {
-                var actionResult = false;
-
                 try
                 {
-                    if (filePath.StartsWith(Path.DirectorySeparatorChar) == true)
-                    {
-                        filePath = filePath.Substring(1);
-                    }
-
-                    logger.Information("[{LogCategory}] " + $"WatcherChangeTypes: {changeType}, FilePath: {filePath}", "Storage/Refresh");
-
-                    var fileInfo = new FileInfo(filePath);
-
-                    lock (ModuleConfiguration.FileRepositorys)
-                    {
-                        var watcherChangeTypes = (WatcherChangeTypes)Enum.Parse(typeof(WatcherChangeTypes), changeType);
-                        switch (watcherChangeTypes)
-                        {
-                            case WatcherChangeTypes.Created:
-                            case WatcherChangeTypes.Changed:
-                                foreach (var basePath in ModuleConfiguration.ContractBasePath)
-                                {
-                                    var repositoryFile = PathExtensions.Join(basePath, filePath);
-                                    try
-                                    {
-                                        if (System.IO.File.Exists(repositoryFile) == true && (repositoryFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == false))
-                                        {
-                                            var repositoryText = System.IO.File.ReadAllText(repositoryFile);
-                                            var repositorys = JsonConvert.DeserializeObject<List<Repository>>(repositoryText);
-                                            if (repositorys != null)
-                                            {
-                                                logger.Information("[{LogCategory}] " + $"Add Contract FilePath: {repositoryFile}", "Storage/Refresh");
-
-                                                foreach (var repository in repositorys)
-                                                {
-                                                    var findRepository = ModuleConfiguration.FileRepositorys.Find(x => x.ApplicationID == repository.ApplicationID && x.RepositoryID == repository.RepositoryID);
-                                                    if (findRepository != null)
-                                                    {
-                                                        ModuleConfiguration.FileRepositorys.Remove(findRepository);
-                                                    }
-                                                }
-
-                                                foreach (var repository in repositorys)
-                                                {
-                                                    if (repository.PhysicalPath.IndexOf("{appBasePath}") == -1)
-                                                    {
-                                                        repository.PhysicalPath = GlobalConfiguration.GetBaseDirectoryPath(repository.PhysicalPath);
-                                                        var repositoryDirectoryInfo = new DirectoryInfo(repository.PhysicalPath);
-                                                        if (repositoryDirectoryInfo.Exists == false)
-                                                        {
-                                                            repositoryDirectoryInfo.Create();
-                                                        }
-                                                    }
-
-                                                    repository.UserWorkID = "";
-                                                    repository.SettingFilePath = repositoryFile;
-
-                                                    if (repository.IsLocalDbFileManaged == true)
-                                                    {
-                                                        ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, repository, "STR.SLT010.ZD01");
-                                                    }
-
-                                                    ModuleConfiguration.FileRepositorys.Add(repository);
-                                                    logger.Information("[{LogCategory}] " + $"Add Contract RepositoryID: {repository.RepositoryID}, RepositoryName: {repository.RepositoryName}", "Storage/Refresh");
-                                                }
-                                            }
-                                        }
-                                    }
-                                    catch (Exception exception)
-                                    {
-                                        Log.Logger.Error("[{LogCategory}] " + $"{repositoryFile} 업무 계약 파일 오류 - " + exception.ToMessage(), $"{ModuleConfiguration.ModuleID} ModuleInitializer/LoadContract");
-                                    }
-                                }
-
-                                var duplicates = ModuleConfiguration.FileRepositorys
-                                    .GroupBy(x => new { x.ApplicationID, x.RepositoryID })
-                                    .Where(g => g.Count() > 1)
-                                    .Select(g => new { g.Key.ApplicationID, g.Key.RepositoryID, Count = g.Count() });
-
-                                foreach (var duplicate in duplicates)
-                                {
-                                    logger.Warning("[{LogCategory}] " + $"중복 저장소 업무 계약 확인 필요. ApplicationID: {duplicate.ApplicationID}, RepositoryID: {duplicate.RepositoryID}, Count: {duplicate.Count}", "Storage/Refresh");
-                                }
-                                break;
-                            case WatcherChangeTypes.Deleted:
-                                foreach (var basePath in ModuleConfiguration.ContractBasePath)
-                                {
-                                    var repositoryFile = PathExtensions.Join(basePath, filePath);
-                                    if (System.IO.File.Exists(repositoryFile) == true && (repositoryFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == false))
-                                    {
-                                        logger.Information("[{LogCategory}] " + $"Delete Contract FilePath: {repositoryFile}", "Storage/Refresh");
-
-                                        var repositoryText = System.IO.File.ReadAllText(repositoryFile);
-                                        var repositorys = JsonConvert.DeserializeObject<List<Repository>>(repositoryText);
-                                        if (repositorys != null)
-                                        {
-                                            foreach (var repository in repositorys)
-                                            {
-                                                var findRepository = ModuleConfiguration.FileRepositorys.Find(x => x.ApplicationID == repository.ApplicationID && x.RepositoryID == repository.RepositoryID);
-                                                if (findRepository != null)
-                                                {
-                                                    ModuleConfiguration.FileRepositorys.Remove(findRepository);
-                                                    logger.Information("[{LogCategory}] " + $"Delete Contract RepositoryID: {findRepository.RepositoryID}, RepositoryName: {findRepository.RepositoryName}", "Storage/Refresh");
-                                                }
-                                            }
-                                        }
-                                        actionResult = true;
-                                        break;
-                                    }
-                                }
-                                break;
-                        }
-                    }
-
+                    var actionResult = await mediator.Send(new StorageRefreshRequest(changeType, filePath, userWorkID, applicationID));
                     result = Content(JsonConvert.SerializeObject(actionResult), "application/json");
                 }
                 catch (Exception exception)
