@@ -10254,7 +10254,7 @@ if (typeof module !== 'undefined' && module.exports) {
                 if (result && !result.error) {
                     apiService.GlobalID = result;
                 } else {
-                    console.error(`GlobalID 조회 실패: ${syn.Config.FindGlobalIDServer}, ${result?.error}`);
+                    syn.$l.eventLog('$w.executeTransaction', `GlobalID 조회 실패: url: ${syn.Config.FindGlobalIDServer}, request: ${JSON.stringify({ programID, businessID, transactionID, functionID, screenID: transactionObject.screenID, tokenID })}, error: ${result?.error}`, 'Error');
                 }
             }
 
