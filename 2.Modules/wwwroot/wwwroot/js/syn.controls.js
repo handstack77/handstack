@@ -1,4 +1,4 @@
-
+﻿
 (function (window) {
     'use strict';
     syn.uicontrols = syn.uicontrols || new syn.module();
@@ -758,7 +758,7 @@
     $codepicker.extend({
         name: 'syn.uicontrols.$codepicker',
         version: 'v2025.12.11',
-        codeHelpUrl: `${syn.$w.proxyBasePath}/arha/assets/shared/codehelp/index2.html`,
+        codeHelpUrl: `${syn.$w.proxyBasePath}/assets/shared/codehelp/index2.html`,
         defaultSetting: {
             dataSourceID: null,
             storeSourceID: null,
@@ -10526,7 +10526,7 @@
         gridCodeDatas: [],
         nowHeaderMenuVisible: false,
         currentDataField: null,
-        codeHelpUrl: `${syn.$w.proxyBasePath}/arha/assets/shared/codehelp/index2.html`,
+        codeHelpUrl: `${syn.$w.proxyBasePath}/assets/shared/codehelp/index2.html`,
         gridOptions: {
             headerHeight: 40,
             rowHeight: 40,
