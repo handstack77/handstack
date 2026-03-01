@@ -256,6 +256,11 @@ namespace ack
 
                     AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(HandleException);
 
+                    Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+
+                    Console.OutputEncoding = Encoding.UTF8;
+                    Console.InputEncoding = Encoding.UTF8;
+
                     await applicationManager.StartAsync(listenPort, args, configuration);
                 }
                 catch (Exception exception)

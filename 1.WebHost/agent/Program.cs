@@ -1,3 +1,5 @@
+﻿using System.Text;
+
 using agent.Options;
 using agent.Security;
 using agent.Services;
@@ -11,6 +13,11 @@ namespace agent
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+
+            Console.OutputEncoding = Encoding.UTF8;
+            Console.InputEncoding = Encoding.UTF8;
 
             builder.Services
                 .AddOptions<AgentOptions>()

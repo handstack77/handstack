@@ -5,6 +5,7 @@ using System.CommandLine.Parsing;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -59,6 +60,12 @@ namespace forbes
             }
 
             var builder = WebApplication.CreateBuilder(args);
+
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+
+            Console.OutputEncoding = Encoding.UTF8;
+            Console.InputEncoding = Encoding.UTF8;
+
             builder.Configuration.AddJsonFile("sync-secrets.json", optional: true, reloadOnChange: true);
             string[] allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
             builder.Services.AddCors(options =>
