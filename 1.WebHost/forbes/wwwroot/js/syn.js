@@ -1,4 +1,4 @@
-/*!
+﻿/*!
 HandStack Javascript Library v2026.2.25
 https://handshake.kr
 
@@ -5763,7 +5763,7 @@ if (typeof module !== 'undefined' && module.exports) {
                         }
                         else {
                             result = { error: `status: ${response.status}, text: ${await response.text()}` }
-                            syn.$l.eventLog('$r.httpFetch', `${result.error}`, 'Error');
+                            syn.$l.eventLog('$r.httpFetch', `url: ${url}, ${result.error}`, 'Error');
                         }
 
                         return Promise.resolve(result);

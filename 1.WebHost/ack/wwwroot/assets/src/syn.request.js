@@ -1,4 +1,4 @@
-(function (context) {
+﻿(function (context) {
     'use strict';
     const $request = context.$request || new syn.module();
     const document = globalRoot.devicePlatform === 'node' ? null : context.document;
@@ -251,7 +251,7 @@
                         }
                         else {
                             result = { error: `status: ${response.status}, text: ${await response.text()}` }
-                            syn.$l.eventLog('$r.httpFetch', `${result.error}`, 'Error');
+                            syn.$l.eventLog('$r.httpFetch', `url: ${url}, ${result.error}`, 'Error');
                         }
 
                         return Promise.resolve(result);
