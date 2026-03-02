@@ -1,0 +1,36 @@
+.introjs-tooltip {
+    min-width: 340px;
+    max-width: 640px;
+}
+
+.introjs-button {
+    padding: 4px;
+    border: 0;
+    text-shadow: initial;
+    background-color: transparent;
+    border-radius: 4px;
+}
+
+.introjs-skipbutton {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    line-height: 32px;
+    color: #616161;
+    font-size: 22px;
+    cursor: pointer;
+    font-weight: 700;
+    text-align: center;
+    text-decoration: none;
+}
+
+.introjs-helperLayer.introjs-fixedTooltip {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.syn-guide {
+    color: #000;
+}

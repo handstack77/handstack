@@ -1,3 +1,5 @@
+﻿using System.Collections.Generic;
+
 namespace agent.Options
 {
     public sealed class AgentOptions

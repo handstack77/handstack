@@ -1,0 +1,94 @@
+{
+  "Comment": "기초코드 데이터",
+  "CodeColumnID": "CodeID",
+  "ValueColumnID": "CodeValue",
+  "CreatedAt": "",
+  "Scheme": [
+    {
+      "ColumnID": "SelectYN",
+      "ColumnText": "기본선택여부",
+      "HiddenYN": true
+    },
+    {
+      "ColumnID": "LocaleID",
+      "ColumnText": "언어권ID",
+      "HiddenYN": true
+    },
+    {
+      "ColumnID": "CodeID",
+      "ColumnText": "코드ID",
+      "HiddenYN": false
+    },
+    {
+      "ColumnID": "CodeValue",
+      "ColumnText": "코드값",
+      "HiddenYN": false
+    }
+  ],
+  "DataSource": [
+    {
+      "CodeID": "A1",
+      "CodeValue": "입사"
+    },
+    {
+      "CodeID": "A2",
+      "CodeValue": "직위변경"
+    },
+    {
+      "CodeID": "A3",
+      "CodeValue": "소속변경"
+    },
+    {
+      "CodeID": "A4",
+      "CodeValue": "퇴사"
+    },
+    {
+      "CodeID": "A5",
+      "CodeValue": "휴직"
+    },
+    {
+      "CodeID": "A6",
+      "CodeValue": "겸직"
+    },
+    {
+      "CodeID": "A7",
+      "CodeValue": "해외근무"
+    },
+    {
+      "CodeID": "A8",
+      "CodeValue": "파견"
+    },
+    {
+      "CodeID": "A9",
+      "CodeValue": "복직"
+    },
+    {
+      "CodeID": "B1",
+      "CodeValue": "계약"
+    },
+    {
+      "CodeID": "B2",
+      "CodeValue": "만료"
+    },
+    {
+      "CodeID": "B3",
+      "CodeValue": "갱신"
+    },
+    {
+      "CodeID": "B4",
+      "CodeValue": "정규직 전환"
+    },
+    {
+      "CodeID": "C1",
+      "CodeValue": "교육"
+    },
+    {
+      "CodeID": "C2",
+      "CodeValue": "대기발령"
+    },
+    {
+      "CodeID": "C3",
+      "CodeValue": "장기출장"
+    }
+  ]
+}

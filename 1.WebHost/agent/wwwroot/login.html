@@ -1,0 +1,75 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Login</title>
+    <link rel="stylesheet" href="/css/syn.bundle.min.css">
+    <style>
+        .login-wrapper {
+            max-width: 560px;
+            margin: 5rem auto;
+        }
+
+        .login-message {
+            min-height: 36px;
+        }
+    </style>
+</head>
+<body>
+    <form autocomplete="off" id="formLogin">
+        <div class="page">
+            <div class="page-wrapper">
+                <div class="page-header mt-4">
+                    <div class="container-fluid max-width:960!">
+                        <div class="row g-2 align-items-center">
+                            <div class="col">
+                                <div class="page-pretitle f:12!">
+                                    HDS / CDM
+                                </div>
+                                <h2 class="page-title">
+                                    Agent 사용자 로그인
+                                </h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="page-body">
+                    <div class="container-fluid max-width:960!">
+                        <div class="login-wrapper">
+                            <div class="card">
+                                <div class="card-status-top bg-dark-overlay"></div>
+                                <div class="card-header p-2 bg-primary-lt">
+                                    <h3 class="card-title">로그인 정보 입력</h3>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row mb-3">
+                                        <label class="col-3 col-form-label required" for="txtEmailID">EmailID</label>
+                                        <div class="col">
+                                            <input id="txtEmailID" type="email" class="form-control" autocomplete="username" maxlength="255" required>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <label class="col-3 col-form-label required" for="txtPassword">Password</label>
+                                        <div class="col">
+                                            <input id="txtPassword" type="password" class="form-control" autocomplete="current-password" maxlength="255" required>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-end">
+                                        <button type="submit" id="btnLogin" class="btn btn-primary">
+                                            <i class="f:18 ti ti-login mr:2"></i>
+                                            로그인
+                                        </button>
+                                    </div>
+                                    <div id="lblMessage" class="alert alert-danger mt-3 mb-0 login-message d-none" role="alert"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

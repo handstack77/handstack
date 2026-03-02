@@ -1,0 +1,58 @@
+{
+  "Comment": "기초코드 데이터",
+  "CodeColumnID": "CodeID",
+  "ValueColumnID": "CodeValue",
+  "CreatedAt": "",
+  "Scheme": [
+    {
+      "ColumnID": "SelectYN",
+      "ColumnText": "기본선택여부",
+      "HiddenYN": true
+    },
+    {
+      "ColumnID": "LocaleID",
+      "ColumnText": "언어권ID",
+      "HiddenYN": true
+    },
+    {
+      "ColumnID": "CodeID",
+      "ColumnText": "코드ID",
+      "HiddenYN": false
+    },
+    {
+      "ColumnID": "CodeValue",
+      "ColumnText": "코드값",
+      "HiddenYN": false
+    }
+  ],
+  "DataSource": [
+    {
+      "CodeID": "SVC",
+      "CodeValue": "외부 전문 서비스"
+    },
+    {
+      "CodeID": "DEL",
+      "CodeValue": "택배/물류 서비스"
+    },
+    {
+      "CodeID": "ADS",
+      "CodeValue": "광고/마케팅 플랫폼"
+    },
+    {
+      "CodeID": "BUS",
+      "CodeValue": "기업/비즈니스 지원"
+    },
+    {
+      "CodeID": "FIN",
+      "CodeValue": "금융/결제/은행"
+    },
+    {
+      "CodeID": "GOV",
+      "CodeValue": "정부/공공기관"
+    },
+    {
+      "CodeID": "SNS",
+      "CodeValue": "소셜/콘텐츠 미디어"
+    }
+  ]
+}

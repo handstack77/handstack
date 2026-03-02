@@ -1,0 +1,344 @@
+/*@font-face {
+    font-family:"Pretendard";
+    font-style:normal;
+    font-weight:200;
+    src:url("../font/Pretendard-ExtraLight.woff2") format('woff2'),
+    url("../font/Pretendard-ExtraLight.woff") format('woff');
+}
+
+@font-face {
+    font-family:"Pretendard";
+    font-style:normal;
+    font-weight:400;
+    src:url("../font/Pretendard-Regular.woff2") format('woff2'),
+    url("../font/Pretendard-Regular.woff") format('woff');
+}
+
+@font-face {
+    font-family:"Pretendard";
+    font-style:normal;
+    font-weight:700;
+    src:url("../font/Pretendard-Bold.woff2") format('woff2'),
+    url("../font/Pretendard-Bold.woff") format('woff');
+}
+
+@font-face {
+    font-family:"Pretendard";
+    font-style:normal;
+    font-weight:900;
+    src:url("../font/Pretendard-Black.woff2") format('woff2'),
+    url("../font/Pretendard-Black.woff") format('woff');
+}*/
+
+:root {
+    /* 기준 컬러 #066fd1 기반 색상표 */
+    --color-50: #f0f7fd;   /* 가장 밝은 단계 */
+    --color-100: #e0f0fb;  /* 매우 밝음 */
+    --color-200: #bee0f8;  /* 밝음 */
+    --color-300: #8bc9f3;  /* 연한 색 */
+    --color-400: #54a9ec;  /* 중간-밝음 */
+    --color-500: #066fd1;  /* 기준 컬러 (500단계) */
+    --color-600: #055ab1;  /* 중간-어둠 */
+    --color-700: #044791;  /* 어둠 */
+    --color-800: #033974;  /* 매우 어둠 */
+    --color-900: #032f60;  /* 가장 어둠 */
+    --color-950: #021f40;  /* 거의 검정에 가까움 */
+    --tblr-body-font-size: 0.875rem !important;
+}
+
+.bg-50 { background-color: var(--color-50); }
+.bg-100 { background-color: var(--color-100); }
+.bg-200 { background-color: var(--color-200); }
+.bg-300 { background-color: var(--color-300); }
+.bg-400 { background-color: var(--color-400); }
+.bg-500 { background-color: var(--color-500); }
+.bg-600 { background-color: var(--color-600); }
+.bg-700 { background-color: var(--color-700); }
+.bg-800 { background-color: var(--color-800); }
+.bg-900 { background-color: var(--color-900); }
+.bg-950 { background-color: var(--color-950); }
+
+.fg-50 { color: var(--color-50); }
+.fg-100 { color: var(--color-100); }
+.fg-200 { color: var(--color-200); }
+.fg-300 { color: var(--color-300); }
+.fg-400 { color: var(--color-400); }
+.fg-500 { color: var(--color-500); }
+.fg-600 { color: var(--color-600); }
+.fg-700 { color: var(--color-700); }
+.fg-800 { color: var(--color-800); }
+.fg-900 { color: var(--color-900); }
+.fg-950 { color: var(--color-950); }
+
+/* tabler */
+body {font-family: 'Noto Sans KR', 'Pretendard', 'Nanum Gothic', 'Malgun Gothic', Gulim, 굴림, sans-serif !important;}
+.form-control {font-family: 'Noto Sans KR', 'Pretendard', 'Nanum Gothic', 'Malgun Gothic', Gulim, 굴림, sans-serif !important;}
+.form-control:focus {
+  color: var(--tblr-body-color);
+  background-color: var(--tblr-bg-forms);
+  border-color: #83b7e8;
+  outline: 0;
+  box-shadow: var(--tblr-shadow-input), 0 0 0 0.25rem rgba(var(--tblr-primary-rgb), 0.25) !important;
+}
+.form-select {font-family: 'Noto Sans KR', 'Pretendard', 'Nanum Gothic', 'Malgun Gothic', Gulim, 굴림, sans-serif !important;}
+.btn {font-family: 'Noto Sans KR', 'Pretendard', 'Nanum Gothic', 'Malgun Gothic', Gulim, 굴림, sans-serif !important; height: 36px;}
+.btn-sm {height: 22px !important;}
+.tooltip {font-family: 'Noto Sans KR', 'Pretendard', 'Nanum Gothic', 'Malgun Gothic', Gulim, 굴림, sans-serif !important;}
+.popover {font-family: 'Noto Sans KR', 'Pretendard', 'Nanum Gothic', 'Malgun Gothic', Gulim, 굴림, sans-serif !important;}
+
+/* tabler */
+.tail-select {font-family: 'Noto Sans KR', 'Pretendard', 'Nanum Gothic', 'Malgun Gothic', Gulim, 굴림, sans-serif !important;}
+
+/* handsontable */
+.handsontable {font-family: 'Noto Sans KR', 'Pretendard', 'Nanum Gothic', 'Malgun Gothic', Gulim, 굴림, sans-serif !important;}
+
+/* Pikaday */
+.pika-single {font-family: 'Noto Sans KR', 'Pretendard', 'Nanum Gothic', 'Malgun Gothic', Gulim, 굴림, sans-serif !important;}
+
+.simplemodal-data h3 {
+    background-color: #fff !important;
+    border: 0;
+}
+
+.aui-grid-default-footer {
+	position: relative !important;
+	background: #eeeeee;
+	border: 1px solid #cccccc;
+	border-right: none;
+	border-left: none;
+	font-weight: bold;
+	font-size: 1em;
+	color: #000000;
+	text-align: center;
+	cursor: default;
+}
+
+.aui-grid-calendar-wrapper {
+    z-index: 1999;
+    background: #ffffff;
+    /* Pikaday와 유사한 부드러운 그림자 효과 */
+    box-shadow: 0 5px 15px -5px rgba(0, 0, 0, 0.5);
+    -webkit-box-shadow: 0 5px 15px -5px rgba(0, 0, 0, 0.5);
+    -moz-box-shadow: 0 5px 15px -5px rgba(0, 0, 0, 0.5);
+}
+
+    .aui-grid-calendar-wrapper .aui-calendar {
+        font-family: 'Noto Sans KR', 'Pretendard', 'Nanum Gothic', 'Malgun Gothic', Gulim, 굴림, sans-serif;
+        background: #fff;
+        font-size: 14px;
+        width: 250px; /* 약간의 너비 증가로 여유 공간 확보 */
+        height: auto;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        color: #333;
+        /* 달력 내부에 전체적인 여백 추가 */
+        padding: 8px;
+    }
+
+        .aui-grid-calendar-wrapper .aui-calendar .aui-calendar-header {
+            position: relative;
+            /* 헤더의 고정 높이 제거하고 아래쪽 여백 추가 */
+            margin-bottom: 8px;
+            height: auto;
+            border-bottom: none;
+        }
+
+        /* --- 네비게이션 버튼 (CSS로 화살표 그리기) --- */
+        .aui-grid-calendar-wrapper .aui-calendar .aui-calendar-left-btn,
+        .aui-grid-calendar-wrapper .aui-calendar .aui-calendar-right-btn {
+            display: block;
+            position: absolute;
+            top: 0;
+            width: 32px;
+            height: 32px;
+            box-sizing: border-box;
+            background: transparent;
+            outline: none;
+            border: 0;
+        }
+
+        .aui-grid-calendar-wrapper .aui-calendar .aui-calendar-left-btn { left: 0; }
+        .aui-grid-calendar-wrapper .aui-calendar .aui-calendar-right-btn { right: 0; }
+
+        .aui-grid-calendar-wrapper .aui-calendar .aui-calendar-left-btn::before,
+        .aui-grid-calendar-wrapper .aui-calendar .aui-calendar-right-btn::before {
+            content: "";
+            display: block;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 0;
+            height: 0;
+            border-style: solid;
+        }
+
+        .aui-grid-calendar-wrapper .aui-calendar .aui-calendar-left-btn::before {
+             border-width: 6px 7px 6px 0;
+             border-color: transparent #999 transparent transparent;
+        }
+        
+        .aui-grid-calendar-wrapper .aui-calendar .aui-calendar-right-btn::before {
+             border-width: 6px 0 6px 7px;
+             border-color: transparent transparent transparent #999;
+        }
+
+            .aui-grid-calendar-wrapper .aui-calendar .aui-calendar-left-btn:hover,
+            .aui-grid-calendar-wrapper .aui-calendar .aui-calendar-right-btn:hover {
+                cursor: pointer;
+            }
+            .aui-grid-calendar-wrapper .aui-calendar .aui-calendar-left-btn:hover::before { border-right-color: #333; }
+            .aui-grid-calendar-wrapper .aui-calendar .aui-calendar-right-btn:hover::before { border-left-color: #333; }
+        
+        .aui-grid-calendar-wrapper .aui-calendar .aui-calendar-title {
+            display: block;
+            text-align: center;
+            width: 100%;
+            font-size: 15px;
+            font-weight: bold;
+            box-sizing: border-box;
+            /* 버튼과 높이를 맞춰 텍스트를 수직 중앙 정렬 */
+            line-height: 32px;
+            margin: 0; /* 기존 margin-top 제거 */
+        }
+            .aui-grid-calendar-wrapper .aui-calendar .aui-calendar-title:hover {
+                cursor: pointer;
+                color: #007bff;
+            }
+
+        .aui-grid-calendar-wrapper .aui-calendar .aui-calendar-table {
+            width: 100%;
+            border-collapse: collapse;
+            border-spacing: 0;
+        }
+
+        .aui-grid-calendar-wrapper .aui-calendar .day-title {
+            font-weight: normal;
+            font-size: 12px;
+            color: #999;
+            text-align: center;
+            /* 요일 이름의 상하 패딩 조정 */
+            padding: 8px 0;
+        }
+
+        /* --- 날짜, 월, 년 셀 공통 스타일 --- */
+        .aui-grid-calendar-wrapper .aui-calendar .weekday,
+        .aui-grid-calendar-wrapper .aui-calendar .extraday,
+        .aui-g-calendar-wrapper .aui-calendar .month,
+        .aui-grid-calendar-wrapper .aui-calendar .year {
+            text-align: center;
+            color: #555;
+            box-sizing: border-box;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            /* 셀 크기를 균일하게 만들기 위해 padding과 line-height 조정 */
+            padding: 0;
+            line-height: 28px;
+        }
+
+            .aui-grid-calendar-wrapper .aui-calendar .weekday:hover,
+            .aui-grid-calendar-wrapper .aui-calendar .extraday:hover,
+            .aui-grid-calendar-wrapper .aui-calendar .month:hover,
+            .aui-grid-calendar-wrapper .aui-calendar .year:hover {
+                cursor: pointer;
+                background-color: #eef2f8;
+                border-color: transparent;
+            }
+
+        .aui-grid-calendar-wrapper .aui-calendar .sunday { color: #d9534f; }
+        .aui-grid-calendar-wrapper .aui-calendar .saturday { color: #337ab7; }
+
+        .aui-grid-calendar-wrapper .aui-calendar .selected-day,
+        .aui-grid-calendar-wrapper .aui-calendar .selected-month,
+        .aui-grid-calendar-wrapper .aui-calendar .selected-year {
+            background: #337ab7;
+            color: #ffffff !important;
+            border-color: #337ab7;
+        }
+        
+        .aui-grid-calendar-wrapper .aui-calendar .today {
+            background-color: #fffae6;
+            border-color: transparent;
+        }
+        
+        .aui-grid-calendar-wrapper .aui-calendar .today.selected-day {
+            background: #337ab7;
+            color: #ffffff !important;
+        }
+        
+        .aui-grid-calendar-wrapper .aui-calendar .extraday { color: #ccc; }
+
+        /* --- 달력 하단 푸터 및 시간 영역 --- */
+        .aui-grid-calendar-wrapper .aui-calendar .aui-calendar-body-time,
+        .aui-grid-calendar-wrapper .aui-calendar .aui-calendar-footer {
+            /* 상단에 구분선과 여백 추가 */
+            border-top: 1px solid #eee;
+            margin-top: 8px;
+            padding-top: 8px;
+            height: 40px;
+        }
+
+        .aui-grid-calendar-wrapper .aui-calendar .aui-calendar-footer {
+            position: relative;
+            text-align: center;
+            /* footer는 시간 영역과 동시에 표시되지 않을 수 있으므로 margin/padding 독립적으로 설정 */
+            margin-top: 8px;
+            padding-top: 8px;
+        }
+        
+        /* --- 하단 버튼 (오늘, 삭제, 확인) --- */
+        .aui-grid-calendar-wrapper .aui-calendar .aui-calendar-today-btn,
+        .aui-grid-calendar-wrapper .aui-calendar .aui-calendar-delete-btn,
+        .aui-grid-calendar-wrapper .aui-calendar .aui-calendar-confirm-btn {
+            display: inline-block;
+            position: absolute;
+            top: 8px; /* padding-top과 맞춤 */
+            box-sizing: border-box;
+            cursor: pointer;
+            border-radius: 4px;
+            font-weight: bold;
+            border: 1px solid transparent;
+            /* 버튼 클릭 영역 확보를 위해 padding 증가 */
+            padding: 5px 12px; 
+        }
+        
+        .aui-grid-calendar-wrapper .aui-calendar .aui-calendar-today-btn,
+        .aui-grid-calendar-wrapper .aui-calendar .aui-calendar-confirm-btn {
+            right: 0;
+            background-color: #337ab7;
+            color: #fff;
+        }
+        .aui-grid-calendar-wrapper .aui-calendar .aui-calendar-delete-btn {
+            left: 0;
+            background-color: #f5f5f5;
+            color: #337ab7;
+        }
+
+            .aui-grid-calendar-wrapper .aui-calendar .aui-calendar-today-btn:hover,
+            .aui-grid-calendar-wrapper .aui-calendar .aui-calendar-confirm-btn:hover { background-color: #286090; }
+            .aui-grid-calendar-wrapper .aui-calendar .aui-calendar-delete-btn:hover { background-color: #e0e0e0; }
+
+        /* --- 달력 시간 선택 --- */
+        .aui-grid-calendar-wrapper .aui-calendar .aui-grid-calendar-time-select {
+            font-size: 14px;
+            width: 40%;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: white;
+            vertical-align: middle;
+            margin: 0 4px; /* 좌우 마진 조정 */
+            height: 32px;
+            padding: 0 4px; /* 내부 패딩 추가 */
+        }
+
+        .aui-grid-calendar-wrapper .aui-calendar .aui-grid-calendar-time-colon {
+            display: inline-block;
+            font-size: 16px;
+            font-weight: bold;
+            vertical-align: middle;
+        }
+
+
+.modal_overlay {
+    background-color: rgba(0, 0, 0, 0.1);
+}

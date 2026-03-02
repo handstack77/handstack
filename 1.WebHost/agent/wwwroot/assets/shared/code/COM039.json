@@ -1,0 +1,54 @@
+{
+  "Comment": "기초코드 데이터",
+  "CodeColumnID": "CodeID",
+  "ValueColumnID": "CodeValue",
+  "CreatedAt": "",
+  "Scheme": [
+    {
+      "ColumnID": "SelectYN",
+      "ColumnText": "기본선택여부",
+      "HiddenYN": true
+    },
+    {
+      "ColumnID": "LocaleID",
+      "ColumnText": "언어권ID",
+      "HiddenYN": true
+    },
+    {
+      "ColumnID": "CodeID",
+      "ColumnText": "코드ID",
+      "HiddenYN": false
+    },
+    {
+      "ColumnID": "CodeValue",
+      "ColumnText": "코드값",
+      "HiddenYN": false
+    }
+  ],
+  "DataSource": [
+    {
+      "CodeID": "SEA",
+      "CodeValue": "해상운송"
+    },
+    {
+      "CodeID": "AIR",
+      "CodeValue": "항공운송"
+    },
+    {
+      "CodeID": "EXP",
+      "CodeValue": "특급배송"
+    },
+    {
+      "CodeID": "TRK",
+      "CodeValue": "트럭운송"
+    },
+    {
+      "CodeID": "RAI",
+      "CodeValue": "철도운송"
+    },
+    {
+      "CodeID": "CUR",
+      "CodeValue": "소형택배"
+    }
+  ]
+}

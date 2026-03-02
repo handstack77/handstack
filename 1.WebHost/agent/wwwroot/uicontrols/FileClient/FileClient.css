@@ -1,0 +1,115 @@
+.attachFileWrap {
+	padding: 10px;
+}
+
+	.attachFileWrap ul.fileList li {
+		margin-bottom: 5px;
+		position: relative;
+	}
+
+		.attachFileWrap ul.fileList li span {
+			display: inline-block;
+			box-sizing: border-box;
+			vertical-align: top;
+		}
+
+			.attachFileWrap ul.fileList li span:first-child {
+				padding: 2px 22px 0 0;
+				width: 100%;
+			}
+
+			.attachFileWrap ul.fileList li span.btn {
+				margin-left: 5px;
+				width: 14px;
+				height: 18px;
+				position: absolute;
+				top: -3px;
+				right: 0;
+				background: url("/img/btn/btn_fileDel.png") 0 0 no-repeat;
+				cursor: pointer;
+			}
+
+	.attachFileWrap .btn {
+		text-align: right;
+		margin-top: 10px;
+	}
+
+	.attachFileWrap .fileInfo {
+		border: solid 1px #cccccc;
+		margin-top: 10px;
+		padding: 5px;
+	}
+
+		.attachFileWrap .fileInfo li {
+			width: 100%;
+			line-height: 25px;
+			border-bottom: dashed 1px #e2e2e2;
+		}
+
+			.attachFileWrap .fileInfo li:last-child {
+				border-bottom: 0;
+			}
+
+			.attachFileWrap .fileInfo li span {
+				display: inline-block;
+				width: 9px;
+				height: 25px;
+				margin-left: 5px;
+				vertical-align: top;
+				background: url("/img/btn/btn_tabClose.png") 0 center no-repeat;
+				text-indent: -99999px;
+				overflow: hidden;
+				cursor: pointer;
+			}
+
+	.attachFileWrap .photoBox {
+		margin: 10px 0;
+		text-align: center;
+	}
+
+		.attachFileWrap .photoBox img {
+			border: solid 1px #cccccc;
+			border-radius: 10px;
+			padding: 5px;
+			width: 150px;
+			height: 164px;
+		}
+
+	.attachFileWrap .ly_fileBox {
+		border-top: dashed 1px #e2e2e2;
+		border-bottom: dashed 1px #e2e2e2;
+		padding: 3px 0;
+	}
+
+	.attachFileWrap .fileInfoDetail {
+		border: solid 1px #a2a2a2;
+		margin-top: 10px;
+		padding: 10px;
+		border-radius: 5px;
+	}
+
+		.attachFileWrap .fileInfoDetail li {
+			padding-left: 7px;
+			/*background: url("/img/common/bul_gry_01.png") 0 8px no-repeat;*/
+			line-height: 18px;
+		}
+
+			.attachFileWrap .fileInfoDetail li span {
+				font-size: 11px;
+			}
+
+			.attachFileWrap .fileInfoDetail li.title {
+				background: none;
+				font-size: 13px;
+				font-weight: bold;
+				padding: 0 0 5px 0;
+			}
+
+#lblContentsText {
+	line-height: normal;
+	overflow: auto;
+}
+
+.syn-fileclient
+{
+}

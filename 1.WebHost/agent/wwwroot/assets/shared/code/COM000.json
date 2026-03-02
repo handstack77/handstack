@@ -1,0 +1,126 @@
+{
+  "Comment": "기초코드 데이터",
+  "CodeColumnID": "CodeID",
+  "ValueColumnID": "CodeValue",
+  "CreatedAt": "",
+  "Scheme": [
+    {
+      "ColumnID": "SelectYN",
+      "ColumnText": "기본선택여부",
+      "HiddenYN": true
+    },
+    {
+      "ColumnID": "LocaleID",
+      "ColumnText": "언어권ID",
+      "HiddenYN": true
+    },
+    {
+      "ColumnID": "CodeID",
+      "ColumnText": "코드ID",
+      "HiddenYN": false
+    },
+    {
+      "ColumnID": "CodeValue",
+      "ColumnText": "코드값",
+      "HiddenYN": false
+    }
+  ],
+  "DataSource": [
+    {
+      "CodeID": "ART000",
+      "CodeValue": "MessageSender"
+    },
+    {
+      "CodeID": "ART001",
+      "CodeValue": "MessageSender"
+    },
+    {
+      "CodeID": "ART002",
+      "CodeValue": "MessageSender"
+    },
+    {
+      "CodeID": "ART003",
+      "CodeValue": "MessageSender"
+    },
+    {
+      "CodeID": "ART004",
+      "CodeValue": "MessageSender"
+    },
+    {
+      "CodeID": "ART005",
+      "CodeValue": "MessageSender"
+    },
+    {
+      "CodeID": "SMS000",
+      "CodeValue": "MessageSender"
+    },
+    {
+      "CodeID": "SMS001",
+      "CodeValue": "MessageSender"
+    },
+    {
+      "CodeID": "SMS002",
+      "CodeValue": "MessageSender"
+    },
+    {
+      "CodeID": "SMS003",
+      "CodeValue": "MessageSender"
+    },
+    {
+      "CodeID": "SMS004",
+      "CodeValue": "MessageSender"
+    },
+    {
+      "CodeID": "SMS005",
+      "CodeValue": "MessageSender"
+    },
+    {
+      "CodeID": "TPL001",
+      "CodeValue": "MessageTemplate"
+    },
+    {
+      "CodeID": "TPL002",
+      "CodeValue": "MessageTemplate"
+    },
+    {
+      "CodeID": "TPL003",
+      "CodeValue": "MessageTemplate"
+    },
+    {
+      "CodeID": "TPL004",
+      "CodeValue": "MessageTemplate"
+    },
+    {
+      "CodeID": "TPL005",
+      "CodeValue": "MessageTemplate"
+    },
+    {
+      "CodeID": "TPL006",
+      "CodeValue": "MessageTemplate"
+    },
+    {
+      "CodeID": "TPL008",
+      "CodeValue": "MessageTemplate"
+    },
+    {
+      "CodeID": "TPL009",
+      "CodeValue": "MessageTemplate"
+    },
+    {
+      "CodeID": "TPL010",
+      "CodeValue": "MessageTemplate"
+    },
+    {
+      "CodeID": "TPL011",
+      "CodeValue": "MessageTemplate"
+    },
+    {
+      "CodeID": "TPL012",
+      "CodeValue": "MessageTemplate"
+    },
+    {
+      "CodeID": "TPL013",
+      "CodeValue": "MessageTemplate"
+    }
+  ]
+}

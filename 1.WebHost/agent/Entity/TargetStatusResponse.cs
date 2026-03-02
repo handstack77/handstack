@@ -1,3 +1,5 @@
+﻿using System;
+
 namespace agent.Entity
 {
     public sealed class TargetStatusResponse

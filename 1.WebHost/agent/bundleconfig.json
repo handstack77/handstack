@@ -1,0 +1,8 @@
+[
+  {
+    "outputFileName": "wwwroot/js/syn.domain.min.js",
+    "inputFiles": [
+      "wwwroot/js/syn.domain.js"
+    ]
+  }
+]

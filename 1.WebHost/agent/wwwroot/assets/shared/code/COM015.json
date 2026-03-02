@@ -1,0 +1,58 @@
+{
+  "Comment": "기초코드 데이터",
+  "CodeColumnID": "CodeID",
+  "ValueColumnID": "CodeValue",
+  "CreatedAt": "",
+  "Scheme": [
+    {
+      "ColumnID": "SelectYN",
+      "ColumnText": "기본선택여부",
+      "HiddenYN": true
+    },
+    {
+      "ColumnID": "LocaleID",
+      "ColumnText": "언어권ID",
+      "HiddenYN": true
+    },
+    {
+      "ColumnID": "CodeID",
+      "ColumnText": "코드ID",
+      "HiddenYN": false
+    },
+    {
+      "ColumnID": "CodeValue",
+      "ColumnText": "코드값",
+      "HiddenYN": false
+    }
+  ],
+  "DataSource": [
+    {
+      "CodeID": "T",
+      "CodeValue": "투어"
+    },
+    {
+      "CodeID": "R",
+      "CodeValue": "재투어"
+    },
+    {
+      "CodeID": "F",
+      "CodeValue": "촬영가봉"
+    },
+    {
+      "CodeID": "W",
+      "CodeValue": "본식가봉"
+    },
+    {
+      "CodeID": "S",
+      "CodeValue": "발송"
+    },
+    {
+      "CodeID": "P",
+      "CodeValue": "픽업"
+    },
+    {
+      "CodeID": "O",
+      "CodeValue": "기타"
+    }
+  ]
+}

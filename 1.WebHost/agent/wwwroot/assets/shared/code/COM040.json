@@ -1,0 +1,94 @@
+{
+  "Comment": "기초코드 데이터",
+  "CodeColumnID": "CodeID",
+  "ValueColumnID": "CodeValue",
+  "CreatedAt": "",
+  "Scheme": [
+    {
+      "ColumnID": "SelectYN",
+      "ColumnText": "기본선택여부",
+      "HiddenYN": true
+    },
+    {
+      "ColumnID": "LocaleID",
+      "ColumnText": "언어권ID",
+      "HiddenYN": true
+    },
+    {
+      "ColumnID": "CodeID",
+      "ColumnText": "코드ID",
+      "HiddenYN": false
+    },
+    {
+      "ColumnID": "CodeValue",
+      "ColumnText": "코드값",
+      "HiddenYN": false
+    }
+  ],
+  "DataSource": [
+    {
+      "CodeID": "FAB",
+      "CodeValue": "메인 원단"
+    },
+    {
+      "CodeID": "LIN",
+      "CodeValue": "안감"
+    },
+    {
+      "CodeID": "INT",
+      "CodeValue": "보강재(심지)"
+    },
+    {
+      "CodeID": "THR",
+      "CodeValue": "실"
+    },
+    {
+      "CodeID": "ZIP",
+      "CodeValue": "지퍼"
+    },
+    {
+      "CodeID": "BTN",
+      "CodeValue": "단추"
+    },
+    {
+      "CodeID": "HKE",
+      "CodeValue": "후크/아이"
+    },
+    {
+      "CodeID": "SNP",
+      "CodeValue": "스냅"
+    },
+    {
+      "CodeID": "LAC",
+      "CodeValue": "레이스"
+    },
+    {
+      "CodeID": "BDS",
+      "CodeValue": "비즈/스팽글"
+    },
+    {
+      "CodeID": "EMB",
+      "CodeValue": "자수"
+    },
+    {
+      "CodeID": "RBN",
+      "CodeValue": "리본/벨트"
+    },
+    {
+      "CodeID": "PAD",
+      "CodeValue": "패드"
+    },
+    {
+      "CodeID": "WIR",
+      "CodeValue": "와이어"
+    },
+    {
+      "CodeID": "ELB",
+      "CodeValue": "밴드"
+    },
+    {
+      "CodeID": "BIA",
+      "CodeValue": "마감 테이프"
+    }
+  ]
+}

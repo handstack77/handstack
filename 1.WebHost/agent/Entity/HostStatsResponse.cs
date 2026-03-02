@@ -1,3 +1,6 @@
+﻿using System;
+using System.Collections.Generic;
+
 namespace agent.Entity
 {
     public sealed class HostStatsResponse

@@ -1,0 +1,12 @@
+{
+	"Word": "BlaBla",
+	"Message": [ "BlaBlaBlaBla", "Bla" ],
+	"Interpolate": "Bla '#{UserName}' BlaBlaBlaBla",
+	"Option": {
+		"Text": "BlaBla",
+		"Title": "Bla",
+		"Option": {
+			"width": "80px"
+		}
+	}
+}

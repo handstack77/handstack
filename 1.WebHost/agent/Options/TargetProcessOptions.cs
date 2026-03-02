@@ -1,3 +1,7 @@
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+
 namespace agent.Options
 {
     public sealed class TargetProcessOptions

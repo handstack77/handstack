@@ -1,0 +1,50 @@
+{
+  "Comment": "기초코드 데이터",
+  "CodeColumnID": "CodeID",
+  "ValueColumnID": "CodeValue",
+  "CreatedAt": "",
+  "Scheme": [
+    {
+      "ColumnID": "SelectYN",
+      "ColumnText": "기본선택여부",
+      "HiddenYN": true
+    },
+    {
+      "ColumnID": "LocaleID",
+      "ColumnText": "언어권ID",
+      "HiddenYN": true
+    },
+    {
+      "ColumnID": "CodeID",
+      "ColumnText": "코드ID",
+      "HiddenYN": false
+    },
+    {
+      "ColumnID": "CodeValue",
+      "ColumnText": "코드값",
+      "HiddenYN": false
+    }
+  ],
+  "DataSource": [
+    {
+      "CodeID": "C",
+      "CodeValue": "고객 구매"
+    },
+    {
+      "CodeID": "R",
+      "CodeValue": "수선 대여"
+    },
+    {
+      "CodeID": "D",
+      "CodeValue": "국내 판매"
+    },
+    {
+      "CodeID": "O",
+      "CodeValue": "해외 판매"
+    },
+    {
+      "CodeID": "S",
+      "CodeValue": "재고 추가"
+    }
+  ]
+}

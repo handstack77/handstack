@@ -1,0 +1,70 @@
+{
+  "Comment": "기초코드 데이터",
+  "CodeColumnID": "CodeID",
+  "ValueColumnID": "CodeValue",
+  "CreatedAt": "",
+  "Scheme": [
+    {
+      "ColumnID": "SelectYN",
+      "ColumnText": "기본선택여부",
+      "HiddenYN": true
+    },
+    {
+      "ColumnID": "LocaleID",
+      "ColumnText": "언어권ID",
+      "HiddenYN": true
+    },
+    {
+      "ColumnID": "CodeID",
+      "ColumnText": "코드ID",
+      "HiddenYN": false
+    },
+    {
+      "ColumnID": "CodeValue",
+      "ColumnText": "코드값",
+      "HiddenYN": false
+    }
+  ],
+  "DataSource": [
+    {
+      "CodeID": "0",
+      "CodeValue": "Root"
+    },
+    {
+      "CodeID": "100",
+      "CodeValue": "Administrator"
+    },
+    {
+      "CodeID": "200",
+      "CodeValue": "Master"
+    },
+    {
+      "CodeID": "300",
+      "CodeValue": "Architect"
+    },
+    {
+      "CodeID": "400",
+      "CodeValue": "Manager"
+    },
+    {
+      "CodeID": "500",
+      "CodeValue": "BusinessOwner"
+    },
+    {
+      "CodeID": "600",
+      "CodeValue": "Operator"
+    },
+    {
+      "CodeID": "700",
+      "CodeValue": "Developer"
+    },
+    {
+      "CodeID": "800",
+      "CodeValue": "Designer"
+    },
+    {
+      "CodeID": "900",
+      "CodeValue": "User"
+    }
+  ]
+}

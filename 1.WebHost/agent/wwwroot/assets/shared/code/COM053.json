@@ -1,0 +1,74 @@
+{
+  "Comment": "기초코드 데이터",
+  "CodeColumnID": "CodeID",
+  "ValueColumnID": "CodeValue",
+  "CreatedAt": "",
+  "Scheme": [
+    {
+      "ColumnID": "SelectYN",
+      "ColumnText": "기본선택여부",
+      "HiddenYN": true
+    },
+    {
+      "ColumnID": "LocaleID",
+      "ColumnText": "언어권ID",
+      "HiddenYN": true
+    },
+    {
+      "ColumnID": "CodeID",
+      "ColumnText": "코드ID",
+      "HiddenYN": false
+    },
+    {
+      "ColumnID": "CodeValue",
+      "ColumnText": "코드값",
+      "HiddenYN": false
+    }
+  ],
+  "DataSource": [
+    {
+      "CodeID": "A01",
+      "CodeValue": "DHL Global Forwarding (DHL코리아)"
+    },
+    {
+      "CodeID": "A02",
+      "CodeValue": "DB Schenker (DB 쉥커코리아)"
+    },
+    {
+      "CodeID": "A03",
+      "CodeValue": "Kuehne+Nagel (퀴네나겔코리아)"
+    },
+    {
+      "CodeID": "A04",
+      "CodeValue": "Panalpina (판알피나코리아)"
+    },
+    {
+      "CodeID": "A05",
+      "CodeValue": "Expeditors Korea (익스페디터스코리아)"
+    },
+    {
+      "CodeID": "A06",
+      "CodeValue": "Sinotrans Korea"
+    },
+    {
+      "CodeID": "A07",
+      "CodeValue": "Yusen Logistics Korea"
+    },
+    {
+      "CodeID": "B01",
+      "CodeValue": "한진 (Hanjin Shipping)"
+    },
+    {
+      "CodeID": "B02",
+      "CodeValue": "현대글로비스 (Hyundai Glovis)"
+    },
+    {
+      "CodeID": "B03",
+      "CodeValue": "CJ대한통운 (CJ Logistics)"
+    },
+    {
+      "CodeID": "B04",
+      "CodeValue": "판토스 (Pantos, LG 계열)"
+    }
+  ]
+}

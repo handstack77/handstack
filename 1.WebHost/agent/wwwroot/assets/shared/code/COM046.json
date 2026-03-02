@@ -1,0 +1,50 @@
+{
+  "Comment": "기초코드 데이터",
+  "CodeColumnID": "CodeID",
+  "ValueColumnID": "CodeValue",
+  "CreatedAt": "",
+  "Scheme": [
+    {
+      "ColumnID": "SelectYN",
+      "ColumnText": "기본선택여부",
+      "HiddenYN": true
+    },
+    {
+      "ColumnID": "LocaleID",
+      "ColumnText": "언어권ID",
+      "HiddenYN": true
+    },
+    {
+      "ColumnID": "CodeID",
+      "ColumnText": "코드ID",
+      "HiddenYN": false
+    },
+    {
+      "ColumnID": "CodeValue",
+      "ColumnText": "코드값",
+      "HiddenYN": false
+    }
+  ],
+  "DataSource": [
+    {
+      "CodeID": "A",
+      "CodeValue": "아르하"
+    },
+    {
+      "CodeID": "B",
+      "CodeValue": "꾸띄르 컬러"
+    },
+    {
+      "CodeID": "C",
+      "CodeValue": "꾸뛰르"
+    },
+    {
+      "CodeID": "D",
+      "CodeValue": "볼레로(오프숄더)"
+    },
+    {
+      "CodeID": "E",
+      "CodeValue": "미니"
+    }
+  ]
+}

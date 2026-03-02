@@ -1,0 +1,214 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent API Console</title>
+    <link rel="stylesheet" href="/css/syn.bundle.min.css">
+    <style>
+        .panel-card {
+            height: 100%;
+        }
+
+        .mono {
+            font-family: Consolas, Monaco, monospace;
+            font-size: 12px;
+        }
+
+        .response-box {
+            min-height: 360px;
+            max-height: 620px;
+            overflow: auto;
+            white-space: pre-wrap;
+            border: 1px solid #dce3eb;
+            border-radius: 6px;
+            background: #f8fafc;
+            padding: 10px;
+        }
+
+        .request-meta {
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <form autocomplete="off" id="form1">
+        <div class="page">
+            <div class="page-wrapper">
+                <div class="page-header mt-2">
+                    <div class="container-fluid min-width:1536 max-width:1920!">
+                        <div class="row g-2 align-items-center">
+                            <div class="col">
+                                <div class="page-pretitle f:12!">
+                                    HDS / AGM
+                                </div>
+                                <h2 class="page-title">
+                                    Agent API Management Console
+                                </h2>
+                            </div>
+                            <div class="col-auto ms-auto">
+                                <a href="/main.html" class="btn btn-primary">
+                                    <i class="f:18 ti ti-arrow-left mr:2"></i>
+                                    메인으로 돌아가기
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="page-body m-3">
+                    <div class="container-fluid min-width:1536 max-width:1920!">
+                        <div class="row g-3">
+                            <div class="col-12 col-xl-4">
+                                <div class="card panel-card">
+                                    <div class="card-header p-2 bg-primary-lt">
+                                        <h3 class="card-title">Connection</h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-2">
+                                            <label class="form-label">Base URL</label>
+                                            <input id="txtBaseUrl" type="text" class="form-control" value="" placeholder="http://localhost:8484">
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label">Management Header Name</label>
+                                            <input id="txtHeaderName" type="text" class="form-control" value="X-Management-Key">
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label">Management Key</label>
+                                            <input id="txtManagementKey" type="text" class="form-control">
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label">Validate Key Value</label>
+                                            <div class="input-group">
+                                                <input id="txtValidateKey" type="text" class="form-control" placeholder="key for /validate/{key}">
+                                                <button type="button" id="btnValidateKey" class="btn btn-outline-primary">Validate</button>
+                                            </div>
+                                        </div>
+                                        <div class="form-hint">
+                                            Protected APIs use the header above. <span class="mono">/validate/{key}</span> does not require that header.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-xl-8">
+                                <div class="card panel-card">
+                                    <div class="card-header p-2 bg-primary-lt">
+                                        <h3 class="card-title">Response</h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="request-meta mb-2">
+                                            <div><strong>Request:</strong> <span id="lblRequest" class="mono">-</span></div>
+                                            <div><strong>Status:</strong> <span id="lblStatus" class="mono">-</span></div>
+                                        </div>
+                                        <div id="txtResponse" class="response-box mono">{}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mt-1">
+                            <div class="col-12 col-xl-6">
+                                <div class="card panel-card">
+                                    <div class="card-header p-2 bg-primary-lt">
+                                        <h3 class="card-title">Targets APIs</h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-2">
+                                            <button type="button" id="btnGetTargets" class="btn btn-primary">GET /targets</button>
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label">Target ID</label>
+                                            <input id="txtTargetId" type="text" class="form-control" value="ack-main">
+                                        </div>
+                                        <div class="btn-list">
+                                            <button type="button" id="btnGetTargetStatus" class="btn">GET /targets/{id}/status</button>
+                                            <button type="button" id="btnStartTarget" class="btn">POST /targets/{id}/start</button>
+                                            <button type="button" id="btnStopTarget" class="btn">POST /targets/{id}/stop</button>
+                                            <button type="button" id="btnRestartTarget" class="btn">POST /targets/{id}/restart</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-xl-6">
+                                <div class="card panel-card">
+                                    <div class="card-header p-2 bg-primary-lt">
+                                        <h3 class="card-title">Settings APIs</h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-2">
+                                            <label class="form-label">Settings Target ID</label>
+                                            <input id="txtSettingsId" type="text" class="form-control" value="ack-main">
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label">Payload for POST /settings/{id}</label>
+                                            <textarea id="txtSettingsPayload" class="form-control mono" rows="6">{}</textarea>
+                                        </div>
+                                        <div class="btn-list">
+                                            <button type="button" id="btnGetSettingsStatus" class="btn">GET /settings/{id}/status</button>
+                                            <button type="button" id="btnSaveSettings" class="btn btn-primary">POST /settings/{id}</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mt-1">
+                            <div class="col-12 col-xl-6">
+                                <div class="card panel-card">
+                                    <div class="card-header p-2 bg-primary-lt">
+                                        <h3 class="card-title">Modules APIs</h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-2">
+                                            <label class="form-label">Module ID</label>
+                                            <input id="txtModuleId" type="text" class="form-control" value="checkup">
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label">Target ID (optional query: ?id=)</label>
+                                            <input id="txtModuleTargetId" type="text" class="form-control" value="ack-main">
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label">Payload for POST /modules/{module-id}</label>
+                                            <textarea id="txtModulePayload" class="form-control mono" rows="6">{}</textarea>
+                                        </div>
+                                        <div class="btn-list">
+                                            <button type="button" id="btnGetModule" class="btn">GET /modules/{module-id}</button>
+                                            <button type="button" id="btnSaveModule" class="btn btn-primary">POST /modules/{module-id}</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-xl-6">
+                                <div class="card panel-card">
+                                    <div class="card-header p-2 bg-primary-lt">
+                                        <h3 class="card-title">Monitoring APIs</h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-2">
+                                            <button type="button" id="btnGetStats" class="btn">GET /stats</button>
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label">Collect Target ID</label>
+                                            <input id="txtCollectId" type="text" class="form-control" value="ack-main">
+                                        </div>
+                                        <div class="mb-2">
+                                            <button type="button" id="btnCollect" class="btn btn-primary">GET /collect/{id}</button>
+                                        </div>
+                                        <div class="form-hint">
+                                            To open this page directly: <span class="mono">/view/AGM/AGM000.html</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

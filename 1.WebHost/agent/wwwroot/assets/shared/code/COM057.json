@@ -1,0 +1,46 @@
+{
+  "Comment": "기초코드 데이터",
+  "CodeColumnID": "CodeID",
+  "ValueColumnID": "CodeValue",
+  "CreatedAt": "",
+  "Scheme": [
+    {
+      "ColumnID": "SelectYN",
+      "ColumnText": "기본선택여부",
+      "HiddenYN": true
+    },
+    {
+      "ColumnID": "LocaleID",
+      "ColumnText": "언어권ID",
+      "HiddenYN": true
+    },
+    {
+      "ColumnID": "CodeID",
+      "ColumnText": "코드ID",
+      "HiddenYN": false
+    },
+    {
+      "ColumnID": "CodeValue",
+      "ColumnText": "코드값",
+      "HiddenYN": false
+    }
+  ],
+  "DataSource": [
+    {
+      "CodeID": "F03",
+      "CodeValue": "3"
+    },
+    {
+      "CodeID": "F07",
+      "CodeValue": "7"
+    },
+    {
+      "CodeID": "F10",
+      "CodeValue": "10"
+    },
+    {
+      "CodeID": "F38",
+      "CodeValue": "38"
+    }
+  ]
+}

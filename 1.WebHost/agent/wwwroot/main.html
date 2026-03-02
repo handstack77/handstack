@@ -1,0 +1,97 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Main</title>
+    <link rel="stylesheet" href="/css/syn.bundle.min.css">
+    <style>
+        .main-wrapper {
+            max-width: 960px;
+            margin: 2rem auto;
+        }
+
+        .profile-label {
+            width: 160px;
+        }
+
+        .profile-value {
+            word-break: break-all;
+        }
+
+        .profile-message {
+            min-height: 36px;
+        }
+    </style>
+</head>
+<body>
+    <form autocomplete="off" id="formMain">
+        <div class="page">
+            <div class="page-wrapper">
+                <div class="page-header mt-3">
+                    <div class="container-fluid max-width:1600!">
+                        <div class="row g-2 align-items-center">
+                            <div class="col">
+                                <div class="page-pretitle f:12!">
+                                    HDS / CDM
+                                </div>
+                                <h2 class="page-title">
+                                    Agent 메인 화면
+                                </h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="page-body">
+                    <div class="container-fluid max-width:1600!">
+                        <div class="main-wrapper">
+                            <div class="card">
+                                <div class="card-status-top bg-dark-overlay"></div>
+                                <div class="card-header p-2 bg-primary-lt">
+                                    <h3 class="card-title">로그인 사용자 정보</h3>
+                                </div>
+                                <div class="card-body">
+                                    <table class="table table-vcenter card-table">
+                                        <tbody>
+                                            <tr>
+                                                <th class="profile-label">EmailID</th>
+                                                <td id="txtEmailID" class="profile-value">-</td>
+                                            </tr>
+                                            <tr>
+                                                <th class="profile-label">UserName</th>
+                                                <td id="txtUserName" class="profile-value">-</td>
+                                            </tr>
+                                            <tr>
+                                                <th class="profile-label">Roles</th>
+                                                <td id="txtRoles" class="profile-value">-</td>
+                                            </tr>
+                                            <tr>
+                                                <th class="profile-label">CreatedAt</th>
+                                                <td id="txtCreatedAt" class="profile-value">-</td>
+                                            </tr>
+                                            <tr>
+                                                <th class="profile-label">ExpiredAt</th>
+                                                <td id="txtExpiredAt" class="profile-value">-</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <div class="d-flex justify-content-end gap-2">
+                                        <a href="/login.html" class="btn">로그인 화면</a>
+                                        <a href="/view/AGM/AGM000.html" class="btn">API 관리 화면</a>
+                                        <button type="button" id="btnLogout" class="btn btn-primary">
+                                            <i class="f:18 ti ti-logout mr:2"></i>
+                                            로그아웃
+                                        </button>
+                                    </div>
+                                    <div id="lblMessage" class="alert alert-danger mt-3 mb-0 profile-message d-none" role="alert"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

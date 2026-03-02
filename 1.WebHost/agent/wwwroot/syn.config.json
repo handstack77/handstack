@@ -1,0 +1,59 @@
+{
+    "SystemID": "HANDSTACK",
+    "ApplicationID": "HDS",
+    "ProjectID": "SYS",
+    "SystemVersion": "1.0.0",
+    "TransactionTimeout": 180000,
+    "HostName": "WebClient",
+    "UIEventLogLevel": "Verbose",
+    "IsLocaleTranslations": false,
+    "LocaleAssetUrl": "/assets/shared/language/",
+    "AssetsCachingID": "cache-id",
+    "IsClientCaching": true,
+    "IsDebugMode": false,
+    "IsBundleLoad": false,
+    "ContractRequestPath": "view",
+    "TenantAppRequestPath": "app",
+    "SharedAssetUrl": "/assets/shared/",
+    "IsApiFindServer": false,
+    "DiscoveryApiServerUrl": "",
+    "ReportServer": "",
+    "FileManagerServer": "http://localhost:8421",
+    "FindClientIPServer": "/checkip",
+    "FindGlobalIDServer": "",
+    "FileServerType": "L",
+    "FileBusinessIDSource": "None",
+    "CookiePrefixName": "HandStack",
+    "Environment": "Development",
+    "DomainBaseUrl": "http://localhost:8484",
+    "DomainAPIServer": {
+        "ServerID": "SERVERD01",
+        "ServerType": "D",
+        "Protocol": "http",
+        "IP": "localhost",
+        "Port": "8421",
+        "Path": "/transact/api/transaction/execute",
+        "ClientIP": "localhost"
+    },
+    "Program": {
+        "ProgramName": "ack",
+        "ProgramVersion": "1.0.0",
+        "LanguageID": "ko",
+        "LocaleID": "ko-KR",
+        "BranchCode": ""
+    },
+    "Transaction": {
+        "ProtocolVersion": "001",
+        "SimulationType": "P",
+        "DataFormat": "J",
+        "MachineTypeID": "WEB",
+        "EncryptionType": "P",
+        "EncryptionKey": "G",
+        "CompressionYN": "N"
+    },
+    "EnvironmentSetting": {
+        "Application": {
+            "LoaderPath": "/js/syn.domain.js"
+        }
+    }
+}

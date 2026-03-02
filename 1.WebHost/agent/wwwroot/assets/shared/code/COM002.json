@@ -1,0 +1,102 @@
+{
+  "Comment": "기초코드 데이터",
+  "CodeColumnID": "CodeID",
+  "ValueColumnID": "CodeValue",
+  "CreatedAt": "",
+  "Scheme": [
+    {
+      "ColumnID": "SelectYN",
+      "ColumnText": "기본선택여부",
+      "HiddenYN": true
+    },
+    {
+      "ColumnID": "LocaleID",
+      "ColumnText": "언어권ID",
+      "HiddenYN": true
+    },
+    {
+      "ColumnID": "CodeID",
+      "ColumnText": "코드ID",
+      "HiddenYN": false
+    },
+    {
+      "ColumnID": "CodeValue",
+      "ColumnText": "코드값",
+      "HiddenYN": false
+    }
+  ],
+  "DataSource": [
+    {
+      "CodeID": "A00",
+      "CodeValue": "회장"
+    },
+    {
+      "CodeID": "B00",
+      "CodeValue": "부회장"
+    },
+    {
+      "CodeID": "C00",
+      "CodeValue": "대표이사"
+    },
+    {
+      "CodeID": "D00",
+      "CodeValue": "사장"
+    },
+    {
+      "CodeID": "E00",
+      "CodeValue": "부사장"
+    },
+    {
+      "CodeID": "F00",
+      "CodeValue": "전무"
+    },
+    {
+      "CodeID": "G00",
+      "CodeValue": "상무"
+    },
+    {
+      "CodeID": "H00",
+      "CodeValue": "이사"
+    },
+    {
+      "CodeID": "I00",
+      "CodeValue": "감사"
+    },
+    {
+      "CodeID": "J00",
+      "CodeValue": "부장"
+    },
+    {
+      "CodeID": "K00",
+      "CodeValue": "차장"
+    },
+    {
+      "CodeID": "L00",
+      "CodeValue": "과장"
+    },
+    {
+      "CodeID": "M00",
+      "CodeValue": "대리"
+    },
+    {
+      "CodeID": "N00",
+      "CodeValue": "계장"
+    },
+    {
+      "CodeID": "O00",
+      "CodeValue": "주임"
+    },
+    {
+      "CodeID": "P00",
+      "CodeValue": "사원"
+    },
+    {
+      "CodeID": "Q00",
+      "CodeValue": "인턴/수습"
+    },
+    {
+      "CodeID": "R00",
+      "CodeValue": "계약직"
+    }
+  ]
+}

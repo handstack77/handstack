@@ -1,3 +1,4 @@
+﻿using System.Collections.Generic;
 using System.Text.Json.Nodes;
 
 namespace agent.Entity

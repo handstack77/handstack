@@ -1,0 +1,54 @@
+{
+  "Comment": "기초코드 데이터",
+  "CodeColumnID": "CodeID",
+  "ValueColumnID": "CodeValue",
+  "CreatedAt": "",
+  "Scheme": [
+    {
+      "ColumnID": "SelectYN",
+      "ColumnText": "기본선택여부",
+      "HiddenYN": true
+    },
+    {
+      "ColumnID": "LocaleID",
+      "ColumnText": "언어권ID",
+      "HiddenYN": true
+    },
+    {
+      "ColumnID": "CodeID",
+      "ColumnText": "코드ID",
+      "HiddenYN": false
+    },
+    {
+      "ColumnID": "CodeValue",
+      "ColumnText": "코드값",
+      "HiddenYN": false
+    }
+  ],
+  "DataSource": [
+    {
+      "CodeID": "001",
+      "CodeValue": "수선 전 제작실 입고 완료"
+    },
+    {
+      "CodeID": "002",
+      "CodeValue": "시트 작성 완료"
+    },
+    {
+      "CodeID": "003",
+      "CodeValue": "드레스 시트 꽃기 완료"
+    },
+    {
+      "CodeID": "004",
+      "CodeValue": "수선 완료 매장 입고 완료"
+    },
+    {
+      "CodeID": "005",
+      "CodeValue": "토요일 예식 후"
+    },
+    {
+      "CodeID": "006",
+      "CodeValue": "1층 창고 방"
+    }
+  ]
+}

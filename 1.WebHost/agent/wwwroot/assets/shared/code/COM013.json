@@ -1,0 +1,62 @@
+{
+  "Comment": "기초코드 데이터",
+  "CodeColumnID": "CodeID",
+  "ValueColumnID": "CodeValue",
+  "CreatedAt": "",
+  "Scheme": [
+    {
+      "ColumnID": "SelectYN",
+      "ColumnText": "기본선택여부",
+      "HiddenYN": true
+    },
+    {
+      "ColumnID": "LocaleID",
+      "ColumnText": "언어권ID",
+      "HiddenYN": true
+    },
+    {
+      "ColumnID": "CodeID",
+      "ColumnText": "코드ID",
+      "HiddenYN": false
+    },
+    {
+      "ColumnID": "CodeValue",
+      "ColumnText": "코드값",
+      "HiddenYN": false
+    }
+  ],
+  "DataSource": [
+    {
+      "CodeID": "R",
+      "CodeValue": "발주요청"
+    },
+    {
+      "CodeID": "C",
+      "CodeValue": "발주확정"
+    },
+    {
+      "CodeID": "P",
+      "CodeValue": "생산중"
+    },
+    {
+      "CodeID": "I",
+      "CodeValue": "입고완료"
+    },
+    {
+      "CodeID": "Q",
+      "CodeValue": "검수완료"
+    },
+    {
+      "CodeID": "S",
+      "CodeValue": "출고완료"
+    },
+    {
+      "CodeID": "V",
+      "CodeValue": "전달완료"
+    },
+    {
+      "CodeID": "X",
+      "CodeValue": "취소"
+    }
+  ]
+}

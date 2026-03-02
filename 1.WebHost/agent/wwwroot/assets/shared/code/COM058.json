@@ -1,0 +1,174 @@
+{
+  "Comment": "기초코드 데이터",
+  "CodeColumnID": "CodeID",
+  "ValueColumnID": "CodeValue",
+  "CreatedAt": "",
+  "Scheme": [
+    {
+      "ColumnID": "SelectYN",
+      "ColumnText": "기본선택여부",
+      "HiddenYN": true
+    },
+    {
+      "ColumnID": "LocaleID",
+      "ColumnText": "언어권ID",
+      "HiddenYN": true
+    },
+    {
+      "ColumnID": "CodeID",
+      "ColumnText": "코드ID",
+      "HiddenYN": false
+    },
+    {
+      "ColumnID": "CodeValue",
+      "ColumnText": "코드값",
+      "HiddenYN": false
+    }
+  ],
+  "DataSource": [
+    {
+      "CodeID": "#FF0000",
+      "CodeValue": "빨강"
+    },
+    {
+      "CodeID": "#FF7F00",
+      "CodeValue": "주황"
+    },
+    {
+      "CodeID": "#FFFF00",
+      "CodeValue": "노랑"
+    },
+    {
+      "CodeID": "#7FFF00",
+      "CodeValue": "연두"
+    },
+    {
+      "CodeID": "#00FF00",
+      "CodeValue": "초록"
+    },
+    {
+      "CodeID": "#00FF7F",
+      "CodeValue": "청록"
+    },
+    {
+      "CodeID": "#00FFFF",
+      "CodeValue": "하늘색"
+    },
+    {
+      "CodeID": "#007FFF",
+      "CodeValue": "파랑"
+    },
+    {
+      "CodeID": "#0000FF",
+      "CodeValue": "남색"
+    },
+    {
+      "CodeID": "#7F00FF",
+      "CodeValue": "남보라"
+    },
+    {
+      "CodeID": "#7F007F",
+      "CodeValue": "보라"
+    },
+    {
+      "CodeID": "#FF00FF",
+      "CodeValue": "분홍"
+    },
+    {
+      "CodeID": "#FF77FF",
+      "CodeValue": "연분홍"
+    },
+    {
+      "CodeID": "#FFB07F",
+      "CodeValue": "살구"
+    },
+    {
+      "CodeID": "#FFD700",
+      "CodeValue": "금색"
+    },
+    {
+      "CodeID": "#50C878",
+      "CodeValue": "옥색"
+    },
+    {
+      "CodeID": "#3EB489",
+      "CodeValue": "민트"
+    },
+    {
+      "CodeID": "#87CEEB",
+      "CodeValue": "스카이"
+    },
+    {
+      "CodeID": "#CDA4DE",
+      "CodeValue": "연보라"
+    },
+    {
+      "CodeID": "#E74C3C",
+      "CodeValue": "다홍"
+    },
+    {
+      "CodeID": "#8B4513",
+      "CodeValue": "밤색"
+    },
+    {
+      "CodeID": "#D3D3D3",
+      "CodeValue": "연회색"
+    },
+    {
+      "CodeID": "#808080",
+      "CodeValue": "회색"
+    },
+    {
+      "CodeID": "#000000",
+      "CodeValue": "검정"
+    },
+    {
+      "CodeID": "#FFFFFF",
+      "CodeValue": "흰색"
+    },
+    {
+      "CodeID": "#C0C0C0",
+      "CodeValue": "은색"
+    },
+    {
+      "CodeID": "#FFFFE0",
+      "CodeValue": "연노랑"
+    },
+    {
+      "CodeID": "#20B2AA",
+      "CodeValue": "청록빛"
+    },
+    {
+      "CodeID": "#800080",
+      "CodeValue": "자주"
+    },
+    {
+      "CodeID": "#ADD8E6",
+      "CodeValue": "연파랑"
+    },
+    {
+      "CodeID": "#FF1493",
+      "CodeValue": "진분홍"
+    },
+    {
+      "CodeID": "#98FB98",
+      "CodeValue": "연두빛"
+    },
+    {
+      "CodeID": "#808000",
+      "CodeValue": "올리브"
+    },
+    {
+      "CodeID": "#006400",
+      "CodeValue": "짙은 초록"
+    },
+    {
+      "CodeID": "#191970",
+      "CodeValue": "짙은 남색"
+    },
+    {
+      "CodeID": "#FF6347",
+      "CodeValue": "토마토"
+    }
+  ]
+}
