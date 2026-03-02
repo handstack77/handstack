@@ -1,9 +1,9 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agent API Console</title>
+    <title>에이전트 API 콘솔</title>
     <link rel="stylesheet" href="/css/syn.bundle.min.css">
     <style>
         .panel-card {
@@ -43,7 +43,7 @@
                                     HDS / AGM
                                 </div>
                                 <h2 class="page-title">
-                                    Agent API Management Console
+                                    에이전트 API 관리 콘솔
                                 </h2>
                             </div>
                             <div class="col-auto ms-auto">
@@ -62,30 +62,30 @@
                             <div class="col-12 col-xl-4">
                                 <div class="card panel-card">
                                     <div class="card-header p-2 bg-primary-lt">
-                                        <h3 class="card-title">Connection</h3>
+                                        <h3 class="card-title">연결 설정</h3>
                                     </div>
                                     <div class="card-body">
                                         <div class="mb-2">
-                                            <label class="form-label">Base URL</label>
+                                            <label class="form-label">기본 URL</label>
                                             <input id="txtBaseUrl" type="text" class="form-control" value="" placeholder="http://localhost:8484">
                                         </div>
                                         <div class="mb-2">
-                                            <label class="form-label">Management Header Name</label>
+                                            <label class="form-label">관리 헤더 이름</label>
                                             <input id="txtHeaderName" type="text" class="form-control" value="X-Management-Key">
                                         </div>
                                         <div class="mb-2">
-                                            <label class="form-label">Management Key</label>
+                                            <label class="form-label">관리 키</label>
                                             <input id="txtManagementKey" type="text" class="form-control">
                                         </div>
                                         <div class="mb-2">
-                                            <label class="form-label">Validate Key Value</label>
+                                            <label class="form-label">키 검증 값</label>
                                             <div class="input-group">
-                                                <input id="txtValidateKey" type="text" class="form-control" placeholder="key for /validate/{key}">
-                                                <button type="button" id="btnValidateKey" class="btn btn-outline-primary">Validate</button>
+                                                <input id="txtValidateKey" type="text" class="form-control" placeholder="/validate/{key} 검증 키">
+                                                <button type="button" id="btnValidateKey" class="btn btn-outline-primary">검증</button>
                                             </div>
                                         </div>
                                         <div class="form-hint">
-                                            Protected APIs use the header above. <span class="mono">/validate/{key}</span> does not require that header.
+                                            보호된 API 호출 시 위 관리 헤더를 사용합니다. <span class="mono">/validate/{key}</span>는 헤더 없이 호출됩니다.
                                         </div>
                                     </div>
                                 </div>
@@ -94,12 +94,12 @@
                             <div class="col-12 col-xl-8">
                                 <div class="card panel-card">
                                     <div class="card-header p-2 bg-primary-lt">
-                                        <h3 class="card-title">Response</h3>
+                                        <h3 class="card-title">응답</h3>
                                     </div>
                                     <div class="card-body">
                                         <div class="request-meta mb-2">
-                                            <div><strong>Request:</strong> <span id="lblRequest" class="mono">-</span></div>
-                                            <div><strong>Status:</strong> <span id="lblStatus" class="mono">-</span></div>
+                                            <div><strong>요청:</strong> <span id="lblRequest" class="mono">-</span></div>
+                                            <div><strong>상태:</strong> <span id="lblStatus" class="mono">-</span></div>
                                         </div>
                                         <div id="txtResponse" class="response-box mono">{}</div>
                                     </div>
@@ -111,14 +111,14 @@
                             <div class="col-12 col-xl-6">
                                 <div class="card panel-card">
                                     <div class="card-header p-2 bg-primary-lt">
-                                        <h3 class="card-title">Targets APIs</h3>
+                                        <h3 class="card-title">대상(Targets) API</h3>
                                     </div>
                                     <div class="card-body">
                                         <div class="mb-2">
                                             <button type="button" id="btnGetTargets" class="btn btn-primary">GET /targets</button>
                                         </div>
                                         <div class="mb-2">
-                                            <label class="form-label">Target ID</label>
+                                            <label class="form-label">대상 ID</label>
                                             <input id="txtTargetId" type="text" class="form-control" value="ack-main">
                                         </div>
                                         <div class="btn-list">
@@ -134,15 +134,15 @@
                             <div class="col-12 col-xl-6">
                                 <div class="card panel-card">
                                     <div class="card-header p-2 bg-primary-lt">
-                                        <h3 class="card-title">Settings APIs</h3>
+                                        <h3 class="card-title">설정 API</h3>
                                     </div>
                                     <div class="card-body">
                                         <div class="mb-2">
-                                            <label class="form-label">Settings Target ID</label>
+                                            <label class="form-label">설정 대상 ID</label>
                                             <input id="txtSettingsId" type="text" class="form-control" value="ack-main">
                                         </div>
                                         <div class="mb-2">
-                                            <label class="form-label">Payload for POST /settings/{id}</label>
+                                            <label class="form-label">POST /settings/{id} 요청 본문(JSON)</label>
                                             <textarea id="txtSettingsPayload" class="form-control mono" rows="6">{}</textarea>
                                         </div>
                                         <div class="btn-list">
@@ -158,19 +158,19 @@
                             <div class="col-12 col-xl-6">
                                 <div class="card panel-card">
                                     <div class="card-header p-2 bg-primary-lt">
-                                        <h3 class="card-title">Modules APIs</h3>
+                                        <h3 class="card-title">모듈 API</h3>
                                     </div>
                                     <div class="card-body">
                                         <div class="mb-2">
-                                            <label class="form-label">Module ID</label>
+                                            <label class="form-label">모듈 ID</label>
                                             <input id="txtModuleId" type="text" class="form-control" value="checkup">
                                         </div>
                                         <div class="mb-2">
-                                            <label class="form-label">Target ID (optional query: ?id=)</label>
+                                            <label class="form-label">대상 ID (선택, 쿼리: ?id=)</label>
                                             <input id="txtModuleTargetId" type="text" class="form-control" value="ack-main">
                                         </div>
                                         <div class="mb-2">
-                                            <label class="form-label">Payload for POST /modules/{module-id}</label>
+                                            <label class="form-label">POST /modules/{module-id} 요청 본문(JSON)</label>
                                             <textarea id="txtModulePayload" class="form-control mono" rows="6">{}</textarea>
                                         </div>
                                         <div class="btn-list">
@@ -184,21 +184,21 @@
                             <div class="col-12 col-xl-6">
                                 <div class="card panel-card">
                                     <div class="card-header p-2 bg-primary-lt">
-                                        <h3 class="card-title">Monitoring APIs</h3>
+                                        <h3 class="card-title">모니터링 API</h3>
                                     </div>
                                     <div class="card-body">
                                         <div class="mb-2">
                                             <button type="button" id="btnGetStats" class="btn">GET /stats</button>
                                         </div>
                                         <div class="mb-2">
-                                            <label class="form-label">Collect Target ID</label>
+                                            <label class="form-label">수집 대상 ID</label>
                                             <input id="txtCollectId" type="text" class="form-control" value="ack-main">
                                         </div>
                                         <div class="mb-2">
                                             <button type="button" id="btnCollect" class="btn btn-primary">GET /collect/{id}</button>
                                         </div>
                                         <div class="form-hint">
-                                            To open this page directly: <span class="mono">/view/AGM/AGM000.html</span>
+                                            직접 열기 경로: <span class="mono">/view/AGM/AGM000.html</span>
                                         </div>
                                     </div>
                                 </div>

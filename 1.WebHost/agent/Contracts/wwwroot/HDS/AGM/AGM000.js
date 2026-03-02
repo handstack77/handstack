@@ -12,7 +12,7 @@ let $AGM000 = {
         async btnValidateKey_click() {
             const key = $this.method.getText('txtValidateKey') || $this.method.getText('txtManagementKey');
             if (key === '') {
-                $this.method.renderError('Please input a key for /validate/{key}.');
+                $this.method.renderError('/validate/{key} 호출에 사용할 키를 입력하세요.');
                 return;
             }
 
@@ -36,7 +36,7 @@ let $AGM000 = {
         },
 
         async btnGetTargetStatus_click() {
-            const targetId = $this.method.requireText('txtTargetId', 'Target ID is required.');
+            const targetId = $this.method.requireText('txtTargetId', '대상 ID를 입력하세요.');
             if (targetId === null) {
                 return;
             }
@@ -61,7 +61,7 @@ let $AGM000 = {
         },
 
         async btnGetSettingsStatus_click() {
-            const settingsId = $this.method.requireText('txtSettingsId', 'Settings Target ID is required.');
+            const settingsId = $this.method.requireText('txtSettingsId', '설정 대상 ID를 입력하세요.');
             if (settingsId === null) {
                 return;
             }
@@ -74,7 +74,7 @@ let $AGM000 = {
         },
 
         async btnSaveSettings_click() {
-            const settingsId = $this.method.requireText('txtSettingsId', 'Settings Target ID is required.');
+            const settingsId = $this.method.requireText('txtSettingsId', '설정 대상 ID를 입력하세요.');
             if (settingsId === null) {
                 return;
             }
@@ -93,7 +93,7 @@ let $AGM000 = {
         },
 
         async btnGetModule_click() {
-            const moduleId = $this.method.requireText('txtModuleId', 'Module ID is required.');
+            const moduleId = $this.method.requireText('txtModuleId', '모듈 ID를 입력하세요.');
             if (moduleId === null) {
                 return;
             }
@@ -113,7 +113,7 @@ let $AGM000 = {
         },
 
         async btnSaveModule_click() {
-            const moduleId = $this.method.requireText('txtModuleId', 'Module ID is required.');
+            const moduleId = $this.method.requireText('txtModuleId', '모듈 ID를 입력하세요.');
             if (moduleId === null) {
                 return;
             }
@@ -147,7 +147,7 @@ let $AGM000 = {
         },
 
         async btnCollect_click() {
-            const collectId = $this.method.requireText('txtCollectId', 'Collect Target ID is required.');
+            const collectId = $this.method.requireText('txtCollectId', '수집 대상 ID를 입력하세요.');
             if (collectId === null) {
                 return;
             }
@@ -191,7 +191,7 @@ let $AGM000 = {
         },
 
         async callTargetAction(actionName) {
-            const targetId = $this.method.requireText('txtTargetId', 'Target ID is required.');
+            const targetId = $this.method.requireText('txtTargetId', '대상 ID를 입력하세요.');
             if (targetId === null) {
                 return;
             }
@@ -213,7 +213,7 @@ let $AGM000 = {
                 return JSON.parse(text);
             }
             catch (error) {
-                $this.method.renderError('Invalid JSON in ' + elementId + ': ' + error.message);
+                $this.method.renderError(elementId + ' 항목의 JSON 형식이 올바르지 않습니다: ' + error.message);
                 return null;
             }
         },
@@ -337,7 +337,7 @@ let $AGM000 = {
             }
 
             if (statusLabel) {
-                statusLabel.textContent = 'pending...';
+                statusLabel.textContent = '요청 중...';
             }
         },
 
@@ -364,7 +364,7 @@ let $AGM000 = {
             const responseElement = document.getElementById('txtResponse');
 
             if (statusLabel) {
-                statusLabel.textContent = 'error';
+                statusLabel.textContent = '오류';
             }
 
             if (responseElement) {
