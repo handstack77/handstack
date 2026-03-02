@@ -4,7 +4,6 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Agent Main</title>
-    <link rel="stylesheet" href="/css/syn.bundle.min.css">
     <style>
         .main-wrapper {
             max-width: 960px;
@@ -24,7 +23,7 @@
         }
     </style>
 </head>
-<body>
+<body style="visibility: hidden;">
     <form autocomplete="off" id="formMain">
         <div class="page">
             <div class="page-wrapper">
@@ -75,7 +74,7 @@
                                             </tr>
                                         </tbody>
                                     </table>
-                                    <div class="d-flex justify-content-end gap-2">
+                                    <div class="d-flex justify-content-end gap-2 mt-3">
                                         <a href="/login.html" class="btn">로그인 화면</a>
                                         <a href="/view/AGM/AGM000.html" class="btn">API 관리 화면</a>
                                         <button type="button" id="btnLogout" class="btn btn-primary">

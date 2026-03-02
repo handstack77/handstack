@@ -53,15 +53,30 @@ let $main = {
                 const payload = await response.json();
                 const user = payload?.user || {};
 
-                $this.method.setText('txtEmailID', user.EmailID || '-');
-                $this.method.setText('txtUserName', user.UserName || '-');
-                $this.method.setText('txtRoles', user.Roles || '-');
-                $this.method.setText('txtCreatedAt', user.CreatedAt || '-');
-                $this.method.setText('txtExpiredAt', user.ExpiredAt || '-');
+                $this.method.setText('txtEmailID', $this.method.getUserField(user, 'EmailID'));
+                $this.method.setText('txtUserName', $this.method.getUserField(user, 'UserName'));
+                $this.method.setText('txtRoles', $this.method.getUserField(user, 'Roles'));
+                $this.method.setText('txtCreatedAt', $this.method.getUserField(user, 'CreatedAt'));
+                $this.method.setText('txtExpiredAt', $this.method.getUserField(user, 'ExpiredAt'));
             }
             catch (error) {
                 $this.method.setMessage('요청 처리 중 오류가 발생했습니다.', true);
             }
+        },
+
+        getUserField(user, fieldName) {
+            const camelCaseFieldName = fieldName.charAt(0).toLowerCase() + fieldName.slice(1);
+            const value = user?.[fieldName] ?? user?.[camelCaseFieldName];
+
+            if (Array.isArray(value) === true) {
+                return value.length > 0 ? value.join(', ') : '-';
+            }
+
+            if (value === null || value === undefined || value === '') {
+                return '-';
+            }
+
+            return value;
         },
 
         setText(elementID, text) {
