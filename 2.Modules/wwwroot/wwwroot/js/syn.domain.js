@@ -676,10 +676,10 @@
             var tabID = null;
             if (parent.$main) {
                 if (projectID && fileID) {
-                    tabID = parent.$main.method.getActiveTabID(projectID, fileID);
+                    tabID = parent.$main.method.getActiveTabID ? parent.$main.method.getActiveTabID(projectID, fileID) : null;
                 }
                 else {
-                    tabID = parent.$main.method.getActiveTab()?.getAttribute('data-tab-id');
+                    tabID = parent.$main.method.getActiveTab ? parent.$main.method.getActiveTab()?.getAttribute('data-tab-id') : null;
                 }
 
                 if (tabID) {

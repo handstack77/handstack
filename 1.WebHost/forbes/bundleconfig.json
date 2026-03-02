@@ -1,8 +1,14 @@
 [
-    {
-        "outputFileName": "wwwroot/js/syn.loader.min.js",
-        "inputFiles": [
-            "wwwroot/js/syn.loader.js"
-        ]
-    }
+  {
+    "outputFileName": "wwwroot/js/syn.loader.min.js",
+    "inputFiles": [
+      "wwwroot/js/syn.loader.js"
+    ]
+  },
+  {
+    "outputFileName": "wwwroot/js/syn.domain.min.js",
+    "inputFiles": [
+      "wwwroot/js/syn.domain.js"
+    ]
+  }
 ]
