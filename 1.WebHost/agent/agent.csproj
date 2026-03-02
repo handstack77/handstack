@@ -42,7 +42,7 @@
 
     <ItemGroup>
         <Reference Include="HandStack.Core">
-            <HintPath>$(ICNITWORK_SRC)/tools/cli/NodeCLI/handstack-build/$(BuildOption)/assemblies/$(BuildOption)/HandStack.Core.dll</HintPath>
+            <HintPath>../../3.Infrastructure/Assemblies/$(Configuration)/HandStack.Core.dll</HintPath>
         </Reference>
     </ItemGroup>
 
