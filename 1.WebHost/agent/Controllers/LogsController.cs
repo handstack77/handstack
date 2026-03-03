@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -214,12 +215,24 @@ namespace agent.Controllers
 
         private static string ResolvePath(string path)
         {
+            path = ExpandPathVariables(path);
             if (Path.IsPathRooted(path) == true)
             {
                 return Path.GetFullPath(path);
             }
 
             return Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, path));
+        }
+
+        private static string ExpandPathVariables(string path)
+        {
+            var expandedPath = Environment.ExpandEnvironmentVariables(path ?? "");
+            return Regex.Replace(expandedPath, @"\$(\{(?<name>[A-Za-z_][A-Za-z0-9_]*)\}|(?<name>[A-Za-z_][A-Za-z0-9_]*))", match =>
+            {
+                var variableName = match.Groups["name"].Value;
+                var value = Environment.GetEnvironmentVariable(variableName);
+                return string.IsNullOrEmpty(value) == true ? match.Value : value;
+            });
         }
 
         private static string? TryGetLatestLogFilePath(string logDirectoryPath)

@@ -1,112 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>에이전트 API 콘솔</title>
-    <style>
-        .pl-container {
-            position: absolute;
-            top: 0;
-            left: 0;
-            background-color: #fff;
-            width: 100vw;
-            height: 100vh;
-            z-index: 999
-        }
-
-        .pl-cube-grid {
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            margin: -20px 0 0 -20px;
-            width: 40px;
-            height: 40px
-        }
-
-            .pl-cube-grid .pl-cube {
-                width: 33%;
-                height: 33%;
-                background-color: #ed1c23;
-                float: left;
-                -webkit-animation: pl-cubeGridScaleDelay 1.3s infinite ease-in-out;
-                animation: pl-cubeGridScaleDelay 1.3s infinite ease-in-out
-            }
-
-            .pl-cube-grid .pl-cube1 {
-                -webkit-animation-delay: .2s;
-                animation-delay: .2s
-            }
-
-            .pl-cube-grid .pl-cube2 {
-                -webkit-animation-delay: .3s;
-                animation-delay: .3s
-            }
-
-            .pl-cube-grid .pl-cube3 {
-                -webkit-animation-delay: .4s;
-                animation-delay: .4s
-            }
-
-            .pl-cube-grid .pl-cube4 {
-                -webkit-animation-delay: .1s;
-                animation-delay: .1s
-            }
-
-            .pl-cube-grid .pl-cube5 {
-                -webkit-animation-delay: .2s;
-                animation-delay: .2s
-            }
-
-            .pl-cube-grid .pl-cube6 {
-                -webkit-animation-delay: .3s;
-                animation-delay: .3s
-            }
-
-            .pl-cube-grid .pl-cube7 {
-                -webkit-animation-delay: 0s;
-                animation-delay: 0s
-            }
-
-            .pl-cube-grid .pl-cube8 {
-                -webkit-animation-delay: .1s;
-                animation-delay: .1s
-            }
-
-            .pl-cube-grid .pl-cube9 {
-                -webkit-animation-delay: .2s;
-                animation-delay: .2s
-            }
-
-        @-webkit-keyframes pl-cubeGridScaleDelay {
-            0%,100%,70% {
-                -webkit-transform: scale3D(1,1,1);
-                transform: scale3D(1,1,1)
-            }
-
-            35% {
-                -webkit-transform: scale3D(0,0,1);
-                transform: scale3D(0,0,1)
-            }
-        }
-
-        @keyframes pl-cubeGridScaleDelay {
-            0%,100%,70% {
-                -webkit-transform: scale3D(1,1,1);
-                transform: scale3D(1,1,1)
-            }
-
-            35% {
-                -webkit-transform: scale3D(0,0,1);
-                transform: scale3D(0,0,1)
-            }
-        }
-
-        .wtBorder {
-            background-color: #ed1c23 !important;
-        }
-    </style>
-    <link rel="stylesheet" href="/css/syn.bundle.css?tick=cache-id" type="text/css">
     <style>
         :root {
             --ag-primary: #0e6ed8;
@@ -120,9 +17,7 @@
         }
 
         body {
-            background:
-                radial-gradient(circle at 3% 0%, rgba(69, 154, 255, 0.18) 0%, rgba(69, 154, 255, 0) 40%),
-                linear-gradient(180deg, #f4f9ff 0%, #eef5fd 100%);
+            background: #eef5fd;
             color: #17324f;
             font-family: "Pretendard", "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
         }
@@ -141,7 +36,7 @@
 
         .hero-card {
             border: 1px solid var(--ag-border);
-            background: linear-gradient(135deg, #ffffff 0%, #f0f7ff 70%, #ecf4ff 100%);
+            background: #ffffff;
             box-shadow: var(--ag-shadow-strong);
         }
 
@@ -187,7 +82,7 @@
 
         .panel-card .card-header {
             border-bottom: 1px solid var(--ag-border);
-            background: linear-gradient(180deg, #f8fbff 0%, #f3f8ff 100%);
+            background: #f3f8ff;
             padding: 0.72rem 0.95rem;
         }
 
@@ -257,7 +152,7 @@
         }
 
         .response-pane .card-header {
-            background: linear-gradient(120deg, #d7eaff 0%, #ebf4ff 100%);
+            background: #dfeeff;
             border-bottom: 1px solid var(--ag-border);
         }
 
@@ -282,11 +177,12 @@
         .response-box {
             flex: 1 1 auto;
             min-height: 0;
+            height: calc(100vh - 308px);
             overflow: auto;
             white-space: pre-wrap;
             border: 1px solid var(--ag-border);
             border-radius: 0.62rem;
-            background: linear-gradient(180deg, #f8fbff 0%, #f3f8ff 100%);
+            background: #f8fbff;
             padding: 0.86rem;
         }
 
@@ -361,17 +257,10 @@
                         <div class="card-body p-3 p-lg-4">
                             <div class="d-flex flex-column flex-lg-row gap-3 align-items-start align-items-lg-center justify-content-between">
                                 <div>
-                                    <div class="page-pretitle f:12!">HDS / AGM</div>
                                     <h1 class="hero-title">에이전트 API 관리 콘솔</h1>
                                     <p class="hero-desc">왼쪽에서 API를 실행하면 오른쪽 응답 패널에서 즉시 결과를 확인할 수 있습니다.</p>
-                                    <div class="hero-steps">
-                                        <span class="step-chip">1. 연결 설정</span>
-                                        <span class="step-chip">2. 대상 제어</span>
-                                        <span class="step-chip">3. 설정/모듈 저장</span>
-                                        <span class="step-chip">4. 로그/상태 확인</span>
-                                    </div>
                                 </div>
-                                <div class="hero-actions w-100 w-lg-auto">
+                                <div class="hero-actions w-100">
                                     <a href="/main.html" class="btn btn-primary">
                                         <i class="f:18 ti ti-arrow-left mr:2"></i>
                                         메인으로 돌아가기

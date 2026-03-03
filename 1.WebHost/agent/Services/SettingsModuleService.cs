@@ -717,7 +717,30 @@ namespace agent.Services
 
         private static string ResolvePath(string path, string basePath)
         {
-            var value = Environment.ExpandEnvironmentVariables(path ?? "");
+            basePath = Environment.ExpandEnvironmentVariables(basePath ?? "");
+            basePath = Regex.Replace(basePath, @"\$(\{(?<name>[A-Za-z_][A-Za-z0-9_]*)\}|(?<name>[A-Za-z_][A-Za-z0-9_]*))", match =>
+            {
+                var variableName = match.Groups["name"].Value;
+                var value = Environment.GetEnvironmentVariable(variableName);
+                return string.IsNullOrEmpty(value) == true ? match.Value : value;
+            });
+
+            if (string.IsNullOrWhiteSpace(basePath) == true)
+            {
+                basePath = AppContext.BaseDirectory;
+            }
+
+            basePath = Path.GetFullPath(basePath);
+
+            path = Environment.ExpandEnvironmentVariables(path ?? "");
+            path = Regex.Replace(path, @"\$(\{(?<name>[A-Za-z_][A-Za-z0-9_]*)\}|(?<name>[A-Za-z_][A-Za-z0-9_]*))", match =>
+            {
+                var variableName = match.Groups["name"].Value;
+                var value = Environment.GetEnvironmentVariable(variableName);
+                return string.IsNullOrEmpty(value) == true ? match.Value : value;
+            });
+
+            var value = path;
             if (string.IsNullOrWhiteSpace(value) == true)
             {
                 return basePath;
