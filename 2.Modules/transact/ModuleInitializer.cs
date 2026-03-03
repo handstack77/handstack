@@ -121,7 +121,7 @@ namespace transact
                 TransactionMapper.LoadContract(environment.EnvironmentName, Log.Logger, configuration);
 
                 services.AddSingleton(new TransactLoggerClient(Log.Logger));
-                services.AddSingleton<TransactClient>();
+                services.AddScoped<TransactClient>();
                 services.AddTransient<IRequestHandler<TransactRequest, object?>, TransactRequestHandler>();
                 services.AddTransient<IRequestHandler<TransactionRefreshRequest, bool>, TransactionRefreshRequestHandler>();
             }
@@ -206,7 +206,7 @@ namespace transact
                 }
             }
 
-            var mediator = app.ApplicationServices.GetService<IMediator>();
+            var serviceScopeFactory = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>();
             var client = new RestClient();
             foreach (var basePath in ModuleConfiguration.ContractBasePath)
             {
@@ -220,7 +220,9 @@ namespace transact
                             var filePath = fileInfo.FullName.Replace("\\", "/").Replace(basePath, "");
                             try
                             {
-                                var actionResult = await mediator!.Send(new TransactionRefreshRequest(changeTypes.ToString(), filePath, null, null));
+                                using var scope = serviceScopeFactory.CreateScope();
+                                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                                var actionResult = await mediator.Send(new TransactionRefreshRequest(changeTypes.ToString(), filePath, null, null));
                                 if (actionResult == false && changeTypes != WatcherChangeTypes.Deleted)
                                 {
                                     Log.Warning("[{LogCategory}] " + $"{filePath} 파일 갱신 확인 필요.", $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure");

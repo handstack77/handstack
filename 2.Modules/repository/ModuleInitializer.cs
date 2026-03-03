@@ -380,7 +380,7 @@ namespace repository
                     }
                 }
 
-                var mediator = app.ApplicationServices.GetService<IMediator>();
+                var serviceScopeFactory = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>();
                 var client = new RestClient();
                 foreach (var basePath in ModuleConfiguration.ContractBasePath)
                 {
@@ -394,7 +394,9 @@ namespace repository
                                 var filePath = fileInfo.FullName.Replace("\\", "/").Replace(basePath, "");
                                 try
                                 {
-                                    var actionResult = await mediator!.Send(new StorageRefreshRequest(changeTypes.ToString(), filePath, null, null));
+                                    using var scope = serviceScopeFactory.CreateScope();
+                                    var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                                    var actionResult = await mediator.Send(new StorageRefreshRequest(changeTypes.ToString(), filePath, null, null));
                                     if (actionResult == false && changeTypes != WatcherChangeTypes.Deleted)
                                     {
                                         Log.Warning("[{LogCategory}] " + $"{filePath} 파일 갱신 확인 필요.", $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure");
