@@ -47,14 +47,14 @@ dotnet run --project 1.WebHost/agent/agent.csproj
 
 ```powershell
 $headers = @{ "X-Management-Key" = "CHANGE-THIS-KEY" }
-Invoke-RestMethod -Uri "http://localhost:5000/targets" -Headers $headers
+Invoke-RestMethod -Uri "http://localhost:8484/targets" -Headers $headers
 ```
 
 ## Windows Service 등록 예시
 
 ```powershell
 dotnet publish 1.WebHost/agent/agent.csproj -c Release -o C:\handstack\agent
-sc.exe create handstack-agent binPath= "C:\handstack\agent\agent.exe --urls http://0.0.0.0:8577" start= auto
+sc.exe create handstack-agent binPath= "C:\handstack\agent\agent.exe --urls http://0.0.0.0:8484" start= auto
 sc.exe start handstack-agent
 ```
 
@@ -73,7 +73,7 @@ After=network.target
 
 [Service]
 WorkingDirectory=/opt/handstack/agent
-ExecStart=/opt/handstack/agent/agent --urls http://0.0.0.0:8577
+ExecStart=/opt/handstack/agent/agent --urls http://0.0.0.0:8484
 Restart=always
 RestartSec=5
 User=www-data

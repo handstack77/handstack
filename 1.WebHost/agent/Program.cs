@@ -10,6 +10,7 @@ using agent.Services;
 
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
@@ -29,6 +30,11 @@ namespace agent
 
             Console.OutputEncoding = Encoding.UTF8;
             Console.InputEncoding = Encoding.UTF8;
+
+            if (HasConfiguredUrls(args, builder.Configuration["urls"], Environment.GetEnvironmentVariable("ASPNETCORE_URLS")) == false)
+            {
+                builder.WebHost.UseUrls("http://0.0.0.0:8484");
+            }
 
             builder.Services
                 .AddOptions<AgentOptions>()
@@ -151,6 +157,29 @@ namespace agent
             var extensionType = Type.GetType(typeName, throwOnError: false);
             var method = extensionType?.GetMethod(methodName, new[] { typeof(IHostBuilder) });
             method?.Invoke(null, new object[] { hostBuilder });
+        }
+
+        private static bool HasConfiguredUrls(string[] args, string? configuredUrls, string? aspNetCoreUrls)
+        {
+            if (string.IsNullOrWhiteSpace(configuredUrls) == false || string.IsNullOrWhiteSpace(aspNetCoreUrls) == false)
+            {
+                return true;
+            }
+
+            for (int i = 0; i < args.Length; i++)
+            {
+                string arg = args[i];
+                if (string.Equals(arg, "--urls", StringComparison.OrdinalIgnoreCase) == true ||
+                    arg.StartsWith("--urls=", StringComparison.OrdinalIgnoreCase) == true ||
+                    arg.StartsWith("--urls:", StringComparison.OrdinalIgnoreCase) == true ||
+                    arg.StartsWith("urls=", StringComparison.OrdinalIgnoreCase) == true ||
+                    arg.StartsWith("urls:", StringComparison.OrdinalIgnoreCase) == true)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }
