@@ -14,11 +14,7 @@ namespace agent.Options
 
         public string StateDirectoryPath { get; set; } = "state";
 
-        public string CollectDirectoryPath { get; set; } = "collect";
-
         public List<TargetProcessOptions> Targets { get; set; } = new List<TargetProcessOptions>();
-
-        public DotNetMonitorOptions DotNetMonitor { get; set; } = new DotNetMonitorOptions();
 
         public AuditLogOptions AuditLog { get; set; } = new AuditLogOptions();
     }

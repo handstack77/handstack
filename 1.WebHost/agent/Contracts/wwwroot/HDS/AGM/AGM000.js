@@ -175,23 +175,6 @@ let $AGM000 = {
             }
         },
 
-        async btnCollect_click() {
-            const collectId = $this.method.requireText('txtCollectId', '수집 대상 ID를 입력하세요.');
-            if (collectId === null) {
-                return;
-            }
-
-            const response = await $this.method.requestApi({
-                method: 'GET',
-                path: '/collect/' + encodeURIComponent(collectId),
-                includeManagementKey: true
-            });
-
-            if (response && response.ok) {
-                $this.method.renderResponse(response.status, response.statusText, response.data);
-            }
-        },
-
         async btnGetLogs_click() {
             const query = {};
             const file = syn.$l.get('txtLogFile').value.trim();
@@ -248,7 +231,6 @@ let $AGM000 = {
             syn.$l.addEvent('btnGetModule', 'click', $this.event.btnGetModule_click);
             syn.$l.addEvent('btnSaveModule', 'click', $this.event.btnSaveModule_click);
             syn.$l.addEvent('btnGetStats', 'click', $this.event.btnGetStats_click);
-            syn.$l.addEvent('btnCollect', 'click', $this.event.btnCollect_click);
             syn.$l.addEvent('btnGetLogs', 'click', $this.event.btnGetLogs_click);
             syn.$l.addEvent('btnGetLogTree', 'click', $this.event.btnGetLogTree_click);
         },

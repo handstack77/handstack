@@ -19,14 +19,6 @@ namespace agent.Entity
         public double? CpuPercent { get; set; }
 
         public long? RamBytes { get; set; }
-
-        public TargetRequestStat RequestStat { get; set; } = new TargetRequestStat();
-
-        public TargetResponseStat ResponseStat { get; set; } = new TargetResponseStat();
-
-        public int? LastExitCode { get; set; }
-
-        public DateTimeOffset? LastExitTimeUtc { get; set; }
     }
 }
 

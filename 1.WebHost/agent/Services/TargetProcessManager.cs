@@ -20,7 +20,6 @@ namespace agent.Services
     public sealed class TargetProcessManager : ITargetProcessManager
     {
         private readonly IOptionsMonitor<AgentOptions> optionsMonitor;
-        private readonly IDotNetMonitorCollector collector;
         private readonly ILogger<TargetProcessManager> logger;
         private readonly SemaphoreSlim syncLock;
         private readonly ConcurrentDictionary<string, ManagedProcessState> states;
@@ -29,11 +28,9 @@ namespace agent.Services
 
         public TargetProcessManager(
             IOptionsMonitor<AgentOptions> optionsMonitor,
-            IDotNetMonitorCollector collector,
             ILogger<TargetProcessManager> logger)
         {
             this.optionsMonitor = optionsMonitor;
-            this.collector = collector;
             this.logger = logger;
             syncLock = new SemaphoreSlim(1, 1);
             states = new ConcurrentDictionary<string, ManagedProcessState>(StringComparer.OrdinalIgnoreCase);
@@ -73,11 +70,11 @@ namespace agent.Services
             return target is not null;
         }
 
-        public async Task<TargetStatusResponse?> GetStatusAsync(string id, CancellationToken cancellationToken)
+        public Task<TargetStatusResponse?> GetStatusAsync(string id, CancellationToken cancellationToken)
         {
             if (TryGetTarget(id, out var target) == false || target is null)
             {
-                return null;
+                return Task.FromResult<TargetStatusResponse?>(null);
             }
 
             cancellationToken.ThrowIfCancellationRequested();
@@ -97,17 +94,13 @@ namespace agent.Services
             var response = new TargetStatusResponse
             {
                 Id = target.Id,
-                Name = string.IsNullOrWhiteSpace(target.Name) == true ? target.Id : target.Name,
-                LastExitCode = state.LastExitCode,
-                LastExitTimeUtc = state.LastExitTimeUtc,
-                RequestStat = new TargetRequestStat(),
-                ResponseStat = new TargetResponseStat()
+                Name = string.IsNullOrWhiteSpace(target.Name) == true ? target.Id : target.Name
             };
 
             if (process is null)
             {
                 response.State = "Stopped";
-                return response;
+                return Task.FromResult<TargetStatusResponse?>(response);
             }
 
             response.State = "Running";
@@ -121,14 +114,7 @@ namespace agent.Services
             response.CpuPercent = CalculateCpuPercent(process);
             response.RamBytes = SafeGetWorkingSet(process);
 
-            var monitorStats = await collector.GetStatsAsync(target, process.Id, cancellationToken);
-            if (monitorStats is not null)
-            {
-                response.RequestStat = monitorStats.RequestStat;
-                response.ResponseStat = monitorStats.ResponseStat;
-            }
-
-            return response;
+            return Task.FromResult<TargetStatusResponse?>(response);
         }
 
         public async Task<TargetCommandResult> StartAsync(string id, CancellationToken cancellationToken)

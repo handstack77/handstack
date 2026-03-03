@@ -15,23 +15,21 @@
 - `POST /modules/{module-id}` (`?id={target-id}` 선택)
 - `GET /stats`
 - `GET /validate/{key}`
-- `GET /collect/{id}`
 - `GET /logs?file={file}&rows={rows}`
 - `GET /logtree`
 
 `/logs`는 실행 중인 `ack` 대상의 `WorkingDirectory/../log`에서 로그를 읽어오며, `file` 미지정 시 최신 `app*.log`, `rows` 미지정 시 `300`행을 반환합니다. `file`은 파일명 또는 하위 상대경로를 지원합니다.
 `/logtree`는 실행 중인 `ack` 대상의 `WorkingDirectory/../log` 디렉터리 하위 파일/폴더를 트리(JSON)로 반환합니다.
 
-`/targets`, `/settings`, `/modules`, `/stats`, `/collect`, `/logs`, `/logtree` API는 `Agent:ManagementHeaderName` 헤더로 관리 키를 전달해야 합니다.
+`/targets`, `/settings`, `/modules`, `/stats`, `/logs`, `/logtree` API는 `Agent:ManagementHeaderName` 헤더로 관리 키를 전달해야 합니다.
 
 ## 설정
 
-`appsettings.json`의 `Agent` 섹션에서 관리 키, 타깃 프로세스, `dotnet-monitor` 연동값을 설정합니다.
+`appsettings.json`의 `Agent` 섹션에서 관리 키와 타깃 프로세스 설정을 구성합니다.
 
 - `ManagementHeaderName`: 기본 `X-Management-Key`
 - `ManagementKey`: 중앙 서버에서 호출할 인증 키
 - `Targets`: 제어 대상 `ack` 프로세스 목록
-- `DotNetMonitor`: 메트릭/로그/트레이스/덤프 수집 API 정보
 - `AuditLog`: `/targets` API 요청 감사 로그(`logger/api/log/insert`) 설정
 
 `AuditLog:Enabled=true`일 때 `/targets` API 호출은 `누가(사용자/클라이언트IP)`, `언제`, `무엇(액션/타깃/결과)` 정보를 `logger` 모듈로 전송합니다.

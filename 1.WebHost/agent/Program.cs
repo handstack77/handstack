@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Net.Http;
 using System.Text;
 
 using agent.Options;
@@ -15,7 +14,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
 
 namespace agent
 {
@@ -63,24 +61,10 @@ namespace agent
             builder.Services.AddSingleton<UserCredentialValidator>();
             builder.Services.AddScoped<ManagementKeyActionFilter>();
             builder.Services.AddSingleton<IHostStatsProvider, HostStatsProvider>();
-            builder.Services.AddSingleton<IDotNetMonitorCollector, DotNetMonitorCollector>();
             builder.Services.AddSingleton<ITargetProcessManager, TargetProcessManager>();
             builder.Services.AddSingleton<ITargetAuditLogger, TargetAuditLogger>();
             builder.Services.AddSingleton<ISettingsModuleService, SettingsModuleService>();
 
-            builder.Services
-                .AddHttpClient(DotNetMonitorCollector.HttpClientName)
-                .ConfigurePrimaryHttpMessageHandler(serviceProvider =>
-                {
-                    var options = serviceProvider.GetRequiredService<IOptionsMonitor<AgentOptions>>().CurrentValue.DotNetMonitor;
-                    var handler = new HttpClientHandler();
-                    if (options.AllowInsecureTls == true)
-                    {
-                        handler.ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
-                    }
-
-                    return handler;
-                });
             builder.Services.AddHttpClient(TargetAuditLogger.HttpClientName);
             builder.Services.AddHttpClient(SettingsModuleService.HttpClientName);
 
