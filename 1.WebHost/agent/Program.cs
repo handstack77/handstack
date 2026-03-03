@@ -15,8 +15,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Hosting.Systemd;
-using Microsoft.Extensions.Hosting.WindowsServices;
 using Microsoft.Extensions.Options;
 
 namespace agent
@@ -139,13 +137,26 @@ namespace agent
         {
             if (OperatingSystem.IsWindows() == true)
             {
-                hostBuilder.UseWindowsService();
+                TryInvokeHostBuilderExtension(
+                    hostBuilder,
+                    "Microsoft.Extensions.Hosting.WindowsServices.WindowsServiceLifetimeHostBuilderExtensions, Microsoft.Extensions.Hosting.WindowsServices",
+                    "UseWindowsService");
             }
 
             if (OperatingSystem.IsLinux() == true)
             {
-                hostBuilder.UseSystemd();
+                TryInvokeHostBuilderExtension(
+                    hostBuilder,
+                    "Microsoft.Extensions.Hosting.Systemd.SystemdHostBuilderExtensions, Microsoft.Extensions.Hosting.Systemd",
+                    "UseSystemd");
             }
+        }
+
+        private static void TryInvokeHostBuilderExtension(IHostBuilder hostBuilder, string typeName, string methodName)
+        {
+            var extensionType = Type.GetType(typeName, throwOnError: false);
+            var method = extensionType?.GetMethod(methodName, new[] { typeof(IHostBuilder) });
+            method?.Invoke(null, new object[] { hostBuilder });
         }
 
         private static bool HasConfiguredUrls(string[] args, string? configuredUrls, string? aspNetCoreUrls)

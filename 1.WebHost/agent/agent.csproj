@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
     <PropertyGroup>
+        <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
         <TargetFramework>net10.0</TargetFramework>
-        <RuntimeIdentifiers>win-x64;linux-x64;osx-x64</RuntimeIdentifiers>
         <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
         <PublishWithAspNetCoreTargetManifest>true</PublishWithAspNetCoreTargetManifest>
         <TargetLatestRuntimePatch>false</TargetLatestRuntimePatch>
@@ -31,15 +31,13 @@
     <ItemGroup>
         <FrameworkReference Include="Microsoft.AspNetCore.App" />
     </ItemGroup>
-    
+
     <ItemGroup>
         <PackageReference Include="Hangfire.AspNetCore" Version="1.8.23" />
         <PackageReference Include="Hangfire.Core" Version="1.8.23" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
         <PackageReference Include="RestSharp" Version="113.1.0" />
         <PackageReference Include="Serilog" Version="4.3.1" />
-        <PackageReference Include="Microsoft.Extensions.Hosting.Systemd" Version="10.0.3" />
-        <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="10.0.3" />
     </ItemGroup>
 
     <ItemGroup>
@@ -68,11 +66,11 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Content Remove="bundleconfig.json" />
+        <Content Remove="bundleconfig.json" />
     </ItemGroup>
 
     <ItemGroup>
-      <None Include="bundleconfig.json" />
+        <None Include="bundleconfig.json" />
     </ItemGroup>
 
     <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
