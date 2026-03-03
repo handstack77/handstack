@@ -1,135 +1,97 @@
 # dotnet-installer
 
-`dotnet-installer`는 게시된 배포 파일을 각 운영체제 설치 파일로 묶어주는 .NET 10 콘솔 프로젝트입니다.
+`dotnet-installer`는 publish 산출물을 설치 패키지로 변환하는 .NET 10 콘솔 도구입니다.
 
-- Windows: Inno Setup 기반 `.exe`
-- Ubuntu: Debian `.deb`
-- macOS: Apple `.pkg`
+생성 대상:
 
-`--source` 옵션은 필수이며, 패키징할 publish 폴더 경로를 직접 지정해야 합니다. (`--source "<path>"` 또는 `--source="<path>"`)
+- Windows: `.exe` (Inno Setup)
+- Ubuntu: `.deb` (`dpkg-deb`)
+- macOS: `.pkg` (`pkgbuild`)
 
-## 사전 준비
+## 사전 조건
+
+공통:
+
+- .NET SDK 10.0+
+
+대상별 추가:
+
+- Windows 패키징: Inno Setup (`ISCC.exe`)
+- Ubuntu 패키징: `dpkg-deb` (`dpkg-dev` 패키지)
+- macOS 패키징: `pkgbuild` (Xcode Command Line Tools)
 
 ### Windows에서 `.exe` 설치 파일 만들기
 
-1. .NET SDK 10 설치
-```powershell
-winget install -e --id Microsoft.DotNet.SDK.10
-```
-2. .NET 설치 확인
-```powershell
-dotnet --version
-```
-3. Inno Setup 6 설치
+Inno Setup  설치
 ```powershell
 winget install -e --id JRSoftware.InnoSetup
 ```
-4. Inno Setup 설치 확인 (`ISCC.exe` 동작 확인)
+Inno Setup 설치 확인 (`ISCC.exe` 동작 확인)
 ```powershell
 & "$env:LOCALAPPDATA\Programs\Inno Setup 6\ISCC.exe" /?
-```
-5. Windows 패키징 실행
-```powershell
-dotnet-installer.exe --source "<publish-folder-path>" --targets windows
-```
-6. `ISCC.exe` 경로를 직접 지정해서 실행 (선택)
-```powershell
-dotnet-installer.exe --source "<publish-folder-path>" --targets windows --windows-iscc "$env:LOCALAPPDATA\Programs\Inno Setup 6\ISCC.exe"
-```
-
-### Ubuntu에서 `.deb` 설치 파일 만들기
-
-1. Microsoft 패키지 피드 등록
-```bash
-wget https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb && sudo dpkg -i packages-microsoft-prod.deb && rm packages-microsoft-prod.deb
-```
-2. 패키지 목록 갱신
-```bash
-sudo apt update
-```
-3. .NET SDK 10 설치
-```bash
-sudo apt install -y dotnet-sdk-10.0
-```
-4. .NET 설치 확인
-```bash
-dotnet --version
-```
-5. `dpkg-deb` 도구 설치
-```bash
-sudo apt install -y dpkg-dev
-```
-6. `dpkg-deb` 설치 확인
-```bash
-dpkg-deb --version
-```
-7. Ubuntu 패키징 실행
-```bash
-./dotnet-installer --source "<publish-folder-path>" --targets ubuntu
-```
-
-### macOS에서 `.pkg` 설치 파일 만들기
-
-1. Homebrew로 .NET SDK 10 설치
-```bash
-brew install --cask dotnet-sdk
-```
-2. .NET 설치 확인
-```bash
-dotnet --version
-```
-3. Xcode Command Line Tools 설치 (`pkgbuild` 포함)
-```bash
-xcode-select --install
-```
-4. `pkgbuild` 설치 확인
-```bash
-pkgbuild --version
-```
-5. macOS 패키징 실행
-```bash
-./dotnet-installer --source "<publish-folder-path>" --targets macos
-```
-
-### 권장 사항: 운영체제별 Publish 산출물 사용
-
-- 가능하면 OS별 런타임으로 각각 publish 후, 해당 publish 폴더를 `--source`로 지정해서 패키징하세요.
-- 예시: `win-x64`, `linux-x64`, `osx-x64` 또는 `osx-arm64`
 
 ## 빌드
 
 ```powershell
-$env:DOTNET_CLI_HOME=(Get-Location).Path; $env:DOTNET_CLI_TELEMETRY_OPTOUT='1'; dotnet build .\dotnet-installer\dotnet-installer.csproj
+dotnet build .\dotnet-installer\dotnet-installer.csproj
 ```
 
-## 사용 방법
-
-기본값으로 전체 대상 패키징:
+## 실행
 
 ```powershell
-dotnet-installer.exe --source "<publish-folder-path>"
+dotnet run --project .\dotnet-installer -- [options]
 ```
 
-Windows만 생성:
+또는 빌드 산출물 직접 실행:
 
 ```powershell
-dotnet-installer.exe --source "<publish-folder-path>" --targets windows
+.\dotnet-installer\bin\Debug\net10.0\dotnet-installer.exe [options]
 ```
 
-Ubuntu + macOS만 생성:
+## 옵션
+
+- `--source <path>`: 게시(publish) 폴더 경로 (필수)
+- `--output <path>`: 출력 폴더 (기본 `./artifacts`)
+- `--app-name <name>`: 앱 이름 (기본 `my-app`)
+- `--version <version>`: 패키지 버전 (기본 UTC 타임스탬프)
+- `--publisher <name>`: 게시자 (기본 `HandStack`)
+- `--maintainer <name>`: Debian Maintainer (기본 `HandStack`)
+- `--description <text>`: 패키지 설명
+- `--entry-exe <file>`: Windows 시작 EXE 파일명
+- `--entry-command <cmd>`: Linux `.desktop` 실행 명령
+- `--windows-iscc <path>`: `ISCC.exe` 전체 경로
+- `--targets <list>`: `windows,ubuntu,macos,all` (기본 `all`)
+- `--verbose`: 하위 프로세스 stdout/stderr 출력
+- `-h`, `--help`: 도움말
+
+## 실행 예시
 
 ```powershell
-dotnet-installer.exe --source "<publish-folder-path>" --targets ubuntu,macos
+# 전체 대상
+.\dotnet-installer\bin\Debug\net10.0\dotnet-installer.exe --source C:/publish/myapp
+
+# Windows만
+.\dotnet-installer\bin\Debug\net10.0\dotnet-installer.exe --source C:/publish/myapp --targets windows
+
+# Ubuntu + macOS
+.\dotnet-installer\bin\Debug\net10.0\dotnet-installer.exe --source C:/publish/myapp --targets ubuntu,macos
+
+# 출력/버전/이름 지정
+.\dotnet-installer\bin\Debug\net10.0\dotnet-installer.exe --source C:/publish/myapp --output C:/artifacts --app-name handstack-app --version 1.2.3
+
+# Inno Setup 경로 직접 지정
+.\dotnet-installer\bin\Debug\net10.0\dotnet-installer.exe --source C:/publish/myapp --targets windows --windows-iscc "C:/Program Files (x86)/Inno Setup 6/ISCC.exe"
 ```
 
-소스/출력/버전/앱이름 커스텀:
+## 출력 경로
 
-```powershell
-dotnet-installer.exe --source "<publish-folder-path>" --output ".\artifacts" --app-name "my-app" --version "1.0.0"
-```
+기본 출력 루트는 `./artifacts`이며, 대상별 하위 폴더를 생성합니다.
 
-## 참고 사항
+- `artifacts/windows/*.exe`
+- `artifacts/ubuntu/*.deb`
+- `artifacts/macos/*.pkg`
 
-- 소스 publish 디렉터리의 파일 구조를 그대로 패키징합니다.
-- `--app-name`의 기본값은 `my-app`입니다.
-- 생성 결과물은 `artifacts/windows`, `artifacts/ubuntu`, `artifacts/macos` 아래에 저장됩니다.
+## 운영 팁
+
+- OS별 publish 산출물을 먼저 만든 뒤 해당 폴더를 `--source`로 지정하는 방식을 권장합니다.
+- Windows/Ubuntu/macOS 패키징은 각 도구(`ISCC`, `dpkg-deb`, `pkgbuild`)가 실행 가능한 환경에서 수행해야 합니다.
