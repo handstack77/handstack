@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -345,6 +346,7 @@ namespace agent.Services
 
         private static string ResolvePath(string path)
         {
+            path = ExpandPathVariables(path);
             if (string.IsNullOrWhiteSpace(path) == true)
             {
                 return AppContext.BaseDirectory;
@@ -356,6 +358,17 @@ namespace agent.Services
             }
 
             return Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, path));
+        }
+
+        private static string ExpandPathVariables(string path)
+        {
+            var expandedPath = Environment.ExpandEnvironmentVariables(path ?? "");
+            return Regex.Replace(expandedPath, @"\$(\{(?<name>[A-Za-z_][A-Za-z0-9_]*)\}|(?<name>[A-Za-z_][A-Za-z0-9_]*))", match =>
+            {
+                var variableName = match.Groups["name"].Value;
+                var value = Environment.GetEnvironmentVariable(variableName);
+                return string.IsNullOrEmpty(value) == true ? match.Value : value;
+            });
         }
 
         private ProcessStartInfo BuildProcessStartInfo(TargetProcessOptions target)

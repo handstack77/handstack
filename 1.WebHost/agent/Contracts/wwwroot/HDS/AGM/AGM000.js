@@ -10,7 +10,7 @@ let $AGM000 = {
 
     event: {
         async btnValidateKey_click() {
-            const key = $this.method.getText('txtValidateKey') || $this.method.getText('txtManagementKey');
+            const key = syn.$l.get('txtManagementKey').value;
             if (key === '') {
                 $this.method.renderError('/validate/{key} 호출에 사용할 키를 입력하세요.');
                 return;
@@ -23,16 +23,21 @@ let $AGM000 = {
             });
 
             if (response && response.ok && response.data && response.data.header) {
+                $this.method.renderResponse(response.status, response.statusText, response.data);
                 $this.method.setText('txtHeaderName', String(response.data.header));
             }
         },
 
         async btnGetTargets_click() {
-            await $this.method.requestApi({
+            const response = await $this.method.requestApi({
                 method: 'GET',
                 path: '/targets',
                 includeManagementKey: true
             });
+
+            if (response && response.ok) {
+                $this.method.renderResponse(response.status, response.statusText, response.data);
+            }
         },
 
         async btnGetTargetStatus_click() {
@@ -41,11 +46,15 @@ let $AGM000 = {
                 return;
             }
 
-            await $this.method.requestApi({
+            const response = await $this.method.requestApi({
                 method: 'GET',
                 path: '/targets/' + encodeURIComponent(targetId) + '/status',
                 includeManagementKey: true
             });
+
+            if (response && response.ok) {
+                $this.method.renderResponse(response.status, response.statusText, response.data);
+            }
         },
 
         async btnStartTarget_click() {
@@ -66,11 +75,15 @@ let $AGM000 = {
                 return;
             }
 
-            await $this.method.requestApi({
+            const response = await $this.method.requestApi({
                 method: 'GET',
                 path: '/settings/' + encodeURIComponent(settingsId) + '/status',
                 includeManagementKey: true
             });
+
+            if (response && response.ok) {
+                $this.method.renderResponse(response.status, response.statusText, response.data);
+            }
         },
 
         async btnSaveSettings_click() {
@@ -84,12 +97,16 @@ let $AGM000 = {
                 return;
             }
 
-            await $this.method.requestApi({
+            const response = await $this.method.requestApi({
                 method: 'POST',
                 path: '/settings/' + encodeURIComponent(settingsId),
                 includeManagementKey: true,
                 body: payload
             });
+
+            if (response && response.ok) {
+                $this.method.renderResponse(response.status, response.statusText, response.data);
+            }
         },
 
         async btnGetModule_click() {
@@ -99,17 +116,21 @@ let $AGM000 = {
             }
 
             const query = {};
-            const targetId = $this.method.getText('txtModuleTargetId');
+            const targetId = syn.$l.get('txtModuleTargetId').value;
             if (targetId !== '') {
                 query.id = targetId;
             }
 
-            await $this.method.requestApi({
+            const response = await $this.method.requestApi({
                 method: 'GET',
                 path: '/modules/' + encodeURIComponent(moduleId),
                 includeManagementKey: true,
                 query: query
             });
+
+            if (response && response.ok) {
+                $this.method.renderResponse(response.status, response.statusText, response.data);
+            }
         },
 
         async btnSaveModule_click() {
@@ -124,26 +145,34 @@ let $AGM000 = {
             }
 
             const query = {};
-            const targetId = $this.method.getText('txtModuleTargetId');
+            const targetId = syn.$l.get('txtModuleTargetId').value;
             if (targetId !== '') {
                 query.id = targetId;
             }
 
-            await $this.method.requestApi({
+            const response = await $this.method.requestApi({
                 method: 'POST',
                 path: '/modules/' + encodeURIComponent(moduleId),
                 includeManagementKey: true,
                 query: query,
                 body: payload
             });
+
+            if (response && response.ok) {
+                $this.method.renderResponse(response.status, response.statusText, response.data);
+            }
         },
 
         async btnGetStats_click() {
-            await $this.method.requestApi({
+            const response = await $this.method.requestApi({
                 method: 'GET',
                 path: '/stats',
                 includeManagementKey: true
             });
+
+            if (response && response.ok) {
+                $this.method.renderResponse(response.status, response.statusText, response.data);
+            }
         },
 
         async btnCollect_click() {
@@ -152,40 +181,81 @@ let $AGM000 = {
                 return;
             }
 
-            await $this.method.requestApi({
+            const response = await $this.method.requestApi({
                 method: 'GET',
                 path: '/collect/' + encodeURIComponent(collectId),
                 includeManagementKey: true
             });
+
+            if (response && response.ok) {
+                $this.method.renderResponse(response.status, response.statusText, response.data);
+            }
+        },
+
+        async btnGetLogs_click() {
+            const query = {};
+            const file = syn.$l.get('txtLogFile').value.trim();
+            if (file !== '') {
+                query.file = file;
+            }
+
+            const rowsText = syn.$l.get('txtLogRows').value.trim();
+            if (rowsText !== '') {
+                const rows = Number(rowsText);
+                if (Number.isInteger(rows) === false) {
+                    $this.method.renderError('로그 행 수(rows)는 정수여야 합니다.');
+                    return;
+                }
+
+                query.rows = rows;
+            }
+
+            const response = await $this.method.requestApi({
+                method: 'GET',
+                path: '/logs',
+                includeManagementKey: true,
+                query: query
+            });
+
+            if (response && response.ok) {
+                $this.method.renderResponse(response.status, response.statusText, response.data.lines.join('\n'));
+            }
+        },
+
+        async btnGetLogTree_click() {
+            const response = await $this.method.requestApi({
+                method: 'GET',
+                path: '/logtree',
+                includeManagementKey: true
+            });
+
+            if (response && response.ok) {
+                $this.method.renderResponse(response.status, response.statusText, JSON.stringify(response.data.tree, null, 2));
+            }
         }
     },
 
     method: {
         bindEvents() {
-            $this.method.bindButton('btnValidateKey', $this.event.btnValidateKey_click);
-            $this.method.bindButton('btnGetTargets', $this.event.btnGetTargets_click);
-            $this.method.bindButton('btnGetTargetStatus', $this.event.btnGetTargetStatus_click);
-            $this.method.bindButton('btnStartTarget', $this.event.btnStartTarget_click);
-            $this.method.bindButton('btnStopTarget', $this.event.btnStopTarget_click);
-            $this.method.bindButton('btnRestartTarget', $this.event.btnRestartTarget_click);
-            $this.method.bindButton('btnGetSettingsStatus', $this.event.btnGetSettingsStatus_click);
-            $this.method.bindButton('btnSaveSettings', $this.event.btnSaveSettings_click);
-            $this.method.bindButton('btnGetModule', $this.event.btnGetModule_click);
-            $this.method.bindButton('btnSaveModule', $this.event.btnSaveModule_click);
-            $this.method.bindButton('btnGetStats', $this.event.btnGetStats_click);
-            $this.method.bindButton('btnCollect', $this.event.btnCollect_click);
-        },
-
-        bindButton(buttonId, callback) {
-            const button = document.getElementById(buttonId);
-            if (button) {
-                button.addEventListener('click', callback);
-            }
+            syn.$l.addEvent('btnValidateKey', 'click', $this.event.btnValidateKey_click);
+            syn.$l.addEvent('btnGetTargets', 'click', $this.event.btnGetTargets_click);
+            syn.$l.addEvent('btnGetTargetStatus', 'click', $this.event.btnGetTargetStatus_click);
+            syn.$l.addEvent('btnStartTarget', 'click', $this.event.btnStartTarget_click);
+            syn.$l.addEvent('btnStopTarget', 'click', $this.event.btnStopTarget_click);
+            syn.$l.addEvent('btnRestartTarget', 'click', $this.event.btnRestartTarget_click);
+            syn.$l.addEvent('btnGetSettingsStatus', 'click', $this.event.btnGetSettingsStatus_click);
+            syn.$l.addEvent('btnSaveSettings', 'click', $this.event.btnSaveSettings_click);
+            syn.$l.addEvent('btnGetModule', 'click', $this.event.btnGetModule_click);
+            syn.$l.addEvent('btnSaveModule', 'click', $this.event.btnSaveModule_click);
+            syn.$l.addEvent('btnGetStats', 'click', $this.event.btnGetStats_click);
+            syn.$l.addEvent('btnCollect', 'click', $this.event.btnCollect_click);
+            syn.$l.addEvent('btnGetLogs', 'click', $this.event.btnGetLogs_click);
+            syn.$l.addEvent('btnGetLogTree', 'click', $this.event.btnGetLogTree_click);
         },
 
         initializeBaseUrl() {
             const baseUrl = window.location.origin || '';
-            if ($this.method.getText('txtBaseUrl') === '') {
+            if (syn.$l.get('txtBaseUrl').value === '') {
                 $this.method.setText('txtBaseUrl', baseUrl);
             }
         },
@@ -196,15 +266,19 @@ let $AGM000 = {
                 return;
             }
 
-            await $this.method.requestApi({
+            const response = await $this.method.requestApi({
                 method: 'POST',
                 path: '/targets/' + encodeURIComponent(targetId) + '/' + actionName,
                 includeManagementKey: true
             });
+
+            if (response && response.ok) {
+                $this.method.renderResponse(response.status, response.statusText, response.data);
+            }
         },
 
         tryParseJson(elementId) {
-            const text = $this.method.getRawText(elementId).trim();
+            const text = syn.$l.get(elementId).value;
             if (text === '') {
                 return {};
             }
@@ -219,7 +293,7 @@ let $AGM000 = {
         },
 
         requireText(elementId, errorMessage) {
-            const value = $this.method.getText(elementId);
+            const value = syn.$l.get(elementId).value;
             if (value === '') {
                 $this.method.renderError(errorMessage);
                 return null;
@@ -228,28 +302,15 @@ let $AGM000 = {
             return value;
         },
 
-        getRawText(elementId) {
-            const element = document.getElementById(elementId);
-            if (!element) {
-                return '';
-            }
-
-            return String(element.value || '');
-        },
-
-        getText(elementId) {
-            return $this.method.getRawText(elementId).trim();
-        },
-
         setText(elementId, value) {
-            const element = document.getElementById(elementId);
+            const element = syn.$l.get(elementId);
             if (element) {
                 element.value = value;
             }
         },
 
         buildUrl(path, query) {
-            const baseUrl = $this.method.getText('txtBaseUrl') || window.location.origin || '';
+            const baseUrl = syn.$l.get('txtBaseUrl').value || window.location.origin || '';
             const normalizedBaseUrl = baseUrl.replace(/\/+$/, '');
             const normalizedPath = path.startsWith('/') ? path : '/' + path;
             const url = new URL(normalizedBaseUrl + normalizedPath);
@@ -273,8 +334,8 @@ let $AGM000 = {
             }
 
             if (includeManagementKey === true) {
-                const headerName = $this.method.getText('txtHeaderName') || 'X-Management-Key';
-                const managementKey = $this.method.getText('txtManagementKey');
+                const headerName = syn.$l.get('txtHeaderName').value || 'X-Management-Key';
+                const managementKey = syn.$l.get('txtManagementKey').value;
                 if (managementKey !== '') {
                     headers[headerName] = managementKey;
                 }
@@ -300,12 +361,12 @@ let $AGM000 = {
             try {
                 const response = await fetch(requestUrl, requestInit);
                 const text = await response.text();
-                const data = $this.method.parseResponse(text);
-                $this.method.renderResponse(response.status, response.statusText, data);
+                const data = options.rawResponse === true ? text : $this.method.parseResponse(text);
 
                 return {
                     ok: response.ok,
                     status: response.status,
+                    statusText: response.statusText,
                     data: data
                 };
             }
@@ -330,8 +391,8 @@ let $AGM000 = {
         },
 
         renderRequest(requestLine) {
-            const requestLabel = document.getElementById('lblRequest');
-            const statusLabel = document.getElementById('lblStatus');
+            const requestLabel = syn.$l.get('lblRequest');
+            const statusLabel = syn.$l.get('lblStatus');
             if (requestLabel) {
                 requestLabel.textContent = requestLine;
             }
@@ -342,8 +403,8 @@ let $AGM000 = {
         },
 
         renderResponse(statusCode, statusText, data) {
-            const statusLabel = document.getElementById('lblStatus');
-            const responseElement = document.getElementById('txtResponse');
+            const statusLabel = syn.$l.get('lblStatus');
+            const responseElement = syn.$l.get('txtResponse');
 
             if (statusLabel) {
                 statusLabel.textContent = statusCode + ' ' + statusText;
@@ -360,8 +421,8 @@ let $AGM000 = {
         },
 
         renderError(message) {
-            const statusLabel = document.getElementById('lblStatus');
-            const responseElement = document.getElementById('txtResponse');
+            const statusLabel = syn.$l.get('lblStatus');
+            const responseElement = syn.$l.get('txtResponse');
 
             if (statusLabel) {
                 statusLabel.textContent = '오류';

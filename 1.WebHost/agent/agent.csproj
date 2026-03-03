@@ -7,7 +7,6 @@
         <TargetLatestRuntimePatch>false</TargetLatestRuntimePatch>
         <Nullable>enable</Nullable>
         <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
-        <BaseOutputPath></BaseOutputPath>
         <PlatformTarget>AnyCPU</PlatformTarget>
         <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
         <CompressionEnabled>false</CompressionEnabled>
@@ -35,6 +34,8 @@
     <ItemGroup>
         <PackageReference Include="Hangfire.AspNetCore" Version="1.8.23" />
         <PackageReference Include="Hangfire.Core" Version="1.8.23" />
+        <PackageReference Include="Microsoft.Extensions.Hosting.Systemd" Version="10.0.3" />
+        <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="10.0.3" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
         <PackageReference Include="RestSharp" Version="113.1.0" />
         <PackageReference Include="Serilog" Version="4.3.1" />
@@ -65,37 +66,7 @@
         <Compile Remove="Contracts/function/**" />
     </ItemGroup>
 
-    <ItemGroup>
-        <Content Remove="bundleconfig.json" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <None Include="bundleconfig.json" />
-    </ItemGroup>
-
     <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
         <RemoveDir Directories="$(TargetDir)" Condition="Exists('$(TargetDir)')" />
-    </Target>
-
-    <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-        <PropertyGroup>
-            <AppSourceDir>$(HANDSTACK_HOME)/app</AppSourceDir>
-        </PropertyGroup>
-
-        <ItemGroup>
-            <AppSourceFiles Include="$(AppSourceDir)/**/*.*" />
-            <TargetFilesToCheck Include="$(TargetDir)%(AppSourceFiles.Filename)%(AppSourceFiles.Extension)" Condition="Exists('$(TargetDir)%(AppSourceFiles.Filename)%(AppSourceFiles.Extension)')" />
-        </ItemGroup>
-        <Delete Files="@(TargetFilesToCheck)" ContinueOnError="WarnAndContinue" />
-
-        <PropertyGroup>
-            <ModuleDestinationDir>$(HANDSTACK_HOME)/modules/$(MSBuildProjectName)</ModuleDestinationDir>
-        </PropertyGroup>
-        <MakeDir Directories="$(ModuleDestinationDir)" Condition="!Exists('$(ModuleDestinationDir)')" />
-
-        <ItemGroup>
-            <SourceFilesForMirroring Include="$(TargetDir)**\*" />
-        </ItemGroup>
-        <Copy SourceFiles="@(SourceFilesForMirroring)" DestinationFiles="@(SourceFilesForMirroring->'$(ModuleDestinationDir)/%(RecursiveDir)%(Filename)%(Extension)')" />
     </Target>
 </Project>

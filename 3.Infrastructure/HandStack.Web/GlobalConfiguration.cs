@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 using HandStack.Core.ExtensionMethod;
 using HandStack.Core.Licensing;
@@ -128,6 +129,21 @@ namespace HandStack.Web
         public static string GetBaseDirectoryPath(string? basePath, string? defaultPath = "")
         {
             basePath = Environment.ExpandEnvironmentVariables(basePath.ToStringSafe());
+            basePath = Regex.Replace(basePath, @"\$(\{(?<name>[A-Za-z_][A-Za-z0-9_]*)\}|(?<name>[A-Za-z_][A-Za-z0-9_]*))", match =>
+            {
+                var variableName = match.Groups["name"].Value;
+                var value = Environment.GetEnvironmentVariable(variableName);
+                return string.IsNullOrEmpty(value) == true ? match.Value : value;
+            });
+
+            defaultPath = Environment.ExpandEnvironmentVariables(defaultPath.ToStringSafe());
+            defaultPath = Regex.Replace(defaultPath, @"\$(\{(?<name>[A-Za-z_][A-Za-z0-9_]*)\}|(?<name>[A-Za-z_][A-Za-z0-9_]*))", match =>
+            {
+                var variableName = match.Groups["name"].Value;
+                var value = Environment.GetEnvironmentVariable(variableName);
+                return string.IsNullOrEmpty(value) == true ? match.Value : value;
+            });
+
             basePath = string.IsNullOrWhiteSpace(basePath) ? "" : (basePath.StartsWith(".") == true ? Path.GetFullPath(basePath, EntryBasePath) : new DirectoryInfo(basePath).FullName.Replace("\\", "/"));
             if (string.IsNullOrWhiteSpace(basePath) && !string.IsNullOrWhiteSpace(defaultPath))
             {
@@ -157,6 +173,21 @@ namespace HandStack.Web
         public static string GetBaseFilePath(string? basePath, string? defaultPath = "")
         {
             basePath = Environment.ExpandEnvironmentVariables(basePath.ToStringSafe());
+            basePath = Regex.Replace(basePath, @"\$(\{(?<name>[A-Za-z_][A-Za-z0-9_]*)\}|(?<name>[A-Za-z_][A-Za-z0-9_]*))", match =>
+            {
+                var variableName = match.Groups["name"].Value;
+                var value = Environment.GetEnvironmentVariable(variableName);
+                return string.IsNullOrEmpty(value) == true ? match.Value : value;
+            });
+
+            defaultPath = Environment.ExpandEnvironmentVariables(defaultPath.ToStringSafe());
+            defaultPath = Regex.Replace(defaultPath, @"\$(\{(?<name>[A-Za-z_][A-Za-z0-9_]*)\}|(?<name>[A-Za-z_][A-Za-z0-9_]*))", match =>
+            {
+                var variableName = match.Groups["name"].Value;
+                var value = Environment.GetEnvironmentVariable(variableName);
+                return string.IsNullOrEmpty(value) == true ? match.Value : value;
+            });
+
             basePath = string.IsNullOrWhiteSpace(basePath) ? "" : (basePath.StartsWith(".") == true ? Path.GetFullPath(basePath, EntryBasePath) : new FileInfo(basePath).FullName.Replace("\\", "/"));
             if (string.IsNullOrWhiteSpace(basePath) && !string.IsNullOrWhiteSpace(defaultPath))
             {

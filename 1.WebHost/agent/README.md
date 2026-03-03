@@ -16,8 +16,13 @@
 - `GET /stats`
 - `GET /validate/{key}`
 - `GET /collect/{id}`
+- `GET /logs?file={file}&rows={rows}`
+- `GET /logtree`
 
-`/targets`, `/settings`, `/modules`, `/stats`, `/collect` API는 `Agent:ManagementHeaderName` 헤더로 관리 키를 전달해야 합니다.
+`/logs`는 실행 중인 `ack` 대상의 `WorkingDirectory/../log`에서 로그를 읽어오며, `file` 미지정 시 최신 `app*.log`, `rows` 미지정 시 `300`행을 반환합니다. `file`은 파일명 또는 하위 상대경로를 지원합니다.
+`/logtree`는 실행 중인 `ack` 대상의 `WorkingDirectory/../log` 디렉터리 하위 파일/폴더를 트리(JSON)로 반환합니다.
+
+`/targets`, `/settings`, `/modules`, `/stats`, `/collect`, `/logs`, `/logtree` API는 `Agent:ManagementHeaderName` 헤더로 관리 키를 전달해야 합니다.
 
 ## 설정
 
