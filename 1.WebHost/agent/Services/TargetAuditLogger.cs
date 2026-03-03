@@ -136,7 +136,7 @@ namespace agent.Services
                 if (response.IsSuccessStatusCode == false)
                 {
                     logger.LogWarning(
-                        "Audit log send failed. Url={Url}, StatusCode={StatusCode}, Action={Action}, TargetID={TargetID}",
+                        "감사 로그 전송 실패. URL={Url}, 상태코드={StatusCode}, 작업={Action}, 대상ID={TargetID}",
                         auditOptions.LogServerUrl,
                         (int)response.StatusCode,
                         actionName,
@@ -146,7 +146,7 @@ namespace agent.Services
             catch (OperationCanceledException)
             {
                 logger.LogWarning(
-                    "Audit log send timeout. Action={Action}, TargetID={TargetID}",
+                    "감사 로그 전송 시간 초과. 작업={Action}, 대상ID={TargetID}",
                     actionName,
                     targetId ?? "");
             }
@@ -154,7 +154,7 @@ namespace agent.Services
             {
                 logger.LogWarning(
                     exception,
-                    "Audit log send exception. Action={Action}, TargetID={TargetID}",
+                    "감사 로그 전송 예외 발생. 작업={Action}, 대상ID={TargetID}",
                     actionName,
                     targetId ?? "");
             }

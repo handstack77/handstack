@@ -138,7 +138,7 @@ namespace agent.Services
                 {
                     Success = false,
                     ErrorCode = "target_not_found",
-                    Message = $"Target '{id}' was not found."
+                    Message = $"대상 '{id}'을(를) 찾을 수 없습니다."
                 };
             }
 
@@ -155,7 +155,7 @@ namespace agent.Services
                         {
                             Success = false,
                             ErrorCode = "already_running",
-                            Message = $"Target '{target.Id}' is already running.",
+                            Message = $"대상 '{target.Id}'은(는) 이미 실행 중입니다.",
                             Pid = runningProcess.Id
                         };
                     }
@@ -190,7 +190,7 @@ namespace agent.Services
                     {
                         Success = false,
                         ErrorCode = "start_failed",
-                        Message = $"Target '{target.Id}' failed to start."
+                        Message = $"대상 '{target.Id}' 시작에 실패했습니다."
                     };
                 }
 
@@ -221,13 +221,13 @@ namespace agent.Services
                 return new TargetCommandResult
                 {
                     Success = true,
-                    Message = $"Target '{target.Id}' started.",
+                    Message = $"대상 '{target.Id}'이(가) 시작되었습니다.",
                     Pid = process.Id
                 };
             }
             catch (Exception exception)
             {
-                logger.LogError(exception, "Failed to start target: {TargetId}", target.Id);
+                logger.LogError(exception, "대상 시작 실패: {TargetId}", target.Id);
                 return new TargetCommandResult
                 {
                     Success = false,
@@ -249,7 +249,7 @@ namespace agent.Services
                 {
                     Success = false,
                     ErrorCode = "target_not_found",
-                    Message = $"Target '{id}' was not found."
+                    Message = $"대상 '{id}'을(를) 찾을 수 없습니다."
                 };
             }
 
@@ -270,7 +270,7 @@ namespace agent.Services
                     {
                         Success = false,
                         ErrorCode = "already_stopped",
-                        Message = $"Target '{target.Id}' is already stopped."
+                        Message = $"대상 '{target.Id}'은(는) 이미 중지되어 있습니다."
                     };
                 }
 
@@ -295,7 +295,7 @@ namespace agent.Services
                     return new TargetCommandResult
                     {
                         Success = true,
-                        Message = $"Target '{target.Id}' stopped.",
+                        Message = $"대상 '{target.Id}'이(가) 중지되었습니다.",
                         Pid = process.Id
                     };
                 }
@@ -304,13 +304,13 @@ namespace agent.Services
                 {
                     Success = false,
                     ErrorCode = "stop_timeout",
-                    Message = $"Target '{target.Id}' could not be stopped within {timeoutSeconds} seconds.",
+                    Message = $"대상 '{target.Id}'을(를) {timeoutSeconds}초 내에 중지하지 못했습니다.",
                     Pid = process.Id
                 };
             }
             catch (Exception exception)
             {
-                logger.LogError(exception, "Failed to stop target: {TargetId}", target.Id);
+                logger.LogError(exception, "대상 중지 실패: {TargetId}", target.Id);
                 return new TargetCommandResult
                 {
                     Success = false,
@@ -362,7 +362,7 @@ namespace agent.Services
         {
             if (string.IsNullOrWhiteSpace(target.ExecutablePath) == true)
             {
-                throw new InvalidOperationException($"Target '{target.Id}' has an empty executable path.");
+                throw new InvalidOperationException($"대상 '{target.Id}'의 실행 파일 경로가 비어 있습니다.");
             }
 
             var executablePath = target.ExecutablePath.Trim();
@@ -371,7 +371,7 @@ namespace agent.Services
                 executablePath = ResolvePath(executablePath);
                 if (File.Exists(executablePath) == false)
                 {
-                    throw new FileNotFoundException($"Target '{target.Id}' executable file not found.", executablePath);
+                    throw new FileNotFoundException($"대상 '{target.Id}' 실행 파일을 찾을 수 없습니다.", executablePath);
                 }
             }
 
@@ -480,7 +480,7 @@ namespace agent.Services
             }
             catch (Exception exception)
             {
-                logger.LogDebug(exception, "Failed to attach process tracking: {TargetId}/{Pid}", targetId, process.Id);
+                logger.LogDebug(exception, "프로세스 추적 연결 실패: {TargetId}/{Pid}", targetId, process.Id);
             }
         }
 
@@ -522,7 +522,7 @@ namespace agent.Services
             }
             catch (Exception exception)
             {
-                logger.LogError(exception, "Failed to stop process. PID={Pid}", process.Id);
+                logger.LogError(exception, "프로세스 중지 실패. PID={Pid}", process.Id);
             }
 
             return (false, TryGetExitCode(process));
@@ -689,7 +689,7 @@ namespace agent.Services
             }
 
             SaveProcessState(targetId, state);
-            logger.LogInformation("Target process exited. TargetId={TargetId}, Pid={Pid}, ExitCode={ExitCode}", targetId, process.Id, state.LastExitCode);
+            logger.LogInformation("대상 프로세스가 종료되었습니다. 대상ID={TargetId}, PID={Pid}, 종료코드={ExitCode}", targetId, process.Id, state.LastExitCode);
         }
 
         private void LoadProcessStates()
@@ -739,7 +739,7 @@ namespace agent.Services
             }
             catch (Exception exception)
             {
-                logger.LogError(exception, "Failed to load process state.");
+                logger.LogError(exception, "프로세스 상태 로드에 실패했습니다.");
             }
         }
 
@@ -769,7 +769,7 @@ namespace agent.Services
             }
             catch (Exception exception)
             {
-                logger.LogError(exception, "Failed to save process state. TargetId={TargetId}", targetId);
+                logger.LogError(exception, "프로세스 상태 저장에 실패했습니다. 대상ID={TargetId}", targetId);
             }
         }
 

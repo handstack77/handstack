@@ -101,7 +101,7 @@ namespace agent.Services
             {
                 result.Success = false;
                 result.ErrorCode = "invalid_payload";
-                result.Message = "Request body must contain AppSettings object.";
+                result.Message = "요청 본문에 AppSettings 객체가 있어야 합니다.";
                 result.Errors.Add(result.Message);
                 return result;
             }
@@ -122,10 +122,10 @@ namespace agent.Services
             }
             catch (Exception exception)
             {
-                logger.LogError(exception, "Failed to save appsettings. TargetId={TargetId}, Path={Path}", targetId, context.AppSettingsPath);
+                logger.LogError(exception, "appsettings 저장 실패. 대상ID={TargetId}, 경로={Path}", targetId, context.AppSettingsPath);
                 result.Success = false;
                 result.ErrorCode = "settings_save_failed";
-                result.Message = "Failed to save appsettings.json.";
+                result.Message = "appsettings.json 저장에 실패했습니다.";
                 result.Errors.Add(exception.Message);
                 return result;
             }
@@ -187,7 +187,7 @@ namespace agent.Services
                 .OrderBy(p => p, StringComparer.OrdinalIgnoreCase)
                 .ToList();
 
-            result.Message = "appsettings.json saved.";
+            result.Message = "appsettings.json을 저장했습니다.";
             return result;
         }
 
@@ -213,7 +213,7 @@ namespace agent.Services
 
             var diagnosticsResult = await TryGetDiagnosticsAsync(context.TargetContext, cancellationToken);
             result.IsLoaded = diagnosticsResult.Modules.Any(p => string.Equals(p.ModuleID, moduleId, StringComparison.OrdinalIgnoreCase));
-            result.Message = "module.json loaded.";
+            result.Message = "module.json을 불러왔습니다.";
             return result;
         }
 
@@ -250,10 +250,10 @@ namespace agent.Services
             }
             catch (Exception exception)
             {
-                logger.LogError(exception, "Failed to save module setting. TargetId={TargetId}, ModuleId={ModuleId}, Path={Path}", context.Target.Id, moduleId, context.ModuleFilePath);
+                logger.LogError(exception, "모듈 설정 저장 실패. 대상ID={TargetId}, 모듈ID={ModuleId}, 경로={Path}", context.Target.Id, moduleId, context.ModuleFilePath);
                 result.Success = false;
                 result.ErrorCode = "module_save_failed";
-                result.Message = "Failed to save module.json.";
+                result.Message = "module.json 저장에 실패했습니다.";
                 result.Errors.Add(exception.Message);
                 return result;
             }
@@ -304,7 +304,7 @@ namespace agent.Services
                 .OrderBy(p => p, StringComparer.OrdinalIgnoreCase)
                 .ToList();
 
-            result.Message = "module.json saved.";
+            result.Message = "module.json을 저장했습니다.";
             return result;
         }
 
@@ -314,14 +314,14 @@ namespace agent.Services
             var hostAccessId = GetAppSettingsString(context.AppSettingsRoot, "HostAccessID");
             if (string.IsNullOrWhiteSpace(hostAccessId) == true)
             {
-                result.Errors.Add("Runtime apply skipped: AppSettings:HostAccessID is empty.");
+                result.Errors.Add("Runtime apply skipped: AppSettings:HostAccessID가 비어 있습니다.");
                 return result;
             }
 
             var port = GetServerPort(context.Target, context.AppSettingsRoot);
             if (port <= 0)
             {
-                result.Errors.Add("Runtime apply skipped: server port is invalid.");
+                result.Errors.Add("런타임 적용 건너뜀: 서버 포트가 올바르지 않습니다.");
                 return result;
             }
 
@@ -355,7 +355,7 @@ namespace agent.Services
 
                 if (response.IsSuccessStatusCode == false)
                 {
-                    result.Errors.Add($"Runtime apply failed: HTTP {(int)response.StatusCode}");
+                    result.Errors.Add($"런타임 적용 실패: HTTP {(int)response.StatusCode}");
                     return result;
                 }
 
@@ -367,8 +367,8 @@ namespace agent.Services
             }
             catch (Exception exception)
             {
-                logger.LogWarning(exception, "Failed to call ack runtime global apply API. TargetId={TargetId}", context.Target.Id);
-                result.Errors.Add("Runtime apply call failed.");
+                logger.LogWarning(exception, "ack 런타임 전역 적용 API 호출 실패. 대상ID={TargetId}", context.Target.Id);
+                result.Errors.Add("런타임 적용 API 호출에 실패했습니다.");
                 return result;
             }
         }
@@ -384,14 +384,14 @@ namespace agent.Services
             var hostAccessId = GetAppSettingsString(context.AppSettingsRoot, "HostAccessID");
             if (string.IsNullOrWhiteSpace(hostAccessId) == true)
             {
-                result.Errors.Add("Runtime apply skipped: AppSettings:HostAccessID is empty.");
+                result.Errors.Add("Runtime apply skipped: AppSettings:HostAccessID가 비어 있습니다.");
                 return result;
             }
 
             var port = GetServerPort(context.Target, context.AppSettingsRoot);
             if (port <= 0)
             {
-                result.Errors.Add("Runtime apply skipped: server port is invalid.");
+                result.Errors.Add("런타임 적용 건너뜀: 서버 포트가 올바르지 않습니다.");
                 return result;
             }
 
@@ -428,7 +428,7 @@ namespace agent.Services
 
                 if (response.IsSuccessStatusCode == false)
                 {
-                    result.Errors.Add($"Runtime apply failed: HTTP {(int)response.StatusCode}");
+                    result.Errors.Add($"런타임 적용 실패: HTTP {(int)response.StatusCode}");
                     return result;
                 }
 
@@ -440,8 +440,8 @@ namespace agent.Services
             }
             catch (Exception exception)
             {
-                logger.LogWarning(exception, "Failed to call ack runtime module apply API. TargetId={TargetId}, ModuleId={ModuleId}", context.Target.Id, moduleId);
-                result.Errors.Add("Runtime apply call failed.");
+                logger.LogWarning(exception, "ack 런타임 모듈 적용 API 호출 실패. 대상ID={TargetId}, 모듈ID={ModuleId}", context.Target.Id, moduleId);
+                result.Errors.Add("런타임 적용 API 호출에 실패했습니다.");
                 return result;
             }
         }
@@ -454,21 +454,21 @@ namespace agent.Services
 
             if (status is null || string.Equals(status.State, "Running", StringComparison.OrdinalIgnoreCase) == false)
             {
-                result.Message = "Target process is not running.";
+                result.Message = "대상 프로세스가 실행 중이 아닙니다.";
                 return result;
             }
 
             var hostAccessId = GetAppSettingsString(context.AppSettingsRoot, "HostAccessID");
             if (string.IsNullOrWhiteSpace(hostAccessId) == true)
             {
-                result.Message = "AppSettings:HostAccessID is empty.";
+                result.Message = "AppSettings:HostAccessID가 비어 있습니다.";
                 return result;
             }
 
             var port = GetServerPort(context.Target, context.AppSettingsRoot);
             if (port <= 0)
             {
-                result.Message = "AppSettings:ServerPort is invalid.";
+                result.Message = "AppSettings:ServerPort가 올바르지 않습니다.";
                 return result;
             }
 
@@ -479,14 +479,14 @@ namespace agent.Services
                 using var response = await client.GetAsync(BuildAckUrl(port, path), cancellationToken);
                 if (response.IsSuccessStatusCode == false)
                 {
-                    result.Message = $"Diagnostics request failed: HTTP {(int)response.StatusCode}";
+                    result.Message = $"진단 요청 실패: HTTP {(int)response.StatusCode}";
                     return result;
                 }
 
                 var node = TryParseJson(await response.Content.ReadAsStringAsync(cancellationToken));
                 if (node?["modules"] is not JsonArray modulesNode)
                 {
-                    result.Message = "Diagnostics response has no modules field.";
+                    result.Message = "진단 응답에 modules 필드가 없습니다.";
                     return result;
                 }
 
@@ -504,13 +504,13 @@ namespace agent.Services
                     result.Modules.Add(loaded);
                 }
 
-                result.Message = "Runtime diagnostics loaded.";
+                result.Message = "런타임 진단 정보를 불러왔습니다.";
                 return result;
             }
             catch (Exception exception)
             {
-                logger.LogDebug(exception, "Diagnostics request failed. TargetId={TargetId}", context.Target.Id);
-                result.Message = "Runtime diagnostics request failed.";
+                logger.LogDebug(exception, "진단 요청 실패. 대상ID={TargetId}", context.Target.Id);
+                result.Message = "런타임 진단 요청에 실패했습니다.";
                 return result;
             }
         }
@@ -524,7 +524,7 @@ namespace agent.Services
             if (targetProcessManager.TryGetTarget(targetId, out var target) == false || target is null)
             {
                 errorCode = "target_not_found";
-                message = $"Target '{targetId}' was not found.";
+                message = $"대상 '{targetId}'을(를) 찾을 수 없습니다.";
                 return false;
             }
 
@@ -532,7 +532,7 @@ namespace agent.Services
             if (File.Exists(appSettingsPath) == false)
             {
                 errorCode = "appsettings_not_found";
-                message = $"appsettings.json not found for target '{targetId}'.";
+                message = $"대상 '{targetId}'의 appsettings.json을 찾을 수 없습니다.";
                 return false;
             }
 
@@ -543,9 +543,9 @@ namespace agent.Services
             }
             catch (Exception exception)
             {
-                logger.LogError(exception, "Failed to parse appsettings file. TargetId={TargetId}, Path={Path}", targetId, appSettingsPath);
+                logger.LogError(exception, "appsettings 파일 파싱 실패. 대상ID={TargetId}, 경로={Path}", targetId, appSettingsPath);
                 errorCode = "appsettings_parse_failed";
-                message = $"Failed to parse appsettings.json for target '{targetId}'.";
+                message = $"대상 '{targetId}'의 appsettings.json 파싱에 실패했습니다.";
                 return false;
             }
 
@@ -562,7 +562,7 @@ namespace agent.Services
             if (string.IsNullOrWhiteSpace(moduleId) == true)
             {
                 errorCode = "invalid_module_id";
-                message = "module-id is required.";
+                message = "module-id가 필요합니다.";
                 return false;
             }
 
@@ -595,14 +595,14 @@ namespace agent.Services
                 if (candidates.Count == 0)
                 {
                     errorCode = "module_target_not_found";
-                    message = $"No target includes module '{moduleId}'.";
+                    message = $"모듈 '{moduleId}'을(를) 포함한 대상이 없습니다.";
                     return false;
                 }
 
                 if (candidates.Count > 1)
                 {
                     errorCode = "module_target_ambiguous";
-                    message = $"Multiple targets include module '{moduleId}'. Specify query parameter id.";
+                    message = $"여러 대상이 모듈 '{moduleId}'을(를) 포함합니다. 쿼리 파라미터 id를 지정하세요.";
                     return false;
                 }
 
@@ -613,7 +613,7 @@ namespace agent.Services
             if (File.Exists(modulePath) == false)
             {
                 errorCode = "module_file_not_found";
-                message = $"module.json not found for module '{moduleId}'.";
+                message = $"모듈 '{moduleId}'의 module.json을 찾을 수 없습니다.";
                 return false;
             }
 
@@ -624,9 +624,9 @@ namespace agent.Services
             }
             catch (Exception exception)
             {
-                logger.LogError(exception, "Failed to parse module file. TargetId={TargetId}, ModuleId={ModuleId}, Path={Path}", targetContext.Target.Id, moduleId, modulePath);
+                logger.LogError(exception, "모듈 파일 파싱 실패. 대상ID={TargetId}, 모듈ID={ModuleId}, 경로={Path}", targetContext.Target.Id, moduleId, modulePath);
                 errorCode = "module_parse_failed";
-                message = $"Failed to parse module.json for module '{moduleId}'.";
+                message = $"모듈 '{moduleId}'의 module.json 파싱에 실패했습니다.";
                 return false;
             }
 

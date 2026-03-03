@@ -84,7 +84,7 @@ namespace agent.Controllers
             }
 
             return Problem(
-                title: "Operation failed",
+                title: "작업 실패",
                 detail: result.Message,
                 statusCode: StatusCodes.Status500InternalServerError,
                 extensions: new Dictionary<string, object?>

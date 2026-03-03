@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Razor">
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
         <RuntimeIdentifiers>win-x64;linux-x64;osx-x64</RuntimeIdentifiers>
@@ -33,11 +33,13 @@
     </ItemGroup>
     
     <ItemGroup>
-        <PackageReference Include="Hangfire.AspNetCore" Version="1.8.22" />
-        <PackageReference Include="Hangfire.Core" Version="1.8.22" />
+        <PackageReference Include="Hangfire.AspNetCore" Version="1.8.23" />
+        <PackageReference Include="Hangfire.Core" Version="1.8.23" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
         <PackageReference Include="RestSharp" Version="113.1.0" />
-        <PackageReference Include="Serilog" Version="4.3.0" />
+        <PackageReference Include="Serilog" Version="4.3.1" />
+        <PackageReference Include="Microsoft.Extensions.Hosting.Systemd" Version="10.0.3" />
+        <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="10.0.3" />
     </ItemGroup>
 
     <ItemGroup>

@@ -88,7 +88,7 @@ namespace agent.Services
             {
                 if (string.Equals(errorMessage, "disabled", StringComparison.Ordinal) == false)
                 {
-                    logger.LogDebug("dotnet-monitor stats skipped: {Message}", errorMessage);
+                    logger.LogDebug("dotnet-monitor 통계 수집을 건너뜀: {Message}", errorMessage);
                 }
 
                 return null;
@@ -103,7 +103,7 @@ namespace agent.Services
                 using var response = await client.GetAsync(metricsPath, cancellationToken);
                 if (response.IsSuccessStatusCode == false)
                 {
-                    logger.LogWarning("dotnet-monitor metrics request failed. Status={StatusCode}", response.StatusCode);
+                    logger.LogWarning("dotnet-monitor 메트릭 요청 실패. 상태={StatusCode}", response.StatusCode);
                     return null;
                 }
 
@@ -135,7 +135,7 @@ namespace agent.Services
             }
             catch (Exception exception)
             {
-                logger.LogWarning(exception, "dotnet-monitor stats request failed. TargetId={TargetId}, Pid={Pid}", target.Id, pid);
+                logger.LogWarning(exception, "dotnet-monitor 통계 요청 실패. 대상ID={TargetId}, PID={Pid}", target.Id, pid);
                 return null;
             }
         }
@@ -147,7 +147,7 @@ namespace agent.Services
                 return new CollectResult
                 {
                     Success = false,
-                    Message = $"dotnet-monitor is not available: {errorMessage}",
+                    Message = $"dotnet-monitor를 사용할 수 없습니다: {errorMessage}",
                     TargetId = target.Id,
                     Pid = pid
                 };
@@ -162,7 +162,7 @@ namespace agent.Services
             var result = new CollectResult
             {
                 Success = true,
-                Message = "Collection completed.",
+                Message = "수집이 완료되었습니다.",
                 TargetId = target.Id,
                 Pid = pid,
                 DirectoryPath = targetPath
@@ -199,7 +199,7 @@ namespace agent.Services
             if (result.Errors.Count > 0)
             {
                 result.Success = false;
-                result.Message = "Collection completed with errors.";
+                result.Message = "오류와 함께 수집이 완료되었습니다.";
             }
 
             return result;
@@ -218,13 +218,13 @@ namespace agent.Services
 
             if (string.IsNullOrWhiteSpace(monitorOptions.BaseAddress) == true)
             {
-                errorMessage = "base address is empty.";
+                errorMessage = "기본 주소가 비어 있습니다.";
                 return false;
             }
 
             if (Uri.TryCreate(monitorOptions.BaseAddress, UriKind.Absolute, out var baseAddress) == false)
             {
-                errorMessage = $"invalid base address: '{monitorOptions.BaseAddress}'.";
+                errorMessage = $"기본 주소가 올바르지 않습니다: '{monitorOptions.BaseAddress}'.";
                 return false;
             }
 
@@ -272,7 +272,7 @@ namespace agent.Services
             }
             catch (Exception exception)
             {
-                logger.LogWarning(exception, "dotnet-monitor collect failed: {Kind}, Path={Path}", kind, requestPath);
+                logger.LogWarning(exception, "dotnet-monitor 수집 실패: {Kind}, 경로={Path}", kind, requestPath);
                 result.Errors.Add($"{kind}: {exception.Message}");
             }
         }

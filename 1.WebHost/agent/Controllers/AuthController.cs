@@ -33,7 +33,7 @@ namespace agent.Controllers
             {
                 return BadRequest(new
                 {
-                    message = "Request body is required."
+                    message = "요청 본문이 필요합니다."
                 });
             }
 
@@ -41,7 +41,7 @@ namespace agent.Controllers
             {
                 return Unauthorized(new
                 {
-                    message = "Invalid credentials.",
+                    message = "인증 정보가 올바르지 않습니다.",
                     errorCode
                 });
             }
@@ -76,7 +76,7 @@ namespace agent.Controllers
 
             return Ok(new
             {
-                message = "Login successful.",
+                message = "로그인에 성공했습니다.",
                 user = BuildUserResponse(user.EmailID, new ClaimsPrincipal(identity))
             });
         }
@@ -88,7 +88,7 @@ namespace agent.Controllers
             {
                 return Unauthorized(new
                 {
-                    message = "User is not authenticated."
+                    message = "사용자 인증이 필요합니다."
                 });
             }
 
@@ -107,7 +107,7 @@ namespace agent.Controllers
 
             return Ok(new
             {
-                message = "Logout successful."
+                message = "로그아웃에 성공했습니다."
             });
         }
 

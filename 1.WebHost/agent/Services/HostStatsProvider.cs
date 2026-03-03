@@ -251,7 +251,7 @@ namespace agent.Services
             }
             catch (Exception exception)
             {
-                logger.LogDebug(exception, "Fallback GC memory stat failed.");
+                logger.LogDebug(exception, "대체 GC 메모리 통계 수집에 실패했습니다.");
             }
 
             return (null, null);

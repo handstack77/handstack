@@ -44,7 +44,7 @@ namespace agent.Controllers
                 return NotFound(new
                 {
                     id,
-                    message = "Target not found."
+                    message = "대상을 찾을 수 없습니다."
                 });
             }
 
@@ -54,7 +54,7 @@ namespace agent.Controllers
                 return BadRequest(new
                 {
                     id,
-                    message = "Target process is not running."
+                    message = "대상 프로세스가 실행 중이 아닙니다."
                 });
             }
 
@@ -66,7 +66,7 @@ namespace agent.Controllers
 
             return Problem(
                 detail: collectResult.Message,
-                title: "Collect failed",
+                title: "수집 실패",
                 statusCode: StatusCodes.Status502BadGateway,
                 extensions: new Dictionary<string, object?>
                 {

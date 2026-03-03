@@ -36,11 +36,11 @@ namespace agent.Controllers
             var status = await targetProcessManager.GetStatusAsync(id, cancellationToken);
             if (status is null)
             {
-                await auditLogger.WriteTargetsAuditAsync(HttpContext, "targets.status", id, false, StatusCodes.Status404NotFound, "Target not found.", cancellationToken);
+                await auditLogger.WriteTargetsAuditAsync(HttpContext, "targets.status", id, false, StatusCodes.Status404NotFound, "대상을 찾을 수 없습니다.", cancellationToken);
                 return NotFound(new
                 {
                     id,
-                    message = "Target not found."
+                    message = "대상을 찾을 수 없습니다."
                 });
             }
 
