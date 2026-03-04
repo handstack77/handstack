@@ -21,7 +21,7 @@ namespace repository.Extensions
         public GoogleCloudStorageProvider(Repository repository)
         {
             bucketName = repository.GcsBucketName;
-            var credential = GoogleCredential.FromFile(repository.GcsCredentialFile);
+            var credential = CredentialFactory.FromFile<GoogleCredential>(repository.GcsCredentialFile);
             storageClient = StorageClient.Create(credential);
         }
 
