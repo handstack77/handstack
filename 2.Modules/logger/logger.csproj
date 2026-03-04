@@ -39,7 +39,7 @@
         <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="23.26.100" />
         <PackageReference Include="Polly" Version="8.6.5" />
         <PackageReference Include="RestSharp" Version="113.1.0" />
-        <PackageReference Include="Serilog" Version="4.3.0" />
+        <PackageReference Include="Serilog" Version="4.3.1" />
         <PackageReference Include="System.Data.SQLite" Version="2.0.2" />
         <PackageReference Include="SourceGear.sqlite3" Version="3.50.4.5" />
     </ItemGroup>
@@ -86,8 +86,7 @@
 
         <ItemGroup>
             <AppSourceFiles Include="$(AppSourceDir)/**/*.*" />
-            <TargetFilesToCheck Include="$(TargetDir)%(AppSourceFiles.Filename)%(AppSourceFiles.Extension)"
-                                Condition="Exists('$(TargetDir)%(AppSourceFiles.Filename)%(AppSourceFiles.Extension)')" />
+            <TargetFilesToCheck Include="$(TargetDir)%(AppSourceFiles.Filename)%(AppSourceFiles.Extension)" Condition="Exists('$(TargetDir)%(AppSourceFiles.Filename)%(AppSourceFiles.Extension)')" />
         </ItemGroup>
         <Delete Files="@(TargetFilesToCheck)" ContinueOnError="WarnAndContinue" />
         <PropertyGroup>

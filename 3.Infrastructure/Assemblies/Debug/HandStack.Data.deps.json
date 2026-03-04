@@ -15,7 +15,7 @@
           "Newtonsoft.Json": "13.0.4",
           "Npgsql": "10.0.1",
           "Oracle.ManagedDataAccess.Core": "23.26.100",
-          "Serilog": "4.3.0",
+          "Serilog": "4.3.1",
           "SourceGear.sqlite3": "3.50.4.5",
           "System.Data.SQLite": "2.0.2"
         },
@@ -398,9 +398,9 @@
           }
         }
       },
-      "Serilog/4.3.0": {
+      "Serilog/4.3.1": {
         "runtime": {
-          "lib/net9.0/Serilog.dll": {
+          "lib/net10.0/Serilog.dll": {
             "assemblyVersion": "4.3.0.0",
             "fileVersion": "4.3.0.0"
           }
@@ -983,12 +983,12 @@
       "path": "oracle.manageddataaccess.core/23.26.100",
       "hashPath": "oracle.manageddataaccess.core.23.26.100.nupkg.sha512"
     },
-    "Serilog/4.3.0": {
+    "Serilog/4.3.1": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-+cDryFR0GRhsGOnZSKwaDzRRl4MupvJ42FhCE4zhQRVanX0Jpg6WuCBk59OVhVDPmab1bB+nRykAnykYELA9qQ==",
-      "path": "serilog/4.3.0",
-      "hashPath": "serilog.4.3.0.nupkg.sha512"
+      "sha512": "sha512-savYe7h5yRlkqBVOwP8cIRDOdqKiPmYCU4W87JH38sBmcKD5EBoXvQIw6bNEvZ/pTe1gsiye3VFCzBsoppGkXQ==",
+      "path": "serilog/4.3.1",
+      "hashPath": "serilog.4.3.1.nupkg.sha512"
     },
     "SourceGear.sqlite3/3.50.4.5": {
       "type": "package",
