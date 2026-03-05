@@ -1,0 +1,14 @@
+services:
+  forbes:
+    image: handstack-forbes:latest
+    container_name: handstack-forbes
+    build:
+      context: ../..
+      dockerfile: 1.WebHost/forbes/Dockerfile
+    ports:
+      - "8420:8420"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      HANDSTACK_HOME: /app
+    volumes:
+      - ./Contracts:/app/Contracts

@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -90,7 +91,7 @@ namespace forbes
 
             var app = builder.Build();
 
-            string entryDirectoryPath = builder.Configuration["EntryDirectoryPath"] as string ?? "";
+            string entryDirectoryPath = ExpandPathVariables(builder.Configuration["EntryDirectoryPath"] as string ?? "");
             if (string.IsNullOrWhiteSpace(entryDirectoryPath) || !Directory.Exists(entryDirectoryPath))
             {
                 entryDirectoryPath = AppDomain.CurrentDomain.BaseDirectory;
@@ -101,11 +102,7 @@ namespace forbes
 
             await StartCodeSynchronization(builder.Configuration, entryDirectoryPath);
 
-            string wwwRootBasePath = builder.Configuration["WWWRootBasePath"] ?? "";
-            if (string.IsNullOrWhiteSpace(wwwRootBasePath))
-            {
-                wwwRootBasePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wwwroot");
-            }
+            string wwwRootBasePath = ResolveWWWRootBasePath(builder.Configuration, entryDirectoryPath);
 
             string contractViewPath = builder.Configuration["ContractViewPath"] ?? "";
             if (string.IsNullOrWhiteSpace(contractViewPath))
@@ -412,12 +409,70 @@ namespace forbes
         private static string ResolveContractsBasePath(IConfiguration configuration, string entryDirectoryPath)
         {
             string contractsBasePath = configuration["ContractsBasePath"] ?? "";
-            if (string.IsNullOrWhiteSpace(contractsBasePath))
-            {
-                contractsBasePath = Path.Combine(entryDirectoryPath, "Contracts");
-            }
+            contractsBasePath = ResolvePathSetting(contractsBasePath, entryDirectoryPath, "Contracts");
 
             return contractsBasePath;
+        }
+
+        private static string ResolveWWWRootBasePath(IConfiguration configuration, string entryDirectoryPath)
+        {
+            string wwwRootBasePath = configuration["WWWRootBasePath"] ?? "";
+            wwwRootBasePath = ResolvePathSetting(wwwRootBasePath, entryDirectoryPath, "wwwroot");
+
+            return wwwRootBasePath;
+        }
+
+        private static string ResolvePathSetting(string path, string entryDirectoryPath, string fallbackRelativePath)
+        {
+            string configuredPath = ExpandPathVariables(path);
+            if (string.IsNullOrWhiteSpace(configuredPath) == true || HasUnresolvedEnvironmentVariable(configuredPath) == true)
+            {
+                configuredPath = fallbackRelativePath;
+            }
+
+            string basePath = ExpandPathVariables(entryDirectoryPath);
+            if (string.IsNullOrWhiteSpace(basePath) == true)
+            {
+                basePath = AppContext.BaseDirectory;
+            }
+
+            if (Path.IsPathRooted(basePath) == false)
+            {
+                basePath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, basePath));
+            }
+            else
+            {
+                basePath = Path.GetFullPath(basePath);
+            }
+
+            if (Path.IsPathRooted(configuredPath) == true)
+            {
+                return Path.GetFullPath(configuredPath);
+            }
+
+            return Path.GetFullPath(Path.Combine(basePath, configuredPath));
+        }
+
+        private static bool HasUnresolvedEnvironmentVariable(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path) == true)
+            {
+                return false;
+            }
+
+            return Regex.IsMatch(path, @"\$(\{[A-Za-z_][A-Za-z0-9_]*\}|[A-Za-z_][A-Za-z0-9_]*)")
+                || Regex.IsMatch(path, @"%[A-Za-z_][A-Za-z0-9_]*%");
+        }
+
+        private static string ExpandPathVariables(string path)
+        {
+            string expandedPath = Environment.ExpandEnvironmentVariables(path ?? "");
+            return Regex.Replace(expandedPath, @"\$(\{(?<name>[A-Za-z_][A-Za-z0-9_]*)\}|(?<name>[A-Za-z_][A-Za-z0-9_]*))", match =>
+            {
+                string variableName = match.Groups["name"].Value;
+                string? variableValue = Environment.GetEnvironmentVariable(variableName);
+                return string.IsNullOrEmpty(variableValue) == true ? match.Value : variableValue;
+            });
         }
 
         private static string GetRelativePath(string fullFilePath, string basePath)

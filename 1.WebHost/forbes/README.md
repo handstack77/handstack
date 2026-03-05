@@ -28,7 +28,28 @@ dotnet run --project .\forbes.csproj
 .\build.ps1
 ```
 
-## 3) 실행 옵션
+## 3) Docker 배포
+
+`1.WebHost/forbes/docker-compose.yml`은 `Contracts` 폴더를 호스트와 공유하도록 기본 설정되어 있습니다.
+
+- 호스트 공유 경로: `1.WebHost/forbes/Contracts`
+- 컨테이너 경로: `/app/Contracts`
+
+레포 루트에서 이미지 빌드:
+
+```powershell
+docker build -f 1.WebHost/forbes/Dockerfile -t handstack-forbes:latest .
+```
+
+`1.WebHost/forbes` 폴더에서 compose 실행:
+
+```powershell
+docker compose up -d --build
+```
+
+접속 주소: `http://localhost:8420`
+
+## 4) 실행 옵션
 
 - `--debug`: 디버거 연결 대기 모드 사용
 - `--delay <seconds>`: 디버거 대기 시간(초), 기본값 `10`
@@ -39,12 +60,12 @@ dotnet run --project .\forbes.csproj
 dotnet run --project .\forbes.csproj -- --debug --delay 20
 ```
 
-## 4) 설정 파일
+## 5) 설정 파일
 
 ### `appsettings.json`
 
-- `ContractsBasePath`: 계약 파일 기본 경로
-- `WWWRootBasePath`: 정적 파일 루트 경로
+- `ContractsBasePath`: 계약 파일 기본 경로 (`$HANDSTACK_HOME/Contracts` 형식 지원)
+- `WWWRootBasePath`: 정적 파일 루트 경로 (`$HANDSTACK_HOME/wwwroot` 형식 지원)
 - `CodeMergeMethod`: `Manual` | `FileSync` | `GitHub`
 - `Kestrel:Endpoints:Http:Url`: 서비스 바인딩 주소
 
@@ -75,7 +96,7 @@ dotnet run --project .\forbes.csproj -- --debug --delay 20
 
 ```
 
-## 5) 동기화 모드
+## 6) 동기화 모드
 
 - `Manual`: 파일 동기화 비활성화
 - `FileSync`: 로컬 변경 파일을 `FileSyncServer`로 전송
@@ -88,11 +109,11 @@ dotnet run --project .\forbes.csproj -- --debug --delay 20
 - `transact`: `*.json`
 - `wwwroot`: 모든 파일
 
-## 6) API 사용법
+## 7) API 사용법
 
 기본 베이스 URL: `http://localhost:8420`
 
-### 6.1 repository_dispatch 트리거
+### 7.1 repository_dispatch 트리거
 
 ```bash
 curl -X POST "http://localhost:8420/api/dispatch/repository" \
@@ -100,7 +121,7 @@ curl -X POST "http://localhost:8420/api/dispatch/repository" \
   -d "{\"eventType\":\"sync_config\",\"clientPayload\":{\"source\":\"external\",\"changedBy\":\"erp\"}}"
 ```
 
-### 6.2 workflow_dispatch 트리거
+### 7.2 workflow_dispatch 트리거
 
 ```bash
 curl -X POST "http://localhost:8420/api/dispatch/workflow" \
@@ -108,14 +129,14 @@ curl -X POST "http://localhost:8420/api/dispatch/workflow" \
   -d "{\"workflowId\":\".github/workflows/manual.yml\",\"ref\":\"main\",\"inputs\":{\"name\":\"erp\"}}"
 ```
 
-## 7) 로그 위치
+## 8) 로그 위치
 
 - 로그 폴더: `<EntryDirectoryPath>\tracelog`
 - 로그 파일: `trace-YYYY-MM-DD.log`
 
 `EntryDirectoryPath`를 설정하지 않으면 실행 파일 기준 경로를 사용합니다.
 
-## 8) 문제 해결 체크리스트
+## 9) 문제 해결 체크리스트
 
 - 8420 포트 충돌 시 `appsettings.json`의 Kestrel URL 변경
 - 정적 파일 미노출 시 `WWWRootBasePath` 경로 확인
