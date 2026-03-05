@@ -58,8 +58,10 @@ namespace agent
             builder.Services.AddAuthorization();
 
             builder.Services.AddSingleton<ManagementKeyValidator>();
+            builder.Services.AddSingleton<HostBridgeKeyValidator>();
             builder.Services.AddSingleton<UserCredentialValidator>();
             builder.Services.AddScoped<ManagementKeyActionFilter>();
+            builder.Services.AddScoped<HostBridgeKeyActionFilter>();
             builder.Services.AddSingleton<IHostStatsProvider, HostStatsProvider>();
             builder.Services.AddSingleton<ITargetProcessManager, TargetProcessManager>();
             builder.Services.AddSingleton<ITargetAuditLogger, TargetAuditLogger>();
@@ -154,4 +156,5 @@ namespace agent
         }
     }
 }
+
 

@@ -1,9 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Text.Json;
 using System.Threading;
@@ -21,6 +23,7 @@ namespace agent.Services
     {
         private readonly IOptionsMonitor<AgentOptions> optionsMonitor;
         private readonly ILogger<TargetProcessManager> logger;
+        private readonly IHttpClientFactory httpClientFactory;
         private readonly SemaphoreSlim syncLock;
         private readonly ConcurrentDictionary<string, ManagedProcessState> states;
         private readonly ConcurrentDictionary<int, string> pidMap;
@@ -28,10 +31,12 @@ namespace agent.Services
 
         public TargetProcessManager(
             IOptionsMonitor<AgentOptions> optionsMonitor,
+            IHttpClientFactory httpClientFactory,
             ILogger<TargetProcessManager> logger)
         {
             this.optionsMonitor = optionsMonitor;
             this.logger = logger;
+            this.httpClientFactory = httpClientFactory;
             syncLock = new SemaphoreSlim(1, 1);
             states = new ConcurrentDictionary<string, ManagedProcessState>(StringComparer.OrdinalIgnoreCase);
             pidMap = new ConcurrentDictionary<int, string>();
@@ -70,14 +75,23 @@ namespace agent.Services
             return target is not null;
         }
 
-        public Task<TargetStatusResponse?> GetStatusAsync(string id, CancellationToken cancellationToken)
+        public async Task<TargetStatusResponse?> GetStatusAsync(string id, CancellationToken cancellationToken)
         {
             if (TryGetTarget(id, out var target) == false || target is null)
             {
-                return Task.FromResult<TargetStatusResponse?>(null);
+                return null;
             }
 
             cancellationToken.ThrowIfCancellationRequested();
+
+            if (target.UseCommandBridge == true)
+            {
+                var bridgeStatus = await GetStatusFromCommandBridgeAsync(target, cancellationToken);
+                if (bridgeStatus is not null)
+                {
+                    return bridgeStatus;
+                }
+            }
 
             var state = GetOrCreateState(target.Id);
             Process? process;
@@ -99,8 +113,14 @@ namespace agent.Services
 
             if (process is null)
             {
+                if (await IsReachableByStatusProbeAsync(target, cancellationToken) == true)
+                {
+                    response.State = "Running";
+                    return response;
+                }
+
                 response.State = "Stopped";
-                return Task.FromResult<TargetStatusResponse?>(response);
+                return response;
             }
 
             response.State = "Running";
@@ -114,7 +134,7 @@ namespace agent.Services
             response.CpuPercent = CalculateCpuPercent(process);
             response.RamBytes = SafeGetWorkingSet(process);
 
-            return Task.FromResult<TargetStatusResponse?>(response);
+            return response;
         }
 
         public async Task<TargetCommandResult> StartAsync(string id, CancellationToken cancellationToken)
@@ -129,23 +149,40 @@ namespace agent.Services
                 };
             }
 
+            if (target.UseCommandBridge == true)
+            {
+                return await ExecuteCommandViaBridgeAsync(target, "start", cancellationToken);
+            }
+
             await syncLock.WaitAsync(cancellationToken);
             try
             {
                 var state = GetOrCreateState(target.Id);
+                Process? runningProcess;
                 lock (state.SyncRoot)
                 {
-                    var runningProcess = FindRunningProcess(target, state);
-                    if (runningProcess is not null)
+                    runningProcess = FindRunningProcess(target, state);
+                }
+
+                if (runningProcess is not null)
+                {
+                    return new TargetCommandResult
                     {
-                        return new TargetCommandResult
-                        {
-                            Success = false,
-                            ErrorCode = "already_running",
-                            Message = $"대상 '{target.Id}'은(는) 이미 실행 중입니다.",
-                            Pid = runningProcess.Id
-                        };
-                    }
+                        Success = false,
+                        ErrorCode = "already_running",
+                        Message = $"대상 '{target.Id}'은(는) 이미 실행 중입니다.",
+                        Pid = runningProcess.Id
+                    };
+                }
+
+                if (await IsReachableByStatusProbeAsync(target, cancellationToken) == true)
+                {
+                    return new TargetCommandResult
+                    {
+                        Success = false,
+                        ErrorCode = "already_running",
+                        Message = $"대상 '{target.Id}'은(는) 외부 실행 상태로 감지되었습니다."
+                    };
                 }
 
                 var processStartInfo = BuildProcessStartInfo(target);
@@ -240,6 +277,11 @@ namespace agent.Services
                 };
             }
 
+            if (target.UseCommandBridge == true)
+            {
+                return await ExecuteCommandViaBridgeAsync(target, "stop", cancellationToken);
+            }
+
             await syncLock.WaitAsync(cancellationToken);
             try
             {
@@ -253,6 +295,16 @@ namespace agent.Services
 
                 if (process is null)
                 {
+                    if (await IsReachableByStatusProbeAsync(target, cancellationToken) == true)
+                    {
+                        return new TargetCommandResult
+                        {
+                            Success = false,
+                            ErrorCode = "external_target_control_not_supported",
+                            Message = $"대상 '{target.Id}'은(는) 외부 실행 상태로 감지되어 컨테이너에서 중지할 수 없습니다."
+                        };
+                    }
+
                     return new TargetCommandResult
                     {
                         Success = false,
@@ -313,6 +365,21 @@ namespace agent.Services
 
         public async Task<TargetCommandResult> RestartAsync(string id, CancellationToken cancellationToken)
         {
+            if (TryGetTarget(id, out var target) == false || target is null)
+            {
+                return new TargetCommandResult
+                {
+                    Success = false,
+                    ErrorCode = "target_not_found",
+                    Message = $"대상 '{id}'을(를) 찾을 수 없습니다."
+                };
+            }
+
+            if (target.UseCommandBridge == true)
+            {
+                return await ExecuteCommandViaBridgeAsync(target, "restart", cancellationToken);
+            }
+
             var stopResult = await StopAsync(id, cancellationToken);
             if (stopResult.Success == false && string.Equals(stopResult.ErrorCode, "already_stopped", StringComparison.Ordinal) == false)
             {
@@ -320,6 +387,244 @@ namespace agent.Services
             }
 
             return await StartAsync(id, cancellationToken);
+        }
+
+        private async Task<TargetStatusResponse?> GetStatusFromCommandBridgeAsync(TargetProcessOptions target, CancellationToken cancellationToken)
+        {
+            if (TryCreateCommandBridgeRequest(
+                target,
+                HttpMethod.Get,
+                $"bridge/targets/{Uri.EscapeDataString(target.Id)}/status",
+                out var request,
+                out var timeout,
+                out var configError) == false)
+            {
+                logger.LogWarning("명령 브리지 설정 오류. 대상ID={TargetId}, 메시지={Message}", target.Id, configError?.Message ?? "구성 오류");
+                return null;
+            }
+
+            using (request)
+            using (var timeoutTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
+            {
+                timeoutTokenSource.CancelAfter(timeout);
+
+                try
+                {
+                    var client = httpClientFactory.CreateClient();
+                    client.Timeout = Timeout.InfiniteTimeSpan;
+
+                    using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, timeoutTokenSource.Token);
+                    var payload = await response.Content.ReadAsStringAsync(timeoutTokenSource.Token);
+
+                    if (response.StatusCode == HttpStatusCode.NotFound)
+                    {
+                        return null;
+                    }
+
+                    if (response.IsSuccessStatusCode == false)
+                    {
+                        logger.LogWarning("명령 브리지 상태 조회 실패. 대상ID={TargetId}, 상태코드={StatusCode}", target.Id, (int)response.StatusCode);
+                        return null;
+                    }
+
+                    var status = TryDeserializeJson<TargetStatusResponse>(payload);
+                    if (status is null)
+                    {
+                        logger.LogWarning("명령 브리지 상태 응답 파싱 실패. 대상ID={TargetId}", target.Id);
+                        return null;
+                    }
+
+                    if (string.IsNullOrWhiteSpace(status.Id) == true)
+                    {
+                        status.Id = target.Id;
+                    }
+
+                    if (string.IsNullOrWhiteSpace(status.Name) == true)
+                    {
+                        status.Name = string.IsNullOrWhiteSpace(target.Name) == true ? target.Id : target.Name;
+                    }
+
+                    return status;
+                }
+                catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested == false)
+                {
+                    logger.LogWarning("명령 브리지 상태 조회 시간 초과. 대상ID={TargetId}", target.Id);
+                    return null;
+                }
+                catch (Exception exception)
+                {
+                    logger.LogWarning(exception, "명령 브리지 상태 조회 예외. 대상ID={TargetId}", target.Id);
+                    return null;
+                }
+            }
+        }
+
+        private async Task<TargetCommandResult> ExecuteCommandViaBridgeAsync(TargetProcessOptions target, string command, CancellationToken cancellationToken)
+        {
+            if (TryCreateCommandBridgeRequest(
+                target,
+                HttpMethod.Post,
+                $"bridge/targets/{Uri.EscapeDataString(target.Id)}/{command}",
+                out var request,
+                out var timeout,
+                out var configError) == false)
+            {
+                return configError ?? BuildBridgeNotConfiguredResult(target, "명령 브리지 설정이 올바르지 않습니다.");
+            }
+
+            using (request)
+            using (var timeoutTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
+            {
+                timeoutTokenSource.CancelAfter(timeout);
+
+                try
+                {
+                    var client = httpClientFactory.CreateClient();
+                    client.Timeout = Timeout.InfiniteTimeSpan;
+
+                    using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, timeoutTokenSource.Token);
+                    var payload = await response.Content.ReadAsStringAsync(timeoutTokenSource.Token);
+
+                    var bridgeResult = TryDeserializeJson<TargetCommandResult>(payload);
+                    if (bridgeResult is not null &&
+                        (bridgeResult.Success == true ||
+                         bridgeResult.Pid.HasValue == true ||
+                         string.IsNullOrWhiteSpace(bridgeResult.ErrorCode) == false ||
+                         string.IsNullOrWhiteSpace(bridgeResult.Message) == false))
+                    {
+                        return bridgeResult;
+                    }
+
+                    if (response.IsSuccessStatusCode == true)
+                    {
+                        return new TargetCommandResult
+                        {
+                            Success = true,
+                            Message = $"명령 브리지에서 '{target.Id}' 대상의 '{command}' 작업을 완료했습니다."
+                        };
+                    }
+
+                    if (response.StatusCode == HttpStatusCode.NotFound)
+                    {
+                        return new TargetCommandResult
+                        {
+                            Success = false,
+                            ErrorCode = "target_not_found",
+                            Message = $"대상 '{target.Id}'을(를) 찾을 수 없습니다."
+                        };
+                    }
+
+                    return new TargetCommandResult
+                    {
+                        Success = false,
+                        ErrorCode = "bridge_http_error",
+                        Message = $"명령 브리지 요청 실패: HTTP {(int)response.StatusCode}"
+                    };
+                }
+                catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested == false)
+                {
+                    return new TargetCommandResult
+                    {
+                        Success = false,
+                        ErrorCode = "bridge_timeout",
+                        Message = "명령 브리지 요청이 시간 초과되었습니다."
+                    };
+                }
+                catch (Exception exception)
+                {
+                    logger.LogWarning(exception, "명령 브리지 호출 예외. 대상ID={TargetId}, 명령={Command}", target.Id, command);
+                    return new TargetCommandResult
+                    {
+                        Success = false,
+                        ErrorCode = "bridge_unreachable",
+                        Message = "명령 브리지에 연결할 수 없습니다."
+                    };
+                }
+            }
+        }
+
+        private bool TryCreateCommandBridgeRequest(
+            TargetProcessOptions target,
+            HttpMethod method,
+            string relativePath,
+            out HttpRequestMessage request,
+            out TimeSpan timeout,
+            out TargetCommandResult? error)
+        {
+            request = null!;
+            timeout = TimeSpan.Zero;
+            error = null;
+
+            var bridgeUrl = target.CommandBridgeUrl?.Trim() ?? "";
+            if (string.IsNullOrWhiteSpace(bridgeUrl) == true)
+            {
+                error = BuildBridgeNotConfiguredResult(target, "명령 브리지 URL이 비어 있습니다.");
+                return false;
+            }
+
+            if (Uri.TryCreate(bridgeUrl, UriKind.Absolute, out var baseUri) == false)
+            {
+                error = BuildBridgeNotConfiguredResult(target, "명령 브리지 URL 형식이 올바르지 않습니다.");
+                return false;
+            }
+
+            if (baseUri.AbsoluteUri.EndsWith("/", StringComparison.Ordinal) == false)
+            {
+                baseUri = new Uri(baseUri.AbsoluteUri + "/", UriKind.Absolute);
+            }
+
+            var requestUri = new Uri(baseUri, relativePath.TrimStart('/'));
+            request = new HttpRequestMessage(method, requestUri);
+
+            var headerName = string.IsNullOrWhiteSpace(target.CommandBridgeHeaderName) == true
+                ? "X-Bridge-Key"
+                : target.CommandBridgeHeaderName.Trim();
+            var headerValue = target.CommandBridgeKey?.Trim() ?? "";
+            if (string.IsNullOrWhiteSpace(headerValue) == true)
+            {
+                request.Dispose();
+                request = null!;
+                error = BuildBridgeNotConfiguredResult(target, "명령 브리지 인증 키가 비어 있습니다.");
+                return false;
+            }
+
+            request.Headers.Remove(headerName);
+            request.Headers.TryAddWithoutValidation(headerName, headerValue);
+
+            var timeoutSeconds = target.CommandBridgeTimeoutSeconds <= 0 ? 5 : target.CommandBridgeTimeoutSeconds;
+            timeout = TimeSpan.FromSeconds(timeoutSeconds);
+            return true;
+        }
+
+        private TargetCommandResult BuildBridgeNotConfiguredResult(TargetProcessOptions target, string message)
+        {
+            return new TargetCommandResult
+            {
+                Success = false,
+                ErrorCode = "bridge_not_configured",
+                Message = $"대상 '{target.Id}' 명령 브리지 설정 오류: {message}"
+            };
+        }
+
+        private static T? TryDeserializeJson<T>(string payload)
+            where T : class
+        {
+            if (string.IsNullOrWhiteSpace(payload) == true)
+            {
+                return null;
+            }
+
+            try
+            {
+                return JsonSerializer.Deserialize<T>(payload, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         private static bool IsPathLike(string executablePath)
@@ -466,6 +771,42 @@ namespace agent.Services
             }
 
             return null;
+        }
+
+        private async Task<bool> IsReachableByStatusProbeAsync(TargetProcessOptions target, CancellationToken cancellationToken)
+        {
+            if (target.UseStatusProbeWhenProcessNotFound == false)
+            {
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(target.StatusProbeUrl) == true)
+            {
+                return false;
+            }
+
+            var timeoutSeconds = target.StatusProbeTimeoutSeconds <= 0 ? 3 : target.StatusProbeTimeoutSeconds;
+            using var request = new HttpRequestMessage(HttpMethod.Get, target.StatusProbeUrl.Trim());
+            using var timeoutTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            timeoutTokenSource.CancelAfter(TimeSpan.FromSeconds(timeoutSeconds));
+
+            try
+            {
+                var client = httpClientFactory.CreateClient();
+                client.Timeout = Timeout.InfiniteTimeSpan;
+
+                using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, timeoutTokenSource.Token);
+                return true;
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested == false)
+            {
+                return false;
+            }
+            catch (Exception exception)
+            {
+                logger.LogDebug(exception, "상태 프로브 요청 실패: {TargetId}/{Url}", target.Id, target.StatusProbeUrl);
+                return false;
+            }
         }
 
         private void AttachProcessTracking(string targetId, Process process)
@@ -818,4 +1159,5 @@ namespace agent.Services
         }
     }
 }
+
 

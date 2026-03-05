@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -19,6 +19,22 @@ namespace agent.Options
         public string WorkingDirectory { get; set; } = "";
 
         public string ProcessName { get; set; } = "";
+
+        public bool UseStatusProbeWhenProcessNotFound { get; set; } = false;
+
+        public string StatusProbeUrl { get; set; } = "";
+
+        public int StatusProbeTimeoutSeconds { get; set; } = 3;
+
+        public bool UseCommandBridge { get; set; } = false;
+
+        public string CommandBridgeUrl { get; set; } = "";
+
+        public string CommandBridgeHeaderName { get; set; } = "X-Bridge-Key";
+
+        public string CommandBridgeKey { get; set; } = "";
+
+        public int CommandBridgeTimeoutSeconds { get; set; } = 5;
 
         public int StopTimeoutSeconds { get; set; } = 20;
 
@@ -42,4 +58,3 @@ namespace agent.Options
         }
     }
 }
-

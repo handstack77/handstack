@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
 namespace agent.Options
 {
@@ -16,7 +16,8 @@ namespace agent.Options
 
         public List<TargetProcessOptions> Targets { get; set; } = new List<TargetProcessOptions>();
 
+        public HostBridgeOptions HostBridge { get; set; } = new HostBridgeOptions();
+
         public AuditLogOptions AuditLog { get; set; } = new AuditLogOptions();
     }
 }
-

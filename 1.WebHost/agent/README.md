@@ -53,6 +53,31 @@ $headers = @{ "X-Management-Key" = "CHANGE-THIS-KEY" }
 Invoke-RestMethod -Uri "http://localhost:8484/targets" -Headers $headers
 ```
 
+## 호스트 브리지 모드 (Docker -> Host 프로세스 제어)
+
+Docker 컨테이너 내부 `agent`가 호스트의 `ack.exe`를 제어해야 할 경우, **호스트에 브리지 agent**를 하나 더 실행하고 컨테이너 agent가 이를 호출하도록 구성합니다.
+
+### 1) 호스트 브리지 실행
+
+```powershell
+$env:ASPNETCORE_URLS='http://0.0.0.0:8584'
+$env:Agent__HostBridge__Enabled='true'
+$env:Agent__HostBridge__HeaderName='X-Bridge-Key'
+$env:Agent__HostBridge__BridgeKey='CHANGE-THIS-BRIDGE-KEY'
+$env:Agent__Targets__0__UseCommandBridge='false'
+$env:Agent__Targets__0__ExecutablePath='C:\handstack\app\ack.exe'
+$env:Agent__Targets__0__WorkingDirectory='C:\handstack\app'
+dotnet run --project 1.WebHost/agent/agent.csproj --no-launch-profile
+```
+
+### 2) Docker agent 실행(브리지 위임)
+
+```powershell
+docker run -d --name handstack-agent-local -p 8484:8484 -e Agent__Targets__0__UseCommandBridge=true -e Agent__Targets__0__CommandBridgeUrl=http://host.docker.internal:8584 -e Agent__Targets__0__CommandBridgeHeaderName=X-Bridge-Key -e Agent__Targets__0__CommandBridgeKey=CHANGE-THIS-BRIDGE-KEY handstack-agent:latest
+```
+
+이 구성이 적용되면 컨테이너 `agent`의 `/targets/{id}/start|stop|restart|status` 요청은 호스트 브리지의 `/bridge/targets/{id}/...`로 전달됩니다.
+
 ## Windows Service 등록 예시
 
 ```powershell
@@ -93,4 +118,7 @@ sudo systemctl daemon-reload
 sudo systemctl enable handstack-agent
 sudo systemctl start handstack-agent
 ```
+
+
+
 
