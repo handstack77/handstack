@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Net;
@@ -29,7 +30,7 @@ namespace HandStack.Web.ApiClient
         private readonly ILogger logger;
         private readonly IMediator? mediator;
 
-        private static Dictionary<string, JObject> apiServices = new Dictionary<string, JObject>();
+        private static readonly ConcurrentDictionary<string, JObject> apiServices = new(StringComparer.Ordinal);
 
         public TransactionClient(ILogger logger, IMediator? mediator = null)
         {
@@ -67,8 +68,7 @@ namespace HandStack.Web.ApiClient
                                 var exceptionText = exception == null ? "" : exception.ToString();
                                 if (string.IsNullOrWhiteSpace(exceptionText))
                                 {
-                                    result = true;
-                                    apiServices.Add(systemID + serverType, apiService);
+                                    result = apiServices.TryAdd(findID, apiService) || apiServices.ContainsKey(findID);
                                 }
                             }
                             else
@@ -101,14 +101,7 @@ namespace HandStack.Web.ApiClient
             try
             {
                 var findID = systemID + serverType;
-                if (apiServices.ContainsKey(findID) == false)
-                {
-                    apiServices.Add(systemID + serverType, apiService);
-                }
-                else
-                {
-                    result = true;
-                }
+                result = apiServices.TryAdd(findID, apiService) || apiServices.ContainsKey(findID);
             }
             catch (Exception exception)
             {

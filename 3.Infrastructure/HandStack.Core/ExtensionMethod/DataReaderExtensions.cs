@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Dynamic;
@@ -443,9 +443,14 @@ namespace HandStack.Core.ExtensionMethod
 
         public static IEnumerable<string> GetColumnNames(this IDataRecord @this)
         {
-            return Enumerable.Range(0, @this.FieldCount)
-                .Select(@this.GetName)
-                .ToList();
+            var fieldCount = @this.FieldCount;
+            var columnNames = new string[fieldCount];
+            for (var i = 0; i < fieldCount; i++)
+            {
+                columnNames[i] = @this.GetName(i);
+            }
+
+            return columnNames;
         }
 
         public static DataTable ToDataTable(this IDataReader @this)
@@ -460,11 +465,13 @@ namespace HandStack.Core.ExtensionMethod
             var type = typeof(T);
             var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
             var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
-
+            var fieldCount = @this.FieldCount;
             var list = new List<T>();
-
-            var hash = new HashSet<string>(Enumerable.Range(0, @this.FieldCount)
-                .Select(@this.GetName));
+            var hash = new HashSet<string>();
+            for (var i = 0; i < fieldCount; i++)
+            {
+                hash.Add(@this.GetName(i));
+            }
 
             while (@this.Read())
             {
@@ -499,11 +506,13 @@ namespace HandStack.Core.ExtensionMethod
             var type = typeof(T);
             var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
             var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
-
             var entity = new T();
-
-            var hash = new HashSet<string>(Enumerable.Range(0, @this.FieldCount)
-                .Select(@this.GetName));
+            var fieldCount = @this.FieldCount;
+            var hash = new HashSet<string>();
+            for (var i = 0; i < fieldCount; i++)
+            {
+                hash.Add(@this.GetName(i));
+            }
 
             foreach (var property in properties)
             {
@@ -528,25 +537,31 @@ namespace HandStack.Core.ExtensionMethod
 
         public static dynamic ToExpandoObject(this IDataReader @this)
         {
-            var columnNames = Enumerable.Range(0, @this.FieldCount)
-                .Select(x => new KeyValuePair<int, string>(x, @this.GetName(x)))
-                .ToDictionary(pair => pair.Key);
+            var fieldCount = @this.FieldCount;
+            var columnNames = new string[fieldCount];
+            for (var i = 0; i < fieldCount; i++)
+            {
+                columnNames[i] = @this.GetName(i);
+            }
 
             dynamic entity = new ExpandoObject();
             var expandoDict = (IDictionary<string, object>)entity;
-
-            Enumerable.Range(0, @this.FieldCount)
-                .ToList()
-                .ForEach(x => expandoDict.Add(columnNames[x].Value, @this[x]));
+            for (var i = 0; i < fieldCount; i++)
+            {
+                expandoDict.Add(columnNames[i], @this[i]);
+            }
 
             return entity;
         }
 
         public static IEnumerable<dynamic> ToExpandoObjects(this IDataReader @this)
         {
-            var columnNames = Enumerable.Range(0, @this.FieldCount)
-                .Select(x => new KeyValuePair<int, string>(x, @this.GetName(x)))
-                .ToDictionary(pair => pair.Key);
+            var fieldCount = @this.FieldCount;
+            var columnNames = new string[fieldCount];
+            for (var i = 0; i < fieldCount; i++)
+            {
+                columnNames[i] = @this.GetName(i);
+            }
 
             var list = new List<dynamic>();
 
@@ -554,10 +569,10 @@ namespace HandStack.Core.ExtensionMethod
             {
                 dynamic entity = new ExpandoObject();
                 var expandoDict = (IDictionary<string, object>)entity;
-
-                Enumerable.Range(0, @this.FieldCount)
-                    .ToList()
-                    .ForEach(x => expandoDict.Add(columnNames[x].Value, @this[x]));
+                for (var i = 0; i < fieldCount; i++)
+                {
+                    expandoDict.Add(columnNames[i], @this[i]);
+                }
 
                 list.Add(entity);
             }

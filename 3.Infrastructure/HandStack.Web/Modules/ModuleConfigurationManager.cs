@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
@@ -13,9 +13,15 @@ namespace HandStack.Web.Modules
 {
     public class ModuleConfigurationManager : IModuleConfigurationManager
     {
+        private static readonly HttpClient ModuleHttpClient = new() { Timeout = TimeSpan.FromSeconds(3) };
+        private static readonly JsonSerializerSettings ModuleJsonSerializerSettings = new()
+        {
+            Converters = { new StringOrArrayConverter() }
+        };
+
         public IEnumerable<ModuleInfo> GetModules()
         {
-            var modules = new List<ModuleInfo>();
+            List<ModuleInfo> modules = [];
             if (string.IsNullOrWhiteSpace(GlobalConfiguration.LoadModuleBasePath))
             {
                 GlobalConfiguration.LoadModuleBasePath = PathExtensions.Combine(GlobalConfiguration.EntryBasePath, @"modules");
@@ -26,7 +32,6 @@ namespace HandStack.Web.Modules
                 Directory.CreateDirectory(GlobalConfiguration.LoadModuleBasePath);
             }
 
-            using var httpClient = new HttpClient() { Timeout = TimeSpan.FromSeconds(3) };
             var moduleSettingFile = "module.json";
             foreach (var moduleBasePath in Directory.GetDirectories(GlobalConfiguration.LoadModuleBasePath))
             {
@@ -55,16 +60,14 @@ namespace HandStack.Web.Modules
                             request.Headers.Add("HandStack-HostName", GlobalConfiguration.HostName);
                             request.Headers.Add("HandStack-Environment", GlobalConfiguration.RunningEnvironment);
 
-                            using var response = httpClient.Send(request);
+                            using var response = ModuleHttpClient.Send(request);
                             response.EnsureSuccessStatusCode();
 
                             var secretData = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
                             var keyItem = JsonConvert.DeserializeObject<KeyItem>(secretData)!;
                             var content = keyItem.IsEncryption.ToBoolean() == true ? keyItem.Value.DecryptAES(keyItem.Key.PadRight(32, '0').Substring(0, 32)) : keyItem.Value;
 
-                            var settings = new JsonSerializerSettings();
-                            settings.Converters.Add(new StringOrArrayConverter());
-                            module = JsonConvert.DeserializeObject<DefaultModuleConfigJson>(content, settings);
+                            module = JsonConvert.DeserializeObject<DefaultModuleConfigJson>(content, ModuleJsonSerializerSettings);
                         }
                         else if (File.Exists(fileUri) == true)
                         {
@@ -73,23 +76,15 @@ namespace HandStack.Web.Modules
 
                             if (File.Exists(moduleSettingFilePath) == true)
                             {
-                                using var reader = new StreamReader(moduleSettingFilePath);
-                                var content = reader.ReadToEnd();
-
-                                var settings = new JsonSerializerSettings();
-                                settings.Converters.Add(new StringOrArrayConverter());
-                                module = JsonConvert.DeserializeObject<DefaultModuleConfigJson>(content, settings);
+                                var content = File.ReadAllText(moduleSettingFilePath);
+                                module = JsonConvert.DeserializeObject<DefaultModuleConfigJson>(content, ModuleJsonSerializerSettings);
                             }
                         }
                     }
                     else if (File.Exists(moduleSettingFilePath) == true)
                     {
-                        using var reader = new StreamReader(moduleSettingFilePath);
-                        var content = reader.ReadToEnd();
-
-                        var settings = new JsonSerializerSettings();
-                        settings.Converters.Add(new StringOrArrayConverter());
-                        module = JsonConvert.DeserializeObject<DefaultModuleConfigJson>(content, settings);
+                        var content = File.ReadAllText(moduleSettingFilePath);
+                        module = JsonConvert.DeserializeObject<DefaultModuleConfigJson>(content, ModuleJsonSerializerSettings);
                     }
 
                     if (module != null)
@@ -106,40 +101,22 @@ namespace HandStack.Web.Modules
 
                         if (module.ModuleConfig?.ContractBasePath != null)
                         {
-                            var keyValues = new List<string>();
-                            foreach (var item in module.ModuleConfig.ContractBasePath)
-                            {
-                                keyValues.Add(item.ToString());
-                            }
-
-                            moduleInfo.ContractBasePath = keyValues;
+                            moduleInfo.ContractBasePath = [.. module.ModuleConfig.ContractBasePath];
                         }
 
                         if (module.ModuleConfig?.EventAction != null)
                         {
-                            var keyValues = new List<string>();
-                            foreach (var item in module.ModuleConfig.EventAction)
-                            {
-                                keyValues.Add(item.ToString());
-                            }
-
-                            moduleInfo.EventAction = keyValues;
+                            moduleInfo.EventAction = [.. module.ModuleConfig.EventAction];
                         }
 
                         if (module.ModuleConfig?.SubscribeAction != null)
                         {
-                            var keyValues = new List<string>();
-                            foreach (var item in module.ModuleConfig.SubscribeAction)
-                            {
-                                keyValues.Add(item.ToString());
-                            }
-
-                            moduleInfo.SubscribeAction = keyValues;
+                            moduleInfo.SubscribeAction = [.. module.ModuleConfig.SubscribeAction];
                         }
 
                         if (module.LoadPassAssemblyPath != null)
                         {
-                            var keyValues = new List<string>();
+                            var keyValues = new List<string>(module.LoadPassAssemblyPath.Count);
                             foreach (var item in module.LoadPassAssemblyPath)
                             {
                                 var passAssemblyPath = PathExtensions.Join(moduleBasePath, item);
@@ -171,7 +148,7 @@ namespace HandStack.Web.Modules
         public DefaultModuleConfigJson()
         {
             ModuleConfig = new DefaultModuleConfig();
-            LoadPassAssemblyPath = new List<string>();
+            LoadPassAssemblyPath = [];
         }
     }
 
@@ -185,9 +162,9 @@ namespace HandStack.Web.Modules
 
         public DefaultModuleConfig()
         {
-            ContractBasePath = new List<string>();
-            EventAction = new List<string>();
-            SubscribeAction = new List<string>();
+            ContractBasePath = [];
+            EventAction = [];
+            SubscribeAction = [];
         }
     }
 

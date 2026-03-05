@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+using System;
 using System.Data.SqlTypes;
-using System.Linq;
 using System.Security;
 using System.Security.Cryptography;
 using System.Text;
@@ -12,36 +9,8 @@ namespace HandStack.Web.Extensions
 {
     public static class SequentialGuidExtensions
     {
-        private static readonly IReadOnlyDictionary<byte, byte> ToSqlGuidMap;
-        private static readonly IReadOnlyDictionary<byte, byte> ToGuidMap;
-
-        static SequentialGuidExtensions()
-        {
-            ToGuidMap = new ReadOnlyDictionary<byte, byte>(
-                new Dictionary<byte, byte>
-                {
-                {0, 13},
-                {1, 12},
-                {2, 11},
-                {3, 10},
-                {4, 15},
-                {5, 14},
-                {6, 9},
-                {7, 8},
-                {8, 6},
-                {9, 7},
-                {10, 4},
-                {11, 5},
-                {12, 0},
-                {13, 1},
-                {14, 2},
-                {15, 3}
-                });
-
-            ToSqlGuidMap =
-                new ReadOnlyDictionary<byte, byte>(
-                    ToGuidMap.ToDictionary(d => d.Value, d => d.Key));
-        }
+        private static ReadOnlySpan<byte> ToGuidMap => [13, 12, 11, 10, 15, 14, 9, 8, 6, 7, 4, 5, 0, 1, 2, 3];
+        private static ReadOnlySpan<byte> ToSqlGuidMap => [12, 13, 14, 15, 10, 11, 8, 9, 7, 6, 3, 2, 1, 0, 5, 4];
 
         private static DateTime ToDateTime(this long ticks) => new(ticks, DateTimeKind.Utc);
 
@@ -61,21 +30,38 @@ namespace HandStack.Web.Extensions
 
         public static Guid ToGuid(this SqlGuid sqlGuid)
         {
+            if (sqlGuid.IsNull)
+            {
+                return Guid.Empty;
+            }
+
             var bytes = sqlGuid.ToByteArray();
             if (bytes == null)
             {
-                return Guid.NewGuid();
+                return Guid.Empty;
             }
 
-            return new(Enumerable.Range(0, 16)
-                .Select(e => bytes[ToGuidMap[(byte)e]])
-                .ToArray());
+            var mappedBytes = new byte[16];
+            var map = ToGuidMap;
+            for (var i = 0; i < mappedBytes.Length; i++)
+            {
+                mappedBytes[i] = bytes[map[i]];
+            }
+
+            return new(mappedBytes);
         }
 
         public static SqlGuid ToSqlGuid(this Guid guid)
         {
             var bytes = guid.ToByteArray();
-            return new(Enumerable.Range(0, 16).Select(e => bytes[ToSqlGuidMap[(byte)e]]).ToArray());
+            var mappedBytes = new byte[16];
+            var map = ToSqlGuidMap;
+            for (var i = 0; i < mappedBytes.Length; i++)
+            {
+                mappedBytes[i] = bytes[map[i]];
+            }
+
+            return new(mappedBytes);
         }
 
         internal static bool IsDateTime(this long ticks) => ticks <= DateTime.UtcNow.Ticks && ticks >= DateTime.UnixEpoch.Ticks;
@@ -102,9 +88,7 @@ namespace HandStack.Web.Extensions
 
     public abstract class SequentialGuidGeneratorBase<T> where T : SequentialGuidGeneratorBase<T>
     {
-#pragma warning disable CS8603
-        private static readonly Lazy<T> Lazy = new(() => Activator.CreateInstance(typeof(T), true) as T);
-#pragma warning restore CS8603
+        private static readonly Lazy<T> Lazy = new(static () => (T)Activator.CreateInstance(typeof(T), nonPublic: true)!);
 
         private readonly byte[] _machinePid;
         private int _increment;
@@ -113,14 +97,9 @@ namespace HandStack.Web.Extensions
         {
             _increment = new Random().Next(500000);
             _machinePid = new byte[5];
-            using (var algorithm = MD5.Create())
-            {
-                var hash = algorithm.ComputeHash(Encoding.UTF8.GetBytes(Environment.MachineName));
-                for (var i = 0; i < 3; i++)
-                {
-                    _machinePid[i] = hash[i];
-                }
-            }
+            using var algorithm = MD5.Create();
+            var hash = algorithm.ComputeHash(Encoding.UTF8.GetBytes(Environment.MachineName));
+            hash.AsSpan(0, 3).CopyTo(_machinePid);
 
             try
             {
@@ -157,11 +136,17 @@ namespace HandStack.Web.Extensions
         internal virtual Guid NewGuid(long timestamp)
         {
             var increment = Interlocked.Increment(ref _increment) & 0x00ffffff;
+            var tail = new byte[8];
+            _machinePid.AsSpan().CopyTo(tail);
+            tail[5] = (byte)(increment >> 16);
+            tail[6] = (byte)(increment >> 8);
+            tail[7] = (byte)increment;
+
             return new Guid(
                 (int)(timestamp >> 32),
                 (short)(timestamp >> 16),
                 (short)timestamp,
-                _machinePid.Concat(new[] { (byte)(increment >> 16), (byte)(increment >> 8), (byte)increment }).ToArray()
+                tail
             );
         }
     }

@@ -1,10 +1,11 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
 using System.Dynamic;
 using System.Linq;
+using System.Text;
 
 using HandStack.Core.ExtensionMethod;
 
@@ -95,23 +96,18 @@ namespace HandStack.Data.Client
 
         public string ExecuteCommandText(string procedureName, List<SQLiteParameter>? parameters)
         {
-            string BuildParameterString(IEnumerable<SQLiteParameter> paramSet)
+            static void AppendParameter(StringBuilder builder, string parameterName, object? parameterValue)
             {
-                var commandParameters = "";
-                foreach (var parameter in paramSet)
+                if (!parameterName.StartsWith("@", StringComparison.Ordinal))
                 {
-                    var paramName = parameter.ParameterName;
-                    if (!paramName.StartsWith("@"))
-                    {
-                        paramName = "@" + paramName;
-                    }
-                    commandParameters += string.Concat(paramName, "='", parameter.Value.ToStringSafe().Replace("'", "''"), "', ");
+                    builder.Append('@');
                 }
-                if (commandParameters.Length > 0)
-                {
-                    commandParameters = commandParameters.Substring(0, commandParameters.Length - 2);
-                }
-                return commandParameters;
+
+                builder
+                    .Append(parameterName)
+                    .Append("='")
+                    .Append(parameterValue.ToStringSafe().Replace("'", "''"))
+                    .Append("', ");
             }
 
             if (parameters == null || parameters.Count == 0)
@@ -119,19 +115,32 @@ namespace HandStack.Data.Client
                 return string.Concat("exec ", procedureName, ";");
             }
 
-            string commandParameters;
+            var commandParameters = new StringBuilder();
             if (isDeriveParameters)
             {
                 var parameterSet = GetSpParameterSet(procedureName);
-                var matchedParameters = parameterSet.Where(p => SetDbParameterData(p, parameters));
-                commandParameters = BuildParameterString(matchedParameters);
+                foreach (var parameter in parameterSet)
+                {
+                    if (SetDbParameterData(parameter, parameters))
+                    {
+                        AppendParameter(commandParameters, parameter.ParameterName, parameter.Value);
+                    }
+                }
             }
             else
             {
-                commandParameters = BuildParameterString(parameters);
+                foreach (var parameter in parameters)
+                {
+                    AppendParameter(commandParameters, parameter.ParameterName, parameter.Value);
+                }
             }
 
-            return string.Concat("exec ", procedureName, commandParameters.Length > 0 ? " " + commandParameters : "", ";");
+            if (commandParameters.Length > 2)
+            {
+                commandParameters.Length -= 2;
+            }
+
+            return string.Concat("exec ", procedureName, commandParameters.Length > 0 ? " " : "", commandParameters.ToString(), ";");
         }
 
         public DataSet? ExecuteDataSet(string commandText, CommandType dbCommandType, bool hasSchema = false)

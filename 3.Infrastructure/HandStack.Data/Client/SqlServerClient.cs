@@ -1,10 +1,11 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Dynamic;
 using System.Linq;
+using System.Text;
 
 using HandStack.Core.ExtensionMethod;
 
@@ -97,7 +98,21 @@ namespace HandStack.Data.Client
 
         public string ExecuteCommandText(string procedureName, List<SqlParameter>? parameters)
         {
-            var CommandParameters = "";
+            var commandParameters = new StringBuilder();
+
+            static void AppendParameter(StringBuilder builder, string parameterName, object? parameterValue)
+            {
+                if (parameterName.IndexOf("@", StringComparison.Ordinal) < 0)
+                {
+                    builder.Append('@');
+                }
+
+                builder
+                    .Append(parameterName)
+                    .Append("='")
+                    .Append(parameterValue.ToStringSafe().Replace("'", "''"))
+                    .Append("', ");
+            }
 
             if (parameters == null || parameters.Count == 0)
             {
@@ -112,7 +127,7 @@ namespace HandStack.Data.Client
                 {
                     if (SetDbParameterData(parameter, parameters) == true)
                     {
-                        CommandParameters += string.Concat(parameter.ParameterName, "='", parameter.Value.ToStringSafe().Replace("'", "''"), "', ");
+                        AppendParameter(commandParameters, parameter.ParameterName, parameter.Value);
                     }
                 }
             }
@@ -120,23 +135,16 @@ namespace HandStack.Data.Client
             {
                 foreach (var parameter in parameters)
                 {
-                    if (parameter.ParameterName.IndexOf("@") > -1)
-                    {
-                        CommandParameters += string.Concat(parameter.ParameterName, "='", parameter.Value.ToStringSafe().Replace("'", "''"), "', ");
-                    }
-                    else
-                    {
-                        CommandParameters += string.Concat("@", parameter.ParameterName, "='", parameter.Value.ToStringSafe().Replace("'", "''"), "', ");
-                    }
+                    AppendParameter(commandParameters, parameter.ParameterName, parameter.Value);
                 }
             }
 
-            if (CommandParameters.Length > 0)
+            if (commandParameters.Length > 2)
             {
-                CommandParameters = CommandParameters.Substring(0, CommandParameters.Length - 2);
+                commandParameters.Length -= 2;
             }
 
-            return string.Concat("exec ", procedureName, " ", CommandParameters, ";");
+            return string.Concat("exec ", procedureName, commandParameters.Length > 0 ? " " : "", commandParameters.ToString(), ";");
         }
 
         public DataSet? ExecuteDataSet(string commandText, CommandType dbCommandType, bool hasSchema = false)
