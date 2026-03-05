@@ -286,7 +286,7 @@
             } else if (Array.isArray(query)) {
                 query.forEach(item => {
                     if ($object.isString(item)) {
-                        elements = elements.concat(this.querySelectorAll(item));
+                        elements.push(...this.querySelectorAll(item));
                     } else if ($object.isObject(item)) {
                         elements.push(item);
                     }
@@ -431,7 +431,7 @@
             let results = [];
             tagNames.forEach(tagName => {
                 if ($object.isString(tagName)) {
-                    results = results.concat(Array.from(doc.getElementsByTagName(tagName)));
+                    results.push(...doc.getElementsByTagName(tagName));
                 }
             });
             return results;
@@ -1108,7 +1108,7 @@
             }
 
             const logLevelText = syn.$l.toEnumText(syn.$l.logLevel, logLevel);
-            const now = new Date().getTime();
+            const now = Date.now();
             const diff = now - syn.$l.start;
 
             const value =

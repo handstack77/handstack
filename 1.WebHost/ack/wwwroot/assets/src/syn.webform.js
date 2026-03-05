@@ -2934,8 +2934,9 @@
         loadScript(url, scriptID, callback) {
             var head;
             var resourceID;
-            if (document.getElementsByTagName('head')) {
-                head = document.getElementsByTagName('head')[0];
+            var heads = document.getElementsByTagName('head');
+            if (heads) {
+                head = heads[0];
             }
             else {
                 document.documentElement.insertBefore(document.createElement('head'), document.documentElement.firstChild);
@@ -2955,7 +2956,7 @@
                     el.setAttribute('src', url);
                 }
                 else {
-                    el.setAttribute('src', url + (url.indexOf('?') > -1 ? '&' : '?') + 'noCache=' + (new Date()).getTime());
+                    el.setAttribute('src', url + (url.indexOf('?') > -1 ? '&' : '?') + 'noCache=' + Date.now());
                 }
 
                 if (callback && typeof callback === 'function') {
@@ -2973,8 +2974,9 @@
         loadStyle(url, styleID, callback) {
             var head;
             var resourceID;
-            if (document.getElementsByTagName('head')) {
-                head = document.getElementsByTagName('head')[0];
+            var heads = document.getElementsByTagName('head');
+            if (heads) {
+                head = heads[0];
             }
             else {
                 document.documentElement.insertBefore(document.createElement('head'), document.documentElement.firstChild);
@@ -2997,7 +2999,7 @@
                     el.setAttribute('href', url);
                 }
                 else {
-                    el.setAttribute('href', url + (url.indexOf('?') > -1 ? '&' : '?') + 'noCache=' + (new Date()).getTime());
+                    el.setAttribute('href', url + (url.indexOf('?') > -1 ? '&' : '?') + 'noCache=' + Date.now());
                 }
 
                 head.appendChild(el);
@@ -3131,7 +3133,7 @@
                             moduleScript = await syn.$w.fetchText(moduleUrl + '.js');
                         }
                         else {
-                            moduleScript = await syn.$w.fetchText(moduleUrl + '.js?tick=' + new Date().getTime());
+                            moduleScript = await syn.$w.fetchText(moduleUrl + '.js?tick=' + Date.now());
                         }
 
                         var isBase64 = function (str) {
@@ -3431,7 +3433,7 @@
                     routes: [
                         {
                             systemID: config.systemID,
-                            requestTick: (new Date()).getTime()
+                            requestTick: Date.now()
                         }
                     ],
                     localeID: syn.Config.Program.LocaleID,
@@ -3881,7 +3883,8 @@
         },
 
         pseudoStyle(elID, selector, cssText) {
-            var head = document.head || (document.getElementsByTagName('head').length == 0 ? null : document.getElementsByTagName('head')[0]);
+            var heads = document.getElementsByTagName('head');
+            var head = document.head || (heads.length == 0 ? null : heads[0]);
             if (head) {
                 var sheet = document.getElementById(elID) || document.createElement('style');
                 if (sheet.id == '') {
@@ -3894,7 +3897,8 @@
         },
 
         pseudoStyles(elID, styles) {
-            var head = document.head || (document.getElementsByTagName('head').length == 0 ? null : document.getElementsByTagName('head')[0]);
+            var heads = document.getElementsByTagName('head');
+            var head = document.head || (heads.length == 0 ? null : heads[0]);
             if (head && $object.isArray(styles) == true && styles.length > 0) {
                 var sheet = document.getElementById(elID) || document.createElement('style');
                 if (sheet.id == '') {
@@ -4105,7 +4109,7 @@
             mod?.hook?.windowLoad?.();
         });
 
-        var urlArgs = syn.$r.getCookie('syn.iscache') == 'true' ? '' : '?tick=' + new Date().getTime();
+        var urlArgs = syn.$r.getCookie('syn.iscache') == 'true' ? '' : '?tick=' + Date.now();
         var isAsyncLoad = syn.$b.isIE == false;
 
         globalRoot.isLoadConfig = false;

@@ -2,6 +2,7 @@
     'use strict';
     const $manipulation = context.$manipulation || new syn.module();
     const doc = context.document;
+    const classRegexCache = Object.create(null);
 
     $manipulation.extend({
         body() {
@@ -468,8 +469,14 @@
         },
 
         getClassRegEx(css) {
-            const escapedCss = css.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-            return new RegExp(`(^|\\s)${escapedCss} (\\s | $)`);
+            let regex = classRegexCache[css];
+            if (!regex) {
+                const escapedCss = css.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+                regex = new RegExp(`(^|\\s)${escapedCss} (\\s | $)`);
+                classRegexCache[css] = regex;
+            }
+
+            return regex;
         }
     });
     context.$manipulation = syn.$m = $manipulation;

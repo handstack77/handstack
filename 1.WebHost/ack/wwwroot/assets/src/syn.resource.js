@@ -2,6 +2,7 @@
     'use strict';
     var $resource = context.$resource || new syn.module();
     var document = context.document;
+    var interpolationRegexCache = Object.create(null);
 
     $resource.extend({
         localeID: 'ko-KR',
@@ -22,7 +23,7 @@
                     $resource.remainingReadyIntervalID = null;
 
                     var els = document.querySelectorAll('[syn-i18n]');
-                    for (var i = 0; i < els.length; i++) {
+                    for (var i = 0, length = els.length; i < length; i++) {
                         var el = els[i];
 
                         var tagName = el.tagName.toUpperCase();
@@ -163,7 +164,13 @@
 
         interpolate(message, interpolations) {
             return Object.keys(interpolations).reduce(function (interpolated, key) {
-                return interpolated.replace(new RegExp('#{s*' + key + 's*}', 'g'), interpolations[key]);
+                var regex = interpolationRegexCache[key];
+                if (!regex) {
+                    regex = new RegExp('#{s*' + key + 's*}', 'g');
+                    interpolationRegexCache[key] = regex;
+                }
+
+                return interpolated.replace(regex, interpolations[key]);
             }, message);
         },
 

@@ -2,6 +2,22 @@
     'use strict';
     const $request = context.$request || new syn.module();
     const document = globalRoot.devicePlatform === 'node' ? null : context.document;
+    const cookieRegexCache = Object.create(null);
+    const encodedCharacterRegex = /%[0-9A-Fa-f]{2}/;
+
+    const getCookieRegex = (id) => {
+        let regex = cookieRegexCache[id];
+        if (!regex) {
+            regex = new RegExp(
+                '(?:^|; )' +
+                id.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') +
+                '=([^;]*)'
+            );
+            cookieRegexCache[id] = regex;
+        }
+
+        return regex;
+    };
 
     $request.extend({
         params: {},
@@ -13,11 +29,11 @@
             return function (url) {
                 let urlArray = url.split('?');
                 let query = ((urlArray.length == 1) ? urlArray[0] : urlArray[1]).split('&');
-                for (let i = 0; i < query.length; i++) {
+                for (let i = 0, length = query.length; i < length; i++) {
                     let splitIndex = query[i].indexOf('=');
                     const key = query[i].substring(0, splitIndex);
                     const value = query[i].substring(splitIndex + 1);
-                    syn.$r.params[key] = /%[0-9A-Fa-f]{2}/.test(value) == true ? decodeURIComponent(value) : value;
+                    syn.$r.params[key] = encodedCharacterRegex.test(value) == true ? decodeURIComponent(value) : value;
                 }
                 return syn.$r.params;
             }(url)[param];
@@ -35,7 +51,7 @@
             }
 
             if (syn.Config && $string.toBoolean(syn.Config.IsClientCaching) == false) {
-                param += '&noCache=' + (new Date()).getTime();
+                param += '&noCache=' + Date.now();
             }
 
             return encodeURI(param.substring(0, param.length - 1));
@@ -455,19 +471,13 @@
         revokeBlobUrl: (globalRoot.URL && typeof globalRoot.URL.revokeObjectURL === 'function' && globalRoot.URL.revokeObjectURL.bind(globalRoot.URL)) || (typeof globalRoot.webkitURL !== 'undefined' && typeof globalRoot.webkitURL.revokeObjectURL === 'function' && globalRoot.webkitURL.revokeObjectURL.bind(globalRoot.webkitURL)) || globalRoot.revokeObjectURL,
 
         getCookie(id) {
-            const matches = document.cookie.match(
-                new RegExp(
-                    '(?:^|; )' +
-                    id.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') +
-                    '=([^;]*)'
-                )
-            );
+            const matches = document.cookie.match(getCookieRegex(id));
             return matches ? decodeURIComponent(matches[1]) : undefined;
         },
 
         setCookie(id, val, expires, path, domain, secure) {
             if ($object.isNullOrUndefined(expires) == true) {
-                expires = new Date((new Date()).getTime() + (1000 * 60 * 60 * 24));
+                expires = new Date(Date.now() + (1000 * 60 * 60 * 24));
             }
 
             if ($object.isNullOrUndefined(path) == true) {

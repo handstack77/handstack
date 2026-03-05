@@ -5,6 +5,8 @@
     const $string = context.$string || new syn.module();
     const $number = context.$number || new syn.module();
     const $object = context.$object || new syn.module();
+    const stringFormatRegexCache = Object.create(null);
+    const validationPatternRegexCache = Object.create(null);
 
     (function () {
         if (!Function.prototype.clone) {
@@ -76,7 +78,12 @@
             String.prototype.format = function () {
                 var val = this;
                 for (var i = 0, len = arguments.length; i < len; i++) {
-                    var exp = new RegExp('\{' + i.toString() + '+?\}', 'g');
+                    var exp = stringFormatRegexCache[i];
+                    if (!exp) {
+                        exp = new RegExp('\{' + i.toString() + '+?\}', 'g');
+                        stringFormatRegexCache[i] = exp;
+                    }
+
                     val = val.replace(exp, arguments[i]);
                 }
 
@@ -963,7 +970,22 @@
                     }
 
                     if (rule.pattern) {
-                        const regex = new RegExp(rule.pattern);
+                        let regex = null;
+                        if (typeof rule.pattern === 'string') {
+                            regex = validationPatternRegexCache[rule.pattern];
+                            if (!regex) {
+                                regex = new RegExp(rule.pattern);
+                                validationPatternRegexCache[rule.pattern] = regex;
+                            }
+                        }
+                        else {
+                            regex = new RegExp(rule.pattern);
+                        }
+
+                        if (regex.global || regex.sticky) {
+                            regex.lastIndex = 0;
+                        }
+
                         if (!regex.test(String(value))) {
                             errors.push({
                                 row: rowIndex,
