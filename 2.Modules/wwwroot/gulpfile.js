@@ -2,7 +2,16 @@
 var concat = require(`gulp-concat`);
 var uglify = require(`gulp-uglify`);
 var stripComments = require('gulp-strip-comments');
-var stripCssComments = require('gulp-strip-css-comments').default;
+let stripCssComments;
+async function getStripCssComments() {
+    if (stripCssComments) {
+        return stripCssComments;
+    }
+
+    var moduleRef = await import('gulp-strip-css-comments');
+    stripCssComments = moduleRef.default || moduleRef;
+    return stripCssComments;
+}
 var uglifycss = require(`gulp-uglifycss`);
 var rename = require(`gulp-rename`);
 var javascriptObfuscator = require(`gulp-javascript-obfuscator`);
@@ -238,6 +247,7 @@ gulp.task('bundle', async function () {
 });
 
 gulp.task('styles', async function () {
+    var stripCssComments = await getStripCssComments();
     return gulp.src([
         // syn.scripts.js
         `wwwroot/lib/tabler-core/dist/css/tabler.css`,
@@ -308,6 +318,7 @@ gulp.task('styles', async function () {
 
 
 gulp.task('basestyles', async function () {
+    var stripCssComments = await getStripCssComments();
     return gulp.src([
         // syn.scripts.js
         `wwwroot/js/notifier/notifier.css`,

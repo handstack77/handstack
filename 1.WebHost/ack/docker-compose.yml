@@ -1,0 +1,15 @@
+services:
+  ack:
+    image: handstack-ack:latest
+    container_name: handstack-ack
+    build:
+      context: ../..
+      dockerfile: 1.WebHost/ack/Dockerfile
+    ports:
+      - "8421:8421"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ACK_ENVIRONMENT: P
+      HANDSTACK_HOME: /handstack
+    volumes:
+      - "${HANDSTACK_HOME_HOST:?필수 환경변수 HANDSTACK_HOME_HOST가 설정되지 않았습니다. .env 파일을 확인해주세요.}:/handstack"
