@@ -5,6 +5,9 @@ namespace HandStack.Web.Common
 {
     public class Arguments
     {
+        private static readonly Regex Spliter = new Regex(@"^-{1,2}|^/|=|:", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private static readonly Regex Remover = new Regex(@"^['""]?(.*?)['""]?$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
         private StringDictionary parameters;
 
         /// <code>
@@ -13,15 +16,13 @@ namespace HandStack.Web.Common
         public Arguments(string[] Args)
         {
             parameters = new StringDictionary();
-            var spliter = new Regex(@"^-{1,2}|^/|=|:", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-            var remover = new Regex(@"^['""]?(.*?)['""]?$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
             string? parameter = null;
             string[] Parts;
 
             foreach (var Txt in Args)
             {
-                Parts = spliter.Split(Txt, 3);
+                Parts = Spliter.Split(Txt, 3);
 
                 switch (Parts.Length)
                 {
@@ -30,7 +31,7 @@ namespace HandStack.Web.Common
                         {
                             if (parameters.ContainsKey(parameter) == false)
                             {
-                                Parts[0] = remover.Replace(Parts[0], "$1");
+                                Parts[0] = Remover.Replace(Parts[0], "$1");
                                 parameters.Add(parameter, Parts[0]);
                             }
                             parameter = null;
@@ -58,7 +59,7 @@ namespace HandStack.Web.Common
                         parameter = Parts[1];
                         if (parameters.ContainsKey(parameter) == false)
                         {
-                            Parts[2] = remover.Replace(Parts[2], "$1");
+                            Parts[2] = Remover.Replace(Parts[2], "$1");
                             parameters.Add(parameter, Parts[2]);
                         }
 

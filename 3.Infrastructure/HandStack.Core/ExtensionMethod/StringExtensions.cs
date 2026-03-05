@@ -275,7 +275,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static bool IsMatch(this string @this, string regexPattern)
         {
-            return (new Regex(regexPattern)).IsMatch(@this);
+            return Regex.IsMatch(@this, regexPattern);
         }
 
         public static string[] Split(this string @this, string separator)

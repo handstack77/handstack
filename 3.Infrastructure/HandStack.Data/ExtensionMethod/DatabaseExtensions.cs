@@ -30,6 +30,26 @@ namespace HandStack.Data.ExtensionMethod
 {
     public static partial class DatabaseExtensions
     {
+        private static readonly Regex cdataRegex = new Regex("(<!\\[CDATA\\[)([\\s\\S]*?)(\\]\\]>)", RegexOptions.Compiled);
+
+        private static string EncodeXmlEntities(string value)
+        {
+            return value
+                .Replace("&", "&amp;")
+                .Replace("<", "&lt;")
+                .Replace(">", "&gt;")
+                .Replace("\"", "&quot;");
+        }
+
+        private static string DecodeXmlEntities(string value)
+        {
+            return value
+                .Replace("&amp;", "&")
+                .Replace("&lt;", "<")
+                .Replace("&gt;", ">")
+                .Replace("&quot;", "\"");
+        }
+
         public static string RecursiveParameters(string convertString, JObject? parameters, string keyString = "", bool commaReplace = true)
         {
             if (parameters != null)
@@ -681,19 +701,13 @@ namespace HandStack.Data.ExtensionMethod
         }
         public static string ReplaceCData(string rawText)
         {
-            var cdataRegex = new Regex("(<!\\[CDATA\\[)([\\s\\S]*?)(\\]\\]>)");
             var matches = cdataRegex.Matches(rawText);
 
             if (matches != null && matches.Count > 0)
             {
                 foreach (Match match in matches)
                 {
-                    var matchSplit = Regex.Split(match.Value, "(<!\\[CDATA\\[)([\\s\\S]*?)(\\]\\]>)");
-                    var cdataText = matchSplit[2];
-                    cdataText = Regex.Replace(cdataText, "&", "&amp;");
-                    cdataText = Regex.Replace(cdataText, "<", "&lt;");
-                    cdataText = Regex.Replace(cdataText, ">", "&gt;");
-                    cdataText = Regex.Replace(cdataText, "\"", "&quot;");
+                    var cdataText = EncodeXmlEntities(match.Groups[2].Value);
 
                     rawText = rawText.Replace(match.Value, cdataText);
                 }
@@ -804,10 +818,7 @@ namespace HandStack.Data.ExtensionMethod
                     }
 
                     var convertString = statement.InnerText;
-                    convertString = Regex.Replace(convertString, "&amp;", "&");
-                    convertString = Regex.Replace(convertString, "&lt;", "<");
-                    convertString = Regex.Replace(convertString, "&gt;", ">");
-                    convertString = Regex.Replace(convertString, "&quot;", "\"");
+                    convertString = DecodeXmlEntities(convertString);
                     result = new Tuple<string, List<SqlParameter>>(convertString, sqlParameters);
                 }
             }
@@ -875,10 +886,7 @@ namespace HandStack.Data.ExtensionMethod
                     }
 
                     var convertString = statement.InnerText;
-                    convertString = Regex.Replace(convertString, "&amp;", "&");
-                    convertString = Regex.Replace(convertString, "&lt;", "<");
-                    convertString = Regex.Replace(convertString, "&gt;", ">");
-                    convertString = Regex.Replace(convertString, "&quot;", "\"");
+                    convertString = DecodeXmlEntities(convertString);
                     result = new Tuple<string, List<SqlParameter>>(convertString, sqlParameters);
                 }
             }
@@ -994,10 +1002,7 @@ namespace HandStack.Data.ExtensionMethod
                     }
 
                     var convertString = statement.InnerText;
-                    convertString = Regex.Replace(convertString, "&amp;", "&");
-                    convertString = Regex.Replace(convertString, "&lt;", "<");
-                    convertString = Regex.Replace(convertString, "&gt;", ">");
-                    convertString = Regex.Replace(convertString, "&quot;", "\"");
+                    convertString = DecodeXmlEntities(convertString);
                     result = new Tuple<string, List<MySqlParameter>>(convertString, sqlParameters);
                 }
             }
@@ -1113,10 +1118,7 @@ namespace HandStack.Data.ExtensionMethod
                     }
 
                     var convertString = statement.InnerText;
-                    convertString = Regex.Replace(convertString, "&amp;", "&");
-                    convertString = Regex.Replace(convertString, "&lt;", "<");
-                    convertString = Regex.Replace(convertString, "&gt;", ">");
-                    convertString = Regex.Replace(convertString, "&quot;", "\"");
+                    convertString = DecodeXmlEntities(convertString);
                     result = new Tuple<string, List<OracleParameter>>(convertString, sqlParameters);
                 }
             }
@@ -1232,10 +1234,7 @@ namespace HandStack.Data.ExtensionMethod
                     }
 
                     var convertString = statement.InnerText;
-                    convertString = Regex.Replace(convertString, "&amp;", "&");
-                    convertString = Regex.Replace(convertString, "&lt;", "<");
-                    convertString = Regex.Replace(convertString, "&gt;", ">");
-                    convertString = Regex.Replace(convertString, "&quot;", "\"");
+                    convertString = DecodeXmlEntities(convertString);
                     result = new Tuple<string, List<NpgsqlParameter>>(convertString, sqlParameters);
                 }
             }
@@ -1358,10 +1357,7 @@ namespace HandStack.Data.ExtensionMethod
                     }
 
                     var convertString = statement.InnerText;
-                    convertString = Regex.Replace(convertString, "&amp;", "&");
-                    convertString = Regex.Replace(convertString, "&lt;", "<");
-                    convertString = Regex.Replace(convertString, "&gt;", ">");
-                    convertString = Regex.Replace(convertString, "&quot;", "\"");
+                    convertString = DecodeXmlEntities(convertString);
                     result = new Tuple<string, List<SQLiteParameter>>(convertString, sqlParameters);
                 }
             }

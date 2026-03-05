@@ -6,6 +6,9 @@ namespace HandStack.Core.Helpers
 {
     public static class Base64Helper
     {
+        private static readonly Regex Base64FormatRegex = new Regex(@"[^A-Z0-9+/=]", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private static readonly UTF8Encoding StrictUtf8Encoding = new UTF8Encoding(false, true);
+
         internal static bool IsBase64DataStrict(string? data)
         {
             if (string.IsNullOrWhiteSpace(data))
@@ -20,7 +23,7 @@ namespace HandStack.Core.Helpers
                 return false;
             }
 
-            if (new Regex(@"[^A-Z0-9+/=]", RegexOptions.IgnoreCase).IsMatch(data))
+            if (Base64FormatRegex.IsMatch(data))
             {
                 return false;
             }
@@ -38,7 +41,7 @@ namespace HandStack.Core.Helpers
             try
             {
                 var decodedData = Convert.FromBase64String(data);
-                decoded = Encoding.UTF8.GetString(decodedData);
+                decoded = StrictUtf8Encoding.GetString(decodedData);
             }
             catch (Exception)
             {

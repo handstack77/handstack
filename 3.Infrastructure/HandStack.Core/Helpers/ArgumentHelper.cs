@@ -20,19 +20,19 @@ namespace HandStack.Core.Helpers
     /// </example>
     public class ArgumentHelper
     {
+        private static readonly Regex Spliter = new Regex(@"^-{1,2}|^/|=|:", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private static readonly Regex Remover = new Regex(@"^['""]?(.*?)['""]?$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
         public StringDictionary parameters = new StringDictionary();
 
         public ArgumentHelper(string[] args)
         {
-            var spliter = new Regex(@"^-{1,2}|^/|=|:", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-            var remover = new Regex(@"^['""]?(.*?)['""]?$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-
             string? parameter = null;
             string[] tokens;
 
             foreach (var arg in args)
             {
-                tokens = spliter.Split(arg, 3);
+                tokens = Spliter.Split(arg, 3);
 
                 switch (tokens.Length)
                 {
@@ -41,7 +41,7 @@ namespace HandStack.Core.Helpers
                         {
                             if (parameters.ContainsKey(parameter) == false)
                             {
-                                tokens[0] = remover.Replace(tokens[0], "$1");
+                                tokens[0] = Remover.Replace(tokens[0], "$1");
 
                                 parameters.Add(parameter, tokens[0]);
                             }
@@ -71,7 +71,7 @@ namespace HandStack.Core.Helpers
 
                         if (parameters.ContainsKey(parameter) == false)
                         {
-                            tokens[2] = remover.Replace(tokens[2], "$1");
+                            tokens[2] = Remover.Replace(tokens[2], "$1");
                             parameters.Add(parameter, tokens[2]);
                         }
 

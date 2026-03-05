@@ -39,12 +39,31 @@ namespace dbclient.Extensions
 {
     public static class DatabaseMapper
     {
+        private static readonly Regex cdataRegex = new Regex("(<!\\[CDATA\\[)([\\s\\S]*?)(\\]\\]>)", RegexOptions.Compiled);
         private static Random random = new Random();
         public static ExpiringDictionary<DataSourceTanantKey, DataSourceMap> DataSourceMappings = new ExpiringDictionary<DataSourceTanantKey, DataSourceMap>();
         public static ExpiringDictionary<string, StatementMap> StatementMappings = new ExpiringDictionary<string, StatementMap>();
 
         static DatabaseMapper()
         {
+        }
+
+        private static string EncodeXmlEntities(string value)
+        {
+            return value
+                .Replace("&", "&amp;")
+                .Replace("<", "&lt;")
+                .Replace(">", "&gt;")
+                .Replace("\"", "&quot;");
+        }
+
+        private static string DecodeXmlEntities(string value)
+        {
+            return value
+                .Replace("&amp;", "&")
+                .Replace("&lt;", "<")
+                .Replace("&gt;", ">")
+                .Replace("&quot;", "\"");
         }
 
         public static DataSourceMap? GetDataSourceMap(QueryObject queryObject, string requestApplicationID, string projectID, string dataSourceID)
@@ -928,10 +947,7 @@ namespace dbclient.Extensions
 
             try
             {
-                convertString = Regex.Replace(convertString, "&amp;", "&");
-                convertString = Regex.Replace(convertString, "&lt;", "<");
-                convertString = Regex.Replace(convertString, "&gt;", ">");
-                convertString = Regex.Replace(convertString, "&quot;", "\"");
+                convertString = DecodeXmlEntities(convertString);
             }
             catch (Exception exception)
             {
@@ -1010,19 +1026,13 @@ namespace dbclient.Extensions
 
         public static string ReplaceCData(string rawText)
         {
-            var cdataRegex = new Regex("(<!\\[CDATA\\[)([\\s\\S]*?)(\\]\\]>)");
             var matches = cdataRegex.Matches(rawText);
 
             if (matches != null && matches.Count > 0)
             {
                 foreach (Match match in matches)
                 {
-                    var matchSplit = Regex.Split(match.Value, "(<!\\[CDATA\\[)([\\s\\S]*?)(\\]\\]>)");
-                    var cdataText = matchSplit[2];
-                    cdataText = Regex.Replace(cdataText, "&", "&amp;");
-                    cdataText = Regex.Replace(cdataText, "<", "&lt;");
-                    cdataText = Regex.Replace(cdataText, ">", "&gt;");
-                    cdataText = Regex.Replace(cdataText, "\"", "&quot;");
+                    var cdataText = EncodeXmlEntities(match.Groups[2].Value);
 
                     rawText = rawText.Replace(match.Value, cdataText);
                 }
