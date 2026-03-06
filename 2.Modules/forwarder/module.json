@@ -1,0 +1,52 @@
+{
+    "ModuleID": "forwarder",
+    "Name": "forwarder",
+    "IsBundledWithHost": false,
+    "Version": "1.0.0",
+    "ModuleConfig": {
+        "SystemID": "HANDSTACK",
+        "BusinessServerUrl": "http://localhost:8421/transact/api/transaction/execute",
+        "ModuleBasePath": "../modules/forwarder",
+        "ModuleFilePath": "../modules/forwarder",
+        "ModuleLogFilePath": "../log/forwarder/module.log",
+        "UseProxy": false,
+        "ProxyServer": "",
+        "ProxyUsername": "",
+        "ProxyPassword": "",
+        "ProxyBypass": "localhost,127.0.0.1",
+        "IgnoreHTTPSErrors": false,
+        "RequestTimeoutMS": 30000,
+        "MaxRedirects": 10,
+        "SessionStorageBasePath": "../sqlite/forwarder",
+        "BrowserIdleTimeoutSecond": 60,
+        "ForwardUrls": [
+            {
+                "sample-api": "https://example.com"
+            },
+            {
+                "lab-html": "http://localhost:8421/forwarder/api/forward-proxy-lab/target/html"
+            },
+            {
+                "lab-json": "http://localhost:8421/forwarder/api/forward-proxy-lab/target/json"
+            },
+            {
+                "lab-echo": "http://localhost:8421/forwarder/api/forward-proxy-lab/target/echo"
+            },
+            {
+                "lab-redirect": "http://localhost:8421/forwarder/api/forward-proxy-lab/target/redirect"
+            },
+            {
+                "lab-cookie-set": "http://localhost:8421/forwarder/api/forward-proxy-lab/target/cookie/set?value=lab-session"
+            },
+            {
+                "lab-cookie-read": "http://localhost:8421/forwarder/api/forward-proxy-lab/target/cookie/read"
+            },
+            {
+                "lab-slow": "http://localhost:8421/forwarder/api/forward-proxy-lab/target/slow?delayMS=3500"
+            }
+        ],
+        "AllowClientIP": [
+            "*"
+        ]
+    }
+}

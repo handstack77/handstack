@@ -134,7 +134,7 @@ namespace ack.Extensions
 
                         if (tryToLoadAssemblyVersion != loadedAssemblyVersion)
                         {
-                            throw new Exception($"파일 {file.FullName.Replace("\\", "/")} {tryToLoadAssemblyVersion}을(를) 로드할 수 없습니다. 이미 {assembly.Location} {loadedAssemblyVersion}이(가) 로드되었습니다.");
+                            Log.Logger.Warning($"파일 {file.FullName.Replace("\\", "/")} {tryToLoadAssemblyVersion}을(를) 로드할 수 없습니다. 이미 {assembly.Location} {loadedAssemblyVersion}이(가) 로드되었습니다.");
                         }
                     }
 
