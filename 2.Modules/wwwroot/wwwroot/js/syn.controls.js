@@ -1,4 +1,4 @@
-﻿
+
 (function (window) {
     'use strict';
     syn.uicontrols = syn.uicontrols || new syn.module();

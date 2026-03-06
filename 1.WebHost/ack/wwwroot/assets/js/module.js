@@ -575,6 +575,7 @@ if (typeof module !== 'undefined' && module.exports) {
     'use strict';
     const $manipulation = context.$manipulation || new syn.module();
     const doc = context.document;
+    const classRegexCache = Object.create(null);
 
     $manipulation.extend({
         body() {
@@ -1041,8 +1042,14 @@ if (typeof module !== 'undefined' && module.exports) {
         },
 
         getClassRegEx(css) {
-            const escapedCss = css.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-            return new RegExp(`(^|\\s)${escapedCss} (\\s | $)`);
+            let regex = classRegexCache[css];
+            if (!regex) {
+                const escapedCss = css.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+                regex = new RegExp(`(^|\\s)${escapedCss} (\\s | $)`);
+                classRegexCache[css] = regex;
+            }
+
+            return regex;
         }
     });
     context.$manipulation = syn.$m = $manipulation;
@@ -2678,6 +2685,8 @@ if (typeof module !== 'undefined' && module.exports) {
     const $string = context.$string || new syn.module();
     const $number = context.$number || new syn.module();
     const $object = context.$object || new syn.module();
+    const stringFormatRegexCache = Object.create(null);
+    const validationPatternRegexCache = Object.create(null);
 
     (function () {
         if (!Function.prototype.clone) {
@@ -2749,7 +2758,12 @@ if (typeof module !== 'undefined' && module.exports) {
             String.prototype.format = function () {
                 var val = this;
                 for (var i = 0, len = arguments.length; i < len; i++) {
-                    var exp = new RegExp('\{' + i.toString() + '+?\}', 'g');
+                    var exp = stringFormatRegexCache[i];
+                    if (!exp) {
+                        exp = new RegExp('\{' + i.toString() + '+?\}', 'g');
+                        stringFormatRegexCache[i] = exp;
+                    }
+
                     val = val.replace(exp, arguments[i]);
                 }
 
@@ -3636,7 +3650,22 @@ if (typeof module !== 'undefined' && module.exports) {
                     }
 
                     if (rule.pattern) {
-                        const regex = new RegExp(rule.pattern);
+                        let regex = null;
+                        if (typeof rule.pattern === 'string') {
+                            regex = validationPatternRegexCache[rule.pattern];
+                            if (!regex) {
+                                regex = new RegExp(rule.pattern);
+                                validationPatternRegexCache[rule.pattern] = regex;
+                            }
+                        }
+                        else {
+                            regex = new RegExp(rule.pattern);
+                        }
+
+                        if (regex.global || regex.sticky) {
+                            regex.lastIndex = 0;
+                        }
+
                         if (!regex.test(String(value))) {
                             errors.push({
                                 row: rowIndex,
@@ -4630,7 +4659,7 @@ if (typeof module !== 'undefined' && module.exports) {
             } else if (Array.isArray(query)) {
                 query.forEach(item => {
                     if ($object.isString(item)) {
-                        elements = elements.concat(this.querySelectorAll(item));
+                        elements.push(...this.querySelectorAll(item));
                     } else if ($object.isObject(item)) {
                         elements.push(item);
                     }
@@ -4775,7 +4804,7 @@ if (typeof module !== 'undefined' && module.exports) {
             let results = [];
             tagNames.forEach(tagName => {
                 if ($object.isString(tagName)) {
-                    results = results.concat(Array.from(doc.getElementsByTagName(tagName)));
+                    results.push(...doc.getElementsByTagName(tagName));
                 }
             });
             return results;
@@ -5452,7 +5481,7 @@ if (typeof module !== 'undefined' && module.exports) {
             }
 
             const logLevelText = syn.$l.toEnumText(syn.$l.logLevel, logLevel);
-            const now = new Date().getTime();
+            const now = Date.now();
             const diff = now - syn.$l.start;
 
             const value =
@@ -5514,6 +5543,22 @@ if (typeof module !== 'undefined' && module.exports) {
     'use strict';
     const $request = context.$request || new syn.module();
     const document = globalRoot.devicePlatform === 'node' ? null : context.document;
+    const cookieRegexCache = Object.create(null);
+    const encodedCharacterRegex = /%[0-9A-Fa-f]{2}/;
+
+    const getCookieRegex = (id) => {
+        let regex = cookieRegexCache[id];
+        if (!regex) {
+            regex = new RegExp(
+                '(?:^|; )' +
+                id.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') +
+                '=([^;]*)'
+            );
+            cookieRegexCache[id] = regex;
+        }
+
+        return regex;
+    };
 
     $request.extend({
         params: {},
@@ -5525,11 +5570,11 @@ if (typeof module !== 'undefined' && module.exports) {
             return function (url) {
                 let urlArray = url.split('?');
                 let query = ((urlArray.length == 1) ? urlArray[0] : urlArray[1]).split('&');
-                for (let i = 0; i < query.length; i++) {
+                for (let i = 0, length = query.length; i < length; i++) {
                     let splitIndex = query[i].indexOf('=');
                     const key = query[i].substring(0, splitIndex);
                     const value = query[i].substring(splitIndex + 1);
-                    syn.$r.params[key] = /%[0-9A-Fa-f]{2}/.test(value) == true ? decodeURIComponent(value) : value;
+                    syn.$r.params[key] = encodedCharacterRegex.test(value) == true ? decodeURIComponent(value) : value;
                 }
                 return syn.$r.params;
             }(url)[param];
@@ -5547,7 +5592,7 @@ if (typeof module !== 'undefined' && module.exports) {
             }
 
             if (syn.Config && $string.toBoolean(syn.Config.IsClientCaching) == false) {
-                param += '&noCache=' + (new Date()).getTime();
+                param += '&noCache=' + Date.now();
             }
 
             return encodeURI(param.substring(0, param.length - 1));
@@ -5967,19 +6012,13 @@ if (typeof module !== 'undefined' && module.exports) {
         revokeBlobUrl: (globalRoot.URL && typeof globalRoot.URL.revokeObjectURL === 'function' && globalRoot.URL.revokeObjectURL.bind(globalRoot.URL)) || (typeof globalRoot.webkitURL !== 'undefined' && typeof globalRoot.webkitURL.revokeObjectURL === 'function' && globalRoot.webkitURL.revokeObjectURL.bind(globalRoot.webkitURL)) || globalRoot.revokeObjectURL,
 
         getCookie(id) {
-            const matches = document.cookie.match(
-                new RegExp(
-                    '(?:^|; )' +
-                    id.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') +
-                    '=([^;]*)'
-                )
-            );
+            const matches = document.cookie.match(getCookieRegex(id));
             return matches ? decodeURIComponent(matches[1]) : undefined;
         },
 
         setCookie(id, val, expires, path, domain, secure) {
             if ($object.isNullOrUndefined(expires) == true) {
-                expires = new Date((new Date()).getTime() + (1000 * 60 * 60 * 24));
+                expires = new Date(Date.now() + (1000 * 60 * 60 * 24));
             }
 
             if ($object.isNullOrUndefined(path) == true) {
@@ -9801,8 +9840,9 @@ if (typeof module !== 'undefined' && module.exports) {
         loadScript(url, scriptID, callback) {
             var head;
             var resourceID;
-            if (document.getElementsByTagName('head')) {
-                head = document.getElementsByTagName('head')[0];
+            var heads = document.getElementsByTagName('head');
+            if (heads) {
+                head = heads[0];
             }
             else {
                 document.documentElement.insertBefore(document.createElement('head'), document.documentElement.firstChild);
@@ -9822,7 +9862,7 @@ if (typeof module !== 'undefined' && module.exports) {
                     el.setAttribute('src', url);
                 }
                 else {
-                    el.setAttribute('src', url + (url.indexOf('?') > -1 ? '&' : '?') + 'noCache=' + (new Date()).getTime());
+                    el.setAttribute('src', url + (url.indexOf('?') > -1 ? '&' : '?') + 'noCache=' + Date.now());
                 }
 
                 if (callback && typeof callback === 'function') {
@@ -9840,8 +9880,9 @@ if (typeof module !== 'undefined' && module.exports) {
         loadStyle(url, styleID, callback) {
             var head;
             var resourceID;
-            if (document.getElementsByTagName('head')) {
-                head = document.getElementsByTagName('head')[0];
+            var heads = document.getElementsByTagName('head');
+            if (heads) {
+                head = heads[0];
             }
             else {
                 document.documentElement.insertBefore(document.createElement('head'), document.documentElement.firstChild);
@@ -9864,7 +9905,7 @@ if (typeof module !== 'undefined' && module.exports) {
                     el.setAttribute('href', url);
                 }
                 else {
-                    el.setAttribute('href', url + (url.indexOf('?') > -1 ? '&' : '?') + 'noCache=' + (new Date()).getTime());
+                    el.setAttribute('href', url + (url.indexOf('?') > -1 ? '&' : '?') + 'noCache=' + Date.now());
                 }
 
                 head.appendChild(el);
@@ -9998,7 +10039,7 @@ if (typeof module !== 'undefined' && module.exports) {
                             moduleScript = await syn.$w.fetchText(moduleUrl + '.js');
                         }
                         else {
-                            moduleScript = await syn.$w.fetchText(moduleUrl + '.js?tick=' + new Date().getTime());
+                            moduleScript = await syn.$w.fetchText(moduleUrl + '.js?tick=' + Date.now());
                         }
 
                         var isBase64 = function (str) {
@@ -10298,7 +10339,7 @@ if (typeof module !== 'undefined' && module.exports) {
                     routes: [
                         {
                             systemID: config.systemID,
-                            requestTick: (new Date()).getTime()
+                            requestTick: Date.now()
                         }
                     ],
                     localeID: syn.Config.Program.LocaleID,
@@ -10748,7 +10789,8 @@ if (typeof module !== 'undefined' && module.exports) {
         },
 
         pseudoStyle(elID, selector, cssText) {
-            var head = document.head || (document.getElementsByTagName('head').length == 0 ? null : document.getElementsByTagName('head')[0]);
+            var heads = document.getElementsByTagName('head');
+            var head = document.head || (heads.length == 0 ? null : heads[0]);
             if (head) {
                 var sheet = document.getElementById(elID) || document.createElement('style');
                 if (sheet.id == '') {
@@ -10761,7 +10803,8 @@ if (typeof module !== 'undefined' && module.exports) {
         },
 
         pseudoStyles(elID, styles) {
-            var head = document.head || (document.getElementsByTagName('head').length == 0 ? null : document.getElementsByTagName('head')[0]);
+            var heads = document.getElementsByTagName('head');
+            var head = document.head || (heads.length == 0 ? null : heads[0]);
             if (head && $object.isArray(styles) == true && styles.length > 0) {
                 var sheet = document.getElementById(elID) || document.createElement('style');
                 if (sheet.id == '') {
@@ -10972,7 +11015,7 @@ if (typeof module !== 'undefined' && module.exports) {
             mod?.hook?.windowLoad?.();
         });
 
-        var urlArgs = syn.$r.getCookie('syn.iscache') == 'true' ? '' : '?tick=' + new Date().getTime();
+        var urlArgs = syn.$r.getCookie('syn.iscache') == 'true' ? '' : '?tick=' + Date.now();
         var isAsyncLoad = syn.$b.isIE == false;
 
         globalRoot.isLoadConfig = false;
@@ -11538,6 +11581,7 @@ if (typeof module !== 'undefined' && module.exports) {
     'use strict';
     var $resource = context.$resource || new syn.module();
     var document = context.document;
+    var interpolationRegexCache = Object.create(null);
 
     $resource.extend({
         localeID: 'ko-KR',
@@ -11558,7 +11602,7 @@ if (typeof module !== 'undefined' && module.exports) {
                     $resource.remainingReadyIntervalID = null;
 
                     var els = document.querySelectorAll('[syn-i18n]');
-                    for (var i = 0; i < els.length; i++) {
+                    for (var i = 0, length = els.length; i < length; i++) {
                         var el = els[i];
 
                         var tagName = el.tagName.toUpperCase();
@@ -11699,7 +11743,13 @@ if (typeof module !== 'undefined' && module.exports) {
 
         interpolate(message, interpolations) {
             return Object.keys(interpolations).reduce(function (interpolated, key) {
-                return interpolated.replace(new RegExp('#{s*' + key + 's*}', 'g'), interpolations[key]);
+                var regex = interpolationRegexCache[key];
+                if (!regex) {
+                    regex = new RegExp('#{s*' + key + 's*}', 'g');
+                    interpolationRegexCache[key] = regex;
+                }
+
+                return interpolated.replace(regex, interpolations[key]);
             }, message);
         },
 
