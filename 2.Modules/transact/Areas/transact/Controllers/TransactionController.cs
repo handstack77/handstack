@@ -485,19 +485,22 @@ namespace transact.Areas.transact.Controllers
                     {
                         var decryptInputData = transactClient.DecryptInputData(dataMapSetRaw, request.Transaction.CompressionYN);
                         var reqJArray = transactClient.ToJson(decryptInputData);
-                        var reqInputs = JsonConvert.DeserializeObject<List<DataMapItem>>(reqJArray.ToString());
-                        if (reqInputs != null)
+                        if (!TryDeserializeDataMapItems(reqJArray.ToString(), out var reqInputs))
                         {
-                            foreach (var reqInput in reqInputs)
-                            {
-                                if (string.IsNullOrWhiteSpace(reqInput.FieldID))
-                                {
-                                    reqInput.FieldID = "DEFAULT";
-                                    reqInput.Value = "";
-                                }
-                            }
-                            request.PayLoad.DataMapSet.Add(reqInputs);
+                            response.ExceptionText = "입력 데이터 맵 정보 확인 필요";
+                            return LoggingAndReturn(response, transactionWorkID, "Y", null);
                         }
+
+                        foreach (var reqInput in reqInputs)
+                        {
+                            if (string.IsNullOrWhiteSpace(reqInput.FieldID))
+                            {
+                                reqInput.FieldID = "DEFAULT";
+                                reqInput.Value = "";
+                            }
+                        }
+
+                        request.PayLoad.DataMapSet.Add(reqInputs);
                     }
                 }
                 else if (request.Transaction.DataFormat == "J")
@@ -520,15 +523,13 @@ namespace transact.Areas.transact.Controllers
                             }
                             else
                             {
-                                var reqInput = JsonConvert.DeserializeObject<List<DataMapItem>>(decryptInputData);
-                                if (reqInput == null)
+                                if (!TryDeserializeDataMapItems(decryptInputData, out var reqInput))
                                 {
-                                    request.PayLoad.DataMapSet.Add(new List<DataMapItem>());
+                                    response.ExceptionText = "입력 데이터 맵 정보 확인 필요";
+                                    return LoggingAndReturn(response, transactionWorkID, "Y", null);
                                 }
-                                else
-                                {
-                                    request.PayLoad.DataMapSet.Add(reqInput);
-                                }
+
+                                request.PayLoad.DataMapSet.Add(reqInput);
                             }
                         }
                     }
@@ -789,9 +790,8 @@ namespace transact.Areas.transact.Controllers
                             if (isAuthorized == false)
                             {
                                 var member = HttpContext.Request.Cookies[$"{GlobalConfiguration.CookiePrefixName}.Member"];
-                                if (!string.IsNullOrWhiteSpace(member))
+                                if (!string.IsNullOrWhiteSpace(member) && TryReadCookieUserAccount(member, out var user))
                                 {
-                                    var user = JsonConvert.DeserializeObject<UserAccount>(member.DecodeBase64());
                                     if (user != null)
                                     {
                                         var userRoles = user.ApplicationRoleID.SplitComma();
@@ -933,16 +933,15 @@ namespace transact.Areas.transact.Controllers
                     {
                         if (!string.IsNullOrWhiteSpace(token) && token.IndexOf(".") > -1 && !string.IsNullOrWhiteSpace(request.Transaction.OperatorID))
                         {
-                            var tokenArray = token.Split(".");
-                            var userID = tokenArray[0].DecodeBase64();
-                            var signature = tokenArray.Length > 2 ? (tokenArray[2] == GlobalConfiguration.HostAccessID.ToSHA256() ? request.Transaction.OperatorID.PaddingRight(32) : "") : request.Transaction.OperatorID.PaddingRight(32);
-
-                            token = tokenArray[1];
-                            try
+                            if (!TrySplitBearerToken(token, out _, out var encryptedToken, out var tokenHash))
                             {
-                                bearerToken = JsonConvert.DeserializeObject<BearerToken>(token.DecryptAES(signature));
+                                response.ExceptionText = $"{request.Transaction.OperatorID}: BearerToken 정보 확인 필요.";
+                                logger.Warning("[{LogCategory}] " + response.ExceptionText + $"Request JSON: {JsonConvert.SerializeObject(request)}", "Transaction/Execute");
+                                return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                             }
-                            catch
+
+                            var signature = string.IsNullOrWhiteSpace(tokenHash) == false ? (tokenHash == GlobalConfiguration.HostAccessID.ToSHA256() ? request.Transaction.OperatorID.PaddingRight(32) : "") : request.Transaction.OperatorID.PaddingRight(32);
+                            if (!TryReadBearerToken(encryptedToken, signature, out bearerToken))
                             {
                                 response.ExceptionText = $"{request.Transaction.OperatorID}: BearerToken 정보 확인 필요.";
                                 logger.Warning("[{LogCategory}] " + response.ExceptionText + $"Request JSON: {JsonConvert.SerializeObject(request)}", "Transaction/Execute");
@@ -1018,14 +1017,11 @@ namespace transact.Areas.transact.Controllers
                         }
                         else if (refererPath.StartsWith(tenantAppRequestPath) == false && ModuleConfiguration.UseApiAuthorize == true)
                         {
-                            if (token.IndexOf(".") == -1)
+                            if (!TrySplitBearerToken(token, out var userID, out var encryptedToken, out var tokenHash))
                             {
                                 response.ExceptionText = "BearerToken 기본 무결성 확인 필요";
                                 return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                             }
-
-                            var tokenArray = token.Split(".");
-                            var userID = tokenArray[0].DecodeBase64();
 
                             if (userID != request.Transaction.OperatorID)
                             {
@@ -1033,14 +1029,8 @@ namespace transact.Areas.transact.Controllers
                                 return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                             }
 
-                            token = tokenArray[1];
-                            var signature = tokenArray.Length > 2 ? (tokenArray[2] == GlobalConfiguration.HostAccessID.ToSHA256() ? request.Transaction.OperatorID.PaddingRight(32) : "") : request.Transaction.OperatorID.PaddingRight(32);
-
-                            try
-                            {
-                                bearerToken = JsonConvert.DeserializeObject<BearerToken>(token.DecryptAES(signature));
-                            }
-                            catch
+                            var signature = string.IsNullOrWhiteSpace(tokenHash) == false ? (tokenHash == GlobalConfiguration.HostAccessID.ToSHA256() ? request.Transaction.OperatorID.PaddingRight(32) : "") : request.Transaction.OperatorID.PaddingRight(32);
+                            if (!TryReadBearerToken(encryptedToken, signature, out bearerToken))
                             {
                                 response.ExceptionText = $"{request.Transaction.OperatorID}: BearerToken 정보가 훼손되거나 확인 할 수 없습니다. 다시 로그인 해야 합니다.";
                                 return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
@@ -1119,16 +1109,14 @@ namespace transact.Areas.transact.Controllers
                             {
                                 if (token.IndexOf(".") > -1)
                                 {
-                                    var tokenArray = token.Split(".");
-                                    var userID = tokenArray[0].DecodeBase64();
-
-                                    token = tokenArray[1];
-                                    var signature = tokenArray.Length > 2 ? (tokenArray[2] == GlobalConfiguration.HostAccessID.ToSHA256() ? userID.PaddingRight(32) : "") : userID.PaddingRight(32);
-                                    try
+                                    if (!TrySplitBearerToken(token, out var userID, out var encryptedToken, out var tokenHash))
                                     {
-                                        bearerToken = JsonConvert.DeserializeObject<BearerToken>(token.DecryptAES(signature));
+                                        response.ExceptionText = "BearerToken 기본 무결성 확인 필요";
+                                        return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                                     }
-                                    catch
+
+                                    var signature = string.IsNullOrWhiteSpace(tokenHash) == false ? (tokenHash == GlobalConfiguration.HostAccessID.ToSHA256() ? userID.PaddingRight(32) : "") : userID.PaddingRight(32);
+                                    if (!TryReadBearerToken(encryptedToken, signature, out bearerToken))
                                     {
                                         response.ExceptionText = $"{userID}: BearerToken 정보가 훼손되거나 확인 할 수 없습니다.";
                                         return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
@@ -1920,6 +1908,109 @@ namespace transact.Areas.transact.Controllers
             }
 
             return LoggingAndReturn(response, transactionWorkID, "N", null);
+        }
+
+        private bool TryDeserializeDataMapItems(string? json, out List<DataMapItem> dataMapItems)
+        {
+            dataMapItems = new List<DataMapItem>();
+            if (string.IsNullOrWhiteSpace(json))
+            {
+                return false;
+            }
+
+            try
+            {
+                var items = JsonConvert.DeserializeObject<List<DataMapItem>>(json);
+                if (items == null)
+                {
+                    return false;
+                }
+
+                dataMapItems = items;
+                return true;
+            }
+            catch (Exception exception)
+            {
+                logger.Warning(exception, "[{LogCategory}] DataMapSet 역직렬화 오류", "Transaction/Execute");
+                return false;
+            }
+        }
+
+        private bool TryReadCookieUserAccount(string member, out UserAccount? userAccount)
+        {
+            userAccount = null;
+            if (string.IsNullOrWhiteSpace(member))
+            {
+                return false;
+            }
+
+            try
+            {
+                userAccount = JsonConvert.DeserializeObject<UserAccount>(member.DecodeBase64());
+                return userAccount != null;
+            }
+            catch (Exception exception)
+            {
+                logger.Warning(exception, "[{LogCategory}] Member 쿠키 역직렬화 오류", "Transaction/Execute");
+                return false;
+            }
+        }
+
+        private bool TrySplitBearerToken(string token, out string userID, out string encryptedToken, out string tokenHash)
+        {
+            userID = "";
+            encryptedToken = "";
+            tokenHash = "";
+
+            if (string.IsNullOrWhiteSpace(token))
+            {
+                return false;
+            }
+
+            var tokenArray = token.Split('.');
+            if (tokenArray.Length < 2 || string.IsNullOrWhiteSpace(tokenArray[1]))
+            {
+                return false;
+            }
+
+            try
+            {
+                userID = tokenArray[0].DecodeBase64();
+            }
+            catch (Exception exception)
+            {
+                logger.Warning(exception, "[{LogCategory}] BearerToken 사용자 정보 디코딩 오류", "Transaction/Execute");
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(userID))
+            {
+                return false;
+            }
+
+            encryptedToken = tokenArray[1];
+            tokenHash = tokenArray.Length > 2 ? tokenArray[2] : "";
+            return true;
+        }
+
+        private bool TryReadBearerToken(string encryptedToken, string signature, out BearerToken? bearerToken)
+        {
+            bearerToken = null;
+            if (string.IsNullOrWhiteSpace(encryptedToken))
+            {
+                return false;
+            }
+
+            try
+            {
+                bearerToken = JsonConvert.DeserializeObject<BearerToken>(encryptedToken.DecryptAES(signature));
+                return bearerToken != null;
+            }
+            catch (Exception exception)
+            {
+                logger.Warning(exception, "[{LogCategory}] BearerToken 역직렬화 오류", "Transaction/Execute");
+                return false;
+            }
         }
 
         private ActionResult LoggingAndReturn(TransactionResponse response, string transactionWorkID, string acknowledge, TransactionInfo? transactionInfo)

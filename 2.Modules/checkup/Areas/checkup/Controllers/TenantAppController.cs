@@ -156,8 +156,7 @@ namespace checkup.Areas.checkup.Controllers
                 var settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
                 if (System.IO.File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
                 {
-                    var appSettingText = await System.IO.File.ReadAllTextAsync(settingFilePath);
-                    var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
+                    var appSetting = ReadTenantAppSettings(settingFilePath, "TenantAppController/Authenticate");
                     if (appSetting != null && !string.IsNullOrWhiteSpace(appSetting.SignInID))
                     {
                         var serviceParameters = new List<ServiceParameter>();
@@ -626,8 +625,7 @@ namespace checkup.Areas.checkup.Controllers
                             var settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
                             if (System.IO.File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
                             {
-                                var appSettingText = await System.IO.File.ReadAllTextAsync(settingFilePath);
-                                var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
+                                var appSetting = ReadTenantAppSettings(settingFilePath, "TenantAppController/RefreshCorsOriginApp");
                                 if (appSetting != null && appSetting.ApplicationID == applicationID && appSetting.AppSecret == appSecret)
                                 {
                                     var withOriginUris = appSetting.WithOrigin;
@@ -687,8 +685,7 @@ namespace checkup.Areas.checkup.Controllers
                             var settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
                             if (System.IO.File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
                             {
-                                var appSettingText = await System.IO.File.ReadAllTextAsync(settingFilePath);
-                                var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
+                                var appSetting = ReadTenantAppSettings(settingFilePath, "TenantAppController/RefreshOriginApp");
                                 if (appSetting != null && appSetting.ApplicationID == applicationID && appSetting.AppSecret == appSecret)
                                 {
                                     var withOriginUris = appSetting.WithOrigin;
@@ -743,8 +740,7 @@ namespace checkup.Areas.checkup.Controllers
                             var settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
                             if (System.IO.File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
                             {
-                                var appSettingText = await System.IO.File.ReadAllTextAsync(settingFilePath);
-                                var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
+                                var appSetting = ReadTenantAppSettings(settingFilePath, "TenantAppController/RefreshRefererApp");
                                 if (appSetting != null && appSetting.ApplicationID == applicationID && appSetting.AppSecret == appSecret)
                                 {
                                     var withRefererUris = appSetting.WithReferer;
@@ -785,10 +781,9 @@ namespace checkup.Areas.checkup.Controllers
                 {
                     var tenantID = $"{userWorkID}|{applicationID}";
                     var environmentFilePath = PathExtensions.Combine(appBasePath, "wwwroot", "app.environment.json");
-                    if (System.IO.File.Exists(environmentFilePath) == true || GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == true)
+                    if (System.IO.File.Exists(environmentFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
                     {
-                        var appEnvironmentText = System.IO.File.ReadAllText(environmentFilePath);
-                        var environmentSetting = JsonConvert.DeserializeObject<EnvironmentSetting>(appEnvironmentText);
+                        var environmentSetting = ReadEnvironmentSetting(environmentFilePath, "TenantAppController/DefinitionBundling");
                         if (environmentSetting != null)
                         {
                             var fileType = string.Empty;
@@ -1406,10 +1401,9 @@ namespace checkup.Areas.checkup.Controllers
             {
                 var tenantID = $"{userWorkID}|{applicationID}";
                 var settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
-                if (System.IO.File.Exists(settingFilePath) == true || GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == true)
+                if (System.IO.File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
                 {
-                    var appSettingText = System.IO.File.ReadAllText(settingFilePath);
-                    var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
+                    var appSetting = ReadTenantAppSettings(settingFilePath, "TenantAppController/TenentAppContractUpdate");
                     if (appSetting != null)
                     {
                         var baseUrl = Request.GetBaseUrl();
@@ -1481,10 +1475,9 @@ namespace checkup.Areas.checkup.Controllers
                 {
                     var tenantID = $"{userWorkID}|{applicationID}";
                     var settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
-                    if (System.IO.File.Exists(settingFilePath) == true || GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == true)
+                    if (System.IO.File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
                     {
-                        var appSettingText = await System.IO.File.ReadAllTextAsync(settingFilePath);
-                        var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
+                        var appSetting = ReadTenantAppSettings(settingFilePath, "TenantAppController/DeleteApp");
                         if (appSetting != null)
                         {
                             ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, "SYS.SYS010.DD02", new
@@ -1540,6 +1533,34 @@ namespace checkup.Areas.checkup.Controllers
             }
 
             return result;
+        }
+
+        private AppSettings? ReadTenantAppSettings(string settingFilePath, string logCategory)
+        {
+            try
+            {
+                var appSettingText = System.IO.File.ReadAllText(settingFilePath);
+                return JsonConvert.DeserializeObject<AppSettings>(appSettingText);
+            }
+            catch (Exception exception)
+            {
+                logger.Warning(exception, "[{LogCategory}] settings.json 역직렬화 오류 - {SettingFilePath}", logCategory, settingFilePath);
+                return null;
+            }
+        }
+
+        private EnvironmentSetting? ReadEnvironmentSetting(string environmentFilePath, string logCategory)
+        {
+            try
+            {
+                var appEnvironmentText = System.IO.File.ReadAllText(environmentFilePath);
+                return JsonConvert.DeserializeObject<EnvironmentSetting>(appEnvironmentText);
+            }
+            catch (Exception exception)
+            {
+                logger.Warning(exception, "[{LogCategory}] app.environment.json 역직렬화 오류 - {EnvironmentFilePath}", logCategory, environmentFilePath);
+                return null;
+            }
         }
 
         private void DeleteDirectoryExceptManaged(string path)

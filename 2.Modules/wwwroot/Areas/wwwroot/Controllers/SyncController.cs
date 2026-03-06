@@ -13,6 +13,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 
+using Serilog;
+
 using wwwroot.Entity;
 
 namespace wwwroot.Areas.wwwroot.Controllers
@@ -32,57 +34,73 @@ namespace wwwroot.Areas.wwwroot.Controllers
         [HttpPost("upload")]
         public async Task<IActionResult> Upload([FromForm] SyncUploadRequest request, IFormFile? file, CancellationToken cancellationToken)
         {
-            if (!TryValidateSyncRequest(out string authorizationError))
+            try
             {
-                return Unauthorized(authorizationError);
-            }
+                if (!TryValidateSyncRequest(out string authorizationError))
+                {
+                    return Unauthorized(authorizationError);
+                }
 
-            if (!SyncRequest.TryCreate(request.ModuleName, request.ChangeType, request.FilePath, out SyncRequest syncRequest, out string errorMessage))
+                if (!SyncRequest.TryCreate(request.ModuleName, request.ChangeType, request.FilePath, out SyncRequest syncRequest, out string errorMessage))
+                {
+                    return BadRequest(errorMessage);
+                }
+
+                if (syncRequest.IsDeleteChange)
+                {
+                    return Ok();
+                }
+
+                var result = await SyncProcessor.SaveUploadedFileAsync(syncRequest, file, cancellationToken);
+                if (!result.Success)
+                {
+                    return StatusCode(result.StatusCode, result.Message);
+                }
+
+                return Ok(result.Message);
+            }
+            catch (Exception exception)
             {
-                return BadRequest(errorMessage);
+                Log.Warning(exception, "[{LogCategory}] 업로드 동기화 처리 오류", "SyncController/Upload");
+                return StatusCode(StatusCodes.Status500InternalServerError, "업로드 동기화 처리 중 오류가 발생했습니다.");
             }
-
-            if (syncRequest.IsDeleteChange)
-            {
-                return Ok();
-            }
-
-            var result = await SyncProcessor.SaveUploadedFileAsync(syncRequest, file, cancellationToken);
-            if (!result.Success)
-            {
-                return StatusCode(result.StatusCode, result.Message);
-            }
-
-            return Ok(result.Message);
         }
 
         [HttpGet("refresh")]
         public async Task<IActionResult> Refresh([FromQuery] SyncRefreshRequest request, CancellationToken cancellationToken)
         {
-            if (!TryValidateSyncRequest(out string authorizationError))
+            try
             {
-                return Unauthorized(authorizationError);
-            }
+                if (!TryValidateSyncRequest(out string authorizationError))
+                {
+                    return Unauthorized(authorizationError);
+                }
 
-            if (!SyncRequest.TryCreate(request.ModuleName, request.ChangeType, request.FilePath, out SyncRequest syncRequest, out string errorMessage))
+                if (!SyncRequest.TryCreate(request.ModuleName, request.ChangeType, request.FilePath, out SyncRequest syncRequest, out string errorMessage))
+                {
+                    return BadRequest(errorMessage);
+                }
+
+                if (syncRequest.IsDeleteChange)
+                {
+                    return Ok();
+                }
+
+                string? authorizationKey = Request.Headers["AuthorizationKey"].FirstOrDefault();
+                string host = Request.Host.HasValue ? Request.Host.Value : "localhost";
+                var result = await SyncProcessor.RefreshModuleAsync(Request.Scheme, host, syncRequest, authorizationKey, cancellationToken);
+                if (!result.Success)
+                {
+                    return StatusCode(StatusCodes.Status502BadGateway, result.Message);
+                }
+
+                return Ok(result.Message);
+            }
+            catch (Exception exception)
             {
-                return BadRequest(errorMessage);
+                Log.Warning(exception, "[{LogCategory}] 리프레시 동기화 처리 오류", "SyncController/Refresh");
+                return StatusCode(StatusCodes.Status500InternalServerError, "리프레시 동기화 처리 중 오류가 발생했습니다.");
             }
-
-            if (syncRequest.IsDeleteChange)
-            {
-                return Ok();
-            }
-
-            string? authorizationKey = Request.Headers["AuthorizationKey"].FirstOrDefault();
-            string host = Request.Host.HasValue ? Request.Host.Value : "localhost";
-            var result = await SyncProcessor.RefreshModuleAsync(Request.Scheme, host, syncRequest, authorizationKey, cancellationToken);
-            if (!result.Success)
-            {
-                return StatusCode(StatusCodes.Status502BadGateway, result.Message);
-            }
-
-            return Ok(result.Message);
         }
 
         private bool TryValidateSyncRequest(out string errorMessage)

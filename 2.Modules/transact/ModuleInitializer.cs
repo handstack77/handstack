@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -64,9 +65,11 @@ namespace transact
                         ModuleConfiguration.HasTrustedCheckIP = moduleConfig.HasTrustedCheckIP;
                         ModuleConfiguration.BypassAuthorizeIP = moduleConfig.BypassAuthorizeIP;
                         ModuleConfiguration.IsValidationRequest = moduleConfig.IsValidationRequest;
+                        ModuleConfiguration.IsValidationGlobalID = moduleConfig.IsValidationGlobalID;
                         ModuleConfiguration.IsAllowDynamicRequest = moduleConfig.IsAllowDynamicRequest;
                         ModuleConfiguration.AllowTenantTransactionCommands = moduleConfig.AllowTenantTransactionCommands;
                         ModuleConfiguration.IsCodeDataCache = moduleConfig.IsCodeDataCache;
+                        ModuleConfiguration.CodeDataCacheTimeout = moduleConfig.CodeDataCacheTimeout;
                         ModuleConfiguration.IsLogServer = moduleConfig.IsLogServer;
                         ModuleConfiguration.IsTransactAggregate = moduleConfig.IsTransactAggregate;
                         ModuleConfiguration.IsDataMasking = moduleConfig.IsDataMasking;
@@ -75,31 +78,90 @@ namespace transact
                         ModuleConfiguration.IsTransactionLogging = moduleConfig.IsTransactionLogging;
                         ModuleConfiguration.LogServerUrl = moduleConfig.LogServerUrl;
 
-                        ModuleConfiguration.IsContractFileWatching = moduleConfig.IsContractFileWatching;
-                        foreach (var basePath in moduleConfig.ContractBasePath)
+                        foreach (var fileSyncManager in ModuleConfiguration.BusinessFileSyncManager.Values)
                         {
-                            ModuleConfiguration.ContractBasePath.Add(GlobalConfiguration.GetBaseDirectoryPath(basePath));
+                            fileSyncManager.Dispose();
+                        }
+
+                        ModuleConfiguration.BusinessFileSyncManager.Clear();
+                        ModuleConfiguration.ContractBasePath.Clear();
+                        ModuleConfiguration.RoutingCommandUri.Clear();
+                        ModuleConfiguration.AllowRequestTransactions.Clear();
+                        ModuleConfiguration.PublicTransactions ??= new HandStack.Web.Extensions.ExpiringList<PublicTransaction>();
+                        ModuleConfiguration.PublicTransactions.Clear();
+                        ModuleConfiguration.IsContractFileWatching = moduleConfig.IsContractFileWatching;
+                        foreach (var basePath in moduleConfig.ContractBasePath ?? new List<string>())
+                        {
+                            var contractBasePath = GlobalConfiguration.GetBaseDirectoryPath(basePath);
+                            if (string.IsNullOrWhiteSpace(contractBasePath) == false && ModuleConfiguration.ContractBasePath.Contains(contractBasePath) == false)
+                            {
+                                ModuleConfiguration.ContractBasePath.Add(contractBasePath);
+                            }
                         }
 
                         ModuleConfiguration.ModuleBasePath = GlobalConfiguration.GetBaseDirectoryPath(moduleConfig.ModuleBasePath);
                         ModuleConfiguration.DatabaseContractPath = GlobalConfiguration.GetBaseDirectoryPath(moduleConfig.DatabaseContractPath, PathExtensions.Combine(ModuleConfiguration.ModuleBasePath, "Contracts", "dbclient"));
                         ModuleConfiguration.TransactionLogBasePath = GlobalConfiguration.GetBaseDirectoryPath(moduleConfig.TransactionLogBasePath);
 
-                        ModuleConfiguration.PublicTransactions = moduleConfig.PublicTransactions;
+                        ModuleConfiguration.PublicTransactions = moduleConfig.PublicTransactions ?? new HandStack.Web.Extensions.ExpiringList<PublicTransaction>();
                         ModuleConfiguration.PublicTransactions.ExtendExpiryTime(DateTime.Now.AddYears(10));
 
-                        foreach (var item in moduleConfig.RoutingCommandUri.AsEnumerable())
+                        foreach (var item in (moduleConfig.RoutingCommandUri ?? new Dictionary<string, string>()).AsEnumerable())
                         {
-                            ModuleConfiguration.RoutingCommandUri.Add(item.Key, item.Value, TimeSpan.FromDays(36500));
+                            if (string.IsNullOrWhiteSpace(item.Key) == false && string.IsNullOrWhiteSpace(item.Value) == false)
+                            {
+                                ModuleConfiguration.RoutingCommandUri.Add(item.Key, item.Value, TimeSpan.FromDays(36500));
+                            }
                         }
 
-                        foreach (var item in moduleConfig.AllowRequestTransactions.AsEnumerable())
+                        foreach (var item in (moduleConfig.AllowRequestTransactions ?? new Dictionary<string, List<string>>()).AsEnumerable())
                         {
-                            ModuleConfiguration.AllowRequestTransactions.Add(item.Key, item.Value);
+                            if (string.IsNullOrWhiteSpace(item.Key) == true)
+                            {
+                                continue;
+                            }
+
+                            ModuleConfiguration.AllowRequestTransactions[item.Key] = (item.Value ?? new List<string>())
+                                .Where(p => string.IsNullOrWhiteSpace(p) == false)
+                                .Select(p => p.Trim())
+                                .Distinct(StringComparer.OrdinalIgnoreCase)
+                                .ToList();
                         }
 
-                        ModuleConfiguration.BypassGlobalIDTransactions = moduleConfig.BypassGlobalIDTransactions;
-                        ModuleConfiguration.AllowClientIP = moduleConfig.AllowClientIP;
+                        ModuleConfiguration.BypassGlobalIDTransactions = (moduleConfig.BypassGlobalIDTransactions ?? new List<string>())
+                            .Where(p => string.IsNullOrWhiteSpace(p) == false)
+                            .Select(p => p.Trim())
+                            .Distinct(StringComparer.OrdinalIgnoreCase)
+                            .ToList();
+                        ModuleConfiguration.AllowTenantTransactionCommands = (moduleConfig.AllowTenantTransactionCommands ?? new List<string>())
+                            .Where(p => string.IsNullOrWhiteSpace(p) == false)
+                            .Select(p => p.Trim())
+                            .Distinct(StringComparer.OrdinalIgnoreCase)
+                            .ToList();
+                        ModuleConfiguration.BypassAuthorizeIP = (moduleConfig.BypassAuthorizeIP ?? new List<string>())
+                            .Where(p => string.IsNullOrWhiteSpace(p) == false)
+                            .Select(p => p.Trim())
+                            .Distinct(StringComparer.OrdinalIgnoreCase)
+                            .ToList();
+                        ModuleConfiguration.AvailableEnvironment = (moduleConfig.AvailableEnvironment ?? new List<string>())
+                            .Where(p => string.IsNullOrWhiteSpace(p) == false)
+                            .Select(p => p.Trim())
+                            .Distinct(StringComparer.OrdinalIgnoreCase)
+                            .ToList();
+                        if (ModuleConfiguration.AvailableEnvironment.Count == 0)
+                        {
+                            ModuleConfiguration.AvailableEnvironment.Add("D");
+                        }
+
+                        ModuleConfiguration.AllowClientIP = (moduleConfig.AllowClientIP ?? new List<string>())
+                            .Where(p => string.IsNullOrWhiteSpace(p) == false)
+                            .Select(p => p.Trim())
+                            .Distinct(StringComparer.OrdinalIgnoreCase)
+                            .ToList();
+                        if (ModuleConfiguration.AllowClientIP.Count == 0)
+                        {
+                            ModuleConfiguration.AllowClientIP.Add("*");
+                        }
                         ModuleConfiguration.IsConfigure = true;
                     }
                     else
@@ -235,7 +297,12 @@ namespace transact
                     Log.Information("[{LogCategory}] Business File Sync ContractBasePath: " + basePath, $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure");
 
                     fileSyncManager.Start();
-                    ModuleConfiguration.BusinessFileSyncManager.Add(basePath, fileSyncManager);
+                    if (ModuleConfiguration.BusinessFileSyncManager.TryGetValue(basePath, out var existingFileSyncManager) == true)
+                    {
+                        existingFileSyncManager.Dispose();
+                    }
+
+                    ModuleConfiguration.BusinessFileSyncManager[basePath] = fileSyncManager;
                 }
             }
         }

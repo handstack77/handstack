@@ -42,6 +42,11 @@ namespace forwarder.Areas.forwarder.Controllers
         [HttpPost("program-execute")]
         public async Task<IActionResult> ProgramExecute([FromBody] ProxyLabExecuteRequest request, CancellationToken cancellationToken)
         {
+            if (request == null)
+            {
+                return BadRequest("요청 정보 확인 필요");
+            }
+
             if (string.IsNullOrWhiteSpace(request.BearerToken) == true)
             {
                 return BadRequest("BearerToken 확인 필요");
@@ -58,7 +63,7 @@ namespace forwarder.Areas.forwarder.Controllers
             forwardRequest.Headers.TryAddWithoutValidation("X-Forwarder-ClientKind", "Program");
             forwardRequest.Headers.TryAddWithoutValidation("User-Agent", "HandStackProxyLab/1.0");
 
-            foreach (var header in request.Headers)
+            foreach (var header in request.Headers ?? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase))
             {
                 if (string.IsNullOrWhiteSpace(header.Key) == true || string.IsNullOrWhiteSpace(header.Value) == true)
                 {
@@ -123,7 +128,7 @@ namespace forwarder.Areas.forwarder.Controllers
             catch (Exception exception)
             {
                 logger.Error(exception, "[{LogCategory}] requestKey: {RequestKey}", "ForwardProxyLabController/ProgramExecute", request.RequestKey);
-                return StatusCode(StatusCodes.Status500InternalServerError, exception.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, "프로그램 프록시 실행 중 오류가 발생했습니다.");
             }
         }
 

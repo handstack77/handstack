@@ -74,10 +74,8 @@ namespace dbclient.Areas.dbclient.Controllers
                 }
                 catch (Exception exception)
                 {
-                    var exceptionText = exception.ToMessage();
-                    logger.Error("[{LogCategory}] " + exceptionText, "Query/Has");
-
-                    result = StatusCode(StatusCodes.Status500InternalServerError, exception.ToMessage());
+                    logger.Error(exception, "[{LogCategory}] SQL 매핑 확인 오류", "Query/Has");
+                    result = StatusCode(StatusCodes.Status500InternalServerError, "SQL 매핑 확인 중 오류가 발생했습니다.");
                 }
             }
 
@@ -102,10 +100,8 @@ namespace dbclient.Areas.dbclient.Controllers
                 }
                 catch (Exception exception)
                 {
-                    var exceptionText = exception.ToMessage();
-                    logger.Error("[{LogCategory}] " + exceptionText, "Query/Refresh");
-
-                    result = StatusCode(StatusCodes.Status500InternalServerError, exception.ToMessage());
+                    logger.Error(exception, "[{LogCategory}] SQL 계약 리프레시 오류", "Query/Refresh");
+                    result = StatusCode(StatusCodes.Status500InternalServerError, "SQL 계약 리프레시 중 오류가 발생했습니다.");
                 }
             }
 
@@ -155,8 +151,12 @@ namespace dbclient.Areas.dbclient.Controllers
 
                     if (!string.IsNullOrWhiteSpace(model.FunctionID))
                     {
-                        var queryFunctionID = model.FunctionID.Substring(0, model.FunctionID.Length - 2);
-                        queryResults = queryResults.Where(p => p.StatementID.Substring(0, p.StatementID.Length - 2) == queryFunctionID);
+                        if (!TryGetFunctionIDPrefix(model.FunctionID, out var queryFunctionID))
+                        {
+                            return BadRequest("functionID 형식 확인 필요");
+                        }
+
+                        queryResults = queryResults.Where(p => TryGetFunctionIDPrefix(p.StatementID, out var statementID) && statementID == queryFunctionID);
                     }
 
                     var statementMaps = queryResults.ToList();
@@ -164,10 +164,8 @@ namespace dbclient.Areas.dbclient.Controllers
                 }
                 catch (Exception exception)
                 {
-                    var exceptionText = exception.ToMessage();
-                    logger.Error("[{LogCategory}] " + exceptionText, "Query/Retrieve");
-
-                    result = StatusCode(StatusCodes.Status500InternalServerError, exception.ToMessage());
+                    logger.Error(exception, "[{LogCategory}] SQL 계약 조회 오류", "Query/Retrieve");
+                    result = StatusCode(StatusCodes.Status500InternalServerError, "SQL 계약 조회 중 오류가 발생했습니다.");
                 }
             }
 
@@ -196,10 +194,8 @@ namespace dbclient.Areas.dbclient.Controllers
                 }
                 catch (Exception exception)
                 {
-                    var exceptionText = exception.ToMessage();
-                    logger.Error("[{LogCategory}] " + exceptionText, "Query/Meta");
-
-                    result = StatusCode(StatusCodes.Status500InternalServerError, exception.ToMessage());
+                    logger.Error(exception, "[{LogCategory}] SQL 메타 조회 오류", "Query/Meta");
+                    result = StatusCode(StatusCodes.Status500InternalServerError, "SQL 메타 조회 중 오류가 발생했습니다.");
                 }
             }
 
@@ -243,10 +239,8 @@ namespace dbclient.Areas.dbclient.Controllers
                 }
                 catch (Exception exception)
                 {
-                    var exceptionText = exception.ToMessage();
-                    logger.Error("[{LogCategory}] " + exceptionText, "Query/Reports");
-
-                    result = StatusCode(StatusCodes.Status500InternalServerError, exception.ToMessage());
+                    logger.Error(exception, "[{LogCategory}] SQL 리포트 조회 오류", "Query/Reports");
+                    result = StatusCode(StatusCodes.Status500InternalServerError, "SQL 리포트 조회 중 오류가 발생했습니다.");
                 }
             }
 
@@ -264,13 +258,13 @@ namespace dbclient.Areas.dbclient.Controllers
             if (request == null)
             {
                 response.ExceptionText = "빈 요청. 요청 정보 확인 필요";
-                return result;
+                return Content(JsonConvert.SerializeObject(response), "application/json");
             }
 
             if (HttpContext.IsAllowAuthorization() == false)
             {
                 response.ExceptionText = "필수 접근 정보 확인 필요";
-                return result;
+                return Content(JsonConvert.SerializeObject(response), "application/json");
             }
 
             response.CorrelationID = request.GlobalID;
@@ -347,7 +341,8 @@ namespace dbclient.Areas.dbclient.Controllers
             }
             catch (Exception exception)
             {
-                response.ExceptionText = exception.ToMessage();
+                response.ExceptionText = "SQL 실행 중 오류가 발생했습니다.";
+                logger.Error(exception, "[{LogCategory}] [{GlobalID}] SQL 실행 오류", "Query/QueryDataClient Execute", request.GlobalID);
                 if (ModuleConfiguration.IsLogServer == true)
                 {
                     loggerClient.ProgramMessageLogging(request.GlobalID, "N", GlobalConfiguration.ApplicationID, response.ExceptionText, "Query/QueryDataClient Execute", (string error) =>
@@ -398,7 +393,8 @@ namespace dbclient.Areas.dbclient.Controllers
             }
             catch (Exception exception)
             {
-                response.ExceptionText = exception.ToMessage();
+                response.ExceptionText = "응답 생성 중 오류가 발생했습니다.";
+                logger.Error(exception, "[{LogCategory}] [{GlobalID}] SQL 응답 생성 오류", "Query/DynamicResponse Execute", request.GlobalID);
                 if (ModuleConfiguration.IsLogServer == true)
                 {
                     loggerClient.ProgramMessageLogging(request.GlobalID, "N", GlobalConfiguration.ApplicationID, response.ExceptionText, "Query/DynamicResponse Execute", (string error) =>
@@ -448,7 +444,8 @@ namespace dbclient.Areas.dbclient.Controllers
                 }
                 catch (Exception fatalException)
                 {
-                    var responseData = fatalException.ToMessage();
+                    var responseData = "치명적인 응답 처리 오류가 발생했습니다.";
+                    logger.Error(fatalException, "[{LogCategory}] [{GlobalID}] 치명적인 SQL 응답 처리 오류", "Query/QueryDataClient Execute", request.GlobalID);
                     if (ModuleConfiguration.IsLogServer == true)
                     {
                         loggerClient.ProgramMessageLogging(request.GlobalID, "N", GlobalConfiguration.ApplicationID, responseData, "Query/QueryDataClient Execute", (string error) =>
@@ -474,6 +471,18 @@ namespace dbclient.Areas.dbclient.Controllers
             }
 
             return result;
+        }
+
+        private static bool TryGetFunctionIDPrefix(string? functionID, out string functionIDPrefix)
+        {
+            functionIDPrefix = string.Empty;
+            if (string.IsNullOrWhiteSpace(functionID) || functionID.Length < 3)
+            {
+                return false;
+            }
+
+            functionIDPrefix = functionID.Substring(0, functionID.Length - 2);
+            return !string.IsNullOrWhiteSpace(functionIDPrefix);
         }
     }
 }

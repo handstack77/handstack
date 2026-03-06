@@ -66,7 +66,8 @@ namespace function.Areas.function.Controllers
                 }
                 catch (Exception exception)
                 {
-                    result = StatusCode(StatusCodes.Status500InternalServerError, exception.ToMessage());
+                    logger.Error(exception, "[{LogCategory}] 계약 초기화 오류", "ManagedController/ResetContract");
+                    result = StatusCode(StatusCodes.Status500InternalServerError, "Function 계약 초기화 중 오류가 발생했습니다.");
                 }
             }
 
@@ -320,7 +321,8 @@ namespace function.Areas.function.Controllers
                 }
                 catch (Exception exception)
                 {
-                    result = StatusCode(StatusCodes.Status500InternalServerError, exception.ToMessage());
+                    logger.Error(exception, "[{LogCategory}] 앱 계약 초기화 오류. UserWorkID: {UserWorkID}, ApplicationID: {ApplicationID}", "ManagedController/ResetAppContract", userWorkID, applicationID);
+                    result = StatusCode(StatusCodes.Status500InternalServerError, "앱 Function 계약 초기화 중 오류가 발생했습니다.");
                 }
             }
 
@@ -364,7 +366,8 @@ namespace function.Areas.function.Controllers
                 }
                 catch (Exception exception)
                 {
-                    result = StatusCode(StatusCodes.Status500InternalServerError, exception.ToMessage());
+                    logger.Error(exception, "[{LogCategory}] 앱 계약 삭제 오류. UserWorkID: {UserWorkID}, ApplicationID: {ApplicationID}", "ManagedController/DeleteAppContract", userWorkID, applicationID);
+                    result = StatusCode(StatusCodes.Status500InternalServerError, "앱 Function 계약 삭제 중 오류가 발생했습니다.");
                 }
             }
 

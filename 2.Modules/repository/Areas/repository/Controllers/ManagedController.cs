@@ -71,8 +71,7 @@ namespace repository.Areas.repository.Controllers
                             var settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
                             if (System.IO.File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
                             {
-                                var appSettingText = System.IO.File.ReadAllText(settingFilePath);
-                                var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
+                                var appSetting = TryReadTenantAppSettings(settingFilePath, "ManagedController/ResetAppContract");
                                 if (appSetting != null)
                                 {
                                     var storages = appSetting.Storage;
@@ -270,6 +269,20 @@ namespace repository.Areas.repository.Controllers
             }
 
             return result;
+        }
+
+        private AppSettings? TryReadTenantAppSettings(string settingFilePath, string logCategory)
+        {
+            try
+            {
+                var appSettingText = System.IO.File.ReadAllText(settingFilePath);
+                return JsonConvert.DeserializeObject<AppSettings>(appSettingText);
+            }
+            catch (Exception exception)
+            {
+                Log.Logger.Warning(exception, "[{LogCategory}] settings.json 역직렬화 오류 - {SettingFilePath}", logCategory, settingFilePath);
+                return null;
+            }
         }
     }
 }

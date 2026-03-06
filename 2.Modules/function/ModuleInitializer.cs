@@ -80,6 +80,9 @@ namespace function
                     if (moduleConfigJson != null)
                     {
                         var moduleConfig = moduleConfigJson.ModuleConfig;
+                        var nodeFunctionConfig = moduleConfig.NodeFunctionConfig ?? new NodeScriptConfig();
+                        var csharpFunctionConfig = moduleConfig.CSharpFunctionConfig ?? new CSharpScriptConfig();
+                        var pythonFunctionConfig = moduleConfig.PythonFunctionConfig ?? new PythonFunctionConfig();
                         ModuleConfiguration.ModuleID = moduleConfigJson.ModuleID;
                         ModuleConfiguration.Version = moduleConfigJson.Version;
                         ModuleConfiguration.AuthorizationKey = !string.IsNullOrWhiteSpace(moduleConfig.AuthorizationKey) ? moduleConfig.AuthorizationKey : GlobalConfiguration.SystemID + GlobalConfiguration.RunningEnvironment + GlobalConfiguration.HostName;
@@ -90,9 +93,20 @@ namespace function
                         ModuleConfiguration.IsLogServer = moduleConfig.IsLogServer;
                         ModuleConfiguration.LogServerUrl = moduleConfig.LogServerUrl;
 
-                        foreach (var basePath in moduleConfig.ContractBasePath)
+                        foreach (var fileSyncManager in ModuleConfiguration.FunctionFileSyncManager.Values)
                         {
-                            ModuleConfiguration.ContractBasePath.Add(GlobalConfiguration.GetBaseDirectoryPath(basePath));
+                            fileSyncManager.Dispose();
+                        }
+
+                        ModuleConfiguration.FunctionFileSyncManager.Clear();
+                        ModuleConfiguration.ContractBasePath.Clear();
+                        foreach (var basePath in moduleConfig.ContractBasePath ?? new List<string>())
+                        {
+                            var contractBasePath = GlobalConfiguration.GetBaseDirectoryPath(basePath);
+                            if (string.IsNullOrWhiteSpace(contractBasePath) == false && ModuleConfiguration.ContractBasePath.Contains(contractBasePath) == false)
+                            {
+                                ModuleConfiguration.ContractBasePath.Add(contractBasePath);
+                            }
                         }
 
                         ModuleConfiguration.IsTransactionLogging = moduleConfig.IsTransactionLogging;
@@ -103,29 +117,38 @@ namespace function
                             ModuleConfiguration.ModuleLogger = loggerConfiguration.CreateLogger();
                         }
 
-                        ModuleConfiguration.LocalStoragePath = GlobalConfiguration.GetBaseDirectoryPath(moduleConfig.NodeFunctionConfig.LocalStoragePath);
-                        ModuleConfiguration.LogMinimumLevel = moduleConfig.NodeFunctionConfig.LogMinimumLevel;
-                        ModuleConfiguration.NodeFunctionLogBasePath = GlobalConfiguration.GetBaseDirectoryPath(moduleConfig.NodeFunctionConfig.FileLogBasePath);
-                        ModuleConfiguration.TimeoutMS = moduleConfig.NodeFunctionConfig.TimeoutMS;
-                        ModuleConfiguration.IsSingleThread = moduleConfig.NodeFunctionConfig.IsSingleThread;
-                        ModuleConfiguration.WatchGracefulShutdown = moduleConfig.NodeFunctionConfig.WatchGracefulShutdown;
-                        ModuleConfiguration.EnableFileWatching = moduleConfig.NodeFunctionConfig.EnableFileWatching;
-                        ModuleConfiguration.ExecutablePath = moduleConfig.NodeFunctionConfig.ExecutablePath;
-                        ModuleConfiguration.NodeAndV8Options = moduleConfig.NodeFunctionConfig.NodeAndV8Options;
-                        ModuleConfiguration.EnvironmentVariables = moduleConfig.NodeFunctionConfig.EnvironmentVariables;
+                        ModuleConfiguration.LocalStoragePath = GlobalConfiguration.GetBaseDirectoryPath(nodeFunctionConfig.LocalStoragePath);
+                        ModuleConfiguration.LogMinimumLevel = nodeFunctionConfig.LogMinimumLevel;
+                        ModuleConfiguration.NodeFunctionLogBasePath = GlobalConfiguration.GetBaseDirectoryPath(nodeFunctionConfig.FileLogBasePath);
+                        ModuleConfiguration.TimeoutMS = nodeFunctionConfig.TimeoutMS;
+                        ModuleConfiguration.IsSingleThread = nodeFunctionConfig.IsSingleThread;
+                        ModuleConfiguration.WatchGracefulShutdown = nodeFunctionConfig.WatchGracefulShutdown;
+                        ModuleConfiguration.EnableFileWatching = nodeFunctionConfig.EnableFileWatching;
+                        ModuleConfiguration.ExecutablePath = nodeFunctionConfig.ExecutablePath;
+                        ModuleConfiguration.NodeAndV8Options = nodeFunctionConfig.NodeAndV8Options;
+                        ModuleConfiguration.EnvironmentVariables = nodeFunctionConfig.EnvironmentVariables;
 
                         ModuleConfiguration.WatchFileNamePatterns.Clear();
-                        ModuleConfiguration.WatchFileNamePatterns = moduleConfig.NodeFunctionConfig.WatchFileNamePatterns;
+                        ModuleConfiguration.WatchFileNamePatterns = (nodeFunctionConfig.WatchFileNamePatterns ?? new List<string>())
+                            .Where(p => string.IsNullOrWhiteSpace(p) == false)
+                            .Distinct(StringComparer.OrdinalIgnoreCase)
+                            .ToList();
 
-                        ModuleConfiguration.CSharpEnableFileWatching = moduleConfig.CSharpFunctionConfig.EnableFileWatching;
-                        ModuleConfiguration.CSharpFunctionLogBasePath = GlobalConfiguration.GetBaseDirectoryPath(moduleConfig.CSharpFunctionConfig.FileLogBasePath);
-                        ModuleConfiguration.CSharpWatchFileNamePatterns = moduleConfig.CSharpFunctionConfig.WatchFileNamePatterns;
+                        ModuleConfiguration.CSharpEnableFileWatching = csharpFunctionConfig.EnableFileWatching;
+                        ModuleConfiguration.CSharpFunctionLogBasePath = GlobalConfiguration.GetBaseDirectoryPath(csharpFunctionConfig.FileLogBasePath);
+                        ModuleConfiguration.CSharpWatchFileNamePatterns = (csharpFunctionConfig.WatchFileNamePatterns ?? new List<string>())
+                            .Where(p => string.IsNullOrWhiteSpace(p) == false)
+                            .Distinct(StringComparer.OrdinalIgnoreCase)
+                            .ToList();
 
-                        ModuleConfiguration.EnablePythonDLL = moduleConfig.PythonFunctionConfig.EnablePythonDLL;
-                        ModuleConfiguration.PythonDLLFilePath = GlobalConfiguration.GetBaseDirectoryPath(moduleConfig.PythonFunctionConfig.PythonDLLFilePath);
-                        ModuleConfiguration.PythonEnableFileWatching = moduleConfig.PythonFunctionConfig.EnableFileWatching;
-                        ModuleConfiguration.PythonFunctionLogBasePath = GlobalConfiguration.GetBaseDirectoryPath(moduleConfig.PythonFunctionConfig.FileLogBasePath);
-                        ModuleConfiguration.PythonWatchFileNamePatterns = moduleConfig.PythonFunctionConfig.WatchFileNamePatterns;
+                        ModuleConfiguration.EnablePythonDLL = pythonFunctionConfig.EnablePythonDLL;
+                        ModuleConfiguration.PythonDLLFilePath = GlobalConfiguration.GetBaseDirectoryPath(pythonFunctionConfig.PythonDLLFilePath);
+                        ModuleConfiguration.PythonEnableFileWatching = pythonFunctionConfig.EnableFileWatching;
+                        ModuleConfiguration.PythonFunctionLogBasePath = GlobalConfiguration.GetBaseDirectoryPath(pythonFunctionConfig.FileLogBasePath);
+                        ModuleConfiguration.PythonWatchFileNamePatterns = (pythonFunctionConfig.WatchFileNamePatterns ?? new List<string>())
+                            .Where(p => string.IsNullOrWhiteSpace(p) == false)
+                            .Distinct(StringComparer.OrdinalIgnoreCase)
+                            .ToList();
 
                         if (ModuleConfiguration.EnablePythonDLL == true)
                         {
@@ -164,7 +187,15 @@ namespace function
                             }
                         }
 
-                        ModuleConfiguration.AllowClientIP = moduleConfig.AllowClientIP;
+                        ModuleConfiguration.AllowClientIP = (moduleConfig.AllowClientIP ?? new List<string>())
+                            .Where(p => string.IsNullOrWhiteSpace(p) == false)
+                            .Select(p => p.Trim())
+                            .Distinct(StringComparer.OrdinalIgnoreCase)
+                            .ToList();
+                        if (ModuleConfiguration.AllowClientIP.Count == 0)
+                        {
+                            ModuleConfiguration.AllowClientIP.Add("*");
+                        }
                         ModuleConfiguration.IsConfigure = true;
                     }
                     else
@@ -204,8 +235,22 @@ namespace function
                         {
                             if (!string.IsNullOrWhiteSpace(item))
                             {
-                                var keyValues = item.Split("=");
-                                nodeEnvironmentVariables.Add(keyValues[0].Trim(), keyValues[1].Trim());
+                                var separatorIndex = item.IndexOf('=');
+                                if (separatorIndex < 1 || separatorIndex == item.Length - 1)
+                                {
+                                    Log.Warning("[{LogCategory}] " + $"EnvironmentVariables 항목 확인 필요: {item}", $"{ModuleConfiguration.ModuleID} ModuleInitializer/ConfigureServices");
+                                    continue;
+                                }
+
+                                var key = item.Substring(0, separatorIndex).Trim();
+                                var value = item.Substring(separatorIndex + 1).Trim();
+                                if (string.IsNullOrWhiteSpace(key) == true)
+                                {
+                                    Log.Warning("[{LogCategory}] " + $"EnvironmentVariables 키 확인 필요: {item}", $"{ModuleConfiguration.ModuleID} ModuleInitializer/ConfigureServices");
+                                    continue;
+                                }
+
+                                nodeEnvironmentVariables[key] = value;
                             }
                         }
                     }
@@ -461,7 +506,12 @@ namespace function
                         Log.Information("[{LogCategory}] CSharp File Sync ContractBasePath: " + basePath, $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure");
 
                         functionFileSyncManager.Start();
-                        ModuleConfiguration.FunctionFileSyncManager.Add(functionContractBasePath, functionFileSyncManager);
+                        if (ModuleConfiguration.FunctionFileSyncManager.TryGetValue(functionContractBasePath, out var existingFileSyncManager) == true)
+                        {
+                            existingFileSyncManager.Dispose();
+                        }
+
+                        ModuleConfiguration.FunctionFileSyncManager[functionContractBasePath] = functionFileSyncManager;
                     }
                 }
             }

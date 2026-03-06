@@ -296,30 +296,43 @@ namespace wwwroot.Areas.wwwroot.Controllers
         [HttpGet("[action]")]
         public async Task<string> GetSecret(string? baseUrl, string keyName)
         {
-            if (string.IsNullOrWhiteSpace(baseUrl))
+            try
             {
-                baseUrl = Request.GetBaseUrl();
+                if (string.IsNullOrWhiteSpace(baseUrl))
+                {
+                    baseUrl = Request.GetBaseUrl();
+                }
+
+                var requestUri = $"{baseUrl}/secrets/{keyName}";
+                using var request = new HttpRequestMessage(HttpMethod.Get, requestUri);
+
+                request.Headers.Add("HandStack-MachineID", GlobalConfiguration.HardwareID);
+                request.Headers.Add("HandStack-IP", GlobalConfiguration.ServerLocalIP);
+                request.Headers.Add("HandStack-HostName", GlobalConfiguration.HostName);
+                request.Headers.Add("HandStack-Environment", GlobalConfiguration.RunningEnvironment);
+
+                using var response = await SecretHttpClient.SendAsync(request);
+                response.EnsureSuccessStatusCode();
+
+                var secretData = await response.Content.ReadAsStringAsync();
+                var keyItem = JsonConvert.DeserializeObject<KeyItem>(secretData);
+                if (keyItem == null || string.IsNullOrWhiteSpace(keyItem.Key))
+                {
+                    logger.Warning("[{LogCategory}] Secret 응답 확인 필요. KeyName: {KeyName}", "Index/GetSecret", keyName);
+                    return string.Empty;
+                }
+
+                string systemVaultKey = "[Strong@Passw0rd]";
+                var vaultKey = (systemVaultKey + "|" + keyItem.Key.PadRight(32, '0')).Substring(0, 32);
+                var content = keyItem.IsEncryption.ToBoolean() == true ? keyItem.Value.DecryptAES(keyItem.Key.PadRight(32, '0').Substring(0, 32)) : keyItem.Value;
+
+                return content;
             }
-
-            var requestUri = $"{baseUrl}/secrets/{keyName}";
-            using var request = new HttpRequestMessage(HttpMethod.Get, requestUri);
-
-            request.Headers.Add("HandStack-MachineID", GlobalConfiguration.HardwareID);
-            request.Headers.Add("HandStack-IP", GlobalConfiguration.ServerLocalIP);
-            request.Headers.Add("HandStack-HostName", GlobalConfiguration.HostName);
-            request.Headers.Add("HandStack-Environment", GlobalConfiguration.RunningEnvironment);
-
-            using var response = await SecretHttpClient.SendAsync(request);
-            response.EnsureSuccessStatusCode();
-
-            var secretData = await response.Content.ReadAsStringAsync();
-            var keyItem = JsonConvert.DeserializeObject<KeyItem>(secretData)!;
-
-            string systemVaultKey = "[Strong@Passw0rd]";
-            var vaultKey = (systemVaultKey + "|" + keyItem.Key.PadRight(32, '0')).Substring(0, 32);
-            var content = keyItem.IsEncryption.ToBoolean() == true ? keyItem.Value.DecryptAES(keyItem.Key.PadRight(32, '0').Substring(0, 32)) : keyItem.Value;
-
-            return content;
+            catch (Exception exception)
+            {
+                logger.Warning(exception, "[{LogCategory}] Secret 조회 오류. KeyName: {KeyName}", "Index/GetSecret", keyName);
+                return string.Empty;
+            }
         }
     }
 }

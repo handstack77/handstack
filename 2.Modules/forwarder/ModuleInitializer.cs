@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -72,7 +73,10 @@ namespace forwarder
             ModuleConfiguration.IgnoreHTTPSErrors = moduleConfig.IgnoreHTTPSErrors;
             ModuleConfiguration.RequestTimeoutMS = moduleConfig.RequestTimeoutMS;
             ModuleConfiguration.MaxRedirects = moduleConfig.MaxRedirects;
-            ModuleConfiguration.AllowClientIP = moduleConfig.AllowClientIP
+            ModuleConfiguration.SessionStorageBasePath = GlobalConfiguration.GetBaseDirectoryPath(moduleConfig.SessionStorageBasePath, Path.Combine(GlobalConfiguration.EntryBasePath, "sqlite", ModuleConfiguration.ModuleID));
+            ModuleConfiguration.BrowserIdleTimeoutSecond = Math.Max(0, moduleConfig.BrowserIdleTimeoutSecond);
+            ModuleConfiguration.ForwardUrls = BuildForwardUrls(moduleConfig.ForwardUrls);
+            ModuleConfiguration.AllowClientIP = (moduleConfig.AllowClientIP ?? new List<string>())
                 .Where(p => string.IsNullOrWhiteSpace(p) == false)
                 .Select(p => p.Trim())
                 .Distinct(StringComparer.OrdinalIgnoreCase)
@@ -84,6 +88,7 @@ namespace forwarder
 
             ModuleConfiguration.IsConfigure = true;
 
+            services.AddSingleton<IForwardProxySessionStore, SQLiteForwardProxySessionStore>();
             services.AddSingleton<IForwardProxyService, ForwardProxyService>();
         }
 
@@ -134,6 +139,44 @@ namespace forwarder
                     });
                 }
             }
+        }
+
+        private Dictionary<string, string> BuildForwardUrls(List<Dictionary<string, string>>? configuredForwardUrls)
+        {
+            var result = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            if (configuredForwardUrls == null || configuredForwardUrls.Count == 0)
+            {
+                return result;
+            }
+
+            foreach (var configuredForwardUrl in configuredForwardUrls)
+            {
+                if (configuredForwardUrl == null || configuredForwardUrl.Count == 0)
+                {
+                    continue;
+                }
+
+                foreach (var item in configuredForwardUrl)
+                {
+                    var requestKey = item.Key?.Trim();
+                    var targetUrl = item.Value?.Trim();
+                    if (string.IsNullOrWhiteSpace(requestKey) == true || string.IsNullOrWhiteSpace(targetUrl) == true)
+                    {
+                        continue;
+                    }
+
+                    if (Uri.TryCreate(targetUrl, UriKind.Absolute, out var targetUri) == false ||
+                        (targetUri.Scheme != Uri.UriSchemeHttp && targetUri.Scheme != Uri.UriSchemeHttps))
+                    {
+                        Log.Logger.Warning("[{LogCategory}] requestKey: {RequestKey}, targetUrl: {TargetUrl} ForwardUrls 설정 확인 필요", $"{ModuleID} ModuleInitializer/ConfigureServices", requestKey, targetUrl);
+                        continue;
+                    }
+
+                    result[requestKey] = targetUri.AbsoluteUri;
+                }
+            }
+
+            return result;
         }
     }
 

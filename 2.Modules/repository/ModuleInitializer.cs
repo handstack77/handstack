@@ -66,10 +66,22 @@ namespace repository
                         ModuleConfiguration.XFrameOptions = moduleConfig.XFrameOptions;
                         ModuleConfiguration.ContentSecurityPolicy = moduleConfig.ContentSecurityPolicy;
 
-                        ModuleConfiguration.IsContractFileWatching = moduleConfig.IsContractFileWatching;
-                        foreach (var basePath in moduleConfig.ContractBasePath)
+                        foreach (var fileSyncManager in ModuleConfiguration.RepositoryFileSyncManager.Values)
                         {
-                            ModuleConfiguration.ContractBasePath.Add(GlobalConfiguration.GetBaseDirectoryPath(basePath));
+                            fileSyncManager.Dispose();
+                        }
+
+                        ModuleConfiguration.RepositoryFileSyncManager.Clear();
+                        ModuleConfiguration.ContractBasePath.Clear();
+                        ModuleConfiguration.FileRepositorys.Clear();
+                        ModuleConfiguration.IsContractFileWatching = moduleConfig.IsContractFileWatching;
+                        foreach (var basePath in moduleConfig.ContractBasePath ?? new List<string>())
+                        {
+                            var contractBasePath = GlobalConfiguration.GetBaseDirectoryPath(basePath);
+                            if (string.IsNullOrWhiteSpace(contractBasePath) == false && ModuleConfiguration.ContractBasePath.Contains(contractBasePath) == false)
+                            {
+                                ModuleConfiguration.ContractBasePath.Add(contractBasePath);
+                            }
                         }
 
                         ModuleConfiguration.ModuleBasePath = GlobalConfiguration.GetBaseDirectoryPath(moduleConfig.ModuleBasePath);
@@ -78,7 +90,15 @@ namespace repository
                         ModuleConfiguration.IsModuleLogging = !string.IsNullOrWhiteSpace(moduleConfig.ModuleLogFilePath);
                         ModuleConfiguration.ModuleFilePath = GlobalConfiguration.GetBaseDirectoryPath(moduleConfig.ModuleFilePath);
 
-                        ModuleConfiguration.AllowClientIP = moduleConfig.AllowClientIP;
+                        ModuleConfiguration.AllowClientIP = (moduleConfig.AllowClientIP ?? new List<string>())
+                            .Where(p => string.IsNullOrWhiteSpace(p) == false)
+                            .Select(p => p.Trim())
+                            .Distinct(StringComparer.OrdinalIgnoreCase)
+                            .ToList();
+                        if (ModuleConfiguration.AllowClientIP.Count == 0)
+                        {
+                            ModuleConfiguration.AllowClientIP.Add("*");
+                        }
                         ModuleConfiguration.IsConfigure = true;
                     }
                     else
@@ -409,7 +429,12 @@ namespace repository
                         Log.Information("[{LogCategory}] Repository File Sync ContractBasePath: " + basePath, $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure");
 
                         fileSyncManager.Start();
-                        ModuleConfiguration.RepositoryFileSyncManager.Add(basePath, fileSyncManager);
+                        if (ModuleConfiguration.RepositoryFileSyncManager.TryGetValue(basePath, out var existingFileSyncManager) == true)
+                        {
+                            existingFileSyncManager.Dispose();
+                        }
+
+                        ModuleConfiguration.RepositoryFileSyncManager[basePath] = fileSyncManager;
                     }
                 }
             }
