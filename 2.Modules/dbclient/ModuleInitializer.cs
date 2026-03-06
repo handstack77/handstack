@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -24,8 +24,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 
 using Newtonsoft.Json;
-
-using RestSharp;
 
 using Serilog;
 using Serilog.Events;
@@ -216,7 +214,6 @@ namespace dbclient
             }
 
             var serviceScopeFactory = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>();
-            var client = new RestClient();
             foreach (var basePath in ModuleConfiguration.ContractBasePath)
             {
                 if (Directory.Exists(basePath) == true && basePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == false && ModuleConfiguration.IsContractFileWatching == true)

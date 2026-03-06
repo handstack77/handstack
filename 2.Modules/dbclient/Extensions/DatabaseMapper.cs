@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -220,7 +220,7 @@ namespace dbclient.Extensions
             StatementMap? result = null;
             lock (StatementMappings)
             {
-                result = StatementMappings.FirstOrDefault(item => item.Key == queryID).Value;
+                StatementMappings.TryGetValue(queryID, out result);
 
                 if (result == null)
                 {
@@ -373,7 +373,7 @@ namespace dbclient.Extensions
                                         }
                                     }
 
-                                    result = StatementMappings.FirstOrDefault(item => item.Key == queryID).Value;
+                                    StatementMappings.TryGetValue(queryID, out result);
                                 }
                             }
                         }

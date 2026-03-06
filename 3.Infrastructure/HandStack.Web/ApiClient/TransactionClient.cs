@@ -130,7 +130,6 @@ namespace HandStack.Web.ApiClient
                 transactionObject.RequestID = requestID;
 
                 var transactionRequest = CreateTransactionRequest("SYN", transactionObject, moduleID, pathName);
-
                 var client = new RestClient();
 
                 if (!string.IsNullOrWhiteSpace(GlobalConfiguration.FindGlobalIDServer))
@@ -328,7 +327,6 @@ namespace HandStack.Web.ApiClient
                 var transactionRequest = CreateTransactionRequest("SYN", transactionObject);
 
                 requestAction.Invoke(transactionRequest);
-
                 var client = new RestClient();
 
                 if (!string.IsNullOrWhiteSpace(GlobalConfiguration.FindGlobalIDServer))

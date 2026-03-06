@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
@@ -55,6 +55,11 @@ namespace checkup.Areas.checkup.Controllers
     [ApiController]
     public class TenantAppController : BaseController
     {
+        private static readonly RestClient NpmPackageClient = new("https://www.npmjs.com");
+        private static readonly RestClient NugetPackageClient = new("https://www.nuget.org");
+        private static readonly RestClient ContractUpdateClient = new();
+        private static readonly Regex AnchorTargetBlankRegex = new(@"<a\s+([^>]*)(?<!target=""_blank"")([^>]*)>", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private static readonly Regex FormTargetBlankRegex = new(@"<form\s+([^>]*)(?<!target=""_blank"")([^>]*)>", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private readonly object balanceLock = new object();
 
         private ILogger logger { get; }
@@ -1584,9 +1589,7 @@ namespace checkup.Areas.checkup.Controllers
         {
             Task.Run(async () =>
             {
-                var baseUri = new Uri(contractUrl);
-                var client = new RestClient();
-                var request = new RestRequest(baseUri, Method.Get);
+                var request = new RestRequest(contractUrl, Method.Get);
                 request.AddHeader("ApplicationName", GlobalConfiguration.ApplicationName);
                 request.AddHeader("SystemID", GlobalConfiguration.SystemID);
                 request.AddHeader("HostName", GlobalConfiguration.HostName);
@@ -1594,7 +1597,7 @@ namespace checkup.Areas.checkup.Controllers
                 request.AddHeader("ApplicationRuntimeID", GlobalConfiguration.ApplicationRuntimeID);
                 request.AddHeader("AuthorizationKey", GlobalConfiguration.SystemID + GlobalConfiguration.RunningEnvironment + GlobalConfiguration.HostName);
 
-                var response = await client.ExecuteAsync(request);
+                var response = await ContractUpdateClient.ExecuteAsync(request);
                 if (response.StatusCode != HttpStatusCode.OK)
                 {
                     logger.Error("[{LogCategory}] " + $"{contractUrl} 요청 실패", "TenantAppController/ContractUpdate");
@@ -2743,19 +2746,15 @@ TransactionException:
 
             if (!string.IsNullOrWhiteSpace(packageName))
             {
-                var options = new RestClientOptions("https://www.npmjs.com");
-                var client = new RestClient(options);
-                var request = new RestRequest($"/package/{packageName}/{(string.IsNullOrWhiteSpace(version) ? "" : "v/" + version)}", Method.Get);
-                var response = await client.ExecuteAsync(request);
+                var requestPath = $"/package/{packageName}/{(string.IsNullOrWhiteSpace(version) ? "" : "v/" + version)}";
+                var request = new RestRequest(requestPath, Method.Get);
+                var response = await NpmPackageClient.ExecuteAsync(request);
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
                     var content = response.Content;
-                    if (content != null)
+                    if (!string.IsNullOrEmpty(content))
                     {
-                        content = content.Replace("<head>", "<head>\n    <base href=\"https://www.npmjs.com/\">");
-                        content = Regex.Replace(content, @"<a\s+([^>]*)(?<!target=""_blank"")([^>]*)>", "<a $1 target=\"_blank\"$2>");
-                        content = Regex.Replace(content, @"<form\s+([^>]*)(?<!target=""_blank"")([^>]*)>", "<form $1 target=\"_blank\"$2>");
-                        result = Content(content, "text/html");
+                        result = Content(RewritePackageHtml(content, "https://www.npmjs.com/"), "text/html");
                     }
                 }
             }
@@ -2771,24 +2770,27 @@ TransactionException:
 
             if (!string.IsNullOrWhiteSpace(packageName))
             {
-                var options = new RestClientOptions("https://www.nuget.org");
-                var client = new RestClient(options);
                 var request = new RestRequest($"/packages/{packageName}/{version}", Method.Get);
-                var response = await client.ExecuteAsync(request);
+                var response = await NugetPackageClient.ExecuteAsync(request);
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
                     var content = response.Content;
-                    if (content != null)
+                    if (!string.IsNullOrEmpty(content))
                     {
-                        content = content.Replace("<head>", "<head>\n    <base href=\"https://www.nuget.org/\">");
-                        content = Regex.Replace(content, @"<a\s+([^>]*)(?<!target=""_blank"")([^>]*)>", "<a $1 target=\"_blank\"$2>");
-                        content = Regex.Replace(content, @"<form\s+([^>]*)(?<!target=""_blank"")([^>]*)>", "<form $1 target=\"_blank\"$2>");
-                        result = Content(content, "text/html");
+                        result = Content(RewritePackageHtml(content, "https://www.nuget.org/"), "text/html");
                     }
                 }
             }
 
             return result;
+        }
+
+        private static string RewritePackageHtml(string content, string baseHref)
+        {
+            content = content.Replace("<head>", $"<head>\n    <base href=\"{baseHref}\">");
+            content = AnchorTargetBlankRegex.Replace(content, "<a $1 target=\"_blank\"$2>");
+            content = FormTargetBlankRegex.Replace(content, "<form $1 target=\"_blank\"$2>");
+            return content;
         }
 
         // http://localhost:8421/checkup/api/tenant-app/create-directory?applicationID=helloworld&projectType=B&directoryName=TST&accessKey=6eac215f2f5e495cad4f2abfdcad7644

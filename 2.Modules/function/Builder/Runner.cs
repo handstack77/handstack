@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -15,11 +16,11 @@ namespace function.Builder
     public sealed class Runner
     {
         private Runner() { }
-        private static readonly Lazy<Runner> instance = new Lazy<Runner>(() => new Runner());
+        private static readonly Lazy<Runner> instance = new(() => new Runner());
 
         public static Runner Instance { get { return instance.Value; } }
 
-        internal Dictionary<string, UnloadableAssemblyLoadContext> FileAssemblyCache = new Dictionary<string, UnloadableAssemblyLoadContext>();
+        internal ConcurrentDictionary<string, UnloadableAssemblyLoadContext> FileAssemblyCache = new(StringComparer.Ordinal);
 
         public object? ExecuteDynamicText(HttpContext? httpContext, string sourceText, string queryID, string typeName, string methodName, params object[] args)
         {
@@ -46,9 +47,8 @@ namespace function.Builder
             var referenceModuleID = moduleScriptMap.ReferenceModuleID.ToStringSafe();
 
             Assembly? entryAssembly = null;
-            if (FileAssemblyCache.ContainsKey(sourceFilePath) == true)
+            if (FileAssemblyCache.TryGetValue(sourceFilePath, out var assemblyLoadContext))
             {
-                var assemblyLoadContext = FileAssemblyCache[sourceFilePath];
                 entryAssembly = assemblyLoadContext.Assemblies.FirstOrDefault();
             }
             else
@@ -62,9 +62,9 @@ namespace function.Builder
                     if (string.IsNullOrWhiteSpace(errorText) && compiledAssembly != null)
                     {
                         using var asm = new MemoryStream(compiledAssembly);
-                        var assemblyLoadContext = new UnloadableAssemblyLoadContext();
-                        entryAssembly = assemblyLoadContext.LoadAssembliyFromStream(asm);
-                        FileAssemblyCache.Add(sourceFilePath, assemblyLoadContext);
+                        var loadedAssemblyContext = new UnloadableAssemblyLoadContext();
+                        entryAssembly = loadedAssemblyContext.LoadAssembliyFromStream(asm);
+                        FileAssemblyCache.TryAdd(sourceFilePath, loadedAssemblyContext);
                     }
                     else
                     {
@@ -73,7 +73,7 @@ namespace function.Builder
                 }
             }
 
-            if (entryAssembly != null && !string.IsNullOrWhiteSpace(typeName) && !string.IsNullOrWhiteSpace(methodName) && entryAssembly.GetTypes().Count() > 0)
+            if (entryAssembly != null && !string.IsNullOrWhiteSpace(typeName) && !string.IsNullOrWhiteSpace(methodName) && entryAssembly.GetTypes().Length > 0)
             {
                 var myType = entryAssembly.GetType(typeName);
                 if (myType != null)
@@ -114,9 +114,8 @@ namespace function.Builder
         {
             object? result = null;
             Assembly? entryAssembly = null;
-            if (FileAssemblyCache.ContainsKey(dataSource) == true)
+            if (FileAssemblyCache.TryGetValue(dataSource, out var assemblyLoadContext))
             {
-                var assemblyLoadContext = FileAssemblyCache[dataSource];
                 entryAssembly = assemblyLoadContext.Assemblies.FirstOrDefault();
             }
             else
@@ -130,12 +129,12 @@ namespace function.Builder
                     if (string.IsNullOrWhiteSpace(errorText) && compiledAssembly != null)
                     {
                         using var asm = new MemoryStream(compiledAssembly);
-                        var assemblyLoadContext = new UnloadableAssemblyLoadContext();
-                        entryAssembly = assemblyLoadContext.LoadAssembliyFromStream(asm);
+                        var loadedAssemblyContext = new UnloadableAssemblyLoadContext();
+                        entryAssembly = loadedAssemblyContext.LoadAssembliyFromStream(asm);
 
                         if (isFileSource == true)
                         {
-                            FileAssemblyCache.Add(dataSource, assemblyLoadContext);
+                            FileAssemblyCache.TryAdd(dataSource, loadedAssemblyContext);
                         }
                     }
                     else
@@ -145,7 +144,7 @@ namespace function.Builder
                 }
             }
 
-            if (entryAssembly != null && !string.IsNullOrWhiteSpace(typeName) && !string.IsNullOrWhiteSpace(methodName) && entryAssembly.GetTypes().Count() > 0)
+            if (entryAssembly != null && !string.IsNullOrWhiteSpace(typeName) && !string.IsNullOrWhiteSpace(methodName) && entryAssembly.GetTypes().Length > 0)
             {
                 var myType = entryAssembly.GetType(typeName);
                 if (myType != null)
@@ -217,7 +216,7 @@ namespace function.Builder
 
                 object? executeResult = null;
                 MethodInfo? entry = null;
-                if (!string.IsNullOrWhiteSpace(typeName) && !string.IsNullOrWhiteSpace(methodName) && assembly != null && assembly.GetTypes().Count() > 0)
+                if (!string.IsNullOrWhiteSpace(typeName) && !string.IsNullOrWhiteSpace(methodName) && assembly != null && assembly.GetTypes().Length > 0)
                 {
                     var myType = assembly.GetType(typeName);
                     if (myType != null)

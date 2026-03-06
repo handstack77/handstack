@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
@@ -34,6 +34,7 @@ namespace wwwroot.Areas.wwwroot.Controllers
     [ApiController]
     public class IndexController : BaseController
     {
+        private static readonly HttpClient SecretHttpClient = new() { Timeout = TimeSpan.FromSeconds(3) };
         private readonly IMediator mediator;
         private readonly ILogger logger;
         private readonly IDistributedCache distributedCache;
@@ -301,7 +302,6 @@ namespace wwwroot.Areas.wwwroot.Controllers
             }
 
             var requestUri = $"{baseUrl}/secrets/{keyName}";
-            using var httpClient = new HttpClient() { Timeout = TimeSpan.FromSeconds(3) };
             using var request = new HttpRequestMessage(HttpMethod.Get, requestUri);
 
             request.Headers.Add("HandStack-MachineID", GlobalConfiguration.HardwareID);
@@ -309,7 +309,7 @@ namespace wwwroot.Areas.wwwroot.Controllers
             request.Headers.Add("HandStack-HostName", GlobalConfiguration.HostName);
             request.Headers.Add("HandStack-Environment", GlobalConfiguration.RunningEnvironment);
 
-            using var response = await httpClient.SendAsync(request);
+            using var response = await SecretHttpClient.SendAsync(request);
             response.EnsureSuccessStatusCode();
 
             var secretData = await response.Content.ReadAsStringAsync();

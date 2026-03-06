@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
@@ -50,8 +50,6 @@ using NpgsqlTypes;
 using Oracle.ManagedDataAccess.Client;
 
 using Python.Runtime;
-
-using RestSharp;
 
 using Serilog;
 using Serilog.Events;
@@ -411,7 +409,6 @@ namespace function
             }
 
             var serviceScopeFactory = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>();
-            var client = new RestClient();
             foreach (var basePath in ModuleConfiguration.ContractBasePath)
             {
                 if (Directory.Exists(basePath) == true && basePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == false && (ModuleConfiguration.EnableFileWatching == true || ModuleConfiguration.CSharpEnableFileWatching == true || ModuleConfiguration.PythonEnableFileWatching == true))

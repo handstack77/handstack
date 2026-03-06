@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -131,7 +131,7 @@ namespace function.Extensions
             ModuleScriptMap? result = null;
             lock (ScriptMappings)
             {
-                result = ScriptMappings.FirstOrDefault(item => item.Key == queryID).Value;
+                ScriptMappings.TryGetValue(queryID, out result);
 
                 if (result == null)
                 {
@@ -154,7 +154,7 @@ namespace function.Extensions
                             MergeContractFile(filePath);
                         }
 
-                        result = ScriptMappings.FirstOrDefault(item => item.Key == queryID).Value;
+                        ScriptMappings.TryGetValue(queryID, out result);
                         if (result != null)
                         {
                             break;
@@ -192,7 +192,7 @@ namespace function.Extensions
                                 MergeContractFile(filePath);
                             }
 
-                            result = ScriptMappings.FirstOrDefault(item => item.Key == queryID).Value;
+                            ScriptMappings.TryGetValue(queryID, out result);
                         }
                     }
                 }
@@ -634,11 +634,11 @@ namespace function.Extensions
 
                                     lock (ScriptMappings)
                                     {
-                                        if (functionScriptContract.Header.LanguageType == "csharp")
-                                        {
-                                            var runner = Runner.Instance;
-                                            runner.FileAssemblyCache.Remove(functionScriptFile);
-                                        }
+                                            if (functionScriptContract.Header.LanguageType == "csharp")
+                                            {
+                                                var runner = Runner.Instance;
+                                                runner.FileAssemblyCache.TryRemove(functionScriptFile, out _);
+                                            }
                                         else if (functionScriptContract.Header.LanguageType == "python")
                                         {
                                             deletePythonCache(functionScriptFile, moduleScriptMap);

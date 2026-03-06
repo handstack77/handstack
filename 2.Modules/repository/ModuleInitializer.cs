@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -29,8 +29,6 @@ using repository.Entity;
 using repository.Events;
 using repository.Extensions;
 using repository.Services;
-
-using RestSharp;
 
 using Serilog;
 
@@ -381,7 +379,6 @@ namespace repository
                 }
 
                 var serviceScopeFactory = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>();
-                var client = new RestClient();
                 foreach (var basePath in ModuleConfiguration.ContractBasePath)
                 {
                     if (Directory.Exists(basePath) == true && basePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == false && ModuleConfiguration.IsContractFileWatching == true)

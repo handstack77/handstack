@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -14,18 +14,18 @@ namespace transact.Extensions
 {
     public class DataMapItemValidator
     {
-        private static readonly Regex FormDataPattern = new Regex(@"^FormData\d+$");
-        private static readonly Regex GridDataPattern = new Regex(@"^GridData\d+$");
+        private static readonly Regex FormDataPattern = new(@"^FormData\d+$", RegexOptions.Compiled);
+        private static readonly Regex GridDataPattern = new(@"^GridData\d+$", RegexOptions.Compiled);
         public class ValidationResult
         {
             public bool IsValid { get; set; }
-            public List<string> Errors { get; set; } = new List<string>();
+            public List<string> Errors { get; set; } = [];
         }
 
         public static ValidationResult ValidateDataMapItems(List<DataMapItem> items, string expressionRules)
         {
             var result = new ValidationResult { IsValid = true };
-            if (items == null || !items.Any())
+            if (items == null || items.Count == 0)
             {
                 result.IsValid = false;
                 result.Errors.Add("DataMapItem 리스트가 null이거나 비어있습니다.");
@@ -173,10 +173,7 @@ namespace transact.Extensions
                             var propToSum = args.Parameters[1].Evaluate()?.ToString();
                             if (!string.IsNullOrWhiteSpace(propToSum))
                             {
-                                args.Result = arrForSum.Children<JObject>()
-                                    .Select(jo => jo.TryGetValue(propToSum, StringComparison.OrdinalIgnoreCase, out var token) ? token : null)
-                                    .Where(t => t != null && (t.Type == JTokenType.Float || t.Type == JTokenType.Integer))
-                                    .Sum(t => t!.Value<decimal>());
+                                args.Result = SumValues(arrForSum, propToSum);
                             }
                         }
                         break;
@@ -186,12 +183,7 @@ namespace transact.Extensions
                             var propToAvg = args.Parameters[1].Evaluate()?.ToString();
                             if (!string.IsNullOrWhiteSpace(propToAvg))
                             {
-                                var values = arrForAvg.Children<JObject>()
-                                    .Select(jo => jo.TryGetValue(propToAvg, StringComparison.OrdinalIgnoreCase, out var token) ? token : null)
-                                    .Where(t => t != null && (t.Type == JTokenType.Float || t.Type == JTokenType.Integer))
-                                    .Select(t => t!.Value<decimal>())
-                                    .ToList();
-                                args.Result = values.Any() ? values.Average() : 0m;
+                                args.Result = AverageValues(arrForAvg, propToAvg);
                             }
                         }
                         break;
@@ -201,12 +193,7 @@ namespace transact.Extensions
                             var propToMin = args.Parameters[1].Evaluate()?.ToString();
                             if (!string.IsNullOrWhiteSpace(propToMin))
                             {
-                                var values = arrForMin.Children<JObject>()
-                                    .Select(jo => jo.TryGetValue(propToMin, StringComparison.OrdinalIgnoreCase, out var token) ? token : null)
-                                    .Where(t => t != null && (t.Type == JTokenType.Float || t.Type == JTokenType.Integer))
-                                    .Select(t => t!.Value<decimal>())
-                                    .ToList();
-                                args.Result = values.Any() ? values.Min() : 0m;
+                                args.Result = MinValues(arrForMin, propToMin);
                             }
                         }
                         break;
@@ -216,12 +203,7 @@ namespace transact.Extensions
                             var propToMax = args.Parameters[1].Evaluate()?.ToString();
                             if (!string.IsNullOrWhiteSpace(propToMax))
                             {
-                                var values = arrForMax.Children<JObject>()
-                                    .Select(jo => jo.TryGetValue(propToMax, StringComparison.OrdinalIgnoreCase, out var token) ? token : null)
-                                    .Where(t => t != null && (t.Type == JTokenType.Float || t.Type == JTokenType.Integer))
-                                    .Select(t => t!.Value<decimal>())
-                                    .ToList();
-                                args.Result = values.Any() ? values.Max() : 0m;
+                                args.Result = MaxValues(arrForMax, propToMax);
                             }
                         }
                         break;
@@ -255,6 +237,91 @@ namespace transact.Extensions
                 return jValue.Value;
             }
             return token;
+        }
+
+        private static decimal SumValues(JArray source, string propertyName)
+        {
+            var sum = 0m;
+            foreach (var item in source.Children<JObject>())
+            {
+                if (TryGetDecimalValue(item, propertyName, out var value))
+                {
+                    sum += value;
+                }
+            }
+
+            return sum;
+        }
+
+        private static decimal AverageValues(JArray source, string propertyName)
+        {
+            var sum = 0m;
+            var count = 0;
+            foreach (var item in source.Children<JObject>())
+            {
+                if (TryGetDecimalValue(item, propertyName, out var value))
+                {
+                    sum += value;
+                    count++;
+                }
+            }
+
+            return count == 0 ? 0m : sum / count;
+        }
+
+        private static decimal MinValues(JArray source, string propertyName)
+        {
+            var hasValue = false;
+            var min = 0m;
+            foreach (var item in source.Children<JObject>())
+            {
+                if (TryGetDecimalValue(item, propertyName, out var value))
+                {
+                    if (hasValue == false || value < min)
+                    {
+                        min = value;
+                        hasValue = true;
+                    }
+                }
+            }
+
+            return hasValue ? min : 0m;
+        }
+
+        private static decimal MaxValues(JArray source, string propertyName)
+        {
+            var hasValue = false;
+            var max = 0m;
+            foreach (var item in source.Children<JObject>())
+            {
+                if (TryGetDecimalValue(item, propertyName, out var value))
+                {
+                    if (hasValue == false || value > max)
+                    {
+                        max = value;
+                        hasValue = true;
+                    }
+                }
+            }
+
+            return hasValue ? max : 0m;
+        }
+
+        private static bool TryGetDecimalValue(JObject source, string propertyName, out decimal value)
+        {
+            value = 0m;
+            if (!source.TryGetValue(propertyName, StringComparison.OrdinalIgnoreCase, out var token))
+            {
+                return false;
+            }
+
+            if (token.Type != JTokenType.Float && token.Type != JTokenType.Integer)
+            {
+                return false;
+            }
+
+            value = token.Value<decimal>();
+            return true;
         }
 
         public static void ValidateAssertRules()

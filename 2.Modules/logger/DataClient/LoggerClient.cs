@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -27,8 +28,7 @@ namespace logger.DataClient
     {
         private ILogger logger { get; }
 
-        private static readonly Dictionary<string, string> sqlScriptCache = new Dictionary<string, string>();
-        private static readonly object cacheLock = new object();
+        private static readonly ConcurrentDictionary<string, string> sqlScriptCache = new(StringComparer.Ordinal);
 
         public LoggerClient(ILogger logger)
         {
@@ -43,13 +43,8 @@ namespace logger.DataClient
                 cacheKey += $"_{removePeriod.Value}";
             }
 
-            lock (cacheLock)
+            return sqlScriptCache.GetOrAdd(cacheKey, _ =>
             {
-                if (sqlScriptCache.TryGetValue(cacheKey, out string? cachedScript))
-                {
-                    return cachedScript;
-                }
-
                 var sqlFilePath = PathExtensions.Combine(ModuleConfiguration.ModuleBasePath, "SQL", operation, dataProvider + ".txt");
                 if (File.Exists(sqlFilePath) == false)
                 {
@@ -63,9 +58,8 @@ namespace logger.DataClient
                     dmlScript = dmlScript.Replace("{RemovePeriod}", removePeriod.Value.ToString());
                 }
 
-                sqlScriptCache[cacheKey] = dmlScript;
                 return dmlScript;
-            }
+            });
         }
 
         public async Task InsertWithPolicy(LogMessage request)
