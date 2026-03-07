@@ -90,6 +90,8 @@
         <PropertyGroup>
             <ModuleDestinationDir>$(HANDSTACK_HOME)/modules/$(MSBuildProjectName)</ModuleDestinationDir>
         </PropertyGroup>
+        
+        <RemoveDir Directories="$(ModuleDestinationDir)" Condition="Exists('$(ModuleDestinationDir)')" />
         <MakeDir Directories="$(ModuleDestinationDir)" Condition="!Exists('$(ModuleDestinationDir)')" />
 
         <ItemGroup>
