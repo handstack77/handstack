@@ -59,6 +59,12 @@
         </Content>
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="playwright.ps1">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
     <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
         <RemoveDir Directories="$(TargetDir)" Condition="Exists('$(TargetDir)')" />
     </Target>

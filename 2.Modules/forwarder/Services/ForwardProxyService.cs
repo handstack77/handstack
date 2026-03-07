@@ -208,10 +208,7 @@ namespace forwarder.Services
 
                     if (browser == null)
                     {
-                        browser = await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
-                        {
-                            Headless = true
-                        });
+                        browser = await LaunchChromiumAsync(cancellationToken);
                     }
                 }
                 catch (Exception exception)
@@ -221,7 +218,7 @@ namespace forwarder.Services
                     playwright = null;
 
                     logger.Error(exception, "[{LogCategory}] Playwright Chromium 초기화 실패", "ForwardProxyService/EnsureBrowserAsync");
-                    throw new InvalidOperationException("forwarder Playwright 초기화 실패. Chromium 설치 및 실행 권한 확인 필요", exception);
+                    throw new InvalidOperationException("forwarder Playwright 초기화 실패. Chromium 자동 설치 또는 실행 권한 확인 필요", exception);
                 }
 
                 return browser;
@@ -230,6 +227,49 @@ namespace forwarder.Services
             {
                 runtimeSyncRoot.Release();
             }
+        }
+
+        private async Task<IBrowser> LaunchChromiumAsync(CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            try
+            {
+                return await playwright!.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
+                {
+                    Headless = true
+                });
+            }
+            catch (PlaywrightException exception) when (IsMissingBrowserExecutable(exception))
+            {
+                logger.Warning(exception, "[{LogCategory}] Playwright Chromium 실행 파일이 없어 자동 설치를 시도합니다.", "ForwardProxyService/LaunchChromiumAsync");
+                await InstallChromiumAsync(cancellationToken);
+                cancellationToken.ThrowIfCancellationRequested();
+
+                return await playwright!.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
+                {
+                    Headless = true
+                });
+            }
+        }
+
+        private async Task InstallChromiumAsync(CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            logger.Information("[{LogCategory}] Playwright Chromium 자동 설치를 시작합니다.", "ForwardProxyService/InstallChromiumAsync");
+
+            var exitCode = await Task.Run(() => Microsoft.Playwright.Program.Main(new[] { "install", "chromium" }), cancellationToken);
+            if (exitCode != 0)
+            {
+                throw new InvalidOperationException($"Playwright install chromium 종료 코드: {exitCode}");
+            }
+
+            logger.Information("[{LogCategory}] Playwright Chromium 자동 설치를 완료했습니다.", "ForwardProxyService/InstallChromiumAsync");
+        }
+
+        private static bool IsMissingBrowserExecutable(PlaywrightException exception)
+        {
+            return exception.Message.IndexOf("Executable doesn't exist", StringComparison.OrdinalIgnoreCase) > -1;
         }
 
         private async ValueTask ReleaseBrowserContextAsync(BrowserSessionEntry entry, ForwardSessionDescriptor session)

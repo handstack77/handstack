@@ -47,11 +47,6 @@ namespace forwarder.Areas.forwarder.Controllers
                 return BadRequest("요청 정보 확인 필요");
             }
 
-            if (string.IsNullOrWhiteSpace(request.BearerToken) == true)
-            {
-                return BadRequest("BearerToken 확인 필요");
-            }
-
             if (string.IsNullOrWhiteSpace(request.RequestKey) == true)
             {
                 return BadRequest("requestKey 확인 필요");
@@ -59,7 +54,12 @@ namespace forwarder.Areas.forwarder.Controllers
 
             var requestUri = BuildForwarderUri(request.RequestKey, request.TimeoutMS);
             using var forwardRequest = new HttpRequestMessage(new HttpMethod(string.IsNullOrWhiteSpace(request.Method) == true ? "GET" : request.Method), requestUri);
-            forwardRequest.Headers.TryAddWithoutValidation("BearerToken", request.BearerToken);
+
+            if (string.IsNullOrWhiteSpace(request.BearerToken) == false)
+            {
+                forwardRequest.Headers.TryAddWithoutValidation("BearerToken", request.BearerToken);
+            }
+
             forwardRequest.Headers.TryAddWithoutValidation("X-Forwarder-ClientKind", "Program");
             forwardRequest.Headers.TryAddWithoutValidation("User-Agent", "HandStackProxyLab/1.0");
 
@@ -70,8 +70,7 @@ namespace forwarder.Areas.forwarder.Controllers
                     continue;
                 }
 
-                if (string.Equals(header.Key, "BearerToken", StringComparison.OrdinalIgnoreCase) == true ||
-                    string.Equals(header.Key, "Content-Length", StringComparison.OrdinalIgnoreCase) == true ||
+                if (string.Equals(header.Key, "Content-Length", StringComparison.OrdinalIgnoreCase) == true ||
                     string.Equals(header.Key, "Host", StringComparison.OrdinalIgnoreCase) == true ||
                     string.Equals(header.Key, "User-Agent", StringComparison.OrdinalIgnoreCase) == true ||
                     string.Equals(header.Key, "X-Forwarder-ClientKind", StringComparison.OrdinalIgnoreCase) == true)

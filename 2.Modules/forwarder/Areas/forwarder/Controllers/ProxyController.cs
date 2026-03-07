@@ -72,7 +72,7 @@ namespace forwarder.Areas.forwarder.Controllers
         {
             if (HttpContext.TryAuthorizeBearerToken(out var bearerToken, out var message) == false)
             {
-                return Unauthorized(message);
+                bearerToken = new BearerToken();
             }
 
             if (string.IsNullOrWhiteSpace(requestKey) == true)
