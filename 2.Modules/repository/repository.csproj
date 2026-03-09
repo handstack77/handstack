@@ -31,7 +31,6 @@
     <ItemGroup>
         <PackageReference Include="AWSSDK.S3" Version="4.0.18.7" />
         <PackageReference Include="Azure.Storage.Blobs" Version="12.27.0" />
-        <PackageReference Include="CacheManager.Core" Version="3.0.0" />
         <PackageReference Include="Google.Cloud.Storage.V1" Version="4.14.0" />
         <PackageReference Include="MediatR" Version="12.5.0" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
@@ -92,6 +91,8 @@
         <PropertyGroup>
             <ModuleDestinationDir>$(HANDSTACK_HOME)/modules/$(MSBuildProjectName)</ModuleDestinationDir>
         </PropertyGroup>
+
+        <RemoveDir Directories="$(ModuleDestinationDir)" Condition="Exists('$(ModuleDestinationDir)')" />
         <MakeDir Directories="$(ModuleDestinationDir)" Condition="!Exists('$(ModuleDestinationDir)')" />
 
         <ItemGroup>

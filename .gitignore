@@ -365,6 +365,8 @@ FodyWeavers.xsd
 /4.Tool/Console/directorysync/Properties/PublishProfiles/LinuxProfile.pubxml
 
 # handstack
+.dotnet_home/
+.nuget/
 .managed/
 .nupkg/
 3.Infrastructure/Assemblies/**

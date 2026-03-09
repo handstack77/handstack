@@ -71,7 +71,8 @@ namespace dbclient.Areas.dbclient.Controllers
                 }
                 catch (Exception exception)
                 {
-                    result = StatusCode(StatusCodes.Status500InternalServerError, exception.ToMessage());
+                    logger.Error(exception, "[{LogCategory}] 계약 초기화 오류", "ManagedController/ResetContract");
+                    result = StatusCode(StatusCodes.Status500InternalServerError, "DB 계약 초기화 중 오류가 발생했습니다.");
                 }
             }
 
@@ -242,8 +243,7 @@ namespace dbclient.Areas.dbclient.Controllers
                             var settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
                             if (System.IO.File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
                             {
-                                var appSettingText = System.IO.File.ReadAllText(settingFilePath);
-                                var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
+                                var appSetting = TryReadTenantAppSettings(settingFilePath, "ManagedController/ResetAppContract");
                                 if (appSetting != null)
                                 {
                                     var dataSourceJson = appSetting.DataSource;
@@ -297,7 +297,8 @@ namespace dbclient.Areas.dbclient.Controllers
                 }
                 catch (Exception exception)
                 {
-                    result = StatusCode(StatusCodes.Status500InternalServerError, exception.ToMessage());
+                    logger.Error(exception, "[{LogCategory}] 앱 계약 초기화 오류. UserWorkID: {UserWorkID}, ApplicationID: {ApplicationID}", "ManagedController/ResetAppContract", userWorkID, applicationID);
+                    result = StatusCode(StatusCodes.Status500InternalServerError, "앱 DB 계약 초기화 중 오류가 발생했습니다.");
                 }
             }
 
@@ -341,11 +342,26 @@ namespace dbclient.Areas.dbclient.Controllers
                 }
                 catch (Exception exception)
                 {
-                    result = StatusCode(StatusCodes.Status500InternalServerError, exception.ToMessage());
+                    logger.Error(exception, "[{LogCategory}] 앱 계약 삭제 오류. UserWorkID: {UserWorkID}, ApplicationID: {ApplicationID}", "ManagedController/DeleteAppContract", userWorkID, applicationID);
+                    result = StatusCode(StatusCodes.Status500InternalServerError, "앱 DB 계약 삭제 중 오류가 발생했습니다.");
                 }
             }
 
             return result;
+        }
+
+        private AppSettings? TryReadTenantAppSettings(string settingFilePath, string logCategory)
+        {
+            try
+            {
+                var appSettingText = System.IO.File.ReadAllText(settingFilePath);
+                return JsonConvert.DeserializeObject<AppSettings>(appSettingText);
+            }
+            catch (Exception exception)
+            {
+                logger.Warning(exception, "[{LogCategory}] settings.json 역직렬화 오류 - {SettingFilePath}", logCategory, settingFilePath);
+                return null;
+            }
         }
 
         public static string ReplaceCData(string rawText)

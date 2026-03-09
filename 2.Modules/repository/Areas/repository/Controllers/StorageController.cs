@@ -1951,68 +1951,8 @@ namespace repository.Controllers
 
             if (repository.AccessMethod != "public")
             {
-                var isWithOrigin = false;
                 var requestRefererUrl = Request.Headers.Referer.ToString();
-                if (!string.IsNullOrWhiteSpace(requestRefererUrl))
-                {
-                    var tenantAppRequestPath = $"/{GlobalConfiguration.TenantAppRequestPath}/";
-                    if (requestRefererUrl.IndexOf(tenantAppRequestPath) > -1)
-                    {
-                        var userWorkID = string.Empty;
-                        var appBasePath = string.Empty;
-                        var baseDirectoryInfo = new DirectoryInfo(GlobalConfiguration.TenantAppBasePath);
-                        var directories = Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath, applicationID, SearchOption.AllDirectories);
-                        foreach (var directory in directories)
-                        {
-                            var directoryInfo = new DirectoryInfo(directory);
-                            if (baseDirectoryInfo.Name == directoryInfo.Parent?.Parent?.Name)
-                            {
-                                appBasePath = directoryInfo.FullName.Replace("\\", "/");
-                                userWorkID = (directoryInfo.Parent?.Name).ToStringSafe();
-                                break;
-                            }
-                        }
-
-                        var tenantID = $"{userWorkID}|{applicationID}";
-                        if (Directory.Exists(appBasePath) == true)
-                        {
-                            var settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
-                            if (System.IO.File.Exists(settingFilePath) == true)
-                            {
-                                var appSettingText = System.IO.File.ReadAllText(settingFilePath);
-                                var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
-                                if (appSetting != null)
-                                {
-                                    var withRefererUris = appSetting.WithReferer;
-                                    if (withRefererUris != null)
-                                    {
-                                        for (var i = 0; i < withRefererUris.Count; i++)
-                                        {
-                                            var withRefererUri = withRefererUris[i];
-                                            if (requestRefererUrl.IndexOf(withRefererUri) > -1)
-                                            {
-                                                isWithOrigin = true;
-                                                break;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        for (var i = 0; i < GlobalConfiguration.WithOrigins.Count; i++)
-                        {
-                            var origin = GlobalConfiguration.WithOrigins[i];
-                            if (requestRefererUrl.IndexOf(origin) > -1)
-                            {
-                                isWithOrigin = true;
-                                break;
-                            }
-                        }
-                    }
-                }
+                var isWithOrigin = IsAllowedRequestOrigin(applicationID, requestRefererUrl, "StorageController/http-download-file");
 
                 if (isWithOrigin == false)
                 {
@@ -2077,67 +2017,8 @@ namespace repository.Controllers
 
             if (repository.AccessMethod != "public")
             {
-                var isWithOrigin = false;
                 var requestRefererUrl = Request.Headers.Referer.ToString();
-                if (!string.IsNullOrWhiteSpace(requestRefererUrl))
-                {
-                    var tenantAppRequestPath = $"/{GlobalConfiguration.TenantAppRequestPath}/";
-                    if (requestRefererUrl.IndexOf(tenantAppRequestPath) > -1)
-                    {
-                        var userWorkID = string.Empty;
-                        var appBasePath = string.Empty;
-                        var baseDirectoryInfo = new DirectoryInfo(GlobalConfiguration.TenantAppBasePath);
-                        var directories = Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath, applicationID, SearchOption.AllDirectories);
-                        foreach (var directory in directories)
-                        {
-                            var directoryInfo = new DirectoryInfo(directory);
-                            if (baseDirectoryInfo.Name == directoryInfo.Parent?.Parent?.Name)
-                            {
-                                appBasePath = directoryInfo.FullName.Replace("\\", "/");
-                                userWorkID = (directoryInfo.Parent?.Name).ToStringSafe();
-                                break;
-                            }
-                        }
-
-                        if (!string.IsNullOrWhiteSpace(userWorkID) && Directory.Exists(appBasePath) == true)
-                        {
-                            var settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
-                            if (System.IO.File.Exists(settingFilePath) == true)
-                            {
-                                var appSettingText = System.IO.File.ReadAllText(settingFilePath);
-                                var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
-                                if (appSetting != null)
-                                {
-                                    var withRefererUris = appSetting.WithReferer;
-                                    if (withRefererUris != null)
-                                    {
-                                        for (var i = 0; i < withRefererUris.Count; i++)
-                                        {
-                                            var withRefererUri = withRefererUris[i];
-                                            if (requestRefererUrl.IndexOf(withRefererUri) > -1)
-                                            {
-                                                isWithOrigin = true;
-                                                break;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        for (var i = 0; i < GlobalConfiguration.WithOrigins.Count; i++)
-                        {
-                            var origin = GlobalConfiguration.WithOrigins[i];
-                            if (requestRefererUrl.IndexOf(origin) > -1)
-                            {
-                                isWithOrigin = true;
-                                break;
-                            }
-                        }
-                    }
-                }
+                var isWithOrigin = IsAllowedRequestOrigin(applicationID, requestRefererUrl, "StorageController/virtual-download-file");
 
                 if (isWithOrigin == false)
                 {
@@ -2993,6 +2874,86 @@ namespace repository.Controllers
                 CreatedAt = source.CreatedAt,
                 ModifiedAt = source.ModifiedAt
             };
+        }
+
+        private bool IsAllowedRequestOrigin(string applicationID, string requestRefererUrl, string logCategory)
+        {
+            if (string.IsNullOrWhiteSpace(requestRefererUrl))
+            {
+                return false;
+            }
+
+            try
+            {
+                var tenantAppRequestPath = $"/{GlobalConfiguration.TenantAppRequestPath}/";
+                if (requestRefererUrl.IndexOf(tenantAppRequestPath) > -1)
+                {
+                    var appBasePath = string.Empty;
+                    var baseDirectoryInfo = new DirectoryInfo(GlobalConfiguration.TenantAppBasePath);
+                    var directories = Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath, applicationID, SearchOption.AllDirectories);
+                    foreach (var directory in directories)
+                    {
+                        var directoryInfo = new DirectoryInfo(directory);
+                        if (baseDirectoryInfo.Name == directoryInfo.Parent?.Parent?.Name)
+                        {
+                            appBasePath = directoryInfo.FullName.Replace("\\", "/");
+                            break;
+                        }
+                    }
+
+                    if (Directory.Exists(appBasePath) == true)
+                    {
+                        var settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
+                        if (System.IO.File.Exists(settingFilePath) == true)
+                        {
+                            var appSetting = TryReadTenantAppSettings(settingFilePath, logCategory);
+                            var withRefererUris = appSetting?.WithReferer;
+                            if (withRefererUris != null)
+                            {
+                                for (var i = 0; i < withRefererUris.Count; i++)
+                                {
+                                    var withRefererUri = withRefererUris[i];
+                                    if (requestRefererUrl.IndexOf(withRefererUri) > -1)
+                                    {
+                                        return true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    for (var i = 0; i < GlobalConfiguration.WithOrigins.Count; i++)
+                    {
+                        var origin = GlobalConfiguration.WithOrigins[i];
+                        if (requestRefererUrl.IndexOf(origin) > -1)
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+            catch (Exception exception)
+            {
+                logger.Warning(exception, "[{LogCategory}] 요청 출처 확인 오류. ApplicationID: {ApplicationID}, Referer: {RequestRefererUrl}", logCategory, applicationID, requestRefererUrl);
+            }
+
+            return false;
+        }
+
+        private AppSettings? TryReadTenantAppSettings(string settingFilePath, string logCategory)
+        {
+            try
+            {
+                var appSettingText = System.IO.File.ReadAllText(settingFilePath);
+                return JsonConvert.DeserializeObject<AppSettings>(appSettingText);
+            }
+            catch (Exception exception)
+            {
+                logger.Warning(exception, "[{LogCategory}] settings.json 역직렬화 오류 - {SettingFilePath}", logCategory, settingFilePath);
+                return null;
+            }
         }
     }
 }

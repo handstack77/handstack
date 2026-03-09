@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -13,6 +13,7 @@ using forwarder.Models;
 using forwarder.Services;
 
 using HandStack.Core.ExtensionMethod;
+using HandStack.Web;
 using HandStack.Web.Common;
 using HandStack.Web.Extensions;
 using HandStack.Web.MessageContract.DataObject;
@@ -71,7 +72,7 @@ namespace forwarder.Areas.forwarder.Controllers
         {
             if (HttpContext.TryAuthorizeBearerToken(out var bearerToken, out var message) == false)
             {
-                return Unauthorized(message);
+                bearerToken = new BearerToken();
             }
 
             if (string.IsNullOrWhiteSpace(requestKey) == true)
@@ -118,32 +119,37 @@ namespace forwarder.Areas.forwarder.Controllers
             catch (InvalidOperationException exception)
             {
                 logger.Error(exception, "[{LogCategory}] " + $"requestKey: {requestKey}, targetUrl: {targetUrl}", "ProxyController/Pipe");
-                return StatusCode(StatusCodes.Status500InternalServerError, exception.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, "프록시 세션 또는 대상 URL 설정 확인 필요");
             }
             catch (Exception exception)
             {
                 logger.Error(exception, "[{LogCategory}] " + $"requestKey: {requestKey}, targetUrl: {targetUrl}", "ProxyController/Pipe");
-                return StatusCode(StatusCodes.Status502BadGateway, exception.Message);
+                return StatusCode(StatusCodes.Status502BadGateway, "대상 프록시 요청 처리 중 오류가 발생했습니다.");
             }
         }
 
         private static ForwardSessionDescriptor CreateSessionDescriptor(BearerToken bearerToken)
         {
             // BearerToken 발급 시각을 기준으로 사용자별 세션 저장소 경로를 고정한다.
-            var createdAt = bearerToken.CreatedAt!.Value;
+            var createdAt = bearerToken.CreatedAt ?? DateTime.UtcNow;
             var createdAtToken = createdAt.ToString("O");
+            var userNo = string.IsNullOrWhiteSpace(bearerToken.Policy.UserNo) == true ? "anonymous" : bearerToken.Policy.UserNo;
+            var userID = string.IsNullOrWhiteSpace(bearerToken.Policy.UserID) == true ? userNo : bearerToken.Policy.UserID;
+            var sessionStorageBasePath = string.IsNullOrWhiteSpace(ModuleConfiguration.SessionStorageBasePath) == true
+                ? GlobalConfiguration.GetBaseDirectoryPath(Path.Combine(GlobalConfiguration.EntryBasePath, "sqlite", ModuleConfiguration.ModuleID))
+                : ModuleConfiguration.SessionStorageBasePath;
             var databaseFileName = $"{createdAtToken.ToSHA256()}.db";
             var databaseFilePath = Path.Combine(
-                ModuleConfiguration.SessionStorageBasePath,
-                NormalizePathSegment(bearerToken.Policy.UserNo),
+                sessionStorageBasePath,
+                NormalizePathSegment(userNo),
                 createdAt.ToString("yyyyMM"),
                 databaseFileName);
 
             return new ForwardSessionDescriptor
             {
-                SessionKey = $"{bearerToken.Policy.UserNo}|{createdAtToken}".ToSHA256(),
-                UserNo = bearerToken.Policy.UserNo,
-                UserID = bearerToken.Policy.UserID,
+                SessionKey = $"{userNo}|{createdAtToken}".ToSHA256(),
+                UserNo = userNo,
+                UserID = userID,
                 CreatedAt = createdAt,
                 DatabaseFilePath = databaseFilePath
             };

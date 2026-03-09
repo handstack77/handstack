@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -64,10 +65,13 @@ namespace checkup
                         ModuleConfiguration.ModuleLogFilePath = GlobalConfiguration.GetBaseFilePath(moduleConfig.ModuleLogFilePath);
                         ModuleConfiguration.IsModuleLogging = !string.IsNullOrWhiteSpace(moduleConfig.ModuleLogFilePath);
                         ModuleConfiguration.ModuleFilePath = GlobalConfiguration.GetBaseDirectoryPath(moduleConfig.ModuleFilePath);
+                        ModuleConfiguration.TenantAppOrigins.Clear();
+                        ModuleConfiguration.TenantAppReferers.Clear();
 
-                        if (moduleConfig.ConnectionString.Contains('|'))
+                        var connectionString = moduleConfig.ConnectionString.ToStringSafe();
+                        if (connectionString.Contains('|'))
                         {
-                            var values = moduleConfig.ConnectionString.SplitAndTrim('|');
+                            var values = connectionString.SplitAndTrim('|');
                             if (values.Count >= 2 && values[0].ParseBool() == true)
                             {
                                 ModuleConfiguration.ConnectionString = DecryptConnectionString(values[1]);
@@ -78,20 +82,28 @@ namespace checkup
                             }
                             else
                             {
-                                ModuleConfiguration.ConnectionString = moduleConfig.ConnectionString;
+                                ModuleConfiguration.ConnectionString = connectionString;
                             }
                         }
                         else
                         {
-                            ModuleConfiguration.ConnectionString = moduleConfig.ConnectionString;
+                            ModuleConfiguration.ConnectionString = connectionString;
                         }
 
-                        if (!string.IsNullOrWhiteSpace(moduleConfig.ModuleConfigurationUrl))
+                        if (!string.IsNullOrWhiteSpace(moduleConfig.ModuleConfigurationUrl) && GlobalConfiguration.ModuleConfigurationUrl.Contains(moduleConfig.ModuleConfigurationUrl) == false)
                         {
                             GlobalConfiguration.ModuleConfigurationUrl.Add(moduleConfig.ModuleConfigurationUrl);
                         }
 
-                        ModuleConfiguration.AllowClientIP = moduleConfig.AllowClientIP;
+                        ModuleConfiguration.AllowClientIP = (moduleConfig.AllowClientIP ?? new List<string>())
+                            .Where(p => string.IsNullOrWhiteSpace(p) == false)
+                            .Select(p => p.Trim())
+                            .Distinct(StringComparer.OrdinalIgnoreCase)
+                            .ToList();
+                        if (ModuleConfiguration.AllowClientIP.Count == 0)
+                        {
+                            ModuleConfiguration.AllowClientIP.Add("*");
+                        }
                         ModuleConfiguration.IsConfigure = true;
                     }
                     else
@@ -123,37 +135,44 @@ namespace checkup
                                 var settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
                                 if (File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
                                 {
-                                    var appSettingText = File.ReadAllText(settingFilePath);
-                                    var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
-                                    if (appSetting != null)
+                                    try
                                     {
-                                        var withOriginUris = appSetting.WithOrigin;
-
-                                        if (withOriginUris != null)
+                                        var appSettingText = File.ReadAllText(settingFilePath);
+                                        var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
+                                        if (appSetting != null)
                                         {
-                                            if (ModuleConfiguration.TenantAppOrigins.ContainsKey(tenantID) == true)
+                                            var withOriginUris = appSetting.WithOrigin;
+
+                                            if (withOriginUris != null)
                                             {
-                                                Log.Logger.Warning("[{LogCategory}] " + $"'{tenantID}' WithOrigin 중복 확인 필요 ", $"{ModuleConfiguration.ModuleID} ModuleInitializer/ConfigureServices");
+                                                if (ModuleConfiguration.TenantAppOrigins.ContainsKey(tenantID) == true)
+                                                {
+                                                    Log.Logger.Warning("[{LogCategory}] " + $"'{tenantID}' WithOrigin 중복 확인 필요 ", $"{ModuleConfiguration.ModuleID} ModuleInitializer/ConfigureServices");
+                                                }
+                                                else
+                                                {
+                                                    ModuleConfiguration.TenantAppOrigins.Add(tenantID, withOriginUris);
+                                                }
                                             }
-                                            else
+
+                                            var withRefererUris = appSetting.WithReferer;
+
+                                            if (withRefererUris != null)
                                             {
-                                                ModuleConfiguration.TenantAppOrigins.Add(tenantID, withOriginUris);
+                                                if (ModuleConfiguration.TenantAppReferers.ContainsKey(tenantID) == true)
+                                                {
+                                                    Log.Logger.Warning("[{LogCategory}] " + $"'{tenantID}' WithReferer 중복 확인 필요 ", $"{ModuleConfiguration.ModuleID} ModuleInitializer/ConfigureServices");
+                                                }
+                                                else
+                                                {
+                                                    ModuleConfiguration.TenantAppReferers.Add(tenantID, withRefererUris);
+                                                }
                                             }
                                         }
-
-                                        var withRefererUris = appSetting.WithReferer;
-
-                                        if (withRefererUris != null)
-                                        {
-                                            if (ModuleConfiguration.TenantAppReferers.ContainsKey(tenantID) == true)
-                                            {
-                                                Log.Logger.Warning("[{LogCategory}] " + $"'{tenantID}' WithReferer 중복 확인 필요 ", $"{ModuleConfiguration.ModuleID} ModuleInitializer/ConfigureServices");
-                                            }
-                                            else
-                                            {
-                                                ModuleConfiguration.TenantAppReferers.Add(tenantID, withRefererUris);
-                                            }
-                                        }
+                                    }
+                                    catch (Exception exception)
+                                    {
+                                        Log.Logger.Warning("[{LogCategory}] " + $"Tenant settings 확인 필요: {settingFilePath}, {exception.Message}", $"{ModuleConfiguration.ModuleID} ModuleInitializer/ConfigureServices");
                                     }
                                 }
                             }

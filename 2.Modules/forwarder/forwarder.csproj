@@ -29,6 +29,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="8.0.0" />
         <PackageReference Include="Microsoft.Playwright" Version="1.58.0" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
         <PackageReference Include="Serilog" Version="4.3.1" />
@@ -58,6 +59,12 @@
         </Content>
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="playwright.ps1">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
     <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
         <RemoveDir Directories="$(TargetDir)" Condition="Exists('$(TargetDir)')" />
     </Target>
@@ -78,6 +85,8 @@
         <PropertyGroup>
             <ModuleDestinationDir>$(HANDSTACK_HOME)/modules/$(MSBuildProjectName)</ModuleDestinationDir>
         </PropertyGroup>
+
+        <RemoveDir Directories="$(ModuleDestinationDir)" Condition="Exists('$(ModuleDestinationDir)')" />
         <MakeDir Directories="$(ModuleDestinationDir)" Condition="!Exists('$(ModuleDestinationDir)')" />
 
         <ItemGroup>

@@ -42,9 +42,9 @@ namespace forwarder.Areas.forwarder.Controllers
         [HttpPost("program-execute")]
         public async Task<IActionResult> ProgramExecute([FromBody] ProxyLabExecuteRequest request, CancellationToken cancellationToken)
         {
-            if (string.IsNullOrWhiteSpace(request.BearerToken) == true)
+            if (request == null)
             {
-                return BadRequest("BearerToken 확인 필요");
+                return BadRequest("요청 정보 확인 필요");
             }
 
             if (string.IsNullOrWhiteSpace(request.RequestKey) == true)
@@ -54,19 +54,23 @@ namespace forwarder.Areas.forwarder.Controllers
 
             var requestUri = BuildForwarderUri(request.RequestKey, request.TimeoutMS);
             using var forwardRequest = new HttpRequestMessage(new HttpMethod(string.IsNullOrWhiteSpace(request.Method) == true ? "GET" : request.Method), requestUri);
-            forwardRequest.Headers.TryAddWithoutValidation("BearerToken", request.BearerToken);
+
+            if (string.IsNullOrWhiteSpace(request.BearerToken) == false)
+            {
+                forwardRequest.Headers.TryAddWithoutValidation("BearerToken", request.BearerToken);
+            }
+
             forwardRequest.Headers.TryAddWithoutValidation("X-Forwarder-ClientKind", "Program");
             forwardRequest.Headers.TryAddWithoutValidation("User-Agent", "HandStackProxyLab/1.0");
 
-            foreach (var header in request.Headers)
+            foreach (var header in request.Headers ?? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase))
             {
                 if (string.IsNullOrWhiteSpace(header.Key) == true || string.IsNullOrWhiteSpace(header.Value) == true)
                 {
                     continue;
                 }
 
-                if (string.Equals(header.Key, "BearerToken", StringComparison.OrdinalIgnoreCase) == true ||
-                    string.Equals(header.Key, "Content-Length", StringComparison.OrdinalIgnoreCase) == true ||
+                if (string.Equals(header.Key, "Content-Length", StringComparison.OrdinalIgnoreCase) == true ||
                     string.Equals(header.Key, "Host", StringComparison.OrdinalIgnoreCase) == true ||
                     string.Equals(header.Key, "User-Agent", StringComparison.OrdinalIgnoreCase) == true ||
                     string.Equals(header.Key, "X-Forwarder-ClientKind", StringComparison.OrdinalIgnoreCase) == true)
@@ -123,7 +127,7 @@ namespace forwarder.Areas.forwarder.Controllers
             catch (Exception exception)
             {
                 logger.Error(exception, "[{LogCategory}] requestKey: {RequestKey}", "ForwardProxyLabController/ProgramExecute", request.RequestKey);
-                return StatusCode(StatusCodes.Status500InternalServerError, exception.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, "프로그램 프록시 실행 중 오류가 발생했습니다.");
             }
         }
 

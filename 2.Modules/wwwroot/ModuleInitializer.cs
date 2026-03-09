@@ -63,6 +63,8 @@ namespace wwwroot
                         ModuleConfiguration.ModuleLogFilePath = GlobalConfiguration.GetBaseFilePath(moduleConfig.ModuleLogFilePath);
                         ModuleConfiguration.IsModuleLogging = !string.IsNullOrWhiteSpace(moduleConfig.ModuleLogFilePath);
                         ModuleConfiguration.ModuleFilePath = GlobalConfiguration.GetBaseDirectoryPath(moduleConfig.ModuleFilePath);
+                        ModuleConfiguration.TenantAppOrigins.Clear();
+                        ModuleConfiguration.TenantAppReferers.Clear();
                         GlobalConfiguration.ContractRequestPath = string.IsNullOrWhiteSpace(moduleConfig.ContractRequestPath) ? "view" : moduleConfig.ContractRequestPath;
 
                         ModuleConfiguration.IsConfigure = true;
@@ -97,37 +99,44 @@ namespace wwwroot
                                 var settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
                                 if (File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
                                 {
-                                    var appSettingText = File.ReadAllText(settingFilePath);
-                                    var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
-                                    if (appSetting != null)
+                                    try
                                     {
-                                        var withOriginUris = appSetting.WithOrigin;
-
-                                        if (withOriginUris != null)
+                                        var appSettingText = File.ReadAllText(settingFilePath);
+                                        var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
+                                        if (appSetting != null)
                                         {
-                                            if (ModuleConfiguration.TenantAppOrigins.ContainsKey(tenantID) == true)
+                                            var withOriginUris = appSetting.WithOrigin;
+
+                                            if (withOriginUris != null)
                                             {
-                                                Log.Logger.Warning("[{LogCategory}] " + $"'{applicationID}' WithOrigin 중복 확인 필요 ", $"{ModuleConfiguration.ModuleID} ModuleInitializer/ConfigureServices");
+                                                if (ModuleConfiguration.TenantAppOrigins.ContainsKey(tenantID) == true)
+                                                {
+                                                    Log.Logger.Warning("[{LogCategory}] " + $"'{applicationID}' WithOrigin 중복 확인 필요 ", $"{ModuleConfiguration.ModuleID} ModuleInitializer/ConfigureServices");
+                                                }
+                                                else
+                                                {
+                                                    ModuleConfiguration.TenantAppOrigins.Add(tenantID, withOriginUris);
+                                                }
                                             }
-                                            else
+
+                                            var withRefererUris = appSetting.WithReferer;
+
+                                            if (withRefererUris != null)
                                             {
-                                                ModuleConfiguration.TenantAppOrigins.Add(tenantID, withOriginUris);
+                                                if (ModuleConfiguration.TenantAppReferers.ContainsKey(tenantID) == true)
+                                                {
+                                                    Log.Logger.Warning("[{LogCategory}] " + $"'{applicationID}' WithReferer 중복 확인 필요 ", $"{ModuleConfiguration.ModuleID} ModuleInitializer/ConfigureServices");
+                                                }
+                                                else
+                                                {
+                                                    ModuleConfiguration.TenantAppReferers.Add(tenantID, withRefererUris);
+                                                }
                                             }
                                         }
-
-                                        var withRefererUris = appSetting.WithReferer;
-
-                                        if (withRefererUris != null)
-                                        {
-                                            if (ModuleConfiguration.TenantAppReferers.ContainsKey(tenantID) == true)
-                                            {
-                                                Log.Logger.Warning("[{LogCategory}] " + $"'{applicationID}' WithReferer 중복 확인 필요 ", $"{ModuleConfiguration.ModuleID} ModuleInitializer/ConfigureServices");
-                                            }
-                                            else
-                                            {
-                                                ModuleConfiguration.TenantAppReferers.Add(tenantID, withRefererUris);
-                                            }
-                                        }
+                                    }
+                                    catch (Exception exception)
+                                    {
+                                        Log.Logger.Warning("[{LogCategory}] " + $"Tenant settings 확인 필요: {settingFilePath}, {exception.Message}", $"{ModuleConfiguration.ModuleID} ModuleInitializer/ConfigureServices");
                                     }
                                 }
                             }

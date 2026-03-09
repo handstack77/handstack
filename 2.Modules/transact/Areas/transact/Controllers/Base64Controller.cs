@@ -40,10 +40,8 @@ namespace transact.Areas.transact.Controllers
             }
             catch (Exception exception)
             {
-                result = exception.ToMessage();
-
-                var exceptionText = result;
-                logger.Error("[{LogCategory}] " + exceptionText, "Base64/Encode");
+                result = "인코딩 값 확인 필요";
+                logger.Warning(exception, "[{LogCategory}] Base64 인코딩 오류", "Base64/Encode");
             }
 
             // throw new Exception("hello world");
@@ -62,10 +60,8 @@ namespace transact.Areas.transact.Controllers
             }
             catch (Exception exception)
             {
-                result = exception.ToMessage();
-
-                var exceptionText = result;
-                logger.Error("[{LogCategory}] " + exceptionText, "Base64/Decode");
+                result = "Base64 문자열 확인 필요";
+                logger.Warning(exception, "[{LogCategory}] Base64 디코딩 오류", "Base64/Decode");
             }
 
             return result;

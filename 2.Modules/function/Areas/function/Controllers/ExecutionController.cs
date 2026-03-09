@@ -74,10 +74,8 @@ namespace function.Areas.function.Controllers
                 }
                 catch (Exception exception)
                 {
-                    var exceptionText = exception.ToMessage();
-                    logger.Error("[{LogCategory}] " + exceptionText, "Execution/has");
-
-                    result = StatusCode(StatusCodes.Status500InternalServerError, exceptionText);
+                    logger.Error(exception, "[{LogCategory}] 함수 매핑 확인 오류", "Execution/Has");
+                    result = StatusCode(StatusCodes.Status500InternalServerError, "함수 매핑 확인 중 오류가 발생했습니다.");
                 }
             }
 
@@ -102,10 +100,8 @@ namespace function.Areas.function.Controllers
                 }
                 catch (Exception exception)
                 {
-                    var exceptionText = exception.ToMessage();
-                    logger.Error("[{LogCategory}] " + exceptionText, "Query/Refresh");
-
-                    result = StatusCode(StatusCodes.Status500InternalServerError, exception.ToMessage());
+                    logger.Error(exception, "[{LogCategory}] 함수 계약 리프레시 오류", "Execution/Refresh");
+                    result = StatusCode(StatusCodes.Status500InternalServerError, "함수 계약 리프레시 중 오류가 발생했습니다.");
                 }
             }
 
@@ -155,8 +151,12 @@ namespace function.Areas.function.Controllers
 
                     if (!string.IsNullOrWhiteSpace(model.FunctionID))
                     {
-                        var queryFunctionID = model.FunctionID.Substring(0, model.FunctionID.Length - 2);
-                        queryResults = queryResults.Where(p => p.ScriptID.Substring(0, p.ScriptID.Length - 2) == queryFunctionID);
+                        if (!TryGetFunctionIDPrefix(model.FunctionID, out var queryFunctionID))
+                        {
+                            return BadRequest("functionID 형식 확인 필요");
+                        }
+
+                        queryResults = queryResults.Where(p => TryGetFunctionIDPrefix(p.ScriptID, out var scriptID) && scriptID == queryFunctionID);
                     }
 
                     var scriptMaps = queryResults.ToList();
@@ -167,10 +167,8 @@ namespace function.Areas.function.Controllers
                 }
                 catch (Exception exception)
                 {
-                    var exceptionText = exception.ToMessage();
-                    logger.Error("[{LogCategory}] " + exceptionText, "Execution/Retrieve");
-
-                    result = StatusCode(StatusCodes.Status500InternalServerError, exceptionText);
+                    logger.Error(exception, "[{LogCategory}] 함수 계약 조회 오류", "Execution/Retrieve");
+                    result = StatusCode(StatusCodes.Status500InternalServerError, "함수 계약 조회 중 오류가 발생했습니다.");
                 }
             }
 
@@ -199,10 +197,8 @@ namespace function.Areas.function.Controllers
                 }
                 catch (Exception exception)
                 {
-                    var exceptionText = exception.ToMessage();
-                    logger.Error("[{LogCategory}] " + exceptionText, "Execution/Meta");
-
-                    result = StatusCode(StatusCodes.Status500InternalServerError, exceptionText);
+                    logger.Error(exception, "[{LogCategory}] 함수 메타 조회 오류", "Execution/Meta");
+                    result = StatusCode(StatusCodes.Status500InternalServerError, "함수 메타 조회 중 오류가 발생했습니다.");
                 }
             }
 
@@ -219,13 +215,13 @@ namespace function.Areas.function.Controllers
             if (request == null)
             {
                 response.ExceptionText = "빈 요청. 요청 정보 확인 필요";
-                return result;
+                return Content(JsonConvert.SerializeObject(response), "application/json");
             }
 
             if (HttpContext.IsAllowAuthorization() == false)
             {
                 response.ExceptionText = "필수 접근 정보 확인 필요";
-                return result;
+                return Content(JsonConvert.SerializeObject(response), "application/json");
             }
 
             response.CorrelationID = request.GlobalID;
@@ -304,7 +300,8 @@ namespace function.Areas.function.Controllers
             }
             catch (Exception exception)
             {
-                response.ExceptionText = exception.ToMessage();
+                response.ExceptionText = "스크립트 실행 중 오류가 발생했습니다.";
+                logger.Error(exception, "[{LogCategory}] [{GlobalID}] 스크립트 실행 오류", "Execution/Execute", request.GlobalID);
 
                 if (ModuleConfiguration.IsLogServer == true)
                 {
@@ -330,6 +327,18 @@ namespace function.Areas.function.Controllers
             }
 
             return Content(responseData, "application/json");
+        }
+
+        private static bool TryGetFunctionIDPrefix(string? functionID, out string functionIDPrefix)
+        {
+            functionIDPrefix = string.Empty;
+            if (string.IsNullOrWhiteSpace(functionID) || functionID.Length < 3)
+            {
+                return false;
+            }
+
+            functionIDPrefix = functionID.Substring(0, functionID.Length - 2);
+            return !string.IsNullOrWhiteSpace(functionIDPrefix);
         }
     }
 }

@@ -48,10 +48,8 @@ namespace dbclient.Areas.dbclient.Controllers
                 }
                 catch (Exception exception)
                 {
-                    var exceptionText = exception.ToMessage();
-                    logger.Error("[{LogCategory}] " + exceptionText, "Base64/Encode");
-
-                    result = StatusCode(StatusCodes.Status500InternalServerError, exceptionText);
+                    logger.Warning(exception, "[{LogCategory}] Base64 인코딩 오류", "Base64/Encode");
+                    result = StatusCode(StatusCodes.Status500InternalServerError, "인코딩 값 확인 필요");
                 }
             }
 
@@ -75,10 +73,8 @@ namespace dbclient.Areas.dbclient.Controllers
                 }
                 catch (Exception exception)
                 {
-                    var exceptionText = exception.ToMessage();
-                    logger.Error("[{LogCategory}] " + exceptionText, "Base64/Decode");
-
-                    result = StatusCode(StatusCodes.Status500InternalServerError, exceptionText);
+                    logger.Warning(exception, "[{LogCategory}] Base64 디코딩 오류", "Base64/Decode");
+                    result = StatusCode(StatusCodes.Status500InternalServerError, "Base64 문자열 확인 필요");
                 }
             }
 

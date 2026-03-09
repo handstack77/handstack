@@ -243,11 +243,6 @@
 
     function buildRequest() {
         const bearerToken = elements.bearerToken.value.trim();
-        if (!bearerToken) {
-            setStatus("BearerToken을 입력하세요.", "error");
-            return null;
-        }
-
         const requestKey = elements.requestKey.value.trim();
         if (!requestKey) {
             setStatus("requestKey를 입력하세요.", "error");

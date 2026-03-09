@@ -66,7 +66,7 @@ function callHandStackAPI(groupCode) {
             "environment": "D",
             "system": {
                 "programID": "HDS",
-                "moduleID": "arha",
+                "moduleID": "wwwroot",
                 "version": "1.0.0",
                 "routes": [
                     {

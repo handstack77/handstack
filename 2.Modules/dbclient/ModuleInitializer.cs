@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -64,10 +65,21 @@ namespace dbclient
                         ModuleConfiguration.IsLogServer = moduleConfig.IsLogServer;
                         ModuleConfiguration.LogServerUrl = moduleConfig.LogServerUrl;
 
-                        ModuleConfiguration.IsContractFileWatching = moduleConfig.IsContractFileWatching;
-                        foreach (var basePath in moduleConfig.ContractBasePath)
+                        foreach (var fileSyncManager in ModuleConfiguration.SQLFileSyncManager.Values)
                         {
-                            ModuleConfiguration.ContractBasePath.Add(GlobalConfiguration.GetBaseDirectoryPath(basePath));
+                            fileSyncManager.Dispose();
+                        }
+
+                        ModuleConfiguration.SQLFileSyncManager.Clear();
+                        ModuleConfiguration.ContractBasePath.Clear();
+                        ModuleConfiguration.IsContractFileWatching = moduleConfig.IsContractFileWatching;
+                        foreach (var basePath in moduleConfig.ContractBasePath ?? new List<string>())
+                        {
+                            var contractBasePath = GlobalConfiguration.GetBaseDirectoryPath(basePath);
+                            if (string.IsNullOrWhiteSpace(contractBasePath) == false && ModuleConfiguration.ContractBasePath.Contains(contractBasePath) == false)
+                            {
+                                ModuleConfiguration.ContractBasePath.Add(contractBasePath);
+                            }
                         }
 
                         ModuleConfiguration.IsTransactionLogging = moduleConfig.IsTransactionLogging;
@@ -106,7 +118,15 @@ namespace dbclient
                             }
                         }
 
-                        ModuleConfiguration.AllowClientIP = moduleConfig.AllowClientIP;
+                        ModuleConfiguration.AllowClientIP = (moduleConfig.AllowClientIP ?? new List<string>())
+                            .Where(p => string.IsNullOrWhiteSpace(p) == false)
+                            .Select(p => p.Trim())
+                            .Distinct(StringComparer.OrdinalIgnoreCase)
+                            .ToList();
+                        if (ModuleConfiguration.AllowClientIP.Count == 0)
+                        {
+                            ModuleConfiguration.AllowClientIP.Add("*");
+                        }
                         ModuleConfiguration.IsConfigure = true;
                     }
                     else
@@ -244,7 +264,12 @@ namespace dbclient
                     Log.Information("[{LogCategory}] SQL File Sync ContractBasePath: " + basePath, $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure");
 
                     fileSyncManager.Start();
-                    ModuleConfiguration.SQLFileSyncManager.Add(basePath, fileSyncManager);
+                    if (ModuleConfiguration.SQLFileSyncManager.TryGetValue(basePath, out var existingFileSyncManager) == true)
+                    {
+                        existingFileSyncManager.Dispose();
+                    }
+
+                    ModuleConfiguration.SQLFileSyncManager[basePath] = fileSyncManager;
                 }
             }
         }

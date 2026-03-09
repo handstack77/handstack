@@ -51,7 +51,7 @@ namespace forwarder.Services
 
                 if (entry.Context == null)
                 {
-                    entry.Context = await CreateBrowserContextAsync(request.Session, cancellationToken);
+                    entry.Context = await CreateBrowserContextAsync(request.Session, request.ClientKind, cancellationToken);
                 }
 
                 entry.Session = request.Session;
@@ -79,7 +79,7 @@ namespace forwarder.Services
         private async Task<ForwardProxyExecution> ForwardProgramAsync(ForwardProxyRequest request, CancellationToken cancellationToken)
         {
             // 프로그램 요청은 매번 새 컨텍스트를 만들고 응답 직후 저장 후 닫는다.
-            var context = await CreateBrowserContextAsync(request.Session, cancellationToken);
+            var context = await CreateBrowserContextAsync(request.Session, request.ClientKind, cancellationToken);
 
             try
             {
@@ -134,10 +134,10 @@ namespace forwarder.Services
             return result;
         }
 
-        private async Task<IBrowserContext> CreateBrowserContextAsync(ForwardSessionDescriptor session, CancellationToken cancellationToken)
+        private async Task<IBrowserContext> CreateBrowserContextAsync(ForwardSessionDescriptor session, ForwardClientKind clientKind, CancellationToken cancellationToken)
         {
             var runtimeBrowser = await EnsureBrowserAsync(cancellationToken);
-            var storageState = await sessionStore.LoadStorageStateAsync(session, cancellationToken);
+            var storageState = await TryLoadStorageStateAsync(session, cancellationToken);
 
             var contextOptions = new BrowserNewContextOptions
             {
@@ -165,7 +165,25 @@ namespace forwarder.Services
                 };
             }
 
-            var context = await runtimeBrowser.NewContextAsync(contextOptions);
+            IBrowserContext context;
+            try
+            {
+                context = await runtimeBrowser.NewContextAsync(contextOptions);
+            }
+            catch (Exception exception) when (string.IsNullOrWhiteSpace(storageState) == false)
+            {
+                logger.Warning(
+                    exception,
+                    "[{LogCategory}] userID: {UserID}, userNo: {UserNo} 저장된 세션 상태를 무시하고 새 브라우저 컨텍스트를 생성합니다.",
+                    "ForwardProxyService/CreateBrowserContextAsync",
+                    session.UserID,
+                    session.UserNo);
+
+                await TrySaveStorageStateAsync(session, null, clientKind);
+                contextOptions.StorageState = null;
+                context = await runtimeBrowser.NewContextAsync(contextOptions);
+            }
+
             context.SetDefaultTimeout(ModuleConfiguration.RequestTimeoutMS);
             context.SetDefaultNavigationTimeout(ModuleConfiguration.RequestTimeoutMS);
             return context;
@@ -181,17 +199,26 @@ namespace forwarder.Services
             await runtimeSyncRoot.WaitAsync(cancellationToken);
             try
             {
-                if (playwright == null)
+                try
                 {
-                    playwright = await Playwright.CreateAsync();
-                }
-
-                if (browser == null)
-                {
-                    browser = await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
+                    if (playwright == null)
                     {
-                        Headless = true
-                    });
+                        playwright = await Playwright.CreateAsync();
+                    }
+
+                    if (browser == null)
+                    {
+                        browser = await LaunchChromiumAsync(cancellationToken);
+                    }
+                }
+                catch (Exception exception)
+                {
+                    browser = null;
+                    playwright?.Dispose();
+                    playwright = null;
+
+                    logger.Error(exception, "[{LogCategory}] Playwright Chromium 초기화 실패", "ForwardProxyService/EnsureBrowserAsync");
+                    throw new InvalidOperationException("forwarder Playwright 초기화 실패. Chromium 자동 설치 또는 실행 권한 확인 필요", exception);
                 }
 
                 return browser;
@@ -202,6 +229,49 @@ namespace forwarder.Services
             }
         }
 
+        private async Task<IBrowser> LaunchChromiumAsync(CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            try
+            {
+                return await playwright!.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
+                {
+                    Headless = true
+                });
+            }
+            catch (PlaywrightException exception) when (IsMissingBrowserExecutable(exception))
+            {
+                logger.Warning(exception, "[{LogCategory}] Playwright Chromium 실행 파일이 없어 자동 설치를 시도합니다.", "ForwardProxyService/LaunchChromiumAsync");
+                await InstallChromiumAsync(cancellationToken);
+                cancellationToken.ThrowIfCancellationRequested();
+
+                return await playwright!.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
+                {
+                    Headless = true
+                });
+            }
+        }
+
+        private async Task InstallChromiumAsync(CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            logger.Information("[{LogCategory}] Playwright Chromium 자동 설치를 시작합니다.", "ForwardProxyService/InstallChromiumAsync");
+
+            var exitCode = await Task.Run(() => Microsoft.Playwright.Program.Main(new[] { "install", "chromium" }), cancellationToken);
+            if (exitCode != 0)
+            {
+                throw new InvalidOperationException($"Playwright install chromium 종료 코드: {exitCode}");
+            }
+
+            logger.Information("[{LogCategory}] Playwright Chromium 자동 설치를 완료했습니다.", "ForwardProxyService/InstallChromiumAsync");
+        }
+
+        private static bool IsMissingBrowserExecutable(PlaywrightException exception)
+        {
+            return exception.Message.IndexOf("Executable doesn't exist", StringComparison.OrdinalIgnoreCase) > -1;
+        }
+
         private async ValueTask ReleaseBrowserContextAsync(BrowserSessionEntry entry, ForwardSessionDescriptor session)
         {
             await entry.SyncRoot.WaitAsync();
@@ -209,11 +279,7 @@ namespace forwarder.Services
             {
                 if (entry.Context != null)
                 {
-                    var storageState = await entry.Context.StorageStateAsync(new BrowserContextStorageStateOptions
-                    {
-                        IndexedDB = true
-                    });
-                    await sessionStore.SaveStorageStateAsync(session, storageState, ForwardClientKind.Browser, CancellationToken.None);
+                    await TryPersistStorageStateAsync(entry.Context, session, ForwardClientKind.Browser, "ForwardProxyService/ReleaseBrowserContextAsync");
                 }
 
                 if (entry.ReferenceCount > 0)
@@ -228,8 +294,12 @@ namespace forwarder.Services
 
                     var idleCts = new CancellationTokenSource();
                     entry.IdleCancellationTokenSource = idleCts;
-                    _ = Task.Run(() => CloseBrowserContextWhenIdleAsync(entry, session, idleCts.Token));
+                    _ = CloseBrowserContextWhenIdleSafelyAsync(entry, session, idleCts.Token);
                 }
+            }
+            catch (Exception exception)
+            {
+                logger.Warning(exception, "[{LogCategory}] userID: {UserID}, userNo: {UserNo} 브라우저 세션 정리 중 예외 발생", "ForwardProxyService/ReleaseBrowserContextAsync", session.UserID, session.UserNo);
             }
             finally
             {
@@ -241,15 +311,30 @@ namespace forwarder.Services
         {
             try
             {
-                var storageState = await context.StorageStateAsync(new BrowserContextStorageStateOptions
-                {
-                    IndexedDB = true
-                });
-                await sessionStore.SaveStorageStateAsync(session, storageState, ForwardClientKind.Program, CancellationToken.None);
+                await TryPersistStorageStateAsync(context, session, ForwardClientKind.Program, "ForwardProxyService/PersistAndCloseProgramContextAsync");
             }
             finally
             {
-                await context.CloseAsync();
+                try
+                {
+                    await context.CloseAsync();
+                }
+                catch (Exception exception)
+                {
+                    logger.Warning(exception, "[{LogCategory}] userID: {UserID}, userNo: {UserNo} 프로그램 컨텍스트 종료 중 예외 발생", "ForwardProxyService/PersistAndCloseProgramContextAsync", session.UserID, session.UserNo);
+                }
+            }
+        }
+
+        private async Task CloseBrowserContextWhenIdleSafelyAsync(BrowserSessionEntry entry, ForwardSessionDescriptor session, CancellationToken cancellationToken)
+        {
+            try
+            {
+                await CloseBrowserContextWhenIdleAsync(entry, session, cancellationToken);
+            }
+            catch (Exception exception)
+            {
+                logger.Warning(exception, "[{LogCategory}] userID: {UserID}, userNo: {UserNo} 유휴 브라우저 컨텍스트 정리 중 예외 발생", "ForwardProxyService/CloseBrowserContextWhenIdleSafelyAsync", session.UserID, session.UserNo);
             }
         }
 
@@ -287,11 +372,7 @@ namespace forwarder.Services
                     return;
                 }
 
-                var storageState = await entry.Context.StorageStateAsync(new BrowserContextStorageStateOptions
-                {
-                    IndexedDB = true
-                });
-                await sessionStore.SaveStorageStateAsync(session, storageState, ForwardClientKind.Browser, CancellationToken.None);
+                await TryPersistStorageStateAsync(entry.Context, session, ForwardClientKind.Browser, "ForwardProxyService/CloseBrowserContextWhenIdleAsync");
 
                 contextToClose = entry.Context;
                 entry.Context = null;
@@ -307,7 +388,14 @@ namespace forwarder.Services
 
             if (contextToClose != null)
             {
-                await contextToClose.CloseAsync();
+                try
+                {
+                    await contextToClose.CloseAsync();
+                }
+                catch (Exception exception)
+                {
+                    logger.Warning(exception, "[{LogCategory}] userID: {UserID}, userNo: {UserNo} 유휴 브라우저 컨텍스트 종료 중 예외 발생", "ForwardProxyService/CloseBrowserContextWhenIdleAsync", session.UserID, session.UserNo);
+                }
             }
         }
 
@@ -336,14 +424,18 @@ namespace forwarder.Services
                     {
                         if (entry.Session != null)
                         {
-                            var storageState = await entry.Context.StorageStateAsync(new BrowserContextStorageStateOptions
-                            {
-                                IndexedDB = true
-                            });
-                            await sessionStore.SaveStorageStateAsync(entry.Session, storageState, ForwardClientKind.Browser, CancellationToken.None);
+                            await TryPersistStorageStateAsync(entry.Context, entry.Session, ForwardClientKind.Browser, "ForwardProxyService/DisposeAsync");
                         }
 
-                        await entry.Context.CloseAsync();
+                        try
+                        {
+                            await entry.Context.CloseAsync();
+                        }
+                        catch (Exception exception)
+                        {
+                            logger.Warning(exception, "[{LogCategory}] sessionKey: {SessionKey} 브라우저 컨텍스트 종료 중 예외 발생", "ForwardProxyService/DisposeAsync", entry.SessionKey);
+                        }
+
                         entry.Context = null;
                     }
                 }
@@ -358,7 +450,15 @@ namespace forwarder.Services
 
             if (browser != null)
             {
-                await browser.CloseAsync();
+                try
+                {
+                    await browser.CloseAsync();
+                }
+                catch (Exception exception)
+                {
+                    logger.Warning(exception, "[{LogCategory}] Playwright 브라우저 종료 중 예외 발생", "ForwardProxyService/DisposeAsync");
+                }
+
                 browser = null;
             }
 
@@ -366,6 +466,47 @@ namespace forwarder.Services
             playwright = null;
 
             runtimeSyncRoot.Dispose();
+        }
+
+        private async Task<string?> TryLoadStorageStateAsync(ForwardSessionDescriptor session, CancellationToken cancellationToken)
+        {
+            try
+            {
+                return await sessionStore.LoadStorageStateAsync(session, cancellationToken);
+            }
+            catch (Exception exception)
+            {
+                logger.Warning(exception, "[{LogCategory}] userID: {UserID}, userNo: {UserNo} 저장된 세션 상태를 읽지 못해 빈 상태로 진행합니다.", "ForwardProxyService/TryLoadStorageStateAsync", session.UserID, session.UserNo);
+                return null;
+            }
+        }
+
+        private async Task TryPersistStorageStateAsync(IBrowserContext context, ForwardSessionDescriptor session, ForwardClientKind clientKind, string logCategory)
+        {
+            try
+            {
+                var storageState = await context.StorageStateAsync(new BrowserContextStorageStateOptions
+                {
+                    IndexedDB = true
+                });
+                await TrySaveStorageStateAsync(session, storageState, clientKind);
+            }
+            catch (Exception exception)
+            {
+                logger.Warning(exception, "[{LogCategory}] userID: {UserID}, userNo: {UserNo} 세션 상태 저장에 실패했습니다.", logCategory, session.UserID, session.UserNo);
+            }
+        }
+
+        private async Task TrySaveStorageStateAsync(ForwardSessionDescriptor session, string? storageState, ForwardClientKind clientKind)
+        {
+            try
+            {
+                await sessionStore.SaveStorageStateAsync(session, storageState, clientKind, CancellationToken.None);
+            }
+            catch (Exception exception)
+            {
+                logger.Warning(exception, "[{LogCategory}] userID: {UserID}, userNo: {UserNo} 세션 저장소 기록에 실패했습니다.", "ForwardProxyService/TrySaveStorageStateAsync", session.UserID, session.UserNo);
+            }
         }
 
         private sealed class BrowserSessionEntry
