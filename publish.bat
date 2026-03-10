@@ -69,6 +69,12 @@ if "%action_mode%" == "publish" (
     dotnet %action_mode% -p:Optimize=%optimize_flag% --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% 4.Tool\CLI\edgeproxy\edgeproxy.csproj --output %publish_path%\handstack\app\cli
 )
 
+if "%action_mode%" == "publish" (
+    dotnet %action_mode% -p:Optimize=%optimize_flag% --configuration %configuration_mode% --runtime %rid% --self-contained false 4.Tool\CLI\bundling\bundling.csproj --output %publish_path%\handstack\app\cli
+) else (
+    dotnet %action_mode% -p:Optimize=%optimize_flag% --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% 4.Tool\CLI\bundling\bundling.csproj --output %publish_path%\handstack\app\cli
+)
+
 REM Contracts 폴더 정리
 set contracts_path=%HANDSTACK_HOME%\contracts
 if exist "%contracts_path%" (

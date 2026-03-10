@@ -102,6 +102,12 @@ else
     dotnet $action_mode -p:Optimize=$optimize_flag --configuration $configuration_mode --arch $arch_mode --os $os_mode 4.Tool/CLI/edgeproxy/edgeproxy.csproj --output $publish_path/handstack/app/cli
 fi
 
+if [ "$action_mode" == "publish" ]; then
+    dotnet $action_mode -p:Optimize=$optimize_flag --configuration $configuration_mode --runtime $rid --self-contained false 4.Tool/CLI/bundling/bundling.csproj --output $publish_path/handstack/app/cli
+else
+    dotnet $action_mode -p:Optimize=$optimize_flag --configuration $configuration_mode --arch $arch_mode --os $os_mode 4.Tool/CLI/bundling/bundling.csproj --output $publish_path/handstack/app/cli
+fi
+
 # Contracts 디렉토리 정리
 contracts_path="${HANDSTACK_HOME}/contracts"
 if [ -d "$contracts_path" ]; then
