@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
     <PropertyGroup>
         <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
         <TargetFramework>net10.0</TargetFramework>
@@ -11,7 +11,6 @@
         <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
         <CompressionEnabled>false</CompressionEnabled>
         <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-        <OutputType>Exe</OutputType>
         <NoWarn>ASP0023;NETSDK1206</NoWarn>
     </PropertyGroup>
 

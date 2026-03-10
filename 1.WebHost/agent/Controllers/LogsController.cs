@@ -1,35 +1,35 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Net.Http;
 
 using agent.Options;
 using agent.Security;
-using agent.Services;
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-
-using Newtonsoft.Json;
 
 namespace agent.Controllers
 {
     [Route("")]
     [ServiceFilter(typeof(ManagementKeyActionFilter))]
-    public sealed class LogsController : AgentControllerBase
+    public sealed class LogsController : TargetProcessControllerBase
     {
         private const int DefaultRows = 300;
         private const int MaxRows = 5000;
 
-        private readonly ITargetProcessManager targetProcessManager;
         private readonly IOptionsMonitor<AgentOptions> optionsMonitor;
 
-        public LogsController(ITargetProcessManager targetProcessManager, IOptionsMonitor<AgentOptions> optionsMonitor)
+        public LogsController(
+            IOptionsMonitor<AgentOptions> optionsMonitor,
+            IHttpClientFactory httpClientFactory,
+            ILoggerFactory loggerFactory)
+            : base(optionsMonitor, httpClientFactory, loggerFactory)
         {
-            this.targetProcessManager = targetProcessManager;
             this.optionsMonitor = optionsMonitor;
         }
 
@@ -159,7 +159,7 @@ namespace agent.Controllers
                     continue;
                 }
 
-                var status = await targetProcessManager.GetStatusAsync(target.Id, cancellationToken);
+                var status = await GetStatusAsync(target.Id, cancellationToken);
                 if (status != null)
                 {
                     return target;
@@ -187,52 +187,6 @@ namespace agent.Controllers
             }
 
             return false;
-        }
-
-        private static string ResolveWorkingDirectory(TargetProcessOptions target)
-        {
-            if (string.IsNullOrWhiteSpace(target.WorkingDirectory) == false)
-            {
-                return ResolvePath(target.WorkingDirectory);
-            }
-
-            if (string.IsNullOrWhiteSpace(target.ExecutablePath) == false && IsPathLike(target.ExecutablePath) == true)
-            {
-                var executablePath = ResolvePath(target.ExecutablePath);
-                return Path.GetDirectoryName(executablePath) ?? AppContext.BaseDirectory;
-            }
-
-            return AppContext.BaseDirectory;
-        }
-
-        private static bool IsPathLike(string executablePath)
-        {
-            return executablePath.Contains(Path.DirectorySeparatorChar)
-                || executablePath.Contains(Path.AltDirectorySeparatorChar)
-                || executablePath.Contains(':')
-                || executablePath.StartsWith(".", StringComparison.Ordinal);
-        }
-
-        private static string ResolvePath(string path)
-        {
-            path = ExpandPathVariables(path);
-            if (Path.IsPathRooted(path) == true)
-            {
-                return Path.GetFullPath(path);
-            }
-
-            return Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, path));
-        }
-
-        private static string ExpandPathVariables(string path)
-        {
-            var expandedPath = Environment.ExpandEnvironmentVariables(path ?? "");
-            return Regex.Replace(expandedPath, @"\$(\{(?<name>[A-Za-z_][A-Za-z0-9_]*)\}|(?<name>[A-Za-z_][A-Za-z0-9_]*))", match =>
-            {
-                var variableName = match.Groups["name"].Value;
-                var value = Environment.GetEnvironmentVariable(variableName);
-                return string.IsNullOrEmpty(value) == true ? match.Value : value;
-            });
         }
 
         private static string? TryGetLatestLogFilePath(string logDirectoryPath)

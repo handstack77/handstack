@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -9,6 +9,8 @@ namespace agent.Options
         public string Id { get; set; } = "";
 
         public string Name { get; set; } = "";
+
+        public string HostAccessID { get; set; } = "";
 
         public string Description { get; set; } = "";
 

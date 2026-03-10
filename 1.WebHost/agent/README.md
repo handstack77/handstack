@@ -50,7 +50,7 @@ dotnet run --project 1.WebHost/agent/agent.csproj
 
 ```powershell
 $headers = @{ "X-Management-Key" = "CHANGE-THIS-KEY" }
-Invoke-RestMethod -Uri "http://localhost:8484/targets" -Headers $headers
+Invoke-RestMethod -Uri "http://localhost:8422/targets" -Headers $headers
 ```
 
 ## 호스트 브리지 모드 (Docker -> Host 프로세스 제어)
@@ -73,7 +73,7 @@ dotnet run --project 1.WebHost/agent/agent.csproj --no-launch-profile
 ### 2) Docker agent 실행(브리지 위임)
 
 ```powershell
-docker run -d --name handstack-agent-local -p 8484:8484 -e Agent__Targets__0__UseCommandBridge=true -e Agent__Targets__0__CommandBridgeUrl=http://host.docker.internal:8584 -e Agent__Targets__0__CommandBridgeHeaderName=X-Bridge-Key -e Agent__Targets__0__CommandBridgeKey=CHANGE-THIS-BRIDGE-KEY handstack-agent:latest
+docker run -d --name handstack-agent-local -p 8422:8422 -e Agent__Targets__0__UseCommandBridge=true -e Agent__Targets__0__CommandBridgeUrl=http://host.docker.internal:8584 -e Agent__Targets__0__CommandBridgeHeaderName=X-Bridge-Key -e Agent__Targets__0__CommandBridgeKey=CHANGE-THIS-BRIDGE-KEY handstack-agent:latest
 ```
 
 이 구성이 적용되면 컨테이너 `agent`의 `/targets/{id}/start|stop|restart|status` 요청은 호스트 브리지의 `/bridge/targets/{id}/...`로 전달됩니다.
@@ -82,7 +82,7 @@ docker run -d --name handstack-agent-local -p 8484:8484 -e Agent__Targets__0__Us
 
 ```powershell
 dotnet publish 1.WebHost/agent/agent.csproj -c Release -o C:\handstack\agent
-sc.exe create handstack-agent binPath= "C:\handstack\agent\agent.exe --urls http://0.0.0.0:8484" start= auto
+sc.exe create handstack-agent binPath= "C:\handstack\agent\agent.exe --urls http://0.0.0.0:8422" start= auto
 sc.exe start handstack-agent
 ```
 
@@ -101,7 +101,7 @@ After=network.target
 
 [Service]
 WorkingDirectory=/opt/handstack/agent
-ExecStart=/opt/handstack/agent/agent --urls http://0.0.0.0:8484
+ExecStart=/opt/handstack/agent/agent --urls http://0.0.0.0:8422
 Restart=always
 RestartSec=5
 User=www-data

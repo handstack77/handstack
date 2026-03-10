@@ -31,7 +31,7 @@ namespace agent
 
             if (HasConfiguredUrls(args, builder.Configuration["urls"], Environment.GetEnvironmentVariable("ASPNETCORE_URLS")) == false)
             {
-                builder.WebHost.UseUrls("http://0.0.0.0:8484");
+                builder.WebHost.UseUrls("http://0.0.0.0:8422");
             }
 
             builder.Services
@@ -62,13 +62,10 @@ namespace agent
             builder.Services.AddSingleton<UserCredentialValidator>();
             builder.Services.AddScoped<ManagementKeyActionFilter>();
             builder.Services.AddScoped<HostBridgeKeyActionFilter>();
-            builder.Services.AddSingleton<IHostStatsProvider, HostStatsProvider>();
-            builder.Services.AddSingleton<ITargetProcessManager, TargetProcessManager>();
             builder.Services.AddSingleton<ITargetAuditLogger, TargetAuditLogger>();
-            builder.Services.AddSingleton<ISettingsModuleService, SettingsModuleService>();
 
-            builder.Services.AddHttpClient(TargetAuditLogger.HttpClientName);
-            builder.Services.AddHttpClient(SettingsModuleService.HttpClientName);
+            builder.Services.AddHttpClient("logger-module");
+            builder.Services.AddHttpClient("ack-runtime");
 
             ConfigureServiceLifetime(builder.Host);
 

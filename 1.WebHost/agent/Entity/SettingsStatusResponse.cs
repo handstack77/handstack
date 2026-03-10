@@ -7,17 +7,9 @@ namespace agent.Entity
     {
         public string Id { get; set; } = "";
 
-        public string AppSettingsPath { get; set; } = "";
-
-        public JsonNode? AppSettings { get; set; }
-
-        public List<string> ConfiguredModules { get; set; } = new List<string>();
-
-        public List<LoadedModuleItem> LoadedModules { get; set; } = new List<LoadedModuleItem>();
-
         public string RuntimeState { get; set; } = "Unknown";
 
-        public string RuntimeMessage { get; set; } = "";
+        public JsonNode? RuntimeMessage { get; set; }
     }
 
     public sealed class LoadedModuleItem

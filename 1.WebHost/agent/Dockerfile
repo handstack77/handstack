@@ -14,8 +14,8 @@ RUN dotnet publish "agent.csproj" -c Release -o /app/publish /p:UseAppHost=false
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
 WORKDIR /app
 
-ENV ASPNETCORE_URLS=http://0.0.0.0:8484
-EXPOSE 8484
+ENV ASPNETCORE_URLS=http://0.0.0.0:8422
+EXPOSE 8422
 
 COPY --from=build /app/publish .
 

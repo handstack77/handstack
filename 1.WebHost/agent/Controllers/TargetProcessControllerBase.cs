@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -17,35 +17,33 @@ using agent.Options;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace agent.Services
+namespace agent.Controllers
 {
-    public sealed class TargetProcessManager : ITargetProcessManager
+    public abstract class TargetProcessControllerBase : AgentControllerBase
     {
         private readonly IOptionsMonitor<AgentOptions> optionsMonitor;
-        private readonly ILogger<TargetProcessManager> logger;
+        private readonly ILogger logger;
         private readonly IHttpClientFactory httpClientFactory;
-        private readonly SemaphoreSlim syncLock;
-        private readonly ConcurrentDictionary<string, ManagedProcessState> states;
-        private readonly ConcurrentDictionary<int, string> pidMap;
-        private readonly ConcurrentDictionary<int, CpuUsageSample> cpuSamples;
+        private static readonly SemaphoreSlim syncLock = new SemaphoreSlim(1, 1);
+        private static readonly ConcurrentDictionary<string, ManagedProcessState> states = new ConcurrentDictionary<string, ManagedProcessState>(StringComparer.OrdinalIgnoreCase);
+        private static readonly ConcurrentDictionary<int, string> pidMap = new ConcurrentDictionary<int, string>();
+        private static readonly ConcurrentDictionary<int, CpuUsageSample> cpuSamples = new ConcurrentDictionary<int, CpuUsageSample>();
+        private static readonly object loadSyncRoot = new object();
+        private static bool processStatesLoaded;
 
-        public TargetProcessManager(
+        protected TargetProcessControllerBase(
             IOptionsMonitor<AgentOptions> optionsMonitor,
             IHttpClientFactory httpClientFactory,
-            ILogger<TargetProcessManager> logger)
+            ILoggerFactory loggerFactory)
         {
             this.optionsMonitor = optionsMonitor;
-            this.logger = logger;
+            logger = loggerFactory.CreateLogger(GetType().FullName ?? GetType().Name);
             this.httpClientFactory = httpClientFactory;
-            syncLock = new SemaphoreSlim(1, 1);
-            states = new ConcurrentDictionary<string, ManagedProcessState>(StringComparer.OrdinalIgnoreCase);
-            pidMap = new ConcurrentDictionary<int, string>();
-            cpuSamples = new ConcurrentDictionary<int, CpuUsageSample>();
 
-            LoadProcessStates();
+            EnsureProcessStatesLoaded();
         }
 
-        public IReadOnlyList<TargetProcessInfo> GetTargets()
+        protected IReadOnlyList<TargetProcessInfo> GetTargets()
         {
             var targets = optionsMonitor.CurrentValue.Targets;
             return targets
@@ -61,7 +59,7 @@ namespace agent.Services
                 .ToArray();
         }
 
-        public bool TryGetTarget(string id, out TargetProcessOptions? target)
+        protected bool TryGetTarget(string id, out TargetProcessOptions? target)
         {
             target = null;
             if (string.IsNullOrWhiteSpace(id) == true)
@@ -75,7 +73,7 @@ namespace agent.Services
             return target is not null;
         }
 
-        public async Task<TargetStatusResponse?> GetStatusAsync(string id, CancellationToken cancellationToken)
+        protected async Task<TargetStatusResponse?> GetStatusAsync(string id, CancellationToken cancellationToken)
         {
             if (TryGetTarget(id, out var target) == false || target is null)
             {
@@ -137,7 +135,7 @@ namespace agent.Services
             return response;
         }
 
-        public async Task<TargetCommandResult> StartAsync(string id, CancellationToken cancellationToken)
+        protected async Task<TargetCommandResult> StartAsync(string id, CancellationToken cancellationToken)
         {
             if (TryGetTarget(id, out var target) == false || target is null)
             {
@@ -265,7 +263,7 @@ namespace agent.Services
             }
         }
 
-        public async Task<TargetCommandResult> StopAsync(string id, CancellationToken cancellationToken)
+        protected async Task<TargetCommandResult> StopAsync(string id, CancellationToken cancellationToken)
         {
             if (TryGetTarget(id, out var target) == false || target is null)
             {
@@ -363,7 +361,7 @@ namespace agent.Services
             }
         }
 
-        public async Task<TargetCommandResult> RestartAsync(string id, CancellationToken cancellationToken)
+        protected async Task<TargetCommandResult> RestartAsync(string id, CancellationToken cancellationToken)
         {
             if (TryGetTarget(id, out var target) == false || target is null)
             {
@@ -387,6 +385,69 @@ namespace agent.Services
             }
 
             return await StartAsync(id, cancellationToken);
+        }
+
+        protected static string ResolveWorkingDirectory(TargetProcessOptions target)
+        {
+            var workingDirectory = target.WorkingDirectory?.Trim() ?? "";
+            if (string.IsNullOrWhiteSpace(workingDirectory) == false)
+            {
+                return ResolvePath(workingDirectory);
+            }
+
+            if (string.IsNullOrWhiteSpace(target.ExecutablePath) == false && IsPathLike(target.ExecutablePath) == true)
+            {
+                var executablePath = ResolvePath(target.ExecutablePath);
+                var executableDirectory = Path.GetDirectoryName(executablePath);
+                if (string.IsNullOrWhiteSpace(executableDirectory) == false)
+                {
+                    return executableDirectory;
+                }
+            }
+
+            return AppContext.BaseDirectory;
+        }
+
+        protected static string ResolvePath(string path, string basePath)
+        {
+            basePath = ExpandPathVariables(basePath ?? "");
+            if (string.IsNullOrWhiteSpace(basePath) == true)
+            {
+                basePath = AppContext.BaseDirectory;
+            }
+
+            basePath = Path.GetFullPath(basePath);
+            path = ExpandPathVariables(path ?? "");
+            if (string.IsNullOrWhiteSpace(path) == true)
+            {
+                return basePath;
+            }
+
+            if (Path.IsPathRooted(path) == true)
+            {
+                return Path.GetFullPath(path);
+            }
+
+            return Path.GetFullPath(path, basePath);
+        }
+
+        private void EnsureProcessStatesLoaded()
+        {
+            if (processStatesLoaded == true)
+            {
+                return;
+            }
+
+            lock (loadSyncRoot)
+            {
+                if (processStatesLoaded == true)
+                {
+                    return;
+                }
+
+                LoadProcessStates();
+                processStatesLoaded = true;
+            }
         }
 
         private async Task<TargetStatusResponse?> GetStatusFromCommandBridgeAsync(TargetProcessOptions target, CancellationToken cancellationToken)
@@ -627,7 +688,7 @@ namespace agent.Services
             }
         }
 
-        private static bool IsPathLike(string executablePath)
+        protected static bool IsPathLike(string executablePath)
         {
             return executablePath.Contains(Path.DirectorySeparatorChar)
                 || executablePath.Contains(Path.AltDirectorySeparatorChar)
@@ -635,7 +696,7 @@ namespace agent.Services
                 || executablePath.StartsWith(".", StringComparison.Ordinal);
         }
 
-        private static string ResolvePath(string path)
+        protected static string ResolvePath(string path)
         {
             path = ExpandPathVariables(path);
             if (string.IsNullOrWhiteSpace(path) == true)
@@ -651,7 +712,7 @@ namespace agent.Services
             return Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, path));
         }
 
-        private static string ExpandPathVariables(string path)
+        protected static string ExpandPathVariables(string path)
         {
             var expandedPath = Environment.ExpandEnvironmentVariables(path ?? "");
             return Regex.Replace(expandedPath, @"\$(\{(?<name>[A-Za-z_][A-Za-z0-9_]*)\}|(?<name>[A-Za-z_][A-Za-z0-9_]*))", match =>
@@ -673,7 +734,7 @@ namespace agent.Services
             if (IsPathLike(executablePath) == true)
             {
                 executablePath = ResolvePath(executablePath);
-                if (File.Exists(executablePath) == false)
+                if (System.IO.File.Exists(executablePath) == false)
                 {
                     throw new FileNotFoundException($"대상 '{target.Id}' 실행 파일을 찾을 수 없습니다.", executablePath);
                 }
@@ -1044,7 +1105,7 @@ namespace agent.Services
 
                 foreach (var filePath in Directory.GetFiles(stateDirectoryPath, "*.json", SearchOption.TopDirectoryOnly))
                 {
-                    var payload = File.ReadAllText(filePath);
+                    var payload = System.IO.File.ReadAllText(filePath);
                     var snapshot = JsonSerializer.Deserialize<ManagedProcessSnapshot>(payload);
                     if (snapshot is null || string.IsNullOrWhiteSpace(snapshot.TargetId) == true)
                     {
@@ -1105,7 +1166,7 @@ namespace agent.Services
                     WriteIndented = true
                 });
 
-                File.WriteAllText(filePath, payload);
+                System.IO.File.WriteAllText(filePath, payload);
             }
             catch (Exception exception)
             {

@@ -1,28 +1,32 @@
 using System.Threading;
 using System.Threading.Tasks;
+using System.Net.Http;
 
+using agent.Options;
 using agent.Security;
-using agent.Services;
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace agent.Controllers
 {
     [Route("bridge/targets")]
     [ServiceFilter(typeof(HostBridgeKeyActionFilter))]
-    public sealed class BridgeTargetsController : AgentControllerBase
+    public sealed class BridgeTargetsController : TargetProcessControllerBase
     {
-        private readonly ITargetProcessManager targetProcessManager;
-
-        public BridgeTargetsController(ITargetProcessManager targetProcessManager)
+        public BridgeTargetsController(
+            IOptionsMonitor<AgentOptions> optionsMonitor,
+            IHttpClientFactory httpClientFactory,
+            ILoggerFactory loggerFactory)
+            : base(optionsMonitor, httpClientFactory, loggerFactory)
         {
-            this.targetProcessManager = targetProcessManager;
         }
 
         [HttpGet("{id}/status")]
         public async Task<ActionResult> GetStatus(string id, CancellationToken cancellationToken)
         {
-            var status = await targetProcessManager.GetStatusAsync(id, cancellationToken);
+            var status = await GetStatusAsync(id, cancellationToken);
             if (status is null)
             {
                 return NotFound(new
@@ -38,21 +42,21 @@ namespace agent.Controllers
         [HttpPost("{id}/start")]
         public async Task<ActionResult> Start(string id, CancellationToken cancellationToken)
         {
-            var result = await targetProcessManager.StartAsync(id, cancellationToken);
+            var result = await StartAsync(id, cancellationToken);
             return ToCommandResult(result);
         }
 
         [HttpPost("{id}/stop")]
         public async Task<ActionResult> Stop(string id, CancellationToken cancellationToken)
         {
-            var result = await targetProcessManager.StopAsync(id, cancellationToken);
+            var result = await StopAsync(id, cancellationToken);
             return ToCommandResult(result);
         }
 
         [HttpPost("{id}/restart")]
         public async Task<ActionResult> Restart(string id, CancellationToken cancellationToken)
         {
-            var result = await targetProcessManager.RestartAsync(id, cancellationToken);
+            var result = await RestartAsync(id, cancellationToken);
             return ToCommandResult(result);
         }
     }

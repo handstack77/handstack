@@ -14,12 +14,13 @@ using agent.Entity;
 using agent.Options;
 
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
-namespace agent.Services
+namespace agent.Controllers
 {
-    public sealed class SettingsModuleService : ISettingsModuleService
+    public abstract class SettingsModuleControllerBase : TargetProcessControllerBase
     {
-        public const string HttpClientName = "ack-runtime";
+        protected const string HttpClientName = "ack-runtime";
 
         private static readonly Regex portRegex = new Regex(@"--port(?:=|\s+)(?<port>\d{2,5})", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
@@ -35,21 +36,20 @@ namespace agent.Services
             CommentHandling = JsonCommentHandling.Skip
         };
 
-        private readonly ITargetProcessManager targetProcessManager;
         private readonly IHttpClientFactory httpClientFactory;
-        private readonly ILogger<SettingsModuleService> logger;
+        private readonly ILogger logger;
 
-        public SettingsModuleService(
-            ITargetProcessManager targetProcessManager,
+        protected SettingsModuleControllerBase(
+            IOptionsMonitor<AgentOptions> optionsMonitor,
             IHttpClientFactory httpClientFactory,
-            ILogger<SettingsModuleService> logger)
+            ILoggerFactory loggerFactory)
+            : base(optionsMonitor, httpClientFactory, loggerFactory)
         {
-            this.targetProcessManager = targetProcessManager;
             this.httpClientFactory = httpClientFactory;
-            this.logger = logger;
+            logger = loggerFactory.CreateLogger(GetType().FullName ?? GetType().Name);
         }
 
-        public async Task<SettingsStatusResponse> GetSettingsStatusAsync(string targetId, CancellationToken cancellationToken)
+        protected async Task<SettingsStatusResponse> GetSettingsStatusAsync(string targetId, CancellationToken cancellationToken)
         {
             var result = new SettingsStatusResponse
             {
@@ -67,19 +67,19 @@ namespace agent.Services
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            result.AppSettingsPath = context.AppSettingsPath;
-            result.AppSettings = context.AppSettingsRoot.DeepClone();
-            result.ConfiguredModules = GetConfiguredModules(context.AppSettingsRoot);
+            // result.AppSettingsPath = context.AppSettingsPath;
+            // result.AppSettings = context.AppSettingsRoot.DeepClone();
+            // result.ConfiguredModules = GetConfiguredModules(context.AppSettingsRoot);
 
             var diagnosticsResult = await TryGetDiagnosticsAsync(context, cancellationToken);
             result.RuntimeState = diagnosticsResult.RuntimeState;
             result.RuntimeMessage = diagnosticsResult.Message;
-            result.LoadedModules = diagnosticsResult.Modules;
+            // result.LoadedModules = diagnosticsResult.Modules;
 
             return result;
         }
 
-        public async Task<SettingsSaveResponse> SaveSettingsAsync(string targetId, JsonObject payload, CancellationToken cancellationToken)
+        protected async Task<SettingsSaveResponse> SaveSettingsAsync(string targetId, JsonObject payload, CancellationToken cancellationToken)
         {
             var result = new SettingsSaveResponse
             {
@@ -117,7 +117,7 @@ namespace agent.Services
             try
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                await File.WriteAllTextAsync(context.AppSettingsPath, payload.ToJsonString(writeJsonOptions), cancellationToken);
+                await System.IO.File.WriteAllTextAsync(context.AppSettingsPath, payload.ToJsonString(writeJsonOptions), cancellationToken);
                 result.Saved = true;
             }
             catch (Exception exception)
@@ -191,7 +191,7 @@ namespace agent.Services
             return result;
         }
 
-        public async Task<ModuleConfigResponse> GetModuleAsync(string moduleId, string? targetId, CancellationToken cancellationToken)
+        protected async Task<ModuleConfigResponse> GetModuleAsync(string moduleId, string? targetId, CancellationToken cancellationToken)
         {
             var result = new ModuleConfigResponse
             {
@@ -211,13 +211,13 @@ namespace agent.Services
             result.ModulePath = context.ModuleFilePath;
             result.Module = context.ModuleRoot.DeepClone();
 
-            var diagnosticsResult = await TryGetDiagnosticsAsync(context.TargetContext, cancellationToken);
-            result.IsLoaded = diagnosticsResult.Modules.Any(p => string.Equals(p.ModuleID, moduleId, StringComparison.OrdinalIgnoreCase));
+            var diagnosticsResult = await TryGetLoadedModulesAsync(context.TargetContext, cancellationToken);
+            result.IsLoaded = diagnosticsResult.Modules == null ? false : diagnosticsResult.Modules.Any(p => string.Equals(p.ModuleID, moduleId, StringComparison.OrdinalIgnoreCase));
             result.Message = "module.json을 불러왔습니다.";
             return result;
         }
 
-        public async Task<ModuleSaveResponse> SaveModuleAsync(string moduleId, string? targetId, JsonObject payload, CancellationToken cancellationToken)
+        protected async Task<ModuleSaveResponse> SaveModuleAsync(string moduleId, string? targetId, JsonObject payload, CancellationToken cancellationToken)
         {
             var result = new ModuleSaveResponse
             {
@@ -245,7 +245,7 @@ namespace agent.Services
             try
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                await File.WriteAllTextAsync(context.ModuleFilePath, payload.ToJsonString(writeJsonOptions), cancellationToken);
+                await System.IO.File.WriteAllTextAsync(context.ModuleFilePath, payload.ToJsonString(writeJsonOptions), cancellationToken);
                 result.Saved = true;
             }
             catch (Exception exception)
@@ -311,7 +311,7 @@ namespace agent.Services
         private async Task<RuntimeApplyResult> TryApplyGlobalSettingsAsync(TargetContext context, Dictionary<string, JsonNode> changedValues, CancellationToken cancellationToken)
         {
             var result = new RuntimeApplyResult();
-            var hostAccessId = GetAppSettingsString(context.AppSettingsRoot, "HostAccessID");
+            var hostAccessId = context.Target.HostAccessID;
             if (string.IsNullOrWhiteSpace(hostAccessId) == true)
             {
                 result.Errors.Add("Runtime apply skipped: AppSettings:HostAccessID가 비어 있습니다.");
@@ -381,7 +381,7 @@ namespace agent.Services
             CancellationToken cancellationToken)
         {
             var result = new RuntimeApplyResult();
-            var hostAccessId = GetAppSettingsString(context.AppSettingsRoot, "HostAccessID");
+            var hostAccessId = context.Target.HostAccessID;
             if (string.IsNullOrWhiteSpace(hostAccessId) == true)
             {
                 result.Errors.Add("Runtime apply skipped: AppSettings:HostAccessID가 비어 있습니다.");
@@ -449,7 +449,7 @@ namespace agent.Services
         private async Task<DiagnosticsReadResult> TryGetDiagnosticsAsync(TargetContext context, CancellationToken cancellationToken)
         {
             var result = new DiagnosticsReadResult();
-            var status = await targetProcessManager.GetStatusAsync(context.Target.Id, cancellationToken);
+            var status = await GetStatusAsync(context.Target.Id, cancellationToken);
             result.RuntimeState = status?.State ?? "Unknown";
 
             if (status is null || string.Equals(status.State, "Running", StringComparison.OrdinalIgnoreCase) == false)
@@ -458,7 +458,56 @@ namespace agent.Services
                 return result;
             }
 
-            var hostAccessId = GetAppSettingsString(context.AppSettingsRoot, "HostAccessID");
+            var hostAccessId = context.Target.HostAccessID;
+            if (string.IsNullOrWhiteSpace(hostAccessId) == true)
+            {
+                result.Message = "AppSettings:HostAccessID가 비어 있습니다.";
+                return result;
+            }
+
+            var port = GetServerPort(context.Target, context.AppSettingsRoot);
+            if (port <= 0)
+            {
+                result.Message = "AppSettings:ServerPort가 올바르지 않습니다.";
+                return result;
+            }
+
+            var client = httpClientFactory.CreateClient(HttpClientName);
+            var path = $"/diagnostics?hostAccessID={Uri.EscapeDataString(hostAccessId)}";
+            try
+            {
+                using var response = await client.GetAsync(BuildAckUrl(port, path), cancellationToken);
+                if (response.IsSuccessStatusCode == false)
+                {
+                    result.Message = $"진단 요청 실패: HTTP {(int)response.StatusCode}";
+                    return result;
+                }
+
+                var node = TryParseJson(await response.Content.ReadAsStringAsync(cancellationToken));
+                result.Message = node;
+                return result;
+            }
+            catch (Exception exception)
+            {
+                logger.LogDebug(exception, "진단 요청 실패. 대상ID={TargetId}", context.Target.Id);
+                result.Message = "런타임 진단 요청에 실패했습니다.";
+                return result;
+            }
+        }
+
+        private async Task<DiagnosticsReadResult> TryGetLoadedModulesAsync(TargetContext context, CancellationToken cancellationToken)
+        {
+            var result = new DiagnosticsReadResult();
+            var status = await GetStatusAsync(context.Target.Id, cancellationToken);
+            result.RuntimeState = status?.State ?? "Unknown";
+
+            if (status is null || string.Equals(status.State, "Running", StringComparison.OrdinalIgnoreCase) == false)
+            {
+                result.Message = "대상 프로세스가 실행 중이 아닙니다.";
+                return result;
+            }
+
+            var hostAccessId = context.Target.HostAccessID;
             if (string.IsNullOrWhiteSpace(hostAccessId) == true)
             {
                 result.Message = "AppSettings:HostAccessID가 비어 있습니다.";
@@ -490,6 +539,7 @@ namespace agent.Services
                     return result;
                 }
 
+                result.Modules = new List<LoadedModuleItem>();
                 foreach (var item in modulesNode.OfType<JsonObject>())
                 {
                     var loaded = new LoadedModuleItem
@@ -504,7 +554,6 @@ namespace agent.Services
                     result.Modules.Add(loaded);
                 }
 
-                result.Message = "런타임 진단 정보를 불러왔습니다.";
                 return result;
             }
             catch (Exception exception)
@@ -521,7 +570,7 @@ namespace agent.Services
             errorCode = "";
             message = "";
 
-            if (targetProcessManager.TryGetTarget(targetId, out var target) == false || target is null)
+            if (TryGetTarget(targetId, out var target) == false || target is null)
             {
                 errorCode = "target_not_found";
                 message = $"대상 '{targetId}'을(를) 찾을 수 없습니다.";
@@ -529,7 +578,7 @@ namespace agent.Services
             }
 
             var appSettingsPath = ResolveAppSettingsPath(target);
-            if (File.Exists(appSettingsPath) == false)
+            if (System.IO.File.Exists(appSettingsPath) == false)
             {
                 errorCode = "appsettings_not_found";
                 message = $"대상 '{targetId}'의 appsettings.json을 찾을 수 없습니다.";
@@ -578,7 +627,7 @@ namespace agent.Services
             else
             {
                 var candidates = new List<TargetContext>();
-                foreach (var targetInfo in targetProcessManager.GetTargets())
+                foreach (var targetInfo in GetTargets())
                 {
                     if (TryResolveTargetContext(targetInfo.Id, out var context, out _, out _) == false || context is null)
                     {
@@ -610,7 +659,7 @@ namespace agent.Services
             }
 
             var modulePath = ResolveModulePath(targetContext, moduleId);
-            if (File.Exists(modulePath) == false)
+            if (System.IO.File.Exists(modulePath) == false)
             {
                 errorCode = "module_file_not_found";
                 message = $"모듈 '{moduleId}'의 module.json을 찾을 수 없습니다.";
@@ -659,7 +708,7 @@ namespace agent.Services
         {
             var workingDirectory = ResolveWorkingDirectory(target);
             var appSettingsPath = Path.Combine(workingDirectory, "appsettings.json");
-            if (File.Exists(appSettingsPath) == true)
+            if (System.IO.File.Exists(appSettingsPath) == true)
             {
                 return appSettingsPath;
             }
@@ -671,7 +720,7 @@ namespace agent.Services
                 if (string.IsNullOrWhiteSpace(executableDirectory) == false)
                 {
                     var fallback = Path.Combine(executableDirectory, "appsettings.json");
-                    if (File.Exists(fallback) == true)
+                    if (System.IO.File.Exists(fallback) == true)
                     {
                         return fallback;
                     }
@@ -694,7 +743,7 @@ namespace agent.Services
             return Path.Combine(moduleBasePath, moduleId, "module.json");
         }
 
-        private static string ResolveWorkingDirectory(TargetProcessOptions target)
+        private new static string ResolveWorkingDirectory(TargetProcessOptions target)
         {
             var workingDirectory = target.WorkingDirectory?.Trim() ?? "";
             if (string.IsNullOrWhiteSpace(workingDirectory) == false)
@@ -715,7 +764,7 @@ namespace agent.Services
             return AppContext.BaseDirectory;
         }
 
-        private static string ResolvePath(string path, string basePath)
+        private new static string ResolvePath(string path, string basePath)
         {
             basePath = Environment.ExpandEnvironmentVariables(basePath ?? "");
             basePath = Regex.Replace(basePath, @"\$(\{(?<name>[A-Za-z_][A-Za-z0-9_]*)\}|(?<name>[A-Za-z_][A-Za-z0-9_]*))", match =>
@@ -754,7 +803,7 @@ namespace agent.Services
             return Path.GetFullPath(value, basePath);
         }
 
-        private static bool IsPathLike(string path)
+        private new static bool IsPathLike(string path)
         {
             return path.Contains(Path.DirectorySeparatorChar)
                 || path.Contains(Path.AltDirectorySeparatorChar)
@@ -764,7 +813,7 @@ namespace agent.Services
 
         private static JsonObject ReadJsonObjectFromFile(string path)
         {
-            var text = File.ReadAllText(path);
+            var text = System.IO.File.ReadAllText(path);
             var node = JsonNode.Parse(text, documentOptions: readJsonOptions);
             if (node is not JsonObject result)
             {
@@ -933,9 +982,9 @@ namespace agent.Services
         {
             public string RuntimeState { get; set; } = "Unknown";
 
-            public string Message { get; set; } = "";
+            public JsonNode? Message { get; set; } = null;
 
-            public List<LoadedModuleItem> Modules { get; set; } = new List<LoadedModuleItem>();
+            public List<LoadedModuleItem>? Modules { get; set; }
         }
 
         private sealed class RuntimeApplyResult

@@ -1,36 +1,40 @@
-﻿using System.Text.Json.Nodes;
+using System.Net.Http;
+using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
 
+using agent.Options;
 using agent.Security;
-using agent.Services;
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace agent.Controllers
 {
     [Route("modules")]
     [ServiceFilter(typeof(ManagementKeyActionFilter))]
-    public sealed class ModulesController : AgentControllerBase
+    public sealed class ModulesController : SettingsModuleControllerBase
     {
-        private readonly ISettingsModuleService settingsModuleService;
-
-        public ModulesController(ISettingsModuleService settingsModuleService)
+        public ModulesController(
+            IOptionsMonitor<AgentOptions> optionsMonitor,
+            IHttpClientFactory httpClientFactory,
+            ILoggerFactory loggerFactory)
+            : base(optionsMonitor, httpClientFactory, loggerFactory)
         {
-            this.settingsModuleService = settingsModuleService;
         }
 
         [HttpGet("{moduleId}")]
         public async Task<ActionResult> GetModule(string moduleId, [FromQuery(Name = "id")] string? targetId, CancellationToken cancellationToken)
         {
-            var result = await settingsModuleService.GetModuleAsync(moduleId, targetId, cancellationToken);
+            var result = await base.GetModuleAsync(moduleId, targetId, cancellationToken);
             return ToOperationResult(result);
         }
 
         [HttpPost("{moduleId}")]
         public async Task<ActionResult> SaveModule(string moduleId, [FromQuery(Name = "id")] string? targetId, [FromBody] JsonObject payload, CancellationToken cancellationToken)
         {
-            var result = await settingsModuleService.SaveModuleAsync(moduleId, targetId, payload, cancellationToken);
+            var result = await base.SaveModuleAsync(moduleId, targetId, payload, cancellationToken);
             return ToOperationResult(result);
         }
     }
