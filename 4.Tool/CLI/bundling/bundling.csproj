@@ -71,15 +71,13 @@
             <RuntimeDirsToRemove Remove="$([System.IO.Path]::Combine('$(RuntimesDir)', 'osx-x64'))" />
             <RuntimeDirsToRemove Remove="$([System.IO.Path]::Combine('$(RuntimesDir)', 'osx-arm64'))" />
         </ItemGroup>
-        <RemoveDir Directories="@(RuntimeDirsToRemove)" Condition="'@(RuntimeDirsToRemove)' != ''" />        <!-- 이미 publish 중이면 스킵 -->
+        
+        <RemoveDir Directories="@(RuntimeDirsToRemove)" Condition="'@(RuntimeDirsToRemove)' != ''" />
         <PropertyGroup>
             <IsPublishing Condition="'$(IsPublishing)' == ''">false</IsPublishing>
         </PropertyGroup>
 
-        <Message Text="Already in publish mode, skipping nested publish..." Condition="'$(IsPublishing)' == 'true'" Importance="high" />
-
-        <!-- publish 중이 아닐 때만 실행 -->
-        <PropertyGroup Condition="'$(IsPublishing)' != 'true'">
+        <PropertyGroup Condition="'$(IsPublishing)' != 'true' and '$(BuildingSolutionFile)' != 'true'">
             <OsMode Condition="'$(OsMode)' == '' and $(NETCoreSdkPortableRuntimeIdentifier.StartsWith('win-'))">win</OsMode>
             <OsMode Condition="'$(OsMode)' == '' and $(NETCoreSdkPortableRuntimeIdentifier.StartsWith('linux-'))">linux</OsMode>
             <OsMode Condition="'$(OsMode)' == '' and $(NETCoreSdkPortableRuntimeIdentifier.StartsWith('osx-'))">osx</OsMode>
@@ -92,9 +90,6 @@
             <PublishOutputDir>$([System.IO.Path]::Combine('$(HANDSTACK_HOME)', 'app', 'cli'))</PublishOutputDir>
         </PropertyGroup>
 
-        <Message Text="os_mode: $(OsMode), action_mode: $(ActionMode), configuration_mode: $(ConfigurationMode), arch_mode: $(ArchMode)" Condition="'$(IsPublishing)' != 'true'" Importance="high" />
-
-        <!-- dotnet publish 실행 (IsPublishing=true 전달하여 재귀 방지) -->
-        <Exec Command="dotnet publish &quot;$(MSBuildProjectFullPath)&quot; --configuration $(ConfigurationMode) --arch $(ArchMode) --os $(OsMode) --output &quot;$(PublishOutputDir)&quot; -p:IsPublishing=true" Condition="'$(IsPublishing)' != 'true'" WorkingDirectory="$(MSBuildProjectDirectory)" />
+        <Exec Command="dotnet publish &quot;$(MSBuildProjectFullPath)&quot; --configuration $(ConfigurationMode) --arch $(ArchMode) --os $(OsMode) --output &quot;$(PublishOutputDir)&quot; -p:IsPublishing=true" Condition="'$(IsPublishing)' != 'true' and '$(BuildingSolutionFile)' != 'true'" WorkingDirectory="$(MSBuildProjectDirectory)" />
     </Target>
 </Project>

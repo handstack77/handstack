@@ -1,10 +1,17 @@
 <Project Sdk="Microsoft.NET.Sdk">
-	<PropertyGroup>
-		<TargetFramework>net10.0</TargetFramework>
-		<ImplicitUsings>enable</ImplicitUsings>
-		<Nullable>enable</Nullable>
-		<InvariantGlobalization>true</InvariantGlobalization>
-	</PropertyGroup>
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net10.0</TargetFramework>
+        <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+        <PublishWithAspNetCoreTargetManifest>true</PublishWithAspNetCoreTargetManifest>
+        <TargetLatestRuntimePatch>false</TargetLatestRuntimePatch>
+        <Nullable>enable</Nullable>
+        <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+        <PublishSingleFile>true</PublishSingleFile>
+        <PlatformTarget>AnyCPU</PlatformTarget>
+        <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+        <NoWarn>ASP0023;NETSDK1206</NoWarn>
+    </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
         <DebugType>none</DebugType>
@@ -40,25 +47,25 @@
             <RuntimeDirsToRemove Remove="$([System.IO.Path]::Combine('$(RuntimesDir)', 'osx-x64'))" />
             <RuntimeDirsToRemove Remove="$([System.IO.Path]::Combine('$(RuntimesDir)', 'osx-arm64'))" />
         </ItemGroup>
-        <RemoveDir Directories="@(RuntimeDirsToRemove)" Condition="'@(RuntimeDirsToRemove)' != ''" />        <!-- 이미 publish 중이면 스킵 -->
+
+        <RemoveDir Directories="@(RuntimeDirsToRemove)" Condition="'@(RuntimeDirsToRemove)' != ''" />
         <PropertyGroup>
             <IsPublishing Condition="'$(IsPublishing)' == ''">false</IsPublishing>
         </PropertyGroup>
 
-        <Message Text="Already in publish mode, skipping nested publish..." Condition="'$(IsPublishing)' == 'true'" Importance="high" />
-
-        <!-- publish 중이 아닐 때만 실행 -->
-        <PropertyGroup Condition="'$(IsPublishing)' != 'true'">
-            <OsMode Condition="'$(OsMode)' == ''">win</OsMode>
+        <PropertyGroup Condition="'$(IsPublishing)' != 'true' and '$(BuildingSolutionFile)' != 'true'">
+            <OsMode Condition="'$(OsMode)' == '' and $(NETCoreSdkPortableRuntimeIdentifier.StartsWith('win-'))">win</OsMode>
+            <OsMode Condition="'$(OsMode)' == '' and $(NETCoreSdkPortableRuntimeIdentifier.StartsWith('linux-'))">linux</OsMode>
+            <OsMode Condition="'$(OsMode)' == '' and $(NETCoreSdkPortableRuntimeIdentifier.StartsWith('osx-'))">osx</OsMode>
             <ActionMode Condition="'$(ActionMode)' == ''">build</ActionMode>
             <ConfigurationMode Condition="'$(ConfigurationMode)' == ''">$(Configuration)</ConfigurationMode>
+            <ArchMode Condition="'$(ArchMode)' == '' and $(NETCoreSdkPortableRuntimeIdentifier.EndsWith('-arm64'))">arm64</ArchMode>
+            <ArchMode Condition="'$(ArchMode)' == '' and $(NETCoreSdkPortableRuntimeIdentifier.EndsWith('-x86'))">x86</ArchMode>
+            <ArchMode Condition="'$(ArchMode)' == '' and $(NETCoreSdkPortableRuntimeIdentifier.EndsWith('-x64'))">x64</ArchMode>
             <ArchMode Condition="'$(ArchMode)' == ''">x64</ArchMode>
-            <PublishOutputDir>$(HANDSTACK_HOME)\app\cli</PublishOutputDir>
+            <PublishOutputDir>$([System.IO.Path]::Combine('$(HANDSTACK_HOME)', 'app', 'cli'))</PublishOutputDir>
         </PropertyGroup>
 
-        <Message Text="os_mode: $(OsMode), action_mode: $(ActionMode), configuration_mode: $(ConfigurationMode), arch_mode: $(ArchMode)" Condition="'$(IsPublishing)' != 'true'" Importance="high" />
-
-        <!-- dotnet publish 실행 (IsPublishing=true 전달하여 재귀 방지) -->
-        <Exec Command="dotnet publish edgeproxy.csproj --configuration $(ConfigurationMode) --arch $(ArchMode) --os $(OsMode) --output &quot;$(PublishOutputDir)&quot; -p:IsPublishing=true" Condition="'$(IsPublishing)' != 'true'" />
+        <Exec Command="dotnet publish &quot;$(MSBuildProjectFullPath)&quot; --configuration $(ConfigurationMode) --arch $(ArchMode) --os $(OsMode) --output &quot;$(PublishOutputDir)&quot; -p:IsPublishing=true" Condition="'$(IsPublishing)' != 'true' and '$(BuildingSolutionFile)' != 'true'" WorkingDirectory="$(MSBuildProjectDirectory)" />
     </Target>
 </Project>
