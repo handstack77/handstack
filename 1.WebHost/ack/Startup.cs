@@ -1342,41 +1342,31 @@ namespace ack
                         var hostAccessID = context.Request.GetContainValue("hostAccessID");
                         if (!string.IsNullOrWhiteSpace(hostAccessID) && GlobalConfiguration.HostAccessID == hostAccessID)
                         {
+                            var systemRuntimeMetrics = serverEventListener.GetSystemRuntimeMetrics();
+                            var aspNetCoreHostingMetrics = serverEventListener.GetAspNetCoreHostingMetrics();
+                            var aspNetCoreServerKestrelMetrics = serverEventListener.GetAspNetCoreServerKestrelMetrics();
+                            var systemNetSocketMetrics = serverEventListener.GetSystemNetSocketMetrics();
+
                             var result = new
                             {
                                 Environment = new
                                 {
                                     ProcessID = Environment.ProcessId,
+                                    MachineName = Environment.MachineName,
+                                    OsDescription = RuntimeInformation.OSDescription,
+                                    OsArchitecture = RuntimeInformation.OSArchitecture.ToString(),
+                                    ProcessArchitecture = RuntimeInformation.ProcessArchitecture.ToString(),
+                                    ProcessorCount = Environment.ProcessorCount,
                                     StartTime = startTime,
                                     ApplicationName = GlobalConfiguration.ApplicationName,
                                     RunningEnvironment = GlobalConfiguration.RunningEnvironment,
                                     HostName = GlobalConfiguration.HostName,
-                                    AspNetCoreVersion = Environment.Version.ToString()
+                                    CoreVersion = Environment.Version.ToString()
                                 },
-                                Modules = GlobalConfiguration.Modules
-                                    .Select(p => new
-                                    {
-                                        ModuleID = p.ModuleID,
-                                        Name = p.Name,
-                                        IsBundledWithHost = p.IsBundledWithHost,
-                                        EventAction = p.EventAction,
-                                        SubscribeAction = p.SubscribeAction,
-                                        Version = p.Version.ToString()
-                                    })
-                                    .ToArray(),
-                                Performance = new
-                                {
-                                    TotalRequests = serverEventListener.AspNetCoreHosting?.TotalRequests ?? 0,
-                                    CurrentRequests = serverEventListener.AspNetCoreHosting?.CurrentRequests ?? 0,
-                                    FailedRequests = serverEventListener.AspNetCoreHosting?.FailedRequests ?? 0,
-                                    MemoryUsageMB = Math.Round(GC.GetTotalMemory(false) / (1024.0 * 1024.0), 2),
-                                    GCCollections = new
-                                    {
-                                        Gen0 = GC.CollectionCount(0),
-                                        Gen1 = GC.CollectionCount(1),
-                                        Gen2 = GC.CollectionCount(2)
-                                    }
-                                },
+                                SystemRuntime = systemRuntimeMetrics,
+                                Hosting = aspNetCoreHostingMetrics,
+                                ServerKestrel = aspNetCoreServerKestrelMetrics,
+                                SystemNetSocket = systemNetSocketMetrics,
                                 DiagnosticCheckTime = DateTime.Now
                             };
 

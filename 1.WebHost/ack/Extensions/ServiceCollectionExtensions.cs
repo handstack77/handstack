@@ -32,7 +32,9 @@ namespace ack.Extensions
                 }
                 else
                 {
-                    module.Assembly = Assembly.Load(new AssemblyName(module.ModuleID));
+                    var assemblyPath = Path.Combine(AppContext.BaseDirectory, $"{module.ModuleID}.dll");
+                    module.Assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(assemblyPath);
+                    Log.Logger.Information($"LoadModule: {module.ModuleID}, IsBundledWithHost");
                 }
 
                 GlobalConfiguration.Modules.Add(module);

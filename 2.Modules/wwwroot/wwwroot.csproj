@@ -92,6 +92,7 @@
         <Delete Files="@(TargetFilesToCheck)" ContinueOnError="WarnAndContinue" />
         <PropertyGroup>
             <ModuleDestinationDir>$(HANDSTACK_HOME)/modules/$(MSBuildProjectName)</ModuleDestinationDir>
+            <ModuleLibDestinationDir>$(ModuleDestinationDir)/wwwroot/lib</ModuleLibDestinationDir>
         </PropertyGroup>
 
         <RemoveDir Directories="$(ModuleDestinationDir)" Condition="Exists('$(ModuleDestinationDir)')" />
@@ -101,5 +102,13 @@
             <SourceFilesForMirroring Include="$(TargetDir)**\*" />
         </ItemGroup>
         <Copy SourceFiles="@(SourceFilesForMirroring)" DestinationFiles="@(SourceFilesForMirroring->'$(ModuleDestinationDir)/%(RecursiveDir)%(Filename)%(Extension)')" />
+
+        <ItemGroup Condition="Exists('$(MSBuildProjectDirectory)\wwwroot\lib') and !Exists('$(ModuleLibDestinationDir)')">
+            <SourceModuleLibFiles Include="$(MSBuildProjectDirectory)\wwwroot\lib\**\*" />
+        </ItemGroup>
+        <MakeDir Directories="$(ModuleLibDestinationDir)" Condition="Exists('$(MSBuildProjectDirectory)\wwwroot\lib') and !Exists('$(ModuleLibDestinationDir)')" />
+        <Copy Condition="'@(SourceModuleLibFiles)' != ''"
+              SourceFiles="@(SourceModuleLibFiles)"
+              DestinationFiles="@(SourceModuleLibFiles->'$(ModuleLibDestinationDir)/%(RecursiveDir)%(Filename)%(Extension)')" />
     </Target>
 </Project>

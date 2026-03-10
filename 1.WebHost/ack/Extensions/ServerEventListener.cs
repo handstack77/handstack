@@ -51,6 +51,54 @@ namespace ack.Extensions
         public double BytesSent = 0;
     }
 
+    public class SystemRuntimeMetricsSnapshot
+    {
+        public double TimeInGCSinceLastGC { get; set; }
+        public double AllocationRate { get; set; }
+        public double CpuUsage { get; set; }
+        public double ExceptionCount { get; set; }
+        public double Gen0GCCount { get; set; }
+        public double Gen1GCCount { get; set; }
+        public double Gen2GCCount { get; set; }
+        public double NumberOfAssembliesLoaded { get; set; }
+        public double ThreadPoolCompletedWorkItemCount { get; set; }
+        public double ThreadPoolQueueLength { get; set; }
+        public double ThreadPoolThreadCount { get; set; }
+        public double WorkingSetBytes { get; set; }
+        public double WorkingSetMB { get; set; }
+    }
+
+    public class AspNetCoreHostingMetricsSnapshot
+    {
+        public double CurrentRequests { get; set; }
+        public double FailedRequests { get; set; }
+        public double RequestRate { get; set; }
+        public double TotalRequests { get; set; }
+    }
+
+    public class AspNetCoreServerKestrelMetricsSnapshot
+    {
+        public double ConnectionQueueLength { get; set; }
+        public double ConnectionRate { get; set; }
+        public double CurrentConnections { get; set; }
+        public double CurrentTLSHandshakes { get; set; }
+        public double CurrentUpgradedRequests { get; set; }
+        public double FailedTLSHandshakes { get; set; }
+        public double RequestQueueLength { get; set; }
+        public double TLSHandshakeRate { get; set; }
+        public double TotalConnections { get; set; }
+        public double TotalTLSHandshakes { get; set; }
+    }
+
+    public class SystemNetSocketMetricsSnapshot
+    {
+        public double OutgoingConnectionsEstablished { get; set; }
+        public double IncomingConnectionsEstablished { get; set; }
+        public double CurrentOutgoingConnectAttempts { get; set; }
+        public double BytesReceived { get; set; }
+        public double BytesSent { get; set; }
+    }
+
     // https://docs.microsoft.com/ko-kr/dotnet/core/diagnostics/available-counters
     public class ServerEventListener : EventListener
     {
@@ -68,6 +116,68 @@ namespace ack.Extensions
         public AspNetCoreHostingCounter AspNetCoreHosting => aspNetCoreHostingCounter;
         public AspNetCoreServerKestrelCounter AspNetCoreServerKestrel => aspNetCoreServerKestrelCounter;
         public SystemNetSocketCounter SystemNetSocket => systemNetSocketCounter;
+
+        public SystemRuntimeMetricsSnapshot GetSystemRuntimeMetrics()
+        {
+            var workingSetBytes = Volatile.Read(ref systemRuntimeCounter.WorkingSet);
+
+            return new SystemRuntimeMetricsSnapshot
+            {
+                TimeInGCSinceLastGC = Volatile.Read(ref systemRuntimeCounter.TimeinGCsincelastGC),
+                AllocationRate = Volatile.Read(ref systemRuntimeCounter.AllocationRate),
+                CpuUsage = Volatile.Read(ref systemRuntimeCounter.CPUUsage),
+                ExceptionCount = Volatile.Read(ref systemRuntimeCounter.ExceptionCount),
+                Gen0GCCount = Volatile.Read(ref systemRuntimeCounter.Gen0GCCount),
+                Gen1GCCount = Volatile.Read(ref systemRuntimeCounter.Gen1GCCount),
+                Gen2GCCount = Volatile.Read(ref systemRuntimeCounter.Gen2GCCount),
+                NumberOfAssembliesLoaded = Volatile.Read(ref systemRuntimeCounter.NumberofAssembliesLoaded),
+                ThreadPoolCompletedWorkItemCount = Volatile.Read(ref systemRuntimeCounter.ThreadPoolCompletedWorkItemCount),
+                ThreadPoolQueueLength = Volatile.Read(ref systemRuntimeCounter.ThreadPoolQueueLength),
+                ThreadPoolThreadCount = Volatile.Read(ref systemRuntimeCounter.ThreadPoolThreadCount),
+                WorkingSetBytes = workingSetBytes,
+                WorkingSetMB = global::System.Math.Round(workingSetBytes / (1024d * 1024d), 2)
+            };
+        }
+
+        public AspNetCoreHostingMetricsSnapshot GetAspNetCoreHostingMetrics()
+        {
+            return new AspNetCoreHostingMetricsSnapshot
+            {
+                CurrentRequests = Volatile.Read(ref aspNetCoreHostingCounter.CurrentRequests),
+                FailedRequests = Volatile.Read(ref aspNetCoreHostingCounter.FailedRequests),
+                RequestRate = Volatile.Read(ref aspNetCoreHostingCounter.RequestRate),
+                TotalRequests = Volatile.Read(ref aspNetCoreHostingCounter.TotalRequests)
+            };
+        }
+
+        public AspNetCoreServerKestrelMetricsSnapshot GetAspNetCoreServerKestrelMetrics()
+        {
+            return new AspNetCoreServerKestrelMetricsSnapshot
+            {
+                ConnectionQueueLength = Volatile.Read(ref aspNetCoreServerKestrelCounter.ConnectionQueueLength),
+                ConnectionRate = Volatile.Read(ref aspNetCoreServerKestrelCounter.ConnectionRate),
+                CurrentConnections = Volatile.Read(ref aspNetCoreServerKestrelCounter.CurrentConnections),
+                CurrentTLSHandshakes = Volatile.Read(ref aspNetCoreServerKestrelCounter.CurrentTLSHandshakes),
+                CurrentUpgradedRequests = Volatile.Read(ref aspNetCoreServerKestrelCounter.CurrentUpgradedRequests),
+                FailedTLSHandshakes = Volatile.Read(ref aspNetCoreServerKestrelCounter.FailedTLSHandshakes),
+                RequestQueueLength = Volatile.Read(ref aspNetCoreServerKestrelCounter.RequestQueueLength),
+                TLSHandshakeRate = Volatile.Read(ref aspNetCoreServerKestrelCounter.TLSHandshakeRate),
+                TotalConnections = Volatile.Read(ref aspNetCoreServerKestrelCounter.TotalConnections),
+                TotalTLSHandshakes = Volatile.Read(ref aspNetCoreServerKestrelCounter.TotalTLSHandshakes)
+            };
+        }
+
+        public SystemNetSocketMetricsSnapshot GetSystemNetSocketMetrics()
+        {
+            return new SystemNetSocketMetricsSnapshot
+            {
+                OutgoingConnectionsEstablished = Volatile.Read(ref systemNetSocketCounter.OutgoingConnectionsEstablished),
+                IncomingConnectionsEstablished = Volatile.Read(ref systemNetSocketCounter.IncomingConnectionsEstablished),
+                CurrentOutgoingConnectAttempts = Volatile.Read(ref systemNetSocketCounter.CurrentOutgoingConnectAttempts),
+                BytesReceived = Volatile.Read(ref systemNetSocketCounter.BytesReceived),
+                BytesSent = Volatile.Read(ref systemNetSocketCounter.BytesSent)
+            };
+        }
 
         protected override void OnEventSourceCreated(EventSource source)
         {

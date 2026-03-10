@@ -93,7 +93,7 @@ namespace ack
                 environmentName = "";
             }
 
-            var optionPort = new Option<int?>("--port") { Description = "프로그램 수신 포트를 설정합니다. (기본값: 8421)", DefaultValueFactory = parseResult => 8421 };
+            var optionPort = new Option<int?>("--port") { Description = "프로그램 수신 포트를 설정합니다. (기본값: 8421)" };
             var optionDebug = new Option<bool?>("--debug") { Description = "프로그램 시작시 디버거에 프로세스가 연결 될 수 있도록 지연 후 시작됩니다.(기본값: 10초)", DefaultValueFactory = parseResult => false };
             var optionDelay = new Option<int?>("--delay") { Description = "프로그램 시작시 지연 시간(밀리초)을 설정합니다. (기본값: 10000)", DefaultValueFactory = parseResult => 10000 };
             var optionProcessName = new Option<string?>("--pname") { Description = "관리 업무 목적으로 부여한 프로세스 이름입니다" };

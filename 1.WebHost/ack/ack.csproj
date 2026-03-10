@@ -2,7 +2,6 @@
     <PropertyGroup>
         <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
         <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
-        <OutputType>Exe</OutputType>
         <TargetFramework>net10.0</TargetFramework>
         <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
         <PublishWithAspNetCoreTargetManifest>true</PublishWithAspNetCoreTargetManifest>
@@ -17,6 +16,10 @@
         <AssemblyName>ack</AssemblyName>
         <Description>HandStack은 고객과 업무에 들여야 하는 시간과 노력을 줄입니다</Description>
         <NoWarn>IL3000;IL3002;NU1903;ASP0023;NU1608;NU1510;CA1416;</NoWarn>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(RuntimeIdentifier)' == '' and '$(BuildingInsideVisualStudio)' == 'true' and '$(NETCoreSdkPortableRuntimeIdentifier)' != ''">
+        <RuntimeIdentifier>$(NETCoreSdkPortableRuntimeIdentifier)</RuntimeIdentifier>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -37,13 +40,22 @@
         <PackageReference Include="LiteDB" Version="5.0.21" />
         <PackageReference Include="MediatR" Version="12.5.0" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="10.0.3" />
+        <PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.NewtonsoftJson" Version="10.0.3" />
+        <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="10.0.3" />
+        <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.4" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.3" />
+        <PackageReference Include="Microsoft.Extensions.Caching.SqlServer" Version="10.0.3" />
         <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="10.0.3" />
         <PackageReference Include="Microsoft.Extensions.Hosting.Systemd" Version="10.0.3" />
         <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="10.0.3" />
         <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="10.0.3" />
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.3" />
+        <PackageReference Include="Microsoft.Win32.SystemEvents" Version="10.0.3" />
         <PackageReference Include="murmurhash" Version="1.0.3" />
+        <PackageReference Include="MySql.Data" Version="9.6.0" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+        <PackageReference Include="Npgsql" Version="10.0.1" />
+        <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="23.26.100" />
         <PackageReference Include="RestSharp" Version="113.1.0" />
         <PackageReference Include="Serilog" Version="4.3.1" />
         <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
@@ -56,8 +68,12 @@
         <PackageReference Include="SourceGear.sqlite3" Version="3.50.4.5" />
         <PackageReference Include="Sqids" Version="3.2.1" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.4" />
+        <PackageReference Include="System.CodeDom" Version="10.0.3" />
         <PackageReference Include="System.CommandLine" Version="2.0.3" />
+        <PackageReference Include="System.Configuration.ConfigurationManager" Version="10.0.3" />
         <PackageReference Include="System.Data.SQLite" Version="2.0.2" />
+        <PackageReference Include="System.Drawing.Common" Version="10.0.3" />
+        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.16.0" />
         <PackageReference Include="System.Reactive" Version="6.1.0" />
         <PackageReference Include="System.Runtime.Caching" Version="10.0.3" />
         <PackageReference Include="YamlDotNet" Version="16.3.0" />
@@ -70,6 +86,9 @@
         </Reference>
         <Reference Include="HandStack.Web">
             <HintPath>../../3.Infrastructure/Assemblies/$(Configuration)/HandStack.Web.dll</HintPath>
+        </Reference>
+        <Reference Include="HandStack.Data">
+            <HintPath>../../3.Infrastructure/Assemblies/$(Configuration)/HandStack.Data.dll</HintPath>
         </Reference>
     </ItemGroup>
 
@@ -102,7 +121,7 @@
         </PropertyGroup>
 
         <PropertyGroup>
-            <RuntimesDir>$(MSBuildProjectDirectory)/bin/$(Configuration)/$(TargetFramework)/runtimes</RuntimesDir>
+            <RuntimesDir>$(TargetDir)runtimes</RuntimesDir>
         </PropertyGroup>
         <ItemGroup Condition="Exists('$(RuntimesDir)')">
             <RuntimeDirsToRemove Include="$([System.IO.Directory]::GetDirectories('$(RuntimesDir)'))" />
