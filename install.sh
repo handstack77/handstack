@@ -32,6 +32,19 @@ if ! command -v curl 2> ~/null; then
 fi
 
 current_path=$(pwd)
+ack_csproj_path="$current_path/1.WebHost/ack/ack.csproj"
+PARENT_DIR="$(dirname "$current_path")"
+HANDSTACK_SRC="$current_path"
+DEV_HANDSTACK_HOME="$PARENT_DIR/build/handstack"
+
+if [ -f "$ack_csproj_path" ]; then
+    HANDSTACK_HOME="$DEV_HANDSTACK_HOME"
+else
+    HANDSTACK_HOME="$current_path"
+fi
+
+export HANDSTACK_SRC="$HANDSTACK_SRC"
+export HANDSTACK_HOME="$HANDSTACK_HOME"
 
 # 환경 변수 설정
 if [[ "$OSTYPE" == "darwin"* ]]; then
@@ -47,26 +60,24 @@ if ! grep -q "DOTNET_CLI_TELEMETRY_OPTOUT" "$PROFILE_FILE"; then
     echo 'export DOTNET_CLI_TELEMETRY_OPTOUT=1' >> "$PROFILE_FILE"
 fi
 
-# PARENT_DIR 계산
-PARENT_DIR="$(dirname "$current_path")"
-
-# HANDSTACK_HOME 설정
-HANDSTACK_HOME="$PARENT_DIR/build/handstack"
-mkdir -p "$HANDSTACK_HOME"
-
-# HANDSTACK_HOME 환경 변수 설정 (중복 제거 후 추가)
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    sed -i '' '/export HANDSTACK_HOME=/d' "$PROFILE_FILE"
-else
-    sed -i '/export HANDSTACK_HOME=/d' "$PROFILE_FILE"
-fi
-echo "export HANDSTACK_HOME=\"$HANDSTACK_HOME\"" >> "$PROFILE_FILE"
-export HANDSTACK_HOME="$HANDSTACK_HOME"
-
+echo "HANDSTACK_SRC: $HANDSTACK_SRC"
 echo "HANDSTACK_HOME: $HANDSTACK_HOME"
 
 # 개발 환경 설정 (ack.csproj 존재 시)
 if [ -f "$current_path/1.WebHost/ack/ack.csproj" ]; then
+    # 개발 환경에서만 HANDSTACK_SRC/HANDSTACK_HOME을 호스트 프로필에 등록
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        sed -i '' '/export HANDSTACK_SRC=/d' "$PROFILE_FILE"
+        sed -i '' '/export HANDSTACK_HOME=/d' "$PROFILE_FILE"
+    else
+        sed -i '/export HANDSTACK_SRC=/d' "$PROFILE_FILE"
+        sed -i '/export HANDSTACK_HOME=/d' "$PROFILE_FILE"
+    fi
+    echo "export HANDSTACK_SRC=\"$HANDSTACK_SRC\"" >> "$PROFILE_FILE"
+    echo "export HANDSTACK_HOME=\"$HANDSTACK_HOME\"" >> "$PROFILE_FILE"
+
+    mkdir -p "$HANDSTACK_HOME"
+
     # .NET Core 설치 및 버전 확인
     dotnet --version > /dev/null 2>&1
     if [ $? -ne 0 ]; then
@@ -168,12 +179,6 @@ fi
 # 실행 환경 설정 (ack.dll 존재 시)
 if [ -f "$current_path/app/ack.dll" ]; then
     echo "current_path: $current_path ack 실행 환경 설치 확인 중..."
-    
-    # 환경 변수 설정
-    sudo sed -i '/export HANDSTACK_HOME=/d' /etc/profile
-    echo "export HANDSTACK_HOME=\"$current_path\"" | sudo tee -a /etc/profile
-    export HANDSTACK_HOME="$current_path"
-    source /etc/profile
     
     # 루트 node_modules 설치
     if [ ! -d "$current_path/node_modules" ]; then

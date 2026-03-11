@@ -92,7 +92,7 @@ function Open-InstallGuide {
     exit 1
 }
 
-# 환경 변수를 현재 세션과 영구 저장소에 동시에 등록합니다.
+# 환경 변수를 현재 세션에 설정하고, 필요할 때만 영구 저장소에 등록합니다.
 #
 # 플랫폼별 동작:
 #   Windows - [Environment]::SetEnvironmentVariable로 사용자 수준에 영구 등록
@@ -102,17 +102,23 @@ function Open-InstallGuide {
 # 매개변수:
 #   Name  - 환경 변수 이름
 #   Value - 환경 변수 값
+#   PersistToHost - [스위치] 사용자 환경/셸 프로필에 영구 등록 여부
 #
 # 사용 예시:
-#   Set-PersistentEnv -Name "HANDSTACK_SRC" -Value "/home/user/handstack"
+#   Set-PersistentEnv -Name "HANDSTACK_SRC" -Value "/home/user/handstack" -PersistToHost
 function Set-PersistentEnv {
     param(
         [string]$Name,
-        [string]$Value
+        [string]$Value,
+        [switch]$PersistToHost
     )
 
     # 현재 PowerShell 세션에 즉시 반영
     [System.Environment]::SetEnvironmentVariable($Name, $Value, "Process")
+
+    if (-not $PersistToHost) {
+        return
+    }
 
     if ($IsWindows) {
         # 사용자 수준 환경 변수로 영구 등록 (레지스트리 저장)
@@ -245,22 +251,26 @@ if (-not (Test-CommandExists "curl")) {
         -Url "https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#winget-을-이용한-curl-설치"
 }
 
-# 현재 디렉터리를 기준으로 소스 경로와 빌드 출력 경로를 계산하여 환경 변수로 등록합니다.
+# 현재 디렉터리를 기준으로 소스 경로와 빌드 출력 경로를 계산하여 환경 변수를 설정합니다.
 Write-Host ""
 Write-Host "환경 변수 설정 중..."
 
 $currentPath = (Get-Location).Path
 $parentDir = Split-Path -Parent $currentPath
-$handstackHome = [System.IO.Path]::Combine($parentDir, "build", "handstack")
+$ackCsprojPath = [System.IO.Path]::Combine($currentPath, "1.WebHost", "ack", "ack.csproj")
+$isDevelopmentEnvironment = Test-Path $ackCsprojPath
+$developmentHandstackHome = [System.IO.Path]::Combine($parentDir, "build", "handstack")
+$runtimeHandstackHome = $currentPath
+$handstackHome = if ($isDevelopmentEnvironment) { $developmentHandstackHome } else { $runtimeHandstackHome }
 
 # .NET CLI 원격 분석 비활성화
-Set-PersistentEnv -Name "DOTNET_CLI_TELEMETRY_OPTOUT" -Value "1"
+Set-PersistentEnv -Name "DOTNET_CLI_TELEMETRY_OPTOUT" -Value "1" -PersistToHost
 
 # HandStack 소스 루트 경로
-Set-PersistentEnv -Name "HANDSTACK_SRC" -Value $currentPath
+Set-PersistentEnv -Name "HANDSTACK_SRC" -Value $currentPath -PersistToHost:$isDevelopmentEnvironment
 
 # HandStack 빌드 출력 경로
-Set-PersistentEnv -Name "HANDSTACK_HOME" -Value $handstackHome
+Set-PersistentEnv -Name "HANDSTACK_HOME" -Value $handstackHome -PersistToHost:$isDevelopmentEnvironment
 
 # 편의를 위해 스크립트 내에서도 환경 변수로 접근 가능하도록 설정
 $env:HANDSTACK_SRC = $currentPath
@@ -268,17 +278,21 @@ $env:HANDSTACK_HOME = $handstackHome
 
 Write-Host "  HANDSTACK_SRC:  $currentPath"
 Write-Host "  HANDSTACK_HOME: $handstackHome"
+if ($isDevelopmentEnvironment) {
+    Write-Host "  환경 변수 호스트 등록: 개발 환경 모드에서 적용됨"
+}
+else {
+    Write-Host "  환경 변수 호스트 등록: 실행 환경 모드에서는 생략"
+}
 
 # 빌드 출력 디렉터리가 없으면 생성
-if (-not (Test-Path $handstackHome)) {
+if ($isDevelopmentEnvironment -and -not (Test-Path $handstackHome)) {
     New-Item -ItemType Directory -Path $handstackHome -Force | Out-Null
     Write-Host "  빌드 출력 디렉터리 생성됨: $handstackHome"
 }
 
 # 개발 환경 설정. 1.WebHost/ack/ack.csproj가 존재하면 개발 환경으로 판단하고 소스 코드 빌드 및 개발 의존성을 설치합니다.
-$ackCsprojPath = [System.IO.Path]::Combine($currentPath, "1.WebHost", "ack", "ack.csproj")
-
-if (Test-Path $ackCsprojPath) {
+if ($isDevelopmentEnvironment) {
     Write-Host ""
     Write-Host "개발 환경 설치 시작..."
 

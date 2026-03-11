@@ -27,20 +27,23 @@ set current_path=%cd%
 
 for %%i in ("%current_path%") do set "PARENT_DIR=%%~dpi"
 set "PARENT_DIR=%PARENT_DIR:~0,-1%"
+set "HANDSTACK_SRC=%current_path%"
+set "HANDSTACK_HOME=%PARENT_DIR%\build\handstack"
 
 REM 환경 변수 설정
 setx DOTNET_CLI_TELEMETRY_OPTOUT 1
 set DOTNET_CLI_TELEMETRY_OPTOUT=1
 
-setx HANDSTACK_HOME "%PARENT_DIR%\build\handstack" >nul
-set "HANDSTACK_HOME=%PARENT_DIR%\build\handstack"
-
+echo HANDSTACK_SRC: %HANDSTACK_SRC%
 echo HANDSTACK_HOME: %HANDSTACK_HOME%
-
-if not exist "%HANDSTACK_HOME%" mkdir "%HANDSTACK_HOME%"
 
 REM 개발 환경 설정 (ack.csproj 존재 시)
 if exist %current_path%\1.WebHost\ack\ack.csproj (
+	setx HANDSTACK_SRC "%HANDSTACK_SRC%" >nul
+	setx HANDSTACK_HOME "%HANDSTACK_HOME%" >nul
+
+	if not exist "%HANDSTACK_HOME%" mkdir "%HANDSTACK_HOME%"
+
 	REM .NET Core 10.0 확인
 	where dotnet >nul 2>nul
 	if %errorlevel% neq 0 (
@@ -124,7 +127,12 @@ if exist %current_path%\1.WebHost\ack\ack.csproj (
 
 REM 실행 환경 설정 (ack.exe 존재 시)
 if exist %current_path%\app\ack.exe (
+	set "HANDSTACK_SRC=%current_path%"
+	set "HANDSTACK_HOME=%current_path%"
+
 	echo current_path: %current_path% ack 실행 환경 설치 확인 중...
+	echo HANDSTACK_SRC: %HANDSTACK_SRC%
+	echo HANDSTACK_HOME: %HANDSTACK_HOME%
 
 	REM 루트 node_modules 설치
 	if not exist %current_path%\node_modules (

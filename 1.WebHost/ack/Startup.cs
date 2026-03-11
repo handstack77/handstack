@@ -158,7 +158,8 @@ namespace ack
             GlobalConfiguration.WebRootPath = environment.WebRootPath;
 
             GlobalConfiguration.TenantAppRequestPath = appSettings["TenantAppRequestPath"].ToStringSafe();
-            GlobalConfiguration.TenantAppBasePath = GlobalConfiguration.GetBaseDirectoryPath(appSettings["TenantAppBasePath"], $"{(string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("HANDSTACK_HOME")) == true ? ".." : Environment.GetEnvironmentVariable("HANDSTACK_HOME"))}{Path.DirectorySeparatorChar}tenants");
+            string handstackHomePath = Path.Combine(GlobalConfiguration.EntryBasePath, "..");
+            GlobalConfiguration.TenantAppBasePath = GlobalConfiguration.GetBaseDirectoryPath(appSettings["TenantAppBasePath"], $"{handstackHomePath}{Path.DirectorySeparatorChar}tenants");
             GlobalConfiguration.BatchProgramBasePath = GlobalConfiguration.GetBaseDirectoryPath(appSettings["BatchProgramBasePath"]);
             GlobalConfiguration.CreateAppTempPath = GlobalConfiguration.GetBaseDirectoryPath(appSettings["CreateAppTempPath"]);
             GlobalConfiguration.ForbesBasePath = GlobalConfiguration.GetBaseDirectoryPath(appSettings["ForbesBasePath"]);
@@ -1221,7 +1222,7 @@ namespace ack
                     {
                         var destModuleBasePath = string.Empty;
                         var destContractModuleBasePath = string.Empty;
-                        var handstackHomePath = Environment.GetEnvironmentVariable("HANDSTACK_HOME") ?? "";
+                        string handstackHomePath = Path.Combine(GlobalConfiguration.EntryBasePath, "..");
                         if (string.IsNullOrWhiteSpace(handstackHomePath) == false)
                         {
                             var hostAccessID = context.Request.GetContainValue("hostAccessID");

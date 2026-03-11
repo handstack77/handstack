@@ -33,18 +33,15 @@ namespace ack
         public static async Task<int> Main(string[] args)
         {
             var exitCode = 0;
-
-            var sb = new StringBuilder();
             var version = Assembly.GetEntryAssembly()?
                 .GetCustomAttribute<TargetFrameworkAttribute>()?
                 .FrameworkName;
 
-            sb.AppendLine($"Current .NET Core version: {version}");
-            sb.AppendLine($"Current Directory from {Directory.GetCurrentDirectory()}");
-            sb.AppendLine($"Launched from {Environment.CurrentDirectory}");
-            sb.AppendLine($"Physical location {AppDomain.CurrentDomain.BaseDirectory}");
-            sb.AppendLine($"Runtime call {Path.GetDirectoryName(Process.GetCurrentProcess().MainModule?.FileName)}");
-            Console.Write(sb.ToString());
+            Console.WriteLine($"Current .NET Core version: {version}");
+            Console.WriteLine($"Current Directory from: {Directory.GetCurrentDirectory()}");
+            Console.WriteLine($"Launched from: {Environment.CurrentDirectory}");
+            Console.WriteLine($"Physical location: {AppDomain.CurrentDomain.BaseDirectory}");
+            Console.WriteLine($"Runtime call: {Path.GetDirectoryName(Process.GetCurrentProcess().MainModule?.FileName)}");
 
             GlobalConfiguration.EntryBasePath = AppDomain.CurrentDomain.BaseDirectory;
             if (File.Exists("entrybasepath.txt") == true)
@@ -86,6 +83,8 @@ namespace ack
                     });
                 });
             }
+
+            Console.WriteLine($"EntryBasePath: {GlobalConfiguration.EntryBasePath}");
 
             var environmentName = Environment.GetEnvironmentVariable("ACK_ENVIRONMENT");
             if (string.IsNullOrWhiteSpace(environmentName) == true)

@@ -188,6 +188,11 @@ namespace handsonapp
             if (string.IsNullOrWhiteSpace(handstackHomePath) == true)
             {
                 handstackHomePath = Environment.GetEnvironmentVariable("HANDSTACK_HOME") ?? "";
+                if (string.IsNullOrWhiteSpace(handstackHomePath))
+                {
+                    Console.WriteLine("HANDSTACK_HOME 환경변수가 설정되지 않았습니다.");
+                    Environment.Exit(1);
+                }
             }
 
             Console.WriteLine($"UseContractFileSync {useContractFileSync}");
