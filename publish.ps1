@@ -2,7 +2,7 @@
 
 param(
     [ValidateSet("win", "linux", "osx")]
-    [string]$OsMode = "win",
+    [string]$OsMode,
 
     [ValidateSet("build", "publish")]
     [string]$ActionMode = "build",
@@ -95,6 +95,26 @@ function Resolve-Rid {
     }
 }
 
+function Resolve-CurrentOsMode {
+    $onWindows = ([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::Windows))
+    $onMacOS = ([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::OSX))
+    $onLinux = ([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::Linux))
+
+    if ($onWindows) {
+        return "win"
+    }
+
+    if ($onLinux) {
+        return "linux"
+    }
+
+    if ($onMacOS) {
+        return "osx"
+    }
+
+    throw "현재 실행 중인 OS를 확인할 수 없습니다."
+}
+
 function Invoke-CliBuildOrPublish {
     param(
         [string]$ProjectPath,
@@ -129,6 +149,10 @@ $scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 Push-Location $scriptRoot
 
 try {
+    if ([string]::IsNullOrWhiteSpace($OsMode)) {
+        $OsMode = Resolve-CurrentOsMode
+    }
+
     if ([string]::IsNullOrWhiteSpace($env:HANDSTACK_SRC)) {
         $env:HANDSTACK_SRC = $scriptRoot
     }
