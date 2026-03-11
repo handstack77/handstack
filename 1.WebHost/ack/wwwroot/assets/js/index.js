@@ -1,5 +1,5 @@
 /*!
-HandStack Javascript Library v2026.3.1
+HandStack Javascript Library v2026.3.11
 https://handshake.kr
 
 Copyright 2025, HandStack
@@ -175,7 +175,7 @@ class Module {
 }
 
 Module.ancestor = Object;
-Module.version = 'v2026.3.1';
+Module.version = 'v2026.3.11';
 
 const syn = { Module };
 syn.Config = {
@@ -7643,6 +7643,9 @@ if (typeof module !== 'undefined' && module.exports) {
                                 decodeScript = syn.$c.LZString.decompressFromBase64(moduleScript);
                                 if (decodeScript == null) {
                                     decodeError = 'LZString decompress 오류';
+                                }
+                                else {
+                                    decodeScript = decodeScript.replaceAll('\x00', ' ');
                                 }
                             } catch {
                                 decodeError = 'LZString decompress 오류';

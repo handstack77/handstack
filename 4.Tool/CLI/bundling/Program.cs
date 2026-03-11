@@ -73,6 +73,7 @@ namespace bundling
             var optionFile = new Option<FileInfo>("--file") { Description = ".html, .js, .css 형식의 전체 파일 경로입니다." };
             var optionKeepSourceFile = new Option<bool?>("--keep") { Description = "Compress 효과 적용시 원본 파일을 .src 만들지 여부입니다. (기본값 false)" };
             var optionByPassMinFile = new Option<bool?>("--passmin") { Description = "Compress 효과 적용시 파일명에 .min 파일을 건너뛰는지 여부입니다. (기본값 true)" };
+            var optionUglify = new Option<string>("--uglify") { Description = ".js 파일 Compress 결과의 인코딩 방식입니다. plain|base64|lzstring (기본값 plain)", DefaultValueFactory = parseResult => "plain" };
             var optionDirectoryInfo = new Option<DirectoryInfo>("--path") { Description = "bundling 프로그램 기능을 적용하는 전체 디렉토리 경로입니다." };
             var optionFormat = new Option<string>("--format") { Description = "실행 명령에 따라 적용하는 포맷입니다. 예) encrypt --format=base64|aes256|syn|sha256" };
             var optionBundle = new Option<string>("--bundle") { Description = "BundleFile 형식의 JSON 포맷의 Base64 문자열입니다." };
@@ -90,6 +91,7 @@ namespace bundling
                 optionFile,
                 optionKeepSourceFile,
                 optionByPassMinFile,
+                optionUglify,
                 optionDebug
             };
             subCommandCompress.SetAction((parseResult) =>
@@ -97,6 +99,7 @@ namespace bundling
                 var file = parseResult.GetValue(optionFile);
                 var keepSourceFile = parseResult.GetValue(optionKeepSourceFile);
                 var byPassMinFile = parseResult.GetValue(optionByPassMinFile);
+                var uglifyMode = NormalizeUglifyMode(parseResult.GetValue(optionUglify));
 
                 if (keepSourceFile == null)
                 {
@@ -116,7 +119,7 @@ namespace bundling
                     }
                     else
                     {
-                        WebFileCompress(file, keepSourceFile.Value, byPassMinFile.Value);
+                        WebFileCompress(file, keepSourceFile.Value, byPassMinFile.Value, uglifyMode);
                     }
                 }
                 catch (Exception exception)
@@ -138,6 +141,7 @@ namespace bundling
                 optionDirectoryInfo,
                 optionKeepSourceFile,
                 optionByPassMinFile,
+                optionUglify,
                 optionExcludes,
                 optionDebug
             };
@@ -146,6 +150,7 @@ namespace bundling
                 var directory = parseResult.GetValue(optionDirectoryInfo);
                 var keepSourceFile = parseResult.GetValue(optionKeepSourceFile);
                 var byPassMinFile = parseResult.GetValue(optionByPassMinFile);
+                var uglifyMode = NormalizeUglifyMode(parseResult.GetValue(optionUglify));
                 var excludeDirectories = parseResult.GetValue(optionExcludes);
 
                 if (keepSourceFile == null)
@@ -171,7 +176,7 @@ namespace bundling
                     }
                     else
                     {
-                        WebFileCompress(directory, keepSourceFile.Value, byPassMinFile.Value, excludeDirectories);
+                        WebFileCompress(directory, keepSourceFile.Value, byPassMinFile.Value, excludeDirectories, uglifyMode);
                     }
                 }
                 catch (Exception exception)
@@ -496,7 +501,22 @@ namespace bundling
             return result;
         }
 
-        public static void WebFileCompress(FileInfo file, bool keepSourceFile = false, bool byPassMinFile = true)
+        private static string NormalizeUglifyMode(string? uglifyMode)
+        {
+            if (string.Equals(uglifyMode, "base64", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                return "base64";
+            }
+
+            if (string.Equals(uglifyMode, "lzstring", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                return "lzstring";
+            }
+
+            return "plain";
+        }
+
+        public static void WebFileCompress(FileInfo file, bool keepSourceFile = false, bool byPassMinFile = true, string uglifyMode = "plain")
         {
             if (file.Exists == true)
             {
@@ -552,7 +572,23 @@ namespace bundling
 
                             if (file.Extension == ".js")
                             {
-                                File.WriteAllText(file.FullName.Replace("\\", "/"), uglifyCode + ";");
+                                if (File.Exists(file.FullName.Replace("\\", "/").Replace(file.Name, file.Name.Replace(".js", ".html"))) == true)
+                                {
+                                    switch (NormalizeUglifyMode(uglifyMode))
+                                    {
+                                        case "base64":
+                                            uglifyCode = uglifyCode.EncodeBase64();
+                                            File.WriteAllText(file.FullName.Replace("\\", "/"), uglifyCode);
+                                            break;
+                                        case "lzstring":
+                                            uglifyCode = LZStringHelper.CompressToBase64(uglifyCode);
+                                            File.WriteAllText(file.FullName.Replace("\\", "/"), uglifyCode);
+                                            break;
+                                        default:
+                                            File.WriteAllText(file.FullName.Replace("\\", "/"), uglifyCode + ";");
+                                            break;
+                                    }
+                                }
                             }
                             else
                             {
@@ -574,7 +610,7 @@ namespace bundling
             }
         }
 
-        public static void WebFileCompress(DirectoryInfo directory, bool keepSourceFile = false, bool byPassMinFile = true, string excludeDirectories = "")
+        public static void WebFileCompress(DirectoryInfo directory, bool keepSourceFile = false, bool byPassMinFile = true, string excludeDirectories = "", string uglifyMode = "plain")
         {
             var excludes = new List<string>();
             var excludeList = excludeDirectories.SplitAndTrim('|').ToList();
@@ -610,7 +646,7 @@ namespace bundling
 
             foreach (var file in files)
             {
-                WebFileCompress(file, keepSourceFile, byPassMinFile);
+                WebFileCompress(file, keepSourceFile, byPassMinFile, uglifyMode);
             }
         }
 
