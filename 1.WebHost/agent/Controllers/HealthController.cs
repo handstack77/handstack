@@ -15,7 +15,7 @@ namespace agent.Controllers
             return Ok(new
             {
                 name = "handstack-agent",
-                utcNow = DateTimeOffset.UtcNow,
+                now = DateTime.Now,
                 status = "ok"
             });
         }

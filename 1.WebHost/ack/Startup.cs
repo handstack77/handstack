@@ -1352,11 +1352,6 @@ namespace ack
                                 Environment = new
                                 {
                                     ProcessID = Environment.ProcessId,
-                                    MachineName = Environment.MachineName,
-                                    OsDescription = RuntimeInformation.OSDescription,
-                                    OsArchitecture = RuntimeInformation.OSArchitecture.ToString(),
-                                    ProcessArchitecture = RuntimeInformation.ProcessArchitecture.ToString(),
-                                    ProcessorCount = Environment.ProcessorCount,
                                     StartTime = startTime,
                                     ApplicationName = GlobalConfiguration.ApplicationName,
                                     RunningEnvironment = GlobalConfiguration.RunningEnvironment,
@@ -1367,7 +1362,7 @@ namespace ack
                                 Hosting = aspNetCoreHostingMetrics,
                                 ServerKestrel = aspNetCoreServerKestrelMetrics,
                                 SystemNetSocket = systemNetSocketMetrics,
-                                DiagnosticCheckTime = DateTime.Now
+                                DiagnosticAt = DateTime.Now
                             };
 
                             context.Response.Headers.ContentType = "application/json; charset=utf-8";

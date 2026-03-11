@@ -17,9 +17,9 @@ using agent.Options;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace agent.Controllers
+namespace agent.Services
 {
-    public abstract class TargetProcessControllerBase : AgentControllerBase
+    public sealed class TargetProcessManager : ITargetProcessManager
     {
         private readonly IOptionsMonitor<AgentOptions> optionsMonitor;
         private readonly ILogger logger;
@@ -31,7 +31,7 @@ namespace agent.Controllers
         private static readonly object loadSyncRoot = new object();
         private static bool processStatesLoaded;
 
-        protected TargetProcessControllerBase(
+        public TargetProcessManager(
             IOptionsMonitor<AgentOptions> optionsMonitor,
             IHttpClientFactory httpClientFactory,
             ILoggerFactory loggerFactory)
@@ -43,7 +43,7 @@ namespace agent.Controllers
             EnsureProcessStatesLoaded();
         }
 
-        protected IReadOnlyList<TargetProcessInfo> GetTargets()
+        public IReadOnlyList<TargetProcessInfo> GetTargets()
         {
             var targets = optionsMonitor.CurrentValue.Targets;
             return targets
@@ -59,7 +59,7 @@ namespace agent.Controllers
                 .ToArray();
         }
 
-        protected bool TryGetTarget(string id, out TargetProcessOptions? target)
+        public bool TryGetTarget(string id, out TargetProcessOptions? target)
         {
             target = null;
             if (string.IsNullOrWhiteSpace(id) == true)
@@ -73,7 +73,7 @@ namespace agent.Controllers
             return target is not null;
         }
 
-        protected async Task<TargetStatusResponse?> GetStatusAsync(string id, CancellationToken cancellationToken)
+        public async Task<TargetStatusResponse?> GetStatusAsync(string id, CancellationToken cancellationToken)
         {
             if (TryGetTarget(id, out var target) == false || target is null)
             {
@@ -135,7 +135,7 @@ namespace agent.Controllers
             return response;
         }
 
-        protected async Task<TargetCommandResult> StartAsync(string id, CancellationToken cancellationToken)
+        public async Task<TargetCommandResult> StartAsync(string id, CancellationToken cancellationToken)
         {
             if (TryGetTarget(id, out var target) == false || target is null)
             {
@@ -263,7 +263,7 @@ namespace agent.Controllers
             }
         }
 
-        protected async Task<TargetCommandResult> StopAsync(string id, CancellationToken cancellationToken)
+        public async Task<TargetCommandResult> StopAsync(string id, CancellationToken cancellationToken)
         {
             if (TryGetTarget(id, out var target) == false || target is null)
             {
@@ -361,7 +361,7 @@ namespace agent.Controllers
             }
         }
 
-        protected async Task<TargetCommandResult> RestartAsync(string id, CancellationToken cancellationToken)
+        public async Task<TargetCommandResult> RestartAsync(string id, CancellationToken cancellationToken)
         {
             if (TryGetTarget(id, out var target) == false || target is null)
             {
@@ -387,7 +387,7 @@ namespace agent.Controllers
             return await StartAsync(id, cancellationToken);
         }
 
-        protected static string ResolveWorkingDirectory(TargetProcessOptions target)
+        internal static string ResolveWorkingDirectory(TargetProcessOptions target)
         {
             var workingDirectory = target.WorkingDirectory?.Trim() ?? "";
             if (string.IsNullOrWhiteSpace(workingDirectory) == false)
@@ -408,7 +408,7 @@ namespace agent.Controllers
             return AppContext.BaseDirectory;
         }
 
-        protected static string ResolvePath(string path, string basePath)
+        internal static string ResolvePath(string path, string basePath)
         {
             basePath = ExpandPathVariables(basePath ?? "");
             if (string.IsNullOrWhiteSpace(basePath) == true)
@@ -688,7 +688,7 @@ namespace agent.Controllers
             }
         }
 
-        protected static bool IsPathLike(string executablePath)
+        internal static bool IsPathLike(string executablePath)
         {
             return executablePath.Contains(Path.DirectorySeparatorChar)
                 || executablePath.Contains(Path.AltDirectorySeparatorChar)
@@ -696,7 +696,7 @@ namespace agent.Controllers
                 || executablePath.StartsWith(".", StringComparison.Ordinal);
         }
 
-        protected static string ResolvePath(string path)
+        internal static string ResolvePath(string path)
         {
             path = ExpandPathVariables(path);
             if (string.IsNullOrWhiteSpace(path) == true)
@@ -712,7 +712,7 @@ namespace agent.Controllers
             return Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, path));
         }
 
-        protected static string ExpandPathVariables(string path)
+        internal static string ExpandPathVariables(string path)
         {
             var expandedPath = Environment.ExpandEnvironmentVariables(path ?? "");
             return Regex.Replace(expandedPath, @"\$(\{(?<name>[A-Za-z_][A-Za-z0-9_]*)\}|(?<name>[A-Za-z_][A-Za-z0-9_]*))", match =>

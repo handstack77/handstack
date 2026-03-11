@@ -4,6 +4,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
+using agent.Options;
 using agent.Security;
 
 using Microsoft.AspNetCore.Authentication;

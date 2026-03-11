@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -39,9 +39,9 @@ namespace agent.Controllers
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var utcNow = DateTimeOffset.UtcNow;
+            var now = DateTime.Now;
             var processSnapshot = CollectProcessSnapshot();
-            var cpuPercent = CalculateCpuPercent(utcNow, processSnapshot.TotalProcessorTime);
+            var cpuPercent = CalculateCpuPercent(now, processSnapshot.TotalProcessorTime);
 
             var (totalMemoryBytes, availableMemoryBytes) = GetMemoryStats();
             var usedMemoryBytes = (totalMemoryBytes.HasValue == true && availableMemoryBytes.HasValue == true)
@@ -52,7 +52,7 @@ namespace agent.Controllers
 
             var response = new HostStatsResponse
             {
-                UtcNow = utcNow,
+                Now = now,
                 MachineName = Environment.MachineName,
                 HostName = Dns.GetHostName(),
                 OsDescription = RuntimeInformation.OSDescription,

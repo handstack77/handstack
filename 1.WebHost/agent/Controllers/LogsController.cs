@@ -4,32 +4,31 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Net.Http;
 
 using agent.Options;
 using agent.Security;
+using agent.Services;
 
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace agent.Controllers
 {
     [Route("")]
     [ServiceFilter(typeof(ManagementKeyActionFilter))]
-    public sealed class LogsController : TargetProcessControllerBase
+    public sealed class LogsController : AgentControllerBase
     {
         private const int DefaultRows = 300;
         private const int MaxRows = 5000;
 
         private readonly IOptionsMonitor<AgentOptions> optionsMonitor;
+        private readonly ITargetProcessManager targetProcessManager;
 
         public LogsController(
-            IOptionsMonitor<AgentOptions> optionsMonitor,
-            IHttpClientFactory httpClientFactory,
-            ILoggerFactory loggerFactory)
-            : base(optionsMonitor, httpClientFactory, loggerFactory)
+            ITargetProcessManager targetProcessManager,
+            IOptionsMonitor<AgentOptions> optionsMonitor)
         {
+            this.targetProcessManager = targetProcessManager;
             this.optionsMonitor = optionsMonitor;
         }
 
@@ -145,7 +144,7 @@ namespace agent.Controllers
                 return null;
             }
 
-            var workingDirectory = ResolveWorkingDirectory(runningTarget);
+            var workingDirectory = TargetProcessManager.ResolveWorkingDirectory(runningTarget);
             var logDirectoryPath = Path.GetFullPath(Path.Combine(workingDirectory, "..", "log"));
             return (runningTarget, workingDirectory, logDirectoryPath);
         }
@@ -159,7 +158,7 @@ namespace agent.Controllers
                     continue;
                 }
 
-                var status = await GetStatusAsync(target.Id, cancellationToken);
+                var status = await targetProcessManager.GetStatusAsync(target.Id, cancellationToken);
                 if (status != null)
                 {
                     return target;

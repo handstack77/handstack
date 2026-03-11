@@ -1,4 +1,4 @@
-using System.Text.Json.Nodes;
+﻿using System.Text.Json.Nodes;
 
 namespace agent.Entity
 {
@@ -9,8 +9,6 @@ namespace agent.Entity
         public string ModuleId { get; set; } = "";
 
         public string ModulePath { get; set; } = "";
-
-        public bool IsLoaded { get; set; }
 
         public JsonNode? Module { get; set; }
     }

@@ -11,17 +11,4 @@ namespace agent.Entity
 
         public JsonNode? RuntimeMessage { get; set; }
     }
-
-    public sealed class LoadedModuleItem
-    {
-        public string ModuleID { get; set; } = "";
-
-        public string Name { get; set; } = "";
-
-        public string Version { get; set; } = "";
-
-        public List<string> EventAction { get; set; } = new List<string>();
-
-        public List<string> SubscribeAction { get; set; } = new List<string>();
-    }
 }

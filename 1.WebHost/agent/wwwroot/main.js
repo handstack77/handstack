@@ -3,12 +3,247 @@
 let $main = {
     hook: {
         pageLoad() {
-            $this.method.bindEvents();
+            $this.method.initializeBaseUrl();
+            $this.method.populateTargetSelectors([]);
+            $this.method.populateModuleSelectors([]);
             $this.method.loadProfile();
+            $this.method.bindEvents();
         }
     },
 
     event: {
+        async btnValidateKey_click() {
+            const key = syn.$l.get('txtManagementKey').value;
+            if (key === '') {
+                $this.method.renderError('/validate/{key} 호출에 사용할 키를 입력하세요.');
+                return;
+            }
+
+            const response = await $this.method.requestApi({
+                method: 'GET',
+                path: '/validate/' + encodeURIComponent(key),
+                includeManagementKey: false
+            });
+
+            if (response && response.ok && response.data && response.data.header) {
+                $this.method.renderResponse(response.status, response.statusText, response.data);
+                $this.method.setText('txtHeaderName', String(response.data.header));
+            }
+        },
+
+        async btnGetTargets_click() {
+            const response = await $this.method.requestApi({
+                method: 'GET',
+                path: '/targets',
+                includeManagementKey: true
+            });
+
+            if (response && response.ok) {
+                $this.method.renderResponse(response.status, response.statusText, response.data);
+                $this.method.populateTargetSelectors($this.method.extractTargetOptions(response.data));
+            }
+        },
+
+        async btnGetTargetStatus_click() {
+            const targetId = $this.method.requireText('txtTargetId', '대상 ID를 입력하세요.');
+            if (targetId === null) {
+                return;
+            }
+
+            const response = await $this.method.requestApi({
+                method: 'GET',
+                path: '/targets/' + encodeURIComponent(targetId) + '/status',
+                includeManagementKey: true
+            });
+
+            if (response && response.ok) {
+                $this.method.renderResponse(response.status, response.statusText, response.data);
+                $this.method.syncTargetSelectors(targetId);
+                await $this.method.loadModulesForTarget(targetId);
+            }
+        },
+
+        async btnStartTarget_click() {
+            await $this.method.callTargetAction('start');
+        },
+
+        async btnStopTarget_click() {
+            await $this.method.callTargetAction('stop');
+        },
+
+        async btnRestartTarget_click() {
+            await $this.method.callTargetAction('restart');
+        },
+
+        async btnGetDiagnostics_click() {
+            const settingsId = $this.method.requireText('txtSettingsId', '설정 대상 ID를 입력하세요.');
+            if (settingsId === null) {
+                return;
+            }
+
+            const response = await $this.method.requestApi({
+                method: 'GET',
+                path: '/settings/' + encodeURIComponent(settingsId) + '/diagnostics',
+                includeManagementKey: true
+            });
+
+            if (response && response.ok) {
+                $this.method.renderResponse(response.status, response.statusText, response.data);
+            }
+        },
+
+        async btnGetAppSettings_click() {
+            const settingsId = $this.method.requireText('txtSettingsId', '설정 대상 ID를 입력하세요.');
+            if (settingsId === null) {
+                return;
+            }
+
+            const response = await $this.method.requestApi({
+                method: 'GET',
+                path: '/settings/' + encodeURIComponent(settingsId),
+                includeManagementKey: true
+            });
+
+            if (response && response.ok) {
+                $this.method.renderResponse(response.status, response.statusText, response.data);
+            }
+        },
+
+        async btnSaveAppSettings_click() {
+            const settingsId = $this.method.requireText('txtSettingsId', '설정 대상 ID를 입력하세요.');
+            if (settingsId === null) {
+                return;
+            }
+
+            const payload = $this.method.tryParseJson('txtSettingsPayload');
+            if (payload === null) {
+                return;
+            }
+
+            const response = await $this.method.requestApi({
+                method: 'POST',
+                path: '/settings/' + encodeURIComponent(settingsId),
+                includeManagementKey: true,
+                body: payload
+            });
+
+            if (response && response.ok) {
+                $this.method.renderResponse(response.status, response.statusText, response.data);
+            }
+        },
+
+        async btnGetModule_click() {
+            const settingsId = $this.method.requireText('txtSettingsId', '설정 대상 ID를 입력하세요.');
+            if (settingsId === null) {
+                return;
+            }
+
+            const moduleId = $this.method.requireText('txtModuleId', '모듈 ID를 입력하세요.');
+            if (moduleId === null) {
+                return;
+            }
+
+            const query = {};
+            query.id = settingsId;
+
+            const response = await $this.method.requestApi({
+                method: 'GET',
+                path: '/modules/' + encodeURIComponent(moduleId),
+                includeManagementKey: true,
+                query: query
+            });
+
+            if (response && response.ok) {
+                $this.method.renderResponse(response.status, response.statusText, response.data);
+            }
+        },
+
+        async btnSaveModule_click() {
+            const settingsId = $this.method.requireText('txtSettingsId', '설정 대상 ID를 입력하세요.');
+            if (settingsId === null) {
+                return;
+            }
+
+            const moduleId = $this.method.requireText('txtModuleId', '모듈 ID를 입력하세요.');
+            if (moduleId === null) {
+                return;
+            }
+
+            const payload = $this.method.tryParseJson('txtModulePayload');
+            if (payload === null) {
+                return;
+            }
+
+            const query = {};
+            query.id = settingsId;
+
+            const response = await $this.method.requestApi({
+                method: 'POST',
+                path: '/modules/' + encodeURIComponent(moduleId),
+                includeManagementKey: true,
+                query: query,
+                body: payload
+            });
+
+            if (response && response.ok) {
+                $this.method.renderResponse(response.status, response.statusText, response.data);
+            }
+        },
+
+        async btnGetStats_click() {
+            const response = await $this.method.requestApi({
+                method: 'GET',
+                path: '/stats',
+                includeManagementKey: true
+            });
+
+            if (response && response.ok) {
+                $this.method.renderResponse(response.status, response.statusText, response.data);
+            }
+        },
+
+        async btnGetLogs_click() {
+            const query = {};
+            const file = syn.$l.get('txtLogFile').value.trim();
+            if (file !== '') {
+                query.file = file;
+            }
+
+            const rowsText = syn.$l.get('txtLogRows').value.trim();
+            if (rowsText !== '') {
+                const rows = Number(rowsText);
+                if (Number.isInteger(rows) === false) {
+                    $this.method.renderError('로그 행 수(rows)는 정수여야 합니다.');
+                    return;
+                }
+
+                query.rows = rows;
+            }
+
+            const response = await $this.method.requestApi({
+                method: 'GET',
+                path: '/logs',
+                includeManagementKey: true,
+                query: query
+            });
+
+            if (response && response.ok) {
+                $this.method.renderResponse(response.status, response.statusText, response.data.lines.join('\n'));
+            }
+        },
+
+        async btnGetLogTree_click() {
+            const response = await $this.method.requestApi({
+                method: 'GET',
+                path: '/logtree',
+                includeManagementKey: true
+            });
+
+            if (response && response.ok) {
+                $this.method.renderResponse(response.status, response.statusText, JSON.stringify(response.data.tree, null, 2));
+            }
+        },
+
         async btnLogout_click() {
             $this.method.setMessage('', false);
 
@@ -33,8 +268,132 @@ let $main = {
 
     method: {
         bindEvents() {
-            const logoutButton = document.getElementById('btnLogout');
-            logoutButton.addEventListener('click', $this.event.btnLogout_click);
+            syn.$l.addEvent('btnLogout', 'click', $this.event.btnLogout_click);
+            syn.$l.addEvent('btnValidateKey', 'click', $this.event.btnValidateKey_click);
+            syn.$l.addEvent('btnGetTargets', 'click', $this.event.btnGetTargets_click);
+            syn.$l.addEvent('btnGetTargetStatus', 'click', $this.event.btnGetTargetStatus_click);
+            syn.$l.addEvent('btnStartTarget', 'click', $this.event.btnStartTarget_click);
+            syn.$l.addEvent('btnStopTarget', 'click', $this.event.btnStopTarget_click);
+            syn.$l.addEvent('btnRestartTarget', 'click', $this.event.btnRestartTarget_click);
+            syn.$l.addEvent('btnGetDiagnostics', 'click', $this.event.btnGetDiagnostics_click);
+            syn.$l.addEvent('btnGetAppSettings', 'click', $this.event.btnGetAppSettings_click);
+            syn.$l.addEvent('btnSaveAppSettings', 'click', $this.event.btnSaveAppSettings_click);
+            syn.$l.addEvent('btnGetModule', 'click', $this.event.btnGetModule_click);
+            syn.$l.addEvent('btnSaveModule', 'click', $this.event.btnSaveModule_click);
+            syn.$l.addEvent('btnGetStats', 'click', $this.event.btnGetStats_click);
+            syn.$l.addEvent('btnGetLogs', 'click', $this.event.btnGetLogs_click);
+            syn.$l.addEvent('btnGetLogTree', 'click', $this.event.btnGetLogTree_click);
+        },
+
+        initializeBaseUrl() {
+            const baseUrl = window.location.origin || '';
+            if (syn.$l.get('txtBaseUrl').value === '') {
+                $this.method.setText('txtBaseUrl', baseUrl);
+            }
+        },
+
+        extractTargetOptions(data) {
+            if (Array.isArray(data) === false) {
+                return [];
+            }
+
+            return data
+                .map(function (item) {
+                    const value = String(item?.id ?? item?.Id ?? '').trim();
+                    if (value === '') {
+                        return null;
+                    }
+
+                    const name = String(item?.name ?? item?.Name ?? '').trim();
+                    return {
+                        value: value,
+                        text: name !== '' && name !== value ? name + ' [' + value + ']' : value
+                    };
+                })
+                .filter(function (item) {
+                    return item !== null;
+                });
+        },
+
+        populateTargetSelectors(options) {
+            const targetId = $this.method.getValue('txtTargetId');
+            const settingsId = $this.method.getValue('txtSettingsId');
+            const defaultTargetId = targetId || settingsId || (options[0] ? options[0].value : '');
+
+            $this.method.setSelectOptions('txtTargetId', options, '대상 목록 조회 후 선택', targetId, defaultTargetId);
+            $this.method.setSelectOptions('txtSettingsId', options, '대상 목록 조회 후 선택', settingsId, defaultTargetId);
+        },
+
+        syncTargetSelectors(targetId) {
+            if (targetId === '') {
+                return;
+            }
+
+            $this.method.setText('txtTargetId', targetId);
+            $this.method.setText('txtSettingsId', targetId);
+        },
+
+        async loadModulesForTarget(targetId) {
+            if (targetId === '') {
+                $this.method.populateModuleSelectors([]);
+                return;
+            }
+
+            const response = await $this.method.requestApi({
+                method: 'GET',
+                path: '/settings/' + encodeURIComponent(targetId),
+                includeManagementKey: true,
+                renderRequest: false,
+                renderError: false
+            });
+
+            if (response && response.ok) {
+                $this.method.populateModuleSelectors($this.method.extractModuleOptions(response.data));
+                return;
+            }
+
+            $this.method.populateModuleSelectors([]);
+        },
+
+        extractModuleOptions(data) {
+            const runtimeMessage = $this.method.normalizeObject(data?.runtimeMessage ?? data?.RuntimeMessage);
+            const modules = runtimeMessage.AppSettings.LoadModules;
+            if (Array.isArray(modules) === false) {
+                return [];
+            }
+
+            return modules.map(value => ({
+                value: value,
+                text: value
+            }));
+        },
+
+        populateModuleSelectors(options) {
+            const moduleId = $this.method.getValue('txtModuleId');
+            const defaultModuleId = options[0] ? options[0].value : '';
+            $this.method.setSelectOptions('txtModuleId', options, '대상 상태 조회 후 선택', moduleId, defaultModuleId);
+        },
+
+        normalizeObject(value) {
+            if (value === null || value === undefined) {
+                return null;
+            }
+
+            if (typeof value === 'string') {
+                const text = value.trim();
+                if (text === '') {
+                    return null;
+                }
+
+                try {
+                    return JSON.parse(text);
+                }
+                catch (error) {
+                    return null;
+                }
+            }
+
+            return value;
         },
 
         async loadProfile() {
@@ -56,8 +415,6 @@ let $main = {
                 $this.method.setText('txtEmailID', $this.method.getUserField(user, 'EmailID'));
                 $this.method.setText('txtUserName', $this.method.getUserField(user, 'UserName'));
                 $this.method.setText('txtRoles', $this.method.getUserField(user, 'Roles'));
-                $this.method.setText('txtCreatedAt', $this.method.getUserField(user, 'CreatedAt'));
-                $this.method.setText('txtExpiredAt', $this.method.getUserField(user, 'ExpiredAt'));
             }
             catch (error) {
                 $this.method.setMessage('요청 처리 중 오류가 발생했습니다.', true);
@@ -79,13 +436,6 @@ let $main = {
             return value;
         },
 
-        setText(elementID, text) {
-            const element = document.getElementById(elementID);
-            if (element) {
-                element.textContent = text;
-            }
-        },
-
         setMessage(message, isError) {
             const messageElement = document.getElementById('lblMessage');
             messageElement.textContent = message || '';
@@ -99,6 +449,242 @@ let $main = {
                 messageElement.classList.add('d-none');
                 messageElement.classList.remove('alert-success');
                 messageElement.classList.add('alert-danger');
+            }
+        },
+
+        async callTargetAction(actionName) {
+            const targetId = $this.method.requireText('txtTargetId', '대상 ID를 입력하세요.');
+            if (targetId === null) {
+                return;
+            }
+
+            const response = await $this.method.requestApi({
+                method: 'POST',
+                path: '/targets/' + encodeURIComponent(targetId) + '/' + actionName,
+                includeManagementKey: true
+            });
+
+            if (response && response.ok) {
+                $this.method.renderResponse(response.status, response.statusText, response.data);
+            }
+        },
+
+        tryParseJson(elementId) {
+            const text = syn.$l.get(elementId).value;
+            if (text === '') {
+                return {};
+            }
+
+            try {
+                return JSON.parse(text);
+            }
+            catch (error) {
+                $this.method.renderError(elementId + ' 항목의 JSON 형식이 올바르지 않습니다: ' + error.message);
+                return null;
+            }
+        },
+
+        requireText(elementId, errorMessage) {
+            const value = syn.$l.get(elementId).value;
+            if (value === '') {
+                $this.method.renderError(errorMessage);
+                return null;
+            }
+
+            return value;
+        },
+
+        setText(elementId, value) {
+            const element = syn.$l.get(elementId);
+            if (element) {
+                if (element.value === undefined) {
+                    element.innerText = value;
+                }
+                else {
+                    element.value = value;
+                }
+            }
+        },
+
+        getValue(elementId) {
+            const element = syn.$l.get(elementId);
+            return element ? String(element.value || '').trim() : '';
+        },
+
+        setSelectOptions(elementId, items, placeholderText, selectedValue, defaultValue) {
+            const element = syn.$l.get(elementId);
+            if (!element) {
+                return;
+            }
+
+            const options = [];
+            const values = new Set();
+            (items || []).forEach(function (item) {
+                const value = String(item?.value ?? '').trim();
+                if (value === '' || values.has(value) === true) {
+                    return;
+                }
+
+                values.add(value);
+                options.push({
+                    value: value,
+                    text: String(item?.text ?? value)
+                });
+            });
+
+            element.innerHTML = '';
+
+            const placeholderOption = document.createElement('option');
+            placeholderOption.value = '';
+            placeholderOption.textContent = placeholderText;
+            element.appendChild(placeholderOption);
+
+            options.forEach(function (item) {
+                const option = document.createElement('option');
+                option.value = item.value;
+                option.textContent = item.text;
+                element.appendChild(option);
+            });
+
+            const preferredValue = String(selectedValue ?? '').trim();
+            const fallbackValue = String(defaultValue ?? '').trim();
+            if (preferredValue !== '' && values.has(preferredValue) === true) {
+                element.value = preferredValue;
+            }
+            else if (fallbackValue !== '' && values.has(fallbackValue) === true) {
+                element.value = fallbackValue;
+            }
+            else {
+                element.value = '';
+            }
+        },
+
+        buildUrl(path, query) {
+            const baseUrl = syn.$l.get('txtBaseUrl').value || window.location.origin || '';
+            const normalizedBaseUrl = baseUrl.replace(/\/+$/, '');
+            const normalizedPath = path.startsWith('/') ? path : '/' + path;
+            const url = new URL(normalizedBaseUrl + normalizedPath);
+
+            if (query) {
+                Object.keys(query).forEach(function (key) {
+                    const value = query[key];
+                    if (value !== null && value !== undefined && String(value).trim() !== '') {
+                        url.searchParams.set(key, String(value));
+                    }
+                });
+            }
+
+            return url;
+        },
+
+        buildHeaders(includeManagementKey, hasBody) {
+            const headers = {};
+            if (hasBody === true) {
+                headers['Content-Type'] = 'application/json';
+            }
+
+            if (includeManagementKey === true) {
+                const headerName = syn.$l.get('txtHeaderName').value || 'X-Management-Key';
+                const managementKey = syn.$l.get('txtManagementKey').value;
+                if (managementKey !== '') {
+                    headers[headerName] = managementKey;
+                }
+            }
+
+            return headers;
+        },
+
+        async requestApi(options) {
+            const requestUrl = $this.method.buildUrl(options.path, options.query);
+            const requestInit = {
+                method: options.method,
+                headers: $this.method.buildHeaders(options.includeManagementKey === true, options.body !== undefined)
+            };
+
+            if (options.body !== undefined) {
+                requestInit.body = JSON.stringify(options.body);
+            }
+
+            const requestLine = options.method + ' ' + requestUrl.toString();
+            if (options.renderRequest !== false) {
+                $this.method.renderRequest(requestLine);
+            }
+
+            try {
+                const response = await fetch(requestUrl, requestInit);
+                const text = await response.text();
+                const data = options.rawResponse === true ? text : $this.method.parseResponse(text);
+
+                return {
+                    ok: response.ok,
+                    status: response.status,
+                    statusText: response.statusText,
+                    data: data
+                };
+            }
+            catch (error) {
+                if (options.renderError !== false) {
+                    $this.method.renderError(error.message || String(error));
+                }
+
+                return null;
+            }
+        },
+
+        parseResponse(text) {
+            const trimmed = String(text || '').trim();
+            if (trimmed === '') {
+                return {};
+            }
+
+            try {
+                return JSON.parse(trimmed);
+            }
+            catch (error) {
+                return trimmed;
+            }
+        },
+
+        renderRequest(requestLine) {
+            const requestLabel = syn.$l.get('lblRequest');
+            const statusLabel = syn.$l.get('lblStatus');
+            if (requestLabel) {
+                requestLabel.textContent = requestLine;
+            }
+
+            if (statusLabel) {
+                statusLabel.textContent = '요청 중...';
+            }
+        },
+
+        renderResponse(statusCode, statusText, data) {
+            const statusLabel = syn.$l.get('lblStatus');
+            const responseElement = syn.$l.get('txtResponse');
+
+            if (statusLabel) {
+                statusLabel.textContent = statusCode + ' ' + statusText;
+            }
+
+            if (responseElement) {
+                if (typeof data === 'string') {
+                    responseElement.textContent = data;
+                }
+                else {
+                    responseElement.textContent = JSON.stringify(data, null, 2);
+                }
+            }
+        },
+
+        renderError(message) {
+            const statusLabel = syn.$l.get('lblStatus');
+            const responseElement = syn.$l.get('txtResponse');
+
+            if (statusLabel) {
+                statusLabel.textContent = '오류';
+            }
+
+            if (responseElement) {
+                responseElement.textContent = message;
             }
         }
     }

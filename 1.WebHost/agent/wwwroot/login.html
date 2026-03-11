@@ -6,65 +6,208 @@
     <title>Agent Login</title>
     <link rel="stylesheet" href="/css/syn.bundle.min.css">
     <style>
-        .login-wrapper {
-            max-width: 560px;
-            margin: 5rem auto;
+        :root {
+            --login-bg: #f5f7fb;
+            --login-panel: #ffffff;
+            --login-border: #d8e1ee;
+            --login-muted: #66788f;
+            --login-text: #1f2a3a;
+            --login-primary: #206bc4;
+            --login-primary-dark: #16539b;
+            --login-shadow: 0 24px 60px rgba(31, 42, 58, 0.12);
+        }
+
+        body {
+            min-height: 100vh;
+            margin: 0;
+            background:
+                radial-gradient(circle at top left, rgba(32, 107, 196, 0.10), transparent 28%),
+                radial-gradient(circle at bottom right, rgba(32, 107, 196, 0.08), transparent 32%),
+                var(--login-bg);
+            color: var(--login-text);
+            font-family: "Inter", "Pretendard", "Noto Sans KR", "Malgun Gothic", sans-serif;
+        }
+
+        .login-shell {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+
+        .login-shell::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(32, 107, 196, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(32, 107, 196, 0.03) 1px, transparent 1px);
+            background-size: 32px 32px;
+            pointer-events: none;
+        }
+
+        .login-panel {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 420px;
+            border: 1px solid var(--login-border);
+            border-radius: 1.1rem;
+            background: var(--login-panel);
+            box-shadow: var(--login-shadow);
+            overflow: hidden;
+        }
+
+        .login-panel-body {
+            padding: 2rem 1.9rem 1.6rem;
+        }
+
+        .login-brand {
+            margin-bottom: 1.35rem;
+        }
+
+        .login-badge {
+            display: inline-flex;
+            align-items: center;
+            border-radius: 999px;
+            background: rgba(32, 107, 196, 0.10);
+            color: var(--login-primary);
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            padding: 0.28rem 0.62rem;
+            text-transform: uppercase;
+        }
+
+        .login-title {
+            margin: 0.85rem 0 0.35rem;
+            font-size: 1.7rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            line-height: 1.15;
+        }
+
+        .login-desc {
+            margin: 0;
+            color: var(--login-muted);
+            font-size: 0.92rem;
+            line-height: 1.55;
+        }
+
+        .login-form {
+            margin-top: 1.5rem;
+        }
+
+        .login-field + .login-field {
+            margin-top: 1rem;
+        }
+
+        .login-field .form-label {
+            margin-bottom: 0.42rem;
+            color: #34475d;
+            font-size: 0.82rem;
+            font-weight: 700;
+        }
+
+        .login-field .form-control {
+            height: 3rem;
+            border: 1px solid var(--login-border);
+            border-radius: 0.8rem;
+            background: #fbfcfe;
+            box-shadow: none;
+            padding: 0.75rem 0.95rem;
+            font-size: 0.95rem;
+        }
+
+        .login-field .form-control:focus {
+            border-color: rgba(32, 107, 196, 0.55);
+            background: #ffffff;
+            box-shadow: 0 0 0 0.22rem rgba(32, 107, 196, 0.12);
+        }
+
+        .login-submit {
+            margin-top: 1.25rem;
+        }
+
+        .login-submit .btn {
+            width: 100%;
+            height: 3rem;
+            border-radius: 0.85rem;
+            background: var(--login-primary);
+            border-color: var(--login-primary);
+            font-size: 0.95rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+
+        .login-submit .btn:hover,
+        .login-submit .btn:focus {
+            background: var(--login-primary-dark);
+            border-color: var(--login-primary-dark);
         }
 
         .login-message {
-            min-height: 36px;
+            min-height: 0;
+            margin-top: 1rem;
+            margin-bottom: 0;
+            border-radius: 0.8rem;
+            font-size: 0.82rem;
+            line-height: 1.45;
+            padding: 0.75rem 0.9rem;
+        }
+
+        .login-note {
+            margin-top: 1.2rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e6edf6;
+            color: var(--login-muted);
+            font-size: 0.78rem;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 575.98px) {
+            .login-shell {
+                padding: 1rem;
+            }
+
+            .login-panel-body {
+                padding: 1.55rem 1.2rem 1.25rem;
+            }
+
+            .login-title {
+                font-size: 1.4rem;
+            }
         }
     </style>
 </head>
 <body>
     <form autocomplete="off" id="formLogin">
-        <div class="page">
-            <div class="page-wrapper">
-                <div class="page-header mt-4">
-                    <div class="container-fluid max-width:960!">
-                        <div class="row g-2 align-items-center">
-                            <div class="col">
-                                <div class="page-pretitle f:12!">
-                                    HDS / CDM
-                                </div>
-                                <h2 class="page-title">
-                                    Agent 사용자 로그인
-                                </h2>
-                            </div>
-                        </div>
+        <div class="login-shell">
+            <div class="login-panel">
+                <div class="login-panel-body">
+                    <div class="login-brand">
+                        <h1 class="login-title">HandStack Agent 로그인</h1>
+                        <p class="login-desc">관리 콘솔에 등록된 사용자 계정으로 로그인하세요.</p>
                     </div>
-                </div>
-                <div class="page-body">
-                    <div class="container-fluid max-width:960!">
-                        <div class="login-wrapper">
-                            <div class="card">
-                                <div class="card-status-top bg-dark-overlay"></div>
-                                <div class="card-header p-2 bg-primary-lt">
-                                    <h3 class="card-title">로그인 정보 입력</h3>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row mb-3">
-                                        <label class="col-3 col-form-label required" for="txtEmailID">EmailID</label>
-                                        <div class="col">
-                                            <input id="txtEmailID" type="email" class="form-control" autocomplete="username" maxlength="255" required>
-                                        </div>
-                                    </div>
-                                    <div class="row mb-3">
-                                        <label class="col-3 col-form-label required" for="txtPassword">Password</label>
-                                        <div class="col">
-                                            <input id="txtPassword" type="password" class="form-control" autocomplete="current-password" maxlength="255" required>
-                                        </div>
-                                    </div>
-                                    <div class="d-flex justify-content-end">
-                                        <button type="submit" id="btnLogin" class="btn btn-primary">
-                                            <i class="f:18 ti ti-login mr:2"></i>
-                                            로그인
-                                        </button>
-                                    </div>
-                                    <div id="lblMessage" class="alert alert-danger mt-3 mb-0 login-message d-none" role="alert"></div>
-                                </div>
-                            </div>
+
+                    <div class="login-form">
+                        <div class="login-field">
+                            <label class="form-label required" for="txtEmailID">EmailID</label>
+                            <input id="txtEmailID" type="email" class="form-control" autocomplete="username" maxlength="255" placeholder="name@example.com" required>
                         </div>
+                        <div class="login-field">
+                            <label class="form-label required" for="txtPassword">Password</label>
+                            <input id="txtPassword" type="password" class="form-control" autocomplete="current-password" maxlength="255" placeholder="비밀번호 입력" required>
+                        </div>
+                        <div class="login-submit">
+                            <button type="submit" id="btnLogin" class="btn btn-primary">
+                                <i class="f:18 ti ti-login mr:2"></i>
+                                로그인
+                            </button>
+                        </div>
+                        <div id="lblMessage" class="alert alert-danger login-message d-none" role="alert"></div>
                     </div>
                 </div>
             </div>

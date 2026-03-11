@@ -60,6 +60,7 @@ namespace agent
             builder.Services.AddSingleton<ManagementKeyValidator>();
             builder.Services.AddSingleton<HostBridgeKeyValidator>();
             builder.Services.AddSingleton<UserCredentialValidator>();
+            builder.Services.AddSingleton<ITargetProcessManager, TargetProcessManager>();
             builder.Services.AddScoped<ManagementKeyActionFilter>();
             builder.Services.AddScoped<HostBridgeKeyActionFilter>();
             builder.Services.AddSingleton<ITargetAuditLogger, TargetAuditLogger>();

@@ -5,7 +5,7 @@ namespace agent.Entity
 {
     public sealed class HostStatsResponse
     {
-        public DateTimeOffset UtcNow { get; set; }
+        public DateTime Now { get; set; }
 
         public string MachineName { get; set; } = "";
 

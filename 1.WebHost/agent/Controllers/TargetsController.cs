@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 using agent.Options;
 using agent.Security;
+using agent.Services;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -18,7 +19,7 @@ namespace agent.Controllers
 {
     [Route("targets")]
     [ServiceFilter(typeof(ManagementKeyActionFilter))]
-    public sealed class TargetsController : TargetProcessControllerBase
+    public sealed class TargetsController : AgentControllerBase
     {
         private const string AuditHttpClientName = "logger-module";
 
@@ -28,15 +29,17 @@ namespace agent.Controllers
         };
 
         private readonly IHttpClientFactory httpClientFactory;
+        private readonly ITargetProcessManager targetProcessManager;
         private readonly IOptionsMonitor<AgentOptions> optionsMonitor;
         private readonly ILogger logger;
 
         public TargetsController(
+            ITargetProcessManager targetProcessManager,
             IOptionsMonitor<AgentOptions> optionsMonitor,
             IHttpClientFactory httpClientFactory,
             ILoggerFactory loggerFactory)
-            : base(optionsMonitor, httpClientFactory, loggerFactory)
         {
+            this.targetProcessManager = targetProcessManager;
             this.httpClientFactory = httpClientFactory;
             this.optionsMonitor = optionsMonitor;
             logger = loggerFactory.CreateLogger<TargetsController>();
@@ -45,7 +48,7 @@ namespace agent.Controllers
         [HttpGet("")]
         public async Task<ActionResult> GetTargets(CancellationToken cancellationToken)
         {
-            var targets = base.GetTargets();
+            var targets = targetProcessManager.GetTargets();
             await WriteTargetsAuditAsync(HttpContext, "targets.list", null, true, StatusCodes.Status200OK, $"count={targets.Count}", cancellationToken);
             return Ok(targets);
         }
@@ -53,7 +56,7 @@ namespace agent.Controllers
         [HttpGet("{id}/status")]
         public async Task<ActionResult> GetStatus(string id, CancellationToken cancellationToken)
         {
-            var status = await base.GetStatusAsync(id, cancellationToken);
+            var status = await targetProcessManager.GetStatusAsync(id, cancellationToken);
             if (status is null)
             {
                 await WriteTargetsAuditAsync(HttpContext, "targets.status", id, false, StatusCodes.Status404NotFound, "대상을 찾을 수 없습니다.", cancellationToken);
@@ -71,7 +74,7 @@ namespace agent.Controllers
         [HttpPost("{id}/start")]
         public async Task<ActionResult> Start(string id, CancellationToken cancellationToken)
         {
-            var result = await base.StartAsync(id, cancellationToken);
+            var result = await targetProcessManager.StartAsync(id, cancellationToken);
             await WriteTargetsAuditAsync(HttpContext, "targets.start", id, result.Success, ToCommandStatusCode(result), result.Message, cancellationToken);
             return ToCommandResult(result);
         }
@@ -79,7 +82,7 @@ namespace agent.Controllers
         [HttpPost("{id}/stop")]
         public async Task<ActionResult> Stop(string id, CancellationToken cancellationToken)
         {
-            var result = await base.StopAsync(id, cancellationToken);
+            var result = await targetProcessManager.StopAsync(id, cancellationToken);
             await WriteTargetsAuditAsync(HttpContext, "targets.stop", id, result.Success, ToCommandStatusCode(result), result.Message, cancellationToken);
             return ToCommandResult(result);
         }
@@ -87,7 +90,7 @@ namespace agent.Controllers
         [HttpPost("{id}/restart")]
         public async Task<ActionResult> Restart(string id, CancellationToken cancellationToken)
         {
-            var result = await base.RestartAsync(id, cancellationToken);
+            var result = await targetProcessManager.RestartAsync(id, cancellationToken);
             await WriteTargetsAuditAsync(HttpContext, "targets.restart", id, result.Success, ToCommandStatusCode(result), result.Message, cancellationToken);
             return ToCommandResult(result);
         }
