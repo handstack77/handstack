@@ -10520,7 +10520,7 @@
 
     $auigrid.extend({
         name: 'syn.uicontrols.$auigrid',
-        version: 'v2025.01.23',
+        version: 'v2025.03.11',
 
         gridControls: [],
         gridCodeDatas: [],
@@ -10726,7 +10726,6 @@
                             var item = evt.item;
                             var oldValue = evt.oldValue;
                             var newValue = evt.value;
-
                             var mod = window[syn.$w.pageScript];
                             var columns = AUIGrid.getColumnInfoList(gridID);
                             var columnInfo = columns.find((item) => { return item.dataField == dataField });
@@ -12525,8 +12524,6 @@
             var result = -1;
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
-                AUIGrid.forceEditingComplete(gridID, null, false);
-
                 var columnInfoList = AUIGrid.getColumnInfoList(gridID);
                 if (columnInfoList.length > 0) {
                     var columnInfo = columnInfoList.find(item => item.headerText == columnText);
@@ -13026,8 +13023,6 @@
             var result = null;
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
-                AUIGrid.forceEditingComplete(gridID, null, false);
-
                 if ($object.isNumber(dataField) == true) {
                     dataField = $auigrid.colToProp(elID, dataField);
                 }
@@ -13070,8 +13065,6 @@
             var result = null;
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
-                AUIGrid.forceEditingComplete(gridID, null, false);
-
                 result = AUIGrid.getSelectedItems(gridID);
             }
 
@@ -13082,8 +13075,6 @@
             var result = null;
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
-                AUIGrid.forceEditingComplete(gridID, null, false);
-
                 result = AUIGrid.getSelectedText(gridID);
             }
 
@@ -13101,8 +13092,6 @@
             var result = null;
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
-                AUIGrid.forceEditingComplete(gridID, null, false);
-
                 if ($object.isNumber(dataField) == true) {
                     dataField = AUIGrid.getDataFieldByColumnIndex(gridID, dataField);
                 }
@@ -13124,8 +13113,6 @@
             var result = null;
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
-                AUIGrid.forceEditingComplete(gridID, null, false);
-
                 if ($object.isNumber(dataField) == true) {
                     dataField = AUIGrid.getDataFieldByColumnIndex(gridID, dataField);
                 }
@@ -13139,8 +13126,6 @@
             var result = null;
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
-                AUIGrid.forceEditingComplete(gridID, null, false);
-
                 result = AUIGrid.getColumnDistinctValues(gridID, rowIndex, dataField);
             }
             return result;
@@ -13150,8 +13135,6 @@
             var result = null;
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
-                AUIGrid.forceEditingComplete(gridID, null, false);
-
                 result = AUIGrid.validateGridData(gridID, dataField);
             }
             return result;
@@ -13193,8 +13176,6 @@
                 }
 
                 if (rowIndexes.length > 0) {
-                    AUIGrid.forceEditingComplete(gridID, null, false);
-
                     AUIGrid.updateRows(gridID, items, rowIndexes);
                 }
             }
@@ -13203,8 +13184,6 @@
         setCellValue(elID, rowIndex, dataField, value) {
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
-                AUIGrid.forceEditingComplete(gridID, null, false);
-
                 AUIGrid.setCellValue(gridID, rowIndex, dataField, value);
             }
         },
@@ -13227,8 +13206,6 @@
         updateRow(elID, value, rowIndex) {
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
-                AUIGrid.forceEditingComplete(gridID, null, false);
-
                 AUIGrid.updateRow(gridID, value, rowIndex);
             }
         },
@@ -13236,8 +13213,6 @@
         updateRows(elID, values, rowIndexs) {
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
-                AUIGrid.forceEditingComplete(gridID, null, false);
-
                 AUIGrid.updateRows(gridID, values, rowIndexs);
             }
         },
@@ -13245,8 +13220,6 @@
         updateRowBlockToValue(elID, startRowIndex, endRowIndex, dataFields, values) {
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
-                AUIGrid.forceEditingComplete(gridID, null, false);
-
                 AUIGrid.updateRowBlockToValue(gridID, startRowIndex, endRowIndex, dataFields, values);
             }
         },
@@ -13254,8 +13227,6 @@
         updateRowsById(elID, values) {
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
-                AUIGrid.forceEditingComplete(gridID, null, false);
-
                 AUIGrid.updateRowsById(gridID, values);
             }
         },
@@ -13263,8 +13234,6 @@
         updateAllToValue(elID, dataField, value) {
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
-                AUIGrid.forceEditingComplete(gridID, null, false);
-
                 if ($object.isNumber(dataField) == true) {
                     dataField = AUIGrid.getDataFieldByColumnIndex(gridID, dataField);
                 }
@@ -13286,8 +13255,6 @@
             var result = null;
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
-                AUIGrid.forceEditingComplete(gridID, null, false);
-
                 if ($object.isNumber(dataField) == true) {
                     dataField = AUIGrid.getDataFieldByColumnIndex(gridID, dataField);
                 }
@@ -13311,8 +13278,6 @@
             var result = null;
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
-                AUIGrid.forceEditingComplete(gridID, null, false);
-
                 if ($object.isNumber(dataField) == true) {
                     dataField = AUIGrid.getDataFieldByColumnIndex(gridID, dataField);
                 }
@@ -13333,8 +13298,6 @@
             var result = null;
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
-                AUIGrid.forceEditingComplete(gridID, null, false);
-
                 if ($object.isNumber(dataField) == true) {
                     dataField = AUIGrid.getDataFieldByColumnIndex(gridID, dataField);
                 }
@@ -13348,8 +13311,6 @@
             var result = null;
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
-                AUIGrid.forceEditingComplete(gridID, null, false);
-
                 if ($object.isNumber(dataField) == true) {
                     dataField = AUIGrid.getDataFieldByColumnIndex(gridID, dataField);
                 }
@@ -13363,8 +13324,6 @@
             var result = null;
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
-                AUIGrid.forceEditingComplete(gridID, null, false);
-
                 result = AUIGrid.getInitValueItem(gridID, RowID);
             }
 
@@ -13379,8 +13338,6 @@
             var result = null;
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
-                AUIGrid.forceEditingComplete(gridID, null, false);
-
                 result = AUIGrid.getItemByRowIndex(gridID, rowIndex);
             }
 
@@ -13391,8 +13348,6 @@
             var result = null;
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
-                AUIGrid.forceEditingComplete(gridID, null, false);
-
                 result = AUIGrid.getItemByRowId(gridID, rowID);
             }
 
@@ -13403,8 +13358,6 @@
             var result = null;
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
-                AUIGrid.forceEditingComplete(gridID, null, false);
-
                 if ($object.isNumber(dataField) == true) {
                     dataField = AUIGrid.getDataFieldByColumnIndex(gridID, dataField);
                 }
@@ -13463,8 +13416,6 @@
             var result = false;
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
-                AUIGrid.forceEditingComplete(gridID, null, false);
-
                 var removedRowItems = AUIGrid.getRemovedItems(gridID);
                 var editedRowItems = AUIGrid.getEditedRowItems(gridID);
                 var addedRowItems = AUIGrid.getAddedRowItems(gridID);
@@ -13478,8 +13429,6 @@
             var result = true;
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
-                AUIGrid.forceEditingComplete(gridID, null, false);
-
                 if ($object.isNumber(dataField) == true) {
                     dataField = $auigrid.colToProp(elID, dataField);
                 }
@@ -13495,8 +13444,6 @@
             var result = 0;
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
-                AUIGrid.forceEditingComplete(gridID, null, false);
-
                 if ($object.isNumber(dataField) == true) {
                     dataField = $auigrid.colToProp(elID, dataField);
                 }
@@ -13512,8 +13459,6 @@
             var result = false;
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
-                AUIGrid.forceEditingComplete(gridID, null, false);
-
                 if ($object.isNumber(dataField) == true) {
                     dataField = $auigrid.colToProp(elID, dataField);
                 }
@@ -13539,8 +13484,6 @@
             var result = false;
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
-                AUIGrid.forceEditingComplete(gridID, null, false);
-
                 var items = AUIGrid.getOrgGridData(gridID);
                 for (var i = 0, length = items.length; i < length; i++) {
                     var item = items[i];
@@ -13638,8 +13581,6 @@
             var items = [];
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
-                AUIGrid.forceEditingComplete(gridID, null, false);
-
                 if (metaColumns) {
                     if (requestType == 'Row') {
                         var rowIndex = AUIGrid.getSelectedIndex(gridID)[0];
