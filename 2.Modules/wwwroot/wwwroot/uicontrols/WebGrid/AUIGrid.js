@@ -391,6 +391,13 @@
                                     }
                                 }
                             }
+                            else if (columnInfo && columnInfo.columnType == 'codehelp' && oldValue != newValue) {
+                                if (rowIndex > -1) {
+                                    if (window.event.keyCode == 13) {
+                                        $auigrid.showCodeHelpPopup(evt);
+                                    }
+                                }
+                            }
 
                             var eventHandler = mod.event ? mod.event['{0}_{1}'.format(elID, 'cellEditEndBefore')] : null;
                             if (eventHandler) {
@@ -960,65 +967,7 @@
                                 iconTableRef: {
                                     default: columnInfo.cellButtonIcon || '/img/btn/search.png'
                                 },
-                                onClick: function (evt) {
-                                    var gridID = evt.pid;
-                                    var elID = gridID.substring(1);
-                                    var rowIndex = evt.rowIndex;
-                                    var columnIndex = evt.columnIndex;
-                                    var dataField = evt.dataField;
-                                    var isAllowEdit = AUIGrid.getProp(gridID, 'editable');
-                                    var mod = window[syn.$w.pageScript];
-                                    var eventHandler = isAllowEdit == true && mod.event ? mod.event['{0}_{1}'.format(elID, 'cellEditBegin')] : null;
-                                    if (eventHandler) {
-                                        var value = eventHandler(evt);
-                                        isAllowEdit = $string.toBoolean(value);
-                                    }
-
-                                    if (isAllowEdit == true) {
-                                        var columns = AUIGrid.getColumnInfoList(gridID);
-                                        var columnInfo = columns.find((item) => { return item.dataField == dataField });
-                                        if (columnInfo && columnInfo.columnType == 'codehelp') {
-                                            if (rowIndex > -1) {
-                                                var synOptions = syn.$w.argumentsExtend(syn.uicontrols.$codepicker.defaultSetting, columnInfo);
-
-                                                var codeButtonHandler = mod.event['{0}_codeButtonClick'.format(elID)];
-                                                if (codeButtonHandler) {
-                                                    var codeOptions = codeButtonHandler(elID, evt.rowIndex, evt.columnIndex, evt.dataField, evt.item);
-                                                    if ($object.isObject(codeOptions) == true) {
-                                                        synOptions = syn.$w.argumentsExtend(synOptions, codeOptions);
-                                                    }
-                                                    else if ($string.toBoolean(codeOptions) == false) {
-                                                        return;
-                                                    }
-                                                }
-
-                                                synOptions.elID = elID;
-                                                synOptions.viewType = 'auigrid';
-                                                synOptions.url = $auigrid.codeHelpUrl || '';
-                                                synOptions.searchText = evt.text || '';
-                                                syn.uicontrols.$codepicker.find(synOptions, function (result) {
-                                                    var changeHandler = mod.event['{0}_codeChange'.format(elID)];
-                                                    if (changeHandler) {
-                                                        changeHandler(elID, evt.rowIndex, evt.columnIndex, evt.dataField, result);
-                                                    }
-
-                                                    var returnHandler = mod.hook.frameEvent;
-                                                    if (returnHandler) {
-                                                        returnHandler.call(this, 'codeReturn', {
-                                                            elID: elID,
-                                                            row: rowIndex,
-                                                            col: columnIndex,
-                                                            columnName: dataField,
-                                                            result: result
-                                                        });
-                                                    }
-                                                });
-
-                                                setTimeout(() => { AUIGrid.forceEditingComplete(gridID, null, false); }, 25);
-                                            }
-                                        }
-                                    }
-                                }
+                                onClick: $auigrid.showCodeHelpPopup
                             }
 
                             columnInfo.editRenderer = {
@@ -1229,6 +1178,66 @@
                 }
 
                 AUIGrid.setColumnPropByDataField(gridID, setting.dataField, setting);
+            }
+        },
+
+        showCodeHelpPopup(evt) {
+            var gridID = evt.pid;
+            var elID = gridID.substring(1);
+            var rowIndex = evt.rowIndex;
+            var columnIndex = evt.columnIndex;
+            var dataField = evt.dataField;
+            var isAllowEdit = AUIGrid.getProp(gridID, 'editable');
+            var mod = window[syn.$w.pageScript];
+            var eventHandler = isAllowEdit == true && mod.event ? mod.event['{0}_{1}'.format(elID, 'cellEditBegin')] : null;
+            if (eventHandler) {
+                var value = eventHandler(evt);
+                isAllowEdit = $string.toBoolean(value);
+            }
+
+            if (isAllowEdit == true) {
+                var columns = AUIGrid.getColumnInfoList(gridID);
+                var columnInfo = columns.find((item) => { return item.dataField == dataField });
+                if (columnInfo && columnInfo.columnType == 'codehelp') {
+                    if (rowIndex > -1) {
+                        var synOptions = syn.$w.argumentsExtend(syn.uicontrols.$codepicker.defaultSetting, columnInfo);
+
+                        var codeButtonHandler = mod.event['{0}_codeButtonClick'.format(elID)];
+                        if (codeButtonHandler) {
+                            var codeOptions = codeButtonHandler(elID, evt.rowIndex, evt.columnIndex, evt.dataField, evt.item);
+                            if ($object.isObject(codeOptions) == true) {
+                                synOptions = syn.$w.argumentsExtend(synOptions, codeOptions);
+                            }
+                            else if ($string.toBoolean(codeOptions) == false) {
+                                return;
+                            }
+                        }
+
+                        synOptions.elID = elID;
+                        synOptions.viewType = 'auigrid';
+                        synOptions.url = $auigrid.codeHelpUrl || '';
+                        synOptions.searchText = evt.text || evt.value || '';
+                        syn.uicontrols.$codepicker.find(synOptions, function (result) {
+                            var changeHandler = mod.event['{0}_codeChange'.format(elID)];
+                            if (changeHandler) {
+                                changeHandler(elID, evt.rowIndex, evt.columnIndex, evt.dataField, result);
+                            }
+
+                            var returnHandler = mod.hook.frameEvent;
+                            if (returnHandler) {
+                                returnHandler.call(this, 'codeReturn', {
+                                    elID: elID,
+                                    row: rowIndex,
+                                    col: columnIndex,
+                                    columnName: dataField,
+                                    result: result
+                                });
+                            }
+                        });
+
+                        setTimeout(() => { AUIGrid.forceEditingComplete(gridID, null, false); }, 25);
+                    }
+                }
             }
         },
 
