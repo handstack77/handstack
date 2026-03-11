@@ -41,9 +41,9 @@
 $OutputEncoding = [System.Text.Encoding]::UTF8
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
-$IsWindows = $IsWindows -or ([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::Windows))
-$IsMacOS = $IsMacOS -or ([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::OSX))
-$IsLinux = $IsLinux -or ([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::Linux))
+$OnWindows = ([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::Windows))
+$OnMacOS = ([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::OSX))
+$OnLinux = ([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::Linux))
 
 # 지정된 명령어가 시스템 PATH에 존재하는지 확인합니다.
 # Windows에서는 Get-Command, macOS/Linux에서도 동일하게 동작합니다.
@@ -80,10 +80,10 @@ function Open-InstallGuide {
         [string]$Url
     )
     Write-Error $Message
-    if ($IsWindows) {
+    if ($OnWindows) {
         Start-Process $Url
     }
-    elseif ($IsMacOS) {
+    elseif ($OnMacOS) {
         & open $Url
     }
     else {
@@ -120,13 +120,13 @@ function Set-PersistentEnv {
         return
     }
 
-    if ($IsWindows) {
+    if ($OnWindows) {
         # 사용자 수준 환경 변수로 영구 등록 (레지스트리 저장)
         [System.Environment]::SetEnvironmentVariable($Name, $Value, "User")
     }
     else {
         # 셸 프로필 파일에 export 구문 추가/업데이트
-        $profilePath = if ($IsMacOS) {
+        $profilePath = if ($OnMacOS) {
             [System.IO.Path]::Combine($env:HOME, ".zshrc")
         }
         else {
@@ -176,7 +176,7 @@ function Sync-Directory {
         New-Item -ItemType Directory -Path $Destination -Force | Out-Null
     }
 
-    if ($IsWindows) {
+    if ($OnWindows) {
         $robocopyArgs = @($Source, $Destination)
 
         if ($FileFilter -and $FileFilter.Count -gt 0) {
@@ -223,7 +223,7 @@ function Sync-Directory {
 #   $ackExe = Get-AckExecutable
 # ─────────────────────────────────────────────
 function Get-AckExecutable {
-    if ($IsWindows) { return "ack.exe" }
+    if ($OnWindows) { return "ack.exe" }
     return "ack"
 }
 
@@ -350,11 +350,11 @@ if ($isDevelopmentEnvironment) {
         $cliCsproj = [System.IO.Path]::Combine($currentPath, "4.Tool", "CLI", "handstack", "handstack.csproj")
 
         # 플랫폼에 맞는 dotnet publish 옵션 결정
-        if ($IsWindows) { $osTarget = "win" }
-        elseif ($IsMacOS) { $osTarget = "osx" }
+        if ($OnWindows) { $osTarget = "win" }
+        elseif ($OnMacOS) { $osTarget = "osx" }
         else { $osTarget = "linux" }
 
-        $cliOutputDir = [System.IO.Path]::Combine($parentDir, "publish", "$osTarget-x64", "app", "cli")
+        $cliOutputDir = [System.IO.Path]::Combine($parentDir, "publish", "$osTarget-x64", "app", "cli", "handstack")
         dotnet publish $cliCsproj --configuration Debug --arch x64 --os $osTarget --output $cliOutputDir
 
         if ($LASTEXITCODE -ne 0) {
@@ -484,7 +484,7 @@ if (Test-Path $ackExePath) {
             curl -L -O https://github.com/handstack77/handstack/raw/master/lib.zip
         }
 
-        $handstackCliExe = [System.IO.Path]::Combine($currentPath, "app", "cli", "handstack")
+        $handstackCliExe = [System.IO.Path]::Combine($currentPath, "app", "cli", "handstack", "handstack.exe")
         Write-Host "lib.zip 파일 해제 중..."
         & $handstackCliExe extract --file=$libZipPath --directory=$modulesWwwrootLib
         Pop-Location

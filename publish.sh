@@ -5,7 +5,7 @@
 # publish.sh linux build Debug x64
 # publish.sh osx build Debug x64
 # publish.sh osx build Debug arm64
-# publish.sh win build Debug x64 ../output/path
+# publish.sh win build Debug x64 "../output/path"
 
 # win, linux, osx
 os_mode=${1:-linux}
@@ -94,18 +94,23 @@ fix_post_build_script "4.Tool/CLI/handstack/post-build.sh"
 echo "WebHost 프로젝트 빌드/퍼블리시 중..."
 dotnet $action_mode $dotnet_options 1.WebHost/ack/ack.csproj --output "$publish_path/handstack/app"
 dotnet $action_mode $dotnet_options 1.WebHost/forbes/forbes.csproj --output "$publish_path/handstack/forbes"
-dotnet $action_mode $dotnet_options 4.Tool/CLI/handstack/handstack.csproj --output "$publish_path/handstack/app/cli"
 
 if [ "$action_mode" == "publish" ]; then
-    dotnet $action_mode -p:Optimize=$optimize_flag --configuration $configuration_mode --runtime $rid --self-contained false 4.Tool/CLI/edgeproxy/edgeproxy.csproj --output $publish_path/handstack/app/cli
+    dotnet $action_mode -p:Optimize=$optimize_flag -p:PublishSingleFile=true --configuration $configuration_mode --runtime $rid --self-contained false 4.Tool/CLI/handstack/handstack.csproj --output $publish_path/handstack/app/cli/handstack
 else
-    dotnet $action_mode -p:Optimize=$optimize_flag --configuration $configuration_mode --arch $arch_mode --os $os_mode 4.Tool/CLI/edgeproxy/edgeproxy.csproj --output $publish_path/handstack/app/cli
+    dotnet $action_mode -p:Optimize=$optimize_flag -p:PublishSingleFile=true --configuration $configuration_mode --arch $arch_mode --os $os_mode 4.Tool/CLI/handstack/handstack.csproj --output $publish_path/handstack/app/cli/handstack
 fi
 
 if [ "$action_mode" == "publish" ]; then
-    dotnet $action_mode -p:Optimize=$optimize_flag --configuration $configuration_mode --runtime $rid --self-contained false 4.Tool/CLI/bundling/bundling.csproj --output $publish_path/handstack/app/cli
+    dotnet $action_mode -p:Optimize=$optimize_flag -p:PublishSingleFile=true --configuration $configuration_mode --runtime $rid --self-contained false 4.Tool/CLI/edgeproxy/edgeproxy.csproj --output $publish_path/handstack/app/cli/edgeproxy
 else
-    dotnet $action_mode -p:Optimize=$optimize_flag --configuration $configuration_mode --arch $arch_mode --os $os_mode 4.Tool/CLI/bundling/bundling.csproj --output $publish_path/handstack/app/cli
+    dotnet $action_mode -p:Optimize=$optimize_flag -p:PublishSingleFile=true --configuration $configuration_mode --arch $arch_mode --os $os_mode 4.Tool/CLI/edgeproxy/edgeproxy.csproj --output $publish_path/handstack/app/cli/edgeproxy
+fi
+
+if [ "$action_mode" == "publish" ]; then
+    dotnet $action_mode -p:Optimize=$optimize_flag -p:PublishSingleFile=true --configuration $configuration_mode --runtime $rid --self-contained false 4.Tool/CLI/bundling/bundling.csproj --output $publish_path/handstack/app/cli/bundling
+else
+    dotnet $action_mode -p:Optimize=$optimize_flag -p:PublishSingleFile=true --configuration $configuration_mode --arch $arch_mode --os $os_mode 4.Tool/CLI/bundling/bundling.csproj --output $publish_path/handstack/app/cli/bundling
 fi
 
 # Contracts 디렉토리 정리

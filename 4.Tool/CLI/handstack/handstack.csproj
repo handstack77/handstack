@@ -1,5 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
+        <OutputType>Exe</OutputType>
         <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
         <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
         <TargetFramework>net10.0</TargetFramework>
@@ -97,18 +98,25 @@
             <RuntimeDirsToRemove Remove="$([System.IO.Path]::Combine('$(RuntimesDir)', 'osx-x64'))" />
             <RuntimeDirsToRemove Remove="$([System.IO.Path]::Combine('$(RuntimesDir)', 'osx-arm64'))" />
         </ItemGroup>
-        <RemoveDir Directories="@(RuntimeDirsToRemove)" Condition="'@(RuntimeDirsToRemove)' != ''" />        <!-- HANDSTACK_HOME/app/cli로 미러링 -->
-        <PropertyGroup>
-            <CliDestinationDir>$(HANDSTACK_HOME)\app\cli\</CliDestinationDir>
-        </PropertyGroup>
-        <MakeDir Directories="$(CliDestinationDir)" Condition="!Exists('$(CliDestinationDir)')" />
-        <RemoveDir Directories="$(CliDestinationDir)" />
-        <MakeDir Directories="$(CliDestinationDir)" />
 
-        <!-- TargetDir의 모든 파일을 재귀적으로 복사 (미러링) -->
-        <ItemGroup>
-            <SourceFilesForMirroring Include="$(TargetDir)**\*" />
-        </ItemGroup>
-        <Copy SourceFiles="@(SourceFilesForMirroring)" DestinationFiles="@(SourceFilesForMirroring->'$(CliDestinationDir)%(RecursiveDir)%(Filename)%(Extension)')" />
+        <RemoveDir Directories="@(RuntimeDirsToRemove)" Condition="'@(RuntimeDirsToRemove)' != ''" />
+        <PropertyGroup>
+            <IsPublishing Condition="'$(IsPublishing)' == ''">false</IsPublishing>
+        </PropertyGroup>
+
+        <PropertyGroup Condition="'$(IsPublishing)' != 'true' and '$(BuildingSolutionFile)' != 'true'">
+            <OsMode Condition="'$(OsMode)' == '' and $(NETCoreSdkPortableRuntimeIdentifier.StartsWith('win-'))">win</OsMode>
+            <OsMode Condition="'$(OsMode)' == '' and $(NETCoreSdkPortableRuntimeIdentifier.StartsWith('linux-'))">linux</OsMode>
+            <OsMode Condition="'$(OsMode)' == '' and $(NETCoreSdkPortableRuntimeIdentifier.StartsWith('osx-'))">osx</OsMode>
+            <ActionMode Condition="'$(ActionMode)' == ''">build</ActionMode>
+            <ConfigurationMode Condition="'$(ConfigurationMode)' == ''">$(Configuration)</ConfigurationMode>
+            <ArchMode Condition="'$(ArchMode)' == '' and $(NETCoreSdkPortableRuntimeIdentifier.EndsWith('-arm64'))">arm64</ArchMode>
+            <ArchMode Condition="'$(ArchMode)' == '' and $(NETCoreSdkPortableRuntimeIdentifier.EndsWith('-x86'))">x86</ArchMode>
+            <ArchMode Condition="'$(ArchMode)' == '' and $(NETCoreSdkPortableRuntimeIdentifier.EndsWith('-x64'))">x64</ArchMode>
+            <ArchMode Condition="'$(ArchMode)' == ''">x64</ArchMode>
+            <PublishOutputDir>$([System.IO.Path]::Combine('$(HANDSTACK_HOME)', 'app', 'cli', 'handstack'))</PublishOutputDir>
+        </PropertyGroup>
+
+        <Exec Command="dotnet publish &quot;$(MSBuildProjectFullPath)&quot; --configuration $(ConfigurationMode) --arch $(ArchMode) --os $(OsMode) --output &quot;$(PublishOutputDir)&quot; -p:IsPublishing=true" Condition="'$(IsPublishing)' != 'true' and '$(BuildingSolutionFile)' != 'true'" WorkingDirectory="$(MSBuildProjectDirectory)" />
     </Target>
 </Project>

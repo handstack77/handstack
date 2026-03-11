@@ -115,7 +115,6 @@
     </Target>
 
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-        <!-- HANDSTACK_HOME/app로 동기화 -->
         <PropertyGroup>
             <AppDestinationDir>$(HANDSTACK_HOME)/app</AppDestinationDir>
         </PropertyGroup>
@@ -136,7 +135,6 @@
         <RemoveDir Directories="$(AppDestinationDir)" />
         <MakeDir Directories="$(AppDestinationDir)" />
 
-        <!-- TargetDir의 모든 파일을 재귀적으로 복사 -->
         <ItemGroup>
             <SourceFilesForSync Include="$(TargetDir)**\*" />
         </ItemGroup>

@@ -5,7 +5,7 @@ REM publish.bat win build Debug x64
 REM publish.bat linux build Debug x64
 REM publish.bat osx build Debug x64
 REM publish.bat osx build Debug arm64
-REM publish.bat win build Debug x64 ..\custom-path
+REM publish.bat win build Debug x64 "..\custom-path"
 
 REM win, linux, osx
 set os_mode=%1
@@ -61,18 +61,23 @@ rmdir /s /q %publish_path%
 REM WebHost 프로젝트들 빌드/퍼블리시
 dotnet %action_mode% %dotnet_options% 1.WebHost\ack\ack.csproj --output %publish_path%\handstack\app
 dotnet %action_mode% %dotnet_options% 1.WebHost\forbes\forbes.csproj --output %publish_path%\handstack\forbes
-dotnet %action_mode% %dotnet_options% 4.Tool\CLI\handstack\handstack.csproj --output %publish_path%\handstack\app\cli
 
 if "%action_mode%" == "publish" (
-    dotnet %action_mode% -p:Optimize=%optimize_flag% --configuration %configuration_mode% --runtime %rid% --self-contained false 4.Tool\CLI\edgeproxy\edgeproxy.csproj --output %publish_path%\handstack\app\cli
+    dotnet %action_mode% -p:Optimize=%optimize_flag% -p:PublishSingleFile=true --configuration %configuration_mode% --runtime %rid% --self-contained false 4.Tool\CLI\handstack\handstack.csproj --output %publish_path%\handstack\app\cli\handstack
 ) else (
-    dotnet %action_mode% -p:Optimize=%optimize_flag% --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% 4.Tool\CLI\edgeproxy\edgeproxy.csproj --output %publish_path%\handstack\app\cli
+    dotnet %action_mode% -p:Optimize=%optimize_flag% -p:PublishSingleFile=true --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% 4.Tool\CLI\handstack\handstack.csproj --output %publish_path%\handstack\app\cli\handstack
 )
 
 if "%action_mode%" == "publish" (
-    dotnet %action_mode% -p:Optimize=%optimize_flag% --configuration %configuration_mode% --runtime %rid% --self-contained false 4.Tool\CLI\bundling\bundling.csproj --output %publish_path%\handstack\app\cli
+    dotnet %action_mode% -p:Optimize=%optimize_flag% -p:PublishSingleFile=true --configuration %configuration_mode% --runtime %rid% --self-contained false 4.Tool\CLI\edgeproxy\edgeproxy.csproj --output %publish_path%\handstack\app\cli\edgeproxy
 ) else (
-    dotnet %action_mode% -p:Optimize=%optimize_flag% --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% 4.Tool\CLI\bundling\bundling.csproj --output %publish_path%\handstack\app\cli
+    dotnet %action_mode% -p:Optimize=%optimize_flag% -p:PublishSingleFile=true --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% 4.Tool\CLI\edgeproxy\edgeproxy.csproj --output %publish_path%\handstack\app\cli\edgeproxy
+)
+
+if "%action_mode%" == "publish" (
+    dotnet %action_mode% -p:Optimize=%optimize_flag% -p:PublishSingleFile=true --configuration %configuration_mode% --runtime %rid% --self-contained false 4.Tool\CLI\bundling\bundling.csproj --output %publish_path%\handstack\app\cli\bundling
+) else (
+    dotnet %action_mode% -p:Optimize=%optimize_flag% -p:PublishSingleFile=true --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% 4.Tool\CLI\bundling\bundling.csproj --output %publish_path%\handstack\app\cli\bundling
 )
 
 REM Contracts 폴더 정리

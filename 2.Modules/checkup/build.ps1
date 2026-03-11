@@ -19,7 +19,7 @@
 $OutputEncoding = [System.Text.Encoding]::UTF8
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
-$IsWindows = $IsWindows -or ([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::Windows))
+$OnWindows = ([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::Windows))
 
 # 경로 설정
 $checkupCsproj = [System.IO.Path]::Combine($env:HANDSTACK_SRC, "2.Modules", "checkup", "checkup.csproj")
@@ -44,7 +44,7 @@ if (-not (Test-Path $deployTarget)) {
     New-Item -ItemType Directory -Path $deployTarget -Force | Out-Null
 }
 
-if ($IsWindows) {
+if ($OnWindows) {
     & robocopy $buildOutput $deployTarget /MIR /NFL /NDL /NJH /NJS /NC /NS /NP
     if ($LASTEXITCODE -gt 7) {
         Write-Error "robocopy 실행 실패 (종료 코드: $LASTEXITCODE)"

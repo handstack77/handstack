@@ -87,7 +87,7 @@
             <ArchMode Condition="'$(ArchMode)' == '' and $(NETCoreSdkPortableRuntimeIdentifier.EndsWith('-x86'))">x86</ArchMode>
             <ArchMode Condition="'$(ArchMode)' == '' and $(NETCoreSdkPortableRuntimeIdentifier.EndsWith('-x64'))">x64</ArchMode>
             <ArchMode Condition="'$(ArchMode)' == ''">x64</ArchMode>
-            <PublishOutputDir>$([System.IO.Path]::Combine('$(HANDSTACK_HOME)', 'app', 'cli'))</PublishOutputDir>
+            <PublishOutputDir>$([System.IO.Path]::Combine('$(HANDSTACK_HOME)', 'app', 'cli', 'bundling'))</PublishOutputDir>
         </PropertyGroup>
 
         <Exec Command="dotnet publish &quot;$(MSBuildProjectFullPath)&quot; --configuration $(ConfigurationMode) --arch $(ArchMode) --os $(OsMode) --output &quot;$(PublishOutputDir)&quot; -p:IsPublishing=true" Condition="'$(IsPublishing)' != 'true' and '$(BuildingSolutionFile)' != 'true'" WorkingDirectory="$(MSBuildProjectDirectory)" />

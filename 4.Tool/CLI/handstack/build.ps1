@@ -34,11 +34,11 @@ $OutputEncoding = [System.Text.Encoding]::UTF8
 
 # OsMode 미지정 시 현재 OS 자동 감지
 if ([string]::IsNullOrEmpty($OsMode)) {
-    $IsWindows = $IsWindows -or ([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::Windows))
-    $IsMacOS = $IsMacOS -or ([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::OSX))
+    $OnWindows = ([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::Windows))
+    $OnMacOS = ([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::OSX))
 
-    if ($IsWindows) { $OsMode = "win" }
-    elseif ($IsMacOS) { $OsMode = "osx" }
+    if ($OnWindows) { $OsMode = "win" }
+    elseif ($OnMacOS) { $OsMode = "osx" }
     else { $OsMode = "linux" }
 }
 

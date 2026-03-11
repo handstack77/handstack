@@ -51,9 +51,9 @@ $OutputEncoding = [System.Text.Encoding]::UTF8
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
 # 플랫폼 감지
-$IsWindows = $IsWindows -or ([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::Windows))
-$IsMacOS = $IsMacOS -or ([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::OSX))
-$IsLinux = $IsLinux -or ([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::Linux))
+$OnWindows = ([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::Windows))
+$OnMacOS = ([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::OSX))
+$OnLinux = ([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::Linux))
 
 # 디렉터리 간 파일 동기화 (Windows: robocopy, macOS/Linux: rsync)
 function Sync-Directory {
@@ -71,7 +71,7 @@ function Sync-Directory {
         New-Item -ItemType Directory -Path $Destination -Force | Out-Null
     }
 
-    if ($IsWindows) {
+    if ($OnWindows) {
         $robocopyArgs = @($Source, $Destination)
 
         if ($Mirror) { $robocopyArgs += "/MIR" }
@@ -126,7 +126,7 @@ function Sync-Directory {
 # 운영체제에 따라 실행 파일 이름에 확장자를 붙여 반환합니다.
 function Get-ExeName {
     param([string]$BaseName)
-    if ($IsWindows) { return "$BaseName.exe" }
+    if ($OnWindows) { return "$BaseName.exe" }
     return $BaseName
 }
 
@@ -166,7 +166,7 @@ Write-Host "HANDSTACK_ACK: $HandstackAck"
 Write-Host "HANDSTACK_CLI: $HandstackCli"
 Write-Host "TASK_COMMAND:  $TaskCommand"
 Write-Host "TASK_SETTING:  $TaskSetting"
-Write-Host "PLATFORM:      $(if ($IsWindows) {'Windows'} elseif ($IsMacOS) {'macOS'} else {'Linux'})"
+Write-Host "PLATFORM:      $(if ($OnWindows) {'Windows'} elseif ($OnMacOS) {'macOS'} else {'Linux'})"
 
 # purge - Contracts 디렉터리의 계약 파일을 정리합니다.
 if ($TaskCommand -eq "purge") {
@@ -245,7 +245,7 @@ if ($TaskCommand -eq "devcert") {
     $pfxPath = [System.IO.Path]::Combine($env:HANDSTACK_HOME, "ack.pfx")
     dotnet dev-certs https -ep $pfxPath -p 1234
 
-    if ($IsLinux) {
+    if ($OnLinux) {
         Write-Warning "Linux에서는 'dotnet dev-certs https --trust'가 자동 지원되지 않습니다."
         Write-Host "다음 명령으로 수동 등록하세요:"
         Write-Host "  sudo cp $pfxPath /usr/local/share/ca-certificates/"

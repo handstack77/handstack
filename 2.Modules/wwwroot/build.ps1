@@ -19,7 +19,7 @@
 $OutputEncoding = [System.Text.Encoding]::UTF8
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
-$IsWindows = $IsWindows -or ([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::Windows))
+$OnWindows = ([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::Windows))
 
 # ─────────────────────────────────────────────
 # Sync-Directory 디렉터리 간 파일 동기화를 수행하는 크로스 플랫폼 함수. Windows에서는 robocopy, macOS/Linux에서는 rsync를 사용합니다.
@@ -41,7 +41,7 @@ function Sync-Directory {
         New-Item -ItemType Directory -Path $Destination -Force | Out-Null
     }
 
-    if ($IsWindows) {
+    if ($OnWindows) {
         $robocopyArgs = @($Source, $Destination)
 
         if ($Mirror) { $robocopyArgs += "/MIR" }
