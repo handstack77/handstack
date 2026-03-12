@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -37,6 +39,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.AspNetCore.Mvc.Controllers;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Configuration;
@@ -565,6 +568,7 @@ namespace ack
             }));
             services.AddSingleton<SecretService>();
             services.AddSingleton<RuntimeConfigurationService>();
+            services.AddSingleton<ApiRequestMetricsCollector>();
 
             services.AddRazorPages()
             .AddRazorPagesOptions(options =>
@@ -1146,6 +1150,31 @@ namespace ack
             }
             app.UseMiddleware<HtmxTokenInjectionMiddleware>();
             app.UseRouting();
+            app.Use(async (context, next) =>
+            {
+                var startedTimestamp = Stopwatch.GetTimestamp();
+                int statusCode = StatusCodes.Status500InternalServerError;
+
+                try
+                {
+                    await next();
+                    statusCode = context.Response.StatusCode;
+                }
+                catch
+                {
+                    statusCode = StatusCodes.Status500InternalServerError;
+                    throw;
+                }
+                finally
+                {
+                    if (TryGetApiRequestMetricKey(context, out var metricKey) == true)
+                    {
+                        var apiRequestMetricsCollector = context.RequestServices.GetRequiredService<ApiRequestMetricsCollector>();
+                        var elapsed = Stopwatch.GetElapsedTime(startedTimestamp);
+                        apiRequestMetricsCollector.Record(metricKey, statusCode, elapsed.Ticks);
+                    }
+                }
+            });
 
             if (GlobalConfiguration.WithOnlyIPs.Count > 0)
             {
@@ -1384,6 +1413,32 @@ namespace ack
                     {
                         var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
                         logger.LogError(exception, "진단 정보 조회 실패");
+                        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                    }
+                });
+
+                endpoints.MapGet("/metrics", async context =>
+                {
+                    try
+                    {
+                        var hostAccessID = context.Request.GetContainValue("hostAccessID");
+                        if (!string.IsNullOrWhiteSpace(hostAccessID) && GlobalConfiguration.HostAccessID == hostAccessID)
+                        {
+                            var apiRequestMetricsCollector = context.RequestServices.GetRequiredService<ApiRequestMetricsCollector>();
+                            context.Response.ContentType = "text/plain; version=0.0.4; charset=utf-8";
+                            await context.Response.WriteAsync(BuildPrometheusMetricsPayload(apiRequestMetricsCollector));
+                        }
+                        else
+                        {
+                            var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
+                            logger.LogWarning("HostAccessID 확인 필요: {HostAccessID}", hostAccessID ?? "null");
+                            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                        }
+                    }
+                    catch (Exception exception)
+                    {
+                        var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
+                        logger.LogError(exception, "Prometheus 메트릭 조회 실패");
                         context.Response.StatusCode = StatusCodes.Status500InternalServerError;
                     }
                 });
@@ -1808,6 +1863,263 @@ namespace ack
             }
         }
 
+        private string BuildPrometheusMetricsPayload(ApiRequestMetricsCollector apiRequestMetricsCollector)
+        {
+            var systemRuntimeMetrics = serverEventListener.GetSystemRuntimeMetrics();
+            var aspNetCoreHostingMetrics = serverEventListener.GetAspNetCoreHostingMetrics();
+            var aspNetCoreServerKestrelMetrics = serverEventListener.GetAspNetCoreServerKestrelMetrics();
+            var systemNetSocketMetrics = serverEventListener.GetSystemNetSocketMetrics();
+
+            var processStartTime = Process.GetCurrentProcess().StartTime.ToUniversalTime();
+            var processStartTimeSeconds = (processStartTime - DateTime.UnixEpoch).TotalSeconds;
+            var builder = new StringBuilder(4096);
+
+            AppendPrometheusMetric(
+                builder,
+                "handstack_app_info",
+                "HandStack application metadata.",
+                "gauge",
+                1,
+                BuildPrometheusLabels(
+                    ("application_name", GlobalConfiguration.ApplicationName),
+                    ("running_environment", GlobalConfiguration.RunningEnvironment),
+                    ("host_name", GlobalConfiguration.HostName),
+                    ("process_id", Environment.ProcessId.ToString(CultureInfo.InvariantCulture))));
+            AppendPrometheusMetric(builder, "handstack_process_start_time_seconds", "Unix time when the current process started.", "gauge", processStartTimeSeconds);
+
+            AppendPrometheusMetric(builder, "handstack_system_runtime_time_in_gc_percent", "Percentage of time spent in GC since the last GC.", "gauge", systemRuntimeMetrics.TimeInGCSinceLastGC);
+            AppendPrometheusMetric(builder, "handstack_system_runtime_allocation_rate_bytes_per_second", "Managed allocation rate in bytes per second.", "gauge", systemRuntimeMetrics.AllocationRate);
+            AppendPrometheusMetric(builder, "handstack_system_runtime_cpu_usage_percent", "Current CPU usage percentage.", "gauge", systemRuntimeMetrics.CpuUsage);
+            AppendPrometheusMetric(builder, "handstack_system_runtime_exception_count", "Current exception counter value from System.Runtime.", "gauge", systemRuntimeMetrics.ExceptionCount);
+            AppendPrometheusMetric(builder, "handstack_system_runtime_gen0_gc_collections_total", "Total number of Gen 0 GC collections.", "counter", systemRuntimeMetrics.Gen0GCCount);
+            AppendPrometheusMetric(builder, "handstack_system_runtime_gen1_gc_collections_total", "Total number of Gen 1 GC collections.", "counter", systemRuntimeMetrics.Gen1GCCount);
+            AppendPrometheusMetric(builder, "handstack_system_runtime_gen2_gc_collections_total", "Total number of Gen 2 GC collections.", "counter", systemRuntimeMetrics.Gen2GCCount);
+            AppendPrometheusMetric(builder, "handstack_system_runtime_assemblies_loaded", "Number of assemblies currently loaded.", "gauge", systemRuntimeMetrics.NumberOfAssembliesLoaded);
+            AppendPrometheusMetric(builder, "handstack_system_runtime_threadpool_completed_work_items_total", "Total number of completed thread pool work items.", "counter", systemRuntimeMetrics.ThreadPoolCompletedWorkItemCount);
+            AppendPrometheusMetric(builder, "handstack_system_runtime_threadpool_queue_length", "Current thread pool queue length.", "gauge", systemRuntimeMetrics.ThreadPoolQueueLength);
+            AppendPrometheusMetric(builder, "handstack_system_runtime_threadpool_threads", "Current thread pool thread count.", "gauge", systemRuntimeMetrics.ThreadPoolThreadCount);
+            AppendPrometheusMetric(builder, "handstack_system_runtime_working_set_bytes", "Current process working set size in bytes.", "gauge", systemRuntimeMetrics.WorkingSetBytes);
+
+            AppendPrometheusMetric(builder, "handstack_aspnetcore_current_requests", "Number of requests currently in flight.", "gauge", aspNetCoreHostingMetrics.CurrentRequests);
+            AppendPrometheusMetric(builder, "handstack_aspnetcore_failed_requests_total", "Total number of failed ASP.NET Core requests.", "counter", aspNetCoreHostingMetrics.FailedRequests);
+            AppendPrometheusMetric(builder, "handstack_aspnetcore_requests_per_second", "Observed ASP.NET Core request rate.", "gauge", aspNetCoreHostingMetrics.RequestRate);
+            AppendPrometheusMetric(builder, "handstack_aspnetcore_requests_total", "Total number of ASP.NET Core requests.", "counter", aspNetCoreHostingMetrics.TotalRequests);
+
+            AppendPrometheusMetric(builder, "handstack_kestrel_connection_queue_length", "Current Kestrel connection queue length.", "gauge", aspNetCoreServerKestrelMetrics.ConnectionQueueLength);
+            AppendPrometheusMetric(builder, "handstack_kestrel_connections_per_second", "Observed Kestrel connection rate.", "gauge", aspNetCoreServerKestrelMetrics.ConnectionRate);
+            AppendPrometheusMetric(builder, "handstack_kestrel_current_connections", "Current number of active Kestrel connections.", "gauge", aspNetCoreServerKestrelMetrics.CurrentConnections);
+            AppendPrometheusMetric(builder, "handstack_kestrel_current_tls_handshakes", "Current number of TLS handshakes in progress.", "gauge", aspNetCoreServerKestrelMetrics.CurrentTLSHandshakes);
+            AppendPrometheusMetric(builder, "handstack_kestrel_current_upgraded_requests", "Current number of upgraded Kestrel requests.", "gauge", aspNetCoreServerKestrelMetrics.CurrentUpgradedRequests);
+            AppendPrometheusMetric(builder, "handstack_kestrel_failed_tls_handshakes_total", "Total number of failed TLS handshakes.", "counter", aspNetCoreServerKestrelMetrics.FailedTLSHandshakes);
+            AppendPrometheusMetric(builder, "handstack_kestrel_request_queue_length", "Current Kestrel request queue length.", "gauge", aspNetCoreServerKestrelMetrics.RequestQueueLength);
+            AppendPrometheusMetric(builder, "handstack_kestrel_tls_handshakes_per_second", "Observed Kestrel TLS handshake rate.", "gauge", aspNetCoreServerKestrelMetrics.TLSHandshakeRate);
+            AppendPrometheusMetric(builder, "handstack_kestrel_connections_total", "Total number of accepted Kestrel connections.", "counter", aspNetCoreServerKestrelMetrics.TotalConnections);
+            AppendPrometheusMetric(builder, "handstack_kestrel_tls_handshakes_total", "Total number of Kestrel TLS handshakes.", "counter", aspNetCoreServerKestrelMetrics.TotalTLSHandshakes);
+
+            AppendPrometheusMetric(builder, "handstack_system_net_socket_outgoing_connections_established_total", "Total number of established outgoing socket connections.", "counter", systemNetSocketMetrics.OutgoingConnectionsEstablished);
+            AppendPrometheusMetric(builder, "handstack_system_net_socket_incoming_connections_established_total", "Total number of established incoming socket connections.", "counter", systemNetSocketMetrics.IncomingConnectionsEstablished);
+            AppendPrometheusMetric(builder, "handstack_system_net_socket_current_outgoing_connect_attempts", "Current number of outgoing socket connection attempts.", "gauge", systemNetSocketMetrics.CurrentOutgoingConnectAttempts);
+            AppendPrometheusMetric(builder, "handstack_system_net_socket_bytes_received_total", "Total number of socket bytes received.", "counter", systemNetSocketMetrics.BytesReceived);
+            AppendPrometheusMetric(builder, "handstack_system_net_socket_bytes_sent_total", "Total number of socket bytes sent.", "counter", systemNetSocketMetrics.BytesSent);
+            AppendApiRequestMetrics(builder, apiRequestMetricsCollector);
+
+            return builder.ToString();
+        }
+
+        private static void AppendPrometheusMetric(StringBuilder builder, string name, string help, string type, double value, string? labels = null)
+        {
+            AppendPrometheusMetricHeader(builder, name, help, type);
+            AppendPrometheusMetricSample(builder, name, value, labels);
+        }
+
+        private static void AppendPrometheusMetricHeader(StringBuilder builder, string name, string help, string type)
+        {
+            builder.Append("# HELP ").Append(name).Append(' ').AppendLine(help);
+            builder.Append("# TYPE ").Append(name).Append(' ').AppendLine(type);
+        }
+
+        private static void AppendPrometheusMetricSample(StringBuilder builder, string name, double value, string? labels = null)
+        {
+            builder.Append(name);
+
+            if (string.IsNullOrWhiteSpace(labels) == false)
+            {
+                builder.Append(labels);
+            }
+
+            builder.Append(' ').AppendLine(FormatPrometheusValue(value));
+        }
+
+        private static void AppendPrometheusMetricSample(StringBuilder builder, string name, long value, string? labels = null)
+        {
+            builder.Append(name);
+
+            if (string.IsNullOrWhiteSpace(labels) == false)
+            {
+                builder.Append(labels);
+            }
+
+            builder.Append(' ').AppendLine(value.ToString(CultureInfo.InvariantCulture));
+        }
+
+        private static void AppendApiRequestMetrics(StringBuilder builder, ApiRequestMetricsCollector apiRequestMetricsCollector)
+        {
+            var snapshots = apiRequestMetricsCollector.GetSnapshots();
+            if (snapshots.Count == 0)
+            {
+                return;
+            }
+
+            AppendPrometheusMetricHeader(builder, "handstack_api_requests_total", "Total number of observed controller API requests.", "counter");
+            AppendPrometheusMetricHeader(builder, "handstack_api_responses_total", "Total number of observed controller API responses by status code.", "counter");
+            AppendPrometheusMetricHeader(builder, "handstack_api_request_duration_seconds_sum", "Cumulative controller API execution time in seconds.", "counter");
+            AppendPrometheusMetricHeader(builder, "handstack_api_request_duration_seconds_count", "Total number of timed controller API requests.", "counter");
+            AppendPrometheusMetricHeader(builder, "handstack_api_request_duration_seconds_max", "Maximum observed controller API execution time in seconds.", "gauge");
+
+            foreach (var snapshot in snapshots)
+            {
+                var labels = BuildPrometheusLabels(
+                    ("method", snapshot.Method),
+                    ("controller", snapshot.Controller),
+                    ("action", snapshot.Action),
+                    ("route", snapshot.Route));
+
+                AppendPrometheusMetricSample(builder, "handstack_api_requests_total", snapshot.RequestCount, labels);
+                AppendPrometheusMetricSample(builder, "handstack_api_request_duration_seconds_sum", snapshot.DurationSumSeconds, labels);
+                AppendPrometheusMetricSample(builder, "handstack_api_request_duration_seconds_count", snapshot.RequestCount, labels);
+                AppendPrometheusMetricSample(builder, "handstack_api_request_duration_seconds_max", snapshot.DurationMaxSeconds, labels);
+
+                foreach (var responseCount in snapshot.ResponseCounts)
+                {
+                    var responseLabels = BuildPrometheusLabels(
+                        ("method", snapshot.Method),
+                        ("controller", snapshot.Controller),
+                        ("action", snapshot.Action),
+                        ("route", snapshot.Route),
+                        ("status_code", responseCount.Key.ToString(CultureInfo.InvariantCulture)));
+
+                    AppendPrometheusMetricSample(builder, "handstack_api_responses_total", responseCount.Value, responseLabels);
+                }
+            }
+        }
+
+        private static string BuildPrometheusLabels(params (string Name, string Value)[] labels)
+        {
+            var builder = new StringBuilder(128);
+            builder.Append('{');
+
+            for (int i = 0; i < labels.Length; i++)
+            {
+                if (i > 0)
+                {
+                    builder.Append(',');
+                }
+
+                builder
+                    .Append(labels[i].Name)
+                    .Append("=\"")
+                    .Append(EscapePrometheusLabelValue(labels[i].Value))
+                    .Append('"');
+            }
+
+            builder.Append('}');
+            return builder.ToString();
+        }
+
+        private static string EscapePrometheusLabelValue(string? value)
+        {
+            return value.ToStringSafe()
+                .Replace("\\", "\\\\")
+                .Replace("\"", "\\\"")
+                .Replace("\r", "\\r")
+                .Replace("\n", "\\n");
+        }
+
+        private static string FormatPrometheusValue(double value)
+        {
+            if (double.IsNaN(value) == true)
+            {
+                return "NaN";
+            }
+
+            if (double.IsPositiveInfinity(value) == true)
+            {
+                return "+Inf";
+            }
+
+            if (double.IsNegativeInfinity(value) == true)
+            {
+                return "-Inf";
+            }
+
+            return value.ToString("G17", CultureInfo.InvariantCulture);
+        }
+
+        private static bool TryGetApiRequestMetricKey(HttpContext context, out ApiRequestMetricKey metricKey)
+        {
+            metricKey = default;
+
+            var endpoint = context.GetEndpoint();
+            var actionDescriptor = endpoint?.Metadata.GetMetadata<ControllerActionDescriptor>();
+            var routeEndpoint = endpoint as RouteEndpoint;
+
+            string? controller = actionDescriptor?.ControllerName;
+            string? action = actionDescriptor?.ActionName;
+            string? route = routeEndpoint?.RoutePattern?.RawText;
+            bool isApiController = false;
+
+            if (actionDescriptor != null)
+            {
+                isApiController =
+                    actionDescriptor.ControllerTypeInfo.IsDefined(typeof(ApiControllerAttribute), true)
+                    || actionDescriptor.MethodInfo.IsDefined(typeof(ApiControllerAttribute), true);
+
+                if (string.IsNullOrWhiteSpace(route) == true)
+                {
+                    route = actionDescriptor.AttributeRouteInfo?.Template;
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(controller) == true && context.Request.RouteValues.TryGetValue("controller", out var controllerValue) == true)
+            {
+                controller = controllerValue?.ToString();
+            }
+
+            if (string.IsNullOrWhiteSpace(action) == true && context.Request.RouteValues.TryGetValue("action", out var actionValue) == true)
+            {
+                action = actionValue?.ToString();
+            }
+
+            if (isApiController == false)
+            {
+                isApiController = string.IsNullOrWhiteSpace(controller) == false && IsApiRequestPath(context.Request.Path.Value) == true;
+            }
+
+            if (isApiController == false)
+            {
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(route) == true)
+            {
+                route = string.IsNullOrWhiteSpace(action) == true
+                    ? $"/{controller}"
+                    : $"/{controller}/{action}";
+            }
+
+            if (string.IsNullOrWhiteSpace(controller) == true || string.IsNullOrWhiteSpace(action) == true || string.IsNullOrWhiteSpace(route) == true)
+            {
+                return false;
+            }
+
+            metricKey = new ApiRequestMetricKey(
+                context.Request.Method.ToUpperInvariant(),
+                controller.ToStringSafe(),
+                action.ToStringSafe(),
+                route.ToStringSafe());
+            return true;
+        }
+
         protected void DirectoryCopy(string sourceDir, string destDir)
         {
             Directory.CreateDirectory(destDir);
@@ -1880,18 +2192,22 @@ namespace ack
             var actionDescriptor = context.GetEndpoint()?.Metadata.GetMetadata<ControllerActionDescriptor>();
             if (actionDescriptor == null)
             {
-                var path = context.Request.Path.Value;
-                if (string.IsNullOrWhiteSpace(path) == true)
-                {
-                    return false;
-                }
-
-                return path.EndsWith("/api", StringComparison.OrdinalIgnoreCase) == true
-                    || path.IndexOf("/api/", StringComparison.OrdinalIgnoreCase) > -1;
+                return IsApiRequestPath(context.Request.Path.Value);
             }
 
             return actionDescriptor.ControllerTypeInfo.IsDefined(typeof(ApiControllerAttribute), true)
                 || actionDescriptor.MethodInfo.IsDefined(typeof(ApiControllerAttribute), true);
+        }
+
+        private static bool IsApiRequestPath(string? path)
+        {
+            if (string.IsNullOrWhiteSpace(path) == true)
+            {
+                return false;
+            }
+
+            return path.EndsWith("/api", StringComparison.OrdinalIgnoreCase) == true
+                || path.IndexOf("/api/", StringComparison.OrdinalIgnoreCase) > -1;
         }
 
         private async Task WriteIPForbiddenResponse(HttpContext context)
