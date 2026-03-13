@@ -1,7 +1,6 @@
 ﻿var gulp = require(`gulp`);
 var concat = require(`gulp-concat`);
 var uglify = require(`gulp-uglify`);
-var stripComments = require('gulp-strip-comments');
 let stripCssComments;
 async function getStripCssComments() {
     if (stripCssComments) {
@@ -51,7 +50,7 @@ gulp.task('scripts', async function () {
         `wwwroot/lib/xlsx/xlsx.core.min.js`,
         `wwwroot/lib/filesaver/FileSaver.min.js`,
         `wwwroot/lib/fullcalendar/index.global.min.js`,
-        `wwwroot/lib/fullcalendar/core/locales/ko.global.js`,
+        `wwwroot/lib/fullcalendar/core/locales/ko.global.min.js`,
         'wwwroot/lib/orgchart/js/jquery.orgchart.min.js',
         'wwwroot/js/datatable/datatables.js',
         'wwwroot/js/datatable/dataTables.checkboxes.js',
@@ -60,10 +59,9 @@ gulp.task('scripts', async function () {
         `wwwroot/lib/popper.js/umd/popper.min.js`,
         `wwwroot/lib/tippy.js/tippy-bundle.umd.min.js`,
         `wwwroot/lib/intro.js/intro.min.js`,
-        `wwwroot/lib/master-css/index.js`,
+        `wwwroot/lib/master-css/index.min.js`,
     ], { allowEmpty: true })
         .pipe(concat('syn.scripts.js'))
-        .pipe(stripComments())
         .pipe(gulp.dest('wwwroot/js'))
         .pipe(uglify({
             mangle: true,
@@ -113,7 +111,7 @@ gulp.task('basescripts', async function () {
         `wwwroot/lib/xlsx/xlsx.core.min.js`,
         `wwwroot/lib/filesaver/FileSaver.min.js`,
         `wwwroot/lib/fullcalendar/index.global.min.js`,
-        `wwwroot/lib/fullcalendar/core/locales/ko.global.js`,
+        `wwwroot/lib/fullcalendar/core/locales/ko.global.min.js`,
         'wwwroot/lib/orgchart/js/jquery.orgchart.min.js',
         'wwwroot/js/datatable/datatables.js',
         'wwwroot/js/datatable/dataTables.checkboxes.js',
@@ -125,7 +123,6 @@ gulp.task('basescripts', async function () {
         `wwwroot/lib/master-css/index.min.js`,
     ], { allowEmpty: true })
         .pipe(concat('syn.scripts.base.js'))
-        .pipe(stripComments())
         .pipe(gulp.dest('wwwroot/js'))
         .pipe(uglify({
             mangle: true,
@@ -169,7 +166,6 @@ gulp.task('controls', async function () {
         'wwwroot/uicontrols/Element/Element.js'
     ], { allowEmpty: true })
         .pipe(concat('syn.controls.js'))
-        .pipe(stripComments())
         .pipe(gulp.dest('wwwroot/js'))
         .pipe(uglify({
             mangle: true,
