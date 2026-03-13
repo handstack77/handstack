@@ -29,17 +29,20 @@
 #   publish  - Release 모드로 최적화 빌드를 수행합니다.
 #
 # 사용법:
-#   ./task.ps1 purge
-#   ./task.ps1 run development
-#   ./task.ps1 copy
-#   ./task.ps1 www
-#   ./task.ps1 lib
-#   ./task.ps1 syn
-#   ./task.ps1 devcert
-#   ./task.ps1 start
-#   ./task.ps1 stop
-#   ./task.ps1 build
-#   ./task.ps1 publish
+#   Windows: ./task.ps1 <command> [setting] [arguments]
+#   macOS/Linux: ./task.ps1 <command> [setting] [arguments]
+#   예시:
+#     ./task.ps1 purge
+#     ./task.ps1 run development
+#     ./task.ps1 copy
+#     ./task.ps1 www
+#     ./task.ps1 lib
+#     ./task.ps1 syn
+#     ./task.ps1 devcert
+#     ./task.ps1 start
+#     ./task.ps1 stop
+#     ./task.ps1 build
+#     ./task.ps1 publish
 
 param(
     [string]$TaskCommand = "",

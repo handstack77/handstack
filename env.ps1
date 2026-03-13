@@ -2,9 +2,22 @@
 
 $ErrorActionPreference = "Stop"
 
+#
+# HandStack 환경 변수 설정 스크립트
+#
+# 사용법:
+#   Windows: ./env.ps1 또는 pwsh ./env.ps1
+#   macOS/Linux: ./env.ps1 또는 pwsh ./env.ps1
+#
+
 $currentPath = (Get-Location).Path
 $parentDir = Split-Path -Parent $currentPath
 $handstackHome = Join-Path (Join-Path $parentDir "build") "handstack"
+
+function Test-CommandExists {
+    param([string]$CommandName)
+    $null -ne (Get-Command $CommandName -ErrorAction SilentlyContinue)
+}
 
 function Get-ProfilePath {
     if ($IsMacOS) {
@@ -41,6 +54,28 @@ function Update-UnixProfileExport {
     Write-Host "Profile updated: $profilePath"
 }
 
+function Repair-MacOSNpmOwnership {
+    if (-not $IsMacOS) {
+        return
+    }
+
+    $npmCacheDir = Join-Path $HOME ".npm"
+    if (-not (Test-Path $npmCacheDir)) {
+        return
+    }
+
+    if (-not (Test-CommandExists "sudo")) {
+        throw "macOS npm 권한 보정을 위해 sudo가 필요합니다."
+    }
+
+    $currentUser = [System.Environment]::UserName
+    Write-Host "macOS npm 캐시 권한 보정 중..."
+    & sudo chown -R $currentUser $npmCacheDir
+    if ($LASTEXITCODE -ne 0) {
+        throw "~/.npm 권한 보정 실패"
+    }
+}
+
 function Set-HandStackEnv {
     param(
         [Parameter(Mandatory = $true)][string]$Name,
@@ -55,6 +90,12 @@ function Set-HandStackEnv {
     else {
         Update-UnixProfileExport -Name $Name -Value $Value
     }
+}
+
+Repair-MacOSNpmOwnership
+
+if (-not (Test-Path $handstackHome)) {
+    New-Item -Path $handstackHome -ItemType Directory -Force | Out-Null
 }
 
 Set-HandStackEnv -Name "DOTNET_CLI_TELEMETRY_OPTOUT" -Value "1"

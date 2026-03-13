@@ -13,14 +13,27 @@
 # 사전 조건:
 #   - PowerShell 7 이상 (pwsh)
 #   - .NET SDK (dotnet CLI)
-#   - 프로젝트 루트 디렉터리(handstack.sln이 있는 위치)에서 실행
 #
 # 사용법:
-#   ./build.ps1
+#   Windows: ./build.ps1 또는 pwsh ./build.ps1
+#   macOS/Linux: ./build.ps1 또는 pwsh ./build.ps1
 
 
+$ErrorActionPreference = "Stop"
 $OutputEncoding = [System.Text.Encoding]::UTF8
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+
+function Invoke-DotNet {
+    param([string[]]$Arguments)
+
+    & dotnet @Arguments
+    if ($LASTEXITCODE -ne 0) {
+        throw "dotnet 명령 실패: dotnet $($Arguments -join ' ')"
+    }
+}
+
+$scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
+Push-Location $scriptRoot
 
 # 빌드 대상 프로젝트 정의
 $buildGroups = @(
@@ -58,49 +71,43 @@ $buildGroups = @(
     }
 )
 
-# 모든 프로젝트의 의존성 패키지를 한 번에 복원합니다.
-Write-Host "솔루션 NuGet 패키지 복원 중..."
-dotnet restore handstack.sln
-if ($LASTEXITCODE -ne 0) {
-    Write-Error "솔루션 복원 실패"
-    exit 1
-}
+try {
+    # 모든 프로젝트의 의존성 패키지를 한 번에 복원합니다.
+    Write-Host "솔루션 NuGet 패키지 복원 중..."
+    Invoke-DotNet -Arguments @("restore", "handstack.sln")
 
-# ─────────────────────────────────────────────
-# 이전 빌드 산출물을 제거하여 클린 빌드를 보장합니다.
-# ─────────────────────────────────────────────
-Write-Host ""
-Write-Host "솔루션 클린 중..."
-dotnet clean handstack.sln
-if ($LASTEXITCODE -ne 0) {
-    Write-Error "솔루션 클린 실패"
-    exit 1
-}
-
-# 정의된 빌드 그룹 순서(Modules → WebHost → CLI Tools)대로 각 프로젝트를 Debug 구성으로 빌드합니다.
-foreach ($group in $buildGroups) {
+    # ─────────────────────────────────────────────
+    # 이전 빌드 산출물을 제거하여 클린 빌드를 보장합니다.
+    # ─────────────────────────────────────────────
     Write-Host ""
-    Write-Host "$($group.Name) 프로젝트 빌드 시작..."
+    Write-Host "솔루션 클린 중..."
+    Invoke-DotNet -Arguments @("clean", "handstack.sln")
 
-    foreach ($project in $group.Projects) {
+    # 정의된 빌드 그룹 순서(Modules → WebHost → CLI Tools)대로 각 프로젝트를 Debug 구성으로 빌드합니다.
+    foreach ($group in $buildGroups) {
         Write-Host ""
-        Write-Host "  ▶ $($project.Label) 빌드 중... ($($project.Path))"
+        Write-Host "$($group.Name) 프로젝트 빌드 시작..."
 
-        dotnet build $project.Path -c Debug
-
-        if ($LASTEXITCODE -ne 0) {
+        foreach ($project in $group.Projects) {
             Write-Host ""
-            Write-Error "빌드 실패: $($project.Label) ($($project.Path))"
-            exit 1
+            Write-Host "  ▶ $($project.Label) 빌드 중... ($($project.Path))"
+
+            Invoke-DotNet -Arguments @("build", $project.Path, "-c", "Debug")
+
+            Write-Host "  ✔ $($project.Label) 빌드 성공"
         }
 
-        Write-Host "  ✔ $($project.Label) 빌드 성공"
+        Write-Host ""
+        Write-Host "$($group.Name) 그룹 빌드 완료"
     }
 
     Write-Host ""
-    Write-Host "$($group.Name) 그룹 빌드 완료"
+    Write-Host "모든 프로젝트가 성공적으로 빌드되었습니다."
 }
-
-# 빌드 완료
-Write-Host ""
-Write-Host "모든 프로젝트가 성공적으로 빌드되었습니다."
+catch {
+    Write-Error $_
+    exit 1
+}
+finally {
+    Pop-Location
+}

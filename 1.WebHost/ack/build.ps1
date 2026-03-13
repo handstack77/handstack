@@ -16,7 +16,8 @@
 #   - pm2 (프로세스 관리 사용 시)
 #
 # 사용법:
-#   ./build.ps1
+#   Windows: ./build.ps1 또는 pwsh ./build.ps1
+#   macOS/Linux: ./build.ps1 또는 pwsh ./build.ps1
 
 $OutputEncoding = [System.Text.Encoding]::UTF8
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8

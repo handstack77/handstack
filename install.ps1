@@ -36,7 +36,8 @@
 #   - rsync (macOS/Linux 전용, macOS는 기본 내장, Ubuntu: sudo apt install rsync)
 #
 # 사용법:
-#   ./install.ps1
+#   Windows: ./install.ps1 또는 pwsh ./install.ps1
+#   macOS/Linux: ./install.ps1 또는 pwsh ./install.ps1
 
 $OutputEncoding = [System.Text.Encoding]::UTF8
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
@@ -227,6 +228,58 @@ function Get-AckExecutable {
     return "ack"
 }
 
+# 현재 운영체제에서 지원하는 HandStack publish 아키텍처 이름을 반환합니다.
+#
+# 반환값:
+#   Windows: x64, x86, arm64
+#   Linux:   x64, arm64
+#   macOS:   x64, arm64
+function Get-SupportedArchitecture {
+    $architectureName = [System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture.ToString().ToLowerInvariant()
+
+    switch ($architectureName) {
+        "x64" { return "x64" }
+        "arm64" { return "arm64" }
+        "x86" {
+            if ($OnWindows) {
+                return "x86"
+            }
+
+            Write-Error "[install] 현재 플랫폼($architectureName)은 지원하지 않습니다."
+            exit 1
+        }
+        default {
+            Write-Error "[install] 알 수 없는 아키텍처입니다: $architectureName"
+            exit 1
+        }
+    }
+}
+
+# macOS에서는 npm 캐시 디렉터리 권한 문제로 npm install이 실패할 수 있어 기존 install.sh와 동일하게 권한을 보정합니다.
+function Repair-MacOSNpmOwnership {
+    if (-not $OnMacOS) {
+        return
+    }
+
+    $npmCacheDir = [System.IO.Path]::Combine($env:HOME, ".npm")
+    if (-not (Test-Path $npmCacheDir)) {
+        return
+    }
+
+    if (-not (Test-CommandExists "sudo")) {
+        Write-Error "[install] macOS npm 권한 보정을 위해 sudo가 필요합니다."
+        exit 1
+    }
+
+    $currentUser = [System.Environment]::UserName
+    Write-Host "macOS npm 캐시 권한 보정 중..."
+    & sudo chown -R $currentUser $npmCacheDir
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error "[install] ~/.npm 권한 보정 실패"
+        exit 1
+    }
+}
+
 # 필수 프로그램 설치 확인하고, 누락된 프로그램이 있으면 설치 가이드를 브라우저로 열고 스크립트를 종료합니다.
 Write-Host "필수 프로그램 설치 확인 중..."
 
@@ -262,6 +315,7 @@ $isDevelopmentEnvironment = Test-Path $ackCsprojPath
 $developmentHandstackHome = [System.IO.Path]::Combine($parentDir, "build", "handstack")
 $runtimeHandstackHome = $currentPath
 $handstackHome = if ($isDevelopmentEnvironment) { $developmentHandstackHome } else { $runtimeHandstackHome }
+$currentArchitecture = Get-SupportedArchitecture
 
 # .NET CLI 원격 분석 비활성화
 Set-PersistentEnv -Name "DOTNET_CLI_TELEMETRY_OPTOUT" -Value "1" -PersistToHost
@@ -294,6 +348,9 @@ if ($isDevelopmentEnvironment -and -not (Test-Path $handstackHome)) {
 if ($isDevelopmentEnvironment) {
     Write-Host ""
     Write-Host "개발 환경 설치 시작..."
+    Write-Host "  현재 아키텍처: $currentArchitecture"
+
+    Repair-MacOSNpmOwnership
 
     # .NET SDK 10.0 설치 확인
     if (-not (Test-CommandExists "dotnet")) {
@@ -353,8 +410,8 @@ if ($isDevelopmentEnvironment) {
         elseif ($OnMacOS) { $osTarget = "osx" }
         else { $osTarget = "linux" }
 
-        $cliOutputDir = [System.IO.Path]::Combine($parentDir, "publish", "$osTarget-x64", "app", "cli", "handstack")
-        dotnet publish $cliCsproj --configuration Debug --arch x64 --os $osTarget --output $cliOutputDir
+        $cliOutputDir = [System.IO.Path]::Combine($parentDir, "publish", "$osTarget-$currentArchitecture", "app", "cli", "handstack")
+        dotnet publish $cliCsproj --configuration Debug --arch $currentArchitecture --os $osTarget --output $cliOutputDir
 
         if ($LASTEXITCODE -ne 0) {
             Write-Error "[install] HandStack CLI 빌드 실패"
@@ -362,8 +419,14 @@ if ($isDevelopmentEnvironment) {
         }
 
         # lib.zip 해제
-        $handstackCliExe = [System.IO.Path]::Combine($cliOutputDir, "handstack")
+        $handstackCliExeName = if ($OnWindows) { "handstack.exe" } else { "handstack" }
+        $handstackCliExe = [System.IO.Path]::Combine($cliOutputDir, $handstackCliExeName)
         $libZipPath = [System.IO.Path]::Combine($currentPath, "lib.zip")
+
+        if (-not (Test-Path $handstackCliExe)) {
+            Write-Error "[install] HandStack CLI 실행 파일을 찾을 수 없습니다: $handstackCliExe"
+            exit 1
+        }
 
         Write-Host "lib.zip 파일 해제 중..."
         & $handstackCliExe extract --file=$libZipPath --directory=$wwwrootLib
@@ -444,6 +507,9 @@ $ackExePath = [System.IO.Path]::Combine($currentPath, "app", $ackExeName)
 if (Test-Path $ackExePath) {
     Write-Host ""
     Write-Host "ack 실행 환경 설치 확인 중..."
+    Write-Host "  현재 아키텍처: $currentArchitecture"
+
+    Repair-MacOSNpmOwnership
 
     # function 모듈에서 사용하는 npm 의존성을 설치합니다.
     $rootNodeModules = [System.IO.Path]::Combine($currentPath, "node_modules")
@@ -492,6 +558,11 @@ if (Test-Path $ackExePath) {
 
         $handstackCliExeName = if ($OnWindows) { "handstack.exe" } else { "handstack" }
         $handstackCliExe = [System.IO.Path]::Combine($currentPath, "app", "cli", "handstack", $handstackCliExeName)
+        if (-not (Test-Path $handstackCliExe)) {
+            Write-Error "[install] HandStack CLI 실행 파일을 찾을 수 없습니다: $handstackCliExe"
+            exit 1
+        }
+
         Write-Host "lib.zip 파일 해제 중..."
         & $handstackCliExe extract --file=$libZipPath --directory=$modulesWwwrootLib
         Pop-Location

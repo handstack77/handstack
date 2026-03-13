@@ -12,14 +12,36 @@
 #   - PowerShell 7 이상 (pwsh)
 #   - .NET SDK (dotnet CLI)
 #   - Node.js (signassembly.js 실행용)
-#   - 프로젝트 루트 디렉터리에서 실행
 #
 # 사용법:
-#   ./assemblies.ps1
+#   Windows: ./assemblies.ps1 또는 pwsh ./assemblies.ps1
+#   macOS/Linux: ./assemblies.ps1 또는 pwsh ./assemblies.ps1
 
 
+$ErrorActionPreference = "Stop"
 $OutputEncoding = [System.Text.Encoding]::UTF8
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+
+function Test-CommandExists {
+    param([string]$CommandName)
+    $null -ne (Get-Command $CommandName -ErrorAction SilentlyContinue)
+}
+
+function Invoke-ExternalCommand {
+    param(
+        [string]$Command,
+        [string[]]$Arguments,
+        [string]$ErrorMessage
+    )
+
+    & $Command @Arguments
+    if ($LASTEXITCODE -ne 0) {
+        throw $ErrorMessage
+    }
+}
+
+$scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
+Push-Location $scriptRoot
 
 # Assemblies 출력 루트 디렉터리
 $assembliesDir = [System.IO.Path]::Combine("3.Infrastructure", "Assemblies")
@@ -35,46 +57,57 @@ $projectNames = @(
     "HandStack.Web"
 )
 
-# 기존 Assemblies 디렉터리 삭제
-if (Test-Path $assembliesDir) {
-    Write-Host "[assemblies] 기존 Assemblies 디렉터리 삭제 중: $assembliesDir"
-    Remove-Item -Path $assembliesDir -Recurse -Force
-}
+$signingEnabled = $false
 
-# 어셈블리 서명 활성화
-Write-Host "[assemblies] 어셈블리 서명 활성화 중..."
-node signassembly.js true
-
-# Debug 구성 빌드
-Write-Host "[assemblies] Debug 구성 빌드 시작..."
-foreach ($project in $projectNames) {
-    $projectPath = [System.IO.Path]::Combine("3.Infrastructure", $project, "$project.csproj")
-    Write-Host "  빌드 중: $projectPath"
-    dotnet build --configuration Debug $projectPath --output $debugOutputDir
-    if ($LASTEXITCODE -ne 0) {
-        Write-Error "Debug 빌드 실패: $projectPath"
-        node signassembly.js false
-        exit 1
+try {
+    if (-not (Test-CommandExists "node")) {
+        throw "node 명령을 찾을 수 없습니다."
     }
-}
-Write-Host "[assemblies] Debug 구성 빌드 완료"
 
-# Release 구성 빌드
-Write-Host "[assemblies] Release 구성 빌드 시작..."
-foreach ($project in $projectNames) {
-    $projectPath = [System.IO.Path]::Combine("3.Infrastructure", $project, "$project.csproj")
-    Write-Host "  빌드 중: $projectPath"
-    dotnet build --configuration Release $projectPath --output $releaseOutputDir
-    if ($LASTEXITCODE -ne 0) {
-        Write-Error "Release 빌드 실패: $projectPath"
-        node signassembly.js false
-        exit 1
+    if (-not (Test-CommandExists "dotnet")) {
+        throw "dotnet 명령을 찾을 수 없습니다."
     }
+
+    # 기존 Assemblies 디렉터리 삭제
+    if (Test-Path $assembliesDir) {
+        Write-Host "[assemblies] 기존 Assemblies 디렉터리 삭제 중: $assembliesDir"
+        Remove-Item -Path $assembliesDir -Recurse -Force
+    }
+
+    # 어셈블리 서명 활성화
+    Write-Host "[assemblies] 어셈블리 서명 활성화 중..."
+    Invoke-ExternalCommand -Command "node" -Arguments @("signassembly.js", "true") -ErrorMessage "어셈블리 서명 활성화 실패"
+    $signingEnabled = $true
+
+    # Debug 구성 빌드
+    Write-Host "[assemblies] Debug 구성 빌드 시작..."
+    foreach ($project in $projectNames) {
+        $projectPath = [System.IO.Path]::Combine("3.Infrastructure", $project, "$project.csproj")
+        Write-Host "  빌드 중: $projectPath"
+        Invoke-ExternalCommand -Command "dotnet" -Arguments @("build", "--configuration", "Debug", $projectPath, "--output", $debugOutputDir) -ErrorMessage "Debug 빌드 실패: $projectPath"
+    }
+    Write-Host "[assemblies] Debug 구성 빌드 완료"
+
+    # Release 구성 빌드
+    Write-Host "[assemblies] Release 구성 빌드 시작..."
+    foreach ($project in $projectNames) {
+        $projectPath = [System.IO.Path]::Combine("3.Infrastructure", $project, "$project.csproj")
+        Write-Host "  빌드 중: $projectPath"
+        Invoke-ExternalCommand -Command "dotnet" -Arguments @("build", "--configuration", "Release", $projectPath, "--output", $releaseOutputDir) -ErrorMessage "Release 빌드 실패: $projectPath"
+    }
+    Write-Host "[assemblies] Release 구성 빌드 완료"
+
+    Write-Host "[assemblies] 모든 어셈블리 빌드가 완료되었습니다."
 }
-Write-Host "[assemblies] Release 구성 빌드 완료"
+catch {
+    Write-Error $_
+    exit 1
+}
+finally {
+    if ($signingEnabled) {
+        Write-Host "[assemblies] 어셈블리 서명 비활성화 중..."
+        & node signassembly.js false | Out-Null
+    }
 
-# 어셈블리 서명 비활성화
-Write-Host "[assemblies] 어셈블리 서명 비활성화 중..."
-node signassembly.js false
-
-Write-Host "[assemblies] 모든 어셈블리 빌드가 완료되었습니다."
+    Pop-Location
+}
