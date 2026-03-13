@@ -27,18 +27,19 @@ set current_path=%cd%
 
 for %%i in ("%current_path%") do set "PARENT_DIR=%%~dpi"
 set "PARENT_DIR=%PARENT_DIR:~0,-1%"
-set "HANDSTACK_SRC=%current_path%"
 set "HANDSTACK_HOME=%PARENT_DIR%\build\handstack"
 
 REM 환경 변수 설정
 setx DOTNET_CLI_TELEMETRY_OPTOUT 1
 set DOTNET_CLI_TELEMETRY_OPTOUT=1
 
-echo HANDSTACK_SRC: %HANDSTACK_SRC%
 echo HANDSTACK_HOME: %HANDSTACK_HOME%
 
 REM 개발 환경 설정 (ack.csproj 존재 시)
 if exist %current_path%\1.WebHost\ack\ack.csproj (
+    set "HANDSTACK_SRC=%current_path%"
+    echo HANDSTACK_SRC: %HANDSTACK_SRC%
+
 	setx HANDSTACK_SRC "%HANDSTACK_SRC%" >nul
 	setx HANDSTACK_HOME "%HANDSTACK_HOME%" >nul
 
@@ -127,7 +128,6 @@ if exist %current_path%\1.WebHost\ack\ack.csproj (
 
 REM 실행 환경 설정 (ack.exe 존재 시)
 if exist %current_path%\app\ack.exe (
-	set "HANDSTACK_SRC=%current_path%"
 	set "HANDSTACK_HOME=%current_path%"
 
 	echo current_path: %current_path% ack 실행 환경 설치 확인 중...
@@ -151,9 +151,13 @@ if exist %current_path%\app\ack.exe (
 	REM lib.zip 다운로드 및 해제
 	if not exist %current_path%\modules\wwwroot\wwwroot\lib (
 		echo 클라이언트 라이브러리 %current_path%\modules\wwwroot\wwwroot\lib 설치를 시작합니다...
-		cd %current_path%\modules\wwwroot\wwwroot
+        if exist "%HANDSTACK_SRC%\lib.zip" if not exist "%current_path%\modules\wwwroot\wwwroot\lib.zip" (
+            robocopy "%HANDSTACK_SRC%" "%current_path%\modules\wwwroot\wwwroot" "lib.zip" /copy:dat
+        )
+
 		if not exist %current_path%\modules\wwwroot\wwwroot\lib.zip (
 			echo lib.zip 파일을 다운로드 합니다...
+		    cd %current_path%\modules\wwwroot\wwwroot
 			call curl -L -O https://github.com/handstack77/handstack/raw/master/lib.zip
 		)
 		echo lib.zip 파일을 해제합니다...

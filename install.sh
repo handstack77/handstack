@@ -34,7 +34,6 @@ fi
 current_path=$(pwd)
 ack_csproj_path="$current_path/1.WebHost/ack/ack.csproj"
 PARENT_DIR="$(dirname "$current_path")"
-HANDSTACK_SRC="$current_path"
 DEV_HANDSTACK_HOME="$PARENT_DIR/build/handstack"
 
 if [ -f "$ack_csproj_path" ]; then
@@ -43,7 +42,6 @@ else
     HANDSTACK_HOME="$current_path"
 fi
 
-export HANDSTACK_SRC="$HANDSTACK_SRC"
 export HANDSTACK_HOME="$HANDSTACK_HOME"
 
 # 환경 변수 설정
@@ -60,12 +58,15 @@ if ! grep -q "DOTNET_CLI_TELEMETRY_OPTOUT" "$PROFILE_FILE"; then
     echo 'export DOTNET_CLI_TELEMETRY_OPTOUT=1' >> "$PROFILE_FILE"
 fi
 
-echo "HANDSTACK_SRC: $HANDSTACK_SRC"
 echo "HANDSTACK_HOME: $HANDSTACK_HOME"
 
 # 개발 환경 설정 (ack.csproj 존재 시)
 if [ -f "$current_path/1.WebHost/ack/ack.csproj" ]; then
     # 개발 환경에서만 HANDSTACK_SRC/HANDSTACK_HOME을 호스트 프로필에 등록
+    HANDSTACK_SRC="$current_path"
+    export HANDSTACK_SRC="$HANDSTACK_SRC"
+    echo "HANDSTACK_SRC: $HANDSTACK_SRC"
+
     if [[ "$OSTYPE" == "darwin"* ]]; then
         sed -i '' '/export HANDSTACK_SRC=/d' "$PROFILE_FILE"
         sed -i '' '/export HANDSTACK_HOME=/d' "$PROFILE_FILE"
@@ -194,16 +195,20 @@ if [ -f "$current_path/app/ack.dll" ]; then
         npm install
     fi
     
-    # lib.zip 다운로드 및 해제
+    # lib.zip 복사/다운로드 및 해제
     if [ ! -d "$current_path/modules/wwwroot/wwwroot/lib" ]; then
         echo "클라이언트 라이브러리 $current_path/modules/wwwroot/wwwroot/lib 설치를 시작합니다..."
-        cd $current_path/modules/wwwroot/wwwroot
+        if [ -n "$HANDSTACK_SRC" ] && [ -f "$HANDSTACK_SRC/lib.zip" ] && [ ! -f "$current_path/modules/wwwroot/wwwroot/lib.zip" ]; then
+            cp "$HANDSTACK_SRC/lib.zip" "$current_path/modules/wwwroot/wwwroot/lib.zip"
+        fi
+
         if [ ! -f "$current_path/modules/wwwroot/wwwroot/lib.zip" ]; then
             echo "lib.zip 파일을 다운로드 합니다..."
+            cd "$current_path/modules/wwwroot/wwwroot"
             curl -L -O https://github.com/handstack77/handstack/raw/master/lib.zip
         fi
         echo "lib.zip 파일을 해제합니다..."
-        unzip -q -o lib.zip -d lib
+        "$current_path/app/cli/handstack/handstack" extract --file="$current_path/modules/wwwroot/wwwroot/lib.zip" --directory="$current_path/modules/wwwroot/wwwroot/lib"
     fi
     
     # libman 확인 및 자동 설치, 라이브러리 복원

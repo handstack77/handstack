@@ -20,7 +20,7 @@
 #   [실행 환경 모드] - app/ack.exe(또는 app/ack) 파일이 존재하는 경우
 #     빌드된 결과물을 기반으로 실행 환경을 구성합니다.
 #     1. 필수 프로그램 설치 확인 (node, gulp, curl)
-#     2. 환경 변수 설정
+#     2. 환경 변수 설정 (HANDSTACK_HOME)
 #     3. 루트 node_modules 설치
 #     4. app/node_modules 설치
 #     5. lib.zip 다운로드 및 해제
@@ -266,23 +266,22 @@ $handstackHome = if ($isDevelopmentEnvironment) { $developmentHandstackHome } el
 # .NET CLI 원격 분석 비활성화
 Set-PersistentEnv -Name "DOTNET_CLI_TELEMETRY_OPTOUT" -Value "1" -PersistToHost
 
-# HandStack 소스 루트 경로
-Set-PersistentEnv -Name "HANDSTACK_SRC" -Value $currentPath -PersistToHost:$isDevelopmentEnvironment
-
 # HandStack 빌드 출력 경로
 Set-PersistentEnv -Name "HANDSTACK_HOME" -Value $handstackHome -PersistToHost:$isDevelopmentEnvironment
 
+# 개발 환경 모드에서만 소스 루트 경로를 설정 및 등록
+if ($isDevelopmentEnvironment) {
+    Set-PersistentEnv -Name "HANDSTACK_SRC" -Value $currentPath -PersistToHost
+}
+
 # 편의를 위해 스크립트 내에서도 환경 변수로 접근 가능하도록 설정
-$env:HANDSTACK_SRC = $currentPath
 $env:HANDSTACK_HOME = $handstackHome
 
-Write-Host "  HANDSTACK_SRC:  $currentPath"
 Write-Host "  HANDSTACK_HOME: $handstackHome"
 if ($isDevelopmentEnvironment) {
+    $env:HANDSTACK_SRC = $currentPath
+    Write-Host "  HANDSTACK_SRC:  $currentPath"
     Write-Host "  환경 변수 호스트 등록: 개발 환경 모드에서 적용됨"
-}
-else {
-    Write-Host "  환경 변수 호스트 등록: 실행 환경 모드에서는 생략"
 }
 
 # 빌드 출력 디렉터리가 없으면 생성
@@ -470,7 +469,7 @@ if (Test-Path $ackExePath) {
         Pop-Location
     }
 
-    # 클라이언트 라이브러리가 없으면 GitHub에서 lib.zip을 다운로드하고 HandStack CLI의 extract 명령으로 해제합니다.
+    # 클라이언트 라이브러리가 없으면 HANDSTACK_SRC의 lib.zip을 우선 복사하고, 없을 때만 다운로드한 뒤 HandStack CLI의 extract 명령으로 해제합니다.
     $modulesWwwrootLib = [System.IO.Path]::Combine($currentPath, "modules", "wwwroot", "wwwroot", "lib")
     if (-not (Test-Path $modulesWwwrootLib)) {
         $modulesWwwrootDir = [System.IO.Path]::Combine($currentPath, "modules", "wwwroot", "wwwroot")
@@ -479,12 +478,20 @@ if (Test-Path $ackExePath) {
         Push-Location $modulesWwwrootDir
 
         $libZipPath = [System.IO.Path]::Combine($modulesWwwrootDir, "lib.zip")
+        if (-not [string]::IsNullOrWhiteSpace($env:HANDSTACK_SRC)) {
+            $sourceLibZipPath = [System.IO.Path]::Combine($env:HANDSTACK_SRC, "lib.zip")
+            if ((Test-Path $sourceLibZipPath) -and -not (Test-Path $libZipPath)) {
+                Copy-Item -Path $sourceLibZipPath -Destination $libZipPath -Force
+            }
+        }
+
         if (-not (Test-Path $libZipPath)) {
             Write-Host "lib.zip 파일 다운로드 중..."
             curl -L -O https://github.com/handstack77/handstack/raw/master/lib.zip
         }
 
-        $handstackCliExe = [System.IO.Path]::Combine($currentPath, "app", "cli", "handstack", "handstack.exe")
+        $handstackCliExeName = if ($OnWindows) { "handstack.exe" } else { "handstack" }
+        $handstackCliExe = [System.IO.Path]::Combine($currentPath, "app", "cli", "handstack", $handstackCliExeName)
         Write-Host "lib.zip 파일 해제 중..."
         & $handstackCliExe extract --file=$libZipPath --directory=$modulesWwwrootLib
         Pop-Location
