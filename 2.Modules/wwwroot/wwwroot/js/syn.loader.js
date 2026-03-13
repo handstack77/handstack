@@ -395,23 +395,23 @@
                 type: 'before-default',
                 css: [
                     '/css/preload.css',
-                    '/lib/tabler-core/dist/css/tabler.css',
-                    '/lib/tabler-icons-webfont/dist/tabler-icons.css',
+                    '/lib/tabler-core/dist/css/tabler.min.css',
+                    '/lib/tabler-icons-webfont/dist/tabler-icons.min.css',
                     '/js/notifier/notifier.css',
                     '/js/jquery-ui-contextmenu/jquery-ui.css'
                 ],
                 js: [
                     '/lib/tabler-core/dist/js/tabler.min.js',
-                    '/lib/jquery/jquery.js',
+                    '/lib/jquery/jquery.min.js',
                     '/js/jquery.alertmodal/jquery.alertmodal.js',
-                    '/lib/jquery-simplemodal/src/jquery.simplemodal.js',
+                    '/lib/jquery-simplemodal/src/jquery.simplemodal.min.js',
                     '/js/jquery-wm/jquery.WM.js',
                     '/js/jquery-ui-contextmenu/jquery-ui.js',
                     '/js/jquery-ui-contextmenu/jquery.ui-contextmenu.js',
-                    '/lib/nanobar/nanobar.js',
+                    '/lib/nanobar/nanobar.min.js',
                     '/js/notifier/notifier.js',
-                    '/lib/clipboard.js/clipboard.js',
-                    '/lib/mustache/mustache.js',
+                    '/lib/clipboard.js/clipboard.min.js',
+                    '/lib/mustache/mustache.min.js',
                     '/js/syn.js'
                 ]
             });
@@ -423,8 +423,8 @@
                     case 'textbox':
                         item.css = ['/uicontrols/TextBox/TextBox.css'];
                         item.js = [
-                            '/lib/jquery.maskedinput/jquery.maskedinput.js',
-                            '/lib/ispin/dist/ispin.js',
+                            '/lib/jquery.maskedinput/jquery.maskedinput.min.js',
+                            '/lib/ispin/dist/ispin.min.js',
                             '/lib/superplaceholder/superplaceholder.js',
                             '/lib/vanilla-masker/vanilla-masker.min.js',
                             '/uicontrols/TextBox/TextBox.js'
@@ -447,11 +447,11 @@
                         break;
                     case 'textarea':
                         item.css = [
-                            '/lib/codemirror/codemirror.css',
+                            '/lib/codemirror/codemirror.min.css',
                             '/uicontrols/TextArea/TextArea.css'
                         ];
                         item.js = [
-                            '/lib/codemirror/codemirror.js',
+                            '/lib/codemirror/codemirror.min.js',
                             '/uicontrols/TextArea/TextArea.js'
                         ];
                         break;
@@ -461,7 +461,7 @@
                             '/uicontrols/DropDownList/DropDownList.css'
                         ];
                         item.js = [
-                            '/lib/tail.select.js/js/tail.select.js',
+                            '/lib/tail.select.js/js/tail.select.min.js',
                             '/uicontrols/DropDownList/DropDownList.js'
                         ];
                         break;
@@ -471,7 +471,7 @@
                             '/uicontrols/DropDownCheckList/DropDownCheckList.css'
                         ];
                         item.js = [
-                            '/lib/tail.select.js/js/tail.select.js',
+                            '/lib/tail.select.js/js/tail.select.min.js',
                             '/uicontrols/DropDownCheckList/DropDownCheckList.js'
                         ];
                         break;
@@ -480,7 +480,7 @@
                             '/uicontrols/Chart/Chart.css'
                         ];
                         item.js = [
-                            '/lib/highcharts/highcharts.js',
+                            '/lib/highcharts/highcharts.min.js',
                             '/uicontrols/Chart/Chart.js'
                         ];
                         break;
@@ -489,7 +489,7 @@
                             '/uicontrols/Chart/ChartJS.css'
                         ];
                         item.js = [
-                            '/lib/chart.js/chart.umd.js',
+                            '/lib/chart.js/chart.umd.min.js',
                             '/uicontrols/Chart/ChartJS.js'
                         ];
                         break;
@@ -524,15 +524,15 @@
                         break;
                     case 'datepicker':
                         item.css = [
-                            '/lib/pikaday/css/pikaday.css',
+                            '/lib/pikaday/css/pikaday.min.css',
                             '/uicontrols/TextBox/TextBox.css',
                             '/uicontrols/DatePicker/DatePicker.css'
                         ];
                         item.js = [
-                            '/lib/jquery.maskedinput/jquery.maskedinput.js',
-                            '/lib/ispin/dist/ispin.js',
-                            '/lib/moment.js/moment.js',
-                            '/lib/pikaday/pikaday.js',
+                            '/lib/jquery.maskedinput/jquery.maskedinput.min.js',
+                            '/lib/ispin/dist/ispin.min.js',
+                            '/lib/moment.js/moment.min.js',
+                            '/lib/pikaday/pikaday.min.js',
                             '/lib/superplaceholder/superplaceholder.js',
                             '/lib/vanilla-masker/vanilla-masker.min.js',
                             '/uicontrols/TextBox/TextBox.js',
@@ -541,15 +541,15 @@
                         break;
                     case 'dateperiodpicker':
                         item.css = [
-                            '/lib/pikaday/css/pikaday.css',
+                            '/lib/pikaday/css/pikaday.min.css',
                             '/uicontrols/TextBox/TextBox.css',
                             '/uicontrols/DatePeriodPicker/DatePeriodPicker.css'
                         ];
                         item.js = [
-                            '/lib/jquery.maskedinput/jquery.maskedinput.js',
-                            '/lib/ispin/dist/ispin.js',
-                            '/lib/moment.js/moment.js',
-                            '/lib/pikaday/pikaday.js',
+                            '/lib/jquery.maskedinput/jquery.maskedinput.min.js',
+                            '/lib/ispin/dist/ispin.min.js',
+                            '/lib/moment.js/moment.min.js',
+                            '/lib/pikaday/pikaday.min.js',
                             '/lib/superplaceholder/superplaceholder.js',
                             '/lib/vanilla-masker/vanilla-masker.min.js',
                             '/uicontrols/TextBox/TextBox.js',
@@ -584,11 +584,11 @@
                         break;
                     case 'organization':
                         item.css = [
-                            '/lib/orgchart/css/jquery.orgchart.css',
+                            '/lib/orgchart/css/jquery.orgchart.min.css',
                             '/uicontrols/OrganizationView/OrganizationView.css'
                         ];
                         item.js = [
-                            '/lib/orgchart/js/jquery.orgchart.js',
+                            '/lib/orgchart/js/jquery.orgchart.min.js',
                             '/uicontrols/OrganizationView/OrganizationView.js'
                         ];
                         break;
@@ -606,7 +606,7 @@
                             '/uicontrols/TreeView/TreeView.css'
                         ];
                         item.js = [
-                            '/lib/fancytree/jquery.fancytree-all-deps.js',
+                            '/lib/fancytree/jquery.fancytree-all-deps.min.js',
                             '/uicontrols/TreeView/TreeView.js'
                         ];
                         break;
@@ -620,7 +620,7 @@
                         item.js = [
                             '/uicontrols/DataSource/DataSource.js',
                             '/uicontrols/CodePicker/CodePicker.js',
-                            '/lib/papaparse/papaparse.js',
+                            '/lib/papaparse/papaparse.min.js',
                             '/lib/xlsx/xlsx.core.min.js',
                             '/lib/handsontable/dist/handsontable.full.js',
                             '/lib/handsontable/languages/ko-KR.js',
@@ -636,7 +636,7 @@
                         item.js = [
                             '/uicontrols/DataSource/DataSource.js',
                             '/uicontrols/CodePicker/CodePicker.js',
-                            '/lib/papaparse/papaparse.js',
+                            '/lib/papaparse/papaparse.min.js',
                             '/lib/xlsx/xlsx.core.min.js',
                             '/lib/auigrid/dist/AUIGridLicense.js',
                             '/lib/auigrid/dist/AUIGrid.js',
@@ -650,9 +650,9 @@
                             '/uicontrols/Guide/Guide.css'
                         ];
                         item.js = [
-                            '/lib/popper.js/umd/popper.js',
-                            '/lib/tippy.js/tippy-bundle.umd.js',
-                            '/lib/intro.js/intro.js',
+                            '/lib/popper.js/umd/popper.min.js',
+                            '/lib/tippy.js/tippy-bundle.umd.min.js',
+                            '/lib/intro.js/intro.min.js',
                             '/lib/superplaceholder/superplaceholder.js',
                             '/uicontrols/Guide/Guide.js'
                         ];
@@ -679,7 +679,7 @@
                 js: [
                     '/uicontrols/Element/Element.js',
                     '/lib/darkreader/darkreader.min.js',
-                    '/lib/master-css/index.js'
+                    '/lib/master-css/index.min.js'
                 ]
             });
 
@@ -865,17 +865,17 @@
                 if (synConfig.Environment == 'Development') {
                     styleFiles = styleFiles.concat([
                         // syn.scripts.js
-                        '/lib/tabler-core/dist/css/tabler.css',
-                        '/lib/tabler-icons-webfont/dist/tabler-icons.css',
+                        '/lib/tabler-core/dist/css/tabler.min.css',
+                        '/lib/tabler-icons-webfont/dist/tabler-icons.min.css',
                         '/lib/handsontable/dist/handsontable.full.css',
                         '/lib/tail.select.js/css/default/tail.select-light.css',
-                        '/lib/ispin/dist/ispin.css',
+                        '/lib/ispin/dist/ispin.min.css',
                         '/js/css-checkbox/checkboxes.css',
                         '/js/color-picker/color-picker.css',
-                        '/lib/codemirror/codemirror.css',
+                        '/lib/codemirror/codemirror.min.css',
                         '/lib/fancytree/skin-win8/ui.fancytree.css',
                         '/js/jquery-ui-contextmenu/jquery-ui.css',
-                        '/lib/orgchart/css/jquery.orgchart.css',
+                        '/lib/orgchart/css/jquery.orgchart.min.css',
                         '/lib/print-js/print.min.css',
                         '/js/notifier/notifier.css',
 

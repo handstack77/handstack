@@ -3,370 +3,328 @@
     "defaultProvider": "cdnjs",
     "libraries": [
         {
-            "library": "JavaScript-autoComplete@1.0.4",
-            "destination": "wwwroot/lib/autocomplete/"
-        },
-        {
             "library": "clipboard.js@2.0.11",
-            "destination": "wwwroot/lib/clipboard.js/"
-        },
-        {
-            "library": "bootstrap@5.3.3",
-            "destination": "wwwroot/lib/bootstrap/"
+            "destination": "wwwroot/lib/clipboard.js/",
+            "files": [
+                "clipboard.min.js"
+            ]
         },
         {
             "library": "Chart.js@4.4.1",
-            "destination": "wwwroot/lib/chart.js/"
+            "destination": "wwwroot/lib/chart.js/",
+            "files": [
+                "chart.umd.min.js"
+            ]
         },
         {
             "library": "codemirror@6.65.7",
-            "destination": "wwwroot/lib/codemirror/"
-        },
-        {
-            "library": "jquery-contextmenu@2.9.2",
-            "destination": "wwwroot/lib/contextmenu/"
+            "destination": "wwwroot/lib/codemirror/",
+            "files": [
+                "codemirror.min.css",
+                "codemirror.min.js"
+            ]
         },
         {
             "library": "darkreader@4.9.92",
-            "destination": "wwwroot/lib/darkreader/"
-        },
-        {
-            "library": "datatable@2.0.2",
-            "destination": "wwwroot/lib/datatable/"
+            "destination": "wwwroot/lib/darkreader/",
+            "files": [
+                "darkreader.min.js"
+            ]
         },
         {
             "library": "draggabilly@3.0.0",
-            "destination": "wwwroot/lib/draggabilly/"
+            "destination": "wwwroot/lib/draggabilly/",
+            "files": [
+                "draggabilly.pkgd.min.js"
+            ]
         },
         {
             "library": "jquery.fancytree@2.38.3",
-            "destination": "wwwroot/lib/fancytree/"
-        },
-        {
-            "library": "flatpickr@4.6.13",
-            "destination": "wwwroot/lib/flatpickr/"
+            "destination": "wwwroot/lib/fancytree/",
+            "files": [
+                "jquery.fancytree-all-deps.min.js",
+                "skin-win8/ui.fancytree.css",
+                "skin-win8/icons.gif",
+                "skin-win8/icons-rtl.gif",
+                "skin-win8/loading.gif",
+                "skin-win8/vline.gif",
+                "skin-win8/vline-rtl.gif"
+            ]
         },
         {
             "provider": "jsdelivr",
             "library": "fullcalendar@6.1.20",
-            "destination": "wwwroot/lib/fullcalendar/"
+            "destination": "wwwroot/lib/fullcalendar/",
+            "files": [
+                "index.global.min.js"
+            ]
         },
         {
             "provider": "jsdelivr",
             "library": "@fullcalendar/core@6.1.20",
-            "destination": "wwwroot/lib/fullcalendar/core/"
-        },
-        {
-            "provider": "jsdelivr",
-            "library": "signature_pad@5.0.7",
-            "destination": "wwwroot/lib/signature_pad/"
-        },
-        {
-            "library": "fuse.js@7.0.0",
-            "destination": "wwwroot/lib/fuse.js/"
+            "destination": "wwwroot/lib/fullcalendar/core/",
+            "files": [
+                "locales/ko.global.min.js"
+            ]
         },
         {
             "provider": "jsdelivr",
             "library": "filedrop@2.1.0",
-            "destination": "wwwroot/lib/filedrop/"
+            "destination": "wwwroot/lib/filedrop/",
+            "files": [
+                "filedrop.min.css",
+                "filedrop.min.js"
+            ]
         },
         {
             "library": "highlight.js@11.11.0",
-            "destination": "wwwroot/lib/highlight.js/"
-        },
-        {
-            "library": "html2canvas@1.4.1",
-            "destination": "wwwroot/lib/html2canvas/"
-        },
-        {
-            "library": "iframe-resizer@4.4.4",
-            "destination": "wwwroot/lib/iframe-resizer/"
+            "destination": "wwwroot/lib/highlight.js/",
+            "files": [
+                "highlight.min.js",
+                "styles/atom-one-dark.min.css"
+            ]
         },
         {
             "library": "intro.js@7.2.0",
-            "destination": "wwwroot/lib/intro.js/"
+            "destination": "wwwroot/lib/intro.js/",
+            "files": [
+                "introjs.min.css",
+                "intro.min.js"
+            ]
         },
         {
             "provider": "jsdelivr",
             "library": "ispin@2.0.1",
-            "destination": "wwwroot/lib/ispin/"
+            "destination": "wwwroot/lib/ispin/",
+            "files": [
+                "dist/ispin.min.css",
+                "dist/ispin.min.js"
+            ]
         },
         {
             "library": "jquery@3.7.1",
-            "destination": "wwwroot/lib/jquery/"
-        },
-        {
-            "library": "jsoneditor@10.1.1",
-            "destination": "wwwroot/lib/jsoneditor/"
+            "destination": "wwwroot/lib/jquery/",
+            "files": [
+                "jquery.min.js"
+            ]
         },
         {
             "provider": "jsdelivr",
             "library": "@master/css@1.37.8",
-            "destination": "wwwroot/lib/master-css/"
+            "destination": "wwwroot/lib/master-css/",
+            "files": [
+                "index.min.js"
+            ]
         },
         {
             "library": "moment.js@2.30.1",
-            "destination": "wwwroot/lib/moment.js/"
+            "destination": "wwwroot/lib/moment.js/",
+            "files": [
+                "moment.min.js"
+            ]
         },
         {
             "library": "monaco-editor@0.51.0",
-            "destination": "wwwroot/lib/monaco-editor/"
+            "destination": "wwwroot/lib/monaco-editor/",
+            "files": [
+                "min/vs/**"
+            ]
         },
         {
             "provider": "jsdelivr",
             "library": "mustache@4.2.0",
-            "destination": "wwwroot/lib/mustache/"
+            "destination": "wwwroot/lib/mustache/",
+            "files": [
+                "mustache.min.js"
+            ]
         },
         {
             "library": "nanobar@0.4.2",
-            "destination": "wwwroot/lib/nanobar/"
-        },
-        {
-            "provider": "jsdelivr",
-            "library": "numbro@2.5.0",
-            "destination": "wwwroot/lib/numbro/"
+            "destination": "wwwroot/lib/nanobar/",
+            "files": [
+                "nanobar.min.js"
+            ]
         },
         {
             "library": "orgchart@4.0.1",
-            "destination": "wwwroot/lib/orgchart/"
+            "destination": "wwwroot/lib/orgchart/",
+            "files": [
+                "css/jquery.orgchart.min.css",
+                "js/jquery.orgchart.min.js"
+            ]
         },
         {
             "library": "PapaParse@5.4.1",
-            "destination": "wwwroot/lib/papaparse/"
+            "destination": "wwwroot/lib/papaparse/",
+            "files": [
+                "papaparse.min.js"
+            ]
         },
         {
             "library": "pdfobject@2.3.0",
-            "destination": "wwwroot/lib/pdfobject/"
+            "destination": "wwwroot/lib/pdfobject/",
+            "files": [
+                "pdfobject.min.js"
+            ]
         },
         {
             "library": "pikaday@1.8.2",
-            "destination": "wwwroot/lib/pikaday/"
+            "destination": "wwwroot/lib/pikaday/",
+            "files": [
+                "css/pikaday.min.css",
+                "pikaday.min.js"
+            ]
         },
         {
             "library": "popper.js@2.11.8",
-            "destination": "wwwroot/lib/popper.js/"
+            "destination": "wwwroot/lib/popper.js/",
+            "files": [
+                "umd/popper.min.js"
+            ]
         },
         {
             "library": "print-js@1.6.0",
-            "destination": "wwwroot/lib/print-js/"
-        },
-        {
-            "library": "require.js@2.3.7",
-            "destination": "wwwroot/lib/require.js/"
-        },
-        {
-            "library": "js-sha256@0.11.0",
-            "destination": "wwwroot/lib/js-sha256/"
+            "destination": "wwwroot/lib/print-js/",
+            "files": [
+                "print.min.css",
+                "print.min.js"
+            ]
         },
         {
             "library": "xlsx@0.18.5",
-            "destination": "wwwroot/lib/xlsx/"
+            "destination": "wwwroot/lib/xlsx/",
+            "files": [
+                "xlsx.core.min.js"
+            ]
         },
         {
             "library": "showdown@2.1.0",
-            "destination": "wwwroot/lib/showdown/"
-        },
-        {
-            "library": "microsoft-signalr@8.0.7",
-            "destination": "wwwroot/lib/microsoft-signalr/"
+            "destination": "wwwroot/lib/showdown/",
+            "files": [
+                "showdown.min.js"
+            ]
         },
         {
             "library": "sql-formatter@15.4.2",
-            "destination": "wwwroot/lib/sql-formatter/"
+            "destination": "wwwroot/lib/sql-formatter/",
+            "files": [
+                "sql-formatter.min.js"
+            ]
         },
         {
             "library": "squel@5.13.0",
-            "destination": "wwwroot/lib/squel/"
+            "destination": "wwwroot/lib/squel/",
+            "files": [
+                "squel.min.js"
+            ]
         },
         {
             "library": "superplaceholder@1.0.0",
-            "destination": "wwwroot/lib/superplaceholder/"
+            "destination": "wwwroot/lib/superplaceholder/",
+            "files": [
+                "superplaceholder.js"
+            ]
         },
         {
             "provider": "jsdelivr",
             "library": "@tabler/core@1.3.2",
-            "destination": "wwwroot/lib/tabler-core/"
+            "destination": "wwwroot/lib/tabler-core/",
+            "files": [
+                "dist/css/tabler.min.css",
+                "dist/js/tabler.min.js"
+            ]
         },
         {
             "provider": "jsdelivr",
             "library": "@tabler/icons-webfont@3.25.0",
-            "destination": "wwwroot/lib/tabler-icons-webfont/"
+            "destination": "wwwroot/lib/tabler-icons-webfont/",
+            "files": [
+                "dist/tabler-icons.min.css",
+                "dist/fonts/tabler-icons.woff2"
+            ]
         },
         {
             "library": "tail.select.js@0.5.23",
-            "destination": "wwwroot/lib/tail.select.js/"
-        },
-        {
-            "library": "tingle@0.16.0",
-            "destination": "wwwroot/lib/tingle/"
+            "destination": "wwwroot/lib/tail.select.js/",
+            "files": [
+                "css/default/tail.select-light.css",
+                "js/tail.select.min.js"
+            ]
         },
         {
             "library": "tinymce@5.10.9",
-            "destination": "wwwroot/lib/tinymce/"
+            "destination": "wwwroot/lib/tinymce/",
+            "files": [
+                "tinymce.min.js",
+                "skins/**",
+                "themes/**",
+                "icons/**",
+                "models/**",
+                "plugins/**"
+            ]
         },
         {
             "library": "tippy.js@6.3.7",
-            "destination": "wwwroot/lib/tippy.js/"
+            "destination": "wwwroot/lib/tippy.js/",
+            "files": [
+                "tippy-bundle.umd.min.js"
+            ]
         },
         {
             "library": "vanilla-masker@1.2.0",
-            "destination": "wwwroot/lib/vanilla-masker/"
-        },
-        {
-            "provider": "jsdelivr",
-            "library": "winbox@0.2.731",
-            "destination": "wwwroot/lib/winbox/"
-        },
-        {
-            "library": "x2js@1.2.0",
-            "destination": "wwwroot/lib/x2js/"
+            "destination": "wwwroot/lib/vanilla-masker/",
+            "files": [
+                "vanilla-masker.min.js"
+            ]
         },
         {
             "library": "jquery.maskedinput@1.4.1",
-            "destination": "wwwroot/lib/jquery.maskedinput/"
+            "destination": "wwwroot/lib/jquery.maskedinput/",
+            "files": [
+                "jquery.maskedinput.min.js"
+            ]
         },
         {
             "provider": "jsdelivr",
             "library": "jquery-simplemodal@1.0.0",
-            "destination": "wwwroot/lib/jquery-simplemodal/"
-        },
-        {
-            "provider": "jsdelivr",
-            "library": "@csr/coloris@0.21.2",
-            "destination": "wwwroot/lib/coloris/"
-        },
-        {
-            "library": "qrcode-generator@1.4.4",
-            "destination": "wwwroot/lib/qrcode-generator/"
-        },
-        {
-            "provider": "jsdelivr",
-            "library": "jsonata@2.0.5",
-            "destination": "wwwroot/lib/jsonata/"
-        },
-        {
-            "library": "highcharts@11.4.8",
-            "destination": "wwwroot/lib/highcharts/"
-        },
-        {
-            "library": "FileSaver.js@2.0.5",
-            "destination": "wwwroot/lib/filesaver/"
-        },
-        {
-            "provider": "jsdelivr",
-            "library": "aui-community/auigrid-noncommercial@main",
-            "destination": "wwwroot/lib/auigrid/",
+            "destination": "wwwroot/lib/jquery-simplemodal/",
             "files": [
-                "LICENSE",
-                "README.md",
-                "dist/AUIGrid.js",
-                "dist/AUIGridLicense.js",
-                "dist/AUIGrid_blue_style.css",
-                "dist/AUIGrid_classic_style.css",
-                "dist/AUIGrid_dark_style.css",
-                "dist/AUIGrid_modern_red_style.css",
-                "dist/AUIGrid_modern_style.css",
-                "dist/AUIGrid_style.css",
-                "dist/editRenderers/AUIGrid.RoundSliderEditor.js",
-                "dist/editRenderers/AUIGrid.SpectrumEditor.js",
-                "dist/editRenderers/AUIGrid.TextareaEditor.css",
-                "dist/editRenderers/AUIGrid.TextareaEditor.js",
-                "dist/images/accept-not.png",
-                "dist/images/accept-ok.png",
-                "dist/images/add_icon.png",
-                "dist/images/ajaxloader-bar.gif",
-                "dist/images/ajaxloader-blue.gif",
-                "dist/images/ajaxloader.gif",
-                "dist/images/arrow-down-black-icon.png",
-                "dist/images/arrow-downright-orange.png",
-                "dist/images/arrow-downright.png",
-                "dist/images/arrow-right-orange.png",
-                "dist/images/arrow-right.png",
-                "dist/images/arrow_b_icon.png",
-                "dist/images/arrow_icon.png",
-                "dist/images/blue-check.png",
-                "dist/images/blue_circle.png",
-                "dist/images/b_folder.png",
-                "dist/images/b_folder2-orange.png",
-                "dist/images/b_folder2.png",
-                "dist/images/b_folderopen.png",
-                "dist/images/b_folderopen2-orange.png",
-                "dist/images/b_folderopen2.png",
-                "dist/images/calendar-icon.png",
-                "dist/images/clear_del.png",
-                "dist/images/close.png",
-                "dist/images/delete.png",
-                "dist/images/delete_icon.png",
-                "dist/images/document.png",
-                "dist/images/dot_move.png",
-                "dist/images/filter_ico.png",
-                "dist/images/first_ico.png",
-                "dist/images/flat_blue_circle.png",
-                "dist/images/flat_circle.png",
-                "dist/images/flat_orange_circle.png",
-                "dist/images/folder.png",
-                "dist/images/folderopen.png",
-                "dist/images/gray_circle.png",
-                "dist/images/grid-dot-icon.png",
-                "dist/images/help_ico.png",
-                "dist/images/icon-down.png",
-                "dist/images/icon-left.png",
-                "dist/images/icon-right.png",
-                "dist/images/icon-up.png",
-                "dist/images/info.png",
-                "dist/images/input-icon.png",
-                "dist/images/last_ico.png",
-                "dist/images/list-icon.png",
-                "dist/images/minus_17_17.png",
-                "dist/images/minus_7_7.png",
-                "dist/images/modified_a_icon.png",
-                "dist/images/modified_icon.png",
-                "dist/images/next_ico.png",
-                "dist/images/orange_circle.png",
-                "dist/images/pad-icon.png",
-                "dist/images/plus_17_17.png",
-                "dist/images/plus_7_7.png",
-                "dist/images/prev_ico.png",
-                "dist/images/search.png",
-                "dist/images/search2.png",
-                "dist/images/tiny-ajax-loader.gif",
-                "dist/images/wait.png",
-                "dist/messages/AUIGrid.messages.ca.js",
-                "dist/messages/AUIGrid.messages.en.js",
-                "dist/messages/AUIGrid.messages.kr.js",
-                "dist/renderers/AUIGrid.EChartsRenderer.js",
-                "dist/renderers/AUIGrid.GChartsRenderer.js",
-                "dist/renderers/AUIGrid.MyCalendarRenderer.js",
-                "dist/renderers/AUIGrid.MyClientRenderer.js",
-                "dist/renderers/AUIGrid.MyInputRenderer.css",
-                "dist/renderers/AUIGrid.MyInputRenderer.js",
-                "dist/renderers/AUIGrid.MyStockRenderer.js"
+                "src/jquery.simplemodal.min.js"
             ]
         },
         {
-            "library": "knockout@3.5.1",
-            "destination": "wwwroot/lib/knockout/"
+            "library": "highcharts@11.4.8",
+            "destination": "wwwroot/lib/highcharts/",
+            "files": [
+                "highcharts.min.js"
+            ]
         },
         {
-            "library": "navigo@8.11.1",
-            "destination": "wwwroot/lib/navigo/"
+            "library": "FileSaver.js@2.0.5",
+            "destination": "wwwroot/lib/filesaver/",
+            "files": [
+                "FileSaver.min.js"
+            ]
         },
         {
-            "library": "htmx@2.0.4",
-            "destination": "wwwroot/lib/htmx/"
-        },
-        {
-            "library": "alpinejs@3.14.9",
-            "destination": "wwwroot/lib/alpinejs/"
+            "provider": "filesystem",
+            "library": "wwwroot/lib/auigrid/",
+            "destination": "wwwroot/lib/auigrid/"
         },
         {
             "provider": "jsdelivr",
             "library": "marked@15.0.11",
-            "destination": "wwwroot/lib/marked/"
+            "destination": "wwwroot/lib/marked/",
+            "files": [
+                "marked.min.js"
+            ]
         },
         {
             "library": "dompurify@3.2.5",
-            "destination": "wwwroot/lib/dompurify/"
+            "destination": "wwwroot/lib/dompurify/",
+            "files": [
+                "purify.min.js"
+            ]
         }
     ]
 }
