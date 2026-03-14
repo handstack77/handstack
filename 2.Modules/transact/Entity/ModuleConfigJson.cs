@@ -31,6 +31,10 @@ namespace transact.Entity
 
         public bool IsTransactAggregate { get; set; }
 
+        public bool IsTransactAggregateRolling { get; set; }
+
+        public string TransactAggregateDeleteOldCronTime { get; set; }
+
         public bool IsDataMasking { get; set; }
 
         public string MaskingChar { get; set; }
@@ -94,6 +98,8 @@ namespace transact.Entity
             CircuitBreakResetSecond = 60;
             IsLogServer = false;
             IsTransactAggregate = false;
+            IsTransactAggregateRolling = false;
+            TransactAggregateDeleteOldCronTime = "0 1 * * *";
             IsDataMasking = false;
             IsValidationRequest = false;
             IsValidationGlobalID = false;

@@ -14,6 +14,8 @@
         "LogServerUrl": "http://localhost:8421/logger/api/log/insert",
         "IsTransactionLogging": true,
         "IsTransactAggregate": true,
+        "IsTransactAggregateRolling": false,
+        "TransactAggregateDeleteOldCronTime": "0 1 * * *",
         "IsDataMasking": false,
         "MaskingChar": "*",
         "MaskingMethod": "Syn",

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Globalization;
 using System.IO;
 
@@ -19,10 +20,9 @@ namespace transact.Extensions
 {
     public static class ModuleExtensions
     {
-        public static bool IsLogDbFile(string userWorkID, string applicationID, string rollingID)
+        public static bool IsLogDbFile(string userWorkID, string applicationID, string? rollingID = "")
         {
-            var transactionLogBasePath = PathExtensions.Combine(ModuleConfiguration.TransactionLogBasePath, userWorkID, applicationID);
-            var logDbFilePath = PathExtensions.Combine(transactionLogBasePath, $"{rollingID}-{applicationID}.db");
+            var logDbFilePath = ResolveLogDbFilePath(userWorkID, applicationID, rollingID);
             var fileInfo = new FileInfo(logDbFilePath);
             return fileInfo.Exists;
         }
@@ -36,20 +36,7 @@ namespace transact.Extensions
                 Directory.CreateDirectory(transactionLogBasePath);
             }
 
-            if (string.IsNullOrWhiteSpace(rollingID))
-            {
-                var dateTime = DateTime.Now;
-                var day = CultureInfo.InvariantCulture.Calendar.GetDayOfWeek(dateTime);
-                if (day >= DayOfWeek.Monday && day <= DayOfWeek.Wednesday)
-                {
-                    dateTime = dateTime.AddDays(3);
-                }
-
-                rollingID = dateTime.Year.ToString() + CultureInfo.InvariantCulture.Calendar.GetWeekOfYear(dateTime, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday).ToString().PadLeft(2, '0');
-            }
-
-            // 주간별 SQLite 데이터베이스 파일 생성: {년도}{주2자리}-{애플리케이션 ID}.db
-            var logDbFilePath = PathExtensions.Combine(transactionLogBasePath, $"{rollingID}-{applicationID}.db");
+            var logDbFilePath = ResolveLogDbFilePath(userWorkID, applicationID, rollingID);
             result = $"URI=file:{logDbFilePath};Journal Mode=Off;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;";
 
             var fileInfo = new FileInfo(logDbFilePath);
@@ -63,7 +50,213 @@ namespace transact.Extensions
                 ExecuteMetaSQL(ReturnType.NonQuery, result, "TAG.TAG010.ZD01");
             }
 
+            EnsureAggregateBackupSchema(result);
+
             return result;
+        }
+
+        private static string ResolveLogDbFilePath(string userWorkID, string applicationID, string? rollingID = "")
+        {
+            var transactionLogBasePath = PathExtensions.Combine(ModuleConfiguration.TransactionLogBasePath, userWorkID, applicationID);
+            if (ModuleConfiguration.IsTransactAggregateRolling == true)
+            {
+                // IsTransactAggregateRolling=true 인 경우에만 주간 롤오버 파일을 사용합니다.
+                var resolvedRollingID = ResolveRollingID(rollingID);
+                return PathExtensions.Combine(transactionLogBasePath, $"{resolvedRollingID}-{applicationID}.db");
+            }
+
+            return PathExtensions.Combine(transactionLogBasePath, $"{applicationID}.db");
+        }
+
+        private static string ResolveRollingID(string? rollingID = "")
+        {
+            if (string.IsNullOrWhiteSpace(rollingID) == false)
+            {
+                return rollingID;
+            }
+
+            var dateTime = DateTime.Now;
+            var day = CultureInfo.InvariantCulture.Calendar.GetDayOfWeek(dateTime);
+            if (day >= DayOfWeek.Monday && day <= DayOfWeek.Wednesday)
+            {
+                dateTime = dateTime.AddDays(3);
+            }
+
+            return dateTime.Year.ToString() + CultureInfo.InvariantCulture.Calendar.GetWeekOfYear(dateTime, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday).ToString().PadLeft(2, '0');
+        }
+
+        private static void EnsureAggregateBackupSchema(string connectionString)
+        {
+            if (string.IsNullOrWhiteSpace(connectionString))
+            {
+                return;
+            }
+
+            try
+            {
+                ExecuteMetaSQL(ReturnType.NonQuery, connectionString, "TAG.TAG010.ZD02");
+
+                using var sqliteClient = new SQLiteClient(connectionString);
+                EnsureAggregateTableSchema(sqliteClient);
+            }
+            catch (Exception exception)
+            {
+                Log.Error(exception, "[{LogCategory}] " + $"connectionString: {connectionString}", "ModuleExtensions/EnsureAggregateBackupSchema");
+            }
+        }
+
+        private static void EnsureAggregateTableSchema(SQLiteClient sqliteClient)
+        {
+            if (HasTable(sqliteClient, "Aggregate") == false)
+            {
+                return;
+            }
+
+            var hasAggregateIDColumn = HasColumn(sqliteClient, "Aggregate", "AggregateID");
+            var isAggregateIDPrimaryKey = IsPrimaryKeyColumn(sqliteClient, "Aggregate", "AggregateID");
+            var hasIsMovedColumn = HasColumn(sqliteClient, "Aggregate", "IsMoved");
+
+            if (hasAggregateIDColumn == true && isAggregateIDPrimaryKey == true)
+            {
+                if (hasIsMovedColumn == false)
+                {
+                    sqliteClient.ExecuteNonQuery("ALTER TABLE Aggregate ADD COLUMN IsMoved INTEGER NOT NULL DEFAULT 0;", CommandType.Text);
+                }
+
+                return;
+            }
+
+            RebuildAggregateTable(sqliteClient, hasIsMovedColumn);
+        }
+
+        private static void RebuildAggregateTable(SQLiteClient sqliteClient, bool hasIsMovedColumn)
+        {
+            var movedColumnSQL = hasIsMovedColumn == true ? "IFNULL(IsMoved, 0)" : "0";
+
+            try
+            {
+                sqliteClient.ExecuteNonQuery("BEGIN IMMEDIATE;", CommandType.Text);
+
+                sqliteClient.ExecuteNonQuery("DROP TABLE IF EXISTS Aggregate_New;", CommandType.Text);
+                sqliteClient.ExecuteNonQuery(@"
+CREATE TABLE Aggregate_New (
+    AggregateID INTEGER NOT NULL CONSTRAINT PK_Aggregate PRIMARY KEY AUTOINCREMENT,
+    CreateDate INTEGER NOT NULL,
+    CreateHour INTEGER NOT NULL,
+    ProjectID TEXT NOT NULL,
+    TransactionID TEXT NOT NULL,
+    FeatureID TEXT NOT NULL,
+    RequestCount INTEGER NULL,
+    ResponseCount INTEGER NULL,
+    ErrorCount INTEGER NULL,
+    LatelyRequestAt TEXT NULL,
+    LatelyResponseAt TEXT NULL,
+    Acknowledge TEXT NULL,
+    IsMoved INTEGER NOT NULL DEFAULT 0,
+    CONSTRAINT UK_Aggregate UNIQUE (CreateDate, CreateHour, ProjectID, TransactionID, FeatureID)
+);", CommandType.Text);
+
+                sqliteClient.ExecuteNonQuery($@"
+INSERT INTO Aggregate_New
+(
+    CreateDate
+    , CreateHour
+    , ProjectID
+    , TransactionID
+    , FeatureID
+    , RequestCount
+    , ResponseCount
+    , ErrorCount
+    , LatelyRequestAt
+    , LatelyResponseAt
+    , Acknowledge
+    , IsMoved
+)
+SELECT
+    CreateDate
+    , CreateHour
+    , ProjectID
+    , TransactionID
+    , FeatureID
+    , IFNULL(RequestCount, 0)
+    , IFNULL(ResponseCount, 0)
+    , IFNULL(ErrorCount, 0)
+    , LatelyRequestAt
+    , LatelyResponseAt
+    , Acknowledge
+    , {movedColumnSQL}
+FROM Aggregate
+ORDER BY CreateDate, CreateHour, ProjectID, TransactionID, FeatureID;", CommandType.Text);
+
+                sqliteClient.ExecuteNonQuery("DROP TABLE Aggregate;", CommandType.Text);
+                sqliteClient.ExecuteNonQuery("ALTER TABLE Aggregate_New RENAME TO Aggregate;", CommandType.Text);
+
+                sqliteClient.ExecuteNonQuery(@"
+UPDATE AggregateBackupStatus
+SET LastMovedId = IFNULL((SELECT MAX(AggregateID) FROM Aggregate WHERE IsMoved = 1), 0)
+    , UpdatedAt = strftime('%Y-%m-%d %H:%M:%S', 'NOW', 'localtime')
+WHERE StatusID = 1;", CommandType.Text);
+
+                sqliteClient.ExecuteNonQuery("COMMIT;", CommandType.Text);
+            }
+            catch
+            {
+                try
+                {
+                    sqliteClient.ExecuteNonQuery("ROLLBACK;", CommandType.Text);
+                }
+                catch
+                {
+                }
+
+                throw;
+            }
+        }
+
+        private static bool HasTable(SQLiteClient sqliteClient, string tableName)
+        {
+            using var dataSet = sqliteClient.ExecuteDataSet($"SELECT name FROM sqlite_master WHERE type = 'table' AND name = '{tableName}'", CommandType.Text);
+            if (dataSet != null && dataSet.Tables.Count > 0)
+            {
+                return dataSet.Tables[0].Rows.Count > 0;
+            }
+
+            return false;
+        }
+
+        private static bool HasColumn(SQLiteClient sqliteClient, string tableName, string columnName)
+        {
+            using var dataSet = sqliteClient.ExecuteDataSet($"PRAGMA table_info('{tableName}')", CommandType.Text);
+            if (dataSet != null && dataSet.Tables.Count > 0)
+            {
+                foreach (DataRow row in dataSet.Tables[0].Rows)
+                {
+                    if (string.Equals(row["name"]?.ToString(), columnName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        private static bool IsPrimaryKeyColumn(SQLiteClient sqliteClient, string tableName, string columnName)
+        {
+            using var dataSet = sqliteClient.ExecuteDataSet($"PRAGMA table_info('{tableName}')", CommandType.Text);
+            if (dataSet != null && dataSet.Tables.Count > 0)
+            {
+                foreach (DataRow row in dataSet.Tables[0].Rows)
+                {
+                    if (string.Equals(row["name"]?.ToString(), columnName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        var pkValue = row["pk"]?.ToString();
+                        return int.TryParse(pkValue, out var pkOrder) && pkOrder > 0;
+                    }
+                }
+            }
+
+            return false;
         }
 
         /*

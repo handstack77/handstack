@@ -20,6 +20,9 @@
 - `GET /transact/api/transaction/cache-keys`
 - `GET /transact/api/aggregate/transaction-list`
 - `GET /transact/api/aggregate/summary`
+- `GET /transact/api/aggregate-metric`
+- `GET /transact/api/aggregate/last-moved-id`
+- `POST /transact/api/aggregate/last-moved-id`
 - 주요 구현 클래스
   - `TransactionController`
   - `AggregateController`
@@ -45,6 +48,8 @@
 - `IsValidationRequest`: 요청 검증 토큰 사용 여부
 - `IsCodeDataCache`, `CodeDataCacheTimeout`: 코드/기초 데이터 캐시
 - `IsTransactionLogging`, `LogServerUrl`: 거래 로그 수집 설정
+- `IsTransactAggregateRolling`: 주간별 집계 SQLite 롤오버 사용 여부
+- `TransactAggregateDeleteOldCronTime`: 비-롤링 모드에서 moved 집계 데이터 삭제 주기(cron)
 - `PublicTransactions`, `AvailableEnvironment`: 외부 공개/환경 허용 범위
 
 ## 실행 흐름

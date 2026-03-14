@@ -185,6 +185,26 @@
                                                 </td>
                                             </tr>
                                             <tr>
+                                                <td class="bg-body">IsTransactAggregateRolling</td>
+                                                <td>
+                                                    <label class="form-check mb-2">
+                                                        <input id="chkIsTransactAggregateRolling" class="form-check-input" type="checkbox">
+                                                    </label>
+                                                    <small class="form-hint">
+                                                        주간별 SQLite 파일 롤오버를 사용합니다. (기본값: false)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">TransactAggregateDeleteOldCronTime</td>
+                                                <td>
+                                                    <input id="txtTransactAggregateDeleteOldCronTime" type="text" class="form-control">
+                                                    <small class="form-hint">
+                                                        비-롤링 모드에서 moved 데이터 정리 주기를 cron 형식으로 설정합니다. (기본값: 0 1 * * *)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
                                                 <td class="bg-body">TransactionLogBasePath</td>
                                                 <td>
                                                     <input id="txtTransactionLogBasePath" type="text" class="form-control">

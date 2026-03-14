@@ -32,6 +32,8 @@ namespace transact.Entity
         public static List<string> AllowTenantTransactionCommands = new List<string>();
         public static bool IsLogServer = false;
         public static bool IsTransactAggregate = false;
+        public static bool IsTransactAggregateRolling = false;
+        public static string TransactAggregateDeleteOldCronTime = "0 1 * * *";
         public static bool IsDataMasking = false;
         public static char MaskingChar = '*';
         public static string MaskingMethod = "Syn";

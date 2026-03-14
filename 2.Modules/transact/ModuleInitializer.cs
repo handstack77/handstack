@@ -26,6 +26,7 @@ using Serilog.Sinks.SystemConsole.Themes;
 using transact.Entity;
 using transact.Events;
 using transact.Extensions;
+using transact.Services;
 
 namespace transact
 {
@@ -72,6 +73,8 @@ namespace transact
                         ModuleConfiguration.CodeDataCacheTimeout = moduleConfig.CodeDataCacheTimeout;
                         ModuleConfiguration.IsLogServer = moduleConfig.IsLogServer;
                         ModuleConfiguration.IsTransactAggregate = moduleConfig.IsTransactAggregate;
+                        ModuleConfiguration.IsTransactAggregateRolling = moduleConfig.IsTransactAggregateRolling;
+                        ModuleConfiguration.TransactAggregateDeleteOldCronTime = string.IsNullOrWhiteSpace(moduleConfig.TransactAggregateDeleteOldCronTime) ? "0 1 * * *" : moduleConfig.TransactAggregateDeleteOldCronTime.Trim();
                         ModuleConfiguration.IsDataMasking = moduleConfig.IsDataMasking;
                         ModuleConfiguration.MaskingChar = char.Parse((string.IsNullOrWhiteSpace(moduleConfig.MaskingChar) || moduleConfig.MaskingChar.Length != 1) ? "*" : moduleConfig.MaskingChar);
                         ModuleConfiguration.MaskingMethod = string.IsNullOrWhiteSpace(moduleConfig.MaskingMethod) ? "Syn" : moduleConfig.MaskingMethod;
@@ -184,6 +187,7 @@ namespace transact
                 services.AddScoped<TransactClient>();
                 services.AddTransient<IRequestHandler<TransactRequest, object?>, TransactRequestHandler>();
                 services.AddTransient<IRequestHandler<TransactionRefreshRequest, bool>, TransactionRefreshRequestHandler>();
+                services.AddHostedService<TransactAggregateCleanupService>();
             }
         }
 

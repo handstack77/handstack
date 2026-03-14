@@ -14,6 +14,8 @@
         "AllowTenantTransactionCommands": [ "D" ],
         "IsLogServer": true,
         "IsTransactAggregate": true,
+        "IsTransactAggregateRolling": false,
+        "TransactAggregateDeleteOldCronTime": "0 1 * * *",
         "IsDataMasking": false,
         "MaskingChar": "*",
         "MaskingMethod": "Syn",

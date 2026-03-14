@@ -15,6 +15,8 @@ let $module_settings = {
                 "AllowTenantTransactionCommands": ["D"],
                 "IsLogServer": true,
                 "IsTransactAggregate": true,
+                "IsTransactAggregateRolling": false,
+                "TransactAggregateDeleteOldCronTime": "0 1 * * *",
                 "IsDataMasking": false,
                 "MaskingChar": "*",
                 "MaskingMethod": "Syn",
@@ -98,6 +100,8 @@ let $module_settings = {
                 syn.uicontrols.$multiselect.setSelectedValue('ddlAllowTenantTransactionCommands', $this.prop.moduleConfig.ModuleConfig.AllowTenantTransactionCommands);
                 syn.$l.get('chkIsLogServer').checked = $string.toBoolean($this.prop.moduleConfig.ModuleConfig.IsLogServer);
                 syn.$l.get('chkIsTransactAggregate').checked = $string.toBoolean($this.prop.moduleConfig.ModuleConfig.IsTransactAggregate);
+                syn.$l.get('chkIsTransactAggregateRolling').checked = $string.toBoolean($this.prop.moduleConfig.ModuleConfig.IsTransactAggregateRolling);
+                syn.$l.get('txtTransactAggregateDeleteOldCronTime').value = $string.isNullOrEmpty($this.prop.moduleConfig.ModuleConfig.TransactAggregateDeleteOldCronTime) == true ? '0 1 * * *' : $this.prop.moduleConfig.ModuleConfig.TransactAggregateDeleteOldCronTime;
                 syn.$l.get('chkIsDataMasking').checked = $string.toBoolean($this.prop.moduleConfig.ModuleConfig.IsDataMasking);
                 syn.$l.get('txtMaskingChar').value = $this.prop.moduleConfig.ModuleConfig.MaskingChar;
                 syn.$l.get('ddlMaskingMethod').value = $this.prop.moduleConfig.ModuleConfig.MaskingMethod;
@@ -139,6 +143,8 @@ let $module_settings = {
                     $this.prop.moduleConfig.ModuleConfig.AllowTenantTransactionCommands = syn.uicontrols.$multiselect.getSelectedValue('ddlAllowTenantTransactionCommands');
                     $this.prop.moduleConfig.ModuleConfig.IsLogServer = syn.$l.get('chkIsLogServer').checked;
                     $this.prop.moduleConfig.ModuleConfig.IsTransactAggregate = syn.$l.get('chkIsTransactAggregate').checked;
+                    $this.prop.moduleConfig.ModuleConfig.IsTransactAggregateRolling = syn.$l.get('chkIsTransactAggregateRolling').checked;
+                    $this.prop.moduleConfig.ModuleConfig.TransactAggregateDeleteOldCronTime = syn.$l.get('txtTransactAggregateDeleteOldCronTime').value;
                     $this.prop.moduleConfig.ModuleConfig.IsDataMasking = syn.$l.get('chkIsDataMasking').checked;
                     $this.prop.moduleConfig.ModuleConfig.MaskingChar = syn.$l.get('txtMaskingChar').value;
                     syn.$l.get('ddlMaskingMethod').value = $this.prop.moduleConfig.ModuleConfig.MaskingMethod;

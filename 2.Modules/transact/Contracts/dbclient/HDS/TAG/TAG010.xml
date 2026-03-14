@@ -12,6 +12,9 @@
         <statement id="ZD01" seq="0" use="Y" timeout="0" desc="Aggregate, ErrorDetail 테이블 DDL" native="Y">
             <![CDATA[
 CREATE TABLE IF NOT EXISTS "Aggregate" (
+    -- 집계 ID
+    "AggregateID" INTEGER NOT NULL CONSTRAINT "PK_Aggregate" PRIMARY KEY AUTOINCREMENT,
+
     -- 입력일자
     "CreateDate" INTEGER NOT NULL,
 
@@ -44,7 +47,12 @@ CREATE TABLE IF NOT EXISTS "Aggregate" (
 
     -- 최근응답구분
     "Acknowledge" TEXT NULL,
-    CONSTRAINT "PK_Aggregate" PRIMARY KEY ("CreateDate", "CreateHour", "ProjectID", "TransactionID", "FeatureID")
+
+    -- 외부 저장소로 이관 여부
+    "IsMoved" INTEGER NOT NULL DEFAULT 0,
+
+    -- 집계 유니크 키
+    CONSTRAINT "UK_Aggregate" UNIQUE ("CreateDate", "CreateHour", "ProjectID", "TransactionID", "FeatureID")
 );
 
 CREATE TABLE IF NOT EXISTS  "ErrorDetail" (
@@ -71,6 +79,58 @@ CREATE TABLE IF NOT EXISTS  "ErrorDetail" (
 
     -- 입력일시
     "CreatedAt" TEXT NULL
+);
+
+CREATE TABLE IF NOT EXISTS "AggregateBackupStatus" (
+    -- 상태 ID(싱글톤)
+    "StatusID" INTEGER NOT NULL CONSTRAINT "PK_AggregateBackupStatus" PRIMARY KEY CHECK("StatusID" = 1),
+
+    -- 마지막 이관 행 ID
+    "LastMovedId" INTEGER NOT NULL DEFAULT 0,
+
+    -- 마지막 갱신 일시
+    "UpdatedAt" TEXT NULL
+);
+
+INSERT OR IGNORE INTO AggregateBackupStatus
+(
+    StatusID
+    , LastMovedId
+    , UpdatedAt
+)
+VALUES
+(
+    1
+    , 0
+    , strftime('%Y-%m-%d %H:%M:%S', 'NOW', 'localtime')
+);
+			]]>
+        </statement>
+
+        <statement id="ZD02" seq="0" use="Y" timeout="0" desc="집계 백업 상태 테이블 생성" native="Y">
+            <![CDATA[
+CREATE TABLE IF NOT EXISTS "AggregateBackupStatus" (
+    -- 상태 ID(싱글톤)
+    "StatusID" INTEGER NOT NULL CONSTRAINT "PK_AggregateBackupStatus" PRIMARY KEY CHECK("StatusID" = 1),
+
+    -- 마지막 이관 행 ID
+    "LastMovedId" INTEGER NOT NULL DEFAULT 0,
+
+    -- 마지막 갱신 일시
+    "UpdatedAt" TEXT NULL
+);
+
+INSERT OR IGNORE INTO AggregateBackupStatus
+(
+    StatusID
+    , LastMovedId
+    , UpdatedAt
+)
+VALUES
+(
+    1
+    , 0
+    , strftime('%Y-%m-%d %H:%M:%S', 'NOW', 'localtime')
 );
 			]]>
         </statement>
@@ -340,9 +400,41 @@ ORDER BY 7 DESC;
             <param id="@CreateHour" type="String" length="2" value="" />
         </statement>
 
+        <statement id="LD04" seq="0" use="Y" timeout="0" desc="이관되지 않은 집계 행 조회" native="Y">
+            <![CDATA[
+SELECT AG.AggregateID
+    , AG.CreateDate
+    , AG.CreateHour
+    , AG.ProjectID
+    , AG.TransactionID
+    , AG.FeatureID
+    , AG.RequestCount
+    , AG.ResponseCount
+    , AG.ErrorCount
+    , AG.LatelyRequestAt
+    , AG.LatelyResponseAt
+    , AG.Acknowledge
+FROM Aggregate AG
+WHERE AG.IsMoved = 0
+    AND AG.AggregateID > @LastMovedId
+ORDER BY AG.AggregateID ASC
+LIMIT @TakeCount;
+			]]>
+            <param id="@LastMovedId" type="Int64" length="-1" value="" />
+            <param id="@TakeCount" type="Int32" length="-1" value="" />
+        </statement>
+
+        <statement id="LD05" seq="0" use="Y" timeout="0" desc="마지막 이관 행 ID 조회" native="Y">
+            <![CDATA[
+SELECT IFNULL(ABS.LastMovedId, 0) AS LastMovedId
+FROM AggregateBackupStatus ABS
+WHERE ABS.StatusID = 1;
+			]]>
+        </statement>
+
         <statement id="MD01" seq="0" use="Y" timeout="0" desc="거래 요청/응답/오류 집계 정보 입력 또는 변경" native="Y">
             <![CDATA[
-INSERT OR REPLACE INTO Aggregate
+INSERT INTO Aggregate
 (
     CreateDate
     , CreateHour
@@ -355,6 +447,7 @@ INSERT OR REPLACE INTO Aggregate
     , LatelyRequestAt
     , LatelyResponseAt
     , Acknowledge
+    , IsMoved
 ) 
 VALUES
 (
@@ -363,13 +456,23 @@ VALUES
     , @ProjectID
     , @TransactionID
     , @FeatureID
-    , (SELECT IFNULL(MAX(RequestCount), 0) + 1 FROM Aggregate S WHERE S.CreateDate = @CreateDate AND S.CreateHour = @CreateHour AND S.ProjectID = @ProjectID AND S.TransactionID = @TransactionID AND S.FeatureID = @FeatureID)
-    , (SELECT IFNULL(MAX(ResponseCount), 0) FROM Aggregate S WHERE S.CreateDate = @CreateDate AND S.CreateHour = @CreateHour AND S.ProjectID = @ProjectID AND S.TransactionID = @TransactionID AND S.FeatureID = @FeatureID)
-    , (SELECT IFNULL(MAX(ErrorCount), 0) FROM Aggregate S WHERE S.CreateDate = @CreateDate AND S.CreateHour = @CreateHour AND S.ProjectID = @ProjectID AND S.TransactionID = @TransactionID AND S.FeatureID = @FeatureID)
+    , 1
+    , 0
+    , 0
     , @LatelyRequestAt
     , @LatelyResponseAt
     , @Acknowledge
-);
+    , 0
+)
+ON CONFLICT(CreateDate, CreateHour, ProjectID, TransactionID, FeatureID)
+DO UPDATE SET
+    RequestCount = IFNULL(Aggregate.RequestCount, 0) + 1
+    , ResponseCount = IFNULL(Aggregate.ResponseCount, 0)
+    , ErrorCount = IFNULL(Aggregate.ErrorCount, 0)
+    , LatelyRequestAt = excluded.LatelyRequestAt
+    , LatelyResponseAt = excluded.LatelyResponseAt
+    , Acknowledge = excluded.Acknowledge
+    , IsMoved = 0;
 			]]>
             <param id="@CreateDate" type="Int32" length="-1" value="" />
             <param id="@CreateHour" type="Int32" length="-1" value="" />
@@ -387,6 +490,7 @@ UPDATE Aggregate SET
     ResponseCount = (SELECT IFNULL(MAX(ResponseCount), 0) + 1 FROM Aggregate S WHERE S.CreateDate = @CreateDate AND S.CreateHour = @CreateHour AND S.ProjectID = @ProjectID AND S.TransactionID = @TransactionID AND S.FeatureID = @FeatureID)
     , LatelyResponseAt = @LatelyResponseAt
     , Acknowledge = @Acknowledge
+    , IsMoved = 0
 WHERE CreateDate = @CreateDate
     AND CreateHour = @CreateHour
     AND ProjectID = @ProjectID
@@ -408,6 +512,7 @@ UPDATE Aggregate SET
     ErrorCount = (SELECT IFNULL(MAX(ErrorCount), 0) + 1 FROM Aggregate S WHERE S.CreateDate = @CreateDate AND S.CreateHour = @CreateHour AND S.ProjectID = @ProjectID AND S.TransactionID = @TransactionID AND S.FeatureID = @FeatureID)
     , LatelyResponseAt = @LatelyResponseAt
     , Acknowledge = @Acknowledge
+    , IsMoved = 0
 WHERE CreateDate = @CreateDate
     AND CreateHour = @CreateHour
     AND ProjectID = @ProjectID
@@ -421,6 +526,52 @@ WHERE CreateDate = @CreateDate
             <param id="@FeatureID" type="String" length="36" value="" />
             <param id="@LatelyResponseAt" type="String" length="30" value="" />
             <param id="@Acknowledge" type="String" length="30" value="" />
+        </statement>
+
+        <statement id="UD03" seq="0" use="Y" timeout="0" desc="이관 완료 집계 행 이동 처리" native="Y">
+            <![CDATA[
+UPDATE Aggregate SET
+    IsMoved = 1
+WHERE AggregateID <= @LastMovedId
+    AND IsMoved = 0;
+			]]>
+            <param id="@LastMovedId" type="Int64" length="-1" value="" />
+        </statement>
+
+        <statement id="UD04" seq="0" use="Y" timeout="0" desc="마지막 이관 행 ID 갱신" native="Y">
+            <![CDATA[
+INSERT INTO AggregateBackupStatus
+(
+    StatusID
+    , LastMovedId
+    , UpdatedAt
+)
+VALUES
+(
+    1
+    , @LastMovedId
+    , strftime('%Y-%m-%d %H:%M:%S', 'NOW', 'localtime')
+)
+ON CONFLICT(StatusID)
+DO UPDATE SET
+    LastMovedId = CASE
+        WHEN excluded.LastMovedId > AggregateBackupStatus.LastMovedId THEN excluded.LastMovedId
+        ELSE AggregateBackupStatus.LastMovedId
+    END
+    , UpdatedAt = excluded.UpdatedAt;
+			]]>
+            <param id="@LastMovedId" type="Int64" length="-1" value="" />
+        </statement>
+
+        <statement id="DD01" seq="0" use="Y" timeout="0" desc="이관 완료된 오래된 집계 행 삭제" native="Y">
+            <![CDATA[
+DELETE FROM Aggregate
+WHERE IsMoved = 1
+    AND AggregateID <= @LastMovedId
+    AND CreateDate < @DeleteBeforeDate;
+			]]>
+            <param id="@LastMovedId" type="Int64" length="-1" value="" />
+            <param id="@DeleteBeforeDate" type="Int32" length="-1" value="" />
         </statement>
 
         <statement id="ID01" seq="0" use="Y" timeout="0" desc="거래 오류 정보 입력" native="Y">
