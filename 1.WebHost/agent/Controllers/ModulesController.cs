@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -16,6 +17,7 @@ using agent.Security;
 using agent.Services;
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Logging;
 
 namespace agent.Controllers
@@ -54,28 +56,35 @@ namespace agent.Controllers
             logger = loggerFactory.CreateLogger<ModulesController>();
         }
 
-        [HttpGet("{moduleId}")]
-        public async Task<ActionResult> GetModule(string moduleId, [FromQuery(Name = "id")] string? targetId, CancellationToken cancellationToken)
+        [HttpGet("{targetAckId}/{moduleId}")]
+        public async Task<ActionResult> GetModule(
+            string targetAckId,
+            string moduleId,
+            CancellationToken cancellationToken)
         {
-            var result = await GetModuleResultAsync(moduleId, targetId, cancellationToken);
+            var result = await GetModuleResultAsync(moduleId, targetAckId, cancellationToken);
             return ToOperationResult(result);
         }
 
-        [HttpPost("{moduleId}")]
-        public async Task<ActionResult> SaveModule(string moduleId, [FromQuery(Name = "id")] string? targetId, [FromBody] JsonObject payload, CancellationToken cancellationToken)
+        [HttpPost("{targetAckId}/{moduleId}")]
+        public async Task<ActionResult> SaveModule(
+            string targetAckId,
+            string moduleId,
+            [FromBody] JsonObject payload,
+            CancellationToken cancellationToken)
         {
-            var result = await SaveModuleResultAsync(moduleId, targetId, payload, cancellationToken);
+            var result = await SaveModuleResultAsync(moduleId, targetAckId, payload, cancellationToken);
             return ToOperationResult(result);
         }
 
-        private Task<ModuleConfigResponse> GetModuleResultAsync(string moduleId, string? targetId, CancellationToken cancellationToken)
+        private Task<ModuleConfigResponse> GetModuleResultAsync(string moduleId, string targetAckId, CancellationToken cancellationToken)
         {
             var result = new ModuleConfigResponse
             {
                 ModuleId = moduleId
             };
 
-            if (TryResolveModuleContext(moduleId, targetId, out var context, out var errorCode, out var message) == false || context is null)
+            if (TryResolveModuleContext(moduleId, targetAckId, out var context, out var errorCode, out var message) == false || context is null)
             {
                 result.Success = false;
                 result.ErrorCode = errorCode;
@@ -85,7 +94,7 @@ namespace agent.Controllers
             }
 
             cancellationToken.ThrowIfCancellationRequested();
-            result.TargetId = context.Target.Id;
+            result.TargetId = context.Target.TargetAckId;
             result.ModulePath = context.ModuleFilePath;
             result.Module = context.ModuleRoot.DeepClone();
             result.Message = "module.json을 불러왔습니다.";
@@ -93,14 +102,14 @@ namespace agent.Controllers
             return Task.FromResult(result);
         }
 
-        private async Task<ModuleSaveResponse> SaveModuleResultAsync(string moduleId, string? targetId, JsonObject payload, CancellationToken cancellationToken)
+        private async Task<ModuleSaveResponse> SaveModuleResultAsync(string moduleId, string targetAckId, JsonObject payload, CancellationToken cancellationToken)
         {
             var result = new ModuleSaveResponse
             {
                 ModuleId = moduleId
             };
 
-            if (TryResolveModuleContext(moduleId, targetId, out var context, out var errorCode, out var message) == false || context is null)
+            if (TryResolveModuleContext(moduleId, targetAckId, out var context, out var errorCode, out var message) == false || context is null)
             {
                 result.Success = false;
                 result.ErrorCode = errorCode;
@@ -109,7 +118,7 @@ namespace agent.Controllers
                 return result;
             }
 
-            result.TargetId = context.Target.Id;
+            result.TargetId = context.Target.TargetAckId;
             result.ModulePath = context.ModuleFilePath;
 
             var changedValues = new Dictionary<string, JsonNode>(StringComparer.OrdinalIgnoreCase);
@@ -126,7 +135,7 @@ namespace agent.Controllers
             }
             catch (Exception exception)
             {
-                logger.LogError(exception, "모듈 설정 저장 실패. 대상ID={TargetId}, 모듈ID={ModuleId}, 경로={Path}", context.Target.Id, moduleId, context.ModuleFilePath);
+                logger.LogError(exception, "모듈 설정 저장 실패. 대상ID={TargetId}, 모듈ID={ModuleId}, 경로={Path}", context.Target.TargetAckId, moduleId, context.ModuleFilePath);
                 result.Success = false;
                 result.ErrorCode = "module_save_failed";
                 result.Message = "module.json 저장에 실패했습니다.";
@@ -250,22 +259,22 @@ namespace agent.Controllers
             }
             catch (Exception exception)
             {
-                logger.LogWarning(exception, "ack 런타임 모듈 적용 API 호출 실패. 대상ID={TargetId}, 모듈ID={ModuleId}", context.Target.Id, moduleId);
+                logger.LogWarning(exception, "ack 런타임 모듈 적용 API 호출 실패. 대상ID={TargetId}, 모듈ID={ModuleId}", context.Target.TargetAckId, moduleId);
                 result.Errors.Add("런타임 적용 API 호출에 실패했습니다.");
                 return result;
             }
         }
 
-        private bool TryResolveTargetContext(string targetId, out TargetContext? context, out string errorCode, out string message)
+        private bool TryResolveTargetContext(string targetAckId, out TargetContext? context, out string errorCode, out string message)
         {
             context = null;
             errorCode = "";
             message = "";
 
-            if (targetProcessManager.TryGetTarget(targetId, out var target) == false || target is null)
+            if (targetProcessManager.TryGetTarget(targetAckId, out var target) == false || target is null)
             {
                 errorCode = "target_not_found";
-                message = $"대상 '{targetId}'을(를) 찾을 수 없습니다.";
+                message = $"대상 '{targetAckId}'을(를) 찾을 수 없습니다.";
                 return false;
             }
 
@@ -273,7 +282,7 @@ namespace agent.Controllers
             if (System.IO.File.Exists(appSettingsPath) == false)
             {
                 errorCode = "appsettings_not_found";
-                message = $"대상 '{targetId}'의 appsettings.json을 찾을 수 없습니다.";
+                message = $"대상 '{targetAckId}'의 appsettings.json을 찾을 수 없습니다.";
                 return false;
             }
 
@@ -284,9 +293,9 @@ namespace agent.Controllers
             }
             catch (Exception exception)
             {
-                logger.LogError(exception, "appsettings 파일 파싱 실패. 대상ID={TargetId}, 경로={Path}", targetId, appSettingsPath);
+                logger.LogError(exception, "appsettings 파일 파싱 실패. 대상ID={TargetId}, 경로={Path}", targetAckId, appSettingsPath);
                 errorCode = "appsettings_parse_failed";
-                message = $"대상 '{targetId}'의 appsettings.json 파싱에 실패했습니다.";
+                message = $"대상 '{targetAckId}'의 appsettings.json 파싱에 실패했습니다.";
                 return false;
             }
 
@@ -294,7 +303,7 @@ namespace agent.Controllers
             return true;
         }
 
-        private bool TryResolveModuleContext(string moduleId, string? targetId, out ModuleContext? moduleContext, out string errorCode, out string message)
+        private bool TryResolveModuleContext(string moduleId, string targetAckId, out ModuleContext? moduleContext, out string errorCode, out string message)
         {
             moduleContext = null;
             errorCode = "";
@@ -307,47 +316,9 @@ namespace agent.Controllers
                 return false;
             }
 
-            TargetContext? targetContext = null;
-
-            if (string.IsNullOrWhiteSpace(targetId) == false)
+            if (TryResolveTargetContext(targetAckId, out var targetContext, out errorCode, out message) == false || targetContext is null)
             {
-                if (TryResolveTargetContext(targetId, out targetContext, out errorCode, out message) == false || targetContext is null)
-                {
-                    return false;
-                }
-            }
-            else
-            {
-                var candidates = new List<TargetContext>();
-                foreach (var targetInfo in targetProcessManager.GetTargets())
-                {
-                    if (TryResolveTargetContext(targetInfo.Id, out var context, out _, out _) == false || context is null)
-                    {
-                        continue;
-                    }
-
-                    var configuredModules = GetConfiguredModules(context.AppSettingsRoot);
-                    if (configuredModules.Contains(moduleId, StringComparer.OrdinalIgnoreCase) == true)
-                    {
-                        candidates.Add(context);
-                    }
-                }
-
-                if (candidates.Count == 0)
-                {
-                    errorCode = "module_target_not_found";
-                    message = $"모듈 '{moduleId}'을(를) 포함한 대상이 없습니다.";
-                    return false;
-                }
-
-                if (candidates.Count > 1)
-                {
-                    errorCode = "module_target_ambiguous";
-                    message = $"여러 대상이 모듈 '{moduleId}'을(를) 포함합니다. 쿼리 파라미터 id를 지정하세요.";
-                    return false;
-                }
-
-                targetContext = candidates[0];
+                return false;
             }
 
             var modulePath = ResolveModulePath(targetContext, moduleId);
@@ -365,7 +336,7 @@ namespace agent.Controllers
             }
             catch (Exception exception)
             {
-                logger.LogError(exception, "모듈 파일 파싱 실패. 대상ID={TargetId}, 모듈ID={ModuleId}, 경로={Path}", targetContext.Target.Id, moduleId, modulePath);
+                logger.LogError(exception, "모듈 파일 파싱 실패. 대상ID={TargetId}, 모듈ID={ModuleId}, 경로={Path}", targetContext.Target.TargetAckId, moduleId, modulePath);
                 errorCode = "module_parse_failed";
                 message = $"모듈 '{moduleId}'의 module.json 파싱에 실패했습니다.";
                 return false;
@@ -373,27 +344,6 @@ namespace agent.Controllers
 
             moduleContext = new ModuleContext(targetContext, moduleId, modulePath, moduleRoot);
             return true;
-        }
-
-        private static List<string> GetConfiguredModules(JsonObject appSettingsRoot)
-        {
-            var result = new List<string>();
-            var loadModulesNode = appSettingsRoot["AppSettings"]?["LoadModules"] as JsonArray;
-            if (loadModulesNode is null)
-            {
-                return result;
-            }
-
-            foreach (var item in loadModulesNode)
-            {
-                var module = item?.GetValue<string>()?.Trim();
-                if (string.IsNullOrWhiteSpace(module) == false && result.Contains(module, StringComparer.OrdinalIgnoreCase) == false)
-                {
-                    result.Add(module);
-                }
-            }
-
-            return result;
         }
 
         private static string ResolveAppSettingsPath(TargetProcessOptions target)

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -10,7 +10,6 @@ using agent.Security;
 using agent.Services;
 
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 
 namespace agent.Controllers
 {
@@ -21,35 +20,32 @@ namespace agent.Controllers
         private const int DefaultRows = 300;
         private const int MaxRows = 5000;
 
-        private readonly IOptionsMonitor<AgentOptions> optionsMonitor;
         private readonly ITargetProcessManager targetProcessManager;
 
-        public LogsController(
-            ITargetProcessManager targetProcessManager,
-            IOptionsMonitor<AgentOptions> optionsMonitor)
+        public LogsController(ITargetProcessManager targetProcessManager)
         {
             this.targetProcessManager = targetProcessManager;
-            this.optionsMonitor = optionsMonitor;
         }
 
-        [HttpGet("logs")]
-        public async Task<ActionResult> GetLogs([FromQuery(Name = "file")] string? requestedFileName, [FromQuery] int? rows, CancellationToken cancellationToken)
+        [HttpGet("logs/{targetAckId}")]
+        public async Task<ActionResult> GetLogs(string targetAckId, [FromQuery(Name = "file")] string? requestedFileName, [FromQuery] int? rows, CancellationToken cancellationToken)
         {
-            var context = await TryResolveRunningAckLogContextAsync(cancellationToken);
+            var context = await TryResolveRunningAckLogContextAsync(targetAckId, cancellationToken);
             if (context is null)
             {
                 return NotFound(new
                 {
-                    message = "실행 중인 ack 대상을 찾을 수 없습니다."
+                    targetAckId,
+                    message = $"실행 중인 ack 대상 '{targetAckId}'을(를) 찾을 수 없습니다."
                 });
             }
 
-            var (runningTarget, workingDirectory, logDirectoryPath) = context.Value;
+            var (target, workingDirectory, logDirectoryPath) = context.Value;
             if (Directory.Exists(logDirectoryPath) == false)
             {
                 return NotFound(new
                 {
-                    targetId = runningTarget.Id,
+                    targetAckId = target.TargetAckId,
                     logDirectory = logDirectoryPath,
                     message = "로그 디렉터리를 찾을 수 없습니다."
                 });
@@ -62,7 +58,7 @@ namespace agent.Controllers
             {
                 return NotFound(new
                 {
-                    targetId = runningTarget.Id,
+                    targetAckId = target.TargetAckId,
                     logDirectory = logDirectoryPath,
                     message = "로그 파일을 찾을 수 없습니다."
                 });
@@ -81,7 +77,7 @@ namespace agent.Controllers
             {
                 return NotFound(new
                 {
-                    targetId = runningTarget.Id,
+                    targetAckId = target.TargetAckId,
                     file = normalizedLogFilePath,
                     logDirectory = logDirectoryPath,
                     message = "요청한 로그 파일을 찾을 수 없습니다."
@@ -91,81 +87,58 @@ namespace agent.Controllers
             var rowCount = NormalizeRows(rows);
             var lines = ReadLastLines(logFilePath, rowCount);
 
-            return Ok(new
-            {
-                targetId = runningTarget.Id,
-                workingDirectory,
-                logDirectory = logDirectoryPath,
-                file = normalizedLogFilePath,
-                rows = rowCount,
-                lineCount = lines.Count,
-                lines
-            });
+            return Ok(string.Join("\n", lines));
         }
 
-        [HttpGet("logtree")]
-        public async Task<ActionResult> GetLogTree(CancellationToken cancellationToken)
+        [HttpGet("logtree/{targetAckId}")]
+        public async Task<ActionResult> GetLogTree(string targetAckId, CancellationToken cancellationToken)
         {
-            var context = await TryResolveRunningAckLogContextAsync(cancellationToken);
+            var context = await TryResolveRunningAckLogContextAsync(targetAckId, cancellationToken);
             if (context is null)
             {
                 return NotFound(new
                 {
-                    message = "실행 중인 ack 대상을 찾을 수 없습니다."
+                    targetAckId,
+                    message = $"실행 중인 ack 대상 '{targetAckId}'을(를) 찾을 수 없습니다."
                 });
             }
 
-            var (runningTarget, workingDirectory, logDirectoryPath) = context.Value;
+            var (target, workingDirectory, logDirectoryPath) = context.Value;
             if (Directory.Exists(logDirectoryPath) == false)
             {
                 return NotFound(new
                 {
-                    targetId = runningTarget.Id,
+                    targetAckId = target.TargetAckId,
                     logDirectory = logDirectoryPath,
                     message = "로그 디렉터리를 찾을 수 없습니다."
                 });
             }
 
             var tree = BuildLogTree(logDirectoryPath, logDirectoryPath);
-            return Ok(new
-            {
-                targetId = runningTarget.Id,
-                workingDirectory,
-                logDirectory = logDirectoryPath,
-                tree
-            });
+            return Ok(tree);
         }
 
-        private async Task<(TargetProcessOptions Target, string WorkingDirectory, string LogDirectoryPath)?> TryResolveRunningAckLogContextAsync(CancellationToken cancellationToken)
+        private async Task<(TargetProcessOptions Target, string WorkingDirectory, string LogDirectoryPath)?> TryResolveRunningAckLogContextAsync(string targetAckId, CancellationToken cancellationToken)
         {
-            var runningTarget = await FindRunningAckTargetAsync(cancellationToken);
-            if (runningTarget is null)
+            if (targetProcessManager.TryGetTarget(targetAckId, out var target) == false || target is null)
             {
                 return null;
             }
 
-            var workingDirectory = TargetProcessManager.ResolveWorkingDirectory(runningTarget);
-            var logDirectoryPath = Path.GetFullPath(Path.Combine(workingDirectory, "..", "log"));
-            return (runningTarget, workingDirectory, logDirectoryPath);
-        }
-
-        private async Task<TargetProcessOptions?> FindRunningAckTargetAsync(CancellationToken cancellationToken)
-        {
-            foreach (var target in optionsMonitor.CurrentValue.Targets)
+            if (string.IsNullOrWhiteSpace(target.TargetAckId) == true || IsAckTarget(target) == false)
             {
-                if (string.IsNullOrWhiteSpace(target.Id) == true || IsAckTarget(target) == false)
-                {
-                    continue;
-                }
-
-                var status = await targetProcessManager.GetStatusAsync(target.Id, cancellationToken);
-                if (status != null)
-                {
-                    return target;
-                }
+                return null;
             }
 
-            return null;
+            var status = await targetProcessManager.GetStatusAsync(target.TargetAckId, cancellationToken);
+            if (status is null)
+            {
+                return null;
+            }
+
+            var workingDirectory = TargetProcessManager.ResolveWorkingDirectory(target);
+            var logDirectoryPath = Path.GetFullPath(Path.Combine(workingDirectory, "..", "log"));
+            return (target, workingDirectory, logDirectoryPath);
         }
 
         private static bool IsAckTarget(TargetProcessOptions target)

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="utf-8">
@@ -486,12 +486,12 @@
                                             </select>
                                         </div>
                                         <div class="field-group mb-3">
-                                            <label class="form-label" for="txtModulePayload">POST /modules/{module-id} 요청 본문(JSON)</label>
+                                            <label class="form-label" for="txtModulePayload">POST /modules/{targetAckId}/{module-id} 요청 본문(JSON)</label>
                                             <textarea id="txtModulePayload" class="form-control mono" rows="6">{}</textarea>
                                         </div>
                                         <div class="btn-list">
-                                            <button type="button" id="btnGetModule" class="btn btn-outline-primary">GET /modules/{module-id}</button>
-                                            <button type="button" id="btnSaveModule" class="btn btn-primary">POST /modules/{module-id}</button>
+                                            <button type="button" id="btnGetModule" class="btn btn-outline-primary">GET /modules/{targetAckId}/{module-id}</button>
+                                            <button type="button" id="btnSaveModule" class="btn btn-primary">POST /modules/{targetAckId}/{module-id}</button>
                                         </div>
                                     </div>
                                 </div>
@@ -515,8 +515,8 @@
                                             <input id="txtLogRows" type="number" class="form-control" value="300" min="1" step="1">
                                         </div>
                                         <div class="btn-list">
-                                            <button type="button" id="btnGetLogs" class="btn btn-outline-primary">GET /logs?file=&rows=</button>
-                                            <button type="button" id="btnGetLogTree" class="btn btn-outline-primary">GET /logtree</button>
+                                            <button type="button" id="btnGetLogs" class="btn btn-outline-primary">GET /logs/{targetAckId}?file=&rows=</button>
+                                            <button type="button" id="btnGetLogTree" class="btn btn-outline-primary">GET /logtree/{targetAckId}</button>
                                         </div>
                                     </div>
                                 </div>

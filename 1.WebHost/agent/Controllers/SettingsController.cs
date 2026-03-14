@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -54,35 +54,35 @@ namespace agent.Controllers
             logger = loggerFactory.CreateLogger<SettingsController>();
         }
 
-        [HttpGet("{id}/diagnostics")]
-        public async Task<ActionResult> GetDiagnostics(string id, CancellationToken cancellationToken)
+        [HttpGet("{targetAckId}/diagnostics")]
+        public async Task<ActionResult> GetDiagnostics(string targetAckId, CancellationToken cancellationToken)
         {
-            var result = await GetDiagnosticsResultAsync(id, cancellationToken);
+            var result = await GetDiagnosticsResultAsync(targetAckId, cancellationToken);
             return ToOperationResult(result);
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult> GetAppSettings(string id, CancellationToken cancellationToken)
+        [HttpGet("{targetAckId}")]
+        public async Task<ActionResult> GetAppSettings(string targetAckId, CancellationToken cancellationToken)
         {
-            var result = await GetAppSettingsResultAsync(id, cancellationToken);
+            var result = await GetAppSettingsResultAsync(targetAckId, cancellationToken);
             return ToOperationResult(result);
         }
 
-        [HttpPost("{id}")]
-        public async Task<ActionResult> SaveAppSettings(string id, [FromBody] JsonObject payload, CancellationToken cancellationToken)
+        [HttpPost("{targetAckId}")]
+        public async Task<ActionResult> SaveAppSettings(string targetAckId, [FromBody] JsonObject payload, CancellationToken cancellationToken)
         {
-            var result = await SaveAppSettingsResultAsync(id, payload, cancellationToken);
+            var result = await SaveAppSettingsResultAsync(targetAckId, payload, cancellationToken);
             return ToOperationResult(result);
         }
 
-        private Task<SettingsStatusResponse> GetAppSettingsResultAsync(string targetId, CancellationToken cancellationToken)
+        private Task<SettingsStatusResponse> GetAppSettingsResultAsync(string targetAckId, CancellationToken cancellationToken)
         {
             var result = new SettingsStatusResponse
             {
-                Id = targetId
+                Id = targetAckId
             };
 
-            if (TryResolveTargetContext(targetId, out var context, out var errorCode, out var message) == false || context is null)
+            if (TryResolveTargetContext(targetAckId, out var context, out var errorCode, out var message) == false || context is null)
             {
                 result.Success = false;
                 result.ErrorCode = errorCode;
@@ -98,14 +98,14 @@ namespace agent.Controllers
             return Task.FromResult(result);
         }
 
-        private async Task<SettingsStatusResponse> GetDiagnosticsResultAsync(string targetId, CancellationToken cancellationToken)
+        private async Task<SettingsStatusResponse> GetDiagnosticsResultAsync(string targetAckId, CancellationToken cancellationToken)
         {
             var result = new SettingsStatusResponse
             {
-                Id = targetId
+                Id = targetAckId
             };
 
-            if (TryResolveTargetContext(targetId, out var context, out var errorCode, out var message) == false || context is null)
+            if (TryResolveTargetContext(targetAckId, out var context, out var errorCode, out var message) == false || context is null)
             {
                 result.Success = false;
                 result.ErrorCode = errorCode;
@@ -122,14 +122,14 @@ namespace agent.Controllers
             return result;
         }
 
-        private async Task<SettingsSaveResponse> SaveAppSettingsResultAsync(string targetId, JsonObject payload, CancellationToken cancellationToken)
+        private async Task<SettingsSaveResponse> SaveAppSettingsResultAsync(string targetAckId, JsonObject payload, CancellationToken cancellationToken)
         {
             var result = new SettingsSaveResponse
             {
-                Id = targetId
+                Id = targetAckId
             };
 
-            if (TryResolveTargetContext(targetId, out var context, out var errorCode, out var message) == false || context is null)
+            if (TryResolveTargetContext(targetAckId, out var context, out var errorCode, out var message) == false || context is null)
             {
                 result.Success = false;
                 result.ErrorCode = errorCode;
@@ -165,7 +165,7 @@ namespace agent.Controllers
             }
             catch (Exception exception)
             {
-                logger.LogError(exception, "appsettings 저장 실패. 대상ID={TargetId}, 경로={Path}", targetId, context.AppSettingsPath);
+                logger.LogError(exception, "appsettings 저장 실패. 대상ID={TargetId}, 경로={Path}", targetAckId, context.AppSettingsPath);
                 result.Success = false;
                 result.ErrorCode = "settings_save_failed";
                 result.Message = "appsettings.json 저장에 실패했습니다.";
@@ -292,7 +292,7 @@ namespace agent.Controllers
             }
             catch (Exception exception)
             {
-                logger.LogWarning(exception, "ack 런타임 전역 적용 API 호출 실패. 대상ID={TargetId}", context.Target.Id);
+                logger.LogWarning(exception, "ack 런타임 전역 적용 API 호출 실패. 대상ID={TargetId}", context.Target.TargetAckId);
                 result.Errors.Add("런타임 적용 API 호출에 실패했습니다.");
                 return result;
             }
@@ -301,7 +301,7 @@ namespace agent.Controllers
         private async Task<DiagnosticsReadResult> TryGetDiagnosticsAsync(TargetContext context, CancellationToken cancellationToken)
         {
             var result = new DiagnosticsReadResult();
-            var status = await targetProcessManager.GetStatusAsync(context.Target.Id, cancellationToken);
+            var status = await targetProcessManager.GetStatusAsync(context.Target.TargetAckId, cancellationToken);
             result.RuntimeState = status?.State ?? "Unknown";
 
             if (status is null || string.Equals(status.State, "Running", StringComparison.OrdinalIgnoreCase) == false)
@@ -341,22 +341,22 @@ namespace agent.Controllers
             }
             catch (Exception exception)
             {
-                logger.LogDebug(exception, "진단 요청 실패. 대상ID={TargetId}", context.Target.Id);
+                logger.LogDebug(exception, "진단 요청 실패. 대상ID={TargetId}", context.Target.TargetAckId);
                 result.Message = "런타임 진단 요청에 실패했습니다.";
                 return result;
             }
         }
 
-        private bool TryResolveTargetContext(string targetId, out TargetContext? context, out string errorCode, out string message)
+        private bool TryResolveTargetContext(string targetAckId, out TargetContext? context, out string errorCode, out string message)
         {
             context = null;
             errorCode = "";
             message = "";
 
-            if (targetProcessManager.TryGetTarget(targetId, out var target) == false || target is null)
+            if (targetProcessManager.TryGetTarget(targetAckId, out var target) == false || target is null)
             {
                 errorCode = "target_not_found";
-                message = $"대상 '{targetId}'을(를) 찾을 수 없습니다.";
+                message = $"대상 '{targetAckId}'을(를) 찾을 수 없습니다.";
                 return false;
             }
 
@@ -364,7 +364,7 @@ namespace agent.Controllers
             if (System.IO.File.Exists(appSettingsPath) == false)
             {
                 errorCode = "appsettings_not_found";
-                message = $"대상 '{targetId}'의 appsettings.json을 찾을 수 없습니다.";
+                message = $"대상 '{targetAckId}'의 appsettings.json을 찾을 수 없습니다.";
                 return false;
             }
 
@@ -375,9 +375,9 @@ namespace agent.Controllers
             }
             catch (Exception exception)
             {
-                logger.LogError(exception, "appsettings 파일 파싱 실패. 대상ID={TargetId}, 경로={Path}", targetId, appSettingsPath);
+                logger.LogError(exception, "appsettings 파일 파싱 실패. 대상ID={TargetId}, 경로={Path}", targetAckId, appSettingsPath);
                 errorCode = "appsettings_parse_failed";
-                message = $"대상 '{targetId}'의 appsettings.json 파싱에 실패했습니다.";
+                message = $"대상 '{targetAckId}'의 appsettings.json 파싱에 실패했습니다.";
                 return false;
             }
 

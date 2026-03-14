@@ -6,7 +6,7 @@ namespace agent.Options
 {
     public sealed class TargetProcessOptions
     {
-        public string Id { get; set; } = "";
+        public string TargetAckId { get; set; } = "";
 
         public string Name { get; set; } = "";
 

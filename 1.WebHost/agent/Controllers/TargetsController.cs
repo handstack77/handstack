@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -53,52 +53,52 @@ namespace agent.Controllers
             return Ok(targets);
         }
 
-        [HttpGet("{id}/status")]
-        public async Task<ActionResult> GetStatus(string id, CancellationToken cancellationToken)
+        [HttpGet("{targetAckId}/status")]
+        public async Task<ActionResult> GetStatus(string targetAckId, CancellationToken cancellationToken)
         {
-            var status = await targetProcessManager.GetStatusAsync(id, cancellationToken);
+            var status = await targetProcessManager.GetStatusAsync(targetAckId, cancellationToken);
             if (status is null)
             {
-                await WriteTargetsAuditAsync(HttpContext, "targets.status", id, false, StatusCodes.Status404NotFound, "대상을 찾을 수 없습니다.", cancellationToken);
+                await WriteTargetsAuditAsync(HttpContext, "targets.status", targetAckId, false, StatusCodes.Status404NotFound, "대상을 찾을 수 없습니다.", cancellationToken);
                 return NotFound(new
                 {
-                    id,
+                    targetAckId,
                     message = "대상을 찾을 수 없습니다."
                 });
             }
 
-            await WriteTargetsAuditAsync(HttpContext, "targets.status", id, true, StatusCodes.Status200OK, status.State, cancellationToken);
+            await WriteTargetsAuditAsync(HttpContext, "targets.status", targetAckId, true, StatusCodes.Status200OK, status.State, cancellationToken);
             return Ok(status);
         }
 
-        [HttpPost("{id}/start")]
-        public async Task<ActionResult> Start(string id, CancellationToken cancellationToken)
+        [HttpPost("{targetAckId}/start")]
+        public async Task<ActionResult> Start(string targetAckId, CancellationToken cancellationToken)
         {
-            var result = await targetProcessManager.StartAsync(id, cancellationToken);
-            await WriteTargetsAuditAsync(HttpContext, "targets.start", id, result.Success, ToCommandStatusCode(result), result.Message, cancellationToken);
+            var result = await targetProcessManager.StartAsync(targetAckId, cancellationToken);
+            await WriteTargetsAuditAsync(HttpContext, "targets.start", targetAckId, result.Success, ToCommandStatusCode(result), result.Message, cancellationToken);
             return ToCommandResult(result);
         }
 
-        [HttpPost("{id}/stop")]
-        public async Task<ActionResult> Stop(string id, CancellationToken cancellationToken)
+        [HttpPost("{targetAckId}/stop")]
+        public async Task<ActionResult> Stop(string targetAckId, CancellationToken cancellationToken)
         {
-            var result = await targetProcessManager.StopAsync(id, cancellationToken);
-            await WriteTargetsAuditAsync(HttpContext, "targets.stop", id, result.Success, ToCommandStatusCode(result), result.Message, cancellationToken);
+            var result = await targetProcessManager.StopAsync(targetAckId, cancellationToken);
+            await WriteTargetsAuditAsync(HttpContext, "targets.stop", targetAckId, result.Success, ToCommandStatusCode(result), result.Message, cancellationToken);
             return ToCommandResult(result);
         }
 
-        [HttpPost("{id}/restart")]
-        public async Task<ActionResult> Restart(string id, CancellationToken cancellationToken)
+        [HttpPost("{targetAckId}/restart")]
+        public async Task<ActionResult> Restart(string targetAckId, CancellationToken cancellationToken)
         {
-            var result = await targetProcessManager.RestartAsync(id, cancellationToken);
-            await WriteTargetsAuditAsync(HttpContext, "targets.restart", id, result.Success, ToCommandStatusCode(result), result.Message, cancellationToken);
+            var result = await targetProcessManager.RestartAsync(targetAckId, cancellationToken);
+            await WriteTargetsAuditAsync(HttpContext, "targets.restart", targetAckId, result.Success, ToCommandStatusCode(result), result.Message, cancellationToken);
             return ToCommandResult(result);
         }
 
         private Task WriteTargetsAuditAsync(
             HttpContext httpContext,
             string actionName,
-            string? targetId,
+            string? targetAckId,
             bool success,
             int statusCode,
             string? message,
@@ -109,7 +109,7 @@ namespace agent.Controllers
                 RequestPath = httpContext.Request.Path.Value ?? "",
                 RequestMethod = httpContext.Request.Method,
                 QueryString = httpContext.Request.QueryString.Value ?? "",
-                TargetID = targetId ?? "",
+                TargetID = targetAckId ?? "",
                 Action = actionName,
                 Result = success == true ? "success" : "failure",
                 StatusCode = statusCode,
@@ -119,7 +119,7 @@ namespace agent.Controllers
             return SendAuditAsync(
                 httpContext,
                 actionName,
-                targetId,
+                targetAckId,
                 success,
                 statusCode,
                 message ?? "",
@@ -130,7 +130,7 @@ namespace agent.Controllers
         private async Task SendAuditAsync(
             HttpContext httpContext,
             string actionName,
-            string? targetId,
+            string? targetAckId,
             bool success,
             int statusCode,
             string message,
@@ -145,7 +145,7 @@ namespace agent.Controllers
 
             try
             {
-                var logMessage = BuildLogMessage(httpContext, auditOptions, actionName, targetId, success, statusCode, message, properties);
+                var logMessage = BuildLogMessage(httpContext, auditOptions, actionName, targetAckId, success, statusCode, message, properties);
                 var content = new StringContent(JsonSerializer.Serialize(logMessage, jsonSerializerOptions), Encoding.UTF8, "application/json");
                 var client = httpClientFactory.CreateClient(AuditHttpClientName);
                 using var request = new HttpRequestMessage(HttpMethod.Post, auditOptions.LogServerUrl)
@@ -165,16 +165,16 @@ namespace agent.Controllers
                         auditOptions.LogServerUrl,
                         (int)response.StatusCode,
                         actionName,
-                        targetId ?? "");
+                        targetAckId ?? "");
                 }
             }
             catch (OperationCanceledException)
             {
-                logger.LogWarning("감사 로그 전송 시간 초과. 작업={Action}, 대상ID={TargetID}", actionName, targetId ?? "");
+                logger.LogWarning("감사 로그 전송 시간 초과. 작업={Action}, 대상ID={TargetID}", actionName, targetAckId ?? "");
             }
             catch (Exception exception)
             {
-                logger.LogWarning(exception, "감사 로그 전송 예외 발생. 작업={Action}, 대상ID={TargetID}", actionName, targetId ?? "");
+                logger.LogWarning(exception, "감사 로그 전송 예외 발생. 작업={Action}, 대상ID={TargetID}", actionName, targetAckId ?? "");
             }
         }
 
@@ -182,7 +182,7 @@ namespace agent.Controllers
             HttpContext httpContext,
             AuditLogOptions auditOptions,
             string actionName,
-            string? targetId,
+            string? targetAckId,
             bool success,
             int statusCode,
             string message,
@@ -221,7 +221,7 @@ namespace agent.Controllers
                 ApplicationID = string.IsNullOrWhiteSpace(auditOptions.ApplicationID) == true ? "HDS" : auditOptions.ApplicationID,
                 ProjectID = string.IsNullOrWhiteSpace(auditOptions.ProjectID) == true ? "agent" : auditOptions.ProjectID,
                 TransactionID = string.IsNullOrWhiteSpace(auditOptions.TransactionID) == true ? "targets" : auditOptions.TransactionID,
-                ServiceID = string.IsNullOrWhiteSpace(targetId) == true ? actionName : $"{actionName}:{targetId}",
+                ServiceID = string.IsNullOrWhiteSpace(targetAckId) == true ? actionName : $"{actionName}:{targetAckId}",
                 Type = "A",
                 Flow = "N",
                 Level = success == true ? "V" : "E",

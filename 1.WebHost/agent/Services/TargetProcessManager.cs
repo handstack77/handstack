@@ -47,11 +47,11 @@ namespace agent.Services
         {
             var targets = optionsMonitor.CurrentValue.Targets;
             return targets
-                .Where(target => string.IsNullOrWhiteSpace(target.Id) == false)
+                .Where(target => string.IsNullOrWhiteSpace(target.TargetAckId) == false)
                 .Select(target => new TargetProcessInfo
                 {
-                    Id = target.Id.Trim(),
-                    Name = string.IsNullOrWhiteSpace(target.Name) == true ? target.Id.Trim() : target.Name.Trim(),
+                    Id = target.TargetAckId.Trim(),
+                    Name = string.IsNullOrWhiteSpace(target.Name) == true ? target.TargetAckId.Trim() : target.Name.Trim(),
                     Description = target.Description ?? "",
                     ProcessName = target.ResolveProcessName(),
                     ExecutablePath = target.ExecutablePath ?? ""
@@ -68,7 +68,7 @@ namespace agent.Services
             }
 
             target = optionsMonitor.CurrentValue.Targets
-                .FirstOrDefault(item => string.Equals(item.Id, id, StringComparison.OrdinalIgnoreCase) == true);
+                .FirstOrDefault(item => string.Equals(item.TargetAckId, id, StringComparison.OrdinalIgnoreCase) == true);
 
             return target is not null;
         }
@@ -91,7 +91,7 @@ namespace agent.Services
                 }
             }
 
-            var state = GetOrCreateState(target.Id);
+            var state = GetOrCreateState(target.TargetAckId);
             Process? process;
 
             lock (state.SyncRoot)
@@ -99,14 +99,14 @@ namespace agent.Services
                 process = FindRunningProcess(target, state);
                 if (process is not null)
                 {
-                    UpdateStateFromProcess(target.Id, state, process);
+                    UpdateStateFromProcess(target.TargetAckId, state, process);
                 }
             }
 
             var response = new TargetStatusResponse
             {
-                Id = target.Id,
-                Name = string.IsNullOrWhiteSpace(target.Name) == true ? target.Id : target.Name
+                Id = target.TargetAckId,
+                Name = string.IsNullOrWhiteSpace(target.Name) == true ? target.TargetAckId : target.Name
             };
 
             if (process is null)
@@ -155,7 +155,7 @@ namespace agent.Services
             await syncLock.WaitAsync(cancellationToken);
             try
             {
-                var state = GetOrCreateState(target.Id);
+                var state = GetOrCreateState(target.TargetAckId);
                 Process? runningProcess;
                 lock (state.SyncRoot)
                 {
@@ -168,7 +168,7 @@ namespace agent.Services
                     {
                         Success = false,
                         ErrorCode = "already_running",
-                        Message = $"대상 '{target.Id}'은(는) 이미 실행 중입니다.",
+                        Message = $"대상 '{target.TargetAckId}'은(는) 이미 실행 중입니다.",
                         Pid = runningProcess.Id
                     };
                 }
@@ -179,7 +179,7 @@ namespace agent.Services
                     {
                         Success = false,
                         ErrorCode = "already_running",
-                        Message = $"대상 '{target.Id}'은(는) 외부 실행 상태로 감지되었습니다."
+                        Message = $"대상 '{target.TargetAckId}'은(는) 외부 실행 상태로 감지되었습니다."
                     };
                 }
 
@@ -195,14 +195,14 @@ namespace agent.Services
                 {
                     if (string.IsNullOrWhiteSpace(eventArgs.Data) == false)
                     {
-                        logger.LogInformation("[{TargetId}] {Message}", target.Id, eventArgs.Data);
+                        logger.LogInformation("[{TargetId}] {Message}", target.TargetAckId, eventArgs.Data);
                     }
                 };
                 process.ErrorDataReceived += (sender, eventArgs) =>
                 {
                     if (string.IsNullOrWhiteSpace(eventArgs.Data) == false)
                     {
-                        logger.LogError("[{TargetId}] {Message}", target.Id, eventArgs.Data);
+                        logger.LogError("[{TargetId}] {Message}", target.TargetAckId, eventArgs.Data);
                     }
                 };
 
@@ -212,7 +212,7 @@ namespace agent.Services
                     {
                         Success = false,
                         ErrorCode = "start_failed",
-                        Message = $"대상 '{target.Id}' 시작에 실패했습니다."
+                        Message = $"대상 '{target.TargetAckId}' 시작에 실패했습니다."
                     };
                 }
 
@@ -234,22 +234,22 @@ namespace agent.Services
                     state.LastExitCode = null;
                     state.LastExitTimeUtc = null;
 
-                    pidMap[process.Id] = target.Id;
+                    pidMap[process.Id] = target.TargetAckId;
                     cpuSamples.TryRemove(process.Id, out _);
                 }
 
-                SaveProcessState(target.Id, state);
+                SaveProcessState(target.TargetAckId, state);
 
                 return new TargetCommandResult
                 {
                     Success = true,
-                    Message = $"대상 '{target.Id}'이(가) 시작되었습니다.",
+                    Message = $"대상 '{target.TargetAckId}'이(가) 시작되었습니다.",
                     Pid = process.Id
                 };
             }
             catch (Exception exception)
             {
-                logger.LogError(exception, "대상 시작 실패: {TargetId}", target.Id);
+                logger.LogError(exception, "대상 시작 실패: {TargetId}", target.TargetAckId);
                 return new TargetCommandResult
                 {
                     Success = false,
@@ -283,7 +283,7 @@ namespace agent.Services
             await syncLock.WaitAsync(cancellationToken);
             try
             {
-                var state = GetOrCreateState(target.Id);
+                var state = GetOrCreateState(target.TargetAckId);
                 Process? process;
 
                 lock (state.SyncRoot)
@@ -299,7 +299,7 @@ namespace agent.Services
                         {
                             Success = false,
                             ErrorCode = "external_target_control_not_supported",
-                            Message = $"대상 '{target.Id}'은(는) 외부 실행 상태로 감지되어 컨테이너에서 중지할 수 없습니다."
+                            Message = $"대상 '{target.TargetAckId}'은(는) 외부 실행 상태로 감지되어 컨테이너에서 중지할 수 없습니다."
                         };
                     }
 
@@ -307,7 +307,7 @@ namespace agent.Services
                     {
                         Success = false,
                         ErrorCode = "already_stopped",
-                        Message = $"대상 '{target.Id}'은(는) 이미 중지되어 있습니다."
+                        Message = $"대상 '{target.TargetAckId}'은(는) 이미 중지되어 있습니다."
                     };
                 }
 
@@ -325,14 +325,14 @@ namespace agent.Services
                     cpuSamples.TryRemove(process.Id, out _);
                 }
 
-                SaveProcessState(target.Id, state);
+                SaveProcessState(target.TargetAckId, state);
 
                 if (stopResult.Stopped == true)
                 {
                     return new TargetCommandResult
                     {
                         Success = true,
-                        Message = $"대상 '{target.Id}'이(가) 중지되었습니다.",
+                        Message = $"대상 '{target.TargetAckId}'이(가) 중지되었습니다.",
                         Pid = process.Id
                     };
                 }
@@ -341,13 +341,13 @@ namespace agent.Services
                 {
                     Success = false,
                     ErrorCode = "stop_timeout",
-                    Message = $"대상 '{target.Id}'을(를) {timeoutSeconds}초 내에 중지하지 못했습니다.",
+                    Message = $"대상 '{target.TargetAckId}'을(를) {timeoutSeconds}초 내에 중지하지 못했습니다.",
                     Pid = process.Id
                 };
             }
             catch (Exception exception)
             {
-                logger.LogError(exception, "대상 중지 실패: {TargetId}", target.Id);
+                logger.LogError(exception, "대상 중지 실패: {TargetId}", target.TargetAckId);
                 return new TargetCommandResult
                 {
                     Success = false,
@@ -455,12 +455,12 @@ namespace agent.Services
             if (TryCreateCommandBridgeRequest(
                 target,
                 HttpMethod.Get,
-                $"bridge/targets/{Uri.EscapeDataString(target.Id)}/status",
+                $"bridge/targets/{Uri.EscapeDataString(target.TargetAckId)}/status",
                 out var request,
                 out var timeout,
                 out var configError) == false)
             {
-                logger.LogWarning("명령 브리지 설정 오류. 대상ID={TargetId}, 메시지={Message}", target.Id, configError?.Message ?? "구성 오류");
+                logger.LogWarning("명령 브리지 설정 오류. 대상ID={TargetId}, 메시지={Message}", target.TargetAckId, configError?.Message ?? "구성 오류");
                 return null;
             }
 
@@ -484,37 +484,37 @@ namespace agent.Services
 
                     if (response.IsSuccessStatusCode == false)
                     {
-                        logger.LogWarning("명령 브리지 상태 조회 실패. 대상ID={TargetId}, 상태코드={StatusCode}", target.Id, (int)response.StatusCode);
+                        logger.LogWarning("명령 브리지 상태 조회 실패. 대상ID={TargetId}, 상태코드={StatusCode}", target.TargetAckId, (int)response.StatusCode);
                         return null;
                     }
 
                     var status = TryDeserializeJson<TargetStatusResponse>(payload);
                     if (status is null)
                     {
-                        logger.LogWarning("명령 브리지 상태 응답 파싱 실패. 대상ID={TargetId}", target.Id);
+                        logger.LogWarning("명령 브리지 상태 응답 파싱 실패. 대상ID={TargetId}", target.TargetAckId);
                         return null;
                     }
 
                     if (string.IsNullOrWhiteSpace(status.Id) == true)
                     {
-                        status.Id = target.Id;
+                        status.Id = target.TargetAckId;
                     }
 
                     if (string.IsNullOrWhiteSpace(status.Name) == true)
                     {
-                        status.Name = string.IsNullOrWhiteSpace(target.Name) == true ? target.Id : target.Name;
+                        status.Name = string.IsNullOrWhiteSpace(target.Name) == true ? target.TargetAckId : target.Name;
                     }
 
                     return status;
                 }
                 catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested == false)
                 {
-                    logger.LogWarning("명령 브리지 상태 조회 시간 초과. 대상ID={TargetId}", target.Id);
+                    logger.LogWarning("명령 브리지 상태 조회 시간 초과. 대상ID={TargetId}", target.TargetAckId);
                     return null;
                 }
                 catch (Exception exception)
                 {
-                    logger.LogWarning(exception, "명령 브리지 상태 조회 예외. 대상ID={TargetId}", target.Id);
+                    logger.LogWarning(exception, "명령 브리지 상태 조회 예외. 대상ID={TargetId}", target.TargetAckId);
                     return null;
                 }
             }
@@ -525,7 +525,7 @@ namespace agent.Services
             if (TryCreateCommandBridgeRequest(
                 target,
                 HttpMethod.Post,
-                $"bridge/targets/{Uri.EscapeDataString(target.Id)}/{command}",
+                $"bridge/targets/{Uri.EscapeDataString(target.TargetAckId)}/{command}",
                 out var request,
                 out var timeout,
                 out var configError) == false)
@@ -561,7 +561,7 @@ namespace agent.Services
                         return new TargetCommandResult
                         {
                             Success = true,
-                            Message = $"명령 브리지에서 '{target.Id}' 대상의 '{command}' 작업을 완료했습니다."
+                            Message = $"명령 브리지에서 '{target.TargetAckId}' 대상의 '{command}' 작업을 완료했습니다."
                         };
                     }
 
@@ -571,7 +571,7 @@ namespace agent.Services
                         {
                             Success = false,
                             ErrorCode = "target_not_found",
-                            Message = $"대상 '{target.Id}'을(를) 찾을 수 없습니다."
+                            Message = $"대상 '{target.TargetAckId}'을(를) 찾을 수 없습니다."
                         };
                     }
 
@@ -593,7 +593,7 @@ namespace agent.Services
                 }
                 catch (Exception exception)
                 {
-                    logger.LogWarning(exception, "명령 브리지 호출 예외. 대상ID={TargetId}, 명령={Command}", target.Id, command);
+                    logger.LogWarning(exception, "명령 브리지 호출 예외. 대상ID={TargetId}, 명령={Command}", target.TargetAckId, command);
                     return new TargetCommandResult
                     {
                         Success = false,
@@ -663,7 +663,7 @@ namespace agent.Services
             {
                 Success = false,
                 ErrorCode = "bridge_not_configured",
-                Message = $"대상 '{target.Id}' 명령 브리지 설정 오류: {message}"
+                Message = $"대상 '{target.TargetAckId}' 명령 브리지 설정 오류: {message}"
             };
         }
 
@@ -727,7 +727,7 @@ namespace agent.Services
         {
             if (string.IsNullOrWhiteSpace(target.ExecutablePath) == true)
             {
-                throw new InvalidOperationException($"대상 '{target.Id}'의 실행 파일 경로가 비어 있습니다.");
+                throw new InvalidOperationException($"대상 '{target.TargetAckId}'의 실행 파일 경로가 비어 있습니다.");
             }
 
             var executablePath = target.ExecutablePath.Trim();
@@ -736,7 +736,7 @@ namespace agent.Services
                 executablePath = ResolvePath(executablePath);
                 if (System.IO.File.Exists(executablePath) == false)
                 {
-                    throw new FileNotFoundException($"대상 '{target.Id}' 실행 파일을 찾을 수 없습니다.", executablePath);
+                    throw new FileNotFoundException($"대상 '{target.TargetAckId}' 실행 파일을 찾을 수 없습니다.", executablePath);
                 }
             }
 
@@ -776,7 +776,7 @@ namespace agent.Services
                 if (processByPid is not null && IsRunning(processByPid) == true)
                 {
                     state.Process = processByPid;
-                    AttachProcessTracking(target.Id, processByPid);
+                    AttachProcessTracking(target.TargetAckId, processByPid);
                     return processByPid;
                 }
             }
@@ -826,8 +826,8 @@ namespace agent.Services
                 state.Process = process;
                 state.LastPid = process.Id;
                 state.LastStartTimeUtc = SafeGetStartTime(process);
-                AttachProcessTracking(target.Id, process);
-                SaveProcessState(target.Id, state);
+                AttachProcessTracking(target.TargetAckId, process);
+                SaveProcessState(target.TargetAckId, state);
                 return process;
             }
 
@@ -865,23 +865,23 @@ namespace agent.Services
             }
             catch (Exception exception)
             {
-                logger.LogDebug(exception, "상태 프로브 요청 실패: {TargetId}/{Url}", target.Id, target.StatusProbeUrl);
+                logger.LogDebug(exception, "상태 프로브 요청 실패: {TargetId}/{Url}", target.TargetAckId, target.StatusProbeUrl);
                 return false;
             }
         }
 
-        private void AttachProcessTracking(string targetId, Process process)
+        private void AttachProcessTracking(string targetAckId, Process process)
         {
             try
             {
                 process.EnableRaisingEvents = true;
                 process.Exited -= HandleProcessExited;
                 process.Exited += HandleProcessExited;
-                pidMap[process.Id] = targetId;
+                pidMap[process.Id] = targetAckId;
             }
             catch (Exception exception)
             {
-                logger.LogDebug(exception, "프로세스 추적 연결 실패: {TargetId}/{Pid}", targetId, process.Id);
+                logger.LogDebug(exception, "프로세스 추적 연결 실패: {TargetId}/{Pid}", targetAckId, process.Id);
             }
         }
 
@@ -1017,12 +1017,12 @@ namespace agent.Services
             }
         }
 
-        private void UpdateStateFromProcess(string targetId, ManagedProcessState state, Process process)
+        private void UpdateStateFromProcess(string targetAckId, ManagedProcessState state, Process process)
         {
-            state.TargetId = targetId;
+            state.TargetId = targetAckId;
             state.LastPid = process.Id;
             state.LastStartTimeUtc = SafeGetStartTime(process);
-            pidMap[process.Id] = targetId;
+            pidMap[process.Id] = targetAckId;
         }
 
         private double? CalculateCpuPercent(Process process)
@@ -1073,24 +1073,24 @@ namespace agent.Services
                 return;
             }
 
-            if (pidMap.TryRemove(process.Id, out var targetId) == false)
+            if (pidMap.TryRemove(process.Id, out var targetAckId) == false)
             {
                 return;
             }
 
-            var state = GetOrCreateState(targetId);
+            var state = GetOrCreateState(targetAckId);
             lock (state.SyncRoot)
             {
                 state.Process = null;
-                state.TargetId = targetId;
+                state.TargetId = targetAckId;
                 state.LastPid = process.Id;
                 state.LastExitCode = TryGetExitCode(process);
                 state.LastExitTimeUtc = DateTimeOffset.UtcNow;
                 cpuSamples.TryRemove(process.Id, out _);
             }
 
-            SaveProcessState(targetId, state);
-            logger.LogInformation("대상 프로세스가 종료되었습니다. 대상ID={TargetId}, PID={Pid}, 종료코드={ExitCode}", targetId, process.Id, state.LastExitCode);
+            SaveProcessState(targetAckId, state);
+            logger.LogInformation("대상 프로세스가 종료되었습니다. 대상ID={TargetId}, PID={Pid}, 종료코드={ExitCode}", targetAckId, process.Id, state.LastExitCode);
         }
 
         private void LoadProcessStates()
@@ -1132,7 +1132,7 @@ namespace agent.Services
                             if (process is not null && IsRunning(process) == true)
                             {
                                 state.Process = process;
-                                AttachProcessTracking(target.Id, process);
+                                AttachProcessTracking(target.TargetAckId, process);
                             }
                         }
                     }
@@ -1144,7 +1144,7 @@ namespace agent.Services
             }
         }
 
-        private void SaveProcessState(string targetId, ManagedProcessState state)
+        private void SaveProcessState(string targetAckId, ManagedProcessState state)
         {
             try
             {
@@ -1153,14 +1153,14 @@ namespace agent.Services
 
                 var snapshot = new ManagedProcessSnapshot
                 {
-                    TargetId = targetId,
+                    TargetId = targetAckId,
                     LastPid = state.LastPid,
                     LastStartTimeUtc = state.LastStartTimeUtc,
                     LastExitCode = state.LastExitCode,
                     LastExitTimeUtc = state.LastExitTimeUtc
                 };
 
-                var filePath = Path.Combine(stateDirectoryPath, $"{targetId}.json");
+                var filePath = Path.Combine(stateDirectoryPath, $"{targetAckId}.json");
                 var payload = JsonSerializer.Serialize(snapshot, new JsonSerializerOptions
                 {
                     WriteIndented = true
@@ -1170,13 +1170,13 @@ namespace agent.Services
             }
             catch (Exception exception)
             {
-                logger.LogError(exception, "프로세스 상태 저장에 실패했습니다. 대상ID={TargetId}", targetId);
+                logger.LogError(exception, "프로세스 상태 저장에 실패했습니다. 대상ID={TargetId}", targetAckId);
             }
         }
 
-        private ManagedProcessState GetOrCreateState(string targetId)
+        private ManagedProcessState GetOrCreateState(string targetAckId)
         {
-            return states.GetOrAdd(targetId, key => new ManagedProcessState
+            return states.GetOrAdd(targetAckId, key => new ManagedProcessState
             {
                 TargetId = key
             });

@@ -10,7 +10,7 @@ namespace agent.Services
         Task WriteTargetsAuditAsync(
             HttpContext httpContext,
             string actionName,
-            string? targetId,
+            string? targetAckId,
             bool success,
             int statusCode,
             string? message,

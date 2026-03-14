@@ -40,7 +40,7 @@ namespace agent.Services
         public Task WriteTargetsAuditAsync(
             HttpContext httpContext,
             string actionName,
-            string? targetId,
+            string? targetAckId,
             bool success,
             int statusCode,
             string? message,
@@ -52,7 +52,7 @@ namespace agent.Services
                 RequestPath = httpContext.Request.Path.Value ?? "",
                 RequestMethod = httpContext.Request.Method,
                 QueryString = httpContext.Request.QueryString.Value ?? "",
-                TargetID = targetId ?? "",
+                TargetID = targetAckId ?? "",
                 Action = actionName,
                 Result = success == true ? "success" : "failure",
                 StatusCode = statusCode,
@@ -62,7 +62,7 @@ namespace agent.Services
             return SendAsync(
                 httpContext,
                 actionName,
-                targetId,
+                targetAckId,
                 success,
                 statusCode,
                 message ?? "",
@@ -96,7 +96,7 @@ namespace agent.Services
         private async Task SendAsync(
             HttpContext httpContext,
             string actionName,
-            string? targetId,
+            string? targetAckId,
             bool success,
             int statusCode,
             string message,
@@ -115,7 +115,7 @@ namespace agent.Services
                     httpContext,
                     auditOptions,
                     actionName,
-                    targetId,
+                    targetAckId,
                     success,
                     statusCode,
                     message,
@@ -140,7 +140,7 @@ namespace agent.Services
                         auditOptions.LogServerUrl,
                         (int)response.StatusCode,
                         actionName,
-                        targetId ?? "");
+                        targetAckId ?? "");
                 }
             }
             catch (OperationCanceledException)
@@ -148,7 +148,7 @@ namespace agent.Services
                 logger.LogWarning(
                     "감사 로그 전송 시간 초과. 작업={Action}, 대상ID={TargetID}",
                     actionName,
-                    targetId ?? "");
+                    targetAckId ?? "");
             }
             catch (Exception exception)
             {
@@ -156,7 +156,7 @@ namespace agent.Services
                     exception,
                     "감사 로그 전송 예외 발생. 작업={Action}, 대상ID={TargetID}",
                     actionName,
-                    targetId ?? "");
+                    targetAckId ?? "");
             }
         }
 
@@ -164,7 +164,7 @@ namespace agent.Services
             HttpContext httpContext,
             AuditLogOptions auditOptions,
             string actionName,
-            string? targetId,
+            string? targetAckId,
             bool success,
             int statusCode,
             string message,
@@ -204,7 +204,7 @@ namespace agent.Services
                 ApplicationID = string.IsNullOrWhiteSpace(auditOptions.ApplicationID) == true ? "HDS" : auditOptions.ApplicationID,
                 ProjectID = string.IsNullOrWhiteSpace(auditOptions.ProjectID) == true ? "agent" : auditOptions.ProjectID,
                 TransactionID = string.IsNullOrWhiteSpace(auditOptions.TransactionID) == true ? "targets" : auditOptions.TransactionID,
-                ServiceID = string.IsNullOrWhiteSpace(targetId) == true ? actionName : $"{actionName}:{targetId}",
+                ServiceID = string.IsNullOrWhiteSpace(targetAckId) == true ? actionName : $"{actionName}:{targetAckId}",
                 Type = "A",
                 Flow = "N",
                 Level = success == true ? "V" : "E",

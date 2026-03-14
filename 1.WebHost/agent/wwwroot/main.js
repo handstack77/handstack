@@ -1,4 +1,4 @@
-﻿'use strict';
+'use strict';
 
 let $main = {
     hook: {
@@ -45,21 +45,21 @@ let $main = {
         },
 
         async btnGetTargetStatus_click() {
-            const targetId = $this.method.requireText('txtTargetId', '대상 ID를 입력하세요.');
-            if (targetId === null) {
+            const targetAckId = $this.method.requireText('txtTargetId', '대상 ID를 입력하세요.');
+            if (targetAckId === null) {
                 return;
             }
 
             const response = await $this.method.requestApi({
                 method: 'GET',
-                path: '/targets/' + encodeURIComponent(targetId) + '/status',
+                path: '/targets/' + encodeURIComponent(targetAckId) + '/status',
                 includeManagementKey: true
             });
 
             if (response && response.ok) {
                 $this.method.renderResponse(response.status, response.statusText, response.data);
-                $this.method.syncTargetSelectors(targetId);
-                await $this.method.loadModulesForTarget(targetId);
+                $this.method.syncTargetSelectors(targetAckId);
+                await $this.method.loadModulesForTarget(targetAckId);
             }
         },
 
@@ -133,8 +133,8 @@ let $main = {
         },
 
         async btnGetModule_click() {
-            const settingsId = $this.method.requireText('txtSettingsId', '설정 대상 ID를 입력하세요.');
-            if (settingsId === null) {
+            const targetAckId = $this.method.requireText('txtSettingsId', '설정 대상 ID를 입력하세요.');
+            if (targetAckId === null) {
                 return;
             }
 
@@ -143,14 +143,10 @@ let $main = {
                 return;
             }
 
-            const query = {};
-            query.id = settingsId;
-
             const response = await $this.method.requestApi({
                 method: 'GET',
-                path: '/modules/' + encodeURIComponent(moduleId),
-                includeManagementKey: true,
-                query: query
+                path: '/modules/' + encodeURIComponent(targetAckId) + '/' + encodeURIComponent(moduleId),
+                includeManagementKey: true
             });
 
             if (response && response.ok) {
@@ -159,8 +155,8 @@ let $main = {
         },
 
         async btnSaveModule_click() {
-            const settingsId = $this.method.requireText('txtSettingsId', '설정 대상 ID를 입력하세요.');
-            if (settingsId === null) {
+            const targetAckId = $this.method.requireText('txtSettingsId', '설정 대상 ID를 입력하세요.');
+            if (targetAckId === null) {
                 return;
             }
 
@@ -174,14 +170,10 @@ let $main = {
                 return;
             }
 
-            const query = {};
-            query.id = settingsId;
-
             const response = await $this.method.requestApi({
                 method: 'POST',
-                path: '/modules/' + encodeURIComponent(moduleId),
+                path: '/modules/' + encodeURIComponent(targetAckId) + '/' + encodeURIComponent(moduleId),
                 includeManagementKey: true,
-                query: query,
                 body: payload
             });
 
@@ -203,6 +195,11 @@ let $main = {
         },
 
         async btnGetLogs_click() {
+            const targetAckId = $this.method.requireText('txtTargetId', '대상 ID를 입력하세요.');
+            if (targetAckId === null) {
+                return;
+            }
+
             const query = {};
             const file = syn.$l.get('txtLogFile').value.trim();
             if (file !== '') {
@@ -222,7 +219,7 @@ let $main = {
 
             const response = await $this.method.requestApi({
                 method: 'GET',
-                path: '/logs',
+                path: '/logs/' + encodeURIComponent(targetAckId),
                 includeManagementKey: true,
                 query: query
             });
@@ -233,9 +230,14 @@ let $main = {
         },
 
         async btnGetLogTree_click() {
+            const targetAckId = $this.method.requireText('txtTargetId', '대상 ID를 입력하세요.');
+            if (targetAckId === null) {
+                return;
+            }
+
             const response = await $this.method.requestApi({
                 method: 'GET',
-                path: '/logtree',
+                path: '/logtree/' + encodeURIComponent(targetAckId),
                 includeManagementKey: true
             });
 
@@ -316,32 +318,32 @@ let $main = {
         },
 
         populateTargetSelectors(options) {
-            const targetId = $this.method.getValue('txtTargetId');
+            const targetAckId = $this.method.getValue('txtTargetId');
             const settingsId = $this.method.getValue('txtSettingsId');
-            const defaultTargetId = targetId || settingsId || (options[0] ? options[0].value : '');
+            const defaultTargetId = targetAckId || settingsId || (options[0] ? options[0].value : '');
 
-            $this.method.setSelectOptions('txtTargetId', options, '대상 목록 조회 후 선택', targetId, defaultTargetId);
+            $this.method.setSelectOptions('txtTargetId', options, '대상 목록 조회 후 선택', targetAckId, defaultTargetId);
             $this.method.setSelectOptions('txtSettingsId', options, '대상 목록 조회 후 선택', settingsId, defaultTargetId);
         },
 
-        syncTargetSelectors(targetId) {
-            if (targetId === '') {
+        syncTargetSelectors(targetAckId) {
+            if (targetAckId === '') {
                 return;
             }
 
-            $this.method.setText('txtTargetId', targetId);
-            $this.method.setText('txtSettingsId', targetId);
+            $this.method.setText('txtTargetId', targetAckId);
+            $this.method.setText('txtSettingsId', targetAckId);
         },
 
-        async loadModulesForTarget(targetId) {
-            if (targetId === '') {
+        async loadModulesForTarget(targetAckId) {
+            if (targetAckId === '') {
                 $this.method.populateModuleSelectors([]);
                 return;
             }
 
             const response = await $this.method.requestApi({
                 method: 'GET',
-                path: '/settings/' + encodeURIComponent(targetId),
+                path: '/settings/' + encodeURIComponent(targetAckId),
                 includeManagementKey: true,
                 renderRequest: false,
                 renderError: false
@@ -453,14 +455,14 @@ let $main = {
         },
 
         async callTargetAction(actionName) {
-            const targetId = $this.method.requireText('txtTargetId', '대상 ID를 입력하세요.');
-            if (targetId === null) {
+            const targetAckId = $this.method.requireText('txtTargetId', '대상 ID를 입력하세요.');
+            if (targetAckId === null) {
                 return;
             }
 
             const response = await $this.method.requestApi({
                 method: 'POST',
-                path: '/targets/' + encodeURIComponent(targetId) + '/' + actionName,
+                path: '/targets/' + encodeURIComponent(targetAckId) + '/' + actionName,
                 includeManagementKey: true
             });
 
