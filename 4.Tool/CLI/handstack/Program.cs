@@ -985,7 +985,7 @@ namespace handstack
                             File.Delete(zipFileName);
                         }
 
-                        ZipFile.CreateFromDirectory(directory.FullName.Replace("\\", "/"), zipFileName);
+                        CreateZipFromDirectoryWithProgress(directory.FullName.Replace("\\", "/"), zipFileName);
                     }
                     else
                     {
@@ -1024,7 +1024,7 @@ namespace handstack
                             directory.Delete(true);
                         }
 
-                        ZipFile.ExtractToDirectory(file.FullName.Replace("\\", "/"), directory.FullName.Replace("\\", "/"), true);
+                        ExtractZipToDirectoryWithProgress(file.FullName.Replace("\\", "/"), directory.FullName.Replace("\\", "/"));
                     }
                     else
                     {
@@ -1519,6 +1519,197 @@ namespace handstack
             var format = upper ? "X2" : "x2";
             foreach (var b in data) sb.Append(b.ToString(format));
             return sb.ToString();
+        }
+
+        private static void CreateZipFromDirectoryWithProgress(string sourceDirectoryPath, string zipFilePath)
+        {
+            var sourceDirectoryFullPath = Path.GetFullPath(sourceDirectoryPath);
+            var sourceDirectoryInfo = new DirectoryInfo(sourceDirectoryFullPath);
+            if (sourceDirectoryInfo.Exists == false)
+            {
+                throw new DirectoryNotFoundException($"sourceDirectoryPath: {sourceDirectoryPath}");
+            }
+
+            var filePaths = Directory.EnumerateFiles(sourceDirectoryFullPath, "*", SearchOption.AllDirectories).ToList();
+            var directoryPaths = Directory.EnumerateDirectories(sourceDirectoryFullPath, "*", SearchOption.AllDirectories).ToList();
+
+            long totalBytes = 0;
+            foreach (var filePath in filePaths)
+            {
+                totalBytes += new FileInfo(filePath).Length;
+            }
+
+            var totalFiles = filePaths.Count;
+            var processedBytes = 0L;
+            var processedFiles = 0;
+            var progressPercent = -1;
+            var progressFiles = -1;
+
+            using (var zipStream = new FileStream(zipFilePath, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+            using (var archive = new ZipArchive(zipStream, ZipArchiveMode.Create))
+            {
+                foreach (var directoryPath in directoryPaths)
+                {
+                    if (Directory.EnumerateFileSystemEntries(directoryPath).Any() == false)
+                    {
+                        var relativeDirectoryPath = Path.GetRelativePath(sourceDirectoryFullPath, directoryPath).Replace("\\", "/");
+                        archive.CreateEntry($"{relativeDirectoryPath}/");
+                    }
+                }
+
+                if (filePaths.Count == 0)
+                {
+                    WriteZipProgress("compress", 0, 0, 0, 0, ref progressPercent, ref progressFiles);
+                    return;
+                }
+
+                foreach (var filePath in filePaths)
+                {
+                    var relativeFilePath = Path.GetRelativePath(sourceDirectoryFullPath, filePath).Replace("\\", "/");
+                    var entry = archive.CreateEntry(relativeFilePath, CompressionLevel.Optimal);
+
+                    using (var sourceStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                    using (var entryStream = entry.Open())
+                    {
+                        CopyStreamWithProgress(sourceStream, entryStream, copiedBytes =>
+                        {
+                            processedBytes += copiedBytes;
+                            WriteZipProgress("compress", processedBytes, totalBytes, processedFiles, totalFiles, ref progressPercent, ref progressFiles);
+                        });
+                    }
+
+                    processedFiles += 1;
+                    WriteZipProgress("compress", processedBytes, totalBytes, processedFiles, totalFiles, ref progressPercent, ref progressFiles);
+                }
+            }
+
+            WriteZipProgress("compress", totalBytes, totalBytes, totalFiles, totalFiles, ref progressPercent, ref progressFiles);
+        }
+
+        private static void ExtractZipToDirectoryWithProgress(string zipFilePath, string destinationDirectoryPath)
+        {
+            var zipFileFullPath = Path.GetFullPath(zipFilePath);
+            var destinationDirectoryFullPath = Path.GetFullPath(destinationDirectoryPath);
+            Directory.CreateDirectory(destinationDirectoryFullPath);
+
+            var destinationDirectoryWithSeparator = destinationDirectoryFullPath.EndsWith(Path.DirectorySeparatorChar) == true
+                ? destinationDirectoryFullPath
+                : destinationDirectoryFullPath + Path.DirectorySeparatorChar;
+
+            using (var archive = ZipFile.OpenRead(zipFileFullPath))
+            {
+                var fileEntries = archive.Entries.Where(x => string.IsNullOrEmpty(x.Name) == false).ToList();
+                long totalBytes = 0;
+                foreach (var entry in fileEntries)
+                {
+                    totalBytes += entry.Length;
+                }
+
+                var totalFiles = fileEntries.Count;
+                var processedBytes = 0L;
+                var processedFiles = 0;
+                var progressPercent = -1;
+                var progressFiles = -1;
+
+                if (archive.Entries.Count == 0)
+                {
+                    WriteZipProgress("extract", 0, 0, 0, 0, ref progressPercent, ref progressFiles);
+                    return;
+                }
+
+                foreach (var entry in archive.Entries)
+                {
+                    var entryFullPath = Path.GetFullPath(Path.Combine(destinationDirectoryFullPath, entry.FullName));
+
+                    if (entryFullPath.StartsWith(destinationDirectoryWithSeparator, StringComparison.OrdinalIgnoreCase) == false
+                        && string.Equals(entryFullPath, destinationDirectoryFullPath, StringComparison.OrdinalIgnoreCase) == false)
+                    {
+                        throw new IOException($"ZIP 엔트리 경로가 잘못되었습니다: {entry.FullName}");
+                    }
+
+                    if (string.IsNullOrEmpty(entry.Name) == true)
+                    {
+                        Directory.CreateDirectory(entryFullPath);
+                        continue;
+                    }
+
+                    var targetDirectoryPath = Path.GetDirectoryName(entryFullPath);
+                    if (string.IsNullOrWhiteSpace(targetDirectoryPath) == false)
+                    {
+                        Directory.CreateDirectory(targetDirectoryPath);
+                    }
+
+                    using (var sourceStream = entry.Open())
+                    using (var destinationStream = new FileStream(entryFullPath, FileMode.Create, FileAccess.Write, FileShare.None))
+                    {
+                        CopyStreamWithProgress(sourceStream, destinationStream, copiedBytes =>
+                        {
+                            processedBytes += copiedBytes;
+                            WriteZipProgress("extract", processedBytes, totalBytes, processedFiles, totalFiles, ref progressPercent, ref progressFiles);
+                        });
+                    }
+
+                    File.SetLastWriteTime(entryFullPath, entry.LastWriteTime.LocalDateTime);
+                    processedFiles += 1;
+                    WriteZipProgress("extract", processedBytes, totalBytes, processedFiles, totalFiles, ref progressPercent, ref progressFiles);
+                }
+
+                WriteZipProgress("extract", totalBytes, totalBytes, totalFiles, totalFiles, ref progressPercent, ref progressFiles);
+            }
+        }
+
+        private static void CopyStreamWithProgress(Stream source, Stream destination, Action<int> onBytesCopied)
+        {
+            var buffer = new byte[81920];
+            while (true)
+            {
+                var readBytes = source.Read(buffer, 0, buffer.Length);
+                if (readBytes <= 0)
+                {
+                    break;
+                }
+
+                destination.Write(buffer, 0, readBytes);
+                onBytesCopied(readBytes);
+            }
+        }
+
+        private static void WriteZipProgress(string operation, long processedBytes, long totalBytes, int processedFiles, int totalFiles, ref int previousPercent, ref int previousFiles)
+        {
+            int progressPercent;
+            if (totalBytes > 0)
+            {
+                progressPercent = (int)Math.Clamp((processedBytes * 100) / totalBytes, 0, 100);
+                if (processedFiles < totalFiles && progressPercent == 100)
+                {
+                    progressPercent = 99;
+                }
+            }
+            else if (totalFiles > 0)
+            {
+                progressPercent = (int)Math.Clamp((processedFiles * 100) / totalFiles, 0, 100);
+            }
+            else
+            {
+                progressPercent = 100;
+            }
+
+            if (progressPercent == previousPercent && processedFiles == previousFiles)
+            {
+                return;
+            }
+
+            previousPercent = progressPercent;
+            previousFiles = processedFiles;
+
+            var processedMegabytes = processedBytes / 1024d / 1024d;
+            var totalMegabytes = totalBytes / 1024d / 1024d;
+            Console.Write($"\r[{operation}] {progressPercent,3}% ({processedFiles}/{totalFiles} files, {processedMegabytes:0.00}/{totalMegabytes:0.00} MB)");
+
+            if (progressPercent == 100)
+            {
+                Console.WriteLine();
+            }
         }
 
         public static List<Entity.Tasks>? BindTasks(string taskFilePath, string key)
