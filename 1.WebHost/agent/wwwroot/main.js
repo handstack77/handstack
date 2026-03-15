@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 let $main = {
     hook: {
@@ -225,7 +225,7 @@ let $main = {
             });
 
             if (response && response.ok) {
-                $this.method.renderResponse(response.status, response.statusText, response.data.lines.join('\n'));
+                $this.method.renderResponse(response.status, response.statusText, response.data);
             }
         },
 
@@ -242,7 +242,7 @@ let $main = {
             });
 
             if (response && response.ok) {
-                $this.method.renderResponse(response.status, response.statusText, JSON.stringify(response.data.tree, null, 2));
+                $this.method.renderResponse(response.status, response.statusText, JSON.stringify(response.data, null, 2));
             }
         },
 

@@ -49,7 +49,7 @@ namespace agent.Security
                 return false;
             }
 
-            if (TryParseDate(matchedUser.ExpiredAt, out var expiredAt) == true && expiredAt <= DateTimeOffset.UtcNow)
+            if (TryParseDate(matchedUser.ExpiredAt, out var expiredAt) == true && expiredAt <= DateTime.Now)
             {
                 errorCode = "account_expired";
                 return false;
@@ -59,7 +59,7 @@ namespace agent.Security
             return true;
         }
 
-        public static bool TryParseDate(string? value, out DateTimeOffset parsedValue)
+        public static bool TryParseDate(string? value, out DateTime parsedValue)
         {
             parsedValue = default;
             if (string.IsNullOrWhiteSpace(value) == true)
@@ -67,12 +67,12 @@ namespace agent.Security
                 return false;
             }
 
-            if (DateTimeOffset.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var parsed) == false)
+            if (DateTime.TryParse(value, out var parsed) == false)
             {
                 return false;
             }
 
-            parsedValue = parsed.ToUniversalTime();
+            parsedValue = parsed;
             return true;
         }
 

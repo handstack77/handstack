@@ -123,10 +123,10 @@ namespace agent.Services
 
             response.State = "Running";
             response.Pid = process.Id;
-            response.StartTimeUtc = SafeGetStartTime(process);
-            if (response.StartTimeUtc.HasValue == true)
+            response.StartTime = SafeGetStartTime(process);
+            if (response.StartTime.HasValue == true)
             {
-                response.Uptime = DateTimeOffset.UtcNow - response.StartTimeUtc.Value;
+                response.Uptime = DateTime.Now - response.StartTime.Value;
             }
 
             response.CpuPercent = CalculateCpuPercent(process);
@@ -230,9 +230,9 @@ namespace agent.Services
                 {
                     state.Process = process;
                     state.LastPid = process.Id;
-                    state.LastStartTimeUtc = SafeGetStartTime(process) ?? DateTimeOffset.UtcNow;
+                    state.LastStartTime = SafeGetStartTime(process) ?? DateTime.Now;
                     state.LastExitCode = null;
-                    state.LastExitTimeUtc = null;
+                    state.LastExitTime = null;
 
                     pidMap[process.Id] = target.TargetAckId;
                     cpuSamples.TryRemove(process.Id, out _);
@@ -320,7 +320,7 @@ namespace agent.Services
                     state.Process = null;
                     state.LastPid = process.Id;
                     state.LastExitCode = stopResult.ExitCode;
-                    state.LastExitTimeUtc = DateTimeOffset.UtcNow;
+                    state.LastExitTime = DateTime.Now;
                     pidMap.TryRemove(process.Id, out _);
                     cpuSamples.TryRemove(process.Id, out _);
                 }
@@ -825,7 +825,7 @@ namespace agent.Services
 
                 state.Process = process;
                 state.LastPid = process.Id;
-                state.LastStartTimeUtc = SafeGetStartTime(process);
+                state.LastStartTime = SafeGetStartTime(process);
                 AttachProcessTracking(target.TargetAckId, process);
                 SaveProcessState(target.TargetAckId, state);
                 return process;
@@ -993,11 +993,11 @@ namespace agent.Services
             }
         }
 
-        private static DateTimeOffset? SafeGetStartTime(Process process)
+        private static DateTime? SafeGetStartTime(Process process)
         {
             try
             {
-                return process.StartTime.ToUniversalTime();
+                return process.StartTime;
             }
             catch
             {
@@ -1021,7 +1021,7 @@ namespace agent.Services
         {
             state.TargetId = targetAckId;
             state.LastPid = process.Id;
-            state.LastStartTimeUtc = SafeGetStartTime(process);
+            state.LastStartTime = SafeGetStartTime(process);
             pidMap[process.Id] = targetAckId;
         }
 
@@ -1032,7 +1032,7 @@ namespace agent.Services
                 var pid = process.Id;
                 var sample = new CpuUsageSample
                 {
-                    SampledAtUtc = DateTimeOffset.UtcNow,
+                    SampledAt = DateTime.Now,
                     TotalProcessorTime = process.TotalProcessorTime
                 };
 
@@ -1045,7 +1045,7 @@ namespace agent.Services
                 cpuSamples[pid] = sample;
 
                 var elapsedCpu = sample.TotalProcessorTime - previous.TotalProcessorTime;
-                var elapsedWall = sample.SampledAtUtc - previous.SampledAtUtc;
+                var elapsedWall = sample.SampledAt - previous.SampledAt;
 
                 if (elapsedWall.TotalMilliseconds <= 0)
                 {
@@ -1085,7 +1085,7 @@ namespace agent.Services
                 state.TargetId = targetAckId;
                 state.LastPid = process.Id;
                 state.LastExitCode = TryGetExitCode(process);
-                state.LastExitTimeUtc = DateTimeOffset.UtcNow;
+                state.LastExitTime = DateTime.Now;
                 cpuSamples.TryRemove(process.Id, out _);
             }
 
@@ -1122,9 +1122,9 @@ namespace agent.Services
                     {
                         state.TargetId = snapshot.TargetId;
                         state.LastPid = snapshot.LastPid;
-                        state.LastStartTimeUtc = snapshot.LastStartTimeUtc;
+                        state.LastStartTime = snapshot.LastStartTime;
                         state.LastExitCode = snapshot.LastExitCode;
-                        state.LastExitTimeUtc = snapshot.LastExitTimeUtc;
+                        state.LastExitTime = snapshot.LastExitTime;
 
                         if (state.LastPid.HasValue == true)
                         {
@@ -1155,9 +1155,9 @@ namespace agent.Services
                 {
                     TargetId = targetAckId,
                     LastPid = state.LastPid,
-                    LastStartTimeUtc = state.LastStartTimeUtc,
+                    LastStartTime = state.LastStartTime,
                     LastExitCode = state.LastExitCode,
-                    LastExitTimeUtc = state.LastExitTimeUtc
+                    LastExitTime = state.LastExitTime
                 };
 
                 var filePath = Path.Combine(stateDirectoryPath, $"{targetAckId}.json");
@@ -1192,11 +1192,11 @@ namespace agent.Services
 
             public int? LastPid { get; set; }
 
-            public DateTimeOffset? LastStartTimeUtc { get; set; }
+            public DateTime? LastStartTime { get; set; }
 
             public int? LastExitCode { get; set; }
 
-            public DateTimeOffset? LastExitTimeUtc { get; set; }
+            public DateTime? LastExitTime { get; set; }
         }
 
         private sealed class ManagedProcessSnapshot
@@ -1205,18 +1205,18 @@ namespace agent.Services
 
             public int? LastPid { get; set; }
 
-            public DateTimeOffset? LastStartTimeUtc { get; set; }
+            public DateTime? LastStartTime { get; set; }
 
             public int? LastExitCode { get; set; }
 
-            public DateTimeOffset? LastExitTimeUtc { get; set; }
+            public DateTime? LastExitTime { get; set; }
         }
 
         private sealed class CpuUsageSample
         {
             public TimeSpan TotalProcessorTime { get; set; }
 
-            public DateTimeOffset SampledAtUtc { get; set; }
+            public DateTime SampledAt { get; set; }
         }
     }
 }

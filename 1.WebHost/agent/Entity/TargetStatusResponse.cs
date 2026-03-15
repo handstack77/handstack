@@ -12,7 +12,7 @@ namespace agent.Entity
 
         public int? Pid { get; set; }
 
-        public DateTimeOffset? StartTimeUtc { get; set; }
+        public DateTime? StartTime { get; set; }
 
         public TimeSpan? Uptime { get; set; }
 

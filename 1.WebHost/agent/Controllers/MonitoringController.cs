@@ -24,7 +24,7 @@ namespace agent.Controllers
         private static readonly Regex MemInfoRegex = new Regex(@"^(?<key>[A-Za-z_]+):\s+(?<value>\d+)\s+kB$", RegexOptions.Compiled);
         private static readonly object syncRoot = new object();
 
-        private static DateTimeOffset? lastCpuSampleTimeUtc;
+        private static DateTime? lastCpuSampleTime;
         private static TimeSpan? lastTotalCpuTime;
 
         private readonly ILogger<MonitoringController> logger;
@@ -105,21 +105,21 @@ namespace agent.Controllers
             return (processCount, threadCount, workingSetBytes, totalProcessorTime);
         }
 
-        private static double? CalculateCpuPercent(DateTimeOffset sampledAtUtc, TimeSpan currentTotalCpuTime)
+        private static double? CalculateCpuPercent(DateTime sampledAt, TimeSpan currentTotalCpuTime)
         {
             lock (syncRoot)
             {
-                if (lastCpuSampleTimeUtc.HasValue == false || lastTotalCpuTime.HasValue == false)
+                if (lastCpuSampleTime.HasValue == false || lastTotalCpuTime.HasValue == false)
                 {
-                    lastCpuSampleTimeUtc = sampledAtUtc;
+                    lastCpuSampleTime = sampledAt;
                     lastTotalCpuTime = currentTotalCpuTime;
                     return null;
                 }
 
-                var elapsedWall = sampledAtUtc - lastCpuSampleTimeUtc.Value;
+                var elapsedWall = sampledAt - lastCpuSampleTime.Value;
                 var elapsedCpu = currentTotalCpuTime - lastTotalCpuTime.Value;
 
-                lastCpuSampleTimeUtc = sampledAtUtc;
+                lastCpuSampleTime = sampledAt;
                 lastTotalCpuTime = currentTotalCpuTime;
 
                 if (elapsedWall.TotalMilliseconds <= 0 || Environment.ProcessorCount <= 0)

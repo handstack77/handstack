@@ -67,7 +67,7 @@ namespace agent.Controllers
 
             if (UserCredentialValidator.TryParseDate(user.ExpiredAt, out var expiredAt) == true)
             {
-                properties.ExpiresUtc = expiredAt;
+                properties.ExpiresUtc = expiredAt.ToUniversalTime();
             }
 
             await HttpContext.SignInAsync(

@@ -165,12 +165,12 @@ namespace agent.Controllers
         {
             var latestFile = Directory.EnumerateFiles(logDirectoryPath, "app*.log", SearchOption.AllDirectories)
                 .Select(path => new FileInfo(path))
-                .OrderByDescending(file => file.LastWriteTimeUtc)
+                .OrderByDescending(file => file.LastWriteTime)
                 .FirstOrDefault();
 
             latestFile ??= Directory.EnumerateFiles(logDirectoryPath, "*.log", SearchOption.AllDirectories)
                 .Select(path => new FileInfo(path))
-                .OrderByDescending(file => file.LastWriteTimeUtc)
+                .OrderByDescending(file => file.LastWriteTime)
                 .FirstOrDefault();
 
             return latestFile is null ? null : ToRelativePath(logDirectoryPath, latestFile.FullName);
@@ -272,7 +272,7 @@ namespace agent.Controllers
                 Name = directoryInfo.Name,
                 Path = ToRelativePath(rootDirectoryPath, directoryPath),
                 Type = "directory",
-                LastWriteTimeUtc = directoryInfo.LastWriteTimeUtc
+                LastWriteTime = directoryInfo.LastWriteTime
             };
 
             foreach (var childDirectory in directoryInfo.EnumerateDirectories().OrderBy(item => item.Name, StringComparer.OrdinalIgnoreCase))
@@ -288,7 +288,7 @@ namespace agent.Controllers
                     Path = ToRelativePath(rootDirectoryPath, childFile.FullName),
                     Type = "file",
                     SizeBytes = childFile.Length,
-                    LastWriteTimeUtc = childFile.LastWriteTimeUtc
+                    LastWriteTime = childFile.LastWriteTime
                 });
             }
 
@@ -311,7 +311,7 @@ namespace agent.Controllers
 
             public long? SizeBytes { get; set; }
 
-            public DateTimeOffset? LastWriteTimeUtc { get; set; }
+            public DateTime? LastWriteTime { get; set; }
 
             public List<LogTreeNode> Children { get; set; } = new List<LogTreeNode>();
         }
