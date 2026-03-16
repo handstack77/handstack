@@ -16,7 +16,8 @@ using agent.Security;
 using agent.Services;
 
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
+
+using Serilog;
 
 namespace agent.Controllers
 {
@@ -42,16 +43,13 @@ namespace agent.Controllers
 
         private readonly ITargetProcessManager targetProcessManager;
         private readonly IHttpClientFactory httpClientFactory;
-        private readonly ILogger logger;
 
         public SettingsController(
             ITargetProcessManager targetProcessManager,
-            IHttpClientFactory httpClientFactory,
-            ILoggerFactory loggerFactory)
+            IHttpClientFactory httpClientFactory)
         {
             this.targetProcessManager = targetProcessManager;
             this.httpClientFactory = httpClientFactory;
-            logger = loggerFactory.CreateLogger<SettingsController>();
         }
 
         [HttpGet("{targetAckId}/diagnostics")]
@@ -165,7 +163,7 @@ namespace agent.Controllers
             }
             catch (Exception exception)
             {
-                logger.LogError(exception, "appsettings 저장 실패. 대상ID={TargetId}, 경로={Path}", targetAckId, context.AppSettingsPath);
+                Log.Error(exception, "appsettings 저장 실패. 대상ID={TargetId}, 경로={Path}", targetAckId, context.AppSettingsPath);
                 result.Success = false;
                 result.ErrorCode = "settings_save_failed";
                 result.Message = "appsettings.json 저장에 실패했습니다.";
@@ -292,7 +290,7 @@ namespace agent.Controllers
             }
             catch (Exception exception)
             {
-                logger.LogWarning(exception, "ack 런타임 전역 적용 API 호출 실패. 대상ID={TargetId}", context.Target.TargetAckId);
+                Log.Warning(exception, "ack 런타임 전역 적용 API 호출 실패. 대상ID={TargetId}", context.Target.TargetAckId);
                 result.Errors.Add("런타임 적용 API 호출에 실패했습니다.");
                 return result;
             }
@@ -341,7 +339,7 @@ namespace agent.Controllers
             }
             catch (Exception exception)
             {
-                logger.LogDebug(exception, "진단 요청 실패. 대상ID={TargetId}", context.Target.TargetAckId);
+                Log.Debug(exception, "진단 요청 실패. 대상ID={TargetId}", context.Target.TargetAckId);
                 result.Message = "런타임 진단 요청에 실패했습니다.";
                 return result;
             }
@@ -375,7 +373,7 @@ namespace agent.Controllers
             }
             catch (Exception exception)
             {
-                logger.LogError(exception, "appsettings 파일 파싱 실패. 대상ID={TargetId}, 경로={Path}", targetAckId, appSettingsPath);
+                Log.Error(exception, "appsettings 파일 파싱 실패. 대상ID={TargetId}, 경로={Path}", targetAckId, appSettingsPath);
                 errorCode = "appsettings_parse_failed";
                 message = $"대상 '{targetAckId}'의 appsettings.json 파싱에 실패했습니다.";
                 return false;
@@ -563,3 +561,4 @@ namespace agent.Controllers
         }
     }
 }
+

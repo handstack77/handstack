@@ -18,7 +18,8 @@ using agent.Services;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.Extensions.Logging;
+
+using Serilog;
 
 namespace agent.Controllers
 {
@@ -44,16 +45,13 @@ namespace agent.Controllers
 
         private readonly ITargetProcessManager targetProcessManager;
         private readonly IHttpClientFactory httpClientFactory;
-        private readonly ILogger logger;
 
         public ModulesController(
             ITargetProcessManager targetProcessManager,
-            IHttpClientFactory httpClientFactory,
-            ILoggerFactory loggerFactory)
+            IHttpClientFactory httpClientFactory)
         {
             this.targetProcessManager = targetProcessManager;
             this.httpClientFactory = httpClientFactory;
-            logger = loggerFactory.CreateLogger<ModulesController>();
         }
 
         [HttpGet("{targetAckId}/{moduleId}")]
@@ -135,7 +133,7 @@ namespace agent.Controllers
             }
             catch (Exception exception)
             {
-                logger.LogError(exception, "모듈 설정 저장 실패. 대상ID={TargetId}, 모듈ID={ModuleId}, 경로={Path}", context.Target.TargetAckId, moduleId, context.ModuleFilePath);
+                Log.Error(exception, "모듈 설정 저장 실패. 대상ID={TargetId}, 모듈ID={ModuleId}, 경로={Path}", context.Target.TargetAckId, moduleId, context.ModuleFilePath);
                 result.Success = false;
                 result.ErrorCode = "module_save_failed";
                 result.Message = "module.json 저장에 실패했습니다.";
@@ -259,7 +257,7 @@ namespace agent.Controllers
             }
             catch (Exception exception)
             {
-                logger.LogWarning(exception, "ack 런타임 모듈 적용 API 호출 실패. 대상ID={TargetId}, 모듈ID={ModuleId}", context.Target.TargetAckId, moduleId);
+                Log.Warning(exception, "ack 런타임 모듈 적용 API 호출 실패. 대상ID={TargetId}, 모듈ID={ModuleId}", context.Target.TargetAckId, moduleId);
                 result.Errors.Add("런타임 적용 API 호출에 실패했습니다.");
                 return result;
             }
@@ -293,7 +291,7 @@ namespace agent.Controllers
             }
             catch (Exception exception)
             {
-                logger.LogError(exception, "appsettings 파일 파싱 실패. 대상ID={TargetId}, 경로={Path}", targetAckId, appSettingsPath);
+                Log.Error(exception, "appsettings 파일 파싱 실패. 대상ID={TargetId}, 경로={Path}", targetAckId, appSettingsPath);
                 errorCode = "appsettings_parse_failed";
                 message = $"대상 '{targetAckId}'의 appsettings.json 파싱에 실패했습니다.";
                 return false;
@@ -336,7 +334,7 @@ namespace agent.Controllers
             }
             catch (Exception exception)
             {
-                logger.LogError(exception, "모듈 파일 파싱 실패. 대상ID={TargetId}, 모듈ID={ModuleId}, 경로={Path}", targetContext.Target.TargetAckId, moduleId, modulePath);
+                Log.Error(exception, "모듈 파일 파싱 실패. 대상ID={TargetId}, 모듈ID={ModuleId}, 경로={Path}", targetContext.Target.TargetAckId, moduleId, modulePath);
                 errorCode = "module_parse_failed";
                 message = $"모듈 '{moduleId}'의 module.json 파싱에 실패했습니다.";
                 return false;
@@ -563,3 +561,4 @@ namespace agent.Controllers
         }
     }
 }
+

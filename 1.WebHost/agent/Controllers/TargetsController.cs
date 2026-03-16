@@ -12,8 +12,9 @@ using agent.Services;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+
+using Serilog;
 
 namespace agent.Controllers
 {
@@ -31,18 +32,15 @@ namespace agent.Controllers
         private readonly IHttpClientFactory httpClientFactory;
         private readonly ITargetProcessManager targetProcessManager;
         private readonly IOptionsMonitor<AgentOptions> optionsMonitor;
-        private readonly ILogger logger;
 
         public TargetsController(
             ITargetProcessManager targetProcessManager,
             IOptionsMonitor<AgentOptions> optionsMonitor,
-            IHttpClientFactory httpClientFactory,
-            ILoggerFactory loggerFactory)
+            IHttpClientFactory httpClientFactory)
         {
             this.targetProcessManager = targetProcessManager;
             this.httpClientFactory = httpClientFactory;
             this.optionsMonitor = optionsMonitor;
-            logger = loggerFactory.CreateLogger<TargetsController>();
         }
 
         [HttpGet("")]
@@ -160,7 +158,7 @@ namespace agent.Controllers
                 using var response = await client.SendAsync(request, linkedCts.Token);
                 if (response.IsSuccessStatusCode == false)
                 {
-                    logger.LogWarning(
+                    Log.Warning(
                         "감사 로그 전송 실패. URL={Url}, 상태코드={StatusCode}, 작업={Action}, 대상ID={TargetID}",
                         auditOptions.LogServerUrl,
                         (int)response.StatusCode,
@@ -170,11 +168,11 @@ namespace agent.Controllers
             }
             catch (OperationCanceledException)
             {
-                logger.LogWarning("감사 로그 전송 시간 초과. 작업={Action}, 대상ID={TargetID}", actionName, targetAckId ?? "");
+                Log.Warning("감사 로그 전송 시간 초과. 작업={Action}, 대상ID={TargetID}", actionName, targetAckId ?? "");
             }
             catch (Exception exception)
             {
-                logger.LogWarning(exception, "감사 로그 전송 예외 발생. 작업={Action}, 대상ID={TargetID}", actionName, targetAckId ?? "");
+                Log.Warning(exception, "감사 로그 전송 예외 발생. 작업={Action}, 대상ID={TargetID}", actionName, targetAckId ?? "");
             }
         }
 
@@ -286,3 +284,4 @@ namespace agent.Controllers
         }
     }
 }
+

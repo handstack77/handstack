@@ -9,8 +9,9 @@ using System.Threading.Tasks;
 using agent.Options;
 
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+
+using Serilog;
 
 namespace agent.Services
 {
@@ -25,16 +26,13 @@ namespace agent.Services
 
         private readonly IHttpClientFactory httpClientFactory;
         private readonly IOptionsMonitor<AgentOptions> optionsMonitor;
-        private readonly ILogger<TargetAuditLogger> logger;
 
         public TargetAuditLogger(
             IHttpClientFactory httpClientFactory,
-            IOptionsMonitor<AgentOptions> optionsMonitor,
-            ILogger<TargetAuditLogger> logger)
+            IOptionsMonitor<AgentOptions> optionsMonitor)
         {
             this.httpClientFactory = httpClientFactory;
             this.optionsMonitor = optionsMonitor;
-            this.logger = logger;
         }
 
         public Task WriteTargetsAuditAsync(
@@ -135,7 +133,7 @@ namespace agent.Services
                 using var response = await client.SendAsync(request, linkedCts.Token);
                 if (response.IsSuccessStatusCode == false)
                 {
-                    logger.LogWarning(
+                    Log.Warning(
                         "감사 로그 전송 실패. URL={Url}, 상태코드={StatusCode}, 작업={Action}, 대상ID={TargetID}",
                         auditOptions.LogServerUrl,
                         (int)response.StatusCode,
@@ -145,14 +143,14 @@ namespace agent.Services
             }
             catch (OperationCanceledException)
             {
-                logger.LogWarning(
+                Log.Warning(
                     "감사 로그 전송 시간 초과. 작업={Action}, 대상ID={TargetID}",
                     actionName,
                     targetAckId ?? "");
             }
             catch (Exception exception)
             {
-                logger.LogWarning(
+                Log.Warning(
                     exception,
                     "감사 로그 전송 예외 발생. 작업={Action}, 대상ID={TargetID}",
                     actionName,
@@ -269,3 +267,4 @@ namespace agent.Services
         }
     }
 }
+

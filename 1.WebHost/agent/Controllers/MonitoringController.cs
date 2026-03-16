@@ -13,7 +13,8 @@ using agent.Entity;
 using agent.Security;
 
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
+
+using Serilog;
 
 using HandStack.Core.ExtensionMethod;
 
@@ -28,13 +29,6 @@ namespace agent.Controllers
 
         private static DateTime? lastCpuSampleTime;
         private static TimeSpan? lastTotalCpuTime;
-
-        private readonly ILogger<MonitoringController> logger;
-
-        public MonitoringController(ILogger<MonitoringController> logger)
-        {
-            this.logger = logger;
-        }
 
         [HttpGet("stats")]
         public ActionResult GetStats(CancellationToken cancellationToken)
@@ -254,7 +248,7 @@ namespace agent.Controllers
             }
             catch (Exception exception)
             {
-                logger.LogDebug(exception, "대체 GC 메모리 통계 수집에 실패했습니다.");
+                Log.Debug(exception, "대체 GC 메모리 통계 수집에 실패했습니다.");
             }
 
             return (null, null);
@@ -358,3 +352,4 @@ namespace agent.Controllers
         }
     }
 }
+

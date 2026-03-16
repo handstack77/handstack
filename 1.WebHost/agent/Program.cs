@@ -15,6 +15,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 
+using Serilog;
+
 namespace agent
 {
     public class Program
@@ -23,6 +25,15 @@ namespace agent
         {
             string entryDirectoryPath = AppDomain.CurrentDomain.BaseDirectory;
             var builder = WebApplication.CreateBuilder(args);
+
+            var loggerConfiguration = new LoggerConfiguration()
+                .ReadFrom.Configuration(builder.Configuration);
+            Log.Logger = loggerConfiguration.CreateLogger();
+
+            builder.Host.UseSerilog((context, configuration) =>
+            {
+                configuration.ReadFrom.Configuration(context.Configuration);
+            });
 
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
@@ -118,6 +129,7 @@ namespace agent
 
             app.UseStaticFiles();
             app.MapControllers();
+            app.Lifetime.ApplicationStopped.Register(Log.CloseAndFlush);
             app.Run();
         }
 
@@ -158,5 +170,4 @@ namespace agent
         }
     }
 }
-
 

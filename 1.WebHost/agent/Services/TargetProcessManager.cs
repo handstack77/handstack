@@ -14,15 +14,15 @@ using System.Threading.Tasks;
 using agent.Entity;
 using agent.Options;
 
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+
+using Serilog;
 
 namespace agent.Services
 {
     public sealed class TargetProcessManager : ITargetProcessManager
     {
         private readonly IOptionsMonitor<AgentOptions> optionsMonitor;
-        private readonly ILogger logger;
         private readonly IHttpClientFactory httpClientFactory;
         private static readonly SemaphoreSlim syncLock = new SemaphoreSlim(1, 1);
         private static readonly ConcurrentDictionary<string, ManagedProcessState> states = new ConcurrentDictionary<string, ManagedProcessState>(StringComparer.OrdinalIgnoreCase);
@@ -33,11 +33,9 @@ namespace agent.Services
 
         public TargetProcessManager(
             IOptionsMonitor<AgentOptions> optionsMonitor,
-            IHttpClientFactory httpClientFactory,
-            ILoggerFactory loggerFactory)
+            IHttpClientFactory httpClientFactory)
         {
             this.optionsMonitor = optionsMonitor;
-            logger = loggerFactory.CreateLogger(GetType().FullName ?? GetType().Name);
             this.httpClientFactory = httpClientFactory;
 
             EnsureProcessStatesLoaded();
@@ -195,14 +193,14 @@ namespace agent.Services
                 {
                     if (string.IsNullOrWhiteSpace(eventArgs.Data) == false)
                     {
-                        logger.LogInformation("[{TargetId}] {Message}", target.TargetAckId, eventArgs.Data);
+                        Log.Information("[{TargetId}] {Message}", target.TargetAckId, eventArgs.Data);
                     }
                 };
                 process.ErrorDataReceived += (sender, eventArgs) =>
                 {
                     if (string.IsNullOrWhiteSpace(eventArgs.Data) == false)
                     {
-                        logger.LogError("[{TargetId}] {Message}", target.TargetAckId, eventArgs.Data);
+                        Log.Error("[{TargetId}] {Message}", target.TargetAckId, eventArgs.Data);
                     }
                 };
 
@@ -249,7 +247,7 @@ namespace agent.Services
             }
             catch (Exception exception)
             {
-                logger.LogError(exception, "대상 시작 실패: {TargetId}", target.TargetAckId);
+                Log.Error(exception, "대상 시작 실패: {TargetId}", target.TargetAckId);
                 return new TargetCommandResult
                 {
                     Success = false,
@@ -347,7 +345,7 @@ namespace agent.Services
             }
             catch (Exception exception)
             {
-                logger.LogError(exception, "대상 중지 실패: {TargetId}", target.TargetAckId);
+                Log.Error(exception, "대상 중지 실패: {TargetId}", target.TargetAckId);
                 return new TargetCommandResult
                 {
                     Success = false,
@@ -460,7 +458,7 @@ namespace agent.Services
                 out var timeout,
                 out var configError) == false)
             {
-                logger.LogWarning("명령 브리지 설정 오류. 대상ID={TargetId}, 메시지={Message}", target.TargetAckId, configError?.Message ?? "구성 오류");
+                Log.Warning("명령 브리지 설정 오류. 대상ID={TargetId}, 메시지={Message}", target.TargetAckId, configError?.Message ?? "구성 오류");
                 return null;
             }
 
@@ -484,14 +482,14 @@ namespace agent.Services
 
                     if (response.IsSuccessStatusCode == false)
                     {
-                        logger.LogWarning("명령 브리지 상태 조회 실패. 대상ID={TargetId}, 상태코드={StatusCode}", target.TargetAckId, (int)response.StatusCode);
+                        Log.Warning("명령 브리지 상태 조회 실패. 대상ID={TargetId}, 상태코드={StatusCode}", target.TargetAckId, (int)response.StatusCode);
                         return null;
                     }
 
                     var status = TryDeserializeJson<TargetStatusResponse>(payload);
                     if (status is null)
                     {
-                        logger.LogWarning("명령 브리지 상태 응답 파싱 실패. 대상ID={TargetId}", target.TargetAckId);
+                        Log.Warning("명령 브리지 상태 응답 파싱 실패. 대상ID={TargetId}", target.TargetAckId);
                         return null;
                     }
 
@@ -509,12 +507,12 @@ namespace agent.Services
                 }
                 catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested == false)
                 {
-                    logger.LogWarning("명령 브리지 상태 조회 시간 초과. 대상ID={TargetId}", target.TargetAckId);
+                    Log.Warning("명령 브리지 상태 조회 시간 초과. 대상ID={TargetId}", target.TargetAckId);
                     return null;
                 }
                 catch (Exception exception)
                 {
-                    logger.LogWarning(exception, "명령 브리지 상태 조회 예외. 대상ID={TargetId}", target.TargetAckId);
+                    Log.Warning(exception, "명령 브리지 상태 조회 예외. 대상ID={TargetId}", target.TargetAckId);
                     return null;
                 }
             }
@@ -593,7 +591,7 @@ namespace agent.Services
                 }
                 catch (Exception exception)
                 {
-                    logger.LogWarning(exception, "명령 브리지 호출 예외. 대상ID={TargetId}, 명령={Command}", target.TargetAckId, command);
+                    Log.Warning(exception, "명령 브리지 호출 예외. 대상ID={TargetId}, 명령={Command}", target.TargetAckId, command);
                     return new TargetCommandResult
                     {
                         Success = false,
@@ -865,7 +863,7 @@ namespace agent.Services
             }
             catch (Exception exception)
             {
-                logger.LogDebug(exception, "상태 프로브 요청 실패: {TargetId}/{Url}", target.TargetAckId, target.StatusProbeUrl);
+                Log.Debug(exception, "상태 프로브 요청 실패: {TargetId}/{Url}", target.TargetAckId, target.StatusProbeUrl);
                 return false;
             }
         }
@@ -881,7 +879,7 @@ namespace agent.Services
             }
             catch (Exception exception)
             {
-                logger.LogDebug(exception, "프로세스 추적 연결 실패: {TargetId}/{Pid}", targetAckId, process.Id);
+                Log.Debug(exception, "프로세스 추적 연결 실패: {TargetId}/{Pid}", targetAckId, process.Id);
             }
         }
 
@@ -923,7 +921,7 @@ namespace agent.Services
             }
             catch (Exception exception)
             {
-                logger.LogError(exception, "프로세스 중지 실패. PID={Pid}", process.Id);
+                Log.Error(exception, "프로세스 중지 실패. PID={Pid}", process.Id);
             }
 
             return (false, TryGetExitCode(process));
@@ -1090,7 +1088,7 @@ namespace agent.Services
             }
 
             SaveProcessState(targetAckId, state);
-            logger.LogInformation("대상 프로세스가 종료되었습니다. 대상ID={TargetId}, PID={Pid}, 종료코드={ExitCode}", targetAckId, process.Id, state.LastExitCode);
+            Log.Information("대상 프로세스가 종료되었습니다. 대상ID={TargetId}, PID={Pid}, 종료코드={ExitCode}", targetAckId, process.Id, state.LastExitCode);
         }
 
         private void LoadProcessStates()
@@ -1140,7 +1138,7 @@ namespace agent.Services
             }
             catch (Exception exception)
             {
-                logger.LogError(exception, "프로세스 상태 로드에 실패했습니다.");
+                Log.Error(exception, "프로세스 상태 로드에 실패했습니다.");
             }
         }
 
@@ -1170,7 +1168,7 @@ namespace agent.Services
             }
             catch (Exception exception)
             {
-                logger.LogError(exception, "프로세스 상태 저장에 실패했습니다. 대상ID={TargetId}", targetAckId);
+                Log.Error(exception, "프로세스 상태 저장에 실패했습니다. 대상ID={TargetId}", targetAckId);
             }
         }
 
@@ -1220,5 +1218,4 @@ namespace agent.Services
         }
     }
 }
-
 
