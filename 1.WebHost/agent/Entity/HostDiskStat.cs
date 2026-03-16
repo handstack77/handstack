@@ -1,4 +1,4 @@
-namespace agent.Entity
+﻿namespace agent.Entity
 {
     public sealed class HostDiskStat
     {
@@ -8,11 +8,11 @@ namespace agent.Entity
 
         public string Format { get; set; } = "";
 
-        public long TotalBytes { get; set; }
+        public string TotalBytes { get; set; } = "";
 
-        public long FreeBytes { get; set; }
+        public string FreeBytes { get; set; } = "";
 
-        public long UsedBytes { get; set; }
+        public string UsedBytes { get; set; } = "";
     }
 }
 

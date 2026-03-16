@@ -15,6 +15,8 @@ using agent.Security;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
+using HandStack.Core.ExtensionMethod;
+
 namespace agent.Controllers
 {
     [Route("")]
@@ -48,9 +50,8 @@ namespace agent.Controllers
                 ? Math.Max(0L, totalMemoryBytes.Value - availableMemoryBytes.Value)
                 : (long?)null;
 
-            var (load1, load5, load15) = GetLoadAverage();
-
-            var response = new HostStatsResponse
+            var networkStats = GetNetworkStats();
+            var response = new
             {
                 Now = now,
                 MachineName = Environment.MachineName,
@@ -67,10 +68,8 @@ namespace agent.Controllers
                 ProcessCount = processSnapshot.ProcessCount,
                 ThreadCount = processSnapshot.ThreadCount,
                 WorkingSetAllProcessesBytes = processSnapshot.WorkingSetBytes,
-                LoadAverage1m = load1,
-                LoadAverage5m = load5,
-                LoadAverage15m = load15,
-                Network = GetNetworkStats(),
+                NetworkBytesSent = networkStats.BytesSent,
+                NetworkBytesReceived = networkStats.BytesReceived,
                 Disks = GetDiskStats()
             };
 
@@ -167,9 +166,9 @@ namespace agent.Controllers
                         Name = drive.Name,
                         DriveType = drive.DriveType.ToString(),
                         Format = drive.DriveFormat,
-                        TotalBytes = total,
-                        FreeBytes = free,
-                        UsedBytes = used
+                        TotalBytes = total.ToByteSize(2),
+                        FreeBytes = free.ToByteSize(2),
+                        UsedBytes = used.ToByteSize(2)
                     });
                 }
                 catch
@@ -338,44 +337,6 @@ namespace agent.Controllers
             catch
             {
                 return (null, null);
-            }
-        }
-
-        private static (double? LoadAverage1m, double? LoadAverage5m, double? LoadAverage15m) GetLoadAverage()
-        {
-            if (OperatingSystem.IsLinux() == false)
-            {
-                return (null, null, null);
-            }
-
-            try
-            {
-                if (System.IO.File.Exists("/proc/loadavg") == false)
-                {
-                    return (null, null, null);
-                }
-
-                var line = System.IO.File.ReadAllText("/proc/loadavg").Trim();
-                if (string.IsNullOrWhiteSpace(line) == true)
-                {
-                    return (null, null, null);
-                }
-
-                var parts = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-                if (parts.Length < 3)
-                {
-                    return (null, null, null);
-                }
-
-                var ok1 = double.TryParse(parts[0], out var load1);
-                var ok5 = double.TryParse(parts[1], out var load5);
-                var ok15 = double.TryParse(parts[2], out var load15);
-
-                return (ok1 ? load1 : null, ok5 ? load5 : null, ok15 ? load15 : null);
-            }
-            catch
-            {
-                return (null, null, null);
             }
         }
 
