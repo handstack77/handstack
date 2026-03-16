@@ -43,14 +43,19 @@ namespace HandStack.Core.ExtensionMethod
     /// </code>
     public static class NumberExtensions
     {
+        public static readonly string[] SizesStrings = { "B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB" };
+
+        #region Reverse Bytes
+
         public static ushort ReverseBytes(this ushort @this)
         {
             return (ushort)((@this & 0xFFU) << 8 | (@this & 0xFF00U) >> 8);
         }
 
-        public static uint ReverseBytes(this UInt32 @this)
+        public static uint ReverseBytes(this uint @this)
         {
-            return (@this & 0x000000FFU) << 24 | (@this & 0x0000FF00U) << 8 | (@this & 0x00FF0000U) >> 8 | (@this & 0xFF000000U) >> 24;
+            return (@this & 0x000000FFU) << 24 | (@this & 0x0000FF00U) << 8 |
+                   (@this & 0x00FF0000U) >> 8 | (@this & 0xFF000000U) >> 24;
         }
 
         public static ulong ReverseBytes(this ulong @this)
@@ -62,123 +67,54 @@ namespace HandStack.Core.ExtensionMethod
         }
 
         public static bool IsBetween(this int @this, int minimumValue, int maximumValue)
-        {
-            return (minimumValue <= @this) && (maximumValue >= @this);
-        }
+            => @this >= Math.Min(minimumValue, maximumValue) && @this <= Math.Max(minimumValue, maximumValue);
 
-        /// <code>
-        /// long @this = 5;
-        /// if(@this.IsBetween(1, 10) == true) { 
-        ///     // ... 
-        /// }
-        /// </code>
         public static bool IsBetween(this long @this, long minimumValue, long maximumValue)
-        {
-            return (minimumValue <= @this) && (maximumValue >= @this);
-        }
+            => @this >= Math.Min(minimumValue, maximumValue) && @this <= Math.Max(minimumValue, maximumValue);
 
-        /// <code>
-        /// double @this = 5;
-        /// if(@this.IsBetween(1, 10) == true) { 
-        ///     // ... 
-        /// }
-        /// </code>
         public static bool IsBetween(this double @this, double minimumValue, double maximumValue)
-        {
-            return (minimumValue <= @this) && (maximumValue >= @this);
-        }
+            => @this >= Math.Min(minimumValue, maximumValue) && @this <= Math.Max(minimumValue, maximumValue);
 
-        /// <code>
-        /// decimal @this = 5;
-        /// if(@this.IsBetween(1, 10) == true) { 
-        ///     // ... 
-        /// }
-        /// </code>
         public static bool IsBetween(this decimal @this, decimal minimumValue, decimal maximumValue)
-        {
-            return (minimumValue <= @this) && (maximumValue >= @this);
-        }
+            => @this >= Math.Min(minimumValue, maximumValue) && @this <= Math.Max(minimumValue, maximumValue);
 
-        /// <code>
-        /// decimal @this = 5;
-        /// if(@this.IsBetween(1, 10) == true) { 
-        ///     // ... 
-        /// }
-        /// </code>
         public static bool IsBetween(this float @this, float minimumValue, float maximumValue)
-        {
-            return (minimumValue <= @this) && (maximumValue >= @this);
-        }
+            => @this >= Math.Min(minimumValue, maximumValue) && @this <= Math.Max(minimumValue, maximumValue);
 
         public static int PercentageOf(this int @this, int totalValue)
-        {
-            return Convert.ToInt32(@this * 100 / totalValue);
-        }
+            => totalValue == 0 ? 0 : Convert.ToInt32(@this * 100.0 / totalValue);
 
         public static long PercentageOf(this long @this, long totalValue)
-        {
-            return Convert.ToInt64(@this * 100 / totalValue);
-        }
+            => totalValue == 0 ? 0 : Convert.ToInt64(@this * 100.0 / totalValue);
 
         public static double PercentageOf(this double @this, double totalValue)
-        {
-            return Convert.ToDouble(@this * 100 / totalValue);
-        }
+            => Math.Abs(totalValue) < double.Epsilon ? 0 : (@this * 100.0 / totalValue);
 
         public static decimal PercentageOf(this decimal @this, decimal totalValue)
-        {
-            return Convert.ToDecimal(@this * 100 / totalValue);
-        }
+            => totalValue == 0m ? 0m : (@this * 100m / totalValue);
 
         public static float PercentageOf(this float @this, float totalValue)
-        {
-            return Convert.ToSingle(@this * 100 / totalValue);
-        }
+            => Math.Abs(totalValue) < float.Epsilon ? 0f : (@this * 100f / totalValue);
 
-        public static string ToCurrencyString(this int @this)
-        {
-            return string.Format("{0:N0}", @this);
-        }
-
-        public static string ToCurrencyString(this long @this)
-        {
-            return string.Format("{0:N0}", @this);
-        }
-
-        public static string ToCurrencyString(this decimal @this)
-        {
-            return string.Format("{0:N0}", @this);
-        }
-
-        public static string ToCurrencyString(this decimal @this, int digits)
-        {
-            return string.Format("{0:N" + digits.ToString() + "}", @this);
-        }
-
-        public static string ToCurrencyString(this double @this)
-        {
-            return string.Format("{0:N0}", @this);
-        }
-
-        public static string ToCurrencyString(this double @this, int digits)
-        {
-            return string.Format("{0:N" + digits.ToString() + "}", @this);
-        }
-
-        public static string ToCurrencyString(this float @this)
-        {
-            return string.Format("{0:N0}", @this);
-        }
-
-        public static string ToCurrencyString(this float @this, int digits)
-        {
-            return string.Format("{0:N" + digits.ToString() + "}", @this);
-        }
+        public static string ToCurrencyString(this int @this) => @this.ToString("N0");
+        
+        public static string ToCurrencyString(this long @this) => @this.ToString("N0");
+        
+        public static string ToCurrencyString(this decimal @this) => @this.ToString("N0");
+        
+        public static string ToCurrencyString(this decimal @this, int digits) => @this.ToString($"N{Math.Max(0, digits)}");
+        
+        public static string ToCurrencyString(this double @this) => @this.ToString("N0");
+        
+        public static string ToCurrencyString(this double @this, int digits) => @this.ToString($"N{Math.Max(0, digits)}");
+        
+        public static string ToCurrencyString(this float @this) => @this.ToString("N0");
+        
+        public static string ToCurrencyString(this float @this, int digits) => @this.ToString($"N{Math.Max(0, digits)}");
 
         public static string? GetEnumDescriptionFromInt<T>(this int value) where T : Enum
         {
             var enumValue = (T)Enum.ToObject(typeof(T), value);
-
             return enumValue.GetDescriptionFromValue();
         }
 
@@ -187,91 +123,52 @@ namespace HandStack.Core.ExtensionMethod
             return (T)Enum.ToObject(typeof(T), value);
         }
 
+        #endregion
 
-        public static readonly string[] SizesStrings
-            = {
-                "B",
-                "KB",
-                "MB",
-                "GB",
-                "TB",
-                "PB",
-                "EB",
-                "ZB",
-                "YB"
-            };
-
-        public static string ToByteSize(this int fileSize)
+        private static string FormatByteSize(double bytes, int digits)
         {
-            var order = 0;
-            while (fileSize >= 1024 && order < SizesStrings.Length - 1)
+            int order = 0;
+            double value = bytes;
+            double absValue = Math.Abs(bytes);
+
+            while (absValue >= 1024 && order < SizesStrings.Length - 1)
             {
                 order++;
-                fileSize /= 1024;
+                value /= 1024;
+                absValue /= 1024;
             }
 
-            return $"{fileSize.ToCurrencyString()} {SizesStrings[order]}";
+            return $"{value.ToString($"N{Math.Max(0, digits)}")} {SizesStrings[order]}";
         }
 
-        public static string ToByteSize(this double fileSize)
-        {
-            var order = 0;
-            while (fileSize >= 1024 && order < SizesStrings.Length - 1)
-            {
-                order++;
-                fileSize /= 1024;
-            }
+        public static string ToByteSize(this long fileSize, int digits = 0) => FormatByteSize(fileSize, digits);
+       
+        public static string ToByteSize(this long? fileSize, int digits = 0) => FormatByteSize(fileSize ?? 0, digits);
 
-            return $"{fileSize.ToCurrencyString()} {SizesStrings[order]}";
-        }
+        public static string ToByteSize(this int fileSize, int digits = 0) => FormatByteSize(fileSize, digits);
+       
+        public static string ToByteSize(this int? fileSize, int digits = 0) => FormatByteSize(fileSize ?? 0, digits);
 
-        public static string ToByteSize(this float fileSize)
-        {
-            var order = 0;
-            while (fileSize >= 1024 && order < SizesStrings.Length - 1)
-            {
-                order++;
-                fileSize /= 1024;
-            }
+        public static string ToByteSize(this float fileSize, int digits = 0) => FormatByteSize(fileSize, digits);
+        
+        public static string ToByteSize(this float? fileSize, int digits = 0) => FormatByteSize(fileSize ?? 0f, digits);
 
-            return $"{fileSize.ToCurrencyString()} {SizesStrings[order]}";
-        }
+        public static string ToByteSize(this double fileSize, int digits = 0) => FormatByteSize(fileSize, digits);
+        
+        public static string ToByteSize(this double? fileSize, int digits = 0) => FormatByteSize(fileSize ?? 0d, digits);
 
-        public static string ToByteSize(this long fileSize)
-        {
-            var order = 0;
-            while (fileSize >= 1024 && order < SizesStrings.Length - 1)
-            {
-                order++;
-                fileSize /= 1024;
-            }
+        public static string ToByteSize(this decimal fileSize, int digits = 0) => FormatByteSize((double)fileSize, digits);
+        
+        public static string ToByteSize(this decimal? fileSize, int digits = 0) => FormatByteSize((double)(fileSize ?? 0m), digits);
 
-            return $"{fileSize.ToCurrencyString()} {SizesStrings[order]}";
-        }
+        public static bool IsNullOrZero(this int? @this) => @this.GetValueOrDefault() == 0;
+        
+        public static bool IsNullOrZero(this long? @this) => @this.GetValueOrDefault() == 0L;
+        
+        public static bool IsNullOrZero(this decimal? @this) => @this.GetValueOrDefault() == 0m;
 
-        public static bool IsNullOrZero(this int? @this)
-        {
-            return @this == null || @this.HasValue == false || @this.Value == 0;
-        }
-
-        public static bool IsNullOrZero(this long? @this)
-        {
-            return @this == null || @this.HasValue == false || @this.Value == 0;
-        }
-
-        public static bool IsNullOrZero(this decimal? @this)
-        {
-            return @this == null || @this.HasValue == false || @this.Value == 0;
-        }
-
-        public static bool IsNullOrZero(this float? @this)
-        {
-            return @this == null || @this.HasValue == false || @this.Value == 0;
-        }
-
-        public static bool IsNullOrZero(this double? @this)
-        {
-            return @this == null || @this.HasValue == false || @this.Value == 0;
-        }
+        public static bool IsNullOrZero(this float? @this) => !@this.HasValue || Math.Abs(@this.Value) <= float.Epsilon;
+        
+        public static bool IsNullOrZero(this double? @this) => !@this.HasValue || Math.Abs(@this.Value) <= double.Epsilon;
     }
 }
