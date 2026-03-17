@@ -1,0 +1,17 @@
+@charset "UTF-8";
+
+.aui-grid-custom-renderer-input {
+	display: inline-block;
+	border: 1px solid #3db7cc;
+	padding: 0 4px;
+	height: 23px;
+	width: 100%;
+	font-size: 12px;
+	box-sizing: border-box;
+}
+
+.aui-grid-custom-renderer-input:focus {
+	outline: none !important;
+	border: 1px solid #ee5315;
+	box-shadow: 0 0 10px #719ece;
+}

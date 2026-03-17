@@ -31,8 +31,8 @@ gulp.task('scripts', async function () {
         `wwwroot/lib/dompurify/purify.min.js`,
         `wwwroot/lib/marked/marked.min.js`,
         `wwwroot/lib/print-js/print.min.js`,
-        'wwwroot/lib/auigrid/dist/auigridlicense.js',
-        'wwwroot/lib/auigrid/dist/auigrid.js',
+        'wwwroot/lib/auigrid/dist/AUIGridLicense.js',
+        'wwwroot/lib/auigrid/dist/AUIGrid.js',
         // 'wwwroot/lib/handsontable/dist/handsontable.full.js',
         // 'wwwroot/lib/handsontable/languages/ko-KR.js',
         `wwwroot/lib/jquery.maskedinput/jquery.maskedinput.min.js`,
@@ -92,8 +92,8 @@ gulp.task('basescripts', async function () {
         `wwwroot/lib/dompurify/purify.min.js`,
         `wwwroot/lib/marked/marked.min.js`,
         `wwwroot/lib/print-js/print.min.js`,
-        'wwwroot/lib/auigrid/dist/auigridlicense.js',
-        'wwwroot/lib/auigrid/dist/auigrid.js',
+        'wwwroot/lib/auigrid/dist/AUIGridLicense.js',
+        'wwwroot/lib/auigrid/dist/AUIGrid.js',
         // 'wwwroot/lib/handsontable/dist/handsontable.full.js',
         // 'wwwroot/lib/handsontable/languages/ko-KR.js',
         `wwwroot/lib/jquery.maskedinput/jquery.maskedinput.min.js`,
@@ -173,45 +173,6 @@ gulp.task('controls', async function () {
             output: {
                 comments: false
             }
-        }))
-        .pipe(rename({
-            basename: 'syn.controls.min',
-            extname: '.js'
-        }))
-        .pipe(gulp.dest('wwwroot/js'));
-});
-
-gulp.task('obfusecontrols', async function () {
-    return gulp.src([
-        'wwwroot/uicontrols/Calendar/Calendar.js',
-        'wwwroot/uicontrols/Chart/Chart.js',
-        'wwwroot/uicontrols/CheckBox/CheckBox.js',
-        'wwwroot/uicontrols/CodePicker/CodePicker.js',
-        'wwwroot/uicontrols/ColorPicker/ColorPicker.js',
-        'wwwroot/uicontrols/ContextMenu/ContextMenu.js',
-        'wwwroot/uicontrols/DataSource/DataSource.js',
-        'wwwroot/uicontrols/DatePicker/DatePicker.js',
-        'wwwroot/uicontrols/DatePeriodPicker/DatePeriodPicker.js',
-        'wwwroot/uicontrols/DropDownCheckList/DropDownCheckList.js',
-        'wwwroot/uicontrols/DropDownList/DropDownList.js',
-        'wwwroot/uicontrols/FileClient/FileClient.js',
-        'wwwroot/uicontrols/GridList/GridList.js',
-        'wwwroot/uicontrols/Guide/Guide.js',
-        'wwwroot/uicontrols/RadioButton/RadioButton.js',
-        'wwwroot/uicontrols/TextArea/TextArea.js',
-        'wwwroot/uicontrols/TextBox/TextBox.js',
-        'wwwroot/uicontrols/SourceEditor/SourceEditor.js',
-        'wwwroot/uicontrols/HtmlEditor/HtmlEditor.js',
-        'wwwroot/uicontrols/OrganizationView/OrganizationView.js',
-        'wwwroot/uicontrols/TreeView/TreeView.js',
-        'wwwroot/uicontrols/WebGrid/AUIGrid.js',
-        // 'wwwroot/uicontrols/WebGrid/WebGrid.js',
-        'wwwroot/uicontrols/Element/Element.js'
-    ], { allowEmpty: true })
-        .pipe(concat('syn.controls.js'))
-        .pipe(gulp.dest('wwwroot/js'))
-        .pipe(javascriptObfuscator({
-            compact: true
         }))
         .pipe(rename({
             basename: 'syn.controls.min',

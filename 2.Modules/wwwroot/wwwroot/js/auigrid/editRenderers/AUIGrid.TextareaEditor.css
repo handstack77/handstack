@@ -1,0 +1,36 @@
+@charset "UTF-8";
+
+.aui-grid-edit-renderer-custom-textarea {
+	text-align: right;
+	min-width: 240px;
+}
+.aui-grid-edit-renderer-custom-textarea textarea {
+	display: block;
+	font-size: 12px;
+	width: calc(100% - 8px);
+	height: 80px;
+	padding: 4px;
+	margin: 4px;
+	box-sizing: border-box;
+}
+.aui-grid-edit-renderer-custom-textarea button {
+	font-size: 12px;
+	color: #000000 !important;
+	background: #eee;
+	border: 1px solid #aaaaaa;
+	background-clip: padding-box;
+	box-sizing: border-box;
+	display: inline-block;
+	line-height: 1em;
+	border-radius: 0px;
+	appearance: none;
+	-webkit-appearance: none;
+	font-weight: bold;
+	text-align: center;
+	cursor: pointer;
+	padding: 4px;
+	margin: 4px 16px 4px 4px;
+}
+.aui-grid-edit-renderer-custom-textarea button:hover {
+	background: #ddd;
+}

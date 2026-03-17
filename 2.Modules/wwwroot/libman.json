@@ -308,8 +308,33 @@
         },
         {
             "provider": "filesystem",
-            "library": "wwwroot/lib/auigrid/",
-            "destination": "wwwroot/lib/auigrid/"
+            "library": "wwwroot/js/auigrid/",
+            "destination": "wwwroot/lib/auigrid/dist/"
+        },
+        {
+            "provider": "filesystem",
+            "library": "wwwroot/js/auigrid/editRenderers",
+            "destination": "wwwroot/lib/auigrid/dist/editRenderers"
+        },
+        {
+            "provider": "filesystem",
+            "library": "wwwroot/js/auigrid/images",
+            "destination": "wwwroot/lib/auigrid/dist/images"
+        },
+        {
+            "provider": "filesystem",
+            "library": "wwwroot/js/auigrid/messages",
+            "destination": "wwwroot/lib/auigrid/dist/messages"
+        },
+        {
+            "provider": "filesystem",
+            "library": "wwwroot/js/auigrid/pdfkit",
+            "destination": "wwwroot/lib/auigrid/dist/pdfkit"
+        },
+        {
+            "provider": "filesystem",
+            "library": "wwwroot/js/auigrid/renderers",
+            "destination": "wwwroot/lib/auigrid/dist/renderers"
         },
         {
             "provider": "jsdelivr",
