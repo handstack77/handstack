@@ -1,4 +1,4 @@
-(function (context) {
+﻿(function (context) {
     'use strict';
     var $print = context.$print || new syn.module();
 
@@ -12,8 +12,8 @@
         workActions: [],
         workData: null,
         reportifyServer: '',
-        reportifyPath: '/reportify/api/brief',
-        reportifyTemplateUrl: '/reportify/api/index/download-template?reportFileID=',
+        reportifyPath: `${syn.$w.proxyBasePath}/reportify/api/brief`,
+        reportifyTemplateUrl: `${syn.$w.proxyBasePath}/reportify/api/index/download-template?reportFileID=`,
         pageExportScheme: 'export-scheme',
         pageExcelToPdf: 'excel-to-pdf',
         overwriteFontName: null,
