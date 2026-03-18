@@ -117,6 +117,7 @@ namespace repository.Events
                                             logger.Information("[{LogCategory}] " + $"Add Contract RepositoryID: {repository.RepositoryID}, RepositoryName: {repository.RepositoryName}", "Storage/Refresh");
                                         }
                                     }
+                                    actionResult = true;
                                 }
                             }
                             catch (Exception exception)
