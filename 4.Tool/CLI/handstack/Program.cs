@@ -83,6 +83,7 @@ namespace handstack
             var optionFile = new Option<FileInfo?>("--file") { Description = "실행 명령에 따라 적용하는 파일 경로입니다" };
             var optionFind = new Option<string?>("--find") { Description = "실행 명령에 따라 적용하는 검색 값입니다" };
             var optionReplace = new Option<string?>("--replace") { Description = "실행 명령에 따라 적용하는 변경 값입니다" };
+            var optionReplaceExpressions = new Option<string[]>("--replace") { Description = "replacetext 명령에서 적용할 치환 규칙입니다. 예) --replace handstack=myprojectname --replace old=new" };
             var optionOptions = new Option<string?>("--options") { Description = "실행 명령에 따라 적용하는 옵션 값입니다" };
             var rootOptionModules = new Option<string?>("--modules") { Description = "프로그램 시작시 포함할 모듈을 설정합니다. 예) --modules=wwwroot,transact,dbclient,function" };
 
@@ -1100,26 +1101,28 @@ namespace handstack
             #region replacetext
 
             var subCommandReplaceText = new Command("replacetext", "텍스트 파일의 특정 문자열을 치환합니다") {
-                optionFile, optionFind, optionReplace
+                optionFile, optionFind, optionReplaceExpressions
             };
 
             // handstack replacetext --file=C:/tmp/handstack.txt --find=handstack --replace=myprojectname
+            // handstack replacetext --file=C:/tmp/handstack.txt --replace handstack=myprojectname --replace old=new
             subCommandReplaceText.SetAction((parseResult) =>
             {
                 var file = parseResult.GetValue(optionFile);
                 var find = parseResult.GetValue(optionFind).ToStringSafe();
-                var replace = parseResult.GetValue(optionReplace).ToStringSafe();
+                var replaceExpressions = parseResult.GetValue(optionReplaceExpressions) ?? Array.Empty<string>();
 
                 if (file != null && file.Exists == true)
                 {
-                    if (string.IsNullOrEmpty(find) == false && string.IsNullOrEmpty(replace) == false)
+                    var replaceMappings = BindReplaceMappings(find, replaceExpressions);
+                    if (replaceMappings.Count > 0)
                     {
                         try
                         {
-                            var findText = find;
-                            var replaceText = replace;
-
-                            ReplaceInFile(file, findText, replaceText);
+                            foreach (var replaceMapping in replaceMappings)
+                            {
+                                ReplaceInFile(file, replaceMapping.Key, replaceMapping.Value);
+                            }
                         }
                         catch (Exception exception)
                         {
@@ -1801,6 +1804,47 @@ namespace handstack
                     File.WriteAllText(fileInfo.FullName.Replace("\\", "/"), fileText.Replace(findText, replaceText));
                 }
             }
+        }
+
+        public static List<KeyValuePair<string, string>> BindReplaceMappings(string find, string[] replaceExpressions)
+        {
+            var result = new List<KeyValuePair<string, string>>();
+            if (replaceExpressions == null || replaceExpressions.Length == 0)
+            {
+                return result;
+            }
+
+            if (string.IsNullOrWhiteSpace(find) == false)
+            {
+                var replaceText = replaceExpressions.FirstOrDefault();
+                if (string.IsNullOrWhiteSpace(replaceText) == false)
+                {
+                    result.Add(new KeyValuePair<string, string>(find, replaceText));
+                }
+
+                return result;
+            }
+
+            foreach (var replaceExpression in replaceExpressions)
+            {
+                if (string.IsNullOrWhiteSpace(replaceExpression) == true)
+                {
+                    continue;
+                }
+
+                var separatorIndex = replaceExpression.IndexOf('=');
+                if (separatorIndex < 1)
+                {
+                    Log.Information($"replace:{replaceExpression} 형식 확인이 필요합니다. 예) --replace old=new");
+                    continue;
+                }
+
+                var findText = replaceExpression.Substring(0, separatorIndex);
+                var replaceText = replaceExpression.Substring(separatorIndex + 1);
+                result.Add(new KeyValuePair<string, string>(findText, replaceText));
+            }
+
+            return result;
         }
 
         public static void ReplaceInFiles(string directoryPath, string findText, string replaceText, bool deleteVsUserSettingsDirectory)
