@@ -28,7 +28,7 @@ let $module_settings = {
                 "IsCodeDataCache": true,
                 "CodeDataCacheTimeout": 20,
                 "ModuleBasePath": "../modules/transact",
-                "TransactionLogBasePath": "../sqlite/aggregate",
+                "TransactionAggregateBasePath": "../sqlite/HDS/transact/aggregate",
                 "TrustedProxyIP": "1.1.1.1",
                 "UseApiAuthorize": false,
                 "BypassAuthorizeIP": [
@@ -110,7 +110,7 @@ let $module_settings = {
                 syn.$l.get('chkIsCodeDataCache').checked = $string.toBoolean($this.prop.moduleConfig.ModuleConfig.IsCodeDataCache);
                 syn.$l.get('txtCodeDataCacheTimeout').value = $string.isNumber($this.prop.moduleConfig.ModuleConfig.CodeDataCacheTimeout) == true ? $string.toNumber($this.prop.moduleConfig.ModuleConfig.CodeDataCacheTimeout) : 20;
                 syn.$l.get('txtModuleBasePath').value = $this.prop.moduleConfig.ModuleConfig.ModuleBasePath;
-                syn.$l.get('txtTransactionLogBasePath').value = $this.prop.moduleConfig.ModuleConfig.TransactionLogBasePath;
+                syn.$l.get('txtTransactionAggregateBasePath').value = $this.prop.moduleConfig.ModuleConfig.TransactionAggregateBasePath;
                 syn.$l.get('txtTrustedProxyIP').value = $this.prop.moduleConfig.ModuleConfig.TrustedProxyIP;
                 syn.$l.get('chkUseApiAuthorize').checked = $string.toBoolean($this.prop.moduleConfig.ModuleConfig.UseApiAuthorize);
                 syn.$l.get('txtBypassAuthorizeIP').value = $this.prop.moduleConfig.ModuleConfig.BypassAuthorizeIP;
@@ -153,7 +153,7 @@ let $module_settings = {
                     $this.prop.moduleConfig.ModuleConfig.IsCodeDataCache = syn.$l.get('chkIsCodeDataCache').checked;
                     $this.prop.moduleConfig.ModuleConfig.CodeDataCacheTimeout = $string.isNumber(syn.$l.get('txtCodeDataCacheTimeout').value) ? $string.toNumber(syn.$l.get('txtCodeDataCacheTimeout').value) : 20;
                     $this.prop.moduleConfig.ModuleConfig.ModuleBasePath = syn.$l.get('txtModuleBasePath').value;
-                    $this.prop.moduleConfig.ModuleConfig.TransactionLogBasePath = syn.$l.get('txtTransactionLogBasePath').value;
+                    $this.prop.moduleConfig.ModuleConfig.TransactionAggregateBasePath = syn.$l.get('txtTransactionAggregateBasePath').value;
                     $this.prop.moduleConfig.ModuleConfig.UseApiAuthorize = syn.$l.get('chkUseApiAuthorize').checked;
                     $this.prop.moduleConfig.ModuleConfig.BypassAuthorizeIP = $array.split(syn.$l.get('txtBypassAuthorizeIP').value);;
 

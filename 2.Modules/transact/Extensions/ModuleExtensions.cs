@@ -30,10 +30,10 @@ namespace transact.Extensions
         public static string? GetLogDbConnectionString(string userWorkID, string applicationID, string? rollingID = "")
         {
             string? result = null;
-            var transactionLogBasePath = PathExtensions.Combine(ModuleConfiguration.TransactionLogBasePath, userWorkID, applicationID);
-            if (Directory.Exists(transactionLogBasePath) == false)
+            var transactionAggregateBasePath = PathExtensions.Combine(ModuleConfiguration.TransactionAggregateBasePath, userWorkID, applicationID);
+            if (Directory.Exists(transactionAggregateBasePath) == false)
             {
-                Directory.CreateDirectory(transactionLogBasePath);
+                Directory.CreateDirectory(transactionAggregateBasePath);
             }
 
             var logDbFilePath = ResolveLogDbFilePath(userWorkID, applicationID, rollingID);
@@ -57,15 +57,15 @@ namespace transact.Extensions
 
         private static string ResolveLogDbFilePath(string userWorkID, string applicationID, string? rollingID = "")
         {
-            var transactionLogBasePath = PathExtensions.Combine(ModuleConfiguration.TransactionLogBasePath, userWorkID, applicationID);
+            var transactionAggregateBasePath = PathExtensions.Combine(ModuleConfiguration.TransactionAggregateBasePath, userWorkID, applicationID);
             if (ModuleConfiguration.IsTransactAggregateRolling == true)
             {
                 // IsTransactAggregateRolling=true 인 경우에만 주간 롤오버 파일을 사용합니다.
                 var resolvedRollingID = ResolveRollingID(rollingID);
-                return PathExtensions.Combine(transactionLogBasePath, $"{resolvedRollingID}-{applicationID}.db");
+                return PathExtensions.Combine(transactionAggregateBasePath, $"{resolvedRollingID}-{applicationID}.db");
             }
 
-            return PathExtensions.Combine(transactionLogBasePath, $"{applicationID}.db");
+            return PathExtensions.Combine(transactionAggregateBasePath, $"{applicationID}.db");
         }
 
         private static string ResolveRollingID(string? rollingID = "")

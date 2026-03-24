@@ -27,7 +27,7 @@
         "IsCodeDataCache": true,
         "CodeDataCacheTimeout": 20,
         "ModuleBasePath": "../modules/transact",
-        "TransactionLogBasePath": "../sqlite/aggregate",
+        "TransactionAggregateBasePath": "../sqlite/HDS/transact/aggregate",
         "TrustedProxyIP": "1.1.1.1",
         "UseApiAuthorize": false,
         "BypassAuthorizeIP": [

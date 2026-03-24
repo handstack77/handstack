@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -104,7 +104,7 @@ namespace transact
 
                         ModuleConfiguration.ModuleBasePath = GlobalConfiguration.GetBaseDirectoryPath(moduleConfig.ModuleBasePath);
                         ModuleConfiguration.DatabaseContractPath = GlobalConfiguration.GetBaseDirectoryPath(moduleConfig.DatabaseContractPath, PathExtensions.Combine(ModuleConfiguration.ModuleBasePath, "Contracts", "dbclient"));
-                        ModuleConfiguration.TransactionLogBasePath = GlobalConfiguration.GetBaseDirectoryPath(moduleConfig.TransactionLogBasePath);
+                        ModuleConfiguration.TransactionAggregateBasePath = GlobalConfiguration.GetBaseDirectoryPath(moduleConfig.TransactionAggregateBasePath);
 
                         ModuleConfiguration.PublicTransactions = moduleConfig.PublicTransactions ?? new HandStack.Web.Extensions.ExpiringList<PublicTransaction>();
                         ModuleConfiguration.PublicTransactions.ExtendExpiryTime(DateTime.Now.AddYears(10));

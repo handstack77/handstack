@@ -40,7 +40,7 @@
 - 거래 계약은 JSON이며 `ApplicationID`, `ProjectID`, `TransactionID`, `Services`, `Models`를 포함합니다.
 - `ServiceID`별로 `CommandType`, `ReturnType`, `TransactionScope`, 입력/출력 모델이 정의됩니다.
 - 현재 기본 라우팅은 `D -> dbclient`, `F -> function`, `P -> prompter`입니다.
-- `TransactionLogBasePath` 아래에 집계 로그가 저장됩니다.
+- `TransactionAggregateBasePath` 아래에 집계 로그가 저장됩니다.
 
 ## 설정 포인트
 - `AllowRequestTransactions`: 애플리케이션별 허용 프로젝트

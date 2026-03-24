@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -78,8 +78,8 @@ namespace transact.Services
 
         private void DeleteOldMovedRows(DateTime now, CancellationToken stoppingToken)
         {
-            var transactionLogBasePath = ModuleConfiguration.TransactionLogBasePath;
-            if (string.IsNullOrWhiteSpace(transactionLogBasePath) || Directory.Exists(transactionLogBasePath) == false)
+            var transactionAggregateBasePath = ModuleConfiguration.TransactionAggregateBasePath;
+            if (string.IsNullOrWhiteSpace(transactionAggregateBasePath) || Directory.Exists(transactionAggregateBasePath) == false)
             {
                 return;
             }
@@ -88,7 +88,7 @@ namespace transact.Services
             var deleteCount = 0;
             var targetCount = 0;
 
-            foreach (var userWorkPath in Directory.GetDirectories(transactionLogBasePath))
+            foreach (var userWorkPath in Directory.GetDirectories(transactionAggregateBasePath))
             {
                 if (stoppingToken.IsCancellationRequested == true)
                 {

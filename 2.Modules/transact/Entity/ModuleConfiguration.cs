@@ -21,7 +21,7 @@ namespace transact.Entity
         public static Dictionary<string, FileSyncManager> BusinessFileSyncManager = new Dictionary<string, FileSyncManager>();
         public static string BusinessServerUrl = "";
         public static bool IsTransactionLogging = false;
-        public static string TransactionLogBasePath = "";
+        public static string TransactionAggregateBasePath = "";
         public static int CircuitBreakResetSecond = 60;
         public static string ModuleBasePath = "";
         public static string DatabaseContractPath = "";

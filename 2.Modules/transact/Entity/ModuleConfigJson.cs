@@ -80,7 +80,7 @@ namespace transact.Entity
 
         public bool IsTransactionLogging { get; set; }
 
-        public string TransactionLogBasePath { get; set; }
+        public string TransactionAggregateBasePath { get; set; }
 
         public ExpiringList<PublicTransaction> PublicTransactions { get; set; }
 
@@ -121,7 +121,7 @@ namespace transact.Entity
             CodeDataCacheTimeout = 20;
             DatabaseContractPath = "";
             IsTransactionLogging = false;
-            TransactionLogBasePath = "";
+            TransactionAggregateBasePath = "";
             PublicTransactions = new ExpiringList<PublicTransaction>();
             RoutingCommandUri = new Dictionary<string, string>();
             AllowRequestTransactions = new Dictionary<string, List<string>>();
