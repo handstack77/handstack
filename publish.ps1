@@ -262,7 +262,7 @@ try {
 
     $handstackRoot = [System.IO.Path]::Combine($PublishPath, "handstack")
 
-    # WebHost 프로젝트 출력물을 app/forbes 디렉터리로 생성합니다.
+    # WebHost 프로젝트 출력물을 app/forbes/deploy 디렉터리로 생성합니다.
     Invoke-DotNet -Arguments @(
         $ActionMode
         $dotnetOptions
@@ -279,6 +279,14 @@ try {
         [System.IO.Path]::Combine($handstackRoot, "forbes")
     )
 
+    Invoke-DotNet -Arguments @(
+        $ActionMode
+        $dotnetOptions
+        [System.IO.Path]::Combine("1.WebHost", "deploy", "deploy.csproj")
+        "--output"
+        [System.IO.Path]::Combine($handstackRoot, "deploy")
+    )
+
     # CLI 도구는 개별 디렉터리에 single-file 기준으로 출력합니다.
     Invoke-CliBuildOrPublish -ProjectPath ([System.IO.Path]::Combine("4.Tool", "CLI", "handstack", "handstack.csproj")) `
         -OutputPath ([System.IO.Path]::Combine($handstackRoot, "app", "cli", "handstack")) `
@@ -290,6 +298,10 @@ try {
 
     Invoke-CliBuildOrPublish -ProjectPath ([System.IO.Path]::Combine("4.Tool", "CLI", "bundling", "bundling.csproj")) `
         -OutputPath ([System.IO.Path]::Combine($handstackRoot, "app", "cli", "bundling")) `
+        -Action $ActionMode -Optimize $optimizeFlag -Configuration $ConfigurationMode -Os $OsMode -Arch $ArchMode -Rid $rid
+
+    Invoke-CliBuildOrPublish -ProjectPath ([System.IO.Path]::Combine("4.Tool", "CLI", "updater", "updater.csproj")) `
+        -OutputPath ([System.IO.Path]::Combine($handstackRoot, "updater")) `
         -Action $ActionMode -Optimize $optimizeFlag -Configuration $ConfigurationMode -Os $OsMode -Arch $ArchMode -Rid $rid
 
     # build 과정에서 생성된 contracts 디렉터리를 먼저 정리합니다.

@@ -56,6 +56,7 @@ $buildGroups = @(
         Projects = @(
             @{ Label = "ack";    Path = [System.IO.Path]::Combine("1.WebHost", "ack", "ack.csproj") }
             @{ Label = "forbes"; Path = [System.IO.Path]::Combine("1.WebHost", "forbes", "forbes.csproj") }
+            @{ Label = "deploy"; Path = [System.IO.Path]::Combine("1.WebHost", "deploy", "deploy.csproj") }
         )
     }
     @{
@@ -67,6 +68,7 @@ $buildGroups = @(
             @{ Label = "edgeproxy";         Path = [System.IO.Path]::Combine("4.Tool", "CLI", "edgeproxy", "edgeproxy.csproj") }
             @{ Label = "excludedportrange"; Path = [System.IO.Path]::Combine("4.Tool", "CLI", "excludedportrange", "excludedportrange.csproj") }
             @{ Label = "bundling";          Path = [System.IO.Path]::Combine("4.Tool", "CLI", "bundling", "bundling.csproj") }
+            @{ Label = "updater";          Path = [System.IO.Path]::Combine("4.Tool", "CLI", "updater", "updater.csproj") }
         )
     }
 )
