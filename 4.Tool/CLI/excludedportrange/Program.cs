@@ -1,5 +1,5 @@
-﻿using System.Net;
-using System.Reflection;
+﻿using System;
+using System.Net;
 using System.Runtime.InteropServices;
 
 namespace excludedportrange
@@ -60,10 +60,7 @@ namespace excludedportrange
 
         static void Help()
         {
-            var appName = Path.GetFileName(Assembly.GetExecutingAssembly().Location);
-            Console.WriteLine($"{appName} [tcp|udp] [startport] [endport]");
-            Console.WriteLine($"ex)");
-            Console.WriteLine($"\t{appName} tcp 15000 15550");
+            Console.WriteLine($"excludedportrange [tcp|udp] [startport] [endport]");
         }
     }
 }

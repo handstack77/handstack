@@ -94,6 +94,11 @@
         <ItemGroup>
             <AppSourceFiles Include="$(AppSourceDir)/**/*.*" />
             <TargetFilesToCheck Include="$(TargetDir)%(AppSourceFiles.Filename)%(AppSourceFiles.Extension)" Condition="Exists('$(TargetDir)%(AppSourceFiles.Filename)%(AppSourceFiles.Extension)')" />
+            <TargetFilesToCheck Remove="
+                $(TargetDir)Microsoft.Data.SqlClient.dll;
+                $(TargetDir)Microsoft.Data.SqlClient.SNI.dll;
+                $(TargetDir)runtimes\**\Microsoft.Data.SqlClient.SNI.dll
+            " />
         </ItemGroup>
 
         <Delete Files="@(TargetFilesToCheck)" ContinueOnError="WarnAndContinue" />

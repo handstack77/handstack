@@ -2,11 +2,15 @@
     <PropertyGroup>
         <OutputType>Exe</OutputType>
         <TargetFramework>net10.0</TargetFramework>
+        <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+        <PublishWithAspNetCoreTargetManifest>true</PublishWithAspNetCoreTargetManifest>
+        <TargetLatestRuntimePatch>false</TargetLatestRuntimePatch>
         <Nullable>enable</Nullable>
+        <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
         <PublishSingleFile>true</PublishSingleFile>
-        <SelfContained>false</SelfContained>
+        <PlatformTarget>AnyCPU</PlatformTarget>
         <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
-        <NoWarn>NETSDK1206</NoWarn>
+        <NoWarn>ASP0023;NETSDK1206</NoWarn>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -24,23 +28,34 @@
         <PackageReference Include="System.CommandLine" Version="2.0.3" />
     </ItemGroup>
 
+    <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+        <RemoveDir Directories="$(TargetDir)" Condition="Exists('$(TargetDir)')" />
+    </Target>
+
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
         <PropertyGroup>
-            <IsPublishing Condition="'$(IsPublishing)' == ''">false</IsPublishing>
+            <AppDestinationDir>$(HANDSTACK_HOME)/tools/updater</AppDestinationDir>
         </PropertyGroup>
 
-        <PropertyGroup Condition="'$(IsPublishing)' != 'true' and '$(BuildingSolutionFile)' != 'true'">
-            <OsMode Condition="'$(OsMode)' == '' and $(NETCoreSdkPortableRuntimeIdentifier.StartsWith('win-'))">win</OsMode>
-            <OsMode Condition="'$(OsMode)' == '' and $(NETCoreSdkPortableRuntimeIdentifier.StartsWith('linux-'))">linux</OsMode>
-            <OsMode Condition="'$(OsMode)' == '' and $(NETCoreSdkPortableRuntimeIdentifier.StartsWith('osx-'))">osx</OsMode>
-            <ConfigurationMode Condition="'$(ConfigurationMode)' == ''">$(Configuration)</ConfigurationMode>
-            <ArchMode Condition="'$(ArchMode)' == '' and $(NETCoreSdkPortableRuntimeIdentifier.EndsWith('-arm64'))">arm64</ArchMode>
-            <ArchMode Condition="'$(ArchMode)' == '' and $(NETCoreSdkPortableRuntimeIdentifier.EndsWith('-x86'))">x86</ArchMode>
-            <ArchMode Condition="'$(ArchMode)' == '' and $(NETCoreSdkPortableRuntimeIdentifier.EndsWith('-x64'))">x64</ArchMode>
-            <ArchMode Condition="'$(ArchMode)' == ''">x64</ArchMode>
-            <PublishOutputDir>$([System.IO.Path]::Combine('$(HANDSTACK_HOME)', 'updater'))</PublishOutputDir>
+        <PropertyGroup>
+            <RuntimesDir>$(TargetDir)runtimes</RuntimesDir>
         </PropertyGroup>
+        <ItemGroup Condition="Exists('$(RuntimesDir)')">
+            <RuntimeDirsToRemove Include="$([System.IO.Directory]::GetDirectories('$(RuntimesDir)'))" />
+            <RuntimeDirsToRemove Remove="$([System.IO.Path]::Combine('$(RuntimesDir)', 'win-x64'))" />
+            <RuntimeDirsToRemove Remove="$([System.IO.Path]::Combine('$(RuntimesDir)', 'linux-x64'))" />
+            <RuntimeDirsToRemove Remove="$([System.IO.Path]::Combine('$(RuntimesDir)', 'osx-x64'))" />
+            <RuntimeDirsToRemove Remove="$([System.IO.Path]::Combine('$(RuntimesDir)', 'osx-arm64'))" />
+        </ItemGroup>
+        <RemoveDir Directories="@(RuntimeDirsToRemove)" Condition="'@(RuntimeDirsToRemove)' != ''" />
 
-        <Exec Command="dotnet publish &quot;$(MSBuildProjectFullPath)&quot; --configuration $(ConfigurationMode) --arch $(ArchMode) --os $(OsMode) --output &quot;$(PublishOutputDir)&quot; -p:IsPublishing=true" Condition="'$(IsPublishing)' != 'true' and '$(BuildingSolutionFile)' != 'true'" WorkingDirectory="$(MSBuildProjectDirectory)" />
+        <MakeDir Directories="$(AppDestinationDir)" Condition="!Exists('$(AppDestinationDir)')" />
+        <RemoveDir Directories="$(AppDestinationDir)" />
+        <MakeDir Directories="$(AppDestinationDir)" />
+
+        <ItemGroup>
+            <SourceFilesForSync Include="$(TargetDir)**\*" />
+        </ItemGroup>
+        <Copy SourceFiles="@(SourceFilesForSync)" DestinationFiles="@(SourceFilesForSync->'$(AppDestinationDir)/%(RecursiveDir)%(Filename)%(Extension)')" />
     </Target>
 </Project>

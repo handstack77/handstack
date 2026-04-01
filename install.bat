@@ -27,7 +27,7 @@ set current_path=%cd%
 
 for %%i in ("%current_path%") do set "PARENT_DIR=%%~dpi"
 set "PARENT_DIR=%PARENT_DIR:~0,-1%"
-set "HANDSTACK_HOME=%PARENT_DIR%\build\handstack"
+set "HANDSTACK_HOME=%PARENT_DIR%\handstack"
 
 REM 환경 변수 설정
 setx DOTNET_CLI_TELEMETRY_OPTOUT 1
@@ -78,10 +78,10 @@ if exist %current_path%\1.WebHost\ack\ack.csproj (
 	cd %current_path%
 	if not exist %current_path%\2.Modules\wwwroot\wwwroot\lib (
 		echo handstack CLI 도구를 빌드합니다...
-		dotnet publish %current_path%\4.Tool\CLI\handstack\handstack.csproj --configuration Debug --arch x64 --os win --output ../publish/win-x64/app/cli/handstack
+		dotnet build %current_path%\4.Tool\CLI\handstack\handstack.csproj
 
 		echo lib.zip 파일을 해제합니다...
-		..\publish\win-x64\app\cli\handstack\handstack extract --file=%current_path%\lib.zip --directory=%current_path%\2.Modules\wwwroot\wwwroot\lib
+		%HANDSTACK_HOME%\tools\handstack\handstack extract --file=%current_path%\lib.zip --directory=%current_path%\2.Modules\wwwroot\wwwroot\lib
 	)
 
 	REM libman 확인 및 자동 설치, 라이브러리 복원
@@ -161,7 +161,7 @@ if exist %current_path%\app\ack.exe (
 			call curl -L -O https://github.com/handstack77/handstack/raw/master/lib.zip
 		)
 		echo lib.zip 파일을 해제합니다...
-		%current_path%\app\cli\handstack\handstack extract --file=%current_path%\modules\wwwroot\wwwroot\lib.zip --directory=%current_path%\modules\wwwroot\wwwroot\lib
+		%HANDSTACK_HOME%\tools\handstack\handstack extract --file=%current_path%\modules\wwwroot\wwwroot\lib.zip --directory=%current_path%\modules\wwwroot\wwwroot\lib
 	)
 
 	REM libman 확인 및 자동 설치, 라이브러리 복원

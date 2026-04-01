@@ -47,4 +47,31 @@
     <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
         <RemoveDir Directories="$(TargetDir)" Condition="Exists('$(TargetDir)')" />
     </Target>
+
+    <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+        <PropertyGroup>
+            <AppDestinationDir>$(HANDSTACK_HOME)/hosts/deploy</AppDestinationDir>
+        </PropertyGroup>
+
+        <PropertyGroup>
+            <RuntimesDir>$(TargetDir)runtimes</RuntimesDir>
+        </PropertyGroup>
+        <ItemGroup Condition="Exists('$(RuntimesDir)')">
+            <RuntimeDirsToRemove Include="$([System.IO.Directory]::GetDirectories('$(RuntimesDir)'))" />
+            <RuntimeDirsToRemove Remove="$([System.IO.Path]::Combine('$(RuntimesDir)', 'win-x64'))" />
+            <RuntimeDirsToRemove Remove="$([System.IO.Path]::Combine('$(RuntimesDir)', 'linux-x64'))" />
+            <RuntimeDirsToRemove Remove="$([System.IO.Path]::Combine('$(RuntimesDir)', 'osx-x64'))" />
+            <RuntimeDirsToRemove Remove="$([System.IO.Path]::Combine('$(RuntimesDir)', 'osx-arm64'))" />
+        </ItemGroup>
+        <RemoveDir Directories="@(RuntimeDirsToRemove)" Condition="'@(RuntimeDirsToRemove)' != ''" />
+
+        <MakeDir Directories="$(AppDestinationDir)" Condition="!Exists('$(AppDestinationDir)')" />
+        <RemoveDir Directories="$(AppDestinationDir)" />
+        <MakeDir Directories="$(AppDestinationDir)" />
+
+        <ItemGroup>
+            <SourceFilesForSync Include="$(TargetDir)**\*" />
+        </ItemGroup>
+        <Copy SourceFiles="@(SourceFilesForSync)" DestinationFiles="@(SourceFilesForSync->'$(AppDestinationDir)/%(RecursiveDir)%(Filename)%(Extension)')" />
+    </Target>
 </Project>

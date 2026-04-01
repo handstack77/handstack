@@ -89,7 +89,11 @@
 
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
         <PropertyGroup>
-            <RuntimesDir>$(MSBuildProjectDirectory)/bin/$(Configuration)/$(TargetFramework)/runtimes</RuntimesDir>
+            <AppDestinationDir>$(HANDSTACK_HOME)/tools/handstack</AppDestinationDir>
+        </PropertyGroup>
+
+        <PropertyGroup>
+            <RuntimesDir>$(TargetDir)runtimes</RuntimesDir>
         </PropertyGroup>
         <ItemGroup Condition="Exists('$(RuntimesDir)')">
             <RuntimeDirsToRemove Include="$([System.IO.Directory]::GetDirectories('$(RuntimesDir)'))" />
@@ -98,25 +102,15 @@
             <RuntimeDirsToRemove Remove="$([System.IO.Path]::Combine('$(RuntimesDir)', 'osx-x64'))" />
             <RuntimeDirsToRemove Remove="$([System.IO.Path]::Combine('$(RuntimesDir)', 'osx-arm64'))" />
         </ItemGroup>
-
         <RemoveDir Directories="@(RuntimeDirsToRemove)" Condition="'@(RuntimeDirsToRemove)' != ''" />
-        <PropertyGroup>
-            <IsPublishing Condition="'$(IsPublishing)' == ''">false</IsPublishing>
-        </PropertyGroup>
 
-        <PropertyGroup Condition="'$(IsPublishing)' != 'true' and '$(BuildingSolutionFile)' != 'true'">
-            <OsMode Condition="'$(OsMode)' == '' and $(NETCoreSdkPortableRuntimeIdentifier.StartsWith('win-'))">win</OsMode>
-            <OsMode Condition="'$(OsMode)' == '' and $(NETCoreSdkPortableRuntimeIdentifier.StartsWith('linux-'))">linux</OsMode>
-            <OsMode Condition="'$(OsMode)' == '' and $(NETCoreSdkPortableRuntimeIdentifier.StartsWith('osx-'))">osx</OsMode>
-            <ActionMode Condition="'$(ActionMode)' == ''">build</ActionMode>
-            <ConfigurationMode Condition="'$(ConfigurationMode)' == ''">$(Configuration)</ConfigurationMode>
-            <ArchMode Condition="'$(ArchMode)' == '' and $(NETCoreSdkPortableRuntimeIdentifier.EndsWith('-arm64'))">arm64</ArchMode>
-            <ArchMode Condition="'$(ArchMode)' == '' and $(NETCoreSdkPortableRuntimeIdentifier.EndsWith('-x86'))">x86</ArchMode>
-            <ArchMode Condition="'$(ArchMode)' == '' and $(NETCoreSdkPortableRuntimeIdentifier.EndsWith('-x64'))">x64</ArchMode>
-            <ArchMode Condition="'$(ArchMode)' == ''">x64</ArchMode>
-            <PublishOutputDir>$([System.IO.Path]::Combine('$(HANDSTACK_HOME)', 'app', 'cli', 'handstack'))</PublishOutputDir>
-        </PropertyGroup>
+        <MakeDir Directories="$(AppDestinationDir)" Condition="!Exists('$(AppDestinationDir)')" />
+        <RemoveDir Directories="$(AppDestinationDir)" />
+        <MakeDir Directories="$(AppDestinationDir)" />
 
-        <Exec Command="dotnet publish &quot;$(MSBuildProjectFullPath)&quot; --configuration $(ConfigurationMode) --arch $(ArchMode) --os $(OsMode) --output &quot;$(PublishOutputDir)&quot; -p:IsPublishing=true" Condition="'$(IsPublishing)' != 'true' and '$(BuildingSolutionFile)' != 'true'" WorkingDirectory="$(MSBuildProjectDirectory)" />
+        <ItemGroup>
+            <SourceFilesForSync Include="$(TargetDir)**\*" />
+        </ItemGroup>
+        <Copy SourceFiles="@(SourceFilesForSync)" DestinationFiles="@(SourceFilesForSync->'$(AppDestinationDir)/%(RecursiveDir)%(Filename)%(Extension)')" />
     </Target>
 </Project>

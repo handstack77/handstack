@@ -1,9 +1,16 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
     <PropertyGroup>
-        <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
-        <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
+        <OutputType>Exe</OutputType>
         <TargetFramework>net10.0</TargetFramework>
+        <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+        <PublishWithAspNetCoreTargetManifest>true</PublishWithAspNetCoreTargetManifest>
+        <TargetLatestRuntimePatch>false</TargetLatestRuntimePatch>
         <Nullable>enable</Nullable>
+        <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+        <PublishSingleFile>true</PublishSingleFile>
+        <PlatformTarget>AnyCPU</PlatformTarget>
+        <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+        <NoWarn>ASP0023;NETSDK1206</NoWarn>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -38,9 +45,18 @@
             <HintPath>../../../3.Infrastructure/Assemblies/$(Configuration)/HandStack.Core.dll</HintPath>
         </Reference>
     </ItemGroup>
-    <Target Name="CleanupRuntimes" AfterTargets="Build">
+
+    <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+        <RemoveDir Directories="$(TargetDir)" Condition="Exists('$(TargetDir)')" />
+    </Target>
+
+    <Target Name="PostBuild" AfterTargets="PostBuildEvent">
         <PropertyGroup>
-            <RuntimesDir>$(MSBuildProjectDirectory)/bin/$(Configuration)/$(TargetFramework)/runtimes</RuntimesDir>
+            <AppDestinationDir>$(HANDSTACK_HOME)/tools/handsonapp</AppDestinationDir>
+        </PropertyGroup>
+
+        <PropertyGroup>
+            <RuntimesDir>$(TargetDir)runtimes</RuntimesDir>
         </PropertyGroup>
         <ItemGroup Condition="Exists('$(RuntimesDir)')">
             <RuntimeDirsToRemove Include="$([System.IO.Directory]::GetDirectories('$(RuntimesDir)'))" />
@@ -50,5 +66,14 @@
             <RuntimeDirsToRemove Remove="$([System.IO.Path]::Combine('$(RuntimesDir)', 'osx-arm64'))" />
         </ItemGroup>
         <RemoveDir Directories="@(RuntimeDirsToRemove)" Condition="'@(RuntimeDirsToRemove)' != ''" />
+
+        <MakeDir Directories="$(AppDestinationDir)" Condition="!Exists('$(AppDestinationDir)')" />
+        <RemoveDir Directories="$(AppDestinationDir)" />
+        <MakeDir Directories="$(AppDestinationDir)" />
+
+        <ItemGroup>
+            <SourceFilesForSync Include="$(TargetDir)**\*" />
+        </ItemGroup>
+        <Copy SourceFiles="@(SourceFilesForSync)" DestinationFiles="@(SourceFilesForSync->'$(AppDestinationDir)/%(RecursiveDir)%(Filename)%(Extension)')" />
     </Target>
 </Project>

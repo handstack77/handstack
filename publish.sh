@@ -1,210 +1,201 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# tr -d '\r' < publish.sh > publish_fixed.sh && mv publish_fixed.sh publish.sh && chmod +x publish.sh
-# publish.sh win build Debug x64
-# publish.sh linux build Debug x64
-# publish.sh osx build Debug x64
-# publish.sh osx build Debug arm64
-# publish.sh win build Debug x64 "../output/path"
+set -euo pipefail
 
-# win, linux, osx
-os_mode=${1:-linux}
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
 
-# build, publish
-action_mode=${2:-build}
+os_mode="${1:-win}"
+action_mode="${2:-build}"
+configuration_mode="${3:-Release}"
+arch_mode="${4:-x64}"
 
-# Debug, Release
-configuration_mode=${3:-Release}
+HANDSTACK_SRC="${HANDSTACK_SRC:-$SCRIPT_DIR}"
+HANDSTACK_HOME="${HANDSTACK_HOME:-$(cd "$HANDSTACK_SRC/../build/handstack" 2>/dev/null && pwd || printf '%s\n' "$HANDSTACK_SRC/../build/handstack")}"
+publish_path="${5:-$HANDSTACK_SRC/../publish/${os_mode}-${arch_mode}}"
 
-# x64, x86, arm64
-arch_mode=${4:-x64}
-
-# Optional custom publish path
-default_publish_path="${HANDSTACK_SRC}/../publish/${os_mode}-${arch_mode}"
-publish_path=${5:$default_publish_path}
-
-optimize_flag="-p:Optimize=true"
-if [ "$configuration_mode" == "Debug" ]; then
-    optimize_flag="-p:Optimize=false"
+optimize_flag="true"
+if [[ "$configuration_mode" == "Debug" ]]; then
+    optimize_flag="false"
 fi
 
-# 운영체제와 아키텍처에 따른 Runtime Identifier 설정
-case "$os_mode" in
-    "win")
-        case "$arch_mode" in
-            "x64") rid="win-x64" ;;
-            "x86") rid="win-x86" ;;
-            "arm64") rid="win-arm64" ;;
-            *) rid="win-x64" ;;
-        esac
-        ;;
-    "linux")
-        case "$arch_mode" in
-            "x64") rid="linux-x64" ;;
-            "arm64") rid="linux-arm64" ;;
-            *) rid="linux-x64" ;;
-        esac
-        ;;
-    "osx")
-        case "$arch_mode" in
-            "x64") rid="osx-x64" ;;
-            "arm64") rid="osx-arm64" ;;
-            *) rid="osx-x64" ;;
-        esac
-        ;;
-    *)
-        rid="linux-x64"
-        ;;
-esac
+resolve_rid() {
+    local target_os="$1"
+    local target_arch="$2"
 
-# 액션 모드에 따른 dotnet 명령어 옵션 설정
-if [ "$action_mode" == "publish" ]; then
-    dotnet_options="$optimize_flag --configuration $configuration_mode --runtime $rid --self-contained false"
-else
-    dotnet_options="$optimize_flag --configuration $configuration_mode --arch $arch_mode --os $os_mode"
-fi
+    case "$target_os" in
+        win)
+            case "$target_arch" in
+                x64) printf '%s\n' "win-x64" ;;
+                x86) printf '%s\n' "win-x86" ;;
+                arm64) printf '%s\n' "win-arm64" ;;
+                *) return 1 ;;
+            esac
+            ;;
+        linux)
+            case "$target_arch" in
+                x64) printf '%s\n' "linux-x64" ;;
+                arm64) printf '%s\n' "linux-arm64" ;;
+                *) return 1 ;;
+            esac
+            ;;
+        osx)
+            case "$target_arch" in
+                x64) printf '%s\n' "osx-x64" ;;
+                arm64) printf '%s\n' "osx-arm64" ;;
+                *) return 1 ;;
+            esac
+            ;;
+        *)
+            return 1
+            ;;
+    esac
+}
 
-echo "os_mode: $os_mode, action_mode: $action_mode, configuration_mode: $configuration_mode, arch_mode: $arch_mode, publish_path: $publish_path"
+rid="$(resolve_rid "$os_mode" "$arch_mode")" || {
+    echo "지원하지 않는 OS/아키텍처 조합입니다: $os_mode/$arch_mode" >&2
+    exit 1
+}
 
-# 기존 출력 디렉토리 삭제
-rm -rf "$publish_path"
+invoke_dotnet() {
+    dotnet "$@"
+}
 
-# post-build 스크립트의 줄바꿈 문자 수정 및 실행 권한 부여 함수
-fix_post_build_script() {
-    local script_path="$1"
-    if [ -f "$script_path" ]; then
-        tr -d '\r' < "$script_path" > "${script_path}_fixed.sh"
-        mv "${script_path}_fixed.sh" "$script_path"
-        chmod +x "$script_path"
+copy_glob_if_exists() {
+    local destination_dir="$1"
+    shift
+
+    mkdir -p "$destination_dir"
+    local matched=0
+    local path
+    for path in "$@"; do
+        if [[ -e "$path" ]]; then
+            cp -f "$path" "$destination_dir/"
+            matched=1
+        fi
+    done
+    return 0
+}
+
+remove_if_exists() {
+    local target="$1"
+    if [[ -e "$target" ]]; then
+        rm -rf "$target"
     fi
 }
 
-# 모든 post-build 스크립트 수정
-echo "Post-build 스크립트 줄바꿈 문자 수정 중..."
-fix_post_build_script "1.WebHost/ack/post-build.sh"
-fix_post_build_script "2.Modules/dbclient/post-build.sh"
-fix_post_build_script "2.Modules/function/post-build.sh"
-fix_post_build_script "2.Modules/logger/post-build.sh"
-fix_post_build_script "2.Modules/repository/post-build.sh"
-fix_post_build_script "2.Modules/transact/post-build.sh"
-fix_post_build_script "2.Modules/wwwroot/post-build.sh"
-fix_post_build_script "4.Tool/CLI/handstack/post-build.sh"
+echo "os_mode: $os_mode, action_mode: $action_mode, configuration_mode: $configuration_mode, arch_mode: $arch_mode, optimize: $optimize_flag, rid: $rid, publish_path: $publish_path"
 
-# WebHost 프로젝트들 빌드/퍼블리시
-echo "WebHost 프로젝트 빌드/퍼블리시 중..."
-dotnet $action_mode $dotnet_options 1.WebHost/ack/ack.csproj --output "$publish_path/handstack/app"
-dotnet $action_mode $dotnet_options 1.WebHost/forbes/forbes.csproj --output "$publish_path/handstack/forbes"
+remove_if_exists "$publish_path"
 
-if [ "$action_mode" == "publish" ]; then
-    dotnet $action_mode -p:Optimize=$optimize_flag -p:PublishSingleFile=true --configuration $configuration_mode --runtime $rid --self-contained false 4.Tool/CLI/handstack/handstack.csproj --output $publish_path/handstack/app/cli/handstack
+if [[ "$action_mode" == "publish" ]]; then
+    dotnet_options=(-p:Optimize="$optimize_flag" --configuration "$configuration_mode" --runtime "$rid" --self-contained false)
 else
-    dotnet $action_mode -p:Optimize=$optimize_flag -p:PublishSingleFile=true --configuration $configuration_mode --arch $arch_mode --os $os_mode 4.Tool/CLI/handstack/handstack.csproj --output $publish_path/handstack/app/cli/handstack
+    dotnet_options=(-p:Optimize="$optimize_flag" --configuration "$configuration_mode")
 fi
 
-if [ "$action_mode" == "publish" ]; then
-    dotnet $action_mode -p:Optimize=$optimize_flag -p:PublishSingleFile=true --configuration $configuration_mode --runtime $rid --self-contained false 4.Tool/CLI/edgeproxy/edgeproxy.csproj --output $publish_path/handstack/app/cli/edgeproxy
-else
-    dotnet $action_mode -p:Optimize=$optimize_flag -p:PublishSingleFile=true --configuration $configuration_mode --arch $arch_mode --os $os_mode 4.Tool/CLI/edgeproxy/edgeproxy.csproj --output $publish_path/handstack/app/cli/edgeproxy
-fi
+invoke_dotnet "$action_mode" "${dotnet_options[@]}" 1.WebHost/ack/ack.csproj --output "$publish_path/handstack/app"
+invoke_dotnet "$action_mode" "${dotnet_options[@]}" 1.WebHost/agent/agent.csproj --output "$publish_path/handstack/hosts/agent"
+invoke_dotnet "$action_mode" "${dotnet_options[@]}" 1.WebHost/deploy/deploy.csproj --output "$publish_path/handstack/hosts/deploy"
+invoke_dotnet "$action_mode" "${dotnet_options[@]}" 1.WebHost/forbes/forbes.csproj --output "$publish_path/handstack/hosts/forbes"
 
-if [ "$action_mode" == "publish" ]; then
-    dotnet $action_mode -p:Optimize=$optimize_flag -p:PublishSingleFile=true --configuration $configuration_mode --runtime $rid --self-contained false 4.Tool/CLI/bundling/bundling.csproj --output $publish_path/handstack/app/cli/bundling
-else
-    dotnet $action_mode -p:Optimize=$optimize_flag -p:PublishSingleFile=true --configuration $configuration_mode --arch $arch_mode --os $os_mode 4.Tool/CLI/bundling/bundling.csproj --output $publish_path/handstack/app/cli/bundling
-fi
+cli_projects=(
+    "4.Tool/CLI/bundling/bundling.csproj:bundling"
+    "4.Tool/CLI/dotnet-installer/dotnet-installer.csproj:dotnet-installer"
+    "4.Tool/CLI/edgeproxy/edgeproxy.csproj:edgeproxy"
+    "4.Tool/CLI/excludedportrange/excludedportrange.csproj:excludedportrange"
+    "4.Tool/CLI/handsonapp/handsonapp.csproj:handsonapp"
+    "4.Tool/CLI/handstack/handstack.csproj:handstack"
+    "4.Tool/CLI/ports/ports.csproj:ports"
+    "4.Tool/CLI/updater/updater.csproj:updater"
+)
 
-# Contracts 디렉토리 정리
-contracts_path="${HANDSTACK_HOME}/contracts"
-if [ -d "$contracts_path" ]; then
-    rm -rf "$contracts_path"
-fi
+for item in "${cli_projects[@]}"; do
+    project_path="${item%%:*}"
+    project_name="${item##*:}"
 
-# 모듈 프로젝트들 빌드/퍼블리시
-echo "모듈 프로젝트 빌드/퍼블리시 중..."
-modules=(
+    if [[ "$action_mode" == "publish" ]]; then
+        invoke_dotnet "$action_mode" \
+            -p:Optimize="$optimize_flag" \
+            -p:PublishSingleFile=true \
+            --configuration "$configuration_mode" \
+            --runtime "$rid" \
+            --self-contained false \
+            "$project_path" \
+            --output "$publish_path/handstack/tools/$project_name"
+    else
+        invoke_dotnet "$action_mode" \
+            -p:Optimize="$optimize_flag" \
+            --configuration "$configuration_mode" \
+            "$project_path" \
+            --output "$publish_path/handstack/tools/$project_name"
+    fi
+done
+
+contracts_path="$HANDSTACK_HOME/contracts"
+remove_if_exists "$contracts_path"
+
+module_projects=(
+    "2.Modules/checkup/checkup.csproj:checkup"
     "2.Modules/dbclient/dbclient.csproj:dbclient"
+    "2.Modules/forwarder/forwarder.csproj:forwarder"
     "2.Modules/function/function.csproj:function"
     "2.Modules/logger/logger.csproj:logger"
     "2.Modules/repository/repository.csproj:repository"
     "2.Modules/transact/transact.csproj:transact"
     "2.Modules/wwwroot/wwwroot.csproj:wwwroot"
-    "2.Modules/checkup/checkup.csproj:checkup"
 )
 
-# 각 모듈을 순회하며 빌드/퍼블리시 실행
-for module in "${modules[@]}"; do
-    IFS=':' read -r project_path module_name <<< "$module"
-    echo "$module_name 모듈 처리 중..."
-    
-    dotnet build -p:Optimize=$optimize_flag --configuration $configuration_mode "$project_path" --output "$publish_path/handstack/modules/$module_name"
+for item in "${module_projects[@]}"; do
+    project_path="${item%%:*}"
+    module_name="${item##*:}"
+
+    invoke_dotnet build \
+        -p:Optimize="$optimize_flag" \
+        --configuration "$configuration_mode" \
+        "$project_path" \
+        --output "$publish_path/handstack/modules/$module_name"
 done
 
-# 추가 파일들 복사
-echo "추가 파일 복사 중..."
-
-# Contracts 폴더가 존재하면 복사
-if [ -d "${HANDSTACK_HOME}/contracts" ]; then
-    rsync -avq "${HANDSTACK_HOME}/contracts/" "$publish_path/handstack/contracts/"
+if [[ -d "$HANDSTACK_HOME/contracts" ]]; then
+    mkdir -p "$publish_path/handstack/contracts"
+    rsync -a "$HANDSTACK_HOME/contracts/" "$publish_path/handstack/contracts/"
 fi
 
-# 설치 스크립트 파일들 복사
-if ls ./install.* 1> /dev/null 2>&1; then
-    rsync -av --progress ./install.* "$publish_path/handstack/"
-fi
+copy_glob_if_exists "$publish_path/handstack" "$SCRIPT_DIR"/install.*
+copy_glob_if_exists "$publish_path/handstack" "$SCRIPT_DIR"/2.Modules/function/package*.*
 
-# Package 파일들 복사
-if ls 2.Modules/function/package*.* 1> /dev/null 2>&1; then
-    rsync -av --progress 2.Modules/function/package*.* "$publish_path/handstack/"
-fi
-
-# wwwroot Package 파일들 복사
-if ls 2.Modules/wwwroot/package*.* 1> /dev/null 2>&1; then
-    mkdir -p "$publish_path/handstack/modules/wwwroot"
-    rsync -av --progress 2.Modules/wwwroot/package*.* "$publish_path/handstack/modules/wwwroot/"
-fi
-
-# wwwroot JavaScript 파일 정리
-echo "wwwroot JavaScript 파일 정리 중..."
 wwwroot_js_path="$publish_path/handstack/modules/wwwroot/wwwroot"
+remove_if_exists "$wwwroot_js_path/lib"
 
-if [ -d "$wwwroot_js_path" ]; then
-    # lib 폴더 삭제
-    rm -rf "$wwwroot_js_path/lib" 2>/dev/null || true
-    
-    # 특정 JavaScript 파일들 삭제
-    js_files=(
-        "syn.bundle.js"
-        "syn.bundle.min.js"
-        "syn.controls.js"
-        "syn.controls.min.js"
-        "syn.scripts.base.js"
-        "syn.scripts.base.min.js"
-        "syn.scripts.js"
-        "syn.scripts.min.js"
-    )
-    
-    for js_file in "${js_files[@]}"; do
-        rm -f "$wwwroot_js_path/js/$js_file" 2>/dev/null || true
-    done
+for js_file in \
+    syn.bundle.js \
+    syn.bundle.min.js \
+    syn.controls.js \
+    syn.controls.min.js \
+    syn.scripts.base.js \
+    syn.scripts.base.min.js \
+    syn.scripts.js \
+    syn.scripts.min.js; do
+    rm -f "$wwwroot_js_path/js/$js_file"
+done
+
+find "$publish_path/handstack" -type f \( -name '*.staticwebassets.endpoints.json' -o -name '*.staticwebassets.runtime.json' \) -exec rm -f {} +
+
+while IFS= read -r runtimes_dir; do
+    while IFS= read -r runtime_child; do
+        if [[ "$(basename "$runtime_child")" != "$rid" ]]; then
+            rm -rf "$runtime_child"
+        fi
+    done < <(find "$runtimes_dir" -mindepth 1 -maxdepth 1 -type d)
+
+    find "$runtimes_dir" -mindepth 1 -maxdepth 1 -type f -exec rm -f {} +
+done < <(find "$publish_path/handstack" -type d -name runtimes)
+
+if [[ -d "$HANDSTACK_SRC/3.Infrastructure/Assemblies" ]]; then
+    mkdir -p "$publish_path/handstack/assemblies"
+    rsync -a --delete "$HANDSTACK_SRC/3.Infrastructure/Assemblies/" "$publish_path/handstack/assemblies/"
 fi
-
-find "${publish_path}/handstack" -type f \( -name "*.staticwebassets.endpoints.json" -o -name "*.staticwebassets.runtime.json" \) | while read -r file; do
-    if [ -f "$file" ]; then
-        rm -f "$file" 2>/dev/null
-    fi
-done
-
-# runtimes 디렉토리 정리 (현재 publish 대상 RID만 유지)
-find "${publish_path}/handstack" -type d -name "runtimes" | while read -r runtimes_dir; do
-    find "$runtimes_dir" -mindepth 1 -maxdepth 1 -type d \
-        ! -name "$rid" -exec rm -rf {} + 2>/dev/null || true
-    find "$runtimes_dir" -mindepth 1 -maxdepth 1 -type f -exec rm -f {} + 2>/dev/null || true
-done
-
-rsync -a --delete -q %HANDSTACK_SRC%/3.Infrastructure/Assemblies/ %publish_path%/handstack/assemblies/
 
 echo "빌드/퍼블리시가 성공적으로 완료되었습니다!"
 echo "출력 디렉토리: $publish_path"
-
-# 선택사항: 소스 아카이브 생성
-# git archive --format zip --output "$HANDSTACK_SRC/../publish/handstack-src.zip" master

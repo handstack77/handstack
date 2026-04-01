@@ -1,32 +1,58 @@
 #!/bin/bash
 
-# tr -d '\r' < build.sh > build_fixed.sh && mv build_fixed.sh build.sh && chmod +x build.sh
+set -euo pipefail
 
-# Exit immediately if a command exits with a non-zero status.
-set -e
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
 
-echo "Cleaning previous builds..."
-dotnet restore handstack.sln
-dotnet clean handstack.sln
+PROJECTS=(
+  "2.Modules/checkup/checkup.csproj"
+  "2.Modules/dbclient/dbclient.csproj"
+  "2.Modules/forwarder/forwarder.csproj"
+  "2.Modules/function/function.csproj"
+  "2.Modules/logger/logger.csproj"
+  "2.Modules/repository/repository.csproj"
+  "2.Modules/transact/transact.csproj"
+  "2.Modules/wwwroot/wwwroot.csproj"
+  "1.WebHost/ack/ack.csproj"
+  "1.WebHost/agent/agent.csproj"
+  "1.WebHost/deploy/deploy.csproj"
+  "1.WebHost/forbes/forbes.csproj"
+  "4.Tool/CLI/bundling/bundling.csproj"
+  "4.Tool/CLI/dotnet-installer/dotnet-installer.csproj"
+  "4.Tool/CLI/edgeproxy/edgeproxy.csproj"
+  "4.Tool/CLI/excludedportrange/excludedportrange.csproj"
+  "4.Tool/CLI/handsonapp/handsonapp.csproj"
+  "4.Tool/CLI/handstack/handstack.csproj"
+  "4.Tool/CLI/ports/ports.csproj"
+  "4.Tool/CLI/updater/updater.csproj"
+)
 
-echo "Building Modules projects..."
-dotnet build "2.Modules/wwwroot/wwwroot.csproj" -c Debug
-dotnet build "2.Modules/dbclient/dbclient.csproj" -c Debug
-dotnet build "2.Modules/function/function.csproj" -c Debug
-dotnet build "2.Modules/logger/logger.csproj" -c Debug
-dotnet build "2.Modules/repository/repository.csproj" -c Debug
-dotnet build "2.Modules/transact/transact.csproj" -c Debug
-dotnet build "2.Modules/checkup/checkup.csproj" -c Debug
+build_project() {
+  local project_path="$1"
+  local project_name
+  project_name="$(basename "${project_path%.*}")"
 
-echo "Building WebHost projects..."
-dotnet build "1.WebHost/ack/ack.csproj" -c Debug
-dotnet build "1.WebHost/forbes/forbes.csproj" -c Debug
+  echo "Building ${project_name}..."
+  run_dotnet build "$project_path" -c Debug
+}
 
-echo "Building CLI Tools..."
-dotnet build "4.Tool/CLI/handstack/handstack.csproj" -c Debug
-dotnet build "4.Tool/CLI/handsonapp/handsonapp.csproj" -c Debug
-dotnet build "4.Tool/CLI/edgeproxy/edgeproxy.csproj" -c Debug
-dotnet build "4.Tool/CLI/excludedportrange/excludedportrange.csproj" -c Debug
-dotnet build "4.Tool/CLI/bundling/bundling.csproj" -c Debug
+run_dotnet() {
+  if ! dotnet "$@"; then
+    echo ""
+    echo "ERROR: dotnet command failed: dotnet $*"
+    exit 1
+  fi
+}
+
+echo "Restoring solution packages..."
+run_dotnet restore handstack.sln
+
+echo "Cleaning solution..."
+run_dotnet clean handstack.sln
+
+for project in "${PROJECTS[@]}"; do
+  build_project "$project"
+done
 
 echo "All projects built successfully."

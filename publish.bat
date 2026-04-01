@@ -51,34 +51,35 @@ REM dotnet 명령어 옵션 설정
 if "%action_mode%" == "publish" (
     set dotnet_options=-p:Optimize=%optimize_flag% --configuration %configuration_mode% --runtime %rid% --self-contained false
 ) else (
-    set dotnet_options=-p:Optimize=%optimize_flag% --configuration %configuration_mode% --arch %arch_mode% --os %os_mode%
+    set dotnet_options=-p:Optimize=%optimize_flag% --configuration %configuration_mode%
 )
 
 echo os_mode: %os_mode%, action_mode: %action_mode%, configuration_mode: %configuration_mode%, arch_mode: %arch_mode%, optimize: %optimize_flag%, rid: %rid%, publish_path: %publish_path%
 
 rmdir /s /q %publish_path%
 
+if "%action_mode%" == "publish" (
+    set cli_dotnet_options=-p:Optimize=%optimize_flag% -p:PublishSingleFile=true --configuration %configuration_mode% --runtime %rid% --self-contained false
+    set cli_output_root=%publish_path%\handstack\app\cli
+) else (
+    set cli_dotnet_options=-p:Optimize=%optimize_flag% --configuration %configuration_mode%
+    set cli_output_root=%publish_path%\handstack\tools
+)
+
 REM WebHost 프로젝트들 빌드/퍼블리시
 dotnet %action_mode% %dotnet_options% 1.WebHost\ack\ack.csproj --output %publish_path%\handstack\app
-dotnet %action_mode% %dotnet_options% 1.WebHost\forbes\forbes.csproj --output %publish_path%\handstack\forbes
+dotnet %action_mode% %dotnet_options% 1.WebHost\agent\agent.csproj --output %publish_path%\handstack\hosts\agent
+dotnet %action_mode% %dotnet_options% 1.WebHost\deploy\deploy.csproj --output %publish_path%\handstack\hosts\deploy
+dotnet %action_mode% %dotnet_options% 1.WebHost\forbes\forbes.csproj --output %publish_path%\handstack\hosts\forbes
 
-if "%action_mode%" == "publish" (
-    dotnet %action_mode% -p:Optimize=%optimize_flag% -p:PublishSingleFile=true --configuration %configuration_mode% --runtime %rid% --self-contained false 4.Tool\CLI\handstack\handstack.csproj --output %publish_path%\handstack\app\cli\handstack
-) else (
-    dotnet %action_mode% -p:Optimize=%optimize_flag% -p:PublishSingleFile=true --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% 4.Tool\CLI\handstack\handstack.csproj --output %publish_path%\handstack\app\cli\handstack
-)
-
-if "%action_mode%" == "publish" (
-    dotnet %action_mode% -p:Optimize=%optimize_flag% -p:PublishSingleFile=true --configuration %configuration_mode% --runtime %rid% --self-contained false 4.Tool\CLI\edgeproxy\edgeproxy.csproj --output %publish_path%\handstack\app\cli\edgeproxy
-) else (
-    dotnet %action_mode% -p:Optimize=%optimize_flag% -p:PublishSingleFile=true --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% 4.Tool\CLI\edgeproxy\edgeproxy.csproj --output %publish_path%\handstack\app\cli\edgeproxy
-)
-
-if "%action_mode%" == "publish" (
-    dotnet %action_mode% -p:Optimize=%optimize_flag% -p:PublishSingleFile=true --configuration %configuration_mode% --runtime %rid% --self-contained false 4.Tool\CLI\bundling\bundling.csproj --output %publish_path%\handstack\app\cli\bundling
-) else (
-    dotnet %action_mode% -p:Optimize=%optimize_flag% -p:PublishSingleFile=true --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% 4.Tool\CLI\bundling\bundling.csproj --output %publish_path%\handstack\app\cli\bundling
-)
+dotnet %action_mode% %cli_dotnet_options% 4.Tool\CLI\bundling\bundling.csproj --output %cli_output_root%\bundling
+dotnet %action_mode% %cli_dotnet_options% 4.Tool\CLI\dotnet-installer\dotnet-installer.csproj --output %cli_output_root%\dotnet-installer
+dotnet %action_mode% %cli_dotnet_options% 4.Tool\CLI\edgeproxy\edgeproxy.csproj --output %cli_output_root%\edgeproxy
+dotnet %action_mode% %cli_dotnet_options% 4.Tool\CLI\excludedportrange\excludedportrange.csproj --output %cli_output_root%\excludedportrange
+dotnet %action_mode% %cli_dotnet_options% 4.Tool\CLI\handsonapp\handsonapp.csproj --output %cli_output_root%\handsonapp
+dotnet %action_mode% %cli_dotnet_options% 4.Tool\CLI\handstack\handstack.csproj --output %cli_output_root%\handstack
+dotnet %action_mode% %cli_dotnet_options% 4.Tool\CLI\ports\ports.csproj --output %cli_output_root%\ports
+dotnet %action_mode% %cli_dotnet_options% 4.Tool\CLI\updater\updater.csproj --output %cli_output_root%\updater
 
 REM Contracts 폴더 정리
 set contracts_path=%HANDSTACK_HOME%\contracts
@@ -87,13 +88,14 @@ if exist "%contracts_path%" (
 )
 
 REM 모듈 빌드 (빌드 모드에서만, 퍼블리시는 위에서 처리됨)
+dotnet build -p:Optimize=%optimize_flag% --configuration %configuration_mode% 2.Modules\checkup\checkup.csproj --output %publish_path%\handstack\modules\checkup
 dotnet build -p:Optimize=%optimize_flag% --configuration %configuration_mode% 2.Modules\dbclient\dbclient.csproj --output %publish_path%\handstack\modules\dbclient
+dotnet build -p:Optimize=%optimize_flag% --configuration %configuration_mode% 2.Modules\forwarder\forwarder.csproj --output %publish_path%\handstack\modules\forwarder
 dotnet build -p:Optimize=%optimize_flag% --configuration %configuration_mode% 2.Modules\function\function.csproj --output %publish_path%\handstack\modules\function
 dotnet build -p:Optimize=%optimize_flag% --configuration %configuration_mode% 2.Modules\logger\logger.csproj --output %publish_path%\handstack\modules\logger
 dotnet build -p:Optimize=%optimize_flag% --configuration %configuration_mode% 2.Modules\repository\repository.csproj --output %publish_path%\handstack\modules\repository
 dotnet build -p:Optimize=%optimize_flag% --configuration %configuration_mode% 2.Modules\transact\transact.csproj --output %publish_path%\handstack\modules\transact
 dotnet build -p:Optimize=%optimize_flag% --configuration %configuration_mode% 2.Modules\wwwroot\wwwroot.csproj --output %publish_path%\handstack\modules\wwwroot
-dotnet build -p:Optimize=%optimize_flag% --configuration %configuration_mode% 2.Modules\checkup\checkup.csproj --output %publish_path%\handstack\modules\checkup
 
 REM 파일 복사
 if exist "%HANDSTACK_HOME%\contracts" (
@@ -143,4 +145,4 @@ robocopy %HANDSTACK_SRC%/3.Infrastructure/Assemblies %publish_path%/handstack/as
 echo "빌드/퍼블리시가 성공적으로 완료되었습니다!"
 echo "출력 디렉토리: %publish_path%"
 
-REM git archive --format zip --output %HANDSTACK_SRC%\..\publish\handstack-src.zip master
+goto :eof

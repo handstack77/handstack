@@ -5,7 +5,7 @@
 이 문서는 HandStack 업데이트 체계의 운영 절차를 정리한다.
 
 - `publish.ps1`로 배포 산출물 생성
-- `publish-update.ps1`로 업데이트 ZIP 패키지 생성
+- `publish-package.ps1`로 업데이트 ZIP 패키지 생성
 - `deploy` 호스트에 release 등록 및 publish
 - `ack`가 업데이트를 내려받고 적용했는지 확인
 
@@ -53,7 +53,7 @@ Set-Location C:\projects\handstack77\handstack
 └─ assemblies/
 ```
 
-`publish-update.ps1` 실행 후 기본 출력:
+`publish-package.ps1` 실행 후 기본 출력:
 
 ```text
 ../publish/win-x64/updates/stable/
@@ -68,7 +68,7 @@ Set-Location C:\projects\handstack77\handstack
 
 중요한 점:
 
-- `publish-update.ps1`가 생성한 `version.json`은 참고용 산출물이다.
+- `publish-package.ps1`가 생성한 `version.json`은 참고용 산출물이다.
 - 현재 `deploy` 서버는 `version.json` 파일을 직접 업로드받지 않는다.
 - 실제 공개용 `version.json`은 `deploy` 서버가 release publish 시 다시 생성한다.
 
@@ -104,13 +104,13 @@ Set-Location C:\projects\handstack77\handstack
 배포 산출물에서 업데이트용 ZIP 패키지를 만든다.
 
 ```powershell
-./publish-update.ps1 win Release x64
+./publish-package.ps1 win Release x64
 ```
 
 특정 publish 경로를 기준으로 만들려면:
 
 ```powershell
-./publish-update.ps1 win Release x64 "../publish/win-x64"
+./publish-package.ps1 win Release x64 "../publish/win-x64"
 ```
 
 생성 결과:
@@ -279,7 +279,7 @@ curl.exe `
 
 ### 4-5. 참고용 version.json 기준으로 반복 업로드
 
-`publish-update.ps1`가 만든 `version.json`을 읽어 ZIP 업로드 대상을 자동으로 순회할 수 있다.
+`publish-package.ps1`가 만든 `version.json`을 읽어 ZIP 업로드 대상을 자동으로 순회할 수 있다.
 
 ```powershell
 $deployBaseUrl = 'http://127.0.0.1:8520'
@@ -549,7 +549,7 @@ Get-Content <install-root>\update\state.json
 
 조치:
 
-- `publish-update.ps1`를 다시 실행
+- `publish-package.ps1`를 다시 실행
 - ZIP을 다시 업로드하고 release를 다시 publish
 
 ### 9-3. 같은 release가 자동 재시도되지 않음
@@ -586,7 +586,7 @@ Get-Content <install-root>\update\state.json
 실제 운영에서는 아래 순서를 권장한다.
 
 1. `publish.ps1`로 배포 산출물 생성
-2. `publish-update.ps1`로 ZIP과 참고용 `version.json` 생성
+2. `publish-package.ps1`로 ZIP과 참고용 `version.json` 생성
 3. 테스트용 `deploy` 서버에 먼저 업로드
 4. `GET /updates/stable/version.json`과 ZIP 다운로드 확인
 5. 테스트용 `ack`에서 `state.json`이 `Applied`가 되는지 확인
@@ -603,7 +603,7 @@ Get-Content <install-root>\update\state.json
 업데이트 패키지 생성:
 
 ```powershell
-./publish-update.ps1 win Release x64
+./publish-package.ps1 win Release x64
 ```
 
 deploy 실행:

@@ -1,238 +1,315 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# tr -d '\r' < install.sh > install_fixed.sh && mv install_fixed.sh install.sh && chmod +x install.sh
+set -euo pipefail
 
-# Node.js 설치 확인
-if ! command -v node 2> ~/null; then
-    echo "Node.js v20.12.2 LTS 이상 버전을 설치 해야 합니다."
-    echo "참고: https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#homebrew-를-이용한-nodejs-설치"
-    exit
-fi
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
 
-# Gulp 설치 확인
-if ! command -v gulp 2> ~/null; then
-    echo "Node.js 기반 gulp CLI 도구를 설치 해야 합니다."
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-        echo "참고: https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#homebrew-를-이용한-curl-설치"
+readonly NODE_URL_MAC="https://handstack.kr/docs/startup/install/%ED%95%84%EC%88%98-%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%A8-%EC%84%A4%EC%B9%98%ED%95%98%EA%B8%B0#homebrew-%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%9C-nodejs-%EC%84%A4%EC%B9%98"
+readonly NODE_URL_LINUX="https://handstack.kr/docs/startup/install/%ED%95%84%EC%88%98-%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%A8-%EC%84%A4%EC%B9%98%ED%95%98%EA%B8%B0#apt-%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%9C-nodejs-%EC%84%A4%EC%B9%98"
+readonly CURL_URL_MAC="https://handstack.kr/docs/startup/install/%ED%95%84%EC%88%98-%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%A8-%EC%84%A4%EC%B9%98%ED%95%98%EA%B8%B0#homebrew-%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%9C-curl-%EC%84%A4%EC%B9%98"
+readonly CURL_URL_LINUX="https://handstack.kr/docs/startup/install/%ED%95%84%EC%88%98-%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%A8-%EC%84%A4%EC%B9%98%ED%95%98%EA%B8%B0#apt-%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%9C-curl-%EC%84%A4%EC%B9%98"
+readonly GULP_URL="https://handstack.kr/docs/startup/install/%ED%95%84%EC%88%98-%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%A8-%EC%84%A4%EC%B9%98%ED%95%98%EA%B8%B0#gulp-%EC%84%A4%EC%B9%98%ED%95%98%EA%B8%B0"
+readonly DOTNET_URL_MAC="https://handstack.kr/docs/startup/install/%ED%95%84%EC%88%98-%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%A8-%EC%84%A4%EC%B9%98%ED%95%98%EA%B8%B0#homebrew-%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%9C-net-core-%EC%84%A4%EC%B9%98"
+readonly DOTNET_URL_LINUX="https://handstack.kr/docs/startup/install/%ED%95%84%EC%88%98-%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%A8-%EC%84%A4%EC%B9%98%ED%95%98%EA%B8%B0#apt-%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%9C-net-core-%EC%84%A4%EC%B9%98"
+readonly LIB_ZIP_URL="https://github.com/handstack77/handstack/raw/master/lib.zip"
+
+is_macos() {
+    [[ "$(uname -s)" == "Darwin" ]]
+}
+
+guide_url() {
+    local mac_url="$1"
+    local linux_url="$2"
+    if is_macos; then
+        printf '%s\n' "$mac_url"
     else
-        echo "참고: https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#apt-를-이용한-curl-설치"
+        printf '%s\n' "$linux_url"
     fi
-    exit
-fi
+}
 
-# Curl 설치 확인
-if ! command -v curl 2> ~/null; then
-    echo "curl CLI 를 설치 해야 합니다."
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-        echo "참고: https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#homebrew-를-이용한-curl-설치"
+fail_with_guide() {
+    local message="$1"
+    local url="$2"
+    echo "$message" >&2
+    echo "참고: $url" >&2
+    exit 1
+}
+
+require_command() {
+    local command_name="$1"
+    local message="$2"
+    local url="$3"
+    if ! command -v "$command_name" >/dev/null 2>&1; then
+        fail_with_guide "$message" "$url"
+    fi
+}
+
+ensure_major_version_at_least() {
+    local command_name="$1"
+    local required_major="$2"
+    local version_output
+    version_output="$("$command_name" --version 2>/dev/null | head -n 1)"
+    local major="${version_output%%.*}"
+    if [[ -z "$major" || ! "$major" =~ ^[0-9]+$ || "$major" -lt "$required_major" ]]; then
+        fail_with_guide ".NET Core 10.0 버전을 설치 해야 합니다. 현재 버전: ${version_output:-unknown}" "$(guide_url "$DOTNET_URL_MAC" "$DOTNET_URL_LINUX")"
+    fi
+}
+
+profile_file() {
+    if [[ -n "${SHELL:-}" && "${SHELL##*/}" == "zsh" ]]; then
+        printf '%s\n' "$HOME/.zshrc"
+    elif is_macos; then
+        printf '%s\n' "$HOME/.zshrc"
     else
-        echo "참고: https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#apt-를-이용한-curl-설치"
+        printf '%s\n' "$HOME/.bashrc"
     fi
-    exit
-fi
+}
 
-current_path=$(pwd)
-ack_csproj_path="$current_path/1.WebHost/ack/ack.csproj"
-PARENT_DIR="$(dirname "$current_path")"
-DEV_HANDSTACK_HOME="$PARENT_DIR/build/handstack"
+set_profile_export() {
+    local name="$1"
+    local value="$2"
+    local file
+    file="$(profile_file)"
+    mkdir -p "$(dirname "$file")"
+    touch "$file"
 
-if [ -f "$ack_csproj_path" ]; then
-    HANDSTACK_HOME="$DEV_HANDSTACK_HOME"
-else
-    HANDSTACK_HOME="$current_path"
-fi
+    local temp_file
+    temp_file="$(mktemp)"
 
-export HANDSTACK_HOME="$HANDSTACK_HOME"
+    awk -v name="$name" -v value="$value" '
+        BEGIN {
+            line = "export " name "=\"" value "\""
+            replaced = 0
+        }
+        $0 ~ "^[[:space:]]*export " name "=" {
+            if (!replaced) {
+                print line
+                replaced = 1
+            }
+            next
+        }
+        { print }
+        END {
+            if (!replaced) {
+                print line
+            }
+        }
+    ' "$file" > "$temp_file"
 
-# 환경 변수 설정
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    sudo chown -R $(whoami) ~/.npm
-    PROFILE_FILE="$HOME/.zshrc"
-else
-    PROFILE_FILE="$HOME/.bashrc"
-fi
+    mv "$temp_file" "$file"
+}
 
-# DOTNET_CLI_TELEMETRY_OPTOUT 설정
+sync_dir_contents() {
+    local source_dir="$1"
+    local destination_dir="$2"
+    mkdir -p "$destination_dir"
+    rsync -a --delete "$source_dir/" "$destination_dir/"
+}
+
+copy_if_exists() {
+    local source_path="$1"
+    local destination_path="$2"
+    if [[ -f "$source_path" ]]; then
+        mkdir -p "$(dirname "$destination_path")"
+        cp -f "$source_path" "$destination_path"
+    fi
+}
+
+ensure_libman() {
+    if command -v libman >/dev/null 2>&1; then
+        return
+    fi
+
+    echo "libman CLI 도구가 설치되어 있지 않습니다. 지금 .NET 전역 도구로 설치합니다..."
+    dotnet tool install --global Microsoft.Web.LibraryManager.Cli
+}
+
+handstack_cli_path() {
+    local base_path="$1"
+    local candidates=(
+        "$base_path/tools/handstack/handstack"
+        "$base_path/tools/handstack/handstack.exe"
+        "$base_path/app/cli/handstack"
+        "$base_path/app/cli/handstack.exe"
+    )
+
+    local candidate
+    for candidate in "${candidates[@]}"; do
+        if [[ -f "$candidate" ]]; then
+            printf '%s\n' "$candidate"
+            return 0
+        fi
+    done
+
+    return 1
+}
+
+extract_lib_zip() {
+    local cli_path="$1"
+    local zip_path="$2"
+    local output_dir="$3"
+    mkdir -p "$output_dir"
+    "$cli_path" extract "--file=$zip_path" "--directory=$output_dir"
+}
+
+CURRENT_PATH="$SCRIPT_DIR"
+PARENT_DIR="$(dirname "$CURRENT_PATH")"
+HANDSTACK_HOME="$PARENT_DIR/handstack"
+
+ACK_CSPROJ="$CURRENT_PATH/1.WebHost/ack/ack.csproj"
+RUNTIME_ACK_DLL="$CURRENT_PATH/app/ack.dll"
+RUNTIME_ACK_BINARY="$CURRENT_PATH/app/ack"
+
+echo "필수 프로그램 설치 확인 중..."
+require_command "node" "Node.js v20.12.2 LTS 이상 버전을 설치 해야 합니다." "$(guide_url "$NODE_URL_MAC" "$NODE_URL_LINUX")"
+require_command "gulp" "Node.js 기반 gulp CLI 도구를 설치 해야 합니다." "$GULP_URL"
+require_command "curl" "curl CLI 를 설치 해야 합니다." "$(guide_url "$CURL_URL_MAC" "$CURL_URL_LINUX")"
+require_command "rsync" "rsync 가 필요합니다." "$(guide_url "$CURL_URL_MAC" "$CURL_URL_LINUX")"
+
 export DOTNET_CLI_TELEMETRY_OPTOUT=1
-if ! grep -q "DOTNET_CLI_TELEMETRY_OPTOUT" "$PROFILE_FILE"; then
-    echo 'export DOTNET_CLI_TELEMETRY_OPTOUT=1' >> "$PROFILE_FILE"
-fi
+set_profile_export "DOTNET_CLI_TELEMETRY_OPTOUT" "1"
 
-echo "HANDSTACK_HOME: $HANDSTACK_HOME"
+if [[ -f "$ACK_CSPROJ" ]]; then
+    export HANDSTACK_SRC="$CURRENT_PATH"
+    export HANDSTACK_HOME="$HANDSTACK_HOME"
 
-# 개발 환경 설정 (ack.csproj 존재 시)
-if [ -f "$current_path/1.WebHost/ack/ack.csproj" ]; then
-    # 개발 환경에서만 HANDSTACK_SRC/HANDSTACK_HOME을 호스트 프로필에 등록
-    HANDSTACK_SRC="$current_path"
-    export HANDSTACK_SRC="$HANDSTACK_SRC"
+    echo "HANDSTACK_HOME: $HANDSTACK_HOME"
     echo "HANDSTACK_SRC: $HANDSTACK_SRC"
 
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-        sed -i '' '/export HANDSTACK_SRC=/d' "$PROFILE_FILE"
-        sed -i '' '/export HANDSTACK_HOME=/d' "$PROFILE_FILE"
-    else
-        sed -i '/export HANDSTACK_SRC=/d' "$PROFILE_FILE"
-        sed -i '/export HANDSTACK_HOME=/d' "$PROFILE_FILE"
-    fi
-    echo "export HANDSTACK_SRC=\"$HANDSTACK_SRC\"" >> "$PROFILE_FILE"
-    echo "export HANDSTACK_HOME=\"$HANDSTACK_HOME\"" >> "$PROFILE_FILE"
+    set_profile_export "HANDSTACK_SRC" "$HANDSTACK_SRC"
+    set_profile_export "HANDSTACK_HOME" "$HANDSTACK_HOME"
 
     mkdir -p "$HANDSTACK_HOME"
 
-    # .NET Core 설치 및 버전 확인
-    dotnet --version > /dev/null 2>&1
-    if [ $? -ne 0 ]; then
-        echo ".NET Core 10.0 버전을 설치 해야 합니다."
-        if [[ "$OSTYPE" == "darwin"* ]]; then
-            echo "참고: https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#homebrew-를-이용한-net-core-설치"
-        else
-            echo "참고: https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#apt-를-이용한-net-core-설치"
-        fi
-        exit
+    require_command "dotnet" ".NET Core 10.0 버전을 설치 해야 합니다." "$(guide_url "$DOTNET_URL_MAC" "$DOTNET_URL_LINUX")"
+    ensure_major_version_at_least "dotnet" 10
+
+    ACK_DIR="$CURRENT_PATH/1.WebHost/ack"
+    if [[ ! -d "$ACK_DIR/node_modules" ]]; then
+        echo "syn.js 번들링 $CURRENT_PATH/package.json 설치를 시작합니다..."
+        (
+            cd "$ACK_DIR"
+            npm install
+            gulp
+        )
     fi
 
-    MAJOR_VERSION=$(dotnet --version | cut -d. -f1)
-    if [ $MAJOR_VERSION -lt 10 ]; then
-        echo ".NET Core 10.0 버전을 설치 해야 합니다."
-        if [[ "$OSTYPE" == "darwin"* ]]; then
-            echo "참고: https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#homebrew-를-이용한-net-core-설치"
-        else
-            echo "참고: https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#apt-를-이용한-net-core-설치"
-        fi
-        exit
-    fi
-
-    # syn.js 번들링 (ack 프로젝트)
-    echo "current_path: $current_path 개발 환경 설치 확인 중..."
-    if [ ! -d "$current_path/1.WebHost/ack/node_modules" ]; then
-        echo "syn.js 번들링 $current_path/package.json 설치를 시작합니다..."
-        cd $current_path/1.WebHost/ack
-        npm install
-        gulp
-    fi
-    
-    cd $current_path
-    # lib.zip 압축 해제
-    if [ ! -d "$current_path/2.Modules/wwwroot/wwwroot/lib" ]; then
-        echo "lib.zip 파일을 해제합니다..."
-        unzip -q -o $current_path/lib.zip -d $current_path/2.Modules/wwwroot/wwwroot/lib
-    fi
-    
-    # libman 확인 및 자동 설치, 라이브러리 복원
-    cd $current_path/2.Modules/wwwroot
-
-    if ! command -v libman &> /dev/null; then
-        echo "libman 설치를 시도합니다..."
-        dotnet tool install --global Microsoft.Web.LibraryManager.Cli
-    fi
-    
-    # libman 확인 및 자동 설치, 라이브러리 복원
-    # echo "$current_path/2.Modules/wwwroot 디렉토리에서 libman restore를 실행합니다..."
-    # libman restore
-    
-    # wwwroot 모듈 node_modules 설치 및 gulp 실행
-    if [ ! -d "$current_path/2.Modules/wwwroot/node_modules" ]; then
-        echo "syn.bundle.js 모듈 $current_path/2.Modules/wwwroot/package.json 설치를 시작합니다..."
-        cd $current_path/2.Modules/wwwroot
-        npm install
-        mkdir -p $HANDSTACK_HOME/modules/wwwroot/wwwroot/lib
-        rsync -av --delete wwwroot/lib/ $HANDSTACK_HOME/modules/wwwroot/wwwroot/lib/
-        echo "syn.controls, syn.scripts, syn.bundle 번들링을 시작합니다..."
-        gulp
-    fi
-    
-    # 솔루션 빌드 및 Function 모듈 설치
-    cd $current_path
-    echo "current_path: $current_path"
-    build_path=$HANDSTACK_HOME
-
-    echo build.sh, post-build.sh 스크립트에 실행 권한을 부여합니다...
-    module_paths=("$current_path/1.WebHost/ack" "$current_path/1.WebHost/forbes" "$current_path/2.Modules/checkup" "$current_path/2.Modules/dbclient" "$current_path/2.Modules/function" "$current_path/2.Modules/logger" "$current_path/2.Modules/openapi" "$current_path/2.Modules/repository" "$current_path/2.Modules/transact" "$current_path/2.Modules/wwwroot" "$current_path/4.Tool/CLI/handstack")
-
-    for module_path in "${module_paths[@]}"
-    do
-        tr -d '\r' < $module_path/post-build.sh > $module_path/post-build_fixed.sh && mv $module_path/post-build_fixed.sh $module_path/post-build.sh
-        chmod +x $module_path/post-build.sh
-    done
-    
-    tr -d '\r' < $current_path/4.Tool/CLI/handstack/build.sh > $current_path/4.Tool/CLI/handstack/build_fixed.sh && mv $current_path/4.Tool/CLI/handstack/build_fixed.sh $current_path/4.Tool/CLI/handstack/build.sh
-    chmod +x $current_path/4.Tool/CLI/handstack/build.sh
-
-    # # tr -d '\r' < build.sh > build_fixed.sh && mv build_fixed.sh build.sh && chmod +x build.sh
+    echo "current_path: $CURRENT_PATH"
     ./build.sh
 
-    cd $current_path
-    cp $current_path/2.Modules/function/package*.* $HANDSTACK_HOME/
-    if [ ! -d "$HANDSTACK_HOME/node_modules" ]; then
-        echo "node.js Function 모듈 $HANDSTACK_HOME/package.json 설치를 시작합니다..."
-        cd $HANDSTACK_HOME
-        npm install
-        rsync -av --progress --exclude='*' --include='index.js' $current_path/1.WebHost/ack/wwwroot/assets/js $HANDSTACK_HOME/node_modules/syn
-    fi
+    WWWROOT_LIB="$CURRENT_PATH/2.Modules/wwwroot/wwwroot/lib"
+    if [[ ! -d "$WWWROOT_LIB" ]]; then
+        echo "handstack CLI 도구를 빌드합니다..."
+        dotnet build "$CURRENT_PATH/4.Tool/CLI/handstack/handstack.csproj"
 
-    cd $current_path
-    rsync -av --progress --exclude='*' --include='index.js' $current_path/1.WebHost/ack/wwwroot/assets/js/ $HANDSTACK_HOME/node_modules/syn/
-
-    echo "HandStack 개발 환경 설치가 완료되었습니다. Visual Studio 개발 도구로 handstack.sln 를 실행 후 컴파일 하거나 터미널에서 dotnet build handstack.sln 명령으로 솔루션을 컴파일 하세요."
-    exit
-fi
-
-# 실행 환경 설정 (ack.dll 존재 시)
-if [ -f "$current_path/app/ack.dll" ]; then
-    echo "current_path: $current_path ack 실행 환경 설치 확인 중..."
-    
-    # 루트 node_modules 설치
-    if [ ! -d "$current_path/node_modules" ]; then
-        echo "function 모듈 $current_path/package.json 설치를 시작합니다..."
-        npm install
-        cp $current_path/app/wwwroot/assets/js node_modules/syn/index.js
-    fi
-    
-    # app/node_modules 설치
-    if [ ! -d "$current_path/app/node_modules" ]; then
-        echo "syn.js 번들링 모듈 $current_path/app/package.json 설치를 시작합니다..."
-        cd $current_path/app
-        npm install
-    fi
-    
-    # lib.zip 복사/다운로드 및 해제
-    if [ ! -d "$current_path/modules/wwwroot/wwwroot/lib" ]; then
-        echo "클라이언트 라이브러리 $current_path/modules/wwwroot/wwwroot/lib 설치를 시작합니다..."
-        if [ -n "$HANDSTACK_SRC" ] && [ -f "$HANDSTACK_SRC/lib.zip" ] && [ ! -f "$current_path/modules/wwwroot/wwwroot/lib.zip" ]; then
-            cp "$HANDSTACK_SRC/lib.zip" "$current_path/modules/wwwroot/wwwroot/lib.zip"
-        fi
-
-        if [ ! -f "$current_path/modules/wwwroot/wwwroot/lib.zip" ]; then
-            echo "lib.zip 파일을 다운로드 합니다..."
-            cd "$current_path/modules/wwwroot/wwwroot"
-            curl -L -O https://github.com/handstack77/handstack/raw/master/lib.zip
-        fi
         echo "lib.zip 파일을 해제합니다..."
-        "$current_path/app/cli/handstack/handstack" extract --file="$current_path/modules/wwwroot/wwwroot/lib.zip" --directory="$current_path/modules/wwwroot/wwwroot/lib"
+        HANDSTACK_CLI="$(handstack_cli_path "$HANDSTACK_HOME")"
+        extract_lib_zip "$HANDSTACK_CLI" "$CURRENT_PATH/lib.zip" "$WWWROOT_LIB"
     fi
-    
-    # libman 확인 및 자동 설치, 라이브러리 복원
-    cd $current_path/modules/wwwroot
 
-    if ! command -v libman &> /dev/null; then
-        echo "libman 설치를 시도합니다..."
-        dotnet tool install --global Microsoft.Web.LibraryManager.Cli
+    echo "libman 도구 확인 및 라이브러리 복원을 시작합니다..."
+    (
+        cd "$CURRENT_PATH/2.Modules/wwwroot"
+        ensure_libman
+    )
+
+    WWWROOT_MODULE_DIR="$CURRENT_PATH/2.Modules/wwwroot"
+    if [[ ! -d "$WWWROOT_MODULE_DIR/node_modules" ]]; then
+        echo "syn.bundle.js 모듈 $CURRENT_PATH/2.Modules/wwwroot/package.json 설치를 시작합니다..."
+        (
+            cd "$WWWROOT_MODULE_DIR"
+            npm install
+            sync_dir_contents "$WWWROOT_MODULE_DIR/wwwroot/lib" "$HANDSTACK_HOME/modules/wwwroot/wwwroot/lib"
+            echo "syn.controls, syn.scripts, syn.bundle 번들링을 시작합니다..."
+            gulp
+        )
     fi
-    
-    # libman 확인 및 자동 설치, 라이브러리 복원
-    # echo "$current_path/modules/wwwroot 디렉토리에서 libman restore를 실행합니다..."
-    # libman restore
-    
-    # modules/wwwroot/node_modules 설치 및 gulp 실행
-    if [ ! -d "$current_path/modules/wwwroot/node_modules" ]; then
-        echo "syn.bundle.js 모듈 $current_path/modules/wwwroot/package.json 설치를 시작합니다..."
-        cd $current_path/modules/wwwroot
-        npm install
-        gulp
+
+    copy_if_exists "$CURRENT_PATH/2.Modules/function/package.json" "$HANDSTACK_HOME/package.json"
+    copy_if_exists "$CURRENT_PATH/2.Modules/function/package-lock.json" "$HANDSTACK_HOME/package-lock.json"
+
+    if [[ ! -d "$HANDSTACK_HOME/node_modules" ]]; then
+        echo "node.js Function 모듈 $HANDSTACK_HOME/package.json 설치를 시작합니다..."
+        (
+            cd "$HANDSTACK_HOME"
+            npm install
+        )
     fi
-    
-    # 완료 메시지
-    cd $current_path
-    echo "ack 실행 환경 설치가 완료되었습니다. 터미널에서 다음 경로의 프로그램을 실행하세요. $current_path/app/ack"
-    exit
+
+    copy_if_exists "$CURRENT_PATH/1.WebHost/ack/wwwroot/assets/js/index.js" "$HANDSTACK_HOME/node_modules/syn/index.js"
+
+    echo "HandStack 개발 환경 설치가 완료되었습니다. Visual Studio Code 또는 터미널에서 소스를 계속 작업하세요. 자세한 정보는 https://handstack.kr 를 참고하세요."
+    exit 0
 fi
+
+if [[ -f "$RUNTIME_ACK_DLL" || -f "$RUNTIME_ACK_BINARY" ]]; then
+    HANDSTACK_HOME="$CURRENT_PATH"
+    export HANDSTACK_HOME
+
+    echo "current_path: $CURRENT_PATH ack 실행 환경 설치 확인 중..."
+    echo "HANDSTACK_SRC: ${HANDSTACK_SRC:-}"
+    echo "HANDSTACK_HOME: $HANDSTACK_HOME"
+
+    if [[ ! -d "$CURRENT_PATH/node_modules" ]]; then
+        echo "function 모듈 $CURRENT_PATH/package.json 설치를 시작합니다..."
+        npm install
+        copy_if_exists "$CURRENT_PATH/app/wwwroot/assets/js/index.js" "$CURRENT_PATH/node_modules/syn/index.js"
+    fi
+
+    if [[ ! -d "$CURRENT_PATH/app/node_modules" ]]; then
+        echo "syn.js 번들링 모듈 $CURRENT_PATH/app/package.json 설치를 시작합니다..."
+        (
+            cd "$CURRENT_PATH/app"
+            npm install
+        )
+    fi
+
+    RUNTIME_LIB_DIR="$CURRENT_PATH/modules/wwwroot/wwwroot/lib"
+    RUNTIME_LIB_ZIP="$CURRENT_PATH/modules/wwwroot/wwwroot/lib.zip"
+    if [[ ! -d "$RUNTIME_LIB_DIR" ]]; then
+        echo "클라이언트 라이브러리 $RUNTIME_LIB_DIR 설치를 시작합니다..."
+        mkdir -p "$CURRENT_PATH/modules/wwwroot/wwwroot"
+
+        if [[ -n "${HANDSTACK_SRC:-}" && -f "$HANDSTACK_SRC/lib.zip" && ! -f "$RUNTIME_LIB_ZIP" ]]; then
+            cp -f "$HANDSTACK_SRC/lib.zip" "$RUNTIME_LIB_ZIP"
+        fi
+
+        if [[ ! -f "$RUNTIME_LIB_ZIP" ]]; then
+            echo "lib.zip 파일을 다운로드 합니다..."
+            (
+                cd "$CURRENT_PATH/modules/wwwroot/wwwroot"
+                curl -L -o lib.zip "$LIB_ZIP_URL"
+            )
+        fi
+
+        echo "lib.zip 파일을 해제합니다..."
+        HANDSTACK_CLI="$(handstack_cli_path "$HANDSTACK_HOME")"
+        extract_lib_zip "$HANDSTACK_CLI" "$RUNTIME_LIB_ZIP" "$RUNTIME_LIB_DIR"
+    fi
+
+    echo "libman 도구 확인 및 라이브러리 복원을 시작합니다..."
+    (
+        cd "$CURRENT_PATH/modules/wwwroot"
+        ensure_libman
+    )
+
+    if [[ ! -d "$CURRENT_PATH/modules/wwwroot/node_modules" ]]; then
+        echo "syn.bundle.js 모듈 $CURRENT_PATH/modules/wwwroot/package.json 설치를 시작합니다..."
+        (
+            cd "$CURRENT_PATH/modules/wwwroot"
+            npm install
+            gulp
+        )
+    fi
+
+    if [[ -f "$RUNTIME_ACK_BINARY" ]]; then
+        echo "ack 실행 환경 설치가 완료되었습니다. 터미널에서 다음 경로의 프로그램을 실행하세요. $RUNTIME_ACK_BINARY"
+    else
+        echo "ack 실행 환경 설치가 완료되었습니다. 터미널에서 다음 경로의 프로그램을 실행하세요. $RUNTIME_ACK_DLL"
+    fi
+    exit 0
+fi
+
+echo "개발 환경(1.WebHost/ack/ack.csproj) 또는 실행 환경(app/ack.dll, app/ack)을 찾지 못했습니다." >&2
+exit 1

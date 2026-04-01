@@ -1,70 +1,45 @@
 @echo off
-chcp 65001
+chcp 65001 >nul
 
-setlocal
+setlocal EnableExtensions EnableDelayedExpansion
 
-rem Clean previous builds
+set "CONFIG=Debug"
+
+set PROJECTS=^
+"2.Modules\wwwroot\wwwroot.csproj" ^
+"2.Modules\dbclient\dbclient.csproj" ^
+"2.Modules\function\function.csproj" ^
+"2.Modules\logger\logger.csproj" ^
+"2.Modules\repository\repository.csproj" ^
+"2.Modules\transact\transact.csproj" ^
+"2.Modules\checkup\checkup.csproj" ^
+"1.WebHost\ack\ack.csproj" ^
+"1.WebHost\agent\agent.csproj" ^
+"1.WebHost\deploy\deploy.csproj" ^
+"1.WebHost\forbes\forbes.csproj" ^
+"4.Tool\CLI\bundling\bundling.csproj" ^
+"4.Tool\CLI\dotnet-installer\dotnet-installer.csproj" ^
+"4.Tool\CLI\edgeproxy\edgeproxy.csproj" ^
+"4.Tool\CLI\excludedportrange\excludedportrange.csproj" ^
+"4.Tool\CLI\handsonapp\handsonapp.csproj" ^
+"4.Tool\CLI\handstack\handstack.csproj" ^
+"4.Tool\CLI\ports\ports.csproj" ^
+"4.Tool\CLI\updater\updater.csproj"
+
+echo Restoring solution packages...
 dotnet restore handstack.sln
+if errorlevel 1 goto :error
+
+echo Cleaning solution...
 dotnet clean handstack.sln
+if errorlevel 1 goto :error
 
-rem Build Modules projects (consider their internal dependencies if any)
-echo Building wwwroot...
-dotnet build "2.Modules\wwwroot\wwwroot.csproj" -c Debug
-if %errorlevel% neq 0 goto :error
-
-echo Building dbclient...
-dotnet build "2.Modules\dbclient\dbclient.csproj" -c Debug
-if %errorlevel% neq 0 goto :error
-
-echo Building function...
-dotnet build "2.Modules\function\function.csproj" -c Debug
-if %errorlevel% neq 0 goto :error
-
-echo Building logger...
-dotnet build "2.Modules\logger\logger.csproj" -c Debug
-if %errorlevel% neq 0 goto :error
-
-echo Building repository...
-dotnet build "2.Modules\repository\repository.csproj" -c Debug
-if %errorlevel% neq 0 goto :error
-
-echo Building transact...
-dotnet build "2.Modules\transact\transact.csproj" -c Debug
-if %errorlevel% neq 0 goto :error
-
-echo Building checkup...
-dotnet build "2.Modules\checkup\checkup.csproj" -c Debug
-if %errorlevel% neq 0 goto :error
-
-rem Build WebHost projects
-echo Building ack...
-dotnet build "1.WebHost\ack\ack.csproj" -c Debug
-if %errorlevel% neq 0 goto :error
-
-echo Building forbes...
-dotnet build "1.WebHost\forbes\forbes.csproj" -c Debug
-if %errorlevel% neq 0 goto :error
-
-rem Build CLI Tools (consider their internal dependencies)
-echo Building handstack CLI...
-dotnet build "4.Tool\CLI\handstack\handstack.csproj" -c Debug
-if %errorlevel% neq 0 goto :error
-
-echo Building handsonapp CLI...
-dotnet build "4.Tool\CLI\handsonapp\handsonapp.csproj" -c Debug
-if %errorlevel% neq 0 goto :error
-
-echo Building edgeproxy CLI...
-dotnet build "4.Tool\CLI\edgeproxy\edgeproxy.csproj" -c Debug
-if %errorlevel% neq 0 goto :error
-
-echo Building excludedportrange CLI...
-dotnet build "4.Tool\CLI\excludedportrange\excludedportrange.csproj" -c Debug
-if %errorlevel% neq 0 goto :error
-
-echo Building bundling CLI...
-dotnet build "4.Tool\CLI\bundling\bundling.csproj" -c Debug
-if %errorlevel% neq 0 goto :error
+for %%P in (!PROJECTS!) do (
+    for %%F in (%%~nP) do set "PROJECT_NAME=%%F"
+    echo Building !PROJECT_NAME!...
+    dotnet build %%~P -c %CONFIG%
+    if errorlevel 1 goto :error
+)
 
 echo All projects built successfully.
 goto :eof
@@ -72,5 +47,4 @@ goto :eof
 :error
 echo.
 echo ERROR: Build failed!
-endlocal
 exit /b 1
