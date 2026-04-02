@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.Parsing;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -21,12 +20,6 @@ using Serilog;
 
 namespace publish_package
 {
-    internal enum PackageTarget
-    {
-        Runtimes,
-        Modules
-    }
-
     internal readonly record struct PackageFileEntry(char Operation, string RelativePath, long FileSize, string Md5, DateTimeOffset ModifiedAt)
     {
         public bool ShouldIncludeInPackage => char.ToUpperInvariant(Operation) != 'D';
@@ -34,8 +27,16 @@ namespace publish_package
 
     internal static class Program
     {
+        private const string DeployTargetName = "deploy";
+        private const string RuntimesTargetName = "runtimes";
+        private const string ModulesTargetName = "modules";
+        private const string DeployMakeFileName = "deploy-filelist.txt";
+        private const string DeployDiffFileName = "deploy-diff-filelist.txt";
+        private const string RuntimesDiffFileName = "runtimes-diff-filelist.txt";
+        private const string ModulesDiffFileName = "modules-diff-filelist.txt";
         private static readonly string[] RuntimeDirectories = ["app", "assemblies", "hosts", "tools"];
         private static readonly string[] ModuleDirectories = ["modules"];
+        private static readonly string[] DeployDirectories = [.. RuntimeDirectories, .. ModuleDirectories];
         private static string startupWorkingDirectory = Directory.GetCurrentDirectory();
         private static System.Timers.Timer? startupAwaitTimer;
         private static CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
@@ -71,10 +72,6 @@ namespace publish_package
                     Description = "프로그램 시작시 디버거에 프로세스가 연결 될 수 있도록 지연 후 시작됩니다.(기본값: 10초)", DefaultValueFactory = parseResult => false 
                 };
 
-                var optionTarget = new Option<string?>("--target")
-                {
-                    Description = "배포 패키지 대상입니다. runtimes | modules"
-                };
                 var optionPublishPath = new Option<string?>("--publishpath")
                 {
                     Description = "배포 루트 경로입니다. handstack publish 경로를 지정할 수 있습니다."
@@ -85,7 +82,11 @@ namespace publish_package
                 };
                 var optionIncludes = new Option<string?>("--includes")
                 {
-                    Description = "make/compress 대상 첫 번째 하위 디렉터리 이름 목록입니다. 쉼표(,)로 구분합니다."
+                    Description = "make/compress 대상 하위 디렉터리 경로 목록입니다. 쉼표(,)로 구분합니다. 예: app,tools/publish-package,modules/transact,transact/Contracts"
+                };
+                var optionExclude = new Option<string?>("--exclude")
+                {
+                    Description = "make/compress 제외 glob 패턴 목록입니다. 쉼표(,)로 구분합니다."
                 };
 
                 var optionPrevFile = new Option<string?>("--prevfile")
@@ -103,49 +104,55 @@ namespace publish_package
 
                 var makeCommand = new Command("make", "대상 디렉터리의 파일 목록을 생성합니다.")
                 {
-                    optionTarget,
                     optionPublishPath,
                     optionIncludes,
+                    optionExclude,
                     optionOutput
                 };
                 makeCommand.SetAction(parseResult =>
                 {
                     try
                     {
-                        var target = ParseTarget(parseResult.GetValue(optionTarget));
-                        var includes = ParseIncludes(parseResult.GetValue(optionIncludes));
+                        var includeOptions = ParseIncludes(parseResult.GetValue(optionIncludes));
+                        var excludePatterns = ParseExcludes(parseResult.GetValue(optionExclude));
                         WriteInformation(
-                            "[make] 파일 목록 생성을 시작합니다. Target={0}, PublishPathOption={1}, IncludesOption={2}, OutputOption={3}",
-                            GetTargetName(target),
+                            "[make] 파일 목록 생성을 시작합니다. Target={0}, PublishPathOption={1}, IncludesOption={2}, ExcludeOption={3}, OutputOption={4}",
+                            DeployTargetName,
                             FormatOptionValue(parseResult.GetValue(optionPublishPath)),
                             FormatOptionValue(parseResult.GetValue(optionIncludes)),
+                            FormatOptionValue(parseResult.GetValue(optionExclude)),
                             FormatOptionValue(parseResult.GetValue(optionOutput), startupWorkingDirectory));
 
                         var handstackRootPath = ResolveHandStackRoot(parseResult.GetValue(optionPublishPath));
+                        var includes = ResolveIncludeDirectoryRelativePaths(handstackRootPath, includeOptions);
+                        var excludeMatchers = BuildGlobMatchers(excludePatterns);
                         var outputDirectoryPath = ResolveOutputDirectory(parseResult.GetValue(optionOutput));
                         WriteInformation(
-                            "[make] 경로 해석이 완료되었습니다. Target={0}, PublishPath={1}, Includes={2}, Output={3}",
-                            GetTargetName(target),
+                            "[make] 경로 해석이 완료되었습니다. Target={0}, PublishPath={1}, Includes={2}, Excludes={3}, Output={4}",
+                            DeployTargetName,
                             handstackRootPath,
                             FormatIncludes(includes),
+                            FormatExcludes(excludePatterns),
                             outputDirectoryPath);
 
-                        var files = EnumerateTargetFiles(handstackRootPath, target, includes);
+                        var files = EnumerateDeployFiles(handstackRootPath, includes, excludeMatchers);
                         WriteInformation(
-                            "[make] 대상 파일 수집이 완료되었습니다. Target={0}, Includes={1}, FileCount={2}",
-                            GetTargetName(target),
+                            "[make] 대상 파일 수집이 완료되었습니다. Target={0}, Includes={1}, Excludes={2}, FileCount={3}",
+                            DeployTargetName,
                             FormatIncludes(includes),
+                            FormatExcludes(excludePatterns),
                             files.Count);
 
-                        var fileListPath = Path.Combine(outputDirectoryPath, GetDefaultMakeFileName(target));
+                        var fileListPath = Path.Combine(outputDirectoryPath, DeployMakeFileName);
 
                         WriteFileList(fileListPath, files);
 
                         WriteInformation(
-                            "파일 목록을 생성했습니다. Target={0}, PublishPath={1}, Includes={2}, FileCount={3}, Output={4}",
-                            GetTargetName(target),
+                            "파일 목록을 생성했습니다. Target={0}, PublishPath={1}, Includes={2}, Excludes={3}, FileCount={4}, Output={5}",
+                            DeployTargetName,
                             handstackRootPath,
                             FormatIncludes(includes),
+                            FormatExcludes(excludePatterns),
                             files.Count,
                             fileListPath);
 
@@ -161,52 +168,57 @@ namespace publish_package
 
                 var compressCommand = new Command("compress", "대상 디렉터리 파일을 ZIP 패키지로 생성합니다.")
                 {
-                    optionTarget,
                     optionPublishPath,
                     optionMakeFile,
                     optionIncludes,
+                    optionExclude,
                     optionOutput
                 };
                 compressCommand.SetAction(parseResult =>
                 {
                     try
                     {
-                        var target = ParseTarget(parseResult.GetValue(optionTarget));
-                        var includes = ParseIncludes(parseResult.GetValue(optionIncludes));
+                        var includeOptions = ParseIncludes(parseResult.GetValue(optionIncludes));
+                        var excludePatterns = ParseExcludes(parseResult.GetValue(optionExclude));
                         WriteInformation(
-                            "[compress] ZIP 패키지 생성을 시작합니다. Target={0}, PublishPathOption={1}, MakeFileOption={2}, IncludesOption={3}, OutputOption={4}",
-                            GetTargetName(target),
+                            "[compress] ZIP 패키지 생성을 시작합니다. Target={0}, PublishPathOption={1}, MakeFileOption={2}, IncludesOption={3}, ExcludeOption={4}, OutputOption={5}",
+                            DeployTargetName,
                             FormatOptionValue(parseResult.GetValue(optionPublishPath)),
                             FormatOptionValue(parseResult.GetValue(optionMakeFile)),
                             FormatOptionValue(parseResult.GetValue(optionIncludes)),
+                            FormatOptionValue(parseResult.GetValue(optionExclude)),
                             FormatOptionValue(parseResult.GetValue(optionOutput), startupWorkingDirectory));
 
                         var handstackRootPath = ResolveHandStackRoot(parseResult.GetValue(optionPublishPath));
+                        var includes = ResolveIncludeDirectoryRelativePaths(handstackRootPath, includeOptions);
+                        var excludeMatchers = BuildGlobMatchers(excludePatterns);
                         var makeFilePath = parseResult.GetValue(optionMakeFile);
                         var resolvedMakeFilePath = string.IsNullOrWhiteSpace(makeFilePath) == true
                             ? null
                             : ResolveInputFilePath(makeFilePath, startupWorkingDirectory, handstackRootPath, AppContext.BaseDirectory);
                         var outputDirectoryPath = ResolveOutputDirectory(parseResult.GetValue(optionOutput));
                         WriteInformation(
-                            "[compress] 경로 해석이 완료되었습니다. Target={0}, PublishPath={1}, Includes={2}, Output={3}",
-                            GetTargetName(target),
+                            "[compress] 경로 해석이 완료되었습니다. Target={0}, PublishPath={1}, Includes={2}, Excludes={3}, Output={4}",
+                            DeployTargetName,
                             handstackRootPath,
                             FormatIncludes(includes),
+                            FormatExcludes(excludePatterns),
                             outputDirectoryPath);
 
-                        var currentEntries = EnumerateTargetFiles(handstackRootPath, target, includes);
+                        var currentEntries = EnumerateDeployFiles(handstackRootPath, includes, excludeMatchers);
                         IReadOnlyList<PackageFileEntry> packageEntries = string.IsNullOrWhiteSpace(makeFilePath) == true
                             ? currentEntries
-                            : LoadTargetFilesFromMakeFile(handstackRootPath, target, makeFilePath, includes);
+                            : LoadDeployFilesFromMakeFile(handstackRootPath, makeFilePath, includes, excludeMatchers);
                         var archiveEntries = packageEntries
                             .Where(entry => entry.ShouldIncludeInPackage == true)
                             .OrderBy(entry => entry.RelativePath, StringComparer.OrdinalIgnoreCase)
                             .ToList();
                         var archiveFileCount = archiveEntries.Count + (string.IsNullOrWhiteSpace(resolvedMakeFilePath) == true ? 0 : 1);
                         WriteInformation(
-                            "[compress] 패키지 대상을 확정했습니다. Target={0}, Includes={1}, CurrentFileCount={2}, PackageFileCount={3}, MakeFile={4}",
-                            GetTargetName(target),
+                            "[compress] 패키지 대상을 확정했습니다. Target={0}, Includes={1}, Excludes={2}, CurrentFileCount={3}, PackageFileCount={4}, MakeFile={5}",
+                            DeployTargetName,
                             FormatIncludes(includes),
+                            FormatExcludes(excludePatterns),
                             currentEntries.Count,
                             archiveEntries.Count,
                             resolvedMakeFilePath ?? "(scan)");
@@ -214,7 +226,7 @@ namespace publish_package
                         var packagesPath = Path.Combine(outputDirectoryPath, "packages");
                         Directory.CreateDirectory(packagesPath);
 
-                        var packageFileName = CreatePackageFileName(packagesPath, target, DateTimeOffset.Now);
+                        var packageFileName = CreatePackageFileName(packagesPath, DeployTargetName, DateTimeOffset.Now);
                         var packageFilePath = Path.Combine(packagesPath, packageFileName);
                         if (File.Exists(packageFilePath) == true)
                         {
@@ -243,16 +255,17 @@ namespace publish_package
 
                         WriteInformation(
                             "[compress] ZIP 및 기준 manifest 기록이 완료되었습니다. Target={0}, ZipPath={1}, ManifestPath={2}",
-                            GetTargetName(target),
+                            DeployTargetName,
                             packageFilePath,
                             packageManifestFilePath);
 
                         var packageSize = new FileInfo(packageFilePath).Length;
                         WriteInformation(
-                            "ZIP 패키지를 생성했습니다. Target={0}, PublishPath={1}, Includes={2}, FileCount={3}, Output={4}, Manifest={5}, Size={6}",
-                            GetTargetName(target),
+                            "ZIP 패키지를 생성했습니다. Target={0}, PublishPath={1}, Includes={2}, Excludes={3}, FileCount={4}, Output={5}, Manifest={6}, Size={7}",
+                            DeployTargetName,
                             handstackRootPath,
                             FormatIncludes(includes),
+                            FormatExcludes(excludePatterns),
                             archiveFileCount,
                             packageFilePath,
                             packageManifestFilePath,
@@ -267,6 +280,38 @@ namespace publish_package
                     }
                 });
                 rootCommand.Add(compressCommand);
+
+                var deployDiffCommand = new Command("deploy-diff", "이전 deploy 파일 목록 대비 변경분 파일 목록을 생성합니다.")
+                {
+                    optionMakeFile,
+                    optionPrevFile,
+                    optionOutput
+                };
+                deployDiffCommand.SetAction(parseResult =>
+                {
+                    try
+                    {
+                        WriteInformation(
+                            "[deploy-diff] 변경분 파일 목록 생성을 시작합니다. MakeFileOption={0}, PrevFileOption={1}, OutputOption={2}",
+                            FormatOptionValue(parseResult.GetValue(optionMakeFile)),
+                            FormatOptionValue(parseResult.GetValue(optionPrevFile)),
+                            FormatOptionValue(parseResult.GetValue(optionOutput), startupWorkingDirectory));
+
+                        return ExecuteDiffCommand(
+                            DeployTargetName,
+                            DeployDirectories,
+                            DeployDiffFileName,
+                            parseResult.GetValue(optionMakeFile),
+                            parseResult.GetValue(optionPrevFile),
+                            parseResult.GetValue(optionOutput));
+                    }
+                    catch (Exception exception)
+                    {
+                        WriteError("[deploy-diff] 변경분 파일 목록 생성 중 예외가 발생했습니다.", exception);
+                        return 1;
+                    }
+                });
+                rootCommand.Add(deployDiffCommand);
 
                 var runtimesDiffCommand = new Command("runtimes-diff", "이전 runtimes 파일 목록 대비 변경분 파일 목록을 생성합니다.")
                 {
@@ -285,7 +330,9 @@ namespace publish_package
                             FormatOptionValue(parseResult.GetValue(optionOutput), startupWorkingDirectory));
 
                         return ExecuteDiffCommand(
-                            PackageTarget.Runtimes,
+                            RuntimesTargetName,
+                            RuntimeDirectories,
+                            RuntimesDiffFileName,
                             parseResult.GetValue(optionMakeFile),
                             parseResult.GetValue(optionPrevFile),
                             parseResult.GetValue(optionOutput));
@@ -315,7 +362,9 @@ namespace publish_package
                             FormatOptionValue(parseResult.GetValue(optionOutput), startupWorkingDirectory));
 
                         return ExecuteDiffCommand(
-                            PackageTarget.Modules,
+                            ModulesTargetName,
+                            ModuleDirectories,
+                            ModulesDiffFileName,
                             parseResult.GetValue(optionMakeFile),
                             parseResult.GetValue(optionPrevFile),
                             parseResult.GetValue(optionOutput));
@@ -396,7 +445,7 @@ namespace publish_package
             }
         }
 
-        private static int ExecuteDiffCommand(PackageTarget target, string? makeFilePath, string? prevFilePath, string? outputPath)
+        private static int ExecuteDiffCommand(string targetName, IReadOnlyList<string> targetDirectories, string diffFileName, string? makeFilePath, string? prevFilePath, string? outputPath)
         {
             var resolvedMakeFilePath = ResolveInputFilePath(
                 RequireOptionValue("--makefile", makeFilePath),
@@ -419,24 +468,24 @@ namespace publish_package
             var outputDirectoryPath = ResolveOutputDirectory(outputPath);
             WriteInformation(
                 "[{0}-diff] 입력 파일 해석이 완료되었습니다. CurrentFile={1}, PrevFile={2}, Output={3}",
-                GetTargetName(target),
+                targetName,
                 resolvedMakeFilePath,
                 resolvedPrevFilePath,
                 outputDirectoryPath);
 
-            var currentEntries = LoadFileListEntriesFromFile(target, resolvedMakeFilePath);
-            var previousEntries = LoadFileListEntriesFromFile(target, resolvedPrevFilePath);
+            var currentEntries = LoadFileListEntriesFromFile(targetName, targetDirectories, resolvedMakeFilePath);
+            var previousEntries = LoadFileListEntriesFromFile(targetName, targetDirectories, resolvedPrevFilePath);
             WriteInformation(
                 "[{0}-diff] 기준 파일 로딩이 완료되었습니다. CurrentFileCount={1}, PrevFileCount={2}",
-                GetTargetName(target),
+                targetName,
                 currentEntries.Count,
                 previousEntries.Count);
 
             var diffEntries = BuildDiffEntries(previousEntries, currentEntries);
-            var diffFilePath = Path.Combine(outputDirectoryPath, GetDefaultDiffFileName(target));
+            var diffFilePath = Path.Combine(outputDirectoryPath, diffFileName);
             WriteInformation(
                 "[{0}-diff] 변경분 계산이 완료되었습니다. CreateCount={1}, UpdateCount={2}, DeleteCount={3}",
-                GetTargetName(target),
+                targetName,
                 diffEntries.Count(entry => entry.Operation == 'C'),
                 diffEntries.Count(entry => entry.Operation == 'U'),
                 diffEntries.Count(entry => entry.Operation == 'D'));
@@ -445,28 +494,13 @@ namespace publish_package
 
             WriteInformation(
                 "변경분 파일 목록을 생성했습니다. Target={0}, CurrentFile={1}, PrevFile={2}, FileCount={3}, Output={4}",
-                GetTargetName(target),
+                targetName,
                 resolvedMakeFilePath,
                 resolvedPrevFilePath,
                 diffEntries.Count,
                 diffFilePath);
 
             return 0;
-        }
-
-        private static PackageTarget ParseTarget(string? value)
-        {
-            if (string.Equals(value, "runtimes", StringComparison.OrdinalIgnoreCase) == true)
-            {
-                return PackageTarget.Runtimes;
-            }
-
-            if (string.Equals(value, "modules", StringComparison.OrdinalIgnoreCase) == true)
-            {
-                return PackageTarget.Modules;
-            }
-
-            throw new ArgumentException("`--target` 값 확인이 필요합니다. runtimes 또는 modules 를 지정하세요.");
         }
 
         private static string ResolveHandStackRoot(string? requestedPath)
@@ -578,7 +612,7 @@ namespace publish_package
             var seenIncludes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             foreach (var includeValue in value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
             {
-                var normalizedInclude = NormalizeIncludeName(includeValue);
+                var normalizedInclude = NormalizeIncludePath(includeValue);
                 if (seenIncludes.Add(normalizedInclude) == true)
                 {
                     includes.Add(normalizedInclude);
@@ -588,7 +622,28 @@ namespace publish_package
             return includes;
         }
 
-        private static string NormalizeIncludeName(string value)
+        private static IReadOnlyList<string> ParseExcludes(string? value)
+        {
+            if (string.IsNullOrWhiteSpace(value) == true)
+            {
+                return [];
+            }
+
+            var excludes = new List<string>();
+            var seenExcludes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var excludeValue in value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+            {
+                var normalizedExclude = NormalizeGlobPattern(excludeValue);
+                if (seenExcludes.Add(normalizedExclude) == true)
+                {
+                    excludes.Add(normalizedExclude);
+                }
+            }
+
+            return excludes;
+        }
+
+        private static string NormalizeIncludePath(string value)
         {
             var include = value.Trim().Trim('"');
             if (string.IsNullOrWhiteSpace(include) == true)
@@ -596,17 +651,49 @@ namespace publish_package
                 throw new ArgumentException("`--includes` 값 확인이 필요합니다.");
             }
 
-            if (include.Contains('/') == true || include.Contains('\\') == true)
+            return NormalizeRelativeFilePath(include);
+        }
+
+        private static string NormalizeGlobPattern(string value)
+        {
+            var pattern = value.Trim().Trim('"').Replace('\\', '/');
+            while (pattern.StartsWith("./", StringComparison.Ordinal) == true)
             {
-                throw new ArgumentException("`--includes`에는 첫 번째 하위 디렉터리 이름만 사용할 수 있습니다.");
+                pattern = pattern[2..];
             }
 
-            if (string.Equals(include, ".", StringComparison.Ordinal) == true || string.Equals(include, "..", StringComparison.Ordinal) == true)
+            if (string.IsNullOrWhiteSpace(pattern) == true)
             {
-                throw new ArgumentException("`--includes` 값 확인이 필요합니다.");
+                throw new ArgumentException("`--exclude` 값 확인이 필요합니다.");
             }
 
-            return include;
+            if (Path.IsPathRooted(pattern) == true)
+            {
+                throw new ArgumentException("`--exclude`에는 상대 경로 glob 패턴만 사용할 수 있습니다.");
+            }
+
+            var normalizedSegments = new List<string>();
+            foreach (var segment in pattern.Split('/', StringSplitOptions.RemoveEmptyEntries))
+            {
+                if (segment == ".")
+                {
+                    continue;
+                }
+
+                if (segment == "..")
+                {
+                    throw new ArgumentException("`--exclude`에는 배포 루트 밖 경로를 사용할 수 없습니다.");
+                }
+
+                normalizedSegments.Add(segment);
+            }
+
+            if (normalizedSegments.Count == 0)
+            {
+                throw new ArgumentException("`--exclude` 값 확인이 필요합니다.");
+            }
+
+            return string.Join("/", normalizedSegments);
         }
 
         private static string FormatIncludes(IReadOnlyList<string> includes)
@@ -614,6 +701,13 @@ namespace publish_package
             return includes.Count == 0
                 ? "(all)"
                 : string.Join(",", includes);
+        }
+
+        private static string FormatExcludes(IReadOnlyList<string> excludes)
+        {
+            return excludes.Count == 0
+                ? "(none)"
+                : string.Join(",", excludes);
         }
 
         private static string? NormalizeHandStackRoot(string candidatePath)
@@ -637,13 +731,14 @@ namespace publish_package
                 && Directory.Exists(Path.Combine(path, "hosts")) == true;
         }
 
-        private static IReadOnlyList<PackageFileEntry> EnumerateTargetFiles(string handstackRootPath, PackageTarget target, IReadOnlyList<string> includes)
+        private static IReadOnlyList<PackageFileEntry> EnumerateDeployFiles(string handstackRootPath, IReadOnlyList<string> includes, IReadOnlyList<Regex> excludeMatchers)
         {
             var fileEntries = new List<PackageFileEntry>();
-            foreach (var targetDirectoryPath in ResolveTargetDirectoryPaths(handstackRootPath, target, includes))
+            foreach (var targetDirectoryPath in ResolveDeployDirectoryPaths(handstackRootPath, includes))
             {
                 fileEntries.AddRange(
                     Directory.GetFiles(targetDirectoryPath, "*", SearchOption.AllDirectories)
+                        .Where(filePath => IsExcludedFilePath(ToRelativePath(handstackRootPath, filePath), excludeMatchers) == false)
                         .Select(filePath => CreatePackageFileEntry(handstackRootPath, filePath, 'C')));
             }
 
@@ -655,7 +750,7 @@ namespace publish_package
 
             if (files.Count == 0 && includes.Count == 0)
             {
-                throw new InvalidOperationException($"대상 파일이 없습니다. Target={GetTargetName(target)}");
+                throw new InvalidOperationException($"대상 파일이 없습니다. Target={DeployTargetName}");
             }
 
             return files;
@@ -702,7 +797,7 @@ namespace publish_package
                 && string.Equals(previousEntry.Md5, currentEntry.Md5, StringComparison.OrdinalIgnoreCase) == true;
         }
 
-        private static IReadOnlyList<PackageFileEntry> LoadTargetFilesFromMakeFile(string handstackRootPath, PackageTarget target, string makeFilePath, IReadOnlyList<string> includes)
+        private static IReadOnlyList<PackageFileEntry> LoadDeployFilesFromMakeFile(string handstackRootPath, string makeFilePath, IReadOnlyList<string> includes, IReadOnlyList<Regex> excludeMatchers)
         {
             var resolvedMakeFilePath = ResolveInputFilePath(makeFilePath, startupWorkingDirectory, handstackRootPath, AppContext.BaseDirectory);
             if (File.Exists(resolvedMakeFilePath) == false)
@@ -710,7 +805,7 @@ namespace publish_package
                 throw new FileNotFoundException("파일 목록을 찾을 수 없습니다.", resolvedMakeFilePath);
             }
 
-            var entries = LoadFileListEntriesFromFile(target, resolvedMakeFilePath, includes);
+            var entries = LoadFileListEntriesFromFile(DeployTargetName, DeployDirectories, resolvedMakeFilePath, includes, excludeMatchers);
             foreach (var entry in entries.Where(entry => entry.ShouldIncludeInPackage == true))
             {
                 var sourceFilePath = ResolveSourceFilePath(handstackRootPath, entry.RelativePath);
@@ -723,7 +818,7 @@ namespace publish_package
             return entries;
         }
 
-        private static IReadOnlyList<PackageFileEntry> LoadFileListEntriesFromFile(PackageTarget target, string filePath, IReadOnlyList<string>? includes = null)
+        private static IReadOnlyList<PackageFileEntry> LoadFileListEntriesFromFile(string targetName, IReadOnlyList<string> targetDirectories, string filePath, IReadOnlyList<string>? includes = null, IReadOnlyList<Regex>? excludeMatchers = null)
         {
             var entriesByPath = new Dictionary<string, PackageFileEntry>(StringComparer.OrdinalIgnoreCase);
             foreach (var line in File.ReadAllLines(filePath))
@@ -735,12 +830,22 @@ namespace publish_package
                 }
 
                 var entry = ParseFileListEntry(rawValue);
-                if (IsTargetFilePath(target, entry.RelativePath) == false)
+                if (IsKnownPackageFilePath(entry.RelativePath) == false)
                 {
-                    throw new InvalidOperationException($"대상 범위를 벗어난 파일입니다. Target={GetTargetName(target)}, Path={entry.RelativePath}");
+                    throw new InvalidOperationException($"대상 범위를 벗어난 파일입니다. Target={targetName}, Path={entry.RelativePath}");
                 }
 
-                if (IsIncludedFilePath(target, entry.RelativePath, includes) == false)
+                if (IsTargetFilePath(targetDirectories, entry.RelativePath) == false)
+                {
+                    continue;
+                }
+
+                if (IsIncludedFilePath(entry.RelativePath, includes) == false)
+                {
+                    continue;
+                }
+
+                if (excludeMatchers != null && IsExcludedFilePath(entry.RelativePath, excludeMatchers) == true)
                 {
                     continue;
                 }
@@ -886,11 +991,11 @@ namespace publish_package
                 : value + Path.DirectorySeparatorChar;
         }
 
-        private static IReadOnlyList<string> ResolveTargetDirectoryPaths(string handstackRootPath, PackageTarget target, IReadOnlyList<string> includes)
+        private static IReadOnlyList<string> ResolveDeployDirectoryPaths(string handstackRootPath, IReadOnlyList<string> includes)
         {
             if (includes.Count == 0)
             {
-                var targetDirectoryPaths = GetRequiredDirectoryNames(target)
+                var targetDirectoryPaths = DeployDirectories
                     .Select(directoryName => Path.Combine(handstackRootPath, directoryName))
                     .ToList();
                 foreach (var targetDirectoryPath in targetDirectoryPaths)
@@ -904,81 +1009,155 @@ namespace publish_package
                 return targetDirectoryPaths;
             }
 
-            return target == PackageTarget.Runtimes
-                ? ResolveRuntimeIncludeDirectoryPaths(handstackRootPath, includes)
-                : ResolveModuleIncludeDirectoryPaths(handstackRootPath, includes);
+            return includes
+                .Select(include => ResolveSourceFilePath(handstackRootPath, include))
+                .Where(Directory.Exists)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
         }
 
-        private static IReadOnlyList<string> ResolveRuntimeIncludeDirectoryPaths(string handstackRootPath, IReadOnlyList<string> includes)
+        private static IReadOnlyList<string> ResolveIncludeDirectoryRelativePaths(string handstackRootPath, IReadOnlyList<string> includes)
         {
-            var targetDirectoryPaths = new List<string>();
-            var seenPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            foreach (var include in includes)
+            if (includes.Count == 0)
             {
-                if (RuntimeDirectories.Contains(include, StringComparer.OrdinalIgnoreCase) == false)
-                {
-                    continue;
-                }
-
-                var targetDirectoryPath = Path.Combine(handstackRootPath, include);
-                if (Directory.Exists(targetDirectoryPath) == true && seenPaths.Add(targetDirectoryPath) == true)
-                {
-                    targetDirectoryPaths.Add(targetDirectoryPath);
-                }
-            }
-
-            return targetDirectoryPaths;
-        }
-
-        private static IReadOnlyList<string> ResolveModuleIncludeDirectoryPaths(string handstackRootPath, IReadOnlyList<string> includes)
-        {
-            var modulesRootPath = Path.Combine(handstackRootPath, "modules");
-            if (Directory.Exists(modulesRootPath) == false)
-            {
-                throw new DirectoryNotFoundException($"대상 디렉터리를 찾을 수 없습니다: {modulesRootPath}");
+                return [];
             }
 
             var targetDirectoryPaths = new List<string>();
             var seenPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             foreach (var include in includes)
             {
-                var targetDirectoryPath = Path.Combine(modulesRootPath, include);
-                if (Directory.Exists(targetDirectoryPath) == true && seenPaths.Add(targetDirectoryPath) == true)
+                foreach (var candidateRelativePath in GetIncludeCandidateRelativePaths(include))
                 {
-                    targetDirectoryPaths.Add(targetDirectoryPath);
+                    var targetDirectoryPath = ResolveSourceFilePath(handstackRootPath, candidateRelativePath);
+                    if (Directory.Exists(targetDirectoryPath) == true && seenPaths.Add(candidateRelativePath) == true)
+                    {
+                        targetDirectoryPaths.Add(candidateRelativePath);
+                    }
                 }
             }
 
             return targetDirectoryPaths;
         }
 
-        private static bool IsTargetFilePath(PackageTarget target, string relativePath)
+        private static IEnumerable<string> GetIncludeCandidateRelativePaths(string include)
         {
-            return GetRequiredDirectoryNames(target)
+            var yielded = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var normalizedInclude = NormalizeRelativeFilePath(include);
+            var isTargetRootRelativePath = DeployDirectories.Any(directoryName =>
+                normalizedInclude.Equals(directoryName, StringComparison.OrdinalIgnoreCase) == true
+                || normalizedInclude.StartsWith(directoryName + "/", StringComparison.OrdinalIgnoreCase) == true);
+            if (isTargetRootRelativePath == true)
+            {
+                if (yielded.Add(normalizedInclude) == true)
+                {
+                    yield return normalizedInclude;
+                }
+            }
+
+            if (isTargetRootRelativePath == false)
+            {
+                var moduleRelativePath = $"modules/{normalizedInclude}";
+                if (yielded.Add(moduleRelativePath) == true)
+                {
+                    yield return moduleRelativePath;
+                }
+            }
+        }
+
+        private static bool IsTargetFilePath(IReadOnlyList<string> targetDirectories, string relativePath)
+        {
+            return targetDirectories
                 .Any(directoryName =>
                     relativePath.Equals(directoryName, StringComparison.OrdinalIgnoreCase) == true
                     || relativePath.StartsWith(directoryName + "/", StringComparison.OrdinalIgnoreCase) == true);
         }
 
-        private static bool IsIncludedFilePath(PackageTarget target, string relativePath, IReadOnlyList<string>? includes)
+        private static bool IsKnownPackageFilePath(string relativePath)
+        {
+            return IsTargetFilePath(DeployDirectories, relativePath);
+        }
+
+        private static bool IsIncludedFilePath(string relativePath, IReadOnlyList<string>? includes)
         {
             if (includes == null || includes.Count == 0)
             {
                 return true;
             }
 
-            var pathSegments = NormalizeRelativeFilePath(relativePath)
-                .Split('/', StringSplitOptions.RemoveEmptyEntries);
+            var normalizedRelativePath = NormalizeRelativeFilePath(relativePath);
+            return includes.Any(include =>
+                normalizedRelativePath.Equals(include, StringComparison.OrdinalIgnoreCase) == true
+                || normalizedRelativePath.StartsWith(include + "/", StringComparison.OrdinalIgnoreCase) == true);
+        }
 
-            if (target == PackageTarget.Runtimes)
+        private static IReadOnlyList<Regex> BuildGlobMatchers(IReadOnlyList<string> patterns)
+        {
+            return patterns
+                .Select(BuildGlobRegex)
+                .ToList();
+        }
+
+        private static Regex BuildGlobRegex(string pattern)
+        {
+            var normalizedPattern = NormalizeGlobPattern(pattern);
+            var expression = new System.Text.StringBuilder("^");
+            for (var index = 0; index < normalizedPattern.Length; index++)
             {
-                return pathSegments.Length >= 1
-                    && includes.Any(include => string.Equals(include, pathSegments[0], StringComparison.OrdinalIgnoreCase) == true);
+                var currentCharacter = normalizedPattern[index];
+                if (currentCharacter == '*')
+                {
+                    var isDoubleAsterisk = index + 1 < normalizedPattern.Length && normalizedPattern[index + 1] == '*';
+                    if (isDoubleAsterisk == true)
+                    {
+                        var isDirectoryWildcard = index + 2 < normalizedPattern.Length && normalizedPattern[index + 2] == '/';
+                        expression.Append(isDirectoryWildcard == true ? "(?:.*/)?" : ".*");
+                        index += isDirectoryWildcard == true ? 2 : 1;
+                        continue;
+                    }
+
+                    expression.Append("[^/]*");
+                    continue;
+                }
+
+                if (currentCharacter == '?')
+                {
+                    expression.Append("[^/]");
+                    continue;
+                }
+
+                if (currentCharacter == '/')
+                {
+                    expression.Append("/");
+                    continue;
+                }
+
+                expression.Append(Regex.Escape(currentCharacter.ToString(CultureInfo.InvariantCulture)));
             }
 
-            return pathSegments.Length >= 3
-                && string.Equals(pathSegments[0], "modules", StringComparison.OrdinalIgnoreCase) == true
-                && includes.Any(include => string.Equals(include, pathSegments[1], StringComparison.OrdinalIgnoreCase) == true);
+            expression.Append("$");
+            return new Regex(expression.ToString(), RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled);
+        }
+
+        private static bool IsExcludedFilePath(string relativePath, IReadOnlyList<Regex> excludeMatchers)
+        {
+            if (excludeMatchers.Count == 0)
+            {
+                return false;
+            }
+
+            return EnumerateGlobMatchCandidates(relativePath)
+                .Any(candidate => excludeMatchers.Any(matcher => matcher.IsMatch(candidate) == true));
+        }
+
+        private static IEnumerable<string> EnumerateGlobMatchCandidates(string relativePath)
+        {
+            var normalizedRelativePath = NormalizeRelativeFilePath(relativePath);
+            var segments = normalizedRelativePath.Split('/', StringSplitOptions.RemoveEmptyEntries);
+            for (var index = 0; index < segments.Length; index++)
+            {
+                yield return string.Join("/", segments.Take(index + 1));
+            }
         }
 
         private static char NormalizeOperation(string? value)
@@ -1061,9 +1240,8 @@ namespace publish_package
             return $"{NormalizeOperation(entry.Operation.ToString(CultureInfo.InvariantCulture))}|{entry.RelativePath}|{entry.FileSize.ToString(CultureInfo.InvariantCulture)}|{md5Value}|{modifiedAtValue}";
         }
 
-        private static string CreatePackageFileName(string packagesPath, PackageTarget target, DateTimeOffset timestamp)
+        private static string CreatePackageFileName(string packagesPath, string packagePrefix, DateTimeOffset timestamp)
         {
-            var packagePrefix = GetTargetName(target);
             var yearMonth = timestamp.ToString("yyyy.MM", CultureInfo.InvariantCulture);
             var regex = new Regex($"^{Regex.Escape(packagePrefix)}-{Regex.Escape(yearMonth)}\\.(\\d+)\\.zip$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
@@ -1077,26 +1255,6 @@ namespace publish_package
                 : 1;
 
             return $"{packagePrefix}-{yearMonth}.{nextRollingNumber:D3}.zip";
-        }
-
-        private static IReadOnlyList<string> GetRequiredDirectoryNames(PackageTarget target)
-        {
-            return target == PackageTarget.Runtimes ? RuntimeDirectories : ModuleDirectories;
-        }
-
-        private static string GetDefaultMakeFileName(PackageTarget target)
-        {
-            return target == PackageTarget.Runtimes ? "runtimes-filelist.txt" : "modules-filelist.txt";
-        }
-
-        private static string GetDefaultDiffFileName(PackageTarget target)
-        {
-            return target == PackageTarget.Runtimes ? "runtimes-diff-filelist.txt" : "modules-diff-filelist.txt";
-        }
-
-        private static string GetTargetName(PackageTarget target)
-        {
-            return target == PackageTarget.Runtimes ? "runtimes" : "modules";
         }
 
         private static string ToRelativePath(string handstackRootPath, string filePath)
