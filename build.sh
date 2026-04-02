@@ -25,7 +25,7 @@ PROJECTS=(
   "4.Tool/CLI/handsonapp/handsonapp.csproj"
   "4.Tool/CLI/handstack/handstack.csproj"
   "4.Tool/CLI/ports/ports.csproj"
-  "4.Tool/CLI/updater/updater.csproj"
+  "4.Tool/CLI/launcher/launcher.csproj"
 )
 
 build_project() {
@@ -56,3 +56,4 @@ for project in "${PROJECTS[@]}"; do
 done
 
 echo "All projects built successfully."
+

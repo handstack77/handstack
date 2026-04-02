@@ -208,10 +208,10 @@ try {
         @{ Project = '4.Tool/CLI/edgeproxy/edgeproxy.csproj'; Name = 'edgeproxy' }
         @{ Project = '4.Tool/CLI/excludedportrange/excludedportrange.csproj'; Name = 'excludedportrange' }
         @{ Project = '4.Tool/CLI/handsonapp/handsonapp.csproj'; Name = 'handsonapp' }
+        @{ Project = '4.Tool/CLI/launcher/launcher.csproj'; Name = 'launcher' }
         @{ Project = '4.Tool/CLI/handstack/handstack.csproj'; Name = 'handstack' }
         @{ Project = '4.Tool/CLI/ports/ports.csproj'; Name = 'ports' }
         @{ Project = '4.Tool/CLI/publish-package/publish-package.csproj'; Name = 'publish-package' }
-        @{ Project = '4.Tool/CLI/updater/updater.csproj'; Name = 'updater' }
     )
 
     foreach ($cliProject in $cliProjects) {
@@ -325,3 +325,4 @@ catch {
 finally {
     Pop-Location
 }
+

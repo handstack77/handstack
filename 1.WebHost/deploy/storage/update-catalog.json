@@ -1,0 +1,16 @@
+{
+  "mandatory": false,
+  "maintenanceMode": false,
+  "releaseNotes": "",
+  "packages": [
+    {
+      "version": "2026.04.001",
+      "fileName": "deploy-2026.04.001.zip",
+      "sha256": "702891b22bbdf43a07a1e6d29937e062e236c7231408259a6825107775b2914e",
+      "size": 22366492,
+      "releaseDate": "2026-04-02T05:33:00.5544949+00:00",
+      "releaseNotes": "",
+      "uploadedAt": "2026-04-02T05:33:00.5544954+00:00"
+    }
+  ]
+}

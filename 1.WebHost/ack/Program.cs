@@ -15,6 +15,8 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
+using ack.Updates;
+
 using HandStack.Core.ExtensionMethod;
 using HandStack.Core.Helpers;
 using HandStack.Web;
@@ -62,6 +64,10 @@ namespace ack
             {
                 Environment.CurrentDirectory = GlobalConfiguration.EntryBasePath;
             }
+
+            var versionFilePath = Path.Combine(GlobalConfiguration.EntryBasePath, "version.json");
+            var versionInfo = VersionFileStore.Ensure(versionFilePath, VersionFileStore.DefaultVersion);
+            Console.WriteLine($"version.json: {versionFilePath}, version: {versionInfo.Version}, updatedAt: {versionInfo.UpdatedAt:O}");
 
             if (OperatingSystem.IsWindows() == true)
             {

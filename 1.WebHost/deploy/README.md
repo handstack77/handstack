@@ -1,19 +1,47 @@
 # handstack-deploy
 
-`handstack-deploy`는 HandStack 업데이트 패키지(`version.json + ZIP`)를 등록하고 공개 채널로 publish하는 관리 호스트입니다.
+`handstack-deploy`는 `publish-package`가 만든 `deploy-<yyyy.MM.rollingno>.zip` 패키지를 저장하고, launcher/updater가 읽는 공개 manifest를 제공하는 관리 호스트입니다.
 
-## 공개 API
+## 자동 업데이트 API
 
 | Method | Path | 인증 | 설명 |
 | --- | --- | --- | --- |
-| `GET` | `/` | 없음 | 배포 서버 상태 확인용 헬스 체크입니다. |
-| `GET` | `/api/releases` | 없음 | 등록된 release 목록을 반환합니다. |
-| `GET` | `/api/releases/{releaseId}` | 없음 | release 상세와 패키지 목록을 반환합니다. |
-| `POST` | `/api/releases` | 관리 키 | release 초안을 생성합니다. |
-| `POST` | `/api/releases/{releaseId}/packages` | 관리 키 | host 또는 module ZIP 패키지를 업로드합니다. |
-| `POST` | `/api/releases/{releaseId}/publish` | 관리 키 | 선택한 release를 채널의 `version.json`으로 publish합니다. |
-| `GET` | `/updates/{channel}/version.json` | 없음 | 배포 클라이언트가 읽는 업데이트 manifest입니다. |
-| `GET` | `/updates/{channel}/packages/{fileName}` | 없음 | 실제 ZIP 다운로드 경로입니다. |
+| `GET` | `/release/manifest.json` | 없음 | launcher가 읽는 최신 업데이트 manifest입니다. |
+| `GET` | `/release/packages/{fileName}` | 없음 | 실제 ZIP 다운로드 경로입니다. |
+| `POST` | `/api/update-packages` | 관리 키 | `publish-package` ZIP을 업로드하고 카탈로그에 등록합니다. |
+| `GET` | `/api/update-packages` | 없음 | 등록된 업데이트 ZIP 목록을 반환합니다. |
+| `POST` | `/deploy-error` | 없음 | updater 실패 로그를 저장합니다. |
+
+## manifest 형식
+
+공개 manifest 예:
+
+```json
+{
+  "version": "2026.05.001",
+  "releaseDate": "2026-04-02T09:00:00Z",
+  "packageUri": "http://localhost:8520/release/packages/deploy-2026.05.001.zip",
+  "packageSha256": "a1b2c3...",
+  "packageSize": 25478123,
+  "mandatory": false,
+  "maintenanceMode": false,
+  "releaseNotes": "",
+  "packages": [
+    {
+      "version": "2026.04.002",
+      "releaseDate": "2026-04-02T09:00:00Z",
+      "packageUri": "http://localhost:8520/release/packages/deploy-2026.04.002.zip",
+      "packageSha256": "....",
+      "packageSize": 1024,
+      "releaseNotes": ""
+    }
+  ]
+}
+```
+
+- `version`: 서버 최신 버전
+- `packages`: 클라이언트가 현재 버전보다 높은 항목만 골라 순차 적용할 패키지 목록
+- `maintenanceMode=true`: updater가 SHA-256 검증을 건너뜁니다.
 
 ## 설정
 
@@ -22,10 +50,28 @@
 - `ServiceName`: 서비스 표시 이름
 - `ManagementHeaderName`: 관리 API 키 헤더명, 기본 `X-Deploy-Key`
 - `ManagementKey`: 쓰기 API 보호용 키
-- `StorageRoot`: release와 공개 패키지를 저장할 루트 경로
-- `DefaultChannel`: 기본 채널명
-- `DefaultPlatform`: 기본 플랫폼 값
-- `PublicRequestPath`: 공개 업데이트 경로 prefix, 기본 `updates`
+- `StorageRoot`: 패키지, 카탈로그, 오류 로그 저장 루트
+- `PublicRootPath`: 공개 정적 파일 루트, 상대 경로면 deploy 호스트 ContentRoot 기준
+- `PublicRequestPath`: 공개 패키지 경로 prefix, 기본 `release`
+- `Mandatory`: 강제 업데이트 여부
+- `MaintenanceMode`: 점검 모드 여부
+- `ReleaseNotes`: 최신 manifest 기본 릴리스 노트
+
+패키지는 `PublicRootPath/packages`, 카탈로그는 `StorageRoot/update-catalog.json`, 오류 보고는 `StorageRoot/errors` 아래에 저장됩니다.
+
+## 업로드 예시
+
+```powershell
+Invoke-RestMethod `
+  -Method Post `
+  -Uri http://localhost:8520/api/update-packages `
+  -Headers @{ 'X-Deploy-Key' = 'your-key' } `
+  -Form @{
+      file = Get-Item .\packages\deploy-2026.05.001.zip
+      releaseNotes = 'May rollout'
+      releaseDate = '2026-05-01T09:00:00Z'
+  }
+```
 
 ## 로컬 실행
 
@@ -38,13 +84,3 @@ dotnet run --project 1.WebHost/deploy/deploy.csproj
 ```text
 http://localhost:8520
 ```
-
-## Docker 배포
-
-```powershell
-docker build -f 1.WebHost/deploy/Dockerfile -t handstack-deploy:latest .
-```
-
-## 관리 UI
-
-브라우저에서 `/`로 접속하면 release 생성, ZIP 업로드, publish, 이력 조회를 수행할 수 있습니다.

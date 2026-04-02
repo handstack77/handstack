@@ -16,6 +16,14 @@ namespace deploy.Options
 
         public string DefaultPlatform { get; set; } = "win-x64";
 
-        public string PublicRequestPath { get; set; } = "updates";
+        public string PublicRootPath { get; set; } = "";
+
+        public string PublicRequestPath { get; set; } = "release";
+
+        public bool Mandatory { get; set; }
+
+        public bool MaintenanceMode { get; set; }
+
+        public string ReleaseNotes { get; set; } = "";
     }
 }

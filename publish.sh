@@ -107,7 +107,7 @@ cli_projects=(
     "4.Tool/CLI/handsonapp/handsonapp.csproj:handsonapp"
     "4.Tool/CLI/handstack/handstack.csproj:handstack"
     "4.Tool/CLI/ports/ports.csproj:ports"
-    "4.Tool/CLI/updater/updater.csproj:updater"
+    "4.Tool/CLI/launcher/launcher.csproj:launcher"
 )
 
 for item in "${cli_projects[@]}"; do
@@ -199,3 +199,4 @@ fi
 
 echo "빌드/퍼블리시가 성공적으로 완료되었습니다!"
 echo "출력 디렉토리: $publish_path"
+

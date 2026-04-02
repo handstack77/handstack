@@ -6,59 +6,74 @@
     <title>HandStack Deploy</title>
     <style>
         :root {
-            --bg: #f4efe8;
-            --panel: #fffdf9;
+            --bg: #f6f3ee;
+            --panel: #fffdfa;
             --ink: #1f2933;
-            --muted: #6b7280;
-            --line: #d8cfc2;
-            --accent: #9a3412;
-            --accent-strong: #7c2d12;
+            --muted: #5f6c7b;
+            --line: #d7cec2;
+            --accent: #8b3a1a;
+            --accent-strong: #6d2c13;
+            --ok: #0f766e;
+            --err: #b91c1c;
         }
         * { box-sizing: border-box; }
         body {
             margin: 0;
-            font-family: "Segoe UI", "Malgun Gothic", sans-serif;
             color: var(--ink);
+            font-family: "Segoe UI", "Malgun Gothic", sans-serif;
             background:
-                radial-gradient(circle at top left, #f7d9b7, transparent 28%),
-                linear-gradient(180deg, #f6f1e8 0%, #efe7db 100%);
+                radial-gradient(circle at top left, #f8d7b9, transparent 26%),
+                linear-gradient(180deg, #f8f3ec 0%, #efe7db 100%);
         }
-        main { max-width: 1100px; margin: 0 auto; padding: 24px; }
-        h1 { margin: 0 0 12px; font-size: 32px; }
+        main { max-width: 1080px; margin: 0 auto; padding: 28px 20px 40px; }
+        h1 { margin: 0 0 10px; font-size: 32px; }
         p { margin: 0 0 16px; color: var(--muted); }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
         .card {
             background: var(--panel);
             border: 1px solid var(--line);
             border-radius: 18px;
             padding: 18px;
-            box-shadow: 0 14px 28px rgba(31, 41, 51, 0.08);
+            box-shadow: 0 16px 30px rgba(31, 41, 51, 0.08);
         }
-        label { display: block; margin: 10px 0 6px; font-weight: 600; }
-        input, textarea, select, button { width: 100%; font: inherit; }
-        input, textarea, select {
+        label { display: block; font-weight: 600; margin: 10px 0 6px; }
+        input, textarea, button {
+            width: 100%;
+            font: inherit;
+        }
+        input, textarea {
             border: 1px solid var(--line);
             border-radius: 10px;
             padding: 10px 12px;
             background: #fff;
         }
+        textarea { min-height: 92px; resize: vertical; }
         button {
-            margin-top: 12px;
             border: 0;
             border-radius: 999px;
+            padding: 11px 16px;
+            margin-top: 12px;
             background: var(--accent);
             color: #fff;
-            padding: 11px 16px;
             cursor: pointer;
         }
         button:hover { background: var(--accent-strong); }
+        .status {
+            min-height: 42px;
+            border-radius: 10px;
+            padding: 10px 12px;
+            margin-bottom: 16px;
+            background: rgba(139, 58, 26, 0.08);
+            color: var(--accent-strong);
+        }
+        .mono { font-family: Consolas, "Courier New", monospace; font-size: 12px; }
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 16px;
             background: var(--panel);
-            border-radius: 16px;
+            border-radius: 18px;
             overflow: hidden;
+            margin-top: 16px;
         }
         th, td {
             padding: 12px;
@@ -66,23 +81,15 @@
             text-align: left;
             vertical-align: top;
         }
-        .status {
-            padding: 10px 12px;
-            border-radius: 10px;
-            background: rgba(154, 52, 18, 0.08);
-            color: var(--accent-strong);
-            margin-bottom: 16px;
-            min-height: 42px;
-        }
         .actions { display: flex; gap: 8px; flex-wrap: wrap; }
         .actions button { width: auto; margin-top: 0; }
-        .mono { font-family: Consolas, "Courier New", monospace; font-size: 12px; }
+        a { color: var(--accent); }
     </style>
 </head>
 <body>
     <main>
         <h1>HandStack Deploy</h1>
-        <p>release 생성, ZIP 업로드, stable publish, 이력 조회를 한 화면에서 관리합니다.</p>
+        <p>`publish-package` ZIP 업로드, manifest 확인, 등록된 패키지 목록 조회를 위한 최소 관리 화면입니다.</p>
         <div id="status" class="status">대기 중</div>
 
         <div class="grid">
@@ -90,32 +97,18 @@
                 <h2>관리 키</h2>
                 <label for="accessKey">X-Deploy-Key</label>
                 <input id="accessKey" placeholder="비어 있으면 인증 없이 호출" />
-            </section>
-
-            <section class="card">
-                <h2>Release 생성</h2>
-                <label for="channel">Channel</label>
-                <input id="channel" value="stable" />
-                <label for="platform">Platform</label>
-                <input id="platform" value="win-x64" />
-                <label for="notes">Notes</label>
-                <textarea id="notes" rows="3"></textarea>
-                <button id="createRelease">Create Release</button>
+                <p style="margin-top:12px;">
+                    공개 manifest:
+                    <a id="manifestLink" href="/release/manifest.json" target="_blank">/release/manifest.json</a>
+                </p>
             </section>
 
             <section class="card">
                 <h2>패키지 업로드</h2>
-                <label for="releaseId">Release ID</label>
-                <input id="releaseId" />
-                <label for="packageType">Package Type</label>
-                <select id="packageType">
-                    <option value="host">host</option>
-                    <option value="module">module</option>
-                </select>
-                <label for="targetId">Target ID</label>
-                <input id="targetId" placeholder="module 업로드 시 module id" />
-                <label for="packageVersion">Version</label>
-                <input id="packageVersion" />
+                <label for="releaseNotes">Release Notes</label>
+                <textarea id="releaseNotes" placeholder="선택 사항"></textarea>
+                <label for="releaseDate">Release Date (UTC)</label>
+                <input id="releaseDate" placeholder="2026-04-02T09:00:00Z" />
                 <label for="packageFile">ZIP File</label>
                 <input id="packageFile" type="file" accept=".zip" />
                 <button id="uploadPackage">Upload Package</button>
@@ -124,25 +117,28 @@
 
         <section class="card" style="margin-top:16px;">
             <div class="actions">
-                <button id="refreshReleases">Refresh Releases</button>
+                <button id="refreshPackages">Refresh Packages</button>
+                <button id="refreshManifest">Load Manifest</button>
             </div>
             <table>
                 <thead>
                     <tr>
-                        <th>Release</th>
-                        <th>Channel/Platform</th>
-                        <th>Packages</th>
-                        <th>Publish</th>
+                        <th>Version</th>
+                        <th>Package</th>
+                        <th>Release Date</th>
+                        <th>Notes</th>
                     </tr>
                 </thead>
-                <tbody id="releaseRows"></tbody>
+                <tbody id="packageRows"></tbody>
             </table>
+            <pre id="manifestPreview" class="mono" style="margin-top:16px; white-space:pre-wrap;"></pre>
         </section>
     </main>
 
     <script>
         const statusBox = document.getElementById('status');
-        const releaseRows = document.getElementById('releaseRows');
+        const packageRows = document.getElementById('packageRows');
+        const manifestPreview = document.getElementById('manifestPreview');
 
         function headers() {
             const accessKey = document.getElementById('accessKey').value.trim();
@@ -151,8 +147,8 @@
 
         function setStatus(message, isError = false) {
             statusBox.textContent = message;
-            statusBox.style.background = isError ? 'rgba(190, 24, 93, 0.10)' : 'rgba(154, 52, 18, 0.08)';
-            statusBox.style.color = isError ? '#9d174d' : '#7c2d12';
+            statusBox.style.background = isError ? 'rgba(185, 28, 28, 0.08)' : 'rgba(139, 58, 26, 0.08)';
+            statusBox.style.color = isError ? 'var(--err)' : 'var(--accent-strong)';
         }
 
         async function readJson(response) {
@@ -163,82 +159,35 @@
             return data;
         }
 
-        async function loadReleases() {
-            setStatus('release 목록 조회 중...');
-            const response = await fetch('/api/releases');
+        async function loadPackages() {
+            setStatus('패키지 목록 조회 중...');
+            const response = await fetch('/api/update-packages');
             const data = await readJson(response);
-            renderRows(data.items || []);
-            setStatus(`release ${data.items.length}건 조회 완료`);
+            renderPackages(data.items || []);
+            setStatus(`패키지 ${data.items.length}건 조회 완료`);
         }
 
-        function renderRows(items) {
-            releaseRows.innerHTML = '';
+        function renderPackages(items) {
+            packageRows.innerHTML = '';
             if (!items.length) {
-                releaseRows.innerHTML = '<tr><td colspan="4">등록된 release가 없습니다.</td></tr>';
+                packageRows.innerHTML = '<tr><td colspan="4">등록된 패키지가 없습니다.</td></tr>';
                 return;
             }
 
             for (const item of items) {
-                const packageText = (item.Packages || [])
-                    .map(pkg => `${pkg.PackageType}:${pkg.Target} ${pkg.Version} (${pkg.FileName})`)
-                    .join('<br />');
-
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td class="mono">${item.ReleaseId}<br />${item.IsPublished ? 'published' : 'draft'}</td>
-                    <td>${item.Channel}<br />${item.Platform}</td>
-                    <td class="mono">${packageText || '-'}</td>
-                    <td>
-                        <div class="actions">
-                            <button data-release="${item.ReleaseId}" class="publishButton">Publish</button>
-                            <button data-release="${item.ReleaseId}" class="useButton">Use</button>
-                        </div>
-                    </td>
+                    <td class="mono">${item.version}</td>
+                    <td class="mono"><a href="/release/packages/${encodeURIComponent(item.fileName)}" target="_blank">${item.fileName}</a><br />${item.size} bytes</td>
+                    <td>${item.releaseDate || '-'}</td>
+                    <td>${item.releaseNotes || '-'}</td>
                 `;
-                releaseRows.appendChild(tr);
+                packageRows.appendChild(tr);
             }
-
-            document.querySelectorAll('.publishButton').forEach(button => {
-                button.addEventListener('click', async event => {
-                    await publishRelease(event.target.dataset.release);
-                });
-            });
-
-            document.querySelectorAll('.useButton').forEach(button => {
-                button.addEventListener('click', event => {
-                    document.getElementById('releaseId').value = event.target.dataset.release;
-                    setStatus(`release ${event.target.dataset.release} 선택`);
-                });
-            });
-        }
-
-        async function createRelease() {
-            setStatus('release 생성 중...');
-            const response = await fetch('/api/releases', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    ...headers()
-                },
-                body: JSON.stringify({
-                    Channel: document.getElementById('channel').value,
-                    Platform: document.getElementById('platform').value,
-                    Notes: document.getElementById('notes').value
-                })
-            });
-            const data = await readJson(response);
-            document.getElementById('releaseId').value = data.item.ReleaseId;
-            setStatus(`release 생성 완료: ${data.item.ReleaseId}`);
-            await loadReleases();
         }
 
         async function uploadPackage() {
             const fileInput = document.getElementById('packageFile');
-            const releaseId = document.getElementById('releaseId').value.trim();
-            if (!releaseId) {
-                setStatus('release ID 확인 필요', true);
-                return;
-            }
             if (!fileInput.files.length) {
                 setStatus('ZIP 파일 선택 필요', true);
                 return;
@@ -246,38 +195,37 @@
 
             setStatus('패키지 업로드 중...');
             const formData = new FormData();
-            formData.append('packageType', document.getElementById('packageType').value);
-            formData.append('targetId', document.getElementById('targetId').value);
-            formData.append('version', document.getElementById('packageVersion').value);
+            formData.append('releaseNotes', document.getElementById('releaseNotes').value);
+            formData.append('releaseDate', document.getElementById('releaseDate').value);
             formData.append('file', fileInput.files[0]);
 
-            const response = await fetch(`/api/releases/${encodeURIComponent(releaseId)}/packages`, {
+            const response = await fetch('/api/update-packages', {
                 method: 'POST',
                 headers: headers(),
                 body: formData
             });
+
             const data = await readJson(response);
-            setStatus(`패키지 업로드 완료: ${data.item.FileName}`);
             fileInput.value = '';
-            await loadReleases();
+            setStatus(`업로드 완료: ${data.item.version}`);
+            await loadPackages();
+            await loadManifest();
         }
 
-        async function publishRelease(releaseId) {
-            setStatus(`release ${releaseId} publish 중...`);
-            const response = await fetch(`/api/releases/${encodeURIComponent(releaseId)}/publish`, {
-                method: 'POST',
-                headers: headers()
-            });
+        async function loadManifest() {
+            setStatus('manifest 조회 중...');
+            const response = await fetch('/release/manifest.json');
             const data = await readJson(response);
-            setStatus(`publish 완료: ${data.versionUrl}`);
-            await loadReleases();
+            manifestPreview.textContent = JSON.stringify(data, null, 2);
+            setStatus(`manifest 최신 버전: ${data.version}`);
         }
 
-        document.getElementById('createRelease').addEventListener('click', () => createRelease().catch(error => setStatus(error.message, true)));
         document.getElementById('uploadPackage').addEventListener('click', () => uploadPackage().catch(error => setStatus(error.message, true)));
-        document.getElementById('refreshReleases').addEventListener('click', () => loadReleases().catch(error => setStatus(error.message, true)));
+        document.getElementById('refreshPackages').addEventListener('click', () => loadPackages().catch(error => setStatus(error.message, true)));
+        document.getElementById('refreshManifest').addEventListener('click', () => loadManifest().catch(error => setStatus(error.message, true)));
 
-        loadReleases().catch(error => setStatus(error.message, true));
+        loadPackages().catch(error => setStatus(error.message, true));
+        loadManifest().catch(error => setStatus(error.message, true));
     </script>
 </body>
 </html>

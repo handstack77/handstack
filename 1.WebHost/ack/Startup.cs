@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 
 using ack.Extensions;
 using ack.Services;
+using ack.Updates;
 
 using HandStack.Core.ExtensionMethod;
 using HandStack.Core.Licensing;
@@ -1471,6 +1472,115 @@ namespace ack
                     }
                 };
 
+                RequestDelegate getUpdateManifest = async context =>
+                {
+                    try
+                    {
+                        var versionFilePath = Path.Combine(GlobalConfiguration.EntryBasePath, "version.json");
+                        var versionInfo = VersionFileStore.Ensure(versionFilePath, VersionFileStore.DefaultVersion);
+                        var launcherExecutablePath = Path.GetFullPath(Path.Combine(
+                            GlobalConfiguration.EntryBasePath,
+                            "..",
+                            "tools",
+                            "launcher",
+                            OperatingSystem.IsWindows() == true ? "launcher.exe" : "launcher"));
+                        var launcherDllPath = Path.ChangeExtension(launcherExecutablePath, ".dll");
+                        var launchRequested = string.Equals(context.Request.Query["launch"], "true", StringComparison.OrdinalIgnoreCase) == true
+                            || string.Equals(context.Request.Query["executeLauncher"], "true", StringComparison.OrdinalIgnoreCase) == true;
+
+                        if (launchRequested == true)
+                        {
+                            if (IsValidHostAccessRequest(context, out var hostAccessID) == false)
+                            {
+                                Log.Warning("[{LogCategory}] HostAccessID 확인 필요: " + hostAccessID.ToStringSafe(), "Startup/manifest");
+                                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                                return;
+                            }
+
+                            if (File.Exists(launcherExecutablePath) == false && File.Exists(launcherDllPath) == false)
+                            {
+                                context.Response.StatusCode = StatusCodes.Status404NotFound;
+                                await context.Response.WriteAsync("launcher 실행 파일 확인 필요");
+                                return;
+                            }
+
+                            var manifestUrl = context.Request.Query["manifestUrl"].ToStringSafe();
+                            if (string.IsNullOrWhiteSpace(manifestUrl) == true)
+                            {
+                                context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                                await context.Response.WriteAsync("manifestUrl 확인 필요");
+                                return;
+                            }
+
+                            var errorUrl = context.Request.Query["errorUrl"].ToStringSafe();
+                            var currentProcess = Process.GetCurrentProcess();
+                            var startInfo = new ProcessStartInfo
+                            {
+                                FileName = File.Exists(launcherExecutablePath) == true ? launcherExecutablePath : "dotnet",
+                                WorkingDirectory = Path.GetDirectoryName(launcherExecutablePath) ?? GlobalConfiguration.EntryBasePath,
+                                UseShellExecute = false
+                            };
+
+                            if (File.Exists(launcherExecutablePath) == false)
+                            {
+                                startInfo.ArgumentList.Add(launcherDllPath);
+                            }
+
+                            startInfo.ArgumentList.Add("--manifest-url");
+                            startInfo.ArgumentList.Add(manifestUrl);
+                            startInfo.ArgumentList.Add("--wait-for-process-id");
+                            startInfo.ArgumentList.Add(currentProcess.Id.ToString());
+
+                            if (string.IsNullOrWhiteSpace(errorUrl) == false)
+                            {
+                                startInfo.ArgumentList.Add("--error-url");
+                                startInfo.ArgumentList.Add(errorUrl);
+                            }
+
+                            var currentArguments = Environment.GetCommandLineArgs();
+                            for (int argumentIndex = 1; argumentIndex < currentArguments.Length; argumentIndex++)
+                            {
+                                startInfo.ArgumentList.Add(currentArguments[argumentIndex]);
+                            }
+
+                            var launcherProcess = Process.Start(startInfo);
+                            if (launcherProcess == null)
+                            {
+                                context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                                await context.Response.WriteAsync("launcher 프로세스 시작 실패");
+                                return;
+                            }
+
+                            context.Response.StatusCode = StatusCodes.Status202Accepted;
+                            await context.Response.WriteAsJsonAsync(new
+                            {
+                                version = versionInfo.Version,
+                                updatedAt = versionInfo.UpdatedAt,
+                                processId = currentProcess.Id,
+                                launcherProcessId = launcherProcess.Id,
+                                manifestUrl,
+                                launchRequested = true
+                            });
+                            return;
+                        }
+
+                        await context.Response.WriteAsJsonAsync(new
+                        {
+                            version = versionInfo.Version,
+                            updatedAt = versionInfo.UpdatedAt,
+                            processId = Environment.ProcessId,
+                            executablePath = Process.GetCurrentProcess().MainModule?.FileName,
+                            launcherPath = File.Exists(launcherExecutablePath) == true ? launcherExecutablePath : launcherDllPath,
+                            launchRequested = false
+                        });
+                    }
+                    catch (Exception exception)
+                    {
+                        Log.Error(exception, "[{LogCategory}] 로컬 manifest 조회 실패", "Startup/manifest");
+                        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                    }
+                };
+
                 RequestDelegate applyGlobalConfiguration = async context =>
                 {
                     try
@@ -1617,6 +1727,7 @@ namespace ack
                 endpoints.MapGet("/globalconfigration", getGlobalConfiguration);
                 endpoints.MapPost("/globalconfiguration/apply", applyGlobalConfiguration);
                 endpoints.MapPost("/globalconfigration/apply", applyGlobalConfiguration);
+                endpoints.MapGet("/manifest", getUpdateManifest);
 
                 endpoints.MapGet("/moduleconfiguration/mediatr", getModuleMediatorConfiguration);
                 endpoints.MapGet("/moduleconfigration/mediatr", getModuleMediatorConfiguration);

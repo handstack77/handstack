@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Text;
 
 using deploy.Options;
@@ -35,11 +35,6 @@ namespace deploy
             Console.OutputEncoding = Encoding.UTF8;
             Console.InputEncoding = Encoding.UTF8;
 
-            if (HasConfiguredUrls(args, builder.Configuration["urls"], Environment.GetEnvironmentVariable("ASPNETCORE_URLS")) == false)
-            {
-                builder.WebHost.UseUrls("http://0.0.0.0:8520");
-            }
-
             builder.Services
                 .AddOptions<DeployOptions>()
                 .Bind(builder.Configuration.GetSection(DeployOptions.SectionName))
@@ -52,26 +47,26 @@ namespace deploy
 
             builder.Services.AddSingleton<ManagementKeyValidator>();
             builder.Services.AddScoped<ManagementKeyActionFilter>();
-            builder.Services.AddSingleton<IReleaseStorageService, ReleaseStorageService>();
+            builder.Services.AddSingleton<IUpdatePackageRepositoryService, UpdatePackageRepositoryService>();
 
             ConfigureServiceLifetime(builder.Host);
 
             var app = builder.Build();
-            var releaseStorageService = app.Services.GetRequiredService<IReleaseStorageService>();
+            var repositoryService = app.Services.GetRequiredService<IUpdatePackageRepositoryService>();
 
             Log.Information(
                 "handstack-deploy starting. ContentRootPath={ContentRootPath}, PublicRootPath={PublicRootPath}, PublicRequestPath={PublicRequestPath}",
                 app.Environment.ContentRootPath,
-                releaseStorageService.PublicRootPath,
-                "/" + releaseStorageService.PublicRequestPath);
+                repositoryService.PublicRootPath,
+                "/" + repositoryService.PublicRequestPath);
 
             app.UseSerilogRequestLogging();
             app.UseDefaultFiles();
             app.UseStaticFiles();
             app.UseStaticFiles(new StaticFileOptions
             {
-                FileProvider = new PhysicalFileProvider(releaseStorageService.PublicRootPath),
-                RequestPath = "/" + releaseStorageService.PublicRequestPath,
+                FileProvider = new PhysicalFileProvider(repositoryService.PublicRootPath),
+                RequestPath = "/" + repositoryService.PublicRequestPath,
                 ServeUnknownFileTypes = true
             });
 
