@@ -1,83 +1,43 @@
-# HandStack 배포/업데이트 운영 가이드
+# HandStack 배포 패키지/업데이트 운영 가이드
 
 ## 목적
 
-이 문서는 HandStack 업데이트 체계의 운영 절차를 정리한다.
+이 문서는 HandStack 배포와 업데이트 절차를 정리한 운영 문서다.
 
-- `publish.ps1`로 배포 산출물 생성
-- `publish-package.ps1`로 업데이트 ZIP 패키지 생성
-- `deploy` 호스트에 release 등록 및 publish
-- `ack`가 업데이트를 내려받고 적용했는지 확인
+운영 기준으로 중요한 사실은 다음과 같다.
 
-현재 문서는 저장소에 구현된 실제 동작만 기준으로 작성했다.
-
-- 패키지 형식: `version.json + ZIP`
-- 업데이트 적용 방식: `ack` 시작 시 확인 후 별도 `updater` 프로세스로 교체
-- 기본 대상 플랫폼: `win-x64`
-- 기본 채널: `stable`
+- 루트 배포 스크립트: `publish.ps1`
+- 패키지 생성기: `4.Tool/CLI/publish-package/Program.cs`
+- 업데이트 적용기: `4.Tool/CLI/launcher/Program.cs`
+- 배포 호스트: `1.WebHost/deploy/Program.cs`, `Controllers/*`, `Services/UpdatePackageRepositoryService.cs`
+- 런타임 연동: `1.WebHost/ack/Program.cs`, `1.WebHost/ack/Startup.cs`
+- 공개 업데이트 메타데이터는 `version.json` 업로드 방식이 아니라 `deploy`가 동적으로 만드는 `/release/manifest.json`이다.
+- 업데이트 적용 책임은 별도의 `launcher`에 있다.
+- `ack`는 자동으로 원격 배포 서버를 폴링하지 않는다. 직접 `launcher`를 진입점으로 쓰거나, 실행 중인 `ack`의 `/manifest?launch=true...`를 통해 `launcher`를 띄워야 한다.
 
 ## 전체 흐름
 
-1. 소스에서 HandStack 배포 산출물을 만든다.
-2. 배포 산출물에서 host/app ZIP, module ZIP, 참고용 `version.json`을 만든다.
-3. `deploy` 서버에 release를 만들고 ZIP을 업로드한다.
-4. `deploy` 서버에서 release를 publish해 `/updates/stable/version.json`을 노출한다.
-5. 대상 `ack` 인스턴스가 시작되면 해당 `version.json`을 읽고 필요한 패키지만 내려받는다.
-6. `updater`가 `app` 또는 `modules/<name>` 단위로 교체하고 `ack`를 재시작한다.
+1. `publish.ps1`로 `../publish/<rid>/handstack` 배포 산출물을 만든다.
+2. `publish-package`로 현재 배포 파일 목록(`deploy-filelist.txt`)을 만든다.
+3. 필요하면 이전 파일 목록과 비교해 변경분 manifest(`deploy-diff-filelist.txt`)를 만든다.
+4. `publish-package compress`로 `deploy-YYYY.MM.NNN.zip`과 같은 이름의 manifest `.txt`를 만든다.
+5. `deploy` 호스트에 ZIP을 업로드하면 `storage/update-catalog.json`에 등록되고 공개 경로 `/release/packages/*`로 노출된다.
+6. `deploy`는 등록된 카탈로그 기준으로 `/release/manifest.json`을 동적으로 생성한다.
+7. `launcher`는 `app/version.json`과 공개 manifest를 비교해 자신보다 높은 버전의 ZIP만 순서대로 내려받아 적용한다.
+8. `launcher`가 업데이트를 끝내면 `ack`를 다시 실행한다.
 
-## 사전 조건
+## 1. 기준 publish 산출물 생성
 
-- PowerShell 7 이상
-- .NET SDK 10.0
-- `curl`
-- HandStack 저장소 루트에서 작업
-
-권장 작업 위치:
-
-```powershell
-Set-Location C:\projects\handstack77\handstack
-```
-
-## 산출물 구조
-
-`publish.ps1` 실행 후 기본 출력:
-
-```text
-../publish/win-x64/handstack/
-├─ app/
-├─ modules/
-├─ updater/
-├─ deploy/
-├─ forbes/
-├─ contracts/
-└─ assemblies/
-```
-
-`publish-package.ps1` 실행 후 기본 출력:
-
-```text
-../publish/win-x64/updates/stable/
-├─ version.json
-└─ packages/
-   ├─ ack-win-x64-<version>.zip
-   ├─ modules-wwwroot-<version>.zip
-   ├─ modules-transact-<version>.zip
-   ├─ modules-dbclient-<version>.zip
-   └─ ...
-```
-
-중요한 점:
-
-- `publish-package.ps1`가 생성한 `version.json`은 참고용 산출물이다.
-- 현재 `deploy` 서버는 `version.json` 파일을 직접 업로드받지 않는다.
-- 실제 공개용 `version.json`은 `deploy` 서버가 release publish 시 다시 생성한다.
-
-## 1. 배포 산출물 생성
-
-릴리스용 HandStack 산출물을 먼저 만든다.
+기본 명령:
 
 ```powershell
 ./publish.ps1 win publish Release x64
+```
+
+디버그 빌드만 빠르게 확인할 때:
+
+```powershell
+./publish.ps1 win build Debug x64
 ```
 
 기본 출력 경로:
@@ -86,58 +46,212 @@ Set-Location C:\projects\handstack77\handstack
 ../publish/win-x64/handstack
 ```
 
-주요 확인 포인트:
+`publish.ps1`가 만드는 핵심 구조:
 
-- `../publish/win-x64/handstack/app/ack.exe`
-- `../publish/win-x64/handstack/updater/updater.exe`
-- `../publish/win-x64/handstack/modules/wwwroot/module.json`
-- `../publish/win-x64/handstack/deploy/deploy.exe` 또는 `deploy.dll`
-
-로컬 빌드만 빠르게 확인하려면:
-
-```powershell
-./publish.ps1 win build Debug x64
+```text
+handstack/
+├─ app/
+├─ assemblies/
+├─ hosts/
+│  ├─ agent/
+│  ├─ deploy/
+│  └─ forbes/
+├─ modules/
+│  ├─ checkup/
+│  ├─ dbclient/
+│  ├─ forwarder/
+│  ├─ function/
+│  ├─ logger/
+│  ├─ repository/
+│  ├─ transact/
+│  └─ wwwroot/
+├─ tools/
+│  ├─ bundling/
+│  ├─ dotnet-installer/
+│  ├─ edgeproxy/
+│  ├─ excludedportrange/
+│  ├─ handsonapp/
+│  ├─ handstack/
+│  ├─ launcher/
+│  ├─ ports/
+│  └─ publish-package/
+├─ contracts/
+└─ install.*
 ```
 
-## 2. 업데이트 패키지 생성
+코드상 추가로 수행하는 일:
 
-배포 산출물에서 업데이트용 ZIP 패키지를 만든다.
+- `ack`, `agent`, `deploy`, `forbes`는 `dotnet publish` 또는 `dotnet build`로 산출된다.
+- CLI 도구들은 `publish` 모드에서 `PublishSingleFile=true`, `self-contained=false`로 `handstack/tools/*` 아래 배치된다.
+- 모듈은 `publish` 모드에서도 개별 `dotnet build` 결과를 `handstack/modules/*` 아래에 복사한다.
+- `3.Infrastructure/Assemblies`는 `handstack/assemblies`로 미러링된다.
+- `HANDSTACK_HOME/contracts`는 `handstack/contracts`로 복사된다.
+- `install.*`, `2.Modules/function/package*.*` 파일도 루트에 복사된다.
+- `*.staticwebassets.*.json`과 현재 RID가 아닌 `runtimes/*` 하위는 정리된다.
+
+주의:
+
+- `publish-package` 표준 스캔 대상은 `app`, `assemblies`, `hosts`, `tools`, `modules` 다섯 영역뿐이다.
+- 따라서 `publish.ps1`가 만들어 둔 `handstack/contracts`, 루트 `install.*`, 기타 루트 파일은 현재 자동 업데이트 ZIP에 포함되지 않는다.
+
+## 2. `publish-package`로 파일 목록과 ZIP 생성
+
+### 2-1. 명령 개요
+
+`publish-package`는 5개의 실사용 명령을 제공한다.
+
+- `make`: 현재 배포 파일 전체 목록 생성
+- `deploy-diff`: 이전 전체 목록과 현재 전체 목록 비교
+- `runtimes-diff`: `app`, `assemblies`, `hosts`, `tools` 범위만 비교
+- `modules-diff`: `modules` 범위만 비교
+- `compress`: 전체 또는 diff manifest 기준으로 ZIP 생성
+
+기본 실행 예:
 
 ```powershell
-./publish-package.ps1 win Release x64
+dotnet run --project 4.Tool/CLI/publish-package/publish-package.csproj -- make
+dotnet run --project 4.Tool/CLI/publish-package/publish-package.csproj -- deploy-diff --makefile=.\deploy-filelist.txt --prevfile=.\previous\deploy-filelist.txt
+dotnet run --project 4.Tool/CLI/publish-package/publish-package.csproj -- compress --makefile=.\deploy-diff-filelist.txt
 ```
 
-특정 publish 경로를 기준으로 만들려면:
+### 2-2. publish 루트 해석 규칙
+
+`publish-package`는 내부적으로 `handstack` 루트를 직접 찾아야 동작한다.
+
+- `--publishpath`를 생략하면 현재 작업 디렉터리, 실행 파일 디렉터리, 상위 디렉터리를 따라가며 `../publish/<rid>/handstack`를 자동 탐지한다.
+- 현재 OS 기준 기본 RID는 Windows=`win-x64`, Linux=`linux-x64`, macOS=`osx-x64` 또는 `osx-arm64`다.
+- `--publishpath`를 명시할 때는 `.../publish/win-x64` 같은 상위 디렉터리가 아니라 `.../publish/win-x64/handstack` 자체를 넘겨야 한다.
+
+예:
 
 ```powershell
-./publish-package.ps1 win Release x64 "../publish/win-x64"
+publish-package make --publishpath=..\publish\win-x64\handstack
 ```
 
-생성 결과:
+### 2-3. 파일 목록 형식
 
-- `../publish/win-x64/updates/stable/version.json`
-- `../publish/win-x64/updates/stable/packages/*.zip`
+생성 파일 한 줄 형식:
 
-이 스크립트가 하는 일:
+```text
+작업구분|상대경로|파일크기|MD5|변경일시
+```
 
-- `handstack/app` 전체를 host ZIP으로 압축
-- `handstack/modules/<name>` 각각을 module ZIP으로 압축
-- 각 ZIP의 `SHA256` 계산
-- 참고용 `version.json` 생성
+예:
 
-생성 후 확인 예시:
+```text
+C|app/ack.dll|123456|A1B2C3D4E5F6|2026-04-02T10:20:30.0000000Z
+U|modules/transact/module.json|2048|B1C2D3E4F5A6|2026-04-02T10:21:00.0000000Z
+D|tools/launcher/old.txt|0|-|-
+```
+
+규칙:
+
+- `C`: 신규
+- `U`: 변경
+- `D`: 삭제
+- `make`가 처음 만드는 전체 목록은 모든 항목이 사실상 `C`다.
+- diff 비교는 `파일 크기 + MD5`가 같으면 동일 파일로 간주한다.
+- 생성 시각은 UTC ISO 8601 `O` 포맷으로 기록된다.
+
+### 2-4. 포함/제외 규칙
+
+`make`와 `compress`에서 아래 옵션을 사용할 수 있다.
+
+- `--includes`: 쉼표 구분 경로 목록
+- `--exclude`: 쉼표 구분 glob 패턴 목록
+- `--output`: 결과 파일 출력 디렉터리
+
+`--includes` 해석 규칙:
+
+- `app`, `assemblies`, `hosts`, `tools`, `modules`로 시작하면 그대로 사용한다.
+- 그 외 경로는 모듈 경로로 보고 `modules/<경로>`로 해석한다.
+
+예:
+
+- `--includes=tools/launcher` -> `tools/launcher`
+- `--includes=transact/Contracts` -> `modules/transact/Contracts`
+- `--includes=wwwroot` -> `modules/wwwroot`
+
+`--exclude`는 상대 경로 glob만 허용한다.
+
+- `**/*.log`
+- `**/node_modules/**`
+- `**/values.dev.yaml`
+
+### 2-5. ZIP 이름과 내부 manifest
+
+`compress` 결과 파일명은 아래 규칙으로 자동 생성된다.
+
+```text
+deploy-YYYY.MM.NNN.zip
+```
+
+예:
+
+```text
+deploy-2026.04.001.zip
+deploy-2026.04.002.zip
+```
+
+규칙:
+
+- `YYYY.MM`은 현재 로컬 시각의 연/월이다.
+- `NNN`은 같은 월에 이미 존재하는 ZIP을 스캔해 001부터 증가한다.
+- 같은 이름의 `.txt` 파일도 함께 생성된다.
+- `.txt` 파일은 ZIP 내부 루트에도 같이 들어간다.
+
+중요:
+
+- `compress --makefile=deploy-diff-filelist.txt`로 만들면 ZIP 옆의 `.txt`도 diff manifest다.
+- 다음 배포의 `--prevfile` 기준으로는 diff manifest가 아니라 전체 목록인 `deploy-filelist.txt`를 별도로 보관해야 한다.
+
+### 2-6. 권장 절차
+
+최초 전체 패키지:
 
 ```powershell
-Get-ChildItem ../publish/win-x64/updates/stable/packages
-Get-Content ../publish/win-x64/updates/stable/version.json
+publish-package make --publishpath=..\publish\win-x64\handstack --output=.\artifacts\2026.04.001
+publish-package compress --publishpath=..\publish\win-x64\handstack --makefile=.\artifacts\2026.04.001\deploy-filelist.txt --output=.\artifacts\2026.04.001
 ```
 
-## 3. deploy 서버 실행
+이후 증분 패키지:
 
-### 3-1. 소스에서 실행
+```powershell
+publish-package make --publishpath=..\publish\win-x64\handstack --output=.\artifacts\2026.04.002
+publish-package deploy-diff --makefile=.\artifacts\2026.04.002\deploy-filelist.txt --prevfile=.\artifacts\2026.04.001\deploy-filelist.txt --output=.\artifacts\2026.04.002
+publish-package compress --publishpath=..\publish\win-x64\handstack --makefile=.\artifacts\2026.04.002\deploy-diff-filelist.txt --output=.\artifacts\2026.04.002
+```
+
+운영 포인트:
+
+- `deploy-filelist.txt`는 다음 배포 비교 기준으로 보관한다.
+- `runtimes-diff`, `modules-diff`는 검토용 분리 manifest이며 업로드나 적용에 필수는 아니다.
+
+## 3. `deploy` 호스트 운영
+
+### 3-1. 역할
+
+`deploy`는 ZIP 파일 저장소이자 공개 manifest 생성기다.
+
+- ZIP 업로드 수신
+- `storage/update-catalog.json` 관리
+- 공개 다운로드 경로 노출
+- `/release/manifest.json` 동적 생성
+- 업데이트 실패 로그 수집
+
+### 3-2. 실행
+
+소스에서 실행:
 
 ```powershell
 dotnet run --project 1.WebHost/deploy/deploy.csproj
+```
+
+publish 산출물에서 실행:
+
+```powershell
+Set-Location ..\publish\win-x64\handstack\hosts\deploy
+dotnet .\deploy.dll
 ```
 
 기본 주소:
@@ -146,23 +260,9 @@ dotnet run --project 1.WebHost/deploy/deploy.csproj
 http://localhost:8520
 ```
 
-### 3-2. publish 결과에서 실행
+### 3-3. 기본 설정
 
-```powershell
-Set-Location ../publish/win-x64/handstack/deploy
-dotnet .\deploy.dll
-```
-
-또는 self-contained publish가 아니라면 환경에 따라 `deploy.exe` 대신 `dotnet deploy.dll`을 사용한다.
-
-### 3-3. deploy 설정
-
-`deploy`의 기본 설정 파일:
-
-- `1.WebHost/deploy/appsettings.json`
-- publish 후에는 `<deploy-root>/appsettings.json`
-
-핵심 설정:
+`1.WebHost/deploy/appsettings.json`의 `Deploy` 섹션:
 
 ```json
 {
@@ -171,461 +271,310 @@ dotnet .\deploy.dll
     "ManagementHeaderName": "X-Deploy-Key",
     "ManagementKey": "",
     "StorageRoot": "storage",
-    "DefaultChannel": "stable",
-    "DefaultPlatform": "win-x64",
-    "PublicRequestPath": "updates"
+    "PublicRootPath": "storage/public",
+    "PublicRequestPath": "release",
+    "Mandatory": false,
+    "MaintenanceMode": false,
+    "ReleaseNotes": ""
   }
 }
 ```
 
-권장 운영값:
+실제 사용되는 항목:
 
-- `ManagementKey`: 쓰기 API 보호용 키를 반드시 설정
-- `StorageRoot`: 배포 데이터 보관 경로. 기본값이면 `<deploy-root>/storage`
-- `PublicRequestPath`: 기본 `updates`
+- `ManagementHeaderName`: 업로드 API 헤더 이름
+- `ManagementKey`: 비어 있지 않으면 `POST /api/update-packages` 보호
+- `StorageRoot`: 카탈로그와 오류 로그 저장 루트
+- `PublicRootPath`: 공개 정적 파일 루트
+- `PublicRequestPath`: 공개 패키지 URL prefix. 기본값 `release`
+- `Mandatory`: 공개 manifest에 그대로 노출
+- `MaintenanceMode`: 공개 manifest에 그대로 노출
+- `ReleaseNotes`: 비어 있지 않으면 최신 manifest 상단의 `releaseNotes` 덮어씀
 
-### 3-4. deploy 확인
+현재 코드에서 사용하지 않는 항목:
 
-헬스 체크:
+- `DefaultChannel`
+- `DefaultPlatform`
 
-```powershell
-Invoke-RestMethod http://127.0.0.1:8520/
-```
+이 둘은 옵션 클래스와 설정 파일에는 있지만 현재 `deploy` 컨트롤러와 저장소 서비스에서는 읽지 않는다.
 
-관리 UI:
+### 3-4. 저장 구조
+
+기본값 기준:
 
 ```text
-http://127.0.0.1:8520/index.html
+hosts/deploy/
+├─ storage/
+│  ├─ update-catalog.json
+│  ├─ public/
+│  │  └─ packages/
+│  │     └─ deploy-2026.04.001.zip
+│  └─ errors/
+│     └─ 20260402/
+├─ wwwroot/
+│  └─ index.html
+└─ log/
+   └─ deploy*.log
 ```
 
-기본 로그 파일:
+### 3-5. API와 UI
 
-```text
-<deploy-root>/log/deploy.log
-```
+공개 엔드포인트:
 
-## 4. release 등록과 package 업로드
+- `GET /` : 헬스체크 JSON
+- `GET /index.html` : 최소 관리 UI
+- `GET /api/update-packages` : 등록된 패키지 목록
+- `POST /api/update-packages` : ZIP 업로드
+- `GET /release/manifest.json` : launcher가 읽는 공개 manifest
+- `GET /release/packages/{fileName}` : 실제 ZIP 다운로드
+- `POST /deploy-error` : launcher 실패 보고
 
-두 가지 방식이 있다.
+업로드 제약:
 
-- 웹 UI 사용
-- API 호출 사용
+- 파일명은 `-(\d+\.\d+\.\d+)\.zip` 정규식에 맞아야 한다.
+- 즉 `deploy-2026.04.001.zip`은 유효하다.
+- 같은 버전을 다시 업로드하면 기존 카탈로그 항목을 대체한다.
+- 업로드 시 ZIP 전체 SHA-256과 파일 크기를 재계산해 카탈로그에 저장한다.
 
-### 4-1. 웹 UI로 처리
-
-1. 브라우저에서 `http://127.0.0.1:8520/index.html` 접속
-2. 필요하면 `X-Deploy-Key` 입력
-3. `Create Release`로 초안 release 생성
-4. 생성된 `Release ID`를 기준으로 host ZIP 업로드
-5. 필요한 module ZIP 업로드
-6. `Publish` 버튼 실행
-7. 상태 메시지에 `/updates/stable/version.json` 노출 여부 확인
-
-업로드 기준:
-
-- host 패키지: `packageType=host`, `targetId` 비움
-- module 패키지: `packageType=module`, `targetId=<module 이름>`
-- `version`은 ZIP에 포함된 실제 버전과 맞춰 입력
-
-### 4-2. API로 release 생성
-
-PowerShell 예시:
+업로드 예:
 
 ```powershell
-$deployBaseUrl = 'http://127.0.0.1:8520'
-$deployKey = 'change-this-key'
-
-$release = Invoke-RestMethod `
-  -Uri "$deployBaseUrl/api/releases" `
-  -Method Post `
-  -Headers @{ 'X-Deploy-Key' = $deployKey } `
-  -ContentType 'application/json' `
-  -Body (@{
-      Channel = 'stable'
-      Platform = 'win-x64'
-      Notes = '2026-03 release'
-  } | ConvertTo-Json)
-
-$releaseId = $release.item.ReleaseId
-$releaseId
-```
-
-### 4-3. API로 host ZIP 업로드
-
-```powershell
-$hostZip = Resolve-Path '../publish/win-x64/updates/stable/packages/ack-win-x64-1.0.0.zip'
-
 curl.exe `
-  -X POST "$deployBaseUrl/api/releases/$releaseId/packages" `
-  -H "X-Deploy-Key: $deployKey" `
-  -F "packageType=host" `
-  -F "version=1.0.0" `
-  -F "file=@$hostZip"
+  -X POST "http://localhost:8520/api/update-packages" `
+  -H "X-Deploy-Key: change-this-key" `
+  -F "releaseNotes=2026.04 rollout" `
+  -F "releaseDate=2026-04-02T09:00:00Z" `
+  -F "file=@C:\work\artifacts\2026.04.002\packages\deploy-2026.04.002.zip"
 ```
 
-### 4-4. API로 module ZIP 업로드
+### 3-6. 공개 manifest 형식
 
-```powershell
-$moduleZip = Resolve-Path '../publish/win-x64/updates/stable/packages/modules-wwwroot-1.0.0.zip'
+`deploy`는 카탈로그 전체를 버전 오름차순으로 정렬한 뒤 마지막 항목을 최신 버전으로 사용한다.
 
-curl.exe `
-  -X POST "$deployBaseUrl/api/releases/$releaseId/packages" `
-  -H "X-Deploy-Key: $deployKey" `
-  -F "packageType=module" `
-  -F "targetId=wwwroot" `
-  -F "version=1.0.0" `
-  -F "file=@$moduleZip"
-```
-
-### 4-5. 참고용 version.json 기준으로 반복 업로드
-
-`publish-package.ps1`가 만든 `version.json`을 읽어 ZIP 업로드 대상을 자동으로 순회할 수 있다.
-
-```powershell
-$deployBaseUrl = 'http://127.0.0.1:8520'
-$deployKey = 'change-this-key'
-$packageRoot = Resolve-Path '../publish/win-x64/updates/stable'
-$manifest = Get-Content (Join-Path $packageRoot 'version.json') -Raw | ConvertFrom-Json
-$platform = $manifest.platforms.'win-x64'
-
-$release = Invoke-RestMethod `
-  -Uri "$deployBaseUrl/api/releases" `
-  -Method Post `
-  -Headers @{ 'X-Deploy-Key' = $deployKey } `
-  -ContentType 'application/json' `
-  -Body (@{
-      Channel = $manifest.channel
-      Platform = 'win-x64'
-      Notes = $manifest.releaseId
-  } | ConvertTo-Json)
-
-$releaseId = $release.item.ReleaseId
-
-if ($null -ne $platform.host) {
-    $hostZipPath = Join-Path $packageRoot $platform.host.downloadUrl
-    curl.exe `
-      -X POST "$deployBaseUrl/api/releases/$releaseId/packages" `
-      -H "X-Deploy-Key: $deployKey" `
-      -F "packageType=host" `
-      -F "version=$($platform.host.version)" `
-      -F "file=@$hostZipPath"
-}
-
-$platform.modules.PSObject.Properties | ForEach-Object {
-    $moduleId = $_.Name
-    $module = $_.Value
-    $moduleZipPath = Join-Path $packageRoot $module.downloadUrl
-
-    curl.exe `
-      -X POST "$deployBaseUrl/api/releases/$releaseId/packages" `
-      -H "X-Deploy-Key: $deployKey" `
-      -F "packageType=module" `
-      -F "targetId=$moduleId" `
-      -F "version=$($module.version)" `
-      -F "file=@$moduleZipPath"
-}
-
-Invoke-RestMethod `
-  -Uri "$deployBaseUrl/api/releases/$releaseId/publish" `
-  -Method Post `
-  -Headers @{ 'X-Deploy-Key' = $deployKey }
-```
-
-## 5. publish 결과 확인
-
-### 5-1. API 확인
-
-등록된 release 목록:
-
-```powershell
-Invoke-RestMethod "$deployBaseUrl/api/releases"
-```
-
-특정 release 상세:
-
-```powershell
-Invoke-RestMethod "$deployBaseUrl/api/releases/$releaseId"
-```
-
-공개 manifest 확인:
-
-```powershell
-Invoke-RestMethod "$deployBaseUrl/updates/stable/version.json"
-```
-
-host ZIP 다운로드 확인:
-
-```powershell
-Invoke-WebRequest "$deployBaseUrl/updates/stable/packages/ack-win-x64-1.0.0.zip" -OutFile .\ack-test.zip
-```
-
-### 5-2. 파일 시스템 확인
-
-기본 `StorageRoot=storage`라면 deploy 서버 내부 파일은 다음 위치에 생긴다.
-
-```text
-<deploy-root>/storage/
-├─ releases/
-│  └─ <releaseId>/
-│     ├─ release.json
-│     └─ packages/
-│        └─ *.zip
-└─ public/
-   └─ stable/
-      ├─ version.json
-      └─ packages/
-         └─ *.zip
-```
-
-의미:
-
-- `releases/<releaseId>`: 초안 및 업로드 원본 보관
-- `public/stable`: 실제 외부 공개 경로
-
-## 6. ack 업데이트 클라이언트 설정
-
-대상 `ack` 설치본의 `appsettings.json`에서 `Update` 섹션을 설정한다.
-
-기본 위치:
-
-- 소스 실행 시: `1.WebHost/ack/appsettings.json`
-- publish 설치본: `<install-root>/app/appsettings.json`
-
-예시:
+예:
 
 ```json
 {
-  "Update": {
-    "Enabled": true,
-    "CheckOnStartup": true,
-    "AllowAutoApply": true,
-    "StartupDelaySeconds": 0,
-    "Channel": "stable",
-    "BaseUrl": "http://127.0.0.1:8520/updates/stable",
-    "PackageRoot": "../update/packages",
-    "TempRoot": "../update/temp",
-    "StateFilePath": "../update/state.json",
-    "UpdaterPath": "../updater/updater.exe"
-  }
-}
-```
-
-주의:
-
-- `BaseUrl`은 채널 루트 URL을 권장한다.
-- 현재 구현은 `BaseUrl + /version.json`을 읽는다.
-- `BaseUrl`에 `version.json` 전체 URL을 직접 넣어도 동작한다.
-- `UpdaterPath`는 `ack` 실행 기준 경로에서 접근 가능해야 한다.
-- `publish.ps1` 산출물은 기본적으로 `<install-root>/updater/updater.exe`를 포함한다.
-
-## 7. ack 실행과 업데이트 확인
-
-### 7-1. ack 실행
-
-예시:
-
-```powershell
-dotnet run --project 1.WebHost/ack/ack.csproj -- --port=8421 --modules=wwwroot,transact,dbclient,function
-```
-
-또는 publish 설치본에서:
-
-```powershell
-Set-Location <install-root>\app
-.\ack.exe --port=8421 --modules=wwwroot,transact,dbclient,function
-```
-
-### 7-2. ack가 하는 일
-
-시작 시 `ack`는 다음 순서로 동작한다.
-
-1. `Update.BaseUrl`에서 `version.json` 조회
-2. 현재 host/app 버전과 module 버전 비교
-3. 필요한 ZIP만 `<install-root>/update/packages/<version>/` 아래로 다운로드
-4. `SHA256` 검증
-5. `<install-root>/update/temp/manifests/`에 pending manifest 작성
-6. `updater` 실행 후 현재 `ack` 프로세스 종료
-7. `updater`가 `app` 또는 `modules/<name>` 교체
-8. `ack`를 기존 실행 인자로 재시작
-
-### 7-3. ack 확인 파일
-
-기본 경로:
-
-```text
-<install-root>/update/
-├─ packages/
-├─ temp/
-│  └─ manifests/
-├─ backups/
-└─ state.json
-```
-
-주요 확인 대상:
-
-- `state.json`: 마지막 확인/적용 결과
-- `packages/`: 다운로드된 ZIP
-- `backups/`: 교체 전 백업
-- `logs/updater.log`: updater 적용 단계 로그
-- `app.log`: `ack` 실행 로그
-
-기본 로그 파일:
-
-```text
-<install-root>/log/app.log
-```
-
-```text
-<install-root>/update/logs/updater.log
-```
-
-### 7-4. state.json 확인
-
-```powershell
-Get-Content <install-root>\update\state.json
-```
-
-주요 필드:
-
-- `LastCheckedAtUtc`: 마지막 확인 시각
-- `LastStatus`: `None`, `NoUpdate`, `Pending`, `Applied`, `Failed`
-- `LastErrorMessage`: 실패 메시지
-- `LastAttemptedReleaseId`: 마지막 시도 release
-- `LastAppliedReleaseId`: 마지막 적용 완료 release
-- `LastPackages`: 마지막으로 처리한 host/module 목록
-
-정상 적용 예:
-
-```json
-{
-  "LastStatus": "Applied",
-  "LastAppliedReleaseId": "rel-20260326120000-abcd",
-  "LastPackages": [
-    { "Target": "app", "Version": "1.0.1" },
-    { "Target": "modules/wwwroot", "Version": "1.0.1" }
+  "version": "2026.04.002",
+  "releaseDate": "2026-04-02T09:00:00Z",
+  "packageUri": "http://localhost:8520/release/packages/deploy-2026.04.002.zip",
+  "packageSha256": "abcdef...",
+  "packageSize": 12345678,
+  "mandatory": false,
+  "maintenanceMode": false,
+  "releaseNotes": "2026.04 rollout",
+  "packages": [
+    {
+      "version": "2026.04.001",
+      "releaseDate": "2026-03-30T09:00:00Z",
+      "packageUri": "http://localhost:8520/release/packages/deploy-2026.04.001.zip",
+      "packageSha256": "....",
+      "packageSize": 11111111,
+      "releaseNotes": "initial release"
+    },
+    {
+      "version": "2026.04.002",
+      "releaseDate": "2026-04-02T09:00:00Z",
+      "packageUri": "http://localhost:8520/release/packages/deploy-2026.04.002.zip",
+      "packageSha256": "....",
+      "packageSize": 12345678,
+      "releaseNotes": "2026.04 rollout"
+    }
   ]
 }
 ```
 
-## 8. 운영 확인 체크리스트
+운영 포인트:
 
-### 8-1. deploy 쪽
+- 상단 `version`은 최신 패키지 버전이다.
+- `packages` 배열은 launcher가 현재 버전보다 높은 항목만 골라 순차 적용하는 기준이다.
+- 상단 `releaseNotes`는 `Deploy:ReleaseNotes`가 비어 있으면 최신 패키지의 `releaseNotes`를 사용한다.
 
-- `GET /api/releases`에 release가 보이는가
-- `GET /updates/stable/version.json`이 열리는가
-- `version.json`의 `platforms.win-x64.host`가 존재하는가
-- 필요한 module이 `platforms.win-x64.modules` 아래에 들어있는가
-- ZIP 다운로드 URL이 실제로 열리는가
+## 4. `launcher`가 업데이트를 적용하는 방식
 
-### 8-2. ack 쪽
+### 4-1. 기본 동작
 
-- `Update.Enabled=true`인가
-- `Update.BaseUrl`이 `deploy` 공개 URL과 맞는가
-- `UpdaterPath` 파일이 실제로 존재하는가
-- `state.json`의 `LastStatus`가 `Applied`인가
-- `log/app.log`에 재시작 후 정상 기동 로그가 남았는가
-- 설치 디렉터리 `app`, `modules/<name>` 파일이 교체되었는가
+`launcher`는 HandStack 시작 진입점 역할을 한다.
 
-## 9. 장애 대응
+- 설치 루트 계산
+- `app/version.json` 확인 및 자동 생성
+- 공개 manifest 조회
+- 현재 버전보다 높은 패키지 목록 계산
+- ZIP 다운로드, 검증, 적용
+- 필요 시 마이그레이션 스크립트 실행
+- 성공 시 `ack` 재실행
 
-### 9-1. `updater 실행 파일을 찾을 수 없습니다`
+권장 실행 예:
 
-원인:
+```powershell
+.\tools\launcher\launcher.exe `
+  --manifest-url=http://localhost:8520/release/manifest.json `
+  --error-url=http://localhost:8520/deploy-error `
+  -- --port=8421 --modules=wwwroot,transact,dbclient,function
+```
 
-- `Update.UpdaterPath`가 잘못됨
-- 설치본에 `updater`가 누락됨
+주요 옵션:
 
-조치:
+- `--manifest-url`: 공개 manifest URL 또는 로컬 JSON 파일 경로
+- `--error-url`: 실패 보고 URL
+- `--install-root`: HandStack 설치 루트. 기본값은 `tools/launcher` 기준 상위 2단계
+- `--ack-path`: 기본값 `app/ack(.exe)`
+- `--initial-version`: `version.json`이 없을 때 기본 버전. 기본값 `1.0.0`
+- `--wait-for-process-id`: 종료를 기다릴 기존 `ack` PID
 
-- `<install-root>/updater/updater.exe` 존재 여부 확인
-- `appsettings.json`의 `Update.UpdaterPath` 수정
+### 4-2. 버전 비교와 실패 시 처리
 
-### 9-2. `SHA256 검증 실패`
+현재 코드 기준 분기:
 
-원인:
+- `manifest-url`이 없으면 업데이트 확인 없이 바로 `ack` 실행
+- manifest 조회 실패 시 업데이트를 건너뛰고 바로 `ack` 실행
+- 서버 최신 버전이 현재 버전보다 낮으면 downgrade를 막고 바로 `ack` 실행
+- 현재 버전보다 높은 패키지가 없으면 바로 `ack` 실행
+- 패키지 적용 중 오류가 나면 `ack`를 다시 실행하지 않고 종료
 
-- 업로드한 ZIP과 manifest 정보 불일치
-- 배포 파일 손상
+### 4-3. 적용 순서
 
-조치:
+실제 적용 단계:
 
-- `publish-package.ps1`를 다시 실행
-- ZIP을 다시 업로드하고 release를 다시 publish
+1. `staging/update.lock`으로 잠금을 건다.
+2. `staging/apply/<timestamp>/downloads/<version>`에 ZIP을 다운로드한다.
+3. `staging/apply/<timestamp>/extracted/<version>`에 ZIP을 압축 해제한다.
+4. ZIP 옆 `.txt` manifest를 찾아 읽는다.
+5. ZIP 크기와 SHA-256을 검증한다.
+   - 단, `maintenanceMode=true`면 SHA-256 검증을 건너뛴다.
+6. 대상 파일이 이미 있으면 `backup/<timestamp>/<version>/...` 아래에 백업한다.
+7. `C`, `U` 항목은 복사하고 `D` 항목은 삭제한다.
+8. 비어 있는 상위 디렉터리는 정리한다.
+9. 버전별 마이그레이션 스크립트가 있으면 실행한다.
+10. 성공하면 `app/version.json`을 최신 manifest 버전으로 저장한다.
+11. 마지막에 `ack`를 다시 시작한다.
 
-### 9-3. 같은 release가 자동 재시도되지 않음
+### 4-4. 허용 경로
 
-현재 구현은 `Failed` 상태에서 같은 `ReleaseId`를 다시 자동 시도하지 않는다.
+`launcher`는 아래 top-level 디렉터리만 설치 대상으로 허용한다.
 
-조치:
+- `app`
+- `assemblies`
+- `hosts`
+- `tools`
+- `modules`
+- `data`
 
-- 새 release를 다시 생성하고 publish
-- 또는 문제를 수정한 뒤 다른 `ReleaseId`로 다시 배포
+주의:
 
-### 9-4. module만 갱신되지 않음
+- `launcher`는 `data`를 허용하지만, 현재 `publish-package` 표준 대상에는 `data`가 없다.
+- 즉 현재 공식 패키지 생성 흐름에서 실제로 생성되는 경로는 `app`, `assemblies`, `hosts`, `tools`, `modules`다.
 
-확인 포인트:
+### 4-5. 마이그레이션 스크립트 규칙
 
-- `ack`의 `AppSettings:LoadModules`에 해당 module이 포함돼 있는가
-- `deploy`의 `version.json`에 해당 module이 들어있는가
-- 업로드 시 `packageType=module`, `targetId=<module 이름>`으로 넣었는가
+버전별 스크립트 후보:
 
-### 9-5. 롤백 확인
+Windows:
 
-적용 중 실패하면 `updater`는 이번 실행에서 바꾼 경로를 `backups` 기준으로 복원한다.
+- `tools/migrations/<version>/migration.cmd`
+- `tools/migrations/<version>/migration.bat`
+- `tools/migrations/<version>/migration.ps1`
+- `tools/migrations/<version>.cmd`
+- `tools/migrations/<version>.bat`
+- `tools/migrations/<version>.ps1`
 
-백업 위치:
+Linux/macOS:
+
+- `tools/migrations/<version>/migration.sh`
+- `tools/migrations/<version>/migration.ps1`
+- `tools/migrations/<version>.sh`
+- `tools/migrations/<version>.ps1`
+
+### 4-6. 로그와 오류 보고
+
+- 로컬 로그: `log/update/launcher.log`
+- 실패 보고: `error-url`이 있으면 multipart form으로 `message`, `source=launcher`, `version`, `launcher.log`를 `POST`한다.
+
+현재 코드 기준 주의 사항:
+
+- manifest의 `mandatory` 값은 모델에는 들어오지만 실제 분기에는 사용되지 않는다.
+- `health-url`도 계산되지만 실제로 업데이트 후 헬스체크 호출을 수행하지 않는다.
+
+## 5. `ack`와의 연동
+
+### 5-1. 시작 시 버전 파일 처리
+
+`ack`는 시작할 때 `EntryBasePath/version.json`을 확인하고, 없거나 깨졌으면 기본 버전 `1.0.0`으로 재생성한다.
+
+즉, `ack`를 직접 실행해도 `version.json` 자체는 유지된다.
+
+### 5-2. `/manifest` 엔드포인트
+
+`ack`는 `/manifest`를 제공한다.
+
+기본 조회:
 
 ```text
-<install-root>/update/backups/<releaseId>-<timestamp>/
+GET /manifest
 ```
 
-복원 후 `state.json`은 `Failed`로 남는다.
+응답 내용:
 
-## 10. 권장 운영 순서
+- 현재 `version.json` 값
+- `updatedAt`
+- 현재 프로세스 ID
+- 현재 실행 파일 경로
+- launcher 실행 파일 경로
 
-실제 운영에서는 아래 순서를 권장한다.
+### 5-3. 실행 중인 `ack`에서 launcher 기동
 
-1. `publish.ps1`로 배포 산출물 생성
-2. `publish-package.ps1`로 ZIP과 참고용 `version.json` 생성
-3. 테스트용 `deploy` 서버에 먼저 업로드
-4. `GET /updates/stable/version.json`과 ZIP 다운로드 확인
-5. 테스트용 `ack`에서 `state.json`이 `Applied`가 되는지 확인
-6. 검증 후 운영 `deploy` 서버에 동일 절차 반영
+아래 쿼리를 주면 `ack`가 `launcher`를 새 프로세스로 실행한다.
 
-## 11. 자주 쓰는 명령 모음
-
-배포 산출물 생성:
-
-```powershell
-./publish.ps1 win publish Release x64
+```text
+GET /manifest?launch=true&manifestUrl=http://localhost:8520/release/manifest.json&errorUrl=http://localhost:8520/deploy-error&hostAccessID=<HOST_ACCESS_ID>
 ```
 
-업데이트 패키지 생성:
+또는 `launch=true` 대신 `executeLauncher=true`도 허용한다.
 
-```powershell
-./publish-package.ps1 win Release x64
-```
+이때 `ack`가 `launcher`에 넘기는 값:
 
-deploy 실행:
+- `--manifest-url <manifestUrl>`
+- `--wait-for-process-id <현재 ack PID>`
+- `--error-url <errorUrl>` if provided
+- 현재 `ack`가 받고 있던 커맨드라인 인자 전체
 
-```powershell
-dotnet run --project 1.WebHost/deploy/deploy.csproj
-```
+중요:
 
-deploy release 목록 확인:
+- 이 엔드포인트는 `launcher`를 시작만 하고 현재 `ack` 프로세스를 바로 종료하지는 않는다.
+- 따라서 실제 교체를 진행하려면 `launcher`가 기다리는 동안 기존 `ack`를 종료시켜야 한다.
+- 코드상 종료 엔드포인트는 `/stop?hostAccessID=<HOST_ACCESS_ID>`다.
 
-```powershell
-Invoke-RestMethod http://127.0.0.1:8520/api/releases
-```
+운영 시퀀스 예:
 
-공개 manifest 확인:
+1. `/manifest?launch=true...` 호출
+2. `/stop?hostAccessID=...` 호출
+3. `launcher`가 PID 종료를 감지한 뒤 업데이트 적용
+4. `launcher`가 `ack` 재시작
 
-```powershell
-Invoke-RestMethod http://127.0.0.1:8520/updates/stable/version.json
-```
+### 5-4. 권장 진입점
 
-ack 로컬 실행:
+운영 관점에서 가장 단순한 방법은 `ack` 대신 `launcher`를 진입점으로 두는 것이다.
 
-```powershell
-dotnet run --project 1.WebHost/ack/ack.csproj -- --port=8421 --modules=wwwroot,transact,dbclient,function
-```
+- 신규 기동: `launcher -> 필요 시 업데이트 -> ack`
+- 실행 중 교체: `ack /manifest?launch=true...` + `ack /stop`
+
+현재 소스 기준으로 `ack` 자체에는 원격 배포 서버를 주기적으로 조회하는 로직이 없다.
+
+## 6. 운영 체크리스트
+
+1. `./publish.ps1 win publish Release x64`로 기준 산출물을 만든다.
+2. `publish-package make`로 현재 전체 파일 목록을 만든다.
+3. 이전 전체 목록이 있으면 `deploy-diff`로 변경분 manifest를 만든다.
+4. `compress`로 `deploy-YYYY.MM.NNN.zip`을 만든다.
+5. `deploy`에 ZIP을 업로드한다.
+6. `/release/manifest.json`과 `/release/packages/<zip>`이 열리는지 확인한다.
+7. `launcher`를 진입점으로 기동하거나, 실행 중인 `ack`에 `/manifest?launch=true...`를 호출한다.
+8. 적용 후 `app/version.json`, `log/update/launcher.log`, `deploy`의 `storage/errors` 유무를 확인한다.
+
+## 7. 현재 구현 기준으로 문서화한 제한 사항
+
+- `contracts/`는 publish 산출물에 존재하지만 표준 업데이트 ZIP에는 포함되지 않는다.
+- `DefaultChannel`, `DefaultPlatform`은 설정에 있으나 현재 배포 호스트 동작에는 반영되지 않는다.
+- `mandatory`는 manifest에 실리지만 launcher의 실행 제어에는 아직 쓰이지 않는다.
+- `health-url`은 계산되지만 실제 probe 로직은 없다.
+- 실행 중인 `ack`의 `/manifest?launch=true...`는 launcher만 기동하며, 현재 프로세스 종료는 별도 `/stop` 또는 외부 프로세스 매니저가 맡아야 한다.
