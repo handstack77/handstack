@@ -210,6 +210,7 @@ try {
         @{ Project = '4.Tool/CLI/handsonapp/handsonapp.csproj'; Name = 'handsonapp' }
         @{ Project = '4.Tool/CLI/handstack/handstack.csproj'; Name = 'handstack' }
         @{ Project = '4.Tool/CLI/ports/ports.csproj'; Name = 'ports' }
+        @{ Project = '4.Tool/CLI/publish-package/publish-package.csproj'; Name = 'publish-package' }
         @{ Project = '4.Tool/CLI/updater/updater.csproj'; Name = 'updater' }
     )
 

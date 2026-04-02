@@ -35,6 +35,7 @@ $projects = @(
     "4.Tool/CLI/handsonapp/handsonapp.csproj"
     "4.Tool/CLI/handstack/handstack.csproj"
     "4.Tool/CLI/ports/ports.csproj"
+    "4.Tool/CLI/publish-package/publish-package.csproj"
     "4.Tool/CLI/updater/updater.csproj"
 )
 
