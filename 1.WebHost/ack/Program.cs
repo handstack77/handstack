@@ -15,8 +15,6 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
-using ack.Updates;
-
 using HandStack.Core.ExtensionMethod;
 using HandStack.Core.Helpers;
 using HandStack.Web;
@@ -187,13 +185,6 @@ namespace ack
                         .ReadFrom.Configuration(configuration);
 
                     Log.Logger = loggerConfiguration.CreateLogger();
-
-                    var updateResult = await UpdateBootstrapper.TryHandleStartupUpdateAsync(configuration);
-                    if (updateResult.ShouldExit == true)
-                    {
-                        Log.CloseAndFlush();
-                        return;
-                    }
 
                     GlobalConfiguration.ServerPort = port ?? int.Parse(configuration["AppSettings:ServerPort"].ToStringSafe("8421"));
                     GlobalConfiguration.OriginPort = int.Parse(configuration["AppSettings:OriginPort"].ToStringSafe(GlobalConfiguration.ServerPort.ToString()));
