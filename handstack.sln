@@ -1,4 +1,4 @@
-
+﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
 VisualStudioVersion = 18.3.11206.111
@@ -31,7 +31,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		install.sh = install.sh
 		lib.zip = lib.zip
 		LICENSE.md = LICENSE.md
-		publish-package.ps1 = publish-package.ps1
 		publish.bat = publish.bat
 		PUBLISH.md = PUBLISH.md
 		publish.ps1 = publish.ps1
