@@ -1481,8 +1481,21 @@ namespace ack
                         var updaterExecutablePath = Path.GetFullPath(Path.Combine(GlobalConfiguration.EntryBasePath, "..", "tools", "updater", OperatingSystem.IsWindows() == true ? "updater.exe" : "updater"));
                         var updaterDllPath = Path.ChangeExtension(updaterExecutablePath, ".dll");
                         var launchRequested = string.Equals(context.Request.Query["launch"], "true", StringComparison.OrdinalIgnoreCase) == true;
+                        var isAutoUpdate = IsAutoUpdateEnabled(configuration);
                         if (launchRequested == true)
                         {
+                            if (isAutoUpdate == false)
+                            {
+                                context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                                await context.Response.WriteAsJsonAsync(new
+                                {
+                                    message = "AppSettings:IsAutoUpdate=false 설정으로 updater 실행이 비활성화되었습니다.",
+                                    launchRequested = true,
+                                    isAutoUpdate
+                                });
+                                return;
+                            }
+
                             if (IsValidHostAccessRequest(context, out var hostAccessID) == false)
                             {
                                 Log.Warning("[{LogCategory}] HostAccessID 확인 필요: " + hostAccessID.ToStringSafe(), "Startup/manifest");
@@ -1545,7 +1558,8 @@ namespace ack
                                 processId = currentProcess.Id,
                                 updaterProcessId = updaterProcess.Id,
                                 manifestUrl,
-                                launchRequested = true
+                                launchRequested = true,
+                                isAutoUpdate
                             });
                             return;
                         }
@@ -1557,7 +1571,8 @@ namespace ack
                             processId = Environment.ProcessId,
                             executablePath = Process.GetCurrentProcess().MainModule?.FileName,
                             updaterPath = File.Exists(updaterExecutablePath) == true ? updaterExecutablePath : updaterDllPath,
-                            launchRequested = false
+                            launchRequested = false,
+                            isAutoUpdate
                         });
                     }
                     catch (Exception exception)
@@ -2305,6 +2320,12 @@ namespace ack
 
             return path.EndsWith("/api", StringComparison.OrdinalIgnoreCase) == true
                 || path.IndexOf("/api/", StringComparison.OrdinalIgnoreCase) > -1;
+        }
+
+        private static bool IsAutoUpdateEnabled(IConfiguration configuration)
+        {
+            var value = configuration["AppSettings:IsAutoUpdate"].ToStringSafe(configuration["IsAutoUpdate"].ToStringSafe(""));
+            return bool.TryParse(value, out var enabled) == true && enabled == true;
         }
 
         private async Task WriteIPForbiddenResponse(HttpContext context)

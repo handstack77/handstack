@@ -160,7 +160,15 @@ namespace ack
 
                     GlobalConfiguration.ConfigurationRoot = configuration;
 
-                    _ = Task.Run(() => TryLaunchUpdaterIfUpdateAvailableAsync(configuration, versionInfo));
+                    var isAutoUpdate = IsAutoUpdateEnabled(configuration);
+                    if (isAutoUpdate == true)
+                    {
+                        _ = Task.Run(() => TryLaunchUpdaterIfUpdateAvailableAsync(configuration, versionInfo));
+                    }
+                    else
+                    {
+                        Log.Information("[Program] AppSettings:IsAutoUpdate=false로 updater 자동 실행을 건너뜁니다.");
+                    }
 
                     if (string.IsNullOrWhiteSpace(GlobalConfiguration.ProcessName) == false)
                     {
@@ -555,6 +563,12 @@ namespace ack
         private static string? FirstNonEmpty(params string?[] values)
         {
             return values.FirstOrDefault(item => string.IsNullOrWhiteSpace(item) == false)?.Trim();
+        }
+
+        private static bool IsAutoUpdateEnabled(IConfiguration configuration)
+        {
+            var value = FirstNonEmpty(configuration["AppSettings:IsAutoUpdate"], configuration["IsAutoUpdate"]);
+            return bool.TryParse(value, out var enabled) == true && enabled == true;
         }
     }
 }
