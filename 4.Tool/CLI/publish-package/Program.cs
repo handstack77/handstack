@@ -135,7 +135,11 @@ namespace publish_package
                             FormatExcludes(excludePatterns),
                             outputDirectoryPath);
 
-                        var files = EnumerateDeployFiles(handstackRootPath, includes, excludeMatchers);
+                        var files = EnumerateDeployFiles(
+                            handstackRootPath,
+                            includes,
+                            excludeMatchers,
+                            CreateConsoleProgressReporter());
                         WriteInformation(
                             "[make] 대상 파일 수집이 완료되었습니다. Target={0}, Includes={1}, Excludes={2}, FileCount={3}",
                             DeployTargetName,
@@ -205,7 +209,11 @@ namespace publish_package
                             FormatExcludes(excludePatterns),
                             outputDirectoryPath);
 
-                        var currentEntries = EnumerateDeployFiles(handstackRootPath, includes, excludeMatchers);
+                        var currentEntries = EnumerateDeployFiles(
+                            handstackRootPath,
+                            includes,
+                            excludeMatchers,
+                            CreateConsoleProgressReporter());
                         IReadOnlyList<PackageFileEntry> packageEntries = string.IsNullOrWhiteSpace(makeFilePath) == true
                             ? currentEntries
                             : LoadDeployFilesFromMakeFile(handstackRootPath, makeFilePath, includes, excludeMatchers);
@@ -238,10 +246,15 @@ namespace publish_package
 
                         using (var archive = ZipFile.Open(packageFilePath, ZipArchiveMode.Create))
                         {
+                            var reportArchiveProgress = CreateConsoleProgressReporter();
+                            var processedArchiveEntryCount = 0;
+                            var totalArchiveEntryCount = archiveEntries.Count + (string.IsNullOrWhiteSpace(packageManifestFilePath) == true ? 0 : 1);
                             foreach (var packageEntry in archiveEntries)
                             {
                                 var sourceFilePath = ResolveSourceFilePath(handstackRootPath, packageEntry.RelativePath);
                                 archive.CreateEntryFromFile(sourceFilePath, packageEntry.RelativePath, CompressionLevel.Optimal);
+                                processedArchiveEntryCount++;
+                                reportArchiveProgress(processedArchiveEntryCount, totalArchiveEntryCount);
                             }
 
                             if (string.IsNullOrWhiteSpace(packageManifestFilePath) == false)
@@ -250,6 +263,8 @@ namespace publish_package
                                     packageManifestFilePath,
                                     Path.GetFileName(packageManifestFilePath),
                                     CompressionLevel.Optimal);
+                                processedArchiveEntryCount++;
+                                reportArchiveProgress(processedArchiveEntryCount, totalArchiveEntryCount);
                             }
                         }
 
@@ -731,15 +746,21 @@ namespace publish_package
                 && Directory.Exists(Path.Combine(path, "hosts")) == true;
         }
 
-        private static IReadOnlyList<PackageFileEntry> EnumerateDeployFiles(string handstackRootPath, IReadOnlyList<string> includes, IReadOnlyList<Regex> excludeMatchers)
+        private static IReadOnlyList<PackageFileEntry> EnumerateDeployFiles(string handstackRootPath, IReadOnlyList<string> includes, IReadOnlyList<Regex> excludeMatchers, Action<int, int>? reportProgress = null)
         {
-            var fileEntries = new List<PackageFileEntry>();
+            var filePaths = new List<string>();
             foreach (var targetDirectoryPath in ResolveDeployDirectoryPaths(handstackRootPath, includes))
             {
-                fileEntries.AddRange(
+                filePaths.AddRange(
                     Directory.GetFiles(targetDirectoryPath, "*", SearchOption.AllDirectories)
-                        .Where(filePath => IsExcludedFilePath(ToRelativePath(handstackRootPath, filePath), excludeMatchers) == false)
-                        .Select(filePath => CreatePackageFileEntry(handstackRootPath, filePath, 'C')));
+                        .Where(filePath => IsExcludedFilePath(ToRelativePath(handstackRootPath, filePath), excludeMatchers) == false));
+            }
+
+            var fileEntries = new List<PackageFileEntry>(filePaths.Count);
+            for (var index = 0; index < filePaths.Count; index++)
+            {
+                fileEntries.Add(CreatePackageFileEntry(handstackRootPath, filePaths[index], 'C'));
+                reportProgress?.Invoke(index + 1, filePaths.Count);
             }
 
             var files = fileEntries
@@ -1287,6 +1308,37 @@ namespace publish_package
             }
 
             return string.IsNullOrWhiteSpace(fallbackValue) == true ? "(auto)" : fallbackValue;
+        }
+
+        private static Action<int, int> CreateConsoleProgressReporter()
+        {
+            var lineWidth = 0;
+            return (current, total) =>
+            {
+                if (total <= 0)
+                {
+                    return;
+                }
+
+                var message = $"진행 중 ({current}/{total})";
+                if (Console.IsOutputRedirected == true)
+                {
+                    if (current == total || current == 1 || current % 100 == 0)
+                    {
+                        Console.WriteLine(message);
+                    }
+
+                    return;
+                }
+
+                lineWidth = Math.Max(lineWidth, message.Length);
+                Console.Write($"\r{message.PadRight(lineWidth)}");
+                if (current >= total)
+                {
+                    Console.WriteLine();
+                    lineWidth = 0;
+                }
+            };
         }
 
         private static void WriteInformation(string message, params object[] arguments)
