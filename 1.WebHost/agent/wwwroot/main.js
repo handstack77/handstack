@@ -75,6 +75,22 @@ let $main = {
             await $this.method.callTargetAction('restart');
         },
 
+        async btnManifestTarget_click() {
+            const targetAckId = $this.method.requireText('txtTargetId', '대상 ID를 입력하세요.');
+            if (targetAckId === null) {
+                return;
+            }
+
+            const response = await $this.method.downloadManifest(targetAckId);
+            if (response && response.ok) {
+                $this.method.renderResponse(response.status, response.statusText, {
+                    message: 'manifest 파일 다운로드를 시작했습니다.',
+                    fileName: response.fileName,
+                    targetAckId: targetAckId
+                });
+            }
+        },
+
         async btnGetDiagnostics_click() {
             const settingsId = $this.method.requireText('txtSettingsId', '설정 대상 ID를 입력하세요.');
             if (settingsId === null) {
@@ -277,6 +293,7 @@ let $main = {
             syn.$l.addEvent('btnStartTarget', 'click', $this.event.btnStartTarget_click);
             syn.$l.addEvent('btnStopTarget', 'click', $this.event.btnStopTarget_click);
             syn.$l.addEvent('btnRestartTarget', 'click', $this.event.btnRestartTarget_click);
+            syn.$l.addEvent('btnManifestTarget', 'click', $this.event.btnManifestTarget_click);
             syn.$l.addEvent('btnGetDiagnostics', 'click', $this.event.btnGetDiagnostics_click);
             syn.$l.addEvent('btnGetAppSettings', 'click', $this.event.btnGetAppSettings_click);
             syn.$l.addEvent('btnSaveAppSettings', 'click', $this.event.btnSaveAppSettings_click);
@@ -468,6 +485,56 @@ let $main = {
 
             if (response && response.ok) {
                 $this.method.renderResponse(response.status, response.statusText, response.data);
+            }
+        },
+
+        async downloadManifest(targetAckId) {
+            const requestUrl = $this.method.buildUrl('/targets/' + encodeURIComponent(targetAckId) + '/manifest');
+            const requestInit = {
+                method: 'GET',
+                headers: $this.method.buildHeaders(true, false)
+            };
+
+            $this.method.renderRequest('GET ' + requestUrl.toString());
+
+            try {
+                const response = await fetch(requestUrl, requestInit);
+                if (response.ok === false) {
+                    const text = await response.text();
+                    const errorData = $this.method.parseResponse(text);
+                    $this.method.renderResponse(response.status, response.statusText, errorData);
+                    return {
+                        ok: false,
+                        status: response.status,
+                        statusText: response.statusText,
+                        fileName: ''
+                    };
+                }
+
+                const blob = await response.blob();
+                const contentDisposition = response.headers.get('Content-Disposition') || '';
+                const fileNameMatch = contentDisposition.match(/filename\*?=(?:UTF-8''|")?([^\";]+)/i);
+                const fileName = fileNameMatch ? decodeURIComponent(fileNameMatch[1]).replace(/"/g, '') : (targetAckId + '-manifest.txt');
+
+                const objectUrl = URL.createObjectURL(blob);
+                const anchor = document.createElement('a');
+                anchor.href = objectUrl;
+                anchor.download = fileName;
+                document.body.appendChild(anchor);
+                anchor.click();
+                document.body.removeChild(anchor);
+                URL.revokeObjectURL(objectUrl);
+
+                return {
+                    ok: true,
+                    status: response.status,
+                    statusText: response.statusText,
+                    fileName: fileName
+                };
+            }
+            catch (error) {
+                $this.method.renderError(error.message || String(error));
+                return null;
             }
         },
 

@@ -22,6 +22,8 @@ namespace agent.Options
 
         public string ProcessName { get; set; } = "";
 
+        public string PackageMakeCommand { get; set; } = "";
+
         public bool UseStatusProbeWhenProcessNotFound { get; set; } = false;
 
         public string StatusProbeUrl { get; set; } = "";

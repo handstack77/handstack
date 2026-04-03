@@ -22,6 +22,7 @@
 | --- | --- | --- |
 | `GET` | `/targets` | 관리 대상 프로세스 목록을 반환합니다. |
 | `GET` | `/targets/{targetAckId}/status` | 대상 프로세스의 현재 상태를 반환합니다. |
+| `GET` | `/targets/{targetAckId}/manifest` | 대상의 `PackageMakeCommand`를 실행해 생성된 `deploy-filelist.txt`를 다운로드합니다. |
 | `POST` | `/targets/{targetAckId}/start` | 대상 프로세스를 시작합니다. |
 | `POST` | `/targets/{targetAckId}/stop` | 대상 프로세스를 중지합니다. |
 | `POST` | `/targets/{targetAckId}/restart` | 대상 프로세스를 재시작합니다. |
@@ -56,6 +57,7 @@
 - `ManagementHeaderName`: 기본 `X-Management-Key`
 - `ManagementKey`: 중앙 서버에서 호출할 인증 키
 - `Targets`: 제어 대상 `ack` 프로세스 목록
+- `Targets[*].PackageMakeCommand`: `/targets/{targetAckId}/manifest`에서 실행할 publish-package make 명령
 - `HostBridge`: `/bridge/targets/*` API 활성화 여부, 브리지 헤더명, 브리지 키 설정
 - `AuditLog`: `/targets` API 요청 감사 로그(`logger/api/log/insert`) 설정
 

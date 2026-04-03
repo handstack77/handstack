@@ -1,8 +1,11 @@
-﻿using System;
+using System;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -69,6 +72,64 @@ namespace agent.Controllers
             return Ok(status);
         }
 
+        [HttpGet("{targetAckId}/manifest")]
+        public async Task<ActionResult> DownloadManifest(string targetAckId, CancellationToken cancellationToken)
+        {
+            if (targetProcessManager.TryGetTarget(targetAckId, out var target) == false || target is null)
+            {
+                await WriteTargetsAuditAsync(HttpContext, "targets.manifest", targetAckId, false, StatusCodes.Status404NotFound, "대상을 찾을 수 없습니다.", cancellationToken);
+                return NotFound(new
+                {
+                    targetAckId,
+                    message = "대상을 찾을 수 없습니다."
+                });
+            }
+
+            if (string.IsNullOrWhiteSpace(target.PackageMakeCommand) == true)
+            {
+                await WriteTargetsAuditAsync(HttpContext, "targets.manifest", targetAckId, false, StatusCodes.Status400BadRequest, "PackageMakeCommand 값 확인이 필요합니다.", cancellationToken);
+                return BadRequest(new
+                {
+                    targetAckId,
+                    message = "PackageMakeCommand 값 확인이 필요합니다."
+                });
+            }
+
+            var workingDirectory = TargetProcessManager.ResolveWorkingDirectory(target);
+            var expandedCommand = TargetProcessManager.ExpandPathVariables(target.PackageMakeCommand.Trim());
+            var commandResult = await ExecuteShellCommandAsync(expandedCommand, workingDirectory, cancellationToken);
+            if (commandResult.ExitCode != 0)
+            {
+                var errorMessage = string.IsNullOrWhiteSpace(commandResult.StandardError) == true
+                    ? $"manifest 생성 명령이 실패했습니다. ExitCode={commandResult.ExitCode}"
+                    : commandResult.StandardError.Trim();
+                Log.Warning("manifest 생성 명령 실패. 대상ID={TargetId}, ExitCode={ExitCode}, Command={Command}, WorkingDirectory={WorkingDirectory}", targetAckId, commandResult.ExitCode, expandedCommand, workingDirectory);
+                await WriteTargetsAuditAsync(HttpContext, "targets.manifest", targetAckId, false, StatusCodes.Status500InternalServerError, errorMessage, cancellationToken);
+                return StatusCode(StatusCodes.Status500InternalServerError, new
+                {
+                    targetAckId,
+                    message = errorMessage
+                });
+            }
+
+            var manifestPath = ResolveManifestFilePath(expandedCommand, workingDirectory);
+            if (System.IO.File.Exists(manifestPath) == false)
+            {
+                var message = $"manifest 파일을 찾을 수 없습니다. Path={manifestPath}";
+                await WriteTargetsAuditAsync(HttpContext, "targets.manifest", targetAckId, false, StatusCodes.Status500InternalServerError, message, cancellationToken);
+                return StatusCode(StatusCodes.Status500InternalServerError, new
+                {
+                    targetAckId,
+                    message
+                });
+            }
+
+            var bytes = await System.IO.File.ReadAllBytesAsync(manifestPath, cancellationToken);
+            var downloadFileName = $"{targetAckId}-manifest-{DateTime.Now:yyyyMMddHHss}.txt";
+            await WriteTargetsAuditAsync(HttpContext, "targets.manifest", targetAckId, true, StatusCodes.Status200OK, $"manifest={downloadFileName}", cancellationToken);
+            return File(bytes, "text/plain; charset=utf-8", downloadFileName);
+        }
+        
         [HttpPost("{targetAckId}/start")]
         public async Task<ActionResult> Start(string targetAckId, CancellationToken cancellationToken)
         {
@@ -240,6 +301,78 @@ namespace agent.Controllers
             return $"AGT{DateTime.Now:yyyyMMddHHmmssfff}{actionName.Replace(".", "", StringComparison.Ordinal)}{suffix}";
         }
 
+        private static async Task<(int ExitCode, string StandardOutput, string StandardError)> ExecuteShellCommandAsync(string command, string workingDirectory, CancellationToken cancellationToken)
+        {
+            var startInfo = BuildShellStartInfo(command, workingDirectory);
+            using var process = new Process
+            {
+                StartInfo = startInfo
+            };
+
+            process.Start();
+            var standardOutputTask = process.StandardOutput.ReadToEndAsync(cancellationToken);
+            var standardErrorTask = process.StandardError.ReadToEndAsync(cancellationToken);
+            await process.WaitForExitAsync(cancellationToken);
+
+            return (process.ExitCode, await standardOutputTask, await standardErrorTask);
+        }
+
+        private static ProcessStartInfo BuildShellStartInfo(string command, string workingDirectory)
+        {
+            var resolvedWorkingDirectory = Path.GetFullPath(workingDirectory);
+            if (OperatingSystem.IsWindows() == true)
+            {
+                return new ProcessStartInfo
+                {
+                    FileName = "cmd.exe",
+                    Arguments = $"/c {command}",
+                    WorkingDirectory = resolvedWorkingDirectory,
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true
+                };
+            }
+
+            return new ProcessStartInfo
+            {
+                FileName = "/bin/bash",
+                Arguments = $"-lc \"{command.Replace("\"", "\\\"", StringComparison.Ordinal)}\"",
+                WorkingDirectory = resolvedWorkingDirectory,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true
+            };
+        }
+
+        private static string ResolveManifestFilePath(string command, string workingDirectory)
+        {
+            var outputPath = TryResolveOutputOptionPath(command, workingDirectory);
+            var outputDirectoryPath = string.IsNullOrWhiteSpace(outputPath) == true ? workingDirectory : outputPath;
+            return Path.Combine(Path.GetFullPath(outputDirectoryPath), "deploy-filelist.txt");
+        }
+
+        private static string? TryResolveOutputOptionPath(string command, string workingDirectory)
+        {
+            var match = Regex.Match(command, @"--output(?::|=|\s+)(?:""(?<value>[^""]+)""|(?<value>[^\s]+))", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+            if (match.Success == false)
+            {
+                return null;
+            }
+
+            var rawValue = match.Groups["value"].Value.Trim();
+            if (string.IsNullOrWhiteSpace(rawValue) == true)
+            {
+                return null;
+            }
+
+            var expandedValue = TargetProcessManager.ExpandPathVariables(rawValue);
+            return Path.IsPathRooted(expandedValue) == true
+                ? Path.GetFullPath(expandedValue)
+                : Path.GetFullPath(Path.Combine(workingDirectory, expandedValue));
+        }
+        
         private sealed class LoggerLogMessage
         {
             public string ServerID { get; set; } = "";
@@ -284,4 +417,7 @@ namespace agent.Controllers
         }
     }
 }
+
+
+
 
