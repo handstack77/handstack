@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.CommandLine;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
@@ -74,9 +75,9 @@ internal static class Program
                 DefaultValueFactory = _ => VersionFileStore.DefaultVersion
             };
 
-            var waitForProcessIdOption = new Option<int?>("--wait-for-process-id")
+            var ackProcessIdOption = new Option<int?>("--ack-process-id")
             {
-                Description = "업데이트 적용 전에 종료를 기다릴 프로세스 ID입니다."
+                Description = "업데이트 대상 ack 프로세스 ID입니다."
             };
 
             var rootCommand = new RootCommand("HandStack updater")
@@ -87,7 +88,7 @@ internal static class Program
                 ackPathOption,
                 healthUrlOption,
                 initialVersionOption,
-                waitForProcessIdOption
+                ackProcessIdOption
             };
 
             rootCommand.TreatUnmatchedTokensAsErrors = false;
@@ -103,7 +104,7 @@ internal static class Program
                         parseResult.GetValue(ackPathOption),
                         parseResult.GetValue(healthUrlOption),
                         parseResult.GetValue(initialVersionOption),
-                        parseResult.GetValue(waitForProcessIdOption),
+                        parseResult.GetValue(ackProcessIdOption),
                         parseResult.UnmatchedTokens);
                 }
                 catch (Exception exception)
@@ -134,20 +135,34 @@ internal static class Program
         }
     }
 
-    private static async Task<int> RunAsync(string? manifestUrlOption, string? errorUrlOption, string? installRootOption, string? ackPathOption, string? healthUrlOption, string? initialVersionOption, int? waitForProcessIdOption, IReadOnlyList<string> ackArguments)
+    private static async Task<int> RunAsync(string? manifestUrlOption, string? errorUrlOption, string? installRootOption, string? ackPathOption, string? healthUrlOption, string? initialVersionOption, int? ackProcessIdOption, IReadOnlyList<string> ackArguments)
     {
-        var installRoot = string.IsNullOrWhiteSpace(installRootOption) == false
-            ? Path.GetFullPath(installRootOption)
-            : InstallLayout.ResolveInstallRootFromToolDirectory(AppContext.BaseDirectory);
-        InitializeLogFile(installRoot);
+        var installRoot = string.IsNullOrWhiteSpace(installRootOption) == false ? Path.GetFullPath(installRootOption) : InstallLayout.ResolveInstallRootFromToolDirectory(AppContext.BaseDirectory);
+        var logDirectoryPath = InstallLayout.ResolveUpdateLogDirectory(installRoot);
+        Directory.CreateDirectory(logDirectoryPath);
+        logFilePath = Path.Combine(logDirectoryPath, "updater.log");
+
+        lock (LogSyncRoot)
+        {
+            if (logFileConfigured == false)
+            {
+                Log.Logger = new LoggerConfiguration()
+                    .MinimumLevel.Information()
+                    .WriteTo.Console()
+                    .WriteTo.File(
+                        path: logFilePath,
+                        rollingInterval: RollingInterval.Day,
+                        shared: true)
+                    .CreateLogger();
+                logFileConfigured = true;
+            }
+        }
+
+        Log.Information("[CLI/updater]" + "updater 로그를 초기화했습니다. LogFilePath={0}", logFilePath);
 
         var manifestUrl = FirstNonEmpty(manifestUrlOption, Configuration["HandstackUpdateManifestUrl"]);
         var errorUrl = FirstNonEmpty(errorUrlOption, Configuration["HandstackUpdateErrorUrl"]);
-        var ackExecutablePath = string.IsNullOrWhiteSpace(ackPathOption) == true
-            ? InstallLayout.ResolveDefaultAckExecutablePath(installRoot)
-            : (Path.IsPathRooted(ackPathOption) == true
-                ? Path.GetFullPath(ackPathOption)
-                : Path.GetFullPath(Path.Combine(installRoot, ackPathOption)));
+        var ackExecutablePath = string.IsNullOrWhiteSpace(ackPathOption) == true ? InstallLayout.ResolveDefaultAckExecutablePath(installRoot) : (Path.IsPathRooted(ackPathOption) == true ? Path.GetFullPath(ackPathOption) : Path.GetFullPath(Path.Combine(installRoot, ackPathOption)));
         var versionFilePath = InstallLayout.ResolveVersionFilePath(ackExecutablePath);
         var currentVersion = VersionFileStore.Ensure(versionFilePath, initialVersionOption);
         const int defaultPort = 8421;
@@ -179,9 +194,9 @@ internal static class Program
         }
 
         var healthUrl = FirstNonEmpty(healthUrlOption, $"http://localhost:{detectedPort}/checkip");
-        var waitForProcessId = waitForProcessIdOption ?? 0;
+        var ackProcessId = ackProcessIdOption ?? -1;
 
-        Log.Information("[CLI/updater]" + "updater 시작. InstallRoot={0}, AckExecutablePath={1}, CurrentVersion={2}, AckArgumentCount={3}, WaitForProcessId={4}", installRoot, ackExecutablePath, currentVersion.Version, ackArguments.Count, waitForProcessId);
+        Log.Information("[CLI/updater]" + "updater 시작. InstallRoot={0}, AckExecutablePath={1}, CurrentVersion={2}, AckArgumentCount={3}, AckProcessId={4}", installRoot, ackExecutablePath, currentVersion.Version, ackArguments.Count, ackProcessId);
 
         if (File.Exists(ackExecutablePath) == false)
         {
@@ -192,7 +207,7 @@ internal static class Program
         if (string.IsNullOrWhiteSpace(manifestUrl) == true)
         {
             Log.Warning("[CLI/updater]" + "업데이트 manifest 주소가 없어 업데이트 확인을 건너뜁니다.");
-            return await StartAckAfterOptionalWaitAsync(ackExecutablePath, installRoot, ackArguments, waitForProcessId);
+            return 0;
         }
 
         UpdateManifestDocument manifest;
@@ -203,7 +218,7 @@ internal static class Program
         catch (Exception exception)
         {
             Log.Error(exception, "[CLI/updater]" + $"manifest 조회 실패: {exception.Message}");
-            return await StartAckAfterOptionalWaitAsync(ackExecutablePath, installRoot, ackArguments, waitForProcessId);
+            return 0;
         }
 
         var availablePackages = NormalizePackages(manifest)
@@ -213,13 +228,13 @@ internal static class Program
         if (availablePackages.Count == 0)
         {
             Log.Warning("[CLI/updater]" + "manifest에 적용 가능한 패키지 목록이 없습니다. ManifestUrl={0}", manifestUrl);
-            return await StartAckAfterOptionalWaitAsync(ackExecutablePath, installRoot, ackArguments, waitForProcessId);
+            return 0;
         }
 
         if (UpdateVersionComparer.Compare(manifest.Version, currentVersion.Version) < 0)
         {
             Log.Warning("[CLI/updater]" + "서버 최신 버전이 현재 버전보다 낮아 업데이트를 건너뜁니다. CurrentVersion={0}, ServerVersion={1}", currentVersion.Version, manifest.Version);
-            return await StartAckAfterOptionalWaitAsync(ackExecutablePath, installRoot, ackArguments, waitForProcessId);
+            return 0;
         }
 
         var packagesToApply = availablePackages
@@ -230,7 +245,7 @@ internal static class Program
         if (packagesToApply.Count == 0)
         {
             Log.Information("[CLI/updater]" + "최신 버전이 이미 적용되어 있습니다. CurrentVersion={0}", currentVersion.Version);
-            return await StartAckAfterOptionalWaitAsync(ackExecutablePath, installRoot, ackArguments, waitForProcessId);
+            return 0;
         }
 
         var plan = new UpdateLaunchPlan
@@ -247,7 +262,7 @@ internal static class Program
             HealthCheckUri = healthUrl,
             Mandatory = manifest.Mandatory,
             MaintenanceMode = manifest.MaintenanceMode,
-            WaitForProcessId = waitForProcessId,
+            AckProcessId = ackProcessId,
             Packages = packagesToApply
         };
 
@@ -258,12 +273,17 @@ internal static class Program
             return 1;
         }
 
-        return StartProcess(ResolveLaunchCommand(ackExecutablePath), Path.GetDirectoryName(ackExecutablePath) ?? installRoot, ackArguments);
+        if (manifest.Mandatory == false && ackProcessId >= 0)
+        {
+            Log.Information("[CLI/updater]" + "Mandatory=false 이고 ack 프로세스가 이미 실행 중이어서 ack 재기동을 건너뜁니다. AckProcessId={0}", ackProcessId);
+            return 0;
+        }
+
+        return StartAckProcess(ackExecutablePath, installRoot, ackArguments);
     }
 
     private static async Task<int> ApplyUpdateAsync(UpdateLaunchPlan plan)
     {
-        InitializeLogFile(plan.InstallRoot);
         Log.Information("[CLI/updater]" + "업데이트 계획을 준비했습니다. CurrentVersion={0}, TargetVersion={1}, PackageCount={2}", plan.CurrentVersion, plan.TargetVersion, plan.Packages.Count);
 
         if (plan.Packages.Count == 0)
@@ -279,8 +299,9 @@ internal static class Program
         }
 
         var stagingRoot = Path.Combine(InstallLayout.ResolveStagingDirectory(plan.InstallRoot), "apply", DateTimeOffset.UtcNow.ToString("yyyyMMddHHmmss"));
-        var downloadsRoot = Path.Combine(stagingRoot, "downloads");
-        var extractedRoot = Path.Combine(stagingRoot, "extracted");
+        var packageCacheRoot = Path.Combine(InstallLayout.ResolveStagingDirectory(plan.InstallRoot), "package-cache");
+        var downloadsRoot = Path.Combine(packageCacheRoot, "downloads");
+        var extractedRoot = Path.Combine(packageCacheRoot, "extracted");
         var backupRoot = Path.Combine(InstallLayout.ResolveBackupDirectory(plan.InstallRoot), DateTimeOffset.UtcNow.ToString("yyyyMMddHHmmss"));
 
         try
@@ -292,7 +313,6 @@ internal static class Program
             Directory.CreateDirectory(extractedRoot);
             Directory.CreateDirectory(backupRoot);
 
-            await WaitForProcessExitAsync(plan.WaitForProcessId, TimeSpan.FromSeconds(60));
             var totalPackageSize = plan.Packages.Where(item => item.PackageSize > 0).Sum(item => item.PackageSize);
             var installFootprint = UpdatePathPolicy.MeasureInstallFootprint(plan.InstallRoot);
             var requiredBytes = totalPackageSize * 2 + installFootprint;
@@ -301,8 +321,7 @@ internal static class Program
             var driveInfo = new DriveInfo(rootPath);
             if (driveInfo.AvailableFreeSpace < requiredBytes)
             {
-                throw new InvalidOperationException(
-                    $"디스크 여유 공간이 부족합니다. Available={driveInfo.AvailableFreeSpace}, Required={requiredBytes}");
+                throw new InvalidOperationException($"디스크 여유 공간이 부족합니다. Available={driveInfo.AvailableFreeSpace}, Required={requiredBytes}");
             }
 
             Log.Information("[CLI/updater]" + "디스크 용량 검사를 통과했습니다. Available={0}, Required={1}", driveInfo.AvailableFreeSpace, requiredBytes);
@@ -310,10 +329,22 @@ internal static class Program
             var orderedPackages = plan.Packages
                 .OrderBy(item => item.Version, Comparer<string>.Create(UpdateVersionComparer.Compare))
                 .ToList();
+            var preparedPackages = new List<PreparedPackageContext>(orderedPackages.Count);
 
             foreach (var package in orderedPackages)
             {
-                await ApplyPackageAsync(plan, package, downloadsRoot, extractedRoot, backupRoot);
+                preparedPackages.Add(await PreparePackageAsync(plan, package, downloadsRoot, extractedRoot));
+            }
+
+            if (plan.Mandatory == true && plan.AckProcessId >= 0)
+            {
+                await ForceKillProcessAsync(plan.AckProcessId);
+            }
+
+            foreach (var preparedPackage in preparedPackages)
+            {
+                ApplyPackageFiles(plan.InstallRoot, preparedPackage.Package.Version, preparedPackage.ExtractedPath, preparedPackage.Entries, backupRoot);
+                await RunMigrationIfPresentAsync(plan.InstallRoot, preparedPackage.Package.Version);
             }
 
             VersionFileStore.Save(plan.VersionFilePath, new InstalledVersionInfo
@@ -321,9 +352,8 @@ internal static class Program
                 Version = plan.TargetVersion,
                 UpdatedAt = DateTimeOffset.UtcNow
             });
-            Log.Information("[CLI/updater]" + "version.json을 갱신했습니다. VersionFilePath={0}, Version={1}", plan.VersionFilePath, plan.TargetVersion);
-
-            Log.Information("[CLI/updater]" + "업데이트가 완료되었습니다. TargetVersion={0}", plan.TargetVersion);
+            
+            Log.Information("[CLI/updater]" + "업데이트가 완료되었습니다. VersionFilePath={0}, Version={1}", plan.VersionFilePath, plan.TargetVersion);
             return 0;
         }
         catch (Exception exception)
@@ -371,9 +401,8 @@ internal static class Program
         }
     }
 
-    private static async Task<int> StartAckAfterOptionalWaitAsync(string ackExecutablePath, string installRoot, IReadOnlyList<string> ackArguments, int waitForProcessId)
+    private static int StartAckProcess(string ackExecutablePath, string installRoot, IReadOnlyList<string> ackArguments)
     {
-        await WaitForProcessExitAsync(waitForProcessId, TimeSpan.FromSeconds(60));
         return StartProcess(ResolveLaunchCommand(ackExecutablePath), Path.GetDirectoryName(ackExecutablePath) ?? installRoot, ackArguments);
     }
 
@@ -477,43 +506,61 @@ internal static class Program
             return 1;
         }
     }
-    private static async Task ApplyPackageAsync(UpdateLaunchPlan plan, UpdatePackageDescriptor package, string downloadsRoot, string extractedRoot, string backupRoot)
+    private static async Task<PreparedPackageContext> PreparePackageAsync(UpdateLaunchPlan plan, UpdatePackageDescriptor package, string downloadsRoot, string extractedRoot)
     {
-        Log.Information("[CLI/updater]" + "패키지 적용을 시작합니다. Version={0}, PackageUri={1}", package.Version, package.PackageUri);
-
-        var packageFilePath = await DownloadPackageAsync(plan, package, downloadsRoot);
-        ValidatePackage(packageFilePath, package, plan.MaintenanceMode);
-
         var packageExtractedPath = Path.Combine(extractedRoot, SanitizeFileName(package.Version));
         if (Directory.Exists(packageExtractedPath) == true)
         {
+            var cachedEntries = TryLoadPackageManifestEntries(packageExtractedPath, null);
+            if (cachedEntries != null)
+            {
+                Log.Information("[CLI/updater]" + "기존 압축 해제 디렉토리를 사용합니다. Version={0}, ExtractedPath={1}", package.Version, packageExtractedPath);
+                return new PreparedPackageContext(package, packageExtractedPath, cachedEntries);
+            }
+
+            Log.Warning("[CLI/updater]" + "기존 압축 해제 디렉토리에 manifest가 없어 재준비합니다. Version={0}, ExtractedPath={1}", package.Version, packageExtractedPath);
             Directory.Delete(packageExtractedPath, true);
         }
+
+        Log.Information("[CLI/updater]" + "패키지 준비를 시작합니다. Version={0}, PackageUri={1}", package.Version, package.PackageUri);
+        var packageFilePath = await DownloadPackageAsync(plan, package, downloadsRoot);
+        ValidatePackage(packageFilePath, package, plan.MaintenanceMode);
 
         Directory.CreateDirectory(packageExtractedPath);
         ZipFile.ExtractToDirectory(packageFilePath, packageExtractedPath, true);
         Log.Information("[CLI/updater]" + "패키지 압축 해제가 완료되었습니다. Version={0}, ExtractedPath={1}", package.Version, packageExtractedPath);
 
-        var expectedManifestPath = Path.Combine(packageExtractedPath, $"{Path.GetFileNameWithoutExtension(packageFilePath)}.txt");
-        string manifestFilePath;
-        if (File.Exists(expectedManifestPath) == true)
+        var entries = TryLoadPackageManifestEntries(packageExtractedPath, packageFilePath);
+        if (entries == null)
         {
-            manifestFilePath = expectedManifestPath;
+            throw new FileNotFoundException("패키지 manifest 파일을 찾을 수 없습니다.", packageExtractedPath);
         }
-        else
+
+        return new PreparedPackageContext(package, packageExtractedPath, entries);
+    }
+
+    private static IReadOnlyList<PackageManifestEntry>? TryLoadPackageManifestEntries(string packageExtractedPath, string? packageFilePath)
+    {
+        string? manifestFilePath = null;
+        if (string.IsNullOrWhiteSpace(packageFilePath) == false)
+        {
+            var expectedManifestPath = Path.Combine(packageExtractedPath, $"{Path.GetFileNameWithoutExtension(packageFilePath)}.txt");
+            if (File.Exists(expectedManifestPath) == true)
+            {
+                manifestFilePath = expectedManifestPath;
+            }
+        }
+
+        if (string.IsNullOrWhiteSpace(manifestFilePath) == true)
         {
             var candidates = Directory.GetFiles(packageExtractedPath, "*.txt", SearchOption.TopDirectoryOnly);
-            if (candidates.Length != 1)
+            if (candidates.Length == 1)
             {
-                throw new FileNotFoundException("패키지 manifest 파일을 찾을 수 없습니다.", expectedManifestPath);
+                manifestFilePath = candidates[0];
             }
-
-            manifestFilePath = candidates[0];
         }
 
-        var entries = PackageManifestParser.Load(manifestFilePath);
-        ApplyPackageFiles(plan.InstallRoot, package.Version, packageExtractedPath, entries, backupRoot);
-        await RunMigrationIfPresentAsync(plan.InstallRoot, package.Version);
+        return string.IsNullOrWhiteSpace(manifestFilePath) == true ? null : PackageManifestParser.Load(manifestFilePath);
     }
 
     private static async Task<string> DownloadPackageAsync(UpdateLaunchPlan plan, UpdatePackageDescriptor package, string downloadsRoot)
@@ -544,17 +591,13 @@ internal static class Program
             else
             {
                 var localFileName = Path.GetFileName(resolvedPackageUri);
-                fileName = string.IsNullOrWhiteSpace(localFileName) == true
-                    ? $"deploy-{package.Version}.zip"
-                    : localFileName;
+                fileName = string.IsNullOrWhiteSpace(localFileName) == true ? $"deploy-{package.Version}.zip" : localFileName;
             }
         }
         else
         {
             var localFileName = Path.GetFileName(resolvedPackageUri);
-            fileName = string.IsNullOrWhiteSpace(localFileName) == true
-                ? $"deploy-{package.Version}.zip"
-                : localFileName;
+            fileName = string.IsNullOrWhiteSpace(localFileName) == true ? $"deploy-{package.Version}.zip" : localFileName;
         }
 
         var versionDirectoryPath = Path.Combine(downloadsRoot, SanitizeFileName(package.Version));
@@ -688,10 +731,7 @@ internal static class Program
             return;
         }
 
-        var backupFilePath = Path.Combine(
-            backupRoot,
-            SanitizeFileName(packageVersion),
-            relativePath.Replace('/', Path.DirectorySeparatorChar));
+        var backupFilePath = Path.Combine(backupRoot, SanitizeFileName(packageVersion), relativePath.Replace('/', Path.DirectorySeparatorChar));
         Directory.CreateDirectory(Path.GetDirectoryName(backupFilePath) ?? backupRoot);
         File.Copy(targetFilePath, backupFilePath, true);
     }
@@ -812,9 +852,9 @@ internal static class Program
         Log.Information("[CLI/updater]" + "마이그레이션 실행이 완료되었습니다. Version={0}, ScriptPath={1}", packageVersion, scriptPath);
     }
 
-    private static async Task WaitForProcessExitAsync(int processId, TimeSpan timeout)
+    private static async Task ForceKillProcessAsync(int processId)
     {
-        if (processId <= 0)
+        if (processId < 0)
         {
             return;
         }
@@ -827,13 +867,25 @@ internal static class Program
                 return;
             }
 
-            Log.Information("[CLI/updater]" + "대상 프로세스 종료를 기다립니다. ProcessId={0}", processId);
-            if (process.WaitForExit((int)timeout.TotalMilliseconds) == false)
-            {
-                throw new TimeoutException($"프로세스 종료 대기 시간 초과: pid={processId}");
-            }
-
+            Log.Information("[CLI/updater]" + "Mandatory 업데이트로 ack 프로세스를 강제 종료합니다. ProcessId={0}", processId);
+            process.Kill(true);
+            await process.WaitForExitAsync();
+            Log.Information("[CLI/updater]" + "ack 프로세스 종료가 완료되었습니다. ProcessId={0}", processId);
+        }
+        catch (InvalidOperationException)
+        {
             await Task.CompletedTask;
+        }
+        catch (NotSupportedException)
+        {
+            using var process = Process.GetProcessById(processId);
+            process.Kill();
+            await process.WaitForExitAsync();
+            Log.Information("[CLI/updater]" + "ack 프로세스 종료가 완료되었습니다. ProcessId={0}", processId);
+        }
+        catch (Exception exception) when (exception is Win32Exception || exception is UnauthorizedAccessException)
+        {
+            throw new InvalidOperationException($"ack 프로세스 강제 종료 실패: pid={processId}", exception);
         }
         catch (ArgumentException)
         {
@@ -846,8 +898,7 @@ internal static class Program
         var currentDirectory = Path.GetDirectoryName(filePath);
         var stopDirectory = Path.GetFullPath(installRoot);
 
-        while (string.IsNullOrWhiteSpace(currentDirectory) == false
-            && string.Equals(Path.GetFullPath(currentDirectory), stopDirectory, StringComparison.OrdinalIgnoreCase) == false)
+        while (string.IsNullOrWhiteSpace(currentDirectory) == false && string.Equals(Path.GetFullPath(currentDirectory), stopDirectory, StringComparison.OrdinalIgnoreCase) == false)
         {
             if (Directory.Exists(currentDirectory) == false || Directory.EnumerateFileSystemEntries(currentDirectory).Any() == true)
             {
@@ -871,30 +922,7 @@ internal static class Program
         return values.FirstOrDefault(item => string.IsNullOrWhiteSpace(item) == false)?.Trim();
     }
 
-    private static void InitializeLogFile(string installRoot)
-    {
-        var logDirectoryPath = InstallLayout.ResolveUpdateLogDirectory(installRoot);
-        Directory.CreateDirectory(logDirectoryPath);
-        logFilePath = Path.Combine(logDirectoryPath, "updater.log");
-
-        lock (LogSyncRoot)
-        {
-            if (logFileConfigured == false)
-            {
-                Log.Logger = new LoggerConfiguration()
-                    .MinimumLevel.Information()
-                    .WriteTo.Console()
-                    .WriteTo.File(
-                        path: logFilePath,
-                        rollingInterval: RollingInterval.Day,
-                        shared: true)
-                    .CreateLogger();
-                logFileConfigured = true;
-            }
-        }
-
-        Log.Information("[CLI/updater]" + "updater 로그를 초기화했습니다. LogFilePath={0}", logFilePath);
-    }
+    private sealed record PreparedPackageContext(UpdatePackageDescriptor Package, string ExtractedPath, IReadOnlyList<PackageManifestEntry> Entries);
 
     private sealed record LaunchCommand(string FileName, IReadOnlyList<string> PrefixArguments);
 }

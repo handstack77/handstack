@@ -72,7 +72,7 @@ public sealed class UpdateLaunchPlan
 
     public bool MaintenanceMode { get; set; }
 
-    public int WaitForProcessId { get; set; }
+    public int AckProcessId { get; set; }
 
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 

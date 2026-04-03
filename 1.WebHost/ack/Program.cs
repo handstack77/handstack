@@ -160,6 +160,8 @@ namespace ack
 
                     GlobalConfiguration.ConfigurationRoot = configuration;
 
+                    _ = Task.Run(() => TryLaunchUpdaterIfUpdateAvailableAsync(configuration, versionInfo));
+
                     if (string.IsNullOrWhiteSpace(GlobalConfiguration.ProcessName) == false)
                     {
                         var writeToSection = configuration.GetSection("Serilog:WriteTo");
@@ -429,6 +431,130 @@ namespace ack
                     Debugger.Break();
                 }
             }
+        }
+
+        private static async Task TryLaunchUpdaterIfUpdateAvailableAsync(IConfiguration configuration, InstalledVersionInfo currentVersionInfo)
+        {
+            try
+            {
+                var manifestUrl = FirstNonEmpty(configuration["HandstackUpdateManifestUrl"], configuration["AppSettings:HandstackUpdateManifestUrl"]);
+                if (string.IsNullOrWhiteSpace(manifestUrl) == true)
+                {
+                    return;
+                }
+
+                var manifestVersion = await TryGetManifestVersionAsync(manifestUrl);
+                if (string.IsNullOrWhiteSpace(manifestVersion) == true)
+                {
+                    return;
+                }
+
+                if (IsNewerVersion(manifestVersion, currentVersionInfo.Version) == false)
+                {
+                    return;
+                }
+
+                var updaterExecutablePath = Path.GetFullPath(Path.Combine(GlobalConfiguration.EntryBasePath, "..", "tools", "updater", OperatingSystem.IsWindows() == true ? "updater.exe" : "updater"));
+                var updaterDllPath = Path.ChangeExtension(updaterExecutablePath, ".dll");
+                if (File.Exists(updaterExecutablePath) == false && File.Exists(updaterDllPath) == false)
+                {
+                    Log.Warning("[Program] updater 실행 파일 확인 필요. UpdaterPath={UpdaterPath}", updaterExecutablePath);
+                    return;
+                }
+
+                var startInfo = new ProcessStartInfo
+                {
+                    FileName = File.Exists(updaterExecutablePath) == true ? updaterExecutablePath : "dotnet",
+                    WorkingDirectory = Path.GetDirectoryName(updaterExecutablePath) ?? GlobalConfiguration.EntryBasePath,
+                    UseShellExecute = false
+                };
+
+                if (File.Exists(updaterExecutablePath) == false)
+                {
+                    startInfo.ArgumentList.Add(updaterDllPath);
+                }
+
+                startInfo.ArgumentList.Add("--manifest-url");
+                startInfo.ArgumentList.Add(manifestUrl);
+                startInfo.ArgumentList.Add("--ack-process-id");
+                startInfo.ArgumentList.Add(Environment.ProcessId.ToString());
+
+                var errorUrl = FirstNonEmpty(configuration["HandstackUpdateErrorUrl"], configuration["AppSettings:HandstackUpdateErrorUrl"]);
+                if (string.IsNullOrWhiteSpace(errorUrl) == false)
+                {
+                    startInfo.ArgumentList.Add("--error-url");
+                    startInfo.ArgumentList.Add(errorUrl);
+                }
+
+                var currentArguments = Environment.GetCommandLineArgs();
+                for (int argumentIndex = 1; argumentIndex < currentArguments.Length; argumentIndex++)
+                {
+                    startInfo.ArgumentList.Add(currentArguments[argumentIndex]);
+                }
+
+                var updaterProcess = Process.Start(startInfo);
+                if (updaterProcess == null)
+                {
+                    Log.Warning("[Program] updater 프로세스 시작 실패");
+                    return;
+                }
+
+                Log.Information("[Program] 최신 버전 감지로 updater를 비동기 실행했습니다. CurrentVersion={CurrentVersion}, ManifestVersion={ManifestVersion}, UpdaterProcessId={UpdaterProcessId}", currentVersionInfo.Version, manifestVersion, updaterProcess.Id);
+            }
+            catch (Exception exception)
+            {
+                Log.Warning(exception, "[Program] 시작 시 updater 실행 확인 중 오류가 발생했습니다.");
+            }
+        }
+
+        private static async Task<string?> TryGetManifestVersionAsync(string manifestUrl)
+        {
+            try
+            {
+                string manifestJson;
+                if (Uri.TryCreate(manifestUrl, UriKind.Absolute, out var manifestUri) == true && (manifestUri.Scheme == Uri.UriSchemeHttp || manifestUri.Scheme == Uri.UriSchemeHttps))
+                {
+                    HttpClient updateCheckHttpClient = new HttpClient
+                    {
+                        Timeout = TimeSpan.FromSeconds(5)
+                    };
+                    using var response = await updateCheckHttpClient.GetAsync(manifestUri);
+                    response.EnsureSuccessStatusCode();
+                    manifestJson = await response.Content.ReadAsStringAsync();
+                }
+                else
+                {
+                    var manifestFilePath = Path.GetFullPath(manifestUrl);
+                    manifestJson = await File.ReadAllTextAsync(manifestFilePath);
+                }
+
+                using var document = JsonDocument.Parse(manifestJson);
+                if (document.RootElement.TryGetProperty("version", out var versionElement) == true)
+                {
+                    return versionElement.GetString()?.Trim();
+                }
+            }
+            catch
+            {
+            }
+
+            return null;
+        }
+
+        private static bool IsNewerVersion(string candidateVersion, string currentVersion)
+        {
+            if (Version.TryParse(candidateVersion, out var parsedCandidate) == true
+                && Version.TryParse(currentVersion, out var parsedCurrent) == true)
+            {
+                return parsedCandidate > parsedCurrent;
+            }
+
+            return string.Compare(candidateVersion, currentVersion, StringComparison.OrdinalIgnoreCase) > 0;
+        }
+
+        private static string? FirstNonEmpty(params string?[] values)
+        {
+            return values.FirstOrDefault(item => string.IsNullOrWhiteSpace(item) == false)?.Trim();
         }
     }
 }

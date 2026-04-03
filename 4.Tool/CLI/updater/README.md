@@ -29,7 +29,7 @@ dotnet run --project 4.Tool/CLI/updater/updater.csproj -- `
 - `--ack-path`: ack 실행 파일 경로. 기본값은 `app/ack(.exe)`
 - `--health-url`: 업데이트 컨텍스트에 기록할 헬스체크 주소. 기본값은 `http://localhost:<port>/checkip`
 - `--initial-version`: `version.json`이 없을 때 기록할 기본 버전. 기본값 `1.0.0`
-- `--wait-for-process-id`: 기존 ack 종료를 기다린 후 다시 올릴 프로세스 ID
+- `--ack-process-id`: Mandatory 업데이트 시 강제 종료할 ack 프로세스 ID
 
 ## 설정 파일
 

@@ -1514,7 +1514,7 @@ namespace ack
 
                             startInfo.ArgumentList.Add("--manifest-url");
                             startInfo.ArgumentList.Add(manifestUrl);
-                            startInfo.ArgumentList.Add("--wait-for-process-id");
+                            startInfo.ArgumentList.Add("--ack-process-id");
                             startInfo.ArgumentList.Add(currentProcess.Id.ToString());
 
                             if (string.IsNullOrWhiteSpace(errorUrl) == false)
