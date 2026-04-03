@@ -24,7 +24,7 @@ set PROJECTS=^
 "4.Tool\CLI\handsonapp\handsonapp.csproj" ^
 "4.Tool\CLI\handstack\handstack.csproj" ^
 "4.Tool\CLI\ports\ports.csproj" ^
-"4.Tool\CLI\launcher\launcher.csproj"
+"4.Tool\CLI\updater\updater.csproj"
 
 echo Restoring solution packages...
 dotnet restore handstack.sln

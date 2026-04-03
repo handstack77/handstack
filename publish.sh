@@ -107,7 +107,7 @@ cli_projects=(
     "4.Tool/CLI/handsonapp/handsonapp.csproj:handsonapp"
     "4.Tool/CLI/handstack/handstack.csproj:handstack"
     "4.Tool/CLI/ports/ports.csproj:ports"
-    "4.Tool/CLI/launcher/launcher.csproj:launcher"
+    "4.Tool/CLI/updater/updater.csproj:updater"
 )
 
 for item in "${cli_projects[@]}"; do

@@ -117,11 +117,12 @@ namespace deploy.Services
                     file.CopyTo(stream);
                 }
 
+                using var hashStream = File.OpenRead(destinationFilePath);
                 var package = new UpdateCatalogPackage
                 {
                     Version = version,
                     FileName = safeFileName,
-                    Sha256 = CalculateSha256(destinationFilePath),
+                    Sha256 = Convert.ToHexString(SHA256.HashData(hashStream)).ToLowerInvariant(),
                     Size = new FileInfo(destinationFilePath).Length,
                     ReleaseDate = releaseDate ?? DateTimeOffset.UtcNow,
                     ReleaseNotes = releaseNotes?.Trim() ?? "",
@@ -131,7 +132,12 @@ namespace deploy.Services
                 var catalog = LoadCatalog();
                 catalog.Packages.RemoveAll(item => string.Equals(item.Version, version, StringComparison.OrdinalIgnoreCase) == true);
                 catalog.Packages.Add(package);
-                SaveCatalog(catalog);
+                catalog.Packages = catalog.Packages
+                    .OrderBy(item => item.Version, Comparer<string>.Create(UpdateVersionComparer.Compare))
+                    .ToList();
+
+                var json = JsonSerializer.Serialize(catalog, UpdateJson.DefaultSerializerOptions);
+                File.WriteAllText(CatalogFilePath, json + Environment.NewLine);
 
                 logger.LogInformation(
                     "Update package saved. Version={Version}, FileName={FileName}, Size={Size}, Sha256={Sha256}",
@@ -253,16 +259,6 @@ namespace deploy.Services
                 ?? new UpdateCatalogDocument();
         }
 
-        private void SaveCatalog(UpdateCatalogDocument catalog)
-        {
-            catalog.Packages = catalog.Packages
-                .OrderBy(item => item.Version, Comparer<string>.Create(UpdateVersionComparer.Compare))
-                .ToList();
-
-            var json = JsonSerializer.Serialize(catalog, UpdateJson.DefaultSerializerOptions);
-            File.WriteAllText(CatalogFilePath, json + Environment.NewLine);
-        }
-
         private static string BuildPackageUri(string publicBaseUri, string fileName)
         {
             return $"{publicBaseUri.TrimEnd('/')}/packages/{Uri.EscapeDataString(fileName)}";
@@ -273,13 +269,6 @@ namespace deploy.Services
             return Path.IsPathRooted(path) == true
                 ? path
                 : Path.GetFullPath(Path.Combine(basePath, path));
-        }
-
-        private static string CalculateSha256(string filePath)
-        {
-            using var stream = File.OpenRead(filePath);
-            var hash = SHA256.HashData(stream);
-            return Convert.ToHexString(hash).ToLowerInvariant();
         }
 
         private static string SanitizeFileName(string value)

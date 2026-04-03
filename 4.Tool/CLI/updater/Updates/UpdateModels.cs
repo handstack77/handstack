@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace launcher.Updates;
+namespace updater.Updates;
 
 public sealed class InstalledVersionInfo
 {

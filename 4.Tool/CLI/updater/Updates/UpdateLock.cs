@@ -2,7 +2,7 @@
 using System.IO;
 using System.Text;
 
-namespace launcher.Updates;
+namespace updater.Updates;
 
 public sealed class UpdateLockHandle : IDisposable
 {

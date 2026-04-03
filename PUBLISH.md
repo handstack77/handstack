@@ -8,12 +8,12 @@
 
 - 루트 배포 스크립트: `publish.ps1`
 - 패키지 생성기: `4.Tool/CLI/publish-package/Program.cs`
-- 업데이트 적용기: `4.Tool/CLI/launcher/Program.cs`
+- 업데이트 적용기: `4.Tool/CLI/updater/Program.cs`
 - 배포 호스트: `1.WebHost/deploy/Program.cs`, `Controllers/*`, `Services/UpdatePackageRepositoryService.cs`
 - 런타임 연동: `1.WebHost/ack/Program.cs`, `1.WebHost/ack/Startup.cs`
 - 공개 업데이트 메타데이터는 `version.json` 업로드 방식이 아니라 `deploy`가 동적으로 만드는 `/release/manifest.json`이다.
-- 업데이트 적용 책임은 별도의 `launcher`에 있다.
-- `ack`는 자동으로 원격 배포 서버를 폴링하지 않는다. 직접 `launcher`를 진입점으로 쓰거나, 실행 중인 `ack`의 `/manifest?launch=true...`를 통해 `launcher`를 띄워야 한다.
+- 업데이트 적용 책임은 별도의 `updater`에 있다.
+- `ack`는 자동으로 원격 배포 서버를 폴링하지 않는다. 직접 `updater`를 진입점으로 쓰거나, 실행 중인 `ack`의 `/manifest?launch=true...`를 통해 `updater`를 띄워야 한다.
 
 ## 전체 흐름
 
@@ -23,8 +23,8 @@
 4. `publish-package compress`로 `deploy-YYYY.MM.NNN.zip`과 같은 이름의 manifest `.txt`를 만든다.
 5. `deploy` 호스트에 ZIP을 업로드하면 `storage/update-catalog.json`에 등록되고 공개 경로 `/release/packages/*`로 노출된다.
 6. `deploy`는 등록된 카탈로그 기준으로 `/release/manifest.json`을 동적으로 생성한다.
-7. `launcher`는 `app/version.json`과 공개 manifest를 비교해 자신보다 높은 버전의 ZIP만 순서대로 내려받아 적용한다.
-8. `launcher`가 업데이트를 끝내면 `ack`를 다시 실행한다.
+7. `updater`는 `app/version.json`과 공개 manifest를 비교해 자신보다 높은 버전의 ZIP만 순서대로 내려받아 적용한다.
+8. `updater`가 업데이트를 끝내면 `ack`를 다시 실행한다.
 
 ## 1. 기준 publish 산출물 생성
 
@@ -72,7 +72,7 @@ handstack/
 │  ├─ excludedportrange/
 │  ├─ handsonapp/
 │  ├─ handstack/
-│  ├─ launcher/
+│  ├─ updater/
 │  ├─ ports/
 │  └─ publish-package/
 ├─ contracts/
@@ -141,7 +141,7 @@ publish-package make --publishpath=..\publish\win-x64\handstack
 ```text
 C|app/ack.dll|123456|A1B2C3D4E5F6|2026-04-02T10:20:30.0000000Z
 U|modules/transact/module.json|2048|B1C2D3E4F5A6|2026-04-02T10:21:00.0000000Z
-D|tools/launcher/old.txt|0|-|-
+D|tools/updater/old.txt|0|-|-
 ```
 
 규칙:
@@ -168,7 +168,7 @@ D|tools/launcher/old.txt|0|-|-
 
 예:
 
-- `--includes=tools/launcher` -> `tools/launcher`
+- `--includes=tools/updater` -> `tools/updater`
 - `--includes=transact/Contracts` -> `modules/transact/Contracts`
 - `--includes=wwwroot` -> `modules/wwwroot`
 
@@ -325,9 +325,9 @@ hosts/deploy/
 - `GET /index.html` : 최소 관리 UI
 - `GET /api/update-packages` : 등록된 패키지 목록
 - `POST /api/update-packages` : ZIP 업로드
-- `GET /release/manifest.json` : launcher가 읽는 공개 manifest
+- `GET /release/manifest.json` : updater가 읽는 공개 manifest
 - `GET /release/packages/{fileName}` : 실제 ZIP 다운로드
-- `POST /deploy-error` : launcher 실패 보고
+- `POST /deploy-error` : updater 실패 보고
 
 업로드 제약:
 
@@ -387,14 +387,14 @@ curl.exe `
 운영 포인트:
 
 - 상단 `version`은 최신 패키지 버전이다.
-- `packages` 배열은 launcher가 현재 버전보다 높은 항목만 골라 순차 적용하는 기준이다.
+- `packages` 배열은 updater가 현재 버전보다 높은 항목만 골라 순차 적용하는 기준이다.
 - 상단 `releaseNotes`는 `Deploy:ReleaseNotes`가 비어 있으면 최신 패키지의 `releaseNotes`를 사용한다.
 
-## 4. `launcher`가 업데이트를 적용하는 방식
+## 4. `updater`가 업데이트를 적용하는 방식
 
 ### 4-1. 기본 동작
 
-`launcher`는 HandStack 시작 진입점 역할을 한다.
+`updater`는 HandStack 시작 진입점 역할을 한다.
 
 - 설치 루트 계산
 - `app/version.json` 확인 및 자동 생성
@@ -407,7 +407,7 @@ curl.exe `
 권장 실행 예:
 
 ```powershell
-.\tools\launcher\launcher.exe `
+.\tools\updater\updater.exe `
   --manifest-url=http://localhost:8520/release/manifest.json `
   --error-url=http://localhost:8520/deploy-error `
   -- --port=8421 --modules=wwwroot,transact,dbclient,function
@@ -417,7 +417,7 @@ curl.exe `
 
 - `--manifest-url`: 공개 manifest URL 또는 로컬 JSON 파일 경로
 - `--error-url`: 실패 보고 URL
-- `--install-root`: HandStack 설치 루트. 기본값은 `tools/launcher` 기준 상위 2단계
+- `--install-root`: HandStack 설치 루트. 기본값은 `tools/updater` 기준 상위 2단계
 - `--ack-path`: 기본값 `app/ack(.exe)`
 - `--initial-version`: `version.json`이 없을 때 기본 버전. 기본값 `1.0.0`
 - `--wait-for-process-id`: 종료를 기다릴 기존 `ack` PID
@@ -451,7 +451,7 @@ curl.exe `
 
 ### 4-4. 허용 경로
 
-`launcher`는 아래 top-level 디렉터리만 설치 대상으로 허용한다.
+`updater`는 아래 top-level 디렉터리만 설치 대상으로 허용한다.
 
 - `app`
 - `assemblies`
@@ -462,7 +462,7 @@ curl.exe `
 
 주의:
 
-- `launcher`는 `data`를 허용하지만, 현재 `publish-package` 표준 대상에는 `data`가 없다.
+- `updater`는 `data`를 허용하지만, 현재 `publish-package` 표준 대상에는 `data`가 없다.
 - 즉 현재 공식 패키지 생성 흐름에서 실제로 생성되는 경로는 `app`, `assemblies`, `hosts`, `tools`, `modules`다.
 
 ### 4-5. 마이그레이션 스크립트 규칙
@@ -487,8 +487,8 @@ Linux/macOS:
 
 ### 4-6. 로그와 오류 보고
 
-- 로컬 로그: `log/update/launcher.log`
-- 실패 보고: `error-url`이 있으면 multipart form으로 `message`, `source=launcher`, `version`, `launcher.log`를 `POST`한다.
+- 로컬 로그: `log/update/updater.log`
+- 실패 보고: `error-url`이 있으면 multipart form으로 `message`, `source=updater`, `version`, `updater.log`를 `POST`한다.
 
 현재 코드 기준 주의 사항:
 
@@ -519,11 +519,11 @@ GET /manifest
 - `updatedAt`
 - 현재 프로세스 ID
 - 현재 실행 파일 경로
-- launcher 실행 파일 경로
+- updater 실행 파일 경로
 
-### 5-3. 실행 중인 `ack`에서 launcher 기동
+### 5-3. 실행 중인 `ack`에서 updater 기동
 
-아래 쿼리를 주면 `ack`가 `launcher`를 새 프로세스로 실행한다.
+아래 쿼리를 주면 `ack`가 `updater`를 새 프로세스로 실행한다.
 
 ```text
 GET /manifest?launch=true&manifestUrl=http://localhost:8520/release/manifest.json&errorUrl=http://localhost:8520/deploy-error&hostAccessID=<HOST_ACCESS_ID>
@@ -531,7 +531,7 @@ GET /manifest?launch=true&manifestUrl=http://localhost:8520/release/manifest.jso
 
 또는 `launch=true` 대신 `executeLauncher=true`도 허용한다.
 
-이때 `ack`가 `launcher`에 넘기는 값:
+이때 `ack`가 `updater`에 넘기는 값:
 
 - `--manifest-url <manifestUrl>`
 - `--wait-for-process-id <현재 ack PID>`
@@ -540,22 +540,22 @@ GET /manifest?launch=true&manifestUrl=http://localhost:8520/release/manifest.jso
 
 중요:
 
-- 이 엔드포인트는 `launcher`를 시작만 하고 현재 `ack` 프로세스를 바로 종료하지는 않는다.
-- 따라서 실제 교체를 진행하려면 `launcher`가 기다리는 동안 기존 `ack`를 종료시켜야 한다.
+- 이 엔드포인트는 `updater`를 시작만 하고 현재 `ack` 프로세스를 바로 종료하지는 않는다.
+- 따라서 실제 교체를 진행하려면 `updater`가 기다리는 동안 기존 `ack`를 종료시켜야 한다.
 - 코드상 종료 엔드포인트는 `/stop?hostAccessID=<HOST_ACCESS_ID>`다.
 
 운영 시퀀스 예:
 
 1. `/manifest?launch=true...` 호출
 2. `/stop?hostAccessID=...` 호출
-3. `launcher`가 PID 종료를 감지한 뒤 업데이트 적용
-4. `launcher`가 `ack` 재시작
+3. `updater`가 PID 종료를 감지한 뒤 업데이트 적용
+4. `updater`가 `ack` 재시작
 
 ### 5-4. 권장 진입점
 
-운영 관점에서 가장 단순한 방법은 `ack` 대신 `launcher`를 진입점으로 두는 것이다.
+운영 관점에서 가장 단순한 방법은 `ack` 대신 `updater`를 진입점으로 두는 것이다.
 
-- 신규 기동: `launcher -> 필요 시 업데이트 -> ack`
+- 신규 기동: `updater -> 필요 시 업데이트 -> ack`
 - 실행 중 교체: `ack /manifest?launch=true...` + `ack /stop`
 
 현재 소스 기준으로 `ack` 자체에는 원격 배포 서버를 주기적으로 조회하는 로직이 없다.
@@ -568,13 +568,13 @@ GET /manifest?launch=true&manifestUrl=http://localhost:8520/release/manifest.jso
 4. `compress`로 `deploy-YYYY.MM.NNN.zip`을 만든다.
 5. `deploy`에 ZIP을 업로드한다.
 6. `/release/manifest.json`과 `/release/packages/<zip>`이 열리는지 확인한다.
-7. `launcher`를 진입점으로 기동하거나, 실행 중인 `ack`에 `/manifest?launch=true...`를 호출한다.
-8. 적용 후 `app/version.json`, `log/update/launcher.log`, `deploy`의 `storage/errors` 유무를 확인한다.
+7. `updater`를 진입점으로 기동하거나, 실행 중인 `ack`에 `/manifest?launch=true...`를 호출한다.
+8. 적용 후 `app/version.json`, `log/update/updater.log`, `deploy`의 `storage/errors` 유무를 확인한다.
 
 ## 7. 현재 구현 기준으로 문서화한 제한 사항
 
 - `contracts/`는 publish 산출물에 존재하지만 표준 업데이트 ZIP에는 포함되지 않는다.
 - `DefaultChannel`, `DefaultPlatform`은 설정에 있으나 현재 배포 호스트 동작에는 반영되지 않는다.
-- `mandatory`는 manifest에 실리지만 launcher의 실행 제어에는 아직 쓰이지 않는다.
+- `mandatory`는 manifest에 실리지만 updater의 실행 제어에는 아직 쓰이지 않는다.
 - `health-url`은 계산되지만 실제 probe 로직은 없다.
-- 실행 중인 `ack`의 `/manifest?launch=true...`는 launcher만 기동하며, 현재 프로세스 종료는 별도 `/stop` 또는 외부 프로세스 매니저가 맡아야 한다.
+- 실행 중인 `ack`의 `/manifest?launch=true...`는 updater만 기동하며, 현재 프로세스 종료는 별도 `/stop` 또는 외부 프로세스 매니저가 맡아야 한다.

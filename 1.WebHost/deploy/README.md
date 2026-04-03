@@ -1,12 +1,12 @@
 # handstack-deploy
 
-`handstack-deploy`는 `publish-package`가 만든 `deploy-<yyyy.MM.rollingno>.zip` 패키지를 저장하고, launcher/updater가 읽는 공개 manifest를 제공하는 관리 호스트입니다.
+`handstack-deploy`는 `publish-package`가 만든 `deploy-<yyyy.MM.rollingno>.zip` 패키지를 저장하고, updater/updater가 읽는 공개 manifest를 제공하는 관리 호스트입니다.
 
 ## 자동 업데이트 API
 
 | Method | Path | 인증 | 설명 |
 | --- | --- | --- | --- |
-| `GET` | `/release/manifest.json` | 없음 | launcher가 읽는 최신 업데이트 manifest입니다. |
+| `GET` | `/release/manifest.json` | 없음 | updater가 읽는 최신 업데이트 manifest입니다. |
 | `GET` | `/release/packages/{fileName}` | 없음 | 실제 ZIP 다운로드 경로입니다. |
 | `POST` | `/api/update-packages` | 관리 키 | `publish-package` ZIP을 업로드하고 카탈로그에 등록합니다. |
 | `GET` | `/api/update-packages` | 없음 | 등록된 업데이트 ZIP 목록을 반환합니다. |

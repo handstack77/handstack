@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text.RegularExpressions;
 
-namespace launcher.Updates;
+namespace updater.Updates;
 
 public static class UpdateVersionComparer
 {

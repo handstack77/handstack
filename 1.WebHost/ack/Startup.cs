@@ -1478,16 +1478,9 @@ namespace ack
                     {
                         var versionFilePath = Path.Combine(GlobalConfiguration.EntryBasePath, "version.json");
                         var versionInfo = VersionFileStore.Ensure(versionFilePath, VersionFileStore.DefaultVersion);
-                        var launcherExecutablePath = Path.GetFullPath(Path.Combine(
-                            GlobalConfiguration.EntryBasePath,
-                            "..",
-                            "tools",
-                            "launcher",
-                            OperatingSystem.IsWindows() == true ? "launcher.exe" : "launcher"));
-                        var launcherDllPath = Path.ChangeExtension(launcherExecutablePath, ".dll");
-                        var launchRequested = string.Equals(context.Request.Query["launch"], "true", StringComparison.OrdinalIgnoreCase) == true
-                            || string.Equals(context.Request.Query["executeLauncher"], "true", StringComparison.OrdinalIgnoreCase) == true;
-
+                        var updaterExecutablePath = Path.GetFullPath(Path.Combine(GlobalConfiguration.EntryBasePath, "..", "tools", "updater", OperatingSystem.IsWindows() == true ? "updater.exe" : "updater"));
+                        var updaterDllPath = Path.ChangeExtension(updaterExecutablePath, ".dll");
+                        var launchRequested = string.Equals(context.Request.Query["launch"], "true", StringComparison.OrdinalIgnoreCase) == true;
                         if (launchRequested == true)
                         {
                             if (IsValidHostAccessRequest(context, out var hostAccessID) == false)
@@ -1497,33 +1490,26 @@ namespace ack
                                 return;
                             }
 
-                            if (File.Exists(launcherExecutablePath) == false && File.Exists(launcherDllPath) == false)
+                            if (File.Exists(updaterExecutablePath) == false && File.Exists(updaterDllPath) == false)
                             {
                                 context.Response.StatusCode = StatusCodes.Status404NotFound;
-                                await context.Response.WriteAsync("launcher 실행 파일 확인 필요");
+                                await context.Response.WriteAsync("updater 실행 파일 확인 필요");
                                 return;
                             }
 
                             var manifestUrl = context.Request.Query["manifestUrl"].ToStringSafe();
-                            if (string.IsNullOrWhiteSpace(manifestUrl) == true)
-                            {
-                                context.Response.StatusCode = StatusCodes.Status400BadRequest;
-                                await context.Response.WriteAsync("manifestUrl 확인 필요");
-                                return;
-                            }
-
                             var errorUrl = context.Request.Query["errorUrl"].ToStringSafe();
                             var currentProcess = Process.GetCurrentProcess();
                             var startInfo = new ProcessStartInfo
                             {
-                                FileName = File.Exists(launcherExecutablePath) == true ? launcherExecutablePath : "dotnet",
-                                WorkingDirectory = Path.GetDirectoryName(launcherExecutablePath) ?? GlobalConfiguration.EntryBasePath,
+                                FileName = File.Exists(updaterExecutablePath) == true ? updaterExecutablePath : "dotnet",
+                                WorkingDirectory = Path.GetDirectoryName(updaterExecutablePath) ?? GlobalConfiguration.EntryBasePath,
                                 UseShellExecute = false
                             };
 
-                            if (File.Exists(launcherExecutablePath) == false)
+                            if (File.Exists(updaterExecutablePath) == false)
                             {
-                                startInfo.ArgumentList.Add(launcherDllPath);
+                                startInfo.ArgumentList.Add(updaterDllPath);
                             }
 
                             startInfo.ArgumentList.Add("--manifest-url");
@@ -1543,11 +1529,11 @@ namespace ack
                                 startInfo.ArgumentList.Add(currentArguments[argumentIndex]);
                             }
 
-                            var launcherProcess = Process.Start(startInfo);
-                            if (launcherProcess == null)
+                            var updaterProcess = Process.Start(startInfo);
+                            if (updaterProcess == null)
                             {
                                 context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-                                await context.Response.WriteAsync("launcher 프로세스 시작 실패");
+                                await context.Response.WriteAsync("updater 프로세스 시작 실패");
                                 return;
                             }
 
@@ -1557,7 +1543,7 @@ namespace ack
                                 version = versionInfo.Version,
                                 updatedAt = versionInfo.UpdatedAt,
                                 processId = currentProcess.Id,
-                                launcherProcessId = launcherProcess.Id,
+                                updaterProcessId = updaterProcess.Id,
                                 manifestUrl,
                                 launchRequested = true
                             });
@@ -1570,7 +1556,7 @@ namespace ack
                             updatedAt = versionInfo.UpdatedAt,
                             processId = Environment.ProcessId,
                             executablePath = Process.GetCurrentProcess().MainModule?.FileName,
-                            launcherPath = File.Exists(launcherExecutablePath) == true ? launcherExecutablePath : launcherDllPath,
+                            updaterPath = File.Exists(updaterExecutablePath) == true ? updaterExecutablePath : updaterDllPath,
                             launchRequested = false
                         });
                     }

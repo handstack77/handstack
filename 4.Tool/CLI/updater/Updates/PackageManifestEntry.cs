@@ -4,7 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 
-namespace launcher.Updates;
+namespace updater.Updates;
 
 public readonly record struct PackageManifestEntry(char Operation, string RelativePath, long FileSize, string Md5, DateTimeOffset ModifiedAt)
 {
@@ -51,12 +51,35 @@ public static class PackageManifestParser
             throw new FormatException($"패키지 manifest 형식이 올바르지 않습니다. Entry={rawValue}");
         }
 
+        if (string.IsNullOrWhiteSpace(columns[0]) == true)
+        {
+            throw new InvalidOperationException("작업 구분 확인이 필요합니다.");
+        }
+
+        var operation = char.ToUpperInvariant(columns[0].Trim()[0]);
+        if (operation != 'C' && operation != 'U' && operation != 'D')
+        {
+            throw new InvalidOperationException($"지원하지 않는 작업 구분입니다. Operation={columns[0]}");
+        }
+
+        var fileSize = string.Equals(columns[2].Trim(), "-", StringComparison.Ordinal) == true
+            ? 0
+            : long.Parse(columns[2].Trim(), CultureInfo.InvariantCulture);
+
+        var hash = string.Equals(columns[3].Trim(), "-", StringComparison.Ordinal) == true
+            ? string.Empty
+            : columns[3].Trim().ToUpperInvariant();
+
+        var modifiedAt = string.Equals(columns[4].Trim(), "-", StringComparison.Ordinal) == true
+            ? default
+            : DateTimeOffset.Parse(columns[4].Trim(), CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind);
+
         return new PackageManifestEntry(
-            NormalizeOperation(columns[0]),
+            operation,
             NormalizeRelativePath(columns[1]),
-            ParseFileSize(columns[2]),
-            NormalizeHash(columns[3]),
-            ParseModifiedAt(columns[4]));
+            fileSize,
+            hash,
+            modifiedAt);
     }
 
     public static string NormalizeRelativePath(string value)
@@ -75,40 +98,4 @@ public static class PackageManifestParser
         return normalized;
     }
 
-    private static char NormalizeOperation(string value)
-    {
-        if (string.IsNullOrWhiteSpace(value) == true)
-        {
-            throw new InvalidOperationException("작업 구분 확인이 필요합니다.");
-        }
-
-        var operation = char.ToUpperInvariant(value.Trim()[0]);
-        if (operation != 'C' && operation != 'U' && operation != 'D')
-        {
-            throw new InvalidOperationException($"지원하지 않는 작업 구분입니다. Operation={value}");
-        }
-
-        return operation;
-    }
-
-    private static long ParseFileSize(string value)
-    {
-        return string.Equals(value.Trim(), "-", StringComparison.Ordinal) == true
-            ? 0
-            : long.Parse(value.Trim(), CultureInfo.InvariantCulture);
-    }
-
-    private static string NormalizeHash(string value)
-    {
-        return string.Equals(value.Trim(), "-", StringComparison.Ordinal) == true
-            ? string.Empty
-            : value.Trim().ToUpperInvariant();
-    }
-
-    private static DateTimeOffset ParseModifiedAt(string value)
-    {
-        return string.Equals(value.Trim(), "-", StringComparison.Ordinal) == true
-            ? default
-            : DateTimeOffset.Parse(value.Trim(), CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind);
-    }
 }

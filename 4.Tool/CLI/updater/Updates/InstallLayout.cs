@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace launcher.Updates;
+namespace updater.Updates;
 
 public static class InstallLayout
 {
@@ -17,7 +17,7 @@ public static class InstallLayout
 
     public static string ResolveDefaultLauncherExecutablePath(string installRoot)
     {
-        return Path.Combine(installRoot, "tools", "launcher", OperatingSystem.IsWindows() == true ? "launcher.exe" : "launcher");
+        return Path.Combine(installRoot, "tools", "updater", OperatingSystem.IsWindows() == true ? "updater.exe" : "updater");
     }
 
     public static string ResolveVersionFilePath(string ackExecutablePath)

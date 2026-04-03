@@ -79,7 +79,7 @@ dotnet %action_mode% %cli_dotnet_options% 4.Tool\CLI\excludedportrange\excludedp
 dotnet %action_mode% %cli_dotnet_options% 4.Tool\CLI\handsonapp\handsonapp.csproj --output %cli_output_root%\handsonapp
 dotnet %action_mode% %cli_dotnet_options% 4.Tool\CLI\handstack\handstack.csproj --output %cli_output_root%\handstack
 dotnet %action_mode% %cli_dotnet_options% 4.Tool\CLI\ports\ports.csproj --output %cli_output_root%\ports
-dotnet %action_mode% %cli_dotnet_options% 4.Tool\CLI\launcher\launcher.csproj --output %cli_output_root%\launcher
+dotnet %action_mode% %cli_dotnet_options% 4.Tool\CLI\updater\updater.csproj --output %cli_output_root%\updater
 
 REM Contracts 폴더 정리
 set contracts_path=%HANDSTACK_HOME%\contracts

@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace launcher.Updates;
+namespace updater.Updates;
 
 public static class UpdateJson
 {

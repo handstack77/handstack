@@ -2,7 +2,7 @@
 using System.IO;
 using System.Text.Json;
 
-namespace launcher.Updates;
+namespace updater.Updates;
 
 public static class VersionFileStore
 {

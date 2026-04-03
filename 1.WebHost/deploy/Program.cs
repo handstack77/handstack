@@ -49,7 +49,15 @@ namespace deploy
             builder.Services.AddScoped<ManagementKeyActionFilter>();
             builder.Services.AddSingleton<IUpdatePackageRepositoryService, UpdatePackageRepositoryService>();
 
-            ConfigureServiceLifetime(builder.Host);
+            if (OperatingSystem.IsWindows() == true)
+            {
+                builder.Host.UseWindowsService();
+            }
+
+            if (OperatingSystem.IsLinux() == true)
+            {
+                builder.Host.UseSystemd();
+            }
 
             var app = builder.Build();
             var repositoryService = app.Services.GetRequiredService<IUpdatePackageRepositoryService>();
@@ -73,42 +81,6 @@ namespace deploy
             app.MapControllers();
             app.Lifetime.ApplicationStopped.Register(Log.CloseAndFlush);
             app.Run();
-        }
-
-        private static void ConfigureServiceLifetime(IHostBuilder hostBuilder)
-        {
-            if (OperatingSystem.IsWindows() == true)
-            {
-                hostBuilder.UseWindowsService();
-            }
-
-            if (OperatingSystem.IsLinux() == true)
-            {
-                hostBuilder.UseSystemd();
-            }
-        }
-
-        private static bool HasConfiguredUrls(string[] args, string? configuredUrls, string? aspNetCoreUrls)
-        {
-            if (string.IsNullOrWhiteSpace(configuredUrls) == false || string.IsNullOrWhiteSpace(aspNetCoreUrls) == false)
-            {
-                return true;
-            }
-
-            for (int i = 0; i < args.Length; i++)
-            {
-                string arg = args[i];
-                if (string.Equals(arg, "--urls", StringComparison.OrdinalIgnoreCase) == true ||
-                    arg.StartsWith("--urls=", StringComparison.OrdinalIgnoreCase) == true ||
-                    arg.StartsWith("--urls:", StringComparison.OrdinalIgnoreCase) == true ||
-                    arg.StartsWith("urls=", StringComparison.OrdinalIgnoreCase) == true ||
-                    arg.StartsWith("urls:", StringComparison.OrdinalIgnoreCase) == true)
-                {
-                    return true;
-                }
-            }
-
-            return false;
         }
     }
 }
