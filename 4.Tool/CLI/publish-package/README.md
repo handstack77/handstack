@@ -76,6 +76,7 @@ D|tools/keep.txt|7|11E0B78F5D4FB9067EA20CE8D4FA8BD9|2026-04-01T23:41:15.0522878+
 
 ```powershell
 publish-package make
+publish-package make --ack=..\publish\win-x64\handstack\app\ack.exe
 publish-package make --publishpath=..\publish\win-x64\handstack
 publish-package make --includes=tools/publish-package,transact/Contracts
 publish-package make --exclude=**/*.log,**/secrets*,**/node_modules,**/values.dev.yaml,LICENSE,README.md
@@ -83,6 +84,8 @@ publish-package make --output=.\artifacts
 ```
 
 - 기본 대상은 `deploy`이며 `app`, `assemblies`, `hosts`, `tools`, `modules` 하위 전체 파일을 `deploy-filelist.txt`로 생성
+- 대상 루트 경로는 `--ack` 또는 `--publishpath`로 지정할 수 있으며, 둘 다 지정하면 `--ack`를 우선 적용
+- `--ack`는 `ack.exe` 또는 `ack.dll`의 전체 경로를 받으며, `.../app` 부모를 handstack 루트로 해석
 - `--includes`는 배포 루트 기준 상대 하위 디렉터리 경로를 받음
 - `transact`, `transact/Contracts`처럼 모듈 루트를 생략하면 `modules/transact`, `modules/transact/Contracts`로 해석
 - 예: `--includes=tools/publish-package,transact/Contracts`면 `tools/publish-package`, `modules/transact/Contracts`만 포함
@@ -113,6 +116,7 @@ publish-package modules-diff --makefile=.\deploy-filelist.txt --prevfile=.\packa
 
 ```powershell
 publish-package compress
+publish-package compress --ack=..\publish\win-x64\handstack\app\ack.exe
 publish-package compress --makefile=.\deploy-diff-filelist.txt
 publish-package compress --includes=tools/publish-package,transact/Contracts
 publish-package compress --exclude=**/*.log,**/secrets*,**/node_modules,**/values.dev.yaml,LICENSE,README.md
@@ -122,6 +126,7 @@ publish-package compress --output=.\artifacts
 
 - 결과 ZIP은 기본적으로 현재 작업 디렉터리의 `packages` 디렉터리에 생성
 - `--output`을 지정하면 해당 디렉터리 아래 `packages` 디렉터리에 생성
+- 대상 루트 경로는 `--ack` 또는 `--publishpath`로 지정할 수 있으며, 둘 다 지정하면 `--ack`를 우선 적용
 - `--includes`를 지정하면 ZIP 대상과 `--makefile` 로딩 결과를 같은 기준으로 다시 제한
 - `--exclude`를 지정하면 ZIP 대상과 `--makefile` 로딩 결과에서 일치 항목을 제외
 - `--makefile`이 있으면 목록 파일 기준으로 ZIP 대상을 제한하고, 해당 파일도 ZIP 루트에 함께 포함
@@ -143,6 +148,7 @@ artifacts/
 ## 옵션
 
 - `--publishpath`: 배포 루트 `handstack` 경로 또는 그 상위 publish 경로
+- `--ack`: `ack.exe` 또는 `ack.dll` 전체 파일 경로. `make`, `compress`에서 대상 루트 해석에 사용하며 `--publishpath`보다 우선
 - `--makefile`: 압축 또는 diff 계산에 사용할 파일 목록 경로
 - `--includes`: `make`, `compress`에서 사용할 배포 루트 기준 하위 디렉터리 경로 목록. 쉼표(,)로 구분
 - `--exclude`: `make`, `compress`, `deploy-diff`, `runtimes-diff`, `modules-diff`에서 제외할 glob 패턴 목록. 쉼표(,)로 구분

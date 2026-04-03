@@ -74,6 +74,10 @@ namespace publish_package
                 {
                     Description = "배포 루트 경로입니다. handstack publish 경로를 지정할 수 있습니다."
                 };
+                var optionAckFile = new Option<FileInfo?>("--ack")
+                {
+                    Description = "ack 프로그램 전체 파일 경로입니다."
+                };
                 var optionMakeFile = new Option<string?>("--makefile")
                 {
                     Description = "압축에 사용할 파일 목록 경로입니다."
@@ -102,6 +106,7 @@ namespace publish_package
 
                 var makeCommand = new Command("make", "대상 디렉터리의 파일 목록을 생성합니다.")
                 {
+                    optionAckFile,
                     optionPublishPath,
                     optionIncludes,
                     optionExclude,
@@ -113,9 +118,9 @@ namespace publish_package
                     {
                         var includeOptions = ParseIncludes(parseResult.GetValue(optionIncludes));
                         var excludePatterns = ParseExcludes(parseResult.GetValue(optionExclude));
-                        Log.Information("[make] 파일 목록 생성을 시작합니다. Target={0}, PublishPathOption={1}, IncludesOption={2}, ExcludeOption={3}, OutputOption={4}", DeployTargetName, FormatOptionValue(parseResult.GetValue(optionPublishPath)), FormatOptionValue(parseResult.GetValue(optionIncludes)), FormatOptionValue(parseResult.GetValue(optionExclude)), FormatOptionValue(parseResult.GetValue(optionOutput), startupWorkingDirectory));
+                        Log.Information("[make] 파일 목록 생성을 시작합니다. Target={0}, AckFileOption={1}, PublishPathOption={2}, IncludesOption={3}, ExcludeOption={4}, OutputOption={5}", DeployTargetName, FormatOptionValue(parseResult.GetValue(optionAckFile)?.FullName), FormatOptionValue(parseResult.GetValue(optionPublishPath)), FormatOptionValue(parseResult.GetValue(optionIncludes)), FormatOptionValue(parseResult.GetValue(optionExclude)), FormatOptionValue(parseResult.GetValue(optionOutput), startupWorkingDirectory));
 
-                        var handstackRootPath = ResolveHandStackRoot(parseResult.GetValue(optionPublishPath));
+                        var handstackRootPath = ResolveHandStackRoot(parseResult.GetValue(optionPublishPath), parseResult.GetValue(optionAckFile));
                         var includes = ResolveIncludeDirectoryRelativePaths(handstackRootPath, includeOptions);
                         var excludeMatchers = BuildGlobMatchers(excludePatterns);
                         var outputDirectoryPath = ResolveOutputDirectory(parseResult.GetValue(optionOutput));
@@ -146,6 +151,7 @@ namespace publish_package
 
                 var compressCommand = new Command("compress", "대상 디렉터리 파일을 ZIP 패키지로 생성합니다.")
                 {
+                    optionAckFile,
                     optionPublishPath,
                     optionMakeFile,
                     optionIncludes,
@@ -158,9 +164,9 @@ namespace publish_package
                     {
                         var includeOptions = ParseIncludes(parseResult.GetValue(optionIncludes));
                         var excludePatterns = ParseExcludes(parseResult.GetValue(optionExclude));
-                        Log.Information("[compress] ZIP 패키지 생성을 시작합니다. Target={0}, PublishPathOption={1}, MakeFileOption={2}, IncludesOption={3}, ExcludeOption={4}, OutputOption={5}", DeployTargetName, FormatOptionValue(parseResult.GetValue(optionPublishPath)), FormatOptionValue(parseResult.GetValue(optionMakeFile)), FormatOptionValue(parseResult.GetValue(optionIncludes)), FormatOptionValue(parseResult.GetValue(optionExclude)), FormatOptionValue(parseResult.GetValue(optionOutput), startupWorkingDirectory));
+                        Log.Information("[compress] ZIP 패키지 생성을 시작합니다. Target={0}, AckFileOption={1}, PublishPathOption={2}, MakeFileOption={3}, IncludesOption={4}, ExcludeOption={5}, OutputOption={6}", DeployTargetName, FormatOptionValue(parseResult.GetValue(optionAckFile)?.FullName), FormatOptionValue(parseResult.GetValue(optionPublishPath)), FormatOptionValue(parseResult.GetValue(optionMakeFile)), FormatOptionValue(parseResult.GetValue(optionIncludes)), FormatOptionValue(parseResult.GetValue(optionExclude)), FormatOptionValue(parseResult.GetValue(optionOutput), startupWorkingDirectory));
 
-                        var handstackRootPath = ResolveHandStackRoot(parseResult.GetValue(optionPublishPath));
+                        var handstackRootPath = ResolveHandStackRoot(parseResult.GetValue(optionPublishPath), parseResult.GetValue(optionAckFile));
                         var includes = ResolveIncludeDirectoryRelativePaths(handstackRootPath, includeOptions);
                         var excludeMatchers = BuildGlobMatchers(excludePatterns);
                         var makeFilePath = parseResult.GetValue(optionMakeFile);
@@ -425,8 +431,22 @@ namespace publish_package
             return 0;
         }
 
-        private static string ResolveHandStackRoot(string? requestedPath)
+        private static string ResolveHandStackRoot(string? requestedPath, FileInfo? ackFile = null)
         {
+            if (ackFile != null)
+            {
+                var ackFilePath = Path.IsPathRooted(ackFile.FullName) == true
+                    ? Path.GetFullPath(ackFile.FullName)
+                    : Path.GetFullPath(Path.Combine(startupWorkingDirectory, ackFile.FullName));
+                var resolvedPath = ResolveHandStackRootFromAckFilePath(ackFilePath);
+                if (string.IsNullOrWhiteSpace(resolvedPath) == false)
+                {
+                    return resolvedPath;
+                }
+
+                throw new DirectoryNotFoundException($"ack 파일 경로에서 handstack 배포 루트를 찾을 수 없습니다. AckFile={ackFilePath}");
+            }
+
             foreach (var candidatePath in GetCandidateRootPaths(requestedPath))
             {
                 var normalizedPath = NormalizeHandStackRoot(candidatePath);
@@ -437,6 +457,39 @@ namespace publish_package
             }
 
             throw new DirectoryNotFoundException("handstack 배포 루트를 찾을 수 없습니다. `--publishpath=[handstack publish]` 경로를 지정하세요.");
+        }
+
+        private static string? ResolveHandStackRootFromAckFilePath(string ackFilePath)
+        {
+            var ackDirectoryPath = Path.GetDirectoryName(ackFilePath);
+            if (string.IsNullOrWhiteSpace(ackDirectoryPath) == true)
+            {
+                return null;
+            }
+
+            var candidates = new List<string>();
+            var fileDirectory = new DirectoryInfo(Path.GetFullPath(ackDirectoryPath));
+            if (string.Equals(fileDirectory.Name, "app", StringComparison.OrdinalIgnoreCase) == true && fileDirectory.Parent != null)
+            {
+                candidates.Add(fileDirectory.Parent.FullName);
+            }
+
+            candidates.Add(fileDirectory.FullName);
+            if (fileDirectory.Parent != null)
+            {
+                candidates.Add(fileDirectory.Parent.FullName);
+            }
+
+            foreach (var candidatePath in candidates.Distinct(StringComparer.OrdinalIgnoreCase))
+            {
+                var normalizedPath = NormalizeHandStackRoot(candidatePath);
+                if (normalizedPath != null)
+                {
+                    return normalizedPath;
+                }
+            }
+
+            return null;
         }
 
         private static IEnumerable<string> GetCandidateRootPaths(string? requestedPath)
