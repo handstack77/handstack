@@ -95,11 +95,15 @@ publish-package make --output=.\artifacts
 ```powershell
 publish-package deploy-diff --makefile=.\deploy-filelist.txt --prevfile=.\packages\deploy-2026.04.001.txt
 publish-package deploy-diff --makefile=.\deploy-filelist.txt --prevfile=.\packages\deploy-2026.04.001.txt --output=.\artifacts
+publish-package deploy-diff --makefile=.\deploy-filelist.txt --prevfile=.\packages\deploy-2026.04.001.txt --exclude=**/*.log,**/secrets*
 publish-package runtimes-diff --makefile=.\deploy-filelist.txt --prevfile=.\packages\deploy-2026.04.001.txt
+publish-package runtimes-diff --makefile=.\deploy-filelist.txt --prevfile=.\packages\deploy-2026.04.001.txt --exclude=tools/tmp/**
 publish-package modules-diff --makefile=.\deploy-filelist.txt --prevfile=.\packages\deploy-2026.04.001.txt
+publish-package modules-diff --makefile=.\deploy-filelist.txt --prevfile=.\packages\deploy-2026.04.001.txt --exclude=modules/sample/**
 ```
 
 - `--prevfile`을 기준으로 `--makefile`의 현재 목록을 비교
+- `--exclude`를 지정하면 현재 목록과 이전 목록 모두에서 일치 항목을 제외한 뒤 diff를 계산
 - 신규 파일은 `C`, 내용 변경 파일은 `U`, 제거 파일은 `D`로 출력
 - `deploy-diff`는 통합 manifest 기준으로 `deploy-diff-filelist.txt`를 생성
 - `runtimes-diff`, `modules-diff`는 `deploy-filelist.txt`와 `deploy-*.txt`를 입력으로 받아도 해당 범위만 자동 필터링
@@ -141,13 +145,23 @@ artifacts/
 - `--publishpath`: 배포 루트 `handstack` 경로 또는 그 상위 publish 경로
 - `--makefile`: 압축 또는 diff 계산에 사용할 파일 목록 경로
 - `--includes`: `make`, `compress`에서 사용할 배포 루트 기준 하위 디렉터리 경로 목록. 쉼표(,)로 구분
-- `--exclude`: `make`, `compress`에서 제외할 glob 패턴 목록. 쉼표(,)로 구분
+- `--exclude`: `make`, `compress`, `deploy-diff`, `runtimes-diff`, `modules-diff`에서 제외할 glob 패턴 목록. 쉼표(,)로 구분
 - `--prevfile`: 이전 배포 기준 파일 목록 경로
 - `--output`: 생성 파일 출력 디렉터리 경로. 생략 시 명령 실행 작업 디렉터리
 
+## 진행률 출력
+
+- `make`, `compress` 실행 중 파일 처리 진행률을 콘솔 한 줄 갱신 형태로 표시합니다.
+- 출력 형식: `진행 중 (진행 건수/총 건수)`
+- 예:
+
+```text
+진행 중 (128/1024)
+```
+
 ## 로그
 
-`bundling`과 동일하게 `appsettings.json` 기반 Serilog 구성을 사용하며 기본 파일 로그 경로는 `../log/app.log`입니다. `rollingInterval=Day` 설정 때문에 실제 생성 파일명은 `app20260402.log` 형식으로 기록됩니다.
+로그는 콘솔과 파일에 동시에 기록되며 파일 경로는 `./log/publish-package.log`입니다. `rollingInterval=Day` 설정 때문에 실제 생성 파일명은 `publish-package20260402.log` 형식으로 기록됩니다.
 각 명령의 주요 진행 구간과 예외 stack trace도 같은 파일 로그에 함께 남습니다.
 
 ## 출력 예시

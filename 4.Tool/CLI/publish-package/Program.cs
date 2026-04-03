@@ -241,13 +241,14 @@ namespace publish_package
                 {
                     optionMakeFile,
                     optionPrevFile,
+                    optionExclude,
                     optionOutput
                 };
                 deployDiffCommand.SetAction(parseResult =>
                 {
                     try
                     {
-                        Log.Information("[deploy-diff] 변경분 파일 목록 생성을 시작합니다. MakeFileOption={0}, PrevFileOption={1}, OutputOption={2}", FormatOptionValue(parseResult.GetValue(optionMakeFile)), FormatOptionValue(parseResult.GetValue(optionPrevFile)), FormatOptionValue(parseResult.GetValue(optionOutput), startupWorkingDirectory));
+                        Log.Information("[deploy-diff] 변경분 파일 목록 생성을 시작합니다. MakeFileOption={0}, PrevFileOption={1}, ExcludeOption={2}, OutputOption={3}", FormatOptionValue(parseResult.GetValue(optionMakeFile)), FormatOptionValue(parseResult.GetValue(optionPrevFile)), FormatOptionValue(parseResult.GetValue(optionExclude)), FormatOptionValue(parseResult.GetValue(optionOutput), startupWorkingDirectory));
 
                         return ExecuteDiffCommand(
                             DeployTargetName,
@@ -255,6 +256,7 @@ namespace publish_package
                             DeployDiffFileName,
                             parseResult.GetValue(optionMakeFile),
                             parseResult.GetValue(optionPrevFile),
+                            parseResult.GetValue(optionExclude),
                             parseResult.GetValue(optionOutput));
                     }
                     catch (Exception exception)
@@ -269,13 +271,14 @@ namespace publish_package
                 {
                     optionMakeFile,
                     optionPrevFile,
+                    optionExclude,
                     optionOutput
                 };
                 runtimesDiffCommand.SetAction(parseResult =>
                 {
                     try
                     {
-                        Log.Information("[runtimes-diff] 변경분 파일 목록 생성을 시작합니다. MakeFileOption={0}, PrevFileOption={1}, OutputOption={2}", FormatOptionValue(parseResult.GetValue(optionMakeFile)), FormatOptionValue(parseResult.GetValue(optionPrevFile)), FormatOptionValue(parseResult.GetValue(optionOutput), startupWorkingDirectory));
+                        Log.Information("[runtimes-diff] 변경분 파일 목록 생성을 시작합니다. MakeFileOption={0}, PrevFileOption={1}, ExcludeOption={2}, OutputOption={3}", FormatOptionValue(parseResult.GetValue(optionMakeFile)), FormatOptionValue(parseResult.GetValue(optionPrevFile)), FormatOptionValue(parseResult.GetValue(optionExclude)), FormatOptionValue(parseResult.GetValue(optionOutput), startupWorkingDirectory));
 
                         return ExecuteDiffCommand(
                             RuntimesTargetName,
@@ -283,6 +286,7 @@ namespace publish_package
                             RuntimesDiffFileName,
                             parseResult.GetValue(optionMakeFile),
                             parseResult.GetValue(optionPrevFile),
+                            parseResult.GetValue(optionExclude),
                             parseResult.GetValue(optionOutput));
                     }
                     catch (Exception exception)
@@ -297,13 +301,14 @@ namespace publish_package
                 {
                     optionMakeFile,
                     optionPrevFile,
+                    optionExclude,
                     optionOutput
                 };
                 modulesDiffCommand.SetAction(parseResult =>
                 {
                     try
                     {
-                        Log.Information("[modules-diff] 변경분 파일 목록 생성을 시작합니다. MakeFileOption={0}, PrevFileOption={1}, OutputOption={2}", FormatOptionValue(parseResult.GetValue(optionMakeFile)), FormatOptionValue(parseResult.GetValue(optionPrevFile)), FormatOptionValue(parseResult.GetValue(optionOutput), startupWorkingDirectory));
+                        Log.Information("[modules-diff] 변경분 파일 목록 생성을 시작합니다. MakeFileOption={0}, PrevFileOption={1}, ExcludeOption={2}, OutputOption={3}", FormatOptionValue(parseResult.GetValue(optionMakeFile)), FormatOptionValue(parseResult.GetValue(optionPrevFile)), FormatOptionValue(parseResult.GetValue(optionExclude)), FormatOptionValue(parseResult.GetValue(optionOutput), startupWorkingDirectory));
 
                         return ExecuteDiffCommand(
                             ModulesTargetName,
@@ -311,6 +316,7 @@ namespace publish_package
                             ModulesDiffFileName,
                             parseResult.GetValue(optionMakeFile),
                             parseResult.GetValue(optionPrevFile),
+                            parseResult.GetValue(optionExclude),
                             parseResult.GetValue(optionOutput));
                     }
                     catch (Exception exception)
@@ -379,7 +385,7 @@ namespace publish_package
             }
         }
 
-        private static int ExecuteDiffCommand(string targetName, IReadOnlyList<string> targetDirectories, string diffFileName, string? makeFilePath, string? prevFilePath, string? outputPath)
+        private static int ExecuteDiffCommand(string targetName, IReadOnlyList<string> targetDirectories, string diffFileName, string? makeFilePath, string? prevFilePath, string? excludeOption, string? outputPath)
         {
             var resolvedMakeFilePath = ResolveInputFilePath(
                 RequireOptionValue("--makefile", makeFilePath),
@@ -399,11 +405,13 @@ namespace publish_package
                 throw new FileNotFoundException("이전 파일 목록을 찾을 수 없습니다.", resolvedPrevFilePath);
             }
 
+            var excludePatterns = ParseExcludes(excludeOption);
+            var excludeMatchers = BuildGlobMatchers(excludePatterns);
             var outputDirectoryPath = ResolveOutputDirectory(outputPath);
-            Log.Information("[{0}-diff] 입력 파일 해석이 완료되었습니다. CurrentFile={1}, PrevFile={2}, Output={3}", targetName, resolvedMakeFilePath, resolvedPrevFilePath, outputDirectoryPath);
+            Log.Information("[{0}-diff] 입력 파일 해석이 완료되었습니다. CurrentFile={1}, PrevFile={2}, Excludes={3}, Output={4}", targetName, resolvedMakeFilePath, resolvedPrevFilePath, FormatExcludes(excludePatterns), outputDirectoryPath);
 
-            var currentEntries = LoadFileListEntriesFromFile(targetName, targetDirectories, resolvedMakeFilePath);
-            var previousEntries = LoadFileListEntriesFromFile(targetName, targetDirectories, resolvedPrevFilePath);
+            var currentEntries = LoadFileListEntriesFromFile(targetName, targetDirectories, resolvedMakeFilePath, null, excludeMatchers);
+            var previousEntries = LoadFileListEntriesFromFile(targetName, targetDirectories, resolvedPrevFilePath, null, excludeMatchers);
             Log.Information("[{0}-diff] 기준 파일 로딩이 완료되었습니다. CurrentFileCount={1}, PrevFileCount={2}", targetName, currentEntries.Count, previousEntries.Count);
 
             var diffEntries = BuildDiffEntries(previousEntries, currentEntries);
