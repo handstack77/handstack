@@ -14,8 +14,6 @@ using System.Threading.Tasks;
 
 using HandStack.Core.Helpers;
 
-using Microsoft.Extensions.Configuration;
-
 using Serilog;
 
 namespace publish_package
@@ -41,9 +39,17 @@ namespace publish_package
         private static System.Timers.Timer? startupAwaitTimer;
         private static CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
         private static ArgumentHelper? commandOptions = null;
+        private static readonly object LogSyncRoot = new object();
+        private static string? logFilePath;
+        private static bool logFileConfigured;
 
         public static async Task<int> Main(string[] args)
         {
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Information()
+                .WriteTo.Console()
+                .CreateLogger();
+
             startupWorkingDirectory = Directory.GetCurrentDirectory();
             var entryBasePath = AppDomain.CurrentDomain.BaseDirectory;
             if (string.IsNullOrWhiteSpace(entryBasePath) == true)
@@ -56,15 +62,7 @@ namespace publish_package
                 Environment.CurrentDirectory = entryBasePath;
             }
 
-            var appSettingsFilePath = Path.Combine(entryBasePath, "appsettings.json");
-            var logDirectoryPath = Path.GetFullPath(Path.Combine(entryBasePath, "log"));
-            Directory.CreateDirectory(logDirectoryPath);
-            var configurationBuilder = new ConfigurationBuilder().AddJsonFile(appSettingsFilePath);
-            var configuration = configurationBuilder.Build();
-
-            Log.Logger = new LoggerConfiguration()
-                .ReadFrom.Configuration(configuration)
-                .CreateLogger();
+            var logDirectoryPath = ConfigureLogger(entryBasePath);
 
             try
             {
@@ -115,56 +113,32 @@ namespace publish_package
                     {
                         var includeOptions = ParseIncludes(parseResult.GetValue(optionIncludes));
                         var excludePatterns = ParseExcludes(parseResult.GetValue(optionExclude));
-                        WriteInformation(
-                            "[make] 파일 목록 생성을 시작합니다. Target={0}, PublishPathOption={1}, IncludesOption={2}, ExcludeOption={3}, OutputOption={4}",
-                            DeployTargetName,
-                            FormatOptionValue(parseResult.GetValue(optionPublishPath)),
-                            FormatOptionValue(parseResult.GetValue(optionIncludes)),
-                            FormatOptionValue(parseResult.GetValue(optionExclude)),
-                            FormatOptionValue(parseResult.GetValue(optionOutput), startupWorkingDirectory));
+                        Log.Information("[make] 파일 목록 생성을 시작합니다. Target={0}, PublishPathOption={1}, IncludesOption={2}, ExcludeOption={3}, OutputOption={4}", DeployTargetName, FormatOptionValue(parseResult.GetValue(optionPublishPath)), FormatOptionValue(parseResult.GetValue(optionIncludes)), FormatOptionValue(parseResult.GetValue(optionExclude)), FormatOptionValue(parseResult.GetValue(optionOutput), startupWorkingDirectory));
 
                         var handstackRootPath = ResolveHandStackRoot(parseResult.GetValue(optionPublishPath));
                         var includes = ResolveIncludeDirectoryRelativePaths(handstackRootPath, includeOptions);
                         var excludeMatchers = BuildGlobMatchers(excludePatterns);
                         var outputDirectoryPath = ResolveOutputDirectory(parseResult.GetValue(optionOutput));
-                        WriteInformation(
-                            "[make] 경로 해석이 완료되었습니다. Target={0}, PublishPath={1}, Includes={2}, Excludes={3}, Output={4}",
-                            DeployTargetName,
-                            handstackRootPath,
-                            FormatIncludes(includes),
-                            FormatExcludes(excludePatterns),
-                            outputDirectoryPath);
+                        Log.Information("[make] 경로 해석이 완료되었습니다. Target={0}, PublishPath={1}, Includes={2}, Excludes={3}, Output={4}", DeployTargetName, handstackRootPath, FormatIncludes(includes), FormatExcludes(excludePatterns), outputDirectoryPath);
 
                         var files = EnumerateDeployFiles(
                             handstackRootPath,
                             includes,
                             excludeMatchers,
                             CreateConsoleProgressReporter());
-                        WriteInformation(
-                            "[make] 대상 파일 수집이 완료되었습니다. Target={0}, Includes={1}, Excludes={2}, FileCount={3}",
-                            DeployTargetName,
-                            FormatIncludes(includes),
-                            FormatExcludes(excludePatterns),
-                            files.Count);
+                        Log.Information("[make] 대상 파일 수집이 완료되었습니다. Target={0}, Includes={1}, Excludes={2}, FileCount={3}", DeployTargetName, FormatIncludes(includes), FormatExcludes(excludePatterns), files.Count);
 
                         var fileListPath = Path.Combine(outputDirectoryPath, DeployMakeFileName);
 
                         WriteFileList(fileListPath, files);
 
-                        WriteInformation(
-                            "파일 목록을 생성했습니다. Target={0}, PublishPath={1}, Includes={2}, Excludes={3}, FileCount={4}, Output={5}",
-                            DeployTargetName,
-                            handstackRootPath,
-                            FormatIncludes(includes),
-                            FormatExcludes(excludePatterns),
-                            files.Count,
-                            fileListPath);
+                        Log.Information("파일 목록을 생성했습니다. Target={0}, PublishPath={1}, Includes={2}, Excludes={3}, FileCount={4}, Output={5}", DeployTargetName, handstackRootPath, FormatIncludes(includes), FormatExcludes(excludePatterns), files.Count, fileListPath);
 
                         return 0;
                     }
                     catch (Exception exception)
                     {
-                        WriteError("[make] 파일 목록 생성 중 예외가 발생했습니다.", exception);
+                        Log.Error(exception, "[make] 파일 목록 생성 중 예외가 발생했습니다.");
                         return 1;
                     }
                 });
@@ -184,14 +158,7 @@ namespace publish_package
                     {
                         var includeOptions = ParseIncludes(parseResult.GetValue(optionIncludes));
                         var excludePatterns = ParseExcludes(parseResult.GetValue(optionExclude));
-                        WriteInformation(
-                            "[compress] ZIP 패키지 생성을 시작합니다. Target={0}, PublishPathOption={1}, MakeFileOption={2}, IncludesOption={3}, ExcludeOption={4}, OutputOption={5}",
-                            DeployTargetName,
-                            FormatOptionValue(parseResult.GetValue(optionPublishPath)),
-                            FormatOptionValue(parseResult.GetValue(optionMakeFile)),
-                            FormatOptionValue(parseResult.GetValue(optionIncludes)),
-                            FormatOptionValue(parseResult.GetValue(optionExclude)),
-                            FormatOptionValue(parseResult.GetValue(optionOutput), startupWorkingDirectory));
+                        Log.Information("[compress] ZIP 패키지 생성을 시작합니다. Target={0}, PublishPathOption={1}, MakeFileOption={2}, IncludesOption={3}, ExcludeOption={4}, OutputOption={5}", DeployTargetName, FormatOptionValue(parseResult.GetValue(optionPublishPath)), FormatOptionValue(parseResult.GetValue(optionMakeFile)), FormatOptionValue(parseResult.GetValue(optionIncludes)), FormatOptionValue(parseResult.GetValue(optionExclude)), FormatOptionValue(parseResult.GetValue(optionOutput), startupWorkingDirectory));
 
                         var handstackRootPath = ResolveHandStackRoot(parseResult.GetValue(optionPublishPath));
                         var includes = ResolveIncludeDirectoryRelativePaths(handstackRootPath, includeOptions);
@@ -201,13 +168,7 @@ namespace publish_package
                             ? null
                             : ResolveInputFilePath(makeFilePath, startupWorkingDirectory, handstackRootPath, AppContext.BaseDirectory);
                         var outputDirectoryPath = ResolveOutputDirectory(parseResult.GetValue(optionOutput));
-                        WriteInformation(
-                            "[compress] 경로 해석이 완료되었습니다. Target={0}, PublishPath={1}, Includes={2}, Excludes={3}, Output={4}",
-                            DeployTargetName,
-                            handstackRootPath,
-                            FormatIncludes(includes),
-                            FormatExcludes(excludePatterns),
-                            outputDirectoryPath);
+                        Log.Information("[compress] 경로 해석이 완료되었습니다. Target={0}, PublishPath={1}, Includes={2}, Excludes={3}, Output={4}", DeployTargetName, handstackRootPath, FormatIncludes(includes), FormatExcludes(excludePatterns), outputDirectoryPath);
 
                         var currentEntries = EnumerateDeployFiles(
                             handstackRootPath,
@@ -222,14 +183,7 @@ namespace publish_package
                             .OrderBy(entry => entry.RelativePath, StringComparer.OrdinalIgnoreCase)
                             .ToList();
                         var archiveFileCount = archiveEntries.Count + (string.IsNullOrWhiteSpace(resolvedMakeFilePath) == true ? 0 : 1);
-                        WriteInformation(
-                            "[compress] 패키지 대상을 확정했습니다. Target={0}, Includes={1}, Excludes={2}, CurrentFileCount={3}, PackageFileCount={4}, MakeFile={5}",
-                            DeployTargetName,
-                            FormatIncludes(includes),
-                            FormatExcludes(excludePatterns),
-                            currentEntries.Count,
-                            archiveEntries.Count,
-                            resolvedMakeFilePath ?? "(scan)");
+                        Log.Information("[compress] 패키지 대상을 확정했습니다. Target={0}, Includes={1}, Excludes={2}, CurrentFileCount={3}, PackageFileCount={4}, MakeFile={5}", DeployTargetName, FormatIncludes(includes), FormatExcludes(excludePatterns), currentEntries.Count, archiveEntries.Count, resolvedMakeFilePath ?? "(scan)");
 
                         var packagesPath = Path.Combine(outputDirectoryPath, "packages");
                         Directory.CreateDirectory(packagesPath);
@@ -268,29 +222,16 @@ namespace publish_package
                             }
                         }
 
-                        WriteInformation(
-                            "[compress] ZIP 및 기준 manifest 기록이 완료되었습니다. Target={0}, ZipPath={1}, ManifestPath={2}",
-                            DeployTargetName,
-                            packageFilePath,
-                            packageManifestFilePath);
+                        Log.Information("[compress] ZIP 및 기준 manifest 기록이 완료되었습니다. Target={0}, ZipPath={1}, ManifestPath={2}", DeployTargetName, packageFilePath, packageManifestFilePath);
 
                         var packageSize = new FileInfo(packageFilePath).Length;
-                        WriteInformation(
-                            "ZIP 패키지를 생성했습니다. Target={0}, PublishPath={1}, Includes={2}, Excludes={3}, FileCount={4}, Output={5}, Manifest={6}, Size={7}",
-                            DeployTargetName,
-                            handstackRootPath,
-                            FormatIncludes(includes),
-                            FormatExcludes(excludePatterns),
-                            archiveFileCount,
-                            packageFilePath,
-                            packageManifestFilePath,
-                            packageSize);
+                        Log.Information("ZIP 패키지를 생성했습니다. Target={0}, PublishPath={1}, Includes={2}, Excludes={3}, FileCount={4}, Output={5}, Manifest={6}, Size={7}", DeployTargetName, handstackRootPath, FormatIncludes(includes), FormatExcludes(excludePatterns), archiveFileCount, packageFilePath, packageManifestFilePath, packageSize);
 
                         return 0;
                     }
                     catch (Exception exception)
                     {
-                        WriteError("[compress] ZIP 패키지 생성 중 예외가 발생했습니다.", exception);
+                        Log.Error(exception, "[compress] ZIP 패키지 생성 중 예외가 발생했습니다.");
                         return 1;
                     }
                 });
@@ -306,11 +247,7 @@ namespace publish_package
                 {
                     try
                     {
-                        WriteInformation(
-                            "[deploy-diff] 변경분 파일 목록 생성을 시작합니다. MakeFileOption={0}, PrevFileOption={1}, OutputOption={2}",
-                            FormatOptionValue(parseResult.GetValue(optionMakeFile)),
-                            FormatOptionValue(parseResult.GetValue(optionPrevFile)),
-                            FormatOptionValue(parseResult.GetValue(optionOutput), startupWorkingDirectory));
+                        Log.Information("[deploy-diff] 변경분 파일 목록 생성을 시작합니다. MakeFileOption={0}, PrevFileOption={1}, OutputOption={2}", FormatOptionValue(parseResult.GetValue(optionMakeFile)), FormatOptionValue(parseResult.GetValue(optionPrevFile)), FormatOptionValue(parseResult.GetValue(optionOutput), startupWorkingDirectory));
 
                         return ExecuteDiffCommand(
                             DeployTargetName,
@@ -322,7 +259,7 @@ namespace publish_package
                     }
                     catch (Exception exception)
                     {
-                        WriteError("[deploy-diff] 변경분 파일 목록 생성 중 예외가 발생했습니다.", exception);
+                        Log.Error(exception, "[deploy-diff] 변경분 파일 목록 생성 중 예외가 발생했습니다.");
                         return 1;
                     }
                 });
@@ -338,11 +275,7 @@ namespace publish_package
                 {
                     try
                     {
-                        WriteInformation(
-                            "[runtimes-diff] 변경분 파일 목록 생성을 시작합니다. MakeFileOption={0}, PrevFileOption={1}, OutputOption={2}",
-                            FormatOptionValue(parseResult.GetValue(optionMakeFile)),
-                            FormatOptionValue(parseResult.GetValue(optionPrevFile)),
-                            FormatOptionValue(parseResult.GetValue(optionOutput), startupWorkingDirectory));
+                        Log.Information("[runtimes-diff] 변경분 파일 목록 생성을 시작합니다. MakeFileOption={0}, PrevFileOption={1}, OutputOption={2}", FormatOptionValue(parseResult.GetValue(optionMakeFile)), FormatOptionValue(parseResult.GetValue(optionPrevFile)), FormatOptionValue(parseResult.GetValue(optionOutput), startupWorkingDirectory));
 
                         return ExecuteDiffCommand(
                             RuntimesTargetName,
@@ -354,7 +287,7 @@ namespace publish_package
                     }
                     catch (Exception exception)
                     {
-                        WriteError("[runtimes-diff] 변경분 파일 목록 생성 중 예외가 발생했습니다.", exception);
+                        Log.Error(exception, "[runtimes-diff] 변경분 파일 목록 생성 중 예외가 발생했습니다.");
                         return 1;
                     }
                 });
@@ -370,11 +303,7 @@ namespace publish_package
                 {
                     try
                     {
-                        WriteInformation(
-                            "[modules-diff] 변경분 파일 목록 생성을 시작합니다. MakeFileOption={0}, PrevFileOption={1}, OutputOption={2}",
-                            FormatOptionValue(parseResult.GetValue(optionMakeFile)),
-                            FormatOptionValue(parseResult.GetValue(optionPrevFile)),
-                            FormatOptionValue(parseResult.GetValue(optionOutput), startupWorkingDirectory));
+                        Log.Information("[modules-diff] 변경분 파일 목록 생성을 시작합니다. MakeFileOption={0}, PrevFileOption={1}, OutputOption={2}", FormatOptionValue(parseResult.GetValue(optionMakeFile)), FormatOptionValue(parseResult.GetValue(optionPrevFile)), FormatOptionValue(parseResult.GetValue(optionOutput), startupWorkingDirectory));
 
                         return ExecuteDiffCommand(
                             ModulesTargetName,
@@ -386,18 +315,13 @@ namespace publish_package
                     }
                     catch (Exception exception)
                     {
-                        WriteError("[modules-diff] 변경분 파일 목록 생성 중 예외가 발생했습니다.", exception);
+                        Log.Error(exception, "[modules-diff] 변경분 파일 목록 생성 중 예외가 발생했습니다.");
                         return 1;
                     }
                 });
                 rootCommand.Add(modulesDiffCommand);
 
-                WriteInformation(
-                    "명령 실행을 시작합니다. WorkingDirectory={0}, BaseDirectory={1}, LogDirectory={2}, Args={3}",
-                    startupWorkingDirectory,
-                    entryBasePath,
-                    logDirectoryPath,
-                    FormatArguments(args));
+                Log.Information("명령 실행을 시작합니다. WorkingDirectory={0}, BaseDirectory={1}, LogDirectory={2}, Args={3}", startupWorkingDirectory, entryBasePath, logDirectoryPath, FormatArguments(args));
 
                 rootCommand.SetAction((parseResult) =>
                 {
@@ -446,12 +370,7 @@ namespace publish_package
             }
             catch (Exception exception)
             {
-                WriteError(
-                    "처리되지 않은 예외가 발생했습니다. WorkingDirectory={0}, BaseDirectory={1}, Args={2}",
-                    exception,
-                    startupWorkingDirectory,
-                    entryBasePath,
-                    FormatArguments(args));
+                Log.Error(exception, "처리되지 않은 예외가 발생했습니다. WorkingDirectory={0}, BaseDirectory={1}, Args={2}", startupWorkingDirectory, entryBasePath, FormatArguments(args));
                 return 1;
             }
             finally
@@ -481,39 +400,19 @@ namespace publish_package
             }
 
             var outputDirectoryPath = ResolveOutputDirectory(outputPath);
-            WriteInformation(
-                "[{0}-diff] 입력 파일 해석이 완료되었습니다. CurrentFile={1}, PrevFile={2}, Output={3}",
-                targetName,
-                resolvedMakeFilePath,
-                resolvedPrevFilePath,
-                outputDirectoryPath);
+            Log.Information("[{0}-diff] 입력 파일 해석이 완료되었습니다. CurrentFile={1}, PrevFile={2}, Output={3}", targetName, resolvedMakeFilePath, resolvedPrevFilePath, outputDirectoryPath);
 
             var currentEntries = LoadFileListEntriesFromFile(targetName, targetDirectories, resolvedMakeFilePath);
             var previousEntries = LoadFileListEntriesFromFile(targetName, targetDirectories, resolvedPrevFilePath);
-            WriteInformation(
-                "[{0}-diff] 기준 파일 로딩이 완료되었습니다. CurrentFileCount={1}, PrevFileCount={2}",
-                targetName,
-                currentEntries.Count,
-                previousEntries.Count);
+            Log.Information("[{0}-diff] 기준 파일 로딩이 완료되었습니다. CurrentFileCount={1}, PrevFileCount={2}", targetName, currentEntries.Count, previousEntries.Count);
 
             var diffEntries = BuildDiffEntries(previousEntries, currentEntries);
             var diffFilePath = Path.Combine(outputDirectoryPath, diffFileName);
-            WriteInformation(
-                "[{0}-diff] 변경분 계산이 완료되었습니다. CreateCount={1}, UpdateCount={2}, DeleteCount={3}",
-                targetName,
-                diffEntries.Count(entry => entry.Operation == 'C'),
-                diffEntries.Count(entry => entry.Operation == 'U'),
-                diffEntries.Count(entry => entry.Operation == 'D'));
+            Log.Information("[{0}-diff] 변경분 계산이 완료되었습니다. CreateCount={1}, UpdateCount={2}, DeleteCount={3}", targetName, diffEntries.Count(entry => entry.Operation == 'C'), diffEntries.Count(entry => entry.Operation == 'U'), diffEntries.Count(entry => entry.Operation == 'D'));
 
             WriteFileList(diffFilePath, diffEntries);
 
-            WriteInformation(
-                "변경분 파일 목록을 생성했습니다. Target={0}, CurrentFile={1}, PrevFile={2}, FileCount={3}, Output={4}",
-                targetName,
-                resolvedMakeFilePath,
-                resolvedPrevFilePath,
-                diffEntries.Count,
-                diffFilePath);
+            Log.Information("변경분 파일 목록을 생성했습니다. Target={0}, CurrentFile={1}, PrevFile={2}, FileCount={3}, Output={4}", targetName, resolvedMakeFilePath, resolvedPrevFilePath, diffEntries.Count, diffFilePath);
 
             return 0;
         }
@@ -1341,21 +1240,31 @@ namespace publish_package
             };
         }
 
-        private static void WriteInformation(string message, params object[] arguments)
+        private static string ConfigureLogger(string entryBasePath)
         {
-            Log.Information(message, arguments);
-        }
+            var resolvedLogDirectoryPath = Path.GetFullPath(Path.Combine(entryBasePath, "log"));
+            Directory.CreateDirectory(resolvedLogDirectoryPath);
+            var resolvedLogFilePath = Path.Combine(resolvedLogDirectoryPath, "publish-package.log");
+            logFilePath = resolvedLogFilePath;
 
-        private static void WriteError(string message, Exception? exception = null, params object[] arguments)
-        {
-            if (exception != null)
+            lock (LogSyncRoot)
             {
-                Log.Error(exception, message, arguments);
+                if (logFileConfigured == false)
+                {
+                    Log.Logger = new LoggerConfiguration()
+                        .MinimumLevel.Information()
+                        .WriteTo.Console()
+                        .WriteTo.File(
+                            path: resolvedLogFilePath,
+                            rollingInterval: RollingInterval.Day,
+                            shared: true)
+                        .CreateLogger();
+                    logFileConfigured = true;
+                }
             }
-            else
-            {
-                Log.Error(message, arguments);
-            }
+
+            Log.Information("[CLI/publish-package]" + "publish-package 로그를 초기화했습니다. LogFilePath={0}", logFilePath);
+            return resolvedLogDirectoryPath;
         }
 
         private static async Task DebuggerAttach(bool debug)
@@ -1376,7 +1285,7 @@ namespace publish_package
 
                 try
                 {
-                    await System.Threading.Tasks.Task.Delay(startupAwaitDelay, cancellationTokenSource.Token);
+                    await Task.Delay(startupAwaitDelay, cancellationTokenSource.Token);
                 }
                 catch
                 {
@@ -1390,3 +1299,4 @@ namespace publish_package
         }
     }
 }
+
