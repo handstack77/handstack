@@ -33,8 +33,43 @@
 ## 설정 포인트
 - `IsSQLiteCreateOnNotSettingRequest`: 없는 애플리케이션 저장소 자동 생성 여부
 - `DataSource`: 애플리케이션별 로그 저장소와 보관 기간
+- `DataSource.Schema`: 설정 시 고정 SQL 템플릿 대신 컬럼 정의와 역할 매핑으로 insert/list/detail 쿼리와 최초 DDL을 생성
 - `LogDeleteRepeatSecond`: 백그라운드 삭제 주기
 - `BusinessServerUrl`: 내부 거래 서버 연결
+
+### 동적 Schema 예시
+`Schema`가 없으면 기존 `SQL/*/{Provider}.txt` 경로를 그대로 사용합니다. `Schema`가 있으면 테이블이 없을 때만 아래 정의로 생성하고, 기존 테이블에는 `ALTER`/`DROP`을 수행하지 않습니다.
+
+```json
+{
+    "ApplicationID": "HDS",
+    "TableName": "TransactLog",
+    "DataProvider": "SQLite",
+    "RemovePeriod": -30,
+    "ConnectionString": "URI=file:../sqlite/HDS/logger/transact.db;Journal Mode=Off;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;",
+    "IsEncryption": "N",
+    "Schema": {
+        "Columns": [
+            { "ColumnName": "LogNo", "LogicalType": "Long", "Nullable": false },
+            { "ColumnName": "ApplicationID", "LogicalType": "String", "Length": 32, "SourceType": "LogMessage", "SourceKey": "ApplicationID", "Required": true },
+            { "ColumnName": "GlobalID", "LogicalType": "String", "Length": 50, "SourceType": "LogMessage", "SourceKey": "GlobalID" },
+            { "ColumnName": "Message", "LogicalType": "Text", "SourceType": "LogMessage", "SourceKey": "Message" },
+            { "ColumnName": "Properties", "LogicalType": "Text", "SourceType": "LogMessage", "SourceKey": "Properties" },
+            { "ColumnName": "TraceID", "LogicalType": "String", "Length": 80, "SourceType": "Payload", "SourceKey": "traceId" },
+            { "ColumnName": "CreatedAt", "LogicalType": "DateTime", "SourceType": "System", "SourceKey": "NowLocal", "Required": true }
+        ],
+        "Roles": {
+            "PrimaryKey": "LogNo",
+            "CreatedAt": "CreatedAt",
+            "Message": "Message",
+            "Properties": "Properties",
+            "GlobalID": "GlobalID"
+        }
+    }
+}
+```
+
+`SourceType`은 `LogMessage`, `Payload`, `System`, `Constant`를 지원합니다. `Payload`는 `POST application/json` 요청에서 기존 `LogMessage` 필드가 아닌 추가 JSON 필드만 대상으로 합니다.
 
 ## 실행 흐름
 1. `dbclient`, `function`, `transact` 같은 모듈이 `/logger/api/log/insert`로 로그를 보냅니다.

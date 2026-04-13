@@ -62,9 +62,10 @@ namespace logger.DataClient
             });
         }
 
-        public async Task InsertWithPolicy(LogMessage request)
+        public async Task<bool> InsertWithPolicy(LogMessage request, IReadOnlyDictionary<string, object?>? extraPayload = null)
         {
             ApplicationCircuitBreakerPolicy? applicationCircuitBreakerPolicy = null;
+            var result = false;
 
             try
             {
@@ -92,36 +93,52 @@ namespace logger.DataClient
 
                             try
                             {
-                                var dmlScript = GetSqlScript("Insert", dataProvider.ToString(), tableName);
+                                var dmlScript = string.Empty;
+                                DynamicParameters dynamicParameters;
+
+                                if (dataSource.HasDynamicSchema() == true)
+                                {
+                                    var command = LogDataSourceSchemaSqlBuilder.BuildInsert(dataSource, dataProvider, request, extraPayload);
+                                    dmlScript = command.CommandText;
+                                    dynamicParameters = command.Parameters;
+                                }
+                                else
+                                {
+                                    dmlScript = GetSqlScript("Insert", dataProvider.ToString(), tableName);
+                                    dynamicParameters = new DynamicParameters();
+                                    dynamicParameters.Add("@ServerID", request.ServerID, DbType.String, ParameterDirection.Input);
+                                    dynamicParameters.Add("@RunningEnvironment", request.RunningEnvironment, DbType.String, ParameterDirection.Input);
+                                    dynamicParameters.Add("@ProgramName", request.ProgramName, DbType.String, ParameterDirection.Input);
+                                    dynamicParameters.Add("@GlobalID", request.GlobalID, DbType.String, ParameterDirection.Input);
+                                    dynamicParameters.Add("@Acknowledge", request.Acknowledge, DbType.String, ParameterDirection.Input);
+                                    dynamicParameters.Add("@ApplicationID", request.ApplicationID, DbType.String, ParameterDirection.Input);
+                                    dynamicParameters.Add("@ProjectID", request.ProjectID, DbType.String, ParameterDirection.Input);
+                                    dynamicParameters.Add("@TransactionID", request.TransactionID, DbType.String, ParameterDirection.Input);
+                                    dynamicParameters.Add("@ServiceID", request.ServiceID, DbType.String, ParameterDirection.Input);
+                                    dynamicParameters.Add("@Type", request.Type, DbType.String, ParameterDirection.Input);
+                                    dynamicParameters.Add("@Flow", request.Flow, DbType.String, ParameterDirection.Input);
+                                    dynamicParameters.Add("@Level", request.Level, DbType.String, ParameterDirection.Input);
+                                    dynamicParameters.Add("@Format", request.Format, DbType.String, ParameterDirection.Input);
+                                    dynamicParameters.Add("@Message", string.IsNullOrWhiteSpace(request.Message) ? "" : request.Message, DbType.String, ParameterDirection.Input);
+                                    dynamicParameters.Add("@Properties", request.Properties, DbType.String, ParameterDirection.Input);
+                                    dynamicParameters.Add("@UserID", request.UserID, DbType.String, ParameterDirection.Input);
+                                    dynamicParameters.Add("@CreatedAt", string.IsNullOrWhiteSpace(request.CreatedAt) ? DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff") : request.CreatedAt, DbType.String, ParameterDirection.Input);
+                                    dynamicParameters.Add("@IpAddress", request.IpAddress, DbType.String, ParameterDirection.Input);
+                                    dynamicParameters.Add("@DeviceID", request.DeviceID, DbType.String, ParameterDirection.Input);
+                                    dynamicParameters.Add("@ProgramID", request.ProgramID, DbType.String, ParameterDirection.Input);
+                                }
 
                                 if (databaseFactory.Connection.IsConnectionOpen() == false)
                                 {
                                     await databaseFactory.Connection.OpenAsync();
                                 }
 
-                                var dynamicParameters = new DynamicParameters();
-                                dynamicParameters.Add("@ServerID", request.ServerID, DbType.String, ParameterDirection.Input);
-                                dynamicParameters.Add("@RunningEnvironment", request.RunningEnvironment, DbType.String, ParameterDirection.Input);
-                                dynamicParameters.Add("@ProgramName", request.ProgramName, DbType.String, ParameterDirection.Input);
-                                dynamicParameters.Add("@GlobalID", request.GlobalID, DbType.String, ParameterDirection.Input);
-                                dynamicParameters.Add("@Acknowledge", request.Acknowledge, DbType.String, ParameterDirection.Input);
-                                dynamicParameters.Add("@ApplicationID", request.ApplicationID, DbType.String, ParameterDirection.Input);
-                                dynamicParameters.Add("@ProjectID", request.ProjectID, DbType.String, ParameterDirection.Input);
-                                dynamicParameters.Add("@TransactionID", request.TransactionID, DbType.String, ParameterDirection.Input);
-                                dynamicParameters.Add("@ServiceID", request.ServiceID, DbType.String, ParameterDirection.Input);
-                                dynamicParameters.Add("@Type", request.Type, DbType.String, ParameterDirection.Input);
-                                dynamicParameters.Add("@Flow", request.Flow, DbType.String, ParameterDirection.Input);
-                                dynamicParameters.Add("@Level", request.Level, DbType.String, ParameterDirection.Input);
-                                dynamicParameters.Add("@Format", request.Format, DbType.String, ParameterDirection.Input);
-                                dynamicParameters.Add("@Message", string.IsNullOrWhiteSpace(request.Message) ? "" : request.Message, DbType.String, ParameterDirection.Input);
-                                dynamicParameters.Add("@Properties", request.Properties, DbType.String, ParameterDirection.Input);
-                                dynamicParameters.Add("@UserID", request.UserID, DbType.String, ParameterDirection.Input);
-                                dynamicParameters.Add("@CreatedAt", string.IsNullOrWhiteSpace(request.CreatedAt) ? DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff") : request.CreatedAt, DbType.String, ParameterDirection.Input);
-                                dynamicParameters.Add("@IpAddress", request.IpAddress, DbType.String, ParameterDirection.Input);
-                                dynamicParameters.Add("@DeviceID", request.DeviceID, DbType.String, ParameterDirection.Input);
-                                dynamicParameters.Add("@ProgramID", request.ProgramID, DbType.String, ParameterDirection.Input);
-
                                 await databaseFactory.Connection.ExecuteAsync(dmlScript, dynamicParameters);
+                                result = true;
+                            }
+                            catch (DynamicLogValidationException)
+                            {
+                                throw;
                             }
                             catch (FileNotFoundException fileNotFoundException)
                             {
@@ -148,6 +165,11 @@ namespace logger.DataClient
                     }
                 }
             }
+            catch (DynamicLogValidationException exception)
+            {
+                logger.Warning("[{LogCategory}] " + exception.Message + ": " + JsonConvert.SerializeObject(request), "LoggerClient/InsertWithPolicy");
+                throw;
+            }
             catch (Exception exception)
             {
                 logger.Error(exception, "[{LogCategory}] 로그 입력 오류: " + JsonConvert.SerializeObject(request), "LoggerClient/InsertWithPolicy");
@@ -164,6 +186,8 @@ namespace logger.DataClient
                 {
                 }
             }
+
+            return result;
         }
 
         public async Task<DataSet?> LogList(string applicationID, string? serverID, string? globalID, string? environment, string? projectID, string? serviceID, string? transactionID, string? startedAt, string? endedAt)
@@ -189,23 +213,34 @@ namespace logger.DataClient
 
                     try
                     {
-                        var dmlScript = GetSqlScript("List", dataProvider.ToString(), tableName);
+                        string dmlScript;
+                        DynamicParameters dynamicParameters;
+
+                        if (dataSource.HasDynamicSchema() == true)
+                        {
+                            var command = LogDataSourceSchemaSqlBuilder.BuildList(dataSource, dataProvider, serverID, globalID, environment, projectID, serviceID, transactionID, startedAt, endedAt);
+                            dmlScript = command.CommandText;
+                            dynamicParameters = command.Parameters;
+                        }
+                        else
+                        {
+                            dmlScript = GetSqlScript("List", dataProvider.ToString(), tableName);
+                            dynamicParameters = new DynamicParameters();
+                            dynamicParameters.Add("@ServerID", serverID.ToStringSafe(), DbType.String, ParameterDirection.Input);
+                            dynamicParameters.Add("@Environment", environment.ToStringSafe(), DbType.String, ParameterDirection.Input);
+                            dynamicParameters.Add("@GlobalID", globalID.ToStringSafe(), DbType.String, ParameterDirection.Input);
+                            dynamicParameters.Add("@ApplicationID", applicationID.ToStringSafe(), DbType.String, ParameterDirection.Input);
+                            dynamicParameters.Add("@ProjectID", projectID.ToStringSafe(), DbType.String, ParameterDirection.Input);
+                            dynamicParameters.Add("@TransactionID", transactionID.ToStringSafe(), DbType.String, ParameterDirection.Input);
+                            dynamicParameters.Add("@ServiceID", serviceID.ToStringSafe(), DbType.String, ParameterDirection.Input);
+                            dynamicParameters.Add("@StartedAt", startedAt.ToStringSafe(), DbType.String, ParameterDirection.Input);
+                            dynamicParameters.Add("@EndedAt", endedAt.ToStringSafe(), DbType.String, ParameterDirection.Input);
+                        }
 
                         if (databaseFactory.Connection.IsConnectionOpen() == false)
                         {
                             await databaseFactory.Connection.OpenAsync();
                         }
-
-                        var dynamicParameters = new DynamicParameters();
-                        dynamicParameters.Add("@ServerID", serverID.ToStringSafe(), DbType.String, ParameterDirection.Input);
-                        dynamicParameters.Add("@Environment", environment.ToStringSafe(), DbType.String, ParameterDirection.Input);
-                        dynamicParameters.Add("@GlobalID", globalID.ToStringSafe(), DbType.String, ParameterDirection.Input);
-                        dynamicParameters.Add("@ApplicationID", applicationID.ToStringSafe(), DbType.String, ParameterDirection.Input);
-                        dynamicParameters.Add("@ProjectID", projectID.ToStringSafe(), DbType.String, ParameterDirection.Input);
-                        dynamicParameters.Add("@TransactionID", transactionID.ToStringSafe(), DbType.String, ParameterDirection.Input);
-                        dynamicParameters.Add("@ServiceID", serviceID.ToStringSafe(), DbType.String, ParameterDirection.Input);
-                        dynamicParameters.Add("@StartedAt", startedAt.ToStringSafe(), DbType.String, ParameterDirection.Input);
-                        dynamicParameters.Add("@EndedAt", endedAt.ToStringSafe(), DbType.String, ParameterDirection.Input);
 
                         using var reader = await databaseFactory.Connection.ExecuteReaderAsync(dmlScript, dynamicParameters);
                         using var ds = DataTableHelper.DataReaderToDataSet(reader);
@@ -255,16 +290,27 @@ namespace logger.DataClient
 
                     try
                     {
-                        var dmlScript = GetSqlScript("Get", dataProvider.ToString(), tableName);
+                        string dmlScript;
+                        DynamicParameters dynamicParameters;
+
+                        if (dataSource.HasDynamicSchema() == true)
+                        {
+                            var command = LogDataSourceSchemaSqlBuilder.BuildDetail(dataSource, dataProvider, logNo);
+                            dmlScript = command.CommandText;
+                            dynamicParameters = command.Parameters;
+                        }
+                        else
+                        {
+                            dmlScript = GetSqlScript("Get", dataProvider.ToString(), tableName);
+                            dynamicParameters = new DynamicParameters();
+                            dynamicParameters.Add("@ApplicationID", applicationID, DbType.String, ParameterDirection.Input);
+                            dynamicParameters.Add("@LogNo", logNo, DbType.Int32, ParameterDirection.Input);
+                        }
 
                         if (databaseFactory.Connection.IsConnectionOpen() == false)
                         {
                             await databaseFactory.Connection.OpenAsync();
                         }
-
-                        var dynamicParameters = new DynamicParameters();
-                        dynamicParameters.Add("@ApplicationID", applicationID, DbType.String, ParameterDirection.Input);
-                        dynamicParameters.Add("@LogNo", logNo, DbType.Int32, ParameterDirection.Input);
 
                         using var reader = await databaseFactory.Connection.ExecuteReaderAsync(dmlScript, dynamicParameters);
                         using var ds = DataTableHelper.DataReaderToDataSet(reader);
@@ -315,7 +361,14 @@ namespace logger.DataClient
 
                     try
                     {
-                        var dmlScript = GetSqlScript("Delete", dataProvider.ToString(), tableName, dataSource.RemovePeriod);
+                        var dmlScript = dataSource.HasDynamicSchema() == true
+                            ? LogDataSourceSchemaSqlBuilder.BuildDelete(dataSource, dataProvider)
+                            : GetSqlScript("Delete", dataProvider.ToString(), tableName, dataSource.RemovePeriod);
+
+                        if (string.IsNullOrWhiteSpace(dmlScript) == true)
+                        {
+                            continue;
+                        }
 
                         cancellationTokenSource.CancelAfter(60000);
                         if (databaseFactory.Connection.IsConnectionOpen() == false)

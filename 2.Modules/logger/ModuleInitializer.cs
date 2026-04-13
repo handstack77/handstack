@@ -80,7 +80,8 @@ namespace logger
                                         DataProvider = item.DataProvider,
                                         RemovePeriod = item.RemovePeriod,
                                         ConnectionString = item.ConnectionString,
-                                        IsEncryption = item.IsEncryption
+                                        IsEncryption = item.IsEncryption,
+                                        Schema = item.Schema
                                     });
                                 }
                             }
@@ -107,7 +108,7 @@ namespace logger
 
                                 try
                                 {
-                                    CreateNotExistTable(item.DataProvider, item.ConnectionString, item.TableName);
+                                    CreateNotExistTable(item);
                                 }
                                 catch (Exception exception)
                                 {
@@ -180,9 +181,12 @@ namespace logger
             }
         }
 
-        private bool CreateNotExistTable(string provider, string connectionString, string tableName)
+        private bool CreateNotExistTable(DataSource dataSource)
         {
             var result = false;
+            var provider = dataSource.DataProvider;
+            var connectionString = dataSource.ConnectionString;
+            var tableName = dataSource.TableName;
             var dataProvider = (DataProviders)Enum.Parse(typeof(DataProviders), provider);
             var commandText = string.Empty;
 
@@ -226,10 +230,9 @@ namespace logger
 
                     if (isExists == false)
                     {
-                        var sqlFilePath = PathExtensions.Combine(ModuleConfiguration.ModuleBasePath, "SQL", "Create", dataProvider.ToString() + ".txt");
-                        if (File.Exists(sqlFilePath) == true)
+                        if (dataSource.HasDynamicSchema() == true)
                         {
-                            var ddlScript = File.ReadAllText(sqlFilePath).Replace("{TableName}", tableName);
+                            var ddlScript = LogDataSourceSchemaSqlBuilder.BuildCreateTable(dataSource, dataProvider);
 
                             command.CommandText = ddlScript;
                             command.ExecuteNonQuery();
@@ -238,7 +241,20 @@ namespace logger
                         }
                         else
                         {
-                            Log.Logger.Error("[{LogCategory}] " + $"sqlFilePath: {sqlFilePath} 확인 필요", "ModuleInitializer/CreateNotExistTable");
+                            var sqlFilePath = PathExtensions.Combine(ModuleConfiguration.ModuleBasePath, "SQL", "Create", dataProvider.ToString() + ".txt");
+                            if (File.Exists(sqlFilePath) == true)
+                            {
+                                var ddlScript = File.ReadAllText(sqlFilePath).Replace("{TableName}", tableName);
+
+                                command.CommandText = ddlScript;
+                                command.ExecuteNonQuery();
+
+                                result = true;
+                            }
+                            else
+                            {
+                                Log.Logger.Error("[{LogCategory}] " + $"sqlFilePath: {sqlFilePath} 확인 필요", "ModuleInitializer/CreateNotExistTable");
+                            }
                         }
                     }
                     else
