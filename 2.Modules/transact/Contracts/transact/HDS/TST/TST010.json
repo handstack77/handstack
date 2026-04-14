@@ -5,6 +5,70 @@
     "Comment": "transact 모듈 설정 예제",
     "Services": [
         {
+            "ServiceID": "GW01",
+            "Authorize": false,
+            "ReturnType": "Json",
+            "CommandType": "W",
+            "TransactionScope": false,
+            "WorkflowSteps": [
+                {
+                    "StepID": "loadServerTime",
+                    "CommandType": "D",
+                    "TransactionProjectID": "TST",
+                    "TransactionID": "TST010",
+                    "ServiceID": "GD04",
+                    "ReturnType": "Json",
+                    "OutputMappings": [
+                        {
+                            "SourceFieldID": "ServerDate",
+                            "TargetFieldID": "ServerDate",
+                            "Required": false
+                        },
+                        {
+                            "SourceFieldID": "ServerName",
+                            "TargetFieldID": "ServerName",
+                            "Required": false
+                        }
+                    ]
+                },
+                {
+                    "StepID": "loadAgain",
+                    "CommandType": "D",
+                    "TransactionProjectID": "TST",
+                    "TransactionID": "TST010",
+                    "ServiceID": "GD04",
+                    "ReturnType": "Json",
+                    "InputMappings": [
+                        {
+                            "Source": "Step",
+                            "SourceStepID": "loadServerTime",
+                            "SourceFieldID": "ServerName",
+                            "TargetFieldID": "ServerName",
+                            "Required": false
+                        }
+                    ]
+                }
+            ],
+            "Inputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [],
+                    "TestValues": [],
+                    "DefaultValues": [],
+                    "Type": "Row",
+                    "BaseFieldMappings": [],
+                    "ParameterHandling": "Rejected"
+                }
+            ],
+            "Outputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [],
+                    "Type": "Form"
+                }
+            ]
+        },
+        {
             "ServiceID": "GD01",
             "Authorize": false,
             "ReturnType": "Json",

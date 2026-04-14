@@ -32,6 +32,7 @@
             "transact",
             "dbclient",
             "function",
+            "command",
             "repository",
             "logger",
             "checkup"

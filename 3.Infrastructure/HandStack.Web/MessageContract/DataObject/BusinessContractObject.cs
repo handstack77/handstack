@@ -47,9 +47,19 @@ namespace HandStack.Web.MessageContract.DataObject
             else
             {
                 result = JsonConvert.DeserializeObject<BusinessContract>(json, ConverterSetting.Settings);
+                result?.NormalizeWorkflowSteps();
             }
 
             return result;
+        }
+
+        private void NormalizeWorkflowSteps()
+        {
+            Services ??= new List<TransactionInfo>();
+            foreach (var service in Services)
+            {
+                service.WorkflowSteps ??= new List<WorkflowStep>();
+            }
         }
 
         public BusinessContract()
@@ -173,6 +183,9 @@ namespace HandStack.Web.MessageContract.DataObject
         [JsonProperty("Outputs")]
         public List<ModelOutputContract> Outputs { get; set; }
 
+        [JsonProperty("WorkflowSteps", NullValueHandling = NullValueHandling.Ignore)]
+        public List<WorkflowStep> WorkflowSteps { get; set; }
+
         public TransactionInfo()
         {
             ServiceID = "";
@@ -187,6 +200,106 @@ namespace HandStack.Web.MessageContract.DataObject
             TransactionLog = false;
             Inputs = new List<ModelInputContract>();
             Outputs = new List<ModelOutputContract>();
+            WorkflowSteps = new List<WorkflowStep>();
+        }
+
+        public bool ShouldSerializeWorkflowSteps()
+        {
+            return WorkflowSteps != null && WorkflowSteps.Count > 0;
+        }
+    }
+
+    public class WorkflowStep
+    {
+        [JsonProperty("StepID")]
+        public string StepID { get; set; }
+
+        [JsonProperty("ApplicationID")]
+        public string ApplicationID { get; set; }
+
+        [JsonProperty("TransactionProjectID")]
+        public string TransactionProjectID { get; set; }
+
+        [JsonProperty("TransactionID")]
+        public string TransactionID { get; set; }
+
+        [JsonProperty("ServiceID")]
+        public string ServiceID { get; set; }
+
+        [JsonProperty("CommandType")]
+        public string CommandType { get; set; }
+
+        [JsonProperty("ReturnType")]
+        public string ReturnType { get; set; }
+
+        [JsonProperty("TransactionScope")]
+        public bool? TransactionScope { get; set; }
+
+        [JsonProperty("ServiceOutputs")]
+        public List<ModelOutputContract> ServiceOutputs { get; set; }
+
+        [JsonProperty("InputMappings")]
+        public List<WorkflowFieldMapping> InputMappings { get; set; }
+
+        [JsonProperty("OutputMappings")]
+        public List<WorkflowFieldMapping> OutputMappings { get; set; }
+
+        public WorkflowStep()
+        {
+            StepID = "";
+            ApplicationID = "";
+            TransactionProjectID = "";
+            TransactionID = "";
+            ServiceID = "";
+            CommandType = "";
+            ReturnType = "";
+            TransactionScope = null;
+            ServiceOutputs = new List<ModelOutputContract>();
+            InputMappings = new List<WorkflowFieldMapping>();
+            OutputMappings = new List<WorkflowFieldMapping>();
+        }
+    }
+
+    public class WorkflowFieldMapping
+    {
+        [JsonProperty("Source")]
+        public string Source { get; set; }
+
+        [JsonProperty("SourceStepID")]
+        public string SourceStepID { get; set; }
+
+        [JsonProperty("SourceFieldID")]
+        public string SourceFieldID { get; set; }
+
+        [JsonProperty("TargetFieldID")]
+        public string TargetFieldID { get; set; }
+
+        [JsonProperty("TargetInputIndex")]
+        public int TargetInputIndex { get; set; }
+
+        [JsonProperty("DbType")]
+        public string DbType { get; set; }
+
+        [JsonProperty("Length")]
+        public int Length { get; set; }
+
+        [JsonProperty("DefaultValue")]
+        public object? DefaultValue { get; set; }
+
+        [JsonProperty("Required")]
+        public bool Required { get; set; }
+
+        public WorkflowFieldMapping()
+        {
+            Source = "";
+            SourceStepID = "";
+            SourceFieldID = "";
+            TargetFieldID = "";
+            TargetInputIndex = 0;
+            DbType = "String";
+            Length = -1;
+            DefaultValue = null;
+            Required = false;
         }
     }
 
