@@ -126,9 +126,7 @@ namespace transact.Extensions
                 switch (transactionInfo.CommandType)
                 {
                     case "C":
-                    case "T":
                     case "D":
-                    case "A":
                     case "F":
                     case "P":
                         applicationResponse = await DataTransactionAsync(request, response, transactionInfo, transactionObject, businessModels, inputContracts, outputContracts);
