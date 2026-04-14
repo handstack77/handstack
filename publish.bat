@@ -89,6 +89,7 @@ if exist "%contracts_path%" (
 
 REM 모듈 빌드 (빌드 모드에서만, 퍼블리시는 위에서 처리됨)
 dotnet build -p:Optimize=%optimize_flag% --configuration %configuration_mode% 2.Modules\checkup\checkup.csproj --output %publish_path%\handstack\modules\checkup
+dotnet build -p:Optimize=%optimize_flag% --configuration %configuration_mode% 2.Modules\command\command.csproj --output %publish_path%\handstack\modules\command
 dotnet build -p:Optimize=%optimize_flag% --configuration %configuration_mode% 2.Modules\dbclient\dbclient.csproj --output %publish_path%\handstack\modules\dbclient
 dotnet build -p:Optimize=%optimize_flag% --configuration %configuration_mode% 2.Modules\forwarder\forwarder.csproj --output %publish_path%\handstack\modules\forwarder
 dotnet build -p:Optimize=%optimize_flag% --configuration %configuration_mode% 2.Modules\function\function.csproj --output %publish_path%\handstack\modules\function

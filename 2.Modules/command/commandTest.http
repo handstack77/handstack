@@ -1,0 +1,49 @@
+POST http://localhost:8421/command/api/execution
+Content-Type: application/json
+
+{
+  "ClientTag": "commandTest",
+  "Version": "1",
+  "RequestID": "COMMAND-TEST-001",
+  "Action": "SYN",
+  "Environment": "D",
+  "ReturnType": 0,
+  "GlobalID": "COMMAND-TEST-001",
+  "IsTransaction": false,
+  "DynamicObjects": [
+    {
+      "QueryID": "HDS|TST|TST010|GC0100",
+      "Parameters": [
+        {
+          "ParameterName": "@UserID",
+          "Value": "tester",
+          "DbType": "String",
+          "Length": 255
+        },
+        {
+          "ParameterName": "@RoleID",
+          "Value": "admin",
+          "DbType": "String",
+          "Length": 100
+        }
+      ]
+    },
+    {
+      "QueryID": "HDS|TST|TST010|GW0100",
+      "Parameters": [
+        {
+          "ParameterName": "@UserID",
+          "Value": "tester",
+          "DbType": "String",
+          "Length": 255
+        },
+        {
+          "ParameterName": "@RoleID",
+          "Value": "admin",
+          "DbType": "String",
+          "Length": 100
+        }
+      ]
+    }
+  ]
+}

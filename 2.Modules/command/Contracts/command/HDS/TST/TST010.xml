@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapper xmlns="contract.xsd">
+    <header>
+        <application>HDS</application>
+        <project>TST</project>
+        <transaction>TST010</transaction>
+        <use>Y</use>
+        <timeout>30</timeout>
+        <maxOutputBytes>1048576</maxOutputBytes>
+        <desc>command 모듈 계약 예제</desc>
+    </header>
+    <commands>
+        <command id="GC01" seq="0" use="Y" timeout="30" desc="dotnet 런타임 정보 조회">
+            <executable>dotnet</executable>
+            <arguments>--info</arguments>
+            <successExitCodes>0</successExitCodes>
+            <param id="@UserID" type="String" length="255" value="NULL" />
+            <param id="@RoleID" type="String" length="100" value="NULL" />
+        </command>
+        <command id="GC02" seq="0" use="N" timeout="30" desc="CLI arguments 치환 패턴 예제">
+            <executable>dotnet</executable>
+            <arguments>--{#UserID} --user-id={#UserID} --role-id={@RoleID}</arguments>
+            <workingDirectory>../</workingDirectory>
+            <environment>
+                <variable id="HANDSTACK_USER">{@UserID}</variable>
+                <variable id="HANDSTACK_ROLE">{@RoleID}</variable>
+            </environment>
+            <successExitCodes>0</successExitCodes>
+            <param id="@UserID" type="String" length="255" value="NULL" />
+            <param id="@RoleID" type="String" length="100" value="NULL" />
+        </command>
+    </commands>
+    <requests>
+        <request id="GW01" seq="0" use="Y" timeout="30" desc="ack checkip URL 호출">
+            <method>GET</method>
+            <url>http://localhost:8421/checkip</url>
+            <headers>
+                <header id="Accept">text/plain</header>
+            </headers>
+            <querystrings>
+                <value id="userID">{@UserID}</value>
+                <value id="roleID">{@RoleID}</value>
+            </querystrings>
+            <param id="@UserID" type="String" length="255" value="NULL" />
+            <param id="@RoleID" type="String" length="100" value="NULL" />
+        </request>
+        <request id="GW02" seq="0" use="N" timeout="30" desc="GET Params, Header, Bearer Token 예제">
+            <method>GET</method>
+            <url>https://example.com/api/users</url>
+            <querystrings>
+                <value id="userID">{@UserID}</value>
+                <value id="roleID">{@RoleID}</value>
+            </querystrings>
+            <authorization type="Bearer">{@AccessToken}</authorization>
+            <headers>
+                <header id="Accept">application/json</header>
+                <header id="X-Request-User">{@UserID}</header>
+            </headers>
+            <param id="@UserID" type="String" length="255" value="NULL" />
+            <param id="@RoleID" type="String" length="100" value="NULL" />
+            <param id="@AccessToken" type="String" length="4000" value="NULL" />
+        </request>
+        <request id="GW03" seq="0" use="N" timeout="30" desc="POST Raw JSON, Basic Auth 예제">
+            <method>POST</method>
+            <url>https://example.com/api/roles</url>
+            <authorization type="Basic" username="{@UserID}" password="{@Password}" />
+            <headers>
+                <header id="Accept">application/json</header>
+            </headers>
+            <body type="raw" contentType="application/json">
+                {
+                    "userID": {#UserID},
+                    "roleID": {#RoleID}
+                }
+            </body>
+            <param id="@UserID" type="String" length="255" value="NULL" />
+            <param id="@Password" type="String" length="4000" value="NULL" />
+            <param id="@RoleID" type="String" length="100" value="NULL" />
+        </request>
+        <request id="GW04" seq="0" use="N" timeout="30" desc="API Key Header, form-data text/file 예제">
+            <method>POST</method>
+            <url>https://example.com/api/uploads</url>
+            <authorization type="ApiKey" name="x-api-key" in="Header">{@ApiKey}</authorization>
+            <headers>
+                <header id="Accept">application/json</header>
+            </headers>
+            <body type="form-data">
+                <part type="text" name="userID">{@UserID}</part>
+                <part type="text" name="roleID">{@RoleID}</part>
+                <part type="file" name="uploadByPath" path="{@UploadFilePath}" fileName="{@FileName}" contentType="application/octet-stream" />
+                <part type="file" name="uploadByBase64" base64="{@PayloadBase64}" fileName="payload.json" contentType="application/json" />
+            </body>
+            <param id="@UserID" type="String" length="255" value="NULL" />
+            <param id="@RoleID" type="String" length="100" value="NULL" />
+            <param id="@ApiKey" type="String" length="4000" value="NULL" />
+            <param id="@UploadFilePath" type="String" length="1000" value="NULL" />
+            <param id="@FileName" type="String" length="255" value="NULL" />
+            <param id="@PayloadBase64" type="String" length="4000" value="NULL" />
+        </request>
+        <request id="GW05" seq="0" use="N" timeout="30" desc="API Key Query 예제">
+            <method>GET</method>
+            <url>https://example.com/api/audit</url>
+            <querystrings>
+                <value id="userID">{@UserID}</value>
+            </querystrings>
+            <authorization type="ApiKey" name="api_key" in="Query">{@ApiKey}</authorization>
+            <headers>
+                <header id="Accept">application/json</header>
+            </headers>
+            <param id="@UserID" type="String" length="255" value="NULL" />
+            <param id="@ApiKey" type="String" length="4000" value="NULL" />
+        </request>
+        <request id="GW06" seq="0" use="N" timeout="30" desc="JWT Bearer 예제">
+            <method>GET</method>
+            <url>https://example.com/api/me</url>
+            <authorization type="JwtBearer">{@JwtToken}</authorization>
+            <headers>
+                <header id="Accept">application/json</header>
+            </headers>
+            <param id="@JwtToken" type="String" length="4000" value="NULL" />
+        </request>
+    </requests>
+</mapper>

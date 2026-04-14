@@ -137,6 +137,7 @@ remove_if_exists "$contracts_path"
 
 module_projects=(
     "2.Modules/checkup/checkup.csproj:checkup"
+    "2.Modules/command/command.csproj:command"
     "2.Modules/dbclient/dbclient.csproj:dbclient"
     "2.Modules/forwarder/forwarder.csproj:forwarder"
     "2.Modules/function/function.csproj:function"

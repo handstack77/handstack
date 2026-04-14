@@ -1,0 +1,24 @@
+{
+    "ModuleID": "command",
+    "Name": "command",
+    "IsBundledWithHost": false,
+    "Version": "1.0.0",
+    "ModuleConfig": {
+        "SystemID": "HANDSTACK",
+        "BusinessServerUrl": "http://localhost:8421/transact/api/transaction/execute",
+        "CircuitBreakResetSecond": 60,
+        "DefaultCommandTimeout": 30,
+        "DefaultMaxOutputBytes": 1048576,
+        "IsContractFileWatching": true,
+        "ContractBasePath": [
+            "../contracts/command"
+        ],
+        "IsTransactionLogging": false,
+        "ModuleLogFilePath": "../log/command/module.log",
+        "IsLogServer": true,
+        "LogServerUrl": "http://localhost:8421/logger/api/log/insert",
+        "EventAction": [],
+        "SubscribeAction": []
+    }
+}
+

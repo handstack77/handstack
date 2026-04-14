@@ -249,6 +249,7 @@ try {
 
     $modules = @(
         @{ Project = '2.Modules/checkup/checkup.csproj'; Name = 'checkup' }
+        @{ Project = '2.Modules/command/command.csproj'; Name = 'command' }
         @{ Project = '2.Modules/dbclient/dbclient.csproj'; Name = 'dbclient' }
         @{ Project = '2.Modules/forwarder/forwarder.csproj'; Name = 'forwarder' }
         @{ Project = '2.Modules/function/function.csproj'; Name = 'function' }
