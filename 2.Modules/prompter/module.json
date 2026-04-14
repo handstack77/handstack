@@ -1,0 +1,91 @@
+{
+    "ModuleID": "prompter",
+    "Name": "prompter",
+    "IsBundledWithHost": false,
+    "Version": "1.0.0",
+    "ModuleConfig": {
+        "SystemID": "HANDSTACK",
+        "ModuleBasePath": "../modules/prompter",
+        "ContractBasePath": [
+            "../contracts/prompter"
+        ],
+        "BusinessServerUrl": "http://localhost:8421/transact/api/transaction/execute",
+        "IsTransactionLogging": false,
+        "ModuleLogFilePath": "../log/prompter/module.log",
+        "IsLogServer": true,
+        "LogServerUrl": "http://localhost:8421/logger/api/log/insert",
+        "EventAction": [
+            "prompter.Events.ManagedRequest"
+        ],
+        "SubscribeAction": [],
+        "LLMSource": [
+            {
+                "ApplicationID": "HDS",
+                "ProjectID": "*",
+                "DataSourceID": "LLM1",
+                "LLMProvider": "OpenAI",
+                "ApiKey": "[sk-proj-API...키]",
+                "ModelID": "gpt-4o-mini",
+                "Endpoint": "",
+                "Comment": "OpenAI 프롬프트 API"
+            },
+            {
+                "ApplicationID": "HDS",
+                "ProjectID": "*",
+                "DataSourceID": "LLM2",
+                "LLMProvider": "Claude",
+                "ApiKey": "[sk-ant-api...키]",
+                "ModelID": "claude-3-5-sonnet-latest",
+                "Endpoint": "",
+                "Comment": "Claude Messages API"
+            },
+            {
+                "ApplicationID": "HDS",
+                "ProjectID": "*",
+                "DataSourceID": "LLM3",
+                "LLMProvider": "Gemini",
+                "ApiKey": "[AIza...키]",
+                "ModelID": "gemini-1.5-flash",
+                "Endpoint": "",
+                "Comment": "Gemini GenerateContent API"
+            },
+            {
+                "ApplicationID": "HDS",
+                "ProjectID": "*",
+                "DataSourceID": "LLM4",
+                "LLMProvider": "Ollama",
+                "ApiKey": "",
+                "ModelID": "qwen3.5:9b",
+                "Endpoint": "http://localhost:11434",
+                "Comment": "Ollama 로컬 Chat API"
+            },
+            {
+                "ApplicationID": "HDS",
+                "ProjectID": "*",
+                "DataSourceID": "LLM5",
+                "LLMProvider": "LMStudio",
+                "ApiKey": "",
+                "ModelID": "local-model",
+                "Endpoint": "http://localhost:1234",
+                "Comment": "LM Studio 로컬 OpenAI 호환 API"
+            }
+        ],
+        "AllowedKernelPlugins": [
+            {
+                "Name": "math",
+                "Functions": [ "Add", "Subtract" ]
+            },
+            {
+                "Name": "time",
+                "Functions": [ "Now", "Today" ]
+            },
+            {
+                "Name": "text",
+                "Functions": [ "Trim" ]
+            }
+        ],
+        "AllowedMcpServers": [],
+        "AllowedCliTools": [],
+        "AllowedBodyFileBasePaths": []
+    }
+}

@@ -1,0 +1,75 @@
+﻿using System.Collections.Generic;
+
+using HandStack.Web;
+using HandStack.Web.Entity;
+
+namespace prompter.Entity
+{
+    public class ModuleConfigJson : ModuleSetting
+    {
+        public ModuleConfig ModuleConfig { get; set; }
+
+        public ModuleConfigJson()
+        {
+            ModuleConfig = new ModuleConfig();
+        }
+    }
+
+    public record ModuleConfig
+    {
+        public string AuthorizationKey { get; set; }
+
+        public string ModuleBasePath { get; set; }
+
+        public string DatabaseContractPath { get; set; }
+
+        public string BusinessServerUrl { get; set; }
+
+        public int CircuitBreakResetSecond { get; set; }
+
+        public bool IsLogServer { get; set; }
+
+        public string LogServerUrl { get; set; }
+
+        public bool IsContractFileWatching { get; set; }
+
+        public List<string> ContractBasePath { get; set; }
+
+        public bool IsTransactionLogging { get; set; }
+
+        public string ModuleLogFilePath { get; set; }
+
+        public List<DataSource> LLMSource { get; set; }
+
+        public List<AllowedKernelPlugin> AllowedKernelPlugins { get; set; }
+
+        public List<AllowedExternalTool> AllowedMcpServers { get; set; }
+
+        public List<AllowedExternalTool> AllowedCliTools { get; set; }
+
+        public List<string> AllowedBodyFileBasePaths { get; set; }
+
+        public List<string> AllowClientIP { get; set; }
+
+        public ModuleConfig()
+        {
+            AuthorizationKey = "";
+            ModuleBasePath = "";
+            DatabaseContractPath = "";
+            BusinessServerUrl = "";
+            IsTransactionLogging = false;
+            ModuleLogFilePath = "";
+            IsLogServer = false;
+            LogServerUrl = "";
+            IsContractFileWatching = false;
+            ContractBasePath = new List<string>();
+            CircuitBreakResetSecond = 30;
+            LLMSource = new List<DataSource>();
+            AllowedKernelPlugins = new List<AllowedKernelPlugin>();
+            AllowedMcpServers = new List<AllowedExternalTool>();
+            AllowedCliTools = new List<AllowedExternalTool>();
+            AllowedBodyFileBasePaths = new List<string>();
+            AllowClientIP = new List<string>() { "*" };
+        }
+    }
+}

@@ -1,0 +1,100 @@
+{
+    "AppSettings": {
+        "HostAccessID": "HANDSTACK_HOSTACCESSID",
+        "SystemID": "HANDSTACK",
+        "ApplicationID": "HDS",
+        "ProgramName": "ack",
+        "HostName": "HOSTNAME",
+        "InstallType": "L",
+        "BusinessServerUrl": "http://localhost:8421/transact/api/transaction/execute",
+        "FindGlobalIDServer": "",
+        "DomainAPIServer": {
+            "ServerID": "SERVERD01",
+            "ServerType": "D",
+            "Protocol": "http",
+            "IP": "localhost",
+            "Port": "8421",
+            "Path": "/transact/api/transaction/execute",
+            "ClientIP": "127.0.0.1"
+        },
+        "ForwardProxyIP": [],
+        "IsTenantFunction": true,
+        "IsExceptionDetailText": true,
+        "ContractRequestPath": "view",
+        "TenantAppRequestPath": "app",
+        "TenantAppBasePath": "../tenants",
+        "BatchProgramBasePath": "../batchs",
+        "CreateAppTempPath": "../tmp/create_apps",
+        "ForbesBasePath": "../forbes",
+        "LoadModuleBasePath": "../modules",
+        "LoadModules": [
+            "wwwroot",
+            "transact",
+            "dbclient",
+            "command",
+            "prompter",
+            "function",
+            "repository",
+            "logger",
+            "checkup"
+        ],
+        "ModuleConfigurationUrl": [
+        ],
+        "RunningEnvironment": "D",
+        "UseResponseComression": false,
+        "UseForwardProxy": false,
+        "UseSameIPProxy": false,
+        "WithOrigins": [
+            "http://127.0.0.1",
+            "http://127.0.0.1:8421",
+            "http://localhost",
+            "http://localhost:8421"
+        ],
+        "SessionState": {
+            "IsSession": true,
+            "SessionCookieName": "HandStack.Session",
+            "CacheType": "Memory",
+            "MySqlConnectionString": "Server=127.0.0.1;Port=3306;Database=HandStack_Cache;Uid=handstack;Pwd=handstack~!@34;PersistSecurityInfo=True;SslMode=none;Charset=utf8;Allow User Variables=True;",
+            "MySqlSchemaName": "HandStack_Cache",
+            "MySqlTableName": "SessionData",
+            "SqlServerConnectionString": "Data Source=127.0.0.1;TrustServerCertificate=True;Initial Catalog=HandStack_Cache;User ID=handstack;Password=handstack~!@34;Connection Timeout=0;",
+            "SqlServerSchemaName": "dbo",
+            "SqlServerTableName": "SessionData"
+        },
+        "CookiePrefixName": "HandStack",
+        "UserSignExpire": -1
+    },
+    "Serilog": {
+        "Using": [ "Serilog.Sinks.File" ],
+        "MinimumLevel": {
+            "Default": "Information",
+            "Override": {
+                "Microsoft": "Error",
+                "System": "Error"
+            }
+        },
+        "Enrich": [ "FromLogContext" ],
+        "WriteTo": [
+            {
+                "Name": "File",
+                "Args": {
+                    "path": "../log/app.log",
+                    "rollingInterval": "Day",
+                    "rollOnFileSizeLimit": true,
+                    "buffered": true,
+                    "fileSizeLimitBytes": 104857600,
+                    "flushToDiskInterval": "00:00:05",
+                    "outputTemplate": "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}"
+                }
+            }
+        ]
+    },
+    "Kestrel": {
+        "DisableStringReuse": true,
+        "Limits": {
+            "MaxConcurrentConnections": 100,
+            "MaxConcurrentUpgradedConnections": 100,
+            "MaxRequestBodySize": 30000000
+        }
+    }
+}

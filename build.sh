@@ -8,6 +8,7 @@ cd "$SCRIPT_DIR"
 PROJECTS=(
   "2.Modules/checkup/checkup.csproj"
   "2.Modules/command/command.csproj"
+  "2.Modules/prompter/prompter.csproj"
   "2.Modules/dbclient/dbclient.csproj"
   "2.Modules/forwarder/forwarder.csproj"
   "2.Modules/function/function.csproj"

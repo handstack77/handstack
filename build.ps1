@@ -21,6 +21,7 @@ $projects = @(
     "2.Modules/dbclient/dbclient.csproj"
     "2.Modules/function/function.csproj"
     "2.Modules/command/command.csproj"
+    "2.Modules/prompter/prompter.csproj"
     "2.Modules/logger/logger.csproj"
     "2.Modules/repository/repository.csproj"
     "2.Modules/transact/transact.csproj"

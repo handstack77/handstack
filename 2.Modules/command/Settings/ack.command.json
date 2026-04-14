@@ -33,6 +33,7 @@
             "dbclient",
             "function",
             "command",
+            "prompter",
             "repository",
             "logger",
             "checkup"
@@ -57,4 +58,3 @@
         "UserSignExpire": -1
     }
 }
-
