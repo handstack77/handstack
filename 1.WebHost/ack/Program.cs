@@ -69,6 +69,8 @@ namespace ack
             var versionInfo = VersionFileStore.Ensure(versionFilePath, VersionFileStore.DefaultVersion);
             Console.WriteLine($"version.json: {versionFilePath}, version: {versionInfo.Version}, updatedAt: {versionInfo.UpdatedAt:O}");
 
+            DotNetEnv.Env.Load(Path.Combine(AppContext.BaseDirectory, ".env"));
+
             if (OperatingSystem.IsWindows() == true)
             {
                 await Task.Run(() =>
@@ -104,11 +106,12 @@ namespace ack
             var optionProcessName = new Option<string?>("--pname") { Description = "관리 업무 목적으로 부여한 프로세스 이름입니다" };
             var optionKey = new Option<string?>("--key") { Description = "ack 프로그램 실행 검증키입니다" };
             var optionAppSettings = new Option<string?>("--appsettings") { Description = "ack 프로그램 appsettings 파일명입니다" };
+            var optionEnv = new Option<string?>("--env") { Description = "env 문자열을 로드합니다. (예: OK=GOOD\nTEST=\"more stuff\"" };
             var optionShowEnv = new Option<string?>("--showenv") { Description = "ack 프로그램 시작할 때 적용되는 환경설정을 출력합니다. (기본값: false)" };
             var rootOptionModules = new Option<string?>("--modules") { Description = "프로그램 시작시 포함할 모듈을 설정합니다. 예) --modules=wwwroot,transact,dbclient,function" };
 
             var rootCommand = new RootCommand("IT 혁신은 고객과 업무에 들여야 하는 시간과 노력을 줄이는 데 있습니다. HandStack은 기업 경쟁력 유지를 위한 도구입니다") {
-                optionDebug, optionDelay, optionPort, rootOptionModules, optionKey, optionAppSettings, optionProcessName, optionShowEnv
+                optionDebug, optionDelay, optionPort, rootOptionModules, optionKey, optionAppSettings, optionProcessName, optionEnv, optionShowEnv
             };
 
             rootCommand.SetAction(async (parseResult) =>
@@ -120,12 +123,18 @@ namespace ack
                 var key = parseResult.GetValue(optionKey);
                 var settings = parseResult.GetValue(optionAppSettings);
                 var pname = parseResult.GetValue(optionProcessName);
+                var env = parseResult.GetValue(optionEnv);
                 var showenv = parseResult.GetValue(optionShowEnv);
 
                 await DebuggerAttach(args, debug, delay);
 
                 try
                 {
+                    if (string.IsNullOrWhiteSpace(env) == false)
+                    {
+                        DotNetEnv.Env.LoadContents(env);
+                    }
+
                     if (string.IsNullOrWhiteSpace(pname) == false)
                     {
                         GlobalConfiguration.ProcessName = pname;
@@ -308,9 +317,9 @@ namespace ack
             string? ipAddress = null;
             var urls = new[]
             {
-            new { Url = "https://api.ipify.org?format=json", IsJson = true },
-            new { Url = $"http://localhost:{GlobalConfiguration.ServerPort}/checkip", IsJson = false }
-        };
+                new { Url = "https://api.ipify.org?format=json", IsJson = true },
+                new { Url = $"http://localhost:{GlobalConfiguration.ServerPort}/checkip", IsJson = false }
+            };
 
             using (HttpClient client = new HttpClient())
             {
