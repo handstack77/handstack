@@ -364,6 +364,8 @@ MigrationBackup/
 FodyWeavers.xsd
 /4.Tool/Console/directorysync/Properties/PublishProfiles/LinuxProfile.pubxml
 
+.env
+
 # handstack
 .codex**/
 .dotnet_home/
