@@ -94,7 +94,7 @@ else
     dotnet_options=(-p:Optimize="$optimize_flag" --configuration "$configuration_mode")
 fi
 
-invoke_dotnet "$action_mode" "${dotnet_options[@]}" 1.WebHost/ack/ack.csproj --output "$publish_path/handstack/app"
+invoke_dotnet "publish" "${dotnet_options[@]}" 1.WebHost/ack/ack.csproj --output "$publish_path/handstack/app"
 invoke_dotnet "$action_mode" "${dotnet_options[@]}" 1.WebHost/agent/agent.csproj --output "$publish_path/handstack/hosts/agent"
 invoke_dotnet "$action_mode" "${dotnet_options[@]}" 1.WebHost/deploy/deploy.csproj --output "$publish_path/handstack/hosts/deploy"
 invoke_dotnet "$action_mode" "${dotnet_options[@]}" 1.WebHost/forbes/forbes.csproj --output "$publish_path/handstack/hosts/forbes"

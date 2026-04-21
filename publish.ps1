@@ -171,7 +171,7 @@ try {
     Remove-IfExists -Path $PublishPath
 
     Invoke-DotNet -Arguments @(
-        $ActionMode
+        'publish'
         $dotnetOptions
         '1.WebHost/ack/ack.csproj'
         '--output'

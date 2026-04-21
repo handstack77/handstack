@@ -67,7 +67,7 @@ if "%action_mode%" == "publish" (
 )
 
 REM WebHost 프로젝트들 빌드/퍼블리시
-dotnet %action_mode% %dotnet_options% 1.WebHost\ack\ack.csproj --output %publish_path%\handstack\app
+dotnet publish %dotnet_options% 1.WebHost\ack\ack.csproj --output %publish_path%\handstack\app
 dotnet %action_mode% %dotnet_options% 1.WebHost\agent\agent.csproj --output %publish_path%\handstack\hosts\agent
 dotnet %action_mode% %dotnet_options% 1.WebHost\deploy\deploy.csproj --output %publish_path%\handstack\hosts\deploy
 dotnet %action_mode% %dotnet_options% 1.WebHost\forbes\forbes.csproj --output %publish_path%\handstack\hosts\forbes

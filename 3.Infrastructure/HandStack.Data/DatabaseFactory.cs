@@ -68,7 +68,7 @@ namespace HandStack.Data
 
         private bool isBaseDisposedResources = false;
 
-        public DbProviderFactory SqlFactory = SqlClientFactory.Instance;
+        public DbProviderFactory SqlFactory { get; private set; } = SqlClientFactory.Instance;
 
         public DatabaseFactory(string connectionString, DataProviders dataProviders = DataProviders.SqlServer)
         {

@@ -290,7 +290,6 @@ namespace ack
                 catch (Exception exception)
                 {
                     Log.Fatal(exception, "프로그램 실행 중 오류가 발생했습니다");
-                    Console.WriteLine("프로그램 실행 중 오류가 발생했습니다: " + exception.Message);
                     exitCode = -1;
                 }
             });
