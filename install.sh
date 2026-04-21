@@ -130,8 +130,8 @@ handstack_cli_path() {
     local candidates=(
         "$base_path/tools/handstack/handstack"
         "$base_path/tools/handstack/handstack.exe"
-        "$base_path/app/cli/handstack"
-        "$base_path/app/cli/handstack.exe"
+        "$base_path/tools/handstack"
+        "$base_path/tools/handstack.exe"
     )
 
     local candidate

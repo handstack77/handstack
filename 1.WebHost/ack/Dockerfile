@@ -23,10 +23,10 @@ RUN dotnet restore "1.WebHost/ack/ack.csproj" \
     && dotnet restore "4.Tool/CLI/handstack/handstack.csproj"
 
 RUN mkdir -p /opt/seed/handstack/app \
-    && mkdir -p /opt/seed/handstack/app/cli \
+    && mkdir -p /opt/seed/handstack/tools \
     && mkdir -p /opt/seed/handstack/modules \
     && dotnet "$ACTION_MODE" -p:Optimize=$OPTIMIZE_FLAG --configuration "$CONFIGURATION_MODE" --arch "$ARCH_MODE" --os "$OS_MODE" "1.WebHost/ack/ack.csproj" --output /opt/seed/handstack/app \
-    && dotnet "$ACTION_MODE" -p:Optimize=$OPTIMIZE_FLAG --configuration "$CONFIGURATION_MODE" --arch "$ARCH_MODE" --os "$OS_MODE" "4.Tool/CLI/handstack/handstack.csproj" --output /opt/seed/handstack/app/cli \
+    && dotnet "$ACTION_MODE" -p:Optimize=$OPTIMIZE_FLAG --configuration "$CONFIGURATION_MODE" --arch "$ARCH_MODE" --os "$OS_MODE" "4.Tool/CLI/handstack/handstack.csproj" --output /opt/seed/handstack/tools \
     && dotnet build -p:Optimize=$OPTIMIZE_FLAG --configuration "$CONFIGURATION_MODE" "2.Modules/dbclient/dbclient.csproj" --output /opt/seed/handstack/modules/dbclient \
     && dotnet build -p:Optimize=$OPTIMIZE_FLAG --configuration "$CONFIGURATION_MODE" "2.Modules/function/function.csproj" --output /opt/seed/handstack/modules/function \
     && dotnet build -p:Optimize=$OPTIMIZE_FLAG --configuration "$CONFIGURATION_MODE" "2.Modules/logger/logger.csproj" --output /opt/seed/handstack/modules/logger \

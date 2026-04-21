@@ -209,9 +209,7 @@ function Get-HandStackCliPath {
 
     $candidates = @(
         [System.IO.Path]::Combine($BasePath, 'tools', 'handstack', 'handstack.exe'),
-        [System.IO.Path]::Combine($BasePath, 'tools', 'handstack', 'handstack'),
-        [System.IO.Path]::Combine($BasePath, 'app', 'cli', 'handstack.exe'),
-        [System.IO.Path]::Combine($BasePath, 'app', 'cli', 'handstack')
+        [System.IO.Path]::Combine($BasePath, 'tools', 'handstack', 'handstack')
     )
 
     foreach ($candidate in $candidates) {

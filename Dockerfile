@@ -16,7 +16,7 @@ ENV LANGUAGE=ko_KR:ko
 ENV LC_ALL=ko_KR.UTF-8
 ENV HANDSTACK_HOME=/opt/handstack
 ENV DOTNET_RUNNING_IN_CONTAINER=true
-ENV PATH="/opt/handstack/app/cli:${PATH}"
+ENV PATH="/opt/handstack/tools:${PATH}"
 
 # .NET Core SDK 8 설치
 # RUN wget https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb && \
@@ -63,8 +63,8 @@ RUN unzip handstack.zip -d /opt && \
 RUN tr -d '\r' < /opt/handstack/install.sh > /opt/handstack/install_fixed.sh && mv /opt/handstack/install_fixed.sh /opt/handstack/install.sh && \
     chmod +x /opt/handstack/install.sh && \
     chmod +x /opt/handstack/app/ack && \
-    chmod +x /opt/handstack/app/cli/handstack && \
-    chmod +x /opt/handstack/app/cli/edgeproxy && \
+    chmod +x /opt/handstack/tools/handstack && \
+    chmod +x /opt/handstack/tools/edgeproxy && \
     cd /opt/handstack && /opt/handstack/install.sh
 
 # 서비스 및 디버깅 포트 노출
@@ -72,7 +72,7 @@ EXPOSE 8080
 EXPOSE 9229
 
 # 작업 디렉토리 설정
-WORKDIR /opt/handstack/app/cli
+WORKDIR /opt/handstack/tools
 
 # 프로그램 시작
 ENTRYPOINT ["edgeproxy"]
