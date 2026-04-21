@@ -60,11 +60,11 @@ rmdir /s /q %publish_path%
 
 if "%action_mode%" == "publish" (
     set cli_dotnet_options=-p:Optimize=%optimize_flag% -p:PublishSingleFile=true --configuration %configuration_mode% --runtime %rid% --self-contained false
-    set cli_output_root=%publish_path%\handstack\app\cli
 ) else (
     set cli_dotnet_options=-p:Optimize=%optimize_flag% --configuration %configuration_mode%
-    set cli_output_root=%publish_path%\handstack\tools
 )
+
+set cli_output_root=%publish_path%\handstack\tools
 
 REM WebHost 프로젝트들 빌드/퍼블리시
 dotnet publish %dotnet_options% 1.WebHost\ack\ack.csproj --output %publish_path%\handstack\app
