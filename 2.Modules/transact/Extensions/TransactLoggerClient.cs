@@ -329,8 +329,8 @@ namespace transact.Extensions
             logMessage.Flow = "N";
             logMessage.Level = "V";
             logMessage.Format = "P";
-            logMessage.Message = message;
-            logMessage.Properties = properties;
+            logMessage.Message = TruncateForLog(message);
+            logMessage.Properties = TruncateForLog(properties);
             logMessage.UserID = "";
 
             EnqueueLog(logMessage, fallbackFunction, "Program", null, null);
@@ -350,8 +350,8 @@ namespace transact.Extensions
             logMessage.Flow = "N";
             logMessage.Level = "V";
             logMessage.Format = "P";
-            logMessage.Message = message;
-            logMessage.Properties = properties;
+            logMessage.Message = TruncateForLog(message);
+            logMessage.Properties = TruncateForLog(properties);
             logMessage.UserID = "";
 
             EnqueueLog(logMessage, fallbackFunction, "Transaction", null, null);
@@ -370,8 +370,8 @@ namespace transact.Extensions
             logMessage.Flow = "I";
             logMessage.Level = "V";
             logMessage.Format = request.Transaction.DataFormat;
-            logMessage.Message = JsonConvert.SerializeObject(request);
-            logMessage.Properties = JsonConvert.SerializeObject(request.PayLoad.Property);
+            logMessage.Message = SerializeForLog(request);
+            logMessage.Properties = SerializeForLog(request.PayLoad.Property);
             logMessage.UserID = request.Transaction.OperatorID;
             logMessage.IpAddress = request.Interface.SourceIP;
             logMessage.DeviceID = request.System.DeviceID;
@@ -393,8 +393,8 @@ namespace transact.Extensions
             logMessage.Flow = "O";
             logMessage.Level = "V";
             logMessage.Format = "J";
-            logMessage.Message = JsonConvert.SerializeObject(response);
-            logMessage.Properties = JsonConvert.SerializeObject(response.Result.Property);
+            logMessage.Message = SerializeForLog(response);
+            logMessage.Properties = SerializeForLog(response.Result.Property);
             logMessage.UserID = response.Transaction.OperatorID;
 
             EnqueueLog(logMessage, fallbackFunction, "Response", null, response, userWorkID);
@@ -588,6 +588,35 @@ namespace transact.Extensions
         #endregion
 
         #region Background Processing
+
+        private static string SerializeForLog(object? value)
+        {
+            try
+            {
+                return TruncateForLog(JsonConvert.SerializeObject(value));
+            }
+            catch (Exception exception)
+            {
+                return TruncateForLog($"<serialization failed: {exception.Message}>");
+            }
+        }
+
+        private static string TruncateForLog(string? value, int maxLength = 32768)
+        {
+            if (string.IsNullOrEmpty(value) == true)
+            {
+                return string.Empty;
+            }
+
+            if (value.Length <= maxLength)
+            {
+                return value;
+            }
+
+            return new System.Text.StringBuilder(value, 0, maxLength, maxLength + 32)
+                .Append("...(truncated)")
+                .ToString();
+        }
 
         private async Task ProcessLogQueueAsync(int workerId, CancellationToken cancellationToken)
         {

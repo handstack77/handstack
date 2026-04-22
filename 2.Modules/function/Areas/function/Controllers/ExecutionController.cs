@@ -243,7 +243,7 @@ namespace function.Areas.function.Controllers
                 {
                     loggerClient.DynamicRequestLogging(request, "Y", GlobalConfiguration.ApplicationID, (string error) =>
                     {
-                        logger.Warning("[{LogCategory}] [{GlobalID}] " + $"Request JSON: {JsonConvert.SerializeObject(request)}", "Execution/Execute", request.GlobalID);
+                        logger.Warning("[{LogCategory}] [{GlobalID}] " + $"Request JSON: {SerializeForLog(request)}", "Execution/Execute", request.GlobalID);
 
                     });
                 }
@@ -294,7 +294,7 @@ namespace function.Areas.function.Controllers
                 {
                     loggerClient.DynamicResponseLogging(request.GlobalID, acknowledge, GlobalConfiguration.ApplicationID, responseData, "Execution/Execute ReturnType: " + request.ReturnType.ToString(), (string error) =>
                     {
-                        logger.Warning("[{LogCategory}] [{GlobalID}] " + $"Response JSON: {responseData}", "Execution/Execute", response.CorrelationID);
+                        logger.Warning("[{LogCategory}] [{GlobalID}] " + $"Response JSON: {TruncateForLog(responseData)}", "Execution/Execute", response.CorrelationID);
                     });
                 }
             }
@@ -321,7 +321,7 @@ namespace function.Areas.function.Controllers
                 {
                     loggerClient.DynamicResponseLogging(request.GlobalID, "N", GlobalConfiguration.ApplicationID, responseData, "Execution/Execute ReturnType: " + request.ReturnType.ToString(), (string error) =>
                     {
-                        logger.Warning("[{LogCategory}] [{GlobalID}] " + $"Response JSON: {responseData}", "Execution/Execute", response.CorrelationID);
+                        logger.Warning("[{LogCategory}] [{GlobalID}] " + $"Response JSON: {TruncateForLog(responseData)}", "Execution/Execute", response.CorrelationID);
                     });
                 }
             }
@@ -339,6 +339,28 @@ namespace function.Areas.function.Controllers
 
             functionIDPrefix = functionID.Substring(0, functionID.Length - 2);
             return !string.IsNullOrWhiteSpace(functionIDPrefix);
+        }
+
+        private static string SerializeForLog(object? value)
+        {
+            try
+            {
+                return TruncateForLog(JsonConvert.SerializeObject(value));
+            }
+            catch (Exception exception)
+            {
+                return TruncateForLog($"<serialization failed: {exception.Message}>");
+            }
+        }
+
+        private static string TruncateForLog(string? value, int maxLength = 32768)
+        {
+            if (string.IsNullOrEmpty(value) == true)
+            {
+                return string.Empty;
+            }
+
+            return value.Length <= maxLength ? value : value.Substring(0, maxLength) + "...(truncated)";
         }
     }
 }

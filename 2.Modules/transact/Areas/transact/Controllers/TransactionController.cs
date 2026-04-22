@@ -441,7 +441,7 @@ namespace transact.Areas.transact.Controllers
                 {
                     loggerClient.TransactionRequestLogging(request, transactionWorkID, "Y", (string error) =>
                     {
-                        logger.Information("[{LogCategory}] [{GlobalID}] " + $"fallback error: {error}, Request JSON: {JsonConvert.SerializeObject(request)}", "Transaction/Execute", response.Transaction.GlobalID);
+                        logger.Information("[{LogCategory}] [{GlobalID}] " + $"fallback error: {error}, Request JSON: {SerializeForLog(request)}", "Transaction/Execute", response.Transaction.GlobalID);
                     });
                 }
 
@@ -2019,7 +2019,7 @@ namespace transact.Areas.transact.Controllers
             {
                 loggerClient.TransactionResponseLogging(response, transactionWorkID, acknowledge, (string error) =>
                 {
-                    logger.Information("[{LogCategory}] [{GlobalID}] " + $"fallback error: {error}, Response JSON: {JsonConvert.SerializeObject(response)}", "Transaction/RequestDataTransaction", response.Transaction.GlobalID);
+                    logger.Information("[{LogCategory}] [{GlobalID}] " + $"fallback error: {error}, Response JSON: {SerializeForLog(response)}", "Transaction/RequestDataTransaction", response.Transaction.GlobalID);
                 });
             }
 
@@ -2030,6 +2030,28 @@ namespace transact.Areas.transact.Controllers
             }
 
             return Content(JsonConvert.SerializeObject(response), "application/json");
+        }
+
+        private static string SerializeForLog(object? value)
+        {
+            try
+            {
+                return TruncateForLog(JsonConvert.SerializeObject(value));
+            }
+            catch (Exception exception)
+            {
+                return TruncateForLog($"<serialization failed: {exception.Message}>");
+            }
+        }
+
+        private static string TruncateForLog(string? value, int maxLength = 32768)
+        {
+            if (string.IsNullOrEmpty(value) == true)
+            {
+                return string.Empty;
+            }
+
+            return value.Length <= maxLength ? value : value.Substring(0, maxLength) + "...(truncated)";
         }
     }
 }

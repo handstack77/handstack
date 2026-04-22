@@ -284,7 +284,7 @@ namespace dbclient.Areas.dbclient.Controllers
                 {
                     loggerClient.DynamicRequestLogging(request, "Y", GlobalConfiguration.ApplicationID, (string error) =>
                     {
-                        logger.Warning("[{LogCategory}] [{GlobalID}] " + $"Request JSON: {JsonConvert.SerializeObject(request)}", "Query/Execute", request.GlobalID);
+                        logger.Warning("[{LogCategory}] [{GlobalID}] " + $"Request JSON: {SerializeForLog(request)}", "Query/Execute", request.GlobalID);
                     });
                 }
 
@@ -371,7 +371,7 @@ namespace dbclient.Areas.dbclient.Controllers
                     {
                         loggerClient.DynamicResponseLogging(request.GlobalID, acknowledge, GlobalConfiguration.ApplicationID, responseData, "Query/Execute ReturnType: " + request.ReturnType.ToString(), (string error) =>
                         {
-                            logger.Warning("[{LogCategory}] [{GlobalID}] " + $"Response JSON: {responseData}", "Query/Execute", response.CorrelationID);
+                            logger.Warning("[{LogCategory}] [{GlobalID}] " + $"Response JSON: {TruncateForLog(responseData)}", "Query/Execute", response.CorrelationID);
                         });
                     }
 
@@ -384,7 +384,7 @@ namespace dbclient.Areas.dbclient.Controllers
                     {
                         loggerClient.DynamicResponseLogging(request.GlobalID, acknowledge, GlobalConfiguration.ApplicationID, responseData, "Query/Execute ReturnType: " + request.ReturnType.ToString(), (string error) =>
                         {
-                            logger.Warning("[{LogCategory}] [{GlobalID}] " + $"Response JSON: {responseData}", "Query/Execute", response.CorrelationID);
+                            logger.Warning("[{LogCategory}] [{GlobalID}] " + $"Response JSON: {TruncateForLog(responseData)}", "Query/Execute", response.CorrelationID);
                         });
                     }
 
@@ -417,7 +417,7 @@ namespace dbclient.Areas.dbclient.Controllers
                         {
                             loggerClient.DynamicResponseLogging(request.GlobalID, "N", GlobalConfiguration.ApplicationID, responseData, "Query/Execute ReturnType: " + request.ReturnType.ToString(), (string error) =>
                             {
-                                logger.Warning("[{LogCategory}] [{GlobalID}] " + $"Response JSON: {responseData}", "Query/Execute", response.CorrelationID);
+                                logger.Warning("[{LogCategory}] [{GlobalID}] " + $"Response JSON: {TruncateForLog(responseData)}", "Query/Execute", response.CorrelationID);
                             });
                         }
 
@@ -431,7 +431,7 @@ namespace dbclient.Areas.dbclient.Controllers
                         {
                             loggerClient.DynamicResponseLogging(request.GlobalID, "N", GlobalConfiguration.ApplicationID, responseData, "Query/Execute ReturnType: " + request.ReturnType.ToString(), (string error) =>
                             {
-                                logger.Warning("[{LogCategory}] [{GlobalID}] " + $"Response JSON: {responseData}", "Query/Execute", response.CorrelationID);
+                                logger.Warning("[{LogCategory}] [{GlobalID}] " + $"Response JSON: {TruncateForLog(responseData)}", "Query/Execute", response.CorrelationID);
                             });
                         }
 
@@ -462,7 +462,7 @@ namespace dbclient.Areas.dbclient.Controllers
                     {
                         loggerClient.DynamicResponseLogging(request.GlobalID, "N", GlobalConfiguration.ApplicationID, responseData, "Query/Execute ReturnType: " + request.ReturnType.ToString(), (string error) =>
                         {
-                            logger.Warning("[{LogCategory}] [{GlobalID}] " + $"Response JSON: {responseData}", "Query/Execute", response.CorrelationID);
+                            logger.Warning("[{LogCategory}] [{GlobalID}] " + $"Response JSON: {TruncateForLog(responseData)}", "Query/Execute", response.CorrelationID);
                         });
                     }
 
@@ -483,6 +483,28 @@ namespace dbclient.Areas.dbclient.Controllers
 
             functionIDPrefix = functionID.Substring(0, functionID.Length - 2);
             return !string.IsNullOrWhiteSpace(functionIDPrefix);
+        }
+
+        private static string SerializeForLog(object? value)
+        {
+            try
+            {
+                return TruncateForLog(JsonConvert.SerializeObject(value));
+            }
+            catch (Exception exception)
+            {
+                return TruncateForLog($"<serialization failed: {exception.Message}>");
+            }
+        }
+
+        private static string TruncateForLog(string? value, int maxLength = 32768)
+        {
+            if (string.IsNullOrEmpty(value) == true)
+            {
+                return string.Empty;
+            }
+
+            return value.Length <= maxLength ? value : value.Substring(0, maxLength) + "...(truncated)";
         }
     }
 }

@@ -303,7 +303,7 @@ namespace dbclient.Extensions
         {
             var logMessage = GetLogMessage();
             ConfigureLogMessage(logMessage, globalID, acknowledge, applicationID, "", "", "",
-                "A", "N", "V", "P", message, properties);
+                "A", "N", "V", "P", TruncateForLog(message), TruncateForLog(properties));
 
             EnqueueLog(logMessage, fallbackFunction, "Program");
         }
@@ -324,7 +324,7 @@ namespace dbclient.Extensions
         {
             var logMessage = GetLogMessage();
             ConfigureLogMessage(logMessage, globalID, acknowledge, applicationID, "", "", "",
-                "T", "O", "V", "J", message, properties);
+                "T", "O", "V", "J", TruncateForLog(message), TruncateForLog(properties));
 
             EnqueueLog(logMessage, fallbackFunction, "Response");
         }
@@ -333,7 +333,7 @@ namespace dbclient.Extensions
             Action<string>? fallbackFunction = null)
         {
             var logMessage = GetLogMessage();
-            var message = JsonConvert.SerializeObject(request);
+            var message = SerializeForLog(request);
             ConfigureLogMessage(logMessage, request.GlobalID, acknowledge, applicationID, "", "", "",
                 "T", "I", "V", "J", message, "");
 
@@ -393,6 +393,35 @@ namespace dbclient.Extensions
             {
                 transactionLogger?.Information($"[{{LogCategory}}] {messageForLog}", logMessage.Properties);
             }
+        }
+
+        private static string SerializeForLog(object? value)
+        {
+            try
+            {
+                return TruncateForLog(JsonConvert.SerializeObject(value));
+            }
+            catch (Exception exception)
+            {
+                return TruncateForLog($"<serialization failed: {exception.Message}>");
+            }
+        }
+
+        private static string TruncateForLog(string? value, int maxLength = 32768)
+        {
+            if (string.IsNullOrEmpty(value) == true)
+            {
+                return string.Empty;
+            }
+
+            if (value.Length <= maxLength)
+            {
+                return value;
+            }
+
+            return new System.Text.StringBuilder(value, 0, maxLength, maxLength + 32)
+                .Append("...(truncated)")
+                .ToString();
         }
 
         private async Task ProcessLogQueueAsync(int workerId, CancellationToken cancellationToken)
