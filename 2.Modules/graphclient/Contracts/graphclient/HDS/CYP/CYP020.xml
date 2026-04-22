@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapper xmlns="contract.xsd">
+    <header>
+        <application>HDS</application>
+        <project>CYP</project>
+        <transaction>CYP020</transaction>
+        <datasource>GRAPH01</datasource>
+        <use>Y</use>
+        <desc>Writing Data to Neo4j 예제</desc>
+    </header>
+    <commands>
+        <statement id="IG01" seq="0" use="Y" timeout="30" desc="Creating Nodes" transactionlog="Y">
+            <![CDATA[
+CREATE (person:Person {
+    personId: randomUUID(),
+    name: $PersonName,
+    born: toInteger($Born),
+    createdBy: 'CYP020',
+    createdAt: datetime()
+})
+CREATE (movie:Movie {
+    movieId: randomUUID(),
+    title: $MovieTitle,
+    released: toInteger($Released),
+    createdBy: 'CYP020',
+    createdAt: datetime()
+})
+RETURN person.name AS personName, movie.title AS movieTitle, movie.released AS released
+            ]]>
+            <param id="$PersonName" value="" test="Emil GraphClient" />
+            <param id="$Born" value="" test="1978" />
+            <param id="$MovieTitle" value="" test="GraphClient Bootcamp" />
+            <param id="$Released" value="" test="2026" />
+        </statement>
+
+        <statement id="IG02" seq="0" use="Y" timeout="30" desc="Creating a Node" transactionlog="Y">
+            <![CDATA[
+CREATE (person:Person {
+    personId: randomUUID(),
+    name: $PersonName,
+    born: toInteger($Born),
+    createdAt: datetime()
+})
+RETURN person.personId AS personId, person.name AS name, person.born AS born
+            ]]>
+            <param id="$PersonName" value="" test="Emil Example" />
+            <param id="$Born" value="" test="1978" />
+        </statement>
+
+        <statement id="IG03" seq="0" use="Y" timeout="30" desc="Creating Relationships" transactionlog="Y">
+            <![CDATA[
+MATCH (person:Person {name: $PersonName})
+MATCH (firstMovie:Movie {title: $FirstMovieTitle})
+MATCH (secondMovie:Movie {title: $SecondMovieTitle})
+CREATE (person)-[:REVIEWED {rating: 5, source: 'CYP020', createdAt: datetime()}]->(firstMovie)
+CREATE (person)-[:REVIEWED {rating: 4, source: 'CYP020', createdAt: datetime()}]->(secondMovie)
+RETURN person.name AS personName, firstMovie.title AS firstMovieTitle, secondMovie.title AS secondMovieTitle, 2 AS relationshipsCreated
+            ]]>
+            <param id="$PersonName" value="" test="Emil Eifrem" />
+            <param id="$FirstMovieTitle" value="" test="The Matrix" />
+            <param id="$SecondMovieTitle" value="" test="Apollo 13" />
+        </statement>
+
+        <statement id="IG04" seq="0" use="Y" timeout="30" desc="Creating a Relationship" transactionlog="Y">
+            <![CDATA[
+MATCH (person:Person {name: $PersonName})
+MATCH (movie:Movie {title: $MovieTitle})
+CREATE (person)-[review:REVIEWED {
+    rating: toInteger($Rating),
+    source: 'CYP020',
+    createdAt: datetime()
+}]->(movie)
+RETURN person.name AS personName, movie.title AS movieTitle, type(review) AS relationshipType, review.rating AS rating
+            ]]>
+            <param id="$PersonName" value="" test="Emil Eifrem" />
+            <param id="$MovieTitle" value="" test="The Matrix" />
+            <param id="$Rating" value="" test="5" />
+        </statement>
+
+        <statement id="UG01" seq="0" use="Y" timeout="30" desc="Updating Properties" transactionlog="Y">
+            <![CDATA[
+MATCH (person:Person {name: $PersonName})
+SET person.nickname = $Nickname,
+    person.updatedAt = datetime()
+RETURN person.name AS name, person.nickname AS nickname, person.updatedAt AS updatedAt
+            ]]>
+            <param id="$PersonName" value="" test="Emil Eifrem" />
+            <param id="$Nickname" value="" test="Neo4j Founder" />
+        </statement>
+
+        <statement id="UG02" seq="0" use="Y" timeout="30" desc="Adding Properties to a Movie" transactionlog="Y">
+            <![CDATA[
+MATCH (movie:Movie {title: $MovieTitle})
+SET movie.tagline = $Tagline,
+    movie.category = $Category,
+    movie.updatedAt = datetime()
+RETURN movie.title AS title, movie.tagline AS tagline, movie.category AS category, movie.updatedAt AS updatedAt
+            ]]>
+            <param id="$MovieTitle" value="" test="The Matrix" />
+            <param id="$Tagline" value="" test="Welcome to the real world." />
+            <param id="$Category" value="" test="Science Fiction" />
+        </statement>
+
+        <statement id="MG01" seq="0" use="Y" timeout="30" desc="Merge Processing" transactionlog="Y">
+            <![CDATA[
+MERGE (movie:Movie {title: $MovieTitle})
+ON CREATE SET
+    movie.released = toInteger($Released),
+    movie.createdAt = datetime(),
+    movie.createdBy = 'CYP020'
+ON MATCH SET
+    movie.lastMergedAt = datetime(),
+    movie.lastMergedBy = 'CYP020'
+RETURN movie.title AS title, movie.released AS released, movie.createdAt AS createdAt, movie.lastMergedAt AS lastMergedAt
+            ]]>
+            <param id="$MovieTitle" value="" test="GraphClient Merge Sample" />
+            <param id="$Released" value="" test="2026" />
+        </statement>
+
+        <statement id="MG02" seq="0" use="Y" timeout="30" desc="Adding or Updating a Movie" transactionlog="Y">
+            <![CDATA[
+MERGE (movie:Movie {title: $MovieTitle})
+ON CREATE SET
+    movie.createdAt = datetime(),
+    movie.createdBy = 'CYP020'
+SET movie.released = toInteger($Released),
+    movie.tagline = $Tagline,
+    movie.updatedAt = datetime()
+RETURN movie.title AS title, movie.released AS released, movie.tagline AS tagline, movie.updatedAt AS updatedAt
+            ]]>
+            <param id="$MovieTitle" value="" test="GraphClient Upsert Sample" />
+            <param id="$Released" value="" test="2026" />
+            <param id="$Tagline" value="" test="Created or updated through graphclient." />
+        </statement>
+
+        <statement id="DG01" seq="0" use="Y" timeout="30" desc="Deleting Data / Deleting Emil" transactionlog="Y">
+            <![CDATA[
+OPTIONAL MATCH (person:Person {name: $PersonName})
+WITH collect(person) AS people
+FOREACH (item IN people | DETACH DELETE item)
+RETURN $PersonName AS personName, size(people) AS deletedCount
+            ]]>
+            <param id="$PersonName" value="" test="Emil Example" />
+        </statement>
+    </commands>
+</mapper>

@@ -92,6 +92,7 @@ dotnet build -p:Optimize=%optimize_flag% --configuration %configuration_mode% 2.
 dotnet build -p:Optimize=%optimize_flag% --configuration %configuration_mode% 2.Modules\command\command.csproj --output %publish_path%\handstack\modules\command
 dotnet build -p:Optimize=%optimize_flag% --configuration %configuration_mode% 2.Modules\prompter\prompter.csproj --output %publish_path%\handstack\modules\prompter
 dotnet build -p:Optimize=%optimize_flag% --configuration %configuration_mode% 2.Modules\dbclient\dbclient.csproj --output %publish_path%\handstack\modules\dbclient
+dotnet build -p:Optimize=%optimize_flag% --configuration %configuration_mode% 2.Modules\graphclient\graphclient.csproj --output %publish_path%\handstack\modules\graphclient
 dotnet build -p:Optimize=%optimize_flag% --configuration %configuration_mode% 2.Modules\forwarder\forwarder.csproj --output %publish_path%\handstack\modules\forwarder
 dotnet build -p:Optimize=%optimize_flag% --configuration %configuration_mode% 2.Modules\function\function.csproj --output %publish_path%\handstack\modules\function
 dotnet build -p:Optimize=%optimize_flag% --configuration %configuration_mode% 2.Modules\logger\logger.csproj --output %publish_path%\handstack\modules\logger

@@ -1,0 +1,200 @@
+{
+    "ApplicationID": "HDS",
+    "ProjectID": "CYP",
+    "TransactionID": "CYP010",
+    "Comment": "Reading Data from Neo4j transact 예제",
+    "Services": [
+        {
+            "ServiceID": "LG01",
+            "Authorize": false,
+            "Comment": "Introduction to Cypher",
+            "ReturnType": "Json",
+            "CommandType": "G",
+            "TransactionScope": false,
+            "Inputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [],
+                    "TestValues": [],
+                    "DefaultValues": [],
+                    "Type": "Row",
+                    "BaseFieldMappings": [],
+                    "ParameterHandling": "Rejected"
+                }
+            ],
+            "Outputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [],
+                    "Type": "Grid"
+                }
+            ]
+        },
+        {
+            "ServiceID": "LG02",
+            "Authorize": false,
+            "Comment": "Retrieving Nodes",
+            "ReturnType": "Json",
+            "CommandType": "G",
+            "TransactionScope": false,
+            "Inputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [],
+                    "TestValues": [],
+                    "DefaultValues": [],
+                    "Type": "Row",
+                    "BaseFieldMappings": [],
+                    "ParameterHandling": "Rejected"
+                }
+            ],
+            "Outputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [],
+                    "Type": "Grid"
+                }
+            ]
+        },
+        {
+            "ServiceID": "LG03",
+            "Authorize": false,
+            "Comment": "Finding Relationships",
+            "ReturnType": "Json",
+            "CommandType": "G",
+            "TransactionScope": false,
+            "Inputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [],
+                    "TestValues": [],
+                    "DefaultValues": [],
+                    "Type": "Row",
+                    "BaseFieldMappings": [],
+                    "ParameterHandling": "Rejected"
+                }
+            ],
+            "Outputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [],
+                    "Type": "Grid"
+                }
+            ]
+        },
+        {
+            "ServiceID": "LG04",
+            "Authorize": false,
+            "Comment": "Traversing Relationships",
+            "ReturnType": "Json",
+            "CommandType": "G",
+            "TransactionScope": false,
+            "Inputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                        "ActorName"
+                    ],
+                    "TestValues": [],
+                    "DefaultValues": [],
+                    "Type": "Row",
+                    "BaseFieldMappings": [],
+                    "ParameterHandling": "Rejected"
+                }
+            ],
+            "Outputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [],
+                    "Type": "Grid"
+                }
+            ]
+        },
+        {
+            "ServiceID": "LG05",
+            "Authorize": false,
+            "Comment": "Finding Emil",
+            "ReturnType": "Json",
+            "CommandType": "G",
+            "TransactionScope": false,
+            "Inputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                        "PersonName"
+                    ],
+                    "TestValues": [],
+                    "DefaultValues": [],
+                    "Type": "Row",
+                    "BaseFieldMappings": [],
+                    "ParameterHandling": "Rejected"
+                }
+            ],
+            "Outputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [],
+                    "Type": "Form"
+                }
+            ]
+        },
+        {
+            "ServiceID": "LG06",
+            "Authorize": false,
+            "Comment": "Filtering Queries",
+            "ReturnType": "Json",
+            "CommandType": "G",
+            "TransactionScope": false,
+            "Inputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                        "ReleasedAfter"
+                    ],
+                    "TestValues": [],
+                    "DefaultValues": [],
+                    "Type": "Row",
+                    "BaseFieldMappings": [],
+                    "ParameterHandling": "Rejected"
+                }
+            ],
+            "Outputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [],
+                    "Type": "Grid"
+                }
+            ]
+        },
+        {
+            "ServiceID": "LG07",
+            "Authorize": false,
+            "Comment": "Finding Specific Actors",
+            "ReturnType": "Json",
+            "CommandType": "G",
+            "TransactionScope": false,
+            "Inputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                        "FirstActorName",
+                        "SecondActorName"
+                    ],
+                    "TestValues": [],
+                    "DefaultValues": [],
+                    "Type": "Row",
+                    "BaseFieldMappings": [],
+                    "ParameterHandling": "Rejected"
+                }
+            ],
+            "Outputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [],
+                    "Type": "Grid"
+                }
+            ]
+        }
+    ],
+    "Models": []
+}

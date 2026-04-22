@@ -42,8 +42,8 @@
 ## 계약 및 데이터 자산
 - 거래 계약은 JSON이며 `ApplicationID`, `ProjectID`, `TransactionID`, `Services`, `Models`를 포함합니다.
 - `ServiceID`별로 `CommandType`, `ReturnType`, `TransactionScope`, 입력/출력 모델이 정의됩니다.
-- 현재 기본 라우팅은 `D -> dbclient`, `F -> function`, `P -> prompter`입니다.
-- `W`는 외부 모듈 라우팅 값이 아니라 `WorkflowController`의 내부 오케스트레이션 명령입니다. 각 단계의 `CommandType`이 `D`, `F`, `P`이면 기존 `RoutingCommandUri` 규칙으로 실행 모듈에 전달됩니다.
+- 현재 기본 라우팅은 `D -> dbclient`, `G -> graphclient`, `F -> function`, `P -> prompter`입니다.
+- `W`는 외부 모듈 라우팅 값이 아니라 `WorkflowController`의 내부 오케스트레이션 명령입니다. 각 단계의 `CommandType`이 `D`, `G`, `F`, `P`이면 기존 `RoutingCommandUri` 규칙으로 실행 모듈에 전달됩니다.
 - `TransactionAggregateBasePath` 아래에 집계 로그가 저장됩니다.
 
 ## 설정 포인트
@@ -78,7 +78,7 @@
 - `StepID`를 생략하면 `{CommandType}{순번}` 형식으로 자동 생성됩니다. 예: `D01`.
 - 단계의 `ApplicationID`, `TransactionProjectID`, `TransactionID`, `ServiceID`를 생략하면 현재 워크플로 계약과 서비스 값을 사용합니다.
 - 단계의 `CommandType`이 `W`이면 하위 워크플로를 재귀 실행합니다. 순환 호출은 `ApplicationID|ProjectID|TransactionID|ServiceID` 경로로 감지해 실패 처리합니다.
-- 단계의 `CommandType`이 `D`, `F`, `P`이면 `TransactClient.RequestDataTransactionAsync`로 실행 모듈에 전달합니다.
+- 단계의 `CommandType`이 `D`, `G`, `F`, `P`이면 `TransactClient.RequestDataTransactionAsync`로 실행 모듈에 전달합니다.
 - 단계의 `ReturnType`, `TransactionScope`, `ServiceOutputs`는 대상 서비스 설정을 단계 단위로 덮어씁니다. `ServiceOutputs`가 없으면 대상 서비스의 `Outputs`를 사용합니다.
 
 ### 입력 매핑

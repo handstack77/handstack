@@ -18,7 +18,6 @@
             "ClientIP": "127.0.0.1"
         },
         "ForwardProxyIP": [],
-        "IsAutoUpdate": false,
         "IsTenantFunction": true,
         "IsExceptionDetailText": true,
         "ContractRequestPath": "view",
@@ -27,20 +26,15 @@
         "BatchProgramBasePath": "../batchs",
         "CreateAppTempPath": "../tmp/create_apps",
         "ForbesBasePath": "../forbes",
-        "IsModulePurgeContract": true,
         "LoadModuleBasePath": "../modules",
         "LoadModules": [
             "wwwroot",
             "transact",
-            "dbclient",
             "graphclient",
             "function",
-            "command",
-            "prompter",
             "repository",
             "logger",
-            "checkup",
-            "forwarder"
+            "checkup"
         ],
         "ModuleConfigurationUrl": [
         ],
@@ -54,7 +48,6 @@
             "http://localhost",
             "http://localhost:8421"
         ],
-        "WithOnlyIPs": [],
         "SessionState": {
             "IsSession": true,
             "SessionCookieName": "HandStack.Session",
@@ -103,10 +96,9 @@
     "Kestrel": {
         "DisableStringReuse": true,
         "Limits": {
-            "MaxConcurrentConnections": null,
-            "MaxConcurrentUpgradedConnections": null,
-            "MaxRequestBodySize": 104857600,
-            "KeepAliveTimeout": "00:02:00"
+            "MaxConcurrentConnections": 100,
+            "MaxConcurrentUpgradedConnections": 100,
+            "MaxRequestBodySize": 30000000
         }
     }
 }

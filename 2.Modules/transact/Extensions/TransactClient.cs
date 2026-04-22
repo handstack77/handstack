@@ -128,6 +128,7 @@ namespace transact.Extensions
                     case "C":
                     case "D":
                     case "F":
+                    case "G":
                     case "P":
                         applicationResponse = await DataTransactionAsync(request, response, transactionInfo, transactionObject, businessModels, inputContracts, outputContracts);
                         break;

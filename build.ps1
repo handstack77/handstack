@@ -19,6 +19,7 @@ Push-Location $scriptRoot
 $projects = @(
     "2.Modules/wwwroot/wwwroot.csproj"
     "2.Modules/dbclient/dbclient.csproj"
+    "2.Modules/graphclient/graphclient.csproj"
     "2.Modules/function/function.csproj"
     "2.Modules/command/command.csproj"
     "2.Modules/prompter/prompter.csproj"

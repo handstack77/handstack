@@ -1277,6 +1277,10 @@ namespace ack
                                         destModuleBasePath = PathExtensions.Combine(handstackHomePath, "modules", moduleID, "Contracts", "dbclient");
                                         destContractModuleBasePath = PathExtensions.Combine(handstackHomePath, "contracts", "dbclient");
                                         break;
+                                    case "graphclient":
+                                        destModuleBasePath = PathExtensions.Combine(handstackHomePath, "modules", moduleID, "Contracts", "graphclient");
+                                        destContractModuleBasePath = PathExtensions.Combine(handstackHomePath, "contracts", "graphclient");
+                                        break;
                                     case "function":
                                         destModuleBasePath = PathExtensions.Combine(handstackHomePath, "modules", moduleID, "Contracts", "function");
                                         destContractModuleBasePath = PathExtensions.Combine(handstackHomePath, "contracts", "function");

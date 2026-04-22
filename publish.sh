@@ -140,6 +140,7 @@ module_projects=(
     "2.Modules/command/command.csproj:command"
     "2.Modules/prompter/prompter.csproj:prompter"
     "2.Modules/dbclient/dbclient.csproj:dbclient"
+    "2.Modules/graphclient/graphclient.csproj:graphclient"
     "2.Modules/forwarder/forwarder.csproj:forwarder"
     "2.Modules/function/function.csproj:function"
     "2.Modules/logger/logger.csproj:logger"

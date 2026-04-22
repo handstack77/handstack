@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapper xmlns="contract.xsd">
+    <header>
+        <application>HDS</application>
+        <project>CYP</project>
+        <transaction>CYP010</transaction>
+        <datasource>GRAPH01</datasource>
+        <use>Y</use>
+        <desc>Reading Data from Neo4j 예제</desc>
+    </header>
+    <commands>
+        <statement id="LG01" seq="0" use="Y" timeout="30" desc="Introduction to Cypher" transactionlog="Y">
+            <![CDATA[
+MATCH (movie:Movie)
+RETURN movie.title AS title, labels(movie) AS labels, movie.released AS released
+ORDER BY title
+LIMIT 5
+            ]]>
+        </statement>
+
+        <statement id="LG02" seq="0" use="Y" timeout="30" desc="Retrieving Nodes" transactionlog="Y">
+            <![CDATA[
+MATCH (person:Person)
+RETURN person
+ORDER BY person.name
+LIMIT 10
+            ]]>
+        </statement>
+
+        <statement id="LG03" seq="0" use="Y" timeout="30" desc="Finding Relationships" transactionlog="Y">
+            <![CDATA[
+MATCH (person:Person)-[relationship]->(movie:Movie)
+RETURN person.name AS personName, type(relationship) AS relationshipType, movie.title AS movieTitle
+ORDER BY personName, movieTitle
+LIMIT 10
+            ]]>
+        </statement>
+
+        <statement id="LG04" seq="0" use="Y" timeout="30" desc="Traversing Relationships" transactionlog="Y">
+            <![CDATA[
+MATCH (actor:Person {name: $ActorName})-[:ACTED_IN]->(movie:Movie)<-[:ACTED_IN]-(coActor:Person)
+WHERE coActor.name <> actor.name
+RETURN movie.title AS movieTitle, collect(coActor.name) AS coActors
+ORDER BY movieTitle
+            ]]>
+            <param id="$ActorName" value="" test="Tom Hanks" />
+        </statement>
+
+        <statement id="LG05" seq="0" use="Y" timeout="30" desc="Finding Emil" transactionlog="Y">
+            <![CDATA[
+MATCH (person:Person {name: $PersonName})
+RETURN person.name AS name, person.born AS born, labels(person) AS labels
+            ]]>
+            <param id="$PersonName" value="" test="Emil Eifrem" />
+        </statement>
+
+        <statement id="LG06" seq="0" use="Y" timeout="30" desc="Filtering Queries" transactionlog="Y">
+            <![CDATA[
+MATCH (movie:Movie)
+WHERE movie.released >= toInteger($ReleasedAfter)
+RETURN movie.title AS title, movie.released AS released
+ORDER BY released, title
+LIMIT 10
+            ]]>
+            <param id="$ReleasedAfter" value="" test="2000" />
+        </statement>
+
+        <statement id="LG07" seq="0" use="Y" timeout="30" desc="Finding Specific Actors" transactionlog="Y">
+            <![CDATA[
+MATCH (actor:Person)
+WHERE actor.name IN [$FirstActorName, $SecondActorName]
+RETURN actor.name AS actorName, actor.born AS born
+ORDER BY actorName
+            ]]>
+            <param id="$FirstActorName" value="" test="Keanu Reeves" />
+            <param id="$SecondActorName" value="" test="Tom Hanks" />
+        </statement>
+    </commands>
+</mapper>

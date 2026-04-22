@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>graphclient</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+        body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            margin: 0;
+            background: #f4f7fb;
+            color: #1f2937;
+        }
+
+        main {
+            max-width: 880px;
+            margin: 40px auto;
+            padding: 24px;
+        }
+
+        .card {
+            background: #fff;
+            border: 1px solid #dbe3ef;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+        }
+
+        h1 {
+            margin-top: 0;
+            font-size: 28px;
+        }
+
+        code {
+            background: #eef3f8;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        ul {
+            padding-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <section class="card">
+            <h1>graphclient</h1>
+            <p>Neo4j와 Memgraph를 위한 XML 계약 기반 Cypher 실행 모듈입니다.</p>
+            <ul>
+                <li><code>GET /graphclient/api/query/has</code></li>
+                <li><code>GET /graphclient/api/query/refresh</code></li>
+                <li><code>GET /graphclient/api/query/retrieve</code></li>
+                <li><code>GET /graphclient/api/query/meta</code></li>
+                <li><code>GET /graphclient/api/query/reports</code></li>
+                <li><code>POST /graphclient/api/query/execute</code></li>
+            </ul>
+            <p>모듈 설정 편집은 <code>/graphclient/module-settings.html</code>을 사용합니다.</p>
+        </section>
+    </main>
+</body>
+</html>

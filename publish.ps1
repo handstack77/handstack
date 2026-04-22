@@ -252,6 +252,7 @@ try {
         @{ Project = '2.Modules/command/command.csproj'; Name = 'command' }
         @{ Project = '2.Modules/prompter/prompter.csproj'; Name = 'prompter' }
         @{ Project = '2.Modules/dbclient/dbclient.csproj'; Name = 'dbclient' }
+        @{ Project = '2.Modules/graphclient/graphclient.csproj'; Name = 'graphclient' }
         @{ Project = '2.Modules/forwarder/forwarder.csproj'; Name = 'forwarder' }
         @{ Project = '2.Modules/function/function.csproj'; Name = 'function' }
         @{ Project = '2.Modules/logger/logger.csproj'; Name = 'logger' }

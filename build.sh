@@ -10,6 +10,7 @@ PROJECTS=(
   "2.Modules/command/command.csproj"
   "2.Modules/prompter/prompter.csproj"
   "2.Modules/dbclient/dbclient.csproj"
+  "2.Modules/graphclient/graphclient.csproj"
   "2.Modules/forwarder/forwarder.csproj"
   "2.Modules/function/function.csproj"
   "2.Modules/logger/logger.csproj"

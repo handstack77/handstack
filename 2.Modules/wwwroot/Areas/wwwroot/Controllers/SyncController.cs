@@ -200,6 +200,7 @@ namespace wwwroot.Areas.wwwroot.Controllers
 
             string normalizedModuleName = (moduleName ?? "").Trim().ToLowerInvariant();
             if (normalizedModuleName != "dbclient"
+                && normalizedModuleName != "graphclient"
                 && normalizedModuleName != "transact"
                 && normalizedModuleName != "function"
                 && normalizedModuleName != "wwwroot")
@@ -298,6 +299,10 @@ namespace wwwroot.Areas.wwwroot.Controllers
             if (request.ModuleName == "dbclient")
             {
                 refreshPath = "dbclient/api/query/refresh";
+            }
+            else if (request.ModuleName == "graphclient")
+            {
+                refreshPath = "graphclient/api/query/refresh";
             }
             else if (request.ModuleName == "transact")
             {

@@ -1,0 +1,57 @@
+{
+    "ModuleID": "graphclient",
+    "Name": "graphclient",
+    "IsBundledWithHost": false,
+    "Version": "1.0.0",
+    "ModuleConfig": {
+        "AuthorizationKey": "",
+        "BusinessServerUrl": "http://localhost:8421/transact/api/transaction/execute",
+        "CircuitBreakResetSecond": 60,
+        "DefaultCommandTimeout": 30,
+        "IsContractFileWatching": true,
+        "ContractBasePath": [
+            "../contracts/graphclient"
+        ],
+        "IsTransactionLogging": false,
+        "ModuleLogFilePath": "../log/graphclient/module.log",
+        "IsLogServer": true,
+        "LogServerUrl": "http://localhost:8421/logger/api/log/insert",
+        "IsProfileLogging": false,
+        "ProfileLogFilePath": "../log/graphclient/profile.log",
+        "EventAction": [],
+        "SubscribeAction": [
+            "graphclient.Events.GraphClientRequest",
+            "graphclient.Events.ManagedRequest"
+        ],
+        "DefaultDataSourceID": "GRAPH01",
+        "AllowClientIP": [
+            "*"
+        ],
+        "GraphDataSource": [
+            {
+                "ApplicationID": "HDS",
+                "ProjectID": "*",
+                "DataSourceID": "GRAPH01",
+                "GraphProvider": "Neo4j",
+                "ConnectionString": "bolt://localhost:7687",
+                "UserName": "neo4j",
+                "Password": "local-password",
+                "Database": "neo4j",
+                "IsEncryption": "N",
+                "Comment": "기본 Neo4j 로컬 데이터 원본"
+            },
+            {
+                "ApplicationID": "HDS",
+                "ProjectID": "*",
+                "DataSourceID": "GRAPH02",
+                "GraphProvider": "Memgraph",
+                "ConnectionString": "bolt://localhost:7688",
+                "UserName": "",
+                "Password": "",
+                "Database": "memgraph",
+                "IsEncryption": "N",
+                "Comment": "기본 Memgraph 로컬 데이터 원본"
+            }
+        ]
+    }
+}

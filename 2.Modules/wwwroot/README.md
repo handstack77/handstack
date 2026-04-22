@@ -6,7 +6,7 @@
 ## 책임 범위
 - 정적 화면과 공용 자산을 HTTP 경로로 노출합니다.
 - 계약 기반 화면 경로와 실제 자산 경로를 분리해 서비스합니다.
-- `dbclient`, `transact`, `function`, `wwwroot` 계약 파일 동기화 API를 제공합니다.
+- `dbclient`, `graphclient`, `transact`, `function`, `wwwroot` 계약 파일 동기화 API를 제공합니다.
 - `syn.loader.*` 캐시 정책과 대소문자 무시 정적 파일 제공을 처리합니다.
 - HTMX 샘플과 내부 거래 직접 호출 유틸리티를 제공합니다.
 
@@ -30,7 +30,7 @@
 ## 계약 및 데이터 자산
 - `ContractBasePath` 아래 계약 파일을 기본 `/view` 경로로 노출합니다.
 - `WWWRootBasePath` 아래 실제 정적 파일을 그대로 서비스합니다.
-- `SyncController`는 `dbclient`, `transact`, `function`, `wwwroot` 모듈 계약만 동기화 대상으로 허용합니다.
+- `SyncController`는 `dbclient`, `graphclient`, `transact`, `function`, `wwwroot` 모듈 계약만 동기화 대상으로 허용합니다.
 
 ## 설정 포인트
 - `ContractRequestPath`: 계약 기반 정적 경로, 기본값 `view`
