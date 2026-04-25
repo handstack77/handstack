@@ -206,7 +206,7 @@ try {
         @{ Project = '4.Tool/CLI/bundling/bundling.csproj'; Name = 'bundling' }
         @{ Project = '4.Tool/CLI/dotnet-installer/dotnet-installer.csproj'; Name = 'dotnet-installer' }
         @{ Project = '4.Tool/CLI/edgeproxy/edgeproxy.csproj'; Name = 'edgeproxy' }
-        @{ Project = '4.Tool/CLI/excludedportrange/excludedportrange.csproj'; Name = 'excludedportrange' }
+        @{ Project = '4.Tool/CLI/dbplatform/dbplatform.csproj'; Name = 'dbplatform' }
         @{ Project = '4.Tool/CLI/handsonapp/handsonapp.csproj'; Name = 'handsonapp' }
         @{ Project = '4.Tool/CLI/updater/updater.csproj'; Name = 'updater' }
         @{ Project = '4.Tool/CLI/handstack/handstack.csproj'; Name = 'handstack' }

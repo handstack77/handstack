@@ -15,7 +15,7 @@
 ## 빌드
 
 ```powershell
-dotnet build .\excludedportrange\excludedportrange.csproj
+dotnet build .\dbplatform\dbplatform.csproj
 ```
 
 ## 실행

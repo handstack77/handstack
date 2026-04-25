@@ -23,7 +23,7 @@ set PROJECTS=^
 "4.Tool\CLI\bundling\bundling.csproj" ^
 "4.Tool\CLI\dotnet-installer\dotnet-installer.csproj" ^
 "4.Tool\CLI\edgeproxy\edgeproxy.csproj" ^
-"4.Tool\CLI\excludedportrange\excludedportrange.csproj" ^
+"4.Tool\CLI\dbplatform\dbplatform.csproj" ^
 "4.Tool\CLI\handsonapp\handsonapp.csproj" ^
 "4.Tool\CLI\handstack\handstack.csproj" ^
 "4.Tool\CLI\ports\ports.csproj" ^

@@ -75,7 +75,7 @@ dotnet %action_mode% %dotnet_options% 1.WebHost\forbes\forbes.csproj --output %p
 dotnet %action_mode% %cli_dotnet_options% 4.Tool\CLI\bundling\bundling.csproj --output %cli_output_root%\bundling
 dotnet %action_mode% %cli_dotnet_options% 4.Tool\CLI\dotnet-installer\dotnet-installer.csproj --output %cli_output_root%\dotnet-installer
 dotnet %action_mode% %cli_dotnet_options% 4.Tool\CLI\edgeproxy\edgeproxy.csproj --output %cli_output_root%\edgeproxy
-dotnet %action_mode% %cli_dotnet_options% 4.Tool\CLI\excludedportrange\excludedportrange.csproj --output %cli_output_root%\excludedportrange
+dotnet %action_mode% %cli_dotnet_options% 4.Tool\CLI\dbplatform\dbplatform.csproj --output %cli_output_root%\dbplatform
 dotnet %action_mode% %cli_dotnet_options% 4.Tool\CLI\handsonapp\handsonapp.csproj --output %cli_output_root%\handsonapp
 dotnet %action_mode% %cli_dotnet_options% 4.Tool\CLI\handstack\handstack.csproj --output %cli_output_root%\handstack
 dotnet %action_mode% %cli_dotnet_options% 4.Tool\CLI\ports\ports.csproj --output %cli_output_root%\ports

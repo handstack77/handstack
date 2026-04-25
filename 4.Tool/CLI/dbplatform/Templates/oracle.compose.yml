@@ -1,0 +1,15 @@
+services:
+  database:
+    image: container-registry.oracle.com/database/express:21.3.0-xe
+    container_name: ${CONTAINER_NAME}
+    restart: unless-stopped
+    environment:
+      ORACLE_PWD: ${DB_PASSWORD}
+    ports:
+      - "${HOST_PORT}:1521"
+    volumes:
+      - dbp_${TENANT_ID}_oracle_data:/opt/oracle/oradata
+      - ./backups:/backups
+
+volumes:
+  dbp_${TENANT_ID}_oracle_data:

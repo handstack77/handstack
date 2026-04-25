@@ -103,7 +103,7 @@ cli_projects=(
     "4.Tool/CLI/bundling/bundling.csproj:bundling"
     "4.Tool/CLI/dotnet-installer/dotnet-installer.csproj:dotnet-installer"
     "4.Tool/CLI/edgeproxy/edgeproxy.csproj:edgeproxy"
-    "4.Tool/CLI/excludedportrange/excludedportrange.csproj:excludedportrange"
+    "4.Tool/CLI/dbplatform/dbplatform.csproj:dbplatform"
     "4.Tool/CLI/handsonapp/handsonapp.csproj:handsonapp"
     "4.Tool/CLI/handstack/handstack.csproj:handstack"
     "4.Tool/CLI/ports/ports.csproj:ports"

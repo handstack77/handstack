@@ -1,0 +1,17 @@
+services:
+  database:
+    image: mcr.microsoft.com/mssql/server:2025-latest
+    container_name: ${CONTAINER_NAME}
+    restart: unless-stopped
+    environment:
+      ACCEPT_EULA: ${ACCEPT_EULA}
+      MSSQL_PID: Express
+      MSSQL_SA_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "${HOST_PORT}:1433"
+    volumes:
+      - dbp_${TENANT_ID}_sqlserver_data:/var/opt/mssql
+      - ./backups:/backups
+
+volumes:
+  dbp_${TENANT_ID}_sqlserver_data:

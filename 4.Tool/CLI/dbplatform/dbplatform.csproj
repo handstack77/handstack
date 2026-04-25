@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
+		<TargetFramework>net10.0</TargetFramework>
+		<SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+		<PublishWithAspNetCoreTargetManifest>true</PublishWithAspNetCoreTargetManifest>
+		<TargetLatestRuntimePatch>false</TargetLatestRuntimePatch>
+		<Nullable>enable</Nullable>
+		<AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+		<PlatformTarget>AnyCPU</PlatformTarget>
+		<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+		<CompressionEnabled>false</CompressionEnabled>
+		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+		<NoWarn>ASP0023;NETSDK1206</NoWarn>
+		<AssemblyTitle></AssemblyTitle>
+		<AssemblyName>dbp</AssemblyName>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="System.CommandLine" Version="2.0.3" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Update="Templates\*.compose.yml" CopyToOutputDirectory="PreserveNewest" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Properties\" />
+	</ItemGroup>
+</Project>

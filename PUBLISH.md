@@ -67,6 +67,7 @@ handstack/
 │  └─ wwwroot/
 ├─ tools/
 │  ├─ bundling/
+│  ├─ dbplatform/
 │  ├─ dotnet-installer/
 │  ├─ edgeproxy/
 │  ├─ excludedportrange/

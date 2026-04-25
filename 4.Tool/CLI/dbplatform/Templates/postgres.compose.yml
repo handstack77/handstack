@@ -1,0 +1,17 @@
+services:
+  database:
+    image: postgres:17
+    container_name: ${CONTAINER_NAME}
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "${HOST_PORT}:5432"
+    volumes:
+      - dbp_${TENANT_ID}_postgres_data:/var/lib/postgresql/data
+      - ./backups:/backups
+
+volumes:
+  dbp_${TENANT_ID}_postgres_data:
