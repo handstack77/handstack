@@ -5399,7 +5399,7 @@ if (typeof module !== 'undefined' && module.exports) {
                     syn.$w.extend({ pageScript: syn.$l.get('moduleScript').value });
                 }
 
-                context.noPageScript = context.noPageScript || syn.$w.getLoaderQueryString('noPageScript') == null ? false : context.context.$string.toBoolean(syn.$w.getLoaderQueryString('noPageScript'));
+                context.noPageScript = context.noPageScript || (syn.$w.getLoaderQueryString('noPageScript') == null ? false : context.$string.toBoolean(syn.$w.getLoaderQueryString('noPageScript')));
                 if (context.$string.toBoolean(context.noPageScript) == false) {
                     module = await syn.$w.fetchScript(syn.$w.pageScript.replace('$', ''));
                 }
