@@ -45,12 +45,12 @@
 
             param = syn.$r.path + ((syn.$r.path.length > 0 && urlArray.length > 1) ? '&' : '?');
             for (const key in $request.params) {
-                if ($string.isNullOrEmpty(key) == false && typeof (syn.$r.params[key]) == 'string') {
+                if (context.$string.isNullOrEmpty(key) == false && typeof (syn.$r.params[key]) == 'string') {
                     param += key + '=' + syn.$r.params[key] + '&';
                 }
             }
 
-            if (syn.Config && $string.toBoolean(syn.Config.IsClientCaching) == false) {
+            if (syn.Config && context.$string.toBoolean(syn.Config.IsClientCaching) == false) {
                 param += '&noCache=' + Date.now();
             }
 
@@ -61,11 +61,11 @@
             let result = jsonObject ? Object.entries(jsonObject).reduce((queryString, ref, index) => {
                 const key = ref[0];
                 const val = ref[1];
-                queryString += `&${key}=${$string.toValue(val, '')}`;
+                queryString += `&${key}=${context.$string.toValue(val, '')}`;
                 return queryString;
             }, '') : '';
 
-            if ($string.isNullOrEmpty(result) == false && $string.toBoolean(isQuestion) == true) {
+            if (context.$string.isNullOrEmpty(result) == false && context.$string.toBoolean(isQuestion) == true) {
                 result = '?' + result.substring(1);
             }
 
@@ -92,11 +92,11 @@
         addQueryParam(param, value, urlStr) {
             const url = new URL(urlStr || location.href);
 
-            if ($object.isObject(param) == true) {
+            if (context.$object.isObject(param) == true) {
                 Object.entries(param).forEach(([key, val]) => {
                     url.searchParams.append(key, String(val));
                 });
-            } else if ($object.isString(param) && value !== undefined) {
+            } else if (context.$object.isString(param) && value !== undefined) {
                 url.searchParams.append(param, String(value));
             } else {
                 syn.$l.eventLog('$r.addQueryParam', '잘못된 파라미터 형식입니다. 문자열 키와 값이거나 객체여야 합니다.', 'Warning');
@@ -108,9 +108,9 @@
         removeQueryParam(paramName, urlStr) {
             const url = new URL(urlStr || location.href);
 
-            if ($object.isArray(paramName) == true) {
+            if (context.$object.isArray(paramName) == true) {
                 paramName.forEach(p => url.searchParams.delete(p));
-            } else if ($object.isString(paramName)) {
+            } else if (context.$object.isString(paramName)) {
                 url.searchParams.delete(paramName);
             } else {
                 syn.$l.eventLog('$r.removeQueryParam', '잘못된 파라미터 형식입니다. 문자열 또는 문자열 배열이어야 합니다.', 'Warning');
@@ -122,11 +122,11 @@
         setQueryParam(param, value, urlStr) {
             const url = new URL(urlStr || location.href);
 
-            if ($object.isObject(param) == true) {
+            if (context.$object.isObject(param) == true) {
                 Object.entries(param).forEach(([key, val]) => {
                     url.searchParams.set(key, String(val));
                 });
-            } else if ($object.isString(param) && value !== undefined) {
+            } else if (context.$object.isString(param) && value !== undefined) {
                 url.searchParams.set(param, String(value));
             } else {
                 syn.$l.eventLog('$r.setQueryParam', '잘못된 파라미터 형식입니다. 문자열 키와 값이거나 객체여야 합니다.', 'Warning');
@@ -165,10 +165,10 @@
 
                         let response = null;
                         let requestTimeoutID = null;
-                        if ($object.isNullOrUndefined(raw) == false && $object.isString(raw) == false) {
+                        if (context.$object.isNullOrUndefined(raw) == false && context.$object.isString(raw) == false) {
                             options.method = options.method || 'POST';
 
-                            if ($object.isNullOrUndefined(options.headers) == true) {
+                            if (context.$object.isNullOrUndefined(options.headers) == true) {
                                 options.headers = new Headers();
                                 if (raw instanceof FormData) {
                                 }
@@ -199,7 +199,7 @@
                                 redirect: 'follow'
                             };
 
-                            if ($object.isNullOrUndefined(options.timeout) == false) {
+                            if (context.$object.isNullOrUndefined(options.timeout) == false) {
                                 const controller = new AbortController();
                                 requestTimeoutID = setTimeout(() => controller.abort(), options.timeout);
                                 data.signal = controller.signal;
@@ -212,7 +212,7 @@
                             }
                         }
                         else {
-                            if ($object.isNullOrUndefined(options.headers) == true) {
+                            if (context.$object.isNullOrUndefined(options.headers) == true) {
                                 options.headers = new Headers();
                                 options.headers.append('Content-Type', options.contentType || 'application/json');
                             }
@@ -238,7 +238,7 @@
                                 redirect: 'follow'
                             };
 
-                            if ($object.isNullOrUndefined(options.timeout) == false) {
+                            if (context.$object.isNullOrUndefined(options.timeout) == false) {
                                 const controller = new AbortController();
                                 requestTimeoutID = setTimeout(() => controller.abort(), options.timeout);
                                 data.signal = controller.signal;
@@ -283,7 +283,7 @@
                 responseType: 'text'
             }, options);
 
-            if ($object.isNullOrUndefined(data) == true) {
+            if (context.$object.isNullOrUndefined(data) == true) {
                 data = {};
             }
 
@@ -294,7 +294,7 @@
             xhr.setRequestHeader('OffsetMinutes', syn.$w.timezoneOffsetMinutes);
 
             let formData = null;
-            if ($object.isNullOrUndefined(data.body) == false) {
+            if (context.$object.isNullOrUndefined(data.body) == false) {
                 const params = data.body;
                 if (method.toUpperCase() == 'GET') {
                     let paramUrl = url + ((url.split('?').length > 1) ? '&' : '?');
@@ -390,7 +390,7 @@
             if (document.forms.length == 0) {
                 return false;
             }
-            else if (document.forms.length > 0 && $object.isNullOrUndefined(formID) == true) {
+            else if (document.forms.length > 0 && context.$object.isNullOrUndefined(formID) == true) {
                 formID = document.forms[0].id;
             }
 
@@ -476,11 +476,11 @@
         },
 
         setCookie(id, val, expires, path, domain, secure) {
-            if ($object.isNullOrUndefined(expires) == true) {
+            if (context.$object.isNullOrUndefined(expires) == true) {
                 expires = new Date(Date.now() + (1000 * 60 * 60 * 24));
             }
 
-            if ($object.isNullOrUndefined(path) == true) {
+            if (context.$object.isNullOrUndefined(path) == true) {
                 path = '/';
             }
 

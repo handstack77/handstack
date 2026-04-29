@@ -98,7 +98,7 @@
                 }
             } else {
                 const storage = isLocal ? localStorage : sessionStorage;
-                if ($object.isString(prop) == true) {
+                if (context.$object.isString(prop) == true) {
                     const val = storage.getItem(prop);
                     try {
                         return val ? JSON.parse(val) : null;
@@ -107,7 +107,7 @@
                         storage.removeItem(prop);
                     }
                 }
-                else if ($object.isArray(prop) == true) {
+                else if (context.$object.isArray(prop) == true) {
                     let results = {};
                     for (let i = 0; i < storage.length; i++) {
                         const key = storage.key(i);
@@ -203,7 +203,7 @@
                                     evt: e
                                 });
 
-                                if ($object.isNullOrUndefined(result) == true || $string.toBoolean(result) == false) {
+                                if (context.$object.isNullOrUndefined(result) == true || context.$string.toBoolean(result) == false) {
                                     result = false;
                                 }
                             }
@@ -273,7 +273,7 @@
                     syn.$l.addEvent(matchMedia('(min-width: 1400px)'), 'change', matchMedia_change);
                 }
 
-                if ($object.isNullOrUndefined(syn.$w.User) == true) {
+                if (context.$object.isNullOrUndefined(syn.$w.User) == true) {
                     var sso = {
                         TokenID: '',
                         UserNo: 0,
@@ -299,15 +299,15 @@
                     }
                 }
 
-                if ($object.isNullOrUndefined(syn.$w.User) == false) {
+                if (context.$object.isNullOrUndefined(syn.$w.User) == false) {
                     syn.$l.deepFreeze(syn.$w.User);
                 }
 
-                if ($object.isNullOrUndefined(syn.$w.Variable) == false) {
+                if (context.$object.isNullOrUndefined(syn.$w.Variable) == false) {
                     syn.$l.deepFreeze(syn.$w.Variable);
                 }
 
-                if (mod && mod.context.synControls && ($object.isNullOrUndefined(mod.context.tabOrderControls) == true || mod.context.tabOrderControls.length == 0)) {
+                if (mod && mod.context.synControls && (context.$object.isNullOrUndefined(mod.context.tabOrderControls) == true || mod.context.tabOrderControls.length == 0)) {
                     var synTagNames = [];
                     var syn_tags = document.body.outerHTML.match(/<(syn_).+?>/gi);
                     if (syn_tags) {
@@ -319,14 +319,14 @@
                         }
                     }
 
-                    synTagNames = $array.distinct(synTagNames);
+                    synTagNames = context.$array.distinct(synTagNames);
                     var findElements = document.querySelectorAll('input,select,textarea,button' + (synTagNames.length > 0 ? ',' + synTagNames.join(',') : ''));
                     var els = [];
                     var length = findElements.length;
                     for (var idx = 0; idx < length; idx++) {
                         var el = findElements[idx];
                         if (el && el.style && el.style.display == 'none' || el.type == 'hidden') {
-                            if (el.id && el.tagName.toUpperCase() == 'SELECT' && $string.isNullOrEmpty(el.getAttribute('syn-datafield')) == false) {
+                            if (el.id && el.tagName.toUpperCase() == 'SELECT' && context.$string.isNullOrEmpty(el.getAttribute('syn-datafield')) == false) {
                                 els.push(el);
                             }
                             else {
@@ -337,7 +337,7 @@
                             if (el.id && el.id.includes('btn_syneditor_') == false && el.id.includes('chk_syngrid_') == false && el.id.includes('_hidden') == false) {
                                 els.push(el);
                             }
-                            else if (el.id && el.tagName.toUpperCase() == 'SELECT' && $string.isNullOrEmpty(el.getAttribute('syn-datafield')) == false) {
+                            else if (el.id && el.tagName.toUpperCase() == 'SELECT' && context.$string.isNullOrEmpty(el.getAttribute('syn-datafield')) == false) {
                                 els.push(el);
                             }
                             else if (el.id && el.tagName.includes('SYN_') == true) {
@@ -379,7 +379,7 @@
                                 });
                             }
                         }
-                        else if (el.id && el.tagName.toUpperCase() == 'SELECT' && $string.isNullOrEmpty(el.getAttribute('syn-datafield')) == false) {
+                        else if (el.id && el.tagName.toUpperCase() == 'SELECT' && context.$string.isNullOrEmpty(el.getAttribute('syn-datafield')) == false) {
                             var offset = null;
                             if (el.getAttribute('multiple') === false) {
                                 var control = syn.uicontrols.$select.getControl(el.id);
@@ -448,7 +448,7 @@
                     if (mod.context.tabOrderControls.length > 0) {
                         if (mod.config) {
                             // html (html defined), tdlr (top > down > left > right), lrtd (left > right > top > down)
-                            if ($string.isNullOrEmpty(mod.context.tapOrderFlow) == true) {
+                            if (context.$string.isNullOrEmpty(mod.context.tapOrderFlow) == true) {
                                 mod.context.tapOrderFlow = 'html';
                             }
 
@@ -507,7 +507,7 @@
 
             var pageFormInit = async () => {
                 var mod = context[syn.$w.pageScript];
-                if (mod.config && $string.isNullOrEmpty(mod.config.layoutPage) == false) {
+                if (mod.config && context.$string.isNullOrEmpty(mod.config.layoutPage) == false) {
                     var masterLayout = await syn.$w.fetchText(mod.config.layoutPage);
                     if (masterLayout) {
                         var parser = new DOMParser();
@@ -533,7 +533,7 @@
                             for (var i = 0, length = bodys.length; i < length; i++) {
                                 var body = bodys[i];
                                 var position = body.getAttribute('position');
-                                if ($string.isNullOrEmpty(position) == false && ['beforebegin', 'afterbegin', 'beforeend', 'afterend'].indexOf(position) > -1) {
+                                if (context.$string.isNullOrEmpty(position) == false && ['beforebegin', 'afterbegin', 'beforeend', 'afterend'].indexOf(position) > -1) {
                                     masterPage.body.insertAdjacentHTML(position, body.innerHTML);
                                 }
                             }
@@ -549,7 +549,7 @@
 
                 if (context.domainLibraryLoad) {
                     var isContinue = await domainLibraryLoad();
-                    if ($object.isNullOrUndefined(isContinue) == false && isContinue === false) {
+                    if (context.$object.isNullOrUndefined(isContinue) == false && isContinue === false) {
                         return false;
                     }
                 }
@@ -750,7 +750,7 @@
                     }
 
                     if (options && options.transactConfig && options.transactConfig.triggerEvent) {
-                        if ($object.isString(options.transactConfig.triggerEvent) == true) {
+                        if (context.$object.isString(options.transactConfig.triggerEvent) == true) {
                             syn.$l.addEvent(elID, options.transactConfig.triggerEvent, function (evt) {
                                 var el = syn.$w.activeControl(evt);
                                 var synOptions = el.getAttribute('syn-options') || null;
@@ -768,7 +768,7 @@
                                 }
                             });
                         }
-                        else if ($object.isArray(options.transactConfig.triggerEvent) == true) {
+                        else if (context.$object.isArray(options.transactConfig.triggerEvent) == true) {
                             var triggerFunction = function (evt) {
                                 var el = syn.$w.activeControl(evt);
                                 var synOptions = el.getAttribute('syn-options') || null;
@@ -794,7 +794,7 @@
                     }
 
                     if (options && options.triggerConfig && options.triggerConfig.triggerEvent) {
-                        if ($object.isString(options.triggerConfig.triggerEvent) == true) {
+                        if (context.$object.isString(options.triggerConfig.triggerEvent) == true) {
                             syn.$l.addEvent(elID, options.triggerConfig.triggerEvent, function (evt) {
                                 var triggerConfig = null;
                                 var el = syn.$w.activeControl(evt);
@@ -818,7 +818,7 @@
                                 }
                             });
                         }
-                        else if ($object.isArray(options.triggerConfig.triggerEvent) == true) {
+                        else if (context.$object.isArray(options.triggerConfig.triggerEvent) == true) {
                             var triggerFunction = function (evt) {
                                 var triggerConfig = null;
                                 var el = syn.$w.activeControl(evt);
@@ -864,7 +864,7 @@
                 }
 
                 syn.$w.remainingReadyIntervalID = setInterval(function () {
-                    if ($object.isNullOrUndefined(syn.$w.remainingReadyIntervalID) == false && syn.$w.remainingReadyCount == 0) {
+                    if (context.$object.isNullOrUndefined(syn.$w.remainingReadyIntervalID) == false && syn.$w.remainingReadyCount == 0) {
                         clearInterval(syn.$w.remainingReadyIntervalID);
                         syn.$w.remainingReadyIntervalID = null;
 
@@ -874,7 +874,7 @@
                 }, 25);
 
                 setTimeout(function () {
-                    if ($object.isNullOrUndefined(syn.$w.remainingReadyIntervalID) == false) {
+                    if (context.$object.isNullOrUndefined(syn.$w.remainingReadyIntervalID) == false) {
                         clearInterval(syn.$w.remainingReadyIntervalID);
                         syn.$w.remainingReadyIntervalID = null;
                         syn.$l.eventLog('pageLoad', '화면 초기화 오류, remainingReadyCount: {0} 확인 필요'.format(syn.$w.remainingReadyCount), 'Fatal');
@@ -882,14 +882,15 @@
                 }, syn.$w.pageReadyTimeout);
             };
 
-            syn.$w.mappingModule = syn.$w.getLoaderQueryString('mappingModule') == null ? true : $string.toBoolean(syn.$w.getLoaderQueryString('mappingModule'));
+            syn.$w.mappingModule = syn.$w.getLoaderQueryString('mappingModule') == null ? true : context.$string.toBoolean(syn.$w.getLoaderQueryString('mappingModule'));
             if (syn.$w.mappingModule == true) {
                 var module = {};
                 if (syn.$l.get('moduleScript')) {
                     syn.$w.extend({ pageScript: syn.$l.get('moduleScript').value });
                 }
 
-                if ($string.toBoolean(window.noPageScript) == false) {
+                context.noPageScript = context.noPageScript || syn.$w.getLoaderQueryString('noPageScript') == null ? false : context.context.$string.toBoolean(syn.$w.getLoaderQueryString('noPageScript'));
+                if (context.$string.toBoolean(context.noPageScript) == false) {
                     module = await syn.$w.fetchScript(syn.$w.pageScript.replace('$', ''));
                 }
 
@@ -918,7 +919,7 @@
                 context[syn.$w.pageScript] = mod;
                 context.$this = mod;
 
-                if (window.synLoader) {
+                if (context.synLoader) {
                     syn.$l.addEvent(document, 'pageReady', pageFormInit);
                     context.pageFormReady = true;
                     setTimeout(function () {
@@ -942,7 +943,7 @@
         },
 
         getLoaderQueryString(name) {
-            var currentScript = document.currentScript || document.querySelector('script[src*="syn.loader.js"]');
+            var currentScript = document.currentScript || document.querySelector('script[src*="syn.loader.js"]') || document.querySelector('script[src*="module.js"]');
             if (currentScript && currentScript.src) {
                 const params = new URLSearchParams(new URL(currentScript.src).search);
                 return params.get(name);
@@ -1117,12 +1118,12 @@
 
         tryAddFunction(transactConfig) {
             if (transactConfig && $this && $this.config) {
-                if ($object.isNullOrUndefined(transactConfig.noProgress) == true) {
+                if (context.$object.isNullOrUndefined(transactConfig.noProgress) == true) {
                     transactConfig.noProgress = false;
                 }
 
                 try {
-                    if ($object.isNullOrUndefined($this.config.transactions) == true) {
+                    if (context.$object.isNullOrUndefined($this.config.transactions) == true) {
                         $this.config.transactions = [];
                     }
 
@@ -1137,7 +1138,7 @@
                     const synControlList = $this.context.synControls;
                     const transactionObject = {};
                     transactionObject.functionID = transactConfig.functionID;
-                    transactionObject.transactionResult = $object.isNullOrUndefined(transactConfig.transactionResult) == true ? true : transactConfig.transactionResult === true;
+                    transactionObject.transactionResult = context.$object.isNullOrUndefined(transactConfig.transactionResult) == true ? true : transactConfig.transactionResult === true;
                     transactionObject.inputs = [];
                     transactionObject.outputs = [];
 
@@ -1176,16 +1177,16 @@
                                             synOptions = eval('(' + options + ')');
                                         }
 
-                                        if (synOptions == null || $string.isNullOrEmpty(synControlConfig.field) == true) {
+                                        if (synOptions == null || context.$string.isNullOrEmpty(synControlConfig.field) == true) {
                                             continue;
                                         }
 
                                         let isBelong = false;
                                         if (synOptions.belongID) {
-                                            if ($object.isString(synOptions.belongID) == true) {
+                                            if (context.$object.isString(synOptions.belongID) == true) {
                                                 isBelong = transactConfig.functionID == synOptions.belongID;
                                             }
-                                            else if ($object.isArray(synOptions.belongID) == true) {
+                                            else if (context.$object.isArray(synOptions.belongID) == true) {
                                                 isBelong = synOptions.belongID.indexOf(transactConfig.functionID) > -1;
                                             }
                                         }
@@ -1203,8 +1204,8 @@
                                         return item.field == input.dataFieldID && (item.type.indexOf('grid') > -1 || item.type.indexOf('chart') > -1) == true;
                                     });
 
-                                    const controlModule = $object.isNullOrUndefined(synControlConfig) == true ? null : syn.$w.getControlModule(synControlConfig.module);
-                                    if ($object.isNullOrUndefined(controlModule) == false && controlModule.setTransactionBelongID) {
+                                    const controlModule = context.$object.isNullOrUndefined(synControlConfig) == true ? null : syn.$w.getControlModule(synControlConfig.module);
+                                    if (context.$object.isNullOrUndefined(controlModule) == false && controlModule.setTransactionBelongID) {
                                         controlModule.setTransactionBelongID(synControlConfig.id, input, transactConfig);
                                     }
                                     else {
@@ -1215,10 +1216,10 @@
                                                     for (let l = 0; l < store.columns.length; l++) {
                                                         const column = store.columns[l];
                                                         let isBelong = false;
-                                                        if ($object.isString(column.belongID) == true) {
+                                                        if (context.$object.isString(column.belongID) == true) {
                                                             isBelong = transactConfig.functionID == column.belongID;
                                                         }
-                                                        else if ($object.isArray(column.belongID) == true) {
+                                                        else if (context.$object.isArray(column.belongID) == true) {
                                                             isBelong = column.belongID.indexOf(transactConfig.functionID) > -1;
                                                         }
 
@@ -1242,8 +1243,8 @@
                                     return item.field == input.dataFieldID && (item.type.indexOf('grid') > -1 || item.type.indexOf('chart') > -1) == true;
                                 });
 
-                                const controlModule = $object.isNullOrUndefined(synControlConfig) == true ? null : syn.$w.getControlModule(synControlConfig.module);
-                                if ($object.isNullOrUndefined(controlModule) == false && controlModule.setTransactionBelongID) {
+                                const controlModule = context.$object.isNullOrUndefined(synControlConfig) == true ? null : syn.$w.getControlModule(synControlConfig.module);
+                                if (context.$object.isNullOrUndefined(controlModule) == false && controlModule.setTransactionBelongID) {
                                     controlModule.setTransactionBelongID(synControlConfig.id, input, transactConfig);
                                 }
                                 else {
@@ -1254,10 +1255,10 @@
                                                 for (let l = 0; l < store.columns.length; l++) {
                                                     const column = store.columns[l];
                                                     let isBelong = false;
-                                                    if ($object.isString(column.belongID) == true) {
+                                                    if (context.$object.isString(column.belongID) == true) {
                                                         isBelong = transactConfig.functionID == column.belongID;
                                                     }
-                                                    else if ($object.isArray(column.belongID) == true) {
+                                                    else if (context.$object.isArray(column.belongID) == true) {
                                                         isBelong = column.belongID.indexOf(transactConfig.functionID) > -1;
                                                     }
 
@@ -1316,7 +1317,7 @@
                                             synOptions = eval('(' + options + ')');
                                         }
 
-                                        if (synOptions == null || $string.isNullOrEmpty(synControlConfig.field) == true) {
+                                        if (synOptions == null || context.$string.isNullOrEmpty(synControlConfig.field) == true) {
                                             continue;
                                         }
 
@@ -1325,18 +1326,18 @@
                                             dataType: synOptions.dataType
                                         };
 
-                                        if ($object.isNullOrUndefined(outputConfig.clear) == true || outputConfig.clear == true) {
+                                        if (context.$object.isNullOrUndefined(outputConfig.clear) == true || outputConfig.clear == true) {
                                             if (synControls && synControls.length > 0) {
                                                 const controlInfo = synControls.find(function (item) {
                                                     return item.field == outputConfig.dataFieldID;
                                                 });
 
-                                                if ($string.isNullOrEmpty(controlInfo.module) == true) {
+                                                if (context.$string.isNullOrEmpty(controlInfo.module) == true) {
                                                     continue;
                                                 }
 
                                                 const controlModule = syn.$w.getControlModule(controlInfo.module);
-                                                if ($object.isNullOrUndefined(controlModule) == false && controlModule.clear) {
+                                                if (context.$object.isNullOrUndefined(controlModule) == false && controlModule.clear) {
                                                     controlModule.clear(controlInfo.id);
                                                 }
                                             }
@@ -1357,7 +1358,7 @@
                                                     };
                                                 }
 
-                                                if ($object.isNullOrUndefined(outputConfig.clear) == true || outputConfig.clear == true) {
+                                                if (context.$object.isNullOrUndefined(outputConfig.clear) == true || outputConfig.clear == true) {
                                                     const dataStore = $this.store[store.dataSourceID];
                                                     if (dataStore) {
                                                         dataStore.length = 0;
@@ -1375,18 +1376,18 @@
                                     return item.field == output.dataFieldID && (item.type.indexOf('grid') > -1 || item.type.indexOf('chart') > -1) == true;
                                 });
 
-                                const controlModule = $object.isNullOrUndefined(synControlConfig) == true ? null : syn.$w.getControlModule(synControlConfig.module);
-                                if ($object.isNullOrUndefined(controlModule) == false && controlModule.setTransactionBelongID) {
+                                const controlModule = context.$object.isNullOrUndefined(synControlConfig) == true ? null : syn.$w.getControlModule(synControlConfig.module);
+                                if (context.$object.isNullOrUndefined(controlModule) == false && controlModule.setTransactionBelongID) {
                                     controlModule.setTransactionBelongID(synControlConfig.id, output);
 
-                                    if ($object.isNullOrUndefined(outputConfig.clear) == true || outputConfig.clear == true) {
+                                    if (context.$object.isNullOrUndefined(outputConfig.clear) == true || outputConfig.clear == true) {
                                         if (synControls && synControls.length > 0) {
                                             const controlInfo = synControls.find(function (item) {
                                                 return item.field == output.dataFieldID;
                                             });
 
                                             const controlModule = syn.$w.getControlModule(controlInfo.module);
-                                            if ($object.isNullOrUndefined(controlModule) == false && controlModule.clear) {
+                                            if (context.$object.isNullOrUndefined(controlModule) == false && controlModule.clear) {
                                                 controlModule.clear(controlInfo.id);
                                             }
                                         }
@@ -1415,18 +1416,18 @@
                                             };
                                         }
 
-                                        if ($object.isNullOrUndefined(outputConfig.clear) == true || outputConfig.clear == true) {
+                                        if (context.$object.isNullOrUndefined(outputConfig.clear) == true || outputConfig.clear == true) {
                                             if (synControls && synControls.length > 0) {
                                                 const controlInfo = synControls.find(function (item) {
                                                     return item.field == outputConfig.dataFieldID;
                                                 });
 
-                                                if ($string.isNullOrEmpty(controlInfo.module) == true) {
+                                                if (context.$string.isNullOrEmpty(controlInfo.module) == true) {
                                                     continue;
                                                 }
 
                                                 const controlModule = syn.$w.getControlModule(controlInfo.module);
-                                                if ($object.isNullOrUndefined(controlModule) == false && controlModule.clear) {
+                                                if (context.$object.isNullOrUndefined(controlModule) == false && controlModule.clear) {
                                                     controlModule.clear(controlInfo.id);
                                                 }
                                             }
@@ -1446,7 +1447,7 @@
                                                         };
                                                     }
 
-                                                    if ($object.isNullOrUndefined(outputConfig.clear) == true || outputConfig.clear == true) {
+                                                    if (context.$object.isNullOrUndefined(outputConfig.clear) == true || outputConfig.clear == true) {
                                                         const dataStore = $this.store[store.dataSourceID];
                                                         if (dataStore) {
                                                             dataStore.length = 0;
@@ -1719,7 +1720,7 @@
                                                     }
                                                 }
 
-                                                if ($object.isNullOrUndefined(controlModule) == false && controlModule.getValue) {
+                                                if (context.$object.isNullOrUndefined(controlModule) == false && controlModule.getValue) {
                                                     inputObjects = controlModule.getValue(controlInfo.id.replace('_hidden', ''), 'Row', inputMapping.items)[0];
                                                 }
                                             }
@@ -1744,7 +1745,7 @@
 
                                                 if (bindingControlInfos.length == 1) {
                                                     const controlInfo = bindingControlInfos[0];
-                                                    if ($object.isNullOrUndefined(controlInfo.module) == true) {
+                                                    if (context.$object.isNullOrUndefined(controlInfo.module) == true) {
                                                         controlValue = syn.$l.get(controlInfo.id).value;
                                                     }
                                                     else {
@@ -1769,11 +1770,11 @@
                                                             }
                                                         }
 
-                                                        if ($object.isNullOrUndefined(controlModule) == false && controlModule.getValue) {
+                                                        if (context.$object.isNullOrUndefined(controlModule) == false && controlModule.getValue) {
                                                             controlValue = controlModule.getValue(controlInfo.id.replace('_hidden', ''), meta);
                                                         }
 
-                                                        if ($object.isNullOrUndefined(controlValue) == true && (dataType == 'number' || dataType == 'numeric')) {
+                                                        if (context.$object.isNullOrUndefined(controlValue) == true && (dataType == 'number' || dataType == 'numeric')) {
                                                             controlValue = 0;
                                                         }
                                                     }
@@ -1812,11 +1813,11 @@
                                                         const controlInfo = bindingControlInfos[0];
                                                         controlValue = $this.store[store.dataSourceID][controlInfo.data];
 
-                                                        if ($object.isNullOrUndefined(controlValue) == true && (dataType == 'number' || dataType == 'numeric')) {
+                                                        if (context.$object.isNullOrUndefined(controlValue) == true && (dataType == 'number' || dataType == 'numeric')) {
                                                             controlValue = 0;
                                                         }
 
-                                                        if ($object.isNullOrUndefined(controlValue) == true) {
+                                                        if (context.$object.isNullOrUndefined(controlValue) == true) {
                                                             controlValue = '';
                                                         }
                                                     }
@@ -1877,7 +1878,7 @@
                                             }
                                         }
 
-                                        if ($object.isNullOrUndefined(controlModule) == false && controlModule.getValue) {
+                                        if (context.$object.isNullOrUndefined(controlModule) == false && controlModule.getValue) {
                                             inputObjects = controlModule.getValue(controlInfo.id.replace('_hidden', ''), 'List', inputMapping.items);
                                         }
                                     }
@@ -1966,7 +1967,7 @@
                                         }
 
                                         if (outputMapping.responseType == 'Form') {
-                                            if ($object.isNullOrUndefined(outputData) == true || $object.isObjectEmpty(outputData) == true) {
+                                            if (context.$object.isNullOrUndefined(outputData) == true || context.$object.isObjectEmpty(outputData) == true) {
                                                 result.outputStat.push({
                                                     fieldID: responseFieldID,
                                                     Count: 0
@@ -1992,7 +1993,7 @@
                                                         if (bindingControlInfos.length == 1) {
                                                             const controlInfo = bindingControlInfos[0];
                                                             const controlModule = syn.$w.getControlModule(controlInfo.module);
-                                                            if ($object.isNullOrUndefined(controlModule) == false && controlModule.setValue) {
+                                                            if (context.$object.isNullOrUndefined(controlModule) == false && controlModule.setValue) {
                                                                 controlModule.setValue(controlInfo.id.replace('_hidden', ''), controlValue, meta);
                                                             }
                                                         }
@@ -2001,7 +2002,7 @@
                                                             if (syn.uicontrols.$data && syn.uicontrols.$data.storeList.length > 0) {
                                                                 for (let k = 0; k < syn.uicontrols.$data.storeList.length; k++) {
                                                                     const store = syn.uicontrols.$data.storeList[k];
-                                                                    if ($object.isNullOrUndefined($this.store[store.dataSourceID]) == true) {
+                                                                    if (context.$object.isNullOrUndefined($this.store[store.dataSourceID]) == true) {
                                                                         $this.store[store.dataSourceID] = {};
                                                                     }
 
@@ -2044,7 +2045,7 @@
                                                 if (bindingControlInfos.length == 1) {
                                                     const controlInfo = bindingControlInfos[0];
                                                     const controlModule = syn.$w.getControlModule(controlInfo.module);
-                                                    if ($object.isNullOrUndefined(controlModule) == false && controlModule.setValue) {
+                                                    if (context.$object.isNullOrUndefined(controlModule) == false && controlModule.setValue) {
                                                         controlModule.setValue(controlInfo.id.replace('_hidden', ''), outputData, outputMapping.items);
                                                     }
                                                 }
@@ -2053,7 +2054,7 @@
                                                     if (syn.uicontrols.$data && syn.uicontrols.$data.storeList.length > 0) {
                                                         for (let k = 0; k < syn.uicontrols.$data.storeList.length; k++) {
                                                             const store = syn.uicontrols.$data.storeList[k];
-                                                            if ($object.isNullOrUndefined($this.store[store.dataSourceID]) == true) {
+                                                            if (context.$object.isNullOrUndefined($this.store[store.dataSourceID]) == true) {
                                                                 $this.store[store.dataSourceID] = [];
                                                             }
 
@@ -2105,7 +2106,7 @@
                                                 if (bindingControlInfos.length == 1) {
                                                     const controlInfo = bindingControlInfos[0];
                                                     const controlModule = syn.$w.getControlModule(controlInfo.module);
-                                                    if ($object.isNullOrUndefined(controlModule) == false && controlModule.setValue) {
+                                                    if (context.$object.isNullOrUndefined(controlModule) == false && controlModule.setValue) {
                                                         controlModule.setValue(controlInfo.id.replace('_hidden', ''), outputData, outputMapping.items);
                                                     }
                                                 }
@@ -2173,12 +2174,12 @@
         getterValue(functionID) {
             try {
                 const transactConfig = $this.transaction[functionID];
-                if ($object.isNullOrUndefined(transactConfig) == true) {
+                if (context.$object.isNullOrUndefined(transactConfig) == true) {
                     syn.$l.eventLog('$w.getterValue', 'functionID "{0}" 확인 필요'.format(functionID), 'Warning');
                     return;
                 }
 
-                if ($string.isNullOrEmpty(transactConfig.functionID) == true) {
+                if (context.$string.isNullOrEmpty(transactConfig.functionID) == true) {
                     transactConfig.functionID = functionID;
                 }
 
@@ -2225,7 +2226,7 @@
                                             if (bindingControlInfos.length == 1) {
                                                 const controlInfo = bindingControlInfos[0];
                                                 const controlModule = syn.$w.getControlModule(controlInfo.module);
-                                                if ($object.isNullOrUndefined(controlModule) == false && controlModule.getValue) {
+                                                if (context.$object.isNullOrUndefined(controlModule) == false && controlModule.getValue) {
                                                     inputObjects = controlModule.getValue(controlInfo.id.replace('_hidden', ''), 'Row', inputMapping.items)[0];
                                                 }
                                             }
@@ -2251,11 +2252,11 @@
                                                 if (bindingControlInfos.length == 1) {
                                                     const controlInfo = bindingControlInfos[0];
                                                     const controlModule = syn.$w.getControlModule(controlInfo.module);
-                                                    if ($object.isNullOrUndefined(controlModule) == false && controlModule.getValue) {
+                                                    if (context.$object.isNullOrUndefined(controlModule) == false && controlModule.getValue) {
                                                         controlValue = controlModule.getValue(controlInfo.id.replace('_hidden', ''), meta);
                                                     }
 
-                                                    if ($object.isNullOrUndefined(controlValue) == true && (dataType == 'number' || dataType == 'numeric')) {
+                                                    if (context.$object.isNullOrUndefined(controlValue) == true && (dataType == 'number' || dataType == 'numeric')) {
                                                         controlValue = 0;
                                                     }
                                                 }
@@ -2293,11 +2294,11 @@
                                                         const controlInfo = bindingControlInfos[0];
                                                         controlValue = $this.store[store.dataSourceID][controlInfo.data];
 
-                                                        if ($object.isNullOrUndefined(controlValue) == true && (dataType == 'number' || dataType == 'numeric')) {
+                                                        if (context.$object.isNullOrUndefined(controlValue) == true && (dataType == 'number' || dataType == 'numeric')) {
                                                             controlValue = 0;
                                                         }
 
-                                                        if ($object.isNullOrUndefined(controlValue) == true) {
+                                                        if (context.$object.isNullOrUndefined(controlValue) == true) {
                                                             controlValue = '';
                                                         }
                                                     }
@@ -2338,7 +2339,7 @@
                                     if (bindingControlInfos.length == 1) {
                                         const controlInfo = bindingControlInfos[0];
                                         const controlModule = syn.$w.getControlModule(controlInfo.module);
-                                        if ($object.isNullOrUndefined(controlModule) == false && controlModule.getValue) {
+                                        if (context.$object.isNullOrUndefined(controlModule) == false && controlModule.getValue) {
                                             inputObjects = controlModule.getValue(controlInfo.id.replace('_hidden', ''), 'List', inputMapping.items);
                                         }
                                     }
@@ -2430,12 +2431,12 @@
         setterValue(functionID, responseData) {
             try {
                 const transactConfig = $this.transaction[functionID];
-                if ($object.isNullOrUndefined(transactConfig) == true) {
+                if (context.$object.isNullOrUndefined(transactConfig) == true) {
                     syn.$l.eventLog('$w.setterValue', 'functionID "{0}" 확인 필요'.format(functionID), 'Warning');
                     return;
                 }
 
-                if ($string.isNullOrEmpty(transactConfig.functionID) == true) {
+                if (context.$string.isNullOrEmpty(transactConfig.functionID) == true) {
                     transactConfig.functionID = functionID;
                 }
 
@@ -2462,7 +2463,7 @@
                             const outputData = responseData[outputIndex];
 
                             if (outputMapping.responseType == 'Form') {
-                                if ($object.isNullOrUndefined(outputData) == true || $object.isObjectEmpty(outputData) == true) {
+                                if (context.$object.isNullOrUndefined(outputData) == true || context.$object.isObjectEmpty(outputData) == true) {
                                     result.outputs.push({
                                         fieldID: responseFieldID,
                                         Count: 0
@@ -2488,7 +2489,7 @@
                                             if (bindingControlInfos.length == 1) {
                                                 const controlInfo = bindingControlInfos[0];
                                                 const controlModule = syn.$w.getControlModule(controlInfo.module);
-                                                if ($object.isNullOrUndefined(controlModule) == false && controlModule.setValue) {
+                                                if (context.$object.isNullOrUndefined(controlModule) == false && controlModule.setValue) {
                                                     controlModule.setValue(controlInfo.id.replace('_hidden', ''), controlValue, meta);
                                                 }
                                             }
@@ -2497,7 +2498,7 @@
                                                 if (syn.uicontrols.$data && syn.uicontrols.$data.storeList.length > 0) {
                                                     for (let k = 0; k < syn.uicontrols.$data.storeList.length; k++) {
                                                         const store = syn.uicontrols.$data.storeList[k];
-                                                        if ($object.isNullOrUndefined($this.store[store.dataSourceID]) == true) {
+                                                        if (context.$object.isNullOrUndefined($this.store[store.dataSourceID]) == true) {
                                                             $this.store[store.dataSourceID] = {};
                                                         }
 
@@ -2541,7 +2542,7 @@
                                         if (bindingControlInfos.length == 1) {
                                             const controlInfo = bindingControlInfos[0];
                                             const controlModule = syn.$w.getControlModule(controlInfo.module);
-                                            if ($object.isNullOrUndefined(controlModule) == false && controlModule.setValue) {
+                                            if (context.$object.isNullOrUndefined(controlModule) == false && controlModule.setValue) {
                                                 controlModule.setValue(controlInfo.id.replace('_hidden', ''), outputData, outputMapping.items);
                                             }
                                         }
@@ -2550,7 +2551,7 @@
                                             if (syn.uicontrols.$data && syn.uicontrols.$data.storeList.length > 0) {
                                                 for (let k = 0; k < syn.uicontrols.$data.storeList.length; k++) {
                                                     const store = syn.uicontrols.$data.storeList[k];
-                                                    if ($object.isNullOrUndefined($this.store[store.dataSourceID]) == true) {
+                                                    if (context.$object.isNullOrUndefined($this.store[store.dataSourceID]) == true) {
                                                         $this.store[store.dataSourceID] = [];
                                                     }
 
@@ -2610,7 +2611,7 @@
                                         if (bindingControlInfos.length == 1) {
                                             const controlInfo = bindingControlInfos[0];
                                             const controlModule = syn.$w.getControlModule(controlInfo.module);
-                                            if ($object.isNullOrUndefined(controlModule) == false && controlModule.setValue) {
+                                            if (context.$object.isNullOrUndefined(controlModule) == false && controlModule.setValue) {
                                                 controlModule.setValue(controlInfo.id.replace('_hidden', ''), outputData, outputMapping.items);
                                             }
                                         }
@@ -2812,7 +2813,7 @@
                         }, options);
 
                         var requestTimeoutID = null;
-                        if ($object.isNullOrUndefined(raw) == false && $object.isString(raw) == false) {
+                        if (context.$object.isNullOrUndefined(raw) == false && context.$object.isString(raw) == false) {
                             if (options.method == 'GET' || options.method == 'HEAD') {
                                 options.method = 'POST';
                             }
@@ -2820,7 +2821,7 @@
                                 options.method = options.method || 'POST';
                             }
 
-                            if ($object.isNullOrUndefined(options.headers) == true) {
+                            if (context.$object.isNullOrUndefined(options.headers) == true) {
                                 options.headers = new Headers();
                                 if (raw instanceof FormData) {
                                 }
@@ -2851,7 +2852,7 @@
                                 redirect: 'follow'
                             };
 
-                            if ($object.isNullOrUndefined(options.timeout) == false) {
+                            if (context.$object.isNullOrUndefined(options.timeout) == false) {
                                 var controller = new AbortController();
                                 requestTimeoutID = setTimeout(() => controller.abort(), options.timeout);
                                 data.signal = controller.signal;
@@ -2864,7 +2865,7 @@
                             }
                         }
                         else {
-                            if ($object.isNullOrUndefined(options.headers) == true) {
+                            if (context.$object.isNullOrUndefined(options.headers) == true) {
                                 options.headers = new Headers();
                                 options.headers.append('Content-Type', options.contentType || 'application/json');
                             }
@@ -2890,7 +2891,7 @@
                                 redirect: 'follow'
                             };
 
-                            if ($object.isNullOrUndefined(options.timeout) == false) {
+                            if (context.$object.isNullOrUndefined(options.timeout) == false) {
                                 var controller = new AbortController();
                                 requestTimeoutID = setTimeout(() => controller.abort(), options.timeout);
                                 data.signal = controller.signal;
@@ -2952,7 +2953,7 @@
                 var el = document.createElement('script');
                 el.setAttribute('type', 'text/javascript');
                 el.setAttribute('id', resourceID);
-                if (syn.Config && $string.toBoolean(syn.Config.IsClientCaching) == true) {
+                if (syn.Config && context.$string.toBoolean(syn.Config.IsClientCaching) == true) {
                     el.setAttribute('src', url);
                 }
                 else {
@@ -2995,7 +2996,7 @@
                 el.setAttribute('rel', 'stylesheet');
                 el.setAttribute('type', 'text/css');
                 el.setAttribute('id', resourceID);
-                if (syn.Config && $string.toBoolean(syn.Config.IsClientCaching) == true) {
+                if (syn.Config && context.$string.toBoolean(syn.Config.IsClientCaching) == true) {
                     el.setAttribute('href', url);
                 }
                 else {
@@ -3013,7 +3014,7 @@
         },
 
         getDynamicStyle(styleID) {
-            if ($object.isNullOrUndefined(styleID) == true) {
+            if (context.$object.isNullOrUndefined(styleID) == true) {
                 const sheets = doc.styleSheets;
                 if (sheets.length > 0) {
                     return sheets[sheets.length - 1];
@@ -3121,7 +3122,7 @@
             moduleName = moduleName.replaceAll('-', '_');
 
             var moduleScript;
-            if ($string.isNullOrEmpty(moduleName) == false) {
+            if (context.$string.isNullOrEmpty(moduleName) == false) {
                 try {
                     var module;
                     if (eval('typeof $' + moduleName) == 'object') {
@@ -3188,7 +3189,7 @@
                         }
                     }
 
-                    if (module.extends && $object.isArray(module.extends) == true) {
+                    if (module.extends && context.$object.isArray(module.extends) == true) {
                         for (var i = 0; i < module.extends.length; i++) {
                             var name = module.extends[i];
                             var result = await syn.$w.fetchText(name + '.js');
@@ -3323,7 +3324,7 @@
 
         async executeTransaction(config, transactionObject, callback, async, token) {
             const fallback = transactionObject?.fallback || function () { };
-            if ($object.isNullOrUndefined(config) == true || $object.isNullOrUndefined(transactionObject) == true) {
+            if (context.$object.isNullOrUndefined(config) == true || context.$object.isNullOrUndefined(transactionObject) == true) {
                 if (globalRoot.devicePlatform === 'browser') {
                     alert('서비스 호출에 필요한 거래 정보가 구성되지 않았습니다');
                 }
@@ -3333,22 +3334,22 @@
             }
 
             let apiService = syn.Config.DomainAPIServer;
-            if ($object.isNullOrUndefined(apiService) == true) {
+            if (context.$object.isNullOrUndefined(apiService) == true) {
                 syn.$l.eventLog('$w.executeTransaction', '서비스 호출에 필요한 DomainAPIServer 정보 확인 필요', 'Error');
                 fallback(config, transactionObject);
                 throw new Error('서비스 호출에 필요한 DomainAPIServer 정보 확인 필요');
             }
 
             let ipAddress = syn.$w.getStorage('ipAddress', false);
-            if ($object.isNullOrUndefined(ipAddress) == true && globalRoot.devicePlatform === 'node') {
+            if (context.$object.isNullOrUndefined(ipAddress) == true && globalRoot.devicePlatform === 'node') {
                 ipAddress = apiService.ClientIP;
             }
 
-            if ($object.isNullOrUndefined(ipAddress) == true) {
+            if (context.$object.isNullOrUndefined(ipAddress) == true) {
                 ipAddress = await syn.$b.getIpAddress();
             }
 
-            if ($object.isNullOrUndefined(ipAddress) == true) {
+            if (context.$object.isNullOrUndefined(ipAddress) == true) {
                 ipAddress = 'localhost';
             }
 
@@ -3370,12 +3371,12 @@
             const transactionID = transactionObject.transactionID.padStart(6, '0').substring(0, 6);
             const functionID = transactionObject.functionID.padStart(4, '0').substring(0, 4);
             const tokenID = (syn.$w.User && syn.$w.User.TokenID ? syn.$w.User.TokenID : syn.$l.random(6)).padStart(6, '0').substring(0, 6);
-            const requestTime = $date.toString(new Date(), 's').substring(0, 6);
+            const requestTime = context.$date.toString(new Date(), 's').substring(0, 6);
             // -- 36바이트 = 설치구분 1자리(L: Local, C: Cloud, O: Onpremise) + 환경 ID 1자리 + 애플리케이션 ID 8자리 + 프로젝트 ID 3자리 + 거래 ID 6자리 + 기능 ID 4자리 + 시스템 구분 1자리 (W: WEB, P: Program, S: SVR, E: EXT) + ClientTokenID 6자리 + Timestamp (HHmmss) 6자리
             const requestID = `${installType}${environment}${programID}${businessID}${transactionID}${functionID}${machineTypeID}${tokenID}${requestTime}`.toUpperCase();
             let globalID = '';
 
-            if ($string.isNullOrEmpty(syn.Config.FindGlobalIDServer) == false) {
+            if (context.$string.isNullOrEmpty(syn.Config.FindGlobalIDServer) == false) {
                 const result = await syn.$r.httpFetch(syn.Config.FindGlobalIDServer).send({
                     applicationID: programID,
                     projectID: businessID,
@@ -3403,7 +3404,7 @@
                 }
             }
 
-            if ($string.isNullOrEmpty(apiService.GlobalID) == false) {
+            if (context.$string.isNullOrEmpty(apiService.GlobalID) == false) {
                 globalID = apiService.GlobalID;
             }
             else {
@@ -3412,7 +3413,7 @@
 
             const clientTag = syn.Config.SystemID.concat('|', syn.Config.HostName, '|', syn.Config.Program.ProgramName, '|', syn.Config.Environment.substring(0, 1));
             const userID = globalRoot.devicePlatform == 'browser' ? (syn.$w.User ? syn.$w.User.UserID : '') : syn.Config.Program.ProgramName;
-            const fingerPrint = globalRoot.devicePlatform == 'browser' ? syn.$b.fingerPrint(userID, ipAddress) : `${syn.$c.sha256(clientTag)}|${clientTag}|${$date.toString(new Date(), 'f')}`;
+            const fingerPrint = globalRoot.devicePlatform == 'browser' ? syn.$b.fingerPrint(userID, ipAddress) : `${syn.$c.sha256(clientTag)}|${clientTag}|${context.$date.toString(new Date(), 'f')}`;
             const deviceID = fingerPrint.substring(0, 64);
 
             const transactionRequest = {
@@ -3480,7 +3481,7 @@
                 syn.$w.transactionLoadOptions(transactionRequest.loadOptions, transactionObject);
             }
 
-            if ($object.isNullOrUndefined(transactionObject.options) == false) {
+            if (context.$object.isNullOrUndefined(transactionObject.options) == false) {
                 for (const key in transactionObject.options) {
                     const item = transactionObject.options[key];
 
@@ -3494,7 +3495,7 @@
                 }
 
                 const dynamic = transactionRequest.loadOptions['dynamic'];
-                if ($string.isNullOrEmpty(dynamic) == false && $string.toBoolean(dynamic) == false) {
+                if (context.$string.isNullOrEmpty(dynamic) == false && context.$string.toBoolean(dynamic) == false) {
                     delete transactionRequest.loadOptions['dynamic'];
                     delete transactionRequest.loadOptions['authorize'];
                     delete transactionRequest.loadOptions['commandType'];
@@ -3504,13 +3505,13 @@
                 }
 
                 const action = transactionRequest.loadOptions['action'];
-                if ($string.isNullOrEmpty(action) == false) {
+                if (context.$string.isNullOrEmpty(action) == false) {
                     transactionRequest.action = action;
                     delete transactionRequest.loadOptions['action'];
                 }
 
                 const kind = transactionRequest.loadOptions['kind'];
-                if ($string.isNullOrEmpty(kind) == false) {
+                if (context.$string.isNullOrEmpty(kind) == false) {
                     transactionRequest.kind = kind;
                     delete transactionRequest.loadOptions['kind'];
                 }
@@ -3522,7 +3523,7 @@
             if (mod && mod.hook.payLoadProperty) {
                 let property = {};
                 property = mod.hook.payLoadProperty(transactionObject.transactionID, transactionObject.functionID);
-                if ($object.isNullOrUndefined(property) == true) {
+                if (context.$object.isNullOrUndefined(property) == true) {
                     property = {};
                 }
 
@@ -3576,7 +3577,7 @@
                         transactionRequest.payLoad.dataMapSetRaw.push(syn.$c.LZString.compressToBase64(JSON.stringify(reqInputs)));
                     }
                     else {
-                        transactionRequest.payLoad.dataMapSetRaw.push(syn.$c.LZString.compressToBase64($object.toCSV(reqInputs, { delimeter: '｜', newline: '↵' })));
+                        transactionRequest.payLoad.dataMapSetRaw.push(syn.$c.LZString.compressToBase64(context.$object.toCSV(reqInputs, { delimeter: '｜', newline: '↵' })));
                     }
                 }
                 else {
@@ -3584,7 +3585,7 @@
                         transactionRequest.payLoad.dataMapSet.push(reqInputs);
                     }
                     else {
-                        transactionRequest.payLoad.dataMapSetRaw.push($object.toCSV(reqInputs, { delimeter: '｜', newline: '↵' }));
+                        transactionRequest.payLoad.dataMapSetRaw.push(context.$object.toCSV(reqInputs, { delimeter: '｜', newline: '↵' }));
                     }
                 }
             }
@@ -3707,20 +3708,20 @@
 
                                                     if (transaction) {
                                                         let value = null;
-                                                        if ($object.isEmpty(item.value) == false) {
+                                                        if (context.$object.isEmpty(item.value) == false) {
                                                             value = transactionResponse.transaction.compressionYN == 'Y' ? syn.$c.LZString.decompressFromBase64(item.value) : item.value;
-                                                            const meta = $string.toParameterObject(dataSetMeta);
-                                                            value = $string.toJson(value, { delimeter: '｜', newline: '↵', meta: meta });
+                                                            const meta = context.$string.toParameterObject(dataSetMeta);
+                                                            value = context.$string.toJson(value, { delimeter: '｜', newline: '↵', meta: meta });
 
                                                             const outputMapping = transaction.outputs[i];
                                                             if (outputMapping.responseType == 'Form') {
                                                                 value = dataSetMeta;
-                                                                if ($object.isNullOrUndefined(value) == true) {
+                                                                if (context.$object.isNullOrUndefined(value) == true) {
                                                                     value = {};
                                                                 }
                                                             }
                                                             else {
-                                                                if ($object.isNullOrUndefined(value) == true) {
+                                                                if (context.$object.isNullOrUndefined(value) == true) {
                                                                     value = [];
                                                                 }
                                                             }
@@ -3734,15 +3735,15 @@
                                                 }
                                                 else {
                                                     let value = transactionResponse.transaction.compressionYN == 'Y' ? syn.$c.LZString.decompressFromBase64(item.value) : item.value;
-                                                    const meta = $string.toParameterObject(dataSetMeta);
-                                                    value = $string.toJson(value, { delimeter: '｜', newline: '↵', meta: meta });
+                                                    const meta = context.$string.toParameterObject(dataSetMeta);
+                                                    value = context.$string.toJson(value, { delimeter: '｜', newline: '↵', meta: meta });
                                                     if (item.id.startsWith('Form') == true) {
                                                         value = dataSetMeta;
-                                                        if ($object.isNullOrUndefined(value) == true) {
+                                                        if (context.$object.isNullOrUndefined(value) == true) {
                                                             value = {};
                                                         }
                                                         else {
-                                                            if ($object.isNullOrUndefined(value) == true) {
+                                                            if (context.$object.isNullOrUndefined(value) == true) {
                                                                 value = [];
                                                             }
                                                         }
@@ -3763,7 +3764,7 @@
                                             for (let i = 0; i < message.additions.length; i++) {
                                                 const addition = message.additions[i];
 
-                                                if ($string.isNullOrEmpty(addition.code) == false && $object.isNullOrUndefined(addtionalData[addition.code]) == true) {
+                                                if (context.$string.isNullOrEmpty(addition.code) == false && context.$object.isNullOrUndefined(addtionalData[addition.code]) == true) {
                                                     addtionalData[addition.code] = addition.text;
                                                 }
                                             }
@@ -3902,7 +3903,7 @@
         pseudoStyles(elID, styles) {
             var heads = document.getElementsByTagName('head');
             var head = document.head || (heads.length == 0 ? null : heads[0]);
-            if (head && $object.isArray(styles) == true && styles.length > 0) {
+            if (head && context.$object.isArray(styles) == true && styles.length > 0) {
                 var sheet = document.getElementById(elID) || document.createElement('style');
                 if (sheet.id == '') {
                     sheet.id = elID;
@@ -4073,11 +4074,11 @@
             }
         }
 
-        if (syn.Config && $string.isNullOrEmpty(syn.Config.DataSourceFilePath) == true) {
+        if (syn.Config && context.$string.isNullOrEmpty(syn.Config.DataSourceFilePath) == true) {
             syn.Config.DataSourceFilePath = path.join(process.cwd(), '..', 'modules', 'dbclient', 'module.json');
         }
 
-        if (syn.Config && $string.isNullOrEmpty(syn.Config.ProxyPathName) == false) {
+        if (syn.Config && context.$string.isNullOrEmpty(syn.Config.ProxyPathName) == false) {
             $webform.proxyBasePath = (syn.Config.IsProxyServe == true && syn.Config.ProxyPathName.length > 0) ? `/${syn.Config.ProxyPathName}` : '';
         }
 
@@ -4090,7 +4091,7 @@
         browserOnlyMethods.forEach(method => { delete $webform[method]; });
     }
     else {
-        const preferColorScheme = window.matchMedia('(prefers-color-scheme: dark)');
+        const preferColorScheme = context.matchMedia('(prefers-color-scheme: dark)');
         if (preferColorScheme) {
             context.$webform.isDarkMode = preferColorScheme.matches;
             preferColorScheme.addEventListener('change', (event) => {
@@ -4119,7 +4120,7 @@
         if (context.synConfig) {
             syn.Config = syn.$w.argumentsExtend(syn.Config, synConfig);
             const server = syn.Config?.DomainAPIServer;
-            if ($string.isNullOrWhiteSpace(syn.Config.DomainBaseUrl) == true && server) {
+            if (context.$string.isNullOrWhiteSpace(syn.Config.DomainBaseUrl) == true && server) {
                 const protocol = server.Protocol || 'http';
                 const host = server.IP || 'localhost';
                 const port = server.Port ? `:${server.Port}` : '';
@@ -4127,7 +4128,7 @@
             }
 
             context.synConfig = undefined;
-            if (syn.Config && $string.isNullOrEmpty(syn.Config.ProxyPathName) == false) {
+            if (syn.Config && context.$string.isNullOrEmpty(syn.Config.ProxyPathName) == false) {
                 $webform.proxyBasePath = (syn.Config.IsProxyServe == true && syn.Config.ProxyPathName.length > 0) ? `/${syn.Config.ProxyPathName}` : '';
             }
 
@@ -4140,11 +4141,11 @@
             if (context.synConfigName) {
                 $webform.loadJson('/' + context.synConfigName + urlArgs, null, function (setting, json) {
                     syn.Config = syn.$w.argumentsExtend(syn.Config, json);
-                    if (syn.Config && $string.isNullOrEmpty(syn.Config.ProxyPathName) == false) {
+                    if (syn.Config && context.$string.isNullOrEmpty(syn.Config.ProxyPathName) == false) {
                         $webform.proxyBasePath = (syn.Config.IsProxyServe == true && syn.Config.ProxyPathName.length > 0) ? `/${syn.Config.ProxyPathName}` : '';
                     }
 
-                    if ($string.isNullOrWhiteSpace(syn.Config.DomainBaseUrl) == true && server) {
+                    if (context.$string.isNullOrWhiteSpace(syn.Config.DomainBaseUrl) == true && server) {
                         const protocol = server.Protocol || 'http';
                         const host = server.IP || 'localhost';
                         const port = server.Port ? `:${server.Port}` : '';
@@ -4177,7 +4178,7 @@
             if (environment.Cookie) {
                 for (var item in environment.Cookie) {
                     var value = syn.$r.getCookie(item);
-                    if ($object.isNullOrUndefined(value) == true) {
+                    if (context.$object.isNullOrUndefined(value) == true) {
                         syn.$r.setCookie(item, environment.Cookie[item]);
                     }
                 }

@@ -1,4 +1,4 @@
-/// <summary>
+﻿/// <summary>
 /// Node.js 용 exports 기능
 /// </summary>
 if (globalRoot.devicePlatform === 'node') {
@@ -85,7 +85,7 @@ if (globalRoot.devicePlatform === 'node') {
     if (syn && !syn.getModuleLibrary) {
         syn.getModuleLibrary = function (moduleID, moduleFileName) {
             var result = syn.functionModules[moduleID];
-            if ($object.isNullOrUndefined(result) == true && moduleFileName) {
+            if (context.$object.isNullOrUndefined(result) == true && moduleFileName) {
                 syn.initializeModuleScript(moduleID, moduleFileName);
                 result = syn.functionModules[moduleID];
             }

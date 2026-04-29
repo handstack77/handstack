@@ -1,4 +1,4 @@
-(function (context) {
+﻿(function (context) {
     'use strict';
     var $resource = context.$resource || new syn.module();
     var document = context.document;
@@ -143,11 +143,11 @@
                         mod.hook.pageResource($resource.localeID);
                     }
 
-                    if (syn.Config && $string.toBoolean(syn.Config.IsLocaleTranslations) == true && syn.$w.pageResource) {
+                    if (syn.Config && context.$string.toBoolean(syn.Config.IsLocaleTranslations) == true && syn.$w.pageResource) {
                         syn.$w.pageResource($resource.localeID);
                     }
 
-                    if (syn.Config && $string.toBoolean(syn.Config.IsLocaleTranslations) == true && mod.config && ($string.isNullOrEmpty(mod.config.isLocaleTranslations) == true || $string.toBoolean(mod.config.isLocaleTranslations) == true)) {
+                    if (syn.Config && context.$string.toBoolean(syn.Config.IsLocaleTranslations) == true && mod.config && (context.$string.isNullOrEmpty(mod.config.isLocaleTranslations) == true || context.$string.toBoolean(mod.config.isLocaleTranslations) == true)) {
                         $resource.setLocale($resource.localeID);
                     }
                 }
@@ -175,18 +175,18 @@
         },
 
         getControl(el) {
-            if ($object.isString(el) == true) {
+            if (context.$object.isString(el) == true) {
                 el = syn.$l.get(el);
             }
 
-            if ($object.isNullOrUndefined(el) == true) {
+            if (context.$object.isNullOrUndefined(el) == true) {
                 return null;
             }
 
             var elID = el.id;
             var tag = el.tagName;
             var key = el.getAttribute('i18n-key');
-            if ($string.isNullOrEmpty(elID) == true) {
+            if (context.$string.isNullOrEmpty(elID) == true) {
                 return $resource.translateControls.find(function (item) { return item.tag == tag && item.key == key; });
             }
 
@@ -199,24 +199,24 @@
 
         translateElement(el, options) {
             var control = $resource.getControl(el);
-            if ($object.isNullOrUndefined(control) == false) {
+            if (context.$object.isNullOrUndefined(control) == false) {
                 $resource.translateControl(control, options);
             }
         },
 
         translateControl(control, options) {
-            if ($object.isNullOrUndefined(control) == false) {
+            if (context.$object.isNullOrUndefined(control) == false) {
                 var el = null;
-                if ($string.isNullOrEmpty(control.elID) == false) {
+                if (context.$string.isNullOrEmpty(control.elID) == false) {
                     el = syn.$l.get(control.elID);
                 }
                 else {
                     el = syn.$l.querySelector('{0}[i18n-key="{1}"]'.format(control.tag, control.key));
                 }
 
-                if ($object.isNullOrUndefined(control.module) == true) {
+                if (context.$object.isNullOrUndefined(control.module) == true) {
                     var bind = $resource.getBindSource(control);
-                    if ($string.isNullOrEmpty(bind) == false) {
+                    if (context.$string.isNullOrEmpty(bind) == false) {
                         el[bind] = $resource.translateText(control, options);
                     }
                 }
@@ -238,13 +238,13 @@
                 var translation = $resource.translations[key];
 
                 var text = null;
-                if ($object.isString(translation) == true) {
+                if (context.$object.isString(translation) == true) {
                     text = translation;
                 }
-                else if ($object.isArray(translation) == true) {
+                else if (context.$object.isArray(translation) == true) {
                     text = translation[0];
                 }
-                else if ($object.isObject(translation) == true) {
+                else if (context.$object.isObject(translation) == true) {
                     text = translation.Text;
                 }
 

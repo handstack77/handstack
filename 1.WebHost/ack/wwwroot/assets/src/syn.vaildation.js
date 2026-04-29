@@ -1,4 +1,4 @@
-(function (context) {
+﻿(function (context) {
     'use strict';
     const $validation = context.$validation || new syn.module();
     const $this = context.$this;
@@ -44,21 +44,21 @@
         },
 
         required(el, isRequired = true, message) {
-            if ($string.isNullOrEmpty(message)) {
+            if (context.$string.isNullOrEmpty(message)) {
                 syn.$l.eventLog('$v.required', 'message 확인 필요', 'Information');
                 return this;
             }
             el = syn.$l.getElement(el);
             if (el) {
                 this.setElement(el);
-                el.required = $string.toBoolean(isRequired);
+                el.required = context.$string.toBoolean(isRequired);
                 el.message = message;
             }
             return this;
         },
 
         pattern(el, validID, options = {}) {
-            if (!options.expr || $string.isNullOrEmpty(options.message)) {
+            if (!options.expr || context.$string.isNullOrEmpty(options.message)) {
                 syn.$l.eventLog('$v.pattern', 'options.expr, options.message 확인 필요', 'Information');
                 return this;
             }
@@ -71,9 +71,9 @@
         },
 
         range(el, validID, options = {}) {
-            if (!$string.isNumber(options.min) || !$string.isNumber(options.max) ||
-                $string.isNullOrEmpty(options.minOperator) || $string.isNullOrEmpty(options.maxOperator) ||
-                $string.isNullOrEmpty(options.message)) {
+            if (!context.$string.isNumber(options.min) || !context.$string.isNumber(options.max) ||
+                context.$string.isNullOrEmpty(options.minOperator) || context.$string.isNullOrEmpty(options.maxOperator) ||
+                context.$string.isNullOrEmpty(options.message)) {
                 syn.$l.eventLog('$v.range', 'options.min, options.minOperator, options.max, options.maxOperator, options.message 확인 필요', 'Information');
                 return this;
             }
@@ -86,7 +86,7 @@
         },
 
         custom(el, validID, options = {}) {
-            if (!options.functionName || $string.isNullOrEmpty(options.message)) {
+            if (!options.functionName || context.$string.isNullOrEmpty(options.message)) {
                 syn.$l.eventLog('$v.custom', 'options.functionName, options.message 확인 필요', 'Information');
                 return this;
             }
@@ -135,14 +135,14 @@
             let isValid = true;
             const value = el.value?.trim() ?? '';
 
-            if ($string.toBoolean(el.required) && value.length === 0) {
+            if (context.$string.toBoolean(el.required) && value.length === 0) {
                 isValid = false;
                 this.messages.push(el.message);
                 if (!this.isContinue) return false;
             }
 
             if (!isValid && !this.isContinue) return false;
-            if (!$string.toBoolean(el.required) && value.length === 0) return true;
+            if (!context.$string.toBoolean(el.required) && value.length === 0) return true;
 
             const validObject = this.elements[el.id];
             if (!validObject) return isValid;
@@ -158,11 +158,11 @@
 
             for (const [validID, rangeRule] of Object.entries(validObject.range)) {
                 let rangeResult = false;
-                if ($string.isNumber(value)) {
+                if (context.$string.isNumber(value)) {
                     try {
-                        const numValue = $string.toNumber(value);
-                        const min = $string.toNumber(rangeRule.min);
-                        const max = $string.toNumber(rangeRule.max);
+                        const numValue = context.$string.toNumber(value);
+                        const min = context.$string.toNumber(rangeRule.min);
+                        const max = context.$string.toNumber(rangeRule.max);
 
                         const checkMin = (op, val, limit) => {
                             switch (op) {

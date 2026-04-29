@@ -1,4 +1,4 @@
-(function (context) {
+﻿(function (context) {
     'use strict';
     var $system = context.$system || new syn.module();
 
@@ -22,12 +22,12 @@
                             else {
                                 var dbclientJson = JSON.parse(data);
                                 var dataSource = dbclientJson.ModuleConfig.DataSource;
-                                if ($object.isArray(dataSource) == false) {
+                                if (context.$object.isArray(dataSource) == false) {
                                     if (dataSource.DataSourceID === dataSourceID
                                         && dataSource.ApplicationID === moduleConfig.ApplicationID
                                         && (dataSource.ProjectID.includes('*') || dataSource.ProjectID.split(',').indexOf(moduleConfig.ProjectID) > -1)
                                     ) {
-                                        if ($string.toBoolean(dataSource.IsEncryption) == true) {
+                                        if (context.$string.toBoolean(dataSource.IsEncryption) == true) {
                                             dataSource.ConnectionString = syn.$s.decryptConnectionString(dataSource);
                                             dataSource.IsEncryption = false;
                                         }
@@ -48,7 +48,7 @@
                                             && (item.ProjectID.includes('*') || item.ProjectID.split(',').indexOf(moduleConfig.ProjectID) > -1);
                                     });
                                     if (findDataSource) {
-                                        if ($string.toBoolean(findDataSource.IsEncryption) == true) {
+                                        if (context.$string.toBoolean(findDataSource.IsEncryption) == true) {
                                             findDataSource.ConnectionString = syn.$s.decryptConnectionString(findDataSource);
                                             findDataSource.IsEncryption = false;
                                         }
@@ -81,7 +81,7 @@
             var result = '';
             if (dataSource && dataSource.ConnectionString) {
                 try {
-                    var values = $string.split(dataSource.ConnectionString, '.');
+                    var values = context.$string.split(dataSource.ConnectionString, '.');
                     var encrypt = values[0];
                     var decryptKey = values[1];
                     var hostName = values[2];
@@ -159,7 +159,7 @@
 
                                         sql = sql.replace(/\\\"/g, '"');
 
-                                        if ($string.isNullOrEmpty(sql.trim()) == true) {
+                                        if (context.$string.isNullOrEmpty(sql.trim()) == true) {
                                             var message = 'moduleID: {0}, statementID: {1}- SQL 내용 없음'.format(moduleID, statementID, error.message);
                                             syn.$l.eventLog('getStatement', message, 'Error');
                                             if (callback) {
@@ -260,7 +260,7 @@
                                         sql = syn.$s.getStatement(moduleID, statementID, parameters);
                                         sql = sql.replace(/\\\"/g, '"');
 
-                                        if ($string.isNullOrEmpty(sql.trim()) == true) {
+                                        if (context.$string.isNullOrEmpty(sql.trim()) == true) {
                                             var message = 'moduleID: {0}, statementID: {1}- SQL 내용 없음'.format(moduleID, statementID, error.message);
                                             syn.$l.eventLog('getStatement', message, 'Error');
                                             if (callback) {
@@ -343,7 +343,7 @@
                                         sql = syn.$s.getStatement(moduleID, statementID, parameters);
                                         sql = sql.replace(/\\\"/g, '"');
 
-                                        if ($string.isNullOrEmpty(sql.trim()) == true) {
+                                        if (context.$string.isNullOrEmpty(sql.trim()) == true) {
                                             var message = 'moduleID: {0}, statementID: {1}- SQL 내용 없음'.format(moduleID, statementID, error.message);
                                             syn.$l.eventLog('getStatement', message, 'Error');
                                             if (callback) {

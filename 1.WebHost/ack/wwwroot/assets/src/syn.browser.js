@@ -1,4 +1,4 @@
-(function (context) {
+﻿(function (context) {
     'use strict';
     const $browser = context.$browser || new syn.module();
     const doc = context.document;
@@ -201,7 +201,7 @@
             };
 
             const computeString = JSON.stringify(computeComponents);
-            return `${syn.$c.sha256(computeString)}|${computeString}|${$date.toString(new Date(), 'f')}`;
+            return `${syn.$c.sha256(computeString)}|${computeString}|${context.$date.toString(new Date(), 'f')}`;
         },
 
         windowWidth() {
@@ -263,7 +263,7 @@
                 syn.$l.eventLog('$b.share', 'Web Share API가 지원되지 않습니다.', 'Warning');
                 if (data.url || data.text) {
                     const textToCopy = data.url || data.text;
-                    await syn.$w.copyToClipboard(textToCopy);
+                    await syn.$w.copyToClipboard(result);
                 }
                 throw new Error('Web Share API가 지원되지 않습니다.');
             }

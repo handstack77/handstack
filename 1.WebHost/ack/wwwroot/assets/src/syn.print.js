@@ -4,7 +4,7 @@
 
     $print.extend({
         base64ExcelFile: null,
-        reportName: `report-${$date.toString(new Date(), 'd')}.pdf`,
+        reportName: `report-${context.$date.toString(new Date(), 'd')}.pdf`,
         datetimeFormat: 'yyyy-MM-dd',
         boolTrue: '○',
         boolFalse: '×',
@@ -20,8 +20,8 @@
 
         concreate() {
             if (globalRoot.devicePlatform == 'browser') {
-                if ($string.toBoolean(syn.Config.IsReportifyModule) == true && !window.PDFObject) {
-                    if (syn.Config && $string.isNullOrEmpty(syn.Config.ProxyPathName) == false) {
+                if (context.$string.toBoolean(syn.Config.IsReportifyModule) == true && !context.PDFObject) {
+                    if (syn.Config && context.$string.isNullOrEmpty(syn.Config.ProxyPathName) == false) {
                         syn.$w.loadScript(`${syn.$w.proxyBasePath}/lib/pdfobject/pdfobject.min.js`);
                     }
                     else {
@@ -29,8 +29,8 @@
                     }
                 }
 
-                if ($string.toBoolean(syn.Config.IsReportifyModule) == true && !window.printJS) {
-                    if (syn.Config && $string.isNullOrEmpty(syn.Config.ProxyPathName) == false) {
+                if (context.$string.toBoolean(syn.Config.IsReportifyModule) == true && !context.printJS) {
+                    if (syn.Config && context.$string.isNullOrEmpty(syn.Config.ProxyPathName) == false) {
                         syn.$w.loadScript(`${syn.$w.proxyBasePath}/lib/print-js/print.min.js`);
                     }
                     else {
@@ -63,27 +63,27 @@
                 overwriteFontName: $print.overwriteFontName
             };
 
-            if ($string.isNullOrEmpty(excelUrl) == false) {
+            if (context.$string.isNullOrEmpty(excelUrl) == false) {
                 if ((excelUrl.startsWith('http:') == true || excelUrl.startsWith('https:') == true) == false) {
                     excelUrl = `${$print.reportifyServer}${excelUrl}`
                 }
                 $print.base64ExcelFile = await syn.$l.urlToBase64(excelUrl);
             }
 
-            if ($string.isNullOrEmpty($print.base64ExcelFile) == false) {
+            if (context.$string.isNullOrEmpty($print.base64ExcelFile) == false) {
                 result.base64ExcelFile = $print.base64ExcelFile;
             }
 
             for (var i = 0, length = result.workItems.length; i < length; i++) {
                 var workitem = result.workItems[i];
-                if (workitem.options && $object.isObject(workitem.options) == true) {
+                if (workitem.options && context.$object.isObject(workitem.options) == true) {
                     workitem.options = JSON.stringify(workitem.options);
                 }
             }
 
             for (var i = 0, length = result.workActions.length; i < length; i++) {
                 var workAction = result.workActions[i];
-                if (workAction.options && $object.isObject(workAction.options) == true) {
+                if (workAction.options && context.$object.isObject(workAction.options) == true) {
                     workAction.options = JSON.stringify(workAction.options);
                 }
             }
@@ -92,7 +92,7 @@
         },
 
         addWorkItem(workItems, document, worksheet, datafield, bind, row, col, type, data, overtake, step) {
-            if ($object.isNumber(document) == true) {
+            if (context.$object.isNumber(document) == true) {
                 if (document || worksheet || bind || row || col) {
                     syn.$l.eventLog('addWorkItem', 'document, worksheet, datafield, bind, row, col 필수 항목 필요', 'Warning');
                 }
@@ -104,7 +104,7 @@
                     workItems.push(workItem);
                 }
             }
-            else if ($object.isObject(document) == true) {
+            else if (context.$object.isObject(document) == true) {
                 var workObject = document;
                 if (!workObject.document || !workObject.worksheet || !workObject.bind || !workObject.row || !workObject.col) {
                     syn.$l.eventLog('addWorkItem', 'document, worksheet, datafield, bind, row, col 필수 항목 필요', 'Warning');
@@ -146,7 +146,7 @@
             index = workItems.findIndex(item =>
                 item.document === target.document &&
                 item.worksheet === target.worksheet &&
-                ($string.isNullOrEmpty(target.datafield) == false && item.datafield === target.datafield)
+                (context.$string.isNullOrEmpty(target.datafield) == false && item.datafield === target.datafield)
             );
 
             if (index === -1) {
@@ -169,7 +169,7 @@
                 newItem.overtake = target.overtake;
             }
 
-            if ($string.toBoolean(nextDirection) == true) {
+            if (context.$string.toBoolean(nextDirection) == true) {
                 workItems.splice(index + 1, 0, newItem);
             } else {
                 workItems.splice(index, 0, newItem);
@@ -223,11 +223,11 @@
                     for (var i = 0, length = reportWorkItems.length; i < length; i++) {
                         var item = reportWorkItems[i];
 
-                        if (documentOffset && $object.isNumber(documentOffset) == true && documentOffset > -1) {
+                        if (documentOffset && context.$object.isNumber(documentOffset) == true && documentOffset > -1) {
                             item.document = documentOffset;
                         }
 
-                        if ($object.isNullOrUndefined(item.bind) == true) {
+                        if (context.$object.isNullOrUndefined(item.bind) == true) {
                             item.bind = 'cell';
                         }
 
@@ -435,15 +435,15 @@
                 var data = {
                     body: {
                         base64ExcelFile: base64ExcelFile,
-                        indent: $string.toBoolean(indent),
-                        formatted: $string.toBoolean(formatted)
+                        indent: context.$string.toBoolean(indent),
+                        formatted: context.$string.toBoolean(formatted)
                     }
                 };
 
                 var httpResult = await syn.$r.httpRequest('POST', reportifyUrl, data);
                 if (httpResult && httpResult.status == 200) {
                     result = httpResult.response;
-                    if (window.ClipboardJS) {
+                    if (context.ClipboardJS) {
                         var tempButton = syn.$l.get('btn-clipboard-text') || document.createElement('button');
                         if (tempButton.id == '') {
                             tempButton.id = 'btn-clipboard-text';
@@ -461,7 +461,7 @@
                         tempButton.click();
                     }
                     else {
-                        await syn.$w.copyToClipboard(textToCopy);
+                        await syn.$w.copyToClipboard(result);
                     }
                 }
                 else {

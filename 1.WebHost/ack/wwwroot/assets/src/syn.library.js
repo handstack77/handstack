@@ -1,4 +1,4 @@
-(function (context) {
+﻿(function (context) {
     'use strict';
     const $library = context.$library || new syn.module();
     let doc = null;
@@ -83,7 +83,7 @@
     })();
 
     const selectNodes = (query, all, logSource) => {
-        if (!$object.isString(query)) {
+        if (!context.$object.isString(query)) {
             return [];
         }
 
@@ -152,7 +152,7 @@
 
         getElement(el) {
             let result = null;
-            if ($object.isString(el) == true) {
+            if (context.$object.isString(el) == true) {
                 const findEL = this.get(el);
                 if (findEL) {
                     result = findEL;
@@ -270,7 +270,7 @@
                 el.addEventListener(type, handler, defaultOptions);
             }
 
-            if ($object.isString(type) && type.toLowerCase() === 'resize') {
+            if (context.$object.isString(type) && type.toLowerCase() === 'resize') {
                 handler();
             }
 
@@ -281,18 +281,18 @@
             if (typeof handler !== 'function') return this;
 
             let elements = [];
-            if ($object.isString(query)) {
+            if (context.$object.isString(query)) {
                 elements = this.querySelectorAll(query);
             } else if (Array.isArray(query)) {
                 query.forEach(item => {
-                    if ($object.isString(item)) {
+                    if (context.$object.isString(item)) {
                         elements.push(...this.querySelectorAll(item));
-                    } else if ($object.isObject(item)) {
+                    } else if (context.$object.isObject(item)) {
                         elements.push(item);
                     }
                 });
                 elements = [...new Set(elements)];
-            } else if ($object.isObject(query)) {
+            } else if (context.$object.isObject(query)) {
                 elements = [query];
             }
 
@@ -407,7 +407,7 @@
 
         get(...ids) {
             if (globalRoot.devicePlatform === 'node' || !doc) return ids.length === 1 ? null : [];
-            const results = ids.map(id => $object.isString(id) ? doc.getElementById(id) : null).filter(el => el !== null);
+            const results = ids.map(id => context.$object.isString(id) ? doc.getElementById(id) : null).filter(el => el !== null);
             return ids.length === 1 ? results[0] || null : results;
         },
 
@@ -430,7 +430,7 @@
             if (globalRoot.devicePlatform === 'node' || !doc) return [];
             let results = [];
             tagNames.forEach(tagName => {
-                if ($object.isString(tagName)) {
+                if (context.$object.isString(tagName)) {
                     results.push(...doc.getElementsByTagName(tagName));
                 }
             });
@@ -450,13 +450,13 @@
         },
 
         toEnumValue(enumObject, value) {
-            if (!$object.isObject(enumObject)) return null;
+            if (!context.$object.isObject(enumObject)) return null;
             const entry = Object.entries(enumObject).find(([key, val]) => key === value);
             return entry ? entry[1] : null;
         },
 
         toEnumText(enumObject, value) {
-            if (!$object.isObject(enumObject)) return null;
+            if (!context.$object.isObject(enumObject)) return null;
             const entry = Object.entries(enumObject).find(([key, val]) => val === value);
             return entry ? entry[0] : null;
         },
@@ -469,13 +469,13 @@
                 const options = { delimiter: '｜', newline: '↵' };
 
                 if (parts.length > 1) {
-                    options.meta = $string.toParameterObject(parts[0]);
-                    jsonData = $string.toJson(parts[1], options);
+                    options.meta = context.$string.toParameterObject(parts[0]);
+                    jsonData = context.$string.toJson(parts[1], options);
                 } else {
-                    jsonData = $string.toJson(parts[0], options);
+                    jsonData = context.$string.toJson(parts[0], options);
                 }
 
-                return $string.toBoolean(isFormat) ? JSON.stringify(jsonData, null, 2) : jsonData;
+                return context.$string.toBoolean(isFormat) ? JSON.stringify(jsonData, null, 2) : jsonData;
             } catch (error) {
                 syn.$l.eventLog('$l.prettyTSD', `TSD 파싱 오류: ${error}`, 'Error');
                 return `TSD 파싱 오류: ${error.message}`;
@@ -521,11 +521,11 @@
             var result = [];
 
             if (data) {
-                if ($object.isNullOrUndefined(childrenID) == true) {
+                if (context.$object.isNullOrUndefined(childrenID) == true) {
                     childrenID = 'items';
                 }
 
-                var root = $object.clone(data, false);
+                var root = context.$object.clone(data, false);
                 delete root[childrenID];
                 root[parentItemID] = null;
                 result.push(root);
@@ -542,7 +542,7 @@
         parseNested2Flat(data, newData, itemID, parentItemID, childrenID = 'items') {
             var result = null;
 
-            if ($object.isNullOrUndefined(childrenID) == true) {
+            if (context.$object.isNullOrUndefined(childrenID) == true) {
                 childrenID = 'items';
             }
 
@@ -551,7 +551,7 @@
                 for (var i = 0; i < items.length; i++) {
                     var item = items[i];
 
-                    var cloneItem = $object.clone(item, false);
+                    var cloneItem = context.$object.clone(item, false);
                     delete cloneItem[childrenID];
                     cloneItem[parentItemID] = data[itemID];
 
@@ -589,7 +589,7 @@
                     newData[childrenID] = [];
                 }
                 for (var i = 0; i < child.length; i++) {
-                    newData[childrenID].push($object.clone(child[i]));
+                    newData[childrenID].push(context.$object.clone(child[i]));
                     syn.$l.parseFlat2Nested(data, child[i], newData[childrenID][i], itemID, parentItemID, childrenID);
                 }
             }
@@ -852,7 +852,7 @@
         async blobToFile(blob, fileName, mimeType) {
             if (!(blob instanceof Blob)) return null;
             const effectiveMimeType = mimeType || blob.type || 'application/octet-stream';
-            return new File([blob], fileName || `blob-${$date.toString(new Date(), 'f')}`, { type: effectiveMimeType });
+            return new File([blob], fileName || `blob-${context.$date.toString(new Date(), 'f')}`, { type: effectiveMimeType });
         },
 
         async fileToBase64(file) {
@@ -1096,7 +1096,7 @@
 
             let logLevel = 0;
             if (logLevelInput) {
-                if ($object.isString(logLevelInput) === true) {
+                if (context.$object.isString(logLevelInput) === true) {
                     logLevel = syn.$l.logLevel[logLevelInput];
                 }
             }

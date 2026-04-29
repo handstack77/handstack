@@ -1,4 +1,4 @@
-(function (context) {
+﻿(function (context) {
     'use strict';
     const $cryptography = context.$cryptography || new syn.module();
     const encoder = new TextEncoder();
@@ -91,7 +91,7 @@
         async generateHMAC(key, message) {
             const keyData = encoder.encode(key);
             const messageData = encoder.encode(message);
-            const cryptoKey = await crypto.subtle.importKey(
+            const cryptoKey = await context.crypto.subtle.importKey(
                 'raw',
                 keyData,
                 { name: 'HMAC', hash: 'SHA-256' },
@@ -99,7 +99,7 @@
                 ['sign']
             );
 
-            const signature = await crypto.subtle.sign('HMAC', cryptoKey, messageData);
+            const signature = await context.crypto.subtle.sign('HMAC', cryptoKey, messageData);
             return Array.from(new Uint8Array(signature)).map(b => b.toString(16).padStart(2, '0')).join('');
         },
 
@@ -110,7 +110,7 @@
 
         // syn.$c.generateRSAKey().then((cryptoKey) => { debugger; });
         async generateRSAKey() {
-            return await window.crypto.subtle.generateKey(
+            return await context.crypto.subtle.generateKey(
                 {
                     name: "RSA-OAEP",
                     modulusLength: 2048,
@@ -125,14 +125,14 @@
         // syn.$c.exportCryptoKey(cryptoKey.publicKey, true).then((result) => { debugger; });
         async exportCryptoKey(cryptoKey, isPublic) {
             let result = '';
-            isPublic = $string.toBoolean(isPublic);
+            isPublic = context.$string.toBoolean(isPublic);
             const exportLabel = isPublic ? 'PUBLIC' : 'PRIVATE';
-            const exported = await window.crypto.subtle.exportKey(
+            const exported = await context.crypto.subtle.exportKey(
                 (isPublic ? 'spki' : 'pkcs8'),
                 cryptoKey
             );
             const exportedAsString = String.fromCharCode.apply(null, new Uint8Array(exported));
-            const exportedAsBase64 = window.btoa(exportedAsString);
+            const exportedAsBase64 = context.btoa(exportedAsString);
             result = `-----BEGIN ${exportLabel} KEY-----\n${exportedAsBase64}\n-----END ${exportLabel} KEY-----`;
 
             const lines = result.split('\n');
@@ -144,16 +144,16 @@
 
         // syn.$c.importCryptoKey('-----BEGIN PUBLIC KEY-----...-----END PUBLIC KEY-----', true).then((result) => { debugger; });
         async importCryptoKey(pem, isPublic) {
-            isPublic = $string.toBoolean(isPublic);
+            isPublic = context.$string.toBoolean(isPublic);
             const exportLabel = isPublic ? 'PUBLIC' : 'PRIVATE';
             const pemHeader = `-----BEGIN ${exportLabel} KEY-----`;
             const pemFooter = `-----END ${exportLabel} KEY-----`;
             const pemContents = pem.substring(pemHeader.length, pem.length - pemFooter.length).replaceAll('\n', '');
-            const binaryDerString = window.atob(pemContents);
+            const binaryDerString = context.atob(pemContents);
             const binaryDer = syn.$l.stringToArrayBuffer(binaryDerString);
             const importMode = isPublic ? ['encrypt'] : ['decrypt'];
 
-            return await crypto.subtle.importKey(
+            return await context.crypto.subtle.importKey(
                 (isPublic ? 'spki' : 'pkcs8'),
                 binaryDer,
                 {
@@ -168,7 +168,7 @@
         // syn.$c.rsaEncode('hello world', result).then((result) => { debugger; });
         async rsaEncode(text, publicKey) {
             const data = encoder.encode(text);
-            const encrypted = await crypto.subtle.encrypt(
+            const encrypted = await context.crypto.subtle.encrypt(
                 {
                     name: 'RSA-OAEP'
                 },
@@ -182,7 +182,7 @@
         // syn.$c.rsaDecode(encryptData, result).then((result) => { debugger; });
         async rsaDecode(encryptedData, privateKey) {
             const encrypted = new Uint8Array($cryptography.base64Decode(encryptedData).split(',').map(Number));
-            const decrypted = await crypto.subtle.decrypt(
+            const decrypted = await context.crypto.subtle.decrypt(
                 {
                     name: 'RSA-OAEP'
                 },
@@ -197,7 +197,7 @@
             let result;
             ivLength = ivLength || 16;
             if (key && key.toUpperCase() == '$RANDOM$') {
-                result = window.crypto.getRandomValues(new Uint8Array(ivLength));
+                result = context.crypto.getRandomValues(new Uint8Array(ivLength));
             }
             else {
                 key = key || '';
@@ -216,7 +216,7 @@
 
             const data = encoder.encode(text);
 
-            const cryptoKey = await window.crypto.subtle.importKey(
+            const cryptoKey = await context.crypto.subtle.importKey(
                 'raw',
                 $cryptography.padKey(key, keyLength / 8),
                 { name: algorithm },
@@ -224,7 +224,7 @@
                 ['encrypt']
             );
 
-            const encrypted = await window.crypto.subtle.encrypt(
+            const encrypted = await context.crypto.subtle.encrypt(
                 {
                     name: algorithm,
                     iv: iv
@@ -247,7 +247,7 @@
             if (encryptedData && encryptedData.iv && encryptedData.encrypted) {
                 const iv = new Uint8Array($cryptography.base64Decode(encryptedData.iv).split(',').map(Number));
                 const encrypted = new Uint8Array($cryptography.base64Decode(encryptedData.encrypted).split(',').map(Number));
-                const cryptoKey = await window.crypto.subtle.importKey(
+                const cryptoKey = await context.crypto.subtle.importKey(
                     'raw',
                     $cryptography.padKey(key, keyLength / 8),
                     { name: algorithm },
@@ -255,7 +255,7 @@
                     ['decrypt']
                 );
 
-                const decrypted = await window.crypto.subtle.decrypt(
+                const decrypted = await context.crypto.subtle.decrypt(
                     {
                         name: algorithm,
                         iv: iv
@@ -274,7 +274,7 @@
             algorithms = algorithms || 'SHA-1'; // SHA-1,SHA-2,SHA-224,SHA-256,SHA-384,SHA-512,SHA3-224,SHA3-256,SHA3-384,SHA3-512,SHAKE128,SHAKE256
 
             const data = encoder.encode(message);
-            const hash = await crypto.subtle.digest(algorithms, data);
+            const hash = await context.crypto.subtle.digest(algorithms, data);
             return Array.from(new Uint8Array(hash))
                 .map(b => b.toString(16).padStart(2, '0'))
                 .join('');

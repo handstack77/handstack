@@ -448,7 +448,7 @@ if (typeof module !== 'undefined' && module.exports) {
             };
 
             const computeString = JSON.stringify(computeComponents);
-            return `${syn.$c.sha256(computeString)}|${computeString}|${$date.toString(new Date(), 'f')}`;
+            return `${syn.$c.sha256(computeString)}|${computeString}|${context.$date.toString(new Date(), 'f')}`;
         },
 
         windowWidth() {
@@ -510,7 +510,7 @@ if (typeof module !== 'undefined' && module.exports) {
                 syn.$l.eventLog('$b.share', 'Web Share API가 지원되지 않습니다.', 'Warning');
                 if (data.url || data.text) {
                     const textToCopy = data.url || data.text;
-                    await syn.$w.copyToClipboard(textToCopy);
+                    await syn.$w.copyToClipboard(result);
                 }
                 throw new Error('Web Share API가 지원되지 않습니다.');
             }
@@ -656,7 +656,7 @@ if (typeof module !== 'undefined' && module.exports) {
             el = syn.$l.getElement(el);
             if (!el) return null;
             if (value !== undefined) {
-                el.value = $string.toValue(value);
+                el.value = context.$string.toValue(value);
             }
             return el.value;
         },
@@ -665,7 +665,7 @@ if (typeof module !== 'undefined' && module.exports) {
             el = syn.$l.getElement(el);
             if (!el) return null;
             if (value !== undefined) {
-                el.textContent = $string.toValue(value);
+                el.textContent = context.$string.toValue(value);
             }
             return el.textContent;
         },
@@ -674,7 +674,7 @@ if (typeof module !== 'undefined' && module.exports) {
             el = syn.$l.getElement(el);
             if (!el) return null;
             if (value !== undefined) {
-                el.innerText = $string.toValue(value);
+                el.innerText = context.$string.toValue(value);
             }
             return el.innerText;
         },
@@ -683,7 +683,7 @@ if (typeof module !== 'undefined' && module.exports) {
             el = syn.$l.getElement(el);
             if (!el) return null;
             if (value !== undefined) {
-                el.innerHTML = $string.toValue(value);
+                el.innerHTML = context.$string.toValue(value);
             }
             return el.innerHTML;
         },
@@ -745,7 +745,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
         addStyle(el, objects) {
             el = syn.$l.getElement(el);
-            if (el?.style && $object.isObject(objects)) {
+            if (el?.style && context.$object.isObject(objects)) {
                 Object.entries(objects).forEach(([prop, val]) => {
                     el.style[prop] = val;
                 });
@@ -933,7 +933,7 @@ if (typeof module !== 'undefined' && module.exports) {
         display(el, isShow) {
             el = syn.$l.getElement(el);
             if (el?.style) {
-                el.style.display = $string.toBoolean(isShow) ? 'block' : 'none';
+                el.style.display = context.$string.toBoolean(isShow) ? 'block' : 'none';
             }
             return this;
         },
@@ -982,7 +982,7 @@ if (typeof module !== 'undefined' && module.exports) {
         },
 
         each(array, handler) {
-            if ($object.isArray(array) && $object.isFunction(handler)) {
+            if (context.$object.isArray(array) && context.$object.isFunction(handler)) {
                 array.forEach(handler);
             }
         },
@@ -990,7 +990,7 @@ if (typeof module !== 'undefined' && module.exports) {
         setActive(el, value) {
             el = syn.$l.getElement(el);
             if (el?.classList) {
-                el.classList.toggle('active', $string.toBoolean(value));
+                el.classList.toggle('active', context.$string.toBoolean(value));
             }
             return this;
         },
@@ -999,9 +999,9 @@ if (typeof module !== 'undefined' && module.exports) {
             el = syn.$l.getElement(el);
             if (!el) return this;
 
-            const boolValue = $string.toBoolean(value);
+            const boolValue = context.$string.toBoolean(value);
 
-            if (!$string.toBoolean(multiple)) {
+            if (!context.$string.toBoolean(multiple)) {
                 this.siblings(el)?.forEach(siblingEL => {
                     siblingEL.selected = false;
                     siblingEL.removeAttribute('selected');
@@ -1021,9 +1021,9 @@ if (typeof module !== 'undefined' && module.exports) {
             el = syn.$l.getElement(el);
             if (!el) return this;
 
-            const boolValue = $string.toBoolean(value);
+            const boolValue = context.$string.toBoolean(value);
 
-            if (!$string.toBoolean(multiple)) {
+            if (!context.$string.toBoolean(multiple)) {
                 this.siblings(el)?.forEach(siblingEL => {
                     if (siblingEL.tagName === el.tagName && siblingEL.type === el.type && siblingEL.name === el.name) {
                         siblingEL.checked = false;
@@ -1062,7 +1062,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
     $dimension.extend({
         getDocumentSize(isTopWindow = false) {
-            const currentDoc = $string.toBoolean(isTopWindow) ? top.document : doc;
+            const currentDoc = context.$string.toBoolean(isTopWindow) ? top.document : doc;
             if (!currentDoc?.body || !currentDoc?.documentElement) return { width: 0, height: 0, frameWidth: 0, frameHeight: 0 };
 
             return {
@@ -1082,7 +1082,7 @@ if (typeof module !== 'undefined' && module.exports) {
         },
 
         getWindowSize(isTopWindow = false) {
-            const currentWindow = $string.toBoolean(isTopWindow) ? top.window : context;
+            const currentWindow = context.$string.toBoolean(isTopWindow) ? top.window : context;
             return {
                 width: currentWindow?.innerWidth ?? 0,
                 height: currentWindow?.innerHeight ?? 0
@@ -1236,7 +1236,7 @@ if (typeof module !== 'undefined' && module.exports) {
             if (text === undefined || text === null) return null;
 
             let effectiveMaxWidth = maxWidth;
-            if ($object.isNumber(maxWidth)) {
+            if (context.$object.isNumber(maxWidth)) {
                 effectiveMaxWidth = `${maxWidth}px`;
             }
 
@@ -1245,13 +1245,13 @@ if (typeof module !== 'undefined' && module.exports) {
             let numericMaxWidth = Infinity;
 
             if (measuredWidth.endsWith('px')) {
-                numericWidth = $string.toNumber(measuredWidth.slice(0, -2));
+                numericWidth = context.$string.toNumber(measuredWidth.slice(0, -2));
             }
 
             if (effectiveMaxWidth.endsWith('px')) {
-                numericMaxWidth = $string.toNumber(effectiveMaxWidth.slice(0, -2));
+                numericMaxWidth = context.$string.toNumber(effectiveMaxWidth.slice(0, -2));
             } else {
-                numericMaxWidth = $string.toNumber(effectiveMaxWidth);
+                numericMaxWidth = context.$string.toNumber(effectiveMaxWidth);
             }
 
             if (!isNaN(numericMaxWidth) && numericWidth > numericMaxWidth) {
@@ -1362,7 +1362,7 @@ if (typeof module !== 'undefined' && module.exports) {
         async generateHMAC(key, message) {
             const keyData = encoder.encode(key);
             const messageData = encoder.encode(message);
-            const cryptoKey = await crypto.subtle.importKey(
+            const cryptoKey = await context.crypto.subtle.importKey(
                 'raw',
                 keyData,
                 { name: 'HMAC', hash: 'SHA-256' },
@@ -1370,7 +1370,7 @@ if (typeof module !== 'undefined' && module.exports) {
                 ['sign']
             );
 
-            const signature = await crypto.subtle.sign('HMAC', cryptoKey, messageData);
+            const signature = await context.crypto.subtle.sign('HMAC', cryptoKey, messageData);
             return Array.from(new Uint8Array(signature)).map(b => b.toString(16).padStart(2, '0')).join('');
         },
 
@@ -1381,7 +1381,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
         // syn.$c.generateRSAKey().then((cryptoKey) => { debugger; });
         async generateRSAKey() {
-            return await window.crypto.subtle.generateKey(
+            return await context.crypto.subtle.generateKey(
                 {
                     name: "RSA-OAEP",
                     modulusLength: 2048,
@@ -1396,14 +1396,14 @@ if (typeof module !== 'undefined' && module.exports) {
         // syn.$c.exportCryptoKey(cryptoKey.publicKey, true).then((result) => { debugger; });
         async exportCryptoKey(cryptoKey, isPublic) {
             let result = '';
-            isPublic = $string.toBoolean(isPublic);
+            isPublic = context.$string.toBoolean(isPublic);
             const exportLabel = isPublic ? 'PUBLIC' : 'PRIVATE';
-            const exported = await window.crypto.subtle.exportKey(
+            const exported = await context.crypto.subtle.exportKey(
                 (isPublic ? 'spki' : 'pkcs8'),
                 cryptoKey
             );
             const exportedAsString = String.fromCharCode.apply(null, new Uint8Array(exported));
-            const exportedAsBase64 = window.btoa(exportedAsString);
+            const exportedAsBase64 = context.btoa(exportedAsString);
             result = `-----BEGIN ${exportLabel} KEY-----\n${exportedAsBase64}\n-----END ${exportLabel} KEY-----`;
 
             const lines = result.split('\n');
@@ -1415,16 +1415,16 @@ if (typeof module !== 'undefined' && module.exports) {
 
         // syn.$c.importCryptoKey('-----BEGIN PUBLIC KEY-----...-----END PUBLIC KEY-----', true).then((result) => { debugger; });
         async importCryptoKey(pem, isPublic) {
-            isPublic = $string.toBoolean(isPublic);
+            isPublic = context.$string.toBoolean(isPublic);
             const exportLabel = isPublic ? 'PUBLIC' : 'PRIVATE';
             const pemHeader = `-----BEGIN ${exportLabel} KEY-----`;
             const pemFooter = `-----END ${exportLabel} KEY-----`;
             const pemContents = pem.substring(pemHeader.length, pem.length - pemFooter.length).replaceAll('\n', '');
-            const binaryDerString = window.atob(pemContents);
+            const binaryDerString = context.atob(pemContents);
             const binaryDer = syn.$l.stringToArrayBuffer(binaryDerString);
             const importMode = isPublic ? ['encrypt'] : ['decrypt'];
 
-            return await crypto.subtle.importKey(
+            return await context.crypto.subtle.importKey(
                 (isPublic ? 'spki' : 'pkcs8'),
                 binaryDer,
                 {
@@ -1439,7 +1439,7 @@ if (typeof module !== 'undefined' && module.exports) {
         // syn.$c.rsaEncode('hello world', result).then((result) => { debugger; });
         async rsaEncode(text, publicKey) {
             const data = encoder.encode(text);
-            const encrypted = await crypto.subtle.encrypt(
+            const encrypted = await context.crypto.subtle.encrypt(
                 {
                     name: 'RSA-OAEP'
                 },
@@ -1453,7 +1453,7 @@ if (typeof module !== 'undefined' && module.exports) {
         // syn.$c.rsaDecode(encryptData, result).then((result) => { debugger; });
         async rsaDecode(encryptedData, privateKey) {
             const encrypted = new Uint8Array($cryptography.base64Decode(encryptedData).split(',').map(Number));
-            const decrypted = await crypto.subtle.decrypt(
+            const decrypted = await context.crypto.subtle.decrypt(
                 {
                     name: 'RSA-OAEP'
                 },
@@ -1468,7 +1468,7 @@ if (typeof module !== 'undefined' && module.exports) {
             let result;
             ivLength = ivLength || 16;
             if (key && key.toUpperCase() == '$RANDOM$') {
-                result = window.crypto.getRandomValues(new Uint8Array(ivLength));
+                result = context.crypto.getRandomValues(new Uint8Array(ivLength));
             }
             else {
                 key = key || '';
@@ -1487,7 +1487,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
             const data = encoder.encode(text);
 
-            const cryptoKey = await window.crypto.subtle.importKey(
+            const cryptoKey = await context.crypto.subtle.importKey(
                 'raw',
                 $cryptography.padKey(key, keyLength / 8),
                 { name: algorithm },
@@ -1495,7 +1495,7 @@ if (typeof module !== 'undefined' && module.exports) {
                 ['encrypt']
             );
 
-            const encrypted = await window.crypto.subtle.encrypt(
+            const encrypted = await context.crypto.subtle.encrypt(
                 {
                     name: algorithm,
                     iv: iv
@@ -1518,7 +1518,7 @@ if (typeof module !== 'undefined' && module.exports) {
             if (encryptedData && encryptedData.iv && encryptedData.encrypted) {
                 const iv = new Uint8Array($cryptography.base64Decode(encryptedData.iv).split(',').map(Number));
                 const encrypted = new Uint8Array($cryptography.base64Decode(encryptedData.encrypted).split(',').map(Number));
-                const cryptoKey = await window.crypto.subtle.importKey(
+                const cryptoKey = await context.crypto.subtle.importKey(
                     'raw',
                     $cryptography.padKey(key, keyLength / 8),
                     { name: algorithm },
@@ -1526,7 +1526,7 @@ if (typeof module !== 'undefined' && module.exports) {
                     ['decrypt']
                 );
 
-                const decrypted = await window.crypto.subtle.decrypt(
+                const decrypted = await context.crypto.subtle.decrypt(
                     {
                         name: algorithm,
                         iv: iv
@@ -1545,7 +1545,7 @@ if (typeof module !== 'undefined' && module.exports) {
             algorithms = algorithms || 'SHA-1'; // SHA-1,SHA-2,SHA-224,SHA-256,SHA-384,SHA-512,SHA3-224,SHA3-256,SHA3-384,SHA3-512,SHAKE128,SHAKE256
 
             const data = encoder.encode(message);
-            const hash = await crypto.subtle.digest(algorithms, data);
+            const hash = await context.crypto.subtle.digest(algorithms, data);
             return Array.from(new Uint8Array(hash))
                 .map(b => b.toString(16).padStart(2, '0'))
                 .join('');
@@ -2394,21 +2394,21 @@ if (typeof module !== 'undefined' && module.exports) {
         },
 
         required(el, isRequired = true, message) {
-            if ($string.isNullOrEmpty(message)) {
+            if (context.$string.isNullOrEmpty(message)) {
                 syn.$l.eventLog('$v.required', 'message 확인 필요', 'Information');
                 return this;
             }
             el = syn.$l.getElement(el);
             if (el) {
                 this.setElement(el);
-                el.required = $string.toBoolean(isRequired);
+                el.required = context.$string.toBoolean(isRequired);
                 el.message = message;
             }
             return this;
         },
 
         pattern(el, validID, options = {}) {
-            if (!options.expr || $string.isNullOrEmpty(options.message)) {
+            if (!options.expr || context.$string.isNullOrEmpty(options.message)) {
                 syn.$l.eventLog('$v.pattern', 'options.expr, options.message 확인 필요', 'Information');
                 return this;
             }
@@ -2421,9 +2421,9 @@ if (typeof module !== 'undefined' && module.exports) {
         },
 
         range(el, validID, options = {}) {
-            if (!$string.isNumber(options.min) || !$string.isNumber(options.max) ||
-                $string.isNullOrEmpty(options.minOperator) || $string.isNullOrEmpty(options.maxOperator) ||
-                $string.isNullOrEmpty(options.message)) {
+            if (!context.$string.isNumber(options.min) || !context.$string.isNumber(options.max) ||
+                context.$string.isNullOrEmpty(options.minOperator) || context.$string.isNullOrEmpty(options.maxOperator) ||
+                context.$string.isNullOrEmpty(options.message)) {
                 syn.$l.eventLog('$v.range', 'options.min, options.minOperator, options.max, options.maxOperator, options.message 확인 필요', 'Information');
                 return this;
             }
@@ -2436,7 +2436,7 @@ if (typeof module !== 'undefined' && module.exports) {
         },
 
         custom(el, validID, options = {}) {
-            if (!options.functionName || $string.isNullOrEmpty(options.message)) {
+            if (!options.functionName || context.$string.isNullOrEmpty(options.message)) {
                 syn.$l.eventLog('$v.custom', 'options.functionName, options.message 확인 필요', 'Information');
                 return this;
             }
@@ -2485,14 +2485,14 @@ if (typeof module !== 'undefined' && module.exports) {
             let isValid = true;
             const value = el.value?.trim() ?? '';
 
-            if ($string.toBoolean(el.required) && value.length === 0) {
+            if (context.$string.toBoolean(el.required) && value.length === 0) {
                 isValid = false;
                 this.messages.push(el.message);
                 if (!this.isContinue) return false;
             }
 
             if (!isValid && !this.isContinue) return false;
-            if (!$string.toBoolean(el.required) && value.length === 0) return true;
+            if (!context.$string.toBoolean(el.required) && value.length === 0) return true;
 
             const validObject = this.elements[el.id];
             if (!validObject) return isValid;
@@ -2508,11 +2508,11 @@ if (typeof module !== 'undefined' && module.exports) {
 
             for (const [validID, rangeRule] of Object.entries(validObject.range)) {
                 let rangeResult = false;
-                if ($string.isNumber(value)) {
+                if (context.$string.isNumber(value)) {
                     try {
-                        const numValue = $string.toNumber(value);
-                        const min = $string.toNumber(rangeRule.min);
-                        const max = $string.toNumber(rangeRule.max);
+                        const numValue = context.$string.toNumber(value);
+                        const min = context.$string.toNumber(rangeRule.min);
+                        const max = context.$string.toNumber(rangeRule.max);
 
                         const checkMin = (op, val, limit) => {
                             switch (op) {
@@ -2809,7 +2809,7 @@ if (typeof module !== 'undefined' && module.exports) {
         clone(date) {
             if (date instanceof Date) {
                 return new Date(date.getTime());
-            } else if ($object.isString(date)) {
+            } else if (context.$object.isString(date)) {
                 try {
                     return new Date(date);
                 } catch {
@@ -2839,11 +2839,11 @@ if (typeof module !== 'undefined' && module.exports) {
 
         toString(date, format, options = {}) {
             let dateObj = date;
-            if ($object.isString(date) && this.isDate(date)) {
+            if (context.$object.isString(date) && this.isDate(date)) {
                 dateObj = new Date(date);
             }
 
-            if (!($object.isDate(dateObj) && !isNaN(dateObj))) {
+            if (!(context.$object.isDate(dateObj) && !isNaN(dateObj))) {
                 return '';
             }
 
@@ -2906,7 +2906,7 @@ if (typeof module !== 'undefined' && module.exports) {
             amText = amText || 'AM';
             pmText = pmText || 'PM';
 
-            if ($string.isNullOrEmpty(time) == true) {
+            if (context.$string.isNullOrEmpty(time) == true) {
                 return amText;
             }
 
@@ -2919,10 +2919,10 @@ if (typeof module !== 'undefined' && module.exports) {
                     hour = parseInt(time.split(':')[0]);
                 }
                 else if (time.length > 10) {
-                    hour = $date.parseDate(time).getHours();
+                    hour = context.$date.parseDate(time).getHours();
                 }
                 else if (time.length <= 2) {
-                    hour = $string.toNumber(time);
+                    hour = context.$string.toNumber(time);
                 }
             }
             else if (typeof time === 'number') {
@@ -2939,7 +2939,7 @@ if (typeof module !== 'undefined' && module.exports) {
             amText = amText || 'AM';
             pmText = pmText || 'PM';
 
-            if ($string.isNullOrEmpty(time) == true) {
+            if (context.$string.isNullOrEmpty(time) == true) {
                 return amText;
             }
 
@@ -2962,13 +2962,13 @@ if (typeof module !== 'undefined' && module.exports) {
                     second = parseInt(time.split(':')[2]);
                 }
                 else if (time.length > 10) {
-                    const date = $date.parseDate(time);
+                    const date = context.$date.parseDate(time);
                     hour = date.getHours();
                     minute = date.getMinutes();
                     second = date.getSeconds();
                 }
                 else if (time.length <= 2) {
-                    hour = $string.toNumber(time);
+                    hour = context.$string.toNumber(time);
                 }
             }
             else if (typeof time === 'number') {
@@ -3058,7 +3058,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
         isDate(val) {
             var result = false;
-            if ($object.isString(val) == true) {
+            if (context.$object.isString(val) == true) {
                 const timestamp = Date.parse(val);
                 result = !isNaN(timestamp);
             }
@@ -3070,7 +3070,7 @@ if (typeof module !== 'undefined' && module.exports) {
         },
 
         isISOString(val) {
-            return $object.isString(val) && $validation.regexs.isoDate.test(val);
+            return context.$object.isString(val) && $validation.regexs.isoDate.test(val);
         },
 
         weekOfMonth(year, month, weekStartSunday = true) {
@@ -3133,7 +3133,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
         timeAgo(dateInput) {
             let date;
-            if ($object.isString(dateInput) == true && this.isDate(dateInput) == true) {
+            if (context.$object.isString(dateInput) == true && this.isDate(dateInput) == true) {
                 date = new Date(dateInput);
             } else if (dateInput instanceof Date) {
                 date = dateInput;
@@ -3173,11 +3173,11 @@ if (typeof module !== 'undefined' && module.exports) {
             }
 
             try {
-                if ($object.isNumber(dateInput) == true) {
+                if (context.$object.isNumber(dateInput) == true) {
                     return new Date(dateInput);
                 }
 
-                if ($object.isString(dateInput) == true) {
+                if (context.$object.isString(dateInput) == true) {
                     if (dateInput.includes('T')) {
                         return new Date(dateInput);
                     }
@@ -3188,7 +3188,7 @@ if (typeof module !== 'undefined' && module.exports) {
                     }
                 }
             } catch (error) {
-                syn.$l.eventLog('$date.parseDate', error, 'Warning');
+                syn.$l.eventLog('context.$date.parseDate', error, 'Warning');
             }
 
             return null;
@@ -3302,7 +3302,7 @@ if (typeof module !== 'undefined' && module.exports) {
                     const value = item[key];
                     if (value !== undefined && value !== null) {
                         if (Array.isArray(value)) return value.join(', ');
-                        if (value instanceof Date) return $date.toString(value, 'a');
+                        if (value instanceof Date) return context.$date.toString(value, 'a');
                         return String(value);
                     }
                     return defaultValue !== null ? defaultValue : match;
@@ -3407,10 +3407,10 @@ if (typeof module !== 'undefined' && module.exports) {
 
         toNumber(val) {
             try {
-                const effectiveValue = $object.isNullOrUndefined(val) ? 0 : val;
+                const effectiveValue = context.$object.isNullOrUndefined(val) ? 0 : val;
                 return parseFloat((effectiveValue === 0 || val === '') ? '0' : effectiveValue.toString().replace(/,/g, ''));
             } catch (error) {
-                syn.$l.eventLog('$string.toNumber', error, 'Warning');
+                syn.$l.eventLog('context.$string.toNumber', error, 'Warning');
                 return 0;
             }
         },
@@ -3485,7 +3485,7 @@ if (typeof module !== 'undefined' && module.exports) {
         },
 
         /*
-        const items = $string.toJsv(clipboardData, { delimiter: '\t' });
+        const items = context.$string.toJsv(clipboardData, { delimiter: '\t' });
         const rules = {
             0: {
                 name: 'System',
@@ -3524,7 +3524,7 @@ if (typeof module !== 'undefined' && module.exports) {
             }
         };
 
-        const validate = $string.validateJsv(items, rules);
+        const validate = context.$string.validateJsv(items, rules);
         if (validate.result == true) {
             return items;
         }
@@ -3571,7 +3571,7 @@ if (typeof module !== 'undefined' && module.exports) {
                         continue;
                     }
 
-                    if ($string.toBoolean(rule.required) == true && (value === null || value === undefined || value === '')) {
+                    if (context.$string.toBoolean(rule.required) == true && (value === null || value === undefined || value === '')) {
                         errors.push({
                             row: rowIndex,
                             column: colIndex,
@@ -3583,7 +3583,7 @@ if (typeof module !== 'undefined' && module.exports) {
                         continue;
                     }
 
-                    if ($string.toBoolean(rule.required) == false && (value === null || value === undefined || value === '')) {
+                    if (context.$string.toBoolean(rule.required) == false && (value === null || value === undefined || value === '')) {
                         continue;
                     }
 
@@ -3746,7 +3746,7 @@ if (typeof module !== 'undefined' && module.exports) {
         },
 
         toBoolean(val) {
-            if ($object.isNullOrUndefined(val) == true) {
+            if (context.$object.isNullOrUndefined(val) == true) {
                 return false;
             }
 
@@ -3803,7 +3803,7 @@ if (typeof module !== 'undefined' && module.exports) {
                     if ($validation.regexs.isoDate.test(strVal)) {
                         const date = new Date(strVal);
                         return isNaN(date) ? null : date;
-                    } else if ($date.isDate(strVal)) {
+                    } else if (context.$date.isDate(strVal)) {
                         const date = new Date(strVal);
                         return isNaN(date) ? null : date;
                     }
@@ -3862,7 +3862,7 @@ if (typeof module !== 'undefined' && module.exports) {
                 try {
                     return new Intl.NumberFormat(localeID, formatOptions).format(num);
                 } catch (e) {
-                    syn.$l.eventLog('$string.toCurrency', `Intl formatting error for locale ${localeID}: ${e}`, 'Warning');
+                    syn.$l.eventLog('context.$string.toCurrency', `Intl formatting error for locale ${localeID}: ${e}`, 'Warning');
                 }
             }
 
@@ -3876,7 +3876,7 @@ if (typeof module !== 'undefined' && module.exports) {
             const strVal = String(val);
             const padLength = Math.max(0, length - strVal.length);
             const padding = String(fix).repeat(padLength);
-            return $string.toBoolean(isLeft) ? padding + strVal : strVal + padding;
+            return context.$string.toBoolean(isLeft) ? padding + strVal : strVal + padding;
         }
 
     });
@@ -4022,7 +4022,7 @@ if (typeof module !== 'undefined' && module.exports) {
         ranks(values, asc = false) {
             if (!Array.isArray(values)) return [];
 
-            const indexedValues = values.map((value, index) => ({ value: $string.toNumber(value), index }));
+            const indexedValues = values.map((value, index) => ({ value: context.$string.toNumber(value), index }));
 
             indexedValues.sort((a, b) => asc ? a.value - b.value : b.value - a.value);
 
@@ -4115,7 +4115,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
         aggregate(type, columnValues) {
             if (typeof columnValues === 'string') {
-                processedValues = columnValues.split(',');
+                columnValues = columnValues.split(',');
             }
 
             if (!Array.isArray(columnValues)) {
@@ -4126,7 +4126,7 @@ if (typeof module !== 'undefined' && module.exports) {
             let validCount = 0;
 
             for (const value of columnValues) {
-                const numericValue = $string.toNumber(value);
+                const numericValue = context.$string.toNumber(value);
                 if (!isNaN(numericValue)) {
                     numericValues.push(numericValue);
                     validCount++;
@@ -4227,7 +4227,7 @@ if (typeof module !== 'undefined' && module.exports) {
         toParameterString(jsonObject) {
             if (!jsonObject || typeof jsonObject !== 'object') return '';
             return Object.entries(jsonObject)
-                .map(([key, val]) => `@${key}:${$string.toValue($string.toDynamic(val), '')}`)
+                .map(([key, val]) => `@${key}:${context.$string.toValue(context.$string.toDynamic(val), '')}`)
                 .join(';');
         },
 
@@ -4369,7 +4369,7 @@ if (typeof module !== 'undefined' && module.exports) {
         },
 
         parseJsonValue(value, jsonType) {
-            if ($object.isNullOrUndefined(value) == true) {
+            if (context.$object.isNullOrUndefined(value) == true) {
                 return value;
             }
 
@@ -4379,7 +4379,7 @@ if (typeof module !== 'undefined' && module.exports) {
                 case 'number':
                     return Number(value);
                 case 'boolean':
-                    return value === true || $string.toBoolean(value);
+                    return value === true || context.$string.toBoolean(value);
                 case 'object':
                 case 'array':
                     return JSON.parse(value);
@@ -4477,7 +4477,7 @@ if (typeof module !== 'undefined' && module.exports) {
     })();
 
     const selectNodes = (query, all, logSource) => {
-        if (!$object.isString(query)) {
+        if (!context.$object.isString(query)) {
             return [];
         }
 
@@ -4546,7 +4546,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
         getElement(el) {
             let result = null;
-            if ($object.isString(el) == true) {
+            if (context.$object.isString(el) == true) {
                 const findEL = this.get(el);
                 if (findEL) {
                     result = findEL;
@@ -4664,7 +4664,7 @@ if (typeof module !== 'undefined' && module.exports) {
                 el.addEventListener(type, handler, defaultOptions);
             }
 
-            if ($object.isString(type) && type.toLowerCase() === 'resize') {
+            if (context.$object.isString(type) && type.toLowerCase() === 'resize') {
                 handler();
             }
 
@@ -4675,18 +4675,18 @@ if (typeof module !== 'undefined' && module.exports) {
             if (typeof handler !== 'function') return this;
 
             let elements = [];
-            if ($object.isString(query)) {
+            if (context.$object.isString(query)) {
                 elements = this.querySelectorAll(query);
             } else if (Array.isArray(query)) {
                 query.forEach(item => {
-                    if ($object.isString(item)) {
+                    if (context.$object.isString(item)) {
                         elements.push(...this.querySelectorAll(item));
-                    } else if ($object.isObject(item)) {
+                    } else if (context.$object.isObject(item)) {
                         elements.push(item);
                     }
                 });
                 elements = [...new Set(elements)];
-            } else if ($object.isObject(query)) {
+            } else if (context.$object.isObject(query)) {
                 elements = [query];
             }
 
@@ -4801,7 +4801,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
         get(...ids) {
             if (globalRoot.devicePlatform === 'node' || !doc) return ids.length === 1 ? null : [];
-            const results = ids.map(id => $object.isString(id) ? doc.getElementById(id) : null).filter(el => el !== null);
+            const results = ids.map(id => context.$object.isString(id) ? doc.getElementById(id) : null).filter(el => el !== null);
             return ids.length === 1 ? results[0] || null : results;
         },
 
@@ -4824,7 +4824,7 @@ if (typeof module !== 'undefined' && module.exports) {
             if (globalRoot.devicePlatform === 'node' || !doc) return [];
             let results = [];
             tagNames.forEach(tagName => {
-                if ($object.isString(tagName)) {
+                if (context.$object.isString(tagName)) {
                     results.push(...doc.getElementsByTagName(tagName));
                 }
             });
@@ -4844,13 +4844,13 @@ if (typeof module !== 'undefined' && module.exports) {
         },
 
         toEnumValue(enumObject, value) {
-            if (!$object.isObject(enumObject)) return null;
+            if (!context.$object.isObject(enumObject)) return null;
             const entry = Object.entries(enumObject).find(([key, val]) => key === value);
             return entry ? entry[1] : null;
         },
 
         toEnumText(enumObject, value) {
-            if (!$object.isObject(enumObject)) return null;
+            if (!context.$object.isObject(enumObject)) return null;
             const entry = Object.entries(enumObject).find(([key, val]) => val === value);
             return entry ? entry[0] : null;
         },
@@ -4863,13 +4863,13 @@ if (typeof module !== 'undefined' && module.exports) {
                 const options = { delimiter: '｜', newline: '↵' };
 
                 if (parts.length > 1) {
-                    options.meta = $string.toParameterObject(parts[0]);
-                    jsonData = $string.toJson(parts[1], options);
+                    options.meta = context.$string.toParameterObject(parts[0]);
+                    jsonData = context.$string.toJson(parts[1], options);
                 } else {
-                    jsonData = $string.toJson(parts[0], options);
+                    jsonData = context.$string.toJson(parts[0], options);
                 }
 
-                return $string.toBoolean(isFormat) ? JSON.stringify(jsonData, null, 2) : jsonData;
+                return context.$string.toBoolean(isFormat) ? JSON.stringify(jsonData, null, 2) : jsonData;
             } catch (error) {
                 syn.$l.eventLog('$l.prettyTSD', `TSD 파싱 오류: ${error}`, 'Error');
                 return `TSD 파싱 오류: ${error.message}`;
@@ -4915,11 +4915,11 @@ if (typeof module !== 'undefined' && module.exports) {
             var result = [];
 
             if (data) {
-                if ($object.isNullOrUndefined(childrenID) == true) {
+                if (context.$object.isNullOrUndefined(childrenID) == true) {
                     childrenID = 'items';
                 }
 
-                var root = $object.clone(data, false);
+                var root = context.$object.clone(data, false);
                 delete root[childrenID];
                 root[parentItemID] = null;
                 result.push(root);
@@ -4936,7 +4936,7 @@ if (typeof module !== 'undefined' && module.exports) {
         parseNested2Flat(data, newData, itemID, parentItemID, childrenID = 'items') {
             var result = null;
 
-            if ($object.isNullOrUndefined(childrenID) == true) {
+            if (context.$object.isNullOrUndefined(childrenID) == true) {
                 childrenID = 'items';
             }
 
@@ -4945,7 +4945,7 @@ if (typeof module !== 'undefined' && module.exports) {
                 for (var i = 0; i < items.length; i++) {
                     var item = items[i];
 
-                    var cloneItem = $object.clone(item, false);
+                    var cloneItem = context.$object.clone(item, false);
                     delete cloneItem[childrenID];
                     cloneItem[parentItemID] = data[itemID];
 
@@ -4983,7 +4983,7 @@ if (typeof module !== 'undefined' && module.exports) {
                     newData[childrenID] = [];
                 }
                 for (var i = 0; i < child.length; i++) {
-                    newData[childrenID].push($object.clone(child[i]));
+                    newData[childrenID].push(context.$object.clone(child[i]));
                     syn.$l.parseFlat2Nested(data, child[i], newData[childrenID][i], itemID, parentItemID, childrenID);
                 }
             }
@@ -5246,7 +5246,7 @@ if (typeof module !== 'undefined' && module.exports) {
         async blobToFile(blob, fileName, mimeType) {
             if (!(blob instanceof Blob)) return null;
             const effectiveMimeType = mimeType || blob.type || 'application/octet-stream';
-            return new File([blob], fileName || `blob-${$date.toString(new Date(), 'f')}`, { type: effectiveMimeType });
+            return new File([blob], fileName || `blob-${context.$date.toString(new Date(), 'f')}`, { type: effectiveMimeType });
         },
 
         async fileToBase64(file) {
@@ -5490,7 +5490,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
             let logLevel = 0;
             if (logLevelInput) {
-                if ($object.isString(logLevelInput) === true) {
+                if (context.$object.isString(logLevelInput) === true) {
                     logLevel = syn.$l.logLevel[logLevelInput];
                 }
             }
@@ -5607,12 +5607,12 @@ if (typeof module !== 'undefined' && module.exports) {
 
             param = syn.$r.path + ((syn.$r.path.length > 0 && urlArray.length > 1) ? '&' : '?');
             for (const key in $request.params) {
-                if ($string.isNullOrEmpty(key) == false && typeof (syn.$r.params[key]) == 'string') {
+                if (context.$string.isNullOrEmpty(key) == false && typeof (syn.$r.params[key]) == 'string') {
                     param += key + '=' + syn.$r.params[key] + '&';
                 }
             }
 
-            if (syn.Config && $string.toBoolean(syn.Config.IsClientCaching) == false) {
+            if (syn.Config && context.$string.toBoolean(syn.Config.IsClientCaching) == false) {
                 param += '&noCache=' + Date.now();
             }
 
@@ -5623,11 +5623,11 @@ if (typeof module !== 'undefined' && module.exports) {
             let result = jsonObject ? Object.entries(jsonObject).reduce((queryString, ref, index) => {
                 const key = ref[0];
                 const val = ref[1];
-                queryString += `&${key}=${$string.toValue(val, '')}`;
+                queryString += `&${key}=${context.$string.toValue(val, '')}`;
                 return queryString;
             }, '') : '';
 
-            if ($string.isNullOrEmpty(result) == false && $string.toBoolean(isQuestion) == true) {
+            if (context.$string.isNullOrEmpty(result) == false && context.$string.toBoolean(isQuestion) == true) {
                 result = '?' + result.substring(1);
             }
 
@@ -5654,11 +5654,11 @@ if (typeof module !== 'undefined' && module.exports) {
         addQueryParam(param, value, urlStr) {
             const url = new URL(urlStr || location.href);
 
-            if ($object.isObject(param) == true) {
+            if (context.$object.isObject(param) == true) {
                 Object.entries(param).forEach(([key, val]) => {
                     url.searchParams.append(key, String(val));
                 });
-            } else if ($object.isString(param) && value !== undefined) {
+            } else if (context.$object.isString(param) && value !== undefined) {
                 url.searchParams.append(param, String(value));
             } else {
                 syn.$l.eventLog('$r.addQueryParam', '잘못된 파라미터 형식입니다. 문자열 키와 값이거나 객체여야 합니다.', 'Warning');
@@ -5670,9 +5670,9 @@ if (typeof module !== 'undefined' && module.exports) {
         removeQueryParam(paramName, urlStr) {
             const url = new URL(urlStr || location.href);
 
-            if ($object.isArray(paramName) == true) {
+            if (context.$object.isArray(paramName) == true) {
                 paramName.forEach(p => url.searchParams.delete(p));
-            } else if ($object.isString(paramName)) {
+            } else if (context.$object.isString(paramName)) {
                 url.searchParams.delete(paramName);
             } else {
                 syn.$l.eventLog('$r.removeQueryParam', '잘못된 파라미터 형식입니다. 문자열 또는 문자열 배열이어야 합니다.', 'Warning');
@@ -5684,11 +5684,11 @@ if (typeof module !== 'undefined' && module.exports) {
         setQueryParam(param, value, urlStr) {
             const url = new URL(urlStr || location.href);
 
-            if ($object.isObject(param) == true) {
+            if (context.$object.isObject(param) == true) {
                 Object.entries(param).forEach(([key, val]) => {
                     url.searchParams.set(key, String(val));
                 });
-            } else if ($object.isString(param) && value !== undefined) {
+            } else if (context.$object.isString(param) && value !== undefined) {
                 url.searchParams.set(param, String(value));
             } else {
                 syn.$l.eventLog('$r.setQueryParam', '잘못된 파라미터 형식입니다. 문자열 키와 값이거나 객체여야 합니다.', 'Warning');
@@ -5727,10 +5727,10 @@ if (typeof module !== 'undefined' && module.exports) {
 
                         let response = null;
                         let requestTimeoutID = null;
-                        if ($object.isNullOrUndefined(raw) == false && $object.isString(raw) == false) {
+                        if (context.$object.isNullOrUndefined(raw) == false && context.$object.isString(raw) == false) {
                             options.method = options.method || 'POST';
 
-                            if ($object.isNullOrUndefined(options.headers) == true) {
+                            if (context.$object.isNullOrUndefined(options.headers) == true) {
                                 options.headers = new Headers();
                                 if (raw instanceof FormData) {
                                 }
@@ -5761,7 +5761,7 @@ if (typeof module !== 'undefined' && module.exports) {
                                 redirect: 'follow'
                             };
 
-                            if ($object.isNullOrUndefined(options.timeout) == false) {
+                            if (context.$object.isNullOrUndefined(options.timeout) == false) {
                                 const controller = new AbortController();
                                 requestTimeoutID = setTimeout(() => controller.abort(), options.timeout);
                                 data.signal = controller.signal;
@@ -5774,7 +5774,7 @@ if (typeof module !== 'undefined' && module.exports) {
                             }
                         }
                         else {
-                            if ($object.isNullOrUndefined(options.headers) == true) {
+                            if (context.$object.isNullOrUndefined(options.headers) == true) {
                                 options.headers = new Headers();
                                 options.headers.append('Content-Type', options.contentType || 'application/json');
                             }
@@ -5800,7 +5800,7 @@ if (typeof module !== 'undefined' && module.exports) {
                                 redirect: 'follow'
                             };
 
-                            if ($object.isNullOrUndefined(options.timeout) == false) {
+                            if (context.$object.isNullOrUndefined(options.timeout) == false) {
                                 const controller = new AbortController();
                                 requestTimeoutID = setTimeout(() => controller.abort(), options.timeout);
                                 data.signal = controller.signal;
@@ -5845,7 +5845,7 @@ if (typeof module !== 'undefined' && module.exports) {
                 responseType: 'text'
             }, options);
 
-            if ($object.isNullOrUndefined(data) == true) {
+            if (context.$object.isNullOrUndefined(data) == true) {
                 data = {};
             }
 
@@ -5856,7 +5856,7 @@ if (typeof module !== 'undefined' && module.exports) {
             xhr.setRequestHeader('OffsetMinutes', syn.$w.timezoneOffsetMinutes);
 
             let formData = null;
-            if ($object.isNullOrUndefined(data.body) == false) {
+            if (context.$object.isNullOrUndefined(data.body) == false) {
                 const params = data.body;
                 if (method.toUpperCase() == 'GET') {
                     let paramUrl = url + ((url.split('?').length > 1) ? '&' : '?');
@@ -5952,7 +5952,7 @@ if (typeof module !== 'undefined' && module.exports) {
             if (document.forms.length == 0) {
                 return false;
             }
-            else if (document.forms.length > 0 && $object.isNullOrUndefined(formID) == true) {
+            else if (document.forms.length > 0 && context.$object.isNullOrUndefined(formID) == true) {
                 formID = document.forms[0].id;
             }
 
@@ -6038,11 +6038,11 @@ if (typeof module !== 'undefined' && module.exports) {
         },
 
         setCookie(id, val, expires, path, domain, secure) {
-            if ($object.isNullOrUndefined(expires) == true) {
+            if (context.$object.isNullOrUndefined(expires) == true) {
                 expires = new Date(Date.now() + (1000 * 60 * 60 * 24));
             }
 
-            if ($object.isNullOrUndefined(path) == true) {
+            if (context.$object.isNullOrUndefined(path) == true) {
                 path = '/';
             }
 
@@ -6139,7 +6139,7 @@ if (typeof module !== 'undefined' && module.exports) {
                 let parsedMessage;
                 try {
                     if (!evt.data || location.origin != evt.origin) return;
-                    parsedMessage = $object.isString(evt.data) == true ? JSON.parse(evt.data) : evt.data;
+                    parsedMessage = context.$object.isString(evt.data) == true ? JSON.parse(evt.data) : evt.data;
                     if (typeof parsedMessage !== 'object' || parsedMessage === null) {
                         syn.$l.eventLog('$network.onPostMessage', 'postMessage data 확인 필요 (non-object)', 'Verbose');
                         return;
@@ -7025,7 +7025,7 @@ if (typeof module !== 'undefined' && module.exports) {
                 }
             } else {
                 const storage = isLocal ? localStorage : sessionStorage;
-                if ($object.isString(prop) == true) {
+                if (context.$object.isString(prop) == true) {
                     const val = storage.getItem(prop);
                     try {
                         return val ? JSON.parse(val) : null;
@@ -7034,7 +7034,7 @@ if (typeof module !== 'undefined' && module.exports) {
                         storage.removeItem(prop);
                     }
                 }
-                else if ($object.isArray(prop) == true) {
+                else if (context.$object.isArray(prop) == true) {
                     let results = {};
                     for (let i = 0; i < storage.length; i++) {
                         const key = storage.key(i);
@@ -7130,7 +7130,7 @@ if (typeof module !== 'undefined' && module.exports) {
                                     evt: e
                                 });
 
-                                if ($object.isNullOrUndefined(result) == true || $string.toBoolean(result) == false) {
+                                if (context.$object.isNullOrUndefined(result) == true || context.$string.toBoolean(result) == false) {
                                     result = false;
                                 }
                             }
@@ -7200,7 +7200,7 @@ if (typeof module !== 'undefined' && module.exports) {
                     syn.$l.addEvent(matchMedia('(min-width: 1400px)'), 'change', matchMedia_change);
                 }
 
-                if ($object.isNullOrUndefined(syn.$w.User) == true) {
+                if (context.$object.isNullOrUndefined(syn.$w.User) == true) {
                     var sso = {
                         TokenID: '',
                         UserNo: 0,
@@ -7226,15 +7226,15 @@ if (typeof module !== 'undefined' && module.exports) {
                     }
                 }
 
-                if ($object.isNullOrUndefined(syn.$w.User) == false) {
+                if (context.$object.isNullOrUndefined(syn.$w.User) == false) {
                     syn.$l.deepFreeze(syn.$w.User);
                 }
 
-                if ($object.isNullOrUndefined(syn.$w.Variable) == false) {
+                if (context.$object.isNullOrUndefined(syn.$w.Variable) == false) {
                     syn.$l.deepFreeze(syn.$w.Variable);
                 }
 
-                if (mod && mod.context.synControls && ($object.isNullOrUndefined(mod.context.tabOrderControls) == true || mod.context.tabOrderControls.length == 0)) {
+                if (mod && mod.context.synControls && (context.$object.isNullOrUndefined(mod.context.tabOrderControls) == true || mod.context.tabOrderControls.length == 0)) {
                     var synTagNames = [];
                     var syn_tags = document.body.outerHTML.match(/<(syn_).+?>/gi);
                     if (syn_tags) {
@@ -7246,14 +7246,14 @@ if (typeof module !== 'undefined' && module.exports) {
                         }
                     }
 
-                    synTagNames = $array.distinct(synTagNames);
+                    synTagNames = context.$array.distinct(synTagNames);
                     var findElements = document.querySelectorAll('input,select,textarea,button' + (synTagNames.length > 0 ? ',' + synTagNames.join(',') : ''));
                     var els = [];
                     var length = findElements.length;
                     for (var idx = 0; idx < length; idx++) {
                         var el = findElements[idx];
                         if (el && el.style && el.style.display == 'none' || el.type == 'hidden') {
-                            if (el.id && el.tagName.toUpperCase() == 'SELECT' && $string.isNullOrEmpty(el.getAttribute('syn-datafield')) == false) {
+                            if (el.id && el.tagName.toUpperCase() == 'SELECT' && context.$string.isNullOrEmpty(el.getAttribute('syn-datafield')) == false) {
                                 els.push(el);
                             }
                             else {
@@ -7264,7 +7264,7 @@ if (typeof module !== 'undefined' && module.exports) {
                             if (el.id && el.id.includes('btn_syneditor_') == false && el.id.includes('chk_syngrid_') == false && el.id.includes('_hidden') == false) {
                                 els.push(el);
                             }
-                            else if (el.id && el.tagName.toUpperCase() == 'SELECT' && $string.isNullOrEmpty(el.getAttribute('syn-datafield')) == false) {
+                            else if (el.id && el.tagName.toUpperCase() == 'SELECT' && context.$string.isNullOrEmpty(el.getAttribute('syn-datafield')) == false) {
                                 els.push(el);
                             }
                             else if (el.id && el.tagName.includes('SYN_') == true) {
@@ -7306,7 +7306,7 @@ if (typeof module !== 'undefined' && module.exports) {
                                 });
                             }
                         }
-                        else if (el.id && el.tagName.toUpperCase() == 'SELECT' && $string.isNullOrEmpty(el.getAttribute('syn-datafield')) == false) {
+                        else if (el.id && el.tagName.toUpperCase() == 'SELECT' && context.$string.isNullOrEmpty(el.getAttribute('syn-datafield')) == false) {
                             var offset = null;
                             if (el.getAttribute('multiple') === false) {
                                 var control = syn.uicontrols.$select.getControl(el.id);
@@ -7375,7 +7375,7 @@ if (typeof module !== 'undefined' && module.exports) {
                     if (mod.context.tabOrderControls.length > 0) {
                         if (mod.config) {
                             // html (html defined), tdlr (top > down > left > right), lrtd (left > right > top > down)
-                            if ($string.isNullOrEmpty(mod.context.tapOrderFlow) == true) {
+                            if (context.$string.isNullOrEmpty(mod.context.tapOrderFlow) == true) {
                                 mod.context.tapOrderFlow = 'html';
                             }
 
@@ -7434,7 +7434,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
             var pageFormInit = async () => {
                 var mod = context[syn.$w.pageScript];
-                if (mod.config && $string.isNullOrEmpty(mod.config.layoutPage) == false) {
+                if (mod.config && context.$string.isNullOrEmpty(mod.config.layoutPage) == false) {
                     var masterLayout = await syn.$w.fetchText(mod.config.layoutPage);
                     if (masterLayout) {
                         var parser = new DOMParser();
@@ -7460,7 +7460,7 @@ if (typeof module !== 'undefined' && module.exports) {
                             for (var i = 0, length = bodys.length; i < length; i++) {
                                 var body = bodys[i];
                                 var position = body.getAttribute('position');
-                                if ($string.isNullOrEmpty(position) == false && ['beforebegin', 'afterbegin', 'beforeend', 'afterend'].indexOf(position) > -1) {
+                                if (context.$string.isNullOrEmpty(position) == false && ['beforebegin', 'afterbegin', 'beforeend', 'afterend'].indexOf(position) > -1) {
                                     masterPage.body.insertAdjacentHTML(position, body.innerHTML);
                                 }
                             }
@@ -7476,7 +7476,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
                 if (context.domainLibraryLoad) {
                     var isContinue = await domainLibraryLoad();
-                    if ($object.isNullOrUndefined(isContinue) == false && isContinue === false) {
+                    if (context.$object.isNullOrUndefined(isContinue) == false && isContinue === false) {
                         return false;
                     }
                 }
@@ -7677,7 +7677,7 @@ if (typeof module !== 'undefined' && module.exports) {
                     }
 
                     if (options && options.transactConfig && options.transactConfig.triggerEvent) {
-                        if ($object.isString(options.transactConfig.triggerEvent) == true) {
+                        if (context.$object.isString(options.transactConfig.triggerEvent) == true) {
                             syn.$l.addEvent(elID, options.transactConfig.triggerEvent, function (evt) {
                                 var el = syn.$w.activeControl(evt);
                                 var synOptions = el.getAttribute('syn-options') || null;
@@ -7695,7 +7695,7 @@ if (typeof module !== 'undefined' && module.exports) {
                                 }
                             });
                         }
-                        else if ($object.isArray(options.transactConfig.triggerEvent) == true) {
+                        else if (context.$object.isArray(options.transactConfig.triggerEvent) == true) {
                             var triggerFunction = function (evt) {
                                 var el = syn.$w.activeControl(evt);
                                 var synOptions = el.getAttribute('syn-options') || null;
@@ -7721,7 +7721,7 @@ if (typeof module !== 'undefined' && module.exports) {
                     }
 
                     if (options && options.triggerConfig && options.triggerConfig.triggerEvent) {
-                        if ($object.isString(options.triggerConfig.triggerEvent) == true) {
+                        if (context.$object.isString(options.triggerConfig.triggerEvent) == true) {
                             syn.$l.addEvent(elID, options.triggerConfig.triggerEvent, function (evt) {
                                 var triggerConfig = null;
                                 var el = syn.$w.activeControl(evt);
@@ -7745,7 +7745,7 @@ if (typeof module !== 'undefined' && module.exports) {
                                 }
                             });
                         }
-                        else if ($object.isArray(options.triggerConfig.triggerEvent) == true) {
+                        else if (context.$object.isArray(options.triggerConfig.triggerEvent) == true) {
                             var triggerFunction = function (evt) {
                                 var triggerConfig = null;
                                 var el = syn.$w.activeControl(evt);
@@ -7791,7 +7791,7 @@ if (typeof module !== 'undefined' && module.exports) {
                 }
 
                 syn.$w.remainingReadyIntervalID = setInterval(function () {
-                    if ($object.isNullOrUndefined(syn.$w.remainingReadyIntervalID) == false && syn.$w.remainingReadyCount == 0) {
+                    if (context.$object.isNullOrUndefined(syn.$w.remainingReadyIntervalID) == false && syn.$w.remainingReadyCount == 0) {
                         clearInterval(syn.$w.remainingReadyIntervalID);
                         syn.$w.remainingReadyIntervalID = null;
 
@@ -7801,7 +7801,7 @@ if (typeof module !== 'undefined' && module.exports) {
                 }, 25);
 
                 setTimeout(function () {
-                    if ($object.isNullOrUndefined(syn.$w.remainingReadyIntervalID) == false) {
+                    if (context.$object.isNullOrUndefined(syn.$w.remainingReadyIntervalID) == false) {
                         clearInterval(syn.$w.remainingReadyIntervalID);
                         syn.$w.remainingReadyIntervalID = null;
                         syn.$l.eventLog('pageLoad', '화면 초기화 오류, remainingReadyCount: {0} 확인 필요'.format(syn.$w.remainingReadyCount), 'Fatal');
@@ -7809,14 +7809,15 @@ if (typeof module !== 'undefined' && module.exports) {
                 }, syn.$w.pageReadyTimeout);
             };
 
-            syn.$w.mappingModule = syn.$w.getLoaderQueryString('mappingModule') == null ? true : $string.toBoolean(syn.$w.getLoaderQueryString('mappingModule'));
+            syn.$w.mappingModule = syn.$w.getLoaderQueryString('mappingModule') == null ? true : context.$string.toBoolean(syn.$w.getLoaderQueryString('mappingModule'));
             if (syn.$w.mappingModule == true) {
                 var module = {};
                 if (syn.$l.get('moduleScript')) {
                     syn.$w.extend({ pageScript: syn.$l.get('moduleScript').value });
                 }
 
-                if ($string.toBoolean(window.noPageScript) == false) {
+                context.noPageScript = context.noPageScript || syn.$w.getLoaderQueryString('noPageScript') == null ? false : context.context.$string.toBoolean(syn.$w.getLoaderQueryString('noPageScript'));
+                if (context.$string.toBoolean(context.noPageScript) == false) {
                     module = await syn.$w.fetchScript(syn.$w.pageScript.replace('$', ''));
                 }
 
@@ -7845,7 +7846,7 @@ if (typeof module !== 'undefined' && module.exports) {
                 context[syn.$w.pageScript] = mod;
                 context.$this = mod;
 
-                if (window.synLoader) {
+                if (context.synLoader) {
                     syn.$l.addEvent(document, 'pageReady', pageFormInit);
                     context.pageFormReady = true;
                     setTimeout(function () {
@@ -7869,7 +7870,7 @@ if (typeof module !== 'undefined' && module.exports) {
         },
 
         getLoaderQueryString(name) {
-            var currentScript = document.currentScript || document.querySelector('script[src*="syn.loader.js"]');
+            var currentScript = document.currentScript || document.querySelector('script[src*="syn.loader.js"]') || document.querySelector('script[src*="module.js"]');
             if (currentScript && currentScript.src) {
                 const params = new URLSearchParams(new URL(currentScript.src).search);
                 return params.get(name);
@@ -8044,12 +8045,12 @@ if (typeof module !== 'undefined' && module.exports) {
 
         tryAddFunction(transactConfig) {
             if (transactConfig && $this && $this.config) {
-                if ($object.isNullOrUndefined(transactConfig.noProgress) == true) {
+                if (context.$object.isNullOrUndefined(transactConfig.noProgress) == true) {
                     transactConfig.noProgress = false;
                 }
 
                 try {
-                    if ($object.isNullOrUndefined($this.config.transactions) == true) {
+                    if (context.$object.isNullOrUndefined($this.config.transactions) == true) {
                         $this.config.transactions = [];
                     }
 
@@ -8064,7 +8065,7 @@ if (typeof module !== 'undefined' && module.exports) {
                     const synControlList = $this.context.synControls;
                     const transactionObject = {};
                     transactionObject.functionID = transactConfig.functionID;
-                    transactionObject.transactionResult = $object.isNullOrUndefined(transactConfig.transactionResult) == true ? true : transactConfig.transactionResult === true;
+                    transactionObject.transactionResult = context.$object.isNullOrUndefined(transactConfig.transactionResult) == true ? true : transactConfig.transactionResult === true;
                     transactionObject.inputs = [];
                     transactionObject.outputs = [];
 
@@ -8103,16 +8104,16 @@ if (typeof module !== 'undefined' && module.exports) {
                                             synOptions = eval('(' + options + ')');
                                         }
 
-                                        if (synOptions == null || $string.isNullOrEmpty(synControlConfig.field) == true) {
+                                        if (synOptions == null || context.$string.isNullOrEmpty(synControlConfig.field) == true) {
                                             continue;
                                         }
 
                                         let isBelong = false;
                                         if (synOptions.belongID) {
-                                            if ($object.isString(synOptions.belongID) == true) {
+                                            if (context.$object.isString(synOptions.belongID) == true) {
                                                 isBelong = transactConfig.functionID == synOptions.belongID;
                                             }
-                                            else if ($object.isArray(synOptions.belongID) == true) {
+                                            else if (context.$object.isArray(synOptions.belongID) == true) {
                                                 isBelong = synOptions.belongID.indexOf(transactConfig.functionID) > -1;
                                             }
                                         }
@@ -8130,8 +8131,8 @@ if (typeof module !== 'undefined' && module.exports) {
                                         return item.field == input.dataFieldID && (item.type.indexOf('grid') > -1 || item.type.indexOf('chart') > -1) == true;
                                     });
 
-                                    const controlModule = $object.isNullOrUndefined(synControlConfig) == true ? null : syn.$w.getControlModule(synControlConfig.module);
-                                    if ($object.isNullOrUndefined(controlModule) == false && controlModule.setTransactionBelongID) {
+                                    const controlModule = context.$object.isNullOrUndefined(synControlConfig) == true ? null : syn.$w.getControlModule(synControlConfig.module);
+                                    if (context.$object.isNullOrUndefined(controlModule) == false && controlModule.setTransactionBelongID) {
                                         controlModule.setTransactionBelongID(synControlConfig.id, input, transactConfig);
                                     }
                                     else {
@@ -8142,10 +8143,10 @@ if (typeof module !== 'undefined' && module.exports) {
                                                     for (let l = 0; l < store.columns.length; l++) {
                                                         const column = store.columns[l];
                                                         let isBelong = false;
-                                                        if ($object.isString(column.belongID) == true) {
+                                                        if (context.$object.isString(column.belongID) == true) {
                                                             isBelong = transactConfig.functionID == column.belongID;
                                                         }
-                                                        else if ($object.isArray(column.belongID) == true) {
+                                                        else if (context.$object.isArray(column.belongID) == true) {
                                                             isBelong = column.belongID.indexOf(transactConfig.functionID) > -1;
                                                         }
 
@@ -8169,8 +8170,8 @@ if (typeof module !== 'undefined' && module.exports) {
                                     return item.field == input.dataFieldID && (item.type.indexOf('grid') > -1 || item.type.indexOf('chart') > -1) == true;
                                 });
 
-                                const controlModule = $object.isNullOrUndefined(synControlConfig) == true ? null : syn.$w.getControlModule(synControlConfig.module);
-                                if ($object.isNullOrUndefined(controlModule) == false && controlModule.setTransactionBelongID) {
+                                const controlModule = context.$object.isNullOrUndefined(synControlConfig) == true ? null : syn.$w.getControlModule(synControlConfig.module);
+                                if (context.$object.isNullOrUndefined(controlModule) == false && controlModule.setTransactionBelongID) {
                                     controlModule.setTransactionBelongID(synControlConfig.id, input, transactConfig);
                                 }
                                 else {
@@ -8181,10 +8182,10 @@ if (typeof module !== 'undefined' && module.exports) {
                                                 for (let l = 0; l < store.columns.length; l++) {
                                                     const column = store.columns[l];
                                                     let isBelong = false;
-                                                    if ($object.isString(column.belongID) == true) {
+                                                    if (context.$object.isString(column.belongID) == true) {
                                                         isBelong = transactConfig.functionID == column.belongID;
                                                     }
-                                                    else if ($object.isArray(column.belongID) == true) {
+                                                    else if (context.$object.isArray(column.belongID) == true) {
                                                         isBelong = column.belongID.indexOf(transactConfig.functionID) > -1;
                                                     }
 
@@ -8243,7 +8244,7 @@ if (typeof module !== 'undefined' && module.exports) {
                                             synOptions = eval('(' + options + ')');
                                         }
 
-                                        if (synOptions == null || $string.isNullOrEmpty(synControlConfig.field) == true) {
+                                        if (synOptions == null || context.$string.isNullOrEmpty(synControlConfig.field) == true) {
                                             continue;
                                         }
 
@@ -8252,18 +8253,18 @@ if (typeof module !== 'undefined' && module.exports) {
                                             dataType: synOptions.dataType
                                         };
 
-                                        if ($object.isNullOrUndefined(outputConfig.clear) == true || outputConfig.clear == true) {
+                                        if (context.$object.isNullOrUndefined(outputConfig.clear) == true || outputConfig.clear == true) {
                                             if (synControls && synControls.length > 0) {
                                                 const controlInfo = synControls.find(function (item) {
                                                     return item.field == outputConfig.dataFieldID;
                                                 });
 
-                                                if ($string.isNullOrEmpty(controlInfo.module) == true) {
+                                                if (context.$string.isNullOrEmpty(controlInfo.module) == true) {
                                                     continue;
                                                 }
 
                                                 const controlModule = syn.$w.getControlModule(controlInfo.module);
-                                                if ($object.isNullOrUndefined(controlModule) == false && controlModule.clear) {
+                                                if (context.$object.isNullOrUndefined(controlModule) == false && controlModule.clear) {
                                                     controlModule.clear(controlInfo.id);
                                                 }
                                             }
@@ -8284,7 +8285,7 @@ if (typeof module !== 'undefined' && module.exports) {
                                                     };
                                                 }
 
-                                                if ($object.isNullOrUndefined(outputConfig.clear) == true || outputConfig.clear == true) {
+                                                if (context.$object.isNullOrUndefined(outputConfig.clear) == true || outputConfig.clear == true) {
                                                     const dataStore = $this.store[store.dataSourceID];
                                                     if (dataStore) {
                                                         dataStore.length = 0;
@@ -8302,18 +8303,18 @@ if (typeof module !== 'undefined' && module.exports) {
                                     return item.field == output.dataFieldID && (item.type.indexOf('grid') > -1 || item.type.indexOf('chart') > -1) == true;
                                 });
 
-                                const controlModule = $object.isNullOrUndefined(synControlConfig) == true ? null : syn.$w.getControlModule(synControlConfig.module);
-                                if ($object.isNullOrUndefined(controlModule) == false && controlModule.setTransactionBelongID) {
+                                const controlModule = context.$object.isNullOrUndefined(synControlConfig) == true ? null : syn.$w.getControlModule(synControlConfig.module);
+                                if (context.$object.isNullOrUndefined(controlModule) == false && controlModule.setTransactionBelongID) {
                                     controlModule.setTransactionBelongID(synControlConfig.id, output);
 
-                                    if ($object.isNullOrUndefined(outputConfig.clear) == true || outputConfig.clear == true) {
+                                    if (context.$object.isNullOrUndefined(outputConfig.clear) == true || outputConfig.clear == true) {
                                         if (synControls && synControls.length > 0) {
                                             const controlInfo = synControls.find(function (item) {
                                                 return item.field == output.dataFieldID;
                                             });
 
                                             const controlModule = syn.$w.getControlModule(controlInfo.module);
-                                            if ($object.isNullOrUndefined(controlModule) == false && controlModule.clear) {
+                                            if (context.$object.isNullOrUndefined(controlModule) == false && controlModule.clear) {
                                                 controlModule.clear(controlInfo.id);
                                             }
                                         }
@@ -8342,18 +8343,18 @@ if (typeof module !== 'undefined' && module.exports) {
                                             };
                                         }
 
-                                        if ($object.isNullOrUndefined(outputConfig.clear) == true || outputConfig.clear == true) {
+                                        if (context.$object.isNullOrUndefined(outputConfig.clear) == true || outputConfig.clear == true) {
                                             if (synControls && synControls.length > 0) {
                                                 const controlInfo = synControls.find(function (item) {
                                                     return item.field == outputConfig.dataFieldID;
                                                 });
 
-                                                if ($string.isNullOrEmpty(controlInfo.module) == true) {
+                                                if (context.$string.isNullOrEmpty(controlInfo.module) == true) {
                                                     continue;
                                                 }
 
                                                 const controlModule = syn.$w.getControlModule(controlInfo.module);
-                                                if ($object.isNullOrUndefined(controlModule) == false && controlModule.clear) {
+                                                if (context.$object.isNullOrUndefined(controlModule) == false && controlModule.clear) {
                                                     controlModule.clear(controlInfo.id);
                                                 }
                                             }
@@ -8373,7 +8374,7 @@ if (typeof module !== 'undefined' && module.exports) {
                                                         };
                                                     }
 
-                                                    if ($object.isNullOrUndefined(outputConfig.clear) == true || outputConfig.clear == true) {
+                                                    if (context.$object.isNullOrUndefined(outputConfig.clear) == true || outputConfig.clear == true) {
                                                         const dataStore = $this.store[store.dataSourceID];
                                                         if (dataStore) {
                                                             dataStore.length = 0;
@@ -8646,7 +8647,7 @@ if (typeof module !== 'undefined' && module.exports) {
                                                     }
                                                 }
 
-                                                if ($object.isNullOrUndefined(controlModule) == false && controlModule.getValue) {
+                                                if (context.$object.isNullOrUndefined(controlModule) == false && controlModule.getValue) {
                                                     inputObjects = controlModule.getValue(controlInfo.id.replace('_hidden', ''), 'Row', inputMapping.items)[0];
                                                 }
                                             }
@@ -8671,7 +8672,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
                                                 if (bindingControlInfos.length == 1) {
                                                     const controlInfo = bindingControlInfos[0];
-                                                    if ($object.isNullOrUndefined(controlInfo.module) == true) {
+                                                    if (context.$object.isNullOrUndefined(controlInfo.module) == true) {
                                                         controlValue = syn.$l.get(controlInfo.id).value;
                                                     }
                                                     else {
@@ -8696,11 +8697,11 @@ if (typeof module !== 'undefined' && module.exports) {
                                                             }
                                                         }
 
-                                                        if ($object.isNullOrUndefined(controlModule) == false && controlModule.getValue) {
+                                                        if (context.$object.isNullOrUndefined(controlModule) == false && controlModule.getValue) {
                                                             controlValue = controlModule.getValue(controlInfo.id.replace('_hidden', ''), meta);
                                                         }
 
-                                                        if ($object.isNullOrUndefined(controlValue) == true && (dataType == 'number' || dataType == 'numeric')) {
+                                                        if (context.$object.isNullOrUndefined(controlValue) == true && (dataType == 'number' || dataType == 'numeric')) {
                                                             controlValue = 0;
                                                         }
                                                     }
@@ -8739,11 +8740,11 @@ if (typeof module !== 'undefined' && module.exports) {
                                                         const controlInfo = bindingControlInfos[0];
                                                         controlValue = $this.store[store.dataSourceID][controlInfo.data];
 
-                                                        if ($object.isNullOrUndefined(controlValue) == true && (dataType == 'number' || dataType == 'numeric')) {
+                                                        if (context.$object.isNullOrUndefined(controlValue) == true && (dataType == 'number' || dataType == 'numeric')) {
                                                             controlValue = 0;
                                                         }
 
-                                                        if ($object.isNullOrUndefined(controlValue) == true) {
+                                                        if (context.$object.isNullOrUndefined(controlValue) == true) {
                                                             controlValue = '';
                                                         }
                                                     }
@@ -8804,7 +8805,7 @@ if (typeof module !== 'undefined' && module.exports) {
                                             }
                                         }
 
-                                        if ($object.isNullOrUndefined(controlModule) == false && controlModule.getValue) {
+                                        if (context.$object.isNullOrUndefined(controlModule) == false && controlModule.getValue) {
                                             inputObjects = controlModule.getValue(controlInfo.id.replace('_hidden', ''), 'List', inputMapping.items);
                                         }
                                     }
@@ -8893,7 +8894,7 @@ if (typeof module !== 'undefined' && module.exports) {
                                         }
 
                                         if (outputMapping.responseType == 'Form') {
-                                            if ($object.isNullOrUndefined(outputData) == true || $object.isObjectEmpty(outputData) == true) {
+                                            if (context.$object.isNullOrUndefined(outputData) == true || context.$object.isObjectEmpty(outputData) == true) {
                                                 result.outputStat.push({
                                                     fieldID: responseFieldID,
                                                     Count: 0
@@ -8919,7 +8920,7 @@ if (typeof module !== 'undefined' && module.exports) {
                                                         if (bindingControlInfos.length == 1) {
                                                             const controlInfo = bindingControlInfos[0];
                                                             const controlModule = syn.$w.getControlModule(controlInfo.module);
-                                                            if ($object.isNullOrUndefined(controlModule) == false && controlModule.setValue) {
+                                                            if (context.$object.isNullOrUndefined(controlModule) == false && controlModule.setValue) {
                                                                 controlModule.setValue(controlInfo.id.replace('_hidden', ''), controlValue, meta);
                                                             }
                                                         }
@@ -8928,7 +8929,7 @@ if (typeof module !== 'undefined' && module.exports) {
                                                             if (syn.uicontrols.$data && syn.uicontrols.$data.storeList.length > 0) {
                                                                 for (let k = 0; k < syn.uicontrols.$data.storeList.length; k++) {
                                                                     const store = syn.uicontrols.$data.storeList[k];
-                                                                    if ($object.isNullOrUndefined($this.store[store.dataSourceID]) == true) {
+                                                                    if (context.$object.isNullOrUndefined($this.store[store.dataSourceID]) == true) {
                                                                         $this.store[store.dataSourceID] = {};
                                                                     }
 
@@ -8971,7 +8972,7 @@ if (typeof module !== 'undefined' && module.exports) {
                                                 if (bindingControlInfos.length == 1) {
                                                     const controlInfo = bindingControlInfos[0];
                                                     const controlModule = syn.$w.getControlModule(controlInfo.module);
-                                                    if ($object.isNullOrUndefined(controlModule) == false && controlModule.setValue) {
+                                                    if (context.$object.isNullOrUndefined(controlModule) == false && controlModule.setValue) {
                                                         controlModule.setValue(controlInfo.id.replace('_hidden', ''), outputData, outputMapping.items);
                                                     }
                                                 }
@@ -8980,7 +8981,7 @@ if (typeof module !== 'undefined' && module.exports) {
                                                     if (syn.uicontrols.$data && syn.uicontrols.$data.storeList.length > 0) {
                                                         for (let k = 0; k < syn.uicontrols.$data.storeList.length; k++) {
                                                             const store = syn.uicontrols.$data.storeList[k];
-                                                            if ($object.isNullOrUndefined($this.store[store.dataSourceID]) == true) {
+                                                            if (context.$object.isNullOrUndefined($this.store[store.dataSourceID]) == true) {
                                                                 $this.store[store.dataSourceID] = [];
                                                             }
 
@@ -9032,7 +9033,7 @@ if (typeof module !== 'undefined' && module.exports) {
                                                 if (bindingControlInfos.length == 1) {
                                                     const controlInfo = bindingControlInfos[0];
                                                     const controlModule = syn.$w.getControlModule(controlInfo.module);
-                                                    if ($object.isNullOrUndefined(controlModule) == false && controlModule.setValue) {
+                                                    if (context.$object.isNullOrUndefined(controlModule) == false && controlModule.setValue) {
                                                         controlModule.setValue(controlInfo.id.replace('_hidden', ''), outputData, outputMapping.items);
                                                     }
                                                 }
@@ -9100,12 +9101,12 @@ if (typeof module !== 'undefined' && module.exports) {
         getterValue(functionID) {
             try {
                 const transactConfig = $this.transaction[functionID];
-                if ($object.isNullOrUndefined(transactConfig) == true) {
+                if (context.$object.isNullOrUndefined(transactConfig) == true) {
                     syn.$l.eventLog('$w.getterValue', 'functionID "{0}" 확인 필요'.format(functionID), 'Warning');
                     return;
                 }
 
-                if ($string.isNullOrEmpty(transactConfig.functionID) == true) {
+                if (context.$string.isNullOrEmpty(transactConfig.functionID) == true) {
                     transactConfig.functionID = functionID;
                 }
 
@@ -9152,7 +9153,7 @@ if (typeof module !== 'undefined' && module.exports) {
                                             if (bindingControlInfos.length == 1) {
                                                 const controlInfo = bindingControlInfos[0];
                                                 const controlModule = syn.$w.getControlModule(controlInfo.module);
-                                                if ($object.isNullOrUndefined(controlModule) == false && controlModule.getValue) {
+                                                if (context.$object.isNullOrUndefined(controlModule) == false && controlModule.getValue) {
                                                     inputObjects = controlModule.getValue(controlInfo.id.replace('_hidden', ''), 'Row', inputMapping.items)[0];
                                                 }
                                             }
@@ -9178,11 +9179,11 @@ if (typeof module !== 'undefined' && module.exports) {
                                                 if (bindingControlInfos.length == 1) {
                                                     const controlInfo = bindingControlInfos[0];
                                                     const controlModule = syn.$w.getControlModule(controlInfo.module);
-                                                    if ($object.isNullOrUndefined(controlModule) == false && controlModule.getValue) {
+                                                    if (context.$object.isNullOrUndefined(controlModule) == false && controlModule.getValue) {
                                                         controlValue = controlModule.getValue(controlInfo.id.replace('_hidden', ''), meta);
                                                     }
 
-                                                    if ($object.isNullOrUndefined(controlValue) == true && (dataType == 'number' || dataType == 'numeric')) {
+                                                    if (context.$object.isNullOrUndefined(controlValue) == true && (dataType == 'number' || dataType == 'numeric')) {
                                                         controlValue = 0;
                                                     }
                                                 }
@@ -9220,11 +9221,11 @@ if (typeof module !== 'undefined' && module.exports) {
                                                         const controlInfo = bindingControlInfos[0];
                                                         controlValue = $this.store[store.dataSourceID][controlInfo.data];
 
-                                                        if ($object.isNullOrUndefined(controlValue) == true && (dataType == 'number' || dataType == 'numeric')) {
+                                                        if (context.$object.isNullOrUndefined(controlValue) == true && (dataType == 'number' || dataType == 'numeric')) {
                                                             controlValue = 0;
                                                         }
 
-                                                        if ($object.isNullOrUndefined(controlValue) == true) {
+                                                        if (context.$object.isNullOrUndefined(controlValue) == true) {
                                                             controlValue = '';
                                                         }
                                                     }
@@ -9265,7 +9266,7 @@ if (typeof module !== 'undefined' && module.exports) {
                                     if (bindingControlInfos.length == 1) {
                                         const controlInfo = bindingControlInfos[0];
                                         const controlModule = syn.$w.getControlModule(controlInfo.module);
-                                        if ($object.isNullOrUndefined(controlModule) == false && controlModule.getValue) {
+                                        if (context.$object.isNullOrUndefined(controlModule) == false && controlModule.getValue) {
                                             inputObjects = controlModule.getValue(controlInfo.id.replace('_hidden', ''), 'List', inputMapping.items);
                                         }
                                     }
@@ -9357,12 +9358,12 @@ if (typeof module !== 'undefined' && module.exports) {
         setterValue(functionID, responseData) {
             try {
                 const transactConfig = $this.transaction[functionID];
-                if ($object.isNullOrUndefined(transactConfig) == true) {
+                if (context.$object.isNullOrUndefined(transactConfig) == true) {
                     syn.$l.eventLog('$w.setterValue', 'functionID "{0}" 확인 필요'.format(functionID), 'Warning');
                     return;
                 }
 
-                if ($string.isNullOrEmpty(transactConfig.functionID) == true) {
+                if (context.$string.isNullOrEmpty(transactConfig.functionID) == true) {
                     transactConfig.functionID = functionID;
                 }
 
@@ -9389,7 +9390,7 @@ if (typeof module !== 'undefined' && module.exports) {
                             const outputData = responseData[outputIndex];
 
                             if (outputMapping.responseType == 'Form') {
-                                if ($object.isNullOrUndefined(outputData) == true || $object.isObjectEmpty(outputData) == true) {
+                                if (context.$object.isNullOrUndefined(outputData) == true || context.$object.isObjectEmpty(outputData) == true) {
                                     result.outputs.push({
                                         fieldID: responseFieldID,
                                         Count: 0
@@ -9415,7 +9416,7 @@ if (typeof module !== 'undefined' && module.exports) {
                                             if (bindingControlInfos.length == 1) {
                                                 const controlInfo = bindingControlInfos[0];
                                                 const controlModule = syn.$w.getControlModule(controlInfo.module);
-                                                if ($object.isNullOrUndefined(controlModule) == false && controlModule.setValue) {
+                                                if (context.$object.isNullOrUndefined(controlModule) == false && controlModule.setValue) {
                                                     controlModule.setValue(controlInfo.id.replace('_hidden', ''), controlValue, meta);
                                                 }
                                             }
@@ -9424,7 +9425,7 @@ if (typeof module !== 'undefined' && module.exports) {
                                                 if (syn.uicontrols.$data && syn.uicontrols.$data.storeList.length > 0) {
                                                     for (let k = 0; k < syn.uicontrols.$data.storeList.length; k++) {
                                                         const store = syn.uicontrols.$data.storeList[k];
-                                                        if ($object.isNullOrUndefined($this.store[store.dataSourceID]) == true) {
+                                                        if (context.$object.isNullOrUndefined($this.store[store.dataSourceID]) == true) {
                                                             $this.store[store.dataSourceID] = {};
                                                         }
 
@@ -9468,7 +9469,7 @@ if (typeof module !== 'undefined' && module.exports) {
                                         if (bindingControlInfos.length == 1) {
                                             const controlInfo = bindingControlInfos[0];
                                             const controlModule = syn.$w.getControlModule(controlInfo.module);
-                                            if ($object.isNullOrUndefined(controlModule) == false && controlModule.setValue) {
+                                            if (context.$object.isNullOrUndefined(controlModule) == false && controlModule.setValue) {
                                                 controlModule.setValue(controlInfo.id.replace('_hidden', ''), outputData, outputMapping.items);
                                             }
                                         }
@@ -9477,7 +9478,7 @@ if (typeof module !== 'undefined' && module.exports) {
                                             if (syn.uicontrols.$data && syn.uicontrols.$data.storeList.length > 0) {
                                                 for (let k = 0; k < syn.uicontrols.$data.storeList.length; k++) {
                                                     const store = syn.uicontrols.$data.storeList[k];
-                                                    if ($object.isNullOrUndefined($this.store[store.dataSourceID]) == true) {
+                                                    if (context.$object.isNullOrUndefined($this.store[store.dataSourceID]) == true) {
                                                         $this.store[store.dataSourceID] = [];
                                                     }
 
@@ -9537,7 +9538,7 @@ if (typeof module !== 'undefined' && module.exports) {
                                         if (bindingControlInfos.length == 1) {
                                             const controlInfo = bindingControlInfos[0];
                                             const controlModule = syn.$w.getControlModule(controlInfo.module);
-                                            if ($object.isNullOrUndefined(controlModule) == false && controlModule.setValue) {
+                                            if (context.$object.isNullOrUndefined(controlModule) == false && controlModule.setValue) {
                                                 controlModule.setValue(controlInfo.id.replace('_hidden', ''), outputData, outputMapping.items);
                                             }
                                         }
@@ -9739,7 +9740,7 @@ if (typeof module !== 'undefined' && module.exports) {
                         }, options);
 
                         var requestTimeoutID = null;
-                        if ($object.isNullOrUndefined(raw) == false && $object.isString(raw) == false) {
+                        if (context.$object.isNullOrUndefined(raw) == false && context.$object.isString(raw) == false) {
                             if (options.method == 'GET' || options.method == 'HEAD') {
                                 options.method = 'POST';
                             }
@@ -9747,7 +9748,7 @@ if (typeof module !== 'undefined' && module.exports) {
                                 options.method = options.method || 'POST';
                             }
 
-                            if ($object.isNullOrUndefined(options.headers) == true) {
+                            if (context.$object.isNullOrUndefined(options.headers) == true) {
                                 options.headers = new Headers();
                                 if (raw instanceof FormData) {
                                 }
@@ -9778,7 +9779,7 @@ if (typeof module !== 'undefined' && module.exports) {
                                 redirect: 'follow'
                             };
 
-                            if ($object.isNullOrUndefined(options.timeout) == false) {
+                            if (context.$object.isNullOrUndefined(options.timeout) == false) {
                                 var controller = new AbortController();
                                 requestTimeoutID = setTimeout(() => controller.abort(), options.timeout);
                                 data.signal = controller.signal;
@@ -9791,7 +9792,7 @@ if (typeof module !== 'undefined' && module.exports) {
                             }
                         }
                         else {
-                            if ($object.isNullOrUndefined(options.headers) == true) {
+                            if (context.$object.isNullOrUndefined(options.headers) == true) {
                                 options.headers = new Headers();
                                 options.headers.append('Content-Type', options.contentType || 'application/json');
                             }
@@ -9817,7 +9818,7 @@ if (typeof module !== 'undefined' && module.exports) {
                                 redirect: 'follow'
                             };
 
-                            if ($object.isNullOrUndefined(options.timeout) == false) {
+                            if (context.$object.isNullOrUndefined(options.timeout) == false) {
                                 var controller = new AbortController();
                                 requestTimeoutID = setTimeout(() => controller.abort(), options.timeout);
                                 data.signal = controller.signal;
@@ -9879,7 +9880,7 @@ if (typeof module !== 'undefined' && module.exports) {
                 var el = document.createElement('script');
                 el.setAttribute('type', 'text/javascript');
                 el.setAttribute('id', resourceID);
-                if (syn.Config && $string.toBoolean(syn.Config.IsClientCaching) == true) {
+                if (syn.Config && context.$string.toBoolean(syn.Config.IsClientCaching) == true) {
                     el.setAttribute('src', url);
                 }
                 else {
@@ -9922,7 +9923,7 @@ if (typeof module !== 'undefined' && module.exports) {
                 el.setAttribute('rel', 'stylesheet');
                 el.setAttribute('type', 'text/css');
                 el.setAttribute('id', resourceID);
-                if (syn.Config && $string.toBoolean(syn.Config.IsClientCaching) == true) {
+                if (syn.Config && context.$string.toBoolean(syn.Config.IsClientCaching) == true) {
                     el.setAttribute('href', url);
                 }
                 else {
@@ -9940,7 +9941,7 @@ if (typeof module !== 'undefined' && module.exports) {
         },
 
         getDynamicStyle(styleID) {
-            if ($object.isNullOrUndefined(styleID) == true) {
+            if (context.$object.isNullOrUndefined(styleID) == true) {
                 const sheets = doc.styleSheets;
                 if (sheets.length > 0) {
                     return sheets[sheets.length - 1];
@@ -10048,7 +10049,7 @@ if (typeof module !== 'undefined' && module.exports) {
             moduleName = moduleName.replaceAll('-', '_');
 
             var moduleScript;
-            if ($string.isNullOrEmpty(moduleName) == false) {
+            if (context.$string.isNullOrEmpty(moduleName) == false) {
                 try {
                     var module;
                     if (eval('typeof $' + moduleName) == 'object') {
@@ -10115,7 +10116,7 @@ if (typeof module !== 'undefined' && module.exports) {
                         }
                     }
 
-                    if (module.extends && $object.isArray(module.extends) == true) {
+                    if (module.extends && context.$object.isArray(module.extends) == true) {
                         for (var i = 0; i < module.extends.length; i++) {
                             var name = module.extends[i];
                             var result = await syn.$w.fetchText(name + '.js');
@@ -10250,7 +10251,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
         async executeTransaction(config, transactionObject, callback, async, token) {
             const fallback = transactionObject?.fallback || function () { };
-            if ($object.isNullOrUndefined(config) == true || $object.isNullOrUndefined(transactionObject) == true) {
+            if (context.$object.isNullOrUndefined(config) == true || context.$object.isNullOrUndefined(transactionObject) == true) {
                 if (globalRoot.devicePlatform === 'browser') {
                     alert('서비스 호출에 필요한 거래 정보가 구성되지 않았습니다');
                 }
@@ -10260,22 +10261,22 @@ if (typeof module !== 'undefined' && module.exports) {
             }
 
             let apiService = syn.Config.DomainAPIServer;
-            if ($object.isNullOrUndefined(apiService) == true) {
+            if (context.$object.isNullOrUndefined(apiService) == true) {
                 syn.$l.eventLog('$w.executeTransaction', '서비스 호출에 필요한 DomainAPIServer 정보 확인 필요', 'Error');
                 fallback(config, transactionObject);
                 throw new Error('서비스 호출에 필요한 DomainAPIServer 정보 확인 필요');
             }
 
             let ipAddress = syn.$w.getStorage('ipAddress', false);
-            if ($object.isNullOrUndefined(ipAddress) == true && globalRoot.devicePlatform === 'node') {
+            if (context.$object.isNullOrUndefined(ipAddress) == true && globalRoot.devicePlatform === 'node') {
                 ipAddress = apiService.ClientIP;
             }
 
-            if ($object.isNullOrUndefined(ipAddress) == true) {
+            if (context.$object.isNullOrUndefined(ipAddress) == true) {
                 ipAddress = await syn.$b.getIpAddress();
             }
 
-            if ($object.isNullOrUndefined(ipAddress) == true) {
+            if (context.$object.isNullOrUndefined(ipAddress) == true) {
                 ipAddress = 'localhost';
             }
 
@@ -10297,12 +10298,12 @@ if (typeof module !== 'undefined' && module.exports) {
             const transactionID = transactionObject.transactionID.padStart(6, '0').substring(0, 6);
             const functionID = transactionObject.functionID.padStart(4, '0').substring(0, 4);
             const tokenID = (syn.$w.User && syn.$w.User.TokenID ? syn.$w.User.TokenID : syn.$l.random(6)).padStart(6, '0').substring(0, 6);
-            const requestTime = $date.toString(new Date(), 's').substring(0, 6);
+            const requestTime = context.$date.toString(new Date(), 's').substring(0, 6);
             // -- 36바이트 = 설치구분 1자리(L: Local, C: Cloud, O: Onpremise) + 환경 ID 1자리 + 애플리케이션 ID 8자리 + 프로젝트 ID 3자리 + 거래 ID 6자리 + 기능 ID 4자리 + 시스템 구분 1자리 (W: WEB, P: Program, S: SVR, E: EXT) + ClientTokenID 6자리 + Timestamp (HHmmss) 6자리
             const requestID = `${installType}${environment}${programID}${businessID}${transactionID}${functionID}${machineTypeID}${tokenID}${requestTime}`.toUpperCase();
             let globalID = '';
 
-            if ($string.isNullOrEmpty(syn.Config.FindGlobalIDServer) == false) {
+            if (context.$string.isNullOrEmpty(syn.Config.FindGlobalIDServer) == false) {
                 const result = await syn.$r.httpFetch(syn.Config.FindGlobalIDServer).send({
                     applicationID: programID,
                     projectID: businessID,
@@ -10330,7 +10331,7 @@ if (typeof module !== 'undefined' && module.exports) {
                 }
             }
 
-            if ($string.isNullOrEmpty(apiService.GlobalID) == false) {
+            if (context.$string.isNullOrEmpty(apiService.GlobalID) == false) {
                 globalID = apiService.GlobalID;
             }
             else {
@@ -10339,7 +10340,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
             const clientTag = syn.Config.SystemID.concat('|', syn.Config.HostName, '|', syn.Config.Program.ProgramName, '|', syn.Config.Environment.substring(0, 1));
             const userID = globalRoot.devicePlatform == 'browser' ? (syn.$w.User ? syn.$w.User.UserID : '') : syn.Config.Program.ProgramName;
-            const fingerPrint = globalRoot.devicePlatform == 'browser' ? syn.$b.fingerPrint(userID, ipAddress) : `${syn.$c.sha256(clientTag)}|${clientTag}|${$date.toString(new Date(), 'f')}`;
+            const fingerPrint = globalRoot.devicePlatform == 'browser' ? syn.$b.fingerPrint(userID, ipAddress) : `${syn.$c.sha256(clientTag)}|${clientTag}|${context.$date.toString(new Date(), 'f')}`;
             const deviceID = fingerPrint.substring(0, 64);
 
             const transactionRequest = {
@@ -10407,7 +10408,7 @@ if (typeof module !== 'undefined' && module.exports) {
                 syn.$w.transactionLoadOptions(transactionRequest.loadOptions, transactionObject);
             }
 
-            if ($object.isNullOrUndefined(transactionObject.options) == false) {
+            if (context.$object.isNullOrUndefined(transactionObject.options) == false) {
                 for (const key in transactionObject.options) {
                     const item = transactionObject.options[key];
 
@@ -10421,7 +10422,7 @@ if (typeof module !== 'undefined' && module.exports) {
                 }
 
                 const dynamic = transactionRequest.loadOptions['dynamic'];
-                if ($string.isNullOrEmpty(dynamic) == false && $string.toBoolean(dynamic) == false) {
+                if (context.$string.isNullOrEmpty(dynamic) == false && context.$string.toBoolean(dynamic) == false) {
                     delete transactionRequest.loadOptions['dynamic'];
                     delete transactionRequest.loadOptions['authorize'];
                     delete transactionRequest.loadOptions['commandType'];
@@ -10431,13 +10432,13 @@ if (typeof module !== 'undefined' && module.exports) {
                 }
 
                 const action = transactionRequest.loadOptions['action'];
-                if ($string.isNullOrEmpty(action) == false) {
+                if (context.$string.isNullOrEmpty(action) == false) {
                     transactionRequest.action = action;
                     delete transactionRequest.loadOptions['action'];
                 }
 
                 const kind = transactionRequest.loadOptions['kind'];
-                if ($string.isNullOrEmpty(kind) == false) {
+                if (context.$string.isNullOrEmpty(kind) == false) {
                     transactionRequest.kind = kind;
                     delete transactionRequest.loadOptions['kind'];
                 }
@@ -10449,7 +10450,7 @@ if (typeof module !== 'undefined' && module.exports) {
             if (mod && mod.hook.payLoadProperty) {
                 let property = {};
                 property = mod.hook.payLoadProperty(transactionObject.transactionID, transactionObject.functionID);
-                if ($object.isNullOrUndefined(property) == true) {
+                if (context.$object.isNullOrUndefined(property) == true) {
                     property = {};
                 }
 
@@ -10503,7 +10504,7 @@ if (typeof module !== 'undefined' && module.exports) {
                         transactionRequest.payLoad.dataMapSetRaw.push(syn.$c.LZString.compressToBase64(JSON.stringify(reqInputs)));
                     }
                     else {
-                        transactionRequest.payLoad.dataMapSetRaw.push(syn.$c.LZString.compressToBase64($object.toCSV(reqInputs, { delimeter: '｜', newline: '↵' })));
+                        transactionRequest.payLoad.dataMapSetRaw.push(syn.$c.LZString.compressToBase64(context.$object.toCSV(reqInputs, { delimeter: '｜', newline: '↵' })));
                     }
                 }
                 else {
@@ -10511,7 +10512,7 @@ if (typeof module !== 'undefined' && module.exports) {
                         transactionRequest.payLoad.dataMapSet.push(reqInputs);
                     }
                     else {
-                        transactionRequest.payLoad.dataMapSetRaw.push($object.toCSV(reqInputs, { delimeter: '｜', newline: '↵' }));
+                        transactionRequest.payLoad.dataMapSetRaw.push(context.$object.toCSV(reqInputs, { delimeter: '｜', newline: '↵' }));
                     }
                 }
             }
@@ -10634,20 +10635,20 @@ if (typeof module !== 'undefined' && module.exports) {
 
                                                     if (transaction) {
                                                         let value = null;
-                                                        if ($object.isEmpty(item.value) == false) {
+                                                        if (context.$object.isEmpty(item.value) == false) {
                                                             value = transactionResponse.transaction.compressionYN == 'Y' ? syn.$c.LZString.decompressFromBase64(item.value) : item.value;
-                                                            const meta = $string.toParameterObject(dataSetMeta);
-                                                            value = $string.toJson(value, { delimeter: '｜', newline: '↵', meta: meta });
+                                                            const meta = context.$string.toParameterObject(dataSetMeta);
+                                                            value = context.$string.toJson(value, { delimeter: '｜', newline: '↵', meta: meta });
 
                                                             const outputMapping = transaction.outputs[i];
                                                             if (outputMapping.responseType == 'Form') {
                                                                 value = dataSetMeta;
-                                                                if ($object.isNullOrUndefined(value) == true) {
+                                                                if (context.$object.isNullOrUndefined(value) == true) {
                                                                     value = {};
                                                                 }
                                                             }
                                                             else {
-                                                                if ($object.isNullOrUndefined(value) == true) {
+                                                                if (context.$object.isNullOrUndefined(value) == true) {
                                                                     value = [];
                                                                 }
                                                             }
@@ -10661,15 +10662,15 @@ if (typeof module !== 'undefined' && module.exports) {
                                                 }
                                                 else {
                                                     let value = transactionResponse.transaction.compressionYN == 'Y' ? syn.$c.LZString.decompressFromBase64(item.value) : item.value;
-                                                    const meta = $string.toParameterObject(dataSetMeta);
-                                                    value = $string.toJson(value, { delimeter: '｜', newline: '↵', meta: meta });
+                                                    const meta = context.$string.toParameterObject(dataSetMeta);
+                                                    value = context.$string.toJson(value, { delimeter: '｜', newline: '↵', meta: meta });
                                                     if (item.id.startsWith('Form') == true) {
                                                         value = dataSetMeta;
-                                                        if ($object.isNullOrUndefined(value) == true) {
+                                                        if (context.$object.isNullOrUndefined(value) == true) {
                                                             value = {};
                                                         }
                                                         else {
-                                                            if ($object.isNullOrUndefined(value) == true) {
+                                                            if (context.$object.isNullOrUndefined(value) == true) {
                                                                 value = [];
                                                             }
                                                         }
@@ -10690,7 +10691,7 @@ if (typeof module !== 'undefined' && module.exports) {
                                             for (let i = 0; i < message.additions.length; i++) {
                                                 const addition = message.additions[i];
 
-                                                if ($string.isNullOrEmpty(addition.code) == false && $object.isNullOrUndefined(addtionalData[addition.code]) == true) {
+                                                if (context.$string.isNullOrEmpty(addition.code) == false && context.$object.isNullOrUndefined(addtionalData[addition.code]) == true) {
                                                     addtionalData[addition.code] = addition.text;
                                                 }
                                             }
@@ -10829,7 +10830,7 @@ if (typeof module !== 'undefined' && module.exports) {
         pseudoStyles(elID, styles) {
             var heads = document.getElementsByTagName('head');
             var head = document.head || (heads.length == 0 ? null : heads[0]);
-            if (head && $object.isArray(styles) == true && styles.length > 0) {
+            if (head && context.$object.isArray(styles) == true && styles.length > 0) {
                 var sheet = document.getElementById(elID) || document.createElement('style');
                 if (sheet.id == '') {
                     sheet.id = elID;
@@ -11000,11 +11001,11 @@ if (typeof module !== 'undefined' && module.exports) {
             }
         }
 
-        if (syn.Config && $string.isNullOrEmpty(syn.Config.DataSourceFilePath) == true) {
+        if (syn.Config && context.$string.isNullOrEmpty(syn.Config.DataSourceFilePath) == true) {
             syn.Config.DataSourceFilePath = path.join(process.cwd(), '..', 'modules', 'dbclient', 'module.json');
         }
 
-        if (syn.Config && $string.isNullOrEmpty(syn.Config.ProxyPathName) == false) {
+        if (syn.Config && context.$string.isNullOrEmpty(syn.Config.ProxyPathName) == false) {
             $webform.proxyBasePath = (syn.Config.IsProxyServe == true && syn.Config.ProxyPathName.length > 0) ? `/${syn.Config.ProxyPathName}` : '';
         }
 
@@ -11017,7 +11018,7 @@ if (typeof module !== 'undefined' && module.exports) {
         browserOnlyMethods.forEach(method => { delete $webform[method]; });
     }
     else {
-        const preferColorScheme = window.matchMedia('(prefers-color-scheme: dark)');
+        const preferColorScheme = context.matchMedia('(prefers-color-scheme: dark)');
         if (preferColorScheme) {
             context.$webform.isDarkMode = preferColorScheme.matches;
             preferColorScheme.addEventListener('change', (event) => {
@@ -11046,7 +11047,7 @@ if (typeof module !== 'undefined' && module.exports) {
         if (context.synConfig) {
             syn.Config = syn.$w.argumentsExtend(syn.Config, synConfig);
             const server = syn.Config?.DomainAPIServer;
-            if ($string.isNullOrWhiteSpace(syn.Config.DomainBaseUrl) == true && server) {
+            if (context.$string.isNullOrWhiteSpace(syn.Config.DomainBaseUrl) == true && server) {
                 const protocol = server.Protocol || 'http';
                 const host = server.IP || 'localhost';
                 const port = server.Port ? `:${server.Port}` : '';
@@ -11054,7 +11055,7 @@ if (typeof module !== 'undefined' && module.exports) {
             }
 
             context.synConfig = undefined;
-            if (syn.Config && $string.isNullOrEmpty(syn.Config.ProxyPathName) == false) {
+            if (syn.Config && context.$string.isNullOrEmpty(syn.Config.ProxyPathName) == false) {
                 $webform.proxyBasePath = (syn.Config.IsProxyServe == true && syn.Config.ProxyPathName.length > 0) ? `/${syn.Config.ProxyPathName}` : '';
             }
 
@@ -11067,11 +11068,11 @@ if (typeof module !== 'undefined' && module.exports) {
             if (context.synConfigName) {
                 $webform.loadJson('/' + context.synConfigName + urlArgs, null, function (setting, json) {
                     syn.Config = syn.$w.argumentsExtend(syn.Config, json);
-                    if (syn.Config && $string.isNullOrEmpty(syn.Config.ProxyPathName) == false) {
+                    if (syn.Config && context.$string.isNullOrEmpty(syn.Config.ProxyPathName) == false) {
                         $webform.proxyBasePath = (syn.Config.IsProxyServe == true && syn.Config.ProxyPathName.length > 0) ? `/${syn.Config.ProxyPathName}` : '';
                     }
 
-                    if ($string.isNullOrWhiteSpace(syn.Config.DomainBaseUrl) == true && server) {
+                    if (context.$string.isNullOrWhiteSpace(syn.Config.DomainBaseUrl) == true && server) {
                         const protocol = server.Protocol || 'http';
                         const host = server.IP || 'localhost';
                         const port = server.Port ? `:${server.Port}` : '';
@@ -11104,7 +11105,7 @@ if (typeof module !== 'undefined' && module.exports) {
             if (environment.Cookie) {
                 for (var item in environment.Cookie) {
                     var value = syn.$r.getCookie(item);
-                    if ($object.isNullOrUndefined(value) == true) {
+                    if (context.$object.isNullOrUndefined(value) == true) {
                         syn.$r.setCookie(item, environment.Cookie[item]);
                     }
                 }
@@ -11124,7 +11125,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
     $print.extend({
         base64ExcelFile: null,
-        reportName: `report-${$date.toString(new Date(), 'd')}.pdf`,
+        reportName: `report-${context.$date.toString(new Date(), 'd')}.pdf`,
         datetimeFormat: 'yyyy-MM-dd',
         boolTrue: '○',
         boolFalse: '×',
@@ -11140,8 +11141,8 @@ if (typeof module !== 'undefined' && module.exports) {
 
         concreate() {
             if (globalRoot.devicePlatform == 'browser') {
-                if ($string.toBoolean(syn.Config.IsReportifyModule) == true && !window.PDFObject) {
-                    if (syn.Config && $string.isNullOrEmpty(syn.Config.ProxyPathName) == false) {
+                if (context.$string.toBoolean(syn.Config.IsReportifyModule) == true && !context.PDFObject) {
+                    if (syn.Config && context.$string.isNullOrEmpty(syn.Config.ProxyPathName) == false) {
                         syn.$w.loadScript(`${syn.$w.proxyBasePath}/lib/pdfobject/pdfobject.min.js`);
                     }
                     else {
@@ -11149,8 +11150,8 @@ if (typeof module !== 'undefined' && module.exports) {
                     }
                 }
 
-                if ($string.toBoolean(syn.Config.IsReportifyModule) == true && !window.printJS) {
-                    if (syn.Config && $string.isNullOrEmpty(syn.Config.ProxyPathName) == false) {
+                if (context.$string.toBoolean(syn.Config.IsReportifyModule) == true && !context.printJS) {
+                    if (syn.Config && context.$string.isNullOrEmpty(syn.Config.ProxyPathName) == false) {
                         syn.$w.loadScript(`${syn.$w.proxyBasePath}/lib/print-js/print.min.js`);
                     }
                     else {
@@ -11183,27 +11184,27 @@ if (typeof module !== 'undefined' && module.exports) {
                 overwriteFontName: $print.overwriteFontName
             };
 
-            if ($string.isNullOrEmpty(excelUrl) == false) {
+            if (context.$string.isNullOrEmpty(excelUrl) == false) {
                 if ((excelUrl.startsWith('http:') == true || excelUrl.startsWith('https:') == true) == false) {
                     excelUrl = `${$print.reportifyServer}${excelUrl}`
                 }
                 $print.base64ExcelFile = await syn.$l.urlToBase64(excelUrl);
             }
 
-            if ($string.isNullOrEmpty($print.base64ExcelFile) == false) {
+            if (context.$string.isNullOrEmpty($print.base64ExcelFile) == false) {
                 result.base64ExcelFile = $print.base64ExcelFile;
             }
 
             for (var i = 0, length = result.workItems.length; i < length; i++) {
                 var workitem = result.workItems[i];
-                if (workitem.options && $object.isObject(workitem.options) == true) {
+                if (workitem.options && context.$object.isObject(workitem.options) == true) {
                     workitem.options = JSON.stringify(workitem.options);
                 }
             }
 
             for (var i = 0, length = result.workActions.length; i < length; i++) {
                 var workAction = result.workActions[i];
-                if (workAction.options && $object.isObject(workAction.options) == true) {
+                if (workAction.options && context.$object.isObject(workAction.options) == true) {
                     workAction.options = JSON.stringify(workAction.options);
                 }
             }
@@ -11212,7 +11213,7 @@ if (typeof module !== 'undefined' && module.exports) {
         },
 
         addWorkItem(workItems, document, worksheet, datafield, bind, row, col, type, data, overtake, step) {
-            if ($object.isNumber(document) == true) {
+            if (context.$object.isNumber(document) == true) {
                 if (document || worksheet || bind || row || col) {
                     syn.$l.eventLog('addWorkItem', 'document, worksheet, datafield, bind, row, col 필수 항목 필요', 'Warning');
                 }
@@ -11224,7 +11225,7 @@ if (typeof module !== 'undefined' && module.exports) {
                     workItems.push(workItem);
                 }
             }
-            else if ($object.isObject(document) == true) {
+            else if (context.$object.isObject(document) == true) {
                 var workObject = document;
                 if (!workObject.document || !workObject.worksheet || !workObject.bind || !workObject.row || !workObject.col) {
                     syn.$l.eventLog('addWorkItem', 'document, worksheet, datafield, bind, row, col 필수 항목 필요', 'Warning');
@@ -11266,7 +11267,7 @@ if (typeof module !== 'undefined' && module.exports) {
             index = workItems.findIndex(item =>
                 item.document === target.document &&
                 item.worksheet === target.worksheet &&
-                ($string.isNullOrEmpty(target.datafield) == false && item.datafield === target.datafield)
+                (context.$string.isNullOrEmpty(target.datafield) == false && item.datafield === target.datafield)
             );
 
             if (index === -1) {
@@ -11289,7 +11290,7 @@ if (typeof module !== 'undefined' && module.exports) {
                 newItem.overtake = target.overtake;
             }
 
-            if ($string.toBoolean(nextDirection) == true) {
+            if (context.$string.toBoolean(nextDirection) == true) {
                 workItems.splice(index + 1, 0, newItem);
             } else {
                 workItems.splice(index, 0, newItem);
@@ -11343,11 +11344,11 @@ if (typeof module !== 'undefined' && module.exports) {
                     for (var i = 0, length = reportWorkItems.length; i < length; i++) {
                         var item = reportWorkItems[i];
 
-                        if (documentOffset && $object.isNumber(documentOffset) == true && documentOffset > -1) {
+                        if (documentOffset && context.$object.isNumber(documentOffset) == true && documentOffset > -1) {
                             item.document = documentOffset;
                         }
 
-                        if ($object.isNullOrUndefined(item.bind) == true) {
+                        if (context.$object.isNullOrUndefined(item.bind) == true) {
                             item.bind = 'cell';
                         }
 
@@ -11555,15 +11556,15 @@ if (typeof module !== 'undefined' && module.exports) {
                 var data = {
                     body: {
                         base64ExcelFile: base64ExcelFile,
-                        indent: $string.toBoolean(indent),
-                        formatted: $string.toBoolean(formatted)
+                        indent: context.$string.toBoolean(indent),
+                        formatted: context.$string.toBoolean(formatted)
                     }
                 };
 
                 var httpResult = await syn.$r.httpRequest('POST', reportifyUrl, data);
                 if (httpResult && httpResult.status == 200) {
                     result = httpResult.response;
-                    if (window.ClipboardJS) {
+                    if (context.ClipboardJS) {
                         var tempButton = syn.$l.get('btn-clipboard-text') || document.createElement('button');
                         if (tempButton.id == '') {
                             tempButton.id = 'btn-clipboard-text';
@@ -11581,7 +11582,7 @@ if (typeof module !== 'undefined' && module.exports) {
                         tempButton.click();
                     }
                     else {
-                        await syn.$w.copyToClipboard(textToCopy);
+                        await syn.$w.copyToClipboard(result);
                     }
                 }
                 else {
@@ -11746,11 +11747,11 @@ if (typeof module !== 'undefined' && module.exports) {
                         mod.hook.pageResource($resource.localeID);
                     }
 
-                    if (syn.Config && $string.toBoolean(syn.Config.IsLocaleTranslations) == true && syn.$w.pageResource) {
+                    if (syn.Config && context.$string.toBoolean(syn.Config.IsLocaleTranslations) == true && syn.$w.pageResource) {
                         syn.$w.pageResource($resource.localeID);
                     }
 
-                    if (syn.Config && $string.toBoolean(syn.Config.IsLocaleTranslations) == true && mod.config && ($string.isNullOrEmpty(mod.config.isLocaleTranslations) == true || $string.toBoolean(mod.config.isLocaleTranslations) == true)) {
+                    if (syn.Config && context.$string.toBoolean(syn.Config.IsLocaleTranslations) == true && mod.config && (context.$string.isNullOrEmpty(mod.config.isLocaleTranslations) == true || context.$string.toBoolean(mod.config.isLocaleTranslations) == true)) {
                         $resource.setLocale($resource.localeID);
                     }
                 }
@@ -11778,18 +11779,18 @@ if (typeof module !== 'undefined' && module.exports) {
         },
 
         getControl(el) {
-            if ($object.isString(el) == true) {
+            if (context.$object.isString(el) == true) {
                 el = syn.$l.get(el);
             }
 
-            if ($object.isNullOrUndefined(el) == true) {
+            if (context.$object.isNullOrUndefined(el) == true) {
                 return null;
             }
 
             var elID = el.id;
             var tag = el.tagName;
             var key = el.getAttribute('i18n-key');
-            if ($string.isNullOrEmpty(elID) == true) {
+            if (context.$string.isNullOrEmpty(elID) == true) {
                 return $resource.translateControls.find(function (item) { return item.tag == tag && item.key == key; });
             }
 
@@ -11802,24 +11803,24 @@ if (typeof module !== 'undefined' && module.exports) {
 
         translateElement(el, options) {
             var control = $resource.getControl(el);
-            if ($object.isNullOrUndefined(control) == false) {
+            if (context.$object.isNullOrUndefined(control) == false) {
                 $resource.translateControl(control, options);
             }
         },
 
         translateControl(control, options) {
-            if ($object.isNullOrUndefined(control) == false) {
+            if (context.$object.isNullOrUndefined(control) == false) {
                 var el = null;
-                if ($string.isNullOrEmpty(control.elID) == false) {
+                if (context.$string.isNullOrEmpty(control.elID) == false) {
                     el = syn.$l.get(control.elID);
                 }
                 else {
                     el = syn.$l.querySelector('{0}[i18n-key="{1}"]'.format(control.tag, control.key));
                 }
 
-                if ($object.isNullOrUndefined(control.module) == true) {
+                if (context.$object.isNullOrUndefined(control.module) == true) {
                     var bind = $resource.getBindSource(control);
-                    if ($string.isNullOrEmpty(bind) == false) {
+                    if (context.$string.isNullOrEmpty(bind) == false) {
                         el[bind] = $resource.translateText(control, options);
                     }
                 }
@@ -11841,13 +11842,13 @@ if (typeof module !== 'undefined' && module.exports) {
                 var translation = $resource.translations[key];
 
                 var text = null;
-                if ($object.isString(translation) == true) {
+                if (context.$object.isString(translation) == true) {
                     text = translation;
                 }
-                else if ($object.isArray(translation) == true) {
+                else if (context.$object.isArray(translation) == true) {
                     text = translation[0];
                 }
-                else if ($object.isObject(translation) == true) {
+                else if (context.$object.isObject(translation) == true) {
                     text = translation.Text;
                 }
 

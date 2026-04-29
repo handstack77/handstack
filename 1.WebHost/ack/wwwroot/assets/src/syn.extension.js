@@ -129,7 +129,7 @@
         clone(date) {
             if (date instanceof Date) {
                 return new Date(date.getTime());
-            } else if ($object.isString(date)) {
+            } else if (context.$object.isString(date)) {
                 try {
                     return new Date(date);
                 } catch {
@@ -159,11 +159,11 @@
 
         toString(date, format, options = {}) {
             let dateObj = date;
-            if ($object.isString(date) && this.isDate(date)) {
+            if (context.$object.isString(date) && this.isDate(date)) {
                 dateObj = new Date(date);
             }
 
-            if (!($object.isDate(dateObj) && !isNaN(dateObj))) {
+            if (!(context.$object.isDate(dateObj) && !isNaN(dateObj))) {
                 return '';
             }
 
@@ -226,7 +226,7 @@
             amText = amText || 'AM';
             pmText = pmText || 'PM';
 
-            if ($string.isNullOrEmpty(time) == true) {
+            if (context.$string.isNullOrEmpty(time) == true) {
                 return amText;
             }
 
@@ -239,10 +239,10 @@
                     hour = parseInt(time.split(':')[0]);
                 }
                 else if (time.length > 10) {
-                    hour = $date.parseDate(time).getHours();
+                    hour = context.$date.parseDate(time).getHours();
                 }
                 else if (time.length <= 2) {
-                    hour = $string.toNumber(time);
+                    hour = context.$string.toNumber(time);
                 }
             }
             else if (typeof time === 'number') {
@@ -259,7 +259,7 @@
             amText = amText || 'AM';
             pmText = pmText || 'PM';
 
-            if ($string.isNullOrEmpty(time) == true) {
+            if (context.$string.isNullOrEmpty(time) == true) {
                 return amText;
             }
 
@@ -282,13 +282,13 @@
                     second = parseInt(time.split(':')[2]);
                 }
                 else if (time.length > 10) {
-                    const date = $date.parseDate(time);
+                    const date = context.$date.parseDate(time);
                     hour = date.getHours();
                     minute = date.getMinutes();
                     second = date.getSeconds();
                 }
                 else if (time.length <= 2) {
-                    hour = $string.toNumber(time);
+                    hour = context.$string.toNumber(time);
                 }
             }
             else if (typeof time === 'number') {
@@ -378,7 +378,7 @@
 
         isDate(val) {
             var result = false;
-            if ($object.isString(val) == true) {
+            if (context.$object.isString(val) == true) {
                 const timestamp = Date.parse(val);
                 result = !isNaN(timestamp);
             }
@@ -390,7 +390,7 @@
         },
 
         isISOString(val) {
-            return $object.isString(val) && $validation.regexs.isoDate.test(val);
+            return context.$object.isString(val) && $validation.regexs.isoDate.test(val);
         },
 
         weekOfMonth(year, month, weekStartSunday = true) {
@@ -453,7 +453,7 @@
 
         timeAgo(dateInput) {
             let date;
-            if ($object.isString(dateInput) == true && this.isDate(dateInput) == true) {
+            if (context.$object.isString(dateInput) == true && this.isDate(dateInput) == true) {
                 date = new Date(dateInput);
             } else if (dateInput instanceof Date) {
                 date = dateInput;
@@ -493,11 +493,11 @@
             }
 
             try {
-                if ($object.isNumber(dateInput) == true) {
+                if (context.$object.isNumber(dateInput) == true) {
                     return new Date(dateInput);
                 }
 
-                if ($object.isString(dateInput) == true) {
+                if (context.$object.isString(dateInput) == true) {
                     if (dateInput.includes('T')) {
                         return new Date(dateInput);
                     }
@@ -508,7 +508,7 @@
                     }
                 }
             } catch (error) {
-                syn.$l.eventLog('$date.parseDate', error, 'Warning');
+                syn.$l.eventLog('context.$date.parseDate', error, 'Warning');
             }
 
             return null;
@@ -622,7 +622,7 @@
                     const value = item[key];
                     if (value !== undefined && value !== null) {
                         if (Array.isArray(value)) return value.join(', ');
-                        if (value instanceof Date) return $date.toString(value, 'a');
+                        if (value instanceof Date) return context.$date.toString(value, 'a');
                         return String(value);
                     }
                     return defaultValue !== null ? defaultValue : match;
@@ -727,10 +727,10 @@
 
         toNumber(val) {
             try {
-                const effectiveValue = $object.isNullOrUndefined(val) ? 0 : val;
+                const effectiveValue = context.$object.isNullOrUndefined(val) ? 0 : val;
                 return parseFloat((effectiveValue === 0 || val === '') ? '0' : effectiveValue.toString().replace(/,/g, ''));
             } catch (error) {
-                syn.$l.eventLog('$string.toNumber', error, 'Warning');
+                syn.$l.eventLog('context.$string.toNumber', error, 'Warning');
                 return 0;
             }
         },
@@ -805,7 +805,7 @@
         },
 
         /*
-        const items = $string.toJsv(clipboardData, { delimiter: '\t' });
+        const items = context.$string.toJsv(clipboardData, { delimiter: '\t' });
         const rules = {
             0: {
                 name: 'System',
@@ -844,7 +844,7 @@
             }
         };
 
-        const validate = $string.validateJsv(items, rules);
+        const validate = context.$string.validateJsv(items, rules);
         if (validate.result == true) {
             return items;
         }
@@ -891,7 +891,7 @@
                         continue;
                     }
 
-                    if ($string.toBoolean(rule.required) == true && (value === null || value === undefined || value === '')) {
+                    if (context.$string.toBoolean(rule.required) == true && (value === null || value === undefined || value === '')) {
                         errors.push({
                             row: rowIndex,
                             column: colIndex,
@@ -903,7 +903,7 @@
                         continue;
                     }
 
-                    if ($string.toBoolean(rule.required) == false && (value === null || value === undefined || value === '')) {
+                    if (context.$string.toBoolean(rule.required) == false && (value === null || value === undefined || value === '')) {
                         continue;
                     }
 
@@ -1066,7 +1066,7 @@
         },
 
         toBoolean(val) {
-            if ($object.isNullOrUndefined(val) == true) {
+            if (context.$object.isNullOrUndefined(val) == true) {
                 return false;
             }
 
@@ -1123,7 +1123,7 @@
                     if ($validation.regexs.isoDate.test(strVal)) {
                         const date = new Date(strVal);
                         return isNaN(date) ? null : date;
-                    } else if ($date.isDate(strVal)) {
+                    } else if (context.$date.isDate(strVal)) {
                         const date = new Date(strVal);
                         return isNaN(date) ? null : date;
                     }
@@ -1182,7 +1182,7 @@
                 try {
                     return new Intl.NumberFormat(localeID, formatOptions).format(num);
                 } catch (e) {
-                    syn.$l.eventLog('$string.toCurrency', `Intl formatting error for locale ${localeID}: ${e}`, 'Warning');
+                    syn.$l.eventLog('context.$string.toCurrency', `Intl formatting error for locale ${localeID}: ${e}`, 'Warning');
                 }
             }
 
@@ -1196,7 +1196,7 @@
             const strVal = String(val);
             const padLength = Math.max(0, length - strVal.length);
             const padding = String(fix).repeat(padLength);
-            return $string.toBoolean(isLeft) ? padding + strVal : strVal + padding;
+            return context.$string.toBoolean(isLeft) ? padding + strVal : strVal + padding;
         }
 
     });
@@ -1342,7 +1342,7 @@
         ranks(values, asc = false) {
             if (!Array.isArray(values)) return [];
 
-            const indexedValues = values.map((value, index) => ({ value: $string.toNumber(value), index }));
+            const indexedValues = values.map((value, index) => ({ value: context.$string.toNumber(value), index }));
 
             indexedValues.sort((a, b) => asc ? a.value - b.value : b.value - a.value);
 
@@ -1435,7 +1435,7 @@
 
         aggregate(type, columnValues) {
             if (typeof columnValues === 'string') {
-                processedValues = columnValues.split(',');
+                columnValues = columnValues.split(',');
             }
 
             if (!Array.isArray(columnValues)) {
@@ -1446,7 +1446,7 @@
             let validCount = 0;
 
             for (const value of columnValues) {
-                const numericValue = $string.toNumber(value);
+                const numericValue = context.$string.toNumber(value);
                 if (!isNaN(numericValue)) {
                     numericValues.push(numericValue);
                     validCount++;
@@ -1547,7 +1547,7 @@
         toParameterString(jsonObject) {
             if (!jsonObject || typeof jsonObject !== 'object') return '';
             return Object.entries(jsonObject)
-                .map(([key, val]) => `@${key}:${$string.toValue($string.toDynamic(val), '')}`)
+                .map(([key, val]) => `@${key}:${context.$string.toValue(context.$string.toDynamic(val), '')}`)
                 .join(';');
         },
 
@@ -1689,7 +1689,7 @@
         },
 
         parseJsonValue(value, jsonType) {
-            if ($object.isNullOrUndefined(value) == true) {
+            if (context.$object.isNullOrUndefined(value) == true) {
                 return value;
             }
 
@@ -1699,7 +1699,7 @@
                 case 'number':
                     return Number(value);
                 case 'boolean':
-                    return value === true || $string.toBoolean(value);
+                    return value === true || context.$string.toBoolean(value);
                 case 'object':
                 case 'array':
                     return JSON.parse(value);

@@ -83,7 +83,7 @@
             el = syn.$l.getElement(el);
             if (!el) return null;
             if (value !== undefined) {
-                el.value = $string.toValue(value);
+                el.value = context.$string.toValue(value);
             }
             return el.value;
         },
@@ -92,7 +92,7 @@
             el = syn.$l.getElement(el);
             if (!el) return null;
             if (value !== undefined) {
-                el.textContent = $string.toValue(value);
+                el.textContent = context.$string.toValue(value);
             }
             return el.textContent;
         },
@@ -101,7 +101,7 @@
             el = syn.$l.getElement(el);
             if (!el) return null;
             if (value !== undefined) {
-                el.innerText = $string.toValue(value);
+                el.innerText = context.$string.toValue(value);
             }
             return el.innerText;
         },
@@ -110,7 +110,7 @@
             el = syn.$l.getElement(el);
             if (!el) return null;
             if (value !== undefined) {
-                el.innerHTML = $string.toValue(value);
+                el.innerHTML = context.$string.toValue(value);
             }
             return el.innerHTML;
         },
@@ -172,7 +172,7 @@
 
         addStyle(el, objects) {
             el = syn.$l.getElement(el);
-            if (el?.style && $object.isObject(objects)) {
+            if (el?.style && context.$object.isObject(objects)) {
                 Object.entries(objects).forEach(([prop, val]) => {
                     el.style[prop] = val;
                 });
@@ -360,7 +360,7 @@
         display(el, isShow) {
             el = syn.$l.getElement(el);
             if (el?.style) {
-                el.style.display = $string.toBoolean(isShow) ? 'block' : 'none';
+                el.style.display = context.$string.toBoolean(isShow) ? 'block' : 'none';
             }
             return this;
         },
@@ -409,7 +409,7 @@
         },
 
         each(array, handler) {
-            if ($object.isArray(array) && $object.isFunction(handler)) {
+            if (context.$object.isArray(array) && context.$object.isFunction(handler)) {
                 array.forEach(handler);
             }
         },
@@ -417,7 +417,7 @@
         setActive(el, value) {
             el = syn.$l.getElement(el);
             if (el?.classList) {
-                el.classList.toggle('active', $string.toBoolean(value));
+                el.classList.toggle('active', context.$string.toBoolean(value));
             }
             return this;
         },
@@ -426,9 +426,9 @@
             el = syn.$l.getElement(el);
             if (!el) return this;
 
-            const boolValue = $string.toBoolean(value);
+            const boolValue = context.$string.toBoolean(value);
 
-            if (!$string.toBoolean(multiple)) {
+            if (!context.$string.toBoolean(multiple)) {
                 this.siblings(el)?.forEach(siblingEL => {
                     siblingEL.selected = false;
                     siblingEL.removeAttribute('selected');
@@ -448,9 +448,9 @@
             el = syn.$l.getElement(el);
             if (!el) return this;
 
-            const boolValue = $string.toBoolean(value);
+            const boolValue = context.$string.toBoolean(value);
 
-            if (!$string.toBoolean(multiple)) {
+            if (!context.$string.toBoolean(multiple)) {
                 this.siblings(el)?.forEach(siblingEL => {
                     if (siblingEL.tagName === el.tagName && siblingEL.type === el.type && siblingEL.name === el.name) {
                         siblingEL.checked = false;

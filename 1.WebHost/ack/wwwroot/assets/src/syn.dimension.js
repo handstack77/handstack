@@ -1,11 +1,11 @@
-(function (context) {
+﻿(function (context) {
     'use strict';
     const $dimension = context.$dimension || new syn.module();
     const doc = context.document;
 
     $dimension.extend({
         getDocumentSize(isTopWindow = false) {
-            const currentDoc = $string.toBoolean(isTopWindow) ? top.document : doc;
+            const currentDoc = context.$string.toBoolean(isTopWindow) ? top.document : doc;
             if (!currentDoc?.body || !currentDoc?.documentElement) return { width: 0, height: 0, frameWidth: 0, frameHeight: 0 };
 
             return {
@@ -25,7 +25,7 @@
         },
 
         getWindowSize(isTopWindow = false) {
-            const currentWindow = $string.toBoolean(isTopWindow) ? top.window : context;
+            const currentWindow = context.$string.toBoolean(isTopWindow) ? top.window : context;
             return {
                 width: currentWindow?.innerWidth ?? 0,
                 height: currentWindow?.innerHeight ?? 0
@@ -179,7 +179,7 @@
             if (text === undefined || text === null) return null;
 
             let effectiveMaxWidth = maxWidth;
-            if ($object.isNumber(maxWidth)) {
+            if (context.$object.isNumber(maxWidth)) {
                 effectiveMaxWidth = `${maxWidth}px`;
             }
 
@@ -188,13 +188,13 @@
             let numericMaxWidth = Infinity;
 
             if (measuredWidth.endsWith('px')) {
-                numericWidth = $string.toNumber(measuredWidth.slice(0, -2));
+                numericWidth = context.$string.toNumber(measuredWidth.slice(0, -2));
             }
 
             if (effectiveMaxWidth.endsWith('px')) {
-                numericMaxWidth = $string.toNumber(effectiveMaxWidth.slice(0, -2));
+                numericMaxWidth = context.$string.toNumber(effectiveMaxWidth.slice(0, -2));
             } else {
-                numericMaxWidth = $string.toNumber(effectiveMaxWidth);
+                numericMaxWidth = context.$string.toNumber(effectiveMaxWidth);
             }
 
             if (!isNaN(numericMaxWidth) && numericWidth > numericMaxWidth) {
