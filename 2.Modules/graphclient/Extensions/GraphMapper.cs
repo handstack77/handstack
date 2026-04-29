@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -551,13 +551,9 @@ namespace graphclient.Extensions
 
         private static string ReplaceCData(string rawText)
         {
-            var matches = cdataRegex.Matches(rawText);
-            foreach (Match match in matches)
-            {
-                rawText = rawText.Replace(match.Value, match.Groups[2].Value);
-            }
-
-            return rawText;
+            return cdataRegex.Replace(rawText, m =>
+                new XText(m.Groups[2].Value).ToString()
+            );
         }
 
         private static string DecryptValue(string encryptedValue)

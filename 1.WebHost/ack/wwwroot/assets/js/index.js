@@ -2814,6 +2814,27 @@ if (typeof module !== 'undefined' && module.exports) {
             return Object.fromEntries(
                 Object.entries(sourceObject).filter(([key]) => !keysToExclude.includes(key))
             );
+        },
+
+        parseJsonValue(value, jsonType) {
+            if ($object.isNullOrUndefined(value) == true) {
+                return value;
+            }
+
+            switch (jsonType) {
+                case 'integer':
+                    return Number.parseInt(value, 10);
+                case 'number':
+                    return Number(value);
+                case 'boolean':
+                    return value === true || $string.toBoolean(value);
+                case 'object':
+                case 'array':
+                    return JSON.parse(value);
+                case 'string':
+                default:
+                    return String(value);
+            }
         }
     });
     context.$object = $object;
