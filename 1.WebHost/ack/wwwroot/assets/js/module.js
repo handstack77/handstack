@@ -1,4 +1,4 @@
-/*!
+﻿/*!
 HandStack Javascript Library v2026.3.11
 https://handshake.kr
 
@@ -4299,7 +4299,7 @@ if (typeof module !== 'undefined' && module.exports) {
             if (typeof val === 'boolean') return true;
             if (val === undefined || val === null) return false;
             const strVal = String(val).toUpperCase();
-            return ['TRUE', 'FALSE', 'Y', 'N', '1', '0'].includes(strVal);
+            return ['TRUE', 'FALSE', 'T', 'F', 'Y', 'N', '1', '0'].includes(strVal);
         },
 
         isEmpty(val) {
