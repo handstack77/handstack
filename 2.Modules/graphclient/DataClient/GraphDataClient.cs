@@ -572,6 +572,18 @@ namespace graphclient.DataClient
                 throw new InvalidOperationException($"GraphDataSource '{dataSource.DataSourceID}'는 bolt:// 또는 neo4j:// URI만 지원합니다.");
             }
 
+            if (ModuleConfiguration.AllowedGraphHosts.Count > 0)
+            {
+                var hostPort = connectionUri.IsDefaultPort == true ? connectionUri.Host : $"{connectionUri.Host}:{connectionUri.Port}";
+                var isAllowedHost = ModuleConfiguration.AllowedGraphHosts.Any(item =>
+                    item.Equals(connectionUri.Host, StringComparison.OrdinalIgnoreCase) == true
+                    || item.Equals(hostPort, StringComparison.OrdinalIgnoreCase) == true);
+                if (isAllowedHost == false)
+                {
+                    throw new InvalidOperationException($"GraphDataSource '{dataSource.DataSourceID}' host는 허용 목록에 없습니다.");
+                }
+            }
+
             if (dataSource.GraphProvider.Equals("Neo4j", StringComparison.OrdinalIgnoreCase) == false
                 && dataSource.GraphProvider.Equals("Memgraph", StringComparison.OrdinalIgnoreCase) == false)
             {
@@ -581,7 +593,8 @@ namespace graphclient.DataClient
 
         private static int GetStatementTimeout(GraphStatementMap statementMap)
         {
-            return statementMap.Timeout <= 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout;
+            var timeout = statementMap.Timeout <= 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout;
+            return Math.Clamp(timeout, 1, ModuleConfiguration.MaxCommandTimeout);
         }
 
         private static int GetTransactionTimeout(List<GraphQueryPlan> plans)

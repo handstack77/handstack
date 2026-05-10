@@ -13,13 +13,17 @@ namespace forwarder.Extensions
 {
     public static class ForwarderAuthorizationExtensions
     {
+        public static bool IsAllowClientIP(this HttpContext httpContext)
+        {
+            return ModuleConfiguration.AllowClientIP.Any(p => p == "*" || p == httpContext.GetRemoteIpAddress());
+        }
+
         public static bool TryAuthorizeBearerToken(this HttpContext httpContext, out BearerToken? bearerToken, out string message)
         {
             bearerToken = null;
             message = "BearerToken 헤더 확인 필요";
 
-            var isAllowClientIP = ModuleConfiguration.AllowClientIP.Any(p => p == "*" || p == httpContext.GetRemoteIpAddress());
-            if (isAllowClientIP == false)
+            if (httpContext.IsAllowClientIP() == false)
             {
                 message = "허용된 클라이언트 IP 확인 필요";
                 return false;

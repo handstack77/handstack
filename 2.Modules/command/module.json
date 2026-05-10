@@ -9,6 +9,17 @@
         "CircuitBreakResetSecond": 60,
         "DefaultCommandTimeout": 30,
         "DefaultMaxOutputBytes": 1048576,
+        "Security": {
+            "AllowedExecutableBasePaths": [],
+            "BlockedForwardHeaders": [
+                "Host",
+                "Content-Length",
+                "Transfer-Encoding",
+                "Connection",
+                "Upgrade",
+                "Proxy-Authorization"
+            ]
+        },
         "IsContractFileWatching": true,
         "ContractBasePath": [
             "../contracts/command"

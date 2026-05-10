@@ -74,6 +74,12 @@ namespace graphclient
             ModuleConfiguration.BusinessServerUrl = moduleConfig.BusinessServerUrl;
             ModuleConfiguration.CircuitBreakResetSecond = moduleConfig.CircuitBreakResetSecond;
             ModuleConfiguration.DefaultCommandTimeout = moduleConfig.DefaultCommandTimeout;
+            ModuleConfiguration.MaxCommandTimeout = moduleConfig.Security?.MaxCommandTimeout > 0 ? moduleConfig.Security.MaxCommandTimeout : 300;
+            ModuleConfiguration.AllowedGraphHosts = (moduleConfig.Security?.AllowedGraphHosts ?? new List<string>())
+                .Where(item => string.IsNullOrWhiteSpace(item) == false)
+                .Select(item => item.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
             ModuleConfiguration.IsLogServer = moduleConfig.IsLogServer;
             ModuleConfiguration.LogServerUrl = moduleConfig.LogServerUrl;
 

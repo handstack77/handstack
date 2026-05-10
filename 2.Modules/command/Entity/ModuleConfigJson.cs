@@ -41,6 +41,8 @@ namespace command.Entity
 
         public List<string> AllowClientIP { get; set; }
 
+        public ModuleSecurityConfig Security { get; set; }
+
         public ModuleConfig()
         {
             AuthorizationKey = "";
@@ -55,6 +57,20 @@ namespace command.Entity
             IsTransactionLogging = false;
             ModuleLogFilePath = "";
             AllowClientIP = new List<string>() { "*" };
+            Security = new ModuleSecurityConfig();
+        }
+    }
+
+    public record ModuleSecurityConfig
+    {
+        public List<string> AllowedExecutableBasePaths { get; set; }
+
+        public List<string> BlockedForwardHeaders { get; set; }
+
+        public ModuleSecurityConfig()
+        {
+            AllowedExecutableBasePaths = new List<string>();
+            BlockedForwardHeaders = new List<string>() { "Host", "Content-Length", "Transfer-Encoding", "Connection", "Upgrade", "Proxy-Authorization" };
         }
     }
 }

@@ -13,6 +13,7 @@ namespace function.Entity
         public static string Version = "";
         public static string AuthorizationKey = "";
         public static List<string> AllowClientIP = new List<string>() { "*" };
+        public static bool RequireAuthorizationKeyAndClientIP = false;
         public static bool IsBundledWithHost = false;
         public static string ModuleBasePath = "";
         public static Dictionary<string, FileSyncManager> FunctionFileSyncManager = new Dictionary<string, FileSyncManager>();

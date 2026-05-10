@@ -61,6 +61,16 @@ namespace command
                         ModuleConfiguration.CircuitBreakResetSecond = moduleConfig.CircuitBreakResetSecond;
                         ModuleConfiguration.DefaultCommandTimeout = moduleConfig.DefaultCommandTimeout;
                         ModuleConfiguration.DefaultMaxOutputBytes = moduleConfig.DefaultMaxOutputBytes;
+                        ModuleConfiguration.AllowedExecutableBasePaths = (moduleConfig.Security?.AllowedExecutableBasePaths ?? new List<string>())
+                            .Where(p => string.IsNullOrWhiteSpace(p) == false)
+                            .Select(p => GlobalConfiguration.GetBaseDirectoryPath(p.Trim()).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar))
+                            .Distinct(StringComparer.OrdinalIgnoreCase)
+                            .ToList();
+                        ModuleConfiguration.BlockedForwardHeaders = (moduleConfig.Security?.BlockedForwardHeaders ?? ModuleConfiguration.BlockedForwardHeaders)
+                            .Where(p => string.IsNullOrWhiteSpace(p) == false)
+                            .Select(p => p.Trim())
+                            .Distinct(StringComparer.OrdinalIgnoreCase)
+                            .ToList();
                         ModuleConfiguration.IsLogServer = moduleConfig.IsLogServer;
                         ModuleConfiguration.LogServerUrl = moduleConfig.LogServerUrl;
 

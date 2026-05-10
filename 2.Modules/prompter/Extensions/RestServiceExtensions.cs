@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 
 using HandStack.Web.Extensions;
 
@@ -13,7 +13,7 @@ namespace prompter.Extensions
         public static bool IsAllowAuthorization(this HttpContext httpContext)
         {
             string? authorizationKey = httpContext.Request.GetContainValue("AuthorizationKey");
-            var isAllowClientIP = string.IsNullOrEmpty(ModuleConfiguration.AllowClientIP.FirstOrDefault(p => p == "*" || p == httpContext.GetRemoteIpAddress())) == false;
+            var isAllowClientIP = string.IsNullOrWhiteSpace(ModuleConfiguration.AllowClientIP.FirstOrDefault(p => p == "*" || p == httpContext.GetRemoteIpAddress())) == false;
             return ModuleConfiguration.AuthorizationKey == authorizationKey && isAllowClientIP == true;
         }
     }

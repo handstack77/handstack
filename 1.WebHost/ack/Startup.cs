@@ -70,6 +70,10 @@ namespace ack
         bool useHttpLogging = false;
         bool useProxyForward = false;
         bool useResponseComression = false;
+        bool enableSecurityHeaders = true;
+        bool enablePublicCorsPolicy = true;
+        bool exposeSecretValues = false;
+        long maxContractSyncFileBytes = 10485760;
         readonly IConfiguration configuration;
         readonly IWebHostEnvironment environment;
         static readonly ServerEventListener serverEventListener = new ServerEventListener();
@@ -97,6 +101,11 @@ namespace ack
             this.useHttpLogging = bool.Parse(appSettings["UseHttpLogging"].ToStringSafe("false"));
             this.useProxyForward = bool.Parse(appSettings["UseForwardProxy"].ToStringSafe("false"));
             this.useResponseComression = bool.Parse(appSettings["UseResponseComression"].ToStringSafe("false"));
+            var securitySettings = appSettings.GetSection("Security");
+            this.enableSecurityHeaders = bool.Parse(securitySettings["EnableSecurityHeaders"].ToStringSafe("true"));
+            this.enablePublicCorsPolicy = bool.Parse(securitySettings["EnablePublicCorsPolicy"].ToStringSafe("true"));
+            this.exposeSecretValues = bool.Parse(securitySettings["ExposeSecretValues"].ToStringSafe("false"));
+            this.maxContractSyncFileBytes = long.Parse(securitySettings["MaxContractSyncFileBytes"].ToStringSafe("10485760"));
 
             GlobalConfiguration.InstallType = appSettings["InstallType"].ToStringSafe();
             GlobalConfiguration.ApplicationID = appSettings.GetSection("ApplicationID").Exists() == true ? appSettings["ApplicationID"].ToStringSafe() : "HDS";
@@ -372,7 +381,7 @@ namespace ack
                     options.CheckConsentNeeded = context => false;
                     options.MinimumSameSitePolicy = Microsoft.AspNetCore.Http.SameSiteMode.Lax;
                     options.HttpOnly = HttpOnlyPolicy.None;
-                    options.Secure = CookieSecurePolicy.SameAsRequest;
+                    options.Secure = environment.IsProduction() == true ? CookieSecurePolicy.Always : CookieSecurePolicy.SameAsRequest;
                 });
 
                 var authenticationLoginPath = appSettings["AuthenticationLoginPath"].ToStringSafe();
@@ -399,8 +408,8 @@ namespace ack
                 services.ConfigureApplicationCookie(options =>
                 {
                     options.Cookie.HttpOnly = true;
-                    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
-                    options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.None;
+                    options.Cookie.SecurePolicy = environment.IsProduction() == true ? CookieSecurePolicy.Always : CookieSecurePolicy.SameAsRequest;
+                    options.Cookie.SameSite = environment.IsProduction() == true ? Microsoft.AspNetCore.Http.SameSiteMode.Lax : Microsoft.AspNetCore.Http.SameSiteMode.None;
                     options.Cookie.Expiration = TimeSpan.FromSeconds(GlobalConfiguration.UserSignExpire);
 
                     options.SlidingExpiration = true;
@@ -452,30 +461,34 @@ namespace ack
                         .WithHeaders(HeaderNames.CacheControl)
                     );
 
-                    options.AddPolicy("PublicCorsPolicy",
-                    builder => builder
-                        .AllowAnyHeader()
-                        .AllowAnyMethod()
-                        .AllowAnyOrigin()
-                        .SetIsOriginAllowedToAllowWildcardSubdomains()
-                        .SetPreflightMaxAge(TimeSpan.FromSeconds(86400))
-                        .WithHeaders(HeaderNames.CacheControl)
-                    );
+                    if (enablePublicCorsPolicy == true)
+                    {
+                        options.AddPolicy("PublicCorsPolicy",
+                        builder => builder
+                            .AllowAnyHeader()
+                            .AllowAnyMethod()
+                            .AllowAnyOrigin()
+                            .SetPreflightMaxAge(TimeSpan.FromSeconds(86400))
+                            .WithHeaders(HeaderNames.CacheControl)
+                        );
+                    }
                 });
             }
             else
             {
                 services.AddCors(options =>
                 {
-                    options.AddPolicy("PublicCorsPolicy",
-                    builder => builder
-                        .AllowAnyHeader()
-                        .AllowAnyMethod()
-                        .AllowCredentials()
-                        .SetIsOriginAllowedToAllowWildcardSubdomains()
-                        .SetPreflightMaxAge(TimeSpan.FromSeconds(86400))
-                        .WithHeaders(HeaderNames.CacheControl)
-                    );
+                    if (enablePublicCorsPolicy == true)
+                    {
+                        options.AddPolicy("PublicCorsPolicy",
+                        builder => builder
+                            .AllowAnyHeader()
+                            .AllowAnyMethod()
+                            .AllowAnyOrigin()
+                            .SetPreflightMaxAge(TimeSpan.FromSeconds(86400))
+                            .WithHeaders(HeaderNames.CacheControl)
+                        );
+                    }
                 });
             }
 
@@ -836,6 +849,20 @@ namespace ack
             if (useHttpLogging == true)
             {
                 app.UseHttpLogging();
+            }
+
+            if (enableSecurityHeaders == true)
+            {
+                app.Use(async (context, next) =>
+                {
+                    context.Response.OnStarting(() =>
+                    {
+                        ApplySecurityHeaders(context);
+                        return Task.CompletedTask;
+                    });
+
+                    await next();
+                });
             }
 
             if (string.IsNullOrWhiteSpace(GlobalConfiguration.ProxyBasePath) == false)
@@ -1217,7 +1244,10 @@ namespace ack
                     app.UseCors();
                 }
 
-                app.UseCors("PublicCorsPolicy");
+                if (enablePublicCorsPolicy == true)
+                {
+                    app.UseCors("PublicCorsPolicy");
+                }
             }
 
             var moduleInitializers = app.ApplicationServices.GetServices<IModuleInitializer>();
@@ -1255,8 +1285,7 @@ namespace ack
                         string handstackHomePath = Path.Combine(GlobalConfiguration.EntryBasePath, "..");
                         if (string.IsNullOrWhiteSpace(handstackHomePath) == false)
                         {
-                            var hostAccessID = context.Request.GetContainValue("hostAccessID");
-                            if (string.IsNullOrWhiteSpace(hostAccessID) == false && GlobalConfiguration.HostAccessID == hostAccessID)
+                            if (IsValidHostAccessRequest(context, out var hostAccessID) == true)
                             {
                                 var form = await context.Request.ReadFormAsync();
                                 var file = form.Files["file"];
@@ -1268,6 +1297,12 @@ namespace ack
                                 if (string.IsNullOrWhiteSpace(moduleID) == true || string.IsNullOrWhiteSpace(destFilePath) == true || string.IsNullOrWhiteSpace(changeType) == true || (changeType != "Deleted" && (file == null || file.Length == 0)))
                                 {
                                     context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                                    return;
+                                }
+
+                                if (file != null && file.Length > maxContractSyncFileBytes)
+                                {
+                                    context.Response.StatusCode = StatusCodes.Status413PayloadTooLarge;
                                     return;
                                 }
 
@@ -1303,25 +1338,49 @@ namespace ack
 
                                 if (changeType == "Deleted")
                                 {
-                                    File.Delete(destModuleBasePath + destFilePath);
+                                    if (TryResolveChildPath(destModuleBasePath, destFilePath, out var targetModuleFilePath) == false)
+                                    {
+                                        context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                                        return;
+                                    }
+
+                                    File.Delete(targetModuleFilePath);
 
                                     if (contractType != "wwwroot")
                                     {
-                                        File.Delete(destContractModuleBasePath + destFilePath);
+                                        if (TryResolveChildPath(destContractModuleBasePath, destFilePath, out var targetContractFilePath) == false)
+                                        {
+                                            context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                                            return;
+                                        }
+
+                                        File.Delete(targetContractFilePath);
                                     }
                                 }
                                 else
                                 {
                                     if (file != null)
                                     {
+                                        if (TryResolveChildPath(destModuleBasePath, destFilePath, out var targetModuleFilePath) == false)
+                                        {
+                                            context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                                            return;
+                                        }
+
                                         using var fileStream = new MemoryStream();
                                         await file.CopyToAsync(fileStream);
 
-                                        await CopyFileAsync(fileStream, destModuleBasePath + destFilePath);
+                                        await CopyFileAsync(fileStream, targetModuleFilePath);
 
                                         if (contractType != "wwwroot")
                                         {
-                                            await CopyFileAsync(fileStream, destContractModuleBasePath + destFilePath);
+                                            if (TryResolveChildPath(destContractModuleBasePath, destFilePath, out var targetContractFilePath) == false)
+                                            {
+                                                context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                                                return;
+                                            }
+
+                                            await CopyFileAsync(fileStream, targetContractFilePath);
                                         }
                                     }
                                 }
@@ -1351,8 +1410,7 @@ namespace ack
                 {
                     try
                     {
-                        var hostAccessID = context.Request.GetContainValue("hostAccessID");
-                        if (string.IsNullOrWhiteSpace(hostAccessID) == false && GlobalConfiguration.HostAccessID == hostAccessID)
+                        if (IsValidHostAccessRequest(context, out var hostAccessID) == true)
                         {
                             var applicationManager = ApplicationManager.Load();
                             applicationManager.Stop();
@@ -1748,6 +1806,13 @@ namespace ack
                 // curl --location "http://localhost:8421/license-keys"
                 endpoints.MapGet("/license-keys", async context =>
                 {
+                    if (IsValidHostAccessRequest(context, out var hostAccessID) == false)
+                    {
+                        Log.Warning("[{LogCategory}] HostAccessID 확인 필요: " + hostAccessID.ToStringSafe(), "Startup/license-keys");
+                        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                        return;
+                    }
+
                     var allKeys = GlobalConfiguration.LoadModuleLicenses.Keys;
                     var filtered = allKeys?.ToList();
 
@@ -1822,7 +1887,8 @@ namespace ack
                         var responseItem = new
                         {
                             keyItem.Key,
-                            keyItem.Value,
+                            Value = exposeSecretValues == true ? keyItem.Value : null,
+                            IsValueHidden = exposeSecretValues == false,
                             keyItem.IsEncryption,
                             keyItem.Tags
                         };
@@ -2269,6 +2335,62 @@ namespace ack
             {
                 Log.Error("[{LogCategory}]" + $"{destFileName} 실패. {exception.Message}", "Startup/contractsync");
             }
+        }
+
+        private void ApplySecurityHeaders(HttpContext context)
+        {
+            var headers = context.Response.Headers;
+            headers.TryAdd("X-Content-Type-Options", "nosniff");
+            headers.TryAdd("Referrer-Policy", "no-referrer");
+            headers.TryAdd("X-Frame-Options", "SAMEORIGIN");
+
+            if (string.IsNullOrWhiteSpace(GlobalConfiguration.ContentSecurityPolicy) == false)
+            {
+                headers.TryAdd("Content-Security-Policy", GlobalConfiguration.ContentSecurityPolicy);
+            }
+
+            if (IsSensitiveManagementPath(context.Request.Path) == true)
+            {
+                headers["Cache-Control"] = "no-store, no-cache, max-age=0";
+                headers["Pragma"] = "no-cache";
+            }
+        }
+
+        private static bool IsSensitiveManagementPath(PathString path)
+        {
+            var value = path.Value.ToStringSafe();
+            return value.Equals("/secrets", StringComparison.OrdinalIgnoreCase) == true
+                || value.StartsWith("/secrets/", StringComparison.OrdinalIgnoreCase) == true
+                || value.Equals("/globalconfiguration", StringComparison.OrdinalIgnoreCase) == true
+                || value.Equals("/globalconfigration", StringComparison.OrdinalIgnoreCase) == true
+                || value.StartsWith("/moduleconfiguration/", StringComparison.OrdinalIgnoreCase) == true
+                || value.StartsWith("/moduleconfigration/", StringComparison.OrdinalIgnoreCase) == true
+                || value.Equals("/contractsync", StringComparison.OrdinalIgnoreCase) == true
+                || value.Equals("/diagnostics", StringComparison.OrdinalIgnoreCase) == true
+                || value.Equals("/metrics", StringComparison.OrdinalIgnoreCase) == true;
+        }
+
+        private static bool TryResolveChildPath(string basePath, string childPath, out string resolvedPath)
+        {
+            resolvedPath = "";
+            if (string.IsNullOrWhiteSpace(basePath) == true || string.IsNullOrWhiteSpace(childPath) == true)
+            {
+                return false;
+            }
+
+            var normalizedChildPath = childPath.Replace('\\', Path.DirectorySeparatorChar).Replace('/', Path.DirectorySeparatorChar).TrimStart(Path.DirectorySeparatorChar);
+            var fullBasePath = Path.GetFullPath(basePath).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            var fullPath = Path.GetFullPath(Path.Combine(fullBasePath, normalizedChildPath));
+
+            if (fullPath.Equals(fullBasePath, StringComparison.OrdinalIgnoreCase) == true
+                || fullPath.StartsWith(fullBasePath + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase) == true
+                || fullPath.StartsWith(fullBasePath + Path.AltDirectorySeparatorChar, StringComparison.OrdinalIgnoreCase) == true)
+            {
+                resolvedPath = fullPath;
+                return true;
+            }
+
+            return false;
         }
 
         private static bool IsValidHostAccessRequest(HttpContext context, out string hostAccessID)

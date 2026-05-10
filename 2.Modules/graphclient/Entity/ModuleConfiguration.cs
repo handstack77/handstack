@@ -27,6 +27,8 @@ namespace graphclient.Entity
         public static string LogServerUrl = "";
         public static string DefaultDataSourceID = "";
         public static int DefaultCommandTimeout = 30;
+        public static int MaxCommandTimeout = 300;
+        public static List<string> AllowedGraphHosts = new();
         public static List<GraphDataSource> GraphDataSource = new();
         public static ILogger? ModuleLogger = null;
         public static ILogger? ProfileLogger = null;

@@ -1910,9 +1910,14 @@ namespace repository.Controllers
                     return BadRequest(errorText);
             }
 
-            if (!string.IsNullOrWhiteSpace(disposition))
+            if (TryNormalizeDisposition(disposition, out var safeDisposition) == false)
             {
-                Response.Headers["Content-Disposition"] = disposition;
+                return BadRequest("Content-Disposition 확인 필요");
+            }
+
+            if (!string.IsNullOrWhiteSpace(safeDisposition))
+            {
+                Response.Headers["Content-Disposition"] = safeDisposition;
             }
 
             Response.Headers.Append("Access-Control-Expose-Headers", "FileModelType, FileResult");
@@ -1978,9 +1983,14 @@ namespace repository.Controllers
                     return BadRequest(errorText);
             }
 
-            if (!string.IsNullOrWhiteSpace(disposition))
+            if (TryNormalizeDisposition(disposition, out var safeDisposition) == false)
             {
-                Response.Headers["Content-Disposition"] = disposition;
+                return BadRequest("Content-Disposition 확인 필요");
+            }
+
+            if (!string.IsNullOrWhiteSpace(safeDisposition))
+            {
+                Response.Headers["Content-Disposition"] = safeDisposition;
             }
 
             Response.Headers.Append("Access-Control-Expose-Headers", "FileModelType, FileResult");
@@ -2005,6 +2015,12 @@ namespace repository.Controllers
                 downloadResult.Message = "VirtualDownloadFile RepositoryID 또는 fileName 필수 요청 정보 필요";
                 result = StatusCode(StatusCodes.Status400BadRequest, downloadResult.Message);
                 return result;
+            }
+
+            if (IsSafeRelativePath(fileName) == false || IsSafeRelativePath(subDirectory) == false)
+            {
+                downloadResult.Message = "VirtualDownloadFile 파일 경로 확인 필요";
+                return BadRequest(downloadResult.Message);
             }
 
             var repository = moduleApiClient.GetRepository(applicationID, repositoryID);
@@ -2487,7 +2503,11 @@ namespace repository.Controllers
                     repositoryManager.PersistenceDirectoryPath = PathExtensions.Combine(persistenceDirectoryPath, subDirectory);
                 }
 
-                var filePath = PathExtensions.Combine(repositoryManager.PersistenceDirectoryPath, fileName);
+                if (TryResolveChildPath(repositoryManager.PersistenceDirectoryPath, fileName, out var filePath) == false)
+                {
+                    downloadResult.Message = "VirtualDownloadFile 파일 경로 확인 필요";
+                    return BadRequest(downloadResult.Message);
+                }
                 try
                 {
                     if (System.IO.File.Exists(filePath) == true)
@@ -2687,6 +2707,16 @@ namespace repository.Controllers
             try
             {
                 var filePath = repositoryItem.PhysicalPath;
+                var persistenceDirectoryPath = string.IsNullOrWhiteSpace(applicationID) == true
+                    ? repository.PhysicalPath
+                    : PathExtensions.Combine(repository.PhysicalPath, applicationID);
+                if (TryResolveChildPath(persistenceDirectoryPath, Path.GetRelativePath(persistenceDirectoryPath, filePath), out var safeFilePath) == false)
+                {
+                    downloadResult.Message = "파일 경로 확인 필요";
+                    return BadRequest(downloadResult.Message);
+                }
+
+                filePath = safeFilePath;
                 if (System.IO.File.Exists(filePath) == true)
                 {
                     var mimeType = repositoryItem.MimeType;
@@ -2954,6 +2984,70 @@ namespace repository.Controllers
                 logger.Warning(exception, "[{LogCategory}] settings.json 역직렬화 오류 - {SettingFilePath}", logCategory, settingFilePath);
                 return null;
             }
+        }
+
+        private static bool TryNormalizeDisposition(string? disposition, out string safeDisposition)
+        {
+            safeDisposition = "";
+            if (string.IsNullOrWhiteSpace(disposition) == true)
+            {
+                return true;
+            }
+
+            var value = disposition.Trim();
+            if (value.IndexOfAny(new[] { '\r', '\n' }) > -1)
+            {
+                return false;
+            }
+
+            if (value.Equals("inline", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                safeDisposition = "inline";
+                return true;
+            }
+
+            if (value.Equals("attachment", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                safeDisposition = "attachment";
+                return true;
+            }
+
+            return false;
+        }
+
+        private static bool IsSafeRelativePath(string? path)
+        {
+            if (string.IsNullOrWhiteSpace(path) == true)
+            {
+                return true;
+            }
+
+            return Path.IsPathRooted(path) == false
+                && path.Split(new[] { '/', '\\' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Any(segment => segment == "..") == false
+                && path.IndexOfAny(new[] { '\r', '\n' }) == -1;
+        }
+
+        private static bool TryResolveChildPath(string basePath, string childPath, out string resolvedPath)
+        {
+            resolvedPath = "";
+            if (string.IsNullOrWhiteSpace(basePath) == true || string.IsNullOrWhiteSpace(childPath) == true)
+            {
+                return false;
+            }
+
+            var normalizedChildPath = childPath.Replace('\\', Path.DirectorySeparatorChar).Replace('/', Path.DirectorySeparatorChar).TrimStart(Path.DirectorySeparatorChar);
+            var fullBasePath = Path.GetFullPath(basePath).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            var fullPath = Path.GetFullPath(Path.Combine(fullBasePath, normalizedChildPath));
+            if (fullPath.Equals(fullBasePath, StringComparison.OrdinalIgnoreCase) == true
+                || fullPath.StartsWith(fullBasePath + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase) == true
+                || fullPath.StartsWith(fullBasePath + Path.AltDirectorySeparatorChar, StringComparison.OrdinalIgnoreCase) == true)
+            {
+                resolvedPath = fullPath;
+                return true;
+            }
+
+            return false;
         }
     }
 }

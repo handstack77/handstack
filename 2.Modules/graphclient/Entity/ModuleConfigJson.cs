@@ -19,6 +19,8 @@ namespace graphclient.Entity
 
         public int DefaultCommandTimeout { get; set; } = 30;
 
+        public ModuleSecurityConfig Security { get; set; } = new();
+
         public bool IsLogServer { get; set; }
 
         public string LogServerUrl { get; set; } = "";
@@ -44,5 +46,12 @@ namespace graphclient.Entity
         public List<string> EventAction { get; set; } = new();
 
         public List<string> SubscribeAction { get; set; } = new();
+    }
+
+    public record ModuleSecurityConfig
+    {
+        public List<string> AllowedGraphHosts { get; set; } = new();
+
+        public int MaxCommandTimeout { get; set; } = 300;
     }
 }

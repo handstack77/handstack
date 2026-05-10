@@ -70,6 +70,11 @@ namespace forwarder.Areas.forwarder.Controllers
         [Route("[action]")]
         public async Task<IActionResult> Pipe([FromQuery] string requestKey, [FromQuery] int? timeoutMS = null)
         {
+            if (HttpContext.IsAllowClientIP() == false)
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, "허용된 클라이언트 IP 확인 필요");
+            }
+
             if (HttpContext.TryAuthorizeBearerToken(out var bearerToken, out var message) == false)
             {
                 bearerToken = new BearerToken();

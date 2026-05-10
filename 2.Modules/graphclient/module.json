@@ -8,6 +8,10 @@
         "BusinessServerUrl": "http://localhost:8421/transact/api/transaction/execute",
         "CircuitBreakResetSecond": 60,
         "DefaultCommandTimeout": 30,
+        "Security": {
+            "AllowedGraphHosts": [],
+            "MaxCommandTimeout": 300
+        },
         "IsContractFileWatching": true,
         "ContractBasePath": [
             "../contracts/graphclient"

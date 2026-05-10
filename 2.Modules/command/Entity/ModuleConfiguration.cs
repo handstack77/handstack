@@ -23,6 +23,8 @@ namespace command.Entity
         public static int CircuitBreakResetSecond = 60;
         public static int DefaultCommandTimeout = 30;
         public static int DefaultMaxOutputBytes = 1048576;
+        public static List<string> AllowedExecutableBasePaths = new List<string>();
+        public static List<string> BlockedForwardHeaders = new List<string>() { "Host", "Content-Length", "Transfer-Encoding", "Connection", "Upgrade", "Proxy-Authorization" };
         public static bool IsLogServer = false;
         public static string LogServerUrl = "";
         public static ILogger? ModuleLogger = null;

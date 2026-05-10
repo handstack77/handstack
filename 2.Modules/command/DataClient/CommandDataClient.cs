@@ -226,6 +226,11 @@ namespace command.DataClient
                 throw new InvalidOperationException($"CommandID - {commandMap.CommandID} executable 확인 필요");
             }
 
+            if (IsAllowedConfiguredPath(executablePath) == false)
+            {
+                throw new InvalidOperationException($"CommandID - {commandMap.CommandID} executable 허용 경로 확인 필요");
+            }
+
             var arguments = ApplyTemplate(commandMap.Arguments, parameters);
             var workingDirectory = ResolveDirectoryPath(ApplyTemplate(commandMap.WorkingDirectory, parameters));
 
@@ -455,6 +460,11 @@ namespace command.DataClient
                 HttpContent content;
                 if (string.IsNullOrWhiteSpace(path) == false)
                 {
+                    if (IsAllowedConfiguredPath(path) == false)
+                    {
+                        throw new InvalidOperationException($"form-data file path 허용 경로 확인 필요: {path}");
+                    }
+
                     if (File.Exists(path) == false)
                     {
                         throw new FileNotFoundException($"form-data file path 확인 필요: {path}", path);
@@ -551,6 +561,11 @@ namespace command.DataClient
                 return;
             }
 
+            if (ModuleConfiguration.BlockedForwardHeaders.Any(item => item.Equals(key, StringComparison.OrdinalIgnoreCase)) == true)
+            {
+                return;
+            }
+
             if (key.Equals("Content-Type", StringComparison.OrdinalIgnoreCase) == true && request.Content != null)
             {
                 request.Content.Headers.Remove("Content-Type");
@@ -582,7 +597,7 @@ namespace command.DataClient
                 return executablePath;
             }
 
-            return Path.IsPathRooted(executablePath) ? executablePath : GlobalConfiguration.GetBaseDirectoryPath(executablePath);
+            return Path.GetFullPath(Path.IsPathRooted(executablePath) ? executablePath : GlobalConfiguration.GetBaseDirectoryPath(executablePath));
         }
 
         private static string ResolveDirectoryPath(string workingDirectory)
@@ -592,7 +607,7 @@ namespace command.DataClient
                 return Directory.GetCurrentDirectory();
             }
 
-            return Path.IsPathRooted(workingDirectory) ? workingDirectory : GlobalConfiguration.GetBaseDirectoryPath(workingDirectory);
+            return Path.GetFullPath(Path.IsPathRooted(workingDirectory) ? workingDirectory : GlobalConfiguration.GetBaseDirectoryPath(workingDirectory));
         }
 
         private static string ResolveFilePath(string filePath)
@@ -602,7 +617,24 @@ namespace command.DataClient
                 return "";
             }
 
-            return Path.IsPathRooted(filePath) ? filePath : GlobalConfiguration.GetBaseDirectoryPath(filePath);
+            return Path.GetFullPath(Path.IsPathRooted(filePath) ? filePath : GlobalConfiguration.GetBaseDirectoryPath(filePath));
+        }
+
+        private static bool IsAllowedConfiguredPath(string path)
+        {
+            if (ModuleConfiguration.AllowedExecutableBasePaths.Count == 0 || string.IsNullOrWhiteSpace(path) == true)
+            {
+                return true;
+            }
+
+            var fullPath = Path.GetFullPath(path);
+            return ModuleConfiguration.AllowedExecutableBasePaths.Any(basePath =>
+            {
+                var fullBasePath = Path.GetFullPath(basePath).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+                return fullPath.Equals(fullBasePath, StringComparison.OrdinalIgnoreCase) == true
+                    || fullPath.StartsWith(fullBasePath + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase) == true
+                    || fullPath.StartsWith(fullBasePath + Path.AltDirectorySeparatorChar, StringComparison.OrdinalIgnoreCase) == true;
+            });
         }
 
         private static string ApplyTemplate(string template, Dictionary<string, object?> parameters)
