@@ -20,6 +20,18 @@ namespace prompter.Entity
 
         public string? ServiceID { get; set; }
 
+        public double? Temperature { get; set; }
+
+        public double? TopP { get; set; }
+
+        public int? MaxOutputTokens { get; set; }
+
+        public int? ContextTokens { get; set; }
+
+        public bool Think { get; set; }
+
+        public bool Stream { get; set; }
+
         public DataSourceMap()
         {
             ApplicationID = "";
@@ -29,6 +41,12 @@ namespace prompter.Entity
             ApiKey = "";
             Endpoint = string.Empty;
             ServiceID = string.Empty;
+            Temperature = null;
+            TopP = null;
+            MaxOutputTokens = null;
+            ContextTokens = null;
+            Think = false;
+            Stream = false;
         }
     }
 }

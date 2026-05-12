@@ -20,6 +20,8 @@ namespace prompter.DataClient
 
         public int MaxTokens { get; set; }
 
+        public int? ContextTokens { get; set; }
+
         public double Temperature { get; set; }
 
         public double TopP { get; set; }
@@ -27,6 +29,10 @@ namespace prompter.DataClient
         public double PresencePenalty { get; set; }
 
         public double FrequencyPenalty { get; set; }
+
+        public bool Think { get; set; }
+
+        public bool Stream { get; set; }
 
         public List<LLMChatMessage> ChatHistory { get; set; }
 
@@ -48,10 +54,13 @@ namespace prompter.DataClient
             ApiKey = "";
             Endpoint = "";
             MaxTokens = 4000;
+            ContextTokens = null;
             Temperature = 1.0;
             TopP = 1.0;
             PresencePenalty = 0.0;
             FrequencyPenalty = 0.0;
+            Think = false;
+            Stream = false;
             ChatHistory = new List<LLMChatMessage>();
             Tools = new List<LLMToolDefinition>();
             Headers = new Dictionary<string, string>();

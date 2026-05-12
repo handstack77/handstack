@@ -752,6 +752,35 @@ namespace prompter.Extensions
             return result;
         }
 
+        public static string DecryptApiKey(LLMSource? dataSource)
+        {
+            var result = "";
+            if (dataSource != null)
+            {
+                try
+                {
+                    var values = dataSource.ApiKey.SplitAndTrim('.');
+
+                    var encrypt = values[0];
+                    var decryptKey = values[1];
+                    var hostName = values[2];
+                    var hash = values[3];
+
+                    if ($"{encrypt}.{decryptKey}.{hostName}".ToSHA256() == hash)
+                    {
+                        decryptKey = decryptKey.DecodeBase64().PadRight(32, '0').Substring(0, 32);
+                        result = encrypt.DecryptAES(decryptKey);
+                    }
+                }
+                catch (Exception exception)
+                {
+                    Log.Logger.Error("[{LogCategory}] " + $"{JsonConvert.SerializeObject(dataSource)} 확인 필요: " + exception.ToMessage(), "DatabaseMapper/DecryptApiKey");
+                }
+            }
+
+            return result;
+        }
+
         private static JObject extractParameters(QueryObject? queryObject)
         {
             var parameters = new JObject();
@@ -1120,6 +1149,12 @@ namespace prompter.Extensions
                         dataSourceMap.ApiKey = item.IsEncryption.ParseBool() == true ? DecryptApiKey(item) : item.ApiKey;
                         dataSourceMap.ModelID = item.ModelID;
                         dataSourceMap.Endpoint = item.Endpoint;
+                        dataSourceMap.Temperature = item.Temperature;
+                        dataSourceMap.TopP = item.TopP;
+                        dataSourceMap.MaxOutputTokens = item.MaxOutputTokens;
+                        dataSourceMap.ContextTokens = item.ContextTokens;
+                        dataSourceMap.Think = item.Think;
+                        dataSourceMap.Stream = item.Stream;
 
                         DataSourceMappings.Add(tanantMap, dataSourceMap, TimeSpan.FromDays(36500));
                     }

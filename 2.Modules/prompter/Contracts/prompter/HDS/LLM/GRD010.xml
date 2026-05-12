@@ -4,7 +4,7 @@
         <application>HDS</application>
         <project>LLM</project>
         <transaction>GRD010</transaction>
-        <datasource>LLM1</datasource>
+        <datasource>LLM4</datasource>
         <use>Y</use>
         <desc>문장에서 지정된 주제와 관련된 엔티티를 추출</desc>
     </header>

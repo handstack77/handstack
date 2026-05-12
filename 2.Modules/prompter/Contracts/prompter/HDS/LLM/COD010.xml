@@ -4,7 +4,7 @@
         <application>HDS</application>
         <project>LLM</project>
         <transaction>COD010</transaction>
-        <datasource>LLM1</datasource>
+        <datasource>LLM4</datasource>
         <use>Y</use>
         <desc>소스 코드에서 버그를 찾아 수정하고 알고리즘 개선</desc>
     </header>

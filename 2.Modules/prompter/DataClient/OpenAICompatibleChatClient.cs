@@ -31,7 +31,8 @@ namespace prompter.DataClient
                 ["temperature"] = request.Temperature,
                 ["top_p"] = request.TopP,
                 ["presence_penalty"] = request.PresencePenalty,
-                ["frequency_penalty"] = request.FrequencyPenalty
+                ["frequency_penalty"] = request.FrequencyPenalty,
+                ["stream"] = request.Stream
             };
 
             ApplyOpenAITools(payload, request);

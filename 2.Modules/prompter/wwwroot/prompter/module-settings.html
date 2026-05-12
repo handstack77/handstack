@@ -250,6 +250,10 @@
                                                                     <th>ProjectID</th>
                                                                     <th>DataSourceID</th>
                                                                     <th>LLMProvider</th>
+                                                                    <th>MaxOutputTokens</th>
+                                                                    <th>ContextTokens</th>
+                                                                    <th>Think</th>
+                                                                    <th>Stream</th>
                                                                     <th class="w-1">관리</th>
                                                                 </tr>
                                                             </thead>
@@ -415,6 +419,43 @@
                         </div>
                     </div>
                     <div class="row mt-2">
+                        <label class="col-3 col-form-label">Options</label>
+                        <div class="col">
+                            <label class="form-check form-check-inline">
+                                <input id="chkThink_LLMSource" type="checkbox" class="form-check-input">
+                                <span class="form-check-label">Think</span>
+                            </label>
+                            <label class="form-check form-check-inline">
+                                <input id="chkStream_LLMSource" type="checkbox" class="form-check-input">
+                                <span class="form-check-label">Stream</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <label class="col-3 col-form-label">Temperature</label>
+                        <div class="col">
+                            <input id="txtTemperature_LLMSource" type="number" step="0.01" class="form-control">
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <label class="col-3 col-form-label">TopP</label>
+                        <div class="col">
+                            <input id="txtTopP_LLMSource" type="number" step="0.01" class="form-control">
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <label class="col-3 col-form-label">MaxOutputTokens</label>
+                        <div class="col">
+                            <input id="txtMaxOutputTokens_LLMSource" type="number" step="1" class="form-control">
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <label class="col-3 col-form-label">ContextTokens</label>
+                        <div class="col">
+                            <input id="txtContextTokens_LLMSource" type="number" step="1" class="form-control">
+                        </div>
+                    </div>
+                    <div class="row mt-2">
                         <label class="col-3 col-form-label">Comment</label>
                         <div class="col">
                             <textarea id="txtComment_LLMSource" rows="3" class="form-control resize:none"></textarea>
@@ -479,6 +520,18 @@
         </td>
         <td>
             {{LLMProvider}}
+        </td>
+        <td>
+            {{MaxOutputTokens}}
+        </td>
+        <td>
+            {{ContextTokens}}
+        </td>
+        <td>
+            {{Think}}
+        </td>
+        <td>
+            {{Stream}}
         </td>
         <td>
             <div class="btn-list flex-nowrap">

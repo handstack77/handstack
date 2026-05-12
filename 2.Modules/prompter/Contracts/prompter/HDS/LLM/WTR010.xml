@@ -4,7 +4,7 @@
         <application>HDS</application>
         <project>LLM</project>
         <transaction>WTR010</transaction>
-        <datasource>LLM1</datasource>
+        <datasource>LLM4</datasource>
         <use>Y</use>
         <desc>오늘의 운세 기반의 추천 명언 또는 인용구</desc>
     </header>

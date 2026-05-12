@@ -4,7 +4,7 @@
         <application>HDS</application>
         <project>LLM</project>
         <transaction>COD030</transaction>
-        <datasource>LLM1</datasource>
+        <datasource>LLM4</datasource>
         <use>Y</use>
         <desc>주어진 테이블에 대한 SQL 쿼리를 생성</desc>
     </header>

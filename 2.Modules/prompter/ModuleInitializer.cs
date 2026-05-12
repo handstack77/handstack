@@ -85,7 +85,7 @@ namespace prompter
                         {
                             foreach (var item in moduleConfig.LLMSource)
                             {
-                                ModuleConfiguration.LLMSource.Add(new DataSource()
+                                ModuleConfiguration.LLMSource.Add(new LLMSource()
                                 {
                                     ApplicationID = item.ApplicationID,
                                     ProjectID = item.ProjectID,
@@ -94,6 +94,12 @@ namespace prompter
                                     ApiKey = item.ApiKey,
                                     ModelID = item.ModelID,
                                     Endpoint = item.Endpoint,
+                                    Temperature = item.Temperature,
+                                    TopP = item.TopP,
+                                    MaxOutputTokens = item.MaxOutputTokens,
+                                    ContextTokens = item.ContextTokens,
+                                    Think = item.Think,
+                                    Stream = item.Stream,
                                     IsEncryption = item.IsEncryption,
                                     Comment = item.Comment
                                 });

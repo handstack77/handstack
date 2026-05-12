@@ -4,7 +4,7 @@
         <application>HDS</application>
         <project>LLM</project>
         <transaction>COD020</transaction>
-        <datasource>LLM1</datasource>
+        <datasource>LLM4</datasource>
         <use>Y</use>
         <desc>제공된 소스 코드에 주석 달기</desc>
     </header>

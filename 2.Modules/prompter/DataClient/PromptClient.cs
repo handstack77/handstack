@@ -99,11 +99,17 @@ namespace prompter.DataClient
                     {
                         DynamicTransaction = queryObject,
                         Statement = promptMap,
-                        ApiKey = connectionInfo == null ? "" : connectionInfo.Item1,
-                        ModelID = connectionInfo == null ? "" : connectionInfo.Item2,
-                        Endpoint = connectionInfo == null ? "" : connectionInfo.Item3,
-                        ServiceID = connectionInfo == null ? "" : connectionInfo.Item4,
-                        LLMProvider = connectionInfo == null ? LLMProviders.OpenAI : connectionInfo.Item5
+                        ApiKey = connectionInfo == null ? "" : connectionInfo.ApiKey,
+                        ModelID = connectionInfo == null ? "" : connectionInfo.ModelID,
+                        Endpoint = connectionInfo == null ? "" : connectionInfo.Endpoint.ToStringSafe(),
+                        ServiceID = connectionInfo == null ? "" : connectionInfo.ServiceID.ToStringSafe(),
+                        LLMProvider = connectionInfo == null ? LLMProviders.OpenAI : connectionInfo.LLMProvider,
+                        Think = connectionInfo != null && connectionInfo.Think,
+                        Stream = connectionInfo != null && connectionInfo.Stream,
+                        Temperature = connectionInfo?.Temperature,
+                        TopP = connectionInfo?.TopP,
+                        MaxOutputTokens = connectionInfo?.MaxOutputTokens,
+                        ContextTokens = connectionInfo?.ContextTokens
                     });
 
                     i = i + 1;
@@ -770,11 +776,14 @@ TransactionException:
                 ModelID = transactionDynamicObject.ModelID,
                 ApiKey = transactionDynamicObject.ApiKey,
                 Endpoint = transactionDynamicObject.Endpoint,
-                MaxTokens = promptMap.MaxTokens,
-                Temperature = promptMap.Temperature,
-                TopP = promptMap.TopP,
+                MaxTokens = transactionDynamicObject.MaxOutputTokens ?? promptMap.MaxTokens,
+                ContextTokens = transactionDynamicObject.ContextTokens,
+                Temperature = transactionDynamicObject.Temperature ?? promptMap.Temperature,
+                TopP = transactionDynamicObject.TopP ?? promptMap.TopP,
                 PresencePenalty = promptMap.PresencePenalty,
                 FrequencyPenalty = promptMap.FrequencyPenalty,
+                Think = transactionDynamicObject.Think,
+                Stream = transactionDynamicObject.Stream,
                 ChatHistory = promptMessages,
                 Tools = tools,
                 Headers = headers,
@@ -1184,15 +1193,15 @@ TransactionException:
             return result;
         }
 
-        private static Tuple<string, string, string, string, LLMProviders>? GetConnectionInfomation(QueryObject queryObject, string applicationID, string projectID, string dataSourceID)
+        private static DataSourceMap? GetConnectionInfomation(QueryObject queryObject, string applicationID, string projectID, string dataSourceID)
         {
-            Tuple<string, string, string, string, LLMProviders>? result = null;
+            DataSourceMap? result = null;
             if (string.IsNullOrEmpty(dataSourceID) == false)
             {
                 var dataSourceMap = PromptMapper.GetDataSourceMap(queryObject, applicationID, projectID, dataSourceID);
                 if (dataSourceMap != null)
                 {
-                    result = new Tuple<string, string, string, string, LLMProviders>(dataSourceMap.ApiKey, dataSourceMap.ModelID, dataSourceMap.Endpoint.ToStringSafe(), dataSourceMap.ServiceID.ToStringSafe(), dataSourceMap.LLMProvider);
+                    result = dataSourceMap;
                 }
             }
 

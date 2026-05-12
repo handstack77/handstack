@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
 
 using HandStack.Web;
-using HandStack.Web.Entity;
-
 namespace prompter.Entity
 {
     public class ModuleConfigJson : ModuleSetting
@@ -39,7 +37,7 @@ namespace prompter.Entity
 
         public string ModuleLogFilePath { get; set; }
 
-        public List<DataSource> LLMSource { get; set; }
+        public List<LLMSource> LLMSource { get; set; }
 
         public List<AllowedKernelPlugin> AllowedKernelPlugins { get; set; }
 
@@ -64,7 +62,7 @@ namespace prompter.Entity
             IsContractFileWatching = false;
             ContractBasePath = new List<string>();
             CircuitBreakResetSecond = 30;
-            LLMSource = new List<DataSource>();
+            LLMSource = new List<LLMSource>();
             AllowedKernelPlugins = new List<AllowedKernelPlugin>();
             AllowedMcpServers = new List<AllowedExternalTool>();
             AllowedCliTools = new List<AllowedExternalTool>();

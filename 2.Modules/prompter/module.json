@@ -6,6 +6,7 @@
     "ModuleConfig": {
         "SystemID": "HANDSTACK",
         "ModuleBasePath": "../modules/prompter",
+        "IsContractFileWatching": true,
         "ContractBasePath": [
             "../contracts/prompter"
         ],
@@ -25,8 +26,10 @@
                 "DataSourceID": "LLM1",
                 "LLMProvider": "OpenAI",
                 "ApiKey": "[sk-proj-API...키]",
-                "ModelID": "gpt-4o-mini",
+                "ModelID": "gpt-5.4-mini",
                 "Endpoint": "",
+                "Think": false,
+                "Stream": false,
                 "Comment": "OpenAI 프롬프트 API"
             },
             {
@@ -35,8 +38,10 @@
                 "DataSourceID": "LLM2",
                 "LLMProvider": "Claude",
                 "ApiKey": "[sk-ant-api...키]",
-                "ModelID": "claude-3-5-sonnet-latest",
+                "ModelID": "claude-haiku-4-5",
                 "Endpoint": "",
+                "Think": false,
+                "Stream": false,
                 "Comment": "Claude Messages API"
             },
             {
@@ -45,8 +50,10 @@
                 "DataSourceID": "LLM3",
                 "LLMProvider": "Gemini",
                 "ApiKey": "[AIza...키]",
-                "ModelID": "gemini-1.5-flash",
+                "ModelID": "gemini-3.1-flash-lite",
                 "Endpoint": "",
+                "Think": false,
+                "Stream": false,
                 "Comment": "Gemini GenerateContent API"
             },
             {
@@ -55,8 +62,10 @@
                 "DataSourceID": "LLM4",
                 "LLMProvider": "Ollama",
                 "ApiKey": "",
-                "ModelID": "qwen3.5:9b",
+                "ModelID": "gemma4:26b",
                 "Endpoint": "http://localhost:11434",
+                "Think": false,
+                "Stream": false,
                 "Comment": "Ollama 로컬 Chat API"
             },
             {
@@ -65,8 +74,10 @@
                 "DataSourceID": "LLM5",
                 "LLMProvider": "LMStudio",
                 "ApiKey": "",
-                "ModelID": "local-model",
+                "ModelID": "openai/gpt-oss-20b",
                 "Endpoint": "http://localhost:1234",
+                "Think": false,
+                "Stream": false,
                 "Comment": "LM Studio 로컬 OpenAI 호환 API"
             }
         ],

@@ -27,6 +27,8 @@
                 "ApiKey": "[sk-proj-API...키]",
                 "ModelID": "gpt-3.5-turbo",
                 "Endpoint": "",
+                "Think": false,
+                "Stream": false,
                 "Comment": "OpenAI 프롬프트 API"
             }
         ],

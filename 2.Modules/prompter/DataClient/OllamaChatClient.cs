@@ -27,8 +27,8 @@ namespace prompter.DataClient
             {
                 ["model"] = request.ModelID,
                 ["messages"] = BuildOpenAICompatibleMessages(request.ChatHistory, request.Prompt),
-                ["think"] = false,
-                ["stream"] = false,
+                ["think"] = request.Think,
+                ["stream"] = request.Stream,
                 ["options"] = new JObject
                 {
                     ["num_predict"] = request.MaxTokens,
@@ -38,6 +38,11 @@ namespace prompter.DataClient
                     ["frequency_penalty"] = request.FrequencyPenalty
                 }
             };
+
+            if (request.ContextTokens.HasValue == true)
+            {
+                ((JObject)payload["options"]!)["num_ctx"] = request.ContextTokens.Value;
+            }
 
             ApplyOpenAITools(payload, request);
             var headers = new Dictionary<string, string>();

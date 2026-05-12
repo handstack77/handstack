@@ -30,6 +30,8 @@ let $module_settings = {
                         "ApiKey": "[sk-proj-API...키]",
                         "ModelID": "gpt-3.5-turbo",
                         "Endpoint": "",
+                        "Think": false,
+                        "Stream": false,
                         "Comment": "OpenAI 프롬프트 API"
                     }
                 ],
@@ -305,10 +307,20 @@ let $module_settings = {
             var apiKey = syn.$l.get('txtApiKey_LLMSource').value.trim();
             var modelID = syn.$l.get('txtModelID_LLMSource').value.trim();
             var endpoint = syn.$l.get('txtEndpoint_LLMSource').value.trim();
+            var think = syn.$l.get('chkThink_LLMSource').checked;
+            var stream = syn.$l.get('chkStream_LLMSource').checked;
+            var temperature = $this.method.parseOptionalNumber('txtTemperature_LLMSource', 'Temperature');
+            var topP = $this.method.parseOptionalNumber('txtTopP_LLMSource', 'TopP');
+            var maxOutputTokens = $this.method.parseOptionalInteger('txtMaxOutputTokens_LLMSource', 'MaxOutputTokens');
+            var contextTokens = $this.method.parseOptionalInteger('txtContextTokens_LLMSource', 'ContextTokens');
             var comment = syn.$l.get('txtComment_LLMSource').value.trim();
 
             if (applicationID == '' || projectID == '' || dataSourceID == '' || dataProvider == '') {
                 syn.$w.alert('필수 항목을 입력하세요.');
+                return;
+            }
+
+            if (temperature === false || topP === false || maxOutputTokens === false || contextTokens === false) {
                 return;
             }
 
@@ -328,8 +340,13 @@ let $module_settings = {
                         ApiKey: apiKey,
                         ModelID: modelID,
                         Endpoint: endpoint,
+                        Think: think,
+                        Stream: stream,
                         Comment: comment
                     });
+
+                    data = items[items.length - 1];
+                    $this.method.applyOptionalLLMSourceOptions(data, temperature, topP, maxOutputTokens, contextTokens);
                 }
             }
             else {
@@ -342,6 +359,9 @@ let $module_settings = {
                     data.ApiKey = apiKey;
                     data.ModelID = modelID;
                     data.Endpoint = endpoint;
+                    data.Think = think;
+                    data.Stream = stream;
+                    $this.method.applyOptionalLLMSourceOptions(data, temperature, topP, maxOutputTokens, contextTokens);
                     data.Comment = comment;
                 }
             }
@@ -415,6 +435,12 @@ let $module_settings = {
                         syn.$l.get('txtApiKey_LLMSource').value = data.ApiKey;
                         syn.$l.get('txtModelID_LLMSource').value = data.ModelID;
                         syn.$l.get('txtEndpoint_LLMSource').value = data.Endpoint || '';
+                        syn.$l.get('chkThink_LLMSource').checked = data.Think == true;
+                        syn.$l.get('chkStream_LLMSource').checked = data.Stream == true;
+                        syn.$l.get('txtTemperature_LLMSource').value = data.Temperature ?? '';
+                        syn.$l.get('txtTopP_LLMSource').value = data.TopP ?? '';
+                        syn.$l.get('txtMaxOutputTokens_LLMSource').value = data.MaxOutputTokens ?? '';
+                        syn.$l.get('txtContextTokens_LLMSource').value = data.ContextTokens ?? '';
                         syn.$l.get('txtComment_LLMSource').value = data.Comment;
                     }
                     else {
@@ -426,6 +452,12 @@ let $module_settings = {
                         syn.$l.get('txtApiKey_LLMSource').value = '';
                         syn.$l.get('txtModelID_LLMSource').value = '';
                         syn.$l.get('txtEndpoint_LLMSource').value = '';
+                        syn.$l.get('chkThink_LLMSource').checked = false;
+                        syn.$l.get('chkStream_LLMSource').checked = false;
+                        syn.$l.get('txtTemperature_LLMSource').value = '';
+                        syn.$l.get('txtTopP_LLMSource').value = '';
+                        syn.$l.get('txtMaxOutputTokens_LLMSource').value = '';
+                        syn.$l.get('txtContextTokens_LLMSource').value = '';
                         syn.$l.get('txtComment_LLMSource').value = '';
                     }
 
@@ -445,6 +477,66 @@ let $module_settings = {
                     && item.DataSourceID == values[2]
                     && item.LLMProvider == values[3]
             });
+        },
+
+        parseOptionalNumber(elID, title) {
+            var value = syn.$l.get(elID).value.trim();
+            if (value == '') {
+                return null;
+            }
+
+            var result = Number(value);
+            if (Number.isFinite(result) == false) {
+                syn.$w.alert(`${title} 값은 숫자로 입력하세요.`);
+                return false;
+            }
+
+            return result;
+        },
+
+        parseOptionalInteger(elID, title) {
+            var value = syn.$l.get(elID).value.trim();
+            if (value == '') {
+                return null;
+            }
+
+            var result = Number(value);
+            if (Number.isInteger(result) == false) {
+                syn.$w.alert(`${title} 값은 정수로 입력하세요.`);
+                return false;
+            }
+
+            return result;
+        },
+
+        applyOptionalLLMSourceOptions(data, temperature, topP, maxOutputTokens, contextTokens) {
+            if (temperature == null) {
+                delete data.Temperature;
+            }
+            else {
+                data.Temperature = temperature;
+            }
+
+            if (topP == null) {
+                delete data.TopP;
+            }
+            else {
+                data.TopP = topP;
+            }
+
+            if (maxOutputTokens == null) {
+                delete data.MaxOutputTokens;
+            }
+            else {
+                data.MaxOutputTokens = maxOutputTokens;
+            }
+
+            if (contextTokens == null) {
+                delete data.ContextTokens;
+            }
+            else {
+                data.ContextTokens = contextTokens;
+            }
         },
 
         sectionRender(sectionID) {

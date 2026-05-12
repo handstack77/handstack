@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
 
-using HandStack.Web.Entity;
-
 using prompter.Extensions;
 
 using Serilog;
@@ -28,7 +26,7 @@ namespace prompter.Entity
         public static string ModuleLogFilePath = "";
         public static bool IsLogServer = false;
         public static string LogServerUrl = "";
-        public static List<DataSource> LLMSource = new List<DataSource>();
+        public static List<LLMSource> LLMSource = new List<LLMSource>();
         public static List<AllowedKernelPlugin> AllowedKernelPlugins = new List<AllowedKernelPlugin>();
         public static List<AllowedExternalTool> AllowedMcpServers = new List<AllowedExternalTool>();
         public static List<AllowedExternalTool> AllowedCliTools = new List<AllowedExternalTool>();

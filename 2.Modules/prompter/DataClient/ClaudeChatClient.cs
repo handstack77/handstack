@@ -30,6 +30,7 @@ namespace prompter.DataClient
                 ["max_tokens"] = request.MaxTokens,
                 ["temperature"] = request.Temperature,
                 ["top_p"] = request.TopP,
+                ["stream"] = request.Stream,
                 ["messages"] = BuildClaudeMessages(request.ChatHistory, request.Prompt)
             };
 
