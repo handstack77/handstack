@@ -8,6 +8,7 @@
         <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
         <PlatformTarget>AnyCPU</PlatformTarget>
         <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+        <EnableDefaultCompressedItems>false</EnableDefaultCompressedItems>
         <CompressionEnabled>false</CompressionEnabled>
         <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
         <OutputType>Library</OutputType>

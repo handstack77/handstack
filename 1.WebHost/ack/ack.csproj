@@ -11,6 +11,8 @@
         <Nullable>enable</Nullable>
         <PlatformTarget>AnyCPU</PlatformTarget>
         <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+        <EnableDefaultCompressedItems>false</EnableDefaultCompressedItems>
+        <CompressionEnabled>false</CompressionEnabled>
         <Deterministic>false</Deterministic>
         <IsPublishable>True</IsPublishable>
         <AssemblyName>ack</AssemblyName>
