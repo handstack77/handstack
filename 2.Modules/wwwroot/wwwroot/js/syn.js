@@ -1,4 +1,4 @@
-﻿/*!
+/*!
 HandStack Javascript Library v2026.3.11
 https://handshake.kr
 
@@ -8430,8 +8430,14 @@ if (typeof module !== 'undefined' && module.exports) {
 
                 if (isContinue ?? true) {
                     const mergedOptions = syn.$w.argumentsExtend({
-                        message: '', dynamic: 'Y', authorize: 'N', commandType: 'D',
-                        returnType: 'Json', transactionScope: 'N', transactionLog: 'Y'
+                        message: '',
+                        dynamic: 'Y',
+                        authorize: 'N',
+                        commandType: 'D',
+                        returnType: 'Json',
+                        transactionScope: 'N',
+                        transactionLog: 'Y',
+                        endpoint: 'transaction'
                     }, options);
 
                     transactConfig.noProgress = transactConfig.noProgress ?? false;
@@ -8514,8 +8520,14 @@ if (typeof module !== 'undefined' && module.exports) {
                 transactionObj.inputObjects = directObject.inputObjects || [];
 
                 const mergedOptions = syn.$w.argumentsExtend({
-                    message: '', dynamic: 'Y', authorize: 'N', commandType: 'D',
-                    returnType: 'Json', transactionScope: 'N', transactionLog: 'Y'
+                    message: '',
+                    dynamic: 'Y',
+                    authorize: 'N',
+                    commandType: 'D',
+                    returnType: 'Json',
+                    transactionScope: 'N',
+                    transactionLog: 'Y',
+                    endpoint: 'transaction'
                 }, options);
                 transactionObj.options = mergedOptions;
 
@@ -8562,7 +8574,8 @@ if (typeof module !== 'undefined' && module.exports) {
                     commandType: 'D',
                     returnType: 'Json',
                     transactionScope: 'N',
-                    transactionLog: 'Y'
+                    transactionLog: 'Y',
+                    endpoint: 'transaction'
                 }, options);
 
                 if (options) {
@@ -10288,6 +10301,11 @@ if (typeof module !== 'undefined' && module.exports) {
             }
             else {
                 url = '{0}://{1}{2}'.format(apiService.Protocol, apiService.IP, apiService.Path);
+            }
+
+            const endpoint = transactionObject.options ? (transactionObject.options.endpoint || 'transaction') : 'transaction';
+            if (endpoint != 'transaction') {
+                url = url.replace('/transaction/', `/${endpoint}/`);
             }
 
             const installType = syn.$w.Variable && syn.$w.Variable.InstallType ? syn.$w.Variable.InstallType : 'L';
