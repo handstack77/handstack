@@ -5,10 +5,10 @@
         "TransactionID": "SKF090",
         "DataSourceID": "DB01",
         "LanguageType": "csharp",
-        "ReferenceModuleID": "handsup",
+        "ReferenceModuleID": "prompter",
         "Configuration": {
-            "OpenAIModelId": "gpt-3.5-turbo",
-            "OpenAIApiKey": "sk-proj-58F2PNO3ndzdmqKsm0gMT3BlbkFJxHwTTd1QADEljgxAWxUH"
+            "OpenAIModelId": "gpt-5.4-mini",
+            "OpenAIApiKey": "[sk-proj-API...키]"
         },
         "Use": true,
         "Description": "사용자의 프롬프트만으로 LLM 호출"

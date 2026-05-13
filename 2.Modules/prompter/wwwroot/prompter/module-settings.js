@@ -28,7 +28,7 @@ let $module_settings = {
                         "DataSourceID": "LLM1",
                         "LLMProvider": "OpenAI",
                         "ApiKey": "[sk-proj-API...키]",
-                        "ModelID": "gpt-3.5-turbo",
+                        "ModelID": "gpt-5.4-mini",
                         "Endpoint": "",
                         "Think": false,
                         "Stream": false,

@@ -18,8 +18,8 @@ using Microsoft.SemanticKernel.ChatCompletion;
 
 using Newtonsoft.Json.Linq;
 
-using handsup.Entity;
-using handsup.KernelPlugin;
+using prompter.Entity;
+using prompter.KernelPlugin;
 
 namespace HDS.Function.SKF
 {
