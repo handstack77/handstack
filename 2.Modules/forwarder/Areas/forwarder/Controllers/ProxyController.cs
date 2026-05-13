@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -328,7 +328,7 @@ namespace forwarder.Areas.forwarder.Controllers
                 var charsetIndex = contentType.IndexOf("charset=", StringComparison.OrdinalIgnoreCase);
                 if (charsetIndex > -1)
                 {
-                    var charset = contentType.Substring(charsetIndex + "charset=".Length).Trim().TrimEnd(';').Trim('"', '\'');
+                    var charset = contentType.SubstringSafe(charsetIndex + "charset=".Length).Trim().TrimEnd(';').Trim('"', '\'');
                     try
                     {
                         return Encoding.GetEncoding(charset);
@@ -435,3 +435,4 @@ namespace forwarder.Areas.forwarder.Controllers
         }
     }
 }
+

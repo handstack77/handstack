@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace HandStack.Core.ExtensionMethod
@@ -41,7 +41,7 @@ namespace HandStack.Core.ExtensionMethod
             }
             if (result.Length > 1)
             {
-                result = result.Substring(0, result.Length - 1);
+                result = result.SubstringSafe(0, result.Length - 1);
             }
             return result;
         }
@@ -73,3 +73,4 @@ namespace HandStack.Core.ExtensionMethod
         }
     }
 }
+

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -223,9 +223,9 @@ namespace HandStack.Web.Extensions
                 ip = httpContext?.Request.GetHeaderValueAs<string>("REMOTE_ADDR");
             }
 
-            if (!string.IsNullOrWhiteSpace(ip) && ip.Length > 7 && ip.Substring(0, 7) == "::ffff:")
+            if (!string.IsNullOrWhiteSpace(ip) && ip.Length > 7 && ip.SubstringSafe(0, 7) == "::ffff:")
             {
-                ip = ip.Substring(7);
+                ip = ip.SubstringSafe(7);
             }
 
             if (ip == "::1" || ip == "0.0.0.1" || ip == "127.0.0.1" || (string.IsNullOrWhiteSpace(ip) && httpContext?.Connection?.LocalIpAddress != null))
@@ -277,9 +277,9 @@ namespace HandStack.Web.Extensions
                 ip = httpContext?.Request.GetHeaderValueAs<string>("REMOTE_ADDR");
             }
 
-            if (!string.IsNullOrWhiteSpace(ip) && ip.Length > 7 && ip.Substring(0, 7) == "::ffff:")
+            if (!string.IsNullOrWhiteSpace(ip) && ip.Length > 7 && ip.SubstringSafe(0, 7) == "::ffff:")
             {
-                ip = ip.Substring(7);
+                ip = ip.SubstringSafe(7);
             }
 
             if (ip == "::1" || ip == "0.0.0.1" || ip == "127.0.0.1")
@@ -313,4 +313,5 @@ namespace HandStack.Web.Extensions
         }
     }
 }
+
 

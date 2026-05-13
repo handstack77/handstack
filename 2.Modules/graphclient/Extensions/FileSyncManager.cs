@@ -100,13 +100,13 @@ namespace graphclient.Extensions
                 return false;
             }
 
-            var watcherText = watchFilePath.Substring(0, delimiterIndex);
+            var watcherText = watchFilePath.SubstringSafe(0, delimiterIndex);
             if (Enum.TryParse(watcherText, out watcherChangeTypes) == false)
             {
                 return false;
             }
 
-            filePath = watchFilePath.Substring(delimiterIndex + 1);
+            filePath = watchFilePath.SubstringSafe(delimiterIndex + 1);
             return !string.IsNullOrWhiteSpace(filePath);
         }
 
@@ -181,3 +181,4 @@ namespace graphclient.Extensions
         }
     }
 }
+

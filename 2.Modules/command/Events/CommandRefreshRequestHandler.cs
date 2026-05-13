@@ -48,7 +48,7 @@ namespace command.Events
             var filePath = request.FilePath;
             if (filePath.StartsWith(Path.DirectorySeparatorChar) == true || filePath.StartsWith(Path.AltDirectorySeparatorChar) == true)
             {
-                filePath = filePath.Substring(1);
+                filePath = filePath.SubstringSafe(1);
             }
 
             logger.Information("[{LogCategory}] WatcherChangeTypes: {ChangeType}, FilePath: {FilePath}", "Command/Refresh", request.ChangeType, filePath);
@@ -103,4 +103,5 @@ namespace command.Events
         }
     }
 }
+
 

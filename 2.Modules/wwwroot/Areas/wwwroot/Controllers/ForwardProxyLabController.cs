@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 using Serilog;
+using HandStack.Core.ExtensionMethod;
 
 namespace wwwroot.Areas.wwwroot.Controllers
 {
@@ -625,7 +626,7 @@ namespace wwwroot.Areas.wwwroot.Controllers
             var charsetIndex = contentType.IndexOf("charset=", StringComparison.OrdinalIgnoreCase);
             if (charsetIndex > -1)
             {
-                var charset = contentType.Substring(charsetIndex + "charset=".Length).Trim().Trim('"', '\'').TrimEnd(';');
+                var charset = contentType.SubstringSafe(charsetIndex + "charset=".Length).Trim().Trim('"', '\'').TrimEnd(';');
                 try
                 {
                     return Encoding.GetEncoding(charset);
@@ -683,3 +684,4 @@ namespace wwwroot.Areas.wwwroot.Controllers
         }
     }
 }
+

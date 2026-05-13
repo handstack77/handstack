@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
@@ -974,7 +974,7 @@ namespace dbclient.DataClient
                     {
                         if (response.ExceptionText.Length > 600)
                         {
-                            response.ExceptionText = response.ExceptionText.Substring(0, 600) + "...";
+                            response.ExceptionText = response.ExceptionText.SubstringSafe(0, 600) + "...";
                         }
                         isCommandError = true;
                         goto TransactionException;
@@ -1643,7 +1643,7 @@ TransactionException:
                     {
                         if (response.ExceptionText.Length > 600)
                         {
-                            response.ExceptionText = response.ExceptionText.Substring(0, 600) + "...";
+                            response.ExceptionText = response.ExceptionText.SubstringSafe(0, 600) + "...";
                         }
                         isCommandError = true;
                         goto TransactionException;
@@ -2312,7 +2312,7 @@ TransactionException:
                     {
                         if (response.ExceptionText.Length > 600)
                         {
-                            response.ExceptionText = response.ExceptionText.Substring(0, 600) + "...";
+                            response.ExceptionText = response.ExceptionText.SubstringSafe(0, 600) + "...";
                         }
                         isCommandError = true;
                         goto TransactionException;
@@ -3055,7 +3055,7 @@ TransactionException:
                     {
                         if (response.ExceptionText.Length > 600)
                         {
-                            response.ExceptionText = response.ExceptionText.Substring(0, 600) + "...";
+                            response.ExceptionText = response.ExceptionText.SubstringSafe(0, 600) + "...";
                         }
                         isCommandError = true;
                         goto TransactionException;
@@ -3385,7 +3385,7 @@ TransactionException:
                     {
                         if (response.ExceptionText.Length > 600)
                         {
-                            response.ExceptionText = response.ExceptionText.Substring(0, 600) + "...";
+                            response.ExceptionText = response.ExceptionText.SubstringSafe(0, 600) + "...";
                         }
                         isCommandError = true;
                         goto TransactionException;
@@ -5057,7 +5057,7 @@ TransactionException:
                             var length = int.Parse(transformParts[2]);
                             var sourceString = dynamicParameter.Value.ToStringSafe();
                             dynamicParameter.Value = sourceString.Length > startIndex ?
-                                sourceString.Substring(startIndex, Math.Min(length, sourceString.Length - startIndex)) : "";
+                                sourceString.SubstringSafe(startIndex, Math.Min(length, sourceString.Length - startIndex)) : "";
                         }
                         break;
 
@@ -5067,7 +5067,7 @@ TransactionException:
                         {
                             var startIndex = int.Parse(transformParts[1]);
                             var sourceString = dynamicParameter.Value.ToStringSafe();
-                            dynamicParameter.Value = sourceString.Length > startIndex ? sourceString.Substring(startIndex) : "";
+                            dynamicParameter.Value = sourceString.Length > startIndex ? sourceString.SubstringSafe(startIndex) : "";
                         }
                         break;
 
@@ -5570,5 +5570,6 @@ TransactionException:
         }
     }
 }
+
 
 

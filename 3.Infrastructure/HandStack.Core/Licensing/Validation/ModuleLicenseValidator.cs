@@ -1,10 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using HandStack.Core.ExtensionMethod;
 
 namespace HandStack.Core.Licensing.Validation
 {
@@ -248,7 +249,7 @@ namespace HandStack.Core.Licensing.Validation
             if (hex.Length % 2 != 0) throw new ArgumentException("유효하지 않는 hex 길이 입니다.");
             byte[] r = new byte[hex.Length / 2];
             for (int i = 0; i < r.Length; i++)
-                r[i] = Convert.ToByte(hex.Substring(i * 2, 2), 16);
+                r[i] = Convert.ToByte(hex.SubstringSafe(i * 2, 2), 16);
             return r;
         }
 
@@ -306,3 +307,4 @@ namespace HandStack.Core.Licensing.Validation
             => JsonSerializer.Serialize(o, new JsonSerializerOptions { WriteIndented = true });
     }
 }
+

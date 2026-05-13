@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -98,7 +98,7 @@ namespace checkup.Areas.checkup.Controllers
                 dataContext.connectionString = null;
             }
 
-            dataContext.globalID = !string.IsNullOrWhiteSpace(dataContext.globalID) ? dataContext.globalID : $"OD00000{GlobalConfiguration.ApplicationID}{functionID.Replace(".", "")}F{now.ToString("HHmmss").ToSHA256().Substring(0, 6) + now.ToString("HHmmss")}";
+            dataContext.globalID = !string.IsNullOrWhiteSpace(dataContext.globalID) ? dataContext.globalID : $"OD00000{GlobalConfiguration.ApplicationID}{functionID.Replace(".", "")}F{now.ToString("HHmmss").ToSHA256().SubstringSafe(0, 6) + now.ToString("HHmmss")}";
             dataContext.environment = !string.IsNullOrWhiteSpace(dataContext.environment) ? dataContext.environment : "D";
             dataContext.platform = !string.IsNullOrWhiteSpace(dataContext.platform) ? dataContext.platform : "Windows"; // Windows, Linux, MacOS
             dataContext.workingDirectoryPath = !string.IsNullOrWhiteSpace(dataContext.workingDirectoryPath) ? dataContext.workingDirectoryPath : "../tmp/HDS/function/HDS_FN00";
@@ -559,7 +559,7 @@ TransactionException:
 
                 if (menuItem.fileID.StartsWith("/") == true)
                 {
-                    menuItem.fileID = menuItem.fileID.Substring(1);
+                    menuItem.fileID = menuItem.fileID.SubstringSafe(1);
                 }
 
                 menus.Add(menuItem);
@@ -567,4 +567,5 @@ TransactionException:
         }
     }
 }
+
 

@@ -481,7 +481,7 @@ namespace dbclient.Areas.dbclient.Controllers
                 return false;
             }
 
-            functionIDPrefix = functionID.Substring(0, functionID.Length - 2);
+            functionIDPrefix = functionID.SubstringSafe(0, functionID.Length - 2);
             return !string.IsNullOrWhiteSpace(functionIDPrefix);
         }
 
@@ -504,8 +504,9 @@ namespace dbclient.Areas.dbclient.Controllers
                 return string.Empty;
             }
 
-            return value.Length <= maxLength ? value : value.Substring(0, maxLength) + "...(truncated)";
+            return value.Length <= maxLength ? value : value.SubstringSafe(0, maxLength) + "...(truncated)";
         }
     }
 }
+
 

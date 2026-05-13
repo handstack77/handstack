@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
@@ -55,7 +55,7 @@ namespace transact.Events
 
             if (filePath.StartsWith(Path.DirectorySeparatorChar) == true)
             {
-                filePath = filePath.Substring(1);
+                filePath = filePath.SubstringSafe(1);
             }
 
             logger.Information("[{LogCategory}] " + $"WatcherChangeTypes: {request.ChangeType}, FilePath: {filePath}", "Transaction/Refresh");
@@ -268,3 +268,4 @@ namespace transact.Events
         }
     }
 }
+

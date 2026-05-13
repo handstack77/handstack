@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -975,7 +975,7 @@ TransactionException:
 
             if (result.StartsWith("@") == true && result.IndexOf(" ", StringComparison.Ordinal) < 0)
             {
-                var key = result.Substring(1);
+                var key = result.SubstringSafe(1);
                 result = parameters[key]?.ToStringSafe() ?? result;
             }
 
@@ -1209,3 +1209,4 @@ TransactionException:
         }
     }
 }
+

@@ -1,8 +1,9 @@
-﻿using System.Data;
+using System.Data;
 using System.IO;
 using System.Text;
 using System.Xml;
 using System.Xml.XPath;
+using HandStack.Core.ExtensionMethod;
 
 namespace dbclient.Extensions
 {
@@ -44,7 +45,7 @@ namespace dbclient.Extensions
                         line += "\"" + name + "\": \"" + value.Replace("\"", "\\\"") + "\", ";
                     } while (item.MoveToNextAttribute());
 
-                    line = line.Substring(0, line.Length - 2);
+                    line = line.SubstringSafe(0, line.Length - 2);
                     result.Append(line);
                 }
 
@@ -60,3 +61,4 @@ namespace dbclient.Extensions
         }
     }
 }
+

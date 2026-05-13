@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -296,7 +296,7 @@ TransactionException:
 
                 if (menuItem.fileID.StartsWith("/") == true)
                 {
-                    menuItem.fileID = menuItem.fileID.Substring(1);
+                    menuItem.fileID = menuItem.fileID.SubstringSafe(1);
                 }
 
                 menus.Add(menuItem);
@@ -304,4 +304,5 @@ TransactionException:
         }
     }
 }
+
 

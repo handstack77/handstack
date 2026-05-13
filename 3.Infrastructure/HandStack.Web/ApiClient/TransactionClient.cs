@@ -142,7 +142,7 @@ namespace HandStack.Web.ApiClient
                         transactionID = transactionObject.TransactionID,
                         serviceID = transactionObject.FunctionID,
                         screenID = transactionObject.ScreenID,
-                        tokenID = TransactionConfig.Program.ClientTokenID.Substring(0, 6).PadLeft(6, '0')
+                        tokenID = TransactionConfig.Program.ClientTokenID.SubstringSafe(0, 6).PadLeft(6, '0')
                     }), DataFormat.Json);
                     idRequest.AddHeader("Content-Type", "application/json");
                     idRequest.AddHeader("cache-control", "no-cache");
@@ -339,7 +339,7 @@ namespace HandStack.Web.ApiClient
                         transactionID = transactionObject.TransactionID,
                         serviceID = transactionObject.FunctionID,
                         screenID = transactionObject.ScreenID,
-                        tokenID = TransactionConfig.Program.ClientTokenID.Substring(0, 6).PadLeft(6, '0')
+                        tokenID = TransactionConfig.Program.ClientTokenID.SubstringSafe(0, 6).PadLeft(6, '0')
                     }), DataFormat.Json);
                     idRequest.AddHeader("Content-Type", "application/json");
                     idRequest.AddHeader("cache-control", "no-cache");
@@ -513,7 +513,7 @@ namespace HandStack.Web.ApiClient
             var businessID = transactionObject.BusinessID.PadLeft(3, '0');
             var transactionID = transactionObject.TransactionID.PadLeft(6, '0');
             var functionID = transactionObject.FunctionID.PadLeft(4, '0');
-            var tokenID = TransactionConfig.Program.ClientTokenID.Substring(0, 6).PadLeft(6, '0');
+            var tokenID = TransactionConfig.Program.ClientTokenID.SubstringSafe(0, 6).PadLeft(6, '0');
             var requestTime = DateTime.Now.ToString("HHmmss");
 
             // -- 36바이트 = 설치구분 1자리(L: Local, C: Cloud, O: Onpremise) + 환경 ID 1자리 + 애플리케이션 ID 8자리 + 프로젝트 ID 3자리 + 거래 ID 6자리 + 기능 ID 4자리 + 시스템 구분 1자리 (W: WEB, P: Program, S: SVR, E: EXT) + ClientTokenID 6자리 + Timestamp (HHmmss) 6자리
@@ -532,7 +532,7 @@ namespace HandStack.Web.ApiClient
             transactionRequest.LoadOptions.Add("encryptionType", TransactionConfig.Transaction.EncryptionType);
             transactionRequest.LoadOptions.Add("encryptionKey", TransactionConfig.Transaction.EncryptionKey);
             transactionRequest.LoadOptions.Add("platform", Environment.OSVersion.Platform.ToString());
-            transactionRequest.RequestID = string.Concat(transactionObject.ProgramID, transactionObject.BusinessID, transactionObject.TransactionID, transactionObject.FunctionID, TransactionConfig.Transaction.RunningEnvironment, DateTime.Now.ToString("yyyyMMddHHmmss") + Guid.NewGuid().ToString("N").Substring(0, 6).ToUpper());
+            transactionRequest.RequestID = string.Concat(transactionObject.ProgramID, transactionObject.BusinessID, transactionObject.TransactionID, transactionObject.FunctionID, TransactionConfig.Transaction.RunningEnvironment, DateTime.Now.ToString("yyyyMMddHHmmss") + Guid.NewGuid().ToString("N").SubstringSafe(0, 6).ToUpper());
             transactionRequest.Version = TransactionConfig.Transaction.ProtocolVersion;
             transactionRequest.Environment = TransactionConfig.Transaction.RunningEnvironment;
 
@@ -775,4 +775,5 @@ namespace HandStack.Web.ApiClient
         }
     }
 }
+
 

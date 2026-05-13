@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -274,9 +274,9 @@ namespace ack.Services
                         continue;
                     }
 
-                    var machineRule = rule.Substring(0, firstSeparatorIndex);
-                    var ipRule = rule.Substring(firstSeparatorIndex + 1, secondSeparatorIndex - firstSeparatorIndex - 1);
-                    var hostRule = rule.Substring(secondSeparatorIndex + 1);
+                    var machineRule = rule.SubstringSafe(0, firstSeparatorIndex);
+                    var ipRule = rule.SubstringSafe(firstSeparatorIndex + 1, secondSeparatorIndex - firstSeparatorIndex - 1);
+                    var hostRule = rule.SubstringSafe(secondSeparatorIndex + 1);
 
                     bool machineIDMatch = machineRule == client.MachineID || machineRule == "*";
                     bool ipMatch = ipRule == client.IpAddress || ipRule == "*";
@@ -308,3 +308,4 @@ namespace ack.Services
         }
     }
 }
+

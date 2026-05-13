@@ -501,14 +501,14 @@ namespace graphclient.DataClient
             var result = parameterName.Trim();
             if (result.StartsWith("${", StringComparison.Ordinal) || result.StartsWith("#{", StringComparison.Ordinal))
             {
-                result = result.Substring(2, result.Length - 3);
+                result = result.SubstringSafe(2, result.Length - 3);
             }
 
             if (result.StartsWith("$", StringComparison.Ordinal)
                 || result.StartsWith("@", StringComparison.Ordinal)
                 || result.StartsWith("#", StringComparison.Ordinal))
             {
-                result = result.Substring(1);
+                result = result.SubstringSafe(1);
             }
 
             return result.Trim();
@@ -806,3 +806,4 @@ namespace graphclient.DataClient
         }
     }
 }
+

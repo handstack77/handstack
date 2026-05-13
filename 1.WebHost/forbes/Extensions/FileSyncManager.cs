@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.IO;
 using System.Threading.Tasks;
+using HandStack.Core.ExtensionMethod;
 
 namespace forbes.Extensions
 {
@@ -108,13 +109,13 @@ namespace forbes.Extensions
                 return false;
             }
 
-            var watcherText = watchFilePath.Substring(0, delimiterIndex);
+            var watcherText = watchFilePath.SubstringSafe(0, delimiterIndex);
             if (!Enum.TryParse(watcherText, out watcherChangeTypes))
             {
                 return false;
             }
 
-            filePath = watchFilePath.Substring(delimiterIndex + 1);
+            filePath = watchFilePath.SubstringSafe(delimiterIndex + 1);
             return !string.IsNullOrWhiteSpace(filePath);
         }
 
@@ -188,3 +189,4 @@ namespace forbes.Extensions
         }
     }
 }
+

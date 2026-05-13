@@ -1141,7 +1141,7 @@ namespace checkup.Areas.checkup.Controllers
                 }
 
                 var baseUrl = Request.GetBaseUrl();
-                var appSecret = Guid.NewGuid().ToString("N").Replace("-", "").Substring(0, 8).ToUpper();
+                var appSecret = Guid.NewGuid().ToString("N").Replace("-", "").SubstringSafe(0, 8).ToUpper();
                 var replaceKeyValues = new Dictionary<string, string>();
                 replaceKeyValues.Add("#{ApplicationNo}", applicationNo);
                 replaceKeyValues.Add("#{ApplicationID}", applicationID);
@@ -2706,7 +2706,7 @@ TransactionException:
                             {
                                 if (locationPath.StartsWith($"/{userWorkID}/{applicationID}/") == true)
                                 {
-                                    locationPath = locationPath.Substring($"/{userWorkID}/{applicationID}/".Length);
+                                    locationPath = locationPath.SubstringSafe($"/{userWorkID}/{applicationID}/".Length);
                                 }
 
                                 locationPath = locationPath.Replace("\\", "/");
@@ -3120,7 +3120,7 @@ TransactionException:
             var result = "";
             if (itemPath.StartsWith("/") == true)
             {
-                itemPath = itemPath.Substring(1);
+                itemPath = itemPath.SubstringSafe(1);
             }
 
             switch (projectType)
@@ -3237,7 +3237,7 @@ TransactionException:
 
                         if (menuItem.fileID.StartsWith("/") == true)
                         {
-                            menuItem.fileID = menuItem.fileID.Substring(1);
+                            menuItem.fileID = menuItem.fileID.SubstringSafe(1);
                         }
 
                         menus.Add(menuItem);
@@ -3266,7 +3266,7 @@ TransactionException:
 
                     if (menuItem.fileID.StartsWith("/") == true)
                     {
-                        menuItem.fileID = menuItem.fileID.Substring(1);
+                        menuItem.fileID = menuItem.fileID.SubstringSafe(1);
                     }
 
                     menus.Add(menuItem);
@@ -3275,4 +3275,5 @@ TransactionException:
         }
     }
 }
+
 

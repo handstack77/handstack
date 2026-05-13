@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.Globalization;
+using HandStack.Core.ExtensionMethod;
 
 namespace HandStack.Core.Helpers
 {
@@ -348,8 +349,8 @@ namespace HandStack.Core.Helpers
 
             var lastNumber = num;
 
-            var numberPart = value.Substring(0, lastNumber).Trim();
-            var sizePart = value.Substring(lastNumber, value.Length - lastNumber).Trim();
+            var numberPart = value.SubstringSafe(0, lastNumber).Trim();
+            var sizePart = value.SubstringSafe(lastNumber, value.Length - lastNumber).Trim();
 
             double number;
             if (!double.TryParse(numberPart, NumberStyles.Float | NumberStyles.AllowThousands, NumberFormatInfo.CurrentInfo, out number))
@@ -411,3 +412,4 @@ namespace HandStack.Core.Helpers
         }
     }
 }
+

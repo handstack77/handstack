@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Parsing;
@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
+using HandStack.Core.ExtensionMethod;
 
 namespace forbes
 {
@@ -518,7 +519,7 @@ namespace forbes
 
             if (normalizedFilePath.StartsWith(modulePrefix, StringComparison.OrdinalIgnoreCase))
             {
-                normalizedFilePath = normalizedFilePath.Substring(modulePrefix.Length);
+                normalizedFilePath = normalizedFilePath.SubstringSafe(modulePrefix.Length);
             }
 
             if (!normalizedFilePath.StartsWith("/", StringComparison.Ordinal))
@@ -770,3 +771,4 @@ namespace forbes
         public static void Error(string message) => LogMessage("ERROR", message);
     }
 }
+

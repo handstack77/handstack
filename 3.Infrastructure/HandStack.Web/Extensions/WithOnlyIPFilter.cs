@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Net;
 
 using HandStack.Core.ExtensionMethod;
@@ -55,7 +55,7 @@ namespace HandStack.Web
             var separatorIndex = result.IndexOf(',');
             if (separatorIndex > -1)
             {
-                result = result.Substring(0, separatorIndex).Trim();
+                result = result.SubstringSafe(0, separatorIndex).Trim();
             }
 
             if (IPAddress.TryParse(result, out var parsedIPAddress) == true)
@@ -67,3 +67,4 @@ namespace HandStack.Web
         }
     }
 }
+

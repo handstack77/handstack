@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.Json;
@@ -16,14 +16,14 @@ namespace HandStack.Core.Helpers
             var keyLength = 6;
             if (string.IsNullOrWhiteSpace(key))
             {
-                key = key.ToSHA256().Substring(0, keyLength);
+                key = key.ToSHA256().SubstringSafe(0, keyLength);
             }
             else
             {
                 keyLength = key.Length;
             }
 
-            key = key.ToSHA256().Substring(0, keyLength);
+            key = key.ToSHA256().SubstringSafe(0, keyLength);
 
             for (var i = 0; i < plainText.Length; i++)
             {
@@ -58,14 +58,14 @@ namespace HandStack.Core.Helpers
                 var keyLength = 6;
                 if (string.IsNullOrWhiteSpace(key))
                 {
-                    key = key.ToSHA256().Substring(0, keyLength);
+                    key = key.ToSHA256().SubstringSafe(0, keyLength);
                 }
                 else
                 {
                     keyLength = key.Length;
                 }
 
-                if (passcode == key.ToSHA256().Substring(0, keyLength))
+                if (passcode == key.ToSHA256().SubstringSafe(0, keyLength))
                 {
                     var buffer = new List<int>();
                     var str = new List<char>();
@@ -94,4 +94,5 @@ namespace HandStack.Core.Helpers
         }
     }
 }
+
 

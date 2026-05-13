@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Data;
 using System.Data.Common;
@@ -14,6 +14,7 @@ using Npgsql;
 using Oracle.ManagedDataAccess.Client;
 
 using Serilog;
+using HandStack.Core.ExtensionMethod;
 
 namespace HandStack.Data
 {
@@ -131,7 +132,7 @@ namespace HandStack.Data
                 var key = "file:";
                 var offset = key.Length;
                 var startIndex = item.IndexOf(key);
-                var databaseFilePath = item.Substring(startIndex + offset, item.Length - startIndex - offset);
+                var databaseFilePath = item.SubstringSafe(startIndex + offset, item.Length - startIndex - offset);
                 var fileInfo = new FileInfo(databaseFilePath);
                 if (fileInfo.Directory != null && fileInfo.Directory.Exists == false)
                 {
@@ -638,4 +639,5 @@ namespace HandStack.Data
         }
     }
 }
+
 

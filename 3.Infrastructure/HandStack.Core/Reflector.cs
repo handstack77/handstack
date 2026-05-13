@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Xml.Serialization;
+using HandStack.Core.ExtensionMethod;
 
 namespace HandStack.Core
 {
@@ -348,8 +349,8 @@ namespace HandStack.Core
 
             if (propertyName.IndexOf("[") > -1)
             {
-                pureProperty = propertyName.Substring(0, propertyName.IndexOf("["));
-                indexes = propertyName.Substring(propertyName.IndexOf("["));
+                pureProperty = propertyName.SubstringSafe(0, propertyName.IndexOf("["));
+                indexes = propertyName.SubstringSafe(propertyName.IndexOf("["));
                 isCollection = true;
             }
 
@@ -417,8 +418,8 @@ namespace HandStack.Core
 
             if (propertyName.IndexOf("[") > -1)
             {
-                pureProperty = propertyName.Substring(0, propertyName.IndexOf("["));
-                indexes = propertyName.Substring(propertyName.IndexOf("["));
+                pureProperty = propertyName.SubstringSafe(0, propertyName.IndexOf("["));
+                indexes = propertyName.SubstringSafe(propertyName.IndexOf("["));
                 isCollection = true;
             }
 
@@ -504,8 +505,8 @@ namespace HandStack.Core
                 return GetPropertyInternal(instance, propertyName);
             }
 
-            var main = propertyName.Substring(0, indexes);
-            var subs = propertyName.Substring(indexes + 1);
+            var main = propertyName.SubstringSafe(0, indexes);
+            var subs = propertyName.SubstringSafe(indexes + 1);
 
             var sub = GetPropertyInternal(instance, main);
 
@@ -522,8 +523,8 @@ namespace HandStack.Core
                 return null;
             }
 
-            var main = propertyName.Substring(0, indexes);
-            var subs = propertyName.Substring(indexes + 1);
+            var main = propertyName.SubstringSafe(0, indexes);
+            var subs = propertyName.SubstringSafe(indexes + 1);
 
             var sub = GetPropertyInternal(instance, main);
             if (sub != null)
@@ -582,8 +583,8 @@ namespace HandStack.Core
                 return CallMethod(instance, methodName, methodParameters);
             }
 
-            var main = methodName.Substring(0, indexes);
-            var subs = methodName.Substring(indexes + 1);
+            var main = methodName.SubstringSafe(0, indexes);
+            var subs = methodName.SubstringSafe(indexes + 1);
 
             var sub = GetPropertyInternal(instance, main);
             if (sub == null)
@@ -1074,4 +1075,5 @@ namespace HandStack.Core
         }
     }
 }
+
 

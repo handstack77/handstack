@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -23,7 +23,7 @@ namespace HandStack.Core.ExtensionMethod
             }
 
             const StringComparison sc = StringComparison.Ordinal;
-            var name = @this.Name.Substring(0, @this.Name.IndexOf("`", sc));
+            var name = @this.Name.SubstringSafe(0, @this.Name.IndexOf("`", sc));
             var arguments = @this.GetGenericArguments()
                 .Select(arg => arg.GetFriendlyName())
                 .ToArray();
@@ -183,3 +183,4 @@ namespace HandStack.Core.ExtensionMethod
         }
     }
 }
+

@@ -187,11 +187,11 @@ namespace dbclient.Extensions
                     var parameter = queryObject.Parameters[j];
                     if (parameter.ParameterName.StartsWith("$") == true && parameter.Value != null)
                     {
-                        tanantPattern = Regex.Replace(tanantPattern, "\\${" + parameter.ParameterName.Substring(1) + "}", parameter.Value.ToStringSafe());
+                        tanantPattern = Regex.Replace(tanantPattern, "\\${" + parameter.ParameterName.SubstringSafe(1) + "}", parameter.Value.ToStringSafe());
                     }
                     else if (parameter.ParameterName.StartsWith("#") == true && parameter.Value != null)
                     {
-                        tanantPattern = Regex.Replace(tanantPattern, "\\#{" + parameter.ParameterName.Substring(1) + "}", parameter.Value.ToStringSafe());
+                        tanantPattern = Regex.Replace(tanantPattern, "\\#{" + parameter.ParameterName.SubstringSafe(1) + "}", parameter.Value.ToStringSafe());
                     }
                 }
 
@@ -404,7 +404,7 @@ namespace dbclient.Extensions
 
                     if ($"{encrypt}.{decryptKey}.{hostName}".ToSHA256() == hash)
                     {
-                        decryptKey = decryptKey.DecodeBase64().PadRight(32, '0').Substring(0, 32);
+                        decryptKey = decryptKey.DecodeBase64().PadRight(32, '0').SubstringSafe(0, 32);
                         result = encrypt.DecryptAES(decryptKey);
                     }
                 }
@@ -1321,4 +1321,5 @@ namespace dbclient.Extensions
         }
     }
 }
+
 

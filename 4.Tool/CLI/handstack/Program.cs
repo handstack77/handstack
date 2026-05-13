@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Parsing;
@@ -263,8 +263,8 @@ namespace handstack
                                     if (moduleID.IndexOf("|") > -1)
                                     {
                                         var moduleIndex = modules.IndexOf(module);
-                                        sourceModuleSettingFilePath = moduleID.Substring(moduleID.IndexOf("|") + 1);
-                                        moduleID = moduleID.Substring(0, moduleID.IndexOf("|"));
+                                        sourceModuleSettingFilePath = moduleID.SubstringSafe(moduleID.IndexOf("|") + 1);
+                                        moduleID = moduleID.SubstringSafe(0, moduleID.IndexOf("|"));
                                         if (moduleIndex > -1)
                                         {
                                             modules[moduleIndex] = moduleID;
@@ -508,7 +508,7 @@ namespace handstack
                         try
                         {
                             var settingText = File.ReadAllText(settingFilePath);
-                            var key = settingText.ToSHA256().Substring(0, 32);
+                            var key = settingText.ToSHA256().SubstringSafe(0, 32);
                             arguments = $"{arguments}{(string.IsNullOrWhiteSpace(arguments) == true ? "" : " ")}--key={key} --appsettings={settingText.EncryptAES(key)}";
                         }
                         catch (Exception exception)
@@ -555,7 +555,7 @@ namespace handstack
                         try
                         {
                             var settingText = File.ReadAllText(settingFilePath);
-                            var key = settingText.ToSHA256().Substring(0, 32);
+                            var key = settingText.ToSHA256().SubstringSafe(0, 32);
                             arguments = $"{arguments}{(string.IsNullOrWhiteSpace(arguments) == true ? "" : " ")}--key={key} --appsettings={settingText.EncryptAES(key)}";
                         }
                         catch (Exception exception)
@@ -825,15 +825,15 @@ namespace handstack
                     case "aes256":
                         if (string.IsNullOrWhiteSpace(key) == true)
                         {
-                            key = value.ToStringSafe().ToSHA256().Substring(0, 32);
+                            key = value.ToStringSafe().ToSHA256().SubstringSafe(0, 32);
                         }
-                        key = key.ToStringSafe().PadRight(32, '0').Substring(0, 32);
+                        key = key.ToStringSafe().PadRight(32, '0').SubstringSafe(0, 32);
                         Log.Information($"key={key}, value={value.ToStringSafe().EncryptAES(key)}");
                         break;
                     case "syn":
                         if (string.IsNullOrWhiteSpace(key) == true)
                         {
-                            key = value.ToStringSafe().ToSHA256().Substring(6);
+                            key = value.ToStringSafe().ToSHA256().SubstringSafe(6);
                         }
 
                         Log.Information($"key={key}, value={SynCryptoHelper.Encrypt(value.ToStringSafe(), key)}");
@@ -844,9 +844,9 @@ namespace handstack
                     case "connectionstring":
                         if (string.IsNullOrWhiteSpace(key) == true)
                         {
-                            key = value.ToStringSafe().ToSHA256().Substring(0, 32);
+                            key = value.ToStringSafe().ToSHA256().SubstringSafe(0, 32);
                         }
-                        key = key.ToStringSafe().PadRight(32, '0').Substring(0, 32);
+                        key = key.ToStringSafe().PadRight(32, '0').SubstringSafe(0, 32);
 
                         var encrypt = $"{value.ToStringSafe().EncryptAES(key)}.{key.EncodeBase64()}.{Dns.GetHostName().EncodeBase64()}";
                         Log.Information($"{encrypt}.{encrypt.ToSHA256()}");
@@ -907,15 +907,15 @@ namespace handstack
                     case "aes256":
                         if (string.IsNullOrWhiteSpace(key) == true)
                         {
-                            key = value.ToStringSafe().ToSHA256().Substring(0, 32);
+                            key = value.ToStringSafe().ToSHA256().SubstringSafe(0, 32);
                         }
-                        key = key.ToStringSafe().PadRight(32, '0').Substring(0, 32);
+                        key = key.ToStringSafe().PadRight(32, '0').SubstringSafe(0, 32);
                         Log.Information($"{value.ToStringSafe().DecryptAES(key)}");
                         break;
                     case "syn":
                         if (string.IsNullOrWhiteSpace(key) == true)
                         {
-                            key = value.ToStringSafe().ToSHA256().Substring(6);
+                            key = value.ToStringSafe().ToSHA256().SubstringSafe(6);
                         }
 
                         Log.Information($"{SynCryptoHelper.Decrypt(value.ToStringSafe(), key)}");
@@ -933,7 +933,7 @@ namespace handstack
 
                         if (hostName == Dns.GetHostName() && $"{encrypt}.{decryptKey}.{values[2]}".ToSHA256() == hash)
                         {
-                            decryptKey = decryptKey.DecodeBase64().PadRight(32, '0').Substring(0, 32);
+                            decryptKey = decryptKey.DecodeBase64().PadRight(32, '0').SubstringSafe(0, 32);
                             Log.Information($"{encrypt.DecryptAES(decryptKey)}");
                         }
                         else
@@ -1192,11 +1192,11 @@ namespace handstack
                         if (item.Key == "$DATE_STRING")
                         {
                             var dateString = DateTime.Now.ToString(string.IsNullOrWhiteSpace(item.Value) == true ? "yyyy-MM-dd" : item.Value);
-                            CommandHelper.EnvironmentVariables.Add(item.Key.Substring(1).ToUpper(), dateString);
+                            CommandHelper.EnvironmentVariables.Add(item.Key.SubstringSafe(1).ToUpper(), dateString);
                         }
                         else if (item.Key.StartsWith("$") == true)
                         {
-                            CommandHelper.EnvironmentVariables.Add(item.Key.Substring(1).ToUpper(), item.Value);
+                            CommandHelper.EnvironmentVariables.Add(item.Key.SubstringSafe(1).ToUpper(), item.Value);
                         }
                         else
                         {
@@ -1839,8 +1839,8 @@ namespace handstack
                     continue;
                 }
 
-                var findText = replaceExpression.Substring(0, separatorIndex);
-                var replaceText = replaceExpression.Substring(separatorIndex + 1);
+                var findText = replaceExpression.SubstringSafe(0, separatorIndex);
+                var replaceText = replaceExpression.SubstringSafe(separatorIndex + 1);
                 result.Add(new KeyValuePair<string, string>(findText, replaceText));
             }
 
@@ -1994,3 +1994,4 @@ namespace handstack
         public required int TotalCount { get; set; }
     }
 }
+

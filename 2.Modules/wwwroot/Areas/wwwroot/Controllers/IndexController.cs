@@ -323,8 +323,8 @@ namespace wwwroot.Areas.wwwroot.Controllers
                 }
 
                 string systemVaultKey = "[Strong@Passw0rd]";
-                var vaultKey = (systemVaultKey + "|" + keyItem.Key.PadRight(32, '0')).Substring(0, 32);
-                var content = keyItem.IsEncryption.ToBoolean() == true ? keyItem.Value.DecryptAES(keyItem.Key.PadRight(32, '0').Substring(0, 32)) : keyItem.Value;
+                var vaultKey = (systemVaultKey + "|" + keyItem.Key.PadRight(32, '0')).SubstringSafe(0, 32);
+                var content = keyItem.IsEncryption.ToBoolean() == true ? keyItem.Value.DecryptAES(keyItem.Key.PadRight(32, '0').SubstringSafe(0, 32)) : keyItem.Value;
 
                 return content;
             }
@@ -336,4 +336,5 @@ namespace wwwroot.Areas.wwwroot.Controllers
         }
     }
 }
+
 

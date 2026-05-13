@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -260,9 +260,10 @@ namespace command.Areas.command.Controllers
                 return false;
             }
 
-            functionIDPrefix = functionID.Substring(0, functionID.Length - 2);
+            functionIDPrefix = functionID.SubstringSafe(0, functionID.Length - 2);
             return !string.IsNullOrWhiteSpace(functionIDPrefix);
         }
     }
 }
+
 

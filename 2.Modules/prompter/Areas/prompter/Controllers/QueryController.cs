@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -96,7 +96,7 @@ namespace prompter.Areas.prompter.Controllers
                 {
                     if (filePath.StartsWith(Path.DirectorySeparatorChar) == true)
                     {
-                        filePath = filePath.Substring(1);
+                        filePath = filePath.SubstringSafe(1);
                     }
 
                     logger.Information("[{LogCategory}] " + $"WatcherChangeTypes: {changeType}, FilePath: {filePath}", "Query/Refresh");
@@ -237,8 +237,8 @@ namespace prompter.Areas.prompter.Controllers
 
                     if (string.IsNullOrEmpty(model.FunctionID) == false)
                     {
-                        var queryFunctionID = model.FunctionID.Substring(0, model.FunctionID.Length - 2);
-                        queryResults = queryResults.Where(p => p.StatementID.Substring(0, p.StatementID.Length - 2) == queryFunctionID);
+                        var queryFunctionID = model.FunctionID.SubstringSafe(0, model.FunctionID.Length - 2);
+                        queryResults = queryResults.Where(p => p.StatementID.SubstringSafe(0, p.StatementID.Length - 2) == queryFunctionID);
                     }
 
                     var promptMaps = queryResults.ToList();
@@ -546,3 +546,4 @@ namespace prompter.Areas.prompter.Controllers
 
     }
 }
+

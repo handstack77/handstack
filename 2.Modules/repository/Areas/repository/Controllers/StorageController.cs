@@ -281,7 +281,7 @@ namespace repository.Controllers
                 repositoryManager.PersistenceDirectoryPath = repositoryManager.GetPhysicalPath(repository, customPath1, customPath2, customPath3);
                 var relativeDirectoryPath = repositoryManager.GetRelativePath(repository, customPath1, customPath2, customPath3);
                 var relativeDirectoryUrlPath = string.IsNullOrWhiteSpace(relativeDirectoryPath) ? "" : relativeDirectoryPath;
-                relativeDirectoryUrlPath = relativeDirectoryUrlPath.Length <= 1 ? "" : relativeDirectoryUrlPath.Substring(relativeDirectoryUrlPath.Length - 1) == "/" ? relativeDirectoryUrlPath : relativeDirectoryUrlPath + "/";
+                relativeDirectoryUrlPath = relativeDirectoryUrlPath.Length <= 1 ? "" : relativeDirectoryUrlPath.SubstringSafe(relativeDirectoryUrlPath.Length - 1) == "/" ? relativeDirectoryUrlPath : relativeDirectoryUrlPath + "/";
 
                 var isExistFile = false;
 
@@ -587,7 +587,7 @@ namespace repository.Controllers
                         repositoryManager.PersistenceDirectoryPath = repositoryManager.GetPhysicalPath(repository, customPath1, customPath2, customPath3);
                         var relativeDirectoryPath = repositoryManager.GetRelativePath(repository, customPath1, customPath2, customPath3);
                         var relativeDirectoryUrlPath = string.IsNullOrWhiteSpace(relativeDirectoryPath) ? "" : relativeDirectoryPath;
-                        relativeDirectoryUrlPath = relativeDirectoryUrlPath.Length <= 1 ? "" : relativeDirectoryUrlPath.Substring(relativeDirectoryUrlPath.Length - 1) == "/" ? relativeDirectoryUrlPath : relativeDirectoryUrlPath + "/";
+                        relativeDirectoryUrlPath = relativeDirectoryUrlPath.Length <= 1 ? "" : relativeDirectoryUrlPath.SubstringSafe(relativeDirectoryUrlPath.Length - 1) == "/" ? relativeDirectoryUrlPath : relativeDirectoryUrlPath + "/";
 
                         var storageProvider = storageProviderFactory.Create(repository, customPath1, customPath2, customPath3);
                         if (storageProvider == null)
@@ -945,7 +945,7 @@ namespace repository.Controllers
                         repositoryManager.PersistenceDirectoryPath = repositoryManager.GetPhysicalPath(repository, customPath1, customPath2, customPath3);
                         var relativeDirectoryPath = repositoryManager.GetRelativePath(repository, customPath1, customPath2, customPath3);
                         var relativeDirectoryUrlPath = string.IsNullOrWhiteSpace(relativeDirectoryPath) ? "" : relativeDirectoryPath;
-                        relativeDirectoryUrlPath = relativeDirectoryUrlPath.Length <= 1 ? "" : relativeDirectoryUrlPath.Substring(relativeDirectoryUrlPath.Length - 1) == "/" ? relativeDirectoryUrlPath : relativeDirectoryUrlPath + "/";
+                        relativeDirectoryUrlPath = relativeDirectoryUrlPath.Length <= 1 ? "" : relativeDirectoryUrlPath.SubstringSafe(relativeDirectoryUrlPath.Length - 1) == "/" ? relativeDirectoryUrlPath : relativeDirectoryUrlPath + "/";
 
                         var storageProvider = storageProviderFactory.Create(repository, customPath1, customPath2, customPath3);
                         if (storageProvider == null)
@@ -1348,7 +1348,7 @@ namespace repository.Controllers
                 repositoryManager.PersistenceDirectoryPath = repositoryManager.GetPhysicalPath(repository, customPath1, customPath2, customPath3);
                 var relativeDirectoryPath = repositoryManager.GetRelativePath(repository, customPath1, customPath2, customPath3);
                 var relativeDirectoryUrlPath = string.IsNullOrWhiteSpace(relativeDirectoryPath) ? "" : relativeDirectoryPath;
-                relativeDirectoryUrlPath = relativeDirectoryUrlPath.Length <= 1 ? "" : relativeDirectoryUrlPath.Substring(relativeDirectoryUrlPath.Length - 1) == "/" ? relativeDirectoryUrlPath : relativeDirectoryUrlPath + "/";
+                relativeDirectoryUrlPath = relativeDirectoryUrlPath.Length <= 1 ? "" : relativeDirectoryUrlPath.SubstringSafe(relativeDirectoryUrlPath.Length - 1) == "/" ? relativeDirectoryUrlPath : relativeDirectoryUrlPath + "/";
                 var policyPath = repositoryManager.GetPolicyPath(repository);
 
                 var storageProvider = storageProviderFactory.Create(repository, customPath1, customPath2, customPath3);
@@ -2241,7 +2241,7 @@ namespace repository.Controllers
                     repositoryManager.PersistenceDirectoryPath = repositoryManager.GetRepositoryItemPath(repository, repositoryItem);
                     var relativeDirectoryPath = repositoryManager.GetRelativePath(repository, repositoryItem.CustomPath1, repositoryItem.CustomPath2, repositoryItem.CustomPath3);
                     var relativeDirectoryUrlPath = string.IsNullOrWhiteSpace(relativeDirectoryPath) ? "" : relativeDirectoryPath;
-                    relativeDirectoryUrlPath = relativeDirectoryUrlPath.Length <= 1 ? "" : relativeDirectoryUrlPath.Substring(relativeDirectoryUrlPath.Length - 1) == "/" ? relativeDirectoryUrlPath : relativeDirectoryUrlPath + "/";
+                    relativeDirectoryUrlPath = relativeDirectoryUrlPath.Length <= 1 ? "" : relativeDirectoryUrlPath.SubstringSafe(relativeDirectoryUrlPath.Length - 1) == "/" ? relativeDirectoryUrlPath : relativeDirectoryUrlPath + "/";
 
                     var storageProvider = storageProviderFactory.Create(repository, repositoryItem.CustomPath1, repositoryItem.CustomPath2, repositoryItem.CustomPath3);
                     if (storageProvider == null)
@@ -2359,7 +2359,7 @@ namespace repository.Controllers
                         repositoryManager.PersistenceDirectoryPath = repositoryManager.GetRepositoryItemPath(repository, repositoryItem);
                         var relativeDirectoryPath = repositoryManager.GetRelativePath(repository, repositoryItem.CustomPath1, repositoryItem.CustomPath2, repositoryItem.CustomPath3);
                         var relativeDirectoryUrlPath = string.IsNullOrWhiteSpace(relativeDirectoryPath) ? "" : relativeDirectoryPath;
-                        relativeDirectoryUrlPath = relativeDirectoryUrlPath.Length <= 1 ? "" : relativeDirectoryUrlPath.Substring(relativeDirectoryUrlPath.Length - 1) == "/" ? relativeDirectoryUrlPath : relativeDirectoryUrlPath + "/";
+                        relativeDirectoryUrlPath = relativeDirectoryUrlPath.Length <= 1 ? "" : relativeDirectoryUrlPath.SubstringSafe(relativeDirectoryUrlPath.Length - 1) == "/" ? relativeDirectoryUrlPath : relativeDirectoryUrlPath + "/";
 
 
                         var storageProvider = storageProviderFactory.Create(repository, repositoryItem.CustomPath1, repositoryItem.CustomPath2, repositoryItem.CustomPath3);
@@ -2592,7 +2592,7 @@ namespace repository.Controllers
             var repositoryManager = new RepositoryManager();
             var relativeDirectoryPath = repositoryManager.GetRelativePath(repository, repositoryItem.CustomPath1, repositoryItem.CustomPath2, repositoryItem.CustomPath3);
             var relativeDirectoryUrlPath = string.IsNullOrWhiteSpace(relativeDirectoryPath) ? "" : relativeDirectoryPath;
-            relativeDirectoryUrlPath = relativeDirectoryUrlPath.Length <= 1 ? "" : relativeDirectoryUrlPath.Substring(relativeDirectoryUrlPath.Length - 1) == "/" ? relativeDirectoryUrlPath : relativeDirectoryUrlPath + "/";
+            relativeDirectoryUrlPath = relativeDirectoryUrlPath.Length <= 1 ? "" : relativeDirectoryUrlPath.SubstringSafe(relativeDirectoryUrlPath.Length - 1) == "/" ? relativeDirectoryUrlPath : relativeDirectoryUrlPath + "/";
 
             var storageProvider = storageProviderFactory.Create(repository, repositoryItem.CustomPath1, repositoryItem.CustomPath2, repositoryItem.CustomPath3);
             if (storageProvider == null)
@@ -3051,4 +3051,5 @@ namespace repository.Controllers
         }
     }
 }
+
 

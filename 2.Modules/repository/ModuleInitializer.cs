@@ -217,7 +217,7 @@ namespace repository
                                                 var referer = httpContext.Context.Request.Headers.Referer.ToString();
                                                 if (referer.EndsWith("/") == true)
                                                 {
-                                                    referer = referer.Substring(0, referer.Length - 1);
+                                                    referer = referer.SubstringSafe(0, referer.Length - 1);
                                                 }
                                                 var host = httpContext.Context.Request.Host.ToString();
                                                 isResponse = (!string.IsNullOrWhiteSpace(referer) && (referer.IndexOf(host) > -1 || GlobalConfiguration.WithOrigins.IndexOf(referer) > -1));
@@ -449,4 +449,5 @@ namespace repository
         }
     }
 }
+
 

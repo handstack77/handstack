@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
@@ -148,7 +148,7 @@ namespace ack
             }
 
             GlobalConfiguration.EnvironmentName = environment.EnvironmentName;
-            GlobalConfiguration.RunningEnvironment = environment.EnvironmentName.Substring(0, 1);
+            GlobalConfiguration.RunningEnvironment = environment.EnvironmentName.SubstringSafe(0, 1);
 
             if (OperatingSystem.IsWindows() == true)
             {
@@ -297,7 +297,7 @@ namespace ack
             TransactionConfig.Program.InstallType = appSettings["InstallType"].ToStringSafe();
             TransactionConfig.Program.ProgramVersion = GlobalConfiguration.ApplicationVersion;
             TransactionConfig.Program.ProgramName = GlobalConfiguration.ApplicationName;
-            TransactionConfig.Program.ClientTokenID = string.IsNullOrWhiteSpace(GlobalConfiguration.ProcessID) == true ? Guid.NewGuid().ToString("N").Substring(0, 6) : GlobalConfiguration.ProcessID.PadLeft(6, '0');
+            TransactionConfig.Program.ClientTokenID = string.IsNullOrWhiteSpace(GlobalConfiguration.ProcessID) == true ? Guid.NewGuid().ToString("N").SubstringSafe(0, 6) : GlobalConfiguration.ProcessID.PadLeft(6, '0');
             TransactionConfig.Transaction.SystemID = GlobalConfiguration.SystemID;
             TransactionConfig.Transaction.MachineName = GlobalConfiguration.HostName;
             TransactionConfig.Transaction.RunningEnvironment = GlobalConfiguration.RunningEnvironment;
@@ -1882,7 +1882,7 @@ namespace ack
                         }
 
                         // 키 수급 에서 사용 코드
-                        // var vaultKey = (secretService.SystemVaultKey + "|" + newKey.Key.PadRight(32, '0')).Substring(0, 32);
+                        // var vaultKey = (secretService.SystemVaultKey + "|" + newKey.Key.PadRight(32, '0')).SubstringSafe(0, 32);
                         // var decryptedValue = keyItem.IsEncryption.ToBoolean() == true ? keyItem.Value.DecryptAES(vaultKey) : keyItem.Value;
                         var responseItem = new
                         {
@@ -1951,7 +1951,7 @@ namespace ack
                         var encryptQuery = context.Request.Query["encrypt"].ToStringSafe();
                         if (string.IsNullOrWhiteSpace(encryptQuery) == false && encryptQuery.ToBoolean() == true)
                         {
-                            var vaultKey = (secretService.SystemVaultKey + "|" + newKey.Key.PadRight(32, '0')).Substring(0, 32);
+                            var vaultKey = (secretService.SystemVaultKey + "|" + newKey.Key.PadRight(32, '0')).SubstringSafe(0, 32);
                             newKey.Value = newKey.Value.EncryptAES(vaultKey);
                             newKey.IsEncryption = "Y";
                         }
@@ -2650,3 +2650,4 @@ namespace ack
         }
     }
 }
+

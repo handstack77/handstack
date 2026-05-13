@@ -429,7 +429,7 @@ namespace prompter.DataClient
                 throw new InvalidOperationException("MCP response Content-Length 확인 필요");
             }
 
-            var length = int.Parse(lengthHeader.Substring("Content-Length:".Length).Trim(), CultureInfo.InvariantCulture);
+            var length = int.Parse(lengthHeader.SubstringSafe("Content-Length:".Length).Trim(), CultureInfo.InvariantCulture);
             var buffer = new byte[length];
             var offset = 0;
             while (offset < length)
@@ -625,3 +625,4 @@ namespace prompter.DataClient
         public int Timeout { get; set; } = 10;
     }
 }
+

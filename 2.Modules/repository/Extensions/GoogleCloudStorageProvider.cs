@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
@@ -10,6 +10,7 @@ using Google.Cloud.Storage.V1;
 using HandStack.Web.Entity;
 
 using repository.Entity;
+using HandStack.Core.ExtensionMethod;
 
 namespace repository.Extensions
 {
@@ -108,7 +109,7 @@ namespace repository.Extensions
             string newBlobID;
             var i = 1;
             var extension = Path.GetExtension(blobID);
-            var baseBlobID = blobID.Substring(0, blobID.Length - extension.Length);
+            var baseBlobID = blobID.SubstringSafe(0, blobID.Length - extension.Length);
 
             do
             {
@@ -129,3 +130,4 @@ namespace repository.Extensions
 
     }
 }
+

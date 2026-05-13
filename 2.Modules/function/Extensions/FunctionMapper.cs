@@ -988,7 +988,7 @@ namespace function.Extensions
 
                     if ($"{encrypt}.{decryptKey}.{hostName}".ToSHA256() == hash)
                     {
-                        decryptKey = decryptKey.DecodeBase64().PadRight(32, '0').Substring(0, 32);
+                        decryptKey = decryptKey.DecodeBase64().PadRight(32, '0').SubstringSafe(0, 32);
                         result = encrypt.DecryptAES(decryptKey);
                     }
                 }
@@ -1017,7 +1017,7 @@ namespace function.Extensions
 
                     if ($"{encrypt}.{decryptKey}.{hostName}".ToSHA256() == hash)
                     {
-                        decryptKey = decryptKey.DecodeBase64().PadRight(32, '0').Substring(0, 32);
+                        decryptKey = decryptKey.DecodeBase64().PadRight(32, '0').SubstringSafe(0, 32);
                         result = encrypt.DecryptAES(decryptKey);
                     }
                 }
@@ -1031,4 +1031,5 @@ namespace function.Extensions
         }
     }
 }
+
 

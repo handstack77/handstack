@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 using checkup.Entity;
 using checkup.Extensions;
@@ -88,7 +88,7 @@ namespace checkup.Areas.checkup.Controllers
                         var prefix = "file:";
                         var startIndex = ModuleConfiguration.ConnectionString.IndexOf(prefix) + prefix.Length;
                         var endIndex = ModuleConfiguration.ConnectionString.IndexOf(';', startIndex);
-                        var filePath = ModuleConfiguration.ConnectionString.Substring(startIndex, endIndex - startIndex);
+                        var filePath = ModuleConfiguration.ConnectionString.SubstringSafe(startIndex, endIndex - startIndex);
 
                         Console.WriteLine($"Administrator Key: {filePath} Person 정보 확인 및 키 초기화 방법. http://localhost:{GlobalConfiguration.ServerPort}/checkup/api/managed/reset-administrator-key?oldPasswordKey=[초기화하는 기존 키]");
                     }
@@ -143,7 +143,7 @@ namespace checkup.Areas.checkup.Controllers
                         var prefix = "file:";
                         var startIndex = ModuleConfiguration.ConnectionString.IndexOf(prefix) + prefix.Length;
                         var endIndex = ModuleConfiguration.ConnectionString.IndexOf(';', startIndex);
-                        var filePath = ModuleConfiguration.ConnectionString.Substring(startIndex, endIndex - startIndex);
+                        var filePath = ModuleConfiguration.ConnectionString.SubstringSafe(startIndex, endIndex - startIndex);
 
                         Console.WriteLine($"Administrator Key: {filePath} Person 정보에서 기존 Password Key 확인 필요");
                         administratorKey = "Person 정보에서 기존 Password Key 확인 필요";
@@ -166,4 +166,5 @@ namespace checkup.Areas.checkup.Controllers
         }
     }
 }
+
 

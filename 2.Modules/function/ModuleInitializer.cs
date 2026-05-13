@@ -243,8 +243,8 @@ namespace function
                                     continue;
                                 }
 
-                                var key = item.Substring(0, separatorIndex).Trim();
-                                var value = item.Substring(separatorIndex + 1).Trim();
+                                var key = item.SubstringSafe(0, separatorIndex).Trim();
+                                var value = item.SubstringSafe(separatorIndex + 1).Trim();
                                 if (string.IsNullOrWhiteSpace(key) == true)
                                 {
                                     Log.Warning("[{LogCategory}] " + $"EnvironmentVariables 키 확인 필요: {item}", $"{ModuleConfiguration.ModuleID} ModuleInitializer/ConfigureServices");
@@ -638,4 +638,5 @@ namespace function
         }
     }
 }
+
 

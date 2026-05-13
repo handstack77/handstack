@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
 using System.Reflection;
+using HandStack.Core.ExtensionMethod;
 
 namespace HandStack.Web.Common
 {
@@ -28,9 +29,9 @@ namespace HandStack.Web.Common
 
             if (hexColor.Length == 6)
             {
-                red = int.Parse(hexColor.Substring(0, 2), NumberStyles.AllowHexSpecifier);
-                green = int.Parse(hexColor.Substring(2, 2), NumberStyles.AllowHexSpecifier);
-                blue = int.Parse(hexColor.Substring(4, 2), NumberStyles.AllowHexSpecifier);
+                red = int.Parse(hexColor.SubstringSafe(0, 2), NumberStyles.AllowHexSpecifier);
+                green = int.Parse(hexColor.SubstringSafe(2, 2), NumberStyles.AllowHexSpecifier);
+                blue = int.Parse(hexColor.SubstringSafe(4, 2), NumberStyles.AllowHexSpecifier);
             }
             else if (hexColor.Length == 3)
             {
@@ -116,3 +117,4 @@ namespace HandStack.Web.Common
         }
     }
 }
+

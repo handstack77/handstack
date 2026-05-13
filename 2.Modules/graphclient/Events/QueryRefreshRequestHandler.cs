@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using graphclient.Extensions;
 
 using MediatR;
+using HandStack.Core.ExtensionMethod;
 
 namespace graphclient.Events
 {
@@ -42,7 +43,7 @@ namespace graphclient.Events
             var filePath = request.FilePath;
             if (filePath.StartsWith(Path.DirectorySeparatorChar) == true)
             {
-                filePath = filePath.Substring(1);
+                filePath = filePath.SubstringSafe(1);
             }
 
             logger.Information("[{LogCategory}] " + $"WatcherChangeTypes: {request.ChangeType}, FilePath: {filePath}", "Query/Refresh");
@@ -73,3 +74,4 @@ namespace graphclient.Events
         }
     }
 }
+

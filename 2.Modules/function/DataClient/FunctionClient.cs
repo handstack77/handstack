@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -363,9 +363,9 @@ namespace function.DataClient
 
                     if (!string.IsNullOrWhiteSpace(dataProvider))
                     {
-                        dataContext.dataProvider = dataProvider.Substring(1);
-                        dataContext.connectionString = connectionString.Substring(1);
-                        dataContext.workingDirectoryPath = workingDirectoryPath.Substring(1);
+                        dataContext.dataProvider = dataProvider.SubstringSafe(1);
+                        dataContext.connectionString = connectionString.SubstringSafe(1);
+                        dataContext.workingDirectoryPath = workingDirectoryPath.SubstringSafe(1);
                     }
 
                     listParams.Add(dataContext);
@@ -939,4 +939,5 @@ namespace function.DataClient
         }
     }
 }
+
 

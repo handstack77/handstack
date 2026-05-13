@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -57,7 +57,7 @@ namespace repository.Events
 
             if (filePath.StartsWith(Path.DirectorySeparatorChar) == true)
             {
-                filePath = filePath.Substring(1);
+                filePath = filePath.SubstringSafe(1);
             }
 
             logger.Information("[{LogCategory}] " + $"WatcherChangeTypes: {request.ChangeType}, FilePath: {filePath}", "Storage/Refresh");
@@ -170,3 +170,4 @@ namespace repository.Events
         }
     }
 }
+

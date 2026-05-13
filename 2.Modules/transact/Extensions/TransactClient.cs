@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
@@ -63,7 +63,7 @@ namespace transact.Extensions
                 var businessID = transactionRequest.Transaction.BusinessID.PadLeft(3, '0');
                 var transactionID = transactionRequest.Transaction.TransactionID.PadLeft(6, '0');
                 var functionID = transactionRequest.Transaction.FunctionID.PadLeft(4, '0');
-                var tokenID = TransactionConfig.Program.ClientTokenID.Substring(0, 6).PadLeft(6, '0');
+                var tokenID = TransactionConfig.Program.ClientTokenID.SubstringSafe(0, 6).PadLeft(6, '0');
                 var requestTime = DateTime.Now.ToString("HHmmss");
 
                 transactionRequest.RequestID = $"{installType}{environment}{programID}{businessID}{transactionID}{functionID}{machineTypeID}{tokenID}{requestTime}";
@@ -2055,4 +2055,5 @@ namespace transact.Extensions
         }
     }
 }
+
 

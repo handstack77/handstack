@@ -261,9 +261,10 @@ namespace graphclient.Areas.graphclient.Controllers
                 return false;
             }
 
-            functionIDPrefix = functionID.Substring(0, functionID.Length - 2);
+            functionIDPrefix = functionID.SubstringSafe(0, functionID.Length - 2);
             return string.IsNullOrWhiteSpace(functionIDPrefix) == false;
         }
     }
 }
+
 

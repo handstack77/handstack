@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -202,7 +202,7 @@ namespace checkup
 
                     if ($"{encrypt}.{decryptKey}.{hostName}".ToSHA256() == hash)
                     {
-                        decryptKey = decryptKey.DecodeBase64().PadRight(32, '0').Substring(0, 32);
+                        decryptKey = decryptKey.DecodeBase64().PadRight(32, '0').SubstringSafe(0, 32);
                         result = encrypt.DecryptAES(decryptKey);
                     }
                 }
@@ -457,4 +457,5 @@ namespace checkup
         }
     }
 }
+
 

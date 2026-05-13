@@ -65,7 +65,7 @@ namespace HandStack.Web.Modules
 
                             var secretData = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
                             var keyItem = JsonConvert.DeserializeObject<KeyItem>(secretData)!;
-                            var content = keyItem.IsEncryption.ToBoolean() == true ? keyItem.Value.DecryptAES(keyItem.Key.PadRight(32, '0').Substring(0, 32)) : keyItem.Value;
+                            var content = keyItem.IsEncryption.ToBoolean() == true ? keyItem.Value.DecryptAES(keyItem.Key.PadRight(32, '0').SubstringSafe(0, 32)) : keyItem.Value;
 
                             module = JsonConvert.DeserializeObject<DefaultModuleConfigJson>(content, ModuleJsonSerializerSettings);
                         }
@@ -208,4 +208,5 @@ namespace HandStack.Web.Modules
         }
     }
 }
+
 

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -839,7 +839,7 @@ TransactionException:
             string? result = null;
             if (itemPath.StartsWith("/") == true)
             {
-                itemPath = itemPath.Substring(1);
+                itemPath = itemPath.SubstringSafe(1);
             }
 
             if (itemPath.StartsWith("dbclient") == true)
@@ -867,7 +867,7 @@ TransactionException:
             string? sourceItemPath = null;
             if (itemPath.StartsWith("/") == true)
             {
-                itemPath = itemPath.Substring(1);
+                itemPath = itemPath.SubstringSafe(1);
             }
 
             switch (projectType)
@@ -1001,7 +1001,7 @@ TransactionException:
 
                         if (menuItem.fileID.StartsWith("/") == true)
                         {
-                            menuItem.fileID = menuItem.fileID.Substring(1);
+                            menuItem.fileID = menuItem.fileID.SubstringSafe(1);
                         }
 
                         menus.Add(menuItem);
@@ -1035,7 +1035,7 @@ TransactionException:
 
                     if (menuItem.fileID.StartsWith("/") == true)
                     {
-                        menuItem.fileID = menuItem.fileID.Substring(1);
+                        menuItem.fileID = menuItem.fileID.SubstringSafe(1);
                     }
 
                     menus.Add(menuItem);
@@ -1044,4 +1044,5 @@ TransactionException:
         }
     }
 }
+
 

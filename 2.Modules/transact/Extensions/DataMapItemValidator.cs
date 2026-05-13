@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 using Expression = NCalc.Expression;
+using HandStack.Core.ExtensionMethod;
 
 namespace transact.Extensions
 {
@@ -57,8 +58,8 @@ namespace transact.Extensions
                         {
                             throw new FormatException($"규칙 형식이 잘못되었습니다. '조건, 오류 메시지' 형식이어야 합니다: {rule}");
                         }
-                        string condition = rule.Substring(0, ruleIndex).Trim();
-                        string errorMessage = rule.Substring(ruleIndex + 1).Trim();
+                        string condition = rule.SubstringSafe(0, ruleIndex).Trim();
+                        string errorMessage = rule.SubstringSafe(ruleIndex + 1).Trim();
                         errorMessage = errorMessage.Trim('\'', '"');
                         var evaluationResult = EvaluateWithNCalc(items, condition);
                         if (evaluationResult is bool boolResult && !boolResult)
@@ -472,4 +473,5 @@ namespace transact.Extensions
         }
     }
 }
+
 

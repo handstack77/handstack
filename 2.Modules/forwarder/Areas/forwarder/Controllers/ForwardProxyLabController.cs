@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 using Serilog;
+using HandStack.Core.ExtensionMethod;
 
 namespace forwarder.Areas.forwarder.Controllers
 {
@@ -629,7 +630,7 @@ namespace forwarder.Areas.forwarder.Controllers
             var charsetIndex = contentType.IndexOf("charset=", StringComparison.OrdinalIgnoreCase);
             if (charsetIndex > -1)
             {
-                var charset = contentType.Substring(charsetIndex + "charset=".Length).Trim().Trim('"', '\'').TrimEnd(';');
+                var charset = contentType.SubstringSafe(charsetIndex + "charset=".Length).Trim().Trim('"', '\'').TrimEnd(';');
                 try
                 {
                     return Encoding.GetEncoding(charset);
@@ -687,3 +688,4 @@ namespace forwarder.Areas.forwarder.Controllers
         }
     }
 }
+

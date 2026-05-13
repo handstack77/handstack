@@ -51,7 +51,7 @@ namespace dbclient.Events
 
             if (filePath.StartsWith(Path.DirectorySeparatorChar) == true)
             {
-                filePath = filePath.Substring(1);
+                filePath = filePath.SubstringSafe(1);
             }
 
             logger.Information("[{LogCategory}] " + $"WatcherChangeTypes: {request.ChangeType}, FilePath: {filePath}", "Query/Refresh");
@@ -139,3 +139,4 @@ namespace dbclient.Events
         }
     }
 }
+

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -16,6 +16,7 @@ using Microsoft.Extensions.Configuration;
 using Serilog;
 
 using wwwroot.Entity;
+using HandStack.Core.ExtensionMethod;
 
 namespace wwwroot.Areas.wwwroot.Controllers
 {
@@ -145,7 +146,7 @@ namespace wwwroot.Areas.wwwroot.Controllers
                 return false;
             }
 
-            string basicPayload = authorizationHeader.Substring(basicPrefix.Length).Trim();
+            string basicPayload = authorizationHeader.SubstringSafe(basicPrefix.Length).Trim();
             if (string.IsNullOrWhiteSpace(basicPayload))
             {
                 return false;
@@ -155,7 +156,7 @@ namespace wwwroot.Areas.wwwroot.Controllers
             {
                 string decodedCredential = Encoding.UTF8.GetString(Convert.FromBase64String(basicPayload));
                 int separatorIndex = decodedCredential.IndexOf(':');
-                token = separatorIndex >= 0 ? decodedCredential.Substring(0, separatorIndex).Trim() : decodedCredential.Trim();
+                token = separatorIndex >= 0 ? decodedCredential.SubstringSafe(0, separatorIndex).Trim() : decodedCredential.Trim();
             }
             catch (FormatException)
             {
@@ -442,3 +443,4 @@ namespace wwwroot.Areas.wwwroot.Controllers
         }
     }
 }
+

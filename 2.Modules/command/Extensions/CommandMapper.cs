@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -516,7 +516,7 @@ namespace command.Extensions
             var result = fileRelativePath.Replace("\\", "/");
             while (result.StartsWith("/") || result.StartsWith("\\"))
             {
-                result = result.Substring(1);
+                result = result.SubstringSafe(1);
             }
 
             return result;
@@ -562,3 +562,4 @@ namespace command.Extensions
         }
     }
 }
+

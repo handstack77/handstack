@@ -688,13 +688,13 @@ namespace HandStack.Core.ExtensionMethod
 
         public static string? Truncate(this string @this, int maxLength, string suffix = "...")
         {
-            if (@this == null || @this.Length <= maxLength)
+            if (@this == null || maxLength < 0 || @this.Length <= maxLength)
             {
                 return @this;
             }
 
             var strLength = maxLength - suffix.Length;
-            return @this.Substring(0, strLength) + suffix;
+            return @this.SubstringSafe(0, strLength) + suffix;
         }
 
         public static StringBuilder AppendIf<T>(this StringBuilder @this, Func<T, bool> predicate, params T[] values)

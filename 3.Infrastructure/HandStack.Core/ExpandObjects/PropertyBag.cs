@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
+using HandStack.Core.ExtensionMethod;
 
 namespace HandStack.Core.ExpendObjects
 {
@@ -138,7 +139,7 @@ namespace HandStack.Core.ExpendObjects
                         while (reader.Read() && reader.NodeType != XmlNodeType.Element)
                         { }
 
-                        var type = Utilities.GetTypeFromName(xmlType.Substring(3));
+                        var type = Utilities.GetTypeFromName(xmlType.SubstringSafe(3));
                         if (type == null)
                         {
                             value = default(TValue);
@@ -209,4 +210,5 @@ namespace HandStack.Core.ExpendObjects
         }
     }
 }
+
 

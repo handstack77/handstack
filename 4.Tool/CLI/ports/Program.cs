@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -132,7 +132,7 @@ namespace ports
 
                         string home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
                         displayPath = cwd.StartsWith(home)
-                            ? "~" + cwd.Substring(home.Length).Replace("\\", "/")
+                            ? "~" + SubstringSafe(cwd, home.Length).Replace("\\", "/")
                             : cwd;
                     }
                 }
@@ -192,7 +192,7 @@ namespace ports
                 int lastColon = localAddr.LastIndexOf(':');
                 if (lastColon == -1) continue;
 
-                string portStr = localAddr.Substring(lastColon + 1);
+                string portStr = SubstringSafe(localAddr, lastColon + 1);
 
                 if (int.TryParse(portStr, out int port) && int.TryParse(pidStr, out int pid))
                 {
@@ -239,7 +239,7 @@ namespace ports
 
                     int lastColon = nodeName.LastIndexOf(':');
                     if (lastColon == -1) continue;
-                    string portStr = nodeName.Substring(lastColon + 1);
+                    string portStr = SubstringSafe(nodeName, lastColon + 1);
 
                     if (int.TryParse(portStr, out int port) && int.TryParse(pidStr, out int pid))
                     {
@@ -275,7 +275,7 @@ namespace ports
                             int slashIndex = line.IndexOf("/", StringComparison.Ordinal);
                             if (slashIndex >= 0)
                             {
-                                return line.Substring(slashIndex).Trim();
+                                return SubstringSafe(line, slashIndex).Trim();
                             }
                         }
                     }
@@ -309,6 +309,16 @@ namespace ports
             catch { return string.Empty; }
         }
 
+        private static string SubstringSafe(string? value, int startIndex)
+        {
+            if (string.IsNullOrEmpty(value) || startIndex < 0 || startIndex >= value.Length)
+            {
+                return "";
+            }
+
+            return value.Substring(startIndex);
+        }
+
         class PortInfo
         {
             public int Port { get; set; }
@@ -318,3 +328,4 @@ namespace ports
         }
     }
 }
+

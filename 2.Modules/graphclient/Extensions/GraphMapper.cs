@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -579,8 +579,9 @@ namespace graphclient.Extensions
                 return encryptedValue;
             }
 
-            decryptKey = decryptKey.DecodeBase64().PadRight(32, '0').Substring(0, 32);
+            decryptKey = decryptKey.DecodeBase64().PadRight(32, '0').SubstringSafe(0, 32);
             return encrypt.DecryptAES(decryptKey);
         }
     }
 }
+

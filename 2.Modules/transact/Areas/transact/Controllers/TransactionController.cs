@@ -2051,8 +2051,9 @@ namespace transact.Areas.transact.Controllers
                 return string.Empty;
             }
 
-            return value.Length <= maxLength ? value : value.Substring(0, maxLength) + "...(truncated)";
+            return value.Length <= maxLength ? value : value.SubstringSafe(0, maxLength) + "...(truncated)";
         }
     }
 }
+
 
