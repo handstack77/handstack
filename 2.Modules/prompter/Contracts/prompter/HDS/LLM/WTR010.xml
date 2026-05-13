@@ -11,7 +11,7 @@
     <prompts>
         <statement id="GP01" seq="0" use="Y" timeout="0" desc="오늘의 운세 기반의 추천 명언 또는 인용구" maxtokens="4000" temperature="1.0" topp="1.0" presence="0.0" frequency="0.0">
             <![CDATA[
-#INSTRUCTIONS
+# INSTRUCTIONS
 - ${UserMessage} Get today's horoscope for a person with the date of birth.
 - Based on today's horoscope, suggest one quote with a source based on content from https://www.brainyquote.com, a site that collects quotes and sayings from celebrities and allows you to search for quotes by various topics and people.
 - The nature of the conversation changes the user's intent and how information is conveyed. It's important to understand this and respond appropriately.

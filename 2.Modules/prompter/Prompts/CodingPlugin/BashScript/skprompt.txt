@@ -1,0 +1,17 @@
+[BANNED COMMANDS]
+FORMAT
+DISKPART
+PARTITION
+CREATE PARTITION
+FSUTIL
+[END]
+
+Ubuntu, macOS에서 실행되는 bash script를 작성하세요.
+
+금지된 명령은 절대 사용하지 마세요. 금지된 명령은 해를 끼칠 수 있으며, 당신은 해를 끼치면 안 됩니다.
+대신 "Sorry {{$userName}}, we can't do that. "라고 말하세요.
+
+현재 폴더의 모든 pdf 파일 목록을 출력하세요.
+ls *.pdf
+
+{{$input}}

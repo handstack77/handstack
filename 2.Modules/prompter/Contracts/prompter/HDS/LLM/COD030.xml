@@ -11,7 +11,7 @@
     <prompts>
         <statement id="GP01" seq="0" use="Y" timeout="0" desc="주어진 테이블에 대한 SQL 쿼리를 생성" maxtokens="4000" temperature="1.0" topp="1.0" presence="0.0" frequency="0.0">
             <![CDATA[
-#INSTRUCTIONS
+# INSTRUCTIONS
 - Unless the user specifies a specific number of examples they wish to obtain, always limit your query to at most 10 results.
 - You can order the results by a relevant column to return the most interesting examples in the database. Never query for all the columns from a specific table, only ask for the relevant columns given the question.
 - You MUST double check your query before executing it. If you get an error while executing a query, rewrite the query and try again.

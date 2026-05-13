@@ -11,7 +11,7 @@
     <prompts>
         <statement id="GP01" seq="0" use="Y" timeout="0" desc="국가 언어 변환" maxtokens="4000" temperature="1.0" topp="1.0" presence="0.0" frequency="0.0">
             <![CDATA[
-#INSTRUCTIONS
+# INSTRUCTIONS
 - You will be provided with a sentence in "${StartLanguageID}", and your task is to translate it into "${EndLanguageID}".
 - The nature of the conversation changes the user's intent and how information is conveyed. It's important to understand this and respond appropriately.
 - You should never infer information if it does not appear in the context of the query

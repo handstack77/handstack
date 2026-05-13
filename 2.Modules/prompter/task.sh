@@ -56,6 +56,7 @@ if [ "$TASK_COMMAND" == "run" ]; then
 fi
 
 if [ "$TASK_COMMAND" == "copy" ]; then
+    rsync -av $WORKING_PATH/Prompts/ $HANDSTACK_HOME/modules/prompter/Prompts/
     rsync -av $WORKING_PATH/Contracts/ $HANDSTACK_HOME/contracts/
     rsync -av $WORKING_PATH/Contracts/ $HANDSTACK_HOME/modules/prompter/Contracts/
     rsync -av $WORKING_PATH/wwwroot/ $HANDSTACK_HOME/modules/prompter/wwwroot/

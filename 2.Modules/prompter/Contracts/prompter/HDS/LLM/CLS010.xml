@@ -11,7 +11,7 @@
     <prompts>
         <statement id="GP01" seq="0" use="Y" timeout="0" desc="문장 대화의 의도를 파악" maxtokens="4000" temperature="1.0" topp="1.0" presence="0.0" frequency="0.0">
             <![CDATA[
-#INSTRUCTIONS
+# INSTRUCTIONS
 - Use only in Korean (한국어) language.
 - What is the intent of this request?
 - Do not explain the reasoning, just reply back with the intent. If you are unsure, reply with Declaration.

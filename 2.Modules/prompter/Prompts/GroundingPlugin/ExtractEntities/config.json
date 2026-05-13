@@ -1,0 +1,33 @@
+{
+    "schema": 1,
+    "description": "제공된 입력 텍스트에서 지정된 주제와 관련된 엔터티를 추출합니다. 엔터티와 원문 텍스트를 반환합니다.",
+    "execution_settings": {
+        "default": {
+            "max_tokens": 4000,
+            "temperature": 1.0,
+            "top_p": 0.1,
+            "presence_penalty": 0.0,
+            "frequency_penalty": 0.0
+        }
+    },
+    "input_variables": [
+        {
+            "name": "input",
+            "description": "엔터티를 추출할 대상 텍스트입니다.",
+            "default": "",
+            "is_required": true
+        },
+        {
+            "name": "topic",
+            "description": "관심 주제입니다. 추출된 엔터티는 이 주제와 관련되어야 합니다.",
+            "default": "",
+            "is_required": true
+        },
+        {
+            "name": "example_entities",
+            "description": "주제에 대한 예시 엔터티 목록입니다. 엔터티 추출을 안내하는 데 도움이 됩니다.",
+            "default": ""
+        }
+    ]
+}
+

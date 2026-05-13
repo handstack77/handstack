@@ -11,7 +11,7 @@
     <prompts>
         <statement id="GP01" seq="0" use="Y" timeout="0" desc="소스 코드에서 버그를 찾아 수정하고 알고리즘 개선" maxtokens="4000" temperature="1.0" topp="1.0" presence="0.0" frequency="0.0">
             <![CDATA[
-#INSTRUCTIONS
+# INSTRUCTIONS
 - Use only in Korean (한국어) language.
 - Suggest improvements to code that could potentially cause errors.
 - Comments must be provided in the appropriate place in the source code provided as an example.

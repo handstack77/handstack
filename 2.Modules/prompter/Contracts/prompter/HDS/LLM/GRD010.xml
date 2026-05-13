@@ -11,7 +11,7 @@
     <prompts>
         <statement id="GP01" seq="0" use="Y" timeout="0" desc="문장에서 지정된 주제와 관련된 엔티티를 추출" maxtokens="4000" temperature="1.0" topp="0.1" presence="0.0" frequency="0.0">
             <![CDATA[
-#INSTRUCTIONS
+# INSTRUCTIONS
 1. Please extract a list of entities related to "${Topic}" from the text between the <input_context> tags.
 2. These are some sample entities related to "${Topic}" to help you decide what to extract: "${Entities}"
 3. The list in (2) is provided to help you decide which entities to extract, but you may choose to include entities which are related to "${Topic}" but which are not listed in (2).

@@ -1,0 +1,13 @@
+{
+    "schema": 1,
+    "description": "주어진 테이블에 대한 SQL 쿼리를 생성합니다.",
+    "execution_settings": {
+        "default": {
+            "max_tokens": 4000,
+            "temperature": 1.0,
+            "top_p": 1.0,
+            "presence_penalty": 0.0,
+            "frequency_penalty": 0.0
+        }
+    }
+}

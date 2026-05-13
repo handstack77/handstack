@@ -1,0 +1,28 @@
+{
+    "schema": 1,
+    "description": "주어진 엔터티 목록이 참조 문맥에 근거하는지 확인합니다. 참조 문맥으로 뒷받침되지 않는 항목은 글머리표 목록으로 반환됩니다.",
+    "execution_settings": {
+        "default": {
+            "max_tokens": 4000,
+            "temperature": 1.0,
+            "top_p": 0.1,
+            "presence_penalty": 0.0,
+            "frequency_penalty": 0.0
+        }
+    },
+    "input_variables": [
+        {
+            "name": "input",
+            "description": "참조 문맥과 대조해 확인할 엔터티 목록입니다.",
+            "default": "",
+            "is_required": true
+        },
+        {
+            "name": "reference_context",
+            "description": "엔터티의 근거 확인에 사용할 참조 문맥입니다. reference_context에 없는 항목만 반환됩니다.",
+            "default": "",
+            "is_required": true
+        }
+    ]
+}
+

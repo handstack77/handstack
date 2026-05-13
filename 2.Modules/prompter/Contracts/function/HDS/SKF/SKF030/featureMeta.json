@@ -1,0 +1,59 @@
+{
+    "Header": {
+        "ApplicationID": "HDS",
+        "ProjectID": "SKF",
+        "TransactionID": "SKF030",
+        "DataSourceID": "DB01",
+        "LanguageType": "csharp",
+        "ReferenceModuleID": "handsup",
+        "Configuration": {
+            "OpenAIModelId": "gpt-3.5-turbo",
+            "OpenAIApiKey": "sk-proj-58F2PNO3ndzdmqKsm0gMT3BlbkFJxHwTTd1QADEljgxAWxUH",
+            "FewShots": []
+        },
+        "Use": true,
+        "Description": "GeneraterPlugin 시맨틱 커널 관리"
+    },
+    "Commands": [
+        {
+            "ID": "GF01",
+            "Seq": 0,
+            "Use": true,
+            "Timeout": 0,
+            "Description": "Translation: 주어진 문장을 원하는 언어로 번역합니다.",
+            "ModifiedAt": "2023-07-10 00:00:00",
+            "Params": [
+                {
+                    "id": "UserWorkID",
+                    "type": "String",
+                    "length": 36,
+                    "value": null
+                },
+                {
+                    "id": "ApplicationID",
+                    "type": "String",
+                    "length": 36,
+                    "value": null
+                },
+                {
+                    "id": "Prompt",
+                    "type": "String",
+                    "length": -1,
+                    "value": null
+                },
+                {
+                    "id": "From",
+                    "type": "String",
+                    "length": -1,
+                    "value": null
+                },
+                {
+                    "id": "To",
+                    "type": "String",
+                    "length": -1,
+                    "value": null
+                }
+            ]
+        }
+    ]
+}

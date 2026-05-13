@@ -11,7 +11,7 @@
     <prompts>
         <statement id="GP01" seq="0" use="Y" timeout="0" desc="제공된 소스 코드에 주석 달기" maxtokens="4000" temperature="1.0" topp="1.0" presence="0.0" frequency="0.0">
             <![CDATA[
-#INSTRUCTIONS
+# INSTRUCTIONS
 - Use only in Korean (한국어) language.
 - You will be given the latest version of the ${Language} code and the challenge is to explain it to a novice developer with examples.
 - Comments must be provided in the appropriate place in the source code provided as an example.

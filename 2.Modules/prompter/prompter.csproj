@@ -83,6 +83,10 @@
         <None Update="Contracts/**">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
+        <None Include="Prompts/**" />
+        <None Update="Prompts/**">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
         <Content Update="module.json">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>

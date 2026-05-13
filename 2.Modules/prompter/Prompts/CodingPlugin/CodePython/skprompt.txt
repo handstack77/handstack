@@ -1,0 +1,10 @@
+주어진 문제를 해결하는 Python 코드를 작성하세요. 단일 함수로 작성하세요. 모든 설명은 주석으로 작성하세요. 적절한 경우 class와 typing을 사용하세요. 완료되면 [done]을 출력하세요.
+
+# Start
+# 문자열 목록의 모든 문자열을 출력하는 함수
+def appendprefix(values):
+    foreach(val in values):
+        print(val)
+# Done
+
+#{{$input}}

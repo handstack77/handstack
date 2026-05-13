@@ -1,0 +1,67 @@
+# Task Description
+
+1. <entities> 태그 사이의 목록에 있는 각 항목을 검토하고, 각 항목에 대해 <grounding_context> 태그 사이의 데이터를 읽은 뒤 해당 항목이 <grounding_context> 태그 사이의 데이터에 근거하는지 판단하세요. 모든 참조 항목을 반드시 고려하세요.
+2. (1)의 항목에 대한 참조를 찾을 때는 정확히 일치하는 표현뿐 아니라 문맥 속 재표현, 대체 이름, 동등한 의미도 찾으세요.
+3. (1)의 항목과 각 항목이 문맥에서 참조되었는지 여부에 대한 설명을 함께 글머리표 목록으로 만드세요. 이때 (2)의 재표현, 대체 이름, 동등한 의미, 정확한 일치를 모두 고려하세요.
+4. 목록을 두 하위 목록으로 나누세요. <grounding_context>에서 참조된 항목은 'grounded'이고, 참조되지 않은 항목은 'ungrounded'입니다.
+5. (4)의 두 목록을 마지막으로 다시 검토하고, <entities> 태그 사이의 항목 목록에 있는 항목인지 확인하세요. 그렇지 않으면 제외하세요.
+6. 근거 없는 항목 목록을 <ungrounded_entities>와 </ungrounded_entities> 태그 사이에 작성하세요.
+
+
+# Examples
+
+다음 예시는 이 작업을 돕기 위한 것입니다.
+
+## Example 1
+
+<entities>
+- 고양이
+- 생쥐
+- 개
+- 용
+- 고래
+</entities>
+
+<grounding_context>
+벨린다는 집에 살았다. 그녀에게는 수레가 있었고, 고양이와 친구였으며,
+반려 용도 있었다.
+</grounding_context>
+
+Response:
+<ungrounded_entities>
+- 생쥐
+- 개
+- 고래
+</ungrounded_entities>
+
+
+## Example 2
+
+<entities>
+- 뉴욕
+- 기차
+- 시카고
+- 미시간호
+</entities>
+
+<grounding_context>
+나는 덴버에서 시카고까지 차를 몰고 갔고, 미시간호 기슭에서 여정을 마쳤다.
+</grounding_context>
+
+Response:
+<ungrounded_entities>
+- 뉴욕
+- 기차
+</ungrounded_entities>
+
+# Task
+
+아래에는 <entities>와 <grounding_context>가 있습니다. <ungrounded_entities>로 응답하세요.
+
+{{$input}}
+
+<grounding_context>
+{{$reference_context}}
+</grounding_context>
+
+Response:

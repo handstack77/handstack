@@ -1,0 +1,13 @@
+{
+    "schema": 1,
+    "description": "주제 설명이 주어지면 짧은 설명이 포함된 어린이책 아이디어 여러 개를 생성합니다.",
+    "execution_settings": {
+        "default": {
+            "max_tokens": 4000,
+            "temperature": 0.5,
+            "top_p": 1.0,
+            "presence_penalty": 0.0,
+            "frequency_penalty": 0.0
+        }
+    }
+}

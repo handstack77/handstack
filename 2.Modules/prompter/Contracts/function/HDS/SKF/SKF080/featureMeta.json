@@ -1,0 +1,46 @@
+{
+    "Header": {
+        "ApplicationID": "HDS",
+        "ProjectID": "SKF",
+        "TransactionID": "SKF080",
+        "DataSourceID": "DB01",
+        "LanguageType": "csharp",
+        "ReferenceModuleID": "handsup",
+        "Configuration": {
+            "OpenAIModelId": "gpt-3.5-turbo",
+            "OpenAIApiKey": "sk-proj-58F2PNO3ndzdmqKsm0gMT3BlbkFJxHwTTd1QADEljgxAWxUH"
+        },
+        "Use": true,
+        "Description": "사용자의 프롬프트만으로 LLM 호출"
+    },
+    "Commands": [
+        {
+            "ID": "GF01",
+            "Seq": 0,
+            "Use": true,
+            "Timeout": 0,
+            "Description": "시맨틱 커널 호출 테스트",
+            "ModifiedAt": "2023-07-10 00:00:00",
+            "Params": [
+                {
+                    "id": "UserWorkID",
+                    "type": "String",
+                    "length": 36,
+                    "value": null
+                },
+                {
+                    "id": "ApplicationID",
+                    "type": "String",
+                    "length": 36,
+                    "value": null
+                },
+                {
+                    "id": "Prompt",
+                    "type": "String",
+                    "length": -1,
+                    "value": null
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,22 @@
+{
+    "schema": 1,
+    "description": "주어진 텍스트 또는 텍스트 문서를 요약합니다.",
+    "execution_settings": {
+        "default": {
+            "max_tokens": 4000,
+            "temperature": 1.0,
+            "top_p": 1.0,
+            "presence_penalty": 0.0,
+            "frequency_penalty": 0.0
+        }
+    },
+    "input_variables": [
+        {
+            "name": "input",
+            "description": "요약할 텍스트입니다.",
+            "default": "",
+            "is_required": true
+        }
+    ]
+}
+

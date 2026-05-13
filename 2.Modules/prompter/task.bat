@@ -40,6 +40,7 @@ if "%TASK_COMMAND%"=="app" (
 )
 
 if "%TASK_COMMAND%"=="copy" (
+    robocopy %WORKING_PATH%/Prompts %HANDSTACK_SRC%/../build/handstack/modules/prompter/Prompts /e /copy:dat
     robocopy %WORKING_PATH%/Contracts %HANDSTACK_SRC%/../build/handstack/contracts /e /copy:dat
     robocopy %WORKING_PATH%/Contracts %HANDSTACK_SRC%/../build/handstack/modules/prompter/Contracts /e /copy:dat
     robocopy %WORKING_PATH%/wwwroot %HANDSTACK_SRC%/../build/handstack/modules/prompter/wwwroot /e /copy:dat

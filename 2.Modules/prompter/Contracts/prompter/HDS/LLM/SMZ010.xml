@@ -11,7 +11,7 @@
     <prompts>
         <statement id="GP01" seq="0" use="Y" timeout="0" desc="회의록 요약 정리" maxtokens="4000" temperature="1.0" topp="0.1" presence="0.0" frequency="0.0">
             <![CDATA[
-#INSTRUCTIONS
+# INSTRUCTIONS
 - Use only in Korean (한국어) language.
 - You will be provided with meeting notes, and your task is to summarize the meeting as follows:
 - Overall summary of discussion

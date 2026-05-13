@@ -1,0 +1,13 @@
+{
+    "schema": 1,
+    "description": "특정 주제에 대한 수업 계획을 생성합니다.",
+    "execution_settings": {
+        "default": {
+            "max_tokens": 4000,
+            "temperature": 1.0,
+            "top_p": 1.0,
+            "presence_penalty": 0.0,
+            "frequency_penalty": 0.0
+        }
+    }
+}

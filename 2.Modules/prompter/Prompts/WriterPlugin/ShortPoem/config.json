@@ -1,0 +1,21 @@
+{
+    "schema": 1,
+    "description": "시 형식으로 오늘의 운세를 확인합니다.",
+    "template_format": "semantic-kernel",
+    "execution_settings": {
+        "default": {
+            "max_tokens": 4000,
+            "temperature": 1.0,
+            "top_p": 1.0,
+            "presence_penalty": 0.0,
+            "frequency_penalty": 0.0
+        }
+    },
+    "input_variables": [
+        {
+            "name": "prompt",
+            "description": "사용자가 요청한 대화 내용입니다.",
+            "required": true
+        }
+    ]
+}
