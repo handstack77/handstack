@@ -62,17 +62,25 @@ public static class PackageManifestParser
             throw new InvalidOperationException($"지원하지 않는 작업 구분입니다. Operation={columns[0]}");
         }
 
-        var fileSize = string.Equals(columns[2].Trim(), "-", StringComparison.Ordinal) == true
-            ? 0
-            : long.Parse(columns[2].Trim(), CultureInfo.InvariantCulture);
+        var fileSizeText = columns[2].Trim();
+        var fileSize = 0L;
+        if (string.Equals(fileSizeText, "-", StringComparison.Ordinal) == false &&
+            long.TryParse(fileSizeText, NumberStyles.Integer, CultureInfo.InvariantCulture, out fileSize) == false)
+        {
+            throw new FormatException($"패키지 manifest 파일 크기 형식이 올바르지 않습니다. FileSize={fileSizeText}, Entry={rawValue}");
+        }
 
         var hash = string.Equals(columns[3].Trim(), "-", StringComparison.Ordinal) == true
             ? string.Empty
             : columns[3].Trim().ToUpperInvariant();
 
-        var modifiedAt = string.Equals(columns[4].Trim(), "-", StringComparison.Ordinal) == true
-            ? default
-            : DateTimeOffset.Parse(columns[4].Trim(), CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind);
+        var modifiedAtText = columns[4].Trim();
+        var modifiedAt = default(DateTimeOffset);
+        if (string.Equals(modifiedAtText, "-", StringComparison.Ordinal) == false &&
+            DateTimeOffset.TryParse(modifiedAtText, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out modifiedAt) == false)
+        {
+            throw new FormatException($"패키지 manifest 수정일 형식이 올바르지 않습니다. ModifiedAt={modifiedAtText}, Entry={rawValue}");
+        }
 
         return new PackageManifestEntry(
             operation,

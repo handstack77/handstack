@@ -354,7 +354,13 @@ namespace HandStack.Core
                 isCollection = true;
             }
 
-            var member = instance.GetType().GetMember(pureProperty, memberAccess)[0];
+            var members = instance.GetType().GetMember(pureProperty, memberAccess);
+            if (members.Length == 0)
+            {
+                return null;
+            }
+
+            var member = members[0];
 
             if (member.MemberType == MemberTypes.Property)
             {
@@ -425,7 +431,13 @@ namespace HandStack.Core
 
             if (isCollection == false)
             {
-                var member = instance.GetType().GetMember(pureProperty, memberAccess)[0];
+                var members = instance.GetType().GetMember(pureProperty, memberAccess);
+                if (members.Length == 0)
+                {
+                    return null;
+                }
+
+                var member = members[0];
 
                 if (member.MemberType == MemberTypes.Property)
                 {
@@ -440,7 +452,13 @@ namespace HandStack.Core
             }
             else
             {
-                var member = instance.GetType().GetMember(pureProperty, memberAccess)[0];
+                var members = instance.GetType().GetMember(pureProperty, memberAccess);
+                if (members.Length == 0)
+                {
+                    return null;
+                }
+
+                var member = members[0];
 
                 if (member.MemberType == MemberTypes.Property)
                 {
@@ -724,7 +742,7 @@ namespace HandStack.Core
                 }
                 else
                 {
-                    result = int.Parse(value, NumberStyles.Any, culture.NumberFormat);
+                    result = int.TryParse(value, NumberStyles.Any, culture.NumberFormat, out var intValue) == true ? intValue : 0;
                 }
             }
             else if (targetType == typeof(long))
@@ -735,7 +753,7 @@ namespace HandStack.Core
                 }
                 else
                 {
-                    result = long.Parse(value, NumberStyles.Any, culture.NumberFormat);
+                    result = long.TryParse(value, NumberStyles.Any, culture.NumberFormat, out var longValue) == true ? longValue : 0L;
                 }
             }
             else if (targetType == typeof(short))
@@ -746,7 +764,7 @@ namespace HandStack.Core
                 }
                 else
                 {
-                    result = short.Parse(value, NumberStyles.Any, culture.NumberFormat);
+                    result = short.TryParse(value, NumberStyles.Any, culture.NumberFormat, out var shortValue) == true ? shortValue : (short)0;
                 }
             }
             else if (targetType == typeof(decimal))
@@ -757,7 +775,7 @@ namespace HandStack.Core
                 }
                 else
                 {
-                    result = decimal.Parse(value, NumberStyles.Any, culture.NumberFormat);
+                    result = decimal.TryParse(value, NumberStyles.Any, culture.NumberFormat, out var decimalValue) == true ? decimalValue : 0M;
                 }
             }
             else if (targetType == typeof(DateTime))
@@ -768,7 +786,7 @@ namespace HandStack.Core
                 }
                 else
                 {
-                    result = Convert.ToDateTime(value, culture.DateTimeFormat);
+                    result = DateTime.TryParse(value, culture.DateTimeFormat, DateTimeStyles.None, out var dateTimeValue) == true ? dateTimeValue : DateTime.MinValue;
                 }
             }
             else if (targetType == typeof(byte))
@@ -779,7 +797,7 @@ namespace HandStack.Core
                 }
                 else
                 {
-                    result = Convert.ToByte(value);
+                    result = byte.TryParse(value, NumberStyles.Any, culture.NumberFormat, out var byteValue) == true ? byteValue : (byte)0;
                 }
             }
             else if (targetType == typeof(double))
@@ -790,7 +808,7 @@ namespace HandStack.Core
                 }
                 else
                 {
-                    result = double.Parse(value, NumberStyles.Any, culture.NumberFormat);
+                    result = double.TryParse(value, NumberStyles.Any, culture.NumberFormat, out var doubleValue) == true ? doubleValue : 0D;
                 }
             }
             else if (targetType == typeof(float))
@@ -801,7 +819,7 @@ namespace HandStack.Core
                 }
                 else
                 {
-                    result = float.Parse(value, NumberStyles.Any, culture.NumberFormat);
+                    result = float.TryParse(value, NumberStyles.Any, culture.NumberFormat, out var floatValue) == true ? floatValue : 0F;
                 }
             }
             else if (targetType == typeof(bool))

@@ -29,15 +29,15 @@ namespace HandStack.Web.Common
 
             if (hexColor.Length == 6)
             {
-                red = int.Parse(hexColor.SubstringSafe(0, 2), NumberStyles.AllowHexSpecifier);
-                green = int.Parse(hexColor.SubstringSafe(2, 2), NumberStyles.AllowHexSpecifier);
-                blue = int.Parse(hexColor.SubstringSafe(4, 2), NumberStyles.AllowHexSpecifier);
+                _ = int.TryParse(hexColor.SubstringSafe(0, 2), NumberStyles.AllowHexSpecifier, CultureInfo.InvariantCulture, out red);
+                _ = int.TryParse(hexColor.SubstringSafe(2, 2), NumberStyles.AllowHexSpecifier, CultureInfo.InvariantCulture, out green);
+                _ = int.TryParse(hexColor.SubstringSafe(4, 2), NumberStyles.AllowHexSpecifier, CultureInfo.InvariantCulture, out blue);
             }
             else if (hexColor.Length == 3)
             {
-                red = int.Parse(hexColor[0].ToString() + hexColor[0].ToString(), NumberStyles.AllowHexSpecifier);
-                green = int.Parse(hexColor[1].ToString() + hexColor[1].ToString(), NumberStyles.AllowHexSpecifier);
-                blue = int.Parse(hexColor[2].ToString() + hexColor[2].ToString(), NumberStyles.AllowHexSpecifier);
+                _ = int.TryParse(hexColor[0].ToString() + hexColor[0].ToString(), NumberStyles.AllowHexSpecifier, CultureInfo.InvariantCulture, out red);
+                _ = int.TryParse(hexColor[1].ToString() + hexColor[1].ToString(), NumberStyles.AllowHexSpecifier, CultureInfo.InvariantCulture, out green);
+                _ = int.TryParse(hexColor[2].ToString() + hexColor[2].ToString(), NumberStyles.AllowHexSpecifier, CultureInfo.InvariantCulture, out blue);
             }
 
             return Color.FromArgb(red, green, blue);
@@ -45,6 +45,25 @@ namespace HandStack.Web.Common
 
         public static bool IsValidHex(string hexColor)
         {
+            if (string.IsNullOrWhiteSpace(hexColor) == true)
+            {
+                return false;
+            }
+
+            var value = hexColor.StartsWith("#", StringComparison.Ordinal) == true ? hexColor.SubstringSafe(1) : hexColor;
+            if (value.Length != 6 && value.Length != 3)
+            {
+                return false;
+            }
+
+            foreach (var ch in value)
+            {
+                if (Uri.IsHexDigit(ch) == false)
+                {
+                    return false;
+                }
+            }
+
             if (hexColor.StartsWith("#"))
             {
                 return hexColor.Length == 7 || hexColor.Length == 4;

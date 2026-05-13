@@ -108,7 +108,7 @@ namespace checkup.Extensions
                                                 if (userAccount != null)
                                                 {
                                                     var lastedLoginTime = userAccount.LoginedAt.DateDiff(PartOfDateTime.Second, DateTime.Now);
-                                                    var allowLimitTime = DateTime.Parse(userAccount.LoginedAt.AddDays(1).ToString("yyyy-MM-dd") + "T" + GlobalConfiguration.UserSignExpire.ToString().Replace("-", "").PadLeft(2, '0') + ":00:00").DateDiff(PartOfDateTime.Second, DateTime.Now);
+                                                    var allowLimitTime = (userAccount.LoginedAt.AddDays(1).ToString("yyyy-MM-dd") + "T" + GlobalConfiguration.UserSignExpire.ToString().Replace("-", "").PadLeft(2, '0') + ":00:00").ToDateTimeSafe(DateTime.Now.AddDays(1)).DateDiff(PartOfDateTime.Second, DateTime.Now);
                                                     if ((GlobalConfiguration.UserSignExpire > 0 && GlobalConfiguration.UserSignExpire < lastedLoginTime) || allowLimitTime > lastedLoginTime)
                                                     {
                                                         foreach (var cookieKey in httpContext.Request.Cookies.Keys)

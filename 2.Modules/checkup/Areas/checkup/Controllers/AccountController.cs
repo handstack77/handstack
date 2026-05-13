@@ -234,7 +234,13 @@ namespace checkup.Areas.checkup.Controllers
 
                 try
                 {
-                    var issueDateTime = Guid.Parse(issueID).ToDateTime();
+                    if (Guid.TryParse(issueID, out var issueGuid) == false)
+                    {
+                        result = LocalRedirect(linkUrl);
+                        return result;
+                    }
+
+                    var issueDateTime = issueGuid.ToDateTime();
                     var dateTime = (issueDateTime == null ? DateTime.UtcNow : (DateTime)issueDateTime);
                     var adjustHours = TimeZoneInfo.Local.GetUtcOffset(dateTime).TotalHours;
                     createdAt = dateTime.AddHours(adjustHours);
@@ -410,7 +416,7 @@ namespace checkup.Areas.checkup.Controllers
                                 else if (GlobalConfiguration.UserSignExpire < 0)
                                 {
                                     var addDay = DateTime.Now.Day == userAccount.LoginedAt.Day ? 1 : 0;
-                                    expiredAt = DateTime.Parse(DateTime.Now.AddDays(1).ToString("yyyy-MM-dd") + "T" + GlobalConfiguration.UserSignExpire.ToString().Replace("-", "").PadLeft(2, '0') + ":00:00");
+                                    expiredAt = (DateTime.Now.AddDays(1).ToString("yyyy-MM-dd") + "T" + GlobalConfiguration.UserSignExpire.ToString().Replace("-", "").PadLeft(2, '0') + ":00:00").ToDateTimeSafe(DateTime.Now.AddDays(1));
                                 }
 
                                 cookieOptions.Expires = expiredAt;
@@ -485,7 +491,7 @@ namespace checkup.Areas.checkup.Controllers
             else if (GlobalConfiguration.UserSignExpire < 0)
             {
                 var addDay = DateTime.Now.Day == userAccount.LoginedAt.Day ? 1 : 0;
-                result.ExpiredAt = DateTime.Parse(DateTime.Now.AddDays(addDay).ToString("yyyy-MM-dd") + "T" + GlobalConfiguration.UserSignExpire.ToString().Replace("-", "").PadLeft(2, '0') + ":00:00");
+                result.ExpiredAt = (DateTime.Now.AddDays(addDay).ToString("yyyy-MM-dd") + "T" + GlobalConfiguration.UserSignExpire.ToString().Replace("-", "").PadLeft(2, '0') + ":00:00").ToDateTimeSafe(DateTime.Now.AddDays(addDay));
             }
 
             result.Policy = new Policy();

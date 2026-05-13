@@ -1,5 +1,0 @@
-<Project>
-    <ItemGroup>
-        <Compile Include="$(MSBuildThisFileDirectory)Shared\SubstringSafeExtensions.cs" Link="Shared\SubstringSafeExtensions.cs" />
-    </ItemGroup>
-</Project>

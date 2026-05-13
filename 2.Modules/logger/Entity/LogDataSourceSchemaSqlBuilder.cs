@@ -371,14 +371,14 @@ WHERE
                     "string" or "text" or "json" => value is DateTime dateTime
                         ? dateTime.ToString("yyyy-MM-dd HH:mm:ss.fff", CultureInfo.InvariantCulture)
                         : text,
-                    "int" => value is int intValue ? intValue : int.Parse(text ?? string.Empty, NumberStyles.Integer, CultureInfo.InvariantCulture),
-                    "long" => value is long longValue ? longValue : long.Parse(text ?? string.Empty, NumberStyles.Integer, CultureInfo.InvariantCulture),
-                    "decimal" => value is decimal decimalValue ? decimalValue : decimal.Parse(text ?? string.Empty, NumberStyles.Number, CultureInfo.InvariantCulture),
-                    "double" => value is double doubleValue ? doubleValue : double.Parse(text ?? string.Empty, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture),
+                    "int" => value is int intValue ? intValue : TryConvertInt(text, column.ColumnName),
+                    "long" => value is long longValue ? longValue : TryConvertLong(text, column.ColumnName),
+                    "decimal" => value is decimal decimalValue ? decimalValue : TryConvertDecimal(text, column.ColumnName),
+                    "double" => value is double doubleValue ? doubleValue : TryConvertDouble(text, column.ColumnName),
                     "bool" => ConvertBoolean(value, text),
-                    "datetime" => value is DateTime dateTimeValue ? dateTimeValue : DateTime.Parse(text ?? string.Empty, CultureInfo.InvariantCulture),
-                    "date" => value is DateTime dateValue ? dateValue.Date : DateTime.Parse(text ?? string.Empty, CultureInfo.InvariantCulture).Date,
-                    "guid" => value is Guid guidValue ? guidValue.ToString() : Guid.Parse(text ?? string.Empty).ToString(),
+                    "datetime" => value is DateTime dateTimeValue ? dateTimeValue : TryConvertDateTime(text, column.ColumnName),
+                    "date" => value is DateTime dateValue ? dateValue.Date : TryConvertDateTime(text, column.ColumnName).Date,
+                    "guid" => value is Guid guidValue ? guidValue.ToString() : TryConvertGuid(text, column.ColumnName).ToString(),
                     "binary" => value is byte[] byteValue ? byteValue : Convert.FromBase64String(text ?? string.Empty),
                     _ => text
                 };
@@ -407,6 +407,48 @@ WHERE
             }
 
             return bool.Parse(text ?? string.Empty);
+        }
+
+        private static int TryConvertInt(string? text, string columnName)
+        {
+            return int.TryParse(text ?? string.Empty, NumberStyles.Integer, CultureInfo.InvariantCulture, out var value) == true
+                ? value
+                : throw new DynamicLogValidationException($"컬럼 '{columnName}' 정수 변환 오류: {text}");
+        }
+
+        private static long TryConvertLong(string? text, string columnName)
+        {
+            return long.TryParse(text ?? string.Empty, NumberStyles.Integer, CultureInfo.InvariantCulture, out var value) == true
+                ? value
+                : throw new DynamicLogValidationException($"컬럼 '{columnName}' long 변환 오류: {text}");
+        }
+
+        private static decimal TryConvertDecimal(string? text, string columnName)
+        {
+            return decimal.TryParse(text ?? string.Empty, NumberStyles.Number, CultureInfo.InvariantCulture, out var value) == true
+                ? value
+                : throw new DynamicLogValidationException($"컬럼 '{columnName}' decimal 변환 오류: {text}");
+        }
+
+        private static double TryConvertDouble(string? text, string columnName)
+        {
+            return double.TryParse(text ?? string.Empty, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out var value) == true
+                ? value
+                : throw new DynamicLogValidationException($"컬럼 '{columnName}' double 변환 오류: {text}");
+        }
+
+        private static DateTime TryConvertDateTime(string? text, string columnName)
+        {
+            return DateTime.TryParse(text ?? string.Empty, CultureInfo.InvariantCulture, DateTimeStyles.None, out var value) == true
+                ? value
+                : throw new DynamicLogValidationException($"컬럼 '{columnName}' datetime 변환 오류: {text}");
+        }
+
+        private static Guid TryConvertGuid(string? text, string columnName)
+        {
+            return Guid.TryParse(text ?? string.Empty, out var value) == true
+                ? value
+                : throw new DynamicLogValidationException($"컬럼 '{columnName}' guid 변환 오류: {text}");
         }
 
         private static bool IsMissing(object? value)

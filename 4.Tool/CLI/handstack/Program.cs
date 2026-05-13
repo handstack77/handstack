@@ -256,6 +256,12 @@ namespace handstack
                                 if (string.IsNullOrWhiteSpace(moduleID) == false)
                                 {
                                     var splits = settingFileName.SplitAndTrim('.');
+                                    if (splits.Count < 2)
+                                    {
+                                        Log.Error($"환경 설정 파일 이름 확인 필요: {settingFileName}");
+                                        continue;
+                                    }
+
                                     var programID = splits[0];
                                     var environment = splits[1];
 
@@ -877,12 +883,11 @@ namespace handstack
                         Log.Information($"{value?.DecodeBase64()}");
                         break;
                     case "suid":
-                        try
+                        if (Guid.TryParse(value.ToStringSafe(), out var guid) == true)
                         {
-                            var guid = Guid.Parse(value.ToStringSafe());
                             Log.Information($"{guid.ToDateTime()}");
                         }
-                        catch
+                        else
                         {
                             Log.Information("");
                         }
@@ -925,6 +930,11 @@ namespace handstack
                         break;
                     case "connectionstring":
                         var values = value.ToStringSafe().SplitAndTrim('.');
+                        if (values.Count < 4)
+                        {
+                            Log.Information($"인코딩 값 확인 필요");
+                            break;
+                        }
 
                         var encrypt = values[0];
                         var decryptKey = values[1];

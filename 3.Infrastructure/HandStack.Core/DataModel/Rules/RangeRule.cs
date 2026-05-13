@@ -1,5 +1,7 @@
 ﻿using System;
 
+using System.Globalization;
+
 namespace HandStack.Core.DataModel.Rules
 {
     public class RangeRule : BusinessRule
@@ -40,55 +42,61 @@ namespace HandStack.Core.DataModel.Rules
                 switch (validationType)
                 {
                     case ValidationType.Integer:
-                        var iminData = minValue.ToString();
-                        var imin = iminData == null ? 0 : int.Parse(iminData);
-                        var imaxData = maxValue.ToString();
-                        var imax = imaxData == null ? 0 : int.Parse(imaxData);
-                        var ival = int.Parse(value);
+                        if (int.TryParse(minValue.ToString(), NumberStyles.Any, CultureInfo.CurrentCulture, out var imin) == false ||
+                            int.TryParse(maxValue.ToString(), NumberStyles.Any, CultureInfo.CurrentCulture, out var imax) == false ||
+                            int.TryParse(value, NumberStyles.Any, CultureInfo.CurrentCulture, out var ival) == false)
+                        {
+                            return false;
+                        }
 
                         return (ival >= imin && ival <= imax);
                     case ValidationType.Long:
-                        var lminData = minValue.ToString();
-                        var lmin = lminData == null ? 0 : long.Parse(lminData);
-                        var lmaxData = maxValue.ToString();
-                        var lmax = lmaxData == null ? 0 : long.Parse(lmaxData);
-                        var lval = long.Parse(value);
+                        if (long.TryParse(minValue.ToString(), NumberStyles.Any, CultureInfo.CurrentCulture, out var lmin) == false ||
+                            long.TryParse(maxValue.ToString(), NumberStyles.Any, CultureInfo.CurrentCulture, out var lmax) == false ||
+                            long.TryParse(value, NumberStyles.Any, CultureInfo.CurrentCulture, out var lval) == false)
+                        {
+                            return false;
+                        }
 
                         return (lval >= lmin && lval <= lmax);
 
                     case ValidationType.Double:
-                        var dminData = minValue.ToString();
-                        var dmin = dminData == null ? 0 : double.Parse(dminData);
-                        var dmaxData = maxValue.ToString();
-                        var dmax = dmaxData == null ? 0 : double.Parse(dmaxData);
-                        var dval = double.Parse(value);
+                        if (double.TryParse(minValue.ToString(), NumberStyles.Any, CultureInfo.CurrentCulture, out var dmin) == false ||
+                            double.TryParse(maxValue.ToString(), NumberStyles.Any, CultureInfo.CurrentCulture, out var dmax) == false ||
+                            double.TryParse(value, NumberStyles.Any, CultureInfo.CurrentCulture, out var dval) == false)
+                        {
+                            return false;
+                        }
 
                         return (dval >= dmin && dval <= dmax);
 
                     case ValidationType.Float:
-                        var fminData = minValue.ToString();
-                        var fmin = fminData == null ? 0 : float.Parse(fminData);
-                        var fmaxData = maxValue.ToString();
-                        var fmax = fmaxData == null ? 0 : float.Parse(fmaxData);
-                        var fval = float.Parse(value);
+                        if (float.TryParse(minValue.ToString(), NumberStyles.Any, CultureInfo.CurrentCulture, out var fmin) == false ||
+                            float.TryParse(maxValue.ToString(), NumberStyles.Any, CultureInfo.CurrentCulture, out var fmax) == false ||
+                            float.TryParse(value, NumberStyles.Any, CultureInfo.CurrentCulture, out var fval) == false)
+                        {
+                            return false;
+                        }
 
                         return (fval >= fmin && fval <= fmax);
 
                     case ValidationType.Decimal:
-                        var cminData = minValue.ToString();
-                        var cmin = cminData == null ? 0 : decimal.Parse(cminData);
-                        var cmaxData = maxValue.ToString();
-                        var cmax = cmaxData == null ? 0 : decimal.Parse(cmaxData);
-                        var cval = decimal.Parse(value);
+                        if (decimal.TryParse(minValue.ToString(), NumberStyles.Any, CultureInfo.CurrentCulture, out var cmin) == false ||
+                            decimal.TryParse(maxValue.ToString(), NumberStyles.Any, CultureInfo.CurrentCulture, out var cmax) == false ||
+                            decimal.TryParse(value, NumberStyles.Any, CultureInfo.CurrentCulture, out var cval) == false)
+                        {
+                            return false;
+                        }
 
                         return (cval >= cmin && cval <= cmax);
 
                     case ValidationType.Date:
-                        var tminData = minValue.ToString();
-                        var tmin = tminData == null ? DateTime.MinValue : DateTime.Parse(tminData.ToString());
-                        var tmaxData = maxValue.ToString();
-                        var tmax = tmaxData == null ? DateTime.MinValue : DateTime.Parse(tmaxData.ToString());
-                        var tval = DateTime.Parse(value);
+                        if (DateTime.TryParse(minValue.ToString(), CultureInfo.CurrentCulture, DateTimeStyles.None, out var tmin) == false ||
+                            DateTime.TryParse(maxValue.ToString(), CultureInfo.CurrentCulture, DateTimeStyles.None, out var tmax) == false ||
+                            DateTime.TryParse(value, CultureInfo.CurrentCulture, DateTimeStyles.None, out var tval) == false)
+                        {
+                            return false;
+                        }
 
                         return (tval >= tmin && tval <= tmax);
 

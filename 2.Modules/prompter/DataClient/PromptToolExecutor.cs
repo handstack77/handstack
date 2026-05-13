@@ -429,7 +429,11 @@ namespace prompter.DataClient
                 throw new InvalidOperationException("MCP response Content-Length 확인 필요");
             }
 
-            var length = int.Parse(lengthHeader.SubstringSafe("Content-Length:".Length).Trim(), CultureInfo.InvariantCulture);
+            if (int.TryParse(lengthHeader.SubstringSafe("Content-Length:".Length).Trim(), NumberStyles.None, CultureInfo.InvariantCulture, out var length) == false || length <= 0)
+            {
+                throw new InvalidOperationException($"MCP response Content-Length 형식 확인 필요: {lengthHeader}");
+            }
+
             var buffer = new byte[length];
             var offset = 0;
             while (offset < length)

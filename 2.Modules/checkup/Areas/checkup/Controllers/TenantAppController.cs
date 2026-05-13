@@ -559,7 +559,7 @@ namespace checkup.Areas.checkup.Controllers
             else if (GlobalConfiguration.UserSignExpire < 0)
             {
                 var addDay = DateTime.Now.Day == userAccount.LoginedAt.Day ? 1 : 0;
-                cookieOptions.Expires = DateTime.Parse(DateTime.Now.AddDays(1).ToString("yyyy-MM-dd") + "T" + GlobalConfiguration.UserSignExpire.ToString().Replace("-", "").PadLeft(2, '0') + ":00:00");
+                cookieOptions.Expires = (DateTime.Now.AddDays(1).ToString("yyyy-MM-dd") + "T" + GlobalConfiguration.UserSignExpire.ToString().Replace("-", "").PadLeft(2, '0') + ":00:00").ToDateTimeSafe(DateTime.Now.AddDays(1));
             }
             else
             {
@@ -984,7 +984,8 @@ namespace checkup.Areas.checkup.Controllers
                             cookieOptions.HttpOnly = true;
                             cookieOptions.SameSite = SameSiteMode.Lax;
 
-                            var roleNo = int.Parse($"1{member.GetString("RoleDevelop")}{member.GetString("RoleBusiness")}{member.GetString("RoleOperation")}{member.GetString("RoleManaged")}");
+                            var roleText = $"1{member.GetString("RoleDevelop")}{member.GetString("RoleBusiness")}{member.GetString("RoleOperation")}{member.GetString("RoleManaged")}";
+                            var roleNo = int.TryParse(roleText, out var parsedRoleNo) == true ? parsedRoleNo : 10000;
                             var managedRoleID = sqids.Encode(roleNo);
                             Response.Cookies.Append($"{GlobalConfiguration.CookiePrefixName}.ManagedRoleID", managedRoleID, cookieOptions);
 

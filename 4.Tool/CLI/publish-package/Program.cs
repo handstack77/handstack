@@ -1230,7 +1230,7 @@ namespace publish_package
                 ? Directory.GetFiles(packagesPath, $"{packagePrefix}-{yearMonth}.*.zip", SearchOption.TopDirectoryOnly)
                     .Select(filePath => regex.Match(Path.GetFileName(filePath)))
                     .Where(match => match.Success == true)
-                    .Select(match => int.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture))
+                    .Select(match => int.TryParse(match.Groups[1].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var rollingNumber) == true ? rollingNumber : 0)
                     .DefaultIfEmpty(0)
                     .Max() + 1
                 : 1;

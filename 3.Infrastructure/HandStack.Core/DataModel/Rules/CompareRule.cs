@@ -1,5 +1,7 @@
 ﻿using System;
 
+using System.Globalization;
+
 namespace HandStack.Core.DataModel.Rules
 {
     public class CompareRule : BusinessRule
@@ -38,8 +40,11 @@ namespace HandStack.Core.DataModel.Rules
                             return false;
                         }
 
-                        var integerValue1 = int.Parse(propertyValue1);
-                        var integerValue2 = int.Parse(propertyValue2);
+                        if (int.TryParse(propertyValue1, NumberStyles.Any, CultureInfo.CurrentCulture, out var integerValue1) == false ||
+                            int.TryParse(propertyValue2, NumberStyles.Any, CultureInfo.CurrentCulture, out var integerValue2) == false)
+                        {
+                            return false;
+                        }
 
                         switch (validationOperator)
                         {
@@ -58,8 +63,11 @@ namespace HandStack.Core.DataModel.Rules
                             return false;
                         }
 
-                        var doubleValue1 = double.Parse(propertyValue1);
-                        var doubleValue2 = double.Parse(propertyValue2);
+                        if (double.TryParse(propertyValue1, NumberStyles.Any, CultureInfo.CurrentCulture, out var doubleValue1) == false ||
+                            double.TryParse(propertyValue2, NumberStyles.Any, CultureInfo.CurrentCulture, out var doubleValue2) == false)
+                        {
+                            return false;
+                        }
 
                         switch (validationOperator)
                         {
@@ -78,8 +86,11 @@ namespace HandStack.Core.DataModel.Rules
                             return false;
                         }
 
-                        var decimalValue1 = decimal.Parse(propertyValue1);
-                        var decimalValue2 = decimal.Parse(propertyValue2);
+                        if (decimal.TryParse(propertyValue1, NumberStyles.Any, CultureInfo.CurrentCulture, out var decimalValue1) == false ||
+                            decimal.TryParse(propertyValue2, NumberStyles.Any, CultureInfo.CurrentCulture, out var decimalValue2) == false)
+                        {
+                            return false;
+                        }
 
                         switch (validationOperator)
                         {
@@ -98,8 +109,11 @@ namespace HandStack.Core.DataModel.Rules
                             return false;
                         }
 
-                        var dateValue1 = DateTime.Parse(propertyValue1);
-                        var dateValue2 = DateTime.Parse(propertyValue2);
+                        if (DateTime.TryParse(propertyValue1, CultureInfo.CurrentCulture, DateTimeStyles.None, out var dateValue1) == false ||
+                            DateTime.TryParse(propertyValue2, CultureInfo.CurrentCulture, DateTimeStyles.None, out var dateValue2) == false)
+                        {
+                            return false;
+                        }
 
                         switch (validationOperator)
                         {

@@ -345,7 +345,7 @@ namespace dbclient.DataClient
 
                                 if (!string.IsNullOrWhiteSpace(baseFieldMapping.BaseSequence))
                                 {
-                                    var baseSequenceMapping = int.Parse(baseFieldMapping.BaseSequence);
+                                    var baseSequenceMapping = baseFieldMapping.BaseSequence.ParseInt(0);
                                     if (baseSequence != baseSequenceMapping)
                                     {
                                         baseSequence = baseSequenceMapping;
@@ -1160,7 +1160,7 @@ TransactionException:
 
                                 if (!string.IsNullOrWhiteSpace(baseFieldMapping.BaseSequence))
                                 {
-                                    var baseSequenceMapping = int.Parse(baseFieldMapping.BaseSequence);
+                                    var baseSequenceMapping = baseFieldMapping.BaseSequence.ParseInt(0);
                                     if (baseSequence != baseSequenceMapping)
                                     {
                                         baseSequence = baseSequenceMapping;
@@ -1824,7 +1824,7 @@ TransactionException:
 
                                 if (!string.IsNullOrWhiteSpace(baseFieldMapping.BaseSequence))
                                 {
-                                    var baseSequenceMapping = int.Parse(baseFieldMapping.BaseSequence);
+                                    var baseSequenceMapping = baseFieldMapping.BaseSequence.ParseInt(0);
                                     if (baseSequence != baseSequenceMapping)
                                     {
                                         baseSequence = baseSequenceMapping;
@@ -2489,7 +2489,7 @@ TransactionException:
 
                                 if (!string.IsNullOrWhiteSpace(baseFieldMapping.BaseSequence))
                                 {
-                                    var baseSequenceMapping = int.Parse(baseFieldMapping.BaseSequence);
+                                    var baseSequenceMapping = baseFieldMapping.BaseSequence.ParseInt(0);
                                     if (baseSequence != baseSequenceMapping)
                                     {
                                         baseSequence = baseSequenceMapping;
@@ -5053,11 +5053,13 @@ TransactionException:
                         // @SUBSTRING|startIndex|length
                         if (transformParts.Length >= 3)
                         {
-                            var startIndex = int.Parse(transformParts[1]);
-                            var length = int.Parse(transformParts[2]);
-                            var sourceString = dynamicParameter.Value.ToStringSafe();
-                            dynamicParameter.Value = sourceString.Length > startIndex ?
-                                sourceString.SubstringSafe(startIndex, Math.Min(length, sourceString.Length - startIndex)) : "";
+                            if (int.TryParse(transformParts[1], out var startIndex) == true &&
+                                int.TryParse(transformParts[2], out var length) == true)
+                            {
+                                var sourceString = dynamicParameter.Value.ToStringSafe();
+                                dynamicParameter.Value = sourceString.Length > startIndex ?
+                                    sourceString.SubstringSafe(startIndex, Math.Min(length, sourceString.Length - startIndex)) : "";
+                            }
                         }
                         break;
 
@@ -5065,9 +5067,11 @@ TransactionException:
                         // @SUBSTRING_START|startIndex
                         if (transformParts.Length >= 2)
                         {
-                            var startIndex = int.Parse(transformParts[1]);
-                            var sourceString = dynamicParameter.Value.ToStringSafe();
-                            dynamicParameter.Value = sourceString.Length > startIndex ? sourceString.SubstringSafe(startIndex) : "";
+                            if (int.TryParse(transformParts[1], out var startIndex) == true)
+                            {
+                                var sourceString = dynamicParameter.Value.ToStringSafe();
+                                dynamicParameter.Value = sourceString.Length > startIndex ? sourceString.SubstringSafe(startIndex) : "";
+                            }
                         }
                         break;
 
@@ -5122,9 +5126,11 @@ TransactionException:
                         // @PADLEFT|totalWidth|paddingChar
                         if (transformParts.Length >= 3)
                         {
-                            var totalWidth = int.Parse(transformParts[1]);
-                            var paddingChar = transformParts[2].Length > 0 ? transformParts[2][0] : ' ';
-                            dynamicParameter.Value = dynamicParameter.Value.ToStringSafe().PadLeft(totalWidth, paddingChar);
+                            if (int.TryParse(transformParts[1], out var totalWidth) == true)
+                            {
+                                var paddingChar = transformParts[2].Length > 0 ? transformParts[2][0] : ' ';
+                                dynamicParameter.Value = dynamicParameter.Value.ToStringSafe().PadLeft(totalWidth, paddingChar);
+                            }
                         }
                         break;
 
@@ -5132,9 +5138,11 @@ TransactionException:
                         // @PADRIGHT|totalWidth|paddingChar
                         if (transformParts.Length >= 3)
                         {
-                            var totalWidth = int.Parse(transformParts[1]);
-                            var paddingChar = transformParts[2].Length > 0 ? transformParts[2][0] : ' ';
-                            dynamicParameter.Value = dynamicParameter.Value.ToStringSafe().PadRight(totalWidth, paddingChar);
+                            if (int.TryParse(transformParts[1], out var totalWidth) == true)
+                            {
+                                var paddingChar = transformParts[2].Length > 0 ? transformParts[2][0] : ' ';
+                                dynamicParameter.Value = dynamicParameter.Value.ToStringSafe().PadRight(totalWidth, paddingChar);
+                            }
                         }
                         break;
 
@@ -5187,8 +5195,11 @@ TransactionException:
                         // @ROUND_DECIMAL|decimals
                         if (transformParts.Length >= 2)
                         {
-                            var decimals = int.Parse(transformParts[1]);
-                            dynamicParameter.Value = Math.Round(Convert.ToDouble(dynamicParameter.Value), decimals);
+                            if (int.TryParse(transformParts[1], out var decimals) == true &&
+                                double.TryParse(dynamicParameter.Value.ToStringSafe(), out var number) == true)
+                            {
+                                dynamicParameter.Value = Math.Round(number, decimals);
+                            }
                         }
                         break;
 
@@ -5197,7 +5208,10 @@ TransactionException:
                         if (transformParts.Length >= 2)
                         {
                             var format = transformParts[1];
-                            dynamicParameter.Value = Convert.ToDouble(dynamicParameter.Value).ToString(format);
+                            if (double.TryParse(dynamicParameter.Value.ToStringSafe(), out var number) == true)
+                            {
+                                dynamicParameter.Value = number.ToString(format);
+                            }
                         }
                         break;
 
@@ -5214,8 +5228,10 @@ TransactionException:
                         // @ADD_DAYS|days
                         if (transformParts.Length >= 2)
                         {
-                            var days = int.Parse(transformParts[1]);
-                            dynamicParameter.Value = dynamicParameter.Value == null ? null : ((DateTime)dynamicParameter.Value).AddDays(days);
+                            if (int.TryParse(transformParts[1], out var days) == true && dynamicParameter.Value is DateTime dateTime)
+                            {
+                                dynamicParameter.Value = dateTime.AddDays(days);
+                            }
                         }
                         break;
 
@@ -5223,8 +5239,10 @@ TransactionException:
                         // @ADD_HOURS|hours
                         if (transformParts.Length >= 2)
                         {
-                            var hours = int.Parse(transformParts[1]);
-                            dynamicParameter.Value = dynamicParameter.Value == null ? null : ((DateTime)dynamicParameter.Value).AddHours(hours);
+                            if (int.TryParse(transformParts[1], out var hours) == true && dynamicParameter.Value is DateTime dateTime)
+                            {
+                                dynamicParameter.Value = dateTime.AddHours(hours);
+                            }
                         }
                         break;
 
@@ -5232,8 +5250,10 @@ TransactionException:
                         // @ADD_MINUTES|minutes
                         if (transformParts.Length >= 2)
                         {
-                            var minutes = int.Parse(transformParts[1]);
-                            dynamicParameter.Value = dynamicParameter.Value == null ? null : ((DateTime)dynamicParameter.Value).AddMinutes(minutes);
+                            if (int.TryParse(transformParts[1], out var minutes) == true && dynamicParameter.Value is DateTime dateTime)
+                            {
+                                dynamicParameter.Value = dateTime.AddMinutes(minutes);
+                            }
                         }
                         break;
 
@@ -5241,16 +5261,18 @@ TransactionException:
                         // @RANDOM_STRING|length|characters (characters는 선택사항)
                         if (transformParts.Length >= 2)
                         {
-                            var length = int.Parse(transformParts[1]);
-                            var characters = transformParts.Length >= 3 ? transformParts[2] : "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-                            var random = new Random();
-                            var result = new StringBuilder(length);
-                            for (var i = 0; i < length; i++)
+                            if (int.TryParse(transformParts[1], out var length) == true && length > 0)
                             {
-                                result.Append(characters[random.Next(characters.Length)]);
+                                var characters = transformParts.Length >= 3 && string.IsNullOrEmpty(transformParts[2]) == false ? transformParts[2] : "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+                                var random = new Random();
+                                var result = new StringBuilder(length);
+                                for (var i = 0; i < length; i++)
+                                {
+                                    result.Append(characters[random.Next(characters.Length)]);
+                                }
+                                dynamicParameter.Value = result.ToString();
                             }
-                            dynamicParameter.Value = result.ToString();
                         }
                         break;
 
@@ -5258,9 +5280,12 @@ TransactionException:
                         // @RANDOM_NUMBER|min|max
                         if (transformParts.Length >= 3)
                         {
-                            var min = int.Parse(transformParts[1]);
-                            var max = int.Parse(transformParts[2]);
-                            dynamicParameter.Value = new Random().Next(min, max + 1);
+                            if (int.TryParse(transformParts[1], out var min) == true &&
+                                int.TryParse(transformParts[2], out var max) == true &&
+                                min <= max)
+                            {
+                                dynamicParameter.Value = new Random().Next(min, max + 1);
+                            }
                         }
                         else
                         {
@@ -5272,11 +5297,13 @@ TransactionException:
                         // @ARRAY_SLICE|startIndex|count
                         if (dynamicParameter.Value != null && transformParts.Length >= 3)
                         {
-                            var startIndex = int.Parse(transformParts[1]);
-                            var count = int.Parse(transformParts[2]);
-
-                            var array = ((IEnumerable<object>)dynamicParameter.Value).ToArray();
-                            dynamicParameter.Value = array.Skip(startIndex).Take(count).ToArray();
+                            if (int.TryParse(transformParts[1], out var startIndex) == true &&
+                                int.TryParse(transformParts[2], out var count) == true &&
+                                dynamicParameter.Value is IEnumerable<object> values)
+                            {
+                                var array = values.ToArray();
+                                dynamicParameter.Value = array.Skip(startIndex).Take(count).ToArray();
+                            }
                         }
                         break;
 
@@ -5284,8 +5311,10 @@ TransactionException:
                         // @ARRAY_SKIP|count
                         if (dynamicParameter.Value != null && transformParts.Length >= 2)
                         {
-                            var count = int.Parse(transformParts[1]);
-                            dynamicParameter.Value = ((IEnumerable<object>)dynamicParameter.Value).Skip(count).ToArray();
+                            if (int.TryParse(transformParts[1], out var count) == true && dynamicParameter.Value is IEnumerable<object> values)
+                            {
+                                dynamicParameter.Value = values.Skip(count).ToArray();
+                            }
                         }
                         break;
 
@@ -5293,8 +5322,10 @@ TransactionException:
                         // @ARRAY_TAKE|count
                         if (dynamicParameter.Value != null && transformParts.Length >= 2)
                         {
-                            var count = int.Parse(transformParts[1]);
-                            dynamicParameter.Value = ((IEnumerable<object>)dynamicParameter.Value).Take(count).ToArray();
+                            if (int.TryParse(transformParts[1], out var count) == true && dynamicParameter.Value is IEnumerable<object> values)
+                            {
+                                dynamicParameter.Value = values.Take(count).ToArray();
+                            }
                         }
                         break;
 
@@ -5302,9 +5333,11 @@ TransactionException:
                         // @ARRAY_ELEMENT|index
                         if (dynamicParameter.Value != null && transformParts.Length >= 2)
                         {
-                            var index = int.Parse(transformParts[1]);
-                            var array = ((IEnumerable<object>)dynamicParameter.Value).ToArray();
-                            dynamicParameter.Value = index >= 0 && index < array.Length ? array[index] : null;
+                            if (int.TryParse(transformParts[1], out var index) == true && dynamicParameter.Value is IEnumerable<object> values)
+                            {
+                                var array = values.ToArray();
+                                dynamicParameter.Value = index >= 0 && index < array.Length ? array[index] : null;
+                            }
                         }
                         break;
 
@@ -5312,10 +5345,12 @@ TransactionException:
                         // @CLAMP|min|max
                         if (transformParts.Length >= 3)
                         {
-                            var min = double.Parse(transformParts[1]);
-                            var max = double.Parse(transformParts[2]);
-                            var value = Convert.ToDouble(dynamicParameter.Value);
-                            dynamicParameter.Value = Math.Max(min, Math.Min(max, value));
+                            if (double.TryParse(transformParts[1], out var min) == true &&
+                                double.TryParse(transformParts[2], out var max) == true &&
+                                double.TryParse(dynamicParameter.Value.ToStringSafe(), out var value) == true)
+                            {
+                                dynamicParameter.Value = Math.Max(min, Math.Min(max, value));
+                            }
                         }
                         break;
 
@@ -5323,8 +5358,11 @@ TransactionException:
                         // @MULTIPLY|factor
                         if (transformParts.Length >= 2)
                         {
-                            var factor = double.Parse(transformParts[1]);
-                            dynamicParameter.Value = Convert.ToDouble(dynamicParameter.Value) * factor;
+                            if (double.TryParse(transformParts[1], out var factor) == true &&
+                                double.TryParse(dynamicParameter.Value.ToStringSafe(), out var value) == true)
+                            {
+                                dynamicParameter.Value = value * factor;
+                            }
                         }
                         break;
 
@@ -5332,8 +5370,11 @@ TransactionException:
                         // @ADD|value
                         if (transformParts.Length >= 2)
                         {
-                            var addValue = double.Parse(transformParts[1]);
-                            dynamicParameter.Value = Convert.ToDouble(dynamicParameter.Value) + addValue;
+                            if (double.TryParse(transformParts[1], out var addValue) == true &&
+                                double.TryParse(dynamicParameter.Value.ToStringSafe(), out var value) == true)
+                            {
+                                dynamicParameter.Value = value + addValue;
+                            }
                         }
                         break;
 
@@ -5341,10 +5382,14 @@ TransactionException:
                         // @PERCENTAGE|total|decimals
                         if (transformParts.Length >= 3)
                         {
-                            var total = double.Parse(transformParts[1]);
-                            var decimals = int.Parse(transformParts[2]);
-                            var percentage = (Convert.ToDouble(dynamicParameter.Value) / total) * 100;
-                            dynamicParameter.Value = Math.Round(percentage, decimals);
+                            if (double.TryParse(transformParts[1], out var total) == true &&
+                                int.TryParse(transformParts[2], out var decimals) == true &&
+                                total != 0 &&
+                                double.TryParse(dynamicParameter.Value.ToStringSafe(), out var value) == true)
+                            {
+                                var percentage = (value / total) * 100;
+                                dynamicParameter.Value = Math.Round(percentage, decimals);
+                            }
                         }
                         break;
 
@@ -5363,9 +5408,11 @@ TransactionException:
                         if (transformParts.Length >= 3)
                         {
                             var pattern = transformParts[1];
-                            var groupIndex = int.Parse(transformParts[2]);
-                            var match = Regex.Match(dynamicParameter.Value.ToStringSafe(), pattern);
-                            dynamicParameter.Value = match.Success && match.Groups.Count > groupIndex ? match.Groups[groupIndex].Value : "";
+                            if (int.TryParse(transformParts[2], out var groupIndex) == true)
+                            {
+                                var match = Regex.Match(dynamicParameter.Value.ToStringSafe(), pattern);
+                                dynamicParameter.Value = match.Success && match.Groups.Count > groupIndex ? match.Groups[groupIndex].Value : "";
+                            }
                         }
                         break;
 
@@ -5570,6 +5617,7 @@ TransactionException:
         }
     }
 }
+
 
 
 

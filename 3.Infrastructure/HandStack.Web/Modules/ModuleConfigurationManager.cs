@@ -48,6 +48,11 @@ namespace HandStack.Web.Modules
                     if (moduleID.IndexOf("|") > -1)
                     {
                         var parts = moduleID.Split('|', StringSplitOptions.RemoveEmptyEntries);
+                        if (parts.Length < 2)
+                        {
+                            continue;
+                        }
+
                         moduleID = parts[0];
                         var fileUri = parts[1];
 

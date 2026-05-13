@@ -44,10 +44,14 @@ public static class UpdateVersionComparer
             return false;
         }
 
-        version = new Version(
-            int.Parse(match.Groups["major"].Value),
-            int.Parse(match.Groups["minor"].Value),
-            int.Parse(match.Groups["build"].Value));
+        if (int.TryParse(match.Groups["major"].Value, out var major) == false ||
+            int.TryParse(match.Groups["minor"].Value, out var minor) == false ||
+            int.TryParse(match.Groups["build"].Value, out var build) == false)
+        {
+            return false;
+        }
+
+        version = new Version(major, minor, build);
         return true;
     }
 

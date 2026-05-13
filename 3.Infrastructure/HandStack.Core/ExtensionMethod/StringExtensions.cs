@@ -929,6 +929,31 @@ namespace HandStack.Core.ExtensionMethod
             var hex = @this.ToSHA256();
             return hex.Substring(0, 32);
         }
+
+        public static string SubstringSafe(this string? @this, int startIndex)
+        {
+            if (string.IsNullOrEmpty(@this) == true || startIndex < 0 || startIndex >= @this.Length)
+            {
+                return "";
+            }
+
+            return @this.Substring(startIndex);
+        }
+
+        public static string SubstringSafe(this string? @this, int startIndex, int length)
+        {
+            if (string.IsNullOrEmpty(@this) == true || startIndex < 0 || length <= 0 || startIndex >= @this.Length)
+            {
+                return "";
+            }
+
+            return @this.Substring(startIndex, Math.Min(length, @this.Length - startIndex));
+        }
+
+        public static DateTime ToDateTimeSafe(this string? @this, DateTime defaultValue)
+        {
+            return DateTime.TryParse(@this, out var result) == true ? result : defaultValue;
+        }
     }
 }
 

@@ -211,10 +211,10 @@ namespace ack
 
                     Log.Logger = loggerConfiguration.CreateLogger();
 
-                    GlobalConfiguration.ServerPort = port ?? int.Parse(configuration["AppSettings:ServerPort"].ToStringSafe("8421"));
-                    GlobalConfiguration.OriginPort = int.Parse(configuration["AppSettings:OriginPort"].ToStringSafe(GlobalConfiguration.ServerPort.ToString()));
+                    GlobalConfiguration.ServerPort = port ?? (int.TryParse(configuration["AppSettings:ServerPort"].ToStringSafe("8421"), out var serverPort) == true ? serverPort : 8421);
+                    GlobalConfiguration.OriginPort = int.TryParse(configuration["AppSettings:OriginPort"].ToStringSafe(GlobalConfiguration.ServerPort.ToString()), out var originPort) == true ? originPort : GlobalConfiguration.ServerPort;
 
-                    GlobalConfiguration.ServerDevCertSslPort = int.Parse(configuration["AppSettings:ServerDevCertSslPort"].ToStringSafe("8443"));
+                    GlobalConfiguration.ServerDevCertSslPort = int.TryParse(configuration["AppSettings:ServerDevCertSslPort"].ToStringSafe("8443"), out var serverDevCertSslPort) == true ? serverDevCertSslPort : 8443;
                     GlobalConfiguration.ServerDevCertFilePath = configuration["AppSettings:ServerDevCertFilePath"].ToStringSafe();
                     GlobalConfiguration.ServerDevCertPassword = configuration["AppSettings:ServerDevCertPassword"];
 

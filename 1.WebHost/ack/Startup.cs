@@ -97,15 +97,15 @@ namespace ack
                 throw new Exception("AppSettings 환경변수 확인 필요");
             }
 
-            this.useContractSync = bool.Parse(appSettings["UseContractSync"].ToStringSafe("false"));
-            this.useHttpLogging = bool.Parse(appSettings["UseHttpLogging"].ToStringSafe("false"));
-            this.useProxyForward = bool.Parse(appSettings["UseForwardProxy"].ToStringSafe("false"));
-            this.useResponseComression = bool.Parse(appSettings["UseResponseComression"].ToStringSafe("false"));
+            this.useContractSync = appSettings["UseContractSync"].ToStringSafe("false").ToBoolean();
+            this.useHttpLogging = appSettings["UseHttpLogging"].ToStringSafe("false").ToBoolean();
+            this.useProxyForward = appSettings["UseForwardProxy"].ToStringSafe("false").ToBoolean();
+            this.useResponseComression = appSettings["UseResponseComression"].ToStringSafe("false").ToBoolean();
             var securitySettings = appSettings.GetSection("Security");
-            this.enableSecurityHeaders = bool.Parse(securitySettings["EnableSecurityHeaders"].ToStringSafe("true"));
-            this.enablePublicCorsPolicy = bool.Parse(securitySettings["EnablePublicCorsPolicy"].ToStringSafe("true"));
-            this.exposeSecretValues = bool.Parse(securitySettings["ExposeSecretValues"].ToStringSafe("false"));
-            this.maxContractSyncFileBytes = long.Parse(securitySettings["MaxContractSyncFileBytes"].ToStringSafe("10485760"));
+            this.enableSecurityHeaders = securitySettings["EnableSecurityHeaders"].ToStringSafe("true").ToBoolean();
+            this.enablePublicCorsPolicy = securitySettings["EnablePublicCorsPolicy"].ToStringSafe("true").ToBoolean();
+            this.exposeSecretValues = securitySettings["ExposeSecretValues"].ToStringSafe("false").ToBoolean();
+            this.maxContractSyncFileBytes = long.TryParse(securitySettings["MaxContractSyncFileBytes"].ToStringSafe("10485760"), out var maxContractSyncFileBytes) == true ? maxContractSyncFileBytes : 10485760;
 
             GlobalConfiguration.InstallType = appSettings["InstallType"].ToStringSafe();
             GlobalConfiguration.ApplicationID = appSettings.GetSection("ApplicationID").Exists() == true ? appSettings["ApplicationID"].ToStringSafe() : "HDS";
@@ -118,15 +118,15 @@ namespace ack
             GlobalConfiguration.HostAccessID = GetHostAccessID(appSettings["HostAccessID"].ToStringSafe());
             GlobalConfiguration.SystemID = appSettings["SystemID"].ToStringSafe();
             GlobalConfiguration.FindGlobalIDServer = appSettings["FindGlobalIDServer"].ToStringSafe();
-            GlobalConfiguration.IsTenantFunction = bool.Parse(appSettings["IsTenantFunction"].ToStringSafe("false"));
-            GlobalConfiguration.IsExceptionDetailText = bool.Parse(appSettings["IsExceptionDetailText"].ToStringSafe("false"));
-            GlobalConfiguration.IsSwaggerUI = bool.Parse(appSettings["IsSwaggerUI"].ToStringSafe("false"));
-            GlobalConfiguration.IsModulePurgeContract = bool.Parse(appSettings["IsModulePurgeContract"].ToStringSafe("true"));
-            GlobalConfiguration.SessionCookieName = appSettings.GetSection("SessionState").Exists() == true && bool.Parse(appSettings["SessionState:IsSession"].ToStringSafe("false")) == true ? appSettings["SessionState:SessionCookieName"].ToStringSafe("") : "";
+            GlobalConfiguration.IsTenantFunction = appSettings["IsTenantFunction"].ToStringSafe("false").ToBoolean();
+            GlobalConfiguration.IsExceptionDetailText = appSettings["IsExceptionDetailText"].ToStringSafe("false").ToBoolean();
+            GlobalConfiguration.IsSwaggerUI = appSettings["IsSwaggerUI"].ToStringSafe("false").ToBoolean();
+            GlobalConfiguration.IsModulePurgeContract = appSettings["IsModulePurgeContract"].ToStringSafe("true").ToBoolean();
+            GlobalConfiguration.SessionCookieName = appSettings.GetSection("SessionState").Exists() == true && appSettings["SessionState:IsSession"].ToStringSafe("false").ToBoolean() == true ? appSettings["SessionState:SessionCookieName"].ToStringSafe("") : "";
             GlobalConfiguration.CookiePrefixName = appSettings["CookiePrefixName"].ToStringSafe("HandStack");
-            GlobalConfiguration.UserSignExpire = int.Parse(appSettings["UserSignExpire"].ToStringSafe("1440"));
+            GlobalConfiguration.UserSignExpire = int.TryParse(appSettings["UserSignExpire"].ToStringSafe("1440"), out var userSignExpire) == true ? userSignExpire : 1440;
             GlobalConfiguration.ProxyBasePath = appSettings["ProxyBasePath"].ToStringSafe("");
-            GlobalConfiguration.IsAntiforgeryToken = bool.Parse(appSettings["IsAntiforgeryToken"].ToStringSafe("false"));
+            GlobalConfiguration.IsAntiforgeryToken = appSettings["IsAntiforgeryToken"].ToStringSafe("false").ToBoolean();
 
             GlobalConfiguration.HardwareID = GetHardwareID();
             Console.WriteLine($"Current Hardware ID: {GlobalConfiguration.HardwareID}");

@@ -177,7 +177,7 @@ namespace prompter.DataClient
 
                                 if (string.IsNullOrEmpty(baseFieldMapping.BaseSequence) == false)
                                 {
-                                    var baseSequenceMapping = int.Parse(baseFieldMapping.BaseSequence);
+                                    var baseSequenceMapping = baseFieldMapping.BaseSequence.ParseInt(0);
                                     if (baseSequence != baseSequenceMapping)
                                     {
                                         baseSequence = baseSequenceMapping;
@@ -1209,4 +1209,5 @@ TransactionException:
         }
     }
 }
+
 

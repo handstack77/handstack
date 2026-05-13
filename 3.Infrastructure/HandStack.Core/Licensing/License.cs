@@ -47,7 +47,7 @@ namespace HandStack.Core.Licensing
 
         public int Quantity
         {
-            get { return int.Parse(GetTag("Quantity") ?? "0"); }
+            get { return int.TryParse(GetTag("Quantity") ?? "0", out var quantity) == true ? quantity : 0; }
             set { if (!IsSigned) SetTag("Quantity", value.ToString()); }
         }
 

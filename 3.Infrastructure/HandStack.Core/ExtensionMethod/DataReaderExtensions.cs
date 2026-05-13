@@ -341,7 +341,7 @@ namespace HandStack.Core.ExtensionMethod
                 }
                 else
                 {
-                    propertyInfo.SetValue(instance, DateTime.Parse(value.ToStringSafe()), null);
+                    propertyInfo.SetValue(instance, DateTime.TryParse(value.ToStringSafe(), out var dateTime) == true ? dateTime : null, null);
                 }
             }
             else if (value is string && (propertyInfo.PropertyType == typeof(bool) || propertyInfo.PropertyType == typeof(bool?)))

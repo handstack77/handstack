@@ -155,7 +155,7 @@ namespace HandStack.Web.Extensions
                                     try
                                     {
                                         var lastedLoginedAt = userAccount.LoginedAt.DateDiff(PartOfDateTime.Second, DateTime.Now);
-                                        var allowLimitedAt = DateTime.Parse(userAccount.LoginedAt.AddDays(1).ToString("yyyy-MM-dd") + "T" + GlobalConfiguration.UserSignExpire.ToString().Replace("-", "").PadLeft(2, '0') + ":00:00").DateDiff(PartOfDateTime.Second, DateTime.Now);
+                                        var allowLimitedAt = (userAccount.LoginedAt.AddDays(1).ToString("yyyy-MM-dd") + "T" + GlobalConfiguration.UserSignExpire.ToString().Replace("-", "").PadLeft(2, '0') + ":00:00").ToDateTimeSafe(DateTime.Now.AddDays(1)).DateDiff(PartOfDateTime.Second, DateTime.Now);
                                         if ((GlobalConfiguration.UserSignExpire > 0 && GlobalConfiguration.UserSignExpire < lastedLoginedAt) || allowLimitedAt > lastedLoginedAt)
                                         {
                                             await httpContext.SignOutAsync();
@@ -204,7 +204,7 @@ namespace HandStack.Web.Extensions
                                             else if (GlobalConfiguration.UserSignExpire < 0)
                                             {
                                                 var addDay = DateTime.Now.Day == userAccount.LoginedAt.Day ? 1 : 0;
-                                                expiredAt = DateTime.Parse(DateTime.Now.AddDays(1).ToString("yyyy-MM-dd") + "T" + GlobalConfiguration.UserSignExpire.ToString().Replace("-", "").PadLeft(2, '0') + ":00:00");
+                                                expiredAt = (DateTime.Now.AddDays(1).ToString("yyyy-MM-dd") + "T" + GlobalConfiguration.UserSignExpire.ToString().Replace("-", "").PadLeft(2, '0') + ":00:00").ToDateTimeSafe(DateTime.Now.AddDays(1));
                                             }
 
                                             authenticationProperties.ExpiresUtc = expiredAt;
