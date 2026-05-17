@@ -92,11 +92,14 @@ namespace agent
                 var path = context.Request.Path.Value ?? "";
                 var isProtectedMainFile =
                     string.Equals(path, "/main.html", StringComparison.OrdinalIgnoreCase) == true ||
-                    string.Equals(path, "/main.js", StringComparison.OrdinalIgnoreCase) == true;
+                    string.Equals(path, "/main.js", StringComparison.OrdinalIgnoreCase) == true ||
+                    string.Equals(path, "/setting.html", StringComparison.OrdinalIgnoreCase) == true ||
+                    string.Equals(path, "/setting.js", StringComparison.OrdinalIgnoreCase) == true;
 
                 if (isProtectedMainFile == true && context.User.Identity?.IsAuthenticated != true)
                 {
-                    if (string.Equals(path, "/main.html", StringComparison.OrdinalIgnoreCase) == true)
+                    if (string.Equals(path, "/main.html", StringComparison.OrdinalIgnoreCase) == true
+                        || string.Equals(path, "/setting.html", StringComparison.OrdinalIgnoreCase) == true)
                     {
                         context.Response.Redirect("/login.html");
                         return;

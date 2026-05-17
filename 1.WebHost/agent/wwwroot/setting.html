@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>HandStack 설정 관리</title>
+    <style>
+        :root {
+            --bg: #f4f7fb;
+            --panel: #ffffff;
+            --line: #d8e2ef;
+            --muted: #66788f;
+            --text: #172b44;
+            --primary: #1769d2;
+            --primary-dark: #0d56b3;
+            --success: #1f7a44;
+            --warning: #9a6700;
+            --danger: #b42318;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: "Segoe UI", "Malgun Gothic", Arial, sans-serif;
+            font-size: 14px;
+        }
+
+        button,
+        input,
+        select,
+        textarea {
+            font: inherit;
+        }
+
+        button {
+            border: 1px solid var(--line);
+            background: #fff;
+            color: var(--text);
+            border-radius: 6px;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        button.primary {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: #fff;
+        }
+
+        button.primary:hover {
+            background: var(--primary-dark);
+        }
+
+        button:disabled {
+            opacity: .55;
+            cursor: not-allowed;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            border: 1px solid var(--line);
+            border-radius: 6px;
+            background: #fff;
+            color: var(--text);
+            padding: 8px 10px;
+        }
+
+        textarea {
+            min-height: 96px;
+            resize: vertical;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 12px;
+            line-height: 1.45;
+        }
+
+        .shell {
+            max-width: 1500px;
+            margin: 0 auto;
+            padding: 18px;
+        }
+
+        .topbar {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 14px;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+
+        .title h1 {
+            margin: 0;
+            font-size: 22px;
+        }
+
+        .title p {
+            margin: 4px 0 0;
+            color: var(--muted);
+        }
+
+        .auth-grid {
+            display: grid;
+            grid-template-columns: 180px 240px auto;
+            gap: 8px;
+            align-items: end;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 320px minmax(0, 1fr);
+            gap: 14px;
+        }
+
+        .panel {
+            border: 1px solid var(--line);
+            background: var(--panel);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .panel-header {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--line);
+            background: #f8fbff;
+            font-weight: 700;
+        }
+
+        .panel-body {
+            padding: 14px;
+        }
+
+        .field {
+            margin-bottom: 12px;
+        }
+
+        .field label {
+            display: block;
+            margin-bottom: 5px;
+            color: #2d4661;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .stack {
+            display: grid;
+            gap: 8px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 6px;
+            border-bottom: 1px solid var(--line);
+            padding: 10px 10px 0;
+            background: #f8fbff;
+        }
+
+        .tab {
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+            border-bottom-color: transparent;
+        }
+
+        .tab.active {
+            background: #fff;
+            border-color: var(--line);
+            border-bottom-color: #fff;
+            color: var(--primary);
+        }
+
+        .tab-view {
+            display: none;
+        }
+
+        .tab-view.active {
+            display: block;
+        }
+
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .toolbar-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .config-row {
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 10px;
+            background: #fff;
+        }
+
+        .config-row.full {
+            grid-column: 1 / -1;
+        }
+
+        .config-key {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 7px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            border-radius: 999px;
+            padding: 2px 7px;
+            font-size: 11px;
+            font-weight: 700;
+            background: #eef5ff;
+            color: var(--primary);
+        }
+
+        .badge.warn {
+            background: #fff4d6;
+            color: var(--warning);
+        }
+
+        .json-editor {
+            min-height: 520px;
+        }
+
+        .status {
+            min-height: 40px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 10px 12px;
+            background: #fff;
+            margin-bottom: 14px;
+            white-space: pre-wrap;
+        }
+
+        .status.success {
+            border-color: #b7e1c4;
+            background: #f2fbf5;
+            color: var(--success);
+        }
+
+        .status.error {
+            border-color: #f1c2bd;
+            background: #fff4f2;
+            color: var(--danger);
+        }
+
+        .status.warn {
+            border-color: #f2d58b;
+            background: #fff9e8;
+            color: var(--warning);
+        }
+
+        .result-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        .result-table th,
+        .result-table td {
+            border: 1px solid var(--line);
+            padding: 7px 8px;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        .result-table th {
+            width: 170px;
+            background: #f8fbff;
+        }
+
+        .muted {
+            color: var(--muted);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @media (max-width: 980px) {
+            .topbar,
+            .layout,
+            .auth-grid,
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="shell">
+        <section class="topbar">
+            <div class="title">
+                <h1>HandStack 설정 관리</h1>
+                <p>ack appsettings.json과 로드된 모듈 module.json의 런타임 반영 가능 항목을 관리합니다.</p>
+            </div>
+            <div class="auth-grid">
+                <div class="field">
+                    <label for="headerName">관리 헤더</label>
+                    <input id="headerName" value="X-Management-Key" autocomplete="off">
+                </div>
+                <div class="field">
+                    <label for="managementKey">관리 키</label>
+                    <input id="managementKey" type="password" autocomplete="off">
+                </div>
+                <button id="loadTargets" class="primary" type="button">대상 조회</button>
+            </div>
+        </section>
+
+        <div id="status" class="status muted">관리 키를 입력하고 대상 조회를 실행하세요.</div>
+
+        <section class="layout">
+            <aside class="panel">
+                <div class="panel-header">대상 및 모듈</div>
+                <div class="panel-body">
+                    <div class="field">
+                        <label for="targetSelect">ack 대상</label>
+                        <select id="targetSelect"></select>
+                    </div>
+                    <div class="stack">
+                        <button id="loadAppSettings" type="button">appsettings 불러오기</button>
+                        <button id="loadDiagnostics" type="button">런타임 상태 조회</button>
+                    </div>
+                    <hr>
+                    <div class="field">
+                        <label for="moduleSelect">모듈</label>
+                        <select id="moduleSelect"></select>
+                    </div>
+                    <button id="loadModule" type="button">module.json 불러오기</button>
+                    <p class="muted">모듈 목록은 선택한 대상의 AppSettings:LoadModules 기준입니다.</p>
+                </div>
+            </aside>
+
+            <section class="panel">
+                <div class="tabs">
+                    <button class="tab active" data-tab="app" type="button">appsettings.json</button>
+                    <button class="tab" data-tab="module" type="button">module.json</button>
+                    <button class="tab" data-tab="json" type="button">원본 JSON</button>
+                    <button class="tab" data-tab="result" type="button">저장 결과</button>
+                </div>
+                <div class="panel-body">
+                    <section id="tab-app" class="tab-view active">
+                        <div class="toolbar">
+                            <span class="muted">실시간 반영 가능한 AppSettings 항목만 표시합니다.</span>
+                            <div class="toolbar-actions">
+                                <button id="resetAppForm" type="button">되돌리기</button>
+                                <button id="saveAppSettings" class="primary" type="button">appsettings 저장</button>
+                            </div>
+                        </div>
+                        <div id="appForm" class="form-grid"></div>
+                    </section>
+
+                    <section id="tab-module" class="tab-view">
+                        <div class="toolbar">
+                            <span class="muted">ModuleConfig 하위 항목을 편집합니다. 저장 후 ack watcher가 ModuleConfiguration에 반영합니다.</span>
+                            <div class="toolbar-actions">
+                                <button id="resetModuleForm" type="button">되돌리기</button>
+                                <button id="saveModule" class="primary" type="button">module 저장</button>
+                            </div>
+                        </div>
+                        <div id="moduleForm" class="form-grid"></div>
+                    </section>
+
+                    <section id="tab-json" class="tab-view">
+                        <div class="toolbar">
+                            <select id="jsonSource">
+                                <option value="app">appsettings.json</option>
+                                <option value="module">module.json</option>
+                            </select>
+                            <div class="toolbar-actions">
+                                <button id="formatJson" type="button">정렬</button>
+                                <button id="applyJsonToForm" type="button">폼에 반영</button>
+                            </div>
+                        </div>
+                        <textarea id="jsonEditor" class="json-editor" spellcheck="false"></textarea>
+                    </section>
+
+                    <section id="tab-result" class="tab-view">
+                        <table class="result-table">
+                            <tbody id="resultBody">
+                                <tr><th>상태</th><td class="muted">아직 저장 결과가 없습니다.</td></tr>
+                            </tbody>
+                        </table>
+                    </section>
+                </div>
+            </section>
+        </section>
+    </main>
+
+    <script src="/setting.js"></script>
+</body>
+</html>

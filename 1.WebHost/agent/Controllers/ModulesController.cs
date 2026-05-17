@@ -505,8 +505,7 @@ namespace agent.Controllers
 
         private static bool IsRealtimeModulePath(string path)
         {
-            return string.Equals(path, "ModuleConfig:EventAction", StringComparison.OrdinalIgnoreCase)
-                || string.Equals(path, "ModuleConfig:SubscribeAction", StringComparison.OrdinalIgnoreCase);
+            return path.StartsWith("ModuleConfig:", StringComparison.OrdinalIgnoreCase) == true;
         }
 
         private sealed class TargetContext
