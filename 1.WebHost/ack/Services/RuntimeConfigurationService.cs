@@ -410,7 +410,7 @@ namespace ack.Services
             }
         }
 
-        private static string GetAppSettingsFilePath()
+        internal static string GetAppSettingsFilePath()
         {
             var appSettingsFilePath = PathExtensions.Combine(GlobalConfiguration.EntryBasePath, "appsettings.json");
             if (File.Exists(appSettingsFilePath) == false)

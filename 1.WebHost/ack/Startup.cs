@@ -582,6 +582,7 @@ namespace ack
             }));
             services.AddSingleton<SecretService>();
             services.AddSingleton<RuntimeConfigurationService>();
+            services.AddHostedService<AppSettingsFileWatcherService>();
             services.AddSingleton<ApiRequestMetricsCollector>();
 
             services.AddRazorPages()

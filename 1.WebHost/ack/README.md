@@ -86,6 +86,33 @@ $env:AppSettings__HostAccessID='CHANGE-ME'
 $env:AppSettings__RunningEnvironment='P'
 ```
 
+### 5.1 `appsettings.json` 실시간 반영
+
+`ack`는 실행 중 기본 `appsettings.json` 파일 변경을 감시합니다. 파일이 변경되면 `AppSettings` 하위 설정 중 런타임 반영이 안전한 항목만 즉시 적용하고, 재시작이 필요한 항목은 적용하지 않고 로그에 남깁니다.
+
+실시간 반영 대상:
+
+- `AppSettings:BusinessServerUrl`
+- `AppSettings:FindGlobalIDServer`
+- `AppSettings:HostAccessID`
+- `AppSettings:IsTenantFunction`
+- `AppSettings:IsExceptionDetailText`
+- `AppSettings:ContractRequestPath`
+- `AppSettings:TenantAppRequestPath`
+- `AppSettings:CookiePrefixName`
+- `AppSettings:UserSignExpire`
+- `AppSettings:StaticFileCacheMaxAge`
+- `AppSettings:WithOnlyIPs`
+- `AppSettings:IsPermissionRoles`
+- `AppSettings:PermissionRoles`
+
+운영 주의:
+
+- 감시 대상은 기본 `appsettings.json`입니다. `appsettings.{ACK_ENVIRONMENT}.json`, `module.json`, 환경 변수 변경은 자동 감시하지 않습니다.
+- `AppSettings:LoadModules`, CORS, Proxy, Compression, Session, License, 경로/모듈 로딩 관련 설정은 프로세스 재시작 후 반영합니다.
+- 설정 키 삭제는 런타임 기본값을 추정하지 않습니다. 삭제된 키는 로그에 남기고 재시작 후 최종 반영합니다.
+- JSON 저장 중 일시적으로 파일이 잠기거나 잘못된 JSON이 기록되면 경고 로그를 남기고 다음 정상 변경을 다시 감시합니다.
+
 ## 6) 헬스체크 및 운영 API
 
 기본 점검:
@@ -105,7 +132,7 @@ curl "http://localhost:8421/diagnostics?hostAccessID=<HOST_ACCESS_ID_HASH>"
 
 ```powershell
 curl "http://localhost:8421/globalconfiguration?hostAccessID=<HOST_ACCESS_ID_HASH>"
-curl -X POST "http://localhost:8421/globalconfiguration/apply?hostAccessID=<HOST_ACCESS_ID_HASH>" -H "Content-Type: application/json" -d "{\"values\":{\"AppSettings:RunningEnvironment\":\"P\"}}"
+curl -X POST "http://localhost:8421/globalconfiguration/apply?hostAccessID=<HOST_ACCESS_ID_HASH>" -H "Content-Type: application/json" -d "{\"values\":{\"AppSettings:IsExceptionDetailText\":true}}"
 ```
 
 모듈 MediatR 설정 조회/반영:
