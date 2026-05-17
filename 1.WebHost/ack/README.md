@@ -86,7 +86,7 @@ $env:AppSettings__HostAccessID='CHANGE-ME'
 $env:AppSettings__RunningEnvironment='P'
 ```
 
-### 5.1 `appsettings.json` 실시간 반영
+### 5.1 설정 파일 실시간 반영
 
 `ack`는 실행 중 기본 `appsettings.json` 파일 변경을 감시합니다. 파일이 변경되면 `AppSettings` 하위 설정 중 런타임 반영이 안전한 항목만 즉시 적용하고, 재시작이 필요한 항목은 적용하지 않고 로그에 남깁니다.
 
@@ -108,10 +108,19 @@ $env:AppSettings__RunningEnvironment='P'
 
 운영 주의:
 
-- 감시 대상은 기본 `appsettings.json`입니다. `appsettings.{ACK_ENVIRONMENT}.json`, `module.json`, 환경 변수 변경은 자동 감시하지 않습니다.
+- `appsettings` 감시 대상은 기본 `appsettings.json`입니다. `appsettings.{ACK_ENVIRONMENT}.json`, 환경 변수 변경은 자동 감시하지 않습니다.
 - `AppSettings:LoadModules`, CORS, Proxy, Compression, Session, License, 경로/모듈 로딩 관련 설정은 프로세스 재시작 후 반영합니다.
 - 설정 키 삭제는 런타임 기본값을 추정하지 않습니다. 삭제된 키는 로그에 남기고 재시작 후 최종 반영합니다.
 - JSON 저장 중 일시적으로 파일이 잠기거나 잘못된 JSON이 기록되면 경고 로그를 남기고 다음 정상 변경을 다시 감시합니다.
+
+로드된 모듈의 `module.json`도 감시합니다. 파일이 변경되면 해당 모듈 Assembly의 `ModuleConfigJson`으로 다시 읽고, 같은 모듈의 `ModuleConfiguration` 정적 필드에 이름과 타입이 일치하는 값을 반영합니다.
+
+모듈 설정 운영 주의:
+
+- `ModuleConfig:EventAction`, `ModuleConfig:SubscribeAction`은 호스트의 모듈 MediatR 설정에도 함께 반영됩니다.
+- `ModuleConfiguration`에 대응 필드가 없거나 타입 변환이 필요한 항목은 재시작 필요 로그로 남깁니다.
+- ASP.NET 미들웨어, DI 등록, 이미 시작된 HostedService, 새 모듈 추가/삭제, 어셈블리 로딩 관련 변경은 프로세스 재시작 후 반영합니다.
+- 감시 대상은 현재 `ack` 프로세스가 로드한 모듈의 `ModuleSettingFilePath`입니다. `AppSettings:LoadModules` 변경으로 새 모듈을 로드하려면 재시작해야 합니다.
 
 ## 6) 헬스체크 및 운영 API
 

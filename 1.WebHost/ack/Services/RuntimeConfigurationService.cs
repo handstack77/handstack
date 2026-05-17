@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -39,7 +39,7 @@ namespace ack.Services
                 var value = token.ToString().Trim();
                 if (string.IsNullOrWhiteSpace(value) == true)
                 {
-                    result.Errors.Add("AppSettings:HostAccessID is required.");
+                    result.Errors.Add("AppSettings:HostAccessID 값은 필수입니다.");
                     return;
                 }
 
@@ -49,7 +49,7 @@ namespace ack.Services
             {
                 if (TryReadBoolean(token, out var value) == false)
                 {
-                    result.Errors.Add("AppSettings:IsTenantFunction must be a boolean value.");
+                    result.Errors.Add("AppSettings:IsTenantFunction 값은 boolean 이어야 합니다.");
                     return;
                 }
 
@@ -59,7 +59,7 @@ namespace ack.Services
             {
                 if (TryReadBoolean(token, out var value) == false)
                 {
-                    result.Errors.Add("AppSettings:IsExceptionDetailText must be a boolean value.");
+                    result.Errors.Add("AppSettings:IsExceptionDetailText 값은 boolean 이어야 합니다.");
                     return;
                 }
 
@@ -81,7 +81,7 @@ namespace ack.Services
             {
                 if (TryReadInt32(token, out var value) == false)
                 {
-                    result.Errors.Add("AppSettings:UserSignExpire must be an integer value.");
+                    result.Errors.Add("AppSettings:UserSignExpire 값은 정수 이어야 합니다.");
                     return;
                 }
 
@@ -91,7 +91,7 @@ namespace ack.Services
             {
                 if (TryReadInt32(token, out var value) == false)
                 {
-                    result.Errors.Add("AppSettings:StaticFileCacheMaxAge must be an integer value.");
+                    result.Errors.Add("AppSettings:StaticFileCacheMaxAge 값은 정수 이어야 합니다.");
                     return;
                 }
 
@@ -101,7 +101,7 @@ namespace ack.Services
             {
                 if (token is not JArray array)
                 {
-                    result.Errors.Add("AppSettings:WithOnlyIPs must be an array.");
+                    result.Errors.Add("AppSettings:WithOnlyIPs 값은 배열 이어야 합니다.");
                     return;
                 }
 
@@ -125,7 +125,7 @@ namespace ack.Services
             {
                 if (TryReadBoolean(token, out var value) == false)
                 {
-                    result.Errors.Add("AppSettings:IsPermissionRoles must be a boolean value.");
+                    result.Errors.Add("AppSettings:IsPermissionRoles 값은 boolean 이어야 합니다.");
                     return;
                 }
 
@@ -135,7 +135,7 @@ namespace ack.Services
             {
                 if (token is not JArray)
                 {
-                    result.Errors.Add("AppSettings:PermissionRoles must be an array.");
+                    result.Errors.Add("AppSettings:PermissionRoles 값은 배열 이어야 합니다.");
                     return;
                 }
 
@@ -242,7 +242,7 @@ namespace ack.Services
 
             if (request.Values == null || request.Values.Count == 0)
             {
-                result.Errors.Add("values is required.");
+                result.Errors.Add("values 값은 필수입니다.");
                 return result;
             }
 
@@ -285,7 +285,7 @@ namespace ack.Services
 
             if (result.Errors.Count > 0)
             {
-                logger.Warning("[{LogCategory}] Runtime GlobalConfiguration apply completed with errors: {Errors}", "RuntimeConfigurationService/ApplyGlobalConfiguration", string.Join(", ", result.Errors));
+                logger.Warning("[{LogCategory}] 런타임 GlobalConfiguration 적용 중 오류가 발생했습니다: {Errors}", "RuntimeConfigurationService/ApplyGlobalConfiguration", string.Join(", ", result.Errors));
             }
 
             return result;
@@ -300,20 +300,20 @@ namespace ack.Services
 
             if (string.IsNullOrWhiteSpace(moduleID) == true)
             {
-                result.Errors.Add("moduleID is required.");
+                result.Errors.Add("moduleID 값은 필수입니다.");
                 return result;
             }
 
             var module = GlobalConfiguration.Modules.FirstOrDefault(p => p.ModuleID.Equals(moduleID, StringComparison.OrdinalIgnoreCase));
             if (module == null)
             {
-                result.Errors.Add($"moduleID '{moduleID}' not found.");
+                result.Errors.Add($"moduleID '{moduleID}' 을(를) 찾을 수 없습니다.");
                 return result;
             }
 
             if (request.EventAction == null && request.SubscribeAction == null)
             {
-                result.Errors.Add("eventAction or subscribeAction is required.");
+                result.Errors.Add("eventAction 또는 subscribeAction 값은 필수입니다.");
                 return result;
             }
 
@@ -339,7 +339,7 @@ namespace ack.Services
 
             if (result.Errors.Count > 0)
             {
-                logger.Warning("[{LogCategory}] Runtime ModuleConfiguration apply completed with errors. moduleID: {ModuleID}, Errors: {Errors}", "RuntimeConfigurationService/ApplyModuleMediatorConfiguration", module.ModuleID, string.Join(", ", result.Errors));
+                logger.Warning("[{LogCategory}] 런타임 ModuleConfiguration 적용 중 오류가 발생했습니다. moduleID: {ModuleID}, 오류: {Errors}", "RuntimeConfigurationService/ApplyModuleMediatorConfiguration", module.ModuleID, string.Join(", ", result.Errors));
             }
 
             return result;
@@ -447,7 +447,7 @@ namespace ack.Services
                 var appSettingsFilePath = GetAppSettingsFilePath();
                 if (File.Exists(appSettingsFilePath) == false)
                 {
-                    result.Errors.Add($"appsettings file not found: {appSettingsFilePath}");
+                    result.Errors.Add($"appsettings 파일을 찾을 수 없습니다: {appSettingsFilePath}");
                     return;
                 }
 
@@ -469,8 +469,8 @@ namespace ack.Services
             }
             catch (Exception exception)
             {
-                logger.Error(exception, "[{LogCategory}] appsettings save failed", "RuntimeConfigurationService/PersistAppSettings");
-                result.Errors.Add("appsettings save failed.");
+                logger.Error(exception, "[{LogCategory}] appsettings 저장에 실패했습니다", "RuntimeConfigurationService/PersistAppSettings");
+                result.Errors.Add("appsettings 저장에 실패했습니다.");
             }
         }
 
@@ -481,7 +481,7 @@ namespace ack.Services
                 var moduleSettingFilePath = module.ModuleSettingFilePath.ToStringSafe();
                 if (string.IsNullOrWhiteSpace(moduleSettingFilePath) == true)
                 {
-                    result.Errors.Add($"module setting file path is empty. moduleID: {module.ModuleID}");
+                    result.Errors.Add($"모듈 설정 파일 경로가 비어 있습니다. moduleID: {module.ModuleID}");
                     return;
                 }
 
@@ -492,7 +492,7 @@ namespace ack.Services
 
                 if (File.Exists(moduleSettingFilePath) == false)
                 {
-                    result.Errors.Add($"module setting file not found: {moduleSettingFilePath}");
+                    result.Errors.Add($"모듈 설정 파일을 찾을 수 없습니다: {moduleSettingFilePath}");
                     return;
                 }
 
@@ -516,8 +516,8 @@ namespace ack.Services
             }
             catch (Exception exception)
             {
-                logger.Error(exception, "[{LogCategory}] module setting save failed. moduleID: {ModuleID}", "RuntimeConfigurationService/PersistModuleSetting", module.ModuleID);
-                result.Errors.Add($"module setting save failed. moduleID: {module.ModuleID}");
+                logger.Error(exception, "[{LogCategory}] 모듈 설정 저장에 실패했습니다. moduleID: {ModuleID}", "RuntimeConfigurationService/PersistModuleSetting", module.ModuleID);
+                result.Errors.Add($"모듈 설정 저장에 실패했습니다. moduleID: {module.ModuleID}");
             }
         }
     }

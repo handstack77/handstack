@@ -583,6 +583,7 @@ namespace ack
             services.AddSingleton<SecretService>();
             services.AddSingleton<RuntimeConfigurationService>();
             services.AddHostedService<AppSettingsFileWatcherService>();
+            services.AddHostedService<ModuleSettingsFileWatcherService>();
             services.AddSingleton<ApiRequestMetricsCollector>();
 
             services.AddRazorPages()
@@ -814,6 +815,11 @@ namespace ack
                                     }
 
                                     services.AddSingleton(typeof(IModuleInitializer), moduleInitializer);
+                                    if (moduleInitializer is IModuleRuntimeConfiguration moduleRuntimeConfiguration)
+                                    {
+                                        services.AddSingleton(typeof(IModuleRuntimeConfiguration), moduleRuntimeConfiguration);
+                                    }
+
                                     moduleInitializer.ConfigureServices(services, environment, configuration);
                                 }
                                 catch
