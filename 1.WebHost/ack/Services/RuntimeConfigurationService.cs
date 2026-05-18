@@ -156,6 +156,7 @@ namespace ack.Services
             "AppSettings:RunningEnvironment",
             "AppSettings:HostName",
             "AppSettings:SystemID",
+            "AppSettings:IsConfigurationWatching",
             "AppSettings:IsSwaggerUI",
             "AppSettings:IsModulePurgeContract",
             "AppSettings:SessionState",

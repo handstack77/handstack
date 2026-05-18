@@ -88,7 +88,7 @@ $env:AppSettings__RunningEnvironment='P'
 
 ### 5.1 설정 파일 실시간 반영
 
-`ack`는 실행 중 기본 `appsettings.json` 파일 변경을 감시합니다. 파일이 변경되면 `AppSettings` 하위 설정 중 런타임 반영이 안전한 항목만 즉시 적용하고, 재시작이 필요한 항목은 적용하지 않고 로그에 남깁니다.
+`AppSettings:IsConfigurationWatching=true`이면 `ack`는 실행 중 기본 `appsettings.json` 파일 변경을 감시합니다. 파일이 변경되면 `AppSettings` 하위 설정 중 런타임 반영이 안전한 항목만 즉시 적용하고, 재시작이 필요한 항목은 적용하지 않고 로그에 남깁니다. 기본값은 `false`입니다.
 
 실시간 반영 대상:
 

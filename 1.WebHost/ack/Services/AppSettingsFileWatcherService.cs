@@ -1,9 +1,11 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+
+using HandStack.Web;
 
 using Microsoft.Extensions.Hosting;
 
@@ -37,6 +39,11 @@ namespace ack.Services
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
+            if (GlobalConfiguration.IsConfigurationWatching == false)
+            {
+                return;
+            }
+
             appSettingsFilePath = RuntimeConfigurationService.GetAppSettingsFilePath();
             if (File.Exists(appSettingsFilePath) == false)
             {
@@ -69,7 +76,7 @@ namespace ack.Services
             watcher.Renamed += OnAppSettingsRenamed;
             watcher.EnableRaisingEvents = true;
 
-            logger.Information("[{LogCategory}] appsettings 파일 감시를 시작했습니다. 경로: {AppSettingsFilePath}", "AppSettingsFileWatcherService/StartAsync", appSettingsFilePath);
+            logger.Information("[{LogCategory}] appsettings 파일 변경 감지 시작. {AppSettingsFilePath}", "AppSettingsFileWatcherService/StartAsync", appSettingsFilePath);
         }
 
         public Task StopAsync(CancellationToken cancellationToken)

@@ -118,6 +118,7 @@ namespace ack
             GlobalConfiguration.HostAccessID = GetHostAccessID(appSettings["HostAccessID"].ToStringSafe());
             GlobalConfiguration.SystemID = appSettings["SystemID"].ToStringSafe();
             GlobalConfiguration.FindGlobalIDServer = appSettings["FindGlobalIDServer"].ToStringSafe();
+            GlobalConfiguration.IsConfigurationWatching = appSettings["IsConfigurationWatching"].ToStringSafe("false").ToBoolean();
             GlobalConfiguration.IsTenantFunction = appSettings["IsTenantFunction"].ToStringSafe("false").ToBoolean();
             GlobalConfiguration.IsExceptionDetailText = appSettings["IsExceptionDetailText"].ToStringSafe("false").ToBoolean();
             GlobalConfiguration.IsSwaggerUI = appSettings["IsSwaggerUI"].ToStringSafe("false").ToBoolean();

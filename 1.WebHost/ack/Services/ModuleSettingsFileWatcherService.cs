@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
+using HandStack.Core.ExtensionMethod;
 using HandStack.Web;
 using HandStack.Web.Modules;
 
@@ -41,6 +42,11 @@ namespace ack.Services
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
+            if (GlobalConfiguration.IsConfigurationWatching == false)
+            {
+                return;
+            }
+
             foreach (var module in GlobalConfiguration.Modules)
             {
                 var moduleSettingFilePath = module.ModuleSettingFilePath;
@@ -77,8 +83,9 @@ namespace ack.Services
                 watcher.EnableRaisingEvents = true;
 
                 watchedModules[fullPath] = watchedModule;
-                logger.Information("[{LogCategory}] 모듈 설정 파일 감시를 시작했습니다. moduleID: {ModuleID}, 경로: {ModuleSettingFilePath}", "ModuleSettingsFileWatcherService/StartAsync", module.ModuleID, fullPath);
             }
+
+            logger.Information("[{LogCategory}] 모듈 설정 파일 변경 감지 시작. moduleID: {ModuleID}", "ModuleSettingsFileWatcherService/StartAsync", GlobalConfiguration.Modules.Select(x => x.ModuleID).ToJoin(","));
         }
 
         public Task StopAsync(CancellationToken cancellationToken)
