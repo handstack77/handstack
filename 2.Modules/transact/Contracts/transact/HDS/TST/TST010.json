@@ -29,6 +29,24 @@
                             "TargetFieldID": "ServerName",
                             "Required": false
                         }
+                    ],
+                    "Assertions": [
+                        {
+                            "Assert": "NotNull",
+                            "Value": {
+                                "Source": "Step",
+                                "FieldID": "ServerName"
+                            },
+                            "Message": "ServerName 값이 필요합니다"
+                        },
+                        {
+                            "Assert": "NotEmpty",
+                            "Collection": {
+                                "Source": "Step",
+                                "FieldID": "ServerName"
+                            },
+                            "Message": "ServerName 값이 비어 있습니다"
+                        }
                     ]
                 },
                 {
@@ -47,6 +65,143 @@
                             "Required": false
                         }
                     ]
+                }
+            ],
+            "Inputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [],
+                    "TestValues": [],
+                    "DefaultValues": [],
+                    "Type": "Row",
+                    "BaseFieldMappings": [],
+                    "ParameterHandling": "Rejected"
+                }
+            ],
+            "Outputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [],
+                    "Type": "Form"
+                }
+            ]
+        },
+        {
+            "ServiceID": "GW02",
+            "Authorize": false,
+            "ReturnType": "Json",
+            "CommandType": "W",
+            "TransactionScope": false,
+            "WorkflowSteps": [
+                {
+                    "StepID": "assertValues",
+                    "CommandType": "D",
+                    "TransactionProjectID": "TST",
+                    "TransactionID": "TST010",
+                    "ServiceID": "GD07",
+                    "ReturnType": "Json",
+                    "Assertions": [
+                        {
+                            "Assert": "Equal",
+                            "Expected": { "Source": "Literal", "Value": "OK" },
+                            "Actual": { "Source": "Step", "FieldID": "ResultCode" },
+                            "Message": "ResultCode는 OK여야 합니다"
+                        },
+                        {
+                            "Assert": "NotEqual",
+                            "Expected": { "Source": "Literal", "Value": "ERROR" },
+                            "Actual": { "Source": "Step", "FieldID": "ResultCode" },
+                            "Message": "ResultCode는 ERROR가 아니어야 합니다"
+                        },
+                        {
+                            "Assert": "True",
+                            "Value": { "Source": "Step", "FieldID": "IsValid" },
+                            "Message": "IsValid는 true여야 합니다"
+                        },
+                        {
+                            "Assert": "False",
+                            "Value": { "Source": "Step", "FieldID": "HasError" },
+                            "Message": "HasError는 false여야 합니다"
+                        },
+                        {
+                            "Assert": "Null",
+                            "Value": { "Source": "Step", "FieldID": "DeletedDate" },
+                            "Message": "DeletedDate는 null이어야 합니다"
+                        },
+                        {
+                            "Assert": "NotNull",
+                            "Value": { "Source": "Step", "FieldID": "ServerName" },
+                            "Message": "ServerName 값이 필요합니다"
+                        },
+                        {
+                            "Assert": "Contains",
+                            "Value": { "Source": "Literal", "Value": "admin" },
+                            "Collection": { "Source": "Step", "FieldID": "Roles" },
+                            "Message": "Roles에는 admin이 포함되어야 합니다"
+                        },
+                        {
+                            "Assert": "DoesNotContain",
+                            "Value": { "Source": "Literal", "Value": "blocked" },
+                            "Collection": { "Source": "Step", "FieldID": "Tags" },
+                            "Message": "Tags에는 blocked가 포함되지 않아야 합니다"
+                        },
+                        {
+                            "Assert": "Empty",
+                            "Collection": { "Source": "Step", "FieldID": "Warnings" },
+                            "Message": "Warnings는 비어 있어야 합니다"
+                        },
+                        {
+                            "Assert": "NotEmpty",
+                            "Collection": { "Source": "Step", "FieldID": "ServerName" },
+                            "Message": "ServerName은 비어 있지 않아야 합니다"
+                        },
+                        {
+                            "Assert": "Single",
+                            "Collection": { "Source": "Step", "FieldID": "Items" },
+                            "Message": "Items는 하나만 있어야 합니다"
+                        },
+                        {
+                            "Assert": "InRange",
+                            "Value": { "Source": "Step", "FieldID": "Score" },
+                            "Min": { "Source": "Literal", "Value": 0 },
+                            "Max": { "Source": "Literal", "Value": 100 },
+                            "Message": "Score는 0에서 100 사이여야 합니다"
+                        },
+                        {
+                            "Assert": "IsType",
+                            "Value": { "Source": "Step", "FieldID": "ServerDate" },
+                            "TypeName": "String",
+                            "Message": "ServerDate는 문자열이어야 합니다"
+                        },
+                        {
+                            "Assert": "Same",
+                            "Expected": { "Source": "Step", "FieldID": "ServerName" },
+                            "Actual": { "Source": "Step", "FieldID": "ServerName" },
+                            "Message": "ServerName은 같은 단계 값 인스턴스여야 합니다"
+                        }
+                    ]
+                },
+                {
+                    "StepID": "assertThrows",
+                    "CommandType": "D",
+                    "TransactionProjectID": "TST",
+                    "TransactionID": "TST010",
+                    "ServiceID": "GD99",
+                    "ReturnType": "Json",
+                    "Assertions": [
+                        {
+                            "Assert": "Throws",
+                            "Message": "존재하지 않는 서비스 호출은 실패해야 합니다"
+                        }
+                    ]
+                },
+                {
+                    "StepID": "loadAssertionResult",
+                    "CommandType": "D",
+                    "TransactionProjectID": "TST",
+                    "TransactionID": "TST010",
+                    "ServiceID": "GD07",
+                    "ReturnType": "Json"
                 }
             ],
             "Inputs": [
@@ -174,6 +329,32 @@
         },
         {
             "ServiceID": "GD05",
+            "Authorize": false,
+            "ReturnType": "Json",
+            "CommandType": "D",
+            "TransactionScope": false,
+            "Inputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [],
+                    "TestValues": [],
+                    "DefaultValues": [],
+                    "Type": "Row",
+                    "BaseFieldMappings": [],
+                    "ParameterHandling": "Rejected"
+                }
+            ],
+            "Outputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "Type": "Form"
+                }
+            ]
+        },
+        {
+            "ServiceID": "GD07",
             "Authorize": false,
             "ReturnType": "Json",
             "CommandType": "D",

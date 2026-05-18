@@ -208,16 +208,26 @@ ${UserMessage}
             <header name="X-Tenant" value="@TenantID" />
         </headers>
         <body type="form-data">
-            <part type="file" name="uploadByPath" path="{@UploadFilePath}" fileName="{@FileName}" contentType="application/octet-stream" />
-            <part type="file" name="uploadByBase64" base64="{@PayloadBase64}" fileName="payload.json" contentType="application/json" />
+            <part type="file" name="uploadByPath" path="@UploadFilePath" fileName="@FileName" contentType="application/octet-stream" />
+            <part type="file" name="uploadByBase64" base64="@PayloadBase64" fileName="payload.json" contentType="application/json" />
         </body>
         <param id="@UserMessage" type="String" length="-1" value="" />
         <param id="@Token" type="String" length="4000" value="NULL" />
+        <param id="@TenantID" type="String" length="-1" value="" />
+        <param id="@UploadFilePath" type="String" length="-1" value="" />
+        <param id="@FileName" type="String" length="-1" value="" />
+        <param id="@PayloadBase64" type="String" length="-1" value="" />
     </statement>
 </prompts>
 ```
 
 `tools`의 기본 mode는 `none`이고 `maxrounds` 기본값은 3입니다. KernelPlugin, MCP, CLI는 계약 선언과 module.json allowlist가 모두 일치할 때만 실행됩니다. file body는 path와 base64가 모두 있으면 path를 우선하며, path는 AllowedBodyFileBasePaths 아래에 있을 때만 읽습니다.
+
+프롬프트 계약의 문자열 치환 규칙은 다음과 같습니다.
+
+- 프롬프트 본문은 `${ParameterName}` 형식으로 요청 파라미터를 치환합니다.
+- `authorization`, `headers`, `body` 속성은 값 전체가 파라미터일 때 `@ParameterName` 형식으로 전달합니다.
+- 프롬프트 본문에 `@{CodeHelpID|ApplicationID|BusinessID|TransactionID|FunctionID|Parameters...}` 형식을 추가하면 해당 위치를 코드도움 결과로 치환합니다. 예를 들어 `@{CHP001|HDS|SYS|SYS010|LD01|@GroupCode:SYS001;CompanyNo:1;}`는 `HDS|SYS|SYS010|LD01` 거래를 `ApplicationID=HDS`, `CodeHelpID=CHP001`, `Parameters=@GroupCode:SYS001;CompanyNo:1;`로 호출한 뒤 반환된 `DataSource`를 CSV 문자열로 변환해 삽입합니다.
 
 ## 설정 정보 관리 화면
 

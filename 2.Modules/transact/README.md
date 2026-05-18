@@ -102,6 +102,118 @@
 - 최종 응답의 `result.dataSetMeta`는 실행 모듈의 메타 정보가 있으면 그 값을 사용하고, 없으면 최종 `dataSet`의 필드 ID 목록을 사용합니다.
 - 요청의 `transaction.compressionYN`이 `Y`이고 최종 값이 객체 또는 배열이면 값을 LZString Base64로 압축합니다.
 
+### 단계 검증
+- `Assertions`가 있으면 단계 실행 후 다음 단계로 넘어가기 전에 순서대로 검증합니다.
+- 첫 번째 검증 실패에서 워크플로가 실패하며, `Message`가 있으면 `exceptionText`에 해당 메시지를 우선 사용합니다.
+- 검증 값의 `Source`는 `Literal`, `Request`, `Step`을 지원합니다. `Step`에서 `SourceStepID`를 생략하면 현재 단계 결과를 참조하고, 지정하면 이전 단계 결과를 참조합니다.
+- `Assert`는 `Equal`, `NotEqual`, `True`, `False`, `Null`, `NotNull`, `Contains`, `DoesNotContain`, `Empty`, `NotEmpty`, `Single`, `InRange`, `Throws`, `IsType`, `Same`을 지원합니다.
+- `Throws<TException>()`, `IsType<T>()` 형태는 JSON 계약에서 각각 `Assert: "Throws"`와 `ExceptionType`, `Assert: "IsType"`과 `TypeName`으로 표현합니다.
+
+```json
+"Assertions": [
+  {
+    "Assert": "NotEmpty",
+    "Collection": {
+      "Source": "Step",
+      "FieldID": "ServerName"
+    },
+    "Message": "ServerName 값이 필요합니다"
+  },
+  {
+    "Assert": "IsType",
+    "Value": {
+      "Source": "Step",
+      "FieldID": "ServerDate"
+    },
+    "TypeName": "String"
+  }
+]
+```
+
+아래는 각 검증 타입의 작성 형태를 한 번에 확인하기 위한 예제입니다. `Actual`, `Value`, `Collection`의 `FieldID`는 단계 결과에 맞게 바꿔 사용합니다.
+
+```json
+"Assertions": [
+  {
+    "Assert": "Equal",
+    "Expected": { "Source": "Literal", "Value": "OK" },
+    "Actual": { "Source": "Step", "FieldID": "ResultCode" },
+    "Message": "ResultCode는 OK여야 합니다"
+  },
+  {
+    "Assert": "NotEqual",
+    "Expected": { "Source": "Literal", "Value": "ERROR" },
+    "Actual": { "Source": "Step", "FieldID": "ResultCode" }
+  },
+  {
+    "Assert": "True",
+    "Value": { "Source": "Step", "FieldID": "IsValid" }
+  },
+  {
+    "Assert": "False",
+    "Value": { "Source": "Step", "FieldID": "HasError" }
+  },
+  {
+    "Assert": "Null",
+    "Value": { "Source": "Step", "FieldID": "DeletedDate" }
+  },
+  {
+    "Assert": "NotNull",
+    "Value": { "Source": "Step", "FieldID": "ServerName" }
+  },
+  {
+    "Assert": "Contains",
+    "Value": { "Source": "Literal", "Value": "admin" },
+    "Collection": { "Source": "Step", "FieldID": "Roles" }
+  },
+  {
+    "Assert": "DoesNotContain",
+    "Value": { "Source": "Literal", "Value": "blocked" },
+    "Collection": { "Source": "Step", "FieldID": "Tags" }
+  },
+  {
+    "Assert": "Empty",
+    "Collection": { "Source": "Step", "FieldID": "Warnings" }
+  },
+  {
+    "Assert": "NotEmpty",
+    "Collection": { "Source": "Step", "FieldID": "ServerName" }
+  },
+  {
+    "Assert": "Single",
+    "Collection": { "Source": "Step", "FieldID": "Items" }
+  },
+  {
+    "Assert": "InRange",
+    "Value": { "Source": "Step", "FieldID": "Score" },
+    "Min": { "Source": "Literal", "Value": 0 },
+    "Max": { "Source": "Literal", "Value": 100 }
+  },
+  {
+    "Assert": "IsType",
+    "Value": { "Source": "Step", "FieldID": "ServerDate" },
+    "TypeName": "String"
+  },
+  {
+    "Assert": "Same",
+    "Expected": { "Source": "Step", "FieldID": "ServerName" },
+    "Actual": { "Source": "Step", "FieldID": "ServerName" }
+  }
+]
+```
+
+`Throws`는 실패가 예상되는 단계에만 사용합니다. 단계가 실제로 실패하고 `ExceptionType`이 비어 있거나 오류 타입/메시지에 포함되면 검증이 성공한 것으로 처리합니다.
+
+```json
+"Assertions": [
+  {
+    "Assert": "Throws",
+    "ExceptionType": "InvalidOperationException",
+    "Message": "입력 매핑 오류가 발생해야 합니다"
+  }
+]
+```
+
 ### TST010 워크플로 계약 예
 `Contracts/transact/HDS/TST/TST010.json`의 `WF01` 서비스는 `GD04`를 두 번 호출하는 가장 작은 워크플로 예제입니다. 첫 번째 단계는 서버 시간 정보를 읽어 `ServerDate`, `ServerName`을 단계 결과에 저장하고, 두 번째 단계는 첫 번째 단계의 `ServerName`을 입력으로 받아 다시 `GD04`를 호출합니다.
 

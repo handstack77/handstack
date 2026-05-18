@@ -459,6 +459,364 @@ namespace transact.Areas.transact.Controllers
             return JToken.FromObject(value);
         }
 
+        private static bool EvaluateWorkflowAssertions(Dictionary<string, JToken> requestValues, Dictionary<string, Dictionary<string, JToken>> stepValues, WorkflowStep step, WorkflowStepResult stepResult, out string exceptionText)
+        {
+            exceptionText = "";
+            if (step.Assertions.Count == 0)
+            {
+                return true;
+            }
+
+            var hasThrowsAssertion = step.Assertions.Any(item => item.Assert.ToStringSafe().Equals("Throws", StringComparison.OrdinalIgnoreCase));
+            foreach (var assertion in step.Assertions)
+            {
+                if (EvaluateWorkflowAssertion(requestValues, stepValues, stepResult, assertion, out var assertionExceptionText) == false)
+                {
+                    exceptionText = string.IsNullOrWhiteSpace(assertion.Message) == false ? assertion.Message : assertionExceptionText;
+                    return false;
+                }
+            }
+
+            if (stepResult.Success == false && hasThrowsAssertion == true)
+            {
+                stepResult.Success = true;
+                stepResult.ExceptionText = "";
+                stepResult.ExceptionType = "";
+            }
+
+            return true;
+        }
+
+        private static bool EvaluateWorkflowAssertion(Dictionary<string, JToken> requestValues, Dictionary<string, Dictionary<string, JToken>> stepValues, WorkflowStepResult stepResult, WorkflowAssertion assertion, out string exceptionText)
+        {
+            exceptionText = "";
+            var assertName = assertion.Assert.ToStringSafe();
+            if (string.IsNullOrWhiteSpace(assertName) == true)
+            {
+                exceptionText = "Assert 확인 필요";
+                return false;
+            }
+
+            switch (assertName.ToUpperInvariant())
+            {
+                case "EQUAL":
+                    return CompareAssertionValues(requestValues, stepValues, stepResult, assertion.Expected, assertion.Actual, JToken.DeepEquals, "Equal", out exceptionText);
+                case "NOTEQUAL":
+                    return CompareAssertionValues(requestValues, stepValues, stepResult, assertion.Expected, assertion.Actual, (expected, actual) => JToken.DeepEquals(expected, actual) == false, "NotEqual", out exceptionText);
+                case "TRUE":
+                    return EvaluateSingleValueAssertion(requestValues, stepValues, stepResult, assertion.Value, value => TryGetBoolean(value, out var booleanValue) == true && booleanValue == true, "True", out exceptionText);
+                case "FALSE":
+                    return EvaluateSingleValueAssertion(requestValues, stepValues, stepResult, assertion.Value, value => TryGetBoolean(value, out var booleanValue) == true && booleanValue == false, "False", out exceptionText);
+                case "NULL":
+                    return EvaluateSingleValueAssertion(requestValues, stepValues, stepResult, assertion.Value, IsNullToken, "Null", out exceptionText);
+                case "NOTNULL":
+                    return EvaluateSingleValueAssertion(requestValues, stepValues, stepResult, assertion.Value, value => IsNullToken(value) == false, "NotNull", out exceptionText);
+                case "CONTAINS":
+                    return EvaluateCollectionAssertion(requestValues, stepValues, stepResult, assertion.Value, assertion.Collection, ContainsToken, "Contains", out exceptionText);
+                case "DOESNOTCONTAIN":
+                    return EvaluateCollectionAssertion(requestValues, stepValues, stepResult, assertion.Value, assertion.Collection, (value, collection) => ContainsToken(value, collection) == false, "DoesNotContain", out exceptionText);
+                case "EMPTY":
+                    return EvaluateSingleValueAssertion(requestValues, stepValues, stepResult, assertion.Collection, IsEmptyToken, "Empty", out exceptionText);
+                case "NOTEMPTY":
+                    return EvaluateSingleValueAssertion(requestValues, stepValues, stepResult, assertion.Collection, value => IsEmptyToken(value) == false, "NotEmpty", out exceptionText);
+                case "SINGLE":
+                    return EvaluateSingleValueAssertion(requestValues, stepValues, stepResult, assertion.Collection, IsSingleToken, "Single", out exceptionText);
+                case "INRANGE":
+                    return EvaluateInRangeAssertion(requestValues, stepValues, stepResult, assertion, out exceptionText);
+                case "THROWS":
+                    return EvaluateThrowsAssertion(stepResult, assertion, out exceptionText);
+                case "ISTYPE":
+                    return EvaluateIsTypeAssertion(requestValues, stepValues, stepResult, assertion, out exceptionText);
+                case "SAME":
+                    return EvaluateSameAssertion(requestValues, stepValues, stepResult, assertion, out exceptionText);
+                default:
+                    exceptionText = $"Assert '{assertName}' 확인 필요";
+                    return false;
+            }
+        }
+
+        private static bool CompareAssertionValues(Dictionary<string, JToken> requestValues, Dictionary<string, Dictionary<string, JToken>> stepValues, WorkflowStepResult stepResult, WorkflowAssertionValue expectedValue, WorkflowAssertionValue actualValue, Func<JToken, JToken, bool> predicate, string assertName, out string exceptionText)
+        {
+            exceptionText = "";
+            if (TryResolveAssertionValue(requestValues, stepValues, stepResult, expectedValue, out var expected, out exceptionText) == false ||
+                TryResolveAssertionValue(requestValues, stepValues, stepResult, actualValue, out var actual, out exceptionText) == false)
+            {
+                return false;
+            }
+
+            if (predicate(expected, actual) == true)
+            {
+                return true;
+            }
+
+            exceptionText = $"{assertName} 검증 실패. expected: {expected}, actual: {actual}";
+            return false;
+        }
+
+        private static bool EvaluateSingleValueAssertion(Dictionary<string, JToken> requestValues, Dictionary<string, Dictionary<string, JToken>> stepValues, WorkflowStepResult stepResult, WorkflowAssertionValue assertionValue, Func<JToken, bool> predicate, string assertName, out string exceptionText)
+        {
+            exceptionText = "";
+            if (TryResolveAssertionValue(requestValues, stepValues, stepResult, assertionValue, out var value, out exceptionText) == false)
+            {
+                return false;
+            }
+
+            if (predicate(value) == true)
+            {
+                return true;
+            }
+
+            exceptionText = $"{assertName} 검증 실패. value: {value}";
+            return false;
+        }
+
+        private static bool EvaluateCollectionAssertion(Dictionary<string, JToken> requestValues, Dictionary<string, Dictionary<string, JToken>> stepValues, WorkflowStepResult stepResult, WorkflowAssertionValue itemValue, WorkflowAssertionValue collectionValue, Func<JToken, JToken, bool> predicate, string assertName, out string exceptionText)
+        {
+            exceptionText = "";
+            if (TryResolveAssertionValue(requestValues, stepValues, stepResult, itemValue, out var value, out exceptionText) == false ||
+                TryResolveAssertionValue(requestValues, stepValues, stepResult, collectionValue, out var collection, out exceptionText) == false)
+            {
+                return false;
+            }
+
+            if (predicate(value, collection) == true)
+            {
+                return true;
+            }
+
+            exceptionText = $"{assertName} 검증 실패. value: {value}, collection: {collection}";
+            return false;
+        }
+
+        private static bool EvaluateInRangeAssertion(Dictionary<string, JToken> requestValues, Dictionary<string, Dictionary<string, JToken>> stepValues, WorkflowStepResult stepResult, WorkflowAssertion assertion, out string exceptionText)
+        {
+            exceptionText = "";
+            if (TryResolveAssertionValue(requestValues, stepValues, stepResult, assertion.Value, out var value, out exceptionText) == false ||
+                TryResolveAssertionValue(requestValues, stepValues, stepResult, assertion.Min, out var min, out exceptionText) == false ||
+                TryResolveAssertionValue(requestValues, stepValues, stepResult, assertion.Max, out var max, out exceptionText) == false)
+            {
+                return false;
+            }
+
+            if (TryGetDecimal(value, out var decimalValue) == true && TryGetDecimal(min, out var decimalMin) == true && TryGetDecimal(max, out var decimalMax) == true)
+            {
+                if (decimalValue >= decimalMin && decimalValue <= decimalMax)
+                {
+                    return true;
+                }
+            }
+            else if (TryGetDateTime(value, out var dateValue) == true && TryGetDateTime(min, out var dateMin) == true && TryGetDateTime(max, out var dateMax) == true)
+            {
+                if (dateValue >= dateMin && dateValue <= dateMax)
+                {
+                    return true;
+                }
+            }
+
+            exceptionText = $"InRange 검증 실패. value: {value}, min: {min}, max: {max}";
+            return false;
+        }
+
+        private static bool EvaluateThrowsAssertion(WorkflowStepResult stepResult, WorkflowAssertion assertion, out string exceptionText)
+        {
+            exceptionText = "";
+            if (stepResult.Success == true || string.IsNullOrWhiteSpace(stepResult.ExceptionText) == true)
+            {
+                exceptionText = "Throws 검증 실패. 예외가 발생하지 않았습니다";
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(assertion.ExceptionType) == false &&
+                stepResult.ExceptionType.Contains(assertion.ExceptionType, StringComparison.OrdinalIgnoreCase) == false &&
+                stepResult.ExceptionText.Contains(assertion.ExceptionType, StringComparison.OrdinalIgnoreCase) == false)
+            {
+                exceptionText = $"Throws 검증 실패. exceptionType: {assertion.ExceptionType}, actual: {stepResult.ExceptionType}";
+                return false;
+            }
+
+            return true;
+        }
+
+        private static bool EvaluateIsTypeAssertion(Dictionary<string, JToken> requestValues, Dictionary<string, Dictionary<string, JToken>> stepValues, WorkflowStepResult stepResult, WorkflowAssertion assertion, out string exceptionText)
+        {
+            exceptionText = "";
+            if (TryResolveAssertionValue(requestValues, stepValues, stepResult, assertion.Value, out var value, out exceptionText) == false)
+            {
+                return false;
+            }
+
+            var expectedTypeName = assertion.TypeName.ToStringSafe();
+            if (string.IsNullOrWhiteSpace(expectedTypeName) == true)
+            {
+                exceptionText = "TypeName 확인 필요";
+                return false;
+            }
+
+            if (IsTokenType(value, expectedTypeName) == true)
+            {
+                return true;
+            }
+
+            exceptionText = $"IsType 검증 실패. typeName: {expectedTypeName}, actual: {value.Type}";
+            return false;
+        }
+
+        private static bool EvaluateSameAssertion(Dictionary<string, JToken> requestValues, Dictionary<string, Dictionary<string, JToken>> stepValues, WorkflowStepResult stepResult, WorkflowAssertion assertion, out string exceptionText)
+        {
+            exceptionText = "";
+            if (TryResolveAssertionValue(requestValues, stepValues, stepResult, assertion.Expected, out var expected, out exceptionText) == false ||
+                TryResolveAssertionValue(requestValues, stepValues, stepResult, assertion.Actual, out var actual, out exceptionText) == false)
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(expected, actual) == true)
+            {
+                return true;
+            }
+
+            exceptionText = "Same 검증 실패";
+            return false;
+        }
+
+        private static bool TryResolveAssertionValue(Dictionary<string, JToken> requestValues, Dictionary<string, Dictionary<string, JToken>> stepValues, WorkflowStepResult stepResult, WorkflowAssertionValue assertionValue, out JToken value, out string exceptionText)
+        {
+            value = JValue.CreateNull();
+            exceptionText = "";
+
+            var source = assertionValue.Source.ToStringSafe();
+            var fieldID = assertionValue.FieldID.ToStringSafe();
+            if (fieldID.Length > 0 && (string.IsNullOrWhiteSpace(source) == true || source.Equals("Literal", StringComparison.OrdinalIgnoreCase) == true) && assertionValue.Value == null)
+            {
+                source = "Step";
+            }
+
+            if (string.IsNullOrWhiteSpace(source) == true || source.Equals("Literal", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                value = JTokenFromObject(assertionValue.Value);
+                return true;
+            }
+
+            Dictionary<string, JToken>? sourceValues = null;
+            if (source.Equals("Request", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                sourceValues = requestValues;
+            }
+            else if (source.Equals("Step", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                if (string.IsNullOrWhiteSpace(assertionValue.SourceStepID) == true)
+                {
+                    sourceValues = stepResult.Values;
+                }
+                else
+                {
+                    stepValues.TryGetValue(assertionValue.SourceStepID, out sourceValues);
+                }
+            }
+            else
+            {
+                exceptionText = $"Source '{source}' 확인 필요";
+                return false;
+            }
+
+            if (sourceValues != null && TryGetValue(sourceValues, fieldID, out value) == true)
+            {
+                return true;
+            }
+
+            exceptionText = $"FieldID '{fieldID}' 검증 값 확인 필요";
+            return false;
+        }
+
+        private static bool IsNullToken(JToken value)
+        {
+            return value.Type == JTokenType.Null || value.Type == JTokenType.Undefined;
+        }
+
+        private static bool IsEmptyToken(JToken value)
+        {
+            return value.Type switch
+            {
+                JTokenType.Array => !value.Any(),
+                JTokenType.Object => !value.Children<JProperty>().Any(),
+                JTokenType.String => value.ToString().Length == 0,
+                _ => false
+            };
+        }
+
+        private static bool IsSingleToken(JToken value)
+        {
+            return value.Type switch
+            {
+                JTokenType.Array => value.Count() == 1,
+                JTokenType.Object => value.Children<JProperty>().Count() == 1,
+                JTokenType.String => value.ToString().Length == 1,
+                _ => false
+            };
+        }
+
+        private static bool ContainsToken(JToken value, JToken collection)
+        {
+            if (collection.Type == JTokenType.String)
+            {
+                return collection.ToString().Contains(value.ToString(), StringComparison.Ordinal);
+            }
+
+            if (collection is JArray array)
+            {
+                return array.Any(item => JToken.DeepEquals(item, value));
+            }
+
+            if (collection is JObject jObject)
+            {
+                return jObject.Properties().Any(item => item.Name.Equals(value.ToString(), StringComparison.OrdinalIgnoreCase) || JToken.DeepEquals(item.Value, value));
+            }
+
+            return false;
+        }
+
+        private static bool TryGetBoolean(JToken value, out bool result)
+        {
+            result = false;
+            if (value.Type == JTokenType.Boolean)
+            {
+                result = value.Value<bool>();
+                return true;
+            }
+
+            return bool.TryParse(value.ToString(), out result);
+        }
+
+        private static bool TryGetDecimal(JToken value, out decimal result)
+        {
+            result = 0;
+            return decimal.TryParse(value.ToString(), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out result);
+        }
+
+        private static bool TryGetDateTime(JToken value, out DateTime result)
+        {
+            result = default;
+            return DateTime.TryParse(value.ToString(), System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out result);
+        }
+
+        private static bool IsTokenType(JToken value, string typeName)
+        {
+            return typeName.ToUpperInvariant() switch
+            {
+                "STRING" => value.Type == JTokenType.String,
+                "INTEGER" => value.Type == JTokenType.Integer,
+                "INT" => value.Type == JTokenType.Integer,
+                "FLOAT" => value.Type == JTokenType.Float,
+                "NUMBER" => value.Type == JTokenType.Integer || value.Type == JTokenType.Float,
+                "BOOLEAN" => value.Type == JTokenType.Boolean,
+                "BOOL" => value.Type == JTokenType.Boolean,
+                "OBJECT" => value.Type == JTokenType.Object,
+                "ARRAY" => value.Type == JTokenType.Array,
+                "NULL" => IsNullToken(value),
+                _ => value.Type.ToString().Equals(typeName, StringComparison.OrdinalIgnoreCase)
+            };
+        }
+
         private static bool TryDeserializeDataMapItems(string json, out List<DataMapItem> items)
         {
             items = new List<DataMapItem>();
@@ -506,10 +864,9 @@ namespace transact.Areas.transact.Controllers
                         step.StepID = $"{step.CommandType}{(i + 1).ToString().PadLeft(2, '0')}";
                     }
 
-                    WorkflowStepResult stepResult;
+                    WorkflowStepResult stepResult = new WorkflowStepResult();
                     try
                     {
-                        stepResult = new WorkflowStepResult();
                         var applicationID = string.IsNullOrWhiteSpace(step.ApplicationID)
                             ? (businessContract.TransactionApplicationID.ToStringSafe() == "" ? businessContract.ApplicationID : businessContract.TransactionApplicationID.ToStringSafe())
                             : step.ApplicationID;
@@ -795,7 +1152,13 @@ namespace transact.Areas.transact.Controllers
                     }
                     catch (Exception exception)
                     {
-                        result.ExceptionText = $"StepID '{step.StepID}' Workflow 실행 오류 - {exception.ToMessage()}";
+                        stepResult.ExceptionText = exception.ToMessage();
+                        stepResult.ExceptionType = exception.GetType().FullName ?? exception.GetType().Name;
+                    }
+
+                    if (EvaluateWorkflowAssertions(requestValues, stepValues, step, stepResult, out var assertionExceptionText) == false)
+                    {
+                        result.ExceptionText = $"StepID '{step.StepID}' Workflow 검증 오류 - {assertionExceptionText}";
                         return result;
                     }
 

@@ -39,6 +39,23 @@
 			]]>
         </statement>
 
+        <statement id="GD07" seq="0" use="Y" timeout="0" desc="SQLite WorkflowStep Assertions 검증 예제">
+            <![CDATA[
+            SELECT
+                'OK' AS ResultCode,
+                'true' AS IsValid,
+                'false' AS HasError,
+                NULL AS DeletedDate,
+                'localhost' AS ServerName,
+                'admin,user' AS Roles,
+                'release,stable' AS Tags,
+                '' AS Warnings,
+                'A' AS Items,
+                75 AS Score,
+                DATETIME('now', 'localtime') AS ServerDate;
+			]]>
+        </statement>
+
         <statement id="GD06" seq="0" use="Y" timeout="0" desc="SQL 확장 기능 예제">
             <![CDATA[
 SELECT TOP 100 M.*

@@ -21,7 +21,7 @@
 - You should never infer information if it does not appear in the context of the query
 - You can only answer with the type of query that you choose based on why you choose it.
 
-INDENTS: Question, Assertion, Declaration
+INDENTS: @{CHP001|HDS|SYS|SYS010|LD01|@GroupCode:SYS001;CompanyNo:1;}
 
 ---
 

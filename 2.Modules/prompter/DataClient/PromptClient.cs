@@ -36,6 +36,8 @@ namespace prompter.DataClient
 {
     public class PromptClient : IPromptClient
     {
+        private static readonly Regex codeHelpTemplateRegex = new Regex("@\\{([^}]+)\\}", RegexOptions.Compiled);
+
         private ILogger logger { get; }
 
         private PromptLoggerClient loggerClient { get; }
@@ -407,6 +409,7 @@ namespace prompter.DataClient
 
                         AddOrUpdateRuntimeParameter(dynamicObject, "ChatHistory", string.Join("\n", chatHistory.Select(x => x.Role + ": " + x.Content)));
                         var parsePrompt = PromptMapper.Find(promptMap, dynamicObject);
+                        parsePrompt = await ReplaceCodeHelpTemplatesAsync(parsePrompt, dynamicObject);
                         if (string.IsNullOrEmpty(parsePrompt) == true || parsePrompt.Replace(Environment.NewLine, "").Replace("\t", "").Trim() == "")
                         {
                             if (ModuleConfiguration.IsTransactionLogging == true || promptMap.TransactionLog == true)
@@ -957,6 +960,71 @@ TransactionException:
             }
 
             return File.ReadAllBytes(fullPath);
+        }
+
+        private async Task<string> ReplaceCodeHelpTemplatesAsync(string value, QueryObject queryObject)
+        {
+            if (string.IsNullOrEmpty(value) == true)
+            {
+                return "";
+            }
+
+            var matches = codeHelpTemplateRegex.Matches(value);
+            if (matches.Count == 0)
+            {
+                return value;
+            }
+
+            var parameters = PromptMapper.ExtractParameters(queryObject);
+            var result = value;
+            foreach (Match match in matches)
+            {
+                var expression = match.Groups[1].Value;
+                var items = expression.Split('|').Select(item => item.Trim()).ToArray();
+                var replacement = "";
+
+                if (items.Length == 6)
+                {
+                    var codeHelpID = items[0];
+                    var applicationID = items[1];
+                    var businessID = items[2];
+                    var transactionID = items[3];
+                    var functionID = items[4];
+                    var parametersText = items[5];
+                    var parameterName = GetParameterName(parametersText);
+                    if (TryGetParameterValue(parameters, parameterName, out var parameterValue) == true)
+                    {
+                        parametersText = parameterValue;
+                    }
+
+                    var transactionCommandID = $"{applicationID}|{businessID}|{transactionID}|{functionID}";
+
+                    replacement = await moduleApiClient.GetCodeHelp(codeHelpID, applicationID, transactionCommandID, parametersText);
+                }
+                else
+                {
+                    logger.Warning("[{LogCategory}] " + $"코드도움 치환식 확인 필요: {match.Value}", "PromptClient/ReplaceCodeHelpTemplatesAsync");
+                }
+
+                result = result.Replace(match.Value, replacement);
+            }
+
+            return result;
+        }
+
+        private static bool TryGetParameterValue(JObject parameters, string parameterName, out string value)
+        {
+            value = "";
+            foreach (var parameter in parameters)
+            {
+                if (string.Equals(parameter.Key, parameterName, StringComparison.OrdinalIgnoreCase) == true)
+                {
+                    value = parameter.Value?.ToStringSafe() ?? "";
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private static string ReplaceStatementValue(string value, JObject parameters)

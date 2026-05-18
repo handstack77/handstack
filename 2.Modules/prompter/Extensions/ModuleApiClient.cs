@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Text;
 using System.Threading.Tasks;
+
+using ChoETL;
 
 using HandStack.Core.ExtensionMethod;
 using HandStack.Web.ApiClient;
@@ -69,6 +73,70 @@ namespace prompter.Extensions
             }
 
             return result;
+        }
+
+        public async Task<string> GetCodeHelp(string codeHelpID, string applicationID, string transactionCommandID, string parametersText, string? delimiter = null, string? eol = null)
+        {
+            var result = "";
+
+            if (string.IsNullOrWhiteSpace(codeHelpID) == true
+                || string.IsNullOrWhiteSpace(applicationID) == true
+                || string.IsNullOrWhiteSpace(transactionCommandID) == true)
+            {
+                logger.Warning("[{LogCategory}] " + $"CodeHelpID: {codeHelpID}, ApplicationID: {applicationID}, transactionCommandID: {transactionCommandID} 확인 필요", "ModuleApiClient/GetCodeHelp");
+                return result;
+            }
+
+            var serviceParameters = new List<ServiceParameter>
+            {
+                new ServiceParameter("ApplicationID", applicationID),
+                new ServiceParameter("CodeHelpID", codeHelpID),
+                new ServiceParameter("Parameters", NormalizeCodeHelpParameters(parametersText))
+            };
+
+            var transactionResult = await TransactionDirect(transactionCommandID, serviceParameters, "ModuleApiClient/GetCodeHelp");
+            if (transactionResult != null && transactionResult.Count > 0 && transactionResult.ContainsKey("HasException") == false)
+            {
+                var dataSource = transactionResult[codeHelpID]?["DataSource"];
+                if (dataSource != null)
+                {
+                    var stringBuilder = new StringBuilder();
+                    var jsonReader = new StringReader(dataSource.ToStringSafe());
+                    using var choJSONReader = new ChoJSONReader(jsonReader);
+                    using (var choCSVWriter = new ChoCSVWriter(stringBuilder, new ChoCSVRecordConfiguration()
+                    {
+                        Delimiter = string.IsNullOrEmpty(delimiter) == true ? "," : delimiter,
+                        EOLDelimiter = string.IsNullOrEmpty(eol) == true ? Environment.NewLine : eol
+                    }).WithFirstLineHeader().QuoteAllFields(false))
+                    {
+                        choCSVWriter.Write(choJSONReader);
+                    }
+
+                    result = stringBuilder.ToString().Replace("\"\"", "\"");
+                }
+
+                logger.Information("[{LogCategory}] " + $"코드도움 거래: {parametersText}", "ModuleApiClient/GetCodeHelp");
+                return result;
+            }
+
+            var errorMessage = (transactionResult?["HasException"]?["ErrorMessage"]).ToStringSafe();
+            logger.Warning("[{LogCategory}] " + $"CodeHelpID: {codeHelpID}, Parameters: {parametersText}, ErrorMessage: {errorMessage}", "ModuleApiClient/GetCodeHelp");
+            return result;
+        }
+
+        private static string NormalizeCodeHelpParameters(string parametersText)
+        {
+            if (string.IsNullOrWhiteSpace(parametersText) == true)
+            {
+                return "";
+            }
+
+            if (parametersText.StartsWith("@") == true || parametersText.Contains(":") == true || parametersText.Contains(";") == true)
+            {
+                return parametersText;
+            }
+
+            return $"@GroupCode:{parametersText};";
         }
     }
 }

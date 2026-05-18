@@ -13,6 +13,7 @@ namespace transact.Entity
         {
             Success = false;
             ExceptionText = "";
+            ExceptionType = "";
             DataSet = new List<DataMapItem>();
             ResultMeta = new List<string>();
             Values = new Dictionary<string, JToken>(System.StringComparer.OrdinalIgnoreCase);
@@ -21,6 +22,8 @@ namespace transact.Entity
         public bool Success { get; set; }
 
         public string ExceptionText { get; set; }
+
+        public string ExceptionType { get; set; }
 
         public List<DataMapItem> DataSet { get; set; }
 

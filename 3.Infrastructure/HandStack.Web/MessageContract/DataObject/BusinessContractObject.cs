@@ -59,6 +59,22 @@ namespace HandStack.Web.MessageContract.DataObject
             foreach (var service in Services)
             {
                 service.WorkflowSteps ??= new List<WorkflowStep>();
+                foreach (var step in service.WorkflowSteps)
+                {
+                    step.ServiceOutputs ??= new List<ModelOutputContract>();
+                    step.InputMappings ??= new List<WorkflowFieldMapping>();
+                    step.OutputMappings ??= new List<WorkflowFieldMapping>();
+                    step.Assertions ??= new List<WorkflowAssertion>();
+                    foreach (var assertion in step.Assertions)
+                    {
+                        assertion.Expected ??= new WorkflowAssertionValue();
+                        assertion.Actual ??= new WorkflowAssertionValue();
+                        assertion.Value ??= new WorkflowAssertionValue();
+                        assertion.Min ??= new WorkflowAssertionValue();
+                        assertion.Max ??= new WorkflowAssertionValue();
+                        assertion.Collection ??= new WorkflowAssertionValue();
+                    }
+                }
             }
         }
 
@@ -244,6 +260,9 @@ namespace HandStack.Web.MessageContract.DataObject
         [JsonProperty("OutputMappings")]
         public List<WorkflowFieldMapping> OutputMappings { get; set; }
 
+        [JsonProperty("Assertions")]
+        public List<WorkflowAssertion> Assertions { get; set; }
+
         public WorkflowStep()
         {
             StepID = "";
@@ -257,6 +276,77 @@ namespace HandStack.Web.MessageContract.DataObject
             ServiceOutputs = new List<ModelOutputContract>();
             InputMappings = new List<WorkflowFieldMapping>();
             OutputMappings = new List<WorkflowFieldMapping>();
+            Assertions = new List<WorkflowAssertion>();
+        }
+    }
+
+    public class WorkflowAssertion
+    {
+        [JsonProperty("Assert")]
+        public string Assert { get; set; }
+
+        [JsonProperty("Expected")]
+        public WorkflowAssertionValue Expected { get; set; }
+
+        [JsonProperty("Actual")]
+        public WorkflowAssertionValue Actual { get; set; }
+
+        [JsonProperty("Value")]
+        public WorkflowAssertionValue Value { get; set; }
+
+        [JsonProperty("Min")]
+        public WorkflowAssertionValue Min { get; set; }
+
+        [JsonProperty("Max")]
+        public WorkflowAssertionValue Max { get; set; }
+
+        [JsonProperty("Collection")]
+        public WorkflowAssertionValue Collection { get; set; }
+
+        [JsonProperty("TypeName")]
+        public string TypeName { get; set; }
+
+        [JsonProperty("ExceptionType")]
+        public string ExceptionType { get; set; }
+
+        [JsonProperty("Message")]
+        public string Message { get; set; }
+
+        public WorkflowAssertion()
+        {
+            Assert = "";
+            Expected = new WorkflowAssertionValue();
+            Actual = new WorkflowAssertionValue();
+            Value = new WorkflowAssertionValue();
+            Min = new WorkflowAssertionValue();
+            Max = new WorkflowAssertionValue();
+            Collection = new WorkflowAssertionValue();
+            TypeName = "";
+            ExceptionType = "";
+            Message = "";
+        }
+    }
+
+    public class WorkflowAssertionValue
+    {
+        [JsonProperty("Source")]
+        public string Source { get; set; }
+
+        [JsonProperty("SourceStepID")]
+        public string SourceStepID { get; set; }
+
+        [JsonProperty("FieldID")]
+        public string FieldID { get; set; }
+
+        [JsonProperty("Value")]
+        public object? Value { get; set; }
+
+        public WorkflowAssertionValue()
+        {
+            Source = "Literal";
+            SourceStepID = "";
+            FieldID = "";
+            Value = null;
         }
     }
 
