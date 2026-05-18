@@ -60,6 +60,7 @@
         <PackageReference Include="System.Numerics.Tensors" Version="10.0.6" />
         <PackageReference Include="System.Runtime.Caching" Version="10.0.2" />
         <PackageReference Include="System.ServiceModel.Syndication" Version="10.0.0" />
+        <PackageReference Include="ChoETL.JSON.NETStandard" Version="1.2.1.71" />
     </ItemGroup>
 
     <ItemGroup>
