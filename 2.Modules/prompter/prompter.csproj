@@ -55,6 +55,7 @@
         <PackageReference Include="Serilog.Extensions.Logging" Version="10.0.0" />
         <PackageReference Include="SoapFormatter" Version="1.1.9" />
         <PackageReference Include="SourceGear.sqlite3" Version="3.50.4.5" />
+        <PackageReference Include="Stubble.Core" Version="1.10.8" />
         <PackageReference Include="System.Data.SQLite" Version="2.0.2" />
         <PackageReference Include="System.Linq.Dynamic.Core" Version="1.7.1" />
         <PackageReference Include="System.Numerics.Tensors" Version="10.0.6" />

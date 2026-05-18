@@ -228,6 +228,7 @@ ${UserMessage}
 - 프롬프트 본문은 `${ParameterName}` 형식으로 요청 파라미터를 치환합니다.
 - `authorization`, `headers`, `body` 속성은 값 전체가 파라미터일 때 `@ParameterName` 형식으로 전달합니다.
 - 프롬프트 본문에 `@{CodeHelpID|ApplicationID|BusinessID|TransactionID|FunctionID|Parameters...}` 형식을 추가하면 해당 위치를 코드도움 결과로 치환합니다. 예를 들어 `@{CHP001|HDS|SYS|SYS010|LD01|@GroupCode:SYS001;CompanyNo:1;}`는 `HDS|SYS|SYS010|LD01` 거래를 `ApplicationID=HDS`, `CodeHelpID=CHP001`, `Parameters=@GroupCode:SYS001;CompanyNo:1;`로 호출한 뒤 반환된 `DataSource`를 CSV 문자열로 변환해 삽입합니다.
+- 코드도움 치환식의 마지막에 `|TemplateID`를 추가하면 `Prompts/CodeHelpTemplates/TemplateID.tmp` Mustache 템플릿으로 결과를 렌더링합니다. 템플릿 모델은 `Title`, `Items`, `CodeIDs`, `CodeValues`를 제공합니다.
 
 ## 설정 정보 관리 화면
 

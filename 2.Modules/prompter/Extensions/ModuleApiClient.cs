@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -17,10 +18,15 @@ using prompter.Entity;
 
 using Serilog;
 
+using Stubble.Core.Builders;
+
 namespace prompter.Extensions
 {
     public class ModuleApiClient
     {
+        private const string CodeHelpTemplateDirectoryName = "CodeHelpTemplates";
+        private const string CodeHelpTemplateExtension = ".tmp";
+
         private readonly ILogger logger;
         private readonly TransactionClient transactionClient;
 
@@ -75,7 +81,7 @@ namespace prompter.Extensions
             return result;
         }
 
-        public async Task<string> GetCodeHelp(string codeHelpID, string applicationID, string transactionCommandID, string parametersText, string? delimiter = null, string? eol = null)
+        public async Task<string> GetCodeHelp(string codeHelpID, string applicationID, string transactionCommandID, string parametersText, string? delimiter = null, string? eol = null, string? templateID = null)
         {
             var result = "";
 
@@ -97,22 +103,11 @@ namespace prompter.Extensions
             var transactionResult = await TransactionDirect(transactionCommandID, serviceParameters, "ModuleApiClient/GetCodeHelp");
             if (transactionResult != null && transactionResult.Count > 0 && transactionResult.ContainsKey("HasException") == false)
             {
-                var dataSource = transactionResult[codeHelpID]?["DataSource"];
+                var codeHelpObject = transactionResult[codeHelpID];
+                var dataSource = codeHelpObject?["DataSource"];
                 if (dataSource != null)
                 {
-                    var stringBuilder = new StringBuilder();
-                    var jsonReader = new StringReader(dataSource.ToStringSafe());
-                    using var choJSONReader = new ChoJSONReader(jsonReader);
-                    using (var choCSVWriter = new ChoCSVWriter(stringBuilder, new ChoCSVRecordConfiguration()
-                    {
-                        Delimiter = string.IsNullOrEmpty(delimiter) == true ? "," : delimiter,
-                        EOLDelimiter = string.IsNullOrEmpty(eol) == true ? Environment.NewLine : eol
-                    }).WithFirstLineHeader().QuoteAllFields(false))
-                    {
-                        choCSVWriter.Write(choJSONReader);
-                    }
-
-                    result = stringBuilder.ToString().Replace("\"\"", "\"");
+                    result = string.IsNullOrWhiteSpace(templateID) == true ? ConvertCodeHelpDataSourceToCsv(dataSource, delimiter, eol) : RenderCodeHelpTemplate(codeHelpObject, dataSource, templateID);
                 }
 
                 logger.Information("[{LogCategory}] " + $"코드도움 거래: {parametersText}", "ModuleApiClient/GetCodeHelp");
@@ -122,6 +117,112 @@ namespace prompter.Extensions
             var errorMessage = (transactionResult?["HasException"]?["ErrorMessage"]).ToStringSafe();
             logger.Warning("[{LogCategory}] " + $"CodeHelpID: {codeHelpID}, Parameters: {parametersText}, ErrorMessage: {errorMessage}", "ModuleApiClient/GetCodeHelp");
             return result;
+        }
+
+        private string RenderCodeHelpTemplate(JToken? codeHelpObject, JToken dataSource, string templateID)
+        {
+            var result = "";
+            var templatePath = GetCodeHelpTemplatePath(templateID);
+            if (string.IsNullOrEmpty(templatePath) == true)
+            {
+                logger.Warning("[{LogCategory}] " + $"코드도움 템플릿 ID 확인 필요: {templateID}", "ModuleApiClient/RenderCodeHelpTemplate");
+                return result;
+            }
+
+            if (File.Exists(templatePath) == false)
+            {
+                logger.Warning("[{LogCategory}] " + $"코드도움 템플릿 파일 확인 필요: {templatePath}", "ModuleApiClient/RenderCodeHelpTemplate");
+                return result;
+            }
+
+            try
+            {
+                var template = File.ReadAllText(templatePath, Encoding.UTF8);
+                var model = CreateCodeHelpTemplateModel(codeHelpObject, dataSource);
+                var renderer = new StubbleBuilder().Build();
+                result = renderer.Render(template, model);
+            }
+            catch (Exception exception)
+            {
+                logger.Warning("[{LogCategory}] " + $"TemplateID: {templateID}, Message: {exception.ToMessage()}", "ModuleApiClient/RenderCodeHelpTemplate");
+            }
+
+            return result;
+        }
+
+        private static string ConvertCodeHelpDataSourceToCsv(JToken dataSource, string? delimiter, string? eol)
+        {
+            var stringBuilder = new StringBuilder();
+            var jsonReader = new StringReader(dataSource.ToStringSafe());
+            using var choJSONReader = new ChoJSONReader(jsonReader);
+            using (var choCSVWriter = new ChoCSVWriter(stringBuilder, new ChoCSVRecordConfiguration()
+            {
+                Delimiter = string.IsNullOrEmpty(delimiter) == true ? "," : delimiter,
+                EOLDelimiter = string.IsNullOrEmpty(eol) == true ? Environment.NewLine : eol
+            }).WithFirstLineHeader().QuoteAllFields(false))
+            {
+                choCSVWriter.Write(choJSONReader);
+            }
+
+            return stringBuilder.ToString().Replace("\"\"", "\"");
+        }
+
+        private static Dictionary<string, object?> CreateCodeHelpTemplateModel(JToken? codeHelpObject, JToken dataSource)
+        {
+            var codeColumnID = codeHelpObject?["CodeColumnID"].ToStringSafe();
+            var valueColumnID = codeHelpObject?["ValueColumnID"].ToStringSafe();
+            var items = new List<Dictionary<string, object?>>();
+            IEnumerable<JToken> sourceItems = dataSource.Type == JTokenType.Array ? dataSource.Children<JToken>() : new[] { dataSource };
+
+            foreach (var sourceItem in sourceItems)
+            {
+                var item = new Dictionary<string, object?>();
+                if (sourceItem is JObject sourceObject)
+                {
+                    foreach (var property in sourceObject.Properties())
+                    {
+                        item[property.Name] = property.Value.ToStringSafe();
+                    }
+                }
+
+                item["CodeID"] = string.IsNullOrWhiteSpace(codeColumnID) == true ? item.GetValueOrDefault("CodeID")?.ToString() ?? "" : sourceItem[codeColumnID].ToStringSafe();
+                item["CodeValue"] = string.IsNullOrWhiteSpace(valueColumnID) == true ? item.GetValueOrDefault("CodeValue")?.ToString() ?? "" : sourceItem[valueColumnID].ToStringSafe();
+                items.Add(item);
+            }
+
+            return new Dictionary<string, object?>()
+            {
+                ["Title"] = codeHelpObject?["Comment"].ToStringSafe() ?? "",
+                ["CodeColumnID"] = codeColumnID,
+                ["ValueColumnID"] = valueColumnID,
+                ["Items"] = items,
+                ["CodeIDs"] = string.Join(",", items.Select(item => item["CodeID"]?.ToString() ?? "")),
+                ["CodeValues"] = string.Join(",", items.Select(item => item["CodeValue"]?.ToString() ?? ""))
+            };
+        }
+
+        private static string GetCodeHelpTemplatePath(string templateID)
+        {
+            if (string.IsNullOrWhiteSpace(templateID) == true)
+            {
+                return "";
+            }
+
+            var fileName = templateID.Trim();
+            if (fileName.EndsWith(CodeHelpTemplateExtension, StringComparison.OrdinalIgnoreCase) == true)
+            {
+                fileName = fileName.Substring(0, fileName.Length - CodeHelpTemplateExtension.Length);
+            }
+
+            if (fileName.IndexOfAny(Path.GetInvalidFileNameChars()) > -1
+                || fileName.Contains("..", StringComparison.Ordinal)
+                || fileName.Contains("/", StringComparison.Ordinal)
+                || fileName.Contains("\\", StringComparison.Ordinal))
+            {
+                return "";
+            }
+
+            return Path.Combine(ModuleConfiguration.ModuleBasePath, "Prompts", CodeHelpTemplateDirectoryName, fileName + CodeHelpTemplateExtension);
         }
 
         private static string NormalizeCodeHelpParameters(string parametersText)

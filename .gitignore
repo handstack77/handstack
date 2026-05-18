@@ -88,6 +88,7 @@ StyleCopReport.xml
 *.tli
 *.tlh
 *.tmp
+!2.Modules/prompter/Prompts/CodeHelpTemplates/*.tmp
 *.tmp_proj
 *_wpftmp.csproj
 *.log

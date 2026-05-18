@@ -983,7 +983,7 @@ TransactionException:
                 var items = expression.Split('|').Select(item => item.Trim()).ToArray();
                 var replacement = "";
 
-                if (items.Length == 6)
+                if (items.Length == 6 || items.Length == 7)
                 {
                     var codeHelpID = items[0];
                     var applicationID = items[1];
@@ -991,6 +991,7 @@ TransactionException:
                     var transactionID = items[3];
                     var functionID = items[4];
                     var parametersText = items[5];
+                    var templateID = items.Length == 7 ? items[6] : null;
                     var parameterName = GetParameterName(parametersText);
                     if (TryGetParameterValue(parameters, parameterName, out var parameterValue) == true)
                     {
@@ -999,7 +1000,7 @@ TransactionException:
 
                     var transactionCommandID = $"{applicationID}|{businessID}|{transactionID}|{functionID}";
 
-                    replacement = await moduleApiClient.GetCodeHelp(codeHelpID, applicationID, transactionCommandID, parametersText);
+                    replacement = await moduleApiClient.GetCodeHelp(codeHelpID, applicationID, transactionCommandID, parametersText, templateID: templateID);
                 }
                 else
                 {
