@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
@@ -3338,6 +3338,10 @@ TransactionException:
                                                     else
                                                     {
                                                         responseCodeObject.DataSource = dsCodes.Tables[0];
+                                                        if (dsCodes.Tables.Count > 1)
+                                                        {
+                                                            responseCodeObject.Comment = dsCodes.Tables[1].Columns.Contains("Comment") ? dsCodes.Tables[1].Rows[0]["Comment"].ToStringSafe() : responseCodeObject.Comment;
+                                                        }
                                                     }
                                                 }
                                                 finally
