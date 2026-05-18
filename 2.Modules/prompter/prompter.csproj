@@ -40,8 +40,8 @@
         <PackageReference Include="MediatR" Version="12.5.0" />
         <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="10.0.2" />
         <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.4" />
-        <PackageReference Include="Microsoft.SemanticKernel" Version="1.73.0" />
-        <PackageReference Include="Microsoft.SemanticKernel.Core" Version="1.73.0" />
+        <PackageReference Include="Microsoft.SemanticKernel" Version="1.76.0" />
+        <PackageReference Include="Microsoft.SemanticKernel.Core" Version="1.76.0" />
         <PackageReference Include="MySql.Data" Version="9.6.0" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
         <PackageReference Include="Npgsql" Version="10.0.1" />
@@ -57,7 +57,7 @@
         <PackageReference Include="SourceGear.sqlite3" Version="3.50.4.5" />
         <PackageReference Include="System.Data.SQLite" Version="2.0.2" />
         <PackageReference Include="System.Linq.Dynamic.Core" Version="1.7.1" />
-        <PackageReference Include="System.Numerics.Tensors" Version="10.0.3" />
+        <PackageReference Include="System.Numerics.Tensors" Version="10.0.6" />
         <PackageReference Include="System.Runtime.Caching" Version="10.0.2" />
         <PackageReference Include="System.ServiceModel.Syndication" Version="10.0.0" />
     </ItemGroup>
