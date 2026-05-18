@@ -25,7 +25,7 @@ namespace prompter.Extensions
     public class ModuleApiClient
     {
         private const string CodeHelpTemplateDirectoryName = "CodeHelpTemplates";
-        private const string CodeHelpTemplateExtension = ".tmp";
+        private const string CodeHelpTemplateExtension = ".tpl";
 
         private readonly ILogger logger;
         private readonly TransactionClient transactionClient;
