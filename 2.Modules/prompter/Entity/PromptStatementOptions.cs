@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace prompter.Entity
 {
@@ -13,7 +13,7 @@ namespace prompter.Entity
         public PromptToolSettings()
         {
             Mode = "none";
-            MaxRounds = 3;
+            MaxRounds = 10;
             Items = new List<PromptToolDeclaration>();
         }
     }

@@ -435,9 +435,10 @@ namespace prompter.DataClient
 
                         var userMessage = GetUserMessage(dynamicObject, parsePrompt);
                         var tools = promptToolExecutor.BuildTools(promptMap, logger);
+                        var promptRole = string.IsNullOrWhiteSpace(promptMap.Role) == true ? "system" : promptMap.Role;
                         var promptMessages = new List<LLMChatMessage>(chatHistory)
                         {
-                            new LLMChatMessage("user", parsePrompt)
+                            new LLMChatMessage(promptRole, parsePrompt)
                         };
 
                         var llmRequest = CreateLLMChatRequest(transactionDynamicObject.Value, promptMap, dynamicObject, promptMessages, tools);
@@ -741,7 +742,7 @@ TransactionException:
         private async Task<string> ExecuteLLMChatAsync(LLMChatRequest llmRequest, int maxRounds, IReadOnlyList<LLMToolDefinition> tools)
         {
             var client = llmChatClientFactory.Create(llmRequest.Provider);
-            var rounds = maxRounds <= 0 ? 3 : maxRounds;
+            var rounds = maxRounds <= 0 ? 10 : maxRounds;
             for (var round = 0; round <= rounds; round++)
             {
                 var llmResponse = await client.ChatAsync(llmRequest, CancellationToken.None);
@@ -752,7 +753,8 @@ TransactionException:
 
                 if (llmRequest.ToolMode == "none")
                 {
-                    throw new InvalidOperationException("LLM tool 호출이 반환되었으나 statement tools mode가 none입니다.");
+                    logger.Information("[{LogCategory}] " + $"LLM tool 호출이 반환되었으나 statement tools mode가 none입니다. content: {llmResponse.Content}, toolCalls: {JsonConvert.SerializeObject(llmResponse.ToolCalls)}", "PromptClient/ExecuteLLMChatAsync");
+                    return "";
                 }
 
                 llmRequest.ChatHistory.Add(new LLMChatMessage("assistant", llmResponse.Content)
@@ -771,7 +773,8 @@ TransactionException:
                 }
             }
 
-            throw new InvalidOperationException($"LLM tool 호출 반복 한도 초과: maxrounds={rounds}");
+            logger.Information("[{LogCategory}] " + $"LLM tool 호출 반복 한도 초과: maxrounds={rounds}", "PromptClient/ExecuteLLMChatAsync");
+            return "";
         }
 
         private LLMChatRequest CreateLLMChatRequest(TransactionDynamicObjects transactionDynamicObject, PromptMap promptMap, QueryObject queryObject, List<LLMChatMessage> promptMessages, List<LLMToolDefinition> tools)

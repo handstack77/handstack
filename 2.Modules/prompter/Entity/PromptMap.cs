@@ -35,6 +35,9 @@ namespace prompter.Entity
         public string Prompt { get; set; }
 
         [JsonProperty]
+        public string Role { get; set; }
+
+        [JsonProperty]
         public bool TransactionLog { get; set; }
 
         [JsonProperty]
@@ -85,6 +88,7 @@ namespace prompter.Entity
             Seq = 0;
             Comment = "";
             Prompt = "";
+            Role = "system";
             TransactionLog = false;
             Timeout = 0;
             MaxTokens = 4000;

@@ -142,6 +142,12 @@ namespace prompter.Extensions
                 promptMap.StatementID = GetAttributeValue(item, "id") + GetAttributeValue(item, "seq").PadLeft(2, '0');
                 promptMap.Seq = GetAttributeValue(item, "seq").ParseInt(0);
                 promptMap.Comment = GetAttributeValue(item, "desc");
+                promptMap.Role = GetAttributeValue(item, "role").ToStringSafe();
+                if (string.IsNullOrWhiteSpace(promptMap.Role) == true)
+                {
+                    promptMap.Role = "system";
+                }
+
                 promptMap.Timeout = GetAttributeValue(item, "timeout").ParseInt(0);
                 promptMap.MaxTokens = GetAttributeValue(item, "maxtokens", "maxtoken").ParseInt(4000);
                 promptMap.Temperature = GetAttributeValue(item, "temperature").ParseDouble(1.0);
@@ -201,7 +207,7 @@ namespace prompter.Extensions
 
             var mode = GetAttributeValue(toolsNode, "mode").ToLowerInvariant();
             result.Mode = mode == "auto" || mode == "required" ? mode : "none";
-            result.MaxRounds = GetAttributeValue(toolsNode, "maxrounds").ParseInt(3);
+            result.MaxRounds = GetAttributeValue(toolsNode, "maxrounds").ParseInt(10);
 
             foreach (var childNode in toolsNode.ChildNodes.Where(item => item.NodeType == HtmlNodeType.Element))
             {
