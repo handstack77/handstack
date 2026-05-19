@@ -448,6 +448,9 @@ namespace prompter.DataClient
 
                         if (ModuleConfiguration.IsChatHistoryConsoleShow == true)
                         {
+                            Console.WriteLine();
+                            Console.WriteLine("".PadLeft(20, '-') + " ChatHistory " + "".PadLeft(20, '-'));
+                            Console.WriteLine(string.Join(Environment.NewLine, $"prompt: {parsePrompt}"));
                             Console.WriteLine(string.Join(Environment.NewLine, chatHistory.Select(item => $"{item.Role}: {item.Content}")));
                         }
 
