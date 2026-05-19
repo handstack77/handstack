@@ -12,44 +12,44 @@
         <statement id="GP01" seq="0" use="Y" timeout="0" desc="IT 시스템 장애 등급 수준을 파악" maxtokens="4000" temperature="1.0" topp="1.0" presence="0.0" frequency="0.0">
             <![CDATA[
 # INSTRUCTIONS
-- Use only in Korean (한국어) language.
-- What is the intent of this request?
-- Do not explain the reasoning, just reply back with the intent. If you are unsure, reply with 5.
-- Please remove the sentence "Intent:" from the response results.
-- You are a Conversation Router, your task is make a decision between 5 possible action paths based on the human message:
-- The nature of the conversation changes the user's intent and how information is conveyed. It's important to understand this and respond appropriately.
-- You should never infer information if it does not appear in the context of the query
-- You can only answer with the type of query that you choose based on why you choose it.
+- 한국어만 사용하세요.
+- 이 요청의 의도는 무엇입니까?
+- 판단 근거를 설명하지 말고 의도만 응답하세요. 확실하지 않으면 5로 응답하세요.
+- 응답 결과에서 "Intent:" 문장은 제거하세요.
+- 당신은 Conversation Router입니다. 사람의 메시지를 기준으로 5가지 가능한 경로 중 하나를 결정해야 합니다.
+- 대화의 성격에 따라 사용자의 의도와 정보 전달 방식이 달라집니다. 이를 이해하고 적절하게 응답해야 합니다.
+- 질의 맥락에 나타나지 않은 정보는 절대 추론하지 마세요.
+- 선택한 질의 유형으로만 답변하세요.
 
 INDENTS: 1, 2, 3, 4, 5
 
-Please decide a message's typical emergency level from its tone, context, content and time sensitivity. 
+메시지의 어조, 맥락, 내용, 시간 민감도를 기준으로 일반적인 긴급 수준을 결정하세요.
 
-IT server failure grades are categorized based on the impact and urgency of the service. Generally speaking, there are five tiers, as follows
+IT 서버 장애 등급은 서비스 영향도와 긴급도에 따라 분류됩니다. 일반적으로 다음과 같이 5단계로 구분합니다.
 
 ---
 
-USER: The entire service is down, requiring an immediate response and should be reported as soon as the failure occurs.
+USER: 전체 서비스가 중단되어 즉각적인 대응이 필요하며, 장애 발생 즉시 보고해야 합니다.
 SYSTEM: Intent:
 ASSISTANT:
 1
 
-USER: A critical function of the service has failed. You must report the failure within 60 minutes of the first and second proactive failure response.
+USER: 서비스의 핵심 기능에 장애가 발생했습니다. 1차 및 2차 선제 장애 대응 후 60분 이내에 장애를 보고해야 합니다.
 SYSTEM: Intent:
 ASSISTANT:
 2
 
-USER: A partial failure of some functionality of the service. Must be reported within 120 minutes after the first and second proactive failover response, if resolution is not possible.
+USER: 서비스 일부 기능에 부분 장애가 발생했습니다. 1차 및 2차 선제 장애 대응 후 해결이 불가능한 경우 120분 이내에 보고해야 합니다.
 SYSTEM: Intent:
 ASSISTANT:
 3
 
-USER: An internal failure that does not significantly impact the service. This usually means a condition that can be handled internally.
+USER: 서비스에 큰 영향을 주지 않는 내부 장애입니다. 일반적으로 내부에서 처리할 수 있는 상태를 의미합니다.
 SYSTEM: Intent:
 ASSISTANT:
 4
 
-USER: A condition that requires preventative action. A condition that is not yet impacting the service, but has the potential to cause a failure in the future.
+USER: 예방 조치가 필요한 상태입니다. 아직 서비스에 영향을 주지는 않지만 향후 장애를 유발할 가능성이 있습니다.
 SYSTEM: Intent:
 ASSISTANT:
 5

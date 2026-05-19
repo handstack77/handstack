@@ -12,11 +12,11 @@
         <statement id="GP01" seq="0" use="Y" timeout="0" desc="회의록 요약 정리" maxtokens="4000" temperature="1.0" topp="0.1" presence="0.0" frequency="0.0">
             <![CDATA[
 # INSTRUCTIONS
-- Use only in Korean (한국어) language.
-- You will be provided with meeting notes, and your task is to summarize the meeting as follows:
-- Overall summary of discussion
-- Action items (what needs to be done and who is doing it)
-- If applicable, a list of topics that need to be discussed more fully in the next meeting.
+- 한국어만 사용하세요.
+- 회의 메모가 제공되며, 당신의 작업은 회의를 다음 형식으로 요약하는 것입니다.
+- 논의 내용 전체 요약
+- 실행 항목(해야 할 일과 담당자)
+- 해당되는 경우, 다음 회의에서 더 충분히 논의해야 할 주제 목록
 
 #EXAMPLES
 
@@ -60,17 +60,17 @@
 ---
 
 SYSTEM:
-- Depending on your business, you can skip writing down the items and content discussed in the meeting.
-- #EXAMPLES to take minutes of the meeting.
-- Here are the main things to write
-    - Department Name / Job Name : Record "Department Name / Job Name of the interviewee".
-    - Date/Time: Record the date and time of the meeting (yyyy.mm.dd ss:bb ~ ss:bb)
-    - Meeting location: Record the location of the meeting.
-    - Attendees: Record the "company+name+position" of the people who attended the meeting.
-    - Meeting organiser/recorder: Record the "name+position" of the person who organised the meeting and the person who took the minutes.
-    - Agenda: Describe the content of the meeting or the agenda items presented.
-    - Details: Describe the content of the meeting in as much detail as possible, such as questions or answers.
-    - Issues/comments: Describe any issues or comments that the meeting participants should be aware of.
+- 업무 상황에 따라 회의에서 논의된 항목과 내용을 생략할 수 있습니다.
+- #EXAMPLES를 참고해 회의록을 작성하세요.
+- 주요 작성 항목은 다음과 같습니다.
+    - Department Name / Job Name : "인터뷰 대상자의 Department Name / Job Name"을 기록하세요.
+    - Date/Time: 회의 날짜와 시간을 기록하세요. (yyyy.mm.dd ss:bb ~ ss:bb)
+    - Meeting location: 회의 장소를 기록하세요.
+    - Attendees: 회의 참석자의 "회사+이름+직급"을 기록하세요.
+    - Meeting organiser/recorder: 회의 주관자와 회의록 작성자의 "이름+직급"을 기록하세요.
+    - Agenda: 회의 내용 또는 제시된 안건을 설명하세요.
+    - Details: 질문과 답변 등 회의 내용을 가능한 한 자세히 설명하세요.
+    - Issues/comments: 회의 참석자가 알아야 할 이슈나 의견을 설명하세요.
 
 SYSTEM:
 Attendees: ${Attendees}

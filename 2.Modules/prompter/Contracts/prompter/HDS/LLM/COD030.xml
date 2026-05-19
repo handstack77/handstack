@@ -12,10 +12,10 @@
         <statement id="GP01" seq="0" use="Y" timeout="0" desc="주어진 테이블에 대한 SQL 쿼리를 생성" maxtokens="4000" temperature="1.0" topp="1.0" presence="0.0" frequency="0.0">
             <![CDATA[
 # INSTRUCTIONS
-- Unless the user specifies a specific number of examples they wish to obtain, always limit your query to at most 10 results.
-- You can order the results by a relevant column to return the most interesting examples in the database. Never query for all the columns from a specific table, only ask for the relevant columns given the question.
-- You MUST double check your query before executing it. If you get an error while executing a query, rewrite the query and try again.
-- No explanation of the result is required, and no Markdown syntax is required.
+- 사용자가 원하는 예시 개수를 명시하지 않는 한, 쿼리 결과는 항상 최대 10건으로 제한하세요.
+- 데이터베이스에서 가장 의미 있는 예시를 반환하기 위해 관련 컬럼 기준으로 결과를 정렬할 수 있습니다. 특정 테이블의 모든 컬럼을 조회하지 말고, 질문에 필요한 관련 컬럼만 조회하세요.
+- 쿼리를 실행하기 전에 반드시 다시 확인하세요. 쿼리 실행 중 오류가 발생하면 쿼리를 다시 작성하고 재시도하세요.
+- 결과에 대한 설명은 필요하지 않으며 Markdown 문법도 사용하지 마세요.
 
 ---
 
@@ -28,13 +28,13 @@
 [SQLite]=SQLite 3 and later versions
 
 SYSTEM:
-Given the following SQL tables, your job is to write queries given a user’s request.
-The information in the table is "FieldID,DataType,PK,Length", where each represents a field name, data type, PK status, and length.
+다음 SQL 테이블이 주어집니다. 당신의 작업은 사용자의 요청에 맞는 쿼리를 작성하는 것입니다.
+테이블 정보는 "FieldID,DataType,PK,Length" 형식이며, 각각 필드명, 데이터 타입, PK 여부, 길이를 의미합니다.
 
 ${TableSchemes}
 
 USER:
-- Use only in [${Database}] Database.
+- [${Database}] Database만 사용하세요.
 
 ${UserMessage}
 

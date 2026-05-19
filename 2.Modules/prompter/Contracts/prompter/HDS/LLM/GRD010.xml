@@ -12,56 +12,56 @@
         <statement id="GP01" seq="0" use="Y" timeout="0" desc="문장에서 지정된 주제와 관련된 엔티티를 추출" maxtokens="4000" temperature="1.0" topp="0.1" presence="0.0" frequency="0.0">
             <![CDATA[
 # INSTRUCTIONS
-1. Please extract a list of entities related to "${Topic}" from the text between the <input_context> tags.
-2. These are some sample entities related to "${Topic}" to help you decide what to extract: "${Entities}"
-3. The list in (2) is provided to help you decide which entities to extract, but you may choose to include entities which are related to "${Topic}" but which are not listed in (2).
-4. As the first part of your response, generate a bulleted list of each of the items in (1) together with an explanation of what they are.
-5. Go over each item in your bulleted list and read the explanation of what it is. Keep items which are related to "${Topic}"
-6. Go over each item in your bulleted list and verify that it appears between the <input_context> tags.
-7. Go over each item in your bulleted list and check for duplicates. Keep only one example of each. Duplicates may be:
-    - Abbreviations
-    - Reuse as adjectives
-    - Plurals and related changes
-8. Return the bulleted list of entities between <entities> and </entities>.
+1. <input_context> 태그 사이의 텍스트에서 "${Topic}"와 관련된 엔티티 목록을 추출하세요.
+2. 추출할 항목을 판단하는 데 도움이 되는 "${Topic}" 관련 샘플 엔티티는 다음과 같습니다: "${Entities}"
+3. (2)의 목록은 어떤 엔티티를 추출할지 판단하는 데 도움을 주기 위한 것입니다. (2)에 없더라도 "${Topic}"와 관련된 엔티티는 포함할 수 있습니다.
+4. 응답의 첫 부분에는 (1)의 각 항목과 그 항목이 무엇인지에 대한 설명을 글머리 기호 목록으로 작성하세요.
+5. 글머리 기호 목록의 각 항목과 설명을 검토하고, "${Topic}"와 관련된 항목만 유지하세요.
+6. 글머리 기호 목록의 각 항목이 <input_context> 태그 사이에 실제로 나타나는지 확인하세요.
+7. 글머리 기호 목록의 각 항목에서 중복을 확인하고, 각 항목은 하나의 예시만 유지하세요. 중복에는 다음이 포함될 수 있습니다.
+    - 약어
+    - 형용사로 재사용된 표현
+    - 복수형 및 관련 변형
+8. 엔티티 글머리 기호 목록을 <entities>와 </entities> 사이에 반환하세요.
 
 #EXAMPLES
 
 ##EXAMPLE 1
 
-In the following example, the task is to extract entities related to food, with 'apple' and 'lime' as examples:
+다음 예시의 작업은 '사과'와 '라임'을 예시로 삼아 음식과 관련된 엔티티를 추출하는 것입니다.
 
 <input_context>
-Oranges and lemons,
-Say the bells of St. Clement's.
+오렌지와 레몬,
+성 클레멘트의 종이 말합니다.
 
-You owe me five farthings,
-Say the bells of St. Martin's.
+당신은 내게 동전 다섯 닢을 빚졌습니다,
+성 마틴의 종이 말합니다.
 </input_context>
 
 Response:
-- Orange
-- Lemon
+- 오렌지
+- 레몬
 
 ##EXAMPLE 2
 
-In the following example, the task was to extract entities related to animals, with 'fish' and 'goat' as examples:
+다음 예시의 작업은 '물고기'와 '염소'를 예시로 삼아 동물과 관련된 엔티티를 추출하는 것입니다.
 
 <input_context>
-Belinda lived in a little white house,
-With a little black kitten and a little gray mouse,
-And a little yellow dog and a little red wagon,
-And a realio, trulio, little pet dragon
+벨린다는 작은 하얀 집에 살았습니다,
+작은 검은 고양이와 작은 회색 쥐,
+작은 노란 개와 작은 빨간 손수레,
+그리고 진짜 같은 작은 애완용 용과 함께.
 </input_context>
 
 Response:
-- kitten
-- mouse
-- dog
-- dragon
+- 고양이
+- 쥐
+- 개
+- 용
 
 # Task
 
-Extract entities related to "${Topic}" from the following context. Produce a bulleted list of entities between <entities> and </entities>.
+다음 맥락에서 "${Topic}"와 관련된 엔티티를 추출하세요. 엔티티 글머리 기호 목록을 <entities>와 </entities> 사이에 작성하세요.
 
 <input_context>
 ${UserMessage}

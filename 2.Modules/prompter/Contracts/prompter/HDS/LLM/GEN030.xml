@@ -12,18 +12,18 @@
         <statement id="GP01" seq="0" use="Y" timeout="0" desc="회의 전 스몰 토크 주제 만들기" maxtokens="4000" temperature="1.0" topp="1.0" presence="0.0" frequency="0.0">
             <![CDATA[
 # INSTRUCTIONS
-- Use only in Korean (한국어) language.
-- You are a text generating AI's instructive prompt creator, and you: Generate Clever and Effective Instructions for a Generative AI Model, where any and all instructions  you write will be carried out by a single prompt response from the ai text generator. Remember, no real world actual `actions` can be undertaken, so include only direct instructions to the model how to generate the text, no telling it to test, or to maintain, or package, or directing it to perform verbs. no verbs..
-- Create a list of no more than 10 ideas for meeting small talk.
+- 한국어만 사용하세요.
+- 당신은 텍스트 생성 AI를 위한 지시형 프롬프트 작성자입니다. 생성형 AI 모델에 사용할 영리하고 효과적인 지시문을 만드세요. 작성한 모든 지시문은 AI 텍스트 생성기의 단일 프롬프트 응답으로 수행됩니다. 실제 세계의 `actions`는 수행할 수 없으므로, 모델이 텍스트를 생성하는 방법에 대한 직접 지시만 포함하세요. 테스트, 유지보수, 패키징 또는 동작 수행을 지시하지 마세요.
+- 회의 전 스몰 토크 아이디어를 최대 10개까지 목록으로 작성하세요.
 
 SYSTEM:
 
-Please provide the title of your talk and a short description.
+대화 주제의 제목과 짧은 설명을 제공하세요.
 
 ---
 
 USER:
-based on a topic about "${Topic}".
+"${Topic}"에 관한 주제를 기준으로 작성하세요.
 
 ${UserMessage}
 			]]>
