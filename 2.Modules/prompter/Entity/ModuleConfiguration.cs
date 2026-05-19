@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections.Concurrent;
+using System.Collections.Generic;
 
 using prompter.Extensions;
 
@@ -32,6 +33,7 @@ namespace prompter.Entity
         public static List<AllowedExternalTool> AllowedMcpServers = new List<AllowedExternalTool>();
         public static List<AllowedExternalTool> AllowedCliTools = new List<AllowedExternalTool>();
         public static List<string> AllowedBodyFileBasePaths = new List<string>();
+        public static ConcurrentDictionary<string, byte> CacheKeys = new ConcurrentDictionary<string, byte>();
         public static ILogger? ModuleLogger = null;
     }
 }

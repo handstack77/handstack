@@ -12,6 +12,8 @@ using HandStack.Web.ApiClient;
 using HandStack.Web.Entity;
 using HandStack.Web.Extensions;
 
+using Microsoft.Extensions.Caching.Memory;
+
 using Newtonsoft.Json.Linq;
 
 using prompter.Entity;
@@ -29,11 +31,13 @@ namespace prompter.Extensions
 
         private readonly ILogger logger;
         private readonly TransactionClient transactionClient;
+        private readonly IMemoryCache memoryCache;
 
-        public ModuleApiClient(ILogger logger, TransactionClient transactionClient)
+        public ModuleApiClient(ILogger logger, TransactionClient transactionClient, IMemoryCache memoryCache)
         {
             this.logger = logger;
             this.transactionClient = transactionClient;
+            this.memoryCache = memoryCache;
         }
 
         // var repositoryItems = result?["FormData0"]?.ToObject<RepositoryItems>();
@@ -137,7 +141,13 @@ namespace prompter.Extensions
 
             try
             {
-                var template = File.ReadAllText(templatePath, Encoding.UTF8);
+                var cacheKey = GetCodeHelpTemplateCacheKey(templatePath);
+                var template = memoryCache.GetOrCreate(cacheKey, entry =>
+                {
+                    ModuleConfiguration.CacheKeys.TryAdd(cacheKey, 0);
+                    return File.ReadAllText(templatePath, Encoding.UTF8);
+                });
+
                 var model = CreateCodeHelpTemplateModel(codeHelpObject, dataSource);
                 var renderer = new StubbleBuilder().Build();
                 result = renderer.Render(template, model);
@@ -223,6 +233,11 @@ namespace prompter.Extensions
             }
 
             return Path.Combine(ModuleConfiguration.ModuleBasePath, "Prompts", CodeHelpTemplateDirectoryName, fileName + CodeHelpTemplateExtension);
+        }
+
+        private static string GetCodeHelpTemplateCacheKey(string templatePath)
+        {
+            return $"{ModuleConfiguration.ModuleID}|CodeHelpTemplate|{Path.GetFileNameWithoutExtension(templatePath)}";
         }
 
         private static string NormalizeCodeHelpParameters(string parametersText)

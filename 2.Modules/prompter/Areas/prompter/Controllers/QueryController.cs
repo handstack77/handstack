@@ -15,6 +15,7 @@ using HandStack.Web.MessageContract.Message;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 
 using Newtonsoft.Json;
 
@@ -36,11 +37,14 @@ namespace prompter.Areas.prompter.Controllers
 
         private IPromptClient dataClient { get; }
 
-        public QueryController(Serilog.ILogger logger, IPromptClient dataClient, PromptLoggerClient loggerClient)
+        private readonly IMemoryCache memoryCache;
+
+        public QueryController(Serilog.ILogger logger, IPromptClient dataClient, PromptLoggerClient loggerClient, IMemoryCache memoryCache)
         {
             this.logger = logger;
             this.loggerClient = loggerClient;
             this.dataClient = dataClient;
+            this.memoryCache = memoryCache;
         }
 
         // http://localhost:8421/prompter/api/query/has
@@ -250,6 +254,63 @@ namespace prompter.Areas.prompter.Controllers
                     logger.Error("[{LogCategory}] " + exceptionText, "Query/Retrieve");
 
                     result = StatusCode(StatusCodes.Status500InternalServerError, exception.ToMessage());
+                }
+            }
+
+            return result;
+        }
+
+        // http://localhost:8421/prompter/api/query/cache-clear?cacheKey=
+        [HttpGet("[action]")]
+        public ActionResult CacheClear()
+        {
+            ActionResult result = BadRequest();
+            if (HttpContext.IsAllowAuthorization() == false)
+            {
+                result = BadRequest();
+            }
+            else
+            {
+                try
+                {
+                    var cacheKey = Request.Query["cacheKey"].ToString();
+                    if (string.IsNullOrWhiteSpace(cacheKey))
+                    {
+                        var items = GetMemoryCacheKeys();
+                        foreach (var item in items)
+                        {
+                            memoryCache.Remove(item);
+                            ModuleConfiguration.CacheKeys.TryRemove(item, out _);
+                        }
+                    }
+                    else
+                    {
+                        memoryCache.Remove(cacheKey);
+                        ModuleConfiguration.CacheKeys.TryRemove(cacheKey, out _);
+                    }
+
+                    result = Ok();
+                }
+                catch (Exception exception)
+                {
+                    var exceptionText = exception.ToMessage();
+                    logger.Warning("[{LogCategory}] " + exceptionText, "Query/CacheClear");
+                    result = StatusCode(StatusCodes.Status500InternalServerError, exceptionText);
+                }
+            }
+
+            return result;
+        }
+
+        private List<string> GetMemoryCacheKeys()
+        {
+            var result = new List<string>();
+            foreach (var cacheKey in ModuleConfiguration.CacheKeys)
+            {
+                var key = cacheKey.Key;
+                if (string.IsNullOrWhiteSpace(key) == false && key.StartsWith($"{ModuleConfiguration.ModuleID}|") == true)
+                {
+                    result.Add(key);
                 }
             }
 
