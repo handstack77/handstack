@@ -14,6 +14,7 @@ let $module_settings = {
                 ],
                 "BusinessServerUrl": "http://localhost:8421/transact/api/transaction/execute",
                 "IsTransactionLogging": false,
+                "IsChatHistoryConsoleShow": false,
                 "ModuleLogFilePath": "../log/prompter/module.log",
                 "IsLogServer": true,
                 "LogServerUrl": "http://localhost:8421/logger/api/log/insert",

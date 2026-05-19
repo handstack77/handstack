@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -445,6 +445,11 @@ namespace prompter.DataClient
 
                         chatHistory.Add(new LLMChatMessage("user", userMessage));
                         chatHistory.Add(new LLMChatMessage("assistant", assistantMessage));
+
+                        if (ModuleConfiguration.IsChatHistoryConsoleShow == true)
+                        {
+                            Console.WriteLine(string.Join(Environment.NewLine, chatHistory.Select(item => $"{item.Role}: {item.Content}")));
+                        }
 
                         if (dsTransactionResult == null)
                         {

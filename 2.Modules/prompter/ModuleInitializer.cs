@@ -71,6 +71,7 @@ namespace prompter
 
                         ModuleConfiguration.BusinessServerUrl = moduleConfig.BusinessServerUrl;
                         ModuleConfiguration.IsTransactionLogging = moduleConfig.IsTransactionLogging;
+                        ModuleConfiguration.IsChatHistoryConsoleShow = moduleConfig.IsChatHistoryConsoleShow;
                         ModuleConfiguration.ModuleLogFilePath = string.IsNullOrEmpty(moduleConfig.ModuleLogFilePath) == true ? "transaction.log" : new FileInfo(moduleConfig.ModuleLogFilePath).FullName.Replace("\\", "/");
                         if (ModuleConfiguration.IsTransactionLogging == true)
                         {

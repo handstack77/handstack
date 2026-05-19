@@ -35,6 +35,8 @@ namespace prompter.Entity
 
         public bool IsTransactionLogging { get; set; }
 
+        public bool IsChatHistoryConsoleShow { get; set; }
+
         public string ModuleLogFilePath { get; set; }
 
         public List<LLMSource> LLMSource { get; set; }
@@ -62,6 +64,7 @@ namespace prompter.Entity
             IsContractFileWatching = false;
             ContractBasePath = new List<string>();
             CircuitBreakResetSecond = 30;
+            IsChatHistoryConsoleShow = false;
             LLMSource = new List<LLMSource>();
             AllowedKernelPlugins = new List<AllowedKernelPlugin>();
             AllowedMcpServers = new List<AllowedExternalTool>();
