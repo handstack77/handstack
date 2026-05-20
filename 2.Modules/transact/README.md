@@ -82,9 +82,9 @@
 - 단계의 `ReturnType`, `TransactionScope`, `ServiceOutputs`는 대상 서비스 설정을 단계 단위로 덮어씁니다. `ServiceOutputs`가 없으면 대상 서비스의 `Outputs`를 사용합니다.
 
 ### 입력 매핑
-- `InputMappings`가 없으면 원 요청의 `payLoad.dataMapSet`과 `dataMapCount`를 그대로 단계 입력으로 전달합니다.
-- `InputMappings`가 있으면 매핑 결과만 단계 입력으로 조립합니다.
-- `Source`가 비어 있으면 원 요청 입력에서 값을 찾습니다.
+- 각 단계는 직전 단계까지 유지된 `payLoad.dataMapSet`과 `dataMapCount`를 기본 입력으로 전달합니다.
+- `InputMappings`가 있으면 기존 `PayLoad`를 유지한 상태에서 매핑 결과를 `TargetInputIndex`와 `TargetFieldID` 위치에 추가하거나 덮어씁니다.
+- `Source`가 비어 있으면 현재 단계까지 유지된 `PayLoad`에서 값을 찾습니다.
 - `Source`가 `Step`이거나 `SourceStepID`가 있으면 이전 단계 결과에서 값을 찾습니다.
 - `SourceFieldID`는 대소문자를 구분하지 않습니다. 값이 객체이거나 객체 배열이면 `FieldID.Property` 또는 `Property` 형태로도 참조할 수 있습니다.
 - `TargetFieldID`가 비어 있으면 `SourceFieldID`를 단계 입력 필드명으로 사용합니다.

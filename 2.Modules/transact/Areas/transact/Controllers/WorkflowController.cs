@@ -854,7 +854,8 @@ namespace transact.Areas.transact.Controllers
                     return result;
                 }
 
-                var requestValues = FlattenDataMapItems(request.PayLoad.DataMapSet.SelectMany(item => item).ToList());
+                var currentPayLoad = ClonePayLoad(request.PayLoad);
+                var requestValues = FlattenDataMapItems(currentPayLoad.DataMapSet.SelectMany(item => item).ToList());
                 var stepValues = new Dictionary<string, Dictionary<string, JToken>>(System.StringComparer.OrdinalIgnoreCase);
                 for (var i = 0; i < workflowSteps.Count; i++)
                 {
@@ -865,6 +866,7 @@ namespace transact.Areas.transact.Controllers
                     }
 
                     WorkflowStepResult stepResult = new WorkflowStepResult();
+                    TransactionRequest? executedStepRequest = null;
                     try
                     {
                         var applicationID = string.IsNullOrWhiteSpace(step.ApplicationID)
@@ -910,241 +912,137 @@ namespace transact.Areas.transact.Controllers
                                 {
                                     stepResult.ExceptionText = $"StepID '{step.StepID}' CommandType 확인 필요";
                                 }
-                                else if (commandType == "W")
-                                {
-                                    var stepRequest = CloneStepRequest(request, applicationID, projectID, transactionID, serviceID, commandType);
-                                    var workflowResult = await ExecuteWorkflowAsync(stepRequest, targetContract, targetInfo, workflowPath);
-                                    if (workflowResult.Success == false)
-                                    {
-                                        stepResult.ExceptionText = workflowResult.ExceptionText;
-                                    }
-                                    else
-                                    {
-                                        stepResult.Success = true;
-                                        stepResult.DataSet = workflowResult.DataSet;
-                                        stepResult.ResultMeta = workflowResult.ResultMeta;
-                                        stepResult.Values = CreateStepValues(stepResult.DataSet, step);
-                                    }
-                                }
                                 else
                                 {
-                                    targetInfo.CommandType = commandType;
-                                    targetInfo.ReturnType = string.IsNullOrWhiteSpace(step.ReturnType) ? targetInfo.ReturnType : step.ReturnType;
-                                    targetInfo.ReturnType = string.IsNullOrWhiteSpace(targetInfo.ReturnType) ? "Json" : targetInfo.ReturnType;
-                                    targetInfo.TransactionScope = step.TransactionScope ?? targetInfo.TransactionScope;
-
                                     var stepRequestForRoute = CloneStepRequest(request, applicationID, projectID, transactionID, serviceID, commandType);
-                                    var transactionObject = new TransactionObject();
-                                    transactionObject.LoadOptions = stepRequestForRoute.LoadOptions == null ? new Dictionary<string, string>() : new Dictionary<string, string>(stepRequestForRoute.LoadOptions);
-                                    transactionObject.RequestID = string.Concat(ModuleConfiguration.SystemID, GlobalConfiguration.HostName, stepRequestForRoute.Environment, stepRequestForRoute.Transaction.ScreenID, DateTime.Now.ToString("yyyyMMddHHmmddsss"));
-                                    transactionObject.GlobalID = stepRequestForRoute.Transaction.GlobalID;
-                                    transactionObject.TransactionID = string.Concat(
-                                        string.IsNullOrWhiteSpace(targetContract.TransactionApplicationID) ? targetContract.ApplicationID : targetContract.TransactionApplicationID,
-                                        "|",
-                                        string.IsNullOrWhiteSpace(targetContract.TransactionProjectID) ? targetContract.ProjectID : targetContract.TransactionProjectID,
-                                        "|",
-                                        stepRequestForRoute.Transaction.TransactionID);
-                                    transactionObject.ServiceID = stepRequestForRoute.Transaction.FunctionID;
-                                    transactionObject.TransactionScope = targetInfo.TransactionScope;
-                                    transactionObject.ReturnType = targetInfo.ReturnType;
-                                    transactionObject.ClientTag = stepRequestForRoute.ClientTag;
-
-                                    if (step.InputMappings.Count == 0)
+                                    stepRequestForRoute.PayLoad = ClonePayLoad(currentPayLoad);
+                                    if (step.InputMappings.Count > 0)
                                     {
-                                        var payloadInputs = new List<List<TransactField>>();
-                                        foreach (var inputItems in stepRequestForRoute.PayLoad.DataMapSet)
+                                        var stepRequestValues = FlattenDataMapItems(stepRequestForRoute.PayLoad.DataMapSet.SelectMany(item => item).ToList());
+                                        ApplyInputMappingsToPayLoad(stepRequestForRoute.PayLoad, step.InputMappings, stepRequestValues, stepValues);
+                                    }
+
+                                    executedStepRequest = stepRequestForRoute;
+                                    if (commandType == "W")
+                                    {
+                                        var workflowResult = await ExecuteWorkflowAsync(stepRequestForRoute, targetContract, targetInfo, workflowPath);
+                                        if (workflowResult.Success == false)
                                         {
-                                            var fields = new List<TransactField>();
-                                            foreach (var item in inputItems)
-                                            {
-                                                fields.Add(new TransactField()
-                                                {
-                                                    FieldID = item.FieldID,
-                                                    Length = -1,
-                                                    DataType = "String",
-                                                    Value = item.Value
-                                                });
-                                            }
-
-                                            payloadInputs.Add(fields);
+                                            stepResult.ExceptionText = workflowResult.ExceptionText;
                                         }
+                                        else
+                                        {
+                                            stepResult.Success = true;
+                                            stepResult.DataSet = workflowResult.DataSet;
+                                            stepResult.ResultMeta = workflowResult.ResultMeta;
+                                            stepResult.Values = CreateStepValues(stepResult.DataSet, step);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        targetInfo.CommandType = commandType;
+                                        targetInfo.ReturnType = string.IsNullOrWhiteSpace(step.ReturnType) ? targetInfo.ReturnType : step.ReturnType;
+                                        targetInfo.ReturnType = string.IsNullOrWhiteSpace(targetInfo.ReturnType) ? "Json" : targetInfo.ReturnType;
+                                        targetInfo.TransactionScope = step.TransactionScope ?? targetInfo.TransactionScope;
 
-                                        transactionObject.Inputs = payloadInputs;
+                                        var transactionObject = new TransactionObject();
+                                        transactionObject.LoadOptions = stepRequestForRoute.LoadOptions == null ? new Dictionary<string, string>() : new Dictionary<string, string>(stepRequestForRoute.LoadOptions);
+                                        transactionObject.RequestID = string.Concat(ModuleConfiguration.SystemID, GlobalConfiguration.HostName, stepRequestForRoute.Environment, stepRequestForRoute.Transaction.ScreenID, DateTime.Now.ToString("yyyyMMddHHmmddsss"));
+                                        transactionObject.GlobalID = stepRequestForRoute.Transaction.GlobalID;
+                                        transactionObject.TransactionID = string.Concat(
+                                            string.IsNullOrWhiteSpace(targetContract.TransactionApplicationID) ? targetContract.ApplicationID : targetContract.TransactionApplicationID,
+                                            "|",
+                                            string.IsNullOrWhiteSpace(targetContract.TransactionProjectID) ? targetContract.ProjectID : targetContract.TransactionProjectID,
+                                            "|",
+                                            stepRequestForRoute.Transaction.TransactionID);
+                                        transactionObject.ServiceID = stepRequestForRoute.Transaction.FunctionID;
+                                        transactionObject.TransactionScope = targetInfo.TransactionScope;
+                                        transactionObject.ReturnType = targetInfo.ReturnType;
+                                        transactionObject.ClientTag = stepRequestForRoute.ClientTag;
+
+                                        transactionObject.Inputs = CreateTransactionInputs(stepRequestForRoute.PayLoad);
                                         transactionObject.InputsItemCount = stepRequestForRoute.PayLoad.DataMapCount.Count > 0
                                             ? new List<int>(stepRequestForRoute.PayLoad.DataMapCount)
-                                            : new List<int>() { transactionObject.Inputs.Count };
-                                    }
-                                    else
-                                    {
-                                        var groupedFields = new Dictionary<int, List<TransactField>>();
-                                        foreach (var mapping in step.InputMappings)
-                                        {
-                                            var targetInputIndex = mapping.TargetInputIndex < 0 ? 0 : mapping.TargetInputIndex;
-                                            if (groupedFields.ContainsKey(targetInputIndex) == false)
-                                            {
-                                                groupedFields.Add(targetInputIndex, new List<TransactField>());
-                                            }
+                                            : CreateDefaultDataMapCount(transactionObject.Inputs.Count);
 
-                                            var hasMappingValue = false;
-                                            JToken value = JValue.CreateNull();
-                                            if (mapping.DefaultValue != null && string.IsNullOrWhiteSpace(mapping.SourceFieldID))
+                                        var inputContracts = targetInfo.Inputs;
+                                        if (inputContracts.Count == 0)
+                                        {
+                                            inputContracts = new List<ModelInputContract>();
+                                            if (transactionObject.InputsItemCount.Any(item => item > 0) == true)
                                             {
-                                                value = JToken.FromObject(mapping.DefaultValue);
-                                                hasMappingValue = true;
-                                            }
-                                            else
-                                            {
-                                                Dictionary<string, JToken>? sourceValues = null;
-                                                var source = mapping.Source.ToStringSafe();
-                                                if (source.Equals("Step", System.StringComparison.OrdinalIgnoreCase) || string.IsNullOrWhiteSpace(mapping.SourceStepID) == false)
+                                                for (var inputIndex = 0; inputIndex < transactionObject.InputsItemCount.Count; inputIndex++)
                                                 {
-                                                    if (string.IsNullOrWhiteSpace(mapping.SourceStepID) == false)
+                                                    inputContracts.Add(new ModelInputContract()
                                                     {
-                                                        stepValues.TryGetValue(mapping.SourceStepID, out sourceValues);
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    sourceValues = requestValues;
-                                                }
-
-                                                if (sourceValues != null && TryGetValue(sourceValues, mapping.SourceFieldID, out value) == true)
-                                                {
-                                                    hasMappingValue = true;
-                                                }
-                                                else if (mapping.DefaultValue != null)
-                                                {
-                                                    value = JToken.FromObject(mapping.DefaultValue);
-                                                    hasMappingValue = true;
+                                                        ModelID = "Dynamic",
+                                                        Fields = new List<string>(),
+                                                        Type = "Row",
+                                                        BaseFieldMappings = new List<BaseFieldMapping>(),
+                                                        ParameterHandling = "Rejected"
+                                                    });
                                                 }
                                             }
-
-                                            if (hasMappingValue == false)
-                                            {
-                                                if (mapping.Required == true)
-                                                {
-                                                    throw new InvalidOperationException($"SourceFieldID '{mapping.SourceFieldID}' 입력 매핑 확인 필요");
-                                                }
-
-                                                value = JTokenFromObject("");
-                                            }
-
-                                            object? fieldValue;
-                                            if (value.Type == JTokenType.Null || value.Type == JTokenType.Undefined)
-                                            {
-                                                fieldValue = null;
-                                            }
-                                            else if (value is JValue jValue)
-                                            {
-                                                fieldValue = jValue.Value;
-                                            }
-                                            else
-                                            {
-                                                fieldValue = value;
-                                            }
-
-                                            var targetFieldID = string.IsNullOrWhiteSpace(mapping.TargetFieldID) ? mapping.SourceFieldID : mapping.TargetFieldID;
-                                            groupedFields[targetInputIndex].Add(new TransactField()
-                                            {
-                                                FieldID = targetFieldID,
-                                                Length = mapping.Length,
-                                                DataType = string.IsNullOrWhiteSpace(mapping.DbType) ? "String" : mapping.DbType,
-                                                Value = fieldValue
-                                            });
                                         }
 
-                                        var inputGroupCount = Math.Max(targetInfo.Inputs.Count, groupedFields.Keys.DefaultIfEmpty(0).Max() + 1);
-                                        for (var inputIndex = 0; inputIndex < inputGroupCount; inputIndex++)
+                                        var outputContracts = step.ServiceOutputs.Count > 0 ? step.ServiceOutputs : targetInfo.Outputs;
+                                        var applicationResponse = await transactClient.RequestDataTransactionAsync(stepRequestForRoute, targetInfo, transactionObject, inputContracts, outputContracts);
+                                        if (!string.IsNullOrWhiteSpace(applicationResponse.ExceptionText))
                                         {
-                                            if (groupedFields.TryGetValue(inputIndex, out var fields) == true && fields.Count > 0)
-                                            {
-                                                transactionObject.InputsItemCount.Add(1);
-                                                transactionObject.Inputs.Add(fields);
-                                            }
-                                            else
-                                            {
-                                                transactionObject.InputsItemCount.Add(0);
-                                            }
+                                            stepResult.ExceptionText = applicationResponse.ExceptionText;
                                         }
-                                    }
-
-                                    var inputContracts = targetInfo.Inputs;
-                                    if (inputContracts.Count == 0)
-                                    {
-                                        inputContracts = new List<ModelInputContract>();
-                                        if (transactionObject.InputsItemCount.Any(item => item > 0) == true)
+                                        else
                                         {
-                                            for (var inputIndex = 0; inputIndex < transactionObject.InputsItemCount.Count; inputIndex++)
+                                            var dataSet = new List<DataMapItem>();
+                                            switch (targetInfo.ReturnType)
                                             {
-                                                inputContracts.Add(new ModelInputContract()
-                                                {
-                                                    ModelID = "Dynamic",
-                                                    Fields = new List<string>(),
-                                                    Type = "Row",
-                                                    BaseFieldMappings = new List<BaseFieldMapping>(),
-                                                    ParameterHandling = "Rejected"
-                                                });
-                                            }
-                                        }
-                                    }
-
-                                    var outputContracts = step.ServiceOutputs.Count > 0 ? step.ServiceOutputs : targetInfo.Outputs;
-                                    var applicationResponse = await transactClient.RequestDataTransactionAsync(stepRequestForRoute, targetInfo, transactionObject, inputContracts, outputContracts);
-                                    if (!string.IsNullOrWhiteSpace(applicationResponse.ExceptionText))
-                                    {
-                                        stepResult.ExceptionText = applicationResponse.ExceptionText;
-                                    }
-                                    else
-                                    {
-                                        var dataSet = new List<DataMapItem>();
-                                        switch (targetInfo.ReturnType)
-                                        {
-                                            case "Scalar":
-                                                dataSet.Add(new DataMapItem() { FieldID = "Scalar", Value = applicationResponse.ResultObject });
-                                                break;
-                                            case "NonQuery":
-                                                dataSet.Add(new DataMapItem() { FieldID = "RowsAffected", Value = applicationResponse.ResultInteger });
-                                                break;
-                                            case "Xml":
-                                                dataSet.Add(new DataMapItem() { FieldID = "Xml", Value = applicationResponse.ResultObject });
-                                                break;
-                                            default:
-                                                if (string.IsNullOrWhiteSpace(applicationResponse.ResultJson) == false)
-                                                {
-                                                    var token = JToken.Parse(applicationResponse.ResultJson);
-                                                    if (token is JArray array)
+                                                case "Scalar":
+                                                    dataSet.Add(new DataMapItem() { FieldID = "Scalar", Value = applicationResponse.ResultObject });
+                                                    break;
+                                                case "NonQuery":
+                                                    dataSet.Add(new DataMapItem() { FieldID = "RowsAffected", Value = applicationResponse.ResultInteger });
+                                                    break;
+                                                case "Xml":
+                                                    dataSet.Add(new DataMapItem() { FieldID = "Xml", Value = applicationResponse.ResultObject });
+                                                    break;
+                                                default:
+                                                    if (string.IsNullOrWhiteSpace(applicationResponse.ResultJson) == false)
                                                     {
-                                                        foreach (var arrayItem in array)
+                                                        var token = JToken.Parse(applicationResponse.ResultJson);
+                                                        if (token is JArray array)
                                                         {
-                                                            if (arrayItem is not JObject itemObject)
+                                                            foreach (var arrayItem in array)
                                                             {
-                                                                dataSet.Add(new DataMapItem() { FieldID = "Result", Value = arrayItem });
-                                                            }
-                                                            else
-                                                            {
-                                                                var fieldID = itemObject["id"] ?? itemObject["ID"] ?? itemObject["fieldID"] ?? itemObject["FieldID"];
-                                                                var value = itemObject["value"] ?? itemObject["Value"];
-
-                                                                dataSet.Add(new DataMapItem()
+                                                                if (arrayItem is not JObject itemObject)
                                                                 {
-                                                                    FieldID = fieldID.ToStringSafe(),
-                                                                    Value = value
-                                                                });
+                                                                    dataSet.Add(new DataMapItem() { FieldID = "Result", Value = arrayItem });
+                                                                }
+                                                                else
+                                                                {
+                                                                    var fieldID = itemObject["id"] ?? itemObject["ID"] ?? itemObject["fieldID"] ?? itemObject["FieldID"];
+                                                                    var value = itemObject["value"] ?? itemObject["Value"];
+
+                                                                    dataSet.Add(new DataMapItem()
+                                                                    {
+                                                                        FieldID = fieldID.ToStringSafe(),
+                                                                        Value = value
+                                                                    });
+                                                                }
                                                             }
                                                         }
+                                                        else
+                                                        {
+                                                            dataSet.Add(new DataMapItem() { FieldID = "Result", Value = token });
+                                                        }
                                                     }
-                                                    else
-                                                    {
-                                                        dataSet.Add(new DataMapItem() { FieldID = "Result", Value = token });
-                                                    }
-                                                }
-                                                break;
-                                        }
+                                                    break;
+                                            }
 
-                                        stepResult.Success = true;
-                                        stepResult.DataSet = dataSet;
-                                        stepResult.ResultMeta = applicationResponse.ResultMeta;
-                                        stepResult.Values = CreateStepValues(stepResult.DataSet, step);
+                                            stepResult.Success = true;
+                                            stepResult.DataSet = dataSet;
+                                            stepResult.ResultMeta = applicationResponse.ResultMeta;
+                                            stepResult.Values = CreateStepValues(stepResult.DataSet, step);
+                                        }
                                     }
                                 }
                             }
@@ -1169,6 +1067,11 @@ namespace transact.Areas.transact.Controllers
                     }
 
                     stepValues[step.StepID] = stepResult.Values;
+                    if (executedStepRequest != null)
+                    {
+                        currentPayLoad = ClonePayLoad(executedStepRequest.PayLoad);
+                    }
+
                     result.DataSet = stepResult.DataSet;
                     result.ResultMeta = stepResult.ResultMeta;
                     result.Values = stepResult.Values;
@@ -1198,6 +1101,150 @@ namespace transact.Areas.transact.Controllers
             stepRequest.Transaction.CommandType = commandType;
             stepRequest.Transaction.ScreenID = string.IsNullOrWhiteSpace(stepRequest.Transaction.ScreenID) ? transactionID : stepRequest.Transaction.ScreenID;
             return stepRequest;
+        }
+
+        private static PayLoadType ClonePayLoad(PayLoadType payLoad)
+        {
+            var clone = JsonConvert.DeserializeObject<PayLoadType>(JsonConvert.SerializeObject(payLoad)) ?? new PayLoadType();
+            clone.DataMapCount ??= new List<int>();
+            clone.DataMapSet ??= new List<List<DataMapItem>>();
+            clone.DataMapSetRaw ??= new List<string>();
+            return clone;
+        }
+
+        private static void ApplyInputMappingsToPayLoad(PayLoadType payLoad, List<WorkflowFieldMapping> inputMappings, Dictionary<string, JToken> payLoadValues, Dictionary<string, Dictionary<string, JToken>> stepValues)
+        {
+            foreach (var mapping in inputMappings)
+            {
+                var targetInputIndex = mapping.TargetInputIndex < 0 ? 0 : mapping.TargetInputIndex;
+                var value = ResolveInputMappingValue(mapping, payLoadValues, stepValues);
+                var targetFieldID = string.IsNullOrWhiteSpace(mapping.TargetFieldID) ? mapping.SourceFieldID : mapping.TargetFieldID;
+
+                SetPayLoadValue(payLoad, targetInputIndex, targetFieldID, value);
+                AddFlattenedValue(payLoadValues, targetFieldID, JTokenFromObject(value));
+            }
+        }
+
+        private static object? ResolveInputMappingValue(WorkflowFieldMapping mapping, Dictionary<string, JToken> payLoadValues, Dictionary<string, Dictionary<string, JToken>> stepValues)
+        {
+            var hasMappingValue = false;
+            JToken value = JValue.CreateNull();
+            if (mapping.DefaultValue != null && string.IsNullOrWhiteSpace(mapping.SourceFieldID))
+            {
+                value = JToken.FromObject(mapping.DefaultValue);
+                hasMappingValue = true;
+            }
+            else
+            {
+                Dictionary<string, JToken>? sourceValues = null;
+                var source = mapping.Source.ToStringSafe();
+                if (source.Equals("Step", System.StringComparison.OrdinalIgnoreCase) || string.IsNullOrWhiteSpace(mapping.SourceStepID) == false)
+                {
+                    if (string.IsNullOrWhiteSpace(mapping.SourceStepID) == false)
+                    {
+                        stepValues.TryGetValue(mapping.SourceStepID, out sourceValues);
+                    }
+                }
+                else
+                {
+                    sourceValues = payLoadValues;
+                }
+
+                if (sourceValues != null && TryGetValue(sourceValues, mapping.SourceFieldID, out value) == true)
+                {
+                    hasMappingValue = true;
+                }
+                else if (mapping.DefaultValue != null)
+                {
+                    value = JToken.FromObject(mapping.DefaultValue);
+                    hasMappingValue = true;
+                }
+            }
+
+            if (hasMappingValue == false)
+            {
+                if (mapping.Required == true)
+                {
+                    throw new InvalidOperationException($"SourceFieldID '{mapping.SourceFieldID}' 입력 매핑 확인 필요");
+                }
+
+                value = JTokenFromObject("");
+            }
+
+            return ToDataMapValue(value);
+        }
+
+        private static object? ToDataMapValue(JToken value)
+        {
+            if (value.Type == JTokenType.Null || value.Type == JTokenType.Undefined)
+            {
+                return null;
+            }
+
+            if (value is JValue jValue)
+            {
+                return jValue.Value;
+            }
+
+            return value;
+        }
+
+        private static void SetPayLoadValue(PayLoadType payLoad, int targetInputIndex, string fieldID, object? value)
+        {
+            while (payLoad.DataMapSet.Count <= targetInputIndex)
+            {
+                payLoad.DataMapSet.Add(new List<DataMapItem>());
+            }
+
+            while (payLoad.DataMapCount.Count <= targetInputIndex)
+            {
+                payLoad.DataMapCount.Add(0);
+            }
+
+            var inputItems = payLoad.DataMapSet[targetInputIndex];
+            var item = inputItems.FirstOrDefault(item => item.FieldID.ToStringSafe().Equals(fieldID, StringComparison.OrdinalIgnoreCase));
+            if (item == null)
+            {
+                inputItems.Add(new DataMapItem()
+                {
+                    FieldID = fieldID,
+                    Value = value
+                });
+            }
+            else
+            {
+                item.Value = value;
+            }
+
+            payLoad.DataMapCount[targetInputIndex] = Math.Max(payLoad.DataMapCount[targetInputIndex], 1);
+        }
+
+        private static List<List<TransactField>> CreateTransactionInputs(PayLoadType payLoad)
+        {
+            var result = new List<List<TransactField>>();
+            foreach (var inputItems in payLoad.DataMapSet)
+            {
+                var fields = new List<TransactField>();
+                foreach (var item in inputItems)
+                {
+                    fields.Add(new TransactField()
+                    {
+                        FieldID = item.FieldID,
+                        Length = -1,
+                        DataType = "String",
+                        Value = item.Value
+                    });
+                }
+
+                result.Add(fields);
+            }
+
+            return result;
+        }
+
+        private static List<int> CreateDefaultDataMapCount(int inputCount)
+        {
+            return inputCount == 0 ? new List<int>() : new List<int>() { inputCount };
         }
 
     }
