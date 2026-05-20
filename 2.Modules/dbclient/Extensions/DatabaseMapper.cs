@@ -975,16 +975,13 @@ namespace dbclient.Extensions
                             var name = parameter.Key;
                             var value = parameter.Value.ToStringSafe();
 
-                            name = name.StartsWith("$") == true ? "\\" + name : name;
-                            if (name.StartsWith("\\$") == false)
+                            if (name.StartsWith("$") == false)
                             {
                                 value = value.Replace("\"", "\\\"").Replace("'", "''");
                             }
-                            // 문자값 변환
-                            convertString = Regex.Replace(convertString, "\\#{" + name + "}", "'" + value + "'");
 
-                            // 숫자값 변환
-                            convertString = Regex.Replace(convertString, "\\${" + name + "}", value);
+                            convertString = convertString.Replace("#{" + name + "}", "'" + value + "'");
+                            convertString = convertString.Replace("${" + name + "}", value);
                         }
                     }
                 }

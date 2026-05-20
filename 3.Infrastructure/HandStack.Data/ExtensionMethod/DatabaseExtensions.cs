@@ -68,14 +68,13 @@ namespace HandStack.Data.ExtensionMethod
                             var name = parameter.Key;
                             var value = parameter.Value.ToStringSafe();
 
-                            name = name.StartsWith("$") == true ? "\\" + name : name;
-                            if (name.StartsWith("\\$") == false)
+                            if (name.StartsWith("$") == false)
                             {
                                 value = value.Replace("\"", "\\\"").Replace("'", "''");
                             }
 
-                            convertString = Regex.Replace(convertString, "\\#{" + name + "}", "'" + value + "'");
-                            convertString = Regex.Replace(convertString, "\\${" + name + "}", value);
+                            convertString = convertString.Replace("#{" + name + "}", "'" + value + "'");
+                            convertString = convertString.Replace("${" + name + "}", value);
                         }
                     }
                 }
