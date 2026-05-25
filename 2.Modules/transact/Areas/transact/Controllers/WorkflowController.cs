@@ -1323,6 +1323,7 @@ namespace transact.Areas.transact.Controllers
                 var currentPayLoad = ClonePayLoad(request.PayLoad);
                 var requestValues = FlattenDataMapItems(currentPayLoad.DataMapSet.SelectMany(item => item).ToList());
                 var stepValues = new Dictionary<string, Dictionary<string, JToken>>(System.StringComparer.OrdinalIgnoreCase);
+                var workflowOutputs = new List<DataMapItem>();
                 for (var i = 0; i < workflowSteps.Count; i++)
                 {
                     var step = workflowSteps[i];
@@ -1538,11 +1539,16 @@ namespace transact.Areas.transact.Controllers
                         currentPayLoad = ClonePayLoad(executedStepRequest.PayLoad);
                     }
 
-                    result.DataSet = stepResult.DataSet;
-                    result.ResultMeta = stepResult.ResultMeta;
+                    if (step.IncludeResult == true)
+                    {
+                        AppendWorkflowOutputs(workflowOutputs, step.StepID, stepResult.DataSet);
+                    }
+
                     result.Values = stepResult.Values;
                 }
 
+                result.DataSet = workflowOutputs;
+                result.ResultMeta = workflowOutputs.Select(item => item.FieldID).ToList();
                 result.Success = true;
                 return result;
             }
@@ -1550,6 +1556,37 @@ namespace transact.Areas.transact.Controllers
             {
                 workflowPath.Remove(workflowKey);
             }
+        }
+
+        private static void AppendWorkflowOutputs(List<DataMapItem> workflowOutputs, string stepID, List<DataMapItem> stepDataSet)
+        {
+            foreach (var item in stepDataSet)
+            {
+                if (string.IsNullOrWhiteSpace(item.FieldID) || IsEmptyWorkflowOutputValue(item.Value) == true)
+                {
+                    continue;
+                }
+
+                workflowOutputs.Add(new DataMapItem()
+                {
+                    FieldID = $"{stepID}_{item.FieldID}",
+                    Value = item.Value
+                });
+            }
+        }
+
+        private static bool IsEmptyWorkflowOutputValue(object? value)
+        {
+            var token = JTokenFromObject(value);
+            return token.Type switch
+            {
+                JTokenType.Null => true,
+                JTokenType.Undefined => true,
+                JTokenType.String => string.IsNullOrWhiteSpace(token.ToObject<string>()),
+                JTokenType.Array => !token.HasValues,
+                JTokenType.Object => !token.HasValues,
+                _ => false
+            };
         }
 
         private static TransactionRequest CloneStepRequest(TransactionRequest request, string applicationID, string projectID, string transactionID, string serviceID, string commandType)

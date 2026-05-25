@@ -251,6 +251,9 @@ namespace HandStack.Web.MessageContract.DataObject
         [JsonProperty("TransactionScope")]
         public bool? TransactionScope { get; set; }
 
+        [JsonProperty("IncludeResult")]
+        public bool IncludeResult { get; set; }
+
         [JsonProperty("ServiceOutputs")]
         public List<ModelOutputContract> ServiceOutputs { get; set; }
 
@@ -273,6 +276,7 @@ namespace HandStack.Web.MessageContract.DataObject
             CommandType = "";
             ReturnType = "";
             TransactionScope = null;
+            IncludeResult = true;
             ServiceOutputs = new List<ModelOutputContract>();
             InputMappings = new List<WorkflowFieldMapping>();
             OutputMappings = new List<WorkflowFieldMapping>();
