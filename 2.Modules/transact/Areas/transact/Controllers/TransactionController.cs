@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -1586,21 +1586,21 @@ namespace transact.Areas.transact.Controllers
                                     transactField.Length = column.Length;
                                     transactField.DataType = column.DataType.ToString();
 
-                                    object? REQ_FIELD_DAT = null;
+                                    object? fieldValue = null;
                                     if (jToken is JValue)
                                     {
-                                        REQ_FIELD_DAT = jToken.ToObject<string>();
+                                        fieldValue = jToken.ToObject<string>();
                                     }
                                     else if (jToken is JObject)
                                     {
-                                        REQ_FIELD_DAT = jToken.ToString();
+                                        fieldValue = jToken.ToString();
                                     }
                                     else if (jToken is JArray)
                                     {
-                                        REQ_FIELD_DAT = jToken.ToArray();
+                                        fieldValue = jToken.ToArray();
                                     }
 
-                                    if (REQ_FIELD_DAT == null)
+                                    if (fieldValue == null)
                                     {
                                         if (column.Require == true)
                                         {
@@ -1613,13 +1613,13 @@ namespace transact.Areas.transact.Controllers
                                     }
                                     else
                                     {
-                                        if (REQ_FIELD_DAT.ToString() == "[DbNull]")
+                                        if (fieldValue.ToString() == "[DbNull]")
                                         {
                                             transactField.Value = null;
                                         }
                                         else
                                         {
-                                            transactField.Value = REQ_FIELD_DAT;
+                                            transactField.Value = fieldValue;
                                             if (transactField.Value.ToString() == "")
                                             {
                                                 var dataType = transactField.DataType.ToLower();
@@ -1635,6 +1635,26 @@ namespace transact.Areas.transact.Controllers
                                     }
 
                                     transactInput.Add(transactField);
+                                }
+
+                                if (bearerToken?.Policy != null)
+                                {
+                                    foreach (var claim in bearerToken.Policy.Claims)
+                                    {
+                                        var fieldID = "#" + claim.Key;
+                                        if (transactInput.Any(p => p.FieldID == fieldID) == true)
+                                        {
+                                            transactInput.RemoveAll(p => p.FieldID == fieldID);
+                                        }
+
+                                        transactInput.Add(new TransactField()
+                                        {
+                                            FieldID = fieldID,
+                                            Length = -1,
+                                            DataType = "String",
+                                            Value = claim.Value
+                                        });
+                                    }
                                 }
                             }
 

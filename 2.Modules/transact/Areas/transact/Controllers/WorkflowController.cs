@@ -1795,6 +1795,26 @@ namespace transact.Areas.transact.Controllers
                     Value = fieldValue
                 });
             }
+
+            if (bearerToken?.Policy != null)
+            {
+                foreach (var claim in bearerToken.Policy.Claims)
+                {
+                    var fieldID = "#" + claim.Key;
+                    if (fields.Any(p => p.FieldID == fieldID) == true)
+                    {
+                        fields.RemoveAll(p => p.FieldID == fieldID);
+                    }
+
+                    fields.Add(new TransactField()
+                    {
+                        FieldID = fieldID,
+                        Length = -1,
+                        DataType = "String",
+                        Value = claim.Value
+                    });
+                }
+            }
         }
 
         private bool TryReadCookieUserAccount(string member, out UserAccount? userAccount)
