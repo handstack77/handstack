@@ -100,6 +100,7 @@ namespace HandStack.Web.MessageContract.DataObject
         public string ID { get; set; }
         public string Type { get; set; }
         public int Length { get; set; }
+        public bool IsRequired { get; set; }
         public string? Value { get; set; }
 
         public FunctionParam()
@@ -107,6 +108,7 @@ namespace HandStack.Web.MessageContract.DataObject
             ID = "";
             Type = "String";
             Length = -1;
+            IsRequired = false;
             Value = null;
         }
     }

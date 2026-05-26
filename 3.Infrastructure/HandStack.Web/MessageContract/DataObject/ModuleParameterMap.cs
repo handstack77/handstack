@@ -6,5 +6,6 @@
         public string? DefaultValue;
         public string DbType = "";
         public int Length;
+        public bool IsRequired = false;
     }
 }

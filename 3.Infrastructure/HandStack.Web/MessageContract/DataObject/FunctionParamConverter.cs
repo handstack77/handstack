@@ -18,6 +18,7 @@ namespace HandStack.Web.MessageContract.Converter
                 ID = GetValue<string>(jo, "id", "ID", "Id") ?? "",
                 Type = GetValue<string>(jo, "type", "Type") ?? "String",
                 Length = GetValue<int?>(jo, "length", "Length") ?? -1,
+                IsRequired = GetValue<bool?>(jo, "required", "Required") ?? false,
                 Value = GetValue<string?>(jo, "value", "Value")
             };
         }
@@ -29,6 +30,7 @@ namespace HandStack.Web.MessageContract.Converter
                 ["ID"] = value?.ID,
                 ["Type"] = value?.Type,
                 ["Length"] = value?.Length,
+                ["IsRequired"] = value?.IsRequired,
                 ["Value"] = value?.Value
             };
 
