@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -136,6 +136,70 @@ namespace HandStack.Web.Extensions
             var result = DateTimeOffset.Now.TotalOffsetMinutes;
             var offsetMinutes = GetContainValue(request, "OffsetMinutes");
             var timezoneOffsetMinutes = string.IsNullOrWhiteSpace(offsetMinutes) ? result : offsetMinutes.ParseInt(result);
+
+            return result;
+        }
+
+        public static string GetQueryValue(this HttpRequest request, string requestKey, string defaultValue = "")
+        {
+            var result = "";
+            if (request.Query.ContainsKey(requestKey) == true)
+            {
+                result = request.Query[requestKey].ToString();
+            }
+
+            if (string.IsNullOrWhiteSpace(result) && !string.IsNullOrWhiteSpace(defaultValue))
+            {
+                result = defaultValue;
+            }
+
+            return result;
+        }
+
+        public static string GetFormValue(this HttpRequest request, string requestKey, string defaultValue = "")
+        {
+            var result = "";
+            if (request.HasFormContentType == true && request.Form.ContainsKey(requestKey) == true)
+            {
+                result = request.Form[requestKey].ToString();
+            }
+
+            if (string.IsNullOrWhiteSpace(result) && !string.IsNullOrWhiteSpace(defaultValue))
+            {
+                result = defaultValue;
+            }
+
+            return result;
+        }
+
+        public static string GetRouteValue(this HttpRequest request, string requestKey, string defaultValue = "")
+        {
+            var result = "";
+            if (request.RouteValues.ContainsKey(requestKey) == true)
+            {
+                result = (request.RouteValues[requestKey]?.ToString()).ToStringSafe();
+            }
+
+            if (string.IsNullOrWhiteSpace(result) && !string.IsNullOrWhiteSpace(defaultValue))
+            {
+                result = defaultValue;
+            }
+
+            return result;
+        }
+
+        public static string GetHeaderValue(this HttpRequest request, string requestKey, string defaultValue = "")
+        {
+            var result = "";
+            if (request.Headers.ContainsKey(requestKey) == true)
+            {
+                result = request.Headers[requestKey].ToString();
+            }
+
+            if (string.IsNullOrWhiteSpace(result) && !string.IsNullOrWhiteSpace(defaultValue))
+            {
+                result = defaultValue;
+            }
 
             return result;
         }

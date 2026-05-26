@@ -1,3 +1,4 @@
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -16,9 +17,20 @@ namespace transact.Extensions
     {
         public static bool IsAllowAuthorization(this HttpContext httpContext)
         {
-            string? authorizationKey = httpContext.Request.GetContainValue("AuthorizationKey");
-            var isAllowClientIP = string.IsNullOrWhiteSpace(ModuleConfiguration.AllowClientIP.FirstOrDefault(p => p == "*" || p == httpContext.GetRemoteIpAddress())) == false;
-            return ModuleConfiguration.AuthorizationKey == authorizationKey && isAllowClientIP == true;
+            string remoteIP = httpContext.GetRemoteIpAddress().ToStringSafe();
+            bool isLocalRequest = remoteIP.Equals("localhost", StringComparison.OrdinalIgnoreCase) || remoteIP == "127.0.0.1" || remoteIP == "::1";
+            string? authorizationKey;
+            if (isLocalRequest == true)
+            {
+                authorizationKey = httpContext.Request.GetContainValue("AuthorizationKey");
+            }
+            else
+            {
+                authorizationKey = httpContext.Request.GetHeaderValue("AuthorizationKey");
+            }
+
+            var isAllowClientIP = ModuleConfiguration.AllowClientIP.Contains("*") || ModuleConfiguration.AllowClientIP.Any(p => p == remoteIP);
+            return ModuleConfiguration.AuthorizationKey == authorizationKey && isAllowClientIP;
         }
 
         public static void Append(this List<DynamicParameter> parameters, string parameterName, DbType dbType, object? value)
