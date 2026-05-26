@@ -365,30 +365,31 @@ namespace prompter.Areas.prompter.Controllers
                     var queryResults = PromptMapper.PromptMappings.Select(p => p.Value);
                     if (string.IsNullOrWhiteSpace(queryIDs) == false)
                     {
-                        queryResults = queryResults.Where(p => IsQueryIDMatch(queryIDs, p.ApplicationID, p.ProjectID, p.TransactionID, p.StatementID));
+                        queryResults = queryResults.Where(item => IsQueryIDMatch(queryIDs, item.ApplicationID, item.ProjectID, item.TransactionID, item.StatementID));
                     }
 
                     var promptMaps = queryResults.ToList();
                     if (promptMaps != null)
                     {
-                        var reports = promptMaps.Select(p => new
+                        var reports = promptMaps.Select(item => new
                         {
-                            ApplicationID = p.ApplicationID,
-                            ProjectID = p.ProjectID,
-                            TransactionID = p.TransactionID,
-                            DataSourceID = p.DataSourceID,
-                            StatementID = p.StatementID,
-                            Seq = p.Seq,
-                            //MaxTokens = p.MaxTokens,
-                            //Temperature = p.Temperature,
-                            //TopP = p.TopP,
-                            //PresencePenalty = p.PresencePenalty,
-                            //FrequencyPenalty = p.FrequencyPenalty,
-                            //Timeout = p.Timeout,
-                            Comment = p.Comment,
-                            InputVariables = p.InputVariables,
-                            OutputMetas = p.OutputMetas,
-                            //ModifiedAt = p.ModifiedAt
+                            TransactType = "P",
+                            item.ApplicationID,
+                            item.ProjectID,
+                            item.TransactionID,
+                            //item.DataSourceID,
+                            ServiceID = item.StatementID,
+                            item.Seq,
+                            //item.MaxTokens,
+                            //item.Temperature,
+                            //item.TopP,
+                            //item.PresencePenalty,
+                            //item.FrequencyPenalty,
+                            //item.Timeout,
+                            item.Comment,
+                            Parameters = item.InputVariables,
+                            item.OutputMetas,
+                            //item.ModifiedAt
                         });
 
                         result = Content(JsonConvert.SerializeObject(reports), "application/json");

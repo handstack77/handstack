@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -169,14 +170,15 @@ namespace command.Areas.command.Controllers
 
                 var reports = queryResults.Select(item => new
                 {
+                    TransactType = "C",
                     item.ApplicationID,
                     item.ProjectID,
                     item.TransactionID,
-                    item.CommandID,
+                    ServiceID = item.CommandID,
                     item.Seq,
-                    item.CommandType,
+                    //item.CommandType,
                     //item.Use,
-                    item.Timeout,
+                    //item.Timeout,
                     //item.MaxOutputBytes,
                     item.Comment,
                     //item.TransactionLog,

@@ -1,4 +1,4 @@
-using System.Linq;
+﻿using System.Linq;
 
 using function.Entity;
 
@@ -14,10 +14,7 @@ namespace function.Extensions
         {
             string? authorizationKey = httpContext.Request.GetContainValue("AuthorizationKey");
             var isAllowClientIP = string.IsNullOrWhiteSpace(ModuleConfiguration.AllowClientIP.FirstOrDefault(p => p == "*" || p == httpContext.GetRemoteIpAddress())) == false;
-            var isAllowAuthorizationKey = ModuleConfiguration.AuthorizationKey == authorizationKey;
-            return ModuleConfiguration.RequireAuthorizationKeyAndClientIP == true
-                ? isAllowAuthorizationKey == true && isAllowClientIP == true
-                : isAllowAuthorizationKey == true || isAllowClientIP == true;
+            return ModuleConfiguration.AuthorizationKey == authorizationKey && isAllowClientIP == true;
         }
     }
 }

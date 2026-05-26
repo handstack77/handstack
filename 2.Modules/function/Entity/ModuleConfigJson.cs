@@ -162,8 +162,6 @@ namespace function.Entity
 
         public List<string> AllowClientIP { get; set; }
 
-        public bool RequireAuthorizationKeyAndClientIP { get; set; }
-
         public ModuleConfig()
         {
             AuthorizationKey = "";
@@ -183,7 +181,6 @@ namespace function.Entity
             DefaultDataSourceID = "";
             FunctionSource = new List<FunctionSource>();
             AllowClientIP = new List<string>() { "*" };
-            RequireAuthorizationKeyAndClientIP = false;
         }
     }
 }

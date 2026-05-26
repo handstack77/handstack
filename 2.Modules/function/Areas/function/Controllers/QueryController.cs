@@ -170,23 +170,24 @@ namespace function.Areas.function.Controllers
 
                 var reports = queryResults.Select(item => new
                 {
+                    TransactType = "F",
                     item.ApplicationID,
                     item.ProjectID,
                     item.TransactionID,
-                    item.DataSourceID,
-                    item.ScriptID,
-                    //item.ExportName,
+                    //item.DataSourceID,
+                    //item.ScriptID,
+                    ServiceID = item.ExportName,
                     item.Seq,
-                    item.LanguageType,
+                    //item.LanguageType,
                     //item.ProgramPath,
                     //item.ReferenceModuleID,
                     //item.EntryType,
                     //item.EntryMethod,
                     //item.IsHttpContext,
-                    item.Timeout,
+                    //item.Timeout,
                     item.Comment,
                     //item.TransactionLog,
-                    item.ModuleParameters,
+                    Parameters = item.ModuleParameters,
                     item.OutputMetas,
                     //item.ModifiedAt
                 }).ToList();

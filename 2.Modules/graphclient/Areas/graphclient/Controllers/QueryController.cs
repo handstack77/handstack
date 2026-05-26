@@ -160,11 +160,12 @@ namespace graphclient.Areas.graphclient.Controllers
 
                 var reports = queryResults.Select(item => new
                 {
+                    TransactType = "G",
                     item.ApplicationID,
                     item.ProjectID,
                     item.TransactionID,
-                    item.DataSourceID,
-                    item.StatementID,
+                    //item.DataSourceID,
+                    ServiceID = item.StatementID,
                     item.Seq,
                     //item.Timeout,
                     item.Comment,

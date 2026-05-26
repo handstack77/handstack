@@ -218,26 +218,27 @@ namespace dbclient.Areas.dbclient.Controllers
                     var queryResults = DatabaseMapper.StatementMappings.Select(p => p.Value);
                     if (string.IsNullOrWhiteSpace(queryIDs) == false)
                     {
-                        queryResults = queryResults.Where(p => IsQueryIDMatch(queryIDs, p.ApplicationID, p.ProjectID, p.TransactionID, p.StatementID));
+                        queryResults = queryResults.Where(item => IsQueryIDMatch(queryIDs, item.ApplicationID, item.ProjectID, item.TransactionID, item.StatementID));
                     }
 
                     var statementMaps = queryResults.ToList();
                     if (statementMaps != null)
                     {
-                        var reports = statementMaps.Select(p => new
+                        var reports = statementMaps.Select(item => new
                         {
-                            ApplicationID = p.ApplicationID,
-                            ProjectID = p.ProjectID,
-                            TransactionID = p.TransactionID,
-                            DataSourceID = p.DataSourceID,
-                            StatementID = p.StatementID,
-                            Seq = p.Seq,
-                            NativeDataClient = p.NativeDataClient,
-                            //Timeout = p.Timeout,
-                            Comment = p.Comment,
-                            DbParameters = p.DbParameters,
-                            OutputMetas = p.OutputMetas,
-                            //ModifiedAt = p.ModifiedAt
+                            TransactType = "D",
+                            item.ApplicationID,
+                            item.ProjectID,
+                            item.TransactionID,
+                            //item.DataSourceID,
+                            ServiceID = item.StatementID,
+                            item.Seq,
+                            //item.NativeDataClient,
+                            //item.Timeout,
+                            item.Comment,
+                            Parameters = item.DbParameters,
+                            item.OutputMetas,
+                            //item.ModifiedAt
                         });
 
                         result = Content(JsonConvert.SerializeObject(reports), "application/json");

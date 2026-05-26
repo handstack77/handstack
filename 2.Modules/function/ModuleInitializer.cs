@@ -196,7 +196,6 @@ namespace function
                         {
                             ModuleConfiguration.AllowClientIP.Add("*");
                         }
-                        ModuleConfiguration.RequireAuthorizationKeyAndClientIP = moduleConfig.RequireAuthorizationKeyAndClientIP;
                         ModuleConfiguration.IsConfigure = true;
                     }
                     else
