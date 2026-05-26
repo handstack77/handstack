@@ -65,6 +65,10 @@ namespace transact.Entity
 
         public bool UseApiAuthorize { get; set; }
 
+        public string DynamicWorkflowTransaction { get; set; }
+
+        public string DynamicWorkflowServices { get; set; }
+
         public List<string> BypassAuthorizeIP { get; set; }
 
         [JsonConverter(typeof(AvailableEnvironmentConverter))]
@@ -114,6 +118,8 @@ namespace transact.Entity
             TrustedProxyIP = "";
             HasTrustedCheckIP = false;
             UseApiAuthorize = false;
+            DynamicWorkflowTransaction = "";
+            DynamicWorkflowServices = "";
             BypassAuthorizeIP = new List<string>();
             AvailableEnvironment = new List<string> { "D" };
             LogServerUrl = "";

@@ -3,6 +3,7 @@ using System.Buffers.Text;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -306,9 +307,19 @@ namespace transact.Areas.transact.Controllers
                     return LoggingAndReturn(response, transactionWorkID, "N", transactionInfo);
                 }
 
+                var oneTimeWorkflowContract = HttpContext.Request.Headers["X-Workflow-Contract"].ToString();
+                if (string.IsNullOrWhiteSpace(oneTimeWorkflowContract) == false)
+                {
+                    if (TryCreateOneTimeWorkflowTransactionInfo(oneTimeWorkflowContract, request.Transaction.FunctionID, out transactionInfo, out var workflowContractExceptionText) == false || transactionInfo == null)
+                    {
+                        response.ExceptionText = $"동적 Workflow 계약 확인 필요 - {workflowContractExceptionText}";
+                        return LoggingAndReturn(response, transactionWorkID, "N", transactionInfo);
+                    }
+                }
+
                 if (transactionInfo.CommandType != "W" || transactionInfo.WorkflowSteps.Count == 0)
                 {
-                    response.ExceptionText = $"CommandType: '{transactionInfo.CommandType}', WorkflowSteps: '{transactionInfo.WorkflowSteps.Count}' Workflow 매핑 정보 확인 필요";
+                    response.ExceptionText = $"동적 Workflow 매핑 정보 확인 필요";
                     return LoggingAndReturn(response, transactionWorkID, "N", transactionInfo);
                 }
 
@@ -767,6 +778,12 @@ namespace transact.Areas.transact.Controllers
                     }
                 }
 
+                if (string.IsNullOrWhiteSpace(oneTimeWorkflowContract) == false && ValidateOneTimeWorkflowPermission(bearerToken, businessContract, transactionInfo, out var workflowPermissionExceptionText) == false)
+                {
+                    response.ExceptionText = $"동적 Workflow 권한 확인 필요 - {workflowPermissionExceptionText}";
+                    return LoggingAndReturn(response, transactionWorkID, "N", transactionInfo);
+                }
+
                 request.Transaction.CommandType = transactionInfo.CommandType;
                 response.Transaction.CommandType = transactionInfo.CommandType;
 
@@ -815,6 +832,142 @@ namespace transact.Areas.transact.Controllers
             }
 
             return LoggingAndReturn(response, transactionWorkID, "N", null);
+        }
+
+        private static bool ValidateOneTimeWorkflowPermission(BearerToken? bearerToken, BusinessContract businessContract, TransactionInfo workflowInfo, out string exceptionText)
+        {
+            exceptionText = "";
+            if (bearerToken == null)
+            {
+                exceptionText = "BearerToken 확인 필요";
+                return false;
+            }
+
+            var claims = bearerToken.Policy?.Claims;
+            if (claims == null)
+            {
+                exceptionText = "BearerToken Policy.Claims 확인 필요";
+                return false;
+            }
+
+            if (claims.TryGetValue("DynamicWorkflow", out var dynamicWorkflow) == false || dynamicWorkflow.ToStringSafe().ToBoolean() == false)
+            {
+                exceptionText = "DynamicWorkflow 권한 확인 필요";
+                return false;
+            }
+
+            var allowTransaction = ModuleConfiguration.DynamicWorkflowTransaction.ToStringSafe().Trim();
+            if (string.IsNullOrWhiteSpace(allowTransaction))
+            {
+                exceptionText = "ModuleConfig DynamicWorkflowTransaction 확인 필요";
+                return false;
+            }
+
+            if (claims.TryGetValue("DynamicWorkflowTransaction", out var tokenTransaction) == false || tokenTransaction.ToStringSafe().Trim().Equals(allowTransaction, StringComparison.OrdinalIgnoreCase) == false)
+            {
+                exceptionText = $"BearerToken DynamicWorkflowTransaction '{tokenTransaction.ToStringSafe()}' 확인 필요";
+                return false;
+            }
+
+            var allowServices = ModuleConfiguration.DynamicWorkflowServices.SplitComma()
+                .Where(item => string.IsNullOrWhiteSpace(item) == false)
+                .Select(item => item.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+            if (allowServices.Count == 0)
+            {
+                exceptionText = "ModuleConfig DynamicWorkflowServices 확인 필요";
+                return false;
+            }
+
+            if (allowServices.Contains(workflowInfo.ServiceID, StringComparer.OrdinalIgnoreCase) == false)
+            {
+                exceptionText = $"ServiceID '{workflowInfo.ServiceID}' 실행 권한 확인 필요";
+                return false;
+            }
+
+            return true;
+        }
+
+        private static bool TryCreateOneTimeWorkflowTransactionInfo(string workflowContractBase64, string requestServiceID, out TransactionInfo? transactionInfo, out string exceptionText)
+        {
+            transactionInfo = null;
+            exceptionText = "";
+
+            try
+            {
+                var workflowContractJson = workflowContractBase64.DecodeBase64();
+                transactionInfo = JsonConvert.DeserializeObject<TransactionInfo>(workflowContractJson);
+                if (transactionInfo == null)
+                {
+                    exceptionText = "역직렬화 결과 확인 필요";
+                    return false;
+                }
+
+                transactionInfo.Roles ??= new List<string>();
+                transactionInfo.Policys ??= new Dictionary<string, List<string>>();
+                transactionInfo.TransactionTokens ??= new List<string>();
+                transactionInfo.AuthorizeMethod ??= new List<string>();
+                transactionInfo.SequentialOptions ??= new List<SequentialOption>();
+                transactionInfo.AccessScreenID ??= new List<string>();
+                transactionInfo.Inputs ??= new List<ModelInputContract>();
+                transactionInfo.Outputs ??= new List<ModelOutputContract>();
+                transactionInfo.WorkflowSteps ??= new List<WorkflowStep>();
+
+                foreach (var step in transactionInfo.WorkflowSteps)
+                {
+                    step.ServiceOutputs ??= new List<ModelOutputContract>();
+                    step.InputMappings ??= new List<WorkflowFieldMapping>();
+                    step.OutputMappings ??= new List<WorkflowFieldMapping>();
+                    step.Assertions ??= new List<WorkflowAssertion>();
+
+                    foreach (var assertion in step.Assertions)
+                    {
+                        assertion.Expected ??= new WorkflowAssertionValue();
+                        assertion.Actual ??= new WorkflowAssertionValue();
+                        assertion.Value ??= new WorkflowAssertionValue();
+                        assertion.Min ??= new WorkflowAssertionValue();
+                        assertion.Max ??= new WorkflowAssertionValue();
+                        assertion.Collection ??= new WorkflowAssertionValue();
+                    }
+                }
+
+                if (string.IsNullOrWhiteSpace(transactionInfo.ServiceID))
+                {
+                    transactionInfo.ServiceID = requestServiceID;
+                }
+
+                if (transactionInfo.ServiceID.Equals(requestServiceID, StringComparison.OrdinalIgnoreCase) == false)
+                {
+                    exceptionText = $"ServiceID '{transactionInfo.ServiceID}'와 FunctionID '{requestServiceID}' 불일치";
+                    return false;
+                }
+
+                transactionInfo.CommandType = transactionInfo.CommandType.ToStringSafe().ToUpperInvariant();
+                if (transactionInfo.CommandType != "W")
+                {
+                    exceptionText = $"CommandType '{transactionInfo.CommandType}' 확인 필요";
+                    return false;
+                }
+
+                if (transactionInfo.WorkflowSteps.Count == 0)
+                {
+                    exceptionText = "WorkflowSteps 확인 필요";
+                    return false;
+                }
+
+                if (string.IsNullOrWhiteSpace(transactionInfo.ReturnType))
+                {
+                    transactionInfo.ReturnType = "Json";
+                }
+
+                return true;
+            }
+            catch (Exception exception)
+            {
+                exceptionText = exception.ToMessage();
+                return false;
+            }
         }
 
         private ActionResult LoggingAndReturn(TransactionResponse response, string transactionWorkID, string acknowledge, TransactionInfo? transactionInfo)

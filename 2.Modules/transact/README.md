@@ -70,7 +70,9 @@
 - `transaction.dataFormat`이 비어 있으면 `J`로 처리합니다. `J`와 `T`만 허용합니다.
 - `environment`는 `module.json`의 `AvailableEnvironment`에 포함되어야 합니다.
 - `AllowRequestTransactions`, `PublicTransactions`, `AccessScreenID` 규칙을 통과해야 합니다.
-- 계약의 `Services`에서 `transaction.functionID`와 같은 `ServiceID`를 찾고, 해당 서비스에 `WorkflowSteps`가 있어야 합니다.
+- 계약의 `Services`에서 `transaction.functionID`와 같은 `ServiceID`를 찾을 수 있어야 합니다. `X-Workflow-Contract` 헤더가 없으면 해당 서비스에 `WorkflowSteps`가 있어야 합니다.
+- 요청 헤더 `X-Workflow-Contract`에 `TransactionInfo` 형식의 JSON을 전달하면 해당 요청에서만 실행할 Workflow 정의로 사용합니다. 기존 계약의 허용 거래, 화면 접근, 권한 검증은 그대로 통과해야 합니다.
+- `X-Workflow-Contract` 요청은 BearerToken이 필요하며, `Policy.Claims`에 `DynamicWorkflow=Y`, `DynamicWorkflowTransaction=MOD|MOD010`이 있어야 합니다. 서버의 `module.json` `DynamicWorkflowTransaction`, `DynamicWorkflowServices` 설정이 최종 실행 허용 범위입니다.
 
 ### 계약 작성 규칙
 - 워크플로 서비스는 `CommandType`을 `W`로 둡니다.
@@ -80,6 +82,20 @@
 - 단계의 `CommandType`이 `W`이면 하위 워크플로를 재귀 실행합니다. 순환 호출은 `ApplicationID|ProjectID|TransactionID|ServiceID` 경로로 감지해 실패 처리합니다.
 - 단계의 `CommandType`이 `D`, `G`, `F`, `P`이면 `TransactClient.RequestDataTransactionAsync`로 실행 모듈에 전달합니다.
 - 단계의 `ReturnType`, `TransactionScope`, `ServiceOutputs`는 대상 서비스 설정을 단계 단위로 덮어씁니다. `ServiceOutputs`가 없으면 대상 서비스의 `Outputs`를 사용합니다.
+- `X-Workflow-Contract` 헤더의 `ServiceID`는 요청의 `transaction.functionID`와 같아야 합니다. 생략하면 `transaction.functionID`로 보정하며, 응답 반환 또는 예외 처리 후 일회성 실행 정의는 초기화됩니다.
+
+### 일회성 Workflow 헤더 예
+```http
+X-Workflow-Contract: {"ServiceID":"GW01","Authorize":false,"ReturnType":"Json","CommandType":"W","TransactionScope":false,"WorkflowSteps":[{"StepID":"searchIntent","IncludeResult":false,"CommandType":"P","TransactionProjectID":"MOD","TransactionID":"MOD010","ServiceID":"GP01","ReturnType":"Json","OutputMappings":[{"SourceFieldID":"PromptResult","TargetFieldID":"UserIntent","Required":true}],"Assertions":[{"Assert":"NotEmpty","Collection":{"Source":"Step","FieldID":"UserIntent"},"Message":"UserIntent 값이 비어 있습니다"}]},{"StepID":"searchIntentID","CommandType":"P","TransactionProjectID":"MOD","TransactionID":"MOD010","ServiceID":"GP02","ReturnType":"Json","InputMappings":[{"Source":"Step","SourceStepID":"searchIntent","SourceFieldID":"UserIntent","TargetFieldID":"UserIntent","Required":true}]}]}
+```
+
+BearerToken의 `Policy.Claims` 예:
+```json
+{
+  "DynamicWorkflow": "Y",
+  "DynamicWorkflowTransaction": "MOD|MOD010"
+}
+```
 
 ### 입력 매핑
 - 각 단계는 직전 단계까지 유지된 `payLoad.dataMapSet`과 `dataMapCount`를 기본 입력으로 전달합니다.

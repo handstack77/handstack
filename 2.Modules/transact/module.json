@@ -31,6 +31,8 @@
         "TrustedProxyIP": "1.1.1.1",
         "HasTrustedCheckIP": false,
         "UseApiAuthorize": false,
+        "DynamicWorkflowTransaction": "MOD|MOD010",
+        "DynamicWorkflowServices": "GP01,GP02",
         "BypassAuthorizeIP": [
             "localhost",
             "127.0.0.1"

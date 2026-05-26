@@ -64,6 +64,8 @@ namespace transact
                         ModuleConfiguration.UseApiAuthorize = moduleConfig.UseApiAuthorize;
                         ModuleConfiguration.TrustedProxyIP = string.IsNullOrWhiteSpace(moduleConfig.TrustedProxyIP) ? "1.1.1.1" : moduleConfig.TrustedProxyIP;
                         ModuleConfiguration.HasTrustedCheckIP = moduleConfig.HasTrustedCheckIP;
+                        ModuleConfiguration.DynamicWorkflowTransaction = moduleConfig.DynamicWorkflowTransaction.ToStringSafe().Trim();
+                        ModuleConfiguration.DynamicWorkflowServices = moduleConfig.DynamicWorkflowServices.ToStringSafe().Trim();
                         ModuleConfiguration.BypassAuthorizeIP = moduleConfig.BypassAuthorizeIP;
                         ModuleConfiguration.IsValidationRequest = moduleConfig.IsValidationRequest;
                         ModuleConfiguration.IsValidationGlobalID = moduleConfig.IsValidationGlobalID;

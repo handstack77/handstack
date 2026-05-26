@@ -41,6 +41,8 @@ namespace transact.Entity
         public static string TrustedProxyIP = "";
         public static bool HasTrustedCheckIP = false;
         public static bool UseApiAuthorize = false;
+        public static string DynamicWorkflowTransaction = "";
+        public static string DynamicWorkflowServices = "";
         public static List<string> BypassAuthorizeIP = new List<string>();
         public static string SystemID = "";
         public static List<string> AvailableEnvironment = new List<string> { "D" };

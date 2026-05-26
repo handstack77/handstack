@@ -31,6 +31,8 @@ let $module_settings = {
                 "TransactionAggregateBasePath": "../sqlite/HDS/transact/aggregate",
                 "TrustedProxyIP": "1.1.1.1",
                 "UseApiAuthorize": false,
+                "DynamicWorkflowTransaction": "MOD|MOD010",
+                "DynamicWorkflowServices": "GP01,GP02",
                 "BypassAuthorizeIP": [
                     "localhost",
                     "127.0.0.1"
