@@ -157,6 +157,7 @@ namespace prompter.Extensions
                 promptMap.TransactionLog = GetAttributeValue(item, "transactionlog", "log").ToBoolean();
                 promptMap.Prompt = item.InnerHtml;
                 promptMap.InputVariables = ParseInputVariables(item);
+                promptMap.OutputMetas = ParseOutputMetas(item);
                 promptMap.Tools = ParseTools(item);
                 promptMap.Authorization = ParseAuthorization(item);
                 promptMap.Headers = ParseHeaders(item);
@@ -190,6 +191,27 @@ namespace prompter.Extensions
                         TestValue = GetAttributeValue(paramNode, "test"),
                         Description = GetAttributeValue(paramNode, "desc")
                     });
+                }
+            }
+
+            return result;
+        }
+
+        private static List<string> ParseOutputMetas(HtmlNode statementNode)
+        {
+            var result = new List<string>();
+            var htmlNodes = statementNode.SelectNodes("outputmeta");
+            if (htmlNodes == null || htmlNodes.Count == 0)
+            {
+                return result;
+            }
+
+            foreach (var outputMetaNode in htmlNodes)
+            {
+                var value = GetAttributeValue(outputMetaNode, "value");
+                if (string.IsNullOrWhiteSpace(value) == false)
+                {
+                    result.Add(value);
                 }
             }
 

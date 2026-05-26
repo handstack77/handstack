@@ -49,6 +49,8 @@ namespace HandStack.Web.MessageContract.DataObject
         [JsonProperty]
         public List<ModuleParameterMap> ModuleParameters { get; set; } = new List<ModuleParameterMap>();
         [JsonProperty]
+        public List<string> OutputMetas { get; set; } = new List<string>();
+        [JsonProperty]
         public DateTime? ModifiedAt { get; set; } = null;
     }
 }

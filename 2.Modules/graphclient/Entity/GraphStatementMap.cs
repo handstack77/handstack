@@ -42,6 +42,9 @@ namespace graphclient.Entity
         public List<GraphStatementParameter> Parameters { get; set; } = new();
 
         [JsonProperty]
+        public List<string> OutputMetas { get; set; } = new();
+
+        [JsonProperty]
         public DateTime ModifiedAt { get; set; } = DateTime.MinValue;
 
         [JsonProperty]

@@ -16,6 +16,8 @@ RETURN movie.title AS title, labels(movie) AS labels, movie.released AS released
 ORDER BY title
 LIMIT 5
             ]]>
+            <outputmeta value="BankAccountID:string|32;CompanyID:string|32;CompanyName:string|200;" />
+            <outputmeta value="BankName:string|50;AccountNumber:string|50;AccountHolderName:string|50;AccountType:string|3;" />
         </statement>
 
         <statement id="LG02" seq="0" use="Y" timeout="30" desc="Retrieving Nodes" transactionlog="Y">

@@ -210,6 +210,7 @@ namespace command.Extensions
                     EnvironmentVariables = new Dictionary<string, string>(item.EnvironmentVariables, StringComparer.OrdinalIgnoreCase),
                     SuccessExitCodes = item.SuccessExitCodes.Count == 0 ? new List<int>() { 0 } : new List<int>(item.SuccessExitCodes),
                     Parameters = CloneParameters(item.Parameters),
+                    OutputMetas = new List<string>(item.OutputMetas),
                     ModifiedAt = contract.ModifiedAt
                 };
 
@@ -247,6 +248,7 @@ namespace command.Extensions
                     BodyType = string.IsNullOrWhiteSpace(item.BodyType) ? "raw" : item.BodyType,
                     BodyParts = new List<CommandBodyPartMap>(item.BodyParts),
                     Parameters = CloneParameters(item.Parameters),
+                    OutputMetas = new List<string>(item.OutputMetas),
                     ModifiedAt = contract.ModifiedAt
                 };
 
@@ -325,6 +327,7 @@ namespace command.Extensions
                 Arguments = ElementValue(item, "arguments"),
                 WorkingDirectory = ElementValue(item, "workingDirectory"),
                 Parameters = ReadParameters(Children(item, "param")),
+                OutputMetas = ReadOutputMetas(item),
                 SuccessExitCodes = ReadSuccessExitCodes(ElementValue(item, "successExitCodes"))
             };
 
@@ -364,7 +367,8 @@ namespace command.Extensions
                 Body = bodyParts.Count == 0 ? (bodyNode?.Value.ToStringSafe().Trim() ?? "") : "",
                 BodyType = string.IsNullOrWhiteSpace(bodyType) ? "raw" : bodyType,
                 BodyParts = bodyParts,
-                Parameters = ReadParameters(Children(item, "param"))
+                Parameters = ReadParameters(Children(item, "param")),
+                OutputMetas = ReadOutputMetas(item)
             };
 
             if (string.IsNullOrWhiteSpace(request.Method) == true)
@@ -387,8 +391,24 @@ namespace command.Extensions
                     Length = AttributeValue(paramNode, "length").ParseInt(-1),
                     DefaultValue = AttributeValue(paramNode, "value").ToStringSafe() == "" ? "NULL" : AttributeValue(paramNode, "value"),
                     TestValue = AttributeValue(paramNode, "test"),
+                    IsRequired = AttributeValue(paramNode, "required").ToBoolean(),
                     Required = AttributeValue(paramNode, "required").ToBoolean(true)
                 });
+            }
+
+            return result;
+        }
+
+        private static List<string> ReadOutputMetas(XElement item)
+        {
+            var result = new List<string>();
+            foreach (var outputMetaNode in Children(item, "outputmeta"))
+            {
+                var value = AttributeValue(outputMetaNode, "value");
+                if (string.IsNullOrWhiteSpace(value) == false)
+                {
+                    result.Add(value);
+                }
             }
 
             return result;
@@ -497,6 +517,7 @@ namespace command.Extensions
                 Length = item.Length,
                 DefaultValue = item.DefaultValue,
                 TestValue = item.TestValue,
+                IsRequired = item.IsRequired,
                 Required = item.Required
             }).ToList();
         }

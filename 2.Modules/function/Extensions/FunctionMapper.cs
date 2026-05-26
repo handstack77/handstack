@@ -353,6 +353,7 @@ namespace function.Extensions
                                 moduleScriptMap.AfterTransactionCommand = item.AfterTransaction;
                                 moduleScriptMap.FallbackTransactionCommand = item.FallbackTransaction;
                                 moduleScriptMap.Comment = item.Comment;
+                                moduleScriptMap.OutputMetas = new List<string>(item.OutputMetas);
 
                                 moduleScriptMap.ModuleParameters = new List<ModuleParameterMap>();
                                 var functionParams = item.Params;
@@ -608,6 +609,7 @@ namespace function.Extensions
                                     moduleScriptMap.AfterTransactionCommand = item.AfterTransaction;
                                     moduleScriptMap.FallbackTransactionCommand = item.FallbackTransaction;
                                     moduleScriptMap.Comment = item.Comment;
+                                    moduleScriptMap.OutputMetas = new List<string>(item.OutputMetas);
 
                                     moduleScriptMap.ModuleParameters = new List<ModuleParameterMap>();
                                     var functionParams = item.Params;
@@ -864,6 +866,7 @@ namespace function.Extensions
                                         moduleScriptMap.AfterTransactionCommand = item.AfterTransaction;
                                         moduleScriptMap.FallbackTransactionCommand = item.FallbackTransaction;
                                         moduleScriptMap.Comment = item.Comment;
+                                        moduleScriptMap.OutputMetas = new List<string>(item.OutputMetas);
 
                                         moduleScriptMap.ModuleParameters = new List<ModuleParameterMap>();
                                         var functionParams = item.Params;

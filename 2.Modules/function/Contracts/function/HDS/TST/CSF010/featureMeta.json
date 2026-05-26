@@ -15,6 +15,10 @@
             "Use": true,
             "Timeout": 0,
             "Comment": "Form 반환 거래 함수",
+            "OutputMetas": [
+                "BankAccountID:string|32;CompanyID:string|32;CompanyName:string|200;",
+                "BankName:string|50;AccountNumber:string|50;AccountHolderName:string|50;AccountType:string|3;"
+            ],
             "Params": [
                 {
                     "id": "ServerDate",

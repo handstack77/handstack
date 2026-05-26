@@ -13,6 +13,8 @@
             <![CDATA[
 			SELECT NOW() AS ServerDate, @@hostname AS ServerName;
 			]]>
+            <outputmeta value="BankAccountID:string|32;CompanyID:string|32;CompanyName:string|200;" />
+            <outputmeta value="BankName:string|50;AccountNumber:string|50;AccountHolderName:string|50;AccountType:string|3;" />
         </statement>
 
         <statement id="GD02" seq="0" use="Y" timeout="0" desc="Oracle 데이터베이스 현재 시간 및 서버명 조회">

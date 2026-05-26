@@ -10,6 +10,8 @@
 
         public string TestValue { get; set; }
 
+        public bool IsRequired { get; set; }
+
         public string DbType { get; set; }
 
         public int Length { get; set; }
@@ -22,6 +24,7 @@
             DefaultValue = "";
             Transform = "";
             TestValue = "";
+            IsRequired = false;
             DbType = "";
             Length = 0;
             Direction = "";

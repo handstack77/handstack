@@ -329,9 +329,12 @@ namespace graphclient.Extensions
                     {
                         Name = parameterName,
                         DefaultValue = GetAttributeValue(parameterElement, "value"),
-                        TestValue = GetAttributeValue(parameterElement, "test")
+                        TestValue = GetAttributeValue(parameterElement, "test"),
+                        IsRequired = GetAttributeValue(parameterElement, "required").ToBoolean()
                     });
                 }
+
+                statementMap.OutputMetas = ReadOutputMetas(statementElement);
 
                 statementMaps.Add(statementMap);
             }
@@ -482,6 +485,21 @@ namespace graphclient.Extensions
         private static string CreateQueryID(string applicationID, string projectID, string transactionID, string statementID)
         {
             return $"{applicationID}|{projectID}|{transactionID}|{statementID}";
+        }
+
+        private static List<string> ReadOutputMetas(XElement statementElement)
+        {
+            var result = new List<string>();
+            foreach (var outputMetaElement in statementElement.Elements().Where(item => item.Name.LocalName == "outputmeta"))
+            {
+                var value = GetAttributeValue(outputMetaElement, "value");
+                if (string.IsNullOrWhiteSpace(value) == false)
+                {
+                    result.Add(value);
+                }
+            }
+
+            return result;
         }
 
         private static string GetResolvedApplicationID(XElement headerElement, FileInfo fileInfo)

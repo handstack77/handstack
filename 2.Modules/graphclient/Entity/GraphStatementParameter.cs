@@ -12,5 +12,8 @@ namespace graphclient.Entity
 
         [JsonProperty]
         public string TestValue { get; set; } = string.Empty;
+
+        [JsonProperty]
+        public bool IsRequired { get; set; }
     }
 }

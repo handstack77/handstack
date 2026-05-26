@@ -43,6 +43,8 @@
             </querystrings>
             <param id="@UserID" type="String" length="255" value="NULL" />
             <param id="@RoleID" type="String" length="100" value="NULL" />
+            <outputmeta value="BankAccountID:string|32;CompanyID:string|32;CompanyName:string|200;" />
+            <outputmeta value="BankName:string|50;AccountNumber:string|50;AccountHolderName:string|50;AccountType:string|3;" />
         </request>
         <request id="GW02" seq="0" use="N" timeout="30" desc="GET Params, Header, Bearer Token 예제">
             <method>GET</method>

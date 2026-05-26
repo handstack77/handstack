@@ -58,6 +58,9 @@ namespace dbclient.Entity
         [JsonProperty]
         public List<DbParameterMap> DbParameters { get; set; }
 
+        [JsonProperty]
+        public List<string> OutputMetas { get; set; }
+
         public HtmlDocument Chidren { get; set; }
 
         [JsonProperty]
@@ -81,6 +84,7 @@ namespace dbclient.Entity
             AfterTransactionCommand = "";
             FallbackTransactionCommand = "";
             DbParameters = new List<DbParameterMap>();
+            OutputMetas = new List<string>();
             Chidren = new HtmlDocument();
             ModifiedAt = DateTime.MinValue;
         }

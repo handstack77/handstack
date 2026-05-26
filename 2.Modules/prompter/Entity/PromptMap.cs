@@ -62,6 +62,9 @@ namespace prompter.Entity
         public List<InputVariableMap> InputVariables { get; set; }
 
         [JsonProperty]
+        public List<string> OutputMetas { get; set; }
+
+        [JsonProperty]
         public PromptToolSettings Tools { get; set; }
 
         [JsonProperty]
@@ -97,6 +100,7 @@ namespace prompter.Entity
             PresencePenalty = 0.0;
             FrequencyPenalty = 0.0;
             InputVariables = new List<InputVariableMap>();
+            OutputMetas = new List<string>();
             Tools = new PromptToolSettings();
             Authorization = new PromptAuthorization();
             Headers = new List<PromptHeader>();

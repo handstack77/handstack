@@ -2,15 +2,14 @@
 using System.Linq;
 using System.Threading.Tasks;
 
-using graphclient.Encapsulation;
-using graphclient.Entity;
-using graphclient.Events;
-using graphclient.Extensions;
+using command.Encapsulation;
+using command.Entity;
+using command.Events;
+using command.Extensions;
 
 using HandStack.Core.ExtensionMethod;
 using HandStack.Web;
 using HandStack.Web.Common;
-using HandStack.Web.Extensions;
 using HandStack.Web.MessageContract.Enumeration;
 using HandStack.Web.MessageContract.Message;
 
@@ -22,20 +21,20 @@ using Microsoft.AspNetCore.Mvc;
 
 using Newtonsoft.Json;
 
-namespace graphclient.Areas.graphclient.Controllers
+namespace command.Areas.command.Controllers
 {
-    [Area("graphclient")]
+    [Area("command")]
     [Route("[area]/api/[controller]")]
     [ApiController]
     [EnableCors]
     public class QueryController : BaseController
     {
-        private readonly GraphClientLoggerClient loggerClient;
+        private readonly CommandLoggerClient loggerClient;
         private readonly Serilog.ILogger logger;
-        private readonly IGraphDataClient dataClient;
+        private readonly ICommandDataClient dataClient;
         private readonly IMediator mediator;
 
-        public QueryController(Serilog.ILogger logger, IGraphDataClient dataClient, GraphClientLoggerClient loggerClient, IMediator mediator)
+        public QueryController(Serilog.ILogger logger, ICommandDataClient dataClient, CommandLoggerClient loggerClient, IMediator mediator)
         {
             this.logger = logger;
             this.dataClient = dataClient;
@@ -43,6 +42,7 @@ namespace graphclient.Areas.graphclient.Controllers
             this.mediator = mediator;
         }
 
+        // http://localhost:8421/command/api/query/has
         [HttpGet("[action]")]
         public ActionResult Has(string applicationID, string projectID, string transactionID, string functionID)
         {
@@ -53,16 +53,17 @@ namespace graphclient.Areas.graphclient.Controllers
 
             try
             {
-                var value = GraphMapper.HasStatement(applicationID, projectID, transactionID, functionID);
+                var value = CommandMapper.HasCommand(applicationID, projectID, transactionID, functionID);
                 return Content(JsonConvert.SerializeObject(value), "application/json");
             }
             catch (Exception exception)
             {
-                logger.Error(exception, "[{LogCategory}] graph 계약 매핑 확인 오류", "Query/Has");
-                return StatusCode(StatusCodes.Status500InternalServerError, "graph 계약 매핑 확인 중 오류가 발생했습니다.");
+                logger.Error(exception, "[{LogCategory}] command 매핑 확인 오류", "Query/Has");
+                return StatusCode(StatusCodes.Status500InternalServerError, "command 매핑 확인 중 오류가 발생했습니다.");
             }
         }
 
+        // http://localhost:8421/command/api/query/refresh?changeType=Created&filePath=HDS/TST/TST010.xml
         [HttpGet("[action]")]
         public async Task<ActionResult> Refresh(string changeType, string filePath, string? userWorkID, string? applicationID)
         {
@@ -73,16 +74,17 @@ namespace graphclient.Areas.graphclient.Controllers
 
             try
             {
-                var actionResult = await mediator.Send(new QueryRefreshRequest(changeType, filePath, userWorkID, applicationID));
+                var actionResult = await mediator.Send(new CommandRefreshRequest(changeType, filePath, userWorkID, applicationID));
                 return Content(JsonConvert.SerializeObject(actionResult), "application/json");
             }
             catch (Exception exception)
             {
-                logger.Error(exception, "[{LogCategory}] graph 계약 리프레시 오류", "Query/Refresh");
-                return StatusCode(StatusCodes.Status500InternalServerError, "graph 계약 리프레시 중 오류가 발생했습니다.");
+                logger.Error(exception, "[{LogCategory}] command 계약 리프레시 오류", "Query/Refresh");
+                return StatusCode(StatusCodes.Status500InternalServerError, "command 계약 리프레시 중 오류가 발생했습니다.");
             }
         }
 
+        // http://localhost:8421/command/api/query/retrieve
         [HttpGet("[action]")]
         public ActionResult Retrieve(string applicationID, string? projectID, string? transactionID, string? functionID)
         {
@@ -93,7 +95,12 @@ namespace graphclient.Areas.graphclient.Controllers
 
             try
             {
-                var queryResults = GraphMapper.StatementMappings.Select(item => item.Value).Where(item => item.ApplicationID == applicationID);
+                if (string.IsNullOrWhiteSpace(applicationID) || string.IsNullOrWhiteSpace(projectID))
+                {
+                    return Content("필수 항목 확인", "text/html");
+                }
+
+                var queryResults = CommandMapper.CommandMappings.Select(item => item.Value).Where(item => item.ApplicationID == applicationID);
                 if (string.IsNullOrWhiteSpace(projectID) == false)
                 {
                     queryResults = queryResults.Where(item => item.ProjectID == projectID);
@@ -111,18 +118,19 @@ namespace graphclient.Areas.graphclient.Controllers
                         return BadRequest("functionID 형식 확인 필요");
                     }
 
-                    queryResults = queryResults.Where(item => TryGetFunctionIDPrefix(item.StatementID, out var statementIDPrefix) && statementIDPrefix == queryFunctionID);
+                    queryResults = queryResults.Where(item => TryGetFunctionIDPrefix(item.CommandID, out var commandIDPrefix) && commandIDPrefix == queryFunctionID);
                 }
 
                 return Content(JsonConvert.SerializeObject(queryResults.ToList()), "application/json");
             }
             catch (Exception exception)
             {
-                logger.Error(exception, "[{LogCategory}] graph 계약 조회 오류", "Query/Retrieve");
-                return StatusCode(StatusCodes.Status500InternalServerError, "graph 계약 조회 중 오류가 발생했습니다.");
+                logger.Error(exception, "[{LogCategory}] command 계약 조회 오류", "Query/Retrieve");
+                return StatusCode(StatusCodes.Status500InternalServerError, "command 계약 조회 중 오류가 발생했습니다.");
             }
         }
 
+        // http://localhost:8421/command/api/query/meta
         [HttpGet("[action]")]
         public ActionResult Meta()
         {
@@ -133,15 +141,16 @@ namespace graphclient.Areas.graphclient.Controllers
 
             try
             {
-                return Content(JsonConvert.SerializeObject(GraphMapper.StatementMappings.Select(item => item.Key).ToList()), "application/json");
+                return Content(JsonConvert.SerializeObject(CommandMapper.CommandMappings.Select(item => item.Key).ToList()), "application/json");
             }
             catch (Exception exception)
             {
-                logger.Error(exception, "[{LogCategory}] graph 메타 조회 오류", "Query/Meta");
-                return StatusCode(StatusCodes.Status500InternalServerError, "graph 메타 조회 중 오류가 발생했습니다.");
+                logger.Error(exception, "[{LogCategory}] command 메타 조회 오류", "Query/Meta");
+                return StatusCode(StatusCodes.Status500InternalServerError, "command 메타 조회 중 오류가 발생했습니다.");
             }
         }
 
+        // http://localhost:8421/command/api/query/reports
         [HttpGet("[action]")]
         public ActionResult Reports(string? queryIDs)
         {
@@ -152,10 +161,10 @@ namespace graphclient.Areas.graphclient.Controllers
 
             try
             {
-                var queryResults = GraphMapper.StatementMappings.Select(item => item.Value);
+                var queryResults = CommandMapper.CommandMappings.Select(item => item.Value);
                 if (string.IsNullOrWhiteSpace(queryIDs) == false)
                 {
-                    queryResults = queryResults.Where(item => IsQueryIDMatch(queryIDs, item.ApplicationID, item.ProjectID, item.TransactionID, item.StatementID));
+                    queryResults = queryResults.Where(item => IsQueryIDMatch(queryIDs, item.ApplicationID, item.ProjectID, item.TransactionID, item.CommandID));
                 }
 
                 var reports = queryResults.Select(item => new
@@ -163,28 +172,32 @@ namespace graphclient.Areas.graphclient.Controllers
                     item.ApplicationID,
                     item.ProjectID,
                     item.TransactionID,
-                    item.DataSourceID,
-                    item.StatementID,
+                    item.CommandID,
                     item.Seq,
-                    //item.Timeout,
+                    item.CommandType,
+                    //item.Use,
+                    item.Timeout,
+                    //item.MaxOutputBytes,
                     item.Comment,
                     //item.TransactionLog,
+                    //item.ExecutablePath,
+                    //item.Method,
+                    //item.Url,
                     item.Parameters,
                     item.OutputMetas,
-                    //item.ModifiedAt,
-                    //item.SourceFilePath
+                    //item.ModifiedAt
                 }).ToList();
 
                 return Content(JsonConvert.SerializeObject(reports), "application/json");
             }
             catch (Exception exception)
             {
-                logger.Error(exception, "[{LogCategory}] graph 리포트 조회 오류", "Query/Reports");
-                return StatusCode(StatusCodes.Status500InternalServerError, "graph 리포트 조회 중 오류가 발생했습니다.");
+                logger.Error(exception, "[{LogCategory}] command 리포트 조회 오류", "Query/Reports");
+                return StatusCode(StatusCodes.Status500InternalServerError, "command 리포트 조회 중 오류가 발생했습니다.");
             }
         }
 
-        private static bool IsQueryIDMatch(string queryIDs, string applicationID, string projectID, string transactionID, string statementID)
+        private static bool IsQueryIDMatch(string queryIDs, string applicationID, string projectID, string transactionID, string commandID)
         {
             var filters = queryIDs.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
             foreach (var filter in filters)
@@ -198,7 +211,7 @@ namespace graphclient.Areas.graphclient.Controllers
                 if (string.Equals(parts[0], applicationID, StringComparison.OrdinalIgnoreCase) &&
                     string.Equals(parts[1], projectID, StringComparison.OrdinalIgnoreCase) &&
                     string.Equals(parts[2], transactionID, StringComparison.OrdinalIgnoreCase) &&
-                    statementID.StartsWith(parts[3], StringComparison.OrdinalIgnoreCase))
+                    commandID.StartsWith(parts[3], StringComparison.OrdinalIgnoreCase))
                 {
                     return true;
                 }
@@ -207,6 +220,7 @@ namespace graphclient.Areas.graphclient.Controllers
             return false;
         }
 
+        // http://localhost:8421/command/api/query/execute
         [HttpPost("[action]")]
         public async Task<ActionResult> Execute(DynamicRequest request)
         {
@@ -236,6 +250,7 @@ namespace graphclient.Areas.graphclient.Controllers
             if (string.IsNullOrWhiteSpace(request.GlobalID))
             {
                 request.GlobalID = request.RequestID;
+                response.CorrelationID = request.GlobalID;
             }
 
             try
@@ -244,44 +259,46 @@ namespace graphclient.Areas.graphclient.Controllers
                 {
                     loggerClient.DynamicRequestLogging(request, "Y", GlobalConfiguration.ApplicationID, error =>
                     {
-                        logger.Warning("[{LogCategory}] [{GlobalID}] " + $"Request JSON: {JsonConvert.SerializeObject(request)}", "Query/Execute", request.GlobalID);
+                        logger.Warning("[{LogCategory}] [{GlobalID}] Request JSON: {RequestJson}", "Query/Execute", request.GlobalID, JsonConvert.SerializeObject(request));
                     });
                 }
 
-                await ExecuteAsync(request, response);
+                await dataClient.ExecuteDynamicCommandMap(request, response);
+
+                if (string.IsNullOrWhiteSpace(response.ExceptionText) == false)
+                {
+                    loggerClient.ProgramMessageLogging(request.GlobalID, "N", GlobalConfiguration.ApplicationID, response.ExceptionText, "Query/Execute", error =>
+                    {
+                        logger.Error("[{LogCategory}] fallback error: {Error}, {ExceptionText}", "Query/Execute", error, response.ExceptionText);
+                    });
+                }
             }
             catch (Exception exception)
             {
-                response.ExceptionText = "graph 실행 중 오류가 발생했습니다.";
-                logger.Error(exception, "[{LogCategory}] [{GlobalID}] graph 실행 오류", "Query/Execute", request.GlobalID);
+                response.ExceptionText = "command 실행 중 오류가 발생했습니다.";
+                logger.Error(exception, "[{LogCategory}] [{GlobalID}] command 실행 오류", "Query/Execute", request.GlobalID);
             }
 
-            var responseData = JsonConvert.SerializeObject(response);
-            if (ModuleConfiguration.IsTransactionLogging == true)
+            try
             {
                 var acknowledge = response.Acknowledge == AcknowledgeType.Success ? "Y" : "N";
-                loggerClient.DynamicResponseLogging(request.GlobalID, acknowledge, GlobalConfiguration.ApplicationID, responseData, $"Query/Execute ReturnType: {request.ReturnType}", error =>
+                var responseData = JsonConvert.SerializeObject(response);
+                if (ModuleConfiguration.IsTransactionLogging == true)
                 {
-                    logger.Warning("[{LogCategory}] [{GlobalID}] " + $"Response JSON: {responseData}", "Query/Execute", response.CorrelationID);
-                });
+                    loggerClient.DynamicResponseLogging(request.GlobalID, acknowledge, GlobalConfiguration.ApplicationID, responseData, "Query/Execute ReturnType: " + request.ReturnType.ToString(), error =>
+                    {
+                        logger.Warning("[{LogCategory}] [{GlobalID}] Response JSON: {ResponseJson}", "Query/Execute", response.CorrelationID, responseData);
+                    });
+                }
+
+                return Content(responseData, "application/json");
             }
-
-            return Content(responseData, "application/json");
-        }
-
-        private Task ExecuteAsync(DynamicRequest request, DynamicResponse response)
-        {
-            return request.ReturnType switch
+            catch (Exception exception)
             {
-                ExecuteDynamicTypeObject.Json => dataClient.ExecuteJsonAsync(request, response),
-                ExecuteDynamicTypeObject.Scalar => dataClient.ExecuteScalarAsync(request, response),
-                ExecuteDynamicTypeObject.NonQuery => dataClient.ExecuteNonQueryAsync(request, response),
-                ExecuteDynamicTypeObject.SchemeOnly => dataClient.ExecuteSchemeOnlyAsync(request, response),
-                ExecuteDynamicTypeObject.CodeHelp => dataClient.ExecuteCodeHelpAsync(request, response),
-                ExecuteDynamicTypeObject.SQLText => dataClient.ExecuteSqlTextAsync(request, response),
-                ExecuteDynamicTypeObject.Xml => dataClient.ExecuteXmlAsync(request, response),
-                _ => Task.Run(() => response.ExceptionText = "지원하지 않는 결과 타입. 요청 정보 확인 필요")
-            };
+                response.ExceptionText = "응답 생성 중 오류가 발생했습니다.";
+                logger.Error(exception, "[{LogCategory}] [{GlobalID}] command 응답 생성 오류", "Query/Execute", request.GlobalID);
+                return Content(JsonConvert.SerializeObject(response), "application/json");
+            }
         }
 
         private static bool TryGetFunctionIDPrefix(string? functionID, out string functionIDPrefix)
@@ -297,5 +314,3 @@ namespace graphclient.Areas.graphclient.Controllers
         }
     }
 }
-
-

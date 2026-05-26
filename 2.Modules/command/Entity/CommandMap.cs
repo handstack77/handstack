@@ -87,6 +87,9 @@ namespace command.Entity
         public List<CommandParameterMap> Parameters { get; set; }
 
         [JsonProperty]
+        public List<string> OutputMetas { get; set; }
+
+        [JsonProperty]
         public DateTime ModifiedAt { get; set; }
 
         public CommandMap()
@@ -117,6 +120,7 @@ namespace command.Entity
             BodyType = "raw";
             BodyParts = new List<CommandBodyPartMap>();
             Parameters = new List<CommandParameterMap>();
+            OutputMetas = new List<string>();
             ModifiedAt = DateTime.MinValue;
         }
     }
@@ -196,6 +200,8 @@ namespace command.Entity
 
         public List<CommandParameterMap> Parameters { get; set; }
 
+        public List<string> OutputMetas { get; set; }
+
         public CommandContractCli()
         {
             ID = "";
@@ -211,6 +217,7 @@ namespace command.Entity
             EnvironmentVariables = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             SuccessExitCodes = new List<int>() { 0 };
             Parameters = new List<CommandParameterMap>();
+            OutputMetas = new List<string>();
         }
     }
 
@@ -250,6 +257,8 @@ namespace command.Entity
 
         public List<CommandParameterMap> Parameters { get; set; }
 
+        public List<string> OutputMetas { get; set; }
+
         public CommandContractRequest()
         {
             ID = "";
@@ -269,6 +278,7 @@ namespace command.Entity
             BodyType = "raw";
             BodyParts = new List<CommandBodyPartMap>();
             Parameters = new List<CommandParameterMap>();
+            OutputMetas = new List<string>();
         }
     }
 
@@ -356,6 +366,9 @@ namespace command.Entity
         public string TestValue { get; set; }
 
         [JsonProperty]
+        public bool IsRequired { get; set; }
+
+        [JsonProperty]
         public bool Required { get; set; }
 
         public CommandParameterMap()
@@ -365,6 +378,7 @@ namespace command.Entity
             Length = -1;
             DefaultValue = "NULL";
             TestValue = "";
+            IsRequired = false;
             Required = true;
         }
     }

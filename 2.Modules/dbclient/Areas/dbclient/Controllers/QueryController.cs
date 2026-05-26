@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -204,7 +204,7 @@ namespace dbclient.Areas.dbclient.Controllers
 
         // http://localhost:8421/dbclient/api/query/reports
         [HttpGet("[action]")]
-        public ActionResult Reports()
+        public ActionResult Reports(string? queryIDs)
         {
             ActionResult result = BadRequest();
             if (HttpContext.IsAllowAuthorization() == false)
@@ -216,6 +216,11 @@ namespace dbclient.Areas.dbclient.Controllers
                 try
                 {
                     var queryResults = DatabaseMapper.StatementMappings.Select(p => p.Value);
+                    if (string.IsNullOrWhiteSpace(queryIDs) == false)
+                    {
+                        queryResults = queryResults.Where(p => IsQueryIDMatch(queryIDs, p.ApplicationID, p.ProjectID, p.TransactionID, p.StatementID));
+                    }
+
                     var statementMaps = queryResults.ToList();
                     if (statementMaps != null)
                     {
@@ -228,13 +233,14 @@ namespace dbclient.Areas.dbclient.Controllers
                             StatementID = p.StatementID,
                             Seq = p.Seq,
                             NativeDataClient = p.NativeDataClient,
-                            Timeout = p.Timeout,
+                            //Timeout = p.Timeout,
                             Comment = p.Comment,
-                            ModifiedAt = p.ModifiedAt
+                            DbParameters = p.DbParameters,
+                            OutputMetas = p.OutputMetas,
+                            //ModifiedAt = p.ModifiedAt
                         });
 
-                        var value = JsonConvert.SerializeObject(reports);
-                        result = Content(JsonConvert.SerializeObject(value), "application/json");
+                        result = Content(JsonConvert.SerializeObject(reports), "application/json");
                     }
                 }
                 catch (Exception exception)
@@ -245,6 +251,29 @@ namespace dbclient.Areas.dbclient.Controllers
             }
 
             return result;
+        }
+
+        private static bool IsQueryIDMatch(string queryIDs, string applicationID, string projectID, string transactionID, string statementID)
+        {
+            var filters = queryIDs.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            foreach (var filter in filters)
+            {
+                var parts = filter.Split('|', StringSplitOptions.TrimEntries);
+                if (parts.Length != 4)
+                {
+                    continue;
+                }
+
+                if (string.Equals(parts[0], applicationID, StringComparison.OrdinalIgnoreCase) &&
+                    string.Equals(parts[1], projectID, StringComparison.OrdinalIgnoreCase) &&
+                    string.Equals(parts[2], transactionID, StringComparison.OrdinalIgnoreCase) &&
+                    statementID.StartsWith(parts[3], StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         // http://localhost:8421/dbclient/api/query/execute

@@ -75,6 +75,9 @@ namespace HandStack.Web.MessageContract.DataObject
         [JsonProperty("Params")]
         public List<FunctionParam> Params { get; set; }
 
+        [JsonProperty("OutputMetas")]
+        public List<string> OutputMetas { get; set; }
+
         public FunctionCommand()
         {
             ID = "";
@@ -87,6 +90,7 @@ namespace HandStack.Web.MessageContract.DataObject
             Comment = "";
             ModifiedAt = DateTimeOffset.Now;
             Params = new List<FunctionParam>();
+            OutputMetas = new List<string>();
         }
     }
 

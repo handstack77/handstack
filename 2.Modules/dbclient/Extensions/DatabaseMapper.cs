@@ -346,11 +346,14 @@ namespace dbclient.Extensions
                                                         Length = (paramNode.Attributes["length"] == null ? "-1" : paramNode.Attributes["length"].Value.ToString()).ParseInt(-1),
                                                         DefaultValue = paramNode.Attributes["value"] == null ? "" : paramNode.Attributes["value"].Value.ToString(),
                                                         TestValue = paramNode.Attributes["test"] == null ? "" : paramNode.Attributes["test"].Value.ToString(),
+                                                        IsRequired = (paramNode.Attributes["required"] == null ? "" : paramNode.Attributes["required"].Value.ToString()).ToBoolean(),
                                                         Direction = paramNode.Attributes["direction"] == null ? "Input" : paramNode.Attributes["direction"].Value.ToString(),
                                                         Transform = paramNode.Attributes["transform"] == null ? "" : paramNode.Attributes["transform"].Value.ToString(),
                                                     });
                                                 }
                                             }
+
+                                            statementMap.OutputMetas = ReadOutputMetas(item);
 
                                             var children = new HtmlDocument();
                                             children.OptionDefaultStreamEncoding = Encoding.UTF8;
@@ -579,11 +582,14 @@ namespace dbclient.Extensions
                                                     Length = (paramNode.Attributes["length"] == null ? "-1" : paramNode.Attributes["length"].Value.ToString()).ParseInt(-1),
                                                     DefaultValue = paramNode.Attributes["value"] == null ? "" : paramNode.Attributes["value"].Value.ToString(),
                                                     TestValue = paramNode.Attributes["test"] == null ? "" : paramNode.Attributes["test"].Value.ToString(),
+                                                    IsRequired = (paramNode.Attributes["required"] == null ? "" : paramNode.Attributes["required"].Value.ToString()).ToBoolean(),
                                                     Direction = paramNode.Attributes["direction"] == null ? "Input" : paramNode.Attributes["direction"].Value.ToString(),
                                                     Transform = paramNode.Attributes["transform"] == null ? "" : paramNode.Attributes["transform"].Value.ToString(),
                                                 });
                                             }
                                         }
+
+                                        statementMap.OutputMetas = ReadOutputMetas(item);
 
                                         var children = new HtmlDocument();
                                         children.OptionDefaultStreamEncoding = Encoding.UTF8;
@@ -659,6 +665,27 @@ namespace dbclient.Extensions
                 {
                     result = item;
                     break;
+                }
+            }
+
+            return result;
+        }
+
+        private static List<string> ReadOutputMetas(HtmlNode statementNode)
+        {
+            var result = new List<string>();
+            var htmlNodes = statementNode.SelectNodes("outputmeta");
+            if (htmlNodes == null || htmlNodes.Count == 0)
+            {
+                return result;
+            }
+
+            foreach (var outputMetaNode in htmlNodes)
+            {
+                var value = outputMetaNode.Attributes["value"]?.Value.ToStringSafe();
+                if (string.IsNullOrWhiteSpace(value) == false)
+                {
+                    result.Add(value);
                 }
             }
 
@@ -1153,11 +1180,14 @@ namespace dbclient.Extensions
                                                     Length = (paramNode.Attributes["length"] == null ? "-1" : paramNode.Attributes["length"].Value.ToString()).ParseInt(-1),
                                                     DefaultValue = paramNode.Attributes["value"] == null ? "" : paramNode.Attributes["value"].Value.ToString(),
                                                     TestValue = paramNode.Attributes["test"] == null ? "" : paramNode.Attributes["test"].Value.ToString(),
+                                                    IsRequired = (paramNode.Attributes["required"] == null ? "" : paramNode.Attributes["required"].Value.ToString()).ToBoolean(),
                                                     Direction = paramNode.Attributes["direction"] == null ? "Input" : paramNode.Attributes["direction"].Value.ToString(),
                                                     Transform = paramNode.Attributes["transform"] == null ? "" : paramNode.Attributes["transform"].Value.ToString(),
                                                 });
                                             }
                                         }
+
+                                        statementMap.OutputMetas = ReadOutputMetas(item);
 
                                         var children = new HtmlDocument();
                                         children.OptionDefaultStreamEncoding = Encoding.UTF8;
