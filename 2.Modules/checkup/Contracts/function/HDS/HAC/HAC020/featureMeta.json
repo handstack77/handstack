@@ -19,16 +19,16 @@
             "ModifiedAt": "2023-07-10 00:00:00",
             "Params": [
                 {
-                    "id": "UserWorkID",
-                    "type": "String",
-                    "length": 36,
-                    "value": null
+                    "ID": "UserWorkID",
+                    "Type": "String",
+                    "Length": 36,
+                    "Value": null
                 },
                 {
-                    "id": "ApplicationID",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "ApplicationID",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 }
             ]
         },
@@ -41,28 +41,28 @@
             "ModifiedAt": "2023-07-10 00:00:00",
             "Params": [
                 {
-                    "id": "UserWorkID",
-                    "type": "String",
-                    "length": 36,
-                    "value": null
+                    "ID": "UserWorkID",
+                    "Type": "String",
+                    "Length": 36,
+                    "Value": null
                 },
                 {
-                    "id": "ApplicationID",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "ApplicationID",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 },
                 {
-                    "id": "RepositoryID",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "RepositoryID",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 },
                 {
-                    "id": "RequestOrigin",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "RequestOrigin",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 }
             ]
         },
@@ -75,208 +75,208 @@
             "ModifiedAt": "2023-07-10 00:00:00",
             "Params": [
                 {
-                    "id": "PageMode",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "PageMode",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 },
                 {
-                    "id": "UserWorkID",
-                    "type": "String",
-                    "length": 36,
-                    "value": null
+                    "ID": "UserWorkID",
+                    "Type": "String",
+                    "Length": 36,
+                    "Value": null
                 },
                 {
-                    "id": "ApplicationID",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "ApplicationID",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 },
                 {
-                    "id": "RepositoryID",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "RepositoryID",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 },
                 {
-                    "id": "RepositoryName",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "RepositoryName",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 },
                 {
-                    "id": "AccessID",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "AccessID",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 },
                 {
-                    "id": "StorageType",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "StorageType",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 },
                 {
-                    "id": "PhysicalPath",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "PhysicalPath",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 },
                 {
-                    "id": "BlobContainerID",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "BlobContainerID",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 },
                 {
-                    "id": "BlobConnectionString",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "BlobConnectionString",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 },
                 {
-                    "id": "BlobItemUrl",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "BlobItemUrl",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 },
                 {
-                    "id": "IsVirtualPath",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "IsVirtualPath",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 },
                 {
-                    "id": "AccessMethod",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "AccessMethod",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 },
                 {
-                    "id": "IsFileUploadDownloadOnly",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "IsFileUploadDownloadOnly",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 },
                 {
-                    "id": "IsMultiUpload",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "IsMultiUpload",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 },
                 {
-                    "id": "IsFileOverWrite",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "IsFileOverWrite",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 },
                 {
-                    "id": "IsFileNameEncrypt",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "IsFileNameEncrypt",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 },
                 {
-                    "id": "IsKeepFileExtension",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "IsKeepFileExtension",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 },
                 {
-                    "id": "IsAutoPath",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "IsAutoPath",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 },
                 {
-                    "id": "PolicyPathID",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "PolicyPathID",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 },
                 {
-                    "id": "UploadTypeID",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "UploadTypeID",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 },
                 {
-                    "id": "UploadExtensions",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "UploadExtensions",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 },
                 {
-                    "id": "UploadCount",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "UploadCount",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 },
                 {
-                    "id": "UploadSizeLimit",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "UploadSizeLimit",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 },
                 {
-                    "id": "IsLocalDbFileManaged",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "IsLocalDbFileManaged",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 },
                 {
-                    "id": "SQLiteConnectionString",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "SQLiteConnectionString",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 },
                 {
-                    "id": "TransactionGetItem",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "TransactionGetItem",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 },
                 {
-                    "id": "TransactionGetItems",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "TransactionGetItems",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 },
                 {
-                    "id": "TransactionDeleteItem",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "TransactionDeleteItem",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 },
                 {
-                    "id": "TransactionUpsertItem",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "TransactionUpsertItem",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 },
                 {
-                    "id": "TransactionUpdateDependencyID",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "TransactionUpdateDependencyID",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 },
                 {
-                    "id": "TransactionUpdateFileName",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "TransactionUpdateFileName",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 },
                 {
-                    "id": "Comment",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "Comment",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 },
                 {
-                    "id": "RequestOrigin",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "RequestOrigin",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 }
             ]
         },
@@ -289,28 +289,28 @@
             "ModifiedAt": "2023-07-10 00:00:00",
             "Params": [
                 {
-                    "id": "UserWorkID",
-                    "type": "String",
-                    "length": 36,
-                    "value": null
+                    "ID": "UserWorkID",
+                    "Type": "String",
+                    "Length": 36,
+                    "Value": null
                 },
                 {
-                    "id": "ApplicationID",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "ApplicationID",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 },
                 {
-                    "id": "RepositoryID",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "RepositoryID",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 },
                 {
-                    "id": "RequestOrigin",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "RequestOrigin",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 }
             ]
         }

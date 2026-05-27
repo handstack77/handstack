@@ -35,7 +35,7 @@ namespace HandStack.Web.MessageContract.DataObject
         [JsonProperty]
         public bool IsHttpContext { get; set; }
         [JsonProperty]
-        public string Comment { get; set; } = "";
+        public string Description { get; set; } = "";
         [JsonProperty]
         public bool TransactionLog { get; set; }
         [JsonProperty]

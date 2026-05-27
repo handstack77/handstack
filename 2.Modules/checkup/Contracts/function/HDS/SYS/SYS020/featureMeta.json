@@ -23,64 +23,64 @@
             "ModifiedAt": "2023-07-10 00:00:00",
             "Params": [
                 {
-                    "id": "UserWorkID",
-                    "type": "String",
-                    "length": 36,
-                    "value": null
+                    "ID": "UserWorkID",
+                    "Type": "String",
+                    "Length": 36,
+                    "Value": null
                 },
                 {
-                    "id": "ApplicationID",
-                    "type": "String",
-                    "length": 36,
-                    "value": null
+                    "ID": "ApplicationID",
+                    "Type": "String",
+                    "Length": 36,
+                    "Value": null
                 },
                 {
-                    "id": "GlobalID",
-                    "type": "String",
-                    "length": 36,
-                    "value": null
+                    "ID": "GlobalID",
+                    "Type": "String",
+                    "Length": 36,
+                    "Value": null
                 },
                 {
-                    "id": "Environment",
-                    "type": "String",
-                    "length": 1,
-                    "value": null
+                    "ID": "Environment",
+                    "Type": "String",
+                    "Length": 1,
+                    "Value": null
                 },
                 {
-                    "id": "ServerID",
-                    "type": "String",
-                    "length": 30,
-                    "value": null
+                    "ID": "ServerID",
+                    "Type": "String",
+                    "Length": 30,
+                    "Value": null
                 },
                 {
-                    "id": "ProjectID",
-                    "type": "String",
-                    "length": 30,
-                    "value": null
+                    "ID": "ProjectID",
+                    "Type": "String",
+                    "Length": 30,
+                    "Value": null
                 },
                 {
-                    "id": "TransactionID",
-                    "type": "String",
-                    "length": 30,
-                    "value": null
+                    "ID": "TransactionID",
+                    "Type": "String",
+                    "Length": 30,
+                    "Value": null
                 },
                 {
-                    "id": "ServiceID",
-                    "type": "String",
-                    "length": 30,
-                    "value": null
+                    "ID": "ServiceID",
+                    "Type": "String",
+                    "Length": 30,
+                    "Value": null
                 },
                 {
-                    "id": "StartedAt",
-                    "type": "String",
-                    "length": 30,
-                    "value": null
+                    "ID": "StartedAt",
+                    "Type": "String",
+                    "Length": 30,
+                    "Value": null
                 },
                 {
-                    "id": "EndedAt",
-                    "type": "String",
-                    "length": 30,
-                    "value": null
+                    "ID": "EndedAt",
+                    "Type": "String",
+                    "Length": 30,
+                    "Value": null
                 }
             ]
         },
@@ -93,22 +93,22 @@
             "ModifiedAt": "2023-07-10 00:00:00",
             "Params": [
                 {
-                    "id": "UserWorkID",
-                    "type": "String",
-                    "length": 36,
-                    "value": null
+                    "ID": "UserWorkID",
+                    "Type": "String",
+                    "Length": 36,
+                    "Value": null
                 },
                 {
-                    "id": "ApplicationID",
-                    "type": "String",
-                    "length": 36,
-                    "value": null
+                    "ID": "ApplicationID",
+                    "Type": "String",
+                    "Length": 36,
+                    "Value": null
                 },
                 {
-                    "id": "LogNo",
-                    "type": "String",
-                    "length": 36,
-                    "value": null
+                    "ID": "LogNo",
+                    "Type": "String",
+                    "Length": 36,
+                    "Value": null
                 }
             ]
         }

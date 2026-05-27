@@ -18,16 +18,16 @@
             "ModifiedAt": "2020-07-31 00:00:00",
             "Params": [
                 {
-                    "id": "ApplicationID",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "ApplicationID",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 },
                 {
-                    "id": "CodeGroupID",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "CodeGroupID",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 }
             ]
         },
@@ -40,10 +40,10 @@
             "ModifiedAt": "2020-07-31 00:00:00",
             "Params": [
                 {
-                    "id": "ApplicationID",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "ApplicationID",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 }
             ]
         }

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -222,7 +222,7 @@ namespace checkup.Areas.checkup.Controllers
                 moduleScriptMap.BeforeTransactionCommand = item.BeforeTransaction;
                 moduleScriptMap.AfterTransactionCommand = item.AfterTransaction;
                 moduleScriptMap.FallbackTransactionCommand = item.FallbackTransaction;
-                moduleScriptMap.Comment = item.Comment;
+                moduleScriptMap.Description = item.Description;
 
                 moduleScriptMap.ModuleParameters = new List<ModuleParameterMap>();
                 List<FunctionParam> functionParams = item.Params;
@@ -235,7 +235,8 @@ namespace checkup.Areas.checkup.Controllers
                             Name = functionParam.ID,
                             DbType = functionParam.Type,
                             Length = functionParam.Length,
-                            DefaultValue = functionParam.Value,
+                            IsRequired = functionParam.IsRequired,
+                            DefaultValue = functionParam.Value
                         });
                     }
                 }

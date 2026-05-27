@@ -21,16 +21,16 @@
             ],
             "Params": [
                 {
-                    "id": "ServerDate",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "ServerDate",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 },
                 {
-                    "id": "ServerName",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "ServerName",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 }
             ]
         }

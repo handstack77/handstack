@@ -66,8 +66,8 @@ namespace HandStack.Web.MessageContract.DataObject
         [JsonProperty]
         public string FallbackTransaction { get; set; }
 
-        [JsonProperty("Comment")]
-        public string Comment { get; set; }
+        [JsonProperty("Description")]
+        public string Description { get; set; }
 
         [JsonProperty("ModifiedAt")]
         public DateTimeOffset ModifiedAt { get; set; }
@@ -87,7 +87,7 @@ namespace HandStack.Web.MessageContract.DataObject
             BeforeTransaction = "";
             AfterTransaction = "";
             FallbackTransaction = "";
-            Comment = "";
+            Description = "";
             ModifiedAt = DateTimeOffset.Now;
             Params = new List<FunctionParam>();
             OutputMetas = new List<string>();

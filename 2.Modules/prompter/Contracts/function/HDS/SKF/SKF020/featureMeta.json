@@ -24,34 +24,34 @@
             "ModifiedAt": "2023-07-10 00:00:00",
             "Params": [
                 {
-                    "id": "UserWorkID",
-                    "type": "String",
-                    "length": 36,
-                    "value": null
+                    "ID": "UserWorkID",
+                    "Type": "String",
+                    "Length": 36,
+                    "Value": null
                 },
                 {
-                    "id": "ApplicationID",
-                    "type": "String",
-                    "length": 36,
-                    "value": null
+                    "ID": "ApplicationID",
+                    "Type": "String",
+                    "Length": 36,
+                    "Value": null
                 },
                 {
-                    "id": "Prompt",
-                    "type": "String",
-                    "length": -1,
-                    "value": null
+                    "ID": "Prompt",
+                    "Type": "String",
+                    "Length": -1,
+                    "Value": null
                 },
                 {
-                    "id": "PluginID",
-                    "type": "String",
-                    "length": -1,
-                    "value": null
+                    "ID": "PluginID",
+                    "Type": "String",
+                    "Length": -1,
+                    "Value": null
                 },
                 {
-                    "id": "KernelFunction",
-                    "type": "String",
-                    "length": -1,
-                    "value": null
+                    "ID": "KernelFunction",
+                    "Type": "String",
+                    "Length": -1,
+                    "Value": null
                 }
             ]
         }

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -219,7 +219,7 @@ namespace function.Areas.function.Controllers
                 moduleScriptMap.BeforeTransactionCommand = item.BeforeTransaction;
                 moduleScriptMap.AfterTransactionCommand = item.AfterTransaction;
                 moduleScriptMap.FallbackTransactionCommand = item.FallbackTransaction;
-                moduleScriptMap.Comment = item.Comment;
+                moduleScriptMap.Description = item.Description;
                 moduleScriptMap.OutputMetas = new List<string>(item.OutputMetas);
 
                 moduleScriptMap.ModuleParameters = new List<ModuleParameterMap>();
@@ -233,7 +233,8 @@ namespace function.Areas.function.Controllers
                             Name = functionParam.ID,
                             DbType = functionParam.Type,
                             Length = functionParam.Length,
-                            DefaultValue = functionParam.Value,
+                            IsRequired = functionParam.IsRequired,
+                            DefaultValue = functionParam.Value
                         });
                     }
                 }

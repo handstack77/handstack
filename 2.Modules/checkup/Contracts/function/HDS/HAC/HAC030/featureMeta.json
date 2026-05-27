@@ -19,16 +19,16 @@
             "ModifiedAt": "2023-07-10 00:00:00",
             "Params": [
                 {
-                    "id": "UserWorkID",
-                    "type": "String",
-                    "length": 36,
-                    "value": null
+                    "ID": "UserWorkID",
+                    "Type": "String",
+                    "Length": 36,
+                    "Value": null
                 },
                 {
-                    "id": "ApplicationID",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "ApplicationID",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 }
             ]
         },
@@ -41,22 +41,22 @@
             "ModifiedAt": "2023-07-10 00:00:00",
             "Params": [
                 {
-                    "id": "UserWorkID",
-                    "type": "String",
-                    "length": 36,
-                    "value": null
+                    "ID": "UserWorkID",
+                    "Type": "String",
+                    "Length": 36,
+                    "Value": null
                 },
                 {
-                    "id": "ApplicationID",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "ApplicationID",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 },
                 {
-                    "id": "Uri",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "Uri",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 }
             ]
         },
@@ -69,58 +69,58 @@
             "ModifiedAt": "2023-07-10 00:00:00",
             "Params": [
                 {
-                    "id": "PageMode",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "PageMode",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 },
                 {
-                    "id": "TransactProxyID",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "TransactProxyID",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 },
                 {
-                    "id": "UserWorkID",
-                    "type": "String",
-                    "length": 36,
-                    "value": null
+                    "ID": "UserWorkID",
+                    "Type": "String",
+                    "Length": 36,
+                    "Value": null
                 },
                 {
-                    "id": "ApplicationID",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "ApplicationID",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 },
                 {
-                    "id": "ProjectID",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "ProjectID",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 },
                 {
-                    "id": "CommandType",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "CommandType",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 },
                 {
-                    "id": "Environment",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "Environment",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 },
                 {
-                    "id": "Uri",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "Uri",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 },
                 {
-                    "id": "Comment",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "Comment",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 }
             ]
         },
@@ -133,52 +133,52 @@
             "ModifiedAt": "2023-07-10 00:00:00",
             "Params": [
                 {
-                    "id": "TransactProxyID",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "TransactProxyID",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 },
                 {
-                    "id": "UserWorkID",
-                    "type": "String",
-                    "length": 36,
-                    "value": null
+                    "ID": "UserWorkID",
+                    "Type": "String",
+                    "Length": 36,
+                    "Value": null
                 },
                 {
-                    "id": "ApplicationID",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "ApplicationID",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 },
                 {
-                    "id": "UserWorkID",
-                    "type": "String",
-                    "length": 36,
-                    "value": null
+                    "ID": "UserWorkID",
+                    "Type": "String",
+                    "Length": 36,
+                    "Value": null
                 },
                 {
-                    "id": "ApplicationID",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "ApplicationID",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 },
                 {
-                    "id": "ProjectID",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "ProjectID",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 },
                 {
-                    "id": "CommandType",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "CommandType",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 },
                 {
-                    "id": "Environment",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "Environment",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 }
             ]
         }

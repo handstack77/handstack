@@ -22,16 +22,16 @@
             "ModifiedAt": "2023-07-10 00:00:00",
             "Params": [
                 {
-                    "id": "UserWorkID",
-                    "type": "String",
-                    "length": 36,
-                    "value": null
+                    "ID": "UserWorkID",
+                    "Type": "String",
+                    "Length": 36,
+                    "Value": null
                 },
                 {
-                    "id": "ApplicationID",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "ApplicationID",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 }
             ]
         },
@@ -44,28 +44,28 @@
             "ModifiedAt": "2023-07-10 00:00:00",
             "Params": [
                 {
-                    "id": "UserWorkID",
-                    "type": "String",
-                    "length": 36,
-                    "value": null
+                    "ID": "UserWorkID",
+                    "Type": "String",
+                    "Length": 36,
+                    "Value": null
                 },
                 {
-                    "id": "ApplicationID",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "ApplicationID",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 },
                 {
-                    "id": "RequestDate",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "RequestDate",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 },
                 {
-                    "id": "RequestHour",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "RequestHour",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 }
             ]
         },
@@ -78,28 +78,28 @@
             "ModifiedAt": "2023-07-10 00:00:00",
             "Params": [
                 {
-                    "id": "UserWorkID",
-                    "type": "String",
-                    "length": 36,
-                    "value": null
+                    "ID": "UserWorkID",
+                    "Type": "String",
+                    "Length": 36,
+                    "Value": null
                 },
                 {
-                    "id": "ApplicationID",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "ApplicationID",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 },
                 {
-                    "id": "RequestDate",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "RequestDate",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 },
                 {
-                    "id": "RequestHour",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
+                    "ID": "RequestHour",
+                    "Type": "String",
+                    "Length": 0,
+                    "Value": null
                 }
             ]
         }

@@ -352,7 +352,7 @@ namespace function.Extensions
                                 moduleScriptMap.BeforeTransactionCommand = item.BeforeTransaction;
                                 moduleScriptMap.AfterTransactionCommand = item.AfterTransaction;
                                 moduleScriptMap.FallbackTransactionCommand = item.FallbackTransaction;
-                                moduleScriptMap.Comment = item.Comment;
+                                moduleScriptMap.Description = item.Description;
                                 moduleScriptMap.OutputMetas = new List<string>(item.OutputMetas);
 
                                 moduleScriptMap.ModuleParameters = new List<ModuleParameterMap>();
@@ -609,7 +609,7 @@ namespace function.Extensions
                                     moduleScriptMap.BeforeTransactionCommand = item.BeforeTransaction;
                                     moduleScriptMap.AfterTransactionCommand = item.AfterTransaction;
                                     moduleScriptMap.FallbackTransactionCommand = item.FallbackTransaction;
-                                    moduleScriptMap.Comment = item.Comment;
+                                    moduleScriptMap.Description = item.Description;
                                     moduleScriptMap.OutputMetas = new List<string>(item.OutputMetas);
 
                                     moduleScriptMap.ModuleParameters = new List<ModuleParameterMap>();
@@ -623,7 +623,8 @@ namespace function.Extensions
                                                 Name = functionParam.ID,
                                                 DbType = functionParam.Type,
                                                 Length = functionParam.Length,
-                                                DefaultValue = functionParam.Value,
+                                                IsRequired = functionParam.IsRequired,
+                                                DefaultValue = functionParam.Value
                                             });
                                         }
                                     }
@@ -866,7 +867,7 @@ namespace function.Extensions
                                         moduleScriptMap.BeforeTransactionCommand = item.BeforeTransaction;
                                         moduleScriptMap.AfterTransactionCommand = item.AfterTransaction;
                                         moduleScriptMap.FallbackTransactionCommand = item.FallbackTransaction;
-                                        moduleScriptMap.Comment = item.Comment;
+                                        moduleScriptMap.Description = item.Description;
                                         moduleScriptMap.OutputMetas = new List<string>(item.OutputMetas);
 
                                         moduleScriptMap.ModuleParameters = new List<ModuleParameterMap>();
@@ -880,7 +881,8 @@ namespace function.Extensions
                                                     Name = functionParam.ID,
                                                     DbType = functionParam.Type,
                                                     Length = functionParam.Length,
-                                                    DefaultValue = functionParam.Value,
+                                                    IsRequired = functionParam.IsRequired,
+                                                    DefaultValue = functionParam.Value
                                                 });
                                             }
                                         }

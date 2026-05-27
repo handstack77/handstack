@@ -176,7 +176,7 @@ namespace function.Areas.function.Controllers
                     item.TransactionID,
                     ServiceID = item.ExportName,
                     item.Seq,
-                    item.Comment,
+                    item.Description,
                     Parameters = item.ModuleParameters,
                     item.OutputMetas
                 }).ToList();
