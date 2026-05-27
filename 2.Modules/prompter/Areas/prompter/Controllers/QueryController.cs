@@ -373,23 +373,15 @@ namespace prompter.Areas.prompter.Controllers
                     {
                         var reports = promptMaps.Select(item => new
                         {
-                            TransactType = "P",
+                            CommandType = "P",
                             item.ApplicationID,
                             item.ProjectID,
                             item.TransactionID,
-                            //item.DataSourceID,
                             ServiceID = item.StatementID,
                             item.Seq,
-                            //item.MaxTokens,
-                            //item.Temperature,
-                            //item.TopP,
-                            //item.PresencePenalty,
-                            //item.FrequencyPenalty,
-                            //item.Timeout,
                             item.Comment,
                             Parameters = item.InputVariables,
-                            item.OutputMetas,
-                            //item.ModifiedAt
+                            item.OutputMetas
                         });
 
                         result = Content(JsonConvert.SerializeObject(reports), "application/json");

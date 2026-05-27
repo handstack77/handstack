@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Net;
 
 using graphclient.Entity;
 
@@ -15,7 +16,7 @@ namespace graphclient.Extensions
         public static bool IsAllowAuthorization(this HttpContext httpContext)
         {
             string remoteIP = httpContext.GetRemoteIpAddress().ToStringSafe();
-            bool isLocalRequest = remoteIP.Equals("localhost", StringComparison.OrdinalIgnoreCase) || remoteIP == "127.0.0.1" || remoteIP == "::1";
+            bool isLocalRequest = httpContext.Connection.RemoteIpAddress != null && IPAddress.IsLoopback(httpContext.Connection.RemoteIpAddress);
             string? authorizationKey;
             if (isLocalRequest == true)
             {

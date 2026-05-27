@@ -226,19 +226,15 @@ namespace dbclient.Areas.dbclient.Controllers
                     {
                         var reports = statementMaps.Select(item => new
                         {
-                            TransactType = "D",
+                            CommandType = "D",
                             item.ApplicationID,
                             item.ProjectID,
                             item.TransactionID,
-                            //item.DataSourceID,
                             ServiceID = item.StatementID,
                             item.Seq,
-                            //item.NativeDataClient,
-                            //item.Timeout,
                             item.Comment,
                             Parameters = item.DbParameters,
-                            item.OutputMetas,
-                            //item.ModifiedAt
+                            item.OutputMetas
                         });
 
                         result = Content(JsonConvert.SerializeObject(reports), "application/json");

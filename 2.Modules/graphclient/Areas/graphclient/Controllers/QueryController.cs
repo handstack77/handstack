@@ -160,20 +160,15 @@ namespace graphclient.Areas.graphclient.Controllers
 
                 var reports = queryResults.Select(item => new
                 {
-                    TransactType = "G",
+                    CommandType = "G",
                     item.ApplicationID,
                     item.ProjectID,
                     item.TransactionID,
-                    //item.DataSourceID,
                     ServiceID = item.StatementID,
                     item.Seq,
-                    //item.Timeout,
                     item.Comment,
-                    //item.TransactionLog,
                     item.Parameters,
-                    item.OutputMetas,
-                    //item.ModifiedAt,
-                    //item.SourceFilePath
+                    item.OutputMetas
                 }).ToList();
 
                 return Content(JsonConvert.SerializeObject(reports), "application/json");

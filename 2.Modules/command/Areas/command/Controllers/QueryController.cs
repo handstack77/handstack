@@ -170,24 +170,15 @@ namespace command.Areas.command.Controllers
 
                 var reports = queryResults.Select(item => new
                 {
-                    TransactType = "C",
+                    CommandType = "C",
                     item.ApplicationID,
                     item.ProjectID,
                     item.TransactionID,
                     ServiceID = item.CommandID,
                     item.Seq,
-                    //item.CommandType,
-                    //item.Use,
-                    //item.Timeout,
-                    //item.MaxOutputBytes,
                     item.Comment,
-                    //item.TransactionLog,
-                    //item.ExecutablePath,
-                    //item.Method,
-                    //item.Url,
                     item.Parameters,
-                    item.OutputMetas,
-                    //item.ModifiedAt
+                    item.OutputMetas
                 }).ToList();
 
                 return Content(JsonConvert.SerializeObject(reports), "application/json");

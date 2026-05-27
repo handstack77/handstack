@@ -170,26 +170,15 @@ namespace function.Areas.function.Controllers
 
                 var reports = queryResults.Select(item => new
                 {
-                    TransactType = "F",
+                    CommandType = "F",
                     item.ApplicationID,
                     item.ProjectID,
                     item.TransactionID,
-                    //item.DataSourceID,
-                    //item.ScriptID,
                     ServiceID = item.ExportName,
                     item.Seq,
-                    //item.LanguageType,
-                    //item.ProgramPath,
-                    //item.ReferenceModuleID,
-                    //item.EntryType,
-                    //item.EntryMethod,
-                    //item.IsHttpContext,
-                    //item.Timeout,
                     item.Comment,
-                    //item.TransactionLog,
                     Parameters = item.ModuleParameters,
-                    item.OutputMetas,
-                    //item.ModifiedAt
+                    item.OutputMetas
                 }).ToList();
 
                 return Content(JsonConvert.SerializeObject(reports), "application/json");
