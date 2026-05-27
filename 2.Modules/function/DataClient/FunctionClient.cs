@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -916,22 +916,12 @@ namespace function.DataClient
 
         private DynamicParameter? GetDbParameterMap(string parameterName, List<DynamicParameter> dynamicParameters)
         {
-            DynamicParameter? result = null;
-
-            var maps = from p in dynamicParameters
-                       where p.ParameterName == parameterName.Replace("@", "").Replace(":", "")
-                       select p;
-
-            if (maps.Count() > 0)
+            if (!string.IsNullOrEmpty(parameterName) && (parameterName[0] == '@' || parameterName[0] == ':' || parameterName[0] == '$' || parameterName[0] == '#'))
             {
-                foreach (var item in maps)
-                {
-                    result = item;
-                    break;
-                }
+                parameterName = parameterName.Substring(1);
             }
 
-            return result;
+            return dynamicParameters.FirstOrDefault(p => p.ParameterName == parameterName);
         }
 
         public void Dispose()

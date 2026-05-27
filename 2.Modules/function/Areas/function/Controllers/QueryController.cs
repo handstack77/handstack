@@ -177,7 +177,14 @@ namespace function.Areas.function.Controllers
                     ServiceID = item.ExportName,
                     item.Seq,
                     item.Description,
-                    Parameters = item.ModuleParameters,
+                    Parameters = item.ModuleParameters.Select(moduleParameterMap => new
+                    {
+                        Name = NormalizeParameterName(moduleParameterMap.Name),
+                        moduleParameterMap.DefaultValue,
+                        moduleParameterMap.DbType,
+                        moduleParameterMap.Length,
+                        moduleParameterMap.IsRequired
+                    }).ToList(),
                     item.OutputMetas
                 }).ToList();
 
@@ -188,6 +195,17 @@ namespace function.Areas.function.Controllers
                 logger.Error(exception, "[{LogCategory}] 함수 리포트 조회 오류", "Query/Reports");
                 return StatusCode(StatusCodes.Status500InternalServerError, "함수 리포트 조회 중 오류가 발생했습니다.");
             }
+        }
+
+        private static string NormalizeParameterName(string parameterName)
+        {
+            return string.IsNullOrEmpty(parameterName) == true
+                ? parameterName
+                : parameterName[0] switch
+                {
+                    '@' or ':' or '$' or '#' => parameterName.Substring(1),
+                    _ => parameterName
+                };
         }
 
         // http://localhost:8421/function/api/query/execute

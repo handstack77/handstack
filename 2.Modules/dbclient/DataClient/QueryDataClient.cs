@@ -4746,7 +4746,16 @@ TransactionException:
 
         private string GetParameterName(string parameterName)
         {
-            return parameterName.Replace("@", "").Replace("#", "").Replace(":", "");
+            if (string.IsNullOrEmpty(parameterName))
+            {
+                return parameterName;
+            }
+
+            return parameterName[0] switch
+            {
+                '@' or '#' or ':' => parameterName.Substring(1),
+                _ => parameterName
+            };
         }
 
         private dynamic? CreateDynamicParameters(DataProviders databaseProvider, StatementMap statementMap)

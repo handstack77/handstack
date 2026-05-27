@@ -174,10 +174,13 @@ namespace command.Areas.command.Controllers
                     item.ApplicationID,
                     item.ProjectID,
                     item.TransactionID,
-                    ServiceID = item.CommandID,
+                    ServiceID = item.CommandID.Substring(0, item.CommandID.Length - 2),
                     item.Seq,
                     item.Description,
-                    item.Parameters,
+                    Parameters = item.Parameters.Select(parameterMap => parameterMap with
+                    {
+                        Name = NormalizeParameterName(parameterMap.Name)
+                    }).ToList(),
                     item.OutputMetas
                 }).ToList();
 
@@ -188,6 +191,17 @@ namespace command.Areas.command.Controllers
                 logger.Error(exception, "[{LogCategory}] command 리포트 조회 오류", "Query/Reports");
                 return StatusCode(StatusCodes.Status500InternalServerError, "command 리포트 조회 중 오류가 발생했습니다.");
             }
+        }
+
+        private static string NormalizeParameterName(string parameterName)
+        {
+            return string.IsNullOrEmpty(parameterName) == true
+                ? parameterName
+                : parameterName[0] switch
+                {
+                    '@' or ':' or '$' or '#' => parameterName.Substring(1),
+                    _ => parameterName
+                };
         }
 
         private static bool IsQueryIDMatch(string queryIDs, string applicationID, string projectID, string transactionID, string commandID)

@@ -651,26 +651,6 @@ namespace dbclient.Extensions
             return result;
         }
 
-        private static DynamicParameter? GetDbParameterMap(string parameterName, List<DynamicParameter> dynamicParameters)
-        {
-            DynamicParameter? result = null;
-
-            var maps = from p in dynamicParameters
-                       where p.ParameterName == parameterName.Replace("@", "").Replace(":", "")
-                       select p;
-
-            if (maps.Count() > 0)
-            {
-                foreach (var item in maps)
-                {
-                    result = item;
-                    break;
-                }
-            }
-
-            return result;
-        }
-
         private static List<string> ReadOutputMetas(HtmlNode statementNode)
         {
             var result = new List<string>();

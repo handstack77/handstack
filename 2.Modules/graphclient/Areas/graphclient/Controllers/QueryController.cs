@@ -164,10 +164,13 @@ namespace graphclient.Areas.graphclient.Controllers
                     item.ApplicationID,
                     item.ProjectID,
                     item.TransactionID,
-                    ServiceID = item.StatementID,
+                    ServiceID = item.StatementID.Substring(0, item.StatementID.Length - 2),
                     item.Seq,
                     item.Description,
-                    item.Parameters,
+                    Parameters = item.Parameters.Select(parameterMap => parameterMap with
+                    {
+                        Name = NormalizeParameterName(parameterMap.Name)
+                    }).ToList(),
                     item.OutputMetas
                 }).ToList();
 
@@ -178,6 +181,17 @@ namespace graphclient.Areas.graphclient.Controllers
                 logger.Error(exception, "[{LogCategory}] graph 리포트 조회 오류", "Query/Reports");
                 return StatusCode(StatusCodes.Status500InternalServerError, "graph 리포트 조회 중 오류가 발생했습니다.");
             }
+        }
+
+        private static string NormalizeParameterName(string parameterName)
+        {
+            return string.IsNullOrEmpty(parameterName) == true
+                ? parameterName
+                : parameterName[0] switch
+                {
+                    '@' or ':' or '$' or '#' => parameterName.Substring(1),
+                    _ => parameterName
+                };
         }
 
         private static bool IsQueryIDMatch(string queryIDs, string applicationID, string projectID, string transactionID, string statementID)

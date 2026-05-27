@@ -797,7 +797,7 @@ namespace HandStack.Data.ExtensionMethod
                                 }
                             }
 
-                            var jValue = keyValueParameters[sqlParameter.ParameterName.Replace("@", "")] as JValue;
+                            var jValue = keyValueParameters[GetParameterName(sqlParameter.ParameterName)] as JValue;
                             if (jValue != null)
                             {
                                 var parameterValue = jValue.Value;
@@ -872,7 +872,7 @@ namespace HandStack.Data.ExtensionMethod
                                 }
                             }
 
-                            var jValue = keyValueParameters[sqlParameter.ParameterName.Replace("@", "")] as JValue;
+                            var jValue = keyValueParameters[GetParameterName(sqlParameter.ParameterName)] as JValue;
                             if (jValue != null)
                             {
                                 var parameterValue = jValue.Value;
@@ -981,7 +981,7 @@ namespace HandStack.Data.ExtensionMethod
                                 }
                             }
 
-                            var jValue = keyValueParameters[sqlParameter.ParameterName.Replace("@", "")] as JValue;
+                            var jValue = keyValueParameters[GetParameterName(sqlParameter.ParameterName)] as JValue;
                             if (jValue != null)
                             {
                                 var parameterValue = jValue.Value;
@@ -1097,7 +1097,7 @@ namespace HandStack.Data.ExtensionMethod
                                 }
                             }
 
-                            var jValue = keyValueParameters[sqlParameter.ParameterName.Replace("@", "")] as JValue;
+                            var jValue = keyValueParameters[GetParameterName(sqlParameter.ParameterName)] as JValue;
                             if (jValue != null)
                             {
                                 var parameterValue = jValue.Value;
@@ -1213,7 +1213,7 @@ namespace HandStack.Data.ExtensionMethod
                                 }
                             }
 
-                            var jValue = keyValueParameters[sqlParameter.ParameterName.Replace("@", "")] as JValue;
+                            var jValue = keyValueParameters[GetParameterName(sqlParameter.ParameterName)] as JValue;
                             if (jValue != null)
                             {
                                 var parameterValue = jValue.Value;
@@ -1343,7 +1343,7 @@ namespace HandStack.Data.ExtensionMethod
                                 }
                             }
 
-                            var jValue = keyValueParameters[sqlParameter.ParameterName.Replace("@", "")] as JValue;
+                            var jValue = keyValueParameters[GetParameterName(sqlParameter.ParameterName)] as JValue;
                             if (jValue != null)
                             {
                                 var parameterValue = jValue.Value;
@@ -1367,6 +1367,20 @@ namespace HandStack.Data.ExtensionMethod
             }
 
             return result;
+        }
+
+        private static string GetParameterName(string parameterName)
+        {
+            if (string.IsNullOrEmpty(parameterName))
+            {
+                return parameterName;
+            }
+
+            return parameterName[0] switch
+            {
+                '@' or ':' or '$' or '#' => parameterName.Substring(1),
+                _ => parameterName
+            };
         }
     }
 }

@@ -377,10 +377,13 @@ namespace prompter.Areas.prompter.Controllers
                             item.ApplicationID,
                             item.ProjectID,
                             item.TransactionID,
-                            ServiceID = item.StatementID,
+                            ServiceID = item.StatementID.Substring(0, item.StatementID.Length - 2),
                             item.Seq,
                             item.Description,
-                            Parameters = item.InputVariables,
+                            Parameters = item.InputVariables.Select(inputVariableMap => inputVariableMap with
+                            {
+                                Name = NormalizeParameterName(inputVariableMap.Name)
+                            }).ToList(),
                             item.OutputMetas
                         });
 
@@ -397,6 +400,17 @@ namespace prompter.Areas.prompter.Controllers
             }
 
             return result;
+        }
+
+        private static string NormalizeParameterName(string parameterName)
+        {
+            return string.IsNullOrEmpty(parameterName) == true
+                ? parameterName
+                : parameterName[0] switch
+                {
+                    '@' or ':' or '$' or '#' => parameterName.Substring(1),
+                    _ => parameterName
+                };
         }
 
         private static bool IsQueryIDMatch(string queryIDs, string applicationID, string projectID, string transactionID, string statementID)
