@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.Design;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -329,15 +330,13 @@ namespace function.Areas.function.Controllers
             foreach (var filter in filters)
             {
                 var parts = filter.Split('|', StringSplitOptions.TrimEntries);
-                if (parts.Length != 4)
-                {
-                    continue;
-                }
+                bool isMatch =
+                    (parts.Length < 1 || string.Equals(parts[0], applicationID, StringComparison.OrdinalIgnoreCase)) &&
+                    (parts.Length < 2 || string.Equals(parts[1], projectID, StringComparison.OrdinalIgnoreCase)) &&
+                    (parts.Length < 3 || string.Equals(parts[2], transactionID, StringComparison.OrdinalIgnoreCase)) &&
+                    (parts.Length < 4 || scriptID.StartsWith(parts[3], StringComparison.OrdinalIgnoreCase));
 
-                if (string.Equals(parts[0], applicationID, StringComparison.OrdinalIgnoreCase) &&
-                    string.Equals(parts[1], projectID, StringComparison.OrdinalIgnoreCase) &&
-                    string.Equals(parts[2], transactionID, StringComparison.OrdinalIgnoreCase) &&
-                    scriptID.StartsWith(parts[3], StringComparison.OrdinalIgnoreCase))
+                if (isMatch)
                 {
                     return true;
                 }

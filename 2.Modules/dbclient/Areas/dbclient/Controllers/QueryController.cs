@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Data;
 using System.IO;
 using System.Linq;
@@ -270,15 +271,13 @@ namespace dbclient.Areas.dbclient.Controllers
             foreach (var filter in filters)
             {
                 var parts = filter.Split('|', StringSplitOptions.TrimEntries);
-                if (parts.Length != 4)
-                {
-                    continue;
-                }
+                bool isMatch =
+                    (parts.Length < 1 || string.Equals(parts[0], applicationID, StringComparison.OrdinalIgnoreCase)) &&
+                    (parts.Length < 2 || string.Equals(parts[1], projectID, StringComparison.OrdinalIgnoreCase)) &&
+                    (parts.Length < 3 || string.Equals(parts[2], transactionID, StringComparison.OrdinalIgnoreCase)) &&
+                    (parts.Length < 4 || statementID.StartsWith(parts[3], StringComparison.OrdinalIgnoreCase));
 
-                if (string.Equals(parts[0], applicationID, StringComparison.OrdinalIgnoreCase) &&
-                    string.Equals(parts[1], projectID, StringComparison.OrdinalIgnoreCase) &&
-                    string.Equals(parts[2], transactionID, StringComparison.OrdinalIgnoreCase) &&
-                    statementID.StartsWith(parts[3], StringComparison.OrdinalIgnoreCase))
+                if (isMatch)
                 {
                     return true;
                 }
