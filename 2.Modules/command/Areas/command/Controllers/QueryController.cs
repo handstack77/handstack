@@ -176,7 +176,7 @@ namespace command.Areas.command.Controllers
                     item.TransactionID,
                     ServiceID = item.CommandID,
                     item.Seq,
-                    item.Comment,
+                    item.Description,
                     item.Parameters,
                     item.OutputMetas
                 }).ToList();

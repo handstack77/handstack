@@ -379,7 +379,7 @@ namespace prompter.Areas.prompter.Controllers
                             item.TransactionID,
                             ServiceID = item.StatementID,
                             item.Seq,
-                            item.Comment,
+                            item.Description,
                             Parameters = item.InputVariables,
                             item.OutputMetas
                         });

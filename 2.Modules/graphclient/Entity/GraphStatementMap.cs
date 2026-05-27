@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 using Newtonsoft.Json;
@@ -27,7 +27,7 @@ namespace graphclient.Entity
         public int Seq { get; set; }
 
         [JsonProperty]
-        public string Comment { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
 
         [JsonProperty]
         public int Timeout { get; set; }

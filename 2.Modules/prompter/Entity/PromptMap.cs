@@ -29,7 +29,7 @@ namespace prompter.Entity
         public int Seq { get; set; }
 
         [JsonProperty]
-        public string Comment { get; set; }
+        public string Description { get; set; }
 
         [JsonProperty]
         public string Prompt { get; set; }
@@ -89,7 +89,7 @@ namespace prompter.Entity
             DataSourceID = "";
             StatementID = "";
             Seq = 0;
-            Comment = "";
+            Description = "";
             Prompt = "";
             Role = "system";
             TransactionLog = false;

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -299,7 +299,7 @@ namespace graphclient.Extensions
                     DataSourceID = GetAttributeValue(statementElement, "datasource"),
                     StatementID = id + seq.ToString().PadLeft(2, '0'),
                     Seq = seq,
-                    Comment = GetAttributeValue(statementElement, "desc"),
+                    Description = GetAttributeValue(statementElement, "desc"),
                     Timeout = GetAttributeValue(statementElement, "timeout").ParseInt(ModuleConfiguration.DefaultCommandTimeout),
                     TransactionLog = GetAttributeValue(statementElement, "transactionlog").ToBoolean(),
                     Cypher = GetStatementBody(statementElement),

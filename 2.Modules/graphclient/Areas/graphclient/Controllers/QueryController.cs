@@ -166,7 +166,7 @@ namespace graphclient.Areas.graphclient.Controllers
                     item.TransactionID,
                     ServiceID = item.StatementID,
                     item.Seq,
-                    item.Comment,
+                    item.Description,
                     item.Parameters,
                     item.OutputMetas
                 }).ToList();

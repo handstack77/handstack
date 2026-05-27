@@ -141,7 +141,7 @@ namespace prompter.Extensions
                 promptMap.DataSourceID = item.Attributes["datasource"] == null ? (header.Element("datasource")?.InnerText).ToStringSafe() : item.Attributes["datasource"].Value;
                 promptMap.StatementID = GetAttributeValue(item, "id") + GetAttributeValue(item, "seq").PadLeft(2, '0');
                 promptMap.Seq = GetAttributeValue(item, "seq").ParseInt(0);
-                promptMap.Comment = GetAttributeValue(item, "desc");
+                promptMap.Description = GetAttributeValue(item, "desc");
                 promptMap.Role = GetAttributeValue(item, "role").ToStringSafe();
                 if (string.IsNullOrWhiteSpace(promptMap.Role) == true)
                 {

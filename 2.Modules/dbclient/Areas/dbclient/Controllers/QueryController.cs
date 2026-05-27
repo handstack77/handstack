@@ -232,7 +232,7 @@ namespace dbclient.Areas.dbclient.Controllers
                             item.TransactionID,
                             ServiceID = item.StatementID,
                             item.Seq,
-                            item.Comment,
+                            item.Description,
                             Parameters = item.DbParameters,
                             item.OutputMetas
                         });

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -395,7 +395,7 @@ namespace graphclient.DataClient
             var table = queryResult.Table;
             var responseCodeObject = new ResponseCodeObject()
             {
-                Comment = plan.StatementMap.Comment,
+                Comment = plan.StatementMap.Description,
                 CreatedAt = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"),
                 CodeColumnID = table.Columns.Count > 0 ? table.Columns[0].ColumnName : "",
                 ValueColumnID = table.Columns.Count > 1 ? table.Columns[1].ColumnName : table.Columns.Count > 0 ? table.Columns[0].ColumnName : "",

@@ -36,7 +36,7 @@ namespace command.Entity
         public int MaxOutputBytes { get; set; }
 
         [JsonProperty]
-        public string Comment { get; set; }
+        public string Description { get; set; }
 
         [JsonProperty]
         public bool TransactionLog { get; set; }
@@ -103,7 +103,7 @@ namespace command.Entity
             Use = true;
             Timeout = 0;
             MaxOutputBytes = 0;
-            Comment = "";
+            Description = "";
             TransactionLog = false;
             ExecutablePath = "";
             Arguments = "";
@@ -184,7 +184,7 @@ namespace command.Entity
 
         public int MaxOutputBytes { get; set; }
 
-        public string Comment { get; set; }
+        public string Description { get; set; }
 
         public bool TransactionLog { get; set; }
 
@@ -209,7 +209,7 @@ namespace command.Entity
             Use = true;
             Timeout = 0;
             MaxOutputBytes = 0;
-            Comment = "";
+            Description = "";
             TransactionLog = false;
             ExecutablePath = "";
             Arguments = "";

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -310,7 +310,7 @@ namespace dbclient.Extensions
                                             statementMap.TransactionIsolationLevel = (header?.Element("isolation")?.InnerText).ToStringSafe();
                                             statementMap.StatementID = item.Attributes["id"].Value + item.Attributes["seq"].Value.PadLeft(2, '0');
                                             statementMap.Seq = item.Attributes["seq"].Value.ParseInt(0);
-                                            statementMap.Comment = item.Attributes["desc"].Value;
+                                            statementMap.Description = item.Attributes["desc"].Value;
                                             statementMap.NativeDataClient = item.Attributes["native"] == null ? false : item.Attributes["native"].Value.ParseBool();
                                             statementMap.Timeout = item.Attributes["timeout"].Value.ParseInt(0);
                                             statementMap.SQL = item.InnerHtml;
@@ -546,7 +546,7 @@ namespace dbclient.Extensions
                                         statementMap.TransactionIsolationLevel = (header?.Element("isolation")?.InnerText).ToStringSafe();
                                         statementMap.StatementID = item.Attributes["id"].Value + item.Attributes["seq"].Value.PadLeft(2, '0');
                                         statementMap.Seq = item.Attributes["seq"].Value.ParseInt(0);
-                                        statementMap.Comment = item.Attributes["desc"].Value;
+                                        statementMap.Description = item.Attributes["desc"].Value;
                                         statementMap.NativeDataClient = item.Attributes["native"] == null ? false : item.Attributes["native"].Value.ParseBool();
                                         statementMap.Timeout = item.Attributes["timeout"].Value.ParseInt(0);
                                         statementMap.SQL = item.InnerHtml;
@@ -1144,7 +1144,7 @@ namespace dbclient.Extensions
                                         statementMap.TransactionIsolationLevel = (header?.Element("isolation")?.InnerText).ToStringSafe();
                                         statementMap.StatementID = item.Attributes["id"].Value + item.Attributes["seq"].Value.PadLeft(2, '0');
                                         statementMap.Seq = item.Attributes["seq"].Value.ParseInt(0);
-                                        statementMap.Comment = item.Attributes["desc"].Value;
+                                        statementMap.Description = item.Attributes["desc"].Value;
                                         statementMap.NativeDataClient = item.Attributes["native"] == null ? false : item.Attributes["native"].Value.ParseBool();
                                         statementMap.Timeout = item.Attributes["timeout"].Value.ParseInt(0);
                                         statementMap.SQL = item.InnerHtml;

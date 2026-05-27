@@ -32,7 +32,7 @@ namespace dbclient.Entity
         public int Seq { get; set; }
 
         [JsonProperty]
-        public string Comment { get; set; }
+        public string Description { get; set; }
 
         [JsonProperty]
         public bool NativeDataClient { get; set; }
@@ -75,7 +75,7 @@ namespace dbclient.Entity
             TransactionIsolationLevel = "ReadCommitted";
             StatementID = "";
             Seq = 0;
-            Comment = "";
+            Description = "";
             NativeDataClient = false;
             SQL = "";
             TransactionLog = false;

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -202,7 +202,7 @@ namespace command.Extensions
                     Use = item.Use,
                     Timeout = item.Timeout > 0 ? item.Timeout : defaultTimeout,
                     MaxOutputBytes = item.MaxOutputBytes > 0 ? item.MaxOutputBytes : defaultMaxOutputBytes,
-                    Comment = item.Comment,
+                    Description = item.Description,
                     TransactionLog = item.TransactionLog,
                     ExecutablePath = item.ExecutablePath,
                     Arguments = item.Arguments,
@@ -236,7 +236,7 @@ namespace command.Extensions
                     Use = item.Use,
                     Timeout = item.Timeout > 0 ? item.Timeout : defaultTimeout,
                     MaxOutputBytes = item.MaxOutputBytes > 0 ? item.MaxOutputBytes : defaultMaxOutputBytes,
-                    Comment = item.Comment,
+                    Description = item.Comment,
                     TransactionLog = item.TransactionLog,
                     Method = string.IsNullOrWhiteSpace(item.Method) ? "GET" : item.Method.ToUpperInvariant(),
                     Url = item.Url,
@@ -321,7 +321,7 @@ namespace command.Extensions
                 Use = AttributeValue(item, "use").ToBoolean(true),
                 Timeout = AttributeValue(item, "timeout").ParseInt(0),
                 MaxOutputBytes = AttributeValue(item, "maxOutputBytes").ParseInt(0),
-                Comment = AttributeValue(item, "desc"),
+                Description = AttributeValue(item, "desc"),
                 TransactionLog = AttributeValue(item, "log").ToBoolean(false),
                 ExecutablePath = ElementValue(item, "executable"),
                 Arguments = ElementValue(item, "arguments"),
