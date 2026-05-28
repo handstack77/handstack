@@ -1003,11 +1003,6 @@ TransactionException:
                     var functionID = items[4];
                     var parametersText = items[5];
                     var templateID = items.Length == 7 ? items[6] : null;
-                    var parameterName = GetParameterName(parametersText);
-                    if (TryGetParameterValue(parameters, parameterName, out var parameterValue) == true)
-                    {
-                        parametersText = parameterValue;
-                    }
 
                     var transactionCommandID = $"{applicationID}|{businessID}|{transactionID}|{functionID}";
 
