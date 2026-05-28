@@ -36,8 +36,6 @@ namespace prompter.DataClient
 {
     public class PromptClient : IPromptClient
     {
-        private static readonly Regex codeHelpTemplateRegex = new Regex("@\\{([^}]+)\\}", RegexOptions.Compiled);
-
         private ILogger logger { get; }
 
         private PromptLoggerClient loggerClient { get; }
@@ -980,18 +978,20 @@ TransactionException:
                 return "";
             }
 
-            var matches = codeHelpTemplateRegex.Matches(value);
+            var matches = ExtractCodeHelpTemplateExpressions(value);
             if (matches.Count == 0)
             {
                 return value;
             }
 
             var parameters = PromptMapper.ExtractParameters(queryObject);
-            var result = value;
-            foreach (Match match in matches)
+            var result = new StringBuilder();
+            var currentIndex = 0;
+            foreach (var match in matches)
             {
-                var expression = match.Groups[1].Value;
-                var items = expression.Split('|').Select(item => item.Trim()).ToArray();
+                result.Append(value, currentIndex, match.StartIndex - currentIndex);
+
+                var items = match.Expression.Split(new[] { '|' }, 7).Select(item => item.Trim()).ToArray();
                 var replacement = "";
 
                 if (items.Length == 6 || items.Length == 7)
@@ -1004,19 +1004,112 @@ TransactionException:
                     var parametersText = items[5];
                     var templateID = items.Length == 7 ? items[6] : null;
 
+                    parametersText = ReplaceStatementValue(parametersText, parameters);
+                    var parameterName = GetParameterName(parametersText);
+                    if (TryGetParameterValue(parameters, parameterName, out var parameterValue) == true)
+                    {
+                        parametersText = parameterValue;
+                    }
+
                     var transactionCommandID = $"{applicationID}|{businessID}|{transactionID}|{functionID}";
 
                     replacement = await moduleApiClient.GetCodeHelp(codeHelpID, applicationID, transactionCommandID, parametersText, templateID: templateID);
                 }
                 else
                 {
-                    logger.Warning("[{LogCategory}] " + $"코드도움 치환식 확인 필요: {match.Value}", "PromptClient/ReplaceCodeHelpTemplatesAsync");
+                    logger.Warning("[{LogCategory}] " + $"코드도움 치환식 확인 필요: {match.Text}", "PromptClient/ReplaceCodeHelpTemplatesAsync");
                 }
 
-                result = result.Replace(match.Value, replacement);
+                result.Append(replacement);
+                currentIndex = match.StartIndex + match.Length;
+            }
+
+            result.Append(value, currentIndex, value.Length - currentIndex);
+            return result.ToString();
+        }
+
+        private static List<(int StartIndex, int Length, string Expression, string Text)> ExtractCodeHelpTemplateExpressions(string value)
+        {
+            var result = new List<(int StartIndex, int Length, string Expression, string Text)>();
+            var searchIndex = 0;
+
+            while (searchIndex < value.Length)
+            {
+                var startIndex = value.IndexOf("@{", searchIndex, StringComparison.Ordinal);
+                if (startIndex < 0)
+                {
+                    break;
+                }
+
+                var expressionStartIndex = startIndex + 2;
+                var endIndex = FindCodeHelpTemplateEndIndex(value, expressionStartIndex);
+                if (endIndex < 0)
+                {
+                    searchIndex = expressionStartIndex;
+                    continue;
+                }
+
+                var length = endIndex - startIndex + 1;
+                var expression = value.Substring(expressionStartIndex, endIndex - expressionStartIndex);
+                var text = value.Substring(startIndex, length);
+                result.Add((startIndex, length, expression, text));
+                searchIndex = endIndex + 1;
             }
 
             return result;
+        }
+
+        private static int FindCodeHelpTemplateEndIndex(string value, int startIndex)
+        {
+            var index = startIndex;
+            while (index < value.Length)
+            {
+                if (value.IndexOf("{{{", index, StringComparison.Ordinal) == index)
+                {
+                    var mustacheEndIndex = value.IndexOf("}}}", index + 3, StringComparison.Ordinal);
+                    if (mustacheEndIndex < 0)
+                    {
+                        return -1;
+                    }
+
+                    index = mustacheEndIndex + 3;
+                    continue;
+                }
+
+                if (value.IndexOf("${", index, StringComparison.Ordinal) == index
+                    || value.IndexOf("#{", index, StringComparison.Ordinal) == index)
+                {
+                    var parameterEndIndex = value.IndexOf("}", index + 2, StringComparison.Ordinal);
+                    if (parameterEndIndex < 0)
+                    {
+                        return -1;
+                    }
+
+                    index = parameterEndIndex + 1;
+                    continue;
+                }
+
+                if (value.IndexOf("{{", index, StringComparison.Ordinal) == index)
+                {
+                    var mustacheEndIndex = value.IndexOf("}}", index + 2, StringComparison.Ordinal);
+                    if (mustacheEndIndex < 0)
+                    {
+                        return -1;
+                    }
+
+                    index = mustacheEndIndex + 2;
+                    continue;
+                }
+
+                if (value[index] == '}')
+                {
+                    return index;
+                }
+
+                index++;
+            }
+
+            return -1;
         }
 
         private static bool TryGetParameterValue(JObject parameters, string parameterName, out string value)

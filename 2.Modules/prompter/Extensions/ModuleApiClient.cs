@@ -126,27 +126,31 @@ namespace prompter.Extensions
         private string RenderCodeHelpTemplate(JToken? codeHelpObject, JToken dataSource, string templateID)
         {
             var result = "";
-            var templatePath = GetCodeHelpTemplatePath(templateID);
-            if (string.IsNullOrEmpty(templatePath) == true)
-            {
-                logger.Warning("[{LogCategory}] " + $"코드도움 템플릿 ID 확인 필요: {templateID}", "ModuleApiClient/RenderCodeHelpTemplate");
-                return result;
-            }
-
-            if (File.Exists(templatePath) == false)
-            {
-                logger.Warning("[{LogCategory}] " + $"코드도움 템플릿 파일 확인 필요: {templatePath}", "ModuleApiClient/RenderCodeHelpTemplate");
-                return result;
-            }
-
             try
             {
-                var cacheKey = GetCodeHelpTemplateCacheKey(templatePath);
-                var template = memoryCache.GetOrCreate(cacheKey, entry =>
+                var template = templateID;
+                if (IsMustacheTemplate(templateID) == false)
                 {
-                    ModuleConfiguration.CacheKeys.TryAdd(cacheKey, 0);
-                    return File.ReadAllText(templatePath, Encoding.UTF8);
-                });
+                    var templatePath = GetCodeHelpTemplatePath(templateID);
+                    if (string.IsNullOrEmpty(templatePath) == true)
+                    {
+                        logger.Warning("[{LogCategory}] " + $"코드도움 템플릿 ID 확인 필요: {templateID}", "ModuleApiClient/RenderCodeHelpTemplate");
+                        return result;
+                    }
+
+                    if (File.Exists(templatePath) == false)
+                    {
+                        logger.Warning("[{LogCategory}] " + $"코드도움 템플릿 파일 확인 필요: {templatePath}", "ModuleApiClient/RenderCodeHelpTemplate");
+                        return result;
+                    }
+
+                    var cacheKey = GetCodeHelpTemplateCacheKey(templatePath);
+                    template = memoryCache.GetOrCreate(cacheKey, entry =>
+                    {
+                        ModuleConfiguration.CacheKeys.TryAdd(cacheKey, 0);
+                        return File.ReadAllText(templatePath, Encoding.UTF8);
+                    }) ?? "";
+                }
 
                 var model = CreateCodeHelpTemplateModel(codeHelpObject, dataSource);
                 var renderer = new StubbleBuilder().Build();
@@ -158,6 +162,13 @@ namespace prompter.Extensions
             }
 
             return result;
+        }
+
+        private static bool IsMustacheTemplate(string templateID)
+        {
+            return string.IsNullOrWhiteSpace(templateID) == false
+                && templateID.Contains("{{", StringComparison.Ordinal)
+                && templateID.Contains("}}", StringComparison.Ordinal);
         }
 
         private static string ConvertCodeHelpDataSourceToCsv(JToken dataSource, string? delimiter, string? eol)
