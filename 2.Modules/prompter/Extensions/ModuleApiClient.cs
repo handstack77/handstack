@@ -151,6 +151,11 @@ namespace prompter.Extensions
                         return File.ReadAllText(templatePath, Encoding.UTF8);
                     }) ?? "";
                 }
+                else
+                {
+                    template = templateID.Replace("\\n", "\n", StringComparison.Ordinal)
+                        .Replace("\\t", "\t", StringComparison.Ordinal);
+                }
 
                 var model = CreateCodeHelpTemplateModel(codeHelpObject, dataSource);
                 var renderer = new StubbleBuilder().Build();
