@@ -76,7 +76,7 @@ namespace forwarder
             ModuleConfiguration.SessionStorageBasePath = GlobalConfiguration.GetBaseDirectoryPath(moduleConfig.SessionStorageBasePath, Path.Combine(GlobalConfiguration.EntryBasePath, "sqlite", ModuleConfiguration.ModuleID));
             ModuleConfiguration.BrowserIdleTimeoutSecond = Math.Max(0, moduleConfig.BrowserIdleTimeoutSecond);
             ModuleConfiguration.ForwardUrls = BuildForwardUrls(moduleConfig.ForwardUrls);
-            ModuleConfiguration.AllowClientIP = (moduleConfig.AllowClientIP ?? new List<string>())
+            ModuleConfiguration.AllowClientIP = (moduleConfig.AllowClientIP ?? new List<string>() { "*" })
                 .Where(p => string.IsNullOrWhiteSpace(p) == false)
                 .Select(p => p.Trim())
                 .Distinct(StringComparer.OrdinalIgnoreCase)

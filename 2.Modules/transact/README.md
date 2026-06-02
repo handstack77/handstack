@@ -125,6 +125,15 @@ BearerToken의 `Policy.Claims` 예:
 - `Assert`는 `Equal`, `NotEqual`, `True`, `False`, `Null`, `NotNull`, `Contains`, `DoesNotContain`, `Empty`, `NotEmpty`, `Single`, `InRange`, `Throws`, `IsType`, `Same`을 지원합니다.
 - `Throws<TException>()`, `IsType<T>()` 형태는 JSON 계약에서 각각 `Assert: "Throws"`와 `ExceptionType`, `Assert: "IsType"`과 `TypeName`으로 표현합니다.
 
+#### 실제 사용 위치
+`Contracts/transact/HDS/TST/TST010.json`에서 바로 실행 가능한 예제를 확인할 수 있습니다.
+
+- `GW01`의 `loadServerTime` 단계는 `GD04` 실행 결과의 `ServerName`이 `null` 또는 빈 문자열이 아닌지 확인합니다.
+- `GW02`의 `assertValues` 단계는 `GD07` 결과를 대상으로 `Throws`를 제외한 검증 타입을 한 번씩 사용합니다.
+- `GW02`의 `assertThrows` 단계는 존재하지 않는 `GD99` 서비스를 호출하고 `Throws`로 실패가 발생했는지 확인합니다. 예상한 실패이면 단계 성공으로 전환되어 다음 단계인 `loadAssertionResult`를 계속 실행합니다.
+
+가장 일반적인 형태는 현재 단계 결과의 필드를 `Step`으로 참조하고, 실패 시 운영자가 바로 원인을 알 수 있도록 `Message`를 지정하는 것입니다.
+
 ```json
 "Assertions": [
   {
@@ -145,6 +154,45 @@ BearerToken의 `Policy.Claims` 예:
   }
 ]
 ```
+
+#### Assertions 옵션
+| 옵션 | 의미 |
+| --- | --- |
+| `Assert` | 실행할 검증 타입입니다. 필수이며 대소문자를 구분하지 않습니다. |
+| `Expected` | `Equal`, `NotEqual`, `Same`에서 기대값을 지정합니다. |
+| `Actual` | `Equal`, `NotEqual`, `Same`에서 실제 비교값을 지정합니다. |
+| `Value` | `True`, `False`, `Null`, `NotNull`, `Contains`, `DoesNotContain`, `InRange`, `IsType`에서 검사할 값을 지정합니다. |
+| `Min`, `Max` | `InRange`의 최솟값과 최댓값입니다. 경곗값을 포함합니다. |
+| `Collection` | `Contains`, `DoesNotContain`, `Empty`, `NotEmpty`, `Single`에서 검사할 문자열, 배열 또는 객체를 지정합니다. |
+| `TypeName` | `IsType`에서 기대하는 JSON 타입입니다. |
+| `ExceptionType` | `Throws`에서 선택적으로 확인할 예외 타입 문자열입니다. 비어 있으면 실패 발생 여부만 확인합니다. |
+| `Message` | 검증 실패 시 기본 오류 대신 `exceptionText`에 반환할 메시지입니다. |
+
+`Expected`, `Actual`, `Value`, `Min`, `Max`, `Collection`은 모두 같은 값 참조 형식을 사용합니다.
+
+| 값 참조 옵션 | 의미 |
+| --- | --- |
+| `Source` | `Literal`, `Request`, `Step` 중 하나입니다. 기본값은 `Literal`입니다. |
+| `Value` | `Source: "Literal"`일 때 사용할 문자열, 숫자, 불리언, 객체, 배열 또는 `null` 값입니다. |
+| `FieldID` | `Request` 또는 `Step`에서 찾을 필드 ID입니다. 필드 이름은 대소문자를 구분하지 않습니다. 객체 값은 `FieldID.Property` 형태로도 참조할 수 있습니다. |
+| `SourceStepID` | `Source: "Step"`일 때 이전 단계 결과를 참조하려면 지정합니다. 생략하면 현재 단계 결과를 사용합니다. |
+
+`Source`를 생략하고 `FieldID`만 지정하면 현재 단계 결과를 참조합니다. 예를 들어 `"Collection": { "FieldID": "ServerName" }`은 `"Collection": { "Source": "Step", "FieldID": "ServerName" }`과 같습니다. 명시적으로 적는 편이 계약을 읽기 쉽습니다.
+
+#### 검증 타입
+| `Assert` | 사용하는 옵션 | 의미 |
+| --- | --- | --- |
+| `Equal` | `Expected`, `Actual` | 두 JSON 값이 같은지 확인합니다. |
+| `NotEqual` | `Expected`, `Actual` | 두 JSON 값이 다른지 확인합니다. |
+| `True`, `False` | `Value` | 불리언 또는 `true`, `false`로 변환 가능한 문자열인지 확인합니다. |
+| `Null`, `NotNull` | `Value` | 값이 JSON `null` 또는 undefined인지 확인합니다. 빈 문자열은 `null`이 아닙니다. |
+| `Contains`, `DoesNotContain` | `Value`, `Collection` | 문자열 포함 여부, 배열 요소 일치 여부, 객체 속성명 또는 속성값 일치 여부를 확인합니다. 문자열 비교는 대소문자를 구분합니다. |
+| `Empty`, `NotEmpty` | `Collection` | 문자열 길이, 배열 요소 수, 객체 속성 수가 0인지 확인합니다. `null`은 빈 값으로 처리하지 않습니다. |
+| `Single` | `Collection` | 문자열 길이, 배열 요소 수, 객체 속성 수가 정확히 1인지 확인합니다. |
+| `InRange` | `Value`, `Min`, `Max` | 숫자 또는 날짜가 `Min <= Value <= Max` 범위인지 확인합니다. |
+| `Throws` | `ExceptionType` | 단계 실행이 실패했는지 확인합니다. `ExceptionType`을 지정하면 오류 타입 또는 오류 메시지에 해당 문자열이 포함되어야 합니다. |
+| `IsType` | `Value`, `TypeName` | JSON 토큰 타입을 확인합니다. `String`, `Integer`/`Int`, `Float`, `Number`, `Boolean`/`Bool`, `Object`, `Array`, `Null`을 사용할 수 있습니다. |
+| `Same` | `Expected`, `Actual` | 두 값의 내용이 아니라 같은 JSON 토큰 인스턴스인지 확인합니다. 일반적인 값 비교는 `Equal`을 사용합니다. |
 
 아래는 각 검증 타입의 작성 형태를 한 번에 확인하기 위한 예제입니다. `Actual`, `Value`, `Collection`의 `FieldID`는 단계 결과에 맞게 바꿔 사용합니다.
 
@@ -231,11 +279,11 @@ BearerToken의 `Policy.Claims` 예:
 ```
 
 ### TST010 워크플로 계약 예
-`Contracts/transact/HDS/TST/TST010.json`의 `WF01` 서비스는 `GD04`를 두 번 호출하는 가장 작은 워크플로 예제입니다. 첫 번째 단계는 서버 시간 정보를 읽어 `ServerDate`, `ServerName`을 단계 결과에 저장하고, 두 번째 단계는 첫 번째 단계의 `ServerName`을 입력으로 받아 다시 `GD04`를 호출합니다.
+`Contracts/transact/HDS/TST/TST010.json`의 `GW01` 서비스는 `GD04`를 두 번 호출하는 가장 작은 워크플로 예제입니다. 첫 번째 단계는 서버 시간 정보를 읽어 `ServerDate`, `ServerName`을 단계 결과에 저장하고 Assertions로 `ServerName`을 검증합니다. 두 번째 단계는 첫 번째 단계의 `ServerName`을 입력으로 받아 다시 `GD04`를 호출합니다.
 
 ```json
 {
-  "ServiceID": "WF01",
+  "ServiceID": "GW01",
   "Authorize": false,
   "ReturnType": "Json",
   "CommandType": "W",
@@ -258,6 +306,24 @@ BearerToken의 `Policy.Claims` 예:
           "SourceFieldID": "ServerName",
           "TargetFieldID": "ServerName",
           "Required": false
+        }
+      ],
+      "Assertions": [
+        {
+          "Assert": "NotNull",
+          "Value": {
+            "Source": "Step",
+            "FieldID": "ServerName"
+          },
+          "Message": "ServerName 값이 필요합니다"
+        },
+        {
+          "Assert": "NotEmpty",
+          "Collection": {
+            "Source": "Step",
+            "FieldID": "ServerName"
+          },
+          "Message": "ServerName 값이 비어 있습니다"
         }
       ]
     },
@@ -301,7 +367,7 @@ BearerToken의 `Policy.Claims` 예:
 ```
 
 ### 워크플로 요청 예
-아래 요청은 `HDS/TST/TST010` 계약의 `WF01` 워크플로를 실행합니다. 로컬에서는 `ack`를 `wwwroot,transact,dbclient,function` 모듈과 함께 실행한 뒤 호출합니다.
+아래 요청은 `HDS/TST/TST010` 계약의 `GW01` 워크플로를 실행합니다. 로컬에서는 `ack`를 `wwwroot,transact,dbclient,function` 모듈과 함께 실행한 뒤 호출합니다.
 
 ```powershell
 curl -X POST "http://localhost:8421/transact/api/workflow/execute" `
@@ -313,12 +379,12 @@ curl -X POST "http://localhost:8421/transact/api/workflow/execute" `
 {
   "action": "SYN",
   "kind": "BIZ",
-  "clientTag": "README-WF01",
+  "clientTag": "README-GW01",
   "loadOptions": {
     "work-id": "mainapp",
     "app-id": "HDS"
   },
-  "requestID": "README-WF01-001",
+  "requestID": "README-GW01-001",
   "version": "1",
   "environment": "D",
   "system": {
@@ -341,10 +407,10 @@ curl -X POST "http://localhost:8421/transact/api/workflow/execute" `
     "timeout": 180000
   },
   "transaction": {
-    "globalID": "README-WF01-001",
+    "globalID": "README-GW01-001",
     "businessID": "TST",
     "transactionID": "TST010",
-    "functionID": "WF01",
+    "functionID": "GW01",
     "commandType": "W",
     "simulationType": "P",
     "terminalGroupID": "README",

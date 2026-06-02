@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -118,7 +118,7 @@ namespace graphclient
 
             ModuleConfiguration.DefaultDataSourceID = moduleConfig.DefaultDataSourceID;
             ModuleConfiguration.GraphDataSource = moduleConfig.GraphDataSource ?? new List<GraphDataSource>();
-            ModuleConfiguration.AllowClientIP = (moduleConfig.AllowClientIP ?? new List<string>())
+            ModuleConfiguration.AllowClientIP = (moduleConfig.AllowClientIP ?? new List<string>() { "*" })
                 .Where(item => string.IsNullOrWhiteSpace(item) == false)
                 .Select(item => item.Trim())
                 .Distinct(StringComparer.OrdinalIgnoreCase)
