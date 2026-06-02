@@ -1,4 +1,4 @@
-namespace agent.Options
+﻿namespace agent.Options
 {
     public sealed class AuditLogOptions
     {
@@ -18,9 +18,9 @@ namespace agent.Options
 
         public string ProgramID { get; set; } = "agent";
 
-        public string UserIdHeaderName { get; set; } = "X-User-Id";
+        public string UserIDHeaderName { get; set; } = "X-User-ID";
 
-        public string DeviceIdHeaderName { get; set; } = "X-Device-Id";
+        public string DeviceIDHeaderName { get; set; } = "X-Device-ID";
 
         public int TimeoutSeconds { get; set; } = 3;
     }

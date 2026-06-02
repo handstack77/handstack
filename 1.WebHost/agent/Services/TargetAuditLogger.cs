@@ -171,8 +171,8 @@ namespace agent.Services
             // logger/api/log/insert 입력 스키마에 맞춰 메시지를 구성합니다.
             var now = DateTime.Now;
             var remoteIp = httpContext.Connection.RemoteIpAddress?.MapToIPv4().ToString() ?? "";
-            var userIdHeaderName = string.IsNullOrWhiteSpace(auditOptions.UserIdHeaderName) == true ? "X-User-Id" : auditOptions.UserIdHeaderName.Trim();
-            var deviceIdHeaderName = string.IsNullOrWhiteSpace(auditOptions.DeviceIdHeaderName) == true ? "X-Device-Id" : auditOptions.DeviceIdHeaderName.Trim();
+            var userIdHeaderName = string.IsNullOrWhiteSpace(auditOptions.UserIDHeaderName) == true ? "X-User-ID" : auditOptions.UserIDHeaderName.Trim();
+            var deviceIdHeaderName = string.IsNullOrWhiteSpace(auditOptions.DeviceIDHeaderName) == true ? "X-Device-ID" : auditOptions.DeviceIDHeaderName.Trim();
 
             var userID = httpContext.Request.Headers.TryGetValue(userIdHeaderName, out var userValues) == true
                 ? (userValues.FirstOrDefault() ?? "")
