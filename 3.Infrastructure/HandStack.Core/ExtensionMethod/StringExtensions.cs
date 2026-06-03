@@ -149,6 +149,7 @@ namespace HandStack.Core.ExtensionMethod
             return defaultValueTokenRegex.Replace(defaultValues, match => ResolveDefaultValueToken(match, now, sequentialIdFactory));
         }
 
+        // var resolvedDefaultValues = defaultValues.ReplaceDefaultValueTokens(bearerVariable, () => sequentialIdGenerator.NewId().ToString("N"));
         private static string ResolveDefaultValueToken(Match match, DateTime now, Func<string> sequentialIdFactory)
         {
             var tokenName = match.Groups["name"].Value.ToUpperInvariant();
