@@ -12,7 +12,7 @@ namespace HandStack.Web.Helper
     {
         public static string CreateBearerToken(string userID, BearerToken bearerToken)
         {
-            return userID.EncodeBase64() + "." + JsonConvert.SerializeObject(bearerToken).EncryptAES(userID.PaddingRight(32)) + "." + GlobalConfiguration.HostAccessID.ToSHA256();
+            return userID.EncodeBase64() + "." + JsonConvert.SerializeObject(bearerToken).EncryptAES((GlobalConfiguration.HostAccessID + userID).ToSHA256().PaddingRight(32)) + "." + GlobalConfiguration.HostAccessID.ToSHA256();
         }
 
         public static bool TryParseToken(string token, out BearerToken? bearerToken)
@@ -34,7 +34,7 @@ namespace HandStack.Web.Helper
 
                 var userID = tokenArray[0].DecodeBase64();
                 token = tokenArray[1];
-                var signature = tokenArray.Length > 2 ? (tokenArray[2] == GlobalConfiguration.HostAccessID.ToSHA256() ? userID.PaddingRight(32) : "") : userID.PaddingRight(32);
+                var signature = tokenArray.Length > 2 ? (tokenArray[2] == GlobalConfiguration.HostAccessID.ToSHA256() ? (GlobalConfiguration.HostAccessID + userID).ToSHA256().PaddingRight(32) : "") : (GlobalConfiguration.HostAccessID + userID).ToSHA256().PaddingRight(32);
                 if (string.IsNullOrWhiteSpace(signature))
                 {
                     Console.WriteLine($"토큰 검증 오류");

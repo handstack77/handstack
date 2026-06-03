@@ -522,7 +522,7 @@ namespace transact.Areas.transact.Controllers
                                 return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                             }
 
-                            var signature = string.IsNullOrWhiteSpace(tokenHash) == false ? (tokenHash == GlobalConfiguration.HostAccessID.ToSHA256() ? request.Transaction.OperatorID.PaddingRight(32) : "") : request.Transaction.OperatorID.PaddingRight(32);
+                            var signature = string.IsNullOrWhiteSpace(tokenHash) == false ? (tokenHash == GlobalConfiguration.HostAccessID.ToSHA256() ? (GlobalConfiguration.HostAccessID + request.Transaction.OperatorID).ToSHA256().PaddingRight(32) : "") : (GlobalConfiguration.HostAccessID + request.Transaction.OperatorID).ToSHA256().PaddingRight(32);
                             if (!TryReadBearerToken(encryptedToken, signature, out bearerToken))
                             {
                                 response.ExceptionText = $"{request.Transaction.OperatorID}: BearerToken 정보 확인 필요.";
@@ -697,7 +697,7 @@ namespace transact.Areas.transact.Controllers
                                         return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                                     }
 
-                                    var signature = string.IsNullOrWhiteSpace(tokenHash) == false ? (tokenHash == GlobalConfiguration.HostAccessID.ToSHA256() ? userID.PaddingRight(32) : "") : userID.PaddingRight(32);
+                                    var signature = string.IsNullOrWhiteSpace(tokenHash) == false ? (tokenHash == GlobalConfiguration.HostAccessID.ToSHA256() ? (GlobalConfiguration.HostAccessID + userID).ToSHA256().PaddingRight(32) : "") : (GlobalConfiguration.HostAccessID + userID).ToSHA256().PaddingRight(32);
                                     if (!TryReadBearerToken(encryptedToken, signature, out bearerToken))
                                     {
                                         response.ExceptionText = $"{userID}: BearerToken 정보가 훼손되거나 확인 할 수 없습니다.";

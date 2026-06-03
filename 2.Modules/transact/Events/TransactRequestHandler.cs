@@ -522,7 +522,7 @@ namespace transact.Events
                             }
 
                             token = tokenArray[1];
-                            bearerToken = JsonConvert.DeserializeObject<BearerToken>(token.DecryptAES(request.Transaction.OperatorID.PaddingRight(32)));
+                            bearerToken = JsonConvert.DeserializeObject<BearerToken>(token.DecryptAES((GlobalConfiguration.HostAccessID + request.Transaction.OperatorID).ToSHA256().PaddingRight(32)));
 
                             if (bearerToken == null)
                             {
