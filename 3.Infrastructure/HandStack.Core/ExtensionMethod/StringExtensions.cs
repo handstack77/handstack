@@ -134,6 +134,107 @@ namespace HandStack.Core.ExtensionMethod
             return @this?.ToString() ?? defaultValue;
         }
 
+        public static string ReplaceDefaultValueTokens(this string @this, IReadOnlyDictionary<string, string> bearerVariable, Func<string> sequentialIdFactory)
+        {
+            if (string.IsNullOrWhiteSpace(@this) == true)
+            {
+                return @this;
+            }
+
+            var bearerVariableTokenRegex = new Regex(@"(?<==)(?<token>\$[\p{L}_][\p{L}\p{N}_.-]*)", RegexOptions.CultureInvariant);
+            var defaultValueTokenRegex = new Regex(@"(?<==)@(?<name>DateAdd|StartDateOfWeek|EndDateOfWeek|StartDateOfMonth|EndDateOfMonth|StartDateOfQuarter|EndDateOfQuarter|TimeSecond|Date|Now|Time|SUID|GUID)(?:\((?<args>[^)]*)\))?", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+            var defaultValues = bearerVariableTokenRegex.Replace(@this, match => bearerVariable.TryGetValue(match.Groups["token"].Value, out var value) == true ? value : string.Empty);
+            var now = DateTime.Now;
+            return defaultValueTokenRegex.Replace(defaultValues, match => ResolveDefaultValueToken(match, now, sequentialIdFactory));
+        }
+
+        private static string ResolveDefaultValueToken(Match match, DateTime now, Func<string> sequentialIdFactory)
+        {
+            var tokenName = match.Groups["name"].Value.ToUpperInvariant();
+            var args = ParseDefaultValueTokenArguments(match.Groups["args"].Value);
+
+            /*
+            # 기본값 토큰 치환 규칙
+            - @Date 문자열을 "DateTime.Now yyyy-MM-dd" 형식으로 치환
+            - @DateAdd(1), @DateAdd(-1) 과 같은 문자열을 "DateTime.Now 에 AddDays 를 적용하여 yyyy-MM-dd" 형식으로 치환
+            - @StartDateOfWeek 문자열을 "금주 시작 일 적용하여 yyyy-MM-dd" 형식으로 치환
+            - @EndDateOfWeek 문자열을 "금주 종료 일 적용하여 yyyy-MM-dd" 형식으로 치환
+            - @StartDateOfMonth 문자열을 "당월 시작 일 적용하여 yyyy-MM-dd" 형식으로 치환
+            - @EndDateOfMonth 문자열을 "당월 종료 일 적용하여 yyyy-MM-dd" 형식으로 치환
+            - @StartDateOfMonth(1), StartDateOfMonth(-1) 과 같은 문자열을 "당월을 기준으로 AddMonths 를 적용하여 시작 일 yyyy-MM-dd" 형식으로 치환
+            - @EndDateOfMonth(1), @EndDateOfMonth(-1) 과 같은 문자열을 "당월을 기준으로 AddMonths 를 적용하여 종료 일 yyyy-MM-dd" 형식으로 치환
+            - @StartDateOfQuarter(1), @StartDateOfQuarter(2), @StartDateOfQuarter(3), @StartDateOfQuarter(4) 문자열을 "올해 특정 분기 시작 일 적용하여 yyyy-MM-dd" 형식으로 치환
+            - @EndDateOfQuarter(1), @EndDateOfQuarter(2), @EndDateOfQuarter(3), @EndDateOfQuarter(4) 문자열을 "올해 특정 분기 종료 일 적용하여 yyyy-MM-dd" 형식으로 치환
+            - @StartDateOfQuarter(1, -1), @StartDateOfQuarter(2, -1), @StartDateOfQuarter(3, -1), @StartDateOfQuarter(4, -1) 문자열을 "올해를 기준으로 두번째 매개변수로 년도를 이동하여 특정 분기 시작 일 적용하여 yyyy-MM-dd" 형식으로 치환
+            - @EndDateOfQuarter(1, -1), @EndDateOfQuarter(2, -1), @EndDateOfQuarter(3, -1), @EndDateOfQuarter(4, -1) 문자열을 "올해를 기준으로 두번째 매개변수로 년도를 이동하여 특정 분기 종료 일 적용하여 yyyy-MM-dd" 형식으로 치환
+            - @Now 문자열을 "DateTime.Now yyyy-MM-dd hh:mm:ss" 형식으로 치환 
+            - @Time 문자열을 "DateTime.Now hh:mm" 형식으로 치환 
+            - @TimeSecond 문자열을 "DateTime.Now hh:mm:ss" 형식으로 치환 
+            - @SUID 문자열을 "sequentialIdGenerator.NewId().ToString("N");" 형식으로 치환 
+            - @GUID 문자열을 "Guid.NewGuid().ToString("N");" 형식으로 치환 
+            */
+            return tokenName switch
+            {
+                "DATE" => now.ToString("yyyy-MM-dd"),
+                "DATEADD" => now.AddDays(GetIntArgument(args, 0, 0)).ToString("yyyy-MM-dd"),
+                "STARTDATEOFWEEK" => GetStartDateOfWeek(now).ToString("yyyy-MM-dd"),
+                "ENDDATEOFWEEK" => GetStartDateOfWeek(now).AddDays(6).ToString("yyyy-MM-dd"),
+                "STARTDATEOFMONTH" => GetStartDateOfMonth(now, GetIntArgument(args, 0, 0)).ToString("yyyy-MM-dd"),
+                "ENDDATEOFMONTH" => GetStartDateOfMonth(now, GetIntArgument(args, 0, 0)).AddMonths(1).AddDays(-1).ToString("yyyy-MM-dd"),
+                "STARTDATEOFQUARTER" => TryGetQuarterDate(args, now, out var startDateOfQuarter, false) == true ? startDateOfQuarter.ToString("yyyy-MM-dd") : match.Value,
+                "ENDDATEOFQUARTER" => TryGetQuarterDate(args, now, out var endDateOfQuarter, true) == true ? endDateOfQuarter.ToString("yyyy-MM-dd") : match.Value,
+                "NOW" => now.ToString("yyyy-MM-dd hh:mm:ss"),
+                "TIME" => now.ToString("hh:mm"),
+                "TIMESECOND" => now.ToString("hh:mm:ss"),
+                "SUID" => sequentialIdFactory(),
+                "GUID" => Guid.NewGuid().ToString("N"),
+                _ => match.Value
+            };
+        }
+
+        private static string[] ParseDefaultValueTokenArguments(string args)
+        {
+            if (string.IsNullOrWhiteSpace(args) == true)
+            {
+                return [];
+            }
+
+            return args.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+        }
+
+        private static int GetIntArgument(string[] args, int index, int defaultValue)
+        {
+            return args.Length > index && int.TryParse(args[index], out var value) == true ? value : defaultValue;
+        }
+
+        private static DateTime GetStartDateOfWeek(DateTime value)
+        {
+            var daysSinceMonday = ((int)value.DayOfWeek + 6) % 7;
+            return value.Date.AddDays(-daysSinceMonday);
+        }
+
+        private static DateTime GetStartDateOfMonth(DateTime value, int monthOffset)
+        {
+            var target = value.Date.AddMonths(monthOffset);
+            return new DateTime(target.Year, target.Month, 1);
+        }
+
+        private static bool TryGetQuarterDate(string[] args, DateTime now, out DateTime value, bool endDate)
+        {
+            value = default;
+            if (args.Length == 0 || int.TryParse(args[0], out var quarter) == false || quarter is < 1 or > 4)
+            {
+                return false;
+            }
+
+            var yearOffset = GetIntArgument(args, 1, 0);
+            var startMonth = ((quarter - 1) * 3) + 1;
+            var startDate = new DateTime(now.Year + yearOffset, startMonth, 1);
+            value = endDate == true ? startDate.AddMonths(3).AddDays(-1) : startDate;
+            return true;
+        }
+
         public static string ToJoin<T>(this IEnumerable<T> @this, string separator)
         {
             return string.Join(separator, @this);
