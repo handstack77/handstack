@@ -1,2 +1,2 @@
-CodeID: {{{CodeIDs}}}
-CodeValue: {{{CodeValues}}}
+CodeID: {{#Items}}{{CodeID}}{{^IsLast}},{{/IsLast}}{{/Items}}
+CodeValue: {{#Items}}{{CodeValue}}{{^IsLast}},{{/IsLast}}{{/Items}}

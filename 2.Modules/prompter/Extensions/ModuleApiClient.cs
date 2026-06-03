@@ -211,8 +211,16 @@ namespace prompter.Extensions
                     }
                 }
 
-                item["CodeID"] = string.IsNullOrWhiteSpace(codeColumnID) == true ? item.GetValueOrDefault("CodeID")?.ToString() ?? "" : sourceItem[codeColumnID].ToStringSafe();
-                item["CodeValue"] = string.IsNullOrWhiteSpace(valueColumnID) == true ? item.GetValueOrDefault("CodeValue")?.ToString() ?? "" : sourceItem[valueColumnID].ToStringSafe();
+                if (item.ContainsKey("CodeID") == true && string.IsNullOrWhiteSpace(codeColumnID) == false && codeColumnID != "CodeID")
+                {
+                    item["CodeID"] = sourceItem[codeColumnID].ToStringSafe();
+                }
+
+                if (item.ContainsKey("CodeValue") == true && string.IsNullOrWhiteSpace(valueColumnID) == false && valueColumnID != "CodeValue")
+                {
+                    item["CodeValue"] = sourceItem[valueColumnID].ToStringSafe();
+                }
+
                 items.Add(item);
             }
 
@@ -221,9 +229,7 @@ namespace prompter.Extensions
                 ["Title"] = codeHelpObject?["Comment"].ToStringSafe() ?? "",
                 ["CodeColumnID"] = codeColumnID,
                 ["ValueColumnID"] = valueColumnID,
-                ["Items"] = items,
-                ["CodeIDs"] = string.Join(",", items.Select(item => item["CodeID"]?.ToString() ?? "")),
-                ["CodeValues"] = string.Join(",", items.Select(item => item["CodeValue"]?.ToString() ?? ""))
+                ["Items"] = items
             };
         }
 
