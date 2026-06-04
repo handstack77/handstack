@@ -149,6 +149,44 @@ namespace HandStack.Core.ExtensionMethod
             return defaultValueTokenRegex.Replace(defaultValues, match => ResolveDefaultValueToken(match, now, sequentialIdFactory));
         }
 
+        public static string ReplaceDefaultValueTokens(this string @this, string resolvedDefaultValues)
+        {
+            if (string.IsNullOrWhiteSpace(@this) == true)
+            {
+                return @this;
+            }
+
+            var defaultValueMap = ParseResolvedDefaultValues(resolvedDefaultValues);
+            var defaultValueTokenRegex = new Regex(@"\$\{(?<name>[\p{L}_][\p{L}\p{N}_.-]*)\}", RegexOptions.CultureInvariant);
+
+            return defaultValueTokenRegex.Replace(@this, match => defaultValueMap.TryGetValue(match.Groups["name"].Value, out var value) == true ? value : string.Empty);
+        }
+
+        private static Dictionary<string, string> ParseResolvedDefaultValues(string resolvedDefaultValues)
+        {
+            var result = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            if (string.IsNullOrWhiteSpace(resolvedDefaultValues) == true)
+            {
+                return result;
+            }
+
+            var pairs = resolvedDefaultValues.Split('&', StringSplitOptions.RemoveEmptyEntries);
+            foreach (var pair in pairs)
+            {
+                var separatorIndex = pair.IndexOf('=');
+                var key = separatorIndex >= 0 ? pair[..separatorIndex] : pair;
+                if (string.IsNullOrWhiteSpace(key) == true)
+                {
+                    continue;
+                }
+
+                var value = separatorIndex >= 0 ? pair[(separatorIndex + 1)..] : string.Empty;
+                result[key] = value;
+            }
+
+            return result;
+        }
+
         // var resolvedDefaultValues = defaultValues.ReplaceDefaultValueTokens(bearerVariable, () => sequentialIdGenerator.NewId().ToString("N"));
         private static string ResolveDefaultValueToken(Match match, DateTime now, Func<string> sequentialIdFactory)
         {
