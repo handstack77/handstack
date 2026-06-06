@@ -11,6 +11,7 @@ using command.Extensions;
 using HandStack.Core.ExtensionMethod;
 using HandStack.Web;
 using HandStack.Web.Common;
+using HandStack.Web.Entity;
 using HandStack.Web.MessageContract.Enumeration;
 using HandStack.Web.MessageContract.Message;
 
@@ -168,20 +169,24 @@ namespace command.Areas.command.Controllers
                     queryResults = queryResults.Where(item => IsQueryIDMatch(queryIDs, item.ApplicationID, item.ProjectID, item.TransactionID, item.CommandID));
                 }
 
-                var reports = queryResults.Select(item => new
+                var reports = queryResults.Select(item => new QueryReport
                 {
                     CommandType = "C",
-                    item.ApplicationID,
-                    item.ProjectID,
-                    item.TransactionID,
+                    ApplicationID = item.ApplicationID,
+                    ProjectID = item.ProjectID,
+                    TransactionID = item.TransactionID,
                     ServiceID = item.CommandID.Substring(0, item.CommandID.Length - 2),
-                    item.Seq,
-                    item.Description,
-                    Parameters = item.Parameters.Select(parameterMap => parameterMap with
+                    Seq = item.Seq,
+                    Description = item.Description,
+                    Parameters = item.Parameters.Select(parameterMap => new QueryReportParameter
                     {
-                        Name = NormalizeParameterName(parameterMap.Name)
+                        Name = NormalizeParameterName(parameterMap.Name),
+                        DefaultValue = parameterMap.DefaultValue,
+                        DbType = parameterMap.DbType,
+                        Length = parameterMap.Length,
+                        IsRequired = parameterMap.IsRequired
                     }).ToList(),
-                    item.OutputMetas
+                    OutputMetas = item.OutputMetas
                 }).ToList();
 
                 return Content(JsonConvert.SerializeObject(reports), "application/json");

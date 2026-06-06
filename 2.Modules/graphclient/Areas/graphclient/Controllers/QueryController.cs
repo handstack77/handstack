@@ -11,6 +11,7 @@ using graphclient.Extensions;
 using HandStack.Core.ExtensionMethod;
 using HandStack.Web;
 using HandStack.Web.Common;
+using HandStack.Web.Entity;
 using HandStack.Web.Extensions;
 using HandStack.Web.MessageContract.Enumeration;
 using HandStack.Web.MessageContract.Message;
@@ -159,20 +160,24 @@ namespace graphclient.Areas.graphclient.Controllers
                     queryResults = queryResults.Where(item => IsQueryIDMatch(queryIDs, item.ApplicationID, item.ProjectID, item.TransactionID, item.StatementID));
                 }
 
-                var reports = queryResults.Select(item => new
+                var reports = queryResults.Select(item => new QueryReport
                 {
                     CommandType = "G",
-                    item.ApplicationID,
-                    item.ProjectID,
-                    item.TransactionID,
+                    ApplicationID = item.ApplicationID,
+                    ProjectID = item.ProjectID,
+                    TransactionID = item.TransactionID,
                     ServiceID = item.StatementID.Substring(0, item.StatementID.Length - 2),
-                    item.Seq,
-                    item.Description,
-                    Parameters = item.Parameters.Select(parameterMap => parameterMap with
+                    Seq = item.Seq,
+                    Description = item.Description,
+                    Parameters = item.Parameters.Select(parameterMap => new QueryReportParameter
                     {
-                        Name = NormalizeParameterName(parameterMap.Name)
+                        Name = NormalizeParameterName(parameterMap.Name),
+                        DefaultValue = parameterMap.DefaultValue,
+                        DbType = "String",
+                        Length = (int)-1,
+                        IsRequired = parameterMap.IsRequired
                     }).ToList(),
-                    item.OutputMetas
+                    OutputMetas = item.OutputMetas
                 }).ToList();
 
                 return Content(JsonConvert.SerializeObject(reports), "application/json");

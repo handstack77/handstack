@@ -14,7 +14,9 @@ using dbclient.Extensions;
 using HandStack.Core.ExtensionMethod;
 using HandStack.Web;
 using HandStack.Web.Common;
+using HandStack.Web.Entity;
 using HandStack.Web.Extensions;
+using HandStack.Web.MessageContract.DataObject;
 using HandStack.Web.MessageContract.Enumeration;
 using HandStack.Web.MessageContract.Message;
 
@@ -225,21 +227,25 @@ namespace dbclient.Areas.dbclient.Controllers
                     var statementMaps = queryResults.ToList();
                     if (statementMaps != null)
                     {
-                        var reports = statementMaps.Select(item => new
+                        var reports = statementMaps.Select(item => new QueryReport
                         {
                             CommandType = "D",
-                            item.ApplicationID,
-                            item.ProjectID,
-                            item.TransactionID,
+                            ApplicationID = item.ApplicationID,
+                            ProjectID = item.ProjectID,
+                            TransactionID = item.TransactionID,
                             ServiceID = item.StatementID.Substring(0, item.StatementID.Length - 2),
-                            item.Seq,
-                            item.Description,
-                            Parameters = item.DbParameters.Select(dbParameterMap => dbParameterMap with
+                            Seq = item.Seq,
+                            Description = item.Description,
+                            Parameters = item.DbParameters.Select(dbParameterMap => new QueryReportParameter
                             {
-                                Name = NormalizeParameterName(dbParameterMap.Name)
+                                Name = NormalizeParameterName(dbParameterMap.Name),
+                                DefaultValue = dbParameterMap.DefaultValue,
+                                DbType = dbParameterMap.DbType,
+                                Length = dbParameterMap.Length,
+                                IsRequired = dbParameterMap.IsRequired
                             }).ToList(),
-                            item.OutputMetas
-                        });
+                            OutputMetas = item.OutputMetas
+                        }).ToList();
 
                         result = Content(JsonConvert.SerializeObject(reports), "application/json");
                     }

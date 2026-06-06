@@ -11,6 +11,7 @@ using function.Extensions;
 using HandStack.Core.ExtensionMethod;
 using HandStack.Web;
 using HandStack.Web.Common;
+using HandStack.Web.Entity;
 using HandStack.Web.Extensions;
 using HandStack.Web.MessageContract.Enumeration;
 using HandStack.Web.MessageContract.Message;
@@ -169,24 +170,24 @@ namespace function.Areas.function.Controllers
                     queryResults = queryResults.Where(item => IsQueryIDMatch(queryIDs, item.ApplicationID, item.ProjectID, item.TransactionID, item.ScriptID));
                 }
 
-                var reports = queryResults.Select(item => new
+                var reports = queryResults.Select(item => new QueryReport
                 {
                     CommandType = "F",
-                    item.ApplicationID,
-                    item.ProjectID,
-                    item.TransactionID,
+                    ApplicationID = item.ApplicationID,
+                    ProjectID = item.ProjectID,
+                    TransactionID = item.TransactionID,
                     ServiceID = item.ExportName,
-                    item.Seq,
-                    item.Description,
-                    Parameters = item.ModuleParameters.Select(moduleParameterMap => new
+                    Seq = item.Seq,
+                    Description = item.Description,
+                    Parameters = item.ModuleParameters.Select(moduleParameterMap => new QueryReportParameter
                     {
                         Name = NormalizeParameterName(moduleParameterMap.Name),
-                        moduleParameterMap.DefaultValue,
-                        moduleParameterMap.DbType,
-                        moduleParameterMap.Length,
-                        moduleParameterMap.IsRequired
+                        DefaultValue = moduleParameterMap.DefaultValue,
+                        DbType = moduleParameterMap.DbType,
+                        Length = moduleParameterMap.Length,
+                        IsRequired = moduleParameterMap.IsRequired
                     }).ToList(),
-                    item.OutputMetas
+                    OutputMetas = item.OutputMetas
                 }).ToList();
 
                 return Content(JsonConvert.SerializeObject(reports), "application/json");
