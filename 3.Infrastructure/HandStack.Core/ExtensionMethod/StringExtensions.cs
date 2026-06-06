@@ -134,15 +134,16 @@ namespace HandStack.Core.ExtensionMethod
             return @this?.ToString() ?? defaultValue;
         }
 
-        public static string ReplaceDefaultValueTokens(this string @this, IReadOnlyDictionary<string, string> bearerVariable, Func<string> sequentialIdFactory)
+        public static string ReplaceDefaultValueTokens(this string @this, IReadOnlyDictionary<string, string> bearerVariable, Func<string> sequentialIdFactory, bool equalsPrefix = true)
         {
             if (string.IsNullOrWhiteSpace(@this) == true)
             {
                 return @this;
             }
 
-            var bearerVariableTokenRegex = new Regex(@"(?<==)(?<token>\$[\p{L}_][\p{L}\p{N}_.-]*)", RegexOptions.CultureInvariant);
-            var defaultValueTokenRegex = new Regex(@"(?<==)@(?<name>DateAdd|StartDateOfWeek|EndDateOfWeek|StartDateOfMonth|EndDateOfMonth|StartDateOfQuarter|EndDateOfQuarter|TimeSecond|Date|Now|Time|SUID|GUID)(?:\((?<args>[^)]*)\))?", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+            var prefix = equalsPrefix ? @"(?<==)" : string.Empty;
+            var bearerVariableTokenRegex = new Regex($@"{prefix}(?<token>\$[\p{{L}}_][\p{{L}}\p{{N}}_.-]*)", RegexOptions.CultureInvariant);
+            var defaultValueTokenRegex = new Regex($@"{prefix}@(?<name>DateAdd|StartDateOfWeek|EndDateOfWeek|StartDateOfMonth|EndDateOfMonth|StartDateOfQuarter|EndDateOfQuarter|TimeSecond|Date|Now|Time|SUID|GUID)(?:\((?<args>[^)]*)\))?", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
             var defaultValues = bearerVariableTokenRegex.Replace(@this, match => bearerVariable.TryGetValue(match.Groups["token"].Value, out var value) == true ? value : string.Empty);
             var now = DateTime.Now;
@@ -160,6 +161,18 @@ namespace HandStack.Core.ExtensionMethod
             var defaultValueTokenRegex = new Regex(@"\$\{(?<name>[\p{L}_][\p{L}\p{N}_.-]*)\}", RegexOptions.CultureInvariant);
 
             return defaultValueTokenRegex.Replace(@this, match => defaultValueMap.TryGetValue(match.Groups["name"].Value, out var value) == true ? value : string.Empty);
+        }
+
+        public static string ReplaceDefaultValueTokens(this string @this, Dictionary<string, string> resolvedDefaultValues)
+        {
+            if (string.IsNullOrWhiteSpace(@this) == true)
+            {
+                return @this;
+            }
+
+            resolvedDefaultValues ??= new Dictionary<string, string>();
+            var defaultValueTokenRegex = new Regex(@"\$\{(?<name>[\p{L}_][\p{L}\p{N}_.-]*)\}", RegexOptions.CultureInvariant);
+            return defaultValueTokenRegex.Replace(@this, match => resolvedDefaultValues.TryGetValue(match.Groups["name"].Value, out var value) == true ? value : string.Empty);
         }
 
         private static Dictionary<string, string> ParseResolvedDefaultValues(string resolvedDefaultValues)
