@@ -113,6 +113,11 @@ namespace HandStack.Web.ApiClient
 
         public async Task<Dictionary<string, JToken>> TransactionDirect(string businessServerUrl, TransactionClientObject transactionObject, string moduleID = "", string pathName = "")
         {
+            return await TransactionDirect(businessServerUrl, transactionObject, null, moduleID, pathName);
+        }
+
+        public async Task<Dictionary<string, JToken>> TransactionDirect(string businessServerUrl, TransactionClientObject transactionObject, IReadOnlyDictionary<string, string>? headers, string moduleID = "", string pathName = "")
+        {
             dynamic hasException = new ExpandoObject();
             var result = new Dictionary<string, JToken>();
             var requestID = string.Empty;
@@ -229,9 +234,7 @@ namespace HandStack.Web.ApiClient
                     var restRequest = new RestRequest(businessServerUrl, Method.Post);
                     restRequest.AddStringBody(JsonConvert.SerializeObject(transactionRequest), DataFormat.Json);
 
-                    restRequest.AddHeader("Content-Type", "application/json");
-                    restRequest.AddHeader("cache-control", "no-cache");
-                    restRequest.AddHeader("ClientTag", TransactionConfig.ClientTag);
+                    AddTransactionHeaders(restRequest, headers);
 
                     var restResponse = await client.ExecuteAsync(restRequest);
                     if (restResponse != null && restResponse.StatusCode != HttpStatusCode.NotFound && restResponse.ResponseStatus == ResponseStatus.Completed)
@@ -307,6 +310,11 @@ namespace HandStack.Web.ApiClient
         }
 
         public async Task<Dictionary<string, JToken>> TransactionDirect(string businessServerUrl, TransactionClientObject transactionObject, Action<TransactionRequest> requestAction)
+        {
+            return await TransactionDirect(businessServerUrl, transactionObject, requestAction, null);
+        }
+
+        public async Task<Dictionary<string, JToken>> TransactionDirect(string businessServerUrl, TransactionClientObject transactionObject, Action<TransactionRequest> requestAction, IReadOnlyDictionary<string, string>? headers)
         {
             dynamic hasException = new ExpandoObject();
             var result = new Dictionary<string, JToken>();
@@ -426,9 +434,7 @@ namespace HandStack.Web.ApiClient
                     var restRequest = new RestRequest(businessServerUrl, Method.Post);
                     restRequest.AddStringBody(JsonConvert.SerializeObject(transactionRequest), DataFormat.Json);
 
-                    restRequest.AddHeader("Content-Type", "application/json");
-                    restRequest.AddHeader("cache-control", "no-cache");
-                    restRequest.AddHeader("ClientTag", TransactionConfig.ClientTag);
+                    AddTransactionHeaders(restRequest, headers);
 
                     var restResponse = await client.ExecuteAsync(restRequest);
                     if (restResponse != null && restResponse.StatusCode != HttpStatusCode.NotFound && restResponse.ResponseStatus == ResponseStatus.Completed)
@@ -501,6 +507,28 @@ namespace HandStack.Web.ApiClient
             }
 
             return result;
+        }
+
+        private static void AddTransactionHeaders(RestRequest restRequest, IReadOnlyDictionary<string, string>? headers)
+        {
+            restRequest.AddHeader("Content-Type", "application/json");
+            restRequest.AddHeader("cache-control", "no-cache");
+            restRequest.AddHeader("ClientTag", TransactionConfig.ClientTag);
+
+            if (headers == null)
+            {
+                return;
+            }
+
+            foreach (var header in headers)
+            {
+                if (string.IsNullOrWhiteSpace(header.Key) == true)
+                {
+                    continue;
+                }
+
+                restRequest.AddHeader(header.Key, header.Value ?? string.Empty);
+            }
         }
 
         private static string GetRequestID(TransactionClientObject transactionObject)

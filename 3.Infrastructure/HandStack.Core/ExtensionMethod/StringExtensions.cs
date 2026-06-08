@@ -143,7 +143,7 @@ namespace HandStack.Core.ExtensionMethod
 
             var prefix = equalsPrefix ? @"(?<==)" : string.Empty;
             var bearerVariableTokenRegex = new Regex($@"{prefix}(?<token>\$[\p{{L}}_][\p{{L}}\p{{N}}_.-]*)", RegexOptions.CultureInvariant);
-            var defaultValueTokenRegex = new Regex($@"{prefix}@(?<name>DateAdd|StartDateOfWeek|EndDateOfWeek|StartDateOfMonth|EndDateOfMonth|StartDateOfQuarter|EndDateOfQuarter|TimeSecond|Date|Now|Time|SUID|GUID)(?:\((?<args>[^)]*)\))?", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+            var defaultValueTokenRegex = new Regex($@"{prefix}@(?<name>MinuteAdd|HourAdd|WeekAdd|MonthAdd|YearAdd|DateAdd|StartDateOfWeek|EndDateOfWeek|StartDateOfMonth|EndDateOfMonth|StartDateOfQuarter|EndDateOfQuarter|TimeSecond|Date|Now|Time|SUID|GUID)(?:\((?<args>[^)]*)\))?", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
             var defaultValues = bearerVariableTokenRegex.Replace(@this, match => bearerVariable.TryGetValue(match.Groups["token"].Value, out var value) == true ? value : string.Empty);
             var now = DateTime.Now;
@@ -208,8 +208,14 @@ namespace HandStack.Core.ExtensionMethod
 
             /*
             # 기본값 토큰 치환 규칙
+            - 일자 함수의 기본 형식은 yyyy-MM-dd 이며 마지막 매개변수로 형식을 지정할 수 있음. 예: @DateAdd(-1, "yyyy-MM-dd"), @MonthAdd(-3, "yyyy-MM")
             - @Date 문자열을 "DateTime.Now yyyy-MM-dd" 형식으로 치환
             - @DateAdd(1), @DateAdd(-1) 과 같은 문자열을 "DateTime.Now 에 AddDays 를 적용하여 yyyy-MM-dd" 형식으로 치환
+            - @MinuteAdd(1), @MinuteAdd(-1) 과 같은 문자열을 "DateTime.Now 에 AddMinutes 를 적용하여 yyyy-MM-dd" 형식으로 치환
+            - @HourAdd(1), @HourAdd(-1) 과 같은 문자열을 "DateTime.Now 에 AddHours 를 적용하여 yyyy-MM-dd" 형식으로 치환
+            - @WeekAdd(1), @WeekAdd(-1) 과 같은 문자열을 "DateTime.Now 에 AddDays(7 * n) 를 적용하여 yyyy-MM-dd" 형식으로 치환
+            - @MonthAdd(1), @MonthAdd(-1) 과 같은 문자열을 "DateTime.Now 에 AddMonths 를 적용하여 yyyy-MM-dd" 형식으로 치환
+            - @YearAdd(1), @YearAdd(-1) 과 같은 문자열을 "DateTime.Now 에 AddYears 를 적용하여 yyyy-MM-dd" 형식으로 치환
             - @StartDateOfWeek 문자열을 "금주 시작 일 적용하여 yyyy-MM-dd" 형식으로 치환
             - @EndDateOfWeek 문자열을 "금주 종료 일 적용하여 yyyy-MM-dd" 형식으로 치환
             - @StartDateOfMonth 문자열을 "당월 시작 일 적용하여 yyyy-MM-dd" 형식으로 치환
@@ -219,7 +225,7 @@ namespace HandStack.Core.ExtensionMethod
             - @StartDateOfQuarter(1), @StartDateOfQuarter(2), @StartDateOfQuarter(3), @StartDateOfQuarter(4) 문자열을 "올해 특정 분기 시작 일 적용하여 yyyy-MM-dd" 형식으로 치환
             - @EndDateOfQuarter(1), @EndDateOfQuarter(2), @EndDateOfQuarter(3), @EndDateOfQuarter(4) 문자열을 "올해 특정 분기 종료 일 적용하여 yyyy-MM-dd" 형식으로 치환
             - @StartDateOfQuarter(1, -1), @StartDateOfQuarter(2, -1), @StartDateOfQuarter(3, -1), @StartDateOfQuarter(4, -1) 문자열을 "올해를 기준으로 두번째 매개변수로 년도를 이동하여 특정 분기 시작 일 적용하여 yyyy-MM-dd" 형식으로 치환
-            - @EndDateOfQuarter(1, -1), @EndDateOfQuarter(2, -1), @EndDateOfQuarter(3, -1), @EndDateOfQuarter(4, -1) 문자열을 "올해를 기준으로 두번째 매개변수로 년도를 이동하여 특정 분기 종료 일 적용하여 yyyy-MM-dd" 형식으로 치환
+            - @EndDateOfQuarter(1, -1), @EndDateOfQuarter(2, -1), @EndDateOfQuarter(3, -1), @EndDateOfQuarter(4, -1) 문자열을 "올해를 기준으로 두번째 매개변수로 년도를 이동하여 특정 분기 종료 일 yyyy-MM-dd" 형식으로 치환
             - @Now 문자열을 "DateTime.Now yyyy-MM-dd hh:mm:ss" 형식으로 치환 
             - @Time 문자열을 "DateTime.Now hh:mm" 형식으로 치환 
             - @TimeSecond 문자열을 "DateTime.Now hh:mm:ss" 형식으로 치환 
@@ -228,14 +234,19 @@ namespace HandStack.Core.ExtensionMethod
             */
             return tokenName switch
             {
-                "DATE" => now.ToString("yyyy-MM-dd"),
-                "DATEADD" => now.AddDays(GetIntArgument(args, 0, 0)).ToString("yyyy-MM-dd"),
-                "STARTDATEOFWEEK" => GetStartDateOfWeek(now).ToString("yyyy-MM-dd"),
-                "ENDDATEOFWEEK" => GetStartDateOfWeek(now).AddDays(6).ToString("yyyy-MM-dd"),
-                "STARTDATEOFMONTH" => GetStartDateOfMonth(now, GetIntArgument(args, 0, 0)).ToString("yyyy-MM-dd"),
-                "ENDDATEOFMONTH" => GetStartDateOfMonth(now, GetIntArgument(args, 0, 0)).AddMonths(1).AddDays(-1).ToString("yyyy-MM-dd"),
-                "STARTDATEOFQUARTER" => TryGetQuarterDate(args, now, out var startDateOfQuarter, false) == true ? startDateOfQuarter.ToString("yyyy-MM-dd") : match.Value,
-                "ENDDATEOFQUARTER" => TryGetQuarterDate(args, now, out var endDateOfQuarter, true) == true ? endDateOfQuarter.ToString("yyyy-MM-dd") : match.Value,
+                "DATE" => FormatDefaultValueDate(now, args),
+                "DATEADD" => FormatDefaultValueDate(now.AddDays(GetIntArgument(args, 0, 0)), args),
+                "MINUTEADD" => FormatDefaultValueDate(now.AddMinutes(GetIntArgument(args, 0, 0)), args),
+                "HOURADD" => FormatDefaultValueDate(now.AddHours(GetIntArgument(args, 0, 0)), args),
+                "WEEKADD" => FormatDefaultValueDate(now.AddDays(GetIntArgument(args, 0, 0) * 7), args),
+                "MONTHADD" => FormatDefaultValueDate(now.AddMonths(GetIntArgument(args, 0, 0)), args),
+                "YEARADD" => FormatDefaultValueDate(now.AddYears(GetIntArgument(args, 0, 0)), args),
+                "STARTDATEOFWEEK" => FormatDefaultValueDate(GetStartDateOfWeek(now), args),
+                "ENDDATEOFWEEK" => FormatDefaultValueDate(GetStartDateOfWeek(now).AddDays(6), args),
+                "STARTDATEOFMONTH" => FormatDefaultValueDate(GetStartDateOfMonth(now, GetIntArgument(args, 0, 0)), args),
+                "ENDDATEOFMONTH" => FormatDefaultValueDate(GetStartDateOfMonth(now, GetIntArgument(args, 0, 0)).AddMonths(1).AddDays(-1), args),
+                "STARTDATEOFQUARTER" => TryGetQuarterDate(args, now, out var startDateOfQuarter, false) == true ? FormatDefaultValueDate(startDateOfQuarter, args) : match.Value,
+                "ENDDATEOFQUARTER" => TryGetQuarterDate(args, now, out var endDateOfQuarter, true) == true ? FormatDefaultValueDate(endDateOfQuarter, args) : match.Value,
                 "NOW" => now.ToString("yyyy-MM-dd hh:mm:ss"),
                 "TIME" => now.ToString("hh:mm"),
                 "TIMESECOND" => now.ToString("hh:mm:ss"),
@@ -258,6 +269,38 @@ namespace HandStack.Core.ExtensionMethod
         private static int GetIntArgument(string[] args, int index, int defaultValue)
         {
             return args.Length > index && int.TryParse(args[index], out var value) == true ? value : defaultValue;
+        }
+
+        private static string FormatDefaultValueDate(DateTime value, string[] args)
+        {
+            return value.ToString(GetDateFormatArgument(args));
+        }
+
+        private static string GetDateFormatArgument(string[] args)
+        {
+            if (args.Length == 0)
+            {
+                return "yyyy-MM-dd";
+            }
+
+            var format = args[^1].Trim();
+            if (string.IsNullOrWhiteSpace(format) == true || int.TryParse(format, out _) == true)
+            {
+                return "yyyy-MM-dd";
+            }
+
+            return TrimDefaultValueTokenQuote(format);
+        }
+
+        private static string TrimDefaultValueTokenQuote(string value)
+        {
+            if (value.Length >= 2 &&
+                ((value[0] == '"' && value[^1] == '"') || (value[0] == '\'' && value[^1] == '\'')))
+            {
+                return value[1..^1];
+            }
+
+            return value;
         }
 
         private static DateTime GetStartDateOfWeek(DateTime value)
