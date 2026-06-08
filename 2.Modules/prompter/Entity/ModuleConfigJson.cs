@@ -37,6 +37,8 @@ namespace prompter.Entity
 
         public bool IsChatHistoryConsoleShow { get; set; }
 
+        public string DefaultPromptResultFieldID { get; set; }
+
         public string ModuleLogFilePath { get; set; }
 
         public List<LLMSource> LLMSource { get; set; }
@@ -65,6 +67,7 @@ namespace prompter.Entity
             ContractBasePath = new List<string>();
             CircuitBreakResetSecond = 30;
             IsChatHistoryConsoleShow = false;
+            DefaultPromptResultFieldID = "PromptResult";
             LLMSource = new List<LLMSource>();
             AllowedKernelPlugins = new List<AllowedKernelPlugin>();
             AllowedMcpServers = new List<AllowedExternalTool>();

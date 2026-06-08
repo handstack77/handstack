@@ -1793,13 +1793,9 @@ namespace transact.Areas.transact.Controllers
             else
             {
                 Dictionary<string, JToken>? sourceValues = null;
-                var source = mapping.Source.ToStringSafe();
-                if (source.Equals("Step", System.StringComparison.OrdinalIgnoreCase) || string.IsNullOrWhiteSpace(mapping.SourceStepID) == false)
+                if (string.IsNullOrWhiteSpace(mapping.SourceStepID) == false)
                 {
-                    if (string.IsNullOrWhiteSpace(mapping.SourceStepID) == false)
-                    {
-                        stepValues.TryGetValue(mapping.SourceStepID, out sourceValues);
-                    }
+                    stepValues.TryGetValue(mapping.SourceStepID, out sourceValues);
                 }
                 else
                 {

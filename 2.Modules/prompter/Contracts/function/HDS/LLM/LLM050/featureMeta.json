@@ -1,0 +1,46 @@
+{
+    "Header": {
+        "ApplicationID": "HDS",
+        "ProjectID": "LLM",
+        "TransactionID": "LLM050",
+        "DataSourceID": "DB01",
+        "LanguageType": "csharp",
+        "ReferenceModuleID": "prompter",
+        "Configuration": {
+            "OpenAIModelId": "gpt-5.4-mini",
+            "OpenAIApiKey": "[sk-proj-API...키]"
+        },
+        "Use": true,
+        "Description": "업무 Harness 기반 codex exec 프롬프트 실행 후 결과 확인"
+    },
+    "Commands": [
+        {
+            "ID": "GF01",
+            "Seq": 0,
+            "Use": true,
+            "Timeout": 0,
+            "Description": "시맨틱 커널 호출 테스트",
+            "ModifiedAt": "2023-07-10 00:00:00",
+            "Params": [
+                {
+                    "ID": "UserWorkID",
+                    "Type": "String",
+                    "Length": 36,
+                    "Value": null
+                },
+                {
+                    "ID": "ApplicationID",
+                    "Type": "String",
+                    "Length": 36,
+                    "Value": null
+                },
+                {
+                    "ID": "Prompt",
+                    "Type": "String",
+                    "Length": -1,
+                    "Value": null
+                }
+            ]
+        }
+    ]
+}

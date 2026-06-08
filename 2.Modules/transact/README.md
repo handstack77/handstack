@@ -86,7 +86,7 @@
 
 ### 일회성 Workflow 헤더 예
 ```http
-X-Workflow-Contract: {"ServiceID":"GW01","Authorize":false,"ReturnType":"Json","CommandType":"W","TransactionScope":false,"WorkflowSteps":[{"StepID":"searchIntent","IncludeResult":false,"CommandType":"P","TransactionProjectID":"MOD","TransactionID":"MOD010","ServiceID":"GP01","ReturnType":"Json","OutputMappings":[{"SourceFieldID":"PromptResult","TargetFieldID":"UserIntent","Required":true}],"Assertions":[{"Assert":"NotEmpty","Collection":{"Source":"Step","FieldID":"UserIntent"},"Message":"UserIntent 값이 비어 있습니다"}]},{"StepID":"searchIntentID","CommandType":"P","TransactionProjectID":"MOD","TransactionID":"MOD010","ServiceID":"GP02","ReturnType":"Json","InputMappings":[{"Source":"Step","SourceStepID":"searchIntent","SourceFieldID":"UserIntent","TargetFieldID":"UserIntent","Required":true}]}]}
+X-Workflow-Contract: {"ServiceID":"GW01","Authorize":false,"ReturnType":"Json","CommandType":"W","TransactionScope":false,"WorkflowSteps":[{"StepID":"searchIntent","IncludeResult":false,"CommandType":"P","TransactionProjectID":"MOD","TransactionID":"MOD010","ServiceID":"GP01","ReturnType":"Json","OutputMappings":[{"SourceFieldID":"PromptResult","TargetFieldID":"UserIntent","Required":true}],"Assertions":[{"Assert":"NotEmpty","Collection":{"Source":"Step","FieldID":"UserIntent"},"Message":"UserIntent 값이 비어 있습니다"}]},{"StepID":"searchIntentID","CommandType":"P","TransactionProjectID":"MOD","TransactionID":"MOD010","ServiceID":"GP02","ReturnType":"Json","InputMappings":[{"SourceStepID":"searchIntent","SourceFieldID":"UserIntent","TargetFieldID":"UserIntent","Required":true}]}]}
 ```
 
 BearerToken의 `Policy.Claims` 예:
@@ -100,8 +100,8 @@ BearerToken의 `Policy.Claims` 예:
 ### 입력 매핑
 - 각 단계는 직전 단계까지 유지된 `payLoad.dataMapSet`과 `dataMapCount`를 기본 입력으로 전달합니다.
 - `InputMappings`가 있으면 기존 `PayLoad`를 유지한 상태에서 매핑 결과를 `TargetInputIndex`와 `TargetFieldID` 위치에 추가하거나 덮어씁니다.
-- `Source`가 비어 있으면 현재 단계까지 유지된 `PayLoad`에서 값을 찾습니다.
-- `Source`가 `Step`이거나 `SourceStepID`가 있으면 이전 단계 결과에서 값을 찾습니다.
+- `SourceStepID`가 비어 있으면 현재 단계까지 유지된 `PayLoad`에서 값을 찾습니다.
+- `SourceStepID`가 있으면 해당 이전 단계 결과에서 값을 찾습니다.
 - `SourceFieldID`는 대소문자를 구분하지 않습니다. 값이 객체이거나 객체 배열이면 `FieldID.Property` 또는 `Property` 형태로도 참조할 수 있습니다.
 - `TargetFieldID`가 비어 있으면 `SourceFieldID`를 단계 입력 필드명으로 사용합니다.
 - `TargetInputIndex`는 대상 서비스의 `Inputs` 배열 위치입니다. 음수는 0으로 처리합니다.
@@ -336,7 +336,6 @@ BearerToken의 `Policy.Claims` 예:
       "ReturnType": "Json",
       "InputMappings": [
         {
-          "Source": "Step",
           "SourceStepID": "loadServerTime",
           "SourceFieldID": "ServerName",
           "TargetFieldID": "ServerName",

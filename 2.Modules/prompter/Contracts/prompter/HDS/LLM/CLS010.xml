@@ -45,7 +45,7 @@ SYSTEM: Intent:
 ASSISTANT:
 			]]>
             <param id="@UserMessage" type="String" length="-1" value="" />
-            <outputmeta value="PromptResult:string" />
+            <outputmeta value="PromptResult:string;ToolIndent:string;ResultIndent:string" />
         </statement>
     </prompts>
 </mapper>

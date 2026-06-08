@@ -36,6 +36,8 @@ namespace prompter.DataClient
 {
     public class PromptClient : IPromptClient
     {
+        private const string FallbackPromptResultFieldID = "PromptResult";
+
         private ILogger logger { get; }
 
         private PromptLoggerClient loggerClient { get; }
@@ -441,6 +443,7 @@ namespace prompter.DataClient
 
                         var llmRequest = CreateLLMChatRequest(transactionDynamicObject.Value, promptMap, dynamicObject, promptMessages, tools);
                         var assistantMessage = await ExecuteLLMChatAsync(llmRequest, promptMap.Tools.MaxRounds, tools);
+                        var promptResultFieldIDs = GetPromptResultFieldIDs(promptMap);
 
                         chatHistory.Add(new LLMChatMessage("user", userMessage));
                         chatHistory.Add(new LLMChatMessage("assistant", assistantMessage));
@@ -456,43 +459,18 @@ namespace prompter.DataClient
                         if (dsTransactionResult == null)
                         {
                             dsTransactionResult = new DataSet();
-                            var dataTableBuilder = new DataTableHelper("FormData0");
-                            dataTableBuilder.AddColumn("PromptResult", typeof(string));
-                            dataTableBuilder.NewRow();
-                            dataTableBuilder.SetValue(0, 0, assistantMessage);
-
-                            dsTransactionResult.Tables.Add(dataTableBuilder.GetDataTable());
+                            dsTransactionResult.Tables.Add(CreatePromptResultDataTable(promptResultFieldIDs, assistantMessage));
                         }
                         else if (dsTransactionResult != null && dsTransactionResult.Tables["FormData0"] == null)
                         {
-                            var dataTableBuilder = new DataTableHelper("FormData0");
-                            dataTableBuilder.AddColumn("PromptResult", typeof(string));
-                            dataTableBuilder.NewRow();
-                            dataTableBuilder.SetValue(0, 0, assistantMessage);
-
-                            dsTransactionResult.Tables.Add(dataTableBuilder.GetDataTable());
+                            dsTransactionResult.Tables.Add(CreatePromptResultDataTable(promptResultFieldIDs, assistantMessage));
                         }
                         else if (dsTransactionResult != null && dsTransactionResult.Tables["FormData0"] != null)
                         {
-                            var dataTableBuilder = new DataTableHelper("FormData0");
                             var dataTable = dsTransactionResult.Tables["FormData0"];
                             if (dataTable != null)
                             {
-                                if (dataTable.Columns.Contains("PromptResult") == false)
-                                {
-                                    dataTable.Columns.Add("PromptResult", typeof(string));
-                                }
-
-                                if (dataTable.Rows.Count > 0)
-                                {
-                                    dataTable.Rows[0]["PromptResult"] = assistantMessage;
-                                }
-                                else
-                                {
-                                    var row = dataTable.NewRow();
-                                    row["PromptResult"] = assistantMessage;
-                                    dataTable.Rows.Add(row);
-                                }
+                                SetPromptResultValues(dataTable, promptResultFieldIDs, assistantMessage);
                             }
                         }
 
@@ -735,6 +713,89 @@ TransactionException:
                     logger.Error("[{LogCategory}] [{GlobalID}] " + response.ExceptionText, "PromptClient/ExecuteDynamicPromptMap", request.GlobalID);
                 }
             }
+        }
+
+        private static DataTable CreatePromptResultDataTable(IReadOnlyList<string> fieldIDs, string assistantMessage)
+        {
+            var dataTable = new DataTable("FormData0");
+            foreach (var fieldID in fieldIDs)
+            {
+                dataTable.Columns.Add(fieldID, typeof(string));
+            }
+
+            var row = dataTable.NewRow();
+            foreach (var fieldID in fieldIDs)
+            {
+                row[fieldID] = assistantMessage;
+            }
+
+            dataTable.Rows.Add(row);
+            return dataTable;
+        }
+
+        private static void SetPromptResultValues(DataTable dataTable, IReadOnlyList<string> fieldIDs, string assistantMessage)
+        {
+            foreach (var fieldID in fieldIDs)
+            {
+                if (dataTable.Columns.Contains(fieldID) == false)
+                {
+                    dataTable.Columns.Add(fieldID, typeof(string));
+                }
+            }
+
+            var row = dataTable.Rows.Count > 0 ? dataTable.Rows[0] : dataTable.NewRow();
+            foreach (var fieldID in fieldIDs)
+            {
+                row[fieldID] = assistantMessage;
+            }
+
+            if (dataTable.Rows.Count == 0)
+            {
+                dataTable.Rows.Add(row);
+            }
+        }
+
+        private static List<string> GetPromptResultFieldIDs(PromptMap promptMap)
+        {
+            var result = new List<string>();
+            var outputMetas = promptMap.OutputMetas ?? new List<string>();
+            foreach (var outputMeta in outputMetas)
+            {
+                foreach (var outputMetaPart in outputMeta.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+                {
+                    var fieldID = GetOutputMetaFieldID(outputMetaPart);
+                    if (string.IsNullOrWhiteSpace(fieldID) == false && result.Contains(fieldID, StringComparer.OrdinalIgnoreCase) == false)
+                    {
+                        result.Add(fieldID);
+                    }
+                }
+            }
+
+            if (result.Count == 0)
+            {
+                result.Add(GetDefaultPromptResultFieldID());
+            }
+
+            return result;
+        }
+
+        private static string GetOutputMetaFieldID(string outputMeta)
+        {
+            if (string.IsNullOrWhiteSpace(outputMeta) == true)
+            {
+                return "";
+            }
+
+            var separatorIndex = outputMeta.IndexOf(':');
+            var fieldID = separatorIndex < 0 ? outputMeta : outputMeta.Substring(0, separatorIndex);
+            return fieldID.Trim();
+        }
+
+        private static string GetDefaultPromptResultFieldID()
+        {
+            return string.IsNullOrWhiteSpace(ModuleConfiguration.DefaultPromptResultFieldID) == true
+                ? FallbackPromptResultFieldID
+                : ModuleConfiguration.DefaultPromptResultFieldID.Trim();
         }
 
         private async Task<string> ExecuteLLMChatAsync(LLMChatRequest llmRequest, int maxRounds, IReadOnlyList<LLMToolDefinition> tools)

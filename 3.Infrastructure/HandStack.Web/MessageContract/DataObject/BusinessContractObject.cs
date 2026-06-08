@@ -356,9 +356,6 @@ namespace HandStack.Web.MessageContract.DataObject
 
     public class WorkflowFieldMapping
     {
-        [JsonProperty("Source")]
-        public string Source { get; set; }
-
         [JsonProperty("SourceStepID")]
         public string SourceStepID { get; set; }
 
@@ -385,7 +382,6 @@ namespace HandStack.Web.MessageContract.DataObject
 
         public WorkflowFieldMapping()
         {
-            Source = "";
             SourceStepID = "";
             SourceFieldID = "";
             TargetFieldID = "";

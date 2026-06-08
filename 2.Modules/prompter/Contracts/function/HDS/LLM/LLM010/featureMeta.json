@@ -1,0 +1,47 @@
+{
+    "Header": {
+        "ApplicationID": "HDS",
+        "ProjectID": "LLM",
+        "TransactionID": "LLM010",
+        "DataSourceID": "DB01",
+        "LanguageType": "csharp",
+        "ReferenceModuleID": "prompter",
+        "Configuration": {
+            "OpenAIModelId": "gpt-5.4-mini",
+            "OpenAIApiKey": "[sk-proj-API...키]",
+            "FewShots": []
+        },
+        "Use": true,
+        "Description": "FAQ: 업무별 자주 묻는 질문, SQL 생성 도움 도구, 업무 화면 바로가기 제안, 화면/기능/업무 매뉴얼내 검색 등등 결과 데이터 기반 프롬프트 처리"
+    },
+    "Commands": [
+        {
+            "ID": "GF01",
+            "Seq": 0,
+            "Use": true,
+            "Timeout": 0,
+            "Description": "ZeroShot 프롬프트 LLM 호출",
+            "ModifiedAt": "2023-07-10 00:00:00",
+            "Params": [
+                {
+                    "ID": "UserWorkID",
+                    "Type": "String",
+                    "Length": 36,
+                    "Value": null
+                },
+                {
+                    "ID": "ApplicationID",
+                    "Type": "String",
+                    "Length": 36,
+                    "Value": null
+                },
+                {
+                    "ID": "Prompt",
+                    "Type": "String",
+                    "Length": -1,
+                    "Value": null
+                }
+            ]
+        }
+    ]
+}

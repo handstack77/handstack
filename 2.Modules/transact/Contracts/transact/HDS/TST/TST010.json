@@ -58,7 +58,6 @@
                     "ReturnType": "Json",
                     "InputMappings": [
                         {
-                            "Source": "Step",
                             "SourceStepID": "loadServerTime",
                             "SourceFieldID": "ServerName",
                             "TargetFieldID": "ServerName",

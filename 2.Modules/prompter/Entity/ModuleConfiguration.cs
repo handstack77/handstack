@@ -25,6 +25,7 @@ namespace prompter.Entity
         public static bool IsApiFindServer = false;
         public static bool IsTransactionLogging = false;
         public static bool IsChatHistoryConsoleShow = false;
+        public static string DefaultPromptResultFieldID = "PromptResult";
         public static string ModuleLogFilePath = "";
         public static bool IsLogServer = false;
         public static string LogServerUrl = "";
