@@ -243,7 +243,7 @@ Ollama endpoint는 `http://localhost:11434`처럼 base URL을 입력하면 내�
 
 ## 프롬프트 계약
 
-prompter 계약은 `<commands>`를 사용하지 않습니다. 루트 실행 컨테이너는 `<prompts>`이고 로더는 `//prompts/statement`만 읽습니다. 기존 `PromptMap`, `Prompt`, `StatementID` 명칭과 HandStack 거래 서비스의 `CommandType: "P"` 및 외부 QueryID 규칙은 유지됩니다.
+prompter 계약은 `//prompts/statement`만 읽습니다. 기존 `PromptMap`, `Prompt`, `StatementID` 명칭과 HandStack 거래 서비스의 `CommandType: "P"` 및 외부 QueryID 규칙은 유지됩니다.
 
 ```xml
 <prompts>
