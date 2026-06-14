@@ -135,6 +135,18 @@ namespace prompter
                             }
                         }
 
+                        ModuleConfiguration.AllowedBuiltinTools.Clear();
+                        if (moduleConfig.AllowedBuiltinTools != null && moduleConfig.AllowedBuiltinTools.Count > 0)
+                        {
+                            foreach (var item in moduleConfig.AllowedBuiltinTools)
+                            {
+                                if (string.IsNullOrWhiteSpace(item) == false)
+                                {
+                                    ModuleConfiguration.AllowedBuiltinTools.Add(item.Trim());
+                                }
+                            }
+                        }
+
                         ModuleConfiguration.AllowedBodyFileBasePaths.Clear();
                         if (moduleConfig.AllowedBodyFileBasePaths != null && moduleConfig.AllowedBodyFileBasePaths.Count > 0)
                         {
@@ -143,6 +155,28 @@ namespace prompter
                                 ModuleConfiguration.AllowedBodyFileBasePaths.Add(GlobalConfiguration.GetBaseDirectoryPath(item, module.BasePath));
                             }
                         }
+
+                        ModuleConfiguration.DriveBasePaths.Clear();
+                        if (moduleConfig.DriveBasePaths != null && moduleConfig.DriveBasePaths.Count > 0)
+                        {
+                            foreach (var item in moduleConfig.DriveBasePaths)
+                            {
+                                ModuleConfiguration.DriveBasePaths.Add(GlobalConfiguration.GetBaseDirectoryPath(item, module.BasePath));
+                            }
+                        }
+
+                        ModuleConfiguration.ImageGenerationDataSourceID = moduleConfig.ImageGenerationDataSourceID.ToStringSafe();
+                        ModuleConfiguration.ImageGenerationModelID = string.IsNullOrWhiteSpace(moduleConfig.ImageGenerationModelID) == true ? "gpt-image-1" : moduleConfig.ImageGenerationModelID;
+                        ModuleConfiguration.GeneratedImageBasePath = string.IsNullOrWhiteSpace(moduleConfig.GeneratedImageBasePath) == true
+                            ? GlobalConfiguration.GetBaseDirectoryPath("../modules/prompter/generated-images", module.BasePath)
+                            : GlobalConfiguration.GetBaseDirectoryPath(moduleConfig.GeneratedImageBasePath, module.BasePath);
+                        ModuleConfiguration.SkillBasePath = string.IsNullOrWhiteSpace(moduleConfig.SkillBasePath) == true
+                            ? GlobalConfiguration.GetBaseDirectoryPath("../modules/prompter/skills", module.BasePath)
+                            : GlobalConfiguration.GetBaseDirectoryPath(moduleConfig.SkillBasePath, module.BasePath);
+                        ModuleConfiguration.SkillsBaseUrl = string.IsNullOrWhiteSpace(moduleConfig.SkillsBaseUrl) == true ? "https://skills.sh" : moduleConfig.SkillsBaseUrl.TrimEnd('/');
+                        ModuleConfiguration.SkillsApiBearerToken = moduleConfig.SkillsApiBearerToken.ToStringSafe();
+                        ModuleConfiguration.EnableSkillSearch = moduleConfig.EnableSkillSearch;
+                        ModuleConfiguration.EnableSkillInstall = moduleConfig.EnableSkillInstall;
 
                         ModuleConfiguration.AllowClientIP = moduleConfig.AllowClientIP;
                         ModuleConfiguration.IsConfigure = true;
@@ -173,6 +207,7 @@ namespace prompter
                 services.AddTransient<GeminiChatClient>();
                 services.AddTransient<OllamaChatClient>();
                 services.AddSingleton<LLMChatClientFactory>();
+                services.AddSingleton<PromptBuiltinToolService>();
                 services.AddSingleton<PromptToolExecutor>();
                 services.AddTransient<IPromptClient, PromptClient>();
 

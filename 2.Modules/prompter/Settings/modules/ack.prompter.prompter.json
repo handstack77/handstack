@@ -49,6 +49,23 @@
         ],
         "AllowedMcpServers": [],
         "AllowedCliTools": [],
-        "AllowedBodyFileBasePaths": []
+        "AllowedBuiltinTools": [
+            "corpus_rag_search",
+            "generate_image",
+            "skill_search",
+            "skill_install"
+        ],
+        "AllowedBodyFileBasePaths": [],
+        "DriveBasePaths": [
+            "../modules/prompter/drive"
+        ],
+        "ImageGenerationDataSourceID": "LLM1",
+        "ImageGenerationModelID": "gpt-image-1",
+        "GeneratedImageBasePath": "../modules/prompter/generated-images",
+        "SkillBasePath": "../modules/prompter/skills",
+        "SkillsBaseUrl": "https://skills.sh",
+        "SkillsApiBearerToken": "",
+        "EnableSkillSearch": true,
+        "EnableSkillInstall": false
     }
 }

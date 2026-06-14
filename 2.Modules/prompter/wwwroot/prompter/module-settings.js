@@ -52,7 +52,24 @@ let $module_settings = {
                 ],
                 "AllowedMcpServers": [],
                 "AllowedCliTools": [],
-                "AllowedBodyFileBasePaths": []
+                "AllowedBuiltinTools": [
+                    "corpus_rag_search",
+                    "generate_image",
+                    "skill_search",
+                    "skill_install"
+                ],
+                "AllowedBodyFileBasePaths": [],
+                "DriveBasePaths": [
+                    "../modules/prompter/drive"
+                ],
+                "ImageGenerationDataSourceID": "LLM1",
+                "ImageGenerationModelID": "gpt-image-1",
+                "GeneratedImageBasePath": "../modules/prompter/generated-images",
+                "SkillBasePath": "../modules/prompter/skills",
+                "SkillsBaseUrl": "https://skills.sh",
+                "SkillsApiBearerToken": "",
+                "EnableSkillSearch": true,
+                "EnableSkillInstall": false
             }
         },
         moduleConfig: null
@@ -95,7 +112,17 @@ let $module_settings = {
                     AllowedKernelPlugins: $this.prop.moduleConfig.ModuleConfig.AllowedKernelPlugins || [],
                     AllowedMcpServers: $this.prop.moduleConfig.ModuleConfig.AllowedMcpServers || [],
                     AllowedCliTools: $this.prop.moduleConfig.ModuleConfig.AllowedCliTools || [],
-                    AllowedBodyFileBasePaths: $this.prop.moduleConfig.ModuleConfig.AllowedBodyFileBasePaths || []
+                    AllowedBuiltinTools: $this.prop.moduleConfig.ModuleConfig.AllowedBuiltinTools || [],
+                    AllowedBodyFileBasePaths: $this.prop.moduleConfig.ModuleConfig.AllowedBodyFileBasePaths || [],
+                    DriveBasePaths: $this.prop.moduleConfig.ModuleConfig.DriveBasePaths || [],
+                    ImageGenerationDataSourceID: $this.prop.moduleConfig.ModuleConfig.ImageGenerationDataSourceID || '',
+                    ImageGenerationModelID: $this.prop.moduleConfig.ModuleConfig.ImageGenerationModelID || 'gpt-image-1',
+                    GeneratedImageBasePath: $this.prop.moduleConfig.ModuleConfig.GeneratedImageBasePath || '',
+                    SkillBasePath: $this.prop.moduleConfig.ModuleConfig.SkillBasePath || '',
+                    SkillsBaseUrl: $this.prop.moduleConfig.ModuleConfig.SkillsBaseUrl || 'https://skills.sh',
+                    SkillsApiBearerToken: $this.prop.moduleConfig.ModuleConfig.SkillsApiBearerToken || '',
+                    EnableSkillSearch: $string.toBoolean($this.prop.moduleConfig.ModuleConfig.EnableSkillSearch),
+                    EnableSkillInstall: $string.toBoolean($this.prop.moduleConfig.ModuleConfig.EnableSkillInstall)
                 }, null, 4);
 
                 $this.method.sectionRender('MediatorAction');
@@ -125,7 +152,17 @@ let $module_settings = {
                     $this.prop.moduleConfig.ModuleConfig.AllowedKernelPlugins = toolSecurity.AllowedKernelPlugins || [];
                     $this.prop.moduleConfig.ModuleConfig.AllowedMcpServers = toolSecurity.AllowedMcpServers || [];
                     $this.prop.moduleConfig.ModuleConfig.AllowedCliTools = toolSecurity.AllowedCliTools || [];
+                    $this.prop.moduleConfig.ModuleConfig.AllowedBuiltinTools = toolSecurity.AllowedBuiltinTools || [];
                     $this.prop.moduleConfig.ModuleConfig.AllowedBodyFileBasePaths = toolSecurity.AllowedBodyFileBasePaths || [];
+                    $this.prop.moduleConfig.ModuleConfig.DriveBasePaths = toolSecurity.DriveBasePaths || [];
+                    $this.prop.moduleConfig.ModuleConfig.ImageGenerationDataSourceID = toolSecurity.ImageGenerationDataSourceID || '';
+                    $this.prop.moduleConfig.ModuleConfig.ImageGenerationModelID = toolSecurity.ImageGenerationModelID || 'gpt-image-1';
+                    $this.prop.moduleConfig.ModuleConfig.GeneratedImageBasePath = toolSecurity.GeneratedImageBasePath || '';
+                    $this.prop.moduleConfig.ModuleConfig.SkillBasePath = toolSecurity.SkillBasePath || '';
+                    $this.prop.moduleConfig.ModuleConfig.SkillsBaseUrl = toolSecurity.SkillsBaseUrl || 'https://skills.sh';
+                    $this.prop.moduleConfig.ModuleConfig.SkillsApiBearerToken = toolSecurity.SkillsApiBearerToken || '';
+                    $this.prop.moduleConfig.ModuleConfig.EnableSkillSearch = $string.toBoolean(toolSecurity.EnableSkillSearch);
+                    $this.prop.moduleConfig.ModuleConfig.EnableSkillInstall = $string.toBoolean(toolSecurity.EnableSkillInstall);
 
                     syn.$l.get('txtJsonView').value = JSON.stringify($this.prop.moduleConfig, null, 4);
                 } catch (error) {

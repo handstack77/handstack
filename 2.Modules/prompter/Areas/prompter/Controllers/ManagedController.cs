@@ -2,16 +2,14 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 using HandStack.Core.ExtensionMethod;
 using HandStack.Web;
 using HandStack.Web.Common;
 using HandStack.Web.Entity;
 using HandStack.Web.Extensions;
-
-using HtmlAgilityPack;
 
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Hosting;
@@ -21,8 +19,8 @@ using Microsoft.Extensions.Configuration;
 
 using Newtonsoft.Json;
 
+using prompter.DataClient;
 using prompter.Entity;
-using prompter.Enumeration;
 using prompter.Extensions;
 
 using Serilog;
@@ -38,12 +36,14 @@ namespace prompter.Areas.prompter.Controllers
         private ILogger logger { get; }
         private IConfiguration configuration { get; }
         private IWebHostEnvironment environment { get; }
+        private PromptBuiltinToolService builtinToolService { get; }
 
-        public ManagedController(IWebHostEnvironment environment, ILogger logger, IConfiguration configuration)
+        public ManagedController(IWebHostEnvironment environment, ILogger logger, IConfiguration configuration, PromptBuiltinToolService builtinToolService)
         {
             this.configuration = configuration;
             this.environment = environment;
             this.logger = logger;
+            this.builtinToolService = builtinToolService;
         }
 
         // http://localhost:8421/prompter/api/managed/reset-contract
@@ -229,6 +229,56 @@ namespace prompter.Areas.prompter.Controllers
             return result;
         }
 
+        // http://localhost:8421/prompter/api/managed/skill-search?query=excel&limit=5
+        [HttpGet("skill-search")]
+        public async Task<ActionResult> SkillSearch(string query, int limit = 5)
+        {
+            ActionResult result = BadRequest();
+            if (HttpContext.IsAllowAuthorization() == false)
+            {
+                result = BadRequest();
+            }
+            else
+            {
+                try
+                {
+                    var response = await builtinToolService.SearchSkillsAsync(query, limit, HttpContext.RequestAborted);
+                    result = Content(response, "application/json");
+                }
+                catch (Exception exception)
+                {
+                    result = StatusCode(StatusCodes.Status500InternalServerError, exception.ToMessage());
+                }
+            }
+
+            return result;
+        }
+
+        // http://localhost:8421/prompter/api/managed/skill-install
+        [HttpPost("skill-install")]
+        public async Task<ActionResult> SkillInstall([FromBody] SkillInstallRequest request)
+        {
+            ActionResult result = BadRequest();
+            if (HttpContext.IsAllowAuthorization() == false)
+            {
+                result = BadRequest();
+            }
+            else
+            {
+                try
+                {
+                    var response = await builtinToolService.InstallSkillAsync(request?.ID.ToStringSafe() ?? "", HttpContext.RequestAborted);
+                    result = Content(response, "application/json");
+                }
+                catch (Exception exception)
+                {
+                    result = StatusCode(StatusCodes.Status500InternalServerError, exception.ToMessage());
+                }
+            }
+
+            return result;
+        }
+
         public static string ReplaceCData(string rawText)
         {
             var cdataRegex = new Regex("(<!\\[CDATA\\[)([\\s\\S]*?)(\\]\\]>)");
@@ -250,5 +300,10 @@ namespace prompter.Areas.prompter.Controllers
             }
             return rawText;
         }
+    }
+
+    public record SkillInstallRequest
+    {
+        public string ID { get; set; } = "";
     }
 }

@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using HandStack.Core.ExtensionMethod;
+using HandStack.Web.MessageContract.DataObject;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -24,6 +25,8 @@ namespace prompter.DataClient
 {
     public class PromptToolExecutor
     {
+        private readonly PromptBuiltinToolService builtinToolService;
+
         private static readonly Dictionary<string, Type> KernelPlugins = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase)
         {
             ["math"] = typeof(MathPlugin),
@@ -31,7 +34,17 @@ namespace prompter.DataClient
             ["text"] = typeof(TextPlugin)
         };
 
+        public PromptToolExecutor(PromptBuiltinToolService builtinToolService)
+        {
+            this.builtinToolService = builtinToolService;
+        }
+
         public List<LLMToolDefinition> BuildTools(PromptMap promptMap, ILogger logger)
+        {
+            return BuildTools(promptMap, null, logger);
+        }
+
+        public List<LLMToolDefinition> BuildTools(PromptMap promptMap, QueryObject? queryObject, ILogger logger)
         {
             var result = new List<LLMToolDefinition>();
             if (promptMap.Tools.Mode == "none" || promptMap.Tools.Items.Count == 0)
@@ -39,6 +52,7 @@ namespace prompter.DataClient
                 return result;
             }
 
+            var agentOptions = PromptAgentOptions.FromQueryObject(queryObject);
             foreach (var item in promptMap.Tools.Items)
             {
                 switch (item.Kind)
@@ -51,6 +65,9 @@ namespace prompter.DataClient
                         break;
                     case "mcp":
                         AddExternalTool(item, ModuleConfiguration.AllowedMcpServers, "mcp", result, logger);
+                        break;
+                    case "builtin":
+                        AddBuiltinTool(item, agentOptions, result, logger);
                         break;
                 }
             }
@@ -74,6 +91,8 @@ namespace prompter.DataClient
                     return await ExecuteCliToolAsync(externalTool, cancellationToken);
                 case ExternalToolBinding externalTool when externalTool.Kind == "mcp":
                     return await ExecuteMcpToolAsync(externalTool, toolCall.Arguments, cancellationToken);
+                case BuiltinToolBinding builtinTool:
+                    return await builtinToolService.ExecuteAsync(builtinTool.Name, toolCall.Arguments, builtinTool.AgentOptions, cancellationToken);
                 default:
                     throw new InvalidOperationException($"tool 실행 바인딩 확인 필요: {toolCall.FunctionName}");
             }
@@ -122,6 +141,49 @@ namespace prompter.DataClient
                     Source = new KernelToolBinding(declaration.Name, method.Name, pluginType, method)
                 });
             }
+        }
+
+        private static void AddBuiltinTool(PromptToolDeclaration declaration, PromptAgentOptions agentOptions, List<LLMToolDefinition> tools, ILogger logger)
+        {
+            var toolName = declaration.Name.ToStringSafe().Trim();
+            if (PromptBuiltinToolService.IsSupported(toolName) == false)
+            {
+                logger.Warning("[{LogCategory}] " + $"Built-in tool 미지원: {toolName}", "PromptToolExecutor/AddBuiltinTool");
+                return;
+            }
+
+            if (ModuleConfiguration.AllowedBuiltinTools.Any(item => string.Equals(item, toolName, StringComparison.OrdinalIgnoreCase)) == false)
+            {
+                logger.Warning("[{LogCategory}] " + $"Built-in tool allowlist 없음: {toolName}", "PromptToolExecutor/AddBuiltinTool");
+                return;
+            }
+
+            if (agentOptions.IsToolEnabled(toolName) == false)
+            {
+                return;
+            }
+
+            if (toolName == "skill_search" && ModuleConfiguration.EnableSkillSearch == false)
+            {
+                logger.Warning("[{LogCategory}] " + "skill_search module 설정 비활성화", "PromptToolExecutor/AddBuiltinTool");
+                return;
+            }
+
+            if (toolName == "skill_install" && ModuleConfiguration.EnableSkillInstall == false)
+            {
+                logger.Warning("[{LogCategory}] " + "skill_install module 설정 비활성화", "PromptToolExecutor/AddBuiltinTool");
+                return;
+            }
+
+            tools.Add(new LLMToolDefinition
+            {
+                Kind = "builtin",
+                FunctionName = SanitizeFunctionName(toolName),
+                DisplayName = toolName,
+                Description = PromptBuiltinToolService.GetDescription(toolName),
+                Parameters = PromptBuiltinToolService.BuildParameterSchema(toolName),
+                Source = new BuiltinToolBinding(toolName, agentOptions)
+            });
         }
 
         private static void AddExternalTool(PromptToolDeclaration declaration, List<AllowedExternalTool> allowlist, string kind, List<LLMToolDefinition> tools, ILogger logger)

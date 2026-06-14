@@ -33,7 +33,17 @@ namespace prompter.Entity
         public static List<AllowedKernelPlugin> AllowedKernelPlugins = new List<AllowedKernelPlugin>();
         public static List<AllowedExternalTool> AllowedMcpServers = new List<AllowedExternalTool>();
         public static List<AllowedExternalTool> AllowedCliTools = new List<AllowedExternalTool>();
+        public static List<string> AllowedBuiltinTools = new List<string>();
         public static List<string> AllowedBodyFileBasePaths = new List<string>();
+        public static List<string> DriveBasePaths = new List<string>();
+        public static string ImageGenerationDataSourceID = "";
+        public static string ImageGenerationModelID = "gpt-image-1";
+        public static string GeneratedImageBasePath = "";
+        public static string SkillBasePath = "";
+        public static string SkillsBaseUrl = "https://skills.sh";
+        public static string SkillsApiBearerToken = "";
+        public static bool EnableSkillSearch = false;
+        public static bool EnableSkillInstall = false;
         public static ConcurrentDictionary<string, byte> CacheKeys = new ConcurrentDictionary<string, byte>();
         public static ILogger? ModuleLogger = null;
     }

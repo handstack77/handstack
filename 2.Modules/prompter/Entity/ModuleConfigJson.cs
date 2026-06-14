@@ -49,7 +49,27 @@ namespace prompter.Entity
 
         public List<AllowedExternalTool> AllowedCliTools { get; set; }
 
+        public List<string> AllowedBuiltinTools { get; set; }
+
         public List<string> AllowedBodyFileBasePaths { get; set; }
+
+        public List<string> DriveBasePaths { get; set; }
+
+        public string ImageGenerationDataSourceID { get; set; }
+
+        public string ImageGenerationModelID { get; set; }
+
+        public string GeneratedImageBasePath { get; set; }
+
+        public string SkillBasePath { get; set; }
+
+        public string SkillsBaseUrl { get; set; }
+
+        public string SkillsApiBearerToken { get; set; }
+
+        public bool EnableSkillSearch { get; set; }
+
+        public bool EnableSkillInstall { get; set; }
 
         public List<string> AllowClientIP { get; set; }
 
@@ -72,7 +92,17 @@ namespace prompter.Entity
             AllowedKernelPlugins = new List<AllowedKernelPlugin>();
             AllowedMcpServers = new List<AllowedExternalTool>();
             AllowedCliTools = new List<AllowedExternalTool>();
+            AllowedBuiltinTools = new List<string>();
             AllowedBodyFileBasePaths = new List<string>();
+            DriveBasePaths = new List<string>();
+            ImageGenerationDataSourceID = "";
+            ImageGenerationModelID = "gpt-image-1";
+            GeneratedImageBasePath = "";
+            SkillBasePath = "";
+            SkillsBaseUrl = "https://skills.sh";
+            SkillsApiBearerToken = "";
+            EnableSkillSearch = false;
+            EnableSkillInstall = false;
             AllowClientIP = new List<string>() { "*" };
         }
     }

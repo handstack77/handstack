@@ -434,7 +434,7 @@ namespace prompter.DataClient
                         }
 
                         var userMessage = GetUserMessage(dynamicObject, parsePrompt);
-                        var tools = promptToolExecutor.BuildTools(promptMap, logger);
+                        var tools = promptToolExecutor.BuildTools(promptMap, dynamicObject, logger);
                         var promptRole = string.IsNullOrWhiteSpace(promptMap.Role) == true ? "system" : promptMap.Role;
                         var promptMessages = new List<LLMChatMessage>(chatHistory)
                         {

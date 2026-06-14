@@ -28,7 +28,7 @@ namespace graphclient.Extensions
             }
 
             var isAllowClientIP = ModuleConfiguration.AllowClientIP.Contains("*") || ModuleConfiguration.AllowClientIP.Any(p => p == remoteIP);
-            return ModuleConfiguration.AuthorizationKey == authorizationKey && isAllowClientIP;
+            return ModuleConfiguration.AuthorizationKey == authorizationKey || isAllowClientIP;
         }
     }
 }

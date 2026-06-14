@@ -234,7 +234,7 @@ namespace prompter.Extensions
             foreach (var childNode in toolsNode.ChildNodes.Where(item => item.NodeType == HtmlNodeType.Element))
             {
                 var kind = childNode.Name.ToLowerInvariant();
-                if (kind != "kernel" && kind != "mcp" && kind != "cli")
+                if (kind != "kernel" && kind != "mcp" && kind != "cli" && kind != "builtin")
                 {
                     continue;
                 }
