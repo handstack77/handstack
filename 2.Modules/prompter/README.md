@@ -279,6 +279,38 @@ ${UserMessage}
 </prompts>
 ```
 
+statement 본문은 단일 CDATA 프롬프트 또는 role별 `<message>` 목록으로 작성할 수 있습니다. `<message>`가 없으면 기존 방식처럼 statement의 CDATA와 동적 태그를 하나의 프롬프트로 조립하고, statement의 `role` 속성을 메시지 역할로 사용합니다. `<message>`가 있으면 statement 최상위 CDATA를 먼저 statement `role` 메시지로 추가한 뒤, `<message>` 노드를 XML 선언 순서대로 추가합니다.
+
+```xml
+<statement id="GP02" seq="0" use="Y" timeout="0" role="system" desc="역할별 프롬프트 실행">
+    <![CDATA[
+# INSTRUCTIONS
+- 한국어만 사용하세요.
+    ]]>
+    <message role="system">
+        <![CDATA[
+INTENTS: Question, Assertion, Declaration
+        ]]>
+    </message>
+    <message role="assistant">
+        <![CDATA[
+USER: 오늘 날씨는 어떤가요?
+ASSISTANT:
+Question
+        ]]>
+    </message>
+    <message role="user">
+        <![CDATA[
+USER: ${UserMessage}
+ASSISTANT:
+        ]]>
+    </message>
+    <param id="@UserMessage" type="String" length="-1" value="" />
+</statement>
+```
+
+위 예시는 LLM 요청 메시지를 `system`(statement CDATA) -> `system` -> `assistant` -> `user` 순서로 생성합니다. 각 message 본문에도 `${ParameterName}` 치환과 코드도움 치환식이 동일하게 적용됩니다. `CLS010`의 `GP02`는 이 방식으로 `LLM.CLS010.GP02` 거래에서 `UserMessage`를 role별 프롬프트의 마지막 user 메시지로 전달합니다.
+
 `tools`의 기본 mode는 `none`이고 `maxrounds` 기본값은 10입니다. KernelPlugin, MCP, CLI, built-in tool은 계약 선언과 module.json allowlist가 모두 일치할 때만 실행됩니다. file body는 path와 base64가 모두 있으면 path를 우선하며, path는 AllowedBodyFileBasePaths 아래에 있을 때만 읽습니다.
 
 Built-in tool은 추가로 요청 파라미터의 `AgentOptions` JSON에서 기능별 활성화 값이 true여야 모델에 노출됩니다. 예시는 다음과 같습니다.

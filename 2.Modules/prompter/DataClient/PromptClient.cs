@@ -408,8 +408,8 @@ namespace prompter.DataClient
                         }
 
                         AddOrUpdateRuntimeParameter(dynamicObject, "ChatHistory", string.Join("\n", chatHistory.Select(x => x.Role + ": " + x.Content)));
-                        var parsePrompt = PromptMapper.Find(promptMap, dynamicObject);
-                        parsePrompt = await ReplaceCodeHelpTemplatesAsync(parsePrompt, dynamicObject);
+                        var promptMessages = await CreatePromptMessagesAsync(promptMap, dynamicObject, chatHistory);
+                        var parsePrompt = string.Join(Environment.NewLine, promptMessages.Skip(chatHistory.Count).Select(item => item.Content));
                         if (string.IsNullOrEmpty(parsePrompt) == true || parsePrompt.Replace(Environment.NewLine, "").Replace("\t", "").Trim() == "")
                         {
                             if (ModuleConfiguration.IsTransactionLogging == true || promptMap.TransactionLog == true)
@@ -435,11 +435,6 @@ namespace prompter.DataClient
 
                         var userMessage = GetUserMessage(dynamicObject, parsePrompt);
                         var tools = promptToolExecutor.BuildTools(promptMap, dynamicObject, logger);
-                        var promptRole = string.IsNullOrWhiteSpace(promptMap.Role) == true ? "system" : promptMap.Role;
-                        var promptMessages = new List<LLMChatMessage>(chatHistory)
-                        {
-                            new LLMChatMessage(promptRole, parsePrompt)
-                        };
 
                         var llmRequest = CreateLLMChatRequest(transactionDynamicObject.Value, promptMap, dynamicObject, promptMessages, tools);
                         var assistantMessage = await ExecuteLLMChatAsync(llmRequest, promptMap.Tools.MaxRounds, tools);
@@ -1087,6 +1082,50 @@ TransactionException:
 
             result.Append(value, currentIndex, value.Length - currentIndex);
             return result.ToString();
+        }
+
+        private async Task<List<LLMChatMessage>> CreatePromptMessagesAsync(PromptMap promptMap, QueryObject queryObject, List<LLMChatMessage> chatHistory)
+        {
+            var result = new List<LLMChatMessage>(chatHistory);
+            var messageNodes = promptMap.Chidren.DocumentNode.SelectNodes("message");
+
+            if (messageNodes == null || messageNodes.Count == 0)
+            {
+                var parsePrompt = PromptMapper.Find(promptMap, queryObject);
+                parsePrompt = await ReplaceCodeHelpTemplatesAsync(parsePrompt, queryObject);
+                var promptRole = string.IsNullOrWhiteSpace(promptMap.Role) == true ? "system" : promptMap.Role;
+                result.Add(new LLMChatMessage(promptRole, parsePrompt));
+
+                return result;
+            }
+
+            var parameters = PromptMapper.ExtractParameters(queryObject);
+            var statementPrompt = await ReplaceCodeHelpTemplatesAsync(PromptMapper.Find(promptMap, queryObject), queryObject);
+            if (string.IsNullOrWhiteSpace(statementPrompt) == false)
+            {
+                var statementRole = string.IsNullOrWhiteSpace(promptMap.Role) == true ? "system" : promptMap.Role;
+                result.Add(new LLMChatMessage(statementRole, statementPrompt));
+            }
+
+            foreach (var messageNode in messageNodes)
+            {
+                var role = messageNode.Attributes["role"]?.Value.ToStringSafe();
+                if (string.IsNullOrWhiteSpace(role) == true)
+                {
+                    role = string.IsNullOrWhiteSpace(promptMap.Role) == true ? "system" : promptMap.Role;
+                }
+
+                var content = ReplaceStatementValue(messageNode.InnerText.ToStringSafe(), parameters);
+                content = await ReplaceCodeHelpTemplatesAsync(content, queryObject);
+                if (string.IsNullOrWhiteSpace(content) == true)
+                {
+                    continue;
+                }
+
+                result.Add(new LLMChatMessage(role, content));
+            }
+
+            return result;
         }
 
         private static List<(int StartIndex, int Length, string Expression, string Text)> ExtractCodeHelpTemplateExpressions(string value)

@@ -47,5 +47,51 @@ ASSISTANT:
             <param id="@UserMessage" type="String" length="-1" value="" />
             <outputmeta value="PromptResult:string;ToolIndent:string;ResultIndent:string" />
         </statement>
+
+        <statement id="GP02" seq="0" use="Y" timeout="0" role="system" desc="문장 대화의 의도를 파악" maxtokens="4000" temperature="1.0" topp="1.0" presence="0.0" frequency="0.0">
+            <![CDATA[
+# INSTRUCTIONS
+- 한국어만 사용하세요.
+- 이 요청의 의도는 무엇입니까?
+- 판단 근거를 설명하지 말고 의도만 응답하세요. 확실하지 않으면 Declaration으로 응답하세요.
+- 응답 결과에서 "Intent:" 문장은 제거하세요.
+- 당신은 Conversation Router입니다. 사람의 메시지를 기준으로 3가지 가능한 경로 중 하나를 결정해야 합니다.
+- 대화의 성격에 따라 사용자의 의도와 정보 전달 방식이 달라집니다. 이를 이해하고 적절하게 응답해야 합니다.
+- 질의 맥락에 나타나지 않은 정보는 절대 추론하지 마세요.
+- 선택한 질의 유형으로만 답변하세요.
+			]]>
+            <message role="system">
+                <![CDATA[
+INTENTS: Question, Assertion, Declaration
+			]]>
+            </message>
+            <message role="assistant">
+                <![CDATA[
+USER: 무엇을 도와드릴까요?, 죄송하지만 지금은 문제가 있어 도와드릴 수 없습니다. 다른 도움은 무엇이 필요하신가요?, 오늘 날씨는 어떤가요?, 저녁으로 무엇을 추천하나요?, 가장 좋아하는 책은 무엇인가요? 이 요청들은 사용자가 현재 질문하려는 의도를 나타냅니다.
+SYSTEM: Intent:
+ASSISTANT:
+Question
+
+USER: 인공지능 기술은 미래 산업을 이끌 것입니다, 건강한 식습관은 우리의 건강에 큰 영향을 줍니다, 독서는 사고력을 향상시키는 데 도움이 됩니다. 이 요청은 사용자가 현재 주장하려는 의도를 나타냅니다.
+SYSTEM: Intent:
+ASSISTANT:
+Assertion
+
+USER: 오늘은 헬스장에 갈 예정이고, 내일은 친구들과 영화를 보러 갈 계획이며, 이번 주말에는 책을 읽으며 쉬려고 합니다. 이 요청은 사용자가 현재 선언하려는 의도를 나타냅니다.
+SYSTEM: Intent:
+ASSISTANT:
+Declaration
+			]]>
+            </message>
+            <message role="user">
+                <![CDATA[
+USER: ${UserMessage}
+SYSTEM: Intent:
+ASSISTANT:
+			]]>
+            </message>
+            <param id="@UserMessage" type="String" length="-1" value="" />
+            <outputmeta value="PromptResult:string;ToolIndent:string;ResultIndent:string" />
+        </statement>
     </prompts>
 </mapper>
