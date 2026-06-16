@@ -33,6 +33,10 @@ HandStack 솔루션은 다음과 같은 주요 프로젝트로 구성되어 있�
 - **3.Infrastructure**: `HandStack.Core`, `HandStack.Web`, `HandStack.Data` 등 공통 라이브러리 및 기반 프레임워크 프로젝트를 포함합니다. 애플리케이션 전반에서 사용되는 핵심 기능과 데이터 처리 관련 기능을 제공합니다.
 - **4.Tool**: `handstack`, `handsonapp`, `edgeproxy`, `excludedportrange`, `bundling` 등 개발 및 운영에 필요한 각종 유틸리티 및 CLI 도구 프로젝트를 포함합니다.
 
+### dbclient 계약 조건식 처리
+
+`dbclient`의 XML 계약에서 `<if test="...">`, `<bind value="...">`는 `DatabaseMapper`가 요청 파라미터를 Dynamic LINQ projection으로 변환한 뒤 평가합니다. 로그인 클레임처럼 `#http://schemas...` 형식의 파라미터 키는 Dynamic LINQ 식별자로 사용할 수 없으므로 조건식 projection 대상에서 제외됩니다. `#DepartmentID`, `#ManagerYN`처럼 식별자로 변환 가능한 `#` 접두 파라미터는 평가식에서 `$DepartmentID`, `$ManagerYN` 별칭으로 정규화되어 값이 유지됩니다.
+
 ## HandStack의 주요 특징
 
 - 비즈니스 앱은 HTML, Javascript, SQL 으로 풀 스택 개발 가능합니다.

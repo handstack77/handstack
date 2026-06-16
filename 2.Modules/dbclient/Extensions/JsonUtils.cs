@@ -135,11 +135,11 @@ namespace dbclient.Extensions
             switch (node.Type)
             {
                 case JTokenType.Object:
-                    ProcessObject(node, propertyName, lines);
+                    ProcessObject(node, path, propertyName, lines);
                     break;
 
                 case JTokenType.Array:
-                    ProcessArray(node, propertyName, lines);
+                    ProcessArray(node, path, propertyName, lines);
                     break;
 
                 default:
@@ -148,14 +148,21 @@ namespace dbclient.Extensions
             }
         }
 
-        private static void ProcessObject(JToken node, string? propertyName, List<string> lines)
+        private static void ProcessObject(JToken node, string? path, string? propertyName, List<string> lines)
         {
             var items = new List<string>();
             var text = new StringBuilder("new (");
 
             foreach (var child in node.Children<JProperty>().ToArray())
             {
-                WalkNode(child.Value, child.Path, child.Name, items);
+                var dynamicPropertyName = NormalizeDynamicPropertyName(child.Name);
+                if (string.IsNullOrWhiteSpace(dynamicPropertyName) == true || IsDynamicPropertyName(dynamicPropertyName) == false)
+                {
+                    continue;
+                }
+
+                var childPath = CreateDynamicIndexerPath(path ?? "it", child.Name);
+                WalkNode(child.Value, childPath, dynamicPropertyName, items);
             }
 
             text.Append(string.Join(", ", items));
@@ -169,7 +176,7 @@ namespace dbclient.Extensions
             lines.Add(text.ToString());
         }
 
-        private static void ProcessArray(JToken node, string? propertyName, List<string> lines)
+        private static void ProcessArray(JToken node, string? path, string? propertyName, List<string> lines)
         {
             var items = new List<string>();
             var text = new StringBuilder("(new [] { ");
@@ -177,7 +184,7 @@ namespace dbclient.Extensions
             var idx = 0;
             foreach (var child in node.Children().ToArray())
             {
-                WalkNode(child, $"{node.Path}[{idx}]", null, items);
+                WalkNode(child, $"{path ?? "it"}[{idx}]", null, items);
                 idx++;
             }
 
@@ -214,6 +221,41 @@ namespace dbclient.Extensions
             }
 
             lines.Add(castText);
+        }
+
+        private static string NormalizeDynamicPropertyName(string propertyName)
+        {
+            return propertyName.Replace("#", "$");
+        }
+
+        private static string CreateDynamicIndexerPath(string parentPath, string propertyName)
+        {
+            return $"{parentPath}[{JsonConvert.SerializeObject(propertyName)}]";
+        }
+
+        private static bool IsDynamicPropertyName(string propertyName)
+        {
+            if (string.IsNullOrWhiteSpace(propertyName) == true)
+            {
+                return false;
+            }
+
+            var firstCharacter = propertyName[0];
+            if (firstCharacter != '$' && firstCharacter != '_' && char.IsLetter(firstCharacter) == false)
+            {
+                return false;
+            }
+
+            for (var i = 1; i < propertyName.Length; i++)
+            {
+                var character = propertyName[i];
+                if (character != '$' && character != '_' && char.IsLetterOrDigit(character) == false)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 }

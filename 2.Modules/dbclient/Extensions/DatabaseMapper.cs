@@ -904,10 +904,10 @@ namespace dbclient.Extensions
             evalString = ReplaceEvalString(evalString, parameters);
             evalString = evalString.Replace(" and ", " && ");
             evalString = evalString.Replace(" or ", " || ");
-            var evalText = evalString.Replace("'", "\"");
+            var evalText = evalString.Replace("'", "\"").Replace("#", "$");
 
             var line = JsonUtils.GenerateDynamicLinqStatement(parameters);
-            var queryable = new[] { parameters }.AsQueryable().Select(line.Replace("#", "$"));
+            var queryable = new[] { parameters }.AsQueryable().Select(line);
             var evalResult = queryable.Any(evalText);
 
             var convertString = "";
@@ -927,11 +927,11 @@ namespace dbclient.Extensions
             var bindID = htmlNode.Attributes["name"].Value;
             var evalString = htmlNode.Attributes["value"].Value;
             evalString = ReplaceEvalString(evalString, parameters);
-            var evalText = evalString.Replace("'", "\"");
+            var evalText = evalString.Replace("'", "\"").Replace("#", "$");
 
             var evalResult = evalText;
             var line = JsonUtils.GenerateDynamicLinqStatement(parameters);
-            var queryable = new[] { parameters }.AsQueryable().Select(line.Replace("#", "$"));
+            var queryable = new[] { parameters }.AsQueryable().Select(line);
             var queryResult = queryable.Select<string>(evalText);
             if (queryResult.Any() == true)
             {
