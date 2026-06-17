@@ -57661,7 +57661,7 @@ ul.fancytree-container {
 }
 
 .aui-grid .column-readonly {
-    background-color: rgba(var(--tblr-muted-rgb), 0.02) !important;
+    background-color: rgba(var(--tblr-muted-rgb), 0.04) !important;
 }
 
 .aui-grid .column-important {
