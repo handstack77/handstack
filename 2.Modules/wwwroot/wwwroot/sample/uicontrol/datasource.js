@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 let $datasource = {
     prop: {
         metaColumns: {
@@ -31,7 +31,7 @@ let $datasource = {
                 "Custom3": "",
                 "SelectYN": false,
                 "SortingOrder": 1,
-                "UseYN": true,
+                "EnabledYN": true,
                 "Remark": "",
                 "CreateUserID": 0
             },
@@ -45,7 +45,7 @@ let $datasource = {
                 "Custom3": "",
                 "SelectYN": false,
                 "SortingOrder": 2,
-                "UseYN": true,
+                "EnabledYN": true,
                 "Remark": "",
                 "CreateUserID": 0
             }

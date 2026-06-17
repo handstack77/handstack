@@ -20,7 +20,7 @@ namespace HandStack.Web.MessageContract.DataObject
             UploadSizeLimit = 0;
             PolicyException = "";
             RedirectUrl = "";
-            UseYN = false;
+            EnabledYN = false;
             Comment = "";
             CreatePersonID = "";
             CreateDate = DateTime.Now;
@@ -53,7 +53,7 @@ namespace HandStack.Web.MessageContract.DataObject
 
         public string RedirectUrl { get; set; }
 
-        public bool UseYN { get; set; }
+        public bool EnabledYN { get; set; }
 
         public string Comment { get; set; }
 

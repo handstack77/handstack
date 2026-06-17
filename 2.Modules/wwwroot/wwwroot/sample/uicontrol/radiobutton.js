@@ -2,35 +2,35 @@
 let $radiobutton = {
     event: {
         btnGetValue_click() {
-            syn.$l.eventLog('btnGetValue_click', JSON.stringify(syn.uicontrols.$radio.getValue('rdoUseYN1')));
+            syn.$l.eventLog('btnGetValue_click', JSON.stringify(syn.uicontrols.$radio.getValue('rdoEnabledYN1')));
         },
 
         btnSetValue_click() {
-            syn.uicontrols.$radio.setValue('rdoUseYN1', true);
+            syn.uicontrols.$radio.setValue('rdoEnabledYN1', true);
         },
 
         btnClear_click() {
-            syn.uicontrols.$radio.clear('rdoUseYN1');
+            syn.uicontrols.$radio.clear('rdoEnabledYN1');
         },
 
         btnSelectedValue_click() {
-            syn.uicontrols.$radio.selectedValue('rdoUseYN', 'value 2');
+            syn.uicontrols.$radio.selectedValue('rdoEnabledYN', 'value 2');
         },
 
         btnGetGroupNames_click() {
             syn.$l.eventLog('btnGetGroupNames_click', JSON.stringify(syn.uicontrols.$radio.getGroupNames()));
         },
 
-        rdoUseYN1_change() {
-            console.log('rdoUseYN1_change');
+        rdoEnabledYN1_change() {
+            console.log('rdoEnabledYN1_change');
         },
 
-        rdoUseYN2_change() {
-            console.log('rdoUseYN2_change');
+        rdoEnabledYN2_change() {
+            console.log('rdoEnabledYN2_change');
         },
 
-        rdoUseYN3_change() {
-            console.log('rdoUseYN3_change');
+        rdoEnabledYN3_change() {
+            console.log('rdoEnabledYN3_change');
         }
     }
 }

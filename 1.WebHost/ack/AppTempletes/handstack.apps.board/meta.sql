@@ -137,14 +137,14 @@ INSERT INTO BaseCode (GroupCode,CodeID,CodeValue,CategoryID,Value1,Value2,Value3
 	 ('SYS016','2','프로그램','system',NULL,NULL,NULL,NULL,NULL,NULL,3,'system',DATETIME('NOW', 'localtime'));
 
 -- 코드도움
-INSERT INTO CodeHelp (CodeHelpID,DataSourceID,CodeHelpName,CommandText,CodeColumnID,ValueColumnID,UseYN,Comment,CreatedMemberNo,CreatedAt) VALUES
+INSERT INTO CodeHelp (CodeHelpID,DataSourceID,CodeHelpName,CommandText,CodeColumnID,ValueColumnID,EnabledYN,Comment,CreatedMemberNo,CreatedAt) VALUES
      ('CHP001','CHECKUPDB','기초코드','SELECT BC.CodeID
        , BC.CodeValue
 FROM   BaseCode BC
 WHERE  BC.GroupCode = @GroupCode
 ORDER  BY BC.SortingNo;','CodeID','CodeValue','Y','기초코드 데이터','system',DATETIME('NOW', 'localtime'));
 
-INSERT INTO CodeHelp (CodeHelpID,DataSourceID,CodeHelpName,CommandText,CodeColumnID,ValueColumnID,UseYN,Comment,CreatedMemberNo,CreatedAt) VALUES
+INSERT INTO CodeHelp (CodeHelpID,DataSourceID,CodeHelpName,CommandText,CodeColumnID,ValueColumnID,EnabledYN,Comment,CreatedMemberNo,CreatedAt) VALUES
 	 ('CHP014','CHECKUPDB','태넌트 엔티티 정보','SELECT ME.EntityNo
     , ME.EntityID || '' ['' || ME.EntityName || '']'' AS EntityName
 	, ME.Acronyms

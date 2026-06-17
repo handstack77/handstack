@@ -307,7 +307,7 @@ CREATE TABLE IF NOT EXISTS "CodeHelp" (
     "ValueColumnID" TEXT NULL,
 
     -- 사용여부
-    "UseYN" TEXT NULL,
+    "EnabledYN" TEXT NULL,
 
     -- 설명
     "Comment" TEXT NULL,
@@ -935,7 +935,7 @@ CREATE TABLE IF NOT EXISTS "CodeHelp" (
     "ValueColumnID" TEXT NULL,
 
     -- 사용여부
-    "UseYN" TEXT NULL,
+    "EnabledYN" TEXT NULL,
 
     -- 설명
     "Comment" TEXT NULL,
@@ -948,14 +948,14 @@ CREATE TABLE IF NOT EXISTS "CodeHelp" (
 );
 
 /*
-INSERT INTO CodeHelp (CodeHelpID,DataSourceID,CodeHelpName,CommandText,CodeColumnID,ValueColumnID,UseYN,Comment,CreatedMemberNo,CreatedAt) VALUES
+INSERT INTO CodeHelp (CodeHelpID,DataSourceID,CodeHelpName,CommandText,CodeColumnID,ValueColumnID,EnabledYN,Comment,CreatedMemberNo,CreatedAt) VALUES
      ('CHP001','CHECKUPDB','기초코드','SELECT BC.CodeID
        , BC.CodeValue
 FROM   BaseCode BC
 WHERE  BC.GroupCode = @GroupCode
 ORDER  BY BC.SortingNo;','CodeID','CodeValue','Y','기초코드 데이터','system',DATETIME('NOW', 'localtime'));
 
-INSERT INTO CodeHelp (CodeHelpID,DataSourceID,CodeHelpName,CommandText,CodeColumnID,ValueColumnID,UseYN,Comment,CreatedMemberNo,CreatedAt) VALUES
+INSERT INTO CodeHelp (CodeHelpID,DataSourceID,CodeHelpName,CommandText,CodeColumnID,ValueColumnID,EnabledYN,Comment,CreatedMemberNo,CreatedAt) VALUES
 	 ('CHP014','CHECKUPDB','태넌트 엔티티 정보','SELECT ME.EntityNo
     , ME.EntityID || ' [' || ME.EntityName || ']' AS EntityName
 	, ME.Acronyms
@@ -1021,7 +1021,7 @@ SELECT CH.CodeHelpID
        , CH.Comment
        , CH.CreatedAt
 FROM   CodeHelp CH
-WHERE  CH.UseYN = 'Y'
+WHERE  CH.EnabledYN = 'Y'
     AND CH.CodeHelpID = @CodeHelpID; 
 
 SELECT CHS.ColumnID
@@ -1029,7 +1029,7 @@ SELECT CHS.ColumnID
        , 'text' AS ColumnType
        , CHS.HiddenYN
 FROM   CodeHelp CH 
-       INNER JOIN CodeHelpScheme CHS ON CH.UseYN = 'Y' 
+       INNER JOIN CodeHelpScheme CHS ON CH.EnabledYN = 'Y' 
            AND CH.CodeHelpID = CHS.CodeHelpID
 WHERE  CH.CodeHelpID = @CodeHelpID
 ORDER  BY CHS.SortingNo; 

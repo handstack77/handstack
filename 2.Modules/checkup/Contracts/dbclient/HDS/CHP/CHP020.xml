@@ -17,7 +17,7 @@ SELECT CH.CodeHelpID
     , CH.CommandText
     , CH.CodeColumnID
     , CH.ValueColumnID
-    , CH.UseYN
+    , CH.EnabledYN
     , CH.Comment
     , CH.CreatedMemberNo
     , strftime('%Y-%m-%d', CH.CreatedAt) AS CreatedAt
@@ -55,7 +55,7 @@ INSERT INTO CodeHelp
     , CommandText
     , CodeColumnID
     , ValueColumnID
-    , UseYN
+    , EnabledYN
     , Comment
     , CreatedMemberNo
     , CreatedAt
@@ -80,7 +80,7 @@ VALUES
             <param id="@CommandText" type="String" length="-1" value="" />
             <param id="@CodeColumnID" type="String" length="20" value="" />
             <param id="@ValueColumnID" type="String" length="20" value="" />
-            <param id="@UseYN" type="String" length="1" value="" />
+            <param id="@EnabledYN" type="String" length="1" value="" />
             <param id="@Comment" type="String" length="1000" value="" />
             <param id="@CreatedMemberNo" type="String" length="36" value="" />
         </statement>
@@ -102,7 +102,7 @@ UPDATE CodeHelp SET DataSourceID = @DataSourceID
     , CommandText = @CommandText
     , CodeColumnID = @CodeColumnID
     , ValueColumnID = @ValueColumnID
-    , UseYN = @UseYN
+    , EnabledYN = @EnabledYN
     , Comment = @Comment
     , CreatedAt = DATETIME('now', 'localtime')
 WHERE CodeHelpID = @CodeHelpID;
@@ -114,7 +114,7 @@ WHERE CodeHelpID = @CodeHelpID;
             <param id="@CommandText" type="String" length="-1" value="" />
             <param id="@CodeColumnID" type="String" length="20" value="" />
             <param id="@ValueColumnID" type="String" length="20" value="" />
-            <param id="@UseYN" type="String" length="1" value="" />
+            <param id="@EnabledYN" type="String" length="1" value="" />
             <param id="@Comment" type="String" length="1000" value="" />
             <param id="@CreatedMemberNo" type="String" length="36" value="" />
         </statement>

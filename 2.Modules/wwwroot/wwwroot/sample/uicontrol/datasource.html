@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8">
@@ -36,7 +36,7 @@ getControl: function (elID) - elID의 DataTable 기본 객체 반환
                     { data: 'CodeGroupName', dataType: 'string', belongID: ['LD02', 'MD01'] },
                     { data: 'Description.', dataType: 'string', belongID: ['LD02', 'MD01'] },
                     { data: 'Custom1 date', dataType: 'string', belongID: ['LD02', 'MD01'] },
-                    { data: 'UseYN', dataType: 'string', belongID: ['LD02', 'MD01'] },
+                    { data: 'EnabledYN', dataType: 'string', belongID: ['LD02', 'MD01'] },
                     { data: 'CreatePersonID', dataType: 'string', belongID: ['LD02', 'MD01'] },
                     { data: 'CreateDateTime', dataType: 'string', belongID: ['LD02', 'MD01'] }
 				]
@@ -54,7 +54,7 @@ getControl: function (elID) - elID의 DataTable 기본 객체 반환
                     { data: 'Custom3', dataType: 'string' },
                     { data: 'SelectYN', dataType: 'bool' },
                     { data: 'SortingOrder', dataType: 'number' },
-                    { data: 'UseYN', dataType: 'bool' },
+                    { data: 'EnabledYN', dataType: 'bool' },
                     { data: 'Remark', dataType: 'string' },
                     { data: 'CreateUserID', dataType: 'number' },
                     { data: 'CreateDateTime', dataType: 'string' }
@@ -96,7 +96,7 @@ getControl: function (elID) - elID의 DataTable 기본 객체 반환
             <input type="text" id="txtCustom1" syn-datafield="Custom1" />
             <input type="text" id="txtCustom2" syn-datafield="Custom2" />
             <input type="text" id="txtCustom3" syn-datafield="Custom3" />
-            <input type="checkbox" id="chkUseYN" syn-datafield="UseYN" />
+            <input type="checkbox" id="chkEnabledYN" syn-datafield="EnabledYN" />
             <input type="text" id="txtCreatePersonID" syn-datafield="CreatePersonID" />
             <input type="text" id="txtCreateDateTime" syn-datafield="CreateDateTime" />
         </div>

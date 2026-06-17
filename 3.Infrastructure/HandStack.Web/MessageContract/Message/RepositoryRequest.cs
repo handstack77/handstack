@@ -13,7 +13,7 @@ namespace HandStack.Web.MessageContract.Message
             DependencyID = "";
             TemporaryID = "";
             ItemID = "";
-            UseYN = false;
+            EnabledYN = false;
             this.repositoryObject = new RepositoryObject();
             this.repositoryItemsObject = new List<RepositoryItemsObject>();
         }
@@ -28,7 +28,7 @@ namespace HandStack.Web.MessageContract.Message
 
         public string ItemID { get; set; }
 
-        public bool UseYN { get; set; }
+        public bool EnabledYN { get; set; }
 
         public RepositoryObject repositoryObject { get; set; }
 
