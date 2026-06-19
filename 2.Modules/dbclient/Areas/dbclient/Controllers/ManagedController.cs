@@ -163,9 +163,9 @@ namespace dbclient.Areas.dbclient.Controllers
                                                 statementMap.TransactionIsolationLevel = (header?.Element("isolation")?.InnerText).ToStringSafe();
                                                 statementMap.StatementID = item.Attributes["id"].Value + item.Attributes["seq"].Value.PadLeft(2, '0');
                                                 statementMap.Seq = item.Attributes["seq"].Value.ParseInt(0);
-                                                statementMap.Description = item.Attributes["desc"].Value;
+                                                statementMap.Description = item.Attributes["desc"] == null ? "" : item.Attributes["desc"].Value;
                                                 statementMap.NativeDataClient = item.Attributes["native"] == null ? false : item.Attributes["native"].Value.ParseBool();
-                                                statementMap.Timeout = item.Attributes["timeout"].Value.ParseInt(0);
+                                                statementMap.Timeout = item.Attributes["timeout"] == null ? 0 : item.Attributes["timeout"].Value.ParseInt(0);
                                                 statementMap.SQL = item.InnerHtml;
 
                                                 var beforetransaction = item.Attributes["before"]?.Value;
