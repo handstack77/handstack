@@ -894,7 +894,7 @@
                     module = await syn.$w.fetchScript(syn.$w.pageScript.replace('$', ''));
                 }
 
-                var mod = context[syn.$w.pageScript] || new syn.module();
+                var mod = new syn.module();
                 mod.config = {
                     programID: syn.Config.ApplicationID,
                     moduleID: (globalRoot.devicePlatform == 'browser' ? location.pathname.split('/').filter(Boolean)[0] : undefined) || syn.Config.ModuleID,

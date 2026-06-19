@@ -3738,13 +3738,6 @@ if (typeof module !== 'undefined' && module.exports) {
             }, {});
         },
 
-        toUrlObject(url) {
-            url = url || '';
-            return (url.match(/([^?=&]+)(=([^&]*))/g) || []).reduce(function (a, v) {
-                return a[v.slice(0, v.indexOf('='))] = v.slice(v.indexOf('=') + 1), a;
-            }, {});
-        },
-
         toBoolean(val) {
             if (context.$object.isNullOrUndefined(val) == true) {
                 return false;
@@ -7821,7 +7814,7 @@ if (typeof module !== 'undefined' && module.exports) {
                     module = await syn.$w.fetchScript(syn.$w.pageScript.replace('$', ''));
                 }
 
-                var mod = context[syn.$w.pageScript] || new syn.module();
+                var mod = new syn.module();
                 mod.config = {
                     programID: syn.Config.ApplicationID,
                     moduleID: (globalRoot.devicePlatform == 'browser' ? location.pathname.split('/').filter(Boolean)[0] : undefined) || syn.Config.ModuleID,
