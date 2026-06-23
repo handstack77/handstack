@@ -786,27 +786,34 @@ namespace handstack
                         break;
                     case "suid":
                         ISequentialIdGenerator sequentialIdGenerator = new SequentialIdGenerator();
-                        switch (value)
+                        var count = int.TryParse(options, out var parsedCount) == true && parsedCount > 0 ? parsedCount : 1;
+                        var list = new List<string>();
+                        for (var i = 0; i < count; i++)
                         {
-                            case "N":
-                                Log.Information($"{sequentialIdGenerator.NewId():N}");
-                                break;
-                            case "D":
-                                Log.Information($"{sequentialIdGenerator.NewId():D}");
-                                break;
-                            case "B":
-                                Log.Information($"{sequentialIdGenerator.NewId():B}");
-                                break;
-                            case "P":
-                                Log.Information($"{sequentialIdGenerator.NewId():P}");
-                                break;
-                            case "X":
-                                Log.Information($"{sequentialIdGenerator.NewId():X}");
-                                break;
-                            default:
-                                Log.Information($"{sequentialIdGenerator.NewId()}");
-                                break;
+                            switch (value)
+                            {
+                                case "N":
+                                    list.Add(sequentialIdGenerator.NewId().ToString("N"));
+                                    break;
+                                case "D":
+                                    list.Add(sequentialIdGenerator.NewId().ToString("D"));
+                                    break;
+                                case "B":
+                                    list.Add(sequentialIdGenerator.NewId().ToString("B"));
+                                    break;
+                                case "P":
+                                    list.Add(sequentialIdGenerator.NewId().ToString("P"));
+                                    break;
+                                case "X":
+                                    list.Add(sequentialIdGenerator.NewId().ToString("X"));
+                                    break;
+                                default:
+                                    list.Add(sequentialIdGenerator.NewId().ToString());
+                                    break;
+                            }
                         }
+
+                        Log.Information(string.Join(Environment.NewLine, list));
                         break;
                     case "sqids":
                         key = string.IsNullOrWhiteSpace(key) == true ? "abcdefghijklmnopqrstuvwxyz1234567890" : key;

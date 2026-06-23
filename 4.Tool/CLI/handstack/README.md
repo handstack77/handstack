@@ -75,6 +75,7 @@ handstack <command> [options]
 추가 규칙:
 
 - `encrypt --format=base64`에서 `--options=string|file` 지원
+- `encrypt --format=suid`에서 `--options=count`로 여러 ID를 한 번에 출력
 - `sqids`는 `--key`를 alphabet으로 사용(미지정 시 기본 alphabet)
 
 ## 실행 예시
@@ -87,6 +88,7 @@ handstack stop --port=8421
 
 handstack encrypt --format=base64 --value="hello"
 handstack decrypt --format=base64 --value="aGVsbG8="
+handstack encrypt --format=suid --value=N --options=10
 handstack encrypt --format=connectionstring --value="Server=..."
 
 handstack compress --directory=C:/tmp/myapp --file=C:/tmp/myapp.zip
