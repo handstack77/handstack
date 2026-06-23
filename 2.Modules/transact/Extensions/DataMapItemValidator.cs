@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -8,7 +9,6 @@ using HandStack.Web.MessageContract.Contract;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-using Expression = NCalc.Expression;
 using HandStack.Core.ExtensionMethod;
 
 namespace transact.Extensions
@@ -61,7 +61,7 @@ namespace transact.Extensions
                         string condition = rule.SubstringSafe(0, ruleIndex).Trim();
                         string errorMessage = rule.SubstringSafe(ruleIndex + 1).Trim();
                         errorMessage = errorMessage.Trim('\'', '"');
-                        var evaluationResult = EvaluateWithNCalc(items, condition);
+                        var evaluationResult = EvaluateExpression(items, condition);
                         if (evaluationResult is bool boolResult && !boolResult)
                         {
                             result.IsValid = false;
@@ -106,125 +106,633 @@ namespace transact.Extensions
             return (true, string.Empty);
         }
 
-        private static object EvaluateWithNCalc(List<DataMapItem> items, string expression)
+        private static object? EvaluateExpression(List<DataMapItem> items, string expression)
         {
-            var expr = new Expression(expression);
-            expr.Parameters["null"] = null;
+            var parameters = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["null"] = null
+            };
+
             foreach (var item in items)
             {
                 if (item.Value != null)
                 {
-                    expr.Parameters[item.FieldID] = JToken.FromObject(item.Value);
+                    parameters[item.FieldID] = JToken.FromObject(item.Value);
                 }
             }
-            expr.EvaluateFunction += (name, args) =>
+
+            return new ExpressionEvaluator(expression, parameters).Evaluate() ?? false;
+        }
+
+        private sealed class ExpressionEvaluator
+        {
+            private readonly string expression;
+            private readonly Dictionary<string, object?> parameters;
+            private int position;
+
+            public ExpressionEvaluator(string expression, Dictionary<string, object?> parameters)
+            {
+                this.expression = expression;
+                this.parameters = parameters;
+            }
+
+            public object? Evaluate()
+            {
+                var result = ParseOr();
+                SkipWhiteSpace();
+                if (position < expression.Length)
+                {
+                    throw new FormatException($"예상하지 못한 토큰입니다: '{expression[position]}'");
+                }
+
+                return result;
+            }
+
+            private object? ParseOr()
+            {
+                var left = ParseAnd();
+                while (true)
+                {
+                    if (MatchKeyword("or") || Match("||"))
+                    {
+                        var right = ParseAnd();
+                        left = ToBoolean(left) || ToBoolean(right);
+                        continue;
+                    }
+
+                    return left;
+                }
+            }
+
+            private object? ParseAnd()
+            {
+                var left = ParseEquality();
+                while (true)
+                {
+                    if (MatchKeyword("and") || Match("&&"))
+                    {
+                        var right = ParseEquality();
+                        left = ToBoolean(left) && ToBoolean(right);
+                        continue;
+                    }
+
+                    return left;
+                }
+            }
+
+            private object? ParseEquality()
+            {
+                var left = ParseRelational();
+                while (true)
+                {
+                    if (Match("=="))
+                    {
+                        var right = ParseRelational();
+                        left = AreEqual(left, right);
+                        continue;
+                    }
+
+                    if (Match("!="))
+                    {
+                        var right = ParseRelational();
+                        left = !AreEqual(left, right);
+                        continue;
+                    }
+
+                    return left;
+                }
+            }
+
+            private object? ParseRelational()
+            {
+                var left = ParseAdditive();
+                while (true)
+                {
+                    if (Match(">="))
+                    {
+                        var right = ParseAdditive();
+                        left = Compare(left, right) >= 0;
+                        continue;
+                    }
+
+                    if (Match("<="))
+                    {
+                        var right = ParseAdditive();
+                        left = Compare(left, right) <= 0;
+                        continue;
+                    }
+
+                    if (Match(">"))
+                    {
+                        var right = ParseAdditive();
+                        left = Compare(left, right) > 0;
+                        continue;
+                    }
+
+                    if (Match("<"))
+                    {
+                        var right = ParseAdditive();
+                        left = Compare(left, right) < 0;
+                        continue;
+                    }
+
+                    return left;
+                }
+            }
+
+            private object? ParseAdditive()
+            {
+                var left = ParseMultiplicative();
+                while (true)
+                {
+                    if (Match("+"))
+                    {
+                        var right = ParseMultiplicative();
+                        if (TryConvertDecimal(left, out var leftNumber) && TryConvertDecimal(right, out var rightNumber))
+                        {
+                            left = leftNumber + rightNumber;
+                        }
+                        else
+                        {
+                            left = $"{left}{right}";
+                        }
+                        continue;
+                    }
+
+                    if (Match("-"))
+                    {
+                        var right = ParseMultiplicative();
+                        left = ToDecimal(left) - ToDecimal(right);
+                        continue;
+                    }
+
+                    return left;
+                }
+            }
+
+            private object? ParseMultiplicative()
+            {
+                var left = ParseUnary();
+                while (true)
+                {
+                    if (Match("*"))
+                    {
+                        var right = ParseUnary();
+                        left = ToDecimal(left) * ToDecimal(right);
+                        continue;
+                    }
+
+                    if (Match("/"))
+                    {
+                        var right = ParseUnary();
+                        left = ToDecimal(left) / ToDecimal(right);
+                        continue;
+                    }
+
+                    if (Match("%"))
+                    {
+                        var right = ParseUnary();
+                        left = ToDecimal(left) % ToDecimal(right);
+                        continue;
+                    }
+
+                    return left;
+                }
+            }
+
+            private object? ParseUnary()
+            {
+                if (MatchKeyword("not") || Match("!"))
+                {
+                    return !ToBoolean(ParseUnary());
+                }
+
+                if (Match("-"))
+                {
+                    return -ToDecimal(ParseUnary());
+                }
+
+                return ParsePrimary();
+            }
+
+            private object? ParsePrimary()
+            {
+                SkipWhiteSpace();
+                if (Match("("))
+                {
+                    var result = ParseOr();
+                    Expect(")");
+                    return result;
+                }
+
+                if (Peek() == '\'' || Peek() == '"')
+                {
+                    return ParseString();
+                }
+
+                if (Peek() == '[')
+                {
+                    return ParseParameter();
+                }
+
+                if (char.IsDigit(Peek()) || Peek() == '.')
+                {
+                    return ParseNumber();
+                }
+
+                if (char.IsLetter(Peek()) || Peek() == '_')
+                {
+                    var identifier = ParseIdentifier();
+                    if (string.Equals(identifier, "true", StringComparison.OrdinalIgnoreCase))
+                    {
+                        return true;
+                    }
+
+                    if (string.Equals(identifier, "false", StringComparison.OrdinalIgnoreCase))
+                    {
+                        return false;
+                    }
+
+                    if (string.Equals(identifier, "null", StringComparison.OrdinalIgnoreCase))
+                    {
+                        return null;
+                    }
+
+                    SkipWhiteSpace();
+                    if (Match("("))
+                    {
+                        var arguments = ParseArguments();
+                        return EvaluateFunction(identifier, arguments);
+                    }
+
+                    if (parameters.TryGetValue(identifier, out var value))
+                    {
+                        return value;
+                    }
+
+                    throw new FormatException($"알 수 없는 식별자입니다: {identifier}");
+                }
+
+                throw new FormatException($"표현식을 해석할 수 없습니다: {expression.Substring(position)}");
+            }
+
+            private List<object?> ParseArguments()
+            {
+                var arguments = new List<object?>();
+                SkipWhiteSpace();
+                if (Match(")"))
+                {
+                    return arguments;
+                }
+
+                while (true)
+                {
+                    arguments.Add(ParseOr());
+                    SkipWhiteSpace();
+                    if (Match(")"))
+                    {
+                        return arguments;
+                    }
+
+                    Expect(",");
+                }
+            }
+
+            private object? EvaluateFunction(string name, List<object?> arguments)
             {
                 switch (name)
                 {
                     case "Count":
-                        if (args.Parameters.Length == 1 && args.Parameters[0].Evaluate() is JArray jArray)
+                        if (arguments.Count == 1 && arguments[0] is JArray jArray)
                         {
-                            args.Result = jArray.Count;
+                            return jArray.Count;
                         }
                         break;
                     case "HasProperty":
-                        if (args.Parameters.Length == 2 && args.Parameters[0].Evaluate() is JObject jObject)
+                        if (arguments.Count == 2 && arguments[0] is JObject jObject)
                         {
-                            var propName = args.Parameters[1].Evaluate()?.ToString();
+                            var propName = arguments[1]?.ToString();
                             if (!string.IsNullOrWhiteSpace(propName))
                             {
-                                args.Result = jObject.ContainsKey(propName);
+                                return jObject.ContainsKey(propName);
                             }
                         }
                         break;
                     case "GetProperty":
-                        if (args.Parameters.Length == 2 && args.Parameters[0].Evaluate() is JObject jObj)
+                        if (arguments.Count == 2 && arguments[0] is JObject jObj)
                         {
-                            var propName = args.Parameters[1].Evaluate()?.ToString();
+                            var propName = arguments[1]?.ToString();
                             if (!string.IsNullOrWhiteSpace(propName) && jObj.TryGetValue(propName, out var token) == true)
                             {
-                                args.Result = ConvertJTokenToPrimitive(token);
+                                return ConvertJTokenToPrimitive(token);
                             }
-                            else
-                            {
-                                args.Result = null;
-                            }
+
+                            return null;
                         }
                         break;
                     case "GetElement":
-                        if (args.Parameters.Length == 2)
+                        if (arguments.Count == 2)
                         {
-                            if (args.Parameters[0].Evaluate() is JArray jArr)
+                            if (arguments[0] is JArray jArr)
                             {
-                                var index = Convert.ToInt32(args.Parameters[1].Evaluate());
+                                var index = Convert.ToInt32(arguments[1]);
                                 if (index >= 0 && index < jArr.Count)
                                 {
-                                    args.Result = jArr[index];
+                                    return jArr[index];
                                 }
-                                else
-                                {
-                                    args.Result = null;
-                                }
+
+                                return null;
                             }
                         }
                         break;
                     case "Sum":
-                        if (args.Parameters.Length == 2 && args.Parameters[0].Evaluate() is JArray arrForSum)
+                        if (arguments.Count == 2 && arguments[0] is JArray arrForSum)
                         {
-                            var propToSum = args.Parameters[1].Evaluate()?.ToString();
+                            var propToSum = arguments[1]?.ToString();
                             if (!string.IsNullOrWhiteSpace(propToSum))
                             {
-                                args.Result = SumValues(arrForSum, propToSum);
+                                return SumValues(arrForSum, propToSum);
                             }
                         }
                         break;
                     case "Average":
-                        if (args.Parameters.Length == 2 && args.Parameters[0].Evaluate() is JArray arrForAvg)
+                        if (arguments.Count == 2 && arguments[0] is JArray arrForAvg)
                         {
-                            var propToAvg = args.Parameters[1].Evaluate()?.ToString();
+                            var propToAvg = arguments[1]?.ToString();
                             if (!string.IsNullOrWhiteSpace(propToAvg))
                             {
-                                args.Result = AverageValues(arrForAvg, propToAvg);
+                                return AverageValues(arrForAvg, propToAvg);
                             }
                         }
                         break;
                     case "Min":
-                        if (args.Parameters.Length == 2 && args.Parameters[0].Evaluate() is JArray arrForMin)
+                        if (arguments.Count == 2 && arguments[0] is JArray arrForMin)
                         {
-                            var propToMin = args.Parameters[1].Evaluate()?.ToString();
+                            var propToMin = arguments[1]?.ToString();
                             if (!string.IsNullOrWhiteSpace(propToMin))
                             {
-                                args.Result = MinValues(arrForMin, propToMin);
+                                return MinValues(arrForMin, propToMin);
                             }
                         }
                         break;
                     case "Max":
-                        if (args.Parameters.Length == 2 && args.Parameters[0].Evaluate() is JArray arrForMax)
+                        if (arguments.Count == 2 && arguments[0] is JArray arrForMax)
                         {
-                            var propToMax = args.Parameters[1].Evaluate()?.ToString();
+                            var propToMax = arguments[1]?.ToString();
                             if (!string.IsNullOrWhiteSpace(propToMax))
                             {
-                                args.Result = MaxValues(arrForMax, propToMax);
+                                return MaxValues(arrForMax, propToMax);
                             }
                         }
                         break;
                     case "GroupBy":
-                        if (args.Parameters.Length == 2 && args.Parameters[0].Evaluate() is JArray arrToGroup)
+                        if (arguments.Count == 2 && arguments[0] is JArray arrToGroup)
                         {
-                            var propToGroup = args.Parameters[1].Evaluate()?.ToString();
+                            var propToGroup = arguments[1]?.ToString();
                             if (!string.IsNullOrWhiteSpace(propToGroup))
                             {
                                 var grouped = arrToGroup.Children<JObject>()
                                     .GroupBy(jo => jo.TryGetValue(propToGroup, StringComparison.OrdinalIgnoreCase, out var token) ? token.ToString() : "null_key")
                                     .ToDictionary(g => g.Key, g => new JArray(g));
-                                args.Result = JObject.FromObject(grouped);
+                                return JObject.FromObject(grouped);
                             }
                         }
                         break;
                 }
-            };
-            var evalResult = expr.Evaluate();
-            return evalResult ?? false;
+
+                throw new FormatException($"지원하지 않는 함수이거나 인수가 올바르지 않습니다: {name}");
+            }
+
+            private object? ParseParameter()
+            {
+                Expect("[");
+                var start = position;
+                while (position < expression.Length && expression[position] != ']')
+                {
+                    position++;
+                }
+
+                if (position >= expression.Length)
+                {
+                    throw new FormatException("파라미터 닫힘 괄호가 없습니다.");
+                }
+
+                var name = expression.Substring(start, position - start).Trim();
+                position++;
+                return parameters.TryGetValue(name, out var value) ? value : null;
+            }
+
+            private string ParseIdentifier()
+            {
+                SkipWhiteSpace();
+                var start = position;
+                while (position < expression.Length && (char.IsLetterOrDigit(expression[position]) || expression[position] == '_'))
+                {
+                    position++;
+                }
+
+                return expression.Substring(start, position - start);
+            }
+
+            private string ParseString()
+            {
+                var quote = Peek();
+                position++;
+                var chars = new List<char>();
+                while (position < expression.Length)
+                {
+                    var current = expression[position++];
+                    if (current == '\\' && position < expression.Length)
+                    {
+                        chars.Add(expression[position++]);
+                        continue;
+                    }
+
+                    if (current == quote)
+                    {
+                        return new string(chars.ToArray());
+                    }
+
+                    chars.Add(current);
+                }
+
+                throw new FormatException("문자열 닫힘 따옴표가 없습니다.");
+            }
+
+            private decimal ParseNumber()
+            {
+                SkipWhiteSpace();
+                var start = position;
+                var hasDecimalPoint = false;
+                while (position < expression.Length)
+                {
+                    var current = expression[position];
+                    if (char.IsDigit(current))
+                    {
+                        position++;
+                        continue;
+                    }
+
+                    if (current == '.' && hasDecimalPoint == false)
+                    {
+                        hasDecimalPoint = true;
+                        position++;
+                        continue;
+                    }
+
+                    break;
+                }
+
+                var numberText = expression.Substring(start, position - start);
+                if (!decimal.TryParse(numberText, NumberStyles.Number, CultureInfo.InvariantCulture, out var value))
+                {
+                    throw new FormatException($"숫자 형식이 잘못되었습니다: {numberText}");
+                }
+
+                return value;
+            }
+
+            private bool MatchKeyword(string keyword)
+            {
+                SkipWhiteSpace();
+                if (position + keyword.Length > expression.Length)
+                {
+                    return false;
+                }
+
+                if (!string.Equals(expression.Substring(position, keyword.Length), keyword, StringComparison.OrdinalIgnoreCase))
+                {
+                    return false;
+                }
+
+                var end = position + keyword.Length;
+                if (end < expression.Length && (char.IsLetterOrDigit(expression[end]) || expression[end] == '_'))
+                {
+                    return false;
+                }
+
+                position = end;
+                return true;
+            }
+
+            private bool Match(string value)
+            {
+                SkipWhiteSpace();
+                if (!expression.Substring(position).StartsWith(value, StringComparison.Ordinal))
+                {
+                    return false;
+                }
+
+                position += value.Length;
+                return true;
+            }
+
+            private void Expect(string value)
+            {
+                if (!Match(value))
+                {
+                    throw new FormatException($"'{value}' 토큰이 필요합니다.");
+                }
+            }
+
+            private char Peek()
+            {
+                SkipWhiteSpace();
+                return position < expression.Length ? expression[position] : '\0';
+            }
+
+            private void SkipWhiteSpace()
+            {
+                while (position < expression.Length && char.IsWhiteSpace(expression[position]))
+                {
+                    position++;
+                }
+            }
+
+            private static bool ToBoolean(object? value)
+            {
+                value = ConvertJTokenToPrimitive(value);
+                return value switch
+                {
+                    bool boolValue => boolValue,
+                    null => false,
+                    string stringValue => bool.TryParse(stringValue, out var boolValue) ? boolValue : !string.IsNullOrWhiteSpace(stringValue),
+                    _ when TryConvertDecimal(value, out var number) => number != 0,
+                    _ => true
+                };
+            }
+
+            private static decimal ToDecimal(object? value)
+            {
+                if (TryConvertDecimal(value, out var number))
+                {
+                    return number;
+                }
+
+                throw new FormatException($"숫자로 변환할 수 없습니다: {value}");
+            }
+
+            private static bool TryConvertDecimal(object? value, out decimal number)
+            {
+                value = ConvertJTokenToPrimitive(value);
+                switch (value)
+                {
+                    case decimal decimalValue:
+                        number = decimalValue;
+                        return true;
+                    case int intValue:
+                        number = intValue;
+                        return true;
+                    case long longValue:
+                        number = longValue;
+                        return true;
+                    case double doubleValue:
+                        number = Convert.ToDecimal(doubleValue);
+                        return true;
+                    case float floatValue:
+                        number = Convert.ToDecimal(floatValue);
+                        return true;
+                    case string stringValue:
+                        return decimal.TryParse(stringValue, NumberStyles.Number, CultureInfo.InvariantCulture, out number);
+                    default:
+                        number = 0m;
+                        return false;
+                }
+            }
+
+            private static bool AreEqual(object? left, object? right)
+            {
+                left = ConvertJTokenToPrimitive(left);
+                right = ConvertJTokenToPrimitive(right);
+                if (left == null || right == null)
+                {
+                    return left == null && right == null;
+                }
+
+                if (TryConvertDecimal(left, out var leftNumber) && TryConvertDecimal(right, out var rightNumber))
+                {
+                    return leftNumber == rightNumber;
+                }
+
+                if (left is bool || right is bool)
+                {
+                    return ToBoolean(left) == ToBoolean(right);
+                }
+
+                return string.Equals(left.ToString(), right.ToString(), StringComparison.Ordinal);
+            }
+
+            private static int Compare(object? left, object? right)
+            {
+                left = ConvertJTokenToPrimitive(left);
+                right = ConvertJTokenToPrimitive(right);
+                if (TryConvertDecimal(left, out var leftNumber) && TryConvertDecimal(right, out var rightNumber))
+                {
+                    return leftNumber.CompareTo(rightNumber);
+                }
+
+                return string.Compare(left?.ToString(), right?.ToString(), StringComparison.Ordinal);
+            }
         }
 
         private static object? ConvertJTokenToPrimitive(object? token)
