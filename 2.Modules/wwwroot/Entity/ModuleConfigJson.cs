@@ -20,6 +20,8 @@ namespace wwwroot.Entity
 
         public string BusinessServerUrl { get; set; }
 
+        public string SystemVaultKey { get; set; }
+
         public string ContractRequestPath { get; set; }
 
         public string ContractBasePath { get; set; }
@@ -38,6 +40,7 @@ namespace wwwroot.Entity
         {
             AuthorizationKey = "";
             BusinessServerUrl = "";
+            SystemVaultKey = "";
             ContractRequestPath = "";
             ContractBasePath = "";
             WWWRootBasePath = "";

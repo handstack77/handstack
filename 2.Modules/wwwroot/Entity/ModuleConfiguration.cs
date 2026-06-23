@@ -15,6 +15,7 @@ namespace wwwroot.Entity
         public static string WWWRootBasePath = "";
         public static string ModuleFilePath = "";
         public static string BusinessServerUrl = "";
+        public static string SystemVaultKey = "";
         public static bool IsModuleLogging = false;
         public static string ModuleLogFilePath = "";
         public static List<string> FileSyncTokens = new List<string>();

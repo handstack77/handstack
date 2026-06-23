@@ -322,9 +322,8 @@ namespace wwwroot.Areas.wwwroot.Controllers
                     return string.Empty;
                 }
 
-                string systemVaultKey = "[Strong@Passw0rd]";
-                var vaultKey = (systemVaultKey + "|" + keyItem.Key.PadRight(32, '0')).SubstringSafe(0, 32);
-                var content = keyItem.IsEncryption.ToBoolean() == true ? keyItem.Value.DecryptAES(keyItem.Key.PadRight(32, '0').SubstringSafe(0, 32)) : keyItem.Value;
+                var vaultKey = (ModuleConfiguration.SystemVaultKey + "|" + keyItem.Key.PadRight(32, '0')).SubstringSafe(0, 32);
+                var content = keyItem.IsEncryption.ToBoolean() == true ? keyItem.Value.DecryptAES(vaultKey) : keyItem.Value;
 
                 return content;
             }

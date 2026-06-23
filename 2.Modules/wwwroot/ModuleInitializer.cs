@@ -58,6 +58,7 @@ namespace wwwroot
                             .ToList() ?? new System.Collections.Generic.List<string>();
                         ModuleConfiguration.IsBundledWithHost = moduleConfigJson.IsBundledWithHost;
                         ModuleConfiguration.BusinessServerUrl = moduleConfig.BusinessServerUrl;
+                        ModuleConfiguration.SystemVaultKey = moduleConfig.SystemVaultKey;
                         ModuleConfiguration.ContractBasePath = GlobalConfiguration.GetBaseDirectoryPath(moduleConfig.ContractBasePath);
                         ModuleConfiguration.WWWRootBasePath = GlobalConfiguration.GetBaseDirectoryPath(moduleConfig.WWWRootBasePath);
                         ModuleConfiguration.ModuleLogFilePath = GlobalConfiguration.GetBaseFilePath(moduleConfig.ModuleLogFilePath);
