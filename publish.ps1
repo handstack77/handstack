@@ -71,6 +71,18 @@ function Remove-IfExists {
     }
 }
 
+function Remove-PdbFiles {
+    param([Parameter(Mandatory = $true)][string]$RootPath)
+
+    if (-not (Test-Path -LiteralPath $RootPath)) {
+        return
+    }
+
+    Get-ChildItem -LiteralPath $RootPath -Filter '*.pdb' -Recurse -File -ErrorAction SilentlyContinue | ForEach-Object {
+        Remove-Item -LiteralPath $_.FullName -Force -ErrorAction SilentlyContinue
+    }
+}
+
 function Invoke-DotNet {
     param([Parameter(Mandatory = $true)][string[]]$Arguments)
 
@@ -146,10 +158,22 @@ try {
     $PublishPath = [System.IO.Path]::GetFullPath($PublishPath)
     $rid = Resolve-Rid -TargetOs $OsMode -TargetArch $ArchMode
     $optimizeFlag = if ($ConfigurationMode -eq 'Debug') { 'false' } else { 'true' }
+    $symbolOptions = if ($ConfigurationMode -eq 'Release') {
+        @(
+            '-p:DebugType=none'
+            '-p:DebugSymbols=false'
+            '-p:CopyOutputSymbolsToPublishDirectory=false'
+            '-p:AllowedReferenceRelatedFileExtensions=.xml'
+        )
+    }
+    else {
+        @()
+    }
 
     if ($ActionMode -eq 'publish') {
         $dotnetOptions = @(
             "-p:Optimize=$optimizeFlag"
+            $symbolOptions
             '--configuration'
             $ConfigurationMode
             '--runtime'
@@ -161,6 +185,7 @@ try {
     else {
         $dotnetOptions = @(
             "-p:Optimize=$optimizeFlag"
+            $symbolOptions
             '--configuration'
             $ConfigurationMode
         )
@@ -178,29 +203,29 @@ try {
         ([System.IO.Path]::Combine($PublishPath, 'handstack', 'app'))
     )
 
-    Invoke-DotNet -Arguments @(
-        $ActionMode
-        $dotnetOptions
-        '1.WebHost/agent/agent.csproj'
-        '--output'
-        ([System.IO.Path]::Combine($PublishPath, 'handstack', 'hosts', 'agent'))
-    )
+    # Invoke-DotNet -Arguments @(
+    #     $ActionMode
+    #     $dotnetOptions
+    #     '1.WebHost/agent/agent.csproj'
+    #     '--output'
+    #     ([System.IO.Path]::Combine($PublishPath, 'handstack', 'hosts', 'agent'))
+    # )
 
-    Invoke-DotNet -Arguments @(
-        $ActionMode
-        $dotnetOptions
-        '1.WebHost/deploy/deploy.csproj'
-        '--output'
-        ([System.IO.Path]::Combine($PublishPath, 'handstack', 'hosts', 'deploy'))
-    )
+    # Invoke-DotNet -Arguments @(
+    #     $ActionMode
+    #     $dotnetOptions
+    #     '1.WebHost/deploy/deploy.csproj'
+    #     '--output'
+    #     ([System.IO.Path]::Combine($PublishPath, 'handstack', 'hosts', 'deploy'))
+    # )
 
-    Invoke-DotNet -Arguments @(
-        $ActionMode
-        $dotnetOptions
-        '1.WebHost/forbes/forbes.csproj'
-        '--output'
-        ([System.IO.Path]::Combine($PublishPath, 'handstack', 'hosts', 'forbes'))
-    )
+    # Invoke-DotNet -Arguments @(
+    #     $ActionMode
+    #     $dotnetOptions
+    #     '1.WebHost/forbes/forbes.csproj'
+    #     '--output'
+    #     ([System.IO.Path]::Combine($PublishPath, 'handstack', 'hosts', 'forbes'))
+    # )
 
     $cliProjects = @(
         @{ Project = '4.Tool/CLI/bundling/bundling.csproj'; Name = 'bundling' }
@@ -219,6 +244,7 @@ try {
             Invoke-DotNet -Arguments @(
                 $ActionMode
                 "-p:Optimize=$optimizeFlag"
+                $symbolOptions
                 '-p:PublishSingleFile=true'
                 '--configuration'
                 $ConfigurationMode
@@ -235,6 +261,7 @@ try {
             Invoke-DotNet -Arguments @(
                 $ActionMode
                 "-p:Optimize=$optimizeFlag"
+                $symbolOptions
                 '--configuration'
                 $ConfigurationMode
                 $cliProject.Project
@@ -265,6 +292,7 @@ try {
         Invoke-DotNet -Arguments @(
             'build'
             "-p:Optimize=$optimizeFlag"
+            $symbolOptions
             '--configuration'
             $ConfigurationMode
             $module.Project
@@ -318,11 +346,15 @@ try {
         Sync-DirectoryMirror -Source $assembliesSource -Destination $assembliesDestination
     }
 
-    Write-Host '빌드/퍼블리시가 성공적으로 완료되었습니다!'
-    Write-Host "출력 디렉토리: $PublishPath"
+    if ($ConfigurationMode -eq 'Release') {
+        Remove-PdbFiles -RootPath ([System.IO.Path]::Combine($PublishPath, 'handstack'))
+    }
+
+    Write-Host 'Publish completed successfully.'
+    Write-Host "Output directory: $PublishPath"
 }
 catch {
-    Write-Error "ERROR: publish.ps1 실행 실패. $($_.Exception.Message)"
+    Write-Error "ERROR: publish.ps1 execution failed. $($_.Exception.Message)"
     exit 1
 }
 finally {

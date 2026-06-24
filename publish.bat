@@ -30,8 +30,10 @@ if "%publish_path%" == "" set publish_path=%HANDSTACK_SRC%\..\publish\%os_mode%-
 REM 설정에 따라 Optimize 옵션 설정
 if "%configuration_mode%" == "Debug" (
     set optimize_flag=false
+    set symbol_options=
 ) else (
     set optimize_flag=true
+    set symbol_options=-p:DebugType=none -p:DebugSymbols=false -p:CopyOutputSymbolsToPublishDirectory=false -p:AllowedReferenceRelatedFileExtensions=.xml
 )
 
 REM Runtime Identifier 설정
@@ -49,9 +51,9 @@ if "%os_mode%" == "win" (
 
 REM dotnet 명령어 옵션 설정
 if "%action_mode%" == "publish" (
-    set dotnet_options=-p:Optimize=%optimize_flag% --configuration %configuration_mode% --runtime %rid% --self-contained false
+    set dotnet_options=-p:Optimize=%optimize_flag% %symbol_options% --configuration %configuration_mode% --runtime %rid% --self-contained false
 ) else (
-    set dotnet_options=-p:Optimize=%optimize_flag% --configuration %configuration_mode%
+    set dotnet_options=-p:Optimize=%optimize_flag% %symbol_options% --configuration %configuration_mode%
 )
 
 echo os_mode: %os_mode%, action_mode: %action_mode%, configuration_mode: %configuration_mode%, arch_mode: %arch_mode%, optimize: %optimize_flag%, rid: %rid%, publish_path: %publish_path%
@@ -59,18 +61,18 @@ echo os_mode: %os_mode%, action_mode: %action_mode%, configuration_mode: %config
 rmdir /s /q %publish_path%
 
 if "%action_mode%" == "publish" (
-    set cli_dotnet_options=-p:Optimize=%optimize_flag% -p:PublishSingleFile=true --configuration %configuration_mode% --runtime %rid% --self-contained false
+    set cli_dotnet_options=-p:Optimize=%optimize_flag% %symbol_options% -p:PublishSingleFile=true --configuration %configuration_mode% --runtime %rid% --self-contained false
 ) else (
-    set cli_dotnet_options=-p:Optimize=%optimize_flag% --configuration %configuration_mode%
+    set cli_dotnet_options=-p:Optimize=%optimize_flag% %symbol_options% --configuration %configuration_mode%
 )
 
 set cli_output_root=%publish_path%\handstack\tools
 
 REM WebHost 프로젝트들 빌드/퍼블리시
 dotnet publish %dotnet_options% 1.WebHost\ack\ack.csproj --output %publish_path%\handstack\app
-dotnet %action_mode% %dotnet_options% 1.WebHost\agent\agent.csproj --output %publish_path%\handstack\hosts\agent
-dotnet %action_mode% %dotnet_options% 1.WebHost\deploy\deploy.csproj --output %publish_path%\handstack\hosts\deploy
-dotnet %action_mode% %dotnet_options% 1.WebHost\forbes\forbes.csproj --output %publish_path%\handstack\hosts\forbes
+REM dotnet %action_mode% %dotnet_options% 1.WebHost\agent\agent.csproj --output %publish_path%\handstack\hosts\agent
+REM dotnet %action_mode% %dotnet_options% 1.WebHost\deploy\deploy.csproj --output %publish_path%\handstack\hosts\deploy
+REM dotnet %action_mode% %dotnet_options% 1.WebHost\forbes\forbes.csproj --output %publish_path%\handstack\hosts\forbes
 
 dotnet %action_mode% %cli_dotnet_options% 4.Tool\CLI\bundling\bundling.csproj --output %cli_output_root%\bundling
 dotnet %action_mode% %cli_dotnet_options% 4.Tool\CLI\dotnet-installer\dotnet-installer.csproj --output %cli_output_root%\dotnet-installer
@@ -88,17 +90,17 @@ if exist "%contracts_path%" (
 )
 
 REM 모듈 빌드 (빌드 모드에서만, 퍼블리시는 위에서 처리됨)
-dotnet build -p:Optimize=%optimize_flag% --configuration %configuration_mode% 2.Modules\checkup\checkup.csproj --output %publish_path%\handstack\modules\checkup
-dotnet build -p:Optimize=%optimize_flag% --configuration %configuration_mode% 2.Modules\command\command.csproj --output %publish_path%\handstack\modules\command
-dotnet build -p:Optimize=%optimize_flag% --configuration %configuration_mode% 2.Modules\prompter\prompter.csproj --output %publish_path%\handstack\modules\prompter
-dotnet build -p:Optimize=%optimize_flag% --configuration %configuration_mode% 2.Modules\dbclient\dbclient.csproj --output %publish_path%\handstack\modules\dbclient
-dotnet build -p:Optimize=%optimize_flag% --configuration %configuration_mode% 2.Modules\graphclient\graphclient.csproj --output %publish_path%\handstack\modules\graphclient
-dotnet build -p:Optimize=%optimize_flag% --configuration %configuration_mode% 2.Modules\forwarder\forwarder.csproj --output %publish_path%\handstack\modules\forwarder
-dotnet build -p:Optimize=%optimize_flag% --configuration %configuration_mode% 2.Modules\function\function.csproj --output %publish_path%\handstack\modules\function
-dotnet build -p:Optimize=%optimize_flag% --configuration %configuration_mode% 2.Modules\logger\logger.csproj --output %publish_path%\handstack\modules\logger
-dotnet build -p:Optimize=%optimize_flag% --configuration %configuration_mode% 2.Modules\repository\repository.csproj --output %publish_path%\handstack\modules\repository
-dotnet build -p:Optimize=%optimize_flag% --configuration %configuration_mode% 2.Modules\transact\transact.csproj --output %publish_path%\handstack\modules\transact
-dotnet build -p:Optimize=%optimize_flag% --configuration %configuration_mode% 2.Modules\wwwroot\wwwroot.csproj --output %publish_path%\handstack\modules\wwwroot
+dotnet build -p:Optimize=%optimize_flag% %symbol_options% --configuration %configuration_mode% 2.Modules\checkup\checkup.csproj --output %publish_path%\handstack\modules\checkup
+dotnet build -p:Optimize=%optimize_flag% %symbol_options% --configuration %configuration_mode% 2.Modules\command\command.csproj --output %publish_path%\handstack\modules\command
+dotnet build -p:Optimize=%optimize_flag% %symbol_options% --configuration %configuration_mode% 2.Modules\prompter\prompter.csproj --output %publish_path%\handstack\modules\prompter
+dotnet build -p:Optimize=%optimize_flag% %symbol_options% --configuration %configuration_mode% 2.Modules\dbclient\dbclient.csproj --output %publish_path%\handstack\modules\dbclient
+dotnet build -p:Optimize=%optimize_flag% %symbol_options% --configuration %configuration_mode% 2.Modules\graphclient\graphclient.csproj --output %publish_path%\handstack\modules\graphclient
+dotnet build -p:Optimize=%optimize_flag% %symbol_options% --configuration %configuration_mode% 2.Modules\forwarder\forwarder.csproj --output %publish_path%\handstack\modules\forwarder
+dotnet build -p:Optimize=%optimize_flag% %symbol_options% --configuration %configuration_mode% 2.Modules\function\function.csproj --output %publish_path%\handstack\modules\function
+dotnet build -p:Optimize=%optimize_flag% %symbol_options% --configuration %configuration_mode% 2.Modules\logger\logger.csproj --output %publish_path%\handstack\modules\logger
+dotnet build -p:Optimize=%optimize_flag% %symbol_options% --configuration %configuration_mode% 2.Modules\repository\repository.csproj --output %publish_path%\handstack\modules\repository
+dotnet build -p:Optimize=%optimize_flag% %symbol_options% --configuration %configuration_mode% 2.Modules\transact\transact.csproj --output %publish_path%\handstack\modules\transact
+dotnet build -p:Optimize=%optimize_flag% %symbol_options% --configuration %configuration_mode% 2.Modules\wwwroot\wwwroot.csproj --output %publish_path%\handstack\modules\wwwroot
 
 REM 파일 복사
 if exist "%HANDSTACK_HOME%\contracts" (
@@ -145,8 +147,10 @@ for /d /r "%publish_path%\handstack" %%d in (runtimes) do (
 
 robocopy %HANDSTACK_SRC%/3.Infrastructure/Assemblies %publish_path%/handstack/assemblies /MIR /NFL /NDL /NJH /NJS /NC /NS /NP
 
-echo "빌드/퍼블리시가 성공적으로 완료되었습니다!"
-echo "출력 디렉토리: %publish_path%"
+if /I "%configuration_mode%" == "Release" if exist "%publish_path%\handstack" del /F /S /Q "%publish_path%\handstack\*.pdb" >nul 2>nul
+
+echo "Publish completed successfully."
+echo "Output directory: %publish_path%"
 
 goto :eof
 

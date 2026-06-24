@@ -19,6 +19,16 @@ if [[ "$configuration_mode" == "Debug" ]]; then
     optimize_flag="false"
 fi
 
+symbol_options=()
+if [[ "$configuration_mode" == "Release" ]]; then
+    symbol_options=(
+        -p:DebugType=none
+        -p:DebugSymbols=false
+        -p:CopyOutputSymbolsToPublishDirectory=false
+        -p:AllowedReferenceRelatedFileExtensions=.xml
+    )
+fi
+
 resolve_rid() {
     local target_os="$1"
     local target_arch="$2"
@@ -84,20 +94,29 @@ remove_if_exists() {
     fi
 }
 
+remove_pdb_files() {
+    local root_path="$1"
+    if [[ ! -d "$root_path" ]]; then
+        return 0
+    fi
+
+    find "$root_path" -type f -name '*.pdb' -exec rm -f {} +
+}
+
 echo "os_mode: $os_mode, action_mode: $action_mode, configuration_mode: $configuration_mode, arch_mode: $arch_mode, optimize: $optimize_flag, rid: $rid, publish_path: $publish_path"
 
 remove_if_exists "$publish_path"
 
 if [[ "$action_mode" == "publish" ]]; then
-    dotnet_options=(-p:Optimize="$optimize_flag" --configuration "$configuration_mode" --runtime "$rid" --self-contained false)
+    dotnet_options=(-p:Optimize="$optimize_flag" "${symbol_options[@]}" --configuration "$configuration_mode" --runtime "$rid" --self-contained false)
 else
-    dotnet_options=(-p:Optimize="$optimize_flag" --configuration "$configuration_mode")
+    dotnet_options=(-p:Optimize="$optimize_flag" "${symbol_options[@]}" --configuration "$configuration_mode")
 fi
 
 invoke_dotnet "publish" "${dotnet_options[@]}" 1.WebHost/ack/ack.csproj --output "$publish_path/handstack/app"
-invoke_dotnet "$action_mode" "${dotnet_options[@]}" 1.WebHost/agent/agent.csproj --output "$publish_path/handstack/hosts/agent"
-invoke_dotnet "$action_mode" "${dotnet_options[@]}" 1.WebHost/deploy/deploy.csproj --output "$publish_path/handstack/hosts/deploy"
-invoke_dotnet "$action_mode" "${dotnet_options[@]}" 1.WebHost/forbes/forbes.csproj --output "$publish_path/handstack/hosts/forbes"
+# invoke_dotnet "$action_mode" "${dotnet_options[@]}" 1.WebHost/agent/agent.csproj --output "$publish_path/handstack/hosts/agent"
+# invoke_dotnet "$action_mode" "${dotnet_options[@]}" 1.WebHost/deploy/deploy.csproj --output "$publish_path/handstack/hosts/deploy"
+# invoke_dotnet "$action_mode" "${dotnet_options[@]}" 1.WebHost/forbes/forbes.csproj --output "$publish_path/handstack/hosts/forbes"
 
 cli_projects=(
     "4.Tool/CLI/bundling/bundling.csproj:bundling"
@@ -117,6 +136,7 @@ for item in "${cli_projects[@]}"; do
     if [[ "$action_mode" == "publish" ]]; then
         invoke_dotnet "$action_mode" \
             -p:Optimize="$optimize_flag" \
+            "${symbol_options[@]}" \
             -p:PublishSingleFile=true \
             --configuration "$configuration_mode" \
             --runtime "$rid" \
@@ -126,6 +146,7 @@ for item in "${cli_projects[@]}"; do
     else
         invoke_dotnet "$action_mode" \
             -p:Optimize="$optimize_flag" \
+            "${symbol_options[@]}" \
             --configuration "$configuration_mode" \
             "$project_path" \
             --output "$publish_path/handstack/tools/$project_name"
@@ -155,6 +176,7 @@ for item in "${module_projects[@]}"; do
 
     invoke_dotnet build \
         -p:Optimize="$optimize_flag" \
+        "${symbol_options[@]}" \
         --configuration "$configuration_mode" \
         "$project_path" \
         --output "$publish_path/handstack/modules/$module_name"
@@ -200,6 +222,10 @@ if [[ -d "$HANDSTACK_SRC/3.Infrastructure/Assemblies" ]]; then
     rsync -a --delete "$HANDSTACK_SRC/3.Infrastructure/Assemblies/" "$publish_path/handstack/assemblies/"
 fi
 
-echo "빌드/퍼블리시가 성공적으로 완료되었습니다!"
-echo "출력 디렉토리: $publish_path"
+if [[ "$configuration_mode" == "Release" ]]; then
+    remove_pdb_files "$publish_path/handstack"
+fi
+
+echo "Publish completed successfully."
+echo "Output directory: $publish_path"
 

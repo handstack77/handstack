@@ -306,6 +306,386 @@
             return new Promise((r) => setTimeout(r, ms));
         },
 
+        definedResources() {
+            var result = [];
+            var synControlList = [];
+            var synControls = document.querySelectorAll('[tag^="syn_"],[syn-datafield],[syn-options],[syn-events]');
+            for (var i = 0; i < synControls.length; i++) {
+                var synControl = synControls[i];
+                if (synControl.tagName) {
+                    var tagName = synControl.tagName.toUpperCase();
+                    var controlType = '';
+                    var moduleName = null;
+
+                    if (tagName.indexOf('SYN_') > -1) {
+                        moduleName = tagName.substring(4).toLowerCase();
+                        controlType = moduleName;
+                    }
+                    else {
+                        switch (tagName) {
+                            case 'BUTTON':
+                                moduleName = 'button';
+                                controlType = 'button';
+                                break;
+                            case 'INPUT':
+                                controlType = (synControl.getAttribute('type') || 'text').toLowerCase();
+                                switch (controlType) {
+                                    case 'hidden':
+                                    case 'text':
+                                    case 'password':
+                                    case 'color':
+                                    case 'email':
+                                    case 'number':
+                                    case 'search':
+                                    case 'tel':
+                                    case 'url':
+                                        moduleName = 'textbox';
+                                        break;
+                                    case 'submit':
+                                    case 'reset':
+                                    case 'button':
+                                        moduleName = 'button';
+                                        break;
+                                    case 'radio':
+                                        moduleName = 'radio';
+                                        break;
+                                    case 'checkbox':
+                                        moduleName = 'checkbox';
+                                        break;
+                                }
+                                break;
+                            case 'TEXTAREA':
+                                moduleName = 'textarea';
+                                controlType = 'textarea';
+                                break;
+                            case 'SELECT':
+                                if (synControl.getAttribute('multiple') == null) {
+                                    moduleName = 'select';
+                                    controlType = 'select';
+                                }
+                                else {
+                                    moduleName = 'multiselect';
+                                    controlType = 'multiselect';
+                                }
+                                break;
+                            default:
+                                moduleName = 'element';
+                                controlType = 'element';
+                                break;
+                        }
+                    }
+
+                    if (moduleName) {
+                        synControlList.push({
+                            module: moduleName,
+                            type: controlType ? controlType : synControl.tagName.toLowerCase()
+                        });
+                    }
+                }
+            }
+
+            result = synControlList.filter(function (control, idx, arr) {
+                return synControlList.findIndex(function (item) {
+                    return item.module === control.module && item.type === control.type;
+                }) === idx;
+            });
+
+            result.unshift({
+                module: 'before-default',
+                type: 'before-default',
+                css: [
+                    '/css/preload.css',
+                    '/lib/tabler-core/dist/css/tabler.min.css',
+                    '/lib/tabler-icons-webfont/dist/tabler-icons.min.css',
+                    '/js/notifier/notifier.css',
+                    '/js/jquery-ui-contextmenu/jquery-ui.css'
+                ],
+                js: [
+                    '/lib/tabler-core/dist/js/tabler.min.js',
+                    '/lib/jquery/jquery.min.js',
+                    '/js/jquery.alertmodal/jquery.alertmodal.js',
+                    '/lib/jquery-simplemodal/src/jquery.simplemodal.min.js',
+                    '/js/jquery-wm/jquery.WM.js',
+                    '/js/jquery-ui-contextmenu/jquery-ui.js',
+                    '/js/jquery-ui-contextmenu/jquery.ui-contextmenu.js',
+                    '/lib/nanobar/nanobar.min.js',
+                    '/js/notifier/notifier.js',
+                    '/lib/clipboard.js/clipboard.min.js',
+                    '/lib/mustache/mustache.min.js',
+                    '/js/syn.js'
+                ]
+            });
+
+            for (var i = 0; i < result.length; i++) {
+                var item = result[i];
+
+                switch (item.module) {
+                    case 'textbox':
+                        item.css = ['/uicontrols/TextBox/TextBox.css'];
+                        item.js = [
+                            '/lib/jquery.maskedinput/jquery.maskedinput.min.js',
+                            '/lib/ispin/dist/ispin.min.js',
+                            '/lib/superplaceholder/superplaceholder.js',
+                            '/lib/vanilla-masker/vanilla-masker.min.js',
+                            '/uicontrols/TextBox/TextBox.js'
+                        ];
+                        break;
+                    case 'button':
+                        item.css = ['/uicontrols/TextButton/TextButton.css'];
+                        item.js = ['/uicontrols/TextButton/TextButton.js'];
+                        break;
+                    case 'radio':
+                        item.css = ['/uicontrols/RadioButton/RadioButton.css'];
+                        item.js = ['/uicontrols/RadioButton/RadioButton.js'];
+                        break;
+                    case 'checkbox':
+                        item.css = [
+                            '/js/css-checkbox/checkboxes.css',
+                            '/uicontrols/CheckBox/CheckBox.css'
+                        ];
+                        item.js = ['/uicontrols/CheckBox/CheckBox.js'];
+                        break;
+                    case 'textarea':
+                        item.css = [
+                            '/lib/codemirror/codemirror.min.css',
+                            '/uicontrols/TextArea/TextArea.css'
+                        ];
+                        item.js = [
+                            '/lib/codemirror/codemirror.min.js',
+                            '/uicontrols/TextArea/TextArea.js'
+                        ];
+                        break;
+                    case 'select':
+                        item.css = [
+                            '/lib/tail.select.js/css/default/tail.select-light.css',
+                            '/uicontrols/DropDownList/DropDownList.css'
+                        ];
+                        item.js = [
+                            '/lib/tail.select.js/js/tail.select.min.js',
+                            '/uicontrols/DropDownList/DropDownList.js'
+                        ];
+                        break;
+                    case 'multiselect':
+                        item.css = [
+                            '/lib/tail.select.js/css/default/tail.select-light.css',
+                            '/uicontrols/DropDownCheckList/DropDownCheckList.css'
+                        ];
+                        item.js = [
+                            '/lib/tail.select.js/js/tail.select.min.js',
+                            '/uicontrols/DropDownCheckList/DropDownCheckList.js'
+                        ];
+                        break;
+                    case 'chart':
+                        item.css = [
+                            '/uicontrols/Chart/Chart.css'
+                        ];
+                        item.js = [
+                            '/lib/highcharts/highcharts.min.js',
+                            '/uicontrols/Chart/Chart.js'
+                        ];
+                        break;
+                    case 'chartjs':
+                        item.css = [
+                            '/uicontrols/Chart/ChartJS.css'
+                        ];
+                        item.js = [
+                            '/lib/chart.js/chart.umd.min.js',
+                            '/uicontrols/Chart/ChartJS.js'
+                        ];
+                        break;
+                    case 'codepicker':
+                        item.css = ['/uicontrols/CodePicker/CodePicker.css'];
+                        item.js = ['/uicontrols/CodePicker/CodePicker.js'];
+                        break;
+                    case 'colorpicker':
+                        item.css = [
+                            '/js/color-picker/color-picker.css',
+                            '/uicontrols/ColorPicker/ColorPicker.css'
+                        ];
+                        item.js = [
+                            '/js/color-picker/color-picker.js',
+                            '/uicontrols/ColorPicker/ColorPicker.js'
+                        ];
+                        break;
+                    case 'contextmenu':
+                        item.css = [
+                            '/js/jquery-ui-contextmenu/jquery-ui.css',
+                            '/uicontrols/ContextMenu/ContextMenu.css'
+                        ];
+                        item.js = [
+                            '/js/jquery-ui-contextmenu/jquery-ui.js',
+                            '/js/jquery-ui-contextmenu/jquery.ui-contextmenu.js',
+                            '/uicontrols/ContextMenu/ContextMenu.js'
+                        ];
+                        break;
+                    case 'data':
+                        item.css = ['/uicontrols/DataSource/DataSource.css'];
+                        item.js = ['/uicontrols/DataSource/DataSource.js'];
+                        break;
+                    case 'datepicker':
+                        item.css = [
+                            '/lib/pikaday/css/pikaday.min.css',
+                            '/uicontrols/TextBox/TextBox.css',
+                            '/uicontrols/DatePicker/DatePicker.css'
+                        ];
+                        item.js = [
+                            '/lib/jquery.maskedinput/jquery.maskedinput.min.js',
+                            '/lib/ispin/dist/ispin.min.js',
+                            '/lib/moment.js/moment.min.js',
+                            '/lib/pikaday/pikaday.min.js',
+                            '/lib/superplaceholder/superplaceholder.js',
+                            '/lib/vanilla-masker/vanilla-masker.min.js',
+                            '/uicontrols/TextBox/TextBox.js',
+                            '/uicontrols/DatePicker/DatePicker.js'
+                        ];
+                        break;
+                    case 'dateperiodpicker':
+                        item.css = [
+                            '/lib/pikaday/css/pikaday.min.css',
+                            '/uicontrols/TextBox/TextBox.css',
+                            '/uicontrols/DatePeriodPicker/DatePeriodPicker.css'
+                        ];
+                        item.js = [
+                            '/lib/jquery.maskedinput/jquery.maskedinput.min.js',
+                            '/lib/ispin/dist/ispin.min.js',
+                            '/lib/moment.js/moment.min.js',
+                            '/lib/pikaday/pikaday.min.js',
+                            '/lib/superplaceholder/superplaceholder.js',
+                            '/lib/vanilla-masker/vanilla-masker.min.js',
+                            '/uicontrols/TextBox/TextBox.js',
+                            '/uicontrols/DatePeriodPicker/DatePeriodPicker.js'
+                        ];
+                        break;
+                    case 'fileclient':
+                        item.css = ['/uicontrols/FileClient/FileClient.css'];
+                        item.js = ['/uicontrols/FileClient/FileClient.js'];
+                        break;
+                    case 'list':
+                        item.css = ['/uicontrols/GridList/GridList.css'];
+                        item.js = [
+                            '/js/datatable/datatables.js',
+                            '/js/datatable/dataTables.checkboxes.js',
+                            '/uicontrols/GridList/GridList.js'
+                        ];
+                        break;
+                    case 'htmleditor':
+                        item.css = [
+                            '/uicontrols/FileClient/FileClient.css',
+                            '/uicontrols/HtmlEditor/HtmlEditor.css'
+                        ];
+                        item.js = [
+                            '/uicontrols/FileClient/FileClient.js',
+                            '/uicontrols/HtmlEditor/HtmlEditor.js'
+                        ];
+                        break;
+                    case 'jsoneditor':
+                        item.css = ['/uicontrols/JsonEditor/JsonEditor.css'];
+                        item.js = ['/uicontrols/JsonEditor/JsonEditor.js'];
+                        break;
+                    case 'organization':
+                        item.css = [
+                            '/lib/orgchart/css/jquery.orgchart.min.css',
+                            '/uicontrols/OrganizationView/OrganizationView.css'
+                        ];
+                        item.js = [
+                            '/lib/orgchart/js/jquery.orgchart.min.js',
+                            '/uicontrols/OrganizationView/OrganizationView.js'
+                        ];
+                        break;
+                    case 'sourceeditor':
+                        item.css = ['/uicontrols/SourceEditor/SourceEditor.css'];
+                        item.js = ['/uicontrols/SourceEditor/SourceEditor.js'];
+                        break;
+                    case 'editor':
+                        item.css = ['/uicontrols/TextEditor/TextEditor.css'];
+                        item.js = ['/uicontrols/TextEditor/TextEditor.js'];
+                        break;
+                    case 'tree':
+                        item.css = [
+                            '/lib/fancytree/skin-win8/ui.fancytree.css',
+                            '/uicontrols/TreeView/TreeView.css'
+                        ];
+                        item.js = [
+                            '/lib/fancytree/jquery.fancytree-all-deps.min.js',
+                            '/uicontrols/TreeView/TreeView.js'
+                        ];
+                        break;
+                    case 'grid':
+                        item.css = [
+                            '/uicontrols/DataSource/DataSource.css',
+                            '/uicontrols/CodePicker/CodePicker.css',
+                            '/lib/handsontable/dist/handsontable.full.css',
+                            '/uicontrols/WebGrid/WebGrid.css'
+                        ];
+                        item.js = [
+                            '/uicontrols/DataSource/DataSource.js',
+                            '/uicontrols/CodePicker/CodePicker.js',
+                            '/lib/papaparse/papaparse.min.js',
+                            '/lib/xlsx/xlsx.core.min.js',
+                            '/lib/handsontable/dist/handsontable.full.js',
+                            '/lib/handsontable/languages/ko-KR.js',
+                            '/uicontrols/WebGrid/WebGrid.js'
+                        ];
+                        break;
+                    case 'auigrid':
+                        item.css = [
+                            '/uicontrols/DataSource/DataSource.css',
+                            '/uicontrols/CodePicker/CodePicker.css',
+                            '/uicontrols/WebGrid/AUIGrid.css'
+                        ];
+                        item.js = [
+                            '/uicontrols/DataSource/DataSource.js',
+                            '/uicontrols/CodePicker/CodePicker.js',
+                            '/lib/papaparse/papaparse.min.js',
+                            '/lib/xlsx/xlsx.core.min.js',
+                            '/lib/auigrid/dist/AUIGridLicense.js',
+                            '/lib/auigrid/dist/AUIGrid.js',
+                            '/lib/filesaver/FileSaver.min.js',
+                            '/uicontrols/WebGrid/AUIGrid.js'
+                        ];
+                        break;
+                    case 'guide':
+                        item.css = [
+                            '/lib/intro.js/introjs.min.css',
+                            '/uicontrols/Guide/Guide.css'
+                        ];
+                        item.js = [
+                            '/lib/popper.js/umd/popper.min.js',
+                            '/lib/tippy.js/tippy-bundle.umd.min.js',
+                            '/lib/intro.js/intro.min.js',
+                            '/lib/superplaceholder/superplaceholder.js',
+                            '/uicontrols/Guide/Guide.js'
+                        ];
+                        break;
+                    case 'element':
+                        item.js = ['/uicontrols/Element/Element.js'];
+                        break;
+                }
+            }
+
+            result.push({
+                module: 'after-default',
+                type: 'after-default',
+                css: [
+                    '/css/layouts/Dialogs.css',
+                    '/css/layouts/LoadingPage.css',
+                    '/css/layouts/ProgressBar.css',
+                    '/css/layouts/Tooltips.css',
+                    '/css/layouts/WindowManager.css',
+                    '/css/uicontrols/Control.css',
+
+                    '/css/base.css',
+                ],
+                js: [
+                    '/uicontrols/Element/Element.js',
+                    '/lib/darkreader/darkreader.min.js',
+                    '/lib/master-css/index.min.js'
+                ]
+            });
+
+            return result;
+        },
+
         loadCallback() {
             (async function () {
                 while (true) {
@@ -467,13 +847,100 @@
             }
         }
 
-        styleFiles = styleFiles.concat([
-            '/css/syn.bundle.css'
-        ]);
+        if (bindingAction != 'Replace') {
+            if (toBoolean(synConfig.IsBundleLoad) == false) {
+                var definedResource = synLoader.definedResources();
+                var cssList = definedResource.map(function (item) { return item.css });
+                var jsList = definedResource.map(function (item) { return item.js });
 
-        jsFiles = jsFiles.concat([
-            '/js/syn.bundle.js'
-        ]);
+                for (var i = 0; i < cssList.length; i++) {
+                    styleFiles = styleFiles.concat(cssList[i]);
+                }
+
+                for (var i = 0; i < jsList.length; i++) {
+                    jsFiles = jsFiles.concat(jsList[i]);
+                }
+            }
+            else {
+                if (synConfig.Environment == 'Development') {
+                    styleFiles = styleFiles.concat([
+                        // syn.scripts.js
+                        '/lib/tabler-core/dist/css/tabler.min.css',
+                        '/lib/tabler-icons-webfont/dist/tabler-icons.min.css',
+                        '/lib/handsontable/dist/handsontable.full.css',
+                        '/lib/tail.select.js/css/default/tail.select-light.css',
+                        '/lib/ispin/dist/ispin.min.css',
+                        '/js/css-checkbox/checkboxes.css',
+                        '/js/color-picker/color-picker.css',
+                        '/lib/codemirror/codemirror.min.css',
+                        '/lib/fancytree/skin-win8/ui.fancytree.css',
+                        '/js/jquery-ui-contextmenu/jquery-ui.css',
+                        '/lib/orgchart/css/jquery.orgchart.min.css',
+                        '/lib/print-js/print.min.css',
+                        '/js/notifier/notifier.css',
+
+                        // syn.domain.js
+                        '/css/layouts/Dialogs.css',
+                        '/css/layouts/LoadingPage.css',
+                        '/css/layouts/ProgressBar.css',
+                        '/css/layouts/Tooltips.css',
+                        '/css/layouts/WindowManager.css',
+                        '/css/uicontrols/Control.css',
+
+                        // syn.controls.js
+                        '/uicontrols/Chart/Chart.css',
+                        '/uicontrols/CheckBox/CheckBox.css',
+                        '/uicontrols/ColorPicker/ColorPicker.css',
+                        '/uicontrols/ContextMenu/ContextMenu.css',
+                        '/uicontrols/DataSource/DataSource.css',
+                        '/uicontrols/DatePicker/DatePicker.css',
+                        '/uicontrols/DropDownCheckList/DropDownCheckList.css',
+                        '/uicontrols/DropDownList/DropDownList.css',
+                        '/uicontrols/FileClient/FileClient.css',
+                        '/uicontrols/GridList/GridList.css',
+                        '/uicontrols/RadioButton/RadioButton.css',
+                        '/uicontrols/TextArea/TextArea.css',
+                        '/uicontrols/TextBox/TextBox.css',
+                        '/uicontrols/SourceEditor/SourceEditor.css',
+                        '/uicontrols/HtmlEditor/HtmlEditor.css',
+                        '/uicontrols/OrganizationView/OrganizationView.css',
+                        '/uicontrols/TreeView/TreeView.css',
+                        '/uicontrols/WebGrid/WebGrid.css',
+                        '/uicontrols/WebGrid/AUIGrid.css',
+
+                        // 프로젝트 화면 디자인
+                        '/css/base.css',
+                    ]);
+
+                    jsFiles = jsFiles.concat([
+                        '/js/syn.scripts.js',
+                    ]);
+
+                    jsFiles.push('/js/syn.js');
+                    jsFiles.push('/js/syn.controls.js');
+                }
+                else {
+                    if (synConfig.IsDebugMode == true) {
+                        styleFiles = styleFiles.concat([
+                            '/css/syn.bundle.css'
+                        ]);
+
+                        jsFiles = jsFiles.concat([
+                            '/js/syn.bundle.js'
+                        ]);
+                    }
+                    else {
+                        styleFiles = styleFiles.concat([
+                            '/css/syn.bundle.min.css'
+                        ]);
+
+                        jsFiles = jsFiles.concat([
+                            '/js/syn.bundle.min.js'
+                        ]);
+                    }
+                }
+            }
+        }
 
         jsFiles.push(loaderPath);
         styleFiles = styleFiles.concat(window.Configuration.Definition?.Styles || []);
