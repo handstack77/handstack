@@ -26,7 +26,7 @@ using HandStack.Web.Entity;
 using HandStack.Web.Extensions;
 using HandStack.Web.Modules;
 
-using MediatR;
+using Mediator;
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.CookiePolicy;
@@ -562,18 +562,13 @@ namespace ack
                 };
             });
 
-            services.AddMediatR(configuration =>
-            {
-                configuration.RegisterServicesFromAssembly(typeof(Program).Assembly);
-            });
-
             if (GlobalConfiguration.IsSwaggerUI == true)
             {
                 services.AddSwaggerGen();
             }
             services.AddScoped<TransactionClient>();
             services.AddScoped<MediatorClient>();
-            services.AddScoped<IMediator, Mediator>();
+            services.AddScoped<IMediator, HandStackMediator>();
             services.AddSingleton(configuration);
             services.AddSingleton<ISequentialIdGenerator, SequentialIdGenerator>();
             services.AddSingleton(new SqidsEncoder<int>(new()
@@ -1726,7 +1721,7 @@ namespace ack
                     }
                     catch (Exception exception)
                     {
-                        Log.Error(exception, "[{LogCategory}] 모듈 MediatR 설정 조회 실패", "Startup/moduleconfiguration/mediatr");
+                        Log.Error(exception, "[{LogCategory}] 모듈 Mediator 설정 조회 실패", "Startup/moduleconfiguration/mediator");
                         context.Response.StatusCode = StatusCodes.Status500InternalServerError;
                     }
                 };
@@ -1789,7 +1784,7 @@ namespace ack
                     }
                     catch (Exception exception)
                     {
-                        Log.Error(exception, "[{LogCategory}] 모듈 MediatR 설정 반영 실패", "Startup/moduleconfiguration/mediatr/apply");
+                        Log.Error(exception, "[{LogCategory}] 모듈 Mediator 설정 반영 실패", "Startup/moduleconfiguration/mediator/apply");
                         context.Response.StatusCode = StatusCodes.Status500InternalServerError;
                     }
                 };

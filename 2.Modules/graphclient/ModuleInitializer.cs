@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -13,7 +13,7 @@ using HandStack.Core.ExtensionMethod;
 using HandStack.Web;
 using HandStack.Web.Modules;
 
-using MediatR;
+using Mediator;
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Cors.Infrastructure;

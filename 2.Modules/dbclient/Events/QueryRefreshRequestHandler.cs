@@ -12,7 +12,7 @@ using HandStack.Core.ExtensionMethod;
 using HandStack.Web;
 using HandStack.Web.Extensions;
 
-using MediatR;
+using Mediator;
 
 namespace dbclient.Events
 {
@@ -44,7 +44,7 @@ namespace dbclient.Events
             this.logger = logger;
         }
 
-        public Task<bool> Handle(QueryRefreshRequest request, CancellationToken cancellationToken)
+        public ValueTask<bool> Handle(QueryRefreshRequest request, CancellationToken cancellationToken)
         {
             var actionResult = false;
             var filePath = request.FilePath;
@@ -135,7 +135,7 @@ namespace dbclient.Events
                 }
             }
 
-            return Task.FromResult(actionResult);
+            return ValueTask.FromResult(actionResult);
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,7 +8,7 @@ using HandStack.Data.Enumeration;
 using HandStack.Web.Extensions;
 using HandStack.Web.MessageContract.Message;
 
-using MediatR;
+using Mediator;
 
 using repository.Extensions;
 
@@ -61,7 +61,7 @@ namespace repository.Events
             this.moduleApiClient = moduleApiClient;
         }
 
-        public Task<object?> Handle(RepositoryRequest repositoryAction, CancellationToken cancellationToken)
+        public ValueTask<object?> Handle(RepositoryRequest repositoryAction, CancellationToken cancellationToken)
         {
             object? response = null;
             try
@@ -109,7 +109,7 @@ namespace repository.Events
             }
 
 TransactionException:
-            return Task.FromResult(response);
+            return ValueTask.FromResult(response);
         }
     }
 }

@@ -1,6 +1,6 @@
-﻿using HandStack.Web.Common;
+using HandStack.Web.Common;
 
-using MediatR;
+using Mediator;
 
 using Microsoft.AspNetCore.Mvc;
 

@@ -11,7 +11,7 @@ using HandStack.Web;
 using HandStack.Web.Entity;
 using HandStack.Web.Extensions;
 
-using MediatR;
+using Mediator;
 
 using Newtonsoft.Json;
 
@@ -50,7 +50,7 @@ namespace repository.Events
             this.logger = logger;
         }
 
-        public Task<bool> Handle(StorageRefreshRequest request, CancellationToken cancellationToken)
+        public ValueTask<bool> Handle(StorageRefreshRequest request, CancellationToken cancellationToken)
         {
             var actionResult = false;
             var filePath = request.FilePath;
@@ -166,7 +166,7 @@ namespace repository.Events
                 }
             }
 
-            return Task.FromResult(actionResult);
+            return ValueTask.FromResult(actionResult);
         }
     }
 }

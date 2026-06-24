@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -15,7 +15,7 @@ using HandStack.Web.MessageContract.DataObject;
 using HandStack.Web.MessageContract.Enumeration;
 using HandStack.Web.MessageContract.Message;
 
-using MediatR;
+using Mediator;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
@@ -136,7 +136,7 @@ TransactionException:
                                 }
                                 else
                                 {
-                                    object? eventResponse = mediator.Send(instance);
+                                    object? eventResponse = mediator.Send(instance).AsTask().GetAwaiter().GetResult();
                                     if (eventResponse == null)
                                     {
                                         result.BuildExceptionData("Y", "Warning", $"moduleEventName: {moduleEventName} 응답 확인 필요", typeMember);

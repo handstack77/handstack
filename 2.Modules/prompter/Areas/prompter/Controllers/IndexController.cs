@@ -1,11 +1,11 @@
-﻿using System.Reflection;
+using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 
 using HandStack.Core.ExtensionMethod;
 using HandStack.Web.Common;
 
-using MediatR;
+using Mediator;
 
 using Microsoft.AspNetCore.Mvc;
 

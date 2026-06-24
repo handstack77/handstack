@@ -10,7 +10,7 @@ using command.Extensions;
 
 using HandStack.Core.ExtensionMethod;
 
-using MediatR;
+using Mediator;
 
 namespace command.Events
 {
@@ -42,7 +42,7 @@ namespace command.Events
             this.logger = logger;
         }
 
-        public Task<bool> Handle(CommandRefreshRequest request, CancellationToken cancellationToken)
+        public ValueTask<bool> Handle(CommandRefreshRequest request, CancellationToken cancellationToken)
         {
             var actionResult = false;
             var filePath = request.FilePath;
@@ -99,7 +99,7 @@ namespace command.Events
                 }
             }
 
-            return Task.FromResult(actionResult);
+            return ValueTask.FromResult(actionResult);
         }
     }
 }

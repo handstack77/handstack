@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
@@ -27,7 +27,7 @@ using HandStack.Web.Modules;
 
 using Jering.Javascript.NodeJS;
 
-using MediatR;
+using Mediator;
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Cors.Infrastructure;

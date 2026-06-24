@@ -31,7 +31,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-        <PackageReference Include="MediatR" Version="12.5.0" />
+        <PackageReference Include="Mediator.Abstractions" Version="3.0.2" />
         <PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.1" />
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.9" />
         <PackageReference Include="MySql.Data" Version="9.7.0" />

@@ -13,7 +13,7 @@ using HandStack.Web.Common;
 using HandStack.Web.MessageContract.Enumeration;
 using HandStack.Web.MessageContract.Message;
 
-using MediatR;
+using Mediator;
 
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;

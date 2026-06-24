@@ -13,7 +13,7 @@ using HandStack.Web;
 using HandStack.Web.Extensions;
 using HandStack.Web.MessageContract.DataObject;
 
-using MediatR;
+using Mediator;
 
 namespace function.Events
 {
@@ -45,7 +45,7 @@ namespace function.Events
             this.logger = logger;
         }
 
-        public Task<bool> Handle(ExecutionRefreshRequest request, CancellationToken cancellationToken)
+        public ValueTask<bool> Handle(ExecutionRefreshRequest request, CancellationToken cancellationToken)
         {
             var actionResult = false;
             var filePath = request.FilePath;
@@ -146,7 +146,7 @@ namespace function.Events
                 }
             }
 
-            return Task.FromResult(actionResult);
+            return ValueTask.FromResult(actionResult);
         }
     }
 }

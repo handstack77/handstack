@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 using graphclient.Extensions;
 
-using MediatR;
+using Mediator;
 using HandStack.Core.ExtensionMethod;
 
 namespace graphclient.Events
@@ -38,7 +38,7 @@ namespace graphclient.Events
             this.logger = logger;
         }
 
-        public Task<bool> Handle(QueryRefreshRequest request, CancellationToken cancellationToken)
+        public ValueTask<bool> Handle(QueryRefreshRequest request, CancellationToken cancellationToken)
         {
             var filePath = request.FilePath;
             if (filePath.StartsWith(Path.DirectorySeparatorChar) == true)
@@ -70,7 +70,7 @@ namespace graphclient.Events
                     break;
             }
 
-            return Task.FromResult(actionResult);
+            return ValueTask.FromResult(actionResult);
         }
     }
 }

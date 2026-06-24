@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Data;
 using System.IO;
 using System.Linq;
@@ -14,7 +14,7 @@ using logger.Entity;
 using logger.Events;
 using logger.Services;
 
-using MediatR;
+using Mediator;
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Cors.Infrastructure;

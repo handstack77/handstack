@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
@@ -12,7 +12,7 @@ using HandStack.Web.Common;
 using HandStack.Web.Entity;
 using HandStack.Web.Extensions;
 
-using MediatR;
+using Mediator;
 
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;

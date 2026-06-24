@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -19,7 +19,7 @@ using HandStack.Web.Extensions;
 using HandStack.Web.Helper;
 using HandStack.Web.MessageContract.DataObject;
 
-using MediatR;
+using Mediator;
 
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;

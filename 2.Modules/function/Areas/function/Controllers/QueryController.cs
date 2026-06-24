@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel.Design;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,7 +16,7 @@ using HandStack.Web.Extensions;
 using HandStack.Web.MessageContract.Enumeration;
 using HandStack.Web.MessageContract.Message;
 
-using MediatR;
+using Mediator;
 
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;

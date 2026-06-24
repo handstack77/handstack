@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Data;
@@ -20,7 +20,7 @@ using HandStack.Web.MessageContract.DataObject;
 using HandStack.Web.MessageContract.Enumeration;
 using HandStack.Web.MessageContract.Message;
 
-using MediatR;
+using Mediator;
 
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;

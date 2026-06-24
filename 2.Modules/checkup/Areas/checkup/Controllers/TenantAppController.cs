@@ -2784,7 +2784,7 @@ TransactionException:
             return result;
         }
 
-        // http://localhost:8421/checkup/api/tenant-app/nuget-package?packageName=MediatR&version=
+        // http://localhost:8421/checkup/api/tenant-app/nuget-package?packageName=Mediator.Abstractions&version=
         [HttpGet("[action]")]
         public async Task<ActionResult> NugetPackage(string packageName, string? version)
         {

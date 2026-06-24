@@ -13,7 +13,7 @@ using HandStack.Web.Extensions;
 using HandStack.Web.MessageContract.Contract;
 using HandStack.Web.MessageContract.DataObject;
 
-using MediatR;
+using Mediator;
 
 using transact.Entity;
 using transact.Extensions;
@@ -48,7 +48,7 @@ namespace transact.Events
             this.logger = logger;
         }
 
-        public Task<bool> Handle(TransactionRefreshRequest request, CancellationToken cancellationToken)
+        public ValueTask<bool> Handle(TransactionRefreshRequest request, CancellationToken cancellationToken)
         {
             var actionResult = false;
             var filePath = request.FilePath;
@@ -264,7 +264,7 @@ namespace transact.Events
                 }
             }
 
-            return Task.FromResult(actionResult);
+            return ValueTask.FromResult(actionResult);
         }
     }
 }

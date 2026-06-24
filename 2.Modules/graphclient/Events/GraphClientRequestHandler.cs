@@ -10,7 +10,7 @@ using HandStack.Web;
 using HandStack.Web.MessageContract.Enumeration;
 using HandStack.Web.MessageContract.Message;
 
-using MediatR;
+using Mediator;
 
 using Newtonsoft.Json;
 
@@ -39,7 +39,7 @@ namespace graphclient.Events
             this.loggerClient = loggerClient;
         }
 
-        public async Task<object?> Handle(GraphClientRequest requestQueryData, CancellationToken cancellationToken)
+        public async ValueTask<object?> Handle(GraphClientRequest requestQueryData, CancellationToken cancellationToken)
         {
             var request = requestQueryData.Request as DynamicRequest;
             var response = new DynamicResponse()

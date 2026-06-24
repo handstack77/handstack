@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+<Project Sdk="Microsoft.NET.Sdk.Razor">
     <PropertyGroup>
         <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
         <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
@@ -37,7 +37,7 @@
         <PackageReference Include="Google.Apis.Auth" Version="1.75.0" />
         <PackageReference Include="Google.GenAI" Version="1.12.0" />
         <PackageReference Include="HtmlAgilityPack" Version="1.12.4" />
-        <PackageReference Include="MediatR" Version="12.5.0" />
+        <PackageReference Include="Mediator.Abstractions" Version="3.0.2" />
         <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="10.0.9" />
         <PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.1" />
         <PackageReference Include="Microsoft.SemanticKernel" Version="1.77.0" />

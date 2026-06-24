@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -13,7 +13,7 @@ using HandStack.Web.Entity;
 using HandStack.Web.Extensions;
 using HandStack.Web.MessageContract.Message;
 
-using MediatR;
+using Mediator;
 
 using Newtonsoft.Json;
 
@@ -68,7 +68,7 @@ namespace dbclient.Events
             this.logger = logger;
         }
 
-        public Task<object?> Handle(ManagedRequest managedAction, CancellationToken cancellationToken)
+        public ValueTask<object?> Handle(ManagedRequest managedAction, CancellationToken cancellationToken)
         {
             object? response = null;
             try
@@ -151,7 +151,7 @@ namespace dbclient.Events
                 logger.Error("[{LogCategory}] " + exception.ToMessage(), "ManagedRequestHandler/Handle");
             }
 
-            return Task.FromResult(response);
+            return ValueTask.FromResult(response);
         }
     }
 }

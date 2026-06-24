@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -9,7 +9,7 @@ using HandStack.Web.MessageContract.Message;
 using logger.Encapsulation;
 using logger.Entity;
 
-using MediatR;
+using Mediator;
 
 using Newtonsoft.Json;
 
@@ -113,7 +113,7 @@ namespace logger.Events
             this.loggerClient = loggerClient;
         }
 
-        public async Task Handle(LoggerRequest loggerRequest, CancellationToken cancellationToken)
+        public async ValueTask Handle(LoggerRequest loggerRequest, CancellationToken cancellationToken)
         {
             try
             {

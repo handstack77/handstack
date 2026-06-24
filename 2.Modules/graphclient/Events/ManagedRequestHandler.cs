@@ -9,7 +9,7 @@ using HandStack.Core.ExtensionMethod;
 using HandStack.Web.Extensions;
 using HandStack.Web.MessageContract.Message;
 
-using MediatR;
+using Mediator;
 
 using Serilog;
 
@@ -37,7 +37,7 @@ namespace graphclient.Events
             this.logger = logger;
         }
 
-        public Task<object?> Handle(ManagedRequest managedAction, CancellationToken cancellationToken)
+        public ValueTask<object?> Handle(ManagedRequest managedAction, CancellationToken cancellationToken)
         {
             object? response = null;
             try
@@ -81,7 +81,7 @@ namespace graphclient.Events
                 response = exception.ToMessage();
             }
 
-            return Task.FromResult(response);
+            return ValueTask.FromResult(response);
         }
     }
 }

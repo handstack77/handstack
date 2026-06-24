@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -18,7 +18,7 @@ using HandStack.Web.MessageContract.DataObject;
 using HandStack.Web.MessageContract.Enumeration;
 using HandStack.Web.MessageContract.Message;
 
-using MediatR;
+using Mediator;
 
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
@@ -85,7 +85,7 @@ namespace transact.Events
             this.transactClient = transactClient;
         }
 
-        public async Task<object?> Handle(TransactRequest requestTransact, CancellationToken cancellationToken)
+        public async ValueTask<object?> Handle(TransactRequest requestTransact, CancellationToken cancellationToken)
         {
             var request = requestTransact.Request as TransactionRequest;
             var response = new TransactionResponse();

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -11,7 +11,7 @@ using HandStack.Web.Extensions;
 using HandStack.Web.MessageContract.Enumeration;
 using HandStack.Web.MessageContract.Message;
 
-using MediatR;
+using Mediator;
 
 using Newtonsoft.Json;
 
@@ -62,7 +62,7 @@ namespace function.Events
             this.functionClient = nodeFunctionClient;
         }
 
-        public async Task<object?> Handle(FunctionRequest requestQueryData, CancellationToken cancellationToken)
+        public async ValueTask<object?> Handle(FunctionRequest requestQueryData, CancellationToken cancellationToken)
         {
             var request = requestQueryData.Request as DynamicRequest;
             var response = new DynamicResponse();

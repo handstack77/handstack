@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -7,7 +7,7 @@ using HandStack.Core.ExtensionMethod;
 using HandStack.Web.Extensions;
 using HandStack.Web.MessageContract.Message;
 
-using MediatR;
+using Mediator;
 
 using Serilog;
 
@@ -55,7 +55,7 @@ namespace repository.Events
             this.logger = logger;
         }
 
-        public Task Handle(RepositoryAction repositoryAction, CancellationToken cancellationToken)
+        public ValueTask Handle(RepositoryAction repositoryAction, CancellationToken cancellationToken)
         {
             try
             {
@@ -66,7 +66,7 @@ namespace repository.Events
                 logger.Error("[{LogCategory}] " + exception.ToMessage(), "RepositoryActionHandler/Handle");
             }
 
-            return Task.CompletedTask;
+            return ValueTask.CompletedTask;
         }
     }
 }

@@ -12,7 +12,7 @@ using HandStack.Web.Common;
 using HandStack.Web.Entity;
 using HandStack.Web.Extensions;
 
-using MediatR;
+using Mediator;
 
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Http;

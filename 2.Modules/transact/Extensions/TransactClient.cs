@@ -20,7 +20,7 @@ using HandStack.Web.MessageContract.DataObject;
 using HandStack.Web.MessageContract.Enumeration;
 using HandStack.Web.MessageContract.Message;
 
-using MediatR;
+using Mediator;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
