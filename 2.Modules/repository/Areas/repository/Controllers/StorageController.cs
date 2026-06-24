@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -1153,6 +1153,9 @@ namespace repository.Controllers
                                     relativePath = $"{Request.Path.Value?.Replace("/upload-file", "")}{relativePath}";
                                     absolutePath = ModuleConfiguration.FileServerUrl + relativePath;
                                 }
+
+                                repositoryItem.RelativePath = relativePath;
+                                repositoryItem.AbsolutePath = absolutePath;
                                 break;
                             case "FileSystem":
                                 var itemPhysicalPath = repositoryManager.GetSavePath(repositoryItem.ItemID);
@@ -1217,13 +1220,20 @@ namespace repository.Controllers
                         }
 
                         var isDataUpsert = false;
-                        if (repository.IsLocalDbFileManaged == true)
+                        if (repository.IsFileUploadDownloadOnly == true)
                         {
-                            isDataUpsert = ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, repository, "STR.SLT010.MD01", repositoryItem) > 0;
+                            isDataUpsert = true;
                         }
                         else
                         {
-                            isDataUpsert = await moduleApiClient.UpsertRepositoryItem(repositoryItem);
+                            if (repository.IsLocalDbFileManaged == true)
+                            {
+                                isDataUpsert = ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, repository, "STR.SLT010.MD01", repositoryItem) > 0;
+                            }
+                            else
+                            {
+                                isDataUpsert = await moduleApiClient.UpsertRepositoryItem(repositoryItem);
+                            }
                         }
 
                         if (isDataUpsert == true)
@@ -1532,6 +1542,7 @@ namespace repository.Controllers
                                     var memoryStream = new MemoryStream();
                                     streamToUpload.CopyTo(memoryStream);
                                     using var thumbnailStream = ResizeImage(memoryStream, thumbnailX, thumbnailY);
+
                                     if (thumbnailStream != null)
                                     {
                                         var thumbnailFileName = $"{repositoryItem.ItemID}_thumbnail";
@@ -1572,33 +1583,11 @@ namespace repository.Controllers
                                     }
 
                                     var (creationTime, lastWriteTime) = await storageProvider.UploadAsync(repositoryItem.ItemID, streamToUpload, repositoryItem.MimeType);
+
+                                    repositoryItem.PhysicalPath = "";
                                     repositoryItem.MD5 = GetStreamMD5Hash(streamToUpload);
                                     repositoryItem.CreationTime = creationTime;
                                     repositoryItem.LastWriteTime = lastWriteTime;
-
-                                    repositoryItem.PhysicalPath = "";
-
-                                    if (repository.IsVirtualPath == true)
-                                    {
-                                        relativePath = relativeDirectoryUrlPath + repositoryItem.ItemID;
-                                        if (string.IsNullOrWhiteSpace(repository.BlobItemUrl))
-                                        {
-                                            absolutePath = $"//{repository.RepositoryID}.blob.core.windows.net/{repository.BlobContainerID.ToLower()}/";
-                                            absolutePath = absolutePath + relativePath;
-                                        }
-                                        else
-                                        {
-                                            absolutePath = repository.BlobItemUrl
-                                                .Replace("[CONTAINERID]", repository.BlobContainerID.ToLower())
-                                                .Replace("[BLOBID]", relativePath);
-                                        }
-                                    }
-                                    else
-                                    {
-                                        relativePath = $"/http-download-file?repositoryID={repositoryItem.RepositoryID}&itemID={repositoryItem.ItemID}&applicationID={repositoryItem.ApplicationID}";
-                                        relativePath = $"{Request.Path.Value?.Replace("/upload-files", "")}{relativePath}";
-                                        absolutePath = ModuleConfiguration.FileServerUrl + relativePath;
-                                    }
 
                                     repositoryItem.RelativePath = relativePath;
                                     repositoryItem.AbsolutePath = absolutePath;
@@ -1624,9 +1613,9 @@ namespace repository.Controllers
                                     if (repository.IsKeepFileExtension == true)
                                     {
                                         itemPhysicalPath = itemPhysicalPath + extension;
-                                        using var saveFileStream = new FileStream(itemPhysicalPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
+                                        using var keepFileStream = new FileStream(itemPhysicalPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
                                         streamToUpload.Position = 0;
-                                        await streamToUpload.CopyToAsync(saveFileStream);
+                                        await streamToUpload.CopyToAsync(keepFileStream);
                                     }
 
                                     var fileInfo = new FileInfo(itemPhysicalPath);
@@ -1652,7 +1641,7 @@ namespace repository.Controllers
                                     else
                                     {
                                         relativePath = $"/http-download-file?repositoryID={repositoryItem.RepositoryID}&itemID={repositoryItem.ItemID}&applicationID={repositoryItem.ApplicationID}";
-                                        relativePath = $"{Request.Path.Value?.Replace("/upload-files", "")}{relativePath}";
+                                        relativePath = $"{Request.Path.Value?.Replace("/upload-file", "")}{relativePath}";
                                         absolutePath = ModuleConfiguration.FileServerUrl + relativePath;
                                     }
 
@@ -1661,7 +1650,7 @@ namespace repository.Controllers
                                     break;
                                 default:
                                     var errorText = $"ApplicationID: {repository.ApplicationID}, RepositoryID: {repository.RepositoryID}, StorageType: {repository.StorageType} 확인 필요";
-                                    logger.Warning("[{LogCategory}] " + errorText, "StorageController/UploadFiles");
+                                    logger.Warning("[{LogCategory}] " + errorText, "StorageController/UploadFile");
                                     return BadRequest(errorText);
                             }
 
@@ -2748,9 +2737,9 @@ namespace repository.Controllers
                     downloadResult.FileName = downloadFileName;
                     downloadResult.MimeType = mimeType;
                     downloadResult.MD5 = repositoryItem.MD5;
-                    downloadResult.Length = repositoryItem.Size;
-                    downloadResult.CreationTime = repositoryItem.CreationTime;
-                    downloadResult.LastWriteTime = repositoryItem.LastWriteTime;
+                    downloadResult.Length = fileInfo.Length;
+                    downloadResult.CreationTime = fileInfo.CreationTime;
+                    downloadResult.LastWriteTime = fileInfo.LastWriteTime;
                     downloadResult.Result = true;
                 }
                 else
@@ -2854,8 +2843,7 @@ namespace repository.Controllers
                 var newHeight = (int)(originalBitmap.Height * ratio);
 
                 var resizedInfo = new SKImageInfo(newWidth, newHeight);
-                // using var resizedBitmap = originalBitmap.Resize(resizedInfo, new SKSamplingOptions());
-                using var resizedBitmap = originalBitmap.Resize(resizedInfo, SKFilterQuality.High);
+                using var resizedBitmap = originalBitmap.Resize(resizedInfo, new SKSamplingOptions());
 
                 if (resizedBitmap == null) return null;
 
