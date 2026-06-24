@@ -17,8 +17,6 @@
         "IgnoreHTTPSErrors": false,
         "RequestTimeoutMS": 30000,
         "MaxRedirects": 10,
-        "SessionStorageBasePath": "../sqlite/forwarder",
-        "BrowserIdleTimeoutSecond": 60,
         "ForwardUrls": [
             {
                 "sample-api": "https://example.com"

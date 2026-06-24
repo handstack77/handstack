@@ -1,14 +1,4 @@
-@font-face {
-    font-family: "NotoSansLab";
-    src: url("/font/NotoSans-Regular.woff2") format("woff2");
-    font-weight: 400;
-}
-
-@font-face {
-    font-family: "NotoSansLab";
-    src: url("/font/NotoSans-Bold.woff2") format("woff2");
-    font-weight: 700;
-}
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap");
 
 :root {
     color-scheme: light;
@@ -29,7 +19,7 @@
 
 body {
     margin: 0;
-    font-family: "NotoSansLab", sans-serif;
+    font-family: "Noto Sans KR", sans-serif;
     color: var(--ink);
     background:
         radial-gradient(circle at top left, rgba(239, 180, 66, 0.28), transparent 28%),
@@ -204,6 +194,10 @@ textarea[readonly] {
 .action-row {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     margin-top: 16px;
+}
+
+.action-row.single {
+    grid-template-columns: 1fr;
 }
 
 button {

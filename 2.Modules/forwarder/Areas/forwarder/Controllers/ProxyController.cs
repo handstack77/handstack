@@ -38,8 +38,7 @@ namespace forwarder.Areas.forwarder.Controllers
             "Connection",
             "Content-Length",
             "Host",
-            "Transfer-Encoding",
-            "X-Forwarder-ClientKind"
+            "Transfer-Encoding"
         };
 
         private static readonly HashSet<string> IgnoredResponseHeaders = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
@@ -102,8 +101,6 @@ namespace forwarder.Areas.forwarder.Controllers
                 var forwardRequest = new ForwardProxyRequest
                 {
                     UserID = bearerToken!.Policy.UserID,
-                    Session = CreateSessionDescriptor(bearerToken),
-                    ClientKind = ResolveClientKind(Request),
                     TargetUrl = targetUri.AbsoluteUri,
                     Method = Request.Method,
                     Headers = BuildForwardHeaders(Request),
@@ -131,73 +128,6 @@ namespace forwarder.Areas.forwarder.Controllers
                 logger.Error(exception, "[{LogCategory}] " + $"requestKey: {requestKey}, targetUrl: {targetUrl}", "ProxyController/Pipe");
                 return StatusCode(StatusCodes.Status502BadGateway, "대상 프록시 요청 처리 중 오류가 발생했습니다.");
             }
-        }
-
-        private static ForwardSessionDescriptor CreateSessionDescriptor(BearerToken bearerToken)
-        {
-            // BearerToken 발급 시각을 기준으로 사용자별 세션 저장소 경로를 고정한다.
-            var createdAt = bearerToken.CreatedAt ?? DateTime.UtcNow;
-            var createdAtToken = createdAt.ToString("O");
-            var userNo = string.IsNullOrWhiteSpace(bearerToken.Policy.UserNo) == true ? "anonymous" : bearerToken.Policy.UserNo;
-            var userID = string.IsNullOrWhiteSpace(bearerToken.Policy.UserID) == true ? userNo : bearerToken.Policy.UserID;
-            var sessionStorageBasePath = string.IsNullOrWhiteSpace(ModuleConfiguration.SessionStorageBasePath) == true
-                ? GlobalConfiguration.GetBaseDirectoryPath(Path.Combine(GlobalConfiguration.EntryBasePath, "sqlite", ModuleConfiguration.ModuleID))
-                : ModuleConfiguration.SessionStorageBasePath;
-            var databaseFileName = $"{createdAtToken.ToSHA256()}.db";
-            var databaseFilePath = Path.Combine(
-                sessionStorageBasePath,
-                NormalizePathSegment(userNo),
-                createdAt.ToString("yyyyMM"),
-                databaseFileName);
-
-            return new ForwardSessionDescriptor
-            {
-                SessionKey = $"{userNo}|{createdAtToken}".ToSHA256(),
-                UserNo = userNo,
-                UserID = userID,
-                CreatedAt = createdAt,
-                DatabaseFilePath = databaseFilePath
-            };
-        }
-
-        private static string NormalizePathSegment(string value)
-        {
-            if (string.IsNullOrWhiteSpace(value) == true)
-            {
-                return "anonymous";
-            }
-
-            var invalidFileNameChars = Path.GetInvalidFileNameChars();
-            var invalidPathChars = Path.GetInvalidPathChars();
-            var builder = new StringBuilder(value.Length);
-            foreach (var character in value.Trim())
-            {
-                if (character == Path.DirectorySeparatorChar ||
-                    character == Path.AltDirectorySeparatorChar ||
-                    Array.IndexOf(invalidFileNameChars, character) > -1 ||
-                    Array.IndexOf(invalidPathChars, character) > -1)
-                {
-                    builder.Append('_');
-                    continue;
-                }
-
-                builder.Append(character);
-            }
-
-            return builder.Length == 0 ? "anonymous" : builder.ToString();
-        }
-
-        private static ForwardClientKind ResolveClientKind(HttpRequest request)
-        {
-            // 명시 헤더가 있으면 우선 사용하고, 없으면 요청 특성으로 브라우저/프로그램을 추정한다.
-            var headerValue = request.Headers["X-Forwarder-ClientKind"].ToString();
-            if (Enum.TryParse<ForwardClientKind>(headerValue, true, out var clientKind) == true &&
-                Enum.IsDefined(typeof(ForwardClientKind), clientKind) == true)
-            {
-                return clientKind;
-            }
-
-            return IsBrowserRequest(request) == true ? ForwardClientKind.Browser : ForwardClientKind.Program;
         }
 
         private static void UpdateHtmlBaseTagIfNeeded(HttpRequest request, ForwardProxyResult response)

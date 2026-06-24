@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 
 using forwarder.Entity;
 using forwarder.Services;
@@ -73,8 +75,6 @@ namespace forwarder
             ModuleConfiguration.IgnoreHTTPSErrors = moduleConfig.IgnoreHTTPSErrors;
             ModuleConfiguration.RequestTimeoutMS = moduleConfig.RequestTimeoutMS;
             ModuleConfiguration.MaxRedirects = moduleConfig.MaxRedirects;
-            ModuleConfiguration.SessionStorageBasePath = GlobalConfiguration.GetBaseDirectoryPath(moduleConfig.SessionStorageBasePath, Path.Combine(GlobalConfiguration.EntryBasePath, "sqlite", ModuleConfiguration.ModuleID));
-            ModuleConfiguration.BrowserIdleTimeoutSecond = Math.Max(0, moduleConfig.BrowserIdleTimeoutSecond);
             ModuleConfiguration.ForwardUrls = BuildForwardUrls(moduleConfig.ForwardUrls);
             ModuleConfiguration.AllowClientIP = (moduleConfig.AllowClientIP ?? new List<string>() { "*" })
                 .Where(p => string.IsNullOrWhiteSpace(p) == false)
@@ -88,8 +88,8 @@ namespace forwarder
 
             ModuleConfiguration.IsConfigure = true;
 
-            services.AddSingleton<IForwardProxySessionStore, SQLiteForwardProxySessionStore>();
-            services.AddSingleton<IForwardProxyService, ForwardProxyService>();
+            services.AddHttpClient<IForwardProxyService, ForwardProxyService>()
+                .ConfigurePrimaryHttpMessageHandler(CreateHttpClientHandler);
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment? environment, ICorsService corsService, ICorsPolicyProvider corsPolicyProvider)
@@ -177,6 +177,50 @@ namespace forwarder
             }
 
             return result;
+        }
+
+        private HttpClientHandler CreateHttpClientHandler()
+        {
+            var handler = new HttpClientHandler
+            {
+                AllowAutoRedirect = ModuleConfiguration.MaxRedirects > 0,
+                MaxAutomaticRedirections = Math.Max(1, ModuleConfiguration.MaxRedirects),
+                UseCookies = false
+            };
+
+            if (ModuleConfiguration.IgnoreHTTPSErrors == true)
+            {
+                handler.ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
+            }
+
+            if (ModuleConfiguration.UseProxy == true)
+            {
+                if (string.IsNullOrWhiteSpace(ModuleConfiguration.ProxyServer) == true)
+                {
+                    throw new InvalidOperationException("forwarder module.json의 ProxyServer 확인 필요");
+                }
+
+                var proxy = new WebProxy(ModuleConfiguration.ProxyServer)
+                {
+                    BypassProxyOnLocal = true
+                };
+
+                if (string.IsNullOrWhiteSpace(ModuleConfiguration.ProxyBypass) == false)
+                {
+                    proxy.BypassList = ModuleConfiguration.ProxyBypass
+                        .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+                }
+
+                if (string.IsNullOrWhiteSpace(ModuleConfiguration.ProxyUsername) == false)
+                {
+                    proxy.Credentials = new NetworkCredential(ModuleConfiguration.ProxyUsername, ModuleConfiguration.ProxyPassword);
+                }
+
+                handler.Proxy = proxy;
+                handler.UseProxy = true;
+            }
+
+            return handler;
         }
     }
 

@@ -40,10 +40,6 @@ namespace forwarder.Entity
 
         public int MaxRedirects { get; set; }
 
-        public string SessionStorageBasePath { get; set; }
-
-        public int BrowserIdleTimeoutSecond { get; set; }
-
         public List<Dictionary<string, string>> ForwardUrls { get; set; }
 
         public List<string> AllowClientIP { get; set; }
@@ -62,8 +58,6 @@ namespace forwarder.Entity
             IgnoreHTTPSErrors = false;
             RequestTimeoutMS = 30000;
             MaxRedirects = 10;
-            SessionStorageBasePath = "../sqlite/forwarder";
-            BrowserIdleTimeoutSecond = 60;
             ForwardUrls = new List<Dictionary<string, string>>();
             AllowClientIP = new List<string>() { "*" };
         }

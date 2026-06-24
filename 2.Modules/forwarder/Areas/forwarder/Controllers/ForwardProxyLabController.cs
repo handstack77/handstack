@@ -22,7 +22,7 @@ namespace forwarder.Areas.forwarder.Controllers
     [ApiController]
     public class ForwardProxyLabController : BaseController
     {
-        private static readonly HttpClient ProgramClient = new HttpClient
+        private static readonly HttpClient ProxyClient = new HttpClient
         {
             Timeout = Timeout.InfiniteTimeSpan
         };
@@ -40,8 +40,8 @@ namespace forwarder.Areas.forwarder.Controllers
             return "forwarder 프록시 테스트 컨트롤러";
         }
 
-        [HttpPost("program-execute")]
-        public async Task<IActionResult> ProgramExecute([FromBody] ProxyLabExecuteRequest request, CancellationToken cancellationToken)
+        [HttpPost("proxy-execute")]
+        public async Task<IActionResult> ProxyExecute([FromBody] ProxyLabExecuteRequest request, CancellationToken cancellationToken)
         {
             if (request == null)
             {
@@ -61,7 +61,6 @@ namespace forwarder.Areas.forwarder.Controllers
                 forwardRequest.Headers.TryAddWithoutValidation("BearerToken", request.BearerToken);
             }
 
-            forwardRequest.Headers.TryAddWithoutValidation("X-Forwarder-ClientKind", "Program");
             forwardRequest.Headers.TryAddWithoutValidation("User-Agent", "HandStackProxyLab/1.0");
 
             foreach (var header in request.Headers ?? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase))
@@ -73,8 +72,7 @@ namespace forwarder.Areas.forwarder.Controllers
 
                 if (string.Equals(header.Key, "Content-Length", StringComparison.OrdinalIgnoreCase) == true ||
                     string.Equals(header.Key, "Host", StringComparison.OrdinalIgnoreCase) == true ||
-                    string.Equals(header.Key, "User-Agent", StringComparison.OrdinalIgnoreCase) == true ||
-                    string.Equals(header.Key, "X-Forwarder-ClientKind", StringComparison.OrdinalIgnoreCase) == true)
+                    string.Equals(header.Key, "User-Agent", StringComparison.OrdinalIgnoreCase) == true)
                 {
                     continue;
                 }
@@ -98,7 +96,7 @@ namespace forwarder.Areas.forwarder.Controllers
             try
             {
                 var startedAt = DateTime.UtcNow;
-                using var response = await ProgramClient.SendAsync(forwardRequest, HttpCompletionOption.ResponseContentRead, linkedCancellationTokenSource.Token);
+                using var response = await ProxyClient.SendAsync(forwardRequest, HttpCompletionOption.ResponseContentRead, linkedCancellationTokenSource.Token);
                 var bodyBytes = await response.Content.ReadAsByteArrayAsync(linkedCancellationTokenSource.Token);
                 var elapsedMS = (long)(DateTime.UtcNow - startedAt).TotalMilliseconds;
                 var headers = GetResponseHeaders(response);
@@ -107,7 +105,7 @@ namespace forwarder.Areas.forwarder.Controllers
 
                 return new JsonResult(new ProxyLabExecuteResponse
                 {
-                    Mode = "Program",
+                    Mode = "Proxy",
                     RequestKey = request.RequestKey,
                     RequestUri = requestUri,
                     StatusCode = (int)response.StatusCode,
@@ -123,12 +121,12 @@ namespace forwarder.Areas.forwarder.Controllers
             }
             catch (OperationCanceledException)
             {
-                return StatusCode(StatusCodes.Status504GatewayTimeout, "프로그램 프록시 요청 시간이 초과되었습니다.");
+                return StatusCode(StatusCodes.Status504GatewayTimeout, "프록시 요청 시간이 초과되었습니다.");
             }
             catch (Exception exception)
             {
-                logger.Error(exception, "[{LogCategory}] requestKey: {RequestKey}", "ForwardProxyLabController/ProgramExecute", request.RequestKey);
-                return StatusCode(StatusCodes.Status500InternalServerError, "프로그램 프록시 실행 중 오류가 발생했습니다.");
+                logger.Error(exception, "[{LogCategory}] requestKey: {RequestKey}", "ForwardProxyLabController/ProxyExecute", request.RequestKey);
+                return StatusCode(StatusCodes.Status500InternalServerError, "프록시 실행 중 오류가 발생했습니다.");
             }
         }
 

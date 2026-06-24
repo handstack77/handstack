@@ -2,7 +2,7 @@
     const scenarios = [
         {
             key: "lab-html",
-            title: "브라우저 HTML",
+            title: "HTML",
             method: "GET",
             accept: "text/html,application/xhtml+xml",
             contentType: "application/json",
@@ -44,7 +44,7 @@
             accept: "application/json",
             contentType: "application/json",
             body: "",
-            description: "ProxyLabCookie 값을 세션 저장소에 기록합니다."
+            description: "대상 응답의 Set-Cookie 전달 여부를 확인합니다."
         },
         {
             key: "lab-cookie-read",
@@ -53,7 +53,7 @@
             accept: "application/json",
             contentType: "application/json",
             body: "",
-            description: "앞서 저장한 ProxyLabCookie 값을 다시 읽어 세션 유지 여부를 확인합니다."
+            description: "요청에 포함된 ProxyLabCookie 값을 대상에서 읽는지 확인합니다."
         },
         {
             key: "lab-slow",
@@ -77,8 +77,7 @@
         extraHeaders: document.getElementById("extraHeaders"),
         requestBody: document.getElementById("requestBody"),
         scenarioGrid: document.getElementById("scenarioGrid"),
-        runBrowser: document.getElementById("runBrowser"),
-        runProgram: document.getElementById("runProgram"),
+        runProxy: document.getElementById("runProxy"),
         copyCurl: document.getElementById("copyCurl"),
         copyPowerShell: document.getElementById("copyPowerShell"),
         statusLine: document.getElementById("statusLine"),
@@ -105,8 +104,7 @@
     }
 
     function bindEvents() {
-        elements.runBrowser.addEventListener("click", () => executeBrowserMode());
-        elements.runProgram.addEventListener("click", () => executeProgramMode());
+        elements.runProxy.addEventListener("click", () => executeProxy());
         elements.copyCurl.addEventListener("click", () => copyText(elements.curlCommand.value, "curl 명령을 복사했습니다."));
         elements.copyPowerShell.addEventListener("click", () => copyText(elements.powerShellCommand.value, "PowerShell 명령을 복사했습니다."));
 
@@ -158,14 +156,14 @@
         updateCommandSnippets();
     }
 
-    async function executeBrowserMode() {
+    async function executeProxy() {
         const request = buildRequest();
         if (!request) {
             return;
         }
 
         const url = buildForwarderUrl(request.requestKey, request.timeoutMS);
-        const headers = buildTransportHeaders(request, "Browser");
+        const headers = buildTransportHeaders(request);
         const fetchOptions = {
             method: request.method,
             headers,
@@ -181,59 +179,9 @@
         try {
             const response = await fetch(url, fetchOptions);
             const elapsedMS = Math.round(performance.now() - startedAt);
-            const result = await readFetchResponse(response, "Browser", elapsedMS, url);
+            const result = await readFetchResponse(response, "Proxy", elapsedMS, url);
             renderResult(result);
-            setStatus(`브라우저 모드 요청이 완료되었습니다: ${response.status}`, "success");
-        } catch (error) {
-            renderError(error);
-        } finally {
-            setBusy(false);
-        }
-    }
-
-    async function executeProgramMode() {
-        const request = buildRequest();
-        if (!request) {
-            return;
-        }
-
-        const startedAt = performance.now();
-        setBusy(true);
-        try {
-            const response = await fetch("/forwarder/api/forward-proxy-lab/program-execute", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    requestKey: request.requestKey,
-                    bearerToken: request.bearerToken,
-                    method: request.method,
-                    contentType: request.contentType,
-                    body: request.body,
-                    timeoutMS: request.timeoutMS,
-                    headers: request.headers
-                })
-            });
-
-            const elapsedMS = Math.round(performance.now() - startedAt);
-            const payload = await response.json();
-            if (!response.ok) {
-                throw new Error(typeof payload === "string" ? payload : JSON.stringify(payload));
-            }
-
-            renderResult({
-                mode: payload.mode || "Program",
-                statusCode: payload.statusCode,
-                statusText: payload.statusText,
-                responseUrl: payload.responseUrl,
-                contentType: payload.contentType,
-                headers: payload.headers || {},
-                body: payload.body || "",
-                elapsedMS: payload.elapsedMS || elapsedMS,
-                isHtml: (payload.contentType || "").toLowerCase().includes("text/html")
-            });
-            setStatus(`프로그램 모드 요청이 완료되었습니다: ${payload.statusCode}`, "success");
+            setStatus(`프록시 요청이 완료되었습니다: ${response.status}`, "success");
         } catch (error) {
             renderError(error);
         } finally {
@@ -267,10 +215,9 @@
         };
     }
 
-    function buildTransportHeaders(request, mode) {
+    function buildTransportHeaders(request) {
         const headers = new Headers();
         headers.set("BearerToken", request.bearerToken);
-        headers.set("X-Forwarder-ClientKind", mode);
 
         if (request.accept) {
             headers.set("Accept", request.accept);
@@ -382,8 +329,8 @@
             return "브라우저";
         }
 
-        if (String(mode).toLowerCase() === "program") {
-            return "프로그램";
+        if (String(mode).toLowerCase() === "proxy") {
+            return "프록시";
         }
 
         return mode || "-";
@@ -414,8 +361,7 @@
             "-X",
             request.method,
             `"${forwarderUrl}"`,
-            `-H "BearerToken: ${escapeShellDoubleQuotes(request.bearerToken)}"`,
-            `-H "X-Forwarder-ClientKind: Program"`
+            `-H "BearerToken: ${escapeShellDoubleQuotes(request.bearerToken)}"`
         ];
 
         if (request.accept) {
@@ -435,8 +381,7 @@
         }
 
         const psHeaders = Object.assign({}, request.headers, {
-            BearerToken: request.bearerToken,
-            "X-Forwarder-ClientKind": "Program"
+            BearerToken: request.bearerToken
         });
 
         if (request.accept) {
@@ -497,8 +442,7 @@ Invoke-WebRequest -Method ${request.method} -Uri '${escapePowerShellSingleQuotes
     }
 
     function setBusy(isBusy) {
-        elements.runBrowser.disabled = isBusy;
-        elements.runProgram.disabled = isBusy;
+        elements.runProxy.disabled = isBusy;
     }
 
     function setStatus(message, tone) {
