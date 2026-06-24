@@ -10,13 +10,11 @@
         "dependencies": {
           "Dapper": "2.1.79",
           "HandStack.Core": "1.0.0",
-          "LiteDB": "5.0.21",
           "Mediator.Abstractions": "3.0.2",
           "Newtonsoft.Json": "13.0.4",
           "RestSharp": "114.0.0",
           "Serilog": "4.3.1",
           "Serilog.AspNetCore": "10.0.0",
-          "YamlDotNet": "18.0.0",
           "murmurhash": "1.0.3"
         },
         "runtime": {
@@ -36,14 +34,6 @@
           "lib/net10.0/Dapper.dll": {
             "assemblyVersion": "2.0.0.0",
             "fileVersion": "2.1.79.29349"
-          }
-        }
-      },
-      "LiteDB/5.0.21": {
-        "runtime": {
-          "lib/netstandard2.0/LiteDB.dll": {
-            "assemblyVersion": "5.0.21.0",
-            "fileVersion": "5.0.21.0"
           }
         }
       },
@@ -199,14 +189,6 @@
           }
         }
       },
-      "YamlDotNet/18.0.0": {
-        "runtime": {
-          "lib/net10.0/YamlDotNet.dll": {
-            "assemblyVersion": "18.0.0.0",
-            "fileVersion": "18.0.0.0"
-          }
-        }
-      },
       "HandStack.Core/1.0.0": {
         "dependencies": {
           "BouncyCastle.Cryptography": "2.6.2",
@@ -240,13 +222,6 @@
       "sha512": "sha512-8YijbzgTfmqmQOnVNorYM6K++pxqnW3nJ4aC1sRHzxUA2CcuoJ9gsTem3kgBnPRMc38zZHl4Esb6hAezXIEEuw==",
       "path": "dapper/2.1.79",
       "hashPath": "dapper.2.1.79.nupkg.sha512"
-    },
-    "LiteDB/5.0.21": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-ykJ7ffFl7P9YQKR/PLci6zupiLrsSCNkOTiw6OtzntH7d2kCYp5L1+3a/pksKgTEHcJBoPXFtg7VZSGVBseN9w==",
-      "path": "litedb/5.0.21",
-      "hashPath": "litedb.5.0.21.nupkg.sha512"
     },
     "Mediator.Abstractions/3.0.2": {
       "type": "package",
@@ -352,13 +327,6 @@
       "sha512": "sha512-M5cCC1ZMkZr9jbSQGTHnVkb5TDN67qWCV7AP8TAHdGkvDlu0puT5NzemESNn9+HkYIDpWpocP68/i+/ame2/2w==",
       "path": "system.reactive/6.1.0",
       "hashPath": "system.reactive.6.1.0.nupkg.sha512"
-    },
-    "YamlDotNet/18.0.0": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-ptHVgcYmLejGuWXV7RMFoEqFKYMXnieOlWLPzEslfDtzZ9ngMhjYwykfqjBN2+fMEAEyobozkj07lKEpR4dssA==",
-      "path": "yamldotnet/18.0.0",
-      "hashPath": "yamldotnet.18.0.0.nupkg.sha512"
     },
     "HandStack.Core/1.0.0": {
       "type": "project",
