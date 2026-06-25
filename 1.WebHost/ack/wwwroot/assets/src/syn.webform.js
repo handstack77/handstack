@@ -897,7 +897,7 @@
                 var mod = new syn.module();
                 mod.config = {
                     programID: syn.Config.ApplicationID,
-                    moduleID: (globalRoot.devicePlatform == 'browser' ? location.pathname.split('/').filter(Boolean)[0] : undefined) || syn.Config.ModuleID,
+                    moduleID: syn.Config.ModuleID || (globalRoot.devicePlatform == 'browser' ? location.pathname.split('/').filter(Boolean)[0] : undefined),
                     businessID: syn.$w.pageProject || syn.Config.ProjectID,
                     systemID: syn.Config.SystemID,
                     transactionID: syn.$w.pageScript.replace('$', ''),

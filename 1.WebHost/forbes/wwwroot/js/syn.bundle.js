@@ -1,4 +1,4 @@
-/*!
+﻿/*!
  * Tabler v1.3.2 (https://tabler.io)
  * Copyright 2018-2025 The Tabler Authors
  * Copyright 2018-2025 codecalm.net Paweł Kuna
@@ -38522,7 +38522,7 @@ if (typeof module !== 'undefined' && module.exports) {
                 var mod = new syn.module();
                 mod.config = {
                     programID: syn.Config.ApplicationID,
-                    moduleID: (globalRoot.devicePlatform == 'browser' ? location.pathname.split('/').filter(Boolean)[0] : undefined) || syn.Config.ModuleID,
+                    moduleID: syn.Config.ModuleID || (globalRoot.devicePlatform == 'browser' ? location.pathname.split('/').filter(Boolean)[0] : undefined),
                     businessID: syn.$w.pageProject || syn.Config.ProjectID,
                     systemID: syn.Config.SystemID,
                     transactionID: syn.$w.pageScript.replace('$', ''),

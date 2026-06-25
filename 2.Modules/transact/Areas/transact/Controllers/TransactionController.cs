@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -754,12 +754,19 @@ namespace transact.Areas.transact.Controllers
                     }
                     else
                     {
-                        foreach (var ip in ModuleConfiguration.BypassAuthorizeIP)
+                        if (HttpContext.Request.Host.ToString().StartsWith("localhost") == true)
                         {
-                            if (request.Interface.SourceIP.IndexOf(ip) > -1)
+                            isBypassAuthorizeIP = true;
+                        }
+                        else
+                        {
+                            foreach (var ip in ModuleConfiguration.BypassAuthorizeIP)
                             {
-                                isBypassAuthorizeIP = true;
-                                break;
+                                if (request.Interface.SourceIP.IndexOf(ip) > -1)
+                                {
+                                    isBypassAuthorizeIP = true;
+                                    break;
+                                }
                             }
                         }
                     }
@@ -960,34 +967,32 @@ namespace transact.Areas.transact.Controllers
                         {
                             var moduleScheme = $"{GlobalConfiguration.CookiePrefixName}.{request.System.ModuleID}.AuthenticationScheme";
                             var isRoleYN = false;
-                            if (refererPath.StartsWith(baseUrl) == true)
+
+                            try
                             {
-                                try
+                                var schemeProvider = HttpContext.RequestServices.GetRequiredService<IAuthenticationSchemeProvider>();
+                                var scheme = await schemeProvider.GetSchemeAsync(moduleScheme);
+                                if (scheme != null)
                                 {
-                                    var schemeProvider = HttpContext.RequestServices.GetRequiredService<IAuthenticationSchemeProvider>();
-                                    var scheme = await schemeProvider.GetSchemeAsync(moduleScheme);
-                                    if (scheme != null)
+                                    var authenticateResult = await HttpContext.AuthenticateAsync(moduleScheme);
+                                    if (authenticateResult.Succeeded == true)
                                     {
-                                        var authenticateResult = await HttpContext.AuthenticateAsync(moduleScheme);
-                                        if (authenticateResult.Succeeded == true)
+                                        var principal = authenticateResult.Principal;
+                                        if (principal?.Identity?.IsAuthenticated == true)
                                         {
-                                            var principal = authenticateResult.Principal;
-                                            if (principal?.Identity?.IsAuthenticated == true)
+                                            var roles = principal.FindFirst("Roles")?.Value;
+                                            if (roles != null && transactionInfo.Roles != null && transactionInfo.Roles.Count > 0)
                                             {
-                                                var roles = principal.FindFirst("Roles")?.Value;
-                                                if (roles != null && transactionInfo.Roles != null && transactionInfo.Roles.Count > 0)
+                                                var transactionMinRoleValue = Role.User.GetRoleValue(transactionInfo.Roles, true);
+                                                foreach (var userRole in roles.SplitComma())
                                                 {
-                                                    var transactionMinRoleValue = Role.User.GetRoleValue(transactionInfo.Roles, true);
-                                                    foreach (var userRole in roles.SplitComma())
+                                                    if (Enum.TryParse<Role>(userRole, out var parsedUserRole) == true)
                                                     {
-                                                        if (Enum.TryParse<Role>(userRole, out var parsedUserRole) == true)
+                                                        var userRoleValue = (int)parsedUserRole;
+                                                        if (userRoleValue <= transactionMinRoleValue)
                                                         {
-                                                            var userRoleValue = (int)parsedUserRole;
-                                                            if (userRoleValue <= transactionMinRoleValue)
-                                                            {
-                                                                isRoleYN = true;
-                                                                break;
-                                                            }
+                                                            isRoleYN = true;
+                                                            break;
                                                         }
                                                     }
                                                 }
@@ -995,10 +1000,10 @@ namespace transact.Areas.transact.Controllers
                                         }
                                     }
                                 }
-                                catch
-                                {
-                                    isRoleYN = false;
-                                }
+                            }
+                            catch
+                            {
+                                isRoleYN = false;
                             }
 
                             if (isRoleYN == false && transactionInfo.AuthorizeMethod == null || transactionInfo.AuthorizeMethod?.Contains("TransactionToken") == true)
