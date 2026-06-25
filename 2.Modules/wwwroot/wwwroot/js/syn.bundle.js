@@ -41104,7 +41104,7 @@ if (typeof module !== 'undefined' && module.exports) {
                     functionID: transactionObject.functionID,
                     commandType: transactionObject.options ? (transactionObject.options.commandType || 'D') : 'D',
                     simulationType: syn.Config.Transaction.SimulationType, // "D:더미 P:운영 T:테스트",
-                    terminalGroupID: globalRoot.devicePlatform == 'browser' ? (syn.$w.User ? '{0}|{1}'.format(syn.$w.User.CompanyID, syn.$w.User.DepartmentID) : '') : syn.Config.Program.BranchCode,
+                    terminalGroupID: globalRoot.devicePlatform == 'browser' ? (syn.$w.User ? '{0}|{1}'.format(syn.$w.User.CompanyNo, syn.$w.User.DepartmentNo) : '') : syn.Config.Program.BranchCode,
                     operatorID: userID,
                     screenID: transactionObject.screenID,
                     startTraceID: transactionObject.startTraceID,
