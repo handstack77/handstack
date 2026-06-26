@@ -281,7 +281,7 @@
                         UserName: '',
                         BusinessPhoneNo: '',
                         BusinessEmail: '',
-                        DepartmentID: '',
+                        DepartmentNo: '',
                         DepartmentName: '',
                         PositionID: '',
                         PositionName: '',

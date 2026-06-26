@@ -35,7 +35,7 @@ HandStack 솔루션은 다음과 같은 주요 프로젝트로 구성되어 있�
 
 ### dbclient 계약 조건식 처리
 
-`dbclient`의 XML 계약에서 `<if test="...">`, `<bind value="...">`는 `DatabaseMapper`가 요청 파라미터를 Dynamic LINQ projection으로 변환한 뒤 평가합니다. 로그인 클레임처럼 `#http://schemas...` 형식의 파라미터 키는 Dynamic LINQ 식별자로 사용할 수 없으므로 조건식 projection 대상에서 제외됩니다. `#DepartmentID`, `#ManagerYN`처럼 식별자로 변환 가능한 `#` 접두 파라미터는 평가식에서 `$DepartmentID`, `$ManagerYN` 별칭으로 정규화되어 값이 유지됩니다.
+`dbclient`의 XML 계약에서 `<if test="...">`, `<bind value="...">`는 `DatabaseMapper`가 요청 파라미터를 Dynamic LINQ projection으로 변환한 뒤 평가합니다. 로그인 클레임처럼 `#http://schemas...` 형식의 파라미터 키는 Dynamic LINQ 식별자로 사용할 수 없으므로 조건식 projection 대상에서 제외됩니다. `#DepartmentNo`, `#ManagerYN`처럼 식별자로 변환 가능한 `#` 접두 파라미터는 평가식에서 `$DepartmentID`, `$ManagerYN` 별칭으로 정규화되어 값이 유지됩니다.
 
 ## HandStack의 주요 특징
 

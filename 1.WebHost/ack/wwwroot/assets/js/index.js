@@ -4784,7 +4784,7 @@ if (typeof module !== 'undefined' && module.exports) {
                         UserName: '',
                         BusinessPhoneNo: '',
                         BusinessEmail: '',
-                        DepartmentID: '',
+                        DepartmentNo: '',
                         DepartmentName: '',
                         PositionID: '',
                         PositionName: '',
