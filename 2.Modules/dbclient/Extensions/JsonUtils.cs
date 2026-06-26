@@ -151,12 +151,18 @@ namespace dbclient.Extensions
         private static void ProcessObject(JToken node, string? path, string? propertyName, List<string> lines)
         {
             var items = new List<string>();
+            var propertyNames = new HashSet<string>();
             var text = new StringBuilder("new (");
 
             foreach (var child in node.Children<JProperty>().ToArray())
             {
                 var dynamicPropertyName = NormalizeDynamicPropertyName(child.Name);
                 if (string.IsNullOrWhiteSpace(dynamicPropertyName) == true || IsDynamicPropertyName(dynamicPropertyName) == false)
+                {
+                    continue;
+                }
+
+                if (propertyNames.Add(dynamicPropertyName) == false)
                 {
                     continue;
                 }
