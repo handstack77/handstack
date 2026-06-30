@@ -32,6 +32,7 @@
     <ItemGroup>
         <PackageReference Include="Anthropic" Version="12.30.0" />
         <PackageReference Include="Azure.Core" Version="1.59.0" />
+        <PackageReference Include="ChoETL.JSON.NETStandard" Version="1.2.1.72" />
         <PackageReference Include="Dapper" Version="2.1.79" />
         <PackageReference Include="Google.Apis" Version="1.75.0" />
         <PackageReference Include="Google.Apis.Auth" Version="1.75.0" />
@@ -56,11 +57,10 @@
         <PackageReference Include="SourceGear.sqlite3" Version="3.50.4.5" />
         <PackageReference Include="Stubble.Core" Version="1.10.8" />
         <PackageReference Include="System.ClientModel" Version="1.14.0" />
+        <PackageReference Include="System.CodeDom" Version="10.0.9" />
         <PackageReference Include="System.Data.SQLite" Version="2.0.3" />
         <PackageReference Include="System.Linq.Dynamic.Core" Version="1.7.2" />
         <PackageReference Include="System.Runtime.Caching" Version="10.0.9" />
-        <PackageReference Include="ChoETL.JSON.NETStandard" Version="1.2.1.72" />
-        <PackageReference Include="System.CodeDom" Version="10.0.9" />
     </ItemGroup>
 
     <ItemGroup>
