@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 
 using HandStack.Web.Entity;
+using HandStack.Web.Extensions;
+using HandStack.Web.MessageContract.DataObject;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -37,9 +39,20 @@ namespace HandStack.Web.Authorization
                     for (var i = 0; i < account.Roles.Count; i++)
                     {
                         var memberRole = account.Roles[i];
-                        if (Enum.TryParse<Role>(memberRole, out var role) == true)
+                        var transactionMinRoleValue = Role.User.GetRoleValue(account.Roles, true);
+                        if (Enum.TryParse<Role>(memberRole, out var parsedUserRole) == true)
                         {
-                            isAuthorized = Roles.Contains(role);
+                            var userRoleValue = (int)parsedUserRole;
+                            if (userRoleValue <= transactionMinRoleValue)
+                            {
+                                isAuthorized = true;
+                                break;
+                            }
+                        }
+
+                        if (isAuthorized == false && account.Roles.Contains(memberRole) == true)
+                        {
+                            isAuthorized = true;
                             break;
                         }
                     }

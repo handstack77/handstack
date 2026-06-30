@@ -470,6 +470,12 @@ namespace transact.Areas.transact.Controllers
                                                 break;
                                             }
                                         }
+
+                                        if (isRoleYN == false && transactionInfo.Roles.Contains(userRole) == true)
+                                        {
+                                            isRoleYN = true;
+                                            break;
+                                        }
                                     }
                                 }
                             }
@@ -571,6 +577,12 @@ namespace transact.Areas.transact.Controllers
                                                                 break;
                                                             }
                                                         }
+
+                                                        if (isRoleYN == false && transactionInfo.Roles.Contains(userRole) == true)
+                                                        {
+                                                            isRoleYN = true;
+                                                            break;
+                                                        }
                                                     }
                                                 }
                                             }
@@ -643,6 +655,12 @@ namespace transact.Areas.transact.Controllers
                                                     isRoleYN = true;
                                                     break;
                                                 }
+                                            }
+
+                                            if (isRoleYN == false && transactionInfo.Roles.Contains(userRole) == true)
+                                            {
+                                                isRoleYN = true;
+                                                break;
                                             }
                                         }
                                     }

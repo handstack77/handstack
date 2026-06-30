@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -342,6 +342,10 @@ namespace checkup.Areas.checkup.Controllers
                                         {
                                             userAccount.Roles.Add(role.ToString());
                                         }
+                                    }
+                                    else if (userAccount.Roles.Contains(memberRole) == false)
+                                    {
+                                        userAccount.Roles.Add(memberRole);
                                     }
                                 }
 

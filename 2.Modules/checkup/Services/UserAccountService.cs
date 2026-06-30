@@ -75,6 +75,10 @@ namespace checkup.Services
                                 userAccount.Roles.Add(role.ToString());
                             }
                         }
+                        else if (userAccount.Roles.Contains(memberRole) == false)
+                        {
+                            userAccount.Roles.Add(memberRole);
+                        }
                     }
 
                     var claims = new List<Claim>

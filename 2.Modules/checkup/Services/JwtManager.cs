@@ -249,6 +249,10 @@ namespace checkup.Services
                                     result.Roles.Add(role.ToString());
                                 }
                             }
+                            else if (result.Roles.Contains(tokenRole) == false)
+                            {
+                                result.Roles.Add(tokenRole);
+                            }
                         }
 
                         var tokenClaims = JsonConvert.DeserializeObject<Dictionary<string, string>>(jwtToken.Claims.First(x => x.Type == "Claims").Value);
