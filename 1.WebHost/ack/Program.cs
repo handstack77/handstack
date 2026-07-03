@@ -9,6 +9,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Sockets;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using System.Text;
 using System.Text.Json;
@@ -29,6 +30,7 @@ namespace ack
 {
     public class Program
     {
+        private static volatile bool isLogFlushed;
         private static System.Timers.Timer? startupAwaitTimer;
         private static readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 
@@ -279,6 +281,20 @@ namespace ack
                     };
 
                     AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(HandleException);
+                    AppDomain.CurrentDomain.ProcessExit += FlushLog();
+                    if (!OperatingSystem.IsWindows())
+                    {
+                        PosixSignalRegistration.Create(PosixSignal.SIGTERM, _ =>
+                        {
+                            Log.Information("SIGTERM 수신, 프로그램 종료");
+                            FlushLog();
+                        });
+                        PosixSignalRegistration.Create(PosixSignal.SIGINT, _ =>
+                        {
+                            Log.Information("SIGINT 수신, 프로그램 종료");
+                            FlushLog();
+                        });
+                    }
 
                     Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
@@ -309,6 +325,19 @@ namespace ack
             }
 
             return exitCode;
+        }
+
+        private static EventHandler FlushLog()
+        {
+            return (_, _) =>
+            {
+                if (isLogFlushed == true)
+                {
+                    return;
+                }
+                isLogFlushed = true;
+                Log.CloseAndFlush();
+            };
         }
 
         static async Task<string> GetExternalIPAddress()
