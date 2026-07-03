@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapper xmlns="contract.xsd">
+    <header>
+        <application>HDS</application>
+        <project>TST</project>
+        <transaction>TST010</transaction>
+        <datasource>DB01</datasource>
+        <use>Y</use>
+        <desc>데이터베이스 거래 테스트 예제</desc>
+    </header>
+    <commands>
+        <statement id="GD01" seq="0" use="Y" timeout="0" desc="MySQL/MariaDB 데이터베이스 현재 시간 및 서버명 조회">
+            <![CDATA[
+			SELECT NOW() AS ServerDate, @@hostname AS ServerName;
+			]]>
+            <outputmeta value="ServerDate:string;ServerName:string;" />
+        </statement>
+
+        <statement id="GD02" seq="0" use="Y" timeout="0" desc="Oracle 데이터베이스 현재 시간 및 서버명 조회">
+            <![CDATA[
+			SELECT SYSDATE AS "ServerDate", host_name AS "ServerName" FROM v$instance
+			]]>
+        </statement>
+
+        <statement id="GD03" seq="0" use="Y" timeout="0" desc="PostgreSQL 데이터베이스 현재 시간 및 서버명 조회">
+            <![CDATA[
+			SELECT CURRENT_DATE AS "ServerDate", current_database() AS "ServerName";
+			]]>
+        </statement>
+
+        <statement id="GD04" seq="0" use="Y" timeout="0" desc="SQLite 데이터베이스 현재 시간 및 서버명 조회">
+            <![CDATA[
+			SELECT DATETIME('now', 'localtime') AS ServerDate, 'localhost' AS ServerName;
+			]]>
+        </statement>
+
+        <statement id="GD05" seq="0" use="Y" timeout="0" desc="SQL Server 데이터베이스 현재 시간 및 서버명 조회">
+            <![CDATA[
+			SELECT GETDATE() AS ServerDate, @@SERVERNAME AS ServerName;
+			]]>
+        </statement>
+
+        <statement id="GD07" seq="0" use="Y" timeout="0" desc="SQLite WorkflowStep Assertions 검증 예제">
+            <![CDATA[
+            SELECT
+                'OK' AS ResultCode,
+                'true' AS IsValid,
+                'false' AS HasError,
+                NULL AS DeletedDate,
+                'localhost' AS ServerName,
+                'admin,user' AS Roles,
+                'release,stable' AS Tags,
+                '' AS Warnings,
+                'A' AS Items,
+                75 AS Score,
+                DATETIME('now', 'localtime') AS ServerDate;
+			]]>
+            <outputmeta value="ResultCode:string;IsValid:string;HasError:string;DeletedDate:string;ServerName:string;Roles:string;Tags:string;Warnings:string;Items:string;Score:int;ServerDate:string;" />
+        </statement>
+
+        <statement id="GD06" seq="0" use="Y" timeout="0" desc="SQL 확장 기능 예제">
+            <![CDATA[
+SELECT TOP 100 M.*
+FROM [Message] AS M
+INNER JOIN ConversationMember AS CM 
+    ON M.ConversationID = CM.ConversationID 
+    AND CM.UserID = @UserID
+WHERE M.IsDeleted = 0
+    AND M.UserID != '00000000000000000000000000000000'
+            ]]>
+
+            <if test="(Content != '')">
+                <![CDATA[
+    AND FREETEXT(M.MarkdownText, @Content)
+			    ]]>
+            </if>
+
+            <if test="(SearchUsers != '')">
+                <![CDATA[
+    AND M.UserID IN (SELECT [value] FROM STRING_SPLIT(@SearchUsers, ','))
+			    ]]>
+            </if>
+
+            <if test="(StartedAt != '')">
+                <![CDATA[
+    AND CONVERT(DATETIME, @StartedAt + ' 00:00:00') < M.CreatedAt
+			    ]]>
+            </if>
+
+            <if test="(EndedAt != '')">
+                <![CDATA[
+    AND M.CreatedAt <= CONVERT(DATETIME, @EndedAt + ' 23:59:59')
+			    ]]>
+            </if>
+
+            <if test="(EqualAt != '')">
+                <![CDATA[
+    AND CONVERT(DATETIME, @EqualAt + ' 00:00:00') < M.CreatedAt
+    AND M.CreatedAt <= CONVERT(DATETIME, @EqualAt + ' 23:59:59')
+			    ]]>
+            </if>
+
+            <if test="(ConversationIDs != '')">
+                <![CDATA[
+    AND M.ConversationID IN (SELECT [value] FROM STRING_SPLIT(@ConversationIDs, ','))
+			    ]]>
+            </if>
+
+            <![CDATA[
+SELECT *
+FROM RoleUser AS RU
+WHERE 1<2 AND
+            ]]>
+            <foreach collection="TransformRoles" item="TransformRole" open="(" close=")" separator="OR">
+                <![CDATA[
+    RU.UserID = #{TransformRole}
+                ]]>
+                
+            </foreach>
+            <param id="@UserID" type="String" length="255" value="NULL" />
+            <param id="@RoleID" type="String" length="100" value="NULL" />
+            <param id="@TransformRoles" type="String" length="100" value="NULL" transform="@FOREACH" />
+        </statement>
+    </commands>
+</mapper>

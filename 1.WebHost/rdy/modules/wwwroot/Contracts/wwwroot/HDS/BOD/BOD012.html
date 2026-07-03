@@ -1,0 +1,79 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <input type="hidden" id="txtID" syn-datafield="ID" syn-options="{belongID: ['GD01', 'UD01', 'DD01']}">
+        <div class="page">
+            <div class="page-wrapper">
+                <div class="page-body">
+                    <div class="container-fluid max-width:1600!">
+                        <div class="card">
+                            <div class="row g-0">
+                                <div class="card-header">
+                                    <h3 id="lblTitle" class="card-title ellipsis"></h3>
+                                    <div class="card-actions">
+                                        <div class="btn-list">
+                                            <button type="button" id="btnRemovePost" syn-events="['click']" class="btn btn-danger">
+                                                <i class="font:20 mr:4 ti ti-trash"></i>
+                                                게시글 삭제
+                                            </button>
+                                            <button type="button" id="btnConfirm" syn-events="['click']" class="btn btn-primary">
+                                                <i class="font:20 mr:4 ti ti-check"></i>
+                                                게시글 편집 확인
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <div class="mb-2 row">
+                                            <label class="col-2 col-form-label px-2 text-justify required">제 목</label>
+                                            <div class="col">
+                                                <input type="text" id="txtTitle" syn-datafield="Title" class="form-control" syn-options="{belongID: ['UD01']}">
+                                            </div>
+                                        </div>
+                                        <div class="mb-2 row">
+                                            <label class="col-2 col-form-label px-2 text-justify">분 류</label>
+                                            <div class="col-4">
+                                                <select class="form-select" id="ddlCategory" syn-datafield="Category" syn-options="{toSynControl: false, belongID: ['UD01']}">
+                                                    <option value="정보">정보</option>
+                                                    <option value="강좌">강좌</option>
+                                                    <option value="소식">소식</option>
+                                                </select>
+                                            </div>
+                                            <label class="col-2 col-form-label px-2 text-justify">작 성 일</label>
+                                            <div class="col-4">
+                                                <div class="input-group">
+                                                    <input type="text" id="txtDatePosted" syn-datafield="DatePosted" class="form-control" disabled>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="mb-2 row">
+                                            <label class="col-2 col-form-label px-2 text-justify required">작 성 자</label>
+                                            <div class="col">
+                                                <input type="text" id="txtAuthor" syn-datafield="Author" class="form-control" syn-options="{belongID: ['UD01']}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="row">
+                                            <div class="col pl-0">
+                                                <syn_htmleditor id="htmContent" syn-datafield="Content" style="width:100%; height: 420px;" syn-options="{repositoryID: 'TSTLE01', belongID: ['UD01']}"></syn_htmleditor>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

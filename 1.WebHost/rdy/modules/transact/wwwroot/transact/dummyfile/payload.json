@@ -1,0 +1,71 @@
+{
+    "accessToken": "",
+    "action": "SYN",
+    "kind": "BIZ",
+    "clientTag": "HANDSTACK|WebClient|ack|D",
+    "loadOptions": {
+        "encryptionType": "P",
+        "encryptionKey": "G",
+        "platform": "Win32",
+        "dynamic": "Y",
+        "authorize": "N",
+        "commandType": "D",
+        "returnType": "Json",
+        "transactionScope": "N",
+        "transactionLog": "Y"
+    },
+    "requestID": "LD00000HDSTSTTST020GD01WRPFJF9104400",
+    "version": "001",
+    "environment": "D",
+    "system": {
+        "programID": "HDS",
+        "moduleID": "handstack",
+        "version": "1.0.0",
+        "routes": [
+            {
+                "systemID": "HANDSTACK",
+                "requestTick": 1741743840722
+            }
+        ],
+        "localeID": "ko-KR"
+    },
+    "interface": {
+        "devicePlatform": "browser",
+        "interfaceID": "WEB",
+        "sourceIP": "1.1.14.10",
+        "sourcePort": 0,
+        "sourceMAC": "",
+        "connectionType": "4g",
+        "timeout": 180000
+    },
+    "transaction": {
+        "globalID": "LD00000HDSTSTTST020GD01WRPFJF9104400",
+        "businessID": "TST",
+        "transactionID": "TST020",
+        "functionID": "GD01",
+        "commandType": "R",
+        "simulationType": "P",
+        "terminalGroupID": "1|165",
+        "operatorID": "honggildong@handstack.kr",
+        "screenID": "TST020",
+        "startTraceID": "",
+        "dataFormat": "J",
+        "compressionYN": "N"
+    },
+    "payLoad": {
+        "property": {},
+        "dataMapInterface": "Row|Form",
+        "dataMapCount": [
+            1
+        ],
+        "dataMapSet": [
+            [
+                {
+                    "id": "CompanyNo",
+                    "value": "1"
+                }
+            ]
+        ],
+        "dataMapSetRaw": []
+    }
+}

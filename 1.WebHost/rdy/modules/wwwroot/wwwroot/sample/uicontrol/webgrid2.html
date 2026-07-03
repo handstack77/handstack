@@ -1,0 +1,212 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<style>
+		.AUIGrid .my-class {
+			background: #f25f5c !important;
+		}
+
+		.ht_master.AUIGrid table.htCore > tbody > tr:hover td {
+			background: #ffeded !important;
+		}
+
+        .AUIGrid.contain-filter-header tr:first-child th {
+            vertical-align: bottom;
+        }
+
+        .AUIGrid.contain-filter-header thead > tr:first-child > th > div.filterHeader {
+            display: none;
+        }
+
+		div.summaryRow .ht_master.AUIGrid table.htCore > tbody > tr:last-child {
+			display: none;
+		}
+	</style>
+	<style>
+		.AUIGrid table.htCore td[innerText*="중성"] {
+			color: #000 !important;
+			color: red !important;
+			cursor: default !important;
+		}
+	</style>
+	<style id="cssWeekendPseudoStyle">
+	</style>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div>
+            <div>속성</div>
+            <pre>name: 'syn.uicontrols.$auigrid',
+version: '1.0.0',
+defaultSettings: {
+    headerHeight: 40,
+    rowHeight: 40,
+    showFooter: false,
+    footerPosition: 'bottom',
+    enableClipboard: true,
+    wrapSelectionMove: false,
+    fillColumnSizeMode: false,
+    enableCellMerge: false,
+    cellMergeRowSpan: true,
+    cellMergePolicy: 'withNull',
+    fixedRowCount: 0,
+    fixedColumnCount: 0,
+    showRowNumColumn: true,
+    showStateColumn: false,
+    showRowCheckColumn: false,
+    rowCheckToRadio: false,
+    showDragKnobColumn: false,
+    enableDrag: false,
+    enableDrop: false,
+    enableSorting: true,
+    enableMovingColumn: false,
+    editable: true,
+    enterKeyColumnBase: true,
+    selectionMode: 'multipleCells',
+    hoverMode: 'singleRow',
+    useContextMenu: true,
+    enableFilter: true,
+    showInlineFilter: false,
+    useGroupingPanel: false,
+    showStateColumn: false,
+    displayTreeOpen: false,
+    simplifySelectionEvent: true,
+    softRemoveRowMode: false,
+    allowClipboardPaste: false,
+    applyRestPercentWidth: true,
+    rowNumHeaderText: '',
+    noDataMessage: '',
+    groupingMessage: '여기에 컬럼을 드래그하면 그룹핑이 됩니다.',
+},</pre>
+        </div>
+        <hr />
+        <div>
+            <div>메서드</div>
+            <pre>
+getInitializeColumns: function (columns) - AUIGrid 그리드 컬럼 설정 고도화
+</pre>
+        </div>
+        <div id="example1" class="hot AUIGrid htColumnHeaders"></div>
+
+
+        <hr />
+        <div>
+            <div>예시</div>
+            <syn_auigrid id="grdGrid" syn-options="{autoColumnSize: true,
+				columns: [
+					['idx', 'idx', 100, false, 'text', false, 'center', null, { dataType: 'numeric' }],
+					['ProdID', 'ProdID', 100, false, 'text', false, 'left'],
+					['DensityNum,WidthNum,YarnCount', '스파크 라인', 100, false, 'sparkline', false, 'left'],
+					['DensityNum,WidthNum,YarnCount', '스파크 컬럼', 100, false, 'sparkcolumn', false, 'left'],
+					['ProName', 'ProName', 100, false, 'text', false, 'left'],
+                    ['CatePurpose', 'CatePurpose', 100, false, 'button', false, 'left'],
+                    ['CatePattern', 'CatePattern', 100, false, 'image', false, 'left', null, {
+                            srcFunction: '$this.method.srcFunction'
+                    }],
+					['product', '제품', 140, false, 'dropdown', false, 'left', null, {
+                        columnType: 'dropdown',
+                        dataSourceID: 'CMM002',
+                        storeSourceID: 'CMM002',
+                        parameters: '@GROUPCODE:EZW019;',
+                        local: true,
+                        codeColumnID: 'product'
+                    }],
+					['price', '가격', 180, false, 'numeric', false, 'right', null, { dataType: 'string' }],
+					['writedate', '작성일자', 200, false, 'date', false, 'center'],
+                    ['editdate', '편집시간', 200, false, 'time', false, 'center'],
+					['ViewYN', 'ViewYN', 100, false, 'checkbox', false, 'center'],
+					['MixContent', 'MixContent', 100, false, 'korean', false, 'left'],
+                    ['CateFeature', 'CateFeature', 100, false, 'english', false, 'left'],
+                    ['WidthNum', 'WidthNum', 100, false, 'number', false, 'left', null, {
+                            barRender: true,
+                            barMax: 1000
+                    }],
+					['YarnCount', 'YarnCount', 100, false, 'number', false, 'left', null, {
+                            stepRender: true,
+                            stepMax: 1000
+                    }],
+                    ['DensityNum', 'DensityNum', 100, false, 'numeric', false, 'left'],
+                    ['CateFabric', 'CateFabric', 100, false, 'password', false, 'left'],
+                    ['Packing', 'Packing', 100, false, 'safehtml', false, 'left', null, {
+                            wordWrap: true
+                    }],
+                    ['ModelNo', 'ModelNo', 100, false, 'link', false, 'left'],
+				]
+			}" syn-events="['afterSelectionEnd', 'beforeKeyDown', 'afterCreateRow']" style="width: 960px; border: 1px solid;"></syn_auigrid>
+        </div>
+        <hr />
+        <div>
+            <div>기능</div>
+            <input type="button" id="btnDynamicData" value="DynamicData" syn-events="['click']" />
+            <input type="button" id="btnPseudoStyle" value="PseudoStyle" syn-events="['click']" />
+            <input type="button" id="btnGetValueRow" value="getValue Row" syn-events="['click']" />
+            <input type="button" id="btnGetValueList" value="getValue List" syn-events="['click']" />
+            <input type="button" id="btnSetValue" value="setValue" syn-events="['click']" />
+            <input type="button" id="btnClear" value="clear" syn-events="['click']" />
+            <input type="button" id="btnGetInitializeColumns" value="getInitializeColumns" syn-events="['click']" />
+            <input type="button" id="btnGetSettings" value="getSettings" syn-events="['click']" />
+            <input type="button" id="btnUpdateSettings" value="updateSettings" syn-events="['click']" />
+            <input type="button" id="btnUpdateSettings1" value="updateSettings1" syn-events="['click']" />
+            <input type="button" id="btnUpdateSettings2" value="updateSettings2" syn-events="['click']" />
+            <input type="button" id="btnCountRows" value="countRows" syn-events="['click']" />
+            <input type="button" id="btnInsertRow" value="insertRow" syn-events="['click']" />
+            <input type="button" id="btnRemoveRow" value="removeRow" syn-events="['click']" />
+            <input type="button" id="btnLoadData" value="loadData" syn-events="['click']" />
+            <input type="button" id="btnIsUpdateData" value="IsUpdateData" syn-events="['click']" />
+            <input type="button" id="btnGetFlag" value="getFlag" syn-events="['click']" />
+            <input type="button" id="btnSetFlag" value="setFlag" syn-events="['click']" />
+            <input type="button" id="btnGetDataAtCell" value="getDataAtCell" syn-events="['click']" />
+            <input type="button" id="btnSetDataAtCell" value="setDataAtCell" syn-events="['click']" />
+            <input type="button" id="btnGetCellMeta" value="getCellMeta" syn-events="['click']" />
+            <input type="button" id="btnSetCellMeta" value="setCellMeta" syn-events="['click']" />
+            <input type="button" id="btnGetUpdateData" value="getUpdateData" syn-events="['click']" />
+            <input type="button" id="btnGetPhysicalRowIndex" value="getPhysicalRowIndex" syn-events="['click']" />
+            <input type="button" id="btnGetPhysicalColIndex" value="getPhysicalColIndex" syn-events="['click']" />
+            <input type="button" id="btnGetSourceDataAtRow" value="getSourceDataAtRow" syn-events="['click']" />
+            <input type="button" id="btnVisibleColumns" value="visibleColumns" syn-events="['click']" />
+            <input type="button" id="btnVisibleRows" value="visibleRows" syn-events="['click']" />
+            <input type="button" id="btnUnHiddenRows" value="unHiddenRows" syn-events="['click']" />
+            <input type="button" id="btnUnHiddenColumns" value="unHiddenColumns" syn-events="['click']" />
+            <input type="button" id="btnPropToCol" value="propToCol" syn-events="['click']" />
+            <input type="button" id="btnColToProp" value="colToProp" syn-events="['click']" />
+            <input type="button" id="btnGetColHeader" value="getColHeader" syn-events="['click']" />
+            <input type="button" id="btnCountCols" value="countCols" syn-events="['click']" />
+            <input type="button" id="btnGetSelected" value="getSelected" syn-events="['click']" />
+            <input type="button" id="btnGetActiveRowIndex" value="getActiveRowIndex" syn-events="['click']" />
+            <input type="button" id="btnGetActiveColIndex" value="getActiveColIndex" syn-events="['click']" />
+            <input type="button" id="btnSelectCell" value="selectCell" syn-events="['click']" />
+            <input type="button" id="btnExportFile" value="exportFile" syn-events="['click']" />
+            <input type="button" id="btnExportAsString" value="exportAsString" syn-events="['click']" />
+            <input type="button" id="btnImportFile" value="importFile" syn-events="['click']" />
+            <input type="button" id="btnGetGridControl" value="getGridControl" syn-events="['click']" />
+            <input type="button" id="btnGetGridSetting" value="getGridSetting" syn-events="['click']" />
+            <input type="button" id="btnGetColumnWidths" value="getColumnWidths" syn-events="['click']" />
+            <input type="button" id="btnScrollViewportTo" value="scrollViewportTo" syn-events="['click']" />
+            <input type="button" id="btnIsEmptyRow" value="isEmptyRow" syn-events="['click']" />
+            <input type="button" id="btnIsEmptyCol" value="isEmptyCol" syn-events="['click']" />
+            <input type="button" id="btnGetDataAtRow" value="getDataAtRow" syn-events="['click']" />
+            <input type="button" id="btnGetDataAtCol" value="getDataAtCol" syn-events="['click']" />
+            <input type="button" id="btnGetSourceDataAtCol" value="getSourceDataAtCol" syn-events="['click']" />
+            <input type="button" id="btnSetDataAtRow" value="setDataAtRow" syn-events="['click']" />
+            <input type="button" id="btnValidateColumns" value="validateColumns" syn-events="['click']" />
+            <input type="button" id="btnValidateRows" value="validateRows" syn-events="['click']" />
+            <input type="button" id="btnGetLogicalRowIndex" value="getLogicalRowIndex" syn-events="['click']" />
+            <input type="button" id="btnGetLogicalColIndex" value="getLogicalColIndex" syn-events="['click']" />
+            <input type="button" id="btnGetFirstShowColIndex" value="getFirstShowColIndex" syn-events="['click']" />
+            <input type="button" id="btnGetLastShowColIndex" value="getLastShowColIndex" syn-events="['click']" />
+            <input type="button" id="btnAddCondition" value="addCondition" syn-events="['click']" />
+            <input type="button" id="btnRemoveCondition" value="removeCondition" syn-events="['click']" />
+            <input type="button" id="btnClearConditions" value="clearConditions" syn-events="['click']" />
+            <input type="button" id="btnMerge" value="Merge" syn-events="['click']" />
+            <input type="button" id="btnUnMerge" value="UnMerge" syn-events="['click']" />
+            <input type="button" id="btnIsCellClassName" value="IsCellAlert" syn-events="['click']" />
+            <input type="button" id="btnSetCellClassName" value="SetCellClassName" syn-events="['click']" />
+            <input type="button" id="btnRefreshSummary" value="RefreshSummary" syn-events="['click']" />
+        </div>
+    </form>
+	<script src="/lib/xlsx/xlsx.core.min.js"></script>
+	<script src="/lib/papaparse/papaparse.min.js"></script>
+	<script src="/js/syn.loader.js"></script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+</head>
+<body>
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div>
+            <div>속성</div>
+            <pre>name: 'syn.uicontrols.$sourceeditor',
+version: '1.0.0',
+defaultSetting: {
+    width: '100%',
+    height: '360px',
+    language: "javascript",
+    minimap: {
+        enabled: false
+    },
+    roundedSelection: false,
+    scrollBeyondLastLine: false,
+    readOnly: false,
+    lineNumbers: 'on',
+    theme: 'vs-dark',
+    dataType: 'string',
+    belongID: null,
+    transactConfig: null,
+    triggerConfig: null
+},</pre>
+        </div>
+        <hr />
+        <div>
+            <div>메서드</div>
+            <pre>
+</pre>
+        </div>
+        <hr />
+        <div>
+            <div>예시</div>
+            <syn_sourceeditor id="txtEditor1" syn-options="{contents: 'hello world',language:'javascript', minimap: {enabled: true}}"></syn_sourceeditor>
+        </div>
+
+        <div id="container" style="width: 800px; height: 600px; border: 1px solid grey"></div>
+        <hr />
+        <div>
+            <div>기능</div>
+            <input type="button" id="btnGetValue" value="getValue" syn-events="['click']" />
+            <input type="button" id="btnSetValue" value="setValue" syn-events="['click']" />
+            <input type="button" id="btnClear" value="clear" syn-events="['click']" />
+        </div>
+    </form>
+
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

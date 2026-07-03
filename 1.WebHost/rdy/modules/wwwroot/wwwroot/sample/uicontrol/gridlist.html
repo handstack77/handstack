@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div>
+            <div>속성</div>
+            <pre>name: 'syn.uicontrols.$list',
+version: '1.0.0',
+defaultSetting:
+{
+    width: '100%',
+    height: '300px',
+    paging: true,
+    ordering: true,
+    info: true,
+    searching: true,
+    select: true,
+    lengthChange: false,
+    autoWidth: true,
+    pageLength: 50,
+    orderCellsTop: true,
+    fixedHeader: true,
+    responsive: true,
+    checkbox: false,
+    order: [],
+    dataType: 'string',
+    belongID: null,
+    getter: false,
+    setter: false,
+    controlText: null,
+    validators: null,
+    transactConfig: null,
+    triggerConfig: null
+},</pre>
+        </div>
+        <hr />
+        <div>
+            <div>메서드</div>
+            <pre>
+getControl: function (elID) - elID의 DataTable 기본 객체 반환
+</pre>
+        </div> 
+        <div>
+            <br />
+            <div>기능</div>
+            <input type="button" id="btnGetValue" value="getValue" syn-events="['click']" />
+            <input type="button" id="btnSetValue" value="setValue" syn-events="['click']" />
+            <input type="button" id="btnClear" value="clear" syn-events="['click']" />
+            <input type="button" id="btnchk" value="chkBtn" syn-events="['click']" />
+            <input type="button" id="btnGetControl" value="getControl" syn-events="['click']" />
+        </div>
+        <hr />
+        <div>
+            <div>예시</div>
+            <syn_list id="lstDataTable" syn-options="{
+                checkbox: true,
+                pageLength: 50,
+				columns: [
+                    { title: 'ID', data: 'id', visible: true, width: '30px' },
+                    { title: 'Name', data: 'name', width: '200px' },
+                    { title: 'Position', data: 'position', width: '100px' },
+                    { title: 'Office', data: 'office', width: '100px' },
+                    { title: 'Extn.', data: 'extn', width: '100px' },
+                    { title: 'Start date', data: 'start_date', width: '100px' },
+                    { title: 'Salary', data: 'salary', width: '100px' }
+				]
+			}" syn-events="['select']" style="width: 100%; border: 1px solid;"></syn_list>
+        </div>
+        <hr />
+        <!--<div>
+        <div id="list-container" style="height: 200px;">
+            <table id="example" class="display" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Position</th>
+                        <th>Office</th>
+                        <th>Age</th>
+                        <th>Start date</th>
+                        <th>Salary</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>-->
+        <hr />
+
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+</head>
+<body style="visibility: hidden;">
+	<form autocomplete="off" id="form1" syn-datafield="MainForm">
+		<div>
+			<div>속성</div>
+			<pre>name: 'syn.uicontrols.$textbox',
+version: '1.0.0',
+defaultSetting: {
+    editType: 'text',
+    maskPattern: null,
+    maxCount: null,
+    minCount: null,
+    placeText: [],
+    dataType: 'string',
+    belongID: null,
+    transactConfig: null,
+    triggerConfig: null
+},</pre>
+		</div>
+		<hr />
+		<div>
+			<div>메서드</div>
+			<pre>
+
+</pre>
+		</div>
+		<hr />
+		<div>
+			<div>예시</div>
+			txtApplicationID - <input id="txtApplicationID" type="text" syn-options="{editType: 'numeric', formatNumber: false, dataType: 'int'}" value="0">
+			txtSpinnerID - <input id="txtSpinnerID" type="text" syn-options="{editType: 'spinner', dataType: 'int', minCount: -10, maxCount: 10}" value="0">
+			txtCreateDate - <input id="txtCreateDate" type="text" syn-options="{editType: 'date'}">
+			txtHour - <input id="txtHour" type="text" syn-options="{editType: 'hour'}">
+			txtMinute - <input id="txtMinute" type="text" syn-options="{editType: 'minute'}">
+			txtYearMonth - <input id="txtYearMonth" type="text" syn-options="{editType: 'yearmonth'}">
+			txtHomePhone - <input id="txtHomePhone" type="text" syn-options="{editType: 'homephone'}">
+			txtMobilePhone - <input id="txtMobilePhone" type="text" syn-options="{editType: 'mobilephone'}">
+			txtEmail - <input id="txtEmail" type="text" syn-options="{editType: 'email'}">
+			txtCodeGroupID - <input id="txtCodeGroupID" type="text" syn-options="{editType: 'text'}">
+			txtJuminID - <input id="txtJuminID" type="text" syn-options="{editType: 'juminno'}">
+			txtBusinessID - <input id="txtBusinessID" type="text" syn-options="{editType: 'businessno'}">
+			txtCustomFormat - <input id="txtCustomFormat" type="text" syn-options="{editType: 'text', maskPattern: '(99) SSSS-AAAA'}">
+			txtMaxLength - <input id="txtMaxLength" maxlengthB="10" type="text" syn-options="{editType: 'text'}">
+		</div>
+		<hr />
+		<div>
+			<div>기능</div>
+			<input type="button" id="btnGetValue" value="getValue" syn-events="['click']" />
+			<input type="button" id="btnSetValue" value="setValue" syn-events="['click']" />
+			<input type="button" id="btnClear" value="clear" syn-events="['click']" />
+		</div>
+	</form>
+	<script src="/js/syn.loader.js"></script>
+</body>
+</html>

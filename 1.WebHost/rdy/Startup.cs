@@ -1,0 +1,2656 @@
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Diagnostics;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Net.Sockets;
+using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+
+using rdy.Extensions;
+using rdy.Services;
+using rdy.Updates;
+
+using HandStack.Core.ExtensionMethod;
+using HandStack.Core.Licensing;
+using HandStack.Core.Licensing.Validation;
+using HandStack.Web;
+using HandStack.Web.ApiClient;
+using HandStack.Web.Entity;
+using HandStack.Web.Extensions;
+using HandStack.Web.Modules;
+
+using Mediator;
+
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.CookiePolicy;
+using Microsoft.AspNetCore.Cors.Infrastructure;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.HttpLogging;
+using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ApplicationModels;
+using Microsoft.AspNetCore.Mvc.Controllers;
+using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.Net.Http.Headers;
+using Microsoft.Win32;
+
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Serialization;
+
+using Serilog;
+
+using Sqids;
+
+using static System.Net.Mime.MediaTypeNames;
+
+namespace rdy
+{
+    public class Startup
+    {
+        bool useContractSync = false;
+        string? startTime = null;
+        bool useHttpLogging = false;
+        bool useProxyForward = false;
+        bool useResponseComression = false;
+        bool enableSecurityHeaders = true;
+        bool enablePublicCorsPolicy = true;
+        bool exposeSecretValues = false;
+        long maxContractSyncFileBytes = 10485760;
+        readonly IConfiguration configuration;
+        readonly IWebHostEnvironment environment;
+        static readonly ServerEventListener serverEventListener = new ServerEventListener();
+
+        public Startup(IWebHostEnvironment environment, IConfiguration configuration)
+        {
+            var currentProcess = Process.GetCurrentProcess();
+            GlobalConfiguration.ProcessID = currentProcess.Id.ToString().PadLeft(6, '0');
+            startTime = currentProcess.StartTime.ToString();
+
+            this.configuration = configuration;
+            this.environment = environment;
+        }
+
+        public void ConfigureServices(IServiceCollection services)
+        {
+            var appSettings = configuration.GetSection("AppSettings");
+            if (appSettings.GetSection("ApplicationID").Value == null)
+            {
+                Log.Error("[{LogCategory}] " + $"{Environment.CurrentDirectory} appsettings.json AppSettings 환경변수 확인 필요", "Startup/ConfigureServices");
+                throw new Exception("AppSettings 환경변수 확인 필요");
+            }
+
+            this.useContractSync = appSettings["UseContractSync"].ToStringSafe("false").ToBoolean();
+            this.useHttpLogging = appSettings["UseHttpLogging"].ToStringSafe("false").ToBoolean();
+            this.useProxyForward = appSettings["UseForwardProxy"].ToStringSafe("false").ToBoolean();
+            this.useResponseComression = appSettings["UseResponseComression"].ToStringSafe("false").ToBoolean();
+            var securitySettings = appSettings.GetSection("Security");
+            this.enableSecurityHeaders = securitySettings["EnableSecurityHeaders"].ToStringSafe("true").ToBoolean();
+            this.enablePublicCorsPolicy = securitySettings["EnablePublicCorsPolicy"].ToStringSafe("true").ToBoolean();
+            this.exposeSecretValues = securitySettings["ExposeSecretValues"].ToStringSafe("false").ToBoolean();
+            this.maxContractSyncFileBytes = long.TryParse(securitySettings["MaxContractSyncFileBytes"].ToStringSafe("10485760"), out var maxContractSyncFileBytes) == true ? maxContractSyncFileBytes : 10485760;
+
+            GlobalConfiguration.InstallType = appSettings["InstallType"].ToStringSafe();
+            GlobalConfiguration.ApplicationID = appSettings.GetSection("ApplicationID").Exists() == true ? appSettings["ApplicationID"].ToStringSafe() : "HDS";
+            GlobalConfiguration.ApplicationName = appSettings.GetSection("ProgramName").Exists() == true ? appSettings["ProgramName"].ToStringSafe() : environment.ApplicationName;
+            GlobalConfiguration.ApplicationVersion = (Assembly.GetEntryAssembly()?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion.ToString()).ToStringSafe("1.0.0");
+            GlobalConfiguration.BusinessServerUrl = appSettings["BusinessServerUrl"].ToStringSafe();
+            GlobalConfiguration.RunningEnvironment = appSettings["RunningEnvironment"].ToStringSafe();
+            GlobalConfiguration.HostName = string.IsNullOrWhiteSpace(appSettings["HostName"].ToStringSafe()) == true ? Dns.GetHostName() : appSettings["HostName"].ToStringSafe();
+            GlobalConfiguration.SystemName = Dns.GetHostName();
+            GlobalConfiguration.HostAccessID = GetHostAccessID(appSettings["HostAccessID"].ToStringSafe());
+            GlobalConfiguration.SystemID = appSettings["SystemID"].ToStringSafe();
+            GlobalConfiguration.FindGlobalIDServer = appSettings["FindGlobalIDServer"].ToStringSafe();
+            GlobalConfiguration.IsConfigurationWatching = appSettings["IsConfigurationWatching"].ToStringSafe("false").ToBoolean();
+            GlobalConfiguration.IsTenantFunction = appSettings["IsTenantFunction"].ToStringSafe("false").ToBoolean();
+            GlobalConfiguration.IsExceptionDetailText = appSettings["IsExceptionDetailText"].ToStringSafe("false").ToBoolean();
+            GlobalConfiguration.IsSwaggerUI = appSettings["IsSwaggerUI"].ToStringSafe("false").ToBoolean();
+            GlobalConfiguration.IsModulePurgeContract = appSettings["IsModulePurgeContract"].ToStringSafe("true").ToBoolean();
+            GlobalConfiguration.SessionCookieName = appSettings.GetSection("SessionState").Exists() == true && appSettings["SessionState:IsSession"].ToStringSafe("false").ToBoolean() == true ? appSettings["SessionState:SessionCookieName"].ToStringSafe("") : "";
+            GlobalConfiguration.CookiePrefixName = appSettings["CookiePrefixName"].ToStringSafe("HandStack");
+            GlobalConfiguration.UserSignExpire = int.TryParse(appSettings["UserSignExpire"].ToStringSafe("1440"), out var userSignExpire) == true ? userSignExpire : 1440;
+            GlobalConfiguration.ProxyBasePath = appSettings["ProxyBasePath"].ToStringSafe("");
+            GlobalConfiguration.IsAntiforgeryToken = appSettings["IsAntiforgeryToken"].ToStringSafe("false").ToBoolean();
+
+            GlobalConfiguration.HardwareID = GetHardwareID();
+            Console.WriteLine($"Current Hardware ID: {GlobalConfiguration.HardwareID}");
+
+            switch (GlobalConfiguration.RunningEnvironment)
+            {
+                case "D":
+                    environment.EnvironmentName = "Development";
+                    break;
+                case "P":
+                    environment.EnvironmentName = "Production";
+                    break;
+                case "S":
+                    environment.EnvironmentName = "Staging";
+                    break;
+                default:
+                    environment.EnvironmentName = "Development";
+                    break;
+            }
+
+            GlobalConfiguration.EnvironmentName = environment.EnvironmentName;
+            GlobalConfiguration.RunningEnvironment = environment.EnvironmentName.SubstringSafe(0, 1);
+
+            if (OperatingSystem.IsWindows() == true)
+            {
+                GlobalConfiguration.OSPlatform = "Windows";
+            }
+            else if (OperatingSystem.IsLinux() == true)
+            {
+                GlobalConfiguration.OSPlatform = "Linux";
+            }
+            else if (OperatingSystem.IsMacOS() == true)
+            {
+                GlobalConfiguration.OSPlatform = "MacOS";
+            }
+            else
+            {
+                GlobalConfiguration.OSPlatform = "Etc";
+            }
+
+            GlobalConfiguration.ContentRootPath = environment.ContentRootPath;
+            GlobalConfiguration.WebRootPath = environment.WebRootPath;
+
+            GlobalConfiguration.TenantAppRequestPath = appSettings["TenantAppRequestPath"].ToStringSafe();
+            string handstackHomePath = Path.Combine(GlobalConfiguration.EntryBasePath, "..");
+            GlobalConfiguration.TenantAppBasePath = GlobalConfiguration.GetBaseDirectoryPath(appSettings["TenantAppBasePath"], $"{handstackHomePath}{Path.DirectorySeparatorChar}tenants");
+            GlobalConfiguration.BatchProgramBasePath = GlobalConfiguration.GetBaseDirectoryPath(appSettings["BatchProgramBasePath"]);
+            GlobalConfiguration.CreateAppTempPath = GlobalConfiguration.GetBaseDirectoryPath(appSettings["CreateAppTempPath"]);
+            GlobalConfiguration.ForbesBasePath = GlobalConfiguration.GetBaseDirectoryPath(appSettings["ForbesBasePath"]);
+            GlobalConfiguration.LoadModuleBasePath = GlobalConfiguration.GetBaseDirectoryPath(appSettings["LoadModuleBasePath"]);
+            GlobalConfiguration.LoadContractBasePath = GlobalConfiguration.GetBaseDirectoryPath(PathExtensions.Combine(GlobalConfiguration.EntryBasePath, "..", "contracts"));
+
+            string contentSecurityPolicyFile = PathExtensions.Join(GlobalConfiguration.EntryBasePath, "content-security-policy.txt");
+            if (File.Exists(contentSecurityPolicyFile) == true)
+            {
+                GlobalConfiguration.ContentSecurityPolicy = File.ReadAllText(contentSecurityPolicyFile)
+                    .Replace("\r", "")
+                    .Replace("\n", "")
+                    .Replace("\t", " ")
+                    .Trim();
+            }
+
+            string sectionLoadModuleLicenses = "AppSettings:LoadModuleLicenses";
+            var section = configuration.GetSection(sectionLoadModuleLicenses);
+
+            if (section.Exists() == true)
+            {
+                GlobalConfiguration.LoadModuleLicenses = configuration.GetDictionarySection<LicenseItem>("AppSettings:LoadModuleLicenses");
+            }
+
+            var disposeTenantAppsFilePath = PathExtensions.Combine(GlobalConfiguration.EntryBasePath, "dispose-tenantapps.log");
+            if (File.Exists(disposeTenantAppsFilePath) == true)
+            {
+                using (var file = new StreamReader(disposeTenantAppsFilePath))
+                {
+                    string? line;
+                    while ((line = file.ReadLine()) != null)
+                    {
+                        var parts = line.Split('|', 3, StringSplitOptions.None);
+                        if (parts.Length != 3)
+                        {
+                            Log.Warning("[{LogCategory}] " + $"DisposeTenantApps 로그 형식 확인 필요: {line}", "Startup/ConfigureServices");
+                            continue;
+                        }
+
+                        var userWorkID = parts[0];
+                        var tenantID = parts[1];
+                        var path = parts[2];
+                        try
+                        {
+                            if (Directory.Exists(path) == true && path.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
+                            {
+                                Log.Information("[{LogCategory}] " + $"DisposeTenantApps userWorkID: {userWorkID}, tenantID: {tenantID}", "Startup/ConfigureServices");
+                                Directory.Delete(path, true);
+                            }
+                            else
+                            {
+                                Log.Warning("[{LogCategory}] " + $"DisposeTenantApps 디렉토리 확인 필요: {path}", "Startup/ConfigureServices");
+                            }
+                        }
+                        catch (Exception exception)
+                        {
+                            Log.Error(exception, "[{LogCategory}] " + $"DisposeTenantApps 디렉토리 삭제 오류: {path}", "Startup/ConfigureServices");
+                        }
+                    }
+                }
+
+                File.Delete(disposeTenantAppsFilePath);
+            }
+
+            var withOrigins = appSettings.GetSection("WithOrigins")?.AsEnumerable();
+            if (withOrigins != null && withOrigins.Any() == true)
+            {
+                foreach (var item in withOrigins)
+                {
+                    if (string.IsNullOrWhiteSpace(item.Value) == false)
+                    {
+                        GlobalConfiguration.WithOrigins.Add(item.Value);
+                    }
+                }
+            }
+
+            var allowOnlyIPs = appSettings.GetSection("WithOnlyIPs").Get<string[]>();
+            if (allowOnlyIPs == null || allowOnlyIPs.Length == 0)
+            {
+                allowOnlyIPs = configuration.GetSection("WithOnlyIPs").Get<string[]>();
+            }
+
+            if (allowOnlyIPs != null)
+            {
+                foreach (var item in allowOnlyIPs)
+                {
+                    var normalizeIP = WithOnlyIPFilter.NormalizeIPAddress(item);
+                    if (string.IsNullOrWhiteSpace(normalizeIP) == false)
+                    {
+                        if (GlobalConfiguration.WithOnlyIPs.Contains(normalizeIP) == false)
+                        {
+                            GlobalConfiguration.WithOnlyIPs.Add(normalizeIP);
+                        }
+                    }
+                }
+            }
+
+            var moduleConfigurationUrls = appSettings.GetSection("ModuleConfigurationUrl").AsEnumerable();
+            foreach (var moduleConfigurationUrl in moduleConfigurationUrls)
+            {
+                if (moduleConfigurationUrl.Value != null)
+                {
+                    GlobalConfiguration.ModuleConfigurationUrl.Add(moduleConfigurationUrl.Value);
+                }
+            }
+
+            GlobalConfiguration.IsPermissionRoles = bool.Parse(appSettings["IsPermissionRoles"].ToStringSafe("false"));
+            var sectionPermissionRoles = appSettings.GetSection("PermissionRoles");
+            if (sectionPermissionRoles != null)
+            {
+                var permissionRoles = sectionPermissionRoles.Get<List<PermissionRoles>>();
+                if (permissionRoles != null && permissionRoles.Any() == true)
+                {
+                    foreach (var item in permissionRoles)
+                    {
+                        GlobalConfiguration.PermissionRoles.Add(item);
+                    }
+                }
+            }
+
+            TransactionConfig.DiscoveryApiServerUrl = appSettings["DiscoveryApiServerUrl"].ToStringSafe();
+            TransactionConfig.Program.InstallType = appSettings["InstallType"].ToStringSafe();
+            TransactionConfig.Program.ProgramVersion = GlobalConfiguration.ApplicationVersion;
+            TransactionConfig.Program.ProgramName = GlobalConfiguration.ApplicationName;
+            TransactionConfig.Program.ClientTokenID = string.IsNullOrWhiteSpace(GlobalConfiguration.ProcessID) == true ? Guid.NewGuid().ToString("N").SubstringSafe(0, 6) : GlobalConfiguration.ProcessID.PadLeft(6, '0');
+            TransactionConfig.Transaction.SystemID = GlobalConfiguration.SystemID;
+            TransactionConfig.Transaction.MachineName = GlobalConfiguration.HostName;
+            TransactionConfig.Transaction.RunningEnvironment = GlobalConfiguration.RunningEnvironment;
+
+            GlobalConfiguration.WebRootPath = environment.WebRootPath;
+            GlobalConfiguration.ContentRootPath = environment.ContentRootPath;
+
+            var domainAPIServer = new JObject();
+            domainAPIServer.Add("ExceptionText", null);
+            domainAPIServer.Add("RequestID", "");
+            domainAPIServer.Add("ServerID", appSettings["DomainAPIServer:ServerID"]);
+            domainAPIServer.Add("ServerType", appSettings["DomainAPIServer:ServerType"]);
+            domainAPIServer.Add("Protocol", appSettings["DomainAPIServer:Protocol"]);
+            domainAPIServer.Add("IP", appSettings["DomainAPIServer:IP"]);
+            domainAPIServer.Add("Port", appSettings["DomainAPIServer:Port"]);
+            domainAPIServer.Add("Path", appSettings["DomainAPIServer:Path"]);
+            domainAPIServer.Add("ClientIP", appSettings["DomainAPIServer:ClientIP"]);
+            GlobalConfiguration.DomainAPIServer = domainAPIServer;
+
+            if (useResponseComression == true)
+            {
+                services.AddResponseCompression(options =>
+                {
+                    options.EnableForHttps = bool.Parse(appSettings["ComressionEnableForHttps"].ToStringSafe("false"));
+                    options.Providers.Add<BrotliCompressionProvider>();
+                    options.Providers.Add<GzipCompressionProvider>();
+
+                    var mimeTypes = new List<string>();
+                    var comressionMimeTypes = appSettings.GetSection("ComressionMimeTypes").AsEnumerable();
+                    foreach (var comressionMimeType in comressionMimeTypes)
+                    {
+                        if (comressionMimeType.Value != null)
+                        {
+                            mimeTypes.Add(comressionMimeType.Value);
+                        }
+                    }
+
+                    options.MimeTypes = mimeTypes;
+                });
+            }
+
+            services.AddMemoryCache();
+
+            if (string.IsNullOrWhiteSpace(GlobalConfiguration.SessionCookieName) == false)
+            {
+                var cacheType = appSettings["SessionState:CacheType"].ToStringSafe();
+                if (cacheType == "Memory")
+                {
+                    services.AddDistributedMemoryCache();
+                }
+                else if (cacheType == "Redis")
+                {
+                    services.AddStackExchangeRedisCache(options =>
+                    {
+                        options.Configuration = appSettings["SessionState:RedisConnectionString"].ToStringSafe();
+                        options.InstanceName = appSettings["SessionState:RedisInstanceName"].ToStringSafe();
+
+                        if (options.Configuration == "")
+                        {
+                            Log.Error("[{LogCategory}] " + "Redis Cache 환경설정(ConnectionString) 확인 필요", "Startup/ConfigureServices");
+                            throw new Exception("Redis Cache 환경설정(ConnectionString) 확인 필요");
+                        }
+                    });
+                }
+                else
+                {
+                    Log.Error("[{LogCategory}] " + $"SessionState CacheType: {cacheType} 확인 필요", "Startup/ConfigureServices");
+                    throw new Exception($"SessionState CacheType: {cacheType} 확인 필요");
+                }
+
+                services.AddSession(options =>
+                {
+                    options.IdleTimeout = TimeSpan.FromMinutes(20);
+                    options.Cookie.HttpOnly = true;
+                    options.Cookie.IsEssential = true;
+                    options.Cookie.Name = GlobalConfiguration.SessionCookieName;
+                });
+
+                services.Configure<CookiePolicyOptions>(options =>
+                {
+                    options.CheckConsentNeeded = context => false;
+                    options.MinimumSameSitePolicy = Microsoft.AspNetCore.Http.SameSiteMode.Lax;
+                    options.HttpOnly = HttpOnlyPolicy.None;
+                    options.Secure = environment.IsProduction() == true ? CookieSecurePolicy.Always : CookieSecurePolicy.SameAsRequest;
+                });
+
+                var authenticationLoginPath = appSettings["AuthenticationLoginPath"].ToStringSafe();
+                if (string.IsNullOrWhiteSpace(authenticationLoginPath) == true)
+                {
+                    authenticationLoginPath = "/account/login";
+                }
+
+                var authenticationLogoutPath = appSettings["AuthenticationLogoutPath"].ToStringSafe();
+                if (string.IsNullOrWhiteSpace(authenticationLogoutPath) == true)
+                {
+                    authenticationLogoutPath = "/account/logout";
+                }
+
+                services.AddAuthentication($"{GlobalConfiguration.CookiePrefixName}.AuthenticationScheme")
+                     .AddCookie($"{GlobalConfiguration.CookiePrefixName}.AuthenticationScheme", options =>
+                     {
+                         options.Cookie.Name = $"{GlobalConfiguration.CookiePrefixName}.AuthenticationScheme";
+                         options.LoginPath = authenticationLoginPath;
+                         options.LogoutPath = authenticationLoginPath;
+                     });
+
+                services.Configure<CookieTempDataProviderOptions>(options => options.Cookie.Name = $"{GlobalConfiguration.CookiePrefixName}.ApplicationCookie");
+                services.ConfigureApplicationCookie(options =>
+                {
+                    options.Cookie.HttpOnly = true;
+                    options.Cookie.SecurePolicy = environment.IsProduction() == true ? CookieSecurePolicy.Always : CookieSecurePolicy.SameAsRequest;
+                    options.Cookie.SameSite = environment.IsProduction() == true ? Microsoft.AspNetCore.Http.SameSiteMode.Lax : Microsoft.AspNetCore.Http.SameSiteMode.None;
+                    options.Cookie.Expiration = TimeSpan.FromSeconds(GlobalConfiguration.UserSignExpire);
+
+                    options.SlidingExpiration = true;
+                    options.ExpireTimeSpan = TimeSpan.FromSeconds(GlobalConfiguration.UserSignExpire);
+                    options.LoginPath = authenticationLoginPath;
+                    options.LogoutPath = authenticationLoginPath;
+                });
+            }
+
+            services.AddProblemDetails();
+            services.AddHttpContextAccessor();
+
+            if (GlobalConfiguration.IsAntiforgeryToken == true)
+            {
+                string applicationName = GlobalConfiguration.EntryBasePath.Replace("\\", "").Replace("/", "").Replace(":", "");
+                string protectionKeysPath = PathExtensions.Join(GlobalConfiguration.EntryBasePath, "..", "cache", "protection-keys");
+                services.AddAntiforgery(options =>
+                {
+                    options.Cookie.Name = "X-CSRF-TOKEN";
+                    options.Cookie.HttpOnly = true;
+                    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+                    options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict;
+                    options.HeaderName = "X-CSRF-TOKEN";
+                    options.FormFieldName = "__RequestVerificationToken";
+                });
+                services.AddDataProtection()
+                    .PersistKeysToFileSystem(new DirectoryInfo(protectionKeysPath))
+                    .SetApplicationName(applicationName);
+            }
+
+            services.AddRouting(options =>
+            {
+                options.LowercaseUrls = true;
+                options.ConstraintMap["slugify"] = typeof(SlugifyParameterTransformer);
+            });
+
+            if (GlobalConfiguration.WithOrigins.Count > 0)
+            {
+                services.AddCors(options =>
+                {
+                    options.AddDefaultPolicy(
+                    builder => builder
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials()
+                        .WithOrigins(GlobalConfiguration.WithOrigins.ToArray())
+                        .SetIsOriginAllowedToAllowWildcardSubdomains()
+                        .SetPreflightMaxAge(TimeSpan.FromSeconds(86400))
+                        .WithHeaders(HeaderNames.CacheControl)
+                    );
+
+                    if (enablePublicCorsPolicy == true)
+                    {
+                        options.AddPolicy("PublicCorsPolicy",
+                        builder => builder
+                            .AllowAnyHeader()
+                            .AllowAnyMethod()
+                            .AllowAnyOrigin()
+                            .SetPreflightMaxAge(TimeSpan.FromSeconds(86400))
+                            .WithHeaders(HeaderNames.CacheControl)
+                        );
+                    }
+                });
+            }
+            else
+            {
+                services.AddCors(options =>
+                {
+                    if (enablePublicCorsPolicy == true)
+                    {
+                        options.AddPolicy("PublicCorsPolicy",
+                        builder => builder
+                            .AllowAnyHeader()
+                            .AllowAnyMethod()
+                            .AllowAnyOrigin()
+                            .SetPreflightMaxAge(TimeSpan.FromSeconds(86400))
+                            .WithHeaders(HeaderNames.CacheControl)
+                        );
+                    }
+                });
+            }
+
+            if (Directory.Exists(GlobalConfiguration.TenantAppBasePath) == true)
+            {
+                foreach (var userWorkPath in Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath))
+                {
+                    var workDirectoryInfo = new DirectoryInfo(userWorkPath);
+                    var userWorkID = workDirectoryInfo.Name;
+                    foreach (var appBasePath in Directory.GetDirectories(userWorkPath))
+                    {
+                        var directoryInfo = new DirectoryInfo(appBasePath);
+                        if (directoryInfo.Exists == true)
+                        {
+                            var applicationID = directoryInfo.Name;
+                            var tenantID = $"{userWorkID}|{applicationID}";
+
+                            var settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
+                            if (File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
+                            {
+                                var appSettingText = File.ReadAllText(settingFilePath);
+                                var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
+                                if (appSetting != null)
+                                {
+                                    var withOriginUri = appSetting.WithOrigin;
+                                    if (withOriginUri != null)
+                                    {
+                                        services.AddCors(options =>
+                                        {
+                                            options.AddPolicy(name: tenantID,
+                                            builder => builder
+                                                .AllowAnyHeader()
+                                                .AllowAnyMethod()
+                                                .WithOrigins(withOriginUri.ToArray())
+                                                .SetIsOriginAllowedToAllowWildcardSubdomains()
+                                                .SetPreflightMaxAge(TimeSpan.FromSeconds(86400))
+                                                .WithHeaders(HeaderNames.CacheControl)
+                                            );
+                                        });
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            services.AddMvc().AddMvcOptions(options =>
+            {
+                options.EnableEndpointRouting = false;
+                options.SuppressAsyncSuffixInActionNames = false;
+                options.InputFormatters.Insert(0, new RawRequestBodyFormatter());
+            });
+            services.AddControllersWithViews(options =>
+            {
+                options.Conventions.Add(new RouteTokenTransformerConvention(new SlugifyParameterTransformer()));
+            })
+            .AddJsonOptions(jsonOptions =>
+            {
+                jsonOptions.JsonSerializerOptions.PropertyNamingPolicy = null;
+            })
+            .AddNewtonsoftJson(options =>
+            {
+                options.SerializerSettings.DateParseHandling = DateParseHandling.None;
+                options.SerializerSettings.Formatting = Formatting.None;
+                options.SerializerSettings.NullValueHandling = NullValueHandling.Include;
+                options.SerializerSettings.ContractResolver = new DefaultContractResolver
+                {
+                    NamingStrategy = null
+                };
+            });
+
+            if (GlobalConfiguration.IsSwaggerUI == true)
+            {
+                services.AddSwaggerGen();
+            }
+            services.AddScoped<TransactionClient>();
+            services.AddScoped<MediatorClient>();
+            services.AddScoped<IMediator, HandStackMediator>();
+            services.AddSingleton(configuration);
+            services.AddSingleton<ISequentialIdGenerator, SequentialIdGenerator>();
+            services.AddSingleton(new SqidsEncoder<int>(new()
+            {
+                Alphabet = appSettings["SqidsAlphabet"].ToStringSafe() == "" ? "abcdefghijklmnopqrstuvwxyz1234567890" : appSettings["SqidsAlphabet"].ToStringSafe(),
+                MinLength = 8,
+            }));
+            services.AddSingleton<SecretService>();
+            services.AddSingleton<RuntimeConfigurationService>();
+            services.AddHostedService<AppSettingsFileWatcherService>();
+            services.AddHostedService<ModuleSettingsFileWatcherService>();
+            services.AddSingleton<ApiRequestMetricsCollector>();
+
+            services.AddRazorPages()
+            .AddRazorPagesOptions(options =>
+            {
+                options.Conventions.Add(new PageRouteTransformerConvention(new SlugifyParameterTransformer()));
+
+                if (GlobalConfiguration.IsAntiforgeryToken == true)
+                {
+                    options.Conventions.ConfigureFilter(new IgnoreAntiforgeryTokenAttribute());
+                }
+            });
+
+            if (useHttpLogging == true)
+            {
+                services.AddHttpLogging(options =>
+                {
+                    options.LoggingFields = HttpLoggingFields.RequestPropertiesAndHeaders;
+                });
+            }
+
+            if (useProxyForward == true)
+            {
+                services.Configure<ForwardedHeadersOptions>(options =>
+                {
+                    options.ForwardedHeaders = ForwardedHeaders.All;
+                    var forwards = appSettings.GetSection("ForwardProxyIP").AsEnumerable();
+                    foreach (var item in forwards)
+                    {
+                        if (string.IsNullOrWhiteSpace(item.Value) == false)
+                        {
+                            options.KnownProxies.Add(IPAddress.Parse(item.Value));
+                        }
+                    }
+
+                    var useSameIPProxy = bool.Parse(appSettings["UseSameIPProxy"].ToStringSafe("false"));
+                    if (useSameIPProxy == true)
+                    {
+                        var host = Dns.GetHostEntry(Dns.GetHostName());
+                        foreach (var ipAddress in host.AddressList)
+                        {
+                            if (ipAddress.AddressFamily == AddressFamily.InterNetwork)
+                            {
+                                options.KnownProxies.Add(ipAddress);
+                            }
+                        }
+                    }
+                });
+            }
+
+            if (appSettings.GetSection("LicenseKey").Value != null && appSettings.GetSection("LicenseSignature").Value == null)
+            {
+                var ackLicenseKey = appSettings["LicenseKey"].ToStringSafe();
+                var ackLicenseSignature = appSettings["LicenseSignature"].ToStringSafe();
+                if (string.IsNullOrWhiteSpace(ackLicenseKey) == false && string.IsNullOrWhiteSpace(ackLicenseSignature) == false)
+                {
+                    try
+                    {
+                        var license = License.Load(ackLicenseKey.DecodeBase64());
+                        var currentMachineName = Environment.MachineName;
+
+                        var validationFailure = license.Validate()
+                            .Signature(ackLicenseSignature.ToStringSafe())
+                            .AssertValidLicense();
+
+                        if (validationFailure != null)
+                        {
+                            var errorText = $"ack 프로그램 License 오류: {validationFailure.Message}, {validationFailure.HowToResolve}";
+                            Log.Error("[{LogCategory}] " + errorText, "Startup/ConfigureServices");
+                            throw new UnauthorizedAccessException(errorText);
+                        }
+                    }
+                    catch (Exception exception)
+                    {
+                        Log.Error(exception, "[{LogCategory}] " + "ack 프로그램 LicenseKey, LicenseSignature 확인 필요", "Startup/ConfigureServices");
+                        throw new UnauthorizedAccessException("ack 프로그램 LicenseKey, LicenseSignature 확인 필요");
+                    }
+                }
+            }
+
+            services.AddModules();
+            services.AddCustomizedMvc(GlobalConfiguration.Modules);
+
+            var homePath = new DirectoryInfo(GlobalConfiguration.EntryBasePath).Parent?.FullName.Replace("\\", "/");
+            var baseContractPath = PathExtensions.Combine(homePath.ToStringSafe(), "contracts");
+            if (GlobalConfiguration.IsModulePurgeContract == true)
+            {
+                if (Directory.Exists(baseContractPath) == true)
+                {
+                    foreach (var file in Directory.GetFiles(baseContractPath))
+                    {
+                        File.Delete(file);
+                    }
+
+                    foreach (var subdirectory in Directory.GetDirectories(baseContractPath))
+                    {
+                        Directory.Delete(subdirectory, true);
+                    }
+                }
+            }
+
+            var validator = new ModuleLicenseValidator();
+            foreach (var module in GlobalConfiguration.Modules)
+            {
+                if (module.Assembly != null)
+                {
+                    try
+                    {
+                        if (GlobalConfiguration.LoadModuleLicenses.TryGetValue(module.ModuleID, out var licenseItem) == true)
+                        {
+                            var validationResult = validator.ValidateLicenseAsync(module.ModuleID, licenseItem, enableCache: true, throwOnError: false).Result;
+                            if (validationResult.IsValid == false)
+                            {
+                                Log.Error("[{LogCategory}] " + $"module: {module.ModuleID} LicenseKey, LicenseSignature 확인 필요", "ack Startup/ConfigureServices");
+                                throw new UnauthorizedAccessException($"module: {module.ModuleID} LicenseKey, LicenseSignature 확인 필요");
+                            }
+
+                            licenseItem.Data = validationResult.Data;
+                        }
+
+                        var moduleContractPath = PathExtensions.Combine(module.BasePath, "Contracts");
+                        if (module.IsCopyContract == true && Directory.Exists(moduleContractPath) == true)
+                        {
+                            DirectoryCopy(moduleContractPath, baseContractPath);
+                        }
+                    }
+                    catch
+                    {
+                        Log.Error("[{LogCategory}] " + $"module: {module.ModuleID} DirectoryCopy 확인 필요", "ack Startup/ConfigureServices");
+                        throw;
+                    }
+                }
+            }
+
+            foreach (var module in GlobalConfiguration.Modules)
+            {
+                Log.Information("[{LogCategory}] " + $"module: {module.ModuleID}", "Startup/ConfigureServices");
+
+                if (module.Assembly != null)
+                {
+                    string assemblyPublicKey = module.Assembly.GetPublicKey();
+                    if (string.IsNullOrWhiteSpace(assemblyPublicKey) == false)
+                    {
+                        if (GlobalConfiguration.LoadModuleLicenses.ContainsKey(module.ModuleID) == false)
+                        {
+                            Log.Error("[{LogCategory}] " + $"module: {module.ModuleID} 라이선스 정보 확인 필요", "ack Startup/ConfigureServices");
+                            throw new Exception($"module: {module.ModuleID} 라이선스 정보 확인 필요");
+                        }
+
+                        if (GlobalConfiguration.LoadModuleLicenses[module.ModuleID].SignKey.Split(".")[1] != assemblyPublicKey)
+                        {
+                            Log.Error("[{LogCategory}] " + $"module: {module.ModuleID} 어셈블리 서명과 라이선스 정보가 일치하지 않습니다", "ack Startup/ConfigureServices");
+                            throw new Exception($"module: {module.ModuleID} 어셈블리 서명과 라이선스 정보가 일치하지 않습니다");
+                        }
+
+                        if (GlobalConfiguration.LoadModuleLicenses.TryGetValue(module.ModuleID, out var licenseItem) == true)
+                        {
+                            licenseItem.AssemblyKey = assemblyPublicKey;
+                            licenseItem.AssemblyToken = module.Assembly.GetPublicKeyToken();
+                        }
+                    }
+
+                    var moduleInitializerType = module.Assembly.GetTypes().FirstOrDefault(t => typeof(IModuleInitializer).IsAssignableFrom(t));
+                    if (moduleInitializerType != null && (moduleInitializerType != typeof(IModuleInitializer)))
+                    {
+                        var instance = Activator.CreateInstance(moduleInitializerType);
+                        if (instance != null)
+                        {
+                            var moduleInitializer = instance as IModuleInitializer;
+                            if (moduleInitializer != null)
+                            {
+                                try
+                                {
+                                    if (module.IsPurgeContract == true)
+                                    {
+                                        foreach (var basePath in module.ContractBasePath)
+                                        {
+                                            var moduleContractPath = GlobalConfiguration.GetBaseDirectoryPath(basePath);
+                                            if (moduleContractPath.StartsWith(GlobalConfiguration.LoadContractBasePath) == true)
+                                            {
+                                                continue;
+                                            }
+
+                                            var ackFile = new FileInfo(PathExtensions.Combine(GlobalConfiguration.EntryBasePath, "rdy.dll"));
+                                            var directory = new DirectoryInfo(moduleContractPath);
+                                            if (ackFile != null && ackFile.Exists == true && directory != null && directory.Exists == true)
+                                            {
+                                                var appBasePath = ackFile.DirectoryName.ToStringSafe();
+                                                var ackHomePath = (ackFile.Directory?.Parent?.FullName.Replace("\\", "/")).ToStringSafe();
+                                                var sourceContractDirectory = directory.FullName.Replace("\\", "/");
+                                                var targetContractDirectory = PathExtensions.Combine(ackHomePath, "contracts", module.ModuleID);
+
+                                                try
+                                                {
+                                                    if (Directory.Exists(sourceContractDirectory))
+                                                    {
+                                                        var files = Directory.GetFiles(sourceContractDirectory, "*", SearchOption.AllDirectories);
+                                                        foreach (var baseFile in files)
+                                                        {
+                                                            var targetFile = baseFile.Replace(sourceContractDirectory, targetContractDirectory);
+                                                            if (File.Exists(targetFile) == true)
+                                                            {
+                                                                File.Delete(targetFile);
+                                                                if (module.ModuleID == "function")
+                                                                {
+                                                                    var parentDirectory = Path.GetDirectoryName(targetFile);
+                                                                    if (Directory.Exists(parentDirectory) == true && Directory.GetFiles(parentDirectory).Length == 0)
+                                                                    {
+                                                                        Directory.Delete(parentDirectory);
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                catch (Exception exception)
+                                                {
+                                                    Log.Error(exception, $"{module.ModuleID} purgecontracts 오류");
+                                                }
+                                            }
+                                            else
+                                            {
+                                                if (ackFile?.Exists == false)
+                                                {
+                                                    Log.Error($"ackFile:{ackFile?.FullName.Replace("\\", "/")} 파일 확인이 필요합니다");
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    services.AddSingleton(typeof(IModuleInitializer), moduleInitializer);
+                                    if (moduleInitializer is IModuleRuntimeConfiguration moduleRuntimeConfiguration)
+                                    {
+                                        services.AddSingleton(typeof(IModuleRuntimeConfiguration), moduleRuntimeConfiguration);
+                                    }
+
+                                    moduleInitializer.ConfigureServices(services, environment, configuration);
+                                }
+                                catch
+                                {
+                                    Log.Error("[{LogCategory}] " + $"module: {module.ModuleID} ConfigureServices 확인 필요", "ack Startup/ConfigureServices");
+                                    throw;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            services.AddHostedService<NamePipeService>();
+            services.AddSingleton<ModuleConfigurationService>();
+            services.AddHostedService<DelayedStartService>();
+        }
+
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment environment, ICorsService corsService, ICorsPolicyProvider corsPolicyProvider)
+        {
+            if (useResponseComression == true)
+            {
+                app.UseResponseCompression();
+            }
+
+            if (useProxyForward == true)
+            {
+                app.UseForwardedHeaders(new ForwardedHeadersOptions
+                {
+                    ForwardedHeaders = ForwardedHeaders.All
+                });
+            }
+
+            if (useHttpLogging == true)
+            {
+                app.UseHttpLogging();
+            }
+
+            if (enableSecurityHeaders == true)
+            {
+                app.Use(async (context, next) =>
+                {
+                    context.Response.OnStarting(() =>
+                    {
+                        ApplySecurityHeaders(context);
+                        return Task.CompletedTask;
+                    });
+
+                    await next();
+                });
+            }
+
+            if (string.IsNullOrWhiteSpace(GlobalConfiguration.ProxyBasePath) == false)
+            {
+                string proxyBasePath = "/" + GlobalConfiguration.ProxyBasePath;
+                app.UsePathBase(proxyBasePath);
+                app.Use((context, next) =>
+                {
+                    if (context.Request.PathBase.HasValue == true && context.Request.PathBase.Equals(proxyBasePath, StringComparison.OrdinalIgnoreCase) == false)
+                    {
+                        context.Response.StatusCode = 404;
+                        return Task.CompletedTask;
+                    }
+                    return next();
+                });
+            }
+
+            GlobalConfiguration.ContentTypeProvider = new FileExtensionContentTypeProvider();
+
+            try
+            {
+                var contentTypeFilePath = PathExtensions.Combine(GlobalConfiguration.WebRootPath, "contenttype.json");
+
+                if (File.Exists(contentTypeFilePath) == true)
+                {
+                    var contentTypes = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(contentTypeFilePath));
+                    if (contentTypes != null)
+                    {
+                        foreach (var item in contentTypes)
+                        {
+                            GlobalConfiguration.ContentTypeProvider.Mappings[item.Key] = item.Value;
+                        }
+                    }
+                }
+            }
+            catch (Exception exception)
+            {
+                Log.Error(exception, "[{LogCategory}] ncloudconfig.json 코드설정 확인 필요", "ack ModuleInitializer/InitailizeAppSetting");
+            }
+
+            app.Use(async (context, next) =>
+            {
+                var requestPath = context.Request.Path.ToString();
+                if (GlobalConfiguration.IsPermissionRoles == true && requestPath.IndexOf($"/{GlobalConfiguration.ContractRequestPath}/") > -1)
+                {
+                    var isAuthorized = false;
+                    var permissionRoles = GlobalConfiguration.PermissionRoles.Where(x => x.ModuleID == "wwwroot");
+                    if (permissionRoles.Any() == true)
+                    {
+                        var publicRoles = permissionRoles.Where(x => x.RoleID == "Public");
+                        for (var i = 0; i < publicRoles.Count(); i++)
+                        {
+                            var publicRole = publicRoles.ElementAt(i);
+                            if (publicRole != null)
+                            {
+                                var pattern = "";
+                                if (string.IsNullOrWhiteSpace(publicRole.ApplicationID) == false)
+                                {
+                                    pattern = pattern + $"[\\/]{publicRole.ApplicationID}";
+                                }
+
+                                if (string.IsNullOrWhiteSpace(publicRole.ProjectID) == false)
+                                {
+                                    pattern = pattern + $"[\\/]{publicRole.ProjectID}";
+                                }
+
+                                if (string.IsNullOrWhiteSpace(publicRole.TransactionID) == false)
+                                {
+                                    pattern = pattern + $"[\\/]{publicRole.TransactionID}";
+                                }
+
+                                var allowTransactionPattern = new Regex(pattern);
+                                isAuthorized = allowTransactionPattern.IsMatch(requestPath);
+                                if (isAuthorized == true)
+                                {
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (isAuthorized == false)
+                        {
+                            var member = context.Request.Cookies[$"{GlobalConfiguration.CookiePrefixName}.Member"];
+                            if (string.IsNullOrWhiteSpace(member) == false)
+                            {
+                                var user = JsonConvert.DeserializeObject<UserAccount>(member.DecodeBase64());
+                                if (user != null)
+                                {
+                                    var userRoles = user.ApplicationRoleID.SplitComma();
+                                    if (userRoles.Any() == true)
+                                    {
+                                        foreach (var permissionRole in permissionRoles.Where(x => x.RoleID != "Public"))
+                                        {
+                                            var roles = permissionRole.RoleID.SplitComma();
+                                            if (roles.Intersect(userRoles).Any() == true)
+                                            {
+                                                var pattern = "";
+                                                if (string.IsNullOrWhiteSpace(permissionRole.ApplicationID) == false)
+                                                {
+                                                    pattern = pattern + $"[\\/]{permissionRole.ApplicationID}";
+                                                }
+
+                                                if (string.IsNullOrWhiteSpace(permissionRole.ProjectID) == false)
+                                                {
+                                                    pattern = pattern + $"[\\/]{permissionRole.ProjectID}";
+                                                }
+
+                                                if (string.IsNullOrWhiteSpace(permissionRole.TransactionID) == false)
+                                                {
+                                                    pattern = pattern + $"[\\/]{permissionRole.TransactionID}";
+                                                }
+
+                                                var allowTransactionPattern = new Regex(pattern);
+                                                isAuthorized = allowTransactionPattern.IsMatch(requestPath);
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        isAuthorized = true;
+                    }
+
+                    if (isAuthorized == false)
+                    {
+                        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                        return;
+                    }
+                }
+
+                var path = context.Request.Path.Value;
+                if (path != null && (path.EndsWith(".html", StringComparison.OrdinalIgnoreCase) == true || path.EndsWith(".htm", StringComparison.OrdinalIgnoreCase) == true))
+                {
+                    context.Response.OnStarting(() =>
+                    {
+                        if (string.IsNullOrWhiteSpace(GlobalConfiguration.ContentSecurityPolicy) == false)
+                        {
+                            context.Response.Headers.Append("Content-Security-Policy", GlobalConfiguration.ContentSecurityPolicy);
+                        }
+
+                        if (context.Response.Headers.ContainsKey("Content-Type") == false)
+                        {
+                            context.Response.Headers.Append("Content-Type", "text/html; charset=utf-8");
+                        }
+                        context.Response.Headers.Remove("Server");
+                        return Task.CompletedTask;
+                    });
+                }
+
+                await next(context);
+            });
+
+            if (GlobalConfiguration.WithOnlyIPs.Count > 0)
+            {
+                app.Use(async (context, next) =>
+                {
+                    if (IsStaticContentRequest(context.Request) == false)
+                    {
+                        await next();
+                        return;
+                    }
+
+                    if (IsAllowOnlyClientIP(context) == false)
+                    {
+                        await WriteIPForbiddenResponse(context);
+                        return;
+                    }
+
+                    await next();
+                });
+            }
+
+            var physicalPath = PathExtensions.Combine(GlobalConfiguration.EntryBasePath, "wwwroot");
+            if (Directory.Exists(physicalPath) == true)
+            {
+                app.UseMiddleware<CaseInsensitiveStaticFileMiddleware>(physicalPath);
+                app.UseDefaultFiles();
+
+                var staticFileOptions = new StaticFileOptions
+                {
+                    FileProvider = new PhysicalFileProvider(physicalPath),
+                    ServeUnknownFileTypes = true,
+                    ContentTypeProvider = GlobalConfiguration.ContentTypeProvider,
+                    OnPrepareResponse = httpContext =>
+                    {
+                        if (WithOnlyIPFilter.TryRejectStaticFile(httpContext.Context, "Startup/Configure") == true)
+                        {
+                            return;
+                        }
+
+                        var policy = corsPolicyProvider.GetPolicyAsync(httpContext.Context, null)
+                        .ConfigureAwait(false)
+                        .GetAwaiter()
+                        .GetResult();
+
+                        if (policy != null)
+                        {
+                            try
+                            {
+                                var corsResult = corsService.EvaluatePolicy(httpContext.Context, policy);
+                                corsService.ApplyResult(corsResult, httpContext.Context.Response);
+                            }
+                            catch
+                            {
+                                Log.Logger.Warning("[{LogCategory}] " + $"corsService.ApplyResult 확인 필요 {httpContext.Context.Request.Path}", $"Startup ModuleInitializer/Configure");
+                            }
+                        }
+
+                        if (httpContext.Context.Request.Path.ToString().IndexOf("syn.loader.js") > -1)
+                        {
+                            httpContext.Context.Response.Headers.Append("Cache-Control", "no-cache, no-store");
+                            httpContext.Context.Response.Headers.Append("Expires", "-1");
+                        }
+                        else if (GlobalConfiguration.StaticFileCacheMaxAge > 0)
+                        {
+                            httpContext.Context.Response.Headers.Append("Cache-Control", $"public, max-age={GlobalConfiguration.StaticFileCacheMaxAge}");
+                        }
+
+                        if (httpContext.Context.Response.Headers.ContainsKey("p3p") == true)
+                        {
+                            httpContext.Context.Response.Headers.Remove("p3p");
+                            httpContext.Context.Response.Headers.Append("p3p", "CP=\"ALL ADM DEV PSAi COM OUR OTRo STP IND ONL\"");
+                        }
+                    }
+                };
+
+                app.UseStaticFiles(staticFileOptions);
+            }
+
+            if (GlobalConfiguration.IsSwaggerUI == true)
+            {
+                app.UseSwagger();
+                app.UseSwaggerUI();
+            }
+
+            if (GlobalConfiguration.IsExceptionDetailText == true)
+            {
+                app.UseDeveloperExceptionPage();
+            }
+
+            if (string.IsNullOrWhiteSpace(GlobalConfiguration.ServerDevCertFilePath) == false && File.Exists(GlobalConfiguration.ServerDevCertFilePath) == true && string.IsNullOrWhiteSpace(GlobalConfiguration.ServerDevCertPassword) == false)
+            {
+                app.UseHsts();
+            }
+
+            app.UseExceptionHandler(exceptionHandlerApp =>
+            {
+                exceptionHandlerApp.Run(async context =>
+                {
+                    var exceptionHandlerFeature = context.Features.Get<IExceptionHandlerFeature>();
+                    var exceptionType = exceptionHandlerFeature?.Error;
+
+                    var requestMethod = context.Request.Method;
+                    var absoluteUrl = context.Request.GetAbsoluteUrl();
+                    var clientIP = context.GetRemoteIpAddress().ToStringSafe();
+                    var userAgent = context.Request.Headers["User-Agent"].ToString();
+                    var identityName = (context.User.Identity?.Name).ToStringSafe();
+                    var statusCode = context.Response.StatusCode;
+                    var message = string.Empty;
+                    var stackTrace = string.Empty;
+
+                    if (exceptionType != null)
+                    {
+                        message = exceptionType.Message;
+                        stackTrace = exceptionType.StackTrace;
+                    }
+
+                    context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                    context.Response.ContentType = Text.Plain;
+
+                    if (context.RequestServices.GetService<IProblemDetailsService>() is { } problemDetailsService)
+                    {
+                        var problemDetails = new ProblemDetails();
+                        problemDetails.Status = StatusCodes.Status400BadRequest;
+                        problemDetails.Title = "유효하지 않는 요청입니다";
+
+                        if (exceptionType != null)
+                        {
+                            if (exceptionType is UnauthorizedAccessException)
+                            {
+                                problemDetails.Status = StatusCodes.Status401Unauthorized;
+                                problemDetails.Title = "승인되지 않은 접근입니다";
+                            }
+                            else if (exceptionType is FileNotFoundException)
+                            {
+                                problemDetails.Status = StatusCodes.Status404NotFound;
+                                problemDetails.Title = "리소스를 찾을 수 없습니다";
+                            }
+                            else
+                            {
+                                problemDetails.Status = StatusCodes.Status500InternalServerError;
+                                problemDetails.Title = message;
+                                problemDetails.Detail = stackTrace;
+                            }
+                        }
+
+                        await problemDetailsService.WriteAsync(new ProblemDetailsContext
+                        {
+                            HttpContext = context,
+                            ProblemDetails = problemDetails
+                        });
+                    }
+                });
+            });
+
+            if (string.IsNullOrWhiteSpace(GlobalConfiguration.ProxyBasePath) == false)
+            {
+                app.UseMiddleware<HtmlProxyBasePathInjectionMiddleware>();
+            }
+            app.UseMiddleware<HtmxTokenInjectionMiddleware>();
+            app.UseRouting();
+            app.Use(async (context, next) =>
+            {
+                var startedTimestamp = Stopwatch.GetTimestamp();
+                int statusCode = StatusCodes.Status500InternalServerError;
+
+                try
+                {
+                    await next();
+                    statusCode = context.Response.StatusCode;
+                }
+                catch
+                {
+                    statusCode = StatusCodes.Status500InternalServerError;
+                    throw;
+                }
+                finally
+                {
+                    if (TryGetApiRequestMetricKey(context, out var metricKey) == true)
+                    {
+                        var apiRequestMetricsCollector = context.RequestServices.GetRequiredService<ApiRequestMetricsCollector>();
+                        var elapsed = Stopwatch.GetElapsedTime(startedTimestamp);
+                        apiRequestMetricsCollector.Record(metricKey, statusCode, elapsed.Ticks);
+                    }
+                }
+            });
+
+            if (GlobalConfiguration.WithOnlyIPs.Count > 0)
+            {
+                app.Use(async (context, next) =>
+                {
+                    if (IsApiControllerRequest(context) == false)
+                    {
+                        await next();
+                        return;
+                    }
+
+                    if (IsAllowOnlyClientIP(context) == false)
+                    {
+                        await WriteIPForbiddenResponse(context);
+                        return;
+                    }
+
+                    await next();
+                });
+            }
+
+            if (GlobalConfiguration.WithOrigins.Count > 0)
+            {
+                if (GlobalConfiguration.WithOrigins.Contains("*:*") == true)
+                {
+                    app.UseCors(policy =>
+                    {
+                        policy
+                            .AllowAnyOrigin()
+                            .AllowAnyHeader()
+                            .AllowAnyMethod()
+                            .SetIsOriginAllowedToAllowWildcardSubdomains()
+                            .SetPreflightMaxAge(TimeSpan.FromSeconds(86400))
+                            .WithHeaders(HeaderNames.CacheControl);
+                    });
+                }
+                else
+                {
+                    app.UseCors();
+                }
+
+                if (enablePublicCorsPolicy == true)
+                {
+                    app.UseCors("PublicCorsPolicy");
+                }
+            }
+
+            var moduleInitializers = app.ApplicationServices.GetServices<IModuleInitializer>();
+            foreach (var moduleInitializer in moduleInitializers)
+            {
+                Log.Information("[{LogCategory}] " + $"module: {moduleInitializer} Configure", "Startup/Configure");
+                moduleInitializer.Configure(app, environment, corsService, corsPolicyProvider);
+            }
+
+
+            if (string.IsNullOrWhiteSpace(GlobalConfiguration.SessionCookieName) == false)
+            {
+                app.UseSession();
+                app.UseMiddleware<UserSessionMiddleware>();
+            }
+
+            app.UseMiddleware<UserSignMiddleware>();
+            app.UseAuthentication();
+            app.UseAuthorization();
+            app.UseCookiePolicy();
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapPost("/contractsync", async context =>
+                {
+                    if (useContractSync == false)
+                    {
+                        context.Response.StatusCode = StatusCodes.Status406NotAcceptable;
+                        return;
+                    }
+
+                    try
+                    {
+                        var destModuleBasePath = string.Empty;
+                        var destContractModuleBasePath = string.Empty;
+                        string handstackHomePath = Path.Combine(GlobalConfiguration.EntryBasePath, "..");
+                        if (string.IsNullOrWhiteSpace(handstackHomePath) == false)
+                        {
+                            if (IsValidHostAccessRequest(context, out var hostAccessID) == true)
+                            {
+                                var form = await context.Request.ReadFormAsync();
+                                var file = form.Files["file"];
+                                var moduleID = form["moduleID"].ToString();
+                                var contractType = form["contractType"].ToString();
+                                var destFilePath = form["destFilePath"].ToString();
+                                var changeType = form["changeType"].ToString();
+
+                                if (string.IsNullOrWhiteSpace(moduleID) == true || string.IsNullOrWhiteSpace(destFilePath) == true || string.IsNullOrWhiteSpace(changeType) == true || (changeType != "Deleted" && (file == null || file.Length == 0)))
+                                {
+                                    context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                                    return;
+                                }
+
+                                if (file != null && file.Length > maxContractSyncFileBytes)
+                                {
+                                    context.Response.StatusCode = StatusCodes.Status413PayloadTooLarge;
+                                    return;
+                                }
+
+                                switch (contractType)
+                                {
+                                    case "dbclient":
+                                        destModuleBasePath = PathExtensions.Combine(handstackHomePath, "modules", moduleID, "Contracts", "dbclient");
+                                        destContractModuleBasePath = PathExtensions.Combine(handstackHomePath, "contracts", "dbclient");
+                                        break;
+                                    case "graphclient":
+                                        destModuleBasePath = PathExtensions.Combine(handstackHomePath, "modules", moduleID, "Contracts", "graphclient");
+                                        destContractModuleBasePath = PathExtensions.Combine(handstackHomePath, "contracts", "graphclient");
+                                        break;
+                                    case "function":
+                                        destModuleBasePath = PathExtensions.Combine(handstackHomePath, "modules", moduleID, "Contracts", "function");
+                                        destContractModuleBasePath = PathExtensions.Combine(handstackHomePath, "contracts", "function");
+                                        break;
+                                    case "transact":
+                                        destModuleBasePath = PathExtensions.Combine(handstackHomePath, "modules", moduleID, "Contracts", "transact");
+                                        destContractModuleBasePath = PathExtensions.Combine(handstackHomePath, "contracts", "transact");
+                                        break;
+                                    case "wwwroot":
+                                        destModuleBasePath = PathExtensions.Combine(handstackHomePath, "modules", moduleID, "wwwroot", moduleID);
+                                        destContractModuleBasePath = PathExtensions.Combine(handstackHomePath, "modules", moduleID, "wwwroot", moduleID);
+                                        break;
+                                }
+
+                                if (string.IsNullOrWhiteSpace(destModuleBasePath) == true || string.IsNullOrWhiteSpace(destContractModuleBasePath) == true)
+                                {
+                                    context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                                    return;
+                                }
+
+                                if (changeType == "Deleted")
+                                {
+                                    if (TryResolveChildPath(destModuleBasePath, destFilePath, out var targetModuleFilePath) == false)
+                                    {
+                                        context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                                        return;
+                                    }
+
+                                    File.Delete(targetModuleFilePath);
+
+                                    if (contractType != "wwwroot")
+                                    {
+                                        if (TryResolveChildPath(destContractModuleBasePath, destFilePath, out var targetContractFilePath) == false)
+                                        {
+                                            context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                                            return;
+                                        }
+
+                                        File.Delete(targetContractFilePath);
+                                    }
+                                }
+                                else
+                                {
+                                    if (file != null)
+                                    {
+                                        if (TryResolveChildPath(destModuleBasePath, destFilePath, out var targetModuleFilePath) == false)
+                                        {
+                                            context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                                            return;
+                                        }
+
+                                        using var fileStream = new MemoryStream();
+                                        await file.CopyToAsync(fileStream);
+
+                                        await CopyFileAsync(fileStream, targetModuleFilePath);
+
+                                        if (contractType != "wwwroot")
+                                        {
+                                            if (TryResolveChildPath(destContractModuleBasePath, destFilePath, out var targetContractFilePath) == false)
+                                            {
+                                                context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                                                return;
+                                            }
+
+                                            await CopyFileAsync(fileStream, targetContractFilePath);
+                                        }
+                                    }
+                                }
+
+                                context.Response.StatusCode = 200;
+                            }
+                            else
+                            {
+                                Log.Warning("[{LogCategory}] HostAccessID 확인 필요: " + hostAccessID.ToStringSafe(), "Startup/contractsync");
+                                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                            }
+                        }
+                        else
+                        {
+                            Log.Warning("[{LogCategory}] HANDSTACK_HOME 환경변수 확인 필요", "Startup/contractsync");
+                            context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                        }
+                    }
+                    catch (Exception exception)
+                    {
+                        Log.Error(exception, "[{LogCategory}] {changeType} 파일 요청 실패", "Startup/contractsync");
+                        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                    }
+                });
+
+                endpoints.MapGet("/stop", async context =>
+                {
+                    try
+                    {
+                        if (IsValidHostAccessRequest(context, out var hostAccessID) == true)
+                        {
+                            var applicationManager = ApplicationManager.Load();
+                            applicationManager.Stop();
+                            await context.Response.WriteAsync("stop");
+                        }
+                        else
+                        {
+                            Log.Warning("[{LogCategory}] HostAccessID 확인 필요: " + hostAccessID.ToStringSafe(), "Startup/stop");
+                        }
+                    }
+                    catch (Exception exception)
+                    {
+                        Log.Error(exception, "[{LogCategory}] 프로그램 종료 실패", "Startup/stop");
+                        context.Response.StatusCode = StatusCodes.Status404NotFound;
+                    }
+                });
+
+                endpoints.MapGet("/diagnostics", async context =>
+                {
+                    try
+                    {
+                        var hostAccessID = context.Request.GetContainValue("hostAccessID");
+                        if (!string.IsNullOrWhiteSpace(hostAccessID) && GlobalConfiguration.HostAccessID == hostAccessID)
+                        {
+                            var systemRuntimeMetrics = serverEventListener.GetSystemRuntimeMetrics();
+                            var aspNetCoreHostingMetrics = serverEventListener.GetAspNetCoreHostingMetrics();
+                            var aspNetCoreServerKestrelMetrics = serverEventListener.GetAspNetCoreServerKestrelMetrics();
+                            var systemNetSocketMetrics = serverEventListener.GetSystemNetSocketMetrics();
+
+                            var result = new
+                            {
+                                Environment = new
+                                {
+                                    ProcessID = Environment.ProcessId,
+                                    StartTime = startTime,
+                                    ApplicationName = GlobalConfiguration.ApplicationName,
+                                    RunningEnvironment = GlobalConfiguration.RunningEnvironment,
+                                    HostName = GlobalConfiguration.HostName,
+                                    CoreVersion = Environment.Version.ToString()
+                                },
+                                SystemRuntime = systemRuntimeMetrics,
+                                Hosting = aspNetCoreHostingMetrics,
+                                ServerKestrel = aspNetCoreServerKestrelMetrics,
+                                SystemNetSocket = systemNetSocketMetrics,
+                                DiagnosticAt = DateTime.Now
+                            };
+
+                            context.Response.Headers.ContentType = "application/json; charset=utf-8";
+                            await context.Response.WriteAsJsonAsync(result, new System.Text.Json.JsonSerializerOptions
+                            {
+                                WriteIndented = true,
+                                PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase
+                            });
+                        }
+                        else
+                        {
+                            var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
+                            logger.LogWarning("HostAccessID 확인 필요: {HostAccessID}", hostAccessID ?? "null");
+                            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                        }
+                    }
+                    catch (Exception exception)
+                    {
+                        var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
+                        logger.LogError(exception, "진단 정보 조회 실패");
+                        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                    }
+                });
+
+                endpoints.MapGet("/metrics", async context =>
+                {
+                    try
+                    {
+                        var hostAccessID = context.Request.GetContainValue("hostAccessID");
+                        if (!string.IsNullOrWhiteSpace(hostAccessID) && GlobalConfiguration.HostAccessID == hostAccessID)
+                        {
+                            var apiRequestMetricsCollector = context.RequestServices.GetRequiredService<ApiRequestMetricsCollector>();
+                            context.Response.ContentType = "text/plain; version=0.0.4; charset=utf-8";
+                            await context.Response.WriteAsync(BuildPrometheusMetricsPayload(apiRequestMetricsCollector));
+                        }
+                        else
+                        {
+                            var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
+                            logger.LogWarning("HostAccessID 확인 필요: {HostAccessID}", hostAccessID ?? "null");
+                            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                        }
+                    }
+                    catch (Exception exception)
+                    {
+                        var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
+                        logger.LogError(exception, "Prometheus 메트릭 조회 실패");
+                        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                    }
+                });
+
+                RequestDelegate getGlobalConfiguration = async context =>
+                {
+                    try
+                    {
+                        if (IsValidHostAccessRequest(context, out var hostAccessID) == false)
+                        {
+                            Log.Warning("[{LogCategory}] HostAccessID 확인 필요: " + hostAccessID.ToStringSafe(), "Startup/globalconfiguration");
+                            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                            return;
+                        }
+
+                        var runtimeConfigurationService = context.RequestServices.GetRequiredService<RuntimeConfigurationService>();
+                        var result = runtimeConfigurationService.GetGlobalConfigurationSnapshot();
+
+                        context.Response.Headers.ContentType = "application/json; charset=utf-8";
+                        await context.Response.WriteAsJsonAsync(result, new System.Text.Json.JsonSerializerOptions
+                        {
+                            WriteIndented = true,
+                            PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase
+                        });
+                    }
+                    catch (Exception exception)
+                    {
+                        Log.Error(exception, "[{LogCategory}] 런타임 전역 설정 조회 실패", "Startup/globalconfiguration");
+                        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                    }
+                };
+
+                RequestDelegate getUpdateManifest = async context =>
+                {
+                    try
+                    {
+                        var versionFilePath = Path.Combine(GlobalConfiguration.EntryBasePath, "version.json");
+                        var versionInfo = VersionFileStore.Ensure(versionFilePath, VersionFileStore.DefaultVersion);
+                        var updaterExecutablePath = Path.GetFullPath(Path.Combine(GlobalConfiguration.EntryBasePath, "..", "tools", "updater", OperatingSystem.IsWindows() == true ? "updater.exe" : "updater"));
+                        var updaterDllPath = Path.ChangeExtension(updaterExecutablePath, ".dll");
+                        var launchRequested = string.Equals(context.Request.Query["launch"], "true", StringComparison.OrdinalIgnoreCase) == true;
+                        var isAutoUpdate = IsAutoUpdateEnabled(configuration);
+                        if (launchRequested == true)
+                        {
+                            if (isAutoUpdate == false)
+                            {
+                                context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                                await context.Response.WriteAsJsonAsync(new
+                                {
+                                    message = "AppSettings:IsAutoUpdate=false 설정으로 updater 실행이 비활성화되었습니다.",
+                                    launchRequested = true,
+                                    isAutoUpdate
+                                });
+                                return;
+                            }
+
+                            if (IsValidHostAccessRequest(context, out var hostAccessID) == false)
+                            {
+                                Log.Warning("[{LogCategory}] HostAccessID 확인 필요: " + hostAccessID.ToStringSafe(), "Startup/manifest");
+                                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                                return;
+                            }
+
+                            if (File.Exists(updaterExecutablePath) == false && File.Exists(updaterDllPath) == false)
+                            {
+                                context.Response.StatusCode = StatusCodes.Status404NotFound;
+                                await context.Response.WriteAsync("updater 실행 파일 확인 필요");
+                                return;
+                            }
+
+                            var manifestUrl = context.Request.Query["manifestUrl"].ToStringSafe();
+                            var errorUrl = context.Request.Query["errorUrl"].ToStringSafe();
+                            var currentProcess = Process.GetCurrentProcess();
+                            var startInfo = new ProcessStartInfo
+                            {
+                                FileName = File.Exists(updaterExecutablePath) == true ? updaterExecutablePath : "dotnet",
+                                WorkingDirectory = Path.GetDirectoryName(updaterExecutablePath) ?? GlobalConfiguration.EntryBasePath,
+                                UseShellExecute = false
+                            };
+
+                            if (File.Exists(updaterExecutablePath) == false)
+                            {
+                                startInfo.ArgumentList.Add(updaterDllPath);
+                            }
+
+                            startInfo.ArgumentList.Add("--manifest-url");
+                            startInfo.ArgumentList.Add(manifestUrl);
+                            startInfo.ArgumentList.Add("--ack-process-id");
+                            startInfo.ArgumentList.Add(currentProcess.Id.ToString());
+
+                            if (string.IsNullOrWhiteSpace(errorUrl) == false)
+                            {
+                                startInfo.ArgumentList.Add("--error-url");
+                                startInfo.ArgumentList.Add(errorUrl);
+                            }
+
+                            var currentArguments = Environment.GetCommandLineArgs();
+                            for (int argumentIndex = 1; argumentIndex < currentArguments.Length; argumentIndex++)
+                            {
+                                startInfo.ArgumentList.Add(currentArguments[argumentIndex]);
+                            }
+
+                            var updaterProcess = Process.Start(startInfo);
+                            if (updaterProcess == null)
+                            {
+                                context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                                await context.Response.WriteAsync("updater 프로세스 시작 실패");
+                                return;
+                            }
+
+                            context.Response.StatusCode = StatusCodes.Status202Accepted;
+                            await context.Response.WriteAsJsonAsync(new
+                            {
+                                version = versionInfo.Version,
+                                updatedAt = versionInfo.UpdatedAt,
+                                processId = currentProcess.Id,
+                                updaterProcessId = updaterProcess.Id,
+                                manifestUrl,
+                                launchRequested = true,
+                                isAutoUpdate
+                            });
+                            return;
+                        }
+
+                        await context.Response.WriteAsJsonAsync(new
+                        {
+                            version = versionInfo.Version,
+                            updatedAt = versionInfo.UpdatedAt,
+                            processId = Environment.ProcessId,
+                            executablePath = Process.GetCurrentProcess().MainModule?.FileName,
+                            updaterPath = File.Exists(updaterExecutablePath) == true ? updaterExecutablePath : updaterDllPath,
+                            launchRequested = false,
+                            isAutoUpdate
+                        });
+                    }
+                    catch (Exception exception)
+                    {
+                        Log.Error(exception, "[{LogCategory}] 로컬 manifest 조회 실패", "Startup/manifest");
+                        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                    }
+                };
+
+                RequestDelegate applyGlobalConfiguration = async context =>
+                {
+                    try
+                    {
+                        if (IsValidHostAccessRequest(context, out var hostAccessID) == false)
+                        {
+                            Log.Warning("[{LogCategory}] HostAccessID 확인 필요: " + hostAccessID.ToStringSafe(), "Startup/globalconfiguration/apply");
+                            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                            return;
+                        }
+
+                        GlobalConfigurationApplyRequest? request = null;
+                        using (var reader = new StreamReader(context.Request.Body))
+                        {
+                            var body = await reader.ReadToEndAsync();
+                            if (string.IsNullOrWhiteSpace(body) == false)
+                            {
+                                request = JsonConvert.DeserializeObject<GlobalConfigurationApplyRequest>(body);
+                            }
+                        }
+
+                        if (request == null || request.Values.Count == 0)
+                        {
+                            context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                            await context.Response.WriteAsync("요청 본문 values 확인 필요");
+                            return;
+                        }
+
+                        var runtimeConfigurationService = context.RequestServices.GetRequiredService<RuntimeConfigurationService>();
+                        var result = runtimeConfigurationService.ApplyGlobalConfiguration(request);
+
+                        context.Response.StatusCode = result.Errors.Count > 0 ? StatusCodes.Status400BadRequest : StatusCodes.Status200OK;
+                        context.Response.Headers.ContentType = "application/json; charset=utf-8";
+                        await context.Response.WriteAsJsonAsync(result, new System.Text.Json.JsonSerializerOptions
+                        {
+                            WriteIndented = true,
+                            PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase
+                        });
+                    }
+                    catch (JsonException)
+                    {
+                        context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                        await context.Response.WriteAsync("요청 본문 JSON 형식 확인 필요");
+                    }
+                    catch (Exception exception)
+                    {
+                        Log.Error(exception, "[{LogCategory}] 런타임 전역 설정 반영 실패", "Startup/globalconfiguration/apply");
+                        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                    }
+                };
+
+                RequestDelegate getModuleMediatorConfiguration = async context =>
+                {
+                    try
+                    {
+                        if (IsValidHostAccessRequest(context, out var hostAccessID) == false)
+                        {
+                            Log.Warning("[{LogCategory}] HostAccessID 확인 필요: " + hostAccessID.ToStringSafe(), "Startup/moduleconfiguration/mediatr");
+                            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                            return;
+                        }
+
+                        var runtimeConfigurationService = context.RequestServices.GetRequiredService<RuntimeConfigurationService>();
+                        var result = runtimeConfigurationService.GetModuleMediatorConfigurationSnapshot();
+
+                        context.Response.Headers.ContentType = "application/json; charset=utf-8";
+                        await context.Response.WriteAsJsonAsync(result, new System.Text.Json.JsonSerializerOptions
+                        {
+                            WriteIndented = true,
+                            PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase
+                        });
+                    }
+                    catch (Exception exception)
+                    {
+                        Log.Error(exception, "[{LogCategory}] 모듈 Mediator 설정 조회 실패", "Startup/moduleconfiguration/mediator");
+                        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                    }
+                };
+
+                RequestDelegate applyModuleMediatorConfiguration = async context =>
+                {
+                    try
+                    {
+                        if (IsValidHostAccessRequest(context, out var hostAccessID) == false)
+                        {
+                            Log.Warning("[{LogCategory}] HostAccessID 확인 필요: " + hostAccessID.ToStringSafe(), "Startup/moduleconfiguration/mediatr/apply");
+                            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                            return;
+                        }
+
+                        var moduleID = context.Request.RouteValues["moduleID"]?.ToStringSafe();
+                        if (string.IsNullOrWhiteSpace(moduleID) == true)
+                        {
+                            context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                            await context.Response.WriteAsync("moduleID 확인 필요");
+                            return;
+                        }
+
+                        ModuleMediatorConfigurationApplyRequest? request = null;
+                        using (var reader = new StreamReader(context.Request.Body))
+                        {
+                            var body = await reader.ReadToEndAsync();
+                            if (string.IsNullOrWhiteSpace(body) == false)
+                            {
+                                request = JsonConvert.DeserializeObject<ModuleMediatorConfigurationApplyRequest>(body);
+                            }
+                        }
+
+                        if (request == null)
+                        {
+                            context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                            await context.Response.WriteAsync("요청 본문 JSON 형식 확인 필요");
+                            return;
+                        }
+
+                        var runtimeConfigurationService = context.RequestServices.GetRequiredService<RuntimeConfigurationService>();
+                        var result = runtimeConfigurationService.ApplyModuleMediatorConfiguration(moduleID, request);
+
+                        var isModuleNotFound = result.Errors.Any(p => p.IndexOf("not found", StringComparison.OrdinalIgnoreCase) > -1);
+                        context.Response.StatusCode = isModuleNotFound == true
+                            ? StatusCodes.Status404NotFound
+                            : (result.Errors.Count > 0 ? StatusCodes.Status400BadRequest : StatusCodes.Status200OK);
+
+                        context.Response.Headers.ContentType = "application/json; charset=utf-8";
+                        await context.Response.WriteAsJsonAsync(result, new System.Text.Json.JsonSerializerOptions
+                        {
+                            WriteIndented = true,
+                            PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase
+                        });
+                    }
+                    catch (JsonException)
+                    {
+                        context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                        await context.Response.WriteAsync("요청 본문 JSON 형식 확인 필요");
+                    }
+                    catch (Exception exception)
+                    {
+                        Log.Error(exception, "[{LogCategory}] 모듈 Mediator 설정 반영 실패", "Startup/moduleconfiguration/mediator/apply");
+                        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                    }
+                };
+
+                endpoints.MapGet("/globalconfiguration", getGlobalConfiguration);
+                endpoints.MapGet("/globalconfigration", getGlobalConfiguration);
+                endpoints.MapPost("/globalconfiguration/apply", applyGlobalConfiguration);
+                endpoints.MapPost("/globalconfigration/apply", applyGlobalConfiguration);
+                endpoints.MapGet("/manifest", getUpdateManifest);
+
+                endpoints.MapGet("/moduleconfiguration/mediatr", getModuleMediatorConfiguration);
+                endpoints.MapGet("/moduleconfigration/mediatr", getModuleMediatorConfiguration);
+                endpoints.MapPost("/moduleconfiguration/mediatr/{moduleID}/apply", applyModuleMediatorConfiguration);
+                endpoints.MapPost("/moduleconfigration/mediatr/{moduleID}/apply", applyModuleMediatorConfiguration);
+
+                endpoints.MapGet("/checkip", async context =>
+                {
+                    context.Response.Headers["Content-Type"] = "text/html";
+                    await context.Response.WriteAsync(context.GetRemoteIpAddress().ToStringSafe());
+                });
+
+                // curl --location "http://localhost:8421/license-keys"
+                endpoints.MapGet("/license-keys", async context =>
+                {
+                    if (IsValidHostAccessRequest(context, out var hostAccessID) == false)
+                    {
+                        Log.Warning("[{LogCategory}] HostAccessID 확인 필요: " + hostAccessID.ToStringSafe(), "Startup/license-keys");
+                        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                        return;
+                    }
+
+                    var allKeys = GlobalConfiguration.LoadModuleLicenses.Keys;
+                    var filtered = allKeys?.ToList();
+
+                    context.Response.ContentType = "application/json";
+                    var jsonResponse = JsonConvert.SerializeObject(filtered, Formatting.Indented);
+                    await context.Response.WriteAsync(jsonResponse);
+                });
+
+
+                // curl --location "http://localhost:8421/secrets" --header "HandStack-MachineID: [Current Hardware ID]" --header "HandStack-IP: [LocalIP]" --header "HandStack-HostName: [HostName]" --header "HandStack-Environment: [EnvironmentName]"
+                endpoints.MapGet("/secrets", async context =>
+                {
+                    var secretService = context.RequestServices.GetRequiredService<SecretService>();
+
+                    if (ClientInfo.TryGetFromHeaders(context.Request.Headers, out var clientInfo) == false)
+                    {
+                        context.Response.StatusCode = StatusCodes.Status404NotFound;
+                        return;
+                    }
+
+                    var allKeys = secretService.GetAllKeys(clientInfo!);
+                    var filtered = allKeys?.ToDictionary(
+                        kvp => kvp.Key,
+                        kvp => kvp.Value.Select(item => item.Key).ToList()
+                    );
+
+                    context.Response.ContentType = "application/json";
+                    var jsonResponse = JsonConvert.SerializeObject(filtered, Formatting.Indented);
+                    await context.Response.WriteAsync(jsonResponse);
+                });
+
+                // curl --location "http://localhost:8421/secrets/[name]" --header "HandStack-MachineID: [Current Hardware ID]" --header "HandStack-IP: [LocalIP]" --header "HandStack-HostName: [HostName]" --header "HandStack-Environment: [EnvironmentName]"
+                endpoints.MapGet("/secrets/{name}", async context =>
+                {
+                    try
+                    {
+                        var secretService = context.RequestServices.GetRequiredService<SecretService>();
+
+                        var keyName = context.Request.RouteValues["name"]?.ToString();
+                        if (string.IsNullOrWhiteSpace(keyName))
+                        {
+                            context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                            await context.Response.WriteAsync("키 이름이 필요합니다.");
+                            return;
+                        }
+
+                        if (!ClientInfo.TryGetFromHeaders(context.Request.Headers, out var clientInfo))
+                        {
+                            context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                            await context.Response.WriteAsync("필수 헤더가 누락되었습니다: HandStack-MachineID, HandStack-IP, HandStack-HostID");
+                            return;
+                        }
+
+                        var keyItem = await secretService.GetKeyAsync(clientInfo!, keyName);
+                        if (keyItem == null)
+                        {
+                            context.Response.StatusCode = StatusCodes.Status404NotFound;
+                            await context.Response.WriteAsync($"요청 하신 '{keyName}' 키에 대한 정보를 찾을 수 없습니다.");
+                            return;
+                        }
+
+                        if (keyItem.ExpiresAt < DateTime.Now)
+                        {
+                            context.Response.StatusCode = StatusCodes.Status404NotFound;
+                            await context.Response.WriteAsync($"요청 하신 '{keyName}' 키에 대한 정보가 만료 되었습니다.");
+                            return;
+                        }
+
+                        // 키 수급 에서 사용 코드
+                        // var vaultKey = (secretService.SystemVaultKey + "|" + newKey.Key.PadRight(32, '0')).SubstringSafe(0, 32);
+                        // var decryptedValue = keyItem.IsEncryption.ToBoolean() == true ? keyItem.Value.DecryptAES(vaultKey) : keyItem.Value;
+                        var responseItem = new
+                        {
+                            keyItem.Key,
+                            Value = exposeSecretValues == true ? keyItem.Value : null,
+                            IsValueHidden = exposeSecretValues == false,
+                            keyItem.IsEncryption,
+                            keyItem.Tags
+                        };
+
+                        context.Response.ContentType = "application/json";
+                        var jsonResponse = JsonConvert.SerializeObject(responseItem, Formatting.Indented);
+                        await context.Response.WriteAsync(jsonResponse);
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Logger.Error(ex, "[{LogCategory}] 키 조회 실패", "KeyVaultSecret/GetKey");
+                        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                        await context.Response.WriteAsync("내부 서버 오류가 발생했습니다.");
+                    }
+                });
+
+                /*
+                curl --location --request POST 'http://localhost:8421/secrets' \
+                --header 'HandStack-MachineID: [Current Hardware ID]' \
+                --header 'HandStack-IP: [LocalIP]' \
+                --header 'HandStack-HostName: [HostName]' \
+                --header 'HandStack-Environment: [EnvironmentName]' \
+                --header 'Content-Type: application/json' \
+                --data '{
+                    "Key": "PlainValue",
+                    "Value": "Hello World Blabla",
+                    "IsEncryption": "N",
+                    "ExpiresAt": null,
+                    "Environment": "Development",
+                    "Tags": ["Test"]
+                }'
+                 */
+                endpoints.MapPost("/secrets", async context =>
+                {
+                    try
+                    {
+                        var secretService = context.RequestServices.GetRequiredService<SecretService>();
+
+                        if (!ClientInfo.TryGetFromHeaders(context.Request.Headers, out var clientInfo))
+                        {
+                            context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                            await context.Response.WriteAsync("필수 헤더가 누락되었습니다: HandStack-MachineID, HandStack-IP, HandStack-HostID");
+                            return;
+                        }
+
+                        KeyItem? newKey;
+                        using (var reader = new StreamReader(context.Request.Body))
+                        {
+                            var body = await reader.ReadToEndAsync();
+                            newKey = JsonConvert.DeserializeObject<KeyItem>(body);
+                        }
+
+                        if (newKey == null || string.IsNullOrWhiteSpace(newKey.Key) || string.IsNullOrWhiteSpace(newKey.Value))
+                        {
+                            context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                            await context.Response.WriteAsync("요청 본문에 Key와 Value 필드는 필수입니다.");
+                            return;
+                        }
+
+                        var encryptQuery = context.Request.Query["encrypt"].ToStringSafe();
+                        if (string.IsNullOrWhiteSpace(encryptQuery) == false && encryptQuery.ToBoolean() == true)
+                        {
+                            var vaultKey = (secretService.SystemVaultKey + "|" + newKey.Key.PadRight(32, '0')).SubstringSafe(0, 32);
+                            newKey.Value = newKey.Value.EncryptAES(vaultKey);
+                            newKey.IsEncryption = "Y";
+                        }
+
+                        var (success, message) = await secretService.UpsertKeyAsync(clientInfo!, newKey);
+
+                        if (!success)
+                        {
+                            context.Response.StatusCode = StatusCodes.Status404NotFound;
+                            await context.Response.WriteAsync(message);
+                            return;
+                        }
+
+                        context.Response.StatusCode = StatusCodes.Status201Created;
+                        context.Response.ContentType = "application/json";
+                        var jsonResponse = JsonConvert.SerializeObject(newKey);
+                        await context.Response.WriteAsync(jsonResponse);
+                    }
+                    catch (JsonException jsonEx)
+                    {
+                        Log.Logger.Error(jsonEx, "[{LogCategory}] 새 키에 대한 JSON 형식이 유효하지 않습니다.", "KeyVaultSecret/AddKey");
+                        context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                        await context.Response.WriteAsync("요청 본문의 JSON 형식이 유효하지 않습니다.");
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Logger.Error(ex, "[{LogCategory}] 키 추가 실패", "KeyVaultSecret/AddKey");
+                        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                        await context.Response.WriteAsync("내부 서버 오류가 발생했습니다.");
+                    }
+                });
+
+                // curl --location --request DELETE "http://localhost:8421/secrets/[name]" --header "HandStack-MachineID: [Current Hardware ID]" --header "HandStack-IP: [LocalIP]" --header "HandStack-HostName: [HostName]" --header "HandStack-Environment: [EnvironmentName]"
+                endpoints.MapDelete("/secrets/{name}", async context =>
+                {
+                    try
+                    {
+                        var secretService = context.RequestServices.GetRequiredService<SecretService>();
+
+                        var keyName = context.Request.RouteValues["name"]?.ToString();
+                        if (string.IsNullOrWhiteSpace(keyName))
+                        {
+                            context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                            await context.Response.WriteAsync("키 이름이 필요합니다.");
+                            return;
+                        }
+
+                        if (!ClientInfo.TryGetFromHeaders(context.Request.Headers, out var clientInfo))
+                        {
+                            context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                            await context.Response.WriteAsync("필수 헤더가 누락되었습니다: HandStack-MachineID, HandStack-IP, HandStack-HostID");
+                            return;
+                        }
+
+                        var (success, message) = await secretService.DeleteKeyAsync(clientInfo!, keyName);
+                        context.Response.StatusCode = success == true ? StatusCodes.Status200OK : StatusCodes.Status204NoContent;
+                        await context.Response.WriteAsync(message);
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Logger.Error(ex, "[{LogCategory}] 키 삭제 실패", "KeyVaultSecret/DeleteKey");
+                        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                        await context.Response.WriteAsync("내부 서버 오류가 발생했습니다.");
+                    }
+                });
+            });
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapRazorPages();
+                endpoints.MapAreaControllerRoute(
+                    name: "areas",
+                    areaName: "areas",
+                    pattern: "{area:exists}/{controller:slugify=Home}/{action:slugify=Index}/{id:slugify?}");
+                endpoints.MapControllerRoute(
+                    name: "default",
+                    pattern: "{controller:slugify=Home}/{action:slugify=Index}/{id:slugify?}");
+            });
+            app.UseMvcWithDefaultRoute();
+
+            try
+            {
+                if (environment != null && (environment.IsProduction() == true || environment.IsStaging() == true))
+                {
+                    File.WriteAllText("app-startup.log", DateTime.Now.ToString());
+                }
+            }
+            catch (Exception exception)
+            {
+                Log.Error(exception, "[{LogCategory}] " + "app-startup.log 파일 생성 실패", "Startup/Configure");
+            }
+        }
+
+        private string BuildPrometheusMetricsPayload(ApiRequestMetricsCollector apiRequestMetricsCollector)
+        {
+            var systemRuntimeMetrics = serverEventListener.GetSystemRuntimeMetrics();
+            var aspNetCoreHostingMetrics = serverEventListener.GetAspNetCoreHostingMetrics();
+            var aspNetCoreServerKestrelMetrics = serverEventListener.GetAspNetCoreServerKestrelMetrics();
+            var systemNetSocketMetrics = serverEventListener.GetSystemNetSocketMetrics();
+
+            var processStartTime = Process.GetCurrentProcess().StartTime.ToUniversalTime();
+            var processStartTimeSeconds = (processStartTime - DateTime.UnixEpoch).TotalSeconds;
+            var builder = new StringBuilder(4096);
+
+            AppendPrometheusMetric(
+                builder,
+                "handstack_app_info",
+                "HandStack application metadata.",
+                "gauge",
+                1,
+                BuildPrometheusLabels(
+                    ("application_name", GlobalConfiguration.ApplicationName),
+                    ("running_environment", GlobalConfiguration.RunningEnvironment),
+                    ("host_name", GlobalConfiguration.HostName),
+                    ("process_id", Environment.ProcessId.ToString(CultureInfo.InvariantCulture))));
+            AppendPrometheusMetric(builder, "handstack_process_start_time_seconds", "Unix time when the current process started.", "gauge", processStartTimeSeconds);
+
+            AppendPrometheusMetric(builder, "handstack_system_runtime_time_in_gc_percent", "Percentage of time spent in GC since the last GC.", "gauge", systemRuntimeMetrics.TimeInGCSinceLastGC);
+            AppendPrometheusMetric(builder, "handstack_system_runtime_allocation_rate_bytes_per_second", "Managed allocation rate in bytes per second.", "gauge", systemRuntimeMetrics.AllocationRate);
+            AppendPrometheusMetric(builder, "handstack_system_runtime_cpu_usage_percent", "Current CPU usage percentage.", "gauge", systemRuntimeMetrics.CpuUsage);
+            AppendPrometheusMetric(builder, "handstack_system_runtime_exception_count", "Current exception counter value from System.Runtime.", "gauge", systemRuntimeMetrics.ExceptionCount);
+            AppendPrometheusMetric(builder, "handstack_system_runtime_gen0_gc_collections_total", "Total number of Gen 0 GC collections.", "counter", systemRuntimeMetrics.Gen0GCCount);
+            AppendPrometheusMetric(builder, "handstack_system_runtime_gen1_gc_collections_total", "Total number of Gen 1 GC collections.", "counter", systemRuntimeMetrics.Gen1GCCount);
+            AppendPrometheusMetric(builder, "handstack_system_runtime_gen2_gc_collections_total", "Total number of Gen 2 GC collections.", "counter", systemRuntimeMetrics.Gen2GCCount);
+            AppendPrometheusMetric(builder, "handstack_system_runtime_assemblies_loaded", "Number of assemblies currently loaded.", "gauge", systemRuntimeMetrics.NumberOfAssembliesLoaded);
+            AppendPrometheusMetric(builder, "handstack_system_runtime_threadpool_completed_work_items_total", "Total number of completed thread pool work items.", "counter", systemRuntimeMetrics.ThreadPoolCompletedWorkItemCount);
+            AppendPrometheusMetric(builder, "handstack_system_runtime_threadpool_queue_length", "Current thread pool queue length.", "gauge", systemRuntimeMetrics.ThreadPoolQueueLength);
+            AppendPrometheusMetric(builder, "handstack_system_runtime_threadpool_threads", "Current thread pool thread count.", "gauge", systemRuntimeMetrics.ThreadPoolThreadCount);
+            AppendPrometheusMetric(builder, "handstack_system_runtime_working_set_bytes", "Current process working set size in bytes.", "gauge", systemRuntimeMetrics.WorkingSetBytes);
+
+            AppendPrometheusMetric(builder, "handstack_aspnetcore_current_requests", "Number of requests currently in flight.", "gauge", aspNetCoreHostingMetrics.CurrentRequests);
+            AppendPrometheusMetric(builder, "handstack_aspnetcore_failed_requests_total", "Total number of failed ASP.NET Core requests.", "counter", aspNetCoreHostingMetrics.FailedRequests);
+            AppendPrometheusMetric(builder, "handstack_aspnetcore_requests_per_second", "Observed ASP.NET Core request rate.", "gauge", aspNetCoreHostingMetrics.RequestRate);
+            AppendPrometheusMetric(builder, "handstack_aspnetcore_requests_total", "Total number of ASP.NET Core requests.", "counter", aspNetCoreHostingMetrics.TotalRequests);
+
+            AppendPrometheusMetric(builder, "handstack_kestrel_connection_queue_length", "Current Kestrel connection queue length.", "gauge", aspNetCoreServerKestrelMetrics.ConnectionQueueLength);
+            AppendPrometheusMetric(builder, "handstack_kestrel_connections_per_second", "Observed Kestrel connection rate.", "gauge", aspNetCoreServerKestrelMetrics.ConnectionRate);
+            AppendPrometheusMetric(builder, "handstack_kestrel_current_connections", "Current number of active Kestrel connections.", "gauge", aspNetCoreServerKestrelMetrics.CurrentConnections);
+            AppendPrometheusMetric(builder, "handstack_kestrel_current_tls_handshakes", "Current number of TLS handshakes in progress.", "gauge", aspNetCoreServerKestrelMetrics.CurrentTLSHandshakes);
+            AppendPrometheusMetric(builder, "handstack_kestrel_current_upgraded_requests", "Current number of upgraded Kestrel requests.", "gauge", aspNetCoreServerKestrelMetrics.CurrentUpgradedRequests);
+            AppendPrometheusMetric(builder, "handstack_kestrel_failed_tls_handshakes_total", "Total number of failed TLS handshakes.", "counter", aspNetCoreServerKestrelMetrics.FailedTLSHandshakes);
+            AppendPrometheusMetric(builder, "handstack_kestrel_request_queue_length", "Current Kestrel request queue length.", "gauge", aspNetCoreServerKestrelMetrics.RequestQueueLength);
+            AppendPrometheusMetric(builder, "handstack_kestrel_tls_handshakes_per_second", "Observed Kestrel TLS handshake rate.", "gauge", aspNetCoreServerKestrelMetrics.TLSHandshakeRate);
+            AppendPrometheusMetric(builder, "handstack_kestrel_connections_total", "Total number of accepted Kestrel connections.", "counter", aspNetCoreServerKestrelMetrics.TotalConnections);
+            AppendPrometheusMetric(builder, "handstack_kestrel_tls_handshakes_total", "Total number of Kestrel TLS handshakes.", "counter", aspNetCoreServerKestrelMetrics.TotalTLSHandshakes);
+
+            AppendPrometheusMetric(builder, "handstack_system_net_socket_outgoing_connections_established_total", "Total number of established outgoing socket connections.", "counter", systemNetSocketMetrics.OutgoingConnectionsEstablished);
+            AppendPrometheusMetric(builder, "handstack_system_net_socket_incoming_connections_established_total", "Total number of established incoming socket connections.", "counter", systemNetSocketMetrics.IncomingConnectionsEstablished);
+            AppendPrometheusMetric(builder, "handstack_system_net_socket_current_outgoing_connect_attempts", "Current number of outgoing socket connection attempts.", "gauge", systemNetSocketMetrics.CurrentOutgoingConnectAttempts);
+            AppendPrometheusMetric(builder, "handstack_system_net_socket_bytes_received_total", "Total number of socket bytes received.", "counter", systemNetSocketMetrics.BytesReceived);
+            AppendPrometheusMetric(builder, "handstack_system_net_socket_bytes_sent_total", "Total number of socket bytes sent.", "counter", systemNetSocketMetrics.BytesSent);
+            AppendApiRequestMetrics(builder, apiRequestMetricsCollector);
+
+            return builder.ToString();
+        }
+
+        private static void AppendPrometheusMetric(StringBuilder builder, string name, string help, string type, double value, string? labels = null)
+        {
+            AppendPrometheusMetricHeader(builder, name, help, type);
+            AppendPrometheusMetricSample(builder, name, value, labels);
+        }
+
+        private static void AppendPrometheusMetricHeader(StringBuilder builder, string name, string help, string type)
+        {
+            builder.Append("# HELP ").Append(name).Append(' ').AppendLine(help);
+            builder.Append("# TYPE ").Append(name).Append(' ').AppendLine(type);
+        }
+
+        private static void AppendPrometheusMetricSample(StringBuilder builder, string name, double value, string? labels = null)
+        {
+            builder.Append(name);
+
+            if (string.IsNullOrWhiteSpace(labels) == false)
+            {
+                builder.Append(labels);
+            }
+
+            builder.Append(' ').AppendLine(FormatPrometheusValue(value));
+        }
+
+        private static void AppendPrometheusMetricSample(StringBuilder builder, string name, long value, string? labels = null)
+        {
+            builder.Append(name);
+
+            if (string.IsNullOrWhiteSpace(labels) == false)
+            {
+                builder.Append(labels);
+            }
+
+            builder.Append(' ').AppendLine(value.ToString(CultureInfo.InvariantCulture));
+        }
+
+        private static void AppendApiRequestMetrics(StringBuilder builder, ApiRequestMetricsCollector apiRequestMetricsCollector)
+        {
+            var snapshots = apiRequestMetricsCollector.GetSnapshots();
+            if (snapshots.Count == 0)
+            {
+                return;
+            }
+
+            AppendPrometheusMetricHeader(builder, "handstack_api_requests_total", "Total number of observed controller API requests.", "counter");
+            AppendPrometheusMetricHeader(builder, "handstack_api_responses_total", "Total number of observed controller API responses by status code.", "counter");
+            AppendPrometheusMetricHeader(builder, "handstack_api_request_duration_seconds_sum", "Cumulative controller API execution time in seconds.", "counter");
+            AppendPrometheusMetricHeader(builder, "handstack_api_request_duration_seconds_count", "Total number of timed controller API requests.", "counter");
+            AppendPrometheusMetricHeader(builder, "handstack_api_request_duration_seconds_max", "Maximum observed controller API execution time in seconds.", "gauge");
+
+            foreach (var snapshot in snapshots)
+            {
+                var labels = BuildPrometheusLabels(
+                    ("method", snapshot.Method),
+                    ("controller", snapshot.Controller),
+                    ("action", snapshot.Action),
+                    ("route", snapshot.Route));
+
+                AppendPrometheusMetricSample(builder, "handstack_api_requests_total", snapshot.RequestCount, labels);
+                AppendPrometheusMetricSample(builder, "handstack_api_request_duration_seconds_sum", snapshot.DurationSumSeconds, labels);
+                AppendPrometheusMetricSample(builder, "handstack_api_request_duration_seconds_count", snapshot.RequestCount, labels);
+                AppendPrometheusMetricSample(builder, "handstack_api_request_duration_seconds_max", snapshot.DurationMaxSeconds, labels);
+
+                foreach (var responseCount in snapshot.ResponseCounts)
+                {
+                    var responseLabels = BuildPrometheusLabels(
+                        ("method", snapshot.Method),
+                        ("controller", snapshot.Controller),
+                        ("action", snapshot.Action),
+                        ("route", snapshot.Route),
+                        ("status_code", responseCount.Key.ToString(CultureInfo.InvariantCulture)));
+
+                    AppendPrometheusMetricSample(builder, "handstack_api_responses_total", responseCount.Value, responseLabels);
+                }
+            }
+        }
+
+        private static string BuildPrometheusLabels(params (string Name, string Value)[] labels)
+        {
+            var builder = new StringBuilder(128);
+            builder.Append('{');
+
+            for (int i = 0; i < labels.Length; i++)
+            {
+                if (i > 0)
+                {
+                    builder.Append(',');
+                }
+
+                builder
+                    .Append(labels[i].Name)
+                    .Append("=\"")
+                    .Append(EscapePrometheusLabelValue(labels[i].Value))
+                    .Append('"');
+            }
+
+            builder.Append('}');
+            return builder.ToString();
+        }
+
+        private static string EscapePrometheusLabelValue(string? value)
+        {
+            return value.ToStringSafe()
+                .Replace("\\", "\\\\")
+                .Replace("\"", "\\\"")
+                .Replace("\r", "\\r")
+                .Replace("\n", "\\n");
+        }
+
+        private static string FormatPrometheusValue(double value)
+        {
+            if (double.IsNaN(value) == true)
+            {
+                return "NaN";
+            }
+
+            if (double.IsPositiveInfinity(value) == true)
+            {
+                return "+Inf";
+            }
+
+            if (double.IsNegativeInfinity(value) == true)
+            {
+                return "-Inf";
+            }
+
+            return value.ToString("G17", CultureInfo.InvariantCulture);
+        }
+
+        private static bool TryGetApiRequestMetricKey(HttpContext context, out ApiRequestMetricKey metricKey)
+        {
+            metricKey = default;
+
+            var endpoint = context.GetEndpoint();
+            var actionDescriptor = endpoint?.Metadata.GetMetadata<ControllerActionDescriptor>();
+            var routeEndpoint = endpoint as RouteEndpoint;
+
+            string? controller = actionDescriptor?.ControllerName;
+            string? action = actionDescriptor?.ActionName;
+            string? route = routeEndpoint?.RoutePattern?.RawText;
+            bool isApiController = false;
+
+            if (actionDescriptor != null)
+            {
+                isApiController =
+                    actionDescriptor.ControllerTypeInfo.IsDefined(typeof(ApiControllerAttribute), true)
+                    || actionDescriptor.MethodInfo.IsDefined(typeof(ApiControllerAttribute), true);
+
+                if (string.IsNullOrWhiteSpace(route) == true)
+                {
+                    route = actionDescriptor.AttributeRouteInfo?.Template;
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(controller) == true && context.Request.RouteValues.TryGetValue("controller", out var controllerValue) == true)
+            {
+                controller = controllerValue?.ToString();
+            }
+
+            if (string.IsNullOrWhiteSpace(action) == true && context.Request.RouteValues.TryGetValue("action", out var actionValue) == true)
+            {
+                action = actionValue?.ToString();
+            }
+
+            if (isApiController == false)
+            {
+                isApiController = string.IsNullOrWhiteSpace(controller) == false && IsApiRequestPath(context.Request.Path.Value) == true;
+            }
+
+            if (isApiController == false)
+            {
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(route) == true)
+            {
+                route = string.IsNullOrWhiteSpace(action) == true
+                    ? $"/{controller}"
+                    : $"/{controller}/{action}";
+            }
+
+            if (string.IsNullOrWhiteSpace(controller) == true || string.IsNullOrWhiteSpace(action) == true || string.IsNullOrWhiteSpace(route) == true)
+            {
+                return false;
+            }
+
+            metricKey = new ApiRequestMetricKey(
+                context.Request.Method.ToUpperInvariant(),
+                controller.ToStringSafe(),
+                action.ToStringSafe(),
+                route.ToStringSafe());
+            return true;
+        }
+
+        protected void DirectoryCopy(string sourceDir, string destDir)
+        {
+            Directory.CreateDirectory(destDir);
+
+            foreach (var file in Directory.GetFiles(sourceDir, "*", SearchOption.AllDirectories))
+            {
+                var destFile = file.Replace(sourceDir, destDir);
+                Directory.CreateDirectory(Path.GetDirectoryName(destFile).ToStringSafe());
+                File.Copy(file, destFile, true);
+            }
+        }
+
+        protected async Task CopyFileAsync(MemoryStream sourceStream, string destAbsoluteFilePath)
+        {
+            var destDirectory = Path.GetDirectoryName(destAbsoluteFilePath);
+            if (string.IsNullOrWhiteSpace(destDirectory) == false && Directory.Exists(destDirectory) == false)
+            {
+                Directory.CreateDirectory(destDirectory);
+            }
+
+            using var destStream = new FileStream(destAbsoluteFilePath, FileMode.Create, FileAccess.Write, FileShare.None);
+            var destFileName = Path.GetFileName(destAbsoluteFilePath);
+
+            try
+            {
+                sourceStream.Position = 0;
+                await sourceStream.CopyToAsync(destStream);
+                Log.Information("[{LogCategory}]" + $"{destFileName} 복사 완료", "Startup/contractsync");
+            }
+            catch (Exception exception)
+            {
+                Log.Error("[{LogCategory}]" + $"{destFileName} 실패. {exception.Message}", "Startup/contractsync");
+            }
+        }
+
+        private void ApplySecurityHeaders(HttpContext context)
+        {
+            var headers = context.Response.Headers;
+            headers.TryAdd("X-Content-Type-Options", "nosniff");
+            headers.TryAdd("Referrer-Policy", "no-referrer");
+            headers.TryAdd("X-Frame-Options", "SAMEORIGIN");
+
+            if (string.IsNullOrWhiteSpace(GlobalConfiguration.ContentSecurityPolicy) == false)
+            {
+                headers.TryAdd("Content-Security-Policy", GlobalConfiguration.ContentSecurityPolicy);
+            }
+
+            if (IsSensitiveManagementPath(context.Request.Path) == true)
+            {
+                headers["Cache-Control"] = "no-store, no-cache, max-age=0";
+                headers["Pragma"] = "no-cache";
+            }
+        }
+
+        private static bool IsSensitiveManagementPath(PathString path)
+        {
+            var value = path.Value.ToStringSafe();
+            return value.Equals("/secrets", StringComparison.OrdinalIgnoreCase) == true
+                || value.StartsWith("/secrets/", StringComparison.OrdinalIgnoreCase) == true
+                || value.Equals("/globalconfiguration", StringComparison.OrdinalIgnoreCase) == true
+                || value.Equals("/globalconfigration", StringComparison.OrdinalIgnoreCase) == true
+                || value.StartsWith("/moduleconfiguration/", StringComparison.OrdinalIgnoreCase) == true
+                || value.StartsWith("/moduleconfigration/", StringComparison.OrdinalIgnoreCase) == true
+                || value.Equals("/contractsync", StringComparison.OrdinalIgnoreCase) == true
+                || value.Equals("/diagnostics", StringComparison.OrdinalIgnoreCase) == true
+                || value.Equals("/metrics", StringComparison.OrdinalIgnoreCase) == true;
+        }
+
+        private static bool TryResolveChildPath(string basePath, string childPath, out string resolvedPath)
+        {
+            resolvedPath = "";
+            if (string.IsNullOrWhiteSpace(basePath) == true || string.IsNullOrWhiteSpace(childPath) == true)
+            {
+                return false;
+            }
+
+            var normalizedChildPath = childPath.Replace('\\', Path.DirectorySeparatorChar).Replace('/', Path.DirectorySeparatorChar).TrimStart(Path.DirectorySeparatorChar);
+            var fullBasePath = Path.GetFullPath(basePath).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            var fullPath = Path.GetFullPath(Path.Combine(fullBasePath, normalizedChildPath));
+
+            if (fullPath.Equals(fullBasePath, StringComparison.OrdinalIgnoreCase) == true
+                || fullPath.StartsWith(fullBasePath + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase) == true
+                || fullPath.StartsWith(fullBasePath + Path.AltDirectorySeparatorChar, StringComparison.OrdinalIgnoreCase) == true)
+            {
+                resolvedPath = fullPath;
+                return true;
+            }
+
+            return false;
+        }
+
+        private static bool IsValidHostAccessRequest(HttpContext context, out string hostAccessID)
+        {
+            hostAccessID = context.Request.GetContainValue("hostAccessID").ToStringSafe();
+            return string.IsNullOrWhiteSpace(hostAccessID) == false && GlobalConfiguration.HostAccessID == hostAccessID;
+        }
+
+        private bool IsAllowOnlyClientIP(HttpContext context)
+        {
+            return WithOnlyIPFilter.IsAllowed(context);
+        }
+
+        private static bool IsStaticContentRequest(HttpRequest request)
+        {
+            if (HttpMethods.IsGet(request.Method) == false && HttpMethods.IsHead(request.Method) == false)
+            {
+                return false;
+            }
+
+            var path = request.Path.Value;
+            if (string.IsNullOrWhiteSpace(path) == true)
+            {
+                return false;
+            }
+
+            if (path == "/")
+            {
+                return true;
+            }
+
+            return Path.HasExtension(path);
+        }
+
+        private static bool IsApiControllerRequest(HttpContext context)
+        {
+            var actionDescriptor = context.GetEndpoint()?.Metadata.GetMetadata<ControllerActionDescriptor>();
+            if (actionDescriptor == null)
+            {
+                return IsApiRequestPath(context.Request.Path.Value);
+            }
+
+            return actionDescriptor.ControllerTypeInfo.IsDefined(typeof(ApiControllerAttribute), true)
+                || actionDescriptor.MethodInfo.IsDefined(typeof(ApiControllerAttribute), true);
+        }
+
+        private static bool IsApiRequestPath(string? path)
+        {
+            if (string.IsNullOrWhiteSpace(path) == true)
+            {
+                return false;
+            }
+
+            return path.EndsWith("/api", StringComparison.OrdinalIgnoreCase) == true
+                || path.IndexOf("/api/", StringComparison.OrdinalIgnoreCase) > -1;
+        }
+
+        private static bool IsAutoUpdateEnabled(IConfiguration configuration)
+        {
+            var value = configuration["AppSettings:IsAutoUpdate"].ToStringSafe(configuration["IsAutoUpdate"].ToStringSafe(""));
+            return bool.TryParse(value, out var enabled) == true && enabled == true;
+        }
+
+        private async Task WriteIPForbiddenResponse(HttpContext context)
+        {
+            var clientIP = WithOnlyIPFilter.GetClientIPAddress(context);
+            Log.Warning("[{LogCategory}] " + $"허용되지 않은 클라이언트 IP 접근 차단, Path: {context.Request.Path}, ClientIP: {clientIP}", "Startup/WithOnlyIPFilter");
+
+            context.Response.StatusCode = StatusCodes.Status403Forbidden;
+            context.Response.ContentType = Text.Plain;
+            await context.Response.WriteAsync("허용되지 않은 클라이언트 IP 입니다.");
+        }
+
+        protected string GetHostAccessID(string hostAccessID)
+        {
+            var result = "HANDSTACK_HOSTACCESSID";
+
+            var isRunningInDocker = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
+            if (isRunningInDocker == true)
+            {
+                result = hostAccessID;
+            }
+            else
+            {
+                if (hostAccessID == result)
+                {
+                    string? hostID = string.Empty;
+                    try
+                    {
+                        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == true)
+                        {
+                            result = GetWindowsHardwareID();
+                        }
+                        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) == true)
+                        {
+                            result = GetLinuxHardwareID();
+                        }
+                        else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) == true)
+                        {
+                            result = GetMacHardwareID();
+                        }
+                    }
+                    catch
+                    {
+                        if (string.IsNullOrWhiteSpace(hostID))
+                        {
+                            hostID = Environment.GetEnvironmentVariable("HOSTNAME");
+                        }
+
+                        if (string.IsNullOrWhiteSpace(hostID))
+                        {
+                            hostID = Environment.MachineName;
+                        }
+
+                        Log.Logger.Information("[{LogCategory}] " + $"HardwareID 확인 폴백", $"Startup/GetHostAccessID");
+                    }
+
+                    result = string.IsNullOrWhiteSpace(hostID) == false ? hostID : GlobalConfiguration.HostAccessID;
+                }
+                else
+                {
+                    result = hostAccessID;
+                }
+            }
+
+            return result.ToSHA256();
+        }
+
+        protected string GetHardwareID()
+        {
+            var result = "HANDSTACK_HOSTACCESSID";
+
+            var isRunningInDocker = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
+            if (isRunningInDocker == true)
+            {
+                result = GlobalConfiguration.HostAccessID;
+            }
+            else
+            {
+                if (GlobalConfiguration.HostAccessID == result)
+                {
+                    string? hostID = string.Empty;
+                    try
+                    {
+                        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == true)
+                        {
+                            hostID = GetWindowsHardwareID();
+                        }
+                        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) == true)
+                        {
+                            hostID = GetLinuxHardwareID();
+                        }
+                        else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) == true)
+                        {
+                            hostID = GetMacHardwareID();
+                        }
+                    }
+                    catch
+                    {
+                        if (string.IsNullOrWhiteSpace(hostID))
+                        {
+                            hostID = Environment.GetEnvironmentVariable("HOSTNAME");
+                        }
+
+                        if (string.IsNullOrWhiteSpace(hostID))
+                        {
+                            hostID = Environment.MachineName;
+                        }
+
+                        Log.Logger.Information("[{LogCategory}] " + $"HardwareID 확인 폴백", $"Startup/GetHostAccessID");
+                    }
+
+                    result = string.IsNullOrWhiteSpace(hostID) == false ? hostID : GlobalConfiguration.HostAccessID;
+                }
+                else
+                {
+                    result = GlobalConfiguration.HostAccessID;
+                }
+            }
+
+            return result;
+        }
+
+        protected string GetWindowsHardwareID()
+        {
+            using var key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Cryptography");
+            return (key?.GetValue("MachineGuid")).ToStringSafe();
+        }
+
+        protected string GetLinuxHardwareID()
+        {
+            string[] paths = { "/etc/machine-id", "/var/lib/dbus/machine-id" };
+            foreach (var path in paths)
+            {
+                if (File.Exists(path))
+                {
+                    var id = File.ReadAllText(path).Trim();
+                    if (!string.IsNullOrWhiteSpace(id))
+                    {
+                        return id;
+                    }
+                }
+            }
+
+            return "";
+        }
+
+        protected string GetMacHardwareID()
+        {
+            return ExecuteBashCommand("ioreg -rd1 -c IOPlatformExpertDevice | grep IOPlatformUUID | awk '{print $3}' | sed 's/\\\"//g'");
+        }
+
+        protected string ExecuteWindowsCommand(string command)
+        {
+            var result = "HANDSTACK_HOSTACCESSID";
+            var psi = new ProcessStartInfo("cmd.exe", "/c " + command)
+            {
+                RedirectStandardOutput = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+
+            using (var process = Process.Start(psi))
+            {
+                if (process != null)
+                {
+                    string output = process.StandardOutput.ReadToEnd();
+                    process.WaitForExit();
+                    result = output.Trim();
+                }
+            }
+            return result;
+        }
+
+        protected string ExecuteBashCommand(string command)
+        {
+            var result = "HANDSTACK_HOSTACCESSID";
+            var psi = new ProcessStartInfo
+            {
+                FileName = "/bin/bash",
+                Arguments = $"-c \"{command}\"",
+                RedirectStandardOutput = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+
+            using (var process = Process.Start(psi))
+            {
+                if (process != null)
+                {
+                    string output = process.StandardOutput.ReadToEnd();
+                    process.WaitForExit();
+                    result = output.Trim();
+                }
+            }
+            return result;
+        }
+    }
+}
+

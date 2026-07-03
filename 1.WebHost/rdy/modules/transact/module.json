@@ -1,0 +1,72 @@
+{
+    "ModuleID": "transact",
+    "Name": "transact",
+    "IsBundledWithHost": false,
+    "Version": "1.0.0",
+    "ModuleConfig": {
+        "SystemID": "HANDSTACK",
+        "BusinessServerUrl": "http://localhost:8421/transact/api/transaction/execute",
+        "CircuitBreakResetSecond": 60,
+        "IsValidationRequest": false,
+        "IsAllowDynamicRequest": false,
+        "AllowTenantTransactionCommands": [ "D", "G" ],
+        "IsLogServer": true,
+        "LogServerUrl": "http://localhost:8421/logger/api/log/insert",
+        "IsTransactionLogging": true,
+        "IsTransactAggregate": true,
+        "IsTransactAggregateRolling": false,
+        "TransactAggregateDeleteOldCronTime": "0 1 * * *",
+        "IsDataMasking": false,
+        "MaskingChar": "*",
+        "MaskingMethod": "Syn",
+        "IsContractFileWatching": true,
+        "ContractBasePath": [
+            "../contracts/transact"
+        ],
+        "AvailableEnvironment": [ "P", "D", "S" ],
+        "IsCodeDataCache": true,
+        "CodeDataCacheTimeout": 20,
+        "ModuleBasePath": "./modules/transact",
+        "TransactionAggregateBasePath": "../sqlite/HDS/transact/aggregate",
+        "TrustedProxyIP": "1.1.1.1",
+        "HasTrustedCheckIP": false,
+        "UseApiAuthorize": false,
+        "DynamicWorkflowTransaction": "MOD|MOD010",
+        "DynamicWorkflowServices": "GP01,GP02",
+        "BypassAuthorizeIP": [
+            "localhost",
+            "127.0.0.1"
+        ],
+        "AllowRequestTransactions": {
+            "HDS": [ "*" ]
+        },
+        "RoutingCommandUri": {
+            "HDS|*|D|D": "http://localhost:8421/dbclient/api/query",
+            "HDS|*|G|D": "http://localhost:8421/graphclient/api/query",
+            "HDS|*|F|D": "http://localhost:8421/function/api/execution",
+            "HDS|*|C|D": "http://localhost:8421/command/api/execution",
+            "HDS|*|P|D": "http://localhost:8421/prompter/api/query",
+            "HDS|*|D|P": "http://localhost:8421/dbclient/api/query",
+            "HDS|*|G|P": "http://localhost:8421/graphclient/api/query",
+            "HDS|*|F|P": "http://localhost:8421/function/api/execution",
+            "HDS|*|C|P": "http://localhost:8421/command/api/execution",
+            "HDS|*|P|P": "http://localhost:8421/prompter/api/query",
+            "HDS|*|D|T": "http://localhost:8421/dbclient/api/query",
+            "HDS|*|G|T": "http://localhost:8421/graphclient/api/query",
+            "HDS|*|F|T": "http://localhost:8421/function/api/execution",
+            "HDS|*|C|T": "http://localhost:8421/command/api/execution",
+            "HDS|*|P|T": "http://localhost:8421/prompter/api/query"
+        },
+        "EventAction": [],
+        "SubscribeAction": [
+            "transact.Events.TransactRequest"
+        ],
+        "PublicTransactions": [
+            {
+                "ApplicationID": "HDS",
+                "ProjectID": "*",
+                "TransactionID": "*"
+            }
+        ]
+    }
+}

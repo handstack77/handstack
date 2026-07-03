@@ -1,0 +1,30 @@
+SELECT TL.LogNo
+    , TL.ServerID
+    , TL.RunningEnvironment
+    , TL.GlobalID
+    , TL.ProgramName
+    , TL.ApplicationID
+    , TL.ProjectID
+    , TL.TransactionID
+    , TL.ServiceID
+    , TL.Acknowledge 
+    , TL.Type
+    , TL.Flow
+    , TL.Level
+    , TL.Format
+    , TL.UserID
+    , TO_CHAR(TL.CreatedAt, 'YYYY-MM-DD HH24:MI:SS') AS CreatedAt,
+	, TL.IpAddress
+	, TL.DeviceID
+	, TL.ProgramID
+FROM 
+    {TableName} TL
+WHERE (@GlobalID = '' OR TL.GlobalID = @GlobalID)
+    AND (@Environment = '' OR TL.RunningEnvironment = @Environment)
+    AND (@ProjectID = '' OR TL.ProjectID = @ProjectID)
+    AND (@ServerID = '' OR TL.ServerID = @ServerID)
+    AND (@TransactionID = '' OR TL.TransactionID = @TransactionID)
+    AND (@ServiceID = '' OR TL.ServiceID = @ServiceID)
+    AND TL.CreatedAt BETWEEN @StartedAt AND @EndedAt
+ORDER BY TL.LogNo DESC
+LIMIT 500;

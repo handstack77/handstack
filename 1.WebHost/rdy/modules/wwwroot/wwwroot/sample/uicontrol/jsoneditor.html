@@ -1,0 +1,47 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+</head>
+<body style="visibility: hidden;">
+	<form autocomplete="off" id="form1" syn-datafield="MainForm">
+		<div>
+			<div>속성</div>
+			<pre>name: 'syn.uicontrols.$jsoneditor',
+version: '1.0.0',
+defaultSetting: {
+    width: '100%',
+    height: '360px',
+    mode: 'tree',
+    modes: ['code', 'tree', 'view'],
+    indentation: 4,
+    escapeUnicode: false,
+    dataType: 'string',
+    belongID: null,
+    transactConfig: null,
+    triggerConfig: null
+},</pre>
+		</div>
+		<hr />
+		<div>
+			<div>메서드</div>
+			<pre>
+toXml: function (jsonObj) - JSON 객체를 XML 문자열로 반환
+</pre>
+		</div>
+		<hr />
+		<div>
+			<div>예시</div>
+			<syn_jsoneditor id="txtEditor" syn-options="{contents: '{}'}"></syn_jsoneditor>
+		</div>
+		<hr />
+		<div>
+			<div>기능</div>
+			<input type="button" id="btnGetValue" value="getValue" syn-events="['click']" />
+			<input type="button" id="btnSetValue" value="setValue" syn-events="['click']" />
+			<input type="button" id="btnClear" value="clear" syn-events="['click']" />
+		</div>
+	</form>
+	<script src="/js/syn.loader.js"></script>
+</body>
+</html>

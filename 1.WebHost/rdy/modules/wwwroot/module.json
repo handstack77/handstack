@@ -1,0 +1,16 @@
+{
+    "ModuleID": "wwwroot",
+    "Name": "wwwroot",
+    "IsBundledWithHost": false,
+    "Version": "1.0.0",
+    "ModuleConfig": {
+        "SystemID": "HANDSTACK",
+        "BusinessServerUrl": "http://localhost:8421/transact/api/transaction/execute",
+        "SystemVaultKey": "Strong@Passw0rd",
+        "ModuleLogFilePath": "../log/wwwroot/module.log",
+        "ContractRequestPath": "view",
+        "ContractBasePath": "../contracts/wwwroot",
+        "WWWRootBasePath": "./modules/wwwroot/wwwroot",
+        "FileSyncTokens": []
+    }
+}

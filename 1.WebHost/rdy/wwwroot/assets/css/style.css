@@ -1,0 +1,59 @@
+@charset "utf-8";
+
+html {
+    font-family: "Pretendard";
+    font-size: 1.2rem;
+}
+
+body {
+    font-family: "Pretendard";
+    font-size: 1.2rem;
+}
+
+code, kbd, pre, samp {
+    font-family: "Pretendard";
+    font-size: 1.2rem;
+}
+
+button, input, optgroup, select, textarea {
+    font-family: inherit;
+    font-size: 1.2rem;
+}
+
+.tooltip {
+    font-family: "Pretendard";
+    font-size: 1.2rem;
+}
+
+.popover {
+    font-family: "Pretendard";
+    font-size: 1.2rem;
+}
+
+.text-monospace {
+    font-family: "Pretendard";
+    font-size: 1.2rem;
+}
+
+html, body, .tooltip, .popover {
+    font-family: "Pretendard";
+    font-size: 1.2rem;
+}
+
+code, kbd, pre, samp, .text-monospace {
+    font-family: "Pretendard";
+    font-size: 1.2rem;
+}
+
+button, input, optgroup, select, textarea {
+    font-family: inherit;
+    font-size: 1.2rem;
+}
+
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6,
+.display-1, .display-2, .display-3,
+.display-4, .display-5, .display-6 {
+    font-family: "Noto Serif", "Pretendard";
+    font-weight: bold;
+}

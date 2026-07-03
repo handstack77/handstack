@@ -1,0 +1,34 @@
+[
+    {
+        "id": "GridData0",
+        "value": [
+            {
+                "idx": 1,
+                "ProdID": "P00000001",
+                "ProName": "UPPER1",
+                "ViewYN": "Y",
+                "ComCD": "C0011   ",
+                "ModelNo": "A-00-001",
+                "MaterialNo": "UPPER1"
+            },
+            {
+                "idx": 2,
+                "ProdID": "P00000002",
+                "ProName": "UPPER2",
+                "ViewYN": "Y",
+                "ComCD": "C0011   ",
+                "ModelNo": "A-00-002",
+                "MaterialNo": "UPPER2"
+            },
+            {
+                "idx": 3,
+                "ProdID": "P00000003",
+                "ProName": "UPPER3",
+                "ViewYN": "Y",
+                "ComCD": "C0010   ",
+                "ModelNo": "A-00-003",
+                "MaterialNo": "UPPER3"
+            }
+        ]
+    }
+]

@@ -1,0 +1,46 @@
+INSERT INTO {TableName}
+(
+	Acknowledge
+	, ApplicationID
+	, Flow
+	, Format
+	, GlobalID
+	, Level
+	, Message
+	, ProgramName
+	, ProjectID
+	, Properties
+	, RunningEnvironment
+	, ServerID
+	, ServiceID
+	, TransactionID
+	, Type
+	, UserID
+	, CreatedAt
+	, IpAddress
+	, DeviceID
+	, ProgramID
+)
+VALUES
+(
+	@Acknowledge
+	, @ApplicationID
+	, @Flow
+	, @Format
+	, @GlobalID
+	, @Level
+	, @Message
+	, @ProgramName
+	, @ProjectID
+	, @Properties
+	, @RunningEnvironment
+	, @ServerID
+	, @ServiceID
+	, @TransactionID
+	, @Type
+	, @UserID
+	, @CreatedAt
+	, @IpAddress
+	, @DeviceID
+	, @ProgramID
+);
