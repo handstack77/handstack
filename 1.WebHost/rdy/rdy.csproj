@@ -21,10 +21,6 @@
         <NoWarn>IL3000;IL3002;NU1903;ASP0023;NU1608;NU1510;CA1416;</NoWarn>
     </PropertyGroup>
 
-    <PropertyGroup Condition="'$(RuntimeIdentifier)' == '' and '$(BuildingInsideVisualStudio)' == 'true' and '$(NETCoreSdkPortableRuntimeIdentifier)' != ''">
-        <RuntimeIdentifier>$(NETCoreSdkPortableRuntimeIdentifier)</RuntimeIdentifier>
-    </PropertyGroup>
-
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
         <DebugType>none</DebugType>
         <DebugSymbols>False</DebugSymbols>
@@ -113,8 +109,6 @@
         </None>
     </ItemGroup>
 
-    <!-- 모듈 프로젝트의 CopyToOutputDirectory 항목(module.json, wwwroot, Contracts)이
-         rdy 출력 루트에 전이 복사되어 경합하는 것을 차단. 모듈 콘텐츠는 modules/<id>/ 사본으로 배포됨 -->
     <Target Name="PruneModuleTransitiveContent"
             AfterTargets="GetCopyToOutputDirectoryItems"
             BeforeTargets="_CopyOutOfDateSourceItemsToOutputDirectory;_CopyOutOfDateSourceItemsToOutputDirectoryAlways">
@@ -125,6 +119,18 @@
             <_SourceItemsToCopyToOutputDirectoryAlways
                 Remove="@(_SourceItemsToCopyToOutputDirectoryAlways)"
                 Condition="$([System.String]::Copy('%(FullPath)').Replace('\','/').Contains('/2.Modules/'))" />
+        </ItemGroup>
+    </Target>
+
+    <Target Name="PruneModuleTransitivePublishContent"
+            AfterTargets="ComputeResolvedFilesToPublishList">
+        <ItemGroup>
+            <ResolvedFileToPublish
+                Remove="@(ResolvedFileToPublish)"
+                Condition="$([System.String]::Copy('%(FullPath)').Replace('\','/').Contains('/2.Modules/'))
+                           and ('%(Filename)%(Extension)' == 'module.json'
+                                or '%(Filename)%(Extension)' == 'package.json'
+                                or '%(Filename)%(Extension)' == 'package-lock.json')" />
         </ItemGroup>
     </Target>
 
