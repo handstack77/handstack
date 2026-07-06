@@ -74,24 +74,24 @@
     </ItemGroup>
 
     <ItemGroup Label="static modules">
-        <ProjectReference Include="../../2.Modules/command/command.csproj" />
-        <ProjectReference Include="../../2.Modules/dbclient/dbclient.csproj" />
-        <ProjectReference Include="../../2.Modules/function/function.csproj" />
-        <ProjectReference Include="../../2.Modules/logger/logger.csproj" />
-        <ProjectReference Include="../../2.Modules/repository/repository.csproj" />
-        <ProjectReference Include="../../2.Modules/transact/transact.csproj" />
-        <ProjectReference Include="../../2.Modules/wwwroot/wwwroot.csproj" />
+        <ProjectReference Include="$(HANDSTACK_SRC)/2.Modules/command/command.csproj" />
+        <ProjectReference Include="$(HANDSTACK_SRC)/2.Modules/dbclient/dbclient.csproj" />
+        <ProjectReference Include="$(HANDSTACK_SRC)/2.Modules/function/function.csproj" />
+        <ProjectReference Include="$(HANDSTACK_SRC)/2.Modules/logger/logger.csproj" />
+        <ProjectReference Include="$(HANDSTACK_SRC)/2.Modules/repository/repository.csproj" />
+        <ProjectReference Include="$(HANDSTACK_SRC)/2.Modules/transact/transact.csproj" />
+        <ProjectReference Include="$(HANDSTACK_SRC)/2.Modules/wwwroot/wwwroot.csproj" />
     </ItemGroup>
 
     <ItemGroup>
         <Reference Include="HandStack.Core">
-            <HintPath>../../3.Infrastructure/Assemblies/$(Configuration)/HandStack.Core.dll</HintPath>
+            <HintPath>$(HANDSTACK_SRC)/3.Infrastructure/Assemblies/$(Configuration)/HandStack.Core.dll</HintPath>
         </Reference>
         <Reference Include="HandStack.Web">
-            <HintPath>../../3.Infrastructure/Assemblies/$(Configuration)/HandStack.Web.dll</HintPath>
+            <HintPath>$(HANDSTACK_SRC)/3.Infrastructure/Assemblies/$(Configuration)/HandStack.Web.dll</HintPath>
         </Reference>
         <Reference Include="HandStack.Data">
-            <HintPath>../../3.Infrastructure/Assemblies/$(Configuration)/HandStack.Data.dll</HintPath>
+            <HintPath>$(HANDSTACK_SRC)/3.Infrastructure/Assemblies/$(Configuration)/HandStack.Data.dll</HintPath>
         </Reference>
     </ItemGroup>
 
@@ -99,10 +99,6 @@
         <Compile Remove="build/**" />
         <None Include="wwwroot/**" />
         <None Update="wwwroot/**">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
-        <None Include="AppTempletes/**" />
-        <None Update="AppTempletes/**">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Include="modules/**" />
