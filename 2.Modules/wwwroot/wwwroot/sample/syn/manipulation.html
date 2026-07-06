@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
@@ -24,10 +24,8 @@
                     <div class="card-body">
                         <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
                             <div class="col-12">
-                                <label class="form-label">syn.$m.version</label>
-                                <input type="text" id="txt_version" class="form-control">
                                 <div class="form-text">
-                                    $manipulation version을 반환합니다.
+                                    $manipulation 모듈은 별도로 공개된 속성이 없으며, DOM 조작을 위한 메서드만 제공합니다.
                                 </div>
                             </div>
                         </div>
@@ -40,6 +38,27 @@
                         <h3 class="card-title">메서드</h3>
                     </div>
                     <div class="card-body">
+                        <h4 class="mt-1">탐색 (Traversal)</h4>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$m.body()</label>
+                                <input type="text" id="txt_body" class="form-control">
+                                <button type="button" id="btn_body" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    현재 문서(document) 객체를 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$m.documentElement()</label>
+                                <input type="text" id="txt_documentElement" class="form-control">
+                                <button type="button" id="btn_documentElement" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    문서의 최상위 요소(html)를 반환합니다.
+                                </div>
+                            </div>
+                        </div>
                         <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
                             <div class="col-12">
                                 <label class="form-label">syn.$m.childNodes()</label>
@@ -191,6 +210,8 @@
                                 </div>
                             </div>
                         </div>
+
+                        <h4 class="mt-4">콘텐츠 / 속성 읽기·쓰기</h4>
                         <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
                             <div class="col-12">
                                 <label class="form-label">syn.$m.value()</label>
@@ -278,6 +299,8 @@
                                 </div>
                             </div>
                         </div>
+
+                        <h4 class="mt-4">스타일 / 클래스</h4>
                         <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
                             <div class="col-12">
                                 <label class="form-label">syn.$m.setStyle()</label>
@@ -341,7 +364,7 @@
                         </div>
                         <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
                             <div class="col-12">
-                                <label class="form-label">syn.$m.addClass()</label>
+                                <label class="form-label">syn.$m.addClass(), syn.$m.hasClass(), syn.$m.toggleClass(), syn.$m.removeClass()</label>
                                 <div id="div_className" class="mb-2">Hello World</div>
                                 <input type="text" id="txt_className1" class="form-control" value="f:32! badge b:1|solid|#e5e5e5!">
                                 <button type="button" id="btn_addClass" class="mt-2 btn btn-primary" syn-events="['click']">addClass 확인</button>
@@ -362,6 +385,30 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$m.getClassRegEx()</label>
+                                <input type="text" id="txt_getClassRegExInput" class="form-control" value="badge">
+                                <input type="text" id="txt_getClassRegEx" class="form-control mt-2" readonly>
+                                <button type="button" id="btn_getClassRegEx" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    지정된 className을 검색하기 위한 정규식(RegExp) 객체를 생성합니다. 동일한 className에 대해서는 캐시된 정규식을 재사용합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$m.fade()</label>
+                                <div id="div_fade" class="mb-2" style="background-color: lightgreen; padding: 10px;">Hello World</div>
+                                <button type="button" id="btn_fadeOut" class="mt-2 btn btn-primary" syn-events="['click']">흐리게(fade out)</button>
+                                <button type="button" id="btn_fadeIn" class="mt-2 btn btn-primary" syn-events="['click']">선명하게(fade in)</button>
+                                <div class="form-text">
+                                    지정된 노드의 opacity 속성을 지정한 시간(duration) 동안 애니메이션으로 변경합니다.
+                                </div>
+                            </div>
+                        </div>
+
+                        <h4 class="mt-4">구조 조작 (생성 / 삽입 / 삭제)</h4>
                         <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
                             <div class="col-12">
                                 <label class="form-label">syn.$m.append()</label>
@@ -413,14 +460,26 @@
                         </div>
                         <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
                             <div class="col-12">
+                                <label class="form-label">syn.$m.insertBefore()</label>
+                                <div id="div_insertBefore"></div>
+                                <button type="button" id="btn_insertBefore" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    특정 노드의 바로 앞에 노드를 추가합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
                                 <label class="form-label">syn.$m.insertAfter()</label>
                                 <div id="div_insertAfter"></div>
                                 <button type="button" id="btn_insertAfter" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
                                 <div class="form-text">
-                                    특정 노드의 앞에 또는 마지막 위치에 노드를 추가합니다.
+                                    특정 노드의 바로 뒤에 노드를 추가합니다.
                                 </div>
                             </div>
                         </div>
+
+                        <h4 class="mt-4">표시 상태 / 생성 / 반복 유틸리티</h4>
                         <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
                             <div class="col-12">
                                 <label class="form-label">syn.$m.display(), syn.$m.toggleDisplay()</label>
@@ -497,6 +556,8 @@
                                 </div>
                             </div>
                         </div>
+
+                        <h4 class="mt-4">폼 컨트롤 상태</h4>
                         <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
                             <div class="col-12">
                                 <label class="form-label">syn.$m.setActive()</label>
@@ -547,16 +608,6 @@
                                 <button type="button" id="btn_setChecked" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
                                 <div class="form-text">
                                     지정된 그룹 또는 목록 노드에 checked 을 설정합니다
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
-                            <div class="col-12">
-                                <label class="form-label">syn.$m.each()</label>
-                                <textarea type="text" id="txt_each" class="form-control" rows="5"></textarea>
-                                <button type="button" id="btn_each" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
-                                <div class="form-text">
-                                    지정된 배열의 갯수만큼 반복 함수를 실행합니다.
                                 </div>
                             </div>
                         </div>
