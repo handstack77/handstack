@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
@@ -179,6 +179,7 @@ namespace rdy
             GlobalConfiguration.ForbesBasePath = GlobalConfiguration.GetBaseDirectoryPath(appSettings["ForbesBasePath"]);
             GlobalConfiguration.LoadModuleBasePath = GlobalConfiguration.GetBaseDirectoryPath(appSettings["LoadModuleBasePath"]);
             GlobalConfiguration.LoadContractBasePath = GlobalConfiguration.GetBaseDirectoryPath(PathExtensions.Combine(GlobalConfiguration.EntryBasePath, "..", "contracts"));
+            GlobalConfiguration.WebHostRootPath = string.IsNullOrWhiteSpace(appSettings["WebHostRootPath"]) == true ? "" : GlobalConfiguration.GetBaseDirectoryPath(appSettings["WebHostRootPath"]);
 
             string contentSecurityPolicyFile = PathExtensions.Join(GlobalConfiguration.EntryBasePath, "content-security-policy.txt");
             if (File.Exists(contentSecurityPolicyFile) == true)
@@ -1042,7 +1043,7 @@ namespace rdy
                 });
             }
 
-            var physicalPath = PathExtensions.Combine(GlobalConfiguration.EntryBasePath, "wwwroot");
+            var physicalPath = string.IsNullOrWhiteSpace(GlobalConfiguration.WebHostRootPath) == true ? PathExtensions.Combine(GlobalConfiguration.EntryBasePath, "wwwroot") : GlobalConfiguration.WebHostRootPath;
             if (Directory.Exists(physicalPath) == true)
             {
                 app.UseMiddleware<CaseInsensitiveStaticFileMiddleware>(physicalPath);

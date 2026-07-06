@@ -77,6 +77,7 @@ namespace HandStack.Web
         public static string ContractRequestPath = "";
         public static string EnvironmentName = "";
         public static string WebRootPath = "";
+        public static string WebHostRootPath = "";
         public static string BusinessServerUrl = "";
         public static int StaticFileCacheMaxAge = 0;
         public static bool IsTenantFunction = false;
