@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>TextBox - 기본 사용법</title>
+</head>
+<body>
+	<form autocomplete="off" id="form1" syn-datafield="MainForm">
+		<h3>TextBox 기본 사용법</h3>
+
+		<div>
+			<label for="txtName">일반 텍스트 (text)</label><br>
+			<input id="txtName" type="text" syn-options="{editType: 'text', placeText: ['이름을 입력하세요']}">
+		</div>
+		<br>
+
+		<div>
+			<label for="txtEnglishID">영문/숫자만 입력 (english)</label><br>
+			<input id="txtEnglishID" type="text" syn-options="{editType: 'english'}">
+		</div>
+		<br>
+
+		<div>
+			<label for="txtUpperCode">대문자 강제 (uppercase)</label><br>
+			<input id="txtUpperCode" type="text" syn-options="{editType: 'uppercase'}">
+		</div>
+		<br>
+
+		<div>
+			<label for="txtLowerCode">소문자 강제 (lowercase)</label><br>
+			<input id="txtLowerCode" type="text" syn-options="{editType: 'lowercase'}">
+		</div>
+		<br>
+
+		<div>
+			<label for="txtMaxLength">최대 길이 제한 (maxlengthB, 한글 등 2byte 기준 10자)</label><br>
+			<input id="txtMaxLength" maxlengthB="10" type="text" syn-options="{editType: 'text'}">
+		</div>
+		<br>
+
+		<div>
+			<label for="txtCustomMask">커스텀 마스크 (maskPattern)</label><br>
+			<input id="txtCustomMask" type="text" syn-options="{editType: 'text', maskPattern: '(99) SSSS-AAAA'}">
+		</div>
+	</form>
+
+	<script src="/js/syn.loader.js"></script>
+</body>
+</html>

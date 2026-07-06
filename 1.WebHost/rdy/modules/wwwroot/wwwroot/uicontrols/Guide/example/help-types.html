@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div>
+            <div>1) 툴팁(helpType: 'T') - 마우스를 올려 보세요</div>
+            <p><span class="badge bg-primary" style="padding:4px 8px; background:#0d6efd; color:#fff; border-radius:4px;">기본 데이터베이스</span></p>
+
+            <syn_guide id="hlpTooltip" syn-options="{
+                items: [
+                    { helpType: 'T', selector: 'span.badge.bg-primary', subject: '앱에서 사용하는 기본 데이터베이스 입니다.', sentence: '기본 데이터 원본 정보는 제공자와 연결 문자열을 편집할 수 없습니다.' }
+                ]
+            }"></syn_guide>
+        </div>
+        <hr />
+        <div>
+            <div>2) 입력창 placeholder 타이핑 애니메이션(helpType: 'P') - 입력창을 클릭해서 포커스를 주면 애니메이션이 재생됩니다</div>
+            <input type="text" id="txtConnectionString" style="width:400px;" />
+
+            <syn_guide id="hlpPlaceholder" syn-options="{
+                items: [
+                    { helpType: 'P', selector: '#txtConnectionString', subject: '중요', sentence: '개발 및 테스트 목적의 데이터베이스 연결문자열을 입력해야 합니다.' }
+                ]
+            }"></syn_guide>
+        </div>
+        <hr />
+        <div>
+            <div>3) 도움말 링크(helpType: 'U', contentType: 'link') - 버튼을 누르면 새 창으로 외부 문서를 엽니다</div>
+            <syn_guide id="hlpHelpLink" syn-options="{
+                items: [
+                    { helpType: 'U', subject: '설치 가이드', sentence: 'https://handstack.kr/docs/startup/install/지원-운영체제', options: '{&#34;contentType&#34;: &#34;link&#34;}' }
+                ]
+            }"></syn_guide>
+            <input type="button" id="btnOpenHelpLink" value="온라인 문서 열기" syn-events="['click']" />
+        </div>
+        <hr />
+        <div>
+            <div>4) 도움말 팝업(helpType: 'U', contentType: 'html') - 버튼을 누르면 팝업 창에 안내 본문을 표시합니다</div>
+            <syn_guide id="hlpHelpPopup" syn-options="{
+                items: [
+                    { helpType: 'U', subject: '연결문자열 작성 안내', sentence: '&lt;b&gt;&lt;u&gt;SQLite&lt;/u&gt;&lt;/b&gt;의 경우 하위 디렉토리 경로만 입력할 수 있습니다.', options: '{&#34;contentType&#34;: &#34;html&#34;}' }
+                ]
+            }"></syn_guide>
+            <input type="button" id="btnOpenHelpPopup" value="도움말 팝업 보기" syn-events="['click']" />
+        </div>
+        <hr />
+        <div>
+            <div>안내</div>
+            <pre id="preLog">팝업 창을 열려면 브라우저의 팝업 차단을 허용해야 합니다.</pre>
+        </div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

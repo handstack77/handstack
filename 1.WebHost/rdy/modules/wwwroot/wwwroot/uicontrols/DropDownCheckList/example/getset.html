@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>DropDownCheckList - 값 조회/설정 예제</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div>
+            <p><code>getValue</code> / <code>setValue</code> / <code>getSelectedValue</code> / <code>getSelectedText</code> / <code>clear</code> / <code>loadData</code> 등 값 조작 API를 모아 보여주는 예제입니다.</p>
+            <select id="ddlGrade" multiple syn-options="{
+                placeholder: '등급을 선택하세요',
+                toSynControl: true,
+                required: false
+            }" style="width: 260px;">
+                <option value="A">A등급</option>
+                <option value="B">B등급</option>
+                <option value="C">C등급</option>
+            </select>
+        </div>
+        <hr />
+        <div>
+            <input type="button" id="btnGetValue" value="getValue (콤마 문자열)" syn-events="['click']" />
+            <input type="button" id="btnGetSelectedValue" value="getSelectedValue (배열)" syn-events="['click']" />
+            <input type="button" id="btnGetSelectedText" value="getSelectedText (표시 텍스트 배열)" syn-events="['click']" />
+            <input type="button" id="btnSetValue" value="'A, C' 로 선택" syn-events="['click']" />
+            <input type="button" id="btnClear" value="선택 초기화" syn-events="['click']" />
+            <input type="button" id="btnLoadData" value="다른 데이터로 옵션 교체(loadData)" syn-events="['click']" />
+        </div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

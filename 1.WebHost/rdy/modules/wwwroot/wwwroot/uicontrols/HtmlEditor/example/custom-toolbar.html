@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>HtmlEditor 커스텀 툴바 예제</title>
+</head>
+<body>
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div>
+            <div>
+                plugins/toolbar 옵션을 직접 지정해 표, 미리보기, 도움말 기능을 추가한 예제입니다.
+                repositoryID를 지정하면 이미지 붙여넣기/드래그&amp;드롭 시 자동으로 파일 서버에 업로드를 시도합니다.
+                (이 예제의 'BDLLE01'은 실제 저장소가 아니므로, 실제 화면에서는 프로젝트에 설정된 리포지토리 ID로 바꿔서 사용하세요.)
+            </div>
+            <syn_htmleditor id="edtCustom" syn-datafield="Contents" style="width:100%; height:320px" syn-options="{
+                repositoryID: 'BDLLE01', controlText: '메모',
+                plugins: ['autolink link image lists print hr anchor pagebreak searchreplace visualblocks visualchars code insertdatetime media nonbreaking table preview help'],
+                toolbar: 'styleselect | bold forecolor backcolor table | alignleft aligncenter alignright | pagebreak link image | preview code help',
+                resize: false
+            }">
+                <p>표/이미지/미리보기 툴바가 추가된 에디터입니다.</p>
+            </syn_htmleditor>
+        </div>
+        <hr />
+        <div>
+            <input type="button" id="btnGetValue" value="getValue" syn-events="['click']" />
+            <input type="button" id="btnSetValue" value="setValue" syn-events="['click']" />
+            <input type="button" id="btnClear" value="clear" syn-events="['click']" />
+        </div>
+    </form>
+
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

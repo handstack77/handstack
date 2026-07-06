@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>WebGrid - $auigrid 기본 사용법</title>
+</head>
+<body>
+	<form autocomplete="off" id="form1" syn-datafield="MainForm">
+		<h3>$auigrid (AUIGrid 기반, 실무 주력 엔진) - 다양한 컬럼 타입</h3>
+
+		<syn_auigrid id="grdMain" syn-options="{
+			height: 300, showInlineFilter: true, controlText: '제품 목록',
+			columns: [
+				['ProdID', '제품코드', 100, false, 'text', true, 'left', null, {validators:['require','unique'], maxlength:20}],
+				['ProdName', '제품명', 200, false, 'text', false, 'left', null, {validators:['require'], maxlength:50}],
+				['CategoryID', '분류', 120, false, 'dropdown', false, 'center', null, {dataSourceID:'CategoryID', local:true, required:false, emptyText:'선택'}],
+				['UseYN', '사용여부', 80, false, 'checkbox', false, 'center', null, {checkValue:'Y', unCheckValue:'N'}],
+				['CreateDate', '등록일', 110, false, 'date', false, 'left', null, {}]
+			]
+		}" syn-events="['afterSelectionEnd', 'afterChange']" style="width: 700px;"></syn_auigrid>
+
+		<hr>
+		<input type="button" id="btnLoadRows" value="샘플 데이터 채우기" syn-events="['click']">
+		<input type="button" id="btnGetValue" value="getValue(변경분)" syn-events="['click']">
+		<input type="button" id="btnClear" value="clear" syn-events="['click']">
+	</form>
+
+	<script src="/js/syn.loader.js"></script>
+</body>
+</html>

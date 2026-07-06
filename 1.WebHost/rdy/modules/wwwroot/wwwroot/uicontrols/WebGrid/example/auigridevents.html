@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>WebGrid - $auigrid insertRow/removeRow/getFlag/setFlag</title>
+</head>
+<body>
+	<form autocomplete="off" id="form1" syn-datafield="MainForm">
+		<h3>$auigrid - 행 추가/삭제와 CRUD 상태(Flag) 확인</h3>
+
+		<syn_auigrid id="grdFlag" syn-options="{
+			height: 260,
+			columns: [
+				['GroupCode', '그룹코드', 100, false, 'text', false, 'left', null, {}],
+				['GroupName', '그룹코드명', 200, false, 'text', false, 'left', null, {}]
+			]
+		}" syn-events="['afterSelectionEnd', 'cellEditEnd']" style="width: 600px;"></syn_auigrid>
+
+		<hr>
+		<input type="button" id="btnLoadRows" value="샘플 데이터 채우기(Flag: R)" syn-events="['click']">
+		<input type="button" id="btnInsertRow" value="행 추가(Flag: C)" syn-events="['click']">
+		<input type="button" id="btnRemoveRow" value="선택 행 삭제(Flag: D)" syn-events="['click']">
+		<input type="button" id="btnGetFlag" value="선택 행 getFlag" syn-events="['click']">
+		<input type="button" id="btnGetValue" value="getValue(변경분만)" syn-events="['click']">
+	</form>
+
+	<script src="/js/syn.loader.js"></script>
+</body>
+</html>

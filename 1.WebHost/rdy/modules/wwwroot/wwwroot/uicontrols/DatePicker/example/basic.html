@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>DatePicker - 기본 예제</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div>
+            <div>기본 날짜 선택</div>
+            <syn_datepicker id="dtpBasic" syn-datafield="Basic"></syn_datepicker>
+        </div>
+        <hr />
+        <div>
+            <div>범위 연동(useRangeSelect) 예제 - 시작일을 고르면 종료일의 선택 가능 범위가 자동으로 좁혀집니다</div>
+            <syn_datepicker id="dtpRangeStart" syn-options="{useRangeSelect: true, rangeEndControlID: 'dtpRangeEnd'}"></syn_datepicker>
+            <syn_datepicker id="dtpRangeEnd" syn-options="{useRangeSelect: true, rangeStartControlID: 'dtpRangeStart'}"></syn_datepicker>
+        </div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

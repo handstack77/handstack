@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>SourceEditor 언어 모드 예제</title>
+</head>
+<body>
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div>
+            <div>JSON 모드</div>
+            <syn_sourceeditor id="txtJson"
+                               syn-datafield="JsonSource"
+                               syn-options="{language: 'json', theme: 'vs', lineNumbers: 'on'}"></syn_sourceeditor>
+        </div>
+        <hr />
+        <div>
+            <div>HTML 모드</div>
+            <syn_sourceeditor id="txtHtml"
+                               syn-datafield="HtmlSource"
+                               syn-options="{language: 'html', theme: 'vs-dark', lineNumbers: 'on'}"></syn_sourceeditor>
+        </div>
+        <hr />
+        <div>
+            <div>SQL 모드</div>
+            <syn_sourceeditor id="txtSql"
+                               syn-datafield="SqlSource"
+                               syn-options="{language: 'sql', theme: 'vs-dark', lineNumbers: 'on'}"></syn_sourceeditor>
+        </div>
+        <hr />
+        <div>
+            <input type="button" id="btnFillSamples" value="샘플 채우기" syn-events="['click']" />
+            <input type="button" id="btnGetAll" value="모두 getValue" syn-events="['click']" />
+        </div>
+    </form>
+
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

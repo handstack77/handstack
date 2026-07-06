@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>HtmlEditor 이벤트 예제</title>
+</head>
+<body>
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div>
+            <div>
+                HtmlEditor는 syn-events 속성이 아니라, 페이지 스크립트의 event 객체에 "{id}_documentReady"
+                같은 이름의 함수를 선언해 두면 프레임워크가 자동으로 찾아서 호출해 줍니다.
+                이미지 크기를 조절(리사이즈)하면 "{id}_imageResized" 이벤트도 함께 확인할 수 있습니다.
+            </div>
+            <syn_htmleditor id="edtEvent" syn-datafield="Contents" style="width:100%; height:300px" syn-options="{
+                plugins: ['autolink link image lists print hr anchor pagebreak searchreplace visualblocks visualchars code insertdatetime media nonbreaking table help'],
+                toolbar: 'styleselect | bold italic forecolor backcolor table | alignleft aligncenter alignright | image | code help'
+            }">
+                <p>이미지를 삽입한 뒤 모서리를 드래그해서 크기를 바꿔보세요.</p>
+            </syn_htmleditor>
+        </div>
+        <hr />
+        <div>
+            <input type="button" id="btnGetValue" value="getValue" syn-events="['click']" />
+            <input type="button" id="btnSetValue" value="setValue" syn-events="['click']" />
+            <input type="button" id="btnClear" value="clear" syn-events="['click']" />
+            <input type="button" id="btnIsDirty" value="isDirty" syn-events="['click']" />
+        </div>
+    </form>
+
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

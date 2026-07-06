@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div>
+            <div>기본 사용법 - $chartjs(Chart.js 기반) 막대 차트</div>
+            <p>labelID(YEAR)와 series(컬럼 → 데이터셋 매핑)를 지정하고, 행 배열 + 컬럼 메타데이터로 setValue 합니다.</p>
+            <syn_chartjs id="chtChart" syn-datafield="ChartDetail" style="width:100%; height:320px" syn-options="{
+                type: 'bar',
+                options: { scales: { y: { beginAtZero: true } } },
+                labelID: 'YEAR',
+                series: [
+                    { columnID: 'AMOUNT1', label: '1지점' },
+                    { columnID: 'AMOUNT2', label: '2지점' }
+                ]
+            }"></syn_chartjs>
+        </div>
+        <hr />
+        <div>
+            <div>기능</div>
+            <input type="button" id="btnGetValue" value="getValue (항상 빈 문자열)" syn-events="['click']" />
+            <input type="button" id="btnSetValue" value="setValue" syn-events="['click']" />
+            <input type="button" id="btnClear" value="clear" syn-events="['click']" />
+        </div>
+        <hr />
+        <div>
+            <div>결과 / 이벤트 로그</div>
+            <pre id="preLog"></pre>
+        </div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

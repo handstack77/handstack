@@ -1,0 +1,12 @@
+{
+    "Comment": "DropDownList 로컬 데이터소스 예제",
+    "CodeColumnID": "CodeID",
+    "ValueColumnID": "CodeValue",
+    "DataSource": [
+        { "CodeID": "SEL", "CodeValue": "선택안함" },
+        { "CodeID": "SEO", "CodeValue": "서울" },
+        { "CodeID": "BUS", "CodeValue": "부산" },
+        { "CodeID": "DAE", "CodeValue": "대구" },
+        { "CodeID": "INC", "CodeValue": "인천" }
+    ]
+}

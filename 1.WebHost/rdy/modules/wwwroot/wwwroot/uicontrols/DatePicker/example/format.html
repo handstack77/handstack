@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>DatePicker - 포맷/범위 옵션 예제</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div>
+            <div>날짜 포맷(YYYY.MM.DD) + 초기값(오늘)</div>
+            <syn_datepicker id="dtpToday" syn-options="{format: 'YYYY.MM.DD', value: 'now'}"></syn_datepicker>
+        </div>
+        <hr />
+        <div>
+            <div>7일 전을 기본값으로 표시</div>
+            <syn_datepicker id="dtpWeekAgo" syn-options="{value: 'day:-7'}"></syn_datepicker>
+        </div>
+        <hr />
+        <div>
+            <div>선택 가능 범위 제한 (minDate ~ maxDate: 2026년 1월 1일 ~ 2026년 12월 31일)</div>
+            <syn_datepicker id="dtpLimited" syn-options="{minDate: new Date(2026, 0, 1), maxDate: new Date(2026, 11, 31)}"></syn_datepicker>
+        </div>
+        <hr />
+        <div>
+            <div>2개월 동시 표시(numberOfMonths) + 주차 표시(showWeekNumber)</div>
+            <syn_datepicker id="dtpTwoMonths" syn-options="{numberOfMonths: 2, showWeekNumber: true, firstDay: 1}"></syn_datepicker>
+        </div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

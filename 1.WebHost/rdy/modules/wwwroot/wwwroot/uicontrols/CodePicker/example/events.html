@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>CodePicker - 이벤트 예제</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div>
+            <p><code>chpSubjectID_change</code>, <code>chpSubjectID_buttonClick</code> 이벤트와 <code>getValue</code> / <code>setValue</code> / <code>setText</code> / <code>clear</code> API를 함께 보여주는 예제입니다. 값이 바뀌거나 팝업 버튼을 클릭할 때마다 하단 로그(브라우저 개발자 도구 콘솔)에 이벤트가 기록됩니다.</p>
+            <div>
+                <label>과목</label>
+                <syn_codepicker id="chpSubjectID" syn-datafield="SUBJECTID" syn-events="['change']" syn-options="{
+                    belongID: 'L01',
+                    dataSourceID: 'CH005',
+                    local: false,
+                    isMultiSelect: false,
+                    textBelongID: ['L01', 'M01'],
+                    textDataFieldID: 'CODETEXT',
+                    controlText: '과목'
+                }"></syn_codepicker>
+            </div>
+            <div>
+                <label>다중 선택 예제</label>
+                <syn_codepicker id="chpSchoolCD" syn-datafield="SCHOOLCD" syn-events="['change']" syn-options="{
+                    belongID: 'M01',
+                    dataSourceID: 'CH009',
+                    local: false,
+                    isMultiSelect: true,
+                    controlText: '학교'
+                }"></syn_codepicker>
+            </div>
+        </div>
+        <hr />
+        <div>
+            <input type="button" id="btnGetValue" value="getValue" syn-events="['click']" />
+            <input type="button" id="btnSetValue" value="setValue('HELLO')" syn-events="['click']" />
+            <input type="button" id="btnSetText" value="setText('WORLD')" syn-events="['click']" />
+            <input type="button" id="btnClear" value="clear" syn-events="['click']" />
+        </div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

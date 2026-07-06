@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div>
+            <div>이벤트 로그로 확인하기 (create / beforeOpen / open / select / close)</div>
+            <p>아래 영역을 우클릭해서 메뉴를 열고 닫으며 이벤트 발생 순서를 로그에서 확인하세요.</p>
+            <div id="divEventTarget" style="width:300px; height:120px; background:#eee; border:1px solid #ccc; padding:10px;">
+                <span class="event-target">우클릭 대상 영역</span>
+            </div>
+
+            <syn_contextmenu id="ctxEvents" syn-options="{
+                target: '#divEventTarget',
+                delegate: 'span.event-target',
+                menu: [
+                    { title: 'Copy', cmd: 'copy', uiIcon: 'ui-icon-copy' },
+                    { title: 'Delete', cmd: 'delete', uiIcon: 'ui-icon-trash' }
+                ]
+            }" syn-events="['create', 'beforeOpen', 'open', 'select', 'close']"></syn_contextmenu>
+        </div>
+        <hr />
+        <div>
+            <div>기능</div>
+            <input type="button" id="btnOpenMenu" value="open() 메서드로 메뉴 강제 열기" syn-events="['click']" />
+            <input type="button" id="btnIsOpen" value="isOpen() 확인" syn-events="['click']" />
+        </div>
+        <hr />
+        <div>
+            <div>이벤트 로그</div>
+            <pre id="preLog"></pre>
+        </div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

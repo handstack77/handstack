@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>WebGrid - $jqgrid (레거시) 기본 사용법</title>
+</head>
+<body>
+	<form autocomplete="off" id="form1" syn-datafield="MainForm">
+		<h3>$jqgrid (jQuery jqGrid 기반, 레거시) - 벤더 스크립트 수동 주입 예시</h3>
+		<p>
+			<code>syn.loader.js</code>에는 <code>jqgrid</code> 자동주입 케이스가 없으므로, jQuery jqGrid 벤더 라이브러리(이 저장소에는 포함되어 있지 않음 — 별도로 확보해서 <code>/lib/jqgrid/</code> 등에 배치)와
+			<code>jqGrid.js</code>/<code>jqGrid.css</code>를 <code>pageLoadFiles</code> 훅으로 직접 등록해야 합니다.
+		</p>
+
+		<table id="grdLegacy"></table>
+
+		<hr>
+		<input type="button" id="btnAddRow" value="행 추가" syn-events="['click']">
+		<input type="button" id="btnDeleteRow" value="선택 행 삭제" syn-events="['click']">
+		<input type="button" id="btnGetUpdateDatas" value="getUpdateDatas" syn-events="['click']">
+	</form>
+
+	<script>
+		function pageLoadFiles(styleFiles, jsFiles, templateFiles) {
+			window.afterLoadFiles = [];
+			afterLoadFiles.push('/lib/jqgrid/css/ui.jqgrid.min.css');
+			afterLoadFiles.push('/lib/jqgrid/js/jquery.jqgrid.min.js');
+			afterLoadFiles.push('/uicontrols/WebGrid/jqGrid.css');
+			afterLoadFiles.push('/uicontrols/WebGrid/jqGrid.js');
+		}
+	</script>
+	<script src="/js/syn.loader.js"></script>
+</body>
+</html>
