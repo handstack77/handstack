@@ -51,7 +51,7 @@
                                 <textarea type="text" id="txt_toCSV" class="form-control" rows="5"></textarea>
                                 <button type="button" id="btn_toCSV" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
                                 <div class="form-text">
-                                    지정된 객체가 undefined, null 인지 확인합니다.
+                                    객체 또는 객체 배열을 CSV 문자열로 변환합니다.
                                 </div>
                             </div>
                         </div>
@@ -113,6 +113,48 @@
                                 <button type="button" id="btn_isEmpty" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
                                 <div class="form-text">
                                     객체의 값이 빈 값인지 확인합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">$object.clone()</label>
+                                <textarea type="text" id="txt_clone" class="form-control" rows="3"></textarea>
+                                <button type="button" id="btn_clone" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    객체, 배열, Date, HTMLElement 등을 깊은 복사(nested 옵션에 따라 얕은 복사)하여 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">$object.extend()</label>
+                                <textarea type="text" id="txt_extend" class="form-control" rows="3"></textarea>
+                                <button type="button" id="btn_extend" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    대상 객체(to)에 원본 객체(from)의 속성을 재귀적으로 병합합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">$object.excludeKeys()</label>
+                                <textarea type="text" id="txt_excludeKeys" class="form-control" rows="3"></textarea>
+                                <button type="button" id="btn_excludeKeys" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    지정된 키 목록을 제외한 나머지 속성만 가진 새로운 객체를 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">$object.parseJsonValue()</label>
+                                <input type="text" id="txt_parseJsonValue" class="form-control" />
+                                <button type="button" id="btn_parseJsonValue_integer" class="mt-2 btn btn-primary" syn-events="['click']">integer 확인</button>
+                                <button type="button" id="btn_parseJsonValue_boolean" class="mt-2 btn btn-primary" syn-events="['click']">boolean 확인</button>
+                                <button type="button" id="btn_parseJsonValue_array" class="mt-2 btn btn-primary" syn-events="['click']">array 확인</button>
+                                <div class="form-text">
+                                    지정된 jsonType(integer, number, boolean, object, array, string)에 맞춰 값을 변환합니다.
                                 </div>
                             </div>
                         </div>

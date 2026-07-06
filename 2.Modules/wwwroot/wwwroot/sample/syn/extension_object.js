@@ -19,7 +19,7 @@ let $extension_object = {
         },
 
         btn_toCSV_click() {
-            syn.$l.get('txt_toCSV').value = $object.toCSV([{ a: 1, b: 2 }, { a: 3, b: 4, c: 5 }, { a: 6 }, { b: 7 }], ['a', 'b'], ';');
+            syn.$l.get('txt_toCSV').value = $object.toCSV([{ a: 1, b: 2 }, { a: 3, b: 4, c: 5 }, { a: 6 }, { b: 7 }], { delimiter: ';' });
         },
 
         btn_toParameterString_click() {
@@ -83,6 +83,36 @@ let $extension_object = {
 
         btn_isEmpty_click() {
             syn.$l.get('txt_isEmpty').value = $object.isEmpty([]);
+        },
+
+        btn_clone_click() {
+            var source = { a: 1, b: { c: 2 } };
+            var cloned = $object.clone(source);
+            cloned.b.c = 99;
+            syn.$l.get('txt_clone').value = `source: ${JSON.stringify(source)}, cloned: ${JSON.stringify(cloned)}`;
+        },
+
+        btn_extend_click() {
+            var to = { a: 1, nested: { x: 1 } };
+            var from = { a: 2, b: 3, nested: { y: 2 } };
+            syn.$l.get('txt_extend').value = JSON.stringify($object.extend(to, from));
+        },
+
+        btn_excludeKeys_click() {
+            var source = { a: 1, b: 2, c: 3 };
+            syn.$l.get('txt_excludeKeys').value = JSON.stringify($object.excludeKeys(source, ['b']));
+        },
+
+        btn_parseJsonValue_integer_click() {
+            syn.$l.get('txt_parseJsonValue').value = $object.parseJsonValue('123', 'integer');
+        },
+
+        btn_parseJsonValue_boolean_click() {
+            syn.$l.get('txt_parseJsonValue').value = $object.parseJsonValue('Y', 'boolean');
+        },
+
+        btn_parseJsonValue_array_click() {
+            syn.$l.get('txt_parseJsonValue').value = $object.parseJsonValue('[1,2,3]', 'array');
         },
     },
 };

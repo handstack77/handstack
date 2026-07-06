@@ -36,6 +36,34 @@ let $extension_number = {
 
         btn_percent_click() {
             syn.$l.get('txt_percent').value = $number.percent($number.random(1, 10000), 10000);
+        },
+
+        btn_amount_click() {
+            syn.$l.get('txt_amount').value = $number.amount(30, 10000);
+        },
+
+        btn_aggregate_sum_click() {
+            syn.$l.get('txt_aggregate').value = $number.aggregate('SUM', [10, 20, 30, 40]);
+        },
+
+        btn_aggregate_avg_click() {
+            syn.$l.get('txt_aggregate').value = $number.aggregate('AVG', [10, 20, 30, 40]);
+        },
+
+        btn_aggregate_min_click() {
+            syn.$l.get('txt_aggregate').value = $number.aggregate('MIN', [10, 20, 30, 40]);
+        },
+
+        btn_aggregate_max_click() {
+            syn.$l.get('txt_aggregate').value = $number.aggregate('MAX', [10, 20, 30, 40]);
+        },
+
+        btn_aggregate_count_click() {
+            syn.$l.get('txt_aggregate').value = $number.aggregate('COUNT', [10, 20, 30, 40]);
+        },
+
+        btn_aggregate_median_click() {
+            syn.$l.get('txt_aggregate').value = $number.aggregate('MEDIAN', [10, 20, 30, 40]);
         }
     }
 };

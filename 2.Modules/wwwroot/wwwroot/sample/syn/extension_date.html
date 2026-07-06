@@ -208,6 +208,48 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">$date.getAmPm(), $date.get12Time()</label>
+                                <input type="text" id="txt_amPm" class="form-control">
+                                <button type="button" id="btn_getAmPm" class="mt-2 btn btn-primary" syn-events="['click']">getAmPm 확인</button>
+                                <button type="button" id="btn_get12Time" class="mt-2 btn btn-primary" syn-events="['click']">get12Time 확인</button>
+                                <div class="form-text">
+                                    시간 값을 기준으로 오전/오후 여부 또는 12시간제 문자열을 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">$date.timeAgo()</label>
+                                <input type="text" id="txt_timeAgo" class="form-control">
+                                <button type="button" id="btn_timeAgo" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    지정된 일자와 현재 시각의 차이를 상대적인 문자열(몇 분 전, 몇 일 전 등)로 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">$date.parseDate()</label>
+                                <input type="text" id="txt_parseDate" class="form-control">
+                                <button type="button" id="btn_parseDate" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    문자열, 숫자, Date 객체 등의 입력 값을 Date 객체로 변환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">$date.dateConvert()</label>
+                                <input type="text" id="txt_dateConvert" class="form-control">
+                                <button type="button" id="btn_dateConvert_encode" class="mt-2 btn btn-primary" syn-events="['click']">인코딩(E) 확인</button>
+                                <button type="button" id="btn_dateConvert_decode" class="mt-2 btn btn-primary" syn-events="['click']">디코딩(D) 확인</button>
+                                <div class="form-text">
+                                    일자 값을 36진수 문자열로 인코딩하거나, 인코딩된 문자열을 일자 값으로 디코딩합니다.
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
