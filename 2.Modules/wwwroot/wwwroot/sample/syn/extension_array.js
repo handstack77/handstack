@@ -34,11 +34,6 @@ let $extension_array = {
             syn.$l.get('txt_groupBy').value = JSON.stringify($array.groupBy(arr, 'price'));
         },
 
-        btn_groupBy_click() {
-            var arr = [{ name: 'Apple', price: 10 }, { name: 'Banana', price: 5 }, , { name: 'Cherry', price: 5 }];
-            syn.$l.get('txt_groupBy').value = JSON.stringify($array.groupBy(arr, 'price'));
-        },
-
         btn_groupBy_length_click() {
             syn.$l.get('txt_groupBy').value = JSON.stringify($array.groupBy(["하나", "둘", "셋"], "length"));
         },
@@ -75,32 +70,44 @@ let $extension_array = {
 
         btn_merge_click() {
             var arr = ['Apple', 'Banana', 'Mango', 'Cherry'];
-            syn.$l.get('txt_merge').value = $array.merge(arr, ['Grape', 'Banana', 'BlueBarry']);
+            syn.$l.get('txt_merge').value = JSON.stringify($array.merge(arr, ['Grape', 'Banana', 'BlueBarry']));
         },
 
         btn_union_click() {
             var arr = ['Apple', 'Banana', 'Mango', 'Cherry'];
-            syn.$l.get('txt_union').value = $array.union(arr, ['Grape', 'Banana', 'BlueBarry']);
+            syn.$l.get('txt_union').value = JSON.stringify($array.union(arr, ['Grape', 'Banana', 'BlueBarry']));
         },
 
         btn_difference_click() {
             var arr = ['Apple', 'Banana', 'Mango', 'Cherry'];
-            syn.$l.get('txt_difference').value = $array.difference(arr, ['Grape', 'Banana', 'BlueBarry']);
+            syn.$l.get('txt_difference').value = JSON.stringify($array.difference(arr, ['Grape', 'Banana', 'BlueBarry']));
         },
 
         btn_intersect_click() {
             var arr = ['Apple', 'Banana', 'Mango', 'Cherry'];
-            syn.$l.get('txt_intersect').value = $array.intersect(arr, ['Grape', 'Banana', 'BlueBarry']);
+            syn.$l.get('txt_intersect').value = JSON.stringify($array.intersect(arr, ['Grape', 'Banana', 'BlueBarry']));
         },
 
         btn_symmetryDifference_click() {
             var arr = ['Apple', 'Banana', 'Mango', 'Cherry'];
-            syn.$l.get('txt_symmetryDifference').value = $array.symmetryDifference(arr, ['Grape', 'Banana', 'BlueBarry']);
+            syn.$l.get('txt_symmetryDifference').value = JSON.stringify($array.symmetryDifference(arr, ['Grape', 'Banana', 'BlueBarry']));
+        },
+
+        btn_getValue_click() {
+            var items = [
+                { ParameterName: 'MaxCount', Value: '100' },
+                { ParameterName: 'UseYN', Value: 'Y' }
+            ];
+            syn.$l.get('txt_getValue').value = `${$array.getValue(items, 'MaxCount', '0')}, ${$array.getValue(items, 'NotExists', 'default')}`;
         },
 
         btn_ranks_click() {
             var arr = [79, 5, 18, 5, 32, 1, 16, 1, 82, 13];
-            syn.$l.get('txt_ranks').value = $array.ranks(arr);
+            syn.$l.get('txt_ranks').value = JSON.stringify($array.ranks(arr));
+        },
+
+        btn_arraySplit_click() {
+            syn.$l.get('txt_arraySplit').value = JSON.stringify($array.split('Apple, Banana ,Mango,Cherry'));
         },
     },
 };
