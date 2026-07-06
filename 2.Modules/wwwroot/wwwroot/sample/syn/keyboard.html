@@ -19,10 +19,37 @@
                     <div class="card-body">
                         <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
                             <div class="col-12">
-                                <label class="form-label">syn.$k.version</label>
-                                <input type="text" id="txt_version" class="form-control">
+                                <label class="form-label">syn.$k.keyCodes</label>
+                                <textarea id="txt_keyCodes" class="form-control" rows="5"></textarea>
                                 <div class="form-text">
-                                    $keyboard version을 반환합니다.
+                                    키 이름(backspace, enter, a, f1 등)과 keyCode 숫자값의 매핑 테이블(읽기 전용)입니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$k.keyNames</label>
+                                <textarea id="txt_keyNames" class="form-control" rows="5"></textarea>
+                                <div class="form-text">
+                                    KeyboardEvent.code 값(Backspace, KeyA, F1 등)과 keyCodes 키 이름의 매핑 테이블(읽기 전용)입니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$k.targetEL</label>
+                                <input type="text" id="txt_targetEL" class="form-control">
+                                <div class="form-text">
+                                    setElement()로 마지막으로 지정된 대상 노드의 id 입니다. 아래 setElement() 실행 후 갱신됩니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$k.elements</label>
+                                <textarea id="txt_elements" class="form-control" rows="3"></textarea>
+                                <div class="form-text">
+                                    setElement()로 등록된 노드별 keydown/keyup 콜백 목록입니다. 아래 setElement() 실행 후 갱신됩니다.
                                 </div>
                             </div>
                         </div>
@@ -60,6 +87,16 @@
                                 <button type="button" id="btn_removeKeyCode" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
                                 <div class="form-text">
                                     단축키에 대응하는 keyType, keyCode 을 삭제합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$k.getKeyCode()</label>
+                                <input type="text" id="txt_getKeyCode" class="form-control" />
+                                <button type="button" id="btn_getKeyCode" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    KeyboardEvent.code 값(예: 'KeyA')에 대응하는 keyCode 숫자값을 조회합니다.
                                 </div>
                             </div>
                         </div>

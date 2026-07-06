@@ -100,6 +100,15 @@
                         </div>
                         <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
                             <div class="col-12">
+                                <label class="form-label">syn.$b.effectiveType</label>
+                                <input type="text" id="txt_effectiveType" class="form-control">
+                                <div class="form-text">
+                                    navigator.effectiveType(네트워크 연결 속도 등급)을 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
                                 <label class="form-label">syn.$b.devicePixelRatio</label>
                                 <input type="text" id="txt_devicePixelRatio" class="form-control">
                                 <div class="form-text">
@@ -136,19 +145,19 @@
                         </div>
                         <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
                             <div class="col-12">
-                                <label class="form-label">syn.$b.isMac</label>
-                                <input type="text" id="txt_isMac" class="form-control">
+                                <label class="form-label">syn.$b.isWebkit</label>
+                                <input type="text" id="txt_isWebkit" class="form-control">
                                 <div class="form-text">
-                                    navigator.appVersion에서 'Mac' 또는 navigator.userAgent에서 'Macintosh' 포함 여부를 반환합니다.
+                                    navigator.userAgent에서 'AppleWebKit' 포함 여부를 반환합니다.
                                 </div>
                             </div>
                         </div>
                         <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
                             <div class="col-12">
-                                <label class="form-label">syn.$b.isWebkit</label>
-                                <input type="text" id="txt_isWebkit" class="form-control">
+                                <label class="form-label">syn.$b.isMac</label>
+                                <input type="text" id="txt_isMac" class="form-control">
                                 <div class="form-text">
-                                    navigator.userAgent에서 'AppleWebKit' 포함 여부를 반환합니다.
+                                    navigator.appVersion에서 'Mac' 또는 navigator.userAgent에서 'Macintosh' 포함 여부를 반환합니다.
                                 </div>
                             </div>
                         </div>
@@ -224,15 +233,6 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
-                            <div class="col-12">
-                                <label class="form-label">syn.$b.isMobile</label>
-                                <input type="text" id="txt_isMobile" class="form-control">
-                                <div class="form-text">
-                                    navigator.userAgentData.mobile 포함 또는 navigator.userAgent에서 모바일 포함 여부를 반환합니다.
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
 
@@ -249,6 +249,26 @@
                                 <button type="button" id="btn_getSystemFonts" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
                                 <div class="form-text">
                                     Windows, Linux, Mac에 기본 포함되어 있는 폰트 목록을 확인합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$b.getCanvas2dRender()</label>
+                                <div><img id="img_getCanvas2dRender" style="max-width:200px;border:1px solid #e5e5e5;display:block;margin-top:8px;" /></div>
+                                <button type="button" id="btn_getCanvas2dRender" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    canvas 2d 렌더링 결과를 dataURL 이미지로 생성합니다(핑거프린팅용).
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$b.getWebglRender()</label>
+                                <div><img id="img_getWebglRender" style="max-width:200px;border:1px solid #e5e5e5;display:block;margin-top:8px;" /></div>
+                                <button type="button" id="btn_getWebglRender" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    WebGL 렌더링 결과를 dataURL 이미지로 생성합니다(핑거프린팅용). WebGL을 지원하지 않으면 비어 있습니다.
                                 </div>
                             </div>
                         </div>
@@ -299,6 +319,66 @@
                                 <button type="button" id="btn_getIpAddress" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
                                 <div class="form-text">
                                     /checkip 서버 요청으로 얻어지는 브라우저의 공인 IP를 확인합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$b.canShare()</label>
+                                <input type="text" id="txt_canShare" class="form-control">
+                                <button type="button" id="btn_canShare" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    Web Share API로 공유 가능한 환경인지 여부를 확인합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$b.share()</label>
+                                <input type="text" id="txt_share" class="form-control">
+                                <button type="button" id="btn_share" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    Web Share API로 지정된 제목/본문/URL을 공유합니다. 지원하지 않는 환경에서는 클립보드로 복사합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$b.getPerformanceEntries()</label>
+                                <textarea type="text" id="txt_getPerformanceEntries" class="form-control" rows="5"></textarea>
+                                <button type="button" id="btn_getPerformanceEntries" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    Performance Timeline API의 navigation 항목을 조회합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$b.markPerformance()</label>
+                                <input type="text" id="txt_markPerformance" class="form-control">
+                                <button type="button" id="btn_markPerformance" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    지정한 이름으로 성능 측정 지점(mark)을 생성합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$b.measurePerformance()</label>
+                                <input type="text" id="txt_measurePerformance" class="form-control">
+                                <button type="button" id="btn_measurePerformance" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    시작/종료 mark 사이의 구간을 측정(measure)하여 결과를 확인합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$b.isMobile()</label>
+                                <input type="text" id="txt_isMobile" class="form-control">
+                                <button type="button" id="btn_isMobile" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    모바일 기기 여부를 확인합니다.
                                 </div>
                             </div>
                         </div>

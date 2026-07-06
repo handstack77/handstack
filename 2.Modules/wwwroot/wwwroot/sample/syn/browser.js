@@ -14,6 +14,7 @@ let $browser = {
             syn.$l.get('txt_platform').value = syn.$b.platform;
             syn.$l.get('txt_devicePlatform').value = syn.$b.devicePlatform;
             syn.$l.get('txt_userAgent').value = syn.$b.userAgent;
+            syn.$l.get('txt_effectiveType').value = syn.$b.effectiveType;
             syn.$l.get('txt_devicePixelRatio').value = syn.$b.devicePixelRatio;
             syn.$l.get('txt_isExtended').value = syn.$b.isExtended;
             syn.$l.get('txt_screenWidth').value = syn.$b.screenWidth;
@@ -29,7 +30,6 @@ let $browser = {
             syn.$l.get('txt_isEdge').value = syn.$b.isEdge;
             syn.$l.get('txt_isFF').value = syn.$b.isFF;
             syn.$l.get('txt_isSafari').value = syn.$b.isSafari;
-            syn.$l.get('txt_isMobile').value = syn.$b.isMobile;
         }
     },
 
@@ -38,6 +38,14 @@ let $browser = {
             syn.$l.get('txt_getSystemFonts').value = syn.$b.getSystemFonts().split(',').map((item) => {
                 return item.trim();
             }).join('\n');
+        },
+
+        btn_getCanvas2dRender_click() {
+            syn.$l.get('img_getCanvas2dRender').src = syn.$b.getCanvas2dRender();
+        },
+
+        btn_getWebglRender_click() {
+            syn.$l.get('img_getWebglRender').src = syn.$b.getWebglRender();
         },
 
         btn_getPlugins_click() {
@@ -60,6 +68,45 @@ let $browser = {
 
         async btn_getIpAddress_click() {
             syn.$l.get('txt_getIpAddress').value = await syn.$b.getIpAddress();
+        },
+
+        btn_canShare_click() {
+            syn.$l.get('txt_canShare').value = String(syn.$b.canShare());
+        },
+
+        async btn_share_click() {
+            const shareData = {
+                title: 'HandStack',
+                text: 'HandStack의 목표는 개발자가 좋아하고 기업이 신뢰하는 비즈니스 앱 시스템을 제공하는 것입니다.',
+                url: 'https://handstack.kr'
+            };
+
+            try {
+                await syn.$b.share(shareData);
+                syn.$l.get('txt_share').value = '공유 요청이 처리되었습니다';
+            } catch (error) {
+                syn.$l.get('txt_share').value = `공유 실패: ${error.message}`;
+            }
+        },
+
+        btn_getPerformanceEntries_click() {
+            syn.$l.get('txt_getPerformanceEntries').value = JSON.stringify(syn.$b.getPerformanceEntries({ type: 'navigation' }));
+        },
+
+        btn_markPerformance_click() {
+            syn.$b.markPerformance('sample-mark');
+            syn.$l.get('txt_markPerformance').value = JSON.stringify(syn.$b.getPerformanceEntries({ type: 'mark', name: 'sample-mark' }));
+        },
+
+        btn_measurePerformance_click() {
+            syn.$b.markPerformance('sample-start');
+            syn.$b.markPerformance('sample-end');
+            const entry = syn.$b.measurePerformance('sample-measure', 'sample-start', 'sample-end');
+            syn.$l.get('txt_measurePerformance').value = JSON.stringify(entry);
+        },
+
+        btn_isMobile_click() {
+            syn.$l.get('txt_isMobile').value = String(syn.$b.isMobile());
         }
     },
 };
