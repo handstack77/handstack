@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
@@ -10,7 +10,7 @@
     <div class="container">
         <div class="row">
             <div class="col-12">
-                <h1 class="mt-3">syn.$v: 유효성 검사 기능을 제공합니다.</h1>
+                <h1 class="mt-3">syn.$v: 폼 컨트롤의 필수 입력, 정규식 패턴, 범위, 사용자 정의 규칙에 대한 유효성 검사 기능을 제공합니다.</h1>
 
                 <div class="card">
                     <div class="card-status-top bg-red"></div>
@@ -20,10 +20,71 @@
                     <div class="card-body">
                         <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
                             <div class="col-12">
-                                <label class="form-label">syn.$v.version</label>
-                                <input type="text" id="txt_version" class="form-control">
+                                <label class="form-label">syn.$v.isContinue</label>
+                                <input type="text" id="txt_isContinue" class="form-control mb-2" />
+                                <button type="button" id="btn_isContinue" class="mt-2 btn btn-primary" syn-events="['click']">설정</button>
                                 <div class="form-text">
-                                    $validation version을 반환합니다.
+                                    유효성 검사 중 첫 실패에서 즉시 중단할지(false) 아니면 모든 규칙을 계속 검사할지(true) 여부입니다. 기본값은 true 입니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$v.messages</label>
+                                <textarea id="txt_messages" class="form-control mb-2" rows="3" readonly></textarea>
+                                <button type="button" id="btn_messages" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    검증 실패 시 누적되는 오류 메시지 배열입니다. toMessages() 호출 전까지 값이 유지됩니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$v.elements</label>
+                                <textarea id="txt_elements" class="form-control mb-2" rows="3" readonly></textarea>
+                                <button type="button" id="btn_elements" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    setElement()로 등록된 노드별 pattern/range/custom 검증 규칙을 담고 있는 맵입니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$v.targetEL</label>
+                                <input type="text" id="txt_targetEL" class="form-control mb-2" readonly />
+                                <button type="button" id="btn_targetEL" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    setElement()로 마지막에 설정된 대상 노드(엘리먼트)의 id 입니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$v.regexs</label>
+                                <textarea id="txt_regexs" class="form-control mb-2" rows="4" readonly></textarea>
+                                <button type="button" id="btn_regexs" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    numeric, email, juminNo, url, ipAddress, date, mobilePhone 등 pattern() 검증에서 사용할 수 있는 사전 정의된 정규식 모음입니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$v.roles</label>
+                                <textarea id="txt_roles" class="form-control mb-2" rows="3" readonly></textarea>
+                                <button type="button" id="btn_roles" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    Root, Administrator, Master, Architect, Manager 등 권한 등급과 값을 매핑한 사전 정의된 객체입니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$v.valueType / syn.$v.validType</label>
+                                <textarea id="txt_typeConstants" class="form-control mb-2" rows="3" readonly></textarea>
+                                <button type="button" id="btn_typeConstants" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    valueType은 HTML5 ValidityState와 유사한 값 검증 상태 코드, validType은 required/pattern/range/custom 검증 종류 코드를 정의합니다.
                                 </div>
                             </div>
                         </div>
@@ -42,7 +103,7 @@
                                 <input type="text" id="txt_setElement" class="form-control" />
                                 <button type="button" id="btn_setElement" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
                                 <div class="form-text">
-                                    유효성 검사 정보를 수신할 노드를 설정합니다.
+                                    유효성 검사 정보를 수신할 노드를 대상(targetEL)으로 설정합니다.
                                 </div>
                             </div>
                         </div>
@@ -94,10 +155,40 @@
                         </div>
                         <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
                             <div class="col-12">
+                                <label class="form-label">syn.$v.removeValidate() / syn.$v.remove()</label>
+                                <input type="text" id="txt_removeTarget" class="form-control" placeholder="예: txt_pattern" />
+                                <button type="button" id="btn_removeValidate" class="mt-2 btn btn-primary" syn-events="['click']">pattern.numeric 규칙만 제거</button>
+                                <button type="button" id="btn_remove" class="mt-2 btn btn-primary" syn-events="['click']">모든 규칙(numeric) 제거</button>
+                                <div class="form-text">
+                                    removeValidate(validType, validID)는 특정 검증 종류의 규칙 하나를, remove(validID)는 pattern/range/custom 전체에서 해당 validID 규칙을 제거합니다. (removeValidate 호출 전 setElement()로 대상을 지정하세요.)
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$v.clear()</label>
+                                <button type="button" id="btn_clear" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    등록된 모든 노드의 검증 규칙과 메시지, 대상 노드 정보를 초기화합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$v.validateControl()</label>
+                                <input type="text" id="txt_validateControl" class="form-control" placeholder="예: txt_pattern" />
+                                <button type="button" id="btn_validateControl" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    입력한 id에 해당하는 단일 노드의 등록된 검증 규칙을 실행하고 결과(boolean)를 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
                                 <label class="form-label">syn.$v.validateControls()</label>
                                 <button type="button" id="btn_validateControls" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
                                 <div class="form-text">
-                                    지정한 노드들의 검사 검증을 실행합니다.
+                                    지정한 노드 목록(txt_required, txt_pattern, txt_range, txt_custom)의 검사 검증을 실행합니다.
                                 </div>
                             </div>
                         </div>
@@ -106,7 +197,29 @@
                                 <label class="form-label">syn.$v.validateForm()</label>
                                 <button type="button" id="btn_validateForm" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
                                 <div class="form-text">
-                                    등록된 모든 노드들의 검사 검증을 실행합니다.
+                                    setElement()/pattern()/range()/custom()으로 등록된 모든 노드들의 검사 검증을 실행합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$v.toMessages()</label>
+                                <textarea id="txt_toMessagesResult" class="form-control mb-2" rows="3" readonly></textarea>
+                                <button type="button" id="btn_toMessages" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    누적된 오류 메시지를 줄바꿈으로 연결한 문자열로 반환하고, 내부 messages 배열은 비웁니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$v.getRoleValue() / syn.$v.getRoleName()</label>
+                                <input type="text" id="txt_roleInput" class="form-control mb-2" placeholder="예: Manager 또는 400" />
+                                <input type="text" id="txt_roleResult" class="form-control" readonly />
+                                <button type="button" id="btn_getRoleValue" class="mt-2 btn btn-primary" syn-events="['click']">역할명 → 값</button>
+                                <button type="button" id="btn_getRoleName" class="mt-2 btn btn-primary" syn-events="['click']">값 → 역할명</button>
+                                <div class="form-text">
+                                    getRoleValue(roleNames)는 역할 이름을 roles 값으로, getRoleName(roleValues)는 반대로 값을 역할 이름으로 변환합니다.
                                 </div>
                             </div>
                         </div>

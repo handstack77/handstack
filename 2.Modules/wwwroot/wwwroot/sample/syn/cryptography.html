@@ -1,7 +1,8 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
+    <title>cryptography</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="/lib/highlight.js/styles/atom-one-dark.min.css">
 </head>
@@ -9,25 +10,10 @@
     <div class="container">
         <div class="row">
             <div class="col-12">
-                <h1 class="mt-3">syn.$c: base64, sha256 및 암호화 기능 제공합니다.</h1>
-
-                <div class="card">
-                    <div class="card-status-top bg-red"></div>
-                    <div class="card-header">
-                        <h3 class="card-title">속성</h3>
-                    </div>
-                    <div class="card-body">
-                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
-                            <div class="col-12">
-                                <label class="form-label">syn.$c.version</label>
-                                <input type="text" id="txt_version" class="form-control">
-                                <div class="form-text">
-                                    $cryptography version을 반환합니다.
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <h1 class="mt-3">syn.$c: base64, sha256, HMAC, RSA, AES 및 LZString 압축 등 암호화 기능을 제공합니다.</h1>
+                <p class="text-muted">
+                    브라우저에서는 WebCrypto(SubtleCrypto) API를 사용합니다. Node.js 환경(devicePlatform === 'node')에서는 Buffer 기반으로 동작하는 별도 경로가 내부에 구현되어 있습니다.
+                </p>
 
                 <div class="card mt-3">
                     <div class="card-status-top bg-red"></div>
@@ -37,9 +23,19 @@
                     <div class="card-body">
                         <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
                             <div class="col-12">
+                                <label class="form-label">syn.$c.isWebCryptoSupported()</label>
+                                <input type="text" id="txt_isWebCryptoSupportedResult" class="form-control mb-2" readonly />
+                                <button type="button" id="btn_isWebCryptoSupported" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    현재 브라우저가 WebCrypto(SubtleCrypto)를 지원하는지 여부를 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
                                 <label class="form-label">syn.$c.base64Encode()</label>
                                 <input type="text" id="txt_base64Encode" class="form-control mb-2" />
-                                <textarea type="text" id="txt_base64EncodeResult" class="form-control" rows="3"></textarea>
+                                <textarea id="txt_base64EncodeResult" class="form-control" rows="3"></textarea>
                                 <button type="button" id="btn_base64Encode" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
                                 <div class="form-text">
                                     일반 문자열을 base64 문자열로 인코딩 합니다.
@@ -50,7 +46,7 @@
                             <div class="col-12">
                                 <label class="form-label">syn.$c.base64Decode()</label>
                                 <input type="text" id="txt_base64Decode" class="form-control mb-2" />
-                                <textarea type="text" id="txt_base64DecodeResult" class="form-control" rows="3"></textarea>
+                                <textarea id="txt_base64DecodeResult" class="form-control" rows="3"></textarea>
                                 <button type="button" id="btn_base64Decode" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
                                 <div class="form-text">
                                     base64 문자열을 일반 문자열로 디코딩 합니다.
@@ -61,21 +57,56 @@
                             <div class="col-12">
                                 <label class="form-label">syn.$c.utf8Encode()</label>
                                 <input type="text" id="txt_utf8Encode" class="form-control mb-2" />
-                                <textarea type="text" id="txt_utf8EncodeResult" class="form-control" rows="3"></textarea>
+                                <textarea id="txt_utf8EncodeResult" class="form-control" rows="3"></textarea>
                                 <button type="button" id="btn_utf8Encode" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
                                 <div class="form-text">
-                                    일반 문자열을 utf8 문자열로 인코딩 합니다.
+                                    일반 문자열을 UTF-8 바이트 배열(Uint8Array)로 인코딩 합니다.
                                 </div>
                             </div>
                         </div>
                         <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
                             <div class="col-12">
                                 <label class="form-label">syn.$c.utf8Decode()</label>
-                                <input type="text" id="txt_utf8Decode" class="form-control mb-2" />
-                                <textarea type="text" id="txt_utf8DecodeResult" class="form-control" rows="3"></textarea>
+                                <input type="text" id="txt_utf8Decode" class="form-control mb-2" placeholder="예: 236,149,136,235,133,149" />
+                                <textarea id="txt_utf8DecodeResult" class="form-control" rows="3"></textarea>
                                 <button type="button" id="btn_utf8Decode" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
                                 <div class="form-text">
-                                    utf8 문자열을 일반 문자열로 디코딩 합니다.
+                                    콤마로 구분된 UTF-8 바이트 코드 문자열을 일반 문자열로 디코딩 합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$c.padKey()</label>
+                                <input type="text" id="txt_padKey" class="form-control mb-2" placeholder="키 문자열" />
+                                <input type="text" id="txt_padKeyLength" class="form-control mb-2" placeholder="길이(byte), 예: 16" />
+                                <textarea id="txt_padKeyResult" class="form-control" rows="2"></textarea>
+                                <button type="button" id="btn_padKey" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    키 문자열을 지정된 길이(byte)로 잘라내거나 0으로 채워 반환합니다. AES/IV 키 생성에 내부적으로 사용됩니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$c.convertToBuffer()</label>
+                                <input type="text" id="txt_convertToBuffer" class="form-control mb-2" placeholder="예: 104,101,108,108,111" />
+                                <textarea id="txt_convertToBufferResult" class="form-control" rows="2"></textarea>
+                                <button type="button" id="btn_convertToBuffer" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    콤마로 구분된 숫자 배열을 ArrayBuffer로 변환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$c.sha()</label>
+                                <input type="text" id="txt_sha" class="form-control mb-2" placeholder="원문 문자열" />
+                                <input type="text" id="txt_shaAlgorithm" class="form-control mb-2" placeholder="예: SHA-256 (기본값 SHA-1)" />
+                                <textarea id="txt_shaResult" class="form-control" rows="2"></textarea>
+                                <button type="button" id="btn_sha" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    WebCrypto digest를 사용해 지정한 알고리즘(SHA-1, SHA-256, SHA-384, SHA-512 등)으로 해시 값을 반환합니다.
                                 </div>
                             </div>
                         </div>
@@ -83,44 +114,111 @@
                             <div class="col-12">
                                 <label class="form-label">syn.$c.sha256()</label>
                                 <input type="text" id="txt_sha256" class="form-control mb-2" />
-                                <textarea type="text" id="txt_sha256Result" class="form-control" rows="3"></textarea>
+                                <textarea id="txt_sha256Result" class="form-control" rows="2"></textarea>
                                 <button type="button" id="btn_sha256" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
                                 <div class="form-text">
-                                    일반 문자열을 sha256로 해시 값을 반환합니다.
+                                    순수 자바스크립트 구현으로 문자열의 SHA-256 해시 값을 동기적으로 반환합니다.
                                 </div>
                             </div>
                         </div>
                         <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
                             <div class="col-12">
-                                <label class="form-label">syn.$c.encrypt()</label>
-                                <input type="text" id="txt_encrypt" class="form-control mb-2" />
-                                <textarea type="text" id="txt_encryptResult" class="form-control" rows="3"></textarea>
-                                <button type="button" id="btn_encrypt" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <label class="form-label">syn.$c.generateHMAC() / verifyHMAC()</label>
+                                <input type="text" id="txt_hmacKey" class="form-control mb-2" placeholder="키" />
+                                <input type="text" id="txt_hmacMessage" class="form-control mb-2" placeholder="메시지" />
+                                <textarea id="txt_hmacResult" class="form-control" rows="2"></textarea>
+                                <button type="button" id="btn_generateHMAC" class="mt-2 btn btn-primary" syn-events="['click']">HMAC 생성</button>
+                                <button type="button" id="btn_verifyHMAC" class="mt-2 btn btn-primary" syn-events="['click']">HMAC 검증</button>
                                 <div class="form-text">
-                                    문자열을 지정된 키로 암호화 합니다.
+                                    HMAC-SHA256 서명을 생성(generateHMAC)하고, 생성된 서명이 유효한지 검증(verifyHMAC)합니다.
                                 </div>
                             </div>
                         </div>
                         <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
                             <div class="col-12">
-                                <label class="form-label">syn.$c.decrypt()</label>
-                                <input type="text" id="txt_decrypt" class="form-control mb-2" />
-                                <textarea type="text" id="txt_decryptResult" class="form-control" rows="3"></textarea>
-                                <button type="button" id="btn_decrypt" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <label class="form-label">syn.$c.generateRSAKey() / exportCryptoKey() / importCryptoKey()</label>
+                                <textarea id="txt_rsaPublicKey" class="form-control mb-2" rows="4" placeholder="PEM 공개키"></textarea>
+                                <textarea id="txt_rsaPrivateKey" class="form-control mb-2" rows="4" placeholder="PEM 개인키"></textarea>
+                                <button type="button" id="btn_generateRSAKey" class="mt-2 btn btn-primary" syn-events="['click']">RSA 키 쌍 생성 및 PEM 내보내기</button>
+                                <button type="button" id="btn_importRSAKey" class="mt-2 btn btn-primary" syn-events="['click']">PEM 가져오기(재사용 테스트)</button>
                                 <div class="form-text">
-                                    문자열을 지정된 키로 복호화 합니다.
+                                    RSA-OAEP 키 쌍을 생성(generateRSAKey)하고 PEM 형식으로 내보낸(exportCryptoKey) 뒤, 다시 CryptoKey로 가져옵니다(importCryptoKey).
                                 </div>
                             </div>
                         </div>
                         <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
                             <div class="col-12">
-                                <label class="form-label">syn.$c.LZString()</label>
-                                <input type="text" id="txt_LZString" class="form-control mb-2" />
-                                <textarea type="text" id="txt_LZStringResult" class="form-control" rows="3"></textarea>
-                                <button type="button" id="btn_LZStringEncode" class="mt-2 btn btn-primary" syn-events="['click']">Encode 확인</button>
-                                <button type="button" id="btn_LZStringDecode" class="mt-2 btn btn-primary" syn-events="['click']">Decode 확인</button>
+                                <label class="form-label">syn.$c.rsaEncode() / rsaDecode()</label>
+                                <input type="text" id="txt_rsaText" class="form-control mb-2" placeholder="암호화할 문자열 (먼저 RSA 키를 생성하세요)" />
+                                <textarea id="txt_rsaResult" class="form-control" rows="3"></textarea>
+                                <button type="button" id="btn_rsaEncode" class="mt-2 btn btn-primary" syn-events="['click']">RSA 암호화</button>
+                                <button type="button" id="btn_rsaDecode" class="mt-2 btn btn-primary" syn-events="['click']">RSA 복호화</button>
                                 <div class="form-text">
-                                    문자열을 LZString 기반으로 압축/해제 합니다.
+                                    위에서 생성한 RSA 공개키/개인키로 문자열을 암호화(rsaEncode)/복호화(rsaDecode)합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$c.generateIV()</label>
+                                <input type="text" id="txt_ivKey" class="form-control mb-2" placeholder="키 또는 $RANDOM$" />
+                                <textarea id="txt_ivResult" class="form-control" rows="2"></textarea>
+                                <button type="button" id="btn_generateIV" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    AES 암호화에 사용할 초기화 벡터(IV)를 생성합니다. 키에 '$RANDOM$'을 입력하면 난수 IV를 생성합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$c.aesEncode() / aesDecode()</label>
+                                <input type="text" id="txt_aesText" class="form-control mb-2" placeholder="원문 문자열" />
+                                <input type="text" id="txt_aesKey" class="form-control mb-2" placeholder="키 문자열" />
+                                <textarea id="txt_aesResult" class="form-control" rows="3"></textarea>
+                                <button type="button" id="btn_aesEncode" class="mt-2 btn btn-primary" syn-events="['click']">AES-CBC 암호화</button>
+                                <button type="button" id="btn_aesDecode" class="mt-2 btn btn-primary" syn-events="['click']">AES-CBC 복호화</button>
+                                <div class="form-text">
+                                    AES-CBC(256bit) 알고리즘으로 문자열을 암호화(aesEncode)/복호화(aesDecode)합니다. algorithm에 'AES-GCM'을 전달하면 GCM 모드도 사용할 수 있습니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$c.encrypt() / decrypt()</label>
+                                <input type="text" id="txt_encrypt" class="form-control mb-2" placeholder="원문 문자열" />
+                                <input type="text" id="txt_encryptKey" class="form-control mb-2" placeholder="키(선택, 미입력 시 기본값)" />
+                                <textarea id="txt_encryptResult" class="form-control" rows="3"></textarea>
+                                <button type="button" id="btn_encrypt" class="mt-2 btn btn-primary" syn-events="['click']">암호화</button>
+                                <button type="button" id="btn_decrypt" class="mt-2 btn btn-primary" syn-events="['click']">복호화</button>
+                                <div class="form-text">
+                                    간단한 대칭키 방식으로 문자열을 암호화(encrypt)/복호화(decrypt)합니다. WebCrypto 없이 사용 가능한 경량 구현입니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$c.LZString (compress / compressToBase64 / compressToUTF16 / compressToEncodedURIComponent)</label>
+                                <textarea id="txt_LZString" class="form-control mb-2" rows="2" placeholder="압축할 문자열"></textarea>
+                                <textarea id="txt_LZStringResult" class="form-control" rows="3"></textarea>
+                                <button type="button" id="btn_LZStringCompress" class="mt-2 btn btn-primary" syn-events="['click']">compress</button>
+                                <button type="button" id="btn_LZStringCompressBase64" class="mt-2 btn btn-primary" syn-events="['click']">compressToBase64</button>
+                                <button type="button" id="btn_LZStringCompressUTF16" class="mt-2 btn btn-primary" syn-events="['click']">compressToUTF16</button>
+                                <button type="button" id="btn_LZStringCompressURI" class="mt-2 btn btn-primary" syn-events="['click']">compressToEncodedURIComponent</button>
+                                <div class="form-text">
+                                    문자열을 LZString 알고리즘으로 압축합니다. 결과 형식에 따라 base64, UTF-16, URI 컴포넌트로 인코딩할 수 있습니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$c.LZString (decompressFromBase64 / decompressFromUTF16 / decompressFromEncodedURIComponent)</label>
+                                <textarea id="txt_LZStringDecompress" class="form-control mb-2" rows="2" placeholder="압축된 문자열(위 결과를 붙여넣기)"></textarea>
+                                <textarea id="txt_LZStringDecompressResult" class="form-control" rows="3"></textarea>
+                                <button type="button" id="btn_LZStringDecompressBase64" class="mt-2 btn btn-primary" syn-events="['click']">decompressFromBase64</button>
+                                <button type="button" id="btn_LZStringDecompressUTF16" class="mt-2 btn btn-primary" syn-events="['click']">decompressFromUTF16</button>
+                                <button type="button" id="btn_LZStringDecompressURI" class="mt-2 btn btn-primary" syn-events="['click']">decompressFromEncodedURIComponent</button>
+                                <div class="form-text">
+                                    LZString으로 압축된 문자열을 각 인코딩 형식에 맞게 원래 문자열로 해제합니다.
                                 </div>
                             </div>
                         </div>
