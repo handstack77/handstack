@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>network</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/lib/highlight.js/styles/atom-one-dark.min.css">
+</head>
+<body style="visibility: hidden;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="mt-3">syn.$n: 창(window) 간 메시지 채널, SSE, WebSocket 클라이언트 기능을 제공합니다.</h1>
+
+                <div class="card">
+                    <div class="card-status-top bg-red"></div>
+                    <div class="card-header">
+                        <h3 class="card-title">속성</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$n.myChannelID</label>
+                                <input type="text" id="txt_myChannelID" class="form-control" readonly />
+                                <div class="form-text">
+                                    현재 화면 주소의 channelID 쿼리 문자열 값입니다(없으면 빈 문자열). syn.$n.emit()이 대상 채널을 찾을 때 사용합니다.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h3 class="card-title">rooms/channel 전역 편의 메서드 (call / broadCast / emit / findChannel)</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-text mb-2">
+                            아래 4개 메서드는 <code>syn.$n.rooms.connect()</code>로 생성된 채널 객체 없이, <code>channelID</code>만으로 이미 연결된 채널에 접근하는 전역 편의 메서드입니다.
+                            두 번째 창(iframe)이 필요한 저수준 <code>rooms.connect()</code> / 채널 객체의 <code>call()</code> / <code>bind()</code> 흐름은
+                            <a href="./iframe_main.html">iframe_main.html</a> / <a href="./iframe_child.html">iframe_child.html</a> 예제를 참고하세요.
+                            이 페이지는 화면 뒤에 숨겨진 iframe 하나를 자동으로 만들어 "network-demo"라는 channelID로 연결한 뒤, 그 채널을 대상으로 호출을 시연합니다.
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$n.findChannel(channelID)</label>
+                                <input type="text" id="txt_findChannel" class="form-control" readonly />
+                                <button type="button" id="btn_findChannel" class="mt-2 btn btn-primary" syn-events="['click']">'network-demo' 채널 확인</button>
+                                <div class="form-text">
+                                    channelID(scope)로 연결된 채널을 조회합니다. 최초 클릭 시 데모용 숨김 iframe과 채널을 생성합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$n.call(channelID, evt, params)</label>
+                                <input type="text" id="txt_callParams" class="form-control" value="ping params" />
+                                <button type="button" id="btn_call" class="mt-2 btn btn-primary" syn-events="['click']">'network-demo' 채널에 'ping' 호출</button>
+                                <div class="form-text">
+                                    channelID로 채널을 찾아 evt 메서드를 호출합니다. 성공/실패는 debugOutput 로그(브라우저 콘솔, F12)로 확인합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$n.broadCast(evt, params)</label>
+                                <input type="text" id="txt_broadCastParams" class="form-control" value="broadcast params" />
+                                <button type="button" id="btn_broadCast" class="mt-2 btn btn-primary" syn-events="['click']">모든 채널에 'ping' 방송</button>
+                                <div class="form-text">
+                                    현재 화면에 연결된 모든 채널(syn.$n.connections)에 동일한 evt를 호출합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$n.emit(evt, params)</label>
+                                <input type="text" id="txt_emitParams" class="form-control" value="note params" />
+                                <button type="button" id="btn_emit" class="mt-2 btn btn-primary" syn-events="['click']">myChannelID 채널에 'note' 전송</button>
+                                <div class="form-text">
+                                    syn.$n.myChannelID로 지정된 채널에 응답을 기대하지 않는 이벤트를 전송합니다(데모에서는 myChannelID를 'network-demo'로 임시 설정 후 호출).
+                                    데모 iframe이 'note'를 받으면 'note-ack'로 응답하며, 그 결과가 아래 출력창에 표시됩니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">데모 채널 출력</label>
+                                <textarea id="txt_roomsOutput" class="form-control" rows="6" readonly></textarea>
+                                <div class="form-text">
+                                    findChannel / call / broadCast / emit 호출에 대한 진행 로그와, 데모 iframe으로부터 돌아오는 'note-ack' 응답이 표시됩니다.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h3 class="card-title">SSE 클라이언트 (Server-Sent Events)</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-text mb-2">
+                            이 저장소에는 실제로 동작을 보장하는 SSE 서버가 없습니다. 아래 입력창에 본인이 확인 가능한 SSE 엔드포인트(예: 사내 개발 서버의 /api/events)를 직접 입력해서 테스트하세요.
+                            입력하지 않으면 연결 시도 즉시 에러/닫힘 이벤트가 출력창에 표시됩니다.
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$n.startSse(id, url, eventHandlers, options)</label>
+                                <input type="text" id="txt_sseUrl" class="form-control" placeholder="https://example.com/sse (직접 입력, 예시 주소이며 실제 서버 아님)" />
+                                <button type="button" id="btn_startSse" class="mt-2 btn btn-primary" syn-events="['click']">SSE 연결 시작 (id: demo-sse)</button>
+                                <div class="form-text">
+                                    지정한 id로 EventSource 연결을 생성하고 open/message/error 이벤트를 출력창에 기록합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$n.getSseConnection(id)</label>
+                                <input type="text" id="txt_sseState" class="form-control" readonly />
+                                <button type="button" id="btn_getSseConnection" class="mt-2 btn btn-primary" syn-events="['click']">demo-sse 연결 상태 조회</button>
+                                <div class="form-text">
+                                    id로 등록된 EventSource 인스턴스를 조회해 readyState/url을 보여줍니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$n.stopSse(id) / syn.$n.stopAllSse()</label>
+                                <button type="button" id="btn_stopSse" class="mt-2 btn btn-primary" syn-events="['click']">demo-sse 연결 종료</button>
+                                <button type="button" id="btn_stopAllSse" class="mt-2 btn btn-primary" syn-events="['click']">모든 SSE 연결 종료</button>
+                                <div class="form-text">
+                                    지정한 id 또는 전체 SSE 연결을 닫습니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">SSE 출력</label>
+                                <textarea id="txt_sseOutput" class="form-control" rows="6" readonly></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h3 class="card-title">WebSocket 클라이언트</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-text mb-2">
+                            이 저장소에는 실제로 동작을 보장하는 WebSocket 서버가 없습니다. 아래 입력창에 본인이 확인 가능한 WebSocket 엔드포인트(wss://...)를 직접 입력해서 테스트하세요.
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$n.startSocket(id, url, eventHandlers, options)</label>
+                                <input type="text" id="txt_wsUrl" class="form-control" placeholder="wss://example.com/socket (직접 입력, 예시 주소이며 실제 서버 아님)" />
+                                <button type="button" id="btn_startSocket" class="mt-2 btn btn-primary" syn-events="['click']">WebSocket 연결 시작 (id: demo-ws)</button>
+                                <div class="form-text">
+                                    지정한 id로 WebSocket 연결을 생성합니다. 기본 옵션은 자동 재연결(autoReconnect: true)이 켜져 있습니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$n.sendSocketMessage(id, message)</label>
+                                <input type="text" id="txt_wsMessage" class="form-control" value="hello" />
+                                <button type="button" id="btn_sendSocketMessage" class="mt-2 btn btn-primary" syn-events="['click']">demo-ws로 메시지 전송</button>
+                                <div class="form-text">
+                                    연결이 열려 있는 경우(readyState === OPEN)에만 전송에 성공합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$n.getSocket(id)</label>
+                                <input type="text" id="txt_wsState" class="form-control" readonly />
+                                <button type="button" id="btn_getSocket" class="mt-2 btn btn-primary" syn-events="['click']">demo-ws 연결 상태 조회</button>
+                                <div class="form-text">
+                                    id로 등록된 원시 WebSocket 인스턴스를 조회해 readyState를 보여줍니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$n.stopSocket(id) / syn.$n.stopAllSockets()</label>
+                                <button type="button" id="btn_stopSocket" class="mt-2 btn btn-primary" syn-events="['click']">demo-ws 연결 종료</button>
+                                <button type="button" id="btn_stopAllSockets" class="mt-2 btn btn-primary" syn-events="['click']">모든 WebSocket 연결 종료</button>
+                                <div class="form-text">
+                                    종료 시 자동 재연결 타이머도 함께 정리됩니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">WebSocket 출력</label>
+                                <textarea id="txt_wsOutput" class="form-control" rows="6" readonly></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/lib/highlight.js/highlight.min.js"></script>
+    <script src="/lib/showdown/showdown.min.js"></script>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

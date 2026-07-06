@@ -1,54 +1,53 @@
-﻿'use strict';
+'use strict';
 let $iframe_main = {
     event: {
-        btnChildrenConnect_click() {
-            var channelID = 'channelID';
-            var iframeChannel = syn.$w.channels.find(function (item) { return item.id == channelID });
-            if (iframeChannel == undefined) {
-                var iframe = syn.$l.get('ifmChildren');
-                var contentWindow = iframe.contentWindow;
-                var frameMessage = {
-                    id: channelID,
-                    channel: syn.$n.rooms.connect({
-                        debugOutput: true,
-                        window: contentWindow,
-                        origin: '*',
-                        scope: channelID
-                    })
-                };
-
-                frameMessage.channel.bind('response', function (evt, val) {
-                    alert('iframe_main ' + val);
-                });
-
-                syn.$w.channels.push(frameMessage);
-            }
-        },
-
         btnChildrenLoad_click() {
             var iframe = syn.$l.get('ifmChildren');
             iframe.src = 'iframe_child.html';
         },
 
+        btnChildrenConnect_click() {
+            var channelID = 'channelID';
+            var connection = syn.$n.findChannel(channelID);
+            if (connection == undefined) {
+                var iframe = syn.$l.get('ifmChildren');
+                var contentWindow = iframe.contentWindow;
+
+                connection = syn.$n.rooms.connect({
+                    debugOutput: true,
+                    window: contentWindow,
+                    origin: '*',
+                    scope: channelID
+                });
+
+                connection.bind('response', function (origin, params) {
+                    alert('iframe_main response 수신: ' + JSON.stringify(params));
+                });
+            }
+            else {
+                alert('이미 연결된 channelID 입니다: ' + channelID);
+            }
+        },
+
         btnParent2Children_click() {
             var channelID = 'channelID';
-            var length = syn.$w.channels.length;
-            for (var i = 0; i < length; i++) {
-                var frameMessage = syn.$w.channels[i];
+            var connection = syn.$n.findChannel(channelID);
 
-                if (channelID == frameMessage.id) {
-                    frameMessage.channel.call({
-                        method: 'request',
-                        params: ['request data'],
-                        error(error, message) {
-                            alert('iframe_main request ERROR: ' + error + ' (' + message + ')');
-                        },
-                        success(val) {
-                            alert('iframe_main request function returns: ' + val);
-                        }
-                    });
-                }
+            if (connection == undefined) {
+                alert('먼저 "iframe 화면 로드", "iframe 연결" 버튼을 순서대로 클릭하세요.');
+                return;
             }
+
+            connection.call({
+                method: 'request',
+                params: ['request data'],
+                error(error, message) {
+                    alert('iframe_main request ERROR: ' + error + ' (' + message + ')');
+                },
+                success(val) {
+                    alert('iframe_main request function returns: ' + val);
+                }
+            });
         }
     }
 }
