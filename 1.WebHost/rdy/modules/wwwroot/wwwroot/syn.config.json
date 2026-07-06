@@ -18,7 +18,7 @@
     "IsApiFindServer": false,
     "DiscoveryApiServerUrl": "",
     "ReportServer": "",
-    "FileManagerServer": "http://localhost:8421",
+    "FileManagerServer": "http://localhost:8420",
     "FindClientIPServer": "/checkip",
     "FindGlobalIDServer": "",
     "FileServerType": "L",
@@ -30,7 +30,7 @@
         "ServerType": "D",
         "Protocol": "http",
         "IP": "localhost",
-        "Port": "8421",
+        "Port": "8420",
         "Path": "/transact/api/transaction/execute",
         "ClientIP": "localhost"
     },
