@@ -1,4 +1,4 @@
-﻿'use strict';
+'use strict';
 let $requests = {
     extends: [
         'parsehtml'
@@ -6,19 +6,12 @@ let $requests = {
 
     hook: {
         pageLoad() {
-            syn.$l.get('txt_version').value = syn.$k.version;
             syn.$l.get('txt_params').value = JSON.stringify(syn.$r.params);
+            syn.$l.get('txt_path').value = syn.$r.path;
 
             setTimeout(() => {
                 window.scrollTo(0, document.body.scrollHeight);
             }, 200);
-        }
-    },
-
-    method: {
-        customValidation(options) {
-            console.log(options);
-            return syn.$l.get('txt_custom').value.trim() != '';
         }
     },
 
@@ -56,8 +49,47 @@ let $requests = {
             syn.$l.get('txt_toUrlObject').value = JSON.stringify(syn.$r.toUrlObject('/page.html?param1=hello world&param2=url'));
         },
 
+        btn_resolveUrl_click() {
+            syn.$l.get('txt_resolveUrl').value = syn.$r.resolveUrl('../v1/users/', 'https://example.com/api/v2');
+        },
+
+        btn_addQueryParam_click() {
+            syn.$l.get('txt_addQueryParam').value = syn.$r.addQueryParam('page', '2', 'https://example.com/list?size=10');
+        },
+
+        btn_removeQueryParam_click() {
+            syn.$l.get('txt_removeQueryParam').value = syn.$r.removeQueryParam('size', 'https://example.com/list?page=2&size=10');
+        },
+
+        btn_setQueryParam_click() {
+            syn.$l.get('txt_setQueryParam').value = syn.$r.setQueryParam('size', '20', 'https://example.com/list?page=2&size=10');
+        },
+
         async btn_isCorsEnabled_click() {
             syn.$l.get('txt_isCorsEnabled').value = await syn.$r.isCorsEnabled('sample.json');
+        },
+
+        async btn_httpFetch_click() {
+            const result = await syn.$r.httpFetch('sample.json').send();
+            syn.$l.get('txt_httpFetch').value = JSON.stringify(result);
+        },
+
+        async btn_httpRequest_click() {
+            const result = await syn.$r.httpRequest('GET', 'sample.json');
+            syn.$l.get('txt_httpRequest').value = result.response;
+        },
+
+        btn_httpSubmit_click() {
+            const formID = syn.$l.get('txt_httpSubmit').value || 'form1';
+            syn.$r.httpSubmit(location.href, formID, 'GET');
+        },
+
+        async btn_httpDataSubmit_click() {
+            const formData = new FormData();
+            formData.append('page', '1');
+
+            const result = await syn.$r.httpDataSubmit(formData, 'sample.json');
+            syn.$l.get('txt_httpDataSubmit').value = result.response;
         },
 
         btn_getCookie_click() {

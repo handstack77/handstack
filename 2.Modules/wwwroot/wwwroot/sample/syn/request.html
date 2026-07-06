@@ -11,7 +11,7 @@
         <div id="wrap" class="sub">
             <div class="bx_sep">
                 <header>
-                    syn.request (syn.$r)
+                    syn.request (syn.$r) - 레거시 등록 방식($w.initializeScript) 예제
                 </header>
                 <div class="tb_ly_a">
                     <table>
@@ -35,6 +35,24 @@
                             <td>
                                 <input type="text" id="txtUrl" value="" />
                                 <input type="button" id="btnUrl" value="주소 반환" syn-events="['click']" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="col">
+                                $request.toQueryString
+                            </th>
+                            <td>
+                                <input type="text" id="txtToQueryString" value="" />
+                                <input type="button" id="btnToQueryString" value="queryString 변환" syn-events="['click']" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="col">
+                                $request.toUrlObject
+                            </th>
+                            <td>
+                                <input type="text" id="txtToUrlObject" value="" />
+                                <input type="button" id="btnToUrlObject" value="현재 url 객체 변환" syn-events="['click']" />
                             </td>
                         </tr>
                         <tr>
