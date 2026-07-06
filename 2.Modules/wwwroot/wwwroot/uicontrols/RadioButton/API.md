@@ -17,7 +17,7 @@ RadioButton은 네이티브 `<input type="radio">` 엘리먼트를 그대로 사
 | 속성 | 설명 |
 | --- | --- |
 | `id` | 컨트롤을 식별하는 고유 ID. `getValue`/`setValue` 등 개별 라디오 항목을 다루는 메서드의 대상이 됩니다. |
-| `name` | 라디오 **그룹**을 묶는 값. 같은 `name`을 가진 항목들 중 하나만 선택됩니다. `getGroupNames`/`selectedValue` 등 그룹 단위 메서드가 이 값을 사용합니다. |
+| `name` | 라디오 그룹을 묶는 값. 같은 `name`을 가진 항목들 중 하나만 선택됩니다. `getGroupNames`/`selectedValue` 등 그룹 단위 메서드가 이 값을 사용합니다. |
 | `syn-datafield` | 폼 데이터 바인딩 시 사용할 필드명입니다. |
 | `syn-events` | 자동 연결할 이벤트 이름 배열(JS 배열 리터럴 문자열)입니다. 예: `"['change']"` |
 | `syn-options` | RadioButton의 옵션(아래 `Options` 표 참고)을 JS 객체 리터럴 문자열로 지정합니다. |

@@ -54,7 +54,7 @@ const text = syn.$res.interpolate('환영합니다, #{name}님!', { name: '홍�
 - getControl(), translatePage(), translateElement(), translateControl(), translateText(), getBindSource() — 컨트롤 조회와 화면 반영
 
 ## 주의 사항
-- `translateText(control, options)`는 번역 문자열에 `#{key}` 형태의 플레이스홀더가 포함되어 있으면(정규식 매치 시) **무조건** `syn.$w.getSSOInfo()`를 호출합니다. 이 함수는 `syn.domain.js`(별도 모듈)에서 정의되며, `syn.js`만 로드하는 환경(이 샘플 포함)에서는 정의되어 있지 않아 `TypeError`가 발생할 수 있습니다. 플레이스홀더가 포함된 번역을 `translatePage()`/`translateElement()`/`translateControl()` 경로로 반영해야 한다면 `syn.domain.js`가 로드되어 있는지 먼저 확인하십시오. 화면 요소와 무관하게 단순 문자열만 치환하려면 `interpolate()`를 직접 사용하십시오(이 경로는 `getSSOInfo()`를 호출하지 않아 안전합니다).
+- `translateText(control, options)`는 번역 문자열에 `#{key}` 형태의 플레이스홀더가 포함되어 있으면(정규식 매치 시) 무조건 `syn.$w.getSSOInfo()`를 호출합니다. 이 함수는 `syn.domain.js`(별도 모듈)에서 정의되며, `syn.js`만 로드하는 환경(이 샘플 포함)에서는 정의되어 있지 않아 `TypeError`가 발생할 수 있습니다. 플레이스홀더가 포함된 번역을 `translatePage()`/`translateElement()`/`translateControl()` 경로로 반영해야 한다면 `syn.domain.js`가 로드되어 있는지 먼저 확인하십시오. 화면 요소와 무관하게 단순 문자열만 치환하려면 `interpolate()`를 직접 사용하십시오(이 경로는 `getSSOInfo()`를 호출하지 않아 안전합니다).
 - `setLocale(localeID)`(비공개 목록 외 참고 메서드)는 `syn.Config.LocaleAssetUrl` 또는 `SharedAssetUrl + 'language/'` 경로에서 `{localeID}.json` 파일을 실제로 fetch합니다. 이 샘플 트리에는 해당 로케일 파일이 없으므로 실패하지만, 내부적으로 오류를 잡아(catch) `Warning` 로그만 남기고 페이지가 깨지지는 않습니다.
 - `[syn-i18n]` 스캔은 페이지 로드 완료(`syn.$w.isPageLoad`) 이후 비동기로 수행되므로, 페이지 진입 직후 바로 `getControl()`을 호출하면 아직 등록되지 않았을 수 있습니다.
 

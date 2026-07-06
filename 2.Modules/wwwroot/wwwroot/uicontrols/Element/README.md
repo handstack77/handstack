@@ -3,7 +3,7 @@
 ## 이 컨트롤은 무엇인가요?
 
 Element는 TextBox, CheckBox, DropDownList처럼 특정 태그 전용으로 만들어진 컨트롤이 아니라, `<div>`, `<span>`,
-`<label>`, `<p>`, `<a>`, `<td>`처럼 **아직 전용 컨트롤이 없는 일반 HTML 엘리먼트**를 위한 범용/기반(fallback)
+`<label>`, `<p>`, `<a>`, `<td>`처럼 아직 전용 컨트롤이 없는 일반 HTML 엘리먼트를 위한 범용/기반(fallback)
 컨트롤입니다. `syn.loader.js`는 화면을 스캔할 때 `syn-datafield`, `syn-options`, `syn-events` 속성이 붙은
 엘리먼트를 찾아서, 그 태그가 `BUTTON` / `INPUT` / `TEXTAREA` / `SELECT`처럼 전용 컨트롤에 매핑되는 태그가
 아니고 `<syn_xxx>` 커스텀 태그도 아니면 자동으로 Element(`element`) 컨트롤로 취급합니다. 즉 새로운 태그를
@@ -86,7 +86,7 @@ let $mypage = {
 `example/` 폴더에 예제가 있습니다. 로컬 서버 실행 후 브라우저에서 아래 경로로 접근해서 확인하세요
 (예: `/uicontrols/Element/example/basic.html`).
 
-- **basic.html / basic.js** — `content` 옵션(`value`/`html`/`content`/기본값)별로 값이 어떻게 표시되는지
+- basic.html / basic.js — `content` 옵션(`value`/`html`/`content`/기본값)별로 값이 어떻게 표시되는지
   비교해보고, `dataType`(`string`/`number`/`bool`)에 따라 값이 어떻게 변환되는지 확인하는 예제입니다.
   `getValue` / `setValue` / `clear` 버튼으로 각 엘리먼트의 값을 직접 조작해볼 수 있습니다.
 

@@ -15,7 +15,7 @@
 
 | 엘리먼트 ID | 설명 |
 |---|---|
-| `<elID>` | 색상 코드(`#RRGGBB`)를 직접 입력하는 텍스트 입력창. 내부적으로 `syn.uicontrols.$textbox.controlLoad(elID)`로 로드되어 `#SSSSSS` 마스크가 적용된 **TextBox 컨트롤**입니다. |
+| `<elID>` | 색상 코드(`#RRGGBB`)를 직접 입력하는 텍스트 입력창. 내부적으로 `syn.uicontrols.$textbox.controlLoad(elID)`로 로드되어 `#SSSSSS` 마스크가 적용된 TextBox 컨트롤입니다. |
 | `<elID>_Button` | 클릭하면 색상 팔레트 팝업을 여는 버튼 |
 
 ## Options (defaultSetting)
@@ -50,7 +50,7 @@
 
 ColorPicker는 다른 컨트롤들과 달리 `eventHooks` 목록을 정의하지 않으며, `syn-events`를 통한 `<elID>_<eventName>` 자동 이벤트 와이어링을 지원하지 않습니다.
 
-색상이 바뀌는 시점을 감지하고 싶다면, 화면에 실제로 렌더링되는 텍스트 입력창(`id="<elID>"`)이 **TextBox 컨트롤로도 등록되어 있음**을 이용하세요. 즉 마크업에 `syn-events="['change']"`를 추가하면 `<elID>_change(evt)` 핸들러가 TextBox의 네이티브 `change` 이벤트로 호출됩니다(색상 코드를 직접 입력하거나 팔레트에서 선택해 코드란 값이 갱신될 때 발생).
+색상이 바뀌는 시점을 감지하고 싶다면, 화면에 실제로 렌더링되는 텍스트 입력창(`id="<elID>"`)이 TextBox 컨트롤로도 등록되어 있음을 이용하세요. 즉 마크업에 `syn-events="['change']"`를 추가하면 `<elID>_change(evt)` 핸들러가 TextBox의 네이티브 `change` 이벤트로 호출됩니다(색상 코드를 직접 입력하거나 팔레트에서 선택해 코드란 값이 갱신될 때 발생).
 
 ## 참고
 

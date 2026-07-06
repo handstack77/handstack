@@ -19,7 +19,7 @@
 
 - `id`는 페이지 내에서 유일해야 하며, `syn.uicontrols.$guide`의 각종 메서드에서 이 `id`(elID)를 사용합니다.
 - 태그 자체는 `controlLoad` 실행 후 `display:none`으로 숨겨집니다(화면에 그려지는 요소가 아니라 안내 동작 정의용 태그입니다). 내부적으로 `<input>`처럼 `value` 속성을 가지므로 `getValue`/`setValue`/`clear`가 존재하지만, 실질적인 값(투어 진행 상태 등)을 담는 용도로 쓰이지는 않습니다.
-- Guide는 자기 자신이 아니라 `items[].selector`로 지정한 **다른 화면 요소들** 위에서 동작합니다. 따라서 각 `selector`가 가리키는 요소는 Guide 태그보다 먼저(또는 같은 시점에) 화면(DOM)에 존재해야 합니다. `controlLoad` 시점에 `selector`로 요소를 찾지 못하면:
+- Guide는 자기 자신이 아니라 `items[].selector`로 지정한 다른 화면 요소들 위에서 동작합니다. 따라서 각 `selector`가 가리키는 요소는 Guide 태그보다 먼저(또는 같은 시점에) 화면(DOM)에 존재해야 합니다. `controlLoad` 시점에 `selector`로 요소를 찾지 못하면:
   - `helpType: 'I'` 항목은 해당 단계를 건너뜁니다(steps에 추가되지 않음).
   - `helpType: 'T'` 항목은 `applyDelay`가 0이면 건너뛰고, `applyDelay`가 있으면 지연 이후 시점에 다시 셀렉터로 찾아 연결을 시도합니다.
   - `helpType: 'P'` 항목은 해당 항목을 건너뜁니다.
@@ -64,7 +64,7 @@
 | `sortingNo` | number | 선택(기본 0) | `helpType: 'I'` 단계 순서 정렬 기준(`$array.objectSort`로 오름차순 정렬) |
 | `applyDelay` | number (ms) | `T`에서만 사용 | 지정 시 해당 시간(ms) 후에 tippy를 지연 연결. 아직 DOM에 없는 요소(동적 렌더링)에 툴팁을 붙일 때 사용 |
 
-> `helpType: 'U'`는 실제로는 하나의 "도움말" 링크/본문 역할만 하며, 여러 개를 넣어도 `openUIHelp`는 `items`에서 **첫 번째로 발견되는** `helpType:'U'` 항목만 사용합니다.
+> `helpType: 'U'`는 실제로는 하나의 "도움말" 링크/본문 역할만 하며, 여러 개를 넣어도 `openUIHelp`는 `items`에서 첫 번째로 발견되는 `helpType:'U'` 항목만 사용합니다.
 
 ## 메서드
 
@@ -83,7 +83,7 @@
 
 ## 이벤트 (syn-events)
 
-`syn-events` 배열에 이름을 넣으면 페이지 스크립트의 `event` 객체에서 `{elID}_{이벤트명}` 함수를 자동으로 연결해 줍니다. **이 이벤트들은 `helpType: 'I'`(intro.js) 투어에만 연결됩니다.** `T`/`P`/`U` 항목에는 `syn-events` 훅이 연결되지 않습니다(Guide.js 소스상 `intros.on...` 호출만 존재).
+`syn-events` 배열에 이름을 넣으면 페이지 스크립트의 `event` 객체에서 `{elID}_{이벤트명}` 함수를 자동으로 연결해 줍니다. 이 이벤트들은 `helpType: 'I'`(intro.js) 투어에만 연결됩니다. `T`/`P`/`U` 항목에는 `syn-events` 훅이 연결되지 않습니다(Guide.js 소스상 `intros.on...` 호출만 존재).
 
 | 이벤트명 | intro.js API | 발생 시점 |
 |---|---|---|

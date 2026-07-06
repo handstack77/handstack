@@ -126,7 +126,7 @@
 
 ### 이벤트 (syn-events)
 
-`$grid`는 등록 시점에 `Handsontable.hooks.getRegistered()`로 Handsontable의 모든 훅 이름을 수집해 두므로, **Handsontable 훅 이름은 그대로 `syn-events`에 사용할 수 있습니다.** 아래는 `$grid`가 내부적으로 항상 감시하는 기본 훅(CRUD Flag 처리에 필요)과 자주 쓰이는 훅입니다. 핸들러 이름은 `{elID}_{훅이름}` 규칙을 따릅니다.
+`$grid`는 등록 시점에 `Handsontable.hooks.getRegistered()`로 Handsontable의 모든 훅 이름을 수집해 두므로, Handsontable 훅 이름은 그대로 `syn-events`에 사용할 수 있습니다. 아래는 `$grid`가 내부적으로 항상 감시하는 기본 훅(CRUD Flag 처리에 필요)과 자주 쓰이는 훅입니다. 핸들러 이름은 `{elID}_{훅이름}` 규칙을 따릅니다.
 
 | 이벤트명 | 발생 시점 |
 |---|---|
@@ -173,7 +173,7 @@ let $samplePage = {
 소스 파일: `wwwroot/uicontrols/WebGrid/AUIGrid.js`, `wwwroot/uicontrols/WebGrid/AUIGrid.css`
 내부 라이브러리: [AUIGrid](https://www.auisoft.net/documentation/auigrid/) (상용, `/lib/auigrid/dist/AUIGrid.js` + `AUIGridLicense.js`)
 
-qcn.groupware 실사용 기준 300회 이상 쓰이는, 이 저장소의 **실무 표준 그리드 엔진**입니다.
+qcn.groupware 실사용 기준 300회 이상 쓰이는, 이 저장소의 실무 표준 그리드 엔진입니다.
 
 ### 마크업
 
@@ -319,7 +319,7 @@ let $samplePage = {
 
 싱글턴 객체: `syn.uicontrols.$jqgrid`
 소스 파일: `wwwroot/uicontrols/WebGrid/jqGrid.js`, `wwwroot/uicontrols/WebGrid/jqGrid.css`
-내부 라이브러리: jQuery jqGrid(트라이랜드 jqGrid 계열). **이 저장소에는 jqGrid/jQuery UI 벤더 파일 자체가 포함되어 있지 않으므로**, 별도로 확보해서 배치한 뒤 경로를 맞춰야 합니다.
+내부 라이브러리: jQuery jqGrid(트라이랜드 jqGrid 계열). 이 저장소에는 jqGrid/jQuery UI 벤더 파일 자체가 포함되어 있지 않으므로, 별도로 확보해서 배치한 뒤 경로를 맞춰야 합니다.
 
 `syn.loader.js`에 자동주입 케이스가 없어 마크업은 `<syn_jqgrid>` 커스텀 태그가 아니라 일반 `<table>` 요소에 `controlLoad`를 직접 호출하는 방식을 사용합니다(예제 참고).
 
@@ -394,7 +394,7 @@ syn.uicontrols.$jqgrid.controlLoad('grdLegacy', {
 
 ### 이벤트
 
-jqGrid는 `syn-events` 선언 배열을 사용하지 않고, **`window[pageScript].event`에 정해진 이름의 함수가 존재하면 `controlLoad` 시점에 자동으로 jqGrid 콜백 옵션에 연결**됩니다. 사용 가능한 이름:
+jqGrid는 `syn-events` 선언 배열을 사용하지 않고, `window[pageScript].event`에 정해진 이름의 함수가 존재하면 `controlLoad` 시점에 자동으로 jqGrid 콜백 옵션에 연결됩니다. 사용 가능한 이름:
 
 | 이벤트명 | 발생 시점 |
 |---|---|
@@ -539,14 +539,14 @@ let $samplePage = {
 | `$jqgrid` | `colModels` 배열에 `{ name, label, width, edittype, ... }` 형태의 객체를 나열(jqGrid 원본 `colModel` 그대로) |
 | `$auipivot` | 컬럼이 아니라 `layout.rowFields`/`columnFields`/`valueFields`/`filterFields` 배열에 필드명(또는 `{ dataField, operation, formatString }` 객체)을 나열 |
 
-`$grid`와 `$auigrid`는 겉모습이 비슷해 보이지만 **컬럼 튜플의 인덱스 순서가 다르므로 그대로 복사해서 쓰면 안 됩니다.** 특히 8번째 인덱스가 `$grid`는 `validators`, `$auigrid`는 `options`라는 점이 가장 흔한 실수 포인트입니다.
+`$grid`와 `$auigrid`는 겉모습이 비슷해 보이지만 컬럼 튜플의 인덱스 순서가 다르므로 그대로 복사해서 쓰면 안 됩니다. 특히 8번째 인덱스가 `$grid`는 `validators`, `$auigrid`는 `options`라는 점이 가장 흔한 실수 포인트입니다.
 
 ### 4개 엔진 공통 concept
 
-- **CRUD 상태 플래그(`Flag`)**: 네 엔진 모두 내부적으로 행 데이터에 `Flag` 컬럼(R=조회/C=생성/U=수정/D=삭제/S=고정)을 유지하며, `getValue`(또는 `$jqgrid`의 `getUpdateDatas`)가 이 플래그를 기준으로 "변경된 행만" 추려서 서버 전송용 배열을 만듭니다.
-- **`elID`(컨트롤 id)를 키로 여러 그리드 인스턴스를 관리**: 각 엔진은 `gridControls` 배열에 `{ id, gridID/hot, setting }` 형태로 등록해 두고, 모든 메서드는 첫 번째 인자로 받은 `elID`로 해당 인스턴스를 찾아 동작합니다.
-- **`syn.uicontrols.$xxx.controlLoad(elID, setting)`**: 프레임워크가 `<syn_grid>`/`<syn_auigrid>`/`<syn_auipivot>` 태그를 파싱해 자동으로 호출하거나(로더 자동주입 엔진), `$jqgrid`처럼 페이지 스크립트에서 직접 호출합니다. 원래 마크업 요소는 항상 `{elID}_hidden`으로 이름이 바뀌고 `syn-options`에 최종 설정이 JSON으로 다시 기록됩니다.
-- **`metaColumns`**: `getValue`/`setValue`/`getUpdateData` 호출 시 넘기는 `{ 컬럼명: { fieldID, dataType } }` 형태의 매핑 객체로, 그리드 내부 컬럼명과 서버로 보낼 필드명이 다르거나 타입 검증이 필요할 때 사용합니다. `WebGrid.js`/`AUIGrid.js`/`AUIPivot.js` 모두 동일한 패턴을 사용합니다.
+- CRUD 상태 플래그(`Flag`): 네 엔진 모두 내부적으로 행 데이터에 `Flag` 컬럼(R=조회/C=생성/U=수정/D=삭제/S=고정)을 유지하며, `getValue`(또는 `$jqgrid`의 `getUpdateDatas`)가 이 플래그를 기준으로 "변경된 행만" 추려서 서버 전송용 배열을 만듭니다.
+- `elID`(컨트롤 id)를 키로 여러 그리드 인스턴스를 관리: 각 엔진은 `gridControls` 배열에 `{ id, gridID/hot, setting }` 형태로 등록해 두고, 모든 메서드는 첫 번째 인자로 받은 `elID`로 해당 인스턴스를 찾아 동작합니다.
+- `syn.uicontrols.$xxx.controlLoad(elID, setting)`: 프레임워크가 `<syn_grid>`/`<syn_auigrid>`/`<syn_auipivot>` 태그를 파싱해 자동으로 호출하거나(로더 자동주입 엔진), `$jqgrid`처럼 페이지 스크립트에서 직접 호출합니다. 원래 마크업 요소는 항상 `{elID}_hidden`으로 이름이 바뀌고 `syn-options`에 최종 설정이 JSON으로 다시 기록됩니다.
+- `metaColumns`: `getValue`/`setValue`/`getUpdateData` 호출 시 넘기는 `{ 컬럼명: { fieldID, dataType } }` 형태의 매핑 객체로, 그리드 내부 컬럼명과 서버로 보낼 필드명이 다르거나 타입 검증이 필요할 때 사용합니다. `WebGrid.js`/`AUIGrid.js`/`AUIPivot.js` 모두 동일한 패턴을 사용합니다.
 
 ### 관련 문서
 

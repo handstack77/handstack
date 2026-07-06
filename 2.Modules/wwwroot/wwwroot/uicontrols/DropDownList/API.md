@@ -96,8 +96,8 @@ event: {
 
 `local` 옵션 값에 따라 옵션 목록을 채우는 방식이 달라집니다.
 
-- **로컬 (`local: true`, 기본값)**: `setting.sharedAssetUrl + 'code/{storeSourceID}.json'` 경로(기본 `/assets/shared/code/{storeSourceID}.json`)의 정적 JSON 파일을 `syn.$w.loadJson`으로 읽어옵니다. 서버 API 호출 없이 미리 배포된 캐시 파일만으로 동작하므로, 자주 바뀌지 않는 공통 코드값(성별, 지역 등)에 적합합니다.
-- **원격 (`local: false`)**: `syn.$w.getDataSource(dataSourceID, parameters, callback)`를 호출해 서버에서 실시간으로 코드값을 조회합니다. `parameters`로 조건을 넘길 수 있어(`@GROUPCODE:MS001;` 형태), 조건에 따라 목록이 달라져야 하는 경우에 적합합니다.
+- 로컬 (`local: true`, 기본값): `setting.sharedAssetUrl + 'code/{storeSourceID}.json'` 경로(기본 `/assets/shared/code/{storeSourceID}.json`)의 정적 JSON 파일을 `syn.$w.loadJson`으로 읽어옵니다. 서버 API 호출 없이 미리 배포된 캐시 파일만으로 동작하므로, 자주 바뀌지 않는 공통 코드값(성별, 지역 등)에 적합합니다.
+- 원격 (`local: false`): `syn.$w.getDataSource(dataSourceID, parameters, callback)`를 호출해 서버에서 실시간으로 코드값을 조회합니다. `parameters`로 조건을 넘길 수 있어(`@GROUPCODE:MS001;` 형태), 조건에 따라 목록이 달라져야 하는 경우에 적합합니다.
 
 두 경우 모두, 한 번 읽어온 데이터는 페이지 스크립트의 `mod.config.dataSource[storeSourceID]`에 캐시되어 동일한 `storeSourceID`를 다시 사용할 때 재조회 없이 재사용됩니다. 캐시를 무시하고 강제로 다시 읽고 싶다면 `dataRefresh(elID, { deleteCache: true, ... })`를 호출하세요.
 

@@ -17,9 +17,9 @@
 3. `부모 화면 호출하기` 버튼 클릭 → 채널의 `emit({ method: 'response', params })`으로 부모에게 결과를 통보합니다(응답을 기다리지 않는 단방향 전송).
 
 ## 주요 시나리오
-- **자식 쪽 채널 연결**: 자식은 항상 `window: window.parent`로 연결합니다. `scope`(channelID)는 부모와 반드시 동일해야 서로의 채널이 매칭됩니다.
-- **부모 요청에 응답하기**: `bind('request', function (transaction, params) { ... })`로 등록한 콜백은 부모가 `call()`로 호출할 때 `(transaction, params)` 형태로 실행됩니다. 콜백이 반환하는 값이 `transaction.complete()`를 통해 자동으로 부모의 `success` 콜백에 전달됩니다. 응답을 지연하려면 `transaction.delayReturn(true)` 후 필요한 시점에 `transaction.complete(value)` 또는 `transaction.error(name, message)`를 직접 호출합니다.
-- **부모에게 이벤트 통보하기**: `emit({ method, params })`은 응답을 요구하지 않는 단방향 메시지입니다. `call()`과 달리 `success`/`error` 콜백을 지원하지 않으므로 지정해도 무시됩니다.
+- 자식 쪽 채널 연결: 자식은 항상 `window: window.parent`로 연결합니다. `scope`(channelID)는 부모와 반드시 동일해야 서로의 채널이 매칭됩니다.
+- 부모 요청에 응답하기: `bind('request', function (transaction, params) { ... })`로 등록한 콜백은 부모가 `call()`로 호출할 때 `(transaction, params)` 형태로 실행됩니다. 콜백이 반환하는 값이 `transaction.complete()`를 통해 자동으로 부모의 `success` 콜백에 전달됩니다. 응답을 지연하려면 `transaction.delayReturn(true)` 후 필요한 시점에 `transaction.complete(value)` 또는 `transaction.error(name, message)`를 직접 호출합니다.
+- 부모에게 이벤트 통보하기: `emit({ method, params })`은 응답을 요구하지 않는 단방향 메시지입니다. `call()`과 달리 `success`/`error` 콜백을 지원하지 않으므로 지정해도 무시됩니다.
 
 ## 실전 예제 페이지
 - `/sample/syn/iframe_child.html` + `iframe_child.js`

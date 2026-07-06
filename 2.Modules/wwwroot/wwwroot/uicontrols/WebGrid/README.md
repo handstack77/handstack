@@ -2,16 +2,16 @@
 
 ## 이 컨트롤은 무엇인가요?
 
-`WebGrid` 폴더에는 이름은 같지만 **서로 완전히 다른 4개의 그리드 엔진**이 들어 있습니다. 레거시 UI 프레임워크가 오랜 기간 유지보수되면서, 시기별로 채택한 그리드 라이브러리가 그대로 누적된 결과입니다.
+`WebGrid` 폴더에는 이름은 같지만 서로 완전히 다른 4개의 그리드 엔진이 들어 있습니다. 레거시 UI 프레임워크가 오랜 기간 유지보수되면서, 시기별로 채택한 그리드 라이브러리가 그대로 누적된 결과입니다.
 
 | 소스 파일 | 싱글턴 객체 | 내부 라이브러리 | 성격 |
 |---|---|---|---|
 | `WebGrid.js` | `syn.uicontrols.$grid` | [Handsontable](https://handsontable.com/) | 엑셀형 그리드, 로더 자동주입 |
-| `AUIGrid.js` | `syn.uicontrols.$auigrid` | [AUIGrid](https://www.auisoft.net/) (상용) | 업무용 그리드, 로더 자동주입, **실무 주력 엔진** |
+| `AUIGrid.js` | `syn.uicontrols.$auigrid` | [AUIGrid](https://www.auisoft.net/) (상용) | 업무용 그리드, 로더 자동주입, 실무 주력 엔진 |
 | `jqGrid.js` | `syn.uicontrols.$jqgrid` | jQuery jqGrid (레거시, 벤더 파일 미포함) | 레거시 화면 유지보수용 |
 | `AUIPivot.js` | `syn.uicontrols.$auipivot` | AUIGrid 기반 피벗 테이블 | 다차원 집계/피벗 리포트 |
 
-네 엔진 모두 `syn.uicontrols.$xxx` 싱글턴 객체 패턴(`defaultSetting` 성격의 옵션 객체 + `controlLoad`/`getValue`/`setValue`/`clear`/`setLocale`)을 따르지만, 내부적으로 완전히 다른 서드파티 그리드 위에서 동작하므로 **옵션/메서드/이벤트 이름이 엔진마다 다릅니다.** 어떤 화면에서 그리드를 다루고 있는지 먼저 확인하고, 그 엔진에 맞는 API를 사용해야 합니다.
+네 엔진 모두 `syn.uicontrols.$xxx` 싱글턴 객체 패턴(`defaultSetting` 성격의 옵션 객체 + `controlLoad`/`getValue`/`setValue`/`clear`/`setLocale`)을 따르지만, 내부적으로 완전히 다른 서드파티 그리드 위에서 동작하므로 옵션/메서드/이벤트 이름이 엔진마다 다릅니다. 어떤 화면에서 그리드를 다루고 있는지 먼저 확인하고, 그 엔진에 맞는 API를 사용해야 합니다.
 
 실무(qcn.groupware 기준)에서는 `$auigrid`(AUIGrid.js)가 압도적으로 많이 쓰입니다(300회 이상 실사용). `$grid`(Handsontable)는 비상용 라이선스 기반의 대안 엔진이고, `$jqgrid`/`$auipivot`은 예전 화면을 유지보수할 때만 만나게 되는 레거시 엔진입니다.
 
@@ -19,17 +19,17 @@
 
 | 상황 | 권장 엔진 |
 |---|---|
-| 신규 화면에서 CRUD 그리드가 필요할 때 | **`$auigrid`** (실무 표준, 상용 라이선스 포함, 기능이 가장 풍부) |
+| 신규 화면에서 CRUD 그리드가 필요할 때 | `$auigrid` (실무 표준, 상용 라이선스 포함, 기능이 가장 풍부) |
 | 상용 라이선스 없이 빠르게 프로토타입만 만들 때 | `$grid` (Handsontable, `non-commercial-and-evaluation` 라이선스 키로 즉시 사용 가능) |
 | 여러 값의 합계/평균 등을 행·열로 교차 집계해야 할 때 | `$auipivot` (피벗 테이블 전용) |
 | 이미 `$jqgrid`로 작성된 기존 화면을 수정해야 할 때 | `$jqgrid` (신규 개발에는 권장하지 않음) |
 
 엔진별 장단점:
 
-- **`$grid` (Handsontable)** : 엑셀과 유사한 조작감(복사/붙여넣기, 자동완성 드롭다운, 필터), `licenseKey: 'non-commercial-and-evaluation'`로 기본 제공되어 별도 계약 없이 사용 가능. 다만 상용 환경에서는 Handsontable 라이선스 정책을 별도로 확인해야 합니다.
-- **`$auigrid` (AUIGrid)** : 컬럼 병합, 그룹핑, 고정 컬럼/행, 코드헬프 팝업, 스파크라인 등 업무 화면에 필요한 기능이 가장 폭넓게 내장되어 있습니다. 상용 라이선스 벤더 라이브러리(`/lib/auigrid/`)가 필요합니다.
-- **`$jqgrid` (jqGrid)** : jQuery UI 기반의 오래된 그리드로, 이 저장소에는 벤더 라이브러리 파일 자체가 포함되어 있지 않습니다(별도 확보 필요). 신규 개발보다는 기존 화면 유지보수 목적입니다.
-- **`$auipivot` (AUIPivot)** : `$auigrid`와 같은 AUIGrid 계열이지만 행/열/값/필터 필드를 드래그로 배치하는 피벗 리포트 전용 컨트롤입니다.
+- `$grid` (Handsontable) : 엑셀과 유사한 조작감(복사/붙여넣기, 자동완성 드롭다운, 필터), `licenseKey: 'non-commercial-and-evaluation'`로 기본 제공되어 별도 계약 없이 사용 가능. 다만 상용 환경에서는 Handsontable 라이선스 정책을 별도로 확인해야 합니다.
+- `$auigrid` (AUIGrid) : 컬럼 병합, 그룹핑, 고정 컬럼/행, 코드헬프 팝업, 스파크라인 등 업무 화면에 필요한 기능이 가장 폭넓게 내장되어 있습니다. 상용 라이선스 벤더 라이브러리(`/lib/auigrid/`)가 필요합니다.
+- `$jqgrid` (jqGrid) : jQuery UI 기반의 오래된 그리드로, 이 저장소에는 벤더 라이브러리 파일 자체가 포함되어 있지 않습니다(별도 확보 필요). 신규 개발보다는 기존 화면 유지보수 목적입니다.
+- `$auipivot` (AUIPivot) : `$auigrid`와 같은 AUIGrid 계열이지만 행/열/값/필터 필드를 드래그로 배치하는 피벗 리포트 전용 컨트롤입니다.
 
 ## 빠른 시작
 
@@ -75,7 +75,7 @@ syn.uicontrols.$auigrid.setValue('grdMain', [
 
 ### $jqgrid (jQuery jqGrid 기반, 레거시)
 
-**중요**: `syn.loader.js`에는 `jqgrid`(→ `syn_jqgrid`) 자동주입 케이스가 없습니다. jQuery jqGrid 벤더 라이브러리(이 저장소에는 포함되어 있지 않으므로 별도로 확보해서 `/lib/jqgrid/` 등에 배치)와 `jqGrid.js`/`jqGrid.css`를 페이지의 `pageLoadFiles` 훅으로 직접 등록해야 합니다.
+중요: `syn.loader.js`에는 `jqgrid`(→ `syn_jqgrid`) 자동주입 케이스가 없습니다. jQuery jqGrid 벤더 라이브러리(이 저장소에는 포함되어 있지 않으므로 별도로 확보해서 `/lib/jqgrid/` 등에 배치)와 `jqGrid.js`/`jqGrid.css`를 페이지의 `pageLoadFiles` 훅으로 직접 등록해야 합니다.
 
 ```html
 <table id="grdLegacy"></table>

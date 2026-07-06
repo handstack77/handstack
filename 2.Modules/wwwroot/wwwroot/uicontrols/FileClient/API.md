@@ -25,7 +25,7 @@
 | `elementID` | string \| null | `null` | 내부적으로 자동 설정되는 엘리먼트 ID (직접 지정할 필요 없음) |
 | `dialogTitle` | string | `'파일 업로드'` | 업로드 팝업 제목. 저장소 조회 후 `RepositoryName`으로 자동 대체됨 |
 | `tokenID` | string | `''` | 다운로드 시 사용하는 토큰 값 |
-| `repositoryID` | string | `''` | **필수.** 서버에 등록된 저장소(업로드 정책) ID. 이 값에 따라 업로드 방식/허용 확장자/개수/용량 제한이 결정됨 |
+| `repositoryID` | string | `''` | 필수. 서버에 등록된 저장소(업로드 정책) ID. 이 값에 따라 업로드 방식/허용 확장자/개수/용량 제한이 결정됨 |
 | `dependencyID` | string | `''` | 업로드된 파일이 속하는 소속 키(예: 게시글 ID, 사용자 ID 등). 업로드/조회/삭제 시 이 값으로 파일 그룹을 구분 |
 | `businessID` | string | `''` | 내부적으로 사용되는 사업장/회사 구분 값(대부분 자동 결정됨) |
 | `applicationID` | string | `''` | 내부적으로 사용되는 애플리케이션 구분 값(대부분 자동 결정됨) |
@@ -67,7 +67,7 @@
 | `getValue` | `getValue(elID, meta)` | hidden input의 현재 값(`ItemID`, 다중이면 콤마로 연결된 문자열) 반환 |
 | `setValue` | `setValue(elID, value, meta)` | hidden input 값을 직접 지정(예: 서버에서 내려온 기존 `ItemID`로 초기화할 때) |
 | `clear` | `clear(elID, isControlLoad)` | hidden input 값을 빈 문자열로 초기화 |
-| `getFileSetting` | `getFileSetting(elID)` | 해당 컨트롤의 저장소 조회가 끝난 뒤 저장된 옵션 객체(복제본)를 반환. **업로드를 열기 전에 이 메서드로 기본 옵션을 가져와 필요한 값만 덮어쓰는 것이 표준 패턴** |
+| `getFileSetting` | `getFileSetting(elID)` | 해당 컨트롤의 저장소 조회가 끝난 뒤 저장된 옵션 객체(복제본)를 반환. 업로드를 열기 전에 이 메서드로 기본 옵션을 가져와 필요한 값만 덮어쓰는 것이 표준 패턴 |
 | `getFileManagerSetting` | `getFileManagerSetting()` | 페이지에 등록된 첫 번째 FileClient 컨트롤의 설정을 반환(공용 API 경로 계산 등에 사용되는 내부 헬퍼) |
 | `setPageSetting` | `setPageSetting(pageSettings)` | 페이지의 모든 FileClient 컨트롤에 대해 API 경로명(`pageUploadFile` 등)을 일괄 재정의 |
 | `uploadUI` | `uploadUI(uploadOptions)` | `uploadOptions.repositoryID`/`uploadUrl`이 설정된 업로드 옵션으로 업로드 팝업 다이얼로그를 연다. `repositoryID` 또는 `uploadUrl`이 비어 있으면 경고 후 중단 |
@@ -96,7 +96,7 @@
 
 FileClient가 실제로 화면에 렌더링하는 것은 `<input type="hidden">`이므로, 일반적인 `syn-events="['change']"` 방식의 네이티브 DOM 이벤트 와이어링은 값 변경 시점을 감지하는 용도로는 사용되지 않습니다(업로드 완료 시 `el.value`가 코드로 직접 대입되며 `change` 이벤트가 발생(dispatch)되지 않습니다).
 
-대신 값이 바뀌는 시점(업로드 완료)을 알아야 한다면 **`fileUpdateCallback` 옵션**을 사용하세요.
+대신 값이 바뀌는 시점(업로드 완료)을 알아야 한다면 `fileUpdateCallback` 옵션을 사용하세요.
 
 ```js
 uploadOptions.fileUpdateCallback = 'sfcCompanyImage_callback';

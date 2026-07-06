@@ -55,7 +55,7 @@ DropDownCheckList는 네이티브 `<select multiple>` 태그를 [tail.select](ht
 | `dataRefresh(elID, setting, callback)` | 데이터소스를 다시 조회해서 옵션을 갱신합니다. `setting.deleteCache`가 `true`(기본값)면 기존 캐시를 지우고 새로 조회합니다. |
 | `controlReload(elID)` | tail.select picker의 화면(UI)만 다시 그립니다. 값이나 옵션 자체를 바꾸지는 않습니다. |
 | `getValue(elID, meta)` | 선택된 옵션들의 value를 콤마(`,`)로 연결한 문자열을 반환합니다(예: `"01,03"`). 선택된 항목이 없으면 빈 문자열입니다. |
-| `setValue(elID, value, selected)` | 콤마 문자열 또는 배열로 넘긴 값과 일치하는 옵션들을 선택 상태로 만듭니다. `selected`를 `false`로 넘기면 해당 값들을 선택 해제할 수 있습니다. **참고**: 현재 구현에서 기존 선택을 먼저 지우는 루프가 값을 실제로 변경하지 않는 부분이 있어(비교 연산자만 사용), `setValue`는 항상 완전히 초기화 후 다시 선택하기보다는 기존 선택에 값을 "추가"하는 것처럼 동작할 수 있습니다. 완전히 새로 선택하려면 `clear(elID)`를 먼저 호출한 뒤 `setValue`를 호출하세요. |
+| `setValue(elID, value, selected)` | 콤마 문자열 또는 배열로 넘긴 값과 일치하는 옵션들을 선택 상태로 만듭니다. `selected`를 `false`로 넘기면 해당 값들을 선택 해제할 수 있습니다. 참고: 현재 구현에서 기존 선택을 먼저 지우는 루프가 값을 실제로 변경하지 않는 부분이 있어(비교 연산자만 사용), `setValue`는 항상 완전히 초기화 후 다시 선택하기보다는 기존 선택에 값을 "추가"하는 것처럼 동작할 수 있습니다. 완전히 새로 선택하려면 `clear(elID)`를 먼저 호출한 뒤 `setValue`를 호출하세요. |
 | `clear(elID, isControlLoad)` | 모든 옵션의 선택을 해제합니다. |
 | `getSelectedIndex(elID)` | 현재 선택된 옵션들의 인덱스 배열을 반환합니다. |
 | `setSelectedIndex(elID, value)` | 인덱스(숫자) 또는 인덱스 배열로 옵션을 선택합니다. |
@@ -98,8 +98,8 @@ event: {
 
 `local` 옵션 값에 따라 옵션 목록을 채우는 방식이 달라집니다.
 
-- **로컬 (`local: true`, 기본값)**: `setting.sharedAssetUrl + 'code/{storeSourceID}.json'` 경로(기본 `/assets/shared/code/{storeSourceID}.json`)의 정적 JSON 파일을 `syn.$w.loadJson`으로 읽어옵니다. 서버 API 호출 없이 미리 배포된 캐시 파일만으로 동작하므로, 자주 바뀌지 않는 공통 코드값에 적합합니다.
-- **원격 (`local: false`)**: `syn.$w.getDataSource(dataSourceID, parameters, callback)`를 호출해 서버에서 실시간으로 코드값을 조회합니다. `parameters`로 조건을 넘길 수 있어(`@GROUPCODE:MS001;` 형태), 조건에 따라 목록이 달라져야 하는 경우에 적합합니다.
+- 로컬 (`local: true`, 기본값): `setting.sharedAssetUrl + 'code/{storeSourceID}.json'` 경로(기본 `/assets/shared/code/{storeSourceID}.json`)의 정적 JSON 파일을 `syn.$w.loadJson`으로 읽어옵니다. 서버 API 호출 없이 미리 배포된 캐시 파일만으로 동작하므로, 자주 바뀌지 않는 공통 코드값에 적합합니다.
+- 원격 (`local: false`): `syn.$w.getDataSource(dataSourceID, parameters, callback)`를 호출해 서버에서 실시간으로 코드값을 조회합니다. `parameters`로 조건을 넘길 수 있어(`@GROUPCODE:MS001;` 형태), 조건에 따라 목록이 달라져야 하는 경우에 적합합니다.
 
 두 경우 모두, 한 번 읽어온 데이터는 페이지 스크립트의 `mod.config.dataSource[storeSourceID]`에 캐시되어 동일한 `storeSourceID`를 다시 사용할 때 재조회 없이 재사용됩니다. 캐시를 무시하고 강제로 다시 읽고 싶다면 `dataRefresh(elID, { deleteCache: true, ... })`를 호출하세요.
 
@@ -118,7 +118,7 @@ event: {
 
 ### getValue vs getSelectedValue
 
-`getValue(elID)`는 선택된 값들을 콤마로 연결한 **문자열**을 반환하고(`"01,03"`), `getSelectedValue(elID)`는 같은 정보를 **배열**로 반환합니다(`['01', '03']`). 폼 전송이나 서버 파라미터로 그대로 넘길 때는 `getValue`, 화면에서 개별 항목을 순회하며 처리할 때는 `getSelectedValue`가 편리합니다.
+`getValue(elID)`는 선택된 값들을 콤마로 연결한 문자열을 반환하고(`"01,03"`), `getSelectedValue(elID)`는 같은 정보를 배열로 반환합니다(`['01', '03']`). 폼 전송이나 서버 파라미터로 그대로 넘길 때는 `getValue`, 화면에서 개별 항목을 순회하며 처리할 때는 `getSelectedValue`가 편리합니다.
 
 ### selectedDisabled 잠금 패턴
 

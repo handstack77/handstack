@@ -6,7 +6,7 @@
 
 ## 마크업
 
-TextButton은 커스텀 태그가 아니라 **네이티브 `<input>` 요소를 인핸스**하는 컨트롤입니다. `js/syn.loader.js`의 컨트롤 판별 로직 기준으로 아래 세 가지 `type` 값이 모두 TextButton(`button` 모듈)으로 로드됩니다.
+TextButton은 커스텀 태그가 아니라 네이티브 `<input>` 요소를 인핸스하는 컨트롤입니다. `js/syn.loader.js`의 컨트롤 판별 로직 기준으로 아래 세 가지 `type` 값이 모두 TextButton(`button` 모듈)으로 로드됩니다.
 
 - `type="button"`
 - `type="submit"`
@@ -70,4 +70,4 @@ TextButton 자체는 자신만의 전용 이벤트를 정의하지 않습니다.
 
 ## 참고
 
-이 문서는 `/sample/uicontrol/` 폴더와 `qcn.groupware` 등 실사용 코드베이스를 조사했으나 TextButton(`type="button"` 인핸스) 전용 샘플이나 실사용 예시를 찾지 못해, **오직 `TextButton.js`, `TextButton.css` 소스코드 정독만을 근거**로 작성되었습니다. 다른 컨트롤 샘플(`checkbox.html`/`checkbox.js` 등)에서 반복적으로 등장하는 `<input type="button" ... syn-events="['click']" />` 패턴을 교차 확인하여 마크업 형태의 신뢰도를 보강했습니다.
+이 문서는 `/sample/uicontrol/` 폴더와 `qcn.groupware` 등 실사용 코드베이스를 조사했으나 TextButton(`type="button"` 인핸스) 전용 샘플이나 실사용 예시를 찾지 못해, 오직 `TextButton.js`, `TextButton.css` 소스코드 정독만을 근거로 작성되었습니다. 다른 컨트롤 샘플(`checkbox.html`/`checkbox.js` 등)에서 반복적으로 등장하는 `<input type="button" ... syn-events="['click']" />` 패턴을 교차 확인하여 마크업 형태의 신뢰도를 보강했습니다.

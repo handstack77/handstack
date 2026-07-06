@@ -17,10 +17,10 @@
 3. `iframe 호출하기` 버튼 클릭 → 연결된 채널의 `call({ method, params, success, error })`로 자식 화면의 `request` 핸들러를 호출하고 결과를 받습니다.
 
 ## 주요 시나리오
-- **채널 생성**: `syn.$n.rooms.connect({ window, origin, scope, debugOutput })`를 호출하면 지정한 `window`(자식 iframe의 `contentWindow`)와 `postMessage` 채널이 생성됩니다. `scope` 값이 채널을 구분하는 식별자(`channelID`)입니다.
-- **중복 연결 방지**: `syn.$n.findChannel(channelID)`로 이미 연결된 채널이 있는지 확인합니다. `$network.connections` 배열에서 `options.scope`가 일치하는 채널을 찾아 반환합니다.
-- **요청-응답 호출**: 연결 객체의 `call({ method, params, success, error })`는 상대 창에 등록된(`bind`) 메서드를 호출하고, 상대가 반환한 값(또는 `transaction.complete()`로 넘긴 값)을 `success` 콜백으로, 실패 시 `error` 콜백으로 받습니다.
-- **이벤트 수신 등록**: 연결 객체의 `bind(method, callback)`로 상대가 `emit` 또는 `call`로 보내는 메서드 이름에 대응하는 콜백을 등록합니다. `emit`으로 온 메시지는 `callback(origin, params)` 형태로, `call`로 온 메시지는 `callback(transaction, params)` 형태로 호출됩니다(자세한 내용은 [`iframe_child.md`](./iframe_child.md) 참고).
+- 채널 생성: `syn.$n.rooms.connect({ window, origin, scope, debugOutput })`를 호출하면 지정한 `window`(자식 iframe의 `contentWindow`)와 `postMessage` 채널이 생성됩니다. `scope` 값이 채널을 구분하는 식별자(`channelID`)입니다.
+- 중복 연결 방지: `syn.$n.findChannel(channelID)`로 이미 연결된 채널이 있는지 확인합니다. `$network.connections` 배열에서 `options.scope`가 일치하는 채널을 찾아 반환합니다.
+- 요청-응답 호출: 연결 객체의 `call({ method, params, success, error })`는 상대 창에 등록된(`bind`) 메서드를 호출하고, 상대가 반환한 값(또는 `transaction.complete()`로 넘긴 값)을 `success` 콜백으로, 실패 시 `error` 콜백으로 받습니다.
+- 이벤트 수신 등록: 연결 객체의 `bind(method, callback)`로 상대가 `emit` 또는 `call`로 보내는 메서드 이름에 대응하는 콜백을 등록합니다. `emit`으로 온 메시지는 `callback(origin, params)` 형태로, `call`로 온 메시지는 `callback(transaction, params)` 형태로 호출됩니다(자세한 내용은 [`iframe_child.md`](./iframe_child.md) 참고).
 
 ## 실전 예제 페이지
 - `/sample/syn/iframe_main.html` + `iframe_main.js`

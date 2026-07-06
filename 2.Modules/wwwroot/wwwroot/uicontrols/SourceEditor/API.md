@@ -65,7 +65,7 @@
 | `revealLine` | `line` | 지정한 줄로 스크롤 이동 |
 | `findSelection` | `text` | 찾기 위젯을 열어 텍스트 검색 |
 
-**대안**: 이 기능들이 필요하면 `getControl(elID).editor`로 Monaco 인스턴스를 직접 얻어, 위 메서드들이 내부적으로 호출하던 Monaco 공식 API를 그대로 사용하세요.
+대안: 이 기능들이 필요하면 `getControl(elID).editor`로 Monaco 인스턴스를 직접 얻어, 위 메서드들이 내부적으로 호출하던 Monaco 공식 API를 그대로 사용하세요.
 
 ```js
 var control = syn.uicontrols.$sourceeditor.getControl('txtEditor1');
@@ -85,7 +85,7 @@ if (control && control.editor) {
 
 ## 이벤트 (syn-events)
 
-**SourceEditor는 다른 syn.uicontrols 컨트롤과 달리 `syn-events` 속성을 통한 이벤트 자동 연결을 지원하지 않습니다.** `SourceEditor.js` 내부에는 `syn-events`를 읽어 `event.<id>_<이벤트명>` 핸들러에 연결하는 로직이 없으며, 자체적으로는 브라우저 `resize` 이벤트에 대한 내부 처리(`editor.layout()` 재호출)와 `Ctrl+Space` 키 입력 기본 동작 방지만 등록되어 있습니다.
+SourceEditor는 다른 syn.uicontrols 컨트롤과 달리 `syn-events` 속성을 통한 이벤트 자동 연결을 지원하지 않습니다. `SourceEditor.js` 내부에는 `syn-events`를 읽어 `event.<id>_<이벤트명>` 핸들러에 연결하는 로직이 없으며, 자체적으로는 브라우저 `resize` 이벤트에 대한 내부 처리(`editor.layout()` 재호출)와 `Ctrl+Space` 키 입력 기본 동작 방지만 등록되어 있습니다.
 
 변경 감지, 포커스/블러 감지 등이 필요하면 `getControl(elID).editor`로 얻은 Monaco 인스턴스에 Monaco의 공식 이벤트 API를 직접 등록하세요.
 

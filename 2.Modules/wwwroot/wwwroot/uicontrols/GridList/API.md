@@ -107,7 +107,7 @@ GridList는 편집 그리드가 아니므로, `setValue(elID, value)`를 호출�
 
 ### checkbox + searching 조합 시 알려진 제약
 
-`checkbox: true`이면서 `searching`(기본값 `true`)도 함께 켜져 있을 때, 소스 코드는 체크박스 컬럼의 검색창을 숨기기 위해 `$('#lstDataTable thead tr:eq(1) th:first-child input').hide()`처럼 **`lstDataTable`이라는 엘리먼트 id를 그대로 하드코딩**해 사용합니다. 따라서 `<syn_list>`의 `id`가 `lstDataTable`이 아니면(예: 이 예제의 `lstCheckbox`) 체크박스 컬럼 위에 의미 없는 검색 입력창이 그대로 남아 있을 수 있습니다. 실제 화면에서는 CSS로 해당 입력창을 숨기거나(`checkbox` 컬럼의 검색 `<th>`를 직접 스타일링), `searching: false`로 컬럼별 검색 자체를 끄는 방식으로 우회하세요.
+`checkbox: true`이면서 `searching`(기본값 `true`)도 함께 켜져 있을 때, 소스 코드는 체크박스 컬럼의 검색창을 숨기기 위해 `$('#lstDataTable thead tr:eq(1) th:first-child input').hide()`처럼 `lstDataTable`이라는 엘리먼트 id를 그대로 하드코딩해 사용합니다. 따라서 `<syn_list>`의 `id`가 `lstDataTable`이 아니면(예: 이 예제의 `lstCheckbox`) 체크박스 컬럼 위에 의미 없는 검색 입력창이 그대로 남아 있을 수 있습니다. 실제 화면에서는 CSS로 해당 입력창을 숨기거나(`checkbox` 컬럼의 검색 `<th>`를 직접 스타일링), `searching: false`로 컬럼별 검색 자체를 끄는 방식으로 우회하세요.
 
 ### DataTables API 직접 사용하기
 

@@ -4,8 +4,8 @@
 
 이 모듈의 예제는 두 개의 페이지로 나뉘어 있으며, 이 문서는 두 예제를 함께 다룹니다.
 
-- `request.html`/`request.js` — `$w.initializeScript({ ... })` 형태로 이벤트 핸들러를 등록하는 **레거시 방식** 예제입니다. 페이지 전체를 하나의 플랫 객체로 등록하며, `hook`/`event`/`method` 같은 구획 없이 `{요소ID}_{이벤트명}` 형태의 함수명을 그대로 키로 사용합니다. `query`/`url`/`toQueryString`/`toUrlObject`/Cookie 조작 등 기본 기능만 다룹니다.
-- `requests.html`/`requests.js` — `let $requests = { extends, hook, method, event }` 형태의 객체로 이벤트 핸들러를 등록하는 **현행 방식** 예제입니다. `hook.pageLoad()`에서 초기값을 세팅하고, `event` 구획 아래에 `{요소ID}_{이벤트명}` 형태의 함수를 선언합니다. `resolveUrl`, `addQueryParam`/`removeQueryParam`/`setQueryParam`, `isCorsEnabled`, `httpFetch`/`httpRequest`/`httpSubmit`/`httpDataSubmit`를 포함한 `$request`의 전체 공개 API를 다룹니다.
+- `request.html`/`request.js` — `$w.initializeScript({ ... })` 형태로 이벤트 핸들러를 등록하는 레거시 방식 예제입니다. 페이지 전체를 하나의 플랫 객체로 등록하며, `hook`/`event`/`method` 같은 구획 없이 `{요소ID}_{이벤트명}` 형태의 함수명을 그대로 키로 사용합니다. `query`/`url`/`toQueryString`/`toUrlObject`/Cookie 조작 등 기본 기능만 다룹니다.
+- `requests.html`/`requests.js` — `let $requests = { extends, hook, method, event }` 형태의 객체로 이벤트 핸들러를 등록하는 현행 방식 예제입니다. `hook.pageLoad()`에서 초기값을 세팅하고, `event` 구획 아래에 `{요소ID}_{이벤트명}` 형태의 함수를 선언합니다. `resolveUrl`, `addQueryParam`/`removeQueryParam`/`setQueryParam`, `isCorsEnabled`, `httpFetch`/`httpRequest`/`httpSubmit`/`httpDataSubmit`를 포함한 `$request`의 전체 공개 API를 다룹니다.
 
 ## 개요
 

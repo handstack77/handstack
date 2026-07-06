@@ -15,8 +15,8 @@
 
 ## 언제 사용하나요?
 
-- 회원 가입일, 계약일, 마감일처럼 **날짜 1개만** 입력받아야 할 때 사용합니다.
-- 조회 시작일/종료일처럼 **날짜 2개(기간)** 를 하나의 짝으로 다루어야 한다면 `DatePicker`를 2개 두고 `useRangeSelect` 옵션으로 서로 연동시키거나(아래 API.md 참고), 또는 형제 컨트롤인 **`DatePeriodPicker` (`syn.uicontrols.$dateperiodpicker`)** 를 사용하는 것이 더 간단합니다. `DatePeriodPicker`는 시작일~종료일을 하나의 컨트롤에서 한 번에 관리하도록 설계된 별도 컨트롤입니다.
+- 회원 가입일, 계약일, 마감일처럼 날짜 1개만 입력받아야 할 때 사용합니다.
+- 조회 시작일/종료일처럼 날짜 2개(기간) 를 하나의 짝으로 다루어야 한다면 `DatePicker`를 2개 두고 `useRangeSelect` 옵션으로 서로 연동시키거나(아래 API.md 참고), 또는 형제 컨트롤인 `DatePeriodPicker` (`syn.uicontrols.$dateperiodpicker`) 를 사용하는 것이 더 간단합니다. `DatePeriodPicker`는 시작일~종료일을 하나의 컨트롤에서 한 번에 관리하도록 설계된 별도 컨트롤입니다.
 - 요약하면:
   - 날짜 1개, 단순 입력 → `DatePicker`
   - 날짜 1개씩이지만 두 개를 서로 최소/최대로 연동하고 싶다 → `DatePicker` + `useRangeSelect`

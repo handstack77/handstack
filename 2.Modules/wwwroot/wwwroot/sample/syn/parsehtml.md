@@ -29,7 +29,7 @@ let $mypage = {
 ```html
 <pre><text>
 # 제목
-**markdown** 내용
+markdown 내용
 </text></pre>
 
 <pre><code language="js">

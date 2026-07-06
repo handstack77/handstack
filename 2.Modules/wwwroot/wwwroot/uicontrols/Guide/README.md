@@ -6,9 +6,9 @@ Guide는 화면 안내(온보딩) 컨트롤입니다. 화면에 이미 존재하
 
 `syn_guide` 태그 자체는 화면에 아무것도 그리지 않습니다(ContextMenu처럼 로드 후 `display:none` 처리됨). 대신 `syn-options`의 `items` 배열에 "어떤 요소(selector)를 어떤 방식(helpType)으로 안내할지"를 정의해 두면, Guide가 내부적으로 아래 3가지 외부 라이브러리 중 하나를 골라 연결해 줍니다.
 
-- `helpType: 'I'` → [intro.js](https://introjs.com/) 기반 **단계별 투어**(스포트라이트 + 다음/이전 버튼)
-- `helpType: 'T'` → [tippy.js](https://atomiks.github.io/tippyjs/) 기반 **툴팁**(마우스 올리면 뜨는 설명)
-- `helpType: 'P'` → [superplaceholder](https://github.com/fabiospampinato/superplaceholder.js) 기반 **입력창 placeholder 타이핑 애니메이션**
+- `helpType: 'I'` → [intro.js](https://introjs.com/) 기반 단계별 투어(스포트라이트 + 다음/이전 버튼)
+- `helpType: 'T'` → [tippy.js](https://atomiks.github.io/tippyjs/) 기반 툴팁(마우스 올리면 뜨는 설명)
+- `helpType: 'P'` → [superplaceholder](https://github.com/fabiospampinato/superplaceholder.js) 기반 입력창 placeholder 타이핑 애니메이션
 - `helpType: 'U'` → 프로그램(화면) 도움말 링크/팝업 (별도 "도움말" 버튼 등에서 `openUIHelp`로 호출)
 
 ## 언제 사용하나요?

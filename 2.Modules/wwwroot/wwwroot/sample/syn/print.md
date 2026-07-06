@@ -28,16 +28,16 @@ const templateUrl = syn.$p.getDocumentTemplateUrl('RPT-0001');
 ```
 
 ### workItem 추가/삽입/수정/삭제
-`addWorkItem`은 workItems 배열에 새 항목을 추가합니다. **객체 형태로 호출**하는 것을 권장합니다.
+`addWorkItem`은 workItems 배열에 새 항목을 추가합니다. 객체 형태로 호출하는 것을 권장합니다.
 ```js
 syn.$p.addWorkItem(workItems, {
     document: 0, worksheet: 'Sheet1', datafield: 'ReportDate',
     bind: 'cell', row: 1, col: 2, type: 'text'
 });
 ```
-> 주의: `addWorkItem(workItems, document, worksheet, datafield, bind, row, col, ...)`처럼 두 번째 인자부터 각 필드를 개별 인자로 나열하는 방식은, 현재 소스(약 11296번째 줄)의 필수값 검증 조건이 `if (document || worksheet || bind || row || col)`로 되어 있어(값이 있으면 오히려 경고를 남기는 형태) **정상적인 값이 전달되어도 대부분 경고 로그만 남기고 항목이 추가되지 않습니다.** 실사용 시 객체 인자 형태를 사용하십시오.
+> 주의: `addWorkItem(workItems, document, worksheet, datafield, bind, row, col, ...)`처럼 두 번째 인자부터 각 필드를 개별 인자로 나열하는 방식은, 현재 소스(약 11296번째 줄)의 필수값 검증 조건이 `if (document || worksheet || bind || row || col)`로 되어 있어(값이 있으면 오히려 경고를 남기는 형태) 정상적인 값이 전달되어도 대부분 경고 로그만 남기고 항목이 추가되지 않습니다. 실사용 시 객체 인자 형태를 사용하십시오.
 
-`addAtWorkItem(workItems, document, worksheet, datafield, target, nextDirection)`은 기존 항목을 기준으로 새 항목을 삽입합니다. 이때 `target.datafield`는 workItems 내에 **이미 존재하는(같은 document/worksheet) 항목의 datafield와 일치**해야 그 위치를 기준으로 삽입됩니다(동일 필드를 여러 셀에 반복 출력할 때 유용).
+`addAtWorkItem(workItems, document, worksheet, datafield, target, nextDirection)`은 기존 항목을 기준으로 새 항목을 삽입합니다. 이때 `target.datafield`는 workItems 내에 이미 존재하는(같은 document/worksheet) 항목의 datafield와 일치해야 그 위치를 기준으로 삽입됩니다(동일 필드를 여러 셀에 반복 출력할 때 유용).
 ```js
 syn.$p.addAtWorkItem(workItems, 0, 'Sheet1', 'CompanyName', {
     document: 0, worksheet: 'Sheet1', datafield: 'CompanyName',

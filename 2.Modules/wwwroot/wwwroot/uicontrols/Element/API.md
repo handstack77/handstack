@@ -19,8 +19,8 @@ Element 컨트롤로 취급합니다.
 
 - `id` : 컨트롤 식별자(필수). 메서드 호출 시 `elID`로 사용합니다.
 - `syn-datafield` : 폼 전송/바인딩 시 사용할 필드명.
-- `syn-options` : `defaultSetting`을 덮어쓸 JSON(객체 리터럴) 문자열. **생략하면 `getValue`/`setValue`/`clear`가
-  모두 `el.value`를 기준으로 동작합니다**(일반 엘리먼트는 `value` 프로퍼티가 없으므로 이 경우 값이 정상적으로
+- `syn-options` : `defaultSetting`을 덮어쓸 JSON(객체 리터럴) 문자열. 생략하면 `getValue`/`setValue`/`clear`가
+  모두 `el.value`를 기준으로 동작합니다(일반 엘리먼트는 `value` 프로퍼티가 없으므로 이 경우 값이 정상적으로
   읽고 쓰이지 않을 수 있습니다). 값을 화면 텍스트/HTML에 반영하려면 `content` 옵션을 명시적으로 지정하는 것을
   권장합니다.
 - `syn-events` : 페이지 스크립트의 `<elID>_<eventName>` 핸들러와 연결할 이벤트명 배열.

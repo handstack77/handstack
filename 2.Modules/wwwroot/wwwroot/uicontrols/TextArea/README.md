@@ -14,7 +14,7 @@
 - 입력 글자 수(또는 바이트 수) 제한과 초과 알림이 필요할 때 (`maxlength` / `maxlengthB`)
 - 줄 번호를 보여주며 소스 코드나 정형화된 텍스트를 편집해야 할 때 (`toSynControl: true`, 기본값)
 
-**TextBox와의 차이**
+TextBox와의 차이
 
 | 구분 | TextBox | TextArea |
 | --- | --- | --- |

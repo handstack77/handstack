@@ -1,7 +1,7 @@
 # template 사용법
 
 ## 개요
-`template` 페이지(`template.html` / `template.js`)는 특정 `syn.js` 모듈의 API를 시연하는 페이지가 아니라, **새 예제 페이지를 만들 때 참고할 수 있는 시작점 스캐폴드**입니다. `parsehtml` mixin을 이용한 markdown/코드 하이라이트 렌더링 데모를 포함하고 있어, 새 페이지 작성 시 최소 구조와 `parsehtml` 사용법을 함께 확인할 수 있습니다.
+`template` 페이지(`template.html` / `template.js`)는 특정 `syn.js` 모듈의 API를 시연하는 페이지가 아니라, 새 예제 페이지를 만들 때 참고할 수 있는 시작점 스캐폴드입니다. `parsehtml` mixin을 이용한 markdown/코드 하이라이트 렌더링 데모를 포함하고 있어, 새 페이지 작성 시 최소 구조와 `parsehtml` 사용법을 함께 확인할 수 있습니다.
 
 ## 로드 방법
 ```html

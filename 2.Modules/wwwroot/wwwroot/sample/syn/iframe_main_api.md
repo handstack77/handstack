@@ -10,8 +10,8 @@
 ## 메서드
 
 ### `syn.$n.rooms.connect(options)`
-- **설명**: 다른 창(주로 `<iframe>`의 `contentWindow`)과 `postMessage` 기반 양방향 채널을 생성합니다. 소스 위치: 약 6197~6592번째 줄.
-- **매개변수**
+- 설명: 다른 창(주로 `<iframe>`의 `contentWindow`)과 `postMessage` 기반 양방향 채널을 생성합니다. 소스 위치: 약 6197~6592번째 줄.
+- 매개변수
 
 | 이름 | 타입 | 필수 | 설명 |
 |---|---|---|---|
@@ -23,13 +23,13 @@
 | `options.gotMessageObserver` | `function(origin, data)` | N | 모든 수신 메시지에 대해 호출되는 관찰자 |
 | `options.postMessageObserver` | `function(origin, message)` | N | 모든 송신 메시지에 대해 호출되는 관찰자 |
 
-- **반환값**: 채널 객체(`boundMessage`). 주요 멤버
+- 반환값: 채널 객체(`boundMessage`). 주요 멤버
   - `bind(method, callback)`: `method`로 들어오는 메시지에 대한 핸들러 등록. `emit`으로 온 메시지는 `callback(origin, params)`, `call`로 온 메시지는 `callback(transaction, params)` 형태로 호출됨(`transaction`은 `invoke`/`error`/`complete`/`delayReturn` 보유)
   - `unbind(method)`: 등록된 핸들러 해제
   - `call({ method, params, success, error, timeout })`: 상대의 `method` 핸들러를 호출하고 응답을 `success`/`error`로 수신
   - `emit({ method, params })`: 상대에게 응답을 기대하지 않는 메시지 전송(콜백 없음)
   - `destroy()`: 채널 연결 해제 및 등록된 리소스 정리
-- **예시**
+- 예시
 ```javascript
 var connection = syn.$n.rooms.connect({
     debugOutput: true,
@@ -44,15 +44,15 @@ connection.bind('response', function (origin, params) {
 ```
 
 ### `syn.$n.findChannel(channelID)`
-- **설명**: `scope`가 `channelID`와 일치하는 연결된 채널을 `$network.connections`에서 찾습니다. 소스 위치: 약 6597~6600번째 줄.
-- **매개변수**
+- 설명: `scope`가 `channelID`와 일치하는 연결된 채널을 `$network.connections`에서 찾습니다. 소스 위치: 약 6597~6600번째 줄.
+- 매개변수
 
 | 이름 | 타입 | 필수 | 설명 |
 |---|---|---|---|
 | `channelID` | `string` | Y | `rooms.connect({ scope })`에 지정했던 채널 식별자 |
 
-- **반환값**: 채널 객체(`boundMessage`) 또는 `undefined`(없으면)
-- **예시**
+- 반환값: 채널 객체(`boundMessage`) 또는 `undefined`(없으면)
+- 예시
 ```javascript
 var connection = syn.$n.findChannel('channelID');
 if (connection == undefined) {
@@ -61,8 +61,8 @@ if (connection == undefined) {
 ```
 
 ### 채널 객체 `.call({ method, params, success, error, timeout })`
-- **설명**: `rooms.connect()`가 반환한 채널 객체를 통해 상대 창에 등록된(`bind`) 메서드를 호출하고 결과를 비동기로 받습니다. 소스 위치: 약 6490~6554번째 줄.
-- **매개변수**
+- 설명: `rooms.connect()`가 반환한 채널 객체를 통해 상대 창에 등록된(`bind`) 메서드를 호출하고 결과를 비동기로 받습니다. 소스 위치: 약 6490~6554번째 줄.
+- 매개변수
 
 | 이름 | 타입 | 필수 | 설명 |
 |---|---|---|---|
@@ -72,8 +72,8 @@ if (connection == undefined) {
 | `error` | `function(error, message)` | N | 실패 시 콜백 |
 | `timeout` | `number` | N | 지정 시(ms) 응답이 없으면 `timeout_error`로 `error` 호출 |
 
-- **반환값**: 없음(콜백 기반)
-- **예시**: [`iframe_main.js`](./iframe_main.js)의 `btnParent2Children_click()` 참고
+- 반환값: 없음(콜백 기반)
+- 예시: [`iframe_main.js`](./iframe_main.js)의 `btnParent2Children_click()` 참고
 ```javascript
 connection.call({
     method: 'request',

@@ -6,16 +6,16 @@ DropDownList는 브라우저의 네이티브 `<select>` 태그를 그대로 사�
 
 내부적으로는 [tail.select](https://github.com/pytesNET/tail.select) 라는 오픈소스 플러그인을 감싸서(wrapping) 동작하며, `syn.uicontrols.$select` 라는 이름의 싱글턴 객체로 등록되어 있습니다. HTML 마크업에서는 항상 `<select>` 태그와 `syn-options` 속성을 사용하고, JavaScript 코드에서는 `syn.uicontrols.$select.메서드명(...)` 형태로 호출합니다.
 
-가장 큰 특징은 **옵션 목록(코드값)을 직접 HTML에 나열하지 않고, 데이터소스로부터 자동으로 채워 넣을 수 있다**는 점입니다. 데이터소스는 두 가지 방식을 지원합니다.
+가장 큰 특징은 옵션 목록(코드값)을 직접 HTML에 나열하지 않고, 데이터소스로부터 자동으로 채워 넣을 수 있다는 점입니다. 데이터소스는 두 가지 방식을 지원합니다.
 
 - 로컬 캐시 JSON: `code/{storeSourceID}.json` 파일을 읽어서 옵션을 구성 (예: `/assets/shared/code/CMM002.json`)
 - 원격 데이터소스: `syn.$w.getDataSource`를 통해 서버에서 코드값 목록을 조회
 
 ## 언제 사용하나요?
 
-- **DropDownList (`$select`)**: 코드값 하나만 선택하는 일반적인 콤보박스가 필요할 때. 성별, 지역, 상태값처럼 "하나의 값을 고르는" 상황에 사용합니다.
-- **DropDownCheckList**: 옵션 여러 개를 체크박스 형태로 동시에 선택해야 할 때 사용합니다. (`multiSelectAll` 류의 다중 선택 UI가 필요한 경우)
-- **CodePicker**: 코드값이 매우 많거나, 검색/모달 형태의 팝업으로 선택해야 할 때 사용합니다. DropDownList도 `search: true` 옵션으로 자체 검색을 지원하지만, 코드 목록이 아주 많거나 계층 구조를 가진 경우에는 CodePicker가 더 적합합니다.
+- DropDownList (`$select`): 코드값 하나만 선택하는 일반적인 콤보박스가 필요할 때. 성별, 지역, 상태값처럼 "하나의 값을 고르는" 상황에 사용합니다.
+- DropDownCheckList: 옵션 여러 개를 체크박스 형태로 동시에 선택해야 할 때 사용합니다. (`multiSelectAll` 류의 다중 선택 UI가 필요한 경우)
+- CodePicker: 코드값이 매우 많거나, 검색/모달 형태의 팝업으로 선택해야 할 때 사용합니다. DropDownList도 `search: true` 옵션으로 자체 검색을 지원하지만, 코드 목록이 아주 많거나 계층 구조를 가진 경우에는 CodePicker가 더 적합합니다.
 
 정리하면, DropDownList는 "가벼운 단일 선택 콤보박스"가 필요한 대부분의 화면에서 기본으로 선택하는 컨트롤입니다.
 

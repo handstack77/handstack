@@ -3,7 +3,7 @@
 ## 개요
 `reflection` 페이지는 `$object`(전역 객체, `syn.$` 형태의 별도 alias 없음)가 제공하는 타입 확인/복제 등 리플렉션 관련 확장 함수를 보여주는 예제입니다. `$object`는 `syn.js` 내부에서 `$number`, `$string`과 같은 위치(약 4165~4385번째 줄)에 정의되어 있으며, `extension_object.html`과 완전히 동일한 모듈을 다루는 별도의(더 오래된) 데모 페이지입니다.
 
-> **참고**: 이 페이지는 `$w.initializeScript({ ... })` 형태의 레거시(구형) 스크립트 등록 방식을 의도적으로 그대로 유지합니다. `extension_object.html`, `template.html` 등 대부분의 최신 예제 페이지는 `let $x = { extends, hook, event, method }` 형태의 객체를 선언하는 새 방식을 사용하지만, HandStack은 두 방식을 모두 지원하며 `reflection.html`은 그 대안/구형 등록 관례를 보여주기 위한 목적으로 남겨둔 페이지입니다.
+> 참고: 이 페이지는 `$w.initializeScript({ ... })` 형태의 레거시(구형) 스크립트 등록 방식을 의도적으로 그대로 유지합니다. `extension_object.html`, `template.html` 등 대부분의 최신 예제 페이지는 `let $x = { extends, hook, event, method }` 형태의 객체를 선언하는 새 방식을 사용하지만, HandStack은 두 방식을 모두 지원하며 `reflection.html`은 그 대안/구형 등록 관례를 보여주기 위한 목적으로 남겨둔 페이지입니다.
 
 ## 로드 방법
 ```html

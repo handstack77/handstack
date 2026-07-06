@@ -20,7 +20,7 @@
 }" syn-events="['eventClick', 'datesSet', 'eventDrop', 'eventResize']"></syn_calendar>
 ```
 
-**중요**: `syn.loader.js`에는 `syn_calendar` 태그에 대응하는 CSS/JS 자동 로드 항목(`case 'calendar'`)이 없습니다. FullCalendar 라이브러리, 로케일 파일, `Calendar.js`/`Calendar.css`를 모두 페이지의 `pageLoadFiles` 훅(`afterLoadFiles` 배열)으로 직접 등록해야만 컨트롤이 동작합니다. 자세한 코드는 `README.md`의 "빠른 시작"과 `example/` 폴더를 참고하세요.
+중요: `syn.loader.js`에는 `syn_calendar` 태그에 대응하는 CSS/JS 자동 로드 항목(`case 'calendar'`)이 없습니다. FullCalendar 라이브러리, 로케일 파일, `Calendar.js`/`Calendar.css`를 모두 페이지의 `pageLoadFiles` 훅(`afterLoadFiles` 배열)으로 직접 등록해야만 컨트롤이 동작합니다. 자세한 코드는 `README.md`의 "빠른 시작"과 `example/` 폴더를 참고하세요.
 
 - `id`는 페이지 내에서 유일해야 하며, `syn.uicontrols.$calendar`의 각종 메서드에서 이 `id`(elID)를 사용합니다.
 - `controlLoad` 실행 시 `new FullCalendar.Calendar(el, calendarSettings)`가 만들어지고 `calendar.render()`가 호출됩니다. 이때 `syn-options`에 지정한 값 전체가 `elID`/`syn-options` 속성으로 다시 기록되며(`el.setAttribute('syn-options', JSON.stringify(setting))`), `eventMapping`/`getter`/`setter`/`transactConfig`/`triggerConfig`/`elID`는 FullCalendar 자체 옵션에서는 제외되고 컨트롤 내부용으로만 쓰입니다.
@@ -69,7 +69,7 @@
 |---|---|
 | `getControl(elID)` | 등록된 컨트롤 정보(`{ id, calendar, setting }`)를 반환합니다. `calendar`가 실제 FullCalendar 인스턴스입니다. |
 | `getCalendar(elID)` | `getControl(elID).calendar`만 바로 반환하는 축약 메서드. FullCalendar 인스턴스의 원본 API(`updateSize()` 등)를 직접 호출할 때 사용합니다. |
-| `getValue(elID, meta)` | **항상 `null`을 반환합니다.** Calendar는 다른 컨트롤과 달리 `getValue`가 구현되어 있지 않습니다. 이벤트 전체 목록이 필요하면 `getEvents`를, 변경분만 필요하면 `getterValue`를 사용하세요. |
+| `getValue(elID, meta)` | 항상 `null`을 반환합니다. Calendar는 다른 컨트롤과 달리 `getValue`가 구현되어 있지 않습니다. 이벤트 전체 목록이 필요하면 `getEvents`를, 변경분만 필요하면 `getterValue`를 사용하세요. |
 | `setValue(elID, value, meta)` | 배열(`value`)을 받아 `eventMapping` 기준으로 변환한 뒤, `{elID}_eventSource`라는 이름의 이벤트 소스로 통째로 교체합니다. 기존에 이 이벤트 소스로 들어간 이벤트는 모두 제거되고 새 데이터로 다시 그려집니다. 각 이벤트에는 `Flag: 'R'`(변경없음)이 자동으로 붙습니다. `addEvent` 등으로 별도 추가된 이벤트에는 영향을 주지 않습니다. |
 | `getterValue(elID, meta)` | `Flag`가 `C`(생성)/`U`(수정)/`D`(삭제)인 이벤트만 모아 평평한 객체 배열로 반환합니다(`extendedProps` 내용도 최상위로 펼쳐짐). 변경된 부분만 서버에 저장하고 싶을 때 사용합니다. |
 | `addEvent(elID, eventData)` | `eventMapping` 기준으로 변환한 새 이벤트를 추가합니다(`Flag: 'C'`). |
@@ -77,7 +77,7 @@
 | `updateEvent(elID, eventData)` | `eventMapping`의 `id` 컬럼으로 이벤트를 찾아 필드를 갱신합니다. 기존 `Flag`가 `R`(변경없음)이면 `U`로 바뀌고, 이미 `C`/`U`/`D`면 그대로 유지됩니다. 매핑되지 않은 컬럼은 `extendedProps`로 갱신됩니다. |
 | `getEvents(elID)` | 현재 달력에 있는 모든 이벤트를 `event.toPlainObject()` 형태의 배열로 반환합니다(변경 여부와 무관하게 전체). |
 | `findEvents(elID, filter)` | `{ 컬럼명: 값 }` 형태의 `filter` 객체와 일치하는 이벤트만 찾아 반환합니다. `title`/`id`/`start`/`end`는 이벤트 최상위 필드에서, 그 외 키는 `extendedProps`에서 비교합니다. 문자열 값은 대소문자 무시 부분일치, 그 외 값은 `!=` 비교(느슨한 비교)로 판단합니다. `filter`를 생략하면 전체 이벤트를 반환합니다. |
-| `clear(elID, isControlLoad)` | `calendar.removeAllEvents()`를 호출해 **이벤트 소스와 무관하게 모든 이벤트**를 지웁니다(`setValue`가 지우는 범위보다 넓음). |
+| `clear(elID, isControlLoad)` | `calendar.removeAllEvents()`를 호출해 이벤트 소스와 무관하게 모든 이벤트를 지웁니다(`setValue`가 지우는 범위보다 넓음). |
 | `gotoDate(elID, date)` | 지정한 날짜가 보이도록 달력을 이동합니다(FullCalendar `gotoDate` 그대로 위임). |
 | `changeView(elID, viewName, dateOrRange)` | 뷰를 전환합니다(예: `'dayGridMonth'` → `'timeGridWeek'`). |
 | `refetchEvents(elID)` | 이벤트 소스가 함수/URL 기반일 때 다시 조회하도록 트리거합니다. |
@@ -88,7 +88,7 @@
 
 ## 이벤트 (syn-events)
 
-TreeView 같은 컨트롤과 달리, Calendar의 `syn-events`에 적는 이름은 프레임워크가 별도로 감싼 이름이 아니라 **FullCalendar가 원래 지원하는 콜백 옵션 이름 그대로**입니다. `controlLoad`가 `setting[hook] = eventHandler`처럼 훅 이름을 그대로 FullCalendar 옵션 키에 대입하기 때문입니다. 따라서 아래 표에 없어도 FullCalendar 문서에 있는 콜백 이름이면 대부분 그대로 사용할 수 있습니다.
+TreeView 같은 컨트롤과 달리, Calendar의 `syn-events`에 적는 이름은 프레임워크가 별도로 감싼 이름이 아니라 FullCalendar가 원래 지원하는 콜백 옵션 이름 그대로입니다. `controlLoad`가 `setting[hook] = eventHandler`처럼 훅 이름을 그대로 FullCalendar 옵션 키에 대입하기 때문입니다. 따라서 아래 표에 없어도 FullCalendar 문서에 있는 콜백 이름이면 대부분 그대로 사용할 수 있습니다.
 
 | 이벤트명 | 발생 시점 |
 |---|---|
@@ -126,7 +126,7 @@ let $samplePage = {
 
 ## 참고
 
-- **변경 이력 추적(`Flag`)**: 컨트롤은 각 이벤트의 `extendedProps.Flag`에 `R`(변경없음, `setValue`로 처음 채워질 때), `C`(생성, `addEvent`), `U`(수정, `updateEvent`), `D`(삭제, `removeEvent`) 중 하나를 기록합니다. 화면에서 여러 건을 추가/수정/삭제한 뒤 `getterValue(elID)`를 호출하면 `C`/`U`/`D` 상태인 이벤트만 뽑아서 반환하므로, 전체 데이터를 다시 저장하지 않고 변경분만 서버 트랜잭션으로 보내는 패턴을 만들 수 있습니다.
-- **`getValue`를 쓰면 안 되는 이유**: `getValue`는 구현되어 있지 않고 항상 `null`을 반환합니다. 전체 이벤트가 필요하면 `getEvents(elID)`, 변경분만 필요하면 `getterValue(elID)`를 사용하세요.
-- **`clear` vs `setValue`의 범위 차이**: `setValue`는 자신이 만든 이벤트 소스(`{elID}_eventSource`)만 교체하지만, `clear`는 `removeAllEvents()`로 이벤트 소스와 상관없이 전체를 지웁니다. `addEvent`로 추가한 이벤트까지 포함해 전부 지우고 싶다면 `clear`를 사용하세요.
+- 변경 이력 추적(`Flag`): 컨트롤은 각 이벤트의 `extendedProps.Flag`에 `R`(변경없음, `setValue`로 처음 채워질 때), `C`(생성, `addEvent`), `U`(수정, `updateEvent`), `D`(삭제, `removeEvent`) 중 하나를 기록합니다. 화면에서 여러 건을 추가/수정/삭제한 뒤 `getterValue(elID)`를 호출하면 `C`/`U`/`D` 상태인 이벤트만 뽑아서 반환하므로, 전체 데이터를 다시 저장하지 않고 변경분만 서버 트랜잭션으로 보내는 패턴을 만들 수 있습니다.
+- `getValue`를 쓰면 안 되는 이유: `getValue`는 구현되어 있지 않고 항상 `null`을 반환합니다. 전체 이벤트가 필요하면 `getEvents(elID)`, 변경분만 필요하면 `getterValue(elID)`를 사용하세요.
+- `clear` vs `setValue`의 범위 차이: `setValue`는 자신이 만든 이벤트 소스(`{elID}_eventSource`)만 교체하지만, `clear`는 `removeAllEvents()`로 이벤트 소스와 상관없이 전체를 지웁니다. `addEvent`로 추가한 이벤트까지 포함해 전부 지우고 싶다면 `clear`를 사용하세요.
 - 내부적으로 FullCalendar 인스턴스를 그대로 감싼 구조이므로, 옵션/콜백의 더 자세한 원본 설명은 FullCalendar 문서를 참고하세요: https://fullcalendar.io/docs

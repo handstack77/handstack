@@ -74,12 +74,12 @@ let $mypage = {
 `example/` 폴더에 3가지 예제가 있습니다. 로컬 서버 실행 후 브라우저에서 아래 경로로 접근해서 확인하세요
 (예: `/uicontrols/CheckBox/example/basic.html`).
 
-- **basic.html / basic.js** — 옵션 없이 가장 단순하게 사용하는 기본 체크박스와, `checked` 속성으로
+- basic.html / basic.js — 옵션 없이 가장 단순하게 사용하는 기본 체크박스와, `checked` 속성으로
   기본 체크 상태를 지정하는 예제입니다.
-- **options.html / options.js** — `checkedValue` / `uncheckedValue`로 커스텀 값(`Y`/`N`, `ACTIVE`/`INACTIVE`
+- options.html / options.js — `checkedValue` / `uncheckedValue`로 커스텀 값(`Y`/`N`, `ACTIVE`/`INACTIVE`
   등)을 지정하는 방법, `disabled`로 비활성화하는 방법, 같은 `name`으로 여러 체크박스를 묶어 배치하고
   `getGroupNames()`로 그룹명을 조회하는 방법을 보여줍니다.
-- **events.html / events.js** — `syn-events="['change']"`로 변경 이벤트를 감지하고, 버튼을 눌러
+- events.html / events.js — `syn-events="['change']"`로 변경 이벤트를 감지하고, 버튼을 눌러
   `getValue` / `setValue` / `toggleValue` / `clear` 메서드를 직접 호출해보는 예제입니다.
 
 ## 더 알아보기

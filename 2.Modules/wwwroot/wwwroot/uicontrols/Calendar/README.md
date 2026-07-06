@@ -13,7 +13,7 @@ Calendar는 일정(이벤트)을 달력 형태로 보여주고 편집할 수 있
 
 ## 빠른 시작
 
-**중요**: Calendar는 다른 대부분의 컨트롤(TreeView, WebGrid 등)과 달리 `syn.loader.js`가 필요한 라이브러리를 자동으로 찾아 넣어주지 않습니다. `syn.loader.js`는 `<syn_xxx>` 태그 이름을 보고 미리 정해진 CSS/JS 목록을 로드하는데, 아직 이 매핑 표에 `calendar`(→ `syn_calendar`)에 대한 항목이 등록되어 있지 않기 때문입니다. 그래서 FullCalendar 라이브러리 자체와 `Calendar.js`/`Calendar.css`까지 **페이지에서 직접 `pageLoadFiles` 훅으로 등록**해 줘야 합니다.
+중요: Calendar는 다른 대부분의 컨트롤(TreeView, WebGrid 등)과 달리 `syn.loader.js`가 필요한 라이브러리를 자동으로 찾아 넣어주지 않습니다. `syn.loader.js`는 `<syn_xxx>` 태그 이름을 보고 미리 정해진 CSS/JS 목록을 로드하는데, 아직 이 매핑 표에 `calendar`(→ `syn_calendar`)에 대한 항목이 등록되어 있지 않기 때문입니다. 그래서 FullCalendar 라이브러리 자체와 `Calendar.js`/`Calendar.css`까지 페이지에서 직접 `pageLoadFiles` 훅으로 등록해 줘야 합니다.
 
 ```html
 <syn_calendar id="calSample" syn-options="{
@@ -58,7 +58,7 @@ let $samplePage = {
 
 핵심 포인트:
 - 마크업은 `<syn_calendar>` 커스텀 태그로 작성합니다.
-- **FullCalendar 라이브러리, 로케일 파일, `Calendar.js`/`Calendar.css` 4가지 전부를 `pageLoadFiles`(정확히는 `afterLoadFiles` 배열)로 직접 등록해야 합니다.** 하나라도 빠뜨리면 `FullCalendar is not defined` 같은 에러가 나거나, 달력은 뜨지만 한글 대신 영어(Today, Month 등)로 표시됩니다.
+- FullCalendar 라이브러리, 로케일 파일, `Calendar.js`/`Calendar.css` 4가지 전부를 `pageLoadFiles`(정확히는 `afterLoadFiles` 배열)로 직접 등록해야 합니다. 하나라도 빠뜨리면 `FullCalendar is not defined` 같은 에러가 나거나, 달력은 뜨지만 한글 대신 영어(Today, Month 등)로 표시됩니다.
 - `syn-options`의 `eventMapping`을 통해 화면에 표시할 이벤트 데이터 컬럼명(예: `ScheduleEventID`, `ScheduleTitle`, `StartDate`, `EndDate`)을 실제 데이터 컬럼명에 맞게 바꿔 쓸 수 있습니다.
 - 이벤트를 추가/수정/삭제하면 컨트롤이 내부적으로 `Flag`(`C`=생성, `U`=수정, `D`=삭제, `R`=변경없음)를 관리합니다. `getterValue`를 호출하면 변경된 이벤트만 뽑아낼 수 있어서, 전체 데이터를 다시 저장하지 않고 변경분만 서버로 보내는 패턴을 구현할 수 있습니다.
 

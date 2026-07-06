@@ -8,7 +8,7 @@
 2. 같은 부모 아래에 `id="<원래id>"`를 그대로 물려받은 새 `<div>`가 만들어지고, 그 안에 실제 Monaco 에디터(`monaco.editor.create(...)`)가 렌더링됩니다.
 3. Monaco 엔진 자체(`/lib/monaco-editor/min/vs/loader.js`)는 최초 1회만 비동기로 로드되며, 로드가 끝나기 전에 여러 개의 `<syn_sourceeditor>`가 있으면 대기열(`editorPendings`)에 쌓였다가 로드 완료 후 순서대로 초기화됩니다.
 
-**HtmlEditor(WYSIWYG)와의 차이**
+HtmlEditor(WYSIWYG)와의 차이
 
 | 구분 | HtmlEditor (`$htmleditor`) | SourceEditor (`$sourceeditor`) |
 | --- | --- | --- |

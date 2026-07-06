@@ -3,7 +3,7 @@
 ## 개요
 `stringbuilder.html`/`stringbuilder.js` 예제는 과거 `syn.$sb`(StringBuilder)라는 이름으로 문자열을 누적(append)하고, 포맷 문자열(`appendFormat`)을 적용하고, 배열로 변환(`convertToArray`)하고, 초기화(`clear`)하고, 최종 문자열을 얻는(`toString`) 기능을 시연하기 위해 작성되었습니다.
 
-**이 문서 작성 시점 기준으로 현재 `2.Modules/wwwroot/wwwroot/js/syn.js`(약 12,000줄)에는 `syn.$sb`, `StringBuilder`, `appendFormat`, `convertToArray` 등 관련 구현이 전혀 존재하지 않습니다.** `syn.js` 전체를 대상으로 `stringbuilder`, `$sb`, `StringBuilder`, `appendFormat`, `convertToArray` 키워드로 검색해도 일치하는 코드가 없으며, `2.Modules/wwwroot/wwwroot/js/syn.js`에서 전역에 등록되는 모듈은 `$array`, `$string`, `$date`, `$number`, `$object` 등 확장 네임스페이스뿐입니다. 즉 `stringbuilder.html`/`stringbuilder.js`가 호출하던 API는 현재 라이브러리에서 제거되었거나, 애초에 별도 배포판에만 존재했던 기능으로 보입니다.
+이 문서 작성 시점 기준으로 현재 `2.Modules/wwwroot/wwwroot/js/syn.js`(약 12,000줄)에는 `syn.$sb`, `StringBuilder`, `appendFormat`, `convertToArray` 등 관련 구현이 전혀 존재하지 않습니다. `syn.js` 전체를 대상으로 `stringbuilder`, `$sb`, `StringBuilder`, `appendFormat`, `convertToArray` 키워드로 검색해도 일치하는 코드가 없으며, `2.Modules/wwwroot/wwwroot/js/syn.js`에서 전역에 등록되는 모듈은 `$array`, `$string`, `$date`, `$number`, `$object` 등 확장 네임스페이스뿐입니다. 즉 `stringbuilder.html`/`stringbuilder.js`가 호출하던 API는 현재 라이브러리에서 제거되었거나, 애초에 별도 배포판에만 존재했던 기능으로 보입니다.
 
 ## 예제 페이지의 현재 상태
 `/sample/syn/stringbuilder.html`과 `stringbuilder.js`는 삭제하지 않고 남겨두되, 다음과 같이 처리했습니다.

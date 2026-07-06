@@ -44,7 +44,7 @@ $object.parseJsonValue('123', 'integer');  // 123
 ### 특정 키를 제외한 객체 만들기
 `excludeKeys(sourceObject, keysToExclude)`로 민감한 필드나 불필요한 속성을 제외한 새 객체를 만들 수 있습니다.
 ```js
-$object.excludeKeys({ a: 1, password: '***' }, ['password']);
+$object.excludeKeys({ a: 1, password: '*' }, ['password']);
 ```
 
 ## 실전 예제 페이지

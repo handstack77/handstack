@@ -35,7 +35,7 @@
 | `toggleEffect` | boolean | `false` | 노드 확장/축소 시 애니메이션 효과 여부 (FancyTree `toggleEffect` 옵션) |
 | `checkbox` | boolean | `false` | 노드마다 체크박스를 표시할지 여부. `true`로 하면 체크박스 클릭으로 다중 선택이 가능해집니다. |
 | `extensions` | array | `['persist', 'filter']` | 사용할 FancyTree 확장 목록. ([확장 전체 목록](https://github.com/mar10/fancytree/wiki/ExtensionIndex)) |
-| `persist` | object \| false | 아래 "persist" 참고 | 세션 저장(확장/포커스/선택 상태 유지) 확장 옵션. **주의**: `controlLoad`가 실행될 때 내부에서 무조건 `false`로 재설정되므로, `syn-options`에서 직접 `persist: {...}` 객체를 명시해야만 실제로 동작합니다. 기본값만 믿고 켜두면 동작하지 않습니다. |
+| `persist` | object \| false | 아래 "persist" 참고 | 세션 저장(확장/포커스/선택 상태 유지) 확장 옵션. 주의: `controlLoad`가 실행될 때 내부에서 무조건 `false`로 재설정되므로, `syn-options`에서 직접 `persist: {...}` 객체를 명시해야만 실제로 동작합니다. 기본값만 믿고 켜두면 동작하지 않습니다. |
 | `multi` | object \| false | `{ mode: 'sameParent' }` | 다중 선택 확장 옵션. `persist`와 동일한 이유로 `controlLoad` 시점에 무조건 `false`로 재설정됩니다. 다중 선택을 쓰려면 `extensions`에 `'multi'`를 추가하고 `syn-options`에서 `multi: {...}` 를 직접 지정하세요. |
 | `filter` | object | 아래 "filter" 참고 | 필터 확장(`extensions`에 `'filter'`가 있을 때) 옵션 |
 | `source` | array | `[]` | FancyTree 초기 데이터. 보통 직접 지정하지 않고 `setValue`가 내부적으로 채웁니다. |
@@ -110,7 +110,7 @@
 
 `syn-events` 배열에 이름을 넣으면 페이지 스크립트의 `event` 객체에서 `{elID}_{이벤트명}` 함수를 자동으로 연결해 줍니다. (핸들러 함수 시그니처는 FancyTree 콜백 그대로 `(evt, data)`이며, 대부분의 경우 `data.node`로 대상 노드에 접근합니다.)
 
-**중요**: 아래 `eventHooks` 목록에 있는 이름만 실제로 동작합니다. 목록에 없는 이름(예: `'select'`)을 `syn-events`에 적어도 에러는 나지 않지만 아무 핸들러도 연결되지 않습니다. 체크박스로 선택 상태가 바뀌는 것을 감지하려면 `select`가 아니라 `click`(체크박스 클릭 시) 이벤트에서 `data.node.isSelected()`를 직접 확인하는 방식을 사용하세요.
+중요: 아래 `eventHooks` 목록에 있는 이름만 실제로 동작합니다. 목록에 없는 이름(예: `'select'`)을 `syn-events`에 적어도 에러는 나지 않지만 아무 핸들러도 연결되지 않습니다. 체크박스로 선택 상태가 바뀌는 것을 감지하려면 `select`가 아니라 `click`(체크박스 클릭 시) 이벤트에서 `data.node.isSelected()`를 직접 확인하는 방식을 사용하세요.
 
 | 이벤트명 | 발생 시점 |
 |---|---|

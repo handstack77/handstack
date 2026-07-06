@@ -12,4 +12,4 @@
 | `hook` | `pageLoad()` | 현재는 빈 구현이며, 새 페이지 작성 시 초기화 로직을 채워 넣는 자리입니다. |
 | `event` | (없음) | 현재는 빈 객체이며, 새 페이지 작성 시 `{id}_{이벤트명}` 핸들러를 채워 넣는 자리입니다. |
 
-실제 노출되는 속성/메서드(예: `converter`, `hook.extendLoad`)에 대한 설명은 **`parsehtml_api.md`를 참고하세요.**
+실제 노출되는 속성/메서드(예: `converter`, `hook.extendLoad`)에 대한 설명은 `parsehtml_api.md`를 참고하세요.

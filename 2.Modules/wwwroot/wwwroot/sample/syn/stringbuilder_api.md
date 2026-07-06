@@ -16,7 +16,7 @@ grep -ni "stringbuilder\|\$sb\b\|StringBuilder\|appendFormat\|convertToArray" 2.
 이 검색은 매칭되는 코드를 찾지 못합니다(전역 모듈로 등록된 것은 `context.$array`, `context.$string`, `context.$date`, `context.$number`, `context.$object` 등뿐입니다).
 
 ## 과거 API (참고용, 현재 미동작)
-아래는 `stringbuilder.js`가 과거 호출하던 API 시그니처를 문서화한 것으로, **현재 syn.js에서는 호출할 수 없습니다.** 실제 코드에서는 사용하지 마세요.
+아래는 `stringbuilder.js`가 과거 호출하던 API 시그니처를 문서화한 것으로, 현재 syn.js에서는 호출할 수 없습니다. 실제 코드에서는 사용하지 마세요.
 
 ### `syn.$sb.append(text)` — 미구현
 - 문자열을 내부 버퍼에 누적하는 용도로 추정됩니다.

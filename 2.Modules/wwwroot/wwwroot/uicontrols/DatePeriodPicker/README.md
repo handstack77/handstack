@@ -19,11 +19,11 @@
 
 ## 언제 사용하나요?
 
-- 형제 컨트롤인 **`DatePicker`(`syn.uicontrols.$datepicker`)** 는 날짜 **1개**만 다룹니다.
-- `DatePeriodPicker`는 처음부터 "기간(period)" 개념으로 설계되어, **시작일~종료일 한 쌍**을 태그 하나로 관리합니다.
+- 형제 컨트롤인 `DatePicker`(`syn.uicontrols.$datepicker`) 는 날짜 1개만 다룹니다.
+- `DatePeriodPicker`는 처음부터 "기간(period)" 개념으로 설계되어, 시작일~종료일 한 쌍을 태그 하나로 관리합니다.
 - 요약하면:
   - 날짜 1개, 단순 입력 → `DatePicker`
-  - 조회 시작일/종료일처럼 **기간**을 하나의 값으로 다루고 싶다 → `DatePeriodPicker`
+  - 조회 시작일/종료일처럼 기간을 하나의 값으로 다루고 싶다 → `DatePeriodPicker`
   - "최근 1주일", "이번 달", "1분기"처럼 자주 쓰는 기간을 버튼 한 번으로 선택하게 하고 싶다 → `DatePeriodPicker`(팝업에 프리셋 버튼이 내장되어 있음)
 
 ## 빠른 시작

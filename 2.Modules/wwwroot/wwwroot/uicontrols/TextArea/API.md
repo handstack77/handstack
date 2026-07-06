@@ -52,7 +52,7 @@
 
 ## 이벤트 (syn-events)
 
-`syn-events="[...]"`에 나열한 이벤트 이름은 **`toSynControl: true`(기본값, CodeMirror 모드)일 때만** 동작합니다. 각 이름은 CodeMirror 에디터의 `editor.on(이벤트명, handler)`에 그대로 전달되므로, [CodeMirror 5 이벤트](https://codemirror.net/5/doc/manual.html#events) 이름을 사용할 수 있습니다. 자주 쓰는 이벤트는 다음과 같습니다.
+`syn-events="[...]"`에 나열한 이벤트 이름은 `toSynControl: true`(기본값, CodeMirror 모드)일 때만 동작합니다. 각 이름은 CodeMirror 에디터의 `editor.on(이벤트명, handler)`에 그대로 전달되므로, [CodeMirror 5 이벤트](https://codemirror.net/5/doc/manual.html#events) 이름을 사용할 수 있습니다. 자주 쓰는 이벤트는 다음과 같습니다.
 
 | 이벤트 | 설명 |
 | --- | --- |

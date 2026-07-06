@@ -15,7 +15,7 @@
 
 - 태그 이름 `syn_htmleditor`는 `syn.loader.js`가 `SYN_` 접두사를 인식해 `htmleditor` 타입 컨트롤로 매핑하는 규칙을 따릅니다(`HtmlEditor.js`/`HtmlEditor.css` 및 TinyMCE 엔진을 자동 로드).
 - `style`의 `width`/`height`가 에디터 컨테이너의 크기가 됩니다(지정하지 않으면 기본 320×240).
-- 태그 내부에 적어둔 HTML(자식 엘리먼트/텍스트)은 에디터의 **초기 콘텐츠**로 그대로 사용됩니다.
+- 태그 내부에 적어둔 HTML(자식 엘리먼트/텍스트)은 에디터의 초기 콘텐츠로 그대로 사용됩니다.
 - `syn-options` : JSON 형식의 문자열로 옵션(`defaultSetting`)을 덮어씁니다. 이 값은 그대로 `tinymce.init(setting)`에 전달되므로, 아래 표에 없는 TinyMCE 옵션도 함께 사용할 수 있습니다.
 - 컨트롤이 초기화되면 원래 태그는 `id="<원래id>_hidden"`으로 숨겨지고, 같은 `id`를 가진 새 `<div>`가 만들어져 그 안에 TinyMCE 에디터가 렌더링됩니다. 이후 `getValue`/`setValue` 등 API는 원래 지정했던 `id`를 그대로 사용합니다.
 
@@ -91,7 +91,7 @@
 
 ## 이벤트
 
-**HtmlEditor는 다른 syn.uicontrols 컨트롤처럼 태그에 `syn-events` 속성을 선언하는 방식이 아니라, 페이지 스크립트의 `event` 객체에 정해진 이름의 함수를 선언해 두면 프레임워크가 자동으로 찾아서 호출하는 방식**입니다. `syn-events` 속성은 필요 없습니다.
+HtmlEditor는 다른 syn.uicontrols 컨트롤처럼 태그에 `syn-events` 속성을 선언하는 방식이 아니라, 페이지 스크립트의 `event` 객체에 정해진 이름의 함수를 선언해 두면 프레임워크가 자동으로 찾아서 호출하는 방식입니다. `syn-events` 속성은 필요 없습니다.
 
 | 이벤트(함수명 규칙) | 매개변수 | 발생 시점 |
 | --- | --- | --- |
@@ -136,7 +136,7 @@ if (editor) {
 
 - 실제 구현 파일: `HtmlEditor.js`, `HtmlEditor.css`
 - 내부적으로 [TinyMCE](https://www.tiny.cloud/)를 사용하며, 엔진 스크립트(`/lib/tinymce/tinymce.min.js`)는 페이지에서 최초 1회만 비동기로 로드됩니다. TinyMCE가 아직 로드되지 않은 상태에서 여러 `<syn_htmleditor>`가 배치돼 있으면, 로드가 끝날 때까지 내부 대기열(`editorPendings`)에 쌓였다가 순서대로 초기화됩니다.
-- **이미지 업로드와 `repositoryID`의 관계**: `syn-options`에 `repositoryID`를 지정하면, 컨트롤이 TinyMCE의 `images_upload_handler`를 자동으로 구성합니다. 사용자가 이미지를 붙여넣거나 드래그&드롭하면 다음 순서로 처리됩니다.
+- 이미지 업로드와 `repositoryID`의 관계: `syn-options`에 `repositoryID`를 지정하면, 컨트롤이 TinyMCE의 `images_upload_handler`를 자동으로 구성합니다. 사용자가 이미지를 붙여넣거나 드래그&드롭하면 다음 순서로 처리됩니다.
   1. 이미지 크기가 `imageFileSizeLimit`(기본 6MB)을 넘으면 업로드를 취소하고 알림을 띄웁니다.
   2. `{elID}_beforeUploadImageResize` 이벤트가 정의돼 있으면 그 함수로, 아니면 기본 `resizeImage`(최대 600px)로 이미지를 축소합니다.
   3. `fileManagerServer` + `fileManagerPath`(`/repository/api/storage`) + `pageUploadFile`(`upload-file`)로 `RepositoryID`/`DependencyID`와 함께 업로드합니다. `DependencyID`는 `dependencyID` 옵션 값이며, 지정하지 않으면 자동으로 임시 값이 발급됩니다(`isNumberTempDependency`).
