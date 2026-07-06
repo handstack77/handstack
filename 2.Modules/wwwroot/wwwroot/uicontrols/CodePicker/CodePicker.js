@@ -400,6 +400,13 @@
                             syn.uicontrols.$auigrid.setDataAtCell(setting.elID, row, setting.textColumnID, text);
                         }
                     }
+                    else if (setting.viewType == 'opengrid' && syn.uicontrols.$opengrid) {
+                        var row = syn.uicontrols.$opengrid.getActiveRowIndex(setting.elID);
+                        syn.uicontrols.$opengrid.setDataAtCell(setting.elID, row, setting.codeColumnID, value);
+                        if (setting.textColumnID) {
+                            syn.uicontrols.$opengrid.setDataAtCell(setting.elID, row, setting.textColumnID, text);
+                        }
+                    }
                 }
 
                 if (callback) {

@@ -160,8 +160,10 @@ gulp.task('controls', async function () {
         'wwwroot/uicontrols/SourceEditor/SourceEditor.js',
         'wwwroot/uicontrols/HtmlEditor/HtmlEditor.js',
         'wwwroot/uicontrols/OrganizationView/OrganizationView.js',
+        'wwwroot/uicontrols/PropertyGrid/PropertyGrid.js',
         'wwwroot/uicontrols/TreeView/TreeView.js',
         'wwwroot/uicontrols/WebGrid/AUIGrid.js',
+        'wwwroot/uicontrols/WebGrid/OpenGrid.js',
         // 'wwwroot/uicontrols/WebGrid/WebGrid.js',
         'wwwroot/uicontrols/Element/Element.js'
     ], { allowEmpty: true })
@@ -253,8 +255,10 @@ gulp.task('styles', async function () {
         'wwwroot/uicontrols/SourceEditor/SourceEditor.css',
         'wwwroot/uicontrols/HtmlEditor/HtmlEditor.css',
         'wwwroot/uicontrols/OrganizationView/OrganizationView.css',
+        'wwwroot/uicontrols/PropertyGrid/PropertyGrid.css',
         'wwwroot/uicontrols/TreeView/TreeView.css',
         'wwwroot/uicontrols/WebGrid/AUIGrid.css',
+        'wwwroot/uicontrols/WebGrid/OpenGrid.css',
         // 'wwwroot/uicontrols/WebGrid/WebGrid.css',
 
         // 프로젝트 화면 디자인
@@ -322,8 +326,10 @@ gulp.task('basestyles', async function () {
         'wwwroot/uicontrols/SourceEditor/SourceEditor.css',
         'wwwroot/uicontrols/HtmlEditor/HtmlEditor.css',
         'wwwroot/uicontrols/OrganizationView/OrganizationView.css',
+        'wwwroot/uicontrols/PropertyGrid/PropertyGrid.css',
         'wwwroot/uicontrols/TreeView/TreeView.css',
         'wwwroot/uicontrols/WebGrid/AUIGrid.css',
+        'wwwroot/uicontrols/WebGrid/OpenGrid.css',
         'wwwroot/uicontrols/WebGrid/WebGrid.css',
     ], { allowEmpty: true })
         .pipe(concat('syn.bundle.base.css'))

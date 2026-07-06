@@ -1,0 +1,871 @@
+/* ===========================================================================
+   OpenGrid.css - HandStack OpenGrid UIControl 스타일
+   OpenGridJs (https://github.com/amurgola/OpenGridJs, MIT License) 기반 고도화
+   =========================================================================== */
+
+/* ===========================================================================
+   CSS 변수 및 테마 설정
+   =========================================================================== */
+:root {
+    /* Colors */
+    --og-background: #ffffff;
+    --og-surface: #f8f9fa;
+    --og-surface-hover: #e9ecef;
+    --og-border: #e1e5e9;
+    --og-text-primary: #1a1a1a;
+    --og-text-secondary: #6b7280;
+    --og-text-muted: #9ca3af;
+    --og-header-bg: #f8f9fa;
+    --og-header-border: #e1e5e9;
+    --og-selected: #f0f9ff;
+    --og-selected-border: #0ea5e9;
+    --og-accent: #0ea5e9;
+    --og-accent-hover: #0284c7;
+    --og-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.1);
+    --og-shadow-hover: 0 4px 6px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.06);
+    /* Scrollbar */
+    --og-scrollbar-track: #f1f5f9;
+    --og-scrollbar-thumb: #cbd5e1;
+    --og-scrollbar-thumb-hover: #94a3b8;
+    /* Context Menu */
+    --og-context-bg: #ffffff;
+    --og-context-border: #e1e5e9;
+    --og-context-hover: #f8f9fa;
+    /* Resize Handle */
+    --og-resize-handle: #cbd5e1;
+    --og-resize-handle-hover: #0ea5e9;
+    /* Typography */
+    --og-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Malgun Gothic', Roboto, sans-serif;
+    --og-font-size: 13px;
+    --og-font-weight-normal: 400;
+    --og-font-weight-medium: 500;
+    --og-font-weight-semibold: 600;
+    --og-line-height: 1.5;
+    /* Spacing */
+    --og-spacing-xs: 4px;
+    --og-spacing-sm: 6px;
+    --og-spacing-md: 8px;
+    --og-spacing-lg: 10px;
+    --og-spacing-xl: 16px;
+    /* Border Radius */
+    --og-radius-sm: 3px;
+    --og-radius-md: 4px;
+    --og-radius-lg: 6px;
+    /* Transitions */
+    --og-transition: all 0.15s ease-in-out;
+    --og-transition-fast: all 0.1s ease-in-out;
+    /* Dimensions */
+    --og-min-row-height: 35px;
+    --og-min-column-width: 50px;
+    --og-context-menu-min-width: 200px;
+    --og-filter-menu-min-width: 250px;
+    --og-filter-menu-max-width: 300px;
+    --og-filter-options-max-height: 250px;
+}
+
+/* 다크 모드 테마 */
+[data-theme="dark"] {
+    --og-background: #1a1a1a;
+    --og-surface: #262626;
+    --og-surface-hover: #404040;
+    --og-border: #404040;
+    --og-text-primary: #ffffff;
+    --og-text-secondary: #a3a3a3;
+    --og-text-muted: #737373;
+    --og-header-bg: #212121;
+    --og-header-border: #404040;
+    --og-selected: #1e3a8a;
+    --og-selected-border: #3b82f6;
+    --og-accent: #3b82f6;
+    --og-accent-hover: #2563eb;
+    --og-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.4);
+    --og-shadow-hover: 0 4px 6px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3);
+    --og-scrollbar-track: #262626;
+    --og-scrollbar-thumb: #525252;
+    --og-scrollbar-thumb-hover: #737373;
+    --og-context-bg: #1a1a1a;
+    --og-context-border: #404040;
+    --og-context-hover: #262626;
+    --og-resize-handle: #525252;
+    --og-resize-handle-hover: #3b82f6;
+}
+
+/* ===========================================================================
+   HandStack UIControl 래퍼
+   =========================================================================== */
+.syn-opengrid {
+    display: block;
+    box-sizing: border-box;
+    outline: none;
+}
+
+/* ===========================================================================
+   그리드 컨테이너
+   =========================================================================== */
+.opengridjs-grid {
+    font-family: var(--og-font-family);
+    font-size: var(--og-font-size);
+    font-weight: var(--og-font-weight-normal);
+    line-height: var(--og-line-height);
+    color: var(--og-text-primary);
+    background-color: var(--og-background);
+    border: 1px solid var(--og-border);
+    border-radius: var(--og-radius-lg);
+    box-shadow: var(--og-shadow);
+    transition: var(--og-transition);
+    user-select: none;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: visible;
+}
+
+.opengridjs-grid::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: var(--og-radius-lg);
+    pointer-events: none;
+    z-index: -1;
+    background: var(--og-background);
+}
+
+/* 메뉴 오버레이 컨테이너 */
+.opengridjs-grid-additional {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+    z-index: 10000;
+    overflow: visible;
+}
+
+.opengridjs-grid-additional > * {
+    pointer-events: auto;
+}
+
+/* ===========================================================================
+   그리드 헤더
+   =========================================================================== */
+.opengridjs-grid-header {
+    display: flex;
+    background-color: var(--og-header-bg);
+    border-bottom: 1px solid var(--og-header-border);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    overflow: hidden;
+    border-top-left-radius: var(--og-radius-lg);
+    border-top-right-radius: var(--og-radius-lg);
+}
+
+.opengridjs-grid-header-item {
+    flex-grow: 1;
+    padding: var(--og-spacing-md) var(--og-spacing-lg);
+    font-weight: var(--og-font-weight-semibold);
+    color: var(--og-text-primary);
+    border-right: 1px solid var(--og-border);
+    cursor: pointer;
+    transition: var(--og-transition);
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: var(--og-min-row-height);
+    box-sizing: border-box;
+}
+
+.opengridjs-grid-header-item:first-child {
+    border-top-left-radius: var(--og-radius-lg);
+}
+
+.opengridjs-grid-header-item:last-child {
+    border-right: none;
+    border-top-right-radius: var(--og-radius-lg);
+}
+
+.opengridjs-grid-header-item:hover {
+    background-color: var(--og-surface-hover);
+}
+
+.opengridjs-grid-header-item:active {
+    background-color: var(--og-surface);
+}
+
+.opengridjs-header-text {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.opengridjs-header-actions {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+    gap: 4px;
+}
+
+/* ===========================================================================
+   행 컨테이너 (가상 스크롤 영역)
+   =========================================================================== */
+.opengridjs-grid-rows-container {
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: relative;
+    flex-grow: 1;
+    background-color: var(--og-background);
+    min-height: 100px;
+    border-bottom-left-radius: var(--og-radius-lg);
+    border-bottom-right-radius: var(--og-radius-lg);
+    clip-path: inset(0 round 0 0 var(--og-radius-lg) var(--og-radius-lg));
+}
+
+.opengridjs-grid-rows {
+    position: relative;
+}
+
+/* ===========================================================================
+   그리드 행
+   =========================================================================== */
+.opengridjs-grid-row {
+    display: flex;
+    background-color: var(--og-background);
+    border-bottom: 1px solid var(--og-border);
+    align-items: center;
+    position: absolute;
+    width: 100%;
+    box-sizing: border-box;
+    cursor: pointer;
+    transition: var(--og-transition-fast);
+}
+
+.opengridjs-grid-row:hover {
+    background-color: var(--og-surface-hover);
+}
+
+.opengridjs-selected-grid-row {
+    background-color: var(--og-selected) !important;
+    box-shadow: inset 3px 0 0 var(--og-selected-border);
+}
+
+/* ===========================================================================
+   그리드 셀
+   =========================================================================== */
+.opengridjs-grid-column-item {
+    flex-grow: 1;
+    padding: var(--og-spacing-sm) var(--og-spacing-xl);
+    color: var(--og-text-primary);
+    border-right: 1px solid var(--og-border);
+    min-width: var(--og-min-column-width);
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+.opengridjs-grid-column-item:last-child {
+    border-right: none;
+}
+
+.opengridjs-codehelp-value {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.opengridjs-codehelp-button {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    margin-left: var(--og-spacing-sm);
+    padding: 0;
+    border: 0;
+    border-radius: var(--og-radius-sm);
+    background: transparent;
+    color: var(--og-text-secondary);
+    cursor: pointer;
+    transition: var(--og-transition-fast);
+}
+
+.opengridjs-codehelp-button:hover {
+    color: var(--og-accent);
+    background-color: var(--og-surface-hover);
+}
+
+.opengridjs-codehelp-button svg {
+    width: 15px;
+    height: 15px;
+    stroke: currentColor;
+    stroke-width: 2;
+    fill: none;
+}
+
+/* 체크박스 셀 */
+.opengridjs-cell-checkbox {
+    margin: 0 auto;
+    width: 15px;
+    height: 15px;
+    cursor: pointer;
+    accent-color: var(--og-accent);
+}
+
+/* ===========================================================================
+   셀 인라인 에디터
+   =========================================================================== */
+.opengridjs-cell-editor {
+    width: 100%;
+    height: calc(100% - 4px);
+    margin: 0;
+    padding: 2px 6px;
+    border: 2px solid var(--og-accent);
+    border-radius: var(--og-radius-sm);
+    background-color: var(--og-background);
+    color: var(--og-text-primary);
+    font-family: var(--og-font-family);
+    font-size: var(--og-font-size);
+    box-sizing: border-box;
+    outline: none;
+}
+
+select.opengridjs-cell-editor {
+    padding: 0 2px;
+}
+
+/* ===========================================================================
+   빈 데이터 메시지
+   =========================================================================== */
+.opengridjs-empty-message {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: 32px 16px;
+    text-align: center;
+    color: var(--og-text-muted);
+    font-size: var(--og-font-size);
+    pointer-events: none;
+}
+
+/* ===========================================================================
+   동적 행 높이 (setup.dynamicRowHeight = true)
+   =========================================================================== */
+.opengridjs-dynamic-row-height .opengridjs-grid-row {
+    align-items: stretch;
+    min-height: 0;
+}
+
+.opengridjs-dynamic-row-height .opengridjs-grid-column-item {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    align-self: stretch;
+    height: auto;
+    min-width: 0;
+    padding: 8px 16px;
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    text-overflow: clip;
+}
+
+.opengridjs-dynamic-row-height .opengridjs-grid-column-item img {
+    max-height: calc(100% - 8px);
+    width: auto;
+    max-width: 100%;
+    object-fit: contain;
+}
+
+/* ===========================================================================
+   정렬 표시
+   =========================================================================== */
+.opengridjs-sort-indicator {
+    margin-left: var(--og-spacing-sm);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    border-radius: var(--og-radius-sm);
+    transition: var(--og-transition);
+    position: relative;
+}
+
+.opengridjs-sort-indicator::after {
+    content: '';
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    opacity: 0.5;
+    transition: var(--og-transition);
+}
+
+.opengridjs-sort-asc .opengridjs-sort-indicator::after {
+    border-bottom: 5px solid var(--og-accent);
+    opacity: 1;
+}
+
+.opengridjs-sort-desc .opengridjs-sort-indicator::after {
+    border-top: 5px solid var(--og-accent);
+    opacity: 1;
+}
+
+.opengridjs-sort-asc .opengridjs-sort-indicator,
+.opengridjs-sort-desc .opengridjs-sort-indicator {
+    background-color: var(--og-selected);
+}
+
+/* ===========================================================================
+   컬럼 크기 조정 핸들
+   =========================================================================== */
+.opengridjs-resize-handle {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 4px;
+    height: 100%;
+    cursor: col-resize;
+    background-color: transparent;
+    border-right: 2px solid transparent;
+    transition: var(--og-transition);
+    z-index: 5;
+}
+
+.opengridjs-resize-handle:hover {
+    border-right-color: var(--og-resize-handle-hover);
+    background-color: var(--og-resize-handle-hover);
+    opacity: 0.3;
+}
+
+.opengridjs-grid-header-item.opengridjs-resizing {
+    user-select: none;
+    cursor: col-resize;
+}
+
+.opengridjs-grid-header-item.opengridjs-resizing .opengridjs-resize-handle {
+    border-right-color: var(--og-resize-handle-hover);
+    background-color: var(--og-resize-handle-hover);
+    opacity: 0.6;
+}
+
+/* ===========================================================================
+   컬럼 드래그 이동
+   =========================================================================== */
+.opengridjs-grid-header-item[draggable="true"] {
+    cursor: grab;
+}
+
+.opengridjs-grid-header-item[draggable="true"]:active {
+    cursor: grabbing;
+}
+
+.opengridjs-grid-header-item.opengridjs-dragging {
+    opacity: 0.7;
+    background-color: var(--og-accent);
+    color: white;
+    cursor: grabbing;
+    z-index: 1000;
+}
+
+.opengridjs-grid-header-item.opengridjs-drag-over {
+    background-color: var(--og-selected);
+    border-left: 3px solid var(--og-accent);
+    border-right: 3px solid var(--og-accent);
+}
+
+/* ===========================================================================
+   필터 버튼 및 메뉴
+   =========================================================================== */
+.opengridjs-filter-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: var(--og-radius-sm);
+    cursor: pointer;
+    font-size: 10px;
+    color: var(--og-text-secondary);
+    transition: var(--og-transition);
+    background-color: transparent;
+    border: 1px solid transparent;
+}
+
+.opengridjs-filter-button:hover {
+    background-color: var(--og-surface);
+    color: var(--og-accent);
+    border-color: var(--og-border);
+}
+
+.opengridjs-filter-button.opengridjs-filter-active {
+    background-color: var(--og-accent);
+    color: white;
+    border-color: var(--og-accent);
+}
+
+.opengridjs-filter-button.opengridjs-filter-active:hover {
+    background-color: var(--og-accent-hover);
+    border-color: var(--og-accent-hover);
+}
+
+.opengridjs-filter-menu {
+    background-color: var(--og-context-bg);
+    border: 1px solid var(--og-context-border);
+    border-radius: var(--og-radius-md);
+    box-shadow: var(--og-shadow-hover);
+    min-width: var(--og-filter-menu-min-width);
+    max-width: var(--og-filter-menu-max-width);
+    z-index: 10000;
+    animation: og-fadeIn 0.15s ease-out;
+    isolation: isolate;
+}
+
+.opengridjs-filter-menu-header {
+    display: flex;
+    gap: var(--og-spacing-sm);
+    padding: var(--og-spacing-md);
+    border-bottom: 1px solid var(--og-border);
+    background-color: var(--og-surface);
+}
+
+.opengridjs-filter-menu-header button,
+.opengridjs-filter-menu-footer button {
+    flex: 1;
+    padding: var(--og-spacing-sm) var(--og-spacing-md);
+    border: 1px solid var(--og-border);
+    border-radius: var(--og-radius-sm);
+    background-color: var(--og-background);
+    color: var(--og-text-primary);
+    cursor: pointer;
+    font-size: 12px;
+    font-family: var(--og-font-family);
+    transition: var(--og-transition);
+}
+
+.opengridjs-filter-menu-header button:hover {
+    background-color: var(--og-surface-hover);
+    border-color: var(--og-accent);
+}
+
+.opengridjs-filter-menu-footer button {
+    padding: var(--og-spacing-sm) var(--og-spacing-lg);
+    font-size: var(--og-font-size);
+    font-weight: var(--og-font-weight-medium);
+}
+
+.opengridjs-filter-search {
+    padding: var(--og-spacing-md);
+    border-bottom: 1px solid var(--og-border);
+}
+
+.opengridjs-filter-search-input {
+    width: 100%;
+    padding: var(--og-spacing-sm) var(--og-spacing-md);
+    border: 1px solid var(--og-border);
+    border-radius: var(--og-radius-sm);
+    background-color: var(--og-background);
+    color: var(--og-text-primary);
+    font-size: var(--og-font-size);
+    font-family: var(--og-font-family);
+    transition: var(--og-transition);
+    box-sizing: border-box;
+}
+
+.opengridjs-filter-search-input:focus {
+    outline: none;
+    border-color: var(--og-accent);
+    box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.1);
+}
+
+.opengridjs-filter-options {
+    max-height: var(--og-filter-options-max-height);
+    overflow-y: auto;
+    padding: var(--og-spacing-sm) 0;
+}
+
+.opengridjs-filter-option {
+    display: flex;
+    align-items: center;
+    padding: var(--og-spacing-sm) var(--og-spacing-md);
+    cursor: pointer;
+    transition: var(--og-transition);
+    gap: var(--og-spacing-sm);
+}
+
+.opengridjs-filter-option:hover {
+    background-color: var(--og-surface-hover);
+}
+
+.opengridjs-filter-option input[type="checkbox"] {
+    margin: 0;
+    width: 15px;
+    height: 15px;
+    cursor: pointer;
+    accent-color: var(--og-accent);
+}
+
+.opengridjs-filter-option span {
+    flex: 1;
+    font-size: var(--og-font-size);
+    color: var(--og-text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.opengridjs-filter-menu-footer {
+    display: flex;
+    gap: var(--og-spacing-sm);
+    padding: var(--og-spacing-md);
+    border-top: 1px solid var(--og-border);
+    background-color: var(--og-surface);
+}
+
+.opengridjs-filter-apply {
+    background-color: var(--og-accent) !important;
+    color: white !important;
+    border: 1px solid var(--og-accent) !important;
+}
+
+.opengridjs-filter-apply:hover {
+    background-color: var(--og-accent-hover) !important;
+    border-color: var(--og-accent-hover) !important;
+}
+
+.opengridjs-filter-cancel:hover {
+    background-color: var(--og-surface-hover);
+    border-color: var(--og-accent);
+}
+
+/* ===========================================================================
+   컨텍스트 메뉴
+   =========================================================================== */
+.opengridjs-contextMenu {
+    background-color: var(--og-context-bg);
+    border: 1px solid var(--og-context-border);
+    border-radius: var(--og-radius-md);
+    box-shadow: var(--og-shadow-hover);
+    position: absolute;
+    min-width: var(--og-context-menu-min-width);
+    z-index: 10000;
+    overflow: hidden;
+    animation: og-fadeIn 0.15s ease-out;
+    isolation: isolate;
+}
+
+.opengridjs-contextMenu .opengridjs-title {
+    padding: var(--og-spacing-md) var(--og-spacing-lg);
+    font-weight: var(--og-font-weight-semibold);
+    color: var(--og-text-primary);
+    border-bottom: 1px solid var(--og-border);
+    background-color: var(--og-surface);
+    font-size: 12px;
+    letter-spacing: 0.5px;
+}
+
+.opengridjs-contextMenu .opengridjs-btn {
+    width: 100%;
+    padding: var(--og-spacing-md) var(--og-spacing-lg);
+    border: none;
+    background: none;
+    color: var(--og-text-primary);
+    cursor: pointer;
+    transition: var(--og-transition-fast);
+    text-align: left;
+    font-size: var(--og-font-size);
+    font-family: var(--og-font-family);
+    display: flex;
+    align-items: center;
+    min-height: 36px;
+}
+
+.opengridjs-contextMenu .opengridjs-btn:hover {
+    background-color: var(--og-context-hover);
+    color: var(--og-accent);
+}
+
+.opengridjs-contextMenu .opengridjs-btn:active {
+    background-color: var(--og-surface);
+}
+
+.opengridjs-contextMenu hr {
+    border: none;
+    border-top: 1px solid var(--og-border);
+    margin: 0;
+}
+
+/* ===========================================================================
+   실시간 업데이트 애니메이션
+   =========================================================================== */
+.opengridjs-grid-column-item.opengridjs-field-increased {
+    background-color: rgba(34, 197, 94, 0.2);
+    box-shadow: inset 3px 0 0 rgb(34, 197, 94);
+    animation: og-fieldIncreased 2s ease-out;
+}
+
+.opengridjs-grid-column-item.opengridjs-field-decreased {
+    background-color: rgba(239, 68, 68, 0.2);
+    box-shadow: inset 3px 0 0 rgb(239, 68, 68);
+    animation: og-fieldDecreased 2s ease-out;
+}
+
+.opengridjs-grid-column-item.opengridjs-field-updated {
+    background-color: rgba(59, 130, 246, 0.15);
+    box-shadow: inset 3px 0 0 rgb(59, 130, 246);
+    animation: og-fieldUpdated 2s ease-out;
+}
+
+/* ===========================================================================
+   스크롤바
+   =========================================================================== */
+.opengridjs-grid-rows-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.opengridjs-filter-options::-webkit-scrollbar {
+    width: 6px;
+}
+
+.opengridjs-grid-rows-container::-webkit-scrollbar-track,
+.opengridjs-filter-options::-webkit-scrollbar-track {
+    background: var(--og-scrollbar-track);
+    border-radius: var(--og-radius-sm);
+}
+
+.opengridjs-grid-rows-container::-webkit-scrollbar-thumb,
+.opengridjs-filter-options::-webkit-scrollbar-thumb {
+    background: var(--og-scrollbar-thumb);
+    border-radius: var(--og-radius-sm);
+    transition: var(--og-transition);
+}
+
+.opengridjs-grid-rows-container::-webkit-scrollbar-thumb:hover,
+.opengridjs-filter-options::-webkit-scrollbar-thumb:hover {
+    background: var(--og-scrollbar-thumb-hover);
+}
+
+/* ===========================================================================
+   링크
+   =========================================================================== */
+.opengridjs-grid a {
+    color: var(--og-accent);
+    text-decoration: none;
+    transition: var(--og-transition);
+    border-radius: var(--og-radius-sm);
+}
+
+.opengridjs-grid a:hover {
+    color: var(--og-accent-hover);
+    background-color: var(--og-selected);
+}
+
+/* ===========================================================================
+   포커스 및 접근성
+   =========================================================================== */
+.opengridjs-grid:focus-visible {
+    outline: 2px solid var(--og-accent);
+    outline-offset: -2px;
+}
+
+.opengridjs-grid-header-item:focus-visible,
+.opengridjs-contextMenu .opengridjs-btn:focus-visible {
+    outline: 2px solid var(--og-accent);
+    outline-offset: -2px;
+}
+
+/* ===========================================================================
+   애니메이션
+   =========================================================================== */
+@keyframes og-fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes og-fieldIncreased {
+    0% {
+        background-color: rgba(34, 197, 94, 0.4);
+    }
+
+    100% {
+        background-color: rgba(34, 197, 94, 0.1);
+    }
+}
+
+@keyframes og-fieldDecreased {
+    0% {
+        background-color: rgba(239, 68, 68, 0.4);
+    }
+
+    100% {
+        background-color: rgba(239, 68, 68, 0.1);
+    }
+}
+
+@keyframes og-fieldUpdated {
+    0% {
+        background-color: rgba(59, 130, 246, 0.3);
+    }
+
+    100% {
+        background-color: rgba(59, 130, 246, 0.05);
+    }
+}
+
+/* ===========================================================================
+   미디어 쿼리
+   =========================================================================== */
+@media (max-width: 768px) {
+    .opengridjs-grid {
+        font-size: 12px;
+    }
+
+    .opengridjs-grid-header-item,
+    .opengridjs-grid-column-item {
+        padding: var(--og-spacing-sm) var(--og-spacing-md);
+    }
+}
+
+@media (prefers-contrast: high) {
+    .opengridjs-grid {
+        --og-border: #000000;
+        --og-shadow: 0 0 0 1px #000000;
+    }
+
+    [data-theme="dark"] .opengridjs-grid {
+        --og-border: #ffffff;
+        --og-shadow: 0 0 0 1px #ffffff;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .opengridjs-grid,
+    .opengridjs-grid * {
+        transition: none !important;
+        animation: none !important;
+    }
+}

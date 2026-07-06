@@ -1,0 +1,116 @@
+/**
+ * PropertyGrid
+ * Based on jqPropertyGrid by YuvalW (MIT), adapted for HandStack uicontrols.
+ */
+
+.syn-propertygrid {
+    width: 100%;
+    color: #1f2937;
+}
+
+.syn-propertygrid .pgTable {
+    width: 100%;
+    border: 1px solid var(--tblr-border-color, #d1d5db);
+    border-spacing: 0;
+    border-collapse: collapse;
+    background: var(--tblr-bg-surface, #fff);
+    font-size: 14px;
+}
+
+.syn-propertygrid .pgGroupRow {
+    background-color: var(--tblr-bg-surface-secondary, #f3f4f6);
+    font-weight: 600;
+}
+
+.syn-propertygrid .pgGroupRow.pgCollapsible {
+    cursor: pointer;
+    user-select: none;
+}
+
+.syn-propertygrid .pgGroupCell {
+    padding: 6px 8px;
+    border: 1px solid var(--tblr-border-color, #d1d5db);
+}
+
+.syn-propertygrid .pgCell {
+    padding: 6px 8px;
+    border: 1px solid var(--tblr-border-color, #d1d5db);
+    vertical-align: middle;
+}
+
+.syn-propertygrid .pgNameCell {
+    width: 36%;
+    min-width: 140px;
+    background-color: var(--tblr-bg-surface-tertiary, #fafafa);
+    color: var(--tblr-body-color, #1f2937);
+}
+
+.syn-propertygrid .pgValueCell {
+    width: 64%;
+}
+
+.syn-propertygrid .pgTooltip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    min-height: 18px;
+    margin-left: 6px;
+    color: var(--tblr-muted, #6b7280);
+    font-size: 12px;
+    font-weight: 400;
+    vertical-align: middle;
+}
+
+.syn-propertygrid .pgInput,
+.syn-propertygrid select.pgInput,
+.syn-propertygrid input.pgInput,
+.syn-propertygrid textarea.pgInput {
+    width: 100%;
+    min-height: 30px;
+    padding: 4px 8px;
+    border: var(--tblr-border-width, 1px) solid var(--tblr-border-color, #d1d5db);
+    border-radius: var(--tblr-border-radius, 4px);
+    background-color: var(--tblr-bg-forms, #fff);
+    color: var(--tblr-body-color, #1f2937);
+    font: inherit;
+    box-sizing: border-box;
+}
+
+.syn-propertygrid textarea.pgInput {
+    min-height: 96px;
+    resize: vertical;
+    font-family: Consolas, "Courier New", monospace;
+    font-size: 13px;
+    line-height: 1.45;
+    white-space: pre;
+    overflow: auto;
+}
+
+.syn-propertygrid input[type="checkbox"].pgInput,
+.syn-propertygrid input[type="color"].pgInput {
+    width: auto;
+    min-height: auto;
+    padding: 0;
+}
+
+.syn-propertygrid input[type="color"].pgInput {
+    width: 42px;
+    height: 30px;
+}
+
+.syn-propertygrid .pgInput:disabled,
+.syn-propertygrid .pgInput[readonly] {
+    background-color: var(--tblr-bg-surface-secondary, #f3f4f6);
+    color: var(--tblr-muted, #6b7280);
+}
+
+.syn-propertygrid .pgInvalid {
+    border-color: #dc2626;
+    background-color: #fff7f7;
+}
+
+.syn-propertygrid .pgCustomValue {
+    display: inline-block;
+    width: 100%;
+}
