@@ -1,32 +1,109 @@
-$w.initializeScript({
-    btnQuery_click() {
-        syn.$r.params['p1'] = 'aaa';
-        syn.$r.params['p2'] = 'bbb';
-        syn.$r.params['p3'] = 'ccc';
-        syn.$l.get('txtQuery').value = syn.$r.query('p2');
+﻿'use strict';
+let $request = {
+    extends: [
+        'parsehtml'
+    ],
+
+    hook: {
+        pageLoad() {
+            syn.$l.get('txt_params').value = JSON.stringify(syn.$r.params);
+            syn.$l.get('txt_path').value = syn.$r.path;
+
+            setTimeout(() => {
+                window.scrollTo(0, document.body.scrollHeight);
+            }, 200);
+        }
     },
-    btnUrl_click() {
-        syn.$r.params['p1'] = 'aaa';
-        syn.$r.params['p2'] = 'bbb';
-        syn.$r.params['p3'] = 'ccc';
-        syn.$l.get('txtUrl').value = syn.$r.url();
-    },
-    btnToQueryString_click() {
-        syn.$l.get('txtToQueryString').value = syn.$r.toQueryString({
-            page: '1',
-            size: '2kg'
-        }, true);
-    },
-    btnToUrlObject_click() {
-        syn.$l.get('txtToUrlObject').value = JSON.stringify(syn.$r.toUrlObject());
-    },
-    btnSetCookie_click() {
-        syn.$r.setCookie('txtSetCookie', 'hello');
-    },
-    btnGetCookie_click() {
-        syn.$l.get('txtGetCookie').value = syn.$r.getCookie('txtSetCookie');
-    },
-    btnDeleteCookie_click() {
-        syn.$r.deleteCookie('txtSetCookie');
-    },
-})
+
+    event: {
+        btn_query_click() {
+            syn.$l.get('txt_query').value = syn.$r.query('param1');
+        },
+
+        btn_query_url_click() {
+            syn.$l.get('txt_query').value = syn.$r.query('param1', '/page.html?param1=hello world&param2=url');
+        },
+
+        btn_url_click() {
+            syn.$r.params.p1 = 'aaa';
+            syn.$r.params.p2 = 'bbb';
+            syn.$r.params.p3 = 'ccc';
+            syn.$l.get('txt_url').value = syn.$r.url();
+        },
+
+        btn_toQueryString_click() {
+            var json = JSON.parse(syn.$l.get('txt_toQueryString_json').value);
+            syn.$l.get('txt_toQueryString').value = syn.$r.toQueryString(json);
+        },
+
+        btn_toQueryString_isQuestion_click() {
+            var json = JSON.parse(syn.$l.get('txt_toQueryString_json').value);
+            syn.$l.get('txt_toQueryString').value = syn.$r.toQueryString(json, true);
+        },
+
+        btn_toUrlObject_click() {
+            syn.$l.get('txt_toUrlObject').value = JSON.stringify(syn.$r.toUrlObject());
+        },
+
+        btn_toUrlObject_url_click() {
+            syn.$l.get('txt_toUrlObject').value = JSON.stringify(syn.$r.toUrlObject('/page.html?param1=hello world&param2=url'));
+        },
+
+        btn_resolveUrl_click() {
+            syn.$l.get('txt_resolveUrl').value = syn.$r.resolveUrl('../v1/users/', 'https://example.com/api/v2');
+        },
+
+        btn_addQueryParam_click() {
+            syn.$l.get('txt_addQueryParam').value = syn.$r.addQueryParam('page', '2', 'https://example.com/list?size=10');
+        },
+
+        btn_removeQueryParam_click() {
+            syn.$l.get('txt_removeQueryParam').value = syn.$r.removeQueryParam('size', 'https://example.com/list?page=2&size=10');
+        },
+
+        btn_setQueryParam_click() {
+            syn.$l.get('txt_setQueryParam').value = syn.$r.setQueryParam('size', '20', 'https://example.com/list?page=2&size=10');
+        },
+
+        async btn_isCorsEnabled_click() {
+            syn.$l.get('txt_isCorsEnabled').value = await syn.$r.isCorsEnabled('sample.json');
+        },
+
+        async btn_httpFetch_click() {
+            const result = await syn.$r.httpFetch('sample.json').send();
+            syn.$l.get('txt_httpFetch').value = JSON.stringify(result);
+        },
+
+        async btn_httpRequest_click() {
+            const result = await syn.$r.httpRequest('GET', 'sample.json');
+            syn.$l.get('txt_httpRequest').value = result.response;
+        },
+
+        btn_httpSubmit_click() {
+            const formID = syn.$l.get('txt_httpSubmit').value || 'form1';
+            syn.$r.httpSubmit(location.href, formID, 'GET');
+        },
+
+        async btn_httpDataSubmit_click() {
+            const formData = new FormData();
+            formData.append('page', '1');
+
+            const result = await syn.$r.httpDataSubmit(formData, 'sample.json');
+            syn.$l.get('txt_httpDataSubmit').value = result.response;
+        },
+
+        btn_getCookie_click() {
+            syn.$l.get('txt_getCookie').value = syn.$r.getCookie('Cookie');
+        },
+
+        btn_setCookie_click() {
+            syn.$r.setCookie('Cookie', 'hello world');
+            syn.$l.get('txt_setCookie').value = '완료';
+        },
+
+        btn_deleteCookie_click() {
+            syn.$r.deleteCookie('Cookie');
+            syn.$l.get('txt_deleteCookie').value = '완료';
+        }
+    }
+};

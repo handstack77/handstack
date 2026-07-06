@@ -9,14 +9,35 @@
 
 ## 속성
 
-| 속성 | 설명 |
-| --- | --- |
-| `params` | 조회된 queryString 값을 담는 객체입니다. 초기값은 `{}`이며 `query()` 호출 시 채워집니다. |
-| `path` | 현재 페이지의 `location.pathname` 값입니다(Node 환경에서는 빈 문자열). |
-| `createBlobUrl` | `URL.createObjectURL`(또는 `webkitURL.createObjectURL`)에 바인딩된 함수입니다. |
-| `revokeBlobUrl` | `URL.revokeObjectURL`(또는 `webkitURL.revokeObjectURL`)에 바인딩된 함수입니다. |
+| 속성 | 타입 | 설명 |
+| --- | --- | --- |
+| `params` | `object` | 조회된 queryString 값을 담는 객체입니다. 초기값은 `{}`이며 `query()` 호출 시 채워집니다. |
+| `path` | `string` | 현재 페이지의 `location.pathname` 값입니다(Node 환경에서는 빈 문자열). |
+| `createBlobUrl` | `function` | `URL.createObjectURL`(또는 `webkitURL.createObjectURL`)에 바인딩된 함수입니다. |
+| `revokeBlobUrl` | `function` | `URL.revokeObjectURL`(또는 `webkitURL.revokeObjectURL`)에 바인딩된 함수입니다. |
 
-## 메서드
+## 메서드 요약
+
+| 메서드 | 반환 | 설명 |
+| --- | --- | --- |
+| `query(param, url)` | `string \| undefined` | url의 queryString에서 `param` 값을 조회 |
+| `url()` | `string` | `params` 값으로 현재 경로의 queryString url 생성 |
+| `toQueryString(jsonObject, isQuestion)` | `string` | json 객체를 queryString 문자열로 변환 |
+| `toUrlObject(url)` | `object` | url의 queryString을 json 객체로 변환 |
+| `resolveUrl(relativePath, baseUrl)` | `string` | 상대 경로를 절대 url로 변환 |
+| `addQueryParam(param, value, urlStr)` | `string` | queryString 파라미터 추가 |
+| `removeQueryParam(paramName, urlStr)` | `string` | queryString 파라미터 제거 |
+| `setQueryParam(param, value, urlStr)` | `string` | queryString 파라미터 설정(대체) |
+| `isCorsEnabled(url)` | `Promise<boolean>` | 대상 url의 CORS 접근 가능 여부 확인 |
+| `httpFetch(url)` | `Proxy` (`.send()`) | fetch 기반 http 요청 |
+| `httpRequest(method, url, data, callback, options)` | `Promise \| void` | XHR 기반 http 요청 |
+| `httpSubmit(url, formID, method)` | `boolean \| void` | form 설정 후 submit |
+| `httpDataSubmit(formData, url, callback, options)` | `Promise \| void` | FormData POST 전송 |
+| `getCookie(id)` | `string \| undefined` | 쿠키 값 조회 |
+| `setCookie(id, val, expires, path, domain, secure)` | `$request` | 쿠키 값 설정(체이닝 가능) |
+| `deleteCookie(id, path, domain)` | `$request` | 쿠키 값 삭제(체이닝 가능) |
+
+## 메서드 상세
 
 ### query(param, url)
 
