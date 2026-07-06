@@ -62,6 +62,10 @@ let $extension_string = {
             syn.$l.get('txt_isNullOrEmpty').value = `${$string.isNullOrEmpty('')}, ${$string.isNullOrEmpty(undefined)}, ${$string.isNullOrEmpty(null)}, ${$string.isNullOrEmpty({})}`;
         },
 
+        btn_isNullOrWhiteSpace_click() {
+            syn.$l.get('txt_isNullOrWhiteSpace').value = `${$string.isNullOrWhiteSpace('   ')}, ${$string.isNullOrWhiteSpace(undefined)}, ${$string.isNullOrWhiteSpace(null)}, ${$string.isNullOrWhiteSpace('hello')}`;
+        },
+
         btn_sanitizeHTML_click() {
             syn.$l.get('txt_sanitizeHTML').value = $string.sanitizeHTML('<label class="form-label">$string.isNullOrEmpty()</label>');
         },
@@ -100,9 +104,32 @@ let $extension_string = {
 
         btn_toJson_click() {
             var json = $string.toJson('col1;col2\na;b\nc;d', {
-                delimeter: ';'
+                delimiter: ';'
             });
             syn.$l.get('txt_toJson').value = JSON.stringify(json);
+        },
+
+        btn_toJsv_click() {
+            var jsv = $string.toJsv('col1;col2\na;b\nc;d', {
+                delimiter: ';'
+            });
+            syn.$l.get('txt_toJsv').value = JSON.stringify(jsv);
+        },
+
+        btn_validateJsv_click() {
+            var items = $string.toJsv('ERP;80%\nMES;120%', { delimiter: ';' });
+            var rules = {
+                0: { name: 'System', type: 'string', required: true, enum: ['ERP', 'MES', 'WMS'] },
+                1: {
+                    name: 'Progress', type: 'string', required: true, pattern: '^\\d+%$',
+                    validator: (value) => {
+                        var num = parseInt(value);
+                        return (num >= 0 && num <= 100) || '진행률은 0~100% 사이여야 합니다.';
+                    }
+                }
+            };
+            var validate = $string.validateJsv(items, rules, { validateAll: true });
+            syn.$l.get('txt_validateJsv').value = JSON.stringify(validate);
         },
 
         btn_toParameterObject_click() {
@@ -124,6 +151,18 @@ let $extension_string = {
 
         btn_toNumberString_click() {
             syn.$l.get('txt_toNumberString').value = $string.toNumberString('f-1,234.12');
+        },
+
+        btn_toStringCounts_click() {
+            syn.$l.get('txt_toStringCounts').value = JSON.stringify($string.toStringCounts('안녕하세요. hello world!'));
+        },
+
+        btn_toCurrency_click() {
+            syn.$l.get('txt_toCurrency').value = `${$string.toCurrency(1234567.891)}, ${$string.toCurrency(1234567.891, 'ko-KR')}`;
+        },
+
+        btn_pad_click() {
+            syn.$l.get('txt_pad').value = `${$string.pad('7', 5)}, ${$string.pad('7', 5, '0', false)}, ${$string.pad('AB', 6, '*', true)}`;
         },
     }
 };

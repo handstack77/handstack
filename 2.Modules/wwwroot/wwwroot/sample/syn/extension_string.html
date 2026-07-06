@@ -72,7 +72,17 @@
                                 <input type="text" id="txt_isNullOrEmpty" class="form-control" />
                                 <button type="button" id="btn_isNullOrEmpty" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
                                 <div class="form-text">
-                                    지정된 문자열 undefined, null 이거나 공백인지 확인합니다.
+                                    지정된 문자열이 undefined, null 이거나 빈 문자열('')인지 확인합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">$string.isNullOrWhiteSpace()</label>
+                                <input type="text" id="txt_isNullOrWhiteSpace" class="form-control" />
+                                <button type="button" id="btn_isNullOrWhiteSpace" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    지정된 문자열이 undefined, null 이거나 공백(trim 결과 빈 문자열)인지 확인합니다.
                                 </div>
                             </div>
                         </div>
@@ -172,7 +182,27 @@
                                 <input type="text" id="txt_toJson" class="form-control" />
                                 <button type="button" id="btn_toJson" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
                                 <div class="form-text">
-                                    지정된 규칙화된 문자열을 JSON 배열로 변환합니다.
+                                    구분자, 줄바꿈으로 구성된 문자열(CSV 형태)을 첫 줄을 헤더로 사용하는 JSON 객체 배열로 변환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">$string.toJsv()</label>
+                                <input type="text" id="txt_toJsv" class="form-control" />
+                                <button type="button" id="btn_toJsv" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    구분자, 줄바꿈으로 구성된 문자열을 헤더 없이 행 단위 값 배열(2차원 배열)로 변환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">$string.validateJsv()</label>
+                                <input type="text" id="txt_validateJsv" class="form-control" />
+                                <button type="button" id="btn_validateJsv" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    toJsv() 등으로 변환된 2차원 배열 데이터를 컬럼 인덱스 기준 규칙(rules)으로 검증하고 결과를 반환합니다.
                                 </div>
                             </div>
                         </div>
@@ -212,17 +242,7 @@
                                 <input type="text" id="txt_toParseType" class="form-control" />
                                 <button type="button" id="btn_toParseType" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
                                 <div class="form-text">
-                                    지정된 문자열 값을 의도한 String, Number, Boolean, Date 로 변환합니다.
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
-                            <div class="col-12">
-                                <label class="form-label">$string.toParseType()</label>
-                                <input type="text" id="txt_toParseType" class="form-control" />
-                                <button type="button" id="btn_toParseType" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
-                                <div class="form-text">
-                                    지정된 문자열 값을 의도한 String, Number, Boolean, Date 로 변환합니다.
+                                    지정된 문자열 값을 의도한 metaType(string/bool/number/date)에 맞게 변환합니다.
                                 </div>
                             </div>
                         </div>
@@ -232,7 +252,37 @@
                                 <input type="text" id="txt_toNumberString" class="form-control" />
                                 <button type="button" id="btn_toNumberString" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
                                 <div class="form-text">
-                                    지정된 문자열 값을 Number 문자열로 변환합니다.
+                                    지정된 문자열에서 숫자, 소수점, 마이너스 기호 이외의 문자를 제거합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">$string.toStringCounts()</label>
+                                <input type="text" id="txt_toStringCounts" class="form-control" />
+                                <button type="button" id="btn_toStringCounts" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    지정된 문자열의 글자수, 단어수, 문장수를 Intl.Segmenter 기반으로 계산하여 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">$string.toCurrency()</label>
+                                <input type="text" id="txt_toCurrency" class="form-control" />
+                                <button type="button" id="btn_toCurrency" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    지정된 값을 천단위 구분 기호가 포함된 통화 형식의 문자열로 변환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">$string.pad()</label>
+                                <input type="text" id="txt_pad" class="form-control" />
+                                <button type="button" id="btn_pad" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    지정된 문자열을 원하는 길이가 될 때까지 지정한 문자로 좌측 또는 우측을 채웁니다.
                                 </div>
                             </div>
                         </div>
