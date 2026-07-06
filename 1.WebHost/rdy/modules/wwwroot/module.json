@@ -10,7 +10,7 @@
         "ModuleLogFilePath": "../log/wwwroot/module.log",
         "ContractRequestPath": "view",
         "ContractBasePath": "../contracts/wwwroot",
-        "WWWRootBasePath": "./modules/wwwroot/wwwroot",
+        "WWWRootBasePath": "%HANDSTACK_SRC%/2.Modules/wwwroot/wwwroot",
         "FileSyncTokens": []
     }
 }
