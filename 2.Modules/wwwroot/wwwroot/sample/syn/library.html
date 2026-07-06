@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
@@ -20,10 +20,10 @@
                     <div class="card-body">
                         <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
                             <div class="col-12">
-                                <label class="form-label">syn.$l.version</label>
-                                <input type="text" id="txt_version" class="form-control">
+                                <label class="form-label">syn.$l.logLevel</label>
+                                <textarea id="txt_logLevel" class="form-control" rows="2" readonly></textarea>
                                 <div class="form-text">
-                                    $library version을 반환합니다.
+                                    eventLog()에서 사용하는 로그 레벨 열거자(Verbose, Debug, Information, Warning, Error, Fatal)입니다.
                                 </div>
                             </div>
                         </div>
@@ -36,6 +36,7 @@
                         <h3 class="card-title">메서드</h3>
                     </div>
                     <div class="card-body">
+                        <h4>식별자 / 유틸리티</h4>
                         <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
                             <div class="col-12">
                                 <label class="form-label">syn.$l.guid()</label>
@@ -43,26 +44,6 @@
                                 <button type="button" id="btn_guid" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
                                 <div class="form-text">
                                     GUID 규칙을 준수 하는 고유 ID를 조회합니다.
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
-                            <div class="col-12">
-                                <label class="form-label">syn.$l.stringToArrayBuffer()</label>
-                                <input type="text" id="txt_stringToArrayBuffer" class="form-control" />
-                                <button type="button" id="btn_stringToArrayBuffer" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
-                                <div class="form-text">
-                                    문자열을 ArrayBuffer로 변환홥니다.
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
-                            <div class="col-12">
-                                <label class="form-label">syn.$l.arrayBufferToString()</label>
-                                <input type="text" id="txt_arrayBufferToString" class="form-control" />
-                                <button type="button" id="btn_arrayBufferToString" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
-                                <div class="form-text">
-                                    ArrayBuffer을 문자열로 변환홥니다.
                                 </div>
                             </div>
                         </div>
@@ -78,6 +59,51 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$l.getElement()</label>
+                                <input type="text" id="txt_getElement" class="form-control" />
+                                <button type="button" id="btn_getElement" class="mt-2 btn btn-primary" syn-events="['click']">문자열 ID 확인</button>
+                                <button type="button" id="btn_getElement1" class="mt-2 btn btn-primary" syn-events="['click']">엘리먼트 객체 확인</button>
+                                <div class="form-text">
+                                    ID 문자열 또는 엘리먼트 객체를 받아 실제 노드로 정규화합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$l.execPrefixFunc()</label>
+                                <input type="text" id="txt_execPrefixFunc" class="form-control" />
+                                <button type="button" id="btn_execPrefixFunc" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    브라우저 벤더 접두사(webkit, moz, ms, o)를 순회하며 지원되는 속성/메서드를 실행합니다.
+                                </div>
+                            </div>
+                        </div>
+
+                        <h4>인코딩 / 버퍼 변환</h4>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$l.stringToArrayBuffer()</label>
+                                <input type="text" id="txt_stringToArrayBuffer" class="form-control" />
+                                <button type="button" id="btn_stringToArrayBuffer" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    문자열을 ArrayBuffer로 변환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$l.arrayBufferToString()</label>
+                                <input type="text" id="txt_arrayBufferToString" class="form-control" />
+                                <button type="button" id="btn_arrayBufferToString" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    ArrayBuffer를 문자열로 변환합니다.
+                                </div>
+                            </div>
+                        </div>
+
+                        <h4>DOM 이벤트</h4>
                         <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
                             <div class="col-12">
                                 <label class="form-label">syn.$l.dispatchClick()</label>
@@ -152,7 +178,19 @@
                                 <input type="text" id="txt_triggerEvent" class="form-control" />
                                 <button type="button" id="btn_triggerEvent" class="mt-2 btn btn-primary" syn-events="['click']">txt_addEvent change 이벤트 핸들러 확인</button>
                                 <div class="form-text">
-                                    지정된 노드에 사용자 이벤트를 실행합니다.
+                                    지정된 노드에 사용자 이벤트(CustomEvent)를 실행합니다.
+                                </div>
+                            </div>
+                        </div>
+
+                        <h4>DOM 조회</h4>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$l.getValue()</label>
+                                <input type="text" id="txt_getValue" class="form-control" value="hello world" />
+                                <button type="button" id="btn_getValue" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    엘리먼트 ID로 값을 조회합니다. 웹폼 컨트롤(synControls) 컨텍스트가 없는 일반 페이지에서는 defaultValue를 반환합니다.
                                 </div>
                             </div>
                         </div>
@@ -188,11 +226,45 @@
                         </div>
                         <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
                             <div class="col-12">
+                                <label class="form-label">syn.$l.querySelectorAll()</label>
+                                <input type="text" id="txt_querySelectorAll" class="form-control" />
+                                <button type="button" id="btn_querySelectorAll" class="mt-2 btn btn-primary" syn-events="['click']">'input[type=text]' 개수 확인</button>
+                                <div class="form-text">
+                                    querySelectorAll로 여러 노드들을 조회합니다(다중 셀렉터 지원).
+                                </div>
+                            </div>
+                        </div>
+
+                        <h4>Enum 변환</h4>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$l.toEnumValue()</label>
+                                <input type="text" id="txt_toEnumValue" class="form-control" />
+                                <button type="button" id="btn_toEnumValue" class="mt-2 btn btn-primary" syn-events="['click']">syn.$v.valueType 확인</button>
+                                <div class="form-text">
+                                    enum 열거자의 키로 값을 조회합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
                                 <label class="form-label">syn.$l.toEnumText()</label>
                                 <input type="text" id="txt_toEnumText" class="form-control" />
                                 <button type="button" id="btn_toEnumText" class="mt-2 btn btn-primary" syn-events="['click']">syn.$v.valueType 확인</button>
                                 <div class="form-text">
                                     enum 열거자의 값으로 키를 조회합니다.
+                                </div>
+                            </div>
+                        </div>
+
+                        <h4>CSV / TSD 데이터 변환</h4>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$l.prettyTSD()</label>
+                                <textarea id="txt_prettyTSD" class="form-control" rows="2">AAA:string;BBB:number＾AAA｜BBB↵hello｜123</textarea>
+                                <button type="button" id="btn_prettyTSD" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    TSD(＾ 메타 구분, ｜ 컬럼 구분, ↵ 줄바꿈) 형식 문자열을 JSON으로 파싱합니다.
                                 </div>
                             </div>
                         </div>
@@ -229,10 +301,12 @@
                                 </div>
                             </div>
                         </div>
+
+                        <h4>트리 데이터 변환</h4>
                         <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
                             <div class="col-12">
                                 <label class="form-label">syn.$l.flat2Nested(), syn.$l.nested2Flat(), syn.$l.findNestedByID()</label>
-                                <textarea id="txt_jsontext" class="form-control" rows="5">[ 
+                                <textarea id="txt_jsontext" class="form-control" rows="5">[
 	{
 	    "id": 0,
 	    "parentId": 6,
@@ -334,23 +408,27 @@
                                 </div>
                             </div>
                         </div>
+
+                        <h4>객체 고정</h4>
                         <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
                             <div class="col-12">
                                 <label class="form-label">syn.$l.deepFreeze()</label>
                                 <input type="text" id="txt_deepFreeze" class="form-control" />
                                 <button type="button" id="btn_deepFreeze" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
                                 <div class="form-text">
-                                    JSON 객체의 속성을 수정하지 못하도록 고정합니다.
+                                    JSON 객체의 속성을 수정하지 못하도록 재귀적으로 고정합니다.
                                 </div>
                             </div>
                         </div>
+
+                        <h4>Blob / DataURI / Base64 / File 변환</h4>
                         <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
                             <div class="col-12">
                                 <label class="form-label">syn.$l.createBlob()</label>
                                 <input type="text" id="txt_createBlob" class="form-control" />
                                 <button type="button" id="btn_createBlob" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
                                 <div class="form-text">
-                                    blob 정보를 생성합니다
+                                    blob 정보를 생성합니다.
                                 </div>
                             </div>
                         </div>
@@ -360,7 +438,7 @@
                                 <input type="text" id="txt_dataUriToBlob" class="form-control" />
                                 <button type="button" id="btn_dataUriToBlob" class="mt-2 btn btn-primary" syn-events="['click']">data:text/plain;base64,aGVsbG93b3JsZA== 확인</button>
                                 <div class="form-text">
-                                    DataUri 데이터로 blob 정보를 변환합니다
+                                    DataUri 데이터로 blob 정보를 변환합니다.
                                 </div>
                             </div>
                         </div>
@@ -370,7 +448,7 @@
                                 <input type="text" id="txt_dataUriToText" class="form-control" />
                                 <button type="button" id="btn_dataUriToText" class="mt-2 btn btn-primary" syn-events="['click']">data:text/plain;base64,aGVsbG93b3JsZA== 확인</button>
                                 <div class="form-text">
-                                    DataUri 데이터로 문자열 정보를 조회합니다
+                                    DataUri 데이터로 문자열 정보를 조회합니다.
                                 </div>
                             </div>
                         </div>
@@ -380,7 +458,7 @@
                                 <input type="text" id="txt_blobToDataUri" class="form-control" />
                                 <button type="button" id="btn_blobToDataUri" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
                                 <div class="form-text">
-                                    blob 정보를 DataUri 데이터로 변환합니다
+                                    blob 정보를 DataUri 데이터로 변환합니다.
                                 </div>
                             </div>
                         </div>
@@ -419,7 +497,7 @@
                                 <input type="text" id="txt_blobToBase64" class="form-control" />
                                 <button type="button" id="btn_blobToBase64" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
                                 <div class="form-text">
-                                    blob 정보를 base64 문자열로 변환합니다.
+                                    blob 정보를 base64(DataUri) 문자열로 변환합니다.
                                 </div>
                             </div>
                         </div>
@@ -449,7 +527,7 @@
                                 <input type="text" id="txt_fileToBase64" class="form-control" />
                                 <button type="button" id="btn_fileToBase64" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
                                 <div class="form-text">
-                                    파일 객체를 base64 문자열로 변환합니다.
+                                    파일 객체를 base64(DataUri) 문자열로 변환합니다.
                                 </div>
                             </div>
                         </div>
@@ -460,6 +538,38 @@
                                 <button type="button" id="btn_fileToBlob" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
                                 <div class="form-text">
                                     파일 정보를 blob 정보로 변환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$l.urlToBase64()</label>
+                                <input type="text" id="txt_urlToBase64" class="form-control" />
+                                <button type="button" id="btn_urlToBase64" class="mt-2 btn btn-primary" syn-events="['click']">현재 페이지 URL 확인</button>
+                                <div class="form-text">
+                                    URL 응답을 syn.$r.httpFetch로 조회하여 base64 문자열로 변환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$l.resizeImage()</label>
+                                <input type="text" id="txt_resizeImage" class="form-control" />
+                                <button type="button" id="btn_resizeImage" class="mt-2 btn btn-primary" syn-events="['click']">1x1 PNG 이미지로 확인</button>
+                                <div class="form-text">
+                                    이미지 blob을 지정된 최대 크기로 축소하여 새 blob으로 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+
+                        <h4>로깅</h4>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$l.eventLog()</label>
+                                <textarea id="txt_eventLog" class="form-control" rows="2" readonly></textarea>
+                                <button type="button" id="btn_eventLog" class="mt-2 btn btn-primary" syn-events="['click']">Warning 로그 기록 확인</button>
+                                <div class="form-text">
+                                    콘솔/화면에 이벤트 로그를 기록하는 중앙 로거입니다. syn.js 내부 전반에서 오류/경고 기록에 사용됩니다. (참고: getBasePath(), moduleEventLog()는 Node.js 런타임 전용 메서드로 브라우저에서는 제공되지 않아 이 데모에서는 다루지 않습니다)
                                 </div>
                             </div>
                         </div>

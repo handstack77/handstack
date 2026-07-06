@@ -1,4 +1,4 @@
-﻿'use strict';
+'use strict';
 let $library = {
     extends: [
         'parsehtml'
@@ -6,7 +6,7 @@ let $library = {
 
     hook: {
         pageLoad() {
-            syn.$l.get('txt_version').value = syn.$m.version;
+            syn.$l.get('txt_logLevel').value = JSON.stringify(syn.$l.logLevel);
         }
     },
 
@@ -29,14 +29,6 @@ let $library = {
             syn.$l.get('txt_guid').value = syn.$l.guid();
         },
 
-        btn_stringToArrayBuffer_click() {
-            syn.$l.get('txt_stringToArrayBuffer').value = syn.$l.stringToArrayBuffer('hello world');
-        },
-
-        btn_arrayBufferToString_click() {
-            syn.$l.get('txt_arrayBufferToString').value = syn.$l.arrayBufferToString(syn.$l.stringToArrayBuffer('hello world'));
-        },
-
         btn_random_click() {
             syn.$l.get('txt_random').value = syn.$l.random();
         },
@@ -47,6 +39,29 @@ let $library = {
 
         btn_random2_click() {
             syn.$l.get('txt_random').value = syn.$l.random(32, true);
+        },
+
+        btn_getElement_click() {
+            var el = syn.$l.getElement('txt_getElement');
+            syn.$l.get('txt_getElement').value = el ? el.tagName : 'null';
+        },
+
+        btn_getElement1_click() {
+            var el = syn.$l.getElement(syn.$l.get('txt_getElement'));
+            syn.$l.get('txt_getElement').value = el ? `${el.tagName}#${el.id}` : 'null';
+        },
+
+        btn_execPrefixFunc_click() {
+            var el = { mozTest: 'moz 접두사 값', test: '접두사 없음 값' };
+            syn.$l.get('txt_execPrefixFunc').value = syn.$l.execPrefixFunc(el, 'Test');
+        },
+
+        btn_stringToArrayBuffer_click() {
+            syn.$l.get('txt_stringToArrayBuffer').value = syn.$l.stringToArrayBuffer('hello world');
+        },
+
+        btn_arrayBufferToString_click() {
+            syn.$l.get('txt_arrayBufferToString').value = syn.$l.arrayBufferToString(syn.$l.stringToArrayBuffer('hello world'));
         },
 
         btn_dispatchClick_click() {
@@ -107,6 +122,12 @@ let $library = {
             syn.$l.get('txt_triggerEvent').value = syn.$l.triggerEvent('txt_addEvent', 'change');
         },
 
+        btn_getValue_click() {
+            syn.$l.get('txt_hasEvent');
+            var value = syn.$l.getValue('txt_getValue', '(기본값)');
+            syn.$l.get('txt_getValue').value = value;
+        },
+
         btn_get_click() {
             var els = syn.$l.get('btn_trigger', 'btn_triggerEvent', 'btn_get');
             syn.$l.get('txt_get').value = `${syn.$l.get('btn_get').textContent}, ${els.length}`;
@@ -122,8 +143,23 @@ let $library = {
             syn.$l.get('txt_getTagName').value = els.length;
         },
 
+        btn_querySelectorAll_click() {
+            var els = syn.$l.querySelectorAll('input[type="text"]');
+            syn.$l.get('txt_querySelectorAll').value = els.length;
+        },
+
+        btn_toEnumValue_click() {
+            syn.$l.get('txt_toEnumValue').value = syn.$l.toEnumValue(syn.$v.valueType, 'String');
+        },
+
         btn_toEnumText_click() {
             syn.$l.get('txt_toEnumText').value = syn.$l.toEnumText(syn.$v.valueType, 0);
+        },
+
+        btn_prettyTSD_click() {
+            var tsd = syn.$l.get('txt_prettyTSD').value;
+            var json = syn.$l.prettyTSD(tsd, true);
+            syn.$l.get('txt_prettyTSD').value = json;
         },
 
         btn_text2Json_click() {
@@ -253,6 +289,23 @@ let $library = {
             var blob = syn.$l.createBlob('hello world', 'text/plain');
             var file = await syn.$l.blobToFile(blob, 0);
             syn.$l.get('txt_fileToBlob').value = await syn.$l.fileToBlob(file);
+        },
+
+        async btn_urlToBase64_click() {
+            var base64 = await syn.$l.urlToBase64(location.href);
+            syn.$l.get('txt_urlToBase64').value = base64 ? base64.substring(0, 80) + '...' : '(조회 실패)';
+        },
+
+        async btn_resizeImage_click() {
+            var pngDataUri = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=';
+            var blob = syn.$l.dataUriToBlob(pngDataUri);
+            var result = await syn.$l.resizeImage(blob, 80);
+            syn.$l.get('txt_resizeImage').value = `width: ${result.width}, height: ${result.height}, size: ${result.blob.size}`;
+        },
+
+        btn_eventLog_click() {
+            syn.$l.eventLog('library.html', '$l.eventLog() 확인용 경고 로그입니다.', 'Warning');
+            syn.$l.get('txt_eventLog').value = `eventLogCount: ${syn.$l.eventLogCount}`;
         }
     }
 };
