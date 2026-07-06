@@ -1,8 +1,8 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
-    <title>request</title>
+    <title>requests</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="/lib/highlight.js/styles/atom-one-dark.min.css">
 </head>
@@ -20,19 +20,19 @@
                     <div class="card-body">
                         <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
                             <div class="col-12">
-                                <label class="form-label">syn.$r.version</label>
-                                <input type="text" id="txt_version" class="form-control">
+                                <label class="form-label">syn.$r.params</label>
+                                <input type="text" id="txt_params" class="form-control">
                                 <div class="form-text">
-                                    $request version을 반환합니다.
+                                    현재 url 주소에서 조회한 queryString 값을 key/value 형태로 보관합니다.
                                 </div>
                             </div>
                         </div>
                         <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
                             <div class="col-12">
-                                <label class="form-label">syn.$r.params</label>
-                                <input type="text" id="txt_params" class="form-control">
+                                <label class="form-label">syn.$r.path</label>
+                                <input type="text" id="txt_path" class="form-control">
                                 <div class="form-text">
-                                    현재 url 주소에서 queryString 값을 조회합니다.
+                                    현재 페이지의 location.pathname 값을 반환합니다.
                                 </div>
                             </div>
                         </div>
@@ -47,7 +47,7 @@
                     <div class="card-body">
                         <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
                             <div class="col-12">
-                                <label class="form-label">syn.$r.query()</label>
+                                <label class="form-label">syn.$r.query(param, url)</label>
                                 <input type="text" id="txt_query" class="form-control mt-2" />
                                 <button type="button" id="btn_query" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
                                 <button type="button" id="btn_query_url" class="mt-2 btn btn-primary" syn-events="['click']">사용자 지정 url 확인</button>
@@ -68,7 +68,7 @@
                         </div>
                         <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
                             <div class="col-12">
-                                <label class="form-label">syn.$r.toQueryString()</label>
+                                <label class="form-label">syn.$r.toQueryString(jsonObject, isQuestion)</label>
                                 <textarea id="txt_toQueryString_json" class="form-control" rows="5">{
     "page": "1",
     "size": "2kg",
@@ -86,18 +86,58 @@
                         </div>
                         <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
                             <div class="col-12">
-                                <label class="form-label">syn.$r.toUrlObject()</label>
+                                <label class="form-label">syn.$r.toUrlObject(url)</label>
                                 <input type="text" id="txt_toUrlObject" class="form-control mt-2" />
                                 <button type="button" id="btn_toUrlObject" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
                                 <button type="button" id="btn_toUrlObject_url" class="mt-2 btn btn-primary" syn-events="['click']">사용자 지정 url 확인</button>
                                 <div class="form-text">
-                                    url 주소의 데이터를 Json 객체로 변환합니다.
+                                    url 주소의 queryString 데이터를 Json 객체로 변환합니다.
                                 </div>
                             </div>
                         </div>
                         <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
                             <div class="col-12">
-                                <label class="form-label">syn.$r.isCorsEnabled()</label>
+                                <label class="form-label">syn.$r.resolveUrl(relativePath, baseUrl)</label>
+                                <input type="text" id="txt_resolveUrl" class="form-control mt-2" />
+                                <button type="button" id="btn_resolveUrl" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    상대 경로를 기준 url(baseUrl 또는 현재 페이지 주소)에 대한 절대 경로 url로 변환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$r.addQueryParam(param, value, urlStr)</label>
+                                <input type="text" id="txt_addQueryParam" class="form-control mt-2" />
+                                <button type="button" id="btn_addQueryParam" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    url에 queryString 파라미터를 추가합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$r.removeQueryParam(paramName, urlStr)</label>
+                                <input type="text" id="txt_removeQueryParam" class="form-control mt-2" />
+                                <button type="button" id="btn_removeQueryParam" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    url에서 queryString 파라미터를 제거합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$r.setQueryParam(param, value, urlStr)</label>
+                                <input type="text" id="txt_setQueryParam" class="form-control mt-2" />
+                                <button type="button" id="btn_setQueryParam" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    url의 queryString 파라미터 값을 설정(대체)합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$r.isCorsEnabled(url)</label>
                                 <input type="text" id="txt_isCorsEnabled" class="form-control mt-2" />
                                 <button type="button" id="btn_isCorsEnabled" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
                                 <div class="form-text">
@@ -107,7 +147,47 @@
                         </div>
                         <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
                             <div class="col-12">
-                                <label class="form-label">syn.$r.getCookie()</label>
+                                <label class="form-label">syn.$r.httpFetch(url).send(raw, options)</label>
+                                <input type="text" id="txt_httpFetch" class="form-control mt-2" />
+                                <button type="button" id="btn_httpFetch" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    fetch API 기반으로 http 요청을 수행합니다. (Proxy 객체의 send 액션만 지원)
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$r.httpRequest(method, url, data, callback, options)</label>
+                                <input type="text" id="txt_httpRequest" class="form-control mt-2" />
+                                <button type="button" id="btn_httpRequest" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    XMLHttpRequest 기반으로 http 요청을 수행합니다. callback 생략 시 Promise를 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$r.httpSubmit(url, formID, method)</label>
+                                <input type="text" id="txt_httpSubmit" class="form-control mt-2" placeholder="form1" />
+                                <button type="button" id="btn_httpSubmit" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    지정한 form을 method, url 값으로 설정 후 submit() 합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$r.httpDataSubmit(formData, url, callback, options)</label>
+                                <input type="text" id="txt_httpDataSubmit" class="form-control mt-2" />
+                                <button type="button" id="btn_httpDataSubmit" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    FormData 객체를 XMLHttpRequest로 POST 전송합니다. callback 생략 시 Promise를 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$r.getCookie(id)</label>
                                 <input type="text" id="txt_getCookie" class="form-control mt-2" />
                                 <button type="button" id="btn_getCookie" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
                                 <div class="form-text">
@@ -117,17 +197,17 @@
                         </div>
                         <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
                             <div class="col-12">
-                                <label class="form-label">syn.$r.setCookie()</label>
+                                <label class="form-label">syn.$r.setCookie(id, val, expires, path, domain, secure)</label>
                                 <input type="text" id="txt_setCookie" class="form-control mt-2" />
                                 <button type="button" id="btn_setCookie" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
                                 <div class="form-text">
-                                    현재 웹 사이트의 쿠키 데이터를 합니다.설정
+                                    현재 웹 사이트에 쿠키 데이터를 설정합니다.
                                 </div>
                             </div>
                         </div>
                         <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
                             <div class="col-12">
-                                <label class="form-label">syn.$r.deleteCookie()</label>
+                                <label class="form-label">syn.$r.deleteCookie(id, path, domain)</label>
                                 <input type="text" id="txt_deleteCookie" class="form-control mt-2" />
                                 <button type="button" id="btn_deleteCookie" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
                                 <div class="form-text">
