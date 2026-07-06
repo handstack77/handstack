@@ -1,4 +1,4 @@
-﻿$w.initializeScript({
+$w.initializeScript({
     btnGetType_click() {
         syn.$l.get('txtGetType').value = $object.getType('txtGetType')
     },
@@ -43,10 +43,18 @@
         syn.$l.getElementsById('pIsObject').innerHTML = member.name;
         syn.$l.get('txtIsObject').value = $object.isObject(member);
     },
+    btnIsObjectEmpty_click() {
+        var emptyObject = {};
+        syn.$l.getElementsById('pIsObjectEmpty').innerHTML = JSON.stringify(emptyObject);
+        syn.$l.get('txtIsObjectEmpty').value = $object.isObjectEmpty(emptyObject);
+    },
     btnIsBoolean_click() {
         var isbool = true;
         syn.$l.getElementsById('pIsBoolean').innerHTML = isbool
         syn.$l.get('txtIsBoolean').value = $object.isBoolean(isbool);
+    },
+    btnIsEmpty_click() {
+        syn.$l.get('txtIsEmpty').value = $object.isEmpty('');
     },
     btnClone_click() {
         var fruit = {
@@ -56,13 +64,5 @@
         syn.$l.getElementsById('pClone').innerHTML = fruit.apple
         syn.$l.get('txtClone').value = $object.clone(fruit.apple);
         //cloneNode
-    },
-    btnMethod_click() {
-        var targetObject = () => { };
-        $object.method(targetObject, 'addFunc', function() {
-            alert('addFunc !');
-        });
-
-        targetObject.prototype.addFunc();
     },
 })
