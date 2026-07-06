@@ -95,6 +95,31 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">$number.amount()</label>
+                                <input type="text" id="txt_amount" class="form-control" />
+                                <button type="button" id="btn_amount" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    비율(rate)과 전체(total) 값을 기준으로 실제 금액(수량) 값을 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">$number.aggregate()</label>
+                                <input type="text" id="txt_aggregate" class="form-control" />
+                                <button type="button" id="btn_aggregate_sum" class="mt-2 btn btn-primary" syn-events="['click']">SUM 확인</button>
+                                <button type="button" id="btn_aggregate_avg" class="mt-2 btn btn-primary" syn-events="['click']">AVG 확인</button>
+                                <button type="button" id="btn_aggregate_min" class="mt-2 btn btn-primary" syn-events="['click']">MIN 확인</button>
+                                <button type="button" id="btn_aggregate_max" class="mt-2 btn btn-primary" syn-events="['click']">MAX 확인</button>
+                                <button type="button" id="btn_aggregate_count" class="mt-2 btn btn-primary" syn-events="['click']">COUNT 확인</button>
+                                <button type="button" id="btn_aggregate_median" class="mt-2 btn btn-primary" syn-events="['click']">MEDIAN 확인</button>
+                                <div class="form-text">
+                                    콤마 문자열 또는 배열로 전달된 숫자 값들의 집계(SUM, MIN, MAX, COUNT, AVG, MEDIAN)를 계산합니다.
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

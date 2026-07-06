@@ -212,5 +212,32 @@ let $extension_date = {
             var weekOfMonths = $date.weekOfMonth(2023, 12);
             syn.$l.get('txt_weekOfMonth').value = JSON.stringify(weekOfMonths);
         },
+
+        btn_getAmPm_click() {
+            syn.$l.get('txt_amPm').value = $date.getAmPm($date.now());
+        },
+
+        btn_get12Time_click() {
+            syn.$l.get('txt_amPm').value = $date.get12Time($date.now());
+        },
+
+        btn_timeAgo_click() {
+            var date = $date.addMinute($date.now(), -10);
+            syn.$l.get('txt_timeAgo').value = $date.timeAgo(date);
+        },
+
+        btn_parseDate_click() {
+            var date = $date.parseDate('2023-12-31T00:00:00');
+            syn.$l.get('txt_parseDate').value = date.toString();
+        },
+
+        btn_dateConvert_encode_click() {
+            syn.$l.get('txt_dateConvert').value = $date.dateConvert($date.now(), 'E');
+        },
+
+        btn_dateConvert_decode_click() {
+            var encoded = $date.dateConvert($date.now(), 'E');
+            syn.$l.get('txt_dateConvert').value = $date.dateConvert(encoded, 'D');
+        },
     },
 };
