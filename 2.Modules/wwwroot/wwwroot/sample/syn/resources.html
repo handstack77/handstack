@@ -1,8 +1,8 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
-    <title>resource</title>
+    <title>resources</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="/lib/highlight.js/styles/atom-one-dark.min.css">
 </head>
@@ -10,7 +10,7 @@
     <div class="container">
         <div class="row">
             <div class="col-12">
-                <h1 class="mt-3">$resource: 다국어 리소스 정보를 관리합니다.</h1>
+                <h1 class="mt-3">syn.$res: 다국어(i18n) 리소스 등록과 화면 요소 번역 기능을 제공합니다.</h1>
 
                 <div class="card">
                     <div class="card-status-top bg-red"></div>
@@ -20,10 +20,37 @@
                     <div class="card-body">
                         <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
                             <div class="col-12">
-                                <label class="form-label">$resource.version</label>
-                                <input type="text" id="txt_version" class="form-control">
+                                <label class="form-label">syn.$res.localeID</label>
+                                <input type="text" id="txt_localeID" class="form-control" readonly>
                                 <div class="form-text">
-                                    $resource version을 반환합니다.
+                                    현재 적용된 로케일 ID입니다(기본값 <code>'ko-KR'</code>).
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$res.fullyQualifiedLocale</label>
+                                <input type="text" id="txt_fullyQualifiedLocale" class="form-control" readonly>
+                                <div class="form-text">
+                                    축약 언어 코드(ko, en, ja, zh)를 정식 로케일 문자열로 매핑한 참조 테이블입니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$res.translations (실시간 상태)</label>
+                                <textarea id="txt_translations" class="form-control" rows="4" readonly></textarea>
+                                <div class="form-text">
+                                    <code>add()</code>/<code>remove()</code>로 등록/삭제된 번역 키-값 저장소입니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$res.translateControls (실시간 상태)</label>
+                                <textarea id="txt_translateControls" class="form-control" rows="6" readonly></textarea>
+                                <div class="form-text">
+                                    페이지 로드 시 <code>[syn-i18n]</code> 속성이 있는 엘리먼트를 스캔하여 등록한 번역 대상 컨트롤 목록입니다. 아래 실습 요소 2개가 등록됩니다.
                                 </div>
                             </div>
                         </div>
@@ -33,19 +60,135 @@
                 <div class="card mt-3">
                     <div class="card-status-top bg-red"></div>
                     <div class="card-header">
-                        <h3 class="card-title">메서드</h3>
+                        <h3 class="card-title">실습 요소 (syn-i18n)</h3>
                     </div>
                     <div class="card-body">
                         <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
                             <div class="col-12">
-                                <label syn-i18n="progress" class="w120">기안자</label>
-                                <br />
-                                <div syn-i18n="retrieve" class="w120">테스트</div>
-                                <br />
-                                <input syn-i18n="{
-					                key: 'Interpolate', options: {
-					                bindSource: 'placeholder'
-				                }}" type="text" id="txtApplicationID" syn-datafield="ApplicationID" />
+                                <label class="w120">content 바인딩</label>
+                                <div id="demo_greeting" syn-i18n="greeting">Hello (원본 텍스트, 번역 전)</div>
+                                <div class="form-text">
+                                    i18n-key: <code>greeting</code>, bindSource: <code>content</code>(기본값) &rarr; <code>textContent</code>에 번역 결과가 반영됩니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="w120">placeholder 바인딩</label>
+                                <input type="text" id="demo_placeholder" syn-i18n="{key: 'placeholderDemo', options: { bindSource: 'placeholder' }}" />
+                                <div class="form-text">
+                                    i18n-key: <code>placeholderDemo</code>, bindSource: <code>placeholder</code> &rarr; <code>placeholder</code> 속성에 번역 결과가 반영됩니다.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mt-3">
+                    <div class="card-status-top bg-red"></div>
+                    <div class="card-header">
+                        <h3 class="card-title">메서드: 번역 데이터 등록/치환</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$res.add(id, val)</label>
+                                <input type="text" id="txt_add_id" class="form-control mt-2" value="greeting" placeholder="id" />
+                                <input type="text" id="txt_add_val" class="form-control mt-2" value="안녕하세요, HandStack!" placeholder="val" />
+                                <button type="button" id="btn_add" class="mt-2 btn btn-primary" syn-events="['click']">add() 실행</button>
+                                <div class="form-text">
+                                    지정 id(번역 키)에 번역 문자열을 등록합니다. 먼저 이 버튼을 실행한 뒤 아래 translatePage()/translateElement()를 실행하면 실습 요소에 반영됩니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$res.remove(id)</label>
+                                <input type="text" id="txt_remove_id" class="form-control mt-2" value="greeting" placeholder="id" />
+                                <button type="button" id="btn_remove" class="mt-2 btn btn-primary" syn-events="['click']">remove() 실행</button>
+                                <div class="form-text">
+                                    지정 id의 번역 데이터를 삭제합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$res.interpolate(message, interpolations)</label>
+                                <textarea id="txt_interpolate_message" class="form-control mt-2" rows="2">환영합니다, #{name}님! 오늘은 #{date} 입니다.</textarea>
+                                <textarea id="txt_interpolate_json" class="form-control mt-2" rows="2">{ "name": "홍길동", "date": "2026-07-06" }</textarea>
+                                <input type="text" id="txt_interpolate_result" class="form-control mt-2" readonly />
+                                <button type="button" id="btn_interpolate" class="mt-2 btn btn-primary" syn-events="['click']">interpolate() 실행</button>
+                                <div class="form-text">
+                                    <code>#{key}</code> 형태의 플레이스홀더를 interpolations 객체 값으로 치환합니다. 이 메서드는 순수 문자열 치환만 수행하며 화면 요소와는 무관합니다.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mt-3">
+                    <div class="card-status-top bg-red"></div>
+                    <div class="card-header">
+                        <h3 class="card-title">메서드: 컨트롤 조회/화면 반영</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$res.getControl(el)</label>
+                                <input type="text" id="txt_getControl_el" class="form-control mt-2" value="demo_greeting" />
+                                <textarea id="txt_getControl_result" class="form-control mt-2" rows="4" readonly></textarea>
+                                <button type="button" id="btn_getControl" class="mt-2 btn btn-primary" syn-events="['click']">getControl() 실행</button>
+                                <div class="form-text">
+                                    엘리먼트(또는 id)로 등록된 번역 컨트롤 설명 객체를 <code>translateControls</code>에서 찾아 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$res.translatePage()</label>
+                                <button type="button" id="btn_translatePage" class="mt-2 btn btn-primary" syn-events="['click']">translatePage() 실행</button>
+                                <div class="form-text">
+                                    등록된 모든 <code>[syn-i18n]</code> 요소를 현재 <code>translations</code> 저장소 값으로 한 번에 갱신합니다. 위 add()로 <code>greeting</code>, <code>placeholderDemo</code> 값을 등록한 뒤 실행해 보십시오.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$res.translateElement(el, options)</label>
+                                <input type="text" id="txt_translateElement_el" class="form-control mt-2" value="demo_greeting" />
+                                <button type="button" id="btn_translateElement" class="mt-2 btn btn-primary" syn-events="['click']">translateElement() 실행</button>
+                                <div class="form-text">
+                                    지정한 엘리먼트 하나만 골라 번역을 반영합니다. 내부적으로 <code>getControl()</code> + <code>translateControl()</code>을 호출합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$res.translateControl(control, options) / syn.$res.translateText(control, options)</label>
+                                <textarea id="txt_translateControl_result" class="form-control mt-2" rows="3" readonly></textarea>
+                                <button type="button" id="btn_translateControl" class="mt-2 btn btn-primary" syn-events="['click']">demo_greeting 컨트롤로 실행</button>
+                                <div class="form-text">
+                                    <code>getControl('demo_greeting')</code>로 얻은 컨트롤 설명 객체를 <code>translateControl()</code>(DOM 반영)과 <code>translateText()</code>(반영될 텍스트만 계산, 부수효과 없음)에 각각 전달합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$res.getBindSource(control)</label>
+                                <select id="sel_getBindSource" class="form-control mt-2">
+                                    <option value="text">text &rarr; innerText</option>
+                                    <option value="content" selected>content &rarr; textContent</option>
+                                    <option value="html">html &rarr; innerHTML</option>
+                                    <option value="url">url &rarr; src</option>
+                                    <option value="placeholder">placeholder &rarr; placeholder</option>
+                                    <option value="control">control &rarr; controlText</option>
+                                    <option value="value">value &rarr; value</option>
+                                </select>
+                                <input type="text" id="txt_getBindSource_result" class="form-control mt-2" readonly />
+                                <button type="button" id="btn_getBindSource" class="mt-2 btn btn-primary" syn-events="['click']">getBindSource() 실행</button>
+                                <div class="form-text">
+                                    control.bindSource 값에 대응하는 실제 DOM 속성 이름을 조회합니다.
+                                </div>
                             </div>
                         </div>
                     </div>
