@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>graphclient module.json 편집 도구</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="/qramework/img/favicon.ico" type="image/x-icon" />
+    <style>
+        .table thead th, .markdown > table thead th {
+            text-transform: none !important;
+        }
+
+        .nav-pills .nav-link.active,
+        .nav-pills .show > .nav-link {
+            border: 1px solid var(--tblr-nav-pills-link-active-color);
+        }
+
+        table {
+            border-collapse: collapse;
+            border-spacing: 0;
+            margin: 0 !important;
+        }
+
+        table td, table th {
+            border: 1px solid #ddd !important;
+            text-align: left;
+            text-overflow: ellipsis;
+            overflow: hidden;
+        }
+
+        table th {
+            background-color: #e0e0e0;
+        }
+    </style>
+</head>
+<body spellcheck="false" style="visibility: hidden;">
+    <div class="page">
+        <div class="container min-width:1320px bg-white border-1 mb-4 mt-4 p-2 border-color:#dadfe5!">
+            <div class="row g-0">
+                <div class="bg-white border-y card-header sticky-top">
+                    <h3 class="card-title">graphclient module.json 편집 도구</h3>
+                    <div class="card-actions">
+                        <div class="btn-group">
+                            <button type="button" id="btnJsonView" syn-events="['click']" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#mdlJsonView">
+                                <i class="f:18 ti ti-code mr:4"></i> JSON 보기
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-2">
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <td class="bg-body w:220px">ModuleID</td>
+                                <td>
+                                    <input type="text" id="txtModuleID" class="form-control">
+                                    <small class="form-hint">모듈을 식별하는 고유 ID 입니다.</small>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="bg-body">Name</td>
+                                <td>
+                                    <input type="text" id="txtName" class="form-control">
+                                    <small class="form-hint">모듈의 정보성 이름을 부여합니다.</small>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="bg-body">IsBundledWithHost</td>
+                                <td>
+                                    <label class="form-check mb-2">
+                                        <input id="chkIsBundledWithHost" class="form-check-input" type="checkbox">
+                                    </label>
+                                    <small class="form-hint">ack와 번들로 배포되는 모듈이면 true로 설정합니다.</small>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="bg-body">Version</td>
+                                <td>
+                                    <input type="text" id="txtVersion" class="form-control">
+                                    <small class="form-hint">모듈 버전을 주.부.수로 관리합니다.</small>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="bg-body">ModuleConfig</td>
+                                <td>
+                                    <table class="table">
+                                        <tbody>
+                                            <tr>
+                                                <td class="bg-body w:220px">AuthorizationKey</td>
+                                                <td>
+                                                    <input id="txtAuthorizationKey" type="text" class="form-control">
+                                                    <small class="form-hint mt-2">비워 두면 `SystemID + Environment + HostName` 조합을 사용합니다.</small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">BusinessServerUrl</td>
+                                                <td>
+                                                    <input id="txtBusinessServerUrl" type="text" class="form-control">
+                                                    <small class="form-hint mt-2">transact 모듈의 기본 실행 URL 입니다.</small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">CircuitBreakResetSecond</td>
+                                                <td>
+                                                    <input id="txtCircuitBreakResetSecond" type="number" class="form-control">
+                                                    <small class="form-hint mt-2">로그 서버 재시도 대기 시간(초)입니다.</small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">DefaultCommandTimeout</td>
+                                                <td>
+                                                    <input id="txtDefaultCommandTimeout" type="number" class="form-control">
+                                                    <small class="form-hint mt-2">Cypher 기본 실행 제한 시간(초)입니다.</small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">IsContractFileWatching</td>
+                                                <td>
+                                                    <label class="form-check mb-2">
+                                                        <input id="chkIsContractFileWatching" class="form-check-input" type="checkbox">
+                                                    </label>
+                                                    <small class="form-hint">계약 파일 변경 감시와 hot reload를 사용할지 여부입니다.</small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">DefaultDataSourceID</td>
+                                                <td>
+                                                    <input id="txtDefaultDataSourceID" type="text" class="form-control">
+                                                    <small class="form-hint">statement에 datasource가 없을 때 사용할 기본 GraphDataSourceID 입니다.</small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">AllowClientIP</td>
+                                                <td>
+                                                    <textarea id="txtAllowClientIP" rows="3" class="form-control resize:none"></textarea>
+                                                    <small class="form-hint mt-2">줄바꿈 또는 쉼표로 여러 IP를 입력합니다. `*`는 전체 허용입니다.</small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">
+                                                    ContractBasePath
+                                                    <div class="mt-2">
+                                                        <button type="button" id="btnContractBasePath" syn-events="['click']" class="btn btn-icon bg-muted-lt">
+                                                            <i class="f:18 ti ti-plus"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="table-responsive">
+                                                        <table id="tblContractBasePath" class="table table-vcenter card-table border-x border-y">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>디렉토리 경로</th>
+                                                                    <th class="w-1">관리</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody id="tblContractBasePathItems"></tbody>
+                                                        </table>
+                                                        <small class="form-hint mt-2">XML Cypher 계약이 위치한 루트 디렉토리 목록입니다.</small>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">IsTransactionLogging</td>
+                                                <td>
+                                                    <label class="form-check mb-2">
+                                                        <input id="chkIsTransactionLogging" class="form-check-input" type="checkbox">
+                                                    </label>
+                                                    <small class="form-hint">graphclient 요청/응답 로그를 남길지 여부입니다.</small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">ModuleLogFilePath</td>
+                                                <td>
+                                                    <input id="txtModuleLogFilePath" type="text" class="form-control">
+                                                    <small class="form-hint">모듈 로그 파일 경로입니다.</small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">IsLogServer</td>
+                                                <td>
+                                                    <label class="form-check mb-2">
+                                                        <input id="chkIsLogServer" class="form-check-input" type="checkbox">
+                                                    </label>
+                                                    <small class="form-hint">logger 모듈로 로그를 전송할지 여부입니다.</small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">LogServerUrl</td>
+                                                <td>
+                                                    <input id="txtLogServerUrl" type="text" class="form-control">
+                                                    <small class="form-hint">logger 모듈 API 경로입니다.</small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">IsProfileLogging</td>
+                                                <td>
+                                                    <label class="form-check mb-2">
+                                                        <input id="chkIsProfileLogging" class="form-check-input" type="checkbox">
+                                                    </label>
+                                                    <small class="form-hint">Bolt 요청/응답 프로파일 로그를 남길지 여부입니다.</small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">ProfileLogFilePath</td>
+                                                <td>
+                                                    <input id="txtProfileLogFilePath" type="text" class="form-control">
+                                                    <small class="form-hint">프로파일 로그 파일 경로입니다.</small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">
+                                                    EventAction
+                                                    <div class="mt-2">
+                                                        <button type="button" id="btnEventAction" syn-events="['click']" class="btn btn-icon bg-muted-lt">
+                                                            <i class="f:18 ti ti-plus"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="table-responsive">
+                                                        <table id="tblEventAction" class="table table-vcenter card-table border-x border-y">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>항목</th>
+                                                                    <th class="w-1">관리</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody id="tblEventActionItems"></tbody>
+                                                        </table>
+                                                        <small class="form-hint mt-2">모듈 간 Mediator 발신 이벤트 식별자입니다.</small>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">
+                                                    SubscribeAction
+                                                    <div class="mt-2">
+                                                        <button type="button" id="btnSubscribeAction" syn-events="['click']" class="btn btn-icon bg-muted-lt">
+                                                            <i class="f:18 ti ti-plus"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="table-responsive">
+                                                        <table id="tblSubscribeAction" class="table table-vcenter card-table border-x border-y">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>항목</th>
+                                                                    <th class="w-1">관리</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody id="tblSubscribeActionItems"></tbody>
+                                                        </table>
+                                                        <small class="form-hint mt-2">모듈 간 Mediator 수신 이벤트 식별자입니다.</small>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">
+                                                    GraphDataSource
+                                                    <div class="mt-2">
+                                                        <button type="button" id="btnGraphDataSource" syn-events="['click']" class="btn btn-icon bg-muted-lt">
+                                                            <i class="f:18 ti ti-plus"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="table-responsive">
+                                                        <table id="tblGraphDataSource" class="table table-vcenter card-table border-x border-y">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>ApplicationID</th>
+                                                                    <th>ProjectID</th>
+                                                                    <th>DataSourceID</th>
+                                                                    <th>GraphProvider</th>
+                                                                    <th>Database</th>
+                                                                    <th class="w-1">관리</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody id="tblGraphDataSourceItems"></tbody>
+                                                        </table>
+                                                        <small class="form-hint mt-2">`Neo4j`와 `Memgraph`만 지원하며, `bolt://` 또는 `neo4j://` URI만 허용합니다.</small>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="mdlJsonView" class="modal fade" tabindex="-1" role="dialog" aria-modal="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">JSON 보기</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <textarea id="txtJsonView" class="form-control resize:none white-space:nowrap" rows="30"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="btnImportDefaultConfig" syn-events="['click']" class="btn me-auto">
+                        <i class="f:18 ti ti-text-plus mr:4"></i> 기본값 가져오기
+                    </button>
+                    <button type="button" id="btnApplyConfig" syn-events="['click']" class="btn btn-primary" data-bs-dismiss="modal">적용하기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="mdlManageAction" class="modal fade" tabindex="-1" role="dialog" aria-modal="true">
+        <input id="txtActionListType" type="hidden">
+        <input id="txtBaseActionValue" type="hidden">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 id="lblActionTitle" class="modal-title"></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <label class="col-3 col-form-label required">항목 값</label>
+                        <div class="col">
+                            <input id="txtActionValue" type="text" class="form-control">
+                            <small class="form-hint">예: `graphclient.Events.GraphClientRequest`</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="btnManageAction" syn-events="['click']" class="btn btn-primary">확인</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="mdlContractBasePath" class="modal fade" tabindex="-1" role="dialog" aria-modal="true">
+        <input id="txtBaseItemPathID" type="hidden">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 id="lblItemPathTitle" class="modal-title"></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <label class="col-3 col-form-label required">디렉토리 경로</label>
+                        <div class="col">
+                            <input id="txtItemPathID" type="text" class="form-control">
+                            <small class="form-hint">예: `../contracts/graphclient`</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="btnManageContractBasePath" syn-events="['click']" class="btn btn-primary">확인</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="mdlGraphDataSource" class="modal fade" tabindex="-1" role="dialog" aria-modal="true">
+        <input id="txtBaseGraphDataSourceID" type="hidden">
+        <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 id="lblTitle_GraphDataSource" class="modal-title"></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <label class="col-3 col-form-label required">ApplicationID</label>
+                        <div class="col">
+                            <input id="txtApplicationID_GraphDataSource" type="text" class="form-control">
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <label class="col-3 col-form-label required">ProjectID</label>
+                        <div class="col">
+                            <input id="txtProjectID_GraphDataSource" type="text" class="form-control">
+                            <small class="form-hint">쉼표로 여러 프로젝트를 지정하거나 `*`로 전체를 허용할 수 있습니다.</small>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <label class="col-3 col-form-label required">DataSourceID</label>
+                        <div class="col">
+                            <input id="txtDataSourceID_GraphDataSource" type="text" class="form-control">
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <label class="col-3 col-form-label required">GraphProvider</label>
+                        <div class="col">
+                            <select id="ddlGraphProvider_GraphDataSource" class="form-select">
+                                <option value="Neo4j" selected>Neo4j</option>
+                                <option value="Memgraph">Memgraph</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <label class="col-3 col-form-label required">ConnectionString</label>
+                        <div class="col">
+                            <textarea id="txtConnectionString_GraphDataSource" rows="3" class="form-control resize:none"></textarea>
+                            <small class="form-hint mt-2">예: `bolt://localhost:7687`, `neo4j://cluster:7687`</small>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <label class="col-3 col-form-label">UserName</label>
+                        <div class="col">
+                            <input id="txtUserName_GraphDataSource" type="text" class="form-control">
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <label class="col-3 col-form-label">Password</label>
+                        <div class="col">
+                            <input id="txtPassword_GraphDataSource" type="text" class="form-control">
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <label class="col-3 col-form-label">Database</label>
+                        <div class="col">
+                            <input id="txtDatabase_GraphDataSource" type="text" class="form-control">
+                            <small class="form-hint">Neo4j는 명시적 DB 선택에 사용하고, Memgraph는 보통 `memgraph` 값을 둡니다.</small>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <label class="col-3 col-form-label">IsEncryption</label>
+                        <div class="col">
+                            <label class="form-check mb-2">
+                                <input id="chkIsEncryption_GraphDataSource" class="form-check-input" type="checkbox">
+                            </label>
+                            <small class="form-hint">연결 문자열, 사용자명, 비밀번호, 데이터베이스 값이 암호화돼 있으면 체크합니다.</small>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <label class="col-3 col-form-label">Comment</label>
+                        <div class="col">
+                            <textarea id="txtComment_GraphDataSource" rows="3" class="form-control resize:none"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="btnManageGraphDataSource" syn-events="['click']" class="btn btn-primary">확인</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script id="tplActionItem" type="x-tmpl-mustache">
+     {{#items}}
+    <tr syn-value="{{EventID}}">
+        <td>{{EventID}}</td>
+        <td>
+            <div class="btn-list flex-nowrap">
+                <button name="btnActionEdit" type="button" class="btn btn-icon bg-muted-lt">
+                    <i class="f:18 ti ti-edit"></i>
+                </button>
+                <button name="btnActionDelete" type="button" class="btn btn-icon bg-muted-lt">
+                    <i class="f:18 ti ti-minus"></i>
+                </button>
+            </div>
+        </td>
+    </tr>
+     {{/items}}
+    </script>
+
+    <script id="tplContractBasePathItem" type="x-tmpl-mustache">
+     {{#items}}
+    <tr syn-value="{{ItemPathID}}">
+        <td>{{ItemPathID}}</td>
+        <td>
+            <div class="btn-list flex-nowrap">
+                <button name="btnActionEdit" type="button" class="btn btn-icon bg-muted-lt">
+                    <i class="f:18 ti ti-edit"></i>
+                </button>
+                <button name="btnActionDelete" type="button" class="btn btn-icon bg-muted-lt">
+                    <i class="f:18 ti ti-minus"></i>
+                </button>
+            </div>
+        </td>
+    </tr>
+     {{/items}}
+    </script>
+
+    <script id="tplGraphDataSourceItem" type="x-tmpl-mustache">
+     {{#items}}
+    <tr syn-value="{{ApplicationID}}|{{ProjectID}}|{{DataSourceID}}|{{GraphProvider}}">
+        <td>{{ApplicationID}}</td>
+        <td>{{ProjectID}}</td>
+        <td>{{DataSourceID}}</td>
+        <td>{{GraphProvider}}</td>
+        <td>{{Database}}</td>
+        <td>
+            <div class="btn-list flex-nowrap">
+                <button name="btnActionEdit" type="button" class="btn btn-icon bg-muted-lt">
+                    <i class="f:18 ti ti-edit"></i>
+                </button>
+                <button name="btnActionDelete" type="button" class="btn btn-icon bg-muted-lt">
+                    <i class="f:18 ti ti-minus"></i>
+                </button>
+            </div>
+        </td>
+    </tr>
+     {{/items}}
+    </script>
+
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

@@ -17,7 +17,7 @@
         <IsPublishable>True</IsPublishable>
         <AssemblyName>rdy</AssemblyName>
         <RootNamespace>rdy</RootNamespace>
-        <Description>ack 호스트와 command, dbclient, function, logger, repository, transact, wwwroot 모듈을 정적으로 결합한 단일 실행 프로젝트</Description>
+        <Description>ack 호스트와 command, dbclient, function, graphclient, logger, repository, transact, wwwroot 모듈을 정적으로 결합한 단일 실행 프로젝트</Description>
         <NoWarn>IL3000;IL3002;NU1903;ASP0023;NU1608;NU1510;CA1416;</NoWarn>
     </PropertyGroup>
 
@@ -73,6 +73,7 @@
         <ProjectReference Include="$(HANDSTACK_SRC)/2.Modules/command/command.csproj" />
         <ProjectReference Include="$(HANDSTACK_SRC)/2.Modules/dbclient/dbclient.csproj" />
         <ProjectReference Include="$(HANDSTACK_SRC)/2.Modules/function/function.csproj" />
+        <ProjectReference Include="$(HANDSTACK_SRC)/2.Modules/graphclient/graphclient.csproj" />
         <ProjectReference Include="$(HANDSTACK_SRC)/2.Modules/logger/logger.csproj" />
         <ProjectReference Include="$(HANDSTACK_SRC)/2.Modules/repository/repository.csproj" />
         <ProjectReference Include="$(HANDSTACK_SRC)/2.Modules/transact/transact.csproj" />

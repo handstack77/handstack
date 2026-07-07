@@ -22,6 +22,7 @@ namespace rdy.Extensions
             ["command"] = typeof(global::command.ModuleInitializer).Assembly,
             ["dbclient"] = typeof(global::dbclient.ModuleInitializer).Assembly,
             ["function"] = typeof(global::function.ModuleInitializer).Assembly,
+            ["graphclient"] = typeof(global::graphclient.ModuleInitializer).Assembly,
             ["logger"] = typeof(global::logger.ModuleInitializer).Assembly,
             ["repository"] = typeof(global::repository.ModuleInitializer).Assembly,
             ["transact"] = typeof(global::transact.ModuleInitializer).Assembly,
