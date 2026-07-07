@@ -660,6 +660,10 @@
                     case 'element':
                         item.js = ['/uicontrols/Element/Element.js'];
                         break;
+                    case 'propertygrid':
+                        item.css = ['/uicontrols/PropertyGrid/PropertyGrid.css'];
+                        item.js = ['/uicontrols/PropertyGrid/PropertyGrid.js'];
+                        break;
                 }
             }
 
@@ -907,6 +911,7 @@
                         '/uicontrols/TreeView/TreeView.css',
                         '/uicontrols/WebGrid/WebGrid.css',
                         '/uicontrols/WebGrid/AUIGrid.css',
+                        '/uicontrols/PropertyGrid/PropertyGrid.css',
 
                         // 프로젝트 화면 디자인
                         '/css/base.css',

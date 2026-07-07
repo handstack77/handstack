@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>PropertyGrid - Options 예제</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <h3>PropertyGrid Options 예제</h3>
+        <p>
+            <code>meta</code>로 각 속성의 <code>group</code>(그룹 묶음), <code>type</code>(입력 위젯 종류),
+            <code>options</code>(select 목록 / number의 min·max·step), <code>description</code>(도움말 툴팁)을 지정할 수 있고,
+            <code>isCollapsible: true</code>로 그룹을 접고 펼칠 수 있으며 <code>sort: true</code>로 속성 이름을 정렬할 수 있습니다.
+        </p>
+
+        <syn_propertygrid id="pgOptions" syn-options="{
+            sort: true,
+            isCollapsible: true,
+            data: {
+                ControlID: 'txtName',
+                Width: 240,
+                Mode: 'edit',
+                ThemeColor: '#16a34a',
+                ReadOnlyYN: false,
+                ExtraConfig: { placeholder: '이름을 입력하세요' }
+            },
+            meta: {
+                ControlID: { group: 'General', description: '컨트롤 식별자(id)' },
+                Width: { group: 'Layout', type: 'number', options: { min: 0, max: 999, step: 10 } },
+                Mode: { group: 'Behavior', type: 'options', options: ['view', 'edit', 'readonly'] },
+                ThemeColor: { group: 'Layout', type: 'color' },
+                ReadOnlyYN: { group: 'Behavior', type: 'boolean' },
+                ExtraConfig: { group: 'Advanced', type: 'json', description: 'JSON 형식으로 편집합니다.' }
+            }
+        }"></syn_propertygrid>
+
+        <hr />
+
+        <div>
+            <input type="button" id="btnGetValue" value="getValue" syn-events="['click']" />
+        </div>
+
+        <hr />
+
+        <div>
+            <div>결과 / 이벤트 로그</div>
+            <pre id="preLog"></pre>
+        </div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

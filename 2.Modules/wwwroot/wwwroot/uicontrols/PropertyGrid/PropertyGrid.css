@@ -1,8 +1,3 @@
-/**
- * PropertyGrid
- * Based on jqPropertyGrid by YuvalW (MIT), adapted for HandStack uicontrols.
- */
-
 .syn-propertygrid {
     width: 100%;
     color: #1f2937;
@@ -27,20 +22,24 @@
     user-select: none;
 }
 
+.syn-propertygrid .pgRow {
+    height: 40px;
+}
+
 .syn-propertygrid .pgGroupCell {
-    padding: 6px 8px;
+    padding: 4px;
     border: 1px solid var(--tblr-border-color, #d1d5db);
 }
 
 .syn-propertygrid .pgCell {
-    padding: 6px 8px;
+    padding: 4px;
     border: 1px solid var(--tblr-border-color, #d1d5db);
     vertical-align: middle;
 }
 
 .syn-propertygrid .pgNameCell {
     width: 36%;
-    min-width: 140px;
+    min-width: 120px;
     background-color: var(--tblr-bg-surface-tertiary, #fafafa);
     color: var(--tblr-body-color, #1f2937);
 }
@@ -66,9 +65,10 @@
 .syn-propertygrid select.pgInput,
 .syn-propertygrid input.pgInput,
 .syn-propertygrid textarea.pgInput {
+    display: block;
     width: 100%;
     min-height: 30px;
-    padding: 4px 8px;
+    padding: 4px;
     border: var(--tblr-border-width, 1px) solid var(--tblr-border-color, #d1d5db);
     border-radius: var(--tblr-border-radius, 4px);
     background-color: var(--tblr-bg-forms, #fff);
@@ -87,6 +87,16 @@
     overflow: auto;
 }
 
+.syn-propertygrid input.pgInput:focus,
+.syn-propertygrid select.pgInput:focus,
+.syn-propertygrid textarea.pgInput:focus {
+    color: var(--tblr-body-color);
+    background-color: var(--tblr-bg-forms, #fff);
+    border-color: #83b7e8;
+    outline: 0;
+    box-shadow: var(--tblr-shadow-input), 0 0 0 .25rem rgba(var(--tblr-primary-rgb), .25);
+}
+
 .syn-propertygrid input[type="checkbox"].pgInput,
 .syn-propertygrid input[type="color"].pgInput {
     width: auto;
@@ -97,6 +107,35 @@
 .syn-propertygrid input[type="color"].pgInput {
     width: 42px;
     height: 30px;
+}
+
+.syn-propertygrid input[type="checkbox"].pgInput {
+    --tblr-form-check-bg: var(--tblr-bg-forms);
+    flex-shrink: 0;
+    width: 1.25rem;
+    height: 1.25rem;
+    vertical-align: top;
+    appearance: none;
+    background-color: var(--tblr-form-check-bg);
+    background-image: var(--tblr-form-check-bg-image);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    border: var(--tblr-border-width) solid var(--tblr-border-color-translucent);
+    border-radius: var(--tblr-border-radius);
+    print-color-adjust: exact;
+}
+
+.syn-propertygrid input[type="checkbox"].pgInput:checked {
+    --tblr-form-check-bg-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M4 8.5l2.5 2.5l5.5 -5.5'/%3e%3c/svg%3e");
+    background-color: var(--tblr-primary);
+    border-color: var(--tblr-border-color-translucent);
+}
+
+.syn-propertygrid input[type="checkbox"].pgInput:focus {
+    border-color: #83b7e8;
+    outline: 0;
+    box-shadow: 0 0 0 .25rem rgba(var(--tblr-primary-rgb), .25);
 }
 
 .syn-propertygrid .pgInput:disabled,

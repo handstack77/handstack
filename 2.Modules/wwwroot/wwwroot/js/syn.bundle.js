@@ -1,4 +1,4 @@
-﻿/*!
+/*!
  * Tabler v1.3.2 (https://tabler.io)
  * Copyright 2018-2025 The Tabler Authors
  * Copyright 2018-2025 codecalm.net Paweł Kuna
@@ -3477,37 +3477,12 @@ $.extend($.moogle.contextmenu, {
 !function(e,t){"object"==typeof exports&&"undefined"!=typeof module?t(exports):"function"==typeof define&&define.amd?define(["exports"],t):t((e="undefined"!=typeof globalThis?globalThis:e||self).marked={})}(this,(function(e){"use strict";function t(){return{async:!1,breaks:!1,extensions:null,gfm:!0,hooks:null,pedantic:!1,renderer:null,silent:!1,tokenizer:null,walkTokens:null}}function n(t){e.defaults=t}e.defaults={async:!1,breaks:!1,extensions:null,gfm:!0,hooks:null,pedantic:!1,renderer:null,silent:!1,tokenizer:null,walkTokens:null};const s={exec:()=>null};function r(e,t=""){let n="string"==typeof e?e:e.source;const s={replace:(e,t)=>{let r="string"==typeof t?t:t.source;return r=r.replace(i.caret,"$1"),n=n.replace(e,r),s},getRegex:()=>new RegExp(n,t)};return s}const i={codeRemoveIndent:/^(?: {1,4}| {0,3}\t)/gm,outputLinkReplace:/\\([\[\]])/g,indentCodeCompensation:/^(\s+)(?:```)/,beginningSpace:/^\s+/,endingHash:/#$/,startingSpaceChar:/^ /,endingSpaceChar:/ $/,nonSpaceChar:/[^ ]/,newLineCharGlobal:/\n/g,tabCharGlobal:/\t/g,multipleSpaceGlobal:/\s+/g,blankLine:/^[ \t]*$/,doubleBlankLine:/\n[ \t]*\n[ \t]*$/,blockquoteStart:/^ {0,3}>/,blockquoteSetextReplace:/\n {0,3}((?:=+|-+) *)(?=\n|$)/g,blockquoteSetextReplace2:/^ {0,3}>[ \t]?/gm,listReplaceTabs:/^\t+/,listReplaceNesting:/^ {1,4}(?=( {4})*[^ ])/g,listIsTask:/^\[[ xX]\] /,listReplaceTask:/^\[[ xX]\] +/,anyLine:/\n.*\n/,hrefBrackets:/^<(.*)>$/,tableDelimiter:/[:|]/,tableAlignChars:/^\||\| *$/g,tableRowBlankLine:/\n[ \t]*$/,tableAlignRight:/^ *-+: *$/,tableAlignCenter:/^ *:-+: *$/,tableAlignLeft:/^ *:-+ *$/,startATag:/^<a /i,endATag:/^<\/a>/i,startPreScriptTag:/^<(pre|code|kbd|script)(\s|>)/i,endPreScriptTag:/^<\/(pre|code|kbd|script)(\s|>)/i,startAngleBracket:/^</,endAngleBracket:/>$/,pedanticHrefTitle:/^([^'"]*[^\s])\s+(['"])(.*)\2/,unicodeAlphaNumeric:/[\p{L}\p{N}]/u,escapeTest:/[&<>"']/,escapeReplace:/[&<>"']/g,escapeTestNoEncode:/[<>"']|&(?!(#\d{1,7}|#[Xx][a-fA-F0-9]{1,6}|\w+);)/,escapeReplaceNoEncode:/[<>"']|&(?!(#\d{1,7}|#[Xx][a-fA-F0-9]{1,6}|\w+);)/g,unescapeTest:/&(#(?:\d+)|(?:#x[0-9A-Fa-f]+)|(?:\w+));?/gi,caret:/(^|[^\[])\^/g,percentDecode:/%25/g,findPipe:/\|/g,splitPipe:/ \|/,slashPipe:/\\\|/g,carriageReturn:/\r\n|\r/g,spaceLine:/^ +$/gm,notSpaceStart:/^\S*/,endingNewline:/\n$/,listItemRegex:e=>new RegExp(`^( {0,3}${e})((?:[\t ][^\\n]*)?(?:\\n|$))`),nextBulletRegex:e=>new RegExp(`^ {0,${Math.min(3,e-1)}}(?:[*+-]|\\d{1,9}[.)])((?:[ \t][^\\n]*)?(?:\\n|$))`),hrRegex:e=>new RegExp(`^ {0,${Math.min(3,e-1)}}((?:- *){3,}|(?:_ *){3,}|(?:\\* *){3,})(?:\\n+|$)`),fencesBeginRegex:e=>new RegExp(`^ {0,${Math.min(3,e-1)}}(?:\`\`\`|~~~)`),headingBeginRegex:e=>new RegExp(`^ {0,${Math.min(3,e-1)}}#`),htmlBeginRegex:e=>new RegExp(`^ {0,${Math.min(3,e-1)}}<(?:[a-z].*>|!--)`,"i")},l=/^ {0,3}((?:-[\t ]*){3,}|(?:_[ \t]*){3,}|(?:\*[ \t]*){3,})(?:\n+|$)/,o=/(?:[*+-]|\d{1,9}[.)])/,a=/^(?!bull |blockCode|fences|blockquote|heading|html|table)((?:.|\n(?!\s*?\n|bull |blockCode|fences|blockquote|heading|html|table))+?)\n {0,3}(=+|-+) *(?:\n+|$)/,c=r(a).replace(/bull/g,o).replace(/blockCode/g,/(?: {4}| {0,3}\t)/).replace(/fences/g,/ {0,3}(?:`{3,}|~{3,})/).replace(/blockquote/g,/ {0,3}>/).replace(/heading/g,/ {0,3}#{1,6}/).replace(/html/g,/ {0,3}<[^\n>]+>\n/).replace(/\|table/g,"").getRegex(),h=r(a).replace(/bull/g,o).replace(/blockCode/g,/(?: {4}| {0,3}\t)/).replace(/fences/g,/ {0,3}(?:`{3,}|~{3,})/).replace(/blockquote/g,/ {0,3}>/).replace(/heading/g,/ {0,3}#{1,6}/).replace(/html/g,/ {0,3}<[^\n>]+>\n/).replace(/table/g,/ {0,3}\|?(?:[:\- ]*\|)+[\:\- ]*\n/).getRegex(),p=/^([^\n]+(?:\n(?!hr|heading|lheading|blockquote|fences|list|html|table| +\n)[^\n]+)*)/,u=/(?!\s*\])(?:\\.|[^\[\]\\])+/,g=r(/^ {0,3}\[(label)\]: *(?:\n[ \t]*)?([^<\s][^\s]*|<.*?>)(?:(?: +(?:\n[ \t]*)?| *\n[ \t]*)(title))? *(?:\n+|$)/).replace("label",u).replace("title",/(?:"(?:\\"?|[^"\\])*"|'[^'\n]*(?:\n[^'\n]+)*\n?'|\([^()]*\))/).getRegex(),k=r(/^( {0,3}bull)([ \t][^\n]+?)?(?:\n|$)/).replace(/bull/g,o).getRegex(),d="address|article|aside|base|basefont|blockquote|body|caption|center|col|colgroup|dd|details|dialog|dir|div|dl|dt|fieldset|figcaption|figure|footer|form|frame|frameset|h[1-6]|head|header|hr|html|iframe|legend|li|link|main|menu|menuitem|meta|nav|noframes|ol|optgroup|option|p|param|search|section|summary|table|tbody|td|tfoot|th|thead|title|tr|track|ul",f=/<!--(?:-?>|[\s\S]*?(?:-->|$))/,x=r("^ {0,3}(?:<(script|pre|style|textarea)[\\s>][\\s\\S]*?(?:</\\1>[^\\n]*\\n+|$)|comment[^\\n]*(\\n+|$)|<\\?[\\s\\S]*?(?:\\?>\\n*|$)|<![A-Z][\\s\\S]*?(?:>\\n*|$)|<!\\[CDATA\\[[\\s\\S]*?(?:\\]\\]>\\n*|$)|</?(tag)(?: +|\\n|/?>)[\\s\\S]*?(?:(?:\\n[ \t]*)+\\n|$)|<(?!script|pre|style|textarea)([a-z][\\w-]*)(?:attribute)*? */?>(?=[ \\t]*(?:\\n|$))[\\s\\S]*?(?:(?:\\n[ \t]*)+\\n|$)|</(?!script|pre|style|textarea)[a-z][\\w-]*\\s*>(?=[ \\t]*(?:\\n|$))[\\s\\S]*?(?:(?:\\n[ \t]*)+\\n|$))","i").replace("comment",f).replace("tag",d).replace("attribute",/ +[a-zA-Z:_][\w.:-]*(?: *= *"[^"\n]*"| *= *'[^'\n]*'| *= *[^\s"'=<>`]+)?/).getRegex(),b=r(p).replace("hr",l).replace("heading"," {0,3}#{1,6}(?:\\s|$)").replace("|lheading","").replace("|table","").replace("blockquote"," {0,3}>").replace("fences"," {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace("list"," {0,3}(?:[*+-]|1[.)]) ").replace("html","</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)").replace("tag",d).getRegex(),m={blockquote:r(/^( {0,3}> ?(paragraph|[^\n]*)(?:\n|$))+/).replace("paragraph",b).getRegex(),code:/^((?: {4}| {0,3}\t)[^\n]+(?:\n(?:[ \t]*(?:\n|$))*)?)+/,def:g,fences:/^ {0,3}(`{3,}(?=[^`\n]*(?:\n|$))|~{3,})([^\n]*)(?:\n|$)(?:|([\s\S]*?)(?:\n|$))(?: {0,3}\1[~`]* *(?=\n|$)|$)/,heading:/^ {0,3}(#{1,6})(?=\s|$)(.*)(?:\n+|$)/,hr:l,html:x,lheading:c,list:k,newline:/^(?:[ \t]*(?:\n|$))+/,paragraph:b,table:s,text:/^[^\n]+/},w=r("^ *([^\\n ].*)\\n {0,3}((?:\\| *)?:?-+:? *(?:\\| *:?-+:? *)*(?:\\| *)?)(?:\\n((?:(?! *\\n|hr|heading|blockquote|code|fences|list|html).*(?:\\n|$))*)\\n*|$)").replace("hr",l).replace("heading"," {0,3}#{1,6}(?:\\s|$)").replace("blockquote"," {0,3}>").replace("code","(?: {4}| {0,3}\t)[^\\n]").replace("fences"," {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace("list"," {0,3}(?:[*+-]|1[.)]) ").replace("html","</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)").replace("tag",d).getRegex(),y={...m,lheading:h,table:w,paragraph:r(p).replace("hr",l).replace("heading"," {0,3}#{1,6}(?:\\s|$)").replace("|lheading","").replace("table",w).replace("blockquote"," {0,3}>").replace("fences"," {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace("list"," {0,3}(?:[*+-]|1[.)]) ").replace("html","</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)").replace("tag",d).getRegex()},$={...m,html:r("^ *(?:comment *(?:\\n|\\s*$)|<(tag)[\\s\\S]+?</\\1> *(?:\\n{2,}|\\s*$)|<tag(?:\"[^\"]*\"|'[^']*'|\\s[^'\"/>\\s]*)*?/?> *(?:\\n{2,}|\\s*$))").replace("comment",f).replace(/tag/g,"(?!(?:a|em|strong|small|s|cite|q|dfn|abbr|data|time|code|var|samp|kbd|sub|sup|i|b|u|mark|ruby|rt|rp|bdi|bdo|span|br|wbr|ins|del|img)\\b)\\w+(?!:|[^\\w\\s@]*@)\\b").getRegex(),def:/^ *\[([^\]]+)\]: *<?([^\s>]+)>?(?: +(["(][^\n]+[")]))? *(?:\n+|$)/,heading:/^(#{1,6})(.*)(?:\n+|$)/,fences:s,lheading:/^(.+?)\n {0,3}(=+|-+) *(?:\n+|$)/,paragraph:r(p).replace("hr",l).replace("heading"," *#{1,6} *[^\n]").replace("lheading",c).replace("|table","").replace("blockquote"," {0,3}>").replace("|fences","").replace("|list","").replace("|html","").replace("|tag","").getRegex()},R=/^( {2,}|\\)\n(?!\s*$)/,S=/[\p{P}\p{S}]/u,T=/[\s\p{P}\p{S}]/u,z=/[^\s\p{P}\p{S}]/u,A=r(/^((?![*_])punctSpace)/,"u").replace(/punctSpace/g,T).getRegex(),_=/(?!~)[\p{P}\p{S}]/u,P=/^(?:\*+(?:((?!\*)punct)|[^\s*]))|^_+(?:((?!_)punct)|([^\s_]))/,I=r(P,"u").replace(/punct/g,S).getRegex(),L=r(P,"u").replace(/punct/g,_).getRegex(),B="^[^_*]*?__[^_*]*?\\*[^_*]*?(?=__)|[^*]+(?=[^*])|(?!\\*)punct(\\*+)(?=[\\s]|$)|notPunctSpace(\\*+)(?!\\*)(?=punctSpace|$)|(?!\\*)punctSpace(\\*+)(?=notPunctSpace)|[\\s](\\*+)(?!\\*)(?=punct)|(?!\\*)punct(\\*+)(?!\\*)(?=punct)|notPunctSpace(\\*+)(?=notPunctSpace)",C=r(B,"gu").replace(/notPunctSpace/g,z).replace(/punctSpace/g,T).replace(/punct/g,S).getRegex(),q=r(B,"gu").replace(/notPunctSpace/g,/(?:[^\s\p{P}\p{S}]|~)/u).replace(/punctSpace/g,/(?!~)[\s\p{P}\p{S}]/u).replace(/punct/g,_).getRegex(),E=r("^[^_*]*?\\*\\*[^_*]*?_[^_*]*?(?=\\*\\*)|[^_]+(?=[^_])|(?!_)punct(_+)(?=[\\s]|$)|notPunctSpace(_+)(?!_)(?=punctSpace|$)|(?!_)punctSpace(_+)(?=notPunctSpace)|[\\s](_+)(?!_)(?=punct)|(?!_)punct(_+)(?!_)(?=punct)","gu").replace(/notPunctSpace/g,z).replace(/punctSpace/g,T).replace(/punct/g,S).getRegex(),Z=r(/\\(punct)/,"gu").replace(/punct/g,S).getRegex(),v=r(/^<(scheme:[^\s\x00-\x1f<>]*|email)>/).replace("scheme",/[a-zA-Z][a-zA-Z0-9+.-]{1,31}/).replace("email",/[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+(@)[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+(?![-_])/).getRegex(),D=r(f).replace("(?:--\x3e|$)","--\x3e").getRegex(),M=r("^comment|^</[a-zA-Z][\\w:-]*\\s*>|^<[a-zA-Z][\\w-]*(?:attribute)*?\\s*/?>|^<\\?[\\s\\S]*?\\?>|^<![a-zA-Z]+\\s[\\s\\S]*?>|^<!\\[CDATA\\[[\\s\\S]*?\\]\\]>").replace("comment",D).replace("attribute",/\s+[a-zA-Z:_][\w.:-]*(?:\s*=\s*"[^"]*"|\s*=\s*'[^']*'|\s*=\s*[^\s"'=<>`]+)?/).getRegex(),O=/(?:\[(?:\\.|[^\[\]\\])*\]|\\.|`[^`]*`|[^\[\]\\`])*?/,Q=r(/^!?\[(label)\]\(\s*(href)(?:(?:[ \t]*(?:\n[ \t]*)?)(title))?\s*\)/).replace("label",O).replace("href",/<(?:\\.|[^\n<>\\])+>|[^ \t\n\x00-\x1f]*/).replace("title",/"(?:\\"?|[^"\\])*"|'(?:\\'?|[^'\\])*'|\((?:\\\)?|[^)\\])*\)/).getRegex(),j=r(/^!?\[(label)\]\[(ref)\]/).replace("label",O).replace("ref",u).getRegex(),N=r(/^!?\[(ref)\](?:\[\])?/).replace("ref",u).getRegex(),G={_backpedal:s,anyPunctuation:Z,autolink:v,blockSkip:/\[[^[\]]*?\]\((?:\\.|[^\\\(\)]|\((?:\\.|[^\\\(\)])*\))*\)|`[^`]*?`|<[^<>]*?>/g,br:R,code:/^(`+)([^`]|[^`][\s\S]*?[^`])\1(?!`)/,del:s,emStrongLDelim:I,emStrongRDelimAst:C,emStrongRDelimUnd:E,escape:/^\\([!"#$%&'()*+,\-./:;<=>?@\[\]\\^_`{|}~])/,link:Q,nolink:N,punctuation:A,reflink:j,reflinkSearch:r("reflink|nolink(?!\\()","g").replace("reflink",j).replace("nolink",N).getRegex(),tag:M,text:/^(`+|[^`])(?:(?= {2,}\n)|[\s\S]*?(?:(?=[\\<!\[`*_]|\b_|$)|[^ ](?= {2,}\n)))/,url:s},H={...G,link:r(/^!?\[(label)\]\((.*?)\)/).replace("label",O).getRegex(),reflink:r(/^!?\[(label)\]\s*\[([^\]]*)\]/).replace("label",O).getRegex()},X={...G,emStrongRDelimAst:q,emStrongLDelim:L,url:r(/^((?:ftp|https?):\/\/|www\.)(?:[a-zA-Z0-9\-]+\.?)+[^\s<]*|^email/,"i").replace("email",/[A-Za-z0-9._+-]+(@)[a-zA-Z0-9-_]+(?:\.[a-zA-Z0-9-_]*[a-zA-Z0-9])+(?![-_])/).getRegex(),_backpedal:/(?:[^?!.,:;*_'"~()&]+|\([^)]*\)|&(?![a-zA-Z0-9]+;$)|[?!.,:;*_'"~)]+(?!$))+/,del:/^(~~?)(?=[^\s~])((?:\\.|[^\\])*?(?:\\.|[^\s~\\]))\1(?=[^~]|$)/,text:/^([`~]+|[^`~])(?:(?= {2,}\n)|(?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@)|[\s\S]*?(?:(?=[\\<!\[`*~_]|\b_|https?:\/\/|ftp:\/\/|www\.|$)|[^ ](?= {2,}\n)|[^a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-](?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@)))/},F={...X,br:r(R).replace("{2,}","*").getRegex(),text:r(X.text).replace("\\b_","\\b_| {2,}\\n").replace(/\{2,\}/g,"*").getRegex()},U={normal:m,gfm:y,pedantic:$},J={normal:G,gfm:X,breaks:F,pedantic:H},K={"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"},V=e=>K[e];function W(e,t){if(t){if(i.escapeTest.test(e))return e.replace(i.escapeReplace,V)}else if(i.escapeTestNoEncode.test(e))return e.replace(i.escapeReplaceNoEncode,V);return e}function Y(e){try{e=encodeURI(e).replace(i.percentDecode,"%")}catch{return null}return e}function ee(e,t){const n=e.replace(i.findPipe,((e,t,n)=>{let s=!1,r=t;for(;--r>=0&&"\\"===n[r];)s=!s;return s?"|":" |"})).split(i.splitPipe);let s=0;if(n[0].trim()||n.shift(),n.length>0&&!n.at(-1)?.trim()&&n.pop(),t)if(n.length>t)n.splice(t);else for(;n.length<t;)n.push("");for(;s<n.length;s++)n[s]=n[s].trim().replace(i.slashPipe,"|");return n}function te(e,t,n){const s=e.length;if(0===s)return"";let r=0;for(;r<s;){if(e.charAt(s-r-1)!==t)break;r++}return e.slice(0,s-r)}function ne(e,t,n,s,r){const i=t.href,l=t.title||null,o=e[1].replace(r.other.outputLinkReplace,"$1");s.state.inLink=!0;const a={type:"!"===e[0].charAt(0)?"image":"link",raw:n,href:i,title:l,text:o,tokens:s.inlineTokens(o)};return s.state.inLink=!1,a}class se{options;rules;lexer;constructor(t){this.options=t||e.defaults}space(e){const t=this.rules.block.newline.exec(e);if(t&&t[0].length>0)return{type:"space",raw:t[0]}}code(e){const t=this.rules.block.code.exec(e);if(t){const e=t[0].replace(this.rules.other.codeRemoveIndent,"");return{type:"code",raw:t[0],codeBlockStyle:"indented",text:this.options.pedantic?e:te(e,"\n")}}}fences(e){const t=this.rules.block.fences.exec(e);if(t){const e=t[0],n=function(e,t,n){const s=e.match(n.other.indentCodeCompensation);if(null===s)return t;const r=s[1];return t.split("\n").map((e=>{const t=e.match(n.other.beginningSpace);if(null===t)return e;const[s]=t;return s.length>=r.length?e.slice(r.length):e})).join("\n")}(e,t[3]||"",this.rules);return{type:"code",raw:e,lang:t[2]?t[2].trim().replace(this.rules.inline.anyPunctuation,"$1"):t[2],text:n}}}heading(e){const t=this.rules.block.heading.exec(e);if(t){let e=t[2].trim();if(this.rules.other.endingHash.test(e)){const t=te(e,"#");this.options.pedantic?e=t.trim():t&&!this.rules.other.endingSpaceChar.test(t)||(e=t.trim())}return{type:"heading",raw:t[0],depth:t[1].length,text:e,tokens:this.lexer.inline(e)}}}hr(e){const t=this.rules.block.hr.exec(e);if(t)return{type:"hr",raw:te(t[0],"\n")}}blockquote(e){const t=this.rules.block.blockquote.exec(e);if(t){let e=te(t[0],"\n").split("\n"),n="",s="";const r=[];for(;e.length>0;){let t=!1;const i=[];let l;for(l=0;l<e.length;l++)if(this.rules.other.blockquoteStart.test(e[l]))i.push(e[l]),t=!0;else{if(t)break;i.push(e[l])}e=e.slice(l);const o=i.join("\n"),a=o.replace(this.rules.other.blockquoteSetextReplace,"\n    $1").replace(this.rules.other.blockquoteSetextReplace2,"");n=n?`${n}\n${o}`:o,s=s?`${s}\n${a}`:a;const c=this.lexer.state.top;if(this.lexer.state.top=!0,this.lexer.blockTokens(a,r,!0),this.lexer.state.top=c,0===e.length)break;const h=r.at(-1);if("code"===h?.type)break;if("blockquote"===h?.type){const t=h,i=t.raw+"\n"+e.join("\n"),l=this.blockquote(i);r[r.length-1]=l,n=n.substring(0,n.length-t.raw.length)+l.raw,s=s.substring(0,s.length-t.text.length)+l.text;break}if("list"!==h?.type);else{const t=h,i=t.raw+"\n"+e.join("\n"),l=this.list(i);r[r.length-1]=l,n=n.substring(0,n.length-h.raw.length)+l.raw,s=s.substring(0,s.length-t.raw.length)+l.raw,e=i.substring(r.at(-1).raw.length).split("\n")}}return{type:"blockquote",raw:n,tokens:r,text:s}}}list(e){let t=this.rules.block.list.exec(e);if(t){let n=t[1].trim();const s=n.length>1,r={type:"list",raw:"",ordered:s,start:s?+n.slice(0,-1):"",loose:!1,items:[]};n=s?`\\d{1,9}\\${n.slice(-1)}`:`\\${n}`,this.options.pedantic&&(n=s?n:"[*+-]");const i=this.rules.other.listItemRegex(n);let l=!1;for(;e;){let n=!1,s="",o="";if(!(t=i.exec(e)))break;if(this.rules.block.hr.test(e))break;s=t[0],e=e.substring(s.length);let a=t[2].split("\n",1)[0].replace(this.rules.other.listReplaceTabs,(e=>" ".repeat(3*e.length))),c=e.split("\n",1)[0],h=!a.trim(),p=0;if(this.options.pedantic?(p=2,o=a.trimStart()):h?p=t[1].length+1:(p=t[2].search(this.rules.other.nonSpaceChar),p=p>4?1:p,o=a.slice(p),p+=t[1].length),h&&this.rules.other.blankLine.test(c)&&(s+=c+"\n",e=e.substring(c.length+1),n=!0),!n){const t=this.rules.other.nextBulletRegex(p),n=this.rules.other.hrRegex(p),r=this.rules.other.fencesBeginRegex(p),i=this.rules.other.headingBeginRegex(p),l=this.rules.other.htmlBeginRegex(p);for(;e;){const u=e.split("\n",1)[0];let g;if(c=u,this.options.pedantic?(c=c.replace(this.rules.other.listReplaceNesting,"  "),g=c):g=c.replace(this.rules.other.tabCharGlobal,"    "),r.test(c))break;if(i.test(c))break;if(l.test(c))break;if(t.test(c))break;if(n.test(c))break;if(g.search(this.rules.other.nonSpaceChar)>=p||!c.trim())o+="\n"+g.slice(p);else{if(h)break;if(a.replace(this.rules.other.tabCharGlobal,"    ").search(this.rules.other.nonSpaceChar)>=4)break;if(r.test(a))break;if(i.test(a))break;if(n.test(a))break;o+="\n"+c}h||c.trim()||(h=!0),s+=u+"\n",e=e.substring(u.length+1),a=g.slice(p)}}r.loose||(l?r.loose=!0:this.rules.other.doubleBlankLine.test(s)&&(l=!0));let u,g=null;this.options.gfm&&(g=this.rules.other.listIsTask.exec(o),g&&(u="[ ] "!==g[0],o=o.replace(this.rules.other.listReplaceTask,""))),r.items.push({type:"list_item",raw:s,task:!!g,checked:u,loose:!1,text:o,tokens:[]}),r.raw+=s}const o=r.items.at(-1);if(!o)return;o.raw=o.raw.trimEnd(),o.text=o.text.trimEnd(),r.raw=r.raw.trimEnd();for(let e=0;e<r.items.length;e++)if(this.lexer.state.top=!1,r.items[e].tokens=this.lexer.blockTokens(r.items[e].text,[]),!r.loose){const t=r.items[e].tokens.filter((e=>"space"===e.type)),n=t.length>0&&t.some((e=>this.rules.other.anyLine.test(e.raw)));r.loose=n}if(r.loose)for(let e=0;e<r.items.length;e++)r.items[e].loose=!0;return r}}html(e){const t=this.rules.block.html.exec(e);if(t){return{type:"html",block:!0,raw:t[0],pre:"pre"===t[1]||"script"===t[1]||"style"===t[1],text:t[0]}}}def(e){const t=this.rules.block.def.exec(e);if(t){const e=t[1].toLowerCase().replace(this.rules.other.multipleSpaceGlobal," "),n=t[2]?t[2].replace(this.rules.other.hrefBrackets,"$1").replace(this.rules.inline.anyPunctuation,"$1"):"",s=t[3]?t[3].substring(1,t[3].length-1).replace(this.rules.inline.anyPunctuation,"$1"):t[3];return{type:"def",tag:e,raw:t[0],href:n,title:s}}}table(e){const t=this.rules.block.table.exec(e);if(!t)return;if(!this.rules.other.tableDelimiter.test(t[2]))return;const n=ee(t[1]),s=t[2].replace(this.rules.other.tableAlignChars,"").split("|"),r=t[3]?.trim()?t[3].replace(this.rules.other.tableRowBlankLine,"").split("\n"):[],i={type:"table",raw:t[0],header:[],align:[],rows:[]};if(n.length===s.length){for(const e of s)this.rules.other.tableAlignRight.test(e)?i.align.push("right"):this.rules.other.tableAlignCenter.test(e)?i.align.push("center"):this.rules.other.tableAlignLeft.test(e)?i.align.push("left"):i.align.push(null);for(let e=0;e<n.length;e++)i.header.push({text:n[e],tokens:this.lexer.inline(n[e]),header:!0,align:i.align[e]});for(const e of r)i.rows.push(ee(e,i.header.length).map(((e,t)=>({text:e,tokens:this.lexer.inline(e),header:!1,align:i.align[t]}))));return i}}lheading(e){const t=this.rules.block.lheading.exec(e);if(t)return{type:"heading",raw:t[0],depth:"="===t[2].charAt(0)?1:2,text:t[1],tokens:this.lexer.inline(t[1])}}paragraph(e){const t=this.rules.block.paragraph.exec(e);if(t){const e="\n"===t[1].charAt(t[1].length-1)?t[1].slice(0,-1):t[1];return{type:"paragraph",raw:t[0],text:e,tokens:this.lexer.inline(e)}}}text(e){const t=this.rules.block.text.exec(e);if(t)return{type:"text",raw:t[0],text:t[0],tokens:this.lexer.inline(t[0])}}escape(e){const t=this.rules.inline.escape.exec(e);if(t)return{type:"escape",raw:t[0],text:t[1]}}tag(e){const t=this.rules.inline.tag.exec(e);if(t)return!this.lexer.state.inLink&&this.rules.other.startATag.test(t[0])?this.lexer.state.inLink=!0:this.lexer.state.inLink&&this.rules.other.endATag.test(t[0])&&(this.lexer.state.inLink=!1),!this.lexer.state.inRawBlock&&this.rules.other.startPreScriptTag.test(t[0])?this.lexer.state.inRawBlock=!0:this.lexer.state.inRawBlock&&this.rules.other.endPreScriptTag.test(t[0])&&(this.lexer.state.inRawBlock=!1),{type:"html",raw:t[0],inLink:this.lexer.state.inLink,inRawBlock:this.lexer.state.inRawBlock,block:!1,text:t[0]}}link(e){const t=this.rules.inline.link.exec(e);if(t){const e=t[2].trim();if(!this.options.pedantic&&this.rules.other.startAngleBracket.test(e)){if(!this.rules.other.endAngleBracket.test(e))return;const t=te(e.slice(0,-1),"\\");if((e.length-t.length)%2==0)return}else{const e=function(e,t){if(-1===e.indexOf(t[1]))return-1;let n=0;for(let s=0;s<e.length;s++)if("\\"===e[s])s++;else if(e[s]===t[0])n++;else if(e[s]===t[1]&&(n--,n<0))return s;return n>0?-2:-1}(t[2],"()");if(-2===e)return;if(e>-1){const n=(0===t[0].indexOf("!")?5:4)+t[1].length+e;t[2]=t[2].substring(0,e),t[0]=t[0].substring(0,n).trim(),t[3]=""}}let n=t[2],s="";if(this.options.pedantic){const e=this.rules.other.pedanticHrefTitle.exec(n);e&&(n=e[1],s=e[3])}else s=t[3]?t[3].slice(1,-1):"";return n=n.trim(),this.rules.other.startAngleBracket.test(n)&&(n=this.options.pedantic&&!this.rules.other.endAngleBracket.test(e)?n.slice(1):n.slice(1,-1)),ne(t,{href:n?n.replace(this.rules.inline.anyPunctuation,"$1"):n,title:s?s.replace(this.rules.inline.anyPunctuation,"$1"):s},t[0],this.lexer,this.rules)}}reflink(e,t){let n;if((n=this.rules.inline.reflink.exec(e))||(n=this.rules.inline.nolink.exec(e))){const e=t[(n[2]||n[1]).replace(this.rules.other.multipleSpaceGlobal," ").toLowerCase()];if(!e){const e=n[0].charAt(0);return{type:"text",raw:e,text:e}}return ne(n,e,n[0],this.lexer,this.rules)}}emStrong(e,t,n=""){let s=this.rules.inline.emStrongLDelim.exec(e);if(!s)return;if(s[3]&&n.match(this.rules.other.unicodeAlphaNumeric))return;if(!(s[1]||s[2]||"")||!n||this.rules.inline.punctuation.exec(n)){const n=[...s[0]].length-1;let r,i,l=n,o=0;const a="*"===s[0][0]?this.rules.inline.emStrongRDelimAst:this.rules.inline.emStrongRDelimUnd;for(a.lastIndex=0,t=t.slice(-1*e.length+n);null!=(s=a.exec(t));){if(r=s[1]||s[2]||s[3]||s[4]||s[5]||s[6],!r)continue;if(i=[...r].length,s[3]||s[4]){l+=i;continue}if((s[5]||s[6])&&n%3&&!((n+i)%3)){o+=i;continue}if(l-=i,l>0)continue;i=Math.min(i,i+l+o);const t=[...s[0]][0].length,a=e.slice(0,n+s.index+t+i);if(Math.min(n,i)%2){const e=a.slice(1,-1);return{type:"em",raw:a,text:e,tokens:this.lexer.inlineTokens(e)}}const c=a.slice(2,-2);return{type:"strong",raw:a,text:c,tokens:this.lexer.inlineTokens(c)}}}}codespan(e){const t=this.rules.inline.code.exec(e);if(t){let e=t[2].replace(this.rules.other.newLineCharGlobal," ");const n=this.rules.other.nonSpaceChar.test(e),s=this.rules.other.startingSpaceChar.test(e)&&this.rules.other.endingSpaceChar.test(e);return n&&s&&(e=e.substring(1,e.length-1)),{type:"codespan",raw:t[0],text:e}}}br(e){const t=this.rules.inline.br.exec(e);if(t)return{type:"br",raw:t[0]}}del(e){const t=this.rules.inline.del.exec(e);if(t)return{type:"del",raw:t[0],text:t[2],tokens:this.lexer.inlineTokens(t[2])}}autolink(e){const t=this.rules.inline.autolink.exec(e);if(t){let e,n;return"@"===t[2]?(e=t[1],n="mailto:"+e):(e=t[1],n=e),{type:"link",raw:t[0],text:e,href:n,tokens:[{type:"text",raw:e,text:e}]}}}url(e){let t;if(t=this.rules.inline.url.exec(e)){let e,n;if("@"===t[2])e=t[0],n="mailto:"+e;else{let s;do{s=t[0],t[0]=this.rules.inline._backpedal.exec(t[0])?.[0]??""}while(s!==t[0]);e=t[0],n="www."===t[1]?"http://"+t[0]:t[0]}return{type:"link",raw:t[0],text:e,href:n,tokens:[{type:"text",raw:e,text:e}]}}}inlineText(e){const t=this.rules.inline.text.exec(e);if(t){const e=this.lexer.state.inRawBlock;return{type:"text",raw:t[0],text:t[0],escaped:e}}}}class re{tokens;options;state;tokenizer;inlineQueue;constructor(t){this.tokens=[],this.tokens.links=Object.create(null),this.options=t||e.defaults,this.options.tokenizer=this.options.tokenizer||new se,this.tokenizer=this.options.tokenizer,this.tokenizer.options=this.options,this.tokenizer.lexer=this,this.inlineQueue=[],this.state={inLink:!1,inRawBlock:!1,top:!0};const n={other:i,block:U.normal,inline:J.normal};this.options.pedantic?(n.block=U.pedantic,n.inline=J.pedantic):this.options.gfm&&(n.block=U.gfm,this.options.breaks?n.inline=J.breaks:n.inline=J.gfm),this.tokenizer.rules=n}static get rules(){return{block:U,inline:J}}static lex(e,t){return new re(t).lex(e)}static lexInline(e,t){return new re(t).inlineTokens(e)}lex(e){e=e.replace(i.carriageReturn,"\n"),this.blockTokens(e,this.tokens);for(let e=0;e<this.inlineQueue.length;e++){const t=this.inlineQueue[e];this.inlineTokens(t.src,t.tokens)}return this.inlineQueue=[],this.tokens}blockTokens(e,t=[],n=!1){for(this.options.pedantic&&(e=e.replace(i.tabCharGlobal,"    ").replace(i.spaceLine,""));e;){let s;if(this.options.extensions?.block?.some((n=>!!(s=n.call({lexer:this},e,t))&&(e=e.substring(s.raw.length),t.push(s),!0))))continue;if(s=this.tokenizer.space(e)){e=e.substring(s.raw.length);const n=t.at(-1);1===s.raw.length&&void 0!==n?n.raw+="\n":t.push(s);continue}if(s=this.tokenizer.code(e)){e=e.substring(s.raw.length);const n=t.at(-1);"paragraph"===n?.type||"text"===n?.type?(n.raw+="\n"+s.raw,n.text+="\n"+s.text,this.inlineQueue.at(-1).src=n.text):t.push(s);continue}if(s=this.tokenizer.fences(e)){e=e.substring(s.raw.length),t.push(s);continue}if(s=this.tokenizer.heading(e)){e=e.substring(s.raw.length),t.push(s);continue}if(s=this.tokenizer.hr(e)){e=e.substring(s.raw.length),t.push(s);continue}if(s=this.tokenizer.blockquote(e)){e=e.substring(s.raw.length),t.push(s);continue}if(s=this.tokenizer.list(e)){e=e.substring(s.raw.length),t.push(s);continue}if(s=this.tokenizer.html(e)){e=e.substring(s.raw.length),t.push(s);continue}if(s=this.tokenizer.def(e)){e=e.substring(s.raw.length);const n=t.at(-1);"paragraph"===n?.type||"text"===n?.type?(n.raw+="\n"+s.raw,n.text+="\n"+s.raw,this.inlineQueue.at(-1).src=n.text):this.tokens.links[s.tag]||(this.tokens.links[s.tag]={href:s.href,title:s.title});continue}if(s=this.tokenizer.table(e)){e=e.substring(s.raw.length),t.push(s);continue}if(s=this.tokenizer.lheading(e)){e=e.substring(s.raw.length),t.push(s);continue}let r=e;if(this.options.extensions?.startBlock){let t=1/0;const n=e.slice(1);let s;this.options.extensions.startBlock.forEach((e=>{s=e.call({lexer:this},n),"number"==typeof s&&s>=0&&(t=Math.min(t,s))})),t<1/0&&t>=0&&(r=e.substring(0,t+1))}if(this.state.top&&(s=this.tokenizer.paragraph(r))){const i=t.at(-1);n&&"paragraph"===i?.type?(i.raw+="\n"+s.raw,i.text+="\n"+s.text,this.inlineQueue.pop(),this.inlineQueue.at(-1).src=i.text):t.push(s),n=r.length!==e.length,e=e.substring(s.raw.length)}else if(s=this.tokenizer.text(e)){e=e.substring(s.raw.length);const n=t.at(-1);"text"===n?.type?(n.raw+="\n"+s.raw,n.text+="\n"+s.text,this.inlineQueue.pop(),this.inlineQueue.at(-1).src=n.text):t.push(s)}else if(e){const t="Infinite loop on byte: "+e.charCodeAt(0);if(this.options.silent){console.error(t);break}throw new Error(t)}}return this.state.top=!0,t}inline(e,t=[]){return this.inlineQueue.push({src:e,tokens:t}),t}inlineTokens(e,t=[]){let n=e,s=null;if(this.tokens.links){const e=Object.keys(this.tokens.links);if(e.length>0)for(;null!=(s=this.tokenizer.rules.inline.reflinkSearch.exec(n));)e.includes(s[0].slice(s[0].lastIndexOf("[")+1,-1))&&(n=n.slice(0,s.index)+"["+"a".repeat(s[0].length-2)+"]"+n.slice(this.tokenizer.rules.inline.reflinkSearch.lastIndex))}for(;null!=(s=this.tokenizer.rules.inline.anyPunctuation.exec(n));)n=n.slice(0,s.index)+"++"+n.slice(this.tokenizer.rules.inline.anyPunctuation.lastIndex);for(;null!=(s=this.tokenizer.rules.inline.blockSkip.exec(n));)n=n.slice(0,s.index)+"["+"a".repeat(s[0].length-2)+"]"+n.slice(this.tokenizer.rules.inline.blockSkip.lastIndex);let r=!1,i="";for(;e;){let s;if(r||(i=""),r=!1,this.options.extensions?.inline?.some((n=>!!(s=n.call({lexer:this},e,t))&&(e=e.substring(s.raw.length),t.push(s),!0))))continue;if(s=this.tokenizer.escape(e)){e=e.substring(s.raw.length),t.push(s);continue}if(s=this.tokenizer.tag(e)){e=e.substring(s.raw.length),t.push(s);continue}if(s=this.tokenizer.link(e)){e=e.substring(s.raw.length),t.push(s);continue}if(s=this.tokenizer.reflink(e,this.tokens.links)){e=e.substring(s.raw.length);const n=t.at(-1);"text"===s.type&&"text"===n?.type?(n.raw+=s.raw,n.text+=s.text):t.push(s);continue}if(s=this.tokenizer.emStrong(e,n,i)){e=e.substring(s.raw.length),t.push(s);continue}if(s=this.tokenizer.codespan(e)){e=e.substring(s.raw.length),t.push(s);continue}if(s=this.tokenizer.br(e)){e=e.substring(s.raw.length),t.push(s);continue}if(s=this.tokenizer.del(e)){e=e.substring(s.raw.length),t.push(s);continue}if(s=this.tokenizer.autolink(e)){e=e.substring(s.raw.length),t.push(s);continue}if(!this.state.inLink&&(s=this.tokenizer.url(e))){e=e.substring(s.raw.length),t.push(s);continue}let l=e;if(this.options.extensions?.startInline){let t=1/0;const n=e.slice(1);let s;this.options.extensions.startInline.forEach((e=>{s=e.call({lexer:this},n),"number"==typeof s&&s>=0&&(t=Math.min(t,s))})),t<1/0&&t>=0&&(l=e.substring(0,t+1))}if(s=this.tokenizer.inlineText(l)){e=e.substring(s.raw.length),"_"!==s.raw.slice(-1)&&(i=s.raw.slice(-1)),r=!0;const n=t.at(-1);"text"===n?.type?(n.raw+=s.raw,n.text+=s.text):t.push(s)}else if(e){const t="Infinite loop on byte: "+e.charCodeAt(0);if(this.options.silent){console.error(t);break}throw new Error(t)}}return t}}class ie{options;parser;constructor(t){this.options=t||e.defaults}space(e){return""}code({text:e,lang:t,escaped:n}){const s=(t||"").match(i.notSpaceStart)?.[0],r=e.replace(i.endingNewline,"")+"\n";return s?'<pre><code class="language-'+W(s)+'">'+(n?r:W(r,!0))+"</code></pre>\n":"<pre><code>"+(n?r:W(r,!0))+"</code></pre>\n"}blockquote({tokens:e}){return`<blockquote>\n${this.parser.parse(e)}</blockquote>\n`}html({text:e}){return e}heading({tokens:e,depth:t}){return`<h${t}>${this.parser.parseInline(e)}</h${t}>\n`}hr(e){return"<hr>\n"}list(e){const t=e.ordered,n=e.start;let s="";for(let t=0;t<e.items.length;t++){const n=e.items[t];s+=this.listitem(n)}const r=t?"ol":"ul";return"<"+r+(t&&1!==n?' start="'+n+'"':"")+">\n"+s+"</"+r+">\n"}listitem(e){let t="";if(e.task){const n=this.checkbox({checked:!!e.checked});e.loose?"paragraph"===e.tokens[0]?.type?(e.tokens[0].text=n+" "+e.tokens[0].text,e.tokens[0].tokens&&e.tokens[0].tokens.length>0&&"text"===e.tokens[0].tokens[0].type&&(e.tokens[0].tokens[0].text=n+" "+W(e.tokens[0].tokens[0].text),e.tokens[0].tokens[0].escaped=!0)):e.tokens.unshift({type:"text",raw:n+" ",text:n+" ",escaped:!0}):t+=n+" "}return t+=this.parser.parse(e.tokens,!!e.loose),`<li>${t}</li>\n`}checkbox({checked:e}){return"<input "+(e?'checked="" ':"")+'disabled="" type="checkbox">'}paragraph({tokens:e}){return`<p>${this.parser.parseInline(e)}</p>\n`}table(e){let t="",n="";for(let t=0;t<e.header.length;t++)n+=this.tablecell(e.header[t]);t+=this.tablerow({text:n});let s="";for(let t=0;t<e.rows.length;t++){const r=e.rows[t];n="";for(let e=0;e<r.length;e++)n+=this.tablecell(r[e]);s+=this.tablerow({text:n})}return s&&(s=`<tbody>${s}</tbody>`),"<table>\n<thead>\n"+t+"</thead>\n"+s+"</table>\n"}tablerow({text:e}){return`<tr>\n${e}</tr>\n`}tablecell(e){const t=this.parser.parseInline(e.tokens),n=e.header?"th":"td";return(e.align?`<${n} align="${e.align}">`:`<${n}>`)+t+`</${n}>\n`}strong({tokens:e}){return`<strong>${this.parser.parseInline(e)}</strong>`}em({tokens:e}){return`<em>${this.parser.parseInline(e)}</em>`}codespan({text:e}){return`<code>${W(e,!0)}</code>`}br(e){return"<br>"}del({tokens:e}){return`<del>${this.parser.parseInline(e)}</del>`}link({href:e,title:t,tokens:n}){const s=this.parser.parseInline(n),r=Y(e);if(null===r)return s;let i='<a href="'+(e=r)+'"';return t&&(i+=' title="'+W(t)+'"'),i+=">"+s+"</a>",i}image({href:e,title:t,text:n,tokens:s}){s&&(n=this.parser.parseInline(s,this.parser.textRenderer));const r=Y(e);if(null===r)return W(n);let i=`<img src="${e=r}" alt="${n}"`;return t&&(i+=` title="${W(t)}"`),i+=">",i}text(e){return"tokens"in e&&e.tokens?this.parser.parseInline(e.tokens):"escaped"in e&&e.escaped?e.text:W(e.text)}}class le{strong({text:e}){return e}em({text:e}){return e}codespan({text:e}){return e}del({text:e}){return e}html({text:e}){return e}text({text:e}){return e}link({text:e}){return""+e}image({text:e}){return""+e}br(){return""}}class oe{options;renderer;textRenderer;constructor(t){this.options=t||e.defaults,this.options.renderer=this.options.renderer||new ie,this.renderer=this.options.renderer,this.renderer.options=this.options,this.renderer.parser=this,this.textRenderer=new le}static parse(e,t){return new oe(t).parse(e)}static parseInline(e,t){return new oe(t).parseInline(e)}parse(e,t=!0){let n="";for(let s=0;s<e.length;s++){const r=e[s];if(this.options.extensions?.renderers?.[r.type]){const e=r,t=this.options.extensions.renderers[e.type].call({parser:this},e);if(!1!==t||!["space","hr","heading","code","table","blockquote","list","html","paragraph","text"].includes(e.type)){n+=t||"";continue}}const i=r;switch(i.type){case"space":n+=this.renderer.space(i);continue;case"hr":n+=this.renderer.hr(i);continue;case"heading":n+=this.renderer.heading(i);continue;case"code":n+=this.renderer.code(i);continue;case"table":n+=this.renderer.table(i);continue;case"blockquote":n+=this.renderer.blockquote(i);continue;case"list":n+=this.renderer.list(i);continue;case"html":n+=this.renderer.html(i);continue;case"paragraph":n+=this.renderer.paragraph(i);continue;case"text":{let r=i,l=this.renderer.text(r);for(;s+1<e.length&&"text"===e[s+1].type;)r=e[++s],l+="\n"+this.renderer.text(r);n+=t?this.renderer.paragraph({type:"paragraph",raw:l,text:l,tokens:[{type:"text",raw:l,text:l,escaped:!0}]}):l;continue}default:{const e='Token with "'+i.type+'" type was not found.';if(this.options.silent)return console.error(e),"";throw new Error(e)}}}return n}parseInline(e,t=this.renderer){let n="";for(let s=0;s<e.length;s++){const r=e[s];if(this.options.extensions?.renderers?.[r.type]){const e=this.options.extensions.renderers[r.type].call({parser:this},r);if(!1!==e||!["escape","html","link","image","strong","em","codespan","br","del","text"].includes(r.type)){n+=e||"";continue}}const i=r;switch(i.type){case"escape":case"text":n+=t.text(i);break;case"html":n+=t.html(i);break;case"link":n+=t.link(i);break;case"image":n+=t.image(i);break;case"strong":n+=t.strong(i);break;case"em":n+=t.em(i);break;case"codespan":n+=t.codespan(i);break;case"br":n+=t.br(i);break;case"del":n+=t.del(i);break;default:{const e='Token with "'+i.type+'" type was not found.';if(this.options.silent)return console.error(e),"";throw new Error(e)}}}return n}}class ae{options;block;constructor(t){this.options=t||e.defaults}static passThroughHooks=new Set(["preprocess","postprocess","processAllTokens"]);preprocess(e){return e}postprocess(e){return e}processAllTokens(e){return e}provideLexer(){return this.block?re.lex:re.lexInline}provideParser(){return this.block?oe.parse:oe.parseInline}}class ce{defaults={async:!1,breaks:!1,extensions:null,gfm:!0,hooks:null,pedantic:!1,renderer:null,silent:!1,tokenizer:null,walkTokens:null};options=this.setOptions;parse=this.parseMarkdown(!0);parseInline=this.parseMarkdown(!1);Parser=oe;Renderer=ie;TextRenderer=le;Lexer=re;Tokenizer=se;Hooks=ae;constructor(...e){this.use(...e)}walkTokens(e,t){let n=[];for(const s of e)switch(n=n.concat(t.call(this,s)),s.type){case"table":{const e=s;for(const s of e.header)n=n.concat(this.walkTokens(s.tokens,t));for(const s of e.rows)for(const e of s)n=n.concat(this.walkTokens(e.tokens,t));break}case"list":{const e=s;n=n.concat(this.walkTokens(e.items,t));break}default:{const e=s;this.defaults.extensions?.childTokens?.[e.type]?this.defaults.extensions.childTokens[e.type].forEach((s=>{const r=e[s].flat(1/0);n=n.concat(this.walkTokens(r,t))})):e.tokens&&(n=n.concat(this.walkTokens(e.tokens,t)))}}return n}use(...e){const t=this.defaults.extensions||{renderers:{},childTokens:{}};return e.forEach((e=>{const n={...e};if(n.async=this.defaults.async||n.async||!1,e.extensions&&(e.extensions.forEach((e=>{if(!e.name)throw new Error("extension name required");if("renderer"in e){const n=t.renderers[e.name];t.renderers[e.name]=n?function(...t){let s=e.renderer.apply(this,t);return!1===s&&(s=n.apply(this,t)),s}:e.renderer}if("tokenizer"in e){if(!e.level||"block"!==e.level&&"inline"!==e.level)throw new Error("extension level must be 'block' or 'inline'");const n=t[e.level];n?n.unshift(e.tokenizer):t[e.level]=[e.tokenizer],e.start&&("block"===e.level?t.startBlock?t.startBlock.push(e.start):t.startBlock=[e.start]:"inline"===e.level&&(t.startInline?t.startInline.push(e.start):t.startInline=[e.start]))}"childTokens"in e&&e.childTokens&&(t.childTokens[e.name]=e.childTokens)})),n.extensions=t),e.renderer){const t=this.defaults.renderer||new ie(this.defaults);for(const n in e.renderer){if(!(n in t))throw new Error(`renderer '${n}' does not exist`);if(["options","parser"].includes(n))continue;const s=n,r=e.renderer[s],i=t[s];t[s]=(...e)=>{let n=r.apply(t,e);return!1===n&&(n=i.apply(t,e)),n||""}}n.renderer=t}if(e.tokenizer){const t=this.defaults.tokenizer||new se(this.defaults);for(const n in e.tokenizer){if(!(n in t))throw new Error(`tokenizer '${n}' does not exist`);if(["options","rules","lexer"].includes(n))continue;const s=n,r=e.tokenizer[s],i=t[s];t[s]=(...e)=>{let n=r.apply(t,e);return!1===n&&(n=i.apply(t,e)),n}}n.tokenizer=t}if(e.hooks){const t=this.defaults.hooks||new ae;for(const n in e.hooks){if(!(n in t))throw new Error(`hook '${n}' does not exist`);if(["options","block"].includes(n))continue;const s=n,r=e.hooks[s],i=t[s];ae.passThroughHooks.has(n)?t[s]=e=>{if(this.defaults.async)return Promise.resolve(r.call(t,e)).then((e=>i.call(t,e)));const n=r.call(t,e);return i.call(t,n)}:t[s]=(...e)=>{let n=r.apply(t,e);return!1===n&&(n=i.apply(t,e)),n}}n.hooks=t}if(e.walkTokens){const t=this.defaults.walkTokens,s=e.walkTokens;n.walkTokens=function(e){let n=[];return n.push(s.call(this,e)),t&&(n=n.concat(t.call(this,e))),n}}this.defaults={...this.defaults,...n}})),this}setOptions(e){return this.defaults={...this.defaults,...e},this}lexer(e,t){return re.lex(e,t??this.defaults)}parser(e,t){return oe.parse(e,t??this.defaults)}parseMarkdown(e){return(t,n)=>{const s={...n},r={...this.defaults,...s},i=this.onError(!!r.silent,!!r.async);if(!0===this.defaults.async&&!1===s.async)return i(new Error("marked(): The async option was set to true by an extension. Remove async: false from the parse options object to return a Promise."));if(null==t)return i(new Error("marked(): input parameter is undefined or null"));if("string"!=typeof t)return i(new Error("marked(): input parameter is of type "+Object.prototype.toString.call(t)+", string expected"));r.hooks&&(r.hooks.options=r,r.hooks.block=e);const l=r.hooks?r.hooks.provideLexer():e?re.lex:re.lexInline,o=r.hooks?r.hooks.provideParser():e?oe.parse:oe.parseInline;if(r.async)return Promise.resolve(r.hooks?r.hooks.preprocess(t):t).then((e=>l(e,r))).then((e=>r.hooks?r.hooks.processAllTokens(e):e)).then((e=>r.walkTokens?Promise.all(this.walkTokens(e,r.walkTokens)).then((()=>e)):e)).then((e=>o(e,r))).then((e=>r.hooks?r.hooks.postprocess(e):e)).catch(i);try{r.hooks&&(t=r.hooks.preprocess(t));let e=l(t,r);r.hooks&&(e=r.hooks.processAllTokens(e)),r.walkTokens&&this.walkTokens(e,r.walkTokens);let n=o(e,r);return r.hooks&&(n=r.hooks.postprocess(n)),n}catch(e){return i(e)}}}onError(e,t){return n=>{if(n.message+="\nPlease report this to https://github.com/markedjs/marked.",e){const e="<p>An error occurred:</p><pre>"+W(n.message+"",!0)+"</pre>";return t?Promise.resolve(e):e}if(t)return Promise.reject(n);throw n}}}const he=new ce;function pe(e,t){return he.parse(e,t)}pe.options=pe.setOptions=function(e){return he.setOptions(e),pe.defaults=he.defaults,n(pe.defaults),pe},pe.getDefaults=t,pe.defaults=e.defaults,pe.use=function(...e){return he.use(...e),pe.defaults=he.defaults,n(pe.defaults),pe},pe.walkTokens=function(e,t){return he.walkTokens(e,t)},pe.parseInline=he.parseInline,pe.Parser=oe,pe.parser=oe.parse,pe.Renderer=ie,pe.TextRenderer=le,pe.Lexer=re,pe.lexer=re.lex,pe.Tokenizer=se,pe.Hooks=ae,pe.parse=pe;const ue=pe.options,ge=pe.setOptions,ke=pe.use,de=pe.walkTokens,fe=pe.parseInline,xe=pe,be=oe.parse,me=re.lex;e.Hooks=ae,e.Lexer=re,e.Marked=ce,e.Parser=oe,e.Renderer=ie,e.TextRenderer=le,e.Tokenizer=se,e.getDefaults=t,e.lexer=me,e.marked=pe,e.options=ue,e.parse=xe,e.parseInline=fe,e.parser=be,e.setOptions=ge,e.use=ke,e.walkTokens=de}));
 
 !function(e,t){"object"==typeof exports&&"object"==typeof module?module.exports=t():"function"==typeof define&&define.amd?define([],t):"object"==typeof exports?exports.printJS=t():e.printJS=t()}(window,function(){return r={},o.m=n={"./src/index.js":function(e,t,n){"use strict";n.r(t);n("./src/sass/index.scss");n=n("./src/js/init.js").default.init;"undefined"!=typeof window&&(window.printJS=n),t.default=n},"./src/js/browser.js":function(e,t,n){"use strict";n.r(t);var r={isFirefox:function(){return"undefined"!=typeof InstallTrigger},isIE:function(){return-1!==navigator.userAgent.indexOf("MSIE")||!!document.documentMode},isEdge:function(){return!r.isIE()&&!!window.StyleMedia},isChrome:function(e){return!!(0<arguments.length&&void 0!==e?e:window).chrome},isSafari:function(){return 0<Object.prototype.toString.call(window.HTMLElement).indexOf("Constructor")||-1!==navigator.userAgent.toLowerCase().indexOf("safari")},isIOSChrome:function(){return-1!==navigator.userAgent.toLowerCase().indexOf("crios")}};t.default=r},"./src/js/functions.js":function(e,t,n){"use strict";n.r(t),n.d(t,"addWrapper",function(){return r}),n.d(t,"capitalizePrint",function(){return l}),n.d(t,"collectStyles",function(){return s}),n.d(t,"addHeader",function(){return d}),n.d(t,"cleanUp",function(){return c}),n.d(t,"isRawHTML",function(){return u});var o=n("./src/js/modal.js"),i=n("./src/js/browser.js");function a(e){return(a="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(e){return typeof e}:function(e){return e&&"function"==typeof Symbol&&e.constructor===Symbol&&e!==Symbol.prototype?"symbol":typeof e})(e)}function r(e,t){return'<div style="'+("font-family:"+t.font+" !important; font-size: "+t.font_size+" !important; width:100%;")+'">'+e+"</div>"}function l(e){return e.charAt(0).toUpperCase()+e.slice(1)}function s(e,t){for(var n="",r=(document.defaultView||window).getComputedStyle(e,""),o=0;o<r.length;o++)(-1!==t.targetStyles.indexOf("*")||-1!==t.targetStyle.indexOf(r[o])||function(e,t){for(var n=0;n<e.length;n++)if("object"===a(t)&&-1!==t.indexOf(e[n]))return!0;return!1}(t.targetStyles,r[o]))&&r.getPropertyValue(r[o])&&(n+=r[o]+":"+r.getPropertyValue(r[o])+";");return n+="max-width: "+t.maxWidth+"px !important; font-size: "+t.font_size+" !important;"}function d(e,t){var n,r,o=document.createElement("div");u(t.header)?o.innerHTML=t.header:(n=document.createElement("h1"),r=document.createTextNode(t.header),n.appendChild(r),n.setAttribute("style",t.headerStyle),o.appendChild(n)),e.insertBefore(o,e.childNodes[0])}function c(t){t.showModal&&o.default.close(),t.onLoadingEnd&&t.onLoadingEnd(),(t.showModal||t.onLoadingStart)&&window.URL.revokeObjectURL(t.printable);var n="mouseover";(i.default.isChrome()||i.default.isFirefox())&&(n="focus");function r(){window.removeEventListener(n,r),t.onPrintDialogClose();var e=document.getElementById(t.frameId);e&&e.remove()}window.addEventListener(n,r)}function u(e){return new RegExp("<([A-Za-z][A-Za-z0-9]*)\\b[^>]*>(.*?)</\\1>").test(e)}},"./src/js/html.js":function(e,t,n){"use strict";n.r(t);var l=n("./src/js/functions.js"),r=n("./src/js/print.js");function o(e){return(o="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(e){return typeof e}:function(e){return e&&"function"==typeof Symbol&&e.constructor===Symbol&&e!==Symbol.prototype?"symbol":typeof e})(e)}t.default={print:function(e,t){var n,n="object"===o(n=e.printable)&&n&&(n instanceof HTMLElement||1===n.nodeType)?e.printable:document.getElementById(e.printable);n?(e.printableElement=function e(t,n){var r=t.cloneNode();var o=Array.prototype.slice.call(t.childNodes);for(var i=0;i<o.length;i++){var a;-1===n.ignoreElements.indexOf(o[i].id)&&(a=e(o[i],n),r.appendChild(a))}n.scanStyles&&1===t.nodeType&&r.setAttribute("style",Object(l.collectStyles)(t,n));switch(t.tagName){case"SELECT":r.value=t.value;break;case"CANVAS":r.getContext("2d").drawImage(t,0,0)}return r}(n,e),e.header&&Object(l.addHeader)(e.printableElement,e),r.default.send(e,t)):window.console.error("Invalid HTML element id: "+e.printable)}}},"./src/js/image.js":function(e,t,n){"use strict";n.r(t);var o=n("./src/js/functions.js"),i=n("./src/js/print.js"),a=n("./src/js/browser.js");t.default={print:function(r,e){r.printable.constructor!==Array&&(r.printable=[r.printable]),r.printableElement=document.createElement("div"),r.printable.forEach(function(e){var t=document.createElement("img");t.setAttribute("style",r.imageStyle),t.src=e,a.default.isFirefox()&&(n=t.src,t.src=n);var n=document.createElement("div");n.appendChild(t),r.printableElement.appendChild(n)}),r.header&&Object(o.addHeader)(r.printableElement,r),i.default.send(r,e)}}},"./src/js/init.js":function(e,t,n){"use strict";n.r(t);var a=n("./src/js/browser.js"),l=n("./src/js/modal.js"),s=n("./src/js/pdf.js"),d=n("./src/js/html.js"),c=n("./src/js/raw-html.js"),u=n("./src/js/image.js"),f=n("./src/js/json.js");function p(e){return(p="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(e){return typeof e}:function(e){return e&&"function"==typeof Symbol&&e.constructor===Symbol&&e!==Symbol.prototype?"symbol":typeof e})(e)}var b=["pdf","html","image","json","raw-html"];t.default={init:function(e,t){var n={printable:null,fallbackPrintable:null,type:"pdf",header:null,headerStyle:"font-weight: 300;",maxWidth:800,properties:null,gridHeaderStyle:"font-weight: bold; padding: 5px; border: 1px solid #dddddd;",gridStyle:"border: 1px solid lightgray; margin-bottom: -1px;",showModal:!1,onError:function(e){throw e},onLoadingStart:null,onLoadingEnd:null,onPrintDialogClose:function(){},onIncompatibleBrowser:function(){},modalMessage:"Retrieving Document...",frameId:"printJS",printableElement:null,documentTitle:"Document",targetStyle:["clear","display","width","min-width","height","min-height","max-height"],targetStyles:["border","box","break","text-decoration"],ignoreElements:[],repeatTableHeader:!0,css:null,style:null,scanStyles:!0,base64:!1,onPdfOpen:null,font:"TimesNewRoman",font_size:"12pt",honorMarginPadding:!0,honorColor:!1,imageStyle:"max-width: 100%;"},r=e;if(void 0===r)throw new Error("printJS expects at least 1 attribute.");switch(p(r)){case"string":n.printable=encodeURI(r),n.fallbackPrintable=n.printable,n.type=t||n.type;break;case"object":for(var o in n.printable=r.printable,n.fallbackPrintable=void 0!==r.fallbackPrintable?r.fallbackPrintable:n.printable,n.fallbackPrintable=n.base64?"data:application/pdf;base64,".concat(n.fallbackPrintable):n.fallbackPrintable,n)"printable"!==o&&"fallbackPrintable"!==o&&(n[o]=(void 0!==r[o]?r:n)[o]);break;default:throw new Error('Unexpected argument type! Expected "string" or "object", got '+p(r))}if(!n.printable)throw new Error("Missing printable information.");if(!n.type||"string"!=typeof n.type||-1===b.indexOf(n.type.toLowerCase()))throw new Error("Invalid print type. Available types are: pdf, html, image and json.");n.showModal&&l.default.show(n),n.onLoadingStart&&n.onLoadingStart();t=document.getElementById(n.frameId);t&&t.parentNode.removeChild(t);var i=document.createElement("iframe");switch(a.default.isFirefox()?i.setAttribute("style","width: 1px; height: 100px; position: fixed; left: 0; top: 0; opacity: 0; border-width: 0; margin: 0; padding: 0"):i.setAttribute("style","visibility: hidden; height: 0; width: 0; position: absolute; border: 0"),i.setAttribute("id",n.frameId),"pdf"!==n.type&&(i.srcdoc="<html><head><title>"+n.documentTitle+"</title>",n.css&&(Array.isArray(n.css)||(n.css=[n.css]),n.css.forEach(function(e){i.srcdoc+='<link rel="stylesheet" href="'+e+'">'})),i.srcdoc+="</head><body></body></html>"),n.type){case"pdf":if(a.default.isIE())try{console.info("Print.js doesn't support PDF printing in Internet Explorer."),window.open(n.fallbackPrintable,"_blank").focus(),n.onIncompatibleBrowser()}catch(e){n.onError(e)}finally{n.showModal&&l.default.close(),n.onLoadingEnd&&n.onLoadingEnd()}else s.default.print(n,i);break;case"image":u.default.print(n,i);break;case"html":d.default.print(n,i);break;case"raw-html":c.default.print(n,i);break;case"json":f.default.print(n,i)}}}},"./src/js/json.js":function(e,t,n){"use strict";n.r(t);var c=n("./src/js/functions.js"),r=n("./src/js/print.js");function o(e){return(o="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(e){return typeof e}:function(e){return e&&"function"==typeof Symbol&&e.constructor===Symbol&&e!==Symbol.prototype?"symbol":typeof e})(e)}t.default={print:function(t,e){if("object"!==o(t.printable))throw new Error("Invalid javascript data object (JSON).");if("boolean"!=typeof t.repeatTableHeader)throw new Error("Invalid value for repeatTableHeader attribute (JSON).");if(!t.properties||!Array.isArray(t.properties))throw new Error("Invalid properties array for your JSON data.");t.properties=t.properties.map(function(e){return{field:"object"===o(e)?e.field:e,displayName:"object"===o(e)?e.displayName:e,columnSize:"object"===o(e)&&e.columnSize?e.columnSize+";":100/t.properties.length+"%;"}}),t.printableElement=document.createElement("div"),t.header&&Object(c.addHeader)(t.printableElement,t),t.printableElement.innerHTML+=function(e){var t=e.printable,n=e.properties,r='<table style="border-collapse: collapse; width: 100%;">';e.repeatTableHeader&&(r+="<thead>");r+="<tr>";for(var o=0;o<n.length;o++)r+='<th style="width:'+n[o].columnSize+";"+e.gridHeaderStyle+'">'+Object(c.capitalizePrint)(n[o].displayName)+"</th>";r+="</tr>",e.repeatTableHeader&&(r+="</thead>");r+="<tbody>";for(var i=0;i<t.length;i++){r+="<tr>";for(var a=0;a<n.length;a++){var l=t[i],s=n[a].field.split(".");if(1<s.length)for(var d=0;d<s.length;d++)l=l[s[d]];else l=l[n[a].field];r+='<td style="width:'+n[a].columnSize+e.gridStyle+'">'+l+"</td>"}r+="</tr>"}return r+="</tbody></table>"}(t),r.default.send(t,e)}}},"./src/js/modal.js":function(e,t,n){"use strict";n.r(t);var o={show:function(e){var t=document.createElement("div");t.setAttribute("style","font-family:sans-serif; display:table; text-align:center; font-weight:300; font-size:30px; left:0; top:0;position:fixed; z-index: 9990;color: #0460B5; width: 100%; height: 100%; background-color:rgba(255,255,255,.9);transition: opacity .3s ease;"),t.setAttribute("id","printJS-Modal");var n=document.createElement("div");n.setAttribute("style","display:table-cell; vertical-align:middle; padding-bottom:100px;");var r=document.createElement("div");r.setAttribute("class","printClose"),r.setAttribute("id","printClose"),n.appendChild(r);r=document.createElement("span");r.setAttribute("class","printSpinner"),n.appendChild(r);e=document.createTextNode(e.modalMessage);n.appendChild(e),t.appendChild(n),document.getElementsByTagName("body")[0].appendChild(t),document.getElementById("printClose").addEventListener("click",function(){o.close()})},close:function(){var e=document.getElementById("printJS-Modal");e&&e.parentNode.removeChild(e)}};t.default=o},"./src/js/pdf.js":function(e,t,n){"use strict";n.r(t);var r=n("./src/js/print.js"),o=n("./src/js/functions.js");function i(e,t,n){n=new window.Blob([n],{type:"application/pdf"}),n=window.URL.createObjectURL(n);t.setAttribute("src",n),r.default.send(e,t)}t.default={print:function(e,t){var n,r;e.base64?(n=Uint8Array.from(atob(e.printable),function(e){return e.charCodeAt(0)}),i(e,t,n)):(e.printable=/^(blob|http|\/\/)/i.test(e.printable)?e.printable:window.location.origin+("/"!==e.printable.charAt(0)?"/"+e.printable:e.printable),(r=new window.XMLHttpRequest).responseType="arraybuffer",r.addEventListener("error",function(){Object(o.cleanUp)(e),e.onError(r.statusText,r)}),r.addEventListener("load",function(){return-1===[200,201].indexOf(r.status)?(Object(o.cleanUp)(e),void e.onError(r.statusText,r)):void i(e,t,r.response)}),r.open("GET",e.printable,!0),r.send())}}},"./src/js/print.js":function(e,t,n){"use strict";n.r(t);var o=n("./src/js/browser.js"),r=n("./src/js/functions.js"),n={send:function(n,e){document.getElementsByTagName("body")[0].appendChild(e);var r=document.getElementById(n.frameId);r.onload=function(){var e,t;"pdf"!==n.type?((t=r.contentWindow||r.contentDocument).document&&(t=t.document),t.body.appendChild(n.printableElement),"pdf"!==n.type&&n.style&&((e=document.createElement("style")).innerHTML=n.style,t.head.appendChild(e)),0<(t=t.getElementsByTagName("img")).length?function(e){e=e.map(function(e){if(e.src&&e.src!==window.location.href)return n=e,new Promise(function(t){(function e(){n&&void 0!==n.naturalWidth&&0!==n.naturalWidth&&n.complete?t():setTimeout(e,500)})()});var n});return Promise.all(e)}(Array.from(t)).then(function(){return i(r,n)}):i(r,n)):o.default.isFirefox()?setTimeout(function(){return i(r,n)},1e3):i(r,n)}}};function i(t,n){try{if(t.focus(),o.default.isEdge()||o.default.isIE())try{t.contentWindow.document.execCommand("print",!1,null)}catch(e){t.contentWindow.print()}else t.contentWindow.print()}catch(e){n.onError(e)}finally{o.default.isFirefox()&&(t.style.visibility="hidden",t.style.left="-1px"),Object(r.cleanUp)(n)}}t.default=n},"./src/js/raw-html.js":function(e,t,n){"use strict";n.r(t);var r=n("./src/js/print.js");t.default={print:function(e,t){e.printableElement=document.createElement("div"),e.printableElement.setAttribute("style","width:100%"),e.printableElement.innerHTML=e.printable,r.default.send(e,t)}}},"./src/sass/index.scss":function(e,t,n){},0:function(e,t,n){e.exports=n("./src/index.js")}},o.c=r,o.d=function(e,t,n){o.o(e,t)||Object.defineProperty(e,t,{enumerable:!0,get:n})},o.r=function(e){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(e,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(e,"__esModule",{value:!0})},o.t=function(t,e){if(1&e&&(t=o(t)),8&e)return t;if(4&e&&"object"==typeof t&&t&&t.__esModule)return t;var n=Object.create(null);if(o.r(n),Object.defineProperty(n,"default",{enumerable:!0,value:t}),2&e&&"string"!=typeof t)for(var r in t)o.d(n,r,function(e){return t[e]}.bind(null,r));return n},o.n=function(e){var t=e&&e.__esModule?function(){return e.default}:function(){return e};return o.d(t,"a",t),t},o.o=function(e,t){return Object.prototype.hasOwnProperty.call(e,t)},o.p="",o(o.s=0).default;function o(e){if(r[e])return r[e].exports;var t=r[e]={i:e,l:!1,exports:{}};return n[e].call(t.exports,t,t.exports,o),t.l=!0,t.exports}var n,r});
-/*!
- * AUIGrid Non-Commercial LICENSE v3.0.16
- * Authorized Domain(or IP) : localhost, 127.0.0.1
- * www.auisoft.net
- *
- * 1. License Grant
- * Under the terms of this agreement, AUISoft Co., Ltd. (hereinafter "Licensor") grants you a perpetual, worldwide, non-exclusive, royalty-free, and non-transferable license to use AUI Products (hereinafter "Software") for non-commercial purposes only.
- * 2. Permitted Use
- * You may use the software for the following non-commercial purposes:
- * Educational, academic, and research purposes
- * Personal use
- * Testing, development, and demonstration purposes
- * Use exclusively in a localhost environment
- * 3. Prohibited Use
- * You may not use the software for the following commercial purposes:
- * Business or professional operations
- * Licensing, renting, exchanging, selling, or distributing the software or its modifications
- * Including the software in commercial products or services
- * Use by government agencies or international organizations
- * 4. Non-Commercial Evaluation Use
- * Employees of a company may use the software for evaluation, development, and testing purposes only in non-commercial environments.
- * 5. Commercial Use Notice
- * To use the software for commercial purposes, you must obtain an appropriate license from the Licensor.For commercial use inquiries, please contact the Company.
- * 6. Localhost Usage Restriction
- * This software is permitted to be used only in a localhost environment.If the software is uploaded to an external web server where a separate access domain or access IP exists, a valid commercial license must be purchased.
- *
- * Copyright © AUISoft Co., Ltd. https://www.auisoft.net
+/**
+ * AUIGrid 3.0.17 License
+ * Client ID : AUISoft DEMO
  */
-/* eslint-disable */
-const AUIGridLicense = 'eyJjdCI6Ikc5QWExc0tScDNBYytmZGhFS1VLNXVHYjdhTk81dmZiVmFHRG5VZWVVT3YwOXlkSFRtZ2VjakpLeU1MMWxpdmNaL2MxdXh4eEc5cU9UR1ZyUVl5NTdBRmNVTG00NDRyYW1DR0xWT3pPV0gwPSIsIml2IjoiMmEwZjZjN2Q5YzUyZGVhMWFiZjliMGY0NGIwYTkyNWUiLCJzIjoiYTlkOTJhOWI3NWZhMTBlYiJ9';
-if (typeof window !== 'undefined') window.AUIGridLicense = AUIGridLicense;
+const AUIGridLicense = "eyJjdCI6IjJlWElFTTdMMlJQaEgwTUJVVUxzcm9ldEQzL09VMWg5UjVVYm8rb3ZhSmxvODhNb1FzSkpqU0puNG5QdG9CbVJJbHhlVTZ1MWd3SlE2a25SSHJFQXN5eVdubC81ZnZHcXF4WnBTV2RHU2RWZG9uUTJOeXlTMUtmYXc2cGpTU2RJIiwiaXYiOiJmMTFkNTcxNWNmMTZmMzgzMzBkZjhlMmRjNjFlMGNmMiIsInMiOiJhODdmMDE2MjU1NjYwOTFhIn0=";
+if (typeof window !== "undefined") window.AUIGridLicense = AUIGridLicense;
 
 /*!
  * AUIGrid v3.0.16.14
@@ -43910,6 +43885,13 @@ if (typeof module !== 'undefined' && module.exports) {
                             syn.uicontrols.$auigrid.setDataAtCell(setting.elID, row, setting.textColumnID, text);
                         }
                     }
+                    else if (setting.viewType == 'opengrid' && syn.uicontrols.$opengrid) {
+                        var row = syn.uicontrols.$opengrid.getActiveRowIndex(setting.elID);
+                        syn.uicontrols.$opengrid.setDataAtCell(setting.elID, row, setting.codeColumnID, value);
+                        if (setting.textColumnID) {
+                            syn.uicontrols.$opengrid.setDataAtCell(setting.elID, row, setting.textColumnID, text);
+                        }
+                    }
                 }
 
                 if (callback) {
@@ -52944,6 +52926,724 @@ if (typeof module !== 'undefined' && module.exports) {
 
 (function (window) {
     'use strict';
+
+    syn.uicontrols = syn.uicontrols || new syn.module();
+    var $propertygrid = syn.uicontrols.$propertygrid || new syn.module();
+    var propertyGridSequence = 0;
+
+    $propertygrid.extend({
+        name: 'syn.uicontrols.$propertygrid',
+        version: 'v2026.7.3',
+        propertyGridControls: [],
+        defaultSetting: {
+            elID: '',
+            data: null,
+            value: null,
+            meta: null,
+            customTypes: null,
+            helpHtml: '[?]',
+            sort: false,
+            isCollapsible: false,
+            defaultGroupName: 'Other',
+            mode: '',
+            autoMeta: true,
+            jsonRows: 5,
+            includeFunctions: true,
+            classNames: 'syn-propertygrid',
+            callback: null,
+            dataType: 'object',
+            belongID: null,
+            getter: false,
+            setter: false,
+            controlText: null,
+            validators: null,
+            transactConfig: null,
+            triggerConfig: null
+        },
+
+        addModuleList(el, moduleList, setting, controlType) {
+            var elementID = el.getAttribute('id');
+            var dataField = el.getAttribute('syn-datafield');
+            var formDataField = el.closest('form') ? el.closest('form').getAttribute('syn-datafield') : '';
+
+            moduleList.push({
+                id: elementID,
+                formDataFieldID: formDataField,
+                field: dataField,
+                module: this.name,
+                type: controlType
+            });
+        },
+
+        controlLoad(elID, setting) {
+            var el = syn.$l.get(elID);
+            if ($object.isNullOrUndefined(el) == true) {
+                return;
+            }
+
+            setting = syn.$w.argumentsExtend($propertygrid.defaultSetting, setting || {});
+
+            var mod = window[syn.$w.pageScript];
+            if (mod && mod.hook.controlInit) {
+                var moduleSettings = mod.hook.controlInit(elID, setting);
+                setting = syn.$w.argumentsExtend(setting, moduleSettings);
+            }
+
+            setting.elID = elID;
+            setting.meta = setting.meta && typeof setting.meta === 'object' ? setting.meta : {};
+            setting.customTypes = setting.customTypes && typeof setting.customTypes === 'object' ? setting.customTypes : {};
+            setting.defaultGroupName = setting.defaultGroupName;
+            setting.value = $propertygrid.normalizeSource(setting.data || setting.value || {});
+            setting.callback = $propertygrid.resolveCallback(setting.callback);
+
+            el.setAttribute('syn-options', JSON.stringify($propertygrid.toSerializableSetting(setting)));
+            $propertygrid.addControlSetting(el, setting);
+            $propertygrid.render(elID, setting.value, setting);
+
+            if (setting.bindingID && syn.uicontrols.$data) {
+                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+            }
+        },
+
+        addControlSetting(el, setting) {
+            var control = $propertygrid.getControl(el.id);
+            if (control) {
+                control.setting = $object.clone($propertygrid.toSerializableSetting(setting));
+                control.runtimeSetting = setting;
+                control.valueFuncs = {};
+                control.fields = {};
+                return control;
+            }
+
+            control = {
+                id: el.id,
+                sequence: 'pg' + (propertyGridSequence++),
+                setting: $object.clone($propertygrid.toSerializableSetting(setting)),
+                runtimeSetting: setting,
+                valueFuncs: {},
+                fields: {}
+            };
+
+            $propertygrid.propertyGridControls.push(control);
+            return control;
+        },
+
+        render(elID, value, setting) {
+            var el = syn.$l.get(elID);
+            if ($object.isNullOrUndefined(el) == true) {
+                return;
+            }
+
+            setting = syn.$w.argumentsExtend($propertygrid.defaultSetting, setting || {});
+            setting.elID = elID;
+            setting.meta = setting.meta && typeof setting.meta === 'object' ? setting.meta : {};
+            setting.customTypes = setting.customTypes && typeof setting.customTypes === 'object' ? setting.customTypes : {};
+            setting.defaultGroupName = setting.defaultGroupName;
+            setting.value = $propertygrid.normalizeSource(value || {});
+            setting.callback = $propertygrid.resolveCallback(setting.callback);
+
+            var control = $propertygrid.getControl(elID) || $propertygrid.addControlSetting(el, setting);
+            control.setting = $object.clone($propertygrid.toSerializableSetting(setting));
+            control.runtimeSetting = setting;
+            control.valueFuncs = {};
+            control.fields = {};
+
+            if (setting.classNames) {
+                syn.$m.addClass(el, setting.classNames);
+            }
+
+            el.innerHTML = '';
+            var table = document.createElement('table');
+            table.className = 'pgTable';
+            table.setAttribute('role', 'grid');
+
+            var groupedRows = {};
+            var groupOrder = [];
+            var properties = Object.keys(setting.value);
+
+            if (setting.sort) {
+                if (typeof setting.sort === 'function') {
+                    properties.sort(setting.sort);
+                }
+                else {
+                    properties.sort();
+                }
+            }
+
+            properties.forEach(function (propertyName) {
+                var propertyValue = setting.value[propertyName];
+                var propertyMeta = setting.meta[propertyName] || {};
+
+                propertyMeta = $propertygrid.prepareMeta(propertyName, propertyValue, propertyMeta, setting);
+
+                if (propertyMeta.browsable === false || (typeof propertyValue === 'function' && setting.includeFunctions !== true)) {
+                    return;
+                }
+
+                var groupName = propertyMeta.group || setting.defaultGroupName;
+                if (!groupedRows[groupName]) {
+                    groupedRows[groupName] = [];
+                    groupOrder.push(groupName);
+                }
+
+                groupedRows[groupName].push($propertygrid.createPropertyRow(control, propertyName, propertyValue, propertyMeta, setting));
+            });
+
+            groupOrder.forEach(function (groupName) {
+                table.appendChild($propertygrid.createGroupRow(groupName, setting.isCollapsible));
+                groupedRows[groupName].forEach(function (row) {
+                    table.appendChild(row);
+                });
+            });
+
+            el.appendChild(table);
+        },
+
+        createGroupRow(displayName, isCollapsible) {
+            var row = document.createElement('tr');
+            row.className = 'pgGroupRow' + (isCollapsible ? ' pgCollapsible' : '');
+
+            var cell = document.createElement('td');
+            cell.className = 'pgGroupCell';
+            cell.colSpan = 2;
+            cell.textContent = (isCollapsible ? '- ' : '') + displayName;
+            row.appendChild(cell);
+
+            if (isCollapsible) {
+                row.addEventListener('click', function () {
+                    var isExpanded = row.getAttribute('aria-expanded') !== 'false';
+                    row.setAttribute('aria-expanded', isExpanded ? 'false' : 'true');
+                    cell.textContent = (isExpanded ? '+ ' : '- ') + displayName;
+
+                    var next = row.nextElementSibling;
+                    while (next && next.classList.contains('pgGroupRow') == false) {
+                        next.hidden = isExpanded;
+                        next = next.nextElementSibling;
+                    }
+                });
+                row.setAttribute('aria-expanded', 'true');
+            }
+
+            return row;
+        },
+
+        createPropertyRow(control, name, value, meta, setting) {
+            var row = document.createElement('tr');
+            row.className = 'pgRow';
+            row.setAttribute('data-property', name);
+
+            var displayName = meta.name || name;
+            var inputCell;
+
+            if (meta.colspan2 == true) {
+                inputCell = document.createElement('td');
+                inputCell.className = 'pgCell pgValueCell';
+                inputCell.colSpan = 2;
+                inputCell.appendChild($propertygrid.createValueElement(control, name, value, meta, setting));
+                row.appendChild(inputCell);
+            }
+            else {
+                var labelCell = document.createElement('td');
+                labelCell.className = 'pgCell pgNameCell';
+                labelCell.appendChild($propertygrid.createLabelElement(displayName, meta, setting));
+                row.appendChild(labelCell);
+
+                inputCell = document.createElement('td');
+                inputCell.className = 'pgCell pgValueCell';
+                inputCell.appendChild($propertygrid.createValueElement(control, name, value, meta, setting));
+                row.appendChild(inputCell);
+            }
+
+            return row;
+        },
+
+        createLabelElement(displayName, meta, setting) {
+            var fragment = document.createDocumentFragment();
+            var text = document.createElement('span');
+            text.className = 'pgLabelText';
+            text.textContent = displayName;
+            fragment.appendChild(text);
+
+            if (typeof meta.description === 'string' && meta.description && (typeof meta.showHelp === 'undefined' || meta.showHelp)) {
+                var help = document.createElement('span');
+                help.className = 'pgTooltip';
+                help.title = meta.description;
+                help.innerHTML = setting.helpHtml;
+                fragment.appendChild(help);
+            }
+
+            return fragment;
+        },
+
+        createValueElement(control, name, value, meta, setting) {
+            meta = meta || {};
+
+            var type = meta.type || '';
+            var elemId = control.sequence + '_' + name;
+            var customType = setting.customTypes[type];
+            var element;
+
+            if (customType && typeof customType.html === 'function') {
+                element = $propertygrid.createCustomElement(customType.html(elemId, name, value, meta));
+                $propertygrid.registerCustomValue(control, customType, elemId, name, value, meta);
+            }
+            else if (type === 'boolean' || (type === '' && typeof value === 'boolean')) {
+                element = document.createElement('input');
+                element.type = 'checkbox';
+                element.id = elemId;
+                element.checked = !!value;
+                control.valueFuncs[name] = function () {
+                    return element.checked;
+                };
+                $propertygrid.bindChange(element, control, name, setting, function () {
+                    return element.checked;
+                });
+            }
+            else if (type === 'options' && Array.isArray(meta.options)) {
+                element = $propertygrid.createSelectElement(elemId, value, meta.options);
+                control.valueFuncs[name] = function () {
+                    return element.value;
+                };
+                $propertygrid.bindChange(element, control, name, setting, function () {
+                    return element.value;
+                });
+            }
+            else if (type === 'number' || (type === '' && typeof value === 'number')) {
+                element = document.createElement('input');
+                element.type = 'number';
+                element.id = elemId;
+                element.value = $object.isNullOrUndefined(value) == true ? '' : value;
+                $propertygrid.applyNumberOptions(element, meta.options);
+                control.valueFuncs[name] = function () {
+                    var numberValue = Number(element.value);
+                    return element.value === '' || isNaN(numberValue) ? null : numberValue;
+                };
+                $propertygrid.bindChange(element, control, name, setting, function () {
+                    var numberValue = Number(element.value);
+                    return element.value === '' || isNaN(numberValue) ? null : numberValue;
+                });
+            }
+            else if (type === 'color') {
+                element = document.createElement('input');
+                element.type = 'color';
+                element.id = elemId;
+                element.value = $propertygrid.normalizeColor(value);
+                control.valueFuncs[name] = function () {
+                    return element.value;
+                };
+                $propertygrid.bindChange(element, control, name, setting, function () {
+                    return element.value;
+                });
+            }
+            else if (type === 'label') {
+                element = document.createElement('label');
+                element.id = elemId;
+                element.textContent = $object.isNullOrUndefined(value) == true ? '' : value;
+                if (typeof meta.description === 'string' && meta.description) {
+                    element.title = meta.description;
+                }
+            }
+            else if (type === 'json') {
+                element = document.createElement('textarea');
+                element.id = elemId;
+                element.rows = meta.rows || setting.jsonRows;
+                element.value = $propertygrid.stringifyJsonValue(value);
+                control.valueFuncs[name] = function () {
+                    return $propertygrid.parseJsonValue(element, value);
+                };
+                $propertygrid.bindChange(element, control, name, setting, function () {
+                    return $propertygrid.parseJsonValue(element, value);
+                });
+            }
+            else if (type === 'function') {
+                element = document.createElement('textarea');
+                element.id = elemId;
+                element.rows = meta.rows || setting.jsonRows;
+                element.value = typeof value === 'function' ? value.toString() : '';
+                element.readOnly = meta.readonly !== false && meta.readOnly !== false;
+                control.valueFuncs[name] = function () {
+                    return value;
+                };
+            }
+            else {
+                element = document.createElement('input');
+                element.type = 'text';
+                element.id = elemId;
+                element.value = $object.isNullOrUndefined(value) == true ? '' : value;
+                control.valueFuncs[name] = function () {
+                    return element.value;
+                };
+                $propertygrid.bindChange(element, control, name, setting, function () {
+                    return element.value;
+                });
+            }
+
+            $propertygrid.applyCommonMeta(element, meta);
+            control.fields[name] = element;
+            return element;
+        },
+
+        prepareMeta(name, value, meta, setting) {
+            meta = meta || {};
+            var result = {};
+            for (var key in meta) {
+                result[key] = meta[key];
+            }
+
+            if (!result.name) {
+                result.name = name;
+            }
+
+            if (!result.group && setting.mode === 'defaultSetting') {
+                result.group = $propertygrid.getDefaultSettingGroup(name, value);
+            }
+
+            if (!result.type && setting.autoMeta === true) {
+                result.type = $propertygrid.inferType(value);
+            }
+
+            if (!result.description && setting.mode === 'defaultSetting') {
+                result.description = $propertygrid.getDefaultSettingDescription(name, value);
+            }
+
+            return result;
+        },
+
+        inferType(value) {
+            if (typeof value === 'boolean') {
+                return 'boolean';
+            }
+
+            if (typeof value === 'number') {
+                return 'number';
+            }
+
+            if (typeof value === 'function') {
+                return 'function';
+            }
+
+            if (value === null || typeof value === 'undefined' || Array.isArray(value) || (value && typeof value === 'object')) {
+                return 'json';
+            }
+
+            if (typeof value === 'string' && /^#[0-9a-fA-F]{6}$/.test(value)) {
+                return 'color';
+            }
+
+            return '';
+        },
+
+        getDefaultSettingGroup(name, value) {
+            if (['dataType', 'belongID', 'getter', 'setter', 'controlText', 'validators', 'transactConfig', 'triggerConfig', 'bindingID'].indexOf(name) > -1) {
+                return 'Binding';
+            }
+
+            if (name.indexOf('dataSource') > -1 || name.indexOf('storeSource') > -1 || name === 'parameters' || name === 'local' || name === 'sharedAssetUrl') {
+                return 'Data Source';
+            }
+
+            if (name.indexOf('Width') > -1 || name.indexOf('Height') > -1 || name === 'width' || name === 'height' || name.indexOf('Class') > -1 || name === 'classNames') {
+                return 'Layout';
+            }
+
+            if (typeof value === 'boolean' || name === 'required' || name === 'readonly' || name === 'disabled') {
+                return 'Behavior';
+            }
+
+            if (Array.isArray(value) || (value && typeof value === 'object') || value === null || typeof value === 'undefined' || typeof value === 'function') {
+                return 'Advanced';
+            }
+
+            return 'General';
+        },
+
+        getDefaultSettingDescription(name, value) {
+            if (typeof value === 'function') {
+                return 'Function values are shown read-only because they are not valid JSON.';
+            }
+
+            if (typeof value === 'undefined') {
+                return 'Undefined is preserved in the control value, but JSON.stringify omits it.';
+            }
+
+            if (value === null) {
+                return 'Null can be edited as JSON null or replaced with another JSON value.';
+            }
+
+            if (Array.isArray(value) || (value && typeof value === 'object')) {
+                return 'Edit as JSON. Invalid JSON keeps the previous value and marks the field.';
+            }
+
+            return '';
+        },
+
+        stringifyJsonValue(value) {
+            if (typeof value === 'undefined') {
+                return 'undefined';
+            }
+
+            return JSON.stringify(value, null, 4);
+        },
+
+        parseJsonValue(element, previousValue) {
+            var text = element.value.trim();
+            element.classList.remove('pgInvalid');
+
+            if (text === 'undefined') {
+                return undefined;
+            }
+
+            try {
+                return JSON.parse(text);
+            }
+            catch (error) {
+                element.classList.add('pgInvalid');
+                return previousValue;
+            }
+        },
+
+        createCustomElement(valueHtml) {
+            if (valueHtml instanceof window.Node) {
+                return valueHtml;
+            }
+
+            var template = document.createElement('template');
+            template.innerHTML = (valueHtml || '').toString().trim();
+            if (template.content.childElementCount === 1) {
+                return template.content.firstElementChild;
+            }
+
+            var wrapper = document.createElement('span');
+            wrapper.className = 'pgCustomValue';
+            wrapper.appendChild(template.content);
+            return wrapper;
+        },
+
+        registerCustomValue(control, customType, elemId, name, value, meta) {
+            var valueFunc = null;
+            if (customType.hasOwnProperty('makeValueFn')) {
+                valueFunc = customType.makeValueFn(elemId, name, value, meta);
+            }
+            else if (customType.hasOwnProperty('valueFn')) {
+                valueFunc = customType.valueFn;
+            }
+            else {
+                valueFunc = function () {
+                    var element = document.getElementById(elemId);
+                    return element && 'value' in element ? element.value : null;
+                };
+            }
+
+            if (typeof valueFunc === 'function') {
+                control.valueFuncs[name] = valueFunc;
+            }
+        },
+
+        createSelectElement(id, selectedValue, options) {
+            var select = document.createElement('select');
+            select.id = id;
+
+            options.forEach(function (option) {
+                var item = document.createElement('option');
+                if (option && typeof option === 'object') {
+                    item.value = option.value;
+                    item.textContent = option.text;
+                }
+                else {
+                    item.value = option;
+                    item.textContent = option;
+                }
+
+                if (selectedValue == item.value) {
+                    item.selected = true;
+                }
+
+                select.appendChild(item);
+            });
+
+            return select;
+        },
+
+        applyNumberOptions(element, options) {
+            if (!options || typeof options !== 'object') {
+                return;
+            }
+
+            ['min', 'max', 'step'].forEach(function (name) {
+                if ($object.isNullOrUndefined(options[name]) == false) {
+                    element.setAttribute(name, options[name]);
+                }
+            });
+        },
+
+        applyCommonMeta(element, meta) {
+            if (!element || element.nodeType !== 1) {
+                return;
+            }
+
+            element.classList.add('pgInput');
+
+            if (typeof meta.description === 'string' && meta.description && meta.showHelp === false) {
+                element.title = meta.description;
+            }
+
+            if (meta.readonly === true || meta.readOnly === true) {
+                element.setAttribute('readonly', 'readonly');
+            }
+
+            if (meta.disabled === true) {
+                element.setAttribute('disabled', 'disabled');
+            }
+
+            if (meta.placeholder) {
+                element.setAttribute('placeholder', meta.placeholder);
+            }
+        },
+
+        bindChange(element, control, name, setting, valueGetter) {
+            var callback = setting.callback;
+            if (typeof callback !== 'function') {
+                return;
+            }
+
+            var handler = function () {
+                callback(element, name, valueGetter(), control);
+            };
+
+            ['change', 'input', 'keyup', 'paste'].forEach(function (eventName) {
+                element.addEventListener(eventName, handler);
+            });
+        },
+
+        getValue(elID, meta) {
+            var result = {};
+            var control = $propertygrid.getControl(elID);
+
+            if (control) {
+                for (var name in control.valueFuncs) {
+                    if (typeof control.valueFuncs[name] === 'function') {
+                        result[name] = control.valueFuncs[name]();
+                    }
+                }
+            }
+
+            return result;
+        },
+
+        setValue(elID, value, meta) {
+            var control = $propertygrid.getControl(elID);
+            var el = syn.$l.get(elID);
+            if (!control || $object.isNullOrUndefined(el) == true) {
+                return;
+            }
+
+            var setting = syn.$w.argumentsExtend($propertygrid.defaultSetting, control.runtimeSetting || control.setting || {});
+            setting.meta = meta || setting.meta || {};
+            $propertygrid.render(elID, $propertygrid.normalizeSource(value || {}), setting);
+        },
+
+        clear(elID, isControlLoad) {
+            var control = $propertygrid.getControl(elID);
+            var el = syn.$l.get(elID);
+
+            if (control) {
+                control.valueFuncs = {};
+                control.fields = {};
+            }
+
+            if ($object.isNullOrUndefined(el) == false) {
+                el.innerHTML = '';
+            }
+        },
+
+        getControl(elID) {
+            var result = null;
+            var length = $propertygrid.propertyGridControls.length;
+            for (var i = 0; i < length; i++) {
+                var item = $propertygrid.propertyGridControls[i];
+                if (item.id == elID) {
+                    result = item;
+                    break;
+                }
+            }
+
+            return result;
+        },
+
+        createDefaultSettingMeta(defaultSetting, meta) {
+            var result = {};
+            defaultSetting = $propertygrid.normalizeSource(defaultSetting);
+            meta = meta || {};
+
+            Object.keys(defaultSetting).forEach(function (name) {
+                result[name] = $propertygrid.prepareMeta(name, defaultSetting[name], meta[name], {
+                    mode: 'defaultSetting',
+                    autoMeta: true
+                });
+            });
+
+            return result;
+        },
+
+        normalizeSource(value) {
+            if (!value || typeof value !== 'object' || Array.isArray(value)) {
+                return {};
+            }
+
+            return value;
+        },
+
+        normalizeColor(value) {
+            if (typeof value === 'string' && /^#[0-9a-fA-F]{6}$/.test(value)) {
+                return value;
+            }
+
+            return '#000000';
+        },
+
+        resolveCallback(callback) {
+            if (typeof callback === 'function') {
+                return callback;
+            }
+
+            if (typeof callback === 'string' && callback) {
+                var names = callback.split('.');
+                var context = window;
+                for (var i = 0; i < names.length; i++) {
+                    context = context[names[i]];
+                    if (!context) {
+                        return null;
+                    }
+                }
+
+                return typeof context === 'function' ? context : null;
+            }
+
+            return null;
+        },
+
+        toSerializableSetting(setting) {
+            var result = {};
+            for (var name in setting) {
+                if (typeof setting[name] !== 'function') {
+                    result[name] = setting[name];
+                }
+            }
+
+            return result;
+        },
+
+        setLocale(elID, translations, control, options) {
+        }
+    });
+
+    syn.uicontrols.$propertygrid = $propertygrid;
+})(window);
+
+/// <reference path="/js/syn.js" />
+
+(function (window) {
+    'use strict';
     syn.uicontrols = syn.uicontrols || new syn.module();
     var $tree = syn.uicontrols.$tree || new syn.module();
 
@@ -56750,6 +57450,4024 @@ if (typeof module !== 'undefined' && module.exports) {
     });
     syn.uicontrols.$auigrid = $auigrid;
 
+})(window);
+
+/// <reference path="/js/syn.js" />
+
+(function (window) {
+    'use strict';
+
+    /*
+    OpenGridJs (https://github.com/amurgola/OpenGridJs, MIT License) 기반 HandStack 고도화 그리드 엔진.
+
+    고도화 항목:
+    - 컬럼 정의(field, headerText, width, columnType, editable, hidden, align, format, options) 지원
+    - 단일 행 선택, 키보드 탐색(방향키, Enter/F2 편집, Escape 취소)
+    - 셀 인라인 편집(text, number, checkbox, dropdown)과 Flag(R/C/U/D) 상태 추적
+    - 행 추가/수정/삭제(soft delete) 및 변경 데이터 조회
+    - 가상 스크롤 개선(이벤트 위임, 다중 그리드 안전, insertAdjacentHTML 렌더링)
+    - 정렬(타입 인식), 컬럼 값 필터, 전체 검색, 컬럼 이동/크기 조정
+    - CSV 내보내기(BOM 포함), 컨텍스트 메뉴, 메시지 로케일 지원
+    - XSS 방지를 위한 셀 값 HTML 이스케이프
+    */
+    class OpenGrid {
+        constructor(target, setup) {
+            setup = setup || {};
+
+            this.rootElement = typeof target === 'string' ? document.querySelector(target) : target;
+            if (!this.rootElement) {
+                throw new Error('OpenGrid: 대상 요소를 찾을 수 없습니다.');
+            }
+
+            this.rootElement.gridInstance = this;
+            this.rootElement.classList.add('opengridjs-grid', 'opengridjs-grid-container');
+
+            this.setup = setup;
+            this.gridRowPxSize = setup.rowHeight || 35;
+            this.gridRowPxVisibleArea = setup.gridHeight || 300;
+            this.dynamicRowHeight = setup.dynamicRowHeight === true;
+            this.rowPadding = typeof setup.rowPadding === 'number' ? setup.rowPadding : 20;
+            this.lineHeightMultiplier = typeof setup.lineHeightMultiplier === 'number' ? setup.lineHeightMultiplier : 1.5;
+            this.editable = setup.editable !== false;
+            this.selectionMode = setup.selectionMode || 'single';
+
+            this.messages = Object.assign({
+                emptyData: '데이터가 없습니다',
+                contextMenuTitle: '메뉴',
+                copyRow: '행 복사',
+                exportCsv: 'CSV 내보내기',
+                selectAll: '전체 선택',
+                clearAll: '전체 해제',
+                searchPlaceholder: '검색...',
+                apply: '적용',
+                cancel: '취소',
+                emptyValue: '(빈 값)'
+            }, setup.messages || {});
+
+            this.contextMenuItems = setup.contextMenuOptions || null;
+            this.contextMenuTitle = setup.contextMenuTitle || null;
+            this.useContextMenu = setup.contextMenu !== false;
+            this.loadMoreDataFunction = setup.loadMoreDataFunction || null;
+            this.canLoadMoreData = true;
+            this.isLoadingMoreData = false;
+            this.loadedAtGridHeight = [];
+
+            this.events = {
+                rowClick: setup.onRowClick || null,
+                rowDoubleClick: setup.onRowDoubleClick || null,
+                selectionChange: setup.onSelectionChange || null,
+                cellEditEnd: setup.onCellEditEnd || null,
+                sortChange: setup.onSortChange || null,
+                filterChange: setup.onFilterChange || null,
+                dataChange: setup.onDataChange || null,
+                codeHelpClick: setup.onCodeHelpClick || null
+            };
+
+            this.sortState = { header: null, sortDirection: null };
+            this.columnFilters = {};
+            this.filteredData = null;
+            this.searchTerm = null;
+            this.removedItems = [];
+            this.selectedRowId = null;
+            this.editingCell = null;
+
+            this.gridData = [];
+            this.originalData = [];
+            this.totalHeight = 0;
+            this._rowHeightCache = new Map();
+            this._measureCanvas = null;
+            this._measureCtx = null;
+            this._destroyed = false;
+
+            this.setColumns(setup.columns, Array.isArray(setup.data) ? setup.data : null);
+            this.initGrid();
+            this.generateGridHeader();
+
+            if (typeof setup.data === 'function') {
+                setup.data().then((fetchedData) => {
+                    this.setData(fetchedData || [], { keepFlag: true });
+                });
+            }
+            else {
+                this.loadData(Array.isArray(setup.data) ? setup.data : []);
+            }
+
+            this.addEventListeners();
+            this.observeResize();
+
+            setTimeout(() => {
+                if (this._destroyed) {
+                    return;
+                }
+
+                this.updateVisibleArea();
+                this.updateColumnWidths();
+                this.autoResizeColumns();
+                if (this.dynamicRowHeight) {
+                    this.invalidateRowHeightCache();
+                    this.rerender();
+                }
+            }, 0);
+        }
+
+        debounce(func, delay) {
+            let inDebounce;
+            return function () {
+                const context = this;
+                const args = arguments;
+                clearTimeout(inDebounce);
+                inDebounce = setTimeout(() => func.apply(context, args), delay);
+            };
+        }
+
+        generateGUID() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+                const r = Math.random() * 16 | 0;
+                const v = c === 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+
+        escapeHtml(text) {
+            const str = text == null ? '' : String(text);
+            return str.replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        cssEscape(value) {
+            if (window.CSS && window.CSS.escape) {
+                return window.CSS.escape(value);
+            }
+            return String(value).replace(/[^a-zA-Z0-9_-]/g, '\\$&');
+        }
+
+        setMessages(messages) {
+            this.messages = Object.assign(this.messages, messages || {});
+            this.generateGridHeader();
+            this.rerender();
+        }
+
+        normalizeColumn(column, index) {
+            const field = column.field || column.dataField || column.data || 'column' + index;
+            // 정의되지 않은 확장 속성(storeSourceID, nameColumnID, codeColumnID 등)은 그대로 유지한다.
+            const normalized = Object.assign({}, column);
+            normalized.data = field;
+            normalized.field = field;
+            normalized.dataField = field;
+            normalized.headerName = column.headerText != null ? column.headerText : (column.columnText != null ? column.columnText : (column.headerName != null ? column.headerName : field));
+            normalized.width = column.width ? (typeof column.width === 'number' ? `width:${column.width}px` : `min-width:${column.width}`) : null;
+            normalized.configWidth = column.width || null;
+            const columnType = column.columnType === 'numeric' ? 'number' : (column.columnType || 'text');
+            normalized.columnType = ['text', 'number', 'checkbox', 'dropdown', 'codehelp'].indexOf(columnType) > -1 ? columnType : 'text';
+            normalized.editable = column.editable !== false;
+            normalized.hidden = column.hidden === true || column.isHidden === true;
+            normalized.align = column.align || (normalized.columnType === 'number' ? 'right' : 'left');
+            normalized.format = typeof column.format === 'function' ? column.format : null;
+            normalized.options = Array.isArray(column.options) ? column.options : null;
+            normalized.optionsProvider = typeof column.optionsProvider === 'function' ? column.optionsProvider : null;
+            normalized.checkValue = column.checkValue == null ? '1' : column.checkValue;
+            normalized.unCheckValue = column.unCheckValue == null ? '0' : column.unCheckValue;
+            normalized.autoresize = column.autoresize !== false && !column.width;
+            normalized.sortDirection = null;
+            normalized.contentMinWidth = 0;
+            return normalized;
+        }
+
+        getColumnOptions(header) {
+            if (Array.isArray(header.options)) {
+                return header.options;
+            }
+
+            if (typeof header.optionsProvider === 'function') {
+                try {
+                    return header.optionsProvider() || [];
+                } catch (error) {
+                    return [];
+                }
+            }
+
+            return [];
+        }
+
+        setColumns(columns, sampleData) {
+            if (!Array.isArray(columns) || columns.length === 0) {
+                const sample = sampleData && sampleData.length > 0 ? sampleData[0] : null;
+                columns = sample
+                    ? Object.keys(sample).filter((key) => key !== 'Flag').map((key) => ({ field: key }))
+                    : [];
+            }
+
+            this.allColumns = columns.map((column, index) => this.normalizeColumn(column, index));
+            this.refreshVisibleColumns();
+        }
+
+        refreshVisibleColumns() {
+            this.headerData = this.allColumns.filter((column) => column.hidden !== true);
+            const share = this.headerData.length > 0 ? (100 / this.headerData.length) : 100;
+            this.headerData.forEach((column) => {
+                if (!column.width) {
+                    column.width = `width:${share}%`;
+                }
+            });
+        }
+
+        getColumn(field) {
+            return this.allColumns.find((column) => column.field === field) || null;
+        }
+
+        getColumnIndex(field) {
+            return this.headerData.findIndex((column) => column.field === field);
+        }
+
+        setColumnVisible(field, visible) {
+            const column = this.getColumn(field);
+            if (!column) {
+                return;
+            }
+
+            column.hidden = visible === false;
+            this.refreshVisibleColumns();
+            this.generateGridHeader();
+            this.invalidateRowHeightCache();
+            this.rerender();
+        }
+
+        loadData(data) {
+            this.originalData = (data || []).map((item) => {
+                if (item.id === undefined || item.id === null || item.id === '') {
+                    item.id = this.generateGUID();
+                }
+                return item;
+            });
+
+            if ((!this.allColumns || this.allColumns.length === 0) && this.originalData.length > 0) {
+                this.setColumns(null, this.originalData);
+                this.generateGridHeader();
+            }
+
+            this.processData(this.originalData);
+            this.generateGridRows();
+        }
+
+        setData(data, options) {
+            options = options || {};
+            this.invalidateRowHeightCache();
+            this.removedItems = [];
+            this.columnFilters = {};
+            this.filteredData = null;
+            this.searchTerm = null;
+            this.selectedRowId = null;
+            this.cancelEdit();
+
+            if (options.keepFlag !== true) {
+                (data || []).forEach((item) => {
+                    item.Flag = 'R';
+                });
+            }
+
+            this.loadData(data || []);
+            this.updateFilterIndicators();
+            this.raiseEvent('dataChange', 'set');
+        }
+
+        getData() {
+            return this.originalData;
+        }
+
+        getViewData() {
+            return this.gridData.map((item) => item.data);
+        }
+
+        processData(data) {
+            this.gridData = (data || []).map((dataItem) => {
+                if (dataItem.id === undefined || dataItem.id === null || dataItem.id === '') {
+                    dataItem.id = this.generateGUID();
+                }
+                return {
+                    data: dataItem,
+                    position: 0,
+                    height: this.gridRowPxSize,
+                    isRendered: false
+                };
+            });
+
+            this.sortData();
+            this.calculateRowHeights();
+            this.buildPositionsArray();
+        }
+
+        appendData(newData) {
+            if (typeof newData === 'function') {
+                newData().then((fetchedData) => {
+                    if (fetchedData && fetchedData.length > 0) {
+                        this.originalData = this.originalData.concat(fetchedData.map((item) => {
+                            if (item.Flag === undefined) {
+                                item.Flag = 'R';
+                            }
+                            return item;
+                        }));
+                        this.processData(this.filteredData || this.originalData);
+                        this.rerender();
+                    }
+                    else {
+                        this.canLoadMoreData = false;
+                    }
+                });
+            }
+            else if (newData && newData.length > 0) {
+                this.originalData = this.originalData.concat(newData.map((item) => {
+                    if (item.Flag === undefined) {
+                        item.Flag = 'R';
+                    }
+                    return item;
+                }));
+                this.processData(this.filteredData || this.originalData);
+                this.rerender();
+            }
+            else {
+                this.canLoadMoreData = false;
+            }
+        }
+
+        updateRecordData(newData, options) {
+            options = options || {};
+            const animate = options.animate !== false;
+            const highlightDuration = options.highlightDuration || 2000;
+            const recordsToUpdate = Array.isArray(newData) ? newData : [newData];
+
+            recordsToUpdate.forEach((newRecord) => {
+                if (newRecord.id == null) {
+                    return;
+                }
+
+                const existingIndex = this.originalData.findIndex((item) => String(item.id) === String(newRecord.id));
+                if (existingIndex === -1) {
+                    return;
+                }
+
+                const oldRecord = this.originalData[existingIndex];
+                const changedFields = {};
+                Object.keys(newRecord).forEach((key) => {
+                    if (key !== 'id' && oldRecord[key] !== newRecord[key]) {
+                        changedFields[key] = {
+                            oldValue: oldRecord[key],
+                            newValue: newRecord[key],
+                            isNumeric: !isNaN(oldRecord[key]) && !isNaN(newRecord[key])
+                        };
+                    }
+                });
+
+                this.originalData[existingIndex] = Object.assign({}, oldRecord, newRecord);
+                this._rowHeightCache.delete(String(newRecord.id));
+
+                if (this.filteredData) {
+                    const filteredIndex = this.filteredData.findIndex((item) => String(item.id) === String(newRecord.id));
+                    if (filteredIndex !== -1) {
+                        this.filteredData[filteredIndex] = Object.assign({}, this.filteredData[filteredIndex], newRecord);
+                    }
+                }
+
+                const gridItem = this.gridData.find((item) => String(item.data.id) === String(newRecord.id));
+                if (gridItem) {
+                    gridItem.data = this.originalData[existingIndex];
+                }
+
+                this.updateRecordVisually(newRecord.id, this.originalData[existingIndex], changedFields, animate, highlightDuration);
+            });
+        }
+
+        updateRecordVisually(recordId, rowData, changedFields, animate, highlightDuration) {
+            const rowElement = this.rootElement.querySelector(`.opengridjs-grid-row[data-id="${this.cssEscape(String(recordId))}"]`);
+            if (!rowElement) {
+                return;
+            }
+
+            const columnItems = rowElement.querySelectorAll('.opengridjs-grid-column-item');
+            columnItems.forEach((columnItem, index) => {
+                if (index >= this.headerData.length) {
+                    return;
+                }
+
+                const header = this.headerData[index];
+                if (changedFields[header.field]) {
+                    columnItem.innerHTML = this.getCellHtmlValue(rowData, header);
+                    if (animate) {
+                        this.animateFieldChange(columnItem, changedFields[header.field], highlightDuration);
+                    }
+                }
+            });
+        }
+
+        animateFieldChange(element, change, duration) {
+            element.classList.remove('opengridjs-field-updated', 'opengridjs-field-increased', 'opengridjs-field-decreased');
+
+            if (change.isNumeric) {
+                const oldNum = parseFloat(change.oldValue);
+                const newNum = parseFloat(change.newValue);
+                if (newNum > oldNum) {
+                    element.classList.add('opengridjs-field-increased');
+                }
+                else if (newNum < oldNum) {
+                    element.classList.add('opengridjs-field-decreased');
+                }
+                else {
+                    element.classList.add('opengridjs-field-updated');
+                }
+            }
+            else {
+                element.classList.add('opengridjs-field-updated');
+            }
+
+            setTimeout(() => {
+                element.classList.remove('opengridjs-field-updated', 'opengridjs-field-increased', 'opengridjs-field-decreased');
+            }, duration);
+        }
+
+        upgradeFlag(item) {
+            if (item.Flag !== 'C') {
+                item.Flag = 'U';
+            }
+        }
+
+        getFlag(rowRef) {
+            const item = this.resolveRowItem(rowRef);
+            return item ? (item.Flag || '') : null;
+        }
+
+        setFlag(rowRef, flag) {
+            const item = this.resolveRowItem(rowRef);
+            if (item) {
+                item.Flag = flag;
+            }
+        }
+
+        resolveRowItem(rowRef) {
+            if (rowRef == null) {
+                return null;
+            }
+
+            if (typeof rowRef === 'object') {
+                return rowRef;
+            }
+
+            if (typeof rowRef === 'number') {
+                const gridItem = this.gridData[rowRef];
+                return gridItem ? gridItem.data : null;
+            }
+
+            return this.originalData.find((item) => String(item.id) === String(rowRef)) || null;
+        }
+
+        insertRow(values, options) {
+            options = options || {};
+            const item = Object.assign({}, values || {});
+            if (item.id === undefined || item.id === null || item.id === '') {
+                item.id = this.generateGUID();
+            }
+            item.Flag = 'C';
+
+            const index = typeof options.index === 'number' ? options.index : this.originalData.length;
+            this.originalData.splice(index, 0, item);
+            if (this.filteredData) {
+                this.filteredData.splice(Math.min(index, this.filteredData.length), 0, item);
+            }
+
+            this.processData(this.filteredData || this.originalData);
+            this.rerender();
+
+            if (options.focus !== false) {
+                const rowIndex = this.gridData.findIndex((gridItem) => gridItem.data === item);
+                if (rowIndex > -1) {
+                    this.selectRow(rowIndex);
+                    this.scrollToRow(rowIndex);
+                }
+            }
+
+            this.raiseEvent('dataChange', 'insert', item);
+            return item;
+        }
+
+        updateRow(values, rowRef) {
+            const item = this.resolveRowItem(rowRef != null ? rowRef : this.getSelectedIndex());
+            if (!item) {
+                return null;
+            }
+
+            Object.keys(values || {}).forEach((key) => {
+                if (key !== 'id' && key !== 'Flag' && item[key] !== values[key]) {
+                    item[key] = values[key];
+                    this.upgradeFlag(item);
+                }
+            });
+
+            this._rowHeightCache.delete(String(item.id));
+            this.rerender();
+            this.raiseEvent('dataChange', 'update', item);
+            return item;
+        }
+
+        removeRow(rowRef) {
+            const item = this.resolveRowItem(rowRef != null ? rowRef : this.getSelectedIndex());
+            if (!item) {
+                return null;
+            }
+
+            const removeFrom = (list) => {
+                const index = list.indexOf(item);
+                if (index > -1) {
+                    list.splice(index, 1);
+                }
+            };
+
+            if (item.Flag !== 'C') {
+                const removed = Object.assign({}, item);
+                removed.Flag = 'D';
+                this.removedItems.push(removed);
+            }
+
+            removeFrom(this.originalData);
+            if (this.filteredData) {
+                removeFrom(this.filteredData);
+            }
+
+            if (this.selectedRowId != null && String(this.selectedRowId) === String(item.id)) {
+                this.selectedRowId = null;
+                this.raiseEvent('selectionChange', -1, null);
+            }
+
+            this.processData(this.filteredData || this.originalData);
+            this.rerender();
+            this.raiseEvent('dataChange', 'remove', item);
+            return item;
+        }
+
+        getRemovedItems() {
+            return this.removedItems;
+        }
+
+        getUpdateItems() {
+            return this.originalData
+                .filter((item) => item.Flag === 'C' || item.Flag === 'U')
+                .concat(this.removedItems);
+        }
+
+        isUpdateData() {
+            return this.getUpdateItems().length > 0;
+        }
+
+        resetUpdatedItems(flag) {
+            this.removedItems = [];
+            this.originalData.forEach((item) => {
+                item.Flag = flag || 'R';
+            });
+        }
+
+        getCellValue(rowIndex, field) {
+            const gridItem = this.gridData[rowIndex];
+            if (!gridItem) {
+                return null;
+            }
+
+            const value = this.resolveCellValue(gridItem.data, field);
+            return value === undefined ? null : value;
+        }
+
+        setCellValue(rowIndex, field, value, options) {
+            options = options || {};
+            const gridItem = this.gridData[rowIndex];
+            if (!gridItem) {
+                return;
+            }
+
+            const item = gridItem.data;
+            const oldValue = item[field];
+            if (oldValue === value) {
+                return;
+            }
+
+            item[field] = value;
+            if (options.silent !== true) {
+                this.upgradeFlag(item);
+            }
+
+            this._rowHeightCache.delete(String(item.id));
+            this.refreshRowElement(item);
+
+            if (options.raiseEvent !== false) {
+                this.raiseEvent('cellEditEnd', rowIndex, field, oldValue, value, item);
+            }
+        }
+
+        refreshRowElement(item) {
+            const rowElement = this.rootElement.querySelector(`.opengridjs-grid-row[data-id="${this.cssEscape(String(item.id))}"]`);
+            if (!rowElement) {
+                return;
+            }
+
+            rowElement.innerHTML = this.buildRowCellsHtml(item);
+        }
+
+        resolveCellValue(rowData, field) {
+            if (field == null) {
+                return undefined;
+            }
+
+            if (typeof field === 'string' && field.includes('.')) {
+                const keys = field.split('.');
+                let current = rowData;
+                for (const key of keys) {
+                    if (current == null) {
+                        return undefined;
+                    }
+                    current = current[key];
+                }
+                return current;
+            }
+
+            return rowData ? rowData[field] : undefined;
+        }
+
+        initGrid() {
+            if (this.dynamicRowHeight) {
+                this.rootElement.classList.add('opengridjs-dynamic-row-height');
+            }
+
+            this.rootElement.innerHTML = `
+        <div class='opengridjs-grid-additional'></div>
+        <div class='opengridjs-grid-header'></div>
+        <div class='opengridjs-grid-rows-container'></div>`;
+        }
+
+        generateGridHeader() {
+            const gridHeader = this.rootElement.querySelector('.opengridjs-grid-header');
+            if (!gridHeader) {
+                return;
+            }
+
+            gridHeader.innerHTML = this.headerData.map((header) => {
+                const headerStyle = this.getColumnStyle(header);
+                return `<div class='opengridjs-grid-header-item' draggable="true" data-header='${this.escapeHtml(header.data)}' style='${headerStyle}'>
+                <span class='opengridjs-header-text'>${this.escapeHtml(header.headerName)}</span>
+                <span class='opengridjs-header-actions'>
+                    <span class='opengridjs-filter-button' data-column='${this.escapeHtml(header.data)}' title='Filter'>▼</span>
+                    <span class='opengridjs-sort-indicator'></span>
+                </span>
+                <span class='opengridjs-resize-handle'></span>
+            </div>`;
+            }).join('');
+
+            const headerItems = Array.from(gridHeader.getElementsByClassName('opengridjs-grid-header-item'));
+            let headerOrder = 0;
+            headerItems.forEach((headerItem) => {
+                const header = this.headerData.find((x) => x.data === headerItem.getAttribute('data-header'));
+                if (header && header.sortDirection) {
+                    headerItem.classList.add(header.sortDirection === 'asc' ? 'opengridjs-sort-asc' : 'opengridjs-sort-desc');
+                }
+
+                headerItem.setAttribute('data-order', headerOrder++);
+                headerItem.addEventListener('dragstart', (e) => this.handleDragStart(e));
+                headerItem.addEventListener('dragover', (e) => this.handleDragOver(e));
+                headerItem.addEventListener('dragenter', (e) => this.handleDragEnter(e));
+                headerItem.addEventListener('dragleave', (e) => this.handleDragLeave(e));
+                headerItem.addEventListener('drop', (e) => this.handleDrop(e));
+                headerItem.addEventListener('dragend', (e) => this.handleDragEnd(e));
+
+                const resizeHandle = headerItem.querySelector('.opengridjs-resize-handle');
+                if (resizeHandle) {
+                    this.addResizeHandleEvents(resizeHandle, headerItem);
+                }
+            });
+
+            this.updateFilterIndicators();
+        }
+
+        handleDragStart(e) {
+            this.draggedColumn = e.target.closest('.opengridjs-grid-header-item');
+            if (!this.draggedColumn) {
+                return;
+            }
+
+            this.draggedColumn.classList.add('opengridjs-dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', this.draggedColumn.getAttribute('data-header'));
+        }
+
+        handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+        }
+
+        handleDragEnter(e) {
+            e.preventDefault();
+            const headerItem = e.target.closest('.opengridjs-grid-header-item');
+            if (headerItem && headerItem !== this.draggedColumn) {
+                headerItem.classList.add('opengridjs-drag-over');
+            }
+        }
+
+        handleDragLeave(e) {
+            const headerItem = e.target.closest('.opengridjs-grid-header-item');
+            if (headerItem && !headerItem.contains(e.relatedTarget)) {
+                headerItem.classList.remove('opengridjs-drag-over');
+            }
+        }
+
+        handleDrop(e) {
+            e.preventDefault();
+            const dropTarget = e.target.closest('.opengridjs-grid-header-item');
+            if (!dropTarget || !this.draggedColumn || dropTarget === this.draggedColumn) {
+                return;
+            }
+
+            const draggedIndex = parseInt(this.draggedColumn.getAttribute('data-order'), 10);
+            const dropIndex = parseInt(dropTarget.getAttribute('data-order'), 10);
+            if (isNaN(draggedIndex) || isNaN(dropIndex) ||
+                draggedIndex < 0 || dropIndex < 0 ||
+                draggedIndex >= this.headerData.length || dropIndex >= this.headerData.length) {
+                return;
+            }
+
+            const draggedHeader = this.headerData[draggedIndex];
+            const dropHeader = this.headerData[dropIndex];
+
+            const fromIndex = this.allColumns.indexOf(draggedHeader);
+            this.allColumns.splice(fromIndex, 1);
+            const toIndex = this.allColumns.indexOf(dropHeader);
+            this.allColumns.splice(draggedIndex < dropIndex ? toIndex + 1 : toIndex, 0, draggedHeader);
+
+            this.refreshVisibleColumns();
+            this.generateGridHeader();
+            this.invalidateRowHeightCache();
+            this.updateColumnWidths();
+            this.rerender();
+        }
+
+        handleDragEnd() {
+            this.rootElement.querySelectorAll('.opengridjs-grid-header-item').forEach((item) => {
+                item.classList.remove('opengridjs-dragging', 'opengridjs-drag-over');
+            });
+            this.draggedColumn = null;
+        }
+
+        addResizeHandleEvents(resizeHandle, headerItem) {
+            let isResizing = false;
+            let startX = 0;
+            let startWidth = 0;
+            let headerIndex = 0;
+            let wasResizing = false;
+
+            resizeHandle.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+
+                isResizing = true;
+                startX = e.clientX;
+                startWidth = headerItem.offsetWidth;
+                headerIndex = parseInt(headerItem.getAttribute('data-order'), 10);
+
+                headerItem.classList.add('opengridjs-resizing');
+                headerItem.setAttribute('draggable', 'false');
+
+                document.addEventListener('mousemove', handleMouseMove);
+                document.addEventListener('mouseup', handleMouseUp);
+            });
+
+            resizeHandle.addEventListener('dblclick', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.autoResizeColumns();
+            });
+
+            const handleMouseMove = (e) => {
+                if (!isResizing) {
+                    return;
+                }
+
+                const deltaX = e.clientX - startX;
+                const minAllowedWidth = this.headerData[headerIndex].contentMinWidth || 80;
+                const newWidth = Math.max(minAllowedWidth, startWidth + deltaX);
+
+                this.headerData[headerIndex].width = `width:${newWidth}px`;
+                headerItem.style.width = `${newWidth}px`;
+                headerItem.style.flexGrow = '0';
+                headerItem.style.flexShrink = '0';
+
+                this.updateColumnWidths();
+            };
+
+            const handleMouseUp = () => {
+                if (!isResizing) {
+                    return;
+                }
+
+                wasResizing = true;
+                isResizing = false;
+                headerItem.classList.remove('opengridjs-resizing');
+                headerItem.setAttribute('draggable', 'true');
+
+                document.removeEventListener('mousemove', handleMouseMove);
+                document.removeEventListener('mouseup', handleMouseUp);
+
+                this.invalidateRowHeightCache();
+                this.rerender();
+
+                setTimeout(() => {
+                    wasResizing = false;
+                }, 10);
+            };
+
+            headerItem._wasResizing = () => wasResizing;
+        }
+
+        updateColumnWidths() {
+            this.calculateContentMinWidths();
+
+            const gridRows = this.rootElement.querySelectorAll('.opengridjs-grid-row');
+            gridRows.forEach((row) => {
+                const columnItems = row.querySelectorAll('.opengridjs-grid-column-item');
+                columnItems.forEach((item, index) => {
+                    if (this.headerData[index]) {
+                        item.style.cssText = this.getColumnStyle(this.headerData[index], true);
+                    }
+                });
+            });
+
+            this.updateHeaderWidths();
+        }
+
+        updateHeaderWidths() {
+            const headerItems = this.rootElement.querySelectorAll('.opengridjs-grid-header-item');
+            headerItems.forEach((headerItem, index) => {
+                if (this.headerData[index]) {
+                    headerItem.style.cssText = this.getColumnStyle(this.headerData[index]);
+                }
+            });
+        }
+
+        calculateContentMinWidths() {
+            const visibleRows = this.rootElement.querySelectorAll('.opengridjs-grid-row');
+            const headerItems = this.rootElement.querySelectorAll('.opengridjs-grid-header-item');
+
+            this.headerData.forEach((header, columnIndex) => {
+                let maxContentWidth = 0;
+
+                if (headerItems[columnIndex]) {
+                    const headerText = headerItems[columnIndex].querySelector('.opengridjs-header-text');
+                    if (headerText) {
+                        const headerTextWidth = this.measureTextWidth(headerText.textContent, headerText);
+                        maxContentWidth = Math.max(maxContentWidth, headerTextWidth + 50 + 32);
+                    }
+                }
+
+                if (!this.dynamicRowHeight) {
+                    const sampleSize = Math.min(10, visibleRows.length);
+                    for (let i = 0; i < sampleSize; i++) {
+                        const cell = visibleRows[i].querySelectorAll('.opengridjs-grid-column-item')[columnIndex];
+                        if (cell) {
+                            maxContentWidth = Math.max(maxContentWidth, this.measureTextWidth(cell.textContent, cell) + 32);
+                        }
+                    }
+                }
+
+                header.contentMinWidth = Math.max(80, maxContentWidth);
+            });
+        }
+
+        getColumnStyle(header, isCell) {
+            const baseStyle = header.width || '';
+            let minWidthConstraint = '';
+            if (header.contentMinWidth) {
+                minWidthConstraint = `min-width: ${header.contentMinWidth}px; `;
+            }
+
+            let alignStyle = '';
+            if (isCell === true && header.align && header.align !== 'left') {
+                alignStyle = `justify-content: ${header.align === 'right' ? 'flex-end' : 'center'}; text-align: ${header.align}; `;
+            }
+
+            if (baseStyle.includes('min-width') || baseStyle.includes('width:')) {
+                const pxMatch = baseStyle.match(/(\d+(?:\.\d+)?)px/);
+                const explicitPx = pxMatch ? parseFloat(pxMatch[1]) : 0;
+                const basisPx = Math.max(explicitPx, header.contentMinWidth || 0);
+                const basisDecl = basisPx > 0 ? `flex-basis: ${basisPx}px; ` : '';
+                return `${minWidthConstraint}${baseStyle}; ${basisDecl}${alignStyle}flex-grow: 0; flex-shrink: 0; box-sizing: border-box;`;
+            }
+
+            return `${minWidthConstraint}${baseStyle}; ${alignStyle}box-sizing: border-box;`;
+        }
+
+        autoResizeColumns() {
+            const gridHeader = this.rootElement.querySelector('.opengridjs-grid-header');
+            if (!gridHeader) {
+                return;
+            }
+
+            const containerWidth = gridHeader.offsetWidth;
+            if (containerWidth === 0) {
+                return;
+            }
+
+            let fixedWidth = 0;
+            let autoResizeCount = 0;
+            this.headerData.forEach((header) => {
+                if (header.autoresize === false) {
+                    const headerEl = gridHeader.querySelector(`[data-header='${this.cssEscape(header.data)}']`);
+                    fixedWidth += headerEl ? headerEl.offsetWidth : 0;
+                }
+                else {
+                    autoResizeCount++;
+                }
+            });
+
+            if (autoResizeCount === 0) {
+                return;
+            }
+
+            const equalWidth = Math.floor((containerWidth - fixedWidth) / autoResizeCount);
+            this.headerData.forEach((header) => {
+                if (header.autoresize !== false) {
+                    header.width = `width:${equalWidth}px`;
+                }
+            });
+
+            this.generateGridHeader();
+            this.invalidateRowHeightCache();
+            this.rerender();
+        }
+
+        _getMeasureContext() {
+            if (this._measureCtx) {
+                return this._measureCtx;
+            }
+
+            try {
+                this._measureCanvas = document.createElement('canvas');
+                const ctx = this._measureCanvas.getContext('2d');
+                if (ctx) {
+                    this._measureCtx = ctx;
+                    return ctx;
+                }
+            } catch (error) {
+                // canvas 미지원 환경
+            }
+            return null;
+        }
+
+        measureTextWidth(text, element) {
+            try {
+                const context = this._getMeasureContext();
+                if (!context) {
+                    throw new Error('canvas 미지원');
+                }
+
+                const styles = window.getComputedStyle(element);
+                context.font = `${styles.fontWeight} ${styles.fontSize} ${styles.fontFamily}`;
+                return Math.ceil(context.measureText(text || '').width);
+            } catch (error) {
+                return (text || '').length * 7;
+            }
+        }
+
+        measureTextHeight(text, font, cellWidth, lineHeight) {
+            const str = text == null ? '' : String(text);
+            if (!str.trim()) {
+                return lineHeight;
+            }
+
+            const usableWidth = Math.max(20, cellWidth);
+            const ctx = this._getMeasureContext();
+            if (!ctx) {
+                const charsPerLine = Math.max(1, Math.floor(usableWidth / 7));
+                let totalLines = 0;
+                str.split(/\r?\n/).forEach((segment) => {
+                    totalLines += Math.max(1, Math.ceil(segment.length / charsPerLine));
+                });
+                return totalLines * lineHeight;
+            }
+
+            ctx.font = font;
+
+            let totalLines = 0;
+            str.split(/\r?\n/).forEach((segment) => {
+                if (!segment) {
+                    totalLines += 1;
+                    return;
+                }
+
+                const words = segment.split(/\s+/).filter(Boolean);
+                if (words.length === 0) {
+                    totalLines += 1;
+                    return;
+                }
+
+                let line = '';
+                let lineCount = 1;
+                for (const word of words) {
+                    const candidate = line ? `${line} ${word}` : word;
+                    if (ctx.measureText(candidate).width > usableWidth && line) {
+                        lineCount++;
+                        if (ctx.measureText(word).width > usableWidth) {
+                            lineCount += Math.max(0, Math.floor(ctx.measureText(word).width / usableWidth));
+                        }
+                        line = word;
+                    }
+                    else {
+                        line = candidate;
+                    }
+                }
+
+                if (line && ctx.measureText(line).width > usableWidth) {
+                    lineCount += Math.max(0, Math.floor(ctx.measureText(line).width / usableWidth));
+                }
+                totalLines += lineCount;
+            });
+
+            return totalLines * lineHeight;
+        }
+
+        _getRowFontMetrics() {
+            let font = '400 14px -apple-system, BlinkMacSystemFont, sans-serif';
+            let lineHeight = Math.ceil(14 * this.lineHeightMultiplier);
+
+            const sample = this.rootElement.querySelector('.opengridjs-grid-column-item')
+                || this.rootElement.querySelector('.opengridjs-grid-header-item');
+
+            if (sample && window.getComputedStyle) {
+                try {
+                    const styles = window.getComputedStyle(sample);
+                    font = `${styles.fontWeight || '400'} ${styles.fontSize || '14px'} ${styles.fontFamily || 'sans-serif'}`;
+                    const parsedSize = parseFloat(styles.fontSize);
+                    if (!isNaN(parsedSize) && parsedSize > 0) {
+                        lineHeight = Math.ceil(parsedSize * this.lineHeightMultiplier);
+                    }
+                } catch (error) {
+                    // 기본값 유지
+                }
+            }
+            return { font, lineHeight };
+        }
+
+        _getColumnPixelWidths() {
+            const headerEls = this.rootElement.querySelectorAll('.opengridjs-grid-header-item');
+            const widths = [];
+            let anyResolved = false;
+            this.headerData.forEach((_, i) => {
+                const el = headerEls[i];
+                const w = el ? el.offsetWidth : 0;
+                if (w > 0) {
+                    anyResolved = true;
+                }
+                widths.push(w);
+            });
+
+            const container = this.rootElement.querySelector('.opengridjs-grid-header');
+            const containerWidth = (container && container.offsetWidth) || this.rootElement.offsetWidth || 600;
+            const fallback = Math.max(60, Math.floor(containerWidth / Math.max(1, this.headerData.length)));
+
+            if (!anyResolved) {
+                return this.headerData.map(() => fallback);
+            }
+
+            return widths.map((w) => (w > 0 ? w : fallback));
+        }
+
+        _stripHtml(value) {
+            const str = value == null ? '' : String(value);
+            if (!/<[^>]*>/.test(str)) {
+                return str;
+            }
+            return str.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+        }
+
+        calculateRowHeights() {
+            if (!this.dynamicRowHeight) {
+                this.gridData.forEach((item) => {
+                    item.height = this.gridRowPxSize;
+                });
+                return;
+            }
+
+            const columnWidths = this._getColumnPixelWidths();
+            const { font, lineHeight } = this._getRowFontMetrics();
+            const horizontalPadding = 32;
+
+            this.gridData.forEach((item) => {
+                const cacheKey = item.data && item.data.id != null ? String(item.data.id) : null;
+                const cached = cacheKey != null ? this._rowHeightCache.get(cacheKey) : null;
+                if (cached != null) {
+                    item.height = cached;
+                    return;
+                }
+
+                let tallest = 0;
+                this.headerData.forEach((header, colIdx) => {
+                    let value = this.resolveCellValue(item.data, header.data);
+                    if (value == null || value === '') {
+                        return;
+                    }
+
+                    if (header.format) {
+                        try {
+                            value = header.format(value, item.data);
+                        } catch (error) {
+                            // 원본 값 사용
+                        }
+                    }
+
+                    const plain = this._stripHtml(value);
+                    if (!plain) {
+                        return;
+                    }
+
+                    const cellWidth = Math.max(20, (columnWidths[colIdx] || 120) - horizontalPadding);
+                    const h = this.measureTextHeight(plain, font, cellWidth, lineHeight);
+                    if (h > tallest) {
+                        tallest = h;
+                    }
+                });
+
+                const computed = Math.max(this.gridRowPxSize, Math.ceil(tallest + this.rowPadding));
+                item.height = computed;
+                if (cacheKey != null) {
+                    this._rowHeightCache.set(cacheKey, computed);
+                }
+            });
+        }
+
+        buildPositionsArray() {
+            let pos = 0;
+            for (let i = 0; i < this.gridData.length; i++) {
+                const item = this.gridData[i];
+                item.position = pos;
+                pos += item.height || this.gridRowPxSize;
+            }
+            this.totalHeight = pos;
+        }
+
+        invalidateRowHeightCache() {
+            this._rowHeightCache.clear();
+        }
+
+        findFirstVisibleRowIndex(scrollTop) {
+            const n = this.gridData.length;
+            if (n === 0) {
+                return 0;
+            }
+
+            let lo = 0;
+            let hi = n - 1;
+            let result = n;
+            while (lo <= hi) {
+                const mid = (lo + hi) >> 1;
+                const item = this.gridData[mid];
+                const end = item.position + (item.height || this.gridRowPxSize);
+                if (end > scrollTop) {
+                    result = mid;
+                    hi = mid - 1;
+                }
+                else {
+                    lo = mid + 1;
+                }
+            }
+            return result;
+        }
+
+        findLastVisibleRowIndex(viewportBottom) {
+            const n = this.gridData.length;
+            if (n === 0) {
+                return -1;
+            }
+
+            let lo = 0;
+            let hi = n - 1;
+            let result = -1;
+            while (lo <= hi) {
+                const mid = (lo + hi) >> 1;
+                const item = this.gridData[mid];
+                if (item.position < viewportBottom) {
+                    result = mid;
+                    lo = mid + 1;
+                }
+                else {
+                    hi = mid - 1;
+                }
+            }
+            return result;
+        }
+
+        updateVisibleArea() {
+            const container = this.rootElement.querySelector('.opengridjs-grid-rows-container');
+            if (container && container.clientHeight > 0) {
+                this.gridRowPxVisibleArea = container.clientHeight;
+            }
+        }
+
+        generateGridRows() {
+            const gridRowsContainer = this.rootElement.querySelector('.opengridjs-grid-rows-container');
+            if (!gridRowsContainer) {
+                return;
+            }
+
+            if (this.setup.gridHeight) {
+                gridRowsContainer.style.height = `${this.setup.gridHeight}px`;
+            }
+
+            gridRowsContainer.innerHTML = "<div class='opengridjs-grid-rows'></div>";
+            const gridRows = gridRowsContainer.querySelector('.opengridjs-grid-rows');
+            gridRows.style.height = `${this.totalHeight || (this.gridRowPxSize * this.gridData.length)}px`;
+
+            this.updateVisibleArea();
+            this.renderVisible(gridRowsContainer, gridRows);
+            this.renderEmptyMessage(gridRowsContainer);
+        }
+
+        renderEmptyMessage(gridRowsContainer) {
+            const existing = gridRowsContainer.querySelector('.opengridjs-empty-message');
+            if (this.gridData.length === 0) {
+                if (!existing) {
+                    const empty = document.createElement('div');
+                    empty.className = 'opengridjs-empty-message';
+                    empty.textContent = this.messages.emptyData;
+                    gridRowsContainer.appendChild(empty);
+                }
+            }
+            else if (existing) {
+                existing.remove();
+            }
+        }
+
+        rerender() {
+            this.cancelEdit();
+            if (this.filteredData) {
+                this.processData(this.filteredData);
+            }
+            else {
+                this.processData(this.originalData);
+            }
+            this.generateGridRows();
+        }
+
+        renderVisible(gridRowsContainer, gridRows) {
+            if (!gridRowsContainer || !gridRows) {
+                return;
+            }
+
+            if (this.gridData.length === 0) {
+                return;
+            }
+
+            const scrollTop = gridRowsContainer.scrollTop || 0;
+            const viewportBottom = scrollTop + this.gridRowPxVisibleArea;
+
+            let firstIdx = this.findFirstVisibleRowIndex(scrollTop);
+            let lastIdx = this.findLastVisibleRowIndex(viewportBottom);
+
+            const buffer = 3;
+            firstIdx = Math.max(0, firstIdx - buffer);
+            lastIdx = Math.min(this.gridData.length - 1, (lastIdx < 0 ? firstIdx : lastIdx) + buffer);
+
+            for (let i = 0; i < this.gridData.length; i++) {
+                const item = this.gridData[i];
+                if (item.isRendered && (i < firstIdx || i > lastIdx)) {
+                    this.removeRowElement(item);
+                }
+            }
+
+            for (let i = firstIdx; i <= lastIdx; i++) {
+                const item = this.gridData[i];
+                if (!item.isRendered) {
+                    this.addRowElement(gridRows, item, i);
+                }
+            }
+        }
+
+        getCellHtmlValue(rowData, header) {
+            let found = this.resolveCellValue(rowData, header.data);
+
+            if (header.columnType === 'checkbox') {
+                const checked = String(found) === String(header.checkValue) || found === true || found === 1 || found === '1' || found === 'Y' || found === 'true';
+                const disabled = (this.editable === false || header.editable === false) ? ' disabled' : '';
+                return `<input type='checkbox' class='opengridjs-cell-checkbox' data-field='${this.escapeHtml(header.data)}'${checked ? ' checked' : ''}${disabled} />`;
+            }
+
+            if (header.columnType === 'dropdown') {
+                const options = this.getColumnOptions(header);
+                const matched = options.find((option) => {
+                    const optionValue = option && typeof option === 'object' ? option.value : option;
+                    return String(optionValue) === String(found);
+                });
+                if (matched) {
+                    found = matched && typeof matched === 'object' ? matched.text : matched;
+                }
+            }
+
+            if (header.columnType === 'codehelp') {
+                const value = found == null || found === '' ? '&nbsp;' : this.escapeHtml(found);
+                return `<span class='opengridjs-codehelp-value'>${value}</span><button type='button' class='opengridjs-codehelp-button' data-field='${this.escapeHtml(header.data)}' aria-label='코드도움'><svg viewBox='0 0 24 24' aria-hidden='true' focusable='false'><circle cx='11' cy='11' r='7'></circle><line x1='16.5' y1='16.5' x2='21' y2='21'></line></svg></button>`;
+            }
+
+            if (header.format) {
+                try {
+                    return header.format(found, rowData) ?? '&nbsp;';
+                } catch (error) {
+                    // 원본 값 사용
+                }
+            }
+
+            if (found == null || found === '') {
+                return '&nbsp;';
+            }
+
+            return this.escapeHtml(found);
+        }
+
+        buildRowCellsHtml(rowData) {
+            return this.headerData.map((header) => {
+                const columnStyle = this.getColumnStyle(header, true);
+                return `<div class='opengridjs-grid-column-item' data-field='${this.escapeHtml(header.data)}' style='${columnStyle}'>${this.getCellHtmlValue(rowData, header)}</div>`;
+            }).join('');
+        }
+
+        addRowElement(gridRows, rowItem, rowIndex) {
+            rowItem.isRendered = true;
+            const rowHeight = rowItem.height || this.gridRowPxSize;
+            const heightStyle = this.dynamicRowHeight ? `height:${rowHeight}px; ` : `height:${rowHeight}px; `;
+            const selectedClass = this.selectedRowId != null && String(rowItem.data.id) === String(this.selectedRowId) ? ' opengridjs-selected-grid-row' : '';
+
+            gridRows.insertAdjacentHTML('beforeend',
+                `<div data-id='${this.escapeHtml(String(rowItem.data.id))}' data-row-index='${rowIndex}' class='opengridjs-grid-row${selectedClass}' style='${heightStyle}top:${rowItem.position}px'>${this.buildRowCellsHtml(rowItem.data)}</div>`);
+        }
+
+        removeRowElement(rowItem) {
+            rowItem.isRendered = false;
+            const found = this.rootElement.querySelector(`.opengridjs-grid-row[data-id="${this.cssEscape(String(rowItem.data.id))}"]`);
+            if (found) {
+                found.remove();
+            }
+        }
+
+        raiseEvent(eventName) {
+            const handler = this.events[eventName];
+            if (typeof handler === 'function') {
+                try {
+                    return handler.apply(this, Array.prototype.slice.call(arguments, 1));
+                } catch (error) {
+                    if (window.syn && syn.$l && syn.$l.eventLog) {
+                        syn.$l.eventLog('OpenGrid_' + eventName, error.toString(), 'Error');
+                    }
+                }
+            }
+            return undefined;
+        }
+
+        addEventListeners() {
+            const gridRowsContainer = this.rootElement.querySelector('.opengridjs-grid-rows-container');
+
+            const debouncedLoadMore = this.debounce(() => {
+                if (this.isNearBottom(gridRowsContainer) && this.canLoadMoreData && !this.isLoadingMoreData && this.loadMoreDataFunction) {
+                    this.isLoadingMoreData = true;
+                    this.loadMoreDataFunction(() => {
+                        this.isLoadingMoreData = false;
+                    });
+                }
+            }, 300);
+
+            gridRowsContainer.addEventListener('scroll', () => {
+                this.commitEdit();
+                const gridRows = gridRowsContainer.querySelector('.opengridjs-grid-rows');
+                this.renderVisible(gridRowsContainer, gridRows);
+                this.closeContextMenu();
+                debouncedLoadMore();
+            });
+
+            gridRowsContainer.addEventListener('click', (e) => {
+                this.closeContextMenu();
+                const rowElement = e.target.closest('.opengridjs-grid-row');
+                if (!rowElement) {
+                    return;
+                }
+
+                const rowIndex = this.getRowIndexById(rowElement.getAttribute('data-id'));
+                if (rowIndex === -1) {
+                    return;
+                }
+
+                this.selectRow(rowIndex);
+
+                const cell = e.target.closest('.opengridjs-grid-column-item');
+                const item = this.gridData[rowIndex].data;
+                const codeHelpButton = e.target.closest('.opengridjs-codehelp-button');
+                if (codeHelpButton) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const field = codeHelpButton.getAttribute('data-field');
+                    this.raiseEvent('codeHelpClick', rowIndex, field, item);
+                    return;
+                }
+
+                this.raiseEvent('rowClick', rowIndex, item, cell ? cell.getAttribute('data-field') : null);
+            });
+
+            gridRowsContainer.addEventListener('dblclick', (e) => {
+                const rowElement = e.target.closest('.opengridjs-grid-row');
+                if (!rowElement) {
+                    return;
+                }
+
+                const rowIndex = this.getRowIndexById(rowElement.getAttribute('data-id'));
+                if (rowIndex === -1) {
+                    return;
+                }
+
+                const cell = e.target.closest('.opengridjs-grid-column-item');
+                const item = this.gridData[rowIndex].data;
+                const field = cell ? cell.getAttribute('data-field') : null;
+                this.raiseEvent('rowDoubleClick', rowIndex, item, field);
+
+                if (cell && field) {
+                    this.beginEdit(rowIndex, field);
+                }
+            });
+
+            gridRowsContainer.addEventListener('change', (e) => {
+                if (e.target.classList && e.target.classList.contains('opengridjs-cell-checkbox')) {
+                    const rowElement = e.target.closest('.opengridjs-grid-row');
+                    const rowIndex = rowElement ? this.getRowIndexById(rowElement.getAttribute('data-id')) : -1;
+                    const field = e.target.getAttribute('data-field');
+                    if (rowIndex > -1 && field) {
+                        const header = this.getColumn(field);
+                        this.setCellValue(rowIndex, field, e.target.checked ? header.checkValue : header.unCheckValue);
+                    }
+                }
+            });
+
+            gridRowsContainer.addEventListener('contextmenu', (e) => {
+                if (!this.useContextMenu) {
+                    return;
+                }
+
+                const rowElement = e.target.closest('.opengridjs-grid-row');
+                if (!rowElement) {
+                    return;
+                }
+
+                e.preventDefault();
+                const rowIndex = this.getRowIndexById(rowElement.getAttribute('data-id'));
+                if (rowIndex === -1) {
+                    return;
+                }
+
+                this.selectRow(rowIndex);
+                this.showContextMenu(e, this.gridData[rowIndex].data);
+            });
+
+            this.rootElement.setAttribute('tabindex', '0');
+            this.rootElement.addEventListener('keydown', (e) => this.handleKeydown(e));
+
+            this.addHeaderActions();
+        }
+
+        handleKeydown(e) {
+            if (this.editingCell) {
+                return;
+            }
+
+            const rowIndex = this.getSelectedIndex();
+            switch (e.key) {
+                case 'ArrowDown':
+                    if (rowIndex < this.gridData.length - 1) {
+                        e.preventDefault();
+                        this.selectRow(rowIndex + 1);
+                        this.scrollToRow(rowIndex + 1);
+                    }
+                    break;
+                case 'ArrowUp':
+                    if (rowIndex > 0) {
+                        e.preventDefault();
+                        this.selectRow(rowIndex - 1);
+                        this.scrollToRow(rowIndex - 1);
+                    }
+                    break;
+                case 'Enter':
+                case 'F2':
+                    if (rowIndex > -1 && this.headerData.length > 0) {
+                        e.preventDefault();
+                        const editableHeader = this.headerData.find((header) => header.editable !== false);
+                        if (editableHeader) {
+                            this.beginEdit(rowIndex, editableHeader.data);
+                        }
+                    }
+                    break;
+                case 'Escape':
+                    this.closeContextMenu();
+                    break;
+            }
+        }
+
+        addHeaderActions() {
+            const gridHeader = this.rootElement.querySelector('.opengridjs-grid-header');
+
+            gridHeader.addEventListener('click', (e) => {
+                if (e.target.classList.contains('opengridjs-filter-button')) {
+                    e.stopPropagation();
+                    this.toggleFilterMenu(e.target);
+                    return;
+                }
+
+                const headerItem = e.target.closest('.opengridjs-grid-header-item');
+                if (headerItem && headerItem._wasResizing && headerItem._wasResizing()) {
+                    return;
+                }
+
+                const header = headerItem ? headerItem.getAttribute('data-header') : null;
+                const headerData = this.headerData.find((x) => x.data === header);
+                if (headerData) {
+                    headerData.sortDirection = headerData.sortDirection == null || headerData.sortDirection === 'desc' ? 'asc' : 'desc';
+                    this.headerData.forEach((x) => {
+                        if (x !== headerData) {
+                            x.sortDirection = null;
+                        }
+                    });
+
+                    this.sortState = {
+                        header: header,
+                        sortDirection: headerData.sortDirection
+                    };
+
+                    const headerElements = Array.from(gridHeader.getElementsByClassName('opengridjs-grid-header-item'));
+                    headerElements.forEach((headerElement) => {
+                        headerElement.classList.remove('opengridjs-sort-asc', 'opengridjs-sort-desc');
+                        if (headerElement.getAttribute('data-header') === header) {
+                            headerElement.classList.add(headerData.sortDirection === 'asc' ? 'opengridjs-sort-asc' : 'opengridjs-sort-desc');
+                        }
+                    });
+
+                    if (Object.keys(this.columnFilters).length > 0) {
+                        this.applyAllFilters();
+                    }
+                    else {
+                        this.sortData();
+                        this.rerender();
+                    }
+
+                    this.closeContextMenu();
+                    this.raiseEvent('sortChange', header, headerData.sortDirection);
+                }
+            });
+
+            gridHeader.addEventListener('contextmenu', (e) => {
+                const headerItem = e.target.closest('.opengridjs-grid-header-item');
+                if (headerItem) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const filterButton = headerItem.querySelector('.opengridjs-filter-button');
+                    if (filterButton) {
+                        this.toggleFilterMenu(filterButton);
+                    }
+                }
+            });
+        }
+
+        observeResize() {
+            if (typeof ResizeObserver === 'undefined') {
+                return;
+            }
+
+            const debouncedResize = this.debounce(() => {
+                if (this._destroyed) {
+                    return;
+                }
+                this.updateVisibleArea();
+                this.autoResizeColumns();
+            }, 150);
+
+            this._resizeObserver = new ResizeObserver(debouncedResize);
+            this._resizeObserver.observe(this.rootElement);
+        }
+
+        getRowIndexById(id) {
+            if (id == null) {
+                return -1;
+            }
+            return this.gridData.findIndex((item) => String(item.data.id) === String(id));
+        }
+
+        selectRow(rowIndex) {
+            const gridItem = this.gridData[rowIndex];
+            if (!gridItem) {
+                return;
+            }
+
+            const previousId = this.selectedRowId;
+            if (previousId != null && String(previousId) === String(gridItem.data.id)) {
+                return;
+            }
+
+            this.selectedRowId = gridItem.data.id;
+
+            if (previousId != null) {
+                const previousElement = this.rootElement.querySelector(`.opengridjs-grid-row[data-id="${this.cssEscape(String(previousId))}"]`);
+                if (previousElement) {
+                    previousElement.classList.remove('opengridjs-selected-grid-row');
+                }
+            }
+
+            const rowElement = this.rootElement.querySelector(`.opengridjs-grid-row[data-id="${this.cssEscape(String(gridItem.data.id))}"]`);
+            if (rowElement) {
+                rowElement.classList.add('opengridjs-selected-grid-row');
+            }
+
+            this.raiseEvent('selectionChange', rowIndex, gridItem.data);
+        }
+
+        clearSelection() {
+            if (this.selectedRowId == null) {
+                return;
+            }
+
+            const rowElement = this.rootElement.querySelector(`.opengridjs-grid-row[data-id="${this.cssEscape(String(this.selectedRowId))}"]`);
+            if (rowElement) {
+                rowElement.classList.remove('opengridjs-selected-grid-row');
+            }
+
+            this.selectedRowId = null;
+            this.raiseEvent('selectionChange', -1, null);
+        }
+
+        getSelectedIndex() {
+            return this.selectedRowId == null ? -1 : this.getRowIndexById(this.selectedRowId);
+        }
+
+        getSelectedItem() {
+            const rowIndex = this.getSelectedIndex();
+            return rowIndex === -1 ? null : this.gridData[rowIndex].data;
+        }
+
+        scrollToRow(rowIndex) {
+            const gridItem = this.gridData[rowIndex];
+            const container = this.rootElement.querySelector('.opengridjs-grid-rows-container');
+            if (!gridItem || !container) {
+                return;
+            }
+
+            const rowTop = gridItem.position;
+            const rowBottom = rowTop + (gridItem.height || this.gridRowPxSize);
+            if (rowTop < container.scrollTop) {
+                container.scrollTop = rowTop;
+            }
+            else if (rowBottom > container.scrollTop + this.gridRowPxVisibleArea) {
+                container.scrollTop = rowBottom - this.gridRowPxVisibleArea;
+            }
+        }
+
+        beginEdit(rowIndex, field) {
+            if (this.editable === false) {
+                return;
+            }
+
+            const header = this.headerData.find((x) => x.data === field);
+            const gridItem = this.gridData[rowIndex];
+            if (!header || !gridItem || header.editable === false || header.columnType === 'checkbox') {
+                return;
+            }
+
+            this.commitEdit();
+
+            const rowElement = this.rootElement.querySelector(`.opengridjs-grid-row[data-id="${this.cssEscape(String(gridItem.data.id))}"]`);
+            if (!rowElement) {
+                return;
+            }
+
+            const cell = rowElement.querySelector(`.opengridjs-grid-column-item[data-field="${this.cssEscape(field)}"]`);
+            if (!cell) {
+                return;
+            }
+
+            const rawValue = this.resolveCellValue(gridItem.data, field);
+            let editor;
+
+            if (header.columnType === 'dropdown') {
+                editor = document.createElement('select');
+                const options = this.getColumnOptions(header);
+                options.forEach((option) => {
+                    const optionElement = document.createElement('option');
+                    if (option && typeof option === 'object') {
+                        optionElement.value = option.value;
+                        optionElement.textContent = option.text;
+                    }
+                    else {
+                        optionElement.value = option;
+                        optionElement.textContent = option;
+                    }
+
+                    if (String(optionElement.value) === String(rawValue)) {
+                        optionElement.selected = true;
+                    }
+                    editor.appendChild(optionElement);
+                });
+            }
+            else {
+                editor = document.createElement('input');
+                editor.type = header.columnType === 'number' ? 'number' : 'text';
+                editor.value = rawValue == null ? '' : rawValue;
+            }
+
+            editor.className = 'opengridjs-cell-editor';
+            cell.innerHTML = '';
+            cell.appendChild(editor);
+
+            this.editingCell = { rowIndex, field, header, editor, item: gridItem.data, originalValue: rawValue };
+
+            editor.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.commitEdit();
+                    this.rootElement.focus();
+                }
+                else if (e.key === 'Escape') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.cancelEdit();
+                    this.rootElement.focus();
+                }
+            });
+
+            editor.addEventListener('blur', () => {
+                this.commitEdit();
+            });
+
+            editor.focus();
+            if (editor.select) {
+                editor.select();
+            }
+        }
+
+        commitEdit() {
+            const editing = this.editingCell;
+            if (!editing) {
+                return;
+            }
+
+            this.editingCell = null;
+
+            let newValue = editing.editor.value;
+            if (editing.header.columnType === 'number') {
+                newValue = newValue === '' ? null : Number(newValue);
+                if (newValue != null && isNaN(newValue)) {
+                    newValue = editing.originalValue;
+                }
+            }
+
+            if (newValue !== editing.originalValue) {
+                const item = editing.item;
+                const oldValue = editing.originalValue;
+                item[editing.field] = newValue;
+                if (editing.header.columnType === 'dropdown' && editing.header.nameColumnID) {
+                    const options = this.getColumnOptions(editing.header);
+                    const matched = options.find((option) => {
+                        const optionValue = option && typeof option === 'object' ? option.value : option;
+                        return String(optionValue) === String(newValue);
+                    });
+                    if (matched) {
+                        item[editing.header.nameColumnID] = matched && typeof matched === 'object' ? matched.text : matched;
+                    }
+                }
+                this.upgradeFlag(item);
+                this._rowHeightCache.delete(String(item.id));
+                this.raiseEvent('cellEditEnd', editing.rowIndex, editing.field, oldValue, newValue, item);
+                if (editing.header.columnType === 'codehelp') {
+                    setTimeout(() => {
+                        this.raiseEvent('codeHelpClick', editing.rowIndex, editing.field, item, newValue);
+                    }, 0);
+                }
+            }
+
+            this.refreshRowElement(editing.item);
+        }
+
+        cancelEdit() {
+            const editing = this.editingCell;
+            if (!editing) {
+                return;
+            }
+
+            this.editingCell = null;
+            this.refreshRowElement(editing.item);
+        }
+
+        sortData() {
+            if (!this.sortState.header) {
+                return;
+            }
+
+            const field = this.sortState.header;
+            const direction = this.sortState.sortDirection === 'desc' ? -1 : 1;
+
+            this.gridData.sort((x, y) => {
+                const a = this.resolveCellValue(x.data, field);
+                const b = this.resolveCellValue(y.data, field);
+
+                if (a == null || a === '') {
+                    return (b == null || b === '') ? 0 : -1 * direction;
+                }
+                if (b == null || b === '') {
+                    return 1 * direction;
+                }
+
+                const numberA = typeof a === 'number' ? a : (String(a).trim() !== '' && !isNaN(a) ? parseFloat(a) : NaN);
+                const numberB = typeof b === 'number' ? b : (String(b).trim() !== '' && !isNaN(b) ? parseFloat(b) : NaN);
+                if (!isNaN(numberA) && !isNaN(numberB)) {
+                    return (numberA - numberB) * direction;
+                }
+
+                return String(a).localeCompare(String(b)) * direction;
+            });
+
+            this.gridData.forEach((item) => {
+                item.isRendered = false;
+            });
+        }
+
+        setSorting(field, sortDirection) {
+            const header = this.headerData.find((x) => x.data === field);
+            if (!header) {
+                return;
+            }
+
+            this.headerData.forEach((x) => {
+                x.sortDirection = null;
+            });
+            header.sortDirection = sortDirection === 'desc' ? 'desc' : 'asc';
+            this.sortState = { header: field, sortDirection: header.sortDirection };
+            this.generateGridHeader();
+            this.sortData();
+            this.rerender();
+        }
+
+        clearSorting() {
+            this.sortState = { header: null, sortDirection: null };
+            this.headerData.forEach((x) => {
+                x.sortDirection = null;
+            });
+            this.generateGridHeader();
+            this.rerender();
+        }
+
+        searchFilter(term) {
+            this.searchTerm = term;
+            if (term == null || term === '') {
+                this.reset();
+                return;
+            }
+
+            const lowered = String(term).toLowerCase();
+            this.filteredData = this.originalData.filter((row) => {
+                return this.headerData.some((header) => {
+                    const value = this.resolveCellValue(row, header.data);
+                    return value != null && String(value).toLowerCase().includes(lowered);
+                });
+            });
+
+            this.processData(this.filteredData);
+            this.generateGridRows();
+            this.raiseEvent('filterChange', 'search', term);
+        }
+
+        reset() {
+            this.searchTerm = null;
+            this.columnFilters = {};
+            this.filteredData = null;
+            this.processData(this.originalData);
+            this.generateGridRows();
+            this.updateFilterIndicators();
+        }
+
+        toggleFilterMenu(filterButton) {
+            const column = filterButton.getAttribute('data-column');
+            const existingMenu = this.rootElement.querySelector('.opengridjs-filter-menu');
+
+            if (existingMenu && existingMenu.getAttribute('data-column') === column) {
+                existingMenu.remove();
+                return;
+            }
+
+            if (existingMenu) {
+                existingMenu.remove();
+            }
+
+            this.showFilterMenu(filterButton, column);
+        }
+
+        showFilterMenu(filterButton, column) {
+            const uniqueValues = this.getUniqueColumnValues(column);
+            const currentFilter = this.columnFilters[column] || new Set(uniqueValues);
+
+            const filterMenu = document.createElement('div');
+            filterMenu.className = 'opengridjs-filter-menu';
+            filterMenu.setAttribute('data-column', column);
+
+            const headerItem = filterButton.closest('.opengridjs-grid-header-item');
+            const headerItemRect = headerItem.getBoundingClientRect();
+            const gridRect = this.rootElement.getBoundingClientRect();
+
+            const headerCenter = headerItemRect.left + (headerItemRect.width / 2) - gridRect.left;
+            const menuWidth = 250;
+            const leftPosition = Math.max(0, headerCenter - (menuWidth / 2));
+
+            filterMenu.style.position = 'absolute';
+            filterMenu.style.left = `${leftPosition}px`;
+            filterMenu.style.top = `${headerItemRect.bottom - gridRect.top}px`;
+            filterMenu.style.zIndex = '1000';
+
+            let menuContent = `
+            <div class="opengridjs-filter-menu-header">
+                <button class="opengridjs-filter-select-all">${this.escapeHtml(this.messages.selectAll)}</button>
+                <button class="opengridjs-filter-clear-all">${this.escapeHtml(this.messages.clearAll)}</button>
+            </div>
+            <div class="opengridjs-filter-search">
+                <input type="text" placeholder="${this.escapeHtml(this.messages.searchPlaceholder)}" class="opengridjs-filter-search-input">
+            </div>
+            <div class="opengridjs-filter-options">`;
+
+            uniqueValues.forEach((value) => {
+                const displayValue = value === null || value === undefined || value === '' ? this.messages.emptyValue : value;
+                const isChecked = currentFilter.has(value);
+                menuContent += `
+                <label class="opengridjs-filter-option">
+                    <input type="checkbox" value="${this.escapeHtml(String(value))}" ${isChecked ? 'checked' : ''}>
+                    <span>${this.escapeHtml(String(displayValue))}</span>
+                </label>`;
+            });
+
+            menuContent += `
+            </div>
+            <div class="opengridjs-filter-menu-footer">
+                <button class="opengridjs-filter-apply">${this.escapeHtml(this.messages.apply)}</button>
+                <button class="opengridjs-filter-cancel">${this.escapeHtml(this.messages.cancel)}</button>
+            </div>`;
+
+            filterMenu.innerHTML = menuContent;
+            this.rootElement.querySelector('.opengridjs-grid-additional').appendChild(filterMenu);
+            this.attachFilterMenuEvents(filterMenu, column, uniqueValues);
+
+            setTimeout(() => {
+                document.addEventListener('click', this.closeFilterMenuOnClickOutside);
+            }, 0);
+        }
+
+        attachFilterMenuEvents(filterMenu, column, uniqueValues) {
+            filterMenu.querySelector('.opengridjs-filter-select-all').addEventListener('click', () => {
+                filterMenu.querySelectorAll('.opengridjs-filter-option input').forEach((checkbox) => {
+                    checkbox.checked = true;
+                });
+            });
+
+            filterMenu.querySelector('.opengridjs-filter-clear-all').addEventListener('click', () => {
+                filterMenu.querySelectorAll('.opengridjs-filter-option input').forEach((checkbox) => {
+                    checkbox.checked = false;
+                });
+            });
+
+            const searchInput = filterMenu.querySelector('.opengridjs-filter-search-input');
+            searchInput.addEventListener('input', (e) => {
+                const searchTerm = e.target.value.toLowerCase();
+                filterMenu.querySelectorAll('.opengridjs-filter-option').forEach((option) => {
+                    const text = option.querySelector('span').textContent.toLowerCase();
+                    option.style.display = text.includes(searchTerm) ? 'flex' : 'none';
+                });
+            });
+
+            filterMenu.querySelector('.opengridjs-filter-apply').addEventListener('click', () => {
+                const selectedValues = new Set();
+                filterMenu.querySelectorAll('.opengridjs-filter-option input:checked').forEach((checkbox) => {
+                    const originalValue = uniqueValues.find((v) => String(v) === checkbox.value);
+                    selectedValues.add(originalValue);
+                });
+
+                this.applyColumnFilter(column, selectedValues);
+                filterMenu.remove();
+                document.removeEventListener('click', this.closeFilterMenuOnClickOutside);
+            });
+
+            filterMenu.querySelector('.opengridjs-filter-cancel').addEventListener('click', () => {
+                filterMenu.remove();
+                document.removeEventListener('click', this.closeFilterMenuOnClickOutside);
+            });
+        }
+
+        closeFilterMenuOnClickOutside = (e) => {
+            const filterMenu = this.rootElement.querySelector('.opengridjs-filter-menu');
+            if (filterMenu && e.target && !filterMenu.contains(e.target) &&
+                !(e.target.classList && e.target.classList.contains('opengridjs-filter-button'))) {
+                filterMenu.remove();
+                document.removeEventListener('click', this.closeFilterMenuOnClickOutside);
+            }
+        };
+
+        getUniqueColumnValues(column) {
+            const values = new Set();
+            this.originalData.forEach((row) => {
+                values.add(this.resolveCellValue(row, column));
+            });
+
+            return Array.from(values).sort((a, b) => {
+                if (a === null || a === undefined) {
+                    return 1;
+                }
+                if (b === null || b === undefined) {
+                    return -1;
+                }
+                if (typeof a === 'string' && typeof b === 'string') {
+                    return a.localeCompare(b);
+                }
+                return a > b ? 1 : a < b ? -1 : 0;
+            });
+        }
+
+        applyColumnFilter(column, selectedValues) {
+            if (selectedValues.size === this.getUniqueColumnValues(column).length) {
+                delete this.columnFilters[column];
+            }
+            else {
+                this.columnFilters[column] = selectedValues;
+            }
+
+            this.applyAllFilters();
+            this.updateFilterIndicators();
+            this.raiseEvent('filterChange', 'column', column);
+        }
+
+        applyAllFilters() {
+            let filteredData = this.originalData.slice();
+
+            Object.keys(this.columnFilters).forEach((column) => {
+                const allowedValues = this.columnFilters[column];
+                filteredData = filteredData.filter((row) => allowedValues.has(this.resolveCellValue(row, column)));
+            });
+
+            this.filteredData = Object.keys(this.columnFilters).length > 0 ? filteredData : null;
+            this.processData(this.filteredData || this.originalData);
+            this.generateGridRows();
+        }
+
+        updateFilterIndicators() {
+            const headerItems = this.rootElement.querySelectorAll('.opengridjs-grid-header-item');
+            headerItems.forEach((headerItem) => {
+                const column = headerItem.getAttribute('data-header');
+                const filterButton = headerItem.querySelector('.opengridjs-filter-button');
+                if (filterButton) {
+                    if (this.columnFilters[column] && this.columnFilters[column].size > 0) {
+                        filterButton.classList.add('opengridjs-filter-active');
+                    }
+                    else {
+                        filterButton.classList.remove('opengridjs-filter-active');
+                    }
+                }
+            });
+        }
+
+        clearAllFilters() {
+            this.columnFilters = {};
+            this.filteredData = null;
+            this.searchTerm = null;
+            this.processData(this.originalData);
+            this.generateGridRows();
+            this.updateFilterIndicators();
+            this.raiseEvent('filterChange', 'clear', null);
+        }
+
+        showContextMenu(e, rowData) {
+            this.closeContextMenu();
+            this.gridSelectedObject = rowData;
+
+            let options = this.contextMenuItems;
+            if (!options) {
+                options = [
+                    { actionName: this.messages.copyRow, action: (item) => this.copyRow(item) },
+                    { actionName: this.messages.exportCsv, action: () => this.exportToCSV() }
+                ];
+            }
+
+            const title = this.contextMenuTitle || this.messages.contextMenuTitle;
+            const gridRect = this.rootElement.getBoundingClientRect();
+            const left = `${e.clientX - gridRect.left}px`;
+            const top = `${e.clientY - gridRect.top}px`;
+
+            const menu = document.createElement('div');
+            menu.className = 'opengridjs-contextMenu';
+            menu.style.left = left;
+            menu.style.top = top;
+            menu.innerHTML = `<div class="opengridjs-title">${this.escapeHtml(title)}</div><hr/>` +
+                options.map((option, index) =>
+                    `<button class="opengridjs-context-menu-button ${option.className || ''} opengridjs-btn" data-action-index="${index}">${this.escapeHtml(option.actionName)}</button>`
+                ).join('') + '<br/>&nbsp;';
+
+            this.rootElement.querySelector('.opengridjs-grid-additional').appendChild(menu);
+
+            menu.querySelectorAll('.opengridjs-context-menu-button').forEach((button) => {
+                button.addEventListener('click', (event) => {
+                    const option = options[parseInt(event.target.getAttribute('data-action-index'), 10)];
+                    if (option) {
+                        if (typeof option.action === 'function') {
+                            option.action(this.gridSelectedObject, this);
+                        }
+                        else if (option.actionFunctionName && typeof window[option.actionFunctionName] === 'function') {
+                            window[option.actionFunctionName](this.gridSelectedObject);
+                        }
+                    }
+                    this.closeContextMenu();
+                });
+            });
+        }
+
+        closeContextMenu(action) {
+            this.rootElement.querySelectorAll('.opengridjs-contextMenu').forEach((item) => item.remove());
+            if (action) {
+                action(this.gridSelectedObject);
+            }
+        }
+
+        copyRow(rowData) {
+            const formattedData = Object.entries(rowData)
+                .filter(([key]) => key !== 'Flag')
+                .map(([key, value]) => `${key}: ${value}`)
+                .join('\n');
+
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(formattedData).catch(() => {
+                    this.fallbackCopyToClipboard(formattedData);
+                });
+            }
+            else {
+                this.fallbackCopyToClipboard(formattedData);
+            }
+        }
+
+        fallbackCopyToClipboard(text) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            document.body.appendChild(textArea);
+
+            try {
+                textArea.focus();
+                textArea.select();
+                document.execCommand('copy');
+            } catch (error) {
+                // 클립보드 복사 실패 무시
+            } finally {
+                document.body.removeChild(textArea);
+            }
+        }
+
+        exportToCSV(fileName) {
+            const items = this.gridData.map((x) => x.data);
+            if (items.length === 0) {
+                return;
+            }
+
+            const quote = (value) => {
+                const str = value == null ? '' : String(value);
+                return /[",\r\n]/.test(str) ? `"${str.replace(/"/g, '""')}"` : str;
+            };
+
+            const headers = this.headerData.map((header) => quote(header.headerName));
+            const rows = items.map((row) =>
+                this.headerData.map((header) => quote(this.resolveCellValue(row, header.data))).join(','));
+
+            const csv = String.fromCharCode(0xFEFF) + [headers.join(',')].concat(rows).join('\r\n');
+            const csvBlob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const csvUrl = URL.createObjectURL(csvBlob);
+            const link = document.createElement('a');
+            link.href = csvUrl;
+            link.setAttribute('download', fileName || 'export.csv');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(csvUrl);
+        }
+
+        isNearBottom(container) {
+            const result = container.scrollHeight <= container.scrollTop + this.gridRowPxVisibleArea + 4;
+            if (result && !this.loadedAtGridHeight.includes(container.scrollTop)) {
+                this.loadedAtGridHeight.push(container.scrollTop);
+                return true;
+            }
+            return false;
+        }
+
+        stopLoadingMoreData() {
+            this.canLoadMoreData = false;
+        }
+
+        destroy() {
+            this._destroyed = true;
+            document.removeEventListener('click', this.closeFilterMenuOnClickOutside);
+            if (this._resizeObserver) {
+                this._resizeObserver.disconnect();
+                this._resizeObserver = null;
+            }
+            this.rootElement.gridInstance = null;
+            this.rootElement.innerHTML = '';
+            this.rootElement.classList.remove('opengridjs-grid', 'opengridjs-grid-container', 'opengridjs-dynamic-row-height');
+        }
+    }
+
+    if (!window.OpenGrid) {
+        window.OpenGrid = OpenGrid;
+    }
+
+    syn.uicontrols = syn.uicontrols || new syn.module();
+    var $opengrid = syn.uicontrols.$opengrid || new syn.module();
+
+    $opengrid.extend({
+        name: 'syn.uicontrols.$opengrid',
+        version: 'v2026.7.5',
+        gridControls: [],
+        codeHelpUrl: `${syn.$w.proxyBasePath}/assets/shared/codehelp/index2.html`,
+        eventHooks: ['rowClick', 'rowDoubleClick', 'selectionChange', 'cellEditEnd', 'sortChange', 'filterChange', 'dataChange'],
+        defaultSetting: {
+            width: '100%',
+            height: '360px',
+            columns: null,
+            editable: true,
+            rowHeight: 35,
+            dynamicRowHeight: false,
+            selectionMode: 'single',
+            contextMenu: true,
+            contextMenuTitle: null,
+            contextMenuOptions: null,
+            exportFileName: null,
+            loadMoreDataFunction: null,
+            messages: null,
+            dataType: 'list',
+            belongID: null,
+            getter: false,
+            setter: false,
+            controlText: null,
+            validators: null,
+            transactConfig: null,
+            triggerConfig: null
+        },
+
+        addModuleList(el, moduleList, setting, controlType) {
+            var elementID = el.getAttribute('id');
+            var dataField = el.getAttribute('syn-datafield');
+            var formDataField = el.closest('form') ? el.closest('form').getAttribute('syn-datafield') : '';
+
+            moduleList.push({
+                id: elementID,
+                formDataFieldID: formDataField,
+                field: dataField,
+                module: this.name,
+                type: controlType
+            });
+        },
+
+        // columns 축약 정의: [columnID, columnText, width, isHidden, columnType, readOnly, alignConstants, belongID, options, children]
+        getInitializeColumns(elID, columns, editable) {
+            var result = [];
+            if ($object.isNullOrUndefined(columns) == true) {
+                return result;
+            }
+
+            var mod = window[syn.$w.pageScript];
+            if (mod) {
+                mod.config = mod.config || {};
+                mod.config.dataSource = mod.config.dataSource || {};
+            }
+
+            for (var i = 0; i < columns.length; i++) {
+                var column = columns[i];
+                if ($object.isArray(column) == true) {
+                    var columnID = column[0];
+                    var columnText = column[1];
+                    var width = column[2];
+                    var isHidden = column[3];
+                    var columnType = column[4] || 'text';
+                    var readOnly = column[5];
+                    var alignConstants = column[6];
+                    var belongID = column[7];
+                    var options = column[8];
+                    var children = column[9];
+                    var mappedType = columnType == 'numeric' ? 'number' : columnType;
+                    if (['text', 'number', 'checkbox', 'dropdown', 'codehelp'].indexOf(mappedType) == -1) {
+                        mappedType = 'text';
+                    }
+
+                    var columnInfo = {
+                        elID: elID,
+                        field: columnID,
+                        dataField: columnID,
+                        headerText: $object.isNullOrUndefined(columnText) == true ? columnID : columnText,
+                        width: width || null,
+                        editable: $string.toBoolean(editable) == false ? false : !$string.toBoolean(readOnly),
+                        columnType: mappedType,
+                        hidden: $string.toBoolean(isHidden),
+                        isHidden: $string.toBoolean(isHidden),
+                        align: alignConstants || null,
+                        belongID: $object.isNullOrUndefined(belongID) == true ? '' : ($object.isArray(belongID) == true ? belongID.join(',') : belongID)
+                    };
+
+                    if (options && $object.isObject(options) == true) {
+                        for (var option in options) {
+                            columnInfo[option] = options[option];
+                        }
+                    }
+
+                    if (mappedType == 'checkbox') {
+                        columnInfo.checkValue = $string.isNullOrEmpty(columnInfo.checkValue) == true ? '1' : columnInfo.checkValue;
+                        columnInfo.unCheckValue = $string.isNullOrEmpty(columnInfo.unCheckValue) == true ? '0' : columnInfo.unCheckValue;
+                    }
+                    else if (mappedType == 'dropdown') {
+                        columnInfo.storeSourceID = columnInfo.storeSourceID || columnInfo.dataSourceID;
+                        columnInfo.keyField = columnInfo.keyField || 'CodeID';
+                        columnInfo.valueField = columnInfo.valueField || 'CodeValue';
+                        if (mod && columnInfo.storeSourceID) {
+                            if ($object.isNullOrUndefined(mod.config.dataSource[columnInfo.storeSourceID]) == true) {
+                                mod.config.dataSource[columnInfo.storeSourceID] = {
+                                    CodeColumnID: columnInfo.keyField,
+                                    ValueColumnID: columnInfo.valueField,
+                                    DataSource: []
+                                };
+                                syn.$w.addReadyCount();
+                                $opengrid.dataRefresh(elID, columnInfo);
+                            }
+
+                            columnInfo.optionsProvider = function () {
+                                var storeSourceID = this.storeSourceID || this.dataSourceID;
+                                var keyField = this.keyField || 'CodeID';
+                                var valueField = this.valueField || 'CodeValue';
+                                var store = mod.config && mod.config.dataSource ? mod.config.dataSource[storeSourceID] : null;
+                                var dataSource = store && store.DataSource ? store.DataSource : [];
+                                return dataSource.map(function (item) {
+                                    return {
+                                        value: item[keyField],
+                                        text: item[valueField]
+                                    };
+                                });
+                            };
+                        }
+                    }
+                    else if (mappedType == 'codehelp') {
+                        columnInfo.dataSource = columnInfo.dataSource || null;
+                        columnInfo.dataSourceID = columnInfo.dataSourceID || '';
+                        columnInfo.storeSourceID = columnInfo.storeSourceID || columnInfo.dataSourceID;
+                        columnInfo.local = $object.isNullOrUndefined(columnInfo.local) == true ? true : columnInfo.local;
+                        columnInfo.controlText = columnInfo.controlText || '';
+                        columnInfo.codeColumnID = columnInfo.codeColumnID || columnID;
+                        columnInfo.textColumnID = columnInfo.textColumnID || columnID;
+                        columnInfo.parameters = columnInfo.parameters || '';
+                    }
+
+                    if ($object.isNullOrUndefined(children) == false && syn.$l && syn.$l.eventLog) {
+                        syn.$l.eventLog('$opengrid.getInitializeColumns', 'OpenGrid는 children 컬럼을 지원하지 않아 무시합니다. columnID: ' + columnID, 'Warning');
+                    }
+
+                    result.push(columnInfo);
+                }
+                else {
+                    result.push(column);
+                }
+            }
+
+            return result;
+        },
+
+        controlLoad(elID, setting) {
+            var el = syn.$l.get(elID);
+            if ($object.isNullOrUndefined(el) == true) {
+                return;
+            }
+
+            setting = syn.$w.argumentsExtend($opengrid.defaultSetting, setting);
+
+            var mod = window[syn.$w.pageScript];
+            if (mod && mod.hook.controlInit) {
+                var moduleSettings = mod.hook.controlInit(elID, setting);
+                setting = syn.$w.argumentsExtend(setting, moduleSettings);
+            }
+
+            setting.width = el.style.width || setting.width || '100%';
+            if ($object.isNumber(setting.width) == true) {
+                setting.width = setting.width + 'px';
+            }
+
+            setting.height = el.style.height || setting.height || '360px';
+            if ($object.isNumber(setting.height) == true) {
+                setting.height = setting.height + 'px';
+            }
+
+            var columns = $opengrid.getInitializeColumns(elID, setting.columns, setting.editable);
+
+            el.setAttribute('id', elID + '_hidden');
+            el.setAttribute('syn-options', JSON.stringify($opengrid.toSerializableSetting(setting)));
+            el.style.display = 'none';
+
+            var className = el.getAttribute('class') || '';
+            var parent = el.parentNode;
+            var wrapper = document.createElement('div');
+            wrapper.innerHTML = `<div id="${elID}" class="syn-opengrid ${className}" style="width:${setting.width};height:${setting.height};"></div>`;
+            parent.appendChild(wrapper);
+
+            var gridSetup = {
+                columns: columns,
+                data: setting.data || [],
+                rowHeight: setting.rowHeight,
+                dynamicRowHeight: setting.dynamicRowHeight,
+                editable: setting.editable,
+                selectionMode: setting.selectionMode,
+                contextMenu: setting.contextMenu,
+                contextMenuTitle: setting.contextMenuTitle,
+                contextMenuOptions: setting.contextMenuOptions,
+                loadMoreDataFunction: setting.loadMoreDataFunction,
+                messages: setting.messages,
+                onCodeHelpClick: function (rowIndex, dataField, item, searchText) {
+                    return $opengrid.showCodeHelpPopup(elID, rowIndex, dataField, item, searchText);
+                }
+            };
+
+            var gridHookEvents = el.getAttribute('syn-events') || [];
+            try {
+                if (gridHookEvents) {
+                    gridHookEvents = eval(gridHookEvents);
+                }
+            } catch (error) {
+                gridHookEvents = [];
+                syn.$l.eventLog('OpenGrid_controlLoad', error.toString(), 'Debug');
+            }
+
+            if (mod && gridHookEvents && gridHookEvents.length > 0) {
+                for (var i = 0; i < $opengrid.eventHooks.length; i++) {
+                    (function (hook) {
+                        if (gridHookEvents.indexOf(hook) > -1) {
+                            var eventHandler = mod.event ? mod.event['{0}_{1}'.format(elID, hook)] : null;
+                            if (eventHandler) {
+                                gridSetup['on' + hook.charAt(0).toUpperCase() + hook.slice(1)] = function () {
+                                    var args = [elID].concat(Array.prototype.slice.call(arguments));
+                                    return eventHandler.apply(syn.$l.get(elID), args);
+                                };
+                            }
+                        }
+                    })($opengrid.eventHooks[i]);
+                }
+            }
+
+            var gridElement = syn.$l.get(elID);
+            var grid = new OpenGrid(gridElement, gridSetup);
+
+            $opengrid.gridControls.push({
+                id: elID,
+                grid: grid,
+                setting: setting
+            });
+
+            if (setting.bindingID && syn.uicontrols.$data) {
+                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+            }
+        },
+
+        toSerializableSetting(setting) {
+            var result = {};
+            for (var name in setting) {
+                if (typeof setting[name] !== 'function' && name !== 'data') {
+                    result[name] = setting[name];
+                }
+            }
+            return result;
+        },
+
+        getControl(elID) {
+            var result = null;
+            var length = $opengrid.gridControls.length;
+            for (var i = 0; i < length; i++) {
+                var item = $opengrid.gridControls[i];
+                if (item.id == elID) {
+                    result = item;
+                    break;
+                }
+            }
+
+            return result;
+        },
+
+        getGridControl(elID) {
+            var control = $opengrid.getControl(elID);
+            return control ? control.grid : null;
+        },
+
+        getGridSetting(elID) {
+            var control = $opengrid.getControl(elID);
+            return control ? control.setting : null;
+        },
+
+        getGridID(elID) {
+            elID = (elID || '').replace('_hidden', '');
+            return $opengrid.getGridControl(elID) ? elID : null;
+        },
+
+        _getColumnField(elID, dataField) {
+            if ($object.isNumber(dataField) == true) {
+                return $opengrid.colToProp(elID, dataField);
+            }
+            return dataField;
+        },
+
+        _getDataItems(elID, total) {
+            var grid = $opengrid.getGridControl(elID);
+            if (!grid) {
+                return [];
+            }
+            return $string.toBoolean(total) == true ? grid.getData() : grid.getViewData();
+        },
+
+        _getControlState(elID) {
+            var control = $opengrid.getControl(elID);
+            if (!control) {
+                return null;
+            }
+            control.state = control.state || {
+                properties: {},
+                footer: null,
+                fixedColumnCount: 0,
+                fixedRowCount: 0,
+                cellMerge: false,
+                selectedColumnIndex: 0,
+                filters: {}
+            };
+            return control.state;
+        },
+
+        _applyCompatFilters(elID) {
+            var grid = $opengrid.getGridControl(elID);
+            var state = $opengrid._getControlState(elID);
+            if (!grid || !state) {
+                return;
+            }
+
+            var filterNames = Object.keys(state.filters || {});
+            if (filterNames.length == 0) {
+                grid.filteredData = null;
+            }
+            else {
+                grid.filteredData = grid.originalData.filter(function (item) {
+                    for (var i = 0; i < filterNames.length; i++) {
+                        var dataField = filterNames[i];
+                        var filter = state.filters[dataField];
+                        var value = item[dataField];
+                        if (typeof filter == 'function' && filter(dataField, value, item) !== true) {
+                            return false;
+                        }
+                    }
+                    return true;
+                });
+            }
+
+            grid.processData(grid.filteredData || grid.originalData);
+            grid.rerender();
+        },
+
+        dataRefresh(elID, setting, callback) {
+            var defaultSetting = {
+                dataField: null,
+                required: true,
+                emptyText: '전체',
+                local: true,
+                sharedAssetUrl: '',
+                dataSourceID: null,
+                storeSourceID: null,
+                dataSource: null,
+                parameters: null,
+                deleteCache: false,
+                selectedValue: null
+            };
+
+            setting = setting || {};
+            setting.elID = elID;
+            setting.dataField = setting.dataField || setting.field;
+            setting.storeSourceID = setting.storeSourceID || setting.dataSourceID;
+            setting = syn.$w.argumentsExtend(defaultSetting, setting);
+            setting.sharedAssetUrl = setting.sharedAssetUrl || syn.Config.SharedAssetUrl;
+
+            if (!(setting.dataField && setting.storeSourceID)) {
+                return;
+            }
+
+            var mod = window[syn.$w.pageScript];
+            if (!mod) {
+                return;
+            }
+
+            mod.config = mod.config || {};
+            mod.config.dataSource = mod.config.dataSource || {};
+
+            if (mod.config.dataSource[setting.storeSourceID] && $string.toBoolean(setting.deleteCache) == true) {
+                delete mod.config.dataSource[setting.storeSourceID];
+            }
+
+            if (mod.hook && mod.hook.controlInit) {
+                var moduleSettings = mod.hook.controlInit(elID, setting);
+                setting = syn.$w.argumentsExtend(setting, moduleSettings);
+            }
+
+            var refreshGrid = function () {
+                var grid = $opengrid.getGridControl(elID);
+                if (grid) {
+                    grid.rerender();
+                }
+            };
+
+            var dataSource = mod.config.dataSource[setting.storeSourceID];
+            if (dataSource && dataSource.DataSource && dataSource.DataSource.length > 0) {
+                if (callback) {
+                    callback();
+                }
+                refreshGrid();
+                syn.$w.removeReadyCount();
+                return;
+            }
+
+            if (setting.local == true) {
+                syn.$w.loadJson(setting.sharedAssetUrl + 'code/{0}.json'.format(setting.storeSourceID), setting, function (setting, json) {
+                    if (json) {
+                        if (setting.required == false) {
+                            var empty = {};
+                            empty[json.CodeColumnID] = '';
+                            empty[json.ValueColumnID] = setting.emptyText || '';
+                            json.DataSource.unshift(empty);
+                        }
+
+                        mod.config.dataSource[setting.storeSourceID] = json;
+                        if (callback) {
+                            callback();
+                        }
+                        refreshGrid();
+                    }
+                    syn.$w.removeReadyCount();
+                }, false);
+            }
+            else {
+                syn.$w.getDataSource(setting.dataSourceID, setting.parameters, function (json) {
+                    if (json) {
+                        if (setting.required == false) {
+                            var empty = {};
+                            empty[json.CodeColumnID] = '';
+                            empty[json.ValueColumnID] = setting.emptyText || '';
+                            json.DataSource.unshift(empty);
+                        }
+
+                        mod.config.dataSource[setting.storeSourceID] = json;
+                        if (callback) {
+                            callback();
+                        }
+                        refreshGrid();
+                    }
+                    syn.$w.removeReadyCount();
+                });
+            }
+        },
+
+        showCodeHelpPopup(elID, rowIndex, dataField, item, searchText) {
+            var grid = $opengrid.getGridControl(elID);
+            if (!grid) {
+                return;
+            }
+
+            var columnInfo = grid.getColumn(dataField);
+            if (!columnInfo || columnInfo.columnType != 'codehelp') {
+                return;
+            }
+
+            var isAllowEdit = grid.editable !== false && columnInfo.editable !== false;
+            var mod = window[syn.$w.pageScript];
+            var eventHandler = isAllowEdit == true && mod && mod.event ? mod.event['{0}_{1}'.format(elID, 'cellEditBegin')] : null;
+            var columnIndex = $opengrid.propToCol(elID, dataField);
+            if (eventHandler) {
+                var value = eventHandler({
+                    elID: elID,
+                    rowIndex: rowIndex,
+                    columnIndex: columnIndex,
+                    dataField: dataField,
+                    item: item,
+                    value: item ? item[dataField] : null,
+                    text: searchText
+                });
+                isAllowEdit = $string.toBoolean(value);
+            }
+
+            if (isAllowEdit != true || !mod) {
+                return;
+            }
+
+            var synOptions = syn.$w.argumentsExtend(syn.uicontrols.$codepicker.defaultSetting, columnInfo);
+            var codeButtonHandler = mod.event ? mod.event['{0}_codeButtonClick'.format(elID)] : null;
+            if (codeButtonHandler) {
+                var codeOptions = codeButtonHandler(elID, rowIndex, columnIndex, dataField, item);
+                if ($object.isObject(codeOptions) == true) {
+                    synOptions = syn.$w.argumentsExtend(synOptions, codeOptions);
+                }
+                else if ($string.toBoolean(codeOptions) == false) {
+                    return;
+                }
+            }
+
+            synOptions.elID = elID;
+            synOptions.viewType = 'opengrid';
+            synOptions.url = $opengrid.codeHelpUrl || '';
+            synOptions.searchText = searchText || (item ? item[dataField] : '') || '';
+            syn.uicontrols.$codepicker.find(synOptions, function (result) {
+                var changeHandler = mod.event ? mod.event['{0}_codeChange'.format(elID)] : null;
+                if (changeHandler) {
+                    changeHandler(elID, rowIndex, columnIndex, dataField, result);
+                }
+
+                var returnHandler = mod.hook ? mod.hook.frameEvent : null;
+                if (returnHandler) {
+                    returnHandler.call(this, 'codeReturn', {
+                        elID: elID,
+                        row: rowIndex,
+                        col: columnIndex,
+                        columnName: dataField,
+                        result: result
+                    });
+                }
+            });
+        },
+
+        getGridData(elID) {
+            var grid = $opengrid.getGridControl(elID);
+            if (!grid) {
+                return null;
+            }
+
+            var result = grid.getData().map(function (item) {
+                var clone = $object.clone(item);
+                if ($object.isNullOrUndefined(clone.Flag) == true) {
+                    clone.Flag = '';
+                }
+                return clone;
+            });
+
+            return result.concat(grid.getRemovedItems());
+        },
+
+        getUpdateItems(elID) {
+            var grid = $opengrid.getGridControl(elID);
+            return grid ? grid.getUpdateItems() : [];
+        },
+
+        isUpdateData(elID) {
+            var grid = $opengrid.getGridControl(elID);
+            return grid ? grid.isUpdateData() : false;
+        },
+
+        checkEditValue(elID) {
+            return $opengrid.isUpdateData(elID);
+        },
+
+        resetUpdatedItems(elID, flag) {
+            var grid = $opengrid.getGridControl(elID);
+            if (grid) {
+                if (flag == null || flag == 'a') {
+                    flag = 'R';
+                }
+                grid.resetUpdatedItems(flag);
+            }
+        },
+
+        insertRow(elID, values, options) {
+            var grid = $opengrid.getGridControl(elID);
+            if (!grid) {
+                return null;
+            }
+
+            if ($object.isObject(values) == true && (values.values || values.amount || values.index || values.rowIndex)) {
+                var setting = syn.$w.argumentsExtend({
+                    values: {},
+                    index: null,
+                    rowIndex: null,
+                    amount: 1
+                }, values);
+                var inserted = null;
+                var insertIndex = setting.index != null ? setting.index : setting.rowIndex;
+                if (insertIndex == 'last') {
+                    insertIndex = null;
+                }
+                for (var i = 0; i < setting.amount; i++) {
+                    inserted = grid.insertRow(setting.values, { index: insertIndex == null ? undefined : insertIndex + i });
+                }
+                if (typeof options == 'function') {
+                    options(grid.getSelectedIndex(), setting);
+                }
+                return inserted;
+            }
+
+            return grid.insertRow(values, options);
+        },
+
+        removeRow(elID, dataField, rowIndex, callback) {
+            var grid = $opengrid.getGridControl(elID);
+            if (!grid) {
+                return null;
+            }
+
+            var rowRef = rowIndex;
+            if (arguments.length <= 2) {
+                rowRef = dataField;
+            }
+            if ($string.isNullOrEmpty(rowRef) == true) {
+                rowRef = grid.getSelectedIndex();
+            }
+
+            var removed = grid.removeRow(rowRef);
+            var nextIndex = Math.min(rowRef > -1 ? rowRef : grid.getSelectedIndex(), grid.gridData.length - 1);
+            if (nextIndex > -1) {
+                grid.selectRow(nextIndex);
+            }
+            if (typeof callback == 'function') {
+                callback(nextIndex, $opengrid.propToCol(elID, dataField));
+            }
+            return removed;
+        },
+
+        updateRow(elID, values, rowRef) {
+            var grid = $opengrid.getGridControl(elID);
+            return grid ? grid.updateRow(values, rowRef) : null;
+        },
+
+        appendData(elID, newData) {
+            var grid = $opengrid.getGridControl(elID);
+            if (grid) {
+                grid.appendData(newData);
+            }
+        },
+
+        updateRecordData(elID, newData, options) {
+            var grid = $opengrid.getGridControl(elID);
+            if (grid) {
+                grid.updateRecordData(newData, options);
+            }
+        },
+
+        countRows(elID) {
+            var grid = $opengrid.getGridControl(elID);
+            return grid ? grid.getViewData().length : 0;
+        },
+
+        getFlag(elID, rowRef) {
+            var grid = $opengrid.getGridControl(elID);
+            return grid ? grid.getFlag(rowRef) : null;
+        },
+
+        setFlag(elID, rowRef, flag) {
+            var grid = $opengrid.getGridControl(elID);
+            if (grid) {
+                grid.setFlag(rowRef, flag);
+            }
+        },
+
+        getCellValue(elID, rowIndex, dataField) {
+            var grid = $opengrid.getGridControl(elID);
+            if (!grid) {
+                return null;
+            }
+
+            if ($object.isNumber(dataField) == true) {
+                dataField = $opengrid.colToProp(elID, dataField);
+            }
+
+            return grid.getCellValue(rowIndex, dataField);
+        },
+
+        getDataAtCell(elID, rowIndex, dataField) {
+            return $opengrid.getCellValue(elID, rowIndex, dataField);
+        },
+
+        setCellValue(elID, rowIndex, dataField, value) {
+            var grid = $opengrid.getGridControl(elID);
+            if (grid) {
+                if ($object.isNumber(dataField) == true) {
+                    dataField = $opengrid.colToProp(elID, dataField);
+                }
+                grid.setCellValue(rowIndex, dataField, value);
+            }
+        },
+
+        setDataAtCell(elID, rowIndex, dataField, value) {
+            $opengrid.setCellValue(elID, rowIndex, dataField, value);
+        },
+
+        getColumnValues(elID, dataField, total) {
+            var grid = $opengrid.getGridControl(elID);
+            if (!grid) {
+                return [];
+            }
+
+            dataField = $opengrid._getColumnField(elID, dataField);
+            return $opengrid._getDataItems(elID, total).map(function (item) {
+                return item[dataField];
+            });
+        },
+
+        propToCol(elID, dataField) {
+            var grid = $opengrid.getGridControl(elID);
+            return grid ? grid.getColumnIndex(dataField) : -1;
+        },
+
+        colToProp(elID, colIndex) {
+            var grid = $opengrid.getGridControl(elID);
+            if (grid && grid.headerData[colIndex]) {
+                return grid.headerData[colIndex].field;
+            }
+            return null;
+        },
+
+        getSelectedIndex(elID) {
+            var grid = $opengrid.getGridControl(elID);
+            return grid ? grid.getSelectedIndex() : -1;
+        },
+
+        getActiveRowIndex(elID) {
+            return $opengrid.getSelectedIndex(elID);
+        },
+
+        getSelectedItem(elID) {
+            var grid = $opengrid.getGridControl(elID);
+            return grid ? grid.getSelectedItem() : null;
+        },
+
+        selectRow(elID, rowIndex) {
+            var grid = $opengrid.getGridControl(elID);
+            if (grid) {
+                grid.selectRow(rowIndex);
+                grid.scrollToRow(rowIndex);
+            }
+        },
+
+        setRowPosition(elID, rowIndex) {
+            $opengrid.selectRow(elID, rowIndex);
+        },
+
+        clearSelection(elID) {
+            var grid = $opengrid.getGridControl(elID);
+            if (grid) {
+                grid.clearSelection();
+            }
+        },
+
+        setSorting(elID, dataField, sortDirection) {
+            var grid = $opengrid.getGridControl(elID);
+            if (grid) {
+                if ($object.isArray(dataField) == true && dataField.length > 0) {
+                    var sortInfo = dataField[0];
+                    grid.setSorting(sortInfo.dataField || sortInfo.field, sortInfo.sortType == -1 || sortInfo.sortDirection == 'desc' ? 'desc' : 'asc');
+                }
+                else {
+                    grid.setSorting($opengrid._getColumnField(elID, dataField), sortDirection);
+                }
+            }
+        },
+
+        clearSorting(elID) {
+            var grid = $opengrid.getGridControl(elID);
+            if (grid) {
+                grid.clearSorting();
+            }
+        },
+
+        searchAll(elID, term) {
+            var grid = $opengrid.getGridControl(elID);
+            if (grid) {
+                grid.searchFilter(term);
+            }
+        },
+
+        clearFilter(elID) {
+            var grid = $opengrid.getGridControl(elID);
+            if (grid) {
+                grid.clearAllFilters();
+            }
+        },
+
+        visibleColumns(elID, columns, isShow) {
+            var grid = $opengrid.getGridControl(elID);
+            if (grid) {
+                if ($object.isArray(columns) == false) {
+                    columns = [columns];
+                }
+
+                for (var i = 0; i < columns.length; i++) {
+                    var dataField = $opengrid._getColumnField(elID, columns[i]);
+                    grid.setColumnVisible(dataField, $string.toBoolean(isShow));
+                }
+            }
+        },
+
+        isColumnHidden(elID, dataField) {
+            var grid = $opengrid.getGridControl(elID);
+            if (grid) {
+                dataField = $opengrid._getColumnField(elID, dataField);
+                var column = grid.getColumn(dataField);
+                return column ? column.hidden === true : false;
+            }
+            return false;
+        },
+
+        getColumnInfoList(elID) {
+            var grid = $opengrid.getGridControl(elID);
+            return grid ? grid.allColumns : [];
+        },
+
+        setControlSize(elID, size) {
+            var el = syn.$l.get(elID);
+            if (el) {
+                size = size || {};
+                if (size.width) {
+                    el.style.width = $object.isNumber(size.width) == true ? size.width + 'px' : size.width;
+                }
+
+                if (size.height) {
+                    el.style.height = $object.isNumber(size.height) == true ? size.height + 'px' : size.height;
+                }
+
+                var grid = $opengrid.getGridControl(elID);
+                if (grid) {
+                    setTimeout(function () {
+                        grid.updateVisibleArea();
+                        grid.updateColumnWidths();
+                        grid.rerender();
+                    }, 50);
+                }
+            }
+        },
+
+        exportFile(elID, options) {
+            options = options || {};
+            var grid = $opengrid.getGridControl(elID);
+            if (grid) {
+                var setting = $opengrid.getGridSetting(elID);
+                grid.exportToCSV(options.fileName || (setting && setting.exportFileName) || elID + '.csv');
+            }
+        },
+
+        hideContextMenu() {
+            var length = $opengrid.gridControls.length;
+            for (var i = 0; i < length; i++) {
+                var grid = $opengrid.gridControls[i].grid;
+                if (grid && grid.closeContextMenu) {
+                    grid.closeContextMenu();
+                }
+            }
+        },
+
+        contextEventHandler(evt) {
+            $opengrid.hideContextMenu();
+        },
+
+        headerMenuSelectHandler(evt, ui) {
+            $opengrid.hideContextMenu();
+        },
+
+        getProperty(elID, name) {
+            var grid = $opengrid.getGridControl(elID);
+            var setting = $opengrid.getGridSetting(elID);
+            var state = $opengrid._getControlState(elID);
+            if (!grid) {
+                return null;
+            }
+            if (name in grid) {
+                return grid[name];
+            }
+            if (setting && name in setting) {
+                return setting[name];
+            }
+            return state && state.properties ? state.properties[name] : null;
+        },
+
+        setColumnProperty(elID, dataField, value) {
+            var grid = $opengrid.getGridControl(elID);
+            if (!grid) {
+                return;
+            }
+
+            dataField = $opengrid._getColumnField(elID, dataField);
+            var column = grid.getColumn(dataField);
+            if (column && value) {
+                Object.assign(column, value);
+                if (value.headerText || value.headerName || value.columnText) {
+                    column.headerName = value.headerText || value.headerName || value.columnText;
+                }
+                if (value.width) {
+                    column.configWidth = value.width;
+                    column.width = $object.isNumber(value.width) == true ? `width:${value.width}px` : `min-width:${value.width}`;
+                }
+                grid.refreshVisibleColumns();
+                grid.generateGridHeader();
+                grid.rerender();
+            }
+        },
+
+        setProperty(elID, name, value) {
+            var grid = $opengrid.getGridControl(elID);
+            var state = $opengrid._getControlState(elID);
+            if (!grid || !state) {
+                return;
+            }
+
+            state.properties[name] = value;
+            if (name == 'editable') {
+                grid.editable = $string.toBoolean(value);
+            }
+            else if (name == 'rowHeight') {
+                grid.gridRowPxSize = Number(value) || grid.gridRowPxSize;
+                grid.invalidateRowHeightCache();
+            }
+            grid.rerender();
+        },
+
+        setFooter(elID, footerLayout, isChangeFooter) {
+            var state = $opengrid._getControlState(elID);
+            if (state) {
+                state.footer = footerLayout || null;
+            }
+        },
+
+        search(elID, dataField, term, options) {
+            dataField = $opengrid._getColumnField(elID, dataField);
+            $opengrid.removeCondition(elID, dataField);
+            if ($string.isNullOrEmpty(term) == true) {
+                return;
+            }
+            $opengrid.setFilter(elID, dataField, function (field, value) {
+                return String(value == null ? '' : value).toLowerCase().indexOf(String(term).toLowerCase()) > -1;
+            });
+        },
+
+        getColumnWidth(elID, dataField) {
+            var column = $opengrid.getColumnInfo(elID, dataField);
+            return column ? (column.configWidth || column.width || null) : null;
+        },
+
+        getColumnWidths(elID, isKeyValue) {
+            var columns = $opengrid.getColumnInfoList(elID) || [];
+            return columns.map(function (column) {
+                var width = column.configWidth || column.width || null;
+                return $string.toBoolean(isKeyValue) == true ? { dataField: column.dataField || column.field, width: width } : width;
+            });
+        },
+
+        setColumnWidth(elID, dataField, width) {
+            var item = {};
+            item.width = width;
+            $opengrid.setColumnProperty(elID, dataField, item);
+        },
+
+        setColumnWidths(elID, columnWidths) {
+            if ($object.isArray(columnWidths) == false) {
+                return;
+            }
+
+            for (var i = 0; i < columnWidths.length; i++) {
+                var item = columnWidths[i];
+                if ($object.isObject(item) == true) {
+                    $opengrid.setColumnWidth(elID, item.dataField || item.field, item.width);
+                }
+                else {
+                    $opengrid.setColumnWidth(elID, i, item);
+                }
+            }
+        },
+
+        getColumnSize(elID, dataField) {
+            return $opengrid.propToCol(elID, dataField);
+        },
+
+        setFitColumnSize(elID, maxWidth, fitToGrid) {
+            var grid = $opengrid.getGridControl(elID);
+            if (grid) {
+                grid.autoResizeColumns();
+                if (maxWidth) {
+                    grid.allColumns.forEach(function (column) {
+                        var width = parseInt(column.width ? String(column.width).replace(/[^0-9]/g, '') : '0', 10);
+                        if (width > maxWidth) {
+                            column.configWidth = maxWidth;
+                            column.width = `width:${maxWidth}px`;
+                        }
+                    });
+                    grid.updateColumnWidths();
+                }
+            }
+        },
+
+        setCellMerge(elID, isMerged) {
+            var state = $opengrid._getControlState(elID);
+            if (state) {
+                state.cellMerge = $string.toBoolean(isMerged);
+            }
+        },
+
+        setFixedColumnCount(elID, fixedCount) {
+            var state = $opengrid._getControlState(elID);
+            if (state) {
+                state.fixedColumnCount = Math.max(0, Number(fixedCount) || 0);
+            }
+        },
+
+        setFixedRowCount(elID, fixedCount) {
+            var state = $opengrid._getControlState(elID);
+            if (state) {
+                state.fixedRowCount = Math.max(0, Number(fixedCount) || 0);
+            }
+        },
+
+        getActiveColIndex(elID) {
+            var state = $opengrid._getControlState(elID);
+            return state ? (state.selectedColumnIndex || 0) : -1;
+        },
+
+        selectCell(elID, rowIndex, dataField) {
+            var grid = $opengrid.getGridControl(elID);
+            var state = $opengrid._getControlState(elID);
+            if (grid) {
+                dataField = $opengrid._getColumnField(elID, dataField);
+                if (state) {
+                    state.selectedColumnIndex = $opengrid.propToCol(elID, dataField);
+                }
+                grid.selectRow(Number(rowIndex));
+                grid.scrollToRow(Number(rowIndex));
+            }
+        },
+
+        setFilter(elID, dataField, func) {
+            dataField = $opengrid._getColumnField(elID, dataField);
+            var state = $opengrid._getControlState(elID);
+            if (state && $string.isNullOrEmpty(dataField) == false && typeof func == 'function') {
+                state.filters[dataField] = func;
+                $opengrid._applyCompatFilters(elID);
+            }
+        },
+
+        addFilterCache(elID, dataField, value) {
+            dataField = $opengrid._getColumnField(elID, dataField);
+            var state = $opengrid._getControlState(elID);
+            if (state && $string.isNullOrEmpty(dataField) == false) {
+                state.filters[dataField] = function (field, cellValue) {
+                    return cellValue == value;
+                };
+                $opengrid._applyCompatFilters(elID);
+            }
+        },
+
+        addCondition(elID, dataField, name, args, args2) {
+            dataField = $opengrid._getColumnField(elID, dataField);
+            if ($string.isNullOrEmpty(dataField) == true) {
+                return;
+            }
+
+            $opengrid.setFilter(elID, dataField, function (field, value) {
+                var result = false;
+                if ($string.isNullOrEmpty(value) == false) {
+                    switch (name) {
+                        case 'begins_with':
+                            result = String(value).startsWith(args);
+                            break;
+                        case 'between':
+                            result = (args <= value && value <= args2);
+                            break;
+                        case 'ends_with':
+                            result = String(value).endsWith(args);
+                            break;
+                        case 'contains':
+                            result = String(value).indexOf(args) > -1;
+                            break;
+                        case 'by_value':
+                        case 'eq':
+                            result = value == args;
+                            break;
+                        case 'not_contains':
+                            result = String(value).indexOf(args) == -1;
+                            break;
+                        case 'neq':
+                            result = value != args;
+                            break;
+                        case 'gt':
+                            result = value > args;
+                            break;
+                        case 'gte':
+                            result = value >= args;
+                            break;
+                        case 'lt':
+                            result = value < args;
+                            break;
+                        case 'lte':
+                            result = value <= args;
+                            break;
+                        case 'not_between':
+                            result = !(args <= value && value <= args2);
+                            break;
+                        case 'not_empty':
+                            result = $string.isNullOrEmpty(value) == false;
+                            break;
+                        default:
+                            result = value == args;
+                            break;
+                    }
+                }
+                else {
+                    result = name == 'empty';
+                }
+                return result;
+            });
+        },
+
+        removeCondition(elID, dataField) {
+            dataField = $opengrid._getColumnField(elID, dataField);
+            var state = $opengrid._getControlState(elID);
+            if (state && state.filters) {
+                delete state.filters[dataField];
+                $opengrid._applyCompatFilters(elID);
+            }
+        },
+
+        clearConditions(elID) {
+            var state = $opengrid._getControlState(elID);
+            var grid = $opengrid.getGridControl(elID);
+            if (state) {
+                state.filters = {};
+            }
+            if (grid) {
+                grid.clearAllFilters();
+            }
+        },
+
+        render(elID) {
+            var grid = $opengrid.getGridControl(elID);
+            if (grid) {
+                grid.rerender();
+            }
+        },
+
+        removeRowByRowId(elID, rowIDs) {
+            var grid = $opengrid.getGridControl(elID);
+            if (!grid) {
+                return;
+            }
+            if ($object.isArray(rowIDs) == false) {
+                rowIDs = [rowIDs];
+            }
+            for (var i = 0; i < rowIDs.length; i++) {
+                var index = grid.getRowIndexById(rowIDs[i]);
+                if (index > -1) {
+                    grid.removeRow(index);
+                }
+            }
+        },
+
+        countCols(elID) {
+            var grid = $opengrid.getGridControl(elID);
+            return grid ? grid.headerData.length : 0;
+        },
+
+        getFirstShowColIndex(elID) {
+            return $opengrid.countCols(elID) > 0 ? 0 : -1;
+        },
+
+        getLastShowColIndex(elID) {
+            var count = $opengrid.countCols(elID);
+            return count > 0 ? count - 1 : -1;
+        },
+
+        getSelected(elID) {
+            var rowIndex = $opengrid.getSelectedIndex(elID);
+            var item = $opengrid.getSelectedItem(elID);
+            if (!item || rowIndex < 0) {
+                return [];
+            }
+            return [{
+                rowIndex: rowIndex,
+                columnIndex: $opengrid.getActiveColIndex(elID),
+                item: item
+            }];
+        },
+
+        getMergeItems(elID, rowIndex, dataField) {
+            var item = $opengrid.getItemByRowIndex(elID, rowIndex);
+            return item ? [item] : [];
+        },
+
+        getRangeSelected(elID, rowID, colID) {
+            var data = $opengrid.getSelected(elID);
+            return $opengrid.getRangeIndices(data, rowID || 'rowIndex', colID || 'columnIndex');
+        },
+
+        getRangeIndices(data, rowID, colID) {
+            if (!data || data.length === 0) {
+                return null;
+            }
+
+            rowID = rowID || 'rowIndex';
+            colID = colID || 'columnIndex';
+
+            return data.reduce(function (range, cell, index) {
+                if (index === 0) {
+                    return {
+                        startRowIndex: cell[rowID],
+                        endRowIndex: cell[rowID],
+                        startColIndex: cell[colID],
+                        endColIndex: cell[colID]
+                    };
+                }
+
+                return {
+                    startRowIndex: Math.min(range.startRowIndex, cell[rowID]),
+                    endRowIndex: Math.max(range.endRowIndex, cell[rowID]),
+                    startColIndex: Math.min(range.startColIndex, cell[colID]),
+                    endColIndex: Math.max(range.endColIndex, cell[colID])
+                };
+            }, {});
+        },
+
+        hasMerge(elID, startRowIndex, startDataField, endRowIndex, endDataField) {
+            return false;
+        },
+
+        getRowPosition(elID) {
+            return $opengrid.getSelectedIndex(elID);
+        },
+
+        setColumnPosition(elID, dataField) {
+            var state = $opengrid._getControlState(elID);
+            if (state) {
+                state.selectedColumnIndex = $opengrid.propToCol(elID, dataField);
+            }
+        },
+
+        isCreated(elID) {
+            return !!$opengrid.getGridControl(elID);
+        },
+
+        getPhysicalColText(elID, columnText) {
+            var columns = $opengrid.getColumnInfoList(elID) || [];
+            for (var i = 0; i < columns.length; i++) {
+                if (columns[i].headerName == columnText || columns[i].headerText == columnText) {
+                    return i;
+                }
+            }
+            return -1;
+        },
+
+        unHiddenColumns(elID) {
+            var columns = $opengrid.getColumnInfoList(elID) || [];
+            for (var i = 0; i < columns.length; i++) {
+                columns[i].hidden = false;
+            }
+            var grid = $opengrid.getGridControl(elID);
+            if (grid) {
+                grid.refreshVisibleColumns();
+                grid.generateGridHeader();
+                grid.rerender();
+            }
+        },
+
+        exportToObject(elID, keyValueMode) {
+            var rows = $opengrid.getGridData(elID) || [];
+            return $string.toBoolean(keyValueMode) == false ? rows.map(function (item) {
+                return Object.keys(item).map(function (key) {
+                    return item[key];
+                });
+            }) : rows;
+        },
+
+        exportAsString(elID, options) {
+            options = syn.$w.argumentsExtend({
+                type: 'json',
+                callback: null
+            }, options || {});
+
+            var rows = $opengrid.getGridData(elID) || [];
+            var result = '';
+            if (options.type == 'csv' || options.type == 'txt') {
+                var columns = $opengrid.getColumnInfoList(elID) || [];
+                var fields = columns.map(function (column) { return column.dataField || column.field; });
+                result = fields.join(',') + '\n' + rows.map(function (row) {
+                    return fields.map(function (field) {
+                        var value = row[field] == null ? '' : String(row[field]).replace(/"/g, '""');
+                        return '"' + value + '"';
+                    }).join(',');
+                }).join('\n');
+            }
+            else {
+                result = JSON.stringify(rows);
+            }
+
+            if (typeof options.callback == 'function') {
+                options.callback(result);
+            }
+            return result;
+        },
+
+        importFile(elID, callback) {
+            var fileEL = syn.$l.get('{0}_ImportFile'.format(elID));
+            if (!fileEL) {
+                fileEL = document.createElement('input');
+                fileEL.type = 'file';
+                fileEL.id = '{0}_ImportFile'.format(elID);
+                fileEL.style.display = 'none';
+                fileEL.addEventListener('change', $opengrid.importFileLoad);
+                document.body.appendChild(fileEL);
+            }
+            fileEL.callback = callback;
+            fileEL.click();
+        },
+
+        importFileLoad(evt) {
+            var el = evt.srcElement || evt.target;
+            if (!el || !el.files || el.files.length == 0) {
+                return;
+            }
+
+            var elID = el.id.split('_')[0];
+            var fileName = el.files[0].name;
+            var fileExtension = fileName.substring(fileName.lastIndexOf('.') == -1 ? fileName.length : fileName.lastIndexOf('.')).toLowerCase();
+            var reader = new FileReader();
+            reader.onload = function (file) {
+                var result = [];
+                var data = file.target.result;
+                if (fileExtension == '.csv' || fileExtension == '.txt') {
+                    var lines = data.split(/\r\n|\n/).filter(function (line) { return line !== ''; });
+                    if (lines.length > 0) {
+                        var headers = lines[0].split(',').map(function (value) { return value.replace(/^"|"$/g, ''); });
+                        for (var i = 1; i < lines.length; i++) {
+                            var values = lines[i].split(',');
+                            var row = {};
+                            for (var j = 0; j < headers.length; j++) {
+                                row[headers[j]] = (values[j] || '').replace(/^"|"$/g, '').replace(/""/g, '"');
+                            }
+                            result.push(row);
+                        }
+                    }
+                }
+                else if (window.XLSX) {
+                    var workbook = XLSX.read(data, { type: 'binary' });
+                    var sheet = workbook.Sheets[workbook.SheetNames[0]];
+                    result = XLSX.utils.sheet_to_json(sheet);
+                }
+
+                $opengrid.setValue(elID, result);
+                if (el.callback) {
+                    el.callback(result, fileName);
+                }
+                el.value = '';
+            };
+
+            if (fileExtension == '.csv' || fileExtension == '.txt') {
+                reader.readAsText(el.files[0]);
+            }
+            else {
+                reader.readAsBinaryString(el.files[0]);
+            }
+        },
+
+        getColumnInfo(elID, dataField) {
+            var grid = $opengrid.getGridControl(elID);
+            if (!grid) {
+                return null;
+            }
+            dataField = $opengrid._getColumnField(elID, dataField);
+            return grid.getColumn(dataField);
+        },
+
+        getColumnLayout(elID) {
+            return $opengrid.getColumnInfoList(elID);
+        },
+
+        getDataAtCol(elID, dataField, total) {
+            return $opengrid.getColumnValues(elID, dataField, total);
+        },
+
+        getSelectedItems(elID) {
+            var item = $opengrid.getSelectedItem(elID);
+            return item ? [item] : [];
+        },
+
+        getSelectedText(elID) {
+            var item = $opengrid.getSelectedItem(elID);
+            var dataField = $opengrid.colToProp(elID, $opengrid.getActiveColIndex(elID));
+            return item && dataField ? item[dataField] : null;
+        },
+
+        forceEditingComplete(elID, value, cancel) {
+            var grid = $opengrid.getGridControl(elID);
+            if (grid) {
+                if ($string.toBoolean(cancel) == true) {
+                    grid.cancelEdit();
+                }
+                else {
+                    grid.commitEdit();
+                }
+            }
+        },
+
+        getCellFormatValue(elID, rowIndex, dataField) {
+            var grid = $opengrid.getGridControl(elID);
+            var column = $opengrid.getColumnInfo(elID, dataField);
+            var item = $opengrid.getItemByRowIndex(elID, rowIndex);
+            if (!grid || !column || !item) {
+                return null;
+            }
+            return grid.getCellHtmlValue(item, column).replace(/<[^>]*>/g, '');
+        },
+
+        getColumnDistinctValues(elID, rowIndex, dataField) {
+            var values = $opengrid.getColumnValues(elID, dataField, true) || [];
+            var result = [];
+            for (var i = rowIndex || 0; i < values.length; i++) {
+                if (result.indexOf(values[i]) == -1) {
+                    result.push(values[i]);
+                }
+            }
+            return result;
+        },
+
+        validateGridData(elID, dataField) {
+            var columns = dataField ? [$opengrid.getColumnInfo(elID, dataField)] : $opengrid.getColumnInfoList(elID);
+            var rows = $opengrid._getDataItems(elID, true);
+            var errors = [];
+            columns = (columns || []).filter(function (column) { return !!column; });
+            for (var i = 0; i < rows.length; i++) {
+                for (var j = 0; j < columns.length; j++) {
+                    var column = columns[j];
+                    if ($string.toBoolean(column.required) == true && $string.isNullOrEmpty(rows[i][column.dataField || column.field]) == true) {
+                        errors.push({ rowIndex: i, dataField: column.dataField || column.field, reason: 'required' });
+                    }
+                }
+            }
+            return errors.length > 0 ? errors : null;
+        },
+
+        setDataAtRow(elID, values) {
+            if ($object.isArray(values) == false) {
+                return;
+            }
+            for (var i = 0; i < values.length; i++) {
+                var item = values[i];
+                var row = item[0];
+                var col = item[1];
+                var value = item[2];
+                $opengrid.setDataAtCell(elID, row, col, value);
+            }
+        },
+
+        updateRows(elID, values, rowIndexs) {
+            if ($object.isArray(values) == false) {
+                return;
+            }
+            for (var i = 0; i < values.length; i++) {
+                var rowIndex = rowIndexs && rowIndexs[i] != null ? rowIndexs[i] : i;
+                $opengrid.updateRow(elID, values[i], rowIndex);
+            }
+        },
+
+        updateRowBlockToValue(elID, startRowIndex, endRowIndex, dataFields, values) {
+            if ($object.isArray(dataFields) == false) {
+                dataFields = [dataFields];
+            }
+            if ($object.isArray(values) == false) {
+                values = [values];
+            }
+            for (var rowIndex = startRowIndex; rowIndex <= endRowIndex; rowIndex++) {
+                var rowValues = {};
+                for (var i = 0; i < dataFields.length; i++) {
+                    rowValues[$opengrid._getColumnField(elID, dataFields[i])] = values[i];
+                }
+                $opengrid.updateRow(elID, rowValues, rowIndex);
+            }
+        },
+
+        updateRowsById(elID, values) {
+            var grid = $opengrid.getGridControl(elID);
+            if (!grid || $object.isArray(values) == false) {
+                return;
+            }
+            for (var i = 0; i < values.length; i++) {
+                var rowID = values[i].id || values[i]._$uid || values[i].rowId;
+                var rowIndex = grid.getRowIndexById(rowID);
+                if (rowIndex > -1) {
+                    $opengrid.updateRow(elID, values[i], rowIndex);
+                }
+            }
+        },
+
+        updateAllToValue(elID, dataField, value) {
+            dataField = $opengrid._getColumnField(elID, dataField);
+            var rows = $opengrid._getDataItems(elID, true);
+            for (var i = 0; i < rows.length; i++) {
+                rows[i][dataField] = value;
+                if (rows[i].Flag != 'C') {
+                    rows[i].Flag = 'U';
+                }
+            }
+            $opengrid.render(elID);
+        },
+
+        indexToRowID(elID, rowIndex) {
+            var item = $opengrid.getItemByRowIndex(elID, rowIndex);
+            return item ? item.id : null;
+        },
+
+        isUniqueValue(elID, dataField, value) {
+            var values = $opengrid.getColumnValues(elID, dataField, true) || [];
+            return values.filter(function (item) { return item == value; }).length <= 1;
+        },
+
+        getCheckedRowItems(elID) {
+            var columns = $opengrid.getColumnInfoList(elID) || [];
+            var checkColumn = columns.find(function (column) { return column.columnType == 'checkbox'; });
+            if (!checkColumn) {
+                return [];
+            }
+            var field = checkColumn.dataField || checkColumn.field;
+            var checkValue = checkColumn.checkValue;
+            return $opengrid._getDataItems(elID, true).filter(function (item) {
+                return String(item[field]) == String(checkValue) || item[field] === true;
+            });
+        },
+
+        getRowIndexByValue(elID, dataField, value) {
+            var indexes = $opengrid.getRowIndexesByValue(elID, dataField, value);
+            return indexes.length > 0 ? indexes[0] : -1;
+        },
+
+        getRowIndexesByValue(elID, dataField, value) {
+            dataField = $opengrid._getColumnField(elID, dataField);
+            var rows = $opengrid._getDataItems(elID, true);
+            var result = [];
+            for (var i = 0; i < rows.length; i++) {
+                if (rows[i][dataField] == value) {
+                    result.push(i);
+                }
+            }
+            return result;
+        },
+
+        getRowsByValue(elID, dataField, value) {
+            dataField = $opengrid._getColumnField(elID, dataField);
+            return $opengrid._getDataItems(elID, true).filter(function (item) {
+                return item[dataField] == value;
+            });
+        },
+
+        getInitValueItem(elID, RowID) {
+            return $opengrid.getItemByRowID(elID, RowID);
+        },
+
+        getSourceDataAtRow(elID, rowIndex) {
+            return $opengrid.getItemByRowIndex(elID, rowIndex);
+        },
+
+        getItemByRowIndex(elID, rowIndex) {
+            var grid = $opengrid.getGridControl(elID);
+            var item = grid && grid.gridData[rowIndex] ? grid.gridData[rowIndex].data : null;
+            return item || null;
+        },
+
+        getItemByRowID(elID, rowID) {
+            var grid = $opengrid.getGridControl(elID);
+            return grid ? grid.resolveRowItem(rowID) : null;
+        },
+
+        getItemsByValue(elID, dataField, value) {
+            return $opengrid.getRowsByValue(elID, dataField, value);
+        },
+
+        changeColumnLayout(elID, columnLayout) {
+            var grid = $opengrid.getGridControl(elID);
+            if (grid) {
+                grid.setColumns(columnLayout || [], grid.getData());
+                grid.generateGridHeader();
+                grid.rerender();
+            }
+        },
+
+        checkUniqueValueCol(elID, dataField, total) {
+            var values = $opengrid.getColumnValues(elID, dataField, total) || [];
+            return values.filter(function (row, index) { return values.indexOf(row) !== index; }).length == 0;
+        },
+
+        checkValueCountCol(elID, dataField, checkValue, total) {
+            var values = $opengrid.getColumnValues(elID, dataField, total) || [];
+            return values.filter(function (item) { return item === checkValue; }).length;
+        },
+
+        checkEmptyValueCol(elID, dataField, checkValue, total) {
+            var values = $opengrid.getColumnValues(elID, dataField, total) || [];
+            if ($object.isNullOrUndefined(checkValue) == true) {
+                return values.length > 0 && values.filter(function (item) { return $string.isNullOrEmpty(item) == true; }).length > 0;
+            }
+            return values.filter(function (item) { return item === checkValue; }).length > 0;
+        },
+
+        checkEmptyValueCols(elID, columns, checkValue) {
+            var rows = $opengrid._getDataItems(elID, true);
+            for (var i = 0; i < rows.length; i++) {
+                var empty = true;
+                for (var j = 0; j < columns.length; j++) {
+                    var value = rows[i][columns[j]];
+                    if ($object.isNullOrUndefined(checkValue) == true) {
+                        empty = $string.isNullOrEmpty(value) == true;
+                    }
+                    else {
+                        empty = $string.isNullOrEmpty(value) == true || value === checkValue;
+                    }
+                    if (empty == false) {
+                        break;
+                    }
+                }
+                if (empty == true) {
+                    return true;
+                }
+            }
+            return false;
+        },
+
+        setTransactionBelongID(elID, belongFlow, transactConfig) {
+            var columns = $opengrid.getColumnInfoList(elID) || [];
+            belongFlow.items = belongFlow.items || {};
+            for (var i = 0; i < columns.length; i++) {
+                var column = columns[i];
+                var dataType = 'string';
+                switch (column.columnType) {
+                    case 'checkbox':
+                        dataType = 'bool';
+                        break;
+                    case 'number':
+                        dataType = 'number';
+                        break;
+                }
+
+                var isBelong = $object.isNullOrUndefined(transactConfig) == true || column.dataField == 'Flag';
+                if (isBelong == false && $string.isNullOrEmpty(column.belongID) == false) {
+                    var belongIDs = String(column.belongID).split(',');
+                    isBelong = belongIDs.indexOf(transactConfig.functionID) > -1;
+                }
+
+                if (isBelong == true) {
+                    belongFlow.items[column.dataField || column.field] = {
+                        fieldID: column.dataField || column.field,
+                        dataType: dataType
+                    };
+                }
+            }
+        },
+
+        getValue(elID, requestType, metaColumns) {
+            var result = [];
+            var items = [];
+            var grid = $opengrid.getGridControl(elID);
+            if (!grid) {
+                return result;
+            }
+
+            if (metaColumns) {
+                if (requestType == 'Row') {
+                    var selectedItem = grid.getSelectedItem();
+                    if (selectedItem) {
+                        var rowFlag = selectedItem.Flag || 'C';
+                        if (rowFlag && rowFlag != 'S') {
+                            items.push($opengrid.mapMetaColumns(selectedItem, rowFlag, metaColumns));
+                        }
+                    }
+                }
+                else if (requestType == 'List') {
+                    var updateItems = grid.getUpdateItems();
+                    for (var i = 0, length = updateItems.length; i < length; i++) {
+                        var rowData = updateItems[i];
+                        var flag = rowData.Flag || 'C';
+                        if (flag && flag != 'S' && flag != 'R') {
+                            items.push($opengrid.mapMetaColumns(rowData, flag, metaColumns));
+                        }
+                    }
+                }
+
+                var length = items.length;
+                for (var i = 0; i < length; i++) {
+                    var item = items[i];
+                    var row = [];
+                    for (var key in item) {
+                        row.push({ prop: key, val: item[key] });
+                    }
+                    result.push(row);
+                }
+            }
+            else {
+                syn.$l.eventLog('$opengrid.getValue', 'Input Mapping 설정 없음', 'Debug');
+            }
+
+            return result;
+        },
+
+        mapMetaColumns(rowData, flag, metaColumns) {
+            var data = {};
+            data.Flag = flag;
+
+            for (var key in metaColumns) {
+                var column = metaColumns[key];
+                var rowValue = rowData[key];
+
+                if (rowValue === undefined) {
+                    data[column.fieldID] = column.dataType == 'number' ? null : $object.defaultValue(column.dataType);
+                }
+                else {
+                    data[column.fieldID] = rowValue;
+                }
+            }
+
+            return data;
+        },
+
+        setValue(elID, value, metaColumns) {
+            var grid = $opengrid.getGridControl(elID);
+            if (!grid) {
+                return;
+            }
+
+            value = value || [];
+            if (value.length > 0 && $object.isNullOrUndefined(metaColumns) == false) {
+                var item = value[0];
+                for (var column in item) {
+                    var isTypeCheck = false;
+                    var metaColumn = metaColumns[column];
+                    if (metaColumn) {
+                        switch (metaColumn.dataType.toLowerCase()) {
+                            case 'string':
+                                isTypeCheck = $string.isNullOrEmpty(item[column]) == true || $object.isString(item[column]) || $string.isNumber(item[column]);
+                                break;
+                            case 'bool':
+                                isTypeCheck = $string.isNullOrEmpty(item[column]) == true || $object.isBoolean(item[column]);
+                                break;
+                            case 'number':
+                            case 'numeric':
+                                isTypeCheck = $string.isNullOrEmpty(item[column]) == true || $string.isNumber(item[column]) || $object.isNumber(item[column]);
+                                break;
+                            case 'date':
+                                isTypeCheck = $string.isNullOrEmpty(item[column]) == true || $date.isDate(item[column]);
+                                break;
+                            default:
+                                isTypeCheck = false;
+                                break;
+                        }
+
+                        if (isTypeCheck == false) {
+                            syn.$l.eventLog('syn.uicontrols.$opengrid', '바인딩 데이터 타입과 매핑 정의가 다름, 바인딩 ID - "{0}", 타입 - "{1}"'.format(column, metaColumn.dataType), 'Warning');
+                            return;
+                        }
+                    }
+                    else {
+                        continue;
+                    }
+                }
+            }
+
+            const length = value.length;
+            for (let i = 0; i < length; i++) {
+                value[i].Flag = 'R';
+            }
+
+            grid.setData(value, { keepFlag: true });
+        },
+
+        clear(elID, isControlLoad) {
+            var grid = $opengrid.getGridControl(elID);
+            if (grid) {
+                grid.setData([]);
+            }
+        },
+
+        setLocale(elID, translations, control, options) {
+            var grid = $opengrid.getGridControl(elID);
+            if (grid && translations) {
+                grid.setMessages(translations);
+            }
+        },
+
+        destroy(elID) {
+            var control = $opengrid.getControl(elID);
+            if (control) {
+                control.grid.destroy();
+                var index = $opengrid.gridControls.indexOf(control);
+                if (index > -1) {
+                    $opengrid.gridControls.splice(index, 1);
+                }
+            }
+        }
+    });
+
+    syn.uicontrols.$opengrid = $opengrid;
 })(window);
 
 /// <reference path="/js/syn.js" />
