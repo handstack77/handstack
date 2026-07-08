@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 let $module_settings = {
     prop: {
         defaultConfig: {
@@ -376,7 +376,7 @@ let $module_settings = {
                     syn.$l.get('txtActionValue').value = options.value;
                     syn.$l.get('lblActionTitle').innerText = options.title;
 
-                    $this.prop.modal = new bootstrap.Modal(manageActionEl);
+                    $this.prop.modal = new tabler.Modal(manageActionEl);
                     $this.prop.modal.show();
                     setTimeout(() => { syn.$l.get('txtActionValue').focus(); }, 100);
                 }
@@ -393,7 +393,7 @@ let $module_settings = {
                     syn.$l.get('txtItemPathID').value = options.value;
                     syn.$l.get('lblItemPathTitle').innerText = options.title;
 
-                    $this.prop.modal = new bootstrap.Modal(contractBasePathEl);
+                    $this.prop.modal = new tabler.Modal(contractBasePathEl);
                     $this.prop.modal.show();
                     setTimeout(() => { syn.$l.get('txtItemPathID').focus(); }, 100);
                 }
@@ -440,7 +440,7 @@ let $module_settings = {
                         syn.$l.get('txtComment_GraphDataSource').value = '';
                     }
 
-                    $this.prop.modal = new bootstrap.Modal(graphDataSourceEl);
+                    $this.prop.modal = new tabler.Modal(graphDataSourceEl);
                     $this.prop.modal.show();
                     setTimeout(() => { syn.$l.get('txtApplicationID_GraphDataSource').focus(); }, 100);
                 }

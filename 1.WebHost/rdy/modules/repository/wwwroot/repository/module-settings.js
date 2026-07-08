@@ -246,7 +246,7 @@ let $module_settings = {
                     syn.$l.get('txtEventID').value = options.eventID;
                     syn.$l.get('txtBaseEventID').value = options.eventID;
 
-                    $this.prop.modal = new bootstrap.Modal(el);
+                    $this.prop.modal = new tabler.Modal(el);
                     $this.prop.modal.show();
 
                     setTimeout(() => { syn.$l.get('txtEventID').focus(); }, 100);
@@ -264,7 +264,7 @@ let $module_settings = {
                     syn.$l.get('txtItemPathID').value = options.itemPathID;
                     syn.$l.get('txtBaseItemPathID').value = options.itemPathID;
 
-                    $this.prop.modal = new bootstrap.Modal(el);
+                    $this.prop.modal = new tabler.Modal(el);
                     $this.prop.modal.show();
 
                     setTimeout(() => { syn.$l.get('txtItemPathID').focus(); }, 100);
