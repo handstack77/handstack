@@ -3169,9 +3169,6 @@
                                 if (decodeScript == null) {
                                     decodeError = 'LZString decompress 오류';
                                 }
-                                else {
-                                    decodeScript = decodeScript.replaceAll('\x00', ' ');
-                                }
                             } catch {
                                 decodeError = 'LZString decompress 오류';
                             }

@@ -871,8 +871,6 @@
                         // syn.scripts.js
                         '/lib/tabler-core/dist/css/tabler.min.css',
                         '/lib/tabler-icons-webfont/dist/tabler-icons.min.css',
-                        '/lib/handsontable/dist/handsontable.full.css',
-                        '/lib/tail.select.js/css/default/tail.select-light.css',
                         '/lib/ispin/dist/ispin.min.css',
                         '/js/css-checkbox/checkboxes.css',
                         '/js/color-picker/color-picker.css',

@@ -1,5 +1,5 @@
-﻿/*!
-HandStack Javascript Library v2026.3.11
+/*!
+HandStack Javascript Library v2026.7.8
 https://handshake.kr
 
 Copyright 2025, HandStack
@@ -694,7 +694,14 @@ if (typeof module !== 'undefined' && module.exports) {
                 decompressFromBase64(input) {
                     if (input == null) return '';
                     if (input == '') return null;
-                    return LZStringInternal._decompress(input.length, 32, (index) => getBaseValue(keyStrBase64, input.charAt(index)));
+
+                    const result = LZStringInternal._decompress(
+                        input.length,
+                        32,
+                        (index) => getBaseValue(keyStrBase64, input.charAt(index))
+                    );
+
+                    return result == null ? result : result.replaceAll('\x00', ' ');
                 },
 
                 compressToUTF16(input) {
@@ -7671,9 +7678,6 @@ if (typeof module !== 'undefined' && module.exports) {
                                 decodeScript = syn.$c.LZString.decompressFromBase64(moduleScript);
                                 if (decodeScript == null) {
                                     decodeError = 'LZString decompress 오류';
-                                }
-                                else {
-                                    decodeScript = decodeScript.replaceAll('\x00', ' ');
                                 }
                             } catch {
                                 decodeError = 'LZString decompress 오류';

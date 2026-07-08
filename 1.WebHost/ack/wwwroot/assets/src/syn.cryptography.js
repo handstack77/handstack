@@ -447,7 +447,14 @@
                 decompressFromBase64(input) {
                     if (input == null) return '';
                     if (input == '') return null;
-                    return LZStringInternal._decompress(input.length, 32, (index) => getBaseValue(keyStrBase64, input.charAt(index)));
+
+                    const result = LZStringInternal._decompress(
+                        input.length,
+                        32,
+                        (index) => getBaseValue(keyStrBase64, input.charAt(index))
+                    );
+
+                    return result == null ? result : result.replaceAll('\x00', ' ');
                 },
 
                 compressToUTF16(input) {
