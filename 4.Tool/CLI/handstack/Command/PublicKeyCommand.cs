@@ -1,30 +1,8 @@
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.CommandLine;
-using System.Diagnostics;
 using System.IO;
-using System.IO.Compression;
-using System.Linq;
-using System.Net;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Text.RegularExpressions;
-
-using handstack.Extensions;
-
-using HandStack.Core.ExtensionMethod;
-using HandStack.Core.Helpers;
-
-using Microsoft.Extensions.FileProviders;
-
-using Newtonsoft.Json.Linq;
-
-using Serilog;
-
-using Sqids;
 
 namespace handstack
 {
@@ -46,7 +24,6 @@ namespace handstack
             var optionReplace = context.OptionReplace;
             var optionReplaceExpressions = context.OptionReplaceExpressions;
             var optionOptions = context.OptionOptions;
-            #region publickey
 
             // publickey --file="C:\projects\MyLib\bin\Release\net10.0\MyLib.dll"
             var subCommandPublicKey = new Command("publickey", "지정한 .NET(.NET Core/5+/Framework) 관리형 DLL의 강력한 이름(Strong Name) 서명에 사용된 공개 키를 출력합니다.") {
@@ -116,9 +93,6 @@ namespace handstack
             });
 
             rootCommand.Add(subCommandPublicKey);
-
-            #endregion
-
         }
     }
 }

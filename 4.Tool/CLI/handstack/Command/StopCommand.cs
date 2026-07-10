@@ -1,30 +1,14 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.Diagnostics;
-using System.IO;
-using System.IO.Compression;
-using System.Linq;
-using System.Net;
-using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
 using System.Text.RegularExpressions;
-
-using handstack.Extensions;
 
 using HandStack.Core.ExtensionMethod;
 using HandStack.Core.Helpers;
 
-using Microsoft.Extensions.FileProviders;
-
-using Newtonsoft.Json.Linq;
-
 using Serilog;
-
-using Sqids;
 
 namespace handstack
 {
@@ -46,7 +30,6 @@ namespace handstack
             var optionReplace = context.OptionReplace;
             var optionReplaceExpressions = context.OptionReplaceExpressions;
             var optionOptions = context.OptionOptions;
-            #region stop
 
             var subCommandStop = new Command("stop", "ack 프로그램을 종료합니다") {
                 optionProcessID, optionPort
@@ -186,9 +169,6 @@ namespace handstack
             });
 
             rootCommand.Add(subCommandStop);
-
-            #endregion
-
         }
     }
 }

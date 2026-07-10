@@ -1,30 +1,10 @@
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.CommandLine;
-using System.Diagnostics;
 using System.IO;
-using System.IO.Compression;
-using System.Linq;
-using System.Net;
-using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Text.RegularExpressions;
-
-using handstack.Extensions;
 
 using HandStack.Core.ExtensionMethod;
-using HandStack.Core.Helpers;
-
-using Microsoft.Extensions.FileProviders;
-
-using Newtonsoft.Json.Linq;
 
 using Serilog;
-
-using Sqids;
 
 namespace handstack
 {
@@ -46,7 +26,6 @@ namespace handstack
             var optionReplace = context.OptionReplace;
             var optionReplaceExpressions = context.OptionReplaceExpressions;
             var optionOptions = context.OptionOptions;
-            #region compress
 
             var subCommandCompress = new Command("compress", "지정된 디렉터리에서 파일 및 디렉터리를 포함하는 Zip 파일을 만듭니다") {
                 optionDirectory, optionFile, optionKey
@@ -98,9 +77,6 @@ namespace handstack
             });
 
             rootCommand.Add(subCommandCompress);
-
-            #endregion
-
         }
     }
 }

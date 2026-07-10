@@ -1,30 +1,13 @@
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.CommandLine;
-using System.Diagnostics;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
-using System.Net;
-using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Text.RegularExpressions;
-
-using handstack.Extensions;
 
 using HandStack.Core.ExtensionMethod;
-using HandStack.Core.Helpers;
-
-using Microsoft.Extensions.FileProviders;
 
 using Newtonsoft.Json.Linq;
 
 using Serilog;
-
-using Sqids;
 
 namespace handstack
 {
@@ -46,7 +29,6 @@ namespace handstack
             var optionReplace = context.OptionReplace;
             var optionReplaceExpressions = context.OptionReplaceExpressions;
             var optionOptions = context.OptionOptions;
-            #region configuration
 
             // configuration --ack=%HANDSTACK_HOME%/app/ack.exe --appsettings=ack.localhost.json
             var subCommandConfiguration = new Command("configuration", "의도된 ack 프로그램 및 모듈 환경설정을 적용합니다") {
@@ -194,9 +176,6 @@ namespace handstack
             });
 
             rootCommand.Add(subCommandConfiguration);
-
-            #endregion
-
         }
     }
 }

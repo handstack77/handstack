@@ -1,30 +1,12 @@
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.CommandLine;
-using System.Diagnostics;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
-using System.Net;
-using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Text.RegularExpressions;
-
-using handstack.Extensions;
 
 using HandStack.Core.ExtensionMethod;
 using HandStack.Core.Helpers;
 
-using Microsoft.Extensions.FileProviders;
-
-using Newtonsoft.Json.Linq;
-
 using Serilog;
-
-using Sqids;
 
 namespace handstack
 {
@@ -46,7 +28,6 @@ namespace handstack
             var optionReplace = context.OptionReplace;
             var optionReplaceExpressions = context.OptionReplaceExpressions;
             var optionOptions = context.OptionOptions;
-            #region task
 
             var subCommandTask = new Command("task", "운영체제에 따라 사전에 정의된 배치 스크립트 업무를 수행합니다") {
                 optionFile, optionValue
@@ -137,9 +118,6 @@ namespace handstack
             });
 
             rootCommand.Add(subCommandTask);
-
-            #endregion
-
         }
     }
 }

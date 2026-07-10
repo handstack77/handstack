@@ -1,30 +1,15 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.Diagnostics;
 using System.IO;
-using System.IO.Compression;
-using System.Linq;
-using System.Net;
-using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
 using System.Text.RegularExpressions;
-
-using handstack.Extensions;
 
 using HandStack.Core.ExtensionMethod;
 using HandStack.Core.Helpers;
 
-using Microsoft.Extensions.FileProviders;
-
-using Newtonsoft.Json.Linq;
-
 using Serilog;
-
-using Sqids;
 
 namespace handstack
 {
@@ -46,7 +31,6 @@ namespace handstack
             var optionReplace = context.OptionReplace;
             var optionReplaceExpressions = context.OptionReplaceExpressions;
             var optionOptions = context.OptionOptions;
-            #region list
 
             var subCommandList = new Command("list", "ack 프로세스 목록을 조회합니다");
             subCommandList.SetAction((parseResult) =>
@@ -154,9 +138,6 @@ namespace handstack
                 }
             });
             rootCommand.Add(subCommandList);
-
-            #endregion
-
         }
     }
 }

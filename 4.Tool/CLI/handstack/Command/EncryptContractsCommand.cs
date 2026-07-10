@@ -1,30 +1,14 @@
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.CommandLine;
-using System.Diagnostics;
 using System.IO;
-using System.IO.Compression;
-using System.Linq;
-using System.Net;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Text.RegularExpressions;
 
 using handstack.Extensions;
 
 using HandStack.Core.ExtensionMethod;
-using HandStack.Core.Helpers;
-
-using Microsoft.Extensions.FileProviders;
-
-using Newtonsoft.Json.Linq;
 
 using Serilog;
-
-using Sqids;
 
 namespace handstack
 {
@@ -46,7 +30,6 @@ namespace handstack
             var optionReplace = context.OptionReplace;
             var optionReplaceExpressions = context.OptionReplaceExpressions;
             var optionOptions = context.OptionOptions;
-            #region encryptcontracts
 
             // encryptcontracts --file=%HANDSTACK_HOME%/modules/myapp/myapp.dll --directory=C:/projects/myapp/contracts
             var subCommandEncryptContracts = new Command("encryptcontracts", "모듈의 Contracts 디렉토리 내 파일들을 지정 규칙에 따라 암호화 합니다") {
@@ -127,9 +110,6 @@ namespace handstack
             });
 
             rootCommand.Add(subCommandEncryptContracts);
-
-            #endregion
-
         }
     }
 }
