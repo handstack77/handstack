@@ -52,6 +52,7 @@ handstack <command> [options]
 | `stop` | ack 프로세스 종료 | `--pid` 또는 `--port` |
 | `encrypt` | 값 인코딩/암호화 | `--format`, `--value`, `--key`, `--options` |
 | `decrypt` | 값 디코딩/복호화 | `--format`, `--value`, `--key` |
+| `contractpack` | Contracts 계약 파일 확장자 변환 | `--directory`, `--options` |
 | `compress` | 디렉터리 ZIP 압축 | `--directory`, `--file` |
 | `extract` | ZIP 압축 해제 | `--file`, `--directory`, `--options` |
 | `create` | 템플릿 ZIP 기반 프로젝트 생성 | `--file`, `--directory`, `--find`, `--replace` |
@@ -93,6 +94,7 @@ handstack encrypt --format=connectionstring --value="Server=..."
 
 handstack compress --directory=C:/tmp/myapp --file=C:/tmp/myapp.zip
 handstack extract --file=C:/tmp/myapp.zip --directory=C:/tmp/unzip --options=true
+handstack contractpack --directory=C:/projects/myapp/modules/myapp/Contracts --options=true
 
 handstack create --file=C:/tmp/template.zip --directory=C:/tmp/newapp --find=handstack --replace=myapp
 handstack replacetext --file=C:/tmp/appsettings.json --find=localhost --replace=prod-host
