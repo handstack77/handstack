@@ -242,99 +242,118 @@ namespace function.DataClient
                     if (directoryInfo != null && fileInfo.Exists)
                     {
                         var fileDirectory = directoryInfo.FullName.Replace("\\", "/");
-                        var fileDirectoryName = directoryInfo.Name;
+                        var fileDirectoryName = moduleScriptMap.TransactionID;
                         var scriptMapFile = PathExtensions.Combine(fileDirectory, "featureMeta.json");
 
-                        if (File.Exists(scriptMapFile) == false)
-                        {
-                            response.ExceptionText = $"'{queryObject.QueryID}'에 대한 featureMeta.json 확인 필요";
-                            return;
-                        }
+                        FunctionHeader moduleConfig;
 
-                        var configData = System.IO.File.ReadAllText(scriptMapFile);
+                        if (File.Exists(scriptMapFile) == true)
+                        {
+                            // 폴더 방식(featureMain.*+featureMeta.json) 계약: 서명/암호화 봉투 검증 후 Header 재적재
+                            var configData = System.IO.File.ReadAllText(scriptMapFile);
 
-                        JsonNode? root = JsonNode.Parse(configData, documentOptions: new JsonDocumentOptions
-                        {
-                            CommentHandling = JsonCommentHandling.Skip,
-                            AllowTrailingCommas = true
-                        });
-                        if (root is JsonObject rootNode)
-                        {
-                            var hasSignatureKey = rootNode.TryGetPropertyValue("SignatureKey", out var signatureKeyNode) && signatureKeyNode is JsonValue;
-                            var hasEncrypt = rootNode.TryGetPropertyValue("EncryptCommands", out var encryptNode) && encryptNode is JsonValue;
-                            if (hasSignatureKey == true && hasEncrypt == true)
+                            JsonNode? root = JsonNode.Parse(configData, documentOptions: new JsonDocumentOptions
                             {
-                                var signatureKey = signatureKeyNode!.GetValue<string>();
-                                var licenseItem = GlobalConfiguration.LoadModuleLicenses.Values.FirstOrDefault(li => li.AssemblyToken == signatureKey);
-                                if (licenseItem == null)
+                                CommentHandling = JsonCommentHandling.Skip,
+                                AllowTrailingCommas = true
+                            });
+                            if (root is JsonObject rootNode)
+                            {
+                                var hasSignatureKey = rootNode.TryGetPropertyValue("SignatureKey", out var signatureKeyNode) && signatureKeyNode is JsonValue;
+                                var hasEncrypt = rootNode.TryGetPropertyValue("EncryptCommands", out var encryptNode) && encryptNode is JsonValue;
+                                if (hasSignatureKey == true && hasEncrypt == true)
                                 {
-                                    logger.Error("[{LogCategory}] " + $"{scriptMapFile} 업무 계약 파일 오류 - 서명 키 불일치", "FunctionClient/ExecuteScriptMap");
-                                    response.ExceptionText = $"{scriptMapFile} 업무 계약 파일 오류 - 서명 키 불일치";
-                                    return;
-                                }
-
-                                var cipher = encryptNode!.GetValue<string>();
-                                var plain = LZStringHelper.DecompressFromUint8Array(cipher.DecryptAESBytes(licenseItem.AssemblyKey.NormalizeKey())) ?? string.Empty;
-
-                                JsonNode? restored;
-                                try
-                                {
-                                    restored = JsonNode.Parse(plain);
-
-                                    if (restored is not JsonArray restoredArr)
+                                    var signatureKey = signatureKeyNode!.GetValue<string>();
+                                    var licenseItem = GlobalConfiguration.LoadModuleLicenses.Values.FirstOrDefault(li => li.AssemblyToken == signatureKey);
+                                    if (licenseItem == null)
                                     {
-                                        logger.Error("[{LogCategory}] " + $"Decrypted Services는 {scriptMapFile} 내의 JSON 배열이 아닙니다.", "FunctionClient/ExecuteScriptMap");
-                                        response.ExceptionText = $"Decrypted Services는 {scriptMapFile} 내의 JSON 배열이 아닙니다.";
+                                        logger.Error("[{LogCategory}] " + $"{scriptMapFile} 업무 계약 파일 오류 - 서명 키 불일치", "FunctionClient/ExecuteScriptMap");
+                                        response.ExceptionText = $"{scriptMapFile} 업무 계약 파일 오류 - 서명 키 불일치";
                                         return;
                                     }
 
-                                    rootNode["Services"] = restoredArr;
+                                    var cipher = encryptNode!.GetValue<string>();
+                                    var plain = LZStringHelper.DecompressFromUint8Array(cipher.DecryptAESBytes(licenseItem.AssemblyKey.NormalizeKey())) ?? string.Empty;
+
+                                    JsonNode? restored;
+                                    try
+                                    {
+                                        restored = JsonNode.Parse(plain);
+
+                                        if (restored is not JsonArray restoredArr)
+                                        {
+                                            logger.Error("[{LogCategory}] " + $"Decrypted Services는 {scriptMapFile} 내의 JSON 배열이 아닙니다.", "FunctionClient/ExecuteScriptMap");
+                                            response.ExceptionText = $"Decrypted Services는 {scriptMapFile} 내의 JSON 배열이 아닙니다.";
+                                            return;
+                                        }
+
+                                        rootNode["Services"] = restoredArr;
+                                    }
+                                    catch (Exception exception)
+                                    {
+                                        logger.Error(exception, "[{LogCategory}] " + $"업무 계약 파일 역 직렬화 오류 - {scriptMapFile}", "FunctionClient/ExecuteScriptMap");
+                                        response.ExceptionText = $"업무 계약 파일 역 직렬화 오류 - {scriptMapFile}";
+                                        return;
+                                    }
+
+                                    rootNode.Remove("SignatureKey");
+                                    rootNode.Remove("EncryptCommands");
+
+                                    configData = rootNode.ToJsonString();
                                 }
-                                catch (Exception exception)
-                                {
-                                    logger.Error(exception, "[{LogCategory}] " + $"업무 계약 파일 역 직렬화 오류 - {scriptMapFile}", "FunctionClient/ExecuteScriptMap");
-                                    response.ExceptionText = $"업무 계약 파일 역 직렬화 오류 - {scriptMapFile}";
-                                    return;
-                                }
-
-                                rootNode.Remove("SignatureKey");
-                                rootNode.Remove("EncryptCommands");
-
-                                configData = rootNode.ToJsonString();
                             }
-                        }
 
-                        var functionScriptContract = FunctionScriptContract.FromJson(configData);
-                        if (functionScriptContract != null)
-                        {
-                            var moduleConfig = functionScriptContract.Header;
-                            var featureSQLPath = PathExtensions.Combine(fileDirectory, "featureSQL.xml");
-                            var functionLogDirectory = PathExtensions.Combine(ModuleConfiguration.CSharpFunctionLogBasePath, moduleConfig.ApplicationID, moduleConfig.ProjectID, fileDirectoryName);
-
-                            if (!Directory.Exists(functionLogDirectory))
+                            var functionScriptContract = FunctionScriptContract.FromJson(configData);
+                            if (functionScriptContract == null)
                             {
-                                Directory.CreateDirectory(functionLogDirectory);
+                                response.ExceptionText = $"'{queryObject.QueryID}'에 대한 featureMeta.json 확인 필요";
+                                return;
                             }
 
-                            if (moduleScriptMap.LanguageType == "csharp")
-                            {
-                                Serilog.ILogger logger = new LoggerConfiguration()
-                                    .WriteTo.Console()
-                                    .WriteTo.File(PathExtensions.Combine(functionLogDirectory, "function.log"), rollingInterval: RollingInterval.Day)
-                                    .CreateLogger();
-
-                                dataContext.logger = logger;
-                            }
-
-                            dataContext.fileDirectory = fileDirectory;
-                            dataContext.functionHeader = moduleConfig;
-                            dataContext.featureSQLPath = File.Exists(featureSQLPath) == true ? featureSQLPath : "";
+                            moduleConfig = functionScriptContract.Header;
                         }
                         else
                         {
-                            response.ExceptionText = $"'{queryObject.QueryID}'에 대한 featureMeta.json 확인 필요";
-                            return;
+                            // command/dbclient/graphclient 와 동일한 {TransactionID}.xml/.fnc 단일 파일 계약: featureMeta.json 이 없으므로
+                            // FunctionMapper 에서 이미 파싱된 moduleScriptMap 값으로 Header 를 구성한다.
+                            // (XML 계약은 이 MVP 범위에서 SignatureKey/EncryptCommands 봉투를 지원하지 않는다.)
+                            moduleConfig = new FunctionHeader
+                            {
+                                ApplicationID = moduleScriptMap.ApplicationID,
+                                ProjectID = moduleScriptMap.ProjectID,
+                                TransactionID = moduleScriptMap.TransactionID,
+                                ReferenceModuleID = moduleScriptMap.ReferenceModuleID ?? "",
+                                IsHttpContext = moduleScriptMap.IsHttpContext,
+                                Use = true,
+                                DataSourceID = moduleScriptMap.DataSourceID,
+                                LanguageType = moduleScriptMap.LanguageType
+                            };
                         }
+
+                        var featureSQLPath = PathExtensions.Combine(fileDirectory, "featureSQL.xml");
+                        var generatedFeatureSQLPath = PathExtensions.Combine(fileDirectory, $"{moduleScriptMap.TransactionID}.g.featureSQL");
+                        var functionLogDirectory = PathExtensions.Combine(ModuleConfiguration.CSharpFunctionLogBasePath, moduleConfig.ApplicationID, moduleConfig.ProjectID, fileDirectoryName);
+
+                        if (!Directory.Exists(functionLogDirectory))
+                        {
+                            Directory.CreateDirectory(functionLogDirectory);
+                        }
+
+                        if (moduleScriptMap.LanguageType == "csharp")
+                        {
+                            Serilog.ILogger logger = new LoggerConfiguration()
+                                .WriteTo.Console()
+                                .WriteTo.File(PathExtensions.Combine(functionLogDirectory, "function.log"), rollingInterval: RollingInterval.Day)
+                                .CreateLogger();
+
+                            dataContext.logger = logger;
+                        }
+
+                        dataContext.fileDirectory = fileDirectory;
+                        dataContext.functionHeader = moduleConfig;
+                        dataContext.featureSQLPath = File.Exists(generatedFeatureSQLPath) == true
+                            ? generatedFeatureSQLPath
+                            : File.Exists(featureSQLPath) == true ? featureSQLPath : "";
                     }
 
                     dataContext.accessToken = request.AccessToken;
@@ -854,9 +873,9 @@ namespace function.DataClient
                     PythonEngine.Initialize();
                 }
 
-                var transactionID = new DirectoryInfo(Path.GetDirectoryName(programPath)!).Name;
+                var transactionID = moduleScriptMap.TransactionID;
                 moduleName = $"{moduleScriptMap.ApplicationID}_{moduleScriptMap.ProjectID}_{moduleScriptMap.TransactionID}";
-                var mainFilePath = programPath.Replace("featureMain.py", $"{moduleName}.py");
+                var mainFilePath = PathExtensions.Combine(Path.GetDirectoryName(programPath)!, $"{moduleName}.py");
                 if (File.Exists(mainFilePath) == false)
                 {
                     File.Copy(programPath, mainFilePath, true);

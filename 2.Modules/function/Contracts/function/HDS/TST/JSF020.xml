@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapper xmlns="contract.xsd">
+    <header>
+        <application>HDS</application>
+        <project>TST</project>
+        <transaction>JSF020</transaction>
+        <datasource>FN01, FN02, FN04</datasource>
+        <language>javascript</language>
+        <referenceModuleID></referenceModuleID>
+        <isHttpContext>false</isHttpContext>
+        <use>Y</use>
+        <desc>Javascript 거래 함수 테스트(단일 XML)</desc>
+    </header>
+    <script><![CDATA[
+var fs = require('fs');
+var syn = require('syn');
+
+module.exports = {
+    GF01: (callback, moduleID, parameters, dataContext) => {
+        var typeMember = "TST.JSF020.GF01";
+        var serverDate = $array.getValue(parameters, 'ServerDate');
+        var serverName = $array.getValue(parameters, 'ServerName');
+
+        var result = {
+            DataTable1: [
+                {
+                    FunctionResult: `typeMember: ${typeMember}, moduleID: ${moduleID}, serverDate: ${serverDate}, serverName: ${serverName}`
+                }
+            ]
+        };
+
+        callback(null, result);
+    }
+}
+    ]]></script>
+    <featureSQL>
+        <mapper xmlns="mybatis-3-mapper.dtd" namespace="feature">
+            <select id="L01" desc="Javascript 단일 XML featureSQL 예시">
+                <![CDATA[
+SELECT #{ServerDate} AS ServerDate
+    , #{ServerName} AS ServerName
+    , 'TST.JSF020.L01' AS FeatureID;
+                ]]>
+            </select>
+        </mapper>
+    </featureSQL>
+    <commands>
+        <command id="GF01" seq="0" use="Y" timeout="0" desc="Form 반환 거래 로직">
+            <entryType></entryType>
+            <entryMethod></entryMethod>
+            <beforeTransaction></beforeTransaction>
+            <afterTransaction></afterTransaction>
+            <fallbackTransaction></fallbackTransaction>
+            <param id="ServerDate" type="String" length="0" value="NULL" required="false" />
+            <param id="ServerName" type="String" length="0" value="NULL" required="false" />
+        </command>
+    </commands>
+</mapper>

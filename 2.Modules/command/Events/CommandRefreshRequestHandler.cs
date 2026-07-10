@@ -65,7 +65,7 @@ namespace command.Events
                         {
                             var itemPath = PathExtensions.Join(basePath, filePath);
                             var directoryInfo = new DirectoryInfo(basePath);
-                            if (directoryInfo.Exists == true && File.Exists(itemPath) == true && fileInfo.Extension.Equals(".xml", StringComparison.OrdinalIgnoreCase) == true)
+                            if (directoryInfo.Exists == true && File.Exists(itemPath) == true && ModuleConfiguration.IsContractFileExtension(fileInfo.Extension) == true)
                             {
                                 logger.Information("[{LogCategory}] Add CommandMap FilePath: {FilePath}", "Command/Refresh", filePath);
                                 actionResult = CommandMapper.AddCommandMap(filePath, true, logger);

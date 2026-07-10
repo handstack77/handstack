@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapper xmlns="contract.xsd">
+    <header>
+        <application>HDS</application>
+        <project>TST</project>
+        <transaction>PYF020</transaction>
+        <datasource>FN01, FN02, FN04</datasource>
+        <language>python</language>
+        <referenceModuleID></referenceModuleID>
+        <isHttpContext>false</isHttpContext>
+        <use>Y</use>
+        <desc>Python 거래 함수 테스트(단일 XML)</desc>
+    </header>
+    <script><![CDATA[
+import json
+
+class PYF020:
+    def GF01(parameters, dataContext):
+        print(parameters["GlobalID"])
+        print(dataContext)
+
+        dataDict = json.loads(dataContext)
+
+        result = {
+            "DataTable1": [
+                {
+                    "accessToken": dataDict["accessToken"],
+                    "globalID": dataDict["globalID"],
+                    "environment": dataDict["environment"],
+                    "platform": dataDict["platform"]
+                }
+            ]
+        }
+
+        return json.dumps(result, ensure_ascii=False, indent=4)
+    ]]></script>
+    <featureSQL>
+        <mapper xmlns="mybatis-3-mapper.dtd" namespace="feature">
+            <select id="L01" desc="Python 단일 XML featureSQL 예시">
+                <![CDATA[
+SELECT #{ServerDate} AS ServerDate
+    , #{ServerName} AS ServerName
+    , 'TST.PYF020.L01' AS FeatureID;
+                ]]>
+            </select>
+        </mapper>
+    </featureSQL>
+    <commands>
+        <command id="GF01" seq="0" use="Y" timeout="0" desc="Form 반환 거래 로직">
+            <entryType></entryType>
+            <entryMethod></entryMethod>
+            <beforeTransaction></beforeTransaction>
+            <afterTransaction></afterTransaction>
+            <fallbackTransaction></fallbackTransaction>
+            <param id="ServerDate" type="String" length="0" value="NULL" required="false" />
+            <param id="ServerName" type="String" length="0" value="NULL" required="false" />
+        </command>
+    </commands>
+</mapper>

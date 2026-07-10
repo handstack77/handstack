@@ -60,7 +60,9 @@ namespace graphclient.Extensions
                         continue;
                     }
 
-                    foreach (var contractFile in Directory.GetFiles(basePath, "*.xml", SearchOption.AllDirectories))
+                    var contractFiles = ModuleConfiguration.ContractFileExtensions
+                        .SelectMany(extension => Directory.GetFiles(basePath, "*" + extension, SearchOption.AllDirectories));
+                    foreach (var contractFile in contractFiles)
                     {
                         AddStatementMap(contractFile, true, logger);
                     }
@@ -220,6 +222,43 @@ namespace graphclient.Extensions
             }
         }
 
+        public static void LoadTenantGraphDataSources(string appBasePath, ILogger logger)
+        {
+            if (string.IsNullOrWhiteSpace(appBasePath) == true)
+            {
+                return;
+            }
+
+            var settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
+            if (File.Exists(settingFilePath) == false)
+            {
+                return;
+            }
+
+            var appSetting = JObject.Parse(File.ReadAllText(settingFilePath));
+            var graphDataSourceToken = appSetting["GraphDataSource"];
+            if (graphDataSourceToken is not JArray graphDataSourceArray)
+            {
+                return;
+            }
+
+            foreach (var item in graphDataSourceArray)
+            {
+                var graphDataSource = item.ToObject<GraphDataSource>();
+                if (graphDataSource == null)
+                {
+                    continue;
+                }
+
+                if (string.IsNullOrWhiteSpace(graphDataSource.ConnectionString) == false)
+                {
+                    graphDataSource.ConnectionString = graphDataSource.ConnectionString.Replace("{appBasePath}", appBasePath);
+                }
+
+                AddGraphDataSource(graphDataSource, logger, false);
+            }
+        }
+
         public static void RemoveByTransaction(string applicationID, string projectID, string transactionID)
         {
             lock (StatementMappings)
@@ -364,10 +403,20 @@ namespace graphclient.Extensions
                     continue;
                 }
 
-                var contractFilePath = PathExtensions.Combine(directoryInfo.FullName.Replace("\\", "/"), "graphclient", projectID, $"{transactionID}.xml");
-                if (File.Exists(contractFilePath) == true)
+                var isLoaded = false;
+                foreach (var extension in ModuleConfiguration.ContractFileExtensions)
                 {
-                    AddStatementMap(contractFilePath, true, logger);
+                    var contractFilePath = PathExtensions.Combine(directoryInfo.FullName.Replace("\\", "/"), "graphclient", projectID, transactionID + extension);
+                    if (File.Exists(contractFilePath) == true)
+                    {
+                        AddStatementMap(contractFilePath, true, logger);
+                        isLoaded = true;
+                        break;
+                    }
+                }
+
+                if (isLoaded == true)
+                {
                     break;
                 }
             }
@@ -381,34 +430,7 @@ namespace graphclient.Extensions
                 return;
             }
 
-            var settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
-            if (File.Exists(settingFilePath) == false)
-            {
-                return;
-            }
-
-            var appSetting = JObject.Parse(File.ReadAllText(settingFilePath));
-            var graphDataSourceToken = appSetting["GraphDataSource"];
-            if (graphDataSourceToken is not JArray graphDataSourceArray)
-            {
-                return;
-            }
-
-            foreach (var item in graphDataSourceArray)
-            {
-                var graphDataSource = item.ToObject<GraphDataSource>();
-                if (graphDataSource == null)
-                {
-                    continue;
-                }
-
-                if (string.IsNullOrWhiteSpace(graphDataSource.ConnectionString) == false)
-                {
-                    graphDataSource.ConnectionString = graphDataSource.ConnectionString.Replace("{appBasePath}", appBasePath);
-                }
-
-                AddGraphDataSource(graphDataSource, logger, false);
-            }
+            LoadTenantGraphDataSources(appBasePath, logger);
         }
 
         private static GraphDataSourceMap? FindDataSourceMap(string applicationID, string projectID, string dataSourceID)

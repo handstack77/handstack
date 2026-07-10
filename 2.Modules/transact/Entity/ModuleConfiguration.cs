@@ -17,6 +17,8 @@ namespace transact.Entity
         public static List<string> AllowClientIP = new List<string>() { "*" };
         public static bool IsBundledWithHost = false;
         public static bool IsContractFileWatching = true;
+        public static readonly string[] ContractFileExtensions = { ".json", ".txn" };
+        public static readonly string ContractFileWatcherFilter = "*.json|*.txn";
         public static List<string> ContractBasePath = new List<string>();
         public static Dictionary<string, FileSyncManager> BusinessFileSyncManager = new Dictionary<string, FileSyncManager>();
         public static string BusinessServerUrl = "";
@@ -53,5 +55,10 @@ namespace transact.Entity
         public static ExpiringList<PublicTransaction>? PublicTransactions = new ExpiringList<PublicTransaction>();
         public static ExpiringList<string> RequestGlobalIDList = new ExpiringList<string>(TimeSpan.FromMinutes(3), TimeSpan.FromMinutes(1));
         public static ConcurrentDictionary<string, byte> CacheKeys = new ConcurrentDictionary<string, byte>();
+
+        public static bool IsContractFileExtension(string extension)
+        {
+            return Array.Exists(ContractFileExtensions, item => item.Equals(extension, StringComparison.OrdinalIgnoreCase));
+        }
     }
 }

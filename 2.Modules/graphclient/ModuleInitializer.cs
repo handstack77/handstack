@@ -193,7 +193,7 @@ namespace graphclient
                     continue;
                 }
 
-                var fileSyncManager = new FileSyncManager(basePath, "*.xml");
+                var fileSyncManager = new FileSyncManager(basePath, ModuleConfiguration.ContractFileWatcherFilter);
                 fileSyncManager.MonitoringFile += async (changeTypes, fileInfo) =>
                 {
                     if (GlobalConfiguration.IsRunning == false

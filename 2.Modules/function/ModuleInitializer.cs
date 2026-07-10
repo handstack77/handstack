@@ -478,12 +478,23 @@ namespace function
                             patterns.AddRange(ModuleConfiguration.PythonWatchFileNamePatterns);
                         }
 
+                        // command/dbclient/graphclient 모듈과 동일한 {TransactionID}.xml/.fnc 단일 파일 계약의 변경 감지
+                        foreach (var contractFileExtension in ModuleConfiguration.ContractFileExtensions)
+                        {
+                            var contractPattern = "*" + contractFileExtension;
+                            if (patterns.Count > 0 && patterns.Contains(contractPattern, StringComparer.OrdinalIgnoreCase) == false)
+                            {
+                                patterns.Add(contractPattern);
+                            }
+                        }
+
                         var functionFileSyncManager = new FileSyncManager(functionContractBasePath, $"|{string.Join("|", patterns)}");
                         functionFileSyncManager.MonitoringFile += async (WatcherChangeTypes changeTypes, FileInfo fileInfo) =>
                         {
                             if (GlobalConfiguration.IsRunning == true && fileInfo.FullName.Replace("\\", "/").IndexOf(functionContractBasePath) > -1
                                 && (changeTypes == WatcherChangeTypes.Deleted || changeTypes == WatcherChangeTypes.Created || changeTypes == WatcherChangeTypes.Changed)
-                                && (fileInfo.Name.StartsWith("featureMain") == true || fileInfo.Name == "featureMeta.json" || fileInfo.Name == "featureSQL.xml") == true)
+                                && (fileInfo.Name.StartsWith("featureMain") == true || fileInfo.Name == "featureMeta.json" || fileInfo.Name == "featureSQL.xml"
+                                    || (ModuleConfiguration.IsContractFileExtension(fileInfo.Extension) == true && fileInfo.Name.Equals("featureSQL.xml", StringComparison.OrdinalIgnoreCase) == false)) == true)
                             {
                                 var filePath = fileInfo.FullName.Replace("\\", "/").Replace(functionContractBasePath, "");
                                 try

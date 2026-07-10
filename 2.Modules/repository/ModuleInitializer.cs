@@ -403,7 +403,7 @@ namespace repository
                 {
                     if (Directory.Exists(basePath) == true && basePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == false && ModuleConfiguration.IsContractFileWatching == true)
                     {
-                        var fileSyncManager = new FileSyncManager(basePath, "*.json");
+                        var fileSyncManager = new FileSyncManager(basePath, ModuleConfiguration.ContractFileWatcherFilter);
                         fileSyncManager.MonitoringFile += async (WatcherChangeTypes changeTypes, FileInfo fileInfo) =>
                         {
                             if (GlobalConfiguration.IsRunning == true && fileInfo.FullName.Replace("\\", "/").IndexOf(basePath) > -1 && (changeTypes == WatcherChangeTypes.Deleted || changeTypes == WatcherChangeTypes.Created || changeTypes == WatcherChangeTypes.Changed))

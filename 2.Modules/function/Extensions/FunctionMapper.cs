@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Xml.Linq;
 
 using function.Builder;
 using function.Entity;
@@ -159,6 +160,25 @@ namespace function.Extensions
                         {
                             break;
                         }
+
+                        foreach (var extension in ModuleConfiguration.ContractFileExtensions)
+                        {
+                            var xmlFilePath = PathExtensions.Join(basePath, applicationID, projectID, transactionID + extension);
+                            if (File.Exists(xmlFilePath) == true)
+                            {
+                                MergeXmlContractFile(xmlFilePath, false, Log.Logger);
+                                ScriptMappings.TryGetValue(queryID, out result);
+                                if (result != null)
+                                {
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (result != null)
+                        {
+                            break;
+                        }
                     }
 
                     if (result == null)
@@ -193,6 +213,23 @@ namespace function.Extensions
                             }
 
                             ScriptMappings.TryGetValue(queryID, out result);
+
+                            if (result == null)
+                            {
+                                foreach (var extension in ModuleConfiguration.ContractFileExtensions)
+                                {
+                                    var tenantXmlFilePath = PathExtensions.Combine(appBasePath, "function", projectID, transactionID + extension);
+                                    if (File.Exists(tenantXmlFilePath) == true)
+                                    {
+                                        MergeXmlContractFile(tenantXmlFilePath, false, Log.Logger);
+                                        ScriptMappings.TryGetValue(queryID, out result);
+                                        if (result != null)
+                                        {
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -468,16 +505,26 @@ namespace function.Extensions
 
             try
             {
-                foreach (var basePath in ModuleConfiguration.ContractBasePath)
+                var scriptMapFiles = Path.IsPathRooted(scriptFilePath) == true
+                    ? new List<string> { scriptFilePath }
+                    : ModuleConfiguration.ContractBasePath.Select(basePath => PathExtensions.Join(basePath, scriptFilePath)).ToList();
+
+                foreach (var scriptMapFile in scriptMapFiles)
                 {
                     if (scriptFilePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true && GlobalConfiguration.IsTenantFunction == false)
                     {
                         return result;
                     }
 
-                    var scriptMapFile = PathExtensions.Join(basePath, scriptFilePath);
                     if (File.Exists(scriptMapFile) == true)
                     {
+                        if (ModuleConfiguration.IsContractFileExtension(Path.GetExtension(scriptMapFile)) == true
+                            && Path.GetFileName(scriptMapFile).Equals("featureSQL.xml", StringComparison.OrdinalIgnoreCase) == false)
+                        {
+                            result = MergeXmlContractFile(scriptMapFile, forceUpdate, logger);
+                            continue;
+                        }
+
                         var configData = System.IO.File.ReadAllText(scriptMapFile);
 
                         JsonNode? root = JsonNode.Parse(configData, documentOptions: new JsonDocumentOptions
@@ -701,7 +748,7 @@ namespace function.Extensions
             var functionDirectoryPath = Path.GetDirectoryName(functionScriptFile)!;
             var transactionID = new DirectoryInfo(functionDirectoryPath).Name;
             var moduleName = $"{moduleScriptMap.ApplicationID}_{moduleScriptMap.ProjectID}_{moduleScriptMap.TransactionID}";
-            var mainFilePath = functionScriptFile.Replace("featureMain.py", $"{moduleName}.py");
+            var mainFilePath = PathExtensions.Combine(functionDirectoryPath, $"{moduleName}.py");
             if (File.Exists(mainFilePath) == false)
             {
                 File.Delete(mainFilePath);
@@ -712,6 +759,305 @@ namespace function.Extensions
             {
                 Directory.Delete(pythonCachePath, true);
             }
+        }
+
+        // command/graphclient 모듈과 동일하게 xmlns="contract.xsd" 기본 네임스페이스를 무시하고 LocalName 으로 매칭
+        private static IEnumerable<XElement> XmlDescendants(XContainer? container, string localName)
+        {
+            return container == null
+                ? Enumerable.Empty<XElement>()
+                : container.Descendants().Where(item => item.Name.LocalName.Equals(localName, StringComparison.OrdinalIgnoreCase));
+        }
+
+        private static IEnumerable<XElement> XmlChildren(XContainer? container, string localName)
+        {
+            return container == null
+                ? Enumerable.Empty<XElement>()
+                : container.Elements().Where(item => item.Name.LocalName.Equals(localName, StringComparison.OrdinalIgnoreCase));
+        }
+
+        private static XElement? XmlChild(XContainer? container, string localName)
+        {
+            return XmlChildren(container, localName).FirstOrDefault();
+        }
+
+        private static string XmlElementValue(XContainer? container, string localName)
+        {
+            return XmlChild(container, localName)?.Value.ToStringSafe().Trim() ?? "";
+        }
+
+        private static string XmlElementMarkup(XElement? element)
+        {
+            if (element == null)
+            {
+                return "";
+            }
+
+            if (element.Elements().Any() == false)
+            {
+                return element.Value.Trim('\r', '\n');
+            }
+
+            return string.Join(Environment.NewLine, element.Elements().Select(item => item.ToString(SaveOptions.DisableFormatting))).Trim();
+        }
+
+        private static string XmlAttributeValue(XElement? element, string localName)
+        {
+            if (element == null)
+            {
+                return "";
+            }
+
+            return element.Attributes().FirstOrDefault(item => item.Name.LocalName.Equals(localName, StringComparison.OrdinalIgnoreCase))?.Value.ToStringSafe().Trim() ?? "";
+        }
+
+        // command/dbclient/graphclient 모듈과 동일하게 {TransactionID}.xml/.fnc 단일 파일로 관리되는 계약을 파싱
+        // <mapper><header>...</header><script><![CDATA[ ... ]]></script><featureSQL><![CDATA[ ... ]]></featureSQL><commands><command>...</command></commands></mapper>
+        private static (FunctionScriptContract Contract, string ScriptSource, string FeatureSQLSource) ParseXmlContract(string xmlFilePath)
+        {
+            var document = XDocument.Load(xmlFilePath, LoadOptions.PreserveWhitespace);
+            var root = document.Root;
+
+            var contract = new FunctionScriptContract();
+            var headerElement = XmlChild(root, "header");
+            contract.Header.ApplicationID = XmlElementValue(headerElement, "application");
+            contract.Header.ProjectID = XmlElementValue(headerElement, "project");
+            contract.Header.TransactionID = XmlElementValue(headerElement, "transaction");
+            contract.Header.DataSourceID = XmlElementValue(headerElement, "datasource");
+            contract.Header.LanguageType = XmlElementValue(headerElement, "language");
+            contract.Header.ReferenceModuleID = XmlElementValue(headerElement, "referenceModuleID");
+            contract.Header.IsHttpContext = XmlElementValue(headerElement, "isHttpContext").ToBoolean(false);
+            contract.Header.Use = XmlElementValue(headerElement, "use").ToBoolean(true);
+            contract.Header.Comment = XmlElementValue(headerElement, "desc");
+
+            var scriptSource = (XmlChild(root, "script")?.Value ?? "").Trim('\r', '\n');
+            var featureSQLSource = XmlElementMarkup(XmlChild(root, "featureSQL"));
+
+            var commandsElement = XmlChild(root, "commands");
+            foreach (var commandElement in XmlChildren(commandsElement, "command"))
+            {
+                var command = new FunctionCommand();
+                command.ID = XmlAttributeValue(commandElement, "id");
+                command.Seq = XmlAttributeValue(commandElement, "seq").ParseInt(0);
+                command.Use = XmlAttributeValue(commandElement, "use").ToBoolean(true);
+                command.Timeout = XmlAttributeValue(commandElement, "timeout").ParseInt(0);
+                command.Description = XmlAttributeValue(commandElement, "desc");
+                command.EntryType = XmlElementValue(commandElement, "entryType");
+                command.EntryMethod = XmlElementValue(commandElement, "entryMethod");
+                command.BeforeTransaction = XmlElementValue(commandElement, "beforeTransaction");
+                command.AfterTransaction = XmlElementValue(commandElement, "afterTransaction");
+                command.FallbackTransaction = XmlElementValue(commandElement, "fallbackTransaction");
+
+                foreach (var paramElement in XmlChildren(commandElement, "param"))
+                {
+                    var typeValue = XmlAttributeValue(paramElement, "type");
+                    command.Params.Add(new FunctionParam
+                    {
+                        ID = XmlAttributeValue(paramElement, "id"),
+                        Type = string.IsNullOrWhiteSpace(typeValue) ? "String" : typeValue,
+                        Length = XmlAttributeValue(paramElement, "length").ParseInt(-1),
+                        Value = XmlAttributeValue(paramElement, "value"),
+                        IsRequired = XmlAttributeValue(paramElement, "required").ToBoolean(false)
+                    });
+                }
+
+                foreach (var outputMetaElement in XmlChildren(commandElement, "outputmeta"))
+                {
+                    var value = XmlAttributeValue(outputMetaElement, "value");
+                    if (!string.IsNullOrWhiteSpace(value))
+                    {
+                        command.OutputMetas.Add(value);
+                    }
+                }
+
+                contract.Commands.Add(command);
+            }
+
+            return (contract, scriptSource, featureSQLSource);
+        }
+
+        // JS(Node require)/Python(import) 는 실제 디스크 파일이 필요하므로 <script> CDATA 내용을 xml 옆에 {TransactionID}.g.{ext} 로 물리화
+        private static string MaterializeScriptFile(string xmlFilePath, string transactionID, string scriptSource, string fileExtension)
+        {
+            var directoryPath = Path.GetDirectoryName(xmlFilePath)!;
+            var generatedFilePath = PathExtensions.Combine(directoryPath, $"{transactionID}.g.{fileExtension}");
+            File.WriteAllText(generatedFilePath, scriptSource);
+            return generatedFilePath;
+        }
+
+        // 단일 계약 내부의 <featureSQL> 원문은 기존 실행 경로가 요구하는 XML 파일로 물리화한다.
+        private static string MaterializeFeatureSQLFile(string xmlFilePath, string transactionID, string featureSQLSource)
+        {
+            var directoryPath = Path.GetDirectoryName(xmlFilePath)!;
+            var generatedFilePath = PathExtensions.Combine(directoryPath, $"{transactionID}.g.featureSQL");
+            File.WriteAllText(generatedFilePath, featureSQLSource);
+            return generatedFilePath;
+        }
+
+        public static bool MergeXmlContractFile(string xmlFilePath, bool forceUpdate, ILogger logger)
+        {
+            var result = false;
+
+            try
+            {
+                if (File.Exists(xmlFilePath) == false)
+                {
+                    logger.Information("[{LogCategory}] " + $"{xmlFilePath} 대응 업무 계약 파일 없음", "FunctionMapper/MergeXmlContractFile");
+                    return result;
+                }
+
+                if (xmlFilePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true && GlobalConfiguration.IsTenantFunction == false)
+                {
+                    return result;
+                }
+
+                var (contract, scriptSource, featureSQLSource) = ParseXmlContract(xmlFilePath);
+
+                string? fileExtension = null;
+                switch (contract.Header.LanguageType)
+                {
+                    case "javascript":
+                        fileExtension = "js";
+                        break;
+                    case "csharp":
+                        fileExtension = "cs";
+                        break;
+                    case "python":
+                        fileExtension = "py";
+                        break;
+                }
+
+                if (string.IsNullOrWhiteSpace(fileExtension))
+                {
+                    logger.Error("[{LogCategory}] " + $"{xmlFilePath} 언어 타입 확인 필요", "FunctionMapper/MergeXmlContractFile");
+                    return result;
+                }
+
+                var header = contract.Header;
+                var fileInfo = new FileInfo(xmlFilePath);
+                var isTenantContractFile = xmlFilePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true;
+                if (isTenantContractFile == true)
+                {
+                    // 테넌트 경로: {appBasePath:.../applicationID}/function/{projectID}/{transactionID}.xml|.fnc
+                    header.ApplicationID = string.IsNullOrWhiteSpace(header.ApplicationID) ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : header.ApplicationID;
+                    header.ProjectID = string.IsNullOrWhiteSpace(header.ProjectID) ? (fileInfo.Directory?.Name).ToStringSafe() : header.ProjectID;
+                    header.TransactionID = string.IsNullOrWhiteSpace(header.TransactionID) ? fileInfo.Name.Replace(fileInfo.Extension, "") : header.TransactionID;
+                }
+                else
+                {
+                    // 일반 경로: {ContractBasePath}/{applicationID}/{projectID}/{transactionID}.xml|.fnc
+                    header.ApplicationID = string.IsNullOrWhiteSpace(header.ApplicationID) ? (fileInfo.Directory?.Parent?.Name).ToStringSafe() : header.ApplicationID;
+                    header.ProjectID = string.IsNullOrWhiteSpace(header.ProjectID) ? (fileInfo.Directory?.Name).ToStringSafe() : header.ProjectID;
+                    header.TransactionID = string.IsNullOrWhiteSpace(header.TransactionID) ? fileInfo.Name.Replace(fileInfo.Extension, "") : header.TransactionID;
+                }
+
+                var generatedFilePath = MaterializeScriptFile(xmlFilePath, header.TransactionID, scriptSource, fileExtension);
+                if (string.IsNullOrWhiteSpace(featureSQLSource) == false)
+                {
+                    MaterializeFeatureSQLFile(xmlFilePath, header.TransactionID, featureSQLSource);
+                }
+
+                var items = contract.Commands;
+                foreach (var item in items)
+                {
+                    if (header.Use == true)
+                    {
+                        var moduleScriptMap = new ModuleScriptMap();
+                        moduleScriptMap.ApplicationID = header.ApplicationID;
+                        moduleScriptMap.ProjectID = header.ProjectID;
+                        moduleScriptMap.TransactionID = header.TransactionID;
+                        moduleScriptMap.ScriptID = item.ID + item.Seq.ToString().PadLeft(2, '0');
+                        moduleScriptMap.ExportName = item.ID;
+                        moduleScriptMap.Seq = item.Seq;
+                        moduleScriptMap.IsHttpContext = header.IsHttpContext;
+                        moduleScriptMap.ReferenceModuleID = header.ReferenceModuleID;
+                        moduleScriptMap.EntryType = string.IsNullOrWhiteSpace(item.EntryType) ? $"{header.ApplicationID}.Function.{header.ProjectID}.{header.TransactionID}" : item.EntryType;
+                        moduleScriptMap.EntryMethod = string.IsNullOrWhiteSpace(item.EntryMethod) ? item.ID : item.EntryMethod;
+                        moduleScriptMap.DataSourceID = !string.IsNullOrWhiteSpace(header.DataSourceID) ? header.DataSourceID : ModuleConfiguration.DefaultDataSourceID;
+                        moduleScriptMap.LanguageType = header.LanguageType;
+                        moduleScriptMap.ProgramPath = generatedFilePath;
+                        moduleScriptMap.Timeout = item.Timeout;
+                        moduleScriptMap.BeforeTransactionCommand = item.BeforeTransaction;
+                        moduleScriptMap.AfterTransactionCommand = item.AfterTransaction;
+                        moduleScriptMap.FallbackTransactionCommand = item.FallbackTransaction;
+                        moduleScriptMap.Description = item.Description;
+                        moduleScriptMap.OutputMetas = new List<string>(item.OutputMetas);
+
+                        moduleScriptMap.ModuleParameters = new List<ModuleParameterMap>();
+                        var functionParams = item.Params;
+                        if (functionParams != null && functionParams.Count > 0)
+                        {
+                            foreach (var functionParam in functionParams)
+                            {
+                                moduleScriptMap.ModuleParameters.Add(new ModuleParameterMap()
+                                {
+                                    Name = functionParam.ID,
+                                    DbType = functionParam.Type,
+                                    Length = functionParam.Length,
+                                    IsRequired = functionParam.IsRequired,
+                                    DefaultValue = functionParam.Value
+                                });
+                            }
+                        }
+
+                        var queryID = string.Concat(
+                            moduleScriptMap.ApplicationID, "|",
+                            moduleScriptMap.ProjectID, "|",
+                            moduleScriptMap.TransactionID, "|",
+                            moduleScriptMap.ScriptID
+                        );
+
+                        lock (ScriptMappings)
+                        {
+                            if (header.LanguageType == "csharp")
+                            {
+                                var runner = Runner.Instance;
+                                runner.FileAssemblyCache.TryRemove(generatedFilePath, out _);
+                            }
+                            else if (header.LanguageType == "python")
+                            {
+                                deletePythonCache(generatedFilePath, moduleScriptMap);
+                            }
+
+                            if (ScriptMappings.ContainsKey(queryID) == false)
+                            {
+                                if (isTenantContractFile == true)
+                                {
+                                    ScriptMappings.Add(queryID, moduleScriptMap);
+                                }
+                                else
+                                {
+                                    ScriptMappings.Add(queryID, moduleScriptMap, TimeSpan.FromDays(36500));
+                                }
+                            }
+                            else if (forceUpdate == true)
+                            {
+                                ScriptMappings.Remove(queryID);
+                                if (isTenantContractFile == true)
+                                {
+                                    ScriptMappings.Add(queryID, moduleScriptMap);
+                                }
+                                else
+                                {
+                                    ScriptMappings.Add(queryID, moduleScriptMap, TimeSpan.FromDays(36500));
+                                }
+                            }
+                            else
+                            {
+                                logger.Warning("[{LogCategory}] " + $"ScriptMap 정보 중복 확인 필요 - {xmlFilePath}, ApplicationID - {moduleScriptMap.ApplicationID}, ProjectID - {moduleScriptMap.ProjectID}, TransactionID - {moduleScriptMap.TransactionID}, ScriptID - {moduleScriptMap.ScriptID}", "FunctionMapper/MergeXmlContractFile");
+                            }
+                        }
+                    }
+                }
+
+                result = true;
+            }
+            catch (Exception exception)
+            {
+                logger.Error("[{LogCategory}] " + $"{xmlFilePath} 업무 계약 파일 오류 - {exception.ToMessage()}", "FunctionMapper/MergeXmlContractFile");
+            }
+
+            return result;
         }
 
         public static void LoadContract(string environmentName, ILogger logger, IConfiguration configuration)
@@ -922,6 +1268,19 @@ namespace function.Extensions
                         {
                             logger.Error("[{LogCategory}] " + $"{scriptMapFile} 업무 계약 파일 오류 - {exception.ToMessage()}", "FunctionMapper/LoadContract");
                         }
+                    }
+
+                    // command/dbclient/graphclient 모듈과 동일한 {TransactionID}.xml/.fnc 단일 파일 계약 스캔
+                    // featureMeta.json(폴더 방식) 스캔이 먼저 끝난 뒤에 실행되므로, 동일 TransactionID 가 폴더 방식과 단일 파일 방식에 모두 존재하면
+                    // ScriptMappings.ContainsKey 검사에 의해 폴더 방식이 우선 등록되고 단일 파일 쪽은 중복 경고 로그만 남긴다.
+                    var xmlContractFiles = ModuleConfiguration.ContractFileExtensions
+                        .SelectMany(extension => Directory.GetFiles(basePath, "*" + extension, SearchOption.AllDirectories))
+                        .Where(item => Path.GetFileName(item).Equals("featureSQL.xml", StringComparison.OrdinalIgnoreCase) == false
+                            && Path.GetRelativePath(basePath, item).Replace("\\", "/").Split('/').Length == 3);
+
+                    foreach (var xmlContractFile in xmlContractFiles)
+                    {
+                        MergeXmlContractFile(xmlContractFile, false, logger);
                     }
                 }
 

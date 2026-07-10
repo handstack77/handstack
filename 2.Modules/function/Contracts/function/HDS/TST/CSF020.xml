@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapper xmlns="contract.xsd">
+    <header>
+        <application>HDS</application>
+        <project>TST</project>
+        <transaction>CSF020</transaction>
+        <datasource>FN01</datasource>
+        <language>csharp</language>
+        <referenceModuleID></referenceModuleID>
+        <isHttpContext>false</isHttpContext>
+        <use>Y</use>
+        <desc>CSharp 거래 함수 테스트(단일 XML)</desc>
+    </header>
+    <script><![CDATA[
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.IO;
+
+using HandStack.Core.ExtensionMethod;
+using HandStack.Core.Helpers;
+using HandStack.Web.Extensions;
+using HandStack.Web.MessageContract.DataObject;
+
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
+namespace HDS.Function.TST
+{
+    public class CSF020
+    {
+        protected DataSet? GF01(List<DynamicParameter> dynamicParameters, DataContext dataContext)
+        {
+            string typeMember = "TST.CSF020.GF01";
+
+            string serverDate = dynamicParameters.Value("ServerDate").ToStringSafe();
+            string serverName = dynamicParameters.Value("ServerName").ToStringSafe();
+
+            DataTableHelper dataTableBuilder = new DataTableHelper();
+            dataTableBuilder.AddColumn("FunctionResult", typeof(string));
+
+            dataTableBuilder.NewRow();
+            dataTableBuilder.SetValue(0, 0, $"typeMember: {typeMember}, serverDate: {serverDate}, serverName: {serverName}");
+
+            using DataSet result = new DataSet();
+            using (DataTable table = dataTableBuilder.GetDataTable())
+            {
+                result.Tables.Add(table);
+            }
+
+            return result;
+        }
+    }
+}
+    ]]></script>
+    <featureSQL>
+        <mapper xmlns="mybatis-3-mapper.dtd" namespace="feature">
+            <select id="L01" desc="CSharp 단일 XML featureSQL 예시">
+                <![CDATA[
+SELECT #{ServerDate} AS ServerDate
+    , #{ServerName} AS ServerName
+    , 'TST.CSF020.L01' AS FeatureID;
+                ]]>
+            </select>
+        </mapper>
+    </featureSQL>
+    <commands>
+        <command id="GF01" seq="0" use="Y" timeout="0" desc="Form 반환 거래 함수">
+            <entryType></entryType>
+            <entryMethod></entryMethod>
+            <beforeTransaction></beforeTransaction>
+            <afterTransaction></afterTransaction>
+            <fallbackTransaction></fallbackTransaction>
+            <param id="ServerDate" type="String" length="0" value="NULL" required="false" />
+            <param id="ServerName" type="String" length="0" value="NULL" required="false" />
+            <outputmeta value="BankAccountID:string|32;CompanyID:string|32;CompanyName:string|200;" />
+            <outputmeta value="BankName:string|50;AccountNumber:string|50;AccountHolderName:string|50;AccountType:string|3;" />
+        </command>
+    </commands>
+</mapper>

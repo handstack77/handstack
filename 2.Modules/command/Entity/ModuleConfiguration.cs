@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 using command.Extensions;
@@ -15,6 +16,8 @@ namespace command.Entity
         public static List<string> AllowClientIP = new List<string>() { "*" };
         public static bool IsBundledWithHost = false;
         public static bool IsContractFileWatching = true;
+        public static readonly string[] ContractFileExtensions = { ".xml", ".bas" };
+        public static readonly string ContractFileWatcherFilter = "*.xml|*.bas";
         public static List<string> ContractBasePath = new List<string>();
         public static Dictionary<string, FileSyncManager> CommandFileSyncManager = new Dictionary<string, FileSyncManager>();
         public static string BusinessServerUrl = "";
@@ -28,6 +31,11 @@ namespace command.Entity
         public static bool IsLogServer = false;
         public static string LogServerUrl = "";
         public static ILogger? ModuleLogger = null;
+
+        public static bool IsContractFileExtension(string extension)
+        {
+            return Array.Exists(ContractFileExtensions, item => item.Equals(extension, StringComparison.OrdinalIgnoreCase));
+        }
     }
 }
 

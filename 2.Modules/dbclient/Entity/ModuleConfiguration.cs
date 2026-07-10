@@ -3,6 +3,7 @@
 using dbclient.Extensions;
 
 using HandStack.Web.Entity;
+using System;
 
 using Serilog;
 
@@ -17,6 +18,8 @@ namespace dbclient.Entity
         public static List<string> AllowClientIP = new List<string>() { "*" };
         public static bool IsBundledWithHost = false;
         public static bool IsContractFileWatching = true;
+        public static readonly string[] ContractFileExtensions = { ".xml", ".dbc" };
+        public static readonly string ContractFileWatcherFilter = "*.xml|*.dbc";
         public static List<string> ContractBasePath = new List<string>();
         public static Dictionary<string, FileSyncManager> SQLFileSyncManager = new Dictionary<string, FileSyncManager>();
         public static string BusinessServerUrl = "";
@@ -32,5 +35,10 @@ namespace dbclient.Entity
         public static List<DataSource> DataSource = new List<DataSource>();
         public static ILogger? ModuleLogger = null;
         public static ILogger? ProfileLogger = null;
+
+        public static bool IsContractFileExtension(string extension)
+        {
+            return Array.Exists(ContractFileExtensions, item => item.Equals(extension, StringComparison.OrdinalIgnoreCase));
+        }
     }
 }

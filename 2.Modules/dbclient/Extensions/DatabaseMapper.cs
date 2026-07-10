@@ -246,10 +246,19 @@ namespace dbclient.Extensions
 
                     if (!string.IsNullOrWhiteSpace(appBasePath) && Directory.Exists(appBasePath) == true)
                     {
-                        var filePath = PathExtensions.Combine(appBasePath, "dbclient", projectID, transactionID + ".xml");
+                        var filePath = string.Empty;
+                        foreach (var extension in ModuleConfiguration.ContractFileExtensions)
+                        {
+                            var candidatePath = PathExtensions.Combine(appBasePath, "dbclient", projectID, transactionID + extension);
+                            if (File.Exists(candidatePath) == true)
+                            {
+                                filePath = candidatePath;
+                                break;
+                            }
+                        }
                         try
                         {
-                            if (File.Exists(filePath) == true)
+                            if (string.IsNullOrWhiteSpace(filePath) == false && File.Exists(filePath) == true)
                             {
                                 var fileInfo = new FileInfo(filePath);
                                 var htmlDocument = new HtmlDocument();
@@ -1060,7 +1069,8 @@ namespace dbclient.Extensions
                         continue;
                     }
 
-                    var sqlMapFiles = Directory.GetFiles(basePath, "*.xml", SearchOption.AllDirectories);
+                    var sqlMapFiles = ModuleConfiguration.ContractFileExtensions
+                        .SelectMany(extension => Directory.GetFiles(basePath, "*" + extension, SearchOption.AllDirectories));
                     foreach (var sqlMapFile in sqlMapFiles)
                     {
                         try

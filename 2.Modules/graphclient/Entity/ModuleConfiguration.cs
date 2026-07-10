@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 using graphclient.Extensions;
@@ -15,6 +16,8 @@ namespace graphclient.Entity
         public static List<string> AllowClientIP = new() { "*" };
         public static bool IsBundledWithHost = false;
         public static bool IsContractFileWatching = true;
+        public static readonly string[] ContractFileExtensions = { ".xml", ".cyp" };
+        public static readonly string ContractFileWatcherFilter = "*.xml|*.cyp";
         public static List<string> ContractBasePath = new();
         public static Dictionary<string, FileSyncManager> GraphFileSyncManager = new();
         public static string BusinessServerUrl = "";
@@ -32,5 +35,10 @@ namespace graphclient.Entity
         public static List<GraphDataSource> GraphDataSource = new();
         public static ILogger? ModuleLogger = null;
         public static ILogger? ProfileLogger = null;
+
+        public static bool IsContractFileExtension(string extension)
+        {
+            return Array.Exists(ContractFileExtensions, item => item.Equals(extension, StringComparison.OrdinalIgnoreCase));
+        }
     }
 }

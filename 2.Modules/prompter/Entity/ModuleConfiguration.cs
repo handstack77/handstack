@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System;
 
 using prompter.Extensions;
 
@@ -16,6 +17,8 @@ namespace prompter.Entity
         public static List<string> AllowClientIP = new List<string>() { "*" };
         public static bool IsBundledWithHost = false;
         public static bool IsContractFileWatching = true;
+        public static readonly string[] ContractFileExtensions = { ".xml", ".pmt" };
+        public static readonly string ContractFileWatcherFilter = "*.xml|*.pmt";
         public static List<string> ContractBasePath = new List<string>();
         public static Dictionary<string, FileSyncManager> PromptFileSyncManager = new Dictionary<string, FileSyncManager>();
         public static string BusinessServerUrl = "";
@@ -46,5 +49,10 @@ namespace prompter.Entity
         public static bool EnableSkillInstall = false;
         public static ConcurrentDictionary<string, byte> CacheKeys = new ConcurrentDictionary<string, byte>();
         public static ILogger? ModuleLogger = null;
+
+        public static bool IsContractFileExtension(string extension)
+        {
+            return Array.Exists(ContractFileExtensions, item => item.Equals(extension, StringComparison.OrdinalIgnoreCase));
+        }
     }
 }

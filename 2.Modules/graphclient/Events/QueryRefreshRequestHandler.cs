@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
+using graphclient.Entity;
 using graphclient.Extensions;
 
 using Mediator;
@@ -56,7 +57,7 @@ namespace graphclient.Events
             {
                 case WatcherChangeTypes.Created:
                 case WatcherChangeTypes.Changed:
-                    if (fileInfo.Extension.Equals(".xml", StringComparison.OrdinalIgnoreCase))
+                    if (ModuleConfiguration.IsContractFileExtension(fileInfo.Extension) == true)
                     {
                         actionResult = GraphMapper.AddStatementMap(filePath, true, logger);
                     }

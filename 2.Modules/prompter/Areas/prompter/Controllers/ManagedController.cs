@@ -114,7 +114,8 @@ namespace prompter.Areas.prompter.Controllers
                                 return Ok();
                             }
 
-                            var promptMapFiles = Directory.GetFiles(basePath, "*.xml", SearchOption.AllDirectories);
+                            var promptMapFiles = ModuleConfiguration.ContractFileExtensions
+                                .SelectMany(extension => Directory.GetFiles(basePath, "*" + extension, SearchOption.AllDirectories));
                             foreach (var promptMapFile in promptMapFiles)
                             {
                                 try

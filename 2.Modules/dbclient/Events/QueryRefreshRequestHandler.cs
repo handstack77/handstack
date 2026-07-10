@@ -71,7 +71,7 @@ namespace dbclient.Events
                             var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, request.UserWorkID, request.ApplicationID);
                             var itemPath = PathExtensions.Join(appBasePath, filePath);
                             var directoryInfo = new DirectoryInfo(appBasePath);
-                            if (directoryInfo.Exists == true && System.IO.File.Exists(itemPath) == true && fileInfo.Extension == ".xml" == true)
+                            if (directoryInfo.Exists == true && System.IO.File.Exists(itemPath) == true && ModuleConfiguration.IsContractFileExtension(fileInfo.Extension) == true)
                             {
                                 logger.Information("[{LogCategory}] " + $"Add TenantApp StatementMap FilePath: {filePath}", "Query/Refresh");
                                 actionResult = DatabaseMapper.AddStatementMap(filePath, true, logger);
@@ -83,7 +83,7 @@ namespace dbclient.Events
                             {
                                 var itemPath = PathExtensions.Join(basePath, filePath);
                                 var directoryInfo = new DirectoryInfo(basePath);
-                                if (directoryInfo.Exists == true && System.IO.File.Exists(itemPath) == true && fileInfo.Extension == ".xml" == true)
+                                if (directoryInfo.Exists == true && System.IO.File.Exists(itemPath) == true && ModuleConfiguration.IsContractFileExtension(fileInfo.Extension) == true)
                                 {
                                     logger.Information("[{LogCategory}] " + $"Add StatementMap FilePath: {filePath}", "Query/Refresh");
                                     actionResult = DatabaseMapper.AddStatementMap(filePath, true, logger);

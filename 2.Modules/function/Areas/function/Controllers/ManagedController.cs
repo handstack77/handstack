@@ -312,6 +312,15 @@ namespace function.Areas.function.Controllers
                                 }
                             }
 
+                            var singleContractFiles = ModuleConfiguration.ContractFileExtensions
+                                .SelectMany(extension => Directory.GetFiles(basePath, "*" + extension, SearchOption.AllDirectories))
+                                .Where(item => Path.GetFileName(item).Equals("featureSQL.xml", StringComparison.OrdinalIgnoreCase) == false
+                                    && Path.GetRelativePath(basePath, item).Replace("\\", "/").Split('/').Length == 2);
+
+                            foreach (var singleContractFile in singleContractFiles)
+                            {
+                                FunctionMapper.MergeXmlContractFile(singleContractFile, false, logger);
+                            }
                         }
                         catch (Exception exception)
                         {

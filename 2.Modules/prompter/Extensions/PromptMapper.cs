@@ -507,10 +507,19 @@ namespace prompter.Extensions
 
                     if (string.IsNullOrEmpty(appBasePath) == false && Directory.Exists(appBasePath) == true)
                     {
-                        var filePath = PathExtensions.Combine(appBasePath, "prompter", projectID, transactionID + ".xml");
+                        var filePath = string.Empty;
+                        foreach (var extension in ModuleConfiguration.ContractFileExtensions)
+                        {
+                            var candidatePath = PathExtensions.Combine(appBasePath, "prompter", projectID, transactionID + extension);
+                            if (File.Exists(candidatePath) == true)
+                            {
+                                filePath = candidatePath;
+                                break;
+                            }
+                        }
                         try
                         {
-                            if (File.Exists(filePath) == true)
+                            if (string.IsNullOrWhiteSpace(filePath) == false && File.Exists(filePath) == true)
                             {
                                 var promptMaps = LoadPromptMapsFromFile(filePath, true);
                                 AddPromptMapsToCache(promptMaps, true, true, filePath, Log.Logger);
@@ -1127,7 +1136,8 @@ namespace prompter.Extensions
 
                     logger.Information("[{LogCategory}] ContractBasePath: " + basePath, "PromptMapper/LoadContract");
 
-                    var promptMapFiles = Directory.GetFiles(basePath, "*.xml", SearchOption.AllDirectories);
+                    var promptMapFiles = ModuleConfiguration.ContractFileExtensions
+                        .SelectMany(extension => Directory.GetFiles(basePath, "*" + extension, SearchOption.AllDirectories));
                     foreach (var promptMapFile in promptMapFiles)
                     {
                         try

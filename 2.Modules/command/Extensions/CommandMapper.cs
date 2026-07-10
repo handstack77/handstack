@@ -50,15 +50,23 @@ namespace command.Extensions
             var transactionID = items[2];
             foreach (var basePath in ModuleConfiguration.ContractBasePath)
             {
-                var filePath = PathExtensions.Combine(basePath, applicationID, projectID, transactionID + ".xml");
-                if (File.Exists(filePath) == true)
+                foreach (var extension in ModuleConfiguration.ContractFileExtensions)
                 {
-                    AddCommandMap(GetRelativePath(basePath, filePath), false, Log.Logger);
-                    lock (CommandMappings)
+                    var filePath = PathExtensions.Combine(basePath, applicationID, projectID, transactionID + extension);
+                    if (File.Exists(filePath) == true)
                     {
-                        CommandMappings.TryGetValue(queryID, out result);
-                    }
+                        AddCommandMap(GetRelativePath(basePath, filePath), false, Log.Logger);
+                        lock (CommandMappings)
+                        {
+                            CommandMappings.TryGetValue(queryID, out result);
+                        }
 
+                        break;
+                    }
+                }
+
+                if (result != null)
+                {
                     break;
                 }
             }
@@ -87,42 +95,63 @@ namespace command.Extensions
                     continue;
                 }
 
-                try
+                result = AddCommandMapFile(filePath, forceUpdate, false, logger);
+
+                break;
+            }
+
+            return result;
+        }
+
+        public static bool AddCommandMapFile(string filePath, bool forceUpdate, bool isTenantContractFile, ILogger logger)
+        {
+            var result = false;
+            try
+            {
+                if (File.Exists(filePath) == false)
                 {
-                    var commandMaps = ParseCommandFile(filePath, logger);
-                    if (commandMaps.Count == 0)
-                    {
-                        return false;
-                    }
+                    return false;
+                }
 
-                    lock (CommandMappings)
+                var commandMaps = ParseCommandFile(filePath, logger);
+                if (commandMaps.Count == 0)
+                {
+                    return false;
+                }
+
+                lock (CommandMappings)
+                {
+                    foreach (var commandMap in commandMaps)
                     {
-                        foreach (var commandMap in commandMaps)
+                        var queryID = ToQueryID(commandMap);
+                        if (forceUpdate == true && CommandMappings.ContainsKey(queryID) == true)
                         {
-                            var queryID = ToQueryID(commandMap);
-                            if (forceUpdate == true && CommandMappings.ContainsKey(queryID) == true)
-                            {
-                                CommandMappings.Remove(queryID);
-                            }
+                            CommandMappings.Remove(queryID);
+                        }
 
-                            if (CommandMappings.ContainsKey(queryID) == false)
+                        if (CommandMappings.ContainsKey(queryID) == false)
+                        {
+                            if (isTenantContractFile == true)
                             {
-                                CommandMappings.Add(queryID, commandMap, TimeSpan.FromDays(36500));
-                                result = true;
+                                CommandMappings.Add(queryID, commandMap);
                             }
                             else
                             {
-                                logger.Warning("[{LogCategory}] CommandMap 정보 중복 오류 - {FilePath}, QueryID - {QueryID}", "CommandMapper/AddCommandMap", filePath, queryID);
+                                CommandMappings.Add(queryID, commandMap, TimeSpan.FromDays(36500));
                             }
+
+                            result = true;
+                        }
+                        else
+                        {
+                            logger.Warning("[{LogCategory}] CommandMap 정보 중복 오류 - {FilePath}, QueryID - {QueryID}", "CommandMapper/AddCommandMapFile", filePath, queryID);
                         }
                     }
                 }
-                catch (Exception exception)
-                {
-                    logger.Error(exception, "[{LogCategory}] {FilePath} command 계약 파일 오류", "CommandMapper/AddCommandMap", filePath);
-                }
-
-                break;
+            }
+            catch (Exception exception)
+            {
+                logger.Error(exception, "[{LogCategory}] {FilePath} command 계약 파일 오류", "CommandMapper/AddCommandMapFile", filePath);
             }
 
             return result;
@@ -144,10 +173,13 @@ namespace command.Extensions
                         continue;
                     }
 
-                    var commandMapFiles = Directory.GetFiles(basePath, "*.xml", SearchOption.AllDirectories);
-                    foreach (var commandMapFile in commandMapFiles)
+                    foreach (var extension in ModuleConfiguration.ContractFileExtensions)
                     {
-                        AddCommandMap(GetRelativePath(basePath, commandMapFile), false, logger);
+                        var commandMapFiles = Directory.GetFiles(basePath, "*" + extension, SearchOption.AllDirectories);
+                        foreach (var commandMapFile in commandMapFiles)
+                        {
+                            AddCommandMap(GetRelativePath(basePath, commandMapFile), false, logger);
+                        }
                     }
                 }
             }
@@ -177,7 +209,17 @@ namespace command.Extensions
             var applicationID = contract.Header.ApplicationID;
             var projectID = contract.Header.ProjectID;
             var transactionID = contract.Header.TransactionID;
-            applicationID = string.IsNullOrWhiteSpace(applicationID) ? (fileInfo.Directory?.Parent?.Name).ToStringSafe() : applicationID;
+            var normalizedFilePath = filePath.Replace("\\", "/");
+            var tenantAppBasePath = GlobalConfiguration.TenantAppBasePath.Replace("\\", "/");
+            if (normalizedFilePath.StartsWith(tenantAppBasePath, StringComparison.OrdinalIgnoreCase) == true)
+            {
+                applicationID = string.IsNullOrWhiteSpace(applicationID) ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : applicationID;
+            }
+            else
+            {
+                applicationID = string.IsNullOrWhiteSpace(applicationID) ? (fileInfo.Directory?.Parent?.Name).ToStringSafe() : applicationID;
+            }
+
             projectID = string.IsNullOrWhiteSpace(projectID) ? (fileInfo.Directory?.Name).ToStringSafe() : projectID;
             transactionID = string.IsNullOrWhiteSpace(transactionID) ? fileInfo.Name.Replace(fileInfo.Extension, "") : transactionID;
 

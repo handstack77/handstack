@@ -39,7 +39,8 @@ namespace repository.Extensions
 
                     Log.Logger.Information("[{LogCategory}] ContractBasePath: " + basePath, $"{ModuleConfiguration.ModuleID} ModuleInitializer/LoadContract");
 
-                    var repositoryFiles = Directory.GetFiles(basePath, "*.json", SearchOption.AllDirectories);
+                    var repositoryFiles = ModuleConfiguration.ContractFileExtensions
+                        .SelectMany(extension => Directory.GetFiles(basePath, "*" + extension, SearchOption.AllDirectories));
                     foreach (var repositoryFile in repositoryFiles)
                     {
                         try

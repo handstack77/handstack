@@ -122,7 +122,7 @@ namespace prompter.Areas.prompter.Controllers
                                     var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                                     var itemPath = PathExtensions.Join(appBasePath, filePath);
                                     var directoryInfo = new DirectoryInfo(appBasePath);
-                                    if (directoryInfo.Exists == true && System.IO.File.Exists(itemPath) == true && fileInfo.Extension == ".xml" == true)
+                                    if (directoryInfo.Exists == true && System.IO.File.Exists(itemPath) == true && ModuleConfiguration.IsContractFileExtension(fileInfo.Extension) == true)
                                     {
                                         logger.Information("[{LogCategory}] " + $"Add TenantApp PromptMap FilePath: {filePath}", "Query/Refresh");
                                         actionResult = PromptMapper.AddPromptMap(filePath, true, logger);
@@ -134,7 +134,7 @@ namespace prompter.Areas.prompter.Controllers
                                     {
                                         var itemPath = PathExtensions.Join(basePath, filePath);
                                         var directoryInfo = new DirectoryInfo(basePath);
-                                        if (directoryInfo.Exists == true && System.IO.File.Exists(itemPath) == true && fileInfo.Extension == ".xml" == true)
+                                        if (directoryInfo.Exists == true && System.IO.File.Exists(itemPath) == true && ModuleConfiguration.IsContractFileExtension(fileInfo.Extension) == true)
                                         {
                                             logger.Information("[{LogCategory}] " + $"Add PromptMap FilePath: {filePath}", "Query/Refresh");
                                             actionResult = PromptMapper.AddPromptMap(filePath, true, logger);

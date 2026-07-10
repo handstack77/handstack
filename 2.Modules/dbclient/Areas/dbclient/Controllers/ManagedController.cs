@@ -116,7 +116,8 @@ namespace dbclient.Areas.dbclient.Controllers
                                 return Ok();
                             }
 
-                            var sqlMapFiles = Directory.GetFiles(basePath, "*.xml", SearchOption.AllDirectories);
+                            var sqlMapFiles = ModuleConfiguration.ContractFileExtensions
+                                .SelectMany(extension => Directory.GetFiles(basePath, "*" + extension, SearchOption.AllDirectories));
                             foreach (var filePath in sqlMapFiles)
                             {
                                 try

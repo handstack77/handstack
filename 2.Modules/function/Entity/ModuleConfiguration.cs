@@ -3,6 +3,7 @@
 using function.Extensions;
 
 using Serilog;
+using System;
 
 namespace function.Entity
 {
@@ -17,6 +18,8 @@ namespace function.Entity
         public static string ModuleBasePath = "";
         public static Dictionary<string, FileSyncManager> FunctionFileSyncManager = new Dictionary<string, FileSyncManager>();
         public static List<string> ContractBasePath = new List<string>();
+        public static readonly string[] ContractFileExtensions = { ".xml", ".fnc" };
+        public static readonly string ContractFileWatcherFilter = "*.xml|*.fnc";
         public static Dictionary<string, string> ContractModulePath = new Dictionary<string, string>();
         public static string LogMinimumLevel = "";
         public static string NodeFunctionLogBasePath = "";
@@ -46,5 +49,10 @@ namespace function.Entity
         public static string DefaultDataSourceID = "";
         public static List<FunctionSource> FunctionSource = new List<FunctionSource>();
         public static ILogger? ModuleLogger = null;
+
+        public static bool IsContractFileExtension(string extension)
+        {
+            return Array.Exists(ContractFileExtensions, item => item.Equals(extension, StringComparison.OrdinalIgnoreCase));
+        }
     }
 }

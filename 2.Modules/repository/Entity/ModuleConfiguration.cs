@@ -3,6 +3,7 @@
 using HandStack.Web.Entity;
 
 using repository.Extensions;
+using System;
 
 namespace repository.Entity
 {
@@ -16,6 +17,8 @@ namespace repository.Entity
         public static bool IsBundledWithHost = false;
         public static string DatabaseContractPath = "";
         public static bool IsContractFileWatching = true;
+        public static readonly string[] ContractFileExtensions = { ".json", ".rpo" };
+        public static readonly string ContractFileWatcherFilter = "*.json|*.rpo";
         public static List<string> ContractBasePath = new List<string>();
         public static Dictionary<string, FileSyncManager> RepositoryFileSyncManager = new Dictionary<string, FileSyncManager>();
         public static string ModuleBasePath = "";
@@ -28,5 +31,10 @@ namespace repository.Entity
         public static string XFrameOptions = "SAMEORIGIN";
         public static string ContentSecurityPolicy = "frame-ancestors 'self'";
         public static List<Repository> FileRepositorys = new List<Repository>();
+
+        public static bool IsContractFileExtension(string extension)
+        {
+            return Array.Exists(ContractFileExtensions, item => item.Equals(extension, StringComparison.OrdinalIgnoreCase));
+        }
     }
 }

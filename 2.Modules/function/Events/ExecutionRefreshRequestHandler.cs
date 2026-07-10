@@ -72,15 +72,16 @@ namespace function.Events
                             var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, request.UserWorkID, request.ApplicationID);
                             var itemPath = PathExtensions.Join(appBasePath, filePath);
                             var directoryInfo = new DirectoryInfo(appBasePath);
-                            if (directoryInfo.Exists == true && System.IO.File.Exists(itemPath) == true && (fileInfo.Name.StartsWith("featureMain.") == true || fileInfo.Name == "featureMeta.json" || fileInfo.Name == "featureSQL.xml") == true)
+                            var isFlatContractFile = ModuleConfiguration.IsContractFileExtension(fileInfo.Extension) == true && fileInfo.Name.Equals("featureSQL.xml", StringComparison.OrdinalIgnoreCase) == false;
+                            if (directoryInfo.Exists == true && System.IO.File.Exists(itemPath) == true && (fileInfo.Name.StartsWith("featureMain.") == true || fileInfo.Name == "featureMeta.json" || fileInfo.Name == "featureSQL.xml" || isFlatContractFile == true) == true)
                             {
-                                if (fileInfo.Extension != ".json")
+                                if (fileInfo.Extension != ".json" && isFlatContractFile == false)
                                 {
                                     filePath = filePath.Replace(fileInfo.Name, "featureMeta.json");
                                 }
 
                                 logger.Information("[{LogCategory}] " + $"Add TenantApp ModuleScriptMap FilePath: {filePath}", "Query/Refresh");
-                                actionResult = FunctionMapper.AddScriptMap(filePath, true, logger);
+                                actionResult = FunctionMapper.AddScriptMap(isFlatContractFile == true ? itemPath : filePath, true, logger);
                             }
                         }
                         else
@@ -89,9 +90,10 @@ namespace function.Events
                             {
                                 var itemPath = PathExtensions.Join(basePath, filePath);
                                 var directoryInfo = new DirectoryInfo(basePath);
-                                if (directoryInfo.Exists == true && System.IO.File.Exists(itemPath) == true && (fileInfo.Name.StartsWith("featureMain.") == true || fileInfo.Name == "featureMeta.json" || fileInfo.Name == "featureSQL.xml") == true)
+                                var isFlatContractFile = ModuleConfiguration.IsContractFileExtension(fileInfo.Extension) == true && fileInfo.Name.Equals("featureSQL.xml", StringComparison.OrdinalIgnoreCase) == false;
+                                if (directoryInfo.Exists == true && System.IO.File.Exists(itemPath) == true && (fileInfo.Name.StartsWith("featureMain.") == true || fileInfo.Name == "featureMeta.json" || fileInfo.Name == "featureSQL.xml" || isFlatContractFile == true) == true)
                                 {
-                                    if (fileInfo.Extension != ".json")
+                                    if (fileInfo.Extension != ".json" && isFlatContractFile == false)
                                     {
                                         filePath = filePath.Replace(fileInfo.Name, "featureMeta.json");
                                     }
@@ -105,6 +107,11 @@ namespace function.Events
                         break;
                     case WatcherChangeTypes.Deleted:
                         var existStatementMaps = new List<ModuleScriptMap>();
+                        // 폴더 방식(featureMain.*/featureMeta.json/featureSQL.xml)은 fileInfo.Directory.Name 이 TransactionID.
+                        // flat 단일 파일 방식({TransactionID}.xml/.fnc)은 fileInfo.Directory.Name 이 ProjectID 이고, TransactionID 는 파일명(확장자 제외).
+                        var isDeletedFlatContractFile = ModuleConfiguration.IsContractFileExtension(fileInfo.Extension) == true && fileInfo.Name.Equals("featureSQL.xml", StringComparison.OrdinalIgnoreCase) == false;
+                        var deletedProjectID = isDeletedFlatContractFile == true ? fileInfo.Directory?.Name : fileInfo.Directory?.Parent?.Name;
+                        var deletedTransactionID = isDeletedFlatContractFile == true ? fileInfo.Name.Replace(fileInfo.Extension, "") : fileInfo.Directory?.Name;
                         if (!string.IsNullOrWhiteSpace(request.UserWorkID) && !string.IsNullOrWhiteSpace(request.ApplicationID))
                         {
                             var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, request.UserWorkID, request.ApplicationID);
@@ -113,16 +120,16 @@ namespace function.Events
                             {
                                 existStatementMaps = FunctionMapper.ScriptMappings.Select(p => p.Value).Where(p =>
                                     p.ApplicationID == request.ApplicationID &&
-                                    p.ProjectID == fileInfo.Directory?.Parent?.Name &&
-                                    p.TransactionID == fileInfo.Directory?.Name).ToList();
+                                    p.ProjectID == deletedProjectID &&
+                                    p.TransactionID == deletedTransactionID).ToList();
                             }
                         }
                         else
                         {
                             existStatementMaps = FunctionMapper.ScriptMappings.Select(p => p.Value).Where(p =>
                                 p.ApplicationID == GlobalConfiguration.ApplicationID &&
-                                p.ProjectID == fileInfo.Directory?.Parent?.Name &&
-                                p.TransactionID == fileInfo.Directory?.Name).ToList();
+                                p.ProjectID == deletedProjectID &&
+                                p.TransactionID == deletedTransactionID).ToList();
                         }
 
                         if (existStatementMaps.Count > 0)

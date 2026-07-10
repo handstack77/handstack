@@ -57,7 +57,16 @@ namespace transact.Extensions
                     if (!string.IsNullOrWhiteSpace(appBasePath))
                     {
                         var tenantID = $"{userWorkID}|{applicationID}";
-                        var businessFile = PathExtensions.Combine(appBasePath, "transact", projectID, transactionID + ".json");
+                        var businessFile = string.Empty;
+                        foreach (var extension in ModuleConfiguration.ContractFileExtensions)
+                        {
+                            var candidatePath = PathExtensions.Combine(appBasePath, "transact", projectID, transactionID + extension);
+                            if (File.Exists(candidatePath) == true)
+                            {
+                                businessFile = candidatePath;
+                                break;
+                            }
+                        }
                         if (File.Exists(businessFile) == true)
                         {
                             try
@@ -435,7 +444,8 @@ namespace transact.Extensions
                         continue;
                     }
 
-                    var businessFiles = Directory.GetFiles(basePath, "*.json", SearchOption.AllDirectories);
+                    var businessFiles = ModuleConfiguration.ContractFileExtensions
+                        .SelectMany(extension => Directory.GetFiles(basePath, "*" + extension, SearchOption.AllDirectories));
                     lock (BusinessMappings)
                     {
                         foreach (var businessFile in businessFiles)

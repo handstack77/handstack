@@ -61,6 +61,10 @@ namespace transact.Events
             logger.Information("[{LogCategory}] " + $"WatcherChangeTypes: {request.ChangeType}, FilePath: {filePath}", "Transaction/Refresh");
 
             var fileInfo = new FileInfo(filePath);
+            if (ModuleConfiguration.IsContractFileExtension(fileInfo.Extension) == false && fileInfo.Name != "publicTransactions.json")
+            {
+                return ValueTask.FromResult(false);
+            }
 
             var businessContracts = TransactionMapper.BusinessMappings;
             lock (businessContracts)

@@ -63,6 +63,10 @@ namespace repository.Events
             logger.Information("[{LogCategory}] " + $"WatcherChangeTypes: {request.ChangeType}, FilePath: {filePath}", "Storage/Refresh");
 
             var fileInfo = new FileInfo(filePath);
+            if (ModuleConfiguration.IsContractFileExtension(fileInfo.Extension) == false)
+            {
+                return ValueTask.FromResult(false);
+            }
 
             lock (ModuleConfiguration.FileRepositorys)
             {

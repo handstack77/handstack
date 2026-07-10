@@ -107,7 +107,8 @@ namespace transact.Areas.transact.Controllers
 
                             logger.Information("[{LogCategory}] ContractBasePath: " + basePath, "ManagedController/ResetAppContract");
 
-                            var businessFiles = Directory.GetFiles(basePath, "*.json", SearchOption.AllDirectories);
+                            var businessFiles = ModuleConfiguration.ContractFileExtensions
+                                .SelectMany(extension => Directory.GetFiles(basePath, "*" + extension, SearchOption.AllDirectories));
                             foreach (var businessFile in businessFiles)
                             {
                                 try
