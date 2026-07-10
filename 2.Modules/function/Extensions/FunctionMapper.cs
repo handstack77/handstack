@@ -505,7 +505,9 @@ namespace function.Extensions
 
             try
             {
-                var scriptMapFiles = Path.IsPathRooted(scriptFilePath) == true
+                // Path.IsPathRooted 는 Windows 에서 드라이브 문자가 없는 "/HDS/.../*.fnc" 형태의 상대 경로도 true 를 반환하므로
+                // (File.Exists 가 현재 드라이브 루트 기준으로 조회되어 항상 실패함), 실제 절대 경로 여부는 IsPathFullyQualified 로 판별한다.
+                var scriptMapFiles = Path.IsPathFullyQualified(scriptFilePath) == true
                     ? new List<string> { scriptFilePath }
                     : ModuleConfiguration.ContractBasePath.Select(basePath => PathExtensions.Join(basePath, scriptFilePath)).ToList();
 
@@ -894,6 +896,17 @@ namespace function.Extensions
             return generatedFilePath;
         }
 
+        // <featureSQL> 이 더 이상 없을 때, 이전에 생성된 {TransactionID}.g.featureSQL 파일이 남아 실행 시 잘못 참조되지 않도록 삭제한다.
+        private static void RemoveFeatureSQLFile(string xmlFilePath, string transactionID)
+        {
+            var directoryPath = Path.GetDirectoryName(xmlFilePath)!;
+            var generatedFilePath = PathExtensions.Combine(directoryPath, $"{transactionID}.g.featureSQL");
+            if (File.Exists(generatedFilePath) == true)
+            {
+                File.Delete(generatedFilePath);
+            }
+        }
+
         public static bool MergeXmlContractFile(string xmlFilePath, bool forceUpdate, ILogger logger)
         {
             var result = false;
@@ -955,6 +968,11 @@ namespace function.Extensions
                 if (string.IsNullOrWhiteSpace(featureSQLSource) == false)
                 {
                     MaterializeFeatureSQLFile(xmlFilePath, header.TransactionID, featureSQLSource);
+                }
+                else
+                {
+                    // <featureSQL> 이 제거된 경우, 이전 갱신에서 생성된 {TransactionID}.g.featureSQL 잔여 파일을 정리한다.
+                    RemoveFeatureSQLFile(xmlFilePath, header.TransactionID);
                 }
 
                 var items = contract.Commands;
