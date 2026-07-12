@@ -38,6 +38,29 @@
 - `WWWRootBasePath`: 실제 정적 파일 루트
 - `FileSyncTokens`: 파일 동기화 Basic 토큰 목록
 - `ModuleLogFilePath`: 정적/동기화 모듈 로그 위치
+- `CreateIDPolicy`: `GET`/`POST /wwwroot/api/index/create-id` GlobalID 발급 접근 정책
+
+### CreateID 발급 정책
+
+`module.json`의 `ModuleConfig.CreateIDPolicy`로 GlobalID 발급 API를 제한합니다.
+
+```json
+"CreateIDPolicy": {
+  "Enabled": false,
+  "AllowedScreens": [ "login", "logout" ],
+  "AuthorizationKeys": [
+    {
+      "Key": "Strong@Passw0rd",
+      "AllowedIPs": [ "127.0.0.1", "::1" ]
+    }
+  ]
+}
+```
+
+- `Enabled`: `true`면 정책을 강제합니다. 기본값은 `false`입니다.
+- `AllowedScreens`: 로그인·로그아웃처럼 인증 전에 발급이 필요한 화면 ID 목록입니다. 여기에 등록한 화면은 사용자·토큰 권한 검증 없이 발급할 수 있습니다.
+- `AuthorizationKeys`: 서버 간 호출 키와 허용 원격 IP 목록입니다. 요청의 `AuthorizationKey` 헤더와 접속 IP가 모두 일치해야 합니다. `Key`는 현재 요구사항에 따라 원문으로 저장되므로 설정 파일의 접근 권한을 제한해야 합니다.
+- 위 두 예외에 속하지 않는 로그인 사용자는 세션 `UserAccount` 또는 인증된 토큰 주체에 `CreateID:Applications`, `CreateID:Screens` 클레임이 있어야 합니다.
 
 ## 실행 흐름
 1. `ModuleInitializer`가 `ContractBasePath`와 `WWWRootBasePath`를 기준으로 정적 파일 미들웨어를 구성합니다.
@@ -47,6 +70,7 @@
 
 ## 운영 메모
 - `FileSyncTokens`를 비워 두면 `SyncController`는 모든 동기화 요청을 거부합니다.
+- `CreateIDPolicy.Enabled`를 `true`로 바꾸기 전에 실제 로그인·로그아웃 화면 ID와 서버 호출 IP·인증키를 환경에 맞게 교체합니다.
 - `ContractRequestPath`와 `WWWRootBasePath`는 충돌 없이 분리해야 합니다.
 - 정적 파일 캐시 전략은 `syn.loader`만 예외 처리하고 나머지는 일반 캐시 정책을 따릅니다.
 - 테넌트 앱의 `WithOrigin`, `WithReferer`는 `ModuleInitializer`가 메모리에 적재해 CORS 응답에 반영합니다.

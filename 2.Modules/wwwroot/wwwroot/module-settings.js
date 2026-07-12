@@ -13,7 +13,17 @@ let $module_settings = {
                 "ContractRequestPath": "view",
                 "ContractBasePath": "../contracts/wwwroot",
                 "WWWRootBasePath": "../modules/wwwroot/wwwroot",
-                "FileSyncTokens": []
+                "FileSyncTokens": [],
+                "CreateIDPolicy": {
+                    "Enabled": false,
+                    "AllowedScreens": ["login", "logout"],
+                    "AuthorizationKeys": [
+                        {
+                            "Key": "Strong@Passw0rd",
+                            "AllowedIPs": ["127.0.0.1", "::1"]
+                        }
+                    ]
+                }
             }
         },
         moduleConfig: null
@@ -49,6 +59,10 @@ let $module_settings = {
                 syn.$l.get('txtContractRequestPath').value = $this.prop.moduleConfig.ModuleConfig.ContractRequestPath;
                 syn.$l.get('txtContractBasePath').value = $this.prop.moduleConfig.ModuleConfig.ContractBasePath;
                 syn.$l.get('txtWWWRootBasePath').value = $this.prop.moduleConfig.ModuleConfig.WWWRootBasePath;
+                var createIDPolicy = $this.prop.moduleConfig.ModuleConfig.CreateIDPolicy;
+                syn.$l.get('chkCreateIDPolicyEnabled').checked = $string.toBoolean(createIDPolicy.Enabled);
+                syn.$l.get('txtCreateIDAllowedScreens').value = (createIDPolicy.AllowedScreens || []).join('\n');
+                syn.$l.get('txtCreateIDAuthorizationKeys').value = JSON.stringify(createIDPolicy.AuthorizationKeys || [], null, 4);
             } catch (error) {
                 syn.$w.notify('error', `JSON을 적용하지 못했습니다. ${error.message}`);
                 syn.$l.eventLog('$this.event.btnApplyConfig_click', error.stack, 'Error');
@@ -69,6 +83,16 @@ let $module_settings = {
                     $this.prop.moduleConfig.ModuleConfig.ContractRequestPath = syn.$l.get('txtContractRequestPath').value;
                     $this.prop.moduleConfig.ModuleConfig.ContractBasePath = syn.$l.get('txtContractBasePath').value;
                     $this.prop.moduleConfig.ModuleConfig.WWWRootBasePath = syn.$l.get('txtWWWRootBasePath').value;
+                    var authorizationKeys = JSON.parse(syn.$l.get('txtCreateIDAuthorizationKeys').value || '[]');
+                    if (Array.isArray(authorizationKeys) == false) {
+                        throw new Error('CreateIDPolicy.AuthorizationKeys는 JSON 배열이어야 합니다.');
+                    }
+
+                    $this.prop.moduleConfig.ModuleConfig.CreateIDPolicy = {
+                        Enabled: syn.$l.get('chkCreateIDPolicyEnabled').checked,
+                        AllowedScreens: syn.$l.get('txtCreateIDAllowedScreens').value.split(/[\r\n,]+/).map((item) => item.trim()).filter((item) => item),
+                        AuthorizationKeys: authorizationKeys
+                    };
 
                     syn.$l.get('txtJsonView').value = JSON.stringify($this.prop.moduleConfig, null, 4);
                 } catch (error) {

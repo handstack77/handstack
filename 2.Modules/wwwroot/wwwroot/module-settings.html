@@ -143,6 +143,35 @@
                                                     </small>
                                                 </td>
                                             </tr>
+                                            <tr>
+                                                <td class="bg-body">CreateIDPolicy.Enabled</td>
+                                                <td>
+                                                    <label class="form-check mb-2">
+                                                        <input id="chkCreateIDPolicyEnabled" class="form-check-input" type="checkbox">
+                                                    </label>
+                                                    <small class="form-hint">
+                                                        GlobalID 발급 정책을 적용합니다. 활성화하면 허용 화면, 서버 인증키 또는 로그인 사용자 권한을 통과한 요청만 <code>/wwwroot/api/index/create-id</code>를 호출할 수 있습니다. (기본값: false)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">CreateIDPolicy.AllowedScreens</td>
+                                                <td>
+                                                    <textarea id="txtCreateIDAllowedScreens" rows="3" class="form-control resize:none"></textarea>
+                                                    <small class="form-hint">
+                                                        로그인·로그아웃처럼 인증 전 발급이 필요한 화면 ID를 줄바꿈 또는 쉼표로 입력합니다. 이 목록의 화면은 사용자 또는 토큰 클레임 검증을 건너뜁니다. (예: login, logout)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">CreateIDPolicy.AuthorizationKeys</td>
+                                                <td>
+                                                    <textarea id="txtCreateIDAuthorizationKeys" rows="8" class="form-control resize:none white-space:nowrap"></textarea>
+                                                    <small class="form-hint">
+                                                        서버 간 호출용 <code>Key</code>와 <code>AllowedIPs</code> 목록을 JSON 배열로 입력합니다. 키는 원문으로 저장되며, 빈 키는 허용되지 않습니다.
+                                                    </small>
+                                                </td>
+                                            </tr>
                                         </tbody>
                                     </table>
                                 </td>
