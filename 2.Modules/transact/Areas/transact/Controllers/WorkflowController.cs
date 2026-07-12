@@ -85,6 +85,25 @@ namespace transact.Areas.transact.Controllers
 
                 transactClient.DefaultResponseHeaderConfiguration(request, response, transactionRouteCount);
 
+                // #7 유량 제어, #8 입력 크기 상한 (AI 대량공격 대응). 설정 비활성 시 무동작.
+                if (HttpContext.IsRateLimited(request.Transaction.OperatorID, request.AccessToken, out var rateLimitReason) == true)
+                {
+                    var rateLimitMode = ModuleConfiguration.SecurityHardening.RateLimit.Mode;
+                    logger.Warning("[{LogCategory}] [{GlobalID}] " + $"RateLimit({rateLimitMode}): {rateLimitReason}", "Workflow/Execute", response.Transaction.GlobalID);
+                    if (string.Equals(rateLimitMode, "Enforce", StringComparison.OrdinalIgnoreCase) == true)
+                    {
+                        response.ExceptionText = "요청 한도 초과";
+                        return Content(JsonConvert.SerializeObject(response), "application/json");
+                    }
+                }
+
+                if (RestServiceExtensions.TryValidateInputLimits(request, out var inputLimitReason) == false)
+                {
+                    logger.Warning("[{LogCategory}] [{GlobalID}] " + inputLimitReason, "Workflow/Execute", response.Transaction.GlobalID);
+                    response.ExceptionText = inputLimitReason;
+                    return Content(JsonConvert.SerializeObject(response), "application/json");
+                }
+
                 if (ModuleConfiguration.IsValidationRequest == true)
                 {
                     if (ModuleConfiguration.BypassGlobalIDTransactions.Contains(request.Transaction.TransactionID) == false && (request.System.Routes.Count == 0 || distributedCache.Get(request.Transaction.GlobalID) == null))
@@ -310,6 +329,25 @@ namespace transact.Areas.transact.Controllers
                 var oneTimeWorkflowContract = HttpContext.Request.Headers["X-Workflow-Contract"].ToString();
                 if (string.IsNullOrWhiteSpace(oneTimeWorkflowContract) == false)
                 {
+                    // #9 역직렬화 전 사전 가드(설정 비활성 시 무동작). 미인증/과대 계약을 파싱 이전에 차단.
+                    if (ModuleConfiguration.SecurityHardening.EnforceWorkflowContractGuard == true)
+                    {
+                        var maxContractBytes = ModuleConfiguration.SecurityHardening.MaxDecompressedBytes;
+                        if (maxContractBytes > 0 && oneTimeWorkflowContract.Length > maxContractBytes)
+                        {
+                            response.ExceptionText = $"동적 Workflow 계약 크기 한도 초과({oneTimeWorkflowContract.Length} > {maxContractBytes})";
+                            return LoggingAndReturn(response, transactionWorkID, "N", transactionInfo);
+                        }
+
+                        // 1회성 Workflow 는 ValidateOneTimeWorkflowPermission 에서 BearerToken 이 필수이므로,
+                        // 토큰 없는 요청은 역직렬화 이전에 거부(결과 동일, 처리 시점만 앞당김).
+                        if (string.IsNullOrWhiteSpace(request.AccessToken) == true)
+                        {
+                            response.ExceptionText = "동적 Workflow 계약 실행 자격 증명 확인 필요";
+                            return LoggingAndReturn(response, transactionWorkID, "N", transactionInfo);
+                        }
+                    }
+
                     if (TryCreateOneTimeWorkflowTransactionInfo(oneTimeWorkflowContract, request.Transaction.FunctionID, out transactionInfo, out var workflowContractExceptionText) == false || transactionInfo == null)
                     {
                         response.ExceptionText = $"동적 Workflow 계약 확인 필요 - {workflowContractExceptionText}";
@@ -329,22 +367,7 @@ namespace transact.Areas.transact.Controllers
                 var token = request.AccessToken;
                 try
                 {
-                    var isBypassAuthorizeIP = false;
-                    if (string.IsNullOrWhiteSpace(ModuleConfiguration.BypassAuthorizeIP.FirstOrDefault(p => p == "*")) == false)
-                    {
-                        isBypassAuthorizeIP = true;
-                    }
-                    else
-                    {
-                        foreach (var ip in ModuleConfiguration.BypassAuthorizeIP)
-                        {
-                            if (request.Interface.SourceIP.IndexOf(ip) > -1)
-                            {
-                                isBypassAuthorizeIP = true;
-                                break;
-                            }
-                        }
-                    }
+                    var isBypassAuthorizeIP = HttpContext.IsBypassAuthorizeIP(request.Interface.SourceIP, allowLocalhostBypass: false);
 
                     if (GlobalConfiguration.IsPermissionRoles == true && isBypassAuthorizeIP == false)
                     {
@@ -360,7 +383,7 @@ namespace transact.Areas.transact.Controllers
                                 var publicRole = publicRoles.ElementAt(i);
                                 if (publicRole != null)
                                 {
-                                    var allowTransactionPattern = new Regex($"[\\/]{publicRole.ApplicationID}[\\/]{publicRole.ProjectID}[\\/]{publicRole.TransactionID}");
+                                    var allowTransactionPattern = RestServiceExtensions.CreatePermissionRegex($"[\\/]{publicRole.ApplicationID}[\\/]{publicRole.ProjectID}[\\/]{publicRole.TransactionID}");
                                     isAuthorized = allowTransactionPattern.IsMatch(queryID);
                                     if (isAuthorized == true)
                                     {
@@ -384,7 +407,7 @@ namespace transact.Areas.transact.Controllers
                                                 var roles = permissionRole.RoleID.SplitComma();
                                                 if (roles.Intersect(userRoles).Any() == true)
                                                 {
-                                                    var allowTransactionPattern = new Regex($"[\\/]{permissionRole.ApplicationID}[\\/]{permissionRole.ProjectID}[\\/]{permissionRole.TransactionID}");
+                                                    var allowTransactionPattern = RestServiceExtensions.CreatePermissionRegex($"[\\/]{permissionRole.ApplicationID}[\\/]{permissionRole.ProjectID}[\\/]{permissionRole.TransactionID}");
                                                     isAuthorized = allowTransactionPattern.IsMatch(queryID);
                                                     break;
                                                 }
@@ -998,7 +1021,21 @@ namespace transact.Areas.transact.Controllers
                 });
             }
 
+            ApplyErrorTextSanitization(response);
             return Content(JsonConvert.SerializeObject(response), "application/json");
+        }
+
+        // #10 차분 오라클 제거: SanitizeErrorText=true 이면 상세 오류를 서버 로그로만 남기고
+        // 클라이언트에는 일반 메시지(참조 ID 포함)만 반환한다. 트랜잭션 로깅은 이미 위에서 원본으로 수행됨.
+        private void ApplyErrorTextSanitization(TransactionResponse response)
+        {
+            if (ModuleConfiguration.SecurityHardening.SanitizeErrorText == false || string.IsNullOrWhiteSpace(response.ExceptionText) == true)
+            {
+                return;
+            }
+
+            logger.Information("[{LogCategory}] [{GlobalID}] " + $"원본 오류: {response.ExceptionText}", "Workflow/Execute", response.Transaction.GlobalID);
+            response.ExceptionText = $"요청을 처리할 수 없습니다. 참조 ID: {response.Transaction.GlobalID}";
         }
 
         private static Dictionary<string, JToken> CreateStepValues(List<DataMapItem> dataSet, WorkflowStep step)

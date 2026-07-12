@@ -331,6 +331,159 @@
                                                 </td>
                                             </tr>
                                             <tr>
+                                                <td class="bg-body">SecurityHardening</td>
+                                                <td>
+                                                    <table class="table">
+                                                        <tbody>
+                                                            <tr>
+                                                                <td class="bg-body w:260px">EnforceRealClientIP</td>
+                                                                <td>
+                                                                    <label class="form-check mb-2">
+                                                                        <input id="chkSH_EnforceRealClientIP" class="form-check-input" type="checkbox">
+                                                                    </label>
+                                                                    <small class="form-hint">
+                                                                        우회 IP 판정에 조작 가능한 요청 본문 sourceIP 대신 실제 소켓/신뢰 프록시(TrustedProxyIP) 기반 IP만 신뢰합니다. (기본값: false)
+                                                                    </small>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="bg-body">TrustedLocalhostBypass</td>
+                                                                <td>
+                                                                    <label class="form-check mb-2">
+                                                                        <input id="chkSH_TrustedLocalhostBypass" class="form-check-input" type="checkbox">
+                                                                    </label>
+                                                                    <small class="form-hint">
+                                                                        레거시의 localhost 인가 우회 유지 여부입니다. 운영 환경은 false를 권장합니다. (기본값: true)
+                                                                    </small>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="bg-body">LockdownMetadataEndpoints</td>
+                                                                <td>
+                                                                    <label class="form-check mb-2">
+                                                                        <input id="chkSH_LockdownMetadataEndpoints" class="form-check-input" type="checkbox">
+                                                                    </label>
+                                                                    <small class="form-hint">
+                                                                        열거/관리 엔드포인트(has, refresh, retrieve, meta, get, cache-*)에서 AllowClientIP 와일드카드(*) 단독 통과를 차단하고 AuthorizationKey 또는 명시 등록 IP만 허용합니다. (기본값: false)
+                                                                    </small>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="bg-body">RateLimit.Enabled</td>
+                                                                <td>
+                                                                    <label class="form-check mb-2">
+                                                                        <input id="chkSH_RateLimitEnabled" class="form-check-input" type="checkbox">
+                                                                    </label>
+                                                                    <small class="form-hint">
+                                                                        IP 및 토큰(없으면 operatorID)별 분당 요청 유량 제어 사용 여부입니다. (기본값: false)
+                                                                    </small>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="bg-body">RateLimit.PerIpPerMinute</td>
+                                                                <td>
+                                                                    <input id="txtSH_RateLimitPerIpPerMinute" type="number" class="form-control">
+                                                                    <small class="form-hint">
+                                                                        IP별 분당 허용 요청 수입니다. 0은 무제한입니다. (기본값: 600)
+                                                                    </small>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="bg-body">RateLimit.PerTokenPerMinute</td>
+                                                                <td>
+                                                                    <input id="txtSH_RateLimitPerTokenPerMinute" type="number" class="form-control">
+                                                                    <small class="form-hint">
+                                                                        토큰별 분당 허용 요청 수입니다. 0은 무제한입니다. (기본값: 1200)
+                                                                    </small>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="bg-body">RateLimit.Mode</td>
+                                                                <td>
+                                                                    <select id="ddlSH_RateLimitMode" class="form-select">
+                                                                        <option value="AuditOnly" selected>AuditOnly: 초과 시 로깅만</option>
+                                                                        <option value="Enforce">Enforce: 초과 시 차단</option>
+                                                                    </select>
+                                                                    <small class="form-hint">
+                                                                        유량 초과 시 동작 방식입니다. 운영 반영 전 AuditOnly로 관측한 뒤 Enforce로 전환하는 것을 권장합니다. (기본값: AuditOnly)
+                                                                    </small>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="bg-body">MaxRoutes</td>
+                                                                <td>
+                                                                    <input id="txtSH_MaxRoutes" type="number" class="form-control">
+                                                                    <small class="form-hint">
+                                                                        system.routes 개수 상한입니다. 0은 무제한(레거시)입니다. (기본값: 0)
+                                                                    </small>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="bg-body">MaxDataMapSetCount</td>
+                                                                <td>
+                                                                    <input id="txtSH_MaxDataMapSetCount" type="number" class="form-control">
+                                                                    <small class="form-hint">
+                                                                        입력 데이터맵 세트 개수 상한입니다. 0은 무제한(레거시)입니다. (기본값: 0)
+                                                                    </small>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="bg-body">MaxDecompressedBytes</td>
+                                                                <td>
+                                                                    <input id="txtSH_MaxDecompressedBytes" type="number" class="form-control">
+                                                                    <small class="form-hint">
+                                                                        입력 복호화/압축 해제 후 크기 상한(문자 길이 근사)입니다. 0은 무제한(레거시)이며 압축 폭탄 방어에 사용합니다. (기본값: 0)
+                                                                    </small>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="bg-body">SanitizeErrorText</td>
+                                                                <td>
+                                                                    <label class="form-check mb-2">
+                                                                        <input id="chkSH_SanitizeErrorText" class="form-check-input" type="checkbox">
+                                                                    </label>
+                                                                    <small class="form-hint">
+                                                                        상세 오류를 서버 로그에만 남기고 클라이언트 응답에는 참조 ID를 포함한 일반 메시지만 반환합니다(차분 오라클 제거). (기본값: false)
+                                                                    </small>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="bg-body">RegexTimeoutMilliseconds</td>
+                                                                <td>
+                                                                    <input id="txtSH_RegexTimeoutMilliseconds" type="number" class="form-control">
+                                                                    <small class="form-hint">
+                                                                        권한 검사 정규식 매칭 타임아웃(ms)입니다. 0은 무제한(레거시)이며 ReDoS 방어에 사용합니다. (기본값: 0)
+                                                                    </small>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="bg-body">MaxConcurrentPushTasks</td>
+                                                                <td>
+                                                                    <input id="txtSH_MaxConcurrentPushTasks" type="number" class="form-control">
+                                                                    <small class="form-hint">
+                                                                        action이 PSH인 fire-and-forget 태스크의 동시 실행 상한입니다. 0은 무제한(레거시)입니다. (기본값: 0)
+                                                                    </small>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="bg-body">EnforceWorkflowContractGuard</td>
+                                                                <td>
+                                                                    <label class="form-check mb-2">
+                                                                        <input id="chkSH_EnforceWorkflowContractGuard" class="form-check-input" type="checkbox">
+                                                                    </label>
+                                                                    <small class="form-hint">
+                                                                        X-Workflow-Contract(1회성 동적 Workflow) 역직렬화 이전에 토큰 없는 호출을 거부하고, MaxDecompressedBytes가 0보다 크면 계약 헤더 크기 상한도 적용합니다. (기본값: false)
+                                                                    </small>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                    <small class="form-hint mt-2">
+                                                        자동화 공격(대량·지능형 프로빙, 자원 고갈) 대응을 위한 서버측 하드닝 설정입니다. 모든 항목은 기본값이 레거시 동작 유지이며 항목별로 점진 활성화합니다.
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
                                                 <td class="bg-body">IsCodeDataCache</td>
                                                 <td>
                                                     <label class="form-check mb-2">

@@ -225,6 +225,13 @@ namespace transact.Extensions
                 result = inputData;
             }
 
+            // #8 압축 폭탄 방어: 해제 후 크기 상한(0=무제한, 레거시). 문자 길이 기준 근사치.
+            var maxDecompressedBytes = ModuleConfiguration.SecurityHardening.MaxDecompressedBytes;
+            if (maxDecompressedBytes > 0 && result != null && result.Length > maxDecompressedBytes)
+            {
+                throw new InvalidOperationException($"입력 데이터 크기 한도 초과({result.Length} > {maxDecompressedBytes})");
+            }
+
             return result;
         }
 

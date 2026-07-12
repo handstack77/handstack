@@ -83,6 +83,15 @@ namespace transact
                         ModuleConfiguration.IsTransactionLogging = moduleConfig.IsTransactionLogging;
                         ModuleConfiguration.LogServerUrl = moduleConfig.LogServerUrl;
 
+                        // AI 공격 대응 하드닝 설정. 미지정(null) 시 레거시 호환 기본값으로 대체
+                        var securityHardening = moduleConfig.SecurityHardening ?? new SecurityHardeningConfig();
+                        securityHardening.RateLimit ??= new RateLimitConfig();
+                        if (string.IsNullOrWhiteSpace(securityHardening.RateLimit.Mode) == true)
+                        {
+                            securityHardening.RateLimit.Mode = "AuditOnly";
+                        }
+                        ModuleConfiguration.SecurityHardening = securityHardening;
+
                         foreach (var fileSyncManager in ModuleConfiguration.BusinessFileSyncManager.Values)
                         {
                             fileSyncManager.Dispose();

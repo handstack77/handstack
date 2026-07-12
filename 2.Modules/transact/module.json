@@ -37,6 +37,24 @@
             "localhost",
             "127.0.0.1"
         ],
+        "SecurityHardening": {
+            "EnforceRealClientIP": false,
+            "TrustedLocalhostBypass": true,
+            "LockdownMetadataEndpoints": false,
+            "RateLimit": {
+                "Enabled": true,
+                "PerIpPerMinute": 600,
+                "PerTokenPerMinute": 1200,
+                "Mode": "AuditOnly"
+            },
+            "MaxRoutes": 16,
+            "MaxDataMapSetCount": 256,
+            "MaxDecompressedBytes": 10485760,
+            "SanitizeErrorText": false,
+            "RegexTimeoutMilliseconds": 200,
+            "MaxConcurrentPushTasks": 64,
+            "EnforceWorkflowContractGuard": true
+        },
         "AllowRequestTransactions": {
             "HDS": [ "*" ]
         },

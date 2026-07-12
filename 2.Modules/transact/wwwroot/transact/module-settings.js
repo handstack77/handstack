@@ -37,6 +37,24 @@ let $module_settings = {
                     "localhost",
                     "127.0.0.1"
                 ],
+                "SecurityHardening": {
+                    "EnforceRealClientIP": false,
+                    "TrustedLocalhostBypass": true,
+                    "LockdownMetadataEndpoints": false,
+                    "RateLimit": {
+                        "Enabled": true,
+                        "PerIpPerMinute": 600,
+                        "PerTokenPerMinute": 1200,
+                        "Mode": "AuditOnly"
+                    },
+                    "MaxRoutes": 16,
+                    "MaxDataMapSetCount": 256,
+                    "MaxDecompressedBytes": 10485760,
+                    "SanitizeErrorText": false,
+                    "RegexTimeoutMilliseconds": 200,
+                    "MaxConcurrentPushTasks": 64,
+                    "EnforceWorkflowContractGuard": true
+                },
                 "AllowRequestTransactions": {
                     "HDS": ["*"]
                 },
@@ -123,6 +141,23 @@ let $module_settings = {
                 syn.$l.get('chkUseApiAuthorize').checked = $string.toBoolean($this.prop.moduleConfig.ModuleConfig.UseApiAuthorize);
                 syn.$l.get('txtBypassAuthorizeIP').value = $this.prop.moduleConfig.ModuleConfig.BypassAuthorizeIP;
 
+                var securityHardening = $this.prop.moduleConfig.ModuleConfig.SecurityHardening || {};
+                var rateLimit = securityHardening.RateLimit || {};
+                syn.$l.get('chkSH_EnforceRealClientIP').checked = $string.toBoolean(securityHardening.EnforceRealClientIP);
+                syn.$l.get('chkSH_TrustedLocalhostBypass').checked = securityHardening.TrustedLocalhostBypass === undefined ? true : $string.toBoolean(securityHardening.TrustedLocalhostBypass);
+                syn.$l.get('chkSH_LockdownMetadataEndpoints').checked = $string.toBoolean(securityHardening.LockdownMetadataEndpoints);
+                syn.$l.get('chkSH_RateLimitEnabled').checked = $string.toBoolean(rateLimit.Enabled);
+                syn.$l.get('txtSH_RateLimitPerIpPerMinute').value = $string.isNumber(rateLimit.PerIpPerMinute) == true ? $string.toNumber(rateLimit.PerIpPerMinute) : 600;
+                syn.$l.get('txtSH_RateLimitPerTokenPerMinute').value = $string.isNumber(rateLimit.PerTokenPerMinute) == true ? $string.toNumber(rateLimit.PerTokenPerMinute) : 1200;
+                syn.$l.get('ddlSH_RateLimitMode').value = $string.isNullOrEmpty(rateLimit.Mode) == true ? 'AuditOnly' : rateLimit.Mode;
+                syn.$l.get('txtSH_MaxRoutes').value = $string.isNumber(securityHardening.MaxRoutes) == true ? $string.toNumber(securityHardening.MaxRoutes) : 0;
+                syn.$l.get('txtSH_MaxDataMapSetCount').value = $string.isNumber(securityHardening.MaxDataMapSetCount) == true ? $string.toNumber(securityHardening.MaxDataMapSetCount) : 0;
+                syn.$l.get('txtSH_MaxDecompressedBytes').value = $string.isNumber(securityHardening.MaxDecompressedBytes) == true ? $string.toNumber(securityHardening.MaxDecompressedBytes) : 0;
+                syn.$l.get('chkSH_SanitizeErrorText').checked = $string.toBoolean(securityHardening.SanitizeErrorText);
+                syn.$l.get('txtSH_RegexTimeoutMilliseconds').value = $string.isNumber(securityHardening.RegexTimeoutMilliseconds) == true ? $string.toNumber(securityHardening.RegexTimeoutMilliseconds) : 0;
+                syn.$l.get('txtSH_MaxConcurrentPushTasks').value = $string.isNumber(securityHardening.MaxConcurrentPushTasks) == true ? $string.toNumber(securityHardening.MaxConcurrentPushTasks) : 0;
+                syn.$l.get('chkSH_EnforceWorkflowContractGuard').checked = $string.toBoolean(securityHardening.EnforceWorkflowContractGuard);
+
                 $this.method.sectionRender('MediatorAction');
                 $this.method.sectionRender('ContractBasePath');
                 $this.method.sectionRender('AllowRequestTransaction');
@@ -164,6 +199,25 @@ let $module_settings = {
                     $this.prop.moduleConfig.ModuleConfig.TransactionAggregateBasePath = syn.$l.get('txtTransactionAggregateBasePath').value;
                     $this.prop.moduleConfig.ModuleConfig.UseApiAuthorize = syn.$l.get('chkUseApiAuthorize').checked;
                     $this.prop.moduleConfig.ModuleConfig.BypassAuthorizeIP = $array.split(syn.$l.get('txtBypassAuthorizeIP').value);;
+
+                    $this.prop.moduleConfig.ModuleConfig.SecurityHardening = {
+                        EnforceRealClientIP: syn.$l.get('chkSH_EnforceRealClientIP').checked,
+                        TrustedLocalhostBypass: syn.$l.get('chkSH_TrustedLocalhostBypass').checked,
+                        LockdownMetadataEndpoints: syn.$l.get('chkSH_LockdownMetadataEndpoints').checked,
+                        RateLimit: {
+                            Enabled: syn.$l.get('chkSH_RateLimitEnabled').checked,
+                            PerIpPerMinute: $string.isNumber(syn.$l.get('txtSH_RateLimitPerIpPerMinute').value) ? $string.toNumber(syn.$l.get('txtSH_RateLimitPerIpPerMinute').value) : 600,
+                            PerTokenPerMinute: $string.isNumber(syn.$l.get('txtSH_RateLimitPerTokenPerMinute').value) ? $string.toNumber(syn.$l.get('txtSH_RateLimitPerTokenPerMinute').value) : 1200,
+                            Mode: syn.$l.get('ddlSH_RateLimitMode').value
+                        },
+                        MaxRoutes: $string.isNumber(syn.$l.get('txtSH_MaxRoutes').value) ? $string.toNumber(syn.$l.get('txtSH_MaxRoutes').value) : 0,
+                        MaxDataMapSetCount: $string.isNumber(syn.$l.get('txtSH_MaxDataMapSetCount').value) ? $string.toNumber(syn.$l.get('txtSH_MaxDataMapSetCount').value) : 0,
+                        MaxDecompressedBytes: $string.isNumber(syn.$l.get('txtSH_MaxDecompressedBytes').value) ? $string.toNumber(syn.$l.get('txtSH_MaxDecompressedBytes').value) : 0,
+                        SanitizeErrorText: syn.$l.get('chkSH_SanitizeErrorText').checked,
+                        RegexTimeoutMilliseconds: $string.isNumber(syn.$l.get('txtSH_RegexTimeoutMilliseconds').value) ? $string.toNumber(syn.$l.get('txtSH_RegexTimeoutMilliseconds').value) : 0,
+                        MaxConcurrentPushTasks: $string.isNumber(syn.$l.get('txtSH_MaxConcurrentPushTasks').value) ? $string.toNumber(syn.$l.get('txtSH_MaxConcurrentPushTasks').value) : 0,
+                        EnforceWorkflowContractGuard: syn.$l.get('chkSH_EnforceWorkflowContractGuard').checked
+                    };
 
                     syn.$l.get('txtJsonView').value = JSON.stringify($this.prop.moduleConfig, null, 4);
                 } catch (error) {

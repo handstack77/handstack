@@ -56,6 +56,49 @@
 - `TransactAggregateDeleteOldCronTime`: 비-롤링 모드에서 moved 집계 데이터 삭제 주기(cron)
 - `PublicTransactions`, `AvailableEnvironment`: 외부 공개/환경 허용 범위
 
+## 보안 하드닝 (SecurityHardening)
+`TransactionController.Execute`, `WorkflowController.Execute`는 모든 클라이언트 요청의 진입점입니다. 기존 인증/인가/재시도 방지 위에, 자동화된 대량·지능형 공격(엔드포인트 열거, 요청 포맷 역공학, 차분 오라클, 자원 고갈)에 대응하는 서버측 하드닝을 `module.json`의 `ModuleConfig.SecurityHardening`으로 제공합니다.
+
+- 모든 항목은 **설정 게이트**이며 기본값은 **레거시 동작 유지**입니다. `SecurityHardening`을 지정하지 않으면 이전 버전과 100% 동일하게 동작하고, 클라이언트 코드 변경도 필요 없습니다.
+- 운영 배포는 항목별로 점진 활성화하고, `RateLimit`은 `AuditOnly`(로깅만)로 실제 트래픽을 관측한 뒤 상한을 조정하고 `Enforce`(차단)로 전환하는 순서를 권장합니다.
+
+| 설정 | 기본값 | 의미 |
+| --- | --- | --- |
+| `EnforceRealClientIP` | `false` | `true`면 우회 IP 판정에 조작 가능한 요청 본문 `interface.sourceIP` 대신 실제 소켓/신뢰 프록시(`TrustedProxyIP`) 기반 IP만 신뢰합니다. |
+| `TrustedLocalhostBypass` | `true` | 레거시의 `Host: localhost` 인가 우회 유지 여부입니다. 운영은 `false` 권장. `EnforceRealClientIP=true`면 Host 헤더가 아닌 실제 loopback 소켓일 때만 우회합니다. |
+| `LockdownMetadataEndpoints` | `false` | `true`면 열거/관리 엔드포인트(`/has`, `/refresh`, `/retrieve`, `/meta`, `/get`, `/cache-keys`, `/cache-clear`)에서 `AllowClientIP` 와일드카드(`*`) 단독 통과를 차단하고 `AuthorizationKey` 일치 또는 명시 등록 IP만 허용합니다. |
+| `RateLimit.Enabled` | `false` | IP 및 토큰(없으면 `operatorID`)별 분당 요청 유량 제어 사용 여부입니다. |
+| `RateLimit.PerIpPerMinute` | `600` | IP별 분당 허용 요청 수(0=무제한). |
+| `RateLimit.PerTokenPerMinute` | `1200` | 토큰별 분당 허용 요청 수(0=무제한). |
+| `RateLimit.Mode` | `AuditOnly` | `AuditOnly`=초과 시 로깅만, `Enforce`=초과 시 요청 차단. |
+| `MaxRoutes` | `0` | `system.routes` 개수 상한(0=무제한). |
+| `MaxDataMapSetCount` | `0` | 입력 데이터맵 세트 개수 상한(0=무제한). |
+| `MaxDecompressedBytes` | `0` | 입력 복호화/압축 해제 후 크기 상한(0=무제한, 압축 폭탄 방어). 문자 길이 기준 근사치. |
+| `SanitizeErrorText` | `false` | `true`면 상세 오류를 서버 로그에만 남기고 클라이언트 응답 `exceptionText`에는 참조 ID를 포함한 일반 메시지만 반환합니다(차분 오라클 제거). |
+| `RegexTimeoutMilliseconds` | `0` | 권한 검사 정규식 매칭 타임아웃(ms, 0=무제한, ReDoS 방어). |
+| `MaxConcurrentPushTasks` | `0` | `action: "PSH"`의 fire-and-forget 동시 실행 태스크 상한(0=무제한). |
+| `EnforceWorkflowContractGuard` | `false` | `true`면 `X-Workflow-Contract`(1회성 동적 Workflow) 역직렬화 이전에 토큰 없는 호출을 거부하고, `MaxDecompressedBytes>0`이면 계약 헤더 크기 상한도 적용합니다. |
+
+```jsonc
+"ModuleConfig": {
+  "SecurityHardening": {
+    "EnforceRealClientIP": true,
+    "TrustedLocalhostBypass": false,
+    "LockdownMetadataEndpoints": true,
+    "RateLimit": { "Enabled": true, "PerIpPerMinute": 600, "PerTokenPerMinute": 1200, "Mode": "AuditOnly" },
+    "MaxRoutes": 16,
+    "MaxDataMapSetCount": 256,
+    "MaxDecompressedBytes": 10485760,
+    "SanitizeErrorText": true,
+    "RegexTimeoutMilliseconds": 200,
+    "MaxConcurrentPushTasks": 64,
+    "EnforceWorkflowContractGuard": true
+  }
+}
+```
+
+> 재시도 방지(replay) 완충: 기존 `IsValidationRequest`/`IsValidationGlobalID`는 기본 비활성입니다. 활성화하면 GlobalID의 분산 캐시 사전 시딩 확인 + 1회성 소비 + `RequestTick` 180초 창 + 중복 GlobalID 차단이 작동하므로 운영 활성화를 권장합니다. GlobalID 자체의 무결성 서명(HMAC)은 발급 모듈(`wwwroot`)·로그 저장소·노드 간 라우팅에 걸치는 교차 변경이므로 별도 조율 과제로 다룹니다.
+
 ## 실행 흐름
 1. 화면 또는 서버 기능이 거래 요청을 보냅니다.
 2. `transact`가 인증, 허용 거래, 입력 기본값, 압축 해제를 처리합니다.
@@ -440,6 +483,7 @@ curl -X POST "http://localhost:8421/transact/api/workflow/execute" `
 - `IsValidationRequest`를 켜면 분산 캐시 기반 요청 검증을 수행합니다.
 - `AllowRequestTransactions`와 `PublicTransactions`는 외부 호출 허용 범위를 결정하는 핵심 값입니다.
 - `IsTransactionLogging=true`면 거래 전문과 응답 전문이 `logger` 모듈로 전달됩니다.
+- 자동화 공격(대량·지능형 프로빙, 자원 고갈) 대응은 [보안 하드닝](#보안-하드닝-securityhardening) 섹션을 참고합니다. 모든 항목은 기본 비활성이며 항목별 점진 활성화, `RateLimit`은 `AuditOnly` → `Enforce` 전환을 권장합니다.
 
 ### 기본 라우팅 예
 - `HDS|*|D|D -> /dbclient/api/query`

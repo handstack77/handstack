@@ -56,6 +56,9 @@ namespace transact.Entity
         public static ExpiringList<string> RequestGlobalIDList = new ExpiringList<string>(TimeSpan.FromMinutes(3), TimeSpan.FromMinutes(1));
         public static ConcurrentDictionary<string, byte> CacheKeys = new ConcurrentDictionary<string, byte>();
 
+        // AI 자동화 공격 대응 서버측 하드닝 설정. 기본값은 레거시 동작과 동일(비활성).
+        public static SecurityHardeningConfig SecurityHardening = new SecurityHardeningConfig();
+
         public static bool IsContractFileExtension(string extension)
         {
             return Array.Exists(ContractFileExtensions, item => item.Equals(extension, StringComparison.OrdinalIgnoreCase));

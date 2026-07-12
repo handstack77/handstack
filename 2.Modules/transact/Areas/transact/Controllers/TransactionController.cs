@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 
 using ChoETL;
@@ -63,6 +64,9 @@ namespace transact.Areas.transact.Controllers
 
         private int transactionRouteCount = 0;
 
+        // #11 PSH(fire-and-forget) 동시 실행 태스크 수 추적
+        private static int currentPushTaskCount = 0;
+
         public TransactionController(IDistributedCache distributedCache, IMemoryCache memoryCache, Serilog.ILogger logger, TransactLoggerClient loggerClient, TransactClient transactClient, IMediator mediator)
         {
             this.distributedCache = distributedCache;
@@ -86,7 +90,7 @@ namespace transact.Areas.transact.Controllers
         public ActionResult Has(string applicationID, string projectID, string transactionID)
         {
             ActionResult result = BadRequest();
-            if (HttpContext.IsAllowAuthorization() == false)
+            if (HttpContext.IsAllowMetadataAuthorization() == false)
             {
                 result = BadRequest();
             }
@@ -113,7 +117,7 @@ namespace transact.Areas.transact.Controllers
         public async Task<ActionResult> Refresh(string changeType, string filePath, string? userWorkID, string? applicationID)
         {
             ActionResult result = NotFound();
-            if (HttpContext.IsAllowAuthorization() == false)
+            if (HttpContext.IsAllowMetadataAuthorization() == false)
             {
                 result = BadRequest();
             }
@@ -141,7 +145,7 @@ namespace transact.Areas.transact.Controllers
         public ActionResult CacheClear()
         {
             ActionResult result = BadRequest();
-            if (HttpContext.IsAllowAuthorization() == false)
+            if (HttpContext.IsAllowMetadataAuthorization() == false)
             {
                 result = BadRequest();
             }
@@ -181,7 +185,7 @@ namespace transact.Areas.transact.Controllers
         public ActionResult CacheKeys()
         {
             ActionResult result = BadRequest();
-            if (HttpContext.IsAllowAuthorization() == false)
+            if (HttpContext.IsAllowMetadataAuthorization() == false)
             {
                 result = BadRequest();
             }
@@ -231,7 +235,7 @@ namespace transact.Areas.transact.Controllers
             };
 
             ActionResult result = BadRequest();
-            if (HttpContext.IsAllowAuthorization() == false)
+            if (HttpContext.IsAllowMetadataAuthorization() == false)
             {
                 result = BadRequest();
             }
@@ -277,7 +281,7 @@ namespace transact.Areas.transact.Controllers
             };
 
             ActionResult result = BadRequest();
-            if (HttpContext.IsAllowAuthorization() == false)
+            if (HttpContext.IsAllowMetadataAuthorization() == false)
             {
                 result = BadRequest();
             }
@@ -319,7 +323,7 @@ namespace transact.Areas.transact.Controllers
         public ActionResult Meta()
         {
             ActionResult result = BadRequest();
-            if (HttpContext.IsAllowAuthorization() == false)
+            if (HttpContext.IsAllowMetadataAuthorization() == false)
             {
                 result = BadRequest();
             }
@@ -376,6 +380,25 @@ namespace transact.Areas.transact.Controllers
                 }
 
                 transactClient.DefaultResponseHeaderConfiguration(request, response, transactionRouteCount);
+
+                // #7 유량 제어, #8 입력 크기 상한 (AI 대량공격 대응). 설정 비활성 시 무동작.
+                if (HttpContext.IsRateLimited(request.Transaction.OperatorID, request.AccessToken, out var rateLimitReason) == true)
+                {
+                    var rateLimitMode = ModuleConfiguration.SecurityHardening.RateLimit.Mode;
+                    logger.Warning("[{LogCategory}] [{GlobalID}] " + $"RateLimit({rateLimitMode}): {rateLimitReason}", "Transaction/Execute", response.Transaction.GlobalID);
+                    if (string.Equals(rateLimitMode, "Enforce", StringComparison.OrdinalIgnoreCase) == true)
+                    {
+                        response.ExceptionText = "요청 한도 초과";
+                        return Content(JsonConvert.SerializeObject(response), "application/json");
+                    }
+                }
+
+                if (RestServiceExtensions.TryValidateInputLimits(request, out var inputLimitReason) == false)
+                {
+                    logger.Warning("[{LogCategory}] [{GlobalID}] " + inputLimitReason, "Transaction/Execute", response.Transaction.GlobalID);
+                    response.ExceptionText = inputLimitReason;
+                    return Content(JsonConvert.SerializeObject(response), "application/json");
+                }
 
                 if (ModuleConfiguration.IsValidationRequest == true)
                 {
@@ -747,29 +770,7 @@ namespace transact.Areas.transact.Controllers
                 var token = request.AccessToken;
                 try
                 {
-                    var isBypassAuthorizeIP = false;
-                    if (string.IsNullOrWhiteSpace(ModuleConfiguration.BypassAuthorizeIP.FirstOrDefault(p => p == "*")) == false)
-                    {
-                        isBypassAuthorizeIP = true;
-                    }
-                    else
-                    {
-                        if (HttpContext.Request.Host.ToString().StartsWith("localhost") == true)
-                        {
-                            isBypassAuthorizeIP = true;
-                        }
-                        else
-                        {
-                            foreach (var ip in ModuleConfiguration.BypassAuthorizeIP)
-                            {
-                                if (request.Interface.SourceIP.IndexOf(ip) > -1)
-                                {
-                                    isBypassAuthorizeIP = true;
-                                    break;
-                                }
-                            }
-                        }
-                    }
+                    var isBypassAuthorizeIP = HttpContext.IsBypassAuthorizeIP(request.Interface.SourceIP, allowLocalhostBypass: true);
 
                     if (GlobalConfiguration.IsPermissionRoles == true && isBypassAuthorizeIP == false)
                     {
@@ -785,7 +786,7 @@ namespace transact.Areas.transact.Controllers
                                 var publicRole = publicRoles.ElementAt(i);
                                 if (publicRole != null)
                                 {
-                                    var allowTransactionPattern = new Regex($"[\\/]{publicRole.ApplicationID}[\\/]{publicRole.ProjectID}[\\/]{publicRole.TransactionID}");
+                                    var allowTransactionPattern = RestServiceExtensions.CreatePermissionRegex($"[\\/]{publicRole.ApplicationID}[\\/]{publicRole.ProjectID}[\\/]{publicRole.TransactionID}");
                                     isAuthorized = allowTransactionPattern.IsMatch(queryID);
                                     if (isAuthorized == true)
                                     {
@@ -809,7 +810,7 @@ namespace transact.Areas.transact.Controllers
                                                 var roles = permissionRole.RoleID.SplitComma();
                                                 if (roles.Intersect(userRoles).Any() == true)
                                                 {
-                                                    var allowTransactionPattern = new Regex($"[\\/]{permissionRole.ApplicationID}[\\/]{permissionRole.ProjectID}[\\/]{permissionRole.TransactionID}");
+                                                    var allowTransactionPattern = RestServiceExtensions.CreatePermissionRegex($"[\\/]{permissionRole.ApplicationID}[\\/]{permissionRole.ProjectID}[\\/]{permissionRole.TransactionID}");
                                                     isAuthorized = allowTransactionPattern.IsMatch(queryID);
                                                     break;
                                                 }
@@ -1710,9 +1711,29 @@ namespace transact.Areas.transact.Controllers
 
                 if (request.Action == "PSH")
                 {
+                    // #11 fire-and-forget 태스크 동시성 상한(0=무제한, 레거시)
+                    var maxConcurrentPushTasks = ModuleConfiguration.SecurityHardening.MaxConcurrentPushTasks;
+                    if (maxConcurrentPushTasks > 0 && Interlocked.Increment(ref currentPushTaskCount) > maxConcurrentPushTasks)
+                    {
+                        Interlocked.Decrement(ref currentPushTaskCount);
+                        logger.Warning("[{LogCategory}] [{GlobalID}] " + $"PSH 동시 처리 한도 초과({maxConcurrentPushTasks})", "Transaction/Execute", response.Transaction.GlobalID);
+                        response.ExceptionText = "PSH 동시 처리 한도 초과";
+                        return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
+                    }
+
                     _ = Task.Run(async () =>
                     {
-                        applicationResponse = await transactClient.ApplicationRequest(request, response, transactionInfo, transactionObject, businessModels, inputContracts, outputContracts, applicationResponse);
+                        try
+                        {
+                            applicationResponse = await transactClient.ApplicationRequest(request, response, transactionInfo, transactionObject, businessModels, inputContracts, outputContracts, applicationResponse);
+                        }
+                        finally
+                        {
+                            if (maxConcurrentPushTasks > 0)
+                            {
+                                Interlocked.Decrement(ref currentPushTaskCount);
+                            }
+                        }
                     });
                     return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                 }
@@ -2071,7 +2092,21 @@ namespace transact.Areas.transact.Controllers
                 route.ResponseTick = DateTime.UtcNow.GetJavascriptTime();
             }
 
+            ApplyErrorTextSanitization(response);
             return Content(JsonConvert.SerializeObject(response), "application/json");
+        }
+
+        // #10 차분 오라클 제거: SanitizeErrorText=true 이면 상세 오류를 서버 로그로만 남기고
+        // 클라이언트에는 일반 메시지(참조 ID 포함)만 반환한다. 트랜잭션 로깅은 이미 위에서 원본으로 수행됨.
+        private void ApplyErrorTextSanitization(TransactionResponse response)
+        {
+            if (ModuleConfiguration.SecurityHardening.SanitizeErrorText == false || string.IsNullOrWhiteSpace(response.ExceptionText) == true)
+            {
+                return;
+            }
+
+            logger.Information("[{LogCategory}] [{GlobalID}] " + $"원본 오류: {response.ExceptionText}", "Transaction/Execute", response.Transaction.GlobalID);
+            response.ExceptionText = $"요청을 처리할 수 없습니다. 참조 ID: {response.Transaction.GlobalID}";
         }
 
         private static string SerializeForLog(object? value)
