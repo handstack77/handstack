@@ -56,6 +56,13 @@ namespace wwwroot
                             .Select(p => p.Trim())
                             .Distinct(StringComparer.Ordinal)
                             .ToList() ?? new System.Collections.Generic.List<string>();
+                        ModuleConfiguration.CreateIDPolicy = moduleConfig.CreateIDPolicy ?? new CreateIDPolicyConfig();
+                        ModuleConfiguration.CreateIDPolicy.AllowedScreens ??= new System.Collections.Generic.List<string>();
+                        ModuleConfiguration.CreateIDPolicy.AuthorizationKeys ??= new System.Collections.Generic.List<CreateIDAuthorizationKeyConfig>();
+                        foreach (var authorizationKey in ModuleConfiguration.CreateIDPolicy.AuthorizationKeys)
+                        {
+                            authorizationKey.AllowedIPs ??= new System.Collections.Generic.List<string>();
+                        }
                         ModuleConfiguration.IsBundledWithHost = moduleConfigJson.IsBundledWithHost;
                         ModuleConfiguration.BusinessServerUrl = moduleConfig.BusinessServerUrl;
                         ModuleConfiguration.SystemVaultKey = moduleConfig.SystemVaultKey;

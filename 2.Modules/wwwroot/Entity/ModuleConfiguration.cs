@@ -19,6 +19,7 @@ namespace wwwroot.Entity
         public static bool IsModuleLogging = false;
         public static string ModuleLogFilePath = "";
         public static List<string> FileSyncTokens = new List<string>();
+        public static CreateIDPolicyConfig CreateIDPolicy = new CreateIDPolicyConfig();
         public static int CircuitBreakResetSecond = 60;
         public static bool IsLogServer = false;
         public static string LogServerUrl = "";

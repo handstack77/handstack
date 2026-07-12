@@ -11,6 +11,16 @@
         "ContractRequestPath": "view",
         "ContractBasePath": "../contracts/wwwroot",
         "WWWRootBasePath": "../modules/wwwroot/wwwroot",
-        "FileSyncTokens": []
+        "FileSyncTokens": [],
+        "CreateIDPolicy": {
+            "Enabled": false,
+            "AllowedScreens": [ "login", "logout" ],
+            "AuthorizationKeys": [
+                {
+                    "Key": "Strong@Passw0rd",
+                    "AllowedIPs": [ "127.0.0.1", "::1" ]
+                }
+            ]
+        }
     }
 }

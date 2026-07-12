@@ -1,5 +1,6 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -143,6 +144,11 @@ namespace wwwroot.Areas.wwwroot.Controllers
                 {
                     result = BadRequest();
                 }
+                else if (IsCreateIDAllowed(applicationID, string.IsNullOrWhiteSpace(screenID) ? transactionID : screenID) == false)
+                {
+                    logger.Warning("[{LogCategory}] CreateID 발급 권한 없음. ApplicationID: {ApplicationID}, ScreenID: {ScreenID}, RemoteIP: {RemoteIP}", "Index/CreateID", applicationID, screenID, HttpContext.Connection.RemoteIpAddress?.ToString());
+                    result = Unauthorized();
+                }
                 else
                 {
                     try
@@ -189,6 +195,53 @@ namespace wwwroot.Areas.wwwroot.Controllers
             }
 
             return result;
+        }
+
+        private bool IsCreateIDAllowed(string applicationID, string? screenID)
+        {
+            var policy = ModuleConfiguration.CreateIDPolicy;
+            if (policy.Enabled == false)
+            {
+                return true;
+            }
+
+            var normalizedScreenID = string.IsNullOrWhiteSpace(screenID) ? string.Empty : screenID.Trim();
+            if (Contains(policy.AllowedScreens, normalizedScreenID))
+            {
+                return true;
+            }
+
+            if (IsServerAuthorizationKeyAllowed(policy))
+            {
+                return true;
+            }
+
+            return (User.Identity?.IsAuthenticated == true);
+        }
+
+        private bool IsServerAuthorizationKeyAllowed(CreateIDPolicyConfig policy)
+        {
+            var authorizationKey = Request.Headers["AuthorizationKey"].FirstOrDefault();
+            if (string.IsNullOrWhiteSpace(authorizationKey))
+            {
+                return false;
+            }
+
+            var keyPolicy = policy.AuthorizationKeys.FirstOrDefault(item =>
+                string.IsNullOrWhiteSpace(item.Key) == false &&
+                item.Key.Equals(authorizationKey, StringComparison.Ordinal));
+            if (keyPolicy == null)
+            {
+                return false;
+            }
+
+            var remoteIP = HttpContext.Connection.RemoteIpAddress?.ToString() ?? string.Empty;
+            return Contains(keyPolicy.AllowedIPs, remoteIP);
+        }
+
+        private static bool Contains(IEnumerable<string>? values, string value)
+        {
+            return values != null && values.Any(item => item.Trim().Equals(value, StringComparison.OrdinalIgnoreCase));
         }
 
         private string GetRequestID(TransactionClientObject transactionObject, string? tokenID)

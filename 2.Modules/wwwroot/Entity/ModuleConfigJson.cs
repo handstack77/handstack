@@ -36,6 +36,8 @@ namespace wwwroot.Entity
 
         public List<string> FileSyncTokens { get; set; }
 
+        public CreateIDPolicyConfig CreateIDPolicy { get; set; }
+
         public ModuleConfig()
         {
             AuthorizationKey = "";
@@ -48,6 +50,38 @@ namespace wwwroot.Entity
             IsModuleLogging = false;
             ModuleLogFilePath = "";
             FileSyncTokens = new List<string>();
+            CreateIDPolicy = new CreateIDPolicyConfig();
+        }
+    }
+
+    public record CreateIDPolicyConfig
+    {
+        public bool Enabled { get; set; }
+
+        // 로그인/로그아웃처럼 인증 전에 GlobalID가 필요한 화면만 명시한다.
+        public List<string> AllowedScreens { get; set; }
+
+        // 서버 간 발급 키. 각 키는 허용 IP 범위를 설정해야 한다.
+        public List<CreateIDAuthorizationKeyConfig> AuthorizationKeys { get; set; }
+
+        public CreateIDPolicyConfig()
+        {
+            Enabled = false;
+            AllowedScreens = new List<string>();
+            AuthorizationKeys = new List<CreateIDAuthorizationKeyConfig>();
+        }
+    }
+
+    public record CreateIDAuthorizationKeyConfig
+    {
+        public string Key { get; set; }
+
+        public List<string> AllowedIPs { get; set; }
+
+        public CreateIDAuthorizationKeyConfig()
+        {
+            Key = "";
+            AllowedIPs = new List<string>();
         }
     }
 }
