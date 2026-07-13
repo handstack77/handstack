@@ -247,7 +247,7 @@ try {
 
     $isDevelopment = Test-Path $ackCsprojPath
     $isRuntime = (Test-Path $runtimeAckExePath) -or (Test-Path $runtimeAckDllPath) -or (Test-Path $runtimeAckPath)
-    $handstackHome = if ($isDevelopment) { [System.IO.Path]::Combine($parentPath, 'handstack') } else { $currentPath }
+    $handstackHome = if ($isDevelopment) { [System.IO.Path]::Combine($parentPath, 'build', 'handstack') } else { $currentPath }
 
     Write-Host '필수 프로그램 설치 확인 중...'
 

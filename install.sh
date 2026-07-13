@@ -155,7 +155,7 @@ extract_lib_zip() {
 
 CURRENT_PATH="$SCRIPT_DIR"
 PARENT_DIR="$(dirname "$CURRENT_PATH")"
-HANDSTACK_HOME="$PARENT_DIR/handstack"
+HANDSTACK_HOME="$PARENT_DIR/build/handstack"
 
 ACK_CSPROJ="$CURRENT_PATH/1.WebHost/ack/ack.csproj"
 RUNTIME_ACK_DLL="$CURRENT_PATH/app/ack.dll"
