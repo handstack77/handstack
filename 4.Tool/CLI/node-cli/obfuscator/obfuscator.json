@@ -1,0 +1,19 @@
+{
+    "outputSuffix": "-bundle",
+    "excludeDirs": ["lib", "node_modules", ".git", "obj", "bin", "demo"],
+    "excludeFiles": ["*.map", "*.min.js"],
+    "projects": [
+        "C:/projects/handstack77/handstack/1.WebHost/ack/wwwroot",
+        "C:/projects/handstack77/handstack/1.WebHost/agent/wwwroot",
+        "C:/projects/handstack77/handstack/1.WebHost/deploy/wwwroot",
+        "C:/projects/handstack77/handstack/1.WebHost/forbes/wwwroot",
+        "C:/projects/handstack77/handstack/1.WebHost/rdy/wwwroot",
+        "C:/projects/handstack77/handstack/2.Modules/command/wwwroot",
+        "C:/projects/handstack77/handstack/2.Modules/dbclient/wwwroot",
+        "C:/projects/handstack77/handstack/2.Modules/function/wwwroot",
+        "C:/projects/handstack77/handstack/2.Modules/graphclient/wwwroot",
+        "C:/projects/handstack77/handstack/2.Modules/repository/wwwroot",
+        "C:/projects/handstack77/handstack/2.Modules/transact/wwwroot",
+        "C:/projects/handstack77/handstack/2.Modules/wwwroot/wwwroot"
+    ]
+}

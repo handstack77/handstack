@@ -1,0 +1,31 @@
+{
+    "name": "handstack-wwwroot-obfuscator",
+    "version": "1.0.0",
+    "description": "HandStack 프로젝트 wwwroot 정적 자산 최적화(HTML/CSS 압축, JS 난독화) CLI",
+    "main": "lib/bundler.js",
+    "bin": {
+        "obfuscator-cli": "./obfuscator.js"
+    },
+    "scripts": {
+        "cli": "node obfuscator.js"
+    },
+    "keywords": [
+        "handstack",
+        "wwwroot",
+        "obfuscator",
+        "minify",
+        "bundler"
+    ],
+    "author": "handstack",
+    "license": "MIT",
+    "dependencies": {
+        "clean-css": "^5.3.3",
+        "commander": "^9.4.1",
+        "html-minifier-terser": "^7.2.0",
+        "javascript-obfuscator": "^4.1.1",
+        "minimatch": "^9.0.4"
+    },
+    "engines": {
+        "node": ">=18.0.0"
+    }
+}
