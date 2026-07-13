@@ -92,6 +92,15 @@ function Invoke-DotNet {
     }
 }
 
+function Invoke-Node {
+    param([Parameter(Mandatory = $true)][string[]]$Arguments)
+
+    & node @Arguments
+    if ($LASTEXITCODE -ne 0) {
+        throw "node 명령 실패: node $($Arguments -join ' ')"
+    }
+}
+
 function Copy-FileSet {
     param(
         [Parameter(Mandatory = $true)][string]$SourceDirectory,
@@ -345,6 +354,14 @@ try {
     if (Test-Path -LiteralPath $assembliesSource) {
         Sync-DirectoryMirror -Source $assembliesSource -Destination $assembliesDestination
     }
+
+    # wwwroot 정적 자산 최적화/난독화 (app, modules 하위 wwwroot를 찾아 동일 경로에 적용)
+    # Invoke-Node -Arguments @(
+    #     ([System.IO.Path]::Combine($scriptRoot, '4.Tool', 'CLI', 'node-cli', 'obfuscator', 'obfuscator.js'))
+    #     'publish-optimize'
+    #     '--root'
+    #     ([System.IO.Path]::Combine($PublishPath, 'handstack'))
+    # )
 
     if ($ConfigurationMode -eq 'Release') {
         Remove-PdbFiles -RootPath ([System.IO.Path]::Combine($PublishPath, 'handstack'))

@@ -147,6 +147,9 @@ for /d /r "%publish_path%\handstack" %%d in (runtimes) do (
 
 robocopy %HANDSTACK_SRC%/3.Infrastructure/Assemblies %publish_path%/handstack/assemblies /MIR /NFL /NDL /NJH /NJS /NC /NS /NP
 
+REM wwwroot 정적 자산 최적화/난독화 (app, modules 하위 wwwroot를 찾아 동일 경로에 적용)
+REM node 4.Tool\CLI\node-cli\obfuscator\obfuscator.js publish-optimize --root "%publish_path%\handstack"
+
 if /I "%configuration_mode%" == "Release" if exist "%publish_path%\handstack" del /F /S /Q "%publish_path%\handstack\*.pdb" >nul 2>nul
 
 echo "Publish completed successfully."

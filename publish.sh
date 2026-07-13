@@ -71,6 +71,10 @@ invoke_dotnet() {
     dotnet "$@"
 }
 
+invoke_node() {
+    node "$@"
+}
+
 copy_glob_if_exists() {
     local destination_dir="$1"
     shift
@@ -221,6 +225,9 @@ if [[ -d "$HANDSTACK_SRC/3.Infrastructure/Assemblies" ]]; then
     mkdir -p "$publish_path/handstack/assemblies"
     rsync -a --delete "$HANDSTACK_SRC/3.Infrastructure/Assemblies/" "$publish_path/handstack/assemblies/"
 fi
+
+# wwwroot 정적 자산 최적화/난독화 (app, modules 하위 wwwroot를 찾아 동일 경로에 적용)
+# invoke_node "$SCRIPT_DIR/4.Tool/CLI/node-cli/obfuscator/obfuscator.js" publish-optimize --root "$publish_path/handstack"
 
 if [[ "$configuration_mode" == "Release" ]]; then
     remove_pdb_files "$publish_path/handstack"

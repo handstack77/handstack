@@ -12,12 +12,16 @@ node obfuscator.js bundle --source "C:\projects\handstack77\handstack\1.WebHost\
 
 # 실제 파일을 쓰지 않고 대상 개수만 확인
 node obfuscator.js bundle --config ./obfuscator.json --dry-run
+
+# publish.bat 산출물의 app/modules 하위 wwwroot를 찾아 동일 경로에 최적화/난독화 적용
+node obfuscator.js publish-optimize --root "C:\projects\handstack77\publish\win-x64\handstack"
 */
 
 const { Command } = require('commander');
 const path = require('path');
 const { loadConfig, defaultExcludeDirs, defaultExcludeFiles } = require('./lib/config-loader');
 const { bundleAll } = require('./lib/bundler');
+const { findWwwrootDirs } = require('./lib/wwwroot-scanner');
 
 const program = new Command();
 
@@ -33,6 +37,53 @@ function collect(value, previous) {
 
 function getCurrentTime() {
     return new Date().toISOString().replace('T', ' ').substring(0, 19);
+}
+
+// bundle/publish-optimize 공용: 진행률 출력 후 bundleAll을 실행하고 프로젝트별/전체 요약을 출력한다.
+// 실패한 프로젝트가 있으면 true를 반환한다(호출부에서 process.exit(1) 처리에 사용).
+async function runBundle(projects, globalOptions) {
+    const results = await bundleAll(projects, globalOptions, (progress) => {
+        process.stdout.write(`\r\x1b[K[${progress.project}] 진행 파일 수: ${progress.index}/${progress.total}`);
+        if (progress.index === progress.total) {
+            process.stdout.write('\n');
+        }
+    });
+
+    let totalFiles = 0;
+    let totalProcessed = 0;
+    let totalWarnings = 0;
+    let failedCount = 0;
+
+    results.forEach((result) => {
+        if (result.skipped === true) {
+            failedCount += 1;
+            console.log(`[건너뜀] ${result.name}: ${result.reason} (${result.source})`);
+            return;
+        }
+
+        totalFiles += result.fileCount;
+        totalProcessed += result.processedCount;
+        console.log(`[완료] ${result.name}`);
+        console.log(`   원본: ${result.source}`);
+        console.log(`   출력: ${result.output}`);
+        console.log(`   파일: ${result.fileCount}개 (최적화/난독화 ${result.processedCount}개, 원본 복사 ${result.fileCount - result.processedCount}개)`);
+
+        if (result.warnings && result.warnings.length > 0) {
+            totalWarnings += result.warnings.length;
+            result.warnings.forEach((warning) => {
+                console.log(`   [경고] ${warning.relativePath}: 파싱 실패로 원본 그대로 복사 (${warning.error})`);
+            });
+        }
+    });
+
+    console.log('\n요약:');
+    console.log(`   처리 프로젝트: ${results.length - failedCount}/${results.length}`);
+    console.log(`   전체 파일: ${totalFiles}개 (최적화/난독화 ${totalProcessed}개)`);
+    if (totalWarnings > 0) {
+        console.log(`   경고: ${totalWarnings}개 파일은 파싱 실패로 원본 그대로 복사됨`);
+    }
+
+    return failedCount > 0;
 }
 
 program
@@ -90,37 +141,66 @@ program
             }
             console.log('');
 
-            const results = await bundleAll(projects, globalOptions, (progress) => {
-                process.stdout.write(`\r\x1b[K[${progress.project}] 진행 파일 수: ${progress.index}/${progress.total}`);
-                if (progress.index === progress.total) {
-                    process.stdout.write('\n');
-                }
-            });
+            const hasFailure = await runBundle(projects, globalOptions);
+            if (hasFailure === true) {
+                process.exit(1);
+            }
+        } catch (error) {
+            console.error('오류:', error.message);
+            process.exit(1);
+        }
+    });
 
-            let totalFiles = 0;
-            let totalProcessed = 0;
-            let failedCount = 0;
+program
+    .command('publish-optimize')
+    .description('publish.bat 산출물(--root 하위 app, modules)에서 wwwroot 디렉토리를 찾아 동일 경로(source=output)에 최적화/난독화 적용')
+    .requiredOption('-r, --root <path>', 'publish 산출물의 handstack 루트 경로 (예: ...\\publish\\win-x64\\handstack)')
+    .option('--exclude-dir <pattern>', '최적화/난독화에서 제외할 디렉토리 glob 패턴 (반복 가능)', collect, [])
+    .option('--exclude-file <pattern>', '최적화/난독화에서 제외할 파일 glob 패턴 (반복 가능)', collect, [])
+    .option('--dry-run', '실제로 파일을 쓰지 않고 대상 파일 수만 확인')
+    .action(async (options) => {
+        try {
+            console.log('HandStack publish 산출물 wwwroot 최적화/난독화 (in-place)');
+            console.log(`현재 시간: ${getCurrentTime()}\n`);
 
-            results.forEach((result) => {
-                if (result.skipped === true) {
-                    failedCount += 1;
-                    console.log(`[건너뜀] ${result.name}: ${result.reason} (${result.source})`);
-                    return;
-                }
+            const root = path.resolve(options.root);
+            const scanRoots = [path.join(root, 'app'), path.join(root, 'modules')];
 
-                totalFiles += result.fileCount;
-                totalProcessed += result.processedCount;
-                console.log(`[완료] ${result.name}`);
-                console.log(`   원본: ${result.source}`);
-                console.log(`   출력: ${result.output}`);
-                console.log(`   파일: ${result.fileCount}개 (최적화/난독화 ${result.processedCount}개, 원본 복사 ${result.fileCount - result.processedCount}개)`);
-            });
+            const wwwrootDirs = [];
+            for (const scanRoot of scanRoots) {
+                wwwrootDirs.push(...await findWwwrootDirs(scanRoot));
+            }
 
-            console.log('\n요약:');
-            console.log(`   처리 프로젝트: ${results.length - failedCount}/${results.length}`);
-            console.log(`   전체 파일: ${totalFiles}개 (최적화/난독화 ${totalProcessed}개)`);
+            if (wwwrootDirs.length === 0) {
+                throw new Error(`대상 wwwroot 디렉토리를 찾을 수 없습니다: ${scanRoots.join(', ')}`);
+            }
 
-            if (failedCount > 0) {
+            const projects = wwwrootDirs.map((dir) => ({
+                name: path.relative(root, dir).split(path.sep).join('/'),
+                source: dir,
+                output: dir,
+                excludeDirs: [],
+                excludeFiles: []
+            }));
+
+            const globalOptions = {
+                excludeDirs: [].concat(defaultExcludeDirs, options.excludeDir),
+                excludeFiles: [].concat(defaultExcludeFiles, options.excludeFile),
+                obfuscatorOptions: {},
+                dryRun: options.dryRun === true
+            };
+
+            console.log(`대상 wwwroot: ${projects.length}개`);
+            projects.forEach((project) => console.log(`   - ${project.name}`));
+            console.log(`제외 디렉토리 패턴: ${globalOptions.excludeDirs.join(', ')}`);
+            console.log(`제외 파일 패턴: ${globalOptions.excludeFiles.join(', ')}`);
+            if (globalOptions.dryRun === true) {
+                console.log('(dry-run 모드: 파일을 실제로 쓰지 않습니다)');
+            }
+            console.log('');
+
+            const hasFailure = await runBundle(projects, globalOptions);
+            if (hasFailure === true) {
                 process.exit(1);
             }
         } catch (error) {

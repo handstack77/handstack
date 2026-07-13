@@ -52,29 +52,45 @@ async function optimizeFile(sourcePath, relativePath, excludeDirs, excludeFiles,
 
     if (extension === '.html') {
         const source = await fs.readFile(sourcePath, 'utf8');
-        const minified = await minifyHtml(source, {
-            collapseWhitespace: true,
-            conservativeCollapse: true,
-            keepClosingSlash: true,
-            minifyCSS: true,
-            minifyJS: false,
-            removeComments: true,
-            removeRedundantAttributes: false
-        });
-        return { buffer: minified, processed: true };
+        try {
+            const minified = await minifyHtml(source, {
+                collapseWhitespace: true,
+                conservativeCollapse: true,
+                keepClosingSlash: true,
+                minifyCSS: true,
+                minifyJS: false,
+                removeComments: true,
+                removeRedundantAttributes: false
+            });
+            return { buffer: minified, processed: true };
+        } catch (error) {
+            // Handlebars/Mustache 등 템플릿 문법이 섞인 HTML은 파서가 실패할 수 있으므로 원본 그대로 복사한다.
+            return { buffer: source, processed: false, error: error.message };
+        }
     }
 
     if (extension === '.css') {
         const source = await fs.readFile(sourcePath, 'utf8');
-        const result = new CleanCSS({ level: 2 }).minify(source);
-        return { buffer: result.styles, processed: true };
+        try {
+            const result = new CleanCSS({ level: 2 }).minify(source);
+            if (result.errors.length > 0) {
+                throw new Error(result.errors.join('; '));
+            }
+            return { buffer: result.styles, processed: true };
+        } catch (error) {
+            return { buffer: source, processed: false, error: error.message };
+        }
     }
 
     if (extension === '.js') {
         const source = await fs.readFile(sourcePath, 'utf8');
-        const options = Object.assign({}, defaultObfuscatorOptions, obfuscatorOptions || {});
-        const obfuscated = JavaScriptObfuscator.obfuscate(source, options);
-        return { buffer: obfuscated.getObfuscatedCode(), processed: true };
+        try {
+            const options = Object.assign({}, defaultObfuscatorOptions, obfuscatorOptions || {});
+            const obfuscated = JavaScriptObfuscator.obfuscate(source, options);
+            return { buffer: obfuscated.getObfuscatedCode(), processed: true };
+        } catch (error) {
+            return { buffer: source, processed: false, error: error.message };
+        }
     }
 
     return { buffer: await fs.readFile(sourcePath), processed: false };
@@ -100,12 +116,15 @@ async function bundleProject(project, globalOptions, onProgress) {
         };
     }
 
-    if (globalOptions.dryRun !== true) {
+    const isInPlace = sourceRoot === outputRoot;
+
+    if (globalOptions.dryRun !== true && isInPlace === false) {
         await fs.rm(outputRoot, { recursive: true, force: true });
     }
 
     const files = await collectFiles(sourceRoot);
     let processedCount = 0;
+    const warnings = [];
 
     for (let index = 0; index < files.length; index += 1) {
         const sourcePath = files[index];
@@ -114,6 +133,8 @@ async function bundleProject(project, globalOptions, onProgress) {
 
         if (result.processed === true) {
             processedCount += 1;
+        } else if (result.error) {
+            warnings.push({ relativePath, error: result.error });
         }
 
         if (globalOptions.dryRun !== true) {
@@ -133,7 +154,8 @@ async function bundleProject(project, globalOptions, onProgress) {
         output: outputRoot,
         skipped: false,
         fileCount: files.length,
-        processedCount
+        processedCount,
+        warnings
     };
 }
 

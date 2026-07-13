@@ -1,6 +1,6 @@
 # handstack-wwwroot-obfuscator (obfuscator-cli)
 
-`obfuscator-cli`는 HandStack `1.WebHost`, `2.Modules` 하위 각 프로젝트의 `wwwroot`를 대상으로 HTML/CSS 압축과 JS 난독화를 수행하는 CLI입니다. `vite.config.mjs` 최적화 규칙(html-minifier-terser, clean-css, javascript-obfuscator)을 `lib/bundler.js` 공용 모듈로 옮기고, 하드코딩된 `lib/` 벤더 제외 대신 디렉토리/파일 glob 패턴 기반 제외를 지원하도록 일반화했습니다.
+`obfuscator-cli`는 HandStack `1.WebHost`, `2.Modules` 하위 각 프로젝트의 `wwwroot`를 대상으로 HTML/CSS 압축과 JS 난독화를 수행하는 CLI입니다. `vite.config.mjs` 최적화 규칙(html-minifier-terser, clean-css, javascript-obfuscator)을 `lib/bundler.js` 공용 모듈로 옮기고, 하드코딩된 `lib/` 벤더 제외 대신 디렉토리/파일 glob 패턴 기반 제외를 지원하도록 일반화했습니다. `publish.bat`(퍼블리시 산출물) 후처리용으로 `publish-optimize` 명령을 통해 같은 로직을 in-place(source=output)로도 실행할 수 있습니다.
 
 ## 사전 조건
 
@@ -48,6 +48,12 @@ npm run cli -- bundle --config .\obfuscator.json
 
 제외 대상으로 판정된 디렉토리/파일은 `lib/` 벤더 폴더와 동일하게 **최적화/난독화 없이 원본 그대로 출력 경로에 복사**됩니다(출력에서 완전히 제거되는 것이 아닙니다).
 
+실행 중 프로젝트별로 `[프로젝트명] 진행 파일 수: N/전체`가 같은 줄에 갱신 표시되고, 프로젝트 처리가 끝나면 `[완료]` 요약이 출력됩니다.
+
+`--source`/`--output`(또는 `obfuscator.json`의 프로젝트 `output`)이 원본과 같은 경로를 가리키면 in-place로 동작합니다. 일반적으로 프로젝트 처리 전에 출력 디렉토리를 비우지만, in-place일 때는 원본이 곧 출력이므로 이 삭제 단계를 건너뜁니다.
+
+HTML/CSS/JS 파일에 Handlebars/Mustache 같은 템플릿 문법이 섞여 있어 파서가 실패하면 해당 파일은 예외로 전체 실행을 멈추지 않고 **원본 그대로 복사**하며, 결과에 `[경고] <상대경로>: 파싱 실패로 원본 그대로 복사 (<에러 메시지>)`로 표시됩니다.
+
 예시:
 
 ```powershell
@@ -71,6 +77,22 @@ node .\obfuscator.js bundle --config .\obfuscator.json --dry-run
 ```powershell
 node .\obfuscator.js init --output .\obfuscator.json
 ```
+
+### 3) publish-optimize
+
+`publish.bat` 산출물처럼 이미 배치된 결과물의 `wwwroot`를 **같은 경로에(source=output)** 최적화/난독화합니다. 별도 설정 파일 없이 `--root` 하위 `app`, `modules` 디렉토리를 재귀 탐색해 이름이 정확히 `wwwroot`인 디렉토리를 모두 찾아 각각 처리합니다(찾으면 그 하위는 더 탐색하지 않음).
+
+옵션:
+
+- `-r, --root <path>` (필수): `publish.bat`의 `%publish_path%\handstack`에 해당하는 루트 경로. `<root>\app`, `<root>\modules` 하위에서 `wwwroot`를 탐색합니다.
+- `--exclude-dir <pattern>` / `--exclude-file <pattern>`: `bundle`과 동일, 기본 제외 목록에 추가로 합쳐집니다.
+- `--dry-run`: 실제로 파일을 쓰지 않고 대상 개수만 확인
+
+```powershell
+node .\obfuscator.js publish-optimize --root "C:\projects\handstack77\publish\win-x64\handstack"
+```
+
+`publish.bat`은 모든 모듈 빌드와 파일 정리(robocopy assemblies)가 끝난 뒤, pdb 정리 전에 이 명령을 자동으로 실행합니다(`os_mode`/`action_mode`와 무관하게 항상 실행).
 
 ## 설정 파일(obfuscator.json) 형식
 
@@ -109,8 +131,9 @@ node .\obfuscator.js init --output .\obfuscator.json
 
 ## 공용 모듈
 
-- `lib/bundler.js`: `collectFiles`, `optimizeFile`, `bundleProject`, `bundleAll` — 실제 최적화/난독화 로직
+- `lib/bundler.js`: `collectFiles`, `optimizeFile`, `bundleProject`, `bundleAll` — 실제 최적화/난독화 로직. `bundleProject`/`bundleAll`은 파일 처리마다 호출되는 `onProgress` 콜백을 받고, 프로젝트 결과에 파싱 실패 파일 목록(`warnings`)을 포함합니다.
 - `lib/pattern-matcher.js`: `isExcludedDirectory`, `isExcludedFile` — glob 패턴 기반 제외 판정
-- `lib/config-loader.js`: `loadConfig` — `obfuscator.json` 로드/정규화
+- `lib/config-loader.js`: `loadConfig` — `obfuscator.json` 로드/정규화, `defaultExcludeDirs`/`defaultExcludeFiles` 기본값 제공
+- `lib/wwwroot-scanner.js`: `findWwwrootDirs` — 주어진 경로 하위에서 이름이 `wwwroot`인 디렉토리를 재귀 탐색(`publish-optimize`에서 사용)
 
 이 모듈들은 CLI 외부에서도 `require('./lib/bundler')` 형태로 재사용할 수 있도록 CLI 파싱 로직과 분리되어 있습니다.
