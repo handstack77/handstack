@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>F3-09 모바일 수식 완성 - OpenGrid 예제</title>
+    <link rel="stylesheet" href="../../OpenGrid.css">
+    <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+    <div class="demo-nav"><a href="../index.html">← 목록으로</a> · 업무용 기능</div>
+    <h2>F3-09 · 모바일에서 수식 완성하기</h2>
+    <p class="desc">수식 편집은 일반 텍스트 편집과 동일한 입력 흐름을 사용해 모바일 가상 키보드에서도 "=" 로 시작하는 수식을 그대로 입력할 수 있습니다. 셀을 탭해 편집해 보세요.</p>
+    <syn_opengrid id="grdF309" class="demo-grid" syn-options="{
+        editable: true,
+        columns: [['Price', '단가', 100, false, 'number'], ['Qty', '수량', 90, false, 'number'], ['Total', '합계(직접 =Price*Qty 입력해보기)', 240, false, 'number']]
+    }"></syn_opengrid>
+    <div id="divLog" class="log-panel"></div>
+    <script src="../../../../js/syn.js"></script>
+    <script src="../../CodePicker/CodePicker.js"></script>
+    <script src="../../OpenGrid.js"></script>
+    <script src="../common.js"></script>
+    <script src="f309.js"></script>
+</body>
+</html>

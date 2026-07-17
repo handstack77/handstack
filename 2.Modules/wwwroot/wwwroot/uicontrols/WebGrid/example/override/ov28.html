@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>OV-28 떼어내기(restore) - OpenGrid 예제</title>
+    <link rel="stylesheet" href="../../OpenGrid.css">
+    <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+    <div class="demo-nav"><a href="../index.html">← 목록으로</a> · Override</div>
+    <h2>OV-28 · 떼어내기(restore)</h2>
+    <p class="desc">grid.restore(name) / restoreAll()로 등록한 오버라이드를 원래대로 되돌립니다.</p>
+    <div class="demo-toolbar">
+        <button type="button" id="grdOv28_apply">오버라이드 적용</button>
+        <button type="button" id="grdOv28_restore" class="secondary">restore로 되돌리기</button>
+        <button type="button" id="grdOv28_names">현재 오버라이드 목록</button>
+    </div>
+    <syn_opengrid id="grdOv28" class="demo-grid" syn-options="{
+        columns: [['MemberName', '이름', 120, false, 'text']]
+    }"></syn_opengrid>
+    <div id="divLog" class="log-panel"></div>
+    <script src="../../../../js/syn.js"></script>
+    <script src="../../CodePicker/CodePicker.js"></script>
+    <script src="../../OpenGrid.js"></script>
+    <script src="../common.js"></script>
+    <script src="ov28.js"></script>
+</body>
+</html>

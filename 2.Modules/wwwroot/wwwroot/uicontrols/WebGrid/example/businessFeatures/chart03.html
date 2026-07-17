@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>통합차트-03 체크 행 비교 - OpenGrid 예제</title>
+    <link rel="stylesheet" href="../../OpenGrid.css">
+    <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+    <div class="demo-nav"><a href="../index.html">← 목록으로</a> · 업무용 기능</div>
+    <h2>통합차트-03 · 체크 행 비교</h2>
+    <p class="desc">그리드 왼쪽 끝의 체크 열(checkColumn 옵션 — data 컬럼이 아닌 open-grid 내장 체크 트랙)로 선택한 행만 모아 막대 차트로 비교합니다(source.kind="checked").</p>
+    <div class="demo-toolbar">
+        <button type="button" id="grdChart03_checkFirst3" class="secondary">앞 3개 체크</button>
+        <button type="button" id="grdChart03_show">체크된 행 차트</button>
+    </div>
+    <div id="grdChart03" class="demo-grid"></div>
+    <div id="divLog" class="log-panel"></div>
+    <script src="../../../../js/syn.js"></script>
+    <script src="../../CodePicker/CodePicker.js"></script>
+    <script src="../../OpenGrid.js"></script>
+    <script src="../common.js"></script>
+    <script src="chart03.js"></script>
+</body>
+</html>

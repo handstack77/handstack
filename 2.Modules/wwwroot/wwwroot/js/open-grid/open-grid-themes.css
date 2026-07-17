@@ -1,0 +1,725 @@
+/* ============================================================
+   OPEN_GRID — 15가지 테마 정의
+   사용법: <div data-og-theme="ocean"> 또는 grid.setTheme('ocean')
+   ============================================================ */
+
+/* ──────────────────────────────────────────────────────────
+   1. default  (Light Blue — 기본)
+   ────────────────────────────────────────────────────────── */
+[data-og-theme="default"],
+:root {
+  --og-primary:            #1976d2;
+  --og-primary-light:      #e3f2fd;
+  --og-primary-dark:       #1565c0;
+  --og-header-bg:          #f5f5f5;
+  --og-header-color:       #333333;
+  --og-header-hover-bg:    #ebebeb;
+  --og-header-sort-color:  #1976d2;
+  --og-row-bg:             #ffffff;
+  --og-row-alt-bg:         #fafafa;
+  --og-row-hover-bg:       #e3f2fd;
+  --og-row-color:          #212121;
+  --og-row-selected-bg:    #bbdefb;
+  --og-row-selected-color: #0d47a1;
+  --og-row-added-bg:       #e8f5e9;
+  --og-row-added-color:    #1b5e20;
+  --og-row-edited-bg:      #fff8e1;
+  --og-row-edited-color:   #e65100;
+  --og-row-removed-bg:     #ffebee;
+  --og-row-removed-color:  #b71c1c;
+  --og-group-bg:           #e8eaf6;
+  --og-group-color:        #283593;
+  --og-group-border:       #c5cae9;
+  --og-tree-toggle-color:  #555555;
+  --og-tree-line-color:    #d0d0d0;
+  --og-tree-folder-color:  #f9a825;
+  --og-tree-file-color:    #78909c;
+  --og-tree-indent-guide:  #e0e0e0;
+  --og-merge-bg:           #fff9c4;
+  --og-merge-border:       #f9a825;
+  --og-border-color:       #e0e0e0;
+  --og-focus-border:       #1976d2;
+  --og-pagination-bg:      #ffffff;
+  --og-pagination-btn-bg:  #ffffff;
+  --og-pagination-btn-color:#333333;
+  --og-input-bg:           #ffffff;
+  --og-input-color:        #212121;
+  --og-input-border:       #1976d2;
+  --og-filter-bg:          #ffffff;
+  --og-filter-color:       #212121;
+}
+
+/* ──────────────────────────────────────────────────────────
+   2. dark  (다크)
+   ────────────────────────────────────────────────────────── */
+[data-og-theme="dark"] {
+  --og-primary:            #90caf9;
+  --og-primary-light:      #1a237e;
+  --og-primary-dark:       #42a5f5;
+  --og-header-bg:          #1e1e1e;
+  --og-header-color:       #e0e0e0;
+  --og-header-hover-bg:    #2a2a2a;
+  --og-header-sort-color:  #90caf9;
+  --og-row-bg:             #2d2d2d;
+  --og-row-alt-bg:         #252525;
+  --og-row-hover-bg:       #3a3a5c;
+  --og-row-color:          #e0e0e0;
+  --og-row-selected-bg:    #283593;
+  --og-row-selected-color: #e3f2fd;
+  --og-row-added-bg:       #1b5e20;
+  --og-row-added-color:    #a5d6a7;
+  --og-row-edited-bg:      #4e342e;
+  --og-row-edited-color:   #ffcc80;
+  --og-row-removed-bg:     #b71c1c;
+  --og-row-removed-color:  #ffcdd2;
+  --og-group-bg:           #1a237e;
+  --og-group-color:        #c5cae9;
+  --og-group-border:       #283593;
+  --og-tree-toggle-color:  #90caf9;
+  --og-tree-line-color:         #555555;
+  --og-tree-folder-color:       #ffca28;  /* 열림: bright amber */
+  --og-tree-folder-closed-color: #546e7a;  /* 닫힘: dark blue-gray */
+  --og-tree-file-color:    #90a4ae;
+  --og-tree-indent-guide:  #555555;
+  --og-merge-bg:           #3e2723;
+  --og-merge-border:       #ff8f00;
+  --og-border-color:       #444444;
+  --og-focus-border:       #90caf9;
+  --og-pagination-bg:      #1e1e1e;
+  --og-pagination-btn-bg:  #2d2d2d;
+  --og-pagination-btn-color:#e0e0e0;
+  --og-input-bg:           #1e1e1e;
+  --og-input-color:        #e0e0e0;
+  --og-input-border:       #90caf9;
+  --og-filter-bg:          #2d2d2d;
+  --og-filter-color:       #e0e0e0;
+}
+[data-og-theme="dark"] .og-empty-message  { color: #757575; }
+[data-og-theme="dark"] .og-loading-mask   { background: rgba(30,30,30,0.75); }
+[data-og-theme="dark"] { --og-spinner-track: rgba(255,255,255,0.15); }
+
+/* ──────────────────────────────────────────────────────────
+   3. ocean  (오션 — 깊은 파란 계열)
+   ────────────────────────────────────────────────────────── */
+[data-og-theme="ocean"] {
+  --og-primary:            #0288d1;
+  --og-primary-light:      #e1f5fe;
+  --og-primary-dark:       #0277bd;
+  --og-header-bg:          #e1f5fe;
+  --og-header-color:       #01579b;
+  --og-header-hover-bg:    #b3e5fc;
+  --og-header-sort-color:  #0277bd;
+  --og-row-bg:             #ffffff;
+  --og-row-alt-bg:         #f0f9ff;
+  --og-row-hover-bg:       #b3e5fc;
+  --og-row-color:          #01579b;
+  --og-row-selected-bg:    #0288d1;
+  --og-row-selected-color: #ffffff;
+  --og-row-added-bg:       #e0f2f1;
+  --og-row-added-color:    #004d40;
+  --og-row-edited-bg:      #fff8e1;
+  --og-row-edited-color:   #e65100;
+  --og-row-removed-bg:     #fce4ec;
+  --og-row-removed-color:  #880e4f;
+  --og-group-bg:           #b3e5fc;
+  --og-group-color:        #01579b;
+  --og-group-border:       #81d4fa;
+  --og-tree-toggle-color:  #0288d1;
+  --og-tree-line-color:    #b3e5fc;
+  --og-tree-indent-guide:  #b3e5fc;
+  --og-merge-bg:           #e0f7fa;
+  --og-merge-border:       #00acc1;
+  --og-border-color:       #b3e5fc;
+  --og-focus-border:       #0288d1;
+  --og-pagination-bg:      #e1f5fe;
+  --og-pagination-btn-bg:  #ffffff;
+  --og-pagination-btn-color:#01579b;
+  --og-input-bg:           #ffffff;
+  --og-input-color:        #01579b;
+  --og-input-border:       #0288d1;
+  --og-filter-bg:          #e1f5fe;
+  --og-filter-color:       #01579b;
+}
+
+/* ──────────────────────────────────────────────────────────
+   4. forest  (포레스트 — 녹색 계열)
+   ────────────────────────────────────────────────────────── */
+[data-og-theme="forest"] {
+  --og-primary:            #388e3c;
+  --og-primary-light:      #e8f5e9;
+  --og-primary-dark:       #2e7d32;
+  --og-header-bg:          #e8f5e9;
+  --og-header-color:       #1b5e20;
+  --og-header-hover-bg:    #c8e6c9;
+  --og-header-sort-color:  #2e7d32;
+  --og-row-bg:             #ffffff;
+  --og-row-alt-bg:         #f1f8f1;
+  --og-row-hover-bg:       #c8e6c9;
+  --og-row-color:          #1b5e20;
+  --og-row-selected-bg:    #388e3c;
+  --og-row-selected-color: #ffffff;
+  --og-row-added-bg:       #dcedc8;
+  --og-row-added-color:    #33691e;
+  --og-row-edited-bg:      #fff9c4;
+  --og-row-edited-color:   #f57f17;
+  --og-row-removed-bg:     #ffebee;
+  --og-row-removed-color:  #c62828;
+  --og-group-bg:           #c8e6c9;
+  --og-group-color:        #1b5e20;
+  --og-group-border:       #a5d6a7;
+  --og-tree-toggle-color:  #388e3c;
+  --og-tree-line-color:    #c8e6c9;
+  --og-tree-indent-guide:  #c8e6c9;
+  --og-merge-bg:           #f9fbe7;
+  --og-merge-border:       #aed581;
+  --og-border-color:       #c8e6c9;
+  --og-focus-border:       #388e3c;
+  --og-pagination-bg:      #e8f5e9;
+  --og-pagination-btn-bg:  #ffffff;
+  --og-pagination-btn-color:#1b5e20;
+  --og-input-bg:           #ffffff;
+  --og-input-color:        #1b5e20;
+  --og-input-border:       #388e3c;
+  --og-filter-bg:          #e8f5e9;
+  --og-filter-color:       #1b5e20;
+}
+
+/* ──────────────────────────────────────────────────────────
+   5. sunset  (선셋 — 주황/따뜻한 계열)
+   ────────────────────────────────────────────────────────── */
+[data-og-theme="sunset"] {
+  --og-primary:            #f4511e;
+  --og-primary-light:      #fbe9e7;
+  --og-primary-dark:       #d84315;
+  --og-header-bg:          #fbe9e7;
+  --og-header-color:       #bf360c;
+  --og-header-hover-bg:    #ffccbc;
+  --og-header-sort-color:  #d84315;
+  --og-row-bg:             #fffdf9;
+  --og-row-alt-bg:         #fff8f5;
+  --og-row-hover-bg:       #ffe0b2;
+  --og-row-color:          #4e2a12;
+  --og-row-selected-bg:    #f4511e;
+  --og-row-selected-color: #ffffff;
+  --og-row-added-bg:       #f9fbe7;
+  --og-row-added-color:    #558b2f;
+  --og-row-edited-bg:      #fff8e1;
+  --og-row-edited-color:   #e65100;
+  --og-row-removed-bg:     #fce4ec;
+  --og-row-removed-color:  #880e4f;
+  --og-group-bg:           #ffe0b2;
+  --og-group-color:        #bf360c;
+  --og-group-border:       #ffcc80;
+  --og-tree-toggle-color:  #f4511e;
+  --og-tree-line-color:    #ffe0b2;
+  --og-tree-indent-guide:  #ffe0b2;
+  --og-merge-bg:           #fff9c4;
+  --og-merge-border:       #ffa000;
+  --og-border-color:       #ffccbc;
+  --og-focus-border:       #f4511e;
+  --og-pagination-bg:      #fbe9e7;
+  --og-pagination-btn-bg:  #ffffff;
+  --og-pagination-btn-color:#bf360c;
+  --og-input-bg:           #ffffff;
+  --og-input-color:        #4e2a12;
+  --og-input-border:       #f4511e;
+  --og-filter-bg:          #fbe9e7;
+  --og-filter-color:       #bf360c;
+}
+
+/* ──────────────────────────────────────────────────────────
+   6. purple  (퍼플 — 보라 계열)
+   ────────────────────────────────────────────────────────── */
+[data-og-theme="purple"] {
+  --og-primary:            #7b1fa2;
+  --og-primary-light:      #f3e5f5;
+  --og-primary-dark:       #6a1b9a;
+  --og-header-bg:          #f3e5f5;
+  --og-header-color:       #4a148c;
+  --og-header-hover-bg:    #e1bee7;
+  --og-header-sort-color:  #6a1b9a;
+  --og-row-bg:             #ffffff;
+  --og-row-alt-bg:         #fdf5ff;
+  --og-row-hover-bg:       #e1bee7;
+  --og-row-color:          #311b44;
+  --og-row-selected-bg:    #7b1fa2;
+  --og-row-selected-color: #ffffff;
+  --og-row-added-bg:       #e8f5e9;
+  --og-row-added-color:    #1b5e20;
+  --og-row-edited-bg:      #fff8e1;
+  --og-row-edited-color:   #e65100;
+  --og-row-removed-bg:     #ffebee;
+  --og-row-removed-color:  #b71c1c;
+  --og-group-bg:           #e1bee7;
+  --og-group-color:        #4a148c;
+  --og-group-border:       #ce93d8;
+  --og-tree-toggle-color:  #7b1fa2;
+  --og-tree-line-color:    #e1bee7;
+  --og-tree-indent-guide:  #e1bee7;
+  --og-merge-bg:           #fce4ec;
+  --og-merge-border:       #ad1457;
+  --og-border-color:       #e1bee7;
+  --og-focus-border:       #7b1fa2;
+  --og-pagination-bg:      #f3e5f5;
+  --og-pagination-btn-bg:  #ffffff;
+  --og-pagination-btn-color:#4a148c;
+  --og-input-bg:           #ffffff;
+  --og-input-color:        #311b44;
+  --og-input-border:       #7b1fa2;
+  --og-filter-bg:          #f3e5f5;
+  --og-filter-color:       #4a148c;
+}
+
+/* ──────────────────────────────────────────────────────────
+   7. rose  (로즈 — 분홍/핑크 계열)
+   ────────────────────────────────────────────────────────── */
+[data-og-theme="rose"] {
+  --og-primary:            #e91e63;
+  --og-primary-light:      #fce4ec;
+  --og-primary-dark:       #c2185b;
+  --og-header-bg:          #fce4ec;
+  --og-header-color:       #880e4f;
+  --og-header-hover-bg:    #f8bbd0;
+  --og-header-sort-color:  #c2185b;
+  --og-row-bg:             #ffffff;
+  --og-row-alt-bg:         #fff5f8;
+  --og-row-hover-bg:       #f8bbd0;
+  --og-row-color:          #4a0021;
+  --og-row-selected-bg:    #e91e63;
+  --og-row-selected-color: #ffffff;
+  --og-row-added-bg:       #e8f5e9;
+  --og-row-added-color:    #1b5e20;
+  --og-row-edited-bg:      #fff8e1;
+  --og-row-edited-color:   #e65100;
+  --og-row-removed-bg:     #fce4ec;
+  --og-row-removed-color:  #880e4f;
+  --og-group-bg:           #f8bbd0;
+  --og-group-color:        #880e4f;
+  --og-group-border:       #f48fb1;
+  --og-tree-toggle-color:  #e91e63;
+  --og-tree-line-color:    #f8bbd0;
+  --og-tree-indent-guide:  #f8bbd0;
+  --og-merge-bg:           #fff3e0;
+  --og-merge-border:       #fb8c00;
+  --og-border-color:       #f8bbd0;
+  --og-focus-border:       #e91e63;
+  --og-pagination-bg:      #fce4ec;
+  --og-pagination-btn-bg:  #ffffff;
+  --og-pagination-btn-color:#880e4f;
+  --og-input-bg:           #ffffff;
+  --og-input-color:        #4a0021;
+  --og-input-border:       #e91e63;
+  --og-filter-bg:          #fce4ec;
+  --og-filter-color:       #880e4f;
+}
+
+/* ──────────────────────────────────────────────────────────
+   8. teal  (틸 — 청록 계열)
+   ────────────────────────────────────────────────────────── */
+[data-og-theme="teal"] {
+  --og-primary:            #00897b;
+  --og-primary-light:      #e0f2f1;
+  --og-primary-dark:       #00695c;
+  --og-header-bg:          #e0f2f1;
+  --og-header-color:       #004d40;
+  --og-header-hover-bg:    #b2dfdb;
+  --og-header-sort-color:  #00695c;
+  --og-row-bg:             #ffffff;
+  --og-row-alt-bg:         #f0faf9;
+  --og-row-hover-bg:       #b2dfdb;
+  --og-row-color:          #00251a;
+  --og-row-selected-bg:    #00897b;
+  --og-row-selected-color: #ffffff;
+  --og-row-added-bg:       #f9fbe7;
+  --og-row-added-color:    #33691e;
+  --og-row-edited-bg:      #fff8e1;
+  --og-row-edited-color:   #e65100;
+  --og-row-removed-bg:     #ffebee;
+  --og-row-removed-color:  #b71c1c;
+  --og-group-bg:           #b2dfdb;
+  --og-group-color:        #004d40;
+  --og-group-border:       #80cbc4;
+  --og-tree-toggle-color:  #00897b;
+  --og-tree-line-color:    #b2dfdb;
+  --og-tree-indent-guide:  #b2dfdb;
+  --og-merge-bg:           #e0f7fa;
+  --og-merge-border:       #0097a7;
+  --og-border-color:       #b2dfdb;
+  --og-focus-border:       #00897b;
+  --og-pagination-bg:      #e0f2f1;
+  --og-pagination-btn-bg:  #ffffff;
+  --og-pagination-btn-color:#004d40;
+  --og-input-bg:           #ffffff;
+  --og-input-color:        #00251a;
+  --og-input-border:       #00897b;
+  --og-filter-bg:          #e0f2f1;
+  --og-filter-color:       #004d40;
+}
+
+/* ──────────────────────────────────────────────────────────
+   9. indigo  (인디고 — 짙은 남색)
+   ────────────────────────────────────────────────────────── */
+[data-og-theme="indigo"] {
+  --og-primary:            #3949ab;
+  --og-primary-light:      #e8eaf6;
+  --og-primary-dark:       #283593;
+  --og-header-bg:          #e8eaf6;
+  --og-header-color:       #1a237e;
+  --og-header-hover-bg:    #c5cae9;
+  --og-header-sort-color:  #283593;
+  --og-row-bg:             #ffffff;
+  --og-row-alt-bg:         #f5f6ff;
+  --og-row-hover-bg:       #c5cae9;
+  --og-row-color:          #1a237e;
+  --og-row-selected-bg:    #3949ab;
+  --og-row-selected-color: #ffffff;
+  --og-row-added-bg:       #e8f5e9;
+  --og-row-added-color:    #1b5e20;
+  --og-row-edited-bg:      #fff8e1;
+  --og-row-edited-color:   #e65100;
+  --og-row-removed-bg:     #ffebee;
+  --og-row-removed-color:  #b71c1c;
+  --og-group-bg:           #c5cae9;
+  --og-group-color:        #1a237e;
+  --og-group-border:       #9fa8da;
+  --og-tree-toggle-color:  #3949ab;
+  --og-tree-line-color:    #c5cae9;
+  --og-tree-indent-guide:  #c5cae9;
+  --og-merge-bg:           #ede7f6;
+  --og-merge-border:       #7e57c2;
+  --og-border-color:       #c5cae9;
+  --og-focus-border:       #3949ab;
+  --og-pagination-bg:      #e8eaf6;
+  --og-pagination-btn-bg:  #ffffff;
+  --og-pagination-btn-color:#1a237e;
+  --og-input-bg:           #ffffff;
+  --og-input-color:        #1a237e;
+  --og-input-border:       #3949ab;
+  --og-filter-bg:          #e8eaf6;
+  --og-filter-color:       #1a237e;
+}
+
+/* ──────────────────────────────────────────────────────────
+   10. amber  (앰버 — 황금/호박색)
+   ────────────────────────────────────────────────────────── */
+[data-og-theme="amber"] {
+  --og-primary:            #ffa000;
+  --og-primary-light:      #fff8e1;
+  --og-primary-dark:       #ff8f00;
+  --og-header-bg:          #fff8e1;
+  --og-header-color:       #6d4c00;
+  --og-header-hover-bg:    #ffecb3;
+  --og-header-sort-color:  #ff8f00;
+  --og-row-bg:             #fffdf5;
+  --og-row-alt-bg:         #fffbee;
+  --og-row-hover-bg:       #ffecb3;
+  --og-row-color:          #4e3300;
+  --og-row-selected-bg:    #ffa000;
+  --og-row-selected-color: #ffffff;
+  --og-row-added-bg:       #e8f5e9;
+  --og-row-added-color:    #1b5e20;
+  --og-row-edited-bg:      #ffe082;
+  --og-row-edited-color:   #5d4037;
+  --og-row-removed-bg:     #ffebee;
+  --og-row-removed-color:  #b71c1c;
+  --og-group-bg:           #ffecb3;
+  --og-group-color:        #6d4c00;
+  --og-group-border:       #ffe082;
+  --og-tree-toggle-color:  #ffa000;
+  --og-tree-line-color:    #ffecb3;
+  --og-tree-indent-guide:  #ffecb3;
+  --og-merge-bg:           #fff3e0;
+  --og-merge-border:       #fb8c00;
+  --og-border-color:       #ffecb3;
+  --og-focus-border:       #ffa000;
+  --og-pagination-bg:      #fff8e1;
+  --og-pagination-btn-bg:  #ffffff;
+  --og-pagination-btn-color:#6d4c00;
+  --og-input-bg:           #ffffff;
+  --og-input-color:        #4e3300;
+  --og-input-border:       #ffa000;
+  --og-filter-bg:          #fff8e1;
+  --og-filter-color:       #6d4c00;
+}
+
+/* ──────────────────────────────────────────────────────────
+   11. slate  (슬레이트 — 어두운 회색, 다크 변형)
+   ────────────────────────────────────────────────────────── */
+[data-og-theme="slate"] {
+  --og-primary:            #546e7a;
+  --og-primary-light:      #90a4ae;
+  --og-primary-dark:       #37474f;
+  --og-header-bg:          #263238;
+  --og-header-color:       #eceff1;
+  --og-header-hover-bg:    #37474f;
+  --og-header-sort-color:  #80cbc4;
+  --og-row-bg:             #37474f;
+  --og-row-alt-bg:         #2e3d44;
+  --og-row-hover-bg:       #455a64;
+  --og-row-color:          #eceff1;
+  --og-row-selected-bg:    #546e7a;
+  --og-row-selected-color: #eceff1;
+  --og-row-added-bg:       #1b5e20;
+  --og-row-added-color:    #a5d6a7;
+  --og-row-edited-bg:      #4e342e;
+  --og-row-edited-color:   #ffcc80;
+  --og-row-removed-bg:     #b71c1c;
+  --og-row-removed-color:  #ffcdd2;
+  --og-group-bg:           #263238;
+  --og-group-color:        #b0bec5;
+  --og-group-border:       #37474f;
+  --og-tree-toggle-color:  #80cbc4;
+  --og-tree-line-color:    #546e7a;
+  --og-tree-indent-guide:  #546e7a;
+  --og-merge-bg:           #3e2723;
+  --og-merge-border:       #ff8f00;
+  --og-border-color:       #455a64;
+  --og-focus-border:       #80cbc4;
+  --og-pagination-bg:      #263238;
+  --og-pagination-btn-bg:  #37474f;
+  --og-pagination-btn-color:#eceff1;
+  --og-input-bg:           #263238;
+  --og-input-color:        #eceff1;
+  --og-input-border:       #80cbc4;
+  --og-filter-bg:          #37474f;
+  --og-filter-color:       #eceff1;
+}
+[data-og-theme="slate"] .og-loading-mask { background: rgba(38,50,56,0.8); }
+[data-og-theme="slate"] { --og-spinner-track: rgba(255,255,255,0.15); }
+
+/* ──────────────────────────────────────────────────────────
+   12. crimson  (크림슨 — 진한 빨강)
+   ────────────────────────────────────────────────────────── */
+[data-og-theme="crimson"] {
+  --og-primary:            #c62828;
+  --og-primary-light:      #ffebee;
+  --og-primary-dark:       #b71c1c;
+  --og-header-bg:          #ffebee;
+  --og-header-color:       #7f0000;
+  --og-header-hover-bg:    #ffcdd2;
+  --og-header-sort-color:  #b71c1c;
+  --og-row-bg:             #ffffff;
+  --og-row-alt-bg:         #fff5f5;
+  --og-row-hover-bg:       #ffcdd2;
+  --og-row-color:          #4a0000;
+  --og-row-selected-bg:    #c62828;
+  --og-row-selected-color: #ffffff;
+  --og-row-added-bg:       #e8f5e9;
+  --og-row-added-color:    #1b5e20;
+  --og-row-edited-bg:      #fff8e1;
+  --og-row-edited-color:   #e65100;
+  --og-row-removed-bg:     #b71c1c;
+  --og-row-removed-color:  #ffcdd2;
+  --og-group-bg:           #ffcdd2;
+  --og-group-color:        #7f0000;
+  --og-group-border:       #ef9a9a;
+  --og-tree-toggle-color:  #c62828;
+  --og-tree-line-color:    #ffcdd2;
+  --og-tree-indent-guide:  #ffcdd2;
+  --og-merge-bg:           #fce4ec;
+  --og-merge-border:       #ad1457;
+  --og-border-color:       #ffcdd2;
+  --og-focus-border:       #c62828;
+  --og-pagination-bg:      #ffebee;
+  --og-pagination-btn-bg:  #ffffff;
+  --og-pagination-btn-color:#7f0000;
+  --og-input-bg:           #ffffff;
+  --og-input-color:        #4a0000;
+  --og-input-border:       #c62828;
+  --og-filter-bg:          #ffebee;
+  --og-filter-color:       #7f0000;
+}
+
+/* ──────────────────────────────────────────────────────────
+   13. executive  (다크 네이비 + 골드 — 프리미엄/럭셔리)
+   ────────────────────────────────────────────────────────── */
+[data-og-theme="executive"] {
+  --og-primary:                #c9a227;
+  --og-primary-light:          #1e2d4a;
+  --og-primary-dark:           #a87d1a;
+  --og-header-bg:              #0d1b2e;
+  --og-header-color:           #d4c5a0;
+  --og-header-hover-bg:        #162338;
+  --og-header-sort-color:      #c9a227;
+  --og-row-bg:                 #0f2035;
+  --og-row-alt-bg:             #0b1a2c;
+  --og-row-hover-bg:           #183047;
+  --og-row-color:              #cdd5e0;
+  --og-row-selected-bg:        #2a3d5c;
+  --og-row-selected-color:     #e8d5a0;
+  --og-row-added-bg:           #1a3a25;
+  --og-row-added-color:        #8bc98f;
+  --og-row-edited-bg:          #3b2c12;
+  --og-row-edited-color:       #f5c97b;
+  --og-row-removed-bg:         #3b1515;
+  --og-row-removed-color:      #e8a0a0;
+  --og-group-bg:               #162338;
+  --og-group-color:            #c9a227;
+  --og-group-border:           #2a3d5c;
+  --og-tree-toggle-color:      #c9a227;
+  --og-tree-line-color:        #2a3d5c;
+  --og-tree-folder-color:      #c9a227;
+  --og-tree-folder-closed-color: #5a7a9a;
+  --og-tree-file-color:        #6b8ba4;
+  --og-tree-hover-bg:          rgba(201,162,39,0.10);
+  --og-tree-indent-guide:      #2a3d5c;
+  --og-merge-bg:               #2a1f0e;
+  --og-merge-border:           #c9a227;
+  --og-border-color:           #1e3050;
+  --og-focus-border:           #c9a227;
+  --og-pagination-bg:          #0d1b2e;
+  --og-pagination-btn-bg:      #0f2035;
+  --og-pagination-btn-color:   #cdd5e0;
+  --og-input-bg:               #0f2035;
+  --og-input-color:            #cdd5e0;
+  --og-input-border:           #c9a227;
+  --og-filter-bg:              #0d1b2e;
+  --og-filter-color:           #cdd5e0;
+  --og-shadow-sm:              0 1px 4px rgba(0,0,0,0.40), 0 1px 3px rgba(0,0,0,0.30);
+  --og-shadow-md:              0 4px 16px rgba(0,0,0,0.55), 0 2px 8px rgba(0,0,0,0.35);
+  --og-spinner-track:          rgba(255,255,255,0.12);
+}
+[data-og-theme="executive"] .og-empty-message { color: #3a5272; }
+[data-og-theme="executive"] .og-loading-mask  { background: rgba(13,27,46,0.80); }
+
+/* ──────────────────────────────────────────────────────────
+   14. modern  (Tailwind Slate — 클린·미니멀 블루그레이)
+   ────────────────────────────────────────────────────────── */
+[data-og-theme="modern"] {
+  --og-primary:                #2563eb;
+  --og-primary-light:          #eff6ff;
+  --og-primary-dark:           #1d4ed8;
+  --og-header-bg:              #f8fafc;
+  --og-header-color:           #0f172a;
+  --og-header-hover-bg:        #f1f5f9;
+  --og-header-sort-color:      #2563eb;
+  --og-row-bg:                 #ffffff;
+  --og-row-alt-bg:             #f8fafc;
+  --og-row-hover-bg:           #eff6ff;
+  --og-row-color:              #0f172a;
+  --og-row-selected-bg:        #dbeafe;
+  --og-row-selected-color:     #1e3a8a;
+  --og-row-added-bg:           #f0fdf4;
+  --og-row-added-color:        #14532d;
+  --og-row-edited-bg:          #fffbeb;
+  --og-row-edited-color:       #92400e;
+  --og-row-removed-bg:         #fef2f2;
+  --og-row-removed-color:      #7f1d1d;
+  --og-group-bg:               #eff6ff;
+  --og-group-color:            #1e3a8a;
+  --og-group-border:           #bfdbfe;
+  --og-tree-toggle-color:      #2563eb;
+  --og-tree-line-color:        #e2e8f0;
+  --og-tree-folder-color:      #f59e0b;
+  --og-tree-folder-closed-color: #94a3b8;
+  --og-tree-file-color:        #94a3b8;
+  --og-tree-hover-bg:          rgba(37,99,235,0.06);
+  --og-tree-indent-guide:      #e2e8f0;
+  --og-merge-bg:               #fefce8;
+  --og-merge-border:           #eab308;
+  --og-border-color:           #e2e8f0;
+  --og-focus-border:           #2563eb;
+  --og-pagination-bg:          #ffffff;
+  --og-pagination-btn-bg:      #ffffff;
+  --og-pagination-btn-color:   #334155;
+  --og-input-bg:               #ffffff;
+  --og-input-color:            #0f172a;
+  --og-input-border:           #2563eb;
+  --og-filter-bg:              #ffffff;
+  --og-filter-color:           #0f172a;
+}
+
+/* ──────────────────────────────────────────────────────────
+   15. stitch  (스티치 — 리넨/크라프트지 + 자수실 핸드크래프트)
+   천에 박음질한 느낌: 대시(점선) 보더를 실땀처럼 사용하고,
+   본문 CSS 변수(--og-row-bg 등)에 아주 옅은 능직(綾織) 그라디언트를
+   중첩해 리넨 결을 표현한다(별도 이미지 없이 순수 CSS gradient).
+   ────────────────────────────────────────────────────────── */
+[data-og-theme="stitch"] {
+  /* 내부 헬퍼: 능직(리넨) 텍스처 — 공식 변수 계약 밖의 private 변수.
+     8px 타일, 4~5% 불투명도로 배경색 위에 아주 은은하게만 겹친다. */
+  --og-stitch-weave:
+    linear-gradient(45deg,  rgba(124,98,64,0.05) 25%, transparent 25%, transparent 75%, rgba(124,98,64,0.05) 75%) 0 0/8px 8px,
+    linear-gradient(-45deg, rgba(124,98,64,0.05) 25%, transparent 25%, transparent 75%, rgba(124,98,64,0.05) 75%) 4px 4px/8px 8px;
+
+  --og-primary:            #a8342a;  /* 자수 레드 (embroidery red) */
+  --og-primary-light:      #f3e0d3;
+  --og-primary-dark:       #7c2620;
+  --og-header-bg:          var(--og-stitch-weave), #f1e8d4;
+  --og-header-color:       #3e2f22;
+  --og-header-hover-bg:    #e4d6ba;
+  --og-header-sort-color:  #a8342a;
+  --og-row-bg:             var(--og-stitch-weave), #faf5e9;
+  --og-row-alt-bg:         var(--og-stitch-weave), #efe6d2;
+  --og-row-hover-bg:       #ece0c4;
+  --og-row-color:          #3e2f22;
+  --og-row-selected-bg:    #34415e;  /* 인디고 실 */
+  --og-row-selected-color: #fbf4e4;
+  --og-row-added-bg:       #e3ead4;  /* 모스그린 실 */
+  --og-row-added-color:    #3b5a2e;
+  --og-row-edited-bg:      #f5e7c4;  /* 머스터드 실 */
+  --og-row-edited-color:   #7a5209;
+  --og-row-removed-bg:     #f0dad6;  /* 러스트 실 */
+  --og-row-removed-color:  #6e2a22;
+  --og-group-bg:           #eadfc0;
+  --og-group-color:        #3e2f22;
+  --og-group-border:       #c9a354;
+  --og-tree-toggle-color:  #34415e;
+  --og-tree-line-color:         #d8c7a0;
+  --og-tree-folder-color:       #b9822b;  /* 열림: 머스터드 */
+  --og-tree-folder-closed-color: #7c6b4e;  /* 닫힘: 무광 타우프 */
+  --og-tree-file-color:    #8a7b63;
+  --og-tree-hover-bg:      rgba(168,52,42,0.07);
+  --og-tree-indent-guide:  #e4d7b8;
+  --og-merge-bg:           #f6ecc9;
+  --og-merge-border:       #b9822b;
+  --og-border-color:       #c7b48c;  /* 실땀(스티치) 색 — 대시 보더에 사용 */
+  --og-focus-border:       #a8342a;
+  --og-pagination-bg:      #f1e8d4;
+  --og-pagination-btn-bg:  #faf5e9;
+  --og-pagination-btn-color:#3e2f22;
+  --og-input-bg:           #faf5e9;
+  --og-input-color:        #3e2f22;
+  --og-input-border:       #a8342a;
+  --og-filter-bg:          #f1e8d4;
+  --og-filter-color:       #3e2f22;
+  --og-spinner-track:      rgba(62,47,34,0.15);
+}
+/* 핵심 라인만 절제해서 대시(점선) 처리 — 셀 세로줄은 과해지므로 손대지 않는다.
+   각 규칙은 base.css 원본 선언이 이미 해당 변만 명시적으로 지정해둔 곳만 override
+   하므로(예: .og-cell은 border-right만 선언되어 있어 대상에서 제외) 다른 테마의
+   보더 렌더링에는 영향이 없다.
+
+   ⚠ 셀렉터 특정성 주의 (실브라우저 버그 수정, 2026-07-03):
+   OpenGrid는 data-og-theme 속성을 그리드 루트 .og-container 자기 자신에 붙인다
+   (OpenGrid.ts _mount/setTheme). 따라서:
+   - 컨테이너 자신: `[data-og-theme="stitch"] .og-container`(자손 결합자)는
+     "속성을 가진 조상의 자손"을 찾으므로 속성이 걸린 요소 자기 자신에는 매치되지
+     않는다 → 컴파운드 셀렉터 `.og-container[data-og-theme="stitch"]`(공백 없음)로
+     교체.
+   - 자손 요소(.og-header 등)는 구조상 base.css의 단일 클래스 셀렉터(특정성 0,1,0)
+     보다 여기 셀렉터가 항상 높아야 한다. `.og-container[data-og-theme="stitch"] .og-x`
+     (특정성 0,3,0)로 접두를 강화한다.
+   - !important가 필요한 대상 (컨테이너/헤더/헤더셀/그룹행): "host isolation" 설계
+     (GridRenderer.ts:81 `_header.style.cssText`의 border-bottom, :271 헤더셀
+     `_style()`의 borderBottom, OpenGrid.ts:393 `_container.style.border`)로 인해
+     이 요소들은 border를 **인라인 style 속성**으로 직접 갖는다. 인라인 스타일은
+     외부 스타일시트 규칙보다 항상 우선하므로(특정성을 아무리 올려도 소용없음),
+     여기서는 !important 없이는 절대 이길 수 없다 — 실측(Playwright computed
+     style)으로 확인. og-group-row는 추가로 base.css 1603행에 이미
+     `border-bottom: ... !important` 선언(og-group-row 3중 정의 중 마지막)이
+     있어 어차피 !important가 필요했다.
+   - .og-row 는 인라인 border가 없고(base.css 클래스 선언만 있음) 이미 특정성
+     우위만으로 정상 동작함을 실측 확인 → !important 불필요, 최소 적용 유지.
+   - .og-footer 는 현재 코어 렌더링 코드에 이 클래스로 생성되는 실 DOM 요소가
+     없어(FooterManager 는 og-footer-bar 사용) 실브라우저 검증 대상에서 제외
+     되었으나, base.css 선언과의 정합성을 위해 셀렉터는 유지한다(인라인 style
+     충돌 사례가 없으므로 !important 불필요). */
+.og-container[data-og-theme="stitch"]                 { border-style: dashed !important; }
+.og-container[data-og-theme="stitch"] .og-header      { border-bottom-style: dashed !important; }
+.og-container[data-og-theme="stitch"] .og-header-cell { border-bottom-style: dashed !important; }
+.og-container[data-og-theme="stitch"] .og-row          { border-bottom-style: dashed; }
+.og-container[data-og-theme="stitch"] .og-group-row    { border-bottom-style: dashed !important; }
+.og-container[data-og-theme="stitch"] .og-footer       { border-top-style: dashed; }
+[data-og-theme="stitch"] .og-empty-message { color: #6b5d46; }
+[data-og-theme="stitch"] .og-loading-mask  { background: rgba(250,245,233,0.80); }

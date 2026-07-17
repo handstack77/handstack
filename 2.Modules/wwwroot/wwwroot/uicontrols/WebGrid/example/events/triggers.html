@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>트리거 - OpenGrid 예제</title>
+    <link rel="stylesheet" href="../../OpenGrid.css">
+    <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+    <div class="demo-nav"><a href="../index.html">← 목록으로</a> · 이벤트</div>
+    <h2>트리거</h2>
+    <p class="desc">before:insertRow 트리거로 조건에 맞지 않는 행 추가를 취소합니다(open-grid addTrigger).</p>
+    <div class="demo-toolbar">
+        <button type="button" id="grdTriggers_insertOk">이름 있는 행 추가(성공)</button>
+        <button type="button" id="grdTriggers_insertBad">이름 없는 행 추가(취소됨)</button>
+    </div>
+    <syn_opengrid id="grdTriggers" class="demo-grid" syn-options="{
+        columns: [
+            ['MemberNo', '번호', 70, false, 'number', true, 'center'],
+            ['MemberName', '이름', 120, false, 'text']
+        ]
+    }"></syn_opengrid>
+    <div id="divLog" class="log-panel"></div>
+    <script src="../../../../js/syn.js"></script>
+    <script src="../../CodePicker/CodePicker.js"></script>
+    <script src="../../OpenGrid.js"></script>
+    <script src="../common.js"></script>
+    <script src="triggers.js"></script>
+</body>
+</html>

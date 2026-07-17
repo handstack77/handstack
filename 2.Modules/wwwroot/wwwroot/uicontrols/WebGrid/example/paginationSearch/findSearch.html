@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>검색 - OpenGrid 예제</title>
+    <link rel="stylesheet" href="../../OpenGrid.css">
+    <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+    <div class="demo-nav"><a href="../index.html">← 목록으로</a> · 페이지 & 검색</div>
+    <h2>검색<span class="demo-badge">단일컬럼</span></h2>
+    <p class="desc">지정한 컬럼에서 contains 검색을 수행합니다(search).</p>
+    <div class="demo-toolbar">
+        <input type="text" id="grdFindSearch_term" placeholder="이름 검색...">
+        <button type="button" id="grdFindSearch_clear" class="secondary">초기화</button>
+    </div>
+    <syn_opengrid id="grdFindSearch" class="demo-grid" syn-options="{
+        columns: [
+            ['MemberNo', '번호', 70, false, 'number', true, 'center'],
+            ['MemberName', '이름', 120, false, 'text']
+        ]
+    }"></syn_opengrid>
+    <div id="divLog" class="log-panel"></div>
+    <script src="../../../../js/syn.js"></script>
+    <script src="../../CodePicker/CodePicker.js"></script>
+    <script src="../../OpenGrid.js"></script>
+    <script src="../common.js"></script>
+    <script src="findSearch.js"></script>
+</body>
+</html>

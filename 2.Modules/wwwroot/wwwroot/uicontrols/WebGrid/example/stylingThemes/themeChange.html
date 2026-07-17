@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>테마 변경 - OpenGrid 예제</title>
+    <link rel="stylesheet" href="../../OpenGrid.css">
+    <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+    <div class="demo-nav"><a href="../index.html">← 목록으로</a> · 스타일 & 테마</div>
+    <h2>테마 변경</h2>
+    <p class="desc">내장 색 테마를 전환합니다(setTheme).</p>
+    <div class="demo-toolbar">
+        <select id="grdThemeChange_theme">
+            <option value="default">default</option>
+            <option value="dark">dark</option>
+            <option value="ocean">ocean</option>
+            <option value="forest">forest</option>
+        </select>
+    </div>
+    <syn_opengrid id="grdThemeChange" class="demo-grid" syn-options="{
+        columns: [
+            ['MemberNo', '번호', 70, false, 'number', true, 'center'],
+            ['MemberName', '이름', 120, false, 'text']
+        ]
+    }"></syn_opengrid>
+    <div id="divLog" class="log-panel"></div>
+    <script src="../../../../js/syn.js"></script>
+    <script src="../../CodePicker/CodePicker.js"></script>
+    <script src="../../OpenGrid.js"></script>
+    <script src="../common.js"></script>
+    <script src="themeChange.js"></script>
+</body>
+</html>

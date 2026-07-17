@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>히트맵 - OpenGrid 예제</title>
+    <link rel="stylesheet" href="../../OpenGrid.css">
+    <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+    <div class="demo-nav"><a href="../index.html">← 목록으로</a> · 조건부서식</div>
+    <h2>히트맵</h2>
+    <p class="desc">값 크기에 따라 배경색을 연속적으로 칠합니다(encode.kind="scale").</p>
+    <div class="demo-toolbar">
+        <button type="button" id="grdCfHeatmap_apply">히트맵 적용</button>
+        <button type="button" id="grdCfHeatmap_clear" class="secondary">해제</button>
+    </div>
+    <syn_opengrid id="grdCfHeatmap" class="demo-grid" syn-options="{
+        columns: [
+            ['MemberName', '이름', 110, false, 'text'],
+            ['Salary', '급여', 150, false, 'number', true, 'right', null, { format: '₩#,##0' }]
+        ]
+    }"></syn_opengrid>
+    <div id="divLog" class="log-panel"></div>
+    <script src="../../../../js/syn.js"></script>
+    <script src="../../CodePicker/CodePicker.js"></script>
+    <script src="../../OpenGrid.js"></script>
+    <script src="../common.js"></script>
+    <script src="cfHeatmap.js"></script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>OV-27 여러 겹 합성 순서 - OpenGrid 예제</title>
+    <link rel="stylesheet" href="../../OpenGrid.css">
+    <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+    <div class="demo-nav"><a href="../index.html">← 목록으로</a> · Override</div>
+    <h2>OV-27 · 여러 겹 합성 순서(FIFO)</h2>
+    <p class="desc">같은 메서드(getDisplayValue)에 override를 3번 겹쳐 등록하면, 나중에 등록한 것이 바깥쪽에서 먼저 실행되고 orig() 호출로 안쪽 레이어를 여닫는 양파형(onion) 합성이 일어납니다.</p>
+    <div class="demo-toolbar">
+        <button type="button" id="grdOv27_layer">레이어 3개 등록 후 확인</button>
+    </div>
+    <syn_opengrid id="grdOv27" class="demo-grid" syn-options="{
+        columns: [['MemberName', '이름', 120, false, 'text']]
+    }"></syn_opengrid>
+    <div id="divLog" class="log-panel"></div>
+    <script src="../../../../js/syn.js"></script>
+    <script src="../../CodePicker/CodePicker.js"></script>
+    <script src="../../OpenGrid.js"></script>
+    <script src="../common.js"></script>
+    <script src="ov27.js"></script>
+</body>
+</html>

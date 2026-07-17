@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>통화·증감률·백분율 - OpenGrid 예제</title>
+    <link rel="stylesheet" href="../../OpenGrid.css">
+    <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+    <div class="demo-nav"><a href="../index.html">← 목록으로</a> · 값 타입·포맷</div>
+    <h2>통화·증감률·백분율</h2>
+    <p class="desc">format 마스크로 통화·백분율을, displayFormatter 전략으로 증감률에 ▲/▼ 기호를 붙입니다.</p>
+    <syn_opengrid id="grdCurrencyPercent" class="demo-grid" syn-options="{
+        columns: [
+            ['MemberName', '이름', 110, false, 'text'],
+            ['Salary', '급여', 140, false, 'number', true, 'right', null, { format: '₩#,##0' }],
+            ['ChangeRate', '증감률(▲▼ 포맷터)', 150, false, 'number', true, 'right'],
+            ['Point', '달성률(%)', 120, false, 'number', true, 'right', null, { format: '#,##0&quot;%&quot;' }]
+        ]
+    }"></syn_opengrid>
+    <div id="divLog" class="log-panel"></div>
+    <script src="../../../../js/syn.js"></script>
+    <script src="../../CodePicker/CodePicker.js"></script>
+    <script src="../../OpenGrid.js"></script>
+    <script src="../common.js"></script>
+    <script src="currencyPercent.js"></script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>OV-25 그룹 키 만들기 - OpenGrid 예제</title>
+    <link rel="stylesheet" href="../../OpenGrid.css">
+    <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+    <div class="demo-nav"><a href="../index.html">← 목록으로</a> · Override</div>
+    <h2>OV-25 · 그룹 키 만들기</h2>
+    <p class="desc">grid.override.strategy("groupKeyFn", fn)으로 포인트를 구간(0~3000/3000~7000/7000+)으로 묶어 그룹핑합니다.</p>
+    <div class="demo-toolbar">
+        <button type="button" id="grdOv25_group">포인트 구간 그룹핑</button>
+    </div>
+    <syn_opengrid id="grdOv25" class="demo-grid" syn-options="{
+        columns: [['MemberName', '이름', 120, false, 'text'], ['Point', '포인트', 100, false, 'number']]
+    }"></syn_opengrid>
+    <div id="divLog" class="log-panel"></div>
+    <script src="../../../../js/syn.js"></script>
+    <script src="../../CodePicker/CodePicker.js"></script>
+    <script src="../../OpenGrid.js"></script>
+    <script src="../common.js"></script>
+    <script src="ov25.js"></script>
+</body>
+</html>

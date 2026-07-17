@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>트리 구조 - OpenGrid 예제</title>
+    <link rel="stylesheet" href="../../OpenGrid.css">
+    <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+    <div class="demo-nav"><a href="../index.html">← 목록으로</a> · 그룹 & 트리</div>
+    <h2>트리 구조</h2>
+    <p class="desc">조직도 데이터를 트리로 펼쳐 봅니다(enableTree, expandAllNodes).</p>
+    <div class="demo-toolbar">
+        <button type="button" id="grdTreeStructure_expand">모두 펼치기</button>
+        <button type="button" id="grdTreeStructure_collapse" class="secondary">모두 접기</button>
+    </div>
+    <syn_opengrid id="grdTreeStructure" class="demo-grid" syn-options="{
+        columns: [
+            ['name', '이름', 160, false, 'text'],
+            ['title', '직책', 120, false, 'text']
+        ]
+    }"></syn_opengrid>
+    <div id="divLog" class="log-panel"></div>
+    <script src="../../../../js/syn.js"></script>
+    <script src="../../CodePicker/CodePicker.js"></script>
+    <script src="../../OpenGrid.js"></script>
+    <script src="../common.js"></script>
+    <script src="treeStructure.js"></script>
+</body>
+</html>

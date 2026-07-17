@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>F3-08 정렬해도 움직이지 않는 참조 - OpenGrid 예제</title>
+    <link rel="stylesheet" href="../../OpenGrid.css">
+    <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+    <div class="demo-nav"><a href="../index.html">← 목록으로</a> · 업무용 기능</div>
+    <h2>F3-08 · 정렬해도 움직이지 않는 참조</h2>
+    <p class="desc">필드명 참조는 행 위치가 아니라 "그 행의 데이터"를 따라가므로, 정렬로 행 순서가 바뀌어도 각 행의 계산 결과는 정확히 유지됩니다.</p>
+    <div class="demo-toolbar">
+        <button type="button" id="grdF308_apply">수식 적용</button>
+        <button type="button" id="grdF308_sort" class="secondary">단가로 정렬 후 확인</button>
+    </div>
+    <syn_opengrid id="grdF308" class="demo-grid" syn-options="{
+        columns: [['ProdName', '상품명', 130, false, 'text'], ['Price', '단가', 90, false, 'number'], ['Qty', '수량', 80, false, 'number'], ['Total', '합계', 100, false, 'number']]
+    }"></syn_opengrid>
+    <div id="divLog" class="log-panel"></div>
+    <script src="../../../../js/syn.js"></script>
+    <script src="../../CodePicker/CodePicker.js"></script>
+    <script src="../../OpenGrid.js"></script>
+    <script src="../common.js"></script>
+    <script src="f308.js"></script>
+</body>
+</html>

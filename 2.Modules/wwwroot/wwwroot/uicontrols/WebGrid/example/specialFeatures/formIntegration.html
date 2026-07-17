@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>폼 연동 - OpenGrid 예제</title>
+    <link rel="stylesheet" href="../../OpenGrid.css">
+    <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+    <div class="demo-nav"><a href="../index.html">← 목록으로</a> · 특수 기능</div>
+    <h2>폼 연동</h2>
+    <p class="desc">그리드에서 행을 선택하면 폼에 값이 채워지고, 폼에서 저장하면 선택 행에 다시 반영됩니다(양방향 바인딩).</p>
+    <div class="demo-split">
+        <syn_opengrid id="grdFormIntegration" class="demo-grid" syn-options="{
+            columns: [
+                ['MemberNo', '번호', 60, false, 'number', true, 'center'],
+                ['MemberName', '이름', 100, false, 'text'],
+                ['Email', '이메일', 180, false, 'text']
+            ]
+        }"></syn_opengrid>
+        <div style="flex:0 0 260px; padding:10px; border:1px solid #e5e7eb; border-radius:4px; background:#fff;">
+            <div style="margin-bottom:8px;">이름<br><input type="text" id="grdFormIntegration_name" style="width:100%;"></div>
+            <div style="margin-bottom:8px;">이메일<br><input type="text" id="grdFormIntegration_email" style="width:100%;"></div>
+            <button type="button" id="grdFormIntegration_save">폼 → 그리드 저장</button>
+        </div>
+    </div>
+    <div id="divLog" class="log-panel"></div>
+    <script src="../../../../js/syn.js"></script>
+    <script src="../../CodePicker/CodePicker.js"></script>
+    <script src="../../OpenGrid.js"></script>
+    <script src="../common.js"></script>
+    <script src="formIntegration.js"></script>
+</body>
+</html>

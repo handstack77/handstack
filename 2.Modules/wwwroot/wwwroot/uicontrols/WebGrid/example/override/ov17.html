@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>OV-17 컬럼 너비 설정·자동계산 - OpenGrid 예제</title>
+    <link rel="stylesheet" href="../../OpenGrid.css">
+    <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+    <div class="demo-nav"><a href="../index.html">← 목록으로</a> · Override</div>
+    <h2>OV-17 · 컬럼 너비 설정·자동계산<span class="demo-badge">inject</span></h2>
+    <p class="desc">setColWidths()는 빈 스텁입니다. override로 필드별 너비 일괄 지정을 주입합니다.</p>
+    <div class="demo-toolbar">
+        <button type="button" id="grdOv17_apply">너비 일괄 적용{MemberName:200,Point:60}</button>
+    </div>
+    <syn_opengrid id="grdOv17" class="demo-grid" syn-options="{
+        columns: [['MemberNo', '번호', 70, false, 'number', true, 'center'], ['MemberName', '이름', 100, false, 'text'], ['Point', '포인트', 100, false, 'number']]
+    }"></syn_opengrid>
+    <div id="divLog" class="log-panel"></div>
+    <script src="../../../../js/syn.js"></script>
+    <script src="../../CodePicker/CodePicker.js"></script>
+    <script src="../../OpenGrid.js"></script>
+    <script src="../common.js"></script>
+    <script src="ov17.js"></script>
+</body>
+</html>

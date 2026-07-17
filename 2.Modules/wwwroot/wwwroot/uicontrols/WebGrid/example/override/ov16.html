@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>OV-16 ID로 체크 켜기·끄기 - OpenGrid 예제</title>
+    <link rel="stylesheet" href="../../OpenGrid.css">
+    <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+    <div class="demo-nav"><a href="../index.html">← 목록으로</a> · Override</div>
+    <h2>OV-16 · ID로 체크 켜기·끄기<span class="demo-badge">inject</span></h2>
+    <p class="desc">checkById()/uncheckById()는 빈 스텁입니다. override로 ID 기반 체크 토글을 주입합니다.</p>
+    <div class="demo-toolbar">
+        <input type="number" id="grdOv16_id" style="width:80px;" value="3">
+        <button type="button" id="grdOv16_check">체크</button>
+        <button type="button" id="grdOv16_uncheck" class="secondary">해제</button>
+    </div>
+    <syn_opengrid id="grdOv16" class="demo-grid" syn-options="{
+        columns: [['MemberNo', '번호(ID)', 90, false, 'number', true, 'center'], ['MemberName', '이름', 120, false, 'text'], ['UseYN', '체크', 70, false, 'checkbox', false, 'center', null, { checkValue: '1', unCheckValue: '0' }]]
+    }"></syn_opengrid>
+    <div id="divLog" class="log-panel"></div>
+    <script src="../../../../js/syn.js"></script>
+    <script src="../../CodePicker/CodePicker.js"></script>
+    <script src="../../OpenGrid.js"></script>
+    <script src="../common.js"></script>
+    <script src="ov16.js"></script>
+</body>
+</html>

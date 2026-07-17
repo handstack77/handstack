@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>OV-18 상단 행 고정 - OpenGrid 예제</title>
+    <link rel="stylesheet" href="../../OpenGrid.css">
+    <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+    <div class="demo-nav"><a href="../index.html">← 목록으로</a> · Override</div>
+    <h2>OV-18 · 상단 행 고정(P1)<span class="demo-badge">inject·P1</span></h2>
+    <p class="desc">freezeRows()는 빈 스텁입니다. override로 setFixedRowCount에 위임해 실제 동작을 주입합니다.</p>
+    <div class="demo-toolbar">
+        <button type="button" id="grdOv18_freeze">상단 2행 고정</button>
+        <button type="button" id="grdOv18_unfreeze" class="secondary">해제</button>
+    </div>
+    <syn_opengrid id="grdOv18" class="demo-grid" syn-options="{
+        columns: [['MemberNo', '번호', 70, false, 'number', true, 'center'], ['MemberName', '이름', 120, false, 'text']]
+    }"></syn_opengrid>
+    <div id="divLog" class="log-panel"></div>
+    <script src="../../../../js/syn.js"></script>
+    <script src="../../CodePicker/CodePicker.js"></script>
+    <script src="../../OpenGrid.js"></script>
+    <script src="../common.js"></script>
+    <script src="ov18.js"></script>
+</body>
+</html>

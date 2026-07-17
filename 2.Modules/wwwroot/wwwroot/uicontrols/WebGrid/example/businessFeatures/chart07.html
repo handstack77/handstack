@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>통합차트-07 접근성 하드게이트 - OpenGrid 예제</title>
+    <link rel="stylesheet" href="../../OpenGrid.css">
+    <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+    <div class="demo-nav"><a href="../index.html">← 목록으로</a> · 업무용 기능</div>
+    <h2>통합차트-07 · 접근성 하드게이트</h2>
+    <p class="desc">차트는 캔버스 옆에 스크린리더용 숨은 데이터 표(a11y table)를 항상 함께 렌더링합니다. 시각적 캔버스가 없어도 표로 같은 정보를 읽을 수 있습니다.</p>
+    <div class="demo-toolbar">
+        <button type="button" id="grdChart07_show">차트 표시 + a11y 표 확인</button>
+    </div>
+    <syn_opengrid id="grdChart07" class="demo-grid" syn-options="{
+        columns: [['ProdName', '상품명', 130, false, 'text'], ['Price', '가격', 100, false, 'number']]
+    }"></syn_opengrid>
+    <div id="divLog" class="log-panel"></div>
+    <script src="../../../../js/syn.js"></script>
+    <script src="../../CodePicker/CodePicker.js"></script>
+    <script src="../../OpenGrid.js"></script>
+    <script src="../common.js"></script>
+    <script src="chart07.js"></script>
+</body>
+</html>

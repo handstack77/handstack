@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>대용량 데이터(100만행+DOM상한 HUD) - OpenGrid 예제</title>
+    <link rel="stylesheet" href="../../OpenGrid.css">
+    <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+    <div class="demo-nav"><a href="../index.html">← 목록으로</a> · 특수 기능</div>
+    <h2>대용량 데이터(100만행+DOM상한 HUD)</h2>
+    <p class="desc">가상 스크롤(virtual scroll)로 실제 DOM에는 화면에 보이는 행만 렌더링됩니다. 총 데이터 행수와 실제 DOM 행수를 비교해 보세요.</p>
+    <div class="demo-toolbar">
+        <button type="button" id="grdBigData_load10">1만행 로드</button>
+        <button type="button" id="grdBigData_load100">10만행 로드</button>
+        <button type="button" id="grdBigData_load1m" class="secondary">100만행 로드(느릴 수 있음)</button>
+        <button type="button" id="grdBigData_measure">DOM 행수 측정</button>
+    </div>
+    <div class="demo-hud" id="grdBigData_hud">총 데이터: <b>0</b>행 · 실제 렌더된 DOM 행: <b>0</b>행</div>
+    <syn_opengrid id="grdBigData" class="demo-grid" syn-options="{
+        columns: [
+            ['ProdID', '상품코드', 100, false, 'text'],
+            ['ProdName', '상품명', 140, false, 'text'],
+            ['Category', '분류', 100, false, 'text'],
+            ['Price', '가격', 100, false, 'number']
+        ]
+    }"></syn_opengrid>
+    <div id="divLog" class="log-panel"></div>
+    <script src="../../../../js/syn.js"></script>
+    <script src="../../CodePicker/CodePicker.js"></script>
+    <script src="../../OpenGrid.js"></script>
+    <script src="../common.js"></script>
+    <script src="bigData.js"></script>
+</body>
+</html>

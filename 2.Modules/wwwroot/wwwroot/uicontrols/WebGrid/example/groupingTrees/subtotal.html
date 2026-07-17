@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>합계/소계 - OpenGrid 예제</title>
+    <link rel="stylesheet" href="../../OpenGrid.css">
+    <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+    <div class="demo-nav"><a href="../index.html">← 목록으로</a> · 그룹 & 트리</div>
+    <h2>합계/소계</h2>
+    <p class="desc">그룹핑 + 하단 Footer 합계(setFooter/getFooterValue)를 함께 보여줍니다.</p>
+    <div class="demo-toolbar">
+        <button type="button" id="grdSubtotal_footer">포인트 합계 Footer 표시</button>
+    </div>
+    <syn_opengrid id="grdSubtotal" class="demo-grid" syn-options="{
+        columns: [
+            ['Department', '부서', 110, false, 'text'],
+            ['MemberName', '이름', 120, false, 'text'],
+            ['Point', '포인트', 100, false, 'number']
+        ]
+    }"></syn_opengrid>
+    <div id="divLog" class="log-panel"></div>
+    <script src="../../../../js/syn.js"></script>
+    <script src="../../CodePicker/CodePicker.js"></script>
+    <script src="../../OpenGrid.js"></script>
+    <script src="../common.js"></script>
+    <script src="subtotal.js"></script>
+</body>
+</html>
