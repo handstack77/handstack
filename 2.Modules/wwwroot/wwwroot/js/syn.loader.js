@@ -631,7 +631,7 @@
                         item.css = [
                             '/uicontrols/DataSource/DataSource.css',
                             '/uicontrols/CodePicker/CodePicker.css',
-                            '/uicontrols/WebGrid/AUIGrid.css'
+                            '/uicontrols/AUIGrid/AUIGrid.css'
                         ];
                         item.js = [
                             '/uicontrols/DataSource/DataSource.js',
@@ -641,7 +641,7 @@
                             '/lib/auigrid/dist/AUIGridLicense.js',
                             '/lib/auigrid/dist/AUIGrid.js',
                             '/lib/filesaver/FileSaver.min.js',
-                            '/uicontrols/WebGrid/AUIGrid.js'
+                            '/uicontrols/AUIGrid/AUIGrid.js'
                         ];
                         break;
                     case 'guide':
@@ -908,7 +908,7 @@
                         '/uicontrols/OrganizationView/OrganizationView.css',
                         '/uicontrols/TreeView/TreeView.css',
                         '/uicontrols/WebGrid/WebGrid.css',
-                        '/uicontrols/WebGrid/AUIGrid.css',
+                        '/uicontrols/AUIGrid/AUIGrid.css',
                         '/uicontrols/PropertyGrid/PropertyGrid.css',
 
                         // 프로젝트 화면 디자인
