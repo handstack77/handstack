@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>DataSource - 트랜잭션 오류(Exception) 저장소 실무 패턴</title>
+</head>
+<body>
+	<form autocomplete="off" id="form1" syn-datafield="MainForm">
+		<h3>DataSource(storeType: Form) - 트랜잭션 오류 저장소 실무 패턴</h3>
+		<p>
+			실무 화면에서 가장 자주 보이는 DataSource 사용 예입니다. 화면에 보이지 않는 <code>srcException</code> 저장소를 두고,
+			저장/삭제 트랜잭션이 실패하면 서버가 내려준 오류 내용을 이 저장소에 채운 뒤 화면에서 확인하고, 확인이 끝나면
+			<code>clear</code>로 비웁니다. 실제 화면에서는 이 값을 서버 트랜잭션 콜백(<code>afterTransaction</code>)이 채우지만,
+			여기서는 서버 없이 버튼으로 그 상황을 흉내 냅니다.
+		</p>
+
+		<syn_data id="srcException" syn-options="{
+			dataSourceID: 'Exception',
+			storeType: 'Form',
+			columns: [
+				{ data: 'Error', dataType: 'bool' },
+				{ data: 'Level', dataType: 'string' },
+				{ data: 'Message', dataType: 'string' },
+				{ data: 'StackTrace', dataType: 'string' }
+			]
+		}"></syn_data>
+
+		<hr>
+		<input type="button" id="btnSimulateSuccess" value="저장 성공 시뮬레이션" syn-events="['click']">
+		<input type="button" id="btnSimulateFail" value="저장 실패 시뮬레이션" syn-events="['click']">
+	</form>
+
+	<script src="/js/syn.loader.js"></script>
+</body>
+</html>

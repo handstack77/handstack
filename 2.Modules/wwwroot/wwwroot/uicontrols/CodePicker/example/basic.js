@@ -18,8 +18,9 @@ let $basic = {
             syn.uicontrols.$codepicker.clear('chpCompanyID');
         },
 
-        chpCompanyID_change(value, text, result) {
-            syn.$l.eventLog('chpCompanyID_change', JSON.stringify({ value: value, text: text, result: result }));
+        // 실무 코드의 실제 시그니처: (elID, inputValue, inputText, result) - elID가 첫 인자로 온다.
+        chpCompanyID_change(elID, inputValue, inputText, result) {
+            syn.$l.eventLog('chpCompanyID_change', JSON.stringify({ elID: elID, value: inputValue, text: inputText, result: result }));
         }
     }
 }

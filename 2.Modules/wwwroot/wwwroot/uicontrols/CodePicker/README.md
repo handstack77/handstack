@@ -59,7 +59,7 @@ syn.uicontrols.$codepicker.open('chpCompanyID');
 이 폴더의 `example` 디렉토리에 초보자용 실행 예제가 있습니다. 웹 서버를 통해 `/uicontrols/CodePicker/example/*.html` 경로로 접속해서 바로 확인할 수 있습니다.
 
 - `basic.html`: CodePicker를 배치하고 돋보기 버튼으로 검색 팝업을 여는 가장 단순한 예제
-- `events.html`: `change` 이벤트로 선택 결과를 로그로 확인하고, `getValue`/`setValue`/`setText`/`clear` API를 함께 보여주는 예제
+- `events.html`: 실무에서 가장 흔한 연동(Cascading) 코드피커 패턴 - 업체를 고르면 담당자 피커의 조회 조건(`parameters`)이 좁혀지고, 업체를 다시 바꾸면 담당자 값이 초기화됨
 
 각 예제는 `<script src="/js/syn.loader.js"></script>` 한 줄만으로 동작하도록 만들어졌습니다.
 

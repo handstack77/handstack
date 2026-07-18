@@ -59,6 +59,7 @@ let $mypage = {
 - `example/basic.html` — 단일 파일 업로드/다운로드/삭제와 업로드 완료 콜백(`fileUpdateCallback`)으로 결과를 표시하는 가장 기본적인 사용법
 - `example/settings.html` — `dependencyID`, `custom1`~`custom3`, `minHeight` 등 업로드 옵션을 상황에 맞게 커스터마이징하는 방법 (다중 파일 저장소 기준)
 - `example/methods.html` — `getValue`/`setValue`/`clear`와 `getItem`/`getItems`/`deleteItem` 등 값 조회·관리 메서드 데모
+- `example/attachments.html` — 게시판/전자결재처럼 여러 건을 첨부하는 실무 패턴: 그리드 없이 `Flag`(R/C/D) 배열을 직접 관리하고, 업무 키(문서 번호)가 있어야만 첨부 가능, 첨부 개수 상한 검증, 저장 트랜잭션에 `type: 'List'`로 함께 전송
 
 ## 더 알아보기
 

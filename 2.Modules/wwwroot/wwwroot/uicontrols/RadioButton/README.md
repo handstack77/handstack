@@ -67,6 +67,7 @@ let $mypage = {
 - `/uicontrols/RadioButton/example/basic.html` — 라디오 그룹 기본 마크업과 라벨 자동 생성(toSynControl) 예제
 - `/uicontrols/RadioButton/example/getset.html` — `getValue`/`setValue`/`clear`/`selectedValue` 등 값 다루기 예제
 - `/uicontrols/RadioButton/example/events.html` — `change` 이벤트 처리와 그룹 조회 메서드(`getGroupNames`, `getSelectedByValue` 등) 예제
+- `/uicontrols/RadioButton/example/visibilitytoggle.html` — 실무에서 가장 흔한 라디오 활용법: 선택값(값 조회가 아니라)에 따라 화면의 다른 입력 영역을 표시/숨김 전환
 
 각 예제는 `/js/syn.loader.js` 한 줄만으로 필요한 리소스를 자동 로드하므로, HTML 파일과 짝을 이루는 `.js` 파일을 함께 열어 보면
 실제 페이지 스크립트를 어떻게 작성하는지 확인할 수 있습니다.

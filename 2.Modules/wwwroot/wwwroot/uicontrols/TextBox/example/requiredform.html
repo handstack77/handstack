@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>TextBox - 저장 전 필수값 일괄 검증(실무 패턴)</title>
+</head>
+<body>
+	<form autocomplete="off" id="form1" syn-datafield="MainForm">
+		<h3>거래처 등록 - 저장 전 필수값 일괄 검증</h3>
+		<p>
+			실무 코드는 필드 하나하나에 <code>validators: ['require']</code>를 선언해 두더라도, 저장 버튼
+			핸들러에서 <code>checkRequireVal()</code> 같은 메서드로 값이 비어 있는지 다시 한 번 확인하고
+			<code>cntReturn</code> 카운터로 누적한 뒤, 0보다 크면 저장을 막는 방식을 흔히 씁니다.
+		</p>
+
+		<div>
+			<label for="txtCompanyName">거래처명</label><br>
+			<input id="txtCompanyName" type="text" maxlength="200" syn-options="{validators: ['require']}">
+		</div>
+		<br>
+		<div>
+			<label for="txtBusinessNo">사업자등록번호</label><br>
+			<input id="txtBusinessNo" type="text" maxlength="50" syn-options="{editType: 'businessno', validators: ['require']}">
+		</div>
+		<br>
+		<div>
+			<label for="txtManagerEmail">담당자 이메일</label><br>
+			<input id="txtManagerEmail" type="text" maxlength="255" syn-options="{validators: ['email']}">
+		</div>
+		<br>
+		<div>
+			<label for="txtTotalAmount">거래 한도(금액)</label><br>
+			<input id="txtTotalAmount" type="text" class="text-right" maxlength="50" syn-options="{editType: 'numeric', formatNumber: true}" value="0">
+		</div>
+
+		<hr>
+		<input type="button" id="btnSave" value="저장" syn-events="['click']">
+	</form>
+
+	<script src="/js/syn.loader.js"></script>
+</body>
+</html>

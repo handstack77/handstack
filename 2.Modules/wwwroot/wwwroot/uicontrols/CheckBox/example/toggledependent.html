@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>CheckBox - 체크 시 연동 필드 자동 처리(실무 패턴)</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <h3>계약 여부 체크 시 계약일 자동 입력/초기화</h3>
+        <p>
+            실무 코드에서 아주 흔한 패턴입니다. 체크박스를 켜면 옆의 날짜 입력값이 비어 있을 때만 오늘 날짜를
+            채우고, 체크를 해제하면 날짜를 비웁니다. <code>getValue</code>가 반환하는 값은 <b>불리언이 아니라
+            checkedValue/uncheckedValue로 지정한 문자열('Y'/'N')</b>이므로, 다른 값과 비교하거나 논리 조건에 쓸 때는
+            <code>$string.toBoolean(...)</code>로 감싸는 경우가 많습니다.
+        </p>
+
+        <input id="chkContractYN" type="checkbox" syn-datafield="ContractYN" syn-events="['change']"
+            syn-options="{checkedValue: 'Y', uncheckedValue: 'N', textContent: '계약 여부'}">
+
+        <div>
+            <label>계약일</label>
+            <syn_datepicker id="dtpContractDate" syn-datafield="ContractDate"></syn_datepicker>
+        </div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

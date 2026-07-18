@@ -70,6 +70,7 @@ syn.uicontrols.$htmleditor.clear('edtComment');
 - `basic.html`: 기본(default) 옵션 그대로 에디터를 배치하고 `getValue`/`setValue`/`clear` 버튼으로 값을 다루는 가장 단순한 예제
 - `custom-toolbar.html`: `plugins`/`toolbar` 옵션을 직접 지정해 툴바를 목적에 맞게 구성하는 예제(실무 예시와 동일하게 표/미리보기/도움말 등을 추가)
 - `events.html`: `{elID}_documentReady`, `{elID}_imageResized` 같은 컨트롤 고유 이벤트와 `isDirty`/`getValue`/`setValue`/`clear`를 함께 보여주는 예제
+- `document.html`: 실무 전자결재/공지사항 본문의 흔한 패턴 - `validators:['require']` + 저장 시 `getValue() == ''` 재검증, 상신 후 `setMode(elID, 'readonly')`로 조회 전용 전환, 반려 시 다시 `'design'`으로 복귀
 
 각 예제는 `<script src="/js/syn.loader.js"></script>` 한 줄만으로 동작하도록 만들어졌습니다.
 

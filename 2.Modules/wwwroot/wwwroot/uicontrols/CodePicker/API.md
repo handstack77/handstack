@@ -86,7 +86,7 @@ CodePicker는 컨트롤 자체에 별도의 커스텀 이벤트 시스템을 두
 
 | 핸들러 이름 | 호출 시점 | 인자 |
 | --- | --- | --- |
-| `<elID>_change(value, text, result)` | `_Code`/`_Text` 입력창에서 값이 바뀌었을 때(Enter가 아닌 일반 변경), 또는 검색 팝업에서 선택을 완료했을 때 | `value`: 코드값, `text`: 코드명, `result`: 팝업에서 선택 완료 시 선택된 원본 데이터 배열(직접 입력으로 바뀐 경우는 `null`) |
+| `<elID>_change(elID, inputValue, inputText, result)` | `_Code`/`_Text` 입력창에서 값이 바뀌었을 때(Enter가 아닌 일반 변경), 또는 검색 팝업에서 선택을 완료했을 때 | `elID`: 컨트롤 id, `inputValue`: 코드값, `inputText`: 코드명, `result`: 팝업에서 선택 완료 시 선택된 원본 데이터 배열(직접 입력으로 바뀐 경우는 `null`) |
 | `<elID>_buttonClick(elID, synOptions)` | 돋보기 버튼을 클릭해서 팝업이 열리기 직전 | `elID`: 컨트롤 id, `synOptions`: 팝업에 전달될 설정값(현재 `_Code`/`_Text` 값 포함) |
 
 또한 `mod.hook.frameEvent(eventName, jsonObject)` 훅이 정의되어 있으면 다음 시점에 호출됩니다.
@@ -104,8 +104,8 @@ CodePicker는 컨트롤 자체에 별도의 커스텀 이벤트 시스템을 두
 
 ```js
 event: {
-    chpCompanyID_change(value, text, result) {
-        syn.$l.eventLog('chpCompanyID_change', JSON.stringify({ value, text, result }));
+    chpCompanyID_change(elID, inputValue, inputText, result) {
+        syn.$l.eventLog('chpCompanyID_change', JSON.stringify({ elID, inputValue, inputText, result }));
     },
 
     chpCompanyID_buttonClick(elID, synOptions) {
@@ -124,7 +124,7 @@ event: {
    - `isMultiSelect: false`이면 `result[0]`의 `value`/`text`만 사용합니다.
    - `isMultiSelect: true`이면 모든 항목의 `value`/`text`를 콤마(`,`)로 이어붙입니다.
 6. `viewType`이 `'form'`이면 `_Code`/`_Text` 입력창에 값을 바로 채워 넣습니다(`'grid'`/`'auigrid'`이면 해당 그리드 셀에 반영).
-7. `mod.event[<elID>_change]`가 있으면 `(value, text, result)`와 함께 호출되고, `mod.hook.frameEvent`가 있으면 `'codeReturn'` 이벤트로도 알림을 받습니다.
+7. `mod.event[<elID>_change]`가 있으면 `(elID, inputValue, inputText, result)`와 함께 호출되고, `mod.hook.frameEvent`가 있으면 `'codeReturn'` 이벤트로도 알림을 받습니다.
 8. 마지막으로 `find()`의 3번째 인자로 넘긴 `callback(result)`이 호출됩니다.
 
 팝업 화면(`index2.html`) 자체는 서버에 등록된 `dataSourceID`가 실제 데이터를 반환해야 정상적으로 목록이 표시됩니다. 개발 환경에서 데이터소스가 구성되어 있지 않다면, 팝업 대신 `setValue`/`setText`로 값을 직접 넣어 화면 흐름만 확인할 수 있습니다.

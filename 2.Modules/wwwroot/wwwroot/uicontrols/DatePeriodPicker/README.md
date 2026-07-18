@@ -66,6 +66,7 @@ syn.uicontrols.$dateperiodpicker.clear('dtpSearchPeriod');
 - `example/basic.html` : 가장 단순한 기간 선택 예제(팝업의 빠른 선택 버튼 포함)
 - `example/shorthand.html` : `value` 축약 표기(`'day:-7'`, `'month:3'` 등)로 초기값을 지정하는 예제
 - `example/events.html` : `onselect`/`onreset`/`onconfirm` 이벤트, `getValue`/`setValue`/`clear` 버튼 데모
+- `example/search.html` : 목록 화면 조회 기간 실무 패턴 - 기본 기간(`month:-3`)으로 `pageLoad` 시 즉시 조회, `_StartedAt`/`_EndedAt` 문자열 비교로 시작일 > 종료일 검증
 
 각 HTML은 같은 이름의 `.js` 파일과 짝을 이루며, 화면 하단 로그 영역에 `syn.$l.eventLog`로 동작 로그가 출력됩니다.
 

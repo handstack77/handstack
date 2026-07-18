@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>DropDownList - 연동(Cascading) 드롭다운 실무 패턴</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div>
+            <p>
+                실무에서 가장 흔한 패턴입니다: 회사를 바꾸면 <code>_change</code> 핸들러에서 부서 드롭다운을
+                <code>dataRefresh</code>로 다시 조회합니다. 이때 <code>parameters</code>에 선택된 회사 코드를 실어
+                보내 그 회사 소속 부서만 내려받고, 콜백에서 이전에 선택돼 있던 부서 값을 <code>setSelectedValue</code>로
+                다시 선택해 줍니다(그렇지 않으면 목록이 바뀔 때마다 매번 첫 항목으로 리셋됩니다).
+            </p>
+            <div>
+                <label>회사</label>
+                <select id="ddlCompanyNo" syn-events="['change']" syn-options="{
+                    dataSourceID: 'BDLCHP004', local: false, toSynControl: false, required: true
+                }" style="width: 220px;"></select>
+            </div>
+            <div>
+                <label>부서</label>
+                <select id="ddlDepartmentNo" syn-datafield="DepartmentNo" syn-events="['change']" syn-options="{
+                    dataSourceID: 'BDLCHP007', parameters: '@CompanyNo:;', local: false, toSynControl: false,
+                    required: true, validators: ['require'], controlText: '부서'
+                }" style="width: 220px;"></select>
+            </div>
+        </div>
+        <hr />
+        <input type="button" id="btnSave" value="저장(필수값 검증)" syn-events="['click']">
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

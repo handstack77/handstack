@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>DatePicker - 휴가 신청 기간(실무형 시작일/종료일 연동)</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <h3>휴가 신청 - 시작일/종료일 연동과 휴가 일수 자동 계산</h3>
+        <p>
+            <code>useRangeSelect</code>로 두 컨트롤을 서로의 <code>rangeStartControlID</code>/<code>rangeEndControlID</code>로
+            지정하면, 시작일을 고른 뒤에는 종료일에서 그 이전 날짜를 고를 수 없습니다. 실무 코드에서는 두 컨트롤 모두
+            <code>syn-events="['change']"</code>를 걸어 두고, 값이 바뀔 때마다 <code>$date.diff</code>로 휴가 일수를
+            다시 계산합니다.
+        </p>
+
+        <div>
+            <label class="required">휴가 시작일</label>
+            <syn_datepicker id="dtpStartDate" syn-datafield="StartDate" syn-options="{
+                value: 'now', useRangeSelect: true, rangeEndControlID: 'dtpEndDate',
+                validators: ['require'], controlText: '휴가 시작일'
+            }" syn-events="['change']"></syn_datepicker>
+        </div>
+        <div>
+            <label class="required">휴가 종료일</label>
+            <syn_datepicker id="dtpEndDate" syn-datafield="EndDate" syn-options="{
+                value: 'now', useRangeSelect: true, rangeStartControlID: 'dtpStartDate',
+                validators: ['require'], controlText: '휴가 종료일'
+            }" syn-events="['change']"></syn_datepicker>
+        </div>
+        <div>
+            <label>휴가 일수</label>
+            <input type="text" id="txtLeaveDays" readonly value="1">
+        </div>
+
+        <hr>
+        <input type="button" id="btnSave" value="저장(필수값 검증)" syn-events="['click']">
+    </form>
+
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

@@ -79,6 +79,7 @@ let $mypage = {
 - options.html / options.js — `checkedValue` / `uncheckedValue`로 커스텀 값(`Y`/`N`, `ACTIVE`/`INACTIVE`
   등)을 지정하는 방법, `disabled`로 비활성화하는 방법, 같은 `name`으로 여러 체크박스를 묶어 배치하고
   `getGroupNames()`로 그룹명을 조회하는 방법을 보여줍니다.
+- toggledependent.html / toggledependent.js — 실무 패턴: 체크 여부에 따라 옆의 DatePicker에 오늘 날짜를 자동으로 채우거나 비우고, `getValue`가 반환하는 값이 boolean이 아니라 `checkedValue`/`uncheckedValue` 문자열임을 보여줌
 - events.html / events.js — `syn-events="['change']"`로 변경 이벤트를 감지하고, 버튼을 눌러
   `getValue` / `setValue` / `toggleValue` / `clear` 메서드를 직접 호출해보는 예제입니다.
 

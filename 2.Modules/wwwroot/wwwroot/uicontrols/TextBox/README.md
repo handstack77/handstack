@@ -53,6 +53,7 @@ syn.uicontrols.$textbox.clear('txtAmount');
 - `numberformat.html` - 숫자(`number`/`numeric`), 스피너(`spinner`) 서식 예제
 - `textvalidation.html` - 전화번호/이메일/등록번호/날짜/시간 등 형식 검증 예제
 - `events.html` - datalist 자동완성, getValue/setValue/clear 및 이벤트 로그 예제
+- `requiredform.html` - 실무 저장 전 필수값 일괄 검증 패턴: 필드별 `getValue() == ''` 확인을 `cntReturn` 카운터로 누적하고, 0보다 크면 저장을 막음(거래처명/사업자번호/이메일/금액 필드 조합)
 
 각 예제는 `<script src="/js/syn.loader.js"></script>` 한 줄만으로 동작하며, 버튼을 눌러 콘솔/로그 영역에서 결과를 확인할 수 있습니다.
 

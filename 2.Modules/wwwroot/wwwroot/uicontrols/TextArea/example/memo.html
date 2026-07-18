@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>TextArea - 실무 메모 필드 관례</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div>
+            <div>상품 상태 메모</div>
+            <p>
+                실무의 메모/설명 필드는 대부분 CodeMirror 편집기 모드가 아니라 순수 textarea
+                (<code>toSynControl: false</code>)를 사용하고, <code>maxlength</code>는 짧은 메모는 100~1000자,
+                일반 코멘트는 2000~4000자 범위로 둡니다.
+            </p>
+            <textarea id="txtComment" syn-datafield="Comment"
+                syn-options="{belongID: ['MD01'], toSynControl: false}"
+                placeholder="드레스 상품의 상태 또는 이유를 입력합니다."
+                maxlength="4000" style="width: 500px; height: 120px;"></textarea>
+        </div>
+        <hr />
+        <input type="button" id="btnClear" value="새 항목 작성(내용 비우기)" syn-events="['click']">
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

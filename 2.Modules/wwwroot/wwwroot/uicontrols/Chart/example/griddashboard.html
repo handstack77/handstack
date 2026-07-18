@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div>
+            <div>실무 패턴 - 그리드 데이터를 차트로 변환(근무시간 현황)</div>
+            <p>
+                실무 대시보드에서 가장 흔한 흐름입니다: 조회 결과가 담긴 그리드에서 <code>getDataAtCol</code>로 필요한
+                열을 뽑아 <code>{필드명: 값}</code> 행 배열로 재구성한 뒤 <code>$chartjs.setValue</code>에 넘깁니다.
+                근무시간(소정/연장)처럼 항목을 누적해서 보여줘야 할 때는 <code>options.scales.x/y.stacked: true</code>로
+                누적 막대 차트를 구성합니다.
+            </p>
+
+            <syn_auigrid id="grdWorkingTime" syn-options="{
+                height: 160,
+                columns: [
+                    ['WorkingDate', '근무일', 100, false, 'text', true, 'center'],
+                    ['WorkingTime', '소정근무시간', 100, false, 'numeric', true, 'right'],
+                    ['ExtendedWorkingTime', '연장근무시간', 100, false, 'numeric', true, 'right']
+                ]
+            }" style="width: 400px;"></syn_auigrid>
+
+            <syn_chartjs id="chtWorkingTime" style="width:100%; height:260px" syn-options="{
+                type: 'bar',
+                labelID: 'WorkingDate',
+                series: [
+                    { columnID: 'WorkingTime', label: '소정근무시간' },
+                    { columnID: 'ExtendedWorkingTime', label: '연장근무시간' }
+                ],
+                options: { scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true } } }
+            }"></syn_chartjs>
+        </div>
+        <hr />
+        <input type="button" id="btnLoadRows" value="조회(샘플 데이터 채우기)" syn-events="['click']">
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

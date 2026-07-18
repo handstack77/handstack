@@ -97,9 +97,10 @@ let $samplePage = {
 
 `example/` 폴더의 각 HTML 파일을 handstack의 wwwroot 정적 서버(예: rdy 프로젝트) 경로 아래에 두고 브라우저로 열면 바로 동작을 확인할 수 있습니다.
 
-- `chart-basic.html` : `$chart`(Highcharts) 엔진의 기본 컬럼 차트 + `getValue`/`setValue`/`clear`/`toImage` 동작 확인 (일부는 알려진 버그로 예외가 발생하는 것까지 확인할 수 있습니다)
-- `chartjs-basic.html` : `$chartjs`(Chart.js) 엔진의 기본 막대 차트 + `setValue`/`clear` 동작 확인. 기존 샘플 `sample/uicontrol/chartjs.html`을 기반으로 단순화했습니다.
-- `chartjs-events.html` : `$chartjs`에서 다중 시리즈(`fill` 옵션 포함) 구성과 `getChartControl`로 Chart.js 인스턴스에 직접 접근해 옵션을 바꾸는 예제
+- `chartbasic.html` : `$chart`(Highcharts) 엔진의 기본 컬럼 차트 + `getValue`/`setValue`/`clear`/`toImage` 동작 확인 (일부는 알려진 버그로 예외가 발생하는 것까지 확인할 수 있습니다). 참고: 실무(qcn.groupware) 코드에서는 `$chart`(Highcharts) 태그가 실제로 연결되어 쓰이는 사례를 찾지 못했습니다 — 실무는 거의 전부 `$chartjs`를 사용합니다.
+- `chartjsbasic.html` : `$chartjs`(Chart.js) 엔진의 기본 막대 차트 + `setValue`/`clear` 동작 확인. 기존 샘플 `sample/uicontrol/chartjs.html`을 기반으로 단순화했습니다.
+- `chartjsevents.html` : `$chartjs`에서 다중 시리즈(`fill` 옵션 포함) 구성과 `getChartControl`로 Chart.js 인스턴스에 직접 접근해 옵션을 바꾸는 예제
+- `griddashboard.html` : 실무 대시보드 패턴 - AUIGrid의 `getDataAtCol`로 열을 뽑아 행 배열로 재조립한 뒤 `$chartjs.setValue`에 넘기고, `scales.x/y.stacked: true`로 누적 막대 차트(근무시간 소정/연장) 구성
 
 각 예제는 화면 하단 로그 영역(`syn.$l.eventLog` 출력)에서 이벤트 발생 순서와 전달값을 확인할 수 있습니다.
 

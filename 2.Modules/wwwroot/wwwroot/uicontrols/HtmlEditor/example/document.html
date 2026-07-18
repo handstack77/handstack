@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>HtmlEditor - 전자결재 본문(작성/조회 모드 전환 + 필수 입력)</title>
+</head>
+<body>
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div>
+            <div>
+                실무의 전자결재/공지사항 본문에서 가장 흔한 패턴입니다. 작성 중에는 편집 가능한 상태(<code>design</code>)로
+                두고, 상신(제출) 또는 결재가 끝난 문서를 다시 열람할 때는 <code>setMode(elID, 'readonly')</code>로 전환해
+                더 이상 수정할 수 없게 만듭니다. 저장 전에는 <code>validators: ['require']</code>와 별개로, 저장 버튼
+                핸들러에서도 <code>getValue()</code>가 빈 값인지 직접 한 번 더 확인합니다(실무 코드의 공통 관행).
+            </div>
+            <syn_htmleditor id="edtContents" syn-datafield="Contents" style="width:100%; height:300px" syn-options="{
+                repositoryID: 'BDLLE01', validators: ['require'], controlText: '본문내용', belongID: ['MD01'],
+                plugins: ['autolink link image lists print hr anchor pagebreak searchreplace visualblocks visualchars code insertdatetime media nonbreaking table help'],
+                toolbar: 'styleselect | bold italic forecolor backcolor table | alignleft aligncenter alignright | image | code help',
+                resize: false
+            }">
+                <p>결재 상신할 본문 내용을 입력하세요.</p>
+            </syn_htmleditor>
+        </div>
+        <hr />
+        <div>
+            <input type="button" id="btnSubmit" value="상신(필수값 검증 후 조회 모드로 전환)" syn-events="['click']" />
+            <input type="button" id="btnReopen" value="반려 -> 다시 편집" syn-events="['click']" />
+        </div>
+    </form>
+
+    <script src="/lib/tinymce/tinymce.min.js"></script>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

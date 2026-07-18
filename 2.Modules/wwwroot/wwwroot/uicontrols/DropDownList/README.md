@@ -55,6 +55,7 @@ syn.uicontrols.$select.setValue('ddlGender', '1');
 - `basic.html`: 정적인 옵션 목록을 마크업에 그대로 담아 사용하는 가장 단순한 예제
 - `localdatasource.html`: 로컬 캐시 JSON(`code/{storeSourceID}.json`)을 데이터소스로 사용하는 예제
 - `remotedatasource.html`: 원격 데이터소스(`local: false`)를 사용해 서버에서 코드값을 조회하는 예제
+- `cascading.html`: 실무에서 가장 흔한 연동 드롭다운 패턴 - 회사를 바꾸면 부서 목록을 `dataRefresh`로 다시 조회(`parameters`에 회사 코드 전달)하고, 콜백에서 이전 선택값을 `setSelectedValue`로 재적용
 - `events.html`: `change` 이벤트, `getSelectedValue`/`setSelectedValue` 등 값 조작 API를 함께 보여주는 예제
 
 각 예제는 `<script src="/js/syn.loader.js"></script>` 한 줄만으로 동작하도록 만들어졌습니다.

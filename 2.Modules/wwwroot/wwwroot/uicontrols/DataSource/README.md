@@ -71,6 +71,8 @@ syn.uicontrols.$data.clear('srcForm');
 - `form.html` - `storeType: 'Form'`, 입력 컨트롤과 1:1 필드 바인딩, getValue/clear 예제
 - `grid.html` - `storeType: 'Grid'`, 배열 데이터 바인딩과 행 추가/삭제에 따른 `Flag`(R/C/U/D) 변화 예제
 - `getset.html` - `getValue(elID, isAll)`의 기본/전체 조회 차이, `setValue` 미지원, `clear` 동작 데모
+- `exception.html` - 실무에서 가장 흔한 패턴: 저장 트랜잭션 실패 시 오류 내용을 담아두는 `Exception` 저장소와, 확인 후 `clear`로 비우는 흐름
+- `worklist.html` - 그리드 컨트롤 없이 `storeType: 'Grid'` 배열만 `push`/`splice`로 직접 다루는 업무 목록(전자결재 결재선 등) 패턴
 
 각 예제는 `<script src="/js/syn.loader.js"></script>` 한 줄만으로 동작하며, 버튼을 눌러 콘솔/로그 영역에서 결과를 확인할 수 있습니다.
 

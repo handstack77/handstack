@@ -60,6 +60,7 @@ syn.uicontrols.$tree.setValue('tvlTreeView', [
 - `checkbox.html` : `checkbox: true`로 다중 선택하고 선택된 노드 목록을 가져오는 예제
 - `contextmenu.html` : [ContextMenu](../ContextMenu/README.md)와 결합해서 노드 우클릭 메뉴를 띄우는 예제
 - `filter.html` : `filter` 확장으로 입력한 텍스트에 맞는 노드만 찾아 보여주는 예제
+- `departmentpicker.html` : 실무에서 가장 흔한 배치 형태 - 부서 선택 팝업. 서버 원본 필드명(`ProgramID`/`ProgramName`/`ParentID`/`FolderYN`)을 `reduceMap`으로 매핑하고, `expendLevel`(라이브러리 자체 표기)로 초기 펼침, 더블클릭 시 값 반영 후 팝업 닫기
 
 각 예제는 화면 하단 로그 영역(`syn.$l.eventLog` 출력)에서 이벤트 발생 순서와 전달값을 확인할 수 있습니다.
 

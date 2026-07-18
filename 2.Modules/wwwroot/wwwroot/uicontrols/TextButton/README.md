@@ -49,6 +49,7 @@ let $btnSave = {
 
 - `basic.html` — 버튼 클릭 이벤트를 로그로 확인하고, `getValue` / `setValue` / `clear` 메서드로 버튼 라벨을 조작하는 가장 기본적인 예제
 - `styled.html` — `syn-options`의 `toSynControl`, `color` 옵션으로 버튼에 `btn`, `btn-{color}` 클래스가 자동으로 붙는 것을 확인하는 예제
+- `toolbar.html` — 실무 화면 툴바 관례: Tabler 클래스/아이콘을 마크업에 직접 지정(신규/저장/삭제)하고, 삭제 버튼은 `syn.$w.alert`로 Yes/No 확인을 거친 뒤에만 실행. 그리드 행 추가/삭제 아이콘 버튼 배치(`btn-group`)도 함께 확인
 
 각 `.html` 파일을 웹 서버(rdy 등)를 통해 열면 됩니다. 파일을 더블클릭해서 `file://`로 여는 방식은 `/js/syn.loader.js` 등 절대 경로 리소스를 불러오지 못하므로 반드시 웹 서버 경유로 접속하세요.
 
