@@ -83,7 +83,33 @@
         },
 
         setValue(elID, value, meta) {
-            // 지원 안함
+            var metaStore = $data.getMetaStore(elID);
+            if (metaStore && value != null) {
+                var targetStore = $this.store[metaStore.dataSourceID];
+                if (metaStore.storeType == 'Form') {
+                    for (var key in value) {
+                        if (value.hasOwnProperty(key) == false) {
+                            continue;
+                        }
+
+                        var bindingControlInfos = (metaStore.columns || []).filter(function (item) {
+                            return item.data == key;
+                        });
+
+                        if (bindingControlInfos.length == 1) {
+                            targetStore[key] = value[key];
+                        }
+                    }
+                }
+                else {
+                    var length = value.length || 0;
+                    for (var i = 0; i < length; i++) {
+                        value[i].Flag = 'R';
+                    }
+
+                    $this.store[metaStore.dataSourceID] = value;
+                }
+            }
         },
 
         clear(elID, isControlLoad) {
