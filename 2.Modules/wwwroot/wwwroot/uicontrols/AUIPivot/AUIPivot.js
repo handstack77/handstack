@@ -126,7 +126,7 @@
 
     $auipivot.extend({
         name: 'syn.uicontrols.$auipivot',
-        version: 'v2025.12.07',
+        version: 'v2026.7.22',
 
         gridControls: [],
         pivotOptions: {
@@ -474,6 +474,10 @@
                 } catch (error) {
                     syn.$l.eventLog('AUIGrid_gridHookEvents', error.toString(), 'Debug');
                 }
+            }
+
+            if (setting.bindingID && syn.uicontrols.$data) {
+                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 
@@ -1144,6 +1148,10 @@
 
         getValue(elID, requestType, metaColumns) {
             var result = [];
+            var data = $auipivot.getSourceData(elID);
+            if (Array.isArray(data)) {
+                result = data;
+            }
             return result;
         },
 
@@ -1151,7 +1159,7 @@
             var gridID = $auipivot.getPivotID(elID);
             if (gridID) {
                 $auipivot.clearPivotFieldsAll(elID);
-                $auipivot.setGridData(gridID, value);
+                $auipivot.setGridData(elID, value);
             }
         },
 

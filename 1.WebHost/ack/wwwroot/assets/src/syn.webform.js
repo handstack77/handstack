@@ -3802,7 +3802,7 @@
                 transactionRequest.payLoad.property = property;
             }
 
-            if (config.transactions) {
+            if ($string.isNullOrEmpty(transactionObject.dataMapInterface) == true && config.transactions) {
                 const transactions = config.transactions.filter(function (item) {
                     return item.functionID == transactionObject.functionID;
                 });
@@ -3991,6 +3991,27 @@
                                                                 if (context.$object.isNullOrUndefined(value) == true) {
                                                                     value = {};
                                                                 }
+                                                            }
+                                                            else {
+                                                                if (context.$object.isNullOrUndefined(value) == true) {
+                                                                    value = [];
+                                                                }
+                                                            }
+                                                        }
+
+                                                        jsonResult.push({
+                                                            id: item.id,
+                                                            value: value
+                                                        });
+                                                    }
+                                                    else {
+                                                        let value = transactionResponse.transaction.compressionYN == 'Y' ? syn.$c.LZString.decompressFromBase64(item.value) : item.value;
+                                                        const meta = context.$string.toParameterObject(dataSetMeta);
+                                                        value = context.$string.toJson(value, { delimeter: '｜', newline: '↵', meta: meta });
+                                                        if (item.id.startsWith('Form') == true) {
+                                                            value = dataSetMeta;
+                                                            if (context.$object.isNullOrUndefined(value) == true) {
+                                                                value = {};
                                                             }
                                                             else {
                                                                 if (context.$object.isNullOrUndefined(value) == true) {

@@ -6,7 +6,7 @@
 
     $chart.extend({
         name: 'syn.uicontrols.$chart',
-        version: 'v2025.3.1',
+        version: 'v2026.7.22',
         chartControls: [],
         randomSeed: Date.now(),
         defaultSetting: {
@@ -131,57 +131,13 @@
                 for (var i = seriesLength - 1; i > -1; i--) {
                     chart.series[i].remove();
                 }
-            }
 
-            var length = value.length;
-            for (var i = 0; i < length; i++) {
-                var item = value[i];
-                chart.addSeries(item);
-            }
-
-            var columnKeys = [];
-            for (var key in item) {
-                if (control.config.labelID != key) {
-                    columnKeys.push(key);
+                var length = value.length;
+                for (var i = 0; i < length; i++) {
+                    var item = value[i];
+                    chart.addSeries(item);
                 }
             }
-
-            // var labels = value.map(function (item) { return item[control.config.labelID] });
-            // control.config.data.labels = labels;
-            // 
-            // var length = columnKeys.length;
-            // for (var i = 0; i < length; i++) {
-            //     var columnID = columnKeys[i];
-            // 
-            //     if (control.config.series && control.config.series.length > 0) {
-            //         var series = control.config.series.find(function (item) { return item.columnID == columnID });
-            //         if (series) {
-            //             var labelName = series.label ? series.label : series.columnID;
-            //             var data = value.map(function (item) { return item[columnID] });
-            // 
-            //             var dataset = {
-            //                 label: labelName,
-            //                 data: data,
-            //                 fill: series.fill
-            //             };
-            // 
-            //             control.config.data.datasets.push(dataset);
-            //         }
-            //     }
-            //     else {
-            //         var labelName = columnID;
-            //         var data = value.map(function (item) { return item[columnID] });
-            // 
-            //         var dataset = {
-            //             label: labelName,
-            //             data: data,
-            //             fill: false
-            //         };
-            // 
-            //         control.config.data.datasets.push(dataset);
-            //     }
-            // }
-            // control.chart.update();|| chart.redraw();
         },
 
         randomScalingFactor: function (min, max) {

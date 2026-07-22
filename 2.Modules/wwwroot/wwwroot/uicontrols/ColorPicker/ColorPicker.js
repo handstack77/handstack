@@ -7,7 +7,7 @@
 
     $colorpicker.extend({
         name: 'syn.uicontrols.$colorpicker',
-        version: 'v2025.10.1',
+        version: 'v2026.7.22',
         colorControls: [],
         defaultSetting:
         {
@@ -150,10 +150,9 @@
 
         getValue(elID, meta) {
             var result = null;
-            var dateControl = $colorpicker.getControl(elID);
-
-            if (dateControl) {
-                result = dateControl.picker.field.value;
+            var el = syn.$l.get(elID);
+            if (el) {
+                result = el.value;
             }
 
             return result;
@@ -161,8 +160,9 @@
 
         setValue(elID, value, meta) {
             var dateControl = $colorpicker.getControl(elID);
-            if (dateControl) {
-                dateControl.picker.field.value = value;
+            if (dateControl && $object.isNullOrUndefined(value) == false) {
+                dateControl.picker.set(value);
+                dateControl.picker.fire('change', [String(value).replace('#', '')]);
             }
         },
 

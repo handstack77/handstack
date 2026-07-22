@@ -6,7 +6,7 @@
 
     $sourceeditor.extend({
         name: 'syn.uicontrols.$sourceeditor',
-        version: 'v2026.2.25',
+        version: 'v2026.7.22',
         editorPendings: [],
         editorControls: [],
         defaultSetting: {
@@ -123,6 +123,10 @@
                 editor: editor,
                 setting: $object.clone(setting)
             });
+
+            if (setting.bindingID && syn.uicontrols.$data) {
+                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+            }
         },
 
         window_onresize() {

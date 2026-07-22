@@ -166,7 +166,7 @@
 
     $auigrid.extend({
         name: 'syn.uicontrols.$auigrid',
-        version: 'v2025.03.11',
+        version: 'v2026.7.22',
 
         gridControls: [],
         gridCodeDatas: [],
@@ -489,6 +489,10 @@
                 } catch (error) {
                     syn.$l.eventLog('AUIGrid_gridHookEvents', error.toString(), 'Debug');
                 }
+            }
+
+            if (setting.bindingID && syn.uicontrols.$data) {
+                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 

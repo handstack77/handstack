@@ -43353,7 +43353,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
     $chart.extend({
         name: 'syn.uicontrols.$chart',
-        version: 'v2025.3.1',
+        version: 'v2026.7.22',
         chartControls: [],
         randomSeed: Date.now(),
         defaultSetting: {
@@ -43478,57 +43478,13 @@ if (typeof module !== 'undefined' && module.exports) {
                 for (var i = seriesLength - 1; i > -1; i--) {
                     chart.series[i].remove();
                 }
-            }
 
-            var length = value.length;
-            for (var i = 0; i < length; i++) {
-                var item = value[i];
-                chart.addSeries(item);
-            }
-
-            var columnKeys = [];
-            for (var key in item) {
-                if (control.config.labelID != key) {
-                    columnKeys.push(key);
+                var length = value.length;
+                for (var i = 0; i < length; i++) {
+                    var item = value[i];
+                    chart.addSeries(item);
                 }
             }
-
-            // var labels = value.map(function (item) { return item[control.config.labelID] });
-            // control.config.data.labels = labels;
-            // 
-            // var length = columnKeys.length;
-            // for (var i = 0; i < length; i++) {
-            //     var columnID = columnKeys[i];
-            // 
-            //     if (control.config.series && control.config.series.length > 0) {
-            //         var series = control.config.series.find(function (item) { return item.columnID == columnID });
-            //         if (series) {
-            //             var labelName = series.label ? series.label : series.columnID;
-            //             var data = value.map(function (item) { return item[columnID] });
-            // 
-            //             var dataset = {
-            //                 label: labelName,
-            //                 data: data,
-            //                 fill: series.fill
-            //             };
-            // 
-            //             control.config.data.datasets.push(dataset);
-            //         }
-            //     }
-            //     else {
-            //         var labelName = columnID;
-            //         var data = value.map(function (item) { return item[columnID] });
-            // 
-            //         var dataset = {
-            //             label: labelName,
-            //             data: data,
-            //             fill: false
-            //         };
-            // 
-            //         control.config.data.datasets.push(dataset);
-            //     }
-            // }
-            // control.chart.update();|| chart.redraw();
         },
 
         randomScalingFactor: function (min, max) {
@@ -44237,7 +44193,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
     $colorpicker.extend({
         name: 'syn.uicontrols.$colorpicker',
-        version: 'v2025.10.1',
+        version: 'v2026.7.22',
         colorControls: [],
         defaultSetting:
         {
@@ -44380,10 +44336,9 @@ if (typeof module !== 'undefined' && module.exports) {
 
         getValue(elID, meta) {
             var result = null;
-            var dateControl = $colorpicker.getControl(elID);
-
-            if (dateControl) {
-                result = dateControl.picker.field.value;
+            var el = syn.$l.get(elID);
+            if (el) {
+                result = el.value;
             }
 
             return result;
@@ -44391,8 +44346,9 @@ if (typeof module !== 'undefined' && module.exports) {
 
         setValue(elID, value, meta) {
             var dateControl = $colorpicker.getControl(elID);
-            if (dateControl) {
-                dateControl.picker.field.value = value;
+            if (dateControl && $object.isNullOrUndefined(value) == false) {
+                dateControl.picker.set(value);
+                dateControl.picker.fire('change', [String(value).replace('#', '')]);
             }
         },
 
@@ -46397,7 +46353,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
     $multiselect.extend({
         name: 'syn.uicontrols.$multiselect',
-        version: 'v2025.9.10',
+        version: 'v2026.7.22',
         selectControls: [],
         defaultSetting: {
             elID: '',
@@ -46668,7 +46624,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
                 var length = el.options.length;
                 for (var i = 0; i < length; i++) {
-                    el.options[i].selected == false;
+                    el.options[i].selected = false;
                 }
 
                 if ($object.isNullOrUndefined(value) == false) {
@@ -51311,7 +51267,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
     $sourceeditor.extend({
         name: 'syn.uicontrols.$sourceeditor',
-        version: 'v2026.2.25',
+        version: 'v2026.7.22',
         editorPendings: [],
         editorControls: [],
         defaultSetting: {
@@ -51428,6 +51384,10 @@ if (typeof module !== 'undefined' && module.exports) {
                 editor: editor,
                 setting: $object.clone(setting)
             });
+
+            if (setting.bindingID && syn.uicontrols.$data) {
+                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+            }
         },
 
         window_onresize() {
@@ -54528,7 +54488,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
     $auigrid.extend({
         name: 'syn.uicontrols.$auigrid',
-        version: 'v2025.03.11',
+        version: 'v2026.7.22',
 
         gridControls: [],
         gridCodeDatas: [],
@@ -54851,6 +54811,10 @@ if (typeof module !== 'undefined' && module.exports) {
                 } catch (error) {
                     syn.$l.eventLog('AUIGrid_gridHookEvents', error.toString(), 'Debug');
                 }
+            }
+
+            if (setting.bindingID && syn.uicontrols.$data) {
+                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 

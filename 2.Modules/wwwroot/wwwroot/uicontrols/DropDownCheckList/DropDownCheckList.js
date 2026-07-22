@@ -7,7 +7,7 @@
 
     $multiselect.extend({
         name: 'syn.uicontrols.$multiselect',
-        version: 'v2025.9.10',
+        version: 'v2026.7.22',
         selectControls: [],
         defaultSetting: {
             elID: '',
@@ -278,7 +278,7 @@
 
                 var length = el.options.length;
                 for (var i = 0; i < length; i++) {
-                    el.options[i].selected == false;
+                    el.options[i].selected = false;
                 }
 
                 if ($object.isNullOrUndefined(value) == false) {
