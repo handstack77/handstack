@@ -6153,35 +6153,6 @@ if (typeof module !== 'undefined' && module.exports) {
                 return el.textContent || '';
             }
 
-            function applyControlValue(controlID, value) {
-                const el = syn.$l.get(controlID);
-                if (!el) {
-                    return;
-                }
-
-                const synControls = $this.context ? $this.context.synControls : null;
-                const controlInfo = synControls ? synControls.find(function (item) { return item.id == controlID; }) : null;
-                if (controlInfo && controlInfo.module) {
-                    const controlModule = syn.$w.getControlModule(controlInfo.module);
-                    if (controlModule && controlModule.setValue) {
-                        controlModule.setValue(controlID, context.$object.isNullOrUndefined(value) == true ? '' : value);
-                        return;
-                    }
-                }
-
-                if (el.type == 'checkbox' || el.type == 'radio') {
-                    el.checked = context.$string.isNullOrEmpty(value) == false && value != '0' && value != false;
-                    return;
-                }
-
-                if ('value' in el) {
-                    el.value = context.$object.isNullOrUndefined(value) == true ? '' : value;
-                    return;
-                }
-
-                el.textContent = context.$object.isNullOrUndefined(value) == true ? '' : value;
-            }
-
             function resolveGridControl(rowGroupID) {
                 const el = document.querySelector(`[syn-datafield="${rowGroupID}"]`);
                 if (!el) {
@@ -6237,7 +6208,6 @@ if (typeof module !== 'undefined' && module.exports) {
                 const inputsItemCount = [];
                 const outputPlan = [];
 
-                // 요청 데이터 컬렉션: dataMapInterface 앞부분(Row/List)을 구성한다. 응답 처리와 무관하게 독립적으로 순회한다.
                 (colGroup.requestRowGroupSet || []).forEach(function (rowGroupID) {
                     const rowGroup = rowGroups.find(function (item) { return item.groupID == rowGroupID; });
                     if (!rowGroup) {
@@ -6342,7 +6312,42 @@ if (typeof module !== 'undefined' && module.exports) {
                                     Object.keys(outputItem.items).forEach(function (controlID) {
                                         const fieldID = outputItem.items[controlID].fieldID;
                                         const value = formData[fieldID];
-                                        applyControlValue(controlID, context.$object.isNullOrUndefined(value) == true ? '' : value);
+                                        const el = syn.$l.get(controlID);
+                                        if (!el) {
+                                            if (syn.uicontrols.$data && syn.uicontrols.$data.storeList.length > 0) {
+                                                const store = syn.uicontrols.$data.storeList.find(p => p.dataSourceID == outputItem.dataFieldID);
+                                                if (store && context.$object.isNullOrUndefined($this.store[store.dataSourceID]) == true) {
+                                                    $this.store[store.dataSourceID] = {};
+                                                }
+
+                                                if (store && store.storeType == 'Form' && store.columns && store.columns.some(function (item) { return item.data == controlID; })) {
+                                                    syn.uicontrols.$data.setValue(store.id, { [controlID]: context.$object.isNullOrUndefined(value) == true ? '' : value });
+                                                }
+                                            }
+                                            return;
+                                        }
+
+                                        const synControls = $this.context ? $this.context.synControls : null;
+                                        const controlInfo = synControls ? synControls.find(function (item) { return item.id == controlID; }) : null;
+                                        if (controlInfo && controlInfo.module) {
+                                            const controlModule = syn.$w.getControlModule(controlInfo.module);
+                                            if (controlModule && controlModule.setValue) {
+                                                controlModule.setValue(controlID, context.$object.isNullOrUndefined(value) == true ? '' : value);
+                                                return;
+                                            }
+                                        }
+
+                                        if (el.type == 'checkbox' || el.type == 'radio') {
+                                            el.checked = context.$string.isNullOrEmpty(value) == false && value != '0' && value != false;
+                                            return;
+                                        }
+
+                                        if ('value' in el) {
+                                            el.value = context.$object.isNullOrUndefined(value) == true ? '' : value;
+                                            return;
+                                        }
+
+                                        el.textContent = context.$object.isNullOrUndefined(value) == true ? '' : value;
                                     });
                                 }
                                 else if (outputItem.responseType == 'Grid') {
@@ -8329,7 +8334,7 @@ if (typeof module !== 'undefined' && module.exports) {
                 transactionRequest.payLoad.property = property;
             }
 
-            if (config.transactions) {
+            if ($string.isNullOrEmpty(transactionObject.dataMapInterface) == true && config.transactions) {
                 const transactions = config.transactions.filter(function (item) {
                     return item.functionID == transactionObject.functionID;
                 });
@@ -8518,6 +8523,27 @@ if (typeof module !== 'undefined' && module.exports) {
                                                                 if (context.$object.isNullOrUndefined(value) == true) {
                                                                     value = {};
                                                                 }
+                                                            }
+                                                            else {
+                                                                if (context.$object.isNullOrUndefined(value) == true) {
+                                                                    value = [];
+                                                                }
+                                                            }
+                                                        }
+
+                                                        jsonResult.push({
+                                                            id: item.id,
+                                                            value: value
+                                                        });
+                                                    }
+                                                    else {
+                                                        let value = transactionResponse.transaction.compressionYN == 'Y' ? syn.$c.LZString.decompressFromBase64(item.value) : item.value;
+                                                        const meta = context.$string.toParameterObject(dataSetMeta);
+                                                        value = context.$string.toJson(value, { delimeter: '｜', newline: '↵', meta: meta });
+                                                        if (item.id.startsWith('Form') == true) {
+                                                            value = dataSetMeta;
+                                                            if (context.$object.isNullOrUndefined(value) == true) {
+                                                                value = {};
                                                             }
                                                             else {
                                                                 if (context.$object.isNullOrUndefined(value) == true) {
