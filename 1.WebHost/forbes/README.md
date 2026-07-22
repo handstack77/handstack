@@ -66,6 +66,8 @@ dotnet run --project .\forbes.csproj -- --debug --delay 20
 
 - `ContractsBasePath`: 계약 파일 기본 경로 (`$HANDSTACK_HOME/Contracts` 형식 지원)
 - `WWWRootBasePath`: 정적 파일 루트 경로 (`$HANDSTACK_HOME/wwwroot` 형식 지원)
+- `ContractViewPath`: 계약 뷰 정적 파일 제공 경로(선택). 비우면 `ContractsBasePath/wwwroot/HDS`를 기본값으로 사용하며, 존재할 경우 `/view` 요청 경로로 제공
+- `AllowedOrigins`: 정적 파일 CORS 허용 오리진 목록(선택). 비우면 모든 오리진 차단
 - `CodeMergeMethod`: `Manual` | `FileSync` | `GitHub`
 - `Kestrel:Endpoints:Http:Url`: 서비스 바인딩 주소
 
@@ -127,6 +129,18 @@ curl -X POST "http://localhost:8420/api/dispatch/repository" \
 curl -X POST "http://localhost:8420/api/dispatch/workflow" \
   -H "Content-Type: application/json" \
   -d "{\"workflowId\":\".github/workflows/manual.yml\",\"ref\":\"main\",\"inputs\":{\"name\":\"erp\"}}"
+```
+
+### 7.3 sync-secrets.json 조회/저장 (로컬 요청 전용)
+
+루프백(로컬) 요청에서만 허용되며, 그 외 요청은 `403`을 반환합니다.
+
+```bash
+curl "http://localhost:8420/api/configuration/sync-secrets"
+
+curl -X PUT "http://localhost:8420/api/configuration/sync-secrets" \
+  -H "Content-Type: application/json" \
+  -d "{\"config\":{\"userName\":\"...\",\"userEmail\":\"...\"}}"
 ```
 
 ## 8) 로그 위치

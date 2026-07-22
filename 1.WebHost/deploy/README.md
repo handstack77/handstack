@@ -51,6 +51,7 @@
 - `ManagementHeaderName`: 관리 API 키 헤더명, 기본 `X-Deploy-Key`
 - `ManagementKey`: 쓰기 API 보호용 키
 - `StorageRoot`: 패키지, 카탈로그, 오류 로그 저장 루트
+- `DefaultChannel`, `DefaultPlatform`: 예약 설정 항목, 현재 코드에서 참조되지 않음
 - `PublicRootPath`: 공개 정적 파일 루트, 상대 경로면 deploy 호스트 ContentRoot 기준
 - `PublicRequestPath`: 공개 패키지 경로 prefix, 기본 `release`
 - `Mandatory`: 강제 업데이트 여부

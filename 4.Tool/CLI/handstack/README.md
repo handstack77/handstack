@@ -6,7 +6,7 @@
 
 - .NET SDK 10.0+
 - `3.Infrastructure/Assemblies/<Configuration>/HandStack.Core.dll` 존재
-- 일부 명령(`start`, `configuration`, `purgecontracts`)은 `ack` 경로/환경 필요
+- 일부 명령(`start`, `startlog`, `configuration`, `purgecontracts`)은 `ack` 경로/환경 필요
 
 ## 빌드
 

@@ -1,7 +1,7 @@
-# HandStack AGENTS Guide
+# HandStack CLAUDE Guide
 
 ## 목적
-이 저장소의 에이전트는 HandStack을 .NET 10 기반 호스트에 모듈, 계약, 정적 자산과 운영 도구를 조립하는 플랫폼으로 다룬다. 이 문서는 신규 개발자 1~2주 온보딩, 운영 개발자의 실행·배포·운영 파악, 아키텍트 리뷰어의 호스트-모듈-계약 분석을 동시에 지원한다.
+이 저장소에서 Claude Code는 HandStack을 .NET 10 기반 호스트에 모듈, 계약, 정적 자산과 운영 도구를 조립하는 플랫폼으로 다룬다. 이 문서는 신규 개발자 1~2주 온보딩, 운영 개발자의 실행·배포·운영 파악, 아키텍트 리뷰어의 호스트-모듈-계약 분석을 동시에 지원한다.
 
 정확성의 우선순위는 실제 소스와 프로젝트 파일, `appsettings.json`/`module.json`, 빌드·배포 스크립트, README/SUMMARY 순서다. 문서와 구현이 다르면 추측하지 말고 실행 경로를 따라 확인한 뒤 문서도 함께 바로잡는다.
 
@@ -15,14 +15,17 @@
 `ops-dev`: 실행 명령, 설정 파일, 배포 경로, 로그 위치를 우선 다룬다.
 `architect`: `ack/rdy -> module.json -> ModuleInitializer -> transact -> 실행 모듈` 흐름과 확장 포인트를 우선 본다.
 완료 기준은 측정 가능해야 한다. 신규 개발자는 읽기 순서와 핵심 파일을 따라갈 수 있어야 하고, 운영 개발자는 실행·배포·로그 확인 절차를 재현할 수 있어야 하며, 아키텍트는 확장 인터페이스와 요청 흐름을 파일 단위로 설명할 수 있어야 한다.
+여러 단계로 나뉘는 작업은 `Goal/Constraints/Done`을 적은 뒤 TodoWrite로 단계를 항목화해 진행 상태를 추적한다. 접근 방식 자체를 사용자와 먼저 맞춰야 하는 규모라면(호스팅 모델 변경, 계약 형식 변경, 여러 호스트에 걸친 리팩터링 등) 구현에 들어가기 전 Plan 모드로 전환해 합의를 받는다.
 
-## Codex 작업 절차
-- 시작 전에 현재 디렉터리에 적용되는 `AGENTS.md`와 `git status --short`를 확인한다. 기존 변경과 생성 파일은 사용자의 작업으로 보고 덮어쓰거나 정리하지 않는다.
-- 탐색은 `rg --files`, `rg`를 우선 사용하고, 한 가지 설명만 믿지 말고 진입점·설정·프로젝트 파일·스크립트를 함께 대조한다.
-- 변경은 요청과 직접 관련된 최소 범위로 제한한다. 기존 `Startup`/MVC/모듈 패턴을 존중하며 별도 요청 없이 호스팅 모델이나 계약 형식을 대규모로 바꾸지 않는다.
+## Claude Code 작업 절차
+- 시작 전에 현재 디렉터리에 적용되는 `CLAUDE.md`/`AGENTS.md`와 `git status --short`(Bash 도구)를 확인한다. 기존 변경과 생성 파일은 사용자의 작업으로 보고 덮어쓰거나 정리하지 않는다.
+- 탐색은 Glob/Grep을 우선 사용한다. 단일 심볼·파일 조회처럼 대상이 분명한 경우 직접 사용하고, "어떤 흐름/설정이 이 동작을 결정하는가"처럼 여러 위치와 명명 규칙을 넘나드는 조사는 Explore 서브에이전트에 위임한다. 한 가지 설명만 믿지 말고 진입점·설정·프로젝트 파일·스크립트를 함께 대조한다.
+- 변경은 요청과 직접 관련된 최소 범위로 제한한다. Edit 도구로 필요한 diff만 적용하고, 기존 `Startup`/MVC/모듈 패턴을 존중하며 별도 요청 없이 호스팅 모델이나 계약 형식을 대규모로 바꾸지 않는다.
+- 요구사항이나 코드 상의 모순으로 진행이 막히면(예: 어떤 페르소나 기준을 따를지, 상충하는 기존 구현 중 무엇을 정본으로 볼지) 추측해서 진행하지 말고 AskUserQuestion으로 확인한다.
 - 빌드 전에 대상 프로젝트의 PostBuild가 `HANDSTACK_HOME`을 지우거나 덮어쓰는지 확인한다. 이 저장소의 호스트, 모듈, 여러 CLI 프로젝트는 빌드 결과를 `HANDSTACK_HOME/app`, `modules/*`, `tools/*`로 동기화한다.
-- 검증은 영향받은 가장 작은 프로젝트에서 시작하고, 호스트·계약·운영 스크립트 변경이면 관련 호스트 기동과 엔드포인트/CLI 스모크 테스트까지 확장한다.
-- 완료 보고에는 변경 파일, 실행한 검증과 결과, 실행하지 못한 검증과 이유, 연계 문서 반영 여부를 적는다.
+- 검증은 영향받은 가장 작은 프로젝트에서 시작하고, 호스트·계약·운영 스크립트 변경이면 관련 호스트 기동과 엔드포인트/CLI 스모크 테스트까지 확장한다. 빌드·실행 확인은 Bash 도구로 수행한다.
+- `publish.*` 실행이나 배포 디렉터리 삭제처럼 되돌리기 어렵거나 공유 산출물에 영향을 주는 작업은 실행 전에 대상 경로와 영향 범위를 알리고 확인을 받는다.
+- 완료 보고에는 변경 파일, 실행한 검증과 결과, 실행하지 못한 검증과 이유, 연계 문서 반영 여부를 적는다. 답변은 간결하게 유지하되 이 네 가지는 빠뜨리지 않는다.
 
 ## 빠른 개요
 - `1.WebHost/ack`: 기본 포트 8421의 메인 ASP.NET Core 호스트. 선택한 모듈 DLL을 런타임에 동적으로 로드한다.
@@ -56,6 +59,7 @@
 5. `2.Modules/transact/Areas/transact/Controllers/TransactionController.cs`, `WorkflowController.cs`, `Extensions/TransactClient.cs`
 6. 라우팅 대상 모듈의 `Areas/*/Controllers`와 `Contracts`
 7. `build.*`, `publish.*`, `4.Tool/CLI/handstack/Command/HandstackCommandRegistry.cs`
+읽기 순서를 따라갈 때 각 파일은 Read 도구로 직접 확인하고, 파일 간 참조 관계가 불명확하면 Grep으로 심볼을 추적한다.
 
 ## 실행 명령
 - 전제 도구: Node.js `20.12.2+`, `gulp-cli`, `curl`, .NET SDK `10.0+`. `install.ps1`는 필요하면 `Microsoft.Web.LibraryManager.Cli`를 전역 설치한다.
@@ -67,13 +71,14 @@
 - `rdy` 실행: `dotnet run --project 1.WebHost/rdy/rdy.csproj -- --port=8421`. 정적 포함 모듈과 `HANDSTACK_HOME/modules/*/module.json`을 함께 확인한다.
 - Windows x64 Release 배포: `./publish.ps1 win publish Release x64`. 기본 결과는 `../publish/win-x64/handstack`이다.
 - 배포 후 제어: `handstack start --ack=%HANDSTACK_HOME%/app/ack.exe --arguments="--port=8421"`, `handstack stop --port=8421`
+- 이 저장소의 셸은 Windows이므로 명령 실행에는 PowerShell 도구를 우선 사용하고, POSIX 전용 스크립트(`.sh`) 검증이 필요할 때만 Bash 도구를 사용한다.
 
 ## 빌드·배포 스크립트의 현재 범위
 - `build.ps1`은 10개 모듈(`forwarder` 제외), `ack/agent/deploy/forbes`, 9개 CLI를 빌드한다. `rdy`, `forwarder`, `excludedportrange`, `node-cli`는 별도 검증이 필요하다.
 - OS별 스크립트 목록은 현재 완전히 같지 않다. `build.sh`는 `forwarder`를 포함하지만 `publish-package`를 제외하고, `build.bat`은 둘 다 제외한다. 스크립트를 수정할 때 `.ps1/.bat/.sh`의 의도된 동등성을 함께 검토한다.
 - `publish.ps1`은 `ack`, 11개 모듈 전체, `bundling/dotnet-installer/edgeproxy/dbplatform/handsonapp/updater/handstack/ports/publish-package`를 패키징한다. `agent`, `deploy`, `forbes` 구문은 주석 상태이며 `rdy`, `excludedportrange`, `node-cli`도 포함하지 않는다.
 - `publish.bat`/`publish.sh`는 현재 `publish-package`를 포함하지 않는다. 배포 검증은 실제 대상 OS의 스크립트를 기준으로 하고, 다른 변형과 차이가 의도된 것인지 기록한다.
-- `publish.*`는 대상 publish 디렉터리를 먼저 지우고, 빌드 과정은 `HANDSTACK_HOME/contracts`와 모듈/도구 출력에도 영향을 줄 수 있다. 실행 전 절대 경로와 사용자 변경 유무를 확인한다.
+- `publish.*`는 대상 publish 디렉터리를 먼저 지우고, 빌드 과정은 `HANDSTACK_HOME/contracts`와 모듈/도구 출력에도 영향을 줄 수 있다. 실행 전 절대 경로와 사용자 변경 유무를 확인하고, 사용자에게 실행 사실을 알린다.
 
 ## 테스트 기대치
 - 전용 .NET 테스트 프로젝트는 현재 없다. 최소 기준은 관련 프로젝트 빌드 성공, 정적 검사, 수동 재현 또는 스모크 테스트 절차 기록이다.
@@ -84,6 +89,7 @@
 - `agent`는 기본 8422 포트의 상태/대상 API, `deploy`는 8520의 `/release/manifest.json`, `forbes`는 8420의 정적 파일/동기화 경로를 스모크 테스트한다.
 - CLI 변경은 `dotnet run --project <cli.csproj> -- <args>` 또는 빌드된 실행 파일로 해당 명령을 검증한다. `handstack stop`을 인자 없이 실행하면 여러 프로세스를 종료할 수 있으므로 테스트에서 사용하지 않는다.
 - 정적 자산이나 Gulp 작업 변경은 해당 `npm`/`gulp` 빌드를 실행하고 산출물을 확인한다. 배포/업데이트 변경은 실제 대상 OS의 `publish.*`와 필요 시 `publish-package`/`updater` 흐름까지 확인한다.
+- UI 컨트롤이나 화면 동작 변경은 가능하면 `run` 스킬로 대상 호스트를 기동해 브라우저에서 실제 동작을 확인한다. 브라우저 확인이 불가능하면 빌드/정적 검사만으로는 기능적 정확성을 보장하지 못한다는 점을 완료 보고에 명시한다.
 
 ## 핵심 위치
 - 호스트 설정: `1.WebHost/ack/appsettings.json`
@@ -111,7 +117,7 @@
 - CLI 명령은 `4.Tool/CLI/handstack/README.md`
 
 ## 연계 문서 자동 동기화
-- HandStack 소스코드와 실제 동작을 기준으로 문서를 유지한다. 모든 프롬프트 실행과 코딩 작업은 시작할 때 아래 연계 디렉터리의 영향 범위를 확인하고, 기능·인터페이스·설정·계약·명령·경로·화면 동작이 바뀌면 별도 요청을 기다리지 말고 영향받는 문서와 예제를 같은 작업에서 함께 수정한다.
+- HandStack 소스코드와 실제 동작을 기준으로 문서를 유지한다. 모든 프롬프트 실행과 코딩 작업은 시작할 때 아래 연계 디렉터리의 영향 범위를 확인하고, 기능·인터페이스·설정·계약·명령·경로·화면 동작이 바뀌면 별도 요청을 기다리지 말고 영향받는 문서와 예제를 같은 작업에서 함께 수정한다. 이 저장소에서는 이 지시가 "요청 시에만 문서를 만든다"는 기본 동작보다 우선한다.
 - `C:\projects\handstack77\handstack-docs\docs\`: 주요 기능, 아키텍처, 설치·실행, 설정, API, 운영 절차와 코드/명령 예제를 최신 소스에 맞춘다.
 - `C:\projects\handstack77\handstack-docs\static\sample\`: 계약 스키마, API, 설정, 디렉터리 구조가 바뀌면 실행 가능한 샘플과 샘플 자산을 함께 갱신한다.
 - `C:\projects\handstack77\handstack-docs\static\slides\`: 교육 흐름, 구조도, 명령, 코드 예제가 바뀌면 원본 Markdown을 수정하고, 해당되는 경우 `marp-slide.js`의 기존 절차로 HTML도 다시 생성한다.
@@ -128,4 +134,4 @@
 - `bin`, `obj`, `node_modules`, `.vs`, 로그, 임시/로컬 빌드 디렉터리는 수정·커밋하지 않는다. `3.Infrastructure/Assemblies`는 저장소가 추적하는 예외이므로 인프라 DLL을 의도적으로 갱신한 경우에만 포함한다.
 - `module.json`의 ModuleID, 계약 경로, 라우팅 키, DTO/계약 필드를 바꾸면 생산자와 소비자, 샘플 계약, 문서를 함께 검색한다.
 - 새 프로젝트나 모듈을 추가·삭제하면 `handstack.sln`, `ack/appsettings.json`, `rdy` 정적 참조 여부, `build.*`, `publish.*`, 설치 스크립트와 연계 문서를 함께 검토한다.
-- 새 하위 규칙이 반복해서 생길 때만 해당 디렉터리에 추가 `AGENTS.md`를 만든다.
+- 새 하위 규칙이 반복해서 생길 때만 해당 디렉터리에 추가 `CLAUDE.md`를 만든다.

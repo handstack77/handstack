@@ -15,12 +15,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 		.gitattributes = .gitattributes
 		.gitignore = .gitignore
+		AGENTS.md = AGENTS.md
 		assemblies.bat = assemblies.bat
 		assemblies.ps1 = assemblies.ps1
 		assemblies.sh = assemblies.sh
 		build.bat = build.bat
 		build.ps1 = build.ps1
 		build.sh = build.sh
+		CLAUDE.md = CLAUDE.md
+		DESIGN.md = DESIGN.md
 		docker-compose.yml = docker-compose.yml
 		Dockerfile = Dockerfile
 		env.bat = env.bat
@@ -542,7 +545,7 @@ Global
 		{90D87AFF-953C-4A53-BCCA-F014296BD5E6} = {8AAA6308-ECA2-43A5-8D46-1C7C1BC9088D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {0075CE72-935C-4F87-A6BA-989C82F06F8F}
 		VisualSVNWorkingCopyRoot = .
+		SolutionGuid = {0075CE72-935C-4F87-A6BA-989C82F06F8F}
 	EndGlobalSection
 EndGlobal

@@ -20,15 +20,20 @@ HandStack 솔루션은 단순한 ASP.NET Core 단일 웹앱이 아니라, 호스
 
 ```text
 1.WebHost
-  ack          : 메인 ASP.NET Core 호스트
-  forbes       : 추가 웹 호스트
-  agent        : 보조 호스트/에이전트
+  ack          : 메인 ASP.NET Core 호스트 (기본 포트 8421)
+  rdy          : 지원 모듈을 정적으로 결합한 단일 호스트 (기본 포트 8420)
+  agent        : 여러 ack 프로세스를 관리하는 에이전트 호스트 (기본 포트 8422)
+  deploy       : 자동 업데이트 패키지/manifest 호스트 (기본 포트 8520)
+  forbes       : 정적 파일 및 Contracts 동기화 호스트 (기본 포트 8420)
 
 2.Modules
   wwwroot      : 정적 자산, 계약 기반 화면, 공용 UI/API
   transact     : 거래 계약 해석, 라우팅, 응답 조립
   function     : 계약 기반 함수 실행(Node/C#/Python)
+  command      : CLI/Web 명령 실행
+  prompter     : LLM 프롬프트 계약 실행
   dbclient     : DB 질의 실행
+  graphclient  : Neo4j/Memgraph Cypher 질의 실행
   logger       : 로그 수집
   repository   : 파일/리포지토리 기능
   checkup      : 운영/관리 기능
@@ -46,26 +51,44 @@ HandStack 솔루션은 단순한 ASP.NET Core 단일 웹앱이 아니라, 호스
   edgeproxy
   excludedportrange
   ports
+  dotnet-installer
+  dbplatform
+  updater
+  publish-package
+  node-cli
 ```
 
 솔루션의 실제 빌드 순서도 이 구조를 그대로 반영합니다. `build.ps1`은 모듈을 먼저 빌드하고, 그 다음 호스트, 마지막으로 CLI를 빌드합니다.
 
 ```powershell
-$buildGroups = @(
-    @{
-        Name = "Modules"
-        Projects = @(
-            @{ Label = "wwwroot"; Path = "2.Modules\\wwwroot\\wwwroot.csproj" }
-            @{ Label = "dbclient"; Path = "2.Modules\\dbclient\\dbclient.csproj" }
-            @{ Label = "function"; Path = "2.Modules\\function\\function.csproj" }
-            @{ Label = "logger"; Path = "2.Modules\\logger\\logger.csproj" }
-            @{ Label = "repository"; Path = "2.Modules\\repository\\repository.csproj" }
-            @{ Label = "transact"; Path = "2.Modules\\transact\\transact.csproj" }
-            @{ Label = "checkup"; Path = "2.Modules\\checkup\\checkup.csproj" }
-        )
-    }
+$projects = @(
+    "2.Modules/wwwroot/wwwroot.csproj"
+    "2.Modules/dbclient/dbclient.csproj"
+    "2.Modules/graphclient/graphclient.csproj"
+    "2.Modules/function/function.csproj"
+    "2.Modules/command/command.csproj"
+    "2.Modules/prompter/prompter.csproj"
+    "2.Modules/logger/logger.csproj"
+    "2.Modules/repository/repository.csproj"
+    "2.Modules/transact/transact.csproj"
+    "2.Modules/checkup/checkup.csproj"
+    "1.WebHost/ack/ack.csproj"
+    "1.WebHost/agent/agent.csproj"
+    "1.WebHost/deploy/deploy.csproj"
+    "1.WebHost/forbes/forbes.csproj"
+    "4.Tool/CLI/bundling/bundling.csproj"
+    "4.Tool/CLI/dotnet-installer/dotnet-installer.csproj"
+    "4.Tool/CLI/edgeproxy/edgeproxy.csproj"
+    "4.Tool/CLI/dbplatform/dbplatform.csproj"
+    "4.Tool/CLI/handsonapp/handsonapp.csproj"
+    "4.Tool/CLI/updater/updater.csproj"
+    "4.Tool/CLI/handstack/handstack.csproj"
+    "4.Tool/CLI/ports/ports.csproj"
+    "4.Tool/CLI/publish-package/publish-package.csproj"
 )
 ```
+
+(`forwarder`, `rdy`, `excludedportrange`, `node-cli`는 `build.ps1` 목록에 포함되지 않으며 별도로 빌드·검증합니다.)
 
 이 순서는 다음의 규칙으로 프로그램의 실행 순서와 밀접한 관련이 있습니다.
 
@@ -114,7 +137,10 @@ GlobalConfiguration.ExternalIPAddress = await GetExternalIPAddress();
   "wwwroot",
   "transact",
   "dbclient",
+  "graphclient",
   "function",
+  "command",
+  "prompter",
   "repository",
   "logger",
   "checkup",
@@ -441,14 +467,18 @@ list
 configuration
 purgecontracts
 encryptcontracts
+startlog
 start
 stop
 encrypt
 decrypt
+contractpack
 compress
 extract
 create
+replacetext
 task
+synusage
 publickey
 ```
 

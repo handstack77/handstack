@@ -31,8 +31,9 @@
 - `node.config.json`, `package.json`, `requirements.txt`: 런타임 준비 파일
 
 ## 계약 및 데이터 자산
-- 함수 계약의 중심은 `featureMeta.json`입니다.
-- 실제 코드는 `featureMain.js`, `featureMain.cs`, `featureMain.py` 중 계약에 맞는 파일을 사용합니다.
+- 함수 계약은 두 가지 형식을 지원합니다.
+  - 디렉터리형: `featureMeta.json`과 계약에 맞는 `featureMain.js`, `featureMain.cs`, `featureMain.py` 중 하나를 같은 폴더에 둡니다.
+  - 단일 파일형: `dbclient`/`command`와 동일하게 `{TransactionID}.xml`(또는 `.fnc`) 한 파일에 `<header language="javascript|csharp|python">`, `<script>` CDATA 소스, `<commands>` 메타를 함께 선언합니다.
 - `EntryType`, `EntryMethod`, `BeforeTransaction`, `AfterTransaction`, `FallbackTransaction`이 계약에 포함됩니다.
 - `FunctionSource`는 데이터 원본과 작업 디렉터리를 함께 선언합니다.
 
