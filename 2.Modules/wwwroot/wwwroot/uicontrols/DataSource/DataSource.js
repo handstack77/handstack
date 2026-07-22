@@ -7,7 +7,7 @@
 
     $data.extend({
         name: 'syn.uicontrols.$data',
-        version: 'v2025.9.16',
+        version: 'v2026.7.22',
         bindingList: [],
         storeList: [],
 
@@ -83,7 +83,48 @@
         },
 
         setValue(elID, value, meta) {
-            // 지원 안함
+            var metaStore = $data.getMetaStore(elID);
+            if (metaStore && value != null) {
+                var targetStore = $this.store[metaStore.dataSourceID];
+                if (metaStore.storeType == 'Form') {
+                    for (var key in value) {
+                        if (value.hasOwnProperty(key) == false) {
+                            continue;
+                        }
+
+                        var bindingControlInfos = (metaStore.columns || []).filter(function (item) {
+                            return item.data == key;
+                        });
+
+                        if (bindingControlInfos.length == 1) {
+                            targetStore[key] = value[key];
+                        }
+                        else {
+                            syn.$l.eventLog('$data.setValue', '"{0}" 컬럼 정의 확인 필요'.format(key), 'Warning');
+                        }
+                    }
+                }
+                else {
+                    var length = value.length || 0;
+                    for (var i = 0; i < length; i++) {
+                        value[i].Flag = 'R';
+                    }
+
+                    var bindingInfos = $data.bindingList.filter(function (item) {
+                        return item.dataSourceID == metaStore.dataSourceID &&
+                            (item.controlType.indexOf('grid') > -1 || item.controlType == 'list' || item.controlType == 'chart');
+                    });
+
+                    if (bindingInfos.length > 0) {
+                        bindingInfos.forEach(function (bindingInfo) {
+                            targetStore[bindingInfo.dataFieldID] = value;
+                        });
+                    }
+                    else {
+                        $this.store[metaStore.dataSourceID] = value;
+                    }
+                }
+            }
         },
 
         clear(elID, isControlLoad) {
@@ -206,8 +247,21 @@
             }
         },
 
-        bindingSource(elID, dataSourceID) {
+        bindingSource(elID, dataSourceID, elapsedTime) {
             var dataSource = $this.store[dataSourceID];
+            if ($object.isNullOrUndefined(dataSource) == true) {
+                elapsedTime = (elapsedTime || 0) + 100;
+                if (elapsedTime > 60000) {
+                    syn.$l.eventLog('$data.bindingSource', '"{0}" dataSourceID 구성 대기 시간 초과(60초) - elID: {1}'.format(dataSourceID, elID), 'Warning');
+                    return;
+                }
+
+                setTimeout(function () {
+                    $data.bindingSource(elID, dataSourceID, elapsedTime);
+                }, 100);
+                return;
+            }
+
             var el = syn.$l.get(elID + '_hidden') || syn.$l.get(elID);
             if ($object.isNullOrUndefined(el) == false) {
                 var tagName = el.tagName.toUpperCase();

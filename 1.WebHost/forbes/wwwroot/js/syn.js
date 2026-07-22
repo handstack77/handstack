@@ -1,5 +1,5 @@
 /*!
-HandStack Javascript Library v2026.7.8
+HandStack Javascript Library v2026.7.22
 https://handshake.kr
 
 Copyright 2025, HandStack
@@ -4380,9 +4380,26 @@ if (typeof module !== 'undefined' && module.exports) {
                     return Number(value);
                 case 'boolean':
                     return value === true || context.$string.toBoolean(value);
+                case 'json':
                 case 'object':
-                case 'array':
-                    return JSON.parse(value);
+                case 'array': {
+                    if (typeof value !== 'string') {
+                        return value;
+                    }
+
+                    const trimmed = value.trim();
+
+                    try {
+                        return JSON.parse(trimmed);
+                    } catch {
+                    }
+
+                    try {
+                        return new Function(`return (${trimmed});`)();
+                    } catch (funcError) {
+                        syn.$l.eventLog('$object.parseJsonValue', `JSON.parse와 new Function 파싱 모두 실패. jsonType: ${jsonType}, error: ${funcError}`, 'Error');
+                    }
+                }
                 case 'string':
                 default:
                     return String(value);
@@ -7564,7 +7581,7 @@ if (typeof module !== 'undefined' && module.exports) {
                         var controlOptions = synControl.getAttribute('syn-options') || null;
                         if (controlOptions != null) {
                             try {
-                                controlOptions = eval('(' + controlOptions + ')');
+                                controlOptions = $object.parseJsonValue(controlOptions, 'json');
                             } catch (error) {
                                 syn.$l.eventLog('$w.contentLoaded', 'elID: "{0}" syn-options 확인 필요: '.format(elementID) + error.message, 'Warning');
                             }
@@ -7597,7 +7614,7 @@ if (typeof module !== 'undefined' && module.exports) {
                         var controlOptions = synControl.getAttribute('syn-options') || null;
                         if (controlOptions != null) {
                             try {
-                                controlOptions = eval('(' + controlOptions + ')');
+                                controlOptions = $object.parseJsonValue(controlOptions, 'json');
                             } catch (error) {
                                 syn.$l.eventLog('$w.contentLoaded', 'elID: "{0}" syn-options 확인 필요: '.format(elementID) + error.message, 'Warning');
                             }
@@ -7642,7 +7659,7 @@ if (typeof module !== 'undefined' && module.exports) {
                     var elEvents = null;
 
                     try {
-                        elEvents = eval('(' + synControl.getAttribute('syn-events') + ')');
+                        elEvents = $object.parseJsonValue(synControl.getAttribute('syn-events'), 'json');
                     } catch (error) {
                         syn.$l.eventLog('$w.contentLoaded', 'elID: "{0}" syn-events 확인 필요: '.format(synControl.id) + error.message, 'Warning');
                     }
@@ -7670,7 +7687,7 @@ if (typeof module !== 'undefined' && module.exports) {
                         var el = syn.$l.get(synControl.id + '_hidden') || syn.$l.get(synControl.id);
                         var synOptions = el.getAttribute('syn-options') || null;
                         if (synOptions != null) {
-                            options = eval('(' + synOptions + ')');
+                            options = $object.parseJsonValue(synOptions, 'json');
                         }
                     } catch (error) {
                         syn.$l.eventLog('$w.contentLoaded', 'elID: "{0}" syn-options 확인 필요: '.format(synControl.id) + error.message, 'Warning');
@@ -7682,7 +7699,7 @@ if (typeof module !== 'undefined' && module.exports) {
                                 var el = syn.$w.activeControl(evt);
                                 var synOptions = el.getAttribute('syn-options') || null;
                                 if (synOptions != null) {
-                                    options = eval('(' + synOptions + ')');
+                                    options = $object.parseJsonValue(synOptions, 'json');
                                 }
 
                                 var transactConfig = null;
@@ -7700,7 +7717,7 @@ if (typeof module !== 'undefined' && module.exports) {
                                 var el = syn.$w.activeControl(evt);
                                 var synOptions = el.getAttribute('syn-options') || null;
                                 if (synOptions != null) {
-                                    options = eval('(' + synOptions + ')');
+                                    options = $object.parseJsonValue(synOptions, 'json');
                                 }
 
                                 var transactConfig = null;
@@ -7727,12 +7744,12 @@ if (typeof module !== 'undefined' && module.exports) {
                                 var el = syn.$w.activeControl(evt);
                                 var synOptions = el.getAttribute('syn-options') || null;
                                 if (synOptions != null) {
-                                    options = eval('(' + synOptions + ')');
+                                    options = $object.parseJsonValue(synOptions, 'json');
                                 }
                                 else {
                                     synOptions = el.parentElement.getAttribute('syn-options') || null;
                                     if (synOptions != null) {
-                                        options = eval('(' + synOptions + ')');
+                                        options = $object.parseJsonValue(synOptions, 'json');
                                     }
                                 }
 
@@ -7751,12 +7768,12 @@ if (typeof module !== 'undefined' && module.exports) {
                                 var el = syn.$w.activeControl(evt);
                                 var synOptions = el.getAttribute('syn-options') || null;
                                 if (synOptions != null) {
-                                    options = eval('(' + synOptions + ')');
+                                    options = $object.parseJsonValue(synOptions, 'json');
                                 }
                                 else {
                                     synOptions = el.parentElement.getAttribute('syn-options') || null;
                                     if (synOptions != null) {
-                                        options = eval('(' + synOptions + ')');
+                                        options = $object.parseJsonValue(synOptions, 'json');
                                     }
                                 }
 
@@ -8101,7 +8118,7 @@ if (typeof module !== 'undefined' && module.exports) {
                                         try {
                                             synOptions = JSON.parse(options);
                                         } catch (e) {
-                                            synOptions = eval('(' + options + ')');
+                                            synOptions = $object.parseJsonValue(options, 'json');
                                         }
 
                                         if (synOptions == null || context.$string.isNullOrEmpty(synControlConfig.field) == true) {
@@ -8241,7 +8258,7 @@ if (typeof module !== 'undefined' && module.exports) {
                                         try {
                                             synOptions = JSON.parse(options);
                                         } catch (e) {
-                                            synOptions = eval('(' + options + ')');
+                                            synOptions = $object.parseJsonValue(options, 'json');
                                         }
 
                                         if (synOptions == null || context.$string.isNullOrEmpty(synControlConfig.field) == true) {
@@ -8488,6 +8505,311 @@ if (typeof module !== 'undefined' && module.exports) {
                 }
             } catch (error) {
                 syn.$l.eventLog('$w.transactionAction', `거래 액션 실행 중 오류 발생: ${error}`, 'Error');
+                if (syn.$w.closeProgressMessage) syn.$w.closeProgressMessage();
+            }
+        },
+
+        transactionExchange(colGroupID, options) {
+            if (context.$string.isNullOrEmpty(colGroupID) == true) {
+                syn.$l.eventLog('$w.transactionExchange', 'colGroupID 파라미터가 필요합니다.', 'Warning');
+                return;
+            }
+
+            if (!$this || !$this.config) {
+                syn.$l.eventLog('$w.transactionExchange', '$this 컨텍스트가 없습니다.', 'Warning');
+                return;
+            }
+
+            let dataMapping = null;
+            try {
+                const raw = document.head ? document.head.getAttribute('data-mapping') : null;
+                dataMapping = raw ? $object.parseJsonValue(raw, 'json') : null;
+            } catch (error) {
+                syn.$l.eventLog('$w.transactionExchange', `data-mapping 파싱 오류: ${error}`, 'Error');
+                return;
+            }
+
+            if (!dataMapping) {
+                syn.$l.eventLog('$w.transactionExchange', '화면에 data-mapping 정의가 없습니다.', 'Warning');
+                return;
+            }
+
+            const colGroup = (dataMapping.colGroups || []).find(function (item) { return item.groupID == colGroupID; });
+            if (!colGroup) {
+                syn.$l.eventLog('$w.transactionExchange', `colGroupID "${colGroupID}"에 대한 매핑 설정을 찾을 수 없습니다.`, 'Warning');
+                return;
+            }
+
+            const rowGroups = dataMapping.rowGroups || [];
+            const exchanges = dataMapping.exchanges || {};
+
+            function resolveControlValue(controlID) {
+                const el = syn.$l.get(controlID);
+                if (!el) {
+                    return '';
+                }
+
+                const synControls = $this.context ? $this.context.synControls : null;
+                const controlInfo = synControls ? synControls.find(function (item) { return item.id == controlID; }) : null;
+                if (controlInfo && controlInfo.module) {
+                    const controlModule = syn.$w.getControlModule(controlInfo.module);
+                    if (controlModule && controlModule.getValue) {
+                        const value = controlModule.getValue(controlID);
+                        return context.$object.isNullOrUndefined(value) == true ? '' : value;
+                    }
+                }
+
+                if (el.type == 'checkbox' || el.type == 'radio') {
+                    return el.checked == true ? (el.value || '1') : '';
+                }
+
+                if ('value' in el) {
+                    return context.$object.isNullOrUndefined(el.value) == true ? '' : el.value;
+                }
+
+                return el.textContent || '';
+            }
+
+            function applyControlValue(controlID, value) {
+                const el = syn.$l.get(controlID);
+                if (!el) {
+                    return;
+                }
+
+                const synControls = $this.context ? $this.context.synControls : null;
+                const controlInfo = synControls ? synControls.find(function (item) { return item.id == controlID; }) : null;
+                if (controlInfo && controlInfo.module) {
+                    const controlModule = syn.$w.getControlModule(controlInfo.module);
+                    if (controlModule && controlModule.setValue) {
+                        controlModule.setValue(controlID, context.$object.isNullOrUndefined(value) == true ? '' : value);
+                        return;
+                    }
+                }
+
+                if (el.type == 'checkbox' || el.type == 'radio') {
+                    el.checked = context.$string.isNullOrEmpty(value) == false && value != '0' && value != false;
+                    return;
+                }
+
+                if ('value' in el) {
+                    el.value = context.$object.isNullOrUndefined(value) == true ? '' : value;
+                    return;
+                }
+
+                el.textContent = context.$object.isNullOrUndefined(value) == true ? '' : value;
+            }
+
+            function resolveGridControl(rowGroupID) {
+                const el = document.querySelector(`[syn-datafield="${rowGroupID}"]`);
+                if (!el) {
+                    return null;
+                }
+
+                const elementID = el.getAttribute('id');
+                const synControls = $this.context ? $this.context.synControls : null;
+                const controlInfo = synControls ? synControls.find(function (item) { return item.id == elementID; }) : null;
+                if (!controlInfo || !controlInfo.module) {
+                    return null;
+                }
+
+                const controlModule = syn.$w.getControlModule(controlInfo.module);
+                if (!controlModule) {
+                    return null;
+                }
+
+                return { elementID: elementID, controlModule: controlModule };
+            }
+
+            try {
+                let isContinue = true;
+                if ($this.hook && $this.hook.beforeTransaction) {
+                    isContinue = $this.hook.beforeTransaction({ functionID: colGroupID, exchange: true });
+                }
+
+                if ((isContinue ?? true) == false) {
+                    if ($this.hook && $this.hook.afterTransaction) {
+                        $this.hook.afterTransaction('beforeTransaction이 false를 반환했습니다', colGroupID, null, null);
+                    }
+                    return;
+                }
+
+                const mergedOptions = syn.$w.argumentsExtend({
+                    message: '',
+                    dynamic: 'Y',
+                    authorize: 'N',
+                    commandType: 'D',
+                    returnType: 'Json',
+                    transactionScope: 'N',
+                    transactionLog: 'Y',
+                    endpoint: 'transaction'
+                }, options);
+
+                if (syn.$w.progressMessage && options?.noProgress !== true) {
+                    syn.$w.progressMessage(mergedOptions.message);
+                }
+
+                const requestTypes = [];
+                const responseTypes = [];
+                const inputs = [];
+                const inputsItemCount = [];
+                const outputPlan = [];
+
+                // 요청 데이터 컬렉션: dataMapInterface 앞부분(Row/List)을 구성한다. 응답 처리와 무관하게 독립적으로 순회한다.
+                (colGroup.requestRowGroupSet || []).forEach(function (rowGroupID) {
+                    const rowGroup = rowGroups.find(function (item) { return item.groupID == rowGroupID; });
+                    if (!rowGroup) {
+                        syn.$l.eventLog('$w.transactionExchange', `rowGroupID "${rowGroupID}" 정의를 찾을 수 없습니다.`, 'Warning');
+                        return;
+                    }
+
+                    const exchangeMap = (exchanges[colGroupID] && exchanges[colGroupID][rowGroupID]) || {};
+                    const mappingControls = rowGroup.mappingControls || [];
+                    const isMulti = rowGroup.type == 'Multi';
+
+                    if (isMulti) {
+                        const gridControl = resolveGridControl(rowGroupID);
+                        const metaColumns = {};
+                        mappingControls.forEach(function (controlID) {
+                            const entry = exchangeMap[controlID];
+                            if (entry && context.$string.isNullOrEmpty(entry.input) == false) {
+                                metaColumns[controlID] = { fieldID: entry.input, dataType: 'string' };
+                            }
+                        });
+
+                        let rows = [];
+                        if (gridControl && gridControl.controlModule.getValue) {
+                            rows = gridControl.controlModule.getValue(gridControl.elementID, 'List', metaColumns) || [];
+                        } else if (Object.keys(metaColumns).length > 0) {
+                            syn.$l.eventLog('$w.transactionExchange', `rowGroupID "${rowGroupID}"에 해당하는 그리드 컨트롤을 찾을 수 없습니다.`, 'Warning');
+                        }
+
+                        rows.forEach(function (row) { inputs.push(row); });
+                        inputsItemCount.push(rows.length);
+                        requestTypes.push('List');
+                    }
+                    else {
+                        const row = [];
+                        mappingControls.forEach(function (controlID) {
+                            const entry = exchangeMap[controlID];
+                            if (entry && context.$string.isNullOrEmpty(entry.input) == false) {
+                                row.push({ prop: entry.input, val: resolveControlValue(controlID) });
+                            }
+                        });
+
+                        inputs.push(row);
+                        inputsItemCount.push(1);
+                        requestTypes.push('Row');
+                    }
+                });
+
+                (colGroup.responseRowGroupSet || []).forEach(function (rowGroupID) {
+                    const rowGroup = rowGroups.find(function (item) { return item.groupID == rowGroupID; });
+                    if (!rowGroup) {
+                        syn.$l.eventLog('$w.transactionExchange', `rowGroupID "${rowGroupID}" 정의를 찾을 수 없습니다.`, 'Warning');
+                        return;
+                    }
+
+                    const exchangeMap = (exchanges[colGroupID] && exchanges[colGroupID][rowGroupID]) || {};
+                    const mappingControls = rowGroup.mappingControls || [];
+                    const isMulti = rowGroup.type == 'Multi';
+
+                    const outputItems = {};
+                    mappingControls.forEach(function (controlID) {
+                        const entry = exchangeMap[controlID];
+                        if (entry && context.$string.isNullOrEmpty(entry.output) == false) {
+                            outputItems[controlID] = { fieldID: entry.output, dataType: 'string' };
+                        }
+                    });
+
+                    if (isMulti) {
+                        const gridControl = resolveGridControl(rowGroupID);
+                        responseTypes.push('Grid');
+                        outputPlan.push({ responseType: 'Grid', dataFieldID: rowGroupID, items: outputItems, gridControl: gridControl });
+                    }
+                    else {
+                        responseTypes.push('Form');
+                        outputPlan.push({ responseType: 'Form', dataFieldID: rowGroupID, items: outputItems });
+                    }
+                });
+
+                const transactionObj = syn.$w.transactionObject(colGroupID, mergedOptions.returnType);
+                transactionObj.programID = options?.programID || $this.config.programID;
+                transactionObj.businessID = options?.businessID || $this.config.businessID;
+                transactionObj.systemID = options?.systemID || $this.config.systemID;
+                transactionObj.transactionID = options?.transactionID || $this.config.transactionID;
+                transactionObj.screenID = syn.$w.pageScript ? syn.$w.pageScript.replace('$', '') : '';
+                transactionObj.startTraceID = options?.startTraceID || '';
+                transactionObj.options = mergedOptions;
+                transactionObj.dataMapInterface = `${requestTypes.join(',')}|${responseTypes.join(',')}`;
+                transactionObj.inputs = inputs;
+                transactionObj.inputsItemCount = inputsItemCount;
+                transactionObj.transactionResult = true;
+
+                syn.$w.executeTransaction($this.config, transactionObj, function (responseData, additionalData, correlationID) {
+                    let error = null;
+
+                    try {
+                        if (Array.isArray(responseData) && responseData.length == outputPlan.length) {
+                            outputPlan.forEach(function (outputItem, index) {
+                                const dataMapItem = responseData[index] || {};
+                                const outputData = dataMapItem.value;
+
+                                if (outputItem.responseType == 'Form') {
+                                    const formData = (outputData && typeof outputData == 'object') ? outputData : {};
+                                    Object.keys(outputItem.items).forEach(function (controlID) {
+                                        const fieldID = outputItem.items[controlID].fieldID;
+                                        const value = formData[fieldID];
+                                        applyControlValue(controlID, context.$object.isNullOrUndefined(value) == true ? '' : value);
+                                    });
+                                }
+                                else if (outputItem.responseType == 'Grid') {
+                                    const rows = Array.isArray(outputData) ? outputData : [];
+                                    const mappedRows = rows.map(function (row) {
+                                        const mapped = {};
+                                        Object.keys(outputItem.items).forEach(function (controlID) {
+                                            const fieldID = outputItem.items[controlID].fieldID;
+                                            const value = row ? row[fieldID] : undefined;
+                                            mapped[controlID] = context.$object.isNullOrUndefined(value) == true ? '' : value;
+                                        });
+                                        return mapped;
+                                    });
+
+                                    if (outputItem.gridControl && outputItem.gridControl.controlModule.setValue) {
+                                        outputItem.gridControl.controlModule.setValue(outputItem.gridControl.elementID, mappedRows);
+                                    }
+                                }
+                            });
+                        }
+                        else if (Array.isArray(responseData) && responseData.length > 0) {
+                            syn.$l.eventLog('$w.transactionExchange', `"${colGroupID}" 응답 항목 수가 매핑 정의와 다릅니다.`, 'Warning');
+                        }
+                    } catch (bindError) {
+                        error = bindError;
+                        syn.$l.eventLog('$w.transactionExchange', `응답 바인딩 오류: ${bindError}`, 'Error');
+                    }
+
+                    if (typeof options?.callback == 'function') {
+                        try {
+                            options.callback(error, responseData, additionalData, correlationID);
+                        } catch (callbackError) {
+                            syn.$l.eventLog('$w.transactionExchange.callback', `콜백 실행 오류: ${callbackError}`, 'Error');
+                        }
+                    } else if (Array.isArray(options?.callback) && options.callback.length == 2) {
+                        setTimeout(function () {
+                            syn.$l.trigger(options.callback[0], options.callback[1], { error: error, responseData: responseData, additionalData: additionalData, correlationID: correlationID });
+                        }, 0);
+                    }
+
+                    if ($this.hook && $this.hook.afterTransaction) {
+                        $this.hook.afterTransaction(error, colGroupID, responseData, additionalData, correlationID);
+                    }
+
+                    if (syn.$w.closeProgressMessage) {
+                        syn.$w.closeProgressMessage();
+                    }
+                });
+            } catch (error) {
+                syn.$l.eventLog('$w.transactionExchange', `거래 실행 중 오류 발생: ${error}`, 'Error');
                 if (syn.$w.closeProgressMessage) syn.$w.closeProgressMessage();
             }
         },
@@ -8948,14 +9270,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
                                                                     if (store.storeType == 'Form' && store.dataSourceID == outputMapping.dataFieldID) {
                                                                         isMapping = true;
-                                                                        bindingControlInfos = store.columns.filter(function (item) {
-                                                                            return item.data == dataFieldID;
-                                                                        });
-
-                                                                        if (bindingControlInfos.length == 1) {
-                                                                            $this.store[store.dataSourceID][dataFieldID] = controlValue;
-                                                                        }
-
+                                                                        syn.uicontrols.$data.setValue(store.id, { [dataFieldID]: controlValue }, meta);
                                                                         break;
                                                                     }
                                                                 }
@@ -9000,24 +9315,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
                                                             if (store.storeType == 'Grid' && store.dataSourceID == outputMapping.dataFieldID) {
                                                                 isMapping = true;
-                                                                const bindingInfos = syn.uicontrols.$data.bindingList.filter(function (item) {
-                                                                    return (item.dataSourceID == store.dataSourceID && item.controlType == 'grid');
-                                                                });
-
-                                                                const length = outputData.length;
-                                                                for (let i = 0; i < length; i++) {
-                                                                    outputData[i].Flag = 'R';
-                                                                }
-
-                                                                if (bindingInfos.length > 0) {
-                                                                    for (let binding_i = 0; binding_i < bindingInfos.length; binding_i++) {
-                                                                        const bindingInfo = bindingInfos[binding_i];
-                                                                        $this.store[store.dataSourceID][bindingInfo.dataFieldID] = outputData;
-                                                                    }
-                                                                }
-                                                                else {
-                                                                    $this.store[store.dataSourceID] = outputData;
-                                                                }
+                                                                syn.uicontrols.$data.setValue(store.id, outputData, outputMapping.items);
                                                                 break;
                                                             }
                                                         }
@@ -9444,14 +9742,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
                                                         if (store.storeType == 'Form' && store.dataSourceID == outputMapping.dataFieldID) {
                                                             isMapping = true;
-                                                            bindingControlInfos = store.columns.filter(function (item) {
-                                                                return item.data == dataFieldID;
-                                                            });
-
-                                                            if (bindingControlInfos.length == 1) {
-                                                                $this.store[store.dataSourceID][dataFieldID] = controlValue;
-                                                            }
-
+                                                            syn.uicontrols.$data.setValue(store.id, { [dataFieldID]: controlValue }, meta);
                                                             break;
                                                         }
                                                     }
@@ -9497,24 +9788,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
                                                     if (store.storeType == 'Grid' && store.dataSourceID == outputMapping.dataFieldID) {
                                                         isMapping = true;
-                                                        const bindingInfos = syn.uicontrols.$data.bindingList.filter(function (item) {
-                                                            return (item.dataSourceID == store.dataSourceID && item.controlType == 'grid');
-                                                        });
-
-                                                        const length = outputData.length;
-                                                        for (let i = 0; i < length; i++) {
-                                                            outputData[i].Flag = 'R';
-                                                        }
-
-                                                        if (bindingInfos.length > 0) {
-                                                            for (let binding_i = 0; binding_i < bindingInfos.length; binding_i++) {
-                                                                const bindingInfo = bindingInfos[binding_i];
-                                                                $this.store[store.dataSourceID][bindingInfo.dataFieldID] = outputData;
-                                                            }
-                                                        }
-                                                        else {
-                                                            $this.store[store.dataSourceID] = outputData;
-                                                        }
+                                                        syn.uicontrols.$data.setValue(store.id, outputData, outputMapping.items);
                                                         break;
                                                     }
                                                 }
@@ -11656,7 +11930,7 @@ if (typeof module !== 'undefined' && module.exports) {
                         var options = null;
                         if (i18nOption.startsWith('{') == true) {
                             try {
-                                options = eval('(' + i18nOption + ')');
+                                options = $object.parseJsonValue(i18nOption, 'json');
                                 if (options.options.bindSource === undefined || options.options.bindSource === null) {
                                     options.bindSource = 'content';
                                 }

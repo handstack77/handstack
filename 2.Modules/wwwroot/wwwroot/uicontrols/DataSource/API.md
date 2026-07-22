@@ -44,7 +44,7 @@ DataSource는 화면에 표시되지 않는 `<syn_data>` 태그 하나로 선언
 | --- | --- | --- |
 | `controlLoad(elID, setting)` | 요소 id, 옵션 객체 | 컨트롤 초기화(내부적으로 페이지 로드 시 자동 호출됨). 저장소를 `storeType`에 맞춰 `{}` 또는 `[]`로 만들고 `storeList`에 메타 정보(`dataSourceID`, `storeType`, `columns`)를 등록 |
 | `getValue(elID, isAll)` | 요소 id, 전체조회 여부(boolean, 기본 false) | 저장소 값을 반환. `isAll`이 `true`면 저장소 원본을 그대로 반환. `false`(기본)이면 배열(Grid)은 `Flag !== 'R'`인 행만 걸러서 반환하고, 객체(Form)는 값이 객체 타입인 필드만 남기므로 필드 대부분이 문자열/숫자/불린인 일반적인 Form에서는 `isAll: true`로 호출하는 것을 권장 |
-| `setValue(elID, value, meta)` | - | 지원하지 않음(빈 구현). 값을 바꾸려면 `bindingID`로 연결된 화면 컨트롤의 `setValue`를 사용해야 함(예: `syn.uicontrols.$textbox.setValue('txtName', '홍길동')`) |
+| `setValue(elID, value, meta)` | 요소 id, 설정할 값, (Grid/List/Chart용) 메타(참고용, 미사용) | 저장소 값을 일괄 설정. `storeType: 'Form'`이면 `value`의 키 중 `columns`에 선언된 필드만 저장소에 대입하고(미선언 필드는 경고 로그 후 무시), `storeType`이 배열(Grid 등)이면 각 행에 `Flag`가 없을 경우 `'R'`로 채운 뒤 배열을 통째로 대입함. 대상 필드/그리드에 `bindingID`로 연결된 화면 컨트롤이 있으면 `Object.defineProperty`로 걸린 접근자(setter)가 그 컨트롤의 `setValue`를 자동 호출해 화면에도 반영됨(양방향 바인딩). 반대 방향(화면 컨트롤의 `setValue` 직접 호출 → 저장소 반영)도 동일하게 동작함 |
 | `clear(elID, isControlLoad)` | 요소 id | `storeType: 'Form'`이면 `columns`에 정의된 각 필드를 `dataType`에 맞는 기본값(`string→''`, `number`/`numeric`/`int→0`, `bool`/`boolean→false`, 그 외`→null`)으로 되돌림. 배열(Grid)이면 `length = 0`으로 비움. 내부 저장소 값만 초기화하며, 이미 바인딩된 화면 컨트롤(TextBox 등)의 표시 값은 자동으로 지워지지 않음(clear 동작 중에는 바인딩 반응이 꺼져 있음) |
 | `getMetaStore(elID)` | 요소 id | `storeList`에 등록된 메타 정보(`dataSourceID`, `storeType`, `columns`) 조회 |
 | `bindingSource(elID, dataSourceID)` | 필드 컨트롤 id, dataSourceID | 필드 컨트롤(`syn-datafield` 지정)과 DataSource를 연결하고 `Object.defineProperty`로 getter/setter를 등록. `bindingID` 옵션이 있는 컨트롤이 자신의 `controlLoad`에서 자동 호출함 |

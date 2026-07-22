@@ -631,7 +631,7 @@
                         item.css = [
                             '/uicontrols/DataSource/DataSource.css',
                             '/uicontrols/CodePicker/CodePicker.css',
-                            '/uicontrols/WebGrid/AUIGrid.css'
+                            '/uicontrols/AUIGrid/AUIGrid.css'
                         ];
                         item.js = [
                             '/uicontrols/DataSource/DataSource.js',
@@ -641,7 +641,7 @@
                             '/lib/auigrid/dist/AUIGridLicense.js',
                             '/lib/auigrid/dist/AUIGrid.js',
                             '/lib/filesaver/FileSaver.min.js',
-                            '/uicontrols/WebGrid/AUIGrid.js'
+                            '/uicontrols/AUIGrid/AUIGrid.js'
                         ];
                         break;
                     case 'guide':
@@ -659,6 +659,10 @@
                         break;
                     case 'element':
                         item.js = ['/uicontrols/Element/Element.js'];
+                        break;
+                    case 'propertygrid':
+                        item.css = ['/uicontrols/PropertyGrid/PropertyGrid.css'];
+                        item.js = ['/uicontrols/PropertyGrid/PropertyGrid.js'];
                         break;
                 }
             }
@@ -867,8 +871,6 @@
                         // syn.scripts.js
                         '/lib/tabler-core/dist/css/tabler.min.css',
                         '/lib/tabler-icons-webfont/dist/tabler-icons.min.css',
-                        '/lib/handsontable/dist/handsontable.full.css',
-                        '/lib/tail.select.js/css/default/tail.select-light.css',
                         '/lib/ispin/dist/ispin.min.css',
                         '/js/css-checkbox/checkboxes.css',
                         '/js/color-picker/color-picker.css',
@@ -906,7 +908,8 @@
                         '/uicontrols/OrganizationView/OrganizationView.css',
                         '/uicontrols/TreeView/TreeView.css',
                         '/uicontrols/WebGrid/WebGrid.css',
-                        '/uicontrols/WebGrid/AUIGrid.css',
+                        '/uicontrols/AUIGrid/AUIGrid.css',
+                        '/uicontrols/PropertyGrid/PropertyGrid.css',
 
                         // 프로젝트 화면 디자인
                         '/css/base.css',

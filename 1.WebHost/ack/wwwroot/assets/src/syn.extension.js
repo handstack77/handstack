@@ -1693,9 +1693,26 @@
                     return Number(value);
                 case 'boolean':
                     return value === true || context.$string.toBoolean(value);
+                case 'json':
                 case 'object':
-                case 'array':
-                    return JSON.parse(value);
+                case 'array': {
+                    if (typeof value !== 'string') {
+                        return value;
+                    }
+
+                    const trimmed = value.trim();
+
+                    try {
+                        return JSON.parse(trimmed);
+                    } catch {
+                    }
+
+                    try {
+                        return new Function(`return (${trimmed});`)();
+                    } catch (funcError) {
+                        syn.$l.eventLog('$object.parseJsonValue', `JSON.parse와 new Function 파싱 모두 실패. jsonType: ${jsonType}, error: ${funcError}`, 'Error');
+                    }
+                }
                 case 'string':
                 default:
                     return String(value);

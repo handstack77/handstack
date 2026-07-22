@@ -37,7 +37,7 @@
                         var options = null;
                         if (i18nOption.startsWith('{') == true) {
                             try {
-                                options = eval('(' + i18nOption + ')');
+                                options = $object.parseJsonValue(i18nOption, 'json');
                                 if (options.options.bindSource === undefined || options.options.bindSource === null) {
                                     options.bindSource = 'content';
                                 }
