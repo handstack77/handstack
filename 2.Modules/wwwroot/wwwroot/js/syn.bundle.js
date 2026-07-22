@@ -39846,7 +39846,7 @@ if (typeof module !== 'undefined' && module.exports) {
                                             if (store) {
                                                 isMapping = true;
                                                 const bindingInfo = syn.uicontrols.$data.bindingList.find(function (item) {
-                                                    return (item.dataSourceID == store.dataSourceID && item.controlType == 'grid');
+                                                    return (item.dataSourceID == store.dataSourceID && item.controlType.indexOf('grid') > -1);
                                                 });
 
                                                 if (bindingInfo) {
@@ -40281,7 +40281,7 @@ if (typeof module !== 'undefined' && module.exports) {
                                             if (store) {
                                                 isMapping = true;
                                                 const bindingInfo = syn.uicontrols.$data.bindingList.find(function (item) {
-                                                    return (item.dataSourceID == store.dataSourceID && item.controlType == 'grid');
+                                                    return (item.dataSourceID == store.dataSourceID && item.controlType.indexOf('grid') > -1);
                                                 });
 
                                                 if (bindingInfo) {
@@ -43480,7 +43480,7 @@ if (typeof module !== 'undefined' && module.exports) {
             });
 
             if (setting.bindingID && syn.uicontrols.$data) {
-                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 
@@ -43665,7 +43665,7 @@ if (typeof module !== 'undefined' && module.exports) {
             }
 
             if (setting.bindingID && syn.uicontrols.$data) {
-                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 
@@ -44063,7 +44063,7 @@ if (typeof module !== 'undefined' && module.exports) {
             });
 
             if (setting.bindingID && syn.uicontrols.$data) {
-                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 
@@ -44360,7 +44360,7 @@ if (typeof module !== 'undefined' && module.exports) {
             });
 
             if (setting.bindingID && syn.uicontrols.$data) {
-                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 
@@ -44753,9 +44753,6 @@ if (typeof module !== 'undefined' && module.exports) {
                         if (bindingControlInfos.length == 1) {
                             targetStore[key] = value[key];
                         }
-                        else {
-                            syn.$l.eventLog('$data.setValue', '"{0}" 컬럼 정의 확인 필요'.format(key), 'Warning');
-                        }
                     }
                 }
                 else {
@@ -44764,19 +44761,7 @@ if (typeof module !== 'undefined' && module.exports) {
                         value[i].Flag = 'R';
                     }
 
-                    var bindingInfos = $data.bindingList.filter(function (item) {
-                        return item.dataSourceID == metaStore.dataSourceID &&
-                            (item.controlType.indexOf('grid') > -1 || item.controlType == 'list' || item.controlType == 'chart');
-                    });
-
-                    if (bindingInfos.length > 0) {
-                        bindingInfos.forEach(function (bindingInfo) {
-                            targetStore[bindingInfo.dataFieldID] = value;
-                        });
-                    }
-                    else {
-                        $this.store[metaStore.dataSourceID] = value;
-                    }
+                    $this.store[metaStore.dataSourceID] = value;
                 }
             }
         },
@@ -44814,8 +44799,7 @@ if (typeof module !== 'undefined' && module.exports) {
                         targetStore[columnName] = initialValue;
                     });
                 }
-                else if (targetStore.length && targetStore.length > 0)
-                {
+                else if (targetStore.length && targetStore.length > 0) {
                     targetStore.length = 0;
                 }
             }
@@ -44983,7 +44967,7 @@ if (typeof module !== 'undefined' && module.exports) {
                 if (dataFieldID) {
                     var binding = null;
 
-                    if (controlType == 'grid' || controlType == 'list' || controlType == 'chart') {
+                    if (controlType.indexOf('grid') > -1 || controlType == 'list' || controlType == 'chart') {
                         binding = $data.bindingList.find(function (item) {
                             return (item.dataSourceID == dataSourceID);
                         });
@@ -45329,7 +45313,7 @@ if (typeof module !== 'undefined' && module.exports) {
             });
 
             if (setting.bindingID && syn.uicontrols.$data) {
-                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 
@@ -45912,7 +45896,7 @@ if (typeof module !== 'undefined' && module.exports) {
             });
 
             if (setting.bindingID && syn.uicontrols.$data) {
-                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 
@@ -46483,7 +46467,7 @@ if (typeof module !== 'undefined' && module.exports) {
             }
 
             if (setting.bindingID && syn.uicontrols.$data) {
-                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 
@@ -47017,7 +47001,7 @@ if (typeof module !== 'undefined' && module.exports) {
             }
 
             if (setting.bindingID && syn.uicontrols.$data) {
-                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 
@@ -47620,7 +47604,7 @@ if (typeof module !== 'undefined' && module.exports) {
             }, true, true);
 
             if (setting.bindingID && syn.uicontrols.$data) {
-                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 
@@ -48988,7 +48972,7 @@ if (typeof module !== 'undefined' && module.exports) {
             });
 
             if (setting.bindingID && syn.uicontrols.$data) {
-                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 
@@ -49636,7 +49620,7 @@ if (typeof module !== 'undefined' && module.exports) {
             }
 
             if (setting.bindingID && syn.uicontrols.$data) {
-                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 
@@ -49865,7 +49849,7 @@ if (typeof module !== 'undefined' && module.exports) {
             });
 
             if (setting.bindingID && syn.uicontrols.$data) {
-                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 
@@ -50256,7 +50240,7 @@ if (typeof module !== 'undefined' && module.exports) {
             }
 
             if (setting.bindingID && syn.uicontrols.$data) {
-                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 
@@ -51416,7 +51400,7 @@ if (typeof module !== 'undefined' && module.exports) {
             });
 
             if (setting.bindingID && syn.uicontrols.$data) {
-                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 
@@ -52609,7 +52593,7 @@ if (typeof module !== 'undefined' && module.exports) {
             }
 
             if (setting.bindingID && syn.uicontrols.$data) {
-                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 
@@ -53026,7 +53010,7 @@ if (typeof module !== 'undefined' && module.exports) {
             });
 
             if (setting.bindingID && syn.uicontrols.$data) {
-                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 
@@ -53323,7 +53307,7 @@ if (typeof module !== 'undefined' && module.exports) {
             $propertygrid.render(elID, setting.value, setting);
 
             if (setting.bindingID && syn.uicontrols.$data) {
-                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 
@@ -54112,7 +54096,7 @@ if (typeof module !== 'undefined' && module.exports) {
             });
 
             if (setting.bindingID && syn.uicontrols.$data) {
-                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 
@@ -54844,7 +54828,7 @@ if (typeof module !== 'undefined' && module.exports) {
             }
 
             if (setting.bindingID && syn.uicontrols.$data) {
-                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 
@@ -58170,7 +58154,7 @@ if (typeof module !== 'undefined' && module.exports) {
             }
 
             if (setting.bindingID && syn.uicontrols.$data) {
-                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 
@@ -60159,7 +60143,7 @@ if (typeof module !== 'undefined' && module.exports) {
                 el.setAttribute('syn-options', JSON.stringify(setting));
 
                 if (setting.bindingID && syn.uicontrols.$data) {
-                    syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                    // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
                 }
             }
         },

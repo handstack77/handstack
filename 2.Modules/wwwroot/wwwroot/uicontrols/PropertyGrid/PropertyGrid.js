@@ -77,7 +77,7 @@
             $propertygrid.render(elID, setting.value, setting);
 
             if (setting.bindingID && syn.uicontrols.$data) {
-                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 

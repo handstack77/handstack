@@ -120,8 +120,6 @@ del /F /Q "%wwwroot_js_path%\js\syn.bundle.js" 2>nul
 del /F /Q "%wwwroot_js_path%\js\syn.bundle.min.js" 2>nul
 del /F /Q "%wwwroot_js_path%\js\syn.controls.js" 2>nul
 del /F /Q "%wwwroot_js_path%\js\syn.controls.min.js" 2>nul
-del /F /Q "%wwwroot_js_path%\js\syn.scripts.base.js" 2>nul
-del /F /Q "%wwwroot_js_path%\js\syn.scripts.base.min.js" 2>nul
 del /F /Q "%wwwroot_js_path%\js\syn.scripts.js" 2>nul
 del /F /Q "%wwwroot_js_path%\js\syn.scripts.min.js" 2>nul
 

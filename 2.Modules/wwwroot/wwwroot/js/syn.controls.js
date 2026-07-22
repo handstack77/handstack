@@ -490,7 +490,7 @@
             });
 
             if (setting.bindingID && syn.uicontrols.$data) {
-                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 
@@ -675,7 +675,7 @@
             }
 
             if (setting.bindingID && syn.uicontrols.$data) {
-                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 
@@ -1073,7 +1073,7 @@
             });
 
             if (setting.bindingID && syn.uicontrols.$data) {
-                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 
@@ -1370,7 +1370,7 @@
             });
 
             if (setting.bindingID && syn.uicontrols.$data) {
-                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 
@@ -1763,9 +1763,6 @@
                         if (bindingControlInfos.length == 1) {
                             targetStore[key] = value[key];
                         }
-                        else {
-                            syn.$l.eventLog('$data.setValue', '"{0}" 컬럼 정의 확인 필요'.format(key), 'Warning');
-                        }
                     }
                 }
                 else {
@@ -1774,19 +1771,7 @@
                         value[i].Flag = 'R';
                     }
 
-                    var bindingInfos = $data.bindingList.filter(function (item) {
-                        return item.dataSourceID == metaStore.dataSourceID &&
-                            (item.controlType.indexOf('grid') > -1 || item.controlType == 'list' || item.controlType == 'chart');
-                    });
-
-                    if (bindingInfos.length > 0) {
-                        bindingInfos.forEach(function (bindingInfo) {
-                            targetStore[bindingInfo.dataFieldID] = value;
-                        });
-                    }
-                    else {
-                        $this.store[metaStore.dataSourceID] = value;
-                    }
+                    $this.store[metaStore.dataSourceID] = value;
                 }
             }
         },
@@ -1824,8 +1809,7 @@
                         targetStore[columnName] = initialValue;
                     });
                 }
-                else if (targetStore.length && targetStore.length > 0)
-                {
+                else if (targetStore.length && targetStore.length > 0) {
                     targetStore.length = 0;
                 }
             }
@@ -1993,7 +1977,7 @@
                 if (dataFieldID) {
                     var binding = null;
 
-                    if (controlType == 'grid' || controlType == 'list' || controlType == 'chart') {
+                    if (controlType.indexOf('grid') > -1 || controlType == 'list' || controlType == 'chart') {
                         binding = $data.bindingList.find(function (item) {
                             return (item.dataSourceID == dataSourceID);
                         });
@@ -2339,7 +2323,7 @@
             });
 
             if (setting.bindingID && syn.uicontrols.$data) {
-                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 
@@ -2922,7 +2906,7 @@
             });
 
             if (setting.bindingID && syn.uicontrols.$data) {
-                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 
@@ -3493,7 +3477,7 @@
             }
 
             if (setting.bindingID && syn.uicontrols.$data) {
-                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 
@@ -4027,7 +4011,7 @@
             }
 
             if (setting.bindingID && syn.uicontrols.$data) {
-                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 
@@ -4630,7 +4614,7 @@
             }, true, true);
 
             if (setting.bindingID && syn.uicontrols.$data) {
-                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 
@@ -5998,7 +5982,7 @@
             });
 
             if (setting.bindingID && syn.uicontrols.$data) {
-                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 
@@ -6646,7 +6630,7 @@
             }
 
             if (setting.bindingID && syn.uicontrols.$data) {
-                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 
@@ -6875,7 +6859,7 @@
             });
 
             if (setting.bindingID && syn.uicontrols.$data) {
-                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 
@@ -7266,7 +7250,7 @@
             }
 
             if (setting.bindingID && syn.uicontrols.$data) {
-                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 
@@ -8426,7 +8410,7 @@
             });
 
             if (setting.bindingID && syn.uicontrols.$data) {
-                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 
@@ -9619,7 +9603,7 @@
             }
 
             if (setting.bindingID && syn.uicontrols.$data) {
-                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 
@@ -10036,7 +10020,7 @@
             });
 
             if (setting.bindingID && syn.uicontrols.$data) {
-                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 
@@ -10333,7 +10317,7 @@
             $propertygrid.render(elID, setting.value, setting);
 
             if (setting.bindingID && syn.uicontrols.$data) {
-                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 
@@ -11122,7 +11106,7 @@
             });
 
             if (setting.bindingID && syn.uicontrols.$data) {
-                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 
@@ -11854,7 +11838,7 @@
             }
 
             if (setting.bindingID && syn.uicontrols.$data) {
-                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 
@@ -15180,7 +15164,7 @@
             }
 
             if (setting.bindingID && syn.uicontrols.$data) {
-                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 
@@ -17169,7 +17153,7 @@
                 el.setAttribute('syn-options', JSON.stringify(setting));
 
                 if (setting.bindingID && syn.uicontrols.$data) {
-                    syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                    // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
                 }
             }
         },

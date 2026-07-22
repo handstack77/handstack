@@ -393,7 +393,7 @@
 
     $chart.extend({
         name: 'syn.uicontrols.$chart',
-        version: 'v2025.3.1',
+        version: 'v2026.7.22',
         chartControls: [],
         randomSeed: Date.now(),
         defaultSetting: {
@@ -490,7 +490,7 @@
             });
 
             if (setting.bindingID && syn.uicontrols.$data) {
-                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 
@@ -518,57 +518,13 @@
                 for (var i = seriesLength - 1; i > -1; i--) {
                     chart.series[i].remove();
                 }
-            }
 
-            var length = value.length;
-            for (var i = 0; i < length; i++) {
-                var item = value[i];
-                chart.addSeries(item);
-            }
-
-            var columnKeys = [];
-            for (var key in item) {
-                if (control.config.labelID != key) {
-                    columnKeys.push(key);
+                var length = value.length;
+                for (var i = 0; i < length; i++) {
+                    var item = value[i];
+                    chart.addSeries(item);
                 }
             }
-
-            // var labels = value.map(function (item) { return item[control.config.labelID] });
-            // control.config.data.labels = labels;
-            // 
-            // var length = columnKeys.length;
-            // for (var i = 0; i < length; i++) {
-            //     var columnID = columnKeys[i];
-            // 
-            //     if (control.config.series && control.config.series.length > 0) {
-            //         var series = control.config.series.find(function (item) { return item.columnID == columnID });
-            //         if (series) {
-            //             var labelName = series.label ? series.label : series.columnID;
-            //             var data = value.map(function (item) { return item[columnID] });
-            // 
-            //             var dataset = {
-            //                 label: labelName,
-            //                 data: data,
-            //                 fill: series.fill
-            //             };
-            // 
-            //             control.config.data.datasets.push(dataset);
-            //         }
-            //     }
-            //     else {
-            //         var labelName = columnID;
-            //         var data = value.map(function (item) { return item[columnID] });
-            // 
-            //         var dataset = {
-            //             label: labelName,
-            //             data: data,
-            //             fill: false
-            //         };
-            // 
-            //         control.config.data.datasets.push(dataset);
-            //     }
-            // }
-            // control.chart.update();|| chart.redraw();
         },
 
         randomScalingFactor: function (min, max) {
@@ -719,7 +675,7 @@
             }
 
             if (setting.bindingID && syn.uicontrols.$data) {
-                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 
@@ -1117,7 +1073,7 @@
             });
 
             if (setting.bindingID && syn.uicontrols.$data) {
-                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 
@@ -1277,7 +1233,7 @@
 
     $colorpicker.extend({
         name: 'syn.uicontrols.$colorpicker',
-        version: 'v2025.10.1',
+        version: 'v2026.7.22',
         colorControls: [],
         defaultSetting:
         {
@@ -1414,16 +1370,15 @@
             });
 
             if (setting.bindingID && syn.uicontrols.$data) {
-                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 
         getValue(elID, meta) {
             var result = null;
-            var dateControl = $colorpicker.getControl(elID);
-
-            if (dateControl) {
-                result = dateControl.picker.field.value;
+            var el = syn.$l.get(elID);
+            if (el) {
+                result = el.value;
             }
 
             return result;
@@ -1431,8 +1386,9 @@
 
         setValue(elID, value, meta) {
             var dateControl = $colorpicker.getControl(elID);
-            if (dateControl) {
-                dateControl.picker.field.value = value;
+            if (dateControl && $object.isNullOrUndefined(value) == false) {
+                dateControl.picker.set(value);
+                dateControl.picker.fire('change', [String(value).replace('#', '')]);
             }
         },
 
@@ -1807,9 +1763,6 @@
                         if (bindingControlInfos.length == 1) {
                             targetStore[key] = value[key];
                         }
-                        else {
-                            syn.$l.eventLog('$data.setValue', '"{0}" 컬럼 정의 확인 필요'.format(key), 'Warning');
-                        }
                     }
                 }
                 else {
@@ -1818,19 +1771,7 @@
                         value[i].Flag = 'R';
                     }
 
-                    var bindingInfos = $data.bindingList.filter(function (item) {
-                        return item.dataSourceID == metaStore.dataSourceID &&
-                            (item.controlType.indexOf('grid') > -1 || item.controlType == 'list' || item.controlType == 'chart');
-                    });
-
-                    if (bindingInfos.length > 0) {
-                        bindingInfos.forEach(function (bindingInfo) {
-                            targetStore[bindingInfo.dataFieldID] = value;
-                        });
-                    }
-                    else {
-                        $this.store[metaStore.dataSourceID] = value;
-                    }
+                    $this.store[metaStore.dataSourceID] = value;
                 }
             }
         },
@@ -1868,8 +1809,7 @@
                         targetStore[columnName] = initialValue;
                     });
                 }
-                else if (targetStore.length && targetStore.length > 0)
-                {
+                else if (targetStore.length && targetStore.length > 0) {
                     targetStore.length = 0;
                 }
             }
@@ -2037,7 +1977,7 @@
                 if (dataFieldID) {
                     var binding = null;
 
-                    if (controlType == 'grid' || controlType == 'list' || controlType == 'chart') {
+                    if (controlType.indexOf('grid') > -1 || controlType == 'list' || controlType == 'chart') {
                         binding = $data.bindingList.find(function (item) {
                             return (item.dataSourceID == dataSourceID);
                         });
@@ -2383,7 +2323,7 @@
             });
 
             if (setting.bindingID && syn.uicontrols.$data) {
-                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 
@@ -2966,7 +2906,7 @@
             });
 
             if (setting.bindingID && syn.uicontrols.$data) {
-                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 
@@ -3437,7 +3377,7 @@
 
     $multiselect.extend({
         name: 'syn.uicontrols.$multiselect',
-        version: 'v2025.9.10',
+        version: 'v2026.7.22',
         selectControls: [],
         defaultSetting: {
             elID: '',
@@ -3537,7 +3477,7 @@
             }
 
             if (setting.bindingID && syn.uicontrols.$data) {
-                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 
@@ -3708,7 +3648,7 @@
 
                 var length = el.options.length;
                 for (var i = 0; i < length; i++) {
-                    el.options[i].selected == false;
+                    el.options[i].selected = false;
                 }
 
                 if ($object.isNullOrUndefined(value) == false) {
@@ -4071,7 +4011,7 @@
             }
 
             if (setting.bindingID && syn.uicontrols.$data) {
-                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 
@@ -4674,7 +4614,7 @@
             }, true, true);
 
             if (setting.bindingID && syn.uicontrols.$data) {
-                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 
@@ -6042,7 +5982,7 @@
             });
 
             if (setting.bindingID && syn.uicontrols.$data) {
-                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 
@@ -6690,7 +6630,7 @@
             }
 
             if (setting.bindingID && syn.uicontrols.$data) {
-                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 
@@ -6919,7 +6859,7 @@
             });
 
             if (setting.bindingID && syn.uicontrols.$data) {
-                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 
@@ -7310,7 +7250,7 @@
             }
 
             if (setting.bindingID && syn.uicontrols.$data) {
-                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 
@@ -8351,7 +8291,7 @@
 
     $sourceeditor.extend({
         name: 'syn.uicontrols.$sourceeditor',
-        version: 'v2026.2.25',
+        version: 'v2026.7.22',
         editorPendings: [],
         editorControls: [],
         defaultSetting: {
@@ -8468,6 +8408,10 @@
                 editor: editor,
                 setting: $object.clone(setting)
             });
+
+            if (setting.bindingID && syn.uicontrols.$data) {
+                // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+            }
         },
 
         window_onresize() {
@@ -9659,7 +9603,7 @@
             }
 
             if (setting.bindingID && syn.uicontrols.$data) {
-                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 
@@ -10076,7 +10020,7 @@
             });
 
             if (setting.bindingID && syn.uicontrols.$data) {
-                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 
@@ -10373,7 +10317,7 @@
             $propertygrid.render(elID, setting.value, setting);
 
             if (setting.bindingID && syn.uicontrols.$data) {
-                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 
@@ -11162,7 +11106,7 @@
             });
 
             if (setting.bindingID && syn.uicontrols.$data) {
-                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 
@@ -11568,7 +11512,7 @@
 
     $auigrid.extend({
         name: 'syn.uicontrols.$auigrid',
-        version: 'v2025.03.11',
+        version: 'v2026.7.22',
 
         gridControls: [],
         gridCodeDatas: [],
@@ -11891,6 +11835,10 @@
                 } catch (error) {
                     syn.$l.eventLog('AUIGrid_gridHookEvents', error.toString(), 'Debug');
                 }
+            }
+
+            if (setting.bindingID && syn.uicontrols.$data) {
+                // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 
@@ -15216,7 +15164,7 @@
             }
 
             if (setting.bindingID && syn.uicontrols.$data) {
-                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
         },
 
@@ -17205,7 +17153,7 @@
                 el.setAttribute('syn-options', JSON.stringify(setting));
 
                 if (setting.bindingID && syn.uicontrols.$data) {
-                    syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                    // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
                 }
             }
         },

@@ -6749,7 +6749,7 @@ if (typeof module !== 'undefined' && module.exports) {
                                             if (store) {
                                                 isMapping = true;
                                                 const bindingInfo = syn.uicontrols.$data.bindingList.find(function (item) {
-                                                    return (item.dataSourceID == store.dataSourceID && item.controlType == 'grid');
+                                                    return (item.dataSourceID == store.dataSourceID && item.controlType.indexOf('grid') > -1);
                                                 });
 
                                                 if (bindingInfo) {
@@ -7184,7 +7184,7 @@ if (typeof module !== 'undefined' && module.exports) {
                                             if (store) {
                                                 isMapping = true;
                                                 const bindingInfo = syn.uicontrols.$data.bindingList.find(function (item) {
-                                                    return (item.dataSourceID == store.dataSourceID && item.controlType == 'grid');
+                                                    return (item.dataSourceID == store.dataSourceID && item.controlType.indexOf('grid') > -1);
                                                 });
 
                                                 if (bindingInfo) {

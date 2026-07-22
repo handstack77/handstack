@@ -77,67 +77,6 @@ gulp.task('scripts', async function () {
         .pipe(gulp.dest('wwwroot/js'));
 });
 
-gulp.task('basescripts', async function () {
-    return gulp.src([
-        `wwwroot/lib/jquery/jquery.min.js`,
-        `wwwroot/js/jquery.alertmodal/jquery.alertmodal.js`,
-        `wwwroot/lib/jquery-simplemodal/src/jquery.simplemodal.min.js`,
-        `wwwroot/js/jquery-wm/jquery.WM.js`,
-        `wwwroot/js/jquery-ui-contextmenu/jquery-ui.js`,
-        `wwwroot/js/jquery-ui-contextmenu/jquery.ui-contextmenu.js`,
-        `wwwroot/lib/nanobar/nanobar.min.js`,
-        `wwwroot/js/notifier/notifier.js`,
-        `wwwroot/lib/clipboard.js/clipboard.min.js`,
-        `wwwroot/lib/mustache/mustache.min.js`,
-        `wwwroot/lib/dompurify/purify.min.js`,
-        `wwwroot/lib/marked/marked.min.js`,
-        `wwwroot/lib/print-js/print.min.js`,
-        'wwwroot/lib/auigrid/dist/AUIGridLicense.js',
-        'wwwroot/lib/auigrid/dist/AUIGrid.js',
-        // 'wwwroot/lib/handsontable/dist/handsontable.full.js',
-        // 'wwwroot/lib/handsontable/languages/ko-KR.js',
-        `wwwroot/lib/jquery.maskedinput/jquery.maskedinput.min.js`,
-        `wwwroot/lib/ispin/dist/ispin.min.js`,
-        `wwwroot/lib/superplaceholder/superplaceholder.js`,
-        `wwwroot/lib/vanilla-masker/vanilla-masker.min.js`,
-        `wwwroot/lib/codemirror/codemirror.min.js`,
-        `wwwroot/lib/tail.select.js/js/tail.select.min.js`,
-        `wwwroot/lib/chart.js/chart.umd.min.js`,
-        `wwwroot/js/color-picker/color-picker.js`,
-        `wwwroot/lib/moment.js/moment.min.js`,
-        `wwwroot/lib/pikaday/pikaday.min.js`,
-        `wwwroot/lib/fancytree/jquery.fancytree-all-deps.min.js`,
-        `wwwroot/lib/papaparse/papaparse.min.js`,
-        `wwwroot/lib/xlsx/xlsx.core.min.js`,
-        `wwwroot/lib/filesaver/FileSaver.min.js`,
-        `wwwroot/lib/fullcalendar/index.global.min.js`,
-        `wwwroot/lib/fullcalendar/core/locales/ko.global.min.js`,
-        'wwwroot/lib/orgchart/js/jquery.orgchart.min.js',
-        'wwwroot/js/datatable/datatables.js',
-        'wwwroot/js/datatable/dataTables.checkboxes.js',
-        'wwwroot/lib/pdfobject/pdfobject.min.js',
-        'wwwroot/lib/print-js/print.min.js',
-        `wwwroot/lib/popper.js/umd/popper.min.js`,
-        `wwwroot/lib/tippy.js/tippy-bundle.umd.min.js`,
-        `wwwroot/lib/intro.js/intro.min.js`,
-        `wwwroot/lib/master-css/index.min.js`,
-    ], { allowEmpty: true })
-        .pipe(concat('syn.scripts.base.js'))
-        .pipe(gulp.dest('wwwroot/js'))
-        .pipe(uglify({
-            mangle: true,
-            compress: true,
-            output: {
-                comments: false
-            }
-        }))
-        .pipe(rename({
-            basename: 'syn.scripts.base.min',
-            extname: '.js'
-        }))
-        .pipe(gulp.dest('wwwroot/js'));
-});
-
 gulp.task('controls', async function () {
     return gulp.src([
         'wwwroot/uicontrols/Calendar/Calendar.js',

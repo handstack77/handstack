@@ -325,8 +325,6 @@ try {
         'syn.bundle.min.js',
         'syn.controls.js',
         'syn.controls.min.js',
-        'syn.scripts.base.js',
-        'syn.scripts.base.min.js',
         'syn.scripts.js',
         'syn.scripts.min.js'
     )) {
