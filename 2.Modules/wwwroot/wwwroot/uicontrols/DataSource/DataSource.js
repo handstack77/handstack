@@ -83,33 +83,7 @@
         },
 
         setValue(elID, value, meta) {
-            var metaStore = $data.getMetaStore(elID);
-            if (metaStore && value != null) {
-                var targetStore = $this.store[metaStore.dataSourceID];
-                if (metaStore.storeType == 'Form') {
-                    for (var key in value) {
-                        if (value.hasOwnProperty(key) == false) {
-                            continue;
-                        }
-
-                        var bindingControlInfos = (metaStore.columns || []).filter(function (item) {
-                            return item.data == key;
-                        });
-
-                        if (bindingControlInfos.length == 1) {
-                            targetStore[key] = value[key];
-                        }
-                    }
-                }
-                else {
-                    var length = value.length || 0;
-                    for (var i = 0; i < length; i++) {
-                        value[i].Flag = 'R';
-                    }
-
-                    $this.store[metaStore.dataSourceID] = value;
-                }
-            }
+            // 지원 안함
         },
 
         clear(elID, isControlLoad) {
@@ -167,7 +141,7 @@
             return result;
         },
 
-        reactionFormGetValue(elID, dataSourceID, dataFieldID) {
+        reactionGetValue(elID, dataSourceID, dataFieldID) {
             var result = null;
             var bindingInfo = $data.bindingList.find(function (item) {
                 return (item.elID == elID && item.dataSourceID == dataSourceID && item.dataFieldID == dataFieldID);
@@ -201,73 +175,9 @@
             return result;
         },
 
-        reactionFormSetValue(elID, dataSourceID, dataFieldID, value) {
+        reactionSetValue(elID, dataSourceID, dataFieldID, value) {
             var bindingInfo = $data.bindingList.find(function (item) {
                 return (item.elID == elID && item.dataSourceID == dataSourceID && item.dataFieldID == dataFieldID);
-            });
-
-            if (bindingInfo) {
-                var storeInfo = $data.storeList.find(function (item) {
-                    return (item.dataSourceID == bindingInfo.dataSourceID);
-                });
-
-                if (bindingInfo.controlType.indexOf('grid') > -1 || bindingInfo.controlType == 'list' || bindingInfo.controlType == 'chart') {
-                    var metaItems = {};
-                    var length = storeInfo.columns.length;
-                    for (var i = 0; i < length; i++) {
-                        var metaItem = storeInfo.columns[i];
-
-                        metaItems[metaItem.data] = {
-                            fieldID: metaItem.data,
-                            dataType: metaItem.dataType
-                        };
-                    }
-
-                    bindingInfo.controlModule.setValue(elID, value, metaItems);
-                }
-                else {
-                    bindingInfo.controlModule.setValue(elID, value);
-                }
-            }
-        },
-
-        reactionGridGetValue(elID, dataSourceID) {
-            var result = null;
-            var bindingInfo = $data.bindingList.find(function (item) {
-                return (item.elID == elID && item.dataSourceID == dataSourceID);
-            });
-
-            if (bindingInfo) {
-                var storeInfo = $data.storeList.find(function (item) {
-                    return (item.dataSourceID == bindingInfo.dataSourceID);
-                });
-
-                if (bindingInfo.controlType.indexOf('grid') > -1 || bindingInfo.controlType == 'list' || bindingInfo.controlType == 'chart') {
-                    var metaItems = {};
-                    var length = storeInfo.columns.length;
-                    for (var i = 0; i < length; i++) {
-                        var metaItem = storeInfo.columns[i];
-
-                        metaItems[metaItem.data] = {
-                            fieldID: metaItem.data,
-                            dataType: metaItem.dataType
-                        };
-                    }
-
-                    var getType = storeInfo.storeType == 'Form' ? 'Row' : 'List';
-                    result = bindingInfo.controlModule.getValue(elID, getType, metaItems);
-                }
-                else {
-                    result = bindingInfo.controlModule.getValue(elID);
-                }
-            }
-
-            return result;
-        },
-
-        reactionGridSetValue(elID, dataSourceID, value) {
-            var bindingInfo = $data.bindingList.find(function (item) {
-                return (item.elID == elID && item.dataSourceID == dataSourceID);
             });
 
             if (bindingInfo) {
@@ -376,72 +286,44 @@
                 var dataFieldID = el.getAttribute('syn-datafield');
                 if (dataFieldID) {
                     var binding = null;
-                    debugger;
+
                     if (controlType.indexOf('grid') > -1 || controlType == 'list' || controlType == 'chart') {
                         binding = $data.bindingList.find(function (item) {
                             return (item.dataSourceID == dataSourceID);
                         });
-
-                        if (binding == null) {
-                            $data.bindingList.push({
-                                elID: elID,
-                                dataSourceID: dataSourceID,
-                                dataFieldID: dataFieldID,
-                                controlModule: controlModule,
-                                controlType: controlType
-                            });
-
-                            Object.defineProperty($this.store, dataSourceID, {
-                                get() {
-                                    if ($data.propertyEvent == true) {
-                                        return $data.reactionGridGetValue(elID, dataSourceID);
-                                    }
-                                },
-                                set(value) {
-                                    if ($data.propertyEvent == true) {
-                                        $data.reactionGridSetValue(elID, dataSourceID, value);
-                                    }
-                                },
-                                configurable: true,
-                                enumerable: true
-                            });
-                        }
-                        else {
-                            syn.$l.eventLog('$data.bindingSource', 'Grid binding 정보 확인 필요 - elID: {0}, dataSourceID: {1}, dataFieldID: {2}, controlType: {3}, '.format(elID, dataSourceID, dataFieldID, controlType), 'Warning');
-                        }
                     }
                     else {
                         binding = $data.bindingList.find(function (item) {
                             return (item.elID == elID && item.dataSourceID == dataSourceID && item.dataFieldID == dataFieldID);
                         });
+                    }
 
-                        if (binding == null) {
-                            $data.bindingList.push({
-                                elID: elID,
-                                dataSourceID: dataSourceID,
-                                dataFieldID: dataFieldID,
-                                controlModule: controlModule,
-                                controlType: controlType
-                            });
+                    if (binding == null) {
+                        $data.bindingList.push({
+                            elID: elID,
+                            dataSourceID: dataSourceID,
+                            dataFieldID: dataFieldID,
+                            controlModule: controlModule,
+                            controlType: controlType
+                        });
 
-                            Object.defineProperty(dataSource, dataFieldID, {
-                                get() {
-                                    if ($data.propertyEvent == true) {
-                                        return $data.reactionFormGetValue(elID, dataSourceID, dataFieldID);
-                                    }
-                                },
-                                set(value) {
-                                    if ($data.propertyEvent == true) {
-                                        $data.reactionFormSetValue(elID, dataSourceID, dataFieldID, value);
-                                    }
-                                },
-                                configurable: true,
-                                enumerable: true
-                            });
-                        }
-                        else {
-                            syn.$l.eventLog('$data.bindingSource', 'Form binding 정보 확인 필요 - elID: {0}, dataSourceID: {1}, dataFieldID: {2}, controlType: {3}, '.format(elID, dataSourceID, dataFieldID, controlType), 'Warning');
-                        }
+                        Object.defineProperty(dataSource, dataFieldID, {
+                            get() {
+                                if ($data.propertyEvent == true) {
+                                    return $data.reactionGetValue(elID, dataSourceID, dataFieldID);
+                                }
+                            },
+                            set(value) {
+                                if ($data.propertyEvent == true) {
+                                    $data.reactionSetValue(elID, dataSourceID, dataFieldID, value);
+                                }
+                            },
+                            configurable: true,
+                            enumerable: true
+                        });
+                    }
+                    else {
+                        syn.$l.eventLog('$data.bindingSource', 'binding 정보 확인 필요 - elID: {0}, dataSourceID: {1}, dataFieldID: {2}, controlType: {3}, '.format(elID, dataSourceID, dataFieldID, controlType), 'Warning');
                     }
                 }
                 else {
