@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <title>DropDownList - syn.$bind 양방향 바인딩</title>
+    <link rel="stylesheet" href="/uicontrols/binding-example.css">
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <main id="bindingRoot" class="binding-example">
+            <h1>DropDownList 양방향 바인딩</h1>
+            <p class="description">결재 상태의 표시 문구와 업무 코드를 분리하고 선택 코드를 Proxy 모델에 연결합니다.</p>
+            <div class="binding-anchor" syn-bind="adapter(dropdownlist):value"></div>
+
+            <section class="binding-panel">
+                <h2>컨트롤에서 변경</h2>
+                <select id="ddlBinding" syn-options="{placeholder: '결재 상태 선택', toSynControl: true}" syn-events="['change']" style="width: 240px;">
+                    <option value="REQUEST">결재 요청</option>
+                    <option value="APPROVED">승인</option>
+                    <option value="REJECTED">반려</option>
+                    <option value="CANCELED">취소</option>
+                </select>
+            </section>
+
+            <section class="binding-panel">
+                <h2>바인딩 확인</h2>
+                <div class="binding-toolbar">
+                    <input type="button" id="btnModelChange" value="Proxy 모델 선택 변경" syn-events="['click']">
+                    <input type="button" id="btnControlRead" value="컨트롤 값을 모델로 읽기" syn-events="['click']">
+                </div>
+                <div class="binding-direction" syn-bind="text:direction"></div>
+                <pre id="preModel" class="binding-preview"></pre>
+            </section>
+        </main>
+    </form>
+    <script src="/uicontrols/binding-example.js"></script>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

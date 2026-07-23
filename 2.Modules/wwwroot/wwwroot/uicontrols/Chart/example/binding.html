@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <title>Chart - syn.$bind 양방향 바인딩</title>
+    <link rel="stylesheet" href="/uicontrols/binding-example.css">
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <main id="bindingRoot" class="binding-example">
+            <h1>Chart 양방향 바인딩</h1>
+            <p class="description">Highcharts 시리즈 배열을 모델과 연결하고, 차트 API 변경을 모델로 되돌립니다.</p>
+            <div class="binding-anchor" syn-bind="adapter(chart):value"></div>
+
+            <section class="binding-panel">
+                <h2>컨트롤에서 변경</h2>
+                <syn_chart id="chtBinding" style="width:100%; height:320px" syn-options="{
+                    chart: {type: 'column'},
+                    title: {text: '분기별 매출'},
+                    xAxis: {categories: ['1분기', '2분기', '3분기', '4분기']},
+                    series: []
+                }"></syn_chart>
+                <input type="button" id="btnChartControlChange" value="차트 API로 첫 값 +5" syn-events="['click']">
+            </section>
+
+            <section class="binding-panel">
+                <h2>바인딩 확인</h2>
+                <div class="binding-toolbar">
+                    <input type="button" id="btnModelChange" value="Proxy 모델 시리즈 변경" syn-events="['click']">
+                    <input type="button" id="btnControlRead" value="차트 값을 모델로 읽기" syn-events="['click']">
+                </div>
+                <div class="binding-direction" syn-bind="text:direction"></div>
+                <pre id="preModel" class="binding-preview"></pre>
+            </section>
+        </main>
+    </form>
+    <script src="/uicontrols/binding-example.js"></script>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

@@ -10,17 +10,16 @@
 
 ## 빠른 시작
 
-중요: `syn.loader.js`에는 `auipivot`(→ `syn_auipivot`) 자동주입 케이스가 없으므로, `$auigrid`와 같은 AUIGrid 벤더 스크립트를 `pageLoadFiles` 훅으로 직접 로드해야 합니다.
+중요: `syn.loader.js`에는 `auipivot`(→ `syn_auipivot`) 자동주입 케이스가 없고, 이 저장소에는 `window.AUIPivot`을 제공하는 AUIPivot 벤더 엔진도 포함되어 있지 않습니다. 라이선스에 맞는 벤더 자산과 `AUIPivot.js` 래퍼를 `pageLoadFiles` 훅으로 직접 로드해야 합니다.
 
 ```html
 <syn_auipivot id="pvtSales" syn-options="{ height: 400 }"></syn_auipivot>
 <script>
-    function pageLoadFiles(styleFiles, jsFiles, templateFiles) {
-        window.afterLoadFiles = [];
-        afterLoadFiles.push('/lib/auigrid/dist/AUIGridLicense.js');
-        afterLoadFiles.push('/lib/auigrid/dist/AUIGrid.js');
-        afterLoadFiles.push('/uicontrols/AUIPivot/AUIPivot.css');
-        afterLoadFiles.push('/uicontrols/AUIPivot/AUIPivot.js');
+    function pageLoadFiles(jsFiles, styleFiles, templateFiles) {
+        // 먼저 라이선스에 맞는 AUIPivot 벤더 CSS/JS를 추가합니다.
+        // 벤더가 window.AUIPivot을 노출한 뒤 HandStack 래퍼를 로드해야 합니다.
+        styleFiles.push('/uicontrols/AUIPivot/AUIPivot.css');
+        jsFiles.push('/uicontrols/AUIPivot/AUIPivot.js');
     }
 </script>
 <script src="/js/syn.loader.js"></script>
@@ -44,7 +43,8 @@ let $samplePage = {
 
 `example/` 폴더의 HTML 파일을 handstack의 wwwroot 정적 서버(rdy 프로젝트) 경로 아래에 두고 브라우저로 열면 바로 동작을 확인할 수 있습니다.
 
-- `auipivotbasic.html` / `.js` : `$auipivot` 기본 피벗 리포트 구성(행/열/값 필드 배치)
+- `auipivotbasic.html` / `.js` : `$auipivot` 기본 피벗 리포트 구성(별도 벤더 필요)
+- `binding.html` / `.js` : `syn.$bind` 행 배열 양방향 바인딩. 벤더가 없으면 모델 흐름만 오류 없이 확인
 
 각 예제는 화면 하단 로그 영역(`syn.$l.eventLog` 출력)에서 이벤트 발생 순서와 전달값을 확인할 수 있습니다.
 

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <title>PropertyGrid - syn.$bind 양방향 바인딩</title>
+    <link rel="stylesheet" href="/uicontrols/binding-example.css">
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <main id="bindingRoot" class="binding-example">
+            <h1>PropertyGrid 양방향 바인딩</h1>
+            <p class="description">속성 객체 전체를 깊은 경로 구독이 가능한 Proxy 모델과 연결합니다.</p>
+            <div class="binding-anchor" syn-bind="adapter(propertygrid):value"></div>
+
+            <section class="binding-panel">
+                <h2>컨트롤에서 변경</h2>
+                <syn_propertygrid id="pgBinding" syn-options="{
+                    data: {},
+                    meta: {
+                        Volume: {type: 'number', options: {min: 0, max: 100, step: 5}}
+                    }
+                }"></syn_propertygrid>
+            </section>
+
+            <section class="binding-panel">
+                <h2>바인딩 확인</h2>
+                <div class="binding-toolbar">
+                    <input type="button" id="btnModelChange" value="Proxy 모델 객체 변경" syn-events="['click']">
+                    <input type="button" id="btnControlRead" value="속성 값을 모델로 읽기" syn-events="['click']">
+                </div>
+                <div class="binding-direction" syn-bind="text:direction"></div>
+                <pre id="preModel" class="binding-preview"></pre>
+            </section>
+        </main>
+    </form>
+    <script src="/uicontrols/binding-example.js"></script>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

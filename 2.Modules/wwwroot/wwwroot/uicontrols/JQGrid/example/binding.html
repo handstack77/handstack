@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <title>JQGrid - syn.$bind 양방향 바인딩</title>
+    <link rel="stylesheet" href="/uicontrols/binding-example.css">
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <main id="bindingRoot" class="binding-example">
+            <h1>JQGrid 양방향 바인딩</h1>
+            <p class="description">레거시 jqGrid 조회 결과에 포커스·자동 폭을 적용하고, 엔진의 I/U/D 행 상태를 거래 계약의 C/U/D로 변환합니다.</p>
+            <p class="binding-note">이 저장소에는 jqGrid 벤더 파일이 없습니다. 벤더 CSS/JS와 <code>JQGrid.js</code>를 로드하면 실제 행 클래스 추적을 사용하고, 기본 상태에서는 Proxy 모델로 같은 I/U/D 업무 흐름을 재현합니다.</p>
+            <div class="binding-anchor" syn-bind="adapter(jqgrid):value"></div>
+
+            <section class="binding-panel">
+                <h2>공통코드 편집</h2>
+                <div class="binding-toolbar">
+                    <input type="button" id="btnGridAdd" value="+ 행 추가" syn-events="['click']">
+                    <input type="button" id="btnGridEdit" value="선택 행 사용중지" syn-events="['click']">
+                    <input type="button" id="btnGridRemove" value="- 선택 행 삭제" syn-events="['click']">
+                </div>
+                <table id="grdBinding"></table>
+                <div id="gridWorkSummary" class="binding-direction">jqGrid 초기화 또는 모델 대체 모드를 확인하고 있습니다.</div>
+            </section>
+
+            <section class="binding-panel">
+                <h2>바인딩 확인</h2>
+                <div class="binding-toolbar">
+                    <input type="button" id="btnModelChange" value="서버 재조회 결과 적용" syn-events="['click']">
+                    <input type="button" id="btnControlRead" value="현재 I/U/D 상태를 모델로 읽기" syn-events="['click']">
+                </div>
+                <div class="binding-direction" syn-bind="text:direction"></div>
+                <pre id="preModel" class="binding-preview"></pre>
+            </section>
+        </main>
+    </form>
+    <script src="/uicontrols/binding-example.js"></script>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>
