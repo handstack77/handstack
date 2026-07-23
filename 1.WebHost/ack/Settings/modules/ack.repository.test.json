@@ -1,0 +1,27 @@
+{
+    "ModuleID": "repository",
+    "Name": "repository",
+    "IsBundledWithHost": false,
+    "Version": "1.0.0",
+    "ModuleConfig": {
+        "SystemID": "HANDSTACK",
+        "FileServerUrl": "https://test.example.com:8421",
+        "BusinessServerUrl": "https://test.example.com:8421/transact/api/transaction/execute",
+        "IsContractFileWatching": true,
+        "ContractBasePath": [
+            "../contracts/repository"
+        ],
+        "ModuleLogFilePath": "../log/repository/module.log",
+        "DatabaseContractPath": "../contracts/dbclient",
+        "ModuleBasePath": "../modules/repository",
+        "EventAction": [],
+        "SubscribeAction": [ "repository.Events.RepositoryRequest" ],
+        "XFrameOptions": "ALLOW-FROM https://test.example.com:8421,https://test.example.com:8421",
+        "ContentSecurityPolicy": "frame-ancestors 'self' https://test.example.com:8421 https://test.example.com:8421;"
+    },
+    "LoadPassAssemblyPath": [
+        "/libSkiaSharp.dll",
+        "/libSkiaSharp.so",
+        "/libSkiaSharp.dylib"
+    ]
+}

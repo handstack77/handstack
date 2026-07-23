@@ -1,0 +1,121 @@
+{
+    "ModuleID": "prompter",
+    "Name": "prompter",
+    "IsBundledWithHost": false,
+    "Version": "1.0.0",
+    "ModuleConfig": {
+        "SystemID": "HANDSTACK",
+        "ModuleBasePath": "../modules/prompter",
+        "IsContractFileWatching": true,
+        "ContractBasePath": [
+            "../contracts/prompter"
+        ],
+        "BusinessServerUrl": "https://app.example.com:8421/transact/api/transaction/execute",
+        "IsTransactionLogging": false,
+        "IsChatHistoryConsoleShow": false,
+        "DefaultPromptResultFieldID": "PromptResult",
+        "ModuleLogFilePath": "../log/prompter/module.log",
+        "IsLogServer": true,
+        "LogServerUrl": "https://app.example.com:8421/logger/api/log/insert",
+        "EventAction": [
+            "prompter.Events.ManagedRequest"
+        ],
+        "SubscribeAction": [],
+        "LLMSource": [
+            {
+                "ApplicationID": "HDS",
+                "ProjectID": "*",
+                "DataSourceID": "LLM1",
+                "LLMProvider": "OpenAI",
+                "ApiKey": "[sk-proj-API...키]",
+                "ModelID": "gpt-5.4-mini",
+                "Endpoint": "",
+                "Think": false,
+                "Stream": false,
+                "Comment": "OpenAI 프롬프트 API"
+            },
+            {
+                "ApplicationID": "HDS",
+                "ProjectID": "*",
+                "DataSourceID": "LLM2",
+                "LLMProvider": "Claude",
+                "ApiKey": "[sk-ant-api...키]",
+                "ModelID": "claude-haiku-4-5",
+                "Endpoint": "",
+                "Think": false,
+                "Stream": false,
+                "Comment": "Claude Messages API"
+            },
+            {
+                "ApplicationID": "HDS",
+                "ProjectID": "*",
+                "DataSourceID": "LLM3",
+                "LLMProvider": "Gemini",
+                "ApiKey": "[AIza...키]",
+                "ModelID": "gemini-3.1-flash-lite",
+                "Endpoint": "",
+                "Think": false,
+                "Stream": false,
+                "Comment": "Gemini GenerateContent API"
+            },
+            {
+                "ApplicationID": "HDS",
+                "ProjectID": "*",
+                "DataSourceID": "LLM4",
+                "LLMProvider": "Ollama",
+                "ApiKey": "",
+                "ModelID": "gemma4:26b",
+                "Endpoint": "https://app.example.com:11434",
+                "Think": false,
+                "Stream": false,
+                "Comment": "Ollama 로컬 Chat API"
+            },
+            {
+                "ApplicationID": "HDS",
+                "ProjectID": "*",
+                "DataSourceID": "LLM5",
+                "LLMProvider": "LMStudio",
+                "ApiKey": "",
+                "ModelID": "openai/gpt-oss-20b",
+                "Endpoint": "https://app.example.com:1234",
+                "Think": false,
+                "Stream": false,
+                "Comment": "LM Studio 로컬 OpenAI 호환 API"
+            }
+        ],
+        "AllowedKernelPlugins": [
+            {
+                "Name": "math",
+                "Functions": [ "Add", "Subtract" ]
+            },
+            {
+                "Name": "time",
+                "Functions": [ "Now", "Today" ]
+            },
+            {
+                "Name": "text",
+                "Functions": [ "Trim" ]
+            }
+        ],
+        "AllowedMcpServers": [],
+        "AllowedCliTools": [],
+        "AllowedBodyFileBasePaths": [],
+        "AllowedBuiltinTools": [
+            "corpus_rag_search",
+            "generate_image",
+            "skill_search",
+            "skill_install"
+        ],
+        "DriveBasePaths": [
+            "../modules/prompter/drive"
+        ],
+        "ImageGenerationDataSourceID": "LLM1",
+        "ImageGenerationModelID": "gpt-image-1",
+        "GeneratedImageBasePath": "../modules/prompter/generated-images",
+        "SkillBasePath": "../modules/prompter/skills",
+        "SkillsBaseUrl": "https://skills.sh",
+        "SkillsApiBearerToken": "",
+        "EnableSkillSearch": true,
+        "EnableSkillInstall": false
+    }
+}

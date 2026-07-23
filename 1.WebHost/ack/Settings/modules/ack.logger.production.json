@@ -1,0 +1,25 @@
+{
+    "ModuleID": "logger",
+    "Name": "logger",
+    "IsBundledWithHost": false,
+    "Version": "1.0.0",
+    "ModuleConfig": {
+        "SystemID": "HANDSTACK",
+        "IsSQLiteCreateOnNotSettingRequest": true,
+        "LogDeleteRepeatSecond": 43200,
+        "ModuleBasePath": "../modules/logger",
+        "BusinessServerUrl": "https://app.example.com:8421/transact/api/transaction/execute",
+        "EventAction": [],
+        "SubscribeAction": [],
+        "DataSource": [
+            {
+                "ApplicationID": "HDS",
+                "TableName": "TransactLog",
+                "DataProvider": "SQLite",
+                "RemovePeriod": -30,
+                "ConnectionString": "URI=file:../sqlite/HDS/logger/transact.db;Journal Mode=Off;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;",
+                "IsEncryption": "N"
+            }
+        ]
+    }
+}

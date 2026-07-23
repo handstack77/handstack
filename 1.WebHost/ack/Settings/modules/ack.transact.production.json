@@ -1,0 +1,90 @@
+{
+    "ModuleID": "transact",
+    "Name": "transact",
+    "IsBundledWithHost": false,
+    "Version": "1.0.0",
+    "ModuleConfig": {
+        "SystemID": "HANDSTACK",
+        "BusinessServerUrl": "https://app.example.com:8421/transact/api/transaction/execute",
+        "CircuitBreakResetSecond": 60,
+        "IsValidationRequest": false,
+        "IsAllowDynamicRequest": false,
+        "AllowTenantTransactionCommands": [ "D", "G" ],
+        "IsLogServer": true,
+        "LogServerUrl": "https://app.example.com:8421/logger/api/log/insert",
+        "IsTransactionLogging": true,
+        "IsTransactAggregate": true,
+        "IsTransactAggregateRolling": false,
+        "TransactAggregateDeleteOldCronTime": "0 1 * * *",
+        "IsDataMasking": false,
+        "MaskingChar": "*",
+        "MaskingMethod": "Syn",
+        "IsContractFileWatching": true,
+        "ContractBasePath": [
+            "../contracts/transact"
+        ],
+        "AvailableEnvironment": [ "P", "D", "S" ],
+        "IsCodeDataCache": true,
+        "CodeDataCacheTimeout": 20,
+        "ModuleBasePath": "../modules/transact",
+        "TransactionAggregateBasePath": "../sqlite/HDS/transact/aggregate",
+        "TrustedProxyIP": "1.1.1.1",
+        "HasTrustedCheckIP": false,
+        "UseApiAuthorize": false,
+        "DynamicWorkflowTransaction": "MOD|MOD010",
+        "DynamicWorkflowServices": "GP01,GP02",
+        "BypassAuthorizeIP": [
+            "localhost",
+            "127.0.0.1"
+        ],
+        "SecurityHardening": {
+            "EnforceRealClientIP": false,
+            "TrustedLocalhostBypass": true,
+            "LockdownMetadataEndpoints": false,
+            "RateLimit": {
+                "Enabled": true,
+                "PerIpPerMinute": 600,
+                "PerTokenPerMinute": 1200,
+                "Mode": "AuditOnly"
+            },
+            "MaxRoutes": 16,
+            "MaxDataMapSetCount": 256,
+            "MaxDecompressedBytes": 10485760,
+            "SanitizeErrorText": false,
+            "RegexTimeoutMilliseconds": 200,
+            "MaxConcurrentPushTasks": 64,
+            "EnforceWorkflowContractGuard": true
+        },
+        "AllowRequestTransactions": {
+            "HDS": [ "*" ]
+        },
+        "RoutingCommandUri": {
+            "HDS|*|D|D": "https://app.example.com:8421/dbclient/api/query",
+            "HDS|*|G|D": "https://app.example.com:8421/graphclient/api/query",
+            "HDS|*|F|D": "https://app.example.com:8421/function/api/execution",
+            "HDS|*|C|D": "https://app.example.com:8421/command/api/execution",
+            "HDS|*|P|D": "https://app.example.com:8421/prompter/api/query",
+            "HDS|*|D|P": "https://app.example.com:8421/dbclient/api/query",
+            "HDS|*|G|P": "https://app.example.com:8421/graphclient/api/query",
+            "HDS|*|F|P": "https://app.example.com:8421/function/api/execution",
+            "HDS|*|C|P": "https://app.example.com:8421/command/api/execution",
+            "HDS|*|P|P": "https://app.example.com:8421/prompter/api/query",
+            "HDS|*|D|T": "https://app.example.com:8421/dbclient/api/query",
+            "HDS|*|G|T": "https://app.example.com:8421/graphclient/api/query",
+            "HDS|*|F|T": "https://app.example.com:8421/function/api/execution",
+            "HDS|*|C|T": "https://app.example.com:8421/command/api/execution",
+            "HDS|*|P|T": "https://app.example.com:8421/prompter/api/query"
+        },
+        "EventAction": [],
+        "SubscribeAction": [
+            "transact.Events.TransactRequest"
+        ],
+        "PublicTransactions": [
+            {
+                "ApplicationID": "HDS",
+                "ProjectID": "*",
+                "TransactionID": "*"
+            }
+        ]
+    }
+}

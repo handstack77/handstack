@@ -123,6 +123,5 @@ let $sample = {
 ## 참고
 
 - 소스: `DatePeriodPicker.js`, `DatePeriodPicker.css`
-- 이 컨트롤 전용 표준 샘플 페이지(`sample/uicontrol`)는 아직 없습니다. 위 내용은 `DatePeriodPicker.js` 전체 소스 코드를 직접 읽어 확인한 사실이며, 실제 사용 마크업 스타일(`value: 'month:3'`, `startDataFieldID`/`endDataFieldID` 등)은 `qcn.groupware` 저장소의 `modules/bridal/wwwroot/bridal/view/HDS/BDL/BOD001.html` 실사용 예시를 참고했습니다(단, 그 예시에서 사용된 `belongID: ['MD01']` 배열 표기도 소스 코드상 실제로 지원되는 것을 확인했습니다).
 - 시작일/종료일 입력창 자체의 문자 입력 마스크·형식 검증 동작은 `TextBox` 컨트롤(`editType: 'date'`)과 동일합니다.
 - 예제는 [example](./example) 폴더, 사용 개요는 [README.md](./README.md)를 참고하세요.

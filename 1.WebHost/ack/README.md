@@ -62,6 +62,26 @@ curl "http://localhost:8421/stop?hostAccessID=<HOST_ACCESS_ID_HASH>"
 
 - `1.WebHost/ack/appsettings.json`
 
+로컬 런타임에 `handstack configuration --appsettings=ack.localhost.json`을 적용할 때는 `1.WebHost/ack/Settings`의 프리셋을 사용합니다. localhost 프리셋은 다음 원본과 동일하게 유지합니다.
+
+- `Settings/ack.localhost.json` → `1.WebHost/ack/appsettings.json`
+- `Settings/modules/ack.<module>.localhost.json` → `2.Modules/<module>/module.json`
+- `Settings/nodeconfigs/ack.localhost.json` → `2.Modules/function/node.config.json`
+- `Settings/synconfigs/ack.localhost.json` → `2.Modules/wwwroot/wwwroot/syn.config.json`
+
+서버 환경 프리셋은 대응하는 `.localhost.json`과 동일한 파일 집합과 설정을 사용하되, HTTP/HTTPS 루프백 주소의 `localhost`, `127.0.0.1`, `0.0.0.0` 호스트를 다음 기본 URL로 바꿉니다.
+
+| 파일 접미어 | 기본 URL | `AppSettings:RunningEnvironment` |
+|---|---|---|
+| `.development.json` | `http://dev.example.com` | `D` |
+| `.test.json` | `https://test.example.com` | `D` |
+| `.staging.json` | `https://staging.example.com` | `S` |
+| `.production.json` | `https://app.example.com` | `P` |
+
+포트와 경로는 유지하며 데이터베이스 호스트처럼 웹 URL이 아닌 값은 바꾸지 않습니다. ack 런타임은 `D`, `S`, `P`만 지원하므로 별도 test 런타임 코드 대신 test 프리셋은 `D`를 사용합니다.
+
+모듈 프리셋은 현재 솔루션의 `checkup`, `command`, `dbclient`, `forwarder`, `function`, `graphclient`, `logger`, `prompter`, `repository`, `transact`, `wwwroot`만 제공합니다. 솔루션에 프로젝트와 `module.json`이 없는 모듈은 모든 환경 프리셋에서 제외합니다.
+
 주요 설정 항목:
 
 - `AppSettings:HostAccessID`: 관리 API 인증 키 원본 값

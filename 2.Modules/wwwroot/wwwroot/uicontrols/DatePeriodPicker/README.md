@@ -15,8 +15,6 @@
 
 이름은 `$dateperiodpicker`이지만, 페이지에서 사용하는 태그명은 `syn_dateperiodpicker`입니다. 이 문서 전체에서 "DatePeriodPicker 컨트롤"이라 하면 이 둘을 함께 가리킵니다.
 
-> 이 컨트롤은 아직 `sample/uicontrol` 아래에 표준 데모 페이지가 없습니다. 이 문서의 API 사실 근거는 `DatePeriodPicker.js` 소스 코드 전체를 직접 읽고 확인한 내용이며, 실사용 마크업 스타일은 `qcn.groupware` 저장소의 `modules/bridal/wwwroot/bridal/view/HDS/BDL/BOD001.html` 예시(참고용)를 참고했습니다.
-
 ## 언제 사용하나요?
 
 - 형제 컨트롤인 `DatePicker`(`syn.uicontrols.$datepicker`) 는 날짜 1개만 다룹니다.

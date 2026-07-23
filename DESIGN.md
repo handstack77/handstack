@@ -6,7 +6,6 @@
 |---|---|
 | 적용 범위 | `wwwroot` 화면 HTML |
 | 적용 원칙 | **신규 화면은 필수 준수. 기존 화면은 수정하는 범위 내에서만 점진 적용** (일괄 리팩터링 금지) |
-| 근거 화면 | `qcn.groupware/modules/bridal/wwwroot/bridal/view/HDS/BDL/*`, `qcn.groupware/modules/easywork/wwwroot/easywork/view/HDS/EWP/*` (2026-07 기준 실제 운영 화면 254개를 근거로 갱신) |
 | 개정 절차 | 규칙 변경 시 이 문서를 먼저 수정하고, 근거가 되는 실제 화면 경로를 함께 기록 |
 
 이 문서는 AI(코딩 어시스턴트)와 개발자가 이 프로젝트에서 화면(HTML)을 작성할 때 따라야 할 UI 규칙을 정의합니다. 일반 Tabler 문서(`https://docs.tabler.io/ui`)와 다른 부분이 많으므로, **Tabler 공식 문서보다 이 문서가 우선**합니다. 이 문서의 규칙은 예시가 아니라 실제 운영 화면에서 반복 확인된 관례이며, 새 패턴이 필요하면 먼저 기존 화면에 유사 사례가 있는지 확인한 뒤 이 문서에 반영합니다.
@@ -67,14 +66,13 @@ Warning:  --tblr-warning   → bg-warning (대기/주의)
 Muted:    bg-muted-lt      → 읽기전용 입력값 배경, 아이콘 전용 보조 버튼 배경
 ```
 
-- **상태 표시는 배지(`badge bg-*`)보다 상태 필터 버튼그룹이 실제 관례입니다.** 검색 카드 안에 `btn-group` + `btn bg-muted-lt` 버튼을 나열해 "전체/진행중/완료/반려" 같은 상태를 토글하는 방식이 표준입니다 (`easywork/.../HQB010.html:27-31`). 그리드 내부의 상태 컬럼도 배지가 아니라 일반 텍스트 컬럼으로 표시하고, 색상이 필요하면 JS 렌더러에서 상태 코드 → 색상 클래스 매핑 함수로 처리합니다. `badge` 클래스는 이 두 근거 디렉터리에서 실사용 사례가 없으므로, 배지가 필요한 예외적인 화면(대시보드 등)에서만 아래 팔레트를 참고해 최소로 사용하세요.
+- **상태 표시는 배지(`badge bg-*`)보다 상태 필터 버튼그룹이 실제 관례입니다.** 검색 카드 안에 `btn-group` + `btn bg-muted-lt` 버튼을 나열해 "전체/진행중/완료/반려" 같은 상태를 토글하는 방식이 표준입니다. 그리드 내부의 상태 컬럼도 배지가 아니라 일반 텍스트 컬럼으로 표시하고, 색상이 필요하면 JS 렌더러에서 상태 코드 → 색상 클래스 매핑 함수로 처리합니다. `badge` 클래스는 이 두 근거 디렉터리에서 실사용 사례가 없으므로, 배지가 필요한 예외적인 화면(대시보드 등)에서만 아래 팔레트를 참고해 최소로 사용하세요.
 - 배지를 쓰는 예외 화면의 색상 규칙:
   - 완료/승인 → `bg-green` 또는 `bg-success`
   - 취소/반려/실패 → `bg-red` 또는 `bg-danger`
   - 대기/진행중 → `bg-yellow` 또는 `bg-warning`
   - 세부 상태가 많으면 Tabler 팔레트(`bg-blue`, `bg-cyan`, `bg-purple`, `bg-indigo`, `bg-orange`)와 `-lt` 변형 사용
   - **상태 값이 코드 테이블에서 오는 경우, 색상을 HTML에 하드코딩하지 말고 JS에서 상태 코드 → 색상 클래스 매핑 함수를 두고 그리드 렌더러에서 적용**합니다. 동일 상태 코드는 모듈이 달라도 같은 색을 쓰는 것이 원칙입니다.
-- 삭제 버튼은 `btn btn-danger`(`easywork/.../ODM011.html:118` 참고 패턴, `bridal/.../ODM011.html:118`)로 위험도를 명시합니다. 취소/닫기는 색상 강조를 하지 않습니다(7장 참고).
 
 ---
 
@@ -93,7 +91,6 @@ Bootstrap 표준 유틸리티(`fs-*`, `w-*`, `me-*`) 대신 Master CSS 단축 �
 
 - 끝의 `!`는 Master CSS의 important 문법입니다. 기존 스타일을 덮어써야 할 때만 사용합니다.
 - 인라인 `style=""`은 `display:none`, `visibility:hidden` 같은 **JS 상태 토글 용도로만** 허용합니다. 색상·크기·여백을 인라인 style로 넣지 마세요.
-- **버튼/영역의 표시 여부를 권한이나 상태에 따라 JS로 토글할 때는 인라인 `style="display:none"`보다 `class="hidden"`을 기본값으로 두고 JS가 클래스를 제거/추가하는 방식을 우선합니다.** 이 관례가 실제로 광범위하게 쓰입니다 (`bridal/.../ODM011.html:118-119`, `easywork/.../EST020.html:130`). 두 방식 모두 "JS 상태 토글" 목적이므로 5장의 인라인 style 허용 범위 안에 있지만, 새 화면에서는 `class="hidden"` 쪽을 기본으로 선택하세요.
 
 ---
 
@@ -136,8 +133,7 @@ HandStack 화면은 완전한 HTML 문서가 아니라 `syn.loader.js`가 로드
 
 - 컨테이너는 `container-xl`이 아니라 **`container-fluid`** + Master CSS 폭 제어를 사용합니다. `container-xl`이 남아있는 화면은 리팩터링 대상이며 새 화면에는 절대 쓰지 않습니다.
 - 실제 폭 값은 화면 성격에 따라 관례가 갈립니다. 신규 화면은 **모듈 내 기존 화면과 동일한 값**을 따르세요(다른 모듈이라도 임의로 값을 바꾸지 않습니다):
-  - 일반 목록/상세 화면(easywork 계열 다수): `max-width:1600!`
-  - 일반 목록/상세 화면(bridal 계열 다수): `min-width:1536 max-width:1920!`
+  - 일반 목록/상세 화면: `max-width:1600!`
   - 팝업/좁은 폭 화면: `max-width:1200!`
   - 인쇄/결재문서 폼(RPT 계열): `max-width:1000!`
 - `page-header`는 `mt-2 d-print-none`을 함께 붙이는 경우가 많습니다(인쇄 시 헤더 숨김). 페이지 헤더 우측에 주요 액션(신규 등록, 기안하기 등)이 있으면 `col-auto ms-auto d-print-none` + `btn-list`로 배치합니다.
@@ -213,7 +209,7 @@ HandStack 화면은 완전한 HTML 문서가 아니라 `syn.loader.js`가 로드
 </div>
 ```
 
-- 목록 카드 안에서 그리드를 감싸는 컨테이너는 `form-fieldset p-0`가 사실상 표준 래퍼입니다(`easywork/.../ATM010.html:121`). `card-body p-0`도 동일 목적으로 쓰이지만 새 화면은 `form-fieldset p-0`를 우선하세요.
+- 목록 카드 안에서 그리드를 감싸는 컨테이너는 `form-fieldset p-0`가 사실상 표준 래퍼입니다. `card-body p-0`도 동일 목적으로 쓰이지만 새 화면은 `form-fieldset p-0`를 우선하세요.
 - 카드 헤더 우측 액션은 `card-header > card-actions > btn-group` 3단 구조가 표준입니다. 아이콘 전용 액션 버튼은 `btn btn-icon bg-muted-lt`를 사용합니다(단순 `btn-primary`가 아님) — 신규/추가처럼 카드 헤더에 놓이는 보조 액션은 눈에 띄되 주 액션 색은 아닙니다.
 - 상태 필터는 배지가 아니라 `btn-group` + `btn bg-muted-lt` 토글 버튼으로 구현합니다(4장 참고). Tabler의 `nav-tabs`/`tab-pane`은 이 근거 화면들에서 쓰이지 않으므로, 탭이 필요해 보이는 상황에서도 우선 이 버튼그룹 패턴을 검토하세요.
 - 하단 고정 액션바가 필요한 극히 일부 화면만 `sticky-bottom`을 쓰고, 대다수는 `card-footer text-end p-2` + `btn-list`로 충분합니다. 화면이 길어 스크롤 중에도 액션이 보여야 하는 경우에만 `sticky-bottom`을 추가하세요.
@@ -258,7 +254,6 @@ HandStack 화면은 완전한 HTML 문서가 아니라 `syn.loader.js`가 로드
 
 - 어느 패턴이든 **라벨은 항상 입력 영역의 왼쪽**입니다. (A)는 `input-group`으로 라벨과 입력을 한 덩어리로 묶고, (B)는 `row` 안에서 라벨 컬럼과 입력 컬럼을 분리합니다. 새 화면에서 어느 패턴을 쓸지 애매하면 같은 모듈의 유사 화면을 따릅니다.
 - 필수 입력 표시는 `required` 클래스만 붙이고 `*` 문자를 라벨 텍스트에 직접 넣지 않습니다. 유효성 검사는 Bootstrap의 `is-invalid`/`invalid-feedback`이 아니라 `syn-options="{validators:['require']}"` 같은 JS 옵션으로 처리합니다.
-- 읽기전용 입력값은 `form-control bg-muted-lt` + `readonly`로 표시합니다(`bridal/.../CRM060.html:125` 등).
 - 기간 선택은 `syn_dateperiodpicker`, 트리는 `syn_tree`, 달력/기간은 `syn_datepicker`/`syn_dateperiodpicker`, 코드 선택(콤보)은 `syn_codepicker`, 파일 첨부는 `syn_fileclient`, 리치 텍스트는 `syn_htmleditor`, 조직도는 `syn_organization`, 차트는 `syn_chartjs` 컴포넌트를 사용합니다(9장 표 참고). 순수 HTML `<input type="date">`나 자체 구현 드롭존으로 대체하지 않습니다.
 - 모든 데이터 바인딩 요소에 `syn-datafield`를 지정합니다.
 
@@ -297,7 +292,7 @@ HandStack 화면은 완전한 HTML 문서가 아니라 `syn.loader.js`가 로드
 </div>
 ```
 
-- 좌측 컬럼은 하나의 카드 안에서 `card-header`(첫 섹션은 `border-t` 없음, 이후 섹션은 `card-header border-t`)를 반복해 세로로 여러 정보 블록(문서정보/관련문서/첨부파일/수신자/결재선 등)을 쌓습니다(`easywork/.../EST020.html:57-158`).
+- 좌측 컬럼은 하나의 카드 안에서 `card-header`(첫 섹션은 `border-t` 없음, 이후 섹션은 `card-header border-t`)를 반복해 세로로 여러 정보 블록(문서정보/관련문서/첨부파일/수신자/결재선 등)을 쌓습니다.
 - 각 섹션의 항목 리스트(첨부파일, 결재선, 수신자 등)는 정적 마크업 없이 빈 `<div id="lst...">`만 두고 JS가 동적으로 카드형 항목을 그려 넣습니다. list-group 같은 Bootstrap 컴포넌트를 정적으로 채워두지 않습니다.
 - 우측 본문이 다른 화면(보고서 등)을 그대로 보여줘야 하면 `iframe`을 사용합니다.
 
@@ -325,7 +320,7 @@ Bootstrap `modal`/`modal-dialog`를 사용하지 않습니다. HandStack의 `sim
 ```
 
 - 닫기/트리거는 `syn-options="{triggerConfig:{...}}"`로 바인딩합니다. `data-bs-dismiss="modal"`은 사용하지 않습니다.
-- 팝업 헤더는 `card-header` 단독보다 `card-header dialog-header sticky-top p-2`로 스크롤 중에도 헤더가 고정되도록 하는 경우가 많습니다(`easywork/.../ATM020.html:284`).
+- 팝업 헤더는 `card-header` 단독보다 `card-header dialog-header sticky-top p-2`로 스크롤 중에도 헤더가 고정되도록 하는 경우가 많습니다.
 - 팝업 컨테이너 폭은 6.1의 팝업 값(`max-width:1200!`)을 따릅니다.
 
 ### 6.6 인라인/전용 스타일이 허용되는 화면 (예외 유형)

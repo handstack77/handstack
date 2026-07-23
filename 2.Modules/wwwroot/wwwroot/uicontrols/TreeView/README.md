@@ -69,6 +69,5 @@ syn.uicontrols.$tree.setValue('tvlTreeView', [
 - API 상세는 같은 폴더의 `API.md`를 참고하세요.
 - 실제 소스: `wwwroot/uicontrols/TreeView/TreeView.js`, `TreeView.css`
 - 기존 샘플: `wwwroot/sample/uicontrol/treeview.html`
-- 실사용 예: qcn.groupware `modules/easywork/wwwroot/easywork/view/HDS/EWP/ATM020.html` (`tplDepartment` 다이얼로그의 소속조직 트리) — 검색창(`txtTreeNodeFilter`)으로 필터링하고, 더블클릭으로 노드를 선택하는 실제 화면 흐름을 참고할 수 있습니다.
 - ContextMenu와 함께 쓰는 방법: `../ContextMenu/README.md`, `../ContextMenu/API.md`
 - FancyTree 원본 문서: https://github.com/mar10/fancytree/wiki

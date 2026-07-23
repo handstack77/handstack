@@ -1,0 +1,120 @@
+{
+    "AppSettings": {
+        "HostAccessID": "HANDSTACK_HOSTACCESSID",
+        "SystemID": "HANDSTACK",
+        "ApplicationID": "HDS",
+        "ProgramName": "ack",
+        "HostName": "HOSTNAME",
+        "InstallType": "L",
+        "BusinessServerUrl": "https://test.example.com:8421/transact/api/transaction/execute",
+        "FindGlobalIDServer": "",
+        "DomainAPIServer": {
+            "ServerID": "SERVERD01",
+            "ServerType": "D",
+            "Protocol": "http",
+            "IP": "localhost",
+            "Port": "8421",
+            "Path": "/transact/api/transaction/execute",
+            "ClientIP": "127.0.0.1"
+        },
+        "ForwardProxyIP": [],
+        "IsAutoUpdate": false,
+        "IsConfigurationWatching": false,
+        "IsTenantFunction": true,
+        "IsExceptionDetailText": true,
+        "ContractRequestPath": "view",
+        "TenantAppRequestPath": "app",
+        "TenantAppBasePath": "../tenants",
+        "BatchProgramBasePath": "../batchs",
+        "CreateAppTempPath": "../tmp/create_apps",
+        "ForbesBasePath": "../forbes",
+        "IsModulePurgeContract": true,
+        "LoadModuleBasePath": "../modules",
+        "LoadModules": [
+            "wwwroot",
+            "transact",
+            "dbclient",
+            "graphclient",
+            "function",
+            "command",
+            "prompter",
+            "repository",
+            "logger",
+            "checkup",
+            "forwarder"
+        ],
+        "ModuleConfigurationUrl": [
+        ],
+        "RunningEnvironment": "D",
+        "UseResponseComression": false,
+        "UseForwardProxy": false,
+        "UseSameIPProxy": false,
+        "Security": {
+            "EnableSecurityHeaders": true,
+            "EnablePublicCorsPolicy": true,
+            "ExposeSecretValues": false,
+            "WarnOnWildcardAllowClientIP": true,
+            "MaxContractSyncFileBytes": 10485760
+        },
+        "WithOrigins": [
+            "https://test.example.com",
+            "https://test.example.com:8421",
+            "https://test.example.com",
+            "https://test.example.com:8421"
+        ],
+        "WithOnlyIPs": [],
+        "SessionState": {
+            "IsSession": true,
+            "SessionCookieName": "HandStack.Session",
+            "CacheType": "Memory",
+            "MySqlConnectionString": "Server=127.0.0.1;Port=3306;Database=HandStack_Cache;Uid=handstack;Pwd=handstack~!@34;PersistSecurityInfo=True;SslMode=none;Charset=utf8;Allow User Variables=True;",
+            "MySqlSchemaName": "HandStack_Cache",
+            "MySqlTableName": "SessionData",
+            "SqlServerConnectionString": "Data Source=127.0.0.1;TrustServerCertificate=True;Initial Catalog=HandStack_Cache;User ID=handstack;Password=handstack~!@34;Connection Timeout=0;",
+            "SqlServerSchemaName": "dbo",
+            "SqlServerTableName": "SessionData"
+        },
+        "CookiePrefixName": "HandStack",
+        "UserSignExpire": -1
+    },
+    "Serilog": {
+        "Using": [ "Serilog.Sinks.File", "Serilog.Sinks.Console" ],
+        "MinimumLevel": {
+            "Default": "Information",
+            "Override": {
+                "Microsoft": "Error",
+                "System": "Error"
+            }
+        },
+        "Enrich": [ "FromLogContext" ],
+        "WriteTo": [
+            {
+                "Name": "Console",
+                "Args": {
+                    "outputTemplate": "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}"
+                }
+            },
+            {
+                "Name": "File",
+                "Args": {
+                    "path": "../log/app.log",
+                    "rollingInterval": "Day",
+                    "rollOnFileSizeLimit": true,
+                    "buffered": true,
+                    "fileSizeLimitBytes": 104857600,
+                    "flushToDiskInterval": "00:00:05",
+                    "outputTemplate": "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}"
+                }
+            }
+        ]
+    },
+    "Kestrel": {
+        "DisableStringReuse": true,
+        "Limits": {
+            "MaxConcurrentConnections": null,
+            "MaxConcurrentUpgradedConnections": null,
+            "MaxRequestBodySize": 104857600,
+            "KeepAliveTimeout": "00:02:00"
+        }
+    }
+}
