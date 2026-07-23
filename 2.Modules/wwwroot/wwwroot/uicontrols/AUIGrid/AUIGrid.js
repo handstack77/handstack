@@ -166,7 +166,7 @@
 
     $auigrid.extend({
         name: 'syn.uicontrols.$auigrid',
-        version: 'v2026.7.22',
+        version: 'v2026.7.23',
 
         gridControls: [],
         gridCodeDatas: [],

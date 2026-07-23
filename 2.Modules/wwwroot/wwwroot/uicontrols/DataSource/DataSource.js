@@ -7,7 +7,7 @@
 
     $data.extend({
         name: 'syn.uicontrols.$data',
-        version: 'v2026.7.22',
+        version: 'v2026.7.23',
         bindingList: [],
         storeList: [],
 

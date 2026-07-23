@@ -6,7 +6,7 @@
 
     $sourceeditor.extend({
         name: 'syn.uicontrols.$sourceeditor',
-        version: 'v2026.7.22',
+        version: 'v2026.7.23',
         editorPendings: [],
         editorControls: [],
         defaultSetting: {

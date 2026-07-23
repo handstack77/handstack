@@ -7,7 +7,7 @@
 
     $multiselect.extend({
         name: 'syn.uicontrols.$multiselect',
-        version: 'v2026.7.22',
+        version: 'v2026.7.23',
         selectControls: [],
         defaultSetting: {
             elID: '',

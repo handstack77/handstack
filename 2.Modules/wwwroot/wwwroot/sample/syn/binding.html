@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/lib/highlight.js/styles/atom-one-dark.min.css">
+</head>
+<body style="visibility: hidden;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="mt-3">syn.$bind: Proxy 기반 양방향 데이터 바인딩을 제공합니다.</h1>
+                <div class="form-text mb-3">
+                    순수 객체(<code>{}</code>) 및 평면 객체 배열(<code>[{},{},...]</code>) 전용입니다. 데이터 변경은
+                    별도 API 없이 표준 JS 문법(<code>store.data.xxx = ...</code>, <code>arr.push(...)</code> 등) 그대로 사용합니다.
+                    화면 바인딩은 <code>syn-bind</code> / <code>syn-bind-list</code> 속성으로 선언합니다.
+                </div>
+
+                <div class="card">
+                    <div class="card-status-top bg-red"></div>
+                    <div class="card-header">
+                        <h3 class="card-title">1. 기본 객체 바인딩 (value / checked / radio / edit)</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">이름 (syn-bind="value:user.name")</label>
+                                <input type="text" class="form-control" syn-bind="value:user.name">
+                                <div class="form-text">→ <b syn-bind="text:user.name"></b></div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">이메일</label>
+                                <input type="email" class="form-control" syn-bind="value:user.email">
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">사용 여부</label>
+                                <div>
+                                    <input type="checkbox" syn-bind="checked:user.active">
+                                    <span syn-bind="show:user.active">사용중</span>
+                                    <span syn-bind="hide:user.active">미사용</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">역할</label>
+                                <select class="form-control" syn-bind="value:user.role">
+                                    <option value="user">일반 사용자</option>
+                                    <option value="admin">관리자</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">요금제 (radio)</label>
+                                <div>
+                                    <label><input type="radio" name="plan" value="basic" syn-bind="radio:user.plan"> 베이직</label>
+                                    <label><input type="radio" name="plan" value="pro" syn-bind="radio:user.plan"> 프로</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">소개 (textarea)</label>
+                                <textarea class="form-control" rows="2" syn-bind="value:user.bio" placeholder="자기소개를 입력하세요"></textarea>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">소개 (contenteditable)</label>
+                                <div class="form-control" contenteditable="true" style="min-height:38px" syn-bind="edit:user.bio"></div>
+                                <div class="form-text">위 textarea와 이 영역은 동일한 경로(user.bio)에 바인딩되어 있어 서로 실시간으로 동기화됩니다.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mt-3">
+                    <div class="card-status-top bg-red"></div>
+                    <div class="card-header">
+                        <h3 class="card-title">2. 중첩 객체 (nested property / 프로퍼티 재할당)</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">도시 / 우편번호 (address.city / address.zip)</label>
+                                <input type="text" class="form-control mb-1" syn-bind="value:address.city">
+                                <input type="text" class="form-control" syn-bind="value:address.zip">
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <button type="button" id="btn_replaceAddress" class="mt-2 btn btn-primary" syn-events="['click']">store.data.address = {...} 재할당</button>
+                                <div class="form-text">
+                                    address 객체 전체를 새 값으로 교체합니다.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mt-3">
+                    <div class="card-status-top bg-red"></div>
+                    <div class="card-header">
+                        <h3 class="card-title">3. 배열(리스트) 바인딩 (syn-bind-list / push / pop / splice / index 교체)</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row p-2 mt-1">
+                            <div class="col-12">
+                                <button type="button" id="btn_push" class="mt-2 btn btn-primary" syn-events="['click']">추가 (push)</button>
+                                <button type="button" id="btn_pop" class="mt-2 btn btn-primary" syn-events="['click']">마지막 삭제 (pop)</button>
+                                <button type="button" id="btn_replaceIndex" class="mt-2 btn btn-primary" syn-events="['click']">2번째 항목 통째로 교체 (items[1] = {...})</button>
+                                <button type="button" id="btn_itemsSort" class="mt-2 btn btn-primary" syn-events="['click']">제목순 정렬 (in-place sort)</button>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <table class="table table-vcenter card-table">
+                                    <thead><tr><th style="width:45%">상품명</th><th>수량</th><th>완료</th><th></th></tr></thead>
+                                    <tbody id="tbl_items" syn-bind-list="items">
+                                        <template>
+                                            <tr>
+                                                <td><input type="text" class="form-control form-control-sm" syn-bind="value:title"></td>
+                                                <td><input type="number" min="0" class="form-control form-control-sm" syn-bind="value:qty"></td>
+                                                <td><input type="checkbox" syn-bind="checked:done"></td>
+                                                <td><button type="button" class="btn btn-sm btn-outline-danger js-remove-row">삭제</button></td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mt-3">
+                    <div class="card-status-top bg-red"></div>
+                    <div class="card-header">
+                        <h3 class="card-title">4. 커스텀 컨트롤 어댑터 (syn.$bind.registerAdapter)</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-text mb-2">
+                            표준 HTMLElement가 아닌 컨트롤은 <code>get / set / on / off</code> 4개 함수만 구현해
+                            <code>syn.$bind.registerAdapter()</code>에 등록하면 동일한 <code>syn-bind="adapter(어댑터명):경로"</code>
+                            문법으로 바인딩됩니다.
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">별점(rating)</label>
+                                <div class="rating" syn-bind="adapter(rating):user.rating">
+                                    <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span><span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">토글 스위치</label>
+                                <button type="button" class="toggle-switch" syn-bind="adapter(toggle):user.active"></button>
+                                <div class="form-text">1번 섹션의 "사용 여부" 체크박스와 같은 경로(user.active) → 상호 동기화됩니다.</div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">미니 그리드</label>
+                                <div id="miniGrid" syn-bind="adapter(minigrid):items"></div>
+                                <div class="form-text">
+                                    별도 라이브러리 없이 직접 구현한 데모용 컨트롤이며, 3번 섹션 테이블과 <b>동일한 items 배열</b>에
+                                    바인딩됩니다. 어느 쪽에서 값을 바꾸든 실시간으로 서로 반영됩니다 — AUIGrid/Handsontable 같은
+                                    실제 그리드도 동일한 방식(get/set/on)으로 연결합니다.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mt-3">
+                    <div class="card-status-top bg-red"></div>
+                    <div class="card-header">
+                        <h3 class="card-title">5. 실제 서드파티 컨트롤 어댑터 참고 코드</h3>
+                    </div>
+                    <div class="card-body">
+                        <pre><text>
+아래 코드는 실제 라이브러리가 프로젝트에 설치되어 있을 때 그대로 사용할 수 있는 참고 구현입니다.
+(해당 라이브러리들은 이 문서에 포함되어 있지 않으므로 이 페이지에서는 실행되지 않습니다.)
+
+#### AUIGrid
+                        </text></pre>
+                        <pre><code language="js">syn.$bind.registerAdapter('auigrid', {
+  get: function (el) { return el._auiGrid.getGridData(); },
+  set: function (el, value) { el._auiGrid.setGridData(value || []); },
+  on: function (el, handler) {
+    var fire = function () { handler(el._auiGrid.getGridData()); };
+    el._auiGrid.bind('cellDataChanged', fire);
+    el._auiGrid.bind('rowAdded', fire);
+    el._auiGrid.bind('rowRemoved', fire);
+  },
+  off: function (el) {
+    el._auiGrid.unbind('cellDataChanged');
+    el._auiGrid.unbind('rowAdded');
+    el._auiGrid.unbind('rowRemoved');
+  }
+});
+
+// 초기화: 그리드 인스턴스를 엘리먼트에 보관해두면 어댑터에서 참조하기 편하다
+var gridEl = document.getElementById('auiGridContainer');
+gridEl._auiGrid = new AUIGrid({ id: 'auiGridContainer', dataSource: [], columnLayout: [ /* ... */ ] });</code></pre>
+                        <pre><code language="html">&lt;div id="auiGridContainer" syn-bind="adapter(auigrid):items"&gt;&lt;/div&gt;</code></pre>
+
+                        <pre><text>
+#### Handsontable
+                        </text></pre>
+                        <pre><code language="js">syn.$bind.registerAdapter('handsontable', {
+  get: function (el) { return el._hot.getSourceData(); },
+  set: function (el, value) { el._hot.loadData(value || []); },
+  on: function (el, handler) {
+    el._hot.addHook('afterChange', function (changes, source) {
+      if (source === 'loadData') return; // set()으로 인한 되먹임(echo) 방지
+      handler(el._hot.getSourceData());
+    });
+    el._hot.addHook('afterCreateRow', function () { handler(el._hot.getSourceData()); });
+    el._hot.addHook('afterRemoveRow', function () { handler(el._hot.getSourceData()); });
+  }
+});
+
+var hotEl = document.getElementById('hotContainer');
+hotEl._hot = new Handsontable(hotEl, {
+  columns: [ { data: 'title' }, { data: 'qty', type: 'numeric' }, { data: 'done', type: 'checkbox' } ],
+  rowHeaders: true,
+  colHeaders: ['상품명', '수량', '완료']
+});</code></pre>
+                        <pre><code language="html">&lt;div id="hotContainer" syn-bind="adapter(handsontable):items"&gt;&lt;/div&gt;</code></pre>
+
+                        <pre><text>
+#### tail.select.js
+                        </text></pre>
+                        <pre><code language="js">syn.$bind.registerAdapter('tail-select', {
+  get: function (el) { return el.tail.select.getValue(); },
+  set: function (el, value) { el.tail.select.setValue(value); },
+  on: function (el, handler) {
+    el.addEventListener('change', function () { handler(el.tail.select.getValue()); });
+  }
+});
+
+tail.select('#roleSelect'); // 초기화 시 엘리먼트에 el.tail 참조가 생성된다</code></pre>
+                        <pre><code language="html">&lt;select id="roleSelect" syn-bind="adapter(tail-select):user.role"&gt;
+  &lt;option value="user"&gt;일반 사용자&lt;/option&gt;
+  &lt;option value="admin"&gt;관리자&lt;/option&gt;
+&lt;/select&gt;</code></pre>
+
+                        <pre><text>
+#### daterangepicker (bootstrap-daterangepicker, jQuery 기반)
+                        </text></pre>
+                        <pre><code language="js">syn.$bind.registerAdapter('daterangepicker', {
+  get: function (el) {
+    var picker = $(el).data('daterangepicker');
+    return { start: picker.startDate.format('YYYY-MM-DD'), end: picker.endDate.format('YYYY-MM-DD') };
+  },
+  set: function (el, value) {
+    if (!value) return;
+    var picker = $(el).data('daterangepicker');
+    picker.setStartDate(value.start);
+    picker.setEndDate(value.end);
+    $(el).val(value.start + ' ~ ' + value.end);
+  },
+  on: function (el, handler) {
+    $(el).on('apply.daterangepicker', function (ev, picker) {
+      handler({ start: picker.startDate.format('YYYY-MM-DD'), end: picker.endDate.format('YYYY-MM-DD') });
+    });
+  }
+});
+
+$('#dateRange').daterangepicker({ /* 옵션 */ });</code></pre>
+                        <pre><code language="html">&lt;input id="dateRange" type="text" syn-bind="adapter(daterangepicker):period"&gt;</code></pre>
+                    </div>
+                </div>
+
+                <div class="card mt-3">
+                    <div class="card-status-top bg-red"></div>
+                    <div class="card-header">
+                        <h3 class="card-title">6. 변경 이벤트 로그 / 원본 데이터 (JSON)</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">최근 이벤트 (store.subscribe('', cb, { deep: true }), 최대 40개)</label>
+                                <textarea id="txt_eventLog" class="form-control" rows="8" readonly></textarea>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">store.toRaw() 실시간 스냅샷</label>
+                                <textarea id="txt_dataDump" class="form-control" rows="10" readonly></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mt-3">
+                    <div class="card-status-top bg-red"></div>
+                    <div class="card-header">
+                        <h3 class="card-title">7. API 레퍼런스 예제</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$bind.createStore(data)</label>
+                                <div class="form-text mb-1">DOM에 연결하지 않고 반응형 store만 만듭니다. 화면에 반영하려면 subscribe()로 직접 연결하거나, 나중에 attach()/mount()로 DOM에 붙여야 합니다.</div>
+                                <input type="text" id="txt_createStoreOutput" class="form-control mb-1" readonly value="(아직 생성 안 됨)">
+                                <button type="button" id="btn_createStore" class="mt-2 btn btn-primary" syn-events="['click']">createStore() 로 demoStore 생성 + count++</button>
+                            </div>
+                        </div>
+
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$bind.mount(root, dataOrStore)</label>
+                                <div class="form-text mb-1">createStore + DOM 스캔·바인딩을 한 번에 수행합니다. 버튼을 눌러야 그 순간 바인딩됩니다.</div>
+                                <template id="mountAreaTemplate">
+                                    <input type="text" class="form-control mb-1" syn-bind="value:label" placeholder="label">
+                                    <div class="form-text">→ <b syn-bind="text:label"></b></div>
+                                </template>
+                                <div id="mountArea" class="mb-2"><span class="form-text">mount() 실행 전 (아직 바인딩 없음)</span></div>
+                                <button type="button" id="btn_mount" class="mt-2 btn btn-primary" syn-events="['click']">mount() 실행</button>
+                                <button type="button" id="btn_mountDestroy" class="mt-2 btn btn-outline-secondary" syn-events="['click']">destroy() 실행 (바인딩 해제)</button>
+                            </div>
+                        </div>
+
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$bind.attach(root, store)</label>
+                                <div class="form-text mb-1">mount()의 저수준 버전으로, store를 새로 만들지 않고 이미 있는 store를 다른 DOM 영역에 추가로 연결만 합니다. 위 mount() 데모의 store를 재사용합니다.</div>
+                                <template id="attachAreaTemplate">
+                                    <input type="text" class="form-control mb-1" syn-bind="value:label" placeholder="label">
+                                    <div class="form-text">→ <b syn-bind="text:label"></b></div>
+                                </template>
+                                <div id="attachArea" class="mb-2"><span class="form-text">위에서 먼저 mount()를 실행하세요</span></div>
+                                <button type="button" id="btn_attach" class="mt-2 btn btn-primary" syn-events="['click']">attach() 실행 (mount의 store에 연결)</button>
+                            </div>
+                        </div>
+
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$bind.registerBinding(type, handler)</label>
+                                <div class="form-text mb-1">새로운 선언적 바인딩 타입을 추가합니다. 값을 대문자로 표시하는 uppercase 타입을 등록해 1번 섹션의 이름(user.name)을 그대로 재사용합니다.</div>
+                                <div class="form-control" style="background:#f6f8fa"><b syn-bind="uppercase:user.name"></b></div>
+                            </div>
+                        </div>
+
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$bind.registerAdapter(name, adapter)</label>
+                                <div class="form-text mb-1">4번 섹션에서 이미 자세히 다뤘습니다. 여기서는 API 자체에 집중한 최소 예시로, 클릭할 때마다 값이 올라가는 카운터 버튼을 컨트롤로 등록합니다.</div>
+                                <button type="button" class="btn btn-outline-primary" syn-bind="adapter(counter):clickCount">0</button>
+                            </div>
+                        </div>
+
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$bind.raw(value)</label>
+                                <div class="form-text mb-1">트리 중간의 프록시 값(store.data.items[0])을 원본 순수 객체로 변환합니다. store.toRaw()는 루트 전체만 변환합니다.</div>
+                                <textarea id="txt_rawOutput" class="form-control mb-1" rows="2" readonly></textarea>
+                                <button type="button" id="btn_raw" class="mt-2 btn btn-primary" syn-events="['click']">store.data.items[0]을 raw()로 변환</button>
+                            </div>
+                        </div>
+
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">store.data / store.get(path) / store.set(path, value)</label>
+                                <div class="form-text mb-1">store.data.user.name = ... 과 store.set('user.name', ...) 는 완전히 동일한 결과를 냅니다.</div>
+                                <input type="text" id="txt_path" class="form-control mb-1" value="user.name" placeholder="경로">
+                                <input type="text" id="txt_pathValue" class="form-control mb-1" value="&quot;김민수&quot;" placeholder="새 값 (JSON)">
+                                <button type="button" id="btn_pathGet" class="mt-2 btn btn-primary" syn-events="['click']">get(path) 조회</button>
+                                <button type="button" id="btn_pathSet" class="mt-2 btn btn-primary" syn-events="['click']">set(path, value) 적용</button>
+                                <textarea id="txt_pathOutput" class="form-control mt-2" rows="2" readonly></textarea>
+                            </div>
+                        </div>
+
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">store.subscribe(path, cb, { deep })</label>
+                                <div class="form-text mb-1">경로 변경을 구독합니다. deep:true면 하위 경로(items[0].title 등)까지 함께 수신합니다. 반환값은 구독을 끊는 함수입니다.</div>
+                                <button type="button" id="btn_subscribeToggle" class="mt-2 btn btn-primary" syn-events="['click']">items 구독 시작</button>
+                                <textarea id="txt_subscribeOutput" class="form-control mt-2" rows="4" readonly></textarea>
+                            </div>
+                        </div>
+
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">store.batch(fn)</label>
+                                <div class="form-text mb-1">
+                                    splice처럼 한 번의 호출로 여러 변경이 연속 발생하는 연산을 감쌉니다. batch 없이는 연산 도중 구독 콜백이
+                                    불완전한 중간 상태를 볼 수 있지만, batch로 감싸면 항상 연산이 끝난 뒤의 안정된 상태만 관찰합니다.
+                                </div>
+                                <button type="button" id="btn_batchOff" class="mt-2 btn btn-primary" syn-events="['click']">batch 없이 splice(1,1) 실행</button>
+                                <button type="button" id="btn_batchOn" class="mt-2 btn btn-primary" syn-events="['click']">batch로 splice(1,1) 실행</button>
+                                <button type="button" id="btn_batchReset" class="mt-2 btn btn-outline-secondary" syn-events="['click']">items 초기화 (3개로 복원)</button>
+                                <textarea id="txt_batchOutput" class="form-control mt-2" rows="4" readonly></textarea>
+                            </div>
+                        </div>
+
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">store.toRaw()</label>
+                                <div class="form-text mb-1">
+                                    프록시가 아닌 원본 데이터 전체(복사본 아님)를 반환합니다. 직접 수정하면 데이터는 실제로 바뀌지만
+                                    Proxy의 set 트랩을 거치지 않아 이벤트가 발생하지 않고 화면도 갱신되지 않습니다.
+                                </div>
+                                <button type="button" id="btn_toRawDump" class="mt-2 btn btn-primary" syn-events="['click']">toRaw() 덤프 출력</button>
+                                <button type="button" id="btn_toRawMutate" class="mt-2 btn btn-outline-danger" syn-events="['click']">raw 객체 직접 수정 (반응 없음 확인)</button>
+                                <textarea id="txt_toRawOutput" class="form-control mt-2" rows="6" readonly></textarea>
+                            </div>
+                        </div>
+
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">store.scope(basePath)</label>
+                                <div class="form-text mb-1">특정 경로를 기준으로 상대 경로만 쓰는 얇은 뷰를 만듭니다. 리스트 바인딩이 각 행마다 내부적으로 자동 생성하는 것과 같은 방식입니다.</div>
+                                <input type="number" id="txt_scopeIndex" class="form-control mb-1" value="0" min="0" placeholder="대상 인덱스">
+                                <input type="text" id="txt_scopeValue" class="form-control mb-1" value="스코프로 변경" placeholder="새 title 값">
+                                <button type="button" id="btn_scopeGet" class="mt-2 btn btn-primary" syn-events="['click']">scope.get('title') 조회</button>
+                                <button type="button" id="btn_scopeSet" class="mt-2 btn btn-primary" syn-events="['click']">scope.set('title', 값) 적용</button>
+                                <textarea id="txt_scopeOutput" class="form-control mt-2" rows="2" readonly></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <style>
+        .rating { display: inline-flex; gap: 2px; cursor: pointer; font-size: 22px; user-select: none; }
+        .rating .star { color: #d0d7de; }
+        .rating .star.filled { color: #e3b341; }
+        .toggle-switch {
+            width: 46px; height: 26px; border-radius: 999px; background: #d0d7de; border: none;
+            position: relative; cursor: pointer; padding: 0; transition: background .15s;
+        }
+        .toggle-switch::after {
+            content: ''; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px;
+            background: #fff; border-radius: 50%; transition: transform .15s; box-shadow: 0 1px 2px rgba(0,0,0,.3);
+        }
+        .toggle-switch.on { background: #206bc4; }
+        .toggle-switch.on::after { transform: translateX(20px); }
+    </style>
+    <script src="/lib/highlight.js/highlight.min.js"></script>
+    <script src="/lib/showdown/showdown.min.js"></script>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

@@ -1,5 +1,5 @@
-/*!
-HandStack Javascript Library v2026.7.22
+﻿/*!
+HandStack Javascript Library v2026.7.23
 https://handshake.kr
 
 Copyright 2025, HandStack
@@ -2981,7 +2981,7 @@ if (typeof module !== 'undefined' && module.exports) {
         concreate() {
             if (globalRoot.devicePlatform !== 'node') {
                 doc.addEventListener('DOMContentLoaded', () => {
-                    this.addEvent(context, 'unload', () => this.events.flush());
+                    this.addEvent(context, 'pagehide', () => this.events.flush());
                 }, { once: true });
             }
         },

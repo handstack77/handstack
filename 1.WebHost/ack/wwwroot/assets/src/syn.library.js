@@ -122,7 +122,7 @@
         concreate() {
             if (globalRoot.devicePlatform !== 'node') {
                 doc.addEventListener('DOMContentLoaded', () => {
-                    this.addEvent(context, 'unload', () => this.events.flush());
+                    this.addEvent(context, 'pagehide', () => this.events.flush());
                 }, { once: true });
             }
         },

@@ -1,4 +1,4 @@
-/// <reference path="/js/syn.js" />
+﻿/// <reference path="/js/syn.js" />
 
 (function (window) {
     'use strict';
@@ -393,7 +393,7 @@
 
     $chart.extend({
         name: 'syn.uicontrols.$chart',
-        version: 'v2026.7.22',
+        version: 'v2026.7.23',
         chartControls: [],
         randomSeed: Date.now(),
         defaultSetting: {
@@ -1233,7 +1233,7 @@
 
     $colorpicker.extend({
         name: 'syn.uicontrols.$colorpicker',
-        version: 'v2026.7.22',
+        version: 'v2026.7.23',
         colorControls: [],
         defaultSetting:
         {
@@ -1671,7 +1671,7 @@
 
     $data.extend({
         name: 'syn.uicontrols.$data',
-        version: 'v2026.7.22',
+        version: 'v2026.7.23',
         bindingList: [],
         storeList: [],
 
@@ -3377,7 +3377,7 @@
 
     $multiselect.extend({
         name: 'syn.uicontrols.$multiselect',
-        version: 'v2026.7.22',
+        version: 'v2026.7.23',
         selectControls: [],
         defaultSetting: {
             elID: '',
@@ -8291,7 +8291,7 @@
 
     $sourceeditor.extend({
         name: 'syn.uicontrols.$sourceeditor',
-        version: 'v2026.7.22',
+        version: 'v2026.7.23',
         editorPendings: [],
         editorControls: [],
         defaultSetting: {
@@ -11512,7 +11512,7 @@
 
     $auigrid.extend({
         name: 'syn.uicontrols.$auigrid',
-        version: 'v2026.7.22',
+        version: 'v2026.7.23',
 
         gridControls: [],
         gridCodeDatas: [],

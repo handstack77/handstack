@@ -32,6 +32,7 @@ gulp.task('scripts', async function () {
         'wwwroot/assets/src/syn.network.js',
         'wwwroot/assets/src/syn.webform.js',
         'wwwroot/assets/src/syn.print.js',
+        'wwwroot/assets/src/syn.binding.js',
         'wwwroot/assets/src/syn.resource.js',
         'wwwroot/assets/src/lang/syn.resource.ko-KR.js',
     ];
@@ -67,6 +68,7 @@ export const $r = syn.$r;
 export const $n = syn.$n;
 export const $w = syn.$w;
 export const $p = syn.$p;
+export const $bind = syn.$bind;
 export const $res = syn.$res;
 
 export { syn, Module, globalRoot };

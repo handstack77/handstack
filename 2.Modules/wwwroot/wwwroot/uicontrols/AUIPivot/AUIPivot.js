@@ -126,7 +126,7 @@
 
     $auipivot.extend({
         name: 'syn.uicontrols.$auipivot',
-        version: 'v2026.7.22',
+        version: 'v2026.7.23',
 
         gridControls: [],
         pivotOptions: {

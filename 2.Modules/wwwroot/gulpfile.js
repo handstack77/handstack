@@ -216,78 +216,10 @@ gulp.task('styles', async function () {
         .pipe(gulp.dest('wwwroot/css'));
 });
 
-
-gulp.task('basestyles', async function () {
-    var stripCssComments = await getStripCssComments();
-    return gulp.src([
-        // syn.scripts.js
-        `wwwroot/js/notifier/notifier.css`,
-        `wwwroot/js/jquery-ui-contextmenu/jquery-ui.css`,
-        'wwwroot/lib/ispin/dist/ispin.min.css',
-        'wwwroot/lib/fancytree/skin-win8/ui.fancytree.css',
-        'wwwroot/lib/orgchart/css/jquery.orgchart.min.css',
-        'wwwroot/lib/print-js/print.min.css',
-        `wwwroot/js/css-checkbox/checkboxes.css`,
-        `wwwroot/lib/codemirror/codemirror.min.css`,
-        `wwwroot/lib/tail.select.js/css/default/tail.select-light.css`,
-        `wwwroot/js/color-picker/color-picker.css`,
-        `wwwroot/lib/pikaday/css/pikaday.min.css`,
-        `wwwroot/lib/fancytree/skin-win8/ui.fancytree.css`,
-        `wwwroot/lib/intro.js/introjs.min.css`,
-        // 'wwwroot/lib/handsontable/dist/handsontable.full.css',
-        'wwwroot/lib/auigrid/dist/auigrid_style.css',
-
-        // syn.domain.js
-        'wwwroot/css/layouts/Dialogs.css',
-        'wwwroot/css/layouts/LoadingPage.css',
-        'wwwroot/css/layouts/ProgressBar.css',
-        'wwwroot/css/layouts/Tooltips.css',
-        'wwwroot/css/layouts/WindowManager.css',
-        'wwwroot/css/uicontrols/Control.css',
-
-        // syn.controls.js
-        'wwwroot/uicontrols/Calendar/Calendar.css',
-        'wwwroot/uicontrols/Chart/Chart.css',
-        'wwwroot/uicontrols/CheckBox/CheckBox.css',
-        'wwwroot/uicontrols/ColorPicker/ColorPicker.css',
-        'wwwroot/uicontrols/ContextMenu/ContextMenu.css',
-        'wwwroot/uicontrols/DataSource/DataSource.css',
-        'wwwroot/uicontrols/DatePicker/DatePicker.css',
-        'wwwroot/uicontrols/DatePeriodPicker/DatePeriodPicker.css',
-        'wwwroot/uicontrols/DropDownCheckList/DropDownCheckList.css',
-        'wwwroot/uicontrols/DropDownList/DropDownList.css',
-        'wwwroot/uicontrols/FileClient/FileClient.css',
-        'wwwroot/uicontrols/GridList/GridList.css',
-        'wwwroot/uicontrols/Guide/Guide.css',
-        'wwwroot/uicontrols/RadioButton/RadioButton.css',
-        'wwwroot/uicontrols/TextArea/TextArea.css',
-        'wwwroot/uicontrols/TextBox/TextBox.css',
-        'wwwroot/uicontrols/SourceEditor/SourceEditor.css',
-        'wwwroot/uicontrols/HtmlEditor/HtmlEditor.css',
-        'wwwroot/uicontrols/OrganizationView/OrganizationView.css',
-        'wwwroot/uicontrols/PropertyGrid/PropertyGrid.css',
-        'wwwroot/uicontrols/TreeView/TreeView.css',
-        'wwwroot/uicontrols/AUIGrid/AUIGrid.css',
-        'wwwroot/uicontrols/OpenGrid/OpenGrid.css',
-        'wwwroot/uicontrols/WebGrid/WebGrid.css',
-    ], { allowEmpty: true })
-        .pipe(concat('syn.bundle.base.css'))
-        .pipe(stripCssComments())
-        .pipe(gulp.dest('wwwroot/css'))
-        .pipe(uglifycss({
-            uglyComments: true
-        }))
-        .pipe(rename({
-            basename: 'syn.bundle.base.min',
-            extname: '.css'
-        }))
-        .pipe(gulp.dest('wwwroot/css'));
-});
-
 gulp.task('watch', async function () {
     gulp.watch(files, gulp.series(['controls']));
 });
 
-gulp.task('default', gulp.series(['controls', 'basescripts', 'basestyles', 'scripts', 'styles', 'bundle']));
+gulp.task('default', gulp.series(['controls', 'scripts', 'styles', 'bundle']));
 
-gulp.task('base', gulp.series(['controls', 'basescripts', 'basestyles']));
+gulp.task('base', gulp.series(['controls']));
