@@ -111,5 +111,5 @@ let $samplePage = {
 ### 관련 문서
 
 - [README.md](README.md) — 빠른 시작 가이드
-- 다른 엔진 API: [WebGrid ($grid)](../WebGrid/API.md), [AUIGrid](../AUIGrid/API.md), [JQGrid](../JQGrid/API.md)
+- 다른 엔진 API: [WebGrid ($grid)](../WebGrid/API.md), [AUIGrid](../AUIGrid/API.md)
 - AUIPivot 공식 문서: https://www.auisoft.net/documentation/auipivot/

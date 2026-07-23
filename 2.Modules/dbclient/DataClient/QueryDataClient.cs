@@ -815,10 +815,6 @@ namespace dbclient.DataClient
                                                     mergeMetaDatas.Add(sb.ToString());
                                                     mergeDatas.Add(FormJson.ToJsonObject("FormData" + i.ToString(), table));
                                                     break;
-                                                case JsonObjectType.jqGridJson:
-                                                    mergeMetaDatas.Add(sb.ToString());
-                                                    mergeDatas.Add(jqGridJson.ToJsonObject("jqGridData" + i.ToString(), table));
-                                                    break;
                                                 case JsonObjectType.GridJson:
                                                     mergeMetaDatas.Add(sb.ToString());
                                                     mergeDatas.Add(GridJson.ToJsonObject("GridData" + i.ToString(), table));
@@ -3844,10 +3840,6 @@ TransactionException:
                                             case JsonObjectType.FormJson:
                                                 // mergeDatas.Add("FormData" + i.ToString(), table.GetMetaColumns());
                                                 mergeDatas.Add("FormData" + i.ToString(), table.GetDbColumns());
-                                                break;
-                                            case JsonObjectType.jqGridJson:
-                                                // mergeDatas.Add("jqGridData" + i.ToString(), table.GetMetaColumns());
-                                                mergeDatas.Add("jqGridData" + i.ToString(), table.GetDbColumns());
                                                 break;
                                             case JsonObjectType.GridJson:
                                                 // mergeDatas.Add("GridData" + i.ToString(), table.GetMetaColumns());

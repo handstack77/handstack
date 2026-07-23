@@ -174,7 +174,7 @@ let $samplePage = {
 ### 관련 문서
 
 - [README.md](README.md) — 빠른 시작 가이드
-- 다른 엔진 API: [AUIGrid](../AUIGrid/API.md), [AUIPivot](../AUIPivot/API.md), [JQGrid](../JQGrid/API.md)
+- 다른 엔진 API: [AUIGrid](../AUIGrid/API.md), [AUIPivot](../AUIPivot/API.md)
 - Handsontable 공식 문서: https://handsontable.com/docs/
 - [CodePicker](../CodePicker/README.md) — 코드도움 팝업 컨트롤
 - [DataSource](../DataSource/README.md) — `dropdown`/`codehelp` 컬럼의 코드 목록을 채워주는 공통 데이터 소스 컨트롤

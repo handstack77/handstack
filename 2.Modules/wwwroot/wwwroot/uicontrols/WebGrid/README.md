@@ -4,13 +4,12 @@
 
 `WebGrid.js`는 [Handsontable](https://handsontable.com/) 기반의 엑셀형 그리드 컨트롤입니다. `syn.uicontrols.$grid` 싱글턴 객체로 노출되며, `syn.uicontrols.$xxx` 공통 패턴(`defaultSetting` 성격의 옵션 객체 + `controlLoad`/`getValue`/`setValue`/`clear`/`setLocale`)을 따릅니다.
 
-과거에는 이 폴더에 `AUIGrid`/`jqGrid`/`AUIPivot`/`OpenGrid`까지 함께 있었지만, 각각 별도 디렉토리로 분리되었습니다.
+과거에는 이 폴더에 `AUIGrid`/`AUIPivot`/`OpenGrid`까지 함께 있었지만, 각각 별도 디렉토리로 분리되었습니다.
 
 | 그리드 | 위치 | 내부 라이브러리 | 성격 |
 |---|---|---|---|
 | `$grid` (WebGrid.js) | 이 폴더 | Handsontable | 엑셀형 그리드, 로더 자동주입, 비상용 라이선스 기반 대안 엔진 |
 | `$auigrid` | [../AUIGrid](../AUIGrid/README.md) | AUIGrid (상용) | 업무용 그리드, 로더 자동주입, 실무 주력 엔진(300회 이상 실사용) |
-| `$jqgrid` | [../JQGrid](../JQGrid/README.md) | jQuery jqGrid (레거시) | 레거시 화면 유지보수용 |
 | `$auipivot` | [../AUIPivot](../AUIPivot/README.md) | AUIGrid 기반 피벗 테이블 | 다차원 집계/피벗 리포트 |
 | `$opengrid` | [../OpenGrid](../OpenGrid) | 자체 구현 그리드 | 신규 예제 다수(`example/` 참고, 문서는 별도 정리 예정) |
 
@@ -51,7 +50,7 @@ syn.uicontrols.$grid.setValue('grdBasic', [
 
 - API 상세는 같은 폴더의 `API.md`를 참고하세요.
 - 실제 소스: `wwwroot/uicontrols/WebGrid/WebGrid.js`, `WebGrid.css`
-- 다른 엔진: [AUIGrid](../AUIGrid/README.md), [AUIPivot](../AUIPivot/README.md), [JQGrid](../JQGrid/README.md), [OpenGrid](../OpenGrid)
+- 다른 엔진: [AUIGrid](../AUIGrid/README.md), [AUIPivot](../AUIPivot/README.md), [OpenGrid](../OpenGrid)
 - 기존 샘플: `wwwroot/sample/uicontrol/webgrid.html`(`$grid`), `webgrid2.html`(`$auigrid`)
 - 로더 자동주입 정의: `wwwroot/js/syn.loader.js`의 `'grid'` case
 - Handsontable 공식 문서: https://handsontable.com/docs/

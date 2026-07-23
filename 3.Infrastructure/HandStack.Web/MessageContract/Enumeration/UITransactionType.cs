@@ -10,7 +10,6 @@
     {
         Form = 1,
         Grid = 2,
-        jqGrid = 3,
         Chart = 4,
         DataSet = 5,
         Addtion = 6

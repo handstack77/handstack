@@ -361,7 +361,6 @@ namespace graphclient.DataClient
                 context.MergeDatas.Add(jsonObjectType switch
                 {
                     JsonObjectType.FormJson => FormJson.ToJsonObject(fieldName, queryResult.Table),
-                    JsonObjectType.jqGridJson => jqGridJson.ToJsonObject(fieldName, queryResult.Table),
                     JsonObjectType.GridJson => GridJson.ToJsonObject(fieldName, queryResult.Table),
                     JsonObjectType.ChartJson => ChartGridJson.ToJsonObject(fieldName, queryResult.Table),
                     JsonObjectType.DataSetJson => DataTableJson.ToJsonObject(fieldName, queryResult.Table),
@@ -529,7 +528,6 @@ namespace graphclient.DataClient
             return jsonObjectType switch
             {
                 JsonObjectType.FormJson => $"FormData{index}",
-                JsonObjectType.jqGridJson => $"jqGridData{index}",
                 JsonObjectType.GridJson => $"GridData{index}",
                 JsonObjectType.ChartJson => $"ChartData{index}",
                 JsonObjectType.DataSetJson => $"DataSetData{index}",

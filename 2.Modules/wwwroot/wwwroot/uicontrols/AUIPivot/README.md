@@ -4,7 +4,7 @@
 
 `AUIPivot.js`는 `$auigrid`와 같은 AUIGrid 계열이지만 행/열/값/필터 필드를 드래그로 배치하는 피벗 리포트 전용 컨트롤입니다. `syn.uicontrols.$auipivot` 싱글턴 객체로 노출되며, `syn.uicontrols.$xxx` 공통 패턴을 따릅니다.
 
-이 폴더는 원래 `WebGrid` 폴더 안에 다른 그리드 엔진들과 함께 있었으나, 별도 디렉토리로 분리되었습니다. 다른 엔진은 [WebGrid](../WebGrid/README.md)(`$grid`), [AUIGrid](../AUIGrid/README.md)(`$auigrid`), [JQGrid](../JQGrid/README.md)(`$jqgrid`), [OpenGrid](../OpenGrid)(`$opengrid`)를 참고하세요.
+이 폴더는 원래 `WebGrid` 폴더 안에 다른 그리드 엔진들과 함께 있었으나, 별도 디렉토리로 분리되었습니다. 다른 엔진은 [WebGrid](../WebGrid/README.md)(`$grid`), [AUIGrid](../AUIGrid/README.md)(`$auigrid`), [OpenGrid](../OpenGrid)(`$opengrid`)를 참고하세요.
 
 여러 값의 합계/평균 등을 행·열로 교차 집계해야 할 때 사용하는 피벗 테이블 전용 엔진입니다. 예전 화면을 유지보수할 때만 만나게 되는 레거시 엔진입니다.
 

@@ -4,7 +4,7 @@
 
 `AUIGrid.js`는 [AUIGrid](https://www.auisoft.net/)(상용) 기반의 업무용 그리드 컨트롤입니다. `syn.uicontrols.$auigrid` 싱글턴 객체로 노출되며, `syn.uicontrols.$xxx` 공통 패턴(`defaultSetting` 성격의 옵션 객체 + `controlLoad`/`getValue`/`setValue`/`clear`/`setLocale`)을 따릅니다.
 
-이 폴더는 원래 `WebGrid` 폴더 안에 다른 그리드 엔진들과 함께 있었으나, 별도 디렉토리로 분리되었습니다. 다른 엔진은 [WebGrid](../WebGrid/README.md)(`$grid`), [AUIPivot](../AUIPivot/README.md)(`$auipivot`), [JQGrid](../JQGrid/README.md)(`$jqgrid`), [OpenGrid](../OpenGrid)(`$opengrid`)를 참고하세요.
+이 폴더는 원래 `WebGrid` 폴더 안에 다른 그리드 엔진들과 함께 있었으나, 별도 디렉토리로 분리되었습니다. 다른 엔진은 [WebGrid](../WebGrid/README.md)(`$grid`), [AUIPivot](../AUIPivot/README.md)(`$auipivot`), [OpenGrid](../OpenGrid)(`$opengrid`)를 참고하세요.
 
 실무(qcn.groupware 기준)에서는 `$auigrid`가 압도적으로 많이 쓰입니다(300회 이상 실사용). 컬럼 병합, 그룹핑, 고정 컬럼/행, 코드헬프 팝업, 스파크라인 등 업무 화면에 필요한 기능이 가장 폭넓게 내장되어 있습니다. 상용 라이선스 벤더 라이브러리(`/lib/auigrid/`)가 필요합니다.
 

@@ -762,10 +762,6 @@ namespace function.DataClient
                                                         mergeMetaDatas.Add(sb.ToString());
                                                         mergeDatas.Add(FormJson.ToJsonObject("FormData" + i.ToString(), table));
                                                         break;
-                                                    case JsonObjectType.jqGridJson:
-                                                        mergeMetaDatas.Add(sb.ToString());
-                                                        mergeDatas.Add(jqGridJson.ToJsonObject("jqGridData" + i.ToString(), table));
-                                                        break;
                                                     case JsonObjectType.GridJson:
                                                         mergeMetaDatas.Add(sb.ToString());
                                                         mergeDatas.Add(GridJson.ToJsonObject("GridData" + i.ToString(), table));
