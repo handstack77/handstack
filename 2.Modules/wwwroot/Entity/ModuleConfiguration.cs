@@ -20,6 +20,7 @@ namespace wwwroot.Entity
         public static string ModuleLogFilePath = "";
         public static List<string> FileSyncTokens = new List<string>();
         public static CreateIDPolicyConfig CreateIDPolicy = new CreateIDPolicyConfig();
+        public static List<SharedFileEntry> SharedFiles = new List<SharedFileEntry>();
         public static int CircuitBreakResetSecond = 60;
         public static bool IsLogServer = false;
         public static string LogServerUrl = "";

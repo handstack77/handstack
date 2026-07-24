@@ -38,6 +38,9 @@ namespace wwwroot.Entity
 
         public CreateIDPolicyConfig CreateIDPolicy { get; set; }
 
+        // 공통 파일 관리: 이 경로의 JSON 파일(qcn.winform "공통 파일 관리" 화면이 관리하는 shared_files.json과 같은 형식, items[].requestPath/hostFilePath)을 읽어 SharedFiles로 서빙한다.
+        public string SharedFileConfigPath { get; set; }
+
         public ModuleConfig()
         {
             AuthorizationKey = "";
@@ -51,6 +54,7 @@ namespace wwwroot.Entity
             ModuleLogFilePath = "";
             FileSyncTokens = new List<string>();
             CreateIDPolicy = new CreateIDPolicyConfig();
+            SharedFileConfigPath = "";
         }
     }
 

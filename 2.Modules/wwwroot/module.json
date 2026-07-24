@@ -12,6 +12,7 @@
         "ContractBasePath": "../contracts/wwwroot",
         "WWWRootBasePath": "../modules/wwwroot/wwwroot",
         "FileSyncTokens": [],
+        "SharedFileConfigPath": "C:\\projects\\qcn.winform\\1.DesktopHost\\winform\\Bootstraping\\wwwroot\\store\\ui_tools\\shared_file\\shared_files.json",
         "CreateIDPolicy": {
             "Enabled": false,
             "AllowedScreens": [ "login", "logout" ],
