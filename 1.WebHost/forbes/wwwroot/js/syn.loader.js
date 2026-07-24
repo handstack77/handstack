@@ -237,6 +237,21 @@
             document.body.appendChild(script);
         },
 
+        textContentTypeMap: {
+            html: 'text/html',
+            htm: 'text/html',
+            json: 'application/json',
+            xml: 'application/xml',
+            md: 'text/markdown',
+            txt: 'text/plain',
+            csv: 'text/csv'
+        },
+
+        textContentType(url) {
+            var extension = (url.split('?')[0].split('.').pop() || '').toLowerCase();
+            return synLoader.textContentTypeMap[extension] || 'text/plain';
+        },
+
         loadText: async function (id, url) {
             if (synLoader.assetsCachingID != '' && url.indexOf('/view/') == -1) {
                 url = url + (url.indexOf('?') > -1 ? '&' : '?') + synLoader.assetsCachingID;
@@ -258,7 +273,7 @@
 
             var script = document.createElement('script');
             script.id = id;
-            script.type = 'text/html';
+            script.type = synLoader.textContentType(url);
             script.async = 'async';
             script.innerHTML = await response.text();
 
@@ -278,6 +293,37 @@
             return (url.match(/([^?=&]+)(=([^&]*))/g) || []).reduce(function (a, v) {
                 return a[v.slice(0, v.indexOf('='))] = v.slice(v.indexOf('=') + 1), a;
             }, {});
+        },
+
+        loadSharedFiles: async function (styleFiles, jsFiles) {
+            try {
+                var response = await fetch('/shared-files/manifest', { cache: 'no-cache' });
+                if (response.status !== 200) {
+                    return;
+                }
+
+                var manifest = await response.json();
+                for (var i = 0; i < manifest.length; i++) {
+                    var requestPath = manifest[i].requestPath;
+                    if (!requestPath) {
+                        continue;
+                    }
+
+                    if (synLoader.endsWith(requestPath, '.css')) {
+                        styleFiles.push(requestPath);
+                    }
+                    else if (synLoader.endsWith(requestPath, '.js')) {
+                        jsFiles.push(requestPath);
+                    }
+                    else {
+                        var id = 'shared_' + requestPath.split('/').pop().replace(/\.[^.]+$/, '').replace(/[^A-Za-z0-9_]/g, '_');
+                        await synLoader.loadText(id, requestPath);
+                    }
+                }
+            }
+            catch (exception) {
+                synLoader.eventLog('loadSharedFiles', 'manifest load error');
+            }
         },
 
         request: async function (resources) {
@@ -947,6 +993,8 @@
 
         jsFiles.push(loaderPath);
         styleFiles = styleFiles.concat(window.Configuration.Definition?.Styles || []);
+
+        await synLoader.loadSharedFiles(styleFiles, jsFiles);
 
         var pathname = location.pathname;
         var moduleFile = '';

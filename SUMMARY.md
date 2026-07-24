@@ -27,7 +27,7 @@ HandStack 솔루션은 단순한 ASP.NET Core 단일 웹앱이 아니라, 호스
   forbes       : 정적 파일 및 Contracts 동기화 호스트 (기본 포트 8420)
 
 2.Modules
-  wwwroot      : 정적 자산, 계약 기반 화면, 공용 UI/API
+  wwwroot      : 정적 자산, 계약 기반 화면, 공통 파일 카탈로그, 공용 UI/API
   transact     : 거래 계약 해석, 라우팅, 응답 조립
   function     : 계약 기반 함수 실행(Node/C#/Python)
   command      : CLI/Web 명령 실행
@@ -451,10 +451,13 @@ app.UseStaticFiles(new StaticFileOptions
 });
 ```
 
-즉 HandStack의 화면은 보통 다음 두 가지 자산을 함께 사용합니다.
+즉 HandStack의 화면은 보통 다음 세 가지 자산을 함께 사용합니다.
 
 - `/view/...` 아래 계약 기반 화면 자산
 - 모듈 `wwwroot` 아래 공용 JS/CSS/UI 컨트롤
+- `ModuleConfig.SharedFileConfigPath`의 카탈로그가 요청 경로에 연결한 호스트 공통 파일
+
+공통 파일 카탈로그는 `items[].requestPath/hostFilePath`를 읽어 기존 정적 파일 루트 밖의 파일을 직접 서빙합니다. `/shared-files/manifest`는 호스트 경로를 제외한 요청 경로 목록을 제공하고, `syn.loader.js`는 CSS/JS를 화면 리소스 목록에 합치며 JSON/XML/HTML/Markdown 등의 텍스트 자산을 확장자별 `type`을 가진 DOM 요소로 적재합니다. 두 상대경로는 모두 ack 실행 기준 경로에서 해석되며, 카탈로그는 모듈 초기화 때 한 번 적재됩니다. 상세 스키마와 공개 범위는 [`2.Modules/wwwroot/README.md`](2.Modules/wwwroot/README.md)를 참고합니다.
 
 이 때문에 `2.Modules/wwwroot`에는 Gulp, 번들 설정, 대량의 UI 컨트롤, 샘플 계약이 함께 들어 있습니다. 이 프로젝트는 단순 정적 리소스 폴더가 아니라 공용 웹 런타임에 가깝습니다.
 

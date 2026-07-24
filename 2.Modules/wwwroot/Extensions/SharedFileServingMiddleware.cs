@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -6,14 +6,16 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.StaticFiles;
 
+using Newtonsoft.Json;
+
 using wwwroot.Entity;
 
 namespace wwwroot.Extensions
 {
-    // module.json ModuleConfig.SharedFileConfigPath가 가리키는 "공통 파일 관리" 정보 파일을 기준으로,
-    // wwwroot 정적 파일 경로와 무관하게 RequestPath 요청을 HostFilePath에서 직접 서빙한다.
     public class SharedFileServingMiddleware
     {
+        public const string ManifestRequestPath = "/shared-files/manifest";
+
         private readonly RequestDelegate next;
         private static readonly FileExtensionContentTypeProvider contentTypeProvider = new FileExtensionContentTypeProvider();
 
@@ -27,6 +29,14 @@ namespace wwwroot.Extensions
             var requestPath = context.Request.Path.Value;
             if (string.IsNullOrWhiteSpace(requestPath) == false)
             {
+                if (string.Equals(requestPath, ManifestRequestPath, StringComparison.OrdinalIgnoreCase) == true)
+                {
+                    var manifest = ModuleConfiguration.SharedFiles.Select(p => new { requestPath = p.RequestPath }).ToList<object>();
+                    context.Response.ContentType = "application/json; charset=utf-8";
+                    await context.Response.WriteAsync(JsonConvert.SerializeObject(manifest));
+                    return;
+                }
+
                 var sharedFile = ModuleConfiguration.SharedFiles
                     .FirstOrDefault(p => string.Equals(p.RequestPath, requestPath, StringComparison.OrdinalIgnoreCase));
                 if (sharedFile != null && File.Exists(sharedFile.HostFilePath) == true)
