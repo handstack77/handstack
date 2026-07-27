@@ -523,20 +523,31 @@
                         break;
                     case 'chart':
                         item.css = [
-                            '/uicontrols/Chart/Chart.css'
+                            '/uicontrols/HighChart/HighChart.css'
                         ];
                         item.js = [
                             '/lib/highcharts/highcharts.min.js',
-                            '/uicontrols/Chart/Chart.js'
+                            '/uicontrols/HighChart/HighChart.js'
                         ];
                         break;
                     case 'chartjs':
                         item.css = [
-                            '/uicontrols/Chart/ChartJS.css'
+                            '/uicontrols/ChartJS/ChartJS.css'
                         ];
                         item.js = [
                             '/lib/chart.js/chart.umd.min.js',
-                            '/uicontrols/Chart/ChartJS.js'
+                            '/lib/moment.js/moment-with-locales.min.js',
+                            '/uicontrols/ChartJS/ChartJS.js'
+                        ];
+                        break;
+                    case 'echarts':
+                        item.css = [
+                            '/uicontrols/ECharts/ECharts.css'
+                        ];
+                        item.js = [
+                            '/lib/echarts/echarts.min.js',
+                            '/lib/echarts/i18n/langKO.js',
+                            '/uicontrols/ECharts/ECharts.js'
                         ];
                         break;
                     case 'codepicker':
@@ -936,7 +947,9 @@
                         '/css/uicontrols/Control.css',
 
                         // syn.controls.js
-                        '/uicontrols/Chart/Chart.css',
+                        '/uicontrols/HighChart/HighChart.css',
+                        '/uicontrols/ChartJS/ChartJS.css',
+                        '/uicontrols/ECharts/ECharts.css',
                         '/uicontrols/CheckBox/CheckBox.css',
                         '/uicontrols/ColorPicker/ColorPicker.css',
                         '/uicontrols/ContextMenu/ContextMenu.css',

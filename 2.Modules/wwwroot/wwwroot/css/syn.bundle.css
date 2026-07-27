@@ -6302,7 +6302,51 @@ div[class^="ckbx-style-"] input[type=checkbox] {
     color: #000 !important;
 }
 .syn-chart {
-  color: #000;
+  box-sizing: border-box;
+  min-height: 1px;
+  position: relative;
+}
+
+.syn-chart .highcharts-loading {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+}
+
+.syn-chartjs {
+  box-sizing: border-box;
+  min-height: 1px;
+  position: relative;
+}
+
+.syn-chartjs canvas {
+  display: block;
+  max-height: 100%;
+  max-width: 100%;
+}
+
+.syn-chartjs-loading {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.82);
+  bottom: 0;
+  color: #334155;
+  display: none;
+  font-size: 13px;
+  justify-content: center;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  z-index: 2;
+}
+
+.syn-echarts {
+	position: relative;
+	min-width: 0;
+	min-height: 120px;
+}
+.syn-echarts canvas, .syn-echarts svg {
+	display: block;
 }
 
 .syn-checkbox {

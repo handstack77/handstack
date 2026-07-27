@@ -1,0 +1,189 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <title>
+        ChartJS - Animations 샘플 갤러리
+    </title>
+    <style>
+        body {
+            font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+            margin: 16px;
+            color: #222;
+        }
+
+        h1 {
+            font-size: 18px;
+            margin: 0 0 4px;
+        }
+
+        .lead {
+            color: #666;
+            margin: 0 0 16px;
+            font-size: 13px;
+        }
+
+        .chart-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+            gap: 20px;
+        }
+
+        .chart-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+            .chart-card h3 {
+                margin: 0 0 4px;
+                font-size: 14px;
+            }
+
+            .chart-card p {
+                margin: 0 0 10px;
+                font-size: 12px;
+                color: #666;
+            }
+
+        .split {
+            display: flex;
+            gap: 12px;
+        }
+
+            .split > div {
+                flex: 1;
+                min-width: 0;
+            }
+
+            .split h4 {
+                margin: 0 0 4px;
+                font-size: 12px;
+                text-align: center;
+                color: #444;
+            }
+
+        button {
+            font-size: 12px;
+            padding: 4px 10px;
+        }
+    </style>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <h1>
+            Animations
+        </h1>
+        <p class="lead">
+            chartjs.org 공식 샘플(docs/samples/animations/*) 5종을 &lt;syn_chartjs&gt;로 재현합니다.
+            <b>
+                ChartJS 컨트롤은 기본값이
+                <code>
+                    animation:false
+                </code>
+            </b>
+            이므로, 애니메이션을 보여주려면 각 차트의
+            <code>
+                options.animation
+            </code>
+            을 명시적으로 지정해야 합니다(재조회 버튼으로 다시 재생해 보세요).
+        </p>
+        <div class="chart-gallery">
+            <div class="chart-card">
+                <h3>
+                    Delay
+                </h3>
+                <p>
+                    <code>
+                        animation.delay: (ctx) =&gt; ctx.dataIndex * 150
+                    </code>
+                    로 막대가 순서대로 나타납니다.
+                </p>
+                <syn_chartjs id="chtAnimDelay" style="width:100%;height:260px">
+                </syn_chartjs>
+                <button type="button" id="btnReplayDelay" syn-events="['click']">
+                    다시 재생
+                </button>
+            </div>
+            <div class="chart-card">
+                <h3>
+                    Drop
+                </h3>
+                <p>
+                    포인트가
+                    <code>
+                        easeOutBounce
+                    </code>
+                    로 위에서 튕기듯 떨어집니다.
+                </p>
+                <syn_chartjs id="chtAnimDrop" style="width:100%;height:260px">
+                </syn_chartjs>
+                <button type="button" id="btnReplayDrop" syn-events="['click']">
+                    다시 재생
+                </button>
+            </div>
+            <div class="chart-card">
+                <h3>
+                    Loop
+                </h3>
+                <p>
+                    일정 간격으로 데이터를 갱신해 계속 움직이는 라인 차트를 만듭니다.
+                </p>
+                <syn_chartjs id="chtAnimLoop" style="width:100%;height:260px">
+                </syn_chartjs>
+                <button type="button" id="btnLoopToggle" syn-events="['click']">
+                    시작
+                </button>
+            </div>
+            <div class="chart-card">
+                <h3>
+                    Progressive Line
+                </h3>
+                <p>
+                    <code>
+                        animation.x
+                    </code>
+                    를 이용해 선이 왼쪽부터 순서대로 그려지는 효과를 만듭니다.
+                </p>
+                <syn_chartjs id="chtAnimProgressive" style="width:100%;height:260px">
+                </syn_chartjs>
+                <button type="button" id="btnReplayProgressive" syn-events="['click']">
+                    다시 재생
+                </button>
+            </div>
+            <div class="chart-card">
+                <h3>
+                    Progressive Line Easing
+                </h3>
+                <p>
+                    같은 진행형 그리기에 서로 다른
+                    <code>
+                        easing
+                    </code>
+                    함수를 적용해 비교합니다.
+                </p>
+                <div class="split">
+                    <div>
+                        <h4>
+                            linear
+                        </h4>
+                        <syn_chartjs id="chtEasingLinear" style="width:100%;height:220px">
+                        </syn_chartjs>
+                    </div>
+                    <div>
+                        <h4>
+                            easeInOutQuart
+                        </h4>
+                        <syn_chartjs id="chtEasingQuart" style="width:100%;height:220px">
+                        </syn_chartjs>
+                    </div>
+                </div>
+                <button type="button" id="btnReplayEasing" syn-events="['click']">
+                    다시 재생
+                </button>
+            </div>
+        </div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

@@ -1,0 +1,170 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <title>
+        ChartJS - Scales 샘플 갤러리
+    </title>
+    <style>
+        body {
+            font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+            margin: 16px;
+            color: #222;
+        }
+
+        h1 {
+            font-size: 18px;
+            margin: 0 0 4px;
+        }
+
+        .lead {
+            color: #666;
+            margin: 0 0 16px;
+            font-size: 13px;
+        }
+
+        .chart-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+            gap: 20px;
+        }
+
+        .chart-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+            .chart-card h3 {
+                margin: 0 0 4px;
+                font-size: 14px;
+            }
+
+            .chart-card p {
+                margin: 0 0 10px;
+                font-size: 12px;
+                color: #666;
+            }
+    </style>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <h1>
+            Scales
+        </h1>
+        <p class="lead">
+            chartjs.org 공식 샘플(docs/samples/scales/*) 8종을 &lt;syn_chartjs&gt;로 재현합니다. time 스케일 3종은
+            <code>
+                ChartJS.js
+            </code>
+            에 포함된 번들된 moment.js용 자체 제작 date adapter가 있어야 동작합니다.
+        </p>
+        <div class="chart-gallery">
+            <div class="chart-card">
+                <h3>
+                    Linear Min/Max
+                </h3>
+                <p>
+                    <code>
+                        scales.y.min/max
+                    </code>
+                    로 축 범위를 강제로 고정합니다.
+                </p>
+                <syn_chartjs id="chtLinearMinMax" style="width:100%;height:280px">
+                </syn_chartjs>
+            </div>
+            <div class="chart-card">
+                <h3>
+                    Linear Min/Max Suggested
+                </h3>
+                <p>
+                    <code>
+                        suggestedMin/suggestedMax
+                    </code>
+                    는 데이터가 그 범위를 벗어나면 자동으로 확장됩니다.
+                </p>
+                <syn_chartjs id="chtLinearSuggested" style="width:100%;height:280px">
+                </syn_chartjs>
+            </div>
+            <div class="chart-card">
+                <h3>
+                    Linear Step Size
+                </h3>
+                <p>
+                    <code>
+                        ticks.stepSize
+                    </code>
+                    로 눈금 간격을 고정합니다.
+                </p>
+                <syn_chartjs id="chtStepSize" style="width:100%;height:280px">
+                </syn_chartjs>
+            </div>
+            <div class="chart-card">
+                <h3>
+                    Logarithmic
+                </h3>
+                <p>
+                    <code>
+                        scales.y.type: 'logarithmic'
+                    </code>
+                    로 로그 스케일을 사용합니다.
+                </p>
+                <syn_chartjs id="chtLogarithmic" style="width:100%;height:280px">
+                </syn_chartjs>
+            </div>
+            <div class="chart-card">
+                <h3>
+                    Stacked
+                </h3>
+                <p>
+                    막대 차트의 X/Y 축을 모두
+                    <code>
+                        stacked: true
+                    </code>
+                    로 설정합니다.
+                </p>
+                <syn_chartjs id="chtScaleStacked" style="width:100%;height:280px">
+                </syn_chartjs>
+            </div>
+            <div class="chart-card">
+                <h3>
+                    Time Line
+                </h3>
+                <p>
+                    <code>
+                        scales.x.type: 'time'
+                    </code>
+                    로 실제 날짜 간격에 비례하는 X축을 그립니다.
+                </p>
+                <syn_chartjs id="chtTimeLine" style="width:100%;height:280px">
+                </syn_chartjs>
+            </div>
+            <div class="chart-card">
+                <h3>
+                    Time Combo
+                </h3>
+                <p>
+                    표본 간격이 다른 두 시계열 데이터셋을 같은 시간축에 겹쳐 그립니다.
+                </p>
+                <syn_chartjs id="chtTimeCombo" style="width:100%;height:280px">
+                </syn_chartjs>
+            </div>
+            <div class="chart-card">
+                <h3>
+                    Time Max Span
+                </h3>
+                <p>
+                    데이터는 더 넓은 기간을 갖지만
+                    <code>
+                        time.min/max
+                    </code>
+                    로 표시 구간만 제한합니다.
+                </p>
+                <syn_chartjs id="chtTimeMaxSpan" style="width:100%;height:280px">
+                </syn_chartjs>
+            </div>
+        </div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

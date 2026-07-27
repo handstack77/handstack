@@ -15,7 +15,7 @@ var uglifycss = require(`gulp-uglifycss`);
 var rename = require(`gulp-rename`);
 var javascriptObfuscator = require(`gulp-javascript-obfuscator`);
 
-gulp.task('scripts', async function () {
+gulp.task('scripts', function () {
     return gulp.src([
         `wwwroot/lib/tabler-core/dist/js/tabler.min.js`,
         `wwwroot/lib/jquery/jquery.min.js`,
@@ -41,7 +41,10 @@ gulp.task('scripts', async function () {
         `wwwroot/lib/vanilla-masker/vanilla-masker.min.js`,
         `wwwroot/lib/codemirror/codemirror.min.js`,
         `wwwroot/lib/tail.select.js/js/tail.select.min.js`,
+        `wwwroot/lib/highcharts/highcharts.min.js`,
         `wwwroot/lib/chart.js/chart.umd.min.js`,
+        `wwwroot/lib/echarts/echarts.min.js`,
+        `wwwroot/lib/echarts/i18n/langKO.js`,
         `wwwroot/js/color-picker/color-picker.js`,
         `wwwroot/lib/moment.js/moment.min.js`,
         `wwwroot/lib/pikaday/pikaday.min.js`,
@@ -77,10 +80,12 @@ gulp.task('scripts', async function () {
         .pipe(gulp.dest('wwwroot/js'));
 });
 
-gulp.task('controls', async function () {
+gulp.task('controls', function () {
     return gulp.src([
         'wwwroot/uicontrols/Calendar/Calendar.js',
-        'wwwroot/uicontrols/Chart/Chart.js',
+        'wwwroot/uicontrols/HighChart/HighChart.js',
+        'wwwroot/uicontrols/ChartJS/ChartJS.js',
+        'wwwroot/uicontrols/ECharts/ECharts.js',
         'wwwroot/uicontrols/CheckBox/CheckBox.js',
         'wwwroot/uicontrols/CodePicker/CodePicker.js',
         'wwwroot/uicontrols/ColorPicker/ColorPicker.js',
@@ -122,7 +127,7 @@ gulp.task('controls', async function () {
         .pipe(gulp.dest('wwwroot/js'));
 });
 
-gulp.task('bundle', async function () {
+gulp.task('bundle', function () {
     return gulp.src([
         'wwwroot/js/syn.scripts.js',
         'wwwroot/js/syn.js',
@@ -176,7 +181,9 @@ gulp.task('styles', async function () {
 
         // syn.controls.js
         'wwwroot/uicontrols/Calendar/Calendar.css',
-        'wwwroot/uicontrols/Chart/Chart.css',
+        'wwwroot/uicontrols/HighChart/HighChart.css',
+        'wwwroot/uicontrols/ChartJS/ChartJS.css',
+        'wwwroot/uicontrols/ECharts/ECharts.css',
         'wwwroot/uicontrols/CheckBox/CheckBox.css',
         'wwwroot/uicontrols/ColorPicker/ColorPicker.css',
         'wwwroot/uicontrols/ContextMenu/ContextMenu.css',
