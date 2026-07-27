@@ -1,0 +1,104 @@
+body {
+    margin: 0;
+    padding: 24px;
+    color: #1e293b;
+    background: #f8fafc;
+    font: 14px/1.55 Arial,sans-serif;
+}
+
+a {
+    color: #075985;
+}
+
+code, pre {
+    font-family: Consolas,monospace;
+}
+
+.demo-nav {
+    margin-bottom: 12px;
+}
+
+.demo-card {
+    max-width: 1100px;
+    margin: 0 auto 20px;
+    padding: 20px;
+    border: 1px solid #dbe2ea;
+    border-radius: 10px;
+    background: #fff;
+}
+
+.demo-map {
+    width: 100%;
+    height: 480px;
+}
+
+.demo-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 12px 0;
+}
+
+    .demo-actions input {
+        padding: 7px 12px;
+        cursor: pointer;
+    }
+
+pre {
+    min-height: 72px;
+    max-height: 280px;
+    overflow: auto;
+    padding: 12px;
+    color: #dbeafe;
+    background: #0f172a;
+    border-radius: 6px;
+    white-space: pre-wrap;
+}
+
+.notice {
+    padding: 10px 12px;
+    border-left: 4px solid #4285f4;
+    background: #eff6ff;
+}
+
+.catalog {
+    display: grid;
+    grid-template-columns: repeat(auto-fit,minmax(260px,1fr));
+    gap: 12px;
+    padding: 0;
+    list-style: none;
+}
+
+    .catalog a {
+        display: block;
+        min-height: 82px;
+        padding: 16px;
+        border: 1px solid #dbe2ea;
+        border-radius: 8px;
+        background: #fff;
+        text-decoration: none;
+    }
+
+    .catalog strong, .catalog span {
+        display: block;
+    }
+
+    .catalog span {
+        margin-top: 6px;
+        color: #64748b;
+    }
+
+.marker-monitor {
+    padding: 6px 9px;
+    border: 2px solid #fff;
+    border-radius: 14px;
+    color: #fff;
+    background: #4285f4;
+    box-shadow: 0 2px 7px rgba(0,0,0,.25);
+    white-space: nowrap;
+}
+
+.pano {
+    height: 280px;
+    margin-top: 12px;
+}

@@ -4023,6 +4023,3907 @@
 
 (function (window) {
     'use strict';
+
+    syn.uicontrols = syn.uicontrols || new syn.module();
+    var $mediaplayer = syn.uicontrols.$mediaplayer || new syn.module();
+
+    function hasOwn(target, name) {
+        return target && Object.prototype.hasOwnProperty.call(target, name);
+    }
+
+    function clone(value, references, copies) {
+        if (value === null || value === undefined || typeof value !== 'object') {
+            return value;
+        }
+        if (value instanceof Date) {
+            return new Date(value.getTime());
+        }
+        references = references || [];
+        copies = copies || [];
+        var found = references.indexOf(value);
+        if (found > -1) {
+            return copies[found];
+        }
+        var result = Array.isArray(value) ? [] : {};
+        references.push(value);
+        copies.push(result);
+        for (var key in value) {
+            if (hasOwn(value, key)) {
+                result[key] = clone(value[key], references, copies);
+            }
+        }
+        return result;
+    }
+
+    function merge(target) {
+        target = target || {};
+        for (var index = 1; index < arguments.length; index++) {
+            var source = arguments[index];
+            if (!source || typeof source !== 'object') {
+                continue;
+            }
+            for (var key in source) {
+                if (!hasOwn(source, key)) {
+                    continue;
+                }
+                var value = source[key];
+                if (value && typeof value === 'object' && !Array.isArray(value) && !(value instanceof Date)) {
+                    var base = target[key] && typeof target[key] === 'object' && !Array.isArray(target[key]) ? target[key] : {};
+                    target[key] = merge(base, value);
+                }
+                else {
+                    target[key] = clone(value);
+                }
+            }
+        }
+        return target;
+    }
+
+    function asArray(value) {
+        if (value === null || value === undefined) {
+            return [];
+        }
+        return Array.isArray(value) ? value : [value];
+    }
+
+    function resolveFunction(value) {
+        if (typeof value === 'function') {
+            return value;
+        }
+        if (typeof value !== 'string' || value.length === 0) {
+            return null;
+        }
+        var current = window;
+        var names = value.split('.');
+        for (var i = 0; i < names.length && current; i++) {
+            current = current[names[i]];
+        }
+        return typeof current === 'function' ? current : null;
+    }
+
+    function log(scope, message, level) {
+        if (syn.$l && syn.$l.eventLog) {
+            syn.$l.eventLog(scope, message && message.message ? message.message : String(message), level || 'Error');
+        }
+    }
+
+    function nowISO() {
+        return new Date().toISOString();
+    }
+
+    function optionBoolean(value) {
+        if (value === undefined || value === null || value === '') {
+            return undefined;
+        }
+        if (typeof value === 'string') {
+            var normalized = value.toLowerCase();
+            return normalized === 'true' || normalized === 'y' || normalized === 'yes' || normalized === '1';
+        }
+        return value === true || value === 1;
+    }
+
+    function round(value, digits) {
+        if (!isFinite(value)) {
+            return null;
+        }
+        var unit = Math.pow(10, digits === undefined ? 3 : digits);
+        return Math.round(value * unit) / unit;
+    }
+
+    function parseEvents(el) {
+        var result = [];
+        var text = el ? el.getAttribute('syn-events') : null;
+        if (!text) {
+            return result;
+        }
+        try {
+            result = eval(text);
+        }
+        catch (error) {
+            log('$mediaplayer.parseEvents', error, 'Warning');
+        }
+        return Array.isArray(result) ? result : [];
+    }
+
+    function getPageHandler(elID, eventName) {
+        var mod = window[syn.$w.pageScript];
+        return mod && mod.event ? mod.event[elID + '_' + eventName] : null;
+    }
+
+    function emit(control, eventName, eventData) {
+        var handler = getPageHandler(control.id, eventName);
+        if (handler) {
+            try {
+                handler.apply(control.element, [control.id, eventData || {}, getState(control)]);
+            }
+            catch (error) {
+                log('$mediaplayer.emit.' + eventName, error);
+            }
+        }
+    }
+
+    function normalizeRows(value) {
+        if (value === null || value === undefined) {
+            return { valid: true, rows: [] };
+        }
+        if (!Array.isArray(value) && (typeof value !== 'object' || value instanceof Date)) {
+            return { valid: false, rows: [], error: 'setValue accepts an object or an array of objects.' };
+        }
+        var rows = asArray(value);
+        for (var i = 0; i < rows.length; i++) {
+            if (!rows[i] || typeof rows[i] !== 'object' || Array.isArray(rows[i])) {
+                return { valid: false, rows: [], error: 'Every playlist item must be an object.' };
+            }
+        }
+        return { valid: true, rows: clone(rows) };
+    }
+
+    function mappedValue(row, mapping, name, fallbackNames) {
+        var resolver = mapping ? mapping[name] : null;
+        if (typeof resolver === 'function') {
+            return resolver(row);
+        }
+        if (typeof resolver === 'string' && hasOwn(row, resolver)) {
+            return row[resolver];
+        }
+        var names = asArray(fallbackNames);
+        for (var i = 0; i < names.length; i++) {
+            if (hasOwn(row, names[i])) {
+                return row[names[i]];
+            }
+        }
+        return undefined;
+    }
+
+    function isYouTubeURL(src) {
+        return typeof src === 'string' && /(?:youtube\.com|youtu\.be)\//i.test(src);
+    }
+
+    function inferType(src, mediaType) {
+        if (!src) {
+            return '';
+        }
+        if (isYouTubeURL(src)) {
+            return 'video/youtube';
+        }
+        var path = String(src).split('#')[0].split('?')[0].toLowerCase();
+        var extension = path.indexOf('.') > -1 ? path.substring(path.lastIndexOf('.') + 1) : '';
+        var types = {
+            m3u8: 'application/x-mpegURL',
+            mpd: 'application/dash+xml',
+            mp4: mediaType === 'audio' ? 'audio/mp4' : 'video/mp4',
+            m4v: 'video/mp4',
+            webm: mediaType === 'audio' ? 'audio/webm' : 'video/webm',
+            ogv: 'video/ogg',
+            mp3: 'audio/mpeg',
+            m4a: 'audio/mp4',
+            aac: 'audio/aac',
+            oga: 'audio/ogg',
+            ogg: mediaType === 'video' ? 'video/ogg' : 'audio/ogg',
+            wav: 'audio/wav',
+            flac: 'audio/flac'
+        };
+        return types[extension] || '';
+    }
+
+    function inferMediaType(type, src, explicitType) {
+        if (explicitType === 'audio' || explicitType === 'video') {
+            return explicitType;
+        }
+        if (String(type || '').indexOf('audio/') === 0) {
+            return 'audio';
+        }
+        var inferred = inferType(src, '');
+        return inferred.indexOf('audio/') === 0 ? 'audio' : 'video';
+    }
+
+    function normalizeSource(source, mediaType) {
+        if (typeof source === 'string') {
+            return { src: source, type: inferType(source, mediaType) };
+        }
+        source = source || {};
+        var src = source.src !== undefined ? source.src : source.Src;
+        var type = source.type !== undefined ? source.type : source.Type;
+        return { src: src || '', type: type || inferType(src, mediaType) };
+    }
+
+    function normalizeTrack(track) {
+        track = track || {};
+        return {
+            src: track.src !== undefined ? track.src : track.Src,
+            kind: track.kind !== undefined ? track.kind : (track.Kind || 'subtitles'),
+            srclang: track.srclang !== undefined ? track.srclang : (track.SrcLang || track.SRCLang || ''),
+            label: track.label !== undefined ? track.label : (track.Label || ''),
+            default: optionBoolean(track.default !== undefined ? track.default : track.Default) === true
+        };
+    }
+
+    function normalizeMedia(row, rowIndex, setting) {
+        var mapping = setting.mediaMapping || {};
+        var explicitMediaType = mappedValue(row, mapping, 'mediaType', ['MediaType', 'mediaType']);
+        var rawSources = mappedValue(row, mapping, 'sources', ['Sources', 'sources']);
+        var src = mappedValue(row, mapping, 'src', ['Src', 'src', 'SourceURL', 'URL']);
+        var type = mappedValue(row, mapping, 'type', ['Type', 'type', 'MimeType']);
+        var sources = [];
+
+        if (rawSources !== undefined && rawSources !== null && rawSources !== '') {
+            if (!Array.isArray(rawSources)) {
+                throw new Error('Sources must be an array. Playlist index: ' + rowIndex);
+            }
+            for (var sourceIndex = 0; sourceIndex < rawSources.length; sourceIndex++) {
+                sources.push(normalizeSource(rawSources[sourceIndex], explicitMediaType));
+            }
+        }
+        else if (src) {
+            sources.push(normalizeSource({ src: src, type: type }, explicitMediaType));
+        }
+
+        if (sources.length === 0 || !sources[0].src) {
+            throw new Error('Src or Sources is required. Playlist index: ' + rowIndex);
+        }
+
+        var provider = String(mappedValue(row, mapping, 'provider', ['Provider', 'provider']) || '').toLowerCase();
+        if (provider === 'youtube' || isYouTubeURL(sources[0].src)) {
+            provider = 'youtube';
+            sources[0].type = 'video/youtube';
+        }
+        else {
+            provider = 'html5';
+        }
+
+        for (var i = 0; i < sources.length; i++) {
+            if (!sources[i].type) {
+                sources[i].type = inferType(sources[i].src, explicitMediaType);
+            }
+            if (!sources[i].type) {
+                throw new Error('Type is required when it cannot be inferred from Src. Playlist index: ' + rowIndex);
+            }
+        }
+
+        var tracks = [];
+        var rawTracks = mappedValue(row, mapping, 'tracks', ['Tracks', 'tracks']);
+        if (rawTracks !== undefined && rawTracks !== null && rawTracks !== '') {
+            if (!Array.isArray(rawTracks)) {
+                throw new Error('Tracks must be an array. Playlist index: ' + rowIndex);
+            }
+            for (var trackIndex = 0; trackIndex < rawTracks.length; trackIndex++) {
+                var track = normalizeTrack(rawTracks[trackIndex]);
+                if (track.src) {
+                    tracks.push(track);
+                }
+            }
+        }
+
+        var id = mappedValue(row, mapping, 'id', ['MediaID', 'mediaID', 'id']);
+        var configuredHistoryKey = setting.historyKey && hasOwn(row, setting.historyKey) ? row[setting.historyKey] : id;
+        var baseKey = configuredHistoryKey !== undefined && configuredHistoryKey !== null && configuredHistoryKey !== '' ? String(configuredHistoryKey) : String(sources[0].src).toLowerCase();
+        return {
+            id: id !== undefined && id !== null ? String(id) : baseKey,
+            baseKey: baseKey,
+            key: baseKey,
+            index: rowIndex,
+            title: mappedValue(row, mapping, 'title', ['Title', 'title']) || ('Media ' + (rowIndex + 1)),
+            description: mappedValue(row, mapping, 'description', ['Description', 'description']) || '',
+            provider: provider,
+            mediaType: inferMediaType(sources[0].type, sources[0].src, explicitMediaType),
+            poster: mappedValue(row, mapping, 'poster', ['Poster', 'poster']) || '',
+            thumbnail: mappedValue(row, mapping, 'thumbnail', ['Thumbnail', 'thumbnail']) || '',
+            sources: sources,
+            tracks: tracks,
+            autoplay: optionBoolean(mappedValue(row, mapping, 'autoplay', ['Autoplay', 'autoplay'])),
+            muted: optionBoolean(mappedValue(row, mapping, 'muted', ['Muted', 'muted'])),
+            loop: optionBoolean(mappedValue(row, mapping, 'loop', ['Loop', 'loop'])),
+            playbackRate: mappedValue(row, mapping, 'playbackRate', ['PlaybackRate', 'playbackRate']),
+            startTime: Number(mappedValue(row, mapping, 'startTime', ['StartTime', 'startTime']) || 0),
+            row: clone(row)
+        };
+    }
+
+    function normalizePlaylist(rows, setting) {
+        var result = [];
+        var keyCounts = {};
+        for (var i = 0; i < rows.length; i++) {
+            var media = normalizeMedia(rows[i], i, setting);
+            var count = keyCounts[media.baseKey] || 0;
+            keyCounts[media.baseKey] = count + 1;
+            if (count > 0) {
+                media.key = media.baseKey + '#' + i;
+                log('$mediaplayer.setValue', 'Duplicate media history key was separated by playlist index: ' + media.baseKey, 'Warning');
+            }
+            result.push(media);
+        }
+        return result;
+    }
+
+    function createHistory(media) {
+        return {
+            key: media.key,
+            playlistIndex: media.index,
+            playCount: 0,
+            firstStartedAt: null,
+            lastStartedAt: null,
+            lastPausedAt: null,
+            lastEndedAt: null,
+            lastPlayedAt: null,
+            currentTime: 0,
+            duration: null,
+            watchedSeconds: 0,
+            progressPercent: null,
+            completed: false,
+            completionEmitted: false,
+            ended: false,
+            volume: 1,
+            muted: false,
+            playbackRate: 1,
+            lastEvent: null,
+            errorCode: null,
+            errorMessage: null,
+            ranges: []
+        };
+    }
+
+    function mergeRanges(ranges) {
+        var sorted = ranges.slice().filter(function (range) {
+            return range && isFinite(range[0]) && isFinite(range[1]) && range[1] > range[0];
+        }).sort(function (left, right) { return left[0] - right[0]; });
+        var merged = [];
+        for (var i = 0; i < sorted.length; i++) {
+            var current = sorted[i];
+            var last = merged.length ? merged[merged.length - 1] : null;
+            if (!last || current[0] > last[1] + 0.25) {
+                merged.push([current[0], current[1]]);
+            }
+            else if (current[1] > last[1]) {
+                last[1] = current[1];
+            }
+        }
+        return merged;
+    }
+
+    function ensureHistory(control, media) {
+        if (!media) {
+            return null;
+        }
+        if (!control.history[media.key]) {
+            control.history[media.key] = createHistory(media);
+        }
+        control.history[media.key].playlistIndex = media.index;
+        return control.history[media.key];
+    }
+
+    function updateHistoryMetrics(control, entry) {
+        if (!entry) {
+            return;
+        }
+        entry.ranges = mergeRanges(entry.ranges);
+        var watched = 0;
+        for (var i = 0; i < entry.ranges.length; i++) {
+            watched += entry.ranges[i][1] - entry.ranges[i][0];
+        }
+        entry.watchedSeconds = round(watched, 3) || 0;
+        if (isFinite(entry.duration) && entry.duration > 0) {
+            entry.progressPercent = round(Math.min(100, entry.watchedSeconds / entry.duration * 100), 2);
+            if (entry.ended || entry.watchedSeconds / entry.duration >= Number(control.config.completionThreshold || 0.9)) {
+                entry.completed = true;
+            }
+        }
+        else {
+            entry.progressPercent = null;
+            entry.completed = !!entry.ended;
+        }
+        if (entry.completed && !entry.completionEmitted) {
+            entry.completionEmitted = true;
+            emit(control, 'completed', buildPlaybackRow(control, control.playlist[entry.playlistIndex], entry));
+        }
+    }
+
+    function samplePlayback(control) {
+        var media = control.playlist[control.currentIndex];
+        var entry = ensureHistory(control, media);
+        if (!entry || !control.player) {
+            return entry;
+        }
+        var current = Number(control.player.currentTime());
+        if (!isFinite(current)) {
+            return entry;
+        }
+        if (control.lastSampleTime !== null && !control.seeking && !control.player.paused() && current > control.lastSampleTime) {
+            entry.ranges.push([control.lastSampleTime, current]);
+        }
+        control.lastSampleTime = current;
+        entry.currentTime = round(current, 3) || 0;
+        var duration = Number(control.player.duration());
+        entry.duration = isFinite(duration) && duration > 0 ? round(duration, 3) : null;
+        entry.volume = round(Number(control.player.volume()), 3);
+        entry.muted = !!control.player.muted();
+        entry.playbackRate = round(Number(control.player.playbackRate()), 3) || 1;
+        updateHistoryMetrics(control, entry);
+        return entry;
+    }
+
+    function markHistory(control, eventName, event) {
+        var media = control.playlist[control.currentIndex];
+        if (!media) {
+            return;
+        }
+        var entry = ensureHistory(control, media);
+        var timestamp = nowISO();
+        entry.lastEvent = eventName;
+        entry.lastPlayedAt = timestamp;
+
+        if (eventName === 'play') {
+            if (!control.activationPlayed) {
+                entry.playCount++;
+                entry.firstStartedAt = entry.firstStartedAt || timestamp;
+                control.activationPlayed = true;
+            }
+            entry.lastStartedAt = timestamp;
+            entry.ended = false;
+            control.lastPlayedKey = media.key;
+            control.lastSampleTime = Number(control.player.currentTime()) || 0;
+        }
+        else if (eventName === 'playing') {
+            control.lastSampleTime = Number(control.player.currentTime()) || 0;
+        }
+        else if (eventName === 'timeupdate') {
+            samplePlayback(control);
+        }
+        else if (eventName === 'seeking') {
+            control.seeking = true;
+            control.lastSampleTime = null;
+        }
+        else if (eventName === 'seeked') {
+            control.seeking = false;
+            control.lastSampleTime = Number(control.player.currentTime()) || 0;
+        }
+        else if (eventName === 'pause') {
+            samplePlayback(control);
+            entry.lastPausedAt = timestamp;
+            control.lastSampleTime = null;
+        }
+        else if (eventName === 'ended') {
+            samplePlayback(control);
+            entry.ended = true;
+            entry.completed = true;
+            entry.lastEndedAt = timestamp;
+            control.lastSampleTime = null;
+            updateHistoryMetrics(control, entry);
+        }
+        else if (eventName === 'loadedmetadata' || eventName === 'durationchange') {
+            samplePlayback(control);
+            if (eventName === 'loadedmetadata' && media.startTime > 0) {
+                var duration = Number(control.player.duration());
+                control.player.currentTime(isFinite(duration) ? Math.min(media.startTime, duration) : media.startTime);
+            }
+        }
+        else if (eventName === 'ratechange' || eventName === 'volumechange') {
+            samplePlayback(control);
+        }
+        else if (eventName === 'error') {
+            var playerError = control.player.error ? control.player.error() : null;
+            entry.errorCode = playerError ? playerError.code : null;
+            entry.errorMessage = playerError ? playerError.message : (event && event.message ? event.message : 'Media playback error');
+        }
+
+        updatePlaylistUI(control);
+        var immediate = eventName !== 'timeupdate';
+        var now = Date.now();
+        if (immediate || now - control.lastHistoryEmit >= Number(control.config.historyUpdateInterval || 1000)) {
+            control.lastHistoryEmit = now;
+            emit(control, 'historyChange', buildPlaybackRow(control, media, entry));
+        }
+    }
+
+    function buildPlaybackRow(control, media, entry) {
+        if (!media || !entry || entry.playCount < 1) {
+            return null;
+        }
+        updateHistoryMetrics(control, entry);
+        var result = clone(media.row);
+        var fields = {
+            PlaybackPlaylistIndex: media.index,
+            PlaybackProvider: media.provider,
+            PlaybackMediaType: media.mediaType,
+            PlaybackSource: media.sources.length ? media.sources[0].src : '',
+            PlaybackPlayCount: entry.playCount,
+            PlaybackFirstStartedAt: entry.firstStartedAt,
+            PlaybackLastStartedAt: entry.lastStartedAt,
+            PlaybackLastPausedAt: entry.lastPausedAt,
+            PlaybackLastEndedAt: entry.lastEndedAt,
+            PlaybackLastPlayedAt: entry.lastPlayedAt,
+            PlaybackCurrentTime: entry.currentTime,
+            PlaybackDuration: entry.duration,
+            PlaybackWatchedSeconds: entry.watchedSeconds,
+            PlaybackProgressPercent: entry.progressPercent,
+            PlaybackCompletedYN: entry.completed ? 'Y' : 'N',
+            PlaybackEndedYN: entry.ended ? 'Y' : 'N',
+            PlaybackVolume: entry.volume,
+            PlaybackMutedYN: entry.muted ? 'Y' : 'N',
+            PlaybackRate: entry.playbackRate,
+            PlaybackLastEvent: entry.lastEvent,
+            PlaybackErrorCode: entry.errorCode,
+            PlaybackErrorMessage: entry.errorMessage
+        };
+        for (var name in fields) {
+            if (hasOwn(fields, name)) {
+                result[name] = fields[name];
+            }
+        }
+        return result;
+    }
+
+    function getPlaybackRows(control) {
+        if (!control) {
+            return [];
+        }
+        samplePlayback(control);
+        var result = [];
+        for (var i = 0; i < control.playlist.length; i++) {
+            var media = control.playlist[i];
+            var row = buildPlaybackRow(control, media, control.history[media.key]);
+            if (row) {
+                result.push(row);
+            }
+        }
+        return result;
+    }
+
+    function getCurrentPlaybackRow(control) {
+        if (!control) {
+            return null;
+        }
+        samplePlayback(control);
+        var media = control.playlist[control.currentIndex];
+        var row = media ? buildPlaybackRow(control, media, control.history[media.key]) : null;
+        if (row) {
+            return row;
+        }
+        if (control.lastPlayedKey) {
+            for (var i = 0; i < control.playlist.length; i++) {
+                if (control.playlist[i].key === control.lastPlayedKey) {
+                    return buildPlaybackRow(control, control.playlist[i], control.history[control.lastPlayedKey]);
+                }
+            }
+        }
+        return null;
+    }
+
+    function serializeRows(rows, requestType, metaColumns) {
+        if (requestType === 'Row') {
+            rows = rows.length ? [rows[rows.length - 1]] : [];
+        }
+        else if (requestType !== 'List') {
+            return [];
+        }
+        var result = [];
+        for (var i = 0; i < rows.length; i++) {
+            var row = rows[i];
+            var transactionRow = [];
+            if (metaColumns) {
+                for (var key in metaColumns) {
+                    if (!hasOwn(metaColumns, key)) {
+                        continue;
+                    }
+                    var meta = metaColumns[key] || {};
+                    var fieldID = meta.fieldID || meta.FieldID || key;
+                    var dataType = meta.dataType || meta.DataType;
+                    var value = row[key];
+                    if (value === undefined && window.$object && $object.defaultValue) {
+                        value = String(dataType || '').toLowerCase() === 'number' ? null : $object.defaultValue(dataType);
+                    }
+                    transactionRow.push({ prop: fieldID, val: value });
+                }
+            }
+            else {
+                for (var property in row) {
+                    if (hasOwn(row, property)) {
+                        transactionRow.push({ prop: property, val: row[property] });
+                    }
+                }
+            }
+            result.push(transactionRow);
+        }
+        return result;
+    }
+
+    function publicMedia(media) {
+        if (!media) {
+            return null;
+        }
+        return {
+            id: media.id,
+            index: media.index,
+            title: media.title,
+            description: media.description,
+            provider: media.provider,
+            mediaType: media.mediaType,
+            poster: media.poster,
+            thumbnail: media.thumbnail,
+            sources: clone(media.sources),
+            tracks: clone(media.tracks),
+            row: clone(media.row)
+        };
+    }
+
+    function getState(control) {
+        if (!control) {
+            return null;
+        }
+        var player = control.player;
+        var current = control.playlist[control.currentIndex];
+        return {
+            currentIndex: control.currentIndex,
+            currentMedia: publicMedia(current),
+            playback: getCurrentPlaybackRow(control),
+            playlistLength: control.playlist.length,
+            paused: player ? player.paused() : true,
+            ended: player ? player.ended() : false,
+            currentTime: player ? round(Number(player.currentTime()), 3) : 0,
+            duration: player && isFinite(Number(player.duration())) ? round(Number(player.duration()), 3) : null,
+            volume: player ? round(Number(player.volume()), 3) : 1,
+            muted: player ? !!player.muted() : false,
+            playbackRate: player ? round(Number(player.playbackRate()), 3) : 1
+        };
+    }
+
+    function shouldShowPlaylist(control) {
+        var visible = control.config.playlist && control.config.playlist.visible;
+        return visible === true || visible === 'always' || (visible === 'auto' && control.playlist.length > 1);
+    }
+
+    function updatePlaylistUI(control) {
+        if (!control.playlistElement) {
+            return;
+        }
+        control.playlistElement.style.display = shouldShowPlaylist(control) ? '' : 'none';
+        var list = control.playlistListElement;
+        while (list.firstChild) {
+            list.removeChild(list.firstChild);
+        }
+        for (var i = 0; i < control.playlist.length; i++) {
+            (function (index) {
+                var media = control.playlist[index];
+                var entry = control.history[media.key];
+                var item = document.createElement('li');
+                item.className = 'syn-mediaplayer-playlist-item' + (index === control.currentIndex ? ' active' : '');
+                var button = document.createElement('button');
+                button.type = 'button';
+                button.setAttribute('data-index', index);
+                button.setAttribute('aria-current', index === control.currentIndex ? 'true' : 'false');
+                if (media.thumbnail || media.poster) {
+                    var image = document.createElement('img');
+                    image.src = media.thumbnail || media.poster;
+                    image.alt = '';
+                    button.appendChild(image);
+                }
+                var text = document.createElement('span');
+                text.className = 'syn-mediaplayer-playlist-text';
+                var title = document.createElement('strong');
+                title.textContent = media.title;
+                var meta = document.createElement('small');
+                var progress = entry && entry.playCount ? (entry.completed ? '완료' : (entry.progressPercent === null ? '재생함' : entry.progressPercent + '%')) : '미재생';
+                meta.textContent = media.provider + ' · ' + media.mediaType + ' · ' + progress;
+                text.appendChild(title);
+                text.appendChild(meta);
+                button.appendChild(text);
+                button.addEventListener('click', function () {
+                    $mediaplayer.selectMedia(control.id, index, true, 'playlist');
+                });
+                item.appendChild(button);
+                list.appendChild(item);
+            })(i);
+        }
+    }
+
+    function removeRemoteTracks(control) {
+        if (!control.player || !control.player.remoteTextTracks) {
+            return;
+        }
+        var tracks = control.player.remoteTextTracks();
+        for (var i = tracks.length - 1; i >= 0; i--) {
+            try {
+                control.player.removeRemoteTextTrack(tracks[i]);
+            }
+            catch (error) {
+                log('$mediaplayer.removeRemoteTracks', error, 'Warning');
+            }
+        }
+    }
+
+    function setPlayerTheme(control, themeClass) {
+        if (!control.player) {
+            return;
+        }
+        if (control.themeClass) {
+            control.player.removeClass(control.themeClass);
+            control.element.classList.remove(control.themeClass);
+        }
+        control.themeClass = themeClass || '';
+        if (control.themeClass) {
+            control.player.addClass(control.themeClass);
+            control.element.classList.add(control.themeClass);
+        }
+    }
+
+    function applyMedia(control, index, autoplay, reason) {
+        if (!control || !control.player || index < 0 || index >= control.playlist.length) {
+            return null;
+        }
+        samplePlayback(control);
+        control.player.pause();
+        control.currentIndex = index;
+        control.activationPlayed = false;
+        control.lastSampleTime = null;
+        control.seeking = false;
+        var media = control.playlist[index];
+        removeRemoteTracks(control);
+        control.player.poster(media.poster || '');
+        if (typeof control.player.audioOnlyMode === 'function') {
+            Promise.resolve(control.player.audioOnlyMode(media.mediaType === 'audio')).catch(function () { });
+        }
+        if (media.muted !== undefined) {
+            control.player.muted(!!media.muted);
+        }
+        if (media.loop !== undefined) {
+            control.player.loop(!!media.loop);
+        }
+        if (media.playbackRate !== undefined && isFinite(Number(media.playbackRate))) {
+            control.player.playbackRate(Number(media.playbackRate));
+        }
+        control.player.src(clone(media.sources));
+        for (var i = 0; i < media.tracks.length; i++) {
+            control.player.addRemoteTextTrack(clone(media.tracks[i]), false);
+        }
+        updatePlaylistUI(control);
+        emit(control, 'mediaChange', { index: index, reason: reason || 'api', media: publicMedia(media) });
+        var shouldPlay = autoplay === true || (autoplay === undefined && media.autoplay === true);
+        if (shouldPlay) {
+            var promise = control.player.play();
+            if (promise && typeof promise.catch === 'function') {
+                promise.catch(function (error) {
+                    log('$mediaplayer.selectMedia', error, 'Warning');
+                });
+            }
+        }
+        return control.player;
+    }
+
+    function advanceAfterEnded(control) {
+        var playlistSetting = control.config.playlist || {};
+        if (playlistSetting.repeat === 'one') {
+            control.activationPlayed = false;
+            control.player.currentTime(control.playlist[control.currentIndex].startTime || 0);
+            Promise.resolve(control.player.play()).catch(function () { });
+            return;
+        }
+        if (!playlistSetting.autoAdvance) {
+            emit(control, 'playlistEnded', { index: control.currentIndex, reason: 'mediaEnded' });
+            return;
+        }
+        var nextIndex = control.currentIndex + 1;
+        if (nextIndex >= control.playlist.length && playlistSetting.repeat === 'all') {
+            nextIndex = 0;
+        }
+        if (nextIndex < control.playlist.length) {
+            applyMedia(control, nextIndex, true, 'autoAdvance');
+        }
+        else {
+            emit(control, 'playlistEnded', { index: control.currentIndex, reason: 'playlistEnded' });
+        }
+    }
+
+    function bindPlayerEvents(control) {
+        var internalEvents = ['loadstart', 'loadedmetadata', 'durationchange', 'play', 'playing', 'pause', 'timeupdate', 'seeking', 'seeked', 'ratechange', 'volumechange', 'waiting', 'stalled', 'ended', 'error', 'fullscreenchange', 'enterpictureinpicture', 'leavepictureinpicture'];
+        var bound = {};
+        for (var i = 0; i < internalEvents.length; i++) {
+            (function (eventName) {
+                var listener = function (event) {
+                    markHistory(control, eventName, event);
+                    if (control.eventNames.indexOf(eventName) > -1) {
+                        emit(control, eventName, event);
+                    }
+                    if (eventName === 'ended') {
+                        advanceAfterEnded(control);
+                    }
+                };
+                control.player.on(eventName, listener);
+                control.boundEvents.push({ eventName: eventName, listener: listener });
+                bound[eventName] = true;
+            })(internalEvents[i]);
+        }
+        for (var eventIndex = 0; eventIndex < control.eventNames.length; eventIndex++) {
+            (function (eventName) {
+                if (bound[eventName] || $mediaplayer.syntheticEvents.indexOf(eventName) > -1) {
+                    return;
+                }
+                var listener = function (event) { emit(control, eventName, event); };
+                control.player.on(eventName, listener);
+                control.boundEvents.push({ eventName: eventName, listener: listener });
+            })(control.eventNames[eventIndex]);
+        }
+    }
+
+    function createPlayerOptions(setting) {
+        var options = merge({}, setting.playerOptions || {});
+        return merge(options, {
+            controls: setting.controls,
+            preload: setting.preload,
+            autoplay: setting.autoplay,
+            muted: setting.muted,
+            loop: setting.loop,
+            playsinline: setting.playsinline,
+            fluid: setting.fluid,
+            responsive: setting.responsive,
+            aspectRatio: setting.aspectRatio,
+            language: setting.language,
+            playbackRates: setting.playbackRates,
+            techOrder: clone(setting.techOrder),
+            html5: clone(setting.html5),
+            youtube: clone(setting.youtube),
+            plugins: clone(setting.plugins)
+        });
+    }
+
+    function applyPlaylist(control, rows, metaColumns) {
+        var playlist = normalizePlaylist(rows, control.config);
+        samplePlayback(control);
+        control.player.pause();
+        var previous = control.history;
+        var nextHistory = {};
+        if (control.config.preserveHistory) {
+            for (var i = 0; i < playlist.length; i++) {
+                var media = playlist[i];
+                if (previous[media.key]) {
+                    nextHistory[media.key] = previous[media.key];
+                    nextHistory[media.key].playlistIndex = i;
+                }
+            }
+        }
+        control.rawValue = clone(rows);
+        control.metaColumns = metaColumns || null;
+        control.playlist = playlist;
+        control.history = nextHistory;
+        control.currentIndex = -1;
+        control.lastPlayedKey = null;
+        control.activationPlayed = false;
+        control.lastSampleTime = null;
+        if (playlist.length) {
+            var startIndex = Math.max(0, Math.min(Number(control.config.startIndex) || 0, playlist.length - 1));
+            applyMedia(control, startIndex, control.config.autoplay, 'setValue');
+        }
+        else {
+            control.player.pause();
+            removeRemoteTracks(control);
+            control.player.reset();
+            updatePlaylistUI(control);
+        }
+        emit(control, 'dataBound', { rows: clone(rows), playlist: playlist.map(publicMedia) });
+        emit(control, 'playlistChange', { playlist: playlist.map(publicMedia) });
+        return control.player;
+    }
+
+    $mediaplayer.extend({
+        name: 'syn.uicontrols.$mediaplayer',
+        version: 'v2026.7.27',
+        mediaControls: [],
+        syntheticEvents: ['initialized', 'dataBound', 'mediaChange', 'playlistChange', 'historyChange', 'completed', 'playlistEnded', 'disposed'],
+        defaultSetting: {
+            width: '100%',
+            height: 'auto',
+            controls: true,
+            preload: 'metadata',
+            autoplay: false,
+            muted: false,
+            loop: false,
+            playsinline: true,
+            fluid: true,
+            responsive: true,
+            aspectRatio: '16:9',
+            language: 'ko',
+            playbackRates: [0.5, 0.75, 1, 1.25, 1.5, 2],
+            techOrder: ['youtube', 'html5'],
+            html5: {},
+            youtube: { ytControls: 0 },
+            plugins: {},
+            playerOptions: {},
+            themeClass: 'vjs-theme-handstack',
+            playlist: { visible: 'auto', position: 'right', autoAdvance: false, repeat: 'none' },
+            mediaMapping: {
+                id: 'MediaID', title: 'Title', description: 'Description', src: 'Src', type: 'Type',
+                provider: 'Provider', mediaType: 'MediaType', poster: 'Poster', thumbnail: 'Thumbnail',
+                sources: 'Sources', tracks: 'Tracks', autoplay: 'Autoplay', muted: 'Muted', loop: 'Loop',
+                playbackRate: 'PlaybackRate', startTime: 'StartTime'
+            },
+            dataAdapter: null,
+            startIndex: 0,
+            completionThreshold: 0.9,
+            preserveHistory: false,
+            historyKey: 'MediaID',
+            historyUpdateInterval: 1000,
+            autoResize: true,
+            dataType: 'string',
+            belongID: null,
+            getter: false,
+            setter: false,
+            controlText: null,
+            validators: null,
+            transactConfig: null,
+            triggerConfig: null
+        },
+
+        addModuleList: function (el, moduleList, setting, controlType) {
+            var form = el.closest('form');
+            moduleList.push({
+                id: el.getAttribute('id'),
+                formDataFieldID: form ? form.getAttribute('syn-datafield') : '',
+                field: el.getAttribute('syn-datafield'),
+                module: this.name,
+                type: controlType
+            });
+        },
+
+        controlLoad: function (elID, setting) {
+            var el = syn.$l.get(elID);
+            if (!el || !window.videojs) {
+                log('$mediaplayer.controlLoad', 'Video.js is not loaded.');
+                return;
+            }
+            setting = merge({}, $mediaplayer.defaultSetting, setting || {});
+            var mod = window[syn.$w.pageScript];
+            if (mod && mod.hook && mod.hook.controlInit) {
+                setting = merge(setting, mod.hook.controlInit(elID, setting) || {});
+            }
+            setting.width = el.style.width || setting.width;
+            setting.height = el.style.height || setting.height;
+
+            var originalDisplay = el.style.display;
+            el.setAttribute('id', elID + '_hidden');
+            try {
+                el.setAttribute('syn-options', JSON.stringify(setting));
+            }
+            catch (error) {
+                log('$mediaplayer.controlLoad', 'syn-options contains a non-serializable value.', 'Warning');
+            }
+            el.style.display = 'none';
+
+            var wrapper = document.createElement('div');
+            wrapper.id = elID + '_wrapper';
+            wrapper.className = 'syn-mediaplayer syn-mediaplayer-playlist-' + (setting.playlist.position || 'right');
+            wrapper.style.width = setting.width;
+            if (setting.height && setting.height !== 'auto') {
+                wrapper.style.height = setting.height;
+            }
+            var playerArea = document.createElement('div');
+            playerArea.className = 'syn-mediaplayer-player';
+            var video = document.createElement('video');
+            video.id = elID;
+            video.className = 'video-js vjs-big-play-centered';
+            video.setAttribute('playsinline', 'playsinline');
+            playerArea.appendChild(video);
+            var playlistElement = document.createElement('aside');
+            playlistElement.className = 'syn-mediaplayer-playlist';
+            playlistElement.setAttribute('aria-label', '재생목록');
+            var playlistTitle = document.createElement('div');
+            playlistTitle.className = 'syn-mediaplayer-playlist-title';
+            playlistTitle.textContent = '재생목록';
+            var playlistList = document.createElement('ul');
+            playlistElement.appendChild(playlistTitle);
+            playlistElement.appendChild(playlistList);
+            wrapper.appendChild(playerArea);
+            wrapper.appendChild(playlistElement);
+            el.parentNode.insertBefore(wrapper, el.nextSibling);
+
+            var control = {
+                id: elID,
+                originalElement: el,
+                originalDisplay: originalDisplay,
+                element: wrapper,
+                playerArea: playerArea,
+                videoElement: video,
+                playlistElement: playlistElement,
+                playlistListElement: playlistList,
+                player: null,
+                config: setting,
+                rawValue: [],
+                metaColumns: null,
+                playlist: [],
+                history: {},
+                currentIndex: -1,
+                lastPlayedKey: null,
+                activationPlayed: false,
+                lastSampleTime: null,
+                seeking: false,
+                lastHistoryEmit: 0,
+                eventNames: parseEvents(el),
+                boundEvents: [],
+                runtimeEvents: [],
+                resizeObserver: null,
+                setValueVersion: 0,
+                themeClass: ''
+            };
+            $mediaplayer.mediaControls.push(control);
+
+            try {
+                control.player = videojs(video, createPlayerOptions(setting), function () {
+                    control.player = this;
+                    setPlayerTheme(control, setting.themeClass);
+                    bindPlayerEvents(control);
+                    updatePlaylistUI(control);
+                    emit(control, 'initialized', { player: control.player });
+                });
+                if (setting.autoResize && window.ResizeObserver) {
+                    control.resizeObserver = new ResizeObserver(function () {
+                        if (control.player && !control.player.isDisposed()) {
+                            control.player.trigger('resize');
+                            control.player.trigger('componentresize');
+                        }
+                    });
+                    control.resizeObserver.observe(wrapper);
+                }
+            }
+            catch (error) {
+                log('$mediaplayer.controlLoad', error);
+                emit(control, 'error', error);
+            }
+        },
+
+        getControl: function (elID) {
+            return $mediaplayer.mediaControls.find(function (control) { return control.id === elID; }) || null;
+        },
+
+        getPlayer: function (elID) {
+            var control = $mediaplayer.getControl(elID);
+            return control ? control.player : null;
+        },
+
+        getVideoJS: function () {
+            return window.videojs || null;
+        },
+
+        setValue: function (elID, value, metaColumns) {
+            var control = $mediaplayer.getControl(elID);
+            if (!control || !control.player) {
+                return Promise.resolve(null);
+            }
+            var normalized = normalizeRows(value);
+            if (!normalized.valid) {
+                log('$mediaplayer.setValue', normalized.error, 'Warning');
+                emit(control, 'error', { code: 'INVALID_PLAYLIST', message: normalized.error });
+                return Promise.resolve(null);
+            }
+            var token = ++control.setValueVersion;
+            var adapter = resolveFunction(control.config.dataAdapter);
+            var operation;
+            try {
+                operation = adapter ? adapter(clone(normalized.rows), metaColumns, control) : normalized.rows;
+            }
+            catch (error) {
+                log('$mediaplayer.setValue', error);
+                emit(control, 'error', error);
+                return Promise.resolve(null);
+            }
+            return Promise.resolve(operation).then(function (rows) {
+                if (token !== control.setValueVersion) {
+                    return control.player;
+                }
+                var adapted = normalizeRows(rows);
+                if (!adapted.valid) {
+                    throw new Error(adapted.error);
+                }
+                return applyPlaylist(control, adapted.rows, metaColumns);
+            }).catch(function (error) {
+                log('$mediaplayer.setValue', error);
+                emit(control, 'error', error);
+                return null;
+            });
+        },
+
+        getValue: function (elID, requestType, metaColumns) {
+            var control = $mediaplayer.getControl(elID);
+            if (!control) {
+                return requestType ? [] : null;
+            }
+            if (!requestType) {
+                return clone(getCurrentPlaybackRow(control));
+            }
+            var rows = requestType === 'Row' ? asArray(getCurrentPlaybackRow(control)).filter(Boolean) : getPlaybackRows(control);
+            return serializeRows(rows, requestType, metaColumns || control.metaColumns);
+        },
+
+        getRawValue: function (elID) {
+            var control = $mediaplayer.getControl(elID);
+            return control ? clone(control.rawValue) : [];
+        },
+
+        getPlaylist: function (elID) {
+            var control = $mediaplayer.getControl(elID);
+            return control ? control.playlist.map(publicMedia) : [];
+        },
+
+        getCurrentMedia: function (elID) {
+            var control = $mediaplayer.getControl(elID);
+            return control ? publicMedia(control.playlist[control.currentIndex]) : null;
+        },
+
+        getPlaybackDetails: function (elID, requestType) {
+            var control = $mediaplayer.getControl(elID);
+            if (!control) {
+                return requestType === 'List' ? [] : null;
+            }
+            return requestType === 'List' ? clone(getPlaybackRows(control)) : clone(getCurrentPlaybackRow(control));
+        },
+
+        getState: function (elID) {
+            return clone(getState($mediaplayer.getControl(elID)));
+        },
+
+        selectMedia: function (elID, indexOrKey, autoplay, reason) {
+            var control = $mediaplayer.getControl(elID);
+            if (!control) {
+                return null;
+            }
+            var index = typeof indexOrKey === 'number' && isFinite(indexOrKey) ? indexOrKey : -1;
+            if (typeof indexOrKey !== 'number') {
+                index = -1;
+                for (var i = 0; i < control.playlist.length; i++) {
+                    if (control.playlist[i].key === indexOrKey || control.playlist[i].id === String(indexOrKey)) {
+                        index = i;
+                        break;
+                    }
+                }
+                if (index < 0 && String(indexOrKey).trim() !== '' && isFinite(Number(indexOrKey))) {
+                    index = Number(indexOrKey);
+                }
+            }
+            return applyMedia(control, index, autoplay, reason || 'api');
+        },
+
+        play: function (elID) {
+            var player = $mediaplayer.getPlayer(elID);
+            return player ? player.play() : Promise.resolve(null);
+        },
+
+        pause: function (elID) {
+            var player = $mediaplayer.getPlayer(elID);
+            if (player) { player.pause(); }
+        },
+
+        stop: function (elID) {
+            var control = $mediaplayer.getControl(elID);
+            if (control && control.player) {
+                control.player.pause();
+                var media = control.playlist[control.currentIndex];
+                control.player.currentTime(media ? media.startTime || 0 : 0);
+            }
+        },
+
+        load: function (elID) {
+            var player = $mediaplayer.getPlayer(elID);
+            if (player) { player.load(); }
+        },
+
+        next: function (elID, autoplay) {
+            var control = $mediaplayer.getControl(elID);
+            if (!control || !control.playlist.length) { return null; }
+            var index = control.currentIndex + 1;
+            if (index >= control.playlist.length && control.config.playlist.repeat === 'all') { index = 0; }
+            return index < control.playlist.length ? applyMedia(control, index, autoplay, 'next') : null;
+        },
+
+        previous: function (elID, autoplay) {
+            var control = $mediaplayer.getControl(elID);
+            if (!control || !control.playlist.length) { return null; }
+            var index = control.currentIndex - 1;
+            if (index < 0 && control.config.playlist.repeat === 'all') { index = control.playlist.length - 1; }
+            return index >= 0 ? applyMedia(control, index, autoplay, 'previous') : null;
+        },
+
+        currentTime: function (elID, value) {
+            var player = $mediaplayer.getPlayer(elID);
+            if (!player) { return null; }
+            if (value !== undefined) { player.currentTime(Number(value) || 0); }
+            return player.currentTime();
+        },
+
+        duration: function (elID) {
+            var player = $mediaplayer.getPlayer(elID);
+            return player ? player.duration() : null;
+        },
+
+        volume: function (elID, value) {
+            var player = $mediaplayer.getPlayer(elID);
+            if (!player) { return null; }
+            if (value !== undefined) { player.volume(Math.max(0, Math.min(1, Number(value)))); }
+            return player.volume();
+        },
+
+        muted: function (elID, value) {
+            var player = $mediaplayer.getPlayer(elID);
+            if (!player) { return null; }
+            if (value !== undefined) { player.muted(!!value); }
+            return player.muted();
+        },
+
+        playbackRate: function (elID, value) {
+            var player = $mediaplayer.getPlayer(elID);
+            if (!player) { return null; }
+            if (value !== undefined && isFinite(Number(value))) { player.playbackRate(Number(value)); }
+            return player.playbackRate();
+        },
+
+        setTheme: function (elID, themeClass) {
+            var control = $mediaplayer.getControl(elID);
+            if (control) { setPlayerTheme(control, themeClass); }
+        },
+
+        addTextTrack: function (elID, track) {
+            var player = $mediaplayer.getPlayer(elID);
+            return player ? player.addRemoteTextTrack(normalizeTrack(track), false) : null;
+        },
+
+        removeTextTrack: function (elID, track) {
+            var player = $mediaplayer.getPlayer(elID);
+            return player ? player.removeRemoteTextTrack(track) : null;
+        },
+
+        requestFullscreen: function (elID) {
+            var player = $mediaplayer.getPlayer(elID);
+            return player && player.requestFullscreen ? player.requestFullscreen() : null;
+        },
+
+        exitFullscreen: function (elID) {
+            var player = $mediaplayer.getPlayer(elID);
+            return player && player.exitFullscreen ? player.exitFullscreen() : null;
+        },
+
+        requestPictureInPicture: function (elID) {
+            var player = $mediaplayer.getPlayer(elID);
+            if (!player || !player.requestPictureInPicture) {
+                return Promise.resolve(null);
+            }
+            try {
+                return Promise.resolve(player.requestPictureInPicture());
+            }
+            catch (error) {
+                return Promise.reject(error);
+            }
+        },
+
+        usePlugin: function (elID, pluginName, options) {
+            var player = $mediaplayer.getPlayer(elID);
+            return player && typeof player[pluginName] === 'function' ? player[pluginName](options || {}) : null;
+        },
+
+        invoke: function (elID, method, args) {
+            var player = $mediaplayer.getPlayer(elID);
+            return player && typeof player[method] === 'function' ? player[method].apply(player, args || []) : null;
+        },
+
+        on: function (elID, eventName, handler) {
+            var control = $mediaplayer.getControl(elID);
+            var resolved = resolveFunction(handler);
+            if (!control || !control.player || !resolved) { return null; }
+            var listener = function (event) { resolved(control.id, event, getState(control)); };
+            control.player.on(eventName, listener);
+            control.runtimeEvents.push({ eventName: eventName, handler: handler, listener: listener });
+            return listener;
+        },
+
+        off: function (elID, eventName, handler) {
+            var control = $mediaplayer.getControl(elID);
+            if (!control || !control.player) { return; }
+            for (var i = control.runtimeEvents.length - 1; i >= 0; i--) {
+                var item = control.runtimeEvents[i];
+                if (item.eventName === eventName && (!handler || item.handler === handler || item.listener === handler)) {
+                    control.player.off(item.eventName, item.listener);
+                    control.runtimeEvents.splice(i, 1);
+                }
+            }
+        },
+
+        resetHistory: function (elID) {
+            var control = $mediaplayer.getControl(elID);
+            if (!control) { return; }
+            control.history = {};
+            control.lastPlayedKey = null;
+            control.activationPlayed = false;
+            control.lastSampleTime = null;
+            updatePlaylistUI(control);
+            emit(control, 'historyChange', { source: 'resetHistory' });
+        },
+
+        resize: function (elID) {
+            var player = $mediaplayer.getPlayer(elID);
+            if (player) {
+                player.trigger('resize');
+                player.trigger('componentresize');
+            }
+        },
+
+        clear: function (elID) {
+            var control = $mediaplayer.getControl(elID);
+            if (!control || !control.player) { return; }
+            control.setValueVersion++;
+            control.player.pause();
+            removeRemoteTracks(control);
+            control.player.reset();
+            control.rawValue = [];
+            control.metaColumns = null;
+            control.playlist = [];
+            control.history = {};
+            control.currentIndex = -1;
+            control.lastPlayedKey = null;
+            control.activationPlayed = false;
+            control.lastSampleTime = null;
+            updatePlaylistUI(control);
+            emit(control, 'playlistChange', { playlist: [] });
+        },
+
+        dispose: function (elID) {
+            var control = $mediaplayer.getControl(elID);
+            if (!control) { return; }
+            emit(control, 'disposed', {});
+            control.setValueVersion++;
+            if (control.resizeObserver) { control.resizeObserver.disconnect(); }
+            if (control.player && !control.player.isDisposed()) { control.player.dispose(); }
+            if (control.element && control.element.parentNode) { control.element.parentNode.removeChild(control.element); }
+            if (control.originalElement) {
+                control.originalElement.setAttribute('id', elID);
+                control.originalElement.style.display = control.originalDisplay;
+            }
+            var index = $mediaplayer.mediaControls.indexOf(control);
+            if (index > -1) { $mediaplayer.mediaControls.splice(index, 1); }
+        }
+    });
+
+    syn.uicontrols.$mediaplayer = $mediaplayer;
+})(window);
+
+/// <reference path="/js/syn.js" />
+
+(function (window) {
+    'use strict';
+
+    syn.uicontrols = syn.uicontrols || new syn.module();
+    var $navermap = syn.uicontrols.$navermap || new syn.module();
+
+    function hasOwn(target, name) {
+        return target && Object.prototype.hasOwnProperty.call(target, name);
+    }
+
+    function isPlainObject(value) {
+        return value && Object.prototype.toString.call(value) === '[object Object]';
+    }
+
+    function clone(value, seen, copies) {
+        if (value === null || value === undefined || typeof value !== 'object') { return value; }
+        if (value instanceof Date) { return new Date(value.getTime()); }
+        if (!Array.isArray(value) && !isPlainObject(value)) { return value; }
+        seen = seen || [];
+        copies = copies || [];
+        var found = seen.indexOf(value);
+        if (found > -1) { return copies[found]; }
+        var result = Array.isArray(value) ? [] : {};
+        seen.push(value);
+        copies.push(result);
+        for (var key in value) {
+            if (hasOwn(value, key)) { result[key] = clone(value[key], seen, copies); }
+        }
+        return result;
+    }
+
+    function merge(target) {
+        target = target || {};
+        for (var i = 1; i < arguments.length; i++) {
+            var source = arguments[i];
+            if (!source || typeof source !== 'object') { continue; }
+            for (var key in source) {
+                if (!hasOwn(source, key)) { continue; }
+                var value = source[key];
+                if (isPlainObject(value)) {
+                    target[key] = merge(isPlainObject(target[key]) ? target[key] : {}, value);
+                }
+                else { target[key] = clone(value); }
+            }
+        }
+        return target;
+    }
+
+    function asArray(value) {
+        return value === null || value === undefined ? [] : (Array.isArray(value) ? value : [value]);
+    }
+
+    function resolveFunction(value) {
+        if (typeof value === 'function') { return value; }
+        if (typeof value !== 'string' || !value) { return null; }
+        var current = window;
+        var path = value.split('.');
+        for (var i = 0; i < path.length && current; i++) { current = current[path[i]]; }
+        return typeof current === 'function' ? current : null;
+    }
+
+    function log(scope, error, level) {
+        if (syn.$l && syn.$l.eventLog) {
+            syn.$l.eventLog(scope, error && error.message ? error.message : String(error), level || 'Error');
+        }
+    }
+
+    function parseEvents(el) {
+        var text = el ? el.getAttribute('syn-events') : '';
+        if (!text) { return []; }
+        try {
+            var events = eval(text);
+            return Array.isArray(events) ? events : [];
+        }
+        catch (error) {
+            log('$navermap.parseEvents', error, 'Warning');
+            return [];
+        }
+    }
+
+    function pageHandler(id, eventName) {
+        var mod = window[syn.$w.pageScript];
+        return mod && mod.event ? mod.event[id + '_' + eventName] : null;
+    }
+
+    function emit(control, eventName, payload) {
+        var handler = pageHandler(control.id, eventName);
+        if (!handler) { return; }
+        try { handler.apply(control.element, [control.id, payload || {}, getSelection(control)]); }
+        catch (error) { log('$navermap.emit.' + eventName, error); }
+    }
+
+    function errorOf(code, message, detail) {
+        var error = new Error(message);
+        error.code = code;
+        if (detail !== undefined) { error.detail = detail; }
+        return error;
+    }
+
+    function fail(control, scope, error) {
+        log(scope, error);
+        if (control) {
+            var fatal = !control.map || /^NAVER_MAP_(?:API_KEY|SDK|AUTH)/.test(error.code || '');
+            if (fatal) {
+                control.element.classList.remove('is-loading');
+                control.element.classList.add('is-error');
+                control.status.textContent = error.message || String(error);
+            }
+            emit(control, 'error', { code: error.code || 'NAVER_MAP_ERROR', message: error.message || String(error), detail: error.detail });
+        }
+        return null;
+    }
+
+    function normalizeRows(value) {
+        if (value === null || value === undefined) { return []; }
+        if (!Array.isArray(value) && !isPlainObject(value)) {
+            throw errorOf('INVALID_POI_DATA', 'setValue는 단일 객체 또는 객체 배열만 허용합니다.');
+        }
+        var rows = asArray(value);
+        for (var i = 0; i < rows.length; i++) {
+            if (!isPlainObject(rows[i])) {
+                throw errorOf('INVALID_POI_DATA', '모든 POI 데이터는 객체여야 합니다.', { rowIndexes: [i] });
+            }
+        }
+        return clone(rows);
+    }
+
+    function mapped(row, mapping, name, aliases) {
+        var resolver = mapping ? mapping[name] : null;
+        if (typeof resolver === 'function') { return resolver(row); }
+        if (typeof resolver === 'string' && hasOwn(row, resolver)) { return row[resolver]; }
+        for (var i = 0; i < aliases.length; i++) {
+            if (hasOwn(row, aliases[i])) { return row[aliases[i]]; }
+        }
+        return undefined;
+    }
+
+    function bool(value, fallback) {
+        if (value === undefined || value === null || value === '') { return fallback; }
+        if (typeof value === 'string') { return /^(true|y|yes|1)$/i.test(value); }
+        return value === true || value === 1;
+    }
+
+    function number(value) {
+        if (value === null || value === undefined || value === '') { return NaN; }
+        return Number(value);
+    }
+
+    function normalizePoi(row, index, setting) {
+        var mapping = setting.poiMapping || {};
+        var latitude = number(mapped(row, mapping, 'latitude', ['LAT', 'lat', 'latitude', 'Latitude']));
+        var longitude = number(mapped(row, mapping, 'longitude', ['LNG', 'lng', 'longitude', 'Longitude']));
+        if (!isFinite(latitude) || !isFinite(longitude) || latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
+            throw errorOf('INVALID_POI_COORDINATE', '유효하지 않은 POI 좌표가 있습니다.', { rowIndexes: [index], latitude: latitude, longitude: longitude });
+        }
+        var id = mapped(row, mapping, 'id', ['AS_NUM', 'POIID', 'PoiID', 'id', 'ID']);
+        return {
+            key: id === undefined || id === null || id === '' ? 'index:' + index : 'id:' + String(id),
+            id: id === undefined || id === null ? null : String(id),
+            index: index,
+            row: row,
+            latitude: latitude,
+            longitude: longitude,
+            title: mapped(row, mapping, 'title', ['CT_NAME', 'Title', 'title', 'Name', 'name']),
+            description: mapped(row, mapping, 'description', ['CT_ADDRESS', 'Description', 'description', 'Address', 'address']),
+            icon: mapped(row, mapping, 'icon', ['Icon', 'icon']),
+            markerOptions: mapped(row, mapping, 'markerOptions', ['MarkerOptions', 'markerOptions']),
+            infoWindowContent: mapped(row, mapping, 'infoWindowContent', ['InfoWindowContent', 'infoWindowContent']),
+            visible: bool(mapped(row, mapping, 'visible', ['Visible', 'visible']), true),
+            draggable: bool(mapped(row, mapping, 'draggable', ['Draggable', 'draggable']), false),
+            zIndex: mapped(row, mapping, 'zIndex', ['ZIndex', 'zIndex'])
+        };
+    }
+
+    function normalizePois(rows, setting) {
+        var result = [];
+        var invalid = [];
+        for (var i = 0; i < rows.length; i++) {
+            try { result.push(normalizePoi(rows[i], i, setting)); }
+            catch (error) { invalid.push(i); }
+        }
+        if (invalid.length) {
+            throw errorOf('INVALID_POI_COORDINATE', '유효하지 않은 POI 좌표가 있습니다: ' + invalid.join(', '), { rowIndexes: invalid });
+        }
+        return result;
+    }
+
+    function selectionOf(poi) {
+        if (!poi) { return null; }
+        var position = poi.marker && poi.marker.getPosition ? poi.marker.getPosition() : null;
+        return {
+            poiIndex: poi.index,
+            poiId: poi.id,
+            position: {
+                lat: position && position.lat ? position.lat() : poi.latitude,
+                lng: position && position.lng ? position.lng() : poi.longitude
+            },
+            row: clone(poi.row)
+        };
+    }
+
+    function selectedPois(control) {
+        var result = [];
+        for (var keyIndex = 0; keyIndex < control.selectionKeys.length; keyIndex++) {
+            for (var i = 0; i < control.pois.length; i++) {
+                if (control.pois[i].key === control.selectionKeys[keyIndex]) { result.push(control.pois[i]); break; }
+            }
+        }
+        return result;
+    }
+
+    function getSelection(control) {
+        if (!control) { return null; }
+        var values = selectedPois(control).map(selectionOf);
+        return control.config.selectionMode === 'multiple' ? values : (values[0] || null);
+    }
+
+    function serializeRows(rows, requestType, metaColumns) {
+        if (requestType !== 'Row' && requestType !== 'List') { return []; }
+        var columns = metaColumns || null;
+        return rows.map(function (row) {
+            var result = [];
+            if (Array.isArray(columns)) {
+                for (var i = 0; i < columns.length; i++) {
+                    var column = columns[i];
+                    var name = typeof column === 'string' ? column : (column.data || column.field || column.name || column.ColumnName);
+                    var fieldID = typeof column === 'string' ? name : (column.fieldID || column.FieldID || name);
+                    if (name) { result.push({ prop: fieldID, val: row ? row[name] : undefined }); }
+                }
+            }
+            else if (columns) {
+                for (var columnKey in columns) {
+                    if (!hasOwn(columns, columnKey)) { continue; }
+                    var meta = columns[columnKey] || {};
+                    var metaFieldID = meta.fieldID || meta.FieldID || columnKey;
+                    var dataType = meta.dataType || meta.DataType;
+                    var metaValue = row ? row[columnKey] : undefined;
+                    if (metaValue === undefined && window.$object && $object.defaultValue) {
+                        metaValue = String(dataType || '').toLowerCase() === 'number' ? null : $object.defaultValue(dataType);
+                    }
+                    result.push({ prop: metaFieldID, val: metaValue });
+                }
+            }
+            else {
+                for (var key in row) { if (hasOwn(row, key)) { result.push({ prop: key, val: row[key] }); } }
+            }
+            return result;
+        });
+    }
+
+    function naverEvent() {
+        return window.naver && window.naver.maps ? window.naver.maps.Event : null;
+    }
+
+    function addListener(target, eventName, listener, bucket) {
+        var Event = naverEvent();
+        if (!Event || !target) { return null; }
+        var handle = Event.addListener(target, eventName, listener);
+        if (bucket) { bucket.push(handle); }
+        return handle;
+    }
+
+    function removeListeners(bucket) {
+        var Event = naverEvent();
+        if (!Event) { bucket.length = 0; return; }
+        for (var i = 0; i < bucket.length; i++) { Event.removeListener(bucket[i]); }
+        bucket.length = 0;
+    }
+
+    function latLng(value) {
+        if (!value || !window.naver || !window.naver.maps) { return value; }
+        if (value instanceof window.naver.maps.LatLng) { return value; }
+        if (Array.isArray(value)) { return new window.naver.maps.LatLng(Number(value[0]), Number(value[1])); }
+        var lat = value.lat !== undefined ? value.lat : (value.latitude !== undefined ? value.latitude : value.y);
+        var lng = value.lng !== undefined ? value.lng : (value.longitude !== undefined ? value.longitude : value.x);
+        return new window.naver.maps.LatLng(Number(lat), Number(lng));
+    }
+
+    function bounds(value) {
+        if (!value || !window.naver || !window.naver.maps) { return value; }
+        if (value instanceof window.naver.maps.LatLngBounds) { return value; }
+        var sw = value.sw || value.southWest || value[0];
+        var ne = value.ne || value.northEast || value[1];
+        return new window.naver.maps.LatLngBounds(latLng(sw), latLng(ne));
+    }
+
+    function configureAuthFailure() {
+        if ($navermap.authFailureInstalled) { return; }
+        $navermap.authFailureInstalled = true;
+        $navermap.previousAuthFailure = window.navermap_authFailure;
+        window.navermap_authFailure = function () {
+            if (typeof $navermap.previousAuthFailure === 'function') {
+                try { $navermap.previousAuthFailure.apply(window, arguments); }
+                catch (error) { log('$navermap.authFailure.previous', error); }
+            }
+            for (var i = 0; i < $navermap.mapControls.length; i++) {
+                var control = $navermap.mapControls[i];
+                var authError = errorOf('NAVER_MAP_AUTH_FAILURE', 'NAVER Maps API 인증에 실패했습니다.');
+                fail(control, '$navermap.authFailure', authError);
+                emit(control, 'authFailure', { code: authError.code, message: authError.message });
+            }
+        };
+    }
+
+    function sdkKey(setting) {
+        var configured = window.syn && syn.Config ? syn.Config.NaverMapApiKey : '';
+        return setting.apiKey || configured || '';
+    }
+
+    function loadSDK(setting) {
+        configureAuthFailure();
+        if (window.naver && window.naver.maps && window.naver.maps.Map) { return Promise.resolve(window.naver); }
+        var key = sdkKey(setting);
+        if (!key) { return Promise.reject(errorOf('NAVER_MAP_API_KEY_REQUIRED', 'syn.Config.NaverMapApiKey 또는 apiKey 옵션이 필요합니다.')); }
+        var modules = asArray(setting.submodules).filter(Boolean).join(',');
+        var signature = [setting.apiUrl, key, modules, setting.language || ''].join('|');
+        if ($navermap.sdkPromise) {
+            if ($navermap.sdkSignature !== signature) {
+                return Promise.reject(errorOf('NAVER_MAP_SDK_CONFLICT', '이미 다른 NAVER Maps SDK 설정으로 로딩을 시작했습니다.'));
+            }
+            return $navermap.sdkPromise;
+        }
+        $navermap.sdkSignature = signature;
+        $navermap.sdkPromise = new Promise(function (resolve, reject) {
+            var callbackName = '__handstackNaverMapLoaded';
+            var script = document.createElement('script');
+            var query = ['ncpKeyId=' + encodeURIComponent(key), 'callback=' + callbackName];
+            if (modules) { query.push('submodules=' + encodeURIComponent(modules)); }
+            if (setting.language) { query.push('language=' + encodeURIComponent(setting.language)); }
+            var timeout = window.setTimeout(function () {
+                reject(errorOf('NAVER_MAP_SDK_TIMEOUT', 'NAVER Maps SDK 로딩 시간이 초과되었습니다.'));
+            }, Number(setting.loadTimeout) || 15000);
+            window[callbackName] = function () {
+                window.clearTimeout(timeout);
+                try { delete window[callbackName]; } catch (ignore) { window[callbackName] = undefined; }
+                if (window.naver && window.naver.maps && window.naver.maps.Map) { resolve(window.naver); }
+                else { reject(errorOf('NAVER_MAP_SDK_INVALID', 'NAVER Maps SDK를 초기화할 수 없습니다.')); }
+            };
+            script.async = true;
+            script.src = String(setting.apiUrl || '').replace(/[?&]$/, '') + (String(setting.apiUrl).indexOf('?') > -1 ? '&' : '?') + query.join('&');
+            script.onerror = function () {
+                window.clearTimeout(timeout);
+                reject(errorOf('NAVER_MAP_SDK_LOAD_FAILED', 'NAVER Maps SDK를 불러오지 못했습니다.'));
+            };
+            document.head.appendChild(script);
+        });
+        return $navermap.sdkPromise;
+    }
+
+    function infoContent(control, poi) {
+        var resolver = resolveFunction(control.config.infoWindowContentResolver);
+        var content = resolver ? resolver(clone(poi.row), poi.index, control) : poi.infoWindowContent;
+        if (content !== undefined && content !== null) { return content; }
+        var box = document.createElement('div');
+        box.className = 'syn-navermap-infowindow';
+        box.style.padding = '10px 12px';
+        if (poi.title !== undefined && poi.title !== null) {
+            var title = document.createElement('strong');
+            title.textContent = String(poi.title);
+            box.appendChild(title);
+        }
+        if (poi.description !== undefined && poi.description !== null) {
+            var description = document.createElement('div');
+            description.textContent = String(poi.description);
+            box.appendChild(description);
+        }
+        return box;
+    }
+
+    function closeInfo(control) {
+        if (control.infoWindow && control.infoWindow.close) {
+            control.infoWindow.close();
+            emit(control, 'infoWindowClose', {});
+        }
+    }
+
+    function openInfo(control, poi) {
+        if (!control.config.openInfoWindowOnSelect || !poi) { return null; }
+        closeInfo(control);
+        var options = merge({}, control.config.infoWindowOptions || {}, { content: infoContent(control, poi) });
+        control.infoWindow = new window.naver.maps.InfoWindow(options);
+        control.infoWindow.open(control.map, poi.marker);
+        emit(control, 'infoWindowOpen', { selection: selectionOf(poi), infoWindow: control.infoWindow });
+        return control.infoWindow;
+    }
+
+    function changeSelection(control, poi, source, event) {
+        if (control.config.selectionMode === 'none') { return; }
+        var changed = false;
+        var index = control.selectionKeys.indexOf(poi.key);
+        if (control.config.selectionMode === 'multiple') {
+            if (index > -1) { control.selectionKeys.splice(index, 1); }
+            else { control.selectionKeys.push(poi.key); }
+            changed = true;
+        }
+        else if (index < 0 || control.selectionKeys.length !== 1) {
+            control.selectionKeys = [poi.key];
+            changed = true;
+        }
+        if (control.selectionKeys.indexOf(poi.key) > -1) { openInfo(control, poi); }
+        else { closeInfo(control); }
+        if (changed) { emit(control, 'selectionChange', { source: source || 'api', event: event || null, selection: getSelection(control) }); }
+    }
+
+    function markerOptions(control, poi) {
+        var options = merge({}, control.config.markerOptions || {}, isPlainObject(poi.markerOptions) ? poi.markerOptions : {});
+        var resolver = resolveFunction(control.config.markerOptionsResolver);
+        if (resolver) { options = merge(options, resolver(clone(poi.row), poi.index, control) || {}); }
+        options.map = null;
+        options.position = new window.naver.maps.LatLng(poi.latitude, poi.longitude);
+        if (poi.title !== undefined) { options.title = String(poi.title); }
+        if (poi.icon !== undefined && poi.icon !== null) { options.icon = clone(poi.icon); }
+        options.visible = poi.visible;
+        options.draggable = poi.draggable;
+        if (poi.zIndex !== undefined && poi.zIndex !== null && poi.zIndex !== '') { options.zIndex = Number(poi.zIndex); }
+        return options;
+    }
+
+    function bindMarker(control, poi) {
+        var events = ['click', 'dblclick', 'mouseover', 'mouseout', 'dragstart', 'drag', 'dragend'];
+        for (var i = 0; i < events.length; i++) {
+            (function (eventName) {
+                addListener(poi.marker, eventName, function (event) {
+                    if (eventName === 'click') { changeSelection(control, poi, 'poiClick', event); }
+                    if (eventName === 'dragend' && poi.marker.getPosition) {
+                        var position = poi.marker.getPosition();
+                        poi.latitude = position.lat();
+                        poi.longitude = position.lng();
+                    }
+                    var name = 'poi' + eventName.charAt(0).toUpperCase() + eventName.slice(1);
+                    emit(control, name, { event: event, selection: selectionOf(poi), marker: poi.marker });
+                }, poi.listeners);
+            })(events[i]);
+        }
+    }
+
+    function destroyPoi(poi) {
+        removeListeners(poi.listeners || []);
+        if (poi.marker && poi.marker.setMap) { poi.marker.setMap(null); }
+    }
+
+    function fitPois(control) {
+        if (!control.config.fitBoundsOnData || !control.pois.length) { return; }
+        if (control.pois.length === 1) { control.map.setCenter(control.pois[0].marker.getPosition()); return; }
+        var result = new window.naver.maps.LatLngBounds();
+        for (var i = 0; i < control.pois.length; i++) { result.extend(control.pois[i].marker.getPosition()); }
+        control.map.fitBounds(result);
+    }
+
+    function applyPois(control, rows, metaColumns) {
+        var normalized = normalizePois(rows, control.config);
+        var created = [];
+        try {
+            for (var i = 0; i < normalized.length; i++) {
+                var poi = normalized[i];
+                poi.listeners = [];
+                poi.marker = new window.naver.maps.Marker(markerOptions(control, poi));
+                bindMarker(control, poi);
+                created.push(poi);
+            }
+        }
+        catch (error) {
+            for (var failed = 0; failed < created.length; failed++) { destroyPoi(created[failed]); }
+            throw error;
+        }
+        var previousKeys = control.config.preserveSelection ? control.selectionKeys.slice() : [];
+        var old = control.pois;
+        control.pois = created;
+        control.rawValue = clone(rows);
+        control.metaColumns = metaColumns || null;
+        control.selectionKeys = [];
+        for (var keyIndex = 0; keyIndex < previousKeys.length; keyIndex++) {
+            for (var poiIndex = 0; poiIndex < created.length; poiIndex++) {
+                if (created[poiIndex].key === previousKeys[keyIndex]) { control.selectionKeys.push(previousKeys[keyIndex]); break; }
+            }
+        }
+        for (var mapIndex = 0; mapIndex < created.length; mapIndex++) {
+            if (created[mapIndex].visible) { created[mapIndex].marker.setMap(control.map); }
+        }
+        for (var oldIndex = 0; oldIndex < old.length; oldIndex++) { destroyPoi(old[oldIndex]); }
+        closeInfo(control);
+        fitPois(control);
+        emit(control, 'dataBound', { rowCount: rows.length, rows: clone(rows) });
+        return control.map;
+    }
+
+    function bindMapEvents(control) {
+        var synthetic = $navermap.syntheticEvents;
+        var names = control.eventNames.slice();
+        if (names.indexOf('click') < 0) { names.push('click'); }
+        for (var i = 0; i < names.length; i++) {
+            (function (eventName) {
+                if (synthetic.indexOf(eventName) > -1 || eventName.indexOf('poi') === 0) { return; }
+                addListener(control.map, eventName, function (event) {
+                    if (eventName === 'click' && control.config.clearSelectionOnMapClick) {
+                        $navermap.clearSelection(control.id, 'mapClick');
+                    }
+                    if (control.eventNames.indexOf(eventName) > -1) { emit(control, eventName, event); }
+                }, control.mapListeners);
+            })(names[i]);
+        }
+    }
+
+    function createMap(control) {
+        if (control.disposed) { return null; }
+        control.element.classList.remove('is-error');
+        var options = merge({}, control.config.mapOptions || {});
+        options.center = latLng(options.center || { lat: 36.5, lng: 127.8 });
+        control.map = new window.naver.maps.Map(control.canvas, options);
+        bindMapEvents(control);
+        if (control.config.autoResize && window.ResizeObserver) {
+            control.resizeObserver = new ResizeObserver(function () { $navermap.resize(control.id); });
+            control.resizeObserver.observe(control.element);
+        }
+        control.element.classList.remove('is-loading');
+        control.status.textContent = '';
+        emit(control, 'sdkLoaded', { naver: window.naver });
+        emit(control, 'initialized', { map: control.map });
+        control.pendingValue = null;
+        return control.map;
+    }
+
+    function targetOf(control, target) {
+        if (!control) { return null; }
+        if (!target || target === 'map') { return control.map; }
+        if (target === 'data') { return control.map ? control.map.data : null; }
+        if (target === 'infoWindow') { return control.infoWindow; }
+        if (target === 'drawing') { return control.drawingManager; }
+        return control.overlays[target] || control.layers[target] || control.extensions[target] || null;
+    }
+
+    function registryRemove(registry, id) {
+        var value = registry[id];
+        if (!value) { return null; }
+        if (value.setMap) { value.setMap(null); }
+        if (value.close) { value.close(); }
+        delete registry[id];
+        return value;
+    }
+
+    $navermap.extend({
+        name: 'syn.uicontrols.$navermap',
+        version: 'v2026.7.27',
+        mapControls: [],
+        sdkPromise: null,
+        sdkSignature: null,
+        authFailureInstalled: false,
+        previousAuthFailure: null,
+        syntheticEvents: ['sdkLoaded', 'initialized', 'dataBound', 'selectionChange', 'infoWindowOpen', 'infoWindowClose', 'authFailure', 'resized', 'disposed', 'error'],
+        defaultSetting: {
+            width: '100%',
+            height: '400px',
+            apiKey: '',
+            apiUrl: 'https://oapi.map.naver.com/openapi/v3/maps.js',
+            submodules: ['panorama', 'geocoder', 'drawing', 'visualization'],
+            language: 'ko',
+            loadTimeout: 15000,
+            mapOptions: { center: { lat: 36.5, lng: 127.8 }, zoom: 7, minZoom: 6, zoomControl: true, mapTypeControl: true, scaleControl: true },
+            markerOptions: {},
+            infoWindowOptions: {},
+            openInfoWindowOnSelect: true,
+            selectionMode: 'single',
+            clearSelectionOnMapClick: true,
+            preserveSelection: false,
+            fitBoundsOnData: false,
+            autoResize: true,
+            poiMapping: {},
+            dataAdapter: null,
+            markerOptionsResolver: null,
+            infoWindowContentResolver: null,
+            dataType: 'string', belongID: null, getter: false, setter: false, controlText: null,
+            validators: null, transactConfig: null, triggerConfig: null
+        },
+
+        addModuleList: function (el, moduleList, setting, controlType) {
+            var form = el.closest('form');
+            moduleList.push({ id: el.id, formDataFieldID: form ? form.getAttribute('syn-datafield') : '', field: el.getAttribute('syn-datafield'), module: this.name, type: controlType });
+        },
+
+        controlLoad: function (elID, setting) {
+            var el = syn.$l.get(elID);
+            if (!el) { return null; }
+            setting = merge({}, $navermap.defaultSetting, setting || {});
+            var mod = window[syn.$w.pageScript];
+            if (mod && mod.hook && mod.hook.controlInit) { setting = merge(setting, mod.hook.controlInit(elID, setting) || {}); }
+            setting.width = el.style.width || setting.width;
+            setting.height = el.style.height || setting.height;
+            var display = el.style.display;
+            el.id = elID + '_hidden';
+            try { el.setAttribute('syn-options', JSON.stringify(setting)); }
+            catch (error) { log('$navermap.controlLoad', 'syn-options contains a non-serializable value.', 'Warning'); }
+            el.style.display = 'none';
+            var wrapper = document.createElement('div');
+            wrapper.id = elID;
+            wrapper.className = 'syn-navermap is-loading';
+            wrapper.style.width = setting.width;
+            wrapper.style.height = setting.height;
+            var canvas = document.createElement('div');
+            canvas.id = elID + '_canvas';
+            canvas.className = 'syn-navermap-canvas';
+            var status = document.createElement('div');
+            status.className = 'syn-navermap-status';
+            status.textContent = '지도를 불러오는 중입니다.';
+            wrapper.appendChild(canvas);
+            wrapper.appendChild(status);
+            el.parentNode.insertBefore(wrapper, el.nextSibling);
+            var control = {
+                id: elID, originalElement: el, originalDisplay: display, element: wrapper, canvas: canvas, status: status,
+                config: setting, map: null, rawValue: [], metaColumns: null, pois: [], selectionKeys: [], infoWindow: null,
+                overlays: {}, layers: {}, extensions: {}, drawingManager: null, eventNames: parseEvents(el), mapListeners: [], runtimeListeners: [],
+                resizeObserver: null, pendingValue: null, setValueVersion: 0, disposed: false, readyPromise: null
+            };
+            $navermap.mapControls.push(control);
+            control.readyPromise = loadSDK(setting).then(function () { return createMap(control); }).catch(function (error) { return fail(control, '$navermap.controlLoad', error); });
+            return control.readyPromise;
+        },
+
+        getControl: function (elID) { return $navermap.mapControls.find(function (item) { return item.id === elID; }) || null; },
+        getMap: function (elID) { var control = $navermap.getControl(elID); return control ? control.map : null; },
+        getNaver: function () { return window.naver || null; },
+        ready: function (elID) { var control = $navermap.getControl(elID); return control ? control.readyPromise : Promise.resolve(null); },
+
+        setValue: function (elID, value, metaColumns) {
+            var control = $navermap.getControl(elID);
+            if (!control) { return Promise.resolve(null); }
+            var rows;
+            try { rows = normalizeRows(value); }
+            catch (error) { fail(control, '$navermap.setValue', error); return Promise.resolve(null); }
+            var token = ++control.setValueVersion;
+            if (!control.map) { control.pendingValue = { value: rows, metaColumns: metaColumns }; }
+            var adapter = resolveFunction(control.config.dataAdapter);
+            var operation;
+            try { operation = adapter ? adapter(clone(rows), metaColumns, control) : rows; }
+            catch (error) { fail(control, '$navermap.setValue', error); return Promise.resolve(null); }
+            return control.readyPromise.then(function () { return Promise.resolve(operation); }).then(function (adapted) {
+                if (token !== control.setValueVersion || !control.map || control.disposed) { return control.map; }
+                var normalized = normalizeRows(adapted);
+                normalizePois(normalized, control.config);
+                return applyPois(control, normalized, metaColumns);
+            }).catch(function (error) { return fail(control, '$navermap.setValue', error); });
+        },
+
+        getValue: function (elID, requestType, metaColumns) {
+            var control = $navermap.getControl(elID);
+            if (!control) { return requestType ? [] : null; }
+            var rows = selectedPois(control).map(function (poi) { return clone(poi.row); });
+            if (!requestType) { return control.config.selectionMode === 'multiple' ? rows : (rows[0] || null); }
+            if (requestType === 'Row') { rows = rows.length ? [rows[rows.length - 1]] : []; }
+            return serializeRows(rows, requestType, metaColumns || control.metaColumns);
+        },
+
+        getRawValue: function (elID) { var control = $navermap.getControl(elID); return control ? clone(control.rawValue) : []; },
+        getSelection: function (elID) { return getSelection($navermap.getControl(elID)); },
+        getSelectedRows: function (elID) { var control = $navermap.getControl(elID); return control ? selectedPois(control).map(function (poi) { return clone(poi.row); }) : []; },
+        getMarkers: function (elID) { var control = $navermap.getControl(elID); return control ? control.pois.map(function (poi) { return poi.marker; }) : []; },
+        getSelectedMarkers: function (elID) { var control = $navermap.getControl(elID); return control ? selectedPois(control).map(function (poi) { return poi.marker; }) : []; },
+        getMarker: function (elID, indexOrId) {
+            var control = $navermap.getControl(elID);
+            if (!control) { return null; }
+            for (var i = 0; i < control.pois.length; i++) {
+                if (i === indexOrId || control.pois[i].id === String(indexOrId) || control.pois[i].key === indexOrId) { return control.pois[i].marker; }
+            }
+            return null;
+        },
+        getInfoWindow: function (elID) { var control = $navermap.getControl(elID); return control ? control.infoWindow : null; },
+
+        setSelection: function (elID, value, source) {
+            var control = $navermap.getControl(elID);
+            if (!control || control.config.selectionMode === 'none') { return null; }
+            var requested = asArray(value);
+            control.selectionKeys = [];
+            for (var r = 0; r < requested.length; r++) {
+                for (var i = 0; i < control.pois.length; i++) {
+                    var poi = control.pois[i];
+                    if (i === requested[r] || poi.id === String(requested[r]) || poi.key === requested[r]) {
+                        control.selectionKeys.push(poi.key);
+                        if (control.config.selectionMode !== 'multiple') { r = requested.length; }
+                        break;
+                    }
+                }
+            }
+            var selected = selectedPois(control);
+            if (selected.length) { openInfo(control, selected[selected.length - 1]); } else { closeInfo(control); }
+            emit(control, 'selectionChange', { source: source || 'api', selection: getSelection(control) });
+            return getSelection(control);
+        },
+
+        clearSelection: function (elID, source) {
+            var control = $navermap.getControl(elID);
+            if (!control) { return; }
+            var changed = control.selectionKeys.length > 0;
+            control.selectionKeys = [];
+            closeInfo(control);
+            if (changed) { emit(control, 'selectionChange', { source: source || 'api', selection: getSelection(control) }); }
+        },
+
+        setOptions: function (elID, options) { var map = $navermap.getMap(elID); if (map) { map.setOptions(options || {}); } return map; },
+        getOptions: function (elID, key) { var map = $navermap.getMap(elID); return map && map.getOptions ? map.getOptions(key) : null; },
+        setCenter: function (elID, value) { var map = $navermap.getMap(elID); if (map) { map.setCenter(latLng(value)); } },
+        getCenter: function (elID) { var map = $navermap.getMap(elID); return map ? map.getCenter() : null; },
+        setZoom: function (elID, value, useEffect) { var map = $navermap.getMap(elID); if (map) { map.setZoom(Number(value), !!useEffect); } },
+        getZoom: function (elID) { var map = $navermap.getMap(elID); return map ? map.getZoom() : null; },
+        fitBounds: function (elID, value, margin) { var map = $navermap.getMap(elID); if (map) { map.fitBounds(bounds(value), margin); } },
+        panTo: function (elID, value, options) { var map = $navermap.getMap(elID); if (map) { map.panTo(latLng(value), options); } },
+        panToBounds: function (elID, value, options) { var map = $navermap.getMap(elID); if (map) { map.panToBounds(bounds(value), options); } },
+        panBy: function (elID, delta, options) { var map = $navermap.getMap(elID); if (map) { map.panBy(delta, options); } },
+        getBounds: function (elID) { var map = $navermap.getMap(elID); return map ? map.getBounds() : null; },
+        setMapTypeId: function (elID, value) { var map = $navermap.getMap(elID); if (map) { map.setMapTypeId(value); } },
+        resize: function (elID) {
+            var control = $navermap.getControl(elID);
+            if (!control || !control.map) { return; }
+            var Event = naverEvent();
+            if (Event && Event.trigger) { Event.trigger(control.map, 'resize'); }
+            emit(control, 'resized', { width: control.element.clientWidth, height: control.element.clientHeight });
+        },
+
+        updateMarker: function (elID, indexOrId, options) { var marker = $navermap.getMarker(elID, indexOrId); if (marker) { marker.setOptions(options || {}); } return marker; },
+        setMarkerVisible: function (elID, indexOrId, visible) { var marker = $navermap.getMarker(elID, indexOrId); var map = $navermap.getMap(elID); if (marker) { marker.setMap(visible ? map : null); } },
+        openInfoWindow: function (elID, indexOrId) {
+            var control = $navermap.getControl(elID);
+            if (!control) { return null; }
+            for (var i = 0; i < control.pois.length; i++) {
+                if (i === indexOrId || control.pois[i].id === String(indexOrId) || control.pois[i].key === indexOrId) { return openInfo(control, control.pois[i]); }
+            }
+            return null;
+        },
+        closeInfoWindow: function (elID) { var control = $navermap.getControl(elID); if (control) { closeInfo(control); } },
+        invokeMarker: function (elID, indexOrId, method, args) { var marker = $navermap.getMarker(elID, indexOrId); return marker && typeof marker[method] === 'function' ? marker[method].apply(marker, args || []) : null; },
+
+        addGeoJson: function (elID, geoJson, autoStyle) { var map = $navermap.getMap(elID); return map && map.data ? map.data.addGeoJson(geoJson, autoStyle) : null; },
+        removeGeoJson: function (elID, feature) { var map = $navermap.getMap(elID); return map && map.data ? map.data.removeFeature(feature) : null; },
+        setDataStyle: function (elID, style) { var map = $navermap.getMap(elID); if (map && map.data) { map.data.setStyle(style); } },
+        overrideDataStyle: function (elID, feature, style) { var map = $navermap.getMap(elID); if (map && map.data) { map.data.overrideStyle(feature, style); } },
+        revertDataStyle: function (elID, feature) { var map = $navermap.getMap(elID); if (map && map.data) { map.data.revertStyle(feature); } },
+
+        addOverlay: function (elID, id, type, options) {
+            var control = $navermap.getControl(elID);
+            var allowed = ['Marker', 'InfoWindow', 'Polyline', 'Polygon', 'Circle', 'Ellipse', 'Rectangle', 'GroundOverlay'];
+            if (!control || allowed.indexOf(type) < 0 || !window.naver.maps[type]) { throw errorOf('INVALID_OVERLAY_TYPE', '지원하지 않는 오버레이 형식입니다: ' + type); }
+            registryRemove(control.overlays, id);
+            var config = merge({}, options || {});
+            if (config.position) { config.position = latLng(config.position); }
+            if (config.center) { config.center = latLng(config.center); }
+            if (config.bounds) { config.bounds = bounds(config.bounds); }
+            config.map = config.map === undefined ? control.map : config.map;
+            control.overlays[id] = new window.naver.maps[type](config);
+            return control.overlays[id];
+        },
+        getOverlay: function (elID, id) { var control = $navermap.getControl(elID); return control ? control.overlays[id] || null : null; },
+        removeOverlay: function (elID, id) { var control = $navermap.getControl(elID); return control ? registryRemove(control.overlays, id) : null; },
+
+        createLayer: function (elID, id, type, options) {
+            var control = $navermap.getControl(elID);
+            var allowed = ['TrafficLayer', 'BicycleLayer', 'CadastralLayer', 'StreetLayer', 'LabelLayer'];
+            if (!control || allowed.indexOf(type) < 0 || !window.naver.maps[type]) { throw errorOf('INVALID_LAYER_TYPE', '지원하지 않는 레이어 형식입니다: ' + type); }
+            registryRemove(control.layers, id);
+            control.layers[id] = new window.naver.maps[type](options || {});
+            if (control.layers[id].setMap) { control.layers[id].setMap(control.map); }
+            return control.layers[id];
+        },
+        getLayer: function (elID, id) { var control = $navermap.getControl(elID); return control ? control.layers[id] || null : null; },
+        setLayerVisible: function (elID, id, visible) { var control = $navermap.getControl(elID); var layer = control ? control.layers[id] : null; if (layer && layer.setMap) { layer.setMap(visible ? control.map : null); } },
+        removeLayer: function (elID, id) { var control = $navermap.getControl(elID); return control ? registryRemove(control.layers, id) : null; },
+
+        geocode: function (query) { return $navermap.service('geocode', query); },
+        reverseGeocode: function (query) { return $navermap.service('reverseGeocode', query); },
+        transCoord: function (query) { return $navermap.service('transCoord', query); },
+        service: function (method, query) {
+            return new Promise(function (resolve, reject) {
+                var service = window.naver && window.naver.maps ? window.naver.maps.Service : null;
+                if (!service || typeof service[method] !== 'function') { reject(errorOf('NAVER_MAP_SUBMODULE_REQUIRED', 'geocoder 서브모듈이 필요합니다.')); return; }
+                service[method](query || {}, function (status, response) {
+                    var ok = service.Status ? status === service.Status.OK : String(status).toLowerCase() === 'ok';
+                    if (ok) { resolve(response); } else { reject(errorOf('NAVER_MAP_SERVICE_ERROR', method + ' 요청에 실패했습니다.', { status: status, response: response })); }
+                });
+            });
+        },
+
+        createDrawingManager: function (elID, options) {
+            var control = $navermap.getControl(elID);
+            var DrawingManager = window.naver && window.naver.maps && window.naver.maps.drawing ? window.naver.maps.drawing.DrawingManager : null;
+            if (!control || !DrawingManager) { throw errorOf('NAVER_MAP_SUBMODULE_REQUIRED', 'drawing 서브모듈이 필요합니다.'); }
+            if (control.drawingManager && control.drawingManager.setMap) { control.drawingManager.setMap(null); }
+            control.drawingManager = new DrawingManager(merge({ map: control.map }, options || {}));
+            return control.drawingManager;
+        },
+        createPanorama: function (elID, id, container, options) {
+            var control = $navermap.getControl(elID);
+            if (!control || !window.naver.maps.Panorama) { throw errorOf('NAVER_MAP_SUBMODULE_REQUIRED', 'panorama 서브모듈이 필요합니다.'); }
+            var element = typeof container === 'string' ? document.getElementById(container) : container;
+            control.extensions[id] = new window.naver.maps.Panorama(element, options || {});
+            return control.extensions[id];
+        },
+        createVisualization: function (elID, id, type, options) {
+            var control = $navermap.getControl(elID);
+            var visual = window.naver && window.naver.maps ? window.naver.maps.visualization : null;
+            if (!control || !visual || ['HeatMap', 'DotMap'].indexOf(type) < 0 || !visual[type]) { throw errorOf('NAVER_MAP_SUBMODULE_REQUIRED', 'visualization 서브모듈 또는 형식을 확인하세요.'); }
+            registryRemove(control.extensions, id);
+            control.extensions[id] = new visual[type](merge({ map: control.map }, options || {}));
+            return control.extensions[id];
+        },
+
+        on: function (elID, target, eventName, handler) {
+            var control = $navermap.getControl(elID);
+            if (arguments.length === 3) { handler = eventName; eventName = target; target = 'map'; }
+            var callback = resolveFunction(handler);
+            var nativeTarget = targetOf(control, target);
+            if (!control || !nativeTarget || !callback) { return null; }
+            var listener = function (event) { callback(control.id, event, getSelection(control)); };
+            var handle = addListener(nativeTarget, eventName, listener);
+            control.runtimeListeners.push({ target: target, eventName: eventName, handler: handler, handle: handle });
+            return handle;
+        },
+        off: function (elID, target, eventName, handler) {
+            var control = $navermap.getControl(elID);
+            if (!control) { return; }
+            if (arguments.length === 3) { handler = eventName; eventName = target; target = 'map'; }
+            var Event = naverEvent();
+            for (var i = control.runtimeListeners.length - 1; i >= 0; i--) {
+                var item = control.runtimeListeners[i];
+                if (item.target === target && item.eventName === eventName && (!handler || item.handler === handler || item.handle === handler)) {
+                    if (Event) { Event.removeListener(item.handle); }
+                    control.runtimeListeners.splice(i, 1);
+                }
+            }
+        },
+        invoke: function (elID, target, method, args) {
+            var control = $navermap.getControl(elID);
+            if (arguments.length === 3) { args = method; method = target; target = 'map'; }
+            var nativeTarget = targetOf(control, target);
+            return nativeTarget && typeof nativeTarget[method] === 'function' ? nativeTarget[method].apply(nativeTarget, args || []) : null;
+        },
+        invokeGlobal: function (path, method, args) {
+            var target = window.naver;
+            var names = String(path || '').split('.');
+            for (var i = 0; i < names.length && target; i++) { if (names[i] && names[i] !== 'naver') { target = target[names[i]]; } }
+            return target && typeof target[method] === 'function' ? target[method].apply(target, args || []) : null;
+        },
+
+        clear: function (elID) { return $navermap.setValue(elID, []); },
+        dispose: function (elID) {
+            var control = $navermap.getControl(elID);
+            if (!control) { return; }
+            control.disposed = true;
+            control.setValueVersion++;
+            closeInfo(control);
+            removeListeners(control.mapListeners);
+            var Event = naverEvent();
+            for (var i = 0; i < control.runtimeListeners.length; i++) { if (Event) { Event.removeListener(control.runtimeListeners[i].handle); } }
+            control.runtimeListeners.length = 0;
+            for (var p = 0; p < control.pois.length; p++) { destroyPoi(control.pois[p]); }
+            for (var overlay in control.overlays) { if (hasOwn(control.overlays, overlay)) { registryRemove(control.overlays, overlay); } }
+            for (var layer in control.layers) { if (hasOwn(control.layers, layer)) { registryRemove(control.layers, layer); } }
+            for (var extension in control.extensions) { if (hasOwn(control.extensions, extension)) { registryRemove(control.extensions, extension); } }
+            if (control.drawingManager && control.drawingManager.setMap) { control.drawingManager.setMap(null); }
+            if (control.resizeObserver) { control.resizeObserver.disconnect(); }
+            emit(control, 'disposed', {});
+            if (control.element.parentNode) { control.element.parentNode.removeChild(control.element); }
+            control.originalElement.id = elID;
+            control.originalElement.style.display = control.originalDisplay;
+            $navermap.mapControls.splice($navermap.mapControls.indexOf(control), 1);
+        }
+    });
+
+    syn.uicontrols.$navermap = $navermap;
+})(window);
+
+(function (window) {
+    'use strict';
+    syn.uicontrols = syn.uicontrols || new syn.module;
+    var $googlemap = syn.uicontrols.$googlemap || new syn.module;
+    function hasOwn(target, name) {
+        return target && Object.prototype.hasOwnProperty.call(target, name)
+    }
+    function isPlainObject(value) {
+        return value && Object.prototype.toString.call(value) === '[object Object]'
+    }
+    function clone(value, seen, copies) {
+        if (value === null || value === undefined || typeof value !== 'object') {
+            return value
+        }
+        if (value instanceof Date) {
+            return new Date(value.getTime())
+        }
+        if (!Array.isArray(value) && !isPlainObject(value)) {
+            return value
+        }
+        seen = seen || [];
+        copies = copies || [];
+        var found = seen.indexOf(value);
+        if (found > -1) {
+            return copies[found]
+        }
+        var result = Array.isArray(value) ? [] : {};
+        seen.push(value);
+        copies.push(result);
+        for (var key in value) {
+            if (hasOwn(value, key)) {
+                result[key] = clone(value[key], seen, copies)
+            }
+        }
+        return result
+    }
+    function merge(target) {
+        target = target || {};
+        for (var i = 1; i < arguments.length; i++) {
+            var source = arguments[i];
+            if (!source || typeof source !== 'object') {
+                continue
+            }
+            for (var key in source) {
+                if (!hasOwn(source, key)) {
+                    continue
+                }
+                var value = source[key];
+                if (isPlainObject(value)) {
+                    target[key] = merge(isPlainObject(target[key]) ? target[key] : {}, value)
+                }
+                else {
+                    target[key] = clone(value)
+                }
+            }
+        }
+        return target
+    }
+    function asArray(value) {
+        return value === null || value === undefined ? [] : (Array.isArray(value) ? value : [
+            value
+        ])
+    }
+    function resolveFunction(value) {
+        if (typeof value === 'function') {
+            return value
+        }
+        if (typeof value !== 'string' || !value) {
+            return null
+        }
+        var current = window;
+        var path = value.split('.');
+        for (var i = 0; i < path.length && current; i++) {
+            current = current[path[i]]
+        }
+        return typeof current === 'function' ? current : null
+    }
+    function log(scope, error, level) {
+        if (syn.$l && syn.$l.eventLog) {
+            syn.$l.eventLog(scope, error && error.message ? error.message : String(error), level || 'Error')
+        }
+    }
+    function parseEvents(el) {
+        var text = el ? el.getAttribute('syn-events') : '';
+        if (!text) {
+            return []
+        }
+        try {
+            var events = eval(text);
+            return Array.isArray(events) ? events : []
+        }
+        catch (error) {
+            log('$googlemap.parseEvents', error, 'Warning');
+            return []
+        }
+    }
+    function pageHandler(id, eventName) {
+        var mod = window[syn.$w.pageScript];
+        return mod && mod.event ? mod.event[id + '_' + eventName] : null
+    }
+    function emit(control, eventName, payload) {
+        var handler = pageHandler(control.id, eventName);
+        if (!handler) {
+            return
+        }
+        try {
+            handler.apply(control.element, [
+                control.id,
+                payload || {},
+                getSelection(control)
+            ])
+        }
+        catch (error) {
+            log('$googlemap.emit.' + eventName, error)
+        }
+    }
+    function errorOf(code, message, detail) {
+        var error = new Error(message);
+        error.code = code;
+        if (detail !== undefined) {
+            error.detail = detail
+        }
+        return error
+    }
+    function fail(control, scope, error) {
+        log(scope, error);
+        if (control) {
+            var fatal = !control.map || /^GOOGLE_MAP_(?:API_KEY|MAP_ID|SDK|AUTH)/.test(error.code || '');
+            if (fatal) {
+                control.element.classList.remove('is-loading');
+                control.element.classList.add('is-error');
+                control.status.textContent = error.message || String(error)
+            }
+            emit(control, 'error', {
+                code: error.code || 'GOOGLE_MAP_ERROR',
+                message: error.message || String(error),
+                detail: error.detail
+            })
+        }
+        return null
+    }
+    function normalizeRows(value) {
+        if (value === null || value === undefined) {
+            return []
+        }
+        if (!Array.isArray(value) && !isPlainObject(value)) {
+            throw errorOf('INVALID_POI_DATA', 'setValue는 단일 객체 또는 객체 배열만 허용합니다.');
+        }
+        var rows = asArray(value);
+        for (var i = 0; i < rows.length; i++) {
+            if (!isPlainObject(rows[i])) {
+                throw errorOf('INVALID_POI_DATA', '모든 POI 데이터는 객체여야 합니다.', {
+                    rowIndexes: [
+                        i
+                    ]
+                });
+            }
+        }
+        return clone(rows)
+    }
+    function mapped(row, mapping, name, aliases) {
+        var resolver = mapping ? mapping[name] : null;
+        if (typeof resolver === 'function') {
+            return resolver(row)
+        }
+        if (typeof resolver === 'string' && hasOwn(row, resolver)) {
+            return row[resolver]
+        }
+        for (var i = 0; i < aliases.length; i++) {
+            if (hasOwn(row, aliases[i])) {
+                return row[aliases[i]]
+            }
+        }
+        return undefined
+    }
+    function bool(value, fallback) {
+        if (value === undefined || value === null || value === '') {
+            return fallback
+        }
+        if (typeof value === 'string') {
+            return /^(true|y|yes|1)$/i.test(value)
+        }
+        return value === true || value === 1
+    }
+    function number(value) {
+        if (value === null || value === undefined || value === '') {
+            return NaN
+        }
+        return Number(value)
+    }
+    function normalizePoi(row, index, setting) {
+        var mapping = setting.poiMapping || {};
+        var latitude = number(mapped(row, mapping, 'latitude', ['LAT', 'lat', 'latitude', 'Latitude']));
+        var longitude = number(mapped(row, mapping, 'longitude', ['LNG', 'lng', 'longitude', 'Longitude']));
+        if (!isFinite(latitude) || !isFinite(longitude) || latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
+            throw errorOf('INVALID_POI_COORDINATE', '유효하지 않은 POI 좌표가 있습니다.', {
+                rowIndexes: [
+                    index
+                ],
+                latitude: latitude,
+                longitude: longitude
+            });
+        }
+        var id = mapped(row, mapping, 'id', ['AS_NUM', 'POIID', 'PoiID', 'id', 'ID']);
+        return {
+            key: id === undefined || id === null || id === '' ? 'index:' + index : 'id:' + String(id),
+            id: id === undefined || id === null ? null : String(id),
+            index: index,
+            row: row,
+            latitude: latitude,
+            longitude: longitude,
+            title: mapped(row, mapping, 'title', ['CT_NAME', 'Title', 'title', 'Name', 'name']),
+            description: mapped(row, mapping, 'description', ['CT_ADDRESS', 'Description', 'description', 'Address', 'address']),
+            icon: mapped(row, mapping, 'icon', ['Icon', 'icon']),
+            pinOptions: mapped(row, mapping, 'pinOptions', ['PinOptions', 'pinOptions']),
+            markerOptions: mapped(row, mapping, 'markerOptions', ['MarkerOptions', 'markerOptions']),
+            infoWindowContent: mapped(row, mapping, 'infoWindowContent', ['InfoWindowContent', 'infoWindowContent']),
+            visible: bool(mapped(row, mapping, 'visible', ['Visible', 'visible']), true),
+            draggable: bool(mapped(row, mapping, 'draggable', ['Draggable', 'draggable']), false),
+            zIndex: mapped(row, mapping, 'zIndex', ['ZIndex', 'zIndex'])
+        }
+    }
+    function normalizePois(rows, setting) {
+        var result = [];
+        var invalid = [];
+        for (var i = 0; i < rows.length; i++) {
+            try {
+                result.push(normalizePoi(rows[i], i, setting))
+            }
+            catch (error) {
+                invalid.push(i)
+            }
+        }
+        if (invalid.length) {
+            throw errorOf('INVALID_POI_COORDINATE', '유효하지 않은 POI 좌표가 있습니다: ' + invalid.join(', '), { rowIndexes: invalid });
+        }
+        return result
+    }
+    function selectionOf(poi) {
+        if (!poi) {
+            return null
+        }
+        var position = poi.marker ? poi.marker.position : null;
+        return {
+            poiIndex: poi.index,
+            poiId: poi.id,
+            position: {
+                lat: position && typeof position.lat === 'function' ? position.lat() : (position && position.lat !== undefined ? Number(position.lat) : poi.latitude),
+                lng: position && typeof position.lng === 'function' ? position.lng() : (position && position.lng !== undefined ? Number(position.lng) : poi.longitude)
+            },
+            row: clone(poi.row)
+        }
+    }
+    function selectedPois(control) {
+        var result = [];
+        for (var keyIndex = 0; keyIndex < control.selectionKeys.length; keyIndex++) {
+            for (var i = 0; i < control.pois.length; i++) {
+                if (control.pois[i].key === control.selectionKeys[keyIndex]) {
+                    result.push(control.pois[i]);
+                    break
+                }
+            }
+        }
+        return result
+    }
+    function getSelection(control) {
+        if (!control) {
+            return null
+        }
+        var values = selectedPois(control).map(selectionOf);
+        return control.config.selectionMode === 'multiple' ? values : (values[0] || null)
+    }
+    function serializeRows(rows, requestType, metaColumns) {
+        if (requestType !== 'Row' && requestType !== 'List') {
+            return []
+        }
+        var columns = metaColumns || null;
+        return rows.map(function (row) {
+            var result = [];
+            if (Array.isArray(columns)) {
+                for (var i = 0; i < columns.length; i++) {
+                    var column = columns[i];
+                    var name = typeof column === 'string' ? column : (column.data || column.field || column.name || column.ColumnName);
+                    var fieldID = typeof column === 'string' ? name : (column.fieldID || column.FieldID || name);
+                    if (name) {
+                        result.push({
+                            prop: fieldID,
+                            val: row ? row[name] : undefined
+                        })
+                    }
+                }
+            }
+            else if (columns) {
+                for (var columnKey in columns) {
+                    if (!hasOwn(columns, columnKey)) {
+                        continue
+                    }
+                    var meta = columns[columnKey] || {};
+                    var metaFieldID = meta.fieldID || meta.FieldID || columnKey;
+                    var dataType = meta.dataType || meta.DataType;
+                    var metaValue = row ? row[columnKey] : undefined;
+                    if (metaValue === undefined && window.$object && $object.defaultValue) {
+                        metaValue = String(dataType || '').toLowerCase() === 'number' ? null : $object.defaultValue(dataType)
+                    }
+                    result.push({
+                        prop: metaFieldID,
+                        val: metaValue
+                    })
+                }
+            }
+            else {
+                for (var key in row) {
+                    if (hasOwn(row, key)) {
+                        result.push({
+                            prop: key,
+                            val: row[key]
+                        })
+                    }
+                }
+            }
+            return result
+        })
+    }
+    function googleEvent() {
+        return window.google && window.google.maps ? window.google.maps.event : null
+    }
+    function addListener(target, eventName, listener, bucket) {
+        var Event = googleEvent();
+        if (!Event || !target) {
+            return null
+        }
+        var handle = Event.addListener(target, eventName, listener);
+        if (bucket) {
+            bucket.push(handle)
+        }
+        return handle
+    }
+    function removeListeners(bucket) {
+        var Event = googleEvent();
+        if (!Event) {
+            bucket.length = 0;
+            return
+        }
+        for (var i = 0; i < bucket.length; i++) {
+            if (bucket[i] && typeof bucket[i].remove === 'function') {
+                bucket[i].remove()
+            }
+            else {
+                Event.removeListener(bucket[i])
+            }
+        }
+        bucket.length = 0
+    }
+    function latLng(value) {
+        if (!value || !window.google || !window.google.maps) {
+            return value
+        }
+        if (value instanceof window.google.maps.LatLng) {
+            return value
+        }
+        if (Array.isArray(value)) {
+            return new window.google.maps.LatLng(Number(value[0]), Number(value[1]))
+        }
+        var lat = value.lat !== undefined ? value.lat : (value.latitude !== undefined ? value.latitude : value.y);
+        var lng = value.lng !== undefined ? value.lng : (value.longitude !== undefined ? value.longitude : value.x);
+        return new window.google.maps.LatLng(Number(lat), Number(lng))
+    }
+    function bounds(value) {
+        if (!value || !window.google || !window.google.maps) {
+            return value
+        }
+        if (value instanceof window.google.maps.LatLngBounds) {
+            return value
+        }
+        if (value.south !== undefined && value.west !== undefined && value.north !== undefined && value.east !== undefined) {
+            return new window.google.maps.LatLngBounds({
+                lat: Number(value.south),
+                lng: Number(value.west)
+            }, {
+                lat: Number(value.north),
+                lng: Number(value.east)
+            })
+        }
+        var sw = value.sw || value.southWest || value[0];
+        var ne = value.ne || value.northEast || value[1];
+        return new window.google.maps.LatLngBounds(latLng(sw), latLng(ne))
+    }
+    function configureAuthFailure() {
+        if ($googlemap.authFailureInstalled) {
+            return
+        }
+        $googlemap.authFailureInstalled = true;
+        $googlemap.previousAuthFailure = window.gm_authFailure;
+        window.gm_authFailure = function () {
+            if (typeof $googlemap.previousAuthFailure === 'function') {
+                try {
+                    $googlemap.previousAuthFailure.apply(window, arguments)
+                }
+                catch (error) {
+                    log('$googlemap.authFailure.previous', error)
+                }
+            }
+            for (var i = 0; i < $googlemap.mapControls.length; i++) {
+                var control = $googlemap.mapControls[i];
+                var authError = errorOf('GOOGLE_MAP_AUTH_FAILURE', 'Google Maps API 인증에 실패했습니다.');
+                fail(control, '$googlemap.authFailure', authError);
+                emit(control, 'authFailure', {
+                    code: authError.code,
+                    message: authError.message
+                })
+            }
+        }
+    }
+    function sdkKey(setting) {
+        var configured = window.syn && syn.Config ? syn.Config.GoogleMapApiKey : '';
+        return setting.apiKey || configured || ''
+    }
+    function sdkMapId(setting) {
+        var configured = window.syn && syn.Config ? syn.Config.GoogleMapID : '';
+        return setting.mapId || (setting.mapOptions && setting.mapOptions.mapId) || configured || ''
+    }
+    function ensureLibraries(setting) {
+        var libraries = asArray(setting.libraries).filter(Boolean);
+        if (!window.google || !window.google.maps) {
+            return Promise.reject(errorOf('GOOGLE_MAP_SDK_INVALID', 'Google Maps SDK를 초기화할 수 없습니다.'))
+        }
+        if (typeof window.google.maps.importLibrary !== 'function') {
+            return Promise.resolve(window.google)
+        }
+        return Promise.all(libraries.map(function (name) {
+            return window.google.maps.importLibrary(name)
+        })).then(function () {
+            return window.google
+        })
+    }
+    function loadSDK(setting) {
+        configureAuthFailure();
+        var mapId = sdkMapId(setting);
+        if (!mapId) {
+            return Promise.reject(errorOf('GOOGLE_MAP_MAP_ID_REQUIRED', 'syn.Config.GoogleMapID, mapId 옵션 또는 mapOptions.mapId가 필요합니다.'))
+        }
+        setting.mapId = mapId;
+        if (window.google && window.google.maps && (window.google.maps.Map || typeof window.google.maps.importLibrary === 'function')) {
+            return ensureLibraries(setting)
+        }
+        var key = sdkKey(setting) || $googlemap.sdkApiKey || '';
+        if (!key) {
+            return Promise.reject(errorOf('GOOGLE_MAP_API_KEY_REQUIRED', 'syn.Config.GoogleMapApiKey 또는 apiKey 옵션이 필요합니다.'))
+        }
+        var libraries = asArray(setting.libraries).filter(Boolean).join(',');
+        var signature = [
+            setting.apiUrl,
+            key,
+            setting.version,
+            setting.language,
+            setting.region,
+            setting.authReferrerPolicy,
+            setting.channel,
+            setting.solutionChannel
+        ].join('|');
+        if ($googlemap.sdkPromise) {
+            if ($googlemap.sdkSignature !== signature) {
+                return Promise.reject(errorOf('GOOGLE_MAP_SDK_CONFLICT', '이미 다른 Google Maps SDK 설정으로 로딩을 시작했습니다.'))
+            }
+            return $googlemap.sdkPromise.then(function () {
+                return ensureLibraries(setting)
+            })
+        }
+        $googlemap.sdkApiKey = key;
+        $googlemap.sdkSignature = signature;
+        $googlemap.sdkPromise = new Promise(function (resolve, reject) {
+            var callbackName = '__handstackGoogleMapLoaded';
+            var script = document.createElement('script');
+            var query = [
+                'key=' + encodeURIComponent(key),
+                'loading=async',
+                'callback=' + callbackName
+            ];
+            if (setting.version) {
+                query.push('v=' + encodeURIComponent(setting.version))
+            }
+            if (libraries) {
+                query.push('libraries=' + encodeURIComponent(libraries))
+            }
+            if (setting.language) {
+                query.push('language=' + encodeURIComponent(setting.language))
+            }
+            if (setting.region) {
+                query.push('region=' + encodeURIComponent(setting.region))
+            }
+            if (setting.authReferrerPolicy) {
+                query.push('auth_referrer_policy=' + encodeURIComponent(setting.authReferrerPolicy))
+            }
+            if (mapId) {
+                query.push('map_ids=' + encodeURIComponent(mapId))
+            }
+            if (setting.channel) {
+                query.push('channel=' + encodeURIComponent(setting.channel))
+            }
+            if (setting.solutionChannel) {
+                query.push('solution_channel=' + encodeURIComponent(setting.solutionChannel))
+            }
+            var timeout = window.setTimeout(function () {
+                reject(errorOf('GOOGLE_MAP_SDK_TIMEOUT', 'Google Maps SDK 로딩 시간이 초과되었습니다.'))
+            }, Number(setting.loadTimeout) || 15000);
+            window[callbackName] = function () {
+                window.clearTimeout(timeout);
+                try {
+                    delete window[callbackName]
+                }
+                catch (ignore) {
+                    window[callbackName] = undefined
+                }
+                if (window.google && window.google.maps && window.google.maps.Map) {
+                    ensureLibraries(setting).then(resolve, reject)
+                }
+                else {
+                    reject(errorOf('GOOGLE_MAP_SDK_INVALID', 'Google Maps SDK를 초기화할 수 없습니다.'))
+                }
+            };
+            script.async = true;
+            script.defer = true;
+            var nonceScript = document.querySelector('script[nonce]');
+            if (nonceScript) {
+                script.nonce = nonceScript.nonce || nonceScript.getAttribute('nonce')
+            }
+            script.src = String(setting.apiUrl || '').replace(/[?&]$/, '') + (String(setting.apiUrl).indexOf('?') > -1 ? '&' : '?') + query.join('&');
+            script.onerror = function () {
+                window.clearTimeout(timeout);
+                reject(errorOf('GOOGLE_MAP_SDK_LOAD_FAILED', 'Google Maps SDK를 불러오지 못했습니다.'))
+            };
+            document.head.appendChild(script)
+        });
+        return $googlemap.sdkPromise
+    }
+    function infoContent(control, poi) {
+        var resolver = resolveFunction(control.config.infoWindowContentResolver);
+        var content = resolver ? resolver(clone(poi.row), poi.index, control) : poi.infoWindowContent;
+        if (content !== undefined && content !== null) {
+            return content
+        }
+        var box = document.createElement('div');
+        box.className = 'syn-googlemap-infowindow';
+        box.style.padding = '10px 12px';
+        if (poi.title !== undefined && poi.title !== null) {
+            var title = document.createElement('strong');
+            title.textContent = String(poi.title);
+            box.appendChild(title)
+        }
+        if (poi.description !== undefined && poi.description !== null) {
+            var description = document.createElement('div');
+            description.textContent = String(poi.description);
+            box.appendChild(description)
+        }
+        return box
+    }
+    function closeInfo(control) {
+        if (control.infoWindow && control.infoWindow.close) {
+            control.infoWindow.close();
+            emit(control, 'infoWindowClose', {})
+        }
+    }
+    function openInfo(control, poi) {
+        if (!control.config.openInfoWindowOnSelect || !poi) {
+            return null
+        }
+        closeInfo(control);
+        var options = merge({}, control.config.infoWindowOptions || {}, { content: infoContent(control, poi) });
+        control.infoWindow = new window.google.maps.InfoWindow(options);
+        control.infoWindow.open({
+            map: control.map,
+            anchor: poi.marker
+        });
+        emit(control, 'infoWindowOpen', {
+            selection: selectionOf(poi),
+            infoWindow: control.infoWindow
+        });
+        return control.infoWindow
+    }
+    function changeSelection(control, poi, source, event) {
+        if (control.config.selectionMode === 'none') {
+            return
+        }
+        var changed = false;
+        var index = control.selectionKeys.indexOf(poi.key);
+        if (control.config.selectionMode === 'multiple') {
+            if (index > -1) {
+                control.selectionKeys.splice(index, 1)
+            }
+            else {
+                control.selectionKeys.push(poi.key)
+            }
+            changed = true
+        }
+        else if (index < 0 || control.selectionKeys.length !== 1) {
+            control.selectionKeys = [
+                poi.key
+            ];
+            changed = true
+        }
+        if (control.selectionKeys.indexOf(poi.key) > -1) {
+            openInfo(control, poi)
+        }
+        else {
+            closeInfo(control)
+        }
+        if (changed) {
+            emit(control, 'selectionChange', {
+                source: source || 'api',
+                event: event || null,
+                selection: getSelection(control)
+            })
+        }
+    }
+    function contentNode(value) {
+        if (value === null || value === undefined || value === '') {
+            return null
+        }
+        if (value && value.nodeType) {
+            return value.cloneNode(true)
+        }
+        if (isPlainObject(value) && hasOwn(value, 'content')) {
+            return contentNode(value.content)
+        }
+        var element;
+        if (isPlainObject(value) && value.url) {
+            element = document.createElement('img');
+            element.src = value.url;
+            element.alt = value.alt || '';
+            if (value.width) {
+                element.style.width = typeof value.width === 'number' ? value.width + 'px' : value.width
+            }
+            if (value.height) {
+                element.style.height = typeof value.height === 'number' ? value.height + 'px' : value.height
+            }
+            return element
+        }
+        if (typeof value === 'string' && !/^\s*</.test(value)) {
+            element = document.createElement('img');
+            element.src = value;
+            element.alt = '';
+            return element
+        }
+        element = document.createElement('div');
+        element.innerHTML = String(value);
+        return element.childNodes.length === 1 ? element.removeChild(element.firstChild) : element
+    }
+    function setMarkerMap(marker, map) {
+        if (marker) {
+            marker.map = map || null
+        }
+    }
+    function markerPosition(marker) {
+        return marker ? marker.position : null
+    }
+    function applyMarkerContent(marker, visual) {
+        if (!marker || visual === undefined) {
+            return
+        }
+        var node = contentNode(visual);
+        if (marker.replaceChildren) {
+            marker.replaceChildren()
+        }
+        else {
+            while (marker.firstChild) {
+                marker.removeChild(marker.firstChild)
+            }
+        }
+        if (node) {
+            marker.appendChild(node)
+        }
+    }
+    function advancedMarkerDescriptor(control, poi) {
+        var options = merge({}, control.config.markerOptions || {}, isPlainObject(poi.markerOptions) ? poi.markerOptions : {});
+        var resolver = resolveFunction(control.config.markerOptionsResolver);
+        if (resolver) {
+            options = merge(options, resolver(clone(poi.row), poi.index, control) || {})
+        }
+        var visual = hasOwn(options, 'content') ? options.content : poi.icon;
+        delete options.content;
+        delete options.icon;
+        delete options.visible;
+        delete options.draggable;
+        options.map = null;
+        options.position = new window.google.maps.LatLng(poi.latitude, poi.longitude);
+        if (poi.title !== undefined) {
+            options.title = String(poi.title)
+        }
+        options.gmpClickable = options.gmpClickable !== false;
+        options.gmpDraggable = poi.draggable;
+        if (poi.zIndex !== undefined && poi.zIndex !== null && poi.zIndex !== '') {
+            options.zIndex = Number(poi.zIndex)
+        }
+        if (!visual && poi.pinOptions && window.google.maps.marker.PinElement) {
+            visual = new window.google.maps.marker.PinElement(clone(poi.pinOptions))
+        }
+        return {
+            options: options,
+            visual: visual
+        }
+    }
+    function createAdvancedMarker(control, poi) {
+        var AdvancedMarkerElement = window.google && window.google.maps && window.google.maps.marker ? window.google.maps.marker.AdvancedMarkerElement : null;
+        if (!AdvancedMarkerElement) {
+            throw errorOf('GOOGLE_MAP_ADVANCED_MARKER_REQUIRED', 'Advanced Marker 라이브러리를 사용할 수 없습니다.');
+        }
+        var descriptor = advancedMarkerDescriptor(control, poi);
+        var marker = new AdvancedMarkerElement(descriptor.options);
+        if (descriptor.visual) {
+            applyMarkerContent(marker, descriptor.visual)
+        }
+        return marker
+    }
+    function bindMarker(control, poi) {
+        var events = ['click', 'dragstart', 'drag', 'dragend'];
+        for (var i = 0; i < events.length; i++) {
+            (function (eventName) {
+                addListener(poi.marker, eventName, function (event) {
+                    if (eventName === 'click') {
+                        changeSelection(control, poi, 'poiClick', event)
+                    }
+                    if (eventName === 'dragend') {
+                        var position = markerPosition(poi.marker);
+                        poi.latitude = position && typeof position.lat === 'function' ? position.lat() : Number(position.lat);
+                        poi.longitude = position && typeof position.lng === 'function' ? position.lng() : Number(position.lng)
+                    }
+                    var name = 'poi' + eventName.charAt(0).toUpperCase() + eventName.slice(1);
+                    emit(control, name, {
+                        event: event,
+                        selection: selectionOf(poi),
+                        marker: poi.marker
+                    })
+                }, poi.listeners)
+            })(events[i])
+        }
+        ['dblclick', 'mouseover', 'mouseout'].forEach(function (eventName) {
+            var listener = function (event) {
+                var name = 'poi' + eventName.charAt(0).toUpperCase() + eventName.slice(1);
+                emit(control, name, {
+                    event: event,
+                    selection: selectionOf(poi),
+                    marker: poi.marker
+                })
+            };
+            poi.marker.addEventListener(eventName, listener);
+            poi.listeners.push({
+                remove: function () {
+                    poi.marker.removeEventListener(eventName, listener)
+                }
+            })
+        })
+    }
+    function destroyPoi(poi) {
+        removeListeners(poi.listeners || []);
+        setMarkerMap(poi.marker, null)
+    }
+    function fitPois(control) {
+        if (!control.config.fitBoundsOnData || !control.pois.length) {
+            return
+        }
+        if (control.pois.length === 1) {
+            control.map.setCenter(markerPosition(control.pois[0].marker));
+            return
+        }
+        var result = new window.google.maps.LatLngBounds;
+        for (var i = 0; i < control.pois.length; i++) {
+            result.extend(markerPosition(control.pois[i].marker))
+        }
+        control.map.fitBounds(result)
+    }
+    function applyPois(control, rows, metaColumns) {
+        var normalized = normalizePois(rows, control.config);
+        var created = [];
+        try {
+            for (var i = 0; i < normalized.length; i++) {
+                var poi = normalized[i];
+                poi.listeners = [];
+                poi.marker = createAdvancedMarker(control, poi);
+                bindMarker(control, poi);
+                created.push(poi)
+            }
+        }
+        catch (error) {
+            for (var failed = 0; failed < created.length; failed++) {
+                destroyPoi(created[failed])
+            }
+            throw error;
+        }
+        var previousKeys = control.config.preserveSelection ? control.selectionKeys.slice() : [];
+        var old = control.pois;
+        control.pois = created;
+        control.rawValue = clone(rows);
+        control.metaColumns = metaColumns || null;
+        control.selectionKeys = [];
+        for (var keyIndex = 0; keyIndex < previousKeys.length; keyIndex++) {
+            for (var poiIndex = 0; poiIndex < created.length; poiIndex++) {
+                if (created[poiIndex].key === previousKeys[keyIndex]) {
+                    control.selectionKeys.push(previousKeys[keyIndex]);
+                    break
+                }
+            }
+        }
+        for (var mapIndex = 0; mapIndex < created.length; mapIndex++) {
+            if (created[mapIndex].visible) {
+                setMarkerMap(created[mapIndex].marker, control.map)
+            }
+        }
+        for (var oldIndex = 0; oldIndex < old.length; oldIndex++) {
+            destroyPoi(old[oldIndex])
+        }
+        closeInfo(control);
+        fitPois(control);
+        emit(control, 'dataBound', {
+            rowCount: rows.length,
+            rows: clone(rows)
+        });
+        return control.map
+    }
+    function bindMapEvents(control) {
+        var synthetic = $googlemap.syntheticEvents;
+        var names = control.eventNames.slice();
+        if (names.indexOf('click') < 0) {
+            names.push('click')
+        }
+        for (var i = 0; i < names.length; i++) {
+            (function (eventName) {
+                if (synthetic.indexOf(eventName) > -1 || eventName.indexOf('poi') === 0) {
+                    return
+                }
+                addListener(control.map, eventName, function (event) {
+                    if (eventName === 'click' && control.config.clearSelectionOnMapClick) {
+                        $googlemap.clearSelection(control.id, 'mapClick')
+                    }
+                    if (control.eventNames.indexOf(eventName) > -1) {
+                        emit(control, eventName, event)
+                    }
+                }, control.mapListeners)
+            })(names[i])
+        }
+    }
+    function createMap(control) {
+        if (control.disposed) {
+            return null
+        }
+        control.element.classList.remove('is-error');
+        var options = merge({}, control.config.mapOptions || {});
+        options.center = latLng(options.center || {
+            lat: 36.5,
+            lng: 127.8
+        });
+        options.mapId = control.config.mapId;
+        control.mapOptions = clone(options);
+        control.map = new window.google.maps.Map(control.canvas, options);
+        bindMapEvents(control);
+        if (control.config.autoResize && window.ResizeObserver) {
+            control.resizeObserver = new ResizeObserver(function () {
+                $googlemap.resize(control.id)
+            });
+            control.resizeObserver.observe(control.element)
+        }
+        control.element.classList.remove('is-loading');
+        control.status.textContent = '';
+        emit(control, 'sdkLoaded', { google: window.google });
+        emit(control, 'initialized', { map: control.map });
+        control.pendingValue = null;
+        return control.map
+    }
+    function targetOf(control, target) {
+        if (!control) {
+            return null
+        }
+        if (!target || target === 'map') {
+            return control.map
+        }
+        if (target === 'data') {
+            return control.map ? control.map.data : null
+        }
+        if (target === 'infoWindow') {
+            return control.infoWindow
+        }
+        if (target === 'drawing') {
+            return control.drawingManager
+        }
+        return control.overlays[target] || control.layers[target] || control.extensions[target] || null
+    }
+    function registryRemove(registry, id) {
+        var value = registry[id];
+        if (!value) {
+            return null
+        }
+        if (value.setMap) {
+            value.setMap(null)
+        }
+        else if (hasOwn(value, 'map') || value.map !== undefined) {
+            value.map = null
+        }
+        if (value.setVisible && value.getVisible) {
+            value.setVisible(false)
+        }
+        if (value.close) {
+            value.close()
+        }
+        delete registry[id];
+        return value
+    }
+    $googlemap.extend({
+        name: 'syn.uicontrols.$googlemap',
+        version: 'v2026.7.27',
+        mapControls: [],
+        sdkPromise: null,
+        sdkSignature: null,
+        sdkApiKey: null,
+        authFailureInstalled: false,
+        previousAuthFailure: null,
+        syntheticEvents: ['sdkLoaded', 'initialized', 'dataBound', 'selectionChange', 'infoWindowOpen', 'infoWindowClose', 'authFailure', 'resized', 'disposed', 'error'],
+        defaultSetting: {
+            width: '100%',
+            height: '400px',
+            apiKey: '',
+            mapId: '',
+            apiUrl: 'https://maps.googleapis.com/maps/api/js',
+            version: 'weekly',
+            libraries: ['maps', 'marker', 'geocoding', 'geometry', 'streetView'],
+            language: 'ko',
+            region: 'KR',
+            authReferrerPolicy: '',
+            channel: '',
+            solutionChannel: '',
+            loadTimeout: 15000,
+            mapOptions: {
+                center: {
+                    lat: 36.5,
+                    lng: 127.8
+                },
+                zoom: 7,
+                minZoom: 6,
+                zoomControl: true,
+                mapTypeControl: true,
+                scaleControl: true
+            },
+            markerOptions: {},
+            infoWindowOptions: {},
+            openInfoWindowOnSelect: true,
+            selectionMode: 'single',
+            clearSelectionOnMapClick: true,
+            preserveSelection: false,
+            fitBoundsOnData: false,
+            autoResize: true,
+            poiMapping: {},
+            dataAdapter: null,
+            markerOptionsResolver: null,
+            infoWindowContentResolver: null,
+            dataType: 'string',
+            belongID: null,
+            getter: false,
+            setter: false,
+            controlText: null,
+            validators: null,
+            transactConfig: null,
+            triggerConfig: null
+        },
+        addModuleList: function (el, moduleList, setting, controlType) {
+            var form = el.closest('form');
+            moduleList.push({
+                id: el.id,
+                formDataFieldID: form ? form.getAttribute('syn-datafield') : '',
+                field: el.getAttribute('syn-datafield'),
+                module: this.name,
+                type: controlType
+            })
+        },
+        controlLoad: function (elID, setting) {
+            var el = syn.$l.get(elID);
+            if (!el) {
+                return null
+            }
+            setting = merge({}, $googlemap.defaultSetting, setting || {});
+            var mod = window[syn.$w.pageScript];
+            if (mod && mod.hook && mod.hook.controlInit) {
+                setting = merge(setting, mod.hook.controlInit(elID, setting) || {})
+            }
+            setting.width = el.style.width || setting.width;
+            setting.height = el.style.height || setting.height;
+            var display = el.style.display;
+            el.id = elID + '_hidden';
+            try {
+                el.setAttribute('syn-options', JSON.stringify(setting))
+            }
+            catch (error) {
+                log('$googlemap.controlLoad', 'syn-options contains a non-serializable value.', 'Warning')
+            }
+            el.style.display = 'none';
+            var wrapper = document.createElement('div');
+            wrapper.id = elID;
+            wrapper.className = 'syn-googlemap is-loading';
+            wrapper.style.width = setting.width;
+            wrapper.style.height = setting.height;
+            var canvas = document.createElement('div');
+            canvas.id = elID + '_canvas';
+            canvas.className = 'syn-googlemap-canvas';
+            var status = document.createElement('div');
+            status.className = 'syn-googlemap-status';
+            status.textContent = '지도를 불러오는 중입니다.';
+            wrapper.appendChild(canvas);
+            wrapper.appendChild(status);
+            el.parentNode.insertBefore(wrapper, el.nextSibling);
+            var control = {
+                id: elID,
+                originalElement: el,
+                originalDisplay: display,
+                element: wrapper,
+                canvas: canvas,
+                status: status,
+                config: setting,
+                map: null,
+                rawValue: [],
+                metaColumns: null,
+                pois: [],
+                selectionKeys: [],
+                infoWindow: null,
+                overlays: {},
+                layers: {},
+                extensions: {},
+                drawingManager: null,
+                eventNames: parseEvents(el),
+                mapListeners: [],
+                runtimeListeners: [],
+                resizeObserver: null,
+                pendingValue: null,
+                setValueVersion: 0,
+                disposed: false,
+                readyPromise: null,
+                mapOptions: null
+            };
+            $googlemap.mapControls.push(control);
+            control.readyPromise = loadSDK(setting).then(function () {
+                return createMap(control)
+            }).catch(function (error) {
+                return fail(control, '$googlemap.controlLoad', error)
+            });
+            return control.readyPromise
+        },
+        getControl: function (elID) {
+            return $googlemap.mapControls.find(function (item) {
+                return item.id === elID
+            }) || null
+        },
+        getMap: function (elID) {
+            var control = $googlemap.getControl(elID);
+            return control ? control.map : null
+        },
+        getGoogle: function () {
+            return window.google || null
+        },
+        importLibrary: function (name) {
+            if (!window.google || !window.google.maps || typeof window.google.maps.importLibrary !== 'function') {
+                return Promise.reject(errorOf('GOOGLE_MAP_SDK_INVALID', 'Google Maps importLibrary를 사용할 수 없습니다.'))
+            }
+            return window.google.maps.importLibrary(name)
+        },
+        ready: function (elID) {
+            var control = $googlemap.getControl(elID);
+            return control ? control.readyPromise : Promise.resolve(null)
+        },
+        setValue: function (elID, value, metaColumns) {
+            var control = $googlemap.getControl(elID);
+            if (!control) {
+                return Promise.resolve(null)
+            }
+            var rows;
+            try {
+                rows = normalizeRows(value)
+            }
+            catch (error) {
+                fail(control, '$googlemap.setValue', error);
+                return Promise.resolve(null)
+            }
+            var token = ++control.setValueVersion;
+            if (!control.map) {
+                control.pendingValue = {
+                    value: rows,
+                    metaColumns: metaColumns
+                }
+            }
+            var adapter = resolveFunction(control.config.dataAdapter);
+            var operation;
+            try {
+                operation = adapter ? adapter(clone(rows), metaColumns, control) : rows
+            }
+            catch (error) {
+                fail(control, '$googlemap.setValue', error);
+                return Promise.resolve(null)
+            }
+            return control.readyPromise.then(function () {
+                return Promise.resolve(operation)
+            }).then(function (adapted) {
+                if (token !== control.setValueVersion || !control.map || control.disposed) {
+                    return control.map
+                }
+                var normalized = normalizeRows(adapted);
+                normalizePois(normalized, control.config);
+                return applyPois(control, normalized, metaColumns)
+            }).catch(function (error) {
+                return fail(control, '$googlemap.setValue', error)
+            })
+        },
+        getValue: function (elID, requestType, metaColumns) {
+            var control = $googlemap.getControl(elID);
+            if (!control) {
+                return requestType ? [] : null
+            }
+            var rows = selectedPois(control).map(function (poi) {
+                return clone(poi.row)
+            });
+            if (!requestType) {
+                return control.config.selectionMode === 'multiple' ? rows : (rows[0] || null)
+            }
+            if (requestType === 'Row') {
+                rows = rows.length ? [
+                    rows[rows.length - 1]
+                ] : []
+            }
+            return serializeRows(rows, requestType, metaColumns || control.metaColumns)
+        },
+        getRawValue: function (elID) {
+            var control = $googlemap.getControl(elID);
+            return control ? clone(control.rawValue) : []
+        },
+        getSelection: function (elID) {
+            return getSelection($googlemap.getControl(elID))
+        },
+        getSelectedRows: function (elID) {
+            var control = $googlemap.getControl(elID);
+            return control ? selectedPois(control).map(function (poi) {
+                return clone(poi.row)
+            }) : []
+        },
+        getMarkers: function (elID) {
+            var control = $googlemap.getControl(elID);
+            return control ? control.pois.map(function (poi) {
+                return poi.marker
+            }) : []
+        },
+        getSelectedMarkers: function (elID) {
+            var control = $googlemap.getControl(elID);
+            return control ? selectedPois(control).map(function (poi) {
+                return poi.marker
+            }) : []
+        },
+        getMarker: function (elID, indexOrId) {
+            var control = $googlemap.getControl(elID);
+            if (!control) {
+                return null
+            }
+            for (var i = 0; i < control.pois.length; i++) {
+                if (i === indexOrId || control.pois[i].id === String(indexOrId) || control.pois[i].key === indexOrId) {
+                    return control.pois[i].marker
+                }
+            }
+            return null
+        },
+        getInfoWindow: function (elID) {
+            var control = $googlemap.getControl(elID);
+            return control ? control.infoWindow : null
+        },
+        setSelection: function (elID, value, source) {
+            var control = $googlemap.getControl(elID);
+            if (!control || control.config.selectionMode === 'none') {
+                return null
+            }
+            var requested = asArray(value);
+            control.selectionKeys = [];
+            for (var r = 0; r < requested.length; r++) {
+                for (var i = 0; i < control.pois.length; i++) {
+                    var poi = control.pois[i];
+                    if (i === requested[r] || poi.id === String(requested[r]) || poi.key === requested[r]) {
+                        control.selectionKeys.push(poi.key);
+                        if (control.config.selectionMode !== 'multiple') {
+                            r = requested.length
+                        }
+                        break
+                    }
+                }
+            }
+            var selected = selectedPois(control);
+            if (selected.length) {
+                openInfo(control, selected[selected.length - 1])
+            }
+            else {
+                closeInfo(control)
+            }
+            emit(control, 'selectionChange', {
+                source: source || 'api',
+                selection: getSelection(control)
+            });
+            return getSelection(control)
+        },
+        clearSelection: function (elID, source) {
+            var control = $googlemap.getControl(elID);
+            if (!control) {
+                return
+            }
+            var changed = control.selectionKeys.length > 0;
+            control.selectionKeys = [];
+            closeInfo(control);
+            if (changed) {
+                emit(control, 'selectionChange', {
+                    source: source || 'api',
+                    selection: getSelection(control)
+                })
+            }
+        },
+        setOptions: function (elID, options) {
+            var control = $googlemap.getControl(elID);
+            if (control && control.map) {
+                control.mapOptions = merge({}, control.mapOptions || {}, options || {});
+                control.map.setOptions(options || {})
+            }
+            return control ? control.map : null
+        },
+        getOptions: function (elID, key) {
+            var control = $googlemap.getControl(elID);
+            if (!control || !control.map) {
+                return null
+            }
+            return key ? (control.map.get ? control.map.get(key) : control.mapOptions[key]) : clone(control.mapOptions || {})
+        },
+        setCenter: function (elID, value) {
+            var map = $googlemap.getMap(elID);
+            if (map) {
+                map.setCenter(latLng(value))
+            }
+        },
+        getCenter: function (elID) {
+            var map = $googlemap.getMap(elID);
+            return map ? map.getCenter() : null
+        },
+        setZoom: function (elID, value) {
+            var map = $googlemap.getMap(elID);
+            if (map) {
+                map.setZoom(Number(value))
+            }
+        },
+        getZoom: function (elID) {
+            var map = $googlemap.getMap(elID);
+            return map ? map.getZoom() : null
+        },
+        fitBounds: function (elID, value, margin) {
+            var map = $googlemap.getMap(elID);
+            if (map) {
+                map.fitBounds(bounds(value), margin)
+            }
+        },
+        panTo: function (elID, value, options) {
+            var map = $googlemap.getMap(elID);
+            if (map) {
+                map.panTo(latLng(value), options)
+            }
+        },
+        panToBounds: function (elID, value, options) {
+            var map = $googlemap.getMap(elID);
+            if (map) {
+                map.panToBounds(bounds(value), options)
+            }
+        },
+        panBy: function (elID, delta, y) {
+            var map = $googlemap.getMap(elID);
+            if (!map) {
+                return
+            }
+            var xValue = Array.isArray(delta) ? delta[0] : (delta && delta.x !== undefined ? delta.x : delta);
+            var yValue = Array.isArray(delta) ? delta[1] : (delta && delta.y !== undefined ? delta.y : y);
+            map.panBy(Number(xValue) || 0, Number(yValue) || 0)
+        },
+        getBounds: function (elID) {
+            var map = $googlemap.getMap(elID);
+            return map ? map.getBounds() : null
+        },
+        setMapTypeId: function (elID, value) {
+            var map = $googlemap.getMap(elID);
+            if (map) {
+                map.setMapTypeId(value)
+            }
+        },
+        resize: function (elID) {
+            var control = $googlemap.getControl(elID);
+            if (!control || !control.map) {
+                return
+            }
+            var Event = googleEvent();
+            if (Event && Event.trigger) {
+                Event.trigger(control.map, 'resize')
+            }
+            emit(control, 'resized', {
+                width: control.element.clientWidth,
+                height: control.element.clientHeight
+            })
+        },
+        updateMarker: function (elID, indexOrId, options) {
+            var marker = $googlemap.getMarker(elID, indexOrId);
+            var control = $googlemap.getControl(elID);
+            if (!marker || !options) {
+                return marker
+            }
+            var config = merge({}, options);
+            var visual;
+            if (hasOwn(config, 'content')) {
+                visual = config.content;
+                delete config.content
+            }
+            else if (hasOwn(config, 'icon')) {
+                visual = config.icon;
+                delete config.icon
+            }
+            if (config.pinOptions && window.google.maps.marker.PinElement) {
+                visual = new window.google.maps.marker.PinElement(clone(config.pinOptions));
+                delete config.pinOptions
+            }
+            if (hasOwn(config, 'position')) {
+                config.position = latLng(config.position)
+            }
+            if (hasOwn(config, 'draggable')) {
+                config.gmpDraggable = !!config.draggable;
+                delete config.draggable
+            }
+            if (hasOwn(config, 'visible')) {
+                setMarkerMap(marker, config.visible ? control.map : null);
+                delete config.visible
+            }
+            for (var key in config) {
+                if (hasOwn(config, key) && key !== 'map') {
+                    marker[key] = config[key]
+                }
+            }
+            if (visual !== undefined) {
+                applyMarkerContent(marker, visual)
+            }
+            return marker
+        },
+        setMarkerVisible: function (elID, indexOrId, visible) {
+            var marker = $googlemap.getMarker(elID, indexOrId);
+            var map = $googlemap.getMap(elID);
+            if (marker) {
+                setMarkerMap(marker, visible ? map : null)
+            }
+        },
+        openInfoWindow: function (elID, indexOrId) {
+            var control = $googlemap.getControl(elID);
+            if (!control) {
+                return null
+            }
+            for (var i = 0; i < control.pois.length; i++) {
+                if (i === indexOrId || control.pois[i].id === String(indexOrId) || control.pois[i].key === indexOrId) {
+                    return openInfo(control, control.pois[i])
+                }
+            }
+            return null
+        },
+        closeInfoWindow: function (elID) {
+            var control = $googlemap.getControl(elID);
+            if (control) {
+                closeInfo(control)
+            }
+        },
+        invokeMarker: function (elID, indexOrId, method, args) {
+            var marker = $googlemap.getMarker(elID, indexOrId);
+            return marker && typeof marker[method] === 'function' ? marker[method].apply(marker, args || []) : null
+        },
+        addGeoJson: function (elID, geoJson, autoStyle) {
+            var map = $googlemap.getMap(elID);
+            return map && map.data ? map.data.addGeoJson(geoJson, autoStyle) : null
+        },
+        removeGeoJson: function (elID, feature) {
+            var map = $googlemap.getMap(elID);
+            return map && map.data ? map.data.remove(feature) : null
+        },
+        setDataStyle: function (elID, style) {
+            var map = $googlemap.getMap(elID);
+            if (map && map.data) {
+                map.data.setStyle(style)
+            }
+        },
+        overrideDataStyle: function (elID, feature, style) {
+            var map = $googlemap.getMap(elID);
+            if (map && map.data) {
+                map.data.overrideStyle(feature, style)
+            }
+        },
+        revertDataStyle: function (elID, feature) {
+            var map = $googlemap.getMap(elID);
+            if (map && map.data) {
+                map.data.revertStyle(feature)
+            }
+        },
+        addOverlay: function (elID, id, type, options) {
+            var control = $googlemap.getControl(elID);
+            var allowed = ['Marker', 'InfoWindow', 'Polyline', 'Polygon', 'Circle', 'Rectangle', 'GroundOverlay'];
+            if (!control) {
+                return null
+            }
+            if (allowed.indexOf(type) < 0) {
+                throw errorOf('GOOGLE_MAP_UNSUPPORTED_API', 'Google Maps에서 지원하지 않는 오버레이 형식입니다: ' + type);
+            }
+            registryRemove(control.overlays, id);
+            var config = merge({}, options || {});
+            if (config.position) {
+                config.position = latLng(config.position)
+            }
+            if (config.center) {
+                config.center = latLng(config.center)
+            }
+            if (config.bounds) {
+                config.bounds = bounds(config.bounds)
+            }
+            if (type === 'Marker') {
+                var content = hasOwn(config, 'content') ? config.content : config.icon;
+                delete config.content;
+                delete config.icon;
+                if (hasOwn(config, 'draggable')) {
+                    config.gmpDraggable = !!config.draggable;
+                    delete config.draggable
+                }
+                config.map = config.map === undefined ? control.map : config.map;
+                control.overlays[id] = new window.google.maps.marker.AdvancedMarkerElement(config);
+                if (content !== undefined) {
+                    applyMarkerContent(control.overlays[id], content)
+                }
+            }
+            else if (type === 'GroundOverlay') {
+                if (!config.url || !config.bounds) {
+                    throw errorOf('INVALID_OVERLAY_OPTIONS', 'GroundOverlay에는 url과 bounds가 필요합니다.');
+                }
+                control.overlays[id] = new window.google.maps.GroundOverlay(config.url, config.bounds, config.options || {});
+                control.overlays[id].setMap(config.map === undefined ? control.map : config.map)
+            }
+            else {
+                config.map = config.map === undefined ? control.map : config.map;
+                control.overlays[id] = new window.google.maps[type](config)
+            }
+            return control.overlays[id]
+        },
+        getOverlay: function (elID, id) {
+            var control = $googlemap.getControl(elID);
+            return control ? control.overlays[id] || null : null
+        },
+        removeOverlay: function (elID, id) {
+            var control = $googlemap.getControl(elID);
+            return control ? registryRemove(control.overlays, id) : null
+        },
+        createLayer: function (elID, id, type, options) {
+            var control = $googlemap.getControl(elID);
+            if (!control) {
+                return null
+            }
+            var aliases = { BicycleLayer: 'BicyclingLayer' };
+            var nativeType = aliases[type] || type;
+            var allowed = ['TrafficLayer', 'TransitLayer', 'BicyclingLayer', 'StreetViewCoverageLayer'];
+            if (allowed.indexOf(nativeType) < 0 || !window.google.maps[nativeType]) {
+                throw errorOf('GOOGLE_MAP_UNSUPPORTED_API', 'Google Maps에서 지원하지 않는 레이어 형식입니다: ' + type);
+            }
+            registryRemove(control.layers, id);
+            control.layers[id] = new window.google.maps[nativeType](options || {});
+            if (control.layers[id].setMap) {
+                control.layers[id].setMap(control.map)
+            }
+            return control.layers[id]
+        },
+        getLayer: function (elID, id) {
+            var control = $googlemap.getControl(elID);
+            return control ? control.layers[id] || null : null
+        },
+        setLayerVisible: function (elID, id, visible) {
+            var control = $googlemap.getControl(elID);
+            var layer = control ? control.layers[id] : null;
+            if (layer && layer.setMap) {
+                layer.setMap(visible ? control.map : null)
+            }
+        },
+        removeLayer: function (elID, id) {
+            var control = $googlemap.getControl(elID);
+            return control ? registryRemove(control.layers, id) : null
+        },
+        geocode: function (query) {
+            var request = typeof query === 'string' ? { address: query } : merge({}, query || {});
+            if (request.query !== undefined && request.address === undefined) {
+                request.address = request.query;
+                delete request.query
+            }
+            return $googlemap.service(request)
+        },
+        reverseGeocode: function (query) {
+            var isCoordinate = query && ((query.lat !== undefined && query.lng !== undefined) || typeof query.lat === 'function');
+            var request = isCoordinate ? { location: query } : merge({}, query || {});
+            if (request.coords !== undefined && request.location === undefined) {
+                request.location = request.coords;
+                delete request.coords
+            }
+            if (request.location) {
+                request.location = latLng(request.location)
+            }
+            return $googlemap.service(request)
+        },
+        transCoord: function () {
+            return Promise.reject(errorOf('GOOGLE_MAP_UNSUPPORTED_API', 'Google Maps JavaScript API는 transCoord를 제공하지 않습니다.'))
+        },
+        service: function (request) {
+            if (!window.google || !window.google.maps || !window.google.maps.Geocoder) {
+                return Promise.reject(errorOf('GOOGLE_MAP_LIBRARY_REQUIRED', 'geocoding 라이브러리가 필요합니다.'))
+            }
+            try {
+                return Promise.resolve((new window.google.maps.Geocoder).geocode(request || {}))
+            }
+            catch (error) {
+                return Promise.reject(error)
+            }
+        },
+        createDrawingManager: function () {
+            throw errorOf('GOOGLE_MAP_UNSUPPORTED_API', 'Google Maps DrawingManager는 2026년 6월부터 제공되지 않습니다. addOverlay 또는 별도 drawing 라이브러리를 사용하세요.');
+        },
+        createPanorama: function (elID, id, container, options) {
+            var control = $googlemap.getControl(elID);
+            if (!control || !window.google.maps.StreetViewPanorama) {
+                throw errorOf('GOOGLE_MAP_LIBRARY_REQUIRED', 'streetView 라이브러리가 필요합니다.');
+            }
+            var element = typeof container === 'string' ? document.getElementById(container) : container;
+            registryRemove(control.extensions, id);
+            control.extensions[id] = new window.google.maps.StreetViewPanorama(element, options || {});
+            return control.extensions[id]
+        },
+        createVisualization: function () {
+            throw errorOf('GOOGLE_MAP_UNSUPPORTED_API', 'Google Maps Heatmap Layer는 2026년 5월부터 제공되지 않습니다. 별도 visualization 라이브러리를 사용하세요.');
+        },
+        on: function (elID, target, eventName, handler) {
+            var control = $googlemap.getControl(elID);
+            if (arguments.length === 3) {
+                handler = eventName;
+                eventName = target;
+                target = 'map'
+            }
+            var callback = resolveFunction(handler);
+            var nativeTarget = targetOf(control, target);
+            if (!control || !nativeTarget || !callback) {
+                return null
+            }
+            var listener = function (event) {
+                callback(control.id, event, getSelection(control))
+            };
+            var handle = addListener(nativeTarget, eventName, listener);
+            control.runtimeListeners.push({
+                target: target,
+                eventName: eventName,
+                handler: handler,
+                handle: handle
+            });
+            return handle
+        },
+        off: function (elID, target, eventName, handler) {
+            var control = $googlemap.getControl(elID);
+            if (!control) {
+                return
+            }
+            if (arguments.length === 3) {
+                handler = eventName;
+                eventName = target;
+                target = 'map'
+            }
+            var Event = googleEvent();
+            for (var i = control.runtimeListeners.length - 1; i >= 0; i--) {
+                var item = control.runtimeListeners[i];
+                if (item.target === target && item.eventName === eventName && (!handler || item.handler === handler || item.handle === handler)) {
+                    if (Event) {
+                        Event.removeListener(item.handle)
+                    }
+                    control.runtimeListeners.splice(i, 1)
+                }
+            }
+        },
+        invoke: function (elID, target, method, args) {
+            var control = $googlemap.getControl(elID);
+            if (arguments.length === 3) {
+                args = method;
+                method = target;
+                target = 'map'
+            }
+            var nativeTarget = targetOf(control, target);
+            return nativeTarget && typeof nativeTarget[method] === 'function' ? nativeTarget[method].apply(nativeTarget, args || []) : null
+        },
+        invokeGlobal: function (path, method, args) {
+            var target = window.google;
+            var names = String(path || '').split('.');
+            for (var i = 0; i < names.length && target; i++) {
+                if (names[i] && names[i] !== 'google') {
+                    target = target[names[i]]
+                }
+            }
+            return target && typeof target[method] === 'function' ? target[method].apply(target, args || []) : null
+        },
+        clear: function (elID) {
+            return $googlemap.setValue(elID, [])
+        },
+        dispose: function (elID) {
+            var control = $googlemap.getControl(elID);
+            if (!control) {
+                return
+            }
+            control.disposed = true;
+            control.setValueVersion++;
+            closeInfo(control);
+            removeListeners(control.mapListeners);
+            var Event = googleEvent();
+            for (var i = 0; i < control.runtimeListeners.length; i++) {
+                if (Event) {
+                    Event.removeListener(control.runtimeListeners[i].handle)
+                }
+            }
+            control.runtimeListeners.length = 0;
+            for (var p = 0; p < control.pois.length; p++) {
+                destroyPoi(control.pois[p])
+            }
+            for (var overlay in control.overlays) {
+                if (hasOwn(control.overlays, overlay)) {
+                    registryRemove(control.overlays, overlay)
+                }
+            }
+            for (var layer in control.layers) {
+                if (hasOwn(control.layers, layer)) {
+                    registryRemove(control.layers, layer)
+                }
+            }
+            for (var extension in control.extensions) {
+                if (hasOwn(control.extensions, extension)) {
+                    registryRemove(control.extensions, extension)
+                }
+            }
+            if (control.drawingManager && control.drawingManager.setMap) {
+                control.drawingManager.setMap(null)
+            }
+            if (control.resizeObserver) {
+                control.resizeObserver.disconnect()
+            }
+            emit(control, 'disposed', {});
+            if (control.element.parentNode) {
+                control.element.parentNode.removeChild(control.element)
+            }
+            control.originalElement.id = elID;
+            control.originalElement.style.display = control.originalDisplay;
+            $googlemap.mapControls.splice($googlemap.mapControls.indexOf(control), 1)
+        }
+    });
+    syn.uicontrols.$googlemap = $googlemap
+})(window);
+
+/// <reference path="/js/syn.js" />
+
+(function (window) {
+    'use strict';
     syn.uicontrols = syn.uicontrols || new syn.module();
     var $checkbox = syn.uicontrols.$checkbox || new syn.module();
 

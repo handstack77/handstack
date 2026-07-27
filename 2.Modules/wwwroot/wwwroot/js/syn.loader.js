@@ -550,6 +550,34 @@
                             '/uicontrols/ECharts/ECharts.js'
                         ];
                         break;
+                    case 'mediaplayer':
+                        item.css = [
+                            '/lib/video.js/dist/video-js.min.css',
+                            '/uicontrols/MediaPlayer/MediaPlayer.css'
+                        ];
+                        item.js = [
+                            '/lib/video.js/dist/video.min.js',
+                            '/lib/video.js/dist/lang/ko.js',
+                            '/lib/videojs-youtube/dist/Youtube.min.js',
+                            '/uicontrols/MediaPlayer/MediaPlayer.js'
+                        ];
+                        break;
+                    case 'navermap':
+                        item.css = [
+                            '/uicontrols/NaverMap/NaverMap.css'
+                        ];
+                        item.js = [
+                            '/uicontrols/NaverMap/NaverMap.js'
+                        ];
+                        break;
+                    case 'googlemap':
+                        item.css = [
+                            '/uicontrols/GoogleMap/GoogleMap.css'
+                        ];
+                        item.js = [
+                            '/uicontrols/GoogleMap/GoogleMap.js'
+                        ];
+                        break;
                     case 'codepicker':
                         item.css = ['/uicontrols/CodePicker/CodePicker.css'];
                         item.js = ['/uicontrols/CodePicker/CodePicker.js'];

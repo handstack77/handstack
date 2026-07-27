@@ -26,6 +26,25 @@
             ]
         },
         {
+            "provider": "jsdelivr",
+            "library": "video.js@8.23.9",
+            "destination": "wwwroot/lib/video.js/",
+            "files": [
+                "dist/video.min.js",
+                "dist/video-js.min.css",
+                "dist/lang/ko.js",
+                "dist/font/VideoJS.woff"
+            ]
+        },
+        {
+            "provider": "jsdelivr",
+            "library": "videojs-youtube@3.0.1",
+            "destination": "wwwroot/lib/videojs-youtube/",
+            "files": [
+                "dist/Youtube.min.js"
+            ]
+        },
+        {
             "library": "codemirror@6.65.7",
             "destination": "wwwroot/lib/codemirror/",
             "files": [
