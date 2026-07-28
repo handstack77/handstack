@@ -11,6 +11,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 
 using rdy.Extensions;
@@ -76,7 +77,11 @@ namespace rdy
         long maxContractSyncFileBytes = 10485760;
         readonly IConfiguration configuration;
         readonly IWebHostEnvironment environment;
+        readonly SemaphoreSlim contentSecurityPolicyReloadLock = new SemaphoreSlim(1, 1);
+        readonly object contentSecurityPolicyReloadSync = new object();
         static readonly ServerEventListener serverEventListener = new ServerEventListener();
+        FileSystemWatcher? contentSecurityPolicyFileWatcher;
+        Timer? contentSecurityPolicyReloadTimer;
 
         public Startup(IWebHostEnvironment environment, IConfiguration configuration)
         {
@@ -181,15 +186,7 @@ namespace rdy
             GlobalConfiguration.LoadContractBasePath = GlobalConfiguration.GetBaseDirectoryPath(PathExtensions.Combine(GlobalConfiguration.EntryBasePath, "..", "contracts"));
             GlobalConfiguration.WebHostRootPath = string.IsNullOrWhiteSpace(appSettings["WebHostRootPath"]) == true ? "" : GlobalConfiguration.GetBaseDirectoryPath(appSettings["WebHostRootPath"]);
 
-            string contentSecurityPolicyFile = PathExtensions.Join(GlobalConfiguration.EntryBasePath, "content-security-policy.txt");
-            if (File.Exists(contentSecurityPolicyFile) == true)
-            {
-                GlobalConfiguration.ContentSecurityPolicy = File.ReadAllText(contentSecurityPolicyFile)
-                    .Replace("\r", "")
-                    .Replace("\n", "")
-                    .Replace("\t", " ")
-                    .Trim();
-            }
+            GlobalConfiguration.ContentSecurityPolicy = ReadContentSecurityPolicyFile(PathExtensions.Join(GlobalConfiguration.EntryBasePath, "content-security-policy.txt"));
 
             string sectionLoadModuleLicenses = "AppSettings:LoadModuleLicenses";
             var section = configuration.GetSection(sectionLoadModuleLicenses);
@@ -835,8 +832,10 @@ namespace rdy
             services.AddHostedService<DelayedStartService>();
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment environment, ICorsService corsService, ICorsPolicyProvider corsPolicyProvider)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment environment, ICorsService corsService, ICorsPolicyProvider corsPolicyProvider, IHostApplicationLifetime applicationLifetime)
         {
+            InitializeContentSecurityPolicyFileWatcher(applicationLifetime);
+
             if (useResponseComression == true)
             {
                 app.UseResponseCompression();
@@ -2651,6 +2650,112 @@ namespace rdy
                 }
             }
             return result;
+        }
+
+        private void InitializeContentSecurityPolicyFileWatcher(IHostApplicationLifetime applicationLifetime)
+        {
+            var contentSecurityPolicyFilePath = PathExtensions.Join(GlobalConfiguration.EntryBasePath, "content-security-policy.txt");
+            var directoryPath = Path.GetDirectoryName(contentSecurityPolicyFilePath);
+            var fileName = Path.GetFileName(contentSecurityPolicyFilePath);
+            if (string.IsNullOrWhiteSpace(directoryPath) == true || string.IsNullOrWhiteSpace(fileName) == true || Directory.Exists(directoryPath) == false)
+            {
+                Log.Warning("[{LogCategory}] Content-Security-Policy 파일 감시 경로가 올바르지 않습니다. 경로: {ContentSecurityPolicyFilePath}", "Startup/InitializeContentSecurityPolicyFileWatcher", contentSecurityPolicyFilePath);
+                return;
+            }
+
+            contentSecurityPolicyFileWatcher = new FileSystemWatcher(directoryPath, fileName)
+            {
+                NotifyFilter = NotifyFilters.FileName | NotifyFilters.LastWrite | NotifyFilters.Size
+            };
+            contentSecurityPolicyFileWatcher.Changed += OnContentSecurityPolicyFileChanged;
+            contentSecurityPolicyFileWatcher.Created += OnContentSecurityPolicyFileChanged;
+            contentSecurityPolicyFileWatcher.Deleted += OnContentSecurityPolicyFileChanged;
+            contentSecurityPolicyFileWatcher.Renamed += OnContentSecurityPolicyFileRenamed;
+            contentSecurityPolicyFileWatcher.EnableRaisingEvents = true;
+
+            applicationLifetime.ApplicationStopping.Register(DisposeContentSecurityPolicyFileWatcher);
+            Log.Information("[{LogCategory}] Content-Security-Policy 파일 변경 감지 시작. {ContentSecurityPolicyFilePath}", "Startup/InitializeContentSecurityPolicyFileWatcher", contentSecurityPolicyFilePath);
+        }
+
+        private void OnContentSecurityPolicyFileChanged(object sender, FileSystemEventArgs args)
+        {
+            ScheduleContentSecurityPolicyReload();
+        }
+
+        private void OnContentSecurityPolicyFileRenamed(object sender, RenamedEventArgs args)
+        {
+            ScheduleContentSecurityPolicyReload();
+        }
+
+        private void ScheduleContentSecurityPolicyReload()
+        {
+            lock (contentSecurityPolicyReloadSync)
+            {
+                contentSecurityPolicyReloadTimer ??= new Timer(_ => _ = ReloadContentSecurityPolicyAsync(), null, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
+                contentSecurityPolicyReloadTimer.Change(TimeSpan.FromMilliseconds(250), Timeout.InfiniteTimeSpan);
+            }
+        }
+
+        private async Task ReloadContentSecurityPolicyAsync()
+        {
+            await contentSecurityPolicyReloadLock.WaitAsync();
+            try
+            {
+                var contentSecurityPolicyFilePath = PathExtensions.Join(GlobalConfiguration.EntryBasePath, "content-security-policy.txt");
+                for (var retry = 1; retry <= 5; retry++)
+                {
+                    try
+                    {
+                        GlobalConfiguration.ContentSecurityPolicy = ReadContentSecurityPolicyFile(contentSecurityPolicyFilePath);
+                        Log.Information("[{LogCategory}] Content-Security-Policy 값을 다시 로드했습니다. {ContentSecurityPolicyFilePath}", "Startup/ReloadContentSecurityPolicyAsync", contentSecurityPolicyFilePath);
+                        return;
+                    }
+                    catch (IOException) when (retry < 5)
+                    {
+                        await Task.Delay(TimeSpan.FromMilliseconds(200));
+                    }
+                }
+            }
+            catch (Exception exception)
+            {
+                Log.Error(exception, "[{LogCategory}] Content-Security-Policy 파일을 다시 로드하지 못했습니다.", "Startup/ReloadContentSecurityPolicyAsync");
+            }
+            finally
+            {
+                contentSecurityPolicyReloadLock.Release();
+            }
+        }
+
+        private void DisposeContentSecurityPolicyFileWatcher()
+        {
+            if (contentSecurityPolicyFileWatcher != null)
+            {
+                contentSecurityPolicyFileWatcher.EnableRaisingEvents = false;
+                contentSecurityPolicyFileWatcher.Changed -= OnContentSecurityPolicyFileChanged;
+                contentSecurityPolicyFileWatcher.Created -= OnContentSecurityPolicyFileChanged;
+                contentSecurityPolicyFileWatcher.Deleted -= OnContentSecurityPolicyFileChanged;
+                contentSecurityPolicyFileWatcher.Renamed -= OnContentSecurityPolicyFileRenamed;
+                contentSecurityPolicyFileWatcher.Dispose();
+            }
+
+            lock (contentSecurityPolicyReloadSync)
+            {
+                contentSecurityPolicyReloadTimer?.Dispose();
+            }
+        }
+
+        private static string ReadContentSecurityPolicyFile(string contentSecurityPolicyFilePath)
+        {
+            if (File.Exists(contentSecurityPolicyFilePath) == false)
+            {
+                return "";
+            }
+
+            return File.ReadAllText(contentSecurityPolicyFilePath)
+                .Replace("\r", "")
+                .Replace("\n", "")
+                .Replace("\t", " ")
+                .Trim();
         }
     }
 }

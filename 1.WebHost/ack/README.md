@@ -143,6 +143,10 @@ $env:AppSettings__RunningEnvironment='P'
 - ASP.NET 미들웨어, DI 등록, 이미 시작된 HostedService, 새 모듈 추가/삭제, 어셈블리 로딩 관련 변경은 프로세스 재시작 후 반영합니다.
 - 감시 대상은 현재 `ack` 프로세스가 로드한 모듈의 `ModuleSettingFilePath`입니다. `AppSettings:LoadModules` 변경으로 새 모듈을 로드하려면 재시작해야 합니다.
 
+### 5.2 Content-Security-Policy 실시간 반영
+
+`EntryBasePath/content-security-policy.txt`(배포 기본 구조에서는 `${HANDSTACK_HOME}/app/content-security-policy.txt`)에 CSP 값을 작성하면 시작 시 읽어 `Content-Security-Policy` 응답 헤더에 적용합니다. 호스트 실행 중 파일을 생성·수정·이름 변경·삭제해도 자동으로 다시 읽으며, 파일을 삭제하거나 빈 값으로 저장하면 CSP 헤더를 더 이상 추가하지 않습니다. 이 감시는 `AppSettings:IsConfigurationWatching` 설정과 관계없이 동작합니다.
+
 ## 6) 헬스체크 및 운영 API
 
 기본 점검:
