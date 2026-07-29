@@ -348,10 +348,6 @@
         async renderViewer(templateID, el, options) {
             el = syn.$l.getElement(el);
             if (el) {
-                if (parent.syn && parent.syn.$w.progressMessage) {
-                    parent.syn.$w.progressMessage();
-                }
-
                 options = syn.$w.argumentsExtend({
                     width: '100%',
                     height: '100%',
@@ -386,18 +382,10 @@
                     var pdfFileUrl = syn.$r.createBlobUrl(pdfResult.response);
                     PDFObject.embed(pdfFileUrl, el, options);
                 }
-
-                if (parent.syn && parent.syn.$w.progressMessage) {
-                    parent.syn.$w.closeProgress();
-                }
             }
         },
 
         async renderPrint(templateID, options) {
-            if (parent.syn && parent.syn.$w.progressMessage) {
-                parent.syn.$w.progressMessage();
-            }
-
             options = syn.$w.argumentsExtend({
                 excelUrl: '',
                 workData: null
@@ -420,10 +408,6 @@
             if (pdfResult && pdfResult.status == 200) {
                 var pdfFileUrl = syn.$r.createBlobUrl(pdfResult.response);
                 printJS(pdfFileUrl);
-            }
-
-            if (parent.syn && parent.syn.$w.progressMessage) {
-                parent.syn.$w.closeProgress();
             }
         },
 

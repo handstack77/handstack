@@ -1,5 +1,5 @@
 ﻿/*!
-HandStack Javascript Library v2026.7.23
+HandStack Javascript Library v2026.7.29
 https://handshake.kr
 
 Copyright 2025, HandStack
