@@ -148,6 +148,8 @@ $env:AppSettings__RunningEnvironment='P'
 
 `EntryBasePath/content-security-policy.txt`(배포 기본 구조에서는 `${HANDSTACK_HOME}/app/content-security-policy.txt`)에 CSP 값을 작성하면 시작 시 읽어 `Content-Security-Policy` 응답 헤더에 적용합니다. 호스트 실행 중 파일을 생성·수정·이름 변경·삭제해도 자동으로 다시 읽으며, 파일을 삭제하거나 빈 값으로 저장하면 CSP 헤더를 더 이상 추가하지 않습니다. 이 감시는 `AppSettings:IsConfigurationWatching` 설정과 관계없이 동작합니다.
 
+브라우저에서 외부 API를 `fetch`로 호출하면 해당 도메인을 `connect-src`에 명시해야 합니다. 기본 정책은 공인 IP 조회를 위해 `https://api.ipify.org`를 허용합니다.
+
 ## 6) 헬스체크 및 운영 API
 
 기본 점검:

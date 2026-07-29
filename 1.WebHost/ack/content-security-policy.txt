@@ -27,6 +27,7 @@ connect-src 'self'
     wss://localhost:*
     http://localhost:*
     https://localhost:*
+    https://api.ipify.org
     http://t1.daumcdn.net
     https://t1.daumcdn.net
     http://postcode.map.daum.net
