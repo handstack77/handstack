@@ -823,7 +823,6 @@
   font-size: 11px;
   font-weight: 600;
   color: #555;
-  text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 .og-pivot-field-group select {
@@ -910,7 +909,6 @@
   font-size:   11px;
   font-weight: 600;
   color:       var(--og-header-color, #333);
-  text-transform: uppercase;
   letter-spacing: 0.5px;
   padding:     0 4px;
   float:       left;
