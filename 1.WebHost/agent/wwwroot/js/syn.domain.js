@@ -132,6 +132,16 @@
         $webform = new syn.module();
     }
 
+    var parent = {};
+    try {
+        parent = window.parent || {};
+        if (parent !== window) {
+            void parent.$main;
+        }
+    } catch (error) {
+        parent = {};
+    }
+
     $webform.extend({
         User: null,
         Variable: null,
@@ -415,7 +425,7 @@
 
         setServiceClientHeader(xhr) {
             var isContinue = true;
-            var evt = window.event || parent.window.event || null;
+            var evt = window.event || null;
 
             if (evt && evt.ctrlKey == true && evt.altKey == true) {
                 syn.$w.clientTag = 'ROQKFWKTLFGODZNJFL';
@@ -463,7 +473,7 @@
             };
 
             result = syn.$w.argumentsExtend(defaultSetting, options);
-            var evt = window.event || parent.window.event || null;
+            var evt = window.event || null;
 
             if (evt && evt.ctrlKey == true && evt.altKey == true) {
                 result.headers['ClientTag'] = 'ROQKFWKTLFGODZNJFL';
@@ -953,8 +963,8 @@
                 }
             }
             else {
-                if (window.parent && window.top !== window) {
-                    window.parent.syn.$w.statusMessage(val);
+                if (parent.syn && parent.syn.$w && window.top !== window) {
+                    parent.syn.$w.statusMessage(val);
                 }
             }
         },
@@ -1023,8 +1033,8 @@
                 }
             }
             else {
-                if (window.parent && window.top !== window) {
-                    window.parent.syn.$w.notify(type, message, title, config);
+                if (parent.syn && parent.syn.$w && window.top !== window) {
+                    parent.syn.$w.notify(type, message, title, config);
                 }
             }
         },
@@ -1711,7 +1721,7 @@
                 return;
             }
 
-            if (window == top || window.parent.syn.$w.pageScript == '$main') {
+            if (window == top || (parent.syn && parent.syn.$w && parent.syn.$w.pageScript == '$main')) {
                 var popupOptions = syn.$w.argumentsExtend(syn.$w.popupOptions, options);
 
                 if ($object.isNullOrUndefined(popupOptions.left) == true || popupOptions.left == 50) {
@@ -1842,9 +1852,9 @@
                 }
             }
             else {
-                if (window.parent && window.top !== window) {
+                if (parent.syn && parent.syn.$w && window.top !== window) {
                     setTimeout(function () {
-                        window.parent.syn.$w.windowOpen(elID, options, callback);
+                        parent.syn.$w.windowOpen(elID, options, callback);
                     });
                 }
             }
@@ -1875,7 +1885,7 @@
         },
 
         windowClose(elID) {
-            if (window == top || window.parent.syn.$w.pageScript == '$main') {
+            if (window == top || (parent.syn && parent.syn.$w && parent.syn.$w.pageScript == '$main')) {
                 var channels = syn.$w.channels.filter(function (item) { return item.elID == elID });
                 if (channels.length > 0) {
                     var iframeChannel = channels[0];
@@ -1893,8 +1903,8 @@
                 }
             }
             else {
-                if (window.parent && window.top !== window) {
-                    window.parent.syn.$w.windowClose(elID);
+                if (parent.syn && parent.syn.$w && window.top !== window) {
+                    parent.syn.$w.windowClose(elID);
                 }
             }
         },
@@ -2888,8 +2898,11 @@ function domainPageLoad() {
 function domainPageComplete() {
     syn.$w.setTabContentHeight();
 
-    if (parent && parent.$this && parent.$this.method && parent.$this.method.tabUIResizing) {
-        parent.$this.method.tabUIResizing($this);
+    try {
+        if (parent && parent.$this && parent.$this.method && parent.$this.method.tabUIResizing) {
+            parent.$this.method.tabUIResizing($this);
+        }
+    } catch (error) {
     }
 }
 

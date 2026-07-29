@@ -52,11 +52,24 @@
         return;
     }
 
+    var getParentMain = function () {
+        try {
+            var parentWindow = window.parent;
+            if (parentWindow && parentWindow !== window && parentWindow.syn && parentWindow.syn.$w && parentWindow.syn.$w.pageScript == '$main') {
+                return parentWindow.$main || null;
+            }
+        } catch (error) {
+        }
+
+        return null;
+    }
+
     document.onkeydown = function (evt) {
         if (evt.ctrlKey == true && evt.altKey == true && evt.shiftKey == true) {
             if (evt.keyCode == '68') {
-                if (window.parent && window.parent.syn.$w && window.parent.syn.$w.pageScript == '$main') {
-                    window.parent.$main.toogleDarkMode();
+                var parentMain = getParentMain();
+                if (parentMain) {
+                    parentMain.toogleDarkMode();
                 }
                 else {
                     var isDarkMode = (localStorage.getItem('isDarkMode') == 'true');
@@ -74,8 +87,9 @@
                 }
             }
             else if (evt.keyCode == '69') {
-                if (window.parent && window.parent.syn.$w && window.parent.syn.$w.pageScript == '$main') {
-                    window.parent.$main.toogleDeveloperMode();
+                var parentMain = getParentMain();
+                if (parentMain) {
+                    parentMain.toogleDeveloperMode();
                 }
                 else {
                     window.synConfigName = sessionStorage.getItem(`${proxyPathName}.synConfigName`) || 'syn.config.json';
