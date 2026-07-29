@@ -92,6 +92,7 @@ curl "http://localhost:8421/stop?hostAccessID=<HOST_ACCESS_ID_HASH>"
 - `AppSettings:BatchProgramBasePath`
 - `AppSettings:ForbesBasePath`
 - `AppSettings:WebHostRootPath`: 정적 파일(`wwwroot`) 제공 경로 재정의(선택, 기본값은 `EntryBasePath/wwwroot`)
+- `AppSettings:Security:XFrameOptions`: `X-Frame-Options` 응답 헤더 값(기본값 `SAMEORIGIN`)
 - `Serilog:WriteTo`: 로그 출력 경로/형식
 
 주요 환경 변수:

@@ -72,6 +72,7 @@ namespace rdy
         bool useProxyForward = false;
         bool useResponseComression = false;
         bool enableSecurityHeaders = true;
+        string xFrameOptions = "SAMEORIGIN";
         bool enablePublicCorsPolicy = true;
         bool exposeSecretValues = false;
         long maxContractSyncFileBytes = 10485760;
@@ -108,6 +109,7 @@ namespace rdy
             this.useResponseComression = appSettings["UseResponseComression"].ToStringSafe("false").ToBoolean();
             var securitySettings = appSettings.GetSection("Security");
             this.enableSecurityHeaders = securitySettings["EnableSecurityHeaders"].ToStringSafe("true").ToBoolean();
+            this.xFrameOptions = NormalizeXFrameOptions(securitySettings["XFrameOptions"].ToStringSafe("SAMEORIGIN"));
             this.enablePublicCorsPolicy = securitySettings["EnablePublicCorsPolicy"].ToStringSafe("true").ToBoolean();
             this.exposeSecretValues = securitySettings["ExposeSecretValues"].ToStringSafe("false").ToBoolean();
             this.maxContractSyncFileBytes = long.TryParse(securitySettings["MaxContractSyncFileBytes"].ToStringSafe("10485760"), out var maxContractSyncFileBytes) == true ? maxContractSyncFileBytes : 10485760;
@@ -2345,7 +2347,10 @@ namespace rdy
             var headers = context.Response.Headers;
             headers.TryAdd("X-Content-Type-Options", "nosniff");
             headers.TryAdd("Referrer-Policy", "no-referrer");
-            headers.TryAdd("X-Frame-Options", "SAMEORIGIN");
+            if (string.Equals(xFrameOptions, "ALLOW", StringComparison.OrdinalIgnoreCase) == false)
+            {
+                headers.TryAdd("X-Frame-Options", xFrameOptions);
+            }
 
             if (string.IsNullOrWhiteSpace(GlobalConfiguration.ContentSecurityPolicy) == false)
             {
@@ -2357,6 +2362,18 @@ namespace rdy
                 headers["Cache-Control"] = "no-store, no-cache, max-age=0";
                 headers["Pragma"] = "no-cache";
             }
+        }
+
+        private static string NormalizeXFrameOptions(string value)
+        {
+            if (string.Equals(value?.Trim(), "ALLOW", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                return "ALLOW";
+            }
+
+            return string.Equals(value?.Trim(), "DENY", StringComparison.OrdinalIgnoreCase) == true
+                ? "DENY"
+                : "SAMEORIGIN";
         }
 
         private static bool IsSensitiveManagementPath(PathString path)

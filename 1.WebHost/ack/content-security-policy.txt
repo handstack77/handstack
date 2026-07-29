@@ -42,3 +42,7 @@ frame-src 'self'
 base-uri 'self'
     http://localhost:*
     https://localhost:*;
+frame-ancestors 'self'
+    http://localhost:8420
+    http://localhost:8421
+    https://handstack.kr;
