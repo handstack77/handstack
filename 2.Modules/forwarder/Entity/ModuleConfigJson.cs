@@ -16,6 +16,8 @@ namespace forwarder.Entity
 
     public record ModuleConfig
     {
+        public string AuthorizationKey { get; set; }
+
         public string BusinessServerUrl { get; set; }
 
         public string ModuleBasePath { get; set; }
@@ -46,6 +48,7 @@ namespace forwarder.Entity
 
         public ModuleConfig()
         {
+            AuthorizationKey = "";
             BusinessServerUrl = "";
             ModuleBasePath = "";
             ModuleFilePath = "";

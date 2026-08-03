@@ -1,8 +1,10 @@
 using System;
 using System.Linq;
+using System.Net;
 
 using forwarder.Entity;
 
+using HandStack.Core.ExtensionMethod;
 using HandStack.Web.Extensions;
 using HandStack.Web.Helper;
 using HandStack.Web.MessageContract.DataObject;
@@ -13,6 +15,18 @@ namespace forwarder.Extensions
 {
     public static class ForwarderAuthorizationExtensions
     {
+        public static bool IsAllowAuthorization(this HttpContext httpContext)
+        {
+            var remoteIP = httpContext.GetRemoteIpAddress().ToStringSafe();
+            var isLocalRequest = httpContext.Connection.RemoteIpAddress != null && IPAddress.IsLoopback(httpContext.Connection.RemoteIpAddress);
+            var authorizationKey = isLocalRequest
+                ? httpContext.Request.GetContainValue("AuthorizationKey")
+                : httpContext.Request.GetHeaderValue("AuthorizationKey");
+
+            var isAllowClientIP = ModuleConfiguration.AllowClientIP.Contains("*") || ModuleConfiguration.AllowClientIP.Any(item => item == remoteIP);
+            return ModuleConfiguration.AuthorizationKey == authorizationKey || isAllowClientIP;
+        }
+
         public static bool IsAllowClientIP(this HttpContext httpContext)
         {
             return ModuleConfiguration.AllowClientIP.Any(p => p == "*" || p == httpContext.GetRemoteIpAddress());

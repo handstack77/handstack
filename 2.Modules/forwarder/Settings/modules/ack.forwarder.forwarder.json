@@ -5,6 +5,7 @@
     "Version": "1.0.0",
     "ModuleConfig": {
         "SystemID": "HANDSTACK",
+        "AuthorizationKey": "",
         "BusinessServerUrl": "http://localhost:8421/transact/api/transaction/execute",
         "ModuleBasePath": "../modules/forwarder",
         "ModuleFilePath": "../modules/forwarder",

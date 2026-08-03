@@ -30,6 +30,7 @@
 
 ## 설정 포인트
 - `ForwardUrls`: `requestKey -> targetUrl`을 담는 단일 JSON 객체 화이트리스트
+- `AuthorizationKey`: API 호출 인증 키입니다. 비워두면 `<SystemID><실행 환경><호스트명>`을 기본값으로 사용합니다.
 - `UseProxy`, `ProxyServer`, `ProxyUsername`, `ProxyPassword`, `ProxyBypass`: 상위 프록시 체인 설정
 - `IgnoreHTTPSErrors`: 테스트 환경 TLS 예외 허용 여부
 - `RequestTimeoutMS`, `MaxRedirects`: 응답 시간과 리다이렉트 제어
@@ -42,7 +43,7 @@
 4. HTML 응답이면 `ProxyController`가 `<base>` 태그를 주입한 뒤 응답을 반환합니다.
 
 ## 운영 메모
-- `ForwardUrls`에 등록된 키만 프록시할 수 있습니다.
+- `ForwardUrls`에 등록된 키만 프록시할 수 있으며, `AuthorizationKey`가 일치하거나 `AllowClientIP`에 허용된 요청만 프록시할 수 있습니다.
 - BearerToken 검증 실패는 요청을 차단하지 않으며, `AllowClientIP`와 `requestKey` 화이트리스트가 실제 접근 통제 기준입니다.
 - 브라우저 쿠키, localStorage, IndexedDB를 서버에서 저장하거나 복원하지 않습니다.
 - `UseProxy`를 켠 경우 `ProxyServer`가 비어 있으면 모듈 초기화 중 오류가 발생합니다.

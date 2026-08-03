@@ -7,6 +7,7 @@ namespace forwarder.Entity
         public static bool IsConfigure = false;
         public static string ModuleID = "forwarder";
         public static string Version = "";
+        public static string AuthorizationKey = "";
         public static bool IsBundledWithHost = false;
         public static string BusinessServerUrl = "";
         public static string ModuleBasePath = "";

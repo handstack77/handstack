@@ -62,6 +62,9 @@ namespace forwarder
             var moduleConfig = moduleConfigJson.ModuleConfig;
             ModuleConfiguration.ModuleID = moduleConfigJson.ModuleID;
             ModuleConfiguration.Version = moduleConfigJson.Version;
+            ModuleConfiguration.AuthorizationKey = string.IsNullOrWhiteSpace(moduleConfig.AuthorizationKey)
+                ? GlobalConfiguration.SystemID + GlobalConfiguration.RunningEnvironment + GlobalConfiguration.HostName
+                : moduleConfig.AuthorizationKey;
             ModuleConfiguration.IsBundledWithHost = moduleConfigJson.IsBundledWithHost;
             ModuleConfiguration.BusinessServerUrl = moduleConfig.BusinessServerUrl;
             ModuleConfiguration.ModuleBasePath = GlobalConfiguration.GetBaseDirectoryPath(moduleConfig.ModuleBasePath, module.BasePath);
