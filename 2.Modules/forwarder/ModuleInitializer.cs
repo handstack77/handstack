@@ -141,7 +141,7 @@ namespace forwarder
             }
         }
 
-        private Dictionary<string, string> BuildForwardUrls(List<Dictionary<string, string>>? configuredForwardUrls)
+        private Dictionary<string, string> BuildForwardUrls(Dictionary<string, string>? configuredForwardUrls)
         {
             var result = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             if (configuredForwardUrls == null || configuredForwardUrls.Count == 0)
@@ -149,31 +149,23 @@ namespace forwarder
                 return result;
             }
 
-            foreach (var configuredForwardUrl in configuredForwardUrls)
+            foreach (var item in configuredForwardUrls)
             {
-                if (configuredForwardUrl == null || configuredForwardUrl.Count == 0)
+                var requestKey = item.Key?.Trim();
+                var targetUrl = item.Value?.Trim();
+                if (string.IsNullOrWhiteSpace(requestKey) == true || string.IsNullOrWhiteSpace(targetUrl) == true)
                 {
                     continue;
                 }
 
-                foreach (var item in configuredForwardUrl)
+                if (Uri.TryCreate(targetUrl, UriKind.Absolute, out var targetUri) == false ||
+                    (targetUri.Scheme != Uri.UriSchemeHttp && targetUri.Scheme != Uri.UriSchemeHttps))
                 {
-                    var requestKey = item.Key?.Trim();
-                    var targetUrl = item.Value?.Trim();
-                    if (string.IsNullOrWhiteSpace(requestKey) == true || string.IsNullOrWhiteSpace(targetUrl) == true)
-                    {
-                        continue;
-                    }
-
-                    if (Uri.TryCreate(targetUrl, UriKind.Absolute, out var targetUri) == false ||
-                        (targetUri.Scheme != Uri.UriSchemeHttp && targetUri.Scheme != Uri.UriSchemeHttps))
-                    {
-                        Log.Logger.Warning("[{LogCategory}] requestKey: {RequestKey}, targetUrl: {TargetUrl} ForwardUrls 설정 확인 필요", $"{ModuleID} ModuleInitializer/ConfigureServices", requestKey, targetUrl);
-                        continue;
-                    }
-
-                    result[requestKey] = targetUri.AbsoluteUri;
+                    Log.Logger.Warning("[{LogCategory}] requestKey: {RequestKey}, targetUrl: {TargetUrl} ForwardUrls 설정 확인 필요", $"{ModuleID} ModuleInitializer/ConfigureServices", requestKey, targetUrl);
+                    continue;
                 }
+
+                result[requestKey] = targetUri.AbsoluteUri;
             }
 
             return result;

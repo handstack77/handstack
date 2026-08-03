@@ -29,7 +29,7 @@
 - `ForwardUrls` 설정이 이 모듈의 실행 계약 역할을 합니다.
 
 ## 설정 포인트
-- `ForwardUrls`: `requestKey -> targetUrl` 화이트리스트
+- `ForwardUrls`: `requestKey -> targetUrl`을 담는 단일 JSON 객체 화이트리스트
 - `UseProxy`, `ProxyServer`, `ProxyUsername`, `ProxyPassword`, `ProxyBypass`: 상위 프록시 체인 설정
 - `IgnoreHTTPSErrors`: 테스트 환경 TLS 예외 허용 여부
 - `RequestTimeoutMS`, `MaxRedirects`: 응답 시간과 리다이렉트 제어

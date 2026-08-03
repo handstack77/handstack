@@ -40,7 +40,7 @@ namespace forwarder.Entity
 
         public int MaxRedirects { get; set; }
 
-        public List<Dictionary<string, string>> ForwardUrls { get; set; }
+        public Dictionary<string, string> ForwardUrls { get; set; }
 
         public List<string> AllowClientIP { get; set; }
 
@@ -58,7 +58,7 @@ namespace forwarder.Entity
             IgnoreHTTPSErrors = false;
             RequestTimeoutMS = 30000;
             MaxRedirects = 10;
-            ForwardUrls = new List<Dictionary<string, string>>();
+            ForwardUrls = new Dictionary<string, string>();
             AllowClientIP = new List<string>() { "*" };
         }
     }
