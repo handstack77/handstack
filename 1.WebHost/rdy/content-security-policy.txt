@@ -1,27 +1,33 @@
 default-src 'self'
     http://localhost:*
     https://localhost:*;
+
 script-src 'self' 'unsafe-inline' 'unsafe-eval'
     http://localhost:*
     https://localhost:*;
+
+script-src-elem 'self' 'unsafe-inline'
+    http://localhost:*
+    https://localhost:*
+    http://t1.daumcdn.net
+    https://t1.daumcdn.net;
+
 worker-src 'self' blob:
     http://localhost:*
     https://localhost:*;
-script-src-elem 'self' 'unsafe-inline'
-	http://localhost:*
-	https://localhost:*
-	http://t1.daumcdn.net
-	https://t1.daumcdn.net;
-img-src 'self' 'unsafe-inline' data: 
-	http://localhost:*
-    https://localhost:*
-	http:  https:;
+
+img-src 'self' data: blob:
+    http:
+    https:;
+
 style-src 'self' 'unsafe-inline'
     http://localhost:*
     https://localhost:*;
+
 font-src 'self' data:
     http://localhost:*
     https://localhost:*;
+
 connect-src 'self'
     ws://localhost:*
     wss://localhost:*
@@ -32,6 +38,7 @@ connect-src 'self'
     https://t1.daumcdn.net
     http://postcode.map.daum.net
     https://postcode.map.daum.net;
+
 frame-src 'self'
     http://localhost:*
     https://localhost:*
@@ -40,6 +47,12 @@ frame-src 'self'
     http://postcode.map.daum.net
     https://postcode.map.daum.net
     https://handstack.kr;
-base-uri 'self'
-    http://localhost:*
-    https://localhost:*;
+
+object-src 'none';
+
+base-uri 'self';
+
+frame-ancestors 'self'
+    http://localhost:8420
+    http://localhost:8421
+    https://handstack.kr;
