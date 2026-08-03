@@ -1,10 +1,44 @@
 @charset "utf-8";
 
-@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400&display=swap");
+@font-face {
+    font-family: "Noto Sans KR";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("/font/noto-sans-kr-korean-400-normal.woff2") format("woff2");
+    unicode-range: U+1100-11FF, U+3130-318F, U+A960-A97F, U+AC00-D7AF, U+D7B0-D7FF;
+}
+
+@font-face {
+    font-family: "Noto Sans KR";
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url("/font/noto-sans-kr-korean-500-normal.woff2") format("woff2");
+    unicode-range: U+1100-11FF, U+3130-318F, U+A960-A97F, U+AC00-D7AF, U+D7B0-D7FF;
+}
+
+@font-face {
+    font-family: "Noto Sans KR";
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url("/font/noto-sans-kr-korean-600-normal.woff2") format("woff2");
+    unicode-range: U+1100-11FF, U+3130-318F, U+A960-A97F, U+AC00-D7AF, U+D7B0-D7FF;
+}
+
+@font-face {
+    font-family: "Noto Sans KR";
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url("/font/noto-sans-kr-korean-700-normal.woff2") format("woff2");
+    unicode-range: U+1100-11FF, U+3130-318F, U+A960-A97F, U+AC00-D7AF, U+D7B0-D7FF;
+}
 
 @font-face {
     font-family: "tabler-icons";
     font-style: normal;
     font-weight: 400;
-    src: url("https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.25.0/dist/fonts/tabler-icons.woff2") format("woff2"), url("https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.25.0/dist/fonts/tabler-icons.woff") format("woff");
+    src: url("/font/tabler-icons.woff2") format("woff2");
 }
