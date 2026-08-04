@@ -17,32 +17,16 @@
         "IgnoreHTTPSErrors": false,
         "RequestTimeoutMS": 30000,
         "MaxRedirects": 10,
-        "ForwardUrls": [
-            {
-                "sample-api": "https://example.com"
-            },
-            {
-                "lab-html": "https://staging.example.com:8421/forwarder/api/forward-proxy-lab/target/html"
-            },
-            {
-                "lab-json": "https://staging.example.com:8421/forwarder/api/forward-proxy-lab/target/json"
-            },
-            {
-                "lab-echo": "https://staging.example.com:8421/forwarder/api/forward-proxy-lab/target/echo"
-            },
-            {
-                "lab-redirect": "https://staging.example.com:8421/forwarder/api/forward-proxy-lab/target/redirect"
-            },
-            {
-                "lab-cookie-set": "https://staging.example.com:8421/forwarder/api/forward-proxy-lab/target/cookie/set?value=lab-session"
-            },
-            {
-                "lab-cookie-read": "https://staging.example.com:8421/forwarder/api/forward-proxy-lab/target/cookie/read"
-            },
-            {
-                "lab-slow": "https://staging.example.com:8421/forwarder/api/forward-proxy-lab/target/slow?delayMS=3500"
-            }
-        ],
+        "ForwardUrls": {
+            "sample-api": "https://example.com",
+            "lab-html": "https://staging.example.com:8421/forwarder/api/forward-proxy-lab/target/html",
+            "lab-json": "https://staging.example.com:8421/forwarder/api/forward-proxy-lab/target/json",
+            "lab-echo": "https://staging.example.com:8421/forwarder/api/forward-proxy-lab/target/echo",
+            "lab-redirect": "https://staging.example.com:8421/forwarder/api/forward-proxy-lab/target/redirect",
+            "lab-cookie-set": "https://staging.example.com:8421/forwarder/api/forward-proxy-lab/target/cookie/set?value=lab-session",
+            "lab-cookie-read": "https://staging.example.com:8421/forwarder/api/forward-proxy-lab/target/cookie/read",
+            "lab-slow": "https://staging.example.com:8421/forwarder/api/forward-proxy-lab/target/slow?delayMS=3500"
+        },
         "AllowClientIP": [
             "*"
         ]

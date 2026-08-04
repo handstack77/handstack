@@ -17,32 +17,16 @@
         "IgnoreHTTPSErrors": false,
         "RequestTimeoutMS": 30000,
         "MaxRedirects": 10,
-        "ForwardUrls": [
-            {
-                "sample-api": "https://example.com"
-            },
-            {
-                "lab-html": "http://dev.example.com:8421/forwarder/api/forward-proxy-lab/target/html"
-            },
-            {
-                "lab-json": "http://dev.example.com:8421/forwarder/api/forward-proxy-lab/target/json"
-            },
-            {
-                "lab-echo": "http://dev.example.com:8421/forwarder/api/forward-proxy-lab/target/echo"
-            },
-            {
-                "lab-redirect": "http://dev.example.com:8421/forwarder/api/forward-proxy-lab/target/redirect"
-            },
-            {
-                "lab-cookie-set": "http://dev.example.com:8421/forwarder/api/forward-proxy-lab/target/cookie/set?value=lab-session"
-            },
-            {
-                "lab-cookie-read": "http://dev.example.com:8421/forwarder/api/forward-proxy-lab/target/cookie/read"
-            },
-            {
-                "lab-slow": "http://dev.example.com:8421/forwarder/api/forward-proxy-lab/target/slow?delayMS=3500"
-            }
-        ],
+        "ForwardUrls": {
+            "sample-api": "https://example.com",
+            "lab-html": "http://dev.example.com:8421/forwarder/api/forward-proxy-lab/target/html",
+            "lab-json": "http://dev.example.com:8421/forwarder/api/forward-proxy-lab/target/json",
+            "lab-echo": "http://dev.example.com:8421/forwarder/api/forward-proxy-lab/target/echo",
+            "lab-redirect": "http://dev.example.com:8421/forwarder/api/forward-proxy-lab/target/redirect",
+            "lab-cookie-set": "http://dev.example.com:8421/forwarder/api/forward-proxy-lab/target/cookie/set?value=lab-session",
+            "lab-cookie-read": "http://dev.example.com:8421/forwarder/api/forward-proxy-lab/target/cookie/read",
+            "lab-slow": "http://dev.example.com:8421/forwarder/api/forward-proxy-lab/target/slow?delayMS=3500"
+        },
         "AllowClientIP": [
             "*"
         ]
