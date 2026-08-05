@@ -1,15 +1,23 @@
 .syn-propertygrid {
+    display: block;
     width: 100%;
+    height: 300px;
+    overflow: auto;
     color: #1f2937;
 }
 
 .syn-propertygrid .pgTable {
     width: 100%;
+    table-layout: fixed;
     border: 1px solid var(--tblr-border-color, #d1d5db);
     border-spacing: 0;
     border-collapse: collapse;
     background: var(--tblr-bg-surface, #fff);
     font-size: 14px;
+}
+
+.syn-propertygrid .pgKeyColumn {
+    width: var(--pg-key-column-width, 36%);
 }
 
 .syn-propertygrid .pgGroupRow {
@@ -38,14 +46,27 @@
 }
 
 .syn-propertygrid .pgNameCell {
-    width: 36%;
-    min-width: 120px;
     background-color: var(--tblr-bg-surface-tertiary, #fafafa);
     color: var(--tblr-body-color, #1f2937);
 }
 
 .syn-propertygrid .pgValueCell {
-    width: 64%;
+    width: auto;
+}
+
+.syn-propertygrid .pgLabel {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+}
+
+.syn-propertygrid .pgLabelText {
+    display: block;
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .syn-propertygrid .pgTooltip {
@@ -58,6 +79,7 @@
     color: var(--tblr-muted, #6b7280);
     font-size: 12px;
     font-weight: 400;
+    flex: 0 0 auto;
     vertical-align: middle;
 }
 

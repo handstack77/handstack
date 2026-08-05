@@ -11,9 +11,14 @@
             <code>meta</code>로 각 속성의 <code>group</code>(그룹 묶음), <code>type</code>(입력 위젯 종류),
             <code>options</code>(select 목록 / number의 min·max·step), <code>description</code>(도움말 툴팁)을 지정할 수 있고,
             <code>isCollapsible: true</code>로 그룹을 접고 펼칠 수 있으며 <code>sort: true</code>로 속성 이름을 정렬할 수 있습니다.
+            아래 그리드는 <code>width</code>와 <code>height</code>로 표시 영역을 제한하여 내용이 넘칠 때 스크롤되며,
+            <code>keyColumnWidth</code>보다 긴 속성명은 말줄임으로 표시됩니다.
         </p>
 
         <syn_propertygrid id="pgOptions" syn-options="{
+            width: '640px',
+            height: '240px',
+            keyColumnWidth: '180px',
             sort: true,
             isCollapsible: true,
             data: {
@@ -25,7 +30,7 @@
                 ExtraConfig: { placeholder: '이름을 입력하세요' }
             },
             meta: {
-                ControlID: { group: 'General', description: '컨트롤 식별자(id)' },
+                ControlID: { name: '매우 긴 컨트롤 식별자 표시 이름', group: 'General', description: '컨트롤 식별자(id)' },
                 Width: { group: 'Layout', type: 'number', options: { min: 0, max: 999, step: 10 } },
                 Mode: { group: 'Behavior', type: 'options', options: ['view', 'edit', 'readonly'] },
                 ThemeColor: { group: 'Layout', type: 'color' },

@@ -21,6 +21,9 @@ PropertyGrid는 자바스크립트 객체 하나를 "속성명 / 값" 두 칸짜
 
 ```html
 <syn_propertygrid id="pgBasic" syn-options="{
+    width: '100%',
+    height: '300px',
+    keyColumnWidth: '36%',
     data: {
         Name: '홍길동',
         Age: 32,
@@ -29,6 +32,10 @@ PropertyGrid는 자바스크립트 객체 하나를 "속성명 / 값" 두 칸짜
     }
 }"></syn_propertygrid>
 ```
+
+`width`와 `height`로 PropertyGrid의 표시 영역 크기를 CSS 크기값으로 지정할 수 있습니다. 기본값은 각각 `100%`, `300px`이며, 내용이 표시 영역을 넘으면 가로 또는 세로 스크롤바가 자동으로 표시됩니다.
+
+`keyColumnWidth`로 속성명이 표시되는 키 컬럼 너비를 지정할 수 있습니다. 기본값은 `36%`이며 `px`, `%`, `calc(...)` 같은 CSS 너비 값을 사용할 수 있습니다. 속성명이 컬럼보다 길면 `...`로 축약되고, 마우스를 올리면 전체 이름을 확인할 수 있습니다.
 
 속성을 그룹으로 묶고, 각 속성의 표시 방식을 지정하고 싶다면 `meta`를 추가합니다.
 

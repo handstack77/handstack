@@ -9,6 +9,9 @@ PropertyGrid는 네이티브 태그가 아니라 `<syn_propertygrid>` 커스텀 
 
 ```html
 <syn_propertygrid id="pgSample" syn-options="{
+    width: '100%',
+    height: '300px',
+    keyColumnWidth: '36%',
     data: { Name: '홍길동', Age: 32, UseYN: true, FavoriteColor: '#2563eb' },
     meta: {
         Age: { group: 'General', description: '나이(세)' }
@@ -40,6 +43,9 @@ PropertyGrid는 네이티브 태그가 아니라 `<syn_propertygrid>` 커스텀 
 | `autoMeta` | boolean | `true` | `meta.type`이 없을 때 값의 자바스크립트 타입(`boolean`/`number`/`function`/객체·배열·`null`·`undefined` → `json`/`#rrggbb` 형식 문자열 → `color`)을 보고 입력 위젯 타입을 자동으로 정할지 여부 |
 | `jsonRows` | number | `5` | `type: 'json'` 또는 `type: 'function'`일 때 기본으로 표시할 `<textarea>` 줄 수(`meta.rows`로 속성별 재정의 가능) |
 | `includeFunctions` | boolean | `true` | `false`로 지정하면 값이 함수인 속성은 목록에서 제외합니다. |
+| `width` | string | `'100%'` | PropertyGrid 표시 영역의 너비. `px`, `%`, `calc(...)` 등 CSS에서 유효한 너비 값을 지정합니다. |
+| `height` | string | `'300px'` | PropertyGrid 표시 영역의 높이. 내용이 영역을 넘으면 스크롤바가 자동으로 표시됩니다. |
+| `keyColumnWidth` | string | `'36%'` | 속성명이 표시되는 키 컬럼 너비. CSS 너비 값을 지정하며, 넘치는 키 텍스트는 `...`로 축약됩니다. |
 | `classNames` | string | `'syn-propertygrid'` | 그리드 최상위 엘리먼트에 추가되는 CSS 클래스 |
 | `callback` | function \| string \| null | `null` | 값이 바뀔 때마다 `(element, name, value, control)`로 호출되는 콜백. 문자열이면 점 경로로 함수를 찾아 해석합니다. |
 | `dataType` | string | `'object'` | 다른 컨트롤과 형식을 맞추기 위한 공통 속성 |

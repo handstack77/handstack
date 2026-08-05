@@ -61498,7 +61498,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
     $propertygrid.extend({
         name: 'syn.uicontrols.$propertygrid',
-        version: 'v2026.7.3',
+        version: 'v2026.8.5',
         propertyGridControls: [],
         defaultSetting: {
             elID: '',
@@ -61514,6 +61514,9 @@ if (typeof module !== 'undefined' && module.exports) {
             autoMeta: true,
             jsonRows: 5,
             includeFunctions: true,
+            width: '100%',
+            height: '300px',
+            keyColumnWidth: '36%',
             classNames: 'syn-propertygrid',
             callback: null,
             dataType: 'object',
@@ -61617,10 +61620,22 @@ if (typeof module !== 'undefined' && module.exports) {
                 syn.$m.addClass(el, setting.classNames);
             }
 
+            el.style.width = setting.width;
+            el.style.height = setting.height;
+            el.style.overflow = 'auto';
+            el.style.setProperty('--pg-key-column-width', setting.keyColumnWidth);
+
             el.innerHTML = '';
             var table = document.createElement('table');
             table.className = 'pgTable';
             table.setAttribute('role', 'grid');
+
+            var columnGroup = document.createElement('colgroup');
+            var keyColumn = document.createElement('col');
+            keyColumn.className = 'pgKeyColumn';
+            columnGroup.appendChild(keyColumn);
+            columnGroup.appendChild(document.createElement('col'));
+            table.appendChild(columnGroup);
 
             var groupedRows = {};
             var groupOrder = [];
@@ -61723,21 +61738,24 @@ if (typeof module !== 'undefined' && module.exports) {
         },
 
         createLabelElement(displayName, meta, setting) {
-            var fragment = document.createDocumentFragment();
+            var label = document.createElement('div');
+            label.className = 'pgLabel';
+
             var text = document.createElement('span');
             text.className = 'pgLabelText';
             text.textContent = displayName;
-            fragment.appendChild(text);
+            text.title = displayName;
+            label.appendChild(text);
 
             if (typeof meta.description === 'string' && meta.description && (typeof meta.showHelp === 'undefined' || meta.showHelp)) {
                 var help = document.createElement('span');
                 help.className = 'pgTooltip';
                 help.title = meta.description;
                 help.innerHTML = setting.helpHtml;
-                fragment.appendChild(help);
+                label.appendChild(help);
             }
 
-            return fragment;
+            return label;
         },
 
         createValueElement(control, name, value, meta, setting) {
