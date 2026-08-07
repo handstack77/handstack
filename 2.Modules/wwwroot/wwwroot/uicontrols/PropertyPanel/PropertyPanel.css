@@ -1,4 +1,4 @@
-.syn-propertygrid {
+.syn-propertypanel {
     display: block;
     width: 100%;
     height: 300px;
@@ -6,7 +6,7 @@
     color: #1f2937;
 }
 
-.syn-propertygrid .pgTable {
+.syn-propertypanel .ppTable {
     width: 100%;
     table-layout: fixed;
     border: 1px solid var(--tblr-border-color, #d1d5db);
@@ -16,51 +16,51 @@
     font-size: 14px;
 }
 
-.syn-propertygrid .pgKeyColumn {
-    width: var(--pg-key-column-width, 36%);
+.syn-propertypanel .ppKeyColumn {
+    width: var(--pp-key-column-width, 36%);
 }
 
-.syn-propertygrid .pgGroupRow {
+.syn-propertypanel .ppGroupRow {
     background-color: var(--tblr-bg-surface-secondary, #f3f4f6);
     font-weight: 600;
 }
 
-.syn-propertygrid .pgGroupRow.pgCollapsible {
+.syn-propertypanel .ppGroupRow.ppCollapsible {
     cursor: pointer;
     user-select: none;
 }
 
-.syn-propertygrid .pgRow {
+.syn-propertypanel .ppRow {
     height: 40px;
 }
 
-.syn-propertygrid .pgGroupCell {
+.syn-propertypanel .ppGroupCell {
     padding: 4px;
     border: 1px solid var(--tblr-border-color, #d1d5db);
 }
 
-.syn-propertygrid .pgCell {
+.syn-propertypanel .ppCell {
     padding: 4px;
     border: 1px solid var(--tblr-border-color, #d1d5db);
     vertical-align: middle;
 }
 
-.syn-propertygrid .pgNameCell {
+.syn-propertypanel .ppNameCell {
     background-color: var(--tblr-bg-surface-tertiary, #fafafa);
     color: var(--tblr-body-color, #1f2937);
 }
 
-.syn-propertygrid .pgValueCell {
+.syn-propertypanel .ppValueCell {
     width: auto;
 }
 
-.syn-propertygrid .pgLabel {
+.syn-propertypanel .ppLabel {
     display: flex;
     align-items: center;
     min-width: 0;
 }
 
-.syn-propertygrid .pgLabelText {
+.syn-propertypanel .ppLabelText {
     display: block;
     flex: 1 1 auto;
     min-width: 0;
@@ -69,7 +69,7 @@
     white-space: nowrap;
 }
 
-.syn-propertygrid .pgTooltip {
+.syn-propertypanel .ppTooltip {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -83,10 +83,10 @@
     vertical-align: middle;
 }
 
-.syn-propertygrid .pgInput,
-.syn-propertygrid select.pgInput,
-.syn-propertygrid input.pgInput,
-.syn-propertygrid textarea.pgInput {
+.syn-propertypanel .ppInput,
+.syn-propertypanel select.ppInput,
+.syn-propertypanel input.ppInput,
+.syn-propertypanel textarea.ppInput {
     display: block;
     width: 100%;
     min-height: 30px;
@@ -99,7 +99,7 @@
     box-sizing: border-box;
 }
 
-.syn-propertygrid textarea.pgInput {
+.syn-propertypanel textarea.ppInput {
     min-height: 96px;
     resize: vertical;
     font-family: Consolas, "Courier New", monospace;
@@ -109,9 +109,9 @@
     overflow: auto;
 }
 
-.syn-propertygrid input.pgInput:focus,
-.syn-propertygrid select.pgInput:focus,
-.syn-propertygrid textarea.pgInput:focus {
+.syn-propertypanel input.ppInput:focus,
+.syn-propertypanel select.ppInput:focus,
+.syn-propertypanel textarea.ppInput:focus {
     color: var(--tblr-body-color);
     background-color: var(--tblr-bg-forms, #fff);
     border-color: #83b7e8;
@@ -119,19 +119,19 @@
     box-shadow: var(--tblr-shadow-input), 0 0 0 .25rem rgba(var(--tblr-primary-rgb), .25);
 }
 
-.syn-propertygrid input[type="checkbox"].pgInput,
-.syn-propertygrid input[type="color"].pgInput {
+.syn-propertypanel input[type="checkbox"].ppInput,
+.syn-propertypanel input[type="color"].ppInput {
     width: auto;
     min-height: auto;
     padding: 0;
 }
 
-.syn-propertygrid input[type="color"].pgInput {
+.syn-propertypanel input[type="color"].ppInput {
     width: 42px;
     height: 30px;
 }
 
-.syn-propertygrid input[type="checkbox"].pgInput {
+.syn-propertypanel input[type="checkbox"].ppInput {
     --tblr-form-check-bg: var(--tblr-bg-forms);
     flex-shrink: 0;
     width: 1.25rem;
@@ -148,30 +148,30 @@
     print-color-adjust: exact;
 }
 
-.syn-propertygrid input[type="checkbox"].pgInput:checked {
+.syn-propertypanel input[type="checkbox"].ppInput:checked {
     --tblr-form-check-bg-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M4 8.5l2.5 2.5l5.5 -5.5'/%3e%3c/svg%3e");
     background-color: var(--tblr-primary);
     border-color: var(--tblr-border-color-translucent);
 }
 
-.syn-propertygrid input[type="checkbox"].pgInput:focus {
+.syn-propertypanel input[type="checkbox"].ppInput:focus {
     border-color: #83b7e8;
     outline: 0;
     box-shadow: 0 0 0 .25rem rgba(var(--tblr-primary-rgb), .25);
 }
 
-.syn-propertygrid .pgInput:disabled,
-.syn-propertygrid .pgInput[readonly] {
+.syn-propertypanel .ppInput:disabled,
+.syn-propertypanel .ppInput[readonly] {
     background-color: var(--tblr-bg-surface-secondary, #f3f4f6);
     color: var(--tblr-muted, #6b7280);
 }
 
-.syn-propertygrid .pgInvalid {
+.syn-propertypanel .ppInvalid {
     border-color: #dc2626;
     background-color: #fff7f7;
 }
 
-.syn-propertygrid .pgCustomValue {
+.syn-propertypanel .ppCustomValue {
     display: inline-block;
     width: 100%;
 }

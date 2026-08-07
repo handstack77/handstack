@@ -1,12 +1,12 @@
 'use strict';
 var $binding = createControlBindingExample({
-    adapterName: 'propertygrid',
+    adapterName: 'propertypanel',
     initialValue: {NotifyYN: true, Volume: 50, Nickname: '길동'},
     get: function () {
-        return syn.uicontrols.$propertygrid.getValue('pgBinding');
+        return syn.uicontrols.$propertypanel.getValue('ppBinding');
     },
     set: function (value) {
-        syn.uicontrols.$propertygrid.setValue('pgBinding', value);
+        syn.uicontrols.$propertypanel.setValue('ppBinding', value);
     },
     nextValue: function (current) {
         return current.Nickname === '영희'
@@ -14,7 +14,7 @@ var $binding = createControlBindingExample({
             : {NotifyYN: false, Volume: 80, Nickname: '영희'};
     },
     afterMount: function (page) {
-        var element = document.getElementById('pgBinding');
+        var element = document.getElementById('ppBinding');
         ['input', 'change'].forEach(function (eventName) {
             element.addEventListener(eventName, function () {
                 page.method.controlToModel();

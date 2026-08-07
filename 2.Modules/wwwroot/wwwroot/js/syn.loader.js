@@ -1,4 +1,4 @@
-﻿(async function () {
+(async function () {
     var systemVersion = '1.0.0';
     var getCookie = function (id) {
         var start = document.cookie.indexOf(id + '=');
@@ -759,9 +759,9 @@
                     case 'element':
                         item.js = ['/uicontrols/Element/Element.js'];
                         break;
-                    case 'propertygrid':
-                        item.css = ['/uicontrols/PropertyGrid/PropertyGrid.css'];
-                        item.js = ['/uicontrols/PropertyGrid/PropertyGrid.js'];
+                    case 'propertypanel':
+                        item.css = ['/uicontrols/PropertyPanel/PropertyPanel.css'];
+                        item.js = ['/uicontrols/PropertyPanel/PropertyPanel.js'];
                         break;
                 }
             }
@@ -1010,7 +1010,7 @@
                         '/uicontrols/TreeView/TreeView.css',
                         '/uicontrols/WebGrid/WebGrid.css',
                         '/uicontrols/AUIGrid/AUIGrid.css',
-                        '/uicontrols/PropertyGrid/PropertyGrid.css',
+                        '/uicontrols/PropertyPanel/PropertyPanel.css',
 
                         // 프로젝트 화면 디자인
                         '/css/base.css',

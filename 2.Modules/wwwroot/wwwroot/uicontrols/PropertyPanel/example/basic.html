@@ -2,24 +2,24 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>PropertyGrid - 기본 예제</title>
+    <title>PropertyPanel - 기본 예제</title>
 </head>
 <body style="visibility: hidden;">
     <form autocomplete="off" id="form1" syn-datafield="MainForm">
-        <h3>PropertyGrid 기본 예제</h3>
+        <h3>PropertyPanel 기본 예제</h3>
         <p>
             <code>syn-options</code>의 <code>data</code>에 객체를 넘기면, 각 속성값의 타입(문자열/숫자/불리언/색상)에 맞춰
             <code>autoMeta</code>가 자동으로 입력 위젯을 만들어 줍니다. 별도의 <code>meta</code> 지정이 필요 없습니다.
         </p>
 
-        <syn_propertygrid id="pgBasic" syn-options="{
+        <syn_propertypanel id="ppBasic" syn-options="{
             data: {
                 Name: '홍길동',
                 Age: 32,
                 UseYN: true,
                 FavoriteColor: '#2563eb'
             }
-        }"></syn_propertygrid>
+        }"></syn_propertypanel>
 
         <hr />
 

@@ -1,4 +1,4 @@
-﻿var gulp = require(`gulp`);
+var gulp = require(`gulp`);
 var concat = require(`gulp-concat`);
 var uglify = require(`gulp-uglify`);
 let stripCssComments;
@@ -110,7 +110,7 @@ gulp.task('controls', function () {
         'wwwroot/uicontrols/SourceEditor/SourceEditor.js',
         'wwwroot/uicontrols/HtmlEditor/HtmlEditor.js',
         'wwwroot/uicontrols/OrganizationView/OrganizationView.js',
-        'wwwroot/uicontrols/PropertyGrid/PropertyGrid.js',
+        'wwwroot/uicontrols/PropertyPanel/PropertyPanel.js',
         'wwwroot/uicontrols/TreeView/TreeView.js',
         'wwwroot/uicontrols/AUIGrid/AUIGrid.js',
         'wwwroot/uicontrols/OpenGrid/OpenGrid.js',
@@ -211,7 +211,7 @@ gulp.task('styles', async function () {
         'wwwroot/uicontrols/SourceEditor/SourceEditor.css',
         'wwwroot/uicontrols/HtmlEditor/HtmlEditor.css',
         'wwwroot/uicontrols/OrganizationView/OrganizationView.css',
-        'wwwroot/uicontrols/PropertyGrid/PropertyGrid.css',
+        'wwwroot/uicontrols/PropertyPanel/PropertyPanel.css',
         'wwwroot/uicontrols/TreeView/TreeView.css',
         'wwwroot/uicontrols/AUIGrid/AUIGrid.css',
         'wwwroot/uicontrols/OpenGrid/OpenGrid.css',
