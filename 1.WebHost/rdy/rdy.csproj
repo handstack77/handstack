@@ -124,6 +124,31 @@
         </None>
     </ItemGroup>
 
+    <UsingTask TaskName="ReplaceRdyFileText"
+               TaskFactory="RoslynCodeTaskFactory"
+               AssemblyFile="$(MSBuildToolsPath)/Microsoft.Build.Tasks.Core.dll">
+        <ParameterGroup>
+            <FilePath ParameterType="System.String" Required="true" />
+            <Pattern ParameterType="System.String" Required="true" />
+            <Replacement ParameterType="System.String" Required="true" />
+        </ParameterGroup>
+        <Task>
+            <Using Namespace="System" />
+            <Using Namespace="System.IO" />
+            <Using Namespace="System.Text" />
+            <Using Namespace="System.Text.RegularExpressions" />
+            <Code Type="Fragment" Language="cs"><![CDATA[
+                var content = File.ReadAllText(FilePath);
+                var updated = Regex.Replace(content, Pattern, Replacement, RegexOptions.CultureInvariant);
+
+                if (!string.Equals(content, updated, StringComparison.Ordinal))
+                {
+                    File.WriteAllText(FilePath, updated, new UTF8Encoding(false));
+                }
+            ]]></Code>
+        </Task>
+    </UsingTask>
+
     <Target Name="SyncRdyWwwroot"
             AfterTargets="Build"
             Condition="'$(DesignTimeBuild)' != 'true'">
@@ -150,17 +175,9 @@
         <Error Condition="!Exists('$(RdySynConfigPath)')"
                Text="복사된 syn.config.json을 찾을 수 없습니다: $(RdySynConfigPath)" />
 
-        <ReadLinesFromFile File="$(RdySynConfigPath)">
-            <Output TaskParameter="Lines" ItemName="_RdySynConfigLines" />
-        </ReadLinesFromFile>
-        <ItemGroup>
-            <_RdyUpdatedSynConfigLines Include="@(_RdySynConfigLines->Replace('8421', '8420'))" />
-        </ItemGroup>
-        <WriteLinesToFile File="$(RdySynConfigPath)"
-                          Lines="@(_RdyUpdatedSynConfigLines)"
-                          Overwrite="true"
-                          WriteOnlyWhenDifferent="true"
-                          Encoding="UTF-8" />
+        <ReplaceRdyFileText FilePath="$(RdySynConfigPath)"
+                            Pattern="(?&lt;![0-9])8421(?![0-9])"
+                            Replacement="8420" />
     </Target>
 
     <Target Name="PruneModuleTransitiveContent"
