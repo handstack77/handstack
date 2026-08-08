@@ -32,6 +32,10 @@
         <Optimize>False</Optimize>
     </PropertyGroup>
 
+    <PropertyGroup>
+        <RdyWwwrootSourceDir Condition="'$(RdyWwwrootSourceDir)' == ''">$(HANDSTACK_SRC)/2.Modules/wwwroot/wwwroot</RdyWwwrootSourceDir>
+    </PropertyGroup>
+
     <ItemGroup Label="modules, HandStack Library">
         <PackageReference Include="Dapper" Version="2.1.79" />
         <PackageReference Include="DotNetEnv" Version="3.2.0" />
@@ -119,6 +123,45 @@
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
     </ItemGroup>
+
+    <Target Name="SyncRdyWwwroot"
+            AfterTargets="Build"
+            Condition="'$(DesignTimeBuild)' != 'true'">
+        <PropertyGroup>
+            <RdyWwwrootOutputDir Condition="'$(RdyWwwrootOutputDir)' == ''">$(TargetDir)modules/wwwroot/wwwroot</RdyWwwrootOutputDir>
+            <RdySynConfigPath>$(RdyWwwrootOutputDir)/syn.config.json</RdySynConfigPath>
+        </PropertyGroup>
+
+        <Error Condition="!Exists('$(RdyWwwrootSourceDir)')"
+               Text="wwwroot 원본 디렉터리를 찾을 수 없습니다: $(RdyWwwrootSourceDir)" />
+
+        <RemoveDir Directories="$(RdyWwwrootOutputDir)"
+                   Condition="Exists('$(RdyWwwrootOutputDir)')" />
+
+        <ItemGroup>
+            <_RdyWwwrootSourceFiles Include="$(RdyWwwrootSourceDir)/**/*"
+                                    Exclude="$(RdyWwwrootSourceDir)/**/node_modules/**/*" />
+        </ItemGroup>
+
+        <MakeDir Directories="$(RdyWwwrootOutputDir)" />
+        <Copy SourceFiles="@(_RdyWwwrootSourceFiles)"
+              DestinationFiles="@(_RdyWwwrootSourceFiles->'$(RdyWwwrootOutputDir)/%(RecursiveDir)%(Filename)%(Extension)')" />
+
+        <Error Condition="!Exists('$(RdySynConfigPath)')"
+               Text="복사된 syn.config.json을 찾을 수 없습니다: $(RdySynConfigPath)" />
+
+        <ReadLinesFromFile File="$(RdySynConfigPath)">
+            <Output TaskParameter="Lines" ItemName="_RdySynConfigLines" />
+        </ReadLinesFromFile>
+        <ItemGroup>
+            <_RdyUpdatedSynConfigLines Include="@(_RdySynConfigLines->Replace('8421', '8420'))" />
+        </ItemGroup>
+        <WriteLinesToFile File="$(RdySynConfigPath)"
+                          Lines="@(_RdyUpdatedSynConfigLines)"
+                          Overwrite="true"
+                          WriteOnlyWhenDifferent="true"
+                          Encoding="UTF-8" />
+    </Target>
 
     <Target Name="PruneModuleTransitiveContent"
             AfterTargets="GetCopyToOutputDirectoryItems"
