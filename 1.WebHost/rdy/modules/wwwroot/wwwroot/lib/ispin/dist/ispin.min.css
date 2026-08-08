@@ -1,8 +1,0 @@
-/**
- * Minified by jsDelivr using clean-css v5.3.3.
- * Original file: /npm/ispin@2.0.1/dist/ispin.css
- *
- * Do NOT use SRI with dynamically generated files! More information: https://www.jsdelivr.com/using-sri-with-dynamic-files
- */
-.ispin-wrapper{position:relative;display:inline-block;overflow:hidden;padding:0;vertical-align:middle}.ispin-wrapper .ispin-button{position:absolute;display:block;height:50%;min-height:0;min-width:0;width:30px;padding:0;margin:0;right:0;border:none;background:0 0;cursor:pointer}.ispin-wrapper .ispin-button:before{content:'';display:inline-block;-webkit-transform:translateY(-50%);transform:translateY(-50%);border-left:5px solid transparent;border-right:5px solid transparent}.ispin-wrapper .ispin-button.ispin-button-inc{top:0}.ispin-wrapper .ispin-button.ispin-button-inc:before{border-bottom:5px solid #000}.ispin-wrapper .ispin-button.ispin-button-inc:disabled:before{border-bottom-color:grey}.ispin-wrapper .ispin-button.ispin-button-dec{bottom:0}.ispin-wrapper .ispin-button.ispin-button-dec:before{border-top:5px solid #000}.ispin-wrapper .ispin-button.ispin-button-dec:disabled:before{border-top-color:grey}
-/*# sourceMappingURL=/sm/99a70b9ef823192a7c7df58f4e435699ff7e5fe2825674a4bcf475f125dc536d.map */
