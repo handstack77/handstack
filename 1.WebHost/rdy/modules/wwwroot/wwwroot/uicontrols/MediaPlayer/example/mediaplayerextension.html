@@ -1,0 +1,42 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>
+        MediaPlayer 확장 예제
+    </title>
+    <link rel="stylesheet" href="mediaplayerdemo.css">
+</head>
+<body style="visibility:hidden">
+    <form id="form1" syn-datafield="MainForm">
+        <div class="demo-nav">
+            <a href="index.html">
+                ← 예제 목록
+            </a>
+        </div>
+        <div class="demo-card">
+            <h3>
+                자막, 테마, Video.js plugin
+            </h3>
+            <p>
+                VTT 자막을 행에 선언하고 테마와 등록된 플러그인을 runtime API로 적용합니다.
+            </p>
+            <syn_mediaplayer id="mpExtension" class="demo-player" syn-datafield="Media"
+                             syn-events="['initialized','mediaChange','captionaudit']"
+                             syn-options="{ playlist:{visible:false} }">
+            </syn_mediaplayer>
+            <div class="demo-actions">
+                <input type="button" id="btnTheme" value="모니터링 테마" syn-events="['click']">
+                <input type="button" id="btnDefaultTheme" value="기본 테마" syn-events="['click']">
+                <input type="button" id="btnPlugin" value="audit plugin 실행" syn-events="['click']">
+                <input type="button" id="btnPip" value="Picture in Picture" syn-events="['click']">
+            </div>
+            <pre id="preResult">
+CC 메뉴에서 한국어/English 자막을 선택할 수 있습니다.
+				</pre>
+        </div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

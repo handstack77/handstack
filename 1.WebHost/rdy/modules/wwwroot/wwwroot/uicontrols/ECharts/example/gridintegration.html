@@ -1,0 +1,46 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>
+        ECharts Grid 연동
+    </title>
+    <link rel="stylesheet" href="echartsdemo.css">
+</head>
+<body style="visibility:hidden">
+    <form id="form1">
+        <div class="demo-nav">
+            <a href="index.html">
+                ← 예제 목록
+            </a>
+        </div>
+        <h3>
+            $auigrid / $grid 데이터 연동 패턴
+        </h3>
+        <p>
+            그리드의 원본 행을 읽어 그대로
+            <code>
+                $echarts.setValue
+            </code>
+            에 전달할 수 있습니다.
+        </p>
+        <syn_echarts id="chtGrid" class="demo-chart" style="width:100%;height:360px" syn-options="{
+            option: {
+                tooltip: { trigger: 'item' },
+                xAxis: { type: 'category' }, yAxis: {},
+                series: [{ type: 'bar', encode: { x: 'PRODUCT', y: 'AMOUNT' } }]
+            }
+        }">
+        </syn_echarts>
+        <input type="button" id="btnAUIGrid" value="$auigrid → chart" syn-events="['click']">
+        <input type="button" id="btnWebGrid" value="$grid → chart" syn-events="['click']">
+        <pre id="preResult">
+
+
+			
+			</pre>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

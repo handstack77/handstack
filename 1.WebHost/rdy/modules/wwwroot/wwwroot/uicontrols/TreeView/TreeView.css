@@ -1,0 +1,90 @@
+.tree-container {
+    overflow: visible;
+    padding-left: 4px;
+}
+
+ul.fancytree-container ul {
+    padding: 0 0 0 16px;
+    margin: 0;
+}
+
+.fancytree-exp-n span.fancytree-expander,
+.fancytree-exp-nl span.fancytree-expander {
+    display: none;
+}
+
+ul.fancytree-container {
+    background-color: transparent;
+}
+
+span.fancytree-title {
+    margin: 0;
+    padding: 2px 4px 2px 4px;
+}
+
+ul.fancytree-container li[role=treeitem] {
+    margin: 0;
+}
+
+span.fancytree-icon,
+span.fancytree-checkbox,
+span.fancytree-expander,
+span.fancytree-custom-icon {
+    margin-top: 4px;
+}
+
+span.fancytree-active span.fancytree-title {
+    border-radius: 4px;
+    background-color: transparent !important;
+    border-color: #206bc4 !important;
+}
+
+.fancytree-treefocus span.fancytree-active span.fancytree-title {
+    background-color: transparent !important;
+}
+
+table.fancytree-ext-table tbody tr.fancytree-active {
+    background-color: transparent !important;
+}
+
+table.fancytree-ext-columnview span.fancytree-node.fancytree-active {
+    background-color: transparent !important;
+}
+
+table.fancytree-ext-table.fancytree-ext-ariagrid.fancytree-cell-mode > tbody > tr.fancytree-active > td {
+    background-color: transparent !important;
+}
+
+table.fancytree-ext-table.fancytree-ext-ariagrid.fancytree-cell-mode > tbody > tr > td.fancytree-active-cell {
+    background-color: transparent !important;
+}
+
+table.fancytree-ext-columnview span.fancytree-node.fancytree-active {
+    background-color: transparent !important;
+}
+
+.fancytree-plain span.fancytree-node:hover span.fancytree-title {
+    border-radius: 4px;
+    background-color: transparent !important;
+    border-color: #fff !important;
+}
+
+span.fancytree-node {
+    padding: 0.2rem;
+}
+
+.fancytree-ext-filter span.fancytree-title mark {
+    background-color: #E09090;
+}
+
+ul.fancytree-container {
+    border: 0 !important;
+}
+
+    ul.fancytree-container li {
+        line-height: 19px !important;
+    }
+
+.syn-treeview {
+    color: #000;
+}

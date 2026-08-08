@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>다단(줄바꿈) 헤더 - OpenGrid 예제</title>
+    <link rel="stylesheet" href="../../OpenGrid.css">
+    <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+    <div class="demo-nav"><a href="../index.html">← 목록으로</a> · 데이터 & 컬럼</div>
+    <h2>다단(줄바꿈) 헤더<span class="demo-badge">부분지원</span></h2>
+    <p class="desc">header 문자열의 개행(\n)으로 헤더를 2줄로 표시합니다. (완전한 그룹 헤더 병합은 이번 범위 밖입니다)</p>
+    <syn_opengrid id="grdMultiHeader" class="demo-grid" syn-options="{
+        columns: [
+            ['MemberNo', '조직\n번호', 80, false, 'number', true, 'center'],
+            ['MemberName', '기본정보\n이름', 120, false, 'text'],
+            ['Department', '기본정보\n부서', 110, false, 'text'],
+            ['Salary', '급여정보\n급여', 120, false, 'number']
+        ]
+    }"></syn_opengrid>
+    <div id="divLog" class="log-panel"></div>
+    <script src="../../../../js/syn.js"></script>
+    <script src="../../CodePicker/CodePicker.js"></script>
+    <script src="../../OpenGrid.js"></script>
+    <script src="../common.js"></script>
+    <script src="multiHeader.js"></script>
+</body>
+</html>

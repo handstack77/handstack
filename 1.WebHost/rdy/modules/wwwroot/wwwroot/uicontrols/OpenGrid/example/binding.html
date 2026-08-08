@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>OpenGrid - syn.$bind 양방향 바인딩</title>
+    <link rel="stylesheet" href="/uicontrols/OpenGrid/OpenGrid.css">
+    <link rel="stylesheet" href="/uicontrols/binding-example.css">
+</head>
+<body>
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <main id="bindingRoot" class="binding-example">
+            <p><a href="index.html">← OpenGrid 예제 목록</a></p>
+            <h1>OpenGrid 양방향 바인딩</h1>
+            <p class="description">조회 기준선을 바인딩한 뒤 첫 셀·컬럼 폭을 정리하고, OpenGrid 변경 추적의 C/U/D 행만 검증·저장합니다.</p>
+            <div class="binding-anchor" syn-bind="adapter(opengrid):value"></div>
+
+            <section class="binding-panel">
+                <h2>공통코드 편집</h2>
+                <div class="binding-toolbar">
+                    <input type="button" id="btnGridAdd" value="+ 행 추가" syn-events="['click']">
+                    <input type="button" id="btnGridEdit" value="선택 행 사용중지" syn-events="['click']">
+                    <input type="button" id="btnGridRemove" value="- 선택 행 삭제" syn-events="['click']">
+                </div>
+                <syn_opengrid id="grdBinding" syn-options="{
+                    height: '300px',
+                    editable: true,
+                    columns: [
+                        ['CodeID', '코드', 100, false, 'text', true, 'left', null, {validators:['require','unique'], maxlength:10}],
+                        ['CodeValue', '코드명', 180, false, 'text', false, 'left', null, {validators:['require'], maxlength:50}],
+                        ['CategoryID', '분류', 100, false, 'text', false, 'center', null, {validators:['require'], maxlength:10}],
+                        ['UseYN', '사용여부', 80, false, 'text', false, 'center', null, {validators:['require'], maxlength:1}],
+                        ['SortingNo', '정렬', 70, false, 'number', false, 'right'],
+                        ['ModifiedBy', '수정자', 100, false, 'text', true, 'center']
+                    ]
+                }" syn-events="['cellEditEnd', 'dataChange']"></syn_opengrid>
+                <div id="gridWorkSummary" class="binding-direction">조회 후 그리드 상태를 준비하고 있습니다.</div>
+            </section>
+
+            <section class="binding-panel">
+                <h2>바인딩 확인</h2>
+                <div class="binding-toolbar">
+                    <input type="button" id="btnModelChange" value="서버 재조회 결과 적용" syn-events="['click']">
+                    <input type="button" id="btnControlRead" value="현재 C/U/D 상태를 모델로 읽기" syn-events="['click']">
+                </div>
+                <div class="binding-direction" syn-bind="text:direction"></div>
+                <pre id="preModel" class="binding-preview"></pre>
+            </section>
+        </main>
+    </form>
+    <script src="/js/syn.js"></script>
+    <script src="/uicontrols/CodePicker/CodePicker.js"></script>
+    <script src="/uicontrols/TextButton/TextButton.js"></script>
+    <script src="/uicontrols/OpenGrid/OpenGrid.js"></script>
+    <script src="/uicontrols/binding-example.js"></script>
+    <script src="binding.js"></script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>OV-32 프레임워크 정리 - OpenGrid 예제</title>
+    <link rel="stylesheet" href="../../OpenGrid.css">
+    <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+    <div class="demo-nav"><a href="../index.html">← 목록으로</a> · Override</div>
+    <h2>OV-32 · 프레임워크 정리(React/Vue)</h2>
+    <p class="desc">React useEffect cleanup / Vue onUnmounted 시점에 grid.destroy()를 호출하면 이벤트 리스너·오버라이드·차트·리사이즈 옵저버까지 한 번에 정리됩니다(이 바닐라 페이지에서는 컴포넌트 언마운트를 버튼으로 흉내냅니다).</p>
+    <div class="demo-toolbar">
+        <button type="button" id="grdOv32_mount">컴포넌트 마운트(그리드 생성)</button>
+        <button type="button" id="grdOv32_unmount" class="secondary">컴포넌트 언마운트(destroy)</button>
+    </div>
+    <div id="grdOv32_component" class="demo-grid"></div>
+    <div id="divLog" class="log-panel"></div>
+    <script src="../../../../js/syn.js"></script>
+    <script src="../../CodePicker/CodePicker.js"></script>
+    <script src="../../OpenGrid.js"></script>
+    <script src="../common.js"></script>
+    <script src="ov32.js"></script>
+</body>
+</html>

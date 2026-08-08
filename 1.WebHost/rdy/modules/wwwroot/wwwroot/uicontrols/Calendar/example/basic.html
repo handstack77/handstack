@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div>
+            <div>기본 사용법 - 월간 달력에 샘플 일정 표시하기</div>
+            <p>기본 `eventMapping`(ScheduleEventID/ScheduleTitle/StartDate/EndDate)을 그대로 사용하는 가장 단순한 예제입니다.</p>
+            <syn_calendar id="calBasic" syn-options="{
+                height: 500,
+                initialView: 'dayGridMonth'
+            }" syn-events="['eventClick']"></syn_calendar>
+        </div>
+        <hr />
+        <div>
+            <div>기능</div>
+            <input type="button" id="btnSetValue" value="setValue(샘플 일정 채우기)" syn-events="['click']" />
+            <input type="button" id="btnGetEvents" value="getEvents" syn-events="['click']" />
+            <input type="button" id="btnGetterValue" value="getterValue(변경분만)" syn-events="['click']" />
+            <input type="button" id="btnGotoDate" value="gotoDate(2026-12-25)" syn-events="['click']" />
+            <input type="button" id="btnChangeView" value="changeView(listWeek)" syn-events="['click']" />
+            <input type="button" id="btnClear" value="clear" syn-events="['click']" />
+        </div>
+        <hr />
+        <div>
+            <div>결과 / 이벤트 로그</div>
+            <pre id="preLog"></pre>
+        </div>
+    </form>
+    <script>
+        function pageLoadFiles(styleFiles, jsFiles, templateFiles) {
+            window.afterLoadFiles = [];
+            // syn.loader.js에는 'calendar' 자동 매핑 항목이 없으므로 직접 등록합니다.
+            afterLoadFiles.push('/lib/fullcalendar/index.global.min.js');
+            afterLoadFiles.push('/lib/fullcalendar/core/locales/ko.global.min.js');
+            afterLoadFiles.push('/uicontrols/Calendar/Calendar.css');
+            afterLoadFiles.push('/uicontrols/Calendar/Calendar.js');
+        }
+    </script>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

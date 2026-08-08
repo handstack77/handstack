@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>TextArea 이벤트 예제</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div>
+            <div>change / focus / blur 이벤트 (toSynControl: true, CodeMirror 모드에서만 syn-events가 동작합니다)</div>
+            <textarea id="txtEvent"
+                      syn-options="{width: '500px', height: '160px'}"
+                      syn-events="['change', 'focus', 'blur']">이 영역에 입력하면서 change, focus, blur 이벤트를 확인해보세요.</textarea>
+        </div>
+        <hr />
+        <div>
+            <input type="button" id="btnGetValue" value="getValue" syn-events="['click']" />
+            <input type="button" id="btnSetValue" value="setValue" syn-events="['click']" />
+            <input type="button" id="btnClear" value="clear" syn-events="['click']" />
+        </div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

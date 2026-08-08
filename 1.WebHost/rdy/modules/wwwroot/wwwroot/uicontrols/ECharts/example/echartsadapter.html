@@ -1,0 +1,43 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>
+        ECharts adapter 예제
+    </title>
+    <link rel="stylesheet" href="echartsdemo.css">
+</head>
+<body style="visibility:hidden">
+    <form id="form1">
+        <div class="demo-nav">
+            <a href="index.html">
+                ← 예제 목록
+            </a>
+        </div>
+        <h3>
+            비정형 series.data 어댑터
+        </h3>
+        <p>
+            tree/graph/sankey/custom 같은 비표형 차트는
+            <code>
+                dataAdapter
+            </code>
+            에서 ECharts 옵션으로 변환합니다.
+        </p>
+        <syn_echarts id="chtTree" class="demo-chart tall" syn-events="['click','selectionChange']" style="width:100%;height:420px" syn-options="{
+            dataAdapter: '$echartsadapter.method.treeAdapter',
+            selectionResolver: '$echartsadapter.method.treeSelectionResolver',
+            option: { tooltip: {}, series: [{ type: 'tree', data: [{ name: 'loading', children: [] }], roam: true, label: { position: 'left' } }] }
+        }">
+        </syn_echarts>
+        <input type="button" id="btnShow" value="선택 행 보기" syn-events="['click']">
+        <pre id="preResult">
+
+
+			
+			</pre>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

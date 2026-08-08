@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>CodePicker - 연동(Cascading) 코드피커 실무 패턴</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div>
+            <p>
+                실무에서 가장 흔한 패턴입니다: "업체"를 먼저 고르면, "담당자" 피커를 열 때
+                <code>chpPartnerID_buttonClick</code>에서 업체 코드를 <code>options.parameters</code>에 실어 팝업 조회
+                조건으로 넘깁니다(담당자 목록이 그 업체 소속으로 좁혀짐). 반대로 업체를 다시 바꾸면
+                <code>chpCompanyID_change</code>에서 이미 골라둔 담당자 값을 지웁니다(부모가 바뀌면 자식이 무효화됨).
+            </p>
+            <div>
+                <label>업체 명</label>
+                <syn_codepicker id="chpCompanyID" syn-datafield="CompanyID" syn-events="['change']" syn-options="{
+                    belongID: 'MD01',
+                    dataSourceID: 'BDLCHP029',
+                    local: false,
+                    isMultiSelect: false,
+                    textDataFieldID: 'CompanyName',
+                    controlText: '업체 명'
+                }"></syn_codepicker>
+            </div>
+            <div>
+                <label>업체 담당자 명</label>
+                <syn_codepicker id="chpPartnerID" syn-datafield="PartnerID" syn-events="['change']" syn-options="{
+                    belongID: 'MD01',
+                    dataSourceID: 'BDLCHP013',
+                    local: false,
+                    isMultiSelect: false,
+                    textDataFieldID: 'PartnerName',
+                    parameters: '@CompanyID:;',
+                    controlText: '업체 담당자 명'
+                }"></syn_codepicker>
+            </div>
+        </div>
+        <hr />
+        <div>
+            <input type="button" id="btnSave" value="저장(필수값 검증)" syn-events="['click']" />
+        </div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

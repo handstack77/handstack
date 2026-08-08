@@ -1,0 +1,57 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>
+        ECharts 기본 예제
+    </title>
+    <link rel="stylesheet" href="echartsdemo.css">
+</head>
+<body style="visibility:hidden">
+    <form id="form1" syn-datafield="MainForm">
+        <div class="demo-nav">
+            <a href="index.html">
+                ← 예제 목록
+            </a>
+        </div>
+        <h3>
+            $echarts dataset 기본 예제
+        </h3>
+        <p>
+            객체 배열을
+            <code>
+                setValue
+            </code>
+            에 전달하고 막대를 클릭해 원본 행을 선택합니다.
+        </p>
+        <syn_echarts id="chtSales" class="demo-chart" syn-datafield="SalesChart" syn-events="['click','selectionChange','dataBound']"
+                     style="width:100%; height:360px" syn-options="{
+                selectionMode: 'multiple',
+                option: {
+                    tooltip: { trigger: 'axis' },
+                    legend: {},
+                    xAxis: { type: 'category' },
+                    yAxis: { type: 'value' },
+                    series: [
+                        { type: 'bar', name: '매출', encode: { x: 'YEAR', y: 'SALES' } },
+                        { type: 'line', name: '이익', encode: { x: 'YEAR', y: 'PROFIT' } }
+                    ]
+                }
+            }">
+        </syn_echarts>
+        <p>
+            <input type="button" id="btnGetRow" value="getValue Row" syn-events="['click']">
+            <input type="button" id="btnGetList" value="getValue List" syn-events="['click']">
+            <input type="button" id="btnSelection" value="getSelection" syn-events="['click']">
+            <input type="button" id="btnClear" value="clearSelection" syn-events="['click']">
+        </p>
+        <pre id="preResult">
+
+
+			
+			</pre>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

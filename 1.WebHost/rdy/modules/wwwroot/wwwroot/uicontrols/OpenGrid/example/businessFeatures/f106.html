@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>F1-06 수식 셀 보존 안전장치 - OpenGrid 예제</title>
+    <link rel="stylesheet" href="../../OpenGrid.css">
+    <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+    <div class="demo-nav"><a href="../index.html">← 목록으로</a> · 업무용 기능</div>
+    <h2>F1-06 · 수식 셀 보존 안전장치</h2>
+    <p class="desc">Total에 수식을 걸어 둔 상태에서 다른 값 범위를 드래그로 채워도, fillOverwriteFormula:false 설정 덕분에 수식 셀은 덮어써지지 않고 보존됩니다.</p>
+    <div class="demo-toolbar">
+        <button type="button" id="grdF106_apply">1행 Total에 수식 적용</button>
+    </div>
+    <div id="grdF106" class="demo-grid"></div>
+    <div id="divLog" class="log-panel"></div>
+    <script src="../../../../js/syn.js"></script>
+    <script src="../../CodePicker/CodePicker.js"></script>
+    <script src="../../OpenGrid.js"></script>
+    <script src="../common.js"></script>
+    <script src="f106.js"></script>
+</body>
+</html>

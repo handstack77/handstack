@@ -1,0 +1,165 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <title>
+        ChartJS - Area 샘플 갤러리
+    </title>
+    <style>
+        body {
+            font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+            margin: 16px;
+            color: #222;
+        }
+
+        h1 {
+            font-size: 18px;
+            margin: 0 0 4px;
+        }
+
+        .lead {
+            color: #666;
+            margin: 0 0 16px;
+            font-size: 13px;
+        }
+
+        .chart-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+            gap: 20px;
+        }
+
+        .chart-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+            .chart-card h3 {
+                margin: 0 0 4px;
+                font-size: 14px;
+            }
+
+            .chart-card p {
+                margin: 0 0 10px;
+                font-size: 12px;
+                color: #666;
+            }
+
+        .split {
+            display: flex;
+            gap: 12px;
+        }
+
+            .split > div {
+                flex: 1;
+                min-width: 0;
+            }
+
+            .split h4 {
+                margin: 0 0 4px;
+                font-size: 12px;
+                text-align: center;
+                color: #444;
+            }
+    </style>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <h1>
+            Area Charts
+        </h1>
+        <p class="lead">
+            chartjs.org 공식 샘플(docs/samples/area/*) 5종을 &lt;syn_chartjs&gt;로 재현합니다. Area는 별도 차트 타입이 아니라 line 차트의
+            <code>
+                fill
+            </code>
+            옵션으로 구현됩니다.
+        </p>
+        <div class="chart-gallery">
+            <div class="chart-card">
+                <h3>
+                    Line Boundaries
+                </h3>
+                <p>
+                    <code>
+                        fill: 'origin' / 'start' / 'end' / {value:50}
+                    </code>
+                    4가지 채움 기준을 비교합니다.
+                </p>
+                <syn_chartjs id="chtLineBoundaries" style="width:100%;height:280px">
+                </syn_chartjs>
+            </div>
+            <div class="chart-card">
+                <h3>
+                    Line Datasets (데이터셋 사이 채움)
+                </h3>
+                <p>
+                    <code>
+                        fill: '-1'
+                    </code>
+                    로 바로 앞 데이터셋과의 사이를 채웁니다.
+                </p>
+                <syn_chartjs id="chtLineDatasets" style="width:100%;height:280px">
+                </syn_chartjs>
+            </div>
+            <div class="chart-card">
+                <h3>
+                    Line Draw Time
+                </h3>
+                <p>
+                    <code>
+                        plugins.filler.drawTime
+                    </code>
+                    에 따라 채움이 그리드 위/아래 중 어디에 그려지는지 비교합니다.
+                </p>
+                <div class="split">
+                    <div>
+                        <h4>
+                            beforeDatasetsDraw (기본)
+                        </h4>
+                        <syn_chartjs id="chtDrawTimeBefore" style="width:100%;height:220px">
+                        </syn_chartjs>
+                    </div>
+                    <div>
+                        <h4>
+                            beforeDraw (그리드보다 먼저)
+                        </h4>
+                        <syn_chartjs id="chtDrawTimeEarly" style="width:100%;height:220px">
+                        </syn_chartjs>
+                    </div>
+                </div>
+            </div>
+            <div class="chart-card">
+                <h3>
+                    Line Stacked (Area)
+                </h3>
+                <p>
+                    채워진 라인 여러 개를
+                    <code>
+                        stacked: true
+                    </code>
+                    로 누적해 영역 차트를 만듭니다.
+                </p>
+                <syn_chartjs id="chtLineStacked" style="width:100%;height:280px">
+                </syn_chartjs>
+            </div>
+            <div class="chart-card">
+                <h3>
+                    Radar (채움)
+                </h3>
+                <p>
+                    레이더 차트도
+                    <code>
+                        fill: true
+                    </code>
+                    로 영역을 채울 수 있습니다.
+                </p>
+                <syn_chartjs id="chtRadarArea" style="width:100%;height:280px">
+                </syn_chartjs>
+            </div>
+        </div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

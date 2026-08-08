@@ -1,0 +1,106 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <title>
+        HighChart 공식 데모 호환 갤러리
+    </title>
+    <link rel="stylesheet" href="/uicontrols/HighChart/example/demogallery.css">
+</head>
+<body style="visibility:hidden">
+    <form id="form1" autocomplete="off">
+        <main class="demo-gallery">
+            <header>
+                <p class="eyebrow">
+                    HandStack UI Control · Highcharts 11.4.8
+                </p>
+                <h1>
+                    Highcharts 공식 데모 호환 갤러리
+                </h1>
+                <p>
+                    하나의
+                    <code>
+                        &lt;syn_chart&gt;
+                    </code>
+                    에서 Core, More, 3D, Network, Stock, Maps, Gantt 생성자를 전환하고 필요한 로컬 모듈을 자동 로드합니다.
+                </p>
+            </header>
+            <section class="demo-toolbar" aria-label="차트 데모 선택">
+                <label for="selDemo">
+                    데모 유형
+                </label>
+                <select id="selDemo" syn-events="['change']">
+                    <option value="combination">
+                        Core · 혼합 차트와 drilldown
+                    </option>
+                    <option value="polar">
+                        More · Polar
+                    </option>
+                    <option value="threeD">
+                        3D · Column
+                    </option>
+                    <option value="gauge">
+                        Gauge · Solid gauge
+                    </option>
+                    <option value="heatmap">
+                        Heatmap · Color axis
+                    </option>
+                    <option value="sankey">
+                        Network · Sankey
+                    </option>
+                    <option value="stock">
+                        Stock · OHLC와 SMA 지표
+                    </option>
+                    <option value="map">
+                        Maps · Inline GeoJSON
+                    </option>
+                    <option value="gantt">
+                        Gantt · 작업 의존성
+                    </option>
+                </select>
+                <input type="button" id="btnSelected" value="선택 Row/List" syn-events="['click']">
+                <input type="button" id="btnCSV" value="CSV 미리보기" syn-events="['click']">
+                <input type="button" id="btnNative" value="원시 API 호출" syn-events="['click']">
+            </section>
+            <section class="chart-card">
+                <div class="chart-heading">
+                    <div>
+                        <span id="lblProduct" class="product-badge">
+                            Core
+                        </span>
+                        <h2 id="lblTitle">
+                            혼합 차트와 drilldown
+                        </h2>
+                    </div>
+                    <span id="lblModules" class="module-list">
+                        core
+                    </span>
+                </div>
+                <p id="lblDescription" class="chart-description">
+                </p>
+                <syn_chart id="chtGallery"
+                           syn-events="['pointClick','selectionChange','drilldown','axisAfterSetExtremes','recreated','error']"
+                           style="width:100%;height:520px"
+                           syn-options="{
+                        modules: ['accessibility'],
+                        selectionMode: 'multiple',
+                        option: {
+                            title: { text: '' },
+                            series: []
+                        }
+                    }">
+                </syn_chart>
+            </section>
+            <section class="result-card">
+                <h2>
+                    선택 결과와 이벤트
+                </h2>
+                <pre id="preResult">
+데모를 준비하는 중입니다.
+					</pre>
+            </section>
+        </main>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

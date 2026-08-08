@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>RadioButton - 이벤트 및 그룹 조회 예제</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div>
+            <div>성별</div>
+            <input id="rdoGender1" name="rdoGender" type="radio" syn-datafield="Gender" value="M"
+                checked="checked" syn-events="['change']" syn-options="{textContent: '남성', toSynControl: true}">
+            <input id="rdoGender2" name="rdoGender" type="radio" syn-datafield="Gender" value="F"
+                syn-events="['change']" syn-options="{textContent: '여성', toSynControl: true}">
+        </div>
+        <div>
+            <div>결제 수단</div>
+            <input id="rdoPayment1" name="rdoPayment" type="radio" syn-datafield="Payment" value="card"
+                checked="checked" syn-events="['change']" syn-options="{textContent: '카드', toSynControl: true}">
+            <input id="rdoPayment2" name="rdoPayment" type="radio" syn-datafield="Payment" value="cash"
+                syn-events="['change']" syn-options="{textContent: '현금', toSynControl: true}">
+        </div>
+        <hr />
+        <div>
+            <div>그룹 조회 기능</div>
+            <input type="button" id="btnGetGroupNames" value="getGroupNames" syn-events="['click']" />
+            <input type="button" id="btnGetSelectedByValue" value="getSelectedByValue (rdoGender)" syn-events="['click']" />
+            <input type="button" id="btnGetSelectedByText" value="getSelectedByText (rdoGender)" syn-events="['click']" />
+            <input type="button" id="btnGetSelectedByID" value="getSelectedByID (rdoGender)" syn-events="['click']" />
+        </div>
+    </form>
+
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

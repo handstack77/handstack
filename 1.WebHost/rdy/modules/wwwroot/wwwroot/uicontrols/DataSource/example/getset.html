@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>DataSource - getValue / setValue / clear</title>
+</head>
+<body>
+	<form autocomplete="off" id="form1" syn-datafield="MainForm">
+		<h3>getValue(elID, isAll) 기본/전체 조회 차이, setValue 미지원, clear 동작</h3>
+
+		<syn_data id="srcForm" syn-options="{
+			dataSourceID: 'FormStore',
+			storeType: 'Form',
+			columns: [
+				{ data: 'Name', dataType: 'string' },
+				{ data: 'Age', dataType: 'number' }
+			]
+		}"></syn_data>
+
+		<div>
+			<label for="txtName">이름 (Name)</label><br>
+			<input type="text" id="txtName" syn-datafield="Name" syn-options="{editType: 'text', bindingID: 'FormStore'}">
+		</div>
+		<br>
+		<div>
+			<label for="txtAge">나이 (Age)</label><br>
+			<input type="text" id="txtAge" syn-datafield="Age" syn-options="{editType: 'number', bindingID: 'FormStore'}">
+		</div>
+
+		<hr>
+		<input type="button" id="btnGetValueDefault" value="getValue(srcForm) - isAll 생략" syn-events="['click']">
+		<input type="button" id="btnGetValueAll" value="getValue(srcForm, true) - 전체" syn-events="['click']">
+		<input type="button" id="btnSetValueAttempt" value="setValue 시도(동작 없음)" syn-events="['click']">
+		<input type="button" id="btnSetValueCorrect" value="올바른 값 변경(TextBox.setValue)" syn-events="['click']">
+		<input type="button" id="btnClear" value="clear(srcForm)" syn-events="['click']">
+	</form>
+
+	<script src="/js/syn.loader.js"></script>
+</body>
+</html>

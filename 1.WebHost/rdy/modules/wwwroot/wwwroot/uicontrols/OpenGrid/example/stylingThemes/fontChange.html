@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>폰트 변경 - OpenGrid 예제</title>
+    <link rel="stylesheet" href="../../OpenGrid.css">
+    <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+    <div class="demo-nav"><a href="../index.html">← 목록으로</a> · 스타일 & 테마</div>
+    <h2>폰트 변경</h2>
+    <p class="desc">커스텀 CSS 변수로 그리드 폰트를 바꿉니다.</p>
+    <div class="demo-toolbar">
+        <button type="button" id="grdFontChange_serif">명조 계열로</button>
+        <button type="button" id="grdFontChange_reset" class="secondary">초기화</button>
+    </div>
+    <syn_opengrid id="grdFontChange" class="demo-grid" syn-options="{
+        columns: [
+            ['MemberNo', '번호', 70, false, 'number', true, 'center'],
+            ['MemberName', '이름', 120, false, 'text']
+        ]
+    }"></syn_opengrid>
+    <div id="divLog" class="log-panel"></div>
+    <script src="../../../../js/syn.js"></script>
+    <script src="../../CodePicker/CodePicker.js"></script>
+    <script src="../../OpenGrid.js"></script>
+    <script src="../common.js"></script>
+    <script src="fontChange.js"></script>
+</body>
+</html>

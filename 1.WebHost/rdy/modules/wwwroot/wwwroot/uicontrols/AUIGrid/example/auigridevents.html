@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>AUIGrid - $auigrid 마스터-상세 그리드와 CRUD 상태(Flag)</title>
+</head>
+<body>
+	<form autocomplete="off" id="form1" syn-datafield="MainForm">
+		<h3>$auigrid - 그룹코드/상세코드 마스터-상세 그리드</h3>
+		<p>
+			실무 화면에서 흔한 "마스터 목록 선택 → 상세 목록 자동 표시" 구조입니다. 상세 그리드의 행 추가/삭제 버튼은
+			자바스크립트 이벤트 핸들러 없이 <code>syn-options="{triggerConfig: {...}}"</code> 선언만으로
+			<code>syn.uicontrols.$auigrid.insertRow</code>/<code>removeRow</code>를 바로 호출합니다(실무 코드에서
+			가장 많이 쓰는 행 추가/삭제 배선 방식).
+		</p>
+
+		<h4>그룹코드 목록</h4>
+		<syn_auigrid id="grdGroup" syn-datafield="GroupList" syn-options="{
+			height: 220, showInlineFilter: true, controlText: '그룹코드 목록',
+			columns: [
+				['GroupCode', '그룹코드', 90, false, 'text', true, 'left', null, {style:'bg:#e7e7e7!', maxlength:10}],
+				['GroupName', '그룹코드명', 200, false, 'text', false, 'left', null, {validators:['require','unique'], maxlength:50}]
+			]
+		}" syn-events="['afterSelectionEnd', 'filtering']" style="width: 300px;"></syn_auigrid>
+
+		<h4>
+			상세코드 목록
+			<input type="button" id="btnAddRow" value="+ 행 추가" syn-events="['click']" syn-options="{triggerConfig: {
+				triggerEvent: 'click',
+				triggerID: 'grdDetail',
+				action: 'syn.uicontrols.$auigrid.insertRow',
+				params: {
+					options: {
+						sourceValueID: ['GroupList@GroupCode'],
+						targetColumnID: ['GroupCode'],
+						focusColumnID: 'CodeID'
+					}
+				}
+			}}">
+			<input type="button" id="btnRemoveRow" value="- 선택 행 삭제" syn-events="['click']" syn-options="{triggerConfig: {
+				triggerEvent: 'click',
+				triggerID: 'grdDetail',
+				action: 'syn.uicontrols.$auigrid.removeRow',
+				params: {
+					options: {
+						targetColumnID: ['GroupCode', 'CodeID'],
+						focusColumnID: 'CodeID'
+					}
+				}
+			}}">
+		</h4>
+		<syn_auigrid id="grdDetail" syn-datafield="DetailList" syn-options="{
+			height: 220, controlText: '상세코드 목록',
+			columns: [
+				['GroupCode', '그룹코드', 90, true, 'text', true, 'left', null, {}],
+				['CodeID', '상세코드', 80, false, 'text', false, 'left', null, {validators:['require','unique'], maxlength:10}],
+				['CodeValue', '상세코드명', 160, false, 'text', false, 'left', null, {validators:['require'], maxlength:50}],
+				['CategoryID', '분류', 110, false, 'dropdown', false, 'center', null, {dataSourceID:'CategoryID', local:true, required:false, emptyText:'선택'}],
+				['SortingNo', '정렬', 60, false, 'number', false, 'center', null, {}]
+			]
+		}" syn-events="['afterSelectionEnd', 'afterChange']" style="width: 560px;"></syn_auigrid>
+
+		<hr>
+		<input type="button" id="btnGetFlag" value="선택 행 getFlag" syn-events="['click']">
+		<input type="button" id="btnGetValue" value="상세 목록 getValue(변경분만)" syn-events="['click']">
+	</form>
+
+	<script src="/js/syn.loader.js"></script>
+</body>
+</html>

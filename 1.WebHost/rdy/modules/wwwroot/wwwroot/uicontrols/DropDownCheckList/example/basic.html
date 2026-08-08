@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>DropDownCheckList - 기본 예제</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div>
+            <p>정적인 옵션 목록을 가진 가장 단순한 DropDownCheckList 입니다. 서버나 JSON 파일 없이 마크업에 적은 &lt;option&gt; 태그가 그대로 사용되며, 여러 항목을 동시에 선택할 수 있습니다.</p>
+            <select id="ddlFruit" multiple syn-options="{
+                placeholder: '과일을 선택하세요',
+                toSynControl: true,
+                required: false
+            }" style="width: 220px;">
+                <option value="apple">사과</option>
+                <option value="banana">바나나</option>
+                <option value="grape">포도</option>
+                <option value="orange">오렌지</option>
+            </select>
+        </div>
+        <hr />
+        <div>
+            <input type="button" id="btnGetValue" value="선택값 조회" syn-events="['click']" />
+            <input type="button" id="btnSetValue" value="'banana, grape' 로 선택" syn-events="['click']" />
+            <input type="button" id="btnClear" value="선택 초기화" syn-events="['click']" />
+        </div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

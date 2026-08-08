@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>DatePicker - 이벤트/값 제어 예제</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div>
+            <div>날짜를 선택하면 아래 로그 영역에 dtpEvent_onselect 이벤트가 기록됩니다</div>
+            <syn_datepicker id="dtpEvent" syn-datafield="EventDate"></syn_datepicker>
+        </div>
+        <hr />
+        <div>
+            <div>값 제어</div>
+            <input type="button" id="btnGetValue" value="getValue" syn-events="['click']" />
+            <input type="button" id="btnSetValue" value="setValue('2026-07-06')" syn-events="['click']" />
+            <input type="button" id="btnClear" value="clear" syn-events="['click']" />
+            <input type="button" id="btnGetControl" value="getControl (콘솔 확인)" syn-events="['click']" />
+        </div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

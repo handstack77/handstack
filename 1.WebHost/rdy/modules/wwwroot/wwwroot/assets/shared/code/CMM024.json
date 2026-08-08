@@ -1,0 +1,132 @@
+﻿{
+    "Comment": "기초코드 데이터",
+    "CodeColumnID": "CodeID",
+    "ValueColumnID": "CodeValue",
+    "CreatedAt": "2012-03-22 오후 2:00:00",
+    "Scheme": [
+        {
+            "ColumnID": "SelectYN",
+            "ColumnText": "기본선택여부",
+            "HiddenYN": true
+        },
+        {
+            "ColumnID": "LocaleID",
+            "ColumnText": "언어권ID",
+            "HiddenYN": true
+        },
+        {
+            "ColumnID": "CodeID",
+            "ColumnText": "코드ID",
+            "HiddenYN": false
+        },
+        {
+            "ColumnID": "CodeValue",
+            "ColumnText": "코드값",
+            "HiddenYN": false
+        }
+    ],
+    "DataSource": [
+        {
+            "CodeID": "AHS",
+            "CodeValue": "용역 Hired Services",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "AST",
+            "CodeValue": "직원 Staff",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "ASS",
+            "CodeValue": "주임 Senior Staff",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "AMG",
+            "CodeValue": "대리 Assistant Manager",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "SMG",
+            "CodeValue": "과장 Manager",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "DGM",
+            "CodeValue": "차장 Deputy General Manager",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "AGM",
+            "CodeValue": "부장 General Manager",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "AUD",
+            "CodeValue": "감사 Auditing Director",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "ADD",
+            "CodeValue": "고문 Advising Director",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "AOD",
+            "CodeValue": "사외 이사 Outside Director",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "AED",
+            "CodeValue": "이사 Executive Director",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "AMD",
+            "CodeValue": "상무 Managing Director",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "EMD",
+            "CodeValue": "전무 Executive Managing Director",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "AVP",
+            "CodeValue": "부사장 Vice President",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "APP",
+            "CodeValue": "사장 President",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "AVC",
+            "CodeValue": "부회장 Vice Chairman",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "APC",
+            "CodeValue": "회장 Chairman",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        }
+    ]
+}

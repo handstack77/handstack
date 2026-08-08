@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>DataSource - Grid(레코드 목록) 바인딩</title>
+</head>
+<body>
+	<form autocomplete="off" id="form1" syn-datafield="MainForm">
+		<h3>DataSource(storeType: Grid) - 레코드 목록 바인딩과 Flag 확인</h3>
+		<p><code>srcGrid</code> DataSource는 <code>bindingID: 'GridStore'</code>로 그리드 컨트롤과 연결됩니다. 조회 직후에는 각 행의 <code>Flag</code>가 <code>'R'</code>(Read)이며, 행을 추가/수정하면 <code>'C'</code>/<code>'U'</code>로 바뀝니다.</p>
+
+		<syn_data id="srcGrid" syn-options="{
+			dataSourceID: 'GridStore',
+			storeType: 'Grid',
+			columns: [
+				{ data: 'GroupCode', dataType: 'string' },
+				{ data: 'GroupName', dataType: 'string' }
+			]
+		}"></syn_data>
+
+		<syn_auigrid id="grdGrid" syn-datafield="GridStore" syn-options="{
+			bindingID: 'GridStore',
+			height: 200,
+			columns: [
+				['GroupCode', '그룹코드', 100, false, 'text', true, 'left', null, {}],
+				['GroupName', '그룹코드명', 200, false, 'text', false, 'left', null, {}]
+			]
+		}"></syn_auigrid>
+
+		<hr>
+		<input type="button" id="btnLoadRows" value="샘플 데이터 채우기(Flag: R)" syn-events="['click']">
+		<input type="button" id="btnInsertRow" value="행 추가(Flag: C)" syn-events="['click']">
+		<input type="button" id="btnGetValueDefault" value="getValue(srcGrid) - 변경분만" syn-events="['click']">
+		<input type="button" id="btnGetValueAll" value="getValue(srcGrid, true) - 전체" syn-events="['click']">
+	</form>
+
+	<script src="/js/syn.loader.js"></script>
+</body>
+</html>

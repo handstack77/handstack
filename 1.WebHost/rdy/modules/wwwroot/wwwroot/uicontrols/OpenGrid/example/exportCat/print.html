@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>인쇄 - OpenGrid 예제</title>
+    <link rel="stylesheet" href="../../OpenGrid.css">
+    <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+    <div class="demo-nav"><a href="../index.html">← 목록으로</a> · 내보내기</div>
+    <h2>인쇄</h2>
+    <p class="desc">그리드 내용을 인쇄용 창으로 엽니다(print).</p>
+    <div class="demo-toolbar">
+        <button type="button" id="grdPrint_print">인쇄</button>
+    </div>
+    <syn_opengrid id="grdPrint" class="demo-grid" syn-options="{
+        columns: [
+            ['MemberNo', '번호', 70, false, 'number', true, 'center'],
+            ['MemberName', '이름', 120, false, 'text']
+        ]
+    }"></syn_opengrid>
+    <div id="divLog" class="log-panel"></div>
+    <script src="../../../../js/syn.js"></script>
+    <script src="../../CodePicker/CodePicker.js"></script>
+    <script src="../../OpenGrid.js"></script>
+    <script src="../common.js"></script>
+    <script src="print.js"></script>
+</body>
+</html>

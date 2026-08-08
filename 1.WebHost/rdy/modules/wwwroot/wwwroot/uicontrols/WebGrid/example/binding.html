@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <title>WebGrid - syn.$bind 양방향 바인딩</title>
+    <link rel="stylesheet" href="/uicontrols/binding-example.css">
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <main id="bindingRoot" class="binding-example">
+            <h1>WebGrid 양방향 바인딩</h1>
+            <p class="description">Handsontable 조회 기준선을 바인딩한 뒤 포커스·컬럼 폭을 정리하고, 행 C/U/D와 수정자 정보를 유지해 변경분만 저장합니다.</p>
+            <div class="binding-anchor" syn-bind="adapter(webgrid):value"></div>
+
+            <section class="binding-panel">
+                <h2>공통코드 편집</h2>
+                <div class="binding-toolbar">
+                    <input type="button" id="btnGridAdd" value="+ 행 추가" syn-events="['click']">
+                    <input type="button" id="btnGridEdit" value="선택 행 사용중지" syn-events="['click']">
+                    <input type="button" id="btnGridRemove" value="- 선택 행 삭제" syn-events="['click']">
+                </div>
+                <syn_grid id="grdBinding" syn-options="{
+                    height: 300,
+                    isRemoveRowHidden: true,
+                    columns: [
+                        ['CodeID', '코드', 100, false, 'text', true, 'left', null, ['require','unique']],
+                        ['CodeValue', '코드명', 180, false, 'text', false, 'left', null, ['require']],
+                        ['CategoryID', '분류', 100, false, 'text', false, 'center', null, ['require']],
+                        ['UseYN', '사용여부', 80, false, 'text', false, 'center', null, ['require']],
+                        ['SortingNo', '정렬', 70, false, 'numeric', false, 'right', null, ['number']],
+                        ['ModifiedBy', '수정자', 100, false, 'text', true, 'center']
+                    ]
+                }" syn-events="['afterChange']" style="width: 760px;"></syn_grid>
+                <div id="gridWorkSummary" class="binding-direction">조회 후 그리드 상태를 준비하고 있습니다.</div>
+            </section>
+
+            <section class="binding-panel">
+                <h2>바인딩 확인</h2>
+                <div class="binding-toolbar">
+                    <input type="button" id="btnModelChange" value="서버 재조회 결과 적용" syn-events="['click']">
+                    <input type="button" id="btnControlRead" value="현재 C/U/D 상태를 모델로 읽기" syn-events="['click']">
+                </div>
+                <div class="binding-direction" syn-bind="text:direction"></div>
+                <pre id="preModel" class="binding-preview"></pre>
+            </section>
+        </main>
+    </form>
+    <script src="/uicontrols/binding-example.js"></script>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

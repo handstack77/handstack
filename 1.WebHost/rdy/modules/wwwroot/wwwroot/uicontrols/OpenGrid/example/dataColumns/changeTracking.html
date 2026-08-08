@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>변경 추적 - OpenGrid 예제</title>
+    <link rel="stylesheet" href="../../OpenGrid.css">
+    <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+    <div class="demo-nav"><a href="../index.html">← 목록으로</a> · 데이터 & 컬럼</div>
+    <h2>변경 추적</h2>
+    <p class="desc">Flag(C/U/D) 기반 변경분 조회 — getUpdateItems()가 추가/수정/삭제된 행만 돌려줍니다.</p>
+    <div class="demo-toolbar">
+        <button type="button" id="grdChangeTracking_edit">첫 행 포인트 +100</button>
+        <button type="button" id="grdChangeTracking_check">변경분 확인</button>
+    </div>
+    <syn_opengrid id="grdChangeTracking" class="demo-grid" syn-options="{
+        editable: true,
+        columns: [
+            ['MemberNo', '번호', 70, false, 'number', true, 'center'],
+            ['MemberName', '이름', 120, false, 'text'],
+            ['Point', '포인트', 100, false, 'number']
+        ]
+    }"></syn_opengrid>
+    <div id="divLog" class="log-panel"></div>
+    <script src="../../../../js/syn.js"></script>
+    <script src="../../CodePicker/CodePicker.js"></script>
+    <script src="../../OpenGrid.js"></script>
+    <script src="../common.js"></script>
+    <script src="changeTracking.js"></script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>DatePeriodPicker - 목록 화면 조회 기간 실무 패턴</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <h3>발주 목록 - 조회 기간</h3>
+        <p>
+            목록 화면에서 가장 흔한 형태입니다. <code>value: 'month:-3'</code>로 "최근 3개월"을 기본값으로 채워두고
+            <code>pageLoad</code>에서 바로 조회를 실행합니다. 컨트롤이 만들어내는 <code>&lt;id&gt;_StartedAt</code>/
+            <code>&lt;id&gt;_EndedAt</code> 입력창 값을 문자열(<code>YYYY-MM-DD</code>)로 직접 비교해 시작일이
+            종료일보다 늦은 경우를 조회 직전에 막습니다(실무 코드에서 가장 많이 보이는 검증 방식).
+        </p>
+
+        <label>조회 기간</label>
+        <syn_dateperiodpicker id="dtpOrderDate" syn-datafield="OrderDate" syn-events="['onselect']" syn-options="{
+            value: 'month:-3', startDataFieldID: 'OrderStartedDate', endDataFieldID: 'OrderEndedDate', belongID: ['LD01']
+        }"></syn_dateperiodpicker>
+        <input type="button" id="btnSearch" value="조회" syn-events="['click']">
+    </form>
+
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

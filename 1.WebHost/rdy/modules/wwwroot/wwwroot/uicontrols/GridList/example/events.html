@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>GridList - 이벤트와 값 조작 예제</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div>
+            <p>행을 클릭(선택)하거나 더블클릭하면 이벤트 로그가 표시됩니다. 아래 버튼으로 <code>getValue</code>/<code>setValue</code>/<code>clear</code> API도 함께 확인할 수 있습니다.</p>
+            <syn_list id="lstEvents" syn-options="{
+                pageLength: 5,
+                columns: [
+                    { title: 'ID', data: 'id', width: '40px' },
+                    { title: '이름', data: 'name', width: '120px' },
+                    { title: '직급', data: 'position', width: '160px' },
+                    { title: '사무실', data: 'office', width: '120px' }
+                ]
+            }" syn-events="['select', 'deselect', 'dblclick']" style="width: 100%; border: 1px solid #ccc;"></syn_list>
+        </div>
+        <hr />
+        <div>
+            <input type="button" id="btnGetValue" value="getValue" syn-events="['click']" />
+            <input type="button" id="btnSetValue" value="setValue" syn-events="['click']" />
+            <input type="button" id="btnClear" value="clear" syn-events="['click']" />
+        </div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

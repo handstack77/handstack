@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <title>FileClient - syn.$bind 양방향 바인딩</title>
+    <link rel="stylesheet" href="/uicontrols/binding-example.css">
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <main id="bindingRoot" class="binding-example">
+            <h1>FileClient 양방향 바인딩</h1>
+            <p class="description">FileClient가 보관하는 ItemID를 바인딩합니다. 모의 완료 버튼은 파일 서버 없이 콜백의 값 반영 흐름을 보여줍니다.</p>
+            <div class="binding-anchor" syn-bind="adapter(fileclient):value"></div>
+
+            <section class="binding-panel">
+                <h2>컨트롤에서 변경</h2>
+                <syn_fileclient id="sfcBinding" syn-options="{repositoryID: 'TSTLS01'}"></syn_fileclient>
+                <input type="button" id="btnMockFile" value="모의 업로드 완료 값 적용" syn-events="['click']">
+            </section>
+
+            <section class="binding-panel">
+                <h2>바인딩 확인</h2>
+                <div class="binding-toolbar">
+                    <input type="button" id="btnModelChange" value="Proxy 모델 ItemID 변경" syn-events="['click']">
+                    <input type="button" id="btnControlRead" value="컨트롤 값을 모델로 읽기" syn-events="['click']">
+                </div>
+                <div class="binding-direction" syn-bind="text:direction"></div>
+                <pre id="preModel" class="binding-preview"></pre>
+            </section>
+        </main>
+    </form>
+    <script src="/uicontrols/binding-example.js"></script>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

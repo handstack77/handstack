@@ -1,0 +1,111 @@
+/* ============================================================
+   OPEN_GRID — 스킨(FORM 축) 정의  [R12b]
+   사용법: <div data-og-skin="sharp"> 또는 grid.setSkin('sharp')
+   ------------------------------------------------------------
+   색⊥형태 직교성(item3 §1): 이 파일은 **형태(FORM) 토큰만** 담는다 — 색(hex/rgb/hsl) 0.
+   themes.css 는 COLOR 전용, skins.css 는 FORM 전용. 두 축은 disjoint name set 이라
+   어떤 테마 × 어떤 스킨도 자유롭게 결합한다(15 색 × 6 스킨 = 90 외형, 21 블록).
+
+   ⚠ DEFAULT(스킨 미지정 / data-og-skin="default")는 **오늘과 byte-identical**:
+      이 파일은 named 스킨에만 토큰을 선언하고 default 는 선언하지 않는다 →
+      토큰 미정의 → AppearanceResolver/base.css 의 기존 폴백이 그대로 적용된다.
+
+   셀렉터 주의: OpenGrid 는 data-og-skin 을 .og-container 자기 자신에 붙이고,
+   분리 UI(컨텍스트 메뉴·org 노드)는 자기 자신에 속성을 복사한다. 따라서 커스텀 프로퍼티는
+   **속성 셀렉터 `[data-og-skin="X"]`** (컴파운드 아님)로 선언해 컨테이너 자신과 분리 UI 모두에
+   토큰이 걸리게 한다. base.css 는 이 FORM 토큰들을 정의하지 않으므로 특정성 경쟁이 없다
+   (var 값만 갈아끼우는 방식이라 !important 불필요 — stitch !important 전쟁 은퇴).
+
+   HANMS 91_hanms_verdict.md 판정 반영:
+     Sharp/Rounded/Stitch/Flat/High-Contrast/Material 6종.
+     Neumorph 는 기본 카탈로그에서 컷(§1.3) — OpenGrid.defineSkin 레시피로만 제공.
+   density-* 행은 **권장 밀도 힌트**(실제 relayout 은 data-og-density 축 소유, item4 C1).
+   ============================================================ */
+
+/* ── Sharp/Gothic — 엔터프라이즈 고밀도·각짐 (§3.1, APPROVE-WITH-GUARDRAIL) ── */
+[data-og-skin="sharp"] {
+  --og-radius-sm: 0; --og-radius-md: 0; --og-radius-lg: 0;
+  --og-radius-pill: 0; --og-radius-container: 0; --og-container-radius: 0;
+  --og-border-width: 1px; --og-border-style: solid; --og-divider-style: solid;
+  --og-elevation-sm: none; --og-elevation-md: none; --og-elevation-lg: 0 1px 2px;
+  --og-cell-padding-x: 6px;
+  --og-density-row-height: 28; --og-density-header-height: 28; /* G-S1: 26→28 클램프 */
+  --og-focus-width: 2px; --og-focus-style: solid; --og-focus-radius: 0;
+  --og-icon-fill: 0; --og-icon-corner: miter;
+}
+.og-container[data-og-skin="sharp"] { box-shadow: none; }
+
+/* ── Rounded — 소비자 SaaS 소프트 (§3.2, APPROVE) ── */
+[data-og-skin="rounded"] {
+  --og-radius-sm: 4px; --og-radius-md: 8px; --og-radius-lg: 12px;
+  --og-radius-pill: 999px; --og-radius-container: 12px; --og-container-radius: 12px;
+  --og-radius-control: 8px; --og-radius-widget: 6px;
+  --og-border-width: 1px; --og-border-style: solid;
+  --og-elevation-sm: 0 1px 3px; --og-elevation-md: 0 4px 12px; --og-elevation-lg: 0 12px 32px;
+  --og-elevation-alpha-sm: 0.06; --og-elevation-alpha-md: 0.10; --og-elevation-alpha-lg: 0.16;
+  --og-cell-padding-x: 12px; --og-cell-padding-y: 2px;
+  --og-density-row-height: 40; --og-density-header-height: 42;
+  --og-focus-width: 2px; --og-focus-offset: 2px; --og-focus-radius: 8px;
+  --og-icon-fill: 0; --og-icon-corner: round;
+}
+
+/* ── Stitch — 핸드크래프트 (§3.3, APPROVE-WITH-GUARDRAIL). 색(리넨/자수)은 theme 축. ── */
+[data-og-skin="stitch"] {
+  --og-radius-sm: 2px; --og-radius-md: 3px; --og-radius-lg: 4px; --og-container-radius: 3px;
+  --og-border-width: 1px; --og-border-style: dashed; --og-divider-style: dashed;
+  --og-divider-repeat: 2;
+  --og-texture-bg: repeating-linear-gradient(45deg, rgba(var(--og-texture-ink),0.04) 0 2px, transparent 2px 6px);
+  --og-texture-size: 6px 6px; --og-texture-opacity: 1;
+  --og-elevation-sm: 0 1px 2px; --og-elevation-md: 0 2px 4px; --og-elevation-lg: 0 4px 10px;
+  --og-cell-padding-x: 10px;
+  --og-density-row-height: 36;
+  --og-focus-style: dashed;
+  --og-icon-fill: 0; --og-icon-corner: round;
+}
+
+/* ── Flat/Minimal — 플랫 2.0 (§3.5, APPROVE-WITH-GUARDRAIL: G-F1) ── */
+[data-og-skin="flat"] {
+  --og-radius-sm: 2px; --og-radius-md: 3px; --og-radius-lg: 4px; --og-container-radius: 4px;
+  --og-border-width: 1px; --og-border-style: solid; --og-divider-style: solid;
+  --og-elevation-sm: none; --og-elevation-md: none; --og-elevation-lg: none;
+  --og-elevation-inset: none;
+  --og-cell-padding-x: 10px;
+  --og-density-row-height: 34;
+  --og-focus-width: 2px; --og-focus-style: solid;
+  --og-icon-fill: 0; --og-icon-corner: round;
+}
+/* 컨테이너 그림자 제거(플랫). G-F1: 플로팅 표면(메뉴/필터/org 노드)은 그림자 대신 1px 보더로
+   깊이를 유지 — 표면이 그리드와 시각적으로 융합되지 않게 한다. */
+.og-container[data-og-skin="flat"] { box-shadow: none; }
+.og-context-menu[data-og-skin="flat"],
+.og-filter-layer[data-og-skin="flat"],
+.og-orgchart-node[data-og-skin="flat"] {
+  box-shadow: none;
+  border: 1px solid var(--og-border-color);
+}
+
+/* ── High-Contrast — 접근성 우선·레퍼런스 (§3.6, APPROVE) ── */
+[data-og-skin="high-contrast"] {
+  --og-radius-sm: 0; --og-radius-md: 2px; --og-radius-lg: 2px; --og-container-radius: 2px;
+  --og-border-width: 2px; --og-border-width-strong: 3px;
+  --og-border-style: solid; --og-divider-style: solid;
+  --og-elevation-sm: none; --og-elevation-md: 0 2px 4px; --og-elevation-lg: 0 4px 8px;
+  --og-elevation-alpha-md: 0.30; --og-elevation-alpha-lg: 0.40;
+  --og-cell-padding-x: 10px;
+  --og-density-row-height: 40;
+  --og-focus-width: 3px; --og-focus-style: solid; --og-focus-offset: 2px; --og-focus-radius: 0;
+  --og-icon-size: 18px; --og-icon-fill: 1; --og-icon-stroke-width: 2; --og-icon-corner: miter;
+}
+
+/* ── Material/Elevated — Neumorph 대체 (HANMS §3, APPROVE): 정직한 그림자 엘리베이션 ── */
+[data-og-skin="material"] {
+  --og-radius-sm: 2px; --og-radius-md: 4px; --og-radius-lg: 8px; --og-container-radius: 8px;
+  --og-radius-control: 4px; --og-radius-widget: 4px;
+  --og-border-width: 1px; --og-border-style: solid; --og-divider-style: solid;
+  --og-elevation-sm: 0 1px 2px; --og-elevation-md: 0 2px 6px; --og-elevation-lg: 0 8px 24px;
+  --og-elevation-alpha-sm: 0.12; --og-elevation-alpha-md: 0.16; --og-elevation-alpha-lg: 0.20;
+  --og-cell-padding-x: 8px;
+  --og-density-row-height: 36;
+  --og-focus-width: 2px; --og-focus-style: solid; --og-focus-offset: 1px;
+  --og-icon-fill: 0; --og-icon-corner: round;
+}

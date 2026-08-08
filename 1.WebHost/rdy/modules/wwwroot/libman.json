@@ -1,0 +1,475 @@
+{
+    "version": "1.0",
+    "defaultProvider": "cdnjs",
+    "libraries": [
+        {
+            "library": "clipboard.js@2.0.11",
+            "destination": "wwwroot/lib/clipboard.js/",
+            "files": [
+                "clipboard.min.js"
+            ]
+        },
+        {
+            "library": "Chart.js@4.4.1",
+            "destination": "wwwroot/lib/chart.js/",
+            "files": [
+                "chart.umd.min.js"
+            ]
+        },
+        {
+            "library": "echarts@6.1.0",
+            "destination": "wwwroot/lib/echarts/",
+            "files": [
+                "echarts.min.js",
+                "i18n/langKO.js"
+
+            ]
+        },
+        {
+            "provider": "jsdelivr",
+            "library": "video.js@8.23.9",
+            "destination": "wwwroot/lib/video.js/",
+            "files": [
+                "dist/video.min.js",
+                "dist/video-js.min.css",
+                "dist/lang/ko.js",
+                "dist/font/VideoJS.woff"
+            ]
+        },
+        {
+            "provider": "jsdelivr",
+            "library": "videojs-youtube@3.0.1",
+            "destination": "wwwroot/lib/videojs-youtube/",
+            "files": [
+                "dist/Youtube.min.js"
+            ]
+        },
+        {
+            "library": "codemirror@6.65.7",
+            "destination": "wwwroot/lib/codemirror/",
+            "files": [
+                "codemirror.min.css",
+                "codemirror.min.js"
+            ]
+        },
+        {
+            "library": "darkreader@4.9.92",
+            "destination": "wwwroot/lib/darkreader/",
+            "files": [
+                "darkreader.min.js"
+            ]
+        },
+        {
+            "library": "draggabilly@3.0.0",
+            "destination": "wwwroot/lib/draggabilly/",
+            "files": [
+                "draggabilly.pkgd.min.js"
+            ]
+        },
+        {
+            "library": "jquery.fancytree@2.38.3",
+            "destination": "wwwroot/lib/fancytree/",
+            "files": [
+                "jquery.fancytree-all-deps.min.js",
+                "skin-win8/ui.fancytree.css",
+                "skin-win8/icons.gif",
+                "skin-win8/icons-rtl.gif",
+                "skin-win8/loading.gif",
+                "skin-win8/vline.gif",
+                "skin-win8/vline-rtl.gif"
+            ]
+        },
+        {
+            "provider": "jsdelivr",
+            "library": "fullcalendar@6.1.20",
+            "destination": "wwwroot/lib/fullcalendar/",
+            "files": [
+                "index.global.min.js"
+            ]
+        },
+        {
+            "provider": "jsdelivr",
+            "library": "@fullcalendar/core@6.1.20",
+            "destination": "wwwroot/lib/fullcalendar/core/",
+            "files": [
+                "locales/ko.global.min.js"
+            ]
+        },
+        {
+            "provider": "jsdelivr",
+            "library": "filedrop@2.1.0",
+            "destination": "wwwroot/lib/filedrop/",
+            "files": [
+                "filedrop.min.css",
+                "filedrop.min.js"
+            ]
+        },
+        {
+            "library": "highlight.js@11.11.0",
+            "destination": "wwwroot/lib/highlight.js/",
+            "files": [
+                "highlight.min.js",
+                "styles/atom-one-dark.min.css"
+            ]
+        },
+        {
+            "library": "intro.js@7.2.0",
+            "destination": "wwwroot/lib/intro.js/",
+            "files": [
+                "introjs.min.css",
+                "intro.min.js"
+            ]
+        },
+        {
+            "provider": "jsdelivr",
+            "library": "ispin@2.0.1",
+            "destination": "wwwroot/lib/ispin/",
+            "files": [
+                "dist/ispin.min.css",
+                "dist/ispin.min.js"
+            ]
+        },
+        {
+            "library": "jquery@3.7.1",
+            "destination": "wwwroot/lib/jquery/",
+            "files": [
+                "jquery.min.js"
+            ]
+        },
+        {
+            "provider": "jsdelivr",
+            "library": "@master/css@1.37.8",
+            "destination": "wwwroot/lib/master-css/",
+            "files": [
+                "index.min.js"
+            ]
+        },
+        {
+            "library": "moment.js@2.30.1",
+            "destination": "wwwroot/lib/moment.js/",
+            "files": [
+                "moment.min.js"
+            ]
+        },
+        {
+            "library": "monaco-editor@0.51.0",
+            "destination": "wwwroot/lib/monaco-editor/",
+            "files": [
+                "min/vs/**"
+            ]
+        },
+        {
+            "provider": "jsdelivr",
+            "library": "mustache@4.2.0",
+            "destination": "wwwroot/lib/mustache/",
+            "files": [
+                "mustache.min.js"
+            ]
+        },
+        {
+            "library": "nanobar@0.4.2",
+            "destination": "wwwroot/lib/nanobar/",
+            "files": [
+                "nanobar.min.js"
+            ]
+        },
+        {
+            "library": "orgchart@4.0.1",
+            "destination": "wwwroot/lib/orgchart/",
+            "files": [
+                "css/jquery.orgchart.min.css",
+                "js/jquery.orgchart.min.js"
+            ]
+        },
+        {
+            "library": "PapaParse@5.4.1",
+            "destination": "wwwroot/lib/papaparse/",
+            "files": [
+                "papaparse.min.js"
+            ]
+        },
+        {
+            "library": "pdfobject@2.3.0",
+            "destination": "wwwroot/lib/pdfobject/",
+            "files": [
+                "pdfobject.min.js"
+            ]
+        },
+        {
+            "library": "pikaday@1.8.2",
+            "destination": "wwwroot/lib/pikaday/",
+            "files": [
+                "css/pikaday.min.css",
+                "pikaday.min.js"
+            ]
+        },
+        {
+            "library": "popper.js@2.11.8",
+            "destination": "wwwroot/lib/popper.js/",
+            "files": [
+                "umd/popper.min.js"
+            ]
+        },
+        {
+            "library": "print-js@1.6.0",
+            "destination": "wwwroot/lib/print-js/",
+            "files": [
+                "print.min.css",
+                "print.min.js"
+            ]
+        },
+        {
+            "library": "xlsx@0.18.5",
+            "destination": "wwwroot/lib/xlsx/",
+            "files": [
+                "xlsx.core.min.js"
+            ]
+        },
+        {
+            "library": "showdown@2.1.0",
+            "destination": "wwwroot/lib/showdown/",
+            "files": [
+                "showdown.min.js"
+            ]
+        },
+        {
+            "library": "sql-formatter@15.4.2",
+            "destination": "wwwroot/lib/sql-formatter/",
+            "files": [
+                "sql-formatter.min.js"
+            ]
+        },
+        {
+            "library": "squel@5.13.0",
+            "destination": "wwwroot/lib/squel/",
+            "files": [
+                "squel.min.js"
+            ]
+        },
+        {
+            "library": "superplaceholder@1.0.0",
+            "destination": "wwwroot/lib/superplaceholder/",
+            "files": [
+                "superplaceholder.js"
+            ]
+        },
+        {
+            "provider": "jsdelivr",
+            "library": "@tabler/core@1.3.2",
+            "destination": "wwwroot/lib/tabler-core/",
+            "files": [
+                "dist/css/tabler.min.css",
+                "dist/js/tabler.min.js"
+            ]
+        },
+        {
+            "provider": "jsdelivr",
+            "library": "@tabler/icons-webfont@3.25.0",
+            "destination": "wwwroot/lib/tabler-icons-webfont/",
+            "files": [
+                "dist/tabler-icons.min.css",
+                "dist/fonts/tabler-icons.woff2"
+            ]
+        },
+        {
+            "library": "tail.select.js@0.5.23",
+            "destination": "wwwroot/lib/tail.select.js/",
+            "files": [
+                "css/default/tail.select-light.css",
+                "js/tail.select.min.js"
+            ]
+        },
+        {
+            "library": "tinymce@5.10.9",
+            "destination": "wwwroot/lib/tinymce/",
+            "files": [
+                "tinymce.min.js",
+                "skins/**",
+                "themes/**",
+                "icons/**",
+                "models/**",
+                "plugins/**"
+            ]
+        },
+        {
+            "library": "tippy.js@6.3.7",
+            "destination": "wwwroot/lib/tippy.js/",
+            "files": [
+                "tippy-bundle.umd.min.js"
+            ]
+        },
+        {
+            "library": "vanilla-masker@1.2.0",
+            "destination": "wwwroot/lib/vanilla-masker/",
+            "files": [
+                "vanilla-masker.min.js"
+            ]
+        },
+        {
+            "library": "jquery.maskedinput@1.4.1",
+            "destination": "wwwroot/lib/jquery.maskedinput/",
+            "files": [
+                "jquery.maskedinput.min.js"
+            ]
+        },
+        {
+            "provider": "jsdelivr",
+            "library": "jquery-simplemodal@1.0.0",
+            "destination": "wwwroot/lib/jquery-simplemodal/",
+            "files": [
+                "src/jquery.simplemodal.min.js"
+            ]
+        },
+        {
+            "provider": "jsdelivr",
+            "library": "highcharts@11.4.8",
+            "destination": "wwwroot/lib/highcharts/",
+            "files": [
+                "highcharts.min.js",
+                "highcharts-more.min.js",
+                "highcharts-3d.min.js",
+                "modules/stock.min.js",
+                "modules/map.min.js",
+                "modules/gantt.min.js",
+                "modules/accessibility.min.js",
+                "modules/annotations.min.js",
+                "modules/annotations-advanced.min.js",
+                "modules/arc-diagram.min.js",
+                "modules/arrow-symbols.min.js",
+                "modules/boost.min.js",
+                "modules/boost-canvas.min.js",
+                "modules/broken-axis.min.js",
+                "modules/bullet.min.js",
+                "modules/coloraxis.min.js",
+                "modules/current-date-indicator.min.js",
+                "modules/cylinder.min.js",
+                "modules/data.min.js",
+                "modules/data-tools.min.js",
+                "modules/datagrouping.min.js",
+                "modules/debugger.min.js",
+                "modules/dependency-wheel.min.js",
+                "modules/dotplot.min.js",
+                "modules/drag-panes.min.js",
+                "modules/draggable-points.min.js",
+                "modules/dumbbell.min.js",
+                "modules/flowmap.min.js",
+                "modules/full-screen.min.js",
+                "modules/funnel.min.js",
+                "modules/funnel3d.min.js",
+                "modules/geoheatmap.min.js",
+                "modules/grid-axis.min.js",
+                "modules/heatmap.min.js",
+                "modules/heikinashi.min.js",
+                "modules/histogram-bellcurve.min.js",
+                "modules/hollowcandlestick.min.js",
+                "modules/item-series.min.js",
+                "modules/lollipop.min.js",
+                "modules/marker-clusters.min.js",
+                "modules/mouse-wheel-zoom.min.js",
+                "modules/navigator.min.js",
+                "modules/networkgraph.min.js",
+                "modules/organization.min.js",
+                "modules/overlapping-datalabels.min.js",
+                "modules/parallel-coordinates.min.js",
+                "modules/pareto.min.js",
+                "modules/pictorial.min.js",
+                "modules/pathfinder.min.js",
+                "modules/pattern-fill.min.js",
+                "modules/price-indicator.min.js",
+                "modules/pyramid3d.min.js",
+                "modules/sankey.min.js",
+                "modules/series-label.min.js",
+                "modules/series-on-point.min.js",
+                "modules/sonification.min.js",
+                "modules/solid-gauge.min.js",
+                "modules/streamgraph.min.js",
+                "modules/static-scale.min.js",
+                "modules/stock-tools.min.js",
+                "modules/sunburst.min.js",
+                "modules/tiledwebmap.min.js",
+                "modules/tilemap.min.js",
+                "modules/timeline.min.js",
+                "modules/treegraph.min.js",
+                "modules/treegrid.min.js",
+                "modules/treemap.min.js",
+                "modules/textpath.min.js",
+                "modules/variable-pie.min.js",
+                "modules/variwide.min.js",
+                "modules/vector.min.js",
+                "modules/venn.min.js",
+                "modules/windbarb.min.js",
+                "modules/wordcloud.min.js",
+                "modules/xrange.min.js",
+                "modules/exporting.min.js",
+                "modules/export-data.min.js",
+                "modules/offline-exporting.min.js",
+                "modules/drilldown.min.js",
+                "modules/no-data-to-display.min.js",
+                "indicators/indicators-all.min.js",
+                "css/highcharts.min.css",
+                "css/annotations/popup.min.css",
+                "css/stocktools/gui.min.css",
+                "gfx/stock-icons/**"
+            ]
+        },
+        {
+            "library": "FileSaver.js@2.0.5",
+            "destination": "wwwroot/lib/filesaver/",
+            "files": [
+                "FileSaver.min.js"
+            ]
+        },
+        {
+            "provider": "filesystem",
+            "library": "wwwroot/js/auigrid/",
+            "destination": "wwwroot/lib/auigrid/dist/"
+        },
+        {
+            "provider": "filesystem",
+            "library": "wwwroot/js/auigrid/editRenderers",
+            "destination": "wwwroot/lib/auigrid/dist/editRenderers"
+        },
+        {
+            "provider": "filesystem",
+            "library": "wwwroot/js/auigrid/images",
+            "destination": "wwwroot/lib/auigrid/dist/images"
+        },
+        {
+            "provider": "filesystem",
+            "library": "wwwroot/js/auigrid/messages",
+            "destination": "wwwroot/lib/auigrid/dist/messages"
+        },
+        {
+            "provider": "filesystem",
+            "library": "wwwroot/js/auigrid/pdfkit",
+            "destination": "wwwroot/lib/auigrid/dist/pdfkit"
+        },
+        {
+            "provider": "filesystem",
+            "library": "wwwroot/js/auigrid/renderers",
+            "destination": "wwwroot/lib/auigrid/dist/renderers"
+        },
+        {
+            "provider": "jsdelivr",
+            "library": "marked@15.0.11",
+            "destination": "wwwroot/lib/marked/",
+            "files": [
+                "marked.min.js"
+            ]
+        },
+        {
+            "library": "dompurify@3.2.5",
+            "destination": "wwwroot/lib/dompurify/",
+            "files": [
+                "purify.min.js"
+            ]
+        },
+        {
+            "library": "microsoft-signalr@9.0.6",
+            "destination": "wwwroot/lib/microsoft-signalr/",
+            "files": [
+                "signalr.min.js"
+            ]
+        }
+    ]
+}

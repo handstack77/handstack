@@ -1,0 +1,6474 @@
+﻿{
+    "Comment": "기초코드 데이터",
+    "CodeColumnID": "CodeID",
+    "ValueColumnID": "CodeValue",
+    "CreatedAt": "2012-03-22 오후 2:00:00",
+    "Scheme": [
+        {
+            "ColumnID": "SelectYN",
+            "ColumnText": "기본선택여부",
+            "HiddenYN": true
+        },
+        {
+            "ColumnID": "LocaleID",
+            "ColumnText": "언어권ID",
+            "HiddenYN": true
+        },
+        {
+            "ColumnID": "CodeID",
+            "ColumnText": "코드ID",
+            "HiddenYN": false
+        },
+        {
+            "ColumnID": "CodeValue",
+            "ColumnText": "코드값",
+            "HiddenYN": false
+        }
+    ],
+    "DataSource": [
+        {
+            "CodeID": "0000",
+            "CodeValue": "기록없음",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0001",
+            "CodeValue": "검찰사무직",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0002",
+            "CodeValue": "마약수사직",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0003",
+            "CodeValue": "출입국관리직",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0004",
+            "CodeValue": "경찰공무원",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0005",
+            "CodeValue": "소방공무원",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0006",
+            "CodeValue": "외무공무원",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0007",
+            "CodeValue": "국가정보원",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0008",
+            "CodeValue": "국회의원",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0009",
+            "CodeValue": "철도공무원",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0010",
+            "CodeValue": "군무원",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0011",
+            "CodeValue": "행정직(중앙행정공무원)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0012",
+            "CodeValue": "행정직(지방행정공무원)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0013",
+            "CodeValue": "행정직(세무직)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0014",
+            "CodeValue": "행정직(관세직)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0015",
+            "CodeValue": "행정직(교육행정)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0016",
+            "CodeValue": "행정직(사회복지)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0017",
+            "CodeValue": "행정직(노동)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0018",
+            "CodeValue": "행정직(문화)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0019",
+            "CodeValue": "행정직(공보)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0020",
+            "CodeValue": "행정직(통계)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0021",
+            "CodeValue": "행정직(감사)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0022",
+            "CodeValue": "행정직(사서)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0023",
+            "CodeValue": "광공업직군(기계/전기/전자/원자력)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0024",
+            "CodeValue": "광공업직군(조선)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0025",
+            "CodeValue": "광공업직군(금속/섬유/화공/자원)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0026",
+            "CodeValue": "농림수산직군(농업/임업/축산/수산)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0027",
+            "CodeValue": "농림수산직군(식물검역)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0028",
+            "CodeValue": "농림수산직군(수의)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0029",
+            "CodeValue": "연구직(물리)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0030",
+            "CodeValue": "연구직(기상)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0031",
+            "CodeValue": "연구직(환경)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0032",
+            "CodeValue": "연구직(학예)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0033",
+            "CodeValue": "연구직(편사)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0034",
+            "CodeValue": "연구직(공업)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0035",
+            "CodeValue": "연구직(농업/농공연구/임업/축산/수산)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0036",
+            "CodeValue": "연구직(잠업/가축위생)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0037",
+            "CodeValue": "연구직(보건)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0038",
+            "CodeValue": "연구직(토목/건축연구)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0039",
+            "CodeValue": "보건의무직(보건/간호)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0040",
+            "CodeValue": "보건의무직(식품위생)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0041",
+            "CodeValue": "보건의무직(의료기술/의무/약무)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0042",
+            "CodeValue": "교통직(교통)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0043",
+            "CodeValue": "교통직(선박)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0044",
+            "CodeValue": "교통직(항공)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0045",
+            "CodeValue": "교통직(수로)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0046",
+            "CodeValue": "시설직(도시계획/토목/건축)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0047",
+            "CodeValue": "시설직(지적/측지)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0048",
+            "CodeValue": "정보통신직(전산)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0049",
+            "CodeValue": "정보통신직(통신사/통신기술/전송기술)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0050",
+            "CodeValue": "지도직(농촌/어촌/생활지도)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0051",
+            "CodeValue": "기타 공무원",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0052",
+            "CodeValue": "판사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0053",
+            "CodeValue": "검사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0054",
+            "CodeValue": "변호사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0055",
+            "CodeValue": "법무사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0056",
+            "CodeValue": "공증인",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0057",
+            "CodeValue": "집달관",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0058",
+            "CodeValue": "행정서사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0059",
+            "CodeValue": "변리사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0060",
+            "CodeValue": "기타 법조인",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0061",
+            "CodeValue": "한의학과",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0062",
+            "CodeValue": "내과",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0063",
+            "CodeValue": "소아과",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0064",
+            "CodeValue": "신경정신과",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0065",
+            "CodeValue": "피부과",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0066",
+            "CodeValue": "(일반)외과",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0067",
+            "CodeValue": "흉부외과",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0068",
+            "CodeValue": "흉부내과",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0069",
+            "CodeValue": "정형외과",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0070",
+            "CodeValue": "신경외과",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0071",
+            "CodeValue": "성형외과",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0072",
+            "CodeValue": "산부인과",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0073",
+            "CodeValue": "안과",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0074",
+            "CodeValue": "이비인후과",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0075",
+            "CodeValue": "비뇨기과",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0076",
+            "CodeValue": "재활의학과",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0077",
+            "CodeValue": "방사선종양학과",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0078",
+            "CodeValue": "가정의학과",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0079",
+            "CodeValue": "응급의학과",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0080",
+            "CodeValue": "산업의학과",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0081",
+            "CodeValue": "예방의학과",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0082",
+            "CodeValue": "해부병리과",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0083",
+            "CodeValue": "치과",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0084",
+            "CodeValue": "마취통증의학과",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0085",
+            "CodeValue": "영상의학과(진단방사선과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0086",
+            "CodeValue": "진단검사의학과",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0087",
+            "CodeValue": "핵의학과",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0088",
+            "CodeValue": "조직병리학과",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0089",
+            "CodeValue": "결핵과",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0090",
+            "CodeValue": "인턴(수련의)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0091",
+            "CodeValue": "공중보건의",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0092",
+            "CodeValue": "기타학과",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0093",
+            "CodeValue": "약사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0094",
+            "CodeValue": "간호사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0095",
+            "CodeValue": "수의사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0096",
+            "CodeValue": "영양사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0097",
+            "CodeValue": "검안사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0098",
+            "CodeValue": "안경조정사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0099",
+            "CodeValue": "의료방사선기술공",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0100",
+            "CodeValue": "치과기공사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0101",
+            "CodeValue": "조산사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0102",
+            "CodeValue": "물리치료사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0103",
+            "CodeValue": "안마사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0104",
+            "CodeValue": "언어청각사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0105",
+            "CodeValue": "언어치료사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0106",
+            "CodeValue": "위생사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0107",
+            "CodeValue": "작업치료사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0108",
+            "CodeValue": "접골사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0109",
+            "CodeValue": "정형외과석고기사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0110",
+            "CodeValue": "척추지압사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0111",
+            "CodeValue": "침구사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0112",
+            "CodeValue": "구급요원",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0113",
+            "CodeValue": "기타 의료전문가",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0114",
+            "CodeValue": "프로듀서 및 디렉터",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0115",
+            "CodeValue": "조연출",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0116",
+            "CodeValue": "기술감독",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0117",
+            "CodeValue": "편집감독",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0118",
+            "CodeValue": "조명감독",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0119",
+            "CodeValue": "송출감독",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0120",
+            "CodeValue": "운행감독",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0121",
+            "CodeValue": "스크립터",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0122",
+            "CodeValue": "방송엔지니어",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0123",
+            "CodeValue": "스위처/화상믹서",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0124",
+            "CodeValue": "무대감독",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0125",
+            "CodeValue": "플로어맨/무대",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0126",
+            "CodeValue": "전기계",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0127",
+            "CodeValue": "특수효과계",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0128",
+            "CodeValue": "영화제작부",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0129",
+            "CodeValue": "카메라맨",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0130",
+            "CodeValue": "카메라크루",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0131",
+            "CodeValue": "비디오맨",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0132",
+            "CodeValue": "비디오저널리스트",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0133",
+            "CodeValue": "오디오맨",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0134",
+            "CodeValue": "사운드크루",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0135",
+            "CodeValue": "작가",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0136",
+            "CodeValue": "컴퓨터그래픽디자이너",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0137",
+            "CodeValue": "셑트디자이너",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0138",
+            "CodeValue": "조명디자이너",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0139",
+            "CodeValue": "스틸기사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0140",
+            "CodeValue": "기타 방송관련직종 종사자",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0141",
+            "CodeValue": "연극배우",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0142",
+            "CodeValue": "영화배우 및 탤랜트",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0143",
+            "CodeValue": "코미디언",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0144",
+            "CodeValue": "가수",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0145",
+            "CodeValue": "모델",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0146",
+            "CodeValue": "아나운서",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0147",
+            "CodeValue": "리포터",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0148",
+            "CodeValue": "VJ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0149",
+            "CodeValue": "성우",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0150",
+            "CodeValue": "전문연예 사회자",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0151",
+            "CodeValue": "작곡가 및 작사가",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0152",
+            "CodeValue": "연예인 매니저",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0153",
+            "CodeValue": "메이크업아티스트",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0154",
+            "CodeValue": "코디네이터",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0155",
+            "CodeValue": "기타 연예인관련직종 종사자",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0156",
+            "CodeValue": "기자",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0157",
+            "CodeValue": "평론가",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0158",
+            "CodeValue": "편집자",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0159",
+            "CodeValue": "기타 언론관련직종 종사자",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0160",
+            "CodeValue": "화가",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0161",
+            "CodeValue": "조각가",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0162",
+            "CodeValue": "사진작가",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0163",
+            "CodeValue": "시인",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0164",
+            "CodeValue": "작가",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0165",
+            "CodeValue": "성악가",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0166",
+            "CodeValue": "국악인",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0167",
+            "CodeValue": "무용가",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0168",
+            "CodeValue": "안무가",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0169",
+            "CodeValue": "기악연주자",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0170",
+            "CodeValue": "관현악단 지휘자",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0171",
+            "CodeValue": "기타 예술가",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0172",
+            "CodeValue": "운동선수",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0173",
+            "CodeValue": "경기 심판",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0174",
+            "CodeValue": "경기 감독 및 코치",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0175",
+            "CodeValue": "기타 운동관련 종사자",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0176",
+            "CodeValue": "기독교 교역자",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0177",
+            "CodeValue": "타종교 종사자",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0178",
+            "CodeValue": "사회사업 종사자",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0179",
+            "CodeValue": "비영리단체 종사자",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0180",
+            "CodeValue": "기타 종교관계 종사자",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0181",
+            "CodeValue": "보육교사(영아보육)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0182",
+            "CodeValue": "유치원 교사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0183",
+            "CodeValue": "초등학교 교사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0184",
+            "CodeValue": "국어",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0185",
+            "CodeValue": "수학",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0186",
+            "CodeValue": "과학",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0187",
+            "CodeValue": "사회",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0188",
+            "CodeValue": "국사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0189",
+            "CodeValue": "도덕(윤리)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0190",
+            "CodeValue": "기술",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0191",
+            "CodeValue": "가정",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0192",
+            "CodeValue": "전산",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0193",
+            "CodeValue": "미술",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0194",
+            "CodeValue": "음악",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0195",
+            "CodeValue": "체육",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0196",
+            "CodeValue": "외국어과(영어)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0197",
+            "CodeValue": "외국어과(일어)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0198",
+            "CodeValue": "외국어과(불어)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0199",
+            "CodeValue": "외국어과(독어)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0200",
+            "CodeValue": "외국어과(중국어)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0201",
+            "CodeValue": "외국어과(서반아어)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0202",
+            "CodeValue": "외국어과(기타)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0203",
+            "CodeValue": "기타과목 교사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0204",
+            "CodeValue": "교장 및 교감",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0205",
+            "CodeValue": "기타 교직원",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0206",
+            "CodeValue": "보조교사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0207",
+            "CodeValue": "학습지교사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0208",
+            "CodeValue": "기타 교사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0209",
+            "CodeValue": "어문계열(언어학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0210",
+            "CodeValue": "어문계열(국어국문학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0211",
+            "CodeValue": "어문계열(영어영문학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0212",
+            "CodeValue": "어문계열(중어중문학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0213",
+            "CodeValue": "어문계열(일어일문학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0214",
+            "CodeValue": "어문계열(불어불문학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0215",
+            "CodeValue": "어문계열(독어독문학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0216",
+            "CodeValue": "어문계열(이태리어과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0217",
+            "CodeValue": "어문계열(네덜란드어과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0218",
+            "CodeValue": "어문계열(폴란드어과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0219",
+            "CodeValue": "어문계열(포르투칼어과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0220",
+            "CodeValue": "어문계열(체코어과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0221",
+            "CodeValue": "어문계열(루마니아어과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0222",
+            "CodeValue": "어문계열(헝가리어과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0223",
+            "CodeValue": "어문계열(노어노문학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0224",
+            "CodeValue": "어문계열(서어서문학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0225",
+            "CodeValue": "어문계열(베트남어과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0226",
+            "CodeValue": "어문계열(태국어과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0227",
+            "CodeValue": "어문계열(말레이인도네시아어과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0228",
+            "CodeValue": "어문계열(아랍어과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0229",
+            "CodeValue": "어문계열(이란어과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0230",
+            "CodeValue": "어문계열(몽골어문학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0231",
+            "CodeValue": "어문계열(미얀마어과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0232",
+            "CodeValue": "어문계열(스칸디나비아어과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0233",
+            "CodeValue": "어문계열(아프리카어과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0234",
+            "CodeValue": "어문계열(유고어과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0235",
+            "CodeValue": "어문계열(터어키어과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0236",
+            "CodeValue": "어문계열(인도어과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0237",
+            "CodeValue": "어문계열(중앙아시아어과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0238",
+            "CodeValue": "어문계열(한문학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0239",
+            "CodeValue": "어문계열(통번역학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0240",
+            "CodeValue": "어문계열(기타)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0241",
+            "CodeValue": "인문계열(고고인류학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0242",
+            "CodeValue": "인문계열(문예창작학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0243",
+            "CodeValue": "인문계열(국민윤리학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0244",
+            "CodeValue": "인문계열(미국학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0245",
+            "CodeValue": "인문계열(영미지역학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0246",
+            "CodeValue": "인문계열(북미학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0247",
+            "CodeValue": "인문계열(유럽학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0248",
+            "CodeValue": "인문계열(프랑스학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0249",
+            "CodeValue": "인문계열(독일학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0250",
+            "CodeValue": "인문계열(러시아학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0251",
+            "CodeValue": "인문계열(아랍학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0252",
+            "CodeValue": "인문계열(히브리학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0253",
+            "CodeValue": "인문계열(아시아지역학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0254",
+            "CodeValue": "인문계열(중국학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0255",
+            "CodeValue": "인문계열(일본학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0256",
+            "CodeValue": "인문계열(한국학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0257",
+            "CodeValue": "인문계열(민속학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0258",
+            "CodeValue": "인문계열(미학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0259",
+            "CodeValue": "인문계열(사학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0260",
+            "CodeValue": "인문계열(철학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0261",
+            "CodeValue": "인문계열(기타)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0262",
+            "CodeValue": "신학계열(종교학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0263",
+            "CodeValue": "신학계열(신학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0264",
+            "CodeValue": "신학계열(기독교학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0265",
+            "CodeValue": "신학계열(불교학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0266",
+            "CodeValue": "신학계열(기타)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0267",
+            "CodeValue": "사회계열(광고홍보학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0268",
+            "CodeValue": "사회계열(언론정보학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0269",
+            "CodeValue": "사회계열(신문방송학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0270",
+            "CodeValue": "사회계열(국제문화정보학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0271",
+            "CodeValue": "사회계열(심리학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0272",
+            "CodeValue": "사회계열(아동학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0273",
+            "CodeValue": "사회계열(노년학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0274",
+            "CodeValue": "사회계열(사회학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0275",
+            "CodeValue": "사회계열(북한학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0276",
+            "CodeValue": "사회계열(부동산학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0277",
+            "CodeValue": "사회계열(지리학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0278",
+            "CodeValue": "사회계열(지적학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0279",
+            "CodeValue": "사회계열(풍수지리학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0280",
+            "CodeValue": "사회계열(문화재보존학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0281",
+            "CodeValue": "사회계열(지역사회개발학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0282",
+            "CodeValue": "사회계열(사회복지학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0283",
+            "CodeValue": "사회계열(사회사업학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0284",
+            "CodeValue": "사회계열(문헌정보학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0285",
+            "CodeValue": "사회계열(도서관학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0286",
+            "CodeValue": "사회계열(청소년지도학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0287",
+            "CodeValue": "사회계열(기타)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0288",
+            "CodeValue": "법정계열(법학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0289",
+            "CodeValue": "법정계열(국제법무학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0290",
+            "CodeValue": "법정계열(정치외교학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0291",
+            "CodeValue": "법정계열(행정학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0292",
+            "CodeValue": "법정계열(경찰행정학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0293",
+            "CodeValue": "법정계열(기타)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0294",
+            "CodeValue": "경상계열(경영학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0295",
+            "CodeValue": "경상계열(경제학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0296",
+            "CodeValue": "경상계열(무역학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0297",
+            "CodeValue": "경상계열(경영정보학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0298",
+            "CodeValue": "경상계열(국제경영학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0299",
+            "CodeValue": "경상계열(국제무역학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0300",
+            "CodeValue": "경상계열(국제통상학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0301",
+            "CodeValue": "경상계열(관광경영학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0302",
+            "CodeValue": "경상계열(관광통역학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0303",
+            "CodeValue": "경상계열(호텔경영학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0304",
+            "CodeValue": "경상계열(회계학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0305",
+            "CodeValue": "경상계열(비서학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0306",
+            "CodeValue": "경상계열(보험학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0307",
+            "CodeValue": "경상계열(유통정보학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0308",
+            "CodeValue": "경상계열(의료경영학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0309",
+            "CodeValue": "경상계열(창업정보학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0310",
+            "CodeValue": "경상계열(기타)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0311",
+            "CodeValue": "수학계열(수학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0312",
+            "CodeValue": "수학계열(통계학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0313",
+            "CodeValue": "수학계열(기타)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0314",
+            "CodeValue": "자연과학계열(화학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0315",
+            "CodeValue": "자연과학계열(물리학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0316",
+            "CodeValue": "자연과학계열(생물학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0317",
+            "CodeValue": "자연과학계열(천문학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0318",
+            "CodeValue": "자연과학계열(지질학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0319",
+            "CodeValue": "자연과학계열(지구과학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0320",
+            "CodeValue": "자연과학계열(생명과학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0321",
+            "CodeValue": "자연과학계열(지구환경학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0322",
+            "CodeValue": "자연과학계열(대기환경학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0323",
+            "CodeValue": "자연과학계열(항공교통학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0324",
+            "CodeValue": "자연과학계열(응용생명환경학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0325",
+            "CodeValue": "자연과학계열(분자생물학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0326",
+            "CodeValue": "자연과학계열(유전공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0327",
+            "CodeValue": "자연과학계열(동물자원학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0328",
+            "CodeValue": "자연과학계열(기타)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0329",
+            "CodeValue": "공학계열(전기공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0330",
+            "CodeValue": "공학계열(전자공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0331",
+            "CodeValue": "공학계열(전자통신공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0332",
+            "CodeValue": "공학계열(전자재료공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0333",
+            "CodeValue": "공학계열(정보시스템공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0334",
+            "CodeValue": "공학계열(제어계측공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0335",
+            "CodeValue": "공학계열(기계공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0336",
+            "CodeValue": "공학계열(정보통신공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0337",
+            "CodeValue": "공학계열(정보처리공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0338",
+            "CodeValue": "공학계열(금속공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0339",
+            "CodeValue": "공학계열(재료공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0340",
+            "CodeValue": "공학계열(자원공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0341",
+            "CodeValue": "공학계열(원자력공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0342",
+            "CodeValue": "공학계열(신소재공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0343",
+            "CodeValue": "공학계열(세라믹공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0344",
+            "CodeValue": "공학계열(섬유공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0345",
+            "CodeValue": "공학계열(생산가공공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0346",
+            "CodeValue": "공학계열(산업공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0347",
+            "CodeValue": "공학계열(컴퓨터공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0348",
+            "CodeValue": "공학계열(메카트로닉스공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0349",
+            "CodeValue": "공학계열(무기재료공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0350",
+            "CodeValue": "공학계열(광학공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0351",
+            "CodeValue": "공학계열(고분자공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0352",
+            "CodeValue": "공학계열(멀티미디어공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0353",
+            "CodeValue": "공학계열(조선공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0354",
+            "CodeValue": "공학계열(항공운항학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0355",
+            "CodeValue": "공학계열(항공우주공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0356",
+            "CodeValue": "공학계열(반도체공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0357",
+            "CodeValue": "공학계열(화학공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0358",
+            "CodeValue": "공학계열(공업화학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0359",
+            "CodeValue": "공학계열(건축공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0360",
+            "CodeValue": "공학계열(지리정보공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0361",
+            "CodeValue": "공학계열(도시공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0362",
+            "CodeValue": "공학계열(토목공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0363",
+            "CodeValue": "공학계열(환경공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0364",
+            "CodeValue": "공학계열(보석공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0365",
+            "CodeValue": "공학계열(사진정보공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0366",
+            "CodeValue": "공학계열(기타)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0367",
+            "CodeValue": "농학계열(농학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0368",
+            "CodeValue": "농학계열(임학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0369",
+            "CodeValue": "농학계열(축산학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0370",
+            "CodeValue": "농학계열(농생물학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0371",
+            "CodeValue": "농학계열(식물자원학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0372",
+            "CodeValue": "농학계열(원예학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0373",
+            "CodeValue": "농학계열(임산공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0374",
+            "CodeValue": "농학계열(천연섬유학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0375",
+            "CodeValue": "농학계열(조경학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0376",
+            "CodeValue": "농학계열(식량자원학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0377",
+            "CodeValue": "농학계열(식품공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0378",
+            "CodeValue": "농학계열(기타)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0379",
+            "CodeValue": "수상해양계열(해양학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0380",
+            "CodeValue": "수상해양계열(해양경찰학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0381",
+            "CodeValue": "수상해양계열(해양환경공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0382",
+            "CodeValue": "수상해양계열(해양생산학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0383",
+            "CodeValue": "수상해양계열(수산생명의학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0384",
+            "CodeValue": "수상해양계열(수산경영학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0385",
+            "CodeValue": "수상해양계열(수산가공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0386",
+            "CodeValue": "수상해양계열(양식학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0387",
+            "CodeValue": "수상해양계열(항해시스템공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0388",
+            "CodeValue": "수상해양계열(기관공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0389",
+            "CodeValue": "수상해양계열(냉동공조공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0390",
+            "CodeValue": "수상해양계열(기타)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0391",
+            "CodeValue": "가정계열(의류학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0392",
+            "CodeValue": "가정계열(패션디자인학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0393",
+            "CodeValue": "가정계열(아동가족학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0394",
+            "CodeValue": "가정계열(가정복지학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0395",
+            "CodeValue": "가정계열(아동복지학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0396",
+            "CodeValue": "가정계열(가정관리학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0397",
+            "CodeValue": "가정계열(보육학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0398",
+            "CodeValue": "가정계열(외식사업학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0399",
+            "CodeValue": "가정계열(영양자원학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0400",
+            "CodeValue": "가정계열(식품생명공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0401",
+            "CodeValue": "가정계열(식품영양학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0402",
+            "CodeValue": "가정계열(식품가공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0403",
+            "CodeValue": "가정계열(소비자학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0404",
+            "CodeValue": "가정계열(기타)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0405",
+            "CodeValue": "의학계열(한의학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0406",
+            "CodeValue": "의학계열(치의예과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0407",
+            "CodeValue": "의학계열(내과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0408",
+            "CodeValue": "의학계열(소아과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0409",
+            "CodeValue": "의학계열(신경정신과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0410",
+            "CodeValue": "의학계열(피부과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0411",
+            "CodeValue": "의학계열((일반)외과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0412",
+            "CodeValue": "의학계열(흉부외과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0413",
+            "CodeValue": "의학계열(정형외과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0414",
+            "CodeValue": "의학계열(신경외과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0415",
+            "CodeValue": "의학계열(성형외과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0416",
+            "CodeValue": "의학계열(산부인과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0417",
+            "CodeValue": "의학계열(안과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0418",
+            "CodeValue": "의학계열(이비인후과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0419",
+            "CodeValue": "의학계열(비뇨기과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0420",
+            "CodeValue": "의학계열(재활의학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0421",
+            "CodeValue": "의학계열(방사선종양학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0422",
+            "CodeValue": "의학계열(가정의학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0423",
+            "CodeValue": "의학계열(응급의학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0424",
+            "CodeValue": "의학계열(산업의학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0425",
+            "CodeValue": "의학계열(예방의학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0426",
+            "CodeValue": "의학계열(해부병리과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0427",
+            "CodeValue": "의학계열(마취통증의학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0428",
+            "CodeValue": "의학계열(영상의학과(진단방사선과))",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0429",
+            "CodeValue": "의학계열(진단검사의학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0430",
+            "CodeValue": "의학계열(핵의학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0431",
+            "CodeValue": "의학계열(조직병리학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0432",
+            "CodeValue": "의학계열(결핵과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0433",
+            "CodeValue": "수의학계열(수의학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0434",
+            "CodeValue": "약학계열(약학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0435",
+            "CodeValue": "약학계열(한약학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0436",
+            "CodeValue": "의료보건계열(간호학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0437",
+            "CodeValue": "의료보건계열(물리치료학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0438",
+            "CodeValue": "의료보건계열(재활학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0439",
+            "CodeValue": "의료보건계열(건강관리학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0440",
+            "CodeValue": "의료보건계열(보건학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0441",
+            "CodeValue": "의료보건계열(임상병리학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0442",
+            "CodeValue": "의료보건계열(보건의료행정학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0443",
+            "CodeValue": "의료보건계열(직업재활학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0444",
+            "CodeValue": "의료보건계열(환경보건학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0445",
+            "CodeValue": "의료보건계열(안경광학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0446",
+            "CodeValue": "의료보건계열(미용학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0447",
+            "CodeValue": "의료보건계열(치기공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0448",
+            "CodeValue": "의료보건계열(치위생학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0449",
+            "CodeValue": "의료보건계열(보건위생학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0450",
+            "CodeValue": "의료보건계열(응급구조학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0451",
+            "CodeValue": "의료보건계열(방사선학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0452",
+            "CodeValue": "의료보건계열(작업치료학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0453",
+            "CodeValue": "의료보건계열(의공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0454",
+            "CodeValue": "의료보건계열(기타)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0455",
+            "CodeValue": "음악계열(음악학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0456",
+            "CodeValue": "음악계열(성악과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0457",
+            "CodeValue": "음악계열(작곡과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0458",
+            "CodeValue": "음악계열(국악과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0459",
+            "CodeValue": "음악계열(기악과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0460",
+            "CodeValue": "음악계열(피아노과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0461",
+            "CodeValue": "음악계열(관현학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0462",
+            "CodeValue": "음악계열(실용음악과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0463",
+            "CodeValue": "음악계열(한국음악과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0464",
+            "CodeValue": "음악계열(영상음악과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0465",
+            "CodeValue": "음악계열(교회음악학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0466",
+            "CodeValue": "음악계열(기타)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0467",
+            "CodeValue": "미술계열(회화학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0468",
+            "CodeValue": "미술계열(미술학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0469",
+            "CodeValue": "미술계열(동양화과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0470",
+            "CodeValue": "미술계열(서양화과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0471",
+            "CodeValue": "미술계열(공예학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0472",
+            "CodeValue": "미술계열(조소학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0473",
+            "CodeValue": "미술계열(도예과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0474",
+            "CodeValue": "미술계열(응용미술학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0475",
+            "CodeValue": "미술계열(실내디자인학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0476",
+            "CodeValue": "미술계열(가구디자인과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0477",
+            "CodeValue": "미술계열(산업디자인학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0478",
+            "CodeValue": "미술계열(멀티미디어디자인학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0479",
+            "CodeValue": "미술계열(컴퓨터그래픽디자인학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0480",
+            "CodeValue": "미술계열(공업디자인학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0481",
+            "CodeValue": "미술계열(사진학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0482",
+            "CodeValue": "미술계열(만화학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0483",
+            "CodeValue": "미술계열(미술평론학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0484",
+            "CodeValue": "미술계열(기타)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0485",
+            "CodeValue": "연극영화계열(연극영화학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0486",
+            "CodeValue": "연극영화계열(영상예술학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0487",
+            "CodeValue": "연극영화계열(기타)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0488",
+            "CodeValue": "무용체육계열(체육학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0489",
+            "CodeValue": "무용체육계열(바둑학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0490",
+            "CodeValue": "무용체육계열(무용학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0491",
+            "CodeValue": "무용체육계열(경호학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0492",
+            "CodeValue": "무용체육계열(기타)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0493",
+            "CodeValue": "사범계열(교육학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0494",
+            "CodeValue": "사범계열(사범대어문계학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0495",
+            "CodeValue": "사범계열(사범대인문사회학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0496",
+            "CodeValue": "사범계열(사범대이학계학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0497",
+            "CodeValue": "사범계열(사범대공학계학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0498",
+            "CodeValue": "사범계열(사범대예체능계학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0499",
+            "CodeValue": "사범계열(유아교육학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0500",
+            "CodeValue": "사범계열(초등교육학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0501",
+            "CodeValue": "사범계열(특수교육학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0502",
+            "CodeValue": "사범계열(기타)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0503",
+            "CodeValue": "대학 총장 및 부총장",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0504",
+            "CodeValue": "기타 교직원",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0505",
+            "CodeValue": "어학원강사(영어)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0506",
+            "CodeValue": "어학원강사(일어)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0507",
+            "CodeValue": "어학원강사(불어)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0508",
+            "CodeValue": "어학원강사(독어)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0509",
+            "CodeValue": "어학원강사(중국어)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0510",
+            "CodeValue": "어학원강사(기타언어)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0511",
+            "CodeValue": "예능학원강사(무용)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0512",
+            "CodeValue": "예능학원강사(성악)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0513",
+            "CodeValue": "예능학원강사(음악)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0514",
+            "CodeValue": "예능학원강사(기타예능)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0515",
+            "CodeValue": "컴퓨터학원강사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0516",
+            "CodeValue": "직업관련강사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0517",
+            "CodeValue": "플로리스트",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0518",
+            "CodeValue": "요리강사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0519",
+            "CodeValue": "자동차운전학원강사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0520",
+            "CodeValue": "기술학원강사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0521",
+            "CodeValue": "사무학원강사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0522",
+            "CodeValue": "문리강사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0523",
+            "CodeValue": "체력훈련가",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0524",
+            "CodeValue": "기타 학원강사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0525",
+            "CodeValue": "시각장애학교 교사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0526",
+            "CodeValue": "청각장애학교 교사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0527",
+            "CodeValue": "지체부자유학교 교사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0528",
+            "CodeValue": "정신장애학교 교사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0529",
+            "CodeValue": "기타 특수학교 교사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0530",
+            "CodeValue": "경영컨설턴트",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0531",
+            "CodeValue": "헤드헌터",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0532",
+            "CodeValue": "노무사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0533",
+            "CodeValue": "번역사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0534",
+            "CodeValue": "통역사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0535",
+            "CodeValue": "미술품 감정사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0536",
+            "CodeValue": "보석 감정사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0537",
+            "CodeValue": "평가사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0538",
+            "CodeValue": "경매사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0539",
+            "CodeValue": "공인중개사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0540",
+            "CodeValue": "부동산감정사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0541",
+            "CodeValue": "건축설계사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0542",
+            "CodeValue": "인테리어디자이너",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0543",
+            "CodeValue": "패션디자이너",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0544",
+            "CodeValue": "기타 전문직",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0545",
+            "CodeValue": "리서치/시장분석",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0546",
+            "CodeValue": "상품기획/개발/MD",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0547",
+            "CodeValue": "인문학자(민속역사학자)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0548",
+            "CodeValue": "인문학자(언어학자)  ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0549",
+            "CodeValue": "인문학자(철학자)  ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0550",
+            "CodeValue": "기타 인문학자",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0551",
+            "CodeValue": "자연과학자(농경학자)  ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0552",
+            "CodeValue": "자연과학자(축산학자)  ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0553",
+            "CodeValue": "자연과학자(동물학자)  ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0554",
+            "CodeValue": "자연과학자(동물병리학자)  ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0555",
+            "CodeValue": "자연과학자(병리학자)  ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0556",
+            "CodeValue": "자연과학자(물리학자)  ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0557",
+            "CodeValue": "자연과학자(생리학자)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0558",
+            "CodeValue": "자연과학자(의학자)  ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0559",
+            "CodeValue": "자연과학자(약학자)  ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0560",
+            "CodeValue": "자연과학자(산림학자)  ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0561",
+            "CodeValue": "자연과학자(생태학자)  ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0562",
+            "CodeValue": "자연과학자(식물학자)  ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0563",
+            "CodeValue": "자연과학자(원예학자)  ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0564",
+            "CodeValue": "자연과학자(유전학자)  ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0565",
+            "CodeValue": "자연과학자(생물학자)  ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0566",
+            "CodeValue": "자연과학자(화학자)  ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0567",
+            "CodeValue": "자연과학자(지구물리학자)  ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0568",
+            "CodeValue": "자연과학자(천문학자)  ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0569",
+            "CodeValue": "자연과학자(기상학자)  ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0570",
+            "CodeValue": "자연과학자(지질학자)  ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0571",
+            "CodeValue": "자연과학자(지리학자)  ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0572",
+            "CodeValue": "자연과학자(환경과학학자)  ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0573",
+            "CodeValue": "자연과학자(수학자)  ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0574",
+            "CodeValue": "자연과학자(통계학자)  ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0575",
+            "CodeValue": "기타 자연과학자",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0576",
+            "CodeValue": "사회과학자(경영학자)  ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0577",
+            "CodeValue": "사회과학자(경제학자)  ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0578",
+            "CodeValue": "사회과학자(사회학자)  ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0579",
+            "CodeValue": "사회과학자(심리학자) ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0580",
+            "CodeValue": "사회과학자(정치학자) ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0581",
+            "CodeValue": "사회과학자(인류학자) ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0582",
+            "CodeValue": "기타 사회과학자",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0583",
+            "CodeValue": "임원/간부/CEO/CIO",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0584",
+            "CodeValue": "기획/전략기획/경영",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0585",
+            "CodeValue": "총무/인사/공무/관리",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0586",
+            "CodeValue": "경리/회계/재무/자금",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0587",
+            "CodeValue": "홍보/PR/광고 ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0588",
+            "CodeValue": "고객상담/TM",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0589",
+            "CodeValue": "구매/자재",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0590",
+            "CodeValue": "비서/수행원",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0591",
+            "CodeValue": "OA/전자문서편집",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0592",
+            "CodeValue": "음식료업/지배인/서비스",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0593",
+            "CodeValue": "유통/백화점/물류",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0594",
+            "CodeValue": "무역/수출입사무직 ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0595",
+            "CodeValue": "기타(사무일반,관리직) ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0596",
+            "CodeValue": "증권분석사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0597",
+            "CodeValue": "자산설계사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0598",
+            "CodeValue": "외환/선물 딜러",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0599",
+            "CodeValue": "회계사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0600",
+            "CodeValue": "세무사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0601",
+            "CodeValue": "관세사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0602",
+            "CodeValue": "리서치/시장분석/통계",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0603",
+            "CodeValue": "상품기획/개발/MD",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0604",
+            "CodeValue": "임원/간부/CEO/CIO",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0605",
+            "CodeValue": "기획/전략기획/경영",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0606",
+            "CodeValue": "총무/인사/공무/관리",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0607",
+            "CodeValue": "경리/회계/재무/자금",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0608",
+            "CodeValue": "홍보/PR/광고 ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0609",
+            "CodeValue": "고객상담/TM",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0610",
+            "CodeValue": "구매/자재",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0611",
+            "CodeValue": "비서/수행원",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0612",
+            "CodeValue": "OA/전자문서편집",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0613",
+            "CodeValue": "기타(사무일반,관리직) ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0614",
+            "CodeValue": "마케팅/마케팅기획 ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0615",
+            "CodeValue": "금융영업/보험영업 ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0616",
+            "CodeValue": "기타(마케팅/영업직) ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0617",
+            "CodeValue": "마케팅/마케팅기획 ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0618",
+            "CodeValue": "영업",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0619",
+            "CodeValue": "판매/매장/고객관리 ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0620",
+            "CodeValue": "무역/해외영업/수출입 ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0621",
+            "CodeValue": "광고영업",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0622",
+            "CodeValue": "기술영업(정보통신/SI)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0623",
+            "CodeValue": "기술영업(기타기술판매)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0624",
+            "CodeValue": "기타(마케팅/영업직) ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0625",
+            "CodeValue": "전기/전자/제어",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0626",
+            "CodeValue": "반도체/디스플레이/광학",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0627",
+            "CodeValue": "컴퓨터/하드웨어/장비",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0628",
+            "CodeValue": "기계/기계설비 ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0629",
+            "CodeValue": "자동차/철강/조선/항공",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0630",
+            "CodeValue": "금속/재료/요업 ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0631",
+            "CodeValue": "건설/토목 ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0632",
+            "CodeValue": "건축/설비/조경",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0633",
+            "CodeValue": "화학/에너지/프라스틱/환경",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0634",
+            "CodeValue": "섬유/의류/패션",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0635",
+            "CodeValue": "제약/의료/바이오",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0636",
+            "CodeValue": "생활화학/화장품 ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0637",
+            "CodeValue": "목재/제지/가구",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0638",
+            "CodeValue": "소비재/기타제조",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0639",
+            "CodeValue": "식품가공/농어업/광업",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0640",
+            "CodeValue": "생산관리/공정관리/품질관리",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0641",
+            "CodeValue": "생산/조립/기능직",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0642",
+            "CodeValue": "기타 기술/기능직종",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0643",
+            "CodeValue": "총지배인",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0644",
+            "CodeValue": "식음료서비스 종사자",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0645",
+            "CodeValue": "연회서비스 종사자",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0646",
+            "CodeValue": "조리사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0647",
+            "CodeValue": "프론트서비스 종사자",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0648",
+            "CodeValue": "벨,도어서비스 종사자",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0649",
+            "CodeValue": "하우스키핑,린넨",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0650",
+            "CodeValue": "면세 영업 종사자",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0651",
+            "CodeValue": "휘트니스",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0652",
+            "CodeValue": "고객지원 종사자",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0653",
+            "CodeValue": "기타 호텔/숙박 서비스업 종사자",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0654",
+            "CodeValue": "조리사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0655",
+            "CodeValue": "바텐더",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0656",
+            "CodeValue": "주류서비스업 종사자",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0657",
+            "CodeValue": "음료서비스업 종사자",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0658",
+            "CodeValue": "음식업서비스업 종사자",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0659",
+            "CodeValue": "기타 음식/외식 서비스업 종사자",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0660",
+            "CodeValue": "항공기승무원",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0661",
+            "CodeValue": "여객열차승무원",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0662",
+            "CodeValue": "선박승무원",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0663",
+            "CodeValue": "기타승무원",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0664",
+            "CodeValue": "선장",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0665",
+            "CodeValue": "파일럿",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0666",
+            "CodeValue": "기관사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0667",
+            "CodeValue": "운전직(지입/운송/화물) ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0668",
+            "CodeValue": "운전직(중장비/중기계) ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0669",
+            "CodeValue": "기타운전직(택시/개인/버스)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0670",
+            "CodeValue": "기타 운전/운항 서비스업 종사자",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0671",
+            "CodeValue": "여행가이드",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0672",
+            "CodeValue": "기타 여행서비스업 종사자",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0673",
+            "CodeValue": "미용사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0674",
+            "CodeValue": "피부관리사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0675",
+            "CodeValue": "화장 및 분장사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0676",
+            "CodeValue": "코디네이터",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0677",
+            "CodeValue": "기타 미용서비스업 종사자",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0678",
+            "CodeValue": "결혼상담원",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0679",
+            "CodeValue": "예식종사원",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0680",
+            "CodeValue": "공연기획",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0681",
+            "CodeValue": "행사도우미",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0682",
+            "CodeValue": "나레이터",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0683",
+            "CodeValue": "기타 결혼/행사 서비스업 종사자",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0684",
+            "CodeValue": "경호원",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0685",
+            "CodeValue": "청원경찰",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0686",
+            "CodeValue": "경비/시설관리/주차관리",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0687",
+            "CodeValue": "기타 경비/보안서비스업 종사자",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0688",
+            "CodeValue": "장의사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0689",
+            "CodeValue": "기타 장의관련 서비스업 종사자",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0690",
+            "CodeValue": "가정보육사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0691",
+            "CodeValue": "간병인",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0692",
+            "CodeValue": "기타 건강관련 서비스업 종사자",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0693",
+            "CodeValue": "레크레이션 지도자",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0694",
+            "CodeValue": "기타 오락 서비스업 종사자",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0695",
+            "CodeValue": "안내/도우미/전화안내 ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0696",
+            "CodeValue": "사서",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0697",
+            "CodeValue": "기타 안내 서비스업 종사자",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0698",
+            "CodeValue": "웹마스터/몰마스터 ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0699",
+            "CodeValue": "네트웍/DB설계,구축",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0700",
+            "CodeValue": "웹기획/마케팅/웹PD ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0701",
+            "CodeValue": "웹프로그래머",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0702",
+            "CodeValue": "게임기획/개발",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0703",
+            "CodeValue": "컨텐츠관리/정보제공",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0704",
+            "CodeValue": "응용프로그래머",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0705",
+            "CodeValue": "시스템/서버관리",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0706",
+            "CodeValue": "시스템분석/설계/PM ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0707",
+            "CodeValue": "통신기술/GIS/GPS",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0708",
+            "CodeValue": "하드웨어/장비개발",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0709",
+            "CodeValue": "웹디자인/HTML코딩",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0710",
+            "CodeValue": "그래픽/컴퓨터그래픽",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0711",
+            "CodeValue": "편집디자인/MAC/광고",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0712",
+            "CodeValue": "제품/산업디자인",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0713",
+            "CodeValue": "CAD/CAM (355) ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0714",
+            "CodeValue": "캐릭터/애니메이션/CI",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0715",
+            "CodeValue": "기타(IT/정보통신업)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0716",
+            "CodeValue": "농업",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0717",
+            "CodeValue": "임업",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0718",
+            "CodeValue": "광업",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0719",
+            "CodeValue": "어업",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0720",
+            "CodeValue": "축산업",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0721",
+            "CodeValue": "기타",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0722",
+            "CodeValue": "광고",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0723",
+            "CodeValue": "방송/언론/미디어",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0724",
+            "CodeValue": "은행/보험/증권/카드",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0725",
+            "CodeValue": "연구소/컨설팅 ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0726",
+            "CodeValue": "출판/인쇄/편집/사진 ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0727",
+            "CodeValue": "교육/학원 ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0728",
+            "CodeValue": "호텔/관광/여행/항공",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0729",
+            "CodeValue": "음식료업/프랜차이즈",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0730",
+            "CodeValue": "유통/물류/무역 ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0731",
+            "CodeValue": "경비/시설관리/용역",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0732",
+            "CodeValue": "환경/안전/보건직",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0733",
+            "CodeValue": "기타 서비스업",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0734",
+            "CodeValue": "전기/전자/반도체/광학",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0735",
+            "CodeValue": "기계/철강/자동차",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0736",
+            "CodeValue": "건설/토목/건축",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0737",
+            "CodeValue": "석유/화학/에너지/환경",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0738",
+            "CodeValue": "섬유/의류/쥬얼리/잡화",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0739",
+            "CodeValue": "건강/의료/제약/유전 ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0740",
+            "CodeValue": "생활화학/화장품 ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0741",
+            "CodeValue": "소비재/기타제조업",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0742",
+            "CodeValue": "목재/제지",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0743",
+            "CodeValue": "농어업/광업/임업/식품",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0744",
+            "CodeValue": "금속/재료/요업",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0745",
+            "CodeValue": "조선/항공/우주",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0746",
+            "CodeValue": "기타 제조업종",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0747",
+            "CodeValue": "웹에이젼시",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0748",
+            "CodeValue": "솔루션/ASP ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0749",
+            "CodeValue": "전자상거래/EC",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0750",
+            "CodeValue": "포털/컨텐츠",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0751",
+            "CodeValue": "네트웍/통신/텔레콤",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0752",
+            "CodeValue": "하드웨어/장비 ",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0753",
+            "CodeValue": "보안",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0754",
+            "CodeValue": "게임/엔터테인먼트",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0755",
+            "CodeValue": "캐릭터/애니메이션",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0756",
+            "CodeValue": "모바일/무선",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0757",
+            "CodeValue": "디자인/CAD",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0758",
+            "CodeValue": "IT컨설팅/인큐베이팅",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0759",
+            "CodeValue": "기타 정보통신업종",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0760",
+            "CodeValue": "초등학생",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0761",
+            "CodeValue": "중학생",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0762",
+            "CodeValue": "고등학생",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0763",
+            "CodeValue": "어문계열(언어학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0764",
+            "CodeValue": "어문계열(국어국문학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0765",
+            "CodeValue": "어문계열(영어영문학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0766",
+            "CodeValue": "어문계열(중어중문학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0767",
+            "CodeValue": "어문계열(일어일문학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0768",
+            "CodeValue": "어문계열(불어불문학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0769",
+            "CodeValue": "어문계열(독어독문학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0770",
+            "CodeValue": "어문계열(이태리어과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0771",
+            "CodeValue": "어문계열(네덜란드어과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0772",
+            "CodeValue": "어문계열(폴란드어과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0773",
+            "CodeValue": "어문계열(포르투칼어과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0774",
+            "CodeValue": "어문계열(체코어과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0775",
+            "CodeValue": "어문계열(루마니아어과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0776",
+            "CodeValue": "어문계열(헝가리어과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0777",
+            "CodeValue": "어문계열(노어노문학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0778",
+            "CodeValue": "어문계열(서어서문학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0779",
+            "CodeValue": "어문계열(베트남어과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0780",
+            "CodeValue": "어문계열(태국어과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0781",
+            "CodeValue": "어문계열(말레이인도네시아어과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0782",
+            "CodeValue": "어문계열(아랍어과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0783",
+            "CodeValue": "어문계열(이란어과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0784",
+            "CodeValue": "어문계열(몽골어문학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0785",
+            "CodeValue": "어문계열(미얀마어과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0786",
+            "CodeValue": "어문계열(스칸디나비아어과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0787",
+            "CodeValue": "어문계열(아프리카어과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0788",
+            "CodeValue": "어문계열(유고어과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0789",
+            "CodeValue": "어문계열(터어키어과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0790",
+            "CodeValue": "어문계열(인도어과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0791",
+            "CodeValue": "어문계열(중앙아시아어과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0792",
+            "CodeValue": "어문계열(한문학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0793",
+            "CodeValue": "어문계열(통번역학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0794",
+            "CodeValue": "어문계열(기타)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0795",
+            "CodeValue": "인문계열(고고인류학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0796",
+            "CodeValue": "인문계열(문예창작학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0797",
+            "CodeValue": "인문계열(국민윤리학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0798",
+            "CodeValue": "인문계열(미국학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0799",
+            "CodeValue": "인문계열(영미지역학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0800",
+            "CodeValue": "인문계열(북미학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0801",
+            "CodeValue": "인문계열(유럽학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0802",
+            "CodeValue": "인문계열(프랑스학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0803",
+            "CodeValue": "인문계열(독일학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0804",
+            "CodeValue": "인문계열(러시아학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0805",
+            "CodeValue": "인문계열(아랍학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0806",
+            "CodeValue": "인문계열(히브리학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0807",
+            "CodeValue": "인문계열(아시아지역학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0808",
+            "CodeValue": "인문계열(중국학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0809",
+            "CodeValue": "인문계열(일본학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0810",
+            "CodeValue": "인문계열(한국학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0811",
+            "CodeValue": "인문계열(민속학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0812",
+            "CodeValue": "인문계열(미학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0813",
+            "CodeValue": "인문계열(사학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0814",
+            "CodeValue": "인문계열(철학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0815",
+            "CodeValue": "인문계열(기타)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0816",
+            "CodeValue": "신학계열(종교학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0817",
+            "CodeValue": "신학계열(신학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0818",
+            "CodeValue": "신학계열(기독교학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0819",
+            "CodeValue": "신학계열(불교학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0820",
+            "CodeValue": "신학계열(기타)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0821",
+            "CodeValue": "사회계열(광고홍보학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0822",
+            "CodeValue": "사회계열(언론정보학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0823",
+            "CodeValue": "사회계열(신문방송학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0824",
+            "CodeValue": "사회계열(국제문화정보학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0825",
+            "CodeValue": "사회계열(심리학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0826",
+            "CodeValue": "사회계열(아동학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0827",
+            "CodeValue": "사회계열(노년학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0828",
+            "CodeValue": "사회계열(사회학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0829",
+            "CodeValue": "사회계열(북한학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0830",
+            "CodeValue": "사회계열(부동산학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0831",
+            "CodeValue": "사회계열(지리학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0832",
+            "CodeValue": "사회계열(지적학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0833",
+            "CodeValue": "사회계열(풍수지리학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0834",
+            "CodeValue": "사회계열(문화재보존학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0835",
+            "CodeValue": "사회계열(지역사회개발학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0836",
+            "CodeValue": "사회계열(사회복지학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0837",
+            "CodeValue": "사회계열(사회사업학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0838",
+            "CodeValue": "사회계열(문헌정보학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0839",
+            "CodeValue": "사회계열(도서관학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0840",
+            "CodeValue": "사회계열(청소년지도학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0841",
+            "CodeValue": "사회계열(기타)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0842",
+            "CodeValue": "법정계열(법학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0843",
+            "CodeValue": "법정계열(국제법무학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0844",
+            "CodeValue": "법정계열(정치외교학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0845",
+            "CodeValue": "법정계열(행정학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0846",
+            "CodeValue": "법정계열(경찰행정학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0847",
+            "CodeValue": "법정계열(기타)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0848",
+            "CodeValue": "경상계열(경영학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0849",
+            "CodeValue": "경상계열(경제학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0850",
+            "CodeValue": "경상계열(무역학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0851",
+            "CodeValue": "경상계열(경영정보학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0852",
+            "CodeValue": "경상계열(국제경영학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0853",
+            "CodeValue": "경상계열(국제무역학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0854",
+            "CodeValue": "경상계열(국제통상학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0855",
+            "CodeValue": "경상계열(관광경영학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0856",
+            "CodeValue": "경상계열(관광통역학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0857",
+            "CodeValue": "경상계열(호텔경영학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0858",
+            "CodeValue": "경상계열(회계학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0859",
+            "CodeValue": "경상계열(비서학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0860",
+            "CodeValue": "경상계열(보험학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0861",
+            "CodeValue": "경상계열(유통정보학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0862",
+            "CodeValue": "경상계열(의료경영학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0863",
+            "CodeValue": "경상계열(창업정보학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0864",
+            "CodeValue": "경상계열(기타)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0865",
+            "CodeValue": "수학계열(수학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0866",
+            "CodeValue": "수학계열(통계학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0867",
+            "CodeValue": "수학계열(기타)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0868",
+            "CodeValue": "자연과학계열(화학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0869",
+            "CodeValue": "자연과학계열(물리학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0870",
+            "CodeValue": "자연과학계열(생물학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0871",
+            "CodeValue": "자연과학계열(천문학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0872",
+            "CodeValue": "자연과학계열(지질학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0873",
+            "CodeValue": "자연과학계열(지구과학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0874",
+            "CodeValue": "자연과학계열(생명과학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0875",
+            "CodeValue": "자연과학계열(지구환경학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0876",
+            "CodeValue": "자연과학계열(대기환경학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0877",
+            "CodeValue": "자연과학계열(항공교통학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0878",
+            "CodeValue": "자연과학계열(응용생명환경학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0879",
+            "CodeValue": "자연과학계열(분자생물학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0880",
+            "CodeValue": "자연과학계열(유전공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0881",
+            "CodeValue": "자연과학계열(동물자원학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0882",
+            "CodeValue": "자연과학계열(기타)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0883",
+            "CodeValue": "공학계열(전기공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0884",
+            "CodeValue": "공학계열(전자공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0885",
+            "CodeValue": "공학계열(전자통신공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0886",
+            "CodeValue": "공학계열(전자재료공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0887",
+            "CodeValue": "공학계열(정보시스템공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0888",
+            "CodeValue": "공학계열(제어계측공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0889",
+            "CodeValue": "공학계열(기계공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0890",
+            "CodeValue": "공학계열(정보통신공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0891",
+            "CodeValue": "공학계열(정보처리공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0892",
+            "CodeValue": "공학계열(금속공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0893",
+            "CodeValue": "공학계열(재료공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0894",
+            "CodeValue": "공학계열(자원공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0895",
+            "CodeValue": "공학계열(원자력공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0896",
+            "CodeValue": "공학계열(신소재공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0897",
+            "CodeValue": "공학계열(세라믹공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0898",
+            "CodeValue": "공학계열(섬유공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0899",
+            "CodeValue": "공학계열(생산가공공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0900",
+            "CodeValue": "공학계열(산업공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0901",
+            "CodeValue": "공학계열(컴퓨터공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0902",
+            "CodeValue": "공학계열(메카트로닉스공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0903",
+            "CodeValue": "공학계열(무기재료공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0904",
+            "CodeValue": "공학계열(광학공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0905",
+            "CodeValue": "공학계열(고분자공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0906",
+            "CodeValue": "공학계열(멀티미디어공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0907",
+            "CodeValue": "공학계열(조선공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0908",
+            "CodeValue": "공학계열(항공운항학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0909",
+            "CodeValue": "공학계열(항공우주공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0910",
+            "CodeValue": "공학계열(반도체공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0911",
+            "CodeValue": "공학계열(화학공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0912",
+            "CodeValue": "공학계열(공업화학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0913",
+            "CodeValue": "공학계열(건축공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0914",
+            "CodeValue": "공학계열(지리정보공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0915",
+            "CodeValue": "공학계열(도시공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0916",
+            "CodeValue": "공학계열(토목공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0917",
+            "CodeValue": "공학계열(환경공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0918",
+            "CodeValue": "공학계열(보석공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0919",
+            "CodeValue": "공학계열(사진정보공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0920",
+            "CodeValue": "공학계열(기타)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0921",
+            "CodeValue": "농학계열(농학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0922",
+            "CodeValue": "농학계열(임학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0923",
+            "CodeValue": "농학계열(축산학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0924",
+            "CodeValue": "농학계열(농생물학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0925",
+            "CodeValue": "농학계열(식물자원학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0926",
+            "CodeValue": "농학계열(원예학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0927",
+            "CodeValue": "농학계열(임산공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0928",
+            "CodeValue": "농학계열(천연섬유학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0929",
+            "CodeValue": "농학계열(조경학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0930",
+            "CodeValue": "농학계열(식량자원학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0931",
+            "CodeValue": "농학계열(식품공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0932",
+            "CodeValue": "농학계열(기타)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0933",
+            "CodeValue": "수상해양계열(해양학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0934",
+            "CodeValue": "수상해양계열(해양경찰학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0935",
+            "CodeValue": "수상해양계열(해양환경공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0936",
+            "CodeValue": "수상해양계열(해양생산학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0937",
+            "CodeValue": "수상해양계열(수산생명의학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0938",
+            "CodeValue": "수상해양계열(수산경영학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0939",
+            "CodeValue": "수상해양계열(수산가공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0940",
+            "CodeValue": "수상해양계열(양식학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0941",
+            "CodeValue": "수상해양계열(항해시스템공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0942",
+            "CodeValue": "수상해양계열(기관공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0943",
+            "CodeValue": "수상해양계열(냉동공조공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0944",
+            "CodeValue": "수상해양계열(기타)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0945",
+            "CodeValue": "가정계열(의류학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0946",
+            "CodeValue": "가정계열(패션디자인학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0947",
+            "CodeValue": "가정계열(아동가족학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0948",
+            "CodeValue": "가정계열(가정복지학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0949",
+            "CodeValue": "가정계열(아동복지학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0950",
+            "CodeValue": "가정계열(가정관리학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0951",
+            "CodeValue": "가정계열(보육학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0952",
+            "CodeValue": "가정계열(외식사업학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0953",
+            "CodeValue": "가정계열(영양자원학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0954",
+            "CodeValue": "가정계열(식품생명공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0955",
+            "CodeValue": "가정계열(식품영양학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0956",
+            "CodeValue": "가정계열(식품가공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0957",
+            "CodeValue": "가정계열(소비자학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0958",
+            "CodeValue": "가정계열(기타)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0959",
+            "CodeValue": "의학계열(한의학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0960",
+            "CodeValue": "의학계열(치의예과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0961",
+            "CodeValue": "의학계열(내과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0962",
+            "CodeValue": "의학계열(소아과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0963",
+            "CodeValue": "의학계열(신경정신과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0964",
+            "CodeValue": "의학계열(피부과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0965",
+            "CodeValue": "의학계열((일반)외과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0966",
+            "CodeValue": "의학계열(흉부외과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0967",
+            "CodeValue": "의학계열(정형외과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0968",
+            "CodeValue": "의학계열(신경외과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0969",
+            "CodeValue": "의학계열(성형외과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0970",
+            "CodeValue": "의학계열(산부인과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0971",
+            "CodeValue": "의학계열(안과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0972",
+            "CodeValue": "의학계열(이비인후과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0973",
+            "CodeValue": "의학계열(비뇨기과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0974",
+            "CodeValue": "의학계열(재활의학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0975",
+            "CodeValue": "의학계열(방사선종양학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0976",
+            "CodeValue": "의학계열(가정의학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0977",
+            "CodeValue": "의학계열(응급의학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0978",
+            "CodeValue": "의학계열(산업의학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0979",
+            "CodeValue": "의학계열(예방의학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0980",
+            "CodeValue": "의학계열(해부병리과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0981",
+            "CodeValue": "의학계열(마취통증의학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0982",
+            "CodeValue": "의학계열(영상의학과(진단방사선과))",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0983",
+            "CodeValue": "의학계열(진단검사의학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0984",
+            "CodeValue": "의학계열(핵의학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0985",
+            "CodeValue": "의학계열(조직병리학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0986",
+            "CodeValue": "의학계열(결핵과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0987",
+            "CodeValue": "수의학계열(수의학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0988",
+            "CodeValue": "약학계열(약학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0989",
+            "CodeValue": "약학계열(한약학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0990",
+            "CodeValue": "의료보건계열(간호학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0991",
+            "CodeValue": "의료보건계열(물리치료학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0992",
+            "CodeValue": "의료보건계열(재활학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0993",
+            "CodeValue": "의료보건계열(건강관리학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0994",
+            "CodeValue": "의료보건계열(보건학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0995",
+            "CodeValue": "의료보건계열(임상병리학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0996",
+            "CodeValue": "의료보건계열(보건의료행정학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0997",
+            "CodeValue": "의료보건계열(직업재활학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0998",
+            "CodeValue": "의료보건계열(환경보건학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "0999",
+            "CodeValue": "의료보건계열(안경광학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1000",
+            "CodeValue": "의료보건계열(미용학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1001",
+            "CodeValue": "의료보건계열(치기공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1002",
+            "CodeValue": "의료보건계열(치위생학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1003",
+            "CodeValue": "의료보건계열(보건위생학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1004",
+            "CodeValue": "의료보건계열(응급구조학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1005",
+            "CodeValue": "의료보건계열(방사선학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1006",
+            "CodeValue": "의료보건계열(작업치료학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1007",
+            "CodeValue": "의료보건계열(의공학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1008",
+            "CodeValue": "의료보건계열(기타)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1009",
+            "CodeValue": "음악계열(음악학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1010",
+            "CodeValue": "음악계열(성악과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1011",
+            "CodeValue": "음악계열(작곡과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1012",
+            "CodeValue": "음악계열(국악과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1013",
+            "CodeValue": "음악계열(기악과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1014",
+            "CodeValue": "음악계열(피아노과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1015",
+            "CodeValue": "음악계열(관현학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1016",
+            "CodeValue": "음악계열(실용음악과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1017",
+            "CodeValue": "음악계열(한국음악과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1018",
+            "CodeValue": "음악계열(영상음악과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1019",
+            "CodeValue": "음악계열(교회음악학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1020",
+            "CodeValue": "음악계열(기타)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1021",
+            "CodeValue": "미술계열(회화학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1022",
+            "CodeValue": "미술계열(미술학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1023",
+            "CodeValue": "미술계열(동양화과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1024",
+            "CodeValue": "미술계열(서양화과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1025",
+            "CodeValue": "미술계열(공예학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1026",
+            "CodeValue": "미술계열(조소학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1027",
+            "CodeValue": "미술계열(도예과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1028",
+            "CodeValue": "미술계열(응용미술학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1029",
+            "CodeValue": "미술계열(실내디자인학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1030",
+            "CodeValue": "미술계열(가구디자인과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1031",
+            "CodeValue": "미술계열(산업디자인학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1032",
+            "CodeValue": "미술계열(멀티미디어디자인학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1033",
+            "CodeValue": "미술계열(컴퓨터그래픽디자인학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1034",
+            "CodeValue": "미술계열(공업디자인학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1035",
+            "CodeValue": "미술계열(사진학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1036",
+            "CodeValue": "미술계열(만화학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1037",
+            "CodeValue": "미술계열(미술평론학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1038",
+            "CodeValue": "미술계열(기타)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1039",
+            "CodeValue": "연극영화계열(연극영화학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1040",
+            "CodeValue": "연극영화계열(영상예술학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1041",
+            "CodeValue": "연극영화계열(기타)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1042",
+            "CodeValue": "무용체육계열(체육학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1043",
+            "CodeValue": "무용체육계열(바둑학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1044",
+            "CodeValue": "무용체육계열(무용학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1045",
+            "CodeValue": "무용체육계열(경호학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1046",
+            "CodeValue": "무용체육계열(기타)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1047",
+            "CodeValue": "사범계열(교육학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1048",
+            "CodeValue": "사범계열(사범대어문계학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1049",
+            "CodeValue": "사범계열(사범대인문사회학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1050",
+            "CodeValue": "사범계열(사범대이학계학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1051",
+            "CodeValue": "사범계열(사범대공학계학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1052",
+            "CodeValue": "사범계열(사범대예체능계학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1053",
+            "CodeValue": "사범계열(유아교육학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1054",
+            "CodeValue": "사범계열(초등교육학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1055",
+            "CodeValue": "사범계열(특수교육학과)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1056",
+            "CodeValue": "사범계열(기타)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1057",
+            "CodeValue": "기타 학생(재수생,검정고시생 등)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1058",
+            "CodeValue": "전업주부",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1059",
+            "CodeValue": "직업군인(육군)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1060",
+            "CodeValue": "직업군인(해군)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1061",
+            "CodeValue": "직업군인(공군)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1062",
+            "CodeValue": "직업군인(해병대)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1063",
+            "CodeValue": "직업군인(기타)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1064",
+            "CodeValue": "육군",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1065",
+            "CodeValue": "해군",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1066",
+            "CodeValue": "공군",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1067",
+            "CodeValue": "해병대",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1068",
+            "CodeValue": "공익근무원",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1069",
+            "CodeValue": "방위산업체",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1070",
+            "CodeValue": "기타 군인",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1071",
+            "CodeValue": "회사원",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1072",
+            "CodeValue": "무직",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1073",
+            "CodeValue": "기타직종종사자",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        }
+    ]
+}

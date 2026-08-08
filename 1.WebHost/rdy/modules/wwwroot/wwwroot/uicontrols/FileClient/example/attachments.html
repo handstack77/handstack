@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>FileClient - 게시판/전자결재 다중 첨부파일 실무 패턴</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div>
+            <div>게시판/전자결재 첨부파일 - 여러 건 첨부 + 목록 관리</div>
+            <p>
+                <code>basic.html</code>의 "1:1 이미지 업로드(uploadUI 팝업)" 방식과 달리, 게시판/결재 문서 첨부파일은
+                실무에서 그리드 없이 카드 목록으로 직접 그리고, 업로드된 파일들을 <code>Flag</code>(R/C/D)가 붙은
+                배열로 관리하다가 저장 트랜잭션에 <code>type: 'List'</code>로 함께 실어 보냅니다. 이 예제는 서버가
+                없는 환경에서도 흐름을 확인할 수 있도록 실제 업로드 대신 파일 선택 결과를 그대로 시뮬레이션합니다.
+            </p>
+
+            <div>
+                <label>문서 번호(업로드 가능하려면 먼저 발급되어 있어야 함)</label>
+                <input type="text" id="txtDocumentNo" placeholder="예: BOD_00001">
+            </div>
+
+            <syn_fileclient id="sfcAttachFiles" syn-options="{repositoryID: 'TSTLM01'}"></syn_fileclient>
+            <input type="file" id="filAttach" multiple syn-events="['change']">
+
+            <div id="divAttachList"></div>
+            <div>첨부파일 <span id="lblAttachCount">0</span> / <span id="lblAttachMax">5</span></div>
+        </div>
+        <hr>
+        <input type="button" id="btnGetValue" value="저장 대상 확인(getValue)" syn-events="['click']">
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

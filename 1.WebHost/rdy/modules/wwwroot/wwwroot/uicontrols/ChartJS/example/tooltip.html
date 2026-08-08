@@ -1,0 +1,214 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <title>
+        ChartJS - Tooltip 샘플 갤러리
+    </title>
+    <style>
+        body {
+            font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+            margin: 16px;
+            color: #222;
+        }
+
+        h1 {
+            font-size: 18px;
+            margin: 0 0 4px;
+        }
+
+        .lead {
+            color: #666;
+            margin: 0 0 16px;
+            font-size: 13px;
+        }
+
+        .chart-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+            gap: 20px;
+        }
+
+        .chart-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 12px;
+            position: relative;
+        }
+
+            .chart-card h3 {
+                margin: 0 0 4px;
+                font-size: 14px;
+            }
+
+            .chart-card p {
+                margin: 0 0 10px;
+                font-size: 12px;
+                color: #666;
+            }
+
+        .quad {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+            .quad h4 {
+                margin: 0 0 2px;
+                font-size: 11px;
+                text-align: center;
+                color: #444;
+            }
+
+        .html-tooltip {
+            position: absolute;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity .12s ease;
+            background: #1f2937;
+            color: #fff;
+            border-radius: 6px;
+            padding: 8px 10px;
+            font-size: 12px;
+            transform: translate(-50%, 0);
+            z-index: 5;
+        }
+
+            .html-tooltip table {
+                border-collapse: collapse;
+            }
+
+            .html-tooltip td {
+                padding: 2px 6px;
+            }
+    </style>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <h1>
+            Tooltip
+        </h1>
+        <p class="lead">
+            chartjs.org 공식 샘플(docs/samples/tooltip/*) 5종을 &lt;syn_chartjs&gt;로 재현합니다.
+        </p>
+        <div class="chart-gallery">
+            <div class="chart-card">
+                <h3>
+                    Content
+                </h3>
+                <p>
+                    <code>
+                        callbacks.title/label/footer
+                    </code>
+                    로 툴팁 내용을 직접 구성합니다.
+                </p>
+                <syn_chartjs id="chtTooltipContent" style="width:100%;height:280px">
+                </syn_chartjs>
+            </div>
+            <div class="chart-card">
+                <h3>
+                    HTML Tooltip
+                </h3>
+                <p>
+                    기본 캔버스 툴팁 대신
+                    <code>
+                        external
+                    </code>
+                    콜백으로 HTML 툴팁을 그립니다.
+                </p>
+                <syn_chartjs id="chtTooltipHtml" style="width:100%;height:280px">
+                </syn_chartjs>
+                <div id="htmlTooltip" class="html-tooltip">
+                </div>
+            </div>
+            <div class="chart-card">
+                <h3>
+                    Interactions
+                </h3>
+                <p>
+                    <code>
+                        interaction.mode
+                    </code>
+                    4가지(index/nearest/point/dataset)를 비교합니다.
+                </p>
+                <div class="quad">
+                    <div>
+                        <h4>
+                            index
+                        </h4>
+                        <syn_chartjs id="chtInteractIndex" style="width:100%;height:170px">
+                        </syn_chartjs>
+                    </div>
+                    <div>
+                        <h4>
+                            nearest
+                        </h4>
+                        <syn_chartjs id="chtInteractNearest" style="width:100%;height:170px">
+                        </syn_chartjs>
+                    </div>
+                    <div>
+                        <h4>
+                            point
+                        </h4>
+                        <syn_chartjs id="chtInteractPoint" style="width:100%;height:170px">
+                        </syn_chartjs>
+                    </div>
+                    <div>
+                        <h4>
+                            dataset
+                        </h4>
+                        <syn_chartjs id="chtInteractDataset" style="width:100%;height:170px">
+                        </syn_chartjs>
+                    </div>
+                </div>
+            </div>
+            <div class="chart-card">
+                <h3>
+                    Point Style
+                </h3>
+                <p>
+                    <code>
+                        tooltip.usePointStyle: true
+                    </code>
+                    로 툴팁 마커를 포인트 모양과 맞춥니다.
+                </p>
+                <syn_chartjs id="chtTooltipPointStyle" style="width:100%;height:280px">
+                </syn_chartjs>
+            </div>
+            <div class="chart-card">
+                <h3>
+                    Position
+                </h3>
+                <p>
+                    기본
+                    <code>
+                        'average'
+                    </code>
+                    위치 지정과 커스텀 등록 위치 지정(
+                    <code>
+                        Tooltip.positioners.topLeft
+                    </code>
+                    )을 비교합니다.
+                </p>
+                <div class="quad">
+                    <div>
+                        <h4>
+                            average(기본)
+                        </h4>
+                        <syn_chartjs id="chtTooltipPosAverage" style="width:100%;height:200px">
+                        </syn_chartjs>
+                    </div>
+                    <div>
+                        <h4>
+                            topLeft(커스텀)
+                        </h4>
+                        <syn_chartjs id="chtTooltipPosCustom" style="width:100%;height:200px">
+                        </syn_chartjs>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

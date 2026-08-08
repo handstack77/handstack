@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>RadioButton - 선택에 따라 다른 영역 표시(실무 패턴)</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <h3>고객 구분에 따라 입력 영역 전환</h3>
+        <p>
+            실무에서 라디오 그룹은 단순 값 선택보다 "선택에 따라 화면 영역을 바꾸는" 용도로 더 자주 쓰입니다.
+            워킹 고객/업체 고객 중 무엇을 골랐는지에 따라 아래 입력 영역 자체가 바뀝니다. 두 라디오 모두 같은
+            <code>change</code> 핸들러를 호출하고, 그 안에서 현재 체크 상태(<code>el.checked</code>)를 직접 읽어
+            분기합니다.
+        </p>
+
+        <input id="rdoCustomerType1" name="CustomerType" type="radio" value="W" checked syn-events="['change']">
+        <label for="rdoCustomerType1">워킹 고객</label>
+        <input id="rdoCustomerType2" name="CustomerType" type="radio" value="B" syn-events="['change']">
+        <label for="rdoCustomerType2">업체 고객</label>
+
+        <div id="rowCustomerName">
+            <label>고객 명</label>
+            <input type="text" id="txtCustomerName">
+        </div>
+        <div id="rowBusinessCompany" style="display:none;">
+            <label>업체 명</label>
+            <input type="text" id="txtBusinessCompanyName">
+        </div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <title>CheckBox - syn.$bind 양방향 바인딩</title>
+    <link rel="stylesheet" href="/uicontrols/binding-example.css">
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <main id="bindingRoot" class="binding-example">
+            <h1>CheckBox 양방향 바인딩</h1>
+            <p class="description">체크 상태를 업무 값 <code>Y/N</code>으로 읽고 쓰는 어댑터 예제입니다.</p>
+            <div class="binding-anchor" syn-bind="adapter(checkbox):value"></div>
+
+            <section class="binding-panel">
+                <h2>컨트롤에서 변경</h2>
+                <input id="chkBinding" type="checkbox" syn-options="{checkedValue: 'Y', uncheckedValue: 'N'}" syn-events="['change']">
+                <label for="chkBinding">알림 받기</label>
+            </section>
+
+            <section class="binding-panel">
+                <h2>바인딩 확인</h2>
+                <div class="binding-toolbar">
+                    <input type="button" id="btnModelChange" value="Proxy 모델 Y/N 전환" syn-events="['click']">
+                    <input type="button" id="btnControlRead" value="컨트롤 값을 모델로 읽기" syn-events="['click']">
+                </div>
+                <div class="binding-direction" syn-bind="text:direction"></div>
+                <pre id="preModel" class="binding-preview"></pre>
+            </section>
+        </main>
+    </form>
+    <script src="/uicontrols/binding-example.js"></script>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

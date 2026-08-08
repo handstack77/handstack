@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <title>DropDownCheckList - syn.$bind 양방향 바인딩</title>
+    <link rel="stylesheet" href="/uicontrols/binding-example.css">
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <main id="bindingRoot" class="binding-example">
+            <h1>DropDownCheckList 양방향 바인딩</h1>
+            <p class="description">알림 채널 다중 선택값을 쉼표 문자열로 바인딩하고 저장 시 코드 배열로 변환합니다.</p>
+            <div class="binding-anchor" syn-bind="adapter(dropdownchecklist):value"></div>
+
+            <section class="binding-panel">
+                <h2>컨트롤에서 변경</h2>
+                <select id="ddlBinding" multiple syn-options="{placeholder: '알림 채널 선택'}" syn-events="['change']" style="width: 280px;">
+                    <option value="EMAIL">이메일</option>
+                    <option value="SMS">문자메시지</option>
+                    <option value="PUSH">모바일 푸시</option>
+                    <option value="WEB">웹 알림</option>
+                </select>
+            </section>
+
+            <section class="binding-panel">
+                <h2>바인딩 확인</h2>
+                <div class="binding-toolbar">
+                    <input type="button" id="btnModelChange" value="Proxy 모델 다중 선택 변경" syn-events="['click']">
+                    <input type="button" id="btnControlRead" value="컨트롤 값을 모델로 읽기" syn-events="['click']">
+                </div>
+                <div class="binding-direction" syn-bind="text:direction"></div>
+                <pre id="preModel" class="binding-preview"></pre>
+            </section>
+        </main>
+    </form>
+    <script src="/uicontrols/binding-example.js"></script>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

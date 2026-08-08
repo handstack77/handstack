@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div>
+            <div>이벤트 & 변경 이력 추적 - eventMapping 커스터마이징 + Flag(C/U/D/R)</div>
+            <p>실제 업무 데이터 컬럼명(TaskID/TaskName/...)을 <code>eventMapping</code>으로 매핑하고, 이벤트를 추가/수정/삭제한 뒤 <code>getterValue</code>로 변경된 항목만 뽑아내는 예제입니다.</p>
+            <syn_calendar id="calEvents" syn-options="{
+                height: 500,
+                initialView: 'dayGridMonth',
+                selectable: true,
+                editable: true,
+                eventMapping: {
+                    id: 'TaskID',
+                    title: 'TaskName',
+                    start: 'StartDate',
+                    end: 'EndDate',
+                    backgroundColor: 'BackgroundColor'
+                }
+            }" syn-events="['eventClick', 'datesSet', 'eventDrop', 'eventResize']"></syn_calendar>
+        </div>
+        <hr />
+        <div>
+            <div>기능</div>
+            <input type="button" id="btnAddEvent" value="addEvent(신규 일정 추가)" syn-events="['click']" />
+            <input type="button" id="btnUpdateEvent" value="updateEvent(TaskID=1 제목 변경)" syn-events="['click']" />
+            <input type="button" id="btnRemoveEvent" value="removeEvent(TaskID=2 삭제)" syn-events="['click']" />
+            <input type="button" id="btnGetterValue" value="getterValue(변경분만 조회)" syn-events="['click']" />
+            <input type="button" id="btnFindEvents" value="findEvents(제목에 '회의' 포함)" syn-events="['click']" />
+        </div>
+        <hr />
+        <div>
+            <div>결과 / 이벤트 로그</div>
+            <pre id="preLog"></pre>
+        </div>
+    </form>
+    <script>
+        function pageLoadFiles(styleFiles, jsFiles, templateFiles) {
+            window.afterLoadFiles = [];
+            // syn.loader.js에는 'calendar' 자동 매핑 항목이 없으므로 직접 등록합니다.
+            afterLoadFiles.push('/lib/fullcalendar/index.global.min.js');
+            afterLoadFiles.push('/lib/fullcalendar/core/locales/ko.global.min.js');
+            afterLoadFiles.push('/uicontrols/Calendar/Calendar.css');
+            afterLoadFiles.push('/uicontrols/Calendar/Calendar.js');
+        }
+    </script>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

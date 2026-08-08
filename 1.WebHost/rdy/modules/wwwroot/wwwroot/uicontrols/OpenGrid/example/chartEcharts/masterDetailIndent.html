@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>마스터/디테일(들여쓰기) - OpenGrid 예제</title>
+    <link rel="stylesheet" href="../../OpenGrid.css">
+    <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+    <div class="demo-nav"><a href="../index.html">← 목록으로</a> · 차트 연동(ECharts)</div>
+    <h2>마스터/디테일(들여쓰기)</h2>
+    <p class="desc">막대를 클릭하면 오른쪽 그리드에 하위 상세가 들여쓰기로 표시됩니다.</p>
+    <div class="demo-split">
+        <div id="grdMasterDetailIndent" class="demo-chart"></div>
+        <syn_opengrid id="grdMasterDetailIndent_detail" class="demo-grid" syn-options="{
+            columns: [
+                ['Label', '구성', 200, false, 'text'],
+                ['Amount', '금액', 120, false, 'number']
+            ]
+        }"></syn_opengrid>
+    </div>
+    <div id="divLog" class="log-panel"></div>
+    <script src="../../../../js/syn.js"></script>
+    <script src="../../CodePicker/CodePicker.js"></script>
+    <script src="../../OpenGrid.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+    <script src="../common.js"></script>
+    <script src="masterDetailIndent.js"></script>
+</body>
+</html>

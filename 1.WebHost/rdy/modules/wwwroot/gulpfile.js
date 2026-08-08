@@ -1,0 +1,242 @@
+var gulp = require(`gulp`);
+var concat = require(`gulp-concat`);
+var uglify = require(`gulp-uglify`);
+let stripCssComments;
+async function getStripCssComments() {
+    if (stripCssComments) {
+        return stripCssComments;
+    }
+
+    var moduleRef = await import('gulp-strip-css-comments');
+    stripCssComments = moduleRef.default || moduleRef;
+    return stripCssComments;
+}
+var uglifycss = require(`gulp-uglifycss`);
+var rename = require(`gulp-rename`);
+var javascriptObfuscator = require(`gulp-javascript-obfuscator`);
+
+gulp.task('scripts', function () {
+    return gulp.src([
+        `wwwroot/lib/tabler-core/dist/js/tabler.min.js`,
+        `wwwroot/lib/jquery/jquery.min.js`,
+        `wwwroot/js/jquery.alertmodal/jquery.alertmodal.js`,
+        `wwwroot/lib/jquery-simplemodal/src/jquery.simplemodal.min.js`,
+        `wwwroot/js/jquery-wm/jquery.WM.js`,
+        `wwwroot/js/jquery-ui-contextmenu/jquery-ui.js`,
+        `wwwroot/js/jquery-ui-contextmenu/jquery.ui-contextmenu.js`,
+        `wwwroot/lib/nanobar/nanobar.min.js`,
+        `wwwroot/js/notifier/notifier.js`,
+        `wwwroot/lib/clipboard.js/clipboard.min.js`,
+        `wwwroot/lib/mustache/mustache.min.js`,
+        `wwwroot/lib/dompurify/purify.min.js`,
+        `wwwroot/lib/marked/marked.min.js`,
+        `wwwroot/lib/print-js/print.min.js`,
+        'wwwroot/lib/auigrid/dist/AUIGridLicense.js',
+        'wwwroot/lib/auigrid/dist/AUIGrid.js',
+        // 'wwwroot/lib/handsontable/dist/handsontable.full.js',
+        // 'wwwroot/lib/handsontable/languages/ko-KR.js',
+        `wwwroot/lib/jquery.maskedinput/jquery.maskedinput.min.js`,
+        `wwwroot/lib/ispin/dist/ispin.min.js`,
+        `wwwroot/lib/superplaceholder/superplaceholder.js`,
+        `wwwroot/lib/vanilla-masker/vanilla-masker.min.js`,
+        `wwwroot/lib/codemirror/codemirror.min.js`,
+        `wwwroot/lib/tail.select.js/js/tail.select.min.js`,
+        `wwwroot/lib/highcharts/highcharts.min.js`,
+        `wwwroot/lib/chart.js/chart.umd.min.js`,
+        `wwwroot/lib/echarts/echarts.min.js`,
+        `wwwroot/lib/echarts/i18n/langKO.js`,
+        `wwwroot/lib/video.js/dist/video.min.js`,
+        `wwwroot/lib/video.js/dist/lang/ko.js`,
+        `wwwroot/lib/videojs-youtube/dist/Youtube.min.js`,
+        `wwwroot/js/color-picker/color-picker.js`,
+        `wwwroot/lib/moment.js/moment.min.js`,
+        `wwwroot/lib/pikaday/pikaday.min.js`,
+        `wwwroot/lib/fancytree/jquery.fancytree-all-deps.min.js`,
+        `wwwroot/lib/papaparse/papaparse.min.js`,
+        `wwwroot/lib/xlsx/xlsx.core.min.js`,
+        `wwwroot/lib/filesaver/FileSaver.min.js`,
+        `wwwroot/lib/fullcalendar/index.global.min.js`,
+        `wwwroot/lib/fullcalendar/core/locales/ko.global.min.js`,
+        'wwwroot/lib/orgchart/js/jquery.orgchart.min.js',
+        'wwwroot/js/datatable/datatables.js',
+        'wwwroot/js/datatable/dataTables.checkboxes.js',
+        'wwwroot/lib/pdfobject/pdfobject.min.js',
+        'wwwroot/lib/print-js/print.min.js',
+        `wwwroot/lib/popper.js/umd/popper.min.js`,
+        `wwwroot/lib/tippy.js/tippy-bundle.umd.min.js`,
+        `wwwroot/lib/intro.js/intro.min.js`,
+        `wwwroot/lib/master-css/index.min.js`,
+    ], { allowEmpty: true })
+        .pipe(concat('syn.scripts.js'))
+        .pipe(gulp.dest('wwwroot/js'))
+        .pipe(uglify({
+            mangle: true,
+            compress: true,
+            output: {
+                comments: false
+            }
+        }))
+        .pipe(rename({
+            basename: 'syn.scripts.min',
+            extname: '.js'
+        }))
+        .pipe(gulp.dest('wwwroot/js'));
+});
+
+gulp.task('controls', function () {
+    return gulp.src([
+        'wwwroot/uicontrols/Calendar/Calendar.js',
+        'wwwroot/uicontrols/HighChart/HighChart.js',
+        'wwwroot/uicontrols/ChartJS/ChartJS.js',
+        'wwwroot/uicontrols/ECharts/ECharts.js',
+        'wwwroot/uicontrols/MediaPlayer/MediaPlayer.js',
+        'wwwroot/uicontrols/NaverMap/NaverMap.js',
+        'wwwroot/uicontrols/GoogleMap/GoogleMap.js',
+        'wwwroot/uicontrols/CheckBox/CheckBox.js',
+        'wwwroot/uicontrols/CodePicker/CodePicker.js',
+        'wwwroot/uicontrols/ColorPicker/ColorPicker.js',
+        'wwwroot/uicontrols/ContextMenu/ContextMenu.js',
+        'wwwroot/uicontrols/DataSource/DataSource.js',
+        'wwwroot/uicontrols/DatePicker/DatePicker.js',
+        'wwwroot/uicontrols/DatePeriodPicker/DatePeriodPicker.js',
+        'wwwroot/uicontrols/DropDownCheckList/DropDownCheckList.js',
+        'wwwroot/uicontrols/DropDownList/DropDownList.js',
+        'wwwroot/uicontrols/FileClient/FileClient.js',
+        'wwwroot/uicontrols/GridList/GridList.js',
+        'wwwroot/uicontrols/Guide/Guide.js',
+        'wwwroot/uicontrols/RadioButton/RadioButton.js',
+        'wwwroot/uicontrols/TextArea/TextArea.js',
+        'wwwroot/uicontrols/TextBox/TextBox.js',
+        'wwwroot/uicontrols/SourceEditor/SourceEditor.js',
+        'wwwroot/uicontrols/HtmlEditor/HtmlEditor.js',
+        'wwwroot/uicontrols/OrganizationView/OrganizationView.js',
+        'wwwroot/uicontrols/PropertyPanel/PropertyPanel.js',
+        'wwwroot/uicontrols/TreeView/TreeView.js',
+        'wwwroot/uicontrols/AUIGrid/AUIGrid.js',
+        'wwwroot/uicontrols/OpenGrid/OpenGrid.js',
+        // 'wwwroot/uicontrols/WebGrid/WebGrid.js',
+        'wwwroot/uicontrols/Element/Element.js'
+    ], { allowEmpty: true })
+        .pipe(concat('syn.controls.js'))
+        .pipe(gulp.dest('wwwroot/js'))
+        .pipe(uglify({
+            mangle: true,
+            compress: true,
+            output: {
+                comments: false
+            }
+        }))
+        .pipe(rename({
+            basename: 'syn.controls.min',
+            extname: '.js'
+        }))
+        .pipe(gulp.dest('wwwroot/js'));
+});
+
+gulp.task('bundle', function () {
+    return gulp.src([
+        'wwwroot/js/syn.scripts.js',
+        'wwwroot/js/syn.js',
+        'wwwroot/js/syn.controls.js',
+    ], { allowEmpty: true })
+        .pipe(concat('syn.bundle.js'))
+        .pipe(gulp.dest('wwwroot/js'))
+        .pipe(uglify({
+            mangle: true,
+            compress: true,
+            output: {
+                comments: false
+            }
+        }))
+        .pipe(rename({
+            basename: 'syn.bundle.min',
+            extname: '.js'
+        }))
+        .pipe(gulp.dest('wwwroot/js'));
+});
+
+gulp.task('styles', async function () {
+    var stripCssComments = await getStripCssComments();
+    return gulp.src([
+        // syn.scripts.js
+        `wwwroot/lib/tabler-core/dist/css/tabler.min.css`,
+        `wwwroot/lib/tabler-icons-webfont/dist/tabler-icons.min.css`,
+        `wwwroot/js/notifier/notifier.css`,
+        `wwwroot/js/jquery-ui-contextmenu/jquery-ui.css`,
+        'wwwroot/lib/ispin/dist/ispin.min.css',
+        'wwwroot/lib/fancytree/skin-win8/ui.fancytree.css',
+        'wwwroot/lib/orgchart/css/jquery.orgchart.min.css',
+        'wwwroot/lib/print-js/print.min.css',
+        `wwwroot/js/css-checkbox/checkboxes.css`,
+        `wwwroot/lib/codemirror/codemirror.min.css`,
+        `wwwroot/lib/tail.select.js/css/default/tail.select-light.css`,
+        `wwwroot/js/color-picker/color-picker.css`,
+        `wwwroot/lib/pikaday/css/pikaday.min.css`,
+        `wwwroot/lib/fancytree/skin-win8/ui.fancytree.css`,
+        `wwwroot/lib/intro.js/introjs.min.css`,
+        // 'wwwroot/lib/handsontable/dist/handsontable.full.css',
+        'wwwroot/lib/auigrid/dist/auigrid_style.css',
+
+        // syn.domain.js
+        'wwwroot/css/layouts/Dialogs.css',
+        'wwwroot/css/layouts/LoadingPage.css',
+        'wwwroot/css/layouts/ProgressBar.css',
+        'wwwroot/css/layouts/Tooltips.css',
+        'wwwroot/css/layouts/WindowManager.css',
+        'wwwroot/css/uicontrols/Control.css',
+
+        // syn.controls.js
+        'wwwroot/uicontrols/Calendar/Calendar.css',
+        'wwwroot/uicontrols/HighChart/HighChart.css',
+        'wwwroot/uicontrols/ChartJS/ChartJS.css',
+        'wwwroot/uicontrols/ECharts/ECharts.css',
+        'wwwroot/lib/video.js/dist/video-js.min.css',
+        'wwwroot/uicontrols/MediaPlayer/MediaPlayer.css',
+        'wwwroot/uicontrols/NaverMap/NaverMap.css',
+        'wwwroot/uicontrols/GoogleMap/GoogleMap.css',
+        'wwwroot/uicontrols/CheckBox/CheckBox.css',
+        'wwwroot/uicontrols/ColorPicker/ColorPicker.css',
+        'wwwroot/uicontrols/ContextMenu/ContextMenu.css',
+        'wwwroot/uicontrols/DataSource/DataSource.css',
+        'wwwroot/uicontrols/DatePicker/DatePicker.css',
+        'wwwroot/uicontrols/DatePeriodPicker/DatePeriodPicker.css',
+        'wwwroot/uicontrols/DropDownCheckList/DropDownCheckList.css',
+        'wwwroot/uicontrols/DropDownList/DropDownList.css',
+        'wwwroot/uicontrols/FileClient/FileClient.css',
+        'wwwroot/uicontrols/GridList/GridList.css',
+        'wwwroot/uicontrols/Guide/Guide.css',
+        'wwwroot/uicontrols/RadioButton/RadioButton.css',
+        'wwwroot/uicontrols/TextArea/TextArea.css',
+        'wwwroot/uicontrols/TextBox/TextBox.css',
+        'wwwroot/uicontrols/SourceEditor/SourceEditor.css',
+        'wwwroot/uicontrols/HtmlEditor/HtmlEditor.css',
+        'wwwroot/uicontrols/OrganizationView/OrganizationView.css',
+        'wwwroot/uicontrols/PropertyPanel/PropertyPanel.css',
+        'wwwroot/uicontrols/TreeView/TreeView.css',
+        'wwwroot/uicontrols/AUIGrid/AUIGrid.css',
+        'wwwroot/uicontrols/OpenGrid/OpenGrid.css',
+        // 'wwwroot/uicontrols/WebGrid/WebGrid.css',
+
+        // 프로젝트 화면 디자인
+        'wwwroot/css/base.css',
+    ], { allowEmpty: true })
+        .pipe(concat('syn.bundle.css'))
+        .pipe(stripCssComments())
+        .pipe(gulp.dest('wwwroot/css'))
+        .pipe(uglifycss({
+            uglyComments: true
+        }))
+        .pipe(rename({
+            basename: 'syn.bundle.min',
+            extname: '.css'
+        }))
+        .pipe(gulp.dest('wwwroot/css'));
+});
+
+gulp.task('watch', async function () {
+    gulp.watch(files, gulp.series(['controls']));
+});
+
+gulp.task('default', gulp.series(['controls', 'scripts', 'styles', 'bundle']));
+
+gulp.task('base', gulp.series(['controls']));

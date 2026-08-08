@@ -1,0 +1,8 @@
+.fc-daygrid thead tr {
+    background-color: #f6f6f6;
+}
+
+.fc-header-toolbar button {
+    background-color: #f6f6f6 !important;
+    color: #000 !important;
+}

@@ -1,0 +1,162 @@
+﻿{
+    "Comment": "기초코드 데이터",
+    "CodeColumnID": "CodeID",
+    "ValueColumnID": "CodeValue",
+    "CreatedAt": "2012-03-22 오후 2:00:00",
+    "Scheme": [
+        {
+            "ColumnID": "SelectYN",
+            "ColumnText": "기본선택여부",
+            "HiddenYN": true
+        },
+        {
+            "ColumnID": "LocaleID",
+            "ColumnText": "언어권ID",
+            "HiddenYN": true
+        },
+        {
+            "ColumnID": "CodeID",
+            "ColumnText": "코드ID",
+            "HiddenYN": false
+        },
+        {
+            "ColumnID": "CodeValue",
+            "ColumnText": "코드값",
+            "HiddenYN": false
+        }
+    ],
+    "DataSource": [
+        {
+            "CodeID": "01",
+            "CodeValue": "미취학",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "02",
+            "CodeValue": "초등학교",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "03",
+            "CodeValue": "초퇴",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "04",
+            "CodeValue": "초졸",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "05",
+            "CodeValue": "중학교",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "06",
+            "CodeValue": "중퇴",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "07",
+            "CodeValue": "중졸",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "08",
+            "CodeValue": "고등학교",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "09",
+            "CodeValue": "고퇴",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "10",
+            "CodeValue": "고졸",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "11",
+            "CodeValue": "대학교",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "12",
+            "CodeValue": "대퇴",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "13",
+            "CodeValue": "대졸",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "14",
+            "CodeValue": "전문대",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "15",
+            "CodeValue": "전문대퇴",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "16",
+            "CodeValue": "전문대졸",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "17",
+            "CodeValue": "대학원",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "18",
+            "CodeValue": "대학원퇴",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "19",
+            "CodeValue": "대학원졸",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "20",
+            "CodeValue": "박사과정",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "21",
+            "CodeValue": "박사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "22",
+            "CodeValue": "기타",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        }
+    ]
+}

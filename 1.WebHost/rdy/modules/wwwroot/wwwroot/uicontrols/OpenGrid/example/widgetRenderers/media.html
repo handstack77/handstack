@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>미디어 - OpenGrid 예제</title>
+    <link rel="stylesheet" href="../../OpenGrid.css">
+    <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+    <div class="demo-nav"><a href="../index.html">← 목록으로</a> · 위젯 렌더러</div>
+    <h2>미디어</h2>
+    <p class="desc">평점(rating) 렌더러로 별점 형태의 미디어형 셀을 보여줍니다.</p>
+    <syn_opengrid id="grdMedia" class="demo-grid" syn-options="{
+        columns: [
+            ['ProdName', '상품명', 140, false, 'text'],
+            ['Rating', '평점', 140, false, 'number', true, 'left', null, { renderer: { type: 'rating', max: 5 } }]
+        ]
+    }"></syn_opengrid>
+    <div id="divLog" class="log-panel"></div>
+    <script src="../../../../js/syn.js"></script>
+    <script src="../../CodePicker/CodePicker.js"></script>
+    <script src="../../OpenGrid.js"></script>
+    <script src="../common.js"></script>
+    <script src="media.js"></script>
+</body>
+</html>

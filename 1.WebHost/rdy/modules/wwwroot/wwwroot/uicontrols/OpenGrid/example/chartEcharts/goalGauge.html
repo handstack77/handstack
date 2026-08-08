@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>목표 달성(게이지) - OpenGrid 예제</title>
+    <link rel="stylesheet" href="../../OpenGrid.css">
+    <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+    <div class="demo-nav"><a href="../index.html">← 목록으로</a> · 차트 연동(ECharts)</div>
+    <h2>목표 달성(게이지)</h2>
+    <p class="desc">목표 대비 달성률을 게이지로 표시합니다.</p>
+    <div class="demo-toolbar">
+        <input type="number" id="grdGoalGauge_value" style="width:80px;" value="72">
+    </div>
+    <div id="grdGoalGauge" class="demo-chart"></div>
+    <div id="divLog" class="log-panel"></div>
+    <script src="../../../../js/syn.js"></script>
+    <script src="../../CodePicker/CodePicker.js"></script>
+    <script src="../../OpenGrid.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+    <script src="../common.js"></script>
+    <script src="goalGauge.js"></script>
+</body>
+</html>

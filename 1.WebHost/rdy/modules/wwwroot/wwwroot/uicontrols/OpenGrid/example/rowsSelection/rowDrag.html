@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>행 드래그 - OpenGrid 예제</title>
+    <link rel="stylesheet" href="../../OpenGrid.css">
+    <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+    <div class="demo-nav"><a href="../index.html">← 목록으로</a> · 행 & 선택</div>
+    <h2>행 드래그<span class="demo-badge">데모 준비중</span></h2>
+    <p class="desc">open-grid의 range-selection 커널 기반 마우스 드래그 재정렬 기능입니다.</p>
+    <div class="demo-toolbar">
+        <button type="button" id="grdRowDrag_up">선택 행 위로</button>
+        <button type="button" id="grdRowDrag_down">선택 행 아래로</button>
+    </div>
+    <syn_opengrid id="grdRowDrag" class="demo-grid" syn-options="{
+        columns: [
+            ['MemberNo', '번호', 70, false, 'number', true, 'center'],
+            ['MemberName', '이름', 120, false, 'text']
+        ]
+    }"></syn_opengrid>
+    <div id="divLog" class="log-panel"></div>
+    <script src="../../../../js/syn.js"></script>
+    <script src="../../CodePicker/CodePicker.js"></script>
+    <script src="../../OpenGrid.js"></script>
+    <script src="../common.js"></script>
+    <script src="rowDrag.js"></script>
+</body>
+</html>

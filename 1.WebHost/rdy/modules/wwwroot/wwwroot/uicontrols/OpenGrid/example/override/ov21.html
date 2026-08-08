@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>OV-21 나만의 정렬 규칙 - OpenGrid 예제</title>
+    <link rel="stylesheet" href="../../OpenGrid.css">
+    <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+    <div class="demo-nav"><a href="../index.html">← 목록으로</a> · Override</div>
+    <h2>OV-21 · 나만의 정렬 규칙</h2>
+    <p class="desc">grid.override.strategy("sortComparator", fn)으로 부서 우선순위 → 이름 순 커스텀 정렬을 등록합니다. 헤더를 클릭해 정렬해 보세요.</p>
+    <syn_opengrid id="grdOv21" class="demo-grid" syn-options="{
+        columns: [['Department', '부서', 110, false, 'text'], ['MemberName', '이름', 120, false, 'text']]
+    }"></syn_opengrid>
+    <div id="divLog" class="log-panel"></div>
+    <script src="../../../../js/syn.js"></script>
+    <script src="../../CodePicker/CodePicker.js"></script>
+    <script src="../../OpenGrid.js"></script>
+    <script src="../common.js"></script>
+    <script src="ov21.js"></script>
+</body>
+</html>

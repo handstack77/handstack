@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <title>AUIPivot - syn.$bind 양방향 바인딩</title>
+    <link rel="stylesheet" href="/uicontrols/binding-example.css">
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <main id="bindingRoot" class="binding-example">
+            <h1>AUIPivot 양방향 바인딩</h1>
+            <p class="description">매출계획 원본을 피벗으로 집계한 뒤 행·열 펼침, 컬럼 폭 보정, 원본 드릴다운과 C/U/D 변경분 저장까지 연결합니다.</p>
+            <p class="binding-note">AUIPivot은 원본 편집 그리드가 아니므로 C/U/D는 Proxy 모델에서 관리합니다. 이 저장소에 없는 벤더 엔진을 배치하기 전에도 같은 원본 변경·검증·payload 흐름을 확인할 수 있습니다.</p>
+            <div class="binding-anchor" syn-bind="adapter(auipivot):value"></div>
+
+            <section class="binding-panel">
+                <h2>분기 매출계획 피벗</h2>
+                <div class="binding-toolbar">
+                    <input type="button" id="btnPivotAdd" value="+ 계획 행 추가" syn-events="['click']">
+                    <input type="button" id="btnPivotEdit" value="첫 계획 +100" syn-events="['click']">
+                    <input type="button" id="btnPivotRemove" value="- 첫 계획 삭제" syn-events="['click']">
+                    <input type="button" id="btnPivotDetail" value="선택 집계 원본 보기">
+                </div>
+                <div id="pvtBinding" class="binding-unavailable">AUIPivot 벤더 엔진을 배치하면 이 영역에 피벗이 생성됩니다.</div>
+                <div id="pivotWorkSummary" class="binding-direction">조회 후 피벗 상태를 준비하고 있습니다.</div>
+                <h3>선택 집계의 원본 행</h3>
+                <pre id="prePivotDetail" class="binding-preview">피벗 셀을 선택한 뒤 원본 보기 버튼을 누르세요.</pre>
+            </section>
+
+            <section class="binding-panel">
+                <h2>바인딩 확인</h2>
+                <div class="binding-toolbar">
+                    <input type="button" id="btnModelChange" value="서버 재조회 결과 적용" syn-events="['click']">
+                    <input type="button" id="btnControlRead" value="현재 원본 C/U/D를 모델로 읽기" syn-events="['click']">
+                </div>
+                <div class="binding-direction" syn-bind="text:direction"></div>
+                <pre id="preModel" class="binding-preview"></pre>
+            </section>
+        </main>
+    </form>
+    <script src="/uicontrols/binding-example.js"></script>
+    <script>
+        function pageLoadFiles(jsFiles, styleFiles, templateFiles) {
+            styleFiles.push('/uicontrols/AUIPivot/AUIPivot.css');
+            jsFiles.push('/uicontrols/AUIPivot/AUIPivot.js');
+        }
+    </script>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

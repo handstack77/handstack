@@ -1,0 +1,925 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>appsettings.json 환경설정</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="/qramework/img/favicon.ico" type="image/x-icon" />
+    <style>
+        .nav-pills .nav-link.active,
+        .nav-pills .show > .nav-link {
+            border: 1px solid var(--tblr-nav-pills-link-active-color);
+        }
+
+        table {
+            border-collapse: collapse;
+            border-spacing: 0;
+            margin: 0 !important;
+            table-layout: fixed;
+            width: 100%;
+        }
+
+            table td, table th {
+                border: 1px solid #ddd !important;
+                text-align: left;
+                text-overflow: ellipsis;
+                overflow: hidden;
+            }
+
+            table th {
+                background-color: #e0e0e0;
+            }
+
+        .table-responsive {
+            width: 100%;
+            max-width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+            .card-table td {
+                max-width: 0;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+                .card-table td:last-child {
+                    max-width: none;
+                    white-space: nowrap;
+                    text-overflow: clip;
+                }
+    </style>
+</head>
+<body spellcheck="false" style="visibility: hidden;">
+    <div class="page">
+        <div class="container min-width:1320px bg-white border-1 mb-4 mt-4 p-2 border-color:#dadfe5!">
+            <div class="row g-0">
+                <div class="bg-white border-y card-header sticky-top">
+                    <h3 class="card-title">ack.*.json (appsettings) 편집 도구</h3>
+                    <div class="card-actions">
+                        <div class="btn-group">
+                            <button type="button" id="btnJsonView" syn-events="['click']" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#mdlJsonView">
+                                <i class="f:18 ti ti-code mr:4"></i> JSON 보기
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-2">
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <td class="bg-body w:220px">AppSettings</td>
+                                <td>
+                                    <table class="table">
+                                        <tbody>
+                                            <tr>
+                                                <td class="bg-body w:220px">ProxyBasePath</td>
+                                                <td>
+                                                    <input id="txtProxyBasePath" type="text" class="form-control">
+                                                    <small class="form-hint mt-2">
+                                                        리버스 프록시로 서비스될 때 사용하는 기본 경로 이름을 입력합니다. (예: local, custom)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">HostAccessID</td>
+                                                <td>
+                                                    <input id="txtHostAccessID" type="text" class="form-control">
+                                                    <small class="form-hint mt-2">
+                                                        호스트 서버 접근을 식별하는 고유 ID를 입력합니다. (기본값: HANDSTACK_HOSTACCESSID)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">SystemID</td>
+                                                <td>
+                                                    <input id="txtSystemID" type="text" class="form-control">
+                                                    <small class="form-hint mt-2">
+                                                        ack 프로그램에서 운영하는 시스템 식별 ID를 입력합니다. (기본값: HANDSTACK)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">ApplicationID</td>
+                                                <td>
+                                                    <input id="txtApplicationID" type="text" class="form-control">
+                                                    <small class="form-hint mt-2">
+                                                        애플리케이션을 식별하는 고유 ID를 입력합니다. (기본값: HDS)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">ProgramName</td>
+                                                <td>
+                                                    <input id="txtProgramName" type="text" class="form-control">
+                                                    <small class="form-hint mt-2">
+                                                        호스트 프로그램 이름을 입력합니다. (기본값: ack)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">HostName</td>
+                                                <td>
+                                                    <input id="txtHostName" type="text" class="form-control">
+                                                    <small class="form-hint mt-2">
+                                                        호스트 서버 이름을 입력합니다.
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">InstallType</td>
+                                                <td>
+                                                    <select id="ddlInstallType" class="form-select">
+                                                        <option value="L">L (Local)</option>
+                                                        <option value="R">R (Remote)</option>
+                                                    </select>
+                                                    <small class="form-hint mt-2">
+                                                        호스트 설치 유형을 설정합니다. (기본값: L)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">BusinessServerUrl</td>
+                                                <td>
+                                                    <input id="txtBusinessServerUrl" type="text" class="form-control">
+                                                    <small class="form-hint mt-2">
+                                                        거래를 실행하는 transact 모듈의 업무 서버 Url을 입력합니다.
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">FindGlobalIDServer</td>
+                                                <td>
+                                                    <input id="txtFindGlobalIDServer" type="text" class="form-control">
+                                                    <small class="form-hint mt-2">
+                                                        GlobalID를 발급 받는 서버 Url을 입력합니다.
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">DomainAPIServer</td>
+                                                <td>
+                                                    <table class="table">
+                                                        <tbody>
+                                                            <tr>
+                                                                <td class="bg-body w:220px">ServerID</td>
+                                                                <td><input id="txtDomServerID" type="text" class="form-control"></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="bg-body">ServerType</td>
+                                                                <td><input id="txtDomServerType" type="text" class="form-control"></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="bg-body">Protocol</td>
+                                                                <td><input id="txtDomProtocol" type="text" class="form-control"></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="bg-body">IP</td>
+                                                                <td><input id="txtDomIP" type="text" class="form-control"></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="bg-body">Port</td>
+                                                                <td><input id="txtDomPort" type="text" class="form-control"></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="bg-body">Path</td>
+                                                                <td><input id="txtDomPath" type="text" class="form-control"></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="bg-body">ClientIP</td>
+                                                                <td><input id="txtDomClientIP" type="text" class="form-control"></td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                    <small class="form-hint mt-2">
+                                                        거래를 실행하는 업무 API 서버 접속 정보를 설정합니다.
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">ForwardProxyIP</td>
+                                                <td>
+                                                    <input id="txtForwardProxyIP" type="text" class="form-control">
+                                                    <small class="form-hint mt-2">
+                                                        신뢰하는 포워드 프록시 서버의 IP 주소를 쉼표(,)로 구분해서 입력합니다.
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">IsTenantFunction</td>
+                                                <td>
+                                                    <label class="form-check mb-2">
+                                                        <input id="chkIsTenantFunction" class="form-check-input" type="checkbox">
+                                                    </label>
+                                                    <small class="form-hint">
+                                                        테넌트 함수 실행 기능 사용 여부를 설정합니다. (기본값: false)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">IsExceptionDetailText</td>
+                                                <td>
+                                                    <label class="form-check mb-2">
+                                                        <input id="chkIsExceptionDetailText" class="form-check-input" type="checkbox">
+                                                    </label>
+                                                    <small class="form-hint">
+                                                        예외 발생시 상세 텍스트를 응답에 포함할지 여부를 설정합니다. 운영 환경에서는 false를 권장합니다. (기본값: false)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">ContractRequestPath</td>
+                                                <td>
+                                                    <input id="txtContractRequestPath" type="text" class="form-control">
+                                                    <small class="form-hint mt-2">
+                                                        UI 화면 요청 기본 경로입니다. (기본값: view)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">TenantAppRequestPath</td>
+                                                <td>
+                                                    <input id="txtTenantAppRequestPath" type="text" class="form-control">
+                                                    <small class="form-hint mt-2">
+                                                        테넌트 애플리케이션 요청 기본 경로입니다. (기본값: app)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">TenantAppBasePath</td>
+                                                <td>
+                                                    <input id="txtTenantAppBasePath" type="text" class="form-control">
+                                                    <small class="form-hint mt-2">
+                                                        테넌트 애플리케이션 기본 디렉토리 경로입니다. (기본값: ../tenants)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">BatchProgramBasePath</td>
+                                                <td>
+                                                    <input id="txtBatchProgramBasePath" type="text" class="form-control">
+                                                    <small class="form-hint mt-2">
+                                                        배치 프로그램 기본 디렉토리 경로입니다. (기본값: ../batchs)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">CreateAppTempPath</td>
+                                                <td>
+                                                    <input id="txtCreateAppTempPath" type="text" class="form-control">
+                                                    <small class="form-hint mt-2">
+                                                        애플리케이션 생성시 사용하는 임시 디렉토리 경로입니다. (기본값: ../tmp/create_apps)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">ForbesBasePath</td>
+                                                <td>
+                                                    <input id="txtForbesBasePath" type="text" class="form-control">
+                                                    <small class="form-hint mt-2">
+                                                        forbes 프로젝트 기본 디렉토리 경로입니다. (기본값: ../forbes)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">IsModulePurgeContract</td>
+                                                <td>
+                                                    <label class="form-check mb-2">
+                                                        <input id="chkIsModulePurgeContract" class="form-check-input" type="checkbox">
+                                                    </label>
+                                                    <small class="form-hint">
+                                                        모듈 시작시 이전 계약 캐시 정보를 정리할지 여부를 설정합니다. (기본값: true)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">LoadModuleBasePath</td>
+                                                <td>
+                                                    <input id="txtLoadModuleBasePath" type="text" class="form-control">
+                                                    <small class="form-hint mt-2">
+                                                        모듈들이 위치하는 기본 디렉토리 경로입니다. (기본값: ../modules)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">LoadModules</td>
+                                                <td>
+                                                    <input id="txtLoadModules" type="text" class="form-control">
+                                                    <small class="form-hint mt-2">
+                                                        기동시 불러올 모듈 ID를 순서대로 쉼표(,)로 구분해서 입력합니다.
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">
+                                                    LoadModuleLicenses
+                                                    <div class="mt-2">
+                                                        <button type="button" id="btnLoadModuleLicense" syn-events="['click']" class="btn btn-icon bg-muted-lt">
+                                                            <i class="f:18 ti ti-plus"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="table-responsive">
+                                                        <table id="tblLoadModuleLicense" class="table table-vcenter card-table border-x border-y">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>ModuleID</th>
+                                                                    <th>CompanyName</th>
+                                                                    <th>ProductName</th>
+                                                                    <th>Environment</th>
+                                                                    <th class="w-1">관리</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody id="tblLoadModuleLicenseItems">
+                                                            </tbody>
+                                                        </table>
+                                                        <small class="form-hint mt-2">
+                                                            상용 모듈(reportify, ncloudsender 등)의 라이선스 정보를 모듈 ID 기준으로 관리합니다.
+                                                        </small>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">RunningEnvironment</td>
+                                                <td>
+                                                    <select id="ddlRunningEnvironment" class="form-select">
+                                                        <option value="D">D (더미)</option>
+                                                        <option value="P">P (운영)</option>
+                                                        <option value="T">T (테스트)</option>
+                                                    </select>
+                                                    <small class="form-hint mt-2">
+                                                        호스트 실행 환경 시뮬레이션 유형을 설정합니다. (기본값: D)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">UseResponseComression</td>
+                                                <td>
+                                                    <label class="form-check mb-2">
+                                                        <input id="chkUseResponseComression" class="form-check-input" type="checkbox">
+                                                    </label>
+                                                    <small class="form-hint">
+                                                        응답 데이터 압축 사용 여부를 설정합니다. (기본값: false)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">UseForwardProxy</td>
+                                                <td>
+                                                    <label class="form-check mb-2">
+                                                        <input id="chkUseForwardProxy" class="form-check-input" type="checkbox">
+                                                    </label>
+                                                    <small class="form-hint">
+                                                        포워드 프록시 헤더(X-Forwarded-*) 신뢰 여부를 설정합니다. (기본값: false)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">UseSameIPProxy</td>
+                                                <td>
+                                                    <label class="form-check mb-2">
+                                                        <input id="chkUseSameIPProxy" class="form-check-input" type="checkbox">
+                                                    </label>
+                                                    <small class="form-hint">
+                                                        동일 서버(IP)에서 리버스 프록시로 여러 경로를 서비스할지 여부를 설정합니다. (기본값: false)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">WithOrigins</td>
+                                                <td>
+                                                    <textarea id="txtWithOrigins" class="form-control" rows="3"></textarea>
+                                                    <small class="form-hint mt-2">
+                                                        CORS를 허용할 Origin Url을 쉼표(,)로 구분해서 입력합니다.
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">SessionState</td>
+                                                <td>
+                                                    <table class="table">
+                                                        <tbody>
+                                                            <tr>
+                                                                <td class="bg-body w:220px">IsSession</td>
+                                                                <td>
+                                                                    <label class="form-check mb-2">
+                                                                        <input id="chkIsSession" class="form-check-input" type="checkbox">
+                                                                    </label>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="bg-body">SessionCookieName</td>
+                                                                <td><input id="txtSessionCookieName" type="text" class="form-control"></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="bg-body">CacheType</td>
+                                                                <td>
+                                                                    <select id="ddlCacheType" class="form-select">
+                                                                        <option value="Memory">Memory</option>
+                                                                        <option value="MySql">MySql</option>
+                                                                        <option value="SqlServer">SqlServer</option>
+                                                                    </select>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="bg-body">MySqlConnectionString</td>
+                                                                <td><input id="txtMySqlConnectionString" type="text" class="form-control"></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="bg-body">MySqlSchemaName</td>
+                                                                <td><input id="txtMySqlSchemaName" type="text" class="form-control"></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="bg-body">MySqlTableName</td>
+                                                                <td><input id="txtMySqlTableName" type="text" class="form-control"></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="bg-body">SqlServerConnectionString</td>
+                                                                <td><input id="txtSqlServerConnectionString" type="text" class="form-control"></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="bg-body">SqlServerSchemaName</td>
+                                                                <td><input id="txtSqlServerSchemaName" type="text" class="form-control"></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="bg-body">SqlServerTableName</td>
+                                                                <td><input id="txtSqlServerTableName" type="text" class="form-control"></td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                    <small class="form-hint mt-2">
+                                                        세션 상태 저장 방식과 세션 캐시 저장소 접속 정보를 설정합니다.
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">CookiePrefixName</td>
+                                                <td>
+                                                    <input id="txtCookiePrefixName" type="text" class="form-control">
+                                                    <small class="form-hint mt-2">
+                                                        호스트에서 사용하는 쿠키 이름의 접두사를 입력합니다. (기본값: HandStack)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">UserSignExpire</td>
+                                                <td>
+                                                    <input id="txtUserSignExpire" type="number" class="form-control">
+                                                    <small class="form-hint mt-2">
+                                                        사용자 로그인 세션 만료 시간(분)을 설정합니다. -1인 경우 만료하지 않습니다. (기본값: -1)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">OriginPort</td>
+                                                <td>
+                                                    <input id="txtOriginPort" type="number" class="form-control">
+                                                    <small class="form-hint mt-2">
+                                                        리버스 프록시 앞단에서 서비스되는 Origin 포트 번호를 입력합니다. (기본값: 80)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">ServerPort</td>
+                                                <td>
+                                                    <input id="txtServerPort" type="number" class="form-control">
+                                                    <small class="form-hint mt-2">
+                                                        호스트 서버가 대기하는 포트 번호를 입력합니다. (기본값: 8421)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">ServerDevCertSslPort</td>
+                                                <td>
+                                                    <input id="txtServerDevCertSslPort" type="number" class="form-control">
+                                                    <small class="form-hint mt-2">
+                                                        개발용 SSL 인증서를 사용하는 포트 번호를 입력합니다. (기본값: 8443)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">ServerDevCertFilePath</td>
+                                                <td>
+                                                    <input id="txtServerDevCertFilePath" type="text" class="form-control">
+                                                    <small class="form-hint mt-2">
+                                                        개발용 SSL 인증서(pfx) 파일 경로를 입력합니다.
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">ServerDevCertPassword</td>
+                                                <td>
+                                                    <input id="txtServerDevCertPassword" type="text" class="form-control">
+                                                    <small class="form-hint mt-2">
+                                                        개발용 SSL 인증서(pfx) 파일의 비밀번호를 입력합니다.
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="bg-body">Serilog</td>
+                                <td>
+                                    <table class="table">
+                                        <tbody>
+                                            <tr>
+                                                <td class="bg-body w:220px">Using</td>
+                                                <td>
+                                                    <input id="txtSerilogUsing" type="text" class="form-control">
+                                                    <small class="form-hint mt-2">
+                                                        Serilog가 사용할 Sink 어셈블리를 쉼표(,)로 구분해서 입력합니다. (예: Serilog.Sinks.Console, Serilog.Sinks.File)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">MinimumLevel.Default</td>
+                                                <td>
+                                                    <select id="ddlMinimumLevelDefault" class="form-select">
+                                                        <option value="Verbose">Verbose</option>
+                                                        <option value="Debug">Debug</option>
+                                                        <option value="Information">Information</option>
+                                                        <option value="Warning">Warning</option>
+                                                        <option value="Error">Error</option>
+                                                        <option value="Fatal">Fatal</option>
+                                                    </select>
+                                                    <small class="form-hint mt-2">
+                                                        기본 로그 최소 수준을 설정합니다. (기본값: Information)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">
+                                                    MinimumLevel.Override
+                                                    <div class="mt-2">
+                                                        <button type="button" id="btnMinimumLevelOverride" syn-events="['click']" class="btn btn-icon bg-muted-lt">
+                                                            <i class="f:18 ti ti-plus"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="table-responsive">
+                                                        <table id="tblMinimumLevelOverride" class="table table-vcenter card-table border-x border-y">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>네임스페이스</th>
+                                                                    <th>로그 수준</th>
+                                                                    <th class="w-1">관리</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody id="tblMinimumLevelOverrideItems">
+                                                            </tbody>
+                                                        </table>
+                                                        <small class="form-hint mt-2">
+                                                            특정 네임스페이스(Microsoft, System 등)에 대한 로그 수준을 재정의합니다.
+                                                        </small>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">Enrich</td>
+                                                <td>
+                                                    <input id="txtSerilogEnrich" type="text" class="form-control">
+                                                    <small class="form-hint mt-2">
+                                                        로그에 추가 정보를 포함하는 Enricher를 쉼표(,)로 구분해서 입력합니다. (예: FromLogContext)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">
+                                                    WriteTo
+                                                    <div class="mt-2">
+                                                        <button type="button" id="btnWriteTo" syn-events="['click']" class="btn btn-icon bg-muted-lt">
+                                                            <i class="f:18 ti ti-plus"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="table-responsive">
+                                                        <table id="tblWriteTo" class="table table-vcenter card-table border-x border-y">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>Name</th>
+                                                                    <th>Args</th>
+                                                                    <th class="w-1">관리</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody id="tblWriteToItems">
+                                                            </tbody>
+                                                        </table>
+                                                        <small class="form-hint mt-2">
+                                                            로그를 기록할 Sink(Console, File 등) 목록과 각 Sink의 옵션(Args)을 JSON으로 설정합니다.
+                                                        </small>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="bg-body">Kestrel</td>
+                                <td>
+                                    <table class="table">
+                                        <tbody>
+                                            <tr>
+                                                <td class="bg-body w:220px">DisableStringReuse</td>
+                                                <td>
+                                                    <label class="form-check mb-2">
+                                                        <input id="chkDisableStringReuse" class="form-check-input" type="checkbox">
+                                                    </label>
+                                                    <small class="form-hint">
+                                                        Kestrel 서버의 문자열 재사용(StringReuse) 최적화 비활성화 여부를 설정합니다. (기본값: true)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">Limits.MaxConcurrentConnections</td>
+                                                <td>
+                                                    <input id="txtMaxConcurrentConnections" type="text" class="form-control">
+                                                    <small class="form-hint mt-2">
+                                                        동시 연결 최대 개수를 입력합니다. 비워두면 제한하지 않습니다(null).
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">Limits.MaxConcurrentUpgradedConnections</td>
+                                                <td>
+                                                    <input id="txtMaxConcurrentUpgradedConnections" type="text" class="form-control">
+                                                    <small class="form-hint mt-2">
+                                                        업그레이드(WebSocket 등)된 동시 연결 최대 개수를 입력합니다. 비워두면 제한하지 않습니다(null).
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">Limits.MaxRequestBodySize</td>
+                                                <td>
+                                                    <input id="txtMaxRequestBodySize" type="number" class="form-control">
+                                                    <small class="form-hint mt-2">
+                                                        요청 본문의 최대 크기(바이트)를 입력합니다. (기본값: 104857600)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">Limits.KeepAliveTimeout</td>
+                                                <td>
+                                                    <input id="txtKeepAliveTimeout" type="text" class="form-control">
+                                                    <small class="form-hint mt-2">
+                                                        Keep-Alive 연결 유지 제한 시간을 hh:mm:ss 형식으로 입력합니다. (기본값: 00:02:00)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="mdlJsonView" class="modal fade" tabindex="-1" role="dialog" aria-modal="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">JSON 보기</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <textarea id="txtJsonView" class="form-control resize:none white-space:nowrap" rows="30"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="btnImportDefaultConfig" syn-events="['click']" class="btn me-auto">
+                        <i class="f:18 ti ti-text-plus mr:4"></i> 기본값 가져오기
+                    </button>
+                    <button type="button" id="btnApplyConfig" syn-events="['click']" class="btn btn-primary" data-bs-dismiss="modal">적용하기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="mdlLoadModuleLicense" class="modal fade" tabindex="-1" role="dialog" aria-modal="true">
+        <input id="txtBaseModuleID_License" type="hidden">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 id="lblTitle_License" class="modal-title"></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <label class="col-3 col-form-label required">ModuleID</label>
+                        <div class="col">
+                            <input id="txtModuleID_License" type="text" class="form-control">
+                            <small class="form-hint">라이선스를 적용할 모듈 ID를 입력합니다. (예: reportify)</small>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <label class="col-3 col-form-label required">CompanyName</label>
+                        <div class="col">
+                            <input id="txtCompanyName_License" type="text" class="form-control">
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <label class="col-3 col-form-label required">ProductName</label>
+                        <div class="col">
+                            <input id="txtProductName_License" type="text" class="form-control">
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <label class="col-3 col-form-label">AuthorizedHost</label>
+                        <div class="col">
+                            <input id="txtAuthorizedHost_License" type="text" class="form-control">
+                            <small class="form-hint">인증된 호스트 목록을 쉼표(,)로 구분해서 입력합니다.</small>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <label class="col-3 col-form-label required">Key</label>
+                        <div class="col">
+                            <textarea id="txtKey_License" class="form-control resize:none" rows="3"></textarea>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <label class="col-3 col-form-label">CreatedAt</label>
+                        <div class="col">
+                            <input id="txtCreatedAt_License" type="text" class="form-control">
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <label class="col-3 col-form-label">ExpiresAt</label>
+                        <div class="col">
+                            <input id="txtExpiresAt_License" type="text" class="form-control">
+                            <small class="form-hint">만료일이 없는 경우 비워둡니다(null).</small>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <label class="col-3 col-form-label">Environment</label>
+                        <div class="col">
+                            <select id="ddlEnvironment_License" class="form-select">
+                                <option value="Development">Development</option>
+                                <option value="Staging">Staging</option>
+                                <option value="Production">Production</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <label class="col-3 col-form-label required">SignKey</label>
+                        <div class="col">
+                            <textarea id="txtSignKey_License" class="form-control resize:none" rows="3"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="btnManageLoadModuleLicense" syn-events="['click']" class="btn btn-primary">확인</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="mdlMinimumLevelOverride" class="modal fade" tabindex="-1" role="dialog" aria-modal="true">
+        <input id="txtBaseDataID_MinimumLevelOverride" type="hidden">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 id="lblTitle_MinimumLevelOverride" class="modal-title"></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <label class="col-3 col-form-label required">네임스페이스</label>
+                        <div class="col">
+                            <input id="txtKey_MinimumLevelOverride" type="text" class="form-control">
+                            <small class="form-hint">로그 수준을 재정의할 네임스페이스를 입력합니다. (예: Microsoft, System, Hangfire)</small>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <label class="col-3 col-form-label required">로그 수준</label>
+                        <div class="col">
+                            <select id="ddlValue_MinimumLevelOverride" class="form-select">
+                                <option value="Verbose">Verbose</option>
+                                <option value="Debug">Debug</option>
+                                <option value="Information">Information</option>
+                                <option value="Warning">Warning</option>
+                                <option value="Error">Error</option>
+                                <option value="Fatal">Fatal</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="btnManageMinimumLevelOverride" syn-events="['click']" class="btn btn-primary">확인</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="mdlWriteTo" class="modal fade" tabindex="-1" role="dialog" aria-modal="true">
+        <input id="txtBaseDataID_WriteTo" type="hidden">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 id="lblTitle_WriteTo" class="modal-title"></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <label class="col-3 col-form-label required">Name</label>
+                        <div class="col">
+                            <input id="txtName_WriteTo" type="text" class="form-control">
+                            <small class="form-hint">Sink 이름을 입력합니다. (예: Console, File)</small>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <label class="col-3 col-form-label required">Args</label>
+                        <div class="col">
+                            <textarea id="txtArgs_WriteTo" class="form-control resize:none" rows="8"></textarea>
+                            <small class="form-hint">Sink의 옵션을 JSON 객체 형식으로 입력합니다.</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="btnManageWriteTo" syn-events="['click']" class="btn btn-primary">확인</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script id="tplLoadModuleLicenseItem" type="x-tmpl-mustache">
+     {{#items}}
+    <tr syn-value="{{ModuleID}}">
+        <td title="{{ModuleID}}">
+            {{ModuleID}}
+        </td>
+        <td title="{{CompanyName}}">
+            {{CompanyName}}
+        </td>
+        <td title="{{ProductName}}">
+            {{ProductName}}
+        </td>
+        <td title="{{Environment}}">
+            {{Environment}}
+        </td>
+        <td>
+            <div class="btn-list flex-nowrap">
+                <button name="btnActionEdit" type="button" class="btn btn-icon bg-muted-lt">
+                    <i class="f:18 ti ti-edit"></i>
+                </button>
+                <button name="btnActionDelete" type="button" class="btn btn-icon bg-muted-lt">
+                    <i class="f:18 ti ti-minus"></i>
+                </button>
+            </div>
+        </td>
+    </tr>
+     {{/items}}
+    </script>
+    <script id="tplKeyValueItem" type="x-tmpl-mustache">
+     {{#items}}
+    <tr syn-value="{{Key}}">
+        <td title="{{Key}}">
+            {{Key}}
+        </td>
+        <td title="{{Value}}">
+            {{Value}}
+        </td>
+        <td>
+            <div class="btn-list flex-nowrap">
+                <button name="btnActionEdit" type="button" class="btn btn-icon bg-muted-lt">
+                    <i class="f:18 ti ti-edit"></i>
+                </button>
+                <button name="btnActionDelete" type="button" class="btn btn-icon bg-muted-lt">
+                    <i class="f:18 ti ti-minus"></i>
+                </button>
+            </div>
+        </td>
+    </tr>
+     {{/items}}
+    </script>
+    <script id="tplWriteToItem" type="x-tmpl-mustache">
+     {{#items}}
+    <tr syn-value="{{Name}}">
+        <td title="{{Name}}">
+            {{Name}}
+        </td>
+        <td title="{{Args}}">
+            {{Args}}
+        </td>
+        <td>
+            <div class="btn-list flex-nowrap">
+                <button name="btnActionEdit" type="button" class="btn btn-icon bg-muted-lt">
+                    <i class="f:18 ti ti-edit"></i>
+                </button>
+                <button name="btnActionDelete" type="button" class="btn btn-icon bg-muted-lt">
+                    <i class="f:18 ti ti-minus"></i>
+                </button>
+            </div>
+        </td>
+    </tr>
+     {{/items}}
+    </script>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

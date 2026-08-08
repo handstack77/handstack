@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>통합차트-08 모바일 배치 - OpenGrid 예제</title>
+    <link rel="stylesheet" href="../../OpenGrid.css">
+    <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+    <div class="demo-nav"><a href="../index.html">← 목록으로</a> · 업무용 기능</div>
+    <h2>통합차트-08 · 모바일 배치</h2>
+    <p class="desc">차트는 ResizeObserver로 컨테이너 폭 변화를 감지해 자동으로 다시 그려집니다. 버튼으로 좁은 화면 폭을 흉내내 보세요.</p>
+    <div class="demo-toolbar">
+        <button type="button" id="grdChart08_show">차트 표시</button>
+        <button type="button" id="grdChart08_narrow" class="secondary">좁은 화면 폭 시뮬레이션</button>
+    </div>
+    <syn_opengrid id="grdChart08" class="demo-grid" syn-options="{
+        columns: [['ProdName', '상품명', 130, false, 'text'], ['Price', '가격', 100, false, 'number']]
+    }"></syn_opengrid>
+    <div id="divLog" class="log-panel"></div>
+    <script src="../../../../js/syn.js"></script>
+    <script src="../../CodePicker/CodePicker.js"></script>
+    <script src="../../OpenGrid.js"></script>
+    <script src="../common.js"></script>
+    <script src="chart08.js"></script>
+</body>
+</html>

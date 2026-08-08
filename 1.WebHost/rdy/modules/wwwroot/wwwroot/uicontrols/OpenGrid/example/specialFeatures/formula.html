@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>수식 계산 - OpenGrid 예제</title>
+    <link rel="stylesheet" href="../../OpenGrid.css">
+    <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+    <div class="demo-nav"><a href="../index.html">← 목록으로</a> · 특수 기능</div>
+    <h2>수식 계산</h2>
+    <p class="desc">셀에 "=Price*Qty" 형태의 스프레드시트 수식을 겁니다(setCellFormula).</p>
+    <div class="demo-toolbar">
+        <button type="button" id="grdFormula_apply">합계 컬럼에 수식 적용</button>
+    </div>
+    <syn_opengrid id="grdFormula" class="demo-grid" syn-options="{
+        editable: true,
+        columns: [
+            ['Price', '단가', 100, false, 'number'],
+            ['Qty', '수량', 90, false, 'number'],
+            ['Total', '합계', 110, false, 'number']
+        ]
+    }"></syn_opengrid>
+    <div id="divLog" class="log-panel"></div>
+    <script src="../../../../js/syn.js"></script>
+    <script src="../../CodePicker/CodePicker.js"></script>
+    <script src="../../OpenGrid.js"></script>
+    <script src="../common.js"></script>
+    <script src="formula.js"></script>
+</body>
+</html>

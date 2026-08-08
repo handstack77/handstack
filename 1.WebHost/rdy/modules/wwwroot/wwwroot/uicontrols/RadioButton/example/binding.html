@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <title>RadioButton - syn.$bind 양방향 바인딩</title>
+    <link rel="stylesheet" href="/uicontrols/binding-example.css">
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <main id="bindingRoot" class="binding-example">
+            <h1>RadioButton 양방향 바인딩</h1>
+            <p class="description">여러 라디오 버튼을 하나의 그룹 값으로 감싸는 어댑터 예제입니다.</p>
+            <div class="binding-anchor" syn-bind="adapter(radio):value"></div>
+
+            <section class="binding-panel">
+                <h2>컨트롤에서 변경</h2>
+                <input id="rdoBinding1" name="rdoBinding" type="radio" value="standard" syn-options="{textContent: '일반 배송', toSynControl: true}" syn-events="['change']">
+                <input id="rdoBinding2" name="rdoBinding" type="radio" value="express" syn-options="{textContent: '빠른 배송', toSynControl: true}" syn-events="['change']">
+                <input id="rdoBinding3" name="rdoBinding" type="radio" value="pickup" syn-options="{textContent: '매장 픽업', toSynControl: true}" syn-events="['change']">
+            </section>
+
+            <section class="binding-panel">
+                <h2>바인딩 확인</h2>
+                <div class="binding-toolbar">
+                    <input type="button" id="btnModelChange" value="Proxy 모델 선택 변경" syn-events="['click']">
+                    <input type="button" id="btnControlRead" value="컨트롤 값을 모델로 읽기" syn-events="['click']">
+                </div>
+                <div class="binding-direction" syn-bind="text:direction"></div>
+                <pre id="preModel" class="binding-preview"></pre>
+            </section>
+        </main>
+    </form>
+    <script src="/uicontrols/binding-example.js"></script>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

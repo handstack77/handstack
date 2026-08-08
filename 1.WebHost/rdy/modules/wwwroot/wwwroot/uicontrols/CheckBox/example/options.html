@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>CheckBox - Options 예제</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <h3>CheckBox Options 예제</h3>
+        <p>
+            <code>checkedValue</code> / <code>uncheckedValue</code>로 체크 여부에 따라 서버로 전달할 값을 자유롭게 지정할 수 있고,
+            <code>textContent</code>로 라벨 문구를, <code>disabled</code>로 비활성화 여부를 지정할 수 있습니다.
+        </p>
+
+        <div>
+            <input id="chkUseYN" type="checkbox" syn-datafield="UseYN"
+                syn-options="{checkedValue: 'Y', uncheckedValue: 'N', textContent: '사용 여부 (Y/N)'}">
+        </div>
+
+        <hr />
+
+        <div>
+            <input id="chkStatus" type="checkbox" syn-datafield="Status" checked="checked"
+                syn-options="{checkedValue: 'ACTIVE', uncheckedValue: 'INACTIVE', textContent: '상태값 커스텀'}">
+        </div>
+
+        <hr />
+
+        <div>
+            <input id="chkDisabled" type="checkbox" syn-datafield="DisabledSample"
+                syn-options="{disabled: true, textContent: '비활성화된 체크박스'}">
+        </div>
+
+        <hr />
+
+        <div>
+            <div>여러 개를 그룹으로 배치한 예 (같은 name으로 묶고 싶다면 name 속성을 직접 부여하세요)</div>
+            <input id="chkFruitApple" type="checkbox" name="fruit" syn-datafield="FruitApple"
+                syn-options="{checkedValue: '1', uncheckedValue: '0', textContent: '사과'}">
+            <input id="chkFruitBanana" type="checkbox" name="fruit" syn-datafield="FruitBanana"
+                syn-options="{checkedValue: '1', uncheckedValue: '0', textContent: '바나나'}">
+            <input id="chkFruitGrape" type="checkbox" name="fruit" syn-datafield="FruitGrape"
+                syn-options="{checkedValue: '1', uncheckedValue: '0', textContent: '포도'}">
+        </div>
+
+        <hr />
+
+        <div>
+            <input type="button" id="btnGetGroupNames" value="getGroupNames() 실행" syn-events="['click']" />
+        </div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

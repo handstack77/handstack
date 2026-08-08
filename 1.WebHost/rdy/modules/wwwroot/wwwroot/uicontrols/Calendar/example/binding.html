@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <title>Calendar - syn.$bind 양방향 바인딩</title>
+    <link rel="stylesheet" href="/uicontrols/binding-example.css">
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <main id="bindingRoot" class="binding-example">
+            <h1>Calendar 양방향 바인딩</h1>
+            <p class="description">일정 배열을 모델에서 내리고, 드래그/크기 변경 뒤의 일정을 다시 모델로 올립니다.</p>
+            <div class="binding-anchor" syn-bind="adapter(calendar):value"></div>
+
+            <section class="binding-panel">
+                <h2>컨트롤에서 변경</h2>
+                <syn_calendar id="calBinding" syn-options="{
+                    height: 460,
+                    initialDate: '2026-07-01',
+                    initialView: 'dayGridMonth',
+                    editable: true
+                }" syn-events="['eventDrop', 'eventResize']"></syn_calendar>
+            </section>
+
+            <section class="binding-panel">
+                <h2>바인딩 확인</h2>
+                <div class="binding-toolbar">
+                    <input type="button" id="btnModelChange" value="Proxy 모델 일정 추가" syn-events="['click']">
+                    <input type="button" id="btnControlRead" value="달력 일정을 모델로 읽기" syn-events="['click']">
+                </div>
+                <div class="binding-direction" syn-bind="text:direction"></div>
+                <pre id="preModel" class="binding-preview"></pre>
+            </section>
+        </main>
+    </form>
+    <script src="/uicontrols/binding-example.js"></script>
+    <script>
+        function pageLoadFiles(jsFiles, styleFiles, templateFiles) {
+            styleFiles.push('/uicontrols/Calendar/Calendar.css');
+            jsFiles.push('/lib/fullcalendar/index.global.min.js');
+            jsFiles.push('/lib/fullcalendar/core/locales/ko.global.min.js');
+            jsFiles.push('/uicontrols/Calendar/Calendar.js');
+        }
+    </script>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

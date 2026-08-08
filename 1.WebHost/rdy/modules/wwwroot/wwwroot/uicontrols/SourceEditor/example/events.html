@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>SourceEditor 이벤트 예제</title>
+</head>
+<body>
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div>
+            <div>
+                SourceEditor는 syn-events 속성을 지원하지 않으므로,
+                아래 "이벤트 연결" 버튼을 눌러 Monaco 에디터의 네이티브 이벤트 API
+                (onDidChangeModelContent 등)를 직접 등록합니다.
+            </div>
+            <syn_sourceeditor id="txtEvent"
+                               syn-datafield="SourceCode"
+                               syn-options="{language: 'javascript', theme: 'vs-dark'}"></syn_sourceeditor>
+        </div>
+        <hr />
+        <div>
+            <input type="button" id="btnBindEvents" value="이벤트 연결" syn-events="['click']" />
+            <input type="button" id="btnGetValue" value="getValue" syn-events="['click']" />
+            <input type="button" id="btnSetValue" value="setValue" syn-events="['click']" />
+            <input type="button" id="btnClear" value="clear" syn-events="['click']" />
+        </div>
+    </form>
+
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

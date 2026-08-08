@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>DataSource - 화면에 그려지지 않는 업무 목록 저장소</title>
+</head>
+<body>
+	<form autocomplete="off" id="form1" syn-datafield="MainForm">
+		<h3>DataSource(storeType: Grid) - 그리드 없이 자바스크립트 배열로만 다루는 업무 목록</h3>
+		<p>
+			전자결재의 결재선, 첨부파일 목록처럼 화면에는 카드/목록 형태로 렌더링하고 그리드 컨트롤은 두지 않는 경우,
+			<code>&lt;syn_data&gt;</code>만 선언해서 <code>$this.store.ApprovalLine</code> 배열을 순수 자바스크립트
+			(<code>push</code>/<code>splice</code>/<code>filter</code>)로 직접 다룹니다. 저장 트랜잭션에는 이 배열을
+			<code>type: 'List'</code> 입력으로 그대로 실어 보냅니다.
+		</p>
+
+		<syn_data id="srcApprovalLine" syn-options="{
+			dataSourceID: 'ApprovalLine',
+			storeType: 'Grid',
+			columns: [
+				{ data: 'SortingNo', dataType: 'number' },
+				{ data: 'EmployeeNo', dataType: 'string' },
+				{ data: 'EmployeeName', dataType: 'string' },
+				{ data: 'Status', dataType: 'string' }
+			]
+		}"></syn_data>
+
+		<div id="divApprovalLine"></div>
+
+		<hr>
+		<input type="text" id="txtEmployeeNo" placeholder="사번" style="width: 80px;">
+		<input type="text" id="txtEmployeeName" placeholder="성명" style="width: 100px;">
+		<input type="button" id="btnAddApprover" value="결재선에 추가" syn-events="['click']">
+		<input type="button" id="btnRemoveLastApprover" value="마지막 결재자 제거" syn-events="['click']">
+		<input type="button" id="btnGetValue" value="getValue(저장 대상 확인)" syn-events="['click']">
+	</form>
+
+	<script src="/js/syn.loader.js"></script>
+</body>
+</html>

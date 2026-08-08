@@ -1,0 +1,138 @@
+﻿{
+    "Comment": "기초코드 데이터",
+    "CodeColumnID": "CodeID",
+    "ValueColumnID": "CodeValue",
+    "CreatedAt": "2012-03-22 오후 2:00:00",
+    "Scheme": [
+        {
+            "ColumnID": "SelectYN",
+            "ColumnText": "기본선택여부",
+            "HiddenYN": true
+        },
+        {
+            "ColumnID": "LocaleID",
+            "ColumnText": "언어권ID",
+            "HiddenYN": true
+        },
+        {
+            "ColumnID": "CodeID",
+            "ColumnText": "코드ID",
+            "HiddenYN": false
+        },
+        {
+            "ColumnID": "CodeValue",
+            "ColumnText": "코드값",
+            "HiddenYN": false
+        }
+    ],
+    "DataSource": [
+        {
+            "CodeID": "CP",
+            "CodeValue": "Customer Performer",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "CC",
+            "CodeValue": "Customer Consultant",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "CO",
+            "CodeValue": "Customer Officer",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "CM",
+            "CodeValue": "Customer Manager",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "CD",
+            "CodeValue": "Customer Developer",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "CU",
+            "CodeValue": "Customer UX/UI Designer",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "BP",
+            "CodeValue": "Business Performer",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "BC",
+            "CodeValue": "Business Consultant",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "BO",
+            "CodeValue": "Business Officer",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "BM",
+            "CodeValue": "Business Manager",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "BD",
+            "CodeValue": "Business Developer",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "BU",
+            "CodeValue": "Business UX/UI Designer",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "PP",
+            "CodeValue": "Project Performer",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "PC",
+            "CodeValue": "Project Consultant",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "PO",
+            "CodeValue": "Project Officer",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "PM",
+            "CodeValue": "Project Manager",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "PD",
+            "CodeValue": "Project Developer",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "PU",
+            "CodeValue": "Project UX/UI Designer",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        }
+    ]
+}

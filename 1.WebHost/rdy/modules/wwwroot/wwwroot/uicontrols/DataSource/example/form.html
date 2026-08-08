@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>DataSource - Form(단일 레코드) 바인딩</title>
+</head>
+<body>
+	<form autocomplete="off" id="form1" syn-datafield="MainForm">
+		<h3>DataSource(storeType: Form) - 입력 컨트롤 1:1 필드 바인딩</h3>
+		<p>아래 입력 컨트롤들은 <code>bindingID: 'FormStore'</code>로 화면에 보이지 않는 <code>srcForm</code> DataSource와 연결되어 있습니다.</p>
+
+		<syn_data id="srcForm" syn-options="{
+			dataSourceID: 'FormStore',
+			storeType: 'Form',
+			columns: [
+				{ data: 'Name', dataType: 'string' },
+				{ data: 'Age', dataType: 'number' },
+				{ data: 'EnabledYN', dataType: 'bool' }
+			]
+		}"></syn_data>
+
+		<div>
+			<label for="txtName">이름 (Name)</label><br>
+			<input type="text" id="txtName" syn-datafield="Name" syn-options="{editType: 'text', bindingID: 'FormStore'}">
+		</div>
+		<br>
+		<div>
+			<label for="txtAge">나이 (Age)</label><br>
+			<input type="text" id="txtAge" syn-datafield="Age" syn-options="{editType: 'number', bindingID: 'FormStore'}">
+		</div>
+		<br>
+		<div>
+			<label for="chkEnabledYN">사용 여부 (EnabledYN)</label><br>
+			<input type="checkbox" id="chkEnabledYN" syn-datafield="EnabledYN" syn-options="{bindingID: 'FormStore'}">
+		</div>
+
+		<hr>
+		<input type="button" id="btnGetValue" value="getValue(srcForm, true)" syn-events="['click']">
+		<input type="button" id="btnClear" value="clear(srcForm)" syn-events="['click']">
+	</form>
+
+	<script src="/js/syn.loader.js"></script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <title>Guide - syn.$bind 양방향 바인딩</title>
+    <link rel="stylesheet" href="/uicontrols/binding-example.css">
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <main id="bindingRoot" class="binding-example">
+            <h1>Guide 양방향 바인딩</h1>
+            <p class="description">Guide의 완료/종료 결과를 상태값으로 올리고, 모델의 상태를 Guide 값에 내립니다.</p>
+            <div class="binding-anchor" syn-bind="adapter(guide):value"></div>
+
+            <section class="binding-panel">
+                <h2>컨트롤에서 변경</h2>
+                <div id="divGuideStep1" class="binding-target">첫 번째 안내 대상</div>
+                <div id="divGuideStep2" class="binding-target">두 번째 안내 대상</div>
+                <syn_guide id="hlpBinding" syn-options="{
+                    items: [
+                        {helpType: 'I', selector: '#divGuideStep1', subject: '첫 단계', sentence: '첫 번째 안내입니다.'},
+                        {helpType: 'I', selector: '#divGuideStep2', subject: '둘째 단계', sentence: '두 번째 안내입니다.'}
+                    ]
+                }" syn-events="['complete', 'exit']"></syn_guide>
+                <input type="button" id="btnStartGuide" value="Guide 시작" syn-events="['click']">
+            </section>
+
+            <section class="binding-panel">
+                <h2>바인딩 확인</h2>
+                <div class="binding-toolbar">
+                    <input type="button" id="btnModelChange" value="Proxy 모델 상태 변경" syn-events="['click']">
+                    <input type="button" id="btnControlRead" value="Guide 값을 모델로 읽기" syn-events="['click']">
+                </div>
+                <div class="binding-direction" syn-bind="text:direction"></div>
+                <pre id="preModel" class="binding-preview"></pre>
+            </section>
+        </main>
+    </form>
+    <script src="/uicontrols/binding-example.js"></script>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

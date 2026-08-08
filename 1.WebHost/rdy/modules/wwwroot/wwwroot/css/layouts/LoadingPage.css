@@ -1,0 +1,9 @@
+#loadingPage {
+	/*background: #ccc url(/img/resources/javascript24.png);*/
+	position: absolute;
+	left: 0px;
+	top: 0px;
+	background-color: #E5E5E5;
+	height: 100%;
+	width: 100%;
+}
