@@ -1321,9 +1321,21 @@ namespace rdy
                                         destModuleBasePath = PathExtensions.Combine(handstackHomePath, "modules", moduleID, "Contracts", "graphclient");
                                         destContractModuleBasePath = PathExtensions.Combine(handstackHomePath, "contracts", "graphclient");
                                         break;
+                                    case "command":
+                                        destModuleBasePath = PathExtensions.Combine(handstackHomePath, "modules", moduleID, "Contracts", "command");
+                                        destContractModuleBasePath = PathExtensions.Combine(handstackHomePath, "contracts", "command");
+                                        break;
                                     case "function":
                                         destModuleBasePath = PathExtensions.Combine(handstackHomePath, "modules", moduleID, "Contracts", "function");
                                         destContractModuleBasePath = PathExtensions.Combine(handstackHomePath, "contracts", "function");
+                                        break;
+                                    case "prompter":
+                                        destModuleBasePath = PathExtensions.Combine(handstackHomePath, "modules", moduleID, "Contracts", "prompter");
+                                        destContractModuleBasePath = PathExtensions.Combine(handstackHomePath, "contracts", "prompter");
+                                        break;
+                                    case "repository":
+                                        destModuleBasePath = PathExtensions.Combine(handstackHomePath, "modules", moduleID, "Contracts", "repository");
+                                        destContractModuleBasePath = PathExtensions.Combine(handstackHomePath, "contracts", "repository");
                                         break;
                                     case "transact":
                                         destModuleBasePath = PathExtensions.Combine(handstackHomePath, "modules", moduleID, "Contracts", "transact");
