@@ -346,6 +346,7 @@ docker inspect handstack-ack --format "{{json .Mounts}}"
 2. `hostAccessID` 값 일치 여부
 3. `HANDSTACK_HOME` 경로 유효성
 4. 요청 폼 데이터 (`moduleID`, `contractType`, `destFilePath`, `changeType`, `file`)
+5. `contractType` 허용값 (`dbclient`, `graphclient`, `function`, `transact`, `command`, `prompter`, `repository`, `wwwroot`)
 
 ## 10) 운영 점검 체크리스트
 

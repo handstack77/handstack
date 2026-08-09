@@ -73,10 +73,16 @@ handsonapp --moduleID checkup --contractUrlSync true --handstackUrl http://local
 
 ## 동기화 대상 파일 패턴
 
-- `contracts/dbclient`: `*.xml`
-- `contracts/function`: `featureMain.cs|featureMain.js|featureMeta.json|featureSQL.xml`
-- `contracts/transact`: `*.json`
+- `contracts/dbclient`: `*.xml|*.dbc`
+- `contracts/graphclient`: `*.xml|*.cyp`
+- `contracts/function`: `*.xml|*.fnc|featureMain.cs|featureMain.js|featureMain.py|featureMeta.json|featureSQL.xml`
+- `contracts/transact`: `*.json|*.txn`
+- `contracts/command`: `*.xml|*.bas`
+- `contracts/prompter`: `*.xml|*.pmt`
+- `contracts/repository`: `*.json|*.rpo`
 - `wwwroot/<moduleID>`: `*.html|*.css|*.js|*.json`
+
+URL 업로드 시 `contractType`에는 위 디렉터리 이름을 전송합니다. `ack`와 `rdy`의 `/contractsync`는 이 8종을 허용하며, 계약 파일은 `<HANDSTACK_HOME>/modules/<moduleID>/Contracts/<contractType>`와 `<HANDSTACK_HOME>/contracts/<contractType>`에 함께 반영합니다. `wwwroot` 자산은 모듈의 `wwwroot/<moduleID>` 경로에 반영합니다.
 
 ## 참고 스크립트
 
