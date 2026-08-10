@@ -1,6 +1,11 @@
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Reflection;
+using System.Runtime.Loader;
 
+using HandStack.Core.ExtensionMethod;
 using HandStack.Web;
 using HandStack.Web.Extensions;
 using HandStack.Web.Modules;
@@ -16,7 +21,7 @@ namespace rdy.Extensions
     {
         private static readonly IModuleConfigurationManager modulesConfig = new ModuleConfigurationManager();
 
-        // rdy는 모듈 어셈블리를 ProjectReference로 정적 참조하므로 동적 어셈블리 로딩 없이 모듈을 결합
+        // rdy에 ProjectReference로 포함된 모듈은 정적 어셈블리를 우선 사용한다.
         private static readonly Dictionary<string, Assembly> staticModuleAssemblies = new()
         {
             ["command"] = typeof(global::command.ModuleInitializer).Assembly,
@@ -24,6 +29,7 @@ namespace rdy.Extensions
             ["function"] = typeof(global::function.ModuleInitializer).Assembly,
             ["graphclient"] = typeof(global::graphclient.ModuleInitializer).Assembly,
             ["logger"] = typeof(global::logger.ModuleInitializer).Assembly,
+            ["prompter"] = typeof(global::prompter.ModuleInitializer).Assembly,
             ["repository"] = typeof(global::repository.ModuleInitializer).Assembly,
             ["transact"] = typeof(global::transact.ModuleInitializer).Assembly,
             ["wwwroot"] = typeof(global::wwwroot.ModuleInitializer).Assembly,
@@ -37,13 +43,19 @@ namespace rdy.Extensions
                 {
                     module.Assembly = assembly;
                     Log.Logger.Information($"LoadModule: {module.ModuleID}, StaticBundled");
-
-                    GlobalConfiguration.Modules.Add(module);
+                }
+                else if (module.IsBundledWithHost == false)
+                {
+                    TryLoadModuleAssembly(module.ModuleID, module);
                 }
                 else
                 {
-                    Log.Logger.Warning($"LoadModule: {module.ModuleID}은(는) rdy에 정적으로 포함되지 않은 모듈로 무시됩니다");
+                    var assemblyPath = Path.Combine(AppContext.BaseDirectory, $"{module.ModuleID}.dll");
+                    module.Assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(assemblyPath);
+                    Log.Logger.Information($"LoadModule: {module.ModuleID}, IsBundledWithHost");
                 }
+
+                GlobalConfiguration.Modules.Add(module);
             }
 
             return services;
@@ -96,6 +108,83 @@ namespace rdy.Extensions
                     mvcBuilder.PartManager.ApplicationParts.Add(part);
                 }
             }
+        }
+
+        private static void TryLoadModuleAssembly(string moduleID, ModuleInfo module)
+        {
+            var moduleBasePath = module.BasePath.Replace("\\", "/");
+            var binariesFolder = new DirectoryInfo(moduleBasePath);
+
+            Log.Logger.Information($"LoadModule: {moduleID}, moduleBasePath: {moduleBasePath}");
+
+            if (binariesFolder.Exists == true)
+            {
+                var files = binariesFolder.GetFileSystemInfos("*.dll", SearchOption.AllDirectories);
+                foreach (var file in files)
+                {
+                    Assembly? assembly = null;
+                    try
+                    {
+                        if (file.FullName.Replace("\\", "/").IndexOf($"/runtimes/") > -1)
+                        {
+
+                        }
+                        else
+                        {
+                            var filePath = file.FullName.Replace("\\", "/").Replace(moduleBasePath, "");
+                            if (ShouldSkipLoading(module.LoadPassAssemblyPath, PathExtensions.Join(module.BasePath, filePath)) == false)
+                            {
+                                assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(file.FullName.Replace("\\", "/"));
+                            }
+                        }
+                    }
+                    catch (FileLoadException fileLoadException)
+                    {
+                        assembly = Assembly.Load(new AssemblyName(Path.GetFileNameWithoutExtension(file.Name)));
+
+                        if (assembly == null)
+                        {
+                            Log.Logger.Error(fileLoadException, $"LoadModule: {moduleID}, moduleBasePath: {moduleBasePath}");
+                            throw;
+                        }
+
+                        var assemblyFilePath = string.IsNullOrWhiteSpace(assembly.Location) == true ? file.FullName.Replace("\\", "/") : assembly.Location;
+                        var loadedAssemblyVersion = FileVersionInfo.GetVersionInfo(assemblyFilePath).FileVersion;
+                        var tryToLoadAssemblyVersion = FileVersionInfo.GetVersionInfo(file.FullName.Replace("\\", "/")).FileVersion;
+
+                        if (tryToLoadAssemblyVersion != loadedAssemblyVersion)
+                        {
+                            Log.Logger.Warning($"파일 {file.FullName.Replace("\\", "/")} {tryToLoadAssemblyVersion}을(를) 로드할 수 없습니다. 이미 {assembly.Location} {loadedAssemblyVersion}이(가) 로드되었습니다.");
+                        }
+                    }
+
+                    if (assembly != null && Path.GetFileNameWithoutExtension(assembly.ManifestModule.Name) == module.ModuleID)
+                    {
+                        module.Assembly = assembly;
+                    }
+                }
+            }
+        }
+
+        private static bool ShouldSkipLoading(List<string> paths, string filePath)
+        {
+            foreach (var path in paths)
+            {
+                if (path == filePath)
+                {
+                    return true;
+                }
+
+                if (path.EndsWith("/**") == true)
+                {
+                    var directoryPath = path.Replace("/**", "");
+                    if (filePath.StartsWith(directoryPath) == true)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
     }
 }

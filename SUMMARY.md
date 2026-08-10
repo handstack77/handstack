@@ -21,7 +21,7 @@ HandStack 솔루션은 단순한 ASP.NET Core 단일 웹앱이 아니라, 호스
 ```text
 1.WebHost
   ack          : 메인 ASP.NET Core 호스트 (기본 포트 8421)
-  rdy          : 지원 모듈을 정적으로 결합한 단일 호스트 (기본 포트 8420)
+  rdy          : 기본 모듈은 정적으로 결합하고 추가 모듈은 동적으로 로드하는 단일 호스트 (기본 포트 8420)
   agent        : 여러 ack 프로세스를 관리하는 에이전트 호스트 (기본 포트 8422)
   deploy       : 자동 업데이트 패키지/manifest 호스트 (기본 포트 8520)
   forbes       : 정적 파일 및 Contracts 동기화 호스트 (기본 포트 8420)
@@ -207,14 +207,18 @@ foreach (var moduleBasePath in Directory.GetDirectories(GlobalConfiguration.Load
 }
 ```
 
-실제 DLL 로딩은 [`1.WebHost/ack/Extensions/ServiceCollectionExtensions.cs`](1.WebHost/ack/Extensions/ServiceCollectionExtensions.cs)에서 수행합니다.
+실제 DLL 로딩은 [`ack`](1.WebHost/ack/Extensions/ServiceCollectionExtensions.cs)와 [`rdy`](1.WebHost/rdy/Extensions/ServiceCollectionExtensions.cs)의 `ServiceCollectionExtensions`에서 수행합니다. `ack`는 선택된 모듈을 동적으로 로드하고, `rdy`는 ProjectReference와 정적 사전에 포함된 기본 모듈을 우선 사용한 뒤 사전에 없는 모듈만 같은 방식으로 동적 로드합니다.
 
 ```csharp
 public static IServiceCollection AddModules(this IServiceCollection services)
 {
     foreach (var module in modulesConfig.GetModules())
     {
-        if (module.IsBundledWithHost == false)
+        if (staticModuleAssemblies.TryGetValue(module.ModuleID, out var assembly))
+        {
+            module.Assembly = assembly;
+        }
+        else if (module.IsBundledWithHost == false)
         {
             TryLoadModuleAssembly(module.ModuleID, module);
         }

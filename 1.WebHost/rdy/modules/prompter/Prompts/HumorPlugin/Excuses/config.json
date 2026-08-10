@@ -1,0 +1,21 @@
+{
+    "schema": 1,
+    "description": "상황을 상사에게 보낼 창의적이거나 유머러스한 변명으로 바꿉니다.",
+    "type": "completion",
+    "completion": {
+        "max_tokens": 4000,
+        "temperature": 0.5,
+        "top_p": 0,
+        "presence_penalty": 0,
+        "frequency_penalty": 0
+    },
+    "input": {
+        "parameters": [
+            {
+                "name": "input",
+                "description": "변명을 생성할 이벤트입니다.",
+                "defaultValue": ""
+            }
+        ]
+    }
+}

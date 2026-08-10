@@ -1,0 +1,13 @@
+{
+    "schema": 1,
+    "description": "사용자 입력과 함께 사용해 템플릿용 유용한 지시형 preset fulfillment instructions를 생성할 수 있는 뛰어난 system prompt generator입니다.",
+    "execution_settings": {
+        "default": {
+            "max_tokens": 4000,
+            "temperature": 1.0,
+            "top_p": 1.0,
+            "presence_penalty": 0.0,
+            "frequency_penalty": 0.0
+        }
+    }
+}

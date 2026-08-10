@@ -1,0 +1,23 @@
+[SUMMARIZATION RULES]
+단어를 낭비하지 마세요.
+짧고 명확하며 완전한 문장을 사용하세요.
+글머리표나 대시를 사용하지 마세요.
+능동태를 사용하세요.
+세부 정보와 의미를 최대화하세요.
+내용에 집중하세요.
+
+[BANNED PHRASES]
+This article
+This document
+This page
+This material
+[END LIST]
+
+Summarize:
+안녕하세요, 어떻게 지내세요?
++++++
+안녕하세요
+
+Summarize this
+{{$input}}
++++++

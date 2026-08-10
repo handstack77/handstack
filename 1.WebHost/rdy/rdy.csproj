@@ -17,7 +17,7 @@
         <IsPublishable>True</IsPublishable>
         <AssemblyName>rdy</AssemblyName>
         <RootNamespace>rdy</RootNamespace>
-        <Description>ack 호스트와 command, dbclient, function, graphclient, logger, repository, transact, wwwroot 모듈을 정적으로 결합한 단일 실행 프로젝트</Description>
+        <Description>기본 모듈은 정적으로 결합하고 추가 모듈은 런타임에 동적으로 로드하는 단일 실행 프로젝트</Description>
         <NoWarn>IL3000;IL3002;NU1903;ASP0023;NU1608;NU1510;CA1416;</NoWarn>
     </PropertyGroup>
 
@@ -79,6 +79,7 @@
         <ProjectReference Include="$(HANDSTACK_SRC)/2.Modules/function/function.csproj" />
         <ProjectReference Include="$(HANDSTACK_SRC)/2.Modules/graphclient/graphclient.csproj" />
         <ProjectReference Include="$(HANDSTACK_SRC)/2.Modules/logger/logger.csproj" />
+        <ProjectReference Include="$(HANDSTACK_SRC)/2.Modules/prompter/prompter.csproj" />
         <ProjectReference Include="$(HANDSTACK_SRC)/2.Modules/repository/repository.csproj" />
         <ProjectReference Include="$(HANDSTACK_SRC)/2.Modules/transact/transact.csproj" />
         <ProjectReference Include="$(HANDSTACK_SRC)/2.Modules/wwwroot/wwwroot.csproj" />
@@ -97,7 +98,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Compile Remove="build/**" />
+        <Compile Remove="build/**;modules/**" />
         <None Include="wwwroot/**" />
         <None Update="wwwroot/**">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

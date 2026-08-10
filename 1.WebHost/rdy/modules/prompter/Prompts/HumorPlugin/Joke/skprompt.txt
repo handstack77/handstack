@@ -1,0 +1,13 @@
+아래 주제에 대해 정확히 하나의 농담 또는 유머러스한 이야기를 작성하세요.
+
+JOKE MUST BE:
+- G RATED
+- WORKPLACE/FAMILY SAFE
+NO SEXISM, RACISM OR OTHER BIAS/BIGOTRY
+
+창의적이고 재미있게 작성하세요. 웃길 수 있어야 합니다.
+{{$style}}
++++++
+
+{{$input}}
++++++

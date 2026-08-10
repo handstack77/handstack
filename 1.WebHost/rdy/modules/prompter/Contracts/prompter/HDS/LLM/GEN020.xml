@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapper xmlns="contract.xsd">
+    <header>
+        <application>HDS</application>
+        <project>LLM</project>
+        <transaction>GEN020</transaction>
+        <datasource>LLM4</datasource>
+        <use>Y</use>
+        <desc>국가 언어 변환</desc>
+    </header>
+    <prompts>
+        <statement id="GP01" seq="0" use="Y" timeout="0" desc="국가 언어 변환" maxtokens="4000" temperature="1.0" topp="1.0" presence="0.0" frequency="0.0">
+            <![CDATA[
+# INSTRUCTIONS
+- "${StartLanguageID}" 문장이 제공되며, 당신의 작업은 이를 "${EndLanguageID}"로 번역하는 것입니다.
+- 대화의 성격에 따라 사용자의 의도와 정보 전달 방식이 달라집니다. 이를 이해하고 적절하게 응답해야 합니다.
+- 질의 맥락에 나타나지 않은 정보는 절대 추론하지 마세요.
+- 판단 근거를 설명하지 말고 번역 결과만 응답하세요.
+
+USER:
+${UserMessage}
+			]]>
+            <param id="@UserMessage" type="String" length="-1" value="" />
+            <param id="@StartLanguageID" type="String" length="-1" value="" />
+            <param id="@EndLanguageID" type="String" length="-1" value="" />
+        </statement>
+    </prompts>
+</mapper>

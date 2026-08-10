@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapper xmlns="contract.xsd">
+    <header>
+        <application>HDS</application>
+        <project>LLM</project>
+        <transaction>SMZ010</transaction>
+        <datasource>LLM4</datasource>
+        <use>Y</use>
+        <desc>회의록 요약 정리</desc>
+    </header>
+    <prompts>
+        <statement id="GP01" seq="0" use="Y" timeout="0" desc="회의록 요약 정리" maxtokens="4000" temperature="1.0" topp="0.1" presence="0.0" frequency="0.0">
+            <![CDATA[
+# INSTRUCTIONS
+- 한국어만 사용하세요.
+- 회의 메모가 제공되며, 당신의 작업은 회의를 다음 형식으로 요약하는 것입니다.
+- 논의 내용 전체 요약
+- 실행 항목(해야 할 일과 담당자)
+- 해당되는 경우, 다음 회의에서 더 충분히 논의해야 할 주제 목록
+
+#EXAMPLES
+
+## 회의안건
+개인 업무 공유
+
+## 날짜/시간
+2024-01-01 09:30 ~ 10:00
+
+## 회의장소
+블라블라 영어교실 본사 1층 카페
+
+## 참석인원
+- 큐씨엔
+    - XXX 차장
+    - XXX 선임
+    - XXX 주임
+- 블라블라 영어교실
+    - XXX 대리
+
+## 상세내용
+1. XXX 반품 처리 SP 정리
+    - XXX 차장: 반품 처리 SP를 정리하고, XXX 코드 수정 필요
+    - XXX 선임: XXX 반품 처리 SP를 확인하고, XXX 코드 수정 필요
+    
+2. XXX 반품 처리 XXX 코드 수정 (처리 방법에 대해 정리 후, 전달 예정)
+    - XXX 선임: XXX 코드 수정 후, XXX 차장에게 확인 요청
+    - XXX 주임: XXX 코드 수정 후, XXX 선임에게 확인 요청
+    
+3. XXX 교실 통계 페이지 SP 확인
+    - XXX 대리: XXX 교실 통계 페이지 SP 확인 후, XXX 차장에게 전달 예정
+    - XXX 대리: XXX 교실 통계 페이지 SP 확인 후, XXX 차장에게 전달 예정
+
+회의결과/이슈/의견
+- XXX 업무는 XXX 사유로 진행 불가
+- XXX 업무는 언제까지 XXX 에서 확인 필요
+
+비고
+회의는 오후 3시 15분에 잠시 휴식 했습니다. 다음 회의는 2050년 3월 19일 오후 2시에 블라블라 영어교실 본부 회의실 3B 에서 열릴 예정입니다.
+
+---
+
+SYSTEM:
+- 업무 상황에 따라 회의에서 논의된 항목과 내용을 생략할 수 있습니다.
+- #EXAMPLES를 참고해 회의록을 작성하세요.
+- 주요 작성 항목은 다음과 같습니다.
+    - Department Name / Job Name : "인터뷰 대상자의 Department Name / Job Name"을 기록하세요.
+    - Date/Time: 회의 날짜와 시간을 기록하세요. (yyyy.mm.dd ss:bb ~ ss:bb)
+    - Meeting location: 회의 장소를 기록하세요.
+    - Attendees: 회의 참석자의 "회사+이름+직급"을 기록하세요.
+    - Meeting organiser/recorder: 회의 주관자와 회의록 작성자의 "이름+직급"을 기록하세요.
+    - Agenda: 회의 내용 또는 제시된 안건을 설명하세요.
+    - Details: 질문과 답변 등 회의 내용을 가능한 한 자세히 설명하세요.
+    - Issues/comments: 회의 참석자가 알아야 할 이슈나 의견을 설명하세요.
+
+SYSTEM:
+Attendees: ${Attendees}
+MeetingTime: ${MeetingTime}
+Location: ${Location}
+
+USER:
+${UserMessage}
+			]]>
+            <param id="@UserMessage" type="String" length="-1" value="" />
+            <param id="@Attendees" type="String" length="-1" value="" />
+            <param id="@MeetingTime" type="String" length="-1" value="" />
+            <param id="@Location" type="String" length="-1" value="" />
+        </statement>
+    </prompts>
+</mapper>

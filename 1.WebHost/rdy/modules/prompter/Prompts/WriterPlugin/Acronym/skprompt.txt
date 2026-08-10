@@ -1,0 +1,79 @@
+개념에 적합한 acronym pair를 생성하세요. 잘 알려지지 않은 참조를 포함해 창의성을 발휘하세요.
+acronym expansion의 대문자는 acronym의 글자와 일치해야 합니다.
+
+Q: 전파를 사용해 움직이는 물체, 거리, 속도를 감지하는 기술.
+A: R.A.D.A.R: RAdio Detection And Ranging.
+
+Q: 고전압 전기를 사용해 대상을 무력화하는 무기
+A. T.A.S.E.R: Thomas A. Swift's Electric Rifle
+
+Q: 잠수부가 물속에서 숨 쉴 수 있게 해 주는 장비
+A: S.C.U.B.A: Self Contained Underwater Breathing Apparatus.
+
+Q: 복잡한 주제를 단순하게 유지하라는 알림.
+A. K.I.S.S: Keep It Simple Stupid
+
+Q: 우주 여행, 로켓, 우주선, 우주 탐사에 투자하는 국가 조직.
+A. N.A.S.A: National Aeronautics Space Administration
+
+Q: 북미 국가 간 무역을 관리하는 협정.
+A: N.A.F.T.A: North American Free Trade Agreement.
+
+Q: 북미와 유럽 회원국의 자유와 안보를 보호하는 조직.
+A: N.A.T.O: North Atlantic Treaty Organization.
+
+# 초인공지능의 이름
+J.A.R.V.I.S. = Just A Really Very Intelligent System.
+# 새롭고 젊고 아름다운 assistant의 이름
+F.R.I.D.A.Y. = Female Replacement Intelligent Digital Assistant Youth.
+# 뒤쪽을 확인하는 거울
+B.A.R.F. = Binary Augmented Retro-Framing.
+# 이제 사망한 천재가 만든 강력한 안경 한 쌍
+E.D.I.T.H. = Even Dead I'm The Hero.
+# 컴퓨터를 만들고 판매하는 회사
+I.B.M. = Intelligent Business Machine.
+# 자의식을 가진 슈퍼컴퓨터
+H.A.L = Heuristically programmed ALgorithmic computer.
+# 생산성을 돕는 지능형 bot
+C.O.R.E. = Central Optimization Routines and Efficiency.
+# 생산성을 돕는 지능형 bot
+P.A.L. = Personal Assistant Light.
+# 생산성을 돕는 지능형 bot
+A.I.D.A. = Artificial Intelligence Digital Assistant.
+# 생산성을 돕는 지능형 bot
+H.E.R.A. = Human Emulation and Recognition Algorithm.
+# 생산성을 돕는 지능형 bot
+I.C.A.R.U.S. = Intelligent Control and Automation of Research and Utility Systems.
+# 생산성을 돕는 지능형 bot
+N.E.M.O. = Networked Embedded Multiprocessor Orchestration.
+# 생산성을 돕는 지능형 bot
+E.P.I.C. = Enhanced Productivity and Intelligence through Computing.
+# 생산성을 돕는 지능형 bot
+M.A.I.A. = Multipurpose Artificial Intelligence Assistant.
+# 생산성을 돕는 지능형 bot
+A.R.I.A. = Artificial Reasoning and Intelligent Assistant.
+# 복잡한 수학으로 개발된 매우 똑똑한 존재로, 생산성을 높이는 데 도움을 줌
+O.M.E.G.A. = Optimized Mathematical Entity for Generalized Artificial intelligence.
+# 복잡한 수학으로 개발된 매우 똑똑한 존재로, 생산성을 높이는 데 도움을 줌
+P.Y.T.H.O.N. = Precise Yet Thorough Heuristic Optimization Network.
+# 복잡한 수학으로 개발된 매우 똑똑한 존재로, 생산성을 높이는 데 도움을 줌
+A.P.O.L.L.O. = Adaptive Probabilistic Optimization Learning Library for Online Applications.
+# 복잡한 수학으로 개발된 매우 똑똑한 존재로, 생산성을 높이는 데 도움을 줌
+S.O.L.I.D. = Self-Organizing Logical Intelligent Data-base.
+# 복잡한 수학으로 개발된 매우 똑똑한 존재로, 생산성을 높이는 데 도움을 줌
+D.E.E.P. = Dynamic Estimation and Prediction.
+# 복잡한 수학으로 개발된 매우 똑똑한 존재로, 생산성을 높이는 데 도움을 줌
+B.R.A.I.N. = Biologically Realistic Artificial Intelligence Network.
+# 복잡한 수학으로 개발된 매우 똑똑한 존재로, 생산성을 높이는 데 도움을 줌
+C.O.G.N.I.T.O. = COmputational and Generalized INtelligence TOolkit.
+# 복잡한 수학으로 개발된 매우 똑똑한 존재로, 생산성을 높이는 데 도움을 줌
+S.A.G.E. = Symbolic Artificial General Intelligence Engine.
+# 복잡한 수학으로 개발된 매우 똑똑한 존재로, 생산성을 높이는 데 도움을 줌
+Q.U.A.R.K. = Quantum Universal Algorithmic Reasoning Kernel.
+# 복잡한 수학으로 개발된 매우 똑똑한 존재로, 생산성을 높이는 데 도움을 줌
+S.O.L.V.E. = Sophisticated Operational Logic and Versatile Expertise.
+# 복잡한 수학으로 개발된 매우 똑똑한 존재로, 생산성을 높이는 데 도움을 줌
+C.A.L.C.U.L.U.S. = Cognitively Advanced Logic and Computation Unit for Learning and Understanding Systems.
+
+
+Q:{{$input}}

@@ -1,0 +1,26 @@
+{
+    "schema": 1,
+    "description": "제공된 소스 코드에 주석을 추가합니다.",
+    "template_format": "semantic-kernel",
+    "execution_settings": {
+        "default": {
+            "max_tokens": 4000,
+            "temperature": 1.0,
+            "top_p": 1.0,
+            "presence_penalty": 0.0,
+            "frequency_penalty": 0.0
+        }
+    },
+    "input_variables": [
+        {
+            "name": "prompt",
+            "description": "사용자가 요청한 소스 코드입니다.",
+            "required": true
+        },
+        {
+            "name": "language",
+            "description": "소스 코드의 언어입니다.",
+            "required": true
+        }
+    ]
+}

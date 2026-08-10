@@ -26,7 +26,7 @@
 
 ## 빠른 개요
 - `1.WebHost/ack`: 기본 포트 8421의 메인 ASP.NET Core 호스트. 선택한 모듈 DLL을 런타임에 동적으로 로드한다.
-- `1.WebHost/rdy`: `command`, `dbclient`, `function`, `graphclient`, `logger`, `repository`, `transact`, `wwwroot`를 ProjectReference로 정적 결합한 단일 호스트다. `ack`와 코드가 유사하지만 별도 검증 대상이다.
+- `1.WebHost/rdy`: 기본 모듈을 ProjectReference로 정적 결합하고, 그 밖의 선택 모듈은 `ack` 방식으로 동적 로드하는 단일 호스트다. `ack`와 코드가 유사하지만 별도 검증 대상이다.
 - `1.WebHost/agent`: 기본 포트 8422의 관리 API. 여러 `ack` 프로세스의 시작·중지·재시작, 설정/모듈 설정, 로그와 호스트 통계를 다룬다.
 - `1.WebHost/deploy`: 기본 포트 8520의 자동 업데이트 패키지/manifest 호스트다.
 - `1.WebHost/forbes`: 기본 포트 8420의 정적 파일 및 Contracts 동기화 호스트다.
@@ -43,7 +43,7 @@
 - `ack/Program.cs`는 기본 `appsettings.json`, `ACK_ENVIRONMENT`에 따른 환경별 JSON, 환경 변수를 합치고 `--modules` 또는 `AppSettings:LoadModules`로 로드 대상을 결정한다. `--modules`를 주면 기본 목록을 대체한다.
 - `Startup.ConfigureServices`가 `LoadModuleBasePath`를 해석하고 `ServiceCollectionExtensions.AddModules()`를 호출한다. `ModuleConfigurationManager`는 선택된 이름과 일치하는 `../modules/<module>/module.json`을 읽고, `ack`는 해당 폴더의 DLL을 `AssemblyLoadContext`로 로드한다.
 - 각 DLL에서 `IModuleInitializer` 구현을 찾아 `ConfigureServices`를 호출하고 DI에 등록한 뒤, `Startup.Configure`에서 각 모듈의 `Configure`를 호출한다. MVC 컨트롤러는 ApplicationPart로 합성된다. 런타임 설정 반영을 지원하는 모듈은 `IModuleRuntimeConfiguration`도 구현할 수 있다.
-- `rdy`도 `module.json`을 읽지만 지원 모듈 어셈블리는 `rdy/Extensions/ServiceCollectionExtensions.cs`의 정적 사전에 연결한다. 새 모듈을 `rdy`에 넣으려면 csproj ProjectReference와 정적 사전을 모두 수정한다.
+- `rdy`도 `module.json`을 읽고 `command`, `dbclient`, `function`, `graphclient`, `logger`, `prompter`, `repository`, `transact`, `wwwroot`의 정적 어셈블리를 우선 연결한다. `AppSettings:LoadModules`에 있으나 정적 사전에 없는 모듈은 `ack`와 같이 모듈 디렉터리의 DLL을 `AssemblyLoadContext.Default`로 동적 로드한다.
 - 기본 업무 흐름은 `브라우저/화면 -> wwwroot -> /transact/api/transaction/execute -> 실행 모듈`이다. `transact/module.json`의 기본 라우팅은 `D -> dbclient`, `G -> graphclient`, `F -> function`, `C -> command`, `P -> prompter`이며 `W`는 `WorkflowController` 내부 오케스트레이션이다.
 - 계약 자산은 소스에서 주로 `2.Modules/*/Contracts`에 있고 빌드 결과의 모듈 폴더에 포함된다. 실행 시 모듈 설정과 `IsCopyContract`/`IsPurgeContract` 정책에 따라 `%HANDSTACK_HOME%/contracts`와 `%HANDSTACK_HOME%/modules/*`를 사용한다.
 - 기본 `ack/appsettings.json`의 로드 모듈은 `wwwroot`, `transact`, `dbclient`, `graphclient`, `function`, `command`, `prompter`, `repository`, `logger`, `checkup`, `forwarder`다.
@@ -64,7 +64,7 @@
 - PowerShell 기본 빌드: `./build.ps1`. 솔루션 전체 restore/clean 후 명시된 프로젝트를 Debug로 빌드한다.
 - `ack` 로컬 실행: `dotnet run --project 1.WebHost/ack/ack.csproj -- --port=8421 --modules=wwwroot,transact,dbclient,graphclient,function,command,prompter`
 - 기타 호스트: `dotnet run --project 1.WebHost/agent/agent.csproj`, `dotnet run --project 1.WebHost/deploy/deploy.csproj`, `dotnet run --project 1.WebHost/forbes/forbes.csproj`
-- `rdy` 실행: `dotnet run --project 1.WebHost/rdy/rdy.csproj -- --port=8421`. 정적 포함 모듈과 `HANDSTACK_HOME/modules/*/module.json`을 함께 확인한다.
+- `rdy` 실행: `dotnet run --project 1.WebHost/rdy/rdy.csproj -- --port=8421`. 정적 포함 모듈, `AppSettings:LoadModules`, `LoadModuleBasePath` 아래의 `module.json`과 추가 모듈 DLL을 함께 확인한다.
 - Windows x64 Release 배포: `./publish.ps1 win publish Release x64`. 기본 결과는 `../publish/win-x64/handstack`이다.
 - 배포 후 제어: `handstack start --ack=%HANDSTACK_HOME%/app/ack.exe --arguments="--port=8421"`, `handstack stop --port=8421`
 
@@ -89,7 +89,7 @@
 - 호스트 설정: `1.WebHost/ack/appsettings.json`
 - 모듈 설정: `2.Modules/*/module.json`
 - 동적 호스트-모듈 연결: `1.WebHost/ack/Extensions/ServiceCollectionExtensions.cs`
-- 정적 호스트-모듈 연결: `1.WebHost/rdy/rdy.csproj`, `1.WebHost/rdy/Extensions/ServiceCollectionExtensions.cs`
+- 정적 우선·동적 확장 호스트-모듈 연결: `1.WebHost/rdy/rdy.csproj`, `1.WebHost/rdy/Extensions/ServiceCollectionExtensions.cs`
 - 모듈 계약 인터페이스: `3.Infrastructure/HandStack.Web/Modules/IModuleInitializer.cs`
 - 모듈 검색기: `3.Infrastructure/HandStack.Web/Modules/ModuleConfigurationManager.cs`
 - 거래 진입점: `2.Modules/transact/Areas/transact/Controllers/TransactionController.cs`

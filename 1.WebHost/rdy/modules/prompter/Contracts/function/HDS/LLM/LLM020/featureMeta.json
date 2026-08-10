@@ -1,0 +1,59 @@
+{
+    "Header": {
+        "ApplicationID": "HDS",
+        "ProjectID": "LLM",
+        "TransactionID": "LLM020",
+        "DataSourceID": "DB01",
+        "LanguageType": "csharp",
+        "ReferenceModuleID": "prompter",
+        "Configuration": {
+            "OpenAIModelId": "gpt-5.4-mini",
+            "OpenAIApiKey": "[sk-proj-API...키]",
+            "FewShots": []
+        },
+        "Use": true,
+        "Description": "단일명령 + 결과에 따른 질문에 대한 LLM 답변 처리: 내일 모레 휴가 신청해줘."
+    },
+    "Commands": [
+        {
+            "ID": "GF01",
+            "Seq": 0,
+            "Use": true,
+            "Timeout": 0,
+            "Description": "Conversation: 대화 의도를 추론합니다.",
+            "ModifiedAt": "2023-07-10 00:00:00",
+            "Params": [
+                {
+                    "ID": "UserWorkID",
+                    "Type": "String",
+                    "Length": 36,
+                    "Value": null
+                },
+                {
+                    "ID": "ApplicationID",
+                    "Type": "String",
+                    "Length": 36,
+                    "Value": null
+                },
+                {
+                    "ID": "Prompt",
+                    "Type": "String",
+                    "Length": -1,
+                    "Value": null
+                },
+                {
+                    "ID": "PluginID",
+                    "Type": "String",
+                    "Length": -1,
+                    "Value": null
+                },
+                {
+                    "ID": "KernelFunction",
+                    "Type": "String",
+                    "Length": -1,
+                    "Value": null
+                }
+            ]
+        }
+    ]
+}

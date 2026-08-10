@@ -1,0 +1,13 @@
+{
+    "schema": 1,
+    "description": "원격 근무와 사무실 근무의 장단점을 분석합니다.",
+    "execution_settings": {
+        "default": {
+            "max_tokens": 4000,
+            "temperature": 0.8,
+            "top_p": 1.0,
+            "presence_penalty": 0.0,
+            "frequency_penalty": 0.0
+        }
+    }
+}

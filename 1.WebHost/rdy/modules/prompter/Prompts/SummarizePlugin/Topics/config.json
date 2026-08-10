@@ -1,0 +1,13 @@
+{
+    "schema": 1,
+    "description": "주어진 텍스트 또는 문서를 분석하고 기억할 가치가 있는 핵심 주제를 추출합니다.",
+    "execution_settings": {
+        "default": {
+            "max_tokens": 4000,
+            "temperature": 1.0,
+            "top_p": 1.0,
+            "presence_penalty": 0.0,
+            "frequency_penalty": 0.0
+        }
+    }
+}

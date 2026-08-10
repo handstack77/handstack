@@ -1,0 +1,26 @@
+{
+    "schema": 1,
+    "description": "재미있는 농담을 생성합니다.",
+    "type": "completion",
+    "completion": {
+        "max_tokens": 4000,
+        "temperature": 0.9,
+        "top_p": 0,
+        "presence_penalty": 0,
+        "frequency_penalty": 0
+    },
+    "input": {
+        "parameters": [
+            {
+                "name": "input",
+                "description": "농담의 주제입니다.",
+                "defaultValue": ""
+            },
+            {
+                "name": "style",
+                "description": "농담의 스타일입니다.",
+                "defaultValue": ""
+            }
+        ]
+    }
+}

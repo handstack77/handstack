@@ -1,0 +1,21 @@
+{
+    "schema": 1,
+    "description": "질문과 이력을 기준으로 긴급도 의도를 추론하는 라우터 agent입니다.",
+    "template_format": "semantic-kernel",
+    "execution_settings": {
+        "default": {
+            "max_tokens": 4000,
+            "temperature": 1.0,
+            "top_p": 1.0,
+            "presence_penalty": 0.0,
+            "frequency_penalty": 0.0
+        }
+    },
+    "input_variables": [
+        {
+            "name": "prompt",
+            "description": "사용자가 요청한 대화 내용입니다.",
+            "required": true
+        }
+    ]
+}

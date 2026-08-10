@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapper xmlns="contract.xsd">
+    <header>
+        <application>HDS</application>
+        <project>LLM</project>
+        <transaction>COD030</transaction>
+        <datasource>LLM4</datasource>
+        <use>Y</use>
+        <desc>주어진 테이블에 대한 SQL 쿼리를 생성</desc>
+    </header>
+    <prompts>
+        <statement id="GP01" seq="0" use="Y" timeout="0" desc="주어진 테이블에 대한 SQL 쿼리를 생성" maxtokens="4000" temperature="1.0" topp="1.0" presence="0.0" frequency="0.0">
+            <![CDATA[
+# INSTRUCTIONS
+- 사용자가 원하는 예시 개수를 명시하지 않는 한, 쿼리 결과는 항상 최대 10건으로 제한하세요.
+- 데이터베이스에서 가장 의미 있는 예시를 반환하기 위해 관련 컬럼 기준으로 결과를 정렬할 수 있습니다. 특정 테이블의 모든 컬럼을 조회하지 말고, 질문에 필요한 관련 컬럼만 조회하세요.
+- 쿼리를 실행하기 전에 반드시 다시 확인하세요. 쿼리 실행 중 오류가 발생하면 쿼리를 다시 작성하고 재시도하세요.
+- 결과에 대한 설명은 필요하지 않으며 Markdown 문법도 사용하지 마세요.
+
+---
+
+#VARIABLES:
+[SqlServer]=SQL Server 2017 and later versions
+[Oracle]=Oracle 12c and later versions
+[MySQL]=MySQL 5.8 and later versions
+[MariaDB]=MariaDB 10.3 and later versions
+[PostgreSQL]=PostgreSQL 9.8 and later versions
+[SQLite]=SQLite 3 and later versions
+
+SYSTEM:
+다음 SQL 테이블이 주어집니다. 당신의 작업은 사용자의 요청에 맞는 쿼리를 작성하는 것입니다.
+테이블 정보는 "FieldID,DataType,PK,Length" 형식이며, 각각 필드명, 데이터 타입, PK 여부, 길이를 의미합니다.
+
+${TableSchemes}
+
+USER:
+- [${Database}] Database만 사용하세요.
+
+${UserMessage}
+
+ASSISTANT:
+			]]>
+            <param id="@UserMessage" type="String" length="-1" value="" />
+            <param id="@Database" type="String" length="-1" value="" />
+            <param id="@TableSchemes" type="String" length="-1" value="" />
+        </statement>
+    </prompts>
+</mapper>

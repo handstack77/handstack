@@ -1,0 +1,22 @@
+{
+    "schema": 1,
+    "description": "목표 또는 주제 설명이 주어지면 아이디어 목록을 생성합니다.",
+    "execution_settings": {
+        "default": {
+            "max_tokens": 4000,
+            "temperature": 0.5,
+            "top_p": 1.0,
+            "presence_penalty": 0.0,
+            "frequency_penalty": 0.0,
+            "stop_sequences": [ "##END##" ]
+        }
+    },
+    "input_variables": [
+        {
+            "name": "input",
+            "description": "주제 설명 또는 목표입니다.",
+            "default": ""
+        }
+    ]
+}
+

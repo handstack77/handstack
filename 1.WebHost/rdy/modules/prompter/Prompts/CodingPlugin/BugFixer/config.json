@@ -1,0 +1,13 @@
+{
+    "schema": 1,
+    "description": "소스 코드의 버그를 찾고 수정합니다.",
+    "execution_settings": {
+        "default": {
+            "max_tokens": 4000,
+            "temperature": 1.0,
+            "top_p": 1.0,
+            "presence_penalty": 0.0,
+            "frequency_penalty": 0.0
+        }
+    }
+}

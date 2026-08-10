@@ -1,0 +1,13 @@
+{
+    "schema": 1,
+    "description": "코드 효율성 개선 아이디어를 제공합니다.",
+    "execution_settings": {
+        "default": {
+            "max_tokens": 4000,
+            "temperature": 1.0,
+            "top_p": 1.0,
+            "presence_penalty": 0.0,
+            "frequency_penalty": 0.0
+        }
+    }
+}
