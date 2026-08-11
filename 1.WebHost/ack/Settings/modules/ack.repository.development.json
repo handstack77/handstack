@@ -5,8 +5,8 @@
     "Version": "1.0.0",
     "ModuleConfig": {
         "SystemID": "HANDSTACK",
-        "FileServerUrl": "http://dev.example.com:8421",
-        "BusinessServerUrl": "http://dev.example.com:8421/transact/api/transaction/execute",
+        "FileServerUrl": "http://dev.example-domain.com",
+        "BusinessServerUrl": "http://dev.example-domain.com/transact/api/transaction/execute",
         "IsContractFileWatching": true,
         "ContractBasePath": [
             "../contracts/repository"
@@ -16,8 +16,8 @@
         "ModuleBasePath": "../modules/repository",
         "EventAction": [],
         "SubscribeAction": [ "repository.Events.RepositoryRequest" ],
-        "XFrameOptions": "ALLOW-FROM http://dev.example.com:8421,http://dev.example.com:8421",
-        "ContentSecurityPolicy": "frame-ancestors 'self' http://dev.example.com:8421 http://dev.example.com:8421;"
+        "XFrameOptions": "ALLOW-FROM http://dev.example-domain.com",
+        "ContentSecurityPolicy": "frame-ancestors 'self' http://dev.example-domain.com;"
     },
     "LoadPassAssemblyPath": [
         "/libSkiaSharp.dll",

@@ -5,7 +5,7 @@
     "Version": "1.0.0",
     "ModuleConfig": {
         "SystemID": "HANDSTACK",
-        "BusinessServerUrl": "http://dev.example.com:8421/transact/api/transaction/execute",
+        "BusinessServerUrl": "http://dev.example-domain.com/transact/api/transaction/execute",
         "SystemVaultKey": "Strong@Passw0rd",
         "ModuleLogFilePath": "../log/wwwroot/module.log",
         "ContractRequestPath": "view",

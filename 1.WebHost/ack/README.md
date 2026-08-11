@@ -73,10 +73,10 @@ curl "http://localhost:8421/stop?hostAccessID=<HOST_ACCESS_ID_HASH>"
 
 | 파일 접미어 | 기본 URL | `AppSettings:RunningEnvironment` |
 |---|---|---|
-| `.development.json` | `http://dev.example.com` | `D` |
-| `.test.json` | `https://test.example.com` | `D` |
-| `.staging.json` | `https://staging.example.com` | `S` |
-| `.production.json` | `https://app.example.com` | `P` |
+| `.development.json` | `http://dev.example-domain.com` | `D` |
+| `.test.json` | `https://test.example-domain.com` | `D` |
+| `.staging.json` | `https://staging.example-domain.com` | `S` |
+| `.production.json` | `https://app.example-domain.com` | `P` |
 
 포트와 경로는 유지하며 데이터베이스 호스트처럼 웹 URL이 아닌 값은 바꾸지 않습니다. ack 런타임은 `D`, `S`, `P`만 지원하므로 별도 test 런타임 코드 대신 test 프리셋은 `D`를 사용합니다.
 

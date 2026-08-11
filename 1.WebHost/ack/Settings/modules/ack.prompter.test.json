@@ -10,13 +10,13 @@
         "ContractBasePath": [
             "../contracts/prompter"
         ],
-        "BusinessServerUrl": "https://test.example.com:8421/transact/api/transaction/execute",
+        "BusinessServerUrl": "https://test.example-domain.com/transact/api/transaction/execute",
         "IsTransactionLogging": false,
         "IsChatHistoryConsoleShow": false,
         "DefaultPromptResultFieldID": "PromptResult",
         "ModuleLogFilePath": "../log/prompter/module.log",
         "IsLogServer": true,
-        "LogServerUrl": "https://test.example.com:8421/logger/api/log/insert",
+        "LogServerUrl": "https://test.example-domain.com/logger/api/log/insert",
         "EventAction": [
             "prompter.Events.ManagedRequest"
         ],
@@ -65,7 +65,7 @@
                 "LLMProvider": "Ollama",
                 "ApiKey": "",
                 "ModelID": "gemma4:26b",
-                "Endpoint": "https://test.example.com:11434",
+                "Endpoint": "https://test.example-domain.com:11434",
                 "Think": false,
                 "Stream": false,
                 "Comment": "Ollama 로컬 Chat API"
@@ -77,7 +77,7 @@
                 "LLMProvider": "LMStudio",
                 "ApiKey": "",
                 "ModelID": "openai/gpt-oss-20b",
-                "Endpoint": "https://test.example.com:1234",
+                "Endpoint": "https://test.example-domain.com:1234",
                 "Think": false,
                 "Stream": false,
                 "Comment": "LM Studio 로컬 OpenAI 호환 API"

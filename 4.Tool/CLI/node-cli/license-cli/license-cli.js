@@ -45,7 +45,7 @@ program
     .requiredOption('-m, --module-id <id>', '모듈 ID (영숫자, 하이픈, 밑줄만 허용)')
     .requiredOption('-c, --company <name>', '회사 이름')
     .requiredOption('-p, --product <name>', '제품 이름 (형식: ProductName-Version-SaleID)')
-    .requiredOption('-h, --hosts <hosts>', '인증된 호스트 (쉼표로 구분: domain1.com,192.168.1.1,subdomain.example.com)')
+    .requiredOption('-h, --hosts <hosts>', '인증된 호스트 (쉼표로 구분: domain1.com,192.168.1.1,subdomain.example-domain.com)')
     .option('-e, --environment <env>', '환경 (개발/운영)', '개발')
     .option('-x, --expires <date>', '만료 날짜 (ISO 형식: YYYY-MM-DDTHH:MM:SS.000Z)')
     .option('-o, --output <file>', '출력 파일', 'licenses.json')

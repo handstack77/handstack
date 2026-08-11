@@ -8,7 +8,7 @@
         "IsSQLiteCreateOnNotSettingRequest": true,
         "LogDeleteRepeatSecond": 43200,
         "ModuleBasePath": "../modules/logger",
-        "BusinessServerUrl": "http://dev.example.com:8421/transact/api/transaction/execute",
+        "BusinessServerUrl": "http://dev.example-domain.com/transact/api/transaction/execute",
         "EventAction": [],
         "SubscribeAction": [],
         "DataSource": [

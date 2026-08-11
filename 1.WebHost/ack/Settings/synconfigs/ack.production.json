@@ -18,7 +18,7 @@
     "IsApiFindServer": false,
     "DiscoveryApiServerUrl": "",
     "ReportServer": "",
-    "FileManagerServer": "https://app.example.com:8421",
+    "FileManagerServer": "https://app.example-domain.com",
     "FindClientIPServer": "/checkip",
     "FindGlobalIDServer": "",
     "FileServerType": "L",

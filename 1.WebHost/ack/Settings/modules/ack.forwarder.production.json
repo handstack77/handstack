@@ -5,7 +5,7 @@
     "Version": "1.0.0",
     "ModuleConfig": {
         "SystemID": "HANDSTACK",
-        "BusinessServerUrl": "https://app.example.com:8421/transact/api/transaction/execute",
+        "BusinessServerUrl": "https://app.example-domain.com/transact/api/transaction/execute",
         "ModuleBasePath": "../modules/forwarder",
         "ModuleFilePath": "../modules/forwarder",
         "ModuleLogFilePath": "../log/forwarder/module.log",
@@ -19,13 +19,13 @@
         "MaxRedirects": 10,
         "ForwardUrls": {
             "sample-api": "https://example.com",
-            "lab-html": "https://app.example.com:8421/forwarder/api/forward-proxy-lab/target/html",
-            "lab-json": "https://app.example.com:8421/forwarder/api/forward-proxy-lab/target/json",
-            "lab-echo": "https://app.example.com:8421/forwarder/api/forward-proxy-lab/target/echo",
-            "lab-redirect": "https://app.example.com:8421/forwarder/api/forward-proxy-lab/target/redirect",
-            "lab-cookie-set": "https://app.example.com:8421/forwarder/api/forward-proxy-lab/target/cookie/set?value=lab-session",
-            "lab-cookie-read": "https://app.example.com:8421/forwarder/api/forward-proxy-lab/target/cookie/read",
-            "lab-slow": "https://app.example.com:8421/forwarder/api/forward-proxy-lab/target/slow?delayMS=3500"
+            "lab-html": "https://app.example-domain.com/forwarder/api/forward-proxy-lab/target/html",
+            "lab-json": "https://app.example-domain.com/forwarder/api/forward-proxy-lab/target/json",
+            "lab-echo": "https://app.example-domain.com/forwarder/api/forward-proxy-lab/target/echo",
+            "lab-redirect": "https://app.example-domain.com/forwarder/api/forward-proxy-lab/target/redirect",
+            "lab-cookie-set": "https://app.example-domain.com/forwarder/api/forward-proxy-lab/target/cookie/set?value=lab-session",
+            "lab-cookie-read": "https://app.example-domain.com/forwarder/api/forward-proxy-lab/target/cookie/read",
+            "lab-slow": "https://app.example-domain.com/forwarder/api/forward-proxy-lab/target/slow?delayMS=3500"
         },
         "AllowClientIP": [
             "*"

@@ -5,10 +5,10 @@
     "Version": "1.0.0",
     "ModuleConfig": {
         "SystemID": "HANDSTACK",
-        "BusinessServerUrl": "https://staging.example.com:8421/transact/api/transaction/execute",
+        "BusinessServerUrl": "https://staging.example-domain.com/transact/api/transaction/execute",
         "CircuitBreakResetSecond": 60,
         "IsLogServer": true,
-        "LogServerUrl": "https://staging.example.com:8421/logger/api/log/insert",
+        "LogServerUrl": "https://staging.example-domain.com/logger/api/log/insert",
         "IsContractFileWatching": true,
         "ContractBasePath": [
             "../contracts/function"
