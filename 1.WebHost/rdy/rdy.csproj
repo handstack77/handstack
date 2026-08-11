@@ -34,6 +34,7 @@
 
     <PropertyGroup>
         <RdyWwwrootSourceDir Condition="'$(RdyWwwrootSourceDir)' == ''">$(HANDSTACK_SRC)/2.Modules/wwwroot/wwwroot</RdyWwwrootSourceDir>
+        <RdyServerPort Condition="'$(RdyServerPort)' == ''">8420</RdyServerPort>
     </PropertyGroup>
 
     <ItemGroup Label="modules, HandStack Library">
@@ -123,6 +124,9 @@
         <None Update="task.ps1">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
+        <None Update="task.sh">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
     <UsingTask TaskName="ReplaceRdyFileText"
@@ -178,7 +182,7 @@
 
         <ReplaceRdyFileText FilePath="$(RdySynConfigPath)"
                             Pattern="(?&lt;![0-9])8421(?![0-9])"
-                            Replacement="8420" />
+                            Replacement="$(RdyServerPort)" />
     </Target>
 
     <Target Name="PruneModuleTransitiveContent"

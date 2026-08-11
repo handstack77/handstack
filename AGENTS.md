@@ -65,6 +65,7 @@
 - `ack` 로컬 실행: `dotnet run --project 1.WebHost/ack/ack.csproj -- --port=8421 --modules=wwwroot,transact,dbclient,graphclient,function,command,prompter`
 - 기타 호스트: `dotnet run --project 1.WebHost/agent/agent.csproj`, `dotnet run --project 1.WebHost/deploy/deploy.csproj`, `dotnet run --project 1.WebHost/forbes/forbes.csproj`
 - `rdy` 실행: `dotnet run --project 1.WebHost/rdy/rdy.csproj -- --port=8421`. 정적 포함 모듈, `AppSettings:LoadModules`, `LoadModuleBasePath` 아래의 `module.json`과 추가 모듈 DLL을 함께 확인한다.
+- `rdy` 설정 포트 일괄 변경: Windows는 `1.WebHost\rdy\task.bat 8420 9420` 또는 `pwsh 1.WebHost/rdy/task.ps1 8420 9420`, macOS/Ubuntu는 `sh 1.WebHost/rdy/task.sh 8420 9420`을 사용한다. Unix 계열에서는 PowerShell 7 이상(`pwsh`)이 필요하다.
 - `rdy` Windows x64 Debug 빌드 복사본: `1.WebHost\rdy\publish.bat [출력 디렉터리]`. RID 지정 rebuild 결과인 `bin\Debug\net10.0\win-x64`를 대상 디렉터리에 미러링한다.
 - Windows x64 Release 배포: `./publish.ps1 win publish Release x64`. 기본 결과는 `../publish/win-x64/handstack`이다.
 - 배포 후 제어: `handstack start --ack=%HANDSTACK_HOME%/app/ack.exe --arguments="--port=8421"`, `handstack stop --port=8421`

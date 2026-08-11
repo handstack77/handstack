@@ -1,11 +1,14 @@
+#!/usr/bin/env pwsh
 <#
 .SYNOPSIS
     rdy 프로젝트의 설정 파일에 사용된 포트 값을 한 번에 변경합니다.
 
 .DESCRIPTION
-    appsettings.json, modules 하위의 모든 module.json,
-    modules/wwwroot/wwwroot/syn.config.json에서 현재 포트를 새 포트로 치환합니다.
+    appsettings.json과 modules 하위의 모든 module.json에서 현재 포트를
+    새 포트로 치환합니다. 소스 디렉터리에서는 rdy.csproj의 RdyServerPort를
+    함께 변경하고, 빌드 산출물에서는 생성된 syn.config.json을 변경합니다.
     포트는 다른 숫자의 일부가 아닌 독립된 값일 때만 변경합니다.
+    Windows, macOS, Ubuntu의 PowerShell 7 이상에서 동일하게 실행할 수 있습니다.
 
 .PARAMETER CurrentPort
     설정 파일에서 찾을 현재 포트입니다.
@@ -15,6 +18,9 @@
 
 .EXAMPLE
     pwsh ./task.ps1 8420 9420
+
+.EXAMPLE
+    sh ./task.sh 8420 9420
 #>
 [CmdletBinding()]
 param(
@@ -70,12 +76,20 @@ try {
     $root = [System.IO.Path]::GetFullPath($PSScriptRoot)
     $appSettings = Join-Path $root 'appsettings.json'
     $moduleRoot = Join-Path $root 'modules'
+    $projectFile = Join-Path $root 'rdy.csproj'
     $synConfig = Join-Path (Join-Path (Join-Path $moduleRoot 'wwwroot') 'wwwroot') 'syn.config.json'
 
-    foreach ($requiredPath in @($appSettings, $moduleRoot, $synConfig)) {
+    foreach ($requiredPath in @($appSettings, $moduleRoot)) {
         if (-not (Test-Path -LiteralPath $requiredPath)) {
             throw "필수 경로를 찾을 수 없습니다: ${requiredPath}"
         }
+    }
+
+    $hasProjectFile = Test-Path -LiteralPath $projectFile -PathType Leaf
+    $hasSynConfig = Test-Path -LiteralPath $synConfig -PathType Leaf
+
+    if (-not $hasProjectFile -and -not $hasSynConfig) {
+        throw "rdy.csproj 또는 생성된 syn.config.json을 찾을 수 없습니다: ${root}"
     }
 
     $moduleFiles = @(
@@ -87,7 +101,10 @@ try {
         throw "다음 경로에서 module.json 파일을 찾을 수 없습니다: ${moduleRoot}"
     }
 
-    $files = @($appSettings) + $moduleFiles + @($synConfig)
+    $files = @($appSettings) + $moduleFiles
+    if ($hasSynConfig) {
+        $files += $synConfig
+    }
     $oldPort = $currentPortValue.ToString([System.Globalization.CultureInfo]::InvariantCulture)
     $replacementPort = $newPortValue.ToString([System.Globalization.CultureInfo]::InvariantCulture)
     $pattern = '(?<!\d)' + [regex]::Escape($oldPort) + '(?!\d)'
@@ -105,6 +122,30 @@ try {
                 Updated = $updated
                 Count   = $matchCount
             }
+        }
+    }
+
+    if ($hasProjectFile) {
+        $projectContent = [System.IO.File]::ReadAllText($projectFile)
+        $projectPattern = '(<RdyServerPort(?:\s[^>]*)?>\s*)' +
+            [regex]::Escape($oldPort) +
+            '(?=\s*</RdyServerPort>)'
+        $projectMatchCount = [regex]::Matches($projectContent, $projectPattern).Count
+
+        if ($projectMatchCount -ne 1) {
+            throw "rdy.csproj의 RdyServerPort에서 현재 포트 ${oldPort}을(를) 정확히 한 번 찾을 수 있어야 합니다."
+        }
+
+        $updatedProject = [regex]::Replace(
+            $projectContent,
+            $projectPattern,
+            ('${1}' + $replacementPort)
+        )
+        $null = [xml]$updatedProject
+        $changes += [pscustomobject]@{
+            Path    = $projectFile
+            Updated = $updatedProject
+            Count   = $projectMatchCount
         }
     }
 
