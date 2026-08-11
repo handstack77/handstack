@@ -205,9 +205,28 @@
                 Remove="@(ResolvedFileToPublish)"
                 Condition="$([System.String]::Copy('%(FullPath)').Replace('\','/').Contains('/2.Modules/'))
                            and ('%(Filename)%(Extension)' == 'module.json'
-                                or '%(Filename)%(Extension)' == 'package.json'
-                                or '%(Filename)%(Extension)' == 'package-lock.json')" />
+                                 or '%(Filename)%(Extension)' == 'package.json'
+                                 or '%(Filename)%(Extension)' == 'package-lock.json'
+                                 or $([System.String]::Copy('%(RelativePath)').Replace('\','/').StartsWith('Contracts/'))
+                                 or $([System.String]::Copy('%(RelativePath)').Replace('\','/').StartsWith('Prompts/'))
+                                 or $([System.String]::Copy('%(RelativePath)').Replace('\','/').StartsWith('Settings/'))
+                                 or $([System.String]::Copy('%(RelativePath)').Replace('\','/').StartsWith('SQL/')))" />
         </ItemGroup>
+    </Target>
+
+    <Target Name="PruneModuleTransitivePublishDirectories"
+            AfterTargets="Publish"
+            Condition="'$(DesignTimeBuild)' != 'true' and '$(PublishDir)' != ''">
+        <PropertyGroup>
+            <_RdyPublishRoot>$([System.IO.Path]::GetFullPath('$(PublishDir)'))</_RdyPublishRoot>
+        </PropertyGroup>
+        <ItemGroup>
+            <_RdyTransitivePublishDirectory Include="$(_RdyPublishRoot)/Contracts" Condition="Exists('$(_RdyPublishRoot)/Contracts')" />
+            <_RdyTransitivePublishDirectory Include="$(_RdyPublishRoot)/Prompts" Condition="Exists('$(_RdyPublishRoot)/Prompts')" />
+            <_RdyTransitivePublishDirectory Include="$(_RdyPublishRoot)/Settings" Condition="Exists('$(_RdyPublishRoot)/Settings')" />
+            <_RdyTransitivePublishDirectory Include="$(_RdyPublishRoot)/SQL" Condition="Exists('$(_RdyPublishRoot)/SQL')" />
+        </ItemGroup>
+        <RemoveDir Directories="@(_RdyTransitivePublishDirectory)" />
     </Target>
 
     <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
