@@ -3609,7 +3609,8 @@
                 throw new Error('서비스 호출에 필요한 거래 정보 확인 필요');
             }
 
-            let apiService = syn.Config.DomainAPIServer;
+            const environment = syn.Config && syn.Config.Environment ? syn.Config.Environment.substring(0, 1) : 'D';
+            let apiService = (environment == 'D' && $this.config && $this.config.domainAPIServer) ? $this.config.domainAPIServer : syn.Config.DomainAPIServer;
             if (context.$object.isNullOrUndefined(apiService) == true) {
                 syn.$l.eventLog('$w.executeTransaction', '서비스 호출에 필요한 DomainAPIServer 정보 확인 필요', 'Error');
                 fallback(config, transactionObject);
