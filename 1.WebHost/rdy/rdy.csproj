@@ -158,6 +158,7 @@
             AfterTargets="Build"
             Condition="'$(DesignTimeBuild)' != 'true'">
         <PropertyGroup>
+            <RdyWwwrootOutputDir Condition="'$(RdyWwwrootOutputDir)' == '' and '$(PublishSingleFile)' == 'true' and '$(PublishDir)' != ''">$(PublishDir)modules/wwwroot/wwwroot</RdyWwwrootOutputDir>
             <RdyWwwrootOutputDir Condition="'$(RdyWwwrootOutputDir)' == ''">$(TargetDir)modules/wwwroot/wwwroot</RdyWwwrootOutputDir>
             <RdySynConfigPath>$(RdyWwwrootOutputDir)/syn.config.json</RdySynConfigPath>
         </PropertyGroup>
@@ -170,7 +171,7 @@
 
         <ItemGroup>
             <_RdyWwwrootSourceFiles Include="$(RdyWwwrootSourceDir)/**/*"
-                                    Exclude="$(RdyWwwrootSourceDir)/**/node_modules/**/*" />
+                                    Exclude="$(RdyWwwrootSourceDir)/**/node_modules/**/*;$(RdyWwwrootSourceDir)/**/.github/**/*" />
         </ItemGroup>
 
         <MakeDir Directories="$(RdyWwwrootOutputDir)" />
@@ -211,6 +212,26 @@
                                  or $([System.String]::Copy('%(RelativePath)').Replace('\','/').StartsWith('Prompts/'))
                                  or $([System.String]::Copy('%(RelativePath)').Replace('\','/').StartsWith('Settings/'))
                                  or $([System.String]::Copy('%(RelativePath)').Replace('\','/').StartsWith('SQL/')))" />
+            <ResolvedFileToPublish
+                Remove="@(ResolvedFileToPublish)"
+                Condition="'%(Filename)%(Extension)' == 'libSkiaSharp.pdb'" />
+            <ResolvedFileToPublish
+                Remove="@(ResolvedFileToPublish)"
+                Condition="$([System.String]::Copy('%(RelativePath)').Replace('\','/')) == 'gulpfile.js'
+                           or $([System.String]::Copy('%(RelativePath)').Replace('\','/')) == 'libman.json'
+                           or $([System.String]::Copy('%(RelativePath)').Replace('\','/')) == 'node.config.json'
+                           or $([System.String]::Copy('%(RelativePath)').Replace('\','/')) == 'featureTest.js'
+                           or $([System.String]::Copy('%(RelativePath)').Replace('\','/')) == 'featureTest.json'
+                           or $([System.String]::Copy('%(RelativePath)').Replace('\','/')) == 'function.dll.config'" />
+            <ResolvedFileToPublish
+                Remove="@(ResolvedFileToPublish)"
+                Condition="$([System.String]::Copy('%(RelativePath)').Replace('\','/').StartsWith('wwwroot/_content/'))
+                           or $([System.String]::Copy('%(RelativePath)').EndsWith('.br'))
+                           or $([System.String]::Copy('%(RelativePath)').EndsWith('.gz'))" />
+            <ResolvedFileToPublish
+                Remove="@(ResolvedFileToPublish)"
+                Condition="$([System.String]::Copy('%(RelativePath)').Replace('\','/').StartsWith('.github/'))
+                           or $([System.String]::Copy('%(RelativePath)').Replace('\','/').Contains('/.github/'))" />
         </ItemGroup>
     </Target>
 
@@ -225,8 +246,22 @@
             <_RdyTransitivePublishDirectory Include="$(_RdyPublishRoot)/Prompts" Condition="Exists('$(_RdyPublishRoot)/Prompts')" />
             <_RdyTransitivePublishDirectory Include="$(_RdyPublishRoot)/Settings" Condition="Exists('$(_RdyPublishRoot)/Settings')" />
             <_RdyTransitivePublishDirectory Include="$(_RdyPublishRoot)/SQL" Condition="Exists('$(_RdyPublishRoot)/SQL')" />
+            <_RdyTransitivePublishDirectory Include="$(_RdyPublishRoot)/wwwroot/_content" Condition="Exists('$(_RdyPublishRoot)/wwwroot/_content')" />
+            <_RdyPublishFileToRemove Include="$(_RdyPublishRoot)/libSkiaSharp.pdb" Condition="Exists('$(_RdyPublishRoot)/libSkiaSharp.pdb')" />
+            <_RdyPublishFileToRemove Include="$(_RdyPublishRoot)/gulpfile.js" Condition="Exists('$(_RdyPublishRoot)/gulpfile.js')" />
+            <_RdyPublishFileToRemove Include="$(_RdyPublishRoot)/libman.json" Condition="Exists('$(_RdyPublishRoot)/libman.json')" />
+            <_RdyPublishFileToRemove Include="$(_RdyPublishRoot)/node.config.json" Condition="Exists('$(_RdyPublishRoot)/node.config.json')" />
+            <_RdyPublishFileToRemove Include="$(_RdyPublishRoot)/featureTest.js" Condition="Exists('$(_RdyPublishRoot)/featureTest.js')" />
+            <_RdyPublishFileToRemove Include="$(_RdyPublishRoot)/featureTest.json" Condition="Exists('$(_RdyPublishRoot)/featureTest.json')" />
+            <_RdyPublishFileToRemove Include="$(_RdyPublishRoot)/function.dll.config" Condition="Exists('$(_RdyPublishRoot)/function.dll.config')" />
+            <_RdyCompressedPublishFile Include="$(_RdyPublishRoot)/**/*.br;$(_RdyPublishRoot)/**/*.gz" />
+            <_RdyHiddenPublishDirectory Include="$([System.IO.Directory]::GetDirectories('$(_RdyPublishRoot)', '.github', System.IO.SearchOption.AllDirectories))"
+                                        Condition="Exists('$(_RdyPublishRoot)')" />
         </ItemGroup>
+        <Delete Files="@(_RdyCompressedPublishFile)" />
+        <RemoveDir Directories="@(_RdyHiddenPublishDirectory)" />
         <RemoveDir Directories="@(_RdyTransitivePublishDirectory)" />
+        <Delete Files="@(_RdyPublishFileToRemove)" />
     </Target>
 
     <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
