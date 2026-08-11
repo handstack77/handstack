@@ -6,16 +6,16 @@ if "%OUT_DIR%"=="" set "OUT_DIR=C:\tmp\rdy\app"
 
 pushd "%~dp0"
 
-echo [1/2] dotnet build -c Debug -t:Rebuild
-dotnet build -c Debug -t:Rebuild
+echo [1/2] dotnet build -c Debug -t:Rebuild -r win-x64 -p:IncludeNativeLibrariesForSelfExtract=true
+dotnet build -c Debug -t:Rebuild -r win-x64 -p:IncludeNativeLibrariesForSelfExtract=true
 if errorlevel 1 (
     echo Build failed.
     popd
     exit /b 1
 )
 
-echo [2/2] robocopy bin\Debug\net10.0 -^> "%OUT_DIR%"
-robocopy "bin\Debug\net10.0" "%OUT_DIR%" /MIR
+echo [2/2] robocopy bin\Debug\net10.0\win-x64 -^> "%OUT_DIR%"
+robocopy "bin\Debug\net10.0\win-x64" "%OUT_DIR%" /MIR
 set "RC=%ERRORLEVEL%"
 
 popd

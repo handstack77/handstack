@@ -69,6 +69,7 @@
 - `ack` 로컬 실행: `dotnet run --project 1.WebHost/ack/ack.csproj -- --port=8421 --modules=wwwroot,transact,dbclient,graphclient,function,command,prompter`
 - 기타 호스트: `dotnet run --project 1.WebHost/agent/agent.csproj`, `dotnet run --project 1.WebHost/deploy/deploy.csproj`, `dotnet run --project 1.WebHost/forbes/forbes.csproj`
 - `rdy` 실행: `dotnet run --project 1.WebHost/rdy/rdy.csproj -- --port=8421`. 정적 포함 모듈과 `HANDSTACK_HOME/modules/*/module.json`을 함께 확인한다.
+- `rdy` Windows x64 Debug 빌드 복사본: `1.WebHost\rdy\publish.bat [출력 디렉터리]`. RID 지정 rebuild 결과인 `bin\Debug\net10.0\win-x64`를 대상 디렉터리에 미러링한다.
 - Windows x64 Release 배포: `./publish.ps1 win publish Release x64`. 기본 결과는 `../publish/win-x64/handstack`이다.
 - 배포 후 제어: `handstack start --ack=%HANDSTACK_HOME%/app/ack.exe --arguments="--port=8421"`, `handstack stop --port=8421`
 - 이 저장소의 셸은 Windows이므로 명령 실행에는 PowerShell 도구를 우선 사용하고, POSIX 전용 스크립트(`.sh`) 검증이 필요할 때만 Bash 도구를 사용한다.
