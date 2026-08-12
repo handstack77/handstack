@@ -9,7 +9,7 @@
     "IsLocaleTranslations": false,
     "LocaleAssetUrl": "/assets/shared/language/",
     "AssetsCachingID": "cache-id",
-    "IsClientCaching": true,
+    "IsClientCaching": false,
     "IsDebugMode": false,
     "IsBundleLoad": false,
     "ContractRequestPath": "view",
