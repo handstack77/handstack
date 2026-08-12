@@ -2177,6 +2177,9 @@
                     transactionObject.transactionID = transactionID || 'SYS010';
                     transactionObject.screenID = syn.$w.pageScript.replace('$', '');
                     transactionObject.startTraceID = 'syn.domain.$w.getDataSource';
+                    transactionObject.fallback = (config, transactionObject) => {
+                        syn.$w.removeReadyCount();
+                    }
 
                     if (parameters == null || parameters == undefined) {
                         parameters = '';

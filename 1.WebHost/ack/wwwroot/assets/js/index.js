@@ -5155,7 +5155,7 @@ if (typeof module !== 'undefined' && module.exports) {
                 var synControls = document.querySelectorAll('[tag^="syn_"],[syn-datafield],[syn-options],[syn-events]');
                 for (var i = 0; i < synControls.length; i++) {
                     var synControl = synControls[i];
-                    if (synControl.tagName) {
+                    if (synControl.id && synControl.tagName) {
                         var tagName = synControl.tagName.toUpperCase();
                         var dataField = synControl.getAttribute('syn-datafield');
                         var elementID = synControl.getAttribute('id');
@@ -5188,7 +5188,7 @@ if (typeof module !== 'undefined' && module.exports) {
                 synControls = document.querySelectorAll('[tag^="syn_"],[syn-datafield],[syn-options],[syn-events]');
                 for (var i = 0; i < synControls.length; i++) {
                     var synControl = synControls[i];
-                    if (synControl.tagName) {
+                    if (synControl.id && synControl.tagName) {
                         var tagName = synControl.tagName.toUpperCase();
                         var dataField = synControl.getAttribute('syn-datafield');
                         var elementID = synControl.getAttribute('id');
@@ -5239,22 +5239,24 @@ if (typeof module !== 'undefined' && module.exports) {
                 var synEventControls = document.querySelectorAll('[syn-events]');
                 for (var i = 0; i < synEventControls.length; i++) {
                     var synControl = synEventControls[i];
-                    var elEvents = null;
+                    if (synControl.id && synControl.tagName) {
+                        var elEvents = null;
 
-                    try {
-                        elEvents = $object.parseJsonValue(synControl.getAttribute('syn-events'), 'json');
-                    } catch (error) {
-                        syn.$l.eventLog('$w.contentLoaded', 'elID: "{0}" syn-events 확인 필요: '.format(synControl.id) + error.message, 'Warning');
-                    }
+                        try {
+                            elEvents = $object.parseJsonValue(synControl.getAttribute('syn-events'), 'json');
+                        } catch (error) {
+                            syn.$l.eventLog('$w.contentLoaded', 'elID: "{0}" syn-events 확인 필요: '.format(synControl.id) + error.message, 'Warning');
+                        }
 
-                    if (elEvents && $this.event) {
-                        var length = elEvents.length;
-                        for (var j = 0; j < length; j++) {
-                            var elEvent = elEvents[j];
+                        if (elEvents && $this.event) {
+                            var length = elEvents.length;
+                            for (var j = 0; j < length; j++) {
+                                var elEvent = elEvents[j];
 
-                            var func = $this.event[synControl.id + '_' + elEvent];
-                            if (func) {
-                                syn.$l.addEvent(synControl.id, elEvent, func);
+                                var func = $this.event[synControl.id + '_' + elEvent];
+                                if (func) {
+                                    syn.$l.addEvent(synControl.id, elEvent, func);
+                                }
                             }
                         }
                     }
@@ -5263,115 +5265,117 @@ if (typeof module !== 'undefined' && module.exports) {
                 var synOptionControls = document.querySelectorAll('[syn-options]');
                 for (var i = 0; i < synOptionControls.length; i++) {
                     var synControl = synOptionControls[i];
-                    var elID = synControl.id.replace('_hidden', '');
-                    var options = null;
+                    if (synControl.id && synControl.tagName) {
+                        var elID = synControl.id.replace('_hidden', '');
+                        var options = null;
 
-                    try {
-                        var el = syn.$l.get(synControl.id + '_hidden') || syn.$l.get(synControl.id);
-                        var synOptions = el.getAttribute('syn-options') || null;
-                        if (synOptions != null) {
-                            options = $object.parseJsonValue(synOptions, 'json');
+                        try {
+                            var el = syn.$l.get(synControl.id + '_hidden') || syn.$l.get(synControl.id);
+                            var synOptions = el.getAttribute('syn-options') || null;
+                            if (synOptions != null) {
+                                options = $object.parseJsonValue(synOptions, 'json');
+                            }
+                        } catch (error) {
+                            syn.$l.eventLog('$w.contentLoaded', 'elID: "{0}" syn-options 확인 필요: '.format(synControl.id) + error.message, 'Warning');
                         }
-                    } catch (error) {
-                        syn.$l.eventLog('$w.contentLoaded', 'elID: "{0}" syn-options 확인 필요: '.format(synControl.id) + error.message, 'Warning');
-                    }
 
-                    if (options && options.transactConfig && options.transactConfig.triggerEvent) {
-                        if (context.$object.isString(options.transactConfig.triggerEvent) == true) {
-                            syn.$l.addEvent(elID, options.transactConfig.triggerEvent, function (evt) {
-                                var el = syn.$w.activeControl(evt);
-                                var synOptions = el.getAttribute('syn-options') || null;
-                                if (synOptions != null) {
-                                    options = $object.parseJsonValue(synOptions, 'json');
-                                }
+                        if (options && options.transactConfig && options.transactConfig.triggerEvent) {
+                            if (context.$object.isString(options.transactConfig.triggerEvent) == true) {
+                                syn.$l.addEvent(elID, options.transactConfig.triggerEvent, function (evt) {
+                                    var el = syn.$w.activeControl(evt);
+                                    var synOptions = el.getAttribute('syn-options') || null;
+                                    if (synOptions != null) {
+                                        options = $object.parseJsonValue(synOptions, 'json');
+                                    }
 
-                                var transactConfig = null;
-                                if (options && options.transactConfig) {
-                                    transactConfig = options.transactConfig;
-                                }
+                                    var transactConfig = null;
+                                    if (options && options.transactConfig) {
+                                        transactConfig = options.transactConfig;
+                                    }
 
-                                if (transactConfig) {
-                                    syn.$w.transactionAction(transactConfig, transactConfig.options);
-                                }
-                            });
-                        }
-                        else if (context.$object.isArray(options.transactConfig.triggerEvent) == true) {
-                            var triggerFunction = function (evt) {
-                                var el = syn.$w.activeControl(evt);
-                                var synOptions = el.getAttribute('syn-options') || null;
-                                if (synOptions != null) {
-                                    options = $object.parseJsonValue(synOptions, 'json');
-                                }
+                                    if (transactConfig) {
+                                        syn.$w.transactionAction(transactConfig, transactConfig.options);
+                                    }
+                                });
+                            }
+                            else if (context.$object.isArray(options.transactConfig.triggerEvent) == true) {
+                                var triggerFunction = function (evt) {
+                                    var el = syn.$w.activeControl(evt);
+                                    var synOptions = el.getAttribute('syn-options') || null;
+                                    if (synOptions != null) {
+                                        options = $object.parseJsonValue(synOptions, 'json');
+                                    }
 
-                                var transactConfig = null;
-                                if (options && options.transactConfig) {
-                                    transactConfig = options.transactConfig;
-                                }
+                                    var transactConfig = null;
+                                    if (options && options.transactConfig) {
+                                        transactConfig = options.transactConfig;
+                                    }
 
-                                if (transactConfig) {
-                                    syn.$w.transactionAction(transactConfig, transactConfig.options);
-                                }
-                            };
+                                    if (transactConfig) {
+                                        syn.$w.transactionAction(transactConfig, transactConfig.options);
+                                    }
+                                };
 
-                            for (var key in options.transactConfig.triggerEvent) {
-                                var eventName = options.transactConfig.triggerEvent[key];
-                                syn.$l.addEvent(elID, eventName, triggerFunction);
+                                for (var key in options.transactConfig.triggerEvent) {
+                                    var eventName = options.transactConfig.triggerEvent[key];
+                                    syn.$l.addEvent(elID, eventName, triggerFunction);
+                                }
                             }
                         }
-                    }
 
-                    if (options && options.triggerConfig && options.triggerConfig.triggerEvent) {
-                        if (context.$object.isString(options.triggerConfig.triggerEvent) == true) {
-                            syn.$l.addEvent(elID, options.triggerConfig.triggerEvent, function (evt) {
-                                var triggerConfig = null;
-                                var el = syn.$w.activeControl(evt);
-                                var synOptions = el.getAttribute('syn-options') || null;
-                                if (synOptions != null) {
-                                    options = $object.parseJsonValue(synOptions, 'json');
-                                }
-                                else {
-                                    synOptions = el.parentElement.getAttribute('syn-options') || null;
+                        if (options && options.triggerConfig && options.triggerConfig.triggerEvent) {
+                            if (context.$object.isString(options.triggerConfig.triggerEvent) == true) {
+                                syn.$l.addEvent(elID, options.triggerConfig.triggerEvent, function (evt) {
+                                    var triggerConfig = null;
+                                    var el = syn.$w.activeControl(evt);
+                                    var synOptions = el.getAttribute('syn-options') || null;
                                     if (synOptions != null) {
                                         options = $object.parseJsonValue(synOptions, 'json');
                                     }
-                                }
+                                    else {
+                                        synOptions = el.parentElement.getAttribute('syn-options') || null;
+                                        if (synOptions != null) {
+                                            options = $object.parseJsonValue(synOptions, 'json');
+                                        }
+                                    }
 
-                                if (options && options.triggerConfig) {
-                                    triggerConfig = options.triggerConfig;
-                                }
+                                    if (options && options.triggerConfig) {
+                                        triggerConfig = options.triggerConfig;
+                                    }
 
-                                if (triggerConfig) {
-                                    syn.$w.triggerAction(triggerConfig);
-                                }
-                            });
-                        }
-                        else if (context.$object.isArray(options.triggerConfig.triggerEvent) == true) {
-                            var triggerFunction = function (evt) {
-                                var triggerConfig = null;
-                                var el = syn.$w.activeControl(evt);
-                                var synOptions = el.getAttribute('syn-options') || null;
-                                if (synOptions != null) {
-                                    options = $object.parseJsonValue(synOptions, 'json');
-                                }
-                                else {
-                                    synOptions = el.parentElement.getAttribute('syn-options') || null;
+                                    if (triggerConfig) {
+                                        syn.$w.triggerAction(triggerConfig);
+                                    }
+                                });
+                            }
+                            else if (context.$object.isArray(options.triggerConfig.triggerEvent) == true) {
+                                var triggerFunction = function (evt) {
+                                    var triggerConfig = null;
+                                    var el = syn.$w.activeControl(evt);
+                                    var synOptions = el.getAttribute('syn-options') || null;
                                     if (synOptions != null) {
                                         options = $object.parseJsonValue(synOptions, 'json');
                                     }
-                                }
+                                    else {
+                                        synOptions = el.parentElement.getAttribute('syn-options') || null;
+                                        if (synOptions != null) {
+                                            options = $object.parseJsonValue(synOptions, 'json');
+                                        }
+                                    }
 
-                                if (options && options.triggerConfig) {
-                                    triggerConfig = options.triggerConfig;
-                                }
+                                    if (options && options.triggerConfig) {
+                                        triggerConfig = options.triggerConfig;
+                                    }
 
-                                if (triggerConfig) {
-                                    syn.$w.triggerAction(triggerConfig);
-                                }
-                            };
+                                    if (triggerConfig) {
+                                        syn.$w.triggerAction(triggerConfig);
+                                    }
+                                };
 
-                            for (var key in options.triggerConfig.triggerEvent) {
-                                var eventName = options.triggerConfig.triggerEvent[key];
-                                syn.$l.addEvent(elID, eventName, triggerFunction);
+                                for (var key in options.triggerConfig.triggerEvent) {
+                                    var eventName = options.triggerConfig.triggerEvent[key];
+                                    syn.$l.addEvent(elID, eventName, triggerFunction);
+                                }
                             }
                         }
                     }
