@@ -49556,15 +49556,14 @@ if (typeof module !== 'undefined' && module.exports) {
     }
 
     function sdkKey(setting) {
-        var configured = window.syn && syn.Config ? syn.Config.NaverMapApiKey : '';
-        return setting.apiKey || configured || '';
+        return setting.apiKey || '';
     }
 
     function loadSDK(setting) {
         configureAuthFailure();
         if (window.naver && window.naver.maps && window.naver.maps.Map) { return Promise.resolve(window.naver); }
         var key = sdkKey(setting);
-        if (!key) { return Promise.reject(errorOf('NAVER_MAP_API_KEY_REQUIRED', 'syn.Config.NaverMapApiKey 또는 apiKey 옵션이 필요합니다.')); }
+        if (!key) { log('$navermap.loadSDK', errorOf('NAVER_MAP_API_KEY_REQUIRED', 'apiKey 옵션이 필요합니다.'), 'Warning'); }
         var modules = asArray(setting.submodules).filter(Boolean).join(',');
         var signature = [setting.apiUrl, key, modules, setting.language || ''].join('|');
         if ($navermap.sdkPromise) {
@@ -52676,7 +52675,7 @@ if (typeof module !== 'undefined' && module.exports) {
                 syn.$l.eventLog('ContextMenu_controlLoad', error.toString(), 'Debug');
             }
 
-            for (var i = 0; i < hookEvents.length; i++) {
+            for (var i = 0; i < hookEvents?.length; i++) {
                 var hookEvent = hookEvents[i];
                 if ($contextmenu.eventHooks.indexOf(hookEvent) > -1) {
                     if ($object.isNullOrUndefined(setting[hookEvent]) == true) {
@@ -52845,6 +52844,7 @@ if (typeof module !== 'undefined' && module.exports) {
     });
     syn.uicontrols.$contextmenu = $contextmenu;
 })(window);
+
 /// <reference path="/js/syn.js" />
 
 (function (window) {
@@ -57074,7 +57074,7 @@ if (typeof module !== 'undefined' && module.exports) {
                 delete setting.fnDrawCallback;
             };
 
-            for (var i = 0; i < setting.columns.length; i++) {
+            for (var i = 0; i < setting.columns?.length; i++) {
                 var column = setting.columns[i];
                 headers.push('<th>{0}</th>'.format(column.title));
 
@@ -61146,7 +61146,7 @@ if (typeof module !== 'undefined' && module.exports) {
             setting.data = {};
             var orgchart = $('#' + elID).orgchart(setting);
 
-            for (var i = 0; i < hookEvents.length; i++) {
+            for (var i = 0; i < hookEvents?.length; i++) {
                 var hookEvent = hookEvents[i];
                 if ($organization.eventHooks.indexOf(hookEvent) > -1) {
                     if ($object.isNullOrUndefined(setting[hookEvent]) == true) {
@@ -62273,7 +62273,7 @@ if (typeof module !== 'undefined' && module.exports) {
                 syn.$l.eventLog('TreeView_controlLoad', error.toString(), 'Debug');
             }
 
-            for (var i = 0; i < hookEvents.length; i++) {
+            for (var i = 0; i < hookEvents?.length; i++) {
                 var hookEvent = hookEvents[i];
                 if ($tree.eventHooks.indexOf(hookEvent) > -1) {
                     if ($object.isNullOrUndefined(setting[hookEvent]) == true) {

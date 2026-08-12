@@ -185,7 +185,7 @@
                 delete setting.fnDrawCallback;
             };
 
-            for (var i = 0; i < setting.columns.length; i++) {
+            for (var i = 0; i < setting.columns?.length; i++) {
                 var column = setting.columns[i];
                 headers.push('<th>{0}</th>'.format(column.title));
 

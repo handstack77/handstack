@@ -1,4 +1,4 @@
-/// <reference path="/js/syn.js" />
+﻿/// <reference path="/js/syn.js" />
 
 (function (window) {
     'use strict';
@@ -305,15 +305,14 @@
     }
 
     function sdkKey(setting) {
-        var configured = window.syn && syn.Config ? syn.Config.NaverMapApiKey : '';
-        return setting.apiKey || configured || '';
+        return setting.apiKey || '';
     }
 
     function loadSDK(setting) {
         configureAuthFailure();
         if (window.naver && window.naver.maps && window.naver.maps.Map) { return Promise.resolve(window.naver); }
         var key = sdkKey(setting);
-        if (!key) { return Promise.reject(errorOf('NAVER_MAP_API_KEY_REQUIRED', 'syn.Config.NaverMapApiKey 또는 apiKey 옵션이 필요합니다.')); }
+        if (!key) { log('$navermap.loadSDK', errorOf('NAVER_MAP_API_KEY_REQUIRED', 'apiKey 옵션이 필요합니다.'), 'Warning'); }
         var modules = asArray(setting.submodules).filter(Boolean).join(',');
         var signature = [setting.apiUrl, key, modules, setting.language || ''].join('|');
         if ($navermap.sdkPromise) {

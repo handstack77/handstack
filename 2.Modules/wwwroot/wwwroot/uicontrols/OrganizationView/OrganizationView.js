@@ -107,7 +107,7 @@
             setting.data = {};
             var orgchart = $('#' + elID).orgchart(setting);
 
-            for (var i = 0; i < hookEvents.length; i++) {
+            for (var i = 0; i < hookEvents?.length; i++) {
                 var hookEvent = hookEvents[i];
                 if ($organization.eventHooks.indexOf(hookEvent) > -1) {
                     if ($object.isNullOrUndefined(setting[hookEvent]) == true) {

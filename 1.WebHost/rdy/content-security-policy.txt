@@ -9,10 +9,11 @@ script-src 'self' 'unsafe-inline' 'unsafe-eval'
 script-src-elem 'self' 'unsafe-inline'
     http://localhost:*
     https://localhost:*
-    http://t1.daumcdn.net
-    https://t1.daumcdn.net;
+    https://t1.daumcdn.net
+    https://www.youtube.com
+    https://s.ytimg.com;
 
-worker-src 'self' blob:
+worker-src 'self' data: blob:
     http://localhost:*
     https://localhost:*;
 
@@ -34,17 +35,16 @@ connect-src 'self'
     http://localhost:*
     https://localhost:*
     https://api.ipify.org
-    http://t1.daumcdn.net
     https://t1.daumcdn.net
-    http://postcode.map.daum.net
-    https://postcode.map.daum.net;
+    https://postcode.map.daum.net
+    https://handstack.kr
+    https://www.youtube.com
+    https://www.youtube-nocookie.com;
 
 frame-src 'self'
     http://localhost:*
     https://localhost:*
-    http://t1.daumcdn.net
     https://t1.daumcdn.net
-    http://postcode.map.daum.net
     https://postcode.map.daum.net
     https://handstack.kr;
 
