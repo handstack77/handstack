@@ -71,6 +71,7 @@ namespace rdy
         bool useHttpLogging = false;
         bool useProxyForward = false;
         bool useResponseComression = false;
+        bool isEnabledCSP = false;
         bool enableSecurityHeaders = true;
         string xFrameOptions = "SAMEORIGIN";
         bool enablePublicCorsPolicy = true;
@@ -107,6 +108,7 @@ namespace rdy
             this.useHttpLogging = appSettings["UseHttpLogging"].ToStringSafe("false").ToBoolean();
             this.useProxyForward = appSettings["UseForwardProxy"].ToStringSafe("false").ToBoolean();
             this.useResponseComression = appSettings["UseResponseComression"].ToStringSafe("false").ToBoolean();
+            this.isEnabledCSP = appSettings["IsEnabledCSP"].ToStringSafe("false").ToBoolean();
             var securitySettings = appSettings.GetSection("Security");
             this.enableSecurityHeaders = securitySettings["EnableSecurityHeaders"].ToStringSafe("true").ToBoolean();
             this.xFrameOptions = NormalizeXFrameOptions(securitySettings["XFrameOptions"].ToStringSafe("SAMEORIGIN"));
@@ -188,7 +190,9 @@ namespace rdy
             GlobalConfiguration.LoadContractBasePath = GlobalConfiguration.GetBaseDirectoryPath(PathExtensions.Combine(GlobalConfiguration.EntryBasePath, "..", "contracts"));
             GlobalConfiguration.WebHostRootPath = string.IsNullOrWhiteSpace(appSettings["WebHostRootPath"]) == true ? "" : GlobalConfiguration.GetBaseDirectoryPath(appSettings["WebHostRootPath"]);
 
-            GlobalConfiguration.ContentSecurityPolicy = ReadContentSecurityPolicyFile(PathExtensions.Join(GlobalConfiguration.EntryBasePath, "content-security-policy.txt"));
+            GlobalConfiguration.ContentSecurityPolicy = this.isEnabledCSP == true
+                ? ReadContentSecurityPolicyFile(PathExtensions.Join(GlobalConfiguration.EntryBasePath, "content-security-policy.txt"))
+                : "";
 
             string sectionLoadModuleLicenses = "AppSettings:LoadModuleLicenses";
             var section = configuration.GetSection(sectionLoadModuleLicenses);
@@ -836,7 +840,10 @@ namespace rdy
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment environment, ICorsService corsService, ICorsPolicyProvider corsPolicyProvider, IHostApplicationLifetime applicationLifetime)
         {
-            InitializeContentSecurityPolicyFileWatcher(applicationLifetime);
+            if (isEnabledCSP == true)
+            {
+                InitializeContentSecurityPolicyFileWatcher(applicationLifetime);
+            }
 
             if (useResponseComression == true)
             {

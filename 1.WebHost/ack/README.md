@@ -92,6 +92,7 @@ curl "http://localhost:8421/stop?hostAccessID=<HOST_ACCESS_ID_HASH>"
 - `AppSettings:BatchProgramBasePath`
 - `AppSettings:ForbesBasePath`
 - `AppSettings:WebHostRootPath`: 정적 파일(`wwwroot`) 제공 경로 재정의(선택, 기본값은 `EntryBasePath/wwwroot`)
+- `AppSettings:IsEnabledCSP`: `content-security-policy.txt` 기반 CSP 적용 여부(기본값 `false`)
 - `AppSettings:Security:XFrameOptions`: `X-Frame-Options` 응답 헤더 값(기본값 `SAMEORIGIN`)
 - `Serilog:WriteTo`: 로그 출력 경로/형식
 
@@ -146,7 +147,7 @@ $env:AppSettings__RunningEnvironment='P'
 
 ### 5.2 Content-Security-Policy 실시간 반영
 
-`EntryBasePath/content-security-policy.txt`(배포 기본 구조에서는 `${HANDSTACK_HOME}/app/content-security-policy.txt`)에 CSP 값을 작성하면 시작 시 읽어 `Content-Security-Policy` 응답 헤더에 적용합니다. 호스트 실행 중 파일을 생성·수정·이름 변경·삭제해도 자동으로 다시 읽으며, 파일을 삭제하거나 빈 값으로 저장하면 CSP 헤더를 더 이상 추가하지 않습니다. 이 감시는 `AppSettings:IsConfigurationWatching` 설정과 관계없이 동작합니다.
+`AppSettings:IsEnabledCSP` 기본값은 `false`이며, 이 경우 CSP 파일을 읽지 않고 `Content-Security-Policy` 응답 헤더도 추가하지 않습니다. `true`로 설정하면 `EntryBasePath/content-security-policy.txt`(배포 기본 구조에서는 `${HANDSTACK_HOME}/app/content-security-policy.txt`)에 작성한 CSP 값을 시작 시 읽어 `Content-Security-Policy` 응답 헤더에 적용합니다. 호스트 실행 중 파일을 생성·수정·이름 변경·삭제해도 자동으로 다시 읽으며, 파일을 삭제하거나 빈 값으로 저장하면 CSP 헤더를 더 이상 추가하지 않습니다. 이 감시는 `AppSettings:IsConfigurationWatching` 설정과 관계없이 `AppSettings:IsEnabledCSP`가 `true`일 때만 동작합니다.
 
 브라우저에서 외부 API를 `fetch`로 호출하면 해당 도메인을 `connect-src`에 명시해야 합니다. 기본 정책은 공인 IP 조회를 위해 `https://api.ipify.org`를 허용합니다.
 
