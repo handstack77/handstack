@@ -1,5 +1,5 @@
-﻿/*!
-HandStack Javascript Library v2026.7.23
+/*!
+HandStack Javascript Library v2026.8.11
 https://handshake.kr
 
 Copyright 2025, HandStack
@@ -10553,7 +10553,8 @@ if (typeof module !== 'undefined' && module.exports) {
                 throw new Error('서비스 호출에 필요한 거래 정보 확인 필요');
             }
 
-            let apiService = syn.Config.DomainAPIServer;
+            const environment = syn.Config && syn.Config.Environment ? syn.Config.Environment.substring(0, 1) : 'D';
+            let apiService = (environment == 'D' && $this.config && $this.config.domainAPIServer) ? $this.config.domainAPIServer : syn.Config.DomainAPIServer;
             if (context.$object.isNullOrUndefined(apiService) == true) {
                 syn.$l.eventLog('$w.executeTransaction', '서비스 호출에 필요한 DomainAPIServer 정보 확인 필요', 'Error');
                 fallback(config, transactionObject);
@@ -10589,7 +10590,6 @@ if (typeof module !== 'undefined' && module.exports) {
             }
 
             const installType = syn.$w.Variable && syn.$w.Variable.InstallType ? syn.$w.Variable.InstallType : 'L';
-            const environment = syn.Config && syn.Config.Environment ? syn.Config.Environment.substring(0, 1) : 'D';
             const machineTypeID = syn.Config && syn.Config.Transaction ? syn.Config.Transaction.MachineTypeID.substring(0, 1) : 'W';
             const programID = (syn.$w.Variable && syn.$w.Variable.ProgramID ? syn.$w.Variable.ProgramID : config.programID).padStart(8, '0');
             const businessID = config.businessID.padStart(3, '0').substring(0, 3);
@@ -11788,10 +11788,6 @@ if (typeof module !== 'undefined' && module.exports) {
         async renderViewer(templateID, el, options) {
             el = syn.$l.getElement(el);
             if (el) {
-                if (parent.syn && parent.syn.$w.progressMessage) {
-                    parent.syn.$w.progressMessage();
-                }
-
                 options = syn.$w.argumentsExtend({
                     width: '100%',
                     height: '100%',
@@ -11826,18 +11822,10 @@ if (typeof module !== 'undefined' && module.exports) {
                     var pdfFileUrl = syn.$r.createBlobUrl(pdfResult.response);
                     PDFObject.embed(pdfFileUrl, el, options);
                 }
-
-                if (parent.syn && parent.syn.$w.progressMessage) {
-                    parent.syn.$w.closeProgress();
-                }
             }
         },
 
         async renderPrint(templateID, options) {
-            if (parent.syn && parent.syn.$w.progressMessage) {
-                parent.syn.$w.progressMessage();
-            }
-
             options = syn.$w.argumentsExtend({
                 excelUrl: '',
                 workData: null
@@ -11860,10 +11848,6 @@ if (typeof module !== 'undefined' && module.exports) {
             if (pdfResult && pdfResult.status == 200) {
                 var pdfFileUrl = syn.$r.createBlobUrl(pdfResult.response);
                 printJS(pdfFileUrl);
-            }
-
-            if (parent.syn && parent.syn.$w.progressMessage) {
-                parent.syn.$w.closeProgress();
             }
         },
 
@@ -11921,56 +11905,6 @@ if (typeof module !== 'undefined' && module.exports) {
     }
 })(globalRoot);
 
-/*!
- * syn.$bind - Proxy 기반 양방향 데이터 바인딩
- *
- * 순수 객체({}) 및 평면 객체 배열([{}, {}, ...]) 형태의 데이터를 Proxy로 감싸서
- * 프로퍼티 값 변경/재할당, 배열 push·pop·splice·정렬, 배열 인덱스 직접 교체,
- * 배열 내 객체 값 변경을 표준 JS 문법만으로 감지하고 화면에 반영한다.
- *
- * syn.uicontrols.$data가 syn-datafield/syn-options 메타 설정 기반으로 HandStack
- * 전용 컨트롤을 바인딩하는 것과는 별개로, $binding은 syn-bind/syn-bind-list
- * 속성만으로 표준 HTMLElement는 물론 AUIGrid, Handsontable, tail-select,
- * daterangepicker 같은 임의의 커스텀 컨트롤까지 get/set/on/off 4개 함수(어댑터)
- * 구현만으로 가볍게 양방향 연결하고 싶을 때 사용한다. 두 시스템은 서로 다른
- * HTML 속성(syn-datafield vs syn-bind)을 사용하므로 같은 화면에서 함께 써도 충돌하지 않는다.
- *
- * 데이터 변경은 별도 API 없이 표준 JS 문법 그대로 사용한다.
- *   store.data.user.name = '홍길동';            프로퍼티 값 변경
- *   store.data.user = { name: '김철수' };        프로퍼티(객체) 재할당
- *   store.data.items.push({ title: '신규' });    배열 push
- *   store.data.items[2] = { title: '교체' };     배열 인덱스 직접 변경
- *   store.data.items[2].title = '수정';          배열 내 객체 값 변경
- *   store.data.items.splice(1, 1);               배열 splice
- *
- * 사용 예:
- *   <input type="text" syn-bind="value:user.name">
- *   <span syn-bind="text:user.name"></span>
- *
- *   const mounted = syn.$bind.mount(document.body, { user: { name: '홍길동' } });
- *   mounted.store.data.user.name = '김철수'; // 표준 JS 문법으로 값 변경 시 화면 자동 반영
- *   mounted.destroy(); // 바인딩 해제
- *
- * 선언적 바인딩 문법
- *   syn-bind="타입1(인자1):경로1; 타입2(인자2):경로2"
- *   내장 타입: text, html, value, checked, radio, edit, show, hide, disabled, class(이름), attr(이름), style(속성), adapter(어댑터명)
- *
- *   <tbody syn-bind-list="items">
- *     <template>
- *       <tr>
- *         <td><input type="text" syn-bind="value:title"></td>
- *       </tr>
- *     </template>
- *   </tbody>
- *
- * 커스텀 컨트롤 어댑터
- *   syn.$bind.registerAdapter('grid', {
- *       get(el) { return el._grid.getData(); },
- *       set(el, value) { el._grid.setData(value || []); },
- *       on(el, handler) { el._grid.on('change', handler); }
- *   });
- *   <div id="grid" syn-bind="adapter(grid):items"></div>
- */
 (function (context) {
     'use strict';
 

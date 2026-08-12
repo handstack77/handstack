@@ -388,53 +388,1067 @@
 /// <reference path="/js/syn.js" />
 
 (function (window) {
+    'use strict';
+
     syn.uicontrols = syn.uicontrols || new syn.module();
     var $chart = syn.uicontrols.$chart || new syn.module();
 
+    function createChartCommon(scope) {
+        function isPlainObject(value) {
+            return value !== null && typeof value === 'object' && !Array.isArray(value) &&
+                (Object.getPrototypeOf(value) === Object.prototype || Object.getPrototypeOf(value) === null);
+        }
+
+        function clone(value) {
+            if (Array.isArray(value)) {
+                return value.map(clone);
+            }
+            if (isPlainObject(value)) {
+                var result = {};
+                for (var key in value) {
+                    result[key] = clone(value[key]);
+                }
+                return result;
+            }
+            if (value instanceof Date) {
+                return new Date(value.getTime());
+            }
+            return value;
+        }
+
+        function merge(target) {
+            target = isPlainObject(target) ? target : {};
+            for (var sourceIndex = 1; sourceIndex < arguments.length; sourceIndex++) {
+                var source = arguments[sourceIndex];
+                if (!isPlainObject(source)) {
+                    continue;
+                }
+                for (var key in source) {
+                    if (isPlainObject(source[key])) {
+                        target[key] = merge(isPlainObject(target[key]) ? target[key] : {}, source[key]);
+                    }
+                    else {
+                        target[key] = clone(source[key]);
+                    }
+                }
+            }
+            return target;
+        }
+
+        function resolveFunction(value) {
+            if (typeof value === 'function') {
+                return value;
+            }
+            if (typeof value !== 'string' || value.length === 0) {
+                return null;
+            }
+            var current = window;
+            var names = value.split('.');
+            for (var i = 0; i < names.length && current; i++) {
+                current = current[names[i]];
+            }
+            return typeof current === 'function' ? current : null;
+        }
+
+        function normalizeRows(value) {
+            if (value === null || value === undefined) {
+                return { valid: true, rows: [] };
+            }
+            var values = Array.isArray(value) ? value : [value];
+            for (var i = 0; i < values.length; i++) {
+                if (!isPlainObject(values[i])) {
+                    return { valid: false, rows: [], error: 'setValue accepts an object or an array of objects.' };
+                }
+            }
+            return { valid: true, rows: clone(values) };
+        }
+
+        function metaValue(meta, lowerName, upperName) {
+            return meta ? (meta[lowerName] !== undefined ? meta[lowerName] : meta[upperName]) : undefined;
+        }
+
+        function inferTable(rows, metaColumns) {
+            var result = { labelField: null, valueFields: [], labels: [], series: [] };
+            if (!rows.length) {
+                return result;
+            }
+            var keys = Object.keys(rows[0]);
+            if (!keys.length) {
+                return result;
+            }
+            for (var i = 0; i < keys.length; i++) {
+                var type = String(metaValue(metaColumns && metaColumns[keys[i]], 'dataType', 'DataType') || '').toLowerCase();
+                if (type === 'string' || type === 'date' || type === 'datetime') {
+                    result.labelField = keys[i];
+                    break;
+                }
+            }
+            result.labelField = result.labelField || keys[0];
+            for (var keyIndex = 0; keyIndex < keys.length; keyIndex++) {
+                var key = keys[keyIndex];
+                if (key === result.labelField) {
+                    continue;
+                }
+                var dataType = String(metaValue(metaColumns && metaColumns[key], 'dataType', 'DataType') || '').toLowerCase();
+                var isNumeric = dataType === 'number' || dataType === 'int' || dataType === 'integer' || dataType === 'decimal' || dataType === 'float';
+                if (!dataType) {
+                    isNumeric = rows.every(function (row) {
+                        return row[key] === null || row[key] === undefined || row[key] === '' ||
+                            (typeof row[key] === 'number' && isFinite(row[key])) ||
+                            (typeof row[key] === 'string' && row[key].trim() !== '' && isFinite(Number(row[key])));
+                    });
+                }
+                if (isNumeric) {
+                    result.valueFields.push(key);
+                }
+            }
+            if (!result.valueFields.length) {
+                result.valueFields = keys.filter(function (key) { return key !== result.labelField; });
+            }
+            result.labels = rows.map(function (row) { return row[result.labelField]; });
+            result.series = result.valueFields.map(function (field) {
+                return { field: field, name: field, data: rows.map(function (row) { return row[field]; }) };
+            });
+            return result;
+        }
+
+        function log(logScope, message, level) {
+            if (syn.$l && syn.$l.eventLog) {
+                syn.$l.eventLog(logScope, message && message.message ? message.message : String(message), level || 'Debug');
+            }
+        }
+
+        function parseEvents(el) {
+            var value = el ? el.getAttribute('syn-events') : null;
+            if (!value) {
+                return [];
+            }
+            try {
+                var events = eval(value);
+                return Array.isArray(events) ? events : [];
+            }
+            catch (error) {
+                log(scope + '.parseEvents', error, 'Warning');
+                return [];
+            }
+        }
+
+        function emit(control, eventName, params) {
+            var mod = window[syn.$w.pageScript];
+            var handler = mod && mod.event ? mod.event[control.id + '_' + eventName] : null;
+            if (handler) {
+                handler.apply(syn.$l.get(control.id), [control.id, params, clone(control.selections || [])]);
+            }
+        }
+
+        function selectionKey(selection) {
+            return [selection.series.index, selection.point.dataType || '', selection.point.dataIndex].join('|');
+        }
+
+        function applySelection(control, selection) {
+            if (!selection || control.config.selectionMode === 'none') {
+                return { changed: false, selected: false };
+            }
+            var key = selectionKey(selection);
+            var found = -1;
+            for (var i = 0; i < control.selections.length; i++) {
+                if (selectionKey(control.selections[i]) === key) {
+                    found = i;
+                    break;
+                }
+            }
+            if (control.config.selectionMode === 'multiple' || control.config.selectionMode === 'native') {
+                if (found > -1) {
+                    control.selections.splice(found, 1);
+                    return { changed: true, selected: false };
+                }
+                control.selections.push(selection);
+                return { changed: true, selected: true };
+            }
+            var changed = found < 0 || control.selections.length !== 1;
+            control.selections = [selection];
+            return { changed: changed, selected: true };
+        }
+
+        function selectedRows(control) {
+            var rows = [];
+            var seen = {};
+            for (var i = 0; i < control.selections.length; i++) {
+                var selection = control.selections[i];
+                if (selection.row === null || selection.row === undefined) {
+                    continue;
+                }
+                var key = selection.rowIndex > -1 ? 'index:' + selection.rowIndex : 'row:' + i;
+                if (!seen[key]) {
+                    rows.push(clone(selection.row));
+                    seen[key] = true;
+                }
+            }
+            return rows;
+        }
+
+        function serializeRows(rows, requestType, metaColumns) {
+            if (requestType === 'Row') {
+                rows = rows.length ? [rows[rows.length - 1]] : [];
+            }
+            else if (requestType !== 'List') {
+                return [];
+            }
+            var result = [];
+            for (var i = 0; i < rows.length; i++) {
+                var row = rows[i];
+                var transactionRow = [];
+                if (metaColumns) {
+                    for (var key in metaColumns) {
+                        var meta = metaColumns[key] || {};
+                        var fieldID = metaValue(meta, 'fieldID', 'FieldID') || key;
+                        var dataType = metaValue(meta, 'dataType', 'DataType');
+                        var value = row[key];
+                        if (value === undefined && window.$object && $object.defaultValue) {
+                            value = String(dataType || '').toLowerCase() === 'number' ? null : $object.defaultValue(dataType);
+                        }
+                        transactionRow.push({ prop: fieldID, val: value });
+                    }
+                }
+                else {
+                    for (var property in row) {
+                        transactionRow.push({ prop: property, val: row[property] });
+                    }
+                }
+                result.push(transactionRow);
+            }
+            return result;
+        }
+
+        return {
+            clone: clone,
+            merge: merge,
+            resolveFunction: resolveFunction,
+            normalizeRows: normalizeRows,
+            inferTable: inferTable,
+            parseEvents: parseEvents,
+            log: log,
+            emit: emit,
+            selectionKey: selectionKey,
+            applySelection: applySelection,
+            selectedRows: selectedRows,
+            serializeRows: serializeRows,
+            getValue: function (control, requestType, metaColumns) {
+                if (!control) {
+                    return requestType ? [] : null;
+                }
+                var rows = selectedRows(control);
+                if (!requestType) {
+                    return control.config.selectionMode === 'multiple' || control.config.selectionMode === 'native'
+                        ? rows : (rows[rows.length - 1] || null);
+                }
+                return serializeRows(rows, requestType, metaColumns || control.metaColumns);
+            }
+        };
+    }
+
+    var common = createChartCommon('$chart');
+
+    var moduleDefinitions = {
+        more: { path: 'highcharts-more.min.js' },
+        '3d': { path: 'highcharts-3d.min.js' },
+        stock: { path: 'modules/stock.min.js' },
+        map: { path: 'modules/map.min.js' },
+        gantt: { path: 'modules/gantt.min.js', dependencies: ['stock'] },
+        accessibility: { path: 'modules/accessibility.min.js' },
+        annotations: { path: 'modules/annotations.min.js' },
+        'annotations-advanced': { path: 'modules/annotations-advanced.min.js', dependencies: ['annotations'] },
+        'arc-diagram': { path: 'modules/arc-diagram.min.js', dependencies: ['sankey'] },
+        'arrow-symbols': { path: 'modules/arrow-symbols.min.js' },
+        boost: { path: 'modules/boost.min.js' },
+        'boost-canvas': { path: 'modules/boost-canvas.min.js', dependencies: ['boost'] },
+        'broken-axis': { path: 'modules/broken-axis.min.js' },
+        bullet: { path: 'modules/bullet.min.js' },
+        coloraxis: { path: 'modules/coloraxis.min.js' },
+        'current-date-indicator': { path: 'modules/current-date-indicator.min.js' },
+        cylinder: { path: 'modules/cylinder.min.js', dependencies: ['3d'] },
+        data: { path: 'modules/data.min.js' },
+        'data-tools': { path: 'modules/data-tools.min.js', dependencies: ['data'] },
+        datagrouping: { path: 'modules/datagrouping.min.js' },
+        debugger: { path: 'modules/debugger.min.js' },
+        'dependency-wheel': { path: 'modules/dependency-wheel.min.js', dependencies: ['sankey'] },
+        dotplot: { path: 'modules/dotplot.min.js' },
+        'drag-panes': { path: 'modules/drag-panes.min.js' },
+        'draggable-points': { path: 'modules/draggable-points.min.js' },
+        dumbbell: { path: 'modules/dumbbell.min.js', dependencies: ['more'] },
+        flowmap: { path: 'modules/flowmap.min.js', dependencies: ['map'] },
+        'full-screen': { path: 'modules/full-screen.min.js' },
+        funnel: { path: 'modules/funnel.min.js' },
+        funnel3d: { path: 'modules/funnel3d.min.js', dependencies: ['funnel', 'cylinder', '3d'] },
+        geoheatmap: { path: 'modules/geoheatmap.min.js', dependencies: ['map', 'heatmap'] },
+        'grid-axis': { path: 'modules/grid-axis.min.js' },
+        heatmap: { path: 'modules/heatmap.min.js' },
+        heikinashi: { path: 'modules/heikinashi.min.js', dependencies: ['stock'] },
+        'histogram-bellcurve': { path: 'modules/histogram-bellcurve.min.js' },
+        hollowcandlestick: { path: 'modules/hollowcandlestick.min.js', dependencies: ['stock'] },
+        'item-series': { path: 'modules/item-series.min.js' },
+        lollipop: { path: 'modules/lollipop.min.js', dependencies: ['dumbbell'] },
+        'marker-clusters': { path: 'modules/marker-clusters.min.js' },
+        'mouse-wheel-zoom': { path: 'modules/mouse-wheel-zoom.min.js' },
+        navigator: { path: 'modules/navigator.min.js' },
+        networkgraph: { path: 'modules/networkgraph.min.js' },
+        organization: { path: 'modules/organization.min.js', dependencies: ['sankey'] },
+        'overlapping-datalabels': { path: 'modules/overlapping-datalabels.min.js' },
+        'parallel-coordinates': { path: 'modules/parallel-coordinates.min.js' },
+        pareto: { path: 'modules/pareto.min.js' },
+        pictorial: { path: 'modules/pictorial.min.js' },
+        pathfinder: { path: 'modules/pathfinder.min.js' },
+        'pattern-fill': { path: 'modules/pattern-fill.min.js' },
+        'price-indicator': { path: 'modules/price-indicator.min.js', dependencies: ['stock'] },
+        pyramid3d: { path: 'modules/pyramid3d.min.js', dependencies: ['funnel3d'] },
+        sankey: { path: 'modules/sankey.min.js' },
+        'series-label': { path: 'modules/series-label.min.js' },
+        'series-on-point': { path: 'modules/series-on-point.min.js' },
+        sonification: { path: 'modules/sonification.min.js' },
+        'solid-gauge': { path: 'modules/solid-gauge.min.js', dependencies: ['more'] },
+        streamgraph: { path: 'modules/streamgraph.min.js' },
+        'static-scale': { path: 'modules/static-scale.min.js' },
+        indicators: { path: 'indicators/indicators.min.js', dependencies: ['stock'] },
+        'indicators-all': { path: 'indicators/indicators-all.min.js', dependencies: ['stock'] },
+        'stock-tools': {
+            path: 'modules/stock-tools.min.js',
+            dependencies: ['stock', 'indicators-all', 'drag-panes', 'annotations-advanced', 'price-indicator', 'full-screen'],
+            styles: ['css/stocktools/gui.min.css', 'css/annotations/popup.min.css']
+        },
+        'styled-mode': { styles: ['css/highcharts.min.css'] },
+        sunburst: { path: 'modules/sunburst.min.js', dependencies: ['treemap'] },
+        tiledwebmap: { path: 'modules/tiledwebmap.min.js', dependencies: ['map'] },
+        tilemap: { path: 'modules/tilemap.min.js', dependencies: ['heatmap'] },
+        timeline: { path: 'modules/timeline.min.js' },
+        treegraph: { path: 'modules/treegraph.min.js', dependencies: ['treemap'] },
+        treegrid: { path: 'modules/treegrid.min.js' },
+        treemap: { path: 'modules/treemap.min.js' },
+        textpath: { path: 'modules/textpath.min.js' },
+        'variable-pie': { path: 'modules/variable-pie.min.js' },
+        variwide: { path: 'modules/variwide.min.js' },
+        vector: { path: 'modules/vector.min.js', dependencies: ['more'] },
+        venn: { path: 'modules/venn.min.js' },
+        windbarb: { path: 'modules/windbarb.min.js', dependencies: ['more'] },
+        wordcloud: { path: 'modules/wordcloud.min.js' },
+        xrange: { path: 'modules/xrange.min.js' },
+        exporting: { path: 'modules/exporting.min.js' },
+        'export-data': { path: 'modules/export-data.min.js', dependencies: ['exporting'] },
+        'offline-exporting': { path: 'modules/offline-exporting.min.js', dependencies: ['exporting'] },
+        drilldown: { path: 'modules/drilldown.min.js' },
+        'no-data-to-display': { path: 'modules/no-data-to-display.min.js' }
+    };
+
+    var typeModules = {
+        arearange: 'more', areasplinerange: 'more', boxplot: 'more', bubble: 'more', columnpyramid: 'more',
+        columnrange: 'more', errorbar: 'more', gauge: 'more', packedbubble: 'more', polygon: 'more', waterfall: 'more',
+        solidgauge: 'solid-gauge', bullet: 'bullet', cylinder: 'cylinder', dependencywheel: 'dependency-wheel',
+        dotplot: 'dotplot', dumbbell: 'dumbbell', lollipop: 'lollipop', flowmap: 'flowmap', funnel: 'funnel',
+        pyramid: 'funnel', funnel3d: 'funnel3d', pyramid3d: 'pyramid3d', heatmap: 'heatmap', histogram: 'histogram-bellcurve',
+        bellcurve: 'histogram-bellcurve', item: 'item-series', map: 'map', mapbubble: 'map', mapline: 'map', mappoint: 'map',
+        networkgraph: 'networkgraph', organization: 'organization', pareto: 'pareto', pictorial: 'pictorial', sankey: 'sankey',
+        streamgraph: 'streamgraph', sunburst: 'sunburst', tiledwebmap: 'tiledwebmap', tilemap: 'tilemap', timeline: 'timeline',
+        treegraph: 'treegraph', treemap: 'treemap', variablepie: 'variable-pie', variwide: 'variwide', vector: 'vector',
+        venn: 'venn', windbarb: 'windbarb', wordcloud: 'wordcloud', xrange: 'xrange', gantt: 'gantt',
+        arcdiagram: 'arc-diagram', geoheatmap: 'geoheatmap', scatter3d: '3d', candlestick: 'stock', hlc: 'stock', ohlc: 'stock', flags: 'stock',
+        heikinashi: 'heikinashi', hollowcandlestick: 'hollowcandlestick'
+    };
+
+    var indicatorTypes = [
+        'abands', 'ad', 'ao', 'apo', 'aroon', 'aroonoscillator', 'atr', 'bb', 'cci', 'chaikin', 'cmf', 'cmo',
+        'dema', 'disparityindex', 'dmi', 'dpo', 'ema', 'ikh', 'keltnerchannels', 'klinger', 'linearregression',
+        'linearregressionangle', 'linearregressionintercept', 'linearregressionslope', 'macd', 'mfi', 'momentum',
+        'natr', 'obv', 'pivotpoints', 'ppo', 'pc', 'pricechannel', 'priceenvelopes', 'psar', 'roc', 'rsi', 'slowstochastic',
+        'sma', 'stochastic', 'supertrend', 'tema', 'trendline', 'trix', 'vbp', 'vwap', 'williamsr', 'wma', 'zigzag'
+    ];
+    indicatorTypes.forEach(function (type) { typeModules[type] = 'indicators-all'; });
+
+    var moduleAliases = {
+        'highcharts-more': 'more', 'highcharts-3d': '3d', highstock: 'stock', highmaps: 'map',
+        'highcharts-gantt': 'gantt', 'modules/stock': 'stock', 'modules/map': 'map', 'modules/gantt': 'gantt',
+        'indicators/indicators': 'indicators', 'indicators/indicators-all': 'indicators-all',
+        styledmode: 'styled-mode', 'css/highcharts': 'styled-mode'
+    };
+
+    function normalizeModuleName(name) {
+        name = String(name || '').replace(/\.min\.js$|\.js$/i, '').replace(/^\.\//, '');
+        var lowerName = name.toLowerCase();
+        if (lowerName.indexOf('modules/') === 0 && moduleDefinitions[lowerName.substring(8)]) {
+            return lowerName.substring(8);
+        }
+        return moduleAliases[lowerName] || lowerName;
+    }
+
+    function moduleUrl(path) {
+        var root = '/lib/highcharts/';
+        if (syn.Config && syn.Config.DomainBaseUrl && syn.Config.DomainBaseUrl !== location.origin) {
+            root = syn.Config.DomainBaseUrl.replace(/\/$/, '') + (syn.$w.proxyBasePath || '') + root;
+        }
+        else if (syn.Config && syn.Config.ProxyPathName) {
+            root = (syn.$w.proxyBasePath || '') + root;
+        }
+        return root + path;
+    }
+
+    function loadStyle(path) {
+        if ($chart.loadedStyles[path]) {
+            return Promise.resolve();
+        }
+        if ($chart.stylePromises[path]) {
+            return $chart.stylePromises[path];
+        }
+        $chart.stylePromises[path] = new Promise(function (resolve, reject) {
+            var id = 'syn-highcharts-style-' + path.replace(/[^a-z0-9_-]/gi, '-');
+            var existing = document.getElementById(id);
+            if (existing) {
+                $chart.loadedStyles[path] = true;
+                resolve();
+                return;
+            }
+            var link = document.createElement('link');
+            link.id = id;
+            link.rel = 'stylesheet';
+            link.href = moduleUrl(path);
+            link.onload = function () {
+                $chart.loadedStyles[path] = true;
+                resolve();
+            };
+            link.onerror = function () {
+                delete $chart.stylePromises[path];
+                reject(new Error('Failed to load Highcharts stylesheet: ' + path));
+            };
+            document.head.appendChild(link);
+        });
+        return $chart.stylePromises[path];
+    }
+
+    function loadScript(name) {
+        name = normalizeModuleName(name);
+        if ($chart.loadedModules[name]) {
+            return Promise.resolve();
+        }
+        if ($chart.modulePromises[name]) {
+            return $chart.modulePromises[name];
+        }
+        var definition = moduleDefinitions[name];
+        if (!definition && /^(modules|indicators)\/[a-z0-9_-]+$/i.test(name)) {
+            definition = { path: name + '.min.js' };
+        }
+        if (!definition) {
+            return Promise.reject(new Error('Unknown Highcharts module: ' + name));
+        }
+        var styles = definition.styles || [];
+        $chart.modulePromises[name] = Promise.all(styles.map(loadStyle)).then(function () {
+            if (!definition.path) {
+                $chart.loadedModules[name] = true;
+                return;
+            }
+            return new Promise(function (resolve, reject) {
+                var id = 'syn-highcharts-' + name.replace(/[^a-z0-9_-]/gi, '-');
+                var existing = document.getElementById(id);
+                if (existing) {
+                    $chart.loadedModules[name] = true;
+                    resolve();
+                    return;
+                }
+                var script = document.createElement('script');
+                script.id = id;
+                script.src = moduleUrl(definition.path);
+                script.onload = function () {
+                    $chart.loadedModules[name] = true;
+                    resolve();
+                };
+                script.onerror = function () {
+                    delete $chart.modulePromises[name];
+                    reject(new Error('Failed to load Highcharts module: ' + name));
+                };
+                document.head.appendChild(script);
+            });
+        }).catch(function (error) {
+            delete $chart.modulePromises[name];
+            throw error;
+        });
+        return $chart.modulePromises[name];
+    }
+
+    function expandModules(names, result, visiting) {
+        result = result || [];
+        visiting = visiting || {};
+        for (var i = 0; i < names.length; i++) {
+            var name = normalizeModuleName(names[i]);
+            if (!name || result.indexOf(name) > -1) {
+                continue;
+            }
+            if (!moduleDefinitions[name] && !/^(modules|indicators)\/[a-z0-9_-]+$/i.test(name)) {
+                throw new Error('Unknown Highcharts module: ' + name);
+            }
+            if (visiting[name]) {
+                throw new Error('Circular Highcharts module dependency: ' + name);
+            }
+            visiting[name] = true;
+            var definition = moduleDefinitions[name] || { dependencies: [] };
+            expandModules(definition.dependencies || [], result, visiting);
+            delete visiting[name];
+            if (result.indexOf(name) < 0) {
+                result.push(name);
+            }
+        }
+        return result;
+    }
+
+    function normalizeConstructorType(value) {
+        var name = String(value || 'chart').toLowerCase().replace(/[-_\s]/g, '');
+        if (name === 'stock' || name === 'highstock' || name === 'stockchart') { return 'stockChart'; }
+        if (name === 'map' || name === 'maps' || name === 'highmaps' || name === 'mapchart') { return 'mapChart'; }
+        if (name === 'gantt' || name === 'highchartsgantt' || name === 'ganttchart') { return 'ganttChart'; }
+        return 'chart';
+    }
+
+    function usesPatternFill(value, seen) {
+        if (!value || typeof value !== 'object') {
+            return false;
+        }
+        seen = seen || [];
+        if (seen.indexOf(value) > -1) {
+            return false;
+        }
+        seen.push(value);
+        if (!Array.isArray(value) && value.pattern && typeof value.pattern === 'object') {
+            return true;
+        }
+        var keys = Array.isArray(value) ? value.map(function (_, index) { return index; }) : Object.keys(value);
+        for (var i = 0; i < keys.length; i++) {
+            if (usesPatternFill(value[keys[i]], seen)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function requiredModules(config, option, extraModules) {
+        var modules = (config.modules || []).concat(extraModules || []).map(normalizeModuleName);
+        var constructorType = normalizeConstructorType(config.constructorType).toLowerCase();
+        if (constructorType === 'stockchart') { modules.push('stock'); }
+        if (constructorType === 'mapchart') { modules.push('map'); }
+        if (constructorType === 'ganttchart') { modules.push('gantt'); }
+        if (option && option.chart && option.chart.styledMode) { modules.push('styled-mode'); }
+        if (option && option.chart && option.chart.options3d && option.chart.options3d.enabled) { modules.push('3d'); }
+        if (option && option.chart && option.chart.polar) { modules.push('more'); }
+        if (option && option.chart && option.chart.parallelCoordinates) { modules.push('parallel-coordinates'); }
+        if (option && option.chart && option.chart.zooming && option.chart.zooming.mouseWheel) { modules.push('mouse-wheel-zoom'); }
+        if (option && option.data) { modules.push('data'); }
+        if (option && option.accessibility) { modules.push('accessibility'); }
+        if (option && option.annotations) { modules.push('annotations'); }
+        if (option && option.boost) { modules.push('boost'); }
+        if (option && option.colorAxis) { modules.push('coloraxis'); }
+        if (option && option.drilldown) { modules.push('drilldown'); }
+        if (option && option.exporting) { modules.push('exporting'); }
+        if (option && option.noData) { modules.push('no-data-to-display'); }
+        if (option && (option.mapNavigation || option.mapView)) { modules.push('map'); }
+        if (option && option.sonification) { modules.push('sonification'); }
+        if (option && option.stockTools) { modules.push('stock-tools'); }
+        if (usesPatternFill(option)) { modules.push('pattern-fill'); }
+        if (option && option.navigator && constructorType !== 'stockchart' && constructorType !== 'ganttchart') { modules.push('navigator'); }
+        var series = [];
+        function appendSeries(value) {
+            if (Array.isArray(value)) { series = series.concat(value); }
+            else if (value) { series.push(value); }
+        }
+        appendSeries(option && option.series);
+        appendSeries(option && option.drilldown && option.drilldown.series);
+        appendSeries(option && option.navigator && option.navigator.series);
+        var chartSeriesType = String(option && option.chart && option.chart.type || '').toLowerCase();
+        if (typeModules[chartSeriesType]) { modules.push(typeModules[chartSeriesType]); }
+        for (var i = 0; i < series.length; i++) {
+            var type = String(series[i].type || (option.chart && option.chart.type) || '').toLowerCase();
+            if (typeModules[type]) {
+                modules.push(typeModules[type]);
+            }
+            if (series[i].onPoint) { modules.push('series-on-point'); }
+            if (series[i].dataLabels && series[i].dataLabels.textPath) { modules.push('textpath'); }
+            if (series[i].boostThreshold !== undefined) { modules.push('boost'); }
+            if (series[i].cluster) { modules.push('marker-clusters'); }
+            if (series[i].dragDrop) { modules.push('draggable-points'); }
+            if (series[i].label) { modules.push('series-label'); }
+            if (series[i].lastPrice || series[i].lastVisiblePrice) { modules.push('price-indicator'); }
+        }
+        var plotOptions = option && option.plotOptions;
+        if (plotOptions) {
+            Object.keys(plotOptions).forEach(function (type) {
+                if (typeModules[type.toLowerCase()]) { modules.push(typeModules[type.toLowerCase()]); }
+                var plotOption = plotOptions[type] || {};
+                if (plotOption.boostThreshold !== undefined) { modules.push('boost'); }
+                if (plotOption.cluster) { modules.push('marker-clusters'); }
+                if (plotOption.dragDrop) { modules.push('draggable-points'); }
+                if (plotOption.label) { modules.push('series-label'); }
+            });
+        }
+        ['xAxis', 'yAxis'].forEach(function (axisName) {
+            var axes = option && option[axisName];
+            axes = Array.isArray(axes) ? axes : (axes ? [axes] : []);
+            axes.forEach(function (axis) {
+                if (axis.breaks) { modules.push('broken-axis'); }
+                if (axis.currentDateIndicator) { modules.push('current-date-indicator'); }
+                if (axis.staticScale) { modules.push('static-scale'); }
+                if (axis.grid && axis.grid.enabled !== false) { modules.push('grid-axis'); }
+            });
+        });
+        modules = modules.map(normalizeModuleName).filter(function (name, index, values) { return name && values.indexOf(name) === index; });
+        var expanded = expandModules(modules);
+        ['boost-canvas', 'boost'].forEach(function (name) {
+            var index = expanded.indexOf(name);
+            if (index > -1) {
+                expanded.splice(index, 1);
+                expanded.push(name);
+            }
+        });
+        return expanded;
+    }
+
+    function ensureModules(control, option, extraModules) {
+        var names;
+        try {
+            names = requiredModules(control.config, option || {}, extraModules);
+        }
+        catch (error) {
+            return Promise.reject(error);
+        }
+        var promise = Promise.resolve();
+        names.forEach(function (name) {
+            promise = promise.then(function () { return loadScript(name); });
+        });
+        return promise.then(function () {
+            refreshChartModuleDefaults(control);
+        });
+    }
+
+    function refreshChartModuleDefaults(control) {
+        if (control && control.chart && Highcharts.getOptions) {
+            control.chart.options = Highcharts.merge({}, Highcharts.getOptions(), control.chart.options || {});
+            if ($chart.loadedModules['stock-tools']) {
+                control.chart.options.navigation = control.chart.options.navigation || {};
+                control.chart.options.navigation.iconsURL = control.chart.options.navigation.iconsURL || moduleUrl('gfx/stock-icons/');
+            }
+        }
+    }
+
+    function resolveRow(control, point, event) {
+        var resolver = control.selectionResolver || common.resolveFunction(control.config.selectionResolver);
+        if (resolver) {
+            var resolved = resolver(point, event, control.rawValue, control.chart, control);
+            if (resolved === null || resolved === undefined) {
+                return null;
+            }
+            if (typeof resolved === 'number') {
+                return { rowIndex: resolved, row: control.rawValue[resolved] || null };
+            }
+            if (resolved.row !== undefined || resolved.rowIndex !== undefined) {
+                var resolvedIndex = resolved.rowIndex !== undefined ? resolved.rowIndex : control.rawValue.indexOf(resolved.row);
+                return { rowIndex: resolvedIndex, row: resolved.row !== undefined ? resolved.row : control.rawValue[resolvedIndex] };
+            }
+        }
+        var custom = point.options && point.options.custom;
+        var rowIndex = custom && typeof custom.handstackRowIndex === 'number' ? custom.handstackRowIndex : point.index;
+        if (control.rowIndexMap && control.rowIndexMap[point.series.index] && control.rowIndexMap[point.series.index][point.index] !== undefined) {
+            rowIndex = control.rowIndexMap[point.series.index][point.index];
+        }
+        if (control.config.selectionKey && point.options && typeof point.options === 'object') {
+            var selectedKey = point.options[control.config.selectionKey];
+            for (var i = 0; i < control.rawValue.length; i++) {
+                if (control.rawValue[i] && control.rawValue[i][control.config.selectionKey] === selectedKey) {
+                    rowIndex = i;
+                    break;
+                }
+            }
+        }
+        return { rowIndex: rowIndex, row: control.rawValue[rowIndex] || null };
+    }
+
+    function pointYData(point) {
+        var map = point.series && point.series.pointArrayMap;
+        if (Array.isArray(map) && map.length > 1) {
+            var value = {};
+            for (var i = 0; i < map.length; i++) {
+                value[map[i]] = point[map[i]];
+            }
+            return value;
+        }
+        if (point.y !== undefined) { return point.y; }
+        if (point.value !== undefined) { return point.value; }
+        if (point.weight !== undefined) { return point.weight; }
+        return point.options;
+    }
+
+    function makeSelection(control, point, event) {
+        var resolved = resolveRow(control, point, event);
+        if (!resolved) {
+            return null;
+        }
+        return {
+            series: {
+                index: point.series.index,
+                id: point.series.options.id,
+                name: point.series.name,
+                type: point.series.type
+            },
+            point: {
+                dataIndex: point.index,
+                dataIndexInside: point.index,
+                dataType: point.isNode ? 'node' : (point.from !== undefined && point.to !== undefined ? 'edge' : 'main'),
+                name: point.name || point.category,
+                value: pointYData(point),
+                data: common.clone(point.options),
+                color: point.color || point.series.color
+            },
+            yData: pointYData(point),
+            rowIndex: resolved.rowIndex,
+            row: resolved.row
+        };
+    }
+
+    function pointClick(control, point, event) {
+        if (control.config.selectionMode === 'native') {
+            return;
+        }
+        var selection = makeSelection(control, point, event);
+        var result = common.applySelection(control, selection);
+        if (result.changed) {
+            common.emit(control, 'selectionChange', event);
+        }
+    }
+
+    function dispatchPointClick(control, point, event) {
+        if (!control || !point || (event && event.handstackHandled)) { return; }
+        if (event) { event.handstackHandled = true; }
+        pointClick(control, point, event);
+        common.emit(control, 'pointClick', event);
+        common.emit(control, 'click', event);
+    }
+
+    function ensurePointClickBridge() {
+        if ($chart.pointClickBridge || !Highcharts.Point) { return; }
+        Highcharts.addEvent(Highcharts.Point, 'click', function (event) {
+            var point = this;
+            var control = $chart.chartControls.find(function (item) {
+                return point.series && item.chart === point.series.chart;
+            });
+            dispatchPointClick(control, point, event);
+        }, { order: -100 });
+        $chart.pointClickBridge = true;
+    }
+
+    function wrapEvent(original, handler) {
+        return function () {
+            var result;
+            if (original) {
+                result = original.apply(this, arguments);
+            }
+            handler.apply(this, arguments);
+            return result;
+        };
+    }
+
+    var settingKeys = {
+        width: true, height: true, constructorType: true, modules: true, option: true, callback: true,
+        dataMode: true, dataAdapter: true, selectionResolver: true, selectionMode: true, selectionKey: true,
+        clearSelectionOnBlank: true, autoResize: true, dataType: true, belongID: true, getter: true, setter: true,
+        controlText: true, validators: true, transactConfig: true, triggerConfig: true
+    };
+
+    function mergeNativeOption(setting, supplied) {
+        var option = common.merge({}, setting.option || {});
+        Object.keys(supplied || {}).forEach(function (key) {
+            if (!settingKeys[key]) {
+                option[key] = common.clone(supplied[key]);
+            }
+        });
+        return option;
+    }
+
+    function wrapMappedEvents(control, events, eventMap) {
+        events = events || {};
+        Object.keys(eventMap).forEach(function (sourceName) {
+            events[sourceName] = wrapEvent(events[sourceName], function (event) {
+                common.emit(control, eventMap[sourceName], event);
+            });
+        });
+        return events;
+    }
+
+    function wireSeriesEvents(control, seriesOption) {
+        if (!seriesOption) { return; }
+        seriesOption.events = wrapMappedEvents(control, seriesOption.events, {
+            afterAnimate: 'seriesAfterAnimate', checkboxClick: 'seriesCheckboxClick', click: 'seriesClick',
+            hide: 'seriesHide', legendItemClick: 'seriesLegendItemClick', mouseOut: 'seriesMouseOut',
+            mouseOver: 'seriesMouseOver', show: 'seriesShow'
+        });
+        seriesOption.point = seriesOption.point || {};
+        seriesOption.point.events = seriesOption.point.events || {};
+        var pointEvents = seriesOption.point.events;
+        pointEvents.click = wrapEvent(pointEvents.click, function (event) {
+            dispatchPointClick(control, this, event);
+        });
+        pointEvents.mouseOver = wrapEvent(pointEvents.mouseOver, function (event) { common.emit(control, 'pointHover', event); });
+        pointEvents.mouseOut = wrapEvent(pointEvents.mouseOut, function (event) { common.emit(control, 'pointMouseOut', event); });
+        pointEvents.drag = wrapEvent(pointEvents.drag, function (event) { common.emit(control, 'pointDrag', event); });
+        pointEvents.drop = wrapEvent(pointEvents.drop, function (event) { common.emit(control, 'pointDrop', event); });
+        pointEvents.remove = wrapEvent(pointEvents.remove, function (event) { common.emit(control, 'pointRemove', event); });
+        pointEvents.update = wrapEvent(pointEvents.update, function (event) { common.emit(control, 'pointUpdate', event); });
+        pointEvents.select = wrapEvent(pointEvents.select, function (event) {
+            if (control.config.selectionMode === 'native') {
+                var selection = makeSelection(control, this, event);
+                if (selection && !control.selections.some(function (item) { return common.selectionKey(item) === common.selectionKey(selection); })) {
+                    control.selections.push(selection);
+                    common.emit(control, 'selectionChange', event);
+                }
+            }
+            common.emit(control, 'pointSelect', event);
+        });
+        pointEvents.unselect = wrapEvent(pointEvents.unselect, function (event) {
+            if (control.config.selectionMode === 'native') {
+                var selection = makeSelection(control, this, event);
+                if (selection) {
+                    var key = common.selectionKey(selection);
+                    control.selections = control.selections.filter(function (item) { return common.selectionKey(item) !== key; });
+                    common.emit(control, 'selectionChange', event);
+                }
+            }
+            common.emit(control, 'pointUnselect', event);
+        });
+    }
+
+    function wireAxisEvents(control, axisOptions) {
+        var values = Array.isArray(axisOptions) ? axisOptions : (axisOptions ? [axisOptions] : []);
+        values.forEach(function (axisOption) {
+            axisOption.events = wrapMappedEvents(control, axisOption.events, {
+                afterSetExtremes: 'axisAfterSetExtremes', pointBreak: 'axisPointBreak',
+                pointInBreak: 'axisPointInBreak', setExtremes: 'axisSetExtremes'
+            });
+        });
+    }
+
+    function prepareOption(control, option) {
+        option = common.merge({}, option || {});
+        option.chart = option.chart || {};
+        option.chart.events = option.chart.events || {};
+        if ($chart.loadedModules['stock-tools'] && option.stockTools === undefined) {
+            option.stockTools = { gui: { enabled: false } };
+        }
+        if ($chart.loadedModules['stock-tools'] || option.stockTools) {
+            option.navigation = option.navigation || {};
+            option.navigation.iconsURL = option.navigation.iconsURL || moduleUrl('gfx/stock-icons/');
+        }
+        option.plotOptions = option.plotOptions || {};
+        option.plotOptions.series = option.plotOptions.series || {};
+        option.chart.events.click = wrapEvent(option.chart.events.click, function (event) {
+            if (control.config.clearSelectionOnBlank && control.config.selectionMode !== 'none') {
+                $chart.clearSelection(control.id);
+            }
+            common.emit(control, 'click', event);
+        });
+        option.chart.events.redraw = wrapEvent(option.chart.events.redraw, function (event) { common.emit(control, 'redraw', event); });
+        option.chart.events.render = wrapEvent(option.chart.events.render, function (event) { common.emit(control, 'render', event); });
+        option.chart.events.selection = wrapEvent(option.chart.events.selection, function (event) { common.emit(control, 'zoom', event); });
+        option.chart.events = wrapMappedEvents(control, option.chart.events, {
+            addSeries: 'addSeries', afterPrint: 'afterPrint', beforePrint: 'beforePrint',
+            drilldown: 'drilldown', drillup: 'drillup', drillupall: 'drillupall',
+            exportData: 'exportData', fullscreenClose: 'fullscreenClose', fullscreenOpen: 'fullscreenOpen',
+            load: 'load'
+        });
+        Object.keys(option.plotOptions).forEach(function (type) {
+            wireSeriesEvents(control, option.plotOptions[type]);
+        });
+        [option.series, option.drilldown && option.drilldown.series, option.navigator && option.navigator.series].forEach(function (items) {
+            items = Array.isArray(items) ? items : (items ? [items] : []);
+            items.forEach(function (item) { wireSeriesEvents(control, item); });
+        });
+        wireAxisEvents(control, option.xAxis);
+        wireAxisEvents(control, option.yAxis);
+        wireAxisEvents(control, option.zAxis);
+        wireAxisEvents(control, option.colorAxis);
+        return option;
+    }
+
+    function constructor(control) {
+        var name = normalizeConstructorType(control.config.constructorType);
+        control.config.constructorType = name;
+        var factory = Highcharts[name] || Highcharts.chart;
+        var callback = common.resolveFunction(control.config.callback);
+        return factory(control.element, prepareOption(control, control.config.option), callback || undefined);
+    }
+
+    function initialize(control) {
+        ensurePointClickBridge();
+        return ensureModules(control, control.config.option).then(function () {
+            control.chart = constructor(control);
+            common.emit(control, 'initialized', { chart: control.chart });
+            return control.chart;
+        });
+    }
+
+    function recreate(control, constructorType, option, modules) {
+        constructorType = normalizeConstructorType(constructorType || control.config.constructorType);
+        option = common.clone(option || control.config.option || {});
+        if (modules) { control.config.modules = common.clone(modules); }
+        control.config.constructorType = constructorType;
+        control.config.option = option;
+        if (control.chart) {
+            control.chart.destroy();
+            control.chart = null;
+        }
+        return ensureModules(control, option).then(function () {
+            control.chart = constructor(control);
+            control.selections = [];
+            common.emit(control, 'recreated', { chart: control.chart, constructorType: constructorType, option: option });
+            return control.chart;
+        });
+    }
+
+    function renderDescriptor(control, descriptor) {
+        descriptor = descriptor || {};
+        var option = common.clone(descriptor.option || {});
+        if (!descriptor.option) {
+            var descriptorKeys = {
+                constructorType: true, modules: true, rows: true, metaColumns: true,
+                rowIndexMap: true, selectionResolver: true, callback: true
+            };
+            Object.keys(descriptor).forEach(function (key) {
+                if (!descriptorKeys[key]) { option[key] = common.clone(descriptor[key]); }
+            });
+        }
+        var rows = descriptor.rows === undefined ? [] : common.normalizeRows(descriptor.rows);
+        if (rows.valid === false) {
+            return Promise.reject(new Error(rows.error));
+        }
+        if (descriptor.callback !== undefined) { control.config.callback = descriptor.callback; }
+        if (descriptor.selectionResolver !== undefined) {
+            control.selectionResolver = common.resolveFunction(descriptor.selectionResolver) || descriptor.selectionResolver;
+        }
+        control.rowIndexMap = descriptor.rowIndexMap || null;
+        control.rawValue = descriptor.rows === undefined ? [] : rows.rows;
+        control.metaColumns = descriptor.metaColumns || null;
+        return recreate(control, descriptor.constructorType, option, descriptor.modules).then(function (chart) {
+            common.emit(control, 'dataBound', { rows: common.clone(control.rawValue), option: option, descriptor: true });
+            return chart;
+        });
+    }
+
+    function resolveChartTarget(chart, target) {
+        if (!chart || !target || target === 'chart') { return chart; }
+        if (typeof target === 'string') { return chart.get(target); }
+        if (target.target) { return target.target; }
+        var type = String(target.type || '').toLowerCase();
+        var index = target.index || 0;
+        if (target.id !== undefined) { return chart.get(target.id); }
+        if (type === 'series') { return chart.series[index]; }
+        if (type === 'point') {
+            var series = chart.series[target.seriesIndex || 0];
+            return series && series.points[index];
+        }
+        if (type === 'xaxis' || type === 'yaxis' || type === 'zaxis' || type === 'coloraxis') {
+            var key = type === 'xaxis' ? 'xAxis' : (type === 'yaxis' ? 'yAxis' : (type === 'zaxis' ? 'zAxis' : 'colorAxis'));
+            return chart[key] && chart[key][index];
+        }
+        if (type === 'mapview') { return chart.mapView; }
+        if (type === 'fullscreen') { return chart.fullscreen; }
+        if (type === 'exporting') { return chart.exporting; }
+        return null;
+    }
+
+    function invokeChartTarget(elID, target, method, args) {
+        var chart = $chart.getChartControl(elID);
+        var instance = resolveChartTarget(chart, target);
+        if (!instance || !method || typeof instance[method] !== 'function') {
+            throw new Error('Highcharts target method is not available: ' + method);
+        }
+        return instance[method].apply(instance, args || []);
+    }
+
+    function inferredOption(control, rows, metaColumns) {
+        var table = common.inferTable(rows, metaColumns);
+        var type = control.config.option && control.config.option.chart ? control.config.option.chart.type : null;
+        var series = table.series.map(function (item) {
+            return {
+                name: item.name,
+                type: type || undefined,
+                data: rows.map(function (row, rowIndex) {
+                    return {
+                        name: row[table.labelField],
+                        y: row[item.field] === '' || row[item.field] === null ? null : Number(row[item.field]),
+                        custom: { handstackRowIndex: rowIndex }
+                    };
+                })
+            };
+        });
+        return { xAxis: { categories: table.labels }, series: series };
+    }
+
+    function isLegacySeries(rows, config) {
+        return config.dataMode !== 'rows' && rows.length > 0 && rows.every(function (item) {
+            return Array.isArray(item.data) && (item.name !== undefined || item.type !== undefined);
+        });
+    }
+
+    function applyOption(control, option) {
+        return ensureModules(control, option).then(function () {
+            refreshChartModuleDefaults(control);
+            var prepared = prepareOption(control, option);
+            control.chart.update(prepared, true, true);
+            return prepared;
+        });
+    }
+
     $chart.extend({
         name: 'syn.uicontrols.$chart',
-        version: 'v2026.7.23',
+        version: 'v2026.7.27',
         chartControls: [],
-        randomSeed: Date.now(),
+        loadedModules: {},
+        modulePromises: {},
+        loadedStyles: {},
+        stylePromises: {},
+        moduleDefinitions: moduleDefinitions,
+        pointClickBridge: false,
+        registerModule: function (name, path, dependencies, styles) {
+            if (!name || !path || !/^[a-z0-9_./-]+$/i.test(path) || path.indexOf('..') > -1) {
+                throw new Error('A safe Highcharts module name and local path are required.');
+            }
+            moduleDefinitions[normalizeModuleName(name)] = { path: path, dependencies: dependencies || [], styles: styles || [] };
+        },
         defaultSetting: {
-            chart: {
-                type: 'column'
+            width: '100%',
+            height: '320px',
+            constructorType: 'chart',
+            modules: [],
+            callback: null,
+            option: {
+                chart: { type: 'column' },
+                title: { text: '' },
+                xAxis: { categories: [] },
+                yAxis: { title: { text: 'Values' } },
+                series: []
             },
-            title: {
-                text: ''
-            },
-            xAxis: {
-                categories: ['A', 'B', 'C']
-            },
-            yAxis: {
-                title: {
-                    text: 'Values'
-                }
-            },
-            series: [{
-                name: 'Series 1',
-                data: [1, 0, 4]
-            }, {
-                name: 'Series 2',
-                data: [5, 7, 3]
-            }],
+            dataMode: 'auto',
+            dataAdapter: null,
+            selectionResolver: null,
+            selectionMode: 'single',
+            selectionKey: null,
+            clearSelectionOnBlank: true,
+            autoResize: true,
             dataType: 'string',
             belongID: null,
+            getter: false,
+            setter: false,
             controlText: null,
             validators: null,
             transactConfig: null,
             triggerConfig: null
         },
 
-        addModuleList(el, moduleList, setting, controlType) {
-            var elementID = el.getAttribute('id');
-            var dataField = el.getAttribute('syn-datafield');
-            var formDataField = el.closest('form') ? el.closest('form').getAttribute('syn-datafield') : '';
-
+        addModuleList: function (el, moduleList, setting, controlType) {
+            var form = el.closest('form');
             moduleList.push({
-                id: elementID,
-                formDataFieldID: formDataField,
-                field: dataField,
+                id: el.getAttribute('id'),
+                formDataFieldID: form ? form.getAttribute('syn-datafield') : '',
+                field: el.getAttribute('syn-datafield'),
                 module: this.name,
                 type: controlType
             });
@@ -442,149 +1456,6468 @@
 
         controlLoad: function (elID, setting) {
             var el = syn.$l.get(elID);
-
-            setting = syn.$w.argumentsExtend($chart.defaultSetting, setting);
-
-            var mod = window[syn.$w.pageScript];
-            if (mod && mod.hook.controlInit) {
-                var moduleSettings = mod.hook.controlInit(elID, setting);
-                setting = syn.$w.argumentsExtend(setting, moduleSettings);
+            if (!el || !window.Highcharts) {
+                common.log('$chart.controlLoad', 'Highcharts is not loaded.', 'Error');
+                return;
             }
+            var supplied = setting || {};
+            setting = common.merge({}, $chart.defaultSetting, supplied);
+            var mod = window[syn.$w.pageScript];
+            if (mod && mod.hook && mod.hook.controlInit) {
+                setting = common.merge(setting, mod.hook.controlInit(elID, setting));
+            }
+            setting.option = mergeNativeOption(setting, setting);
+            setting.width = el.style.width || setting.width;
+            setting.height = el.style.height || setting.height;
 
-            setting.width = el.style.width || 320;
-            setting.height = el.style.height || 240;
-
-            el.setAttribute('id', el.id + '_hidden');
+            el.setAttribute('id', elID + '_hidden');
             el.setAttribute('syn-options', JSON.stringify(setting));
             el.style.display = 'none';
+            var element = document.createElement('div');
+            element.id = elID;
+            element.className = 'syn-chart';
+            element.style.width = setting.width;
+            element.style.height = setting.height;
+            el.parentNode.insertBefore(element, el.nextSibling);
 
-            var parent = el.parentNode;
-            var wrapper = document.createElement('div');
-            wrapper.style.width = setting.width
-            wrapper.style.height = setting.height
-            wrapper.id = elID;
-
-            parent.appendChild(wrapper);
-
-            syn.$l.addEvent(syn.$l.get(elID), 'click', function (evt) {
-                var el = evt.target || evt.srcElement;
-                // var control = $chart.getChartControl(el.id);
-                // if (control) {
-                //     var chart = control.chart;
-                //     // chart.getElementAtEvent(evt);
-                //     // chart.getDatasetAtEvent(evt);
-                //     var activePoints = chart.getElementsAtEventForMode(evt, 'point', control.config);
-                //     if (activePoints.length > 0) {
-                //         var firstPoint = activePoints[0];
-                //         var label = chart.data.labels[firstPoint._index];
-                //         var value = chart.data.datasets[firstPoint._datasetIndex].data[firstPoint._index];
-                //         console.log(label + ": " + value);
-                //     }
-                // }
-            });
-
-            $chart.chartControls.push({
+            var control = {
                 id: elID,
-                chart: Highcharts.chart(elID, setting),
-                setting: $object.clone(setting)
-            });
-
-            if (setting.bindingID && syn.uicontrols.$data) {
-                // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
-            }
-        },
-
-        getValue: function (elID, meta) {
-            var result = null;
-            var chart = $chart.getChartControl(elID);
-            if (chart) {
-                result = [];
-                var length = chart.series.length;
-                for (var i = 0; i < length; i++) {
-                    var serie = chart.series[i];
-                    result.push({
-                        name: serie.name,
-                        data: serie.yData
+                element: element,
+                chart: null,
+                config: setting,
+                rawValue: [],
+                metaColumns: null,
+                selections: [],
+                rowIndexMap: null,
+                selectionResolver: common.resolveFunction(setting.selectionResolver),
+                eventNames: common.parseEvents(el),
+                resizeObserver: null
+            };
+            $chart.chartControls.push(control);
+            syn.$w.addReadyCount();
+            initialize(control).then(function () {
+                if (setting.autoResize && window.ResizeObserver) {
+                    control.resizeObserver = new ResizeObserver(function () {
+                        if (control.chart) {
+                            control.chart.reflow();
+                            common.emit(control, 'resized', { source: 'ResizeObserver' });
+                        }
                     });
+                    control.resizeObserver.observe(element);
                 }
-            }
-            return result;
+            }).catch(function (error) {
+                common.log('$chart.controlLoad', error, 'Error');
+                common.emit(control, 'error', error);
+            }).finally(function () {
+                syn.$w.removeReadyCount();
+            });
         },
 
-        setValue: function (elID, value, meta) {
-            var chart = $chart.getChartControl(elID);
-            if (chart) {
-                var seriesLength = chart.series.length;
-                for (var i = seriesLength - 1; i > -1; i--) {
-                    chart.series[i].remove();
-                }
-
-                var length = value.length;
-                for (var i = 0; i < length; i++) {
-                    var item = value[i];
-                    chart.addSeries(item);
-                }
-            }
-        },
-
-        randomScalingFactor: function (min, max) {
-            min = min === undefined ? 0 : min;
-            max = max === undefined ? 100 : max;
-            return Math.round($chart.rand(min, max));
-        },
-
-        rand: function (min, max) {
-            var seed = $chart.randomSeed;
-            min = min === undefined ? 0 : min;
-            max = max === undefined ? 1 : max;
-            $chart.randomSeed = (seed * 9301 + 49297) % 233280;
-            return min + ($chart.randomSeed / 233280) * (max - min);
-        },
-
-        toImage: function (elID, fileID) {
-            var control = $chart.getChartControl(elID);
-            if (control) {
-                var fileName = '{0}.png'.format(fileID || elID);
-                var base64Image = control.chart.toBase64Image();
-
-                if (download) {
-                    download(base64Image, fileName, 'image/png');
-                }
-                else {
-                    var a = document.createElement('a');
-                    a.href = base64Image
-                    a.download = fileName;
-                    a.click();
-                }
-            }
+        getControl: function (elID) {
+            return $chart.chartControls.find(function (control) { return control.id === elID; }) || null;
         },
 
         getChartControl: function (elID) {
-            var result = null;
+            var control = $chart.getControl(elID);
+            return control ? control.chart : null;
+        },
 
-            var length = $chart.chartControls.length;
-            for (var i = 0; i < length; i++) {
-                var item = $chart.chartControls[i];
-                if (item.id == elID) {
-                    result = item.chart;
+        getChartInstance: function (elID) { return $chart.getChartControl(elID); },
+
+        setValue: function (elID, value, metaColumns) {
+            var control = $chart.getControl(elID);
+            if (!control || !control.chart) { return Promise.resolve(null); }
+            var normalized = common.normalizeRows(value);
+            if (!normalized.valid) {
+                common.log('$chart.setValue', normalized.error, 'Warning');
+                return Promise.resolve(null);
+            }
+            var rows = normalized.rows;
+            var adapter = common.resolveFunction(control.config.dataAdapter);
+            var operation;
+            if (adapter) {
+                operation = Promise.resolve(adapter(rows, metaColumns, control.chart.options, control)).then(function (adapted) {
+                    var envelope = adapted && adapted.option ? adapted : { option: adapted || {} };
+                    control.rowIndexMap = envelope.rowIndexMap || null;
+                    control.selectionResolver = common.resolveFunction(envelope.selectionResolver) || envelope.selectionResolver || control.selectionResolver;
+                    return envelope.option;
+                });
+            }
+            else if (isLegacySeries(rows, control.config)) {
+                operation = Promise.resolve({ series: rows });
+            }
+            else {
+                operation = Promise.resolve(inferredOption(control, rows, metaColumns));
+            }
+            return operation.then(function (option) {
+                return applyOption(control, option).then(function () {
+                    control.rawValue = rows;
+                    control.metaColumns = metaColumns || null;
+                    control.selections = [];
+                    common.emit(control, 'dataBound', { rows: common.clone(rows), option: option });
+                    return control.chart;
+                });
+            }).catch(function (error) {
+                common.log('$chart.setValue', error, 'Error');
+                common.emit(control, 'error', error);
+                return null;
+            });
+        },
+
+        setSeries: function (elID, series) {
+            var control = $chart.getControl(elID);
+            return control ? applyOption(control, { series: common.clone(series || []) }) : Promise.resolve(null);
+        },
+
+        renderChart: function (elID, descriptor) {
+            var control = $chart.getControl(elID);
+            return control ? renderDescriptor(control, descriptor) : Promise.reject(new Error('Chart not found: ' + elID));
+        },
+
+        recreate: function (elID, constructorType, option, modules) {
+            var control = $chart.getControl(elID);
+            return control ? recreate(control, constructorType, option, modules) : Promise.reject(new Error('Chart not found: ' + elID));
+        },
+
+        setConstructorType: function (elID, constructorType) {
+            var control = $chart.getControl(elID);
+            return control ? recreate(control, constructorType, control.config.option, control.config.modules) : Promise.reject(new Error('Chart not found: ' + elID));
+        },
+
+        getValue: function (elID, requestType, metaColumns) { return common.getValue($chart.getControl(elID), requestType, metaColumns); },
+        getRawValue: function (elID) { var control = $chart.getControl(elID); return control ? common.clone(control.rawValue) : []; },
+        getSelection: function (elID) { var control = $chart.getControl(elID); return control ? common.clone(control.selections) : []; },
+        getSelectedRows: function (elID) { var control = $chart.getControl(elID); return control ? common.selectedRows(control) : []; },
+        getSeriesValue: function (elID) {
+            var chart = $chart.getChartControl(elID);
+            return chart ? chart.series.filter(function (series) { return !series.options.isInternal; }).map(function (series) {
+                return { name: series.name, data: common.clone(series.yData) };
+            }) : null;
+        },
+        getOption: function (elID) { var control = $chart.getControl(elID); return control ? common.clone(control.config.option) : null; },
+        getHighcharts: function () { return window.Highcharts; },
+        get: function (elID, id) { var chart = $chart.getChartControl(elID); return chart ? chart.get(id) : null; },
+        invoke: function (elID, target, method, args) { return invokeChartTarget(elID, target, method, args); },
+
+        setSelection: function (elID, selections) {
+            var control = $chart.getControl(elID);
+            if (!control || !control.chart || control.config.selectionMode === 'none') { return; }
+            $chart.clearSelection(elID, true);
+            var values = Array.isArray(selections) ? selections : [selections];
+            for (var i = 0; i < values.length; i++) {
+                var value = values[i];
+                if (value === null || value === undefined) { continue; }
+                var point = typeof value === 'number' ? control.chart.series[0] && control.chart.series[0].points[value] : null;
+                if (!point && value && value.seriesIndex !== undefined && value.dataIndex !== undefined) {
+                    point = control.chart.series[value.seriesIndex] && control.chart.series[value.seriesIndex].points[value.dataIndex];
+                }
+                var selection = value && value.point && value.row !== undefined ? value : (point ? makeSelection(control, point, { source: 'setSelection' }) : null);
+                if (selection) {
+                    control.selections.push(selection);
+                    if (control.config.selectionMode === 'single') { break; }
+                }
+            }
+            common.emit(control, 'selectionChange', { source: 'setSelection' });
+        },
+
+        clearSelection: function (elID, silent) {
+            var control = $chart.getControl(elID);
+            if (!control) { return; }
+            control.selections = [];
+            if (!silent) { common.emit(control, 'selectionChange', { source: 'clearSelection' }); }
+        },
+
+        update: function (elID, option, redraw, oneToOne) {
+            var control = $chart.getControl(elID);
+            if (!control) { return Promise.resolve(null); }
+            return ensureModules(control, option).then(function () {
+                refreshChartModuleDefaults(control);
+                control.chart.update(prepareOption(control, option), redraw !== false, oneToOne !== false);
+                control.config.option = common.merge({}, control.config.option || {}, option || {});
+                return control.chart;
+            });
+        },
+        setOption: function (elID, option, redraw, oneToOne) { return $chart.update(elID, option, redraw, oneToOne); },
+        setOptions: function (options) { return Highcharts.setOptions(options); },
+        redraw: function (elID, animation) { var chart = $chart.getChartControl(elID); if (chart) { chart.redraw(animation); } },
+        reflow: function (elID) { var chart = $chart.getChartControl(elID); if (chart) { chart.reflow(); } },
+        setTitle: function (elID, title, subtitle, redraw) { var chart = $chart.getChartControl(elID); if (chart) { chart.setTitle(title, subtitle, redraw !== false); } },
+        setCaption: function (elID, caption, redraw) { var chart = $chart.getChartControl(elID); if (chart && chart.setCaption) { chart.setCaption(caption, redraw !== false); } },
+        addSeries: function (elID, options, redraw) {
+            var control = $chart.getControl(elID);
+            if (!control) { return Promise.resolve(null); }
+            return ensureModules(control, { series: [options] }).then(function () {
+                refreshChartModuleDefaults(control);
+                return control.chart.addSeries(options, redraw !== false);
+            });
+        },
+        removeSeries: function (elID, seriesIndex, redraw) { var chart = $chart.getChartControl(elID); if (chart && chart.series[seriesIndex]) { chart.series[seriesIndex].remove(redraw !== false); } },
+        updateSeries: function (elID, seriesIndex, options, redraw) {
+            var control = $chart.getControl(elID);
+            if (!control || !control.chart.series[seriesIndex]) { return Promise.resolve(null); }
+            return ensureModules(control, { series: [options] }).then(function () {
+                refreshChartModuleDefaults(control);
+                control.chart.series[seriesIndex].update(options, redraw !== false);
+                return control.chart.series[seriesIndex];
+            });
+        },
+        setData: function (elID, seriesIndex, data, redraw, animation, updatePoints) {
+            var chart = $chart.getChartControl(elID);
+            if (chart && chart.series[seriesIndex]) { chart.series[seriesIndex].setData(data || [], redraw !== false, animation, updatePoints !== false); }
+        },
+        setSeriesVisible: function (elID, seriesIndex, visible, redraw) { var chart = $chart.getChartControl(elID); if (chart && chart.series[seriesIndex]) { chart.series[seriesIndex].setVisible(visible, redraw !== false); } },
+        selectSeries: function (elID, seriesIndex, selected) { var chart = $chart.getChartControl(elID); if (chart && chart.series[seriesIndex]) { chart.series[seriesIndex].select(selected); } },
+        addPoint: function (elID, seriesIndex, point, redraw, shift) { var chart = $chart.getChartControl(elID); if (chart && chart.series[seriesIndex]) { chart.series[seriesIndex].addPoint(point, redraw !== false, !!shift); } },
+        updatePoint: function (elID, seriesIndex, pointIndex, options, redraw, animation) { var chart = $chart.getChartControl(elID); var point = chart && chart.series[seriesIndex] && chart.series[seriesIndex].points[pointIndex]; if (point) { point.update(options, redraw !== false, animation); } },
+        removePoint: function (elID, seriesIndex, pointIndex, redraw, animation) { var chart = $chart.getChartControl(elID); var series = chart && chart.series[seriesIndex]; if (series) { series.removePoint(pointIndex, redraw !== false, animation); } },
+        selectPoint: function (elID, seriesIndex, pointIndex, selected, accumulate) { var chart = $chart.getChartControl(elID); var point = chart && chart.series[seriesIndex] && chart.series[seriesIndex].points[pointIndex]; if (point) { point.select(selected, accumulate); } },
+        setExtremes: function (elID, axisType, axisIndex, min, max, redraw) { var chart = $chart.getChartControl(elID); var axes = chart && chart[axisType || 'xAxis']; if (axes && axes[axisIndex || 0]) { axes[axisIndex || 0].setExtremes(min, max, redraw !== false); } },
+        setCategories: function (elID, axisType, axisIndex, categories, redraw) { var chart = $chart.getChartControl(elID); var axes = chart && chart[axisType || 'xAxis']; if (axes && axes[axisIndex || 0]) { axes[axisIndex || 0].setCategories(categories || [], redraw !== false); } },
+        updateAxis: function (elID, axisType, axisIndex, options, redraw) { var chart = $chart.getChartControl(elID); var axes = chart && chart[axisType || 'xAxis']; if (axes && axes[axisIndex || 0]) { axes[axisIndex || 0].update(options, redraw !== false); } },
+        addPlotLine: function (elID, axisType, axisIndex, options) { var chart = $chart.getChartControl(elID); var axes = chart && chart[axisType || 'xAxis']; return axes && axes[axisIndex || 0] ? axes[axisIndex || 0].addPlotLine(options) : null; },
+        addPlotBand: function (elID, axisType, axisIndex, options) { var chart = $chart.getChartControl(elID); var axes = chart && chart[axisType || 'xAxis']; return axes && axes[axisIndex || 0] ? axes[axisIndex || 0].addPlotBand(options) : null; },
+        removePlotLine: function (elID, axisType, axisIndex, id) { var chart = $chart.getChartControl(elID); var axes = chart && chart[axisType || 'xAxis']; if (axes && axes[axisIndex || 0]) { axes[axisIndex || 0].removePlotLine(id); } },
+        removePlotBand: function (elID, axisType, axisIndex, id) { var chart = $chart.getChartControl(elID); var axes = chart && chart[axisType || 'xAxis']; if (axes && axes[axisIndex || 0]) { axes[axisIndex || 0].removePlotBand(id); } },
+        addAnnotation: function (elID, options, redraw) { var chart = $chart.getChartControl(elID); return chart && chart.addAnnotation ? chart.addAnnotation(options, redraw !== false) : null; },
+        removeAnnotation: function (elID, id) { var chart = $chart.getChartControl(elID); if (chart && chart.removeAnnotation) { chart.removeAnnotation(id); } },
+        addSeriesAsDrilldown: function (elID, point, options) { var chart = $chart.getChartControl(elID); if (chart && chart.addSeriesAsDrilldown) { chart.addSeriesAsDrilldown(point, options); } },
+        drillUp: function (elID) { var chart = $chart.getChartControl(elID); if (chart && chart.drillUp) { chart.drillUp(); } },
+        loadModules: function (elID, modules) { var control = $chart.getControl(elID); return control ? ensureModules(control, {}, modules || []) : Promise.reject(new Error('Chart not found: ' + elID)); },
+        getLoadedModules: function () { return Object.keys($chart.loadedModules).filter(function (name) { return $chart.loadedModules[name]; }); },
+        registerMap: function (name, mapData) { Highcharts.maps = Highcharts.maps || {}; Highcharts.maps[name] = mapData; },
+        getMap: function (name) { return Highcharts.maps ? Highcharts.maps[name] : null; },
+        addEvent: function (target, eventName, handler, options) { return Highcharts.addEvent(target, eventName, handler, options); },
+        removeEvent: function (target, eventName, handler) { return Highcharts.removeEvent(target, eventName, handler); },
+        registerSeriesType: function () { return Highcharts.seriesType.apply(Highcharts, arguments); },
+
+        resize: function (elID, width, height) { var control = $chart.getControl(elID); if (control && control.chart) { control.chart.setSize(width, height); common.emit(control, 'resized', { width: width, height: height }); } },
+        setControlSize: function (elID, width, height) { var control = $chart.getControl(elID); if (control) { if (width !== undefined) { control.element.style.width = typeof width === 'number' ? width + 'px' : width; } if (height !== undefined) { control.element.style.height = typeof height === 'number' ? height + 'px' : height; } control.chart.reflow(); } },
+        zoomOut: function (elID) { var chart = $chart.getChartControl(elID); if (chart && chart.zoomOut) { chart.zoomOut(); } },
+        mapZoom: function (elID) { var chart = $chart.getChartControl(elID); if (chart && chart.mapZoom) { return chart.mapZoom.apply(chart, Array.prototype.slice.call(arguments, 1)); } },
+        fitMapToBounds: function (elID, bounds, padding, redraw, animation) { var chart = $chart.getChartControl(elID); if (chart && chart.mapView) { chart.mapView.fitToBounds(bounds, padding, redraw !== false, animation); } },
+        showLoading: function (elID, text) { var chart = $chart.getChartControl(elID); if (chart) { chart.showLoading(text); } },
+        hideLoading: function (elID) { var chart = $chart.getChartControl(elID); if (chart) { chart.hideLoading(); } },
+        openFullscreen: function (elID) { var chart = $chart.getChartControl(elID); if (chart && chart.fullscreen) { chart.fullscreen.open(); } },
+        closeFullscreen: function (elID) { var chart = $chart.getChartControl(elID); if (chart && chart.fullscreen) { chart.fullscreen.close(); } },
+        toggleFullscreen: function (elID) { var chart = $chart.getChartControl(elID); if (chart && chart.fullscreen) { chart.fullscreen.toggle(); } },
+        sonify: function (elID, options) { var chart = $chart.getChartControl(elID); if (chart && chart.sonify) { return chart.sonify(options); } },
+        cancelSonify: function (elID, fadeOut) { var chart = $chart.getChartControl(elID); if (chart && chart.cancelSonify) { chart.cancelSonify(fadeOut); } },
+        clear: function (elID) { var control = $chart.getControl(elID); if (control && control.chart) { control.chart.update({ series: [] }, true, true); control.rawValue = []; control.selections = []; } },
+        dispose: function (elID) { var control = $chart.getControl(elID); if (!control) { return; } common.emit(control, 'disposed', {}); if (control.resizeObserver) { control.resizeObserver.disconnect(); } if (control.chart) { control.chart.destroy(); } var index = $chart.chartControls.indexOf(control); if (index > -1) { $chart.chartControls.splice(index, 1); } },
+
+        print: function (elID) {
+            var control = $chart.getControl(elID);
+            return control ? ensureModules(control, {}, ['exporting']).then(function () { control.chart.print(); }) : Promise.reject(new Error('Chart not found: ' + elID));
+        },
+        exportChart: function (elID, exportingOptions, chartOptions) {
+            var control = $chart.getControl(elID);
+            return control ? ensureModules(control, {}, ['exporting']).then(function () { return control.chart.exportChart(exportingOptions, chartOptions); }) : Promise.reject(new Error('Chart not found: ' + elID));
+        },
+        exportChartLocal: function (elID, exportingOptions, chartOptions) {
+            var control = $chart.getControl(elID);
+            return control ? ensureModules(control, {}, ['offline-exporting']).then(function () { return control.chart.exportChartLocal(exportingOptions, chartOptions); }) : Promise.reject(new Error('Chart not found: ' + elID));
+        },
+        getCSV: function (elID, useLocalDecimalPoint) {
+            var control = $chart.getControl(elID);
+            return control ? ensureModules(control, {}, ['export-data']).then(function () { return control.chart.getCSV(useLocalDecimalPoint); }) : Promise.reject(new Error('Chart not found: ' + elID));
+        },
+        getTable: function (elID, useLocalDecimalPoint) {
+            var control = $chart.getControl(elID);
+            return control ? ensureModules(control, {}, ['export-data']).then(function () { return control.chart.getTable(useLocalDecimalPoint); }) : Promise.reject(new Error('Chart not found: ' + elID));
+        },
+        viewData: function (elID) {
+            var control = $chart.getControl(elID);
+            return control ? ensureModules(control, {}, ['export-data']).then(function () { return control.chart.viewData(); }) : Promise.reject(new Error('Chart not found: ' + elID));
+        },
+        hideData: function (elID) { var chart = $chart.getChartControl(elID); if (chart && chart.hideData) { chart.hideData(); } },
+        downloadCSV: function (elID) {
+            var control = $chart.getControl(elID);
+            return control ? ensureModules(control, {}, ['export-data']).then(function () { return control.chart.downloadCSV(); }) : Promise.reject(new Error('Chart not found: ' + elID));
+        },
+
+        getSVG: function (elID, chartOptions) {
+            var control = $chart.getControl(elID);
+            if (!control) { return Promise.resolve(null); }
+            return ensureModules(control, {}, ['exporting']).then(function () {
+                refreshChartModuleDefaults(control);
+                return control.chart.getSVG(chartOptions || {});
+            });
+        },
+        getDataURL: function (elID, options) {
+            options = common.merge({ type: 'image/png', pixelRatio: 2, backgroundColor: '#ffffff' }, options || {});
+            return $chart.getSVG(elID, options.chartOptions).then(function (svg) {
+                if (!svg) { return null; }
+                return new Promise(function (resolve, reject) {
+                    var blob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
+                    var url = URL.createObjectURL(blob);
+                    var image = new Image();
+                    image.onload = function () {
+                        var canvas = document.createElement('canvas');
+                        canvas.width = image.width * options.pixelRatio;
+                        canvas.height = image.height * options.pixelRatio;
+                        var context = canvas.getContext('2d');
+                        context.fillStyle = options.backgroundColor;
+                        context.fillRect(0, 0, canvas.width, canvas.height);
+                        context.scale(options.pixelRatio, options.pixelRatio);
+                        context.drawImage(image, 0, 0);
+                        URL.revokeObjectURL(url);
+                        resolve(canvas.toDataURL(options.type));
+                    };
+                    image.onerror = function (error) { URL.revokeObjectURL(url); reject(error); };
+                    image.src = url;
+                });
+            });
+        },
+        toImage: function (elID, fileID, options) {
+            return $chart.getDataURL(elID, options).then(function (dataURL) {
+                if (!dataURL) { return null; }
+                var anchor = document.createElement('a');
+                anchor.href = dataURL;
+                anchor.download = (fileID || elID) + '.png';
+                anchor.click();
+                return dataURL;
+            });
+        },
+        setLocale: function (elID, translations) { Highcharts.setOptions({ lang: translations || {} }); var chart = $chart.getChartControl(elID); if (chart) { chart.redraw(); } }
+    });
+
+    syn.uicontrols.$chart = $chart;
+})(window);
+
+/// <reference path="/js/syn.js" />
+
+(function (window) {
+    'use strict';
+
+    syn.uicontrols = syn.uicontrols || new syn.module();
+    var $chartjs = syn.uicontrols.$chartjs || new syn.module();
+
+    function createChartCommon(scope) {
+        function isPlainObject(value) {
+            return value !== null && typeof value === 'object' && !Array.isArray(value) &&
+                (Object.getPrototypeOf(value) === Object.prototype || Object.getPrototypeOf(value) === null);
+        }
+
+        function clone(value) {
+            if (Array.isArray(value)) {
+                return value.map(clone);
+            }
+            if (isPlainObject(value)) {
+                var result = {};
+                for (var key in value) {
+                    result[key] = clone(value[key]);
+                }
+                return result;
+            }
+            if (value instanceof Date) {
+                return new Date(value.getTime());
+            }
+            return value;
+        }
+
+        function merge(target) {
+            target = isPlainObject(target) ? target : {};
+            for (var sourceIndex = 1; sourceIndex < arguments.length; sourceIndex++) {
+                var source = arguments[sourceIndex];
+                if (!isPlainObject(source)) {
+                    continue;
+                }
+                for (var key in source) {
+                    if (isPlainObject(source[key])) {
+                        target[key] = merge(isPlainObject(target[key]) ? target[key] : {}, source[key]);
+                    } else {
+                        target[key] = clone(source[key]);
+                    }
+                }
+            }
+            return target;
+        }
+
+        function resolveFunction(value) {
+            if (typeof value === 'function') {
+                return value;
+            }
+            if (typeof value !== 'string' || value.length === 0) {
+                return null;
+            }
+            var current = window;
+            var names = value.split('.');
+            for (var i = 0; i < names.length && current; i++) {
+                current = current[names[i]];
+            }
+            return typeof current === 'function' ? current : null;
+        }
+
+        function normalizeRows(value) {
+            if (value === null || value === undefined) {
+                return {
+                    valid: true,
+                    rows: []
+                };
+            }
+            var values = Array.isArray(value) ? value : [value];
+            for (var i = 0; i < values.length; i++) {
+                if (!isPlainObject(values[i])) {
+                    return {
+                        valid: false,
+                        rows: [],
+                        error: 'setValue accepts an object or an array of objects.'
+                    };
+                }
+            }
+            return {
+                valid: true,
+                rows: clone(values)
+            };
+        }
+
+        function metaValue(meta, lowerName, upperName) {
+            return meta ? (meta[lowerName] !== undefined ? meta[lowerName] : meta[upperName]) : undefined;
+        }
+
+        function inferTable(rows, metaColumns) {
+            var result = {
+                labelField: null,
+                valueFields: [],
+                labels: [],
+                series: []
+            };
+            if (!rows.length) {
+                return result;
+            }
+            var keys = Object.keys(rows[0]);
+            if (!keys.length) {
+                return result;
+            }
+            for (var i = 0; i < keys.length; i++) {
+                var type = String(metaValue(metaColumns && metaColumns[keys[i]], 'dataType', 'DataType') || '').toLowerCase();
+                if (type === 'string' || type === 'date' || type === 'datetime') {
+                    result.labelField = keys[i];
                     break;
                 }
             }
-
+            result.labelField = result.labelField || keys[0];
+            for (var keyIndex = 0; keyIndex < keys.length; keyIndex++) {
+                var key = keys[keyIndex];
+                if (key === result.labelField) {
+                    continue;
+                }
+                var dataType = String(metaValue(metaColumns && metaColumns[key], 'dataType', 'DataType') || '').toLowerCase();
+                var isNumeric = dataType === 'number' || dataType === 'int' || dataType === 'integer' || dataType === 'decimal' || dataType === 'float';
+                if (!dataType) {
+                    isNumeric = rows.every(function (row) {
+                        return row[key] === null || row[key] === undefined || row[key] === '' ||
+                            (typeof row[key] === 'number' && isFinite(row[key])) ||
+                            (typeof row[key] === 'string' && row[key].trim() !== '' && isFinite(Number(row[key])));
+                    });
+                }
+                if (isNumeric) {
+                    result.valueFields.push(key);
+                }
+            }
+            if (!result.valueFields.length) {
+                result.valueFields = keys.filter(function (key) {
+                    return key !== result.labelField;
+                });
+            }
+            result.labels = rows.map(function (row) {
+                return row[result.labelField];
+            });
+            result.series = result.valueFields.map(function (field) {
+                return {
+                    field: field,
+                    name: field,
+                    data: rows.map(function (row) {
+                        return row[field];
+                    })
+                };
+            });
             return result;
+        }
+
+        function log(logScope, message, level) {
+            if (syn.$l && syn.$l.eventLog) {
+                syn.$l.eventLog(logScope, message && message.message ? message.message : String(message), level || 'Debug');
+            }
+        }
+
+        function parseEvents(el) {
+            var value = el ? el.getAttribute('syn-events') : null;
+            if (!value) {
+                return [];
+            }
+            try {
+                var events = eval(value);
+                return Array.isArray(events) ? events : [];
+            } catch (error) {
+                log(scope + '.parseEvents', error, 'Warning');
+                return [];
+            }
+        }
+
+        function emit(control, eventName, params) {
+            var mod = window[syn.$w.pageScript];
+            var handler = mod && mod.event ? mod.event[control.id + '_' + eventName] : null;
+            if (handler) {
+                handler.apply(syn.$l.get(control.id), [control.id, params, clone(control.selections || [])]);
+            }
+        }
+
+        function selectionKey(selection) {
+            return [selection.series.index, selection.point.dataType || '', selection.point.dataIndex].join('|');
+        }
+
+        function applySelection(control, selection) {
+            if (!selection || control.config.selectionMode === 'none') {
+                return {
+                    changed: false,
+                    selected: false
+                };
+            }
+            var key = selectionKey(selection);
+            var found = -1;
+            for (var i = 0; i < control.selections.length; i++) {
+                if (selectionKey(control.selections[i]) === key) {
+                    found = i;
+                    break;
+                }
+            }
+            if (control.config.selectionMode === 'multiple' || control.config.selectionMode === 'native') {
+                if (found > -1) {
+                    control.selections.splice(found, 1);
+                    return {
+                        changed: true,
+                        selected: false
+                    };
+                }
+                control.selections.push(selection);
+                return {
+                    changed: true,
+                    selected: true
+                };
+            }
+            var changed = found < 0 || control.selections.length !== 1;
+            control.selections = [selection];
+            return {
+                changed: changed,
+                selected: true
+            };
+        }
+
+        function selectedRows(control) {
+            var rows = [];
+            var seen = {};
+            for (var i = 0; i < control.selections.length; i++) {
+                var selection = control.selections[i];
+                if (selection.row === null || selection.row === undefined) {
+                    continue;
+                }
+                var key = selection.rowIndex > -1 ? 'index:' + selection.rowIndex : 'row:' + i;
+                if (!seen[key]) {
+                    rows.push(clone(selection.row));
+                    seen[key] = true;
+                }
+            }
+            return rows;
+        }
+
+        function serializeRows(rows, requestType, metaColumns) {
+            if (requestType === 'Row') {
+                rows = rows.length ? [rows[rows.length - 1]] : [];
+            } else if (requestType !== 'List') {
+                return [];
+            }
+            var result = [];
+            for (var i = 0; i < rows.length; i++) {
+                var row = rows[i];
+                var transactionRow = [];
+                if (metaColumns) {
+                    for (var key in metaColumns) {
+                        var meta = metaColumns[key] || {};
+                        var fieldID = metaValue(meta, 'fieldID', 'FieldID') || key;
+                        var dataType = metaValue(meta, 'dataType', 'DataType');
+                        var value = row[key];
+                        if (value === undefined && window.$object && $object.defaultValue) {
+                            value = String(dataType || '').toLowerCase() === 'number' ? null : $object.defaultValue(dataType);
+                        }
+                        transactionRow.push({
+                            prop: fieldID,
+                            val: value
+                        });
+                    }
+                } else {
+                    for (var property in row) {
+                        transactionRow.push({
+                            prop: property,
+                            val: row[property]
+                        });
+                    }
+                }
+                result.push(transactionRow);
+            }
+            return result;
+        }
+
+        return {
+            clone: clone,
+            merge: merge,
+            resolveFunction: resolveFunction,
+            normalizeRows: normalizeRows,
+            inferTable: inferTable,
+            parseEvents: parseEvents,
+            log: log,
+            emit: emit,
+            selectionKey: selectionKey,
+            applySelection: applySelection,
+            selectedRows: selectedRows,
+            serializeRows: serializeRows,
+            getValue: function (control, requestType, metaColumns) {
+                if (!control) {
+                    return requestType ? [] : null;
+                }
+                var rows = selectedRows(control);
+                if (!requestType) {
+                    return control.config.selectionMode === 'multiple' || control.config.selectionMode === 'native' ?
+                        rows : (rows[rows.length - 1] || null);
+                }
+                return serializeRows(rows, requestType, metaColumns || control.metaColumns);
+            }
+        };
+    }
+
+    var common = createChartCommon('$chartjs');
+
+    if (window.Chart) {
+        Chart.defaults.font.family = "Noto Sans KR, 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif";
+        Chart.defaults.font.size = 12;
+        Chart.defaults.color = '#666';
+        Chart.defaults.plugins.legend.position = 'bottom';
+    }
+
+    // Chart.js date adapter backed by the locally bundled moment.js (/lib/moment.js/moment-with-locales.min.js).
+    // Chart.js v4 requires a `_adapters._date` implementation for `scales: { x: { type: 'time' } }`; the npm package
+    // `chartjs-adapter-moment` is not vendored in this repository (CDN/외부 패키지 다운로드 금지), so this reimplements
+    // its small public surface directly against moment.js. Load order: moment.js -> Chart.js(UMD) -> this file.
+    if (window.Chart && typeof moment !== 'undefined') {
+        var DATE_ADAPTER_FORMATS = {
+            datetime: 'MMM D, YYYY, h:mm:ss a',
+            millisecond: 'h:mm:ss.SSS a',
+            second: 'h:mm:ss a',
+            minute: 'h:mm a',
+            hour: 'hA',
+            day: 'MMM D',
+            week: 'll',
+            month: 'MMM YYYY',
+            quarter: '[Q]Q - YYYY',
+            year: 'YYYY'
+        };
+
+        Chart._adapters._date.override({
+            _id: 'moment',
+
+            formats: function () {
+                return DATE_ADAPTER_FORMATS;
+            },
+
+            parse: function (value, format) {
+                if (value === null || typeof value === 'undefined') {
+                    return null;
+                }
+                var type = typeof value;
+                var result;
+                if (type === 'number' || value instanceof Date) {
+                    result = moment(value);
+                }
+                else if (type === 'string' && typeof format === 'string') {
+                    result = moment(value, format);
+                }
+                else if (!(value instanceof moment)) {
+                    result = moment(value);
+                }
+                else {
+                    result = value;
+                }
+                return result.isValid() ? result.valueOf() : null;
+            },
+
+            format: function (time, format) {
+                return moment(time).format(format);
+            },
+
+            add: function (time, amount, unit) {
+                return moment(time).add(amount, unit).valueOf();
+            },
+
+            diff: function (max, min, unit) {
+                return moment(max).diff(moment(min), unit);
+            },
+
+            startOf: function (time, unit, weekday) {
+                var value = moment(time);
+                if (unit === 'isoWeek') {
+                    var isoWeekday = Math.trunc(Math.min(Math.max(0, weekday), 6));
+                    return value.isoWeekday(isoWeekday).startOf('day').valueOf();
+                }
+                return value.startOf(unit).valueOf();
+            },
+
+            endOf: function (time, unit) {
+                return moment(time).endOf(unit).valueOf();
+            }
+        });
+    }
+
+    function resolveRow(control, datasetIndex, dataIndex, activeElement, event) {
+        var resolver = control.selectionResolver || common.resolveFunction(control.config.selectionResolver);
+        if (resolver) {
+            var resolved = resolver(activeElement, event, control.rawValue, control.chart, control);
+            if (resolved === null || resolved === undefined) {
+                return null;
+            }
+            if (typeof resolved === 'number') {
+                return {
+                    rowIndex: resolved,
+                    row: control.rawValue[resolved] || null
+                };
+            }
+            if (resolved.row !== undefined || resolved.rowIndex !== undefined) {
+                var index = resolved.rowIndex !== undefined ? resolved.rowIndex : control.rawValue.indexOf(resolved.row);
+                return {
+                    rowIndex: index,
+                    row: resolved.row !== undefined ? resolved.row : control.rawValue[index]
+                };
+            }
+        }
+        var rowIndex = dataIndex;
+        if (control.rowIndexMap && control.rowIndexMap[datasetIndex] && control.rowIndexMap[datasetIndex][dataIndex] !== undefined) {
+            rowIndex = control.rowIndexMap[datasetIndex][dataIndex];
+        }
+        var raw = control.chart.data.datasets[datasetIndex] && control.chart.data.datasets[datasetIndex].data[dataIndex];
+        if (control.config.selectionKey && raw && typeof raw === 'object') {
+            var selectedKey = raw[control.config.selectionKey];
+            for (var i = 0; i < control.rawValue.length; i++) {
+                if (control.rawValue[i] && control.rawValue[i][control.config.selectionKey] === selectedKey) {
+                    rowIndex = i;
+                    break;
+                }
+            }
+        }
+        return {
+            rowIndex: rowIndex,
+            row: control.rawValue[rowIndex] || null
+        };
+    }
+
+    function parsedValue(chart, datasetIndex, dataIndex) {
+        var meta = chart.getDatasetMeta(datasetIndex);
+        var parsed = meta && meta.controller && meta.controller.getParsed ? meta.controller.getParsed(dataIndex) : null;
+        if (parsed && parsed.y !== undefined) {
+            return parsed.y;
+        }
+        if (parsed && parsed.r !== undefined) {
+            return parsed.r;
+        }
+        if (parsed !== null && parsed !== undefined) {
+            return parsed;
+        }
+        return chart.data.datasets[datasetIndex].data[dataIndex];
+    }
+
+    function makeSelection(control, datasetIndex, dataIndex, activeElement, event) {
+        var resolved = resolveRow(control, datasetIndex, dataIndex, activeElement, event);
+        if (!resolved) {
+            return null;
+        }
+        var dataset = control.chart.data.datasets[datasetIndex];
+        var raw = dataset.data[dataIndex];
+        var meta = control.chart.getDatasetMeta(datasetIndex);
+        var label = control.chart.data.labels && control.chart.data.labels[dataIndex];
+        var value = parsedValue(control.chart, datasetIndex, dataIndex);
+        return {
+            series: {
+                index: datasetIndex,
+                id: dataset.id,
+                name: dataset.label,
+                type: dataset.type || meta.type || control.chart.config.type
+            },
+            point: {
+                dataIndex: dataIndex,
+                dataIndexInside: dataIndex,
+                dataType: 'main',
+                name: raw && raw.name !== undefined ? raw.name : label,
+                value: value,
+                data: common.clone(raw),
+                color: Array.isArray(dataset.backgroundColor) ? dataset.backgroundColor[dataIndex] : dataset.backgroundColor
+            },
+            yData: value,
+            rowIndex: resolved.rowIndex,
+            row: resolved.row
+        };
+    }
+
+    function handleClick(control, event, activeElements) {
+        if (control.config.selectionMode === 'none') {
+            return;
+        }
+        if (!activeElements.length) {
+            if (control.config.clearSelectionOnBlank) {
+                $chartjs.clearSelection(control.id);
+            }
+            return;
+        }
+        var active = activeElements[0];
+        var selection = makeSelection(control, active.datasetIndex, active.index, active, event);
+        common.emit(control, 'pointClick', {
+            event: event,
+            active: active,
+            selection: selection
+        });
+        var result = common.applySelection(control, selection);
+        if (result.changed) {
+            common.emit(control, 'selectionChange', event);
+        }
+    }
+
+    function chartConfig(control, setting) {
+        var userOptions = common.merge({}, setting.options || {});
+        var originalClick = userOptions.onClick;
+        var originalHover = userOptions.onHover;
+        userOptions.responsive = userOptions.responsive !== false;
+        userOptions.maintainAspectRatio = userOptions.maintainAspectRatio === undefined ? false : userOptions.maintainAspectRatio;
+        userOptions.animation = userOptions.animation === undefined ? false : userOptions.animation;
+        userOptions.plugins = common.merge({
+            legend: {
+                display: true,
+                position: 'bottom'
+            },
+            tooltip: {
+                mode: 'nearest',
+                intersect: false
+            }
+        }, userOptions.plugins || {});
+        userOptions.interaction = common.merge({
+            mode: setting.interactionMode,
+            intersect: setting.intersect
+        }, userOptions.interaction || {});
+        userOptions.onClick = function (event, activeElements, chart) {
+            handleClick(control, event, activeElements || []);
+            if (originalClick) {
+                originalClick(event, activeElements, chart);
+            }
+            common.emit(control, 'click', {
+                event: event,
+                active: activeElements || [],
+                chart: chart
+            });
+        };
+        userOptions.onHover = function (event, activeElements, chart) {
+            if (originalHover) {
+                originalHover(event, activeElements, chart);
+            }
+            if (activeElements && activeElements.length) {
+                common.emit(control, 'pointHover', {
+                    event: event,
+                    active: activeElements,
+                    chart: chart
+                });
+            }
+        };
+        return {
+            type: setting.type || 'line',
+            data: common.clone(setting.data || {
+                labels: [],
+                datasets: []
+            }),
+            options: userOptions,
+            plugins: setting.plugins || []
+        };
+    }
+
+    function createChart(control, setting) {
+        control.chart = new Chart(control.canvas, chartConfig(control, setting));
+        common.emit(control, 'initialized', {
+            chart: control.chart
+        });
+        return control.chart;
+    }
+
+    function legacyData(control, rows) {
+        var labelID = control.config.labelID;
+        var seriesSettings = control.config.series || [];
+        var keys = rows.length ? Object.keys(rows[0]) : [];
+        var fields = seriesSettings.length ? seriesSettings.map(function (item) {
+            return item.columnID;
+        }) : keys.filter(function (key) {
+            return key !== labelID;
+        });
+        var labels = rows.map(function (row) {
+            return row[labelID];
+        });
+        var rowIndexMap = [];
+        var datasets = fields.map(function (field) {
+            var series = seriesSettings.find(function (item) {
+                return item.columnID === field;
+            }) || {};
+            var dataset = common.merge({}, series.options || {}, series);
+            delete dataset.columnID;
+            delete dataset.options;
+            delete dataset.dataType;
+            dataset.label = series.label || field;
+            dataset.data = rows.map(function (row) {
+                return row[field];
+            });
+            if (dataset.fill === undefined) {
+                dataset.fill = false;
+            }
+            rowIndexMap.push(rows.map(function (row, index) {
+                return index;
+            }));
+            return dataset;
+        });
+        return {
+            config: {
+                data: {
+                    labels: labels,
+                    datasets: datasets
+                }
+            },
+            rowIndexMap: rowIndexMap
+        };
+    }
+
+    function inferredData(rows, metaColumns) {
+        var table = common.inferTable(rows, metaColumns);
+        var rowIndexMap = [];
+        var datasets = table.series.map(function (item) {
+            rowIndexMap.push(rows.map(function (row, index) {
+                return index;
+            }));
+            return {
+                label: item.name,
+                data: item.data,
+                fill: false
+            };
+        });
+        return {
+            config: {
+                data: {
+                    labels: table.labels,
+                    datasets: datasets
+                }
+            },
+            rowIndexMap: rowIndexMap
+        };
+    }
+
+    function applyConfig(control, patch) {
+        patch = patch || {};
+        if (patch.type && patch.type !== control.chart.config.type) {
+            var nextSetting = common.merge({}, control.config, patch);
+            control.chart.destroy();
+            control.config.type = patch.type;
+            control.config.data = patch.data || control.config.data;
+            control.config.options = common.merge({}, control.config.options, patch.options || {});
+            return createChart(control, nextSetting);
+        }
+        if (patch.data) {
+            control.chart.data.labels = common.clone(patch.data.labels || []);
+            control.chart.data.datasets = common.clone(patch.data.datasets || []);
+        }
+        if (patch.options) {
+            control.config.options = common.merge({}, control.config.options, patch.options);
+            var nextSetting = common.merge({}, control.config, {
+                data: common.clone(control.chart.data),
+                options: control.config.options
+            });
+            control.chart.destroy();
+            return createChart(control, nextSetting);
+        }
+        control.chart.update();
+        return control.chart;
+    }
+
+    $chartjs.extend({
+        name: 'syn.uicontrols.$chartjs',
+        version: 'v2026.7.26',
+        chartControls: [],
+        defaultSetting: {
+            width: '100%',
+            height: '320px',
+            labelID: '',
+            series: [],
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: []
+            },
+            options: {},
+            plugins: [],
+            dataAdapter: null,
+            selectionResolver: null,
+            selectionMode: 'single',
+            selectionKey: null,
+            clearSelectionOnBlank: true,
+            interactionMode: 'nearest',
+            intersect: true,
+            autoResize: true,
+            dataType: 'string',
+            belongID: null,
+            getter: false,
+            setter: false,
+            controlText: null,
+            validators: null,
+            transactConfig: null,
+            triggerConfig: null
         },
 
-        clear: function (elID, isControlLoad) {
-            var chart = $chart.getChartControl(elID);
-            while (chart.series.length > 0) {
-                chart.series[0].remove(true);
+        addModuleList: function (el, moduleList, setting, controlType) {
+            var form = el.closest('form');
+            moduleList.push({
+                id: el.getAttribute('id'),
+                formDataFieldID: form ? form.getAttribute('syn-datafield') : '',
+                field: el.getAttribute('syn-datafield'),
+                module: this.name,
+                type: controlType
+            });
+        },
+
+        controlLoad: function (elID, setting) {
+            var el = syn.$l.get(elID);
+            if (!el || !window.Chart) {
+                common.log('$chartjs.controlLoad', 'Chart.js is not loaded.', 'Error');
+                return;
+            }
+            setting = common.merge({}, $chartjs.defaultSetting, setting || {});
+            var mod = window[syn.$w.pageScript];
+            if (mod && mod.hook && mod.hook.controlInit) {
+                setting = common.merge(setting, mod.hook.controlInit(elID, setting));
+            }
+            setting.width = el.style.width || setting.width;
+            setting.height = el.style.height || setting.height;
+            el.setAttribute('id', elID + '_hidden');
+            el.setAttribute('syn-options', JSON.stringify(setting));
+            el.style.display = 'none';
+
+            var wrapper = document.createElement('div');
+            wrapper.className = 'chart-container syn-chartjs';
+            wrapper.style.width = setting.width;
+            wrapper.style.height = setting.height;
+            wrapper.style.position = 'relative';
+            var canvas = document.createElement('canvas');
+            canvas.id = elID;
+            wrapper.appendChild(canvas);
+            var loading = document.createElement('div');
+            loading.className = 'syn-chartjs-loading';
+            loading.style.display = 'none';
+            wrapper.appendChild(loading);
+            el.parentNode.insertBefore(wrapper, el.nextSibling);
+
+            var control = {
+                id: elID,
+                element: wrapper,
+                canvas: canvas,
+                loadingElement: loading,
+                chart: null,
+                config: setting,
+                rawValue: [],
+                metaColumns: null,
+                selections: [],
+                rowIndexMap: null,
+                selectionResolver: common.resolveFunction(setting.selectionResolver),
+                eventNames: common.parseEvents(el),
+                resizeObserver: null
+            };
+            $chartjs.chartControls.push(control);
+            try {
+                createChart(control, setting);
+                if (setting.autoResize && window.ResizeObserver) {
+                    control.resizeObserver = new ResizeObserver(function () {
+                        if (control.chart) {
+                            control.chart.resize();
+                            common.emit(control, 'resized', {
+                                source: 'ResizeObserver'
+                            });
+                        }
+                    });
+                    control.resizeObserver.observe(wrapper);
+                }
+            } catch (error) {
+                common.log('$chartjs.controlLoad', error, 'Error');
+                common.emit(control, 'error', error);
             }
         },
 
-        setLocale: function (elID, translations, control, options) {
+        getControl: function (elID) {
+            return $chartjs.chartControls.find(function (control) {
+                return control.id === elID;
+            }) || null;
+        },
+        getChartControl: function (elID) {
+            return $chartjs.getControl(elID);
+        },
+        getChartInstance: function (elID) {
+            var control = $chartjs.getControl(elID);
+            return control ? control.chart : null;
+        },
+
+        setValue: function (elID, value, metaColumns) {
+            var control = $chartjs.getControl(elID);
+            if (!control || !control.chart) {
+                return Promise.resolve(null);
+            }
+            var normalized = common.normalizeRows(value);
+            if (!normalized.valid) {
+                common.log('$chartjs.setValue', normalized.error, 'Warning');
+                return Promise.resolve(null);
+            }
+            var rows = normalized.rows;
+            var adapter = common.resolveFunction(control.config.dataAdapter);
+            var operation;
+            if (adapter) {
+                operation = Promise.resolve(adapter(rows, metaColumns, control.chart.config, control)).then(function (adapted) {
+                    var envelope = adapted && adapted.config ? adapted : {
+                        config: adapted || {}
+                    };
+                    control.rowIndexMap = envelope.rowIndexMap || null;
+                    control.selectionResolver = common.resolveFunction(envelope.selectionResolver) || envelope.selectionResolver || control.selectionResolver;
+                    return envelope.config;
+                });
+            } else {
+                var mapped = control.config.labelID ? legacyData(control, rows) : inferredData(rows, metaColumns);
+                control.rowIndexMap = mapped.rowIndexMap;
+                operation = Promise.resolve(mapped.config);
+            }
+            return operation.then(function (config) {
+                applyConfig(control, config);
+                control.rawValue = rows;
+                control.metaColumns = metaColumns || null;
+                control.selections = [];
+                common.emit(control, 'dataBound', {
+                    rows: common.clone(rows),
+                    config: config
+                });
+                return control.chart;
+            }).catch(function (error) {
+                common.log('$chartjs.setValue', error, 'Error');
+                common.emit(control, 'error', error);
+                return null;
+            });
+        },
+
+        getValue: function (elID, requestType, metaColumns) {
+            return common.getValue($chartjs.getControl(elID), requestType, metaColumns);
+        },
+        getRawValue: function (elID) {
+            var control = $chartjs.getControl(elID);
+            return control ? common.clone(control.rawValue) : [];
+        },
+        getSelection: function (elID) {
+            var control = $chartjs.getControl(elID);
+            return control ? common.clone(control.selections) : [];
+        },
+        getSelectedRows: function (elID) {
+            var control = $chartjs.getControl(elID);
+            return control ? common.selectedRows(control) : [];
+        },
+        getChartData: function (elID) {
+            var chart = $chartjs.getChartInstance(elID);
+            return chart ? common.clone(chart.data) : null;
+        },
+
+        setSelection: function (elID, selections) {
+            var control = $chartjs.getControl(elID);
+            if (!control || !control.chart || control.config.selectionMode === 'none') {
+                return;
+            }
+            control.selections = [];
+            var values = Array.isArray(selections) ? selections : [selections];
+            for (var i = 0; i < values.length; i++) {
+                var value = values[i];
+                if (value === null || value === undefined) {
+                    continue;
+                }
+                var datasetIndex = typeof value === 'number' ? 0 : value.seriesIndex;
+                var dataIndex = typeof value === 'number' ? value : value.dataIndex;
+                var selection = value.point && value.row !== undefined ? value :
+                    (typeof dataIndex === 'number' ? makeSelection(control, datasetIndex || 0, dataIndex, null, {
+                        source: 'setSelection'
+                    }) : null);
+                if (selection) {
+                    control.selections.push(selection);
+                    if (control.config.selectionMode === 'single') {
+                        break;
+                    }
+                }
+            }
+            common.emit(control, 'selectionChange', {
+                source: 'setSelection'
+            });
+        },
+        clearSelection: function (elID, silent) {
+            var control = $chartjs.getControl(elID);
+            if (!control) {
+                return;
+            }
+            control.selections = [];
+            if (!silent) {
+                common.emit(control, 'selectionChange', {
+                    source: 'clearSelection'
+                });
+            }
+        },
+
+        setConfig: function (elID, config) {
+            var control = $chartjs.getControl(elID);
+            return control ? applyConfig(control, config) : null;
+        },
+        setData: function (elID, data) {
+            return $chartjs.setConfig(elID, {
+                data: data
+            });
+        },
+        update: function (elID, mode) {
+            var chart = $chartjs.getChartInstance(elID);
+            if (chart) {
+                chart.update(mode);
+            }
+        },
+        render: function (elID) {
+            var chart = $chartjs.getChartInstance(elID);
+            if (chart) {
+                chart.render();
+            }
+        },
+        reset: function (elID) {
+            var chart = $chartjs.getChartInstance(elID);
+            if (chart) {
+                chart.reset();
+            }
+        },
+        stop: function (elID) {
+            var chart = $chartjs.getChartInstance(elID);
+            if (chart) {
+                chart.stop();
+            }
+        },
+        setActiveElements: function (elID, activeElements) {
+            var chart = $chartjs.getChartInstance(elID);
+            if (chart) {
+                chart.setActiveElements(activeElements || []);
+                chart.update();
+            }
+        },
+        toggleDataVisibility: function (elID, index) {
+            var chart = $chartjs.getChartInstance(elID);
+            if (chart) {
+                chart.toggleDataVisibility(index);
+                chart.update();
+            }
+        },
+        getDatasetMeta: function (elID, datasetIndex) {
+            var chart = $chartjs.getChartInstance(elID);
+            return chart ? chart.getDatasetMeta(datasetIndex) : null;
+        },
+        register: function () {
+            return Chart.register.apply(Chart, arguments);
+        },
+        unregister: function () {
+            return Chart.unregister.apply(Chart, arguments);
+        },
+        resize: function (elID, width, height) {
+            var control = $chartjs.getControl(elID);
+            if (control && control.chart) {
+                control.chart.resize(width, height);
+                common.emit(control, 'resized', {
+                    width: width,
+                    height: height
+                });
+            }
+        },
+        setControlSize: function (elID, width, height) {
+            var control = $chartjs.getControl(elID);
+            if (control) {
+                if (width !== undefined) {
+                    control.element.style.width = typeof width === 'number' ? width + 'px' : width;
+                }
+                if (height !== undefined) {
+                    control.element.style.height = typeof height === 'number' ? height + 'px' : height;
+                }
+                control.chart.resize();
+            }
+        },
+        showLoading: function (elID, text) {
+            var control = $chartjs.getControl(elID);
+            if (control) {
+                control.loadingElement.textContent = text || 'Loading...';
+                control.loadingElement.style.display = 'flex';
+            }
+        },
+        hideLoading: function (elID) {
+            var control = $chartjs.getControl(elID);
+            if (control) {
+                control.loadingElement.style.display = 'none';
+            }
+        },
+        clear: function (elID) {
+            var control = $chartjs.getControl(elID);
+            if (control && control.chart) {
+                control.chart.data.labels = [];
+                control.chart.data.datasets = [];
+                control.rawValue = [];
+                control.selections = [];
+                control.chart.update();
+            }
+        },
+        dispose: function (elID) {
+            var control = $chartjs.getControl(elID);
+            if (!control) {
+                return;
+            }
+            common.emit(control, 'disposed', {});
+            if (control.resizeObserver) {
+                control.resizeObserver.disconnect();
+            }
+            if (control.chart) {
+                control.chart.destroy();
+            }
+            var index = $chartjs.chartControls.indexOf(control);
+            if (index > -1) {
+                $chartjs.chartControls.splice(index, 1);
+            }
+        },
+        getDataURL: function (elID, type, quality) {
+            var chart = $chartjs.getChartInstance(elID);
+            return chart ? chart.toBase64Image(type || 'image/png', quality) : null;
+        },
+        toImage: function (elID, fileID, type, quality) {
+            var dataURL = $chartjs.getDataURL(elID, type, quality);
+            if (!dataURL) {
+                return null;
+            }
+            var anchor = document.createElement('a');
+            anchor.href = dataURL;
+            anchor.download = (fileID || elID) + '.png';
+            anchor.click();
+            return dataURL;
+        },
+        setLocale: function (elID, locale) {
+            var chart = $chartjs.getChartInstance(elID);
+            if (chart) {
+                chart.options.locale = locale;
+                chart.update();
+            }
         }
     });
-    syn.uicontrols.$chart = $chart;
+
+    syn.uicontrols.$chartjs = $chartjs;
+})(window);
+
+/// <reference path="/js/syn.js" />
+
+(function (window) {
+    'use strict';
+
+    syn.uicontrols = syn.uicontrols || new syn.module();
+    var $echarts = syn.uicontrols.$echarts || new syn.module();
+
+    function cloneValue(value, references, copies) {
+        if (value === null || value === undefined || typeof value !== 'object') {
+            return value;
+        }
+        if (value instanceof Date) {
+            return new Date(value.getTime());
+        }
+        if (typeof ArrayBuffer !== 'undefined' && ArrayBuffer.isView && ArrayBuffer.isView(value)) {
+            return value.slice ? value.slice() : value;
+        }
+
+        references = references || [];
+        copies = copies || [];
+        var referenceIndex = references.indexOf(value);
+        if (referenceIndex > -1) {
+            return copies[referenceIndex];
+        }
+
+        var result = Array.isArray(value) ? [] : {};
+        references.push(value);
+        copies.push(result);
+        for (var key in value) {
+            if (Object.prototype.hasOwnProperty.call(value, key)) {
+                result[key] = cloneValue(value[key], references, copies);
+            }
+        }
+        return result;
+    }
+
+    function asArray(value) {
+        if (value === null || value === undefined) {
+            return [];
+        }
+        return Array.isArray(value) ? value : [value];
+    }
+
+    function resolveFunction(value) {
+        if (typeof value === 'function') {
+            return value;
+        }
+        if (typeof value !== 'string' || value.length === 0) {
+            return null;
+        }
+
+        var current = window;
+        var names = value.split('.');
+        for (var i = 0; i < names.length && current; i++) {
+            current = current[names[i]];
+        }
+        return typeof current === 'function' ? current : null;
+    }
+
+    function isPromise(value) {
+        return value && typeof value.then === 'function';
+    }
+
+    function hasOwn(target, name) {
+        return target && Object.prototype.hasOwnProperty.call(target, name);
+    }
+
+    function mergeSetting(target, source) {
+        return syn.$w.argumentsExtend(target, source || {});
+    }
+
+    function getPageHandler(elID, eventName) {
+        var mod = window[syn.$w.pageScript];
+        return mod && mod.event ? mod.event[elID + '_' + eventName] : null;
+    }
+
+    function emit(control, eventName, params) {
+        var handler = getPageHandler(control.id, eventName);
+        if (handler) {
+            handler.apply(syn.$l.get(control.id), [control.id, params, $echarts.getSelection(control.id)]);
+        }
+    }
+
+    function emitZr(control, eventName, params) {
+        var handlerName = 'zr' + eventName.charAt(0).toUpperCase() + eventName.slice(1);
+        var handler = getPageHandler(control.id, handlerName);
+        if (handler) {
+            handler.apply(syn.$l.get(control.id), [control.id, params, $echarts.getSelection(control.id)]);
+        }
+    }
+
+    function logError(scope, error) {
+        if (syn.$l && syn.$l.eventLog) {
+            syn.$l.eventLog(scope, error && error.message ? error.message : String(error), 'Error');
+        }
+    }
+
+    function logWarning(scope, message) {
+        if (syn.$l && syn.$l.eventLog) {
+            syn.$l.eventLog(scope, message, 'Warning');
+        }
+    }
+
+    function handleError(control, scope, error) {
+        logError(scope, error);
+        if (control) {
+            emit(control, 'error', error);
+        }
+        return null;
+    }
+
+    function validateRows(value, scope) {
+        if (value !== null && value !== undefined && !Array.isArray(value) && typeof value !== 'object') {
+            logWarning(scope, 'The value must be an object or an array of objects.');
+            return null;
+        }
+
+        var rows = asArray(value);
+        for (var i = 0; i < rows.length; i++) {
+            if (!rows[i] || typeof rows[i] !== 'object' || Array.isArray(rows[i])) {
+                logWarning(scope, 'Every array item must be an object.');
+                return null;
+            }
+        }
+        return cloneValue(rows);
+    }
+
+    function getSeries(option, seriesIndex) {
+        var series = option && option.series;
+        if (!Array.isArray(series)) {
+            series = series ? [series] : [];
+        }
+        return series[seriesIndex] || {};
+    }
+
+    function getDimensionName(dimensions, dimension) {
+        if (typeof dimension !== 'number' || !dimensions || dimensions[dimension] === undefined) {
+            return dimension;
+        }
+        return typeof dimensions[dimension] === 'object' ? dimensions[dimension].name : dimensions[dimension];
+    }
+
+    function getEncodedValue(source, encodeValue, dimensions) {
+        if (encodeValue === undefined || encodeValue === null || source === undefined || source === null) {
+            return undefined;
+        }
+
+        var encoded = Array.isArray(encodeValue) ? encodeValue : [encodeValue];
+        var values = [];
+        for (var i = 0; i < encoded.length; i++) {
+            var key = getDimensionName(dimensions, encoded[i]);
+            var value;
+            if (Array.isArray(source) && typeof key === 'number') {
+                value = source[key];
+            }
+            else if (Array.isArray(source) && dimensions) {
+                var dimensionIndex = -1;
+                for (var j = 0; j < dimensions.length; j++) {
+                    if (getDimensionName(dimensions, j) === key) {
+                        dimensionIndex = j;
+                        break;
+                    }
+                }
+                value = dimensionIndex > -1 ? source[dimensionIndex] : undefined;
+            }
+            else if (source && typeof source === 'object') {
+                value = source[key];
+            }
+            values.push(value);
+        }
+        return values.length === 1 ? values[0] : values;
+    }
+
+    function normalizeMappedRow(mapped, rows) {
+        if (mapped === null || mapped === undefined) {
+            return null;
+        }
+        if (typeof mapped === 'number') {
+            return { rowIndex: mapped, row: rows[mapped] };
+        }
+        if (mapped && typeof mapped === 'object' && (mapped.row !== undefined || mapped.rowIndex !== undefined)) {
+            var rowIndex = mapped.rowIndex !== undefined ? mapped.rowIndex : rows.indexOf(mapped.row);
+            return { rowIndex: rowIndex, row: mapped.row !== undefined ? mapped.row : rows[rowIndex] };
+        }
+        return null;
+    }
+
+    function resolveRowIndexMap(control, params, series) {
+        var map = control.rowIndexMap || control.config.rowIndexMap;
+        if (!map) {
+            return null;
+        }
+        if (typeof map === 'function') {
+            return normalizeMappedRow(map(params, control.rawValue, control), control.rawValue);
+        }
+
+        var seriesIndex = params.seriesIndex || 0;
+        var seriesMap;
+        if (Array.isArray(map)) {
+            seriesMap = map[seriesIndex];
+        }
+        else {
+            seriesMap = map[params.seriesId] || map[series.id] || map[params.seriesName] || map[series.name] || map[seriesIndex];
+        }
+        if (!seriesMap) {
+            return null;
+        }
+        if (!Array.isArray(seriesMap) && params.dataType && seriesMap[params.dataType] !== undefined) {
+            seriesMap = seriesMap[params.dataType];
+        }
+        if (typeof seriesMap === 'function') {
+            return normalizeMappedRow(seriesMap(params, control.rawValue, control), control.rawValue);
+        }
+        return normalizeMappedRow(seriesMap[params.dataIndex], control.rawValue);
+    }
+
+    function resolveSelectionRow(control, params, option, series) {
+        var resolver = control.selectionResolver || resolveFunction(control.config.selectionResolver);
+        if (resolver) {
+            var resolved = normalizeMappedRow(resolver(params, control.rawValue, option, control), control.rawValue);
+            if (resolved) {
+                return resolved;
+            }
+            return null;
+        }
+
+        var data = params.data;
+        if (data && typeof data === 'object' && typeof data.__handstackRowIndex === 'number') {
+            return normalizeMappedRow(data.__handstackRowIndex, control.rawValue);
+        }
+
+        if (control.config.selectionKey && data && typeof data === 'object') {
+            var selectedKey = data[control.config.selectionKey];
+            if (selectedKey === undefined && data.value && typeof data.value === 'object') {
+                selectedKey = data.value[control.config.selectionKey];
+            }
+            for (var i = 0; i < control.rawValue.length; i++) {
+                if (control.rawValue[i] && control.rawValue[i][control.config.selectionKey] === selectedKey) {
+                    return { rowIndex: i, row: control.rawValue[i] };
+                }
+            }
+        }
+
+        var mapped = resolveRowIndexMap(control, params, series);
+        if (mapped) {
+            return mapped;
+        }
+
+        var rowIndex = typeof params.dataIndex === 'number' ? params.dataIndex : -1;
+        return { rowIndex: rowIndex, row: rowIndex > -1 ? control.rawValue[rowIndex] : null };
+    }
+
+    function selectionKey(selection) {
+        return [selection.series.index, selection.point.dataType || '', selection.point.dataIndex].join('|');
+    }
+
+    function makeSelection(control, params) {
+        params = params || {};
+        var option = control.chart && control.chart.getOption ? control.chart.getOption() : control.config.option;
+        var seriesIndex = params.seriesIndex !== undefined ? params.seriesIndex : 0;
+        var series = getSeries(option, seriesIndex);
+        var resolved = resolveSelectionRow(control, params, option, series);
+        if (!resolved) {
+            return null;
+        }
+
+        var encode = series.encode || {};
+        var datasetOption = option && option.dataset;
+        var datasetIndex = series.datasetIndex !== undefined ? series.datasetIndex : control.config.datasetIndex;
+        var dataset = Array.isArray(datasetOption) ? datasetOption[datasetIndex || 0] : datasetOption;
+        var dimensions = dataset && dataset.dimensions ? dataset.dimensions : null;
+        var yData = getEncodedValue(params.value, encode.y, dimensions);
+        if (yData === undefined) {
+            yData = getEncodedValue(params.value, encode.value, dimensions);
+        }
+        if (yData === undefined) {
+            yData = getEncodedValue(resolved.row, encode.y, dimensions);
+        }
+        if (yData === undefined) {
+            yData = getEncodedValue(resolved.row, encode.value, dimensions);
+        }
+        if (yData === undefined) {
+            yData = params.value;
+        }
+
+        return {
+            series: {
+                index: seriesIndex,
+                id: params.seriesId !== undefined ? params.seriesId : series.id,
+                name: params.seriesName !== undefined ? params.seriesName : series.name,
+                type: params.seriesType !== undefined ? params.seriesType : series.type
+            },
+            point: {
+                dataIndex: params.dataIndex,
+                dataIndexInside: params.dataIndexInside,
+                dataType: params.dataType,
+                name: params.name,
+                value: params.value,
+                data: params.data,
+                color: params.color
+            },
+            yData: yData,
+            rowIndex: resolved.rowIndex,
+            row: resolved.row === undefined ? null : resolved.row
+        };
+    }
+
+    function updateClickSelection(control, params) {
+        if (control.config.selectionMode === 'none' || control.config.selectionMode === 'native' || params.componentType !== 'series') {
+            return;
+        }
+
+        var selection = makeSelection(control, params);
+        if (!selection) {
+            return;
+        }
+
+        var key = selectionKey(selection);
+        var found = -1;
+        for (var i = 0; i < control.selections.length; i++) {
+            if (selectionKey(control.selections[i]) === key) {
+                found = i;
+                break;
+            }
+        }
+
+        if (control.config.selectionMode === 'multiple') {
+            if (found > -1) {
+                control.selections.splice(found, 1);
+            }
+            else {
+                control.selections.push(selection);
+            }
+        }
+        else {
+            control.selections = [selection];
+        }
+        emit(control, 'selectionChange', params);
+    }
+
+    function syncNativeSelection(control, params) {
+        if (control.config.selectionMode !== 'native') {
+            return;
+        }
+        var selectedGroups = params && params.selected;
+        if (!Array.isArray(selectedGroups)) {
+            return;
+        }
+
+        var selections = [];
+        for (var i = 0; i < selectedGroups.length; i++) {
+            var selectedGroup = selectedGroups[i];
+            var dataIndexes = asArray(selectedGroup.dataIndex);
+            for (var j = 0; j < dataIndexes.length; j++) {
+                var dataIndex = dataIndexes[j];
+                var selection = makeSelection(control, {
+                    componentType: 'series',
+                    seriesIndex: selectedGroup.seriesIndex,
+                    dataIndex: dataIndex,
+                    dataType: selectedGroup.dataType,
+                    data: control.rawValue[dataIndex],
+                    value: control.rawValue[dataIndex]
+                });
+                if (selection) {
+                    selections.push(selection);
+                }
+            }
+        }
+
+        var previousKeys = control.selections.map(selectionKey).join(',');
+        var currentKeys = selections.map(selectionKey).join(',');
+        control.selections = selections;
+        if (previousKeys !== currentKeys) {
+            emit(control, 'selectionChange', params);
+        }
+    }
+
+    function bindRuntimeEvent(control, registration) {
+        var handler = resolveFunction(registration.handler);
+        if (!handler) {
+            return;
+        }
+        registration.listener = function (params) {
+            handler.apply(control.element, [control.id, params, $echarts.getSelection(control.id)]);
+        };
+        if (registration.query !== undefined && registration.query !== null) {
+            control.chart.on(registration.eventName, registration.query, registration.listener);
+        }
+        else {
+            control.chart.on(registration.eventName, registration.listener);
+        }
+    }
+
+    function bindRuntimeZrEvent(control, registration) {
+        var handler = resolveFunction(registration.handler);
+        if (!handler) {
+            return;
+        }
+        registration.listener = function (params) {
+            handler.apply(control.element, [control.id, params, $echarts.getSelection(control.id)]);
+        };
+        control.chart.getZr().on(registration.eventName, registration.listener);
+    }
+
+    function bindEvents(control) {
+        var chart = control.chart;
+        var eventNames = control.eventNames;
+        var queries = control.config.eventQueries || {};
+
+        for (var i = 0; i < eventNames.length; i++) {
+            (function (eventName) {
+                if ($echarts.syntheticEvents.indexOf(eventName) > -1) {
+                    return;
+                }
+                var listener = function (params) {
+                    if (eventName === 'click') {
+                        updateClickSelection(control, params);
+                    }
+                    else if (eventName === 'selectchanged') {
+                        syncNativeSelection(control, params);
+                    }
+                    emit(control, eventName, params);
+                };
+                if (queries[eventName] !== undefined && queries[eventName] !== null) {
+                    chart.on(eventName, queries[eventName], listener);
+                }
+                else {
+                    chart.on(eventName, listener);
+                }
+            })(eventNames[i]);
+        }
+
+        if (eventNames.indexOf('click') < 0) {
+            chart.on('click', function (params) {
+                updateClickSelection(control, params);
+            });
+        }
+        if (eventNames.indexOf('selectchanged') < 0) {
+            chart.on('selectchanged', function (params) {
+                syncNativeSelection(control, params);
+            });
+        }
+
+        var zr = chart.getZr();
+        zr.on('click', function (event) {
+            if (!event.target && control.config.clearSelectionOnBlank) {
+                $echarts.clearSelection(control.id);
+            }
+        });
+        for (var zrIndex = 0; zrIndex < control.zrEventNames.length; zrIndex++) {
+            (function (eventName) {
+                zr.on(eventName, function (params) {
+                    emitZr(control, eventName, params);
+                });
+            })(control.zrEventNames[zrIndex]);
+        }
+
+        for (var runtimeIndex = 0; runtimeIndex < control.runtimeEvents.length; runtimeIndex++) {
+            bindRuntimeEvent(control, control.runtimeEvents[runtimeIndex]);
+        }
+        for (var runtimeZrIndex = 0; runtimeZrIndex < control.runtimeZrEvents.length; runtimeZrIndex++) {
+            bindRuntimeZrEvent(control, control.runtimeZrEvents[runtimeZrIndex]);
+        }
+    }
+
+    function createChart(control, applyOption) {
+        var initOptions = mergeSetting({}, control.config.initOptions || {});
+        initOptions.locale = control.config.locale;
+        control.chart = echarts.init(control.element, control.config.theme, initOptions);
+        if (control.config.group !== null && control.config.group !== undefined) {
+            control.chart.group = control.config.group;
+        }
+        bindEvents(control);
+        if (applyOption !== false && control.config.option) {
+            control.chart.setOption(control.config.option, control.config.setOptionOptions);
+        }
+    }
+
+    function rememberOption(control, option, options) {
+        options = options || control.config.setOptionOptions || {};
+        if (options.notMerge) {
+            control.config.option = option || {};
+        }
+        else {
+            control.config.option = mergeSetting(mergeSetting({}, control.config.option || {}), option || {});
+        }
+    }
+
+    function applyOption(control, option, options, source) {
+        options = options || control.config.setOptionOptions;
+        control.chart.setOption(option || {}, options);
+        rememberOption(control, option, options);
+        emit(control, 'optionChanged', { source: source || 'setOption', option: option || {}, options: options });
+        return control.chart;
+    }
+
+    function makeDatasetPatch(control, rows, metaColumns) {
+        var currentOption = control.chart.getOption() || control.config.option || {};
+        var dataset = { source: rows };
+        var datasetOption = currentOption.dataset;
+        var existingDataset = Array.isArray(datasetOption) ? datasetOption[control.config.datasetIndex] : datasetOption;
+        if ((!existingDataset || !existingDataset.dimensions) && metaColumns) {
+            dataset.dimensions = [];
+            for (var key in metaColumns) {
+                if (Object.prototype.hasOwnProperty.call(metaColumns, key)) {
+                    dataset.dimensions.push(key);
+                }
+            }
+        }
+        if (Array.isArray(datasetOption) || control.config.datasetIndex > 0) {
+            var datasets = Array.isArray(datasetOption) ? datasetOption.slice() : [];
+            while (datasets.length <= control.config.datasetIndex) {
+                datasets.push({});
+            }
+            datasets[control.config.datasetIndex] = mergeSetting(mergeSetting({}, datasets[control.config.datasetIndex]), dataset);
+            return { dataset: datasets };
+        }
+        return { dataset: mergeSetting(mergeSetting({}, datasetOption || {}), dataset) };
+    }
+
+    function applyAdaptedValue(control, token, rows, metaColumns, adapted) {
+        if (token !== control.dataRequestVersion) {
+            return control.chart;
+        }
+
+        var patch = adapted;
+        var selectionResolver;
+        var rowIndexMap;
+        if (adapted && adapted.option) {
+            patch = adapted.option;
+            selectionResolver = adapted.selectionResolver;
+            rowIndexMap = adapted.rowIndexMap;
+        }
+        patch = patch || makeDatasetPatch(control, rows, metaColumns);
+
+        control.rawValue = rows;
+        control.metaColumns = metaColumns || null;
+        control.selections = [];
+        if (selectionResolver !== undefined) {
+            control.selectionResolver = resolveFunction(selectionResolver) || selectionResolver;
+        }
+        if (rowIndexMap !== undefined) {
+            control.rowIndexMap = rowIndexMap;
+        }
+        applyOption(control, patch, control.config.setOptionOptions, 'setValue');
+        emit(control, 'dataBound', { rows: cloneValue(rows), option: patch });
+        return control.chart;
+    }
+
+    function recreateChart(control, options) {
+        options = options || {};
+        if (control.chart && !control.chart.isDisposed()) {
+            control.chart.dispose();
+        }
+        if (hasOwn(options, 'theme')) { control.config.theme = options.theme; }
+        if (hasOwn(options, 'locale')) { control.config.locale = options.locale; }
+        if (hasOwn(options, 'initOptions')) { control.config.initOptions = options.initOptions || {}; }
+        if (hasOwn(options, 'group')) { control.config.group = options.group; }
+        if (hasOwn(options, 'option')) { control.config.option = options.option || {}; }
+        control.selections = [];
+        createChart(control, options.applyOption !== false);
+        emit(control, 'reinitialized', {
+            theme: control.config.theme,
+            locale: control.config.locale,
+            initOptions: cloneValue(control.config.initOptions)
+        });
+        return control.chart;
+    }
+
+    function transactionRows(control, requestType, metaColumns) {
+        var rows = $echarts.getSelectedRows(control.id);
+        if (requestType === 'Row') {
+            rows = rows.length ? [rows[rows.length - 1]] : [];
+        }
+        else if (requestType !== 'List') {
+            return [];
+        }
+
+        var result = [];
+        var columns = metaColumns || control.metaColumns;
+        for (var i = 0; i < rows.length; i++) {
+            var row = rows[i];
+            var transactionRow = [];
+            if (columns) {
+                for (var key in columns) {
+                    if (!Object.prototype.hasOwnProperty.call(columns, key)) {
+                        continue;
+                    }
+                    var column = columns[key] || {};
+                    var fieldID = column.fieldID || column.FieldID || key;
+                    var dataType = column.dataType || column.DataType;
+                    var rowValue = row[key];
+                    if (rowValue === undefined && window.$object && $object.defaultValue) {
+                        rowValue = dataType === 'number' ? null : $object.defaultValue(dataType);
+                    }
+                    transactionRow.push({ prop: fieldID, val: rowValue });
+                }
+            }
+            else {
+                for (var property in row) {
+                    if (Object.prototype.hasOwnProperty.call(row, property)) {
+                        transactionRow.push({ prop: property, val: row[property] });
+                    }
+                }
+            }
+            result.push(transactionRow);
+        }
+        return result;
+    }
+
+    $echarts.extend({
+        name: 'syn.uicontrols.$echarts',
+        version: 'v2026.7.27',
+        chartControls: [],
+        syntheticEvents: ['initialized', 'dataBound', 'selectionChange', 'optionChanged', 'reinitialized', 'resized', 'disposed', 'error'],
+        defaultSetting: {
+            width: '100%',
+            height: '320px',
+            option: {},
+            theme: null,
+            locale: 'KO',
+            initOptions: { renderer: 'canvas', useDirtyRect: false },
+            group: null,
+            dataMode: 'dataset',
+            datasetIndex: 0,
+            dataAdapter: null,
+            selectionResolver: null,
+            rowIndexMap: null,
+            selectionMode: 'single',
+            selectionKey: null,
+            clearSelectionOnBlank: true,
+            autoResize: true,
+            eventQueries: {},
+            zrEvents: [],
+            setOptionOptions: { notMerge: false, lazyUpdate: false, silent: false },
+            dataType: 'string',
+            belongID: null,
+            getter: false,
+            setter: false,
+            controlText: null,
+            validators: null,
+            transactConfig: null,
+            triggerConfig: null
+        },
+
+        addModuleList: function (el, moduleList, setting, controlType) {
+            var form = el.closest('form');
+            moduleList.push({
+                id: el.getAttribute('id'),
+                formDataFieldID: form ? form.getAttribute('syn-datafield') : '',
+                field: el.getAttribute('syn-datafield'),
+                module: this.name,
+                type: controlType
+            });
+        },
+
+        controlLoad: function (elID, setting) {
+            var el = syn.$l.get(elID);
+            if (!el) {
+                return;
+            }
+            if (!window.echarts) {
+                logError('$echarts.controlLoad', 'ECharts library is not loaded.');
+                return;
+            }
+
+            setting = mergeSetting(mergeSetting({}, $echarts.defaultSetting), setting || {});
+            var mod = window[syn.$w.pageScript];
+            if (mod && mod.hook && mod.hook.controlInit) {
+                setting = mergeSetting(setting, mod.hook.controlInit(elID, setting));
+            }
+            setting.width = el.style.width || setting.width;
+            setting.height = el.style.height || setting.height;
+            setting.option = mergeSetting({}, setting.option || {});
+
+            var eventNames = [];
+            var synEvents = el.getAttribute('syn-events');
+            if (synEvents) {
+                try {
+                    eventNames = eval(synEvents);
+                }
+                catch (error) {
+                    logError('$echarts.controlLoad', error);
+                }
+            }
+            eventNames = Array.isArray(eventNames) ? eventNames : [];
+
+            el.setAttribute('id', elID + '_hidden');
+            el.setAttribute('syn-options', JSON.stringify(setting));
+            el.style.display = 'none';
+
+            var chartElement = document.createElement('div');
+            chartElement.id = elID;
+            chartElement.className = 'syn-echarts' + (el.className ? ' ' + el.className : '');
+            chartElement.style.width = setting.width;
+            chartElement.style.height = setting.height;
+            el.parentNode.insertBefore(chartElement, el.nextSibling);
+
+            var control = {
+                id: elID,
+                element: chartElement,
+                chart: null,
+                config: setting,
+                rawValue: [],
+                metaColumns: null,
+                selections: [],
+                selectionResolver: resolveFunction(setting.selectionResolver),
+                rowIndexMap: setting.rowIndexMap,
+                eventNames: eventNames,
+                zrEventNames: asArray(setting.zrEvents),
+                runtimeEvents: [],
+                runtimeZrEvents: [],
+                resizeObserver: null,
+                resizeHandler: null,
+                dataRequestVersion: 0
+            };
+
+            try {
+                createChart(control, true);
+                $echarts.chartControls.push(control);
+                if (setting.autoResize) {
+                    if (window.ResizeObserver) {
+                        control.resizeObserver = new ResizeObserver(function () {
+                            if (control.chart && !control.chart.isDisposed()) {
+                                control.chart.resize();
+                                emit(control, 'resized', { source: 'ResizeObserver' });
+                            }
+                        });
+                        control.resizeObserver.observe(chartElement);
+                    }
+                    else {
+                        control.resizeHandler = function () { $echarts.resize(elID); };
+                        window.addEventListener('resize', control.resizeHandler);
+                    }
+                }
+                emit(control, 'initialized', { chart: control.chart });
+            }
+            catch (error) {
+                handleError(control, '$echarts.controlLoad', error);
+            }
+        },
+
+        getControl: function (elID) {
+            for (var i = 0; i < $echarts.chartControls.length; i++) {
+                if ($echarts.chartControls[i].id === elID) {
+                    return $echarts.chartControls[i];
+                }
+            }
+            return null;
+        },
+
+        getChartControl: function (elID) {
+            var control = $echarts.getControl(elID);
+            return control ? control.chart : null;
+        },
+
+        getChartInstance: function (elID) {
+            return $echarts.getChartControl(elID);
+        },
+
+        getECharts: function () {
+            return window.echarts;
+        },
+
+        setValue: function (elID, value, metaColumns) {
+            var control = $echarts.getControl(elID);
+            if (!control) {
+                return Promise.resolve(null);
+            }
+            var rows = validateRows(value, '$echarts.setValue');
+            if (rows === null) {
+                return Promise.resolve(null);
+            }
+
+            var token = ++control.dataRequestVersion;
+            var adapter = resolveFunction(control.config.dataAdapter);
+            if (!adapter) {
+                return Promise.resolve(applyAdaptedValue(control, token, rows, metaColumns, null));
+            }
+
+            var adapted;
+            try {
+                adapted = adapter(rows, metaColumns, control.config.option || control.chart.getOption(), control);
+            }
+            catch (error) {
+                handleError(control, '$echarts.setValue', error);
+                return Promise.resolve(null);
+            }
+
+            if (isPromise(adapted)) {
+                return adapted.then(function (result) {
+                    return applyAdaptedValue(control, token, rows, metaColumns, result);
+                }).catch(function (error) {
+                    return handleError(control, '$echarts.setValue', error);
+                });
+            }
+            try {
+                return Promise.resolve(applyAdaptedValue(control, token, rows, metaColumns, adapted));
+            }
+            catch (error) {
+                handleError(control, '$echarts.setValue', error);
+                return Promise.resolve(null);
+            }
+        },
+
+        renderChart: function (elID, descriptor) {
+            var control = $echarts.getControl(elID);
+            if (!control) {
+                return Promise.resolve(null);
+            }
+            var token = ++control.dataRequestVersion;
+
+            try {
+                if (typeof descriptor === 'function') {
+                    descriptor = descriptor(control, echarts);
+                }
+            }
+            catch (error) {
+                handleError(control, '$echarts.renderChart', error);
+                return Promise.resolve(null);
+            }
+
+            return Promise.resolve(descriptor || {}).then(function (resolvedDescriptor) {
+                if (token !== control.dataRequestVersion) {
+                    return control.chart;
+                }
+                var option = resolvedDescriptor.option || {};
+                if (typeof option === 'function') {
+                    option = option(control, echarts, resolvedDescriptor.rows);
+                }
+                return Promise.resolve(option).then(function (resolvedOption) {
+                    if (token !== control.dataRequestVersion) {
+                        return control.chart;
+                    }
+
+                    var rows = control.rawValue;
+                    if (hasOwn(resolvedDescriptor, 'rows')) {
+                        rows = validateRows(resolvedDescriptor.rows, '$echarts.renderChart');
+                        if (rows === null) {
+                            return null;
+                        }
+                    }
+                    var shouldRecreate = hasOwn(resolvedDescriptor, 'theme') || hasOwn(resolvedDescriptor, 'locale') || hasOwn(resolvedDescriptor, 'initOptions');
+                    if (hasOwn(resolvedDescriptor, 'setOptionOptions')) {
+                        control.config.setOptionOptions = resolvedDescriptor.setOptionOptions || $echarts.defaultSetting.setOptionOptions;
+                    }
+                    if (hasOwn(resolvedDescriptor, 'selectionResolver')) {
+                        control.selectionResolver = resolveFunction(resolvedDescriptor.selectionResolver) || resolvedDescriptor.selectionResolver;
+                    }
+                    if (hasOwn(resolvedDescriptor, 'rowIndexMap')) {
+                        control.rowIndexMap = resolvedDescriptor.rowIndexMap;
+                    }
+                    if (hasOwn(resolvedDescriptor, 'metaColumns')) {
+                        control.metaColumns = resolvedDescriptor.metaColumns;
+                    }
+                    if (hasOwn(resolvedDescriptor, 'group')) {
+                        control.config.group = resolvedDescriptor.group;
+                    }
+                    control.rawValue = rows;
+                    control.selections = [];
+
+                    if (shouldRecreate) {
+                        recreateChart(control, {
+                            theme: hasOwn(resolvedDescriptor, 'theme') ? resolvedDescriptor.theme : control.config.theme,
+                            locale: hasOwn(resolvedDescriptor, 'locale') ? resolvedDescriptor.locale : control.config.locale,
+                            initOptions: hasOwn(resolvedDescriptor, 'initOptions') ? resolvedDescriptor.initOptions : control.config.initOptions,
+                            group: control.config.group,
+                            option: resolvedOption || {},
+                            applyOption: true
+                        });
+                        emit(control, 'optionChanged', { source: 'renderChart', option: resolvedOption || {}, options: control.config.setOptionOptions });
+                    }
+                    else {
+                        applyOption(control, resolvedOption || {}, resolvedDescriptor.setOptionOptions || control.config.setOptionOptions, 'renderChart');
+                        if (hasOwn(resolvedDescriptor, 'group')) {
+                            control.chart.group = resolvedDescriptor.group;
+                        }
+                    }
+                    if (hasOwn(resolvedDescriptor, 'rows')) {
+                        emit(control, 'dataBound', { rows: cloneValue(rows), option: resolvedOption || {} });
+                    }
+                    return control.chart;
+                });
+            }).catch(function (error) {
+                return handleError(control, '$echarts.renderChart', error);
+            });
+        },
+
+        getRawValue: function (elID) {
+            var control = $echarts.getControl(elID);
+            return control ? cloneValue(control.rawValue) : [];
+        },
+
+        getSelection: function (elID) {
+            var control = $echarts.getControl(elID);
+            return control ? cloneValue(control.selections) : [];
+        },
+
+        getSelectedRows: function (elID) {
+            var control = $echarts.getControl(elID);
+            if (!control) {
+                return [];
+            }
+            var rows = [];
+            var indexes = {};
+            for (var i = 0; i < control.selections.length; i++) {
+                var selection = control.selections[i];
+                var key = selection.rowIndex > -1 ? 'index-' + selection.rowIndex : 'row-' + i;
+                if (selection.row !== null && selection.row !== undefined && !indexes[key]) {
+                    rows.push(cloneValue(selection.row));
+                    indexes[key] = true;
+                }
+            }
+            return rows;
+        },
+
+        getValue: function (elID, requestType, metaColumns) {
+            var control = $echarts.getControl(elID);
+            if (!control) {
+                return requestType ? [] : null;
+            }
+            if (requestType) {
+                return transactionRows(control, requestType, metaColumns);
+            }
+            var rows = $echarts.getSelectedRows(elID);
+            return control.config.selectionMode === 'multiple' || control.config.selectionMode === 'native' ? rows : (rows[rows.length - 1] || null);
+        },
+
+        setSelection: function (elID, selections) {
+            var control = $echarts.getControl(elID);
+            if (!control || control.config.selectionMode === 'none') {
+                return;
+            }
+            $echarts.clearSelection(elID, true);
+            var values = asArray(selections);
+            for (var i = 0; i < values.length; i++) {
+                var value = values[i];
+                var params = typeof value === 'number' ? { seriesIndex: 0, dataIndex: value, componentType: 'series' } : value;
+                var selection = value && value.row !== undefined && value.point ? value : makeSelection(control, params);
+                if (selection) {
+                    control.selections.push(selection);
+                    if (control.config.selectionMode === 'single') {
+                        break;
+                    }
+                }
+            }
+            emit(control, 'selectionChange', { source: 'setSelection' });
+        },
+
+        clearSelection: function (elID, silent) {
+            var control = $echarts.getControl(elID);
+            if (!control) {
+                return;
+            }
+            control.selections = [];
+            if (!silent) {
+                emit(control, 'selectionChange', { source: 'clearSelection' });
+            }
+        },
+
+        setOption: function (elID, option, options) {
+            var control = $echarts.getControl(elID);
+            return control ? applyOption(control, option || {}, options || control.config.setOptionOptions, 'setOption') : null;
+        },
+
+        getOption: function (elID) {
+            var chart = $echarts.getChartControl(elID);
+            return chart ? chart.getOption() : null;
+        },
+
+        dispatchAction: function (elID, action) {
+            var chart = $echarts.getChartControl(elID);
+            if (chart) { return chart.dispatchAction(action); }
+            return null;
+        },
+
+        appendData: function (elID, options) {
+            var chart = $echarts.getChartControl(elID);
+            if (chart) { return chart.appendData(options); }
+            return null;
+        },
+
+        on: function (elID, eventName, query, handler) {
+            var control = $echarts.getControl(elID);
+            if (!control) { return null; }
+            if (handler === undefined) {
+                handler = query;
+                query = null;
+            }
+            var registration = { eventName: eventName, query: query, handler: handler, listener: null };
+            control.runtimeEvents.push(registration);
+            bindRuntimeEvent(control, registration);
+            return registration.listener;
+        },
+
+        off: function (elID, eventName, handler) {
+            var control = $echarts.getControl(elID);
+            if (!control) { return; }
+            for (var i = control.runtimeEvents.length - 1; i >= 0; i--) {
+                var item = control.runtimeEvents[i];
+                if (item.eventName === eventName && (!handler || item.handler === handler)) {
+                    control.chart.off(eventName, item.listener);
+                    control.runtimeEvents.splice(i, 1);
+                }
+            }
+        },
+
+        onZr: function (elID, eventName, handler) {
+            var control = $echarts.getControl(elID);
+            if (!control) { return null; }
+            var registration = { eventName: eventName, handler: handler, listener: null };
+            control.runtimeZrEvents.push(registration);
+            bindRuntimeZrEvent(control, registration);
+            return registration.listener;
+        },
+
+        offZr: function (elID, eventName, handler) {
+            var control = $echarts.getControl(elID);
+            if (!control) { return; }
+            var zr = control.chart.getZr();
+            for (var i = control.runtimeZrEvents.length - 1; i >= 0; i--) {
+                var item = control.runtimeZrEvents[i];
+                if (item.eventName === eventName && (!handler || item.handler === handler)) {
+                    zr.off(eventName, item.listener);
+                    control.runtimeZrEvents.splice(i, 1);
+                }
+            }
+        },
+
+        invoke: function (elID, target, method, args) {
+            var chart = $echarts.getChartControl(elID);
+            var instance = target === 'zr' && chart ? chart.getZr() : chart;
+            return instance && typeof instance[method] === 'function' ? instance[method].apply(instance, args || []) : null;
+        },
+
+        invokeGlobal: function (method, args) {
+            return window.echarts && typeof echarts[method] === 'function' ? echarts[method].apply(echarts, args || []) : null;
+        },
+
+        getZr: function (elID) {
+            var chart = $echarts.getChartControl(elID);
+            return chart ? chart.getZr() : null;
+        },
+
+        getDom: function (elID) {
+            var chart = $echarts.getChartControl(elID);
+            return chart ? chart.getDom() : null;
+        },
+
+        getWidth: function (elID) {
+            var chart = $echarts.getChartControl(elID);
+            return chart ? chart.getWidth() : 0;
+        },
+
+        getHeight: function (elID) {
+            var chart = $echarts.getChartControl(elID);
+            return chart ? chart.getHeight() : 0;
+        },
+
+        getDevicePixelRatio: function (elID) {
+            var chart = $echarts.getChartControl(elID);
+            return chart ? chart.getDevicePixelRatio() : null;
+        },
+
+        getVisual: function (elID, finder, visualType) {
+            var chart = $echarts.getChartControl(elID);
+            return chart && chart.getVisual ? chart.getVisual(finder, visualType) : null;
+        },
+
+        isDisposed: function (elID) {
+            var chart = $echarts.getChartControl(elID);
+            return !chart || chart.isDisposed();
+        },
+
+        setGroup: function (elID, group) {
+            var control = $echarts.getControl(elID);
+            if (control) {
+                control.config.group = group;
+                control.chart.group = group;
+            }
+        },
+
+        resize: function (elID, options) {
+            var control = $echarts.getControl(elID);
+            if (control) {
+                control.chart.resize(options);
+                emit(control, 'resized', options || { source: 'api' });
+            }
+        },
+
+        setControlSize: function (elID, width, height) {
+            var control = $echarts.getControl(elID);
+            if (control) {
+                if (width !== undefined) { control.element.style.width = typeof width === 'number' ? width + 'px' : width; }
+                if (height !== undefined) { control.element.style.height = typeof height === 'number' ? height + 'px' : height; }
+                $echarts.resize(elID);
+            }
+        },
+
+        clear: function (elID) {
+            var control = $echarts.getControl(elID);
+            if (control) {
+                control.dataRequestVersion++;
+                control.chart.clear();
+                control.config.option = {};
+                control.rawValue = [];
+                control.selections = [];
+                control.rowIndexMap = null;
+            }
+        },
+
+        dispose: function (elID) {
+            var control = $echarts.getControl(elID);
+            if (!control) {
+                return;
+            }
+            emit(control, 'disposed', {});
+            control.dataRequestVersion++;
+            if (control.resizeObserver) { control.resizeObserver.disconnect(); }
+            if (control.resizeHandler) { window.removeEventListener('resize', control.resizeHandler); }
+            if (control.chart && !control.chart.isDisposed()) { control.chart.dispose(); }
+            var index = $echarts.chartControls.indexOf(control);
+            if (index > -1) { $echarts.chartControls.splice(index, 1); }
+        },
+
+        toImage: function (elID, options) {
+            return $echarts.getDataURL(elID, options);
+        },
+
+        getDataURL: function (elID, options) {
+            var chart = $echarts.getChartControl(elID);
+            return chart ? chart.getDataURL(options || { type: 'png', pixelRatio: 2, backgroundColor: '#fff' }) : null;
+        },
+
+        getConnectedDataURL: function (elID, options) {
+            var chart = $echarts.getChartControl(elID);
+            return chart ? chart.getConnectedDataURL(options || { type: 'png', pixelRatio: 2 }) : null;
+        },
+
+        convertToPixel: function (elID, finder, value) {
+            var chart = $echarts.getChartControl(elID);
+            return chart ? chart.convertToPixel(finder, value) : null;
+        },
+
+        convertFromPixel: function (elID, finder, value) {
+            var chart = $echarts.getChartControl(elID);
+            return chart ? chart.convertFromPixel(finder, value) : null;
+        },
+
+        containPixel: function (elID, finder, value) {
+            var chart = $echarts.getChartControl(elID);
+            return chart ? chart.containPixel(finder, value) : false;
+        },
+
+        showLoading: function (elID, type, options) {
+            var chart = $echarts.getChartControl(elID);
+            if (chart) { chart.showLoading(type || 'default', options); }
+        },
+
+        hideLoading: function (elID) {
+            var chart = $echarts.getChartControl(elID);
+            if (chart) { chart.hideLoading(); }
+        },
+
+        reinitialize: function (elID, theme, locale, initOptions) {
+            var control = $echarts.getControl(elID);
+            if (!control) {
+                return null;
+            }
+            return recreateChart(control, {
+                theme: theme !== undefined ? theme : control.config.theme,
+                locale: locale !== undefined ? locale : control.config.locale,
+                initOptions: initOptions !== undefined ? initOptions : control.config.initOptions,
+                group: control.config.group,
+                option: control.config.option,
+                applyOption: true
+            });
+        },
+
+        setTheme: function (elID, theme) {
+            return $echarts.reinitialize(elID, theme, undefined, undefined);
+        },
+
+        setLocale: function (elID, locale) {
+            return $echarts.reinitialize(elID, undefined, locale, undefined);
+        },
+
+        connect: function (group) { return echarts.connect(group); },
+        disconnect: function (group) { return echarts.disconnect(group); },
+        registerMap: function (mapName, geoJson, specialAreas) { return echarts.registerMap(mapName, geoJson, specialAreas); },
+        getMap: function (mapName) { return echarts.getMap(mapName); },
+        registerTheme: function (themeName, theme) { return echarts.registerTheme(themeName, theme); },
+        registerLocale: function (localeName, locale) { return echarts.registerLocale(localeName, locale); },
+        registerTransform: function (transform) { return echarts.registerTransform(transform); },
+        registerCustomSeries: function (seriesName, renderItem) {
+            if (echarts.registerCustomSeries) {
+                return echarts.registerCustomSeries(seriesName, renderItem);
+            }
+            logWarning('$echarts.registerCustomSeries', 'registerCustomSeries requires ECharts 6 or later.');
+            return null;
+        }
+    });
+
+    syn.uicontrols.$echarts = $echarts;
+})(window);
+
+/// <reference path="/js/syn.js" />
+
+(function (window) {
+    'use strict';
+
+    syn.uicontrols = syn.uicontrols || new syn.module();
+    var $mediaplayer = syn.uicontrols.$mediaplayer || new syn.module();
+
+    function hasOwn(target, name) {
+        return target && Object.prototype.hasOwnProperty.call(target, name);
+    }
+
+    function clone(value, references, copies) {
+        if (value === null || value === undefined || typeof value !== 'object') {
+            return value;
+        }
+        if (value instanceof Date) {
+            return new Date(value.getTime());
+        }
+        references = references || [];
+        copies = copies || [];
+        var found = references.indexOf(value);
+        if (found > -1) {
+            return copies[found];
+        }
+        var result = Array.isArray(value) ? [] : {};
+        references.push(value);
+        copies.push(result);
+        for (var key in value) {
+            if (hasOwn(value, key)) {
+                result[key] = clone(value[key], references, copies);
+            }
+        }
+        return result;
+    }
+
+    function merge(target) {
+        target = target || {};
+        for (var index = 1; index < arguments.length; index++) {
+            var source = arguments[index];
+            if (!source || typeof source !== 'object') {
+                continue;
+            }
+            for (var key in source) {
+                if (!hasOwn(source, key)) {
+                    continue;
+                }
+                var value = source[key];
+                if (value && typeof value === 'object' && !Array.isArray(value) && !(value instanceof Date)) {
+                    var base = target[key] && typeof target[key] === 'object' && !Array.isArray(target[key]) ? target[key] : {};
+                    target[key] = merge(base, value);
+                }
+                else {
+                    target[key] = clone(value);
+                }
+            }
+        }
+        return target;
+    }
+
+    function asArray(value) {
+        if (value === null || value === undefined) {
+            return [];
+        }
+        return Array.isArray(value) ? value : [value];
+    }
+
+    function resolveFunction(value) {
+        if (typeof value === 'function') {
+            return value;
+        }
+        if (typeof value !== 'string' || value.length === 0) {
+            return null;
+        }
+        var current = window;
+        var names = value.split('.');
+        for (var i = 0; i < names.length && current; i++) {
+            current = current[names[i]];
+        }
+        return typeof current === 'function' ? current : null;
+    }
+
+    function log(scope, message, level) {
+        if (syn.$l && syn.$l.eventLog) {
+            syn.$l.eventLog(scope, message && message.message ? message.message : String(message), level || 'Error');
+        }
+    }
+
+    function nowISO() {
+        return new Date().toISOString();
+    }
+
+    function optionBoolean(value) {
+        if (value === undefined || value === null || value === '') {
+            return undefined;
+        }
+        if (typeof value === 'string') {
+            var normalized = value.toLowerCase();
+            return normalized === 'true' || normalized === 'y' || normalized === 'yes' || normalized === '1';
+        }
+        return value === true || value === 1;
+    }
+
+    function round(value, digits) {
+        if (!isFinite(value)) {
+            return null;
+        }
+        var unit = Math.pow(10, digits === undefined ? 3 : digits);
+        return Math.round(value * unit) / unit;
+    }
+
+    function parseEvents(el) {
+        var result = [];
+        var text = el ? el.getAttribute('syn-events') : null;
+        if (!text) {
+            return result;
+        }
+        try {
+            result = eval(text);
+        }
+        catch (error) {
+            log('$mediaplayer.parseEvents', error, 'Warning');
+        }
+        return Array.isArray(result) ? result : [];
+    }
+
+    function getPageHandler(elID, eventName) {
+        var mod = window[syn.$w.pageScript];
+        return mod && mod.event ? mod.event[elID + '_' + eventName] : null;
+    }
+
+    function emit(control, eventName, eventData) {
+        var handler = getPageHandler(control.id, eventName);
+        if (handler) {
+            try {
+                handler.apply(control.element, [control.id, eventData || {}, getState(control)]);
+            }
+            catch (error) {
+                log('$mediaplayer.emit.' + eventName, error);
+            }
+        }
+    }
+
+    function normalizeRows(value) {
+        if (value === null || value === undefined) {
+            return { valid: true, rows: [] };
+        }
+        if (!Array.isArray(value) && (typeof value !== 'object' || value instanceof Date)) {
+            return { valid: false, rows: [], error: 'setValue accepts an object or an array of objects.' };
+        }
+        var rows = asArray(value);
+        for (var i = 0; i < rows.length; i++) {
+            if (!rows[i] || typeof rows[i] !== 'object' || Array.isArray(rows[i])) {
+                return { valid: false, rows: [], error: 'Every playlist item must be an object.' };
+            }
+        }
+        return { valid: true, rows: clone(rows) };
+    }
+
+    function mappedValue(row, mapping, name, fallbackNames) {
+        var resolver = mapping ? mapping[name] : null;
+        if (typeof resolver === 'function') {
+            return resolver(row);
+        }
+        if (typeof resolver === 'string' && hasOwn(row, resolver)) {
+            return row[resolver];
+        }
+        var names = asArray(fallbackNames);
+        for (var i = 0; i < names.length; i++) {
+            if (hasOwn(row, names[i])) {
+                return row[names[i]];
+            }
+        }
+        return undefined;
+    }
+
+    function isYouTubeURL(src) {
+        return typeof src === 'string' && /(?:youtube\.com|youtu\.be)\//i.test(src);
+    }
+
+    function inferType(src, mediaType) {
+        if (!src) {
+            return '';
+        }
+        if (isYouTubeURL(src)) {
+            return 'video/youtube';
+        }
+        var path = String(src).split('#')[0].split('?')[0].toLowerCase();
+        var extension = path.indexOf('.') > -1 ? path.substring(path.lastIndexOf('.') + 1) : '';
+        var types = {
+            m3u8: 'application/x-mpegURL',
+            mpd: 'application/dash+xml',
+            mp4: mediaType === 'audio' ? 'audio/mp4' : 'video/mp4',
+            m4v: 'video/mp4',
+            webm: mediaType === 'audio' ? 'audio/webm' : 'video/webm',
+            ogv: 'video/ogg',
+            mp3: 'audio/mpeg',
+            m4a: 'audio/mp4',
+            aac: 'audio/aac',
+            oga: 'audio/ogg',
+            ogg: mediaType === 'video' ? 'video/ogg' : 'audio/ogg',
+            wav: 'audio/wav',
+            flac: 'audio/flac'
+        };
+        return types[extension] || '';
+    }
+
+    function inferMediaType(type, src, explicitType) {
+        if (explicitType === 'audio' || explicitType === 'video') {
+            return explicitType;
+        }
+        if (String(type || '').indexOf('audio/') === 0) {
+            return 'audio';
+        }
+        var inferred = inferType(src, '');
+        return inferred.indexOf('audio/') === 0 ? 'audio' : 'video';
+    }
+
+    function normalizeSource(source, mediaType) {
+        if (typeof source === 'string') {
+            return { src: source, type: inferType(source, mediaType) };
+        }
+        source = source || {};
+        var src = source.src !== undefined ? source.src : source.Src;
+        var type = source.type !== undefined ? source.type : source.Type;
+        return { src: src || '', type: type || inferType(src, mediaType) };
+    }
+
+    function normalizeTrack(track) {
+        track = track || {};
+        return {
+            src: track.src !== undefined ? track.src : track.Src,
+            kind: track.kind !== undefined ? track.kind : (track.Kind || 'subtitles'),
+            srclang: track.srclang !== undefined ? track.srclang : (track.SrcLang || track.SRCLang || ''),
+            label: track.label !== undefined ? track.label : (track.Label || ''),
+            default: optionBoolean(track.default !== undefined ? track.default : track.Default) === true
+        };
+    }
+
+    function normalizeMedia(row, rowIndex, setting) {
+        var mapping = setting.mediaMapping || {};
+        var explicitMediaType = mappedValue(row, mapping, 'mediaType', ['MediaType', 'mediaType']);
+        var rawSources = mappedValue(row, mapping, 'sources', ['Sources', 'sources']);
+        var src = mappedValue(row, mapping, 'src', ['Src', 'src', 'SourceURL', 'URL']);
+        var type = mappedValue(row, mapping, 'type', ['Type', 'type', 'MimeType']);
+        var sources = [];
+
+        if (rawSources !== undefined && rawSources !== null && rawSources !== '') {
+            if (!Array.isArray(rawSources)) {
+                throw new Error('Sources must be an array. Playlist index: ' + rowIndex);
+            }
+            for (var sourceIndex = 0; sourceIndex < rawSources.length; sourceIndex++) {
+                sources.push(normalizeSource(rawSources[sourceIndex], explicitMediaType));
+            }
+        }
+        else if (src) {
+            sources.push(normalizeSource({ src: src, type: type }, explicitMediaType));
+        }
+
+        if (sources.length === 0 || !sources[0].src) {
+            throw new Error('Src or Sources is required. Playlist index: ' + rowIndex);
+        }
+
+        var provider = String(mappedValue(row, mapping, 'provider', ['Provider', 'provider']) || '').toLowerCase();
+        if (provider === 'youtube' || isYouTubeURL(sources[0].src)) {
+            provider = 'youtube';
+            sources[0].type = 'video/youtube';
+        }
+        else {
+            provider = 'html5';
+        }
+
+        for (var i = 0; i < sources.length; i++) {
+            if (!sources[i].type) {
+                sources[i].type = inferType(sources[i].src, explicitMediaType);
+            }
+            if (!sources[i].type) {
+                throw new Error('Type is required when it cannot be inferred from Src. Playlist index: ' + rowIndex);
+            }
+        }
+
+        var tracks = [];
+        var rawTracks = mappedValue(row, mapping, 'tracks', ['Tracks', 'tracks']);
+        if (rawTracks !== undefined && rawTracks !== null && rawTracks !== '') {
+            if (!Array.isArray(rawTracks)) {
+                throw new Error('Tracks must be an array. Playlist index: ' + rowIndex);
+            }
+            for (var trackIndex = 0; trackIndex < rawTracks.length; trackIndex++) {
+                var track = normalizeTrack(rawTracks[trackIndex]);
+                if (track.src) {
+                    tracks.push(track);
+                }
+            }
+        }
+
+        var id = mappedValue(row, mapping, 'id', ['MediaID', 'mediaID', 'id']);
+        var configuredHistoryKey = setting.historyKey && hasOwn(row, setting.historyKey) ? row[setting.historyKey] : id;
+        var baseKey = configuredHistoryKey !== undefined && configuredHistoryKey !== null && configuredHistoryKey !== '' ? String(configuredHistoryKey) : String(sources[0].src).toLowerCase();
+        return {
+            id: id !== undefined && id !== null ? String(id) : baseKey,
+            baseKey: baseKey,
+            key: baseKey,
+            index: rowIndex,
+            title: mappedValue(row, mapping, 'title', ['Title', 'title']) || ('Media ' + (rowIndex + 1)),
+            description: mappedValue(row, mapping, 'description', ['Description', 'description']) || '',
+            provider: provider,
+            mediaType: inferMediaType(sources[0].type, sources[0].src, explicitMediaType),
+            poster: mappedValue(row, mapping, 'poster', ['Poster', 'poster']) || '',
+            thumbnail: mappedValue(row, mapping, 'thumbnail', ['Thumbnail', 'thumbnail']) || '',
+            sources: sources,
+            tracks: tracks,
+            autoplay: optionBoolean(mappedValue(row, mapping, 'autoplay', ['Autoplay', 'autoplay'])),
+            muted: optionBoolean(mappedValue(row, mapping, 'muted', ['Muted', 'muted'])),
+            loop: optionBoolean(mappedValue(row, mapping, 'loop', ['Loop', 'loop'])),
+            playbackRate: mappedValue(row, mapping, 'playbackRate', ['PlaybackRate', 'playbackRate']),
+            startTime: Number(mappedValue(row, mapping, 'startTime', ['StartTime', 'startTime']) || 0),
+            row: clone(row)
+        };
+    }
+
+    function normalizePlaylist(rows, setting) {
+        var result = [];
+        var keyCounts = {};
+        for (var i = 0; i < rows.length; i++) {
+            var media = normalizeMedia(rows[i], i, setting);
+            var count = keyCounts[media.baseKey] || 0;
+            keyCounts[media.baseKey] = count + 1;
+            if (count > 0) {
+                media.key = media.baseKey + '#' + i;
+                log('$mediaplayer.setValue', 'Duplicate media history key was separated by playlist index: ' + media.baseKey, 'Warning');
+            }
+            result.push(media);
+        }
+        return result;
+    }
+
+    function createHistory(media) {
+        return {
+            key: media.key,
+            playlistIndex: media.index,
+            playCount: 0,
+            firstStartedAt: null,
+            lastStartedAt: null,
+            lastPausedAt: null,
+            lastEndedAt: null,
+            lastPlayedAt: null,
+            currentTime: 0,
+            duration: null,
+            watchedSeconds: 0,
+            progressPercent: null,
+            completed: false,
+            completionEmitted: false,
+            ended: false,
+            volume: 1,
+            muted: false,
+            playbackRate: 1,
+            lastEvent: null,
+            errorCode: null,
+            errorMessage: null,
+            ranges: []
+        };
+    }
+
+    function mergeRanges(ranges) {
+        var sorted = ranges.slice().filter(function (range) {
+            return range && isFinite(range[0]) && isFinite(range[1]) && range[1] > range[0];
+        }).sort(function (left, right) { return left[0] - right[0]; });
+        var merged = [];
+        for (var i = 0; i < sorted.length; i++) {
+            var current = sorted[i];
+            var last = merged.length ? merged[merged.length - 1] : null;
+            if (!last || current[0] > last[1] + 0.25) {
+                merged.push([current[0], current[1]]);
+            }
+            else if (current[1] > last[1]) {
+                last[1] = current[1];
+            }
+        }
+        return merged;
+    }
+
+    function ensureHistory(control, media) {
+        if (!media) {
+            return null;
+        }
+        if (!control.history[media.key]) {
+            control.history[media.key] = createHistory(media);
+        }
+        control.history[media.key].playlistIndex = media.index;
+        return control.history[media.key];
+    }
+
+    function updateHistoryMetrics(control, entry) {
+        if (!entry) {
+            return;
+        }
+        entry.ranges = mergeRanges(entry.ranges);
+        var watched = 0;
+        for (var i = 0; i < entry.ranges.length; i++) {
+            watched += entry.ranges[i][1] - entry.ranges[i][0];
+        }
+        entry.watchedSeconds = round(watched, 3) || 0;
+        if (isFinite(entry.duration) && entry.duration > 0) {
+            entry.progressPercent = round(Math.min(100, entry.watchedSeconds / entry.duration * 100), 2);
+            if (entry.ended || entry.watchedSeconds / entry.duration >= Number(control.config.completionThreshold || 0.9)) {
+                entry.completed = true;
+            }
+        }
+        else {
+            entry.progressPercent = null;
+            entry.completed = !!entry.ended;
+        }
+        if (entry.completed && !entry.completionEmitted) {
+            entry.completionEmitted = true;
+            emit(control, 'completed', buildPlaybackRow(control, control.playlist[entry.playlistIndex], entry));
+        }
+    }
+
+    function samplePlayback(control) {
+        var media = control.playlist[control.currentIndex];
+        var entry = ensureHistory(control, media);
+        if (!entry || !control.player) {
+            return entry;
+        }
+        var current = Number(control.player.currentTime());
+        if (!isFinite(current)) {
+            return entry;
+        }
+        if (control.lastSampleTime !== null && !control.seeking && !control.player.paused() && current > control.lastSampleTime) {
+            entry.ranges.push([control.lastSampleTime, current]);
+        }
+        control.lastSampleTime = current;
+        entry.currentTime = round(current, 3) || 0;
+        var duration = Number(control.player.duration());
+        entry.duration = isFinite(duration) && duration > 0 ? round(duration, 3) : null;
+        entry.volume = round(Number(control.player.volume()), 3);
+        entry.muted = !!control.player.muted();
+        entry.playbackRate = round(Number(control.player.playbackRate()), 3) || 1;
+        updateHistoryMetrics(control, entry);
+        return entry;
+    }
+
+    function markHistory(control, eventName, event) {
+        var media = control.playlist[control.currentIndex];
+        if (!media) {
+            return;
+        }
+        var entry = ensureHistory(control, media);
+        var timestamp = nowISO();
+        entry.lastEvent = eventName;
+        entry.lastPlayedAt = timestamp;
+
+        if (eventName === 'play') {
+            if (!control.activationPlayed) {
+                entry.playCount++;
+                entry.firstStartedAt = entry.firstStartedAt || timestamp;
+                control.activationPlayed = true;
+            }
+            entry.lastStartedAt = timestamp;
+            entry.ended = false;
+            control.lastPlayedKey = media.key;
+            control.lastSampleTime = Number(control.player.currentTime()) || 0;
+        }
+        else if (eventName === 'playing') {
+            control.lastSampleTime = Number(control.player.currentTime()) || 0;
+        }
+        else if (eventName === 'timeupdate') {
+            samplePlayback(control);
+        }
+        else if (eventName === 'seeking') {
+            control.seeking = true;
+            control.lastSampleTime = null;
+        }
+        else if (eventName === 'seeked') {
+            control.seeking = false;
+            control.lastSampleTime = Number(control.player.currentTime()) || 0;
+        }
+        else if (eventName === 'pause') {
+            samplePlayback(control);
+            entry.lastPausedAt = timestamp;
+            control.lastSampleTime = null;
+        }
+        else if (eventName === 'ended') {
+            samplePlayback(control);
+            entry.ended = true;
+            entry.completed = true;
+            entry.lastEndedAt = timestamp;
+            control.lastSampleTime = null;
+            updateHistoryMetrics(control, entry);
+        }
+        else if (eventName === 'loadedmetadata' || eventName === 'durationchange') {
+            samplePlayback(control);
+            if (eventName === 'loadedmetadata' && media.startTime > 0) {
+                var duration = Number(control.player.duration());
+                control.player.currentTime(isFinite(duration) ? Math.min(media.startTime, duration) : media.startTime);
+            }
+        }
+        else if (eventName === 'ratechange' || eventName === 'volumechange') {
+            samplePlayback(control);
+        }
+        else if (eventName === 'error') {
+            var playerError = control.player.error ? control.player.error() : null;
+            entry.errorCode = playerError ? playerError.code : null;
+            entry.errorMessage = playerError ? playerError.message : (event && event.message ? event.message : 'Media playback error');
+        }
+
+        updatePlaylistUI(control);
+        var immediate = eventName !== 'timeupdate';
+        var now = Date.now();
+        if (immediate || now - control.lastHistoryEmit >= Number(control.config.historyUpdateInterval || 1000)) {
+            control.lastHistoryEmit = now;
+            emit(control, 'historyChange', buildPlaybackRow(control, media, entry));
+        }
+    }
+
+    function buildPlaybackRow(control, media, entry) {
+        if (!media || !entry || entry.playCount < 1) {
+            return null;
+        }
+        updateHistoryMetrics(control, entry);
+        var result = clone(media.row);
+        var fields = {
+            PlaybackPlaylistIndex: media.index,
+            PlaybackProvider: media.provider,
+            PlaybackMediaType: media.mediaType,
+            PlaybackSource: media.sources.length ? media.sources[0].src : '',
+            PlaybackPlayCount: entry.playCount,
+            PlaybackFirstStartedAt: entry.firstStartedAt,
+            PlaybackLastStartedAt: entry.lastStartedAt,
+            PlaybackLastPausedAt: entry.lastPausedAt,
+            PlaybackLastEndedAt: entry.lastEndedAt,
+            PlaybackLastPlayedAt: entry.lastPlayedAt,
+            PlaybackCurrentTime: entry.currentTime,
+            PlaybackDuration: entry.duration,
+            PlaybackWatchedSeconds: entry.watchedSeconds,
+            PlaybackProgressPercent: entry.progressPercent,
+            PlaybackCompletedYN: entry.completed ? 'Y' : 'N',
+            PlaybackEndedYN: entry.ended ? 'Y' : 'N',
+            PlaybackVolume: entry.volume,
+            PlaybackMutedYN: entry.muted ? 'Y' : 'N',
+            PlaybackRate: entry.playbackRate,
+            PlaybackLastEvent: entry.lastEvent,
+            PlaybackErrorCode: entry.errorCode,
+            PlaybackErrorMessage: entry.errorMessage
+        };
+        for (var name in fields) {
+            if (hasOwn(fields, name)) {
+                result[name] = fields[name];
+            }
+        }
+        return result;
+    }
+
+    function getPlaybackRows(control) {
+        if (!control) {
+            return [];
+        }
+        samplePlayback(control);
+        var result = [];
+        for (var i = 0; i < control.playlist.length; i++) {
+            var media = control.playlist[i];
+            var row = buildPlaybackRow(control, media, control.history[media.key]);
+            if (row) {
+                result.push(row);
+            }
+        }
+        return result;
+    }
+
+    function getCurrentPlaybackRow(control) {
+        if (!control) {
+            return null;
+        }
+        samplePlayback(control);
+        var media = control.playlist[control.currentIndex];
+        var row = media ? buildPlaybackRow(control, media, control.history[media.key]) : null;
+        if (row) {
+            return row;
+        }
+        if (control.lastPlayedKey) {
+            for (var i = 0; i < control.playlist.length; i++) {
+                if (control.playlist[i].key === control.lastPlayedKey) {
+                    return buildPlaybackRow(control, control.playlist[i], control.history[control.lastPlayedKey]);
+                }
+            }
+        }
+        return null;
+    }
+
+    function serializeRows(rows, requestType, metaColumns) {
+        if (requestType === 'Row') {
+            rows = rows.length ? [rows[rows.length - 1]] : [];
+        }
+        else if (requestType !== 'List') {
+            return [];
+        }
+        var result = [];
+        for (var i = 0; i < rows.length; i++) {
+            var row = rows[i];
+            var transactionRow = [];
+            if (metaColumns) {
+                for (var key in metaColumns) {
+                    if (!hasOwn(metaColumns, key)) {
+                        continue;
+                    }
+                    var meta = metaColumns[key] || {};
+                    var fieldID = meta.fieldID || meta.FieldID || key;
+                    var dataType = meta.dataType || meta.DataType;
+                    var value = row[key];
+                    if (value === undefined && window.$object && $object.defaultValue) {
+                        value = String(dataType || '').toLowerCase() === 'number' ? null : $object.defaultValue(dataType);
+                    }
+                    transactionRow.push({ prop: fieldID, val: value });
+                }
+            }
+            else {
+                for (var property in row) {
+                    if (hasOwn(row, property)) {
+                        transactionRow.push({ prop: property, val: row[property] });
+                    }
+                }
+            }
+            result.push(transactionRow);
+        }
+        return result;
+    }
+
+    function publicMedia(media) {
+        if (!media) {
+            return null;
+        }
+        return {
+            id: media.id,
+            index: media.index,
+            title: media.title,
+            description: media.description,
+            provider: media.provider,
+            mediaType: media.mediaType,
+            poster: media.poster,
+            thumbnail: media.thumbnail,
+            sources: clone(media.sources),
+            tracks: clone(media.tracks),
+            row: clone(media.row)
+        };
+    }
+
+    function getState(control) {
+        if (!control) {
+            return null;
+        }
+        var player = control.player;
+        var current = control.playlist[control.currentIndex];
+        return {
+            currentIndex: control.currentIndex,
+            currentMedia: publicMedia(current),
+            playback: getCurrentPlaybackRow(control),
+            playlistLength: control.playlist.length,
+            paused: player ? player.paused() : true,
+            ended: player ? player.ended() : false,
+            currentTime: player ? round(Number(player.currentTime()), 3) : 0,
+            duration: player && isFinite(Number(player.duration())) ? round(Number(player.duration()), 3) : null,
+            volume: player ? round(Number(player.volume()), 3) : 1,
+            muted: player ? !!player.muted() : false,
+            playbackRate: player ? round(Number(player.playbackRate()), 3) : 1
+        };
+    }
+
+    function shouldShowPlaylist(control) {
+        var visible = control.config.playlist && control.config.playlist.visible;
+        return visible === true || visible === 'always' || (visible === 'auto' && control.playlist.length > 1);
+    }
+
+    function updatePlaylistUI(control) {
+        if (!control.playlistElement) {
+            return;
+        }
+        control.playlistElement.style.display = shouldShowPlaylist(control) ? '' : 'none';
+        var list = control.playlistListElement;
+        while (list.firstChild) {
+            list.removeChild(list.firstChild);
+        }
+        for (var i = 0; i < control.playlist.length; i++) {
+            (function (index) {
+                var media = control.playlist[index];
+                var entry = control.history[media.key];
+                var item = document.createElement('li');
+                item.className = 'syn-mediaplayer-playlist-item' + (index === control.currentIndex ? ' active' : '');
+                var button = document.createElement('button');
+                button.type = 'button';
+                button.setAttribute('data-index', index);
+                button.setAttribute('aria-current', index === control.currentIndex ? 'true' : 'false');
+                if (media.thumbnail || media.poster) {
+                    var image = document.createElement('img');
+                    image.src = media.thumbnail || media.poster;
+                    image.alt = '';
+                    button.appendChild(image);
+                }
+                var text = document.createElement('span');
+                text.className = 'syn-mediaplayer-playlist-text';
+                var title = document.createElement('strong');
+                title.textContent = media.title;
+                var meta = document.createElement('small');
+                var progress = entry && entry.playCount ? (entry.completed ? '완료' : (entry.progressPercent === null ? '재생함' : entry.progressPercent + '%')) : '미재생';
+                meta.textContent = media.provider + ' · ' + media.mediaType + ' · ' + progress;
+                text.appendChild(title);
+                text.appendChild(meta);
+                button.appendChild(text);
+                button.addEventListener('click', function () {
+                    $mediaplayer.selectMedia(control.id, index, true, 'playlist');
+                });
+                item.appendChild(button);
+                list.appendChild(item);
+            })(i);
+        }
+    }
+
+    function removeRemoteTracks(control) {
+        if (!control.player || !control.player.remoteTextTracks) {
+            return;
+        }
+        var tracks = control.player.remoteTextTracks();
+        for (var i = tracks.length - 1; i >= 0; i--) {
+            try {
+                control.player.removeRemoteTextTrack(tracks[i]);
+            }
+            catch (error) {
+                log('$mediaplayer.removeRemoteTracks', error, 'Warning');
+            }
+        }
+    }
+
+    function setPlayerTheme(control, themeClass) {
+        if (!control.player) {
+            return;
+        }
+        if (control.themeClass) {
+            control.player.removeClass(control.themeClass);
+            control.element.classList.remove(control.themeClass);
+        }
+        control.themeClass = themeClass || '';
+        if (control.themeClass) {
+            control.player.addClass(control.themeClass);
+            control.element.classList.add(control.themeClass);
+        }
+    }
+
+    function applyMedia(control, index, autoplay, reason) {
+        if (!control || !control.player || index < 0 || index >= control.playlist.length) {
+            return null;
+        }
+        samplePlayback(control);
+        control.player.pause();
+        control.currentIndex = index;
+        control.activationPlayed = false;
+        control.lastSampleTime = null;
+        control.seeking = false;
+        var media = control.playlist[index];
+        removeRemoteTracks(control);
+        control.player.poster(media.poster || '');
+        if (typeof control.player.audioOnlyMode === 'function') {
+            Promise.resolve(control.player.audioOnlyMode(media.mediaType === 'audio')).catch(function () { });
+        }
+        if (media.muted !== undefined) {
+            control.player.muted(!!media.muted);
+        }
+        if (media.loop !== undefined) {
+            control.player.loop(!!media.loop);
+        }
+        if (media.playbackRate !== undefined && isFinite(Number(media.playbackRate))) {
+            control.player.playbackRate(Number(media.playbackRate));
+        }
+        control.player.src(clone(media.sources));
+        for (var i = 0; i < media.tracks.length; i++) {
+            control.player.addRemoteTextTrack(clone(media.tracks[i]), false);
+        }
+        updatePlaylistUI(control);
+        emit(control, 'mediaChange', { index: index, reason: reason || 'api', media: publicMedia(media) });
+        var shouldPlay = autoplay === true || (autoplay === undefined && media.autoplay === true);
+        if (shouldPlay) {
+            var promise = control.player.play();
+            if (promise && typeof promise.catch === 'function') {
+                promise.catch(function (error) {
+                    log('$mediaplayer.selectMedia', error, 'Warning');
+                });
+            }
+        }
+        return control.player;
+    }
+
+    function advanceAfterEnded(control) {
+        var playlistSetting = control.config.playlist || {};
+        if (playlistSetting.repeat === 'one') {
+            control.activationPlayed = false;
+            control.player.currentTime(control.playlist[control.currentIndex].startTime || 0);
+            Promise.resolve(control.player.play()).catch(function () { });
+            return;
+        }
+        if (!playlistSetting.autoAdvance) {
+            emit(control, 'playlistEnded', { index: control.currentIndex, reason: 'mediaEnded' });
+            return;
+        }
+        var nextIndex = control.currentIndex + 1;
+        if (nextIndex >= control.playlist.length && playlistSetting.repeat === 'all') {
+            nextIndex = 0;
+        }
+        if (nextIndex < control.playlist.length) {
+            applyMedia(control, nextIndex, true, 'autoAdvance');
+        }
+        else {
+            emit(control, 'playlistEnded', { index: control.currentIndex, reason: 'playlistEnded' });
+        }
+    }
+
+    function bindPlayerEvents(control) {
+        var internalEvents = ['loadstart', 'loadedmetadata', 'durationchange', 'play', 'playing', 'pause', 'timeupdate', 'seeking', 'seeked', 'ratechange', 'volumechange', 'waiting', 'stalled', 'ended', 'error', 'fullscreenchange', 'enterpictureinpicture', 'leavepictureinpicture'];
+        var bound = {};
+        for (var i = 0; i < internalEvents.length; i++) {
+            (function (eventName) {
+                var listener = function (event) {
+                    markHistory(control, eventName, event);
+                    if (control.eventNames.indexOf(eventName) > -1) {
+                        emit(control, eventName, event);
+                    }
+                    if (eventName === 'ended') {
+                        advanceAfterEnded(control);
+                    }
+                };
+                control.player.on(eventName, listener);
+                control.boundEvents.push({ eventName: eventName, listener: listener });
+                bound[eventName] = true;
+            })(internalEvents[i]);
+        }
+        for (var eventIndex = 0; eventIndex < control.eventNames.length; eventIndex++) {
+            (function (eventName) {
+                if (bound[eventName] || $mediaplayer.syntheticEvents.indexOf(eventName) > -1) {
+                    return;
+                }
+                var listener = function (event) { emit(control, eventName, event); };
+                control.player.on(eventName, listener);
+                control.boundEvents.push({ eventName: eventName, listener: listener });
+            })(control.eventNames[eventIndex]);
+        }
+    }
+
+    function createPlayerOptions(setting) {
+        var options = merge({}, setting.playerOptions || {});
+        return merge(options, {
+            controls: setting.controls,
+            preload: setting.preload,
+            autoplay: setting.autoplay,
+            muted: setting.muted,
+            loop: setting.loop,
+            playsinline: setting.playsinline,
+            fluid: setting.fluid,
+            responsive: setting.responsive,
+            aspectRatio: setting.aspectRatio,
+            language: setting.language,
+            playbackRates: setting.playbackRates,
+            techOrder: clone(setting.techOrder),
+            html5: clone(setting.html5),
+            youtube: clone(setting.youtube),
+            plugins: clone(setting.plugins)
+        });
+    }
+
+    function applyPlaylist(control, rows, metaColumns) {
+        var playlist = normalizePlaylist(rows, control.config);
+        samplePlayback(control);
+        control.player.pause();
+        var previous = control.history;
+        var nextHistory = {};
+        if (control.config.preserveHistory) {
+            for (var i = 0; i < playlist.length; i++) {
+                var media = playlist[i];
+                if (previous[media.key]) {
+                    nextHistory[media.key] = previous[media.key];
+                    nextHistory[media.key].playlistIndex = i;
+                }
+            }
+        }
+        control.rawValue = clone(rows);
+        control.metaColumns = metaColumns || null;
+        control.playlist = playlist;
+        control.history = nextHistory;
+        control.currentIndex = -1;
+        control.lastPlayedKey = null;
+        control.activationPlayed = false;
+        control.lastSampleTime = null;
+        if (playlist.length) {
+            var startIndex = Math.max(0, Math.min(Number(control.config.startIndex) || 0, playlist.length - 1));
+            applyMedia(control, startIndex, control.config.autoplay, 'setValue');
+        }
+        else {
+            control.player.pause();
+            removeRemoteTracks(control);
+            control.player.reset();
+            updatePlaylistUI(control);
+        }
+        emit(control, 'dataBound', { rows: clone(rows), playlist: playlist.map(publicMedia) });
+        emit(control, 'playlistChange', { playlist: playlist.map(publicMedia) });
+        return control.player;
+    }
+
+    $mediaplayer.extend({
+        name: 'syn.uicontrols.$mediaplayer',
+        version: 'v2026.7.27',
+        mediaControls: [],
+        syntheticEvents: ['initialized', 'dataBound', 'mediaChange', 'playlistChange', 'historyChange', 'completed', 'playlistEnded', 'disposed'],
+        defaultSetting: {
+            width: '100%',
+            height: 'auto',
+            controls: true,
+            preload: 'metadata',
+            autoplay: false,
+            muted: false,
+            loop: false,
+            playsinline: true,
+            fluid: true,
+            responsive: true,
+            aspectRatio: '16:9',
+            language: 'ko',
+            playbackRates: [0.5, 0.75, 1, 1.25, 1.5, 2],
+            techOrder: ['youtube', 'html5'],
+            html5: {},
+            youtube: { ytControls: 0 },
+            plugins: {},
+            playerOptions: {},
+            themeClass: 'vjs-theme-handstack',
+            playlist: { visible: 'auto', position: 'right', autoAdvance: false, repeat: 'none' },
+            mediaMapping: {
+                id: 'MediaID', title: 'Title', description: 'Description', src: 'Src', type: 'Type',
+                provider: 'Provider', mediaType: 'MediaType', poster: 'Poster', thumbnail: 'Thumbnail',
+                sources: 'Sources', tracks: 'Tracks', autoplay: 'Autoplay', muted: 'Muted', loop: 'Loop',
+                playbackRate: 'PlaybackRate', startTime: 'StartTime'
+            },
+            dataAdapter: null,
+            startIndex: 0,
+            completionThreshold: 0.9,
+            preserveHistory: false,
+            historyKey: 'MediaID',
+            historyUpdateInterval: 1000,
+            autoResize: true,
+            dataType: 'string',
+            belongID: null,
+            getter: false,
+            setter: false,
+            controlText: null,
+            validators: null,
+            transactConfig: null,
+            triggerConfig: null
+        },
+
+        addModuleList: function (el, moduleList, setting, controlType) {
+            var form = el.closest('form');
+            moduleList.push({
+                id: el.getAttribute('id'),
+                formDataFieldID: form ? form.getAttribute('syn-datafield') : '',
+                field: el.getAttribute('syn-datafield'),
+                module: this.name,
+                type: controlType
+            });
+        },
+
+        controlLoad: function (elID, setting) {
+            var el = syn.$l.get(elID);
+            if (!el || !window.videojs) {
+                log('$mediaplayer.controlLoad', 'Video.js is not loaded.');
+                return;
+            }
+            setting = merge({}, $mediaplayer.defaultSetting, setting || {});
+            var mod = window[syn.$w.pageScript];
+            if (mod && mod.hook && mod.hook.controlInit) {
+                setting = merge(setting, mod.hook.controlInit(elID, setting) || {});
+            }
+            setting.width = el.style.width || setting.width;
+            setting.height = el.style.height || setting.height;
+
+            var originalDisplay = el.style.display;
+            el.setAttribute('id', elID + '_hidden');
+            try {
+                el.setAttribute('syn-options', JSON.stringify(setting));
+            }
+            catch (error) {
+                log('$mediaplayer.controlLoad', 'syn-options contains a non-serializable value.', 'Warning');
+            }
+            el.style.display = 'none';
+
+            var wrapper = document.createElement('div');
+            wrapper.id = elID + '_wrapper';
+            wrapper.className = 'syn-mediaplayer syn-mediaplayer-playlist-' + (setting.playlist.position || 'right');
+            wrapper.style.width = setting.width;
+            if (setting.height && setting.height !== 'auto') {
+                wrapper.style.height = setting.height;
+            }
+            var playerArea = document.createElement('div');
+            playerArea.className = 'syn-mediaplayer-player';
+            var video = document.createElement('video');
+            video.id = elID;
+            video.className = 'video-js vjs-big-play-centered';
+            video.setAttribute('playsinline', 'playsinline');
+            playerArea.appendChild(video);
+            var playlistElement = document.createElement('aside');
+            playlistElement.className = 'syn-mediaplayer-playlist';
+            playlistElement.setAttribute('aria-label', '재생목록');
+            var playlistTitle = document.createElement('div');
+            playlistTitle.className = 'syn-mediaplayer-playlist-title';
+            playlistTitle.textContent = '재생목록';
+            var playlistList = document.createElement('ul');
+            playlistElement.appendChild(playlistTitle);
+            playlistElement.appendChild(playlistList);
+            wrapper.appendChild(playerArea);
+            wrapper.appendChild(playlistElement);
+            el.parentNode.insertBefore(wrapper, el.nextSibling);
+
+            var control = {
+                id: elID,
+                originalElement: el,
+                originalDisplay: originalDisplay,
+                element: wrapper,
+                playerArea: playerArea,
+                videoElement: video,
+                playlistElement: playlistElement,
+                playlistListElement: playlistList,
+                player: null,
+                config: setting,
+                rawValue: [],
+                metaColumns: null,
+                playlist: [],
+                history: {},
+                currentIndex: -1,
+                lastPlayedKey: null,
+                activationPlayed: false,
+                lastSampleTime: null,
+                seeking: false,
+                lastHistoryEmit: 0,
+                eventNames: parseEvents(el),
+                boundEvents: [],
+                runtimeEvents: [],
+                resizeObserver: null,
+                setValueVersion: 0,
+                themeClass: ''
+            };
+            $mediaplayer.mediaControls.push(control);
+
+            try {
+                control.player = videojs(video, createPlayerOptions(setting), function () {
+                    control.player = this;
+                    setPlayerTheme(control, setting.themeClass);
+                    bindPlayerEvents(control);
+                    updatePlaylistUI(control);
+                    emit(control, 'initialized', { player: control.player });
+                });
+                if (setting.autoResize && window.ResizeObserver) {
+                    control.resizeObserver = new ResizeObserver(function () {
+                        if (control.player && !control.player.isDisposed()) {
+                            control.player.trigger('resize');
+                            control.player.trigger('componentresize');
+                        }
+                    });
+                    control.resizeObserver.observe(wrapper);
+                }
+            }
+            catch (error) {
+                log('$mediaplayer.controlLoad', error);
+                emit(control, 'error', error);
+            }
+        },
+
+        getControl: function (elID) {
+            return $mediaplayer.mediaControls.find(function (control) { return control.id === elID; }) || null;
+        },
+
+        getPlayer: function (elID) {
+            var control = $mediaplayer.getControl(elID);
+            return control ? control.player : null;
+        },
+
+        getVideoJS: function () {
+            return window.videojs || null;
+        },
+
+        setValue: function (elID, value, metaColumns) {
+            var control = $mediaplayer.getControl(elID);
+            if (!control || !control.player) {
+                return Promise.resolve(null);
+            }
+            var normalized = normalizeRows(value);
+            if (!normalized.valid) {
+                log('$mediaplayer.setValue', normalized.error, 'Warning');
+                emit(control, 'error', { code: 'INVALID_PLAYLIST', message: normalized.error });
+                return Promise.resolve(null);
+            }
+            var token = ++control.setValueVersion;
+            var adapter = resolveFunction(control.config.dataAdapter);
+            var operation;
+            try {
+                operation = adapter ? adapter(clone(normalized.rows), metaColumns, control) : normalized.rows;
+            }
+            catch (error) {
+                log('$mediaplayer.setValue', error);
+                emit(control, 'error', error);
+                return Promise.resolve(null);
+            }
+            return Promise.resolve(operation).then(function (rows) {
+                if (token !== control.setValueVersion) {
+                    return control.player;
+                }
+                var adapted = normalizeRows(rows);
+                if (!adapted.valid) {
+                    throw new Error(adapted.error);
+                }
+                return applyPlaylist(control, adapted.rows, metaColumns);
+            }).catch(function (error) {
+                log('$mediaplayer.setValue', error);
+                emit(control, 'error', error);
+                return null;
+            });
+        },
+
+        getValue: function (elID, requestType, metaColumns) {
+            var control = $mediaplayer.getControl(elID);
+            if (!control) {
+                return requestType ? [] : null;
+            }
+            if (!requestType) {
+                return clone(getCurrentPlaybackRow(control));
+            }
+            var rows = requestType === 'Row' ? asArray(getCurrentPlaybackRow(control)).filter(Boolean) : getPlaybackRows(control);
+            return serializeRows(rows, requestType, metaColumns || control.metaColumns);
+        },
+
+        getRawValue: function (elID) {
+            var control = $mediaplayer.getControl(elID);
+            return control ? clone(control.rawValue) : [];
+        },
+
+        getPlaylist: function (elID) {
+            var control = $mediaplayer.getControl(elID);
+            return control ? control.playlist.map(publicMedia) : [];
+        },
+
+        getCurrentMedia: function (elID) {
+            var control = $mediaplayer.getControl(elID);
+            return control ? publicMedia(control.playlist[control.currentIndex]) : null;
+        },
+
+        getPlaybackDetails: function (elID, requestType) {
+            var control = $mediaplayer.getControl(elID);
+            if (!control) {
+                return requestType === 'List' ? [] : null;
+            }
+            return requestType === 'List' ? clone(getPlaybackRows(control)) : clone(getCurrentPlaybackRow(control));
+        },
+
+        getState: function (elID) {
+            return clone(getState($mediaplayer.getControl(elID)));
+        },
+
+        selectMedia: function (elID, indexOrKey, autoplay, reason) {
+            var control = $mediaplayer.getControl(elID);
+            if (!control) {
+                return null;
+            }
+            var index = typeof indexOrKey === 'number' && isFinite(indexOrKey) ? indexOrKey : -1;
+            if (typeof indexOrKey !== 'number') {
+                index = -1;
+                for (var i = 0; i < control.playlist.length; i++) {
+                    if (control.playlist[i].key === indexOrKey || control.playlist[i].id === String(indexOrKey)) {
+                        index = i;
+                        break;
+                    }
+                }
+                if (index < 0 && String(indexOrKey).trim() !== '' && isFinite(Number(indexOrKey))) {
+                    index = Number(indexOrKey);
+                }
+            }
+            return applyMedia(control, index, autoplay, reason || 'api');
+        },
+
+        play: function (elID) {
+            var player = $mediaplayer.getPlayer(elID);
+            return player ? player.play() : Promise.resolve(null);
+        },
+
+        pause: function (elID) {
+            var player = $mediaplayer.getPlayer(elID);
+            if (player) { player.pause(); }
+        },
+
+        stop: function (elID) {
+            var control = $mediaplayer.getControl(elID);
+            if (control && control.player) {
+                control.player.pause();
+                var media = control.playlist[control.currentIndex];
+                control.player.currentTime(media ? media.startTime || 0 : 0);
+            }
+        },
+
+        load: function (elID) {
+            var player = $mediaplayer.getPlayer(elID);
+            if (player) { player.load(); }
+        },
+
+        next: function (elID, autoplay) {
+            var control = $mediaplayer.getControl(elID);
+            if (!control || !control.playlist.length) { return null; }
+            var index = control.currentIndex + 1;
+            if (index >= control.playlist.length && control.config.playlist.repeat === 'all') { index = 0; }
+            return index < control.playlist.length ? applyMedia(control, index, autoplay, 'next') : null;
+        },
+
+        previous: function (elID, autoplay) {
+            var control = $mediaplayer.getControl(elID);
+            if (!control || !control.playlist.length) { return null; }
+            var index = control.currentIndex - 1;
+            if (index < 0 && control.config.playlist.repeat === 'all') { index = control.playlist.length - 1; }
+            return index >= 0 ? applyMedia(control, index, autoplay, 'previous') : null;
+        },
+
+        currentTime: function (elID, value) {
+            var player = $mediaplayer.getPlayer(elID);
+            if (!player) { return null; }
+            if (value !== undefined) { player.currentTime(Number(value) || 0); }
+            return player.currentTime();
+        },
+
+        duration: function (elID) {
+            var player = $mediaplayer.getPlayer(elID);
+            return player ? player.duration() : null;
+        },
+
+        volume: function (elID, value) {
+            var player = $mediaplayer.getPlayer(elID);
+            if (!player) { return null; }
+            if (value !== undefined) { player.volume(Math.max(0, Math.min(1, Number(value)))); }
+            return player.volume();
+        },
+
+        muted: function (elID, value) {
+            var player = $mediaplayer.getPlayer(elID);
+            if (!player) { return null; }
+            if (value !== undefined) { player.muted(!!value); }
+            return player.muted();
+        },
+
+        playbackRate: function (elID, value) {
+            var player = $mediaplayer.getPlayer(elID);
+            if (!player) { return null; }
+            if (value !== undefined && isFinite(Number(value))) { player.playbackRate(Number(value)); }
+            return player.playbackRate();
+        },
+
+        setTheme: function (elID, themeClass) {
+            var control = $mediaplayer.getControl(elID);
+            if (control) { setPlayerTheme(control, themeClass); }
+        },
+
+        addTextTrack: function (elID, track) {
+            var player = $mediaplayer.getPlayer(elID);
+            return player ? player.addRemoteTextTrack(normalizeTrack(track), false) : null;
+        },
+
+        removeTextTrack: function (elID, track) {
+            var player = $mediaplayer.getPlayer(elID);
+            return player ? player.removeRemoteTextTrack(track) : null;
+        },
+
+        requestFullscreen: function (elID) {
+            var player = $mediaplayer.getPlayer(elID);
+            return player && player.requestFullscreen ? player.requestFullscreen() : null;
+        },
+
+        exitFullscreen: function (elID) {
+            var player = $mediaplayer.getPlayer(elID);
+            return player && player.exitFullscreen ? player.exitFullscreen() : null;
+        },
+
+        requestPictureInPicture: function (elID) {
+            var player = $mediaplayer.getPlayer(elID);
+            if (!player || !player.requestPictureInPicture) {
+                return Promise.resolve(null);
+            }
+            try {
+                return Promise.resolve(player.requestPictureInPicture());
+            }
+            catch (error) {
+                return Promise.reject(error);
+            }
+        },
+
+        usePlugin: function (elID, pluginName, options) {
+            var player = $mediaplayer.getPlayer(elID);
+            return player && typeof player[pluginName] === 'function' ? player[pluginName](options || {}) : null;
+        },
+
+        invoke: function (elID, method, args) {
+            var player = $mediaplayer.getPlayer(elID);
+            return player && typeof player[method] === 'function' ? player[method].apply(player, args || []) : null;
+        },
+
+        on: function (elID, eventName, handler) {
+            var control = $mediaplayer.getControl(elID);
+            var resolved = resolveFunction(handler);
+            if (!control || !control.player || !resolved) { return null; }
+            var listener = function (event) { resolved(control.id, event, getState(control)); };
+            control.player.on(eventName, listener);
+            control.runtimeEvents.push({ eventName: eventName, handler: handler, listener: listener });
+            return listener;
+        },
+
+        off: function (elID, eventName, handler) {
+            var control = $mediaplayer.getControl(elID);
+            if (!control || !control.player) { return; }
+            for (var i = control.runtimeEvents.length - 1; i >= 0; i--) {
+                var item = control.runtimeEvents[i];
+                if (item.eventName === eventName && (!handler || item.handler === handler || item.listener === handler)) {
+                    control.player.off(item.eventName, item.listener);
+                    control.runtimeEvents.splice(i, 1);
+                }
+            }
+        },
+
+        resetHistory: function (elID) {
+            var control = $mediaplayer.getControl(elID);
+            if (!control) { return; }
+            control.history = {};
+            control.lastPlayedKey = null;
+            control.activationPlayed = false;
+            control.lastSampleTime = null;
+            updatePlaylistUI(control);
+            emit(control, 'historyChange', { source: 'resetHistory' });
+        },
+
+        resize: function (elID) {
+            var player = $mediaplayer.getPlayer(elID);
+            if (player) {
+                player.trigger('resize');
+                player.trigger('componentresize');
+            }
+        },
+
+        clear: function (elID) {
+            var control = $mediaplayer.getControl(elID);
+            if (!control || !control.player) { return; }
+            control.setValueVersion++;
+            control.player.pause();
+            removeRemoteTracks(control);
+            control.player.reset();
+            control.rawValue = [];
+            control.metaColumns = null;
+            control.playlist = [];
+            control.history = {};
+            control.currentIndex = -1;
+            control.lastPlayedKey = null;
+            control.activationPlayed = false;
+            control.lastSampleTime = null;
+            updatePlaylistUI(control);
+            emit(control, 'playlistChange', { playlist: [] });
+        },
+
+        dispose: function (elID) {
+            var control = $mediaplayer.getControl(elID);
+            if (!control) { return; }
+            emit(control, 'disposed', {});
+            control.setValueVersion++;
+            if (control.resizeObserver) { control.resizeObserver.disconnect(); }
+            if (control.player && !control.player.isDisposed()) { control.player.dispose(); }
+            if (control.element && control.element.parentNode) { control.element.parentNode.removeChild(control.element); }
+            if (control.originalElement) {
+                control.originalElement.setAttribute('id', elID);
+                control.originalElement.style.display = control.originalDisplay;
+            }
+            var index = $mediaplayer.mediaControls.indexOf(control);
+            if (index > -1) { $mediaplayer.mediaControls.splice(index, 1); }
+        }
+    });
+
+    syn.uicontrols.$mediaplayer = $mediaplayer;
+})(window);
+
+/// <reference path="/js/syn.js" />
+
+(function (window) {
+    'use strict';
+
+    syn.uicontrols = syn.uicontrols || new syn.module();
+    var $navermap = syn.uicontrols.$navermap || new syn.module();
+
+    function hasOwn(target, name) {
+        return target && Object.prototype.hasOwnProperty.call(target, name);
+    }
+
+    function isPlainObject(value) {
+        return value && Object.prototype.toString.call(value) === '[object Object]';
+    }
+
+    function clone(value, seen, copies) {
+        if (value === null || value === undefined || typeof value !== 'object') { return value; }
+        if (value instanceof Date) { return new Date(value.getTime()); }
+        if (!Array.isArray(value) && !isPlainObject(value)) { return value; }
+        seen = seen || [];
+        copies = copies || [];
+        var found = seen.indexOf(value);
+        if (found > -1) { return copies[found]; }
+        var result = Array.isArray(value) ? [] : {};
+        seen.push(value);
+        copies.push(result);
+        for (var key in value) {
+            if (hasOwn(value, key)) { result[key] = clone(value[key], seen, copies); }
+        }
+        return result;
+    }
+
+    function merge(target) {
+        target = target || {};
+        for (var i = 1; i < arguments.length; i++) {
+            var source = arguments[i];
+            if (!source || typeof source !== 'object') { continue; }
+            for (var key in source) {
+                if (!hasOwn(source, key)) { continue; }
+                var value = source[key];
+                if (isPlainObject(value)) {
+                    target[key] = merge(isPlainObject(target[key]) ? target[key] : {}, value);
+                }
+                else { target[key] = clone(value); }
+            }
+        }
+        return target;
+    }
+
+    function asArray(value) {
+        return value === null || value === undefined ? [] : (Array.isArray(value) ? value : [value]);
+    }
+
+    function resolveFunction(value) {
+        if (typeof value === 'function') { return value; }
+        if (typeof value !== 'string' || !value) { return null; }
+        var current = window;
+        var path = value.split('.');
+        for (var i = 0; i < path.length && current; i++) { current = current[path[i]]; }
+        return typeof current === 'function' ? current : null;
+    }
+
+    function log(scope, error, level) {
+        if (syn.$l && syn.$l.eventLog) {
+            syn.$l.eventLog(scope, error && error.message ? error.message : String(error), level || 'Error');
+        }
+    }
+
+    function parseEvents(el) {
+        var text = el ? el.getAttribute('syn-events') : '';
+        if (!text) { return []; }
+        try {
+            var events = eval(text);
+            return Array.isArray(events) ? events : [];
+        }
+        catch (error) {
+            log('$navermap.parseEvents', error, 'Warning');
+            return [];
+        }
+    }
+
+    function pageHandler(id, eventName) {
+        var mod = window[syn.$w.pageScript];
+        return mod && mod.event ? mod.event[id + '_' + eventName] : null;
+    }
+
+    function emit(control, eventName, payload) {
+        var handler = pageHandler(control.id, eventName);
+        if (!handler) { return; }
+        try { handler.apply(control.element, [control.id, payload || {}, getSelection(control)]); }
+        catch (error) { log('$navermap.emit.' + eventName, error); }
+    }
+
+    function errorOf(code, message, detail) {
+        var error = new Error(message);
+        error.code = code;
+        if (detail !== undefined) { error.detail = detail; }
+        return error;
+    }
+
+    function fail(control, scope, error) {
+        log(scope, error);
+        if (control) {
+            var fatal = !control.map || /^NAVER_MAP_(?:API_KEY|SDK|AUTH)/.test(error.code || '');
+            if (fatal) {
+                control.element.classList.remove('is-loading');
+                control.element.classList.add('is-error');
+                control.status.textContent = error.message || String(error);
+            }
+            emit(control, 'error', { code: error.code || 'NAVER_MAP_ERROR', message: error.message || String(error), detail: error.detail });
+        }
+        return null;
+    }
+
+    function normalizeRows(value) {
+        if (value === null || value === undefined) { return []; }
+        if (!Array.isArray(value) && !isPlainObject(value)) {
+            throw errorOf('INVALID_POI_DATA', 'setValue는 단일 객체 또는 객체 배열만 허용합니다.');
+        }
+        var rows = asArray(value);
+        for (var i = 0; i < rows.length; i++) {
+            if (!isPlainObject(rows[i])) {
+                throw errorOf('INVALID_POI_DATA', '모든 POI 데이터는 객체여야 합니다.', { rowIndexes: [i] });
+            }
+        }
+        return clone(rows);
+    }
+
+    function mapped(row, mapping, name, aliases) {
+        var resolver = mapping ? mapping[name] : null;
+        if (typeof resolver === 'function') { return resolver(row); }
+        if (typeof resolver === 'string' && hasOwn(row, resolver)) { return row[resolver]; }
+        for (var i = 0; i < aliases.length; i++) {
+            if (hasOwn(row, aliases[i])) { return row[aliases[i]]; }
+        }
+        return undefined;
+    }
+
+    function bool(value, fallback) {
+        if (value === undefined || value === null || value === '') { return fallback; }
+        if (typeof value === 'string') { return /^(true|y|yes|1)$/i.test(value); }
+        return value === true || value === 1;
+    }
+
+    function number(value) {
+        if (value === null || value === undefined || value === '') { return NaN; }
+        return Number(value);
+    }
+
+    function normalizePoi(row, index, setting) {
+        var mapping = setting.poiMapping || {};
+        var latitude = number(mapped(row, mapping, 'latitude', ['LAT', 'lat', 'latitude', 'Latitude']));
+        var longitude = number(mapped(row, mapping, 'longitude', ['LNG', 'lng', 'longitude', 'Longitude']));
+        if (!isFinite(latitude) || !isFinite(longitude) || latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
+            throw errorOf('INVALID_POI_COORDINATE', '유효하지 않은 POI 좌표가 있습니다.', { rowIndexes: [index], latitude: latitude, longitude: longitude });
+        }
+        var id = mapped(row, mapping, 'id', ['AS_NUM', 'POIID', 'PoiID', 'id', 'ID']);
+        return {
+            key: id === undefined || id === null || id === '' ? 'index:' + index : 'id:' + String(id),
+            id: id === undefined || id === null ? null : String(id),
+            index: index,
+            row: row,
+            latitude: latitude,
+            longitude: longitude,
+            title: mapped(row, mapping, 'title', ['CT_NAME', 'Title', 'title', 'Name', 'name']),
+            description: mapped(row, mapping, 'description', ['CT_ADDRESS', 'Description', 'description', 'Address', 'address']),
+            icon: mapped(row, mapping, 'icon', ['Icon', 'icon']),
+            markerOptions: mapped(row, mapping, 'markerOptions', ['MarkerOptions', 'markerOptions']),
+            infoWindowContent: mapped(row, mapping, 'infoWindowContent', ['InfoWindowContent', 'infoWindowContent']),
+            visible: bool(mapped(row, mapping, 'visible', ['Visible', 'visible']), true),
+            draggable: bool(mapped(row, mapping, 'draggable', ['Draggable', 'draggable']), false),
+            zIndex: mapped(row, mapping, 'zIndex', ['ZIndex', 'zIndex'])
+        };
+    }
+
+    function normalizePois(rows, setting) {
+        var result = [];
+        var invalid = [];
+        for (var i = 0; i < rows.length; i++) {
+            try { result.push(normalizePoi(rows[i], i, setting)); }
+            catch (error) { invalid.push(i); }
+        }
+        if (invalid.length) {
+            throw errorOf('INVALID_POI_COORDINATE', '유효하지 않은 POI 좌표가 있습니다: ' + invalid.join(', '), { rowIndexes: invalid });
+        }
+        return result;
+    }
+
+    function selectionOf(poi) {
+        if (!poi) { return null; }
+        var position = poi.marker && poi.marker.getPosition ? poi.marker.getPosition() : null;
+        return {
+            poiIndex: poi.index,
+            poiId: poi.id,
+            position: {
+                lat: position && position.lat ? position.lat() : poi.latitude,
+                lng: position && position.lng ? position.lng() : poi.longitude
+            },
+            row: clone(poi.row)
+        };
+    }
+
+    function selectedPois(control) {
+        var result = [];
+        for (var keyIndex = 0; keyIndex < control.selectionKeys.length; keyIndex++) {
+            for (var i = 0; i < control.pois.length; i++) {
+                if (control.pois[i].key === control.selectionKeys[keyIndex]) { result.push(control.pois[i]); break; }
+            }
+        }
+        return result;
+    }
+
+    function getSelection(control) {
+        if (!control) { return null; }
+        var values = selectedPois(control).map(selectionOf);
+        return control.config.selectionMode === 'multiple' ? values : (values[0] || null);
+    }
+
+    function serializeRows(rows, requestType, metaColumns) {
+        if (requestType !== 'Row' && requestType !== 'List') { return []; }
+        var columns = metaColumns || null;
+        return rows.map(function (row) {
+            var result = [];
+            if (Array.isArray(columns)) {
+                for (var i = 0; i < columns.length; i++) {
+                    var column = columns[i];
+                    var name = typeof column === 'string' ? column : (column.data || column.field || column.name || column.ColumnName);
+                    var fieldID = typeof column === 'string' ? name : (column.fieldID || column.FieldID || name);
+                    if (name) { result.push({ prop: fieldID, val: row ? row[name] : undefined }); }
+                }
+            }
+            else if (columns) {
+                for (var columnKey in columns) {
+                    if (!hasOwn(columns, columnKey)) { continue; }
+                    var meta = columns[columnKey] || {};
+                    var metaFieldID = meta.fieldID || meta.FieldID || columnKey;
+                    var dataType = meta.dataType || meta.DataType;
+                    var metaValue = row ? row[columnKey] : undefined;
+                    if (metaValue === undefined && window.$object && $object.defaultValue) {
+                        metaValue = String(dataType || '').toLowerCase() === 'number' ? null : $object.defaultValue(dataType);
+                    }
+                    result.push({ prop: metaFieldID, val: metaValue });
+                }
+            }
+            else {
+                for (var key in row) { if (hasOwn(row, key)) { result.push({ prop: key, val: row[key] }); } }
+            }
+            return result;
+        });
+    }
+
+    function naverEvent() {
+        return window.naver && window.naver.maps ? window.naver.maps.Event : null;
+    }
+
+    function addListener(target, eventName, listener, bucket) {
+        var Event = naverEvent();
+        if (!Event || !target) { return null; }
+        var handle = Event.addListener(target, eventName, listener);
+        if (bucket) { bucket.push(handle); }
+        return handle;
+    }
+
+    function removeListeners(bucket) {
+        var Event = naverEvent();
+        if (!Event) { bucket.length = 0; return; }
+        for (var i = 0; i < bucket.length; i++) { Event.removeListener(bucket[i]); }
+        bucket.length = 0;
+    }
+
+    function latLng(value) {
+        if (!value || !window.naver || !window.naver.maps) { return value; }
+        if (value instanceof window.naver.maps.LatLng) { return value; }
+        if (Array.isArray(value)) { return new window.naver.maps.LatLng(Number(value[0]), Number(value[1])); }
+        var lat = value.lat !== undefined ? value.lat : (value.latitude !== undefined ? value.latitude : value.y);
+        var lng = value.lng !== undefined ? value.lng : (value.longitude !== undefined ? value.longitude : value.x);
+        return new window.naver.maps.LatLng(Number(lat), Number(lng));
+    }
+
+    function bounds(value) {
+        if (!value || !window.naver || !window.naver.maps) { return value; }
+        if (value instanceof window.naver.maps.LatLngBounds) { return value; }
+        var sw = value.sw || value.southWest || value[0];
+        var ne = value.ne || value.northEast || value[1];
+        return new window.naver.maps.LatLngBounds(latLng(sw), latLng(ne));
+    }
+
+    function configureAuthFailure() {
+        if ($navermap.authFailureInstalled) { return; }
+        $navermap.authFailureInstalled = true;
+        $navermap.previousAuthFailure = window.navermap_authFailure;
+        window.navermap_authFailure = function () {
+            if (typeof $navermap.previousAuthFailure === 'function') {
+                try { $navermap.previousAuthFailure.apply(window, arguments); }
+                catch (error) { log('$navermap.authFailure.previous', error); }
+            }
+            for (var i = 0; i < $navermap.mapControls.length; i++) {
+                var control = $navermap.mapControls[i];
+                var authError = errorOf('NAVER_MAP_AUTH_FAILURE', 'NAVER Maps API 인증에 실패했습니다.');
+                fail(control, '$navermap.authFailure', authError);
+                emit(control, 'authFailure', { code: authError.code, message: authError.message });
+            }
+        };
+    }
+
+    function sdkKey(setting) {
+        var configured = window.syn && syn.Config ? syn.Config.NaverMapApiKey : '';
+        return setting.apiKey || configured || '';
+    }
+
+    function loadSDK(setting) {
+        configureAuthFailure();
+        if (window.naver && window.naver.maps && window.naver.maps.Map) { return Promise.resolve(window.naver); }
+        var key = sdkKey(setting);
+        if (!key) { return Promise.reject(errorOf('NAVER_MAP_API_KEY_REQUIRED', 'syn.Config.NaverMapApiKey 또는 apiKey 옵션이 필요합니다.')); }
+        var modules = asArray(setting.submodules).filter(Boolean).join(',');
+        var signature = [setting.apiUrl, key, modules, setting.language || ''].join('|');
+        if ($navermap.sdkPromise) {
+            if ($navermap.sdkSignature !== signature) {
+                return Promise.reject(errorOf('NAVER_MAP_SDK_CONFLICT', '이미 다른 NAVER Maps SDK 설정으로 로딩을 시작했습니다.'));
+            }
+            return $navermap.sdkPromise;
+        }
+        $navermap.sdkSignature = signature;
+        $navermap.sdkPromise = new Promise(function (resolve, reject) {
+            var callbackName = '__handstackNaverMapLoaded';
+            var script = document.createElement('script');
+            var query = ['ncpKeyId=' + encodeURIComponent(key), 'callback=' + callbackName];
+            if (modules) { query.push('submodules=' + encodeURIComponent(modules)); }
+            if (setting.language) { query.push('language=' + encodeURIComponent(setting.language)); }
+            var timeout = window.setTimeout(function () {
+                reject(errorOf('NAVER_MAP_SDK_TIMEOUT', 'NAVER Maps SDK 로딩 시간이 초과되었습니다.'));
+            }, Number(setting.loadTimeout) || 15000);
+            window[callbackName] = function () {
+                window.clearTimeout(timeout);
+                try { delete window[callbackName]; } catch (ignore) { window[callbackName] = undefined; }
+                if (window.naver && window.naver.maps && window.naver.maps.Map) { resolve(window.naver); }
+                else { reject(errorOf('NAVER_MAP_SDK_INVALID', 'NAVER Maps SDK를 초기화할 수 없습니다.')); }
+            };
+            script.async = true;
+            script.src = String(setting.apiUrl || '').replace(/[?&]$/, '') + (String(setting.apiUrl).indexOf('?') > -1 ? '&' : '?') + query.join('&');
+            script.onerror = function () {
+                window.clearTimeout(timeout);
+                reject(errorOf('NAVER_MAP_SDK_LOAD_FAILED', 'NAVER Maps SDK를 불러오지 못했습니다.'));
+            };
+            document.head.appendChild(script);
+        });
+        return $navermap.sdkPromise;
+    }
+
+    function infoContent(control, poi) {
+        var resolver = resolveFunction(control.config.infoWindowContentResolver);
+        var content = resolver ? resolver(clone(poi.row), poi.index, control) : poi.infoWindowContent;
+        if (content !== undefined && content !== null) { return content; }
+        var box = document.createElement('div');
+        box.className = 'syn-navermap-infowindow';
+        box.style.padding = '10px 12px';
+        if (poi.title !== undefined && poi.title !== null) {
+            var title = document.createElement('strong');
+            title.textContent = String(poi.title);
+            box.appendChild(title);
+        }
+        if (poi.description !== undefined && poi.description !== null) {
+            var description = document.createElement('div');
+            description.textContent = String(poi.description);
+            box.appendChild(description);
+        }
+        return box;
+    }
+
+    function closeInfo(control) {
+        if (control.infoWindow && control.infoWindow.close) {
+            control.infoWindow.close();
+            emit(control, 'infoWindowClose', {});
+        }
+    }
+
+    function openInfo(control, poi) {
+        if (!control.config.openInfoWindowOnSelect || !poi) { return null; }
+        closeInfo(control);
+        var options = merge({}, control.config.infoWindowOptions || {}, { content: infoContent(control, poi) });
+        control.infoWindow = new window.naver.maps.InfoWindow(options);
+        control.infoWindow.open(control.map, poi.marker);
+        emit(control, 'infoWindowOpen', { selection: selectionOf(poi), infoWindow: control.infoWindow });
+        return control.infoWindow;
+    }
+
+    function changeSelection(control, poi, source, event) {
+        if (control.config.selectionMode === 'none') { return; }
+        var changed = false;
+        var index = control.selectionKeys.indexOf(poi.key);
+        if (control.config.selectionMode === 'multiple') {
+            if (index > -1) { control.selectionKeys.splice(index, 1); }
+            else { control.selectionKeys.push(poi.key); }
+            changed = true;
+        }
+        else if (index < 0 || control.selectionKeys.length !== 1) {
+            control.selectionKeys = [poi.key];
+            changed = true;
+        }
+        if (control.selectionKeys.indexOf(poi.key) > -1) { openInfo(control, poi); }
+        else { closeInfo(control); }
+        if (changed) { emit(control, 'selectionChange', { source: source || 'api', event: event || null, selection: getSelection(control) }); }
+    }
+
+    function markerOptions(control, poi) {
+        var options = merge({}, control.config.markerOptions || {}, isPlainObject(poi.markerOptions) ? poi.markerOptions : {});
+        var resolver = resolveFunction(control.config.markerOptionsResolver);
+        if (resolver) { options = merge(options, resolver(clone(poi.row), poi.index, control) || {}); }
+        options.map = null;
+        options.position = new window.naver.maps.LatLng(poi.latitude, poi.longitude);
+        if (poi.title !== undefined) { options.title = String(poi.title); }
+        if (poi.icon !== undefined && poi.icon !== null) { options.icon = clone(poi.icon); }
+        options.visible = poi.visible;
+        options.draggable = poi.draggable;
+        if (poi.zIndex !== undefined && poi.zIndex !== null && poi.zIndex !== '') { options.zIndex = Number(poi.zIndex); }
+        return options;
+    }
+
+    function bindMarker(control, poi) {
+        var events = ['click', 'dblclick', 'mouseover', 'mouseout', 'dragstart', 'drag', 'dragend'];
+        for (var i = 0; i < events.length; i++) {
+            (function (eventName) {
+                addListener(poi.marker, eventName, function (event) {
+                    if (eventName === 'click') { changeSelection(control, poi, 'poiClick', event); }
+                    if (eventName === 'dragend' && poi.marker.getPosition) {
+                        var position = poi.marker.getPosition();
+                        poi.latitude = position.lat();
+                        poi.longitude = position.lng();
+                    }
+                    var name = 'poi' + eventName.charAt(0).toUpperCase() + eventName.slice(1);
+                    emit(control, name, { event: event, selection: selectionOf(poi), marker: poi.marker });
+                }, poi.listeners);
+            })(events[i]);
+        }
+    }
+
+    function destroyPoi(poi) {
+        removeListeners(poi.listeners || []);
+        if (poi.marker && poi.marker.setMap) { poi.marker.setMap(null); }
+    }
+
+    function fitPois(control) {
+        if (!control.config.fitBoundsOnData || !control.pois.length) { return; }
+        if (control.pois.length === 1) { control.map.setCenter(control.pois[0].marker.getPosition()); return; }
+        var result = new window.naver.maps.LatLngBounds();
+        for (var i = 0; i < control.pois.length; i++) { result.extend(control.pois[i].marker.getPosition()); }
+        control.map.fitBounds(result);
+    }
+
+    function applyPois(control, rows, metaColumns) {
+        var normalized = normalizePois(rows, control.config);
+        var created = [];
+        try {
+            for (var i = 0; i < normalized.length; i++) {
+                var poi = normalized[i];
+                poi.listeners = [];
+                poi.marker = new window.naver.maps.Marker(markerOptions(control, poi));
+                bindMarker(control, poi);
+                created.push(poi);
+            }
+        }
+        catch (error) {
+            for (var failed = 0; failed < created.length; failed++) { destroyPoi(created[failed]); }
+            throw error;
+        }
+        var previousKeys = control.config.preserveSelection ? control.selectionKeys.slice() : [];
+        var old = control.pois;
+        control.pois = created;
+        control.rawValue = clone(rows);
+        control.metaColumns = metaColumns || null;
+        control.selectionKeys = [];
+        for (var keyIndex = 0; keyIndex < previousKeys.length; keyIndex++) {
+            for (var poiIndex = 0; poiIndex < created.length; poiIndex++) {
+                if (created[poiIndex].key === previousKeys[keyIndex]) { control.selectionKeys.push(previousKeys[keyIndex]); break; }
+            }
+        }
+        for (var mapIndex = 0; mapIndex < created.length; mapIndex++) {
+            if (created[mapIndex].visible) { created[mapIndex].marker.setMap(control.map); }
+        }
+        for (var oldIndex = 0; oldIndex < old.length; oldIndex++) { destroyPoi(old[oldIndex]); }
+        closeInfo(control);
+        fitPois(control);
+        emit(control, 'dataBound', { rowCount: rows.length, rows: clone(rows) });
+        return control.map;
+    }
+
+    function bindMapEvents(control) {
+        var synthetic = $navermap.syntheticEvents;
+        var names = control.eventNames.slice();
+        if (names.indexOf('click') < 0) { names.push('click'); }
+        for (var i = 0; i < names.length; i++) {
+            (function (eventName) {
+                if (synthetic.indexOf(eventName) > -1 || eventName.indexOf('poi') === 0) { return; }
+                addListener(control.map, eventName, function (event) {
+                    if (eventName === 'click' && control.config.clearSelectionOnMapClick) {
+                        $navermap.clearSelection(control.id, 'mapClick');
+                    }
+                    if (control.eventNames.indexOf(eventName) > -1) { emit(control, eventName, event); }
+                }, control.mapListeners);
+            })(names[i]);
+        }
+    }
+
+    function createMap(control) {
+        if (control.disposed) { return null; }
+        control.element.classList.remove('is-error');
+        var options = merge({}, control.config.mapOptions || {});
+        options.center = latLng(options.center || { lat: 36.5, lng: 127.8 });
+        control.map = new window.naver.maps.Map(control.canvas, options);
+        bindMapEvents(control);
+        if (control.config.autoResize && window.ResizeObserver) {
+            control.resizeObserver = new ResizeObserver(function () { $navermap.resize(control.id); });
+            control.resizeObserver.observe(control.element);
+        }
+        control.element.classList.remove('is-loading');
+        control.status.textContent = '';
+        emit(control, 'sdkLoaded', { naver: window.naver });
+        emit(control, 'initialized', { map: control.map });
+        control.pendingValue = null;
+        return control.map;
+    }
+
+    function targetOf(control, target) {
+        if (!control) { return null; }
+        if (!target || target === 'map') { return control.map; }
+        if (target === 'data') { return control.map ? control.map.data : null; }
+        if (target === 'infoWindow') { return control.infoWindow; }
+        if (target === 'drawing') { return control.drawingManager; }
+        return control.overlays[target] || control.layers[target] || control.extensions[target] || null;
+    }
+
+    function registryRemove(registry, id) {
+        var value = registry[id];
+        if (!value) { return null; }
+        if (value.setMap) { value.setMap(null); }
+        if (value.close) { value.close(); }
+        delete registry[id];
+        return value;
+    }
+
+    $navermap.extend({
+        name: 'syn.uicontrols.$navermap',
+        version: 'v2026.7.27',
+        mapControls: [],
+        sdkPromise: null,
+        sdkSignature: null,
+        authFailureInstalled: false,
+        previousAuthFailure: null,
+        syntheticEvents: ['sdkLoaded', 'initialized', 'dataBound', 'selectionChange', 'infoWindowOpen', 'infoWindowClose', 'authFailure', 'resized', 'disposed', 'error'],
+        defaultSetting: {
+            width: '100%',
+            height: '400px',
+            apiKey: '',
+            apiUrl: 'https://oapi.map.naver.com/openapi/v3/maps.js',
+            submodules: ['panorama', 'geocoder', 'drawing', 'visualization'],
+            language: 'ko',
+            loadTimeout: 15000,
+            mapOptions: { center: { lat: 36.5, lng: 127.8 }, zoom: 7, minZoom: 6, zoomControl: true, mapTypeControl: true, scaleControl: true },
+            markerOptions: {},
+            infoWindowOptions: {},
+            openInfoWindowOnSelect: true,
+            selectionMode: 'single',
+            clearSelectionOnMapClick: true,
+            preserveSelection: false,
+            fitBoundsOnData: false,
+            autoResize: true,
+            poiMapping: {},
+            dataAdapter: null,
+            markerOptionsResolver: null,
+            infoWindowContentResolver: null,
+            dataType: 'string', belongID: null, getter: false, setter: false, controlText: null,
+            validators: null, transactConfig: null, triggerConfig: null
+        },
+
+        addModuleList: function (el, moduleList, setting, controlType) {
+            var form = el.closest('form');
+            moduleList.push({ id: el.id, formDataFieldID: form ? form.getAttribute('syn-datafield') : '', field: el.getAttribute('syn-datafield'), module: this.name, type: controlType });
+        },
+
+        controlLoad: function (elID, setting) {
+            var el = syn.$l.get(elID);
+            if (!el) { return null; }
+            setting = merge({}, $navermap.defaultSetting, setting || {});
+            var mod = window[syn.$w.pageScript];
+            if (mod && mod.hook && mod.hook.controlInit) { setting = merge(setting, mod.hook.controlInit(elID, setting) || {}); }
+            setting.width = el.style.width || setting.width;
+            setting.height = el.style.height || setting.height;
+            var display = el.style.display;
+            el.id = elID + '_hidden';
+            try { el.setAttribute('syn-options', JSON.stringify(setting)); }
+            catch (error) { log('$navermap.controlLoad', 'syn-options contains a non-serializable value.', 'Warning'); }
+            el.style.display = 'none';
+            var wrapper = document.createElement('div');
+            wrapper.id = elID;
+            wrapper.className = 'syn-navermap is-loading';
+            wrapper.style.width = setting.width;
+            wrapper.style.height = setting.height;
+            var canvas = document.createElement('div');
+            canvas.id = elID + '_canvas';
+            canvas.className = 'syn-navermap-canvas';
+            var status = document.createElement('div');
+            status.className = 'syn-navermap-status';
+            status.textContent = '지도를 불러오는 중입니다.';
+            wrapper.appendChild(canvas);
+            wrapper.appendChild(status);
+            el.parentNode.insertBefore(wrapper, el.nextSibling);
+            var control = {
+                id: elID, originalElement: el, originalDisplay: display, element: wrapper, canvas: canvas, status: status,
+                config: setting, map: null, rawValue: [], metaColumns: null, pois: [], selectionKeys: [], infoWindow: null,
+                overlays: {}, layers: {}, extensions: {}, drawingManager: null, eventNames: parseEvents(el), mapListeners: [], runtimeListeners: [],
+                resizeObserver: null, pendingValue: null, setValueVersion: 0, disposed: false, readyPromise: null
+            };
+            $navermap.mapControls.push(control);
+            control.readyPromise = loadSDK(setting).then(function () { return createMap(control); }).catch(function (error) { return fail(control, '$navermap.controlLoad', error); });
+            return control.readyPromise;
+        },
+
+        getControl: function (elID) { return $navermap.mapControls.find(function (item) { return item.id === elID; }) || null; },
+        getMap: function (elID) { var control = $navermap.getControl(elID); return control ? control.map : null; },
+        getNaver: function () { return window.naver || null; },
+        ready: function (elID) { var control = $navermap.getControl(elID); return control ? control.readyPromise : Promise.resolve(null); },
+
+        setValue: function (elID, value, metaColumns) {
+            var control = $navermap.getControl(elID);
+            if (!control) { return Promise.resolve(null); }
+            var rows;
+            try { rows = normalizeRows(value); }
+            catch (error) { fail(control, '$navermap.setValue', error); return Promise.resolve(null); }
+            var token = ++control.setValueVersion;
+            if (!control.map) { control.pendingValue = { value: rows, metaColumns: metaColumns }; }
+            var adapter = resolveFunction(control.config.dataAdapter);
+            var operation;
+            try { operation = adapter ? adapter(clone(rows), metaColumns, control) : rows; }
+            catch (error) { fail(control, '$navermap.setValue', error); return Promise.resolve(null); }
+            return control.readyPromise.then(function () { return Promise.resolve(operation); }).then(function (adapted) {
+                if (token !== control.setValueVersion || !control.map || control.disposed) { return control.map; }
+                var normalized = normalizeRows(adapted);
+                normalizePois(normalized, control.config);
+                return applyPois(control, normalized, metaColumns);
+            }).catch(function (error) { return fail(control, '$navermap.setValue', error); });
+        },
+
+        getValue: function (elID, requestType, metaColumns) {
+            var control = $navermap.getControl(elID);
+            if (!control) { return requestType ? [] : null; }
+            var rows = selectedPois(control).map(function (poi) { return clone(poi.row); });
+            if (!requestType) { return control.config.selectionMode === 'multiple' ? rows : (rows[0] || null); }
+            if (requestType === 'Row') { rows = rows.length ? [rows[rows.length - 1]] : []; }
+            return serializeRows(rows, requestType, metaColumns || control.metaColumns);
+        },
+
+        getRawValue: function (elID) { var control = $navermap.getControl(elID); return control ? clone(control.rawValue) : []; },
+        getSelection: function (elID) { return getSelection($navermap.getControl(elID)); },
+        getSelectedRows: function (elID) { var control = $navermap.getControl(elID); return control ? selectedPois(control).map(function (poi) { return clone(poi.row); }) : []; },
+        getMarkers: function (elID) { var control = $navermap.getControl(elID); return control ? control.pois.map(function (poi) { return poi.marker; }) : []; },
+        getSelectedMarkers: function (elID) { var control = $navermap.getControl(elID); return control ? selectedPois(control).map(function (poi) { return poi.marker; }) : []; },
+        getMarker: function (elID, indexOrId) {
+            var control = $navermap.getControl(elID);
+            if (!control) { return null; }
+            for (var i = 0; i < control.pois.length; i++) {
+                if (i === indexOrId || control.pois[i].id === String(indexOrId) || control.pois[i].key === indexOrId) { return control.pois[i].marker; }
+            }
+            return null;
+        },
+        getInfoWindow: function (elID) { var control = $navermap.getControl(elID); return control ? control.infoWindow : null; },
+
+        setSelection: function (elID, value, source) {
+            var control = $navermap.getControl(elID);
+            if (!control || control.config.selectionMode === 'none') { return null; }
+            var requested = asArray(value);
+            control.selectionKeys = [];
+            for (var r = 0; r < requested.length; r++) {
+                for (var i = 0; i < control.pois.length; i++) {
+                    var poi = control.pois[i];
+                    if (i === requested[r] || poi.id === String(requested[r]) || poi.key === requested[r]) {
+                        control.selectionKeys.push(poi.key);
+                        if (control.config.selectionMode !== 'multiple') { r = requested.length; }
+                        break;
+                    }
+                }
+            }
+            var selected = selectedPois(control);
+            if (selected.length) { openInfo(control, selected[selected.length - 1]); } else { closeInfo(control); }
+            emit(control, 'selectionChange', { source: source || 'api', selection: getSelection(control) });
+            return getSelection(control);
+        },
+
+        clearSelection: function (elID, source) {
+            var control = $navermap.getControl(elID);
+            if (!control) { return; }
+            var changed = control.selectionKeys.length > 0;
+            control.selectionKeys = [];
+            closeInfo(control);
+            if (changed) { emit(control, 'selectionChange', { source: source || 'api', selection: getSelection(control) }); }
+        },
+
+        setOptions: function (elID, options) { var map = $navermap.getMap(elID); if (map) { map.setOptions(options || {}); } return map; },
+        getOptions: function (elID, key) { var map = $navermap.getMap(elID); return map && map.getOptions ? map.getOptions(key) : null; },
+        setCenter: function (elID, value) { var map = $navermap.getMap(elID); if (map) { map.setCenter(latLng(value)); } },
+        getCenter: function (elID) { var map = $navermap.getMap(elID); return map ? map.getCenter() : null; },
+        setZoom: function (elID, value, useEffect) { var map = $navermap.getMap(elID); if (map) { map.setZoom(Number(value), !!useEffect); } },
+        getZoom: function (elID) { var map = $navermap.getMap(elID); return map ? map.getZoom() : null; },
+        fitBounds: function (elID, value, margin) { var map = $navermap.getMap(elID); if (map) { map.fitBounds(bounds(value), margin); } },
+        panTo: function (elID, value, options) { var map = $navermap.getMap(elID); if (map) { map.panTo(latLng(value), options); } },
+        panToBounds: function (elID, value, options) { var map = $navermap.getMap(elID); if (map) { map.panToBounds(bounds(value), options); } },
+        panBy: function (elID, delta, options) { var map = $navermap.getMap(elID); if (map) { map.panBy(delta, options); } },
+        getBounds: function (elID) { var map = $navermap.getMap(elID); return map ? map.getBounds() : null; },
+        setMapTypeId: function (elID, value) { var map = $navermap.getMap(elID); if (map) { map.setMapTypeId(value); } },
+        resize: function (elID) {
+            var control = $navermap.getControl(elID);
+            if (!control || !control.map) { return; }
+            var Event = naverEvent();
+            if (Event && Event.trigger) { Event.trigger(control.map, 'resize'); }
+            emit(control, 'resized', { width: control.element.clientWidth, height: control.element.clientHeight });
+        },
+
+        updateMarker: function (elID, indexOrId, options) { var marker = $navermap.getMarker(elID, indexOrId); if (marker) { marker.setOptions(options || {}); } return marker; },
+        setMarkerVisible: function (elID, indexOrId, visible) { var marker = $navermap.getMarker(elID, indexOrId); var map = $navermap.getMap(elID); if (marker) { marker.setMap(visible ? map : null); } },
+        openInfoWindow: function (elID, indexOrId) {
+            var control = $navermap.getControl(elID);
+            if (!control) { return null; }
+            for (var i = 0; i < control.pois.length; i++) {
+                if (i === indexOrId || control.pois[i].id === String(indexOrId) || control.pois[i].key === indexOrId) { return openInfo(control, control.pois[i]); }
+            }
+            return null;
+        },
+        closeInfoWindow: function (elID) { var control = $navermap.getControl(elID); if (control) { closeInfo(control); } },
+        invokeMarker: function (elID, indexOrId, method, args) { var marker = $navermap.getMarker(elID, indexOrId); return marker && typeof marker[method] === 'function' ? marker[method].apply(marker, args || []) : null; },
+
+        addGeoJson: function (elID, geoJson, autoStyle) { var map = $navermap.getMap(elID); return map && map.data ? map.data.addGeoJson(geoJson, autoStyle) : null; },
+        removeGeoJson: function (elID, feature) { var map = $navermap.getMap(elID); return map && map.data ? map.data.removeFeature(feature) : null; },
+        setDataStyle: function (elID, style) { var map = $navermap.getMap(elID); if (map && map.data) { map.data.setStyle(style); } },
+        overrideDataStyle: function (elID, feature, style) { var map = $navermap.getMap(elID); if (map && map.data) { map.data.overrideStyle(feature, style); } },
+        revertDataStyle: function (elID, feature) { var map = $navermap.getMap(elID); if (map && map.data) { map.data.revertStyle(feature); } },
+
+        addOverlay: function (elID, id, type, options) {
+            var control = $navermap.getControl(elID);
+            var allowed = ['Marker', 'InfoWindow', 'Polyline', 'Polygon', 'Circle', 'Ellipse', 'Rectangle', 'GroundOverlay'];
+            if (!control || allowed.indexOf(type) < 0 || !window.naver.maps[type]) { throw errorOf('INVALID_OVERLAY_TYPE', '지원하지 않는 오버레이 형식입니다: ' + type); }
+            registryRemove(control.overlays, id);
+            var config = merge({}, options || {});
+            if (config.position) { config.position = latLng(config.position); }
+            if (config.center) { config.center = latLng(config.center); }
+            if (config.bounds) { config.bounds = bounds(config.bounds); }
+            config.map = config.map === undefined ? control.map : config.map;
+            control.overlays[id] = new window.naver.maps[type](config);
+            return control.overlays[id];
+        },
+        getOverlay: function (elID, id) { var control = $navermap.getControl(elID); return control ? control.overlays[id] || null : null; },
+        removeOverlay: function (elID, id) { var control = $navermap.getControl(elID); return control ? registryRemove(control.overlays, id) : null; },
+
+        createLayer: function (elID, id, type, options) {
+            var control = $navermap.getControl(elID);
+            var allowed = ['TrafficLayer', 'BicycleLayer', 'CadastralLayer', 'StreetLayer', 'LabelLayer'];
+            if (!control || allowed.indexOf(type) < 0 || !window.naver.maps[type]) { throw errorOf('INVALID_LAYER_TYPE', '지원하지 않는 레이어 형식입니다: ' + type); }
+            registryRemove(control.layers, id);
+            control.layers[id] = new window.naver.maps[type](options || {});
+            if (control.layers[id].setMap) { control.layers[id].setMap(control.map); }
+            return control.layers[id];
+        },
+        getLayer: function (elID, id) { var control = $navermap.getControl(elID); return control ? control.layers[id] || null : null; },
+        setLayerVisible: function (elID, id, visible) { var control = $navermap.getControl(elID); var layer = control ? control.layers[id] : null; if (layer && layer.setMap) { layer.setMap(visible ? control.map : null); } },
+        removeLayer: function (elID, id) { var control = $navermap.getControl(elID); return control ? registryRemove(control.layers, id) : null; },
+
+        geocode: function (query) { return $navermap.service('geocode', query); },
+        reverseGeocode: function (query) { return $navermap.service('reverseGeocode', query); },
+        transCoord: function (query) { return $navermap.service('transCoord', query); },
+        service: function (method, query) {
+            return new Promise(function (resolve, reject) {
+                var service = window.naver && window.naver.maps ? window.naver.maps.Service : null;
+                if (!service || typeof service[method] !== 'function') { reject(errorOf('NAVER_MAP_SUBMODULE_REQUIRED', 'geocoder 서브모듈이 필요합니다.')); return; }
+                service[method](query || {}, function (status, response) {
+                    var ok = service.Status ? status === service.Status.OK : String(status).toLowerCase() === 'ok';
+                    if (ok) { resolve(response); } else { reject(errorOf('NAVER_MAP_SERVICE_ERROR', method + ' 요청에 실패했습니다.', { status: status, response: response })); }
+                });
+            });
+        },
+
+        createDrawingManager: function (elID, options) {
+            var control = $navermap.getControl(elID);
+            var DrawingManager = window.naver && window.naver.maps && window.naver.maps.drawing ? window.naver.maps.drawing.DrawingManager : null;
+            if (!control || !DrawingManager) { throw errorOf('NAVER_MAP_SUBMODULE_REQUIRED', 'drawing 서브모듈이 필요합니다.'); }
+            if (control.drawingManager && control.drawingManager.setMap) { control.drawingManager.setMap(null); }
+            control.drawingManager = new DrawingManager(merge({ map: control.map }, options || {}));
+            return control.drawingManager;
+        },
+        createPanorama: function (elID, id, container, options) {
+            var control = $navermap.getControl(elID);
+            if (!control || !window.naver.maps.Panorama) { throw errorOf('NAVER_MAP_SUBMODULE_REQUIRED', 'panorama 서브모듈이 필요합니다.'); }
+            var element = typeof container === 'string' ? document.getElementById(container) : container;
+            control.extensions[id] = new window.naver.maps.Panorama(element, options || {});
+            return control.extensions[id];
+        },
+        createVisualization: function (elID, id, type, options) {
+            var control = $navermap.getControl(elID);
+            var visual = window.naver && window.naver.maps ? window.naver.maps.visualization : null;
+            if (!control || !visual || ['HeatMap', 'DotMap'].indexOf(type) < 0 || !visual[type]) { throw errorOf('NAVER_MAP_SUBMODULE_REQUIRED', 'visualization 서브모듈 또는 형식을 확인하세요.'); }
+            registryRemove(control.extensions, id);
+            control.extensions[id] = new visual[type](merge({ map: control.map }, options || {}));
+            return control.extensions[id];
+        },
+
+        on: function (elID, target, eventName, handler) {
+            var control = $navermap.getControl(elID);
+            if (arguments.length === 3) { handler = eventName; eventName = target; target = 'map'; }
+            var callback = resolveFunction(handler);
+            var nativeTarget = targetOf(control, target);
+            if (!control || !nativeTarget || !callback) { return null; }
+            var listener = function (event) { callback(control.id, event, getSelection(control)); };
+            var handle = addListener(nativeTarget, eventName, listener);
+            control.runtimeListeners.push({ target: target, eventName: eventName, handler: handler, handle: handle });
+            return handle;
+        },
+        off: function (elID, target, eventName, handler) {
+            var control = $navermap.getControl(elID);
+            if (!control) { return; }
+            if (arguments.length === 3) { handler = eventName; eventName = target; target = 'map'; }
+            var Event = naverEvent();
+            for (var i = control.runtimeListeners.length - 1; i >= 0; i--) {
+                var item = control.runtimeListeners[i];
+                if (item.target === target && item.eventName === eventName && (!handler || item.handler === handler || item.handle === handler)) {
+                    if (Event) { Event.removeListener(item.handle); }
+                    control.runtimeListeners.splice(i, 1);
+                }
+            }
+        },
+        invoke: function (elID, target, method, args) {
+            var control = $navermap.getControl(elID);
+            if (arguments.length === 3) { args = method; method = target; target = 'map'; }
+            var nativeTarget = targetOf(control, target);
+            return nativeTarget && typeof nativeTarget[method] === 'function' ? nativeTarget[method].apply(nativeTarget, args || []) : null;
+        },
+        invokeGlobal: function (path, method, args) {
+            var target = window.naver;
+            var names = String(path || '').split('.');
+            for (var i = 0; i < names.length && target; i++) { if (names[i] && names[i] !== 'naver') { target = target[names[i]]; } }
+            return target && typeof target[method] === 'function' ? target[method].apply(target, args || []) : null;
+        },
+
+        clear: function (elID) { return $navermap.setValue(elID, []); },
+        dispose: function (elID) {
+            var control = $navermap.getControl(elID);
+            if (!control) { return; }
+            control.disposed = true;
+            control.setValueVersion++;
+            closeInfo(control);
+            removeListeners(control.mapListeners);
+            var Event = naverEvent();
+            for (var i = 0; i < control.runtimeListeners.length; i++) { if (Event) { Event.removeListener(control.runtimeListeners[i].handle); } }
+            control.runtimeListeners.length = 0;
+            for (var p = 0; p < control.pois.length; p++) { destroyPoi(control.pois[p]); }
+            for (var overlay in control.overlays) { if (hasOwn(control.overlays, overlay)) { registryRemove(control.overlays, overlay); } }
+            for (var layer in control.layers) { if (hasOwn(control.layers, layer)) { registryRemove(control.layers, layer); } }
+            for (var extension in control.extensions) { if (hasOwn(control.extensions, extension)) { registryRemove(control.extensions, extension); } }
+            if (control.drawingManager && control.drawingManager.setMap) { control.drawingManager.setMap(null); }
+            if (control.resizeObserver) { control.resizeObserver.disconnect(); }
+            emit(control, 'disposed', {});
+            if (control.element.parentNode) { control.element.parentNode.removeChild(control.element); }
+            control.originalElement.id = elID;
+            control.originalElement.style.display = control.originalDisplay;
+            $navermap.mapControls.splice($navermap.mapControls.indexOf(control), 1);
+        }
+    });
+
+    syn.uicontrols.$navermap = $navermap;
+})(window);
+
+(function (window) {
+    'use strict';
+    syn.uicontrols = syn.uicontrols || new syn.module;
+    var $googlemap = syn.uicontrols.$googlemap || new syn.module;
+    function hasOwn(target, name) {
+        return target && Object.prototype.hasOwnProperty.call(target, name)
+    }
+    function isPlainObject(value) {
+        return value && Object.prototype.toString.call(value) === '[object Object]'
+    }
+    function clone(value, seen, copies) {
+        if (value === null || value === undefined || typeof value !== 'object') {
+            return value
+        }
+        if (value instanceof Date) {
+            return new Date(value.getTime())
+        }
+        if (!Array.isArray(value) && !isPlainObject(value)) {
+            return value
+        }
+        seen = seen || [];
+        copies = copies || [];
+        var found = seen.indexOf(value);
+        if (found > -1) {
+            return copies[found]
+        }
+        var result = Array.isArray(value) ? [] : {};
+        seen.push(value);
+        copies.push(result);
+        for (var key in value) {
+            if (hasOwn(value, key)) {
+                result[key] = clone(value[key], seen, copies)
+            }
+        }
+        return result
+    }
+    function merge(target) {
+        target = target || {};
+        for (var i = 1; i < arguments.length; i++) {
+            var source = arguments[i];
+            if (!source || typeof source !== 'object') {
+                continue
+            }
+            for (var key in source) {
+                if (!hasOwn(source, key)) {
+                    continue
+                }
+                var value = source[key];
+                if (isPlainObject(value)) {
+                    target[key] = merge(isPlainObject(target[key]) ? target[key] : {}, value)
+                }
+                else {
+                    target[key] = clone(value)
+                }
+            }
+        }
+        return target
+    }
+    function asArray(value) {
+        return value === null || value === undefined ? [] : (Array.isArray(value) ? value : [
+            value
+        ])
+    }
+    function resolveFunction(value) {
+        if (typeof value === 'function') {
+            return value
+        }
+        if (typeof value !== 'string' || !value) {
+            return null
+        }
+        var current = window;
+        var path = value.split('.');
+        for (var i = 0; i < path.length && current; i++) {
+            current = current[path[i]]
+        }
+        return typeof current === 'function' ? current : null
+    }
+    function log(scope, error, level) {
+        if (syn.$l && syn.$l.eventLog) {
+            syn.$l.eventLog(scope, error && error.message ? error.message : String(error), level || 'Error')
+        }
+    }
+    function parseEvents(el) {
+        var text = el ? el.getAttribute('syn-events') : '';
+        if (!text) {
+            return []
+        }
+        try {
+            var events = eval(text);
+            return Array.isArray(events) ? events : []
+        }
+        catch (error) {
+            log('$googlemap.parseEvents', error, 'Warning');
+            return []
+        }
+    }
+    function pageHandler(id, eventName) {
+        var mod = window[syn.$w.pageScript];
+        return mod && mod.event ? mod.event[id + '_' + eventName] : null
+    }
+    function emit(control, eventName, payload) {
+        var handler = pageHandler(control.id, eventName);
+        if (!handler) {
+            return
+        }
+        try {
+            handler.apply(control.element, [
+                control.id,
+                payload || {},
+                getSelection(control)
+            ])
+        }
+        catch (error) {
+            log('$googlemap.emit.' + eventName, error)
+        }
+    }
+    function errorOf(code, message, detail) {
+        var error = new Error(message);
+        error.code = code;
+        if (detail !== undefined) {
+            error.detail = detail
+        }
+        return error
+    }
+    function fail(control, scope, error) {
+        log(scope, error);
+        if (control) {
+            var fatal = !control.map || /^GOOGLE_MAP_(?:API_KEY|MAP_ID|SDK|AUTH)/.test(error.code || '');
+            if (fatal) {
+                control.element.classList.remove('is-loading');
+                control.element.classList.add('is-error');
+                control.status.textContent = error.message || String(error)
+            }
+            emit(control, 'error', {
+                code: error.code || 'GOOGLE_MAP_ERROR',
+                message: error.message || String(error),
+                detail: error.detail
+            })
+        }
+        return null
+    }
+    function normalizeRows(value) {
+        if (value === null || value === undefined) {
+            return []
+        }
+        if (!Array.isArray(value) && !isPlainObject(value)) {
+            throw errorOf('INVALID_POI_DATA', 'setValue는 단일 객체 또는 객체 배열만 허용합니다.');
+        }
+        var rows = asArray(value);
+        for (var i = 0; i < rows.length; i++) {
+            if (!isPlainObject(rows[i])) {
+                throw errorOf('INVALID_POI_DATA', '모든 POI 데이터는 객체여야 합니다.', {
+                    rowIndexes: [
+                        i
+                    ]
+                });
+            }
+        }
+        return clone(rows)
+    }
+    function mapped(row, mapping, name, aliases) {
+        var resolver = mapping ? mapping[name] : null;
+        if (typeof resolver === 'function') {
+            return resolver(row)
+        }
+        if (typeof resolver === 'string' && hasOwn(row, resolver)) {
+            return row[resolver]
+        }
+        for (var i = 0; i < aliases.length; i++) {
+            if (hasOwn(row, aliases[i])) {
+                return row[aliases[i]]
+            }
+        }
+        return undefined
+    }
+    function bool(value, fallback) {
+        if (value === undefined || value === null || value === '') {
+            return fallback
+        }
+        if (typeof value === 'string') {
+            return /^(true|y|yes|1)$/i.test(value)
+        }
+        return value === true || value === 1
+    }
+    function number(value) {
+        if (value === null || value === undefined || value === '') {
+            return NaN
+        }
+        return Number(value)
+    }
+    function normalizePoi(row, index, setting) {
+        var mapping = setting.poiMapping || {};
+        var latitude = number(mapped(row, mapping, 'latitude', ['LAT', 'lat', 'latitude', 'Latitude']));
+        var longitude = number(mapped(row, mapping, 'longitude', ['LNG', 'lng', 'longitude', 'Longitude']));
+        if (!isFinite(latitude) || !isFinite(longitude) || latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
+            throw errorOf('INVALID_POI_COORDINATE', '유효하지 않은 POI 좌표가 있습니다.', {
+                rowIndexes: [
+                    index
+                ],
+                latitude: latitude,
+                longitude: longitude
+            });
+        }
+        var id = mapped(row, mapping, 'id', ['AS_NUM', 'POIID', 'PoiID', 'id', 'ID']);
+        return {
+            key: id === undefined || id === null || id === '' ? 'index:' + index : 'id:' + String(id),
+            id: id === undefined || id === null ? null : String(id),
+            index: index,
+            row: row,
+            latitude: latitude,
+            longitude: longitude,
+            title: mapped(row, mapping, 'title', ['CT_NAME', 'Title', 'title', 'Name', 'name']),
+            description: mapped(row, mapping, 'description', ['CT_ADDRESS', 'Description', 'description', 'Address', 'address']),
+            icon: mapped(row, mapping, 'icon', ['Icon', 'icon']),
+            pinOptions: mapped(row, mapping, 'pinOptions', ['PinOptions', 'pinOptions']),
+            markerOptions: mapped(row, mapping, 'markerOptions', ['MarkerOptions', 'markerOptions']),
+            infoWindowContent: mapped(row, mapping, 'infoWindowContent', ['InfoWindowContent', 'infoWindowContent']),
+            visible: bool(mapped(row, mapping, 'visible', ['Visible', 'visible']), true),
+            draggable: bool(mapped(row, mapping, 'draggable', ['Draggable', 'draggable']), false),
+            zIndex: mapped(row, mapping, 'zIndex', ['ZIndex', 'zIndex'])
+        }
+    }
+    function normalizePois(rows, setting) {
+        var result = [];
+        var invalid = [];
+        for (var i = 0; i < rows.length; i++) {
+            try {
+                result.push(normalizePoi(rows[i], i, setting))
+            }
+            catch (error) {
+                invalid.push(i)
+            }
+        }
+        if (invalid.length) {
+            throw errorOf('INVALID_POI_COORDINATE', '유효하지 않은 POI 좌표가 있습니다: ' + invalid.join(', '), { rowIndexes: invalid });
+        }
+        return result
+    }
+    function selectionOf(poi) {
+        if (!poi) {
+            return null
+        }
+        var position = poi.marker ? poi.marker.position : null;
+        return {
+            poiIndex: poi.index,
+            poiId: poi.id,
+            position: {
+                lat: position && typeof position.lat === 'function' ? position.lat() : (position && position.lat !== undefined ? Number(position.lat) : poi.latitude),
+                lng: position && typeof position.lng === 'function' ? position.lng() : (position && position.lng !== undefined ? Number(position.lng) : poi.longitude)
+            },
+            row: clone(poi.row)
+        }
+    }
+    function selectedPois(control) {
+        var result = [];
+        for (var keyIndex = 0; keyIndex < control.selectionKeys.length; keyIndex++) {
+            for (var i = 0; i < control.pois.length; i++) {
+                if (control.pois[i].key === control.selectionKeys[keyIndex]) {
+                    result.push(control.pois[i]);
+                    break
+                }
+            }
+        }
+        return result
+    }
+    function getSelection(control) {
+        if (!control) {
+            return null
+        }
+        var values = selectedPois(control).map(selectionOf);
+        return control.config.selectionMode === 'multiple' ? values : (values[0] || null)
+    }
+    function serializeRows(rows, requestType, metaColumns) {
+        if (requestType !== 'Row' && requestType !== 'List') {
+            return []
+        }
+        var columns = metaColumns || null;
+        return rows.map(function (row) {
+            var result = [];
+            if (Array.isArray(columns)) {
+                for (var i = 0; i < columns.length; i++) {
+                    var column = columns[i];
+                    var name = typeof column === 'string' ? column : (column.data || column.field || column.name || column.ColumnName);
+                    var fieldID = typeof column === 'string' ? name : (column.fieldID || column.FieldID || name);
+                    if (name) {
+                        result.push({
+                            prop: fieldID,
+                            val: row ? row[name] : undefined
+                        })
+                    }
+                }
+            }
+            else if (columns) {
+                for (var columnKey in columns) {
+                    if (!hasOwn(columns, columnKey)) {
+                        continue
+                    }
+                    var meta = columns[columnKey] || {};
+                    var metaFieldID = meta.fieldID || meta.FieldID || columnKey;
+                    var dataType = meta.dataType || meta.DataType;
+                    var metaValue = row ? row[columnKey] : undefined;
+                    if (metaValue === undefined && window.$object && $object.defaultValue) {
+                        metaValue = String(dataType || '').toLowerCase() === 'number' ? null : $object.defaultValue(dataType)
+                    }
+                    result.push({
+                        prop: metaFieldID,
+                        val: metaValue
+                    })
+                }
+            }
+            else {
+                for (var key in row) {
+                    if (hasOwn(row, key)) {
+                        result.push({
+                            prop: key,
+                            val: row[key]
+                        })
+                    }
+                }
+            }
+            return result
+        })
+    }
+    function googleEvent() {
+        return window.google && window.google.maps ? window.google.maps.event : null
+    }
+    function addListener(target, eventName, listener, bucket) {
+        var Event = googleEvent();
+        if (!Event || !target) {
+            return null
+        }
+        var handle = Event.addListener(target, eventName, listener);
+        if (bucket) {
+            bucket.push(handle)
+        }
+        return handle
+    }
+    function removeListeners(bucket) {
+        var Event = googleEvent();
+        if (!Event) {
+            bucket.length = 0;
+            return
+        }
+        for (var i = 0; i < bucket.length; i++) {
+            if (bucket[i] && typeof bucket[i].remove === 'function') {
+                bucket[i].remove()
+            }
+            else {
+                Event.removeListener(bucket[i])
+            }
+        }
+        bucket.length = 0
+    }
+    function latLng(value) {
+        if (!value || !window.google || !window.google.maps) {
+            return value
+        }
+        if (value instanceof window.google.maps.LatLng) {
+            return value
+        }
+        if (Array.isArray(value)) {
+            return new window.google.maps.LatLng(Number(value[0]), Number(value[1]))
+        }
+        var lat = value.lat !== undefined ? value.lat : (value.latitude !== undefined ? value.latitude : value.y);
+        var lng = value.lng !== undefined ? value.lng : (value.longitude !== undefined ? value.longitude : value.x);
+        return new window.google.maps.LatLng(Number(lat), Number(lng))
+    }
+    function bounds(value) {
+        if (!value || !window.google || !window.google.maps) {
+            return value
+        }
+        if (value instanceof window.google.maps.LatLngBounds) {
+            return value
+        }
+        if (value.south !== undefined && value.west !== undefined && value.north !== undefined && value.east !== undefined) {
+            return new window.google.maps.LatLngBounds({
+                lat: Number(value.south),
+                lng: Number(value.west)
+            }, {
+                lat: Number(value.north),
+                lng: Number(value.east)
+            })
+        }
+        var sw = value.sw || value.southWest || value[0];
+        var ne = value.ne || value.northEast || value[1];
+        return new window.google.maps.LatLngBounds(latLng(sw), latLng(ne))
+    }
+    function configureAuthFailure() {
+        if ($googlemap.authFailureInstalled) {
+            return
+        }
+        $googlemap.authFailureInstalled = true;
+        $googlemap.previousAuthFailure = window.gm_authFailure;
+        window.gm_authFailure = function () {
+            if (typeof $googlemap.previousAuthFailure === 'function') {
+                try {
+                    $googlemap.previousAuthFailure.apply(window, arguments)
+                }
+                catch (error) {
+                    log('$googlemap.authFailure.previous', error)
+                }
+            }
+            for (var i = 0; i < $googlemap.mapControls.length; i++) {
+                var control = $googlemap.mapControls[i];
+                var authError = errorOf('GOOGLE_MAP_AUTH_FAILURE', 'Google Maps API 인증에 실패했습니다.');
+                fail(control, '$googlemap.authFailure', authError);
+                emit(control, 'authFailure', {
+                    code: authError.code,
+                    message: authError.message
+                })
+            }
+        }
+    }
+    function sdkKey(setting) {
+        var configured = window.syn && syn.Config ? syn.Config.GoogleMapApiKey : '';
+        return setting.apiKey || configured || ''
+    }
+    function sdkMapId(setting) {
+        var configured = window.syn && syn.Config ? syn.Config.GoogleMapID : '';
+        return setting.mapId || (setting.mapOptions && setting.mapOptions.mapId) || configured || ''
+    }
+    function ensureLibraries(setting) {
+        var libraries = asArray(setting.libraries).filter(Boolean);
+        if (!window.google || !window.google.maps) {
+            return Promise.reject(errorOf('GOOGLE_MAP_SDK_INVALID', 'Google Maps SDK를 초기화할 수 없습니다.'))
+        }
+        if (typeof window.google.maps.importLibrary !== 'function') {
+            return Promise.resolve(window.google)
+        }
+        return Promise.all(libraries.map(function (name) {
+            return window.google.maps.importLibrary(name)
+        })).then(function () {
+            return window.google
+        })
+    }
+    function loadSDK(setting) {
+        configureAuthFailure();
+        var mapId = sdkMapId(setting);
+        if (!mapId) {
+            return Promise.reject(errorOf('GOOGLE_MAP_MAP_ID_REQUIRED', 'syn.Config.GoogleMapID, mapId 옵션 또는 mapOptions.mapId가 필요합니다.'))
+        }
+        setting.mapId = mapId;
+        if (window.google && window.google.maps && (window.google.maps.Map || typeof window.google.maps.importLibrary === 'function')) {
+            return ensureLibraries(setting)
+        }
+        var key = sdkKey(setting) || $googlemap.sdkApiKey || '';
+        if (!key) {
+            return Promise.reject(errorOf('GOOGLE_MAP_API_KEY_REQUIRED', 'syn.Config.GoogleMapApiKey 또는 apiKey 옵션이 필요합니다.'))
+        }
+        var libraries = asArray(setting.libraries).filter(Boolean).join(',');
+        var signature = [
+            setting.apiUrl,
+            key,
+            setting.version,
+            setting.language,
+            setting.region,
+            setting.authReferrerPolicy,
+            setting.channel,
+            setting.solutionChannel
+        ].join('|');
+        if ($googlemap.sdkPromise) {
+            if ($googlemap.sdkSignature !== signature) {
+                return Promise.reject(errorOf('GOOGLE_MAP_SDK_CONFLICT', '이미 다른 Google Maps SDK 설정으로 로딩을 시작했습니다.'))
+            }
+            return $googlemap.sdkPromise.then(function () {
+                return ensureLibraries(setting)
+            })
+        }
+        $googlemap.sdkApiKey = key;
+        $googlemap.sdkSignature = signature;
+        $googlemap.sdkPromise = new Promise(function (resolve, reject) {
+            var callbackName = '__handstackGoogleMapLoaded';
+            var script = document.createElement('script');
+            var query = [
+                'key=' + encodeURIComponent(key),
+                'loading=async',
+                'callback=' + callbackName
+            ];
+            if (setting.version) {
+                query.push('v=' + encodeURIComponent(setting.version))
+            }
+            if (libraries) {
+                query.push('libraries=' + encodeURIComponent(libraries))
+            }
+            if (setting.language) {
+                query.push('language=' + encodeURIComponent(setting.language))
+            }
+            if (setting.region) {
+                query.push('region=' + encodeURIComponent(setting.region))
+            }
+            if (setting.authReferrerPolicy) {
+                query.push('auth_referrer_policy=' + encodeURIComponent(setting.authReferrerPolicy))
+            }
+            if (mapId) {
+                query.push('map_ids=' + encodeURIComponent(mapId))
+            }
+            if (setting.channel) {
+                query.push('channel=' + encodeURIComponent(setting.channel))
+            }
+            if (setting.solutionChannel) {
+                query.push('solution_channel=' + encodeURIComponent(setting.solutionChannel))
+            }
+            var timeout = window.setTimeout(function () {
+                reject(errorOf('GOOGLE_MAP_SDK_TIMEOUT', 'Google Maps SDK 로딩 시간이 초과되었습니다.'))
+            }, Number(setting.loadTimeout) || 15000);
+            window[callbackName] = function () {
+                window.clearTimeout(timeout);
+                try {
+                    delete window[callbackName]
+                }
+                catch (ignore) {
+                    window[callbackName] = undefined
+                }
+                if (window.google && window.google.maps && window.google.maps.Map) {
+                    ensureLibraries(setting).then(resolve, reject)
+                }
+                else {
+                    reject(errorOf('GOOGLE_MAP_SDK_INVALID', 'Google Maps SDK를 초기화할 수 없습니다.'))
+                }
+            };
+            script.async = true;
+            script.defer = true;
+            var nonceScript = document.querySelector('script[nonce]');
+            if (nonceScript) {
+                script.nonce = nonceScript.nonce || nonceScript.getAttribute('nonce')
+            }
+            script.src = String(setting.apiUrl || '').replace(/[?&]$/, '') + (String(setting.apiUrl).indexOf('?') > -1 ? '&' : '?') + query.join('&');
+            script.onerror = function () {
+                window.clearTimeout(timeout);
+                reject(errorOf('GOOGLE_MAP_SDK_LOAD_FAILED', 'Google Maps SDK를 불러오지 못했습니다.'))
+            };
+            document.head.appendChild(script)
+        });
+        return $googlemap.sdkPromise
+    }
+    function infoContent(control, poi) {
+        var resolver = resolveFunction(control.config.infoWindowContentResolver);
+        var content = resolver ? resolver(clone(poi.row), poi.index, control) : poi.infoWindowContent;
+        if (content !== undefined && content !== null) {
+            return content
+        }
+        var box = document.createElement('div');
+        box.className = 'syn-googlemap-infowindow';
+        box.style.padding = '10px 12px';
+        if (poi.title !== undefined && poi.title !== null) {
+            var title = document.createElement('strong');
+            title.textContent = String(poi.title);
+            box.appendChild(title)
+        }
+        if (poi.description !== undefined && poi.description !== null) {
+            var description = document.createElement('div');
+            description.textContent = String(poi.description);
+            box.appendChild(description)
+        }
+        return box
+    }
+    function closeInfo(control) {
+        if (control.infoWindow && control.infoWindow.close) {
+            control.infoWindow.close();
+            emit(control, 'infoWindowClose', {})
+        }
+    }
+    function openInfo(control, poi) {
+        if (!control.config.openInfoWindowOnSelect || !poi) {
+            return null
+        }
+        closeInfo(control);
+        var options = merge({}, control.config.infoWindowOptions || {}, { content: infoContent(control, poi) });
+        control.infoWindow = new window.google.maps.InfoWindow(options);
+        control.infoWindow.open({
+            map: control.map,
+            anchor: poi.marker
+        });
+        emit(control, 'infoWindowOpen', {
+            selection: selectionOf(poi),
+            infoWindow: control.infoWindow
+        });
+        return control.infoWindow
+    }
+    function changeSelection(control, poi, source, event) {
+        if (control.config.selectionMode === 'none') {
+            return
+        }
+        var changed = false;
+        var index = control.selectionKeys.indexOf(poi.key);
+        if (control.config.selectionMode === 'multiple') {
+            if (index > -1) {
+                control.selectionKeys.splice(index, 1)
+            }
+            else {
+                control.selectionKeys.push(poi.key)
+            }
+            changed = true
+        }
+        else if (index < 0 || control.selectionKeys.length !== 1) {
+            control.selectionKeys = [
+                poi.key
+            ];
+            changed = true
+        }
+        if (control.selectionKeys.indexOf(poi.key) > -1) {
+            openInfo(control, poi)
+        }
+        else {
+            closeInfo(control)
+        }
+        if (changed) {
+            emit(control, 'selectionChange', {
+                source: source || 'api',
+                event: event || null,
+                selection: getSelection(control)
+            })
+        }
+    }
+    function contentNode(value) {
+        if (value === null || value === undefined || value === '') {
+            return null
+        }
+        if (value && value.nodeType) {
+            return value.cloneNode(true)
+        }
+        if (isPlainObject(value) && hasOwn(value, 'content')) {
+            return contentNode(value.content)
+        }
+        var element;
+        if (isPlainObject(value) && value.url) {
+            element = document.createElement('img');
+            element.src = value.url;
+            element.alt = value.alt || '';
+            if (value.width) {
+                element.style.width = typeof value.width === 'number' ? value.width + 'px' : value.width
+            }
+            if (value.height) {
+                element.style.height = typeof value.height === 'number' ? value.height + 'px' : value.height
+            }
+            return element
+        }
+        if (typeof value === 'string' && !/^\s*</.test(value)) {
+            element = document.createElement('img');
+            element.src = value;
+            element.alt = '';
+            return element
+        }
+        element = document.createElement('div');
+        element.innerHTML = String(value);
+        return element.childNodes.length === 1 ? element.removeChild(element.firstChild) : element
+    }
+    function setMarkerMap(marker, map) {
+        if (marker) {
+            marker.map = map || null
+        }
+    }
+    function markerPosition(marker) {
+        return marker ? marker.position : null
+    }
+    function applyMarkerContent(marker, visual) {
+        if (!marker || visual === undefined) {
+            return
+        }
+        var node = contentNode(visual);
+        if (marker.replaceChildren) {
+            marker.replaceChildren()
+        }
+        else {
+            while (marker.firstChild) {
+                marker.removeChild(marker.firstChild)
+            }
+        }
+        if (node) {
+            marker.appendChild(node)
+        }
+    }
+    function advancedMarkerDescriptor(control, poi) {
+        var options = merge({}, control.config.markerOptions || {}, isPlainObject(poi.markerOptions) ? poi.markerOptions : {});
+        var resolver = resolveFunction(control.config.markerOptionsResolver);
+        if (resolver) {
+            options = merge(options, resolver(clone(poi.row), poi.index, control) || {})
+        }
+        var visual = hasOwn(options, 'content') ? options.content : poi.icon;
+        delete options.content;
+        delete options.icon;
+        delete options.visible;
+        delete options.draggable;
+        options.map = null;
+        options.position = new window.google.maps.LatLng(poi.latitude, poi.longitude);
+        if (poi.title !== undefined) {
+            options.title = String(poi.title)
+        }
+        options.gmpClickable = options.gmpClickable !== false;
+        options.gmpDraggable = poi.draggable;
+        if (poi.zIndex !== undefined && poi.zIndex !== null && poi.zIndex !== '') {
+            options.zIndex = Number(poi.zIndex)
+        }
+        if (!visual && poi.pinOptions && window.google.maps.marker.PinElement) {
+            visual = new window.google.maps.marker.PinElement(clone(poi.pinOptions))
+        }
+        return {
+            options: options,
+            visual: visual
+        }
+    }
+    function createAdvancedMarker(control, poi) {
+        var AdvancedMarkerElement = window.google && window.google.maps && window.google.maps.marker ? window.google.maps.marker.AdvancedMarkerElement : null;
+        if (!AdvancedMarkerElement) {
+            throw errorOf('GOOGLE_MAP_ADVANCED_MARKER_REQUIRED', 'Advanced Marker 라이브러리를 사용할 수 없습니다.');
+        }
+        var descriptor = advancedMarkerDescriptor(control, poi);
+        var marker = new AdvancedMarkerElement(descriptor.options);
+        if (descriptor.visual) {
+            applyMarkerContent(marker, descriptor.visual)
+        }
+        return marker
+    }
+    function bindMarker(control, poi) {
+        var events = ['click', 'dragstart', 'drag', 'dragend'];
+        for (var i = 0; i < events.length; i++) {
+            (function (eventName) {
+                addListener(poi.marker, eventName, function (event) {
+                    if (eventName === 'click') {
+                        changeSelection(control, poi, 'poiClick', event)
+                    }
+                    if (eventName === 'dragend') {
+                        var position = markerPosition(poi.marker);
+                        poi.latitude = position && typeof position.lat === 'function' ? position.lat() : Number(position.lat);
+                        poi.longitude = position && typeof position.lng === 'function' ? position.lng() : Number(position.lng)
+                    }
+                    var name = 'poi' + eventName.charAt(0).toUpperCase() + eventName.slice(1);
+                    emit(control, name, {
+                        event: event,
+                        selection: selectionOf(poi),
+                        marker: poi.marker
+                    })
+                }, poi.listeners)
+            })(events[i])
+        }
+        ['dblclick', 'mouseover', 'mouseout'].forEach(function (eventName) {
+            var listener = function (event) {
+                var name = 'poi' + eventName.charAt(0).toUpperCase() + eventName.slice(1);
+                emit(control, name, {
+                    event: event,
+                    selection: selectionOf(poi),
+                    marker: poi.marker
+                })
+            };
+            poi.marker.addEventListener(eventName, listener);
+            poi.listeners.push({
+                remove: function () {
+                    poi.marker.removeEventListener(eventName, listener)
+                }
+            })
+        })
+    }
+    function destroyPoi(poi) {
+        removeListeners(poi.listeners || []);
+        setMarkerMap(poi.marker, null)
+    }
+    function fitPois(control) {
+        if (!control.config.fitBoundsOnData || !control.pois.length) {
+            return
+        }
+        if (control.pois.length === 1) {
+            control.map.setCenter(markerPosition(control.pois[0].marker));
+            return
+        }
+        var result = new window.google.maps.LatLngBounds;
+        for (var i = 0; i < control.pois.length; i++) {
+            result.extend(markerPosition(control.pois[i].marker))
+        }
+        control.map.fitBounds(result)
+    }
+    function applyPois(control, rows, metaColumns) {
+        var normalized = normalizePois(rows, control.config);
+        var created = [];
+        try {
+            for (var i = 0; i < normalized.length; i++) {
+                var poi = normalized[i];
+                poi.listeners = [];
+                poi.marker = createAdvancedMarker(control, poi);
+                bindMarker(control, poi);
+                created.push(poi)
+            }
+        }
+        catch (error) {
+            for (var failed = 0; failed < created.length; failed++) {
+                destroyPoi(created[failed])
+            }
+            throw error;
+        }
+        var previousKeys = control.config.preserveSelection ? control.selectionKeys.slice() : [];
+        var old = control.pois;
+        control.pois = created;
+        control.rawValue = clone(rows);
+        control.metaColumns = metaColumns || null;
+        control.selectionKeys = [];
+        for (var keyIndex = 0; keyIndex < previousKeys.length; keyIndex++) {
+            for (var poiIndex = 0; poiIndex < created.length; poiIndex++) {
+                if (created[poiIndex].key === previousKeys[keyIndex]) {
+                    control.selectionKeys.push(previousKeys[keyIndex]);
+                    break
+                }
+            }
+        }
+        for (var mapIndex = 0; mapIndex < created.length; mapIndex++) {
+            if (created[mapIndex].visible) {
+                setMarkerMap(created[mapIndex].marker, control.map)
+            }
+        }
+        for (var oldIndex = 0; oldIndex < old.length; oldIndex++) {
+            destroyPoi(old[oldIndex])
+        }
+        closeInfo(control);
+        fitPois(control);
+        emit(control, 'dataBound', {
+            rowCount: rows.length,
+            rows: clone(rows)
+        });
+        return control.map
+    }
+    function bindMapEvents(control) {
+        var synthetic = $googlemap.syntheticEvents;
+        var names = control.eventNames.slice();
+        if (names.indexOf('click') < 0) {
+            names.push('click')
+        }
+        for (var i = 0; i < names.length; i++) {
+            (function (eventName) {
+                if (synthetic.indexOf(eventName) > -1 || eventName.indexOf('poi') === 0) {
+                    return
+                }
+                addListener(control.map, eventName, function (event) {
+                    if (eventName === 'click' && control.config.clearSelectionOnMapClick) {
+                        $googlemap.clearSelection(control.id, 'mapClick')
+                    }
+                    if (control.eventNames.indexOf(eventName) > -1) {
+                        emit(control, eventName, event)
+                    }
+                }, control.mapListeners)
+            })(names[i])
+        }
+    }
+    function createMap(control) {
+        if (control.disposed) {
+            return null
+        }
+        control.element.classList.remove('is-error');
+        var options = merge({}, control.config.mapOptions || {});
+        options.center = latLng(options.center || {
+            lat: 36.5,
+            lng: 127.8
+        });
+        options.mapId = control.config.mapId;
+        control.mapOptions = clone(options);
+        control.map = new window.google.maps.Map(control.canvas, options);
+        bindMapEvents(control);
+        if (control.config.autoResize && window.ResizeObserver) {
+            control.resizeObserver = new ResizeObserver(function () {
+                $googlemap.resize(control.id)
+            });
+            control.resizeObserver.observe(control.element)
+        }
+        control.element.classList.remove('is-loading');
+        control.status.textContent = '';
+        emit(control, 'sdkLoaded', { google: window.google });
+        emit(control, 'initialized', { map: control.map });
+        control.pendingValue = null;
+        return control.map
+    }
+    function targetOf(control, target) {
+        if (!control) {
+            return null
+        }
+        if (!target || target === 'map') {
+            return control.map
+        }
+        if (target === 'data') {
+            return control.map ? control.map.data : null
+        }
+        if (target === 'infoWindow') {
+            return control.infoWindow
+        }
+        if (target === 'drawing') {
+            return control.drawingManager
+        }
+        return control.overlays[target] || control.layers[target] || control.extensions[target] || null
+    }
+    function registryRemove(registry, id) {
+        var value = registry[id];
+        if (!value) {
+            return null
+        }
+        if (value.setMap) {
+            value.setMap(null)
+        }
+        else if (hasOwn(value, 'map') || value.map !== undefined) {
+            value.map = null
+        }
+        if (value.setVisible && value.getVisible) {
+            value.setVisible(false)
+        }
+        if (value.close) {
+            value.close()
+        }
+        delete registry[id];
+        return value
+    }
+    $googlemap.extend({
+        name: 'syn.uicontrols.$googlemap',
+        version: 'v2026.7.27',
+        mapControls: [],
+        sdkPromise: null,
+        sdkSignature: null,
+        sdkApiKey: null,
+        authFailureInstalled: false,
+        previousAuthFailure: null,
+        syntheticEvents: ['sdkLoaded', 'initialized', 'dataBound', 'selectionChange', 'infoWindowOpen', 'infoWindowClose', 'authFailure', 'resized', 'disposed', 'error'],
+        defaultSetting: {
+            width: '100%',
+            height: '400px',
+            apiKey: '',
+            mapId: '',
+            apiUrl: 'https://maps.googleapis.com/maps/api/js',
+            version: 'weekly',
+            libraries: ['maps', 'marker', 'geocoding', 'geometry', 'streetView'],
+            language: 'ko',
+            region: 'KR',
+            authReferrerPolicy: '',
+            channel: '',
+            solutionChannel: '',
+            loadTimeout: 15000,
+            mapOptions: {
+                center: {
+                    lat: 36.5,
+                    lng: 127.8
+                },
+                zoom: 7,
+                minZoom: 6,
+                zoomControl: true,
+                mapTypeControl: true,
+                scaleControl: true
+            },
+            markerOptions: {},
+            infoWindowOptions: {},
+            openInfoWindowOnSelect: true,
+            selectionMode: 'single',
+            clearSelectionOnMapClick: true,
+            preserveSelection: false,
+            fitBoundsOnData: false,
+            autoResize: true,
+            poiMapping: {},
+            dataAdapter: null,
+            markerOptionsResolver: null,
+            infoWindowContentResolver: null,
+            dataType: 'string',
+            belongID: null,
+            getter: false,
+            setter: false,
+            controlText: null,
+            validators: null,
+            transactConfig: null,
+            triggerConfig: null
+        },
+        addModuleList: function (el, moduleList, setting, controlType) {
+            var form = el.closest('form');
+            moduleList.push({
+                id: el.id,
+                formDataFieldID: form ? form.getAttribute('syn-datafield') : '',
+                field: el.getAttribute('syn-datafield'),
+                module: this.name,
+                type: controlType
+            })
+        },
+        controlLoad: function (elID, setting) {
+            var el = syn.$l.get(elID);
+            if (!el) {
+                return null
+            }
+            setting = merge({}, $googlemap.defaultSetting, setting || {});
+            var mod = window[syn.$w.pageScript];
+            if (mod && mod.hook && mod.hook.controlInit) {
+                setting = merge(setting, mod.hook.controlInit(elID, setting) || {})
+            }
+            setting.width = el.style.width || setting.width;
+            setting.height = el.style.height || setting.height;
+            var display = el.style.display;
+            el.id = elID + '_hidden';
+            try {
+                el.setAttribute('syn-options', JSON.stringify(setting))
+            }
+            catch (error) {
+                log('$googlemap.controlLoad', 'syn-options contains a non-serializable value.', 'Warning')
+            }
+            el.style.display = 'none';
+            var wrapper = document.createElement('div');
+            wrapper.id = elID;
+            wrapper.className = 'syn-googlemap is-loading';
+            wrapper.style.width = setting.width;
+            wrapper.style.height = setting.height;
+            var canvas = document.createElement('div');
+            canvas.id = elID + '_canvas';
+            canvas.className = 'syn-googlemap-canvas';
+            var status = document.createElement('div');
+            status.className = 'syn-googlemap-status';
+            status.textContent = '지도를 불러오는 중입니다.';
+            wrapper.appendChild(canvas);
+            wrapper.appendChild(status);
+            el.parentNode.insertBefore(wrapper, el.nextSibling);
+            var control = {
+                id: elID,
+                originalElement: el,
+                originalDisplay: display,
+                element: wrapper,
+                canvas: canvas,
+                status: status,
+                config: setting,
+                map: null,
+                rawValue: [],
+                metaColumns: null,
+                pois: [],
+                selectionKeys: [],
+                infoWindow: null,
+                overlays: {},
+                layers: {},
+                extensions: {},
+                drawingManager: null,
+                eventNames: parseEvents(el),
+                mapListeners: [],
+                runtimeListeners: [],
+                resizeObserver: null,
+                pendingValue: null,
+                setValueVersion: 0,
+                disposed: false,
+                readyPromise: null,
+                mapOptions: null
+            };
+            $googlemap.mapControls.push(control);
+            control.readyPromise = loadSDK(setting).then(function () {
+                return createMap(control)
+            }).catch(function (error) {
+                return fail(control, '$googlemap.controlLoad', error)
+            });
+            return control.readyPromise
+        },
+        getControl: function (elID) {
+            return $googlemap.mapControls.find(function (item) {
+                return item.id === elID
+            }) || null
+        },
+        getMap: function (elID) {
+            var control = $googlemap.getControl(elID);
+            return control ? control.map : null
+        },
+        getGoogle: function () {
+            return window.google || null
+        },
+        importLibrary: function (name) {
+            if (!window.google || !window.google.maps || typeof window.google.maps.importLibrary !== 'function') {
+                return Promise.reject(errorOf('GOOGLE_MAP_SDK_INVALID', 'Google Maps importLibrary를 사용할 수 없습니다.'))
+            }
+            return window.google.maps.importLibrary(name)
+        },
+        ready: function (elID) {
+            var control = $googlemap.getControl(elID);
+            return control ? control.readyPromise : Promise.resolve(null)
+        },
+        setValue: function (elID, value, metaColumns) {
+            var control = $googlemap.getControl(elID);
+            if (!control) {
+                return Promise.resolve(null)
+            }
+            var rows;
+            try {
+                rows = normalizeRows(value)
+            }
+            catch (error) {
+                fail(control, '$googlemap.setValue', error);
+                return Promise.resolve(null)
+            }
+            var token = ++control.setValueVersion;
+            if (!control.map) {
+                control.pendingValue = {
+                    value: rows,
+                    metaColumns: metaColumns
+                }
+            }
+            var adapter = resolveFunction(control.config.dataAdapter);
+            var operation;
+            try {
+                operation = adapter ? adapter(clone(rows), metaColumns, control) : rows
+            }
+            catch (error) {
+                fail(control, '$googlemap.setValue', error);
+                return Promise.resolve(null)
+            }
+            return control.readyPromise.then(function () {
+                return Promise.resolve(operation)
+            }).then(function (adapted) {
+                if (token !== control.setValueVersion || !control.map || control.disposed) {
+                    return control.map
+                }
+                var normalized = normalizeRows(adapted);
+                normalizePois(normalized, control.config);
+                return applyPois(control, normalized, metaColumns)
+            }).catch(function (error) {
+                return fail(control, '$googlemap.setValue', error)
+            })
+        },
+        getValue: function (elID, requestType, metaColumns) {
+            var control = $googlemap.getControl(elID);
+            if (!control) {
+                return requestType ? [] : null
+            }
+            var rows = selectedPois(control).map(function (poi) {
+                return clone(poi.row)
+            });
+            if (!requestType) {
+                return control.config.selectionMode === 'multiple' ? rows : (rows[0] || null)
+            }
+            if (requestType === 'Row') {
+                rows = rows.length ? [
+                    rows[rows.length - 1]
+                ] : []
+            }
+            return serializeRows(rows, requestType, metaColumns || control.metaColumns)
+        },
+        getRawValue: function (elID) {
+            var control = $googlemap.getControl(elID);
+            return control ? clone(control.rawValue) : []
+        },
+        getSelection: function (elID) {
+            return getSelection($googlemap.getControl(elID))
+        },
+        getSelectedRows: function (elID) {
+            var control = $googlemap.getControl(elID);
+            return control ? selectedPois(control).map(function (poi) {
+                return clone(poi.row)
+            }) : []
+        },
+        getMarkers: function (elID) {
+            var control = $googlemap.getControl(elID);
+            return control ? control.pois.map(function (poi) {
+                return poi.marker
+            }) : []
+        },
+        getSelectedMarkers: function (elID) {
+            var control = $googlemap.getControl(elID);
+            return control ? selectedPois(control).map(function (poi) {
+                return poi.marker
+            }) : []
+        },
+        getMarker: function (elID, indexOrId) {
+            var control = $googlemap.getControl(elID);
+            if (!control) {
+                return null
+            }
+            for (var i = 0; i < control.pois.length; i++) {
+                if (i === indexOrId || control.pois[i].id === String(indexOrId) || control.pois[i].key === indexOrId) {
+                    return control.pois[i].marker
+                }
+            }
+            return null
+        },
+        getInfoWindow: function (elID) {
+            var control = $googlemap.getControl(elID);
+            return control ? control.infoWindow : null
+        },
+        setSelection: function (elID, value, source) {
+            var control = $googlemap.getControl(elID);
+            if (!control || control.config.selectionMode === 'none') {
+                return null
+            }
+            var requested = asArray(value);
+            control.selectionKeys = [];
+            for (var r = 0; r < requested.length; r++) {
+                for (var i = 0; i < control.pois.length; i++) {
+                    var poi = control.pois[i];
+                    if (i === requested[r] || poi.id === String(requested[r]) || poi.key === requested[r]) {
+                        control.selectionKeys.push(poi.key);
+                        if (control.config.selectionMode !== 'multiple') {
+                            r = requested.length
+                        }
+                        break
+                    }
+                }
+            }
+            var selected = selectedPois(control);
+            if (selected.length) {
+                openInfo(control, selected[selected.length - 1])
+            }
+            else {
+                closeInfo(control)
+            }
+            emit(control, 'selectionChange', {
+                source: source || 'api',
+                selection: getSelection(control)
+            });
+            return getSelection(control)
+        },
+        clearSelection: function (elID, source) {
+            var control = $googlemap.getControl(elID);
+            if (!control) {
+                return
+            }
+            var changed = control.selectionKeys.length > 0;
+            control.selectionKeys = [];
+            closeInfo(control);
+            if (changed) {
+                emit(control, 'selectionChange', {
+                    source: source || 'api',
+                    selection: getSelection(control)
+                })
+            }
+        },
+        setOptions: function (elID, options) {
+            var control = $googlemap.getControl(elID);
+            if (control && control.map) {
+                control.mapOptions = merge({}, control.mapOptions || {}, options || {});
+                control.map.setOptions(options || {})
+            }
+            return control ? control.map : null
+        },
+        getOptions: function (elID, key) {
+            var control = $googlemap.getControl(elID);
+            if (!control || !control.map) {
+                return null
+            }
+            return key ? (control.map.get ? control.map.get(key) : control.mapOptions[key]) : clone(control.mapOptions || {})
+        },
+        setCenter: function (elID, value) {
+            var map = $googlemap.getMap(elID);
+            if (map) {
+                map.setCenter(latLng(value))
+            }
+        },
+        getCenter: function (elID) {
+            var map = $googlemap.getMap(elID);
+            return map ? map.getCenter() : null
+        },
+        setZoom: function (elID, value) {
+            var map = $googlemap.getMap(elID);
+            if (map) {
+                map.setZoom(Number(value))
+            }
+        },
+        getZoom: function (elID) {
+            var map = $googlemap.getMap(elID);
+            return map ? map.getZoom() : null
+        },
+        fitBounds: function (elID, value, margin) {
+            var map = $googlemap.getMap(elID);
+            if (map) {
+                map.fitBounds(bounds(value), margin)
+            }
+        },
+        panTo: function (elID, value, options) {
+            var map = $googlemap.getMap(elID);
+            if (map) {
+                map.panTo(latLng(value), options)
+            }
+        },
+        panToBounds: function (elID, value, options) {
+            var map = $googlemap.getMap(elID);
+            if (map) {
+                map.panToBounds(bounds(value), options)
+            }
+        },
+        panBy: function (elID, delta, y) {
+            var map = $googlemap.getMap(elID);
+            if (!map) {
+                return
+            }
+            var xValue = Array.isArray(delta) ? delta[0] : (delta && delta.x !== undefined ? delta.x : delta);
+            var yValue = Array.isArray(delta) ? delta[1] : (delta && delta.y !== undefined ? delta.y : y);
+            map.panBy(Number(xValue) || 0, Number(yValue) || 0)
+        },
+        getBounds: function (elID) {
+            var map = $googlemap.getMap(elID);
+            return map ? map.getBounds() : null
+        },
+        setMapTypeId: function (elID, value) {
+            var map = $googlemap.getMap(elID);
+            if (map) {
+                map.setMapTypeId(value)
+            }
+        },
+        resize: function (elID) {
+            var control = $googlemap.getControl(elID);
+            if (!control || !control.map) {
+                return
+            }
+            var Event = googleEvent();
+            if (Event && Event.trigger) {
+                Event.trigger(control.map, 'resize')
+            }
+            emit(control, 'resized', {
+                width: control.element.clientWidth,
+                height: control.element.clientHeight
+            })
+        },
+        updateMarker: function (elID, indexOrId, options) {
+            var marker = $googlemap.getMarker(elID, indexOrId);
+            var control = $googlemap.getControl(elID);
+            if (!marker || !options) {
+                return marker
+            }
+            var config = merge({}, options);
+            var visual;
+            if (hasOwn(config, 'content')) {
+                visual = config.content;
+                delete config.content
+            }
+            else if (hasOwn(config, 'icon')) {
+                visual = config.icon;
+                delete config.icon
+            }
+            if (config.pinOptions && window.google.maps.marker.PinElement) {
+                visual = new window.google.maps.marker.PinElement(clone(config.pinOptions));
+                delete config.pinOptions
+            }
+            if (hasOwn(config, 'position')) {
+                config.position = latLng(config.position)
+            }
+            if (hasOwn(config, 'draggable')) {
+                config.gmpDraggable = !!config.draggable;
+                delete config.draggable
+            }
+            if (hasOwn(config, 'visible')) {
+                setMarkerMap(marker, config.visible ? control.map : null);
+                delete config.visible
+            }
+            for (var key in config) {
+                if (hasOwn(config, key) && key !== 'map') {
+                    marker[key] = config[key]
+                }
+            }
+            if (visual !== undefined) {
+                applyMarkerContent(marker, visual)
+            }
+            return marker
+        },
+        setMarkerVisible: function (elID, indexOrId, visible) {
+            var marker = $googlemap.getMarker(elID, indexOrId);
+            var map = $googlemap.getMap(elID);
+            if (marker) {
+                setMarkerMap(marker, visible ? map : null)
+            }
+        },
+        openInfoWindow: function (elID, indexOrId) {
+            var control = $googlemap.getControl(elID);
+            if (!control) {
+                return null
+            }
+            for (var i = 0; i < control.pois.length; i++) {
+                if (i === indexOrId || control.pois[i].id === String(indexOrId) || control.pois[i].key === indexOrId) {
+                    return openInfo(control, control.pois[i])
+                }
+            }
+            return null
+        },
+        closeInfoWindow: function (elID) {
+            var control = $googlemap.getControl(elID);
+            if (control) {
+                closeInfo(control)
+            }
+        },
+        invokeMarker: function (elID, indexOrId, method, args) {
+            var marker = $googlemap.getMarker(elID, indexOrId);
+            return marker && typeof marker[method] === 'function' ? marker[method].apply(marker, args || []) : null
+        },
+        addGeoJson: function (elID, geoJson, autoStyle) {
+            var map = $googlemap.getMap(elID);
+            return map && map.data ? map.data.addGeoJson(geoJson, autoStyle) : null
+        },
+        removeGeoJson: function (elID, feature) {
+            var map = $googlemap.getMap(elID);
+            return map && map.data ? map.data.remove(feature) : null
+        },
+        setDataStyle: function (elID, style) {
+            var map = $googlemap.getMap(elID);
+            if (map && map.data) {
+                map.data.setStyle(style)
+            }
+        },
+        overrideDataStyle: function (elID, feature, style) {
+            var map = $googlemap.getMap(elID);
+            if (map && map.data) {
+                map.data.overrideStyle(feature, style)
+            }
+        },
+        revertDataStyle: function (elID, feature) {
+            var map = $googlemap.getMap(elID);
+            if (map && map.data) {
+                map.data.revertStyle(feature)
+            }
+        },
+        addOverlay: function (elID, id, type, options) {
+            var control = $googlemap.getControl(elID);
+            var allowed = ['Marker', 'InfoWindow', 'Polyline', 'Polygon', 'Circle', 'Rectangle', 'GroundOverlay'];
+            if (!control) {
+                return null
+            }
+            if (allowed.indexOf(type) < 0) {
+                throw errorOf('GOOGLE_MAP_UNSUPPORTED_API', 'Google Maps에서 지원하지 않는 오버레이 형식입니다: ' + type);
+            }
+            registryRemove(control.overlays, id);
+            var config = merge({}, options || {});
+            if (config.position) {
+                config.position = latLng(config.position)
+            }
+            if (config.center) {
+                config.center = latLng(config.center)
+            }
+            if (config.bounds) {
+                config.bounds = bounds(config.bounds)
+            }
+            if (type === 'Marker') {
+                var content = hasOwn(config, 'content') ? config.content : config.icon;
+                delete config.content;
+                delete config.icon;
+                if (hasOwn(config, 'draggable')) {
+                    config.gmpDraggable = !!config.draggable;
+                    delete config.draggable
+                }
+                config.map = config.map === undefined ? control.map : config.map;
+                control.overlays[id] = new window.google.maps.marker.AdvancedMarkerElement(config);
+                if (content !== undefined) {
+                    applyMarkerContent(control.overlays[id], content)
+                }
+            }
+            else if (type === 'GroundOverlay') {
+                if (!config.url || !config.bounds) {
+                    throw errorOf('INVALID_OVERLAY_OPTIONS', 'GroundOverlay에는 url과 bounds가 필요합니다.');
+                }
+                control.overlays[id] = new window.google.maps.GroundOverlay(config.url, config.bounds, config.options || {});
+                control.overlays[id].setMap(config.map === undefined ? control.map : config.map)
+            }
+            else {
+                config.map = config.map === undefined ? control.map : config.map;
+                control.overlays[id] = new window.google.maps[type](config)
+            }
+            return control.overlays[id]
+        },
+        getOverlay: function (elID, id) {
+            var control = $googlemap.getControl(elID);
+            return control ? control.overlays[id] || null : null
+        },
+        removeOverlay: function (elID, id) {
+            var control = $googlemap.getControl(elID);
+            return control ? registryRemove(control.overlays, id) : null
+        },
+        createLayer: function (elID, id, type, options) {
+            var control = $googlemap.getControl(elID);
+            if (!control) {
+                return null
+            }
+            var aliases = { BicycleLayer: 'BicyclingLayer' };
+            var nativeType = aliases[type] || type;
+            var allowed = ['TrafficLayer', 'TransitLayer', 'BicyclingLayer', 'StreetViewCoverageLayer'];
+            if (allowed.indexOf(nativeType) < 0 || !window.google.maps[nativeType]) {
+                throw errorOf('GOOGLE_MAP_UNSUPPORTED_API', 'Google Maps에서 지원하지 않는 레이어 형식입니다: ' + type);
+            }
+            registryRemove(control.layers, id);
+            control.layers[id] = new window.google.maps[nativeType](options || {});
+            if (control.layers[id].setMap) {
+                control.layers[id].setMap(control.map)
+            }
+            return control.layers[id]
+        },
+        getLayer: function (elID, id) {
+            var control = $googlemap.getControl(elID);
+            return control ? control.layers[id] || null : null
+        },
+        setLayerVisible: function (elID, id, visible) {
+            var control = $googlemap.getControl(elID);
+            var layer = control ? control.layers[id] : null;
+            if (layer && layer.setMap) {
+                layer.setMap(visible ? control.map : null)
+            }
+        },
+        removeLayer: function (elID, id) {
+            var control = $googlemap.getControl(elID);
+            return control ? registryRemove(control.layers, id) : null
+        },
+        geocode: function (query) {
+            var request = typeof query === 'string' ? { address: query } : merge({}, query || {});
+            if (request.query !== undefined && request.address === undefined) {
+                request.address = request.query;
+                delete request.query
+            }
+            return $googlemap.service(request)
+        },
+        reverseGeocode: function (query) {
+            var isCoordinate = query && ((query.lat !== undefined && query.lng !== undefined) || typeof query.lat === 'function');
+            var request = isCoordinate ? { location: query } : merge({}, query || {});
+            if (request.coords !== undefined && request.location === undefined) {
+                request.location = request.coords;
+                delete request.coords
+            }
+            if (request.location) {
+                request.location = latLng(request.location)
+            }
+            return $googlemap.service(request)
+        },
+        transCoord: function () {
+            return Promise.reject(errorOf('GOOGLE_MAP_UNSUPPORTED_API', 'Google Maps JavaScript API는 transCoord를 제공하지 않습니다.'))
+        },
+        service: function (request) {
+            if (!window.google || !window.google.maps || !window.google.maps.Geocoder) {
+                return Promise.reject(errorOf('GOOGLE_MAP_LIBRARY_REQUIRED', 'geocoding 라이브러리가 필요합니다.'))
+            }
+            try {
+                return Promise.resolve((new window.google.maps.Geocoder).geocode(request || {}))
+            }
+            catch (error) {
+                return Promise.reject(error)
+            }
+        },
+        createDrawingManager: function () {
+            throw errorOf('GOOGLE_MAP_UNSUPPORTED_API', 'Google Maps DrawingManager는 2026년 6월부터 제공되지 않습니다. addOverlay 또는 별도 drawing 라이브러리를 사용하세요.');
+        },
+        createPanorama: function (elID, id, container, options) {
+            var control = $googlemap.getControl(elID);
+            if (!control || !window.google.maps.StreetViewPanorama) {
+                throw errorOf('GOOGLE_MAP_LIBRARY_REQUIRED', 'streetView 라이브러리가 필요합니다.');
+            }
+            var element = typeof container === 'string' ? document.getElementById(container) : container;
+            registryRemove(control.extensions, id);
+            control.extensions[id] = new window.google.maps.StreetViewPanorama(element, options || {});
+            return control.extensions[id]
+        },
+        createVisualization: function () {
+            throw errorOf('GOOGLE_MAP_UNSUPPORTED_API', 'Google Maps Heatmap Layer는 2026년 5월부터 제공되지 않습니다. 별도 visualization 라이브러리를 사용하세요.');
+        },
+        on: function (elID, target, eventName, handler) {
+            var control = $googlemap.getControl(elID);
+            if (arguments.length === 3) {
+                handler = eventName;
+                eventName = target;
+                target = 'map'
+            }
+            var callback = resolveFunction(handler);
+            var nativeTarget = targetOf(control, target);
+            if (!control || !nativeTarget || !callback) {
+                return null
+            }
+            var listener = function (event) {
+                callback(control.id, event, getSelection(control))
+            };
+            var handle = addListener(nativeTarget, eventName, listener);
+            control.runtimeListeners.push({
+                target: target,
+                eventName: eventName,
+                handler: handler,
+                handle: handle
+            });
+            return handle
+        },
+        off: function (elID, target, eventName, handler) {
+            var control = $googlemap.getControl(elID);
+            if (!control) {
+                return
+            }
+            if (arguments.length === 3) {
+                handler = eventName;
+                eventName = target;
+                target = 'map'
+            }
+            var Event = googleEvent();
+            for (var i = control.runtimeListeners.length - 1; i >= 0; i--) {
+                var item = control.runtimeListeners[i];
+                if (item.target === target && item.eventName === eventName && (!handler || item.handler === handler || item.handle === handler)) {
+                    if (Event) {
+                        Event.removeListener(item.handle)
+                    }
+                    control.runtimeListeners.splice(i, 1)
+                }
+            }
+        },
+        invoke: function (elID, target, method, args) {
+            var control = $googlemap.getControl(elID);
+            if (arguments.length === 3) {
+                args = method;
+                method = target;
+                target = 'map'
+            }
+            var nativeTarget = targetOf(control, target);
+            return nativeTarget && typeof nativeTarget[method] === 'function' ? nativeTarget[method].apply(nativeTarget, args || []) : null
+        },
+        invokeGlobal: function (path, method, args) {
+            var target = window.google;
+            var names = String(path || '').split('.');
+            for (var i = 0; i < names.length && target; i++) {
+                if (names[i] && names[i] !== 'google') {
+                    target = target[names[i]]
+                }
+            }
+            return target && typeof target[method] === 'function' ? target[method].apply(target, args || []) : null
+        },
+        clear: function (elID) {
+            return $googlemap.setValue(elID, [])
+        },
+        dispose: function (elID) {
+            var control = $googlemap.getControl(elID);
+            if (!control) {
+                return
+            }
+            control.disposed = true;
+            control.setValueVersion++;
+            closeInfo(control);
+            removeListeners(control.mapListeners);
+            var Event = googleEvent();
+            for (var i = 0; i < control.runtimeListeners.length; i++) {
+                if (Event) {
+                    Event.removeListener(control.runtimeListeners[i].handle)
+                }
+            }
+            control.runtimeListeners.length = 0;
+            for (var p = 0; p < control.pois.length; p++) {
+                destroyPoi(control.pois[p])
+            }
+            for (var overlay in control.overlays) {
+                if (hasOwn(control.overlays, overlay)) {
+                    registryRemove(control.overlays, overlay)
+                }
+            }
+            for (var layer in control.layers) {
+                if (hasOwn(control.layers, layer)) {
+                    registryRemove(control.layers, layer)
+                }
+            }
+            for (var extension in control.extensions) {
+                if (hasOwn(control.extensions, extension)) {
+                    registryRemove(control.extensions, extension)
+                }
+            }
+            if (control.drawingManager && control.drawingManager.setMap) {
+                control.drawingManager.setMap(null)
+            }
+            if (control.resizeObserver) {
+                control.resizeObserver.disconnect()
+            }
+            emit(control, 'disposed', {});
+            if (control.element.parentNode) {
+                control.element.parentNode.removeChild(control.element)
+            }
+            control.originalElement.id = elID;
+            control.originalElement.style.display = control.originalDisplay;
+            $googlemap.mapControls.splice($googlemap.mapControls.indexOf(control), 1)
+        }
+    });
+    syn.uicontrols.$googlemap = $googlemap
 })(window);
 
 /// <reference path="/js/syn.js" />
@@ -10249,7 +17582,7 @@
 
     $propertypanel.extend({
         name: 'syn.uicontrols.$propertypanel',
-        version: 'v2026.7.3',
+        version: 'v2026.8.5',
         propertyPanelControls: [],
         defaultSetting: {
             elID: '',
@@ -10265,6 +17598,9 @@
             autoMeta: true,
             jsonRows: 5,
             includeFunctions: true,
+            width: '100%',
+            height: '300px',
+            keyColumnWidth: '36%',
             classNames: 'syn-propertypanel',
             callback: null,
             dataType: 'object',
@@ -10368,10 +17704,22 @@
                 syn.$m.addClass(el, setting.classNames);
             }
 
+            el.style.width = setting.width;
+            el.style.height = setting.height;
+            el.style.overflow = 'auto';
+            el.style.setProperty('--pp-key-column-width', setting.keyColumnWidth);
+
             el.innerHTML = '';
             var table = document.createElement('table');
             table.className = 'ppTable';
             table.setAttribute('role', 'grid');
+
+            var columnGroup = document.createElement('colgroup');
+            var keyColumn = document.createElement('col');
+            keyColumn.className = 'ppKeyColumn';
+            columnGroup.appendChild(keyColumn);
+            columnGroup.appendChild(document.createElement('col'));
+            table.appendChild(columnGroup);
 
             var groupedRows = {};
             var groupOrder = [];
@@ -10474,21 +17822,24 @@
         },
 
         createLabelElement(displayName, meta, setting) {
-            var fragment = document.createDocumentFragment();
+            var label = document.createElement('div');
+            label.className = 'ppLabel';
+
             var text = document.createElement('span');
             text.className = 'ppLabelText';
             text.textContent = displayName;
-            fragment.appendChild(text);
+            text.title = displayName;
+            label.appendChild(text);
 
             if (typeof meta.description === 'string' && meta.description && (typeof meta.showHelp === 'undefined' || meta.showHelp)) {
                 var help = document.createElement('span');
                 help.className = 'ppTooltip';
                 help.title = meta.description;
                 help.innerHTML = setting.helpHtml;
-                fragment.appendChild(help);
+                label.appendChild(help);
             }
 
-            return fragment;
+            return label;
         },
 
         createValueElement(control, name, value, meta, setting) {

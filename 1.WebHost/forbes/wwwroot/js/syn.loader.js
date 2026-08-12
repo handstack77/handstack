@@ -537,20 +537,59 @@
                         break;
                     case 'chart':
                         item.css = [
-                            '/uicontrols/Chart/Chart.css'
+                            '/uicontrols/HighChart/HighChart.css'
                         ];
                         item.js = [
                             '/lib/highcharts/highcharts.min.js',
-                            '/uicontrols/Chart/Chart.js'
+                            '/uicontrols/HighChart/HighChart.js'
                         ];
                         break;
                     case 'chartjs':
                         item.css = [
-                            '/uicontrols/Chart/ChartJS.css'
+                            '/uicontrols/ChartJS/ChartJS.css'
                         ];
                         item.js = [
                             '/lib/chart.js/chart.umd.min.js',
-                            '/uicontrols/Chart/ChartJS.js'
+                            '/lib/moment.js/moment-with-locales.min.js',
+                            '/uicontrols/ChartJS/ChartJS.js'
+                        ];
+                        break;
+                    case 'echarts':
+                        item.css = [
+                            '/uicontrols/ECharts/ECharts.css'
+                        ];
+                        item.js = [
+                            '/lib/echarts/echarts.min.js',
+                            '/lib/echarts/i18n/langKO.js',
+                            '/uicontrols/ECharts/ECharts.js'
+                        ];
+                        break;
+                    case 'mediaplayer':
+                        item.css = [
+                            '/lib/video.js/dist/video-js.min.css',
+                            '/uicontrols/MediaPlayer/MediaPlayer.css'
+                        ];
+                        item.js = [
+                            '/lib/video.js/dist/video.min.js',
+                            '/lib/video.js/dist/lang/ko.js',
+                            '/lib/videojs-youtube/dist/Youtube.min.js',
+                            '/uicontrols/MediaPlayer/MediaPlayer.js'
+                        ];
+                        break;
+                    case 'navermap':
+                        item.css = [
+                            '/uicontrols/NaverMap/NaverMap.css'
+                        ];
+                        item.js = [
+                            '/uicontrols/NaverMap/NaverMap.js'
+                        ];
+                        break;
+                    case 'googlemap':
+                        item.css = [
+                            '/uicontrols/GoogleMap/GoogleMap.css'
+                        ];
+                        item.js = [
+                            '/uicontrols/GoogleMap/GoogleMap.js'
                         ];
                         break;
                     case 'codepicker':
@@ -950,7 +989,9 @@
                         '/css/uicontrols/Control.css',
 
                         // syn.controls.js
-                        '/uicontrols/Chart/Chart.css',
+                        '/uicontrols/HighChart/HighChart.css',
+                        '/uicontrols/ChartJS/ChartJS.css',
+                        '/uicontrols/ECharts/ECharts.css',
                         '/uicontrols/CheckBox/CheckBox.css',
                         '/uicontrols/ColorPicker/ColorPicker.css',
                         '/uicontrols/ContextMenu/ContextMenu.css',
