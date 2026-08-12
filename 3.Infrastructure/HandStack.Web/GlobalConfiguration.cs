@@ -82,6 +82,7 @@ namespace HandStack.Web
         public static int StaticFileCacheMaxAge = 0;
         public static bool IsTenantFunction = false;
         public static bool IsExceptionDetailText = false;
+        public static bool IsEnabledDevAutoSignIn = false;
         public static bool IsConfigurationWatching = false;
         public static bool IsSwaggerUI = false;
         public static bool IsModulePurgeContract = true;

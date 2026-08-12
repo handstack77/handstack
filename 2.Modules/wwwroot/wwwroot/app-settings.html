@@ -229,6 +229,17 @@
                                                 </td>
                                             </tr>
                                             <tr>
+                                                <td class="bg-body">IsEnabledDevAutoSignIn</td>
+                                                <td>
+                                                    <label class="form-check mb-2">
+                                                        <input id="chkIsEnabledDevAutoSignIn" class="form-check-input" type="checkbox">
+                                                    </label>
+                                                    <small class="form-hint">
+                                                        개발 목적 테스트 계정 자동 로그인(wwwroot 모듈의 dev-account/sign-in) 사용 여부를 설정합니다. RunningEnvironment가 D(개발)일 때만 동작하며, 운영·스테이징에서는 false를 유지해야 합니다. (기본값: false)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
                                                 <td class="bg-body">ContractRequestPath</td>
                                                 <td>
                                                     <input id="txtContractRequestPath" type="text" class="form-control">
@@ -290,6 +301,17 @@
                                                     </label>
                                                     <small class="form-hint">
                                                         모듈 시작시 이전 계약 캐시 정보를 정리할지 여부를 설정합니다. (기본값: true)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">IsEnabledCSP</td>
+                                                <td>
+                                                    <label class="form-check mb-2">
+                                                        <input id="chkIsEnabledCSP" class="form-check-input" type="checkbox">
+                                                    </label>
+                                                    <small class="form-hint">
+                                                        content-security-policy.txt 파일을 읽어 Content-Security-Policy 응답 헤더를 적용할지 여부를 설정합니다. (기본값: false)
                                                     </small>
                                                 </td>
                                             </tr>
@@ -384,6 +406,84 @@
                                                     </label>
                                                     <small class="form-hint">
                                                         동일 서버(IP)에서 리버스 프록시로 여러 경로를 서비스할지 여부를 설정합니다. (기본값: false)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">Security</td>
+                                                <td>
+                                                    <table class="table">
+                                                        <tbody>
+                                                            <tr>
+                                                                <td class="bg-body w:220px">EnableSecurityHeaders</td>
+                                                                <td>
+                                                                    <label class="form-check mb-2">
+                                                                        <input id="chkEnableSecurityHeaders" class="form-check-input" type="checkbox">
+                                                                    </label>
+                                                                    <small class="form-hint">
+                                                                        X-Content-Type-Options, X-Frame-Options, Content-Security-Policy 등 보안 응답 헤더 적용 여부를 설정합니다. (기본값: true)
+                                                                    </small>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="bg-body">XFrameOptions</td>
+                                                                <td>
+                                                                    <select id="ddlXFrameOptions" class="form-select">
+                                                                        <option value="SAMEORIGIN">SAMEORIGIN</option>
+                                                                        <option value="DENY">DENY</option>
+                                                                        <option value="ALLOW">ALLOW (헤더 미적용)</option>
+                                                                    </select>
+                                                                    <small class="form-hint mt-2">
+                                                                        X-Frame-Options 응답 헤더 값을 설정합니다. (기본값: SAMEORIGIN)
+                                                                    </small>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="bg-body">EnablePublicCorsPolicy</td>
+                                                                <td>
+                                                                    <label class="form-check mb-2">
+                                                                        <input id="chkEnablePublicCorsPolicy" class="form-check-input" type="checkbox">
+                                                                    </label>
+                                                                    <small class="form-hint">
+                                                                        WithOrigins 목록 외 요청에도 공개 CORS 정책을 적용할지 여부를 설정합니다. (기본값: true)
+                                                                    </small>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="bg-body">ExposeSecretValues</td>
+                                                                <td>
+                                                                    <label class="form-check mb-2">
+                                                                        <input id="chkExposeSecretValues" class="form-check-input" type="checkbox">
+                                                                    </label>
+                                                                    <small class="form-hint">
+                                                                        진단 API 등에서 비밀 값을 그대로 노출할지 여부를 설정합니다. 운영 환경에서는 false를 권장합니다. (기본값: false)
+                                                                    </small>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="bg-body">WarnOnWildcardAllowClientIP</td>
+                                                                <td>
+                                                                    <label class="form-check mb-2">
+                                                                        <input id="chkWarnOnWildcardAllowClientIP" class="form-check-input" type="checkbox">
+                                                                    </label>
+                                                                    <small class="form-hint">
+                                                                        ClientIP 허용 목록에 와일드카드가 있을 때 경고 로그를 남길지 여부를 설정합니다. (기본값: true)
+                                                                    </small>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="bg-body">MaxContractSyncFileBytes</td>
+                                                                <td>
+                                                                    <input id="txtMaxContractSyncFileBytes" type="number" class="form-control">
+                                                                    <small class="form-hint mt-2">
+                                                                        계약 동기화 업로드를 허용할 최대 파일 크기(바이트)를 입력합니다. (기본값: 10485760)
+                                                                    </small>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                    <small class="form-hint mt-2">
+                                                        보안 응답 헤더와 CORS, 계약 동기화 업로드 제한을 설정합니다.
                                                     </small>
                                                 </td>
                                             </tr>

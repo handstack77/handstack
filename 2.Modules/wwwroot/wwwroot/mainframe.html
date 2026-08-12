@@ -1,0 +1,620 @@
+﻿<!DOCTYPE html>
+<html lang="ko" class="m-0 overflow-hidden">
+<head>
+    <meta charset="utf-8">
+    <title>Qramework</title>
+    <link rel="icon" type="image/png" href="/img/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/img/favicon.svg" />
+    <link rel="shortcut icon" href="/img/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png" />
+    <link rel="manifest" href="/img/site.webmanifest" />
+    <link rel="stylesheet" href="/lib/fancytree/skin-win8/ui.fancytree.css" type="text/css">
+    <link rel="stylesheet" href="/mainframe.css" type="text/css">
+    <style>
+        span.fancytree-title {
+            color: #fff !important;
+        }
+    </style>
+</head>
+<body style="visibility: hidden;" class="layout-fluid">
+    <div class="page">
+        <header id="hdrNavBar" class="navbar navbar-expand p-0 sticky-top">
+            <div class="container p-0">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-menu" aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div id="divNavMenu" class="ml:240px! navbar-brand navbar-brand-autodark pl-3">
+                    <div class="btn-list">
+                        <button id="btnToggleLeftMenu" class="btn btn-icon" syn-events="['click']">
+                            <i class="f:18 ti ti-layout-sidebar-left-collapse"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="navbar-nav flex-row order-last">
+                    <div class="nav-item d-flex me-3">
+                        <div class="btn-list">
+                            <div class="input-icon">
+                                <span class="input-icon-addon">
+                                    <i class="f:18 ti ti-search"></i>
+                                </span>
+                                <input id="txtSearchKeyword" type="text" class="form-control w:220!" syn-events="['keydown']" placeholder="검색…">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="nav-item d-flex">
+                        <div class="btn-group box-shadow:none!">
+                            <button type="button" id="btnGuideTour" class="border-0 btn btn-icon box-shadow:none!" syn-events="['click']">
+                                <i class="f:18 ti ti-s-turn-right"></i>
+                            </button>
+                            <button id="btnDarkMode" class="border-0 btn btn-icon box-shadow:none!" syn-events="['click']">
+                                <i class="f:18 ti ti-moon"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="nav-item dropdown mr-5">
+                        <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span class="avatar avatar-sm hidden" style="background-image: url(img/default_user.png)"></span>
+                            <div id="divLoginUser" class="d-block ps-2">
+                                <div id="lblLoginUserName1"></div>
+                                <div id="lblLoginUserBelong1" class="mt-1 small text-muted"></div>
+                            </div>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                            <div id="btnMyProfile" class="dropdown-item">개인정보</div>
+                            <div class="dropdown-divider m-0"></div>
+                            <div id="btnLogout" class="dropdown-item">로그아웃</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <aside id="navBar" class="navbar navbar-vertical navbar-expand" data-bs-theme="dark">
+            <div class="container-fluid">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#sidebar-menu" aria-controls="sidebar-menu" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <h1 class="navbar-brand navbar-brand-autodark">
+                    <img src="/img/logo.png" width="110" height="32" class="navbar-brand-image mr-1">
+                    <span>Qramework</span>
+                    <span class="f:12 position-absolute right-10 top-10">by HandStack</span>
+                </h1>
+                <div id="divRoleUserMenu" class="text-center top:0 p-3 position-sticky border-bottom-wide bg:#1f2937 z:10000">
+                    <div class="btn-group" role="group">
+                        <input id="btnProgramMenu" syn-events="['click']" type="radio" class="btn-check" name="menuType">
+                        <label for="btnProgramMenu" type="button" class="btn btn-outline-secondary p-2"><i class="f:18 ti ti-menu-2"></i></label>
+                        <input id="btnModuleMenu" syn-events="['click']" type="radio" class="btn-check hidden" name="menuType" checked="checked">
+                        <label for="btnModuleMenu" type="button" class="btn btn-outline-secondary p-2 width:90px overflow-hidden hidden"><i class="f:18 ti ti-category"></i></label>
+                        <input id="btnFavoriteMenu" syn-events="['click']" type="radio" class="btn-check" name="menuType">
+                        <label for="btnFavoriteMenu" type="button" class="btn btn-outline-secondary p-2"><i class="f:18 ti ti-star"></i></label>
+                        <input id="btnHistoryMenu" syn-events="['click']" type="radio" class="btn-check" name="menuType">
+                        <label for="btnHistoryMenu" type="button" class="btn btn-outline-secondary p-2"><i class="f:18 ti ti-history"></i></label>
+                        <input id="btnSearchMenu" syn-events="['click']" type="button" class="btn-check">
+                        <label id="lblSearchMenu" for="btnSearchMenu" type="button" class="btn btn-outline-secondary p-2"><i class="f:18 ti ti-search"></i></label>
+                    </div>
+                </div>
+                <div id="divModuleMenu">
+                    <div class="m-3"></div>
+                    <div id="divModuleTreeMenu" class="collapse navbar-collapse"></div>
+                    <div class="hr m-3"></div>
+                    <div id="divModuleDummyMenu" class="collapse navbar-collapse"></div>
+                </div>
+                <div id="divProgramMenu" class="hidden">
+                    <div id="divProgramTreeMenu" class="collapse navbar-collapse"></div>
+                </div>
+                <div id="divFavoriteMenu" class="hidden">
+                    <div id="divFavoriteTreeMenu" class="collapse navbar-collapse">
+                        <div class="accordion accordion-inverted accordion-plus" id="accordion-inverted-plus">
+                            <div class="accordion-item">
+                                <div class="accordion-header">
+                                    <div id="btnEditFavoriteGroup" class="accordion-button collapsed" type="button" syn-events="['click']">
+                                        즐겨찾기 그룹 관리
+                                        <div class="accordion-button-toggle accordion-button-toggle-plus">
+                                            <i class="ti ti-plus"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="divFavoriteList"></div>
+                        </div>
+                    </div>
+                </div>
+                <div id="divHistoryMenu" class="hidden">
+                    <div id="divHistoryTreeMenu" class="collapse navbar-collapse">
+                        <div class="navbar-nav">
+                            <div id="divHistoryList"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+        <header id="hdrMenuBar" class="navbar navbar-expand pt-0 pb-0">
+            <div class="container pr-0">
+                <button type="button" id="btnMenuSelector" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar-menu" aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
+                    <i class="f:18 ti ti-search"></i>
+                </button>
+                <div id="divCommonMenu" class="navbar-brand navbar-brand-autodark pe-0 pe-2 mt:-2!">
+                    <button type="button" id="btnDashBoard" class="border-0 btn btn-icon box-shadow:none! mr--2" syn-events="['click']">
+                        <i class="f:18 ti ti-layout-dashboard"></i>
+                    </button>
+                    <button type="button" id="btnToogleFavorite" class="border-0 btn btn-icon box-shadow:none!" syn-events="['click']">
+                        <i class="f:18 ti ti-star"></i>
+                    </button>
+                    <span id="lblActiveTabTitle" class="navbar-toggler ml:20! mr:20!">대시보드</span>
+                </div>
+                <div class="collapse navbar-collapse" id="navbar-menu">
+                    <div class="navbar surface box-shadow:none!">
+                        <div class="mock-browser">
+                            <div class="chrome-tabs">
+                                <div class="chrome-tabs-content"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="divUIFunctionButton" class="flex-row navbar-nav p-2">
+                    <div class="d-flex">
+                        <button id="btnUIAreaVisible" class="border-0 btn btn-icon box-shadow:none!" syn-events="['click']">
+                            <i class="f:18 ti ti-keyboard-hide"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <div class="page-wrapper p:10">
+            <div id="tabContainer">
+                <iframe id="U$DSH$DSH000$000$000$QWKMENU000$i" style="height: 100%;display: none;" tag="iframe" width="100%" height="100%" scrolling="no"></iframe>
+            </div>
+        </div>
+        <footer class="footer p:10! sticky bottom-0 h:61 ml:15rem">
+            <div class="row mt:2!">
+                <div class="col-4 d-block pl-0">
+                    <div id="divFooterArea_M001" class="nav-item hidden">
+                        <div class="btn-list">
+                            <button type="button" id="btnDocumentWrite" class="btn" syn-events="['click']"><i class="f:18 ti ti-file"></i> 새 문서 작성</button>
+                        </div>
+                    </div>
+                    <div id="divFooterArea_Accounting" class="nav-item hidden">
+                        <div class="btn-list">
+                            <button type="button" id="btnCalculator" class="btn"><i class="f:18 ti ti-file"></i> 계산기</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-8 flex justify-content-end">
+                    <div class="btn-group box-shadow:none!">
+                        <div id="divActionButtons" class="btn-list flex:row mr-2"></div>
+                        <div id="divUIDefaultButton" class="btn-group border mt:-1">
+                            <button id="btnUIFunctionSearch" class="btn btn-icon border-y-0 border-l-0" syn-events="['click']">
+                                <i class="f:18 ti ti-search"></i>
+                            </button>
+                            <button id="btnUIFunctionSave" class="btn btn-icon border-y-0" syn-events="['click']">
+                                <i class="f:18 ti ti-device-floppy"></i>
+                            </button>
+                            <button id="btnUIFunctionDelete" class="btn btn-icon border-y-0" syn-events="['click']">
+                                <i class="f:18 ti ti-trash"></i>
+                            </button>
+                            <button id="btnUIFunctionPrint" class="btn btn-icon border-y-0" syn-events="['click']">
+                                <i class="f:18 ti ti-printer"></i>
+                            </button>
+                            <button id="btnUIFunctionExport" class="btn btn-icon border-y-0" syn-events="['click']">
+                                <i class="f:18 ti ti-table-export"></i>
+                            </button>
+                            <button id="btnUIFunctionRefresh" class="btn btn-icon border-y-0 border-r-0" syn-events="['click']">
+                                <i class="f:18 ti ti-refresh"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+        <div class="offcanvas offcanvas-end w:740px!" tabindex="-1" id="divOffcanvasEnd">
+            <div class="offcanvas-header p-3">
+                <h2 id="lblOffCanvasLabel" class="offcanvas-title"><span id="spnSearchKeyword" class="mr-1"></span> 키워드 검색</h2>
+                <button type="button" id="btnCloseOffCanvas" class="btn-close text-reset" data-bs-dismiss="offcanvas"></button>
+            </div>
+            <div class="offcanvas-body p-2">
+                <div class="card overflow-auto">
+                    <div class="card-header p-2 bg-primary-lt">
+                        <div class="card-status-top bg-dark-overlay"></div>
+                        <h3 class="card-title">키워드 검색</h3>
+                    </div>
+                    <div class="card-body p-2">
+                        <div class="form-fieldset p-0">
+                            <syn_auigrid id="grdSearchKeyword" syn-datafield="DataList" syn-options="{
+								height: 600,
+								showInlineFilter: true,
+								editable: false,
+								columns: [
+									['KeywordID', '키워드 ID', 100, true, 'text', true, 'center'],
+									['ContentName', '컨텐츠 명', 85, false, 'text', false, 'center'],
+									['Matchs', '매칭 정보', -1, false, 'text', false, 'center'],
+									['CreatedUserName', '작성자', 120, false, 'text', false, 'center'],
+									['CreatedAt', '작성 일', 90, false, 'text', false, 'center']
+								]
+							}" syn-events="['cellDoubleClick']"></syn_auigrid>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="divOffCanvasBackdrop" class="offcanvas-backdrop fade show hidden" syn-events="['click']"></div>
+    </div>
+
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <input type="hidden" id="hdnDirectoryID">
+        <input type="hidden" id="hdnItemID">
+        <div id="tplAddFavoriteMenu" class="invisible h:100%">
+            <h3 class="mt-0 mb-0">즐겨찾기 등록</h3>
+            <div class="card mt:-1">
+                <div class="card-body">
+                    <div class="row mb-2">
+                        <label class="col-3 col-form-label">메뉴 정보</label>
+                        <div class="col align-content-center">
+                            <label id="lblFavoriteMenuName"></label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <label class="col-3 col-form-label">즐겨찾기 그룹</label>
+                        <div class="col">
+                            <select id="ddlFavoriteGroupID" syn-datafield="FavoriteGroupID" class="form-select" syn-events="['change']" syn-options="{dataSourceID: 'Empty', local: false, toSynControl: false, required: true, deleteCache: false}"></select>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer text-end p:10!">
+                    <button type="button" id="btnConfirmAddFavoriteMenu" syn-events="['click']" class="btn btn-primary">
+                        <i class="font:20 mr:4 ti ti-check"></i>
+                        확인
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div id="tplEditFavoriteGroup" class="invisible h:100%">
+            <h3 class="mt-0 mb-0">즐겨찾기 그룹 관리</h3>
+            <div class="card mt:-1">
+                <div class="card-body overflow-auto p-2">
+                    <div class="card">
+                        <div class="card-header p-2">
+                            <h3 class="card-title bg-white border-bottom-0">즐겨찾기 그룹 목록</h3>
+                            <div class="card-actions pr-2">
+                                <div class="btn-group">
+                                    <button type="button" id="btnAddFavoriteGroup" syn-events="['click']" class="btn btn-icon bg-muted-lt"><i class="f:18 ti ti-plus"></i></button>
+                                    <button type="button" id="btnRemoveFavoriteGroup" syn-events="['click']" class="btn btn-icon bg-muted-lt"><i class="f:18 ti ti-minus"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body p-2">
+                            <div class="form-fieldset p-0">
+                                <syn_auigrid id="grdFavoriteGroup" syn-datafield="FavoriteGroup" syn-options="{
+									height: 294,
+									controlText: '즐겨찾기 그룹',
+									showDragKnobColumn: true,
+									enableDrag: true,
+									enableMultipleDrag: true,
+									enableDrop: true,
+									columns: [
+										['FavoriteID', '즐겨찾기 ID', 100, true, 'text', true, 'left', 'MD01'],
+										['FavoriteName', '즐겨찾기 그룹 명', 260, false, 'text', false, 'left', 'MD01', {validators: 'require'}],
+										['FavoriteMenuCount', '등록 메뉴 수', 100, false, 'numeric', true, 'center'],
+										['SortingNo', '정렬 순서', 100, true, 'text', true, 'left', 'MD01'],
+										['CreatedUserNo', '작성자 ID', 100, true, 'text', true, 'left', 'MD01']
+									]
+								}" syn-events="['afterSelectionEnd', 'dropEnd']"></syn_auigrid>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer text-end p:10!">
+                    <button type="button" id="btnConfirmUpdateFavoriteGroup" syn-events="['click']" class="btn btn-primary">
+                        <i class="font:20 mr:4 ti ti-check"></i>
+                        확인
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div id="tplEditFavoriteMenu" class="invisible h:100%">
+            <h3 class="mt-0 mb-0">즐겨찾기 메뉴 관리</h3>
+            <div class="card mt:-1">
+                <div class="card-body overflow-auto p-2">
+                    <div class="card">
+                        <div class="card-header p-2">
+                            <h3 class="card-title bg-white border-bottom-0">즐겨찾기 메뉴 목록</h3>
+                            <div class="card-actions pr-2">
+                                <div class="btn-group">
+                                    <button type="button" id="btnRemoveFavoriteMenu" syn-events="['click']" class="btn btn-icon bg-muted-lt"><i class="f:18 ti ti-minus"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body p-2">
+                            <div class="form-fieldset p-0">
+                                <syn_auigrid id="grdFavoriteMenu" syn-datafield="FavoriteMenu" syn-options="{
+									height: 294,
+									controlText: '즐겨찾기 메뉴',
+									showDragKnobColumn: true,
+									enableDrag: true,
+									enableMultipleDrag: true,
+									enableDrop: true,
+									columns: [
+										['FavoriteID', '즐겨찾기 ID', 100, true, 'text', true, 'left', 'MD02'],
+										['BaseMenuName', '업무 명', 100, false, 'text', true, 'left'],
+										['ParentMenuName', '디렉토리 명', 100, false, 'text', true, 'left'],
+										['MenuName', '메뉴 명', 150, false, 'text', true, 'left'],
+										['SortingNo', '정렬 순서', 100, true, 'text', true, 'left', 'MD02'],
+										['CreatedUserNo', '작성자 ID', 100, true, 'text', true, 'left', 'MD02']
+									]
+								}" syn-events="['afterSelectionEnd', 'dropEnd']"></syn_auigrid>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer text-end p:10!">
+                    <button type="button" id="btnConfirmUpdateFavoriteMenu" syn-events="['click']" class="btn btn-primary">
+                        <i class="font:20 mr:4 ti ti-check"></i>
+                        확인
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div id="tplSearchMenu" class="invisible h:100%">
+            <h3 class="mt-0 mb-0">업무 메뉴 조회</h3>
+            <div class="card mt:-1">
+                <div class="card-body overflow-auto p-2">
+                    <div class="card">
+                        <div class="card-header p-2">
+                            <h3 class="card-title bg-white border-bottom-0">메뉴 목록</h3>
+                        </div>
+                        <div class="card-body p-2">
+                            <div class="form-fieldset p-0">
+                                <syn_auigrid id="grdSearchMenu" syn-datafield="SearchMenu" syn-options="{
+									height: 294,
+									showInlineFilter: true,
+									editable: false,
+									columns: [
+										['MenuID', '메뉴 ID', 100, true, 'text', true, 'left'],
+										['ParentMenuName', '디렉토리 명', 140, false, 'text', true, 'left'],
+										['MenuName', '메뉴 명', 260, false, 'text', true, 'left'],
+										['ProjectID', '디렉토리 ID', 100, true, 'text', true, 'left'],
+										['FileID', '항목 ID', 100, true, 'text', true, 'left']
+									]
+								}" syn-events="['cellDoubleClick']"></syn_auigrid>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer text-end p:10!">
+                    <button type="button" id="btnCloseSearchMenu" syn-events="['click']" class="btn btn-primary">
+                        <i class="font:20 mr:4 ti ti-check"></i>
+                        확인
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div id="tplMyProfile" class="hidden h:100%">
+            <h3 class="mt-0 mb-0">개인정보 설정</h3>
+            <div class="card mt:-1" style="height: calc(100% - 37px) !important;">
+                <div class="card-body overflow-auto">
+                    <div class="row">
+                        <div class="col">
+                            <div class="row mb-2">
+                                <label class="col-3 col-form-label">이름</label>
+                                <div class="col">
+                                    <input id="txtUserName" syn-datafield="UserName" type="text" class="form-control" disabled>
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <label class="col-3 col-form-label">직위</label>
+                                <div class="col">
+                                    <input id="txtPositionName" type="text" class="form-control" disabled>
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <label class="col-3 col-form-label">부서</label>
+                                <div class="col">
+                                    <input id="txtDepartmentName" type="text" class="form-control" disabled>
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <label class="col-3 col-form-label">비밀번호 변경</label>
+                                <div class="col input-group">
+                                    <input id="txtPassword" type="password" class="form-control" placeholder="기존 비밀번호">
+                                    <input id="txtNewPassword" type="password" class="form-control" placeholder="변경 비밀번호">
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <label class="col-3 col-form-label">연락처</label>
+                                <div class="col">
+                                    <input id="txtCelluar" syn-datafield="Celluar" syn-options="{editType: 'mobilephone'}" type="text" class="form-control">
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <label class="col-3 col-form-label">내선 번호</label>
+                                <div class="col">
+                                    <input id="txtExtensionNo" type="text" class="form-control" syn-datafield="ExtensionNo" maxlength="50" syn-options="{&quot;editType&quot;:&quot;homephone&quot;,&quot;inValidateClear&quot;:true,&quot;formatNumber&quot;:true,&quot;maskPattern&quot;:null,&quot;maxCount&quot;:null,&quot;minCount&quot;:0,&quot;allowChars&quot;:[],&quot;placeText&quot;:[],&quot;defaultSetValue&quot;:&quot;0&quot;,&quot;dataType&quot;:&quot;string&quot;,&quot;belongID&quot;:[&quot;MD01&quot;],&quot;getter&quot;:false,&quot;setter&quot;:false,&quot;controlText&quot;:null,&quot;validators&quot;:null,&quot;transactConfig&quot;:null,&quot;triggerConfig&quot;:null}" spellcheck="true">
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <label class="col-3 col-form-label">포인트 색상</label>
+                                <div class="col">
+                                    <select id="ddlPointColor" syn-datafield="PointColor" class="form-select" syn-options="{dataSourceID: 'QWKCHP001', storeSourceID: 'QWKCOM058', parameters: '@GroupCode:QWKCOM058;', local: false, toSynControl: false, placeholder: '선택', belongID: ['MD01']}"></select>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col">
+                                    정보를 변경 하면 다시 로그인 해야합니다.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer text-end p:10!">
+                    <button type="button" id="btnApplyMyProfile" syn-events="['click']" class="btn btn-primary">
+                        <i class="font:20 mr:4 ti ti-check"></i>
+                        정보 변경
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+    <syn_data id="srcException" syn-options="{
+		dataSourceID: 'Exception',
+		storeType: 'Form',
+		columns: [
+			{ data: 'Error', dataType: 'string' },
+			{ data: 'Level', dataType: 'string' },
+			{ data: 'Message', dataType: 'string' },
+			{ data: 'StackTrace', dataType: 'string' },
+			{ data: 'TypeMember', dataType: 'string' }
+		]
+	}"></syn_data>
+    <syn_guide id="hlpDataSource" syn-options="{
+		items: [{
+			helpType: 'I',
+			selector: '#divRoleUserMenu',
+			subject: 'Qramework 업무 화면을 실행 하기 위한 메뉴입니다.',
+			sentence: '빠르게 원하는 업무 화면을 찾아 실행 할 수 있는 기능을 제공합니다.',
+			position: 'right'
+		},
+		{
+			helpType: 'I',
+			selector: '#divProgramMenu',
+			subject: '기본 트리 메뉴입니다.',
+			sentence: '사용자의 담당 역할에 따라 메뉴가 보여지고, 3 단계의 트리 구조로 업무 영역별로 화면을 관리합니다.',
+			position: 'right'
+		},
+		{
+			helpType: 'I',
+			selector: '#divFavoriteMenu',
+			subject: '개인 사용자를 위한 관리 메뉴입니다.',
+			sentence: '자주 사용하는 메뉴를 개인적으로 관리 할 수 있습니다. 탭 화면의 왼쪽에 있는 &lt;i class&#61;&quot;f:16! ti ti-star&quot;&gt;&lt;&#47;i&gt; 아이콘 버튼을 클릭하여 등록 할 수 있습니다.',
+			position: 'right'
+		},
+		{
+			helpType: 'I',
+			selector: '#divHistoryMenu',
+			subject: '실행 하는 메뉴의 최근 이력입니다.',
+			sentence: '로그인 중에 실행 했던 화면 이력을 볼 수 있고, 다시 업무 화면을 찾아 바로가기를 할 수 있습니다.',
+			position: 'right'
+		},
+		{
+			helpType: 'I',
+			selector: '#lblSearchMenu',
+			subject: '메뉴 검색 팝업을 실행 합니다.',
+			sentence: '업무 디렉토리와 메뉴 명을 빠르게 검색하여 원하는 업무 화면을 찾아 바로가기를 할 수 있습니다.',
+			position: 'right'
+		},
+		{
+			helpType: 'I',
+			selector: '#btnToggleLeftMenu',
+			subject: '왼쪽의 업무 메뉴에 대해 토글 기능을 수행 합니다.',
+			sentence: '업무 화면을 더 넓게 사용하고 집중 할 수 있도록 왼쪽의 업무 메뉴를 숨기거나 표시합니다.'
+		},
+		{
+			helpType: 'I',
+			selector: '#txtSearchKeyword',
+			subject: '키워드를 검색합니다.',
+			sentence: '업무에 필요한 키워드를 입력하고 엔터 키를 입력하면 오른쪽 화면에 대상 정보를 검색 할 수 있습니다.'
+		},
+		{
+			helpType: 'I',
+			selector: '#btnGuideTour',
+			subject: '사용자를 위한 화면 가이드를 시작합니다.',
+			sentence: '탭/팝업 화면에서 &lt;i class&#61;&quot;f:16! ti ti-book&quot;&gt;&lt;&#47;i&gt; 아이콘 버튼이 있으면 클릭 해보세요. 단계 별로 사용자를 위한 화면 가이드를 시작합니다. 도움말은 마우스로 좌/우 버튼을 클릭하거나 키보드의 좌/우 화살표 키로 이동이 가능 합니다.',
+			position: 'left'
+		},
+		{
+			helpType: 'I',
+			selector: '#btnDarkMode',
+			subject: '다크 모드 또는 라이트 모드로 전환합니다.',
+			sentence: '눈의 피로를 줄이고 가독성을 높이는 데 도움을 주기 위해 화면의 배경을 어두운 색상으로 설정 합니다.',
+			position: 'left'
+		},
+		{
+			helpType: 'I',
+			selector: '#divLoginUser',
+			subject: '사용자의 개인정보 및 프로젝트를 닫거나 로그아웃을 실행합니다.',
+			sentence: '사용자의 개인정보를 변경하고, 브라우저를 닫기 전에 로그아웃을 할 수 있습니다. 공용 컴퓨터나 작업 컴퓨터에서는 로그아웃을 통해 개인 정보를 보호하는 것이 중요합니다.',
+			position: 'left'
+		},
+		{
+			helpType: 'I',
+			selector: '#divCommonMenu',
+			subject: '대시보드 화면 바로가기 버튼과 화면 즐겨찾기 추가 버튼 입니다.',
+			sentence: '회사 스케줄, 공지사항, 개인 수신 알림톡, 매장 실적, 당일 일정 및 주문 현황을 확인하고, 출근/퇴근/휴가 신청을 할 수 있는 대시보드와 열려 진 탭 화면을 즐겨찾기로 추가하는 기능을 제공 합니다.'
+		},
+		{
+			helpType: 'I',
+			selector: '#navbar-menu',
+			subject: '담당 업무에 필요한 기초 정보, 고객 관리, 주문 관리, 매출 및 정산 관리, 생산 및 재고 관리, 업무 및 시스템 관리의 화면을 탭 화면으로 표시합니다.',
+			sentence: '여러 화면을 동시에 실행 할 수 있으며, 탭을 마우스로 좌우로 드래그 앤 드롭으로 위치를 변경 할 수 있습니다.'
+		},
+		{
+			helpType: 'I',
+			selector: '#divUIFunctionButton',
+			subject: '탭 화면의 공통 기능 버튼 입니다.',
+			sentence: '&lt;i class&#61;&quot;f:16! ti ti-keyboard-hide&quot;&gt;&lt;&#47;i&gt;: 업무 화면을 더 넓게 사용하고 집중 할 수 있도록 상단 영역 숨김/표시 기능을 수행합니다.'
+		},
+		{
+			helpType: 'I',
+			selector: '#tabContainer',
+			subject: '메뉴에 대응하는 업무 화면 영역입니다.',
+			sentence: '업무에 따라 화면이 동적으로 변경됩니다. 반응형 디자인 원칙에 따라 다양한 크기의 단말 기기에서 작동하며, 사용자의 특정 작업이나 요구에 따라 적절한 정보를 제공합니다.',
+		},
+		{
+			helpType: 'I',
+			selector: '#divUIDefaultButton',
+			subject: '탭 화면의 업무 기능 버튼 입니다.',
+			sentence: '화면 또는 담당 역할에 따라 업무 기능 버튼 활성화가 진행됩니다.&lt;br&gt;- &lt;i class&#61;&quot;f:16! ti ti-search&quot;&gt;&lt;&#47;i&gt;: 조회 기능을 수행합니다.&lt;br&gt;- &lt;i class&#61;&quot;f:16! ti ti-device-floppy&quot;&gt;&lt;&#47;i&gt;: 저장 기능을 수행합니다.&lt;br&gt;- &lt;i class&#61;&quot;f:16! ti ti-trash&quot;&gt;&lt;&#47;i&gt;: 삭제 기능을 수행합니다.&lt;br&gt;- &lt;i class&#61;&quot;f:16! ti ti-printer&quot;&gt;&lt;&#47;i&gt;: 프린터 인쇄 또는 출력 기능을 수행합니다.&lt;br&gt;- &lt;i class&#61;&quot;f:16! ti ti-table-export&quot;&gt;&lt;&#47;i&gt;: 업무에 따라 다양한 형식의 파일 내보내기 기능을 수행합니다.'
+		},
+		{
+			helpType: 'I',
+			selector: '#divActionButtons',
+			subject: '탭 화면 에서 실행 가능한 명령 버튼 목록을 표시합니다.',
+			sentence: '공통 업무 기능 버튼 이외에도 탭 화면 에서 실행 가능한 고유 기능을 수행 합니다.',
+		}]
+	}" syn-events="['change', 'exit']"></syn_guide>
+    <script id="tplFavoriteItem" type="text/x-mustache">
+		{{#favoriteGroups}}
+		<div data-favorite-group="{{FavoriteGroupID}}" class="accordion-item">
+			<div class="accordion-header">
+				<div class="accordion-button" onclick="$this.event.btnToggleFavoriteMenu_click(event, '{{FavoriteGroupID}}')">
+					<div class="accordion-button-toggle accordion-button-toggle-plus">
+						<i class="ti ti-chevron-up"></i>
+					</div>
+					{{FavoriteGroupName}}
+					<div class="accordion-button-icon h:20 mr-2 absolute right-0" onclick="$this.event.btnEditFavoriteMenu_click(event, '{{FavoriteGroupID}}')">
+						<i class="ti ti-edit"></i>
+					</div>
+				</div>
+			</div>
+			<div class="accordion-collapse collapse">
+				<div class="accordion-body">
+					<ul class="navbar-nav">
+						{{#FavoriteMenuItems}}
+						<li class="nav-item dropdown" onclick="$this.event.liFavoriteMenu_click(event, '{{DirectoryID}}', '{{ItemID}}')">
+							<div class="nav-link">
+								<span class="f:12 nav-link-title">{{ParentMenuName}}</span>
+							</div>
+							<div class="margin-left:32 mt--4 nav-link p-0">{{MenuName}}</div>
+						</li>
+						{{/FavoriteMenuItems}}
+					</ul>
+				</div>
+			</div>
+		</div>
+		{{/favoriteGroups}}
+    </script>
+    <script id="tplHistoryMenuItem" type="text/x-mustache">
+		{{#historyMenus}}
+		<div class="nav-item dropdown" onclick="$this.event.liFavoriteMenu_click(event, '{{DirectoryID}}', '{{ItemID}}')">
+			<div class="nav-link">
+				<span class="mr-2 f:12">
+					{{MenuOpenTime}}
+				</span>
+				<span class="f:12 nav-link-title">{{ParentMenuName}}</span>
+			</div>
+			<div class="margin-left:32 mt--4 nav-link p-0">{{MenuName}}</div>
+		</div>
+		{{/historyMenus}}
+    </script>
+    <script src="/lib/draggabilly/draggabilly.pkgd.min.js"></script>
+    <script src="/js/chrome-tabs/js/chrome-tabs.js"></script>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

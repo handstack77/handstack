@@ -24,6 +24,7 @@ let $app_settings = {
                 "ForwardProxyIP": [],
                 "IsTenantFunction": false,
                 "IsExceptionDetailText": true,
+                "IsEnabledDevAutoSignIn": false,
                 "ContractRequestPath": "view",
                 "TenantAppRequestPath": "app",
                 "TenantAppBasePath": "../tenants",
@@ -31,6 +32,7 @@ let $app_settings = {
                 "CreateAppTempPath": "../tmp/create_apps",
                 "ForbesBasePath": "../forbes",
                 "IsModulePurgeContract": true,
+                "IsEnabledCSP": false,
                 "LoadModuleBasePath": "../modules",
                 "LoadModules": [
                     "wwwroot",
@@ -45,6 +47,14 @@ let $app_settings = {
                 "UseResponseComression": false,
                 "UseForwardProxy": false,
                 "UseSameIPProxy": false,
+                "Security": {
+                    "EnableSecurityHeaders": true,
+                    "XFrameOptions": "SAMEORIGIN",
+                    "EnablePublicCorsPolicy": true,
+                    "ExposeSecretValues": false,
+                    "WarnOnWildcardAllowClientIP": true,
+                    "MaxContractSyncFileBytes": 10485760
+                },
                 "WithOrigins": [
                     "http://127.0.0.1",
                     "http://127.0.0.1:8421",
@@ -162,6 +172,7 @@ let $app_settings = {
                 syn.$l.get('txtForwardProxyIP').value = appSettings.ForwardProxyIP.join(', ');
                 syn.$l.get('chkIsTenantFunction').checked = $string.toBoolean(appSettings.IsTenantFunction);
                 syn.$l.get('chkIsExceptionDetailText').checked = $string.toBoolean(appSettings.IsExceptionDetailText);
+                syn.$l.get('chkIsEnabledDevAutoSignIn').checked = $string.toBoolean(appSettings.IsEnabledDevAutoSignIn);
                 syn.$l.get('txtContractRequestPath').value = appSettings.ContractRequestPath;
                 syn.$l.get('txtTenantAppRequestPath').value = appSettings.TenantAppRequestPath;
                 syn.$l.get('txtTenantAppBasePath').value = appSettings.TenantAppBasePath;
@@ -169,6 +180,7 @@ let $app_settings = {
                 syn.$l.get('txtCreateAppTempPath').value = appSettings.CreateAppTempPath;
                 syn.$l.get('txtForbesBasePath').value = appSettings.ForbesBasePath;
                 syn.$l.get('chkIsModulePurgeContract').checked = $string.toBoolean(appSettings.IsModulePurgeContract);
+                syn.$l.get('chkIsEnabledCSP').checked = $string.toBoolean(appSettings.IsEnabledCSP);
                 syn.$l.get('txtLoadModuleBasePath').value = appSettings.LoadModuleBasePath;
                 syn.$l.get('txtLoadModules').value = appSettings.LoadModules.join(', ');
 
@@ -176,6 +188,14 @@ let $app_settings = {
                 syn.$l.get('chkUseResponseComression').checked = $string.toBoolean(appSettings.UseResponseComression);
                 syn.$l.get('chkUseForwardProxy').checked = $string.toBoolean(appSettings.UseForwardProxy);
                 syn.$l.get('chkUseSameIPProxy').checked = $string.toBoolean(appSettings.UseSameIPProxy);
+
+                syn.$l.get('chkEnableSecurityHeaders').checked = $string.toBoolean(appSettings.Security.EnableSecurityHeaders);
+                syn.$l.get('ddlXFrameOptions').value = appSettings.Security.XFrameOptions;
+                syn.$l.get('chkEnablePublicCorsPolicy').checked = $string.toBoolean(appSettings.Security.EnablePublicCorsPolicy);
+                syn.$l.get('chkExposeSecretValues').checked = $string.toBoolean(appSettings.Security.ExposeSecretValues);
+                syn.$l.get('chkWarnOnWildcardAllowClientIP').checked = $string.toBoolean(appSettings.Security.WarnOnWildcardAllowClientIP);
+                syn.$l.get('txtMaxContractSyncFileBytes').value = $string.isNumber(appSettings.Security.MaxContractSyncFileBytes) == true ? $string.toNumber(appSettings.Security.MaxContractSyncFileBytes) : 10485760;
+
                 syn.$l.get('txtWithOrigins').value = appSettings.WithOrigins.join(', ');
 
                 syn.$l.get('chkIsSession').checked = $string.toBoolean(appSettings.SessionState.IsSession);
@@ -243,6 +263,7 @@ let $app_settings = {
                     appSettings.ForwardProxyIP = $array.split(syn.$l.get('txtForwardProxyIP').value);
                     appSettings.IsTenantFunction = syn.$l.get('chkIsTenantFunction').checked;
                     appSettings.IsExceptionDetailText = syn.$l.get('chkIsExceptionDetailText').checked;
+                    appSettings.IsEnabledDevAutoSignIn = syn.$l.get('chkIsEnabledDevAutoSignIn').checked;
                     appSettings.ContractRequestPath = syn.$l.get('txtContractRequestPath').value;
                     appSettings.TenantAppRequestPath = syn.$l.get('txtTenantAppRequestPath').value;
                     appSettings.TenantAppBasePath = syn.$l.get('txtTenantAppBasePath').value;
@@ -250,6 +271,7 @@ let $app_settings = {
                     appSettings.CreateAppTempPath = syn.$l.get('txtCreateAppTempPath').value;
                     appSettings.ForbesBasePath = syn.$l.get('txtForbesBasePath').value;
                     appSettings.IsModulePurgeContract = syn.$l.get('chkIsModulePurgeContract').checked;
+                    appSettings.IsEnabledCSP = syn.$l.get('chkIsEnabledCSP').checked;
                     appSettings.LoadModuleBasePath = syn.$l.get('txtLoadModuleBasePath').value;
                     appSettings.LoadModules = $array.split(syn.$l.get('txtLoadModules').value);
 
@@ -257,6 +279,14 @@ let $app_settings = {
                     appSettings.UseResponseComression = syn.$l.get('chkUseResponseComression').checked;
                     appSettings.UseForwardProxy = syn.$l.get('chkUseForwardProxy').checked;
                     appSettings.UseSameIPProxy = syn.$l.get('chkUseSameIPProxy').checked;
+
+                    appSettings.Security.EnableSecurityHeaders = syn.$l.get('chkEnableSecurityHeaders').checked;
+                    appSettings.Security.XFrameOptions = syn.$l.get('ddlXFrameOptions').value;
+                    appSettings.Security.EnablePublicCorsPolicy = syn.$l.get('chkEnablePublicCorsPolicy').checked;
+                    appSettings.Security.ExposeSecretValues = syn.$l.get('chkExposeSecretValues').checked;
+                    appSettings.Security.WarnOnWildcardAllowClientIP = syn.$l.get('chkWarnOnWildcardAllowClientIP').checked;
+                    appSettings.Security.MaxContractSyncFileBytes = $string.isNumber(syn.$l.get('txtMaxContractSyncFileBytes').value) == true ? $string.toNumber(syn.$l.get('txtMaxContractSyncFileBytes').value) : 10485760;
+
                     appSettings.WithOrigins = $array.split(syn.$l.get('txtWithOrigins').value);
 
                     appSettings.SessionState.IsSession = syn.$l.get('chkIsSession').checked;

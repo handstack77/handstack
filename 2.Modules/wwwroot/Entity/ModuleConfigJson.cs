@@ -41,6 +41,9 @@ namespace wwwroot.Entity
         // 공통 파일 관리: 이 경로의 JSON 파일(qcn.winform "공통 파일 관리" 화면이 관리하는 shared_files.json과 같은 형식, items[].requestPath/hostFilePath)을 읽어 SharedFiles로 서빙한다.
         public string SharedFileConfigPath { get; set; }
 
+        // 개발 목적 테스트 계정 자동 로그인(GlobalConfiguration.IsEnabledDevAutoSignIn == true 이고 RunningEnvironment == "D"일 때만 사용)에 사용할 고정 계정 값
+        public DevAutoSignInConfig DevAutoSignIn { get; set; }
+
         public ModuleConfig()
         {
             AuthorizationKey = "";
@@ -55,6 +58,7 @@ namespace wwwroot.Entity
             FileSyncTokens = new List<string>();
             CreateIDPolicy = new CreateIDPolicyConfig();
             SharedFileConfigPath = "";
+            DevAutoSignIn = new DevAutoSignInConfig();
         }
     }
 
@@ -86,6 +90,28 @@ namespace wwwroot.Entity
         {
             Key = "";
             AllowedIPs = new List<string>();
+        }
+    }
+
+    public record DevAutoSignInConfig
+    {
+        public string UserNo { get; set; }
+
+        public string UserID { get; set; }
+
+        public string UserName { get; set; }
+
+        public string Email { get; set; }
+
+        public List<string> Roles { get; set; }
+
+        public DevAutoSignInConfig()
+        {
+            UserNo = "";
+            UserID = "";
+            UserName = "";
+            Email = "";
+            Roles = new List<string>();
         }
     }
 }

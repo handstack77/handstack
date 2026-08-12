@@ -776,6 +776,29 @@ namespace transact.Areas.transact.Controllers
                             privillegeTypes.Add(privillegeKey, claims[privillegeKey]);
                         }
                     }
+
+                    // 개발 목적 테스트 계정 자동 로그인(wwwroot DevAccountController) 요청 감지. 클레임 위조 대비로 호스트 설정과 교차 확인한다.
+                    var isDevAutoSignIn = false;
+                    if (userAccount != null && userAccount.Claims.ContainsKey("IsDevAutoSignIn") == true)
+                    {
+                        isDevAutoSignIn = userAccount.Claims["IsDevAutoSignIn"].ToBoolean();
+                    }
+                    else if (bearerToken != null && bearerToken.Policy.Claims.ContainsKey("IsDevAutoSignIn") == true)
+                    {
+                        isDevAutoSignIn = bearerToken.Policy.Claims["IsDevAutoSignIn"].ToBoolean();
+                    }
+
+                    if (isDevAutoSignIn == true)
+                    {
+                        if (GlobalConfiguration.IsEnabledDevAutoSignIn == false || GlobalConfiguration.RunningEnvironment != "D")
+                        {
+                            response.ExceptionText = "개발 테스트 계정 자동 로그인 클레임이 비정상 요청에 포함되어 있습니다.";
+                            logger.Warning("[{LogCategory}] " + $"{request.Transaction.OperatorID}: IsDevAutoSignIn 클레임이 있으나 AppSettings:IsEnabledDevAutoSignIn=false 이거나 RunningEnvironment가 D가 아닙니다. TransactionID: {request.Transaction.TransactionID}", "Transaction/Execute");
+                            return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
+                        }
+
+                        logger.Information("[{LogCategory}] " + $"{request.Transaction.OperatorID}: 개발 테스트 계정 요청. GlobalID: {request.Transaction.GlobalID}", "Transaction/Execute");
+                    }
                 }
                 catch (Exception exception)
                 {

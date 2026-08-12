@@ -130,6 +130,7 @@ namespace ack
             GlobalConfiguration.IsConfigurationWatching = appSettings["IsConfigurationWatching"].ToStringSafe("false").ToBoolean();
             GlobalConfiguration.IsTenantFunction = appSettings["IsTenantFunction"].ToStringSafe("false").ToBoolean();
             GlobalConfiguration.IsExceptionDetailText = appSettings["IsExceptionDetailText"].ToStringSafe("false").ToBoolean();
+            GlobalConfiguration.IsEnabledDevAutoSignIn = appSettings["IsEnabledDevAutoSignIn"].ToStringSafe("false").ToBoolean();
             GlobalConfiguration.IsSwaggerUI = appSettings["IsSwaggerUI"].ToStringSafe("false").ToBoolean();
             GlobalConfiguration.IsModulePurgeContract = appSettings["IsModulePurgeContract"].ToStringSafe("true").ToBoolean();
             GlobalConfiguration.SessionCookieName = appSettings.GetSection("SessionState").Exists() == true && appSettings["SessionState:IsSession"].ToStringSafe("false").ToBoolean() == true ? appSettings["SessionState:SessionCookieName"].ToStringSafe("") : "";

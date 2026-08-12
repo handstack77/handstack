@@ -66,7 +66,7 @@ namespace checkup.Areas.checkup.Controllers
             return "checkup AccountController";
         }
 
-        // http://localhost:8421/checkup/api/account/invite-member?userID=dev@handstack.io&clientIP=1.1.1.67
+        // http://localhost:8421/checkup/api/account/invite-member?userID=dev@handstack.kr&clientIP=1.1.1.67
         [HttpGet("[action]")]
         public ActionResult InviteMember(string emailID, string applicationName, string roles, string? userName)
         {
@@ -158,7 +158,7 @@ namespace checkup.Areas.checkup.Controllers
             return result;
         }
 
-        // http://localhost:8421/checkup/api/account/login?userID=dev@handstack.io&password=sha256&clientIP=1.1.1.67
+        // http://localhost:8421/checkup/api/account/login?userID=dev@handstack.kr&password=sha256&clientIP=1.1.1.67
         [AllowAnonymous]
         [HttpGet("[action]")]
         public ActionResult Login(string userID, string password, string clientIP)
@@ -215,7 +215,7 @@ namespace checkup.Areas.checkup.Controllers
             return result;
         }
 
-        // http://localhost:8421/checkup/api/account/sign-in?userID=email@handstack.io&issueID=08db7618-9fd0-9485-ca91-a8521400025c&validID=WlGVxKVMiG3UYsrZlvY2lWg+AC9472BfOhJbj+r4mniaTdyNBuUayunuCB9oj/En&signID=5aea84ed469249b1cdb1cddf6618d4eb2f346e88fcfd8eff58580a675646f568
+        // http://localhost:8421/checkup/api/account/sign-in?userID=email@handstack.kr&issueID=08db7618-9fd0-9485-ca91-a8521400025c&validID=WlGVxKVMiG3UYsrZlvY2lWg+AC9472BfOhJbj+r4mniaTdyNBuUayunuCB9oj/En&signID=5aea84ed469249b1cdb1cddf6618d4eb2f346e88fcfd8eff58580a675646f568
         [HttpGet("[action]")]
         public async Task<ActionResult> SignIn(string userID, string issueID, string validID, string signID)
         {

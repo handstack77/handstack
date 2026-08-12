@@ -22,6 +22,13 @@
                     "AllowedIPs": [ "127.0.0.1", "::1" ]
                 }
             ]
+        },
+        "DevAutoSignIn": {
+            "UserNo": "DEV00000001",
+            "UserID": "dev@handstack.kr",
+            "UserName": "김한국",
+            "Email": "dev@handstack.kr",
+            "Roles": [ "Administrator" ]
         }
     }
 }

@@ -75,6 +75,7 @@ namespace wwwroot
                         ModuleConfiguration.TenantAppReferers.Clear();
                         GlobalConfiguration.ContractRequestPath = string.IsNullOrWhiteSpace(moduleConfig.ContractRequestPath) ? "view" : moduleConfig.ContractRequestPath;
                         ModuleConfiguration.SharedFiles = LoadSharedFiles(moduleConfig.SharedFileConfigPath);
+                        ModuleConfiguration.DevAutoSignIn = moduleConfig.DevAutoSignIn ?? new DevAutoSignInConfig();
 
                         ModuleConfiguration.IsConfigure = true;
                     }

@@ -22,6 +22,7 @@
         "IsConfigurationWatching": false,
         "IsTenantFunction": true,
         "IsExceptionDetailText": true,
+        "IsEnabledDevAutoSignIn": true,
         "ContractRequestPath": "view",
         "TenantAppRequestPath": "app",
         "TenantAppBasePath": "../tenants",
@@ -29,6 +30,7 @@
         "CreateAppTempPath": "../tmp/create_apps",
         "ForbesBasePath": "../forbes",
         "IsModulePurgeContract": true,
+        "IsEnabledCSP": false,
         "LoadModuleBasePath": "../modules",
         "LoadModules": [
             "wwwroot",
@@ -51,6 +53,7 @@
         "UseSameIPProxy": false,
         "Security": {
             "EnableSecurityHeaders": true,
+            "XFrameOptions": "SAMEORIGIN",
             "EnablePublicCorsPolicy": true,
             "ExposeSecretValues": false,
             "WarnOnWildcardAllowClientIP": true,
