@@ -62,7 +62,10 @@ let $mainframe = {
                 syn.$w.setStorage(`HandStack.tokenID`, tokenID, true);
             }
             else {
-                location.href = `/login.html`;
+                const isDevAutoSignIn = await $this.method.tryDevAutoSignIn();
+                if (isDevAutoSignIn == true) {
+                    location.reload();
+                }
                 return false;
             }
 
@@ -216,7 +219,7 @@ let $mainframe = {
                     $this.prop.modules = items;
                     $this.method.concreateModuleControl('divModuleTreeMenu', $this.prop.modules, 'basic');
 
-                    $this.prop.selectedModuleID = 'QWKMENU000';
+                    $this.prop.selectedModuleID = 'DMOMENU000';
                     const defaultModuleEL = syn.$l.get(`module_basic_${$this.prop.selectedModuleID}`);
                     if (defaultModuleEL) {
                         defaultModuleEL.click();
@@ -233,7 +236,7 @@ let $mainframe = {
                     const alertOptions = $object.clone(syn.$w.alertOptions);
                     alertOptions.icon = 'warning';
                     alertOptions.buttonType = '1';
-                    syn.$w.alert('메뉴 정보를 조회 하지 못했습니다. 다시 로그인해야 합니다.');
+                    syn.$w.alert('메뉴 정보를 조회 하지 못했습니다. 다시 로그인해야 합니다.', '메뉴 조회', alertOptions);
                 }
             }, null, true);
 
@@ -640,7 +643,7 @@ let $mainframe = {
                     url = menuNode.url;
                 }
                 else {
-                    url = `/view/QWK/{0}/{1}.html`.format(menuNode.projectID, menuNode.fileID);
+                    url = `/view/HDS/{0}/{1}.html`.format(menuNode.projectID, menuNode.fileID);
                 }
 
                 if (syn.Config && syn.Config.IsClientCaching == true) {
@@ -720,7 +723,7 @@ let $mainframe = {
                     url = menuNode.url;
                 }
                 else {
-                    url = `/${(menuNode.moduleName ? menuNode.moduleName : '')}/view/HDS/{0}/{1}.html`.format(menuNode.projectID, menuNode.fileID);
+                    url = `/view/HDS/{0}/{1}.html`.format(menuNode.projectID, menuNode.fileID);
                 }
 
                 if (syn.Config && syn.Config.IsClientCaching == true) {
@@ -1050,7 +1053,7 @@ let $mainframe = {
         },
 
         btnEditFavoriteGroup_click() {
-            syn.$w.alert('즐겨찾기 준비 중입니다.', '즐겨찾기 편집', alertOptions);
+            syn.$w.alert('즐겨찾기 준비 중입니다.', '즐겨찾기 편집');
         },
 
         btnConfirmUpdateFavoriteGroup_click(evt) {
@@ -1082,7 +1085,7 @@ let $mainframe = {
                 return;
             }
 
-            syn.$w.alert('준비 중입니다.');
+            syn.$w.alert('즐겨찾기 그룹 변경 준비 중입니다.');
         },
 
         btnConfirmUpdateFavoriteMenu_click(evt) {
@@ -1110,11 +1113,11 @@ let $mainframe = {
                 return;
             }
 
-            syn.$w.alert('준비 중입니다.');
+            syn.$w.alert('즐겨찾기 변경 준비 중입니다.');
         },
 
         async btnConfirmAddFavoriteMenu_click(evt) {
-            syn.$w.alert('준비 중입니다.');
+            syn.$w.alert('즐겨찾기 추가 준비 중입니다.');
         },
 
         btnToggleFavoriteMenu_click(evt, favoriteGroupID) {
@@ -1135,7 +1138,7 @@ let $mainframe = {
         },
 
         btnEditFavoriteMenu_click(evt, favoriteID) {
-            syn.$w.alert('준비 중입니다.');
+            syn.$w.alert('즐겨찾기 편집 준비 중입니다.');
 
             evt.preventDefault();
             evt.stopPropagation();
@@ -1283,6 +1286,21 @@ let $mainframe = {
     },
 
     method: {
+        async tryDevAutoSignIn() {
+            try {
+                const returnUrl = location.pathname + location.search;
+                const response = await fetch(`/wwwroot/api/dev-account/sign-in?returnUrl=${encodeURIComponent(returnUrl)}`, {
+                    method: 'GET',
+                    redirect: 'follow'
+                });
+
+                return response.ok;
+            }
+            catch (error) {
+                return false;
+            }
+        },
+
         executeUIFunction(command, tabID) {
             const tabEL = $string.isNullOrEmpty(tabID) == true ? $this.method.getActiveTab() : syn.$l.querySelector(`[data-tab-id="${tabID}"]`);
             if (tabEL) {
@@ -2426,19 +2444,13 @@ let $mainframe = {
             sessionStorage.clear();
 
             if ($string.isNullOrEmpty(message) == true) {
-                message = '로그아웃 되었습니다';
+                message = '로그아웃 준비 중입니다.';
             }
 
             const alertOptions = $object.clone(syn.$w.alertOptions);
             alertOptions.icon = 'success';
             alertOptions.buttonType = '1';
-            syn.$w.alert(message, 'System Logout', alertOptions, function (result) {
-                location.href = `/login.html`;
-            });
-
-            setTimeout(() => {
-                location.href = `/login.html`;
-            }, 10000);
+            syn.$w.alert(message, 'System Logout', alertOptions);
         },
 
         isConnectedSession() {
@@ -2751,7 +2763,7 @@ let $mainframe = {
         },
 
         loadFavoriteMenu() {
-            syn.$w.alert('준비 중입니다.');
+            syn.$l.eventLog('$this.method.loadFavoriteMenu', '즐겨찾기 조회 준비 중입니다.', 'Information');
         },
 
         loadRecentMenu() {

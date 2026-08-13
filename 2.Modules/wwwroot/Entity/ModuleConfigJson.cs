@@ -105,6 +105,23 @@ namespace wwwroot.Entity
 
         public List<string> Roles { get; set; }
 
+        // 이하 항목은 HandStack.Web.Entity.UserAccount의 선택 프로필 필드를 그대로 따른다.
+        public string Celluar { get; set; }
+
+        public string PositionName { get; set; }
+
+        public string DepartmentName { get; set; }
+
+        public string CompanyName { get; set; }
+
+        public string BirthDate { get; set; }
+
+        public string Gender { get; set; }
+
+        public string Address { get; set; }
+
+        public string ExtendOption { get; set; }
+
         public DevAutoSignInConfig()
         {
             UserNo = "";
@@ -112,6 +129,14 @@ namespace wwwroot.Entity
             UserName = "";
             Email = "";
             Roles = new List<string>();
+            Celluar = "";
+            PositionName = "";
+            DepartmentName = "";
+            CompanyName = "";
+            BirthDate = "";
+            Gender = "";
+            Address = "";
+            ExtendOption = "";
         }
     }
 }

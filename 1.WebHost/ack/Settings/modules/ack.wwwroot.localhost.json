@@ -12,6 +12,7 @@
         "ContractBasePath": "../contracts/wwwroot",
         "WWWRootBasePath": "../modules/wwwroot/wwwroot",
         "FileSyncTokens": [],
+        "SharedFileConfigPath": "",
         "CreateIDPolicy": {
             "Enabled": false,
             "AllowedScreens": [ "login", "logout" ],
@@ -21,6 +22,21 @@
                     "AllowedIPs": [ "127.0.0.1", "::1" ]
                 }
             ]
+        },
+        "DevAutoSignIn": {
+            "UserNo": "DEV00000001",
+            "UserID": "dev@handstack.kr",
+            "UserName": "김한국",
+            "Email": "dev@handstack.kr",
+            "Roles": [ "Administrator" ],
+            "Celluar": "010-0000-0000",
+            "PositionName": "개발자",
+            "DepartmentName": "개발팀",
+            "CompanyName": "HandStack",
+            "BirthDate": "",
+            "Gender": "",
+            "Address": "",
+            "ExtendOption": ""
         }
     }
 }

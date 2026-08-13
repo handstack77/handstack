@@ -77,7 +77,15 @@ namespace wwwroot.Areas.wwwroot.Controllers
                     Email = config.Email,
                     Roles = new List<string>(config.Roles),
                     Claims = new Dictionary<string, string>(),
-                    LoginedAt = DateTime.Now
+                    LoginedAt = DateTime.Now,
+                    Celluar = string.IsNullOrWhiteSpace(config.Celluar) ? null : config.Celluar,
+                    PositionName = string.IsNullOrWhiteSpace(config.PositionName) ? null : config.PositionName,
+                    DepartmentName = string.IsNullOrWhiteSpace(config.DepartmentName) ? null : config.DepartmentName,
+                    CompanyName = string.IsNullOrWhiteSpace(config.CompanyName) ? null : config.CompanyName,
+                    BirthDate = string.IsNullOrWhiteSpace(config.BirthDate) ? null : config.BirthDate,
+                    Gender = string.IsNullOrWhiteSpace(config.Gender) ? null : config.Gender,
+                    Address = string.IsNullOrWhiteSpace(config.Address) ? null : config.Address,
+                    ExtendOption = string.IsNullOrWhiteSpace(config.ExtendOption) ? null : config.ExtendOption
                 };
 
                 var claims = new List<Claim>

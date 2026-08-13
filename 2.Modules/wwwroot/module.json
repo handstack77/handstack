@@ -12,7 +12,7 @@
         "ContractBasePath": "../contracts/wwwroot",
         "WWWRootBasePath": "../modules/wwwroot/wwwroot",
         "FileSyncTokens": [],
-        "SharedFileConfigPath": "C:\\projects\\qcn.winform\\1.DesktopHost\\winform\\Bootstraping\\wwwroot\\store\\ui_tools\\shared_file\\shared_files.json",
+        "SharedFileConfigPath": "",
         "CreateIDPolicy": {
             "Enabled": false,
             "AllowedScreens": [ "login", "logout" ],
@@ -28,7 +28,15 @@
             "UserID": "dev@handstack.kr",
             "UserName": "김한국",
             "Email": "dev@handstack.kr",
-            "Roles": [ "Administrator" ]
+            "Roles": [ "Administrator" ],
+            "Celluar": "010-0000-0000",
+            "PositionName": "개발자",
+            "DepartmentName": "개발팀",
+            "CompanyName": "HandStack",
+            "BirthDate": "",
+            "Gender": "",
+            "Address": "",
+            "ExtendOption": ""
         }
     }
 }
