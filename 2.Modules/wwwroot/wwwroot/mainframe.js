@@ -230,6 +230,7 @@ let $mainframe = {
 
                     setTimeout(function () {
                         $mainframe.method.linkExecute('handstack_linkData');
+                        $mainframe.method.openMenuFromQuery();
                     }, 200);
                 }
                 else {
@@ -1731,6 +1732,48 @@ let $mainframe = {
             }
 
             return result;
+        },
+
+        openMenuFromQuery() {
+            const menuID = new URLSearchParams(location.search).get('menuID');
+            if ($string.isNullOrEmpty(menuID) == true) {
+                return;
+            }
+
+            const menuParts = menuID.split('|');
+            if (menuParts.length != 2) {
+                syn.$l.eventLog('openMenuFromQuery', 'menuID 매개변수 형식이 올바르지 않습니다. (예: menuID=디렉토리ID|파일ID)');
+                return;
+            }
+
+            const projectID = menuParts[0];
+            const fileID = menuParts[1];
+
+            let targetModuleID = null;
+            let menuNode = null;
+            for (const moduleID in $this.prop.module_menus) {
+                const menus = $this.prop.module_menus[moduleID];
+                const findNode = menus.find(function (item) { return item.projectID == projectID && item.fileID == fileID; });
+                if (findNode) {
+                    targetModuleID = moduleID;
+                    menuNode = findNode;
+                    break;
+                }
+            }
+
+            if ($object.isNullOrUndefined(menuNode) == true) {
+                syn.$l.eventLog('openMenuFromQuery', '메뉴를 조회 할 수 없습니다.');
+                return;
+            }
+
+            if (targetModuleID != $this.prop.selectedModuleID) {
+                const moduleEL = syn.$l.get(`module_basic_${targetModuleID}`);
+                if (moduleEL) {
+                    moduleEL.click();
+                }
+            }
+
+            $this.method.addTabUI(menuNode);
         },
 
         getActiveTabID(projectID, fileID) {
