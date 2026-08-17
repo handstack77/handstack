@@ -389,13 +389,87 @@ Bootstrap `modal`/`modal-dialog`를 사용하지 않습니다. HandStack의 `sim
 
 ---
 
-## 10. 금지 사항 (Never)
+## 10. Tabler 레이아웃·컴포넌트·폼·유틸리티 보완 지침
+
+이 장은 Tabler 공식 문서에서 제공하는 패턴 중 HandStack 화면에 적용 가능한 범위를 정리합니다. **이 장의 모든 내용은 2~9장의 HandStack 규칙을 보완할 뿐, 이를 대체하지 않습니다.** 특히 업무 팝업, 목록 그리드, 코드 선택, 라벨 배치는 각각 `simplemodal-data`, `syn_auigrid`, `syn_codepicker`, 6.3절의 기존 규칙이 우선입니다.
+
+### 10.1 레이아웃과 페이지 헤더
+
+- 모든 업무 화면은 6.1의 `container-fluid > page-wrapper > page-header > page-body` 골격을 사용합니다. Tabler의 고정 폭 레이아웃이나 `container-xl` 예시는 이 프로젝트의 기본 패턴으로 사용하지 않습니다.
+- 페이지 제목은 `h2.page-title` 하나를 기본으로 하고, 보조 설명은 `text-secondary`로 제목 아래에 둡니다. 경로 정보가 필요할 때만 제목 앞에 `ol.breadcrumb`를 배치하며, 현재 항목에는 `active`와 `aria-current="page"`를 지정합니다.
+- 우측 페이지 액션은 `col-auto ms-auto d-print-none > btn-list`에 넣고, 작은 화면에서 숨겨도 되는 보조 액션에만 `d-none d-md-inline-flex`를 사용합니다. 저장·조회 같은 주 액션은 모바일에서도 숨기지 않습니다.
+- 넓은 화면의 다단 구성에는 `row`와 반응형 `col-*`을 사용합니다. 업무 목록과 입력 폼의 기본 분할 규칙은 6.2·6.3을 따르며, Tabler의 일반 대시보드 레이아웃을 그대로 복사하지 않습니다.
+
+### 10.2 피드백·상태·탐색 컴포넌트
+
+| 컴포넌트 | 적용 지침 |
+|---|---|
+| Alert | 저장 결과, 권한 부족, 일시적 안내처럼 화면 문맥 안에서 즉시 읽혀야 하는 메시지에만 `alert`와 의미 색상(`alert-success`, `alert-warning`, `alert-danger`, `alert-info`)을 사용합니다. 닫을 수 있는 안내는 닫기 버튼에 `aria-label="닫기"`를 제공하고, 오류만 색으로 구분하지 말고 원인과 다음 행동을 함께 씁니다. |
+| Badge | 4장의 상태 필터 버튼그룹 원칙이 우선입니다. 배지는 대시보드 요약·카운트처럼 클릭 동작이 없는 짧은 보조 상태에만 최소로 사용하며, 상태 코드별 색상 매핑을 공통으로 유지합니다. |
+| Breadcrumb | 깊이가 필요한 화면에서만 사용하며, 마지막 항목은 링크가 아닌 현재 위치로 표시합니다. 제목을 대체하지 않고 페이지 헤더의 보조 탐색으로만 둡니다. |
+| Dropdown | 공간을 절약해야 하는 보조 명령만 `dropdown`에 묶습니다. 위험 명령은 항목 이름을 명확히 쓰고 확인 절차를 둡니다. 토글에는 `data-bs-toggle="dropdown"`과 `aria-expanded="false"`를, 메뉴에는 실제 `button` 또는 `a` 요소를 사용합니다. |
+| Progress | 업로드·배치·처리 진행처럼 값이 변하는 작업에만 `progress > progress-bar`를 사용합니다. 진행 바에는 `role="progressbar"`, `aria-valuenow`, `aria-valuemin="0"`, `aria-valuemax="100"`을 제공하고 퍼센트 또는 처리 건수를 텍스트로도 표시합니다. |
+| Steps | 다단계 등록·승인처럼 사용자가 현재 단계와 순서를 알아야 할 때만 사용합니다. 완료·현재·대기 상태를 텍스트와 클래스 모두로 표현하고, 단계 자체가 페이지 이동이면 실제 링크/버튼으로 구현합니다. |
+| Timeline | 이력, 감사 로그, 결재 흐름처럼 시간순 읽기 전용 정보에 사용합니다. 최신순/오름차순을 화면에서 명시하고 각 항목에 시각·행위·주체를 포함합니다. |
+
+### 10.3 액션과 콘텐츠 컴포넌트
+
+- **Buttons**: 7장의 주/보조/위험 버튼 구분과 `btn-list`, `btn-group` 규칙을 따릅니다. 같은 의미의 액션을 한 화면에서 서로 다른 색으로 표현하지 않으며, 아이콘 전용 버튼은 반드시 `aria-label`을 가집니다.
+
+  ```html
+  <button type="button" class="btn btn-primary">
+      <i class="f:20 mr:4 ti ti-device-floppy" aria-hidden="true"></i>저장
+  </button>
+  <button type="button" class="btn btn-icon bg-muted-lt" aria-label="행 추가">
+      <i class="f:18 ti ti-plus" aria-hidden="true"></i>
+  </button>
+  ```
+
+- **Cards**: 8장의 카드 구조를 기본으로 합니다. `card-header`, `card-body`, `card-footer`는 각각 제목/콘텐츠/명시적 액션·요약의 역할을 지키고, 의미 없는 중첩 카드나 장식용 이미지 카드는 만들지 않습니다.
+- **Segmented control**: 동일 데이터의 보기 방식 또는 상호 배타적인 소수의 정적 옵션에만 사용합니다. 화면 상태를 실제로 전환하는 컨트롤이므로 현재 선택 상태를 텍스트·`active`·`aria-pressed`로 함께 드러냅니다. 업무 상태 필터는 기존 `btn-group + btn bg-muted-lt` 패턴을 우선합니다.
+- **Carousel**: 이미지 미리보기, 도움말 슬라이드처럼 순서가 있는 시각 자료에만 제한합니다. 업무 입력·조회 흐름, 공지 목록, 자동 재생이 필요한 핵심 정보에는 사용하지 않습니다. 각 슬라이드에 대체 텍스트를 제공하고 자동 재생을 켜지 않는 것을 기본으로 합니다.
+- **Modal**: Tabler/Bootstrap `modal` 예시는 이 프로젝트 업무 팝업에 적용하지 않습니다. 계속해서 6.5의 `simplemodal-data`와 `syn-options.triggerConfig`를 사용합니다.
+
+### 10.4 폼과 검증
+
+- 텍스트·숫자·날짜 등 기본 입력에는 `form-control`, 체크/스위치에는 `form-check` 패턴을 사용하되, 라벨 배치는 반드시 6.3의 좌측 라벨 두 패턴 중 하나를 따릅니다. `placeholder`는 라벨을 대신하지 않으며, 입력 목적을 반복하지 않는 짧은 예시만 제공합니다.
+- 논리적으로 하나인 항목 묶음은 `form-fieldset`과 `legend`를 사용합니다. 목록 그리드 래퍼에는 기존 관례인 `form-fieldset p-0`을 계속 우선합니다.
+- 선택 값이 고정되고 적은 경우에만 selectgroup을 사용합니다. 서버 코드·조직·대량 옵션처럼 데이터 연동이 필요한 선택은 네이티브 `select` 또는 selectgroup으로 대체하지 말고 `syn_codepicker`, `syn_organization` 등 실제 `syn_*` 컴포넌트를 사용합니다.
+- 검증 실패 시 대상 입력에 `is-invalid`와 연결된 `invalid-feedback`를 사용하고, 오류 메시지는 해결 방법을 설명합니다. 필수 표시는 라벨의 `required` 클래스로만 표시하며 `*`를 직접 쓰지 않습니다. 성공 상태를 모든 필드에 표시하지 말고, 완료 확인이 필요한 경우에만 `is-valid`와 `valid-feedback`를 사용합니다.
+
+  ```html
+  <label for="txtName" class="col-2 col-form-label required">이름</label>
+  <div class="col">
+      <input id="txtName" type="text" class="form-control is-invalid"
+          aria-describedby="txtNameError" syn-datafield="Name" />
+      <div id="txtNameError" class="invalid-feedback">이름을 입력하세요.</div>
+  </div>
+  ```
+
+### 10.5 테두리·여백·커서·세로 정렬
+
+- 테두리는 섹션 구분에만 사용합니다. 카드 내부 후속 섹션은 기존처럼 `border-t`, 사이드 패널 분리는 `border-r`, 불필요한 선 제거는 `border-0`을 사용합니다. 임의 색상·두께의 인라인 border 스타일은 사용하지 않습니다.
+- 화면 구조의 고정 크기·간격에는 Master CSS(`mr:4`, `w:120` 등)가 우선이며, Tabler/Bootstrap 여백 클래스는 기존 템플릿에 있는 `mt-2`, `p-2`, `px-2`, `g-0`처럼 레이아웃 의미가 명확한 경우에만 사용합니다. 같은 요소에서 두 체계로 같은 방향의 여백을 중복 지정하지 않습니다.
+- 기본 `button`, 링크, 실제 클릭 가능한 요소만 포인터 커서를 가집니다. 단순 텍스트·행·장식 아이콘에 `cursor-pointer`를 붙여 클릭 가능해 보이게 하지 말고, 비활성 컨트롤은 `disabled` 상태와 설명을 함께 제공합니다.
+- 행 내부의 수직 정렬은 `row align-items-center` 또는 `d-flex align-items-center`를 우선합니다. 표 셀·아이콘과 텍스트처럼 인라인 요소의 정렬에만 `align-middle`을 사용하며, 여백 보정용 `vertical-align` 인라인 스타일은 사용하지 않습니다.
+
+### 10.6 공식 참고 링크
+
+- Layout: [Page headers](https://docs.tabler.io/ui/layout/page-headers), [Page layouts](https://docs.tabler.io/ui/layout/page-layouts)
+- Components: [Alerts](https://docs.tabler.io/ui/components/alerts), [Badges](https://docs.tabler.io/ui/components/badges), [Breadcrumb](https://docs.tabler.io/ui/components/breadcrumb), [Buttons](https://docs.tabler.io/ui/components/buttons), [Cards](https://docs.tabler.io/ui/components/cards), [Carousel](https://docs.tabler.io/ui/components/carousel), [Dropdowns](https://docs.tabler.io/ui/components/dropdowns), [Modals](https://docs.tabler.io/ui/components/modals), [Progress bars](https://docs.tabler.io/ui/components/progress), [Segmented Control](https://docs.tabler.io/ui/components/segmented-control), [Steps](https://docs.tabler.io/ui/components/steps), [Timelines](https://docs.tabler.io/ui/components/timelines)
+- Forms: [Form elements](https://docs.tabler.io/ui/forms/form-elements), [Form fieldset](https://docs.tabler.io/ui/forms/form-fieldset), [Form selectgroup](https://docs.tabler.io/ui/forms/form-selectboxes), [Validation states](https://docs.tabler.io/ui/forms/form-validation)
+- Utilities: [Borders](https://docs.tabler.io/ui/utilities/borders), [Cursors](https://docs.tabler.io/ui/utilities/cursors), [Margins](https://docs.tabler.io/ui/utilities/margins), [Vertical align](https://docs.tabler.io/ui/utilities/vertical-align)
+
+---
+
+## 11. 금지 사항 (Never)
 
 ```md
 - container-xl을 기본 컨테이너로 사용하지 말 것 (container-fluid 사용)
 - 순수 <table>로 업무 목록을 만들지 말 것 (syn_auigrid 사용, RPT 보고서 화면만 예외)
 - Bootstrap modal을 업무 팝업에 사용하지 말 것 (simplemodal-data 패턴 사용)
 - FontAwesome 등 타 아이콘 폰트를 사용하지 말 것 (ti ti-* 만 사용)
+- 신규 화면의 Tabler 아이콘 예시·구현에 SVG를 사용하지 말 것 (`<i class="ti ti-*"></i>` 웹폰트 사용)
 - 임의의 HEX 색상, 인라인 색상 스타일을 사용하지 말 것 (Tabler 색상 유틸리티 사용). 대시보드형 화면이라도 예외를 두지 말 것
 - 시각적 스타일을 인라인 style로 넣지 말 것 (display/visibility 토글만 허용, 가능하면 class="hidden" 토글 우선)
 - 라벨을 인풋 위에 쌓는 일반 Tabler 폼 레이아웃을 쓰지 말 것 (input-group 좌측 라벨 또는 row+col-N 좌측 라벨 중 모듈 관례를 따를 것)
@@ -407,7 +481,7 @@ Bootstrap `modal`/`modal-dialog`를 사용하지 않습니다. HandStack의 `sim
 
 ---
 
-## 11. 준수 검증 (QA 게이트)
+## 12. 준수 검증 (QA 게이트)
 
 새 화면 작성 후 아래를 확인합니다. 앞의 6개는 grep으로 기계 검증이 가능합니다.
 
@@ -425,3 +499,5 @@ Bootstrap `modal`/`modal-dialog`를 사용하지 않습니다. HandStack의 `sim
 | 10 | 필수 표시 준수 | 필수 입력 라벨에 `*` 하드코딩 없이 `required` 클래스 사용 |
 | 11 | 상태 색상 일관성 | 동일 상태 코드에 기존 화면과 같은 색상/버튼그룹 패턴 사용 |
 | 12 | syn_* 컴포넌트 존재 확인 | 사용한 `syn_*` 태그가 9장 표에 있거나 동일 모듈 내 기존 사용례가 있음 |
+| 13 | 아이콘 접근성·형식 준수 | 신규 아이콘이 `ti ti-*` 웹폰트이며, 아이콘 전용 버튼에 `aria-label`이 있음 |
+| 14 | 피드백 접근성 | alert/progress/검증 메시지에 의미·현재 값·오류 원인이 텍스트로 제공됨 |

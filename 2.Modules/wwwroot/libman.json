@@ -471,6 +471,14 @@
             "files": [
                 "signalr.min.js"
             ]
+        },
+        {
+            "provider": "unpkg",
+            "library": "imask@7.6.1",
+            "destination": "wwwroot/lib/imask/",
+            "files": [
+                "dist/imask.min.js"
+            ]
         }
     ]
 }
