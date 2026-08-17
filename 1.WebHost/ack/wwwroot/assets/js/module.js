@@ -8522,15 +8522,15 @@ if (typeof module !== 'undefined' && module.exports) {
 
             let dataMapping = null;
             try {
-                const raw = document.head ? document.head.getAttribute('data-mapping') : null;
-                dataMapping = raw ? $object.parseJsonValue(raw, 'json') : null;
+                const pageMappings = $this.config.pageMappings;
+                dataMapping = typeof pageMappings == 'string' ? $object.parseJsonValue(pageMappings, 'json') : pageMappings;
             } catch (error) {
-                syn.$l.eventLog('$w.transactionExchange', `data-mapping 파싱 오류: ${error}`, 'Error');
+                syn.$l.eventLog('$w.transactionExchange', `pageMappings 파싱 오류: ${error}`, 'Error');
                 return;
             }
 
             if (!dataMapping) {
-                syn.$l.eventLog('$w.transactionExchange', '화면에 data-mapping 정의가 없습니다.', 'Warning');
+                syn.$l.eventLog('$w.transactionExchange', '화면 스크립트에 $this.config.pageMappings 정의가 없습니다.', 'Warning');
                 return;
             }
 
