@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>파일·날짜·마스크 입력 · UI 라이브러리 예제</title>
+    <link rel="stylesheet" href="/lib/tabler-core/dist/css/tabler.min.css" />
+    <link rel="stylesheet" href="/lib/tabler-icons-webfont/dist/tabler-icons.min.css" />
+    <link rel="stylesheet" href="/lib/highlight.js/styles/atom-one-dark.min.css" />
+    <style>
+        body { padding: 24px; }
+        .ui-example-preview { background: var(--tblr-body-bg, #f4f6fa); }
+        .ui-example-source pre { margin: 0; }
+    </style>
+</head>
+<body>
+    <div class="container-xl">
+        <div class="text-secondary">폼 요소</div>
+        <h1 class="mb-3">파일·날짜·마스크 입력</h1>
+
+        <h3 class="mt-4">미리보기</h3>
+        <div class="ui-example-preview border rounded p-3">
+<div class="mb-3">
+    <div class="form-label">사용자 지정 파일 입력</div>
+    <input type="file" class="form-control">
+</div>
+
+<div class="mb-3">
+    <label class="form-label">생년월일</label>
+    <div class="row g-2">
+        <div class="col-5">
+            <select name="user[month]" class="form-select">
+                <option>월</option>
+                <option value="1">1월</option>
+                <option value="2">2월</option>
+                <option value="3">3월</option>
+                <option value="4">4월</option>
+                <option value="5">5월</option>
+                <option selected="selected" value="6">6월</option>
+                <option value="7">7월</option>
+                <option value="8">8월</option>
+                <option value="9">9월</option>
+                <option value="10">10월</option>
+                <option value="11">11월</option>
+                <option value="12">12월</option>
+            </select>
+        </div>
+        <div class="col-3">
+            <select name="user[day]" class="form-select">
+                <option>일</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+                <option value="11">11</option>
+                <option value="12">12</option>
+                <option value="13">13</option>
+                <option value="14">14</option>
+                <option value="15">15</option>
+                <option value="16">16</option>
+                <option value="17">17</option>
+                <option value="18">18</option>
+                <option value="19">19</option>
+                <option value="20" selected="">20</option>
+                <option value="21">21</option>
+                <option value="22">22</option>
+                <option value="23">23</option>
+                <option value="24">24</option>
+                <option value="25">25</option>
+                <option value="26">26</option>
+                <option value="27">27</option>
+                <option value="28">28</option>
+                <option value="29">29</option>
+                <option value="30">30</option>
+                <option value="31">31</option>
+            </select>
+        </div>
+        <div class="col-4">
+            <select name="user[year]" class="form-select">
+                <option>년도</option>
+                <option value="2030">2030</option>
+                <option value="2029">2029</option>
+                <option value="2028">2028</option>
+                <option value="2027">2027</option>
+                <option value="2026">2026</option>
+                <option value="2025" selected>2025</option>
+                <option value="2024">2024</option>
+                <option value="2023">2023</option>
+                <option value="2022">2022</option>
+                <option value="2021">2021</option>
+                <option value="2020">2020</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<div class="mb-3">
+    <label class="form-label">텍스트 마스크</label>
+    <input type="text" name="input-mask" class="form-control" data-mask="00/00/0000" data-mask-visible="true" placeholder="00/00/0000" autocomplete="off">
+</div>
+
+<div class="mb-3">
+    <label class="form-label">전화번호 마스크</label>
+    <input type="text" name="input-mask" class="form-control" data-mask="(00) 0000-0000" data-mask-visible="true" placeholder="(00) 0000-0000" autocomplete="off">
+</div>
+
+<div class="mb-3">
+    <label class="form-label">자동 크기 조절 텍스트 영역</label>
+    <textarea class="form-control" data-bs-toggle="autosize" placeholder="무엇이든 입력 하세요…" style="overflow: hidden; overflow-wrap: break-word; resize: none; text-align: start; height: 59.6px;"></textarea>
+</div>
+        </div>
+
+        <h3 class="mt-4">소스</h3>
+        <pre class="ui-example-source"><code class="language-html">&lt;div class="mb-3"&gt;
+    &lt;div class="form-label"&gt;사용자 지정 파일 입력&lt;/div&gt;
+    &lt;input type="file" class="form-control"&gt;
+&lt;/div&gt;
+
+&lt;div class="mb-3"&gt;
+    &lt;label class="form-label"&gt;생년월일&lt;/label&gt;
+    &lt;div class="row g-2"&gt;
+        &lt;div class="col-5"&gt;
+            &lt;select name="user[month]" class="form-select"&gt;
+                &lt;option&gt;월&lt;/option&gt;
+                &lt;option value="1"&gt;1월&lt;/option&gt;
+                &lt;option value="2"&gt;2월&lt;/option&gt;
+                &lt;option value="3"&gt;3월&lt;/option&gt;
+                &lt;option value="4"&gt;4월&lt;/option&gt;
+                &lt;option value="5"&gt;5월&lt;/option&gt;
+                &lt;option selected="selected" value="6"&gt;6월&lt;/option&gt;
+                &lt;option value="7"&gt;7월&lt;/option&gt;
+                &lt;option value="8"&gt;8월&lt;/option&gt;
+                &lt;option value="9"&gt;9월&lt;/option&gt;
+                &lt;option value="10"&gt;10월&lt;/option&gt;
+                &lt;option value="11"&gt;11월&lt;/option&gt;
+                &lt;option value="12"&gt;12월&lt;/option&gt;
+            &lt;/select&gt;
+        &lt;/div&gt;
+        &lt;div class="col-3"&gt;
+            &lt;select name="user[day]" class="form-select"&gt;
+                &lt;option&gt;일&lt;/option&gt;
+                &lt;option value="1"&gt;1&lt;/option&gt;
+                &lt;option value="2"&gt;2&lt;/option&gt;
+                &lt;option value="3"&gt;3&lt;/option&gt;
+                &lt;option value="4"&gt;4&lt;/option&gt;
+                &lt;option value="5"&gt;5&lt;/option&gt;
+                &lt;option value="6"&gt;6&lt;/option&gt;
+                &lt;option value="7"&gt;7&lt;/option&gt;
+                &lt;option value="8"&gt;8&lt;/option&gt;
+                &lt;option value="9"&gt;9&lt;/option&gt;
+                &lt;option value="10"&gt;10&lt;/option&gt;
+                &lt;option value="11"&gt;11&lt;/option&gt;
+                &lt;option value="12"&gt;12&lt;/option&gt;
+                &lt;option value="13"&gt;13&lt;/option&gt;
+                &lt;option value="14"&gt;14&lt;/option&gt;
+                &lt;option value="15"&gt;15&lt;/option&gt;
+                &lt;option value="16"&gt;16&lt;/option&gt;
+                &lt;option value="17"&gt;17&lt;/option&gt;
+                &lt;option value="18"&gt;18&lt;/option&gt;
+                &lt;option value="19"&gt;19&lt;/option&gt;
+                &lt;option value="20" selected=""&gt;20&lt;/option&gt;
+                &lt;option value="21"&gt;21&lt;/option&gt;
+                &lt;option value="22"&gt;22&lt;/option&gt;
+                &lt;option value="23"&gt;23&lt;/option&gt;
+                &lt;option value="24"&gt;24&lt;/option&gt;
+                &lt;option value="25"&gt;25&lt;/option&gt;
+                &lt;option value="26"&gt;26&lt;/option&gt;
+                &lt;option value="27"&gt;27&lt;/option&gt;
+                &lt;option value="28"&gt;28&lt;/option&gt;
+                &lt;option value="29"&gt;29&lt;/option&gt;
+                &lt;option value="30"&gt;30&lt;/option&gt;
+                &lt;option value="31"&gt;31&lt;/option&gt;
+            &lt;/select&gt;
+        &lt;/div&gt;
+        &lt;div class="col-4"&gt;
+            &lt;select name="user[year]" class="form-select"&gt;
+                &lt;option&gt;년도&lt;/option&gt;
+                &lt;option value="2030"&gt;2030&lt;/option&gt;
+                &lt;option value="2029"&gt;2029&lt;/option&gt;
+                &lt;option value="2028"&gt;2028&lt;/option&gt;
+                &lt;option value="2027"&gt;2027&lt;/option&gt;
+                &lt;option value="2026"&gt;2026&lt;/option&gt;
+                &lt;option value="2025" selected&gt;2025&lt;/option&gt;
+                &lt;option value="2024"&gt;2024&lt;/option&gt;
+                &lt;option value="2023"&gt;2023&lt;/option&gt;
+                &lt;option value="2022"&gt;2022&lt;/option&gt;
+                &lt;option value="2021"&gt;2021&lt;/option&gt;
+                &lt;option value="2020"&gt;2020&lt;/option&gt;
+            &lt;/select&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="mb-3"&gt;
+    &lt;label class="form-label"&gt;텍스트 마스크&lt;/label&gt;
+    &lt;input type="text" name="input-mask" class="form-control" data-mask="00/00/0000" data-mask-visible="true" placeholder="00/00/0000" autocomplete="off"&gt;
+&lt;/div&gt;
+
+&lt;div class="mb-3"&gt;
+    &lt;label class="form-label"&gt;전화번호 마스크&lt;/label&gt;
+    &lt;input type="text" name="input-mask" class="form-control" data-mask="(00) 0000-0000" data-mask-visible="true" placeholder="(00) 0000-0000" autocomplete="off"&gt;
+&lt;/div&gt;
+
+&lt;div class="mb-3"&gt;
+    &lt;label class="form-label"&gt;자동 크기 조절 텍스트 영역&lt;/label&gt;
+    &lt;textarea class="form-control" data-bs-toggle="autosize" placeholder="무엇이든 입력 하세요…" style="overflow: hidden; overflow-wrap: break-word; resize: none; text-align: start; height: 59.6px;"&gt;&lt;/textarea&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+
+    <script src="/lib/tabler-core/dist/js/tabler.min.js"></script>
+    <script src="/lib/master-css/index.min.js"></script>
+    <script src="/lib/highlight.js/highlight.min.js"></script>
+    <script>if (window.hljs) { hljs.highlightAll(); }</script>
+</body>
+</html>

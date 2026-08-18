@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>입력 그룹 · UI 라이브러리 예제</title>
+    <link rel="stylesheet" href="/lib/tabler-core/dist/css/tabler.min.css" />
+    <link rel="stylesheet" href="/lib/tabler-icons-webfont/dist/tabler-icons.min.css" />
+    <link rel="stylesheet" href="/lib/highlight.js/styles/atom-one-dark.min.css" />
+    <style>
+        body { padding: 24px; }
+        .ui-example-preview { background: var(--tblr-body-bg, #f4f6fa); }
+        .ui-example-source pre { margin: 0; }
+    </style>
+</head>
+<body>
+    <div class="container-xl">
+        <div class="text-secondary">폼 요소</div>
+        <h1 class="mb-3">입력 그룹</h1>
+
+        <h3 class="mt-4">미리보기</h3>
+        <div class="ui-example-preview border rounded p-3">
+<div class="mb-3">
+    <label class="form-label">입력 그룹</label>
+    <div class="input-group mb-2">
+        <input type="text" class="form-control" placeholder="검색...">
+        <button class="btn" type="button">검색</button>
+    </div>
+    <div class="input-group">
+        <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            액션
+        </button>
+        <div class="dropdown-menu">
+            <a class="dropdown-item" href="#">
+                액션
+            </a>
+            <a class="dropdown-item" href="#">
+                다른 액션
+            </a>
+        </div>
+        <input type="text" class="form-control" aria-label="드롭다운 버튼이 있는 텍스트 입력">
+    </div>
+</div>
+
+<div class="mb-3">
+    <label class="form-label">입력 그룹 버튼</label>
+    <div class="input-group">
+        <input type="text" class="form-control">
+        <button type="button" class="btn">액션</button>
+        <button data-bs-toggle="dropdown" type="button" class="btn dropdown-toggle dropdown-toggle-split"></button>
+        <div class="dropdown-menu dropdown-menu-end">
+            <a class="dropdown-item" href="#">
+                액션
+            </a>
+            <a class="dropdown-item" href="#">
+                다른 액션
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="mb-3">
+    <label class="form-label">아이콘 입력</label>
+    <div class="input-icon mb-3">
+        <input type="text" class="form-control" placeholder="검색…">
+        <span class="input-icon-addon">
+            <i class="f:20 ti ti-search"></i>
+        </span>
+    </div>
+    <div class="input-icon mb-3">
+        <span class="input-icon-addon">
+            <i class="f:20 ti ti-user"></i>
+        </span>
+        <input type="text" class="form-control" placeholder="사용자명">
+    </div>
+</div>
+
+<div class="mb-3">
+    <label class="form-label">로더 입력</label>
+    <div class="input-icon mb-3">
+        <input type="text" class="form-control" placeholder="로딩 중…">
+        <span class="input-icon-addon">
+            <div class="spinner-border spinner-border-sm text-secondary" role="status"></div>
+        </span>
+    </div>
+    <div class="input-icon mb-3">
+        <span class="input-icon-addon">
+            <div class="spinner-border spinner-border-sm text-secondary" role="status"></div>
+        </span>
+        <input type="text" class="form-control" placeholder="로딩 중…">
+    </div>
+</div>
+
+<div class="mb-3">
+    <label class="form-label">분리된 입력</label>
+    <div class="row g-2">
+        <div class="col">
+            <input type="text" class="form-control" placeholder="검색...">
+        </div>
+        <div class="col-auto">
+            <a href="#" class="btn btn-icon" aria-label="Button">
+                <i class="f:20 ti ti-search"></i>
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="mb-3">
+    <label class="form-label">도움말 아이콘이 있는 입력</label>
+    <div class="row g-2">
+        <div class="col">
+            <input type="text" class="form-control" placeholder="검색...">
+        </div>
+        <div class="col-auto align-self-center">
+            <span class="form-help" data-bs-toggle="popover" data-bs-placement="top" data-bs-content="<p>우편번호는 미국 또는 캐나다 형식이어야 합니다. 더 정확한 주소를 위해 확장된 ZIP+4 코드를 사용할 수 있습니다.</p>
+                                  <p class='mb-0'><a href='#'>우편번호 조회 도구</a></p>
+                                  " data-bs-html="true">?</span>
+        </div>
+    </div>
+</div>
+        </div>
+
+        <h3 class="mt-4">소스</h3>
+        <pre class="ui-example-source"><code class="language-html">&lt;div class="mb-3"&gt;
+    &lt;label class="form-label"&gt;입력 그룹&lt;/label&gt;
+    &lt;div class="input-group mb-2"&gt;
+        &lt;input type="text" class="form-control" placeholder="검색..."&gt;
+        &lt;button class="btn" type="button"&gt;검색&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;div class="input-group"&gt;
+        &lt;button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"&gt;
+            액션
+        &lt;/button&gt;
+        &lt;div class="dropdown-menu"&gt;
+            &lt;a class="dropdown-item" href="#"&gt;
+                액션
+            &lt;/a&gt;
+            &lt;a class="dropdown-item" href="#"&gt;
+                다른 액션
+            &lt;/a&gt;
+        &lt;/div&gt;
+        &lt;input type="text" class="form-control" aria-label="드롭다운 버튼이 있는 텍스트 입력"&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="mb-3"&gt;
+    &lt;label class="form-label"&gt;입력 그룹 버튼&lt;/label&gt;
+    &lt;div class="input-group"&gt;
+        &lt;input type="text" class="form-control"&gt;
+        &lt;button type="button" class="btn"&gt;액션&lt;/button&gt;
+        &lt;button data-bs-toggle="dropdown" type="button" class="btn dropdown-toggle dropdown-toggle-split"&gt;&lt;/button&gt;
+        &lt;div class="dropdown-menu dropdown-menu-end"&gt;
+            &lt;a class="dropdown-item" href="#"&gt;
+                액션
+            &lt;/a&gt;
+            &lt;a class="dropdown-item" href="#"&gt;
+                다른 액션
+            &lt;/a&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="mb-3"&gt;
+    &lt;label class="form-label"&gt;아이콘 입력&lt;/label&gt;
+    &lt;div class="input-icon mb-3"&gt;
+        &lt;input type="text" class="form-control" placeholder="검색…"&gt;
+        &lt;span class="input-icon-addon"&gt;
+            &lt;i class="f:20 ti ti-search"&gt;&lt;/i&gt;
+        &lt;/span&gt;
+    &lt;/div&gt;
+    &lt;div class="input-icon mb-3"&gt;
+        &lt;span class="input-icon-addon"&gt;
+            &lt;i class="f:20 ti ti-user"&gt;&lt;/i&gt;
+        &lt;/span&gt;
+        &lt;input type="text" class="form-control" placeholder="사용자명"&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="mb-3"&gt;
+    &lt;label class="form-label"&gt;로더 입력&lt;/label&gt;
+    &lt;div class="input-icon mb-3"&gt;
+        &lt;input type="text" class="form-control" placeholder="로딩 중…"&gt;
+        &lt;span class="input-icon-addon"&gt;
+            &lt;div class="spinner-border spinner-border-sm text-secondary" role="status"&gt;&lt;/div&gt;
+        &lt;/span&gt;
+    &lt;/div&gt;
+    &lt;div class="input-icon mb-3"&gt;
+        &lt;span class="input-icon-addon"&gt;
+            &lt;div class="spinner-border spinner-border-sm text-secondary" role="status"&gt;&lt;/div&gt;
+        &lt;/span&gt;
+        &lt;input type="text" class="form-control" placeholder="로딩 중…"&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="mb-3"&gt;
+    &lt;label class="form-label"&gt;분리된 입력&lt;/label&gt;
+    &lt;div class="row g-2"&gt;
+        &lt;div class="col"&gt;
+            &lt;input type="text" class="form-control" placeholder="검색..."&gt;
+        &lt;/div&gt;
+        &lt;div class="col-auto"&gt;
+            &lt;a href="#" class="btn btn-icon" aria-label="Button"&gt;
+                &lt;i class="f:20 ti ti-search"&gt;&lt;/i&gt;
+            &lt;/a&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="mb-3"&gt;
+    &lt;label class="form-label"&gt;도움말 아이콘이 있는 입력&lt;/label&gt;
+    &lt;div class="row g-2"&gt;
+        &lt;div class="col"&gt;
+            &lt;input type="text" class="form-control" placeholder="검색..."&gt;
+        &lt;/div&gt;
+        &lt;div class="col-auto align-self-center"&gt;
+            &lt;span class="form-help" data-bs-toggle="popover" data-bs-placement="top" data-bs-content="&lt;p&gt;우편번호는 미국 또는 캐나다 형식이어야 합니다. 더 정확한 주소를 위해 확장된 ZIP+4 코드를 사용할 수 있습니다.&lt;/p&gt;
+                                  &lt;p class='mb-0'&gt;&lt;a href='#'&gt;우편번호 조회 도구&lt;/a&gt;&lt;/p&gt;
+                                  " data-bs-html="true"&gt;?&lt;/span&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+
+    <script src="/lib/tabler-core/dist/js/tabler.min.js"></script>
+    <script src="/lib/master-css/index.min.js"></script>
+    <script src="/lib/highlight.js/highlight.min.js"></script>
+    <script>if (window.hljs) { hljs.highlightAll(); }</script>
+</body>
+</html>

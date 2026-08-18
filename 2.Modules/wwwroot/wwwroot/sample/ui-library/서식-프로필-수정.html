@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>프로필 수정 · UI 라이브러리 예제</title>
+    <link rel="stylesheet" href="/lib/tabler-core/dist/css/tabler.min.css" />
+    <link rel="stylesheet" href="/lib/tabler-icons-webfont/dist/tabler-icons.min.css" />
+    <link rel="stylesheet" href="/lib/highlight.js/styles/atom-one-dark.min.css" />
+    <style>
+        body { padding: 24px; }
+        .ui-example-preview { background: var(--tblr-body-bg, #f4f6fa); }
+        .ui-example-source pre { margin: 0; }
+    </style>
+</head>
+<body>
+    <div class="container-xl">
+        <div class="text-secondary">서식</div>
+        <h1 class="mb-3">프로필 수정</h1>
+
+        <h3 class="mt-4">미리보기</h3>
+        <div class="ui-example-preview border rounded p-3">
+<div class="card overflow-auto">
+    <div class="card-body">
+        <h3 class="card-title">프로필 수정</h3>
+        <div class="row row-cards">
+            <div class="col-md-5">
+                <div class="mb-3">
+                    <label class="form-label">회사</label>
+                    <input type="text" class="form-control" disabled="" placeholder="회사" value="Creative Code Inc.">
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <div class="mb-3">
+                    <label class="form-label">사용자명</label>
+                    <input type="text" class="form-control" placeholder="사용자명" value="michael23">
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-4">
+                <div class="mb-3">
+                    <label class="form-label">이메일 주소</label>
+                    <input type="email" class="form-control" placeholder="이메일">
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-6">
+                <div class="mb-3">
+                    <label class="form-label">이름</label>
+                    <input type="text" class="form-control" placeholder="이름" value="길동">
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-6">
+                <div class="mb-3">
+                    <label class="form-label">성</label>
+                    <input type="text" class="form-control" placeholder="성" value="홍">
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="mb-3">
+                    <label class="form-label">주소</label>
+                    <input type="text" class="form-control" placeholder="집 주소" value="서울 특별시, 대한민국">
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-4">
+                <div class="mb-3">
+                    <label class="form-label">도시</label>
+                    <input type="text" class="form-control" placeholder="도시" value="서울">
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <div class="mb-3">
+                    <label class="form-label">우편번호</label>
+                    <input type="test" class="form-control" placeholder="우편번호">
+                </div>
+            </div>
+            <div class="col-md-5">
+                <div class="mb-3">
+                    <label class="form-label">국가</label>
+                    <select class="form-control form-select">
+                        <option>대한민국</option>
+                        <option>일본</option>
+                        <option>미국</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="mb-3 mb-0">
+                    <label class="form-label">자기소개</label>
+                    <textarea rows="5" class="form-control" placeholder="여기에 자기소개를 입력할 수 있습니다.">이곳에 자기소개를 입력 하세요. 예시 문장입니다.</textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card-footer text-end">
+        <button type="submit" class="btn btn-primary">프로필 업데이트</button>
+    </div>
+</div>
+        </div>
+
+        <h3 class="mt-4">소스</h3>
+        <pre class="ui-example-source"><code class="language-html">&lt;div class="card overflow-auto"&gt;
+    &lt;div class="card-body"&gt;
+        &lt;h3 class="card-title"&gt;프로필 수정&lt;/h3&gt;
+        &lt;div class="row row-cards"&gt;
+            &lt;div class="col-md-5"&gt;
+                &lt;div class="mb-3"&gt;
+                    &lt;label class="form-label"&gt;회사&lt;/label&gt;
+                    &lt;input type="text" class="form-control" disabled="" placeholder="회사" value="Creative Code Inc."&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+            &lt;div class="col-sm-6 col-md-3"&gt;
+                &lt;div class="mb-3"&gt;
+                    &lt;label class="form-label"&gt;사용자명&lt;/label&gt;
+                    &lt;input type="text" class="form-control" placeholder="사용자명" value="michael23"&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+            &lt;div class="col-sm-6 col-md-4"&gt;
+                &lt;div class="mb-3"&gt;
+                    &lt;label class="form-label"&gt;이메일 주소&lt;/label&gt;
+                    &lt;input type="email" class="form-control" placeholder="이메일"&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+            &lt;div class="col-sm-6 col-md-6"&gt;
+                &lt;div class="mb-3"&gt;
+                    &lt;label class="form-label"&gt;이름&lt;/label&gt;
+                    &lt;input type="text" class="form-control" placeholder="이름" value="길동"&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+            &lt;div class="col-sm-6 col-md-6"&gt;
+                &lt;div class="mb-3"&gt;
+                    &lt;label class="form-label"&gt;성&lt;/label&gt;
+                    &lt;input type="text" class="form-control" placeholder="성" value="홍"&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+            &lt;div class="col-md-12"&gt;
+                &lt;div class="mb-3"&gt;
+                    &lt;label class="form-label"&gt;주소&lt;/label&gt;
+                    &lt;input type="text" class="form-control" placeholder="집 주소" value="서울 특별시, 대한민국"&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+            &lt;div class="col-sm-6 col-md-4"&gt;
+                &lt;div class="mb-3"&gt;
+                    &lt;label class="form-label"&gt;도시&lt;/label&gt;
+                    &lt;input type="text" class="form-control" placeholder="도시" value="서울"&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+            &lt;div class="col-sm-6 col-md-3"&gt;
+                &lt;div class="mb-3"&gt;
+                    &lt;label class="form-label"&gt;우편번호&lt;/label&gt;
+                    &lt;input type="test" class="form-control" placeholder="우편번호"&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+            &lt;div class="col-md-5"&gt;
+                &lt;div class="mb-3"&gt;
+                    &lt;label class="form-label"&gt;국가&lt;/label&gt;
+                    &lt;select class="form-control form-select"&gt;
+                        &lt;option&gt;대한민국&lt;/option&gt;
+                        &lt;option&gt;일본&lt;/option&gt;
+                        &lt;option&gt;미국&lt;/option&gt;
+                    &lt;/select&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+            &lt;div class="col-md-12"&gt;
+                &lt;div class="mb-3 mb-0"&gt;
+                    &lt;label class="form-label"&gt;자기소개&lt;/label&gt;
+                    &lt;textarea rows="5" class="form-control" placeholder="여기에 자기소개를 입력할 수 있습니다."&gt;이곳에 자기소개를 입력 하세요. 예시 문장입니다.&lt;/textarea&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="card-footer text-end"&gt;
+        &lt;button type="submit" class="btn btn-primary"&gt;프로필 업데이트&lt;/button&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+
+    <script src="/lib/tabler-core/dist/js/tabler.min.js"></script>
+    <script src="/lib/master-css/index.min.js"></script>
+    <script src="/lib/highlight.js/highlight.min.js"></script>
+    <script>if (window.hljs) { hljs.highlightAll(); }</script>
+</body>
+</html>

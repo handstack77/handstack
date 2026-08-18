@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>수직 단계 · UI 라이브러리 예제</title>
+    <link rel="stylesheet" href="/lib/tabler-core/dist/css/tabler.min.css" />
+    <link rel="stylesheet" href="/lib/tabler-icons-webfont/dist/tabler-icons.min.css" />
+    <link rel="stylesheet" href="/lib/highlight.js/styles/atom-one-dark.min.css" />
+    <style>
+        body { padding: 24px; }
+        .ui-example-preview { background: var(--tblr-body-bg, #f4f6fa); }
+        .ui-example-source pre { margin: 0; }
+    </style>
+</head>
+<body>
+    <div class="container-xl">
+        <div class="text-secondary">단계 진행</div>
+        <h1 class="mb-3">수직 단계</h1>
+
+        <h3 class="mt-4">미리보기</h3>
+        <div class="ui-example-preview border rounded p-3">
+<div class="card overflow-auto">
+    <div class="card-body">
+        <h3 class="card-title">수직 단계</h3>
+        <ul class="steps steps-vertical m-0 p-0 border-0">
+            <li class="step-item">
+                <div class="h4 m-0">주문 접수</div>
+                <div class="text-secondary">주문이 성공적으로 접수되었습니다. 확인 이메일이 발송됩니다.</div>
+            </li>
+            <li class="step-item">
+                <div class="h4 m-0">처리 중</div>
+                <div class="text-secondary">주문 상품을 준비하고 있습니다.</div>
+            </li>
+            <li class="step-item active">
+                <div class="h4 m-0">배송 중</div>
+                <div class="text-secondary">상품이 배송을 위해 출발했습니다.</div>
+            </li>
+            <li class="step-item">
+                <div class="h4 m-0">완료</div>
+                <div class="text-secondary">주문이 완료되었습니다.</div>
+            </li>
+        </ul>
+    </div>
+    <div class="card-body">
+        <ul class="steps steps-counter steps-vertical m-0 p-0 border-0">
+            <li class="step-item">1단계</li>
+            <li class="step-item">2단계</li>
+            <li class="step-item active">3단계</li>
+            <li class="step-item">4단계</li>
+            <li class="step-item">5단계</li>
+        </ul>
+    </div>
+</div>
+        </div>
+
+        <h3 class="mt-4">소스</h3>
+        <pre class="ui-example-source"><code class="language-html">&lt;div class="card overflow-auto"&gt;
+    &lt;div class="card-body"&gt;
+        &lt;h3 class="card-title"&gt;수직 단계&lt;/h3&gt;
+        &lt;ul class="steps steps-vertical m-0 p-0 border-0"&gt;
+            &lt;li class="step-item"&gt;
+                &lt;div class="h4 m-0"&gt;주문 접수&lt;/div&gt;
+                &lt;div class="text-secondary"&gt;주문이 성공적으로 접수되었습니다. 확인 이메일이 발송됩니다.&lt;/div&gt;
+            &lt;/li&gt;
+            &lt;li class="step-item"&gt;
+                &lt;div class="h4 m-0"&gt;처리 중&lt;/div&gt;
+                &lt;div class="text-secondary"&gt;주문 상품을 준비하고 있습니다.&lt;/div&gt;
+            &lt;/li&gt;
+            &lt;li class="step-item active"&gt;
+                &lt;div class="h4 m-0"&gt;배송 중&lt;/div&gt;
+                &lt;div class="text-secondary"&gt;상품이 배송을 위해 출발했습니다.&lt;/div&gt;
+            &lt;/li&gt;
+            &lt;li class="step-item"&gt;
+                &lt;div class="h4 m-0"&gt;완료&lt;/div&gt;
+                &lt;div class="text-secondary"&gt;주문이 완료되었습니다.&lt;/div&gt;
+            &lt;/li&gt;
+        &lt;/ul&gt;
+    &lt;/div&gt;
+    &lt;div class="card-body"&gt;
+        &lt;ul class="steps steps-counter steps-vertical m-0 p-0 border-0"&gt;
+            &lt;li class="step-item"&gt;1단계&lt;/li&gt;
+            &lt;li class="step-item"&gt;2단계&lt;/li&gt;
+            &lt;li class="step-item active"&gt;3단계&lt;/li&gt;
+            &lt;li class="step-item"&gt;4단계&lt;/li&gt;
+            &lt;li class="step-item"&gt;5단계&lt;/li&gt;
+        &lt;/ul&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+
+    <script src="/lib/tabler-core/dist/js/tabler.min.js"></script>
+    <script src="/lib/master-css/index.min.js"></script>
+    <script src="/lib/highlight.js/highlight.min.js"></script>
+    <script>if (window.hljs) { hljs.highlightAll(); }</script>
+</body>
+</html>

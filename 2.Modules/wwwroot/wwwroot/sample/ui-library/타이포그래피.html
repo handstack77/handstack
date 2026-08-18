@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>타이포그래피 · UI 라이브러리 예제</title>
+    <link rel="stylesheet" href="/lib/tabler-core/dist/css/tabler.min.css" />
+    <link rel="stylesheet" href="/lib/tabler-icons-webfont/dist/tabler-icons.min.css" />
+    <link rel="stylesheet" href="/lib/highlight.js/styles/atom-one-dark.min.css" />
+    <style>
+        body { padding: 24px; }
+        .ui-example-preview { background: var(--tblr-body-bg, #f4f6fa); }
+        .ui-example-source pre { margin: 0; }
+    </style>
+</head>
+<body>
+    <div class="container-xl">
+        <div class="text-secondary">타이포그래피</div>
+        <h1 class="mb-3">타이포그래피</h1>
+        <p class="text-secondary">이곳에 인용문을 넣을 수 있습니다. 이것은 인용문의 예시 텍스트입니다. 독자에게 영감을 주거나 중요한 내용을 강조할 때 사용됩니다.</p>
+
+        <h3 class="mt-4">미리보기</h3>
+        <div class="ui-example-preview border rounded p-3">
+<div class="card overflow-auto mt-3">
+    <div class="card-status-top bg-dark-overlay"></div>
+    <div class="card-header">
+        <h3 class="card-title">타이포그래피</h3>
+    </div>
+    <div class="card-body">
+        <div class="row g-4">
+            <div class="col-md-4">
+                <h3>순서 없는 목록</h3>
+                <ul>
+                    <li>목록 항목 예시</li>
+                    <li>
+                        목록 항목 예시
+                        <ul>
+                            <li>중첩된 목록 항목</li>
+                            <li>중첩된 목록 항목</li>
+                        </ul>
+                    </li>
+                    <li>목록 항목 예시</li>
+                    <li>목록 항목 예시</li>
+                </ul>
+            </div>
+            <div class="col-md-4">
+                <h3>순서 있는 목록</h3>
+                <ol>
+                    <li>목록 항목 예시 1</li>
+                    <li>목록 항목 예시 2</li>
+                    <li>목록 항목 예시 3</li>
+                    <li>목록 항목 예시 4</li>
+                    <li>목록 항목 예시 5</li>
+                    <li>목록 항목 예시 6</li>
+                </ol>
+            </div>
+            <div class="col-md-4">
+                <h3>스타일 없는 목록</h3>
+                <ul class="list-unstyled">
+                    <li>목록 항목 예시</li>
+                    <li>목록 항목 예시</li>
+                    <li>목록 항목 예시</li>
+                    <li>목록 항목 예시</li>
+                    <li>목록 항목 예시</li>
+                    <li>목록 항목 예시</li>
+                </ul>
+            </div>
+            <div class="col-12">
+                <h3>인용문</h3>
+                <blockquote class="blockquote">
+                    <p>이곳에 인용문을 넣을 수 있습니다. 이것은 인용문의 예시 텍스트입니다. 독자에게 영감을 주거나 중요한 내용을 강조할 때 사용됩니다.</p>
+                    <footer class="blockquote-footer">율리우스 카이사르</footer>
+                </blockquote>
+            </div>
+            <div class="col-md-4">
+                <h3>텍스트 요소</h3>
+                <div>mark 태그를 사용하여 텍스트를 <mark>강조</mark>할 수 있습니다.</div>
+                <div><s>이 텍스트 줄은 삭제된 것으로 처리됩니다.</s></div>
+                <div><u>이 텍스트 줄은 밑줄이 그어져 렌더링됩니다.</u></div>
+                <div><small>이 텍스트 줄은 작은 글씨로 처리됩니다.</small></div>
+                <div>다음 텍스트는 <strong>굵게 렌더링됩니다.</strong></div>
+                <div>다음 텍스트는 <em>기울임꼴로 렌더링됩니다.</em></div>
+                <div>다음 텍스트는 유용한 키보드 단축키를 보여줍니다: <kbd>⌘</kbd> + <kbd>C</kbd> 또는 <kbd>ctrl</kbd> + <kbd>C</kbd>.</div>
+            </div>
+            <div class="col-md-4">
+                <h3>텍스트 색상</h3>
+                <div class="text-primary">이것은 기본 텍스트의 예시입니다.</div>
+                <div class="text-secondary">이것은 보조 텍스트의 예시입니다.</div>
+                <div class="text-body">이것은 본문 텍스트의 예시입니다.</div>
+                <div class="text-success">이것은 성공 텍스트의 예시입니다.</div>
+                <div class="text-info">이것은 정보 텍스트의 예시입니다.</div>
+                <div class="text-warning">이것은 경고 텍스트의 예시입니다.</div>
+                <div class="text-danger">이것은 위험 텍스트의 예시입니다.</div>
+                <div class="text-pink">이것은 분홍색 텍스트의 예시입니다.</div>
+            </div>
+            <div class="col-md-4">
+                <h3>주소</h3>
+                <address>
+                    <strong>
+                        (주)아무개 <br>
+                    </strong>서울시 강남구 테헤란로 123, 9층 <br>
+                    서울, 대한민국 06123 <br>
+                    <abbr title="전화">P: </abbr>(02) 123-4567
+                </address>
+                <address>
+                    <strong>
+                        홍길동 <br>
+                    </strong><a href="mailto:#">first.last@example.com</a>
+                </address>
+            </div>
+            <div class="col-md-4">
+                <h3>타이포그래피</h3>
+                <div>
+                    <h1>H1 제목 예시입니다</h1>
+                    <h2>H2 제목 예시입니다</h2>
+                    <h3>H3 제목 예시입니다</h3>
+                    <h4>H4 제목 예시입니다</h4>
+                    <h5>H5 제목 예시입니다</h5>
+                    <h6>H6 제목 예시입니다</h6>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+        </div>
+
+        <h3 class="mt-4">소스</h3>
+        <pre class="ui-example-source"><code class="language-html">&lt;div class="card overflow-auto mt-3"&gt;
+    &lt;div class="card-status-top bg-dark-overlay"&gt;&lt;/div&gt;
+    &lt;div class="card-header"&gt;
+        &lt;h3 class="card-title"&gt;타이포그래피&lt;/h3&gt;
+    &lt;/div&gt;
+    &lt;div class="card-body"&gt;
+        &lt;div class="row g-4"&gt;
+            &lt;div class="col-md-4"&gt;
+                &lt;h3&gt;순서 없는 목록&lt;/h3&gt;
+                &lt;ul&gt;
+                    &lt;li&gt;목록 항목 예시&lt;/li&gt;
+                    &lt;li&gt;
+                        목록 항목 예시
+                        &lt;ul&gt;
+                            &lt;li&gt;중첩된 목록 항목&lt;/li&gt;
+                            &lt;li&gt;중첩된 목록 항목&lt;/li&gt;
+                        &lt;/ul&gt;
+                    &lt;/li&gt;
+                    &lt;li&gt;목록 항목 예시&lt;/li&gt;
+                    &lt;li&gt;목록 항목 예시&lt;/li&gt;
+                &lt;/ul&gt;
+            &lt;/div&gt;
+            &lt;div class="col-md-4"&gt;
+                &lt;h3&gt;순서 있는 목록&lt;/h3&gt;
+                &lt;ol&gt;
+                    &lt;li&gt;목록 항목 예시 1&lt;/li&gt;
+                    &lt;li&gt;목록 항목 예시 2&lt;/li&gt;
+                    &lt;li&gt;목록 항목 예시 3&lt;/li&gt;
+                    &lt;li&gt;목록 항목 예시 4&lt;/li&gt;
+                    &lt;li&gt;목록 항목 예시 5&lt;/li&gt;
+                    &lt;li&gt;목록 항목 예시 6&lt;/li&gt;
+                &lt;/ol&gt;
+            &lt;/div&gt;
+            &lt;div class="col-md-4"&gt;
+                &lt;h3&gt;스타일 없는 목록&lt;/h3&gt;
+                &lt;ul class="list-unstyled"&gt;
+                    &lt;li&gt;목록 항목 예시&lt;/li&gt;
+                    &lt;li&gt;목록 항목 예시&lt;/li&gt;
+                    &lt;li&gt;목록 항목 예시&lt;/li&gt;
+                    &lt;li&gt;목록 항목 예시&lt;/li&gt;
+                    &lt;li&gt;목록 항목 예시&lt;/li&gt;
+                    &lt;li&gt;목록 항목 예시&lt;/li&gt;
+                &lt;/ul&gt;
+            &lt;/div&gt;
+            &lt;div class="col-12"&gt;
+                &lt;h3&gt;인용문&lt;/h3&gt;
+                &lt;blockquote class="blockquote"&gt;
+                    &lt;p&gt;이곳에 인용문을 넣을 수 있습니다. 이것은 인용문의 예시 텍스트입니다. 독자에게 영감을 주거나 중요한 내용을 강조할 때 사용됩니다.&lt;/p&gt;
+                    &lt;footer class="blockquote-footer"&gt;율리우스 카이사르&lt;/footer&gt;
+                &lt;/blockquote&gt;
+            &lt;/div&gt;
+            &lt;div class="col-md-4"&gt;
+                &lt;h3&gt;텍스트 요소&lt;/h3&gt;
+                &lt;div&gt;mark 태그를 사용하여 텍스트를 &lt;mark&gt;강조&lt;/mark&gt;할 수 있습니다.&lt;/div&gt;
+                &lt;div&gt;&lt;s&gt;이 텍스트 줄은 삭제된 것으로 처리됩니다.&lt;/s&gt;&lt;/div&gt;
+                &lt;div&gt;&lt;u&gt;이 텍스트 줄은 밑줄이 그어져 렌더링됩니다.&lt;/u&gt;&lt;/div&gt;
+                &lt;div&gt;&lt;small&gt;이 텍스트 줄은 작은 글씨로 처리됩니다.&lt;/small&gt;&lt;/div&gt;
+                &lt;div&gt;다음 텍스트는 &lt;strong&gt;굵게 렌더링됩니다.&lt;/strong&gt;&lt;/div&gt;
+                &lt;div&gt;다음 텍스트는 &lt;em&gt;기울임꼴로 렌더링됩니다.&lt;/em&gt;&lt;/div&gt;
+                &lt;div&gt;다음 텍스트는 유용한 키보드 단축키를 보여줍니다: &lt;kbd&gt;⌘&lt;/kbd&gt; + &lt;kbd&gt;C&lt;/kbd&gt; 또는 &lt;kbd&gt;ctrl&lt;/kbd&gt; + &lt;kbd&gt;C&lt;/kbd&gt;.&lt;/div&gt;
+            &lt;/div&gt;
+            &lt;div class="col-md-4"&gt;
+                &lt;h3&gt;텍스트 색상&lt;/h3&gt;
+                &lt;div class="text-primary"&gt;이것은 기본 텍스트의 예시입니다.&lt;/div&gt;
+                &lt;div class="text-secondary"&gt;이것은 보조 텍스트의 예시입니다.&lt;/div&gt;
+                &lt;div class="text-body"&gt;이것은 본문 텍스트의 예시입니다.&lt;/div&gt;
+                &lt;div class="text-success"&gt;이것은 성공 텍스트의 예시입니다.&lt;/div&gt;
+                &lt;div class="text-info"&gt;이것은 정보 텍스트의 예시입니다.&lt;/div&gt;
+                &lt;div class="text-warning"&gt;이것은 경고 텍스트의 예시입니다.&lt;/div&gt;
+                &lt;div class="text-danger"&gt;이것은 위험 텍스트의 예시입니다.&lt;/div&gt;
+                &lt;div class="text-pink"&gt;이것은 분홍색 텍스트의 예시입니다.&lt;/div&gt;
+            &lt;/div&gt;
+            &lt;div class="col-md-4"&gt;
+                &lt;h3&gt;주소&lt;/h3&gt;
+                &lt;address&gt;
+                    &lt;strong&gt;
+                        (주)아무개 &lt;br&gt;
+                    &lt;/strong&gt;서울시 강남구 테헤란로 123, 9층 &lt;br&gt;
+                    서울, 대한민국 06123 &lt;br&gt;
+                    &lt;abbr title="전화"&gt;P: &lt;/abbr&gt;(02) 123-4567
+                &lt;/address&gt;
+                &lt;address&gt;
+                    &lt;strong&gt;
+                        홍길동 &lt;br&gt;
+                    &lt;/strong&gt;&lt;a href="mailto:#"&gt;first.last@example.com&lt;/a&gt;
+                &lt;/address&gt;
+            &lt;/div&gt;
+            &lt;div class="col-md-4"&gt;
+                &lt;h3&gt;타이포그래피&lt;/h3&gt;
+                &lt;div&gt;
+                    &lt;h1&gt;H1 제목 예시입니다&lt;/h1&gt;
+                    &lt;h2&gt;H2 제목 예시입니다&lt;/h2&gt;
+                    &lt;h3&gt;H3 제목 예시입니다&lt;/h3&gt;
+                    &lt;h4&gt;H4 제목 예시입니다&lt;/h4&gt;
+                    &lt;h5&gt;H5 제목 예시입니다&lt;/h5&gt;
+                    &lt;h6&gt;H6 제목 예시입니다&lt;/h6&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+
+    <script src="/lib/tabler-core/dist/js/tabler.min.js"></script>
+    <script src="/lib/master-css/index.min.js"></script>
+    <script src="/lib/highlight.js/highlight.min.js"></script>
+    <script>if (window.hljs) { hljs.highlightAll(); }</script>
+</body>
+</html>

@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>기본 폼 · UI 라이브러리 예제</title>
+    <link rel="stylesheet" href="/lib/tabler-core/dist/css/tabler.min.css" />
+    <link rel="stylesheet" href="/lib/tabler-icons-webfont/dist/tabler-icons.min.css" />
+    <link rel="stylesheet" href="/lib/highlight.js/styles/atom-one-dark.min.css" />
+    <style>
+        body { padding: 24px; }
+        .ui-example-preview { background: var(--tblr-body-bg, #f4f6fa); }
+        .ui-example-source pre { margin: 0; }
+    </style>
+</head>
+<body>
+    <div class="container-xl">
+        <div class="text-secondary">서식</div>
+        <h1 class="mb-3">기본 폼</h1>
+
+        <h3 class="mt-4">미리보기</h3>
+        <div class="ui-example-preview border rounded p-3">
+<div class="card overflow-auto">
+    <div class="card-status-top bg-dark-overlay"></div>
+    <div class="card-header">
+        <h3 class="card-title">기본 폼</h3>
+    </div>
+    <div class="card-body">
+        <div class="mb-3">
+            <label class="form-label required">이메일 주소</label>
+            <div>
+                <input type="email" class="form-control" aria-describedby="emailHelp" placeholder="이메일 입력">
+                <small class="form-hint">귀하의 이메일은 다른 사람과 절대 공유하지 않습니다.</small>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label required">비밀번호</label>
+            <div>
+                <input type="password" class="form-control" placeholder="비밀번호">
+                <small class="form-hint">
+                    비밀번호는 8-20자 길이여야 하며, 문자와 숫자를 포함하고
+                    공백, 특수 문자 또는 이모티콘을 포함해서는 안 됩니다.
+                </small>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">선택</label>
+            <div>
+                <select class="form-select">
+                    <option>옵션 1</option>
+                    <optgroup label="옵션그룹 1">
+                        <option>옵션 1</option>
+                        <option>옵션 2</option>
+                    </optgroup>
+                    <option>옵션 2</option>
+                    <optgroup label="옵션그룹 2">
+                        <option>옵션 1</option>
+                        <option>옵션 2</option>
+                    </optgroup>
+                    <optgroup label="옵션그룹 3">
+                        <option>옵션 1</option>
+                        <option>옵션 2</option>
+                    </optgroup>
+                    <option>옵션 3</option>
+                    <option>옵션 4</option>
+                </select>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">체크박스</label>
+            <div>
+                <label class="form-check">
+                    <input class="form-check-input" type="checkbox" checked="">
+                    <span class="form-check-label">옵션 1</span>
+                </label>
+                <label class="form-check">
+                    <input class="form-check-input" type="checkbox">
+                    <span class="form-check-label">옵션 2</span>
+                </label>
+                <label class="form-check">
+                    <input class="form-check-input" type="checkbox" disabled="">
+                    <span class="form-check-label">옵션 3</span>
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="card-footer text-end">
+        <button type="submit" class="btn btn-primary">제출</button>
+    </div>
+</div>
+        </div>
+
+        <h3 class="mt-4">소스</h3>
+        <pre class="ui-example-source"><code class="language-html">&lt;div class="card overflow-auto"&gt;
+    &lt;div class="card-status-top bg-dark-overlay"&gt;&lt;/div&gt;
+    &lt;div class="card-header"&gt;
+        &lt;h3 class="card-title"&gt;기본 폼&lt;/h3&gt;
+    &lt;/div&gt;
+    &lt;div class="card-body"&gt;
+        &lt;div class="mb-3"&gt;
+            &lt;label class="form-label required"&gt;이메일 주소&lt;/label&gt;
+            &lt;div&gt;
+                &lt;input type="email" class="form-control" aria-describedby="emailHelp" placeholder="이메일 입력"&gt;
+                &lt;small class="form-hint"&gt;귀하의 이메일은 다른 사람과 절대 공유하지 않습니다.&lt;/small&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div class="mb-3"&gt;
+            &lt;label class="form-label required"&gt;비밀번호&lt;/label&gt;
+            &lt;div&gt;
+                &lt;input type="password" class="form-control" placeholder="비밀번호"&gt;
+                &lt;small class="form-hint"&gt;
+                    비밀번호는 8-20자 길이여야 하며, 문자와 숫자를 포함하고
+                    공백, 특수 문자 또는 이모티콘을 포함해서는 안 됩니다.
+                &lt;/small&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div class="mb-3"&gt;
+            &lt;label class="form-label"&gt;선택&lt;/label&gt;
+            &lt;div&gt;
+                &lt;select class="form-select"&gt;
+                    &lt;option&gt;옵션 1&lt;/option&gt;
+                    &lt;optgroup label="옵션그룹 1"&gt;
+                        &lt;option&gt;옵션 1&lt;/option&gt;
+                        &lt;option&gt;옵션 2&lt;/option&gt;
+                    &lt;/optgroup&gt;
+                    &lt;option&gt;옵션 2&lt;/option&gt;
+                    &lt;optgroup label="옵션그룹 2"&gt;
+                        &lt;option&gt;옵션 1&lt;/option&gt;
+                        &lt;option&gt;옵션 2&lt;/option&gt;
+                    &lt;/optgroup&gt;
+                    &lt;optgroup label="옵션그룹 3"&gt;
+                        &lt;option&gt;옵션 1&lt;/option&gt;
+                        &lt;option&gt;옵션 2&lt;/option&gt;
+                    &lt;/optgroup&gt;
+                    &lt;option&gt;옵션 3&lt;/option&gt;
+                    &lt;option&gt;옵션 4&lt;/option&gt;
+                &lt;/select&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div class="mb-3"&gt;
+            &lt;label class="form-label"&gt;체크박스&lt;/label&gt;
+            &lt;div&gt;
+                &lt;label class="form-check"&gt;
+                    &lt;input class="form-check-input" type="checkbox" checked=""&gt;
+                    &lt;span class="form-check-label"&gt;옵션 1&lt;/span&gt;
+                &lt;/label&gt;
+                &lt;label class="form-check"&gt;
+                    &lt;input class="form-check-input" type="checkbox"&gt;
+                    &lt;span class="form-check-label"&gt;옵션 2&lt;/span&gt;
+                &lt;/label&gt;
+                &lt;label class="form-check"&gt;
+                    &lt;input class="form-check-input" type="checkbox" disabled=""&gt;
+                    &lt;span class="form-check-label"&gt;옵션 3&lt;/span&gt;
+                &lt;/label&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="card-footer text-end"&gt;
+        &lt;button type="submit" class="btn btn-primary"&gt;제출&lt;/button&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+
+    <script src="/lib/tabler-core/dist/js/tabler.min.js"></script>
+    <script src="/lib/master-css/index.min.js"></script>
+    <script src="/lib/highlight.js/highlight.min.js"></script>
+    <script>if (window.hljs) { hljs.highlightAll(); }</script>
+</body>
+</html>

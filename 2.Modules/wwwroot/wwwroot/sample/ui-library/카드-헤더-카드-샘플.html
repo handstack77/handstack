@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>카드 샘플 · UI 라이브러리 예제</title>
+    <link rel="stylesheet" href="/lib/tabler-core/dist/css/tabler.min.css" />
+    <link rel="stylesheet" href="/lib/tabler-icons-webfont/dist/tabler-icons.min.css" />
+    <link rel="stylesheet" href="/lib/highlight.js/styles/atom-one-dark.min.css" />
+    <style>
+        body { padding: 24px; }
+        .ui-example-preview { background: var(--tblr-body-bg, #f4f6fa); }
+        .ui-example-source pre { margin: 0; }
+    </style>
+</head>
+<body>
+    <div class="container-xl">
+        <div class="text-secondary">카드 헤더</div>
+        <h1 class="mb-3">카드 샘플</h1>
+
+        <h3 class="mt-4">미리보기</h3>
+        <div class="ui-example-preview border rounded p-3">
+<div class="card overflow-auto">
+    <div class="card-header">
+        <h3 class="card-title">카드 샘플</h3>
+        <div class="card-actions">
+            <div class="input-group">
+                <select id="ddlAddCount" class="form-select mx-2">
+                    <option value="1" selected="selected">1</option>
+                    <option value="3">3</option>
+                    <option value="6">6</option>
+                </select>
+                <div class="btn-group">
+                    <button type="button" id="btnPlus" syn-events="['click']" class="btn btn-icon bg-muted-lt">
+                        <i class="f:20 ti ti-plus"></i>
+                    </button>
+                    <button type="button" id="btnMinus" syn-events="['click']" class="btn btn-icon bg-muted-lt">
+                        <i class="f:20 ti ti-minus"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+        </div>
+
+        <h3 class="mt-4">소스</h3>
+        <pre class="ui-example-source"><code class="language-html">&lt;div class="card overflow-auto"&gt;
+    &lt;div class="card-header"&gt;
+        &lt;h3 class="card-title"&gt;카드 샘플&lt;/h3&gt;
+        &lt;div class="card-actions"&gt;
+            &lt;div class="input-group"&gt;
+                &lt;select id="ddlAddCount" class="form-select mx-2"&gt;
+                    &lt;option value="1" selected="selected"&gt;1&lt;/option&gt;
+                    &lt;option value="3"&gt;3&lt;/option&gt;
+                    &lt;option value="6"&gt;6&lt;/option&gt;
+                &lt;/select&gt;
+                &lt;div class="btn-group"&gt;
+                    &lt;button type="button" id="btnPlus" syn-events="['click']" class="btn btn-icon bg-muted-lt"&gt;
+                        &lt;i class="f:20 ti ti-plus"&gt;&lt;/i&gt;
+                    &lt;/button&gt;
+                    &lt;button type="button" id="btnMinus" syn-events="['click']" class="btn btn-icon bg-muted-lt"&gt;
+                        &lt;i class="f:20 ti ti-minus"&gt;&lt;/i&gt;
+                    &lt;/button&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+
+    <script src="/lib/tabler-core/dist/js/tabler.min.js"></script>
+    <script src="/lib/master-css/index.min.js"></script>
+    <script src="/lib/highlight.js/highlight.min.js"></script>
+    <script>if (window.hljs) { hljs.highlightAll(); }</script>
+</body>
+</html>

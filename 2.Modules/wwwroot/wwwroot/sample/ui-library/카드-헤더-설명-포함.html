@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>설명 포함 · UI 라이브러리 예제</title>
+    <link rel="stylesheet" href="/lib/tabler-core/dist/css/tabler.min.css" />
+    <link rel="stylesheet" href="/lib/tabler-icons-webfont/dist/tabler-icons.min.css" />
+    <link rel="stylesheet" href="/lib/highlight.js/styles/atom-one-dark.min.css" />
+    <style>
+        body { padding: 24px; }
+        .ui-example-preview { background: var(--tblr-body-bg, #f4f6fa); }
+        .ui-example-source pre { margin: 0; }
+    </style>
+</head>
+<body>
+    <div class="container-xl">
+        <div class="text-secondary">카드 헤더</div>
+        <h1 class="mb-3">설명 포함</h1>
+        <p class="text-secondary">카드 제목 아래에 간단한 설명을 추가할 수 있습니다.</p>
+
+        <h3 class="mt-4">미리보기</h3>
+        <div class="ui-example-preview border rounded p-3">
+<div class="card overflow-auto">
+    <div class="card-header">
+        <div>
+            <h3 class="card-title">
+                설명 포함
+            </h3>
+            <p class="card-subtitle">
+                카드 제목 아래에 간단한 설명을 추가할 수 있습니다.
+            </p>
+        </div>
+    </div>
+</div>
+        </div>
+
+        <h3 class="mt-4">소스</h3>
+        <pre class="ui-example-source"><code class="language-html">&lt;div class="card overflow-auto"&gt;
+    &lt;div class="card-header"&gt;
+        &lt;div&gt;
+            &lt;h3 class="card-title"&gt;
+                설명 포함
+            &lt;/h3&gt;
+            &lt;p class="card-subtitle"&gt;
+                카드 제목 아래에 간단한 설명을 추가할 수 있습니다.
+            &lt;/p&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+
+    <script src="/lib/tabler-core/dist/js/tabler.min.js"></script>
+    <script src="/lib/master-css/index.min.js"></script>
+    <script src="/lib/highlight.js/highlight.min.js"></script>
+    <script>if (window.hljs) { hljs.highlightAll(); }</script>
+</body>
+</html>

@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>참고사항 · UI 라이브러리 예제</title>
+    <link rel="stylesheet" href="/lib/tabler-core/dist/css/tabler.min.css" />
+    <link rel="stylesheet" href="/lib/tabler-icons-webfont/dist/tabler-icons.min.css" />
+    <link rel="stylesheet" href="/lib/highlight.js/styles/atom-one-dark.min.css" />
+    <style>
+        body { padding: 24px; }
+        .ui-example-preview { background: var(--tblr-body-bg, #f4f6fa); }
+        .ui-example-source pre { margin: 0; }
+    </style>
+</head>
+<body>
+    <div class="container-xl">
+        <div class="text-secondary">참고사항</div>
+        <h1 class="mb-3">참고사항</h1>
+
+        <h3 class="mt-4">미리보기</h3>
+        <div class="ui-example-preview border rounded p-3">
+<div class="card overflow-auto mt-3">
+    <div class="card-status-top bg-dark-overlay"></div>
+    <div class="card-header">
+        <h3 class="card-title">참고사항</h3>
+    </div>
+    <div class="card-body">
+        <div class="alert alert-info alert-dismissible" role="alert">
+            <div class="d-flex">
+                <div class="mr-2">
+                    <i class="f:20 ti ti-check"></i>
+                </div>
+                <div>
+                    <h4 class="alert-title">작업일자통제</h4>
+                    <div class="text-secondary">
+                        <ul class="m-0">
+                            <li>이월: 현재 기수의 회계기간 말일 자로 마감일이 자동 입력되어 통제합니다.</li>
+                            <li>취소: 이전 기수 회계기간 말일 자로 마감일이 자동 입력되어 통제합니다.</li>
+                            <li>일마감, 월마감 등으로 관리하는 경우 마감일을 직접 입력하여 통제합니다.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <span class="btn-close" data-bs-dismiss="alert" aria-label="close"></span>
+        </div>
+    </div>
+</div>
+        </div>
+
+        <h3 class="mt-4">소스</h3>
+        <pre class="ui-example-source"><code class="language-html">&lt;div class="card overflow-auto mt-3"&gt;
+    &lt;div class="card-status-top bg-dark-overlay"&gt;&lt;/div&gt;
+    &lt;div class="card-header"&gt;
+        &lt;h3 class="card-title"&gt;참고사항&lt;/h3&gt;
+    &lt;/div&gt;
+    &lt;div class="card-body"&gt;
+        &lt;div class="alert alert-info alert-dismissible" role="alert"&gt;
+            &lt;div class="d-flex"&gt;
+                &lt;div class="mr-2"&gt;
+                    &lt;i class="f:20 ti ti-check"&gt;&lt;/i&gt;
+                &lt;/div&gt;
+                &lt;div&gt;
+                    &lt;h4 class="alert-title"&gt;작업일자통제&lt;/h4&gt;
+                    &lt;div class="text-secondary"&gt;
+                        &lt;ul class="m-0"&gt;
+                            &lt;li&gt;이월: 현재 기수의 회계기간 말일 자로 마감일이 자동 입력되어 통제합니다.&lt;/li&gt;
+                            &lt;li&gt;취소: 이전 기수 회계기간 말일 자로 마감일이 자동 입력되어 통제합니다.&lt;/li&gt;
+                            &lt;li&gt;일마감, 월마감 등으로 관리하는 경우 마감일을 직접 입력하여 통제합니다.&lt;/li&gt;
+                        &lt;/ul&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+            &lt;span class="btn-close" data-bs-dismiss="alert" aria-label="close"&gt;&lt;/span&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+
+    <script src="/lib/tabler-core/dist/js/tabler.min.js"></script>
+    <script src="/lib/master-css/index.min.js"></script>
+    <script src="/lib/highlight.js/highlight.min.js"></script>
+    <script>if (window.hljs) { hljs.highlightAll(); }</script>
+</body>
+</html>

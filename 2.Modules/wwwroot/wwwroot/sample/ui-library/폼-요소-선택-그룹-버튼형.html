@@ -1,0 +1,500 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>선택 그룹(버튼형) · UI 라이브러리 예제</title>
+    <link rel="stylesheet" href="/lib/tabler-core/dist/css/tabler.min.css" />
+    <link rel="stylesheet" href="/lib/tabler-icons-webfont/dist/tabler-icons.min.css" />
+    <link rel="stylesheet" href="/lib/highlight.js/styles/atom-one-dark.min.css" />
+    <style>
+        body { padding: 24px; }
+        .ui-example-preview { background: var(--tblr-body-bg, #f4f6fa); }
+        .ui-example-source pre { margin: 0; }
+    </style>
+</head>
+<body>
+    <div class="container-xl">
+        <div class="text-secondary">폼 요소</div>
+        <h1 class="mb-3">선택 그룹(버튼형)</h1>
+
+        <h3 class="mt-4">미리보기</h3>
+        <div class="ui-example-preview border rounded p-3">
+<div class="mb-3">
+    <label class="form-label">간단한 선택 그룹</label>
+    <div class="form-selectgroup">
+        <label class="form-selectgroup-item">
+            <input type="checkbox" name="name" value="HTML" class="form-selectgroup-input" checked="">
+            <span class="form-selectgroup-label">HTML</span>
+        </label>
+        <label class="form-selectgroup-item">
+            <input type="checkbox" name="name" value="CSS" class="form-selectgroup-input">
+            <span class="form-selectgroup-label">CSS</span>
+        </label>
+        <label class="form-selectgroup-item">
+            <input type="checkbox" name="name" value="PHP" class="form-selectgroup-input">
+            <span class="form-selectgroup-label">PHP</span>
+        </label>
+        <label class="form-selectgroup-item">
+            <input type="checkbox" name="name" value="JavaScript" class="form-selectgroup-input">
+            <span class="form-selectgroup-label">JavaScript</span>
+        </label>
+    </div>
+</div>
+
+<div class="mb-3">
+    <label class="form-label">아이콘 입력</label>
+    <div class="form-selectgroup">
+        <label class="form-selectgroup-item">
+            <input type="checkbox" name="name" value="sun" class="form-selectgroup-input" checked="">
+            <span class="form-selectgroup-label">
+                <i class="f:20 ti ti-sun"></i>
+            </span>
+        </label>
+        <label class="form-selectgroup-item">
+            <input type="outline" name="name" value="moon" class="form-selectgroup-input">
+            <span class="form-selectgroup-label">
+                <i class="f:20 ti ti-moon"></i>
+            </span>
+        </label>
+        <label class="form-selectgroup-item">
+            <input type="outline" name="name" value="cloud-rain" class="form-selectgroup-input">
+            <span class="form-selectgroup-label">
+                <i class="f:20 ti ti-cloud-rain"></i>
+            </span>
+        </label>
+        <label class="form-selectgroup-item">
+            <input type="outline" name="name" value="cloud" class="form-selectgroup-input">
+            <span class="form-selectgroup-label">
+                <i class="f:20 ti ti-cloud"></i>
+            </span>
+        </label>
+        <label class="form-selectgroup-item">
+            <input type="outline" name="name" value="Other" class="form-selectgroup-input">
+            <span class="form-selectgroup-label">기타</span>
+        </label>
+    </div>
+</div>
+
+<div class="mb-3">
+    <label class="form-label">아이콘과 텍스트가 있는 선택 그룹</label>
+    <div class="form-selectgroup">
+        <label class="form-selectgroup-item">
+            <input type="radio" name="icons" value="home" class="form-selectgroup-input" checked="">
+            <span class="form-selectgroup-label">
+                <i class="f:20 ti ti-home"></i>
+                홈
+            </span>
+        </label>
+        <label class="form-selectgroup-item">
+            <input type="outline" name="icons" value="user" class="form-selectgroup-input">
+            <span class="form-selectgroup-label">
+                <i class="f:20 ti ti-user"></i>
+                사용자
+            </span>
+        </label>
+        <label class="form-selectgroup-item">
+            <input type="outline" name="icons" value="circle" class="form-selectgroup-input">
+            <span class="form-selectgroup-label">
+                <i class="f:20 ti ti-circle"></i>
+                원
+            </span>
+        </label>
+        <label class="form-selectgroup-item">
+            <input type="outline" name="icons" value="square" class="form-selectgroup-input">
+            <span class="form-selectgroup-label">
+                <i class="f:20 ti ti-square"></i>
+                사각형
+            </span>
+        </label>
+    </div>
+</div>
+
+<div class="mb-3">
+    <label class="form-label">다른 스타일</label>
+    <div class="form-selectgroup form-selectgroup-pills">
+        <label class="form-selectgroup-item">
+            <input type="checkbox" name="name" value="HTML" class="form-selectgroup-input" checked="">
+            <span class="form-selectgroup-label">HTML</span>
+        </label>
+        <label class="form-selectgroup-item">
+            <input type="checkbox" name="name" value="CSS" class="form-selectgroup-input">
+            <span class="form-selectgroup-label">CSS</span>
+        </label>
+        <label class="form-selectgroup-item">
+            <input type="checkbox" name="name" value="PHP" class="form-selectgroup-input">
+            <span class="form-selectgroup-label">PHP</span>
+        </label>
+        <label class="form-selectgroup-item">
+            <input type="checkbox" name="name" value="JavaScript" class="form-selectgroup-input">
+            <span class="form-selectgroup-label">JavaScript</span>
+        </label>
+    </div>
+</div>
+
+<div class="mb-3">
+    <label class="form-label">결제 수단</label>
+    <div class="form-selectgroup form-selectgroup-boxes d-flex flex-column">
+        <label class="form-selectgroup-item flex-fill">
+            <input type="radio" name="form-payment" value="visa" class="form-selectgroup-input">
+            <div class="form-selectgroup-label d-flex align-items-center p-3">
+                <div class="me-3">
+                    <span class="form-selectgroup-check"></span>
+                </div>
+                <div>
+                    <span class="payment payment-provider-visa payment-xs me-2"></span>
+                    <strong>7998</strong>로 끝남
+                </div>
+            </div>
+        </label>
+        <label class="form-selectgroup-item flex-fill">
+            <input type="radio" name="form-payment" value="mastercard" class="form-selectgroup-input" checked="">
+            <div class="form-selectgroup-label d-flex align-items-center p-3">
+                <div class="me-3">
+                    <span class="form-selectgroup-check"></span>
+                </div>
+                <div>
+                    <span class="payment payment-provider-mastercard payment-xs me-2"></span>
+                    <strong>2807</strong>로 끝남
+                </div>
+            </div>
+        </label>
+        <label class="form-selectgroup-item flex-fill">
+            <input type="radio" name="form-payment" value="paypal" class="form-selectgroup-input">
+            <div class="form-selectgroup-label d-flex align-items-center p-3">
+                <div class="me-3">
+                    <span class="form-selectgroup-check"></span>
+                </div>
+                <div>
+                    <span class="payment payment-provider-paypal payment-xs me-2"></span>
+                </div>
+            </div>
+        </label>
+    </div>
+</div>
+
+<div class="mb-3">
+    <label class="form-label">프로젝트 매니저</label>
+    <div class="form-selectgroup form-selectgroup-boxes d-flex flex-column">
+        <label class="form-selectgroup-item flex-fill">
+            <input type="checkbox" name="form-project-manager[]" value="1" class="form-selectgroup-input">
+            <div class="form-selectgroup-label d-flex align-items-center p-3">
+                <div class="me-3">
+                    <span class="form-selectgroup-check"></span>
+                </div>
+                <div class="form-selectgroup-label-content d-flex align-items-center">
+                    <span class="avatar me-3" style="background-image: url(data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'96'%20height%3D'96'%3E%3Crect%20width%3D'96'%20height%3D'96'%20fill%3D'%2523dfe3e8'%2F%3E%3Cpath%20d%3D'M20%2066l18-22%2014%2016%2010-12%2014%2018z'%20fill%3D'%2523b3bcc6'%2F%3E%3Ccircle%20cx%3D'34'%20cy%3D'31'%20r%3D'8'%20fill%3D'%2523b3bcc6'%2F%3E%3C%2Fsvg%3E)"></span>
+                    <div>
+                        <div class="font-weight-medium">Paweł Kuna</div>
+                        <div class="text-secondary">UI 디자이너</div>
+                    </div>
+                </div>
+            </div>
+        </label>
+        <label class="form-selectgroup-item flex-fill">
+            <input type="checkbox" name="form-project-manager[]" value="2" class="form-selectgroup-input" checked="">
+            <div class="form-selectgroup-label d-flex align-items-center p-3">
+                <div class="me-3">
+                    <span class="form-selectgroup-check"></span>
+                </div>
+                <div class="form-selectgroup-label-content d-flex align-items-center">
+                    <span class="avatar me-3">JL</span>
+                    <div>
+                        <div class="font-weight-medium">Jeffie Lewzey</div>
+                        <div class="text-secondary">화학 엔지니어</div>
+                    </div>
+                </div>
+            </div>
+        </label>
+        <label class="form-selectgroup-item flex-fill">
+            <input type="checkbox" name="form-project-manager[]" value="3" class="form-selectgroup-input">
+            <div class="form-selectgroup-label d-flex align-items-center p-3">
+                <div class="me-3">
+                    <span class="form-selectgroup-check"></span>
+                </div>
+                <div class="form-selectgroup-label-content d-flex align-items-center">
+                    <span class="avatar me-3" style="background-image: url(data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'96'%20height%3D'96'%3E%3Crect%20width%3D'96'%20height%3D'96'%20fill%3D'%2523dfe3e8'%2F%3E%3Cpath%20d%3D'M20%2066l18-22%2014%2016%2010-12%2014%2018z'%20fill%3D'%2523b3bcc6'%2F%3E%3Ccircle%20cx%3D'34'%20cy%3D'31'%20r%3D'8'%20fill%3D'%2523b3bcc6'%2F%3E%3C%2Fsvg%3E)"></span>
+                    <div>
+                        <div class="font-weight-medium">Mallory Hulme</div>
+                        <div class="text-secondary">지질학자</div>
+                    </div>
+                </div>
+            </div>
+        </label>
+        <label class="form-selectgroup-item flex-fill">
+            <input type="checkbox" name="form-project-manager[]" value="4" class="form-selectgroup-input">
+            <div class="form-selectgroup-label d-flex align-items-center p-3">
+                <div class="me-3">
+                    <span class="form-selectgroup-check"></span>
+                </div>
+                <div class="form-selectgroup-label-content d-flex align-items-center">
+                    <span class="avatar me-3" style="background-image: url(data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'96'%20height%3D'96'%3E%3Crect%20width%3D'96'%20height%3D'96'%20fill%3D'%2523dfe3e8'%2F%3E%3Cpath%20d%3D'M20%2066l18-22%2014%2016%2010-12%2014%2018z'%20fill%3D'%2523b3bcc6'%2F%3E%3Ccircle%20cx%3D'34'%20cy%3D'31'%20r%3D'8'%20fill%3D'%2523b3bcc6'%2F%3E%3C%2Fsvg%3E)"></span>
+                    <div>
+                        <div class="font-weight-medium">Dunn Slane</div>
+                        <div class="text-secondary">연구 간호사</div>
+                    </div>
+                </div>
+            </div>
+        </label>
+        <label class="form-selectgroup-item flex-fill">
+            <input type="checkbox" name="form-project-manager[]" value="5" class="form-selectgroup-input">
+            <div class="form-selectgroup-label d-flex align-items-center p-3">
+                <div class="me-3">
+                    <span class="form-selectgroup-check"></span>
+                </div>
+                <div class="form-selectgroup-label-content d-flex align-items-center">
+                    <span class="avatar me-3" style="background-image: url(data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'96'%20height%3D'96'%3E%3Crect%20width%3D'96'%20height%3D'96'%20fill%3D'%2523dfe3e8'%2F%3E%3Cpath%20d%3D'M20%2066l18-22%2014%2016%2010-12%2014%2018z'%20fill%3D'%2523b3bcc6'%2F%3E%3Ccircle%20cx%3D'34'%20cy%3D'31'%20r%3D'8'%20fill%3D'%2523b3bcc6'%2F%3E%3C%2Fsvg%3E)"></span>
+                    <div>
+                        <div class="font-weight-medium">Emmy Levet</div>
+                        <div class="text-secondary">제품 관리 부사장</div>
+                    </div>
+                </div>
+            </div>
+        </label>
+    </div>
+</div>
+        </div>
+        <div class="alert alert-info mt-3" role="alert">원본 이미지 경로(img/...)는 참고용 표시이며, 이 미리보기에서는 자리 표시 이미지로 대체되었습니다.</div>
+
+        <h3 class="mt-4">소스</h3>
+        <pre class="ui-example-source"><code class="language-html">&lt;div class="mb-3"&gt;
+    &lt;label class="form-label"&gt;간단한 선택 그룹&lt;/label&gt;
+    &lt;div class="form-selectgroup"&gt;
+        &lt;label class="form-selectgroup-item"&gt;
+            &lt;input type="checkbox" name="name" value="HTML" class="form-selectgroup-input" checked=""&gt;
+            &lt;span class="form-selectgroup-label"&gt;HTML&lt;/span&gt;
+        &lt;/label&gt;
+        &lt;label class="form-selectgroup-item"&gt;
+            &lt;input type="checkbox" name="name" value="CSS" class="form-selectgroup-input"&gt;
+            &lt;span class="form-selectgroup-label"&gt;CSS&lt;/span&gt;
+        &lt;/label&gt;
+        &lt;label class="form-selectgroup-item"&gt;
+            &lt;input type="checkbox" name="name" value="PHP" class="form-selectgroup-input"&gt;
+            &lt;span class="form-selectgroup-label"&gt;PHP&lt;/span&gt;
+        &lt;/label&gt;
+        &lt;label class="form-selectgroup-item"&gt;
+            &lt;input type="checkbox" name="name" value="JavaScript" class="form-selectgroup-input"&gt;
+            &lt;span class="form-selectgroup-label"&gt;JavaScript&lt;/span&gt;
+        &lt;/label&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="mb-3"&gt;
+    &lt;label class="form-label"&gt;아이콘 입력&lt;/label&gt;
+    &lt;div class="form-selectgroup"&gt;
+        &lt;label class="form-selectgroup-item"&gt;
+            &lt;input type="checkbox" name="name" value="sun" class="form-selectgroup-input" checked=""&gt;
+            &lt;span class="form-selectgroup-label"&gt;
+                &lt;i class="f:20 ti ti-sun"&gt;&lt;/i&gt;
+            &lt;/span&gt;
+        &lt;/label&gt;
+        &lt;label class="form-selectgroup-item"&gt;
+            &lt;input type="outline" name="name" value="moon" class="form-selectgroup-input"&gt;
+            &lt;span class="form-selectgroup-label"&gt;
+                &lt;i class="f:20 ti ti-moon"&gt;&lt;/i&gt;
+            &lt;/span&gt;
+        &lt;/label&gt;
+        &lt;label class="form-selectgroup-item"&gt;
+            &lt;input type="outline" name="name" value="cloud-rain" class="form-selectgroup-input"&gt;
+            &lt;span class="form-selectgroup-label"&gt;
+                &lt;i class="f:20 ti ti-cloud-rain"&gt;&lt;/i&gt;
+            &lt;/span&gt;
+        &lt;/label&gt;
+        &lt;label class="form-selectgroup-item"&gt;
+            &lt;input type="outline" name="name" value="cloud" class="form-selectgroup-input"&gt;
+            &lt;span class="form-selectgroup-label"&gt;
+                &lt;i class="f:20 ti ti-cloud"&gt;&lt;/i&gt;
+            &lt;/span&gt;
+        &lt;/label&gt;
+        &lt;label class="form-selectgroup-item"&gt;
+            &lt;input type="outline" name="name" value="Other" class="form-selectgroup-input"&gt;
+            &lt;span class="form-selectgroup-label"&gt;기타&lt;/span&gt;
+        &lt;/label&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="mb-3"&gt;
+    &lt;label class="form-label"&gt;아이콘과 텍스트가 있는 선택 그룹&lt;/label&gt;
+    &lt;div class="form-selectgroup"&gt;
+        &lt;label class="form-selectgroup-item"&gt;
+            &lt;input type="radio" name="icons" value="home" class="form-selectgroup-input" checked=""&gt;
+            &lt;span class="form-selectgroup-label"&gt;
+                &lt;i class="f:20 ti ti-home"&gt;&lt;/i&gt;
+                홈
+            &lt;/span&gt;
+        &lt;/label&gt;
+        &lt;label class="form-selectgroup-item"&gt;
+            &lt;input type="outline" name="icons" value="user" class="form-selectgroup-input"&gt;
+            &lt;span class="form-selectgroup-label"&gt;
+                &lt;i class="f:20 ti ti-user"&gt;&lt;/i&gt;
+                사용자
+            &lt;/span&gt;
+        &lt;/label&gt;
+        &lt;label class="form-selectgroup-item"&gt;
+            &lt;input type="outline" name="icons" value="circle" class="form-selectgroup-input"&gt;
+            &lt;span class="form-selectgroup-label"&gt;
+                &lt;i class="f:20 ti ti-circle"&gt;&lt;/i&gt;
+                원
+            &lt;/span&gt;
+        &lt;/label&gt;
+        &lt;label class="form-selectgroup-item"&gt;
+            &lt;input type="outline" name="icons" value="square" class="form-selectgroup-input"&gt;
+            &lt;span class="form-selectgroup-label"&gt;
+                &lt;i class="f:20 ti ti-square"&gt;&lt;/i&gt;
+                사각형
+            &lt;/span&gt;
+        &lt;/label&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="mb-3"&gt;
+    &lt;label class="form-label"&gt;다른 스타일&lt;/label&gt;
+    &lt;div class="form-selectgroup form-selectgroup-pills"&gt;
+        &lt;label class="form-selectgroup-item"&gt;
+            &lt;input type="checkbox" name="name" value="HTML" class="form-selectgroup-input" checked=""&gt;
+            &lt;span class="form-selectgroup-label"&gt;HTML&lt;/span&gt;
+        &lt;/label&gt;
+        &lt;label class="form-selectgroup-item"&gt;
+            &lt;input type="checkbox" name="name" value="CSS" class="form-selectgroup-input"&gt;
+            &lt;span class="form-selectgroup-label"&gt;CSS&lt;/span&gt;
+        &lt;/label&gt;
+        &lt;label class="form-selectgroup-item"&gt;
+            &lt;input type="checkbox" name="name" value="PHP" class="form-selectgroup-input"&gt;
+            &lt;span class="form-selectgroup-label"&gt;PHP&lt;/span&gt;
+        &lt;/label&gt;
+        &lt;label class="form-selectgroup-item"&gt;
+            &lt;input type="checkbox" name="name" value="JavaScript" class="form-selectgroup-input"&gt;
+            &lt;span class="form-selectgroup-label"&gt;JavaScript&lt;/span&gt;
+        &lt;/label&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="mb-3"&gt;
+    &lt;label class="form-label"&gt;결제 수단&lt;/label&gt;
+    &lt;div class="form-selectgroup form-selectgroup-boxes d-flex flex-column"&gt;
+        &lt;label class="form-selectgroup-item flex-fill"&gt;
+            &lt;input type="radio" name="form-payment" value="visa" class="form-selectgroup-input"&gt;
+            &lt;div class="form-selectgroup-label d-flex align-items-center p-3"&gt;
+                &lt;div class="me-3"&gt;
+                    &lt;span class="form-selectgroup-check"&gt;&lt;/span&gt;
+                &lt;/div&gt;
+                &lt;div&gt;
+                    &lt;span class="payment payment-provider-visa payment-xs me-2"&gt;&lt;/span&gt;
+                    &lt;strong&gt;7998&lt;/strong&gt;로 끝남
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/label&gt;
+        &lt;label class="form-selectgroup-item flex-fill"&gt;
+            &lt;input type="radio" name="form-payment" value="mastercard" class="form-selectgroup-input" checked=""&gt;
+            &lt;div class="form-selectgroup-label d-flex align-items-center p-3"&gt;
+                &lt;div class="me-3"&gt;
+                    &lt;span class="form-selectgroup-check"&gt;&lt;/span&gt;
+                &lt;/div&gt;
+                &lt;div&gt;
+                    &lt;span class="payment payment-provider-mastercard payment-xs me-2"&gt;&lt;/span&gt;
+                    &lt;strong&gt;2807&lt;/strong&gt;로 끝남
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/label&gt;
+        &lt;label class="form-selectgroup-item flex-fill"&gt;
+            &lt;input type="radio" name="form-payment" value="paypal" class="form-selectgroup-input"&gt;
+            &lt;div class="form-selectgroup-label d-flex align-items-center p-3"&gt;
+                &lt;div class="me-3"&gt;
+                    &lt;span class="form-selectgroup-check"&gt;&lt;/span&gt;
+                &lt;/div&gt;
+                &lt;div&gt;
+                    &lt;span class="payment payment-provider-paypal payment-xs me-2"&gt;&lt;/span&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/label&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="mb-3"&gt;
+    &lt;label class="form-label"&gt;프로젝트 매니저&lt;/label&gt;
+    &lt;div class="form-selectgroup form-selectgroup-boxes d-flex flex-column"&gt;
+        &lt;label class="form-selectgroup-item flex-fill"&gt;
+            &lt;input type="checkbox" name="form-project-manager[]" value="1" class="form-selectgroup-input"&gt;
+            &lt;div class="form-selectgroup-label d-flex align-items-center p-3"&gt;
+                &lt;div class="me-3"&gt;
+                    &lt;span class="form-selectgroup-check"&gt;&lt;/span&gt;
+                &lt;/div&gt;
+                &lt;div class="form-selectgroup-label-content d-flex align-items-center"&gt;
+                    &lt;span class="avatar me-3" style="background-image: url(../../img/avatars/000m.jpg)"&gt;&lt;/span&gt;
+                    &lt;div&gt;
+                        &lt;div class="font-weight-medium"&gt;Paweł Kuna&lt;/div&gt;
+                        &lt;div class="text-secondary"&gt;UI 디자이너&lt;/div&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/label&gt;
+        &lt;label class="form-selectgroup-item flex-fill"&gt;
+            &lt;input type="checkbox" name="form-project-manager[]" value="2" class="form-selectgroup-input" checked=""&gt;
+            &lt;div class="form-selectgroup-label d-flex align-items-center p-3"&gt;
+                &lt;div class="me-3"&gt;
+                    &lt;span class="form-selectgroup-check"&gt;&lt;/span&gt;
+                &lt;/div&gt;
+                &lt;div class="form-selectgroup-label-content d-flex align-items-center"&gt;
+                    &lt;span class="avatar me-3"&gt;JL&lt;/span&gt;
+                    &lt;div&gt;
+                        &lt;div class="font-weight-medium"&gt;Jeffie Lewzey&lt;/div&gt;
+                        &lt;div class="text-secondary"&gt;화학 엔지니어&lt;/div&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/label&gt;
+        &lt;label class="form-selectgroup-item flex-fill"&gt;
+            &lt;input type="checkbox" name="form-project-manager[]" value="3" class="form-selectgroup-input"&gt;
+            &lt;div class="form-selectgroup-label d-flex align-items-center p-3"&gt;
+                &lt;div class="me-3"&gt;
+                    &lt;span class="form-selectgroup-check"&gt;&lt;/span&gt;
+                &lt;/div&gt;
+                &lt;div class="form-selectgroup-label-content d-flex align-items-center"&gt;
+                    &lt;span class="avatar me-3" style="background-image: url(../../img/avatars/002m.jpg)"&gt;&lt;/span&gt;
+                    &lt;div&gt;
+                        &lt;div class="font-weight-medium"&gt;Mallory Hulme&lt;/div&gt;
+                        &lt;div class="text-secondary"&gt;지질학자&lt;/div&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/label&gt;
+        &lt;label class="form-selectgroup-item flex-fill"&gt;
+            &lt;input type="checkbox" name="form-project-manager[]" value="4" class="form-selectgroup-input"&gt;
+            &lt;div class="form-selectgroup-label d-flex align-items-center p-3"&gt;
+                &lt;div class="me-3"&gt;
+                    &lt;span class="form-selectgroup-check"&gt;&lt;/span&gt;
+                &lt;/div&gt;
+                &lt;div class="form-selectgroup-label-content d-flex align-items-center"&gt;
+                    &lt;span class="avatar me-3" style="background-image: url(../../img/avatars/003m.jpg)"&gt;&lt;/span&gt;
+                    &lt;div&gt;
+                        &lt;div class="font-weight-medium"&gt;Dunn Slane&lt;/div&gt;
+                        &lt;div class="text-secondary"&gt;연구 간호사&lt;/div&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/label&gt;
+        &lt;label class="form-selectgroup-item flex-fill"&gt;
+            &lt;input type="checkbox" name="form-project-manager[]" value="5" class="form-selectgroup-input"&gt;
+            &lt;div class="form-selectgroup-label d-flex align-items-center p-3"&gt;
+                &lt;div class="me-3"&gt;
+                    &lt;span class="form-selectgroup-check"&gt;&lt;/span&gt;
+                &lt;/div&gt;
+                &lt;div class="form-selectgroup-label-content d-flex align-items-center"&gt;
+                    &lt;span class="avatar me-3" style="background-image: url(../../img/avatars/000f.jpg)"&gt;&lt;/span&gt;
+                    &lt;div&gt;
+                        &lt;div class="font-weight-medium"&gt;Emmy Levet&lt;/div&gt;
+                        &lt;div class="text-secondary"&gt;제품 관리 부사장&lt;/div&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/label&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+
+    <script src="/lib/tabler-core/dist/js/tabler.min.js"></script>
+    <script src="/lib/master-css/index.min.js"></script>
+    <script src="/lib/highlight.js/highlight.min.js"></script>
+    <script>if (window.hljs) { hljs.highlightAll(); }</script>
+</body>
+</html>

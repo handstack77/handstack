@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>간단한 폼이 있는 모달 · UI 라이브러리 예제</title>
+    <link rel="stylesheet" href="/lib/tabler-core/dist/css/tabler.min.css" />
+    <link rel="stylesheet" href="/lib/tabler-icons-webfont/dist/tabler-icons.min.css" />
+    <link rel="stylesheet" href="/lib/highlight.js/styles/atom-one-dark.min.css" />
+    <style>
+        body { padding: 24px; }
+        .ui-example-preview { background: var(--tblr-body-bg, #f4f6fa); }
+        .ui-example-source pre { margin: 0; }
+    </style>
+</head>
+<body>
+    <div class="container-xl">
+        <div class="text-secondary">모달</div>
+        <h1 class="mb-3">간단한 폼이 있는 모달</h1>
+
+        <h3 class="mt-4">미리보기</h3>
+        <div class="ui-example-preview border rounded p-3">
+<a href="#" class="btn" data-bs-toggle="modal" data-bs-target="#modal-team">
+    간단한 폼이 있는 모달
+</a>
+
+<div class="modal modal-blur fade" id="modal-team" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">새 팀 추가</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-3 align-items-end">
+                    <div class="col-auto">
+                        <a href="#" class="avatar avatar-upload rounded">
+                            <i class="f:20 ti ti-plus"></i>
+                            <span class="avatar-upload-text">추가</span>
+                        </a>
+                    </div>
+                    <div class="col">
+                        <label class="form-label">이름</label>
+                        <input type="text" class="form-control" />
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">팀 색상 선택</label>
+                    <div class="row g-2">
+                        <div class="col-auto">
+                            <label class="form-colorinput">
+                                <input name="color" type="radio" value="dark" class="form-colorinput-input" />
+                                <span class="form-colorinput-color bg-dark"></span>
+                            </label>
+                        </div>
+                        <div class="col-auto">
+                            <label class="form-colorinput form-colorinput-light">
+                                <input name="color" type="radio" value="white" class="form-colorinput-input" checked />
+                                <span class="form-colorinput-color bg-white"></span>
+                            </label>
+                        </div>
+                        <div class="col-auto">
+                            <label class="form-colorinput">
+                                <input name="color" type="radio" value="blue" class="form-colorinput-input" />
+                                <span class="form-colorinput-color bg-blue"></span>
+                            </label>
+                        </div>
+                        <div class="col-auto">
+                            <label class="form-colorinput">
+                                <input name="color" type="radio" value="azure" class="form-colorinput-input" />
+                                <span class="form-colorinput-color bg-azure"></span>
+                            </label>
+                        </div>
+                        <div class="col-auto">
+                            <label class="form-colorinput">
+                                <input name="color" type="radio" value="indigo" class="form-colorinput-input" />
+                                <span class="form-colorinput-color bg-indigo"></span>
+                            </label>
+                        </div>
+                        <div class="col-auto">
+                            <label class="form-colorinput">
+                                <input name="color" type="radio" value="purple" class="form-colorinput-input" />
+                                <span class="form-colorinput-color bg-purple"></span>
+                            </label>
+                        </div>
+                        <div class="col-auto">
+                            <label class="form-colorinput">
+                                <input name="color" type="radio" value="pink" class="form-colorinput-input" />
+                                <span class="form-colorinput-color bg-pink"></span>
+                            </label>
+                        </div>
+                        <div class="col-auto">
+                            <label class="form-colorinput">
+                                <input name="color" type="radio" value="red" class="form-colorinput-input" />
+                                <span class="form-colorinput-color bg-red"></span>
+                            </label>
+                        </div>
+                        <div class="col-auto">
+                            <label class="form-colorinput">
+                                <input name="color" type="radio" value="orange" class="form-colorinput-input" />
+                                <span class="form-colorinput-color bg-orange"></span>
+                            </label>
+                        </div>
+                        <div class="col-auto">
+                            <label class="form-colorinput">
+                                <input name="color" type="radio" value="yellow" class="form-colorinput-input" />
+                                <span class="form-colorinput-color bg-yellow"></span>
+                            </label>
+                        </div>
+                        <div class="col-auto">
+                            <label class="form-colorinput">
+                                <input name="color" type="radio" value="lime" class="form-colorinput-input" />
+                                <span class="form-colorinput-color bg-lime"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <label class="form-label">추가 정보</label>
+                    <textarea class="form-control"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn me-auto" data-bs-dismiss="modal">닫기</button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">팀 추가</button>
+            </div>
+        </div>
+    </div>
+</div>
+        </div>
+
+        <h3 class="mt-4">소스</h3>
+        <pre class="ui-example-source"><code class="language-html">&lt;a href="#" class="btn" data-bs-toggle="modal" data-bs-target="#modal-team"&gt;
+    간단한 폼이 있는 모달
+&lt;/a&gt;
+
+&lt;div class="modal modal-blur fade" id="modal-team" tabindex="-1" role="dialog" aria-hidden="true"&gt;
+    &lt;div class="modal-dialog modal-dialog-centered" role="document"&gt;
+        &lt;div class="modal-content"&gt;
+            &lt;div class="modal-header"&gt;
+                &lt;h5 class="modal-title"&gt;새 팀 추가&lt;/h5&gt;
+                &lt;button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"&gt;&lt;/button&gt;
+            &lt;/div&gt;
+            &lt;div class="modal-body"&gt;
+                &lt;div class="row mb-3 align-items-end"&gt;
+                    &lt;div class="col-auto"&gt;
+                        &lt;a href="#" class="avatar avatar-upload rounded"&gt;
+                            &lt;i class="f:20 ti ti-plus"&gt;&lt;/i&gt;
+                            &lt;span class="avatar-upload-text"&gt;추가&lt;/span&gt;
+                        &lt;/a&gt;
+                    &lt;/div&gt;
+                    &lt;div class="col"&gt;
+                        &lt;label class="form-label"&gt;이름&lt;/label&gt;
+                        &lt;input type="text" class="form-control" /&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+                &lt;div class="mb-3"&gt;
+                    &lt;label class="form-label"&gt;팀 색상 선택&lt;/label&gt;
+                    &lt;div class="row g-2"&gt;
+                        &lt;div class="col-auto"&gt;
+                            &lt;label class="form-colorinput"&gt;
+                                &lt;input name="color" type="radio" value="dark" class="form-colorinput-input" /&gt;
+                                &lt;span class="form-colorinput-color bg-dark"&gt;&lt;/span&gt;
+                            &lt;/label&gt;
+                        &lt;/div&gt;
+                        &lt;div class="col-auto"&gt;
+                            &lt;label class="form-colorinput form-colorinput-light"&gt;
+                                &lt;input name="color" type="radio" value="white" class="form-colorinput-input" checked /&gt;
+                                &lt;span class="form-colorinput-color bg-white"&gt;&lt;/span&gt;
+                            &lt;/label&gt;
+                        &lt;/div&gt;
+                        &lt;div class="col-auto"&gt;
+                            &lt;label class="form-colorinput"&gt;
+                                &lt;input name="color" type="radio" value="blue" class="form-colorinput-input" /&gt;
+                                &lt;span class="form-colorinput-color bg-blue"&gt;&lt;/span&gt;
+                            &lt;/label&gt;
+                        &lt;/div&gt;
+                        &lt;div class="col-auto"&gt;
+                            &lt;label class="form-colorinput"&gt;
+                                &lt;input name="color" type="radio" value="azure" class="form-colorinput-input" /&gt;
+                                &lt;span class="form-colorinput-color bg-azure"&gt;&lt;/span&gt;
+                            &lt;/label&gt;
+                        &lt;/div&gt;
+                        &lt;div class="col-auto"&gt;
+                            &lt;label class="form-colorinput"&gt;
+                                &lt;input name="color" type="radio" value="indigo" class="form-colorinput-input" /&gt;
+                                &lt;span class="form-colorinput-color bg-indigo"&gt;&lt;/span&gt;
+                            &lt;/label&gt;
+                        &lt;/div&gt;
+                        &lt;div class="col-auto"&gt;
+                            &lt;label class="form-colorinput"&gt;
+                                &lt;input name="color" type="radio" value="purple" class="form-colorinput-input" /&gt;
+                                &lt;span class="form-colorinput-color bg-purple"&gt;&lt;/span&gt;
+                            &lt;/label&gt;
+                        &lt;/div&gt;
+                        &lt;div class="col-auto"&gt;
+                            &lt;label class="form-colorinput"&gt;
+                                &lt;input name="color" type="radio" value="pink" class="form-colorinput-input" /&gt;
+                                &lt;span class="form-colorinput-color bg-pink"&gt;&lt;/span&gt;
+                            &lt;/label&gt;
+                        &lt;/div&gt;
+                        &lt;div class="col-auto"&gt;
+                            &lt;label class="form-colorinput"&gt;
+                                &lt;input name="color" type="radio" value="red" class="form-colorinput-input" /&gt;
+                                &lt;span class="form-colorinput-color bg-red"&gt;&lt;/span&gt;
+                            &lt;/label&gt;
+                        &lt;/div&gt;
+                        &lt;div class="col-auto"&gt;
+                            &lt;label class="form-colorinput"&gt;
+                                &lt;input name="color" type="radio" value="orange" class="form-colorinput-input" /&gt;
+                                &lt;span class="form-colorinput-color bg-orange"&gt;&lt;/span&gt;
+                            &lt;/label&gt;
+                        &lt;/div&gt;
+                        &lt;div class="col-auto"&gt;
+                            &lt;label class="form-colorinput"&gt;
+                                &lt;input name="color" type="radio" value="yellow" class="form-colorinput-input" /&gt;
+                                &lt;span class="form-colorinput-color bg-yellow"&gt;&lt;/span&gt;
+                            &lt;/label&gt;
+                        &lt;/div&gt;
+                        &lt;div class="col-auto"&gt;
+                            &lt;label class="form-colorinput"&gt;
+                                &lt;input name="color" type="radio" value="lime" class="form-colorinput-input" /&gt;
+                                &lt;span class="form-colorinput-color bg-lime"&gt;&lt;/span&gt;
+                            &lt;/label&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+                &lt;div&gt;
+                    &lt;label class="form-label"&gt;추가 정보&lt;/label&gt;
+                    &lt;textarea class="form-control"&gt;&lt;/textarea&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+            &lt;div class="modal-footer"&gt;
+                &lt;button type="button" class="btn me-auto" data-bs-dismiss="modal"&gt;닫기&lt;/button&gt;
+                &lt;button type="button" class="btn btn-primary" data-bs-dismiss="modal"&gt;팀 추가&lt;/button&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+
+    <script src="/lib/tabler-core/dist/js/tabler.min.js"></script>
+    <script src="/lib/master-css/index.min.js"></script>
+    <script src="/lib/highlight.js/highlight.min.js"></script>
+    <script>if (window.hljs) { hljs.highlightAll(); }</script>
+</body>
+</html>

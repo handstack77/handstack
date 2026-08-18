@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>위험 모달 · UI 라이브러리 예제</title>
+    <link rel="stylesheet" href="/lib/tabler-core/dist/css/tabler.min.css" />
+    <link rel="stylesheet" href="/lib/tabler-icons-webfont/dist/tabler-icons.min.css" />
+    <link rel="stylesheet" href="/lib/highlight.js/styles/atom-one-dark.min.css" />
+    <style>
+        body { padding: 24px; }
+        .ui-example-preview { background: var(--tblr-body-bg, #f4f6fa); }
+        .ui-example-source pre { margin: 0; }
+    </style>
+</head>
+<body>
+    <div class="container-xl">
+        <div class="text-secondary">모달</div>
+        <h1 class="mb-3">위험 모달</h1>
+
+        <h3 class="mt-4">미리보기</h3>
+        <div class="ui-example-preview border rounded p-3">
+<a href="#" class="btn" data-bs-toggle="modal" data-bs-target="#modal-danger">
+    위험 모달
+</a>
+
+<div class="modal modal-blur fade" id="modal-danger" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-status bg-danger"></div>
+            <div class="modal-body text-center py-4">
+                <i class="f:20 ti ti-alert-triangle"></i>
+                <h3>정말 삭제하시겠습니까?</h3>
+                <div class="text-secondary">정말로 84개의 파일을 제거하시겠습니까? 이 작업은 되돌릴 수 없습니다.</div>
+            </div>
+            <div class="modal-footer">
+                <div class="w-100">
+                    <div class="row">
+                        <div class="col">
+                            <a href="#" class="btn w-100" data-bs-dismiss="modal">
+                                취소
+                            </a>
+                        </div>
+                        <div class="col">
+                            <a href="#" class="btn btn-danger w-100" data-bs-dismiss="modal">
+                                84개 항목 삭제
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+        </div>
+
+        <h3 class="mt-4">소스</h3>
+        <pre class="ui-example-source"><code class="language-html">&lt;a href="#" class="btn" data-bs-toggle="modal" data-bs-target="#modal-danger"&gt;
+    위험 모달
+&lt;/a&gt;
+
+&lt;div class="modal modal-blur fade" id="modal-danger" tabindex="-1" role="dialog" aria-hidden="true"&gt;
+    &lt;div class="modal-dialog modal-sm modal-dialog-centered" role="document"&gt;
+        &lt;div class="modal-content"&gt;
+            &lt;button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"&gt;&lt;/button&gt;
+            &lt;div class="modal-status bg-danger"&gt;&lt;/div&gt;
+            &lt;div class="modal-body text-center py-4"&gt;
+                &lt;i class="f:20 ti ti-alert-triangle"&gt;&lt;/i&gt;
+                &lt;h3&gt;정말 삭제하시겠습니까?&lt;/h3&gt;
+                &lt;div class="text-secondary"&gt;정말로 84개의 파일을 제거하시겠습니까? 이 작업은 되돌릴 수 없습니다.&lt;/div&gt;
+            &lt;/div&gt;
+            &lt;div class="modal-footer"&gt;
+                &lt;div class="w-100"&gt;
+                    &lt;div class="row"&gt;
+                        &lt;div class="col"&gt;
+                            &lt;a href="#" class="btn w-100" data-bs-dismiss="modal"&gt;
+                                취소
+                            &lt;/a&gt;
+                        &lt;/div&gt;
+                        &lt;div class="col"&gt;
+                            &lt;a href="#" class="btn btn-danger w-100" data-bs-dismiss="modal"&gt;
+                                84개 항목 삭제
+                            &lt;/a&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+
+    <script src="/lib/tabler-core/dist/js/tabler.min.js"></script>
+    <script src="/lib/master-css/index.min.js"></script>
+    <script src="/lib/highlight.js/highlight.min.js"></script>
+    <script>if (window.hljs) { hljs.highlightAll(); }</script>
+</body>
+</html>

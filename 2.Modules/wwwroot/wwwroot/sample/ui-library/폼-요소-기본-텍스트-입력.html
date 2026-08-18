@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>기본 텍스트 입력 · UI 라이브러리 예제</title>
+    <link rel="stylesheet" href="/lib/tabler-core/dist/css/tabler.min.css" />
+    <link rel="stylesheet" href="/lib/tabler-icons-webfont/dist/tabler-icons.min.css" />
+    <link rel="stylesheet" href="/lib/highlight.js/styles/atom-one-dark.min.css" />
+    <style>
+        body { padding: 24px; }
+        .ui-example-preview { background: var(--tblr-body-bg, #f4f6fa); }
+        .ui-example-source pre { margin: 0; }
+    </style>
+</head>
+<body>
+    <div class="container-xl">
+        <div class="text-secondary">폼 요소</div>
+        <h1 class="mb-3">기본 텍스트 입력</h1>
+
+        <h3 class="mt-4">미리보기</h3>
+        <div class="ui-example-preview border rounded p-3">
+<div class="mb-3">
+    <label class="form-label">정적 텍스트</label>
+    <div class="form-control-plaintext">입력 값</div>
+</div>
+
+<div class="mb-3">
+    <label class="form-label">텍스트</label>
+    <input type="text" class="form-control" name="example-text-input" placeholder="내용을 입력 하세요">
+</div>
+
+<div class="mb-3">
+    <label class="form-label">비밀번호</label>
+    <input type="text" class="form-control" name="example-password-input" placeholder="비밀번호를 입력 하세요">
+</div>
+
+<div class="mb-3">
+    <label class="form-label">비활성화</label>
+    <input type="text" class="form-control" name="example-disabled-input" placeholder="비활성화됨..." value="이 입력란은 비활성화되었습니다." disabled="">
+</div>
+
+<div class="mb-3">
+    <label class="form-label">읽기 전용</label>
+    <input type="text" class="form-control" name="example-disabled-input" placeholder="읽기 전용..." value="이 입력란은 읽기 전용입니다." readonly="">
+</div>
+
+<div class="mb-3">
+    <label class="form-label required">필수 입력</label>
+    <input type="text" class="form-control" name="example-required-input" placeholder="필수 입력 항목...">
+</div>
+
+<div class="mb-3">
+    <label class="form-label">텍스트 영역 <span class="form-label-description">56/100</span></label>
+    <textarea class="form-control" name="example-textarea-input" rows="6" placeholder="내용..">이곳에 여러 줄의 텍스트를 입력할 수 있습니다. 예시 문장입니다.</textarea>
+</div>
+        </div>
+
+        <h3 class="mt-4">소스</h3>
+        <pre class="ui-example-source"><code class="language-html">&lt;div class="mb-3"&gt;
+    &lt;label class="form-label"&gt;정적 텍스트&lt;/label&gt;
+    &lt;div class="form-control-plaintext"&gt;입력 값&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="mb-3"&gt;
+    &lt;label class="form-label"&gt;텍스트&lt;/label&gt;
+    &lt;input type="text" class="form-control" name="example-text-input" placeholder="내용을 입력 하세요"&gt;
+&lt;/div&gt;
+
+&lt;div class="mb-3"&gt;
+    &lt;label class="form-label"&gt;비밀번호&lt;/label&gt;
+    &lt;input type="text" class="form-control" name="example-password-input" placeholder="비밀번호를 입력 하세요"&gt;
+&lt;/div&gt;
+
+&lt;div class="mb-3"&gt;
+    &lt;label class="form-label"&gt;비활성화&lt;/label&gt;
+    &lt;input type="text" class="form-control" name="example-disabled-input" placeholder="비활성화됨..." value="이 입력란은 비활성화되었습니다." disabled=""&gt;
+&lt;/div&gt;
+
+&lt;div class="mb-3"&gt;
+    &lt;label class="form-label"&gt;읽기 전용&lt;/label&gt;
+    &lt;input type="text" class="form-control" name="example-disabled-input" placeholder="읽기 전용..." value="이 입력란은 읽기 전용입니다." readonly=""&gt;
+&lt;/div&gt;
+
+&lt;div class="mb-3"&gt;
+    &lt;label class="form-label required"&gt;필수 입력&lt;/label&gt;
+    &lt;input type="text" class="form-control" name="example-required-input" placeholder="필수 입력 항목..."&gt;
+&lt;/div&gt;
+
+&lt;div class="mb-3"&gt;
+    &lt;label class="form-label"&gt;텍스트 영역 &lt;span class="form-label-description"&gt;56/100&lt;/span&gt;&lt;/label&gt;
+    &lt;textarea class="form-control" name="example-textarea-input" rows="6" placeholder="내용.."&gt;이곳에 여러 줄의 텍스트를 입력할 수 있습니다. 예시 문장입니다.&lt;/textarea&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+
+    <script src="/lib/tabler-core/dist/js/tabler.min.js"></script>
+    <script src="/lib/master-css/index.min.js"></script>
+    <script src="/lib/highlight.js/highlight.min.js"></script>
+    <script>if (window.hljs) { hljs.highlightAll(); }</script>
+</body>
+</html>

@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>체크박스·라디오 입력 그룹 · UI 라이브러리 예제</title>
+    <link rel="stylesheet" href="/lib/tabler-core/dist/css/tabler.min.css" />
+    <link rel="stylesheet" href="/lib/tabler-icons-webfont/dist/tabler-icons.min.css" />
+    <link rel="stylesheet" href="/lib/highlight.js/styles/atom-one-dark.min.css" />
+    <style>
+        body { padding: 24px; }
+        .ui-example-preview { background: var(--tblr-body-bg, #f4f6fa); }
+        .ui-example-source pre { margin: 0; }
+    </style>
+</head>
+<body>
+    <div class="container-xl">
+        <div class="text-secondary">폼 요소</div>
+        <h1 class="mb-3">체크박스·라디오 입력 그룹</h1>
+
+        <h3 class="mt-4">미리보기</h3>
+        <div class="ui-example-preview border rounded p-3">
+<div class="mb-3">
+    <label class="form-label">입력 그룹</label>
+    <div class="input-group mb-2">
+        <span class="input-group-text">
+            @
+        </span>
+        <input type="text" class="form-control" placeholder="사용자명" autocomplete="off">
+    </div>
+    <div class="input-group mb-2">
+        <input type="text" class="form-control" placeholder="서브도메인" autocomplete="off">
+        <span class="input-group-text">
+            .tabler.io
+        </span>
+    </div>
+    <div class="input-group">
+        <span class="input-group-text">
+            https://
+        </span>
+        <input type="text" class="form-control" placeholder="서브도메인" autocomplete="off">
+        <span class="input-group-text">
+            .tabler.io
+        </span>
+    </div>
+</div>
+
+<div class="mb-3">
+    <label class="form-label">체크박스 또는 라디오 버튼 입력</label>
+    <div class="input-group mb-2">
+        <span class="input-group-text">
+            <input class="form-check-input m-0" type="checkbox" checked="">
+        </span>
+        <input type="text" class="form-control" autocomplete="off">
+    </div>
+    <div class="input-group">
+        <input type="text" class="form-control" autocomplete="off">
+        <span class="input-group-text">
+            <input class="form-check-input m-0" type="radio" checked="">
+        </span>
+    </div>
+</div>
+        </div>
+
+        <h3 class="mt-4">소스</h3>
+        <pre class="ui-example-source"><code class="language-html">&lt;div class="mb-3"&gt;
+    &lt;label class="form-label"&gt;입력 그룹&lt;/label&gt;
+    &lt;div class="input-group mb-2"&gt;
+        &lt;span class="input-group-text"&gt;
+            @
+        &lt;/span&gt;
+        &lt;input type="text" class="form-control" placeholder="사용자명" autocomplete="off"&gt;
+    &lt;/div&gt;
+    &lt;div class="input-group mb-2"&gt;
+        &lt;input type="text" class="form-control" placeholder="서브도메인" autocomplete="off"&gt;
+        &lt;span class="input-group-text"&gt;
+            .tabler.io
+        &lt;/span&gt;
+    &lt;/div&gt;
+    &lt;div class="input-group"&gt;
+        &lt;span class="input-group-text"&gt;
+            https://
+        &lt;/span&gt;
+        &lt;input type="text" class="form-control" placeholder="서브도메인" autocomplete="off"&gt;
+        &lt;span class="input-group-text"&gt;
+            .tabler.io
+        &lt;/span&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="mb-3"&gt;
+    &lt;label class="form-label"&gt;체크박스 또는 라디오 버튼 입력&lt;/label&gt;
+    &lt;div class="input-group mb-2"&gt;
+        &lt;span class="input-group-text"&gt;
+            &lt;input class="form-check-input m-0" type="checkbox" checked=""&gt;
+        &lt;/span&gt;
+        &lt;input type="text" class="form-control" autocomplete="off"&gt;
+    &lt;/div&gt;
+    &lt;div class="input-group"&gt;
+        &lt;input type="text" class="form-control" autocomplete="off"&gt;
+        &lt;span class="input-group-text"&gt;
+            &lt;input class="form-check-input m-0" type="radio" checked=""&gt;
+        &lt;/span&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+
+    <script src="/lib/tabler-core/dist/js/tabler.min.js"></script>
+    <script src="/lib/master-css/index.min.js"></script>
+    <script src="/lib/highlight.js/highlight.min.js"></script>
+    <script>if (window.hljs) { hljs.highlightAll(); }</script>
+</body>
+</html>

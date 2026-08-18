@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>탭 · UI 라이브러리 예제</title>
+    <link rel="stylesheet" href="/lib/tabler-core/dist/css/tabler.min.css" />
+    <link rel="stylesheet" href="/lib/tabler-icons-webfont/dist/tabler-icons.min.css" />
+    <link rel="stylesheet" href="/lib/highlight.js/styles/atom-one-dark.min.css" />
+    <style>
+        body { padding: 24px; }
+        .ui-example-preview { background: var(--tblr-body-bg, #f4f6fa); }
+        .ui-example-source pre { margin: 0; }
+    </style>
+</head>
+<body>
+    <div class="container-xl">
+        <div class="text-secondary">탭</div>
+        <h1 class="mb-3">탭</h1>
+
+        <h3 class="mt-4">미리보기</h3>
+        <div class="ui-example-preview border rounded p-3">
+<div class="card overflow-auto mt-3">
+    <div class="card-status-top bg-dark-overlay"></div>
+    <div class="card-header">
+        <h3 class="card-title">탭</h3>
+    </div>
+    <div class="card-body">
+        <ul class="nav nav-bordered">
+            <li class="nav-item">
+                <span class="nav-link active">
+                    <i class="f:20 mr:4 ti ti-news"></i>
+                    모두 보기
+                </span>
+            </li>
+            <li class="nav-item">
+                <span class="nav-link">
+                    <i class="f:20 mr:4 ti ti-news"></i>
+                    마케팅
+                </span>
+            </li>
+            <li class="nav-item">
+                <span class="nav-link">
+                    <i class="f:20 mr:4 ti ti-news"></i>
+                    개발
+                </span>
+            </li>
+        </ul>
+    </div>
+</div>
+        </div>
+
+        <h3 class="mt-4">소스</h3>
+        <pre class="ui-example-source"><code class="language-html">&lt;div class="card overflow-auto mt-3"&gt;
+    &lt;div class="card-status-top bg-dark-overlay"&gt;&lt;/div&gt;
+    &lt;div class="card-header"&gt;
+        &lt;h3 class="card-title"&gt;탭&lt;/h3&gt;
+    &lt;/div&gt;
+    &lt;div class="card-body"&gt;
+        &lt;ul class="nav nav-bordered"&gt;
+            &lt;li class="nav-item"&gt;
+                &lt;span class="nav-link active"&gt;
+                    &lt;i class="f:20 mr:4 ti ti-news"&gt;&lt;/i&gt;
+                    모두 보기
+                &lt;/span&gt;
+            &lt;/li&gt;
+            &lt;li class="nav-item"&gt;
+                &lt;span class="nav-link"&gt;
+                    &lt;i class="f:20 mr:4 ti ti-news"&gt;&lt;/i&gt;
+                    마케팅
+                &lt;/span&gt;
+            &lt;/li&gt;
+            &lt;li class="nav-item"&gt;
+                &lt;span class="nav-link"&gt;
+                    &lt;i class="f:20 mr:4 ti ti-news"&gt;&lt;/i&gt;
+                    개발
+                &lt;/span&gt;
+            &lt;/li&gt;
+        &lt;/ul&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+
+    <script src="/lib/tabler-core/dist/js/tabler.min.js"></script>
+    <script src="/lib/master-css/index.min.js"></script>
+    <script src="/lib/highlight.js/highlight.min.js"></script>
+    <script>if (window.hljs) { hljs.highlightAll(); }</script>
+</body>
+</html>

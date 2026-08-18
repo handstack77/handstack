@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>빠른 실행 · UI 라이브러리 예제</title>
+    <link rel="stylesheet" href="/lib/tabler-core/dist/css/tabler.min.css" />
+    <link rel="stylesheet" href="/lib/tabler-icons-webfont/dist/tabler-icons.min.css" />
+    <link rel="stylesheet" href="/lib/highlight.js/styles/atom-one-dark.min.css" />
+    <style>
+        body { padding: 24px; }
+        .ui-example-preview { background: var(--tblr-body-bg, #f4f6fa); }
+        .ui-example-source pre { margin: 0; }
+    </style>
+</head>
+<body>
+    <div class="container-xl">
+        <div class="text-secondary">페이지 헤더와 레이아웃</div>
+        <h1 class="mb-3">빠른 실행</h1>
+
+        <h3 class="mt-4">미리보기</h3>
+        <div class="ui-example-preview border rounded p-3">
+<div class="card">
+    <div class="card-header">
+        <h4 class="card-title">빠른 실행</h4>
+    </div>
+    <div class="list-group list-group-flush">
+        <button type="button" class="list-group-item list-group-item-action">
+            <i class="f:20 mr:4 text-blue ti ti-report-analytics"></i> 매출 보고서 생성
+        </button>
+        <button type="button" class="list-group-item list-group-item-action">
+            <i class="f:20 mr:4 text-green ti ti-calendar-event"></i> 피팅 일정 등록
+        </button>
+        <button type="button" class="list-group-item list-group-item-action">
+            <i class="f:20 mr:4 text-orange ti ti-bell"></i> 납기 알림 발송
+        </button>
+    </div>
+</div>
+        </div>
+
+        <h3 class="mt-4">소스</h3>
+        <pre class="ui-example-source"><code class="language-html">&lt;div class="card"&gt;
+    &lt;div class="card-header"&gt;
+        &lt;h4 class="card-title"&gt;빠른 실행&lt;/h4&gt;
+    &lt;/div&gt;
+    &lt;div class="list-group list-group-flush"&gt;
+        &lt;button type="button" class="list-group-item list-group-item-action"&gt;
+            &lt;i class="f:20 mr:4 text-blue ti ti-report-analytics"&gt;&lt;/i&gt; 매출 보고서 생성
+        &lt;/button&gt;
+        &lt;button type="button" class="list-group-item list-group-item-action"&gt;
+            &lt;i class="f:20 mr:4 text-green ti ti-calendar-event"&gt;&lt;/i&gt; 피팅 일정 등록
+        &lt;/button&gt;
+        &lt;button type="button" class="list-group-item list-group-item-action"&gt;
+            &lt;i class="f:20 mr:4 text-orange ti ti-bell"&gt;&lt;/i&gt; 납기 알림 발송
+        &lt;/button&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+
+    <script src="/lib/tabler-core/dist/js/tabler.min.js"></script>
+    <script src="/lib/master-css/index.min.js"></script>
+    <script src="/lib/highlight.js/highlight.min.js"></script>
+    <script>if (window.hljs) { hljs.highlightAll(); }</script>
+</body>
+</html>

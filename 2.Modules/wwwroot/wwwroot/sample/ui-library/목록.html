@@ -1,0 +1,848 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>목록 · UI 라이브러리 예제</title>
+    <link rel="stylesheet" href="/lib/tabler-core/dist/css/tabler.min.css" />
+    <link rel="stylesheet" href="/lib/tabler-icons-webfont/dist/tabler-icons.min.css" />
+    <link rel="stylesheet" href="/lib/highlight.js/styles/atom-one-dark.min.css" />
+    <style>
+        body { padding: 24px; }
+        .ui-example-preview { background: var(--tblr-body-bg, #f4f6fa); }
+        .ui-example-source pre { margin: 0; }
+    </style>
+</head>
+<body>
+    <div class="container-xl">
+        <div class="text-secondary">목록</div>
+        <h1 class="mb-3">목록</h1>
+
+        <h3 class="mt-4">미리보기</h3>
+        <div class="ui-example-preview border rounded p-3">
+<div class="card overflow-auto mt-3">
+    <div class="card-status-top bg-dark-overlay"></div>
+    <div class="card-header">
+        <h3 class="card-title">목록</h3>
+    </div>
+    <div class="card-body">
+        <div class="row row-cards">
+            <div class="col-md-4">
+                <div class="row g-3">
+                    <div class="col-6">
+                        <div class="row g-3 align-items-center">
+                            <a href="#" class="col-auto">
+                                <span class="avatar" style="background-image: url(data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'96'%20height%3D'96'%3E%3Crect%20width%3D'96'%20height%3D'96'%20fill%3D'%2523dfe3e8'%2F%3E%3Cpath%20d%3D'M20%2066l18-22%2014%2016%2010-12%2014%2018z'%20fill%3D'%2523b3bcc6'%2F%3E%3Ccircle%20cx%3D'34'%20cy%3D'31'%20r%3D'8'%20fill%3D'%2523b3bcc6'%2F%3E%3C%2Fsvg%3E)">
+                                    <span class="badge bg-red"></span>
+                                </span>
+                            </a>
+                            <div class="col text-truncate">
+                                <a href="#" class="text-reset d-block text-truncate">Paweł Kuna</a>
+                                <div class="text-secondary text-truncate mt-n1">2일 전</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="row g-3 align-items-center">
+                            <a href="#" class="col-auto">
+                                <span class="avatar">
+                                    <span class="badge bg-x"></span>JL
+                                </span>
+                            </a>
+                            <div class="col text-truncate">
+                                <a href="#" class="text-reset d-block text-truncate">Jeffie Lewzey</a>
+                                <div class="text-secondary text-truncate mt-n1">3일 전</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="row g-3 align-items-center">
+                            <a href="#" class="col-auto">
+                                <span class="avatar" style="background-image: url(data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'96'%20height%3D'96'%3E%3Crect%20width%3D'96'%20height%3D'96'%20fill%3D'%2523dfe3e8'%2F%3E%3Cpath%20d%3D'M20%2066l18-22%2014%2016%2010-12%2014%2018z'%20fill%3D'%2523b3bcc6'%2F%3E%3Ccircle%20cx%3D'34'%20cy%3D'31'%20r%3D'8'%20fill%3D'%2523b3bcc6'%2F%3E%3C%2Fsvg%3E)"></span>
+                            </a>
+                            <div class="col text-truncate">
+                                <a href="#" class="text-reset d-block text-truncate">Mallory Hulme</a>
+                                <div class="text-secondary text-truncate mt-n1">오늘</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="row g-3 align-items-center">
+                            <a href="#" class="col-auto">
+                                <span class="avatar" style="background-image: url(data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'96'%20height%3D'96'%3E%3Crect%20width%3D'96'%20height%3D'96'%20fill%3D'%2523dfe3e8'%2F%3E%3Cpath%20d%3D'M20%2066l18-22%2014%2016%2010-12%2014%2018z'%20fill%3D'%2523b3bcc6'%2F%3E%3Ccircle%20cx%3D'34'%20cy%3D'31'%20r%3D'8'%20fill%3D'%2523b3bcc6'%2F%3E%3C%2Fsvg%3E)">
+                                    <span class="badge bg-green"></span>
+                                </span>
+                            </a>
+                            <div class="col text-truncate">
+                                <a href="#" class="text-reset d-block text-truncate">Dunn Slane</a>
+                                <div class="text-secondary text-truncate mt-n1">6일 전</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="row g-3 align-items-center">
+                            <a href="#" class="col-auto">
+                                <span class="avatar" style="background-image: url(data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'96'%20height%3D'96'%3E%3Crect%20width%3D'96'%20height%3D'96'%20fill%3D'%2523dfe3e8'%2F%3E%3Cpath%20d%3D'M20%2066l18-22%2014%2016%2010-12%2014%2018z'%20fill%3D'%2523b3bcc6'%2F%3E%3Ccircle%20cx%3D'34'%20cy%3D'31'%20r%3D'8'%20fill%3D'%2523b3bcc6'%2F%3E%3C%2Fsvg%3E)">
+                                    <span class="badge bg-red"></span>
+                                </span>
+                            </a>
+                            <div class="col text-truncate">
+                                <a href="#" class="text-reset d-block text-truncate">Emmy Levet</a>
+                                <div class="text-secondary text-truncate mt-n1">3일 전</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="row g-3 align-items-center">
+                            <a href="#" class="col-auto">
+                                <span class="avatar" style="background-image: url(data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'96'%20height%3D'96'%3E%3Crect%20width%3D'96'%20height%3D'96'%20fill%3D'%2523dfe3e8'%2F%3E%3Cpath%20d%3D'M20%2066l18-22%2014%2016%2010-12%2014%2018z'%20fill%3D'%2523b3bcc6'%2F%3E%3Ccircle%20cx%3D'34'%20cy%3D'31'%20r%3D'8'%20fill%3D'%2523b3bcc6'%2F%3E%3C%2Fsvg%3E)">
+                                    <span class="badge bg-yellow"></span>
+                                </span>
+                            </a>
+                            <div class="col text-truncate">
+                                <a href="#" class="text-reset d-block text-truncate">Maryjo Lebarree</a>
+                                <div class="text-secondary text-truncate mt-n1">2일 전</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="row g-3 align-items-center">
+                            <a href="#" class="col-auto">
+                                <span class="avatar">
+                                    <span class="badge bg-x"></span>EP
+                                </span>
+                            </a>
+                            <div class="col text-truncate">
+                                <a href="#" class="text-reset d-block text-truncate">Egan Poetz</a>
+                                <div class="text-secondary text-truncate mt-n1">4일 전</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="row g-3 align-items-center">
+                            <a href="#" class="col-auto">
+                                <span class="avatar" style="background-image: url(data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'96'%20height%3D'96'%3E%3Crect%20width%3D'96'%20height%3D'96'%20fill%3D'%2523dfe3e8'%2F%3E%3Cpath%20d%3D'M20%2066l18-22%2014%2016%2010-12%2014%2018z'%20fill%3D'%2523b3bcc6'%2F%3E%3Ccircle%20cx%3D'34'%20cy%3D'31'%20r%3D'8'%20fill%3D'%2523b3bcc6'%2F%3E%3C%2Fsvg%3E)">
+                                    <span class="badge bg-yellow"></span>
+                                </span>
+                            </a>
+                            <div class="col text-truncate">
+                                <a href="#" class="text-reset d-block text-truncate">Kellie Skingley</a>
+                                <div class="text-secondary text-truncate mt-n1">6일 전</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="row g-3 align-items-center">
+                            <a href="#" class="col-auto">
+                                <span class="avatar" style="background-image: url(data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'96'%20height%3D'96'%3E%3Crect%20width%3D'96'%20height%3D'96'%20fill%3D'%2523dfe3e8'%2F%3E%3Cpath%20d%3D'M20%2066l18-22%2014%2016%2010-12%2014%2018z'%20fill%3D'%2523b3bcc6'%2F%3E%3Ccircle%20cx%3D'34'%20cy%3D'31'%20r%3D'8'%20fill%3D'%2523b3bcc6'%2F%3E%3C%2Fsvg%3E)">
+                                    <span class="badge bg-x"></span>
+                                </span>
+                            </a>
+                            <div class="col text-truncate">
+                                <a href="#" class="text-reset d-block text-truncate">Christabel Charlwood</a>
+                                <div class="text-secondary text-truncate mt-n1">오늘</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="row g-3 align-items-center">
+                            <a href="#" class="col-auto">
+                                <span class="avatar">
+                                    <span class="badge bg-x"></span>HS
+                                </span>
+                            </a>
+                            <div class="col text-truncate">
+                                <a href="#" class="text-reset d-block text-truncate">Haskel Shelper</a>
+                                <div class="text-secondary text-truncate mt-n1">어제</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="list-group list-group-flush">
+                    <div class="list-group-item">
+                        <div class="row align-items-center">
+                            <div class="col-auto"><input type="checkbox" class="form-check-input"></div>
+                            <div class="col-auto">
+                                <a href="#">
+                                    <span class="avatar" style="background-image: url(data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'96'%20height%3D'96'%3E%3Crect%20width%3D'96'%20height%3D'96'%20fill%3D'%2523dfe3e8'%2F%3E%3Cpath%20d%3D'M20%2066l18-22%2014%2016%2010-12%2014%2018z'%20fill%3D'%2523b3bcc6'%2F%3E%3Ccircle%20cx%3D'34'%20cy%3D'31'%20r%3D'8'%20fill%3D'%2523b3bcc6'%2F%3E%3C%2Fsvg%3E)"></span>
+                                </a>
+                            </div>
+                            <div class="col text-truncate">
+                                <a href="#" class="text-reset d-block">Christabel Charlwood</a>
+                                <div class="d-block text-secondary text-truncate mt-n1">압축된 Sass 출력 지원 (#29702)</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="list-group-item active">
+                        <div class="row align-items-center">
+                            <div class="col-auto"><input type="checkbox" class="form-check-input" checked=""></div>
+                            <div class="col-auto">
+                                <a href="#">
+                                    <span class="avatar">HS</span>
+                                </a>
+                            </div>
+                            <div class="col text-truncate">
+                                <a href="#" class="text-reset d-block">Haskel Shelper</a>
+                                <div class="d-block text-secondary text-truncate mt-n1">.form-check-input에 수직 정렬 설정 (#29521)</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="list-group-item">
+                        <div class="row align-items-center">
+                            <div class="col-auto"><input type="checkbox" class="form-check-input"></div>
+                            <div class="col-auto">
+                                <a href="#">
+                                    <span class="avatar" style="background-image: url(data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'96'%20height%3D'96'%3E%3Crect%20width%3D'96'%20height%3D'96'%20fill%3D'%2523dfe3e8'%2F%3E%3Cpath%20d%3D'M20%2066l18-22%2014%2016%2010-12%2014%2018z'%20fill%3D'%2523b3bcc6'%2F%3E%3Ccircle%20cx%3D'34'%20cy%3D'31'%20r%3D'8'%20fill%3D'%2523b3bcc6'%2F%3E%3C%2Fsvg%3E)"></span>
+                                </a>
+                            </div>
+                            <div class="col text-truncate">
+                                <a href="#" class="text-reset d-block">Lorry Mion</a>
+                                <div class="d-block text-secondary text-truncate mt-n1">인쇄용 테마 모양 유지 (#29714)</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="list-group-item">
+                        <div class="row align-items-center">
+                            <div class="col-auto"><input type="checkbox" class="form-check-input"></div>
+                            <div class="col-auto">
+                                <a href="#">
+                                    <span class="avatar" style="background-image: url(data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'96'%20height%3D'96'%3E%3Crect%20width%3D'96'%20height%3D'96'%20fill%3D'%2523dfe3e8'%2F%3E%3Cpath%20d%3D'M20%2066l18-22%2014%2016%2010-12%2014%2018z'%20fill%3D'%2523b3bcc6'%2F%3E%3Ccircle%20cx%3D'34'%20cy%3D'31'%20r%3D'8'%20fill%3D'%2523b3bcc6'%2F%3E%3C%2Fsvg%3E)"></span>
+                                </a>
+                            </div>
+                            <div class="col text-truncate">
+                                <a href="#" class="text-reset d-block">Leesa Beaty</a>
+                                <div class="d-block text-secondary text-truncate mt-n1">`.stylelintrc`에서 큰따옴표 사용 (#29709)</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="list-group-item active">
+                        <div class="row align-items-center">
+                            <div class="col-auto"><input type="checkbox" class="form-check-input" checked=""></div>
+                            <div class="col-auto">
+                                <a href="#">
+                                    <span class="avatar" style="background-image: url(data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'96'%20height%3D'96'%3E%3Crect%20width%3D'96'%20height%3D'96'%20fill%3D'%2523dfe3e8'%2F%3E%3Cpath%20d%3D'M20%2066l18-22%2014%2016%2010-12%2014%2018z'%20fill%3D'%2523b3bcc6'%2F%3E%3Ccircle%20cx%3D'34'%20cy%3D'31'%20r%3D'8'%20fill%3D'%2523b3bcc6'%2F%3E%3C%2Fsvg%3E)"></span>
+                                </a>
+                            </div>
+                            <div class="col text-truncate">
+                                <a href="#" class="text-reset d-block">Perren Keemar</a>
+                                <div class="d-block text-secondary text-truncate mt-n1">package-lock.json 재생성 (#29695)</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="list-group-item">
+                        <div class="row align-items-center">
+                            <div class="col-auto"><input type="checkbox" class="form-check-input"></div>
+                            <div class="col-auto">
+                                <a href="#">
+                                    <span class="avatar">SA</span>
+                                </a>
+                            </div>
+                            <div class="col text-truncate">
+                                <a href="#" class="text-reset d-block">Sunny Airey</a>
+                                <div class="d-block text-secondary text-truncate mt-n1">Coveralls Action으로 전환 (#29478)</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="list-group-item">
+                        <div class="row align-items-center">
+                            <div class="col-auto"><input type="checkbox" class="form-check-input"></div>
+                            <div class="col-auto">
+                                <a href="#">
+                                    <span class="avatar" style="background-image: url(data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'96'%20height%3D'96'%3E%3Crect%20width%3D'96'%20height%3D'96'%20fill%3D'%2523dfe3e8'%2F%3E%3Cpath%20d%3D'M20%2066l18-22%2014%2016%2010-12%2014%2018z'%20fill%3D'%2523b3bcc6'%2F%3E%3Ccircle%20cx%3D'34'%20cy%3D'31'%20r%3D'8'%20fill%3D'%2523b3bcc6'%2F%3E%3C%2Fsvg%3E)"></span>
+                                </a>
+                            </div>
+                            <div class="col text-truncate">
+                                <a href="#" class="text-reset d-block">Geoffry Flaunders</a>
+                                <div class="d-block text-secondary text-truncate mt-n1">npm audit 취약점 수정 (#29677)</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="list-group-item active">
+                        <div class="row align-items-center">
+                            <div class="col-auto"><input type="checkbox" class="form-check-input" checked=""></div>
+                            <div class="col-auto">
+                                <a href="#">
+                                    <span class="avatar" style="background-image: url(data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'96'%20height%3D'96'%3E%3Crect%20width%3D'96'%20height%3D'96'%20fill%3D'%2523dfe3e8'%2F%3E%3Cpath%20d%3D'M20%2066l18-22%2014%2016%2010-12%2014%2018z'%20fill%3D'%2523b3bcc6'%2F%3E%3Ccircle%20cx%3D'34'%20cy%3D'31'%20r%3D'8'%20fill%3D'%2523b3bcc6'%2F%3E%3C%2Fsvg%3E)"></span>
+                                </a>
+                            </div>
+                            <div class="col text-truncate">
+                                <a href="#" class="text-reset d-block">Thatcher Keel</a>
+                                <div class="d-block text-secondary text-truncate mt-n1">config.yml: popper.js를 v1.16.0으로 업데이트 (#29624)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="list-group list-group-flush overflow-auto" style="max-height: 35rem">
+                    <div class="list-group-header sticky-top">A</div>
+                    <div class="list-group-item">
+                        <div class="row">
+                            <div class="col-auto">
+                                <a href="#">
+                                    <span class="avatar" style="background-image: url(data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'96'%20height%3D'96'%3E%3Crect%20width%3D'96'%20height%3D'96'%20fill%3D'%2523dfe3e8'%2F%3E%3Cpath%20d%3D'M20%2066l18-22%2014%2016%2010-12%2014%2018z'%20fill%3D'%2523b3bcc6'%2F%3E%3Ccircle%20cx%3D'34'%20cy%3D'31'%20r%3D'8'%20fill%3D'%2523b3bcc6'%2F%3E%3C%2Fsvg%3E)"></span>
+                                </a>
+                            </div>
+                            <div class="col text-truncate">
+                                <a href="#" class="text-body d-block">Eva Acres</a>
+                                <div class="text-secondary text-truncate mt-n1">사용되지 않는 html 태그를 텍스트 장식 클래스로 변경 (#29604)</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="list-group-item">
+                        <div class="row">
+                            <div class="col-auto">
+                                <a href="#">
+                                    <span class="avatar">SA</span>
+                                </a>
+                            </div>
+                            <div class="col text-truncate">
+                                <a href="#" class="text-body d-block">Sunny Airey</a>
+                                <div class="text-secondary text-truncate mt-n1">justify-content:between ⇒ justify-content:space-between (#29734)</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="list-group-item">
+                        <div class="row">
+                            <div class="col-auto">
+                                <a href="#">
+                                    <span class="avatar" style="background-image: url(data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'96'%20height%3D'96'%3E%3Crect%20width%3D'96'%20height%3D'96'%20fill%3D'%2523dfe3e8'%2F%3E%3Cpath%20d%3D'M20%2066l18-22%2014%2016%2010-12%2014%2018z'%20fill%3D'%2523b3bcc6'%2F%3E%3Ccircle%20cx%3D'34'%20cy%3D'31'%20r%3D'8'%20fill%3D'%2523b3bcc6'%2F%3E%3C%2Fsvg%3E)"></span>
+                                </a>
+                            </div>
+                            <div class="col text-truncate">
+                                <a href="#" class="text-body d-block">Northrop Alforde</a>
+                                <div class="text-secondary text-truncate mt-n1">change-version.js 업데이트 (#29736)</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="list-group-item">
+                        <div class="row">
+                            <div class="col-auto">
+                                <a href="#">
+                                    <span class="avatar" style="background-image: url(data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'96'%20height%3D'96'%3E%3Crect%20width%3D'96'%20height%3D'96'%20fill%3D'%2523dfe3e8'%2F%3E%3Cpath%20d%3D'M20%2066l18-22%2014%2016%2010-12%2014%2018z'%20fill%3D'%2523b3bcc6'%2F%3E%3Ccircle%20cx%3D'34'%20cy%3D'31'%20r%3D'8'%20fill%3D'%2523b3bcc6'%2F%3E%3C%2Fsvg%3E)"></span>
+                                </a>
+                            </div>
+                            <div class="col text-truncate">
+                                <a href="#" class="text-body d-block">Virgil Archbutt</a>
+                                <div class="text-secondary text-truncate mt-n1">package-lock.json 재생성 (#29730)</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="list-group-item">
+                        <div class="row">
+                            <div class="col-auto">
+                                <a href="#">
+                                    <span class="avatar" style="background-image: url(data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'96'%20height%3D'96'%3E%3Crect%20width%3D'96'%20height%3D'96'%20fill%3D'%2523dfe3e8'%2F%3E%3Cpath%20d%3D'M20%2066l18-22%2014%2016%2010-12%2014%2018z'%20fill%3D'%2523b3bcc6'%2F%3E%3Ccircle%20cx%3D'34'%20cy%3D'31'%20r%3D'8'%20fill%3D'%2523b3bcc6'%2F%3E%3C%2Fsvg%3E)"></span>
+                                </a>
+                            </div>
+                            <div class="col text-truncate">
+                                <a href="#" class="text-body d-block">Guthry Arlott</a>
+                                <div class="text-secondary text-truncate mt-n1">사소한 텍스트 수정</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="list-group-item">
+                        <div class="row">
+                            <div class="col-auto">
+                                <a href="#">
+                                    <span class="avatar">AA</span>
+                                </a>
+                            </div>
+                            <div class="col text-truncate">
+                                <a href="#" class="text-body d-block">Arlie Armstead</a>
+                                <div class="text-secondary text-truncate mt-n1">버전별 문서 링크</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="list-group-item">
+                        <div class="row">
+                            <div class="col-auto">
+                                <a href="#">
+                                    <span class="avatar" style="background-image: url(data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'96'%20height%3D'96'%3E%3Crect%20width%3D'96'%20height%3D'96'%20fill%3D'%2523dfe3e8'%2F%3E%3Cpath%20d%3D'M20%2066l18-22%2014%2016%2010-12%2014%2018z'%20fill%3D'%2523b3bcc6'%2F%3E%3Ccircle%20cx%3D'34'%20cy%3D'31'%20r%3D'8'%20fill%3D'%2523b3bcc6'%2F%3E%3C%2Fsvg%3E)"></span>
+                                </a>
+                            </div>
+                            <div class="col text-truncate">
+                                <a href="#" class="text-body d-block">Ashton Arndell</a>
+                                <div class="text-secondary text-truncate mt-n1">카피라이팅 편집</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="list-group-item">
+                        <div class="row">
+                            <div class="col-auto">
+                                <a href="#">
+                                    <span class="avatar" style="background-image: url(data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'96'%20height%3D'96'%3E%3Crect%20width%3D'96'%20height%3D'96'%20fill%3D'%2523dfe3e8'%2F%3E%3Cpath%20d%3D'M20%2066l18-22%2014%2016%2010-12%2014%2018z'%20fill%3D'%2523b3bcc6'%2F%3E%3Ccircle%20cx%3D'34'%20cy%3D'31'%20r%3D'8'%20fill%3D'%2523b3bcc6'%2F%3E%3C%2Fsvg%3E)"></span>
+                                </a>
+                            </div>
+                            <div class="col text-truncate">
+                                <a href="#" class="text-body d-block">Kass Aspinal</a>
+                                <div class="text-secondary text-truncate mt-n1">글꼴 크기 조정을 위한 RFS 활성화</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="list-group-header sticky-top">W</div>
+                    <div class="list-group-item">
+                        <div class="row">
+                            <div class="col-auto">
+                                <a href="#">
+                                    <span class="avatar" style="background-image: url(data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'96'%20height%3D'96'%3E%3Crect%20width%3D'96'%20height%3D'96'%20fill%3D'%2523dfe3e8'%2F%3E%3Cpath%20d%3D'M20%2066l18-22%2014%2016%2010-12%2014%2018z'%20fill%3D'%2523b3bcc6'%2F%3E%3Ccircle%20cx%3D'34'%20cy%3D'31'%20r%3D'8'%20fill%3D'%2523b3bcc6'%2F%3E%3C%2Fsvg%3E)"></span>
+                                </a>
+                            </div>
+                            <div class="col text-truncate">
+                                <a href="#" class="text-body d-block">Gerti Washington</a>
+                                <div class="text-secondary text-truncate mt-n1"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="list-group-item">
+                        <div class="row">
+                            <div class="col-auto">
+                                <a href="#">
+                                    <span class="avatar" style="background-image: url(data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'96'%20height%3D'96'%3E%3Crect%20width%3D'96'%20height%3D'96'%20fill%3D'%2523dfe3e8'%2F%3E%3Cpath%20d%3D'M20%2066l18-22%2014%2016%2010-12%2014%2018z'%20fill%3D'%2523b3bcc6'%2F%3E%3Ccircle%20cx%3D'34'%20cy%3D'31'%20r%3D'8'%20fill%3D'%2523b3bcc6'%2F%3E%3C%2Fsvg%3E)"></span>
+                                </a>
+                            </div>
+                            <div class="col text-truncate">
+                                <a href="#" class="text-body d-block">Bord Wheatcroft</a>
+                                <div class="text-secondary text-truncate mt-n1"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="list-group-item">
+                        <div class="row">
+                            <div class="col-auto">
+                                <a href="#">
+                                    <span class="avatar" style="background-image: url(data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'96'%20height%3D'96'%3E%3Crect%20width%3D'96'%20height%3D'96'%20fill%3D'%2523dfe3e8'%2F%3E%3Cpath%20d%3D'M20%2066l18-22%2014%2016%2010-12%2014%2018z'%20fill%3D'%2523b3bcc6'%2F%3E%3Ccircle%20cx%3D'34'%20cy%3D'31'%20r%3D'8'%20fill%3D'%2523b3bcc6'%2F%3E%3C%2Fsvg%3E)"></span>
+                                </a>
+                            </div>
+                            <div class="col text-truncate">
+                                <a href="#" class="text-body d-block">Nanni Wooler</a>
+                                <div class="text-secondary text-truncate mt-n1"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+        </div>
+        <div class="alert alert-info mt-3" role="alert">원본 이미지 경로(img/...)는 참고용 표시이며, 이 미리보기에서는 자리 표시 이미지로 대체되었습니다.</div>
+
+        <h3 class="mt-4">소스</h3>
+        <pre class="ui-example-source"><code class="language-html">&lt;div class="card overflow-auto mt-3"&gt;
+    &lt;div class="card-status-top bg-dark-overlay"&gt;&lt;/div&gt;
+    &lt;div class="card-header"&gt;
+        &lt;h3 class="card-title"&gt;목록&lt;/h3&gt;
+    &lt;/div&gt;
+    &lt;div class="card-body"&gt;
+        &lt;div class="row row-cards"&gt;
+            &lt;div class="col-md-4"&gt;
+                &lt;div class="row g-3"&gt;
+                    &lt;div class="col-6"&gt;
+                        &lt;div class="row g-3 align-items-center"&gt;
+                            &lt;a href="#" class="col-auto"&gt;
+                                &lt;span class="avatar" style="background-image: url(../../img/avatars/000m.jpg)"&gt;
+                                    &lt;span class="badge bg-red"&gt;&lt;/span&gt;
+                                &lt;/span&gt;
+                            &lt;/a&gt;
+                            &lt;div class="col text-truncate"&gt;
+                                &lt;a href="#" class="text-reset d-block text-truncate"&gt;Paweł Kuna&lt;/a&gt;
+                                &lt;div class="text-secondary text-truncate mt-n1"&gt;2일 전&lt;/div&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                    &lt;div class="col-6"&gt;
+                        &lt;div class="row g-3 align-items-center"&gt;
+                            &lt;a href="#" class="col-auto"&gt;
+                                &lt;span class="avatar"&gt;
+                                    &lt;span class="badge bg-x"&gt;&lt;/span&gt;JL
+                                &lt;/span&gt;
+                            &lt;/a&gt;
+                            &lt;div class="col text-truncate"&gt;
+                                &lt;a href="#" class="text-reset d-block text-truncate"&gt;Jeffie Lewzey&lt;/a&gt;
+                                &lt;div class="text-secondary text-truncate mt-n1"&gt;3일 전&lt;/div&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                    &lt;div class="col-6"&gt;
+                        &lt;div class="row g-3 align-items-center"&gt;
+                            &lt;a href="#" class="col-auto"&gt;
+                                &lt;span class="avatar" style="background-image: url(../../img/avatars/002m.jpg)"&gt;&lt;/span&gt;
+                            &lt;/a&gt;
+                            &lt;div class="col text-truncate"&gt;
+                                &lt;a href="#" class="text-reset d-block text-truncate"&gt;Mallory Hulme&lt;/a&gt;
+                                &lt;div class="text-secondary text-truncate mt-n1"&gt;오늘&lt;/div&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                    &lt;div class="col-6"&gt;
+                        &lt;div class="row g-3 align-items-center"&gt;
+                            &lt;a href="#" class="col-auto"&gt;
+                                &lt;span class="avatar" style="background-image: url(../../img/avatars/003m.jpg)"&gt;
+                                    &lt;span class="badge bg-green"&gt;&lt;/span&gt;
+                                &lt;/span&gt;
+                            &lt;/a&gt;
+                            &lt;div class="col text-truncate"&gt;
+                                &lt;a href="#" class="text-reset d-block text-truncate"&gt;Dunn Slane&lt;/a&gt;
+                                &lt;div class="text-secondary text-truncate mt-n1"&gt;6일 전&lt;/div&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                    &lt;div class="col-6"&gt;
+                        &lt;div class="row g-3 align-items-center"&gt;
+                            &lt;a href="#" class="col-auto"&gt;
+                                &lt;span class="avatar" style="background-image: url(../../img/avatars/000f.jpg)"&gt;
+                                    &lt;span class="badge bg-red"&gt;&lt;/span&gt;
+                                &lt;/span&gt;
+                            &lt;/a&gt;
+                            &lt;div class="col text-truncate"&gt;
+                                &lt;a href="#" class="text-reset d-block text-truncate"&gt;Emmy Levet&lt;/a&gt;
+                                &lt;div class="text-secondary text-truncate mt-n1"&gt;3일 전&lt;/div&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                    &lt;div class="col-6"&gt;
+                        &lt;div class="row g-3 align-items-center"&gt;
+                            &lt;a href="#" class="col-auto"&gt;
+                                &lt;span class="avatar" style="background-image: url(../../img/avatars/001f.jpg)"&gt;
+                                    &lt;span class="badge bg-yellow"&gt;&lt;/span&gt;
+                                &lt;/span&gt;
+                            &lt;/a&gt;
+                            &lt;div class="col text-truncate"&gt;
+                                &lt;a href="#" class="text-reset d-block text-truncate"&gt;Maryjo Lebarree&lt;/a&gt;
+                                &lt;div class="text-secondary text-truncate mt-n1"&gt;2일 전&lt;/div&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                    &lt;div class="col-6"&gt;
+                        &lt;div class="row g-3 align-items-center"&gt;
+                            &lt;a href="#" class="col-auto"&gt;
+                                &lt;span class="avatar"&gt;
+                                    &lt;span class="badge bg-x"&gt;&lt;/span&gt;EP
+                                &lt;/span&gt;
+                            &lt;/a&gt;
+                            &lt;div class="col text-truncate"&gt;
+                                &lt;a href="#" class="text-reset d-block text-truncate"&gt;Egan Poetz&lt;/a&gt;
+                                &lt;div class="text-secondary text-truncate mt-n1"&gt;4일 전&lt;/div&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                    &lt;div class="col-6"&gt;
+                        &lt;div class="row g-3 align-items-center"&gt;
+                            &lt;a href="#" class="col-auto"&gt;
+                                &lt;span class="avatar" style="background-image: url(../../img/avatars/002f.jpg)"&gt;
+                                    &lt;span class="badge bg-yellow"&gt;&lt;/span&gt;
+                                &lt;/span&gt;
+                            &lt;/a&gt;
+                            &lt;div class="col text-truncate"&gt;
+                                &lt;a href="#" class="text-reset d-block text-truncate"&gt;Kellie Skingley&lt;/a&gt;
+                                &lt;div class="text-secondary text-truncate mt-n1"&gt;6일 전&lt;/div&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                    &lt;div class="col-6"&gt;
+                        &lt;div class="row g-3 align-items-center"&gt;
+                            &lt;a href="#" class="col-auto"&gt;
+                                &lt;span class="avatar" style="background-image: url(../../img/avatars/003f.jpg)"&gt;
+                                    &lt;span class="badge bg-x"&gt;&lt;/span&gt;
+                                &lt;/span&gt;
+                            &lt;/a&gt;
+                            &lt;div class="col text-truncate"&gt;
+                                &lt;a href="#" class="text-reset d-block text-truncate"&gt;Christabel Charlwood&lt;/a&gt;
+                                &lt;div class="text-secondary text-truncate mt-n1"&gt;오늘&lt;/div&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                    &lt;div class="col-6"&gt;
+                        &lt;div class="row g-3 align-items-center"&gt;
+                            &lt;a href="#" class="col-auto"&gt;
+                                &lt;span class="avatar"&gt;
+                                    &lt;span class="badge bg-x"&gt;&lt;/span&gt;HS
+                                &lt;/span&gt;
+                            &lt;/a&gt;
+                            &lt;div class="col text-truncate"&gt;
+                                &lt;a href="#" class="text-reset d-block text-truncate"&gt;Haskel Shelper&lt;/a&gt;
+                                &lt;div class="text-secondary text-truncate mt-n1"&gt;어제&lt;/div&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+            &lt;div class="col-md-4"&gt;
+                &lt;div class="list-group list-group-flush"&gt;
+                    &lt;div class="list-group-item"&gt;
+                        &lt;div class="row align-items-center"&gt;
+                            &lt;div class="col-auto"&gt;&lt;input type="checkbox" class="form-check-input"&gt;&lt;/div&gt;
+                            &lt;div class="col-auto"&gt;
+                                &lt;a href="#"&gt;
+                                    &lt;span class="avatar" style="background-image: url(../../img/avatars/003f.jpg)"&gt;&lt;/span&gt;
+                                &lt;/a&gt;
+                            &lt;/div&gt;
+                            &lt;div class="col text-truncate"&gt;
+                                &lt;a href="#" class="text-reset d-block"&gt;Christabel Charlwood&lt;/a&gt;
+                                &lt;div class="d-block text-secondary text-truncate mt-n1"&gt;압축된 Sass 출력 지원 (#29702)&lt;/div&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                    &lt;div class="list-group-item active"&gt;
+                        &lt;div class="row align-items-center"&gt;
+                            &lt;div class="col-auto"&gt;&lt;input type="checkbox" class="form-check-input" checked=""&gt;&lt;/div&gt;
+                            &lt;div class="col-auto"&gt;
+                                &lt;a href="#"&gt;
+                                    &lt;span class="avatar"&gt;HS&lt;/span&gt;
+                                &lt;/a&gt;
+                            &lt;/div&gt;
+                            &lt;div class="col text-truncate"&gt;
+                                &lt;a href="#" class="text-reset d-block"&gt;Haskel Shelper&lt;/a&gt;
+                                &lt;div class="d-block text-secondary text-truncate mt-n1"&gt;.form-check-input에 수직 정렬 설정 (#29521)&lt;/div&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                    &lt;div class="list-group-item"&gt;
+                        &lt;div class="row align-items-center"&gt;
+                            &lt;div class="col-auto"&gt;&lt;input type="checkbox" class="form-check-input"&gt;&lt;/div&gt;
+                            &lt;div class="col-auto"&gt;
+                                &lt;a href="#"&gt;
+                                    &lt;span class="avatar" style="background-image: url(../../img/avatars/006m.jpg)"&gt;&lt;/span&gt;
+                                &lt;/a&gt;
+                            &lt;/div&gt;
+                            &lt;div class="col text-truncate"&gt;
+                                &lt;a href="#" class="text-reset d-block"&gt;Lorry Mion&lt;/a&gt;
+                                &lt;div class="d-block text-secondary text-truncate mt-n1"&gt;인쇄용 테마 모양 유지 (#29714)&lt;/div&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                    &lt;div class="list-group-item"&gt;
+                        &lt;div class="row align-items-center"&gt;
+                            &lt;div class="col-auto"&gt;&lt;input type="checkbox" class="form-check-input"&gt;&lt;/div&gt;
+                            &lt;div class="col-auto"&gt;
+                                &lt;a href="#"&gt;
+                                    &lt;span class="avatar" style="background-image: url(../../img/avatars/004f.jpg)"&gt;&lt;/span&gt;
+                                &lt;/a&gt;
+                            &lt;/div&gt;
+                            &lt;div class="col text-truncate"&gt;
+                                &lt;a href="#" class="text-reset d-block"&gt;Leesa Beaty&lt;/a&gt;
+                                &lt;div class="d-block text-secondary text-truncate mt-n1"&gt;`.stylelintrc`에서 큰따옴표 사용 (#29709)&lt;/div&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                    &lt;div class="list-group-item active"&gt;
+                        &lt;div class="row align-items-center"&gt;
+                            &lt;div class="col-auto"&gt;&lt;input type="checkbox" class="form-check-input" checked=""&gt;&lt;/div&gt;
+                            &lt;div class="col-auto"&gt;
+                                &lt;a href="#"&gt;
+                                    &lt;span class="avatar" style="background-image: url(../../img/avatars/007m.jpg)"&gt;&lt;/span&gt;
+                                &lt;/a&gt;
+                            &lt;/div&gt;
+                            &lt;div class="col text-truncate"&gt;
+                                &lt;a href="#" class="text-reset d-block"&gt;Perren Keemar&lt;/a&gt;
+                                &lt;div class="d-block text-secondary text-truncate mt-n1"&gt;package-lock.json 재생성 (#29695)&lt;/div&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                    &lt;div class="list-group-item"&gt;
+                        &lt;div class="row align-items-center"&gt;
+                            &lt;div class="col-auto"&gt;&lt;input type="checkbox" class="form-check-input"&gt;&lt;/div&gt;
+                            &lt;div class="col-auto"&gt;
+                                &lt;a href="#"&gt;
+                                    &lt;span class="avatar"&gt;SA&lt;/span&gt;
+                                &lt;/a&gt;
+                            &lt;/div&gt;
+                            &lt;div class="col text-truncate"&gt;
+                                &lt;a href="#" class="text-reset d-block"&gt;Sunny Airey&lt;/a&gt;
+                                &lt;div class="d-block text-secondary text-truncate mt-n1"&gt;Coveralls Action으로 전환 (#29478)&lt;/div&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                    &lt;div class="list-group-item"&gt;
+                        &lt;div class="row align-items-center"&gt;
+                            &lt;div class="col-auto"&gt;&lt;input type="checkbox" class="form-check-input"&gt;&lt;/div&gt;
+                            &lt;div class="col-auto"&gt;
+                                &lt;a href="#"&gt;
+                                    &lt;span class="avatar" style="background-image: url(../../img/avatars/009m.jpg)"&gt;&lt;/span&gt;
+                                &lt;/a&gt;
+                            &lt;/div&gt;
+                            &lt;div class="col text-truncate"&gt;
+                                &lt;a href="#" class="text-reset d-block"&gt;Geoffry Flaunders&lt;/a&gt;
+                                &lt;div class="d-block text-secondary text-truncate mt-n1"&gt;npm audit 취약점 수정 (#29677)&lt;/div&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                    &lt;div class="list-group-item active"&gt;
+                        &lt;div class="row align-items-center"&gt;
+                            &lt;div class="col-auto"&gt;&lt;input type="checkbox" class="form-check-input" checked=""&gt;&lt;/div&gt;
+                            &lt;div class="col-auto"&gt;
+                                &lt;a href="#"&gt;
+                                    &lt;span class="avatar" style="background-image: url(../../img/avatars/010m.jpg)"&gt;&lt;/span&gt;
+                                &lt;/a&gt;
+                            &lt;/div&gt;
+                            &lt;div class="col text-truncate"&gt;
+                                &lt;a href="#" class="text-reset d-block"&gt;Thatcher Keel&lt;/a&gt;
+                                &lt;div class="d-block text-secondary text-truncate mt-n1"&gt;config.yml: popper.js를 v1.16.0으로 업데이트 (#29624)&lt;/div&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+            &lt;div class="col-md-4"&gt;
+                &lt;div class="list-group list-group-flush overflow-auto" style="max-height: 35rem"&gt;
+                    &lt;div class="list-group-header sticky-top"&gt;A&lt;/div&gt;
+                    &lt;div class="list-group-item"&gt;
+                        &lt;div class="row"&gt;
+                            &lt;div class="col-auto"&gt;
+                                &lt;a href="#"&gt;
+                                    &lt;span class="avatar" style="background-image: url(../../img/avatars/023f.jpg)"&gt;&lt;/span&gt;
+                                &lt;/a&gt;
+                            &lt;/div&gt;
+                            &lt;div class="col text-truncate"&gt;
+                                &lt;a href="#" class="text-body d-block"&gt;Eva Acres&lt;/a&gt;
+                                &lt;div class="text-secondary text-truncate mt-n1"&gt;사용되지 않는 html 태그를 텍스트 장식 클래스로 변경 (#29604)&lt;/div&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                    &lt;div class="list-group-item"&gt;
+                        &lt;div class="row"&gt;
+                            &lt;div class="col-auto"&gt;
+                                &lt;a href="#"&gt;
+                                    &lt;span class="avatar"&gt;SA&lt;/span&gt;
+                                &lt;/a&gt;
+                            &lt;/div&gt;
+                            &lt;div class="col text-truncate"&gt;
+                                &lt;a href="#" class="text-body d-block"&gt;Sunny Airey&lt;/a&gt;
+                                &lt;div class="text-secondary text-truncate mt-n1"&gt;justify-content:between ⇒ justify-content:space-between (#29734)&lt;/div&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                    &lt;div class="list-group-item"&gt;
+                        &lt;div class="row"&gt;
+                            &lt;div class="col-auto"&gt;
+                                &lt;a href="#"&gt;
+                                    &lt;span class="avatar" style="background-image: url(../../img/avatars/049m.jpg)"&gt;&lt;/span&gt;
+                                &lt;/a&gt;
+                            &lt;/div&gt;
+                            &lt;div class="col text-truncate"&gt;
+                                &lt;a href="#" class="text-body d-block"&gt;Northrop Alforde&lt;/a&gt;
+                                &lt;div class="text-secondary text-truncate mt-n1"&gt;change-version.js 업데이트 (#29736)&lt;/div&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                    &lt;div class="list-group-item"&gt;
+                        &lt;div class="row"&gt;
+                            &lt;div class="col-auto"&gt;
+                                &lt;a href="#"&gt;
+                                    &lt;span class="avatar" style="background-image: url(../../img/avatars/039m.jpg)"&gt;&lt;/span&gt;
+                                &lt;/a&gt;
+                            &lt;/div&gt;
+                            &lt;div class="col text-truncate"&gt;
+                                &lt;a href="#" class="text-body d-block"&gt;Virgil Archbutt&lt;/a&gt;
+                                &lt;div class="text-secondary text-truncate mt-n1"&gt;package-lock.json 재생성 (#29730)&lt;/div&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                    &lt;div class="list-group-item"&gt;
+                        &lt;div class="row"&gt;
+                            &lt;div class="col-auto"&gt;
+                                &lt;a href="#"&gt;
+                                    &lt;span class="avatar" style="background-image: url(../../img/avatars/033m.jpg)"&gt;&lt;/span&gt;
+                                &lt;/a&gt;
+                            &lt;/div&gt;
+                            &lt;div class="col text-truncate"&gt;
+                                &lt;a href="#" class="text-body d-block"&gt;Guthry Arlott&lt;/a&gt;
+                                &lt;div class="text-secondary text-truncate mt-n1"&gt;사소한 텍스트 수정&lt;/div&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                    &lt;div class="list-group-item"&gt;
+                        &lt;div class="row"&gt;
+                            &lt;div class="col-auto"&gt;
+                                &lt;a href="#"&gt;
+                                    &lt;span class="avatar"&gt;AA&lt;/span&gt;
+                                &lt;/a&gt;
+                            &lt;/div&gt;
+                            &lt;div class="col text-truncate"&gt;
+                                &lt;a href="#" class="text-body d-block"&gt;Arlie Armstead&lt;/a&gt;
+                                &lt;div class="text-secondary text-truncate mt-n1"&gt;버전별 문서 링크&lt;/div&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                    &lt;div class="list-group-item"&gt;
+                        &lt;div class="row"&gt;
+                            &lt;div class="col-auto"&gt;
+                                &lt;a href="#"&gt;
+                                    &lt;span class="avatar" style="background-image: url(../../img/avatars/062m.jpg)"&gt;&lt;/span&gt;
+                                &lt;/a&gt;
+                            &lt;/div&gt;
+                            &lt;div class="col text-truncate"&gt;
+                                &lt;a href="#" class="text-body d-block"&gt;Ashton Arndell&lt;/a&gt;
+                                &lt;div class="text-secondary text-truncate mt-n1"&gt;카피라이팅 편집&lt;/div&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                    &lt;div class="list-group-item"&gt;
+                        &lt;div class="row"&gt;
+                            &lt;div class="col-auto"&gt;
+                                &lt;a href="#"&gt;
+                                    &lt;span class="avatar" style="background-image: url(../../img/avatars/062f.jpg)"&gt;&lt;/span&gt;
+                                &lt;/a&gt;
+                            &lt;/div&gt;
+                            &lt;div class="col text-truncate"&gt;
+                                &lt;a href="#" class="text-body d-block"&gt;Kass Aspinal&lt;/a&gt;
+                                &lt;div class="text-secondary text-truncate mt-n1"&gt;글꼴 크기 조정을 위한 RFS 활성화&lt;/div&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                    &lt;div class="list-group-header sticky-top"&gt;W&lt;/div&gt;
+                    &lt;div class="list-group-item"&gt;
+                        &lt;div class="row"&gt;
+                            &lt;div class="col-auto"&gt;
+                                &lt;a href="#"&gt;
+                                    &lt;span class="avatar" style="background-image: url(../../img/avatars/044f.jpg)"&gt;&lt;/span&gt;
+                                &lt;/a&gt;
+                            &lt;/div&gt;
+                            &lt;div class="col text-truncate"&gt;
+                                &lt;a href="#" class="text-body d-block"&gt;Gerti Washington&lt;/a&gt;
+                                &lt;div class="text-secondary text-truncate mt-n1"&gt;&lt;/div&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                    &lt;div class="list-group-item"&gt;
+                        &lt;div class="row"&gt;
+                            &lt;div class="col-auto"&gt;
+                                &lt;a href="#"&gt;
+                                    &lt;span class="avatar" style="background-image: url(../../img/avatars/052m.jpg)"&gt;&lt;/span&gt;
+                                &lt;/a&gt;
+                            &lt;/div&gt;
+                            &lt;div class="col text-truncate"&gt;
+                                &lt;a href="#" class="text-body d-block"&gt;Bord Wheatcroft&lt;/a&gt;
+                                &lt;div class="text-secondary text-truncate mt-n1"&gt;&lt;/div&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                    &lt;div class="list-group-item"&gt;
+                        &lt;div class="row"&gt;
+                            &lt;div class="col-auto"&gt;
+                                &lt;a href="#"&gt;
+                                    &lt;span class="avatar" style="background-image: url(../../img/avatars/025f.jpg)"&gt;&lt;/span&gt;
+                                &lt;/a&gt;
+                            &lt;/div&gt;
+                            &lt;div class="col text-truncate"&gt;
+                                &lt;a href="#" class="text-body d-block"&gt;Nanni Wooler&lt;/a&gt;
+                                &lt;div class="text-secondary text-truncate mt-n1"&gt;&lt;/div&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+
+    <script src="/lib/tabler-core/dist/js/tabler.min.js"></script>
+    <script src="/lib/master-css/index.min.js"></script>
+    <script src="/lib/highlight.js/highlight.min.js"></script>
+    <script>if (window.hljs) { hljs.highlightAll(); }</script>
+</body>
+</html>

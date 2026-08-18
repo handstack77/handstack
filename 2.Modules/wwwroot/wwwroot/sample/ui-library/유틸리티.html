@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>유틸리티 · UI 라이브러리 예제</title>
+    <link rel="stylesheet" href="/lib/tabler-core/dist/css/tabler.min.css" />
+    <link rel="stylesheet" href="/lib/tabler-icons-webfont/dist/tabler-icons.min.css" />
+    <link rel="stylesheet" href="/lib/highlight.js/styles/atom-one-dark.min.css" />
+    <style>
+        body { padding: 24px; }
+        .ui-example-preview { background: var(--tblr-body-bg, #f4f6fa); }
+        .ui-example-source pre { margin: 0; }
+    </style>
+</head>
+<body>
+    <div class="container-xl">
+        <div class="text-secondary">유틸리티</div>
+        <h1 class="mb-3">유틸리티</h1>
+
+        <h3 class="mt-4">미리보기</h3>
+        <div class="ui-example-preview border rounded p-3">
+<div class="card overflow-auto mt-3" id="example-utilities">
+    <div class="card-status-top bg-purple"></div>
+    <div class="card-header">
+        <div>
+            <h3 class="card-title">유틸리티</h3>
+            <div class="card-subtitle">Borders · Cursors · Margins · Vertical align</div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row row-cards">
+            <div class="col-lg-6">
+                <h4>테두리</h4>
+                <div class="d-flex flex-wrap gap-3 mb-4">
+                    <div class="border rounded d-flex align-items-center p-3 bg-white">전체 테두리</div>
+                    <div class="border-top d-flex align-items-center border-blue border-3 p-3 bg-blue-lt">위쪽 강조</div>
+                    <div class="border-start d-flex align-items-center border-green border-3 p-3 bg-green-lt">시작점 강조</div>
+                    <div class="border d-flex align-items-center border-dashed rounded p-3">점선 테두리</div>
+                    <div class="border border-wide rounded-circle d-flex align-items-center justify-content-center w:64 h:64">원형</div>
+                </div>
+                <h4>바깥 여백</h4>
+                <div class="d-flex flex-wrap align-items-start gap-3">
+                    <div class="bg-blue-lt rounded">
+                        <div class="m-0 px-3 py-2 bg-blue text-white rounded">m-0</div>
+                    </div>
+                    <div class="bg-blue-lt rounded">
+                        <div class="m-2 px-3 py-2 bg-blue text-white rounded">m-2</div>
+                    </div>
+                    <div class="bg-blue-lt rounded">
+                        <div class="m-4 px-3 py-2 bg-blue text-white rounded">m-4</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <h4>커서</h4>
+                <div class="d-flex flex-wrap gap-2 mb-4">
+                    <span class="badge bg-blue-lt text-blue cursor-pointer p-2">클릭 가능</span>
+                    <span class="badge bg-azure-lt text-azure cursor-move p-2">이동 가능</span>
+                    <span class="badge bg-red-lt text-red cursor-not-allowed p-2">사용 불가</span>
+                    <span class="badge bg-purple-lt text-purple cursor-zoom-in p-2">확대 보기</span>
+                    <span class="badge bg-yellow-lt text-yellow cursor-help p-2">도움말</span>
+                    <span class="badge bg-green-lt text-green cursor-wait p-2">처리 대기</span>
+                </div>
+                <h4>세로 정렬</h4>
+                <div class="table-responsive">
+                    <table class="table table-bordered mb-0" style="height: 110px">
+                        <tbody>
+                            <tr>
+                                <td class="align-baseline">기준선</td>
+                                <td class="align-top">위</td>
+                                <td class="align-middle">가운데</td>
+                                <td class="align-bottom">아래</td>
+                                <td class="align-text-top">텍스트 위</td>
+                                <td class="align-text-bottom">텍스트 아래</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+        </div>
+
+        <h3 class="mt-4">소스</h3>
+        <pre class="ui-example-source"><code class="language-html">&lt;div class="card overflow-auto mt-3" id="example-utilities"&gt;
+    &lt;div class="card-status-top bg-purple"&gt;&lt;/div&gt;
+    &lt;div class="card-header"&gt;
+        &lt;div&gt;
+            &lt;h3 class="card-title"&gt;유틸리티&lt;/h3&gt;
+            &lt;div class="card-subtitle"&gt;Borders · Cursors · Margins · Vertical align&lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="card-body"&gt;
+        &lt;div class="row row-cards"&gt;
+            &lt;div class="col-lg-6"&gt;
+                &lt;h4&gt;테두리&lt;/h4&gt;
+                &lt;div class="d-flex flex-wrap gap-3 mb-4"&gt;
+                    &lt;div class="border rounded d-flex align-items-center p-3 bg-white"&gt;전체 테두리&lt;/div&gt;
+                    &lt;div class="border-top d-flex align-items-center border-blue border-3 p-3 bg-blue-lt"&gt;위쪽 강조&lt;/div&gt;
+                    &lt;div class="border-start d-flex align-items-center border-green border-3 p-3 bg-green-lt"&gt;시작점 강조&lt;/div&gt;
+                    &lt;div class="border d-flex align-items-center border-dashed rounded p-3"&gt;점선 테두리&lt;/div&gt;
+                    &lt;div class="border border-wide rounded-circle d-flex align-items-center justify-content-center w:64 h:64"&gt;원형&lt;/div&gt;
+                &lt;/div&gt;
+                &lt;h4&gt;바깥 여백&lt;/h4&gt;
+                &lt;div class="d-flex flex-wrap align-items-start gap-3"&gt;
+                    &lt;div class="bg-blue-lt rounded"&gt;
+                        &lt;div class="m-0 px-3 py-2 bg-blue text-white rounded"&gt;m-0&lt;/div&gt;
+                    &lt;/div&gt;
+                    &lt;div class="bg-blue-lt rounded"&gt;
+                        &lt;div class="m-2 px-3 py-2 bg-blue text-white rounded"&gt;m-2&lt;/div&gt;
+                    &lt;/div&gt;
+                    &lt;div class="bg-blue-lt rounded"&gt;
+                        &lt;div class="m-4 px-3 py-2 bg-blue text-white rounded"&gt;m-4&lt;/div&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+            &lt;div class="col-lg-6"&gt;
+                &lt;h4&gt;커서&lt;/h4&gt;
+                &lt;div class="d-flex flex-wrap gap-2 mb-4"&gt;
+                    &lt;span class="badge bg-blue-lt text-blue cursor-pointer p-2"&gt;클릭 가능&lt;/span&gt;
+                    &lt;span class="badge bg-azure-lt text-azure cursor-move p-2"&gt;이동 가능&lt;/span&gt;
+                    &lt;span class="badge bg-red-lt text-red cursor-not-allowed p-2"&gt;사용 불가&lt;/span&gt;
+                    &lt;span class="badge bg-purple-lt text-purple cursor-zoom-in p-2"&gt;확대 보기&lt;/span&gt;
+                    &lt;span class="badge bg-yellow-lt text-yellow cursor-help p-2"&gt;도움말&lt;/span&gt;
+                    &lt;span class="badge bg-green-lt text-green cursor-wait p-2"&gt;처리 대기&lt;/span&gt;
+                &lt;/div&gt;
+                &lt;h4&gt;세로 정렬&lt;/h4&gt;
+                &lt;div class="table-responsive"&gt;
+                    &lt;table class="table table-bordered mb-0" style="height: 110px"&gt;
+                        &lt;tbody&gt;
+                            &lt;tr&gt;
+                                &lt;td class="align-baseline"&gt;기준선&lt;/td&gt;
+                                &lt;td class="align-top"&gt;위&lt;/td&gt;
+                                &lt;td class="align-middle"&gt;가운데&lt;/td&gt;
+                                &lt;td class="align-bottom"&gt;아래&lt;/td&gt;
+                                &lt;td class="align-text-top"&gt;텍스트 위&lt;/td&gt;
+                                &lt;td class="align-text-bottom"&gt;텍스트 아래&lt;/td&gt;
+                            &lt;/tr&gt;
+                        &lt;/tbody&gt;
+                    &lt;/table&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+
+    <script src="/lib/tabler-core/dist/js/tabler.min.js"></script>
+    <script src="/lib/master-css/index.min.js"></script>
+    <script src="/lib/highlight.js/highlight.min.js"></script>
+    <script>if (window.hljs) { hljs.highlightAll(); }</script>
+</body>
+</html>

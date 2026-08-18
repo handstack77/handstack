@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>배지 · UI 라이브러리 예제</title>
+    <link rel="stylesheet" href="/lib/tabler-core/dist/css/tabler.min.css" />
+    <link rel="stylesheet" href="/lib/tabler-icons-webfont/dist/tabler-icons.min.css" />
+    <link rel="stylesheet" href="/lib/highlight.js/styles/atom-one-dark.min.css" />
+    <style>
+        body { padding: 24px; }
+        .ui-example-preview { background: var(--tblr-body-bg, #f4f6fa); }
+        .ui-example-source pre { margin: 0; }
+    </style>
+</head>
+<body>
+    <div class="container-xl">
+        <div class="text-secondary">배지</div>
+        <h1 class="mb-3">배지</h1>
+
+        <h3 class="mt-4">미리보기</h3>
+        <div class="ui-example-preview border rounded p-3">
+<div class="card overflow-auto mt-3">
+    <div class="card-status-top bg-dark-overlay"></div>
+    <div class="card-header">
+        <h3 class="card-title">배지</h3>
+    </div>
+    <div class="card-body">
+        <div class="row row-cards">
+            <div class="col-12">
+                <div class="card overflow-auto">
+                    <div class="card-body">
+                        <h1>제목 예시 <span class="badge">새로운</span></h1>
+                        <h2>제목 예시 <span class="badge">새로운</span></h2>
+                        <h3>제목 예시 <span class="badge">새로운</span></h3>
+                        <h4>제목 예시 <span class="badge">새로운</span></h4>
+                        <h5>제목 예시 <span class="badge">새로운</span></h5>
+                        <h6>제목 예시 <span class="badge">새로운</span></h6>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="row row-cards">
+                    <div class="col-12">
+                        <div class="card overflow-auto">
+                            <div class="card-body">
+                                <div class="badges-list">
+                                    <span class="badge bg-blue text-blue-fg">파랑</span>
+                                    <span class="badge bg-azure text-azure-fg">하늘</span>
+                                    <span class="badge bg-indigo text-indigo-fg">남색</span>
+                                    <span class="badge bg-purple text-purple-fg">보라</span>
+                                    <span class="badge bg-pink text-pink-fg">분홍</span>
+                                    <span class="badge bg-red text-red-fg">빨강</span>
+                                    <span class="badge bg-orange text-orange-fg">주황</span>
+                                    <span class="badge bg-yellow text-yellow-fg">노랑</span>
+                                    <span class="badge bg-lime text-lime-fg">라임</span>
+                                    <span class="badge bg-green text-green-fg">초록</span>
+                                    <span class="badge bg-teal text-teal-fg">청록</span>
+                                    <span class="badge bg-cyan text-cyan-fg">청자</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="card overflow-auto">
+                            <div class="card-body">
+                                <div class="badges-list">
+                                    <span class="badge bg-blue-lt">파랑</span>
+                                    <span class="badge bg-azure-lt">하늘</span>
+                                    <span class="badge bg-indigo-lt">남색</span>
+                                    <span class="badge bg-purple-lt">보라</span>
+                                    <span class="badge bg-pink-lt">분홍</span>
+                                    <span class="badge bg-red-lt">빨강</span>
+                                    <span class="badge bg-orange-lt">주황</span>
+                                    <span class="badge bg-yellow-lt">노랑</span>
+                                    <span class="badge bg-lime-lt">라임</span>
+                                    <span class="badge bg-green-lt">초록</span>
+                                    <span class="badge bg-teal-lt">청록</span>
+                                    <span class="badge bg-cyan-lt">청자</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="card overflow-auto">
+                            <div class="card-body">
+                                <div class="badges-list">
+                                    <span class="badge badge-outline text-blue">파랑</span>
+                                    <span class="badge badge-outline text-azure">하늘</span>
+                                    <span class="badge badge-outline text-indigo">남색</span>
+                                    <span class="badge badge-outline text-purple">보라</span>
+                                    <span class="badge badge-outline text-pink">분홍</span>
+                                    <span class="badge badge-outline text-red">빨강</span>
+                                    <span class="badge badge-outline text-orange">주황</span>
+                                    <span class="badge badge-outline text-yellow">노랑</span>
+                                    <span class="badge badge-outline text-lime">라임</span>
+                                    <span class="badge badge-outline text-green">초록</span>
+                                    <span class="badge badge-outline text-teal">청록</span>
+                                    <span class="badge badge-outline text-cyan">청자</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="dropdown-menu dropdown-menu-demo dropdown-menu-arrow">
+                    <a class="dropdown-item" href="#">
+                        액션
+                        <span class="badge bg-primary text-primary-fg ms-auto">12</span>
+                    </a>
+                    <a class="dropdown-item" href="#">
+                        다른 액션
+                        <span class="badge bg-green ms-auto"></span>
+                    </a>
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="row row-cards">
+                    <div class="col-12">
+                        <div class="card overflow-auto">
+                            <div class="card-body">
+                                <div class="btn-list">
+                                    <button class="btn">파랑 배지 <span class="badge bg-blue text-blue-fg ms-2">1</span></button>
+                                    <button class="btn">하늘 배지 <span class="badge bg-azure text-azure-fg ms-2">2</span></button>
+                                    <button class="btn">남색 배지 <span class="badge bg-indigo text-indigo-fg ms-2">3</span></button>
+                                    <button class="btn">보라 배지 <span class="badge bg-purple text-purple-fg ms-2">4</span></button>
+                                    <button class="btn">분홍 배지 <span class="badge bg-pink text-pink-fg ms-2">5</span></button>
+                                    <button class="btn">빨강 배지 <span class="badge bg-red text-red-fg ms-2">6</span></button>
+                                    <button class="btn">주황 배지 <span class="badge bg-orange text-orange-fg ms-2">7</span></button>
+                                    <button class="btn">노랑 배지 <span class="badge bg-yellow text-yellow-fg ms-2">8</span></button>
+                                    <button class="btn">라임 배지 <span class="badge bg-lime text-lime-fg ms-2">9</span></button>
+                                    <button class="btn">초록 배지 <span class="badge bg-green text-green-fg ms-2">10</span></button>
+                                    <button class="btn">청록 배지 <span class="badge bg-teal text-teal-fg ms-2">11</span></button>
+                                    <button class="btn">청자 배지 <span class="badge bg-cyan text-cyan-fg ms-2">12</span></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="card overflow-auto">
+                            <div class="card-body">
+                                <div class="btn-list">
+                                    <button class="btn position-relative">파랑 배지 <span class="badge bg-blue text-blue-fg badge-notification badge-pill">1</span></button>
+                                    <button class="btn position-relative">하늘 배지 <span class="badge bg-azure text-azure-fg badge-notification badge-pill">2</span></button>
+                                    <button class="btn position-relative">남색 배지 <span class="badge bg-indigo text-indigo-fg badge-notification badge-pill">3</span></button>
+                                    <button class="btn position-relative">보라 배지 <span class="badge bg-purple text-purple-fg badge-notification badge-pill">4</span></button>
+                                    <button class="btn position-relative">분홍 배지 <span class="badge bg-pink text-pink-fg badge-notification badge-pill">5</span></button>
+                                    <button class="btn position-relative">빨강 배지 <span class="badge bg-red text-red-fg badge-notification badge-pill">6</span></button>
+                                    <button class="btn position-relative">주황 배지 <span class="badge bg-orange text-orange-fg badge-notification badge-pill">7</span></button>
+                                    <button class="btn position-relative">노랑 배지 <span class="badge bg-yellow text-yellow-fg badge-notification badge-pill">8</span></button>
+                                    <button class="btn position-relative">라임 배지 <span class="badge bg-lime text-lime-fg badge-notification badge-pill">9</span></button>
+                                    <button class="btn position-relative">초록 배지 <span class="badge bg-green text-green-fg badge-notification badge-pill">10</span></button>
+                                    <button class="btn position-relative">청록 배지 <span class="badge bg-teal text-teal-fg badge-notification badge-pill">11</span></button>
+                                    <button class="btn position-relative">청자 배지 <span class="badge bg-cyan text-cyan-fg badge-notification badge-pill">12</span></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="card overflow-auto">
+                            <div class="card-body">
+                                <div class="btn-list">
+                                    <button class="btn position-relative">파랑 배지 <span class="badge bg-blue badge-notification badge-blink"></span></button>
+                                    <button class="btn position-relative">하늘 배지 <span class="badge bg-azure badge-notification badge-blink"></span></button>
+                                    <button class="btn position-relative">남색 배지 <span class="badge bg-indigo badge-notification badge-blink"></span></button>
+                                    <button class="btn position-relative">보라 배지 <span class="badge bg-purple badge-notification badge-blink"></span></button>
+                                    <button class="btn position-relative">분홍 배지 <span class="badge bg-pink badge-notification badge-blink"></span></button>
+                                    <button class="btn position-relative">빨강 배지 <span class="badge bg-red badge-notification badge-blink"></span></button>
+                                    <button class="btn position-relative">주황 배지 <span class="badge bg-orange badge-notification badge-blink"></span></button>
+                                    <button class="btn position-relative">노랑 배지 <span class="badge bg-yellow badge-notification badge-blink"></span></button>
+                                    <button class="btn position-relative">라임 배지 <span class="badge bg-lime badge-notification badge-blink"></span></button>
+                                    <button class="btn position-relative">초록 배지 <span class="badge bg-green badge-notification badge-blink"></span></button>
+                                    <button class="btn position-relative">청록 배지 <span class="badge bg-teal badge-notification badge-blink"></span></button>
+                                    <button class="btn position-relative">청자 배지 <span class="badge bg-cyan badge-notification badge-blink"></span></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+        </div>
+
+        <h3 class="mt-4">소스</h3>
+        <pre class="ui-example-source"><code class="language-html">&lt;div class="card overflow-auto mt-3"&gt;
+    &lt;div class="card-status-top bg-dark-overlay"&gt;&lt;/div&gt;
+    &lt;div class="card-header"&gt;
+        &lt;h3 class="card-title"&gt;배지&lt;/h3&gt;
+    &lt;/div&gt;
+    &lt;div class="card-body"&gt;
+        &lt;div class="row row-cards"&gt;
+            &lt;div class="col-12"&gt;
+                &lt;div class="card overflow-auto"&gt;
+                    &lt;div class="card-body"&gt;
+                        &lt;h1&gt;제목 예시 &lt;span class="badge"&gt;새로운&lt;/span&gt;&lt;/h1&gt;
+                        &lt;h2&gt;제목 예시 &lt;span class="badge"&gt;새로운&lt;/span&gt;&lt;/h2&gt;
+                        &lt;h3&gt;제목 예시 &lt;span class="badge"&gt;새로운&lt;/span&gt;&lt;/h3&gt;
+                        &lt;h4&gt;제목 예시 &lt;span class="badge"&gt;새로운&lt;/span&gt;&lt;/h4&gt;
+                        &lt;h5&gt;제목 예시 &lt;span class="badge"&gt;새로운&lt;/span&gt;&lt;/h5&gt;
+                        &lt;h6&gt;제목 예시 &lt;span class="badge"&gt;새로운&lt;/span&gt;&lt;/h6&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+            &lt;div class="col-12"&gt;
+                &lt;div class="row row-cards"&gt;
+                    &lt;div class="col-12"&gt;
+                        &lt;div class="card overflow-auto"&gt;
+                            &lt;div class="card-body"&gt;
+                                &lt;div class="badges-list"&gt;
+                                    &lt;span class="badge bg-blue text-blue-fg"&gt;파랑&lt;/span&gt;
+                                    &lt;span class="badge bg-azure text-azure-fg"&gt;하늘&lt;/span&gt;
+                                    &lt;span class="badge bg-indigo text-indigo-fg"&gt;남색&lt;/span&gt;
+                                    &lt;span class="badge bg-purple text-purple-fg"&gt;보라&lt;/span&gt;
+                                    &lt;span class="badge bg-pink text-pink-fg"&gt;분홍&lt;/span&gt;
+                                    &lt;span class="badge bg-red text-red-fg"&gt;빨강&lt;/span&gt;
+                                    &lt;span class="badge bg-orange text-orange-fg"&gt;주황&lt;/span&gt;
+                                    &lt;span class="badge bg-yellow text-yellow-fg"&gt;노랑&lt;/span&gt;
+                                    &lt;span class="badge bg-lime text-lime-fg"&gt;라임&lt;/span&gt;
+                                    &lt;span class="badge bg-green text-green-fg"&gt;초록&lt;/span&gt;
+                                    &lt;span class="badge bg-teal text-teal-fg"&gt;청록&lt;/span&gt;
+                                    &lt;span class="badge bg-cyan text-cyan-fg"&gt;청자&lt;/span&gt;
+                                &lt;/div&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                    &lt;div class="col-12"&gt;
+                        &lt;div class="card overflow-auto"&gt;
+                            &lt;div class="card-body"&gt;
+                                &lt;div class="badges-list"&gt;
+                                    &lt;span class="badge bg-blue-lt"&gt;파랑&lt;/span&gt;
+                                    &lt;span class="badge bg-azure-lt"&gt;하늘&lt;/span&gt;
+                                    &lt;span class="badge bg-indigo-lt"&gt;남색&lt;/span&gt;
+                                    &lt;span class="badge bg-purple-lt"&gt;보라&lt;/span&gt;
+                                    &lt;span class="badge bg-pink-lt"&gt;분홍&lt;/span&gt;
+                                    &lt;span class="badge bg-red-lt"&gt;빨강&lt;/span&gt;
+                                    &lt;span class="badge bg-orange-lt"&gt;주황&lt;/span&gt;
+                                    &lt;span class="badge bg-yellow-lt"&gt;노랑&lt;/span&gt;
+                                    &lt;span class="badge bg-lime-lt"&gt;라임&lt;/span&gt;
+                                    &lt;span class="badge bg-green-lt"&gt;초록&lt;/span&gt;
+                                    &lt;span class="badge bg-teal-lt"&gt;청록&lt;/span&gt;
+                                    &lt;span class="badge bg-cyan-lt"&gt;청자&lt;/span&gt;
+                                &lt;/div&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                    &lt;div class="col-12"&gt;
+                        &lt;div class="card overflow-auto"&gt;
+                            &lt;div class="card-body"&gt;
+                                &lt;div class="badges-list"&gt;
+                                    &lt;span class="badge badge-outline text-blue"&gt;파랑&lt;/span&gt;
+                                    &lt;span class="badge badge-outline text-azure"&gt;하늘&lt;/span&gt;
+                                    &lt;span class="badge badge-outline text-indigo"&gt;남색&lt;/span&gt;
+                                    &lt;span class="badge badge-outline text-purple"&gt;보라&lt;/span&gt;
+                                    &lt;span class="badge badge-outline text-pink"&gt;분홍&lt;/span&gt;
+                                    &lt;span class="badge badge-outline text-red"&gt;빨강&lt;/span&gt;
+                                    &lt;span class="badge badge-outline text-orange"&gt;주황&lt;/span&gt;
+                                    &lt;span class="badge badge-outline text-yellow"&gt;노랑&lt;/span&gt;
+                                    &lt;span class="badge badge-outline text-lime"&gt;라임&lt;/span&gt;
+                                    &lt;span class="badge badge-outline text-green"&gt;초록&lt;/span&gt;
+                                    &lt;span class="badge badge-outline text-teal"&gt;청록&lt;/span&gt;
+                                    &lt;span class="badge badge-outline text-cyan"&gt;청자&lt;/span&gt;
+                                &lt;/div&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+            &lt;div class="col-12"&gt;
+                &lt;div class="dropdown-menu dropdown-menu-demo dropdown-menu-arrow"&gt;
+                    &lt;a class="dropdown-item" href="#"&gt;
+                        액션
+                        &lt;span class="badge bg-primary text-primary-fg ms-auto"&gt;12&lt;/span&gt;
+                    &lt;/a&gt;
+                    &lt;a class="dropdown-item" href="#"&gt;
+                        다른 액션
+                        &lt;span class="badge bg-green ms-auto"&gt;&lt;/span&gt;
+                    &lt;/a&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+            &lt;div class="col-12"&gt;
+                &lt;div class="row row-cards"&gt;
+                    &lt;div class="col-12"&gt;
+                        &lt;div class="card overflow-auto"&gt;
+                            &lt;div class="card-body"&gt;
+                                &lt;div class="btn-list"&gt;
+                                    &lt;button class="btn"&gt;파랑 배지 &lt;span class="badge bg-blue text-blue-fg ms-2"&gt;1&lt;/span&gt;&lt;/button&gt;
+                                    &lt;button class="btn"&gt;하늘 배지 &lt;span class="badge bg-azure text-azure-fg ms-2"&gt;2&lt;/span&gt;&lt;/button&gt;
+                                    &lt;button class="btn"&gt;남색 배지 &lt;span class="badge bg-indigo text-indigo-fg ms-2"&gt;3&lt;/span&gt;&lt;/button&gt;
+                                    &lt;button class="btn"&gt;보라 배지 &lt;span class="badge bg-purple text-purple-fg ms-2"&gt;4&lt;/span&gt;&lt;/button&gt;
+                                    &lt;button class="btn"&gt;분홍 배지 &lt;span class="badge bg-pink text-pink-fg ms-2"&gt;5&lt;/span&gt;&lt;/button&gt;
+                                    &lt;button class="btn"&gt;빨강 배지 &lt;span class="badge bg-red text-red-fg ms-2"&gt;6&lt;/span&gt;&lt;/button&gt;
+                                    &lt;button class="btn"&gt;주황 배지 &lt;span class="badge bg-orange text-orange-fg ms-2"&gt;7&lt;/span&gt;&lt;/button&gt;
+                                    &lt;button class="btn"&gt;노랑 배지 &lt;span class="badge bg-yellow text-yellow-fg ms-2"&gt;8&lt;/span&gt;&lt;/button&gt;
+                                    &lt;button class="btn"&gt;라임 배지 &lt;span class="badge bg-lime text-lime-fg ms-2"&gt;9&lt;/span&gt;&lt;/button&gt;
+                                    &lt;button class="btn"&gt;초록 배지 &lt;span class="badge bg-green text-green-fg ms-2"&gt;10&lt;/span&gt;&lt;/button&gt;
+                                    &lt;button class="btn"&gt;청록 배지 &lt;span class="badge bg-teal text-teal-fg ms-2"&gt;11&lt;/span&gt;&lt;/button&gt;
+                                    &lt;button class="btn"&gt;청자 배지 &lt;span class="badge bg-cyan text-cyan-fg ms-2"&gt;12&lt;/span&gt;&lt;/button&gt;
+                                &lt;/div&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                    &lt;div class="col-12"&gt;
+                        &lt;div class="card overflow-auto"&gt;
+                            &lt;div class="card-body"&gt;
+                                &lt;div class="btn-list"&gt;
+                                    &lt;button class="btn position-relative"&gt;파랑 배지 &lt;span class="badge bg-blue text-blue-fg badge-notification badge-pill"&gt;1&lt;/span&gt;&lt;/button&gt;
+                                    &lt;button class="btn position-relative"&gt;하늘 배지 &lt;span class="badge bg-azure text-azure-fg badge-notification badge-pill"&gt;2&lt;/span&gt;&lt;/button&gt;
+                                    &lt;button class="btn position-relative"&gt;남색 배지 &lt;span class="badge bg-indigo text-indigo-fg badge-notification badge-pill"&gt;3&lt;/span&gt;&lt;/button&gt;
+                                    &lt;button class="btn position-relative"&gt;보라 배지 &lt;span class="badge bg-purple text-purple-fg badge-notification badge-pill"&gt;4&lt;/span&gt;&lt;/button&gt;
+                                    &lt;button class="btn position-relative"&gt;분홍 배지 &lt;span class="badge bg-pink text-pink-fg badge-notification badge-pill"&gt;5&lt;/span&gt;&lt;/button&gt;
+                                    &lt;button class="btn position-relative"&gt;빨강 배지 &lt;span class="badge bg-red text-red-fg badge-notification badge-pill"&gt;6&lt;/span&gt;&lt;/button&gt;
+                                    &lt;button class="btn position-relative"&gt;주황 배지 &lt;span class="badge bg-orange text-orange-fg badge-notification badge-pill"&gt;7&lt;/span&gt;&lt;/button&gt;
+                                    &lt;button class="btn position-relative"&gt;노랑 배지 &lt;span class="badge bg-yellow text-yellow-fg badge-notification badge-pill"&gt;8&lt;/span&gt;&lt;/button&gt;
+                                    &lt;button class="btn position-relative"&gt;라임 배지 &lt;span class="badge bg-lime text-lime-fg badge-notification badge-pill"&gt;9&lt;/span&gt;&lt;/button&gt;
+                                    &lt;button class="btn position-relative"&gt;초록 배지 &lt;span class="badge bg-green text-green-fg badge-notification badge-pill"&gt;10&lt;/span&gt;&lt;/button&gt;
+                                    &lt;button class="btn position-relative"&gt;청록 배지 &lt;span class="badge bg-teal text-teal-fg badge-notification badge-pill"&gt;11&lt;/span&gt;&lt;/button&gt;
+                                    &lt;button class="btn position-relative"&gt;청자 배지 &lt;span class="badge bg-cyan text-cyan-fg badge-notification badge-pill"&gt;12&lt;/span&gt;&lt;/button&gt;
+                                &lt;/div&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                    &lt;div class="col-12"&gt;
+                        &lt;div class="card overflow-auto"&gt;
+                            &lt;div class="card-body"&gt;
+                                &lt;div class="btn-list"&gt;
+                                    &lt;button class="btn position-relative"&gt;파랑 배지 &lt;span class="badge bg-blue badge-notification badge-blink"&gt;&lt;/span&gt;&lt;/button&gt;
+                                    &lt;button class="btn position-relative"&gt;하늘 배지 &lt;span class="badge bg-azure badge-notification badge-blink"&gt;&lt;/span&gt;&lt;/button&gt;
+                                    &lt;button class="btn position-relative"&gt;남색 배지 &lt;span class="badge bg-indigo badge-notification badge-blink"&gt;&lt;/span&gt;&lt;/button&gt;
+                                    &lt;button class="btn position-relative"&gt;보라 배지 &lt;span class="badge bg-purple badge-notification badge-blink"&gt;&lt;/span&gt;&lt;/button&gt;
+                                    &lt;button class="btn position-relative"&gt;분홍 배지 &lt;span class="badge bg-pink badge-notification badge-blink"&gt;&lt;/span&gt;&lt;/button&gt;
+                                    &lt;button class="btn position-relative"&gt;빨강 배지 &lt;span class="badge bg-red badge-notification badge-blink"&gt;&lt;/span&gt;&lt;/button&gt;
+                                    &lt;button class="btn position-relative"&gt;주황 배지 &lt;span class="badge bg-orange badge-notification badge-blink"&gt;&lt;/span&gt;&lt;/button&gt;
+                                    &lt;button class="btn position-relative"&gt;노랑 배지 &lt;span class="badge bg-yellow badge-notification badge-blink"&gt;&lt;/span&gt;&lt;/button&gt;
+                                    &lt;button class="btn position-relative"&gt;라임 배지 &lt;span class="badge bg-lime badge-notification badge-blink"&gt;&lt;/span&gt;&lt;/button&gt;
+                                    &lt;button class="btn position-relative"&gt;초록 배지 &lt;span class="badge bg-green badge-notification badge-blink"&gt;&lt;/span&gt;&lt;/button&gt;
+                                    &lt;button class="btn position-relative"&gt;청록 배지 &lt;span class="badge bg-teal badge-notification badge-blink"&gt;&lt;/span&gt;&lt;/button&gt;
+                                    &lt;button class="btn position-relative"&gt;청자 배지 &lt;span class="badge bg-cyan badge-notification badge-blink"&gt;&lt;/span&gt;&lt;/button&gt;
+                                &lt;/div&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+
+    <script src="/lib/tabler-core/dist/js/tabler.min.js"></script>
+    <script src="/lib/master-css/index.min.js"></script>
+    <script src="/lib/highlight.js/highlight.min.js"></script>
+    <script>if (window.hljs) { hljs.highlightAll(); }</script>
+</body>
+</html>

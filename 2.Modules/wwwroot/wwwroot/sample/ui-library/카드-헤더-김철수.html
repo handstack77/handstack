@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>김철수 · UI 라이브러리 예제</title>
+    <link rel="stylesheet" href="/lib/tabler-core/dist/css/tabler.min.css" />
+    <link rel="stylesheet" href="/lib/tabler-icons-webfont/dist/tabler-icons.min.css" />
+    <link rel="stylesheet" href="/lib/highlight.js/styles/atom-one-dark.min.css" />
+    <style>
+        body { padding: 24px; }
+        .ui-example-preview { background: var(--tblr-body-bg, #f4f6fa); }
+        .ui-example-source pre { margin: 0; }
+    </style>
+</head>
+<body>
+    <div class="container-xl">
+        <div class="text-secondary">카드 헤더</div>
+        <h1 class="mb-3">김철수</h1>
+
+        <h3 class="mt-4">미리보기</h3>
+        <div class="ui-example-preview border rounded p-3">
+<div class="card overflow-auto">
+    <div class="card-header">
+        <div>
+            <div class="row align-items-center">
+                <div class="col-auto">
+                    <span class="avatar" style="background-image: url(data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'96'%20height%3D'96'%3E%3Crect%20width%3D'96'%20height%3D'96'%20fill%3D'%2523dfe3e8'%2F%3E%3Cpath%20d%3D'M20%2066l18-22%2014%2016%2010-12%2014%2018z'%20fill%3D'%2523b3bcc6'%2F%3E%3Ccircle%20cx%3D'34'%20cy%3D'31'%20r%3D'8'%20fill%3D'%2523b3bcc6'%2F%3E%3C%2Fsvg%3E)"></span>
+                </div>
+                <div class="col">
+                    <div class="card-title">김철수</div>
+                    <div class="card-subtitle">연구 간호사</div>
+                </div>
+            </div>
+        </div>
+        <div class="card-actions">
+            <div class="dropdown">
+                <a href="#" class="btn-action dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="f:20 ti ti-dots-vertical"></i>
+                </a>
+                <div class="dropdown-menu dropdown-menu-end" style="">
+                    <a class="dropdown-item" href="#">사용자 편집</a>
+                    <a class="dropdown-item" href="#">권한 변경</a>
+                    <a class="dropdown-item text-danger" href="#">사용자 삭제</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+        </div>
+        <div class="alert alert-info mt-3" role="alert">원본 이미지 경로(img/...)는 참고용 표시이며, 이 미리보기에서는 자리 표시 이미지로 대체되었습니다.</div>
+
+        <h3 class="mt-4">소스</h3>
+        <pre class="ui-example-source"><code class="language-html">&lt;div class="card overflow-auto"&gt;
+    &lt;div class="card-header"&gt;
+        &lt;div&gt;
+            &lt;div class="row align-items-center"&gt;
+                &lt;div class="col-auto"&gt;
+                    &lt;span class="avatar" style="background-image: url(../../img/avatars/003m.jpg)"&gt;&lt;/span&gt;
+                &lt;/div&gt;
+                &lt;div class="col"&gt;
+                    &lt;div class="card-title"&gt;김철수&lt;/div&gt;
+                    &lt;div class="card-subtitle"&gt;연구 간호사&lt;/div&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div class="card-actions"&gt;
+            &lt;div class="dropdown"&gt;
+                &lt;a href="#" class="btn-action dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"&gt;
+                    &lt;i class="f:20 ti ti-dots-vertical"&gt;&lt;/i&gt;
+                &lt;/a&gt;
+                &lt;div class="dropdown-menu dropdown-menu-end" style=""&gt;
+                    &lt;a class="dropdown-item" href="#"&gt;사용자 편집&lt;/a&gt;
+                    &lt;a class="dropdown-item" href="#"&gt;권한 변경&lt;/a&gt;
+                    &lt;a class="dropdown-item text-danger" href="#"&gt;사용자 삭제&lt;/a&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+
+    <script src="/lib/tabler-core/dist/js/tabler.min.js"></script>
+    <script src="/lib/master-css/index.min.js"></script>
+    <script src="/lib/highlight.js/highlight.min.js"></script>
+    <script>if (window.hljs) { hljs.highlightAll(); }</script>
+</body>
+</html>

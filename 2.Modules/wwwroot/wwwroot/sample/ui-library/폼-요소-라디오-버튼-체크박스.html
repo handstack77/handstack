@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>라디오 버튼·체크박스 · UI 라이브러리 예제</title>
+    <link rel="stylesheet" href="/lib/tabler-core/dist/css/tabler.min.css" />
+    <link rel="stylesheet" href="/lib/tabler-icons-webfont/dist/tabler-icons.min.css" />
+    <link rel="stylesheet" href="/lib/highlight.js/styles/atom-one-dark.min.css" />
+    <style>
+        body { padding: 24px; }
+        .ui-example-preview { background: var(--tblr-body-bg, #f4f6fa); }
+        .ui-example-source pre { margin: 0; }
+    </style>
+</head>
+<body>
+    <div class="container-xl">
+        <div class="text-secondary">폼 요소</div>
+        <h1 class="mb-3">라디오 버튼·체크박스</h1>
+
+        <h3 class="mt-4">미리보기</h3>
+        <div class="ui-example-preview border rounded p-3">
+<div class="mb-3">
+    <div class="form-label">라디오 버튼</div>
+    <div>
+        <label class="form-check">
+            <input class="form-check-input" type="radio" name="radios" checked="">
+            <span class="form-check-label">옵션 1</span>
+        </label>
+        <label class="form-check">
+            <input class="form-check-input" type="radio" name="radios">
+            <span class="form-check-label">옵션 2</span>
+        </label>
+        <label class="form-check">
+            <input class="form-check-input" type="radio" disabled="">
+            <span class="form-check-label">옵션 3</span>
+        </label>
+        <label class="form-check">
+            <input class="form-check-input" type="radio" checked="" disabled="">
+            <span class="form-check-label">옵션 4</span>
+        </label>
+    </div>
+</div>
+
+<div class="mb-3">
+    <div class="form-label">인라인 라디오 버튼</div>
+    <div>
+        <label class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="radios-inline" checked="">
+            <span class="form-check-label">옵션 1</span>
+        </label>
+        <label class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="radios-inline">
+            <span class="form-check-label">옵션 2</span>
+        </label>
+        <label class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="radios-inline" disabled="">
+            <span class="form-check-label">옵션 3</span>
+        </label>
+    </div>
+</div>
+
+<div class="mb-3">
+    <div class="form-label">체크박스</div>
+    <div>
+        <label class="form-check">
+            <input class="form-check-input" type="checkbox">
+            <span class="form-check-label">체크박스 입력</span>
+        </label>
+        <label class="form-check">
+            <input class="form-check-input" type="checkbox" disabled="">
+            <span class="form-check-label">비활성화된 체크박스 입력</span>
+        </label>
+        <label class="form-check">
+            <input class="form-check-input" type="checkbox" checked="">
+            <span class="form-check-label">체크된 체크박스 입력</span>
+        </label>
+    </div>
+</div>
+
+<div class="mb-3">
+    <div class="form-label">인라인 체크박스</div>
+    <div>
+        <label class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox">
+            <span class="form-check-label">옵션 1</span>
+        </label>
+        <label class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" disabled="">
+            <span class="form-check-label">옵션 2</span>
+        </label>
+        <label class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" checked="">
+            <span class="form-check-label">옵션 3</span>
+        </label>
+    </div>
+</div>
+
+<div class="mb-3">
+    <label class="form-label">설명이 있는 체크박스</label>
+    <label class="form-check">
+        <input class="form-check-input" type="checkbox">
+        <span class="form-check-label">
+            기본 체크박스
+        </span>
+        <span class="form-check-description">
+            여기에 체크박스에 대한 설명이 들어갑니다.
+        </span>
+    </label>
+    <label class="form-check">
+        <input class="form-check-input" type="checkbox">
+        <span class="form-check-label">
+            두 줄로 줄바꿈되는 긴 체크박스 항목
+        </span>
+        <span class="form-check-description">
+            이 설명은 항목이 길어질 경우 어떻게 표시되는지 보여줍니다.
+        </span>
+    </label>
+    <label class="form-check">
+        <input class="form-check-input" type="checkbox">
+        <span class="form-check-label">
+            설명이 없는 기본 체크박스
+        </span>
+    </label>
+</div>
+        </div>
+
+        <h3 class="mt-4">소스</h3>
+        <pre class="ui-example-source"><code class="language-html">&lt;div class="mb-3"&gt;
+    &lt;div class="form-label"&gt;라디오 버튼&lt;/div&gt;
+    &lt;div&gt;
+        &lt;label class="form-check"&gt;
+            &lt;input class="form-check-input" type="radio" name="radios" checked=""&gt;
+            &lt;span class="form-check-label"&gt;옵션 1&lt;/span&gt;
+        &lt;/label&gt;
+        &lt;label class="form-check"&gt;
+            &lt;input class="form-check-input" type="radio" name="radios"&gt;
+            &lt;span class="form-check-label"&gt;옵션 2&lt;/span&gt;
+        &lt;/label&gt;
+        &lt;label class="form-check"&gt;
+            &lt;input class="form-check-input" type="radio" disabled=""&gt;
+            &lt;span class="form-check-label"&gt;옵션 3&lt;/span&gt;
+        &lt;/label&gt;
+        &lt;label class="form-check"&gt;
+            &lt;input class="form-check-input" type="radio" checked="" disabled=""&gt;
+            &lt;span class="form-check-label"&gt;옵션 4&lt;/span&gt;
+        &lt;/label&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="mb-3"&gt;
+    &lt;div class="form-label"&gt;인라인 라디오 버튼&lt;/div&gt;
+    &lt;div&gt;
+        &lt;label class="form-check form-check-inline"&gt;
+            &lt;input class="form-check-input" type="radio" name="radios-inline" checked=""&gt;
+            &lt;span class="form-check-label"&gt;옵션 1&lt;/span&gt;
+        &lt;/label&gt;
+        &lt;label class="form-check form-check-inline"&gt;
+            &lt;input class="form-check-input" type="radio" name="radios-inline"&gt;
+            &lt;span class="form-check-label"&gt;옵션 2&lt;/span&gt;
+        &lt;/label&gt;
+        &lt;label class="form-check form-check-inline"&gt;
+            &lt;input class="form-check-input" type="radio" name="radios-inline" disabled=""&gt;
+            &lt;span class="form-check-label"&gt;옵션 3&lt;/span&gt;
+        &lt;/label&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="mb-3"&gt;
+    &lt;div class="form-label"&gt;체크박스&lt;/div&gt;
+    &lt;div&gt;
+        &lt;label class="form-check"&gt;
+            &lt;input class="form-check-input" type="checkbox"&gt;
+            &lt;span class="form-check-label"&gt;체크박스 입력&lt;/span&gt;
+        &lt;/label&gt;
+        &lt;label class="form-check"&gt;
+            &lt;input class="form-check-input" type="checkbox" disabled=""&gt;
+            &lt;span class="form-check-label"&gt;비활성화된 체크박스 입력&lt;/span&gt;
+        &lt;/label&gt;
+        &lt;label class="form-check"&gt;
+            &lt;input class="form-check-input" type="checkbox" checked=""&gt;
+            &lt;span class="form-check-label"&gt;체크된 체크박스 입력&lt;/span&gt;
+        &lt;/label&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="mb-3"&gt;
+    &lt;div class="form-label"&gt;인라인 체크박스&lt;/div&gt;
+    &lt;div&gt;
+        &lt;label class="form-check form-check-inline"&gt;
+            &lt;input class="form-check-input" type="checkbox"&gt;
+            &lt;span class="form-check-label"&gt;옵션 1&lt;/span&gt;
+        &lt;/label&gt;
+        &lt;label class="form-check form-check-inline"&gt;
+            &lt;input class="form-check-input" type="checkbox" disabled=""&gt;
+            &lt;span class="form-check-label"&gt;옵션 2&lt;/span&gt;
+        &lt;/label&gt;
+        &lt;label class="form-check form-check-inline"&gt;
+            &lt;input class="form-check-input" type="checkbox" checked=""&gt;
+            &lt;span class="form-check-label"&gt;옵션 3&lt;/span&gt;
+        &lt;/label&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="mb-3"&gt;
+    &lt;label class="form-label"&gt;설명이 있는 체크박스&lt;/label&gt;
+    &lt;label class="form-check"&gt;
+        &lt;input class="form-check-input" type="checkbox"&gt;
+        &lt;span class="form-check-label"&gt;
+            기본 체크박스
+        &lt;/span&gt;
+        &lt;span class="form-check-description"&gt;
+            여기에 체크박스에 대한 설명이 들어갑니다.
+        &lt;/span&gt;
+    &lt;/label&gt;
+    &lt;label class="form-check"&gt;
+        &lt;input class="form-check-input" type="checkbox"&gt;
+        &lt;span class="form-check-label"&gt;
+            두 줄로 줄바꿈되는 긴 체크박스 항목
+        &lt;/span&gt;
+        &lt;span class="form-check-description"&gt;
+            이 설명은 항목이 길어질 경우 어떻게 표시되는지 보여줍니다.
+        &lt;/span&gt;
+    &lt;/label&gt;
+    &lt;label class="form-check"&gt;
+        &lt;input class="form-check-input" type="checkbox"&gt;
+        &lt;span class="form-check-label"&gt;
+            설명이 없는 기본 체크박스
+        &lt;/span&gt;
+    &lt;/label&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+
+    <script src="/lib/tabler-core/dist/js/tabler.min.js"></script>
+    <script src="/lib/master-css/index.min.js"></script>
+    <script src="/lib/highlight.js/highlight.min.js"></script>
+    <script>if (window.hljs) { hljs.highlightAll(); }</script>
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>플로팅 라벨 입력 · UI 라이브러리 예제</title>
+    <link rel="stylesheet" href="/lib/tabler-core/dist/css/tabler.min.css" />
+    <link rel="stylesheet" href="/lib/tabler-icons-webfont/dist/tabler-icons.min.css" />
+    <link rel="stylesheet" href="/lib/highlight.js/styles/atom-one-dark.min.css" />
+    <style>
+        body { padding: 24px; }
+        .ui-example-preview { background: var(--tblr-body-bg, #f4f6fa); }
+        .ui-example-source pre { margin: 0; }
+    </style>
+</head>
+<body>
+    <div class="container-xl">
+        <div class="text-secondary">폼 요소</div>
+        <h1 class="mb-3">플로팅 라벨 입력</h1>
+
+        <h3 class="mt-4">미리보기</h3>
+        <div class="ui-example-preview border rounded p-3">
+<div class="mb-3">
+    <label class="form-label">플로팅 라벨 입력</label>
+    <div class="form-floating mb-3">
+        <input type="email" class="form-control" id="floating-input" value="name@example.com" autocomplete="off">
+        <label for="floating-input">이메일 주소</label>
+    </div>
+    <div class="form-floating mb-3">
+        <input type="password" class="form-control" id="floating-password" value="Password" autocomplete="off">
+        <label for="floating-password">비밀번호</label>
+    </div>
+    <div class="form-floating">
+        <select class="form-select" id="floatingSelect" aria-label="Floating label select example">
+            <option selected="">이 선택 메뉴를 여세요</option>
+            <option value="1">옵션 1</option>
+            <option value="2">옵션 2</option>
+            <option value="3">옵션 3</option>
+        </select>
+        <label for="floatingSelect">선택</label>
+    </div>
+</div>
+        </div>
+
+        <h3 class="mt-4">소스</h3>
+        <pre class="ui-example-source"><code class="language-html">&lt;div class="mb-3"&gt;
+    &lt;label class="form-label"&gt;플로팅 라벨 입력&lt;/label&gt;
+    &lt;div class="form-floating mb-3"&gt;
+        &lt;input type="email" class="form-control" id="floating-input" value="name@example.com" autocomplete="off"&gt;
+        &lt;label for="floating-input"&gt;이메일 주소&lt;/label&gt;
+    &lt;/div&gt;
+    &lt;div class="form-floating mb-3"&gt;
+        &lt;input type="password" class="form-control" id="floating-password" value="Password" autocomplete="off"&gt;
+        &lt;label for="floating-password"&gt;비밀번호&lt;/label&gt;
+    &lt;/div&gt;
+    &lt;div class="form-floating"&gt;
+        &lt;select class="form-select" id="floatingSelect" aria-label="Floating label select example"&gt;
+            &lt;option selected=""&gt;이 선택 메뉴를 여세요&lt;/option&gt;
+            &lt;option value="1"&gt;옵션 1&lt;/option&gt;
+            &lt;option value="2"&gt;옵션 2&lt;/option&gt;
+            &lt;option value="3"&gt;옵션 3&lt;/option&gt;
+        &lt;/select&gt;
+        &lt;label for="floatingSelect"&gt;선택&lt;/label&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+
+    <script src="/lib/tabler-core/dist/js/tabler.min.js"></script>
+    <script src="/lib/master-css/index.min.js"></script>
+    <script src="/lib/highlight.js/highlight.min.js"></script>
+    <script>if (window.hljs) { hljs.highlightAll(); }</script>
+</body>
+</html>

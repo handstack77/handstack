@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>필 버튼 · UI 라이브러리 예제</title>
+    <link rel="stylesheet" href="/lib/tabler-core/dist/css/tabler.min.css" />
+    <link rel="stylesheet" href="/lib/tabler-icons-webfont/dist/tabler-icons.min.css" />
+    <link rel="stylesheet" href="/lib/highlight.js/styles/atom-one-dark.min.css" />
+    <style>
+        body { padding: 24px; }
+        .ui-example-preview { background: var(--tblr-body-bg, #f4f6fa); }
+        .ui-example-source pre { margin: 0; }
+    </style>
+</head>
+<body>
+    <div class="container-xl">
+        <div class="text-secondary">버튼</div>
+        <h1 class="mb-3">필 버튼</h1>
+        <p class="text-secondary">필 버튼을 사용하려면 .btn-pill 클래스를 사용하세요.</p>
+
+        <h3 class="mt-4">미리보기</h3>
+        <div class="ui-example-preview border rounded p-3">
+<div class="card overflow-auto">
+    <div class="card-status-top bg-dark-overlay"></div>
+    <div class="card-header">
+        <h3 class="card-title">필 버튼</h3>
+    </div>
+    <div class="card-body">
+        <p>
+            필 버튼을 사용하려면 <code>.btn-pill</code> 클래스를 사용하세요.
+        </p>
+        <div class="row g-2 align-items-center">
+            <div class="col-12 col-xl-2 font-weight-semibold">일반</div>
+            <div class="col-6 col-sm-4 col-md-2 col-xl py-3">
+                <a href="#" class="btn btn-primary btn-pill w-100">
+                    프라이머리
+                </a>
+            </div>
+            <div class="col-6 col-sm-4 col-md-2 col-xl py-3">
+                <a href="#" class="btn btn-secondary btn-pill w-100">
+                    세컨더리
+                </a>
+            </div>
+            <div class="col-6 col-sm-4 col-md-2 col-xl py-3">
+                <a href="#" class="btn btn-success btn-pill w-100">
+                    성공
+                </a>
+            </div>
+            <div class="col-6 col-sm-4 col-md-2 col-xl py-3">
+                <a href="#" class="btn btn-warning btn-pill w-100">
+                    경고
+                </a>
+            </div>
+            <div class="col-6 col-sm-4 col-md-2 col-xl py-3">
+                <a href="#" class="btn btn-danger btn-pill w-100">
+                    위험
+                </a>
+            </div>
+            <div class="col-6 col-sm-4 col-md-2 col-xl py-3">
+                <a href="#" class="btn btn-info btn-pill w-100">
+                    정보
+                </a>
+            </div>
+            <div class="col-6 col-sm-4 col-md-2 col-xl py-3">
+                <a href="#" class="btn btn-dark btn-pill w-100">
+                    다크
+                </a>
+            </div>
+            <div class="col-6 col-sm-4 col-md-2 col-xl bg-dark py-3">
+                <a href="#" class="btn btn-light btn-pill w-100">
+                    라이트
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+        </div>
+
+        <h3 class="mt-4">소스</h3>
+        <pre class="ui-example-source"><code class="language-html">&lt;div class="card overflow-auto"&gt;
+    &lt;div class="card-status-top bg-dark-overlay"&gt;&lt;/div&gt;
+    &lt;div class="card-header"&gt;
+        &lt;h3 class="card-title"&gt;필 버튼&lt;/h3&gt;
+    &lt;/div&gt;
+    &lt;div class="card-body"&gt;
+        &lt;p&gt;
+            필 버튼을 사용하려면 &lt;code&gt;.btn-pill&lt;/code&gt; 클래스를 사용하세요.
+        &lt;/p&gt;
+        &lt;div class="row g-2 align-items-center"&gt;
+            &lt;div class="col-12 col-xl-2 font-weight-semibold"&gt;일반&lt;/div&gt;
+            &lt;div class="col-6 col-sm-4 col-md-2 col-xl py-3"&gt;
+                &lt;a href="#" class="btn btn-primary btn-pill w-100"&gt;
+                    프라이머리
+                &lt;/a&gt;
+            &lt;/div&gt;
+            &lt;div class="col-6 col-sm-4 col-md-2 col-xl py-3"&gt;
+                &lt;a href="#" class="btn btn-secondary btn-pill w-100"&gt;
+                    세컨더리
+                &lt;/a&gt;
+            &lt;/div&gt;
+            &lt;div class="col-6 col-sm-4 col-md-2 col-xl py-3"&gt;
+                &lt;a href="#" class="btn btn-success btn-pill w-100"&gt;
+                    성공
+                &lt;/a&gt;
+            &lt;/div&gt;
+            &lt;div class="col-6 col-sm-4 col-md-2 col-xl py-3"&gt;
+                &lt;a href="#" class="btn btn-warning btn-pill w-100"&gt;
+                    경고
+                &lt;/a&gt;
+            &lt;/div&gt;
+            &lt;div class="col-6 col-sm-4 col-md-2 col-xl py-3"&gt;
+                &lt;a href="#" class="btn btn-danger btn-pill w-100"&gt;
+                    위험
+                &lt;/a&gt;
+            &lt;/div&gt;
+            &lt;div class="col-6 col-sm-4 col-md-2 col-xl py-3"&gt;
+                &lt;a href="#" class="btn btn-info btn-pill w-100"&gt;
+                    정보
+                &lt;/a&gt;
+            &lt;/div&gt;
+            &lt;div class="col-6 col-sm-4 col-md-2 col-xl py-3"&gt;
+                &lt;a href="#" class="btn btn-dark btn-pill w-100"&gt;
+                    다크
+                &lt;/a&gt;
+            &lt;/div&gt;
+            &lt;div class="col-6 col-sm-4 col-md-2 col-xl bg-dark py-3"&gt;
+                &lt;a href="#" class="btn btn-light btn-pill w-100"&gt;
+                    라이트
+                &lt;/a&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+
+    <script src="/lib/tabler-core/dist/js/tabler.min.js"></script>
+    <script src="/lib/master-css/index.min.js"></script>
+    <script src="/lib/highlight.js/highlight.min.js"></script>
+    <script>if (window.hljs) { hljs.highlightAll(); }</script>
+</body>
+</html>

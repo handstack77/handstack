@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>폼 컨트롤 스타일 · UI 라이브러리 예제</title>
+    <link rel="stylesheet" href="/lib/tabler-core/dist/css/tabler.min.css" />
+    <link rel="stylesheet" href="/lib/tabler-icons-webfont/dist/tabler-icons.min.css" />
+    <link rel="stylesheet" href="/lib/highlight.js/styles/atom-one-dark.min.css" />
+    <style>
+        body { padding: 24px; }
+        .ui-example-preview { background: var(--tblr-body-bg, #f4f6fa); }
+        .ui-example-source pre { margin: 0; }
+    </style>
+</head>
+<body>
+    <div class="container-xl">
+        <div class="text-secondary">폼 요소</div>
+        <h1 class="mb-3">폼 컨트롤 스타일</h1>
+
+        <h3 class="mt-4">미리보기</h3>
+        <div class="ui-example-preview border rounded p-3">
+<div class="mb-3">
+    <label class="form-label">둥근 폼 컨트롤</label>
+    <input type="text" class="form-control form-control-rounded mb-2" name="Form control rounded" placeholder="텍스트..">
+    <div class="input-icon">
+        <input type="text" class="form-control form-control-rounded" placeholder="검색…">
+        <span class="input-icon-addon">
+            <i class="f:20 ti ti-search"></i>
+        </span>
+    </div>
+</div>
+
+<div class="mb-3">
+    <label class="form-label">플러시 폼 컨트롤</label>
+    <input type="text" class="form-control form-control-flush" name="Form control flush" placeholder="텍스트..">
+</div>
+        </div>
+
+        <h3 class="mt-4">소스</h3>
+        <pre class="ui-example-source"><code class="language-html">&lt;div class="mb-3"&gt;
+    &lt;label class="form-label"&gt;둥근 폼 컨트롤&lt;/label&gt;
+    &lt;input type="text" class="form-control form-control-rounded mb-2" name="Form control rounded" placeholder="텍스트.."&gt;
+    &lt;div class="input-icon"&gt;
+        &lt;input type="text" class="form-control form-control-rounded" placeholder="검색…"&gt;
+        &lt;span class="input-icon-addon"&gt;
+            &lt;i class="f:20 ti ti-search"&gt;&lt;/i&gt;
+        &lt;/span&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="mb-3"&gt;
+    &lt;label class="form-label"&gt;플러시 폼 컨트롤&lt;/label&gt;
+    &lt;input type="text" class="form-control form-control-flush" name="Form control flush" placeholder="텍스트.."&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+
+    <script src="/lib/tabler-core/dist/js/tabler.min.js"></script>
+    <script src="/lib/master-css/index.min.js"></script>
+    <script src="/lib/highlight.js/highlight.min.js"></script>
+    <script>if (window.hljs) { hljs.highlightAll(); }</script>
+</body>
+</html>
