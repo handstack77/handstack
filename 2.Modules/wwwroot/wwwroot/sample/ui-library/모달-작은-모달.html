@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="ko">
 <head>
     <meta charset="utf-8" />
@@ -8,9 +8,17 @@
     <link rel="stylesheet" href="/lib/tabler-icons-webfont/dist/tabler-icons.min.css" />
     <link rel="stylesheet" href="/lib/highlight.js/styles/atom-one-dark.min.css" />
     <style>
-        body { padding: 24px; }
-        .ui-example-preview { background: var(--tblr-body-bg, #f4f6fa); }
-        .ui-example-source pre { margin: 0; }
+        body {
+            padding: 24px;
+        }
+
+        .ui-example-preview {
+            background: var(--tblr-body-bg, #f4f6fa);
+        }
+
+        .ui-example-source pre {
+            margin: 0;
+        }
     </style>
 </head>
 <body>
@@ -20,24 +28,24 @@
 
         <h3 class="mt-4">미리보기</h3>
         <div class="ui-example-preview border rounded p-3">
-<a href="#" class="btn" data-bs-toggle="modal" data-bs-target="#modal-small">
-    작은 모달
-</a>
+            <a href="#" class="btn" data-bs-toggle="modal" data-bs-target="#modal-small">
+                작은 모달
+            </a>
 
-<div class="modal modal-blur fade" id="modal-small" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-body">
-                <div class="modal-title">정말 삭제하시겠습니까?</div>
-                <div>계속 진행하면 모든 개인 데이터가 손실됩니다.</div>
+            <div class="modal modal-blur fade" id="modal-small" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-body">
+                            <div class="modal-title">정말 삭제하시겠습니까?</div>
+                            <div>계속 진행하면 모든 개인 데이터가 손실됩니다.</div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-link link-secondary me-auto" data-bs-dismiss="modal">취소</button>
+                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">예, 모든 데이터를 삭제합니다</button>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-link link-secondary me-auto" data-bs-dismiss="modal">취소</button>
-                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">예, 모든 데이터를 삭제합니다</button>
-            </div>
-        </div>
-    </div>
-</div>
         </div>
 
         <h3 class="mt-4">소스</h3>

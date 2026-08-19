@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="ko">
 <head>
     <meta charset="utf-8" />
@@ -8,9 +8,17 @@
     <link rel="stylesheet" href="/lib/tabler-icons-webfont/dist/tabler-icons.min.css" />
     <link rel="stylesheet" href="/lib/highlight.js/styles/atom-one-dark.min.css" />
     <style>
-        body { padding: 24px; }
-        .ui-example-preview { background: var(--tblr-body-bg, #f4f6fa); }
-        .ui-example-source pre { margin: 0; }
+        body {
+            padding: 24px;
+        }
+
+        .ui-example-preview {
+            background: var(--tblr-body-bg, #f4f6fa);
+        }
+
+        .ui-example-source pre {
+            margin: 0;
+        }
     </style>
 </head>
 <body>
@@ -21,109 +29,109 @@
 
         <h3 class="mt-4">미리보기</h3>
         <div class="ui-example-preview border rounded p-3">
-<div class="card overflow-auto mt-3" id="example-progress-navigation">
-    <div class="card-status-top bg-green"></div>
-    <div class="card-header">
-        <div>
-            <h3 class="card-title">진행 상태와 업무 흐름</h3>
-            <div class="card-subtitle">Progress bars · Segmented Control · Steps · Timelines</div>
-        </div>
-    </div>
-    <div class="card-body">
-        <div class="row row-cards">
-            <div class="col-lg-6">
-                <h4>진행률</h4>
-                <div class="mb-3">
-                    <div class="d-flex mb-1">
-                        <div>월간 매출 목표</div>
-                        <div class="ms-auto text-secondary">72%</div>
+            <div class="card overflow-auto mt-3" id="example-progress-navigation">
+                <div class="card-status-top bg-green"></div>
+                <div class="card-header">
+                    <div>
+                        <h3 class="card-title">진행 상태와 업무 흐름</h3>
+                        <div class="card-subtitle">Progress bars · Segmented Control · Steps · Timelines</div>
                     </div>
-                    <div class="progress">
-                        <div class="progress-bar bg-blue" style="width: 72%" role="progressbar" aria-valuenow="72" aria-valuemin="0" aria-valuemax="100" aria-label="월간 매출 목표 72퍼센트">
-                            <span class="visually-hidden">72% 완료</span>
+                </div>
+                <div class="card-body">
+                    <div class="row row-cards">
+                        <div class="col-lg-6">
+                            <h4>진행률</h4>
+                            <div class="mb-3">
+                                <div class="d-flex mb-1">
+                                    <div>월간 매출 목표</div>
+                                    <div class="ms-auto text-secondary">72%</div>
+                                </div>
+                                <div class="progress">
+                                    <div class="progress-bar bg-blue" style="width: 72%" role="progressbar" aria-valuenow="72" aria-valuemin="0" aria-valuemax="100" aria-label="월간 매출 목표 72퍼센트">
+                                        <span class="visually-hidden">72% 완료</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="d-flex mb-1">
+                                    <div>주문 제작 진행</div>
+                                    <div class="ms-auto text-secondary">45%</div>
+                                </div>
+                                <div class="progress progress-sm">
+                                    <div class="progress-bar bg-green" style="width: 45%" role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" aria-label="주문 제작 진행 45퍼센트"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="d-flex mb-1">
+                                    <div>데이터 동기화</div>
+                                    <div class="ms-auto text-secondary">처리 중</div>
+                                </div>
+                                <div class="progress progress-sm">
+                                    <div class="progress-bar progress-bar-indeterminate bg-purple" role="progressbar" aria-label="데이터 동기화 처리 중"></div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <div class="d-flex mb-1">
-                        <div>주문 제작 진행</div>
-                        <div class="ms-auto text-secondary">45%</div>
-                    </div>
-                    <div class="progress progress-sm">
-                        <div class="progress-bar bg-green" style="width: 45%" role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" aria-label="주문 제작 진행 45퍼센트"></div>
-                    </div>
-                </div>
-                <div>
-                    <div class="d-flex mb-1">
-                        <div>데이터 동기화</div>
-                        <div class="ms-auto text-secondary">처리 중</div>
-                    </div>
-                    <div class="progress progress-sm">
-                        <div class="progress-bar progress-bar-indeterminate bg-purple" role="progressbar" aria-label="데이터 동기화 처리 중"></div>
+                        <div class="col-lg-6">
+                            <h4>세그먼트 컨트롤</h4>
+                            <nav class="nav nav-segmented w-100" role="tablist" aria-label="매출 조회 기간">
+                                <button type="button" class="nav-link active" role="tab" data-bs-toggle="tab" aria-selected="true" aria-current="page">일간</button>
+                                <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" aria-selected="false" tabindex="-1">주간</button>
+                                <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" aria-selected="false" tabindex="-1">월간</button>
+                                <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" aria-selected="false" tabindex="-1">분기</button>
+                                <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" aria-selected="false" tabindex="-1">연간</button>
+                            </nav>
+                            <h4 class="mt-4">단계</h4>
+                            <div class="steps steps-counter m-0 p-0 border-0">
+                                <a href="#" class="step-item">주문 접수</a>
+                                <a href="#" class="step-item">디자인 확정</a>
+                                <a href="#" class="step-item active" aria-current="step">제작 진행</a>
+                                <span class="step-item">검수 완료</span>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <h4 class="mt-2">업무 타임라인</h4>
+                            <ul class="timeline">
+                                <li class="timeline-event">
+                                    <div class="timeline-event-icon bg-blue-lt text-blue">
+                                        <i class="f:20 ti ti-file-plus"></i>
+                                    </div>
+                                    <div class="card timeline-event-card">
+                                        <div class="card-body">
+                                            <div class="text-secondary float-end">오늘 09:10</div>
+                                            <h4>신규 맞춤 제작 주문 접수</h4>
+                                            <p class="text-secondary mb-0">고객 요구사항과 희망 납기일을 등록했습니다.</p>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li class="timeline-event">
+                                    <div class="timeline-event-icon bg-green-lt text-green">
+                                        <i class="f:20 ti ti-check"></i>
+                                    </div>
+                                    <div class="card timeline-event-card">
+                                        <div class="card-body">
+                                            <div class="text-secondary float-end">오늘 10:25</div>
+                                            <h4>디자인 시안 승인</h4>
+                                            <p class="text-secondary mb-0">고객 승인이 완료되어 제작 공정으로 이동했습니다.</p>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li class="timeline-event">
+                                    <div class="timeline-event-icon bg-orange-lt text-orange">
+                                        <i class="f:20 ti ti-cut"></i>
+                                    </div>
+                                    <div class="card timeline-event-card">
+                                        <div class="card-body">
+                                            <div class="text-secondary float-end">오늘 13:40</div>
+                                            <h4>재단 공정 시작</h4>
+                                            <p class="text-secondary mb-0">담당 디자이너 김민서, 예상 소요 시간 4시간입니다.</p>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-6">
-                <h4>세그먼트 컨트롤</h4>
-                <nav class="nav nav-segmented w-100" role="tablist" aria-label="매출 조회 기간">
-                    <button type="button" class="nav-link active" role="tab" data-bs-toggle="tab" aria-selected="true" aria-current="page">일간</button>
-                    <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" aria-selected="false" tabindex="-1">주간</button>
-                    <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" aria-selected="false" tabindex="-1">월간</button>
-                    <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" aria-selected="false" tabindex="-1">분기</button>
-                    <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" aria-selected="false" tabindex="-1">연간</button>
-                </nav>
-                <h4 class="mt-4">단계</h4>
-                <div class="steps steps-counter m-0 p-0 border-0">
-                    <a href="#" class="step-item">주문 접수</a>
-                    <a href="#" class="step-item">디자인 확정</a>
-                    <a href="#" class="step-item active" aria-current="step">제작 진행</a>
-                    <span class="step-item">검수 완료</span>
-                </div>
-            </div>
-            <div class="col-12">
-                <h4 class="mt-2">업무 타임라인</h4>
-                <ul class="timeline">
-                    <li class="timeline-event">
-                        <div class="timeline-event-icon bg-blue-lt text-blue">
-                            <i class="f:20 ti ti-file-plus"></i>
-                        </div>
-                        <div class="card timeline-event-card">
-                            <div class="card-body">
-                                <div class="text-secondary float-end">오늘 09:10</div>
-                                <h4>신규 맞춤 제작 주문 접수</h4>
-                                <p class="text-secondary mb-0">고객 요구사항과 희망 납기일을 등록했습니다.</p>
-                            </div>
-                        </div>
-                    </li>
-                    <li class="timeline-event">
-                        <div class="timeline-event-icon bg-green-lt text-green">
-                            <i class="f:20 ti ti-check"></i>
-                        </div>
-                        <div class="card timeline-event-card">
-                            <div class="card-body">
-                                <div class="text-secondary float-end">오늘 10:25</div>
-                                <h4>디자인 시안 승인</h4>
-                                <p class="text-secondary mb-0">고객 승인이 완료되어 제작 공정으로 이동했습니다.</p>
-                            </div>
-                        </div>
-                    </li>
-                    <li class="timeline-event">
-                        <div class="timeline-event-icon bg-orange-lt text-orange">
-                            <i class="f:20 ti ti-cut"></i>
-                        </div>
-                        <div class="card timeline-event-card">
-                            <div class="card-body">
-                                <div class="text-secondary float-end">오늘 13:40</div>
-                                <h4>재단 공정 시작</h4>
-                                <p class="text-secondary mb-0">담당 디자이너 김민서, 예상 소요 시간 4시간입니다.</p>
-                            </div>
-                        </div>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</div>
         </div>
 
         <h3 class="mt-4">소스</h3>

@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="ko">
 <head>
     <meta charset="utf-8" />
@@ -8,9 +8,17 @@
     <link rel="stylesheet" href="/lib/tabler-icons-webfont/dist/tabler-icons.min.css" />
     <link rel="stylesheet" href="/lib/highlight.js/styles/atom-one-dark.min.css" />
     <style>
-        body { padding: 24px; }
-        .ui-example-preview { background: var(--tblr-body-bg, #f4f6fa); }
-        .ui-example-source pre { margin: 0; }
+        body {
+            padding: 24px;
+        }
+
+        .ui-example-preview {
+            background: var(--tblr-body-bg, #f4f6fa);
+        }
+
+        .ui-example-source pre {
+            margin: 0;
+        }
     </style>
 </head>
 <body>
@@ -20,39 +28,39 @@
 
         <h3 class="mt-4">미리보기</h3>
         <div class="ui-example-preview border rounded p-3">
-<a href="#" class="btn" data-bs-toggle="modal" data-bs-target="#modal-success">
-    성공 모달
-</a>
+            <a href="#" class="btn" data-bs-toggle="modal" data-bs-target="#modal-success">
+                성공 모달
+            </a>
 
-<div class="modal modal-blur fade" id="modal-success" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            <div class="modal-status bg-success"></div>
-            <div class="modal-body text-center py-4">
-                <i class="f:20 ti ti-circle-check"></i>
-                <h3>결제 성공</h3>
-                <div class="text-secondary">290,000원 결제가 성공적으로 제출되었습니다. 인보이스는 support@tabler.io로 발송되었습니다.</div>
-            </div>
-            <div class="modal-footer">
-                <div class="w-100">
-                    <div class="row">
-                        <div class="col">
-                            <a href="#" class="btn w-100" data-bs-dismiss="modal">
-                                대시보드로 이동
-                            </a>
+            <div class="modal modal-blur fade" id="modal-success" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <div class="modal-status bg-success"></div>
+                        <div class="modal-body text-center py-4">
+                            <i class="f:20 ti ti-circle-check"></i>
+                            <h3>결제 성공</h3>
+                            <div class="text-secondary">290,000원 결제가 성공적으로 제출되었습니다. 인보이스는 support@tabler.io로 발송되었습니다.</div>
                         </div>
-                        <div class="col">
-                            <a href="#" class="btn btn-success w-100" data-bs-dismiss="modal">
-                                인보이스 보기
-                            </a>
+                        <div class="modal-footer">
+                            <div class="w-100">
+                                <div class="row">
+                                    <div class="col">
+                                        <a href="#" class="btn w-100" data-bs-dismiss="modal">
+                                            대시보드로 이동
+                                        </a>
+                                    </div>
+                                    <div class="col">
+                                        <a href="#" class="btn btn-success w-100" data-bs-dismiss="modal">
+                                            인보이스 보기
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
         </div>
 
         <h3 class="mt-4">소스</h3>

@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="ko">
 <head>
     <meta charset="utf-8" />
@@ -8,9 +8,17 @@
     <link rel="stylesheet" href="/lib/tabler-icons-webfont/dist/tabler-icons.min.css" />
     <link rel="stylesheet" href="/lib/highlight.js/styles/atom-one-dark.min.css" />
     <style>
-        body { padding: 24px; }
-        .ui-example-preview { background: var(--tblr-body-bg, #f4f6fa); }
-        .ui-example-source pre { margin: 0; }
+        body {
+            padding: 24px;
+        }
+
+        .ui-example-preview {
+            background: var(--tblr-body-bg, #f4f6fa);
+        }
+
+        .ui-example-source pre {
+            margin: 0;
+        }
     </style>
 </head>
 <body>
@@ -20,102 +28,102 @@
 
         <h3 class="mt-4">미리보기</h3>
         <div class="ui-example-preview border rounded p-3">
-<div class="card overflow-auto mt-3" id="example-forms">
-    <div class="card-status-top bg-orange"></div>
-    <div class="card-header">
-        <div>
-            <h3 class="card-title">폼 구성과 검증</h3>
-            <div class="card-subtitle">Form elements · Fieldset · Selectgroup · Validation states</div>
-        </div>
-    </div>
-    <div class="card-body">
-        <div class="row row-cards">
-            <div class="col-lg-7">
-                <fieldset class="form-fieldset">
-                    <legend class="h4">고객 상담 정보</legend>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label required" for="sample-customer-name">고객명</label>
-                            <input type="text" id="sample-customer-name" class="form-control is-valid" value="김하늘" autocomplete="off" required>
-                            <div class="valid-feedback">고객 정보가 확인되었습니다.</div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label required" for="sample-customer-phone">연락처</label>
-                            <input type="tel" id="sample-customer-phone" class="form-control is-invalid" value="010-1234" autocomplete="off" required aria-describedby="sample-customer-phone-feedback">
-                            <div id="sample-customer-phone-feedback" class="invalid-feedback">휴대전화 번호 전체를 입력해 주세요.</div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label" for="sample-fitting-date">피팅 희망일</label>
-                            <input type="date" id="sample-fitting-date" class="form-control" value="2026-08-25">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label" for="sample-consultant">담당자</label>
-                            <select id="sample-consultant" class="form-select">
-                                <option>담당자를 선택하세요</option>
-                                <option selected>김민서 디자이너</option>
-                                <option>이서준 디자이너</option>
-                            </select>
-                        </div>
-                        <div class="col-12">
-                            <label class="form-label" for="sample-customer-request">요청사항</label>
-                            <textarea id="sample-customer-request" class="form-control" rows="3" placeholder="선호 스타일, 예산, 행사 일정 등을 입력하세요.">레이스 소매와 A라인 스타일을 선호합니다.</textarea>
-                        </div>
-                    </div>
-                </fieldset>
-            </div>
-            <div class="col-lg-5">
-                <div class="mb-4">
-                    <label class="form-label">상담 유형</label>
-                    <div class="form-selectgroup">
-                        <label class="form-selectgroup-item">
-                            <input type="radio" name="sample-consult-type" value="visit" class="form-selectgroup-input" checked>
-                            <span class="form-selectgroup-label">
-                                <i class="f:20 mr:4 ti ti-building-store"></i> 방문
-                            </span>
-                        </label>
-                        <label class="form-selectgroup-item">
-                            <input type="radio" name="sample-consult-type" value="phone" class="form-selectgroup-input">
-                            <span class="form-selectgroup-label">
-                                <i class="f:20 mr:4 ti ti-phone"></i> 전화
-                            </span>
-                        </label>
-                        <label class="form-selectgroup-item">
-                            <input type="radio" name="sample-consult-type" value="video" class="form-selectgroup-input">
-                            <span class="form-selectgroup-label">
-                                <i class="f:20 mr:4 ti ti-video"></i> 화상
-                            </span>
-                        </label>
+            <div class="card overflow-auto mt-3" id="example-forms">
+                <div class="card-status-top bg-orange"></div>
+                <div class="card-header">
+                    <div>
+                        <h3 class="card-title">폼 구성과 검증</h3>
+                        <div class="card-subtitle">Form elements · Fieldset · Selectgroup · Validation states</div>
                     </div>
                 </div>
-                <div class="mb-4">
-                    <label class="form-label">관심 서비스</label>
-                    <div class="form-selectgroup form-selectgroup-pills">
-                        <label class="form-selectgroup-item">
-                            <input type="checkbox" name="sample-service" value="custom" class="form-selectgroup-input" checked>
-                            <span class="form-selectgroup-label">맞춤 제작</span>
-                        </label>
-                        <label class="form-selectgroup-item">
-                            <input type="checkbox" name="sample-service" value="rental" class="form-selectgroup-input">
-                            <span class="form-selectgroup-label">드레스 대여</span>
-                        </label>
-                        <label class="form-selectgroup-item">
-                            <input type="checkbox" name="sample-service" value="accessory" class="form-selectgroup-input">
-                            <span class="form-selectgroup-label">액세서리</span>
-                        </label>
+                <div class="card-body">
+                    <div class="row row-cards">
+                        <div class="col-lg-7">
+                            <fieldset class="form-fieldset">
+                                <legend class="h4">고객 상담 정보</legend>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label required" for="sample-customer-name">고객명</label>
+                                        <input type="text" id="sample-customer-name" class="form-control is-valid" value="김하늘" autocomplete="off" required>
+                                        <div class="valid-feedback">고객 정보가 확인되었습니다.</div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label required" for="sample-customer-phone">연락처</label>
+                                        <input type="tel" id="sample-customer-phone" class="form-control is-invalid" value="010-1234" autocomplete="off" required aria-describedby="sample-customer-phone-feedback">
+                                        <div id="sample-customer-phone-feedback" class="invalid-feedback">휴대전화 번호 전체를 입력해 주세요.</div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label" for="sample-fitting-date">피팅 희망일</label>
+                                        <input type="date" id="sample-fitting-date" class="form-control" value="2026-08-25">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label" for="sample-consultant">담당자</label>
+                                        <select id="sample-consultant" class="form-select">
+                                            <option>담당자를 선택하세요</option>
+                                            <option selected>김민서 디자이너</option>
+                                            <option>이서준 디자이너</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label" for="sample-customer-request">요청사항</label>
+                                        <textarea id="sample-customer-request" class="form-control" rows="3" placeholder="선호 스타일, 예산, 행사 일정 등을 입력하세요.">레이스 소매와 A라인 스타일을 선호합니다.</textarea>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                        <div class="col-lg-5">
+                            <div class="mb-4">
+                                <label class="form-label">상담 유형</label>
+                                <div class="form-selectgroup">
+                                    <label class="form-selectgroup-item">
+                                        <input type="radio" name="sample-consult-type" value="visit" class="form-selectgroup-input" checked>
+                                        <span class="form-selectgroup-label">
+                                            <i class="f:20 mr:4 ti ti-building-store"></i> 방문
+                                        </span>
+                                    </label>
+                                    <label class="form-selectgroup-item">
+                                        <input type="radio" name="sample-consult-type" value="phone" class="form-selectgroup-input">
+                                        <span class="form-selectgroup-label">
+                                            <i class="f:20 mr:4 ti ti-phone"></i> 전화
+                                        </span>
+                                    </label>
+                                    <label class="form-selectgroup-item">
+                                        <input type="radio" name="sample-consult-type" value="video" class="form-selectgroup-input">
+                                        <span class="form-selectgroup-label">
+                                            <i class="f:20 mr:4 ti ti-video"></i> 화상
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label">관심 서비스</label>
+                                <div class="form-selectgroup form-selectgroup-pills">
+                                    <label class="form-selectgroup-item">
+                                        <input type="checkbox" name="sample-service" value="custom" class="form-selectgroup-input" checked>
+                                        <span class="form-selectgroup-label">맞춤 제작</span>
+                                    </label>
+                                    <label class="form-selectgroup-item">
+                                        <input type="checkbox" name="sample-service" value="rental" class="form-selectgroup-input">
+                                        <span class="form-selectgroup-label">드레스 대여</span>
+                                    </label>
+                                    <label class="form-selectgroup-item">
+                                        <input type="checkbox" name="sample-service" value="accessory" class="form-selectgroup-input">
+                                        <span class="form-selectgroup-label">액세서리</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <label class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" checked>
+                                <span class="form-check-label">예약 하루 전 알림 발송</span>
+                            </label>
+                            <label class="form-check mt-3">
+                                <input class="form-check-input" type="checkbox">
+                                <span class="form-check-label required">개인정보 수집 및 이용에 동의합니다.</span>
+                            </label>
+                        </div>
                     </div>
                 </div>
-                <label class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" checked>
-                    <span class="form-check-label">예약 하루 전 알림 발송</span>
-                </label>
-                <label class="form-check mt-3">
-                    <input class="form-check-input" type="checkbox">
-                    <span class="form-check-label required">개인정보 수집 및 이용에 동의합니다.</span>
-                </label>
             </div>
-        </div>
-    </div>
-</div>
         </div>
 
         <h3 class="mt-4">소스</h3>

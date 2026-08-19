@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="ko">
 <head>
     <meta charset="utf-8" />
@@ -8,9 +8,17 @@
     <link rel="stylesheet" href="/lib/tabler-icons-webfont/dist/tabler-icons.min.css" />
     <link rel="stylesheet" href="/lib/highlight.js/styles/atom-one-dark.min.css" />
     <style>
-        body { padding: 24px; }
-        .ui-example-preview { background: var(--tblr-body-bg, #f4f6fa); }
-        .ui-example-source pre { margin: 0; }
+        body {
+            padding: 24px;
+        }
+
+        .ui-example-preview {
+            background: var(--tblr-body-bg, #f4f6fa);
+        }
+
+        .ui-example-source pre {
+            margin: 0;
+        }
     </style>
 </head>
 <body>
@@ -21,107 +29,107 @@
 
         <h3 class="mt-4">미리보기</h3>
         <div class="ui-example-preview border rounded p-3">
-<div class="card overflow-auto mt-3">
-    <div class="card-status-top bg-dark-overlay"></div>
-    <div class="card-header">
-        <h3 class="card-title">타이포그래피</h3>
-    </div>
-    <div class="card-body">
-        <div class="row g-4">
-            <div class="col-md-4">
-                <h3>순서 없는 목록</h3>
-                <ul>
-                    <li>목록 항목 예시</li>
-                    <li>
-                        목록 항목 예시
-                        <ul>
-                            <li>중첩된 목록 항목</li>
-                            <li>중첩된 목록 항목</li>
-                        </ul>
-                    </li>
-                    <li>목록 항목 예시</li>
-                    <li>목록 항목 예시</li>
-                </ul>
-            </div>
-            <div class="col-md-4">
-                <h3>순서 있는 목록</h3>
-                <ol>
-                    <li>목록 항목 예시 1</li>
-                    <li>목록 항목 예시 2</li>
-                    <li>목록 항목 예시 3</li>
-                    <li>목록 항목 예시 4</li>
-                    <li>목록 항목 예시 5</li>
-                    <li>목록 항목 예시 6</li>
-                </ol>
-            </div>
-            <div class="col-md-4">
-                <h3>스타일 없는 목록</h3>
-                <ul class="list-unstyled">
-                    <li>목록 항목 예시</li>
-                    <li>목록 항목 예시</li>
-                    <li>목록 항목 예시</li>
-                    <li>목록 항목 예시</li>
-                    <li>목록 항목 예시</li>
-                    <li>목록 항목 예시</li>
-                </ul>
-            </div>
-            <div class="col-12">
-                <h3>인용문</h3>
-                <blockquote class="blockquote">
-                    <p>이곳에 인용문을 넣을 수 있습니다. 이것은 인용문의 예시 텍스트입니다. 독자에게 영감을 주거나 중요한 내용을 강조할 때 사용됩니다.</p>
-                    <footer class="blockquote-footer">율리우스 카이사르</footer>
-                </blockquote>
-            </div>
-            <div class="col-md-4">
-                <h3>텍스트 요소</h3>
-                <div>mark 태그를 사용하여 텍스트를 <mark>강조</mark>할 수 있습니다.</div>
-                <div><s>이 텍스트 줄은 삭제된 것으로 처리됩니다.</s></div>
-                <div><u>이 텍스트 줄은 밑줄이 그어져 렌더링됩니다.</u></div>
-                <div><small>이 텍스트 줄은 작은 글씨로 처리됩니다.</small></div>
-                <div>다음 텍스트는 <strong>굵게 렌더링됩니다.</strong></div>
-                <div>다음 텍스트는 <em>기울임꼴로 렌더링됩니다.</em></div>
-                <div>다음 텍스트는 유용한 키보드 단축키를 보여줍니다: <kbd>⌘</kbd> + <kbd>C</kbd> 또는 <kbd>ctrl</kbd> + <kbd>C</kbd>.</div>
-            </div>
-            <div class="col-md-4">
-                <h3>텍스트 색상</h3>
-                <div class="text-primary">이것은 기본 텍스트의 예시입니다.</div>
-                <div class="text-secondary">이것은 보조 텍스트의 예시입니다.</div>
-                <div class="text-body">이것은 본문 텍스트의 예시입니다.</div>
-                <div class="text-success">이것은 성공 텍스트의 예시입니다.</div>
-                <div class="text-info">이것은 정보 텍스트의 예시입니다.</div>
-                <div class="text-warning">이것은 경고 텍스트의 예시입니다.</div>
-                <div class="text-danger">이것은 위험 텍스트의 예시입니다.</div>
-                <div class="text-pink">이것은 분홍색 텍스트의 예시입니다.</div>
-            </div>
-            <div class="col-md-4">
-                <h3>주소</h3>
-                <address>
-                    <strong>
-                        (주)아무개 <br>
-                    </strong>서울시 강남구 테헤란로 123, 9층 <br>
-                    서울, 대한민국 06123 <br>
-                    <abbr title="전화">P: </abbr>(02) 123-4567
-                </address>
-                <address>
-                    <strong>
-                        홍길동 <br>
-                    </strong><a href="mailto:#">first.last@example.com</a>
-                </address>
-            </div>
-            <div class="col-md-4">
-                <h3>타이포그래피</h3>
-                <div>
-                    <h1>H1 제목 예시입니다</h1>
-                    <h2>H2 제목 예시입니다</h2>
-                    <h3>H3 제목 예시입니다</h3>
-                    <h4>H4 제목 예시입니다</h4>
-                    <h5>H5 제목 예시입니다</h5>
-                    <h6>H6 제목 예시입니다</h6>
+            <div class="card overflow-auto mt-3">
+                <div class="card-status-top bg-dark-overlay"></div>
+                <div class="card-header">
+                    <h3 class="card-title">타이포그래피</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-md-4">
+                            <h3>순서 없는 목록</h3>
+                            <ul>
+                                <li>목록 항목 예시</li>
+                                <li>
+                                    목록 항목 예시
+                                    <ul>
+                                        <li>중첩된 목록 항목</li>
+                                        <li>중첩된 목록 항목</li>
+                                    </ul>
+                                </li>
+                                <li>목록 항목 예시</li>
+                                <li>목록 항목 예시</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-4">
+                            <h3>순서 있는 목록</h3>
+                            <ol>
+                                <li>목록 항목 예시 1</li>
+                                <li>목록 항목 예시 2</li>
+                                <li>목록 항목 예시 3</li>
+                                <li>목록 항목 예시 4</li>
+                                <li>목록 항목 예시 5</li>
+                                <li>목록 항목 예시 6</li>
+                            </ol>
+                        </div>
+                        <div class="col-md-4">
+                            <h3>스타일 없는 목록</h3>
+                            <ul class="list-unstyled">
+                                <li>목록 항목 예시</li>
+                                <li>목록 항목 예시</li>
+                                <li>목록 항목 예시</li>
+                                <li>목록 항목 예시</li>
+                                <li>목록 항목 예시</li>
+                                <li>목록 항목 예시</li>
+                            </ul>
+                        </div>
+                        <div class="col-12">
+                            <h3>인용문</h3>
+                            <blockquote class="blockquote">
+                                <p>이곳에 인용문을 넣을 수 있습니다. 이것은 인용문의 예시 텍스트입니다. 독자에게 영감을 주거나 중요한 내용을 강조할 때 사용됩니다.</p>
+                                <footer class="blockquote-footer">율리우스 카이사르</footer>
+                            </blockquote>
+                        </div>
+                        <div class="col-md-4">
+                            <h3>텍스트 요소</h3>
+                            <div>mark 태그를 사용하여 텍스트를 <mark>강조</mark>할 수 있습니다.</div>
+                            <div><s>이 텍스트 줄은 삭제된 것으로 처리됩니다.</s></div>
+                            <div><u>이 텍스트 줄은 밑줄이 그어져 렌더링됩니다.</u></div>
+                            <div><small>이 텍스트 줄은 작은 글씨로 처리됩니다.</small></div>
+                            <div>다음 텍스트는 <strong>굵게 렌더링됩니다.</strong></div>
+                            <div>다음 텍스트는 <em>기울임꼴로 렌더링됩니다.</em></div>
+                            <div>다음 텍스트는 유용한 키보드 단축키를 보여줍니다: <kbd>⌘</kbd> + <kbd>C</kbd> 또는 <kbd>ctrl</kbd> + <kbd>C</kbd>.</div>
+                        </div>
+                        <div class="col-md-4">
+                            <h3>텍스트 색상</h3>
+                            <div class="text-primary">이것은 기본 텍스트의 예시입니다.</div>
+                            <div class="text-secondary">이것은 보조 텍스트의 예시입니다.</div>
+                            <div class="text-body">이것은 본문 텍스트의 예시입니다.</div>
+                            <div class="text-success">이것은 성공 텍스트의 예시입니다.</div>
+                            <div class="text-info">이것은 정보 텍스트의 예시입니다.</div>
+                            <div class="text-warning">이것은 경고 텍스트의 예시입니다.</div>
+                            <div class="text-danger">이것은 위험 텍스트의 예시입니다.</div>
+                            <div class="text-pink">이것은 분홍색 텍스트의 예시입니다.</div>
+                        </div>
+                        <div class="col-md-4">
+                            <h3>주소</h3>
+                            <address>
+                                <strong>
+                                    (주)아무개 <br>
+                                </strong>서울시 강남구 테헤란로 123, 9층 <br>
+                                서울, 대한민국 06123 <br>
+                                <abbr title="전화">P: </abbr>(02) 123-4567
+                            </address>
+                            <address>
+                                <strong>
+                                    홍길동 <br>
+                                </strong><a href="mailto:#">first.last@example.com</a>
+                            </address>
+                        </div>
+                        <div class="col-md-4">
+                            <h3>타이포그래피</h3>
+                            <div>
+                                <h1>H1 제목 예시입니다</h1>
+                                <h2>H2 제목 예시입니다</h2>
+                                <h3>H3 제목 예시입니다</h3>
+                                <h4>H4 제목 예시입니다</h4>
+                                <h5>H5 제목 예시입니다</h5>
+                                <h6>H6 제목 예시입니다</h6>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
         </div>
 
         <h3 class="mt-4">소스</h3>

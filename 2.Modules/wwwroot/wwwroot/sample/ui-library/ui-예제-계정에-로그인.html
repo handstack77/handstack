@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="ko">
 <head>
     <meta charset="utf-8" />
@@ -8,9 +8,17 @@
     <link rel="stylesheet" href="/lib/tabler-icons-webfont/dist/tabler-icons.min.css" />
     <link rel="stylesheet" href="/lib/highlight.js/styles/atom-one-dark.min.css" />
     <style>
-        body { padding: 24px; }
-        .ui-example-preview { background: var(--tblr-body-bg, #f4f6fa); }
-        .ui-example-source pre { margin: 0; }
+        body {
+            padding: 24px;
+        }
+
+        .ui-example-preview {
+            background: var(--tblr-body-bg, #f4f6fa);
+        }
+
+        .ui-example-source pre {
+            margin: 0;
+        }
     </style>
 </head>
 <body>
@@ -20,57 +28,57 @@
 
         <h3 class="mt-4">미리보기</h3>
         <div class="ui-example-preview border rounded p-3">
-<div class="card card-md">
-    <div class="card-body">
-        <h2 class="h2 text-center mb-4">계정에 로그인</h2>
-        <div class="mb-3">
-            <label class="form-label">이메일 주소</label>
-            <input type="email" class="form-control" placeholder="your@email.com" autocomplete="off">
-        </div>
-        <div class="mb-2">
-            <label class="form-label">
-                비밀번호
-                <span class="form-label-description">
-                    <a href="./forgot-password.html">비밀번호를 잊으셨나요?</a>
-                </span>
-            </label>
-            <div class="input-group input-group-flat">
-                <input type="password" class="form-control" placeholder="비밀번호" autocomplete="off">
-                <span class="input-group-text">
-                    <a href="#" class="link-secondary" data-bs-toggle="tooltip" aria-label="비밀번호 보기" data-bs-original-title="비밀번호 보기">
-                        <i class="f:20 ti ti-eye"></i>
-                    </a>
-                </span>
+            <div class="card card-md">
+                <div class="card-body">
+                    <h2 class="h2 text-center mb-4">계정에 로그인</h2>
+                    <div class="mb-3">
+                        <label class="form-label">이메일 주소</label>
+                        <input type="email" class="form-control" placeholder="your@email.com" autocomplete="off">
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">
+                            비밀번호
+                            <span class="form-label-description">
+                                <a href="./forgot-password.html">비밀번호를 잊으셨나요?</a>
+                            </span>
+                        </label>
+                        <div class="input-group input-group-flat">
+                            <input type="password" class="form-control" placeholder="비밀번호" autocomplete="off">
+                            <span class="input-group-text">
+                                <a href="#" class="link-secondary" data-bs-toggle="tooltip" aria-label="비밀번호 보기" data-bs-original-title="비밀번호 보기">
+                                    <i class="f:20 ti ti-eye"></i>
+                                </a>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-check">
+                            <input type="checkbox" class="form-check-input">
+                            <span class="form-check-label">이 기기에서 로그인 유지</span>
+                        </label>
+                    </div>
+                    <div class="form-footer">
+                        <button type="submit" class="btn btn-primary w-100">로그인</button>
+                    </div>
+                </div>
+                <div class="hr-text">또는</div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col">
+                            <a href="#" class="btn w-100">
+                                <i class="f:20 mr:4 ti ti-brand-github"></i>
+                                Github으로 로그인
+                            </a>
+                        </div>
+                        <div class="col">
+                            <a href="#" class="btn w-100">
+                                <i class="f:20 ti ti-brand-x"></i>
+                                X로 로그인
+                            </a>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
-        <div class="mb-2">
-            <label class="form-check">
-                <input type="checkbox" class="form-check-input">
-                <span class="form-check-label">이 기기에서 로그인 유지</span>
-            </label>
-        </div>
-        <div class="form-footer">
-            <button type="submit" class="btn btn-primary w-100">로그인</button>
-        </div>
-    </div>
-    <div class="hr-text">또는</div>
-    <div class="card-body">
-        <div class="row">
-            <div class="col">
-                <a href="#" class="btn w-100">
-                    <i class="f:20 mr:4 ti ti-brand-github"></i>
-                    Github으로 로그인
-                </a>
-            </div>
-            <div class="col">
-                <a href="#" class="btn w-100">
-                    <i class="f:20 ti ti-brand-x"></i>
-                    X로 로그인
-                </a>
-            </div>
-        </div>
-    </div>
-</div>
         </div>
 
         <h3 class="mt-4">소스</h3>

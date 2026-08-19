@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="ko">
 <head>
     <meta charset="utf-8" />
@@ -8,9 +8,17 @@
     <link rel="stylesheet" href="/lib/tabler-icons-webfont/dist/tabler-icons.min.css" />
     <link rel="stylesheet" href="/lib/highlight.js/styles/atom-one-dark.min.css" />
     <style>
-        body { padding: 24px; }
-        .ui-example-preview { background: var(--tblr-body-bg, #f4f6fa); }
-        .ui-example-source pre { margin: 0; }
+        body {
+            padding: 24px;
+        }
+
+        .ui-example-preview {
+            background: var(--tblr-body-bg, #f4f6fa);
+        }
+
+        .ui-example-source pre {
+            margin: 0;
+        }
     </style>
 </head>
 <body>
@@ -20,111 +28,111 @@
 
         <h3 class="mt-4">미리보기</h3>
         <div class="ui-example-preview border rounded p-3">
-<a href="#" class="btn" data-bs-toggle="modal" data-bs-target="#modal-report">
-    폼이 있는 모달
-</a>
+            <a href="#" class="btn" data-bs-toggle="modal" data-bs-target="#modal-report">
+                폼이 있는 모달
+            </a>
 
-<div class="modal modal-blur fade" id="modal-report" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">새 보고서</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="mb-3">
-                    <label class="form-label">이름</label>
-                    <input type="text" class="form-control" name="example-text-input" placeholder="보고서 이름">
-                </div>
-                <label class="form-label">보고서 유형</label>
-                <div class="form-selectgroup-boxes row mb-3">
-                    <div class="col-lg-6">
-                        <label class="form-selectgroup-item">
-                            <input type="radio" name="report-type" value="1" class="form-selectgroup-input" checked>
-                            <span class="form-selectgroup-label d-flex align-items-center p-3">
-                                <span class="me-3">
-                                    <span class="form-selectgroup-check"></span>
-                                </span>
-                                <span class="form-selectgroup-label-content">
-                                    <span class="form-selectgroup-title strong mb-1">단순</span>
-                                    <span class="d-block text-secondary">보고서에 필요한 기본 데이터만 제공합니다.</span>
-                                </span>
-                            </span>
-                        </label>
-                    </div>
-                    <div class="col-lg-6">
-                        <label class="form-selectgroup-item">
-                            <input type="radio" name="report-type" value="1" class="form-selectgroup-input">
-                            <span class="form-selectgroup-label d-flex align-items-center p-3">
-                                <span class="me-3">
-                                    <span class="form-selectgroup-check"></span>
-                                </span>
-                                <span class="form-selectgroup-label-content">
-                                    <span class="form-selectgroup-title strong mb-1">고급</span>
-                                    <span class="d-block text-secondary">보고서에 삽입할 차트 및 추가 고급 분석을 포함합니다.</span>
-                                </span>
-                            </span>
-                        </label>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-lg-8">
-                        <div class="mb-3">
-                            <label class="form-label">보고서 URL</label>
-                            <div class="input-group input-group-flat">
-                                <span class="input-group-text">
-                                    https://tabler.io/reports/
-                                </span>
-                                <input type="text" class="form-control ps-0" value="report-01" autocomplete="off">
+            <div class="modal modal-blur fade" id="modal-report" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">새 보고서</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label class="form-label">이름</label>
+                                <input type="text" class="form-control" name="example-text-input" placeholder="보고서 이름">
+                            </div>
+                            <label class="form-label">보고서 유형</label>
+                            <div class="form-selectgroup-boxes row mb-3">
+                                <div class="col-lg-6">
+                                    <label class="form-selectgroup-item">
+                                        <input type="radio" name="report-type" value="1" class="form-selectgroup-input" checked>
+                                        <span class="form-selectgroup-label d-flex align-items-center p-3">
+                                            <span class="me-3">
+                                                <span class="form-selectgroup-check"></span>
+                                            </span>
+                                            <span class="form-selectgroup-label-content">
+                                                <span class="form-selectgroup-title strong mb-1">단순</span>
+                                                <span class="d-block text-secondary">보고서에 필요한 기본 데이터만 제공합니다.</span>
+                                            </span>
+                                        </span>
+                                    </label>
+                                </div>
+                                <div class="col-lg-6">
+                                    <label class="form-selectgroup-item">
+                                        <input type="radio" name="report-type" value="1" class="form-selectgroup-input">
+                                        <span class="form-selectgroup-label d-flex align-items-center p-3">
+                                            <span class="me-3">
+                                                <span class="form-selectgroup-check"></span>
+                                            </span>
+                                            <span class="form-selectgroup-label-content">
+                                                <span class="form-selectgroup-title strong mb-1">고급</span>
+                                                <span class="d-block text-secondary">보고서에 삽입할 차트 및 추가 고급 분석을 포함합니다.</span>
+                                            </span>
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-8">
+                                    <div class="mb-3">
+                                        <label class="form-label">보고서 URL</label>
+                                        <div class="input-group input-group-flat">
+                                            <span class="input-group-text">
+                                                https://tabler.io/reports/
+                                            </span>
+                                            <input type="text" class="form-control ps-0" value="report-01" autocomplete="off">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">공개 여부</label>
+                                        <select class="form-select">
+                                            <option value="1" selected>비공개</option>
+                                            <option value="2">공개</option>
+                                            <option value="3">숨김</option>
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-lg-4">
-                        <div class="mb-3">
-                            <label class="form-label">공개 여부</label>
-                            <select class="form-select">
-                                <option value="1" selected>비공개</option>
-                                <option value="2">공개</option>
-                                <option value="3">숨김</option>
-                            </select>
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">고객 이름</label>
+                                        <input type="text" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">보고 기간</label>
+                                        <input type="date" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-lg-12">
+                                    <div>
+                                        <label class="form-label">추가 정보</label>
+                                        <textarea class="form-control" rows="3"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <a href="#" class="btn btn-link link-secondary" data-bs-dismiss="modal">
+                                취소
+                            </a>
+                            <a href="#" class="btn btn-primary ms-auto" data-bs-dismiss="modal">
+                                <i class="f:20 ti ti-plus"></i>
+                                새 보고서 만들기
+                            </a>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-lg-6">
-                        <div class="mb-3">
-                            <label class="form-label">고객 이름</label>
-                            <input type="text" class="form-control">
-                        </div>
-                    </div>
-                    <div class="col-lg-6">
-                        <div class="mb-3">
-                            <label class="form-label">보고 기간</label>
-                            <input type="date" class="form-control">
-                        </div>
-                    </div>
-                    <div class="col-lg-12">
-                        <div>
-                            <label class="form-label">추가 정보</label>
-                            <textarea class="form-control" rows="3"></textarea>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <a href="#" class="btn btn-link link-secondary" data-bs-dismiss="modal">
-                    취소
-                </a>
-                <a href="#" class="btn btn-primary ms-auto" data-bs-dismiss="modal">
-                    <i class="f:20 ti ti-plus"></i>
-                    새 보고서 만들기
-                </a>
-            </div>
-        </div>
-    </div>
-</div>
         </div>
 
         <h3 class="mt-4">소스</h3>

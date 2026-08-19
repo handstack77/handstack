@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="ko">
 <head>
     <meta charset="utf-8" />
@@ -8,9 +8,17 @@
     <link rel="stylesheet" href="/lib/tabler-icons-webfont/dist/tabler-icons.min.css" />
     <link rel="stylesheet" href="/lib/highlight.js/styles/atom-one-dark.min.css" />
     <style>
-        body { padding: 24px; }
-        .ui-example-preview { background: var(--tblr-body-bg, #f4f6fa); }
-        .ui-example-source pre { margin: 0; }
+        body {
+            padding: 24px;
+        }
+
+        .ui-example-preview {
+            background: var(--tblr-body-bg, #f4f6fa);
+        }
+
+        .ui-example-source pre {
+            margin: 0;
+        }
     </style>
 </head>
 <body>
@@ -20,28 +28,28 @@
 
         <h3 class="mt-4">미리보기</h3>
         <div class="ui-example-preview border rounded p-3">
-<div class="card overflow-auto">
-    <div class="card-header">
-        <h3 class="card-title">카드 샘플</h3>
-        <div class="card-actions">
-            <div class="input-group">
-                <select id="ddlAddCount" class="form-select mx-2">
-                    <option value="1" selected="selected">1</option>
-                    <option value="3">3</option>
-                    <option value="6">6</option>
-                </select>
-                <div class="btn-group">
-                    <button type="button" id="btnPlus" syn-events="['click']" class="btn btn-icon bg-muted-lt">
-                        <i class="f:20 ti ti-plus"></i>
-                    </button>
-                    <button type="button" id="btnMinus" syn-events="['click']" class="btn btn-icon bg-muted-lt">
-                        <i class="f:20 ti ti-minus"></i>
-                    </button>
+            <div class="card overflow-auto">
+                <div class="card-header">
+                    <h3 class="card-title">카드 샘플</h3>
+                    <div class="card-actions">
+                        <div class="input-group">
+                            <select id="ddlAddCount" class="form-select mx-2">
+                                <option value="1" selected="selected">1</option>
+                                <option value="3">3</option>
+                                <option value="6">6</option>
+                            </select>
+                            <div class="btn-group">
+                                <button type="button" id="btnPlus" syn-events="['click']" class="btn btn-icon bg-muted-lt">
+                                    <i class="f:20 ti ti-plus"></i>
+                                </button>
+                                <button type="button" id="btnMinus" syn-events="['click']" class="btn btn-icon bg-muted-lt">
+                                    <i class="f:20 ti ti-minus"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
         </div>
 
         <h3 class="mt-4">소스</h3>

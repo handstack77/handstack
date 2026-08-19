@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="ko">
 <head>
     <meta charset="utf-8" />
@@ -8,9 +8,17 @@
     <link rel="stylesheet" href="/lib/tabler-icons-webfont/dist/tabler-icons.min.css" />
     <link rel="stylesheet" href="/lib/highlight.js/styles/atom-one-dark.min.css" />
     <style>
-        body { padding: 24px; }
-        .ui-example-preview { background: var(--tblr-body-bg, #f4f6fa); }
-        .ui-example-source pre { margin: 0; }
+        body {
+            padding: 24px;
+        }
+
+        .ui-example-preview {
+            background: var(--tblr-body-bg, #f4f6fa);
+        }
+
+        .ui-example-source pre {
+            margin: 0;
+        }
     </style>
 </head>
 <body>
@@ -21,58 +29,58 @@
 
         <h3 class="mt-4">미리보기</h3>
         <div class="ui-example-preview border rounded p-3">
-<div class="card card-md">
-    <div class="card-body">
-        <h2 class="card-title card-title-lg text-center mb-4">계정 인증</h2>
-        <p class="my-4 text-center"><strong>+82 10-1234-5678</strong>로 전송된 인증 코드를 입력하여 계정을 확인하세요.</p>
-        <div class="my-5">
-            <div class="row g-4">
-                <div class="col">
-                    <div class="row g-2">
-                        <div class="col">
-                            <input type="text" class="form-control form-control-lg text-center py-3" maxlength="1" inputmode="numeric" pattern="[0-9]*" data-code-input="">
-                        </div>
-                        <div class="col">
-                            <input type="text" class="form-control form-control-lg text-center py-3" maxlength="1" inputmode="numeric" pattern="[0-9]*" data-code-input="">
-                        </div>
-                        <div class="col">
-                            <input type="text" class="form-control form-control-lg text-center py-3" maxlength="1" inputmode="numeric" pattern="[0-9]*" data-code-input="">
+            <div class="card card-md">
+                <div class="card-body">
+                    <h2 class="card-title card-title-lg text-center mb-4">계정 인증</h2>
+                    <p class="my-4 text-center"><strong>+82 10-1234-5678</strong>로 전송된 인증 코드를 입력하여 계정을 확인하세요.</p>
+                    <div class="my-5">
+                        <div class="row g-4">
+                            <div class="col">
+                                <div class="row g-2">
+                                    <div class="col">
+                                        <input type="text" class="form-control form-control-lg text-center py-3" maxlength="1" inputmode="numeric" pattern="[0-9]*" data-code-input="">
+                                    </div>
+                                    <div class="col">
+                                        <input type="text" class="form-control form-control-lg text-center py-3" maxlength="1" inputmode="numeric" pattern="[0-9]*" data-code-input="">
+                                    </div>
+                                    <div class="col">
+                                        <input type="text" class="form-control form-control-lg text-center py-3" maxlength="1" inputmode="numeric" pattern="[0-9]*" data-code-input="">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="row g-2">
+                                    <div class="col">
+                                        <input type="text" class="form-control form-control-lg text-center py-3" maxlength="1" inputmode="numeric" pattern="[0-9]*" data-code-input="">
+                                    </div>
+                                    <div class="col">
+                                        <input type="text" class="form-control form-control-lg text-center py-3" maxlength="1" inputmode="numeric" pattern="[0-9]*" data-code-input="">
+                                    </div>
+                                    <div class="col">
+                                        <input type="text" class="form-control form-control-lg text-center py-3" maxlength="1" inputmode="numeric" pattern="[0-9]*" data-code-input="">
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="col">
-                    <div class="row g-2">
-                        <div class="col">
-                            <input type="text" class="form-control form-control-lg text-center py-3" maxlength="1" inputmode="numeric" pattern="[0-9]*" data-code-input="">
-                        </div>
-                        <div class="col">
-                            <input type="text" class="form-control form-control-lg text-center py-3" maxlength="1" inputmode="numeric" pattern="[0-9]*" data-code-input="">
-                        </div>
-                        <div class="col">
-                            <input type="text" class="form-control form-control-lg text-center py-3" maxlength="1" inputmode="numeric" pattern="[0-9]*" data-code-input="">
+                    <div class="my-4">
+                        <label class="form-check">
+                            <input type="checkbox" class="form-check-input">
+                            이 기기에서 다시 코드 묻지 않기
+                        </label>
+                    </div>
+                    <div class="form-footer">
+                        <div class="btn-list flex-nowrap">
+                            <a href="./2-step-verification.html" class="btn w-100">
+                                취소
+                            </a>
+                            <a href="#" class="btn btn-primary w-100">
+                                인증
+                            </a>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="my-4">
-            <label class="form-check">
-                <input type="checkbox" class="form-check-input">
-                이 기기에서 다시 코드 묻지 않기
-            </label>
-        </div>
-        <div class="form-footer">
-            <div class="btn-list flex-nowrap">
-                <a href="./2-step-verification.html" class="btn w-100">
-                    취소
-                </a>
-                <a href="#" class="btn btn-primary w-100">
-                    인증
-                </a>
-            </div>
-        </div>
-    </div>
-</div>
         </div>
 
         <h3 class="mt-4">소스</h3>

@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="ko">
 <head>
     <meta charset="utf-8" />
@@ -8,9 +8,17 @@
     <link rel="stylesheet" href="/lib/tabler-icons-webfont/dist/tabler-icons.min.css" />
     <link rel="stylesheet" href="/lib/highlight.js/styles/atom-one-dark.min.css" />
     <style>
-        body { padding: 24px; }
-        .ui-example-preview { background: var(--tblr-body-bg, #f4f6fa); }
-        .ui-example-source pre { margin: 0; }
+        body {
+            padding: 24px;
+        }
+
+        .ui-example-preview {
+            background: var(--tblr-body-bg, #f4f6fa);
+        }
+
+        .ui-example-source pre {
+            margin: 0;
+        }
     </style>
 </head>
 <body>
@@ -20,47 +28,47 @@
 
         <h3 class="mt-4">미리보기</h3>
         <div class="ui-example-preview border rounded p-3">
-<div class="card">
-    <div class="card-header sticky-top bg-white">
-        <h3 class="card-title">그룹코드 등록</h3>
-        <div class="card-actions">
-            <div class="input-group box-shadow:none!">
-                <div class="btn-group box-shadow:none!">
-                    <button type="button" id="btnCloseGroupCode" syn-options="{triggerConfig: {triggerEvent:'click', method: 'syn.$w.closeDialog'}}" class="btn btn-icon border-0 box-shadow:none!">
-                        <i class="f:20 ti ti-x"></i>
+            <div class="card">
+                <div class="card-header sticky-top bg-white">
+                    <h3 class="card-title">그룹코드 등록</h3>
+                    <div class="card-actions">
+                        <div class="input-group box-shadow:none!">
+                            <div class="btn-group box-shadow:none!">
+                                <button type="button" id="btnCloseGroupCode" syn-options="{triggerConfig: {triggerEvent:'click', method: 'syn.$w.closeDialog'}}" class="btn btn-icon border-0 box-shadow:none!">
+                                    <i class="f:20 ti ti-x"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label required">그룹코드</label>
+                        <div>
+                            <input id="txtCodeID" syn-datafield="CodeID" syn-options="{belongID: ['ID01']}" type="text" class="form-control" placeholder="그룹코드 6자리를 입력 하세요.">
+                            <small class="form-hint">아르하 업무 코드: COM, 프로그램: PGM, 시스템: SYS 접두어로 코드를 구분합니다.</small>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label required">그룹코드명</label>
+                        <div>
+                            <input id="txtCodeValue" syn-datafield="CodeValue" syn-options="{belongID: ['ID01']}" type="text" class="form-control">
+                            <small class="form-hint">
+                                그룹코드를 표현하는 명칭을 입력합니다.
+                            </small>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="form-label">설명</label>
+                        <textarea id="txtComment" syn-datafield="Comment" syn-options="{belongID: ['ID01'], toSynControl: false}" class="form-control h:100!" placeholder="그룹코드에 대한 추가 설명을 입력합니다."></textarea>
+                    </div>
+                </div>
+                <div class="card-footer p-2 text-end">
+                    <button type="button" id="btnAddGroupCode" class="btn btn-primary" syn-events="['click']">
+                        <i class="f:20 ti ti-device-floppy mr:4"></i> 확인
                     </button>
                 </div>
             </div>
-        </div>
-    </div>
-    <div class="card-body">
-        <div class="mb-3">
-            <label class="form-label required">그룹코드</label>
-            <div>
-                <input id="txtCodeID" syn-datafield="CodeID" syn-options="{belongID: ['ID01']}" type="text" class="form-control" placeholder="그룹코드 6자리를 입력 하세요.">
-                <small class="form-hint">아르하 업무 코드: COM, 프로그램: PGM, 시스템: SYS 접두어로 코드를 구분합니다.</small>
-            </div>
-        </div>
-        <div class="mb-3">
-            <label class="form-label required">그룹코드명</label>
-            <div>
-                <input id="txtCodeValue" syn-datafield="CodeValue" syn-options="{belongID: ['ID01']}" type="text" class="form-control">
-                <small class="form-hint">
-                    그룹코드를 표현하는 명칭을 입력합니다.
-                </small>
-            </div>
-        </div>
-        <div>
-            <label class="form-label">설명</label>
-            <textarea id="txtComment" syn-datafield="Comment" syn-options="{belongID: ['ID01'], toSynControl: false}" class="form-control h:100!" placeholder="그룹코드에 대한 추가 설명을 입력합니다."></textarea>
-        </div>
-    </div>
-    <div class="card-footer p-2 text-end">
-        <button type="button" id="btnAddGroupCode" class="btn btn-primary" syn-events="['click']">
-            <i class="f:20 ti ti-device-floppy mr:4"></i> 확인
-        </button>
-    </div>
-</div>
         </div>
 
         <h3 class="mt-4">소스</h3>

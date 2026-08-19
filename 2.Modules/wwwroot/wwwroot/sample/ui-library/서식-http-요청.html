@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="ko">
 <head>
     <meta charset="utf-8" />
@@ -8,9 +8,17 @@
     <link rel="stylesheet" href="/lib/tabler-icons-webfont/dist/tabler-icons.min.css" />
     <link rel="stylesheet" href="/lib/highlight.js/styles/atom-one-dark.min.css" />
     <style>
-        body { padding: 24px; }
-        .ui-example-preview { background: var(--tblr-body-bg, #f4f6fa); }
-        .ui-example-source pre { margin: 0; }
+        body {
+            padding: 24px;
+        }
+
+        .ui-example-preview {
+            background: var(--tblr-body-bg, #f4f6fa);
+        }
+
+        .ui-example-source pre {
+            margin: 0;
+        }
     </style>
 </head>
 <body>
@@ -20,173 +28,173 @@
 
         <h3 class="mt-4">미리보기</h3>
         <div class="ui-example-preview border rounded p-3">
-<div class="card overflow-auto">
-    <div class="card-status-top bg-dark-overlay"></div>
-    <div class="card-header">
-        <h3 class="card-title">HTTP 요청</h3>
-    </div>
-    <div class="card-body">
-        <div class="row row-cards">
-            <div class="mb-3 col-sm-4 col-md-2">
-                <label class="form-label required">메서드</label>
-                <select class="form-select">
-                    <option value="GET">GET</option>
-                    <option value="POST">POST</option>
-                    <option value="PUT">PUT</option>
-                    <option value="HEAD">HEAD</option>
-                    <option value="DELETE">DELETE</option>
-                    <option value="PATCH">PATCH</option>
-                </select>
+            <div class="card overflow-auto">
+                <div class="card-status-top bg-dark-overlay"></div>
+                <div class="card-header">
+                    <h3 class="card-title">HTTP 요청</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row row-cards">
+                        <div class="mb-3 col-sm-4 col-md-2">
+                            <label class="form-label required">메서드</label>
+                            <select class="form-select">
+                                <option value="GET">GET</option>
+                                <option value="POST">POST</option>
+                                <option value="PUT">PUT</option>
+                                <option value="HEAD">HEAD</option>
+                                <option value="DELETE">DELETE</option>
+                                <option value="PATCH">PATCH</option>
+                            </select>
+                        </div>
+                        <div class="mb-3 col-sm-8 col-md-10">
+                            <label class="form-label required">URL</label>
+                            <input name="url" type="text" class="form-control" value="https://content.googleapis.com/discovery/v1/apis/surveys/v2/rest">
+                        </div>
+                    </div>
+                    <div class="form-label">단언(Assertions)</div>
+                    <div class="table-responsive">
+                        <table class="table mb-0">
+                            <thead>
+                                <tr>
+                                    <th>소스</th>
+                                    <th>속성</th>
+                                    <th>비교</th>
+                                    <th>대상</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <select class="form-select">
+                                            <option value="STATUS_CODE" selected="">상태 코드</option>
+                                            <option value="JSON_BODY">JSON 본문</option>
+                                            <option value="HEADERS">헤더</option>
+                                            <option value="TEXT_BODY">텍스트 본문</option>
+                                            <option value="RESPONSE_TIME">응답 시간</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control">
+                                    </td>
+                                    <td>
+                                        <select class="form-select">
+                                            <option value="EQUALS" selected="">같음</option>
+                                            <option value="NOT_EQUALS">같지 않음</option>
+                                            <option value="HAS_KEY">키를 가짐</option>
+                                            <option value="NOT_HAS_KEY">키를 갖지 않음</option>
+                                            <option value="HAS_VALUE">값을 가짐</option>
+                                            <option value="NOT_HAS_VALUE">값을 갖지 않음</option>
+                                            <option value="IS_EMPTY">비어 있음</option>
+                                            <option value="NOT_EMPTY">비어 있지 않음</option>
+                                            <option value="GREATER_THAN">보다 큼</option>
+                                            <option value="LESS_THAN">보다 작음</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control" value="200">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <select class="form-select">
+                                            <option value="STATUS_CODE">상태 코드</option>
+                                            <option value="JSON_BODY" selected="">JSON 본문</option>
+                                            <option value="HEADERS">헤더</option>
+                                            <option value="TEXT_BODY">텍스트 본문</option>
+                                            <option value="RESPONSE_TIME">응답 시간</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control" value="parameters.alt.type">
+                                    </td>
+                                    <td>
+                                        <select class="form-select">
+                                            <option value="EQUALS">같음</option>
+                                            <option value="NOT_EQUALS">같지 않음</option>
+                                            <option value="HAS_KEY">키를 가짐</option>
+                                            <option value="NOT_HAS_KEY">키를 갖지 않음</option>
+                                            <option value="HAS_VALUE" selected="">값을 가짐</option>
+                                            <option value="NOT_HAS_VALUE">값을 갖지 않음</option>
+                                            <option value="IS_EMPTY">비어 있음</option>
+                                            <option value="NOT_EMPTY">비어 있지 않음</option>
+                                            <option value="GREATER_THAN">보다 큼</option>
+                                            <option value="LESS_THAN">보다 작음</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control" value="string">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <select class="form-select">
+                                            <option value="STATUS_CODE">상태 코드</option>
+                                            <option value="JSON_BODY">JSON 본문</option>
+                                            <option value="HEADERS">헤더</option>
+                                            <option value="TEXT_BODY">텍스트 본문</option>
+                                            <option value="RESPONSE_TIME" selected="">응답 시간</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control">
+                                    </td>
+                                    <td>
+                                        <select class="form-select">
+                                            <option value="EQUALS">같음</option>
+                                            <option value="NOT_EQUALS">같지 않음</option>
+                                            <option value="HAS_KEY">키를 가짐</option>
+                                            <option value="NOT_HAS_KEY">키를 갖지 않음</option>
+                                            <option value="HAS_VALUE">값을 가짐</option>
+                                            <option value="NOT_HAS_VALUE">값을 갖지 않음</option>
+                                            <option value="IS_EMPTY">비어 있음</option>
+                                            <option value="NOT_EMPTY">비어 있지 않음</option>
+                                            <option value="GREATER_THAN">보다 큼</option>
+                                            <option value="LESS_THAN" selected="">보다 작음</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control" value="500">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <select class="form-select">
+                                            <option value="STATUS_CODE">상태 코드</option>
+                                            <option value="JSON_BODY">JSON 본문</option>
+                                            <option value="HEADERS" selected="">헤더</option>
+                                            <option value="TEXT_BODY">텍스트 본문</option>
+                                            <option value="RESPONSE_TIME">응답 시간</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control" value="content-type">
+                                    </td>
+                                    <td>
+                                        <select class="form-select">
+                                            <option value="EQUALS" selected="">같음</option>
+                                            <option value="NOT_EQUALS">같지 않음</option>
+                                            <option value="HAS_KEY">키를 가짐</option>
+                                            <option value="NOT_HAS_KEY">키를 갖지 않음</option>
+                                            <option value="HAS_VALUE">값을 가짐</option>
+                                            <option value="NOT_HAS_VALUE">값을 갖지 않음</option>
+                                            <option value="IS_EMPTY">비어 있음</option>
+                                            <option value="NOT_EMPTY">비어 있지 않음</option>
+                                            <option value="GREATER_THAN">보다 큼</option>
+                                            <option value="LESS_THAN">보다 작음</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control" value="application/json; charset=UTF-8">
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-footer text-end">
+                    <button type="submit" class="btn btn-primary">요청하기</button>
+                </div>
             </div>
-            <div class="mb-3 col-sm-8 col-md-10">
-                <label class="form-label required">URL</label>
-                <input name="url" type="text" class="form-control" value="https://content.googleapis.com/discovery/v1/apis/surveys/v2/rest">
-            </div>
-        </div>
-        <div class="form-label">단언(Assertions)</div>
-        <div class="table-responsive">
-            <table class="table mb-0">
-                <thead>
-                    <tr>
-                        <th>소스</th>
-                        <th>속성</th>
-                        <th>비교</th>
-                        <th>대상</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>
-                            <select class="form-select">
-                                <option value="STATUS_CODE" selected="">상태 코드</option>
-                                <option value="JSON_BODY">JSON 본문</option>
-                                <option value="HEADERS">헤더</option>
-                                <option value="TEXT_BODY">텍스트 본문</option>
-                                <option value="RESPONSE_TIME">응답 시간</option>
-                            </select>
-                        </td>
-                        <td>
-                            <input type="text" class="form-control">
-                        </td>
-                        <td>
-                            <select class="form-select">
-                                <option value="EQUALS" selected="">같음</option>
-                                <option value="NOT_EQUALS">같지 않음</option>
-                                <option value="HAS_KEY">키를 가짐</option>
-                                <option value="NOT_HAS_KEY">키를 갖지 않음</option>
-                                <option value="HAS_VALUE">값을 가짐</option>
-                                <option value="NOT_HAS_VALUE">값을 갖지 않음</option>
-                                <option value="IS_EMPTY">비어 있음</option>
-                                <option value="NOT_EMPTY">비어 있지 않음</option>
-                                <option value="GREATER_THAN">보다 큼</option>
-                                <option value="LESS_THAN">보다 작음</option>
-                            </select>
-                        </td>
-                        <td>
-                            <input type="text" class="form-control" value="200">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <select class="form-select">
-                                <option value="STATUS_CODE">상태 코드</option>
-                                <option value="JSON_BODY" selected="">JSON 본문</option>
-                                <option value="HEADERS">헤더</option>
-                                <option value="TEXT_BODY">텍스트 본문</option>
-                                <option value="RESPONSE_TIME">응답 시간</option>
-                            </select>
-                        </td>
-                        <td>
-                            <input type="text" class="form-control" value="parameters.alt.type">
-                        </td>
-                        <td>
-                            <select class="form-select">
-                                <option value="EQUALS">같음</option>
-                                <option value="NOT_EQUALS">같지 않음</option>
-                                <option value="HAS_KEY">키를 가짐</option>
-                                <option value="NOT_HAS_KEY">키를 갖지 않음</option>
-                                <option value="HAS_VALUE" selected="">값을 가짐</option>
-                                <option value="NOT_HAS_VALUE">값을 갖지 않음</option>
-                                <option value="IS_EMPTY">비어 있음</option>
-                                <option value="NOT_EMPTY">비어 있지 않음</option>
-                                <option value="GREATER_THAN">보다 큼</option>
-                                <option value="LESS_THAN">보다 작음</option>
-                            </select>
-                        </td>
-                        <td>
-                            <input type="text" class="form-control" value="string">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <select class="form-select">
-                                <option value="STATUS_CODE">상태 코드</option>
-                                <option value="JSON_BODY">JSON 본문</option>
-                                <option value="HEADERS">헤더</option>
-                                <option value="TEXT_BODY">텍스트 본문</option>
-                                <option value="RESPONSE_TIME" selected="">응답 시간</option>
-                            </select>
-                        </td>
-                        <td>
-                            <input type="text" class="form-control">
-                        </td>
-                        <td>
-                            <select class="form-select">
-                                <option value="EQUALS">같음</option>
-                                <option value="NOT_EQUALS">같지 않음</option>
-                                <option value="HAS_KEY">키를 가짐</option>
-                                <option value="NOT_HAS_KEY">키를 갖지 않음</option>
-                                <option value="HAS_VALUE">값을 가짐</option>
-                                <option value="NOT_HAS_VALUE">값을 갖지 않음</option>
-                                <option value="IS_EMPTY">비어 있음</option>
-                                <option value="NOT_EMPTY">비어 있지 않음</option>
-                                <option value="GREATER_THAN">보다 큼</option>
-                                <option value="LESS_THAN" selected="">보다 작음</option>
-                            </select>
-                        </td>
-                        <td>
-                            <input type="text" class="form-control" value="500">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <select class="form-select">
-                                <option value="STATUS_CODE">상태 코드</option>
-                                <option value="JSON_BODY">JSON 본문</option>
-                                <option value="HEADERS" selected="">헤더</option>
-                                <option value="TEXT_BODY">텍스트 본문</option>
-                                <option value="RESPONSE_TIME">응답 시간</option>
-                            </select>
-                        </td>
-                        <td>
-                            <input type="text" class="form-control" value="content-type">
-                        </td>
-                        <td>
-                            <select class="form-select">
-                                <option value="EQUALS" selected="">같음</option>
-                                <option value="NOT_EQUALS">같지 않음</option>
-                                <option value="HAS_KEY">키를 가짐</option>
-                                <option value="NOT_HAS_KEY">키를 갖지 않음</option>
-                                <option value="HAS_VALUE">값을 가짐</option>
-                                <option value="NOT_HAS_VALUE">값을 갖지 않음</option>
-                                <option value="IS_EMPTY">비어 있음</option>
-                                <option value="NOT_EMPTY">비어 있지 않음</option>
-                                <option value="GREATER_THAN">보다 큼</option>
-                                <option value="LESS_THAN">보다 작음</option>
-                            </select>
-                        </td>
-                        <td>
-                            <input type="text" class="form-control" value="application/json; charset=UTF-8">
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-    <div class="card-footer text-end">
-        <button type="submit" class="btn btn-primary">요청하기</button>
-    </div>
-</div>
         </div>
 
         <h3 class="mt-4">소스</h3>
