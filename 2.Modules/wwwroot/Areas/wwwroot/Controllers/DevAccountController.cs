@@ -57,6 +57,12 @@ namespace wwwroot.Areas.wwwroot.Controllers
             }
 
             var linkUrl = (string.IsNullOrWhiteSpace(returnUrl) == false && Url.IsLocalUrl(returnUrl) == true) ? returnUrl : "/";
+
+            if (User.Identity?.IsAuthenticated == true)
+            {
+                return LocalRedirect(linkUrl);
+            }
+
             var clientIP = HttpContext.GetRemoteIpAddress().ToStringSafe();
             var config = ModuleConfiguration.DevAutoSignIn;
 
