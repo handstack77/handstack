@@ -62,9 +62,14 @@ let $mainframe = {
                 syn.$w.setStorage(`HandStack.tokenID`, tokenID, true);
             }
             else {
-                const isDevAutoSignIn = await $this.method.tryDevAutoSignIn();
-                if (isDevAutoSignIn == true) {
-                    location.reload();
+                const isDevAutoSignInAttempted = syn.$w.getStorage(`HandStack.DevAutoSignInAttempted`, false) == true;
+                if (isDevAutoSignInAttempted == false) {
+                    syn.$w.setStorage(`HandStack.DevAutoSignInAttempted`, true, false);
+
+                    const isDevAutoSignIn = await $this.method.tryDevAutoSignIn();
+                    if (isDevAutoSignIn == true) {
+                        location.reload();
+                    }
                 }
                 return false;
             }
