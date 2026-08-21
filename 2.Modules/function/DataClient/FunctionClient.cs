@@ -144,7 +144,7 @@ namespace function.DataClient
                                     return;
                                 }
 
-                                var dynamicParameter = queryObject.Parameters.Where(p => p.ParameterName == baseFieldMapping.TargetFieldID).FirstOrDefault();
+                                var dynamicParameter = queryObject.Parameters.FirstOrDefault(p => p.ParameterName == baseFieldMapping.TargetFieldID);
                                 if (dynamicParameter == null)
                                 {
                                     response.ExceptionText = $"BaseFieldMappings - {queryObject.QueryID}에 대한 TargetFieldID {baseFieldMapping.SourceFieldID} 컬럼 정보 필요";

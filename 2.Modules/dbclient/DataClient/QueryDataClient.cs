@@ -367,7 +367,7 @@ namespace dbclient.DataClient
                                     goto TransactionException;
                                 }
 
-                                var dynamicParameter = dynamicObject.Parameters.Where(p => p.ParameterName == baseFieldMapping.TargetFieldID).FirstOrDefault();
+                                var dynamicParameter = dynamicObject.Parameters.FirstOrDefault(p => p.ParameterName == baseFieldMapping.TargetFieldID);
 
                                 if (dynamicParameter == null)
                                 {
@@ -450,7 +450,7 @@ namespace dbclient.DataClient
                                                     {
                                                         PretreatmentAddParameter(databaseProvider, statementMap, dynamicParameters, rowItem, item);
 
-                                                        var dynamicParameter = dynamicObject.Parameters.Where(p => p.ParameterName == item.ColumnName).FirstOrDefault();
+                                                        var dynamicParameter = dynamicObject.Parameters.FirstOrDefault(p => p.ParameterName == item.ColumnName);
 
                                                         if (dynamicParameter == null)
                                                         {
@@ -490,7 +490,7 @@ namespace dbclient.DataClient
                                                         {
                                                             dynamicParameters?.Add(item.ColumnName, parameters);
 
-                                                            var dynamicParameter = dynamicObject.Parameters.Where(p => p.ParameterName == item.ColumnName).FirstOrDefault();
+                                                            var dynamicParameter = dynamicObject.Parameters.FirstOrDefault(p => p.ParameterName == item.ColumnName);
 
                                                             if (dynamicParameter == null)
                                                             {
@@ -1178,7 +1178,7 @@ TransactionException:
                                     goto TransactionException;
                                 }
 
-                                var dynamicParameter = dynamicObject.Parameters.Where(p => p.ParameterName == baseFieldMapping.TargetFieldID).FirstOrDefault();
+                                var dynamicParameter = dynamicObject.Parameters.FirstOrDefault(p => p.ParameterName == baseFieldMapping.TargetFieldID);
 
                                 if (dynamicParameter == null)
                                 {
@@ -1261,7 +1261,7 @@ TransactionException:
                                                     {
                                                         PretreatmentAddParameter(databaseProvider, statementMap, dynamicParameters, rowItem, item);
 
-                                                        var dynamicParameter = dynamicObject.Parameters.Where(p => p.ParameterName == item.ColumnName).FirstOrDefault();
+                                                        var dynamicParameter = dynamicObject.Parameters.FirstOrDefault(p => p.ParameterName == item.ColumnName);
 
                                                         if (dynamicParameter == null)
                                                         {
@@ -1301,7 +1301,7 @@ TransactionException:
                                                         {
                                                             dynamicParameters?.Add(item.ColumnName, parameters);
 
-                                                            var dynamicParameter = dynamicObject.Parameters.Where(p => p.ParameterName == item.ColumnName).FirstOrDefault();
+                                                            var dynamicParameter = dynamicObject.Parameters.FirstOrDefault(p => p.ParameterName == item.ColumnName);
 
                                                             if (dynamicParameter == null)
                                                             {
@@ -1842,7 +1842,7 @@ TransactionException:
                                     goto TransactionException;
                                 }
 
-                                var dynamicParameter = dynamicObject.Parameters.Where(p => p.ParameterName == baseFieldMapping.TargetFieldID).FirstOrDefault();
+                                var dynamicParameter = dynamicObject.Parameters.FirstOrDefault(p => p.ParameterName == baseFieldMapping.TargetFieldID);
 
                                 if (dynamicParameter == null)
                                 {
@@ -1925,7 +1925,7 @@ TransactionException:
                                                     {
                                                         PretreatmentAddParameter(databaseProvider, statementMap, dynamicParameters, rowItem, item);
 
-                                                        var dynamicParameter = dynamicObject.Parameters.Where(p => p.ParameterName == item.ColumnName).FirstOrDefault();
+                                                        var dynamicParameter = dynamicObject.Parameters.FirstOrDefault(p => p.ParameterName == item.ColumnName);
 
                                                         if (dynamicParameter == null)
                                                         {
@@ -1965,7 +1965,7 @@ TransactionException:
                                                         {
                                                             dynamicParameters?.Add(item.ColumnName, parameters);
 
-                                                            var dynamicParameter = dynamicObject.Parameters.Where(p => p.ParameterName == item.ColumnName).FirstOrDefault();
+                                                            var dynamicParameter = dynamicObject.Parameters.FirstOrDefault(p => p.ParameterName == item.ColumnName);
 
                                                             if (dynamicParameter == null)
                                                             {
@@ -2507,7 +2507,7 @@ TransactionException:
                                     goto TransactionException;
                                 }
 
-                                var dynamicParameter = dynamicObject.Parameters.Where(p => p.ParameterName == baseFieldMapping.TargetFieldID).FirstOrDefault();
+                                var dynamicParameter = dynamicObject.Parameters.FirstOrDefault(p => p.ParameterName == baseFieldMapping.TargetFieldID);
 
                                 if (dynamicParameter == null)
                                 {
@@ -2589,7 +2589,7 @@ TransactionException:
                                                     {
                                                         PretreatmentAddParameter(databaseProvider, statementMap, dynamicParameters, rowItem, item);
 
-                                                        var dynamicParameter = dynamicObject.Parameters.Where(p => p.ParameterName == item.ColumnName).FirstOrDefault();
+                                                        var dynamicParameter = dynamicObject.Parameters.FirstOrDefault(p => p.ParameterName == item.ColumnName);
 
                                                         if (dynamicParameter == null)
                                                         {
@@ -2629,7 +2629,7 @@ TransactionException:
                                                         {
                                                             dynamicParameters?.Add(item.ColumnName, parameters);
 
-                                                            var dynamicParameter = dynamicObject.Parameters.Where(p => p.ParameterName == item.ColumnName).FirstOrDefault();
+                                                            var dynamicParameter = dynamicObject.Parameters.FirstOrDefault(p => p.ParameterName == item.ColumnName);
 
                                                             if (dynamicParameter == null)
                                                             {
@@ -3557,7 +3557,7 @@ TransactionException:
                                     goto TransactionException;
                                 }
 
-                                var dynamicParameter = dynamicObject.Parameters.Where(p => p.ParameterName == baseFieldMapping.TargetFieldID).FirstOrDefault();
+                                var dynamicParameter = dynamicObject.Parameters.FirstOrDefault(p => p.ParameterName == baseFieldMapping.TargetFieldID);
 
                                 if (dynamicParameter == null)
                                 {
@@ -3639,7 +3639,7 @@ TransactionException:
                                                     {
                                                         PretreatmentAddParameter(databaseProvider, statementMap, dynamicParameters, rowItem, item);
 
-                                                        var dynamicParameter = dynamicObject.Parameters.Where(p => p.ParameterName == item.ColumnName).FirstOrDefault();
+                                                        var dynamicParameter = dynamicObject.Parameters.FirstOrDefault(p => p.ParameterName == item.ColumnName);
 
                                                         if (dynamicParameter == null)
                                                         {
@@ -3679,7 +3679,7 @@ TransactionException:
                                                         {
                                                             dynamicParameters?.Add(item.ColumnName, parameters);
 
-                                                            var dynamicParameter = dynamicObject.Parameters.Where(p => p.ParameterName == item.ColumnName).FirstOrDefault();
+                                                            var dynamicParameter = dynamicObject.Parameters.FirstOrDefault(p => p.ParameterName == item.ColumnName);
 
                                                             if (dynamicParameter == null)
                                                             {
@@ -4078,7 +4078,7 @@ TransactionException:
                                     goto TransactionException;
                                 }
 
-                                var dynamicParameter = dynamicObject.Parameters.Where(p => p.ParameterName == baseFieldMapping.TargetFieldID).FirstOrDefault();
+                                var dynamicParameter = dynamicObject.Parameters.FirstOrDefault(p => p.ParameterName == baseFieldMapping.TargetFieldID);
 
                                 if (dynamicParameter == null)
                                 {
@@ -4180,7 +4180,7 @@ TransactionException:
                                                     {
                                                         PretreatmentAddParameter(databaseProvider, statementMap, dynamicParameters, rowItem, item);
 
-                                                        var dynamicParameter = dynamicObject.Parameters.Where(p => p.ParameterName == item.ColumnName).FirstOrDefault();
+                                                        var dynamicParameter = dynamicObject.Parameters.FirstOrDefault(p => p.ParameterName == item.ColumnName);
 
                                                         if (dynamicParameter == null)
                                                         {
@@ -4220,7 +4220,7 @@ TransactionException:
                                                         {
                                                             dynamicParameters?.Add(item.ColumnName, parameters);
 
-                                                            var dynamicParameter = dynamicObject.Parameters.Where(p => p.ParameterName == item.ColumnName).FirstOrDefault();
+                                                            var dynamicParameter = dynamicObject.Parameters.FirstOrDefault(p => p.ParameterName == item.ColumnName);
 
                                                             if (dynamicParameter == null)
                                                             {

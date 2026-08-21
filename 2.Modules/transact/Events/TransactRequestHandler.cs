@@ -456,7 +456,7 @@ namespace transact.Events
                 try
                 {
                     var isBypassAuthorizeIP = false;
-                    if (string.IsNullOrWhiteSpace(ModuleConfiguration.BypassAuthorizeIP.FirstOrDefault(p => p == "*")) == false)
+                    if (ModuleConfiguration.BypassAuthorizeIP.Contains("*"))
                     {
                         isBypassAuthorizeIP = true;
                     }

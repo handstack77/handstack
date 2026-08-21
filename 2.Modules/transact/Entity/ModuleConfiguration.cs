@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
+using System.Collections.Frozen;
 
 using HandStack.Web.Extensions;
 
@@ -14,7 +15,7 @@ namespace transact.Entity
         public static string ModuleID = "transact";
         public static string Version = "";
         public static string AuthorizationKey = "";
-        public static List<string> AllowClientIP = new List<string>() { "*" };
+        public static FrozenSet<string> AllowClientIP = new List<string>() { "*" }.ToFrozenSet();
         public static bool IsBundledWithHost = false;
         public static bool IsContractFileWatching = true;
         public static readonly string[] ContractFileExtensions = { ".json", ".txn" };
@@ -29,9 +30,9 @@ namespace transact.Entity
         public static string DatabaseContractPath = "";
         public static bool IsValidationRequest = false;
         public static bool IsValidationGlobalID = false;
-        public static List<string> BypassGlobalIDTransactions = new List<string>();
+        public static FrozenSet<string> BypassGlobalIDTransactions = FrozenSet<string>.Empty;
         public static bool IsAllowDynamicRequest = false;
-        public static List<string> AllowTenantTransactionCommands = new List<string>();
+        public static FrozenSet<string> AllowTenantTransactionCommands = FrozenSet<string>.Empty;
         public static bool IsLogServer = false;
         public static bool IsTransactAggregate = false;
         public static bool IsTransactAggregateRolling = false;
@@ -45,12 +46,12 @@ namespace transact.Entity
         public static bool UseApiAuthorize = false;
         public static string DynamicWorkflowTransaction = "";
         public static string DynamicWorkflowServices = "";
-        public static List<string> BypassAuthorizeIP = new List<string>();
+        public static FrozenSet<string> BypassAuthorizeIP = FrozenSet<string>.Empty;
         public static string SystemID = "";
-        public static List<string> AvailableEnvironment = new List<string> { "D" };
+        public static FrozenSet<string> AvailableEnvironment = new List<string> { "D" }.ToFrozenSet();
         public static bool IsCodeDataCache = false;
         public static int CodeDataCacheTimeout = 20;
-        public static Dictionary<string, List<string>> AllowRequestTransactions = new Dictionary<string, List<string>>();
+        public static FrozenDictionary<string, FrozenSet<string>> AllowRequestTransactions = FrozenDictionary<string, FrozenSet<string>>.Empty;
         public static ExpiringDictionary<string, string> RoutingCommandUri = new ExpiringDictionary<string, string>();
         public static ExpiringList<PublicTransaction>? PublicTransactions = new ExpiringList<PublicTransaction>();
         public static ExpiringList<string> RequestGlobalIDList = new ExpiringList<string>(TimeSpan.FromMinutes(3), TimeSpan.FromMinutes(1));

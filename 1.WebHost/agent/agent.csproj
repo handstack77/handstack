@@ -2,6 +2,8 @@
     <PropertyGroup>
         <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
         <TargetFramework>net10.0</TargetFramework>
+        <ServerGarbageCollection>true</ServerGarbageCollection>
+        <ConcurrentGarbageCollection>true</ConcurrentGarbageCollection>
         <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
         <PublishWithAspNetCoreTargetManifest>true</PublishWithAspNetCoreTargetManifest>
         <TargetLatestRuntimePatch>false</TargetLatestRuntimePatch>

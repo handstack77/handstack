@@ -33,7 +33,7 @@ namespace transact.Extensions
                 authorizationKey = httpContext.Request.GetHeaderValue("AuthorizationKey");
             }
 
-            var isAllowClientIP = ModuleConfiguration.AllowClientIP.Contains("*") || ModuleConfiguration.AllowClientIP.Any(p => p == remoteIP);
+            var isAllowClientIP = ModuleConfiguration.AllowClientIP.Contains("*") || ModuleConfiguration.AllowClientIP.Contains(remoteIP);
             return ModuleConfiguration.AuthorizationKey == authorizationKey || isAllowClientIP;
         }
 
@@ -61,7 +61,7 @@ namespace transact.Extensions
             }
 
             var isAuthorizationKeyMatched = string.IsNullOrWhiteSpace(ModuleConfiguration.AuthorizationKey) == false && ModuleConfiguration.AuthorizationKey == authorizationKey;
-            var isExplicitAllowClientIP = ModuleConfiguration.AllowClientIP.Any(p => p != "*" && p == remoteIP);
+            var isExplicitAllowClientIP = remoteIP != "*" && ModuleConfiguration.AllowClientIP.Contains(remoteIP);
 
             return isAuthorizationKeyMatched || isExplicitAllowClientIP;
         }
@@ -80,7 +80,7 @@ namespace transact.Extensions
         //    (Workflow 는 localhost 우회가 없었으므로 false 로 호출)
         public static bool IsBypassAuthorizeIP(this HttpContext httpContext, string? requestSourceIP, bool allowLocalhostBypass)
         {
-            if (string.IsNullOrWhiteSpace(ModuleConfiguration.BypassAuthorizeIP.FirstOrDefault(p => p == "*")) == false)
+            if (ModuleConfiguration.BypassAuthorizeIP.Contains("*"))
             {
                 return true;
             }

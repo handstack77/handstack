@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -60,17 +61,14 @@ namespace transact
                         ModuleConfiguration.BusinessServerUrl = moduleConfig.BusinessServerUrl;
                         ModuleConfiguration.CircuitBreakResetSecond = moduleConfig.CircuitBreakResetSecond;
                         ModuleConfiguration.SystemID = moduleConfig.SystemID;
-                        ModuleConfiguration.AvailableEnvironment = moduleConfig.AvailableEnvironment;
                         ModuleConfiguration.UseApiAuthorize = moduleConfig.UseApiAuthorize;
                         ModuleConfiguration.TrustedProxyIP = string.IsNullOrWhiteSpace(moduleConfig.TrustedProxyIP) ? "1.1.1.1" : moduleConfig.TrustedProxyIP;
                         ModuleConfiguration.HasTrustedCheckIP = moduleConfig.HasTrustedCheckIP;
                         ModuleConfiguration.DynamicWorkflowTransaction = moduleConfig.DynamicWorkflowTransaction.ToStringSafe().Trim();
                         ModuleConfiguration.DynamicWorkflowServices = moduleConfig.DynamicWorkflowServices.ToStringSafe().Trim();
-                        ModuleConfiguration.BypassAuthorizeIP = moduleConfig.BypassAuthorizeIP;
                         ModuleConfiguration.IsValidationRequest = moduleConfig.IsValidationRequest;
                         ModuleConfiguration.IsValidationGlobalID = moduleConfig.IsValidationGlobalID;
                         ModuleConfiguration.IsAllowDynamicRequest = moduleConfig.IsAllowDynamicRequest;
-                        ModuleConfiguration.AllowTenantTransactionCommands = moduleConfig.AllowTenantTransactionCommands;
                         ModuleConfiguration.IsCodeDataCache = moduleConfig.IsCodeDataCache;
                         ModuleConfiguration.CodeDataCacheTimeout = moduleConfig.CodeDataCacheTimeout;
                         ModuleConfiguration.IsLogServer = moduleConfig.IsLogServer;
@@ -100,7 +98,6 @@ namespace transact
                         ModuleConfiguration.BusinessFileSyncManager.Clear();
                         ModuleConfiguration.ContractBasePath.Clear();
                         ModuleConfiguration.RoutingCommandUri.Clear();
-                        ModuleConfiguration.AllowRequestTransactions.Clear();
                         ModuleConfiguration.PublicTransactions ??= new HandStack.Web.Extensions.ExpiringList<PublicTransaction>();
                         ModuleConfiguration.PublicTransactions.Clear();
                         ModuleConfiguration.IsContractFileWatching = moduleConfig.IsContractFileWatching;
@@ -128,6 +125,7 @@ namespace transact
                             }
                         }
 
+                        var allowRequestTransactions = new Dictionary<string, FrozenSet<string>>();
                         foreach (var item in (moduleConfig.AllowRequestTransactions ?? new Dictionary<string, List<string>>()).AsEnumerable())
                         {
                             if (string.IsNullOrWhiteSpace(item.Key) == true)
@@ -135,47 +133,51 @@ namespace transact
                                 continue;
                             }
 
-                            ModuleConfiguration.AllowRequestTransactions[item.Key] = (item.Value ?? new List<string>())
+                            allowRequestTransactions[item.Key] = (item.Value ?? new List<string>())
                                 .Where(p => string.IsNullOrWhiteSpace(p) == false)
                                 .Select(p => p.Trim())
                                 .Distinct(StringComparer.OrdinalIgnoreCase)
-                                .ToList();
+                                .ToFrozenSet();
                         }
+                        ModuleConfiguration.AllowRequestTransactions = allowRequestTransactions.ToFrozenDictionary();
 
                         ModuleConfiguration.BypassGlobalIDTransactions = (moduleConfig.BypassGlobalIDTransactions ?? new List<string>())
                             .Where(p => string.IsNullOrWhiteSpace(p) == false)
                             .Select(p => p.Trim())
                             .Distinct(StringComparer.OrdinalIgnoreCase)
-                            .ToList();
+                            .ToFrozenSet();
                         ModuleConfiguration.AllowTenantTransactionCommands = (moduleConfig.AllowTenantTransactionCommands ?? new List<string>())
                             .Where(p => string.IsNullOrWhiteSpace(p) == false)
                             .Select(p => p.Trim())
                             .Distinct(StringComparer.OrdinalIgnoreCase)
-                            .ToList();
+                            .ToFrozenSet();
                         ModuleConfiguration.BypassAuthorizeIP = (moduleConfig.BypassAuthorizeIP ?? new List<string>())
                             .Where(p => string.IsNullOrWhiteSpace(p) == false)
                             .Select(p => p.Trim())
                             .Distinct(StringComparer.OrdinalIgnoreCase)
-                            .ToList();
-                        ModuleConfiguration.AvailableEnvironment = (moduleConfig.AvailableEnvironment ?? new List<string>())
-                            .Where(p => string.IsNullOrWhiteSpace(p) == false)
-                            .Select(p => p.Trim())
-                            .Distinct(StringComparer.OrdinalIgnoreCase)
-                            .ToList();
-                        if (ModuleConfiguration.AvailableEnvironment.Count == 0)
-                        {
-                            ModuleConfiguration.AvailableEnvironment.Add("D");
-                        }
+                            .ToFrozenSet();
 
-                        ModuleConfiguration.AllowClientIP = (moduleConfig.AllowClientIP ?? new List<string>() { "*" })
+                        var availableEnvironment = (moduleConfig.AvailableEnvironment ?? new List<string>())
                             .Where(p => string.IsNullOrWhiteSpace(p) == false)
                             .Select(p => p.Trim())
                             .Distinct(StringComparer.OrdinalIgnoreCase)
                             .ToList();
-                        if (ModuleConfiguration.AllowClientIP.Count == 0)
+                        if (availableEnvironment.Count == 0)
                         {
-                            ModuleConfiguration.AllowClientIP.Add("*");
+                            availableEnvironment.Add("D");
                         }
+                        ModuleConfiguration.AvailableEnvironment = availableEnvironment.ToFrozenSet();
+
+                        var allowClientIP = (moduleConfig.AllowClientIP ?? new List<string>() { "*" })
+                            .Where(p => string.IsNullOrWhiteSpace(p) == false)
+                            .Select(p => p.Trim())
+                            .Distinct(StringComparer.OrdinalIgnoreCase)
+                            .ToList();
+                        if (allowClientIP.Count == 0)
+                        {
+                            allowClientIP.Add("*");
+                        }
+                        ModuleConfiguration.AllowClientIP = allowClientIP.ToFrozenSet();
                         ModuleConfiguration.IsConfigure = true;
                     }
                     else
@@ -195,6 +197,7 @@ namespace transact
                 TransactionMapper.LoadContract(environment.EnvironmentName, Log.Logger, configuration);
 
                 services.AddSingleton(new TransactLoggerClient(Log.Logger));
+                services.AddSingleton<RestSharp.RestClient>(_ => new RestSharp.RestClient());
                 services.AddScoped<TransactClient>();
                 services.AddTransient<IRequestHandler<TransactRequest, object?>, TransactRequestHandler>();
                 services.AddTransient<IRequestHandler<TransactionRefreshRequest, bool>, TransactionRefreshRequestHandler>();

@@ -39,11 +39,14 @@ namespace transact.Extensions
 
         private readonly IMediator mediator;
 
-        public TransactClient(Serilog.ILogger logger, TransactLoggerClient loggerClient, IMediator mediator)
+        private readonly RestClient restClient;
+
+        public TransactClient(Serilog.ILogger logger, TransactLoggerClient loggerClient, IMediator mediator, RestClient restClient)
         {
             this.logger = logger;
             this.loggerClient = loggerClient;
             this.mediator = mediator;
+            this.restClient = restClient;
         }
 
         public async Task<(TransactionResponse transactionResponse, string content)> TransactionRoute(TransactionInfo transactionInfo, TransactionRequest transactionRequest)
@@ -68,7 +71,6 @@ namespace transact.Extensions
 
                 transactionRequest.RequestID = $"{installType}{environment}{programID}{businessID}{transactionID}{functionID}{machineTypeID}{tokenID}{requestTime}";
 
-                var client = new RestClient();
                 var restRequest = new RestRequest(transactionInfo.RoutingCommandUri, Method.Post);
                 restRequest.AddStringBody(JsonConvert.SerializeObject(transactionRequest), DataFormat.Json);
 
@@ -76,7 +78,7 @@ namespace transact.Extensions
                 restRequest.AddHeader("cache-control", "no-cache");
                 restRequest.AddHeader("ClientTag", TransactionConfig.ClientTag);
 
-                var restResponse = await client.ExecuteAsync(restRequest);
+                var restResponse = await restClient.ExecuteAsync(restRequest);
                 if (restResponse != null && restResponse.StatusCode != HttpStatusCode.NotFound && restResponse.ResponseStatus == ResponseStatus.Completed)
                 {
                     switch (transactionInfo.ReturnType)
@@ -241,13 +243,13 @@ namespace transact.Extensions
 
             if (outputs != null && outputContracts.Count > 0)
             {
-                if (outputContracts.Where(p => p.Type == "Dynamic").Count() > 0)
+                if (outputContracts.Any(p => p.Type == "Dynamic"))
                 {
                 }
                 else
                 {
-                    var additionCount = outputContracts.Where(p => p.Type == "Addition").Count();
-                    var disposeCount = outputContracts.Where(p => p.BaseFieldRelation?.DisposeResult == true).Count();
+                    var additionCount = outputContracts.Count(p => p.Type == "Addition");
+                    var disposeCount = outputContracts.Count(p => p.BaseFieldRelation?.DisposeResult == true);
                     if ((outputContracts.Count - disposeCount - additionCount + (additionCount > 0 ? 1 : 0)) != outputs.Count)
                     {
                         applicationResponse.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 정보에 출력 모델 개수 및 SequentialResultContractValidation 확인 필요, 계약 건수 - '{outputContracts.Count}', 응답 건수 - '{outputs.Count}'";
@@ -506,7 +508,7 @@ namespace transact.Extensions
 
                             if (sequentialOutputContracts.Count > 0)
                             {
-                                if (sequentialOutputContracts.Where(p => p.Type == "Dynamic").Count() > 0)
+                                if (sequentialOutputContracts.Any(p => p.Type == "Dynamic"))
                                 {
                                     for (var i = 0; i < outputs.Count; i++)
                                     {
@@ -520,8 +522,8 @@ namespace transact.Extensions
                                 }
                                 else
                                 {
-                                    var additionCount = sequentialOutputContracts.Where(p => p.Type == "Addition").Count();
-                                    var disposeCount = sequentialOutputContracts.Where(p => p.BaseFieldRelation?.DisposeResult == true).Count();
+                                    var additionCount = sequentialOutputContracts.Count(p => p.Type == "Addition");
+                                    var disposeCount = sequentialOutputContracts.Count(p => p.BaseFieldRelation?.DisposeResult == true);
                                     if ((sequentialOutputContracts.Count - disposeCount - additionCount + (additionCount > 0 ? 1 : 0)) != outputs.Count)
                                     {
                                         applicationResponse.ExceptionText = $"'{transactionID}|{serviceID}' 거래 정보에 출력 모델 개수 및 SequentialDataTransactionAsync 확인 필요, 계약 건수 - '{sequentialOutputContracts.Count}', 응답 건수 - '{outputs.Count}'";
@@ -776,7 +778,7 @@ namespace transact.Extensions
                     break;
                 case "CodeHelp":
                     var responseCodeObject = JsonConvert.DeserializeObject<ResponseCodeObject>(applicationResponse.ResultJson);
-                    var input = request.PayLoad?.DataMapSet?[0].Where(p => p.FieldID == "CodeHelpID").FirstOrDefault();
+                    var input = request.PayLoad?.DataMapSet?[0].FirstOrDefault(p => p.FieldID == "CodeHelpID");
 
                     response.Result.DataSet.Add(new DataMapItem()
                     {
@@ -809,7 +811,7 @@ namespace transact.Extensions
                     var outputs = JsonConvert.DeserializeObject<List<DataMapItem>>(applicationResponse.ResultJson);
                     if (outputs != null && outputContracts.Count > 0)
                     {
-                        if (outputContracts.Where(p => p.Type == "Dynamic").Count() > 0)
+                        if (outputContracts.Any(p => p.Type == "Dynamic"))
                         {
                             for (var i = 0; i < outputs.Count; i++)
                             {
@@ -823,8 +825,8 @@ namespace transact.Extensions
                         }
                         else
                         {
-                            var additionCount = outputContracts.Where(p => p.Type == "Addition").Count();
-                            var disposeCount = outputContracts.Where(p => p.BaseFieldRelation?.DisposeResult == true).Count();
+                            var additionCount = outputContracts.Count(p => p.Type == "Addition");
+                            var disposeCount = outputContracts.Count(p => p.BaseFieldRelation?.DisposeResult == true);
                             if ((outputContracts.Count - disposeCount - additionCount + (additionCount > 0 ? 1 : 0)) != outputs.Count)
                             {
                                 applicationResponse.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 정보에 출력 모델 개수 및 DataTransactionAsync 확인 필요, 계약 건수 - '{outputContracts.Count}', 응답 건수 - '{outputs.Count}'";
@@ -1049,7 +1051,7 @@ namespace transact.Extensions
                     break;
                 case "CodeHelp":
                     var responseCodeObject = JsonConvert.DeserializeObject<ResponseCodeObject>(applicationResponse.ResultJson);
-                    var input = request.PayLoad?.DataMapSet?[0].Where(p => p.FieldID == "CodeHelpID").FirstOrDefault();
+                    var input = request.PayLoad?.DataMapSet?[0].FirstOrDefault(p => p.FieldID == "CodeHelpID");
 
                     response.Result.DataSet.Add(new DataMapItem()
                     {
@@ -1082,7 +1084,7 @@ namespace transact.Extensions
                     var outputs = JsonConvert.DeserializeObject<List<DataMapItem>>(applicationResponse.ResultJson);
                     if (outputs != null && outputContracts.Count > 0)
                     {
-                        if (outputContracts.Where(p => p.Type == "Dynamic").Count() > 0)
+                        if (outputContracts.Any(p => p.Type == "Dynamic"))
                         {
                             for (var i = 0; i < outputs.Count; i++)
                             {
@@ -1096,8 +1098,8 @@ namespace transact.Extensions
                         }
                         else
                         {
-                            var additionCount = outputContracts.Where(p => p.Type == "Addition").Count();
-                            var disposeCount = outputContracts.Where(p => p.BaseFieldRelation?.DisposeResult == true).Count();
+                            var additionCount = outputContracts.Count(p => p.Type == "Addition");
+                            var disposeCount = outputContracts.Count(p => p.BaseFieldRelation?.DisposeResult == true);
                             if ((outputContracts.Count - disposeCount - additionCount + (additionCount > 0 ? 1 : 0)) != outputs.Count)
                             {
                                 applicationResponse.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 정보에 출력 모델 개수 및 DataTransactionAsync 확인 필요, 계약 건수 - '{outputContracts.Count}', 응답 건수 - '{outputs.Count}'";
@@ -1398,7 +1400,7 @@ namespace transact.Extensions
 
                     foreach (var item in formOutput)
                     {
-                        var fieldItem = serviceParameters.Where(p => p.FieldID == item.Key).FirstOrDefault();
+                        var fieldItem = serviceParameters.FirstOrDefault(p => p.FieldID == item.Key);
                         if (fieldItem != null)
                         {
                             if (item.Value == null)
@@ -1421,14 +1423,14 @@ namespace transact.Extensions
 
                     foreach (var item in formOutput)
                     {
-                        var findItem = findParameters.Where(p => p.FieldID == item.Key).FirstOrDefault();
+                        var findItem = findParameters.FirstOrDefault(p => p.FieldID == item.Key);
                         if (findItem != null)
                         {
                             for (var i = 0; i < inputs.Count; i++)
                             {
                                 var serviceParameters = inputs[i];
 
-                                var fieldItem = serviceParameters.Where(p => p.FieldID == item.Key).FirstOrDefault();
+                                var fieldItem = serviceParameters.FirstOrDefault(p => p.FieldID == item.Key);
                                 if (fieldItem != null)
                                 {
                                     if (item.Value == null)

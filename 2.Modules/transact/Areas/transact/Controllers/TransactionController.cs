@@ -1606,7 +1606,7 @@ namespace transact.Areas.transact.Controllers
                                 {
                                     var fieldID = "$" + item.Key;
 
-                                    if (transactInput.Where(p => p.FieldID == fieldID).Count() > 0)
+                                    if (transactInput.Any(p => p.FieldID == fieldID))
                                     {
                                         transactInput.RemoveAll(p => p.FieldID == fieldID);
                                     }
@@ -1721,7 +1721,7 @@ namespace transact.Areas.transact.Controllers
                 response.Transaction.CommandType = transactionInfo.CommandType;
                 if (refererPath.StartsWith(tenantAppRequestPath) == true && !string.IsNullOrWhiteSpace(transactionUserWorkID) && !string.IsNullOrWhiteSpace(transactionApplicationID))
                 {
-                    if (ModuleConfiguration.AllowTenantTransactionCommands.IndexOf(transactionInfo.CommandType) > -1)
+                    if (ModuleConfiguration.AllowTenantTransactionCommands.Contains(transactionInfo.CommandType))
                     {
                         transactionObject.LoadOptions?.Add("$tenantID", $"{transactionUserWorkID}|{transactionApplicationID}");
                     }
