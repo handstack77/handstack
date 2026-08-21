@@ -20,7 +20,7 @@ let $HAC030 = {
 
                 var applicationID = syn.$l.get('txtApplicationID').value.trim();
                 if (applicationID == '') {
-                    syn.$w.alert('어플리케이션 ID를 입력하세요');
+                    syn.$w.alert('애플리케이션 ID를 입력하세요');
                     return false;
                 }
 

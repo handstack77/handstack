@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
@@ -1138,7 +1138,7 @@ namespace checkup.Areas.checkup.Controllers
                         GroupID = "A",
                         MemberNo = memberNo,
                     });
-                    return BadRequest($"{applicationID} 어플리케이션 생성이 제한 되었습니다");
+                    return BadRequest($"{applicationID} 애플리케이션 생성이 제한 되었습니다");
                 }
 
                 var baseUrl = Request.GetBaseUrl();
@@ -1216,7 +1216,7 @@ namespace checkup.Areas.checkup.Controllers
 
                 if (string.IsNullOrWhiteSpace(createdAt))
                 {
-                    return BadRequest("어플리케이션 정보 또는 요청 정보 확인이 필요합니다");
+                    return BadRequest("애플리케이션 정보 또는 요청 정보 확인이 필요합니다");
                 }
 
                 var connectionString = appDbConnectionString.Replace("{appBasePath}", appBasePath);
@@ -1467,7 +1467,7 @@ namespace checkup.Areas.checkup.Controllers
 
                 if (string.IsNullOrWhiteSpace(applicationNo))
                 {
-                    return BadRequest("어플리케이션 정보 또는 요청 정보 확인이 필요합니다");
+                    return BadRequest("애플리케이션 정보 또는 요청 정보 확인이 필요합니다");
                 }
 
                 var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);

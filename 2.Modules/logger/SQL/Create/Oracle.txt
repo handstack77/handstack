@@ -27,7 +27,7 @@ BEGIN 
 
     EXECUTE IMMEDIATE 'COMMENT ON COLUMN "{TableName}"."LogNo" IS ''로그 순번''';
     EXECUTE IMMEDIATE 'COMMENT ON COLUMN "{TableName}"."Acknowledge" IS ''거래 구분''';
-    EXECUTE IMMEDIATE 'COMMENT ON COLUMN "{TableName}"."ApplicationID" IS ''어플리케이션 ID''';
+    EXECUTE IMMEDIATE 'COMMENT ON COLUMN "{TableName}"."ApplicationID" IS ''애플리케이션 ID''';
     EXECUTE IMMEDIATE 'COMMENT ON COLUMN "{TableName}"."Flow" IS ''업무 흐름''';
     EXECUTE IMMEDIATE 'COMMENT ON COLUMN "{TableName}"."Format" IS ''데이터 포맷''';
     EXECUTE IMMEDIATE 'COMMENT ON COLUMN "{TableName}"."GlobalID" IS ''거래 고유 ID''';

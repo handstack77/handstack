@@ -25,7 +25,7 @@ CREATE TABLE {TableName} (
 
 COMMENT ON COLUMN {TableName}."LogNo" IS '로그 순번';
 COMMENT ON COLUMN {TableName}."Acknowledge" IS '거래구 분';
-COMMENT ON COLUMN {TableName}."ApplicationID" IS '어플리케이션 ID';
+COMMENT ON COLUMN {TableName}."ApplicationID" IS '애플리케이션 ID';
 COMMENT ON COLUMN {TableName}."Flow" IS '업무 흐름';
 COMMENT ON COLUMN {TableName}."Format" IS '데이터 포맷';
 COMMENT ON COLUMN {TableName}."GlobalID" IS '거래 고유 ID';

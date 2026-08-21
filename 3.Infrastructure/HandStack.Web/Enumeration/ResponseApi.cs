@@ -24,7 +24,7 @@ namespace HandStack.Web.Enumeration
     {
         private static readonly Dictionary<ResponseApi, string> StringValues = new Dictionary<ResponseApi, string>
         {
-            { ResponseApi.E10, "E10: APPLICATION_ERROR, 어플리케이션 오류" },
+            { ResponseApi.E10, "E10: APPLICATION_ERROR, 애플리케이션 오류" },
             { ResponseApi.E11, "E11: CONFIGURATION_ERROR, 설정 오류" },
             { ResponseApi.E12, "E12: SERVICE_EXECUTE_ERROR, 서비스 실행 오류" },
             { ResponseApi.E99, "E99: UNKNOWN_ERROR, 기타 오류" },

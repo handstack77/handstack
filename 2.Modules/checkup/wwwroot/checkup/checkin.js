@@ -215,7 +215,7 @@ let $checkin = {
             $this.method.search();
 
             var random = syn.$l.random(3).toUpperCase();
-            syn.$l.get('txtApplicationName').value = random + ' 어플리케이션';
+            syn.$l.get('txtApplicationName').value = random + ' 애플리케이션';
             syn.$l.get('txtAcronyms').value = random;
             syn.$l.get('txtCompanyName').value = syn.$w.User.CompanyName;
             syn.$l.get('txtOwnerName').value = syn.$w.User.UserName;

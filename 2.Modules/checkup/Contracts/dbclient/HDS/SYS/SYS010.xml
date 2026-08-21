@@ -110,7 +110,7 @@ CREATE TABLE IF NOT EXISTS "MetaEntity" (
     -- 엔티티NO
     "EntityNo" TEXT NOT NULL CONSTRAINT "PK_MetaEntity" PRIMARY KEY,
 
-    -- 어플리케이션NO
+    -- 애플리케이션NO
     "ApplicationNo" TEXT NOT NULL DEFAULT '',
 
     -- 엔티티ID
@@ -193,7 +193,7 @@ CREATE TABLE IF NOT EXISTS "MetaRelation" (
     -- 관계NO
     "RelationNo" TEXT NOT NULL CONSTRAINT "PK_MetaRelation" PRIMARY KEY,
 
-    -- 어플리케이션NO
+    -- 애플리케이션NO
     "ApplicationNo" TEXT NULL,
 
     -- 출발엔티티NO
@@ -691,7 +691,7 @@ CREATE TABLE IF NOT EXISTS "MetaEntity" (
     -- 엔티티NO
     "EntityNo" TEXT NOT NULL CONSTRAINT "PK_MetaEntity" PRIMARY KEY,
 
-    -- 어플리케이션NO
+    -- 애플리케이션NO
     "ApplicationNo" TEXT NOT NULL DEFAULT '',
 
     -- 엔티티ID
@@ -774,7 +774,7 @@ CREATE TABLE IF NOT EXISTS "MetaRelation" (
     -- 관계NO
     "RelationNo" TEXT NOT NULL CONSTRAINT "PK_MetaRelation" PRIMARY KEY,
 
-    -- 어플리케이션NO
+    -- 애플리케이션NO
     "ApplicationNo" TEXT NULL,
 
     -- 출발엔티티NO
@@ -1104,7 +1104,7 @@ WHERE AM.ApplicationNo = @ApplicationNo
             <param id="@MemberNo" type="String" length="36" value="NULL" />
         </statement>
 
-        <statement id="GD02" seq="0" use="Y" timeout="0" desc="사용자 검증 및 어플리케이션 생성 수 확인">
+        <statement id="GD02" seq="0" use="Y" timeout="0" desc="사용자 검증 및 애플리케이션 생성 수 확인">
             <![CDATA[
 SELECT COUNT(1) AS MemberCount
 	, (SELECT COUNT(1)
@@ -1131,7 +1131,7 @@ SELECT MAX(Sequence) AS IdentityNo FROM IdentityNo WHERE GroupID = @GroupID;
             <param id="@MemberNo" type="String" length="36" value="NULL" />
         </statement>
 
-        <statement id="GD04" seq="0" use="Y" timeout="0" desc="어플리케이션 삭제를 위한 사용자 검증 확인">
+        <statement id="GD04" seq="0" use="Y" timeout="0" desc="애플리케이션 삭제를 위한 사용자 검증 확인">
             <![CDATA[
 SELECT ApplicationNo
     , COUNT(1) AS MemberCount 
@@ -1146,7 +1146,7 @@ WHERE A.ApplicationID = @ApplicationID
             <param id="@UserWorkID" type="String" length="36" value="" />
         </statement>
 
-        <statement id="MD01" seq="0" use="Y" timeout="0" desc="어플리케이션 로고 정보 변경 및 경로 조회">
+        <statement id="MD01" seq="0" use="Y" timeout="0" desc="애플리케이션 로고 정보 변경 및 경로 조회">
             <![CDATA[
 UPDATE RepositoryFile SET DependencyID = @ApplicationNo WHERE ItemID = @ItemID;
 SELECT AbsolutePath FROM RepositoryFile WHERE ItemID = @ItemID;
@@ -1175,7 +1175,7 @@ DELETE FROM Application WHERE ApplicationNo = @ApplicationNo;
             <param id="@ApplicationNo" type="String" length="36" value="NULL" />
         </statement>
 
-        <statement id="ID01" seq="0" use="Y" timeout="0" desc="어플리케이션 정보 생성">
+        <statement id="ID01" seq="0" use="Y" timeout="0" desc="애플리케이션 정보 생성">
             <![CDATA[
 INSERT INTO Application (ApplicationNo
     , ApplicationID

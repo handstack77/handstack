@@ -17,13 +17,13 @@ let $HAC040 = {
             action(evt) {
                 var applicationID = syn.$l.get('txtApplicationID').value.trim();
                 if (applicationID == '') {
-                    syn.$w.alert('어플리케이션 ID를 입력하세요');
+                    syn.$w.alert('애플리케이션 ID를 입력하세요');
                     return false;
                 }
 
                 var applicationName = syn.$l.get('txtApplicationName').value.trim();
                 if (applicationName == '') {
-                    syn.$w.alert('어플리케이션 명을 입력하세요');
+                    syn.$w.alert('애플리케이션 명을 입력하세요');
                     return false;
                 }
 
@@ -112,7 +112,7 @@ let $HAC040 = {
 
         btnDeleteApp_click(evt) {
             var applicationID = syn.$l.get('txtApplicationID').value;
-            var text = prompt(`삭제를 하기 위해 어플리케이션 ID "${applicationID}"를 입력하세요`);
+            var text = prompt(`삭제를 하기 위해 애플리케이션 ID "${applicationID}"를 입력하세요`);
             if (text == applicationID) {
                 syn.$w.transactionAction('DF01');
             }

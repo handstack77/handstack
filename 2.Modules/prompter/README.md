@@ -201,7 +201,7 @@ prompter 모듈의 Contract 파일에서 사용하는 LLM 데이터 원본 목�
 
 프롬프트 계약에서 사용할 수 있는 LLM 소스를 설정합니다. 같은 `ApplicationID`와 `ProjectID` 범위 안에서 `DataSourceID`를 다르게 지정하면 계약별로 OpenAI, Claude, Gemini, Ollama, LM Studio를 선택해서 사용할 수 있습니다.
 
-- ApplicationID: 어플리케이션의 ID를 설정합니다.
+- ApplicationID: 애플리케이션의 ID를 설정합니다.
 - ProjectID: 프로젝트의 ID를 설정합니다.
 - DataSourceID: 프롬프트 계약의 `<datasource>`에서 참조할 LLM 데이터 소스 ID를 설정합니다.
 - LLMProvider: LLM 제공자를 설정합니다. OpenAI, Claude, Gemini, Ollama, LMStudio를 기본 지원합니다. AzureOpenAI는 기존 설정 호환이 필요한 경우에만 사용합니다. (기본값: OpenAI)
