@@ -27,18 +27,18 @@ set current_path=%cd%
 
 for %%i in ("%current_path%") do set "PARENT_DIR=%%~dpi"
 set "PARENT_DIR=%PARENT_DIR:~0,-1%"
-set "HANDSTACK_HOME=%PARENT_DIR%\build\handstack"
 
 REM 환경 변수 설정
 setx DOTNET_CLI_TELEMETRY_OPTOUT 1
 set DOTNET_CLI_TELEMETRY_OPTOUT=1
 
-echo HANDSTACK_HOME: %HANDSTACK_HOME%
-
 REM 개발 환경 설정 (ack.csproj 존재 시)
 if exist %current_path%\1.WebHost\ack\ack.csproj (
     set "HANDSTACK_SRC=%current_path%"
     echo HANDSTACK_SRC: %HANDSTACK_SRC%
+    
+    set "HANDSTACK_HOME=%PARENT_DIR%\build\handstack"
+    echo HANDSTACK_HOME: %HANDSTACK_HOME%
 
 	setx HANDSTACK_SRC "%HANDSTACK_SRC%" >nul
 	setx HANDSTACK_HOME "%HANDSTACK_HOME%" >nul
@@ -61,12 +61,10 @@ if exist %current_path%\1.WebHost\ack\ack.csproj (
 	)
 
 	REM ack 프로젝트 node_modules 설치 및 gulp 실행
-	if not exist %current_path%\1.WebHost\ack\node_modules (
-		echo syn.js 번들링 %current_path%\package.json 설치를 시작합니다...
-		cd %current_path%\1.WebHost\ack
-		call npm install
-		gulp
-	)
+	echo syn.js 번들링 %current_path%\package.json 설치를 시작합니다...
+	cd %current_path%\1.WebHost\ack
+	call npm install
+	gulp
 
 	REM 솔루션 빌드
 	cd %current_path%
@@ -76,13 +74,11 @@ if exist %current_path%\1.WebHost\ack\ack.csproj (
 
 	REM CLI 빌드 및 lib.zip 해제
 	cd %current_path%
-	if not exist %current_path%\2.Modules\wwwroot\wwwroot\lib (
-		echo handstack CLI 도구를 빌드합니다...
-		dotnet build %current_path%\4.Tool\CLI\handstack\handstack.csproj
+	echo handstack CLI 도구를 빌드합니다...
+	dotnet build %current_path%\4.Tool\CLI\handstack\handstack.csproj
 
-		echo lib.zip 파일을 해제합니다...
-		%HANDSTACK_HOME%\tools\handstack\handstack extract --file=%current_path%\lib.zip --directory=%current_path%\2.Modules\wwwroot\wwwroot\lib
-	)
+	echo lib.zip 파일을 해제합니다...
+	%HANDSTACK_HOME%\tools\handstack\handstack extract --file=%current_path%\lib.zip --directory=%current_path%\2.Modules\wwwroot\wwwroot\lib
 
 	REM libman 확인 및 자동 설치, 라이브러리 복원
 	echo libman 도구 확인 및 라이브러리 복원을 시작합니다...
@@ -102,23 +98,20 @@ if exist %current_path%\1.WebHost\ack\ack.csproj (
 	REM call libman restore
 
 	REM wwwroot 모듈 node_modules 설치 및 gulp 실행
-	if not exist %current_path%\2.Modules\wwwroot\node_modules (
-		echo syn.bundle.js 모듈 %current_path%\2.Modules\wwwroot\package.json 설치를 시작합니다...
-		cd %current_path%\2.Modules\wwwroot
-		call npm install
-		robocopy wwwroot\lib %HANDSTACK_HOME%\modules\wwwroot\wwwroot\lib /MIR
-		echo syn.controls, syn.scripts, syn.bundle 번들링을 시작합니다...
-		gulp
-	)
+	echo syn.bundle.js 모듈 %current_path%\2.Modules\wwwroot\package.json 설치를 시작합니다...
+	cd %current_path%\2.Modules\wwwroot
+	call npm install
+	robocopy wwwroot\lib %HANDSTACK_HOME%\modules\wwwroot\wwwroot\lib /MIR
+	echo syn.controls, syn.scripts, syn.bundle 번들링을 시작합니다...
+	gulp
 
 	cd %current_path%
 	robocopy %current_path%\2.Modules\function %HANDSTACK_HOME% package*.* /copy:dat
-	if not exist %HANDSTACK_HOME%\node_modules (
-		echo node.js Function 모듈 %HANDSTACK_HOME%\package.json 설치를 시작합니다...
-		cd %HANDSTACK_HOME%
-		call npm install
-		robocopy %current_path%\1.WebHost\ack\wwwroot\assets\js %HANDSTACK_HOME%\node_modules\syn index.js /copy:dat
-	)
+
+	echo node.js Function 모듈 %HANDSTACK_HOME%\package.json 설치를 시작합니다...
+	cd %HANDSTACK_HOME%
+	call npm install
+	robocopy %current_path%\1.WebHost\ack\wwwroot\assets\js %HANDSTACK_HOME%\node_modules\syn index.js /copy:dat
 
 	cd %current_path%
 	robocopy %current_path%\1.WebHost\ack\wwwroot\assets\js %HANDSTACK_HOME%\node_modules\syn index.js /copy:dat
@@ -128,41 +121,31 @@ if exist %current_path%\1.WebHost\ack\ack.csproj (
 
 REM 실행 환경 설정 (ack.exe 존재 시)
 if exist %current_path%\app\ack.exe (
-	set "HANDSTACK_HOME=%current_path%"
-
 	echo current_path: %current_path% ack 실행 환경 설치 확인 중...
-	echo HANDSTACK_SRC: %HANDSTACK_SRC%
+	
+    set "HANDSTACK_HOME=%current_path%"
 	echo HANDSTACK_HOME: %HANDSTACK_HOME%
+	setx HANDSTACK_HOME "%HANDSTACK_HOME%" >nul
 
 	REM 루트 node_modules 설치
-	if not exist %current_path%\node_modules (
-		echo function 모듈 %current_path%\package.json 설치를 시작합니다...
-		call npm install
-		robocopy %current_path%\app\wwwroot\assets\js node_modules\syn index.js /copy:dat
-	)
+	echo function 모듈 %current_path%\package.json 설치를 시작합니다...
+	call npm install
+	robocopy %current_path%\app\wwwroot\assets\js node_modules\syn index.js /copy:dat
 
 	REM app/node_modules 설치
-	if not exist %current_path%\app\node_modules (
-		echo syn.js 번들링 모듈 %current_path%\app\package.json 설치를 시작합니다...
-		cd %current_path%\app
-		call npm install
-	)
+	echo syn.js 번들링 모듈 %current_path%\app\package.json 설치를 시작합니다...
+	cd %current_path%\app
+	call npm install
 
 	REM lib.zip 다운로드 및 해제
-	if not exist %current_path%\modules\wwwroot\wwwroot\lib (
-		echo 클라이언트 라이브러리 %current_path%\modules\wwwroot\wwwroot\lib 설치를 시작합니다...
-        if exist "%HANDSTACK_SRC%\lib.zip" if not exist "%current_path%\modules\wwwroot\wwwroot\lib.zip" (
-            robocopy "%HANDSTACK_SRC%" "%current_path%\modules\wwwroot\wwwroot" "lib.zip" /copy:dat
-        )
-
-		if not exist %current_path%\modules\wwwroot\wwwroot\lib.zip (
-			echo lib.zip 파일을 다운로드 합니다...
-		    cd %current_path%\modules\wwwroot\wwwroot
-			call curl -L -O https://github.com/handstack77/handstack/raw/master/lib.zip
-		)
-		echo lib.zip 파일을 해제합니다...
-		%HANDSTACK_HOME%\tools\handstack\handstack extract --file=%current_path%\modules\wwwroot\wwwroot\lib.zip --directory=%current_path%\modules\wwwroot\wwwroot\lib
+	echo 클라이언트 라이브러리 %current_path%\modules\wwwroot\wwwroot\lib 설치를 시작합니다...
+	if not exist %current_path%\modules\wwwroot\wwwroot\lib.zip (
+		echo lib.zip 파일을 다운로드 합니다...
+		cd %current_path%\modules\wwwroot\wwwroot
+		call curl -L -O https://github.com/handstack77/handstack/raw/master/lib.zip
 	)
+	echo lib.zip 파일을 해제합니다...
+	%HANDSTACK_HOME%\tools\handstack\handstack extract --file=%current_path%\modules\wwwroot\wwwroot\lib.zip --directory=%current_path%\modules\wwwroot\wwwroot\lib
 
 	REM libman 확인 및 자동 설치, 라이브러리 복원
 	echo libman 도구 확인 및 라이브러리 복원을 시작합니다...
@@ -182,12 +165,10 @@ if exist %current_path%\app\ack.exe (
 	REM call libman restore
 
 	REM modules/wwwroot/node_modules 설치 및 gulp 실행
-	if not exist %current_path%\modules\wwwroot\node_modules (
-		echo syn.bundle.js 모듈 %current_path%\modules\wwwroot\package.json 설치를 시작합니다...
-		cd %current_path%\modules\wwwroot
-		call npm install
-		gulp
-	)
+	echo syn.bundle.js 모듈 %current_path%\modules\wwwroot\package.json 설치를 시작합니다...
+	cd %current_path%\modules\wwwroot
+	call npm install
+	gulp
 
 	REM 완료 메시지
 	cd %current_path%

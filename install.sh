@@ -186,27 +186,23 @@ if [[ -f "$ACK_CSPROJ" ]]; then
     ensure_major_version_at_least "dotnet" 10
 
     ACK_DIR="$CURRENT_PATH/1.WebHost/ack"
-    if [[ ! -d "$ACK_DIR/node_modules" ]]; then
-        echo "syn.js 번들링 $CURRENT_PATH/package.json 설치를 시작합니다..."
-        (
-            cd "$ACK_DIR"
-            npm install
-            gulp
-        )
-    fi
+    echo "syn.js 번들링 $CURRENT_PATH/package.json 설치를 시작합니다..."
+    (
+        cd "$ACK_DIR"
+        npm install
+        gulp
+    )
 
     echo "current_path: $CURRENT_PATH"
     ./build.sh
 
     WWWROOT_LIB="$CURRENT_PATH/2.Modules/wwwroot/wwwroot/lib"
-    if [[ ! -d "$WWWROOT_LIB" ]]; then
-        echo "handstack CLI 도구를 빌드합니다..."
-        dotnet build "$CURRENT_PATH/4.Tool/CLI/handstack/handstack.csproj"
+    echo "handstack CLI 도구를 빌드합니다..."
+    dotnet build "$CURRENT_PATH/4.Tool/CLI/handstack/handstack.csproj"
 
-        echo "lib.zip 파일을 해제합니다..."
-        HANDSTACK_CLI="$(handstack_cli_path "$HANDSTACK_HOME")"
-        extract_lib_zip "$HANDSTACK_CLI" "$CURRENT_PATH/lib.zip" "$WWWROOT_LIB"
-    fi
+    echo "lib.zip 파일을 해제합니다..."
+    HANDSTACK_CLI="$(handstack_cli_path "$HANDSTACK_HOME")"
+    extract_lib_zip "$HANDSTACK_CLI" "$CURRENT_PATH/lib.zip" "$WWWROOT_LIB"
 
     echo "libman 도구 확인 및 라이브러리 복원을 시작합니다..."
     (
@@ -215,27 +211,23 @@ if [[ -f "$ACK_CSPROJ" ]]; then
     )
 
     WWWROOT_MODULE_DIR="$CURRENT_PATH/2.Modules/wwwroot"
-    if [[ ! -d "$WWWROOT_MODULE_DIR/node_modules" ]]; then
-        echo "syn.bundle.js 모듈 $CURRENT_PATH/2.Modules/wwwroot/package.json 설치를 시작합니다..."
-        (
-            cd "$WWWROOT_MODULE_DIR"
-            npm install
-            sync_dir_contents "$WWWROOT_MODULE_DIR/wwwroot/lib" "$HANDSTACK_HOME/modules/wwwroot/wwwroot/lib"
-            echo "syn.controls, syn.scripts, syn.bundle 번들링을 시작합니다..."
-            gulp
-        )
-    fi
+    echo "syn.bundle.js 모듈 $CURRENT_PATH/2.Modules/wwwroot/package.json 설치를 시작합니다..."
+    (
+        cd "$WWWROOT_MODULE_DIR"
+        npm install
+        sync_dir_contents "$WWWROOT_MODULE_DIR/wwwroot/lib" "$HANDSTACK_HOME/modules/wwwroot/wwwroot/lib"
+        echo "syn.controls, syn.scripts, syn.bundle 번들링을 시작합니다..."
+        gulp
+    )
 
     copy_if_exists "$CURRENT_PATH/2.Modules/function/package.json" "$HANDSTACK_HOME/package.json"
     copy_if_exists "$CURRENT_PATH/2.Modules/function/package-lock.json" "$HANDSTACK_HOME/package-lock.json"
 
-    if [[ ! -d "$HANDSTACK_HOME/node_modules" ]]; then
-        echo "node.js Function 모듈 $HANDSTACK_HOME/package.json 설치를 시작합니다..."
-        (
-            cd "$HANDSTACK_HOME"
-            npm install
-        )
-    fi
+    echo "node.js Function 모듈 $HANDSTACK_HOME/package.json 설치를 시작합니다..."
+    (
+        cd "$HANDSTACK_HOME"
+        npm install
+    )
 
     copy_if_exists "$CURRENT_PATH/1.WebHost/ack/wwwroot/assets/js/index.js" "$HANDSTACK_HOME/node_modules/syn/index.js"
 
@@ -246,47 +238,38 @@ fi
 if [[ -f "$RUNTIME_ACK_DLL" || -f "$RUNTIME_ACK_BINARY" ]]; then
     HANDSTACK_HOME="$CURRENT_PATH"
     export HANDSTACK_HOME
+    set_profile_export "HANDSTACK_HOME" "$HANDSTACK_HOME"
 
     echo "current_path: $CURRENT_PATH ack 실행 환경 설치 확인 중..."
     echo "HANDSTACK_SRC: ${HANDSTACK_SRC:-}"
     echo "HANDSTACK_HOME: $HANDSTACK_HOME"
 
-    if [[ ! -d "$CURRENT_PATH/node_modules" ]]; then
-        echo "function 모듈 $CURRENT_PATH/package.json 설치를 시작합니다..."
-        npm install
-        copy_if_exists "$CURRENT_PATH/app/wwwroot/assets/js/index.js" "$CURRENT_PATH/node_modules/syn/index.js"
-    fi
+    echo "function 모듈 $CURRENT_PATH/package.json 설치를 시작합니다..."
+    npm install
+    copy_if_exists "$CURRENT_PATH/app/wwwroot/assets/js/index.js" "$CURRENT_PATH/node_modules/syn/index.js"
 
-    if [[ ! -d "$CURRENT_PATH/app/node_modules" ]]; then
-        echo "syn.js 번들링 모듈 $CURRENT_PATH/app/package.json 설치를 시작합니다..."
-        (
-            cd "$CURRENT_PATH/app"
-            npm install
-        )
-    fi
+    echo "syn.js 번들링 모듈 $CURRENT_PATH/app/package.json 설치를 시작합니다..."
+    (
+        cd "$CURRENT_PATH/app"
+        npm install
+    )
 
     RUNTIME_LIB_DIR="$CURRENT_PATH/modules/wwwroot/wwwroot/lib"
     RUNTIME_LIB_ZIP="$CURRENT_PATH/modules/wwwroot/wwwroot/lib.zip"
-    if [[ ! -d "$RUNTIME_LIB_DIR" ]]; then
-        echo "클라이언트 라이브러리 $RUNTIME_LIB_DIR 설치를 시작합니다..."
-        mkdir -p "$CURRENT_PATH/modules/wwwroot/wwwroot"
+    echo "클라이언트 라이브러리 $RUNTIME_LIB_DIR 설치를 시작합니다..."
+    mkdir -p "$CURRENT_PATH/modules/wwwroot/wwwroot"
 
-        if [[ -n "${HANDSTACK_SRC:-}" && -f "$HANDSTACK_SRC/lib.zip" && ! -f "$RUNTIME_LIB_ZIP" ]]; then
-            cp -f "$HANDSTACK_SRC/lib.zip" "$RUNTIME_LIB_ZIP"
-        fi
-
-        if [[ ! -f "$RUNTIME_LIB_ZIP" ]]; then
-            echo "lib.zip 파일을 다운로드 합니다..."
-            (
-                cd "$CURRENT_PATH/modules/wwwroot/wwwroot"
-                curl -L -o lib.zip "$LIB_ZIP_URL"
-            )
-        fi
-
-        echo "lib.zip 파일을 해제합니다..."
-        HANDSTACK_CLI="$(handstack_cli_path "$HANDSTACK_HOME")"
-        extract_lib_zip "$HANDSTACK_CLI" "$RUNTIME_LIB_ZIP" "$RUNTIME_LIB_DIR"
+    if [[ ! -f "$RUNTIME_LIB_ZIP" ]]; then
+        echo "lib.zip 파일을 다운로드 합니다..."
+        (
+            cd "$CURRENT_PATH/modules/wwwroot/wwwroot"
+            curl -L -o lib.zip "$LIB_ZIP_URL"
+        )
     fi
+
+    echo "lib.zip 파일을 해제합니다..."
+    HANDSTACK_CLI="$(handstack_cli_path "$HANDSTACK_HOME")"
+    extract_lib_zip "$HANDSTACK_CLI" "$RUNTIME_LIB_ZIP" "$RUNTIME_LIB_DIR"
 
     echo "libman 도구 확인 및 라이브러리 복원을 시작합니다..."
     (
@@ -294,14 +277,12 @@ if [[ -f "$RUNTIME_ACK_DLL" || -f "$RUNTIME_ACK_BINARY" ]]; then
         ensure_libman
     )
 
-    if [[ ! -d "$CURRENT_PATH/modules/wwwroot/node_modules" ]]; then
-        echo "syn.bundle.js 모듈 $CURRENT_PATH/modules/wwwroot/package.json 설치를 시작합니다..."
-        (
-            cd "$CURRENT_PATH/modules/wwwroot"
-            npm install
-            gulp
-        )
-    fi
+    echo "syn.bundle.js 모듈 $CURRENT_PATH/modules/wwwroot/package.json 설치를 시작합니다..."
+    (
+        cd "$CURRENT_PATH/modules/wwwroot"
+        npm install
+        gulp
+    )
 
     if [[ -f "$RUNTIME_ACK_BINARY" ]]; then
         echo "ack 실행 환경 설치가 완료되었습니다. 터미널에서 다음 경로의 프로그램을 실행하세요. $RUNTIME_ACK_BINARY"

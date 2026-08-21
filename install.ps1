@@ -260,15 +260,13 @@ try {
         -WindowsUrl $CurlUrlWindows -MacUrl $CurlUrlMac -LinuxUrl $CurlUrlLinux
 
     Set-EnvValue -Name 'DOTNET_CLI_TELEMETRY_OPTOUT' -Value '1' -Persist
-    Set-EnvValue -Name 'HANDSTACK_HOME' -Value $handstackHome -Persist:$isDevelopment
-
-    Write-Host "HANDSTACK_HOME: $handstackHome"
-
     if ($isDevelopment) {
         $handstackSrc = $currentPath
         Set-EnvValue -Name 'HANDSTACK_SRC' -Value $handstackSrc -Persist
+        Set-EnvValue -Name 'HANDSTACK_HOME' -Value $handstackHome -Persist
 
         Write-Host "HANDSTACK_SRC: $handstackSrc"
+        Write-Host "HANDSTACK_HOME: $handstackHome"
 
         Ensure-Directory -Path $handstackHome
 
@@ -282,14 +280,11 @@ try {
         }
 
         $ackDir = [System.IO.Path]::Combine($currentPath, '1.WebHost', 'ack')
-        $ackNodeModules = [System.IO.Path]::Combine($ackDir, 'node_modules')
-        if (-not (Test-Path $ackNodeModules)) {
-            Write-Host "syn.js 번들링 $currentPath/package.json 설치를 시작합니다..."
-            Push-Location $ackDir
-            Invoke-Step -Action { npm install } -ErrorMessage 'ack npm install 실패'
-            Invoke-Step -Action { gulp } -ErrorMessage 'ack gulp 실패'
-            Pop-Location
-        }
+        Write-Host "syn.js 번들링 $currentPath/package.json 설치를 시작합니다..."
+        Push-Location $ackDir
+        Invoke-Step -Action { npm install } -ErrorMessage 'ack npm install 실패'
+        Invoke-Step -Action { gulp } -ErrorMessage 'ack gulp 실패'
+        Pop-Location
 
         Write-Host "current_path: $currentPath"
         if ($IsWindowsPlatform) {
@@ -300,14 +295,12 @@ try {
         }
 
         $wwwrootLibPath = [System.IO.Path]::Combine($currentPath, '2.Modules', 'wwwroot', 'wwwroot', 'lib')
-        if (-not (Test-Path $wwwrootLibPath)) {
-            Write-Host 'handstack CLI 도구를 빌드합니다...'
-            Invoke-Step -Action { dotnet build "$currentPath/4.Tool/CLI/handstack/handstack.csproj" } -ErrorMessage 'handstack CLI 빌드 실패'
+        Write-Host 'handstack CLI 도구를 빌드합니다...'
+        Invoke-Step -Action { dotnet build "$currentPath/4.Tool/CLI/handstack/handstack.csproj" } -ErrorMessage 'handstack CLI 빌드 실패'
 
-            Write-Host 'lib.zip 파일을 해제합니다...'
-            $handstackCli = Get-HandStackCliPath -BasePath $handstackHome
-            Invoke-Step -Action { & $handstackCli extract "--file=$currentPath/lib.zip" "--directory=$wwwrootLibPath" } -ErrorMessage 'lib.zip 해제 실패'
-        }
+        Write-Host 'lib.zip 파일을 해제합니다...'
+        $handstackCli = Get-HandStackCliPath -BasePath $handstackHome
+        Invoke-Step -Action { & $handstackCli extract "--file=$currentPath/lib.zip" "--directory=$wwwrootLibPath" } -ErrorMessage 'lib.zip 해제 실패'
 
         Write-Host 'libman 도구 확인 및 라이브러리 복원을 시작합니다...'
         Push-Location ([System.IO.Path]::Combine($currentPath, '2.Modules', 'wwwroot'))
@@ -315,27 +308,21 @@ try {
         Pop-Location
 
         $wwwrootModulePath = [System.IO.Path]::Combine($currentPath, '2.Modules', 'wwwroot')
-        $wwwrootNodeModules = [System.IO.Path]::Combine($wwwrootModulePath, 'node_modules')
-        if (-not (Test-Path $wwwrootNodeModules)) {
-            Write-Host "syn.bundle.js 모듈 $currentPath/2.Modules/wwwroot/package.json 설치를 시작합니다..."
-            Push-Location $wwwrootModulePath
-            Invoke-Step -Action { npm install } -ErrorMessage 'wwwroot npm install 실패'
-            Sync-DirectoryMirror -Source ([System.IO.Path]::Combine($wwwrootModulePath, 'wwwroot', 'lib')) -Destination ([System.IO.Path]::Combine($handstackHome, 'modules', 'wwwroot', 'wwwroot', 'lib'))
-            Write-Host 'syn.controls, syn.scripts, syn.bundle 번들링을 시작합니다...'
-            Invoke-Step -Action { gulp } -ErrorMessage 'wwwroot gulp 실패'
-            Pop-Location
-        }
+        Write-Host "syn.bundle.js 모듈 $currentPath/2.Modules/wwwroot/package.json 설치를 시작합니다..."
+        Push-Location $wwwrootModulePath
+        Invoke-Step -Action { npm install } -ErrorMessage 'wwwroot npm install 실패'
+        Sync-DirectoryMirror -Source ([System.IO.Path]::Combine($wwwrootModulePath, 'wwwroot', 'lib')) -Destination ([System.IO.Path]::Combine($handstackHome, 'modules', 'wwwroot', 'wwwroot', 'lib'))
+        Write-Host 'syn.controls, syn.scripts, syn.bundle 번들링을 시작합니다...'
+        Invoke-Step -Action { gulp } -ErrorMessage 'wwwroot gulp 실패'
+        Pop-Location
 
         Copy-FileSafe -Source ([System.IO.Path]::Combine($currentPath, '2.Modules', 'function', 'package.json')) -Destination ([System.IO.Path]::Combine($handstackHome, 'package.json'))
         Copy-FileSafe -Source ([System.IO.Path]::Combine($currentPath, '2.Modules', 'function', 'package-lock.json')) -Destination ([System.IO.Path]::Combine($handstackHome, 'package-lock.json'))
 
-        $handstackNodeModules = [System.IO.Path]::Combine($handstackHome, 'node_modules')
-        if (-not (Test-Path $handstackNodeModules)) {
-            Write-Host "node.js Function 모듈 $handstackHome/package.json 설치를 시작합니다..."
-            Push-Location $handstackHome
-            Invoke-Step -Action { npm install } -ErrorMessage 'HANDSTACK_HOME npm install 실패'
-            Pop-Location
-        }
+        Write-Host "node.js Function 모듈 $handstackHome/package.json 설치를 시작합니다..."
+        Push-Location $handstackHome
+        Invoke-Step -Action { npm install } -ErrorMessage 'HANDSTACK_HOME npm install 실패'
+        Pop-Location
 
         Copy-FileSafe -Source ([System.IO.Path]::Combine($currentPath, '1.WebHost', 'ack', 'wwwroot', 'assets', 'js', 'index.js')) `
             -Destination ([System.IO.Path]::Combine($handstackHome, 'node_modules', 'syn', 'index.js'))
@@ -345,68 +332,50 @@ try {
     }
 
     if ($isRuntime) {
-        Set-EnvValue -Name 'HANDSTACK_HOME' -Value $currentPath
+        Set-EnvValue -Name 'HANDSTACK_HOME' -Value $currentPath -Persist
 
         Write-Host "current_path: $currentPath ack 실행 환경 설치 확인 중..."
         Write-Host "HANDSTACK_SRC: $($env:HANDSTACK_SRC)"
         Write-Host "HANDSTACK_HOME: $currentPath"
 
-        $rootNodeModules = [System.IO.Path]::Combine($currentPath, 'node_modules')
-        if (-not (Test-Path $rootNodeModules)) {
-            Write-Host "function 모듈 $currentPath/package.json 설치를 시작합니다..."
-            Invoke-Step -Action { npm install } -ErrorMessage 'runtime root npm install 실패'
-            Copy-FileSafe -Source ([System.IO.Path]::Combine($currentPath, 'app', 'wwwroot', 'assets', 'js', 'index.js')) `
-                -Destination ([System.IO.Path]::Combine($currentPath, 'node_modules', 'syn', 'index.js'))
-        }
+        Write-Host "function 모듈 $currentPath/package.json 설치를 시작합니다..."
+        Invoke-Step -Action { npm install } -ErrorMessage 'runtime root npm install 실패'
+        Copy-FileSafe -Source ([System.IO.Path]::Combine($currentPath, 'app', 'wwwroot', 'assets', 'js', 'index.js')) `
+            -Destination ([System.IO.Path]::Combine($currentPath, 'node_modules', 'syn', 'index.js'))
 
         $runtimeAppDir = [System.IO.Path]::Combine($currentPath, 'app')
-        $runtimeAppNodeModules = [System.IO.Path]::Combine($runtimeAppDir, 'node_modules')
-        if (-not (Test-Path $runtimeAppNodeModules)) {
-            Write-Host "syn.js 번들링 모듈 $currentPath/app/package.json 설치를 시작합니다..."
-            Push-Location $runtimeAppDir
-            Invoke-Step -Action { npm install } -ErrorMessage 'runtime app npm install 실패'
-            Pop-Location
-        }
+        Write-Host "syn.js 번들링 모듈 $currentPath/app/package.json 설치를 시작합니다..."
+        Push-Location $runtimeAppDir
+        Invoke-Step -Action { npm install } -ErrorMessage 'runtime app npm install 실패'
+        Pop-Location
 
         $runtimeWwwrootPath = [System.IO.Path]::Combine($currentPath, 'modules', 'wwwroot', 'wwwroot')
         $runtimeLibPath = [System.IO.Path]::Combine($runtimeWwwrootPath, 'lib')
         $runtimeLibZipPath = [System.IO.Path]::Combine($runtimeWwwrootPath, 'lib.zip')
-        if (-not (Test-Path $runtimeLibPath)) {
-            Write-Host "클라이언트 라이브러리 $runtimeLibPath 설치를 시작합니다..."
-            Ensure-Directory -Path $runtimeWwwrootPath
+        Write-Host "클라이언트 라이브러리 $runtimeLibPath 설치를 시작합니다..."
+        Ensure-Directory -Path $runtimeWwwrootPath
 
-            if ($env:HANDSTACK_SRC) {
-                $sourceLibZip = [System.IO.Path]::Combine($env:HANDSTACK_SRC, 'lib.zip')
-                if ((Test-Path $sourceLibZip) -and -not (Test-Path $runtimeLibZipPath)) {
-                    Copy-Item -Path $sourceLibZip -Destination $runtimeLibZipPath -Force
-                }
-            }
-
-            if (-not (Test-Path $runtimeLibZipPath)) {
-                Write-Host 'lib.zip 파일을 다운로드 합니다...'
-                Push-Location $runtimeWwwrootPath
-                Invoke-Step -Action { & $curlCommand -L -o 'lib.zip' $LibZipUrl } -ErrorMessage 'lib.zip 다운로드 실패'
-                Pop-Location
-            }
-
-            Write-Host 'lib.zip 파일을 해제합니다...'
-            $runtimeCli = Get-HandStackCliPath -BasePath $currentPath
-            Invoke-Step -Action { & $runtimeCli extract "--file=$runtimeLibZipPath" "--directory=$runtimeLibPath" } -ErrorMessage 'runtime lib.zip 해제 실패'
+        if (-not (Test-Path $runtimeLibZipPath)) {
+            Write-Host 'lib.zip 파일을 다운로드 합니다...'
+            Push-Location $runtimeWwwrootPath
+            Invoke-Step -Action { & $curlCommand -L -o 'lib.zip' $LibZipUrl } -ErrorMessage 'lib.zip 다운로드 실패'
+            Pop-Location
         }
+
+        Write-Host 'lib.zip 파일을 해제합니다...'
+        $runtimeCli = Get-HandStackCliPath -BasePath $currentPath
+        Invoke-Step -Action { & $runtimeCli extract "--file=$runtimeLibZipPath" "--directory=$runtimeLibPath" } -ErrorMessage 'runtime lib.zip 해제 실패'
 
         Write-Host 'libman 도구 확인 및 라이브러리 복원을 시작합니다...'
         Push-Location ([System.IO.Path]::Combine($currentPath, 'modules', 'wwwroot'))
         Ensure-Libman
         Pop-Location
 
-        $runtimeModuleNodeModules = [System.IO.Path]::Combine($currentPath, 'modules', 'wwwroot', 'node_modules')
-        if (-not (Test-Path $runtimeModuleNodeModules)) {
-            Write-Host "syn.bundle.js 모듈 $currentPath/modules/wwwroot/package.json 설치를 시작합니다..."
-            Push-Location ([System.IO.Path]::Combine($currentPath, 'modules', 'wwwroot'))
-            Invoke-Step -Action { npm install } -ErrorMessage 'runtime wwwroot npm install 실패'
-            Invoke-Step -Action { gulp } -ErrorMessage 'runtime wwwroot gulp 실패'
-            Pop-Location
-        }
+        Write-Host "syn.bundle.js 모듈 $currentPath/modules/wwwroot/package.json 설치를 시작합니다..."
+        Push-Location ([System.IO.Path]::Combine($currentPath, 'modules', 'wwwroot'))
+        Invoke-Step -Action { npm install } -ErrorMessage 'runtime wwwroot npm install 실패'
+        Invoke-Step -Action { gulp } -ErrorMessage 'runtime wwwroot gulp 실패'
+        Pop-Location
 
         $finalAckPath = if (Test-Path $runtimeAckExePath) {
             $runtimeAckExePath
