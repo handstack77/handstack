@@ -34,17 +34,17 @@
 4. `GraphDataClient`가 Cypher를 실행하고 결과를 HandStack 직렬화 가능 값으로 변환합니다.
 
 ## 로컬 실행
-```powershell
+```bash
 dotnet run --project 1.WebHost/ack/ack.csproj -- --port=8421 --modules=wwwroot,transact,graphclient,function
 ```
 
 ### Neo4j 샘플
-```powershell
-docker run -d --name neo4j-local -p 7474:7474 -p 7687:7687 -e NEO4J_AUTH=neo4j/local-password neo4j:5
+```bash
+docker run -d --name neo4j-local -p 7474:7474 -p 7687:7687 -e NEO4J_AUTH=neo4j/local-password neo4j:latest
 ```
 
 ### Memgraph 샘플
-```powershell
+```bash
 docker run -d --name memgraph-local -p 7444:7444 -p 7688:7687 memgraph/memgraph:latest
 ```
 
@@ -74,7 +74,7 @@ docker run -d --name memgraph-local -p 7444:7444 -p 7688:7687 memgraph/memgraph:
 `execute` 요청의 `QueryID`는 `ApplicationID|ProjectID|TransactionID|StatementID` 형식이며, 예를 들어 `HDS|TST|TST010|GM0100`처럼 statement의 seq까지 포함한 최종 ID를 사용합니다.
 
 ## 직접 API 예시
-```powershell
+```bash
 $body = @{
   AccessToken = ""
   Action = "Execute"
@@ -126,7 +126,7 @@ Invoke-RestMethod -Method Post -Uri "http://localhost:8421/graphclient/api/query
 - `GraphMapper`는 SQL 전용 DbType/방향성 처리 없이 named parameter(`$name`) 바인딩만 사용합니다.
 
 ## 빌드 명령
-```powershell
+```bash
 dotnet build 2.Modules/graphclient/graphclient.csproj
 .\build.ps1
 ```

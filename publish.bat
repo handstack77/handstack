@@ -51,7 +51,7 @@ if "%os_mode%" == "win" (
 
 REM dotnet 명령어 옵션 설정
 if "%action_mode%" == "publish" (
-    set dotnet_options=-p:Optimize=%optimize_flag% %symbol_options% --configuration %configuration_mode% --runtime %rid% --self-contained false
+    set dotnet_options=-p:Optimize=%optimize_flag% %symbol_options% --configuration %configuration_mode% --runtime %rid% --self-contained false -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true
 ) else (
     set dotnet_options=-p:Optimize=%optimize_flag% %symbol_options% --configuration %configuration_mode%
 )
