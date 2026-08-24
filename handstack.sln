@@ -136,6 +136,22 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dbplatform", "4.Tool\CLI\db
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "rdy", "1.WebHost\rdy\rdy.csproj", "{90D87AFF-953C-4A53-BCCA-F014296BD5E6}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Bootstrapper", "Bootstrapper", "{BF8E2A2A-69DE-457B-AD84-45729438958E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "HandStack.Bootstrapper", "HandStack.Bootstrapper", "{C2E3D466-F9B1-4D6E-9F66-2E5890AC6C17}"
+	ProjectSection(SolutionItems) = preProject
+		4.Tool\Bootstrapper\HandStack.Bootstrapper\README.md = 4.Tool\Bootstrapper\HandStack.Bootstrapper\README.md
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HandStack.Bootstrapper", "4.Tool\Bootstrapper\HandStack.Bootstrapper\src\HandStack.Bootstrapper.csproj", "{B847065D-99E9-149E-8E9B-64FDB3EFFB62}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{C7E42ABA-3338-4615-85DA-1B85CF56A9B6}"
+	ProjectSection(SolutionItems) = preProject
+		4.Tool\Bootstrapper\HandStack.Bootstrapper\build\pack-linux.sh = 4.Tool\Bootstrapper\HandStack.Bootstrapper\build\pack-linux.sh
+		4.Tool\Bootstrapper\HandStack.Bootstrapper\build\pack-macos.sh = 4.Tool\Bootstrapper\HandStack.Bootstrapper\build\pack-macos.sh
+		4.Tool\Bootstrapper\HandStack.Bootstrapper\build\pack-windows.ps1 = 4.Tool\Bootstrapper\HandStack.Bootstrapper\build\pack-windows.ps1
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -504,6 +520,18 @@ Global
 		{90D87AFF-953C-4A53-BCCA-F014296BD5E6}.Release|x64.Build.0 = Release|Any CPU
 		{90D87AFF-953C-4A53-BCCA-F014296BD5E6}.Release|x86.ActiveCfg = Release|Any CPU
 		{90D87AFF-953C-4A53-BCCA-F014296BD5E6}.Release|x86.Build.0 = Release|Any CPU
+		{B847065D-99E9-149E-8E9B-64FDB3EFFB62}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B847065D-99E9-149E-8E9B-64FDB3EFFB62}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B847065D-99E9-149E-8E9B-64FDB3EFFB62}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{B847065D-99E9-149E-8E9B-64FDB3EFFB62}.Debug|x64.Build.0 = Debug|Any CPU
+		{B847065D-99E9-149E-8E9B-64FDB3EFFB62}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B847065D-99E9-149E-8E9B-64FDB3EFFB62}.Debug|x86.Build.0 = Debug|Any CPU
+		{B847065D-99E9-149E-8E9B-64FDB3EFFB62}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B847065D-99E9-149E-8E9B-64FDB3EFFB62}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B847065D-99E9-149E-8E9B-64FDB3EFFB62}.Release|x64.ActiveCfg = Release|Any CPU
+		{B847065D-99E9-149E-8E9B-64FDB3EFFB62}.Release|x64.Build.0 = Release|Any CPU
+		{B847065D-99E9-149E-8E9B-64FDB3EFFB62}.Release|x86.ActiveCfg = Release|Any CPU
+		{B847065D-99E9-149E-8E9B-64FDB3EFFB62}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -543,9 +571,13 @@ Global
 		{E3C098B8-295F-4C18-994B-C9873EA17409} = {43B577AB-74FA-4B53-A2BE-E369622F970F}
 		{3D09DBC1-F723-680B-C9B5-C0206CE1413D} = {FA291842-9FD5-4508-A423-7421803FDA88}
 		{90D87AFF-953C-4A53-BCCA-F014296BD5E6} = {8AAA6308-ECA2-43A5-8D46-1C7C1BC9088D}
+		{BF8E2A2A-69DE-457B-AD84-45729438958E} = {AED6D86D-3CC1-4D7B-80FD-1E7EBF83566F}
+		{C2E3D466-F9B1-4D6E-9F66-2E5890AC6C17} = {BF8E2A2A-69DE-457B-AD84-45729438958E}
+		{B847065D-99E9-149E-8E9B-64FDB3EFFB62} = {C2E3D466-F9B1-4D6E-9F66-2E5890AC6C17}
+		{C7E42ABA-3338-4615-85DA-1B85CF56A9B6} = {C2E3D466-F9B1-4D6E-9F66-2E5890AC6C17}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		VisualSVNWorkingCopyRoot = .
 		SolutionGuid = {0075CE72-935C-4F87-A6BA-989C82F06F8F}
+		VisualSVNWorkingCopyRoot = .
 	EndGlobalSection
 EndGlobal

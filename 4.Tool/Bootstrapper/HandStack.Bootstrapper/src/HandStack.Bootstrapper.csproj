@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>HandStack.Bootstrapper</RootNamespace>
+    <AssemblyName>HandStack.Bootstrapper</AssemblyName>
+    <InvariantGlobalization>true</InvariantGlobalization>
+
+    <!-- Velopack은 OS/아키텍처별로 각각 빌드를 만들어야 하므로 RID별로 self-contained 게시를 한다. -->
+    <RuntimeIdentifiers>win-x64;osx-x64;osx-arm64;linux-x64</RuntimeIdentifiers>
+    <SelfContained>true</SelfContained>
+    <PublishSingleFile>true</PublishSingleFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- 최신 안정 버전을 자동으로 따라가도록 설정. 버전을 확인한 뒤에는 정확한 버전으로 고정할 것. -->
+    <PackageReference Include="Velopack" Version="*" />
+  </ItemGroup>
+
+</Project>
