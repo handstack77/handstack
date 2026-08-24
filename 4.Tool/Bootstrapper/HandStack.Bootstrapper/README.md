@@ -61,7 +61,7 @@ dotnet publish src/HandStack.Bootstrapper.csproj -c Release -p:PublishProfile=li
 한 번 실행으로 전 과정이 끝나며, 이미 설치되어 있는 항목은 자동으로 건너뜁니다(아래
 ["이미 설치되어 있으면 건너뜁니다"](#동작-방식) 참고). 재실행해도 안전합니다(idempotent).
 
-> 개발 중 빠르게 테스트해 보고 싶고 빌드 머신에 이미 .NET SDK(8 이상)가 있다면, 게시 없이
+> 개발 중 빠르게 테스트해 보고 싶고 빌드 머신에 이미 .NET SDK(10)가 있다면, 게시 없이
 > [`dotnet run`](#로컬에서-빌드--실행-패키징-없이)으로 바로 실행할 수도 있습니다.
 
 ## 동작 방식
