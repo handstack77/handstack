@@ -153,8 +153,8 @@ dotnet run --project src/HandStack.Bootstrapper.csproj
 
 ## Velopack으로 릴리스 패키징하기
 
-Velopack 빌드는 대상 OS에서 직접 만들어야 합니다(하나의 크로스 컴파일 단계로 처리되지 않음).
-그러므로 각 플랫폼에서 해당 스크립트를 실행하세요.
+Windows에서는 PowerShell 스크립트로 Windows와 Ubuntu용 릴리스를 패키징할 수 있습니다.
+Velopack의 macOS 패키징은 `codesign`, `xcrun`, `productbuild`에 의존하므로 macOS에서 실행해야 합니다.
 
 1. 각 머신에 Velopack CLI를 한 번 설치합니다:
    ```
@@ -165,11 +165,16 @@ Velopack 빌드는 대상 OS에서 직접 만들어야 합니다(하나의 크�
    pwsh
    .\build\pack-windows.ps1 -Version 1.0.0
    ```
-3. macOS:
-   ```bash
-   ./build/pack-macos.sh 1.0.0
+3. Windows에서 Ubuntu 패키징:
+   ```powershell
+   .\build\pack-linux.ps1 -Version 1.0.0
    ```
-4. Ubuntu:
+4. macOS에서 macOS(Apple Silicon 기본값) 패키징:
+   ```powershell
+   pwsh ./build/pack-macos.ps1 -Version 1.0.0
+   ```
+   Intel macOS 패키지는 `-Runtime osx-x64`를 추가합니다. 기존 셸 스크립트도 사용할 수 있습니다.
+5. Ubuntu:
    ```bash
    ./build/pack-linux.sh 1.0.0
    ```

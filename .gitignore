@@ -375,3 +375,5 @@ FodyWeavers.xsd
 .nupkg/
 3.Infrastructure/Assemblies/**
 2.Modules/wwwroot/wwwroot/lib/
+/4.Tool/Bootstrapper/HandStack.Bootstrapper/build/pack-linux.sh
+/4.Tool/Bootstrapper/HandStack.Bootstrapper/build/pack-macos.sh

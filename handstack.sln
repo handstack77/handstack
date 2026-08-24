@@ -147,7 +147,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HandStack.Bootstrapper", "4
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{C7E42ABA-3338-4615-85DA-1B85CF56A9B6}"
 	ProjectSection(SolutionItems) = preProject
+		4.Tool\Bootstrapper\HandStack.Bootstrapper\build\pack-linux.ps1 = 4.Tool\Bootstrapper\HandStack.Bootstrapper\build\pack-linux.ps1
 		4.Tool\Bootstrapper\HandStack.Bootstrapper\build\pack-linux.sh = 4.Tool\Bootstrapper\HandStack.Bootstrapper\build\pack-linux.sh
+		4.Tool\Bootstrapper\HandStack.Bootstrapper\build\pack-macos.ps1 = 4.Tool\Bootstrapper\HandStack.Bootstrapper\build\pack-macos.ps1
 		4.Tool\Bootstrapper\HandStack.Bootstrapper\build\pack-macos.sh = 4.Tool\Bootstrapper\HandStack.Bootstrapper\build\pack-macos.sh
 		4.Tool\Bootstrapper\HandStack.Bootstrapper\build\pack-windows.ps1 = 4.Tool\Bootstrapper\HandStack.Bootstrapper\build\pack-windows.ps1
 	EndProjectSection
