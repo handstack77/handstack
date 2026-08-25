@@ -15,6 +15,7 @@
         <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
         <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
         <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+        <CompressionEnabled>false</CompressionEnabled>
         <OutputType>Library</OutputType>
         <NoWarn>IL3000;NU1903;ASP0023;NU1608;NU1510;</NoWarn>
     </PropertyGroup>
