@@ -13,7 +13,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		.dockerignore = .dockerignore
 		.editorconfig = .editorconfig
-		.gitattributes = .gitattributes
 		.gitignore = .gitignore
 		AGENTS.md = AGENTS.md
 		assemblies.bat = assemblies.bat
@@ -579,7 +578,7 @@ Global
 		{C7E42ABA-3338-4615-85DA-1B85CF56A9B6} = {C2E3D466-F9B1-4D6E-9F66-2E5890AC6C17}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {0075CE72-935C-4F87-A6BA-989C82F06F8F}
 		VisualSVNWorkingCopyRoot = .
+		SolutionGuid = {0075CE72-935C-4F87-A6BA-989C82F06F8F}
 	EndGlobalSection
 EndGlobal
