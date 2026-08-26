@@ -32,7 +32,7 @@ using Serilog.Sinks.SystemConsole.Themes;
 
 namespace dbclient
 {
-    public class ModuleInitializer : IModuleInitializer
+    public class ModuleInitializer : IModuleInitializer, IModuleRuntimeConfigurationPropertyHandler
     {
         public string? ModuleID;
 
@@ -152,6 +152,19 @@ namespace dbclient
                 services.AddTransient<IRequestHandler<ManagedRequest, object?>, ManagedRequestHandler>();
                 services.AddTransient<IRequestHandler<QueryRefreshRequest, bool>, QueryRefreshRequestHandler>();
             }
+        }
+
+        public bool CanHandleModuleConfigurationProperty(string propertyName)
+        {
+            return propertyName.Equals(nameof(ModuleConfig.DataSource), StringComparison.Ordinal);
+        }
+
+        public void ApplyModuleConfigurationProperty(ModuleInfo module, string propertyName, object? value, ModuleConfigurationReloadResult result)
+        {
+            var dataSources = value as List<DataSource> ?? new List<DataSource>();
+            DatabaseMapper.ReloadDataSourceMappings(dataSources, Log.Logger);
+            ModuleConfiguration.DataSource = dataSources.Select(item => item with { }).ToList();
+            result.AppliedKeys.Add($"ModuleConfig:{propertyName}");
         }
 
         private static LoggerConfiguration CreateLoggerConfiguration(string logFilePath)

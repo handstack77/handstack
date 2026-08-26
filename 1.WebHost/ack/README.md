@@ -138,12 +138,15 @@ $env:AppSettings__RunningEnvironment='P'
 
 로드된 모듈의 `module.json`도 감시합니다. 파일이 변경되면 해당 모듈 Assembly의 `ModuleConfigJson`으로 다시 읽고, 같은 모듈의 `ModuleConfiguration` 정적 필드에 이름과 타입이 일치하는 값을 반영합니다.
 
+`dbclient.DataSource`, `prompter.LLMSource`, `function.FunctionSource`, `graphclient.GraphDataSource`는 데이터 원본 매핑 캐시까지 함께 다시 만듭니다. 새 목록 전체를 먼저 검증하고 성공한 경우에만 기존 캐시를 비운 뒤 한 번에 교체하므로 교체 완료 후 시작하는 요청부터 새 설정을 사용합니다. 변환이나 복호화에 실패하면 오류를 기록하고 이전 설정과 캐시를 유지합니다. `rdy`도 같은 모듈 설정 감시와 캐시 교체 동작을 사용합니다.
+
 모듈 설정 운영 주의:
 
 - `ModuleConfig:EventAction`, `ModuleConfig:SubscribeAction`은 호스트의 모듈 MediatR 설정에도 함께 반영됩니다.
 - `ModuleConfiguration`에 대응 필드가 없거나 타입 변환이 필요한 항목은 재시작 필요 로그로 남깁니다.
 - ASP.NET 미들웨어, DI 등록, 이미 시작된 HostedService, 새 모듈 추가/삭제, 어셈블리 로딩 관련 변경은 프로세스 재시작 후 반영합니다.
 - 감시 대상은 현재 `ack` 프로세스가 로드한 모듈의 `ModuleSettingFilePath`입니다. `AppSettings:LoadModules` 변경으로 새 모듈을 로드하려면 재시작해야 합니다.
+- 데이터 원본 캐시를 이미 조회한 진행 중 요청은 이전 매핑으로 완료될 수 있습니다. 빈 데이터 원본 배열은 정상 설정으로 간주하여 해당 캐시를 비웁니다.
 
 ### 5.2 Content-Security-Policy 실시간 반영
 

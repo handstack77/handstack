@@ -57,7 +57,7 @@ using Serilog.Sinks.SystemConsole.Themes;
 
 namespace function
 {
-    public class ModuleInitializer : IModuleInitializer
+    public class ModuleInitializer : IModuleInitializer, IModuleRuntimeConfigurationPropertyHandler
     {
         public string? ModuleID;
 
@@ -372,6 +372,19 @@ namespace function
                 services.AddTransient<IRequestHandler<FunctionRequest, object?>, FunctionRequestHandler>();
                 services.AddTransient<IRequestHandler<ExecutionRefreshRequest, bool>, ExecutionRefreshRequestHandler>();
             }
+        }
+
+        public bool CanHandleModuleConfigurationProperty(string propertyName)
+        {
+            return propertyName.Equals(nameof(ModuleConfig.FunctionSource), StringComparison.Ordinal);
+        }
+
+        public void ApplyModuleConfigurationProperty(ModuleInfo module, string propertyName, object? value, ModuleConfigurationReloadResult result)
+        {
+            var functionSources = value as List<FunctionSource> ?? new List<FunctionSource>();
+            FunctionMapper.ReloadFunctionSourceMappings(functionSources, Log.Logger);
+            ModuleConfiguration.FunctionSource = functionSources.Select(item => item with { }).ToList();
+            result.AppliedKeys.Add($"ModuleConfig:{propertyName}");
         }
 
         private static LoggerConfiguration CreateLoggerConfiguration(string logFilePath)

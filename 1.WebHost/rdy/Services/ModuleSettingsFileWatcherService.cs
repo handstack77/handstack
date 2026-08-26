@@ -217,10 +217,11 @@ namespace rdy.Services
                 return runtimeConfiguration.ReloadModuleConfiguration(module, configurationText);
             }
 
-            return ReloadRuntimeConfigurationByReflection(module, configurationText);
+            var propertyHandler = serviceProvider.GetServices<IModuleRuntimeConfigurationPropertyHandler>().FirstOrDefault(p => p.GetType().Assembly == module.Assembly);
+            return ReloadRuntimeConfigurationByReflection(module, configurationText, propertyHandler);
         }
 
-        private ModuleConfigurationReloadResult ReloadRuntimeConfigurationByReflection(ModuleInfo module, string configurationText)
+        private ModuleConfigurationReloadResult ReloadRuntimeConfigurationByReflection(ModuleInfo module, string configurationText, IModuleRuntimeConfigurationPropertyHandler? propertyHandler)
         {
             var result = new ModuleConfigurationReloadResult()
             {
@@ -266,7 +267,7 @@ namespace rdy.Services
             }
 
             ApplyTopLevelModuleInfo(module, moduleConfigJson, moduleConfigJsonType, moduleConfigurationType, result);
-            ApplyModuleConfigProperties(module, moduleConfig, moduleConfig.GetType(), moduleConfigurationType, result);
+            ApplyModuleConfigProperties(module, moduleConfig, moduleConfig.GetType(), moduleConfigurationType, propertyHandler, result);
 
             module.Configuration = null;
             return result;
@@ -299,11 +300,25 @@ namespace rdy.Services
             return moduleConfig?.GetType().GetProperty(propertyName)?.GetValue(moduleConfig);
         }
 
-        private static void ApplyModuleConfigProperties(ModuleInfo module, object moduleConfig, Type moduleConfigType, Type moduleConfigurationType, ModuleConfigurationReloadResult result)
+        private static void ApplyModuleConfigProperties(ModuleInfo module, object moduleConfig, Type moduleConfigType, Type moduleConfigurationType, IModuleRuntimeConfigurationPropertyHandler? propertyHandler, ModuleConfigurationReloadResult result)
         {
             foreach (var property in moduleConfigType.GetProperties(BindingFlags.Public | BindingFlags.Instance))
             {
                 var value = property.GetValue(moduleConfig);
+                if (propertyHandler?.CanHandleModuleConfigurationProperty(property.Name) == true)
+                {
+                    try
+                    {
+                        propertyHandler.ApplyModuleConfigurationProperty(module, property.Name, value, result);
+                    }
+                    catch (Exception exception)
+                    {
+                        result.Errors.Add($"ModuleConfig:{property.Name} 런타임 적용 실패: {exception.Message}");
+                    }
+
+                    continue;
+                }
+
                 var field = moduleConfigurationType.GetField(property.Name, BindingFlags.Public | BindingFlags.Static);
                 if (field == null)
                 {

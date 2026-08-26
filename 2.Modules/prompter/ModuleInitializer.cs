@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -33,7 +34,7 @@ using Serilog.Sinks.SystemConsole.Themes;
 
 namespace prompter
 {
-    public class ModuleInitializer : IModuleInitializer
+    public class ModuleInitializer : IModuleInitializer, IModuleRuntimeConfigurationPropertyHandler
     {
         public string? ModuleID;
 
@@ -213,6 +214,19 @@ namespace prompter
 
                 services.AddTransient<IRequestHandler<PrompterRequest, object?>, PrompterRequestHandler>();
             }
+        }
+
+        public bool CanHandleModuleConfigurationProperty(string propertyName)
+        {
+            return propertyName.Equals(nameof(ModuleConfig.LLMSource), StringComparison.Ordinal);
+        }
+
+        public void ApplyModuleConfigurationProperty(ModuleInfo module, string propertyName, object? value, ModuleConfigurationReloadResult result)
+        {
+            var llmSources = value as List<LLMSource> ?? new List<LLMSource>();
+            PromptMapper.ReloadDataSourceMappings(llmSources, Log.Logger);
+            ModuleConfiguration.LLMSource = llmSources.Select(item => item with { }).ToList();
+            result.AppliedKeys.Add($"ModuleConfig:{propertyName}");
         }
 
         private static LoggerConfiguration CreateLoggerConfiguration(string logFilePath)

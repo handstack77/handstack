@@ -1155,49 +1155,69 @@ namespace prompter.Extensions
                     }
                 }
 
-                foreach (var item in ModuleConfiguration.LLMSource)
-                {
-                    var tanantMap = new DataSourceTanantKey();
-                    tanantMap.ApplicationID = item.ApplicationID;
-                    tanantMap.DataSourceID = item.DataSourceID;
-                    tanantMap.TanantPattern = item.TanantPattern;
-                    tanantMap.TanantValue = item.TanantValue;
-
-                    var dataSourceMaps = DataSourceMappings.Where(p =>
-                        p.Value.ApplicationID == item.ApplicationID
-                        && p.Value.ProjectListID.SequenceEqual(item.ProjectID.Split(",").Where(s => string.IsNullOrWhiteSpace(s) == false).Distinct().ToList())
-                        && p.Key.DataSourceID == item.DataSourceID
-                        && (string.IsNullOrEmpty(p.Key.TanantPattern) == false && p.Key.TanantPattern == item.TanantPattern && p.Key.TanantValue == item.TanantValue)
-                    ).ToList();
-
-                    if (dataSourceMaps.Count == 0)
-                    {
-                        var dataSourceMap = new DataSourceMap();
-                        dataSourceMap.ApplicationID = item.ApplicationID;
-                        dataSourceMap.ProjectListID = item.ProjectID.Split(",").Where(s => string.IsNullOrWhiteSpace(s) == false).Distinct().ToList();
-                        dataSourceMap.LLMProvider = ParseLLMProvider(item.LLMProvider);
-                        dataSourceMap.ApiKey = item.IsEncryption.ParseBool() == true ? DecryptApiKey(item) : item.ApiKey;
-                        dataSourceMap.ModelID = item.ModelID;
-                        dataSourceMap.Endpoint = item.Endpoint;
-                        dataSourceMap.Temperature = item.Temperature;
-                        dataSourceMap.TopP = item.TopP;
-                        dataSourceMap.MaxOutputTokens = item.MaxOutputTokens;
-                        dataSourceMap.ContextTokens = item.ContextTokens;
-                        dataSourceMap.Think = item.Think;
-                        dataSourceMap.Stream = item.Stream;
-
-                        DataSourceMappings.Add(tanantMap, dataSourceMap, TimeSpan.FromDays(36500));
-                    }
-                    else
-                    {
-                        Log.Logger.Warning("[{LogCategory}] " + $"DataSourceMap 정보 중복 확인 필요 - ApplicationID - {item.ApplicationID}, ProjectID - {item.ProjectID}, DataSourceID - {item.DataSourceID}, DataProvider - {item.DataProvider}, TanantPattern - {item.TanantPattern}, TanantValue - {item.TanantValue}", "PromptMapper/LoadContract");
-                    }
-                }
+                ReloadDataSourceMappings(ModuleConfiguration.LLMSource, logger);
             }
             catch (Exception exception)
             {
                 logger.Error("[{LogCategory}] " + $"LoadContract 오류 - " + exception.ToMessage(), "PromptMapper/LoadContract");
             }
+        }
+
+        public static int ReloadDataSourceMappings(IEnumerable<LLMSource> llmSources, ILogger logger)
+        {
+            var candidates = new Dictionary<DataSourceTanantKey, DataSourceMap>();
+            foreach (var item in llmSources ?? Enumerable.Empty<LLMSource>())
+            {
+                if (Enum.TryParse(item.LLMProvider, true, out LLMProviders llmProvider) == false)
+                {
+                    throw new InvalidOperationException($"DataSourceID '{item.DataSourceID}'의 LLMProvider '{item.LLMProvider}' 확인 필요");
+                }
+
+                var apiKey = item.IsEncryption.ParseBool() == true ? DecryptApiKey(item) : item.ApiKey;
+                if (item.IsEncryption.ParseBool() == true && string.IsNullOrWhiteSpace(item.ApiKey) == false && string.IsNullOrWhiteSpace(apiKey) == true)
+                {
+                    throw new InvalidOperationException($"DataSourceID '{item.DataSourceID}' API Key 복호화 실패");
+                }
+
+                var tenantKey = new DataSourceTanantKey()
+                {
+                    ApplicationID = item.ApplicationID,
+                    DataSourceID = item.DataSourceID,
+                    TanantPattern = item.TanantPattern,
+                    TanantValue = item.TanantValue
+                };
+                if (candidates.ContainsKey(tenantKey) == true)
+                {
+                    logger.Warning("[{LogCategory}] " + $"DataSourceMap 정보 중복 확인 필요 - ApplicationID - {item.ApplicationID}, ProjectID - {item.ProjectID}, DataSourceID - {item.DataSourceID}, LLMProvider - {item.LLMProvider}, TanantPattern - {item.TanantPattern}, TanantValue - {item.TanantValue}", "PromptMapper/ReloadDataSourceMappings");
+                }
+
+                candidates[tenantKey] = new DataSourceMap()
+                {
+                    ApplicationID = item.ApplicationID,
+                    ProjectListID = item.ProjectID.Split(",").Where(value => string.IsNullOrWhiteSpace(value) == false).Distinct().ToList(),
+                    LLMProvider = llmProvider,
+                    ApiKey = apiKey,
+                    ModelID = item.ModelID,
+                    Endpoint = item.Endpoint,
+                    Temperature = item.Temperature,
+                    TopP = item.TopP,
+                    MaxOutputTokens = item.MaxOutputTokens,
+                    ContextTokens = item.ContextTokens,
+                    Think = item.Think,
+                    Stream = item.Stream
+                };
+            }
+
+            lock (DataSourceMappings)
+            {
+                DataSourceMappings.Clear();
+                foreach (var candidate in candidates)
+                {
+                    DataSourceMappings.Add(candidate.Key, candidate.Value, TimeSpan.FromDays(36500));
+                }
+            }
+
+            return candidates.Count;
         }
     }
 }

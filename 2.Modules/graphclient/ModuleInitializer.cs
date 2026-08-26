@@ -30,7 +30,7 @@ using Serilog.Sinks.SystemConsole.Themes;
 
 namespace graphclient
 {
-    public class ModuleInitializer : IModuleInitializer
+    public class ModuleInitializer : IModuleInitializer, IModuleRuntimeConfigurationPropertyHandler
     {
         public ModuleInitializer()
         {
@@ -137,6 +137,19 @@ namespace graphclient
             services.AddTransient<IRequestHandler<GraphClientRequest, object?>, GraphClientRequestHandler>();
             services.AddTransient<IRequestHandler<ManagedRequest, object?>, ManagedRequestHandler>();
             services.AddTransient<IRequestHandler<QueryRefreshRequest, bool>, QueryRefreshRequestHandler>();
+        }
+
+        public bool CanHandleModuleConfigurationProperty(string propertyName)
+        {
+            return propertyName.Equals(nameof(ModuleConfig.GraphDataSource), StringComparison.Ordinal);
+        }
+
+        public void ApplyModuleConfigurationProperty(ModuleInfo module, string propertyName, object? value, ModuleConfigurationReloadResult result)
+        {
+            var graphDataSources = value as List<GraphDataSource> ?? new List<GraphDataSource>();
+            GraphMapper.ReloadDataSourceMappings(graphDataSources);
+            ModuleConfiguration.GraphDataSource = graphDataSources.Select(item => item with { }).ToList();
+            result.AppliedKeys.Add($"ModuleConfig:{propertyName}");
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment? environment, ICorsService corsService, ICorsPolicyProvider corsPolicyProvider)

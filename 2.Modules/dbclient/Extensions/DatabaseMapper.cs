@@ -68,9 +68,9 @@ namespace dbclient.Extensions
 
         public static DataSourceMap? GetDataSourceMap(QueryObject queryObject, string requestApplicationID, string projectID, string dataSourceID)
         {
-            DataSourceMap? result = null;
-            if (DataSourceMappings != null)
+            lock (DataSourceMappings)
             {
+                DataSourceMap? result = null;
                 var applicationID = requestApplicationID;
                 result = FindDataSourceMap(queryObject, applicationID, projectID, dataSourceID);
 
@@ -160,9 +160,9 @@ namespace dbclient.Extensions
                         }
                     }
                 }
-            }
 
-            return result;
+                return result;
+            }
         }
 
         private static DataSourceMap FindDataSourceMap(QueryObject queryObject, string applicationID, string projectID, string dataSourceID)
@@ -1213,47 +1213,58 @@ namespace dbclient.Extensions
                     }
                 }
 
-                foreach (var item in ModuleConfiguration.DataSource)
-                {
-                    var tanantMap = new DataSourceTanantKey();
-                    tanantMap.ApplicationID = item.ApplicationID;
-                    tanantMap.DataSourceID = item.DataSourceID;
-                    tanantMap.TanantPattern = item.TanantPattern;
-                    tanantMap.TanantValue = item.TanantValue;
-
-                    var dataSourceMaps = DataSourceMappings.Where(p =>
-                        p.Value.ApplicationID == item.ApplicationID
-                        && p.Value.ProjectListID.SequenceEqual(item.ProjectID.Split(",").Where(s => !string.IsNullOrWhiteSpace(s)).Distinct().ToList())
-                        && p.Key.DataSourceID == item.DataSourceID
-                        && (!string.IsNullOrWhiteSpace(p.Key.TanantPattern) && p.Key.TanantPattern == item.TanantPattern && p.Key.TanantValue == item.TanantValue)
-                    ).ToList();
-
-                    if (dataSourceMaps.Count == 0)
-                    {
-                        var dataSourceMap = new DataSourceMap();
-                        dataSourceMap.ApplicationID = item.ApplicationID;
-                        dataSourceMap.ProjectListID = item.ProjectID.Split(",").Where(s => !string.IsNullOrWhiteSpace(s)).Distinct().ToList();
-                        dataSourceMap.DataProvider = (DataProviders)Enum.Parse(typeof(DataProviders), item.DataProvider);
-                        dataSourceMap.ConnectionString = item.ConnectionString;
-                        dataSourceMap.TransactionIsolationLevel = string.IsNullOrWhiteSpace(item.TransactionIsolationLevel) ? "ReadCommitted" : item.TransactionIsolationLevel;
-
-                        if (item.IsEncryption.ParseBool() == true)
-                        {
-                            dataSourceMap.ConnectionString = DecryptConnectionString(item);
-                        }
-
-                        DataSourceMappings.Add(tanantMap, dataSourceMap, TimeSpan.FromDays(36500));
-                    }
-                    else
-                    {
-                        Log.Logger.Warning("[{LogCategory}] " + $"DataSourceMap 정보 중복 확인 필요 - ApplicationID - {item.ApplicationID}, ProjectID - {item.ProjectID}, DataSourceID - {item.DataSourceID}, DataProvider - {item.DataProvider}, TanantPattern - {item.TanantPattern}, TanantValue - {item.TanantValue}", "DatabaseMapper/LoadContract");
-                    }
-                }
+                ReloadDataSourceMappings(ModuleConfiguration.DataSource, logger);
             }
             catch (Exception exception)
             {
                 logger.Error("[{LogCategory}] " + $"LoadContract 오류 - " + exception.ToMessage(), "DatabaseMapper/LoadContract");
             }
+        }
+
+        public static int ReloadDataSourceMappings(IEnumerable<DataSource> dataSources, ILogger logger)
+        {
+            var candidates = new Dictionary<DataSourceTanantKey, DataSourceMap>();
+            foreach (var item in dataSources ?? Enumerable.Empty<DataSource>())
+            {
+                var dataProvider = (DataProviders)Enum.Parse(typeof(DataProviders), item.DataProvider, true);
+                var connectionString = item.IsEncryption.ParseBool() == true ? DecryptConnectionString(item) : item.ConnectionString;
+                if (item.IsEncryption.ParseBool() == true && string.IsNullOrWhiteSpace(item.ConnectionString) == false && string.IsNullOrWhiteSpace(connectionString) == true)
+                {
+                    throw new InvalidOperationException($"DataSourceID '{item.DataSourceID}' 연결 문자열 복호화 실패");
+                }
+
+                var tenantKey = new DataSourceTanantKey()
+                {
+                    ApplicationID = item.ApplicationID,
+                    DataSourceID = item.DataSourceID,
+                    TanantPattern = item.TanantPattern,
+                    TanantValue = item.TanantValue
+                };
+                if (candidates.ContainsKey(tenantKey) == true)
+                {
+                    logger.Warning("[{LogCategory}] " + $"DataSourceMap 정보 중복 확인 필요 - ApplicationID - {item.ApplicationID}, ProjectID - {item.ProjectID}, DataSourceID - {item.DataSourceID}, DataProvider - {item.DataProvider}, TanantPattern - {item.TanantPattern}, TanantValue - {item.TanantValue}", "DatabaseMapper/ReloadDataSourceMappings");
+                }
+
+                candidates[tenantKey] = new DataSourceMap()
+                {
+                    ApplicationID = item.ApplicationID,
+                    ProjectListID = item.ProjectID.Split(",").Where(value => string.IsNullOrWhiteSpace(value) == false).Distinct().ToList(),
+                    DataProvider = dataProvider,
+                    ConnectionString = connectionString,
+                    TransactionIsolationLevel = string.IsNullOrWhiteSpace(item.TransactionIsolationLevel) ? "ReadCommitted" : item.TransactionIsolationLevel
+                };
+            }
+
+            lock (DataSourceMappings)
+            {
+                DataSourceMappings.Clear();
+                foreach (var candidate in candidates)
+                {
+                    DataSourceMappings.Add(candidate.Key, candidate.Value, TimeSpan.FromDays(36500));
+                }
+            }
+
+            return candidates.Count;
         }
 
         public static Dictionary<string, object?> ToParametersDictionary(this DynamicParameters dynamicParams)

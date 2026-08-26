@@ -1302,57 +1302,69 @@ namespace function.Extensions
                     }
                 }
 
-                foreach (var item in ModuleConfiguration.FunctionSource)
-                {
-                    var projectIDText = item.ProjectID;
-                    var projectIDList = projectIDText.Split(",").Where(s => !string.IsNullOrWhiteSpace(s)).Distinct().ToList();
-
-                    if (projectIDList.Count > 0)
-                    {
-                        var dataSourceID = $"{item.ApplicationID}|{item.DataSourceID}";
-                        if (FunctionSourceMappings.ContainsKey(dataSourceID) == false)
-                        {
-                            var dataProvider = (DataProviders)Enum.Parse(typeof(DataProviders), item.DataProvider);
-                            var connectionString = item.ConnectionString;
-
-                            if (item.IsEncryption.ParseBool() == true)
-                            {
-                                connectionString = DecryptConnectionString(item);
-                            }
-
-                            if (dataProvider == DataProviders.SQLite)
-                            {
-                                if (connectionString.IndexOf("#{ContentRootPath}") > -1)
-                                {
-                                    connectionString = connectionString.Replace("#{ContentRootPath}", GlobalConfiguration.ContentRootPath);
-                                }
-                            }
-
-                            if (Directory.Exists(item.WorkingDirectoryPath) == false)
-                            {
-                                Directory.CreateDirectory(item.WorkingDirectoryPath);
-                            }
-
-                            FunctionSourceMappings.Add(dataSourceID, new ModuleSourceMap()
-                            {
-                                DataSourceID = item.DataSourceID,
-                                ProjectListID = projectIDList,
-                                DataProvider = dataProvider,
-                                ConnectionString = connectionString,
-                                WorkingDirectoryPath = item.WorkingDirectoryPath
-                            }, TimeSpan.FromDays(36500));
-                        }
-                        else
-                        {
-                            logger.Warning("[{LogCategory}] " + $"DataSourceID 중복 확인 필요 - {dataSourceID}", "FunctionMapper/LoadContract");
-                        }
-                    }
-                }
+                ReloadFunctionSourceMappings(ModuleConfiguration.FunctionSource, logger);
             }
             catch (Exception exception)
             {
                 logger.Error("[{LogCategory}] " + $"LoadContract 오류 - {exception.ToMessage()}", "FunctionMapper/LoadContract");
             }
+        }
+
+        public static int ReloadFunctionSourceMappings(IEnumerable<FunctionSource> functionSources, ILogger logger)
+        {
+            var candidates = new Dictionary<string, ModuleSourceMap>(StringComparer.Ordinal);
+            foreach (var item in functionSources ?? Enumerable.Empty<FunctionSource>())
+            {
+                var projectIDList = item.ProjectID.Split(",").Where(value => string.IsNullOrWhiteSpace(value) == false).Distinct().ToList();
+                if (projectIDList.Count == 0)
+                {
+                    continue;
+                }
+
+                var dataSourceID = $"{item.ApplicationID}|{item.DataSourceID}";
+                if (candidates.ContainsKey(dataSourceID) == true)
+                {
+                    logger.Warning("[{LogCategory}] " + $"DataSourceID 중복 확인 필요 - {dataSourceID}", "FunctionMapper/ReloadFunctionSourceMappings");
+                    continue;
+                }
+
+                var dataProvider = (DataProviders)Enum.Parse(typeof(DataProviders), item.DataProvider, true);
+                var connectionString = item.IsEncryption.ParseBool() == true ? DecryptConnectionString(item) : item.ConnectionString;
+                if (item.IsEncryption.ParseBool() == true && string.IsNullOrWhiteSpace(item.ConnectionString) == false && string.IsNullOrWhiteSpace(connectionString) == true)
+                {
+                    throw new InvalidOperationException($"DataSourceID '{item.DataSourceID}' 연결 문자열 복호화 실패");
+                }
+
+                if (dataProvider == DataProviders.SQLite && connectionString.IndexOf("#{ContentRootPath}", StringComparison.Ordinal) > -1)
+                {
+                    connectionString = connectionString.Replace("#{ContentRootPath}", GlobalConfiguration.ContentRootPath);
+                }
+
+                if (Directory.Exists(item.WorkingDirectoryPath) == false)
+                {
+                    Directory.CreateDirectory(item.WorkingDirectoryPath);
+                }
+
+                candidates[dataSourceID] = new ModuleSourceMap()
+                {
+                    DataSourceID = item.DataSourceID,
+                    ProjectListID = projectIDList,
+                    DataProvider = dataProvider,
+                    ConnectionString = connectionString,
+                    WorkingDirectoryPath = item.WorkingDirectoryPath
+                };
+            }
+
+            lock (FunctionSourceMappings)
+            {
+                FunctionSourceMappings.Clear();
+                foreach (var candidate in candidates)
+                {
+                    FunctionSourceMappings.Add(candidate.Key, candidate.Value, TimeSpan.FromDays(36500));
+                }
+            }
+
+            return candidates.Count;
         }
 
         public static string DecryptConnectionString(FunctionSource? functionSource)

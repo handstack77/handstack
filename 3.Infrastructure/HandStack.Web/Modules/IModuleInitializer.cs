@@ -20,6 +20,13 @@ namespace HandStack.Web.Modules
         ModuleConfigurationReloadResult ReloadModuleConfiguration(ModuleInfo module, string configurationText);
     }
 
+    public interface IModuleRuntimeConfigurationPropertyHandler
+    {
+        bool CanHandleModuleConfigurationProperty(string propertyName);
+
+        void ApplyModuleConfigurationProperty(ModuleInfo module, string propertyName, object? value, ModuleConfigurationReloadResult result);
+    }
+
     public class ModuleConfigurationReloadResult
     {
         public string ModuleID { get; set; } = "";

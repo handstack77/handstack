@@ -820,6 +820,10 @@ namespace rdy
                                     {
                                         services.AddSingleton(typeof(IModuleRuntimeConfiguration), moduleRuntimeConfiguration);
                                     }
+                                    if (moduleInitializer is IModuleRuntimeConfigurationPropertyHandler moduleRuntimeConfigurationPropertyHandler)
+                                    {
+                                        services.AddSingleton(typeof(IModuleRuntimeConfigurationPropertyHandler), moduleRuntimeConfigurationPropertyHandler);
+                                    }
 
                                     moduleInitializer.ConfigureServices(services, environment, configuration);
                                 }

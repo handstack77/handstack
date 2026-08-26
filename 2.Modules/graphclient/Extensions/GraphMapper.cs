@@ -174,6 +174,60 @@ namespace graphclient.Extensions
             return true;
         }
 
+        public static int ReloadDataSourceMappings(IEnumerable<GraphDataSource> graphDataSources)
+        {
+            var candidates = new Dictionary<string, GraphDataSourceMap>(StringComparer.OrdinalIgnoreCase);
+            foreach (var graphDataSource in graphDataSources ?? Enumerable.Empty<GraphDataSource>())
+            {
+                if (string.IsNullOrWhiteSpace(graphDataSource.ApplicationID)
+                    || string.IsNullOrWhiteSpace(graphDataSource.ProjectID)
+                    || string.IsNullOrWhiteSpace(graphDataSource.DataSourceID))
+                {
+                    throw new InvalidOperationException($"GraphDataSource 필수 항목 확인 필요 - {graphDataSource.DataSourceID}");
+                }
+
+                var provider = graphDataSource.GraphProvider.ToStringSafe().Trim();
+                if (provider.Equals("Neo4j", StringComparison.OrdinalIgnoreCase) == false
+                    && provider.Equals("Memgraph", StringComparison.OrdinalIgnoreCase) == false)
+                {
+                    throw new InvalidOperationException($"지원하지 않는 GraphProvider - {provider}");
+                }
+
+                var map = new GraphDataSourceMap()
+                {
+                    ApplicationID = graphDataSource.ApplicationID,
+                    ProjectListID = graphDataSource.ProjectID.Split(',').Where(item => string.IsNullOrWhiteSpace(item) == false).Select(item => item.Trim()).Distinct(StringComparer.OrdinalIgnoreCase).ToList(),
+                    DataSourceID = graphDataSource.DataSourceID,
+                    GraphProvider = provider,
+                    ConnectionString = graphDataSource.IsEncryption.ParseBool() ? DecryptValue(graphDataSource.ConnectionString) : graphDataSource.ConnectionString,
+                    UserName = graphDataSource.IsEncryption.ParseBool() ? DecryptValue(graphDataSource.UserName) : graphDataSource.UserName,
+                    Password = graphDataSource.IsEncryption.ParseBool() ? DecryptValue(graphDataSource.Password) : graphDataSource.Password,
+                    Database = graphDataSource.IsEncryption.ParseBool() ? DecryptValue(graphDataSource.Database) : graphDataSource.Database,
+                    Comment = graphDataSource.Comment
+                };
+
+                var removeKeys = candidates.Keys.Where(key => key.StartsWith($"{graphDataSource.ApplicationID}|", StringComparison.OrdinalIgnoreCase)
+                    && key.EndsWith($"|{graphDataSource.DataSourceID}", StringComparison.OrdinalIgnoreCase)).ToList();
+                foreach (var removeKey in removeKeys)
+                {
+                    candidates.Remove(removeKey);
+                }
+
+                candidates[CreateDataSourceKey(graphDataSource.ApplicationID, graphDataSource.ProjectID, graphDataSource.DataSourceID)] = map;
+            }
+
+            lock (DataSourceMappings)
+            {
+                DataSourceMappings.Clear();
+                foreach (var candidate in candidates)
+                {
+                    DataSourceMappings.Add(candidate.Key, candidate.Value, TimeSpan.FromDays(36500));
+                }
+            }
+
+            return candidates.Count;
+        }
+
         public static bool AddStatementMap(string filePath, bool forceUpdate, ILogger logger)
         {
             var resolvedPath = ResolveContractFilePath(filePath);
