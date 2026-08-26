@@ -145,7 +145,7 @@ namespace prompter.Extensions
                 promptMap.Role = GetAttributeValue(item, "role").ToStringSafe();
                 if (string.IsNullOrWhiteSpace(promptMap.Role) == true)
                 {
-                    promptMap.Role = "system";
+                    promptMap.Role = "user";
                 }
 
                 promptMap.Timeout = GetAttributeValue(item, "timeout").ParseInt(0);
@@ -157,6 +157,15 @@ namespace prompter.Extensions
                 promptMap.TransactionLog = GetAttributeValue(item, "transactionlog", "log").ToBoolean();
                 promptMap.Prompt = item.InnerHtml;
                 promptMap.InputVariables = ParseInputVariables(item);
+                try
+                {
+                    promptMap.MediaVariables = ParseMediaVariables(item, promptMap.InputVariables);
+                }
+                catch (InvalidDataException exception)
+                {
+                    Log.Logger.Error("[{LogCategory}] " + $"프롬프트 media 계약 오류 - FilePath: {fileInfo.FullName}, QueryID: {BuildQueryID(promptMap)}, 오류: {exception.Message}", "PromptMapper/CreatePromptMaps");
+                    continue;
+                }
                 promptMap.OutputMetas = ParseOutputMetas(item);
                 promptMap.Tools = ParseTools(item);
                 promptMap.Authorization = ParseAuthorization(item);
@@ -195,6 +204,77 @@ namespace prompter.Extensions
             }
 
             return result;
+        }
+
+        private static List<PromptMediaVariable> ParseMediaVariables(HtmlNode statementNode, IReadOnlyList<InputVariableMap> inputVariables)
+        {
+            var result = new List<PromptMediaVariable>();
+            var mediaNodes = statementNode.SelectNodes("media");
+            if (mediaNodes == null || mediaNodes.Count == 0)
+            {
+                return result;
+            }
+
+            var usedNames = new HashSet<string>(inputVariables.Select(item => NormalizeParameterName(item.Name)), StringComparer.OrdinalIgnoreCase);
+            foreach (var mediaNode in mediaNodes)
+            {
+                var name = GetAttributeValue(mediaNode, "id");
+                var normalizedName = NormalizeParameterName(name);
+                if (string.IsNullOrWhiteSpace(normalizedName) == true)
+                {
+                    throw new InvalidDataException("media id 설정 필요");
+                }
+
+                if (usedNames.Add(normalizedName) == false)
+                {
+                    throw new InvalidDataException($"media id '{name}' 중복 확인 필요");
+                }
+
+                var type = GetAttributeValue(mediaNode, "type");
+                if (type.Equals("Image", StringComparison.OrdinalIgnoreCase) == true)
+                {
+                    type = "Image";
+                }
+                else if (type.Equals("Audio", StringComparison.OrdinalIgnoreCase) == true)
+                {
+                    type = "Audio";
+                }
+                else
+                {
+                    throw new InvalidDataException($"media id '{name}'의 type은 Image 또는 Audio만 허용됩니다");
+                }
+
+                var mimeType = GetAttributeValue(mediaNode, "mimetype", "mimeType").Trim().ToLowerInvariant();
+                var expectedPrefix = type == "Image" ? "image/" : "audio/";
+                if (string.IsNullOrWhiteSpace(mimeType) == true
+                    || mimeType.EndsWith("/*", StringComparison.Ordinal) == true
+                    || mimeType.StartsWith(expectedPrefix, StringComparison.Ordinal) == false
+                    || Regex.IsMatch(mimeType, "^(image|audio)/[a-z0-9][a-z0-9!#$&^_.+-]*$", RegexOptions.CultureInvariant) == false)
+                {
+                    throw new InvalidDataException($"media id '{name}'의 구체적인 {expectedPrefix} MIME 타입 설정 필요");
+                }
+
+                result.Add(new PromptMediaVariable
+                {
+                    Name = name,
+                    Type = type,
+                    MimeType = mimeType,
+                    IsRequired = GetAttributeValue(mediaNode, "required").ToBoolean()
+                });
+            }
+
+            return result;
+        }
+
+        public static string NormalizeParameterName(string parameterName)
+        {
+            return string.IsNullOrEmpty(parameterName) == true
+                ? parameterName
+                : parameterName[0] switch
+                {
+                    '@' or ':' or '$' or '#' => parameterName.Substring(1),
+                    _ => parameterName
+                };
         }
 
         private static List<string> ParseOutputMetas(HtmlNode statementNode)
@@ -688,7 +768,7 @@ namespace prompter.Extensions
             var resultType = "Form";
             var argumentMap = "N";
 
-            var parameters = extractParameters(queryObject);
+            var parameters = extractParameters(queryObject, promptMap.MediaVariables.Select(item => item.Name));
 
             var htmlDocument = new HtmlDocument();
             htmlDocument.OptionDefaultStreamEncoding = Encoding.UTF8;
@@ -737,7 +817,7 @@ namespace prompter.Extensions
         {
             var result = string.Empty;
 
-            var parameters = extractParameters(queryObject);
+            var parameters = extractParameters(queryObject, promptMap.MediaVariables.Select(item => item.Name));
 
             var children = promptMap.Chidren;
 
@@ -759,9 +839,9 @@ namespace prompter.Extensions
             return result;
         }
 
-        public static JObject ExtractParameters(QueryObject? queryObject)
+        public static JObject ExtractParameters(QueryObject? queryObject, IEnumerable<string>? excludedParameterNames = null)
         {
-            return extractParameters(queryObject);
+            return extractParameters(queryObject, excludedParameterNames);
         }
 
         public static string ConvertParameterText(string text, JObject parameters)
@@ -818,13 +898,19 @@ namespace prompter.Extensions
             return result;
         }
 
-        private static JObject extractParameters(QueryObject? queryObject)
+        private static JObject extractParameters(QueryObject? queryObject, IEnumerable<string>? excludedParameterNames = null)
         {
             var parameters = new JObject();
+            var excludedNames = new HashSet<string>((excludedParameterNames ?? Enumerable.Empty<string>()).Select(NormalizeParameterName), StringComparer.OrdinalIgnoreCase);
             if (queryObject != null)
             {
                 foreach (var item in queryObject.Parameters)
                 {
+                    if (excludedNames.Contains(NormalizeParameterName(item.ParameterName)) == true)
+                    {
+                        continue;
+                    }
+
                     object? value = null;
                     if (item.DbType == "String")
                     {
@@ -917,6 +1003,7 @@ namespace prompter.Extensions
                         result = "";
                         break;
                     case "param":
+                    case "media":
                         return "";
                     default:
                         result = "";

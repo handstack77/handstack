@@ -21,6 +21,7 @@ namespace prompter.DataClient
         {
             Require(request.Endpoint, "LMStudio Endpoint 설정 필요");
             Require(request.ModelID, "LMStudio ModelID 설정 필요");
+            ValidateMediaSupport(request, "LMStudio", true, false);
 
             var endpoint = ResolveOpenAICompatibleEndpoint(request.Endpoint, "");
             var payload = new JObject

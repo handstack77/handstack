@@ -62,6 +62,9 @@ namespace prompter.Entity
         public List<InputVariableMap> InputVariables { get; set; }
 
         [JsonProperty]
+        public List<PromptMediaVariable> MediaVariables { get; set; }
+
+        [JsonProperty]
         public List<string> OutputMetas { get; set; }
 
         [JsonProperty]
@@ -91,7 +94,7 @@ namespace prompter.Entity
             Seq = 0;
             Description = "";
             Prompt = "";
-            Role = "system";
+            Role = "user";
             TransactionLog = false;
             Timeout = 0;
             MaxTokens = 4000;
@@ -100,6 +103,7 @@ namespace prompter.Entity
             PresencePenalty = 0.0;
             FrequencyPenalty = 0.0;
             InputVariables = new List<InputVariableMap>();
+            MediaVariables = new List<PromptMediaVariable>();
             OutputMetas = new List<string>();
             Tools = new PromptToolSettings();
             Authorization = new PromptAuthorization();

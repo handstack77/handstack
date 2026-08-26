@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -140,7 +141,51 @@ namespace prompter.DataClient
                     item["tool_call_id"] = message.ToolCallID;
                 }
 
-                item["content"] = message.Content.ToStringSafe();
+                if (message.Media.Count == 0)
+                {
+                    item["content"] = message.Content.ToStringSafe();
+                }
+                else
+                {
+                    var content = new JArray();
+                    if (string.IsNullOrWhiteSpace(message.Content) == false)
+                    {
+                        content.Add(new JObject
+                        {
+                            ["type"] = "text",
+                            ["text"] = message.Content
+                        });
+                    }
+
+                    foreach (var media in message.Media)
+                    {
+                        if (string.Equals(media.Type, "Image", StringComparison.OrdinalIgnoreCase) == true)
+                        {
+                            content.Add(new JObject
+                            {
+                                ["type"] = "image_url",
+                                ["image_url"] = new JObject
+                                {
+                                    ["url"] = $"data:{media.MimeType};base64,{media.Base64}"
+                                }
+                            });
+                        }
+                        else
+                        {
+                            content.Add(new JObject
+                            {
+                                ["type"] = "input_audio",
+                                ["input_audio"] = new JObject
+                                {
+                                    ["data"] = media.Base64,
+                                    ["format"] = GetOpenAIAudioFormat(media.MimeType)
+                                }
+                            });
+                        }
+                    }
+
+                    item["content"] = content;
+                }
 
                 if (message.ToolCalls.Count > 0)
                 {
@@ -160,6 +205,113 @@ namespace prompter.DataClient
             }
 
             return result;
+        }
+
+        protected static JArray BuildOllamaMessages(IReadOnlyList<LLMChatMessage> messages, string prompt)
+        {
+            var result = new JArray();
+            foreach (var message in messages)
+            {
+                var role = string.IsNullOrWhiteSpace(message.Role) == true ? "user" : message.Role;
+                var item = new JObject
+                {
+                    ["role"] = role,
+                    ["content"] = message.Content.ToStringSafe()
+                };
+
+                if (string.IsNullOrEmpty(message.Name) == false)
+                {
+                    item["name"] = message.Name;
+                }
+
+                if (role == "tool")
+                {
+                    item["tool_call_id"] = message.ToolCallID;
+                }
+
+                if (message.Media.Count > 0)
+                {
+                    item["images"] = new JArray(message.Media.ConvertAll(media => media.Base64));
+                }
+
+                if (message.ToolCalls.Count > 0)
+                {
+                    item["tool_calls"] = BuildOpenAIToolCalls(message.ToolCalls);
+                }
+
+                result.Add(item);
+            }
+
+            if (string.IsNullOrWhiteSpace(prompt) == false)
+            {
+                result.Add(new JObject
+                {
+                    ["role"] = "user",
+                    ["content"] = prompt
+                });
+            }
+
+            EnsureOllamaUserQuery(result);
+            return result;
+        }
+
+        private static void EnsureOllamaUserQuery(JArray messages)
+        {
+            var hasUserQuery = messages
+                .OfType<JObject>()
+                .Any(item => string.Equals(item["role"]?.ToStringSafe(), "user", StringComparison.OrdinalIgnoreCase) == true
+                    && (string.IsNullOrWhiteSpace(item["content"]?.ToStringSafe()) == false
+                        || item["images"] is JArray images && images.Count > 0));
+            if (hasUserQuery == true)
+            {
+                return;
+            }
+
+            var fallbackMessage = messages
+                .OfType<JObject>()
+                .LastOrDefault(item => string.Equals(item["role"]?.ToStringSafe(), "system", StringComparison.OrdinalIgnoreCase) == true
+                    && (string.IsNullOrWhiteSpace(item["content"]?.ToStringSafe()) == false
+                        || item["images"] is JArray images && images.Count > 0));
+            if (fallbackMessage == null)
+            {
+                throw new InvalidOperationException("Ollama 요청에 비어 있지 않은 user 메시지가 필요합니다.");
+            }
+
+            // qwen3 계열 Ollama 템플릿은 user role이 없는 legacy 단일 system 프롬프트를 거부합니다.
+            fallbackMessage["role"] = "user";
+        }
+
+        protected static void ValidateMediaSupport(LLMChatRequest request, string provider, bool supportsImage, bool supportsAudio)
+        {
+            foreach (var message in request.ChatHistory)
+            {
+                foreach (var media in message.Media)
+                {
+                    var isImage = string.Equals(media.Type, "Image", StringComparison.OrdinalIgnoreCase);
+                    var isAudio = string.Equals(media.Type, "Audio", StringComparison.OrdinalIgnoreCase);
+                    if ((isImage == true && supportsImage == false) || (isAudio == true && supportsAudio == false))
+                    {
+                        throw new NotSupportedException($"{provider} 제공자는 {media.Type} media 입력을 지원하지 않습니다: mimeType={media.MimeType}");
+                    }
+                }
+            }
+        }
+
+        private static string GetOpenAIAudioFormat(string mimeType)
+        {
+            if (string.Equals(mimeType, "audio/wav", StringComparison.OrdinalIgnoreCase) == true
+                || string.Equals(mimeType, "audio/x-wav", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                return "wav";
+            }
+
+            if (string.Equals(mimeType, "audio/mpeg", StringComparison.OrdinalIgnoreCase) == true
+                || string.Equals(mimeType, "audio/mp3", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                return "mp3";
+            }
+
+            throw new NotSupportedException($"OpenAI input_audio에서 지원하지 않는 mimeType입니다: {mimeType}. audio/wav 또는 audio/mpeg를 사용하세요.");
         }
 
         protected static JArray BuildOpenAIToolCalls(IReadOnlyList<LLMToolCall> toolCalls)

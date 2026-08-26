@@ -22,6 +22,7 @@ namespace prompter.DataClient
         {
             Require(request.ApiKey, "Gemini ApiKey 설정 필요");
             Require(request.ModelID, "Gemini ModelID 설정 필요");
+            ValidateMediaSupport(request, "Gemini", true, true);
 
             var endpoint = string.IsNullOrWhiteSpace(request.Endpoint) == true
                 ? $"https://generativelanguage.googleapis.com/v1beta/models/{Uri.EscapeDataString(request.ModelID)}:generateContent"
@@ -96,10 +97,28 @@ namespace prompter.DataClient
                     ? $"Tool result ({message.Name}): {message.Content}"
                     : message.Content.ToStringSafe();
 
+                var parts = new JArray();
+                if (string.IsNullOrWhiteSpace(content) == false)
+                {
+                    parts.Add(new JObject { ["text"] = content });
+                }
+
+                foreach (var media in message.Media)
+                {
+                    parts.Add(new JObject
+                    {
+                        ["inlineData"] = new JObject
+                        {
+                            ["mimeType"] = media.MimeType,
+                            ["data"] = media.Base64
+                        }
+                    });
+                }
+
                 result.Add(new JObject
                 {
                     ["role"] = role,
-                    ["parts"] = new JArray(new JObject { ["text"] = content })
+                    ["parts"] = parts
                 });
             }
 

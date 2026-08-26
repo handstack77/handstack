@@ -92,7 +92,7 @@ namespace prompter.Events
                 {
                     loggerClient.DynamicRequestLogging(request, "Y", GlobalConfiguration.ApplicationID, (string error) =>
                     {
-                        logger.Warning("[{LogCategory}] [{GlobalID}] " + $"Request JSON: {JsonConvert.SerializeObject(request)}", "PrompterRequest/Handle", request.GlobalID);
+                        logger.Warning("[{LogCategory}] [{GlobalID}] " + $"Request JSON: {PromptLogSanitizer.SerializeRequest(request)}", "PrompterRequest/Handle", request.GlobalID);
                     });
                 }
 

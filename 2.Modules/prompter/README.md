@@ -224,6 +224,8 @@ prompter 모듈의 Contract 파일에서 사용하는 LLM 데이터 원본 목�
 
 Ollama endpoint는 `http://localhost:11434`처럼 base URL을 입력하면 내부에서 `/api/chat`을 붙여 호출합니다. LMStudio endpoint는 `http://localhost:1234` 또는 `http://localhost:1234/v1`을 입력하면 `/v1/chat/completions`로 정규화합니다.
 
+Ollama의 일부 qwen3 계열 채팅 템플릿은 메시지 목록에 비어 있지 않은 `user` role이 없으면 `no user query found in messages` 오류를 반환합니다. `<message>` 없이 작성된 기존 statement가 `system` role 하나만 생성하는 경우 prompter는 Ollama 요청에 한해 마지막 유효한 `system` 메시지를 `user`로 정규화합니다. 메시지 내용을 복제하지 않으므로 입력 토큰 수는 늘어나지 않습니다.
+
 #### Tool 보안 설정
 
 - AllowedKernelPlugins: 계약에서 사용할 수 있는 KernelPlugin과 function 목록입니다. 기본값은 math/time/text 일부 function만 허용합니다.
@@ -279,15 +281,15 @@ ${UserMessage}
 </prompts>
 ```
 
-statement 본문은 단일 CDATA 프롬프트 또는 role별 `<message>` 목록으로 작성할 수 있습니다. `<message>`가 없으면 기존 방식처럼 statement의 CDATA와 동적 태그를 하나의 프롬프트로 조립하고, statement의 `role` 속성을 메시지 역할로 사용합니다. `<message>`가 있으면 statement 최상위 CDATA를 먼저 statement `role` 메시지로 추가한 뒤, `<message>` 노드를 XML 선언 순서대로 추가합니다.
+statement 본문은 단일 CDATA 프롬프트 또는 role별 `<message>` 목록으로 작성할 수 있습니다. statement의 `role` 기본값은 `user`이며, 시스템 지시문으로 전달하려면 `role="system"`을 명시합니다. `<message>`가 없으면 기존 방식처럼 statement의 CDATA와 동적 태그를 하나의 프롬프트로 조립하고, statement의 `role` 속성을 메시지 역할로 사용합니다. `<message>`가 있으면 statement 최상위 CDATA를 먼저 statement `role` 메시지로 추가한 뒤, `<message>` 노드를 XML 선언 순서대로 추가합니다. `<message>` 자체의 `role`을 생략한 경우에도 statement role을 상속하므로 기본값은 `user`입니다.
 
 ```xml
-<statement id="GP02" seq="0" use="Y" timeout="0" role="system" desc="역할별 프롬프트 실행">
+<statement id="GP02" seq="0" use="Y" timeout="0" desc="역할별 프롬프트 실행">
     <![CDATA[
 # INSTRUCTIONS
 - 한국어만 사용하세요.
     ]]>
-    <message role="system">
+    <message>
         <![CDATA[
 INTENTS: Question, Assertion, Declaration
         ]]>
@@ -306,10 +308,51 @@ ASSISTANT:
         ]]>
     </message>
     <param id="@UserMessage" type="String" length="-1" value="" />
+    <media id="@Image1" type="Image" mimeType="image/png" required="N" />
+    <media id="@Audio1" type="Audio" mimeType="audio/wav" required="N" />
 </statement>
 ```
 
 위 예시는 LLM 요청 메시지를 `system`(statement CDATA) -> `system` -> `assistant` -> `user` 순서로 생성합니다. 각 message 본문에도 `${ParameterName}` 치환과 코드도움 치환식이 동일하게 적용됩니다. `CLS010`의 `GP02`는 이 방식으로 `LLM.CLS010.GP02` 거래에서 `UserMessage`를 role별 프롬프트의 마지막 user 메시지로 전달합니다.
+
+### 멀티모달 입력
+
+`<media>`는 `QueryObject.Parameters`로 받은 Base64 원문을 텍스트와 분리해 LLM 제공자의 멀티모달 메시지 형식으로 전달합니다.
+
+- `id`: 요청 파라미터 이름입니다. `<param>` 또는 다른 `<media>`와 대소문자 구분 없이 중복될 수 없습니다.
+- `type`: `Image` 또는 `Audio`만 허용합니다.
+- `mimeType`: `image/png`, `image/jpeg`, `audio/wav`, `audio/mpeg`처럼 구체적인 MIME 타입이 필요합니다. `image/*`, `audio/*`는 허용하지 않습니다.
+- `required`: `Y`이면 값이 없을 때 provider 호출 전에 실패하고, `N`이면 빈 값을 생략합니다.
+
+요청 값은 `data:image/png;base64,...` 형식이나 URL이 아니라 Base64 데이터 부분만 전달해야 합니다. Base64는 일반 프롬프트, authorization, headers, body, pretransaction 치환 대상에서 제외되며, 현재 statement에서 생성한 마지막 `user` 메시지에 첨부됩니다. 현재 statement에 `user` 메시지가 없으면 media 전용 `user` 메시지를 추가합니다.
+
+```json
+{
+  "ReturnType": "Json",
+  "DynamicObjects": [
+    {
+      "QueryID": "HDS|LLM|CLS010|GP0200",
+      "Parameters": [
+        { "ParameterName": "@UserMessage", "Value": "이미지와 오디오를 설명해 줘", "DbType": "String", "Length": -1 },
+        { "ParameterName": "@Image1", "Value": "<base64-only>", "DbType": "String", "Length": -1 },
+        { "ParameterName": "@Audio1", "Value": "<base64-only>", "DbType": "String", "Length": -1 }
+      ]
+    }
+  ]
+}
+```
+
+provider별 입력 지원 범위는 다음과 같습니다. 실제 모델도 해당 modality를 지원해야 합니다.
+
+| LLMProvider | Image | Audio | 전송 형식 |
+| --- | --- | --- | --- |
+| OpenAI | 지원 | 지원 (`audio/wav`, `audio/mpeg`) | Chat Completions content parts |
+| Claude | 지원 | 미지원 | Messages base64 image source |
+| Gemini | 지원 | 지원 | GenerateContent inlineData |
+| Ollama | 지원 | 미지원 | Chat message images |
+| LMStudio | 지원 | 미지원 | OpenAI 호환 image_url content part |
+
+미지원 media가 포함되면 HTTP 요청을 보내기 전에 명시적인 오류로 종료합니다. prompter 내부 요청 로그에서는 media 값을 유형과 Base64 길이만 남기도록 마스킹하지만, prompter에 도달하기 전의 `transact` 또는 외부 프록시 로그 정책은 별도로 확인해야 합니다.
 
 `tools`의 기본 mode는 `none`이고 `maxrounds` 기본값은 10입니다. KernelPlugin, MCP, CLI, built-in tool은 계약 선언과 module.json allowlist가 모두 일치할 때만 실행됩니다. file body는 path와 base64가 모두 있으면 path를 우선하며, path는 AllowedBodyFileBasePaths 아래에 있을 때만 읽습니다.
 

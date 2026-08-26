@@ -270,7 +270,7 @@ namespace prompter.Extensions
             logMessage.Flow = "I";
             logMessage.Level = "V";
             logMessage.Format = "J";
-            logMessage.Message = JsonConvert.SerializeObject(request);
+            logMessage.Message = PromptLogSanitizer.SerializeRequest(request);
             logMessage.Properties = "";
             logMessage.UserID = "";
 

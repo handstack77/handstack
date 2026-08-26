@@ -22,6 +22,7 @@ namespace prompter.DataClient
         {
             Require(request.ApiKey, "Claude ApiKey 설정 필요");
             Require(request.ModelID, "Claude ModelID 설정 필요");
+            ValidateMediaSupport(request, "Claude", true, false);
 
             var endpoint = string.IsNullOrWhiteSpace(request.Endpoint) == true ? "https://api.anthropic.com/v1/messages" : request.Endpoint;
             var payload = new JObject
@@ -93,11 +94,45 @@ namespace prompter.DataClient
                     ? $"Tool result ({message.Name}): {message.Content}"
                     : message.Content.ToStringSafe();
 
-                result.Add(new JObject
+                var item = new JObject
                 {
-                    ["role"] = role,
-                    ["content"] = content
-                });
+                    ["role"] = role
+                };
+
+                if (message.Media.Count == 0)
+                {
+                    item["content"] = content;
+                }
+                else
+                {
+                    var parts = new JArray();
+                    if (string.IsNullOrWhiteSpace(content) == false)
+                    {
+                        parts.Add(new JObject
+                        {
+                            ["type"] = "text",
+                            ["text"] = content
+                        });
+                    }
+
+                    foreach (var media in message.Media)
+                    {
+                        parts.Add(new JObject
+                        {
+                            ["type"] = "image",
+                            ["source"] = new JObject
+                            {
+                                ["type"] = "base64",
+                                ["media_type"] = media.MimeType,
+                                ["data"] = media.Base64
+                            }
+                        });
+                    }
+
+                    item["content"] = parts;
+                }
+
+                result.Add(item);
             }
 
             if (string.IsNullOrWhiteSpace(prompt) == false)

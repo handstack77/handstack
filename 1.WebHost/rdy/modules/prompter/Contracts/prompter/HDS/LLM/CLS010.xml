@@ -9,7 +9,7 @@
         <desc>문장 대화의 의도를 파악</desc>
     </header>
     <prompts>
-        <statement id="GP01" seq="0" use="Y" timeout="0" role="system" desc="문장 대화의 의도를 파악" maxtokens="4000" temperature="1.0" topp="1.0" presence="0.0" frequency="0.0">
+        <statement id="GP01" seq="0" use="Y" timeout="0" desc="문장 대화의 의도를 파악" maxtokens="4000" temperature="1.0" topp="1.0" presence="0.0" frequency="0.0">
             <![CDATA[
 # INSTRUCTIONS
 - 한국어만 사용하세요.
@@ -48,7 +48,7 @@ ASSISTANT:
             <outputmeta value="PromptResult:string;ToolIndent:string;ResultIndent:string" />
         </statement>
 
-        <statement id="GP02" seq="0" use="Y" timeout="0" role="system" desc="문장 대화의 의도를 파악" maxtokens="4000" temperature="1.0" topp="1.0" presence="0.0" frequency="0.0">
+        <statement id="GP02" seq="0" use="Y" timeout="0" desc="문장 대화의 의도를 파악" maxtokens="4000" temperature="1.0" topp="1.0" presence="0.0" frequency="0.0">
             <![CDATA[
 # INSTRUCTIONS
 - 한국어만 사용하세요.
@@ -60,7 +60,7 @@ ASSISTANT:
 - 질의 맥락에 나타나지 않은 정보는 절대 추론하지 마세요.
 - 선택한 질의 유형으로만 답변하세요.
 			]]>
-            <message role="system">
+            <message>
                 <![CDATA[
 INTENTS: Question, Assertion, Declaration
 			]]>
@@ -91,6 +91,8 @@ ASSISTANT:
 			]]>
             </message>
             <param id="@UserMessage" type="String" length="-1" value="" />
+            <media id="@Image1" type="Image" mimeType="image/png" required="N" />
+            <media id="@Audio1" type="Audio" mimeType="audio/wav" required="N" />
             <outputmeta value="PromptResult:string;ToolIndent:string;ResultIndent:string" />
         </statement>
     </prompts>

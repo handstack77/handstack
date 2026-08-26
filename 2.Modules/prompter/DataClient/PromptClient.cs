@@ -72,7 +72,7 @@ namespace prompter.DataClient
             {
                 if (request.DynamicObjects == null || request.DynamicObjects.Count == 0)
                 {
-                    response.ExceptionText = $"거래 요청 정보 확인 필요 request: {JsonConvert.SerializeObject(request)}";
+                    response.ExceptionText = $"거래 요청 정보 확인 필요 request: {PromptLogSanitizer.SerializeRequest(request)}";
                     return;
                 }
 
@@ -400,7 +400,7 @@ namespace prompter.DataClient
                     {
                         if (ModuleConfiguration.IsTransactionLogging == true || promptMap.TransactionLog == true)
                         {
-                            var logData = $"ExecutePromptID: {executePromptID}, ParseSQL Parameters: {JsonConvert.SerializeObject(dynamicObject)}";
+                            var logData = $"ExecutePromptID: {executePromptID}, ParseSQL Parameters: {PromptLogSanitizer.SerializeQueryObject(dynamicObject)}";
                             loggerClient.TransactionMessageLogging(request.GlobalID, "Y", promptMap.ApplicationID, promptMap.ProjectID, promptMap.TransactionID, promptMap.StatementID, logData, "PromptClient/ExecuteDynamicPromptMap", (string error) =>
                             {
                                 logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "PromptClient/ExecuteDynamicPromptMap");
@@ -410,7 +410,8 @@ namespace prompter.DataClient
                         AddOrUpdateRuntimeParameter(dynamicObject, "ChatHistory", string.Join("\n", chatHistory.Select(x => x.Role + ": " + x.Content)));
                         var promptMessages = await CreatePromptMessagesAsync(promptMap, dynamicObject, chatHistory);
                         var parsePrompt = string.Join(Environment.NewLine, promptMessages.Skip(chatHistory.Count).Select(item => item.Content));
-                        if (string.IsNullOrEmpty(parsePrompt) == true || parsePrompt.Replace(Environment.NewLine, "").Replace("\t", "").Trim() == "")
+                        var hasCurrentMedia = promptMessages.Skip(chatHistory.Count).Any(item => item.Media.Count > 0);
+                        if (hasCurrentMedia == false && (string.IsNullOrEmpty(parsePrompt) == true || parsePrompt.Replace(Environment.NewLine, "").Replace("\t", "").Trim() == ""))
                         {
                             if (ModuleConfiguration.IsTransactionLogging == true || promptMap.TransactionLog == true)
                             {
@@ -829,7 +830,7 @@ TransactionException:
 
         private LLMChatRequest CreateLLMChatRequest(TransactionDynamicObjects transactionDynamicObject, PromptMap promptMap, QueryObject queryObject, List<LLMChatMessage> promptMessages, List<LLMToolDefinition> tools)
         {
-            var parameters = PromptMapper.ExtractParameters(queryObject);
+            var parameters = PromptMapper.ExtractParameters(queryObject, promptMap.MediaVariables.Select(item => item.Name));
             var queryParameters = new Dictionary<string, string>();
             var body = CreateRequestBody(promptMap.Body, parameters);
             var headers = CreateStatementHeaders(promptMap, parameters, queryParameters, body);
@@ -1023,7 +1024,7 @@ TransactionException:
             return File.ReadAllBytes(fullPath);
         }
 
-        private async Task<string> ReplaceCodeHelpTemplatesAsync(string value, QueryObject queryObject)
+        private async Task<string> ReplaceCodeHelpTemplatesAsync(string value, QueryObject queryObject, IEnumerable<string>? excludedParameterNames = null)
         {
             if (string.IsNullOrEmpty(value) == true)
             {
@@ -1036,7 +1037,7 @@ TransactionException:
                 return value;
             }
 
-            var parameters = PromptMapper.ExtractParameters(queryObject);
+            var parameters = PromptMapper.ExtractParameters(queryObject, excludedParameterNames);
             var result = new StringBuilder();
             var currentIndex = 0;
             foreach (var match in matches)
@@ -1083,23 +1084,26 @@ TransactionException:
         private async Task<List<LLMChatMessage>> CreatePromptMessagesAsync(PromptMap promptMap, QueryObject queryObject, List<LLMChatMessage> chatHistory)
         {
             var result = new List<LLMChatMessage>(chatHistory);
+            var firstCurrentMessageIndex = result.Count;
+            var media = CreateMediaInputs(promptMap, queryObject);
             var messageNodes = promptMap.Chidren.DocumentNode.SelectNodes("message");
 
             if (messageNodes == null || messageNodes.Count == 0)
             {
                 var parsePrompt = PromptMapper.Find(promptMap, queryObject);
-                parsePrompt = await ReplaceCodeHelpTemplatesAsync(parsePrompt, queryObject);
-                var promptRole = string.IsNullOrWhiteSpace(promptMap.Role) == true ? "system" : promptMap.Role;
+                parsePrompt = await ReplaceCodeHelpTemplatesAsync(parsePrompt, queryObject, promptMap.MediaVariables.Select(item => item.Name));
+                var promptRole = string.IsNullOrWhiteSpace(promptMap.Role) == true ? "user" : promptMap.Role;
                 result.Add(new LLMChatMessage(promptRole, parsePrompt));
+                AttachMediaToLastUserMessage(result, media, firstCurrentMessageIndex);
 
                 return result;
             }
 
-            var parameters = PromptMapper.ExtractParameters(queryObject);
-            var statementPrompt = await ReplaceCodeHelpTemplatesAsync(PromptMapper.Find(promptMap, queryObject), queryObject);
+            var parameters = PromptMapper.ExtractParameters(queryObject, promptMap.MediaVariables.Select(item => item.Name));
+            var statementPrompt = await ReplaceCodeHelpTemplatesAsync(PromptMapper.Find(promptMap, queryObject), queryObject, promptMap.MediaVariables.Select(item => item.Name));
             if (string.IsNullOrWhiteSpace(statementPrompt) == false)
             {
-                var statementRole = string.IsNullOrWhiteSpace(promptMap.Role) == true ? "system" : promptMap.Role;
+                var statementRole = string.IsNullOrWhiteSpace(promptMap.Role) == true ? "user" : promptMap.Role;
                 result.Add(new LLMChatMessage(statementRole, statementPrompt));
             }
 
@@ -1108,11 +1112,11 @@ TransactionException:
                 var role = messageNode.Attributes["role"]?.Value.ToStringSafe();
                 if (string.IsNullOrWhiteSpace(role) == true)
                 {
-                    role = string.IsNullOrWhiteSpace(promptMap.Role) == true ? "system" : promptMap.Role;
+                    role = string.IsNullOrWhiteSpace(promptMap.Role) == true ? "user" : promptMap.Role;
                 }
 
                 var content = ReplaceStatementValue(messageNode.InnerText.ToStringSafe(), parameters);
-                content = await ReplaceCodeHelpTemplatesAsync(content, queryObject);
+                content = await ReplaceCodeHelpTemplatesAsync(content, queryObject, promptMap.MediaVariables.Select(item => item.Name));
                 if (string.IsNullOrWhiteSpace(content) == true)
                 {
                     continue;
@@ -1121,7 +1125,73 @@ TransactionException:
                 result.Add(new LLMChatMessage(role, content));
             }
 
+            AttachMediaToLastUserMessage(result, media, firstCurrentMessageIndex);
             return result;
+        }
+
+        private static List<LLMChatMedia> CreateMediaInputs(PromptMap promptMap, QueryObject queryObject)
+        {
+            var result = new List<LLMChatMedia>();
+            var queryID = PromptMapper.BuildQueryID(promptMap);
+            foreach (var mediaVariable in promptMap.MediaVariables)
+            {
+                var parameterName = PromptMapper.NormalizeParameterName(mediaVariable.Name);
+                var parameter = queryObject.Parameters.FirstOrDefault(item =>
+                    string.Equals(PromptMapper.NormalizeParameterName(item.ParameterName), parameterName, StringComparison.OrdinalIgnoreCase));
+                var base64 = parameter?.Value.ToStringSafe().Trim() ?? "";
+
+                if (string.IsNullOrWhiteSpace(base64) == true)
+                {
+                    if (mediaVariable.IsRequired == true)
+                    {
+                        throw new InvalidOperationException($"필수 media 값 확인 필요: QueryID={queryID}, id={mediaVariable.Name}");
+                    }
+
+                    continue;
+                }
+
+                if (base64.StartsWith("data:", StringComparison.OrdinalIgnoreCase) == true)
+                {
+                    throw new InvalidOperationException($"media 값은 data URI가 아닌 Base64 원문이어야 합니다: QueryID={queryID}, id={mediaVariable.Name}");
+                }
+
+                try
+                {
+                    Convert.FromBase64String(base64);
+                }
+                catch (FormatException exception)
+                {
+                    throw new InvalidOperationException($"media Base64 값 확인 필요: QueryID={queryID}, id={mediaVariable.Name}", exception);
+                }
+
+                result.Add(new LLMChatMedia
+                {
+                    Type = mediaVariable.Type,
+                    MimeType = mediaVariable.MimeType,
+                    Base64 = base64
+                });
+            }
+
+            return result;
+        }
+
+        private static void AttachMediaToLastUserMessage(List<LLMChatMessage> messages, List<LLMChatMedia> media, int firstCurrentMessageIndex)
+        {
+            if (media.Count == 0)
+            {
+                return;
+            }
+
+            var target = messages
+                .Skip(firstCurrentMessageIndex)
+                .LastOrDefault(item => string.Equals(item.Role, "user", StringComparison.OrdinalIgnoreCase));
+            if (target == null)
+            {
+                target = new LLMChatMessage("user", "");
+                messages.Add(target);
+            }
+
+            target.Media.AddRange(media);
         }
 
         private static List<(int StartIndex, int Length, string Expression, string Text)> ExtractCodeHelpTemplateExpressions(string value)

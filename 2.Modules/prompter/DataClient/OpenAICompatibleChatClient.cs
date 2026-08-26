@@ -21,6 +21,7 @@ namespace prompter.DataClient
         {
             Require(request.ModelID, "OpenAI ModelID 설정 필요");
             Require(request.ApiKey, "OpenAI ApiKey 설정 필요");
+            ValidateMediaSupport(request, "OpenAI", true, true);
 
             var endpoint = ResolveOpenAICompatibleEndpoint(request.Endpoint, "https://api.openai.com/v1/chat/completions");
             var payload = new JObject

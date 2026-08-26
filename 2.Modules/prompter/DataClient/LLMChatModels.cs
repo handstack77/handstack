@@ -82,6 +82,8 @@ namespace prompter.DataClient
 
         public List<LLMToolCall> ToolCalls { get; set; }
 
+        public List<LLMChatMedia> Media { get; set; }
+
         public LLMChatMessage()
         {
             Role = "user";
@@ -89,12 +91,29 @@ namespace prompter.DataClient
             Name = "";
             ToolCallID = "";
             ToolCalls = new List<LLMToolCall>();
+            Media = new List<LLMChatMedia>();
         }
 
         public LLMChatMessage(string role, string content) : this()
         {
             Role = role;
             Content = content;
+        }
+    }
+
+    public record LLMChatMedia
+    {
+        public string Type { get; set; }
+
+        public string MimeType { get; set; }
+
+        public string Base64 { get; set; }
+
+        public LLMChatMedia()
+        {
+            Type = "";
+            MimeType = "";
+            Base64 = "";
         }
     }
 

@@ -21,12 +21,13 @@ namespace prompter.DataClient
         {
             Require(request.Endpoint, "Ollama Endpoint 설정 필요");
             Require(request.ModelID, "Ollama ModelID 설정 필요");
+            ValidateMediaSupport(request, "Ollama", true, false);
 
             var endpoint = ResolveOllamaEndpoint(request.Endpoint);
             var payload = new JObject
             {
                 ["model"] = request.ModelID,
-                ["messages"] = BuildOpenAICompatibleMessages(request.ChatHistory, request.Prompt),
+                ["messages"] = BuildOllamaMessages(request.ChatHistory, request.Prompt),
                 ["think"] = request.Think,
                 ["stream"] = request.Stream,
                 ["options"] = new JObject

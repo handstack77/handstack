@@ -389,7 +389,14 @@ namespace prompter.Areas.prompter.Controllers
                                 DbType = inputVariableMap.DbType,
                                 Length = (int)-1,
                                 IsRequired = inputVariableMap.IsRequired
-                            }).ToList(),
+                            }).Concat(item.MediaVariables.Select(mediaVariable => new QueryReportParameter
+                            {
+                                Name = NormalizeParameterName(mediaVariable.Name),
+                                DefaultValue = "",
+                                DbType = "String",
+                                Length = (int)-1,
+                                IsRequired = mediaVariable.IsRequired
+                            })).ToList(),
                             OutputMetas = item.OutputMetas
                         }).ToList();
 
@@ -477,7 +484,7 @@ namespace prompter.Areas.prompter.Controllers
                 {
                     loggerClient.DynamicRequestLogging(request, "Y", GlobalConfiguration.ApplicationID, (string error) =>
                     {
-                        logger.Warning("[{LogCategory}] [{GlobalID}] " + $"Request JSON: {JsonConvert.SerializeObject(request)}", "Query/Execute", request.GlobalID);
+                        logger.Warning("[{LogCategory}] [{GlobalID}] " + $"Request JSON: {PromptLogSanitizer.SerializeRequest(request)}", "Query/Execute", request.GlobalID);
                     });
                 }
 
