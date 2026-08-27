@@ -1,4 +1,4 @@
-(async function () {
+﻿(async function () {
     var systemVersion = '1.0.0';
     var getCookie = function (id) {
         var start = document.cookie.indexOf(id + '=');
@@ -754,6 +754,16 @@
                             '/lib/intro.js/intro.min.js',
                             '/lib/superplaceholder/superplaceholder.js',
                             '/uicontrols/Guide/Guide.js'
+                        ];
+                        break;
+                    case 'calendar':
+                        item.css = [
+                            '/uicontrols/Calendar/Calendar.css'
+                        ];
+                        item.js = [
+                            '/lib/fullcalendar/index.global.min.js',
+                            '/lib/fullcalendar/core/locales/ko.global.min.js',
+                            '/uicontrols/Calendar/Calendar.js'
                         ];
                         break;
                     case 'element':
