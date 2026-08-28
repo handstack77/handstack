@@ -39,6 +39,13 @@ if [ -z "$HANDSTACK_CLI" ]; then
     HANDSTACK_CLI="$HANDSTACK_PATH/4.Tool/CLI/handstack/bin/Debug/net10.0/handstack"
 fi
 
+ensure_executable() {
+    if ! chmod +x "$1"; then
+        echo "실행 권한을 설정할 수 없습니다: $1" >&2
+        exit 1
+    fi
+}
+
 echo "WORKING_PATH: $WORKING_PATH"
 echo "HANDSTACK_PATH: $HANDSTACK_PATH"
 echo "HANDSTACK_ACK: $HANDSTACK_ACK"
@@ -47,10 +54,13 @@ echo "TASK_COMMAND: $TASK_COMMAND"
 echo "TASK_SETTING: $TASK_SETTING"
 
 if [ "$TASK_COMMAND" == "purge" ]; then
+    ensure_executable "$HANDSTACK_CLI"
     $HANDSTACK_CLI purgecontracts --ack=$HANDSTACK_ACK --directory=$WORKING_PATH/Contracts
 fi
 
 if [ "$TASK_COMMAND" == "run" ]; then
+    ensure_executable "$HANDSTACK_CLI"
+    ensure_executable "$HANDSTACK_ACK"
     $HANDSTACK_CLI configuration --ack=$HANDSTACK_ACK --appsettings=$WORKING_PATH/Settings/ack.$TASK_SETTING.json
     $HANDSTACK_ACK
 fi
@@ -71,6 +81,7 @@ if [ "$TASK_COMMAND" == "devcert" ]; then
 fi
 
 if [ "$TASK_COMMAND" == "start" ]; then
+    ensure_executable "$HANDSTACK_ACK"
     pm2 start $HANDSTACK_ACK --name ack --no-autorestart
 fi
 
@@ -85,6 +96,7 @@ if [ "$TASK_COMMAND" == "build" ]; then
     
     dotnet clean
     dotnet build --no-restore --no-incremental
+    ensure_executable "$HANDSTACK_ACK"
     pm2 start $HANDSTACK_ACK --name ack --no-autorestart
 fi
 

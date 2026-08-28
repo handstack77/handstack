@@ -129,9 +129,6 @@ handstack_cli_path() {
     local base_path="$1"
     local candidates=(
         "$base_path/tools/handstack/handstack"
-        "$base_path/tools/handstack/handstack.exe"
-        "$base_path/tools/handstack"
-        "$base_path/tools/handstack.exe"
     )
 
     local candidate
@@ -150,6 +147,7 @@ extract_lib_zip() {
     local zip_path="$2"
     local output_dir="$3"
     mkdir -p "$output_dir"
+    chmod +x "$cli_path"
     "$cli_path" extract "--file=$zip_path" "--directory=$output_dir"
 }
 
@@ -194,6 +192,7 @@ if [[ -f "$ACK_CSPROJ" ]]; then
     )
 
     echo "current_path: $CURRENT_PATH"
+    chmod +x "$CURRENT_PATH/build.sh"
     ./build.sh
 
     WWWROOT_LIB="$CURRENT_PATH/2.Modules/wwwroot/wwwroot/lib"
