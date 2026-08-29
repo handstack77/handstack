@@ -49,7 +49,24 @@ namespace wwwroot.Areas.wwwroot.Controllers
 
         // http://localhost:8421/wwwroot/api/dev-account/sign-in?returnUrl=/
         [HttpGet("[action]")]
-        public async Task<ActionResult> SignIn(string? returnUrl = "/")
+        public Task<ActionResult> SignIn([FromQuery] string? returnUrl = "/")
+        {
+            return SignInInternal(returnUrl, null);
+        }
+
+        // POST http://localhost:8421/wwwroot/api/dev-account/sign-in?returnUrl=/
+        [HttpPost("[action]")]
+        public async Task<ActionResult> SignIn([FromBody] DevAutoSignInConfig? devUserSignIn, [FromQuery] string? returnUrl = "/")
+        {
+            if (devUserSignIn == null)
+            {
+                return BadRequest("devUserSignIn 요청 본문 확인 필요");
+            }
+
+            return await SignInInternal(returnUrl, devUserSignIn);
+        }
+
+        private async Task<ActionResult> SignInInternal(string? returnUrl, DevAutoSignInConfig? devUserSignIn)
         {
             if (GlobalConfiguration.IsEnabledDevAutoSignIn == false || GlobalConfiguration.RunningEnvironment != "D")
             {
@@ -64,12 +81,13 @@ namespace wwwroot.Areas.wwwroot.Controllers
             }
 
             var clientIP = HttpContext.GetRemoteIpAddress().ToStringSafe();
-            var config = ModuleConfiguration.DevAutoSignIn;
+            var config = devUserSignIn ?? ModuleConfiguration.DevAutoSignIn;
 
             if (string.IsNullOrWhiteSpace(config.UserID) == true)
             {
-                logger.Error("[{LogCategory}] " + "module.json ModuleConfig.DevAutoSignIn.UserID 확인 필요", "DevAccountController/SignIn");
-                return BadRequest("module.json ModuleConfig.DevAutoSignIn 설정 확인 필요");
+                var errorMessage = devUserSignIn == null ? "module.json ModuleConfig.DevAutoSignIn.UserID 확인 필요" : "devUserSignIn.UserID 확인 필요";
+                logger.Error("[{LogCategory}] " + errorMessage, "DevAccountController/SignIn");
+                return BadRequest(errorMessage);
             }
 
             try
@@ -81,7 +99,7 @@ namespace wwwroot.Areas.wwwroot.Controllers
                     UserID = config.UserID,
                     UserName = string.IsNullOrWhiteSpace(config.UserName) ? config.UserID : config.UserName,
                     Email = config.Email,
-                    Roles = new List<string>(config.Roles),
+                    Roles = config.Roles == null ? new List<string>() : new List<string>(config.Roles),
                     Claims = new Dictionary<string, string>(),
                     LoginedAt = DateTime.Now,
                     Celluar = string.IsNullOrWhiteSpace(config.Celluar) ? null : config.Celluar,

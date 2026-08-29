@@ -16,6 +16,7 @@
 - `GET /wwwroot/api/sync/refresh`
 - `GET /wwwroot/api/htmx/*`
 - `GET /wwwroot/api/index/*`
+- `GET`/`POST /wwwroot/api/dev-account/sign-in`
 - `GET /shared-files/manifest`
 - 주요 구현 클래스
   - `ModuleInitializer`
@@ -47,6 +48,7 @@
 - `FileSyncTokens`: 파일 동기화 Basic 토큰 목록
 - `ModuleLogFilePath`: 정적/동기화 모듈 로그 위치
 - `CreateIDPolicy`: `GET`/`POST /wwwroot/api/index/create-id` GlobalID 발급 접근 정책
+- `DevAutoSignIn`: GET 개발 자동 로그인에 사용할 고정 테스트 계정. POST 개발 로그인 요청은 이 값 대신 본문의 사용자 정보를 사용합니다.
 
 ### 공통 파일 서빙
 
