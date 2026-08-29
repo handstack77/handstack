@@ -943,7 +943,7 @@
         },
 
         statusMessage(val) {
-            if (parent.$mainframe) {
+            if (parent.$main) {
                 var tabInfo = syn.$w.getCurrentTabInfo();
                 if (tabInfo) {
                     parent.$layout.method.setStatusMessage(tabInfo.tabID, val);
@@ -953,7 +953,7 @@
                 }
             }
 
-            if (window == top || syn.$w.pageScript == '$mainframe') {
+            if (window == top || syn.$w.pageScript == '$main') {
                 var tabInfo = syn.$w.getCurrentTabInfo();
                 if (tabInfo) {
                     parent.$layout.method.setStatusMessage(tabInfo.tabID, val);

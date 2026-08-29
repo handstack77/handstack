@@ -1,5 +1,5 @@
 ﻿'use strict';
-let $mainframe = {
+let $main = {
     config: {
         dataSource: {
             Empty: {
@@ -234,8 +234,8 @@ let $mainframe = {
                     $this.method.loadFavoriteMenu();
 
                     setTimeout(function () {
-                        $mainframe.method.linkExecute('handstack_linkData');
-                        $mainframe.method.openMenuFromQuery();
+                        $main.method.linkExecute('handstack_linkData');
+                        $main.method.openMenuFromQuery();
                     }, 200);
                 }
                 else {
@@ -331,12 +331,12 @@ let $mainframe = {
         window_storage(evt) {
             if (evt.key == `HandStack.tokenID` && evt.oldValue != evt.newValue && !evt.oldValue) {
                 $l.eventLog('window_storage', 'handstack_tokenID oldValue={0}, newValue={1}'.format(evt.oldValue, evt.newValue), 'Information');
-                if ($mainframe.prop.isUserLogout == false) {
-                    $mainframe.method.logout();
+                if ($main.prop.isUserLogout == false) {
+                    $main.method.logout();
                 }
             }
             else if (evt.key == `HandStack.tokenID` && evt.oldValue != null && evt.newValue == null) {
-                $mainframe.method.logout();
+                $main.method.logout();
             }
         },
 
