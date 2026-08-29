@@ -189,6 +189,8 @@ try {
             $rid
             '--self-contained'
             'false'
+            '-p:PublishSingleFile=true'
+            '-p:IncludeNativeLibrariesForSelfExtract=true'
         )
     }
     else {
@@ -245,7 +247,6 @@ try {
         @{ Project = '4.Tool/CLI/updater/updater.csproj'; Name = 'updater' }
         @{ Project = '4.Tool/CLI/handstack/handstack.csproj'; Name = 'handstack' }
         @{ Project = '4.Tool/CLI/ports/ports.csproj'; Name = 'ports' }
-        @{ Project = '4.Tool/CLI/publish-package/publish-package.csproj'; Name = 'publish-package' }
     )
 
     foreach ($cliProject in $cliProjects) {
@@ -375,4 +376,3 @@ catch {
 finally {
     Pop-Location
 }
-

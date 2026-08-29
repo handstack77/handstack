@@ -112,7 +112,7 @@ echo "os_mode: $os_mode, action_mode: $action_mode, configuration_mode: $configu
 remove_if_exists "$publish_path"
 
 if [[ "$action_mode" == "publish" ]]; then
-    dotnet_options=(-p:Optimize="$optimize_flag" "${symbol_options[@]}" --configuration "$configuration_mode" --runtime "$rid" --self-contained false)
+    dotnet_options=(-p:Optimize="$optimize_flag" "${symbol_options[@]}" --configuration "$configuration_mode" --runtime "$rid" --self-contained false -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true)
 else
     dotnet_options=(-p:Optimize="$optimize_flag" "${symbol_options[@]}" --configuration "$configuration_mode")
 fi
@@ -233,4 +233,3 @@ fi
 
 echo "Publish completed successfully."
 echo "Output directory: $publish_path"
-
