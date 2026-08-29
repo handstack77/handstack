@@ -265,6 +265,18 @@
         <Delete Files="@(_RdyPublishFileToRemove)" />
     </Target>
 
+    <Target Name="PruneLibSkiaSharpPdb"
+            AfterTargets="Build;Publish"
+            Condition="'$(DesignTimeBuild)' != 'true'">
+        <ItemGroup>
+            <_RdyLibSkiaSharpPdb Include="$(TargetDir)**/libSkiaSharp.pdb" />
+        </ItemGroup>
+        <ItemGroup Condition="'$(PublishDir)' != ''">
+            <_RdyLibSkiaSharpPdb Include="$(PublishDir)**/libSkiaSharp.pdb" />
+        </ItemGroup>
+        <Delete Files="@(_RdyLibSkiaSharpPdb)" />
+    </Target>
+
     <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
         <RemoveDir Directories="$(TargetDir)" Condition="Exists('$(TargetDir)')" />
     </Target>
