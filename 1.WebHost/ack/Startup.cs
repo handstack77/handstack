@@ -1029,6 +1029,7 @@ namespace ack
                             context.Response.Headers.Append("Content-Type", "text/html; charset=utf-8");
                         }
                         context.Response.Headers.Remove("Server");
+                        context.Response.Headers.Append("Permissions-Policy", "unload=(self)");
                         return Task.CompletedTask;
                     });
                 }

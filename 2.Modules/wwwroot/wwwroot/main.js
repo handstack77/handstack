@@ -632,6 +632,7 @@ let $main = {
                 tabFrame.vspace = '0';
                 tabFrame.setAttribute('allowfullscreen', 'allowfullscreen');
                 tabFrame.setAttribute('tag', 'iframe');
+                tabFrame.setAttribute('allow', 'unload');
                 tabFrame.style.border = 0;
 
                 const pageWrapper = document.querySelector('.page-wrapper');
@@ -712,6 +713,7 @@ let $main = {
                 tabFrame.vspace = '0';
                 tabFrame.setAttribute('allowfullscreen', 'allowfullscreen');
                 tabFrame.setAttribute('tag', 'iframe');
+                tabFrame.setAttribute('allow', 'unload');
                 tabFrame.style.border = 0;
 
                 const pageWrapper = document.querySelector('.page-wrapper');
@@ -1355,6 +1357,7 @@ let $main = {
                     tabFrame.vspace = '0';
                     tabFrame.setAttribute('allowfullscreen', 'allowfullscreen');
                     tabFrame.setAttribute('tag', 'iframe');
+                    tabFrame.setAttribute('allow', 'unload');
                     tabFrame.style.border = 0;
                     tabFrame.style.display = 'block';
 

@@ -1703,6 +1703,7 @@ let $main = {
                     styles: { display: 'none' }
                 });
                 tabFrame.setAttribute('tag', 'iframe');
+                tabFrame.setAttribute('allow', 'unload');
 
                 var editorSetting = {
                     width: '100%',
@@ -1799,6 +1800,7 @@ let $main = {
                 tabFrame.vspace = '0';
                 tabFrame.setAttribute('allowfullscreen', 'allowfullscreen');
                 tabFrame.setAttribute('tag', 'iframe');
+                tabFrame.setAttribute('allow', 'unload');
                 tabFrame.style.border = 0;
 
                 var pageWrapper = document.querySelector('.page-wrapper');

@@ -269,6 +269,8 @@
             "destination": "wwwroot/lib/tabler-icons-webfont/",
             "files": [
                 "dist/tabler-icons.min.css",
+                "dist/fonts/tabler-icons.ttf",
+                "dist/fonts/tabler-icons.woff",
                 "dist/fonts/tabler-icons.woff2"
             ]
         },
