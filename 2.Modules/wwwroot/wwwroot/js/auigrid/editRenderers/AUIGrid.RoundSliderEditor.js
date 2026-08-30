@@ -2,7 +2,7 @@
 /*
  * AUIGrid 사용자 정의 에디트 렌더러
  * 라운드 슬라이더 에디트 렌더러
- * roundSlider A Free jQuery Plugin :https://roundsliderui.com/
+ * roundSlider A Free jQuery Plugin :https://roundsliderui.com/ 
  */
 window.AUIGrid.RoundSliderEditor = window.AUIGrid.Class({
 	/****************************************************************
@@ -62,9 +62,10 @@ window.AUIGrid.RoundSliderEditor = window.AUIGrid.Class({
 	 * 메모리 누수를 유발하는 코드들을 모두 해제 하십시오.
 	 */
 	destroy: function (unload) {
+		
 		// roundSlider 제거
-		$(this.element).roundSlider('destroy');
-
+		$(this.element).roundSlider("destroy");
+		
 		// 필수 : 반드시 아래 코드는 추가 해야 합니다.
 		this.$super.destroy(unload);
 	},
@@ -78,17 +79,17 @@ window.AUIGrid.RoundSliderEditor = window.AUIGrid.Class({
 	create: function () {
 		// 속성 : https://roundsliderui.com/document.html
 		$(this.element).roundSlider({
-			handleShape: 'dot',
-			radius: 100,
-			width: 25,
-			sliderType: 'range',
-			svgMode: true,
-			value: this.data[this.dataField],
-			change: function (event) {
-				// 변경된 값 주입
-				this.injectValue(event.value);
-			}.bind(this),
-			...this.extraProps
+		    handleShape: "dot",
+		    radius: 100,
+		    width: 25,
+		    sliderType: "range",
+		    svgMode: true,
+		    value: this.data[this.dataField],
+		    change: function(event) {
+		    	// 변경된 값 주입
+		    	this.injectValue(event.value);
+		    }.bind(this),
+		    ...this.extraProps
 		});
 	},
 

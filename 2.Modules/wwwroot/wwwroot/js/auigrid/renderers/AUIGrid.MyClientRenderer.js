@@ -39,9 +39,6 @@ window.AUIGrid.MyClientRenderer = window.AUIGrid.Class({
 	/* 초기화 여부 */
 	initialized: false,
 
-	/* 현재 렌더링되는 주체의 그리드 pid. 그리드 생성 후 주입됨 */
-	pid: '',
-
 	/****************************************************************
 	 *
 	 * Private Properties
@@ -70,11 +67,12 @@ window.AUIGrid.MyClientRenderer = window.AUIGrid.Class({
 	 * @Overriden public update
 	 *
 	 * 그리드에 의해 호출되는 메소드이며 빈번히 호출됩니다.
-	 * 이 메소드에서 DOM 검색이나 조작은 자제하십시오.
+	 * 이 메소드에서 DOM 검색이나, jQuery 객체 생성 등은 자제하십시오.
+	 * DOM 검색이나 jQuery 객체는 initialize() 메소드에서 하십시오.
 	 */
 	update: function () {
-		// 행 아이템
-		const data = this.data;
+		var data = this.data;
+
 		if (!data) return;
 
 		// 최초 1회만 실행해야 할 것들.
@@ -110,26 +108,29 @@ window.AUIGrid.MyClientRenderer = window.AUIGrid.Class({
 		if (this.initialized) return;
 
 		this.initialized = true;
+
 		this.setHeight(this.rowHeight - 2);
 
 		// 렌더러 자체 HTML Element(Div)
-		const element = this.element;
-
-		// 필수: 자식이 absolute 이므로 relative 필요
+		var element = this.element;
+		// 중요!!!! child 들이 absolute 포지션을 갖기 때문에 relative 해줘야 함.
 		this.__setStyle(element, 'position', 'relative');
 
-		// 자식 요소 생성
-		const createChildDiv = (tagName, className) => {
-			const div = document.createElement(tagName);
-			div.className = className;
-			element.appendChild(div);
-			return div;
-		};
+		var img = (this.__imgEle = document.createElement('img'));
+		img.className = 'my-img';
 
-		// 각 자식 div 생성 및 참조 보관
-		this.__imgEle = createChildDiv('img', 'my-img');
-		this.__childEle = createChildDiv('div', 'my-child1');
-		this.__childEle2 = createChildDiv('div', 'my-child2');
+		var c1 = (this.__childEle = document.createElement('div'));
+		c1.className = 'my-child1';
+
+		var c2 = (this.__childEle2 = document.createElement('div'));
+		c2.className = 'my-child2';
+
+		element.appendChild(img);
+		element.appendChild(c1);
+		element.appendChild(c2);
+
+		// IE 메모리 누수 방지
+		img = c1 = c2 = null;
 	},
 
 	/****************************************************************
@@ -143,16 +144,21 @@ window.AUIGrid.MyClientRenderer = window.AUIGrid.Class({
 
 	/* 값을 실제로 element 에 출력함*/
 	__displayMyValues: function () {
-		const data = this.data;
-		if (!data) return;
+		var el, ownValue;
+		var data = this.data;
+		if (data) {
+			this.__imgEle.setAttribute('src', './assets/' + data.flag);
+			this.__imgEle.setAttribute('title', data.country);
 
-		// 이미지 설정
-		this.__imgEle.src = `./assets/${data.flag}`;
-		this.__imgEle.title = data.country;
+			el = this.__childEle;
+			ownValue = '<b>Name : </b>' + data.name;
+			el.innerHTML = ownValue;
 
-		// 텍스트 HTML 설정
-		this.__childEle.innerHTML = `<b>Name :</b> ${data.name}`;
-		this.__childEle2.innerHTML = `<b>Product :</b> ${data.product}`;
+			el = this.__childEle2;
+			ownValue = '<b>Product : </b>' + data.product;
+			el.innerHTML = ownValue;
+		}
+		el = null;
 	},
 
 	/* element (엘리먼트) 에 styles 을 설정합니다. */

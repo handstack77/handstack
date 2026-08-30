@@ -39,9 +39,6 @@ window.AUIGrid.MyStockRenderer = window.AUIGrid.Class({
 	/* 초기화 여부 */
 	initialized: false,
 
-	/* 현재 렌더링되는 주체의 그리드 pid. 그리드 생성 후 주입됨 */
-	pid: '',
-
 	/****************************************************************
 	 *
 	 * Private Properties
@@ -70,11 +67,13 @@ window.AUIGrid.MyStockRenderer = window.AUIGrid.Class({
 	 * @Overriden public update
 	 *
 	 * 그리드에 의해 호출되는 메소드이며 빈번히 호출됩니다.
-	 * 이 메소드에서 DOM 검색이나 조작은 자제하십시오.
+	 * 이 메소드에서 DOM 검색이나, jQuery 객체 생성 등은 자제하십시오.
+	 * DOM 검색이나 jQuery 객체는 initialize() 메소드에서 하십시오.
 	 */
 	update: function () {
 		// 행 아이템
-		const data = this.data;
+		var data = this.data;
+
 		if (!data) return;
 
 		// 최초 1회만 실행해야 할 것들.
@@ -82,27 +81,22 @@ window.AUIGrid.MyStockRenderer = window.AUIGrid.Class({
 			this.initialize();
 		}
 
-		const ele = this.element;
-		const varsEle = this.__childEle2;
-		// 등락 대비값
-		const vars = Number(data.vars);
+		var ele = this.element;
+		var varsEle = this.__childEle2;
 
-		// 색상 및 배경 이미지 설정
-		const styles = {
-			color: '#000000',
-			background: 'transparent'
-		};
+		// 등락 대비값
+		var vars = Number(data.vars);
 
 		if (vars > 0) {
-			styles.color = '#D90400';
-			styles.background = "url('./assets/ico_up.gif') 0% 50% no-repeat";
+			this.__setStyle(ele, 'color', '#D90400');
+			this.__setStyle(varsEle, 'background', "url('./assets/ico_up.gif') 0% 50% no-repeat");
 		} else if (vars < 0) {
-			styles.color = '#005DDE';
-			styles.background = "url('./assets/ico_down.gif') 0% 50% no-repeat";
+			this.__setStyle(ele, 'color', '#005DDE');
+			this.__setStyle(varsEle, 'background', "url('./assets/ico_down.gif') 0% 50% no-repeat");
+		} else {
+			this.__setStyle(ele, 'color', '#000000');
+			this.__setStyle(varsEle, 'background', 'transparent');
 		}
-
-		this.__setStyle(ele, 'color', styles.color);
-		this.__setStyle(varsEle, 'background', styles.background);
 
 		// 실제 element 에 값 출력
 		this.__displayMyValues();
@@ -132,26 +126,29 @@ window.AUIGrid.MyStockRenderer = window.AUIGrid.Class({
 		if (this.initialized) return;
 
 		this.initialized = true;
+
 		this.setHeight(this.rowHeight - 2);
 
 		// 렌더러 자체 HTML Element(Div)
-		const element = this.element;
-
-		// 필수: 자식이 absolute 이므로 relative 필요
+		var element = this.element;
+		// 중요!!!! child 들이 absolute 포지션을 갖기 때문에 relative 해줘야 함.
 		this.__setStyle(element, 'position', 'relative');
 
-		// 자식 요소 생성
-		const createChildDiv = (className) => {
-			const div = document.createElement('div');
-			div.className = className;
-			element.appendChild(div);
-			return div;
-		};
+		var c1 = (this.__childEle = document.createElement('div'));
+		c1.className = 'my-child1';
 
-		// 각 자식 div 생성 및 참조 보관
-		this.__childEle = createChildDiv('my-child1');
-		this.__childEle2 = createChildDiv('my-child2');
-		this.__childEle3 = createChildDiv('my-child3');
+		var c2 = (this.__childEle2 = document.createElement('div'));
+		c2.className = 'my-child2';
+
+		var c3 = (this.__childEle3 = document.createElement('div'));
+		c3.className = 'my-child3';
+
+		element.appendChild(c1);
+		element.appendChild(c2);
+		element.appendChild(c3);
+
+		// IE 메모리 누수 방지
+		c1 = c2 = c3 = null;
 	},
 
 	/****************************************************************
@@ -165,15 +162,24 @@ window.AUIGrid.MyStockRenderer = window.AUIGrid.Class({
 
 	/* 값을 실제로 element 에 출력함*/
 	__displayMyValues: function () {
-		if (!this.data) return;
+		var el, ownValue;
+		if (this.data) {
+			//-- 종가 출력
+			el = this.__childEle;
+			ownValue = this.data.close;
+			el.textContent != null ? (el.textContent = ownValue) : (el.innerText = ownValue);
 
-		const setText = (el, value) => {
-			if (el) el.textContent = value;
-		};
+			//-- 대비값 퍼센티지
+			el = this.__childEle2;
+			ownValue = this.data.vars + '%';
+			el.textContent != null ? (el.textContent = ownValue) : (el.innerText = ownValue);
 
-		setText(this.__childEle, this.data.close); // 종가
-		setText(this.__childEle2, this.data.vars + '%'); // 등락률
-		setText(this.__childEle3, this.data.gap); // 등락 차이
+			//-- 대비값 퍼센티지
+			el = this.__childEle3;
+			ownValue = this.data.gap;
+			el.textContent != null ? (el.textContent = ownValue) : (el.innerText = ownValue);
+		}
+		el = null;
 	},
 
 	/* element (엘리먼트) 에 styles 을 설정합니다. */

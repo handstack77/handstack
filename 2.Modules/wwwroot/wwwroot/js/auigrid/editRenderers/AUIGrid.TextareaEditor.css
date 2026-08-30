@@ -15,7 +15,7 @@
 }
 .aui-grid-edit-renderer-custom-textarea button {
 	font-size: 12px;
-	color: #000000 !important;
+	color: #000000;
 	background: #eee;
 	border: 1px solid #aaaaaa;
 	background-clip: padding-box;
