@@ -4,6 +4,7 @@ using System.IO;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -37,6 +38,22 @@ namespace ack
         {
             isServiceRunning = false;
             isRestart = false;
+        }
+
+        public static string PortInUseHintCommand(int port)
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == true)
+            {
+                return $"netstat -ano | findstr :{port}";
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) == true)
+            {
+                return $"lsof -nP -iTCP:{port} -sTCP:LISTEN";
+            }
+            else
+            {
+                return $"ss -lptn 'sport = :{port}'";
+            }
         }
 
         public static ApplicationManager Load()
@@ -170,7 +187,7 @@ namespace ack
                         {
                             if (SocketExtensions.PortInUse(GlobalConfiguration.ServerDevCertSslPort) == true)
                             {
-                                Log.Error($"{GlobalConfiguration.ServerDevCertSslPort} SSL 포트는 이미 사용중입니다. 참고 명령어) netstat -ano | findstr {GlobalConfiguration.ServerDevCertSslPort}");
+                                Log.Error($"{GlobalConfiguration.ServerDevCertSslPort} SSL 포트는 이미 사용중입니다. 참고 명령어) {PortInUseHintCommand(GlobalConfiguration.ServerDevCertSslPort)}");
                             }
                             else
                             {

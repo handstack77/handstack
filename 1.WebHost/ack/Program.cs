@@ -223,7 +223,7 @@ namespace ack
                     var listenPort = GlobalConfiguration.ServerPort;
                     if (SocketExtensions.PortInUse(listenPort) == true)
                     {
-                        Log.Error($"{listenPort} 포트는 이미 사용중입니다. 참고 명령어) netstat -ano | findstr {listenPort}");
+                        Log.Error($"{listenPort} 포트는 이미 사용중입니다. 참고 명령어) {ApplicationManager.PortInUseHintCommand(listenPort)}");
                         exitCode = -1;
                         return;
                     }
