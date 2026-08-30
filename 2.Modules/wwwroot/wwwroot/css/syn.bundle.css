@@ -15885,8 +15885,9 @@ ul.fancytree-container {
 }
 
 .input-group .form-control,
-.input-group .btn {
-  box-shadow: none;
+.input-group .btn,
+.input-group {
+    box-shadow: none;
 }
 
 .row {

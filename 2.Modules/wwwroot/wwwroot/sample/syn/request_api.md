@@ -134,7 +134,9 @@ const enabled = await syn.$r.isCorsEnabled('https://example.com/api/data');
 `fetch` API 기반의 요청 객체(Proxy)를 반환합니다. 반환된 객체는 `send` 액션만 지원하며, `send(raw, options)`
 호출 시 실제 요청이 수행됩니다. `raw`가 문자열이 아니고 null/undefined도 아니면 POST 방식 본문으로
 전송하고, 그 외에는 GET 방식으로 요청합니다. 응답의 `Content-Type`에 따라 json/text/blob 중 알맞은
-형태로 자동 파싱하여 반환합니다.
+형태로 자동 파싱하여 반환합니다. 기본 fetch 옵션은 CORS 모드, 동일 출처 자격 증명, JSON 요청/응답
+헤더, 리다이렉트 추적과 `no-referrer-when-downgrade` Referrer Policy를 사용합니다. 호출 시 전달한
+`options`로 기본값을 재정의할 수 있습니다.
 
 ```js
 const result = await syn.$r.httpFetch('/api/users').send();

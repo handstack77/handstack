@@ -4186,9 +4186,21 @@ if (typeof module !== 'undefined' && module.exports) {
                             return Promise.resolve({ error: `${action} 메서드 확인 필요` });
                         }
 
-                        options = syn.$w.argumentsExtend({
-                            method: 'GET'
-                        }, options);
+                        const defaultOptions = {
+                            method: 'GET',
+                            mode: 'cors',
+                            cache: 'default',
+                            credentials: 'same-origin',
+                            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                            redirect: 'follow',
+                            referrerPolicy: 'no-referrer-when-downgrade'
+                        };
+                        const fetchOptions = syn.$w.getFetchClientOptions ? syn.$w.getFetchClientOptions(defaultOptions) : defaultOptions;
+                        options = syn.$w.argumentsExtend(fetchOptions, options);
+
+                        if (context.$object.isNullOrUndefined(options.headers) == false && (options.headers instanceof Headers) == false) {
+                            options.headers = new Headers(options.headers);
+                        }
 
                         let response = null;
                         let requestTimeoutID = null;
@@ -4219,12 +4231,11 @@ if (typeof module !== 'undefined' && module.exports) {
                                 options.headers.append('OffsetMinutes', syn.$w.timezoneOffsetMinutes);
                             }
 
-                            const data = {
+                            const data = syn.$w.argumentsExtend(options, {
                                 method: options.method,
                                 headers: options.headers,
-                                body: raw instanceof FormData ? raw : JSON.stringify(raw),
-                                redirect: 'follow'
-                            };
+                                body: raw instanceof FormData ? raw : JSON.stringify(raw)
+                            });
 
                             if (context.$object.isNullOrUndefined(options.timeout) == false) {
                                 const controller = new AbortController();
@@ -4259,11 +4270,10 @@ if (typeof module !== 'undefined' && module.exports) {
                                 options.headers.append('OffsetMinutes', syn.$w.timezoneOffsetMinutes);
                             }
 
-                            const data = {
+                            const data = syn.$w.argumentsExtend(options, {
                                 method: options.method,
-                                headers: options.headers,
-                                redirect: 'follow'
-                            };
+                                headers: options.headers
+                            });
 
                             if (context.$object.isNullOrUndefined(options.timeout) == false) {
                                 const controller = new AbortController();
