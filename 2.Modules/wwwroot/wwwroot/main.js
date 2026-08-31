@@ -95,7 +95,6 @@ let $main = {
             const member = syn.$r.getCookie(`HandStack.Member`);
             const variable = syn.$r.getCookie(`HandStack.Variable`);
             const bearerToken = syn.$r.getCookie(`HandStack.BearerToken`);
-            $this.method.applyColorClassesToOptions('ddlPointColor');
 
             if ($string.isNullOrEmpty(tokenID) == true
                 || $string.isNullOrEmpty(member) == true
@@ -264,7 +263,7 @@ let $main = {
                 syn.$l.get('txtDepartmentName').value = syn.$w.User.DepartmentName;
                 syn.$l.get('txtCelluar').value = syn.$w.User.Celluar;
                 syn.$l.get('txtExtensionNo').value = syn.$w.User.ExtensionNo;
-                syn.$l.get('ddlPointColor').value = syn.$w.Variable.UserPreferences.find(item => item.Category == 'Employee' && item.Name == 'PointColor')?.Value;
+                syn.$l.get('txtEmail').value = syn.$w.User.Email;
 
                 syn.$w.showDialog(syn.$l.get('tplMyProfile'), {
                     minWidth: 520,
