@@ -687,10 +687,19 @@
             }
         },
 
+        // syn.$l.blobToDataUri(blob, callback) 또는 await syn.$l.blobToDataUri(blob)
         blobToDataUri(blob, callback) {
-            if (!(blob instanceof Blob) || typeof callback !== 'function') {
+            if (typeof callback !== 'function') {
+                return new Promise(function (resolve, reject) {
+                    $library.blobToDataUri(blob, function (result) {
+                        if (result instanceof Error) { reject(result); } else { resolve(result); }
+                    });
+                });
+            }
+
+            if (!(blob instanceof Blob)) {
                 syn.$l.eventLog('$l.blobToDataUri', '잘못된 Blob 또는 콜백 함수가 제공되었습니다.', 'Warning');
-                if (callback) callback(new Error("잘못된 입력값"), null);
+                callback(new Error("잘못된 입력값"), null);
                 return;
             }
 
@@ -698,6 +707,7 @@
             reader.onloadend = () => {
                 if (reader.error) {
                     syn.$l.eventLog('$l.blobToDataUri', `FileReader 오류: ${reader.error}`, 'Error');
+                    callback(null);
                 } else {
                     callback(reader.result);
                 }
@@ -744,13 +754,16 @@
             }
         },
 
+        // syn.$l.blobUrlToBlob(url, callback) 또는 await syn.$l.blobUrlToBlob(url)
         blobUrlToBlob(url, callback) {
             if (typeof callback !== 'function') {
-                syn.$l.eventLog('$l.blobUrlToBlob', '콜백 함수 확인 필요', 'Warning');
-                return;
+                return new Promise(function (resolve) {
+                    $library.blobUrlToBlob(url, function (blob) { resolve(blob); });
+                });
             }
             if (!url || typeof url !== 'string') {
                 syn.$l.eventLog('$l.blobUrlToBlob', 'URL 확인 필요', 'Warning');
+                callback(null);
                 return;
             }
 
@@ -764,16 +777,20 @@
                 .then(blob => callback(blob))
                 .catch(error => {
                     syn.$l.eventLog('$l.blobUrlToBlob', `url: ${url}, 오류: ${error}`, 'Warning');
+                    callback(null);
                 });
         },
 
+        // syn.$l.blobUrlToDataUri(url, callback) 또는 await syn.$l.blobUrlToDataUri(url)
         blobUrlToDataUri(url, callback) {
             if (typeof callback !== 'function') {
-                syn.$l.eventLog('$l.blobUrlToDataUri', '콜백 함수 확인 필요', 'Warning');
-                return;
+                return new Promise(function (resolve) {
+                    $library.blobUrlToDataUri(url, function (dataUri) { resolve(dataUri); });
+                });
             }
             if (!url || typeof url !== 'string') {
                 syn.$l.eventLog('$l.blobUrlToDataUri', 'URL 확인 필요', 'Warning');
+                callback(null);
                 return;
             }
 
@@ -782,6 +799,7 @@
                     this.blobToDataUri(blob, callback);
                 } else {
                     syn.$l.eventLog('$l.blobUrlToDataUri', 'URL에서 Blob 가져오기 실패', 'Warning');
+                    callback(null);
                 }
             });
         },

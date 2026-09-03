@@ -544,48 +544,68 @@
             return $network.connections.find(item => item.options.scope === channelID);
         },
 
+        // syn.$n.call(channelID, evt, params) — Promise 반환(응답 시 resolve(res), 오류 시 reject)
+        // 기존 fire-and-forget 호출부 호환을 위해 내부에서 rejection 을 흡수(await 시에는 정상 전파)
         call(channelID, evt, params) {
             const connection = this.findChannel(channelID);
             if (!connection) {
                 syn.$l.eventLog('$network.call', `Channel not found: ${channelID}`, 'Warning');
-                return;
+                const rejected = Promise.reject(new Error(`$network.call: Channel not found: ${channelID}`));
+                rejected.catch(() => { });
+                return rejected;
             }
 
-            const val = {
-                method: evt,
-                params: params,
-                success: (res) => {
-                    if (connection.options.debugOutput) {
-                        syn.$l.eventLog('$network.call.success', `"${evt}" call success, channelID: ${connection.options.scope}`, 'Information'); // Avoid logging potentially large 'res'
-                    }
-                },
-                error: (error, message) => {
-                    if (connection.options.debugOutput) {
-                        syn.$l.eventLog('$network.call.error', `"${evt}" call error: ${error}, message: ${message || ''}, channelID: ${connection.options.scope}`, 'Information');
-                    }
-                }
-            };
-            connection.call(val);
-        },
-
-        broadCast(evt, params) {
-            this.connections.forEach(connection => {
+            const promise = new Promise((resolve, reject) => {
                 const val = {
                     method: evt,
                     params: params,
                     success: (res) => {
                         if (connection.options.debugOutput) {
-                            syn.$l.eventLog('$network.broadcast.success', `"${evt}" broadcast success, channelID: ${connection.options.scope}`, 'Information');
+                            syn.$l.eventLog('$network.call.success', `"${evt}" call success, channelID: ${connection.options.scope}`, 'Information'); // Avoid logging potentially large 'res'
                         }
+                        resolve(res);
                     },
                     error: (error, message) => {
                         if (connection.options.debugOutput) {
-                            syn.$l.eventLog('$network.broadcast.error', `"${evt}" broadcast error: ${error}, message: ${message || ''}, channelID: ${connection.options.scope}`, 'Information');
+                            syn.$l.eventLog('$network.call.error', `"${evt}" call error: ${error}, message: ${message || ''}, channelID: ${connection.options.scope}`, 'Information');
                         }
+                        reject(error instanceof Error ? error : new Error(`${error}${message ? ': ' + message : ''}`));
                     }
                 };
                 connection.call(val);
             });
+
+            promise.catch(() => { });
+            return promise;
+        },
+
+        // syn.$n.broadCast(evt, params) — 모든 채널 호출을 Promise.all 로 반환
+        broadCast(evt, params) {
+            const promises = this.connections.map(connection => {
+                return new Promise((resolve, reject) => {
+                    const val = {
+                        method: evt,
+                        params: params,
+                        success: (res) => {
+                            if (connection.options.debugOutput) {
+                                syn.$l.eventLog('$network.broadcast.success', `"${evt}" broadcast success, channelID: ${connection.options.scope}`, 'Information');
+                            }
+                            resolve(res);
+                        },
+                        error: (error, message) => {
+                            if (connection.options.debugOutput) {
+                                syn.$l.eventLog('$network.broadcast.error', `"${evt}" broadcast error: ${error}, message: ${message || ''}, channelID: ${connection.options.scope}`, 'Information');
+                            }
+                            reject(error instanceof Error ? error : new Error(`${error}${message ? ': ' + message : ''}`));
+                        }
+                    };
+                    connection.call(val);
+                });
+            });
+
+            const all = Promise.all(promises);
+            all.catch(() => { });
+            return all;
         },
 
         emit(evt, params) {

@@ -70,7 +70,7 @@ CodePicker는 코드값 검색 팝업 패턴을 구현한 컨트롤입니다. �
 | 메서드 | 설명 |
 | --- | --- |
 | `controlLoad(elID, setting)` | 컨트롤 초기화. `_Code`/`_Text`/`_Button` 엘리먼트를 생성하고 이벤트를 바인딩합니다. 보통 페이지 로더가 자동으로 호출하므로 직접 호출할 일은 거의 없습니다. |
-| `find(setting, callback)` | 검색 팝업(코드도움 다이얼로그)을 엽니다. `dataSourceID`가 없으면 동작하지 않습니다. 팝업에서 선택이 끝나면 `viewType`에 따라 `_Code`/`_Text`(form), WebGrid 셀(grid), AUIGrid 셀(auigrid)에 결과를 반영하고 `callback(result)`을 호출합니다. 돋보기 버튼 클릭 시 내부적으로 자동 호출됩니다. |
+| `find(setting, callback)` | 검색 팝업(코드도움 다이얼로그)을 엽니다. `callback`을 생략하면 선택 결과로 resolve되는 `Promise`를 반환합니다. `dataSourceID`가 없으면 동작하지 않습니다. 팝업에서 선택이 끝나면 `viewType`에 따라 `_Code`/`_Text`(form), WebGrid 셀(grid), AUIGrid 셀(auigrid)에 결과를 반영하고 `callback(result)`을 호출합니다. 돋보기 버튼 클릭 시 내부적으로 자동 호출됩니다. |
 | `open(elID)` | 돋보기 버튼(`<elID>_Button`) 클릭을 코드로 트리거해서 검색 팝업을 엽니다. |
 | `getValue(elID, meta)` | `<elID>_Code`의 현재 값(코드값)을 반환합니다. |
 | `setValue(elID, value, meta)` | `<elID>_Code`에 코드값을 직접 설정합니다. (코드명 `_Text`는 함께 바뀌지 않으므로 필요하면 `setText`를 같이 호출) |

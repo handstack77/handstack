@@ -290,6 +290,28 @@
             return this;
         },
 
+        // await syn.$m.fadeAsync(el, { duration: 1000, to: 0 });
+        fadeAsync(el, options = {}) {
+            return new Promise((resolve) => {
+                const element = syn.$l.getElement(el);
+                if (!element) {
+                    resolve(null);
+                    return;
+                }
+
+                const userCallback = options.callback;
+                $manipulation.fade(element, {
+                    ...options,
+                    callback: function () {
+                        if (typeof userCallback === 'function') {
+                            userCallback.call(this);
+                        }
+                        resolve(this);
+                    }
+                });
+            });
+        },
+
         append(baseEl, tag, elID, options = {}) {
             const baseElement = syn.$l.getElement(baseEl);
             if (!baseElement || !tag || !doc) return null;

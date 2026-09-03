@@ -77,13 +77,13 @@ TextBox는 네이티브 `<input type="text">` 요소에 `syn-options` 속성으�
 | `getValue(elID)` | 요소 id | 현재 값 반환. `number`/`numeric`은 콤마 제거된 숫자 문자열로 반환 |
 | `setValue(elID, value)` | 요소 id, 값 | 값 설정. `number`/`numeric`이면 숫자 값을 통화 서식으로 변환해 표시. `value`가 `undefined`/`null`이면 `triggerConfig` 옵션 값 또는 빈 문자열로 대체 |
 | `clear(elID, isControlLoad)` | 요소 id | `dataType` 옵션에 맞는 기본값으로 초기화 |
-| `dataRefresh(elID, setting, callback)` | 요소 id, 옵션, 콜백 | `dataSourceID`/`storeSourceID` 데이터를 다시 조회해 자동완성 목록 갱신 |
+| `dataRefresh(elID, setting, callback)` | 요소 id, 옵션, 콜백(선택) | `dataSourceID`/`storeSourceID` 데이터를 다시 조회해 자동완성 목록 갱신. `callback` 생략 시 `Promise` 반환 |
 | `setDatalistItems(elID, items)` | 요소 id, 배열 | 자동완성(datalist) 목록 전체 교체 |
 | `addDatalistItem(elID, item)` | 요소 id, 항목 | 자동완성 목록에 항목 1개 추가 |
 | `removeDatalistItem(elID, value)` | 요소 id, 값 | 자동완성 목록에서 값이 일치하는 항목 제거 |
 | `clearDatalistItems(elID)` | 요소 id | 자동완성 목록 전체 비우기 |
 | `getDatalistItems(elID)` | 요소 id | 현재 저장된 자동완성 목록 배열 반환 |
-| `loadDatalistItems(elID, url, callback)` | 요소 id, URL(선택), 콜백(선택) | 원격 URL에서 자동완성 목록을 로드 |
+| `loadDatalistItems(elID, url, callback)` | 요소 id, URL(선택), 콜백(선택) | 원격 URL(`syn.$r.httpRequest` GET)에서 자동완성 목록을 로드. `callback(items)` 또는 `callback` 생략 시 `Promise<items>` 반환 |
 | `filterDatalistItems(elID, filterText)` | 요소 id, 검색어 | 저장된 전체 목록 중 값/라벨에 검색어가 포함된 항목만 표시 |
 | `setLocale(elID, translations, control, options)` | - | 다국어 리소스에 맞춰 placeholder/controlText 갱신 |
 

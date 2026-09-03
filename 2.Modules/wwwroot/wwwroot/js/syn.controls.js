@@ -8410,8 +8410,15 @@
         },
 
         find(setting, callback) {
+            if (typeof callback !== 'function') {
+                return new Promise(function (resolve) {
+                    $codepicker.find(setting, function (result) { resolve(result); });
+                });
+            }
+
             if ($object.isNullOrUndefined(setting.dataSourceID) == true) {
                 syn.$l.eventLog('$codepicker.find', 'dataSourceID 설정 없음', 'Debug');
+                callback(undefined);
                 return;
             }
 
@@ -9228,21 +9235,60 @@
             }
         },
 
-        bindingSource(elID, dataSourceID, elapsedTime) {
+        // bindingSource(elID, dataSourceID)
+        // bindingSource(elID, dataSourceID, callback)              - callback(error, result)
+        // bindingSource(elID, dataSourceID, elapsedTime, callback) - 내부 재귀 호출용
+        bindingSource(elID, dataSourceID, elapsedTime, callback) {
+            if (typeof elapsedTime === 'function') {
+                callback = elapsedTime;
+                elapsedTime = 0;
+            }
+
             var dataSource = $this.store[dataSourceID];
             if ($object.isNullOrUndefined(dataSource) == true) {
                 elapsedTime = (elapsedTime || 0) + 100;
                 if (elapsedTime > 60000) {
                     syn.$l.eventLog('$data.bindingSource', '"{0}" dataSourceID 구성 대기 시간 초과(60초) - elID: {1}'.format(dataSourceID, elID), 'Warning');
+                    if (typeof callback === 'function') {
+                        callback(new Error('bindingSource timeout: ' + dataSourceID));
+                    }
                     return;
                 }
 
                 setTimeout(function () {
-                    $data.bindingSource(elID, dataSourceID, elapsedTime);
+                    $data.bindingSource(elID, dataSourceID, elapsedTime, callback);
                 }, 100);
                 return;
             }
 
+            var result = $data.applyBindingSource(elID, dataSourceID);
+            if (typeof callback === 'function') {
+                callback(null, result);
+            }
+        },
+
+        // await syn.uicontrols.$data.bindingSourceAsync(elID, dataSourceID);
+        bindingSourceAsync(elID, dataSourceID, options) {
+            options = syn.$w.argumentsExtend({ timeout: 60000, interval: 100 }, options);
+            return (async function () {
+                var elapsed = 0;
+                while ($object.isNullOrUndefined($this.store[dataSourceID]) == true) {
+                    if (elapsed >= options.timeout) {
+                        syn.$l.eventLog('$data.bindingSourceAsync', '"{0}" dataSourceID 구성 대기 시간 초과 - elID: {1}'.format(dataSourceID, elID), 'Warning');
+                        throw new Error('bindingSource timeout: ' + dataSourceID);
+                    }
+
+                    await syn.$w.sleep(options.interval);
+                    elapsed += options.interval;
+                }
+
+                return $data.applyBindingSource(elID, dataSourceID);
+            })();
+        },
+
+        // 스토어(dataSource) 준비 완료 후 실제 바인딩(Object.defineProperty) 적용. 성공 true / 대상 없음·중복 false
+        applyBindingSource(elID, dataSourceID) {
+            var dataSource = $this.store[dataSourceID];
             var el = syn.$l.get(elID + '_hidden') || syn.$l.get(elID);
             if ($object.isNullOrUndefined(el) == false) {
                 var tagName = el.tagName.toUpperCase();
@@ -9344,17 +9390,22 @@
                             configurable: true,
                             enumerable: true
                         });
+
+                        return true;
                     }
                     else {
                         syn.$l.eventLog('$data.bindingSource', 'binding 정보 확인 필요 - elID: {0}, dataSourceID: {1}, dataFieldID: {2}, controlType: {3}, '.format(elID, dataSourceID, dataFieldID, controlType), 'Warning');
+                        return false;
                     }
                 }
                 else {
                     syn.$l.eventLog('$data.bindingSource', 'dataFieldID 확인 필요', 'Warning');
+                    return false;
                 }
             }
             else {
                 syn.$l.eventLog('$data.bindingSource', '"{0}" elID 확인 필요'.format(elID), 'Warning');
+                return false;
             }
         },
 
@@ -10815,6 +10866,12 @@
         },
 
         dataRefresh(elID, setting, callback) {
+            if (typeof callback !== 'function') {
+                return new Promise(function (resolve) {
+                    $multiselect.dataRefresh(elID, setting, function () { resolve(); });
+                });
+            }
+
             setting = setting || {};
             setting.elID = elID;
             setting.storeSourceID = setting.storeSourceID || setting.dataSourceID;
@@ -11349,6 +11406,12 @@
         },
 
         dataRefresh(elID, setting, callback) {
+            if (typeof callback !== 'function') {
+                return new Promise(function (resolve) {
+                    $select.dataRefresh(elID, setting, function () { resolve(); });
+                });
+            }
+
             setting = setting || {};
             setting.elID = elID;
             setting.storeSourceID = setting.storeSourceID || setting.dataSourceID;
@@ -12397,14 +12460,22 @@
         },
 
         getFileAction(options, callback) {
+            if (typeof callback !== 'function') {
+                return new Promise(function (resolve) {
+                    $fileclient.getFileAction(options, function (json) { resolve(json); });
+                });
+            }
+
             if ($string.isNullOrEmpty(options.repositoryID) == true || $object.isNullOrUndefined(options.action) == true) {
                 syn.$l.eventLog('getFileAction', '요청 정보 확인 필요', 'Warning');
+                callback(null);
                 return;
             }
 
             var setting = $fileclient.getFileManagerSetting();
             if ($object.isNullOrUndefined(setting) == true) {
                 syn.$l.eventLog('getFileAction', `${options.repositoryID} 정보 확인 필요`, 'Warning');
+                callback(null);
                 return;
             }
 
@@ -12442,8 +12513,8 @@
                     break;
                 default:
                     syn.$l.eventLog('getFileAction', 'action 확인 필요', 'Warning');
+                    callback(null);
                     return;
-                    break;
             }
 
             syn.$r.params['applicationID'] = $fileclient.applicationID;
@@ -12453,6 +12524,12 @@
         },
 
         getItem(elID, itemID, callback) {
+            if (typeof callback !== 'function') {
+                return new Promise(function (resolve) {
+                    $fileclient.getItem(elID, itemID, function (json) { resolve(json); });
+                });
+            }
+
             var setting = $fileclient.getFileSetting(elID);
             if (setting == null) {
                 var fileManager = $fileclient.getFileManager(elID);
@@ -12482,6 +12559,12 @@
         },
 
         getItems(elID, dependencyID, callback) {
+            if (typeof callback !== 'function') {
+                return new Promise(function (resolve) {
+                    $fileclient.getItems(elID, dependencyID, function (json) { resolve(json); });
+                });
+            }
+
             var setting = $fileclient.getFileSetting(elID);
             if (setting == null) {
                 var fileManager = $fileclient.getFileManager(elID);
@@ -12511,6 +12594,12 @@
         },
 
         updateDependencyID(elID, sourceDependencyID, targetDependencyID, callback) {
+            if (typeof callback !== 'function') {
+                return new Promise(function (resolve) {
+                    $fileclient.updateDependencyID(elID, sourceDependencyID, targetDependencyID, function (json) { resolve(json); });
+                });
+            }
+
             var setting = $fileclient.getFileSetting(elID);
             syn.$r.path = $fileclient.getRepositoryUrl() + '/' + setting.pageActionHandler;
             syn.$r.params['action'] = 'UpdateDependencyID';
@@ -12524,6 +12613,12 @@
         },
 
         updateFileName(elID, itemID, fileName, callback) {
+            if (typeof callback !== 'function') {
+                return new Promise(function (resolve) {
+                    $fileclient.updateFileName(elID, itemID, fileName, function (json) { resolve(json); });
+                });
+            }
+
             var setting = $fileclient.getFileSetting(elID);
             syn.$r.path = $fileclient.getRepositoryUrl() + '/' + setting.pageActionHandler;
             syn.$r.params['action'] = 'UpdateFileName';
@@ -12591,11 +12686,18 @@
     },
          */
         fileUpload(el, repositoryID, dependencyID, callback, uploadUrl) {
+            if (typeof callback !== 'function') {
+                return new Promise(function (resolve) {
+                    $fileclient.fileUpload(el, repositoryID, dependencyID, function (response) { resolve(response); }, uploadUrl);
+                });
+            }
+
             var result = null;
             el = $object.isString(el) == true ? syn.$l.get(el) : el;
             var setting = $fileclient.getFileSetting(el.id);
             if ($object.isNullOrUndefined(el) == true || $object.isNullOrUndefined(setting) == true) {
                 syn.$l.eventLog('fileUpload', `요청 정보 확인 필요`, 'Warning');
+                callback(null);
                 return;
             }
 
@@ -12640,6 +12742,9 @@
                 };
 
                 xhr.send(formData);
+            }
+            else {
+                callback(null);
             }
         },
 
@@ -12777,6 +12882,12 @@
         },
 
         deleteItem(elID, itemID, callback) {
+            if (typeof callback !== 'function') {
+                return new Promise(function (resolve) {
+                    $fileclient.deleteItem(elID, itemID, function (response) { resolve(response); });
+                });
+            }
+
             var setting = $fileclient.getFileSetting(elID);
             if (setting == null) {
                 var fileManager = $fileclient.getFileManager(elID);
@@ -12825,6 +12936,12 @@
         },
 
         deleteItems(elID, dependencyID, callback) {
+            if (typeof callback !== 'function') {
+                return new Promise(function (resolve) {
+                    $fileclient.deleteItems(elID, dependencyID, function (response) { resolve(response); });
+                });
+            }
+
             var setting = $fileclient.getFileSetting(elID);
             if (setting == null) {
                 var fileManager = $fileclient.getFileManager(elID);
@@ -12854,6 +12971,12 @@
         },
 
         uploadBlob(options, callback) {
+            if (typeof callback !== 'function') {
+                return new Promise(function (resolve) {
+                    $fileclient.uploadBlob(options, function (json) { resolve(json); });
+                });
+            }
+
             options = syn.$w.argumentsExtend({
                 repositoryID: null,
                 dependencyID: null,
@@ -12875,27 +12998,29 @@
                 xhr.onload = function () {
                     if (xhr.status != 200) {
                         syn.$l.eventLog('$fileclient.uploadBlob', 'HTTP Error code: {0}, text: {1}'.format(xhr.status, xhr.statusText), 'Warning');
+                        callback(null);
                         return;
                     }
 
                     try {
                         var responseText = xhr.responseText;
                         if ($string.isNullOrEmpty(responseText) == false) {
-                            if (callback) {
-                                callback(JSON.parse(responseText));
-                            }
+                            callback(JSON.parse(responseText));
                         }
                         else {
                             syn.$w.alert('Blob 파일 업로드 정보 확인 필요');
+                            callback(null);
                         }
                     } catch (error) {
                         syn.$w.alert('Blob 파일 업로드 오류: {0}'.format(error.message));
                         syn.$l.eventLog('$fileclient.uploadBlob', error, 'Warning');
+                        callback(null);
                     }
                 };
 
                 xhr.onerror = function () {
                     syn.$l.eventLog('$fileclient.uploadBlob', 'HTTP Error code: {0}, text: {1}'.format(xhr.status, xhr.statusText), 'Warning');
+                    callback(null);
                 };
 
                 var formData = new FormData();
@@ -12907,10 +13032,17 @@
                 var message = 'Blob 파일 업로드 필수 항목 확인 필요';
                 syn.$w.alert(message);
                 syn.$l.eventLog('$fileclient.uploadBlob', message, 'Warning');
+                callback(null);
             }
         },
 
         uploadDataUri(options, callback) {
+            if (typeof callback !== 'function') {
+                return new Promise(function (resolve) {
+                    $fileclient.uploadDataUri(options, function (json) { resolve(json); });
+                });
+            }
+
             options = syn.$w.argumentsExtend({
                 repositoryID: null,
                 dependencyID: null,
@@ -12928,10 +13060,17 @@
                 var message = 'DataUri 파일 업로드 필수 항목 확인 필요';
                 syn.$w.alert(message);
                 syn.$l.eventLog('$fileclient.uploadDataUri', message, 'Warning');
+                callback(null);
             }
         },
 
         uploadBlobUri(options, callback) {
+            if (typeof callback !== 'function') {
+                return new Promise(function (resolve) {
+                    $fileclient.uploadBlobUri(options, function (json) { resolve(json); });
+                });
+            }
+
             options = syn.$w.argumentsExtend({
                 repositoryID: null,
                 dependencyID: null,
@@ -12942,6 +13081,11 @@
 
             if ($string.isNullOrEmpty(options.repositoryID) == false && $string.isNullOrEmpty(options.dependencyID) == false && $string.isNullOrEmpty(options.blobUri) == false) {
                 syn.$l.blobUrlToBlob(options.blobUri, function (blobInfo) {
+                    if (!blobInfo) {
+                        syn.$l.eventLog('$fileclient.uploadBlobUri', 'blobUri 에서 Blob 을 가져오지 못했습니다.', 'Warning');
+                        callback(null);
+                        return;
+                    }
                     options.blobInfo = blobInfo;
                     options.mimeType = options.blobInfo.type;
                     $fileclient.uploadBlob(options, callback);
@@ -12951,6 +13095,7 @@
                 var message = 'BlobUri 파일 업로드 필수 항목 확인 필요';
                 syn.$w.alert(message);
                 syn.$l.eventLog('$fileclient.uploadBlobUri', message, 'Warning');
+                callback(null);
             }
         },
 
@@ -12999,6 +13144,12 @@
         },
 
         executeProxy(url, callback) {
+            if (typeof callback !== 'function') {
+                return new Promise(function (resolve) {
+                    $fileclient.executeProxy(url, function (json) { resolve(json); });
+                });
+            }
+
             var xhr = syn.$w.xmlHttp();
 
             xhr.onreadystatechange = function () {
@@ -13006,16 +13157,16 @@
                     if (xhr.status === 200) {
                         var responseText = xhr.responseText;
                         if ($string.isNullOrEmpty(responseText) == false) {
-                            if (callback) {
-                                callback(JSON.parse(responseText));
-                            }
+                            callback(JSON.parse(responseText));
                         }
                         else {
                             syn.$w.alert('파일 응답 정보 확인 필요');
+                            callback(null);
                         }
                     }
                     else {
                         syn.$l.eventLog('$fileclient.executeProxy', 'async url: ' + url + ', status: ' + xhr.status.toString() + ', responseText: ' + xhr.responseText, 'Error');
+                        callback(null);
                     }
                 }
             };
@@ -14588,6 +14739,12 @@
         },
 
         dataRefresh(elID, setting, callback) {
+            if (typeof callback !== 'function') {
+                return new Promise(function (resolve) {
+                    $textbox.dataRefresh(elID, setting, function () { resolve(); });
+                });
+            }
+
             setting = setting || {};
             setting.elID = elID;
             setting.storeSourceID = setting.storeSourceID || setting.dataSourceID;
@@ -14787,44 +14944,51 @@
         },
 
         loadDatalistItems(elID, url, callback) {
-            var el = syn.$l.get(elID);
-            if ($object.isNullOrUndefined(el) == false) {
-                var setting = JSON.parse(el.getAttribute('syn-options'));
-                var loadUrl = url || setting.datalistUrl;
-
-                if ($string.isNullOrEmpty(loadUrl) == false) {
-                    syn.$w.executeRequest({
-                        url: loadUrl,
-                        method: 'GET',
-                        success: function (response) {
-                            var items = [];
-                            if (Array.isArray(response)) {
-                                items = response.map(function (item) {
-                                    if ($object.isString(item)) {
-                                        return { value: item };
-                                    } else {
-                                        return {
-                                            value: item[setting.datalistValueField] || item.value || '',
-                                            label: item[setting.datalistLabelField] || item.label || ''
-                                        };
-                                    }
-                                });
-                            }
-                            $textbox.setDatalistItems(elID, items);
-
-                            if (callback && typeof callback === 'function') {
-                                callback(items);
-                            }
-                        },
-                        error: function (error) {
-                            console.error('datalist 로드 실패:', error);
-                            if (callback && typeof callback === 'function') {
-                                callback(null, error);
-                            }
-                        }
-                    });
-                }
+            if (typeof callback !== 'function') {
+                return new Promise(function (resolve) {
+                    $textbox.loadDatalistItems(elID, url, function (items) { resolve(items || []); });
+                });
             }
+
+            var el = syn.$l.get(elID);
+            if ($object.isNullOrUndefined(el) == true) {
+                callback([]);
+                return;
+            }
+
+            var setting = JSON.parse(el.getAttribute('syn-options'));
+            var loadUrl = url || setting.datalistUrl;
+            if ($string.isNullOrEmpty(loadUrl) == true) {
+                callback([]);
+                return;
+            }
+
+            syn.$r.httpRequest('GET', loadUrl, {}).then(function (result) {
+                var items = [];
+                try {
+                    if (result && result.status === 200) {
+                        var response = (typeof result.response === 'string') ? JSON.parse(result.response) : result.response;
+                        if (Array.isArray(response)) {
+                            items = response.map(function (item) {
+                                if ($object.isString(item)) {
+                                    return { value: item };
+                                }
+                                return {
+                                    value: item[setting.datalistValueField] || item.value || '',
+                                    label: item[setting.datalistLabelField] || item.label || ''
+                                };
+                            });
+                        }
+                    } else {
+                        syn.$l.eventLog('$textbox.loadDatalistItems', 'datalist 로드 실패 status: ' + (result && result.status), 'Warning');
+                    }
+                } catch (error) {
+                    syn.$l.eventLog('$textbox.loadDatalistItems', 'datalist 응답 파싱 실패: ' + error, 'Warning');
+                }
+
+                $textbox.setDatalistItems(elID, items);
+                callback(items);
+            });
         },
 
         filterDatalistItems(elID, filterText) {
@@ -16054,56 +16218,114 @@
             });
         },
 
+        editorReady: {},
+
+        // TinyMCE 스크립트 URL을 syn.Config(DomainBaseUrl/ProxyPathName) 기준으로 계산
+        resolveEditorScriptUrl() {
+            if ($string.isNullOrEmpty(syn.Config.DomainBaseUrl) == true || syn.Config.DomainBaseUrl == location.origin) {
+                if (syn.Config && $string.isNullOrEmpty(syn.Config.ProxyPathName) == false) {
+                    return `${syn.$w.proxyBasePath}/lib/tinymce/tinymce.min.js`;
+                }
+
+                return '/lib/tinymce/tinymce.min.js';
+            }
+
+            if (syn.Config && $string.isNullOrEmpty(syn.Config.ProxyPathName) == false) {
+                return `${syn.Config.DomainBaseUrl}${syn.$w.proxyBasePath}/lib/tinymce/tinymce.min.js`;
+            }
+
+            return `${syn.Config.DomainBaseUrl}/lib/tinymce/tinymce.min.js`;
+        },
+
+        // TinyMCE 로드 완료를 나타내는 Promise. window.tinymce 존재 시 즉시 resolve
+        loadEditorScriptAsync() {
+            if (window.tinymce) {
+                return Promise.resolve();
+            }
+
+            if (!$htmleditor.tinymceReady) {
+                $htmleditor.tinymceReady = syn.$w.loadScriptAsync($htmleditor.resolveEditorScriptUrl(), 'tinymcecdn', { timeout: 60000 });
+                // 로드 실패 시 캐시를 비워 다음 호출에서 재시도 가능하게 함
+                $htmleditor.tinymceReady.catch(function () {
+                    $htmleditor.tinymceReady = null;
+                });
+            }
+
+            return $htmleditor.tinymceReady;
+        },
+
+        // elID 에디터 초기화(TinyMCE init_instance_callback) 완료를 나타내는 deferred 반환
+        getEditorReady(elID) {
+            if (!$htmleditor.editorReady[elID]) {
+                var deferred = {};
+                deferred.promise = new Promise(function (resolve) {
+                    deferred.resolve = resolve;
+                });
+                $htmleditor.editorReady[elID] = deferred;
+            }
+
+            return $htmleditor.editorReady[elID];
+        },
+
+        // await syn.uicontrols.$htmleditor.ready(elID); - 에디터 초기화 완료 대기
+        ready(elID) {
+            return $htmleditor.getEditorReady(elID).promise;
+        },
+
         concreate() {
             if (window.tinymce) {
+                return;
             }
-            else {
-                if ($string.isNullOrEmpty(syn.Config.DomainBaseUrl) == true || syn.Config.DomainBaseUrl == location.origin) {
-                    if (syn.Config && $string.isNullOrEmpty(syn.Config.ProxyPathName) == false) {
-                        syn.$w.loadScript(`${syn.$w.proxyBasePath}/lib/tinymce/tinymce.min.js`);
-                    }
-                    else {
-                        syn.$w.loadScript('/lib/tinymce/tinymce.min.js');
-                    }
-                }
-                else {
-                    if (syn.Config && $string.isNullOrEmpty(syn.Config.ProxyPathName) == false) {
-                        syn.$w.loadScript(`${syn.Config.DomainBaseUrl}${syn.$w.proxyBasePath}/lib/tinymce/tinymce.min.js`);
-                    }
-                    else {
-                        syn.$w.loadScript(`${syn.Config.DomainBaseUrl}/lib/tinymce/tinymce.min.js`);
-                    }
 
-                    $htmleditor.defaultSetting.viewerHtml = $htmleditor.defaultSetting.viewerHtml.replace(/<base href="\/">/, `<base href="${syn.Config.DomainBaseUrl}/">`);
-                }
+            if ($string.isNullOrEmpty(syn.Config.DomainBaseUrl) == false && syn.Config.DomainBaseUrl != location.origin) {
+                $htmleditor.defaultSetting.viewerHtml = $htmleditor.defaultSetting.viewerHtml.replace(/<base href="\/">/, `<base href="${syn.Config.DomainBaseUrl}/">`);
             }
+
+            $htmleditor.loadEditorScriptAsync().catch(function (error) {
+                syn.$l.eventLog('$htmleditor.concreate', 'TinyMCE 로드 실패: ' + error, 'Error');
+            });
         },
 
         controlLoad(elID, setting) {
             if (window.tinymce) {
                 $htmleditor.lazyControlLoad(elID, setting);
+                return;
             }
-            else {
-                var editorIntervalID = setInterval(function () {
-                    if (window.tinymce) {
-                        var length = $htmleditor.editorPendings.length;
-                        for (var i = 0; i < length; i++) {
-                            var item = $htmleditor.editorPendings[i];
 
-                            clearInterval(item.intervalID);
-                            $htmleditor.lazyControlLoad(item.elID, item.setting);
-                        }
+            $htmleditor.editorPendings.push({
+                elID: elID,
+                setting: $object.clone(setting)
+            });
 
-                        $htmleditor.editorPendings.length = 0;
-                    }
-                }, 25);
-
-                $htmleditor.editorPendings.push({
-                    elID: elID,
-                    setting: $object.clone(setting),
-                    intervalID: editorIntervalID
-                });
+            if ($htmleditor.isPendingScheduled == true) {
+                return;
             }
+            $htmleditor.isPendingScheduled = true;
+
+            $htmleditor.loadEditorScriptAsync().then(function () {
+                $htmleditor.isPendingScheduled = false;
+
+                var pendings = $htmleditor.editorPendings.splice(0, $htmleditor.editorPendings.length);
+                for (var i = 0; i < pendings.length; i++) {
+                    $htmleditor.lazyControlLoad(pendings[i].elID, pendings[i].setting);
+                }
+            }).catch(function (error) {
+                $htmleditor.isPendingScheduled = false;
+                syn.$l.eventLog('$htmleditor.controlLoad', 'TinyMCE 로드 실패: ' + error, 'Error');
+            });
+        },
+
+        // await syn.uicontrols.$htmleditor.controlLoadAsync(elID, setting); - 에디터 로드+초기화 완료 대기
+        controlLoadAsync(elID, setting) {
+            if (window.tinymce) {
+                $htmleditor.lazyControlLoad(elID, setting);
+                return $htmleditor.ready(elID);
+            }
+
+            return $htmleditor.loadEditorScriptAsync().then(function () {
+                $htmleditor.lazyControlLoad(elID, $object.clone(setting));
+                return $htmleditor.ready(elID);
+            });
         },
 
         // var setting = $htmleditor.getEditorSetting(elID);
@@ -16113,7 +16335,7 @@
             var length = $htmleditor.editorPendings.length;
             for (var i = 0; i < length; i++) {
                 var item = $htmleditor.editorPendings[i];
-                if (item.id == elID) {
+                if (item.elID == elID) {
                     result = item.setting;
                     break;
                 }
@@ -16124,6 +16346,10 @@
 
         lazyControlLoad(elID, setting) {
             var el = syn.$l.get(elID);
+
+            if ($htmleditor.editorReady[elID]) {
+                delete $htmleditor.editorReady[elID];
+            }
 
             setting = syn.$w.argumentsExtend($htmleditor.defaultSetting, setting);
 
@@ -16501,6 +16727,8 @@
                 if (eventHandler) {
                     eventHandler.apply(el, [elID, editor]);
                 }
+
+                $htmleditor.getEditorReady(elID).resolve(editor);
             };
 
             tinymce.addI18n('ko_KR', {
@@ -17081,6 +17309,12 @@
         },
 
         updateDependencyID(elID, targetDependencyID, callback) {
+            if (typeof callback !== 'function') {
+                return new Promise(function (resolve) {
+                    $htmleditor.updateDependencyID(elID, targetDependencyID, function (json) { resolve(json); });
+                });
+            }
+
             var setting = $htmleditor.getHtmlSetting(elID);
             syn.$r.path = setting.fileManagerServer + setting.fileManagerPath + '/' + setting.pageActionHandler;
             syn.$r.params['action'] = 'UpdateDependencyID';
@@ -19793,6 +20027,12 @@
         },
 
         dataRefresh(elID, setting, callback) {
+            if (typeof callback !== 'function') {
+                return new Promise(function (resolve) {
+                    $auigrid.dataRefresh(elID, setting, function () { resolve(); });
+                });
+            }
+
             var gridID = $auigrid.getGridID(elID);
             if ($object.isNullOrUndefined(gridID) == true) {
                 gridID = elID.replace('#', '');
@@ -21078,6 +21318,15 @@
 
         // syn.uicontrols.$auigrid.exportAsString('grdDataList', { type: 'csv', callback: (data) => { console.log(data)} });
         exportAsString(elID, options) {
+            options = options || {};
+            if ($object.isFunction(options.callback) == false) {
+                return new Promise(function (resolve) {
+                    var promiseOptions = syn.$w.argumentsExtend({}, options);
+                    promiseOptions.callback = function (dataString) { resolve(dataString); };
+                    $auigrid.exportAsString(elID, promiseOptions);
+                });
+            }
+
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
                 var defaultOptions = {
@@ -21088,23 +21337,23 @@
 
                 options = syn.$w.argumentsExtend(defaultOptions, options);
 
-                if ($object.isFunction(options.callback) == true) {
-                    options.localControlFunc = options.callback;
-                    switch (options.type) {
-                        case 'csv':
-                            AUIGrid.exportToCsv(gridID, options);
-                            break;
-                        case 'txt':
-                            AUIGrid.exportToTxt(gridID, options);
-                            break;
-                        case 'xml':
-                            AUIGrid.exportToXml(gridID, options);
-                            break;
-                        case 'json':
-                            AUIGrid.exportToJson(gridID, options);
-                            break;
-                    }
+                options.localControlFunc = options.callback;
+                switch (options.type) {
+                    case 'csv':
+                        AUIGrid.exportToCsv(gridID, options);
+                        break;
+                    case 'txt':
+                        AUIGrid.exportToTxt(gridID, options);
+                        break;
+                    case 'xml':
+                        AUIGrid.exportToXml(gridID, options);
+                        break;
+                    case 'json':
+                        AUIGrid.exportToJson(gridID, options);
+                        break;
                 }
+            } else {
+                options.callback(null);
             }
         },
 
@@ -21154,6 +21403,12 @@
         },
 
         importFile(elID, callback) {
+            if (typeof callback !== 'function') {
+                return new Promise(function (resolve) {
+                    $auigrid.importFile(elID, function (result, fileName) { resolve({ result: result, fileName: fileName }); });
+                });
+            }
+
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
                 var fileEL = syn.$l.get('{0}_ImportFile'.format(elID));
@@ -22591,6 +22846,12 @@
         },
 
         dataRefresh(elID, setting, callback) {
+            if (typeof callback !== 'function') {
+                return new Promise(function (resolve) {
+                    $opengrid.dataRefresh(elID, setting, function () { resolve(); });
+                });
+            }
+
             var defaultSetting = {
                 dataField: null,
                 required: true,
@@ -22613,11 +22874,13 @@
             setting.sharedAssetUrl = setting.sharedAssetUrl || syn.Config.SharedAssetUrl;
 
             if (!(setting.dataField && setting.storeSourceID)) {
+                if (typeof callback === 'function') { callback(); }
                 return;
             }
 
             var mod = window[syn.$w.pageScript];
             if (!mod) {
+                if (typeof callback === 'function') { callback(); }
                 return;
             }
 
@@ -23709,6 +23972,12 @@
         },
 
         importFile(elID, callback) {
+            if (typeof callback !== 'function') {
+                return new Promise(function (resolve) {
+                    $opengrid.importFile(elID, function (result, fileName) { resolve({ result: result, fileName: fileName }); });
+                });
+            }
+
             var fileEL = syn.$l.get('{0}_ImportFile'.format(elID));
             if (!fileEL) {
                 fileEL = document.createElement('input');

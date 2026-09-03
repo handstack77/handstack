@@ -90,6 +90,8 @@
 | `toFileLengthString` | `toFileLengthString(fileLength)` | 바이트 크기를 `'123 KB'`/`'1.2 MB'` 형태 문자열로 변환 |
 | `setLocale` | `setLocale(elID, translations, control, options)` | 다국어 텍스트 적용(현재 구현은 빈 함수) |
 
+> `callback` 인자를 받는 메서드(`getItem`, `getItems`, `deleteItem`, `deleteItems`, `updateDependencyID`, `updateFileName`, `uploadBlob`, `uploadDataUri`, `uploadBlobUri`, `fileUpload`, `getFileAction`, `executeProxy`)는 **`callback`을 생략하면 동일한 결과로 resolve되는 `Promise`를 반환**합니다(`await` 사용 가능). 요청 실패·검증 실패 시 Promise 는 `null` 로 resolve 됩니다.
+
 `init`, `addFileUI`, `getFileManager`, `getFileMaxIndex`, `prependChild`, `doUpload`, `getUploadUrl`, `getFileAction`, `executeProxy`, `getFileMimeType`는 팝업 없이 폼에 파일 입력행을 직접 추가하는 구형(레거시) 다중 첨부 UI를 위한 내부 구현 세부사항입니다. 신규 화면에서는 `getFileSetting` + `uploadUI` 조합을 사용하는 것이 표준 패턴이며, 위 내부 메서드들을 직접 호출할 일은 거의 없습니다.
 
 ## 이벤트 (syn-events)

@@ -26,7 +26,7 @@ var connection = syn.$n.findChannel('network-demo');
 ```
 
 ### `syn.$n.call(channelID, evt, params)`
-- 설명: `channelID`로 채널을 찾아 `evt` 메서드를 호출합니다. 성공/실패 시 `connection.options.debugOutput`이 `true`이면 `syn.$l.eventLog`로 로그만 남기는 내장 콜백을 사용합니다(커스텀 `success`/`error` 콜백이 필요하면 채널 객체의 `.call()`을 직접 사용). 소스 위치: 약 6602~6624번째 줄.
+- 설명: `channelID`로 채널을 찾아 `evt` 메서드를 호출하고 **`Promise`를 반환**합니다. 상대의 응답이 오면 `resolve(res)`, 오류 응답/타임아웃이면 `reject(Error)` 됩니다. `connection.options.debugOutput`이 `true`이면 `syn.$l.eventLog`로 로그도 남깁니다. 기존 fire-and-forget 호출부 호환을 위해 반환 Promise 의 미처리 rejection 은 내부에서 흡수합니다(`await` 시에는 정상 전파).
 - 매개변수
 
 | 이름 | 타입 | 필수 | 설명 |
@@ -35,14 +35,15 @@ var connection = syn.$n.findChannel('network-demo');
 | `evt` | `string` | Y | 상대에서 `bind`로 등록한 메서드 이름 |
 | `params` | `any` | N | 전달할 데이터 |
 
-- 반환값: 없음. 채널을 찾지 못하면 경고 로그만 남기고 종료합니다.
+- 반환값: `Promise<any>`. 채널을 찾지 못하면 경고 로그 후 `Promise.reject(Error)`.
 - 예시
 ```javascript
 syn.$n.call('network-demo', 'ping', { message: 'hello' });
+const res = await syn.$n.call('network-demo', 'ping', { message: 'hello' });
 ```
 
 ### `syn.$n.broadCast(evt, params)`
-- 설명: 현재 화면에 연결된 모든 채널(`$network.connections`)에 대해 동일한 `evt`를 호출합니다. 소스 위치: 약 6626~6644번째 줄.
+- 설명: 현재 화면에 연결된 모든 채널(`$network.connections`)에 대해 동일한 `evt`를 호출하고 각 호출의 `Promise`를 `Promise.all`로 묶어 반환합니다.
 - 매개변수
 
 | 이름 | 타입 | 필수 | 설명 |
@@ -50,10 +51,11 @@ syn.$n.call('network-demo', 'ping', { message: 'hello' });
 | `evt` | `string` | Y | 각 채널에서 `bind`로 등록한 메서드 이름 |
 | `params` | `any` | N | 전달할 데이터(모든 채널에 동일하게 전달) |
 
-- 반환값: 없음
+- 반환값: `Promise<any[]>`
 - 예시
 ```javascript
 syn.$n.broadCast('ping', { message: 'to all channels' });
+const results = await syn.$n.broadCast('ping', { message: 'to all channels' });
 ```
 
 ### `syn.$n.emit(evt, params)`

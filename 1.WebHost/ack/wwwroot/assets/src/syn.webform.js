@@ -16,6 +16,8 @@
         isPageLoad: false,
         transactionLoaderID: null,
         pageReadyTimeout: 60000,
+        pageReadyResolvers: [],
+        resourcePromises: {},
         eventAddReady: (globalRoot.devicePlatform === 'node') ? null : new CustomEvent('addready'),
         eventRemoveReady: (globalRoot.devicePlatform === 'node') ? null : new CustomEvent('removeready'),
         mappingModule: true,
@@ -874,6 +876,7 @@
 
                         pageLoad();
                         syn.$w.isPageLoad = true;
+                        syn.$w.flushPageReady();
                     }
                 }, 25);
 
@@ -943,6 +946,7 @@
             else {
                 pageLoad();
                 syn.$w.isPageLoad = true;
+                syn.$w.flushPageReady();
             }
         },
 
@@ -964,6 +968,74 @@
         removeReadyCount() {
             if (syn.$w.eventRemoveReady && syn.$w.isPageLoad == false) {
                 doc.dispatchEvent(syn.$w.eventRemoveReady);
+            }
+        },
+
+        // syn.$w.isPageLoad 가 true 로 전환되는 시점에 호출되어 대기 중인 readyAsync/ready 콜백을 모두 실행
+        flushPageReady() {
+            var resolvers = $webform.pageReadyResolvers;
+            $webform.pageReadyResolvers = [];
+            for (var i = 0; i < resolvers.length; i++) {
+                try {
+                    resolvers[i]();
+                } catch (error) {
+                    syn.$l.eventLog('$w.flushPageReady', 'pageReady 콜백 실행 오류: ' + error, 'Error');
+                }
+            }
+        },
+
+        // await syn.$w.readyAsync(); - 페이지 초기화(pageLoad) 완료를 Promise 로 대기
+        readyAsync() {
+            if (syn.$w.isPageLoad === true) {
+                return Promise.resolve();
+            }
+
+            return new Promise(function (resolve) {
+                $webform.pageReadyResolvers.push(resolve);
+            });
+        },
+
+        // syn.$w.ready(function () { ... }); - 콜백 전달 시 즉시/대기 후 실행하고 $webform 반환, 미전달 시 readyAsync() 반환
+        ready(callback) {
+            if (typeof callback === 'function') {
+                if (syn.$w.isPageLoad === true) {
+                    callback();
+                }
+                else {
+                    $webform.pageReadyResolvers.push(callback);
+                }
+
+                return $webform;
+            }
+
+            return $webform.readyAsync();
+        },
+
+        // syn.$w.withReadyCount(promise | function) - 비동기 작업을 페이지 준비 카운터에 연동(작업 완료까지 pageLoad 지연)
+        withReadyCount(task) {
+            syn.$w.addReadyCount();
+
+            var isSettled = false;
+            var releaseReadyCount = function () {
+                if (isSettled === true) {
+                    return;
+                }
+                isSettled = true;
+                syn.$w.removeReadyCount();
+            };
+
+            try {
+                var result = (typeof task === 'function') ? task() : task;
+                return Promise.resolve(result).then(function (value) {
+                    releaseReadyCount();
+                    return value;
+                }, function (error) {
+                    releaseReadyCount();
+                    throw error;
+                });
+            } catch (error) {
+                releaseReadyCount();
+                return Promise.reject(error);
             }
         },
 
@@ -1037,6 +1109,52 @@
                     if (callback && isForceCallback) callback();
                 }
             }
+        },
+
+        // var data = await syn.$w.loadJsonAsync('/sample/config.json', { timeout: 5000 });
+        loadJsonAsync(url, options) {
+            options = syn.$w.argumentsExtend({ timeout: 0 }, options);
+            return new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                xhr.open('GET', url, true);
+                if (options.timeout > 0) {
+                    xhr.timeout = options.timeout;
+                }
+
+                if (syn.$w.setServiceClientHeader && !syn.$w.setServiceClientHeader(xhr)) {
+                    const headerError = new Error(`$w.loadJsonAsync: URL ${url}에 대한 setServiceClientHeader 실패`);
+                    syn.$l.eventLog('$w.loadJsonAsync', headerError.message, 'Error');
+                    reject(headerError);
+                    return;
+                }
+
+                xhr.onreadystatechange = () => {
+                    if (xhr.readyState !== XMLHttpRequest.DONE) {
+                        return;
+                    }
+
+                    if (xhr.status === 200) {
+                        try {
+                            resolve(JSON.parse(xhr.responseText));
+                        } catch (e) {
+                            syn.$l.eventLog('$w.loadJsonAsync', `URL: ${url}, 상태: ${xhr.status}, JSON 파싱 오류: ${e}`, 'Error');
+                            reject(e instanceof Error ? e : new Error(String(e)));
+                        }
+                    } else {
+                        syn.$l.eventLog('$w.loadJsonAsync', `URL: ${url}, 상태: ${xhr.status}, 응답 텍스트: ${xhr.responseText} HTTP 오류`, 'Error');
+                        reject(new Error(`$w.loadJsonAsync: HTTP ${xhr.status} - ${url}`));
+                    }
+                };
+                xhr.onerror = () => {
+                    syn.$l.eventLog('$w.loadJsonAsync', `URL ${url} 네트워크 오류`, 'Error');
+                    reject(new Error(`$w.loadJsonAsync: 네트워크 오류 - ${url}`));
+                };
+                xhr.ontimeout = () => {
+                    syn.$l.eventLog('$w.loadJsonAsync', `URL ${url} 요청 시간 초과`, 'Error');
+                    reject(new Error(`$w.loadJsonAsync: 요청 시간 초과 - ${url}`));
+                };
+                xhr.send();
+            });
         },
 
         getTriggerOptions(el) {
@@ -3215,83 +3333,131 @@
             return new globalRoot.XMLHttpRequest();
         },
 
-        loadScript(url, scriptID, callback) {
-            var head;
-            var resourceID;
-            var heads = document.getElementsByTagName('head');
-            if (heads) {
-                head = heads[0];
+        // 스크립트/스타일 리소스를 로드하고 로드 완료(onload) 시 resolve, 실패(onerror)/시간 초과 시 reject 하는 Promise를 반환
+        // resourceID를 명시하면 동일 리소스에 대한 중복 로드를 방지(single-flight)
+        loadResourceAsync(kind, url, resourceID, options) {
+            options = options || {};
+            var isStyle = kind === 'style';
+            var logName = isStyle ? '$w.loadStyleAsync' : '$w.loadScriptAsync';
+
+            if (context.$object.isNullOrUndefined(url) == true || url === '') {
+                var argError = new Error(logName + ': url이 필요합니다.');
+                syn.$l.eventLog(logName, 'url이 필요합니다.', 'Error');
+                return Promise.reject(argError);
             }
-            else {
+
+            var hasExplicitID = context.$string.isNullOrEmpty(resourceID) == false;
+            resourceID = hasExplicitID == true ? resourceID : 'id_' + syn.$l.random();
+
+            if (hasExplicitID == true && $webform.resourcePromises[resourceID]) {
+                return $webform.resourcePromises[resourceID];
+            }
+
+            var existing = document.getElementById(resourceID);
+            if (existing) {
+                var resolved = Promise.resolve(existing);
+                if (hasExplicitID == true) {
+                    $webform.resourcePromises[resourceID] = resolved;
+                }
+                return resolved;
+            }
+
+            var promise = new Promise(function (resolve, reject) {
+                var heads = document.getElementsByTagName('head');
+                if (heads && heads.length > 0) {
+                    return heads[0];
+                }
+
                 document.documentElement.insertBefore(document.createElement('head'), document.documentElement.firstChild);
-                head = document.getElementsByTagName('head')[0];
-            }
+                var head = document.getElementsByTagName('head')[0];
+                var el = document.createElement(isStyle == true ? 'link' : 'script');
+                var timeoutID = null;
 
-            resourceID = scriptID || 'id_' + syn.$l.random();
+                var clearLoadTimeout = function () {
+                    if (timeoutID) {
+                        clearTimeout(timeoutID);
+                        timeoutID = null;
+                    }
+                };
 
-            var scriptTag = document.getElementById(resourceID);
-            if (scriptTag) {
-                callback();
-            } else {
-                var el = document.createElement('script');
-                el.setAttribute('type', 'text/javascript');
                 el.setAttribute('id', resourceID);
-                if (syn.Config && context.$string.toBoolean(syn.Config.IsClientCaching) == true) {
-                    el.setAttribute('src', url);
+                if (isStyle == true) {
+                    el.setAttribute('rel', 'stylesheet');
+                    el.setAttribute('type', 'text/css');
                 }
                 else {
-                    el.setAttribute('src', url + (url.indexOf('?') > -1 ? '&' : '?') + 'noCache=' + Date.now());
+                    el.setAttribute('type', 'text/javascript');
                 }
 
-                if (callback && typeof callback === 'function') {
-                    el.onload = function () {
-                        callback();
-                    };
+                var resourceUrl = url;
+                if (!(syn.Config && context.$string.toBoolean(syn.Config.IsClientCaching) == true)) {
+                    resourceUrl = url + (url.indexOf('?') > -1 ? '&' : '?') + 'noCache=' + Date.now();
                 }
 
-                head.insertBefore(el, head.firstChild);
+                el.onload = function () {
+                    clearLoadTimeout();
+                    resolve(el);
+                };
+
+                el.onerror = function () {
+                    clearLoadTimeout();
+                    delete $webform.resourcePromises[resourceID];
+                    syn.$l.eventLog(logName, 'url: ' + url + ', id: ' + resourceID + ' 리소스 로드 실패', 'Error');
+                    reject(new Error(logName + ': 리소스 로드 실패 - ' + url));
+                };
+
+                var timeout = Number(options.timeout) || 0;
+                if (timeout > 0) {
+                    timeoutID = setTimeout(function () {
+                        delete $webform.resourcePromises[resourceID];
+                        syn.$l.eventLog(logName, 'url: ' + url + ' 리소스 로드 시간 초과(' + timeout + 'ms)', 'Error');
+                        reject(new Error(logName + ': 리소스 로드 시간 초과 - ' + url));
+                    }, timeout);
+                }
+
+                if (isStyle == true) {
+                    el.setAttribute('href', resourceUrl);
+                    head.appendChild(el);
+                }
+                else {
+                    el.setAttribute('src', resourceUrl);
+                    head.insertBefore(el, head.firstChild);
+                }
+            });
+
+            if (hasExplicitID == true) {
+                $webform.resourcePromises[resourceID] = promise;
             }
+
+            return promise;
+        },
+
+        // var el = await syn.$w.loadScriptAsync('/lib/print-js/print.min.js', 'printjs');
+        loadScriptAsync(url, scriptID, options) {
+            return $webform.loadResourceAsync('script', url, scriptID, options);
+        },
+
+        // var el = await syn.$w.loadStyleAsync('/css/custom.css', 'customStyle');
+        loadStyleAsync(url, styleID, options) {
+            return $webform.loadResourceAsync('style', url, styleID, options);
+        },
+
+        loadScript(url, scriptID, callback) {
+            $webform.loadScriptAsync(url, scriptID).then(function () {
+                if (typeof callback === 'function') {
+                    callback();
+                }
+            }).catch(function () { });
 
             return $webform;
         },
 
         loadStyle(url, styleID, callback) {
-            var head;
-            var resourceID;
-            var heads = document.getElementsByTagName('head');
-            if (heads) {
-                head = heads[0];
-            }
-            else {
-                document.documentElement.insertBefore(document.createElement('head'), document.documentElement.firstChild);
-                head = document.getElementsByTagName('head')[0];
-            }
-
-            resourceID = styleID || 'id_' + syn.$l.random();
-
-            var styleTag = document.getElementById('scriptID');
-            if (styleTag) {
-                if (callback && typeof callback === 'function') {
+            $webform.loadStyleAsync(url, styleID).then(function () {
+                if (typeof callback === 'function') {
                     callback();
                 }
-            } else {
-                var el = document.createElement('link');
-                el.setAttribute('rel', 'stylesheet');
-                el.setAttribute('type', 'text/css');
-                el.setAttribute('id', resourceID);
-                if (syn.Config && context.$string.toBoolean(syn.Config.IsClientCaching) == true) {
-                    el.setAttribute('href', url);
-                }
-                else {
-                    el.setAttribute('href', url + (url.indexOf('?') > -1 ? '&' : '?') + 'noCache=' + Date.now());
-                }
-
-                head.appendChild(el);
-
-                if (callback && typeof callback === 'function') {
-                    callback();
-                }
-            }
+            }).catch(function () { });
 
             return $webform;
         },
@@ -4392,7 +4558,8 @@
             'activeControl', 'contentLoaded', 'addReadyCount', 'removeReadyCount', 'createSelection',
             'getTriggerOptions', 'scrollToTop', 'setFavicon', 'fileDownload', 'pseudoStyle', 'pseudoStyles',
             'isPageLoad', 'pageReadyTimeout', 'eventAddReady', 'eventRemoveReady', 'moduleReadyIntervalID',
-            'remainingReadyIntervalID', 'remainingReadyCount', 'defaultControlOptions', 'mappingModule'
+            'remainingReadyIntervalID', 'remainingReadyCount', 'defaultControlOptions', 'mappingModule',
+            'flushPageReady', 'readyAsync', 'ready', 'withReadyCount', 'pageReadyResolvers'
         ];
         browserOnlyMethods.forEach(method => { delete $webform[method]; });
     }

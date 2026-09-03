@@ -80,14 +80,13 @@
 | `getHtmlSetting` | `elID` | `object \| null` | 해당 에디터 초기화에 사용된 병합된 옵션 객체를 반환합니다. |
 | `getDependencyID` | `elID` | `string` | 현재 이미지 업로드에 사용 중인 임시 `dependencyID` 값을 반환합니다. |
 | `setDependencyID` | `elID`, `dependencyID` | 없음 | `dependencyID` 값을 변경합니다(주로 신규 저장 후 실제 키 값으로 교체할 때 사용). |
-| `updateDependencyID` | `elID`, `targetDependencyID`, `callback` | 없음 | 임시 `dependencyID`로 업로드된 파일들을, 저장이 끝난 뒤 실제 레코드 식별자(`targetDependencyID`)로 옮겨 연결합니다(서버의 `UpdateDependencyID` 액션 호출). 신규 등록 폼에서 임시로 이미지를 올려두었다가, 저장 성공 후 실제 PK로 소속을 변경할 때 사용합니다. |
+| `updateDependencyID` | `elID`, `targetDependencyID`, `callback`(선택) | 없음 / `Promise` | 임시 `dependencyID`로 업로드된 파일들을, 저장이 끝난 뒤 실제 레코드 식별자(`targetDependencyID`)로 옮겨 연결합니다(서버의 `UpdateDependencyID` 액션 호출). 신규 등록 폼에서 임시로 이미지를 올려두었다가, 저장 성공 후 실제 PK로 소속을 변경할 때 사용합니다. |
 | `resizeImage` | `file`, `maxSize` | `Promise` | 업로드 전 이미지를 캔버스로 리사이즈합니다(내부적으로 `images_upload_handler`가 사용). `maxSize`가 0 이하이면 600px 기준으로 축소합니다. |
-| `controlLoad` | `elID`, `setting` | 없음 | 컨트롤 초기화 진입점입니다. syn 프레임워크가 페이지 로드 시 자동으로 호출하며, 직접 호출할 필요는 없습니다. |
+| `controlLoad` | `elID`, `setting` | 없음 | 컨트롤 초기화 진입점입니다. syn 프레임워크가 페이지 로드 시 자동으로 호출하며, 직접 호출할 필요는 없습니다. TinyMCE 엔진이 아직 로드되지 않았으면 로드 완료(Promise)를 기다렸다가 초기화합니다. |
+| `controlLoadAsync` | `elID`, `setting` | `Promise` | `controlLoad`의 Promise 버전. 엔진 로드 + 에디터 초기화(`init_instance_callback`)까지 완료되면 resolve됩니다. 페이지 코드에서 에디터 준비를 `await`로 기다릴 때 사용합니다. |
+| `ready` | `elID` | `Promise` | 해당 `elID` 에디터의 초기화 완료를 나타내는 Promise를 반환합니다(`{elID}_documentReady` 이벤트와 동일 시점). `await syn.uicontrols.$htmleditor.ready(elID)` 형태로 사용합니다. |
 | `setLocale` | `elID`, `translations`, `control`, `options` | 없음 | 다국어 텍스트 적용 훅입니다. 현재 구현은 빈 함수(별도 동작 없음)입니다. |
-
-### ⚠️ 참고용 메서드 — 현재 구현에 알려진 제약(버그)이 있음
-
-`getEditorSetting(elID)`는 대기열(`editorPendings`)에서 아직 초기화되지 않은 컨트롤의 설정을 조회하려는 용도로 보이지만, 대기열에 항목을 넣을 때는 `elID` 속성명으로 저장하면서(`{ elID: elID, setting, intervalID }`) 조회 시에는 `item.id`(존재하지 않는 속성)와 비교합니다. 따라서 이 메서드는 항상 `null`을 반환합니다. 직접 호출할 필요는 없으며(프레임워크 내부에서도 사용되지 않음), 초기화된 컨트롤의 설정이 필요하면 `getHtmlSetting(elID)`을 사용하세요.
+| `getEditorSetting` | `elID` | `object \| null` | 아직 초기화되지 않고 대기열(`editorPendings`)에 있는 컨트롤의 `setting`을 조회합니다. 초기화가 끝난 컨트롤은 `getHtmlSetting(elID)`을 사용하세요. |
 
 ## 이벤트
 
@@ -135,7 +134,7 @@ if (editor) {
 ## 참고
 
 - 실제 구현 파일: `HtmlEditor.js`, `HtmlEditor.css`
-- 내부적으로 [TinyMCE](https://www.tiny.cloud/)를 사용하며, 엔진 스크립트(`/lib/tinymce/tinymce.min.js`)는 페이지에서 최초 1회만 비동기로 로드됩니다. TinyMCE가 아직 로드되지 않은 상태에서 여러 `<syn_htmleditor>`가 배치돼 있으면, 로드가 끝날 때까지 내부 대기열(`editorPendings`)에 쌓였다가 순서대로 초기화됩니다.
+- 내부적으로 [TinyMCE](https://www.tiny.cloud/)를 사용하며, 엔진 스크립트(`/lib/tinymce/tinymce.min.js`)는 `syn.$w.loadScriptAsync(..., 'tinymcecdn', { timeout: 60000 })`로 페이지에서 최초 1회만 로드됩니다(로드 Promise는 `$htmleditor.tinymceReady`에 보관). TinyMCE가 아직 로드되지 않은 상태에서 여러 `<syn_htmleditor>`가 배치돼 있으면, 로드 완료 Promise가 resolve될 때까지 내부 대기열(`editorPendings`)에 쌓였다가 순서대로 초기화됩니다. 이전 구현의 25ms `setInterval` 폴링은 제거되었습니다.
 - 이미지 업로드와 `repositoryID`의 관계: `syn-options`에 `repositoryID`를 지정하면, 컨트롤이 TinyMCE의 `images_upload_handler`를 자동으로 구성합니다. 사용자가 이미지를 붙여넣거나 드래그&드롭하면 다음 순서로 처리됩니다.
   1. 이미지 크기가 `imageFileSizeLimit`(기본 6MB)을 넘으면 업로드를 취소하고 알림을 띄웁니다.
   2. `{elID}_beforeUploadImageResize` 이벤트가 정의돼 있으면 그 함수로, 아니면 기본 `resizeImage`(최대 600px)로 이미지를 축소합니다.
@@ -143,4 +142,5 @@ if (editor) {
   4. 업로드 성공 후 서버에 파일의 실제 경로를 다시 조회(`pageActionHandler`의 `GetItem` 액션)해서 `<img src>`를 그 경로로 교체합니다.
   5. `repositoryID`를 지정하지 않으면 이미지 업로드 핸들러 자체가 등록되지 않아, 붙여넣은 이미지는 브라우저 로컬 `data:` URL 형태로 문서 안에 그대로 포함됩니다(서버에 저장되지 않음).
   - 신규 등록 화면처럼 저장 전에는 실제 레코드 식별자가 없어 임시 `dependencyID`로 이미지를 올려두고, 저장이 성공한 뒤에는 `updateDependencyID(elID, targetDependencyID, callback)`을 호출해 실제 레코드 식별자로 파일 소속을 옮기는 패턴을 사용합니다.
-- `getEditorSetting` 메서드는 현재 소스 기준으로 항상 `null`을 반환하는 알려진 버그가 있습니다. 초기화된 컨트롤의 설정 조회에는 `getHtmlSetting(elID)`을 사용하세요.
+- `getEditorSetting(elID)`은 아직 초기화 대기 중인(`editorPendings`) 컨트롤의 `setting`을 반환합니다. 초기화가 끝난 컨트롤은 `getHtmlSetting(elID)`을 사용하세요.
+- 에디터 준비 완료 시점을 코드에서 기다리려면 `{elID}_documentReady` 이벤트 대신 `await syn.uicontrols.$htmleditor.ready(elID)` 또는 `await syn.uicontrols.$htmleditor.controlLoadAsync(elID, setting)`을 사용할 수 있습니다.

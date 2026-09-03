@@ -20,7 +20,7 @@ DataSource는 화면에 표시되지 않는 `<syn_data>` 태그 하나로 선언
 - `id` : 페이지 내에서 이 DataSource를 가리키는 컨트롤 id(`elID`). `getValue`/`clear` 등 메서드 호출 시 이 값을 사용합니다.
 - `dataSourceID` : 다른 컨트롤이 `bindingID`로 참조할 저장소 이름. `elID`와 다른 문자열이어도 됩니다.
 - 값을 주고받을 화면 컨트롤(TextBox, CheckBox, Grid 등) 쪽에는 `syn-datafield="<필드명>"`과 `syn-options="{bindingID: '<dataSourceID>'}"`를 지정해야 자동으로 연결(binding)됩니다.
-- 연결은 `syn.uicontrols.$data.bindingSource(elID, dataSourceID)`가 담당하며, `bindingID` 옵션이 있는 컨트롤은 자신의 `controlLoad`에서 이 함수를 자동으로 호출합니다. DataSource를 사용하는 페이지에서 이 함수를 직접 호출할 일은 거의 없습니다.
+- 연결은 `syn.uicontrols.$data.bindingSource(elID, dataSourceID)`가 담당하며, `bindingID` 옵션이 있는 컨트롤은 자신의 `controlLoad`에서 이 함수를 자동으로 호출합니다. DataSource를 사용하는 페이지에서 이 함수를 직접 호출할 일은 거의 없습니다. 연결 완료 시점이 필요하면 `bindingSource(elID, dataSourceID, callback)` 또는 `await syn.uicontrols.$data.bindingSourceAsync(elID, dataSourceID)`를 사용합니다.
 
 ## Options (defaultSetting)
 
@@ -47,7 +47,9 @@ DataSource는 화면에 표시되지 않는 `<syn_data>` 태그 하나로 선언
 | `setValue(elID, value, meta)` | 요소 id, 설정할 값, (Grid/List/Chart용) 메타(참고용, 미사용) | 저장소 값을 일괄 설정. `storeType: 'Form'`이면 `value`의 키 중 `columns`에 선언된 필드만 저장소에 대입하고(미선언 필드는 경고 로그 후 무시), `storeType`이 배열(Grid 등)이면 각 행에 `Flag`가 없을 경우 `'R'`로 채운 뒤 배열을 통째로 대입함. 대상 필드/그리드에 `bindingID`로 연결된 화면 컨트롤이 있으면 `Object.defineProperty`로 걸린 접근자(setter)가 그 컨트롤의 `setValue`를 자동 호출해 화면에도 반영됨(양방향 바인딩). 반대 방향(화면 컨트롤의 `setValue` 직접 호출 → 저장소 반영)도 동일하게 동작함 |
 | `clear(elID, isControlLoad)` | 요소 id | `storeType: 'Form'`이면 `columns`에 정의된 각 필드를 `dataType`에 맞는 기본값(`string→''`, `number`/`numeric`/`int→0`, `bool`/`boolean→false`, 그 외`→null`)으로 되돌림. 배열(Grid)이면 `length = 0`으로 비움. 내부 저장소 값만 초기화하며, 이미 바인딩된 화면 컨트롤(TextBox 등)의 표시 값은 자동으로 지워지지 않음(clear 동작 중에는 바인딩 반응이 꺼져 있음) |
 | `getMetaStore(elID)` | 요소 id | `storeList`에 등록된 메타 정보(`dataSourceID`, `storeType`, `columns`) 조회 |
-| `bindingSource(elID, dataSourceID)` | 필드 컨트롤 id, dataSourceID | 필드 컨트롤(`syn-datafield` 지정)과 DataSource를 연결하고 `Object.defineProperty`로 getter/setter를 등록. `bindingID` 옵션이 있는 컨트롤이 자신의 `controlLoad`에서 자동 호출함 |
+| `bindingSource(elID, dataSourceID[, callback])` | 필드 컨트롤 id, dataSourceID, (선택) `callback(error, result)` | 필드 컨트롤(`syn-datafield` 지정)과 DataSource를 연결하고 `Object.defineProperty`로 getter/setter를 등록. 저장소(`$this.store[dataSourceID]`)가 아직 준비되지 않았으면 100ms 간격으로 최대 60초까지 재시도함. `callback`을 전달하면 연결 완료 시 `callback(null, true)`, 시간 초과 시 `callback(new Error(...))`로 통지. `bindingID` 옵션이 있는 컨트롤이 자신의 `controlLoad`에서 자동 호출함 |
+| `bindingSourceAsync(elID, dataSourceID[, options])` | 필드 컨트롤 id, dataSourceID, (선택) `{ timeout, interval }` | `bindingSource`의 Promise 버전. 연결 성공 시 `true`로 resolve, 저장소 준비 시간 초과 시 reject. `options.timeout` 기본 60000ms, `options.interval` 기본 100ms |
+| `applyBindingSource(elID, dataSourceID)` | (내부용) | 저장소가 준비된 뒤 실제 바인딩(`Object.defineProperty`)을 적용하는 내부 구현. 성공 `true` / 대상 요소 없음·중복 `false`. `bindingSource`·`bindingSourceAsync`가 대기 완료 후 호출함 |
 | `reactionGetValue` / `reactionSetValue` | (내부용) | 바인딩된 필드에 접근(get/set)할 때 실제로 연결된 컨트롤의 `getValue`/`setValue`를 호출해 주는 내부 구현. 직접 호출할 필요 없음 |
 | `setLocale(elID, translations, control, options)` | - | 현재 빈 함수로 구현되어 있어 동작 없음 |
 

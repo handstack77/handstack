@@ -679,14 +679,22 @@
         },
 
         getFileAction(options, callback) {
+            if (typeof callback !== 'function') {
+                return new Promise(function (resolve) {
+                    $fileclient.getFileAction(options, function (json) { resolve(json); });
+                });
+            }
+
             if ($string.isNullOrEmpty(options.repositoryID) == true || $object.isNullOrUndefined(options.action) == true) {
                 syn.$l.eventLog('getFileAction', '요청 정보 확인 필요', 'Warning');
+                callback(null);
                 return;
             }
 
             var setting = $fileclient.getFileManagerSetting();
             if ($object.isNullOrUndefined(setting) == true) {
                 syn.$l.eventLog('getFileAction', `${options.repositoryID} 정보 확인 필요`, 'Warning');
+                callback(null);
                 return;
             }
 
@@ -724,8 +732,8 @@
                     break;
                 default:
                     syn.$l.eventLog('getFileAction', 'action 확인 필요', 'Warning');
+                    callback(null);
                     return;
-                    break;
             }
 
             syn.$r.params['applicationID'] = $fileclient.applicationID;
@@ -735,6 +743,12 @@
         },
 
         getItem(elID, itemID, callback) {
+            if (typeof callback !== 'function') {
+                return new Promise(function (resolve) {
+                    $fileclient.getItem(elID, itemID, function (json) { resolve(json); });
+                });
+            }
+
             var setting = $fileclient.getFileSetting(elID);
             if (setting == null) {
                 var fileManager = $fileclient.getFileManager(elID);
@@ -764,6 +778,12 @@
         },
 
         getItems(elID, dependencyID, callback) {
+            if (typeof callback !== 'function') {
+                return new Promise(function (resolve) {
+                    $fileclient.getItems(elID, dependencyID, function (json) { resolve(json); });
+                });
+            }
+
             var setting = $fileclient.getFileSetting(elID);
             if (setting == null) {
                 var fileManager = $fileclient.getFileManager(elID);
@@ -793,6 +813,12 @@
         },
 
         updateDependencyID(elID, sourceDependencyID, targetDependencyID, callback) {
+            if (typeof callback !== 'function') {
+                return new Promise(function (resolve) {
+                    $fileclient.updateDependencyID(elID, sourceDependencyID, targetDependencyID, function (json) { resolve(json); });
+                });
+            }
+
             var setting = $fileclient.getFileSetting(elID);
             syn.$r.path = $fileclient.getRepositoryUrl() + '/' + setting.pageActionHandler;
             syn.$r.params['action'] = 'UpdateDependencyID';
@@ -806,6 +832,12 @@
         },
 
         updateFileName(elID, itemID, fileName, callback) {
+            if (typeof callback !== 'function') {
+                return new Promise(function (resolve) {
+                    $fileclient.updateFileName(elID, itemID, fileName, function (json) { resolve(json); });
+                });
+            }
+
             var setting = $fileclient.getFileSetting(elID);
             syn.$r.path = $fileclient.getRepositoryUrl() + '/' + setting.pageActionHandler;
             syn.$r.params['action'] = 'UpdateFileName';
@@ -873,11 +905,18 @@
     },
          */
         fileUpload(el, repositoryID, dependencyID, callback, uploadUrl) {
+            if (typeof callback !== 'function') {
+                return new Promise(function (resolve) {
+                    $fileclient.fileUpload(el, repositoryID, dependencyID, function (response) { resolve(response); }, uploadUrl);
+                });
+            }
+
             var result = null;
             el = $object.isString(el) == true ? syn.$l.get(el) : el;
             var setting = $fileclient.getFileSetting(el.id);
             if ($object.isNullOrUndefined(el) == true || $object.isNullOrUndefined(setting) == true) {
                 syn.$l.eventLog('fileUpload', `요청 정보 확인 필요`, 'Warning');
+                callback(null);
                 return;
             }
 
@@ -922,6 +961,9 @@
                 };
 
                 xhr.send(formData);
+            }
+            else {
+                callback(null);
             }
         },
 
@@ -1059,6 +1101,12 @@
         },
 
         deleteItem(elID, itemID, callback) {
+            if (typeof callback !== 'function') {
+                return new Promise(function (resolve) {
+                    $fileclient.deleteItem(elID, itemID, function (response) { resolve(response); });
+                });
+            }
+
             var setting = $fileclient.getFileSetting(elID);
             if (setting == null) {
                 var fileManager = $fileclient.getFileManager(elID);
@@ -1107,6 +1155,12 @@
         },
 
         deleteItems(elID, dependencyID, callback) {
+            if (typeof callback !== 'function') {
+                return new Promise(function (resolve) {
+                    $fileclient.deleteItems(elID, dependencyID, function (response) { resolve(response); });
+                });
+            }
+
             var setting = $fileclient.getFileSetting(elID);
             if (setting == null) {
                 var fileManager = $fileclient.getFileManager(elID);
@@ -1136,6 +1190,12 @@
         },
 
         uploadBlob(options, callback) {
+            if (typeof callback !== 'function') {
+                return new Promise(function (resolve) {
+                    $fileclient.uploadBlob(options, function (json) { resolve(json); });
+                });
+            }
+
             options = syn.$w.argumentsExtend({
                 repositoryID: null,
                 dependencyID: null,
@@ -1157,27 +1217,29 @@
                 xhr.onload = function () {
                     if (xhr.status != 200) {
                         syn.$l.eventLog('$fileclient.uploadBlob', 'HTTP Error code: {0}, text: {1}'.format(xhr.status, xhr.statusText), 'Warning');
+                        callback(null);
                         return;
                     }
 
                     try {
                         var responseText = xhr.responseText;
                         if ($string.isNullOrEmpty(responseText) == false) {
-                            if (callback) {
-                                callback(JSON.parse(responseText));
-                            }
+                            callback(JSON.parse(responseText));
                         }
                         else {
                             syn.$w.alert('Blob 파일 업로드 정보 확인 필요');
+                            callback(null);
                         }
                     } catch (error) {
                         syn.$w.alert('Blob 파일 업로드 오류: {0}'.format(error.message));
                         syn.$l.eventLog('$fileclient.uploadBlob', error, 'Warning');
+                        callback(null);
                     }
                 };
 
                 xhr.onerror = function () {
                     syn.$l.eventLog('$fileclient.uploadBlob', 'HTTP Error code: {0}, text: {1}'.format(xhr.status, xhr.statusText), 'Warning');
+                    callback(null);
                 };
 
                 var formData = new FormData();
@@ -1189,10 +1251,17 @@
                 var message = 'Blob 파일 업로드 필수 항목 확인 필요';
                 syn.$w.alert(message);
                 syn.$l.eventLog('$fileclient.uploadBlob', message, 'Warning');
+                callback(null);
             }
         },
 
         uploadDataUri(options, callback) {
+            if (typeof callback !== 'function') {
+                return new Promise(function (resolve) {
+                    $fileclient.uploadDataUri(options, function (json) { resolve(json); });
+                });
+            }
+
             options = syn.$w.argumentsExtend({
                 repositoryID: null,
                 dependencyID: null,
@@ -1210,10 +1279,17 @@
                 var message = 'DataUri 파일 업로드 필수 항목 확인 필요';
                 syn.$w.alert(message);
                 syn.$l.eventLog('$fileclient.uploadDataUri', message, 'Warning');
+                callback(null);
             }
         },
 
         uploadBlobUri(options, callback) {
+            if (typeof callback !== 'function') {
+                return new Promise(function (resolve) {
+                    $fileclient.uploadBlobUri(options, function (json) { resolve(json); });
+                });
+            }
+
             options = syn.$w.argumentsExtend({
                 repositoryID: null,
                 dependencyID: null,
@@ -1224,6 +1300,11 @@
 
             if ($string.isNullOrEmpty(options.repositoryID) == false && $string.isNullOrEmpty(options.dependencyID) == false && $string.isNullOrEmpty(options.blobUri) == false) {
                 syn.$l.blobUrlToBlob(options.blobUri, function (blobInfo) {
+                    if (!blobInfo) {
+                        syn.$l.eventLog('$fileclient.uploadBlobUri', 'blobUri 에서 Blob 을 가져오지 못했습니다.', 'Warning');
+                        callback(null);
+                        return;
+                    }
                     options.blobInfo = blobInfo;
                     options.mimeType = options.blobInfo.type;
                     $fileclient.uploadBlob(options, callback);
@@ -1233,6 +1314,7 @@
                 var message = 'BlobUri 파일 업로드 필수 항목 확인 필요';
                 syn.$w.alert(message);
                 syn.$l.eventLog('$fileclient.uploadBlobUri', message, 'Warning');
+                callback(null);
             }
         },
 
@@ -1281,6 +1363,12 @@
         },
 
         executeProxy(url, callback) {
+            if (typeof callback !== 'function') {
+                return new Promise(function (resolve) {
+                    $fileclient.executeProxy(url, function (json) { resolve(json); });
+                });
+            }
+
             var xhr = syn.$w.xmlHttp();
 
             xhr.onreadystatechange = function () {
@@ -1288,16 +1376,16 @@
                     if (xhr.status === 200) {
                         var responseText = xhr.responseText;
                         if ($string.isNullOrEmpty(responseText) == false) {
-                            if (callback) {
-                                callback(JSON.parse(responseText));
-                            }
+                            callback(JSON.parse(responseText));
                         }
                         else {
                             syn.$w.alert('파일 응답 정보 확인 필요');
+                            callback(null);
                         }
                     }
                     else {
                         syn.$l.eventLog('$fileclient.executeProxy', 'async url: ' + url + ', status: ' + xhr.status.toString() + ', responseText: ' + xhr.responseText, 'Error');
+                        callback(null);
                     }
                 }
             };

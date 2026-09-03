@@ -319,8 +319,15 @@
         },
 
         find(setting, callback) {
+            if (typeof callback !== 'function') {
+                return new Promise(function (resolve) {
+                    $codepicker.find(setting, function (result) { resolve(result); });
+                });
+            }
+
             if ($object.isNullOrUndefined(setting.dataSourceID) == true) {
                 syn.$l.eventLog('$codepicker.find', 'dataSourceID 설정 없음', 'Debug');
+                callback(undefined);
                 return;
             }
 

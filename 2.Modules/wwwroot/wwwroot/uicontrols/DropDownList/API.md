@@ -52,7 +52,7 @@ DropDownList는 네이티브 `<select>` 태그를 [tail.select](https://github.c
 | --- | --- |
 | `controlLoad(elID, setting)` | 컨트롤 초기화. 로컬/원격 데이터소스를 읽어 옵션을 구성하고 tail.select로 감쌉니다. 보통 페이지 로더가 자동으로 호출하므로 직접 호출할 일은 거의 없습니다. |
 | `loadData(elID, dataSource, required)` | 이미 가지고 있는 데이터(`{ CodeColumnID, ValueColumnID, DataSource: [...] }` 형태)로 옵션 목록을 즉시 채웁니다. |
-| `dataRefresh(elID, setting, callback)` | 데이터소스를 다시 조회해서 옵션을 갱신합니다. `setting.deleteCache`가 `true`(기본값)면 기존 캐시를 지우고 새로 조회합니다. |
+| `dataRefresh(elID, setting, callback)` | 데이터소스를 다시 조회해서 옵션을 갱신합니다. `setting.deleteCache`가 `true`(기본값)면 기존 캐시를 지우고 새로 조회합니다. `callback`을 생략하면 `Promise`(갱신 완료 시 resolve)를 반환합니다. |
 | `controlReload(elID)` | tail.select picker의 화면(UI)만 다시 그립니다. 값이나 옵션 자체를 바꾸지는 않습니다. |
 | `getValue(elID, meta)` | 현재 선택된 `<select>`의 값을 반환합니다. |
 | `setValue(elID, value, meta)` | 값을 코드값 기준으로 설정하고 화면을 갱신합니다. |

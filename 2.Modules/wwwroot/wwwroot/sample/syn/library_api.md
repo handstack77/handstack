@@ -520,18 +520,19 @@ var { value, mime } = syn.$l.dataUriToText('data:text/plain;base64,aGVsbG8=');
 ```
 
 ### `syn.$l.blobToDataUri(blob, callback)`
-설명: `FileReader`를 사용해 `Blob`을 DataURI 문자열로 변환합니다(비동기, 콜백 기반).
+설명: `FileReader`를 사용해 `Blob`을 DataURI 문자열로 변환합니다. `callback`을 생략하면 `Promise`를 반환합니다(변환 실패 시 `null` resolve, 잘못된 입력이면 reject).
 
 | 매개변수 | 타입 | 설명 |
 |---|---|---|
 | blob | Blob | 변환할 Blob |
-| callback | function | `(dataUri) => void` |
+| callback | function | `(dataUri) => void` (생략 가능) |
 
-반환값: 없음(콜백으로 결과 전달)
+반환값: `callback` 전달 시 없음 / 생략 시 `Promise<string \| null>`
 
 예시
 ```javascript
 syn.$l.blobToDataUri(blob, (dataUri) => console.log(dataUri));
+const dataUri = await syn.$l.blobToDataUri(blob);
 ```
 
 ### `syn.$l.blobToDownload(blob, fileName)`
@@ -550,33 +551,35 @@ syn.$l.blobToDownload(blob, 'hello.txt');
 ```
 
 ### `syn.$l.blobUrlToBlob(url, callback)`
-설명: Blob URL(`blob:...`)이나 일반 URL을 `fetch`로 조회하여 `Blob`으로 반환합니다(비동기, 콜백 기반).
+설명: Blob URL(`blob:...`)이나 일반 URL을 `fetch`로 조회하여 `Blob`으로 반환합니다. `callback`을 생략하면 `Promise`를 반환합니다(조회 실패 시 `null` resolve).
 
 | 매개변수 | 타입 | 설명 |
 |---|---|---|
 | url | string | 조회할 URL |
-| callback | function | `(blob) => void` |
+| callback | function | `(blob) => void` (생략 가능) |
 
-반환값: 없음(콜백으로 결과 전달)
+반환값: `callback` 전달 시 없음 / 생략 시 `Promise<Blob \| null>`
 
 예시
 ```javascript
 syn.$l.blobUrlToBlob(blobUrl, (blob) => console.log(blob.size));
+const blob = await syn.$l.blobUrlToBlob(blobUrl);
 ```
 
 ### `syn.$l.blobUrlToDataUri(url, callback)`
-설명: `blobUrlToBlob` + `blobToDataUri`를 연달아 수행하여 URL을 DataURI로 변환합니다.
+설명: `blobUrlToBlob` + `blobToDataUri`를 연달아 수행하여 URL을 DataURI로 변환합니다. `callback`을 생략하면 `Promise`를 반환합니다(실패 시 `null` resolve).
 
 | 매개변수 | 타입 | 설명 |
 |---|---|---|
 | url | string | 조회할 URL |
-| callback | function | `(dataUri) => void` |
+| callback | function | `(dataUri) => void` (생략 가능) |
 
-반환값: 없음(콜백으로 결과 전달)
+반환값: `callback` 전달 시 없음 / 생략 시 `Promise<string \| null>`
 
 예시
 ```javascript
 syn.$l.blobUrlToDataUri(blobUrl, (dataUri) => console.log(dataUri));
+const dataUri = await syn.$l.blobUrlToDataUri(blobUrl);
 ```
 
 ### `syn.$l.blobToBase64(blob, base64Only = false)`

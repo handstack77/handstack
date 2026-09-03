@@ -61,7 +61,7 @@ transaction: {
 `options`에는 `message`, `dynamic`, `authorize`, `commandType`, `returnType`, `transactionScope`, `transactionLog`, `endpoint` 등의 공통 옵션이 병합되어 전달됩니다(모두 syn.js 소스에 정의된 기본값이며, 특정 업무 데이터 필드가 아닙니다).
 
 ### 동적 스크립트/스타일 로딩
-- `loadScript(url, scriptID, callback)` / `loadStyle(url, styleID, callback)`: 외부 `<script>`/`<link>` 리소스를 중복 없이 `<head>`에 추가합니다.
+- `loadScript(url, scriptID, callback)` / `loadStyle(url, styleID, callback)`: 외부 `<script>`/`<link>` 리소스를 중복 없이 `<head>`에 추가합니다. `callback`은 실제 로드 완료(`onload`) 시 호출됩니다. Promise가 필요하면 `loadScriptAsync(url, scriptID, options)` / `loadStyleAsync(url, styleID, options)`를 사용합니다(`options.timeout` 지정 가능).
 - `getDynamicStyle(styleID)` / `addCssRule(rules, styleID)` / `removeCssRule(identifier, styleID)`: 런타임에 `<style>` 시트를 생성/조회하고 CSS 규칙을 추가·삭제합니다.
 - `pseudoStyle(elID, selector, cssText)` / `pseudoStyles(elID, styles)`: 지정한 `<style>` 엘리먼트의 내용을 selector/cssText 조합으로 통째로 교체합니다.
 ```js
@@ -85,7 +85,7 @@ syn.$w.stopAllIntersections();
 ## 실전 예제 페이지
 `/sample/syn/webforms.html` 예제에서 다음 항목을 실습할 수 있습니다.
 - 속성: version
-- 메서드: setStorage(), getStorage(), removeStorage(), getStorageKeys(), activeControl(), argumentsExtend(), contentLoaded(), getTriggerOptions(), triggerAction(), getControlModule(), tryAddFunction(), getterValue(), setterValue(), transactionAction(), transaction(), transactionDirect(), transactionObject(), scrollToTop(), scrollToElement(), setFavicon(), fileDownload(), sleep(), purge(), setServiceObject(), setServiceClientHeader(), xmlHttp(), xmlParser(), apiHttp(), loadScript(), loadStyle(), getDynamicStyle(), addCssRule(), removeCssRule(), pseudoStyle(), pseudoStyles(), fetchText(), fetchJson(), loadJson(), fetchImage(), startIntersection(), stopIntersection(), stopAllIntersections()
+- 메서드: setStorage(), getStorage(), removeStorage(), getStorageKeys(), activeControl(), argumentsExtend(), contentLoaded(), getTriggerOptions(), triggerAction(), getControlModule(), tryAddFunction(), getterValue(), setterValue(), transactionAction(), transaction(), transactionDirect(), transactionObject(), scrollToTop(), scrollToElement(), setFavicon(), fileDownload(), sleep(), purge(), setServiceObject(), setServiceClientHeader(), xmlHttp(), xmlParser(), apiHttp(), loadScript(), loadScriptAsync(), loadStyle(), loadStyleAsync(), getDynamicStyle(), addCssRule(), removeCssRule(), pseudoStyle(), pseudoStyles(), fetchText(), fetchJson(), loadJson(), loadJsonAsync(), fetchImage(), ready(), readyAsync(), withReadyCount(), startIntersection(), stopIntersection(), stopAllIntersections()
 
 ## 주의 사항
 - `GD01` 행(거래 실행: `transactionAction()`/`transaction()`, `transactionDirect()`)은 실제 HandStack 백엔드/거래 모듈이 연결되어 있어야 정상 동작합니다. 이 예제 페이지를 백엔드 없이 단독으로 열면 해당 항목은 오류 메시지가 표시되거나 빈 결과가 반환됩니다 — 이는 정상적인 동작이며 페이지 자체의 오류가 아닙니다.

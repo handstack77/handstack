@@ -231,21 +231,60 @@
             }
         },
 
-        bindingSource(elID, dataSourceID, elapsedTime) {
+        // bindingSource(elID, dataSourceID)
+        // bindingSource(elID, dataSourceID, callback)              - callback(error, result)
+        // bindingSource(elID, dataSourceID, elapsedTime, callback) - 내부 재귀 호출용
+        bindingSource(elID, dataSourceID, elapsedTime, callback) {
+            if (typeof elapsedTime === 'function') {
+                callback = elapsedTime;
+                elapsedTime = 0;
+            }
+
             var dataSource = $this.store[dataSourceID];
             if ($object.isNullOrUndefined(dataSource) == true) {
                 elapsedTime = (elapsedTime || 0) + 100;
                 if (elapsedTime > 60000) {
                     syn.$l.eventLog('$data.bindingSource', '"{0}" dataSourceID 구성 대기 시간 초과(60초) - elID: {1}'.format(dataSourceID, elID), 'Warning');
+                    if (typeof callback === 'function') {
+                        callback(new Error('bindingSource timeout: ' + dataSourceID));
+                    }
                     return;
                 }
 
                 setTimeout(function () {
-                    $data.bindingSource(elID, dataSourceID, elapsedTime);
+                    $data.bindingSource(elID, dataSourceID, elapsedTime, callback);
                 }, 100);
                 return;
             }
 
+            var result = $data.applyBindingSource(elID, dataSourceID);
+            if (typeof callback === 'function') {
+                callback(null, result);
+            }
+        },
+
+        // await syn.uicontrols.$data.bindingSourceAsync(elID, dataSourceID);
+        bindingSourceAsync(elID, dataSourceID, options) {
+            options = syn.$w.argumentsExtend({ timeout: 60000, interval: 100 }, options);
+            return (async function () {
+                var elapsed = 0;
+                while ($object.isNullOrUndefined($this.store[dataSourceID]) == true) {
+                    if (elapsed >= options.timeout) {
+                        syn.$l.eventLog('$data.bindingSourceAsync', '"{0}" dataSourceID 구성 대기 시간 초과 - elID: {1}'.format(dataSourceID, elID), 'Warning');
+                        throw new Error('bindingSource timeout: ' + dataSourceID);
+                    }
+
+                    await syn.$w.sleep(options.interval);
+                    elapsed += options.interval;
+                }
+
+                return $data.applyBindingSource(elID, dataSourceID);
+            })();
+        },
+
+        // 스토어(dataSource) 준비 완료 후 실제 바인딩(Object.defineProperty) 적용. 성공 true / 대상 없음·중복 false
+        applyBindingSource(elID, dataSourceID) {
+            var dataSource = $this.store[dataSourceID];
             var el = syn.$l.get(elID + '_hidden') || syn.$l.get(elID);
             if ($object.isNullOrUndefined(el) == false) {
                 var tagName = el.tagName.toUpperCase();
@@ -347,17 +386,22 @@
                             configurable: true,
                             enumerable: true
                         });
+
+                        return true;
                     }
                     else {
                         syn.$l.eventLog('$data.bindingSource', 'binding 정보 확인 필요 - elID: {0}, dataSourceID: {1}, dataFieldID: {2}, controlType: {3}, '.format(elID, dataSourceID, dataFieldID, controlType), 'Warning');
+                        return false;
                     }
                 }
                 else {
                     syn.$l.eventLog('$data.bindingSource', 'dataFieldID 확인 필요', 'Warning');
+                    return false;
                 }
             }
             else {
                 syn.$l.eventLog('$data.bindingSource', '"{0}" elID 확인 필요'.format(elID), 'Warning');
+                return false;
             }
         },
 

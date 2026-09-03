@@ -112,6 +112,12 @@
         },
 
         dataRefresh(elID, setting, callback) {
+            if (typeof callback !== 'function') {
+                return new Promise(function (resolve) {
+                    $multiselect.dataRefresh(elID, setting, function () { resolve(); });
+                });
+            }
+
             setting = setting || {};
             setting.elID = elID;
             setting.storeSourceID = setting.storeSourceID || setting.dataSourceID;

@@ -831,6 +831,22 @@ syn.$m.removeClass('div1'); // className 전체 초기화
 syn.$m.addClass('div1', 'highlight').fade('div1', { duration: 1000, to: 0.5 });
 ```
 
+### fadeAsync(el, options)
+
+`fade`의 Promise 버전. 애니메이션이 끝나면 대상 엘리먼트(`this`)로 resolve하며, 대상을 찾지 못하면 `null`로 resolve합니다. `options.callback`을 함께 전달하면 resolve 전에 호출됩니다.
+
+| 이름 | 타입 | 설명 |
+| --- | --- | --- |
+| el | HTMLElement \| string | 대상 엘리먼트 또는 id |
+| options | object (선택) | `fade`와 동일 |
+
+반환값: `Promise<HTMLElement \| null>`
+
+```javascript
+await syn.$m.fadeAsync('div1', { duration: 1000, to: 0 });
+syn.$m.hide('div1');
+```
+
 ### getClassRegEx(css)
 
 지정된 className을 검색하기 위한 정규식(RegExp)을 생성합니다. 동일한 className은 캐시에서 재사용합니다.

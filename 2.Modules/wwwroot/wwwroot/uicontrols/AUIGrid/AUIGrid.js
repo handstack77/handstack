@@ -1096,6 +1096,12 @@
         },
 
         dataRefresh(elID, setting, callback) {
+            if (typeof callback !== 'function') {
+                return new Promise(function (resolve) {
+                    $auigrid.dataRefresh(elID, setting, function () { resolve(); });
+                });
+            }
+
             var gridID = $auigrid.getGridID(elID);
             if ($object.isNullOrUndefined(gridID) == true) {
                 gridID = elID.replace('#', '');
@@ -2381,6 +2387,15 @@
 
         // syn.uicontrols.$auigrid.exportAsString('grdDataList', { type: 'csv', callback: (data) => { console.log(data)} });
         exportAsString(elID, options) {
+            options = options || {};
+            if ($object.isFunction(options.callback) == false) {
+                return new Promise(function (resolve) {
+                    var promiseOptions = syn.$w.argumentsExtend({}, options);
+                    promiseOptions.callback = function (dataString) { resolve(dataString); };
+                    $auigrid.exportAsString(elID, promiseOptions);
+                });
+            }
+
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
                 var defaultOptions = {
@@ -2391,23 +2406,23 @@
 
                 options = syn.$w.argumentsExtend(defaultOptions, options);
 
-                if ($object.isFunction(options.callback) == true) {
-                    options.localControlFunc = options.callback;
-                    switch (options.type) {
-                        case 'csv':
-                            AUIGrid.exportToCsv(gridID, options);
-                            break;
-                        case 'txt':
-                            AUIGrid.exportToTxt(gridID, options);
-                            break;
-                        case 'xml':
-                            AUIGrid.exportToXml(gridID, options);
-                            break;
-                        case 'json':
-                            AUIGrid.exportToJson(gridID, options);
-                            break;
-                    }
+                options.localControlFunc = options.callback;
+                switch (options.type) {
+                    case 'csv':
+                        AUIGrid.exportToCsv(gridID, options);
+                        break;
+                    case 'txt':
+                        AUIGrid.exportToTxt(gridID, options);
+                        break;
+                    case 'xml':
+                        AUIGrid.exportToXml(gridID, options);
+                        break;
+                    case 'json':
+                        AUIGrid.exportToJson(gridID, options);
+                        break;
                 }
+            } else {
+                options.callback(null);
             }
         },
 
@@ -2457,6 +2472,12 @@
         },
 
         importFile(elID, callback) {
+            if (typeof callback !== 'function') {
+                return new Promise(function (resolve) {
+                    $auigrid.importFile(elID, function (result, fileName) { resolve({ result: result, fileName: fileName }); });
+                });
+            }
+
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
                 var fileEL = syn.$l.get('{0}_ImportFile'.format(elID));

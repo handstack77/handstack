@@ -81,56 +81,114 @@
             });
         },
 
+        editorReady: {},
+
+        // TinyMCE 스크립트 URL을 syn.Config(DomainBaseUrl/ProxyPathName) 기준으로 계산
+        resolveEditorScriptUrl() {
+            if ($string.isNullOrEmpty(syn.Config.DomainBaseUrl) == true || syn.Config.DomainBaseUrl == location.origin) {
+                if (syn.Config && $string.isNullOrEmpty(syn.Config.ProxyPathName) == false) {
+                    return `${syn.$w.proxyBasePath}/lib/tinymce/tinymce.min.js`;
+                }
+
+                return '/lib/tinymce/tinymce.min.js';
+            }
+
+            if (syn.Config && $string.isNullOrEmpty(syn.Config.ProxyPathName) == false) {
+                return `${syn.Config.DomainBaseUrl}${syn.$w.proxyBasePath}/lib/tinymce/tinymce.min.js`;
+            }
+
+            return `${syn.Config.DomainBaseUrl}/lib/tinymce/tinymce.min.js`;
+        },
+
+        // TinyMCE 로드 완료를 나타내는 Promise. window.tinymce 존재 시 즉시 resolve
+        loadEditorScriptAsync() {
+            if (window.tinymce) {
+                return Promise.resolve();
+            }
+
+            if (!$htmleditor.tinymceReady) {
+                $htmleditor.tinymceReady = syn.$w.loadScriptAsync($htmleditor.resolveEditorScriptUrl(), 'tinymcecdn', { timeout: 60000 });
+                // 로드 실패 시 캐시를 비워 다음 호출에서 재시도 가능하게 함
+                $htmleditor.tinymceReady.catch(function () {
+                    $htmleditor.tinymceReady = null;
+                });
+            }
+
+            return $htmleditor.tinymceReady;
+        },
+
+        // elID 에디터 초기화(TinyMCE init_instance_callback) 완료를 나타내는 deferred 반환
+        getEditorReady(elID) {
+            if (!$htmleditor.editorReady[elID]) {
+                var deferred = {};
+                deferred.promise = new Promise(function (resolve) {
+                    deferred.resolve = resolve;
+                });
+                $htmleditor.editorReady[elID] = deferred;
+            }
+
+            return $htmleditor.editorReady[elID];
+        },
+
+        // await syn.uicontrols.$htmleditor.ready(elID); - 에디터 초기화 완료 대기
+        ready(elID) {
+            return $htmleditor.getEditorReady(elID).promise;
+        },
+
         concreate() {
             if (window.tinymce) {
+                return;
             }
-            else {
-                if ($string.isNullOrEmpty(syn.Config.DomainBaseUrl) == true || syn.Config.DomainBaseUrl == location.origin) {
-                    if (syn.Config && $string.isNullOrEmpty(syn.Config.ProxyPathName) == false) {
-                        syn.$w.loadScript(`${syn.$w.proxyBasePath}/lib/tinymce/tinymce.min.js`);
-                    }
-                    else {
-                        syn.$w.loadScript('/lib/tinymce/tinymce.min.js');
-                    }
-                }
-                else {
-                    if (syn.Config && $string.isNullOrEmpty(syn.Config.ProxyPathName) == false) {
-                        syn.$w.loadScript(`${syn.Config.DomainBaseUrl}${syn.$w.proxyBasePath}/lib/tinymce/tinymce.min.js`);
-                    }
-                    else {
-                        syn.$w.loadScript(`${syn.Config.DomainBaseUrl}/lib/tinymce/tinymce.min.js`);
-                    }
 
-                    $htmleditor.defaultSetting.viewerHtml = $htmleditor.defaultSetting.viewerHtml.replace(/<base href="\/">/, `<base href="${syn.Config.DomainBaseUrl}/">`);
-                }
+            if ($string.isNullOrEmpty(syn.Config.DomainBaseUrl) == false && syn.Config.DomainBaseUrl != location.origin) {
+                $htmleditor.defaultSetting.viewerHtml = $htmleditor.defaultSetting.viewerHtml.replace(/<base href="\/">/, `<base href="${syn.Config.DomainBaseUrl}/">`);
             }
+
+            $htmleditor.loadEditorScriptAsync().catch(function (error) {
+                syn.$l.eventLog('$htmleditor.concreate', 'TinyMCE 로드 실패: ' + error, 'Error');
+            });
         },
 
         controlLoad(elID, setting) {
             if (window.tinymce) {
                 $htmleditor.lazyControlLoad(elID, setting);
+                return;
             }
-            else {
-                var editorIntervalID = setInterval(function () {
-                    if (window.tinymce) {
-                        var length = $htmleditor.editorPendings.length;
-                        for (var i = 0; i < length; i++) {
-                            var item = $htmleditor.editorPendings[i];
 
-                            clearInterval(item.intervalID);
-                            $htmleditor.lazyControlLoad(item.elID, item.setting);
-                        }
+            $htmleditor.editorPendings.push({
+                elID: elID,
+                setting: $object.clone(setting)
+            });
 
-                        $htmleditor.editorPendings.length = 0;
-                    }
-                }, 25);
-
-                $htmleditor.editorPendings.push({
-                    elID: elID,
-                    setting: $object.clone(setting),
-                    intervalID: editorIntervalID
-                });
+            if ($htmleditor.isPendingScheduled == true) {
+                return;
             }
+            $htmleditor.isPendingScheduled = true;
+
+            $htmleditor.loadEditorScriptAsync().then(function () {
+                $htmleditor.isPendingScheduled = false;
+
+                var pendings = $htmleditor.editorPendings.splice(0, $htmleditor.editorPendings.length);
+                for (var i = 0; i < pendings.length; i++) {
+                    $htmleditor.lazyControlLoad(pendings[i].elID, pendings[i].setting);
+                }
+            }).catch(function (error) {
+                $htmleditor.isPendingScheduled = false;
+                syn.$l.eventLog('$htmleditor.controlLoad', 'TinyMCE 로드 실패: ' + error, 'Error');
+            });
+        },
+
+        // await syn.uicontrols.$htmleditor.controlLoadAsync(elID, setting); - 에디터 로드+초기화 완료 대기
+        controlLoadAsync(elID, setting) {
+            if (window.tinymce) {
+                $htmleditor.lazyControlLoad(elID, setting);
+                return $htmleditor.ready(elID);
+            }
+
+            return $htmleditor.loadEditorScriptAsync().then(function () {
+                $htmleditor.lazyControlLoad(elID, $object.clone(setting));
+                return $htmleditor.ready(elID);
+            });
         },
 
         // var setting = $htmleditor.getEditorSetting(elID);
@@ -140,7 +198,7 @@
             var length = $htmleditor.editorPendings.length;
             for (var i = 0; i < length; i++) {
                 var item = $htmleditor.editorPendings[i];
-                if (item.id == elID) {
+                if (item.elID == elID) {
                     result = item.setting;
                     break;
                 }
@@ -151,6 +209,10 @@
 
         lazyControlLoad(elID, setting) {
             var el = syn.$l.get(elID);
+
+            if ($htmleditor.editorReady[elID]) {
+                delete $htmleditor.editorReady[elID];
+            }
 
             setting = syn.$w.argumentsExtend($htmleditor.defaultSetting, setting);
 
@@ -528,6 +590,8 @@
                 if (eventHandler) {
                     eventHandler.apply(el, [elID, editor]);
                 }
+
+                $htmleditor.getEditorReady(elID).resolve(editor);
             };
 
             tinymce.addI18n('ko_KR', {
@@ -1108,6 +1172,12 @@
         },
 
         updateDependencyID(elID, targetDependencyID, callback) {
+            if (typeof callback !== 'function') {
+                return new Promise(function (resolve) {
+                    $htmleditor.updateDependencyID(elID, targetDependencyID, function (json) { resolve(json); });
+                });
+            }
+
             var setting = $htmleditor.getHtmlSetting(elID);
             syn.$r.path = setting.fileManagerServer + setting.fileManagerPath + '/' + setting.pageActionHandler;
             syn.$r.params['action'] = 'UpdateDependencyID';

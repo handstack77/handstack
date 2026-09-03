@@ -108,7 +108,7 @@ qcn.groupware 실사용 기준 300회 이상 쓰이는, 이 저장소의 실무 
 | `setCellMerge(elID, isMerged)` / `getMergeItems` / `hasMerge` | 셀 병합 |
 | `setFixedColumnCount` / `setFixedRowCount` | 고정 열/행 개수 변경 |
 | `setFooter(elID, footerLayout, isChangeFooter)` | 하단 합계 영역 구성 |
-| `exportToObject` / `exportAsString(elID, options)` / `exportFile(elID, options)` / `importFile(elID, callback)` | 내보내기/가져오기 |
+| `exportToObject` / `exportAsString(elID, options)` / `exportFile(elID, options)` / `importFile(elID, callback)` | 내보내기/가져오기. `exportAsString`은 `options.callback` 생략 시, `importFile`은 `callback` 생략 시 `Promise` 반환 |
 | `checkEditValue(elID)` / `checkUniqueValueCol` / `checkValueCountCol` / `checkEmptyValueCol(s)` | 유효성 검사 |
 | `validateGridData(elID, dataField)` | 컬럼 데이터 타입 기준 유효성 검사 |
 | `getGridControl` 대응: `getGridID(elID)` | 내부 AUIGrid ID(`'#elID'`) 반환 — 이후 `AUIGrid.*` 원본 API를 직접 호출할 때 사용 |

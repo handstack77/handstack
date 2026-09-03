@@ -17,11 +17,7 @@
         translateControls: [],
 
         concreate() {
-            $resource.remainingReadyIntervalID = setInterval(function () {
-                if (syn.$w.isPageLoad == true) {
-                    clearInterval($resource.remainingReadyIntervalID);
-                    $resource.remainingReadyIntervalID = null;
-
+            syn.$w.readyAsync().then(function () {
                     var els = document.querySelectorAll('[syn-i18n]');
                     for (var i = 0, length = els.length; i < length; i++) {
                         var el = els[i];
@@ -150,8 +146,7 @@
                     if (syn.Config && context.$string.toBoolean(syn.Config.IsLocaleTranslations) == true && mod.config && (context.$string.isNullOrEmpty(mod.config.isLocaleTranslations) == true || context.$string.toBoolean(mod.config.isLocaleTranslations) == true)) {
                         $resource.setLocale($resource.localeID);
                     }
-                }
-            }, 25);
+            });
         },
 
         add(id, val) {

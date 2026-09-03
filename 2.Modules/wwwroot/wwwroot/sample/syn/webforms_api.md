@@ -238,12 +238,12 @@
 ## 스크립트/스타일 로딩
 
 ### `syn.$w.loadScript(url, scriptID, callback)`
-- 설명: 외부 `<script>` 리소스를 `<head>`에 동적으로 추가합니다. 동일한 `scriptID`가 이미 있으면 다시 추가하지 않고 `callback`만 실행합니다.
+- 설명: 외부 `<script>` 리소스를 `<head>`에 동적으로 추가합니다. 동일한 `scriptID`가 이미 있으면 다시 추가하지 않습니다. `callback`은 스크립트가 실제로 로드 완료(`onload`)된 뒤 호출되며, 로드 실패 시에는 호출되지 않고 `syn.$l.eventLog`로 오류가 기록됩니다.
 - 매개변수
   | 이름 | 타입 | 필수 | 설명 |
   |---|---|---|---|
   | url | `string` | Y | 스크립트 URL |
-  | scriptID | `string` | N | 중복 방지를 위한 엘리먼트 ID(생략 시 자동 생성) |
+  | scriptID | `string` | N | 중복 방지를 위한 엘리먼트 ID(생략 시 자동 생성). 명시하면 동일 리소스에 대한 중복 로드를 방지(single-flight)합니다. |
   | callback | `function()` | N | 로드 완료 콜백 |
 - 반환값: `syn.$w`
 - 예시
@@ -251,8 +251,22 @@
   syn.$w.loadScript('https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.13.6/underscore-min.js');
   ```
 
+### `syn.$w.loadScriptAsync(url, scriptID, options)`
+- 설명: `loadScript`의 Promise 버전입니다. 스크립트 로드 완료 시 `resolve`, 실패(`onerror`)/시간 초과 시 `reject`됩니다. `scriptID`를 명시하면 중복 로드를 방지하고 동일 요청은 캐시된 Promise를 반환합니다.
+- 매개변수
+  | 이름 | 타입 | 필수 | 설명 |
+  |---|---|---|---|
+  | url | `string` | Y | 스크립트 URL |
+  | scriptID | `string` | N | 중복 방지를 위한 엘리먼트 ID(생략 시 자동 생성) |
+  | options | `object` | N | `{ timeout }` — 로드 제한 시간(ms, 기본 `0` = 무제한) |
+- 반환값: `Promise<HTMLScriptElement | void>`
+- 예시
+  ```js
+  await syn.$w.loadScriptAsync('/lib/print-js/print.min.js', 'printjs', { timeout: 10000 });
+  ```
+
 ### `syn.$w.loadStyle(url, styleID, callback)`
-- 설명: 외부 `<link rel="stylesheet">` 리소스를 `<head>`에 동적으로 추가합니다.
+- 설명: 외부 `<link rel="stylesheet">` 리소스를 `<head>`에 동적으로 추가합니다. `callback`은 스타일시트가 실제로 로드 완료(`onload`)된 뒤 호출됩니다.
 - 매개변수
   | 이름 | 타입 | 필수 | 설명 |
   |---|---|---|---|
@@ -263,6 +277,14 @@
 - 예시
   ```js
   syn.$w.loadStyle('/sample/syn/style.css');
+  ```
+
+### `syn.$w.loadStyleAsync(url, styleID, options)`
+- 설명: `loadStyle`의 Promise 버전입니다. 매개변수·반환 형식은 `loadScriptAsync`와 동일하며 `<link rel="stylesheet">`를 로드합니다.
+- 반환값: `Promise<HTMLLinkElement | void>`
+- 예시
+  ```js
+  await syn.$w.loadStyleAsync('/css/custom.css', 'customStyle');
   ```
 
 ### `syn.$w.getDynamicStyle(styleID)`
@@ -506,6 +528,19 @@
   syn.$w.loadJson('sample.json', null, function (setting, json) {
       console.log(json);
   });
+  ```
+
+### `syn.$w.loadJsonAsync(url, options)`
+- 설명: `loadJson`의 Promise 버전. 항상 비동기로 요청하며 파싱 성공 시 JSON 데이터로 `resolve`, HTTP 오류/파싱 오류/네트워크 오류/시간 초과 시 `Error`로 `reject` 합니다.
+- 매개변수
+  | 이름 | 타입 | 필수 | 설명 |
+  |---|---|---|---|
+  | url | `string` | Y | 요청 URL |
+  | options | `object` | N | `{ timeout }` — 요청 제한 시간(ms, 기본 `0` = 무제한) |
+- 반환값: `Promise<any>`
+- 예시
+  ```js
+  const data = await syn.$w.loadJsonAsync('sample.json', { timeout: 5000 });
   ```
 
 ### `syn.$w.fetchImage(url, fallbackUrl)`

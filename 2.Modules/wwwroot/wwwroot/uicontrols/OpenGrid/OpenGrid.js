@@ -466,6 +466,12 @@
         },
 
         dataRefresh(elID, setting, callback) {
+            if (typeof callback !== 'function') {
+                return new Promise(function (resolve) {
+                    $opengrid.dataRefresh(elID, setting, function () { resolve(); });
+                });
+            }
+
             var defaultSetting = {
                 dataField: null,
                 required: true,
@@ -488,11 +494,13 @@
             setting.sharedAssetUrl = setting.sharedAssetUrl || syn.Config.SharedAssetUrl;
 
             if (!(setting.dataField && setting.storeSourceID)) {
+                if (typeof callback === 'function') { callback(); }
                 return;
             }
 
             var mod = window[syn.$w.pageScript];
             if (!mod) {
+                if (typeof callback === 'function') { callback(); }
                 return;
             }
 
@@ -1584,6 +1592,12 @@
         },
 
         importFile(elID, callback) {
+            if (typeof callback !== 'function') {
+                return new Promise(function (resolve) {
+                    $opengrid.importFile(elID, function (result, fileName) { resolve({ result: result, fileName: fileName }); });
+                });
+            }
+
             var fileEL = syn.$l.get('{0}_ImportFile'.format(elID));
             if (!fileEL) {
                 fileEL = document.createElement('input');

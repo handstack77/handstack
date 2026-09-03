@@ -6,7 +6,7 @@
 
 1. 원래 배치했던 엘리먼트는 `id="<원래id>_hidden"`으로 이름이 바뀌고 화면에서 숨겨집니다(`display: none`). 이 엘리먼트에는 옵션 값(JSON)만 보관됩니다. 이때 원래 엘리먼트 안에 적어둔 HTML(태그 내부 콘텐츠)이 에디터의 초기 값으로 사용됩니다.
 2. 같은 부모 아래 원래 `id`를 그대로 물려받은 새 `<div>`가 만들어지고, 그 안에 TinyMCE 에디터(`tinymce.init(setting)`)가 렌더링됩니다.
-3. TinyMCE 엔진 자체(`/lib/tinymce/tinymce.min.js`)는 페이지에서 최초 1회만 비동기로 로드되며, 로드가 끝나기 전에 여러 개의 `<syn_htmleditor>`가 있으면 내부 대기열(`editorPendings`)에 쌓였다가 로드 완료 후 순서대로 초기화됩니다.
+3. TinyMCE 엔진 자체(`/lib/tinymce/tinymce.min.js`)는 `syn.$w.loadScriptAsync`로 페이지에서 최초 1회만 로드되며, 로드가 끝나기 전에 여러 개의 `<syn_htmleditor>`가 있으면 내부 대기열(`editorPendings`)에 쌓였다가 로드 완료 Promise가 resolve되면 순서대로 초기화됩니다(이전의 25ms `setInterval` 폴링은 제거됨).
 4. `syn-options`에 `repositoryID`를 지정하면, 에디터에 이미지를 붙여넣거나 드래그&드롭할 때 자동으로 파일 서버(`fileManagerServer`)에 업로드하고, 업로드된 이미지의 실제 경로로 `<img>` 태그를 교체해 줍니다.
 
 ### SourceEditor(코드 편집)와의 차이
@@ -59,7 +59,7 @@ syn.uicontrols.$htmleditor.setValue('edtComment', '<p>안녕하세요</p>');
 syn.uicontrols.$htmleditor.clear('edtComment');
 ```
 
-> TinyMCE는 비동기로 로드/초기화됩니다. 페이지 로드 직후 곧바로 `getValue`/`setValue`를 호출하기보다는, 버튼 클릭 등 사용자 이벤트 시점에 호출하거나 `{elID}_documentReady` 이벤트(아래 API.md 참고)가 발생한 뒤에 호출하는 것이 안전합니다.
+> TinyMCE는 비동기로 로드/초기화됩니다. 페이지 로드 직후 곧바로 `getValue`/`setValue`를 호출하기보다는, 버튼 클릭 등 사용자 이벤트 시점에 호출하거나 `{elID}_documentReady` 이벤트(아래 API.md 참고)가 발생한 뒤에 호출하는 것이 안전합니다. 코드에서 준비 완료를 기다려야 하면 `await syn.uicontrols.$htmleditor.ready(elID)`를 사용합니다.
 
 > `repositoryID`를 지정하지 않으면 이미지 업로드 기능이 비활성화됩니다(붙여넣은 이미지는 `data:` URL 형태로 문서 안에 그대로 포함됩니다).
 

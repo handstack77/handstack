@@ -2149,6 +2149,12 @@
         },
 
         getDataSource(dataSourceID, parameters, callback) {
+            if (typeof callback !== 'function') {
+                return new Promise(function (resolve) {
+                    $webform.getDataSource(dataSourceID, parameters, function (value) { resolve(value); });
+                });
+            }
+
             if (dataSourceID) {
                 var mod = window[syn.$w.pageScript];
                 if (mod && mod.config) {
@@ -2167,6 +2173,7 @@
                         }
                         else {
                             syn.$w.alert(`앱 환경변수의 코드헬프 값 확인이 필요합니다. '${codeHelpID}'`, '정보');
+                            callback(null);
                             return;
                         }
                     }
@@ -2252,9 +2259,16 @@
                         }
                         else {
                             syn.$l.eventLog('getDataSource', 'DataSourceID: "{0}" 데이터 없음'.format(dataSourceID));
+                            callback(null);
                         }
                     });
                 }
+                else {
+                    callback(null);
+                }
+            }
+            else {
+                callback(null);
             }
         },
 

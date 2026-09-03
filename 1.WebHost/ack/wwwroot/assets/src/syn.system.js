@@ -3,9 +3,18 @@
     var $system = context.$system || new syn.module();
 
     $system.extend({
+        // syn.$s.getDataSource(moduleID, dataSourceID, callback) 또는 await syn.$s.getDataSource(moduleID, dataSourceID)
         getDataSource(moduleID, dataSourceID, callback) {
-            if (!callback) {
-                throw new Error('callback 함수 정의 필요');
+            if (typeof callback !== 'function') {
+                return new Promise(function (resolve, reject) {
+                    $system.getDataSource(moduleID, dataSourceID, function (error, data) {
+                        if (error) {
+                            reject(error instanceof Error ? error : new Error(String(error)));
+                        } else {
+                            resolve(data);
+                        }
+                    });
+                });
             }
 
             try {
@@ -125,7 +134,20 @@
             return null;
         },
 
+        // syn.$s.executeQuery(moduleID, statementID, parameters, callback) 또는 await syn.$s.executeQuery(moduleID, statementID, parameters)
         executeQuery(moduleID, statementID, parameters, callback) {
+            if (typeof callback !== 'function') {
+                return new Promise(function (resolve, reject) {
+                    $system.executeQuery(moduleID, statementID, parameters, function (error, result) {
+                        if (error) {
+                            reject(error instanceof Error ? error : new Error(String(error)));
+                        } else {
+                            resolve(result);
+                        }
+                    });
+                });
+            }
+
             var moduleLibrary = syn.getModuleLibrary(moduleID);
             if (moduleLibrary) {
                 var moduleConfig = moduleLibrary.config;

@@ -114,8 +114,8 @@
 | `visibleRows(elID, rows, isShow)` / `unHiddenRows(elID)` | 행 숨김/표시 |
 | `addCondition(elID, col, name, args)` / `removeCondition(elID, col)` / `clearConditions(elID)` | 필터 조건 추가/삭제/초기화 |
 | `merge(elID, startRow, startColumn, endRow, endColumn)` / `unmerge(...)` | 셀 병합/병합 해제 |
-| `exportFile(elID, options)` / `exportAsString(elID, options)` / `importFile(elID, callback)` | CSV/엑셀 내보내기·가져오기 |
-| `validateColumns(elID, columns, callback)` / `validateRows(elID, rows, callback)` | 유효성 검사 |
+| `exportFile(elID, options)` / `exportAsString(elID, options)` / `importFile(elID, callback)` | CSV/엑셀 내보내기·가져오기. `importFile`은 `callback` 생략 시 `Promise`(가져온 파일명으로 resolve) 반환 |
+| `validateColumns(elID, columns, callback)` / `validateRows(elID, rows, callback)` | 유효성 검사. `callback` 생략 시 검증 결과(boolean)로 resolve되는 `Promise` 반환 |
 | `checkEditValue(elID)` / `checkEmptyValueCol(elID, column, checkValue)` 등 | 검증 헬퍼 |
 | `render(elID)` | 강제 리렌더링 |
 | `refreshSummary(elID)` | 하단 합계행 재계산 |
