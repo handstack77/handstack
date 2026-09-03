@@ -2813,6 +2813,10 @@ function domainPageLoad() {
         if (checkCount > 200 || (window.pageStyleLoaded != undefined && window.pageStyleLoaded == true)) {
             clearInterval(pageStyleLoadedIntervalID);
 
+            if ($this.config?.actionButtons?.length > 0 && syn.$w.addUIButton) {
+                syn.$w.addUIButton();
+            }
+
             var hidden = null;
             if (document.forms) {
                 for (var i = 0; i < document.forms.length; i++) {
