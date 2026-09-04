@@ -447,19 +447,6 @@ let $main = {
                     }
                     pageWindow.syn.$w.setTabContentHeight();
                 }
-
-                const tabFrame = parent.syn.$l.get(`${tabID}$i`);
-                if (tabFrame) {
-                    const pageWrapper = document.querySelector('.page-wrapper');
-                    if (pageWrapper) {
-                        const frameHeight = syn.$d.getDocumentSize().frameHeight;
-                        const headerHeight = syn.$d.getSize(syn.$l.querySelector('header')).offsetHeight;
-                        const footerHeight = syn.$d.getSize(syn.$l.querySelector('footer')).offsetHeight;
-                        const scrollHeight = frameHeight - ((isHeaderHidden == true ? headerHeight : 56) + footerHeight + 76);
-                        tabFrame.height = scrollHeight;
-                        tabFrame.style.height = `${scrollHeight}px`;
-                    }
-                }
             }
 
             $this.method.resizeTabUI();
@@ -634,16 +621,6 @@ let $main = {
                 tabFrame.setAttribute('allow', 'unload');
                 tabFrame.style.border = 0;
 
-                const pageWrapper = document.querySelector('.page-wrapper');
-                if (pageWrapper) {
-                    const frameHeight = syn.$d.getDocumentSize().frameHeight;
-                    const headerHeight = syn.$d.getSize(syn.$l.querySelector('header')).offsetHeight;
-                    const footerHeight = syn.$d.getSize(syn.$l.querySelector('footer')).offsetHeight;
-                    const scrollHeight = frameHeight - ((isHeaderHidden == true ? headerHeight : 56) + footerHeight + 76);
-                    tabFrame.height = scrollHeight + (isHeaderHidden == true ? 52 : 0);
-                    tabFrame.style.height = `${scrollHeight}px`;
-                }
-
                 let url = '';
                 if (menuNode.url) {
                     url = menuNode.url;
@@ -714,16 +691,6 @@ let $main = {
                 tabFrame.setAttribute('tag', 'iframe');
                 tabFrame.setAttribute('allow', 'unload');
                 tabFrame.style.border = 0;
-
-                const pageWrapper = document.querySelector('.page-wrapper');
-                if (pageWrapper) {
-                    const frameHeight = syn.$d.getDocumentSize().frameHeight;
-                    const headerHeight = syn.$d.getSize(syn.$l.querySelector('header')).offsetHeight;
-                    const footerHeight = syn.$d.getSize(syn.$l.querySelector('footer')).offsetHeight;
-                    const scrollHeight = frameHeight - ((isHeaderHidden == true ? headerHeight : 56) + footerHeight + 76);
-                    tabFrame.height = scrollHeight + (isHeaderHidden == true ? 52 : 0);
-                    tabFrame.style.height = `${scrollHeight}px`;
-                }
 
                 let url = '';
                 if (menuNode.url) {
@@ -1359,16 +1326,6 @@ let $main = {
                     tabFrame.setAttribute('allow', 'unload');
                     tabFrame.style.border = 0;
                     tabFrame.style.display = 'block';
-
-                    const pageWrapper = document.querySelector('.page-wrapper');
-                    if (pageWrapper) {
-                        const frameHeight = syn.$d.getDocumentSize().frameHeight;
-                        const headerHeight = syn.$d.getSize(syn.$l.querySelector('header')).offsetHeight;
-                        const footerHeight = syn.$d.getSize(syn.$l.querySelector('footer')).offsetHeight;
-                        const scrollHeight = frameHeight - (((syn.$m.hasClass(syn.$l.querySelector('header'), 'hidden') == true) ? headerHeight : 56) + footerHeight + 76);
-                        tabFrame.height = scrollHeight;
-                        tabFrame.style.height = `${scrollHeight}px`;
-                    }
 
                     const pageWindow = $this.method.getActiveTabContent(`${$this.prop.dashboardTabID}${$this.prop.selectedModuleID}`);
                     if (pageWindow && pageWindow.syn) {

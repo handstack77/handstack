@@ -163,6 +163,66 @@
     --screen-4xl: 2560px;
 }
 
+.container-fixed {
+    width: 1650px;
+    min-width: 1650px;
+    max-width: 1650px;
+}
+
+.container-fixed-sm {
+    width: 540px;
+    min-width: 540px;
+    max-width: 540px;
+}
+
+.container-fixed-md {
+    width: 720px;
+    min-width: 720px;
+    max-width: 720px;
+}
+
+.container-fixed-lg {
+    width: 960px;
+    min-width: 960px;
+    max-width: 960px;
+}
+
+.container-fixed-xl {
+    width: 1140px;
+    min-width: 1140px;
+    max-width: 1140px;
+}
+
+.container-fixed-xxl {
+    width: 1320px;
+    min-width: 1320px;
+    max-width: 1320px;
+}
+
+.container-fixed-hd {
+    width: 1280px;
+    min-width: 1280px;
+    max-width: 1280px;
+}
+
+.container-fixed-fhd {
+    width: 1920px;
+    min-width: 1920px;
+    max-width: 1920px;
+}
+
+.container-fixed-qhd {
+    width: 2560px;
+    min-width: 2560px;
+    max-width: 2560px;
+}
+
+.container-fixed-uhd {
+    width: 3840px;
+    min-width: 3840px;
+    max-width: 3840px;
+}
+
 .m-s {
     margin: var(--space-s);
 }

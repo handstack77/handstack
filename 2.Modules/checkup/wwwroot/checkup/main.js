@@ -1803,13 +1803,6 @@ let $main = {
                 tabFrame.setAttribute('allow', 'unload');
                 tabFrame.style.border = 0;
 
-                var pageWrapper = document.querySelector('.page-wrapper');
-                if (pageWrapper) {
-                    var scrollHeight = pageWrapper.scrollHeight - 77;
-                    tabFrame.height = scrollHeight;
-                    tabFrame.style.height = `${scrollHeight}px`;
-                }
-
                 var url = '';
                 if (menuNode.url) {
                     url = menuNode.url;

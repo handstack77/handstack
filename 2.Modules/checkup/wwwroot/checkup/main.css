@@ -1,3 +1,55 @@
+html,
+body.layout-fluid {
+    height: 100%;
+    overflow: hidden;
+}
+
+.page {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    height: 100dvh;
+    max-height: 100vh;
+    max-height: 100dvh;
+    overflow: hidden;
+}
+
+    .page > header {
+        flex: 0 0 auto;
+    }
+
+    .page > .page-wrapper {
+        display: flex;
+        flex-direction: column;
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow: hidden;
+    }
+
+.page-wrapper > .footer {
+    flex: 0 0 auto;
+    position: relative;
+    bottom: auto;
+}
+
+#tabContainer {
+    position: relative;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+}
+
+    #tabContainer > [tag="iframe"] {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        width: 100% !important;
+        height: 100% !important;
+        border: 0;
+    }
+
 .highlight pre, pre.highlight {
     max-height: 30rem;
     margin: 1.5rem 0;
