@@ -941,7 +941,7 @@
         var templateFiles = [];
         var styleFiles = [];
         var jsFiles = [];
-        var loaderPath = `/${(proxyPathName)}/js/syn.domain.js`;
+        var loaderPath = `${(proxyBasePath)}/js/syn.domain.js`;
         if (window.Configuration) {
             var configuration = window.Configuration;
             if (configuration.Application) {
