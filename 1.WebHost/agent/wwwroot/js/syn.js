@@ -1,5 +1,5 @@
-﻿/*!
-HandStack Javascript Library v2026.9.3
+/*!
+HandStack Javascript Library v2026.9.4
 https://handshake.kr
 
 Copyright 2025, HandStack
@@ -8731,7 +8731,7 @@ if (typeof module !== 'undefined' && module.exports) {
             const rowGroups = dataMapping.rowGroups || [];
             const exchanges = dataMapping.exchanges || {};
 
-            function resolveControlValue(rowGroupID, controlID) {
+            function resolveControlValue(rowGroupID, controlID, requestType, metaColumns) {
                 const el = syn.$l.get(controlID);
                 if (!el) {
                     const store = syn.uicontrols.$data.storeList.find(p => p.dataSourceID == rowGroupID);
@@ -8747,7 +8747,10 @@ if (typeof module !== 'undefined' && module.exports) {
                 if (controlInfo && controlInfo.module) {
                     const controlModule = syn.$w.getControlModule(controlInfo.module);
                     if (controlModule && controlModule.getValue) {
-                        const value = controlModule.getValue(controlID);
+                        const isGrid = controlInfo.type && (controlInfo.type.indexOf('grid') > -1 || controlInfo.type.indexOf('chart') > -1);
+                        const value = isGrid && requestType == 'Row'
+                            ? controlModule.getValue(controlID.replace('_hidden', ''), 'Row', metaColumns)[0]
+                            : controlModule.getValue(controlID.replace('_hidden', ''));
                         return context.$object.isNullOrUndefined(value) == true ? '' : value;
                     }
                 }
@@ -8858,11 +8861,28 @@ if (typeof module !== 'undefined' && module.exports) {
                         requestTypes.push('List');
                     }
                     else {
+                        const gridControl = resolveGridControl(rowGroupID);
+                        const metaColumns = {};
+                        mappingControls.forEach(function (controlID) {
+                            const entry = exchangeMap[controlID];
+                            if (entry && context.$string.isNullOrEmpty(entry.input) == false) {
+                                metaColumns[controlID] = { fieldID: entry.input, dataType: 'string' };
+                            }
+                        });
+
+                        if (gridControl && Object.keys(metaColumns).length > 0) {
+                            const selectedRow = resolveControlValue(rowGroupID, gridControl.elementID, 'Row', metaColumns);
+                            inputs.push(Array.isArray(selectedRow) ? selectedRow : []);
+                            inputsItemCount.push(1);
+                            requestTypes.push('Row');
+                            return;
+                        }
+
                         const row = [];
                         mappingControls.forEach(function (controlID) {
                             const entry = exchangeMap[controlID];
                             if (entry && context.$string.isNullOrEmpty(entry.input) == false) {
-                                row.push({ prop: entry.input, val: resolveControlValue(rowGroupID, controlID) });
+                                row.push({ prop: entry.input, val: resolveControlValue(rowGroupID, controlID, 'Row') });
                             }
                         });
 
@@ -9017,6 +9037,88 @@ if (typeof module !== 'undefined' && module.exports) {
                 syn.$l.eventLog('$w.transactionExchange', `거래 실행 중 오류 발생: ${error}`, 'Error');
                 if (syn.$w.closeProgressMessage) syn.$w.closeProgressMessage();
             }
+        },
+
+        inspectExchange(colGroupID) {
+            if ($string.isNullOrEmpty(colGroupID) == true) {
+                syn.$l.eventLog("inspectExchange", `점검할 기능 ID 를 선택 하세요`, "Warning");
+                return "";
+            }
+
+            const describeExchangeMap = (mapping, colGroupID, rowGroupID, isRequest, lines) => {
+                const rowGroup = mapping.rowGroups.find((item) => item.groupID == rowGroupID);
+                const label = isRequest == true ? "요청" : "응답";
+                if ($object.isNullOrUndefined(rowGroup) == true) {
+                    lines.push(`  ${label} ${rowGroupID}: 데이터 컬렉션 정의를 찾을 수 없습니다`);
+                    return "";
+                }
+
+                const isMulti = rowGroup.type == "Multi";
+                const interfaceType = isRequest == true ? (isMulti == true ? "List" : "Row") : isMulti == true ? "Grid" : "Form";
+                const exchangeMap = (mapping.exchanges[colGroupID] && mapping.exchanges[colGroupID][rowGroupID]) || {};
+
+                lines.push(`  ${label} ${rowGroupID} (${rowGroup.type || "Single"} --> ${interfaceType})`);
+                if (isMulti == true) {
+                    const gridElement = syn.$l.querySelector(`[syn-datafield="${rowGroupID}"]`);
+                    lines.push(`    그리드 컨트롤: ${gridElement ? gridElement.getAttribute("id").replace("_hidden", "") : "찾을 수 없음"}`);
+                }
+
+                (rowGroup.mappingControls || []).forEach((controlID) => {
+                    const entry = exchangeMap[controlID];
+                    const fieldID = entry ? (isRequest == true ? entry.input : entry.output) : "";
+                    if ($string.isNullOrEmpty(fieldID) == true) {
+                        lines.push(`    ${controlID} ${isRequest == true ? "-->" : "<--"} (매핑 없음)`);
+                        return;
+                    }
+
+                    if (isRequest == true) {
+                        lines.push(`    ${controlID} --> ${fieldID}`);
+                        return;
+                    }
+
+                    lines.push(`    ${controlID} <-- ${fieldID}`);
+                });
+
+                return interfaceType;
+            };
+
+            let mapping = { rowGroups: [], colGroups: [], exchanges: {} };
+            const pageMappings = $this.config.pageMappings;
+            if ($object.isNullOrUndefined(pageMappings) == false) {
+                mapping = typeof pageMappings == "string" ? $object.parseJsonValue(pageMappings, "json") : pageMappings;
+                mapping = {
+                    rowGroups: mapping.rowGroups || [],
+                    colGroups: mapping.colGroups || [],
+                    exchanges: mapping.exchanges || {},
+                };
+            }
+
+            const colGroup = mapping.colGroups.find((item) => item.groupID == colGroupID);
+            if ($object.isNullOrUndefined(colGroup) == true) {
+                syn.$l.eventLog("inspectExchange", `기능 "${colGroupID}" 매핑 설정을 찾을 수 없습니다`, "Warning");
+                return "";
+            }
+
+            const lines = [];
+            const requestTypes = [];
+            const responseTypes = [];
+
+            (colGroup.requestRowGroupSet || []).forEach((rowGroupID) => {
+                const interfaceType = describeExchangeMap(mapping, colGroupID, rowGroupID, true, lines);
+                if ($string.isNullOrEmpty(interfaceType) == false) {
+                    requestTypes.push(interfaceType);
+                }
+            });
+
+            (colGroup.responseRowGroupSet || []).forEach((rowGroupID) => {
+                const interfaceType = describeExchangeMap(mapping, colGroupID, rowGroupID, false, lines);
+                if ($string.isNullOrEmpty(interfaceType) == false) {
+                    responseTypes.push(interfaceType);
+                }
+            });
+
+            lines.push(`  dataMapInterface: ${requestTypes.join(",")}|${responseTypes.join(",")}`);
+            return `기능 "${colGroupID}" 매핑 점검\n${lines.join("\n")}`;
         },
 
         transactionDirect(directObject, callback, options) {
