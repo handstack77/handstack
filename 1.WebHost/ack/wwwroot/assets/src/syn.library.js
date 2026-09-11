@@ -104,7 +104,7 @@
             const element = doc.querySelector(query);
             return element ? [element] : [];
         } catch (e) {
-            syn.$l.eventLog(logSource, `잘못된 셀렉터 "${query}": ${e}`, 'Warning');
+            syn.$l.eventLog(logSource, `잘못된 셀렉터 "${query}": ${e}`, 'Information');
             return [];
         }
     };
