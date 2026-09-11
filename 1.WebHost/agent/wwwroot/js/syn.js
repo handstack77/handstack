@@ -1,5 +1,5 @@
-﻿/*!
-HandStack Javascript Library v2026.9.4
+/*!
+HandStack Javascript Library v2026.9.11
 https://handshake.kr
 
 Copyright 2025, HandStack
@@ -7159,6 +7159,62 @@ if (typeof module !== 'undefined' && module.exports) {
             return keys;
         },
 
+        createSuid(count = 1) {
+            count = Math.max(1, Math.trunc(Number(count) || 1));
+
+            const suidUnixEpochTicks = 621355968000000000n;
+            const suidNodeBytes = new Uint8Array(5);
+            const suidSeed = new Uint32Array(1);
+            globalThis.crypto.getRandomValues(suidNodeBytes);
+            globalThis.crypto.getRandomValues(suidSeed);
+
+            let suidIncrement = suidSeed[0] % 500000;
+            let suidLastTicks = 0n;
+            const suids = [];
+            const nodeHex = Array.from(suidNodeBytes, value => value.toString(16).padStart(2, '0')).join('');
+            for (let i = 0; i < count; i++) {
+                let ticks = suidUnixEpochTicks + BigInt(Date.now()) * 10000n;
+                if (ticks <= suidLastTicks) {
+                    ticks = suidLastTicks + 1n;
+                }
+
+                suidLastTicks = ticks;
+                suidIncrement = (suidIncrement + 1) & 0xffffff;
+                suids.push(`${ticks.toString(16).padStart(16, '0')}${nodeHex}${suidIncrement.toString(16).padStart(6, '0')}`);
+            }
+
+            return count === 1 ? suids[0] : suids;
+        },
+
+        toDateTime(suid) {
+            if (typeof suid !== 'string' || /^[0-9a-f]{32}$/i.test(suid) === false) {
+                return null;
+            }
+
+            const suidUnixEpochTicks = 621355968000000000n;
+            const ticks = BigInt(`0x${suid.substring(0, 16)}`);
+            const date = new Date(Number((ticks - suidUnixEpochTicks) / 10000n));
+            return Number.isNaN(date.getTime()) ? null : date;
+        },
+
+        toSuid(dateTime) {
+            const date = dateTime instanceof Date ? dateTime : new Date(dateTime);
+            if (Number.isNaN(date.getTime())) {
+                return null;
+            }
+
+            const suidUnixEpochTicks = 621355968000000000n;
+            const suidNodeBytes = new Uint8Array(5);
+            const suidSeed = new Uint32Array(1);
+            globalThis.crypto.getRandomValues(suidNodeBytes);
+            globalThis.crypto.getRandomValues(suidSeed);
+
+            const ticks = suidUnixEpochTicks + BigInt(date.getTime()) * 10000n;
+            const nodeHex = Array.from(suidNodeBytes, value => value.toString(16).padStart(2, '0')).join('');
+            const incrementHex = ((suidSeed[0] % 500000 + 1) & 0xffffff).toString(16).padStart(6, '0');
+            return `${ticks.toString(16).padStart(16, '0')}${nodeHex}${incrementHex}`;
+        },
+
         activeControl(evt) {
             const event = evt || context.event || null;
             let result = null;
@@ -8854,6 +8910,10 @@ if (typeof module !== 'undefined' && module.exports) {
                             rows = gridControl.controlModule.getValue(gridControl.elementID, 'List', metaColumns) || [];
                         } else if (Object.keys(metaColumns).length > 0) {
                             syn.$l.eventLog('$w.transactionExchange', `rowGroupID "${rowGroupID}"에 해당하는 그리드 컨트롤을 찾을 수 없습니다.`, 'Warning');
+                        }
+
+                        if (rows.length == 0) {
+                            rows = [[{ prop: 'DefaultEmpty', val: '' }]];
                         }
 
                         rows.forEach(function (row) { inputs.push(row); });
