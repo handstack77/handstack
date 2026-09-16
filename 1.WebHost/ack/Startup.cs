@@ -768,12 +768,10 @@ namespace ack
                                                 continue;
                                             }
 
-                                            var ackFile = new FileInfo(PathExtensions.Combine(GlobalConfiguration.EntryBasePath, "ack.dll"));
                                             var directory = new DirectoryInfo(moduleContractPath);
-                                            if (ackFile != null && ackFile.Exists == true && directory != null && directory.Exists == true)
+                                            if (directory.Exists == true)
                                             {
-                                                var appBasePath = ackFile.DirectoryName.ToStringSafe();
-                                                var ackHomePath = (ackFile.Directory?.Parent?.FullName.Replace("\\", "/")).ToStringSafe();
+                                                var ackHomePath = Directory.GetParent(GlobalConfiguration.EntryBasePath)?.FullName.Replace("\\", "/") ?? throw new DirectoryNotFoundException($"ack 의 부모 디렉터리를 찾을 수 없습니다: {GlobalConfiguration.EntryBasePath}");
                                                 var sourceContractDirectory = directory.FullName.Replace("\\", "/");
                                                 var targetContractDirectory = PathExtensions.Combine(ackHomePath, "contracts", module.ModuleID);
 
@@ -803,13 +801,6 @@ namespace ack
                                                 catch (Exception exception)
                                                 {
                                                     Log.Error(exception, $"{module.ModuleID} purgecontracts 오류");
-                                                }
-                                            }
-                                            else
-                                            {
-                                                if (ackFile?.Exists == false)
-                                                {
-                                                    Log.Error($"ackFile:{ackFile?.FullName.Replace("\\", "/")} 파일 확인이 필요합니다");
                                                 }
                                             }
                                         }
