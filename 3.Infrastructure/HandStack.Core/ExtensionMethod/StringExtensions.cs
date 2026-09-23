@@ -18,6 +18,17 @@ namespace HandStack.Core.ExtensionMethod
     {
         private const string BaseChars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
+        private static class DefaultValuePatterns
+        {
+            private const string BearerPattern = @"(?<token>\$[\p{L}_][\p{L}\p{N}_.-]*)";
+            private const string DefaultPattern = @"@(?<name>MinuteAdd|HourAdd|WeekAdd|MonthAdd|YearAdd|DateAdd|StartDateOfWeek|EndDateOfWeek|StartDateOfMonth|EndDateOfMonth|StartDateOfQuarter|EndDateOfQuarter|TimeSecond|Date|Now|Time|SUID|GUID)(?:\((?<args>[^)]*)\))?";
+            internal static readonly Regex Bearer = new(BearerPattern, RegexOptions.CultureInvariant);
+            internal static readonly Regex PrefixedBearer = new(@"(?<==)" + BearerPattern, RegexOptions.CultureInvariant);
+            internal static readonly Regex Default = new(DefaultPattern, RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+            internal static readonly Regex PrefixedDefault = new(@"(?<==)" + DefaultPattern, RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+            internal static readonly Regex Resolved = new(@"\$\{(?<name>[\p{L}_][\p{L}\p{N}_.-]*)\}", RegexOptions.CultureInvariant);
+        }
+
         public static string DateConvert(object inputValue, char operationType)
         {
             string defaultEncodedResult = GetDefaultEncodedResult();
@@ -141,9 +152,8 @@ namespace HandStack.Core.ExtensionMethod
                 return @this;
             }
 
-            var prefix = equalsPrefix ? @"(?<==)" : string.Empty;
-            var bearerVariableTokenRegex = new Regex($@"{prefix}(?<token>\$[\p{{L}}_][\p{{L}}\p{{N}}_.-]*)", RegexOptions.CultureInvariant);
-            var defaultValueTokenRegex = new Regex($@"{prefix}@(?<name>MinuteAdd|HourAdd|WeekAdd|MonthAdd|YearAdd|DateAdd|StartDateOfWeek|EndDateOfWeek|StartDateOfMonth|EndDateOfMonth|StartDateOfQuarter|EndDateOfQuarter|TimeSecond|Date|Now|Time|SUID|GUID)(?:\((?<args>[^)]*)\))?", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+            var bearerVariableTokenRegex = equalsPrefix ? DefaultValuePatterns.PrefixedBearer : DefaultValuePatterns.Bearer;
+            var defaultValueTokenRegex = equalsPrefix ? DefaultValuePatterns.PrefixedDefault : DefaultValuePatterns.Default;
 
             var defaultValues = bearerVariableTokenRegex.Replace(@this, match => bearerVariable.TryGetValue(match.Groups["token"].Value, out var value) == true ? value : string.Empty);
             var now = DateTime.Now;
@@ -158,7 +168,7 @@ namespace HandStack.Core.ExtensionMethod
             }
 
             var defaultValueMap = ParseResolvedDefaultValues(resolvedDefaultValues);
-            var defaultValueTokenRegex = new Regex(@"\$\{(?<name>[\p{L}_][\p{L}\p{N}_.-]*)\}", RegexOptions.CultureInvariant);
+            var defaultValueTokenRegex = DefaultValuePatterns.Resolved;
 
             return defaultValueTokenRegex.Replace(@this, match => defaultValueMap.TryGetValue(match.Groups["name"].Value, out var value) == true ? value : string.Empty);
         }
@@ -171,7 +181,7 @@ namespace HandStack.Core.ExtensionMethod
             }
 
             resolvedDefaultValues ??= new Dictionary<string, string>();
-            var defaultValueTokenRegex = new Regex(@"\$\{(?<name>[\p{L}_][\p{L}\p{N}_.-]*)\}", RegexOptions.CultureInvariant);
+            var defaultValueTokenRegex = DefaultValuePatterns.Resolved;
             return defaultValueTokenRegex.Replace(@this, match => resolvedDefaultValues.TryGetValue(match.Groups["name"].Value, out var value) == true ? value : string.Empty);
         }
 
@@ -798,12 +808,7 @@ namespace HandStack.Core.ExtensionMethod
         {
             using var sha256Hash = SHA256.Create();
             var bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(@this));
-            var builder = new StringBuilder();
-            for (var i = 0; i < bytes.Length; i++)
-            {
-                builder.Append(bytes[i].ToString("x2"));
-            }
-            return builder.ToString();
+            return Convert.ToHexStringLower(bytes);
         }
 
         public static string ToSHA256(this string @this, Encoding encoding)
@@ -811,12 +816,7 @@ namespace HandStack.Core.ExtensionMethod
             encoding = (encoding ?? Encoding.UTF8);
             using var sha256Hash = SHA256.Create();
             var bytes = sha256Hash.ComputeHash(encoding.GetBytes(@this));
-            var builder = new StringBuilder();
-            for (var i = 0; i < bytes.Length; i++)
-            {
-                builder.Append(bytes[i].ToString("x2"));
-            }
-            return builder.ToString();
+            return Convert.ToHexStringLower(bytes);
         }
 
         public static string EncryptAES(this string @this, string key, int keySize = 256, int blockSize = 128, CipherMode cipherMode = CipherMode.CBC, PaddingMode paddingMode = PaddingMode.PKCS7, int ivLength = 16)

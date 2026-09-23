@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
@@ -258,7 +258,7 @@ namespace HandStack.Core.Licensing.Validation
             var combined = data + salt;
             var bytes = Encoding.UTF8.GetBytes(combined);
             byte[] hash = await Task.Run(() => SHA256.HashData(bytes));
-            return string.Concat(hash.Select(b => b.ToString("x2")));
+            return Convert.ToHexStringLower(hash);
         }
 
         private (bool valid, string? matchType, string? reason) ValidateDomain(List<string> allowedHosts, string currentDomain)

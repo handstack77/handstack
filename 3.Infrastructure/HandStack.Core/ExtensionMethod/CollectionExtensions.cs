@@ -1,5 +1,6 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace HandStack.Core.ExtensionMethod
 {
@@ -29,21 +30,20 @@ namespace HandStack.Core.ExtensionMethod
 
         public static string CharArrayToString(this char[] @this)
         {
-            var result = "";
             Array.Sort(@this);
+            var result = new StringBuilder(@this.Length);
             foreach (var c in @this)
             {
                 if (char.IsLetter(c))
                 {
-                    result += c;
-                    result += ',';
+                    if (result.Length > 0)
+                    {
+                        result.Append(',');
+                    }
+                    result.Append(c);
                 }
             }
-            if (result.Length > 1)
-            {
-                result = result.SubstringSafe(0, result.Length - 1);
-            }
-            return result;
+            return result.ToString();
         }
 
         public static bool IsContains(this char[] @this, char character)

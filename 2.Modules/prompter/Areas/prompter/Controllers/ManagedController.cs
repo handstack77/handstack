@@ -282,19 +282,17 @@ namespace prompter.Areas.prompter.Controllers
 
         public static string ReplaceCData(string rawText)
         {
-            var cdataRegex = new Regex("(<!\\[CDATA\\[)([\\s\\S]*?)(\\]\\]>)");
-            var matches = cdataRegex.Matches(rawText);
+            var matches = Regex.Matches(rawText, "(<!\\[CDATA\\[)([\\s\\S]*?)(\\]\\]>)");
 
             if (matches != null && matches.Count > 0)
             {
                 foreach (Match match in matches)
                 {
-                    var matchSplit = Regex.Split(match.Value, "(<!\\[CDATA\\[)([\\s\\S]*?)(\\]\\]>)");
-                    var cdataText = matchSplit[2];
-                    cdataText = Regex.Replace(cdataText, "&", "&amp;");
-                    cdataText = Regex.Replace(cdataText, "<", "&lt;");
-                    cdataText = Regex.Replace(cdataText, ">", "&gt;");
-                    cdataText = Regex.Replace(cdataText, "\"", "&quot;");
+                    var cdataText = match.Groups[2].Value;
+                    cdataText = cdataText.Replace("&", "&amp;");
+                    cdataText = cdataText.Replace("<", "&lt;");
+                    cdataText = cdataText.Replace(">", "&gt;");
+                    cdataText = cdataText.Replace("\"", "&quot;");
 
                     rawText = rawText.Replace(match.Value, cdataText);
                 }

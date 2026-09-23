@@ -81,12 +81,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static string ToHex(this byte[] @this)
         {
-            var sb = new StringBuilder();
-            for (var i = 0; i < @this.Length; ++i)
-            {
-                sb.Append(@this[i].ToString("x2"));
-            }
-            return sb.ToString();
+            return Convert.ToHexStringLower(@this.AsSpan(0, @this.Length));
         }
 
         public static string ToHex(this byte @this)

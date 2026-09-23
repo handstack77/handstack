@@ -207,7 +207,7 @@ foreach (var moduleBasePath in Directory.GetDirectories(GlobalConfiguration.Load
 }
 ```
 
-실제 DLL 로딩은 [`ack`](1.WebHost/ack/Extensions/ServiceCollectionExtensions.cs)와 [`rdy`](1.WebHost/rdy/Extensions/ServiceCollectionExtensions.cs)의 `ServiceCollectionExtensions`에서 수행합니다. `ack`는 선택된 모듈을 동적으로 로드하고, `rdy`는 ProjectReference와 정적 사전에 포함된 기본 모듈을 우선 사용한 뒤 사전에 없는 모듈만 같은 방식으로 동적 로드합니다.
+실제 DLL 로딩은 [`ack`](1.WebHost/ack/Extensions/ServiceCollectionExtensions.cs)와 [`rdy`](1.WebHost/rdy/Extensions/ServiceCollectionExtensions.cs)의 `ServiceCollectionExtensions`에서 시작합니다. `ack`의 [`ModuleAssemblyLoader`](1.WebHost/ack/Extensions/ModuleAssemblyLoader.cs)는 선택된 모듈의 진입 DLL을 먼저 로드하고, 의존 DLL은 기본 호스트 탐색 → 선택된 모듈 루트 → 필요할 때 한 번 생성하는 하위 폴더 호환 색인 순서로 찾습니다. 제외 경로를 적용하며 요청한 관리 DLL만 기본 로드 컨텍스트에 로드합니다. `rdy`는 ProjectReference와 정적 사전에 포함된 기본 모듈을 우선 사용하고, 사전에 없는 모듈에는 기존 재귀 DLL 탐색·로딩을 사용합니다. 아래 코드는 `rdy`의 모듈 선택 흐름입니다.
 
 ```csharp
 public static IServiceCollection AddModules(this IServiceCollection services)
@@ -454,6 +454,8 @@ app.UseStaticFiles(new StaticFileOptions
     ServeUnknownFileTypes = true
 });
 ```
+
+호스트 정적 루트와 `WWWRootBasePath`에는 [`CaseInsensitiveStaticFileMiddleware`](3.Infrastructure/HandStack.Web/Extensions/CaseInsensitiveStaticFileMiddleware.cs)가 적용됩니다. GET/HEAD의 마지막 경로 이름을 보정하며 API 경로와 선택된 동적 엔드포인트는 건너뜁니다. 요청 경로 매핑과 미존재 결과를 인스턴스당 최대 4,096개·항목당 10분간 캐시하고, 정적 루트의 파일 변경 알림으로 무효화합니다. 자세한 적용 범위는 [`wwwroot` 운영 가이드](2.Modules/wwwroot/README.md)를 참고합니다.
 
 즉 HandStack의 화면은 보통 다음 세 가지 자산을 함께 사용합니다.
 

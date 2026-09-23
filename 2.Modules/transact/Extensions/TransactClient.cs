@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -1391,6 +1392,27 @@ namespace transact.Extensions
             }
 
             var inputs = transactInputs.Skip(inputOffset).Take(inputCount).ToList();
+            static TransactField? FindCustomField(List<TransactField> parameters, string fieldID)
+            {
+                return parameters.FirstOrDefault(parameter => parameter.FieldID == fieldID);
+            }
+
+            static TransactField? FindField(List<TransactField> parameters, string fieldID)
+            {
+                ArgumentNullException.ThrowIfNull(parameters, "source");
+                if (parameters.GetType() != typeof(List<TransactField>))
+                {
+                    return FindCustomField(parameters, fieldID);
+                }
+                foreach (var parameter in CollectionsMarshal.AsSpan(parameters))
+                {
+                    if (parameter.FieldID == fieldID)
+                    {
+                        return parameter;
+                    }
+                }
+                return null;
+            }
 
             if (modelInputContract.Type == "Row")
             {
@@ -1400,7 +1422,7 @@ namespace transact.Extensions
 
                     foreach (var item in formOutput)
                     {
-                        var fieldItem = serviceParameters.FirstOrDefault(p => p.FieldID == item.Key);
+                        var fieldItem = FindField(serviceParameters, item.Key);
                         if (fieldItem != null)
                         {
                             if (item.Value == null)
@@ -1423,14 +1445,14 @@ namespace transact.Extensions
 
                     foreach (var item in formOutput)
                     {
-                        var findItem = findParameters.FirstOrDefault(p => p.FieldID == item.Key);
+                        var findItem = FindField(findParameters, item.Key);
                         if (findItem != null)
                         {
                             for (var i = 0; i < inputs.Count; i++)
                             {
                                 var serviceParameters = inputs[i];
 
-                                var fieldItem = serviceParameters.FirstOrDefault(p => p.FieldID == item.Key);
+                                var fieldItem = FindField(serviceParameters, item.Key);
                                 if (fieldItem != null)
                                 {
                                     if (item.Value == null)

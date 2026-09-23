@@ -166,13 +166,7 @@ namespace HandStack.Core.ExtensionMethod
         {
             using var md5 = MD5.Create();
             var hashBytes = md5.ComputeHash(stream);
-            var sb = new StringBuilder();
-            foreach (var bytes in hashBytes)
-            {
-                sb.Append(bytes.ToString("X2"));
-            }
-
-            return sb.ToString();
+            return Convert.ToHexString(hashBytes);
         }
     }
 }

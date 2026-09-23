@@ -415,7 +415,7 @@ namespace function.DataClient
                             {
                                 var timeout = moduleScriptMap.Timeout * 1000;
                                 var task = HandStack.Core.ExtensionMethod.TaskExtensions.ExecuteWithTimeout(() => InvokePythonScriptFile(moduleScriptMap, programPath, dynamicParameters, dataContext), TimeSpan.FromMilliseconds(timeout));
-                                if (task.Wait(timeout) == true)
+                                if (await FunctionTaskWaiter.WaitAsync(task, timeout) == true)
                                 {
                                     executeResult = task.Result;
                                 }
@@ -480,7 +480,7 @@ namespace function.DataClient
                             {
                                 var task = nodeJSService.InvokeFromFileAsync<string>(programPath, moduleScriptMap.ExportName, arguments);
                                 var timeout = moduleScriptMap.Timeout * 1000;
-                                if (task.Wait(timeout) == true)
+                                if (await FunctionTaskWaiter.WaitAsync(task, timeout) == true)
                                 {
                                     executeResult = task.Result;
                                 }
@@ -559,12 +559,12 @@ namespace function.DataClient
                                         {
                                             if (moduleScriptMap.Timeout <= 0)
                                             {
-                                                task.Wait();
+                                                await FunctionTaskWaiter.WaitAsync(task);
                                             }
                                             else
                                             {
                                                 var timeout = moduleScriptMap.Timeout * 1000;
-                                                if (task.Wait(timeout) == false)
+                                                if (await FunctionTaskWaiter.WaitAsync(task, timeout) == false)
                                                 {
                                                     response.ExceptionText = $"TimeoutException - '{timeout}' 실행 시간 초과";
                                                     if (ModuleConfiguration.IsLogServer == true)

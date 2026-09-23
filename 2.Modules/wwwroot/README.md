@@ -50,6 +50,14 @@
 - `CreateIDPolicy`: `GET`/`POST /wwwroot/api/index/create-id` GlobalID 발급 접근 정책
 - `DevAutoSignIn`: GET 개발 자동 로그인에 사용할 고정 테스트 계정. POST 개발 로그인 요청은 이 값 대신 본문의 사용자 정보를 사용합니다.
 
+### 정적 경로의 대소문자 보정
+
+`WWWRootBasePath`의 정적 파일 제공 전에 공통 `CaseInsensitiveStaticFileMiddleware`가 마지막 경로 이름의 대소문자를 보정합니다. 상위 디렉터리의 대소문자는 파일 시스템 규칙을 따르며 확장자 없는 파일도 지원합니다.
+
+GET/HEAD 중 `/api/` 세그먼트가 있거나 `/api`로 끝나는 경로, 선택된 동적 엔드포인트, `/`로 끝나는 경로는 디렉터리 탐색을 건너뜁니다. 경로 매핑과 미존재 결과는 인스턴스당 최대 4,096개, 항목당 최대 10분간 저장합니다. 파일 생성·수정·삭제·이름 변경 알림은 해당 정적 루트의 캐시를 무효화합니다. 알림이 누락된 경우에도 만료 후 다시 조회하며, 네트워크 공유 등에서는 `DOTNET_USE_POLLING_FILE_WATCHER=1`을 사용할 수 있습니다.
+
+파일 내용과 HTTP 캐시 헤더, IP 접근 제어는 기존 정적 파일 제공 단계에서 처리합니다. 이 경로 캐시는 `ack`·`rdy`의 호스트 정적 루트에도 적용됩니다.
+
 ### 공통 파일 서빙
 
 `module.json`에서 카탈로그 파일을 지정합니다. 상대경로와 환경 변수는 ack 실행 기준 경로인 `GlobalConfiguration.EntryBasePath`에서 해석됩니다.

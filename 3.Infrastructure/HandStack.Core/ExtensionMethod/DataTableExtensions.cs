@@ -59,6 +59,7 @@ namespace HandStack.Core.ExtensionMethod
         private FieldInfo[] fields;
         private Dictionary<string, int> dictionary;
         private Type type;
+        private Dictionary<Type, (FieldInfo[] Fields, PropertyInfo[] Properties)>? derivedMembers;
 
         public ObjectShredder()
         {
@@ -142,8 +143,7 @@ namespace HandStack.Core.ExtensionMethod
                 if (instance.GetType() != typeof(T))
                 {
                     ExtendTable(table, instance.GetType());
-                    fieldInfos = instance.GetType().GetFields();
-                    ropertyInfos = instance.GetType().GetProperties();
+                    (fieldInfos, ropertyInfos) = GetMembers(instance.GetType());
                 }
 
                 foreach (var f in fieldInfos)
@@ -160,9 +160,26 @@ namespace HandStack.Core.ExtensionMethod
             return values;
         }
 
+        private (FieldInfo[] Fields, PropertyInfo[] Properties) GetMembers(Type objectType)
+        {
+            if (objectType == type)
+            {
+                return (fields, properties);
+            }
+
+            derivedMembers ??= new Dictionary<Type, (FieldInfo[], PropertyInfo[])>();
+            if (!derivedMembers.TryGetValue(objectType, out var members))
+            {
+                members = (objectType.GetFields(), objectType.GetProperties());
+                derivedMembers.Add(objectType, members);
+            }
+            return members;
+        }
+
         public DataTable ExtendTable(DataTable table, Type type)
         {
-            foreach (var f in type.GetFields())
+            var (typeFields, typeProperties) = GetMembers(type);
+            foreach (var f in typeFields)
             {
                 if (dictionary.ContainsKey(f.Name) == false)
                 {
@@ -182,7 +199,7 @@ namespace HandStack.Core.ExtensionMethod
                     }
                 }
             }
-            foreach (var p in type.GetProperties())
+            foreach (var p in typeProperties)
             {
                 if (dictionary.ContainsKey(p.Name) == false)
                 {
