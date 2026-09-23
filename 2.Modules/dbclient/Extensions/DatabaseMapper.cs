@@ -29,11 +29,7 @@ using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-using Org.BouncyCastle.Crypto;
-
 using Serilog;
-
-using static Mysqlx.Expect.Open.Types.Condition.Types;
 
 namespace dbclient.Extensions
 {

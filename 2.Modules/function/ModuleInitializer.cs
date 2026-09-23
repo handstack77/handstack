@@ -38,7 +38,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;

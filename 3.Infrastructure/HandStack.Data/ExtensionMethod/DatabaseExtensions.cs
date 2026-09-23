@@ -14,7 +14,7 @@ using HtmlAgilityPack;
 
 using Microsoft.Data.SqlClient;
 
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 
 using Newtonsoft.Json.Linq;
 

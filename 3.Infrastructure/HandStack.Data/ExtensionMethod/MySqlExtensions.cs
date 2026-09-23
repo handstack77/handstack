@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 
 using HandStack.Core.ExtensionMethod;
 
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 
 namespace HandStack.Data.ExtensionMethod
 {

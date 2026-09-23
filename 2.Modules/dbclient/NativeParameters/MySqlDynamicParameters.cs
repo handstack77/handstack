@@ -5,7 +5,7 @@ using Dapper;
 
 using dbclient.Profiler;
 
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 
 namespace dbclient.NativeParameters
 {

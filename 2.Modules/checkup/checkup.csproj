@@ -35,7 +35,7 @@
         <PackageReference Include="Mediator.Abstractions" Version="3.0.2" />
         <PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.1" />
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.9" />
-        <PackageReference Include="MySql.Data" Version="9.7.0" />
+        <PackageReference Include="MySqlConnector" Version="2.6.2" />
         <PackageReference Include="MySql.EntityFrameworkCore" Version="10.0.7" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
         <PackageReference Include="Npgsql" Version="10.0.3" />

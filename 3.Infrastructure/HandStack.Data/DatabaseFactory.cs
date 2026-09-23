@@ -7,7 +7,7 @@ using System.IO;
 
 using Microsoft.Data.SqlClient;
 
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 
 using Npgsql;
 
@@ -90,7 +90,7 @@ namespace HandStack.Data
                     SqlFactory = OracleClientFactory.Instance;
                     break;
                 case DataProviders.MySQL:
-                    SqlFactory = MySqlClientFactory.Instance;
+                    SqlFactory = MySqlConnectorFactory.Instance;
                     break;
                 case DataProviders.PostgreSQL:
                     SqlFactory = NpgsqlFactory.Instance;

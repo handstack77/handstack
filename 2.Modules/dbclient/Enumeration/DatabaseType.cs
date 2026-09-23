@@ -5,7 +5,7 @@ namespace dbclient.Enumeration
     /// <summary>
     /// SqlDbType http://msdn.microsoft.com/ko-kr/library/system.data.sqldbtype.aspx
     /// OracleDbType https://docs.oracle.com/html/B28089_01/OracleDbTypeEnumerationType.htm#i1017320
-    /// MySqlDbType https://dev.mysql.com/doc/dev/connector-net/8.0/api/data_api/MySql.Data.MySqlClient.MySqlDbType.html
+    /// MySqlDbType https://mysqlconnector.net/api/mysqlconnector/mysqldbtypetype/
     /// NpgsqlDbType https://www.npgsql.org/doc/api/NpgsqlTypes.NpgsqlDbType.html
     /// SQLiteDbType https://docs.microsoft.com/ko-kr/dotnet/standard/data/sqlite/types
     /// </summary>

@@ -12,7 +12,7 @@ using HandStack.Data.ExtensionMethod;
 
 using Microsoft.Data.SqlClient;
 
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 
 using Npgsql;
 

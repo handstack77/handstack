@@ -42,8 +42,8 @@
             "Version": "7.2.4"
         },
         {
-            "Include": "MySql.Data",
-            "Version": "8.1.0"
+            "Include": "MySqlConnector",
+            "Version": "2.6.2"
         },
         {
             "Include": "Oracle.ManagedDataAccess.Core",
