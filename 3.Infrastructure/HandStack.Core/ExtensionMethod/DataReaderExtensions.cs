@@ -376,12 +376,25 @@ namespace HandStack.Core.ExtensionMethod
                 columnNames.Add(@this.GetName(i));
             }
 
+            PropertyInfo?[]? properties = null;
             while (@this.Read())
             {
                 var instance = Activator.CreateInstance<T>();
                 if (instance != null)
                 {
-                    ToObject(@this, columnNames, instance);
+                    var initializeProperties = properties == null;
+                    properties ??= new PropertyInfo?[columnNames.Count];
+                    object target = instance;
+                    for (var i = 0; i < columnNames.Count; i++)
+                    {
+                        var property = initializeProperties
+                            ? properties[i] = instance.GetType().GetProperty(columnNames[i])
+                            : properties[i];
+                        if (property != null)
+                        {
+                            SetObjectValue(@this, target, property);
+                        }
+                    }
                 }
 
                 result.Add(instance);
@@ -393,12 +406,21 @@ namespace HandStack.Core.ExtensionMethod
         public static List<T> ToObjectList<T>(this IDataReader @this, params string[] fieldsToSkip)
         {
             var result = new List<T>();
+            PropertyInfo[]? properties = null;
             while (@this.Read())
             {
                 var instance = Activator.CreateInstance<T>();
                 if (instance != null)
                 {
-                    ToObject(@this, instance, fieldsToSkip);
+                    properties ??= instance.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public);
+                    object target = instance;
+                    foreach (var property in properties)
+                    {
+                        if (property.CanRead && property.CanWrite && fieldsToSkip.Contains(property.Name) == false)
+                        {
+                            SetObjectValue(@this, target, property);
+                        }
+                    }
 
                     result.Add(instance);
                 }

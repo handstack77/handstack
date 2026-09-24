@@ -9,11 +9,12 @@ namespace HandStack.Web.Entity
         {
             var result = new GridJsonData();
             result.ID = fieldID;
+            result.Value.EnsureCapacity(source.Rows.Count);
 
             Dictionary<string, object> childRow;
             foreach (DataRow dataRow in source.Rows)
             {
-                childRow = new Dictionary<string, object>();
+                childRow = new Dictionary<string, object>(source.Columns.Count);
                 foreach (DataColumn col in source.Columns)
                 {
                     childRow.Add(col.ColumnName, dataRow[col]);

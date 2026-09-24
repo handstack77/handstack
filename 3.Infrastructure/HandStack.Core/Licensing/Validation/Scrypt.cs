@@ -5,8 +5,8 @@ using System.Security.Cryptography;
 namespace HandStack.Core.Licensing.Validation
 {
     /// <summary>
-    /// Minimal Scrypt implementation (RFC 7914) for N=2^logN, r, p as used in the JavaScript code: N=16384, r=8, p=1.
-    /// This implementation focuses on correctness for the given parameter sizes and is not heavily optimized.
+    /// JavaScript와 동일한 매개변수(N=16384, r=8, p=1)를 지원하는 RFC 7914 Scrypt 구현입니다.
+    /// 작은 작업 버퍼는 호출 안에서 재사용하여 반복 계산 중 힙 할당을 줄입니다.
     /// </summary>
     public static class Scrypt
     {
@@ -63,6 +63,8 @@ namespace HandStack.Core.Licensing.Validation
             uint[] X = new uint[blockWords];
             uint[] T = new uint[blockWords];
             uint[] V = new uint[blockWords * N];
+            uint[] blockBuffer = new uint[16];
+            uint[] salsaBuffer = new uint[16];
 
             for (int i = 0; i < blockWords; i++)
             {
@@ -72,14 +74,14 @@ namespace HandStack.Core.Licensing.Validation
             for (int i = 0; i < N; i++)
             {
                 Array.Copy(X, 0, V, i * blockWords, blockWords);
-                BlockMix(X, T, r);
+                BlockMix(X, T, r, blockBuffer, salsaBuffer);
             }
             for (int i = 0; i < N; i++)
             {
                 uint j = X[(2 * r - 1) * 16] & (uint)(N - 1);
                 int vOff = (int)j * blockWords;
                 for (int k = 0; k < blockWords; k++) X[k] ^= V[vOff + k];
-                BlockMix(X, T, r);
+                BlockMix(X, T, r, blockBuffer, salsaBuffer);
             }
 
             for (int i = 0; i < blockWords; i++)
@@ -88,9 +90,8 @@ namespace HandStack.Core.Licensing.Validation
             }
         }
 
-        private static void BlockMix(uint[] B, uint[] Y, int r)
+        private static void BlockMix(uint[] B, uint[] Y, int r, uint[] X, uint[] salsaBuffer)
         {
-            uint[] X = new uint[16];
             int BOff = (2 * r - 1) * 16;
             Array.Copy(B, BOff, X, 0, 16);
 
@@ -98,7 +99,7 @@ namespace HandStack.Core.Licensing.Validation
             for (int i = 0; i < 2 * r; i++)
             {
                 for (int j = 0; j < 16; j++) X[j] ^= B[i * 16 + j];
-                Salsa208(X);
+                Salsa208(X, salsaBuffer);
                 Array.Copy(X, 0, Y, outOff, 16);
                 outOff += 16;
             }
@@ -109,9 +110,8 @@ namespace HandStack.Core.Licensing.Validation
                 Array.Copy(Y, i * 32 + 16, B, (i + r) * 16, 16);
         }
 
-        private static void Salsa208(uint[] B)
+        private static void Salsa208(uint[] B, uint[] x)
         {
-            uint[] x = new uint[16];
             Array.Copy(B, x, 16);
             for (int i = 8; i > 0; i -= 2)
             {

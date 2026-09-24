@@ -505,7 +505,7 @@ namespace HandStack.Core.ExtensionMethod
             var bytes = new byte[hex.Length / 2];
             for (var i = 0; i < hex.Length / 2; i++)
             {
-                var code = hex.Substring(i * 2, 2);
+                var code = hex.AsSpan(i * 2, 2);
                 bytes[i] = byte.Parse(code, NumberStyles.HexNumber);
             }
             return bytes;
@@ -575,8 +575,7 @@ namespace HandStack.Core.ExtensionMethod
             }
 
             var lowerVal = @this.ToLower();
-            var trueValues = new[] { "true", "y", "1", "ok", "yes", "on" };
-            return trueValues.Contains(lowerVal);
+            return lowerVal is "true" or "y" or "1" or "ok" or "yes" or "on";
         }
 
         public static DateTime? ParseDateTime(this string @this, DateTime? defaultValue = null, DateTimeStyles dateTimeStyles = DateTimeStyles.None)

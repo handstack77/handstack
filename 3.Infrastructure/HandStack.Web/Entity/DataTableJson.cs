@@ -6,11 +6,7 @@ namespace HandStack.Web.Entity
     {
         public static DataTableJsonData ToJsonObject(string fieldID, DataTable source)
         {
-            var result = new DataTableJsonData();
-            result.ID = fieldID;
-            result.Value = source;
-
-            return result;
+            return new DataTableJsonData(fieldID, source);
         }
     }
 
@@ -20,6 +16,12 @@ namespace HandStack.Web.Entity
         {
             ID = "";
             Value = new DataTable();
+        }
+
+        public DataTableJsonData(string id, DataTable value)
+        {
+            ID = id;
+            Value = value;
         }
 
         public string ID { get; set; }

@@ -7,7 +7,7 @@ namespace HandStack.Web.Entity
     {
         public static List<FormJsonData> ToJsonObject(string fieldID, DataSet source)
         {
-            var formControls = new List<FormJsonData>();
+            var formControls = new List<FormJsonData>(source.Tables.Count);
 
             int colIndex;
             foreach (DataTable dataTable in source.Tables)
@@ -15,6 +15,12 @@ namespace HandStack.Web.Entity
                 var formData = new FormJsonData();
                 foreach (DataRow dataRow in dataTable.Rows)
                 {
+                    // 값은 첫 행에서 채우며, 삭제된 행의 기존 접근 오류는 유지합니다.
+                    if (formData.Value.Count == dataTable.Columns.Count && dataRow.RowState != DataRowState.Deleted)
+                    {
+                        continue;
+                    }
+
                     colIndex = 0;
                     foreach (var item in dataRow.ItemArray)
                     {
@@ -40,6 +46,12 @@ namespace HandStack.Web.Entity
             var formData = new FormJsonData();
             foreach (DataRow dataRow in source.Rows)
             {
+                // 값은 첫 행에서 채우며, 삭제된 행의 기존 접근 오류는 유지합니다.
+                if (formData.Value.Count == source.Columns.Count && dataRow.RowState != DataRowState.Deleted)
+                {
+                    continue;
+                }
+
                 colIndex = 0;
                 foreach (var item in dataRow.ItemArray)
                 {

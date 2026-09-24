@@ -634,43 +634,10 @@ namespace dbclient.DataClient
                             {
                                 if (dynamicObject.IgnoreResult == true)
                                 {
-                                    using var dataTable = new DataTable();
-                                    using var schemaTable = mainReader.GetSchemaTable();
-                                    if (schemaTable == null)
+                                    using var dataTable = DataTableHelper.DataReaderToSingleRowTable(mainReader);
+                                    if (dataTable == null)
                                     {
                                         continue;
-                                    }
-
-                                    DataRow row;
-
-                                    string columnName;
-                                    DataColumn column;
-                                    var count = schemaTable.Rows.Count;
-
-                                    for (var j = 0; j < count; j++)
-                                    {
-                                        row = schemaTable.Rows[j];
-                                        columnName = (string)row["ColumnName"];
-
-                                        column = new DataColumn(columnName, (Type)row["DataType"]);
-                                        dataTable.Columns.Add(column);
-                                    }
-
-                                    var values = new object[count];
-
-                                    try
-                                    {
-                                        dataTable.BeginLoadData();
-                                        while (mainReader.Read())
-                                        {
-                                            mainReader.GetValues(values);
-                                            dataTable.LoadDataRow(values, true);
-                                        }
-                                        dataTable.EndLoadData();
-                                    }
-                                    finally
-                                    {
-                                        dataTable.EndLoadData();
                                     }
 
                                     if (dataTable.Rows.Count > 0)
@@ -1444,42 +1411,10 @@ TransactionException:
                             {
                                 if (dynamicObject.IgnoreResult == true)
                                 {
-                                    using var dataTable = new DataTable();
-                                    using var schemaTable = mainReader.GetSchemaTable();
-                                    if (schemaTable == null)
+                                    using var dataTable = DataTableHelper.DataReaderToSingleRowTable(mainReader);
+                                    if (dataTable == null)
                                     {
                                         continue;
-                                    }
-
-                                    DataRow row;
-
-                                    string columnName;
-                                    DataColumn column;
-                                    var count = schemaTable.Rows.Count;
-
-                                    for (var j = 0; j < count; j++)
-                                    {
-                                        row = schemaTable.Rows[j];
-                                        columnName = (string)row["ColumnName"];
-
-                                        column = new DataColumn(columnName, (Type)row["DataType"]);
-                                        dataTable.Columns.Add(column);
-                                    }
-
-                                    var values = new object[count];
-
-                                    try
-                                    {
-                                        dataTable.BeginLoadData();
-                                        while (mainReader.Read())
-                                        {
-                                            mainReader.GetValues(values);
-                                            dataTable.LoadDataRow(values, true);
-                                        }
-                                    }
-                                    finally
-                                    {
-                                        dataTable.EndLoadData();
                                     }
 
                                     if (dataTable.Rows.Count > 0)
@@ -2108,43 +2043,10 @@ TransactionException:
                             {
                                 if (dynamicObject.IgnoreResult == true)
                                 {
-                                    using var dataTable = new DataTable();
-                                    using var schemaTable = mainReader.GetSchemaTable();
-                                    if (schemaTable == null)
+                                    using var dataTable = DataTableHelper.DataReaderToSingleRowTable(mainReader, beforeRead: () => result = result + mainReader.RecordsAffected);
+                                    if (dataTable == null)
                                     {
                                         continue;
-                                    }
-
-                                    DataRow row;
-
-                                    string columnName;
-                                    DataColumn column;
-                                    var count = schemaTable.Rows.Count;
-
-                                    for (var j = 0; j < count; j++)
-                                    {
-                                        row = schemaTable.Rows[j];
-                                        columnName = (string)row["ColumnName"];
-
-                                        column = new DataColumn(columnName, (Type)row["DataType"]);
-                                        dataTable.Columns.Add(column);
-                                    }
-
-                                    var values = new object[count];
-
-                                    try
-                                    {
-                                        result = result + mainReader.RecordsAffected;
-                                        dataTable.BeginLoadData();
-                                        while (mainReader.Read())
-                                        {
-                                            mainReader.GetValues(values);
-                                            dataTable.LoadDataRow(values, true);
-                                        }
-                                    }
-                                    finally
-                                    {
-                                        dataTable.EndLoadData();
                                     }
 
                                     if (dataTable.Rows.Count > 0)
@@ -2772,42 +2674,10 @@ TransactionException:
                             {
                                 if (dynamicObject.IgnoreResult == true)
                                 {
-                                    using var dataTable = new DataTable();
-                                    using var schemaTable = mainReader.GetSchemaTable();
-                                    if (schemaTable == null)
+                                    using var dataTable = DataTableHelper.DataReaderToSingleRowTable(mainReader);
+                                    if (dataTable == null)
                                     {
                                         continue;
-                                    }
-
-                                    DataRow row;
-
-                                    string columnName;
-                                    DataColumn column;
-                                    var count = schemaTable.Rows.Count;
-
-                                    for (var j = 0; j < count; j++)
-                                    {
-                                        row = schemaTable.Rows[j];
-                                        columnName = (string)row["ColumnName"];
-
-                                        column = new DataColumn(columnName, (Type)row["DataType"]);
-                                        dataTable.Columns.Add(column);
-                                    }
-
-                                    var values = new object[count];
-
-                                    try
-                                    {
-                                        dataTable.BeginLoadData();
-                                        while (mainReader.Read())
-                                        {
-                                            mainReader.GetValues(values);
-                                            dataTable.LoadDataRow(values, true);
-                                        }
-                                    }
-                                    finally
-                                    {
-                                        dataTable.EndLoadData();
                                     }
 
                                     if (dataTable.Rows.Count > 0)
@@ -3757,42 +3627,10 @@ TransactionException:
                         {
                             if (dynamicObject.IgnoreResult == true)
                             {
-                                using var dataTable = new DataTable();
-                                using var schemaTable = mainReader.GetSchemaTable();
-                                if (schemaTable == null)
+                                using var dataTable = DataTableHelper.DataReaderToSingleRowTable(mainReader, retainFirstRow: true);
+                                if (dataTable == null)
                                 {
                                     continue;
-                                }
-
-                                DataRow row;
-
-                                string columnName;
-                                DataColumn column;
-                                var count = schemaTable.Rows.Count;
-
-                                for (var j = 0; j < count; j++)
-                                {
-                                    row = schemaTable.Rows[j];
-                                    columnName = (string)row["ColumnName"];
-
-                                    column = new DataColumn(columnName, (Type)row["DataType"]);
-                                    dataTable.Columns.Add(column);
-                                }
-
-                                var values = new object[count];
-
-                                try
-                                {
-                                    dataTable.BeginLoadData();
-                                    while (mainReader.Read())
-                                    {
-                                        mainReader.GetValues(values);
-                                        dataTable.LoadDataRow(values, true);
-                                    }
-                                }
-                                finally
-                                {
-                                    dataTable.EndLoadData();
                                 }
 
                                 if (dataTable.Rows.Count > 0)
@@ -4326,42 +4164,10 @@ TransactionException:
                             {
                                 if (dynamicObject.IgnoreResult == true)
                                 {
-                                    using var dataTable = new DataTable();
-                                    using var schemaTable = mainReader.GetSchemaTable();
-                                    if (schemaTable == null)
+                                    using var dataTable = DataTableHelper.DataReaderToSingleRowTable(mainReader, retainFirstRow: true);
+                                    if (dataTable == null)
                                     {
                                         continue;
-                                    }
-
-                                    DataRow row;
-
-                                    string columnName;
-                                    DataColumn column;
-                                    var count = schemaTable.Rows.Count;
-
-                                    for (var j = 0; j < count; j++)
-                                    {
-                                        row = schemaTable.Rows[j];
-                                        columnName = (string)row["ColumnName"];
-
-                                        column = new DataColumn(columnName, (Type)row["DataType"]);
-                                        dataTable.Columns.Add(column);
-                                    }
-
-                                    var values = new object[count];
-
-                                    try
-                                    {
-                                        dataTable.BeginLoadData();
-                                        while (mainReader.Read())
-                                        {
-                                            mainReader.GetValues(values);
-                                            dataTable.LoadDataRow(values, true);
-                                        }
-                                    }
-                                    finally
-                                    {
-                                        dataTable.EndLoadData();
                                     }
 
                                     if (dataTable.Rows.Count > 0)

@@ -7,6 +7,11 @@ namespace HandStack.Core.ExtensionMethod
     {
         public static string GetAsString(this MemoryStream @this, Encoding encoding)
         {
+            if (@this.GetType() == typeof(MemoryStream) && @this.TryGetBuffer(out var buffer))
+            {
+                return encoding.GetString(buffer.Array!, buffer.Offset, buffer.Count);
+            }
+
             return encoding.GetString(@this.ToArray());
         }
 

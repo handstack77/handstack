@@ -617,17 +617,12 @@ namespace HandStack.Core.ExtensionMethod
 
         public static int WeekDayInstanceOfMonth(this DateTime @this)
         {
-            var y = 0;
-            return DaysOfMonth(@this.Year, @this.Month)
-                .Where(x => x.DayOfWeek.Equals(@this.DayOfWeek))
-                .Select(x => new { n = ++y, @this = x })
-                .Where(x => x.@this.Equals(new DateTime(@this.Year, @this.Month, @this.Day)))
-                .Select(x => x.n).FirstOrDefault();
+            return (@this.Day - 1) / 7 + 1;
         }
 
         public static int TotalDaysInMonth(this DateTime @this)
         {
-            return DaysOfMonth(@this.Year, @this.Month).Count();
+            return DateTime.DaysInMonth(@this.Year, @this.Month);
         }
 
         public static DateTime ToDateTimeUnspecified(this DateTime @this)

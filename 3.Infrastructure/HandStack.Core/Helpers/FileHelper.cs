@@ -64,11 +64,7 @@ namespace HandStack.Core.Helpers
                 fsOutput.Write(salt, 0, salt.Length);
                 using var cs = new CryptoStream(fsOutput, encryptor.CreateEncryptor(), CryptoStreamMode.Write);
                 using var fsInput = new FileStream(filePath, FileMode.Open);
-                int data;
-                while ((data = fsInput.ReadByte()) != -1)
-                {
-                    cs.WriteByte((byte)data);
-                }
+                fsInput.CopyTo(cs);
             }
 
             if (File.Exists(filePath) == true)
@@ -126,11 +122,7 @@ namespace HandStack.Core.Helpers
                 encryptor.IV = iv;
                 using var cs = new CryptoStream(fsInput, encryptor.CreateDecryptor(), CryptoStreamMode.Read);
                 using var fsOutput = new FileStream(outputFilePath, FileMode.Create);
-                int data;
-                while ((data = cs.ReadByte()) != -1)
-                {
-                    fsOutput.WriteByte((byte)data);
-                }
+                cs.CopyTo(fsOutput);
             }
 
             if (File.Exists(filePath) == true)

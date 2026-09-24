@@ -8,7 +8,7 @@
 - 데이터 원본 정의(`DataSource`)와 계약 경로(`ContractBasePath`)를 관리합니다.
 - `transact`에서 라우팅된 D 타입 거래를 실제 DB 실행으로 변환합니다.
 - 계약 파일 변경을 감시해 런타임 캐시를 갱신합니다.
-- 필요 시 MediatR 이벤트로 들어온 DB 요청도 직접 처리합니다.
+- 필요 시 Mediator 이벤트로 들어온 DB 요청도 직접 처리합니다.
 
 ## 주요 진입점
 - `GET /dbclient/api/query/has`
@@ -16,7 +16,7 @@
 - `GET /dbclient/api/query/retrieve`
 - `GET /dbclient/api/query/meta`
 - `GET /dbclient/api/query/reports`
-- `POST /dbclient/api/query/execute`
+- `POST /dbclient/api/query`
 - 주요 구현 클래스
   - `QueryController`
   - `QueryDataClient`
@@ -27,7 +27,7 @@
 ## 주요 디렉터리
 - `Areas/dbclient/Controllers`: `/dbclient/api/query/*`와 관리 API
 - `DataClient/QueryDataClient.cs`: 계약 해석, 파라미터 바인딩, SQL 실행 핵심 구현
-- `Events`: MediatR 요청/리프레시 처리기
+- `Events`: Mediator 요청/리프레시 처리기
 - `Profiler`: 실행 프로파일 수집
 - `NativeParameters`, `Parameter`: 공급자별 파라미터 보조 구현
 - `Contracts/dbclient`: 샘플 XML 계약
@@ -52,8 +52,16 @@
 3. `dbclient`는 `DatabaseMapper`에서 해당 XML 계약과 statement를 찾습니다.
 4. `QueryDataClient`가 `DataSourceID`에 맞는 연결을 열고 SQL을 실행한 뒤 계약 형식으로 결과를 반환합니다.
 
+### 결과 변환과 메모리 사용
+
+- 일반 결과는 `ExecuteReader` → `DataTableHelper.DataReaderToDataSet` → 관계/메타 처리 → `FormJson`, `GridJson`, `ChartGridJson`, `DataTableJson` 순서로 처리합니다. 다중 결과 집합, 열 이름·타입·문자열 길이, 행 순서와 `DBNull`을 유지합니다. 반환된 DataSet은 호출자가 해제합니다.
+- `IgnoreResult=true`이면 현재 결과 집합을 끝까지 읽고 형식을 검증하면서 후속 `BaseFieldMappings`에 필요한 행만 보관합니다. `Json`, `Scalar`, `NonQuery`, `Xml`은 마지막 행을, `SchemeOnly`, `SQLText`는 첫 행을 사용합니다. 첫 행을 보관할 때는 검증용 행 하나를 추가로 재사용하며, 이 경로에서 다음 결과 집합으로 직접 이동하지 않습니다.
+- `NonQuery`의 `IgnoreResult` 분기는 기존과 같이 첫 `Read` 전에 `RecordsAffected`를 누적합니다. 트랜잭션과 Reader 종료는 기존 실행 경로가 담당합니다.
+- Form 변환은 첫 행의 값을 사용하며, 이후 행에서 불필요한 배열 복사를 줄입니다. Grid/Chart 변환은 결과 크기로 컬렉션 용량을 지정하고, DataTable 래퍼는 원본 테이블을 그대로 참조합니다.
+- 파일별 검토, 보류 사유, 비교 측정과 검증 범위는 [2026-09-24 최적화 검토 기록](../../docs/optimization/2026-09-24/report.md)에 있습니다. 측정치는 해당 변환 단계의 결과이며 서버 전체 응답 시간 개선율을 뜻하지 않습니다.
+
 ## 운영 메모
-- `SubscribeAction`에 `dbclient.Events.DbClientRequest`, `dbclient.Events.ManagedRequest`가 등록되어 있어 다른 모듈이 MediatR로 DB 실행을 위임할 수 있습니다.
+- `SubscribeAction`에 `dbclient.Events.DbClientRequest`, `dbclient.Events.ManagedRequest`가 등록되어 있어 다른 모듈이 Mediator로 DB 실행을 위임할 수 있습니다.
 - 기본 `DataSource`에는 `CHECKUPDB`, `DB01~DB05`가 포함되어 있어 멀티 DB 샘플 환경을 바로 띄울 수 있습니다.
 
 ### 개발용 DB 컨테이너 예시

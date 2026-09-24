@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 
@@ -9,7 +8,8 @@ namespace dbclient.Extensions
 {
     internal static class TypeBuilderUtils
     {
-        private static readonly ConcurrentDictionary<IDictionary<string, Type>, Type> Types = new();
+        private static readonly ConcurrentDictionary<IDictionary<string, Type>, Type> Types = new(new PropertyMapComparer());
+        private static readonly object typeCreationLock = new object();
 
         private static readonly ModuleBuilder ModuleBuilder = AssemblyBuilder
                 .DefineDynamicAssembly(new AssemblyName("HandStack.Dynamic.Reflection"), AssemblyBuilderAccess.Run)
@@ -17,53 +17,63 @@ namespace dbclient.Extensions
 
         public static Type BuildType(IDictionary<string, Type> properties, string? name = null)
         {
-            var keyExists = Types.Keys.FirstOrDefault(k => Compare(k, properties));
-            if (keyExists != null)
+            if (Types.TryGetValue(properties, out var type))
             {
-                return Types[keyExists];
+                return type;
             }
 
-            var typeBuilder = GetTypeBuilder(name ?? Guid.NewGuid().ToString("N"));
-            foreach (var property in properties)
+            lock (typeCreationLock)
             {
-                CreateGetSetMethods(typeBuilder, property.Key, property.Value);
+                if (Types.TryGetValue(properties, out type))
+                {
+                    return type;
+                }
+
+                // 캐시 키는 복사해 보관하고, 같은 스키마의 타입을 한 번만 생성합니다.
+                var snapshot = new Dictionary<string, Type>(properties, StringComparer.Ordinal);
+                var typeBuilder = GetTypeBuilder(name ?? Guid.NewGuid().ToString("N"));
+                foreach (var property in snapshot)
+                {
+                    CreateGetSetMethods(typeBuilder, property.Key, property.Value);
+                }
+
+                type = typeBuilder.CreateTypeInfo()!.AsType();
+                Types.TryAdd(snapshot, type);
+                return type;
             }
-
-            var type = typeBuilder.CreateTypeInfo()!.AsType();
-
-            Types.TryAdd(properties, type);
-
-            return type;
         }
 
-        private static bool Compare<TKey, TValue>(IDictionary<TKey, TValue> dict1, IDictionary<TKey, TValue> dict2) where TKey : notnull
+        private sealed class PropertyMapComparer : IEqualityComparer<IDictionary<string, Type>>
         {
-            if (dict1 == dict2)
+            public bool Equals(IDictionary<string, Type>? left, IDictionary<string, Type>? right)
             {
+                if (ReferenceEquals(left, right))
+                {
+                    return true;
+                }
+                if (left == null || right == null || left.Count != right.Count)
+                {
+                    return false;
+                }
+                foreach (var property in left)
+                {
+                    if (right.TryGetValue(property.Key, out var type) == false || type != property.Value)
+                    {
+                        return false;
+                    }
+                }
                 return true;
             }
 
-            if (dict1.Count != dict2.Count)
+            public int GetHashCode(IDictionary<string, Type> properties)
             {
-                return false;
-            }
-
-            var valueComparer = EqualityComparer<TValue>.Default;
-
-            foreach (var kvp in dict1)
-            {
-                if (!dict2.TryGetValue(kvp.Key, out var value2))
+                var hash = 0;
+                foreach (var property in properties)
                 {
-                    return false;
+                    hash = unchecked(hash + HashCode.Combine(StringComparer.Ordinal.GetHashCode(property.Key), property.Value));
                 }
-
-                if (!valueComparer.Equals(kvp.Value, value2))
-                {
-                    return false;
-                }
+                return hash;
             }
-
-            return true;
         }
 
         private static TypeBuilder GetTypeBuilder(string name)
