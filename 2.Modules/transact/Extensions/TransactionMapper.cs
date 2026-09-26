@@ -39,7 +39,6 @@ namespace transact.Extensions
 
                 if (businessContract == null)
                 {
-                    var userWorkID = string.Empty;
                     var appBasePath = string.Empty;
                     var baseDirectoryInfo = new DirectoryInfo(GlobalConfiguration.TenantAppBasePath);
                     var directories = Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath, applicationID, SearchOption.AllDirectories);
@@ -49,14 +48,12 @@ namespace transact.Extensions
                         if (baseDirectoryInfo.Name == directoryInfo.Parent?.Parent?.Name)
                         {
                             appBasePath = directoryInfo.FullName.Replace("\\", "/");
-                            userWorkID = (directoryInfo.Parent?.Name).ToStringSafe();
                             break;
                         }
                     }
 
                     if (!string.IsNullOrWhiteSpace(appBasePath))
                     {
-                        var tenantID = $"{userWorkID}|{applicationID}";
                         var businessFile = string.Empty;
                         foreach (var extension in ModuleConfiguration.ContractFileExtensions)
                         {

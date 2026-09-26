@@ -498,7 +498,6 @@ TransactionException:
                 var logger = dataContext.logger;
                 logger?.Information($"Function: {typeMember} 작업 시작");
 
-                FileInfo fileInfo = new FileInfo(itemPath);
                 string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                 if (Directory.Exists(appBasePath) == true)
                 {

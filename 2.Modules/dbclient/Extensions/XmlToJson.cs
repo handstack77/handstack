@@ -11,8 +11,6 @@ namespace dbclient.Extensions
     {
         public static string JSONTransformer(string resultSetXML, string rootNodeName, string elementNodeName)
         {
-            var xmlDoc = new XmlDocument();
-            var dataset = new DataSet();
             var result = new StringBuilder();
             var recordCount = 0;
             var currentIndex = 0;

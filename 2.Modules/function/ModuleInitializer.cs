@@ -641,22 +641,6 @@ namespace function
 
         static void Main(string[] args)
         {
-#pragma warning disable CS0219
-            DataSet? dataSet = null;
-            DbConnection? dbConnection = null;
-            SqlCommand? sqlCommand = null;
-            SQLiteCommand? sQLiteCommand = null;
-            NpgsqlParameter? npgsqlParameter = null;
-            CultureInfo? cultureInfo = null;
-            Encoding? encoding = null;
-            Regex? regex = null;
-            XmlDocument? xmlDocument = null;
-            MySqlDbType? mySqlDbType = null;
-            NpgsqlDbType? npgsqlDbType = null;
-            OracleDbType? oracleDbType = null;
-            var statusCodes = StatusCodes.Status200OK;
-#pragma warning restore CS0219
-
             Console.WriteLine("function");
         }
     }

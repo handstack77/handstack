@@ -337,7 +337,6 @@ namespace publish_package
 
                 rootCommand.SetAction((parseResult) =>
                 {
-                    var debug = parseResult.GetValue(optionDebug);
 
                     try
                     {

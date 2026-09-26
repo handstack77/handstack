@@ -33,17 +33,19 @@ namespace HandStack.Core.Helpers
 
             try
             {
-                using var tcpClient = new TcpClient(addressFamily);
-                var pingSender = new Ping();
-                var options = new PingOptions();
+                using (new TcpClient(addressFamily))
+                {
+                    var pingSender = new Ping();
+                    var options = new PingOptions();
 
-                options.DontFragment = true;
+                    options.DontFragment = true;
 
-                var buffer = Encoding.ASCII.GetBytes("");
-                var timeout = 120;
-                var reply = pingSender.Send(hostNameOrAddress, timeout, buffer, options);
+                    var buffer = Encoding.ASCII.GetBytes("");
+                    var timeout = 120;
+                    var reply = pingSender.Send(hostNameOrAddress, timeout, buffer, options);
 
-                result = (reply.Status == IPStatus.Success);
+                    result = (reply.Status == IPStatus.Success);
+                }
             }
             catch
             {

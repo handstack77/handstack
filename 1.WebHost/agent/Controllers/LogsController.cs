@@ -40,7 +40,7 @@ namespace agent.Controllers
                 });
             }
 
-            var (target, workingDirectory, logDirectoryPath) = context.Value;
+            var (target, _, logDirectoryPath) = context.Value;
             if (Directory.Exists(logDirectoryPath) == false)
             {
                 return NotFound(new
@@ -103,7 +103,7 @@ namespace agent.Controllers
                 });
             }
 
-            var (target, workingDirectory, logDirectoryPath) = context.Value;
+            var (target, _, logDirectoryPath) = context.Value;
             if (Directory.Exists(logDirectoryPath) == false)
             {
                 return NotFound(new

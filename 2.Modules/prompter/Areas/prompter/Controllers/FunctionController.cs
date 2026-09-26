@@ -298,7 +298,6 @@ namespace prompter.Areas.prompter.Controllers
         protected async Task<DataSet?> GF01(List<DynamicParameter> dynamicParameters, DataContext dataContext)
         {
             var typeMember = "TST.CSF010.GF01";
-            var serverDate = dynamicParameters.Value("ServerDate").ToStringSafe();
             var serverName = dynamicParameters.Value("ServerName").ToStringSafe();
 
             var dataTableBuilder = new DataTableHelper();

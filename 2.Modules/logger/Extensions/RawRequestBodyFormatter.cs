@@ -73,7 +73,6 @@ namespace logger.Extensions
         {
             var request = context.HttpContext.Request;
             var contentType = request.ContentType;
-            var pathBase = request.PathBase;
 
             if (!string.IsNullOrWhiteSpace(contentType))
             {

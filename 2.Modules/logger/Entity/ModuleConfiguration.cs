@@ -45,7 +45,6 @@ namespace logger.Entity
             var dataSource = DataSource.FirstOrDefault(p => p.ApplicationID == applicationID);
             if (dataSource == null)
             {
-                var userWorkID = string.Empty;
                 var appBasePath = string.Empty;
                 var baseDirectoryInfo = new DirectoryInfo(GlobalConfiguration.TenantAppBasePath);
                 var directories = Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath, applicationID, SearchOption.AllDirectories);
@@ -55,12 +54,10 @@ namespace logger.Entity
                     if (baseDirectoryInfo.Name == directoryInfo.Parent?.Parent?.Name)
                     {
                         appBasePath = directoryInfo.FullName.Replace("\\", "/");
-                        userWorkID = (directoryInfo.Parent?.Name).ToStringSafe();
                         break;
                     }
                 }
 
-                var tenantID = $"{userWorkID}|{applicationID}";
                 if (!string.IsNullOrWhiteSpace(appBasePath))
                 {
                     var transactionLogBasePath = PathExtensions.Combine(appBasePath, ".managed", "sqlite");

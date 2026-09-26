@@ -128,7 +128,6 @@ namespace HandStack.Core.ExpendObjects
                     reader.MoveToContent();
 
                     TValue? value;
-                    var strval = string.Empty;
                     if (xmlType == "nil")
                     {
                         value = default(TValue);

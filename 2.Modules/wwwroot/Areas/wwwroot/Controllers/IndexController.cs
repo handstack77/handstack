@@ -266,7 +266,7 @@ namespace wwwroot.Areas.wwwroot.Controllers
         [HttpGet("[action]")]
         public string SHA256Hash(string text)
         {
-            var result = Reflector.AssertLicenseStaticFunc<string>(ModuleConfiguration.ModuleID, typeof(ModuleConfiguration), "MyStaticMethod", "example parameter");
+            Reflector.AssertLicenseStaticFunc<string>(ModuleConfiguration.ModuleID, typeof(ModuleConfiguration), "MyStaticMethod", "example parameter");
             return text.ToSHA256();
         }
 

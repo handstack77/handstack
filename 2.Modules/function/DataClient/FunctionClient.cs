@@ -821,14 +821,6 @@ namespace function.DataClient
             }
             catch (Exception exception)
             {
-                // TCC (Try-Confirm/Cancel) 패턴 구현 처리
-                if (request.IsTransaction == true)
-                {
-                    foreach (var transactionDynamicObject in transactionDynamicObjects)
-                    {
-                    }
-                }
-
                 response.ExceptionText = exception.ToMessage();
 
                 if (ModuleConfiguration.IsLogServer == true)
@@ -841,12 +833,6 @@ namespace function.DataClient
                 else
                 {
                     logger.Error("[{LogCategory}] [{GlobalID}] " + response.ExceptionText, "FunctionClient/ExecuteScriptMap", request.GlobalID);
-                }
-            }
-            finally
-            {
-                foreach (var transactionDynamicObject in transactionDynamicObjects)
-                {
                 }
             }
         }
@@ -900,7 +886,6 @@ namespace function.DataClient
                     var moduleResult = pythonResult.AsManagedObject(typeof(object));
                     if (moduleResult != null)
                     {
-                        var resultType = moduleResult.GetType().Name;
 
                         result = pythonResult.As<string>();
                     }

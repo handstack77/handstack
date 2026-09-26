@@ -16,20 +16,8 @@ namespace handstack
     {
         public static void Register(RootCommand rootCommand, HandstackCommandContext context)
         {
-            var optionAckFile = context.OptionAckFile;
-            var optionArguments = context.OptionArguments;
-            var optionPort = context.OptionPort;
-            var optionProcessID = context.OptionProcessID;
-            var optionFormat = context.OptionFormat;
-            var optionKey = context.OptionKey;
             var optionValue = context.OptionValue;
-            var optionAppSettingFile = context.OptionAppSettingFile;
             var optionDirectory = context.OptionDirectory;
-            var optionFile = context.OptionFile;
-            var optionFind = context.OptionFind;
-            var optionReplace = context.OptionReplace;
-            var optionReplaceExpressions = context.OptionReplaceExpressions;
-            var optionOptions = context.OptionOptions;
 
             // synusage --directory="%HANDSTACK_HOME%\modules\wwwroot\wwwroot\view" --value=uicontrols > result.csv
             var subCommandSynUsage = new Command("synusage", "특정 디렉토리 내에 있는 코드에서 많이 사용되는 syn 코드를 스캔합니다.") {

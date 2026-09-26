@@ -156,7 +156,6 @@ namespace dbclient.DataClient
                 var databaseProvider = connectionInfo.Item2;
 
                 i = 0;
-                var mergeDatas = new List<object>();
                 foreach (var transactionDynamicObject in transactionDynamicObjects)
                 {
                     var queryObject = transactionDynamicObject.Value.DynamicTransaction;
@@ -3867,7 +3866,6 @@ TransactionException:
                 var additionalData = new DataTable();
                 additionalData.Columns.Add("MessageCode", typeof(string));
                 additionalData.Columns.Add("MessageText", typeof(string));
-                var mergeDatas = new List<object>();
                 foreach (var transactionDynamicObject in transactionDynamicObjects)
                 {
                     var dynamicObject = transactionDynamicObject.Value.DynamicTransaction;

@@ -16,19 +16,7 @@ namespace handstack
         public static void Register(RootCommand rootCommand, HandstackCommandContext context)
         {
             var optionAckFile = context.OptionAckFile;
-            var optionArguments = context.OptionArguments;
-            var optionPort = context.OptionPort;
-            var optionProcessID = context.OptionProcessID;
-            var optionFormat = context.OptionFormat;
-            var optionKey = context.OptionKey;
-            var optionValue = context.OptionValue;
             var optionAppSettingFile = context.OptionAppSettingFile;
-            var optionDirectory = context.OptionDirectory;
-            var optionFile = context.OptionFile;
-            var optionFind = context.OptionFind;
-            var optionReplace = context.OptionReplace;
-            var optionReplaceExpressions = context.OptionReplaceExpressions;
-            var optionOptions = context.OptionOptions;
 
             // configuration --ack=%HANDSTACK_HOME%/app/ack.exe --appsettings=ack.localhost.json
             var subCommandConfiguration = new Command("configuration", "의도된 ack 프로그램 및 모듈 환경설정을 적용합니다") {
@@ -125,7 +113,6 @@ namespace handstack
                                                 functionModuleBasePath = directoryInfo.FullName.Replace("\\", "/");
                                             }
 
-                                            var sourceModuleSettingFileInfo = new FileInfo(sourceModuleSettingFilePath);
                                             var targetModuleSettingFilePath = PathExtensions.Combine(moduleBasePath, moduleID, moduleSettingFile);
 
                                             File.Copy(sourceModuleSettingFilePath, targetModuleSettingFilePath, true);

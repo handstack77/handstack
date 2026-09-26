@@ -658,7 +658,6 @@ namespace HandStack.Web.ApiClient
 
                     transactionObject.Inputs.Add(inputs);
 
-                    var requestID = "OnewayTransactionCommand" + DateTime.Now.ToString("yyyyMMddHHmmss");
                     var transactionResult = await TransactionDirect(GlobalConfiguration.BusinessServerUrl, transactionObject);
                     result = (transactionResult?["HasException"]?["ErrorMessage"]).ToStringSafe();
                 }
@@ -717,7 +716,6 @@ namespace HandStack.Web.ApiClient
 
                     transactionObject.Inputs.Add(inputs);
 
-                    var requestID = "OnewayTransactionCommandAsync" + DateTime.Now.ToString("yyyyMMddHHmmss");
                     Task.Run(async () =>
                     {
                         try
@@ -778,7 +776,6 @@ namespace HandStack.Web.ApiClient
 
                     transactionObject.Inputs.Add(inputs);
 
-                    var requestID = "FallbackTransactionCommand" + DateTime.Now.ToString("yyyyMMddHHmmss");
                     Task.Run(async () =>
                     {
                         try

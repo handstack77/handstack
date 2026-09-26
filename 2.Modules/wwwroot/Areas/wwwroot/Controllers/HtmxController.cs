@@ -34,8 +34,6 @@ namespace wwwroot.Areas.wwwroot.Controllers
         [HttpGet("contacts/{id}")]
         public IActionResult Details(int id)
         {
-            var currentUrl = Request.GetCurrentUrl();
-            var targetElement = Request.GetTargetId();
             var contact = GetContactById(id);
 
             if (Request.IsHistoryRestoreRequest())
@@ -79,7 +77,6 @@ namespace wwwroot.Areas.wwwroot.Controllers
                 model.Name = promptResponse;
             }
 
-            var triggerName = Request.GetTriggerName();
 
             UpdateContact(id, model);
 
@@ -111,7 +108,6 @@ namespace wwwroot.Areas.wwwroot.Controllers
                 return Content("");
             }
 
-            var hasMorePages = HasMorePages(page + 1);
 
             var result = this.HtmxPartial("_ContactListPartial", moreContacts);
 

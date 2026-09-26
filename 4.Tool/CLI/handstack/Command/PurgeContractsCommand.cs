@@ -13,19 +13,7 @@ namespace handstack
         public static void Register(RootCommand rootCommand, HandstackCommandContext context)
         {
             var optionAckFile = context.OptionAckFile;
-            var optionArguments = context.OptionArguments;
-            var optionPort = context.OptionPort;
-            var optionProcessID = context.OptionProcessID;
-            var optionFormat = context.OptionFormat;
-            var optionKey = context.OptionKey;
-            var optionValue = context.OptionValue;
-            var optionAppSettingFile = context.OptionAppSettingFile;
             var optionDirectory = context.OptionDirectory;
-            var optionFile = context.OptionFile;
-            var optionFind = context.OptionFind;
-            var optionReplace = context.OptionReplace;
-            var optionReplaceExpressions = context.OptionReplaceExpressions;
-            var optionOptions = context.OptionOptions;
 
             // purgecontracts --ack=%HANDSTACK_HOME%/app/ack.exe --directory=C:/projects/myapp/contracts
             var subCommandPurgeContracts = new Command("purgecontracts", "모듈의 Contracts를 사용하도록 ack 프로그램의 contracts 내 중복 파일을 삭제합니다") {
@@ -39,7 +27,6 @@ namespace handstack
 
                 if (ackFile != null && ackFile.Exists == true && directory != null && directory.Exists == true)
                 {
-                    var appBasePath = ackFile.DirectoryName.ToStringSafe();
                     var ackHomePath = (ackFile.Directory?.Parent?.FullName.Replace("\\", "/")).ToStringSafe();
                     var targetContractDir = PathExtensions.Combine(ackHomePath, "contracts");
                     var baseDir = directory.FullName.Replace("\\", "/");

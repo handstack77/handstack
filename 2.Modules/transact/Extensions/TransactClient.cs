@@ -56,7 +56,6 @@ namespace transact.Extensions
             var transactionContent = "";
             var transactionResponse = new TransactionResponse();
             DefaultResponseHeaderConfiguration(transactionRequest, transactionResponse, -1);
-            var requestID = string.Empty;
 
             try
             {
@@ -1478,7 +1477,6 @@ namespace transact.Extensions
 
             try
             {
-                var businessID = string.IsNullOrWhiteSpace(sequentialOption.TransactionProjectID) ? request.Transaction.BusinessID : sequentialOption.TransactionProjectID;
                 var transactionID = string.IsNullOrWhiteSpace(sequentialOption.TransactionID) ? request.Transaction.TransactionID : sequentialOption.TransactionID;
                 var serviceID = string.IsNullOrWhiteSpace(sequentialOption.ServiceID) ? transactionObject.ServiceID : sequentialOption.ServiceID;
 
@@ -1517,19 +1515,87 @@ namespace transact.Extensions
                 var transactInputs = transactionObject.Inputs;
 
                 var inputOffset = 0;
-                var requestInputItems = new Dictionary<string, List<List<TransactField>>>();
-                for (var i = 0; i < transactionObject.InputsItemCount.Count; i++)
+
+                if (transactionObject.InputsItemCount.Count == 0)
                 {
-                    var inputCount = transactionObject.InputsItemCount[i];
-                    if (inputCount > 0 && inputContracts.Count > 0)
+                    var queryObject = new QueryObject();
+                    queryObject.QueryID = string.Concat(transactionApplicationID, "|", transactionProjectID, "|", transactionID, "|", serviceID, "00");
+
+                    var baseFieldRelations = new List<BaseFieldRelation?>();
+                    var jsonObjectTypes = new List<JsonObjectType>();
+                    foreach (var item in outputContracts)
                     {
-                        var inputContract = inputContracts[i];
-                        var inputs = transactInputs.Skip(inputOffset).Take(inputCount).ToList();
+                        var jsonObjectType = (JsonObjectType)Enum.Parse(typeof(JsonObjectType), item.Type + "Json");
+                        jsonObjectTypes.Add(jsonObjectType);
 
-                        for (var j = 0; j < inputs.Count; j++)
+                        if (jsonObjectType == JsonObjectType.AdditionJson)
                         {
-                            var serviceParameters = inputs[j];
+                            queryObject.JsonObject = jsonObjectType;
+                        }
 
+                        if (item.BaseFieldRelation != null)
+                        {
+                            baseFieldRelations.Add(item.BaseFieldRelation);
+                        }
+                    }
+                    queryObject.JsonObjects = jsonObjectTypes;
+                    queryObject.Parameters = new List<DynamicParameter>();
+                    queryObject.BaseFieldMappings = new List<BaseFieldMapping>();
+                    queryObject.BaseFieldRelations = baseFieldRelations;
+                    queryObject.IgnoreResult = false;
+                    dynamicObjects.Add(queryObject);
+                }
+                else
+                {
+                    for (var i = 0; i < transactionObject.InputsItemCount.Count; i++)
+                    {
+                        var inputCount = transactionObject.InputsItemCount[i];
+                        if (inputCount > 0 && inputContracts.Count > 0)
+                        {
+                            var inputContract = inputContracts[i];
+                            var inputs = transactInputs.Skip(inputOffset).Take(inputCount).ToList();
+
+                            for (var j = 0; j < inputs.Count; j++)
+                            {
+                                var serviceParameters = inputs[j];
+
+                                var queryObject = new QueryObject();
+                                queryObject.QueryID = string.Concat(transactionApplicationID, "|", transactionProjectID, "|", transactionID, "|", serviceID, i.ToString().PadLeft(2, '0'));
+
+                                var baseFieldRelations = new List<BaseFieldRelation?>();
+                                var jsonObjectTypes = new List<JsonObjectType>();
+                                foreach (var item in outputContracts)
+                                {
+                                    var jsonObjectType = (JsonObjectType)Enum.Parse(typeof(JsonObjectType), item.Type + "Json");
+                                    jsonObjectTypes.Add(jsonObjectType);
+
+                                    if (jsonObjectType == JsonObjectType.AdditionJson)
+                                    {
+                                        queryObject.JsonObject = jsonObjectType;
+                                    }
+
+                                    if (item.BaseFieldRelation != null)
+                                    {
+                                        baseFieldRelations.Add(item.BaseFieldRelation);
+                                    }
+                                }
+                                queryObject.JsonObjects = jsonObjectTypes;
+
+                                var parameters = new List<DynamicParameter>();
+                                foreach (var item in serviceParameters)
+                                {
+                                    parameters.Append(item.FieldID, (DbType)Enum.Parse(typeof(DbType), item.DataType), item.Value);
+                                }
+
+                                queryObject.Parameters = parameters;
+                                queryObject.BaseFieldMappings = inputContract.BaseFieldMappings;
+                                queryObject.BaseFieldRelations = baseFieldRelations;
+                                queryObject.IgnoreResult = inputContract.IgnoreResult;
+                                dynamicObjects.Add(queryObject);
+                            }
+                        }
+                        else
+                        {
                             var queryObject = new QueryObject();
                             queryObject.QueryID = string.Concat(transactionApplicationID, "|", transactionProjectID, "|", transactionID, "|", serviceID, i.ToString().PadLeft(2, '0'));
 
@@ -1551,51 +1617,15 @@ namespace transact.Extensions
                                 }
                             }
                             queryObject.JsonObjects = jsonObjectTypes;
-
-                            var parameters = new List<DynamicParameter>();
-                            foreach (var item in serviceParameters)
-                            {
-                                parameters.Append(item.FieldID, (DbType)Enum.Parse(typeof(DbType), item.DataType), item.Value);
-                            }
-
-                            queryObject.Parameters = parameters;
-                            queryObject.BaseFieldMappings = inputContract.BaseFieldMappings;
+                            queryObject.Parameters = new List<DynamicParameter>();
+                            queryObject.BaseFieldMappings = new List<BaseFieldMapping>();
                             queryObject.BaseFieldRelations = baseFieldRelations;
-                            queryObject.IgnoreResult = inputContract.IgnoreResult;
+                            queryObject.IgnoreResult = false;
                             dynamicObjects.Add(queryObject);
                         }
+
+                        inputOffset = inputOffset + inputCount;
                     }
-                    else
-                    {
-                        var queryObject = new QueryObject();
-                        queryObject.QueryID = string.Concat(transactionApplicationID, "|", transactionProjectID, "|", transactionID, "|", serviceID, i.ToString().PadLeft(2, '0'));
-
-                        var baseFieldRelations = new List<BaseFieldRelation?>();
-                        var jsonObjectTypes = new List<JsonObjectType>();
-                        foreach (var item in outputContracts)
-                        {
-                            var jsonObjectType = (JsonObjectType)Enum.Parse(typeof(JsonObjectType), item.Type + "Json");
-                            jsonObjectTypes.Add(jsonObjectType);
-
-                            if (jsonObjectType == JsonObjectType.AdditionJson)
-                            {
-                                queryObject.JsonObject = jsonObjectType;
-                            }
-
-                            if (item.BaseFieldRelation != null)
-                            {
-                                baseFieldRelations.Add(item.BaseFieldRelation);
-                            }
-                        }
-                        queryObject.JsonObjects = jsonObjectTypes;
-                        queryObject.Parameters = new List<DynamicParameter>();
-                        queryObject.BaseFieldMappings = new List<BaseFieldMapping>();
-                        queryObject.BaseFieldRelations = baseFieldRelations;
-                        queryObject.IgnoreResult = false;
-                        dynamicObjects.Add(queryObject);
-                    }
-
-                    inputOffset = inputOffset + inputCount;
                 }
 
                 dynamicRequest.DynamicObjects = dynamicObjects;
@@ -1739,19 +1769,87 @@ namespace transact.Extensions
                 var transactInputs = transactionObject.Inputs;
 
                 var inputOffset = 0;
-                var requestInputItems = new Dictionary<string, List<List<TransactField>>>();
-                for (var i = 0; i < transactionObject.InputsItemCount.Count; i++)
+
+                if (transactionObject.InputsItemCount.Count <= 0)
                 {
-                    var inputCount = transactionObject.InputsItemCount[i];
-                    if (inputCount > 0 && inputContracts.Count > 0)
+                    var queryObject = new QueryObject();
+                    queryObject.QueryID = string.Concat(transactionObject.TransactionID, "|", transactionObject.ServiceID, "00");
+
+                    var baseFieldRelations = new List<BaseFieldRelation?>();
+                    var jsonObjectTypes = new List<JsonObjectType>();
+                    foreach (var item in outputContracts)
                     {
-                        var inputContract = inputContracts[i];
-                        var inputs = transactInputs.Skip(inputOffset).Take(inputCount).ToList();
+                        var jsonObjectType = (JsonObjectType)Enum.Parse(typeof(JsonObjectType), item.Type + "Json");
+                        jsonObjectTypes.Add(jsonObjectType);
 
-                        for (var j = 0; j < inputs.Count; j++)
+                        if (jsonObjectType == JsonObjectType.AdditionJson)
                         {
-                            var serviceParameters = inputs[j];
+                            queryObject.JsonObject = jsonObjectType;
+                        }
 
+                        if (item.BaseFieldRelation != null)
+                        {
+                            baseFieldRelations.Add(item.BaseFieldRelation);
+                        }
+                    }
+                    queryObject.JsonObjects = jsonObjectTypes;
+                    queryObject.Parameters = new List<DynamicParameter>();
+                    queryObject.BaseFieldMappings = new List<BaseFieldMapping>();
+                    queryObject.BaseFieldRelations = baseFieldRelations;
+                    queryObject.IgnoreResult = false;
+                    dynamicObjects.Add(queryObject);
+                }
+                else
+                {
+                    for (var i = 0; i < transactionObject.InputsItemCount.Count; i++)
+                    {
+                        var inputCount = transactionObject.InputsItemCount[i];
+                        if (inputCount > 0 && inputContracts.Count > 0)
+                        {
+                            var inputContract = inputContracts[i];
+                            var inputs = transactInputs.Skip(inputOffset).Take(inputCount).ToList();
+
+                            for (var j = 0; j < inputs.Count; j++)
+                            {
+                                var serviceParameters = inputs[j];
+
+                                var queryObject = new QueryObject();
+                                queryObject.QueryID = string.Concat(transactionObject.TransactionID, "|", transactionObject.ServiceID, i.ToString().PadLeft(2, '0'));
+
+                                var baseFieldRelations = new List<BaseFieldRelation?>();
+                                var jsonObjectTypes = new List<JsonObjectType>();
+                                foreach (var item in outputContracts)
+                                {
+                                    var jsonObjectType = (JsonObjectType)Enum.Parse(typeof(JsonObjectType), item.Type + "Json");
+                                    jsonObjectTypes.Add(jsonObjectType);
+
+                                    if (jsonObjectType == JsonObjectType.AdditionJson)
+                                    {
+                                        queryObject.JsonObject = jsonObjectType;
+                                    }
+
+                                    if (item.BaseFieldRelation != null)
+                                    {
+                                        baseFieldRelations.Add(item.BaseFieldRelation);
+                                    }
+                                }
+                                queryObject.JsonObjects = jsonObjectTypes;
+
+                                var parameters = new List<DynamicParameter>();
+                                foreach (var item in serviceParameters)
+                                {
+                                    parameters.Append(item.FieldID, (DbType)Enum.Parse(typeof(DbType), item.DataType), item.Value);
+                                }
+
+                                queryObject.Parameters = parameters;
+                                queryObject.BaseFieldMappings = inputContract.BaseFieldMappings;
+                                queryObject.BaseFieldRelations = baseFieldRelations;
+                                queryObject.IgnoreResult = inputContract.IgnoreResult;
+                                dynamicObjects.Add(queryObject);
+                            }
+                        }
+                        else
+                        {
                             var queryObject = new QueryObject();
                             queryObject.QueryID = string.Concat(transactionObject.TransactionID, "|", transactionObject.ServiceID, i.ToString().PadLeft(2, '0'));
 
@@ -1773,51 +1871,15 @@ namespace transact.Extensions
                                 }
                             }
                             queryObject.JsonObjects = jsonObjectTypes;
-
-                            var parameters = new List<DynamicParameter>();
-                            foreach (var item in serviceParameters)
-                            {
-                                parameters.Append(item.FieldID, (DbType)Enum.Parse(typeof(DbType), item.DataType), item.Value);
-                            }
-
-                            queryObject.Parameters = parameters;
-                            queryObject.BaseFieldMappings = inputContract.BaseFieldMappings;
+                            queryObject.Parameters = new List<DynamicParameter>();
+                            queryObject.BaseFieldMappings = new List<BaseFieldMapping>();
                             queryObject.BaseFieldRelations = baseFieldRelations;
-                            queryObject.IgnoreResult = inputContract.IgnoreResult;
+                            queryObject.IgnoreResult = false;
                             dynamicObjects.Add(queryObject);
                         }
+
+                        inputOffset = inputOffset + inputCount;
                     }
-                    else
-                    {
-                        var queryObject = new QueryObject();
-                        queryObject.QueryID = string.Concat(transactionObject.TransactionID, "|", transactionObject.ServiceID, i.ToString().PadLeft(2, '0'));
-
-                        var baseFieldRelations = new List<BaseFieldRelation?>();
-                        var jsonObjectTypes = new List<JsonObjectType>();
-                        foreach (var item in outputContracts)
-                        {
-                            var jsonObjectType = (JsonObjectType)Enum.Parse(typeof(JsonObjectType), item.Type + "Json");
-                            jsonObjectTypes.Add(jsonObjectType);
-
-                            if (jsonObjectType == JsonObjectType.AdditionJson)
-                            {
-                                queryObject.JsonObject = jsonObjectType;
-                            }
-
-                            if (item.BaseFieldRelation != null)
-                            {
-                                baseFieldRelations.Add(item.BaseFieldRelation);
-                            }
-                        }
-                        queryObject.JsonObjects = jsonObjectTypes;
-                        queryObject.Parameters = new List<DynamicParameter>();
-                        queryObject.BaseFieldMappings = new List<BaseFieldMapping>();
-                        queryObject.BaseFieldRelations = baseFieldRelations;
-                        queryObject.IgnoreResult = false;
-                        dynamicObjects.Add(queryObject);
-                    }
-
-                    inputOffset = inputOffset + inputCount;
                 }
 
                 dynamicRequest.DynamicObjects = dynamicObjects;

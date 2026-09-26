@@ -183,7 +183,6 @@ namespace function.Extensions
 
                     if (result == null)
                     {
-                        var userWorkID = string.Empty;
                         var appBasePath = string.Empty;
                         var baseDirectoryInfo = new DirectoryInfo(GlobalConfiguration.TenantAppBasePath);
                         var directories = Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath, applicationID, SearchOption.AllDirectories);
@@ -193,14 +192,12 @@ namespace function.Extensions
                             if (baseDirectoryInfo.Name == directoryInfo.Parent?.Parent?.Name)
                             {
                                 appBasePath = directoryInfo.FullName.Replace("\\", "/");
-                                userWorkID = (directoryInfo.Parent?.Name).ToStringSafe();
                                 break;
                             }
                         }
 
                         if (!string.IsNullOrWhiteSpace(appBasePath))
                         {
-                            var tenantID = $"{userWorkID}|{applicationID}";
                             var scriptMapFile = PathExtensions.Combine(appBasePath, "function", projectID, transactionID, "featureMeta.json");
                             if (File.Exists(scriptMapFile) == true)
                             {
@@ -748,7 +745,6 @@ namespace function.Extensions
         private static void deletePythonCache(string functionScriptFile, ModuleScriptMap moduleScriptMap)
         {
             var functionDirectoryPath = Path.GetDirectoryName(functionScriptFile)!;
-            var transactionID = new DirectoryInfo(functionDirectoryPath).Name;
             var moduleName = $"{moduleScriptMap.ApplicationID}_{moduleScriptMap.ProjectID}_{moduleScriptMap.TransactionID}";
             var mainFilePath = PathExtensions.Combine(functionDirectoryPath, $"{moduleName}.py");
             if (File.Exists(mainFilePath) == false)

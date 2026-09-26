@@ -1970,6 +1970,13 @@ namespace transact.Areas.transact.Controllers
                 result.Add(fields);
             }
 
+            if (result.Count == 0 && bearerToken?.Variable is JObject)
+            {
+                var fields = new List<TransactField>();
+                AddBearerFields(fields, bearerToken);
+                result.Add(fields);
+            }
+
             return result;
         }
 

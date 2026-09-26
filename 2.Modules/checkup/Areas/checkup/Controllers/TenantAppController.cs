@@ -116,7 +116,6 @@ namespace checkup.Areas.checkup.Controllers
         [HttpGet("[action]")]
         public async Task<ActionResult> Direct(string commandID, [FromQuery] QueryParams? queryParams)
         {
-            var remoteClientIP = HttpContext.GetRemoteIpAddress();
             string? authorizationKey = Request.Headers["AuthorizationKey"];
             if (string.IsNullOrWhiteSpace(authorizationKey) || ModuleConfiguration.AuthorizationKey != authorizationKey && User.Identity != null && User.Identity.IsAuthenticated == true)
             {
@@ -558,7 +557,6 @@ namespace checkup.Areas.checkup.Controllers
             }
             else if (GlobalConfiguration.UserSignExpire < 0)
             {
-                var addDay = DateTime.Now.Day == userAccount.LoginedAt.Day ? 1 : 0;
                 cookieOptions.Expires = (DateTime.Now.AddDays(1).ToString("yyyy-MM-dd") + "T" + GlobalConfiguration.UserSignExpire.ToString().Replace("-", "").PadLeft(2, '0') + ":00:00").ToDateTimeSafe(DateTime.Now.AddDays(1));
             }
             else
@@ -915,7 +913,6 @@ namespace checkup.Areas.checkup.Controllers
                 var executeResult = CommandHelper.RunScript($"{bundlerFilePath} {base64BundleFile}");
 
                 var minifyFilePath = outputFileName.Replace("." + fileType, ".min." + fileType);
-                var targetFileInfo = new FileInfo(outputFileName);
 
                 if (fileType == "js")
                 {
@@ -1028,7 +1025,6 @@ namespace checkup.Areas.checkup.Controllers
         )
         {
             ActionResult result = BadRequest("요청 정보 확인이 필요합니다");
-            var entityResult = new EntityResult();
 
             if (Request.HasFormContentType == true)
             {
@@ -1056,7 +1052,6 @@ namespace checkup.Areas.checkup.Controllers
                 });
 
                 var memberCount = 0;
-                var applicationCount = 0;
                 if (verifyMemberResults == null)
                 {
                 }
@@ -1064,7 +1059,6 @@ namespace checkup.Areas.checkup.Controllers
                 {
                     var item = verifyMemberResults[0];
                     memberCount = (int)item.MemberCount;
-                    applicationCount = (int)item.ApplicationCount;
                 }
 
                 if (memberCount == 0)
@@ -2270,7 +2264,6 @@ TransactionException:
                                     if (Directory.Exists(sourceItemPath) == true)
                                     {
                                         outputBuilder.AppendLine($"I|{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}|{locationPath} 디렉토리 백업 시작");
-                                        var targetDirectoryInfo = new DirectoryInfo(sourceItemPath);
                                         directoryInfo.CopyTo(targetItemPath, true);
                                         outputBuilder.AppendLine($"I|{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}|{locationPath} 디렉토리 백업 완료");
                                     }
@@ -2344,7 +2337,6 @@ TransactionException:
                             directoryInfo.Create();
                         }
 
-                        var backupDirectoryPath = directoryInfo.FullName.Replace("\\", "/");
                         outputBuilder.AppendLine($"I|{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}|package-archives.json 읽기 시작");
                         var packageArchiveJson = await System.IO.File.ReadAllTextAsync(packageArchiveFilePath);
                         var packageArchive = JsonConvert.DeserializeAnonymousType(packageArchiveJson, new
@@ -2540,7 +2532,6 @@ TransactionException:
             var userWorkID = Request.Query["userWorkID"].ToString();
             var applicationID = Request.Query["applicationID"].ToString();
             var accessKey = Request.Query["accessKey"].ToString();
-            var userID = string.IsNullOrWhiteSpace(Request.Query["userID"]) ? "" : Request.Query["userID"].ToString();
 
             if (string.IsNullOrWhiteSpace(userWorkID) || string.IsNullOrWhiteSpace(applicationID) || string.IsNullOrWhiteSpace(accessKey))
             {
@@ -2602,11 +2593,9 @@ TransactionException:
             ActionResult result = NotFound();
 
             var requestRefererUrl = Request.Headers.Referer.ToStringSafe();
-            var requestPath = Request.Path.ToString();
             var viewRequestPath = $"/{Request.Host}/{ModuleConfiguration.ModuleID}/view/";
             if (!string.IsNullOrWhiteSpace(requestRefererUrl) && requestRefererUrl.IndexOf(viewRequestPath) > -1 && ModuleConfiguration.ManagedAccessKey == accessKey)
             {
-                var tenantID = $"{userWorkID}|{applicationID}";
                 var physicalPath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID, "wwwroot", "assets");
 
                 if (Directory.Exists(physicalPath) == false)
@@ -2677,7 +2666,6 @@ TransactionException:
             var applicationID = Request.Query["applicationID"].ToString();
             var accessKey = Request.Query["accessKey"].ToString();
             var locationPath = string.IsNullOrWhiteSpace(Request.Query["locationPath"]) ? "" : Request.Query["locationPath"].ToString();
-            var userID = string.IsNullOrWhiteSpace(Request.Query["userID"]) ? "" : Request.Query["userID"].ToString();
 
             if (string.IsNullOrWhiteSpace(userWorkID) || string.IsNullOrWhiteSpace(applicationID) || string.IsNullOrWhiteSpace(locationPath) || string.IsNullOrWhiteSpace(accessKey))
             {

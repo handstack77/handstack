@@ -27,7 +27,7 @@ namespace HandStack.Web.Extensions
             {
                 context.Items["IsHtmxRequest"] = true;
 
-                if (context.Request.Headers.TryGetValue("HX-Boosted", out var boosted))
+                if (context.Request.Headers.TryGetValue("HX-Boosted", out _))
                 {
                     context.Items["IsHtmxBoosted"] = true;
                 }

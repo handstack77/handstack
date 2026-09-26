@@ -208,7 +208,6 @@ namespace function.Areas.function.Controllers
         [HttpPost]
         public async Task<ActionResult> Execute(DynamicRequest request)
         {
-            ActionResult result = NotFound();
             var response = new DynamicResponse();
             response.Acknowledge = AcknowledgeType.Failure;
 

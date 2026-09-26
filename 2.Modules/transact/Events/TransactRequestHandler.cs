@@ -483,7 +483,6 @@ namespace transact.Events
                         if (!string.IsNullOrWhiteSpace(token) && token.IndexOf(".") > -1 && !string.IsNullOrWhiteSpace(request.Transaction.OperatorID))
                         {
                             var tokenArray = token.Split(".");
-                            var userID = tokenArray[0].DecodeBase64();
 
                             token = tokenArray[1];
                             bearerToken = JsonConvert.DeserializeObject<BearerToken>(token.DecryptAES(request.Transaction.OperatorID.PaddingRight(32)));
@@ -770,7 +769,6 @@ namespace transact.Events
                 var index = 0;
                 foreach (var requestInputItem in requestInputItems)
                 {
-                    var modelID = requestInputItem.Key;
                     var inputItems = requestInputItem.Value;
 
                     // 입력 정보 생성
@@ -1136,7 +1134,6 @@ namespace transact.Events
                         }
                         else
                         {
-                            var resultMeta = applicationResponse.ResultMeta;
                             var i = 0;
                             foreach (var dataMapItem in response.Result.DataSet)
                             {

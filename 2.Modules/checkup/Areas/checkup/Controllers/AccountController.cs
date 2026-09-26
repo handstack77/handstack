@@ -73,7 +73,6 @@ namespace checkup.Areas.checkup.Controllers
             ActionResult result = BadRequest("요청 정보 확인이 필요합니다");
             var entityResult = new EntityResult();
 
-            var remoteClientIP = HttpContext.GetRemoteIpAddress();
 
             if (!string.IsNullOrWhiteSpace(emailID))
             {
@@ -419,7 +418,6 @@ namespace checkup.Areas.checkup.Controllers
                                 }
                                 else if (GlobalConfiguration.UserSignExpire < 0)
                                 {
-                                    var addDay = DateTime.Now.Day == userAccount.LoginedAt.Day ? 1 : 0;
                                     expiredAt = (DateTime.Now.AddDays(1).ToString("yyyy-MM-dd") + "T" + GlobalConfiguration.UserSignExpire.ToString().Replace("-", "").PadLeft(2, '0') + ":00:00").ToDateTimeSafe(DateTime.Now.AddDays(1));
                                 }
 
@@ -536,7 +534,6 @@ namespace checkup.Areas.checkup.Controllers
         [HttpGet("[action]")]
         public ActionResult SignalEvent()
         {
-            ActionResult result = Content("", "text/html", Encoding.UTF8);
 
             return Ok(DateTime.Now.ToString("{0:s}"));
             // try

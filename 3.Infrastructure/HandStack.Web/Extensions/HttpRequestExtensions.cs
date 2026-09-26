@@ -135,7 +135,7 @@ namespace HandStack.Web.Extensions
         {
             var result = DateTimeOffset.Now.TotalOffsetMinutes;
             var offsetMinutes = GetContainValue(request, "OffsetMinutes");
-            var timezoneOffsetMinutes = string.IsNullOrWhiteSpace(offsetMinutes) ? result : offsetMinutes.ParseInt(result);
+            _ = string.IsNullOrWhiteSpace(offsetMinutes) ? result : offsetMinutes.ParseInt(result);
 
             return result;
         }

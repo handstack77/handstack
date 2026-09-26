@@ -96,7 +96,7 @@ namespace prompter.Extensions
 
                         await Task.Delay(200);
 
-                        lastEventTimes.TryRemove(watchFilePath, out var lastEventTime);
+                        lastEventTimes.TryRemove(watchFilePath, out _);
                     }
                 }
                 else

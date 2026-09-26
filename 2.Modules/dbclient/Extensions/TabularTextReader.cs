@@ -181,7 +181,6 @@ namespace dbclient.Extensions
             {
                 if (idx < fieldsCount)
                 {
-                    var f = fields[idx];
                     return fields[idx].GetValue(buffer);
                 }
                 return null;

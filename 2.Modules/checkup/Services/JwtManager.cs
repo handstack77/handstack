@@ -165,7 +165,7 @@ namespace checkup.Services
                             ClockSkew = TimeSpan.Zero
                         }, out var validatedToken);
 
-                        var jwtToken = (JwtSecurityToken)validatedToken;
+                        _ = (JwtSecurityToken)validatedToken;
 
                         result = true;
                     }

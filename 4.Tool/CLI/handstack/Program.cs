@@ -98,10 +98,6 @@ namespace handstack
                 optionOptions);
             rootCommand.SetAction((parseResult) =>
             {
-                var debug = parseResult.GetValue(optionDebug);
-                var port = parseResult.GetValue(optionPort);
-                var modules = parseResult.GetValue(rootOptionModules);
-                var options = parseResult.GetValue(optionOptions);
 
                 try
                 {
@@ -353,7 +349,6 @@ namespace handstack
                 var taskMetas = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, List<Entity.Tasks>>>(taskJson);
 
                 var os = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == true ? "windows" : RuntimeInformation.IsOSPlatform(OSPlatform.OSX) == true ? "osx" : "linux";
-                var moduleID = key.Split(":")[0];
                 var taskID = key.Split(":")[1];
 
                 if (taskMetas == null)

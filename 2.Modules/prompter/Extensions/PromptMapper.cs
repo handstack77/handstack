@@ -570,7 +570,6 @@ namespace prompter.Extensions
                     var projectID = itemKeys[1];
                     var transactionID = itemKeys[2];
 
-                    var userWorkID = string.Empty;
                     var appBasePath = string.Empty;
                     var baseDirectoryInfo = new DirectoryInfo(GlobalConfiguration.TenantAppBasePath);
                     var directories = Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath, applicationID, SearchOption.AllDirectories);
@@ -580,7 +579,6 @@ namespace prompter.Extensions
                         if (baseDirectoryInfo.Name == directoryInfo.Parent?.Parent?.Name)
                         {
                             appBasePath = directoryInfo.FullName.Replace("\\", "/");
-                            userWorkID = (directoryInfo.Parent?.Name).ToStringSafe();
                             break;
                         }
                     }

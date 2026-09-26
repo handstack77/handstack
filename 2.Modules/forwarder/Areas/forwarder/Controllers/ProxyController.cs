@@ -70,7 +70,7 @@ namespace forwarder.Areas.forwarder.Controllers
         [Route("[action]")]
         public async Task<IActionResult> Pipe([FromQuery] string requestKey, [FromQuery] int? timeoutMS = null)
         {
-            if (HttpContext.TryAuthorizeBearerToken(out var bearerToken, out var message) == false)
+            if (HttpContext.TryAuthorizeBearerToken(out var bearerToken, out _) == false)
             {
                 bearerToken = new BearerToken();
             }

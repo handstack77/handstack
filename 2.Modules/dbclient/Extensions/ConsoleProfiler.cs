@@ -59,7 +59,6 @@ namespace dbclient.Extensions
 
             if (!string.IsNullOrWhiteSpace(logFilePath))
             {
-                var fileInfo = new FileInfo(logFilePath);
                 IsLogger = true;
             }
         }

@@ -67,7 +67,7 @@ namespace repository.Extensions
             var blobClient = containerClient.GetBlobClient(blobID);
             var headers = new BlobHttpHeaders { ContentType = contentType };
             content.Position = 0;
-            var response = await blobClient.UploadAsync(content, headers);
+            await blobClient.UploadAsync(content, headers);
 
             BlobProperties properties = await blobClient.GetPropertiesAsync();
             return (properties.CreatedOn.LocalDateTime, properties.LastModified.LocalDateTime);

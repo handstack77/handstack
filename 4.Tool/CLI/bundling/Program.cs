@@ -75,7 +75,6 @@ namespace bundling
             var optionByPassMinFile = new Option<bool?>("--passmin") { Description = "Compress 효과 적용시 파일명에 .min 파일을 건너뛰는지 여부입니다. (기본값 true)" };
             var optionUglify = new Option<string>("--uglify") { Description = ".js 파일 Compress 결과의 인코딩 방식입니다. plain|base64|lzstring (기본값 plain)", DefaultValueFactory = parseResult => "plain" };
             var optionDirectoryInfo = new Option<DirectoryInfo>("--path") { Description = "bundling 프로그램 기능을 적용하는 전체 디렉토리 경로입니다." };
-            var optionFormat = new Option<string>("--format") { Description = "실행 명령에 따라 적용하는 포맷입니다. 예) encrypt --format=base64|aes256|syn|sha256" };
             var optionBundle = new Option<string>("--bundle") { Description = "BundleFile 형식의 JSON 포맷의 Base64 문자열입니다." };
             var optionExcludes = new Option<string?>("--excludes") { Description = "실행 명령에서 제외할 옵션 정보입니다." };
             var optionArtifactFile = new Option<FileInfo>("--artifactFile") { Description = "ArtifactFile 형식의 .json 형식의 전체 파일 경로입니다." };
@@ -400,7 +399,6 @@ namespace bundling
 
             rootCommand.SetAction((parseResult) =>
             {
-                var debug = parseResult.GetValue(optionDebug);
 
                 try
                 {
@@ -666,7 +664,6 @@ namespace bundling
 
         public static void WebFileMinify(DirectoryInfo directory, bool keepSourceFile = false)
         {
-            var extensions = new[] { ".min.js", ".min.html", ".min.css" };
 
             var files = directory.GetFiles("*.*", SearchOption.AllDirectories)
                 .Where(file => (file.Name.EndsWith(".min.html") == true || file.Name.EndsWith(".min.js") == true || file.Name.EndsWith(".min.css") == true))

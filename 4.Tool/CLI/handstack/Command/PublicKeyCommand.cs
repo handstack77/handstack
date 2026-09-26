@@ -10,20 +10,8 @@ namespace handstack
     {
         public static void Register(RootCommand rootCommand, HandstackCommandContext context)
         {
-            var optionAckFile = context.OptionAckFile;
-            var optionArguments = context.OptionArguments;
-            var optionPort = context.OptionPort;
-            var optionProcessID = context.OptionProcessID;
-            var optionFormat = context.OptionFormat;
-            var optionKey = context.OptionKey;
             var optionValue = context.OptionValue;
-            var optionAppSettingFile = context.OptionAppSettingFile;
-            var optionDirectory = context.OptionDirectory;
             var optionFile = context.OptionFile;
-            var optionFind = context.OptionFind;
-            var optionReplace = context.OptionReplace;
-            var optionReplaceExpressions = context.OptionReplaceExpressions;
-            var optionOptions = context.OptionOptions;
 
             // publickey --file="C:\projects\MyLib\bin\Release\net10.0\MyLib.dll"
             var subCommandPublicKey = new Command("publickey", "지정한 .NET(.NET Core/5+/Framework) 관리형 DLL의 강력한 이름(Strong Name) 서명에 사용된 공개 키를 출력합니다.") {

@@ -311,7 +311,6 @@ namespace checkup
                                 if ("wwwroot" == moduleID)
                                 {
                                     var tenantID = $"{userWorkID}|{applicationID}";
-                                    var physicalPath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID, "wwwroot");
 
                                     var isWithOrigin = false;
                                     CorsPolicy? policy = null;

@@ -8,7 +8,6 @@ namespace wwwroot.Areas.wwwroot.Pages.StatusCode
     {
         public void OnGet()
         {
-            var custom2 = Request.GetContainValue("custom2");
         }
     }
 }

@@ -1860,8 +1860,6 @@ namespace repository.Controllers
             var applicationID = downloadRequest.ApplicationID;
             var repositoryID = downloadRequest.RepositoryID;
             var itemID = downloadRequest.ItemID;
-            var fileMD5 = downloadRequest.FileMD5;
-            var tokenID = downloadRequest.TokenID;
             var businessID = downloadRequest.BusinessID;
             var disposition = downloadRequest.Disposition;
 

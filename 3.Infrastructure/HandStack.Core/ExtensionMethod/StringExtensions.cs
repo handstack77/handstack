@@ -417,14 +417,12 @@ namespace HandStack.Core.ExtensionMethod
 
         public static bool IsInteger(this string @this)
         {
-            int output;
-            return int.TryParse(@this, out output);
+            return int.TryParse(@this, out _);
         }
 
         public static bool IsNumeric(this string @this)
         {
-            float output;
-            return float.TryParse(@this, out output);
+            return float.TryParse(@this, out _);
         }
 
         public static bool IsNullOrEmpty(this string @this)

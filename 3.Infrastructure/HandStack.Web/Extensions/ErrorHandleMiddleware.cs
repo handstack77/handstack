@@ -50,7 +50,7 @@ namespace HandStack.Web.Extensions
 
                     switch (exception)
                     {
-                        case KeyNotFoundException e:
+                        case KeyNotFoundException:
                             httpResponse.StatusCode = StatusCodes.Status400BadRequest;
                             break;
                         default:

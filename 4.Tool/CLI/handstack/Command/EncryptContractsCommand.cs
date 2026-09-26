@@ -16,20 +16,8 @@ namespace handstack
     {
         public static void Register(RootCommand rootCommand, HandstackCommandContext context)
         {
-            var optionAckFile = context.OptionAckFile;
-            var optionArguments = context.OptionArguments;
-            var optionPort = context.OptionPort;
-            var optionProcessID = context.OptionProcessID;
-            var optionFormat = context.OptionFormat;
-            var optionKey = context.OptionKey;
-            var optionValue = context.OptionValue;
-            var optionAppSettingFile = context.OptionAppSettingFile;
             var optionDirectory = context.OptionDirectory;
             var optionFile = context.OptionFile;
-            var optionFind = context.OptionFind;
-            var optionReplace = context.OptionReplace;
-            var optionReplaceExpressions = context.OptionReplaceExpressions;
-            var optionOptions = context.OptionOptions;
 
             // encryptcontracts --file=%HANDSTACK_HOME%/modules/myapp/myapp.dll --directory=C:/projects/myapp/contracts
             var subCommandEncryptContracts = new Command("encryptcontracts", "모듈의 Contracts 디렉토리 내 파일들을 지정 규칙에 따라 암호화 합니다") {

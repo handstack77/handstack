@@ -854,8 +854,10 @@ namespace agent.Services
                 var client = httpClientFactory.CreateClient();
                 client.Timeout = Timeout.InfiniteTimeSpan;
 
-                using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, timeoutTokenSource.Token);
-                return true;
+                using (await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, timeoutTokenSource.Token))
+                {
+                    return true;
+                }
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested == false)
             {

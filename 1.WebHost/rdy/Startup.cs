@@ -644,7 +644,6 @@ namespace rdy
                     try
                     {
                         var license = License.Load(ackLicenseKey.DecodeBase64());
-                        var currentMachineName = Environment.MachineName;
 
                         var validationFailure = license.Validate()
                             .Signature(ackLicenseSignature.ToStringSafe())
@@ -1135,12 +1134,6 @@ namespace rdy
                     var exceptionHandlerFeature = context.Features.Get<IExceptionHandlerFeature>();
                     var exceptionType = exceptionHandlerFeature?.Error;
 
-                    var requestMethod = context.Request.Method;
-                    var absoluteUrl = context.Request.GetAbsoluteUrl();
-                    var clientIP = context.GetRemoteIpAddress().ToStringSafe();
-                    var userAgent = context.Request.Headers["User-Agent"].ToString();
-                    var identityName = (context.User.Identity?.Name).ToStringSafe();
-                    var statusCode = context.Response.StatusCode;
                     var message = string.Empty;
                     var stackTrace = string.Empty;
 

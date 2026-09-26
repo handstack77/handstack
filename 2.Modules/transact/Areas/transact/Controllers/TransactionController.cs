@@ -1511,7 +1511,6 @@ namespace transact.Areas.transact.Controllers
                     var index = 0;
                     foreach (var requestInputItem in requestInputItems)
                     {
-                        var modelID = requestInputItem.Key;
                         var inputItems = requestInputItem.Value;
 
                         // 입력 정보 생성
@@ -1599,115 +1598,123 @@ namespace transact.Areas.transact.Controllers
                                 }
                             }
 
-                            var bearerFields = bearerToken == null ? null : bearerToken.Variable as JObject;
-                            if (bearerFields != null)
-                            {
-                                foreach (var item in bearerFields)
-                                {
-                                    var fieldID = "$" + item.Key;
-
-                                    if (transactInput.Any(p => p.FieldID == fieldID))
-                                    {
-                                        transactInput.RemoveAll(p => p.FieldID == fieldID);
-                                    }
-
-                                    var jToken = item.Value;
-                                    if (jToken == null)
-                                    {
-                                        response.ExceptionText = $"{fieldID} Bearer 필드 확인 필요";
-                                        return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
-                                    }
-
-                                    var column = new DatabaseColumn()
-                                    {
-                                        Name = fieldID,
-                                        Length = -1,
-                                        DataType = "String",
-                                        Default = "",
-                                        Require = false
-                                    };
-
-                                    var transactField = new TransactField();
-                                    transactField.FieldID = fieldID;
-                                    transactField.Length = column.Length;
-                                    transactField.DataType = column.DataType.ToString();
-
-                                    object? fieldValue = null;
-                                    if (jToken is JValue)
-                                    {
-                                        fieldValue = jToken.ToObject<string>();
-                                    }
-                                    else if (jToken is JObject)
-                                    {
-                                        fieldValue = jToken.ToString();
-                                    }
-                                    else if (jToken is JArray)
-                                    {
-                                        fieldValue = jToken.ToArray();
-                                    }
-
-                                    if (fieldValue == null)
-                                    {
-                                        if (column.Require == true)
-                                        {
-                                            transactField.Value = column.Default;
-                                        }
-                                        else
-                                        {
-                                            transactField.Value = null;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        if (fieldValue.ToString() == "[DbNull]")
-                                        {
-                                            transactField.Value = null;
-                                        }
-                                        else
-                                        {
-                                            transactField.Value = fieldValue;
-                                            if (transactField.Value.ToString() == "")
-                                            {
-                                                var dataType = transactField.DataType.ToLower();
-                                                if (dataType.Contains("string") == true || dataType.Contains("char") == true)
-                                                {
-                                                }
-                                                else
-                                                {
-                                                    transactField.Value = null;
-                                                }
-                                            }
-                                        }
-                                    }
-
-                                    transactInput.Add(transactField);
-                                }
-
-                                if (bearerToken?.Policy != null)
-                                {
-                                    foreach (var claim in bearerToken.Policy.Claims)
-                                    {
-                                        var fieldID = "#" + claim.Key;
-                                        if (transactInput.Any(p => p.FieldID == fieldID) == true)
-                                        {
-                                            transactInput.RemoveAll(p => p.FieldID == fieldID);
-                                        }
-
-                                        transactInput.Add(new TransactField()
-                                        {
-                                            FieldID = fieldID,
-                                            Length = -1,
-                                            DataType = "String",
-                                            Value = claim.Value
-                                        });
-                                    }
-                                }
-                            }
-
                             transactInputs.Add(transactInput);
                         }
 
                         index = index + 1;
+                    }
+
+                    var bearerFields = bearerToken == null ? null : bearerToken.Variable as JObject;
+                    if (bearerFields != null)
+                    {
+                        if (transactInputs.Count == 0)
+                        {
+                            transactInputs.Add(new List<TransactField>());
+                        }
+
+                        foreach (var transactInput in transactInputs)
+                        {
+                            foreach (var item in bearerFields)
+                            {
+                                var fieldID = "$" + item.Key;
+
+                                if (transactInput.Any(p => p.FieldID == fieldID))
+                                {
+                                    transactInput.RemoveAll(p => p.FieldID == fieldID);
+                                }
+
+                                var jToken = item.Value;
+                                if (jToken == null)
+                                {
+                                    response.ExceptionText = $"{fieldID} Bearer 필드 확인 필요";
+                                    return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
+                                }
+
+                                var column = new DatabaseColumn()
+                                {
+                                    Name = fieldID,
+                                    Length = -1,
+                                    DataType = "String",
+                                    Default = "",
+                                    Require = false
+                                };
+
+                                var transactField = new TransactField();
+                                transactField.FieldID = fieldID;
+                                transactField.Length = column.Length;
+                                transactField.DataType = column.DataType.ToString();
+
+                                object? fieldValue = null;
+                                if (jToken is JValue)
+                                {
+                                    fieldValue = jToken.ToObject<string>();
+                                }
+                                else if (jToken is JObject)
+                                {
+                                    fieldValue = jToken.ToString();
+                                }
+                                else if (jToken is JArray)
+                                {
+                                    fieldValue = jToken.ToArray();
+                                }
+
+                                if (fieldValue == null)
+                                {
+                                    if (column.Require == true)
+                                    {
+                                        transactField.Value = column.Default;
+                                    }
+                                    else
+                                    {
+                                        transactField.Value = null;
+                                    }
+                                }
+                                else
+                                {
+                                    if (fieldValue.ToString() == "[DbNull]")
+                                    {
+                                        transactField.Value = null;
+                                    }
+                                    else
+                                    {
+                                        transactField.Value = fieldValue;
+                                        if (transactField.Value.ToString() == "")
+                                        {
+                                            var dataType = transactField.DataType.ToLower();
+                                            if (dataType.Contains("string") == true || dataType.Contains("char") == true)
+                                            {
+                                            }
+                                            else
+                                            {
+                                                transactField.Value = null;
+                                            }
+                                        }
+                                    }
+                                }
+
+                                transactInput.Add(transactField);
+                            }
+
+                            if (bearerToken?.Policy != null)
+                            {
+                                foreach (var claim in bearerToken.Policy.Claims)
+                                {
+                                    var fieldID = "#" + claim.Key;
+                                    if (transactInput.Any(p => p.FieldID == fieldID) == true)
+                                    {
+                                        transactInput.RemoveAll(p => p.FieldID == fieldID);
+                                    }
+
+                                    transactInput.Add(new TransactField()
+                                    {
+                                        FieldID = fieldID,
+                                        Length = -1,
+                                        DataType = "String",
+                                        Value = claim.Value
+                                    });
+                                }
+                            }
+                        }
                     }
 
                     transactionObject.Inputs = transactInputs;

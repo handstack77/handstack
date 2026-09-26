@@ -17,20 +17,6 @@ namespace handstack
     {
         public static void Register(RootCommand rootCommand, HandstackCommandContext context)
         {
-            var optionAckFile = context.OptionAckFile;
-            var optionArguments = context.OptionArguments;
-            var optionPort = context.OptionPort;
-            var optionProcessID = context.OptionProcessID;
-            var optionFormat = context.OptionFormat;
-            var optionKey = context.OptionKey;
-            var optionValue = context.OptionValue;
-            var optionAppSettingFile = context.OptionAppSettingFile;
-            var optionDirectory = context.OptionDirectory;
-            var optionFile = context.OptionFile;
-            var optionFind = context.OptionFind;
-            var optionReplace = context.OptionReplace;
-            var optionReplaceExpressions = context.OptionReplaceExpressions;
-            var optionOptions = context.OptionOptions;
 
             var subCommandList = new Command("list", "ack 프로세스 목록을 조회합니다");
             subCommandList.SetAction((parseResult) =>

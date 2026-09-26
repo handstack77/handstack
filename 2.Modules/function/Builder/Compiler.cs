@@ -118,7 +118,7 @@ namespace function.Builder
 
             try
             {
-                var reference = MetadataReference.CreateFromFile(file);
+                MetadataReference.CreateFromFile(file);
                 referenceAssemblyLocations.Add(file);
             }
             catch

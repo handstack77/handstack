@@ -126,7 +126,6 @@ namespace rdy
                 var settings = parseResult.GetValue(optionAppSettings);
                 var pname = parseResult.GetValue(optionProcessName);
                 var env = parseResult.GetValue(optionEnv);
-                var showenv = parseResult.GetValue(optionShowEnv);
 
                 await DebuggerAttach(args, debug, delay);
 
@@ -443,7 +442,6 @@ namespace rdy
 
         private static async Task DebuggerAttach(string[] args, bool? debug, int? delay)
         {
-            var arguments = new ArgumentHelper(args);
             if (debug != null && debug == true)
             {
                 var startupAwaitDelay = 10000;

@@ -12,20 +12,9 @@ namespace handstack
     {
         public static void Register(RootCommand rootCommand, HandstackCommandContext context)
         {
-            var optionAckFile = context.OptionAckFile;
-            var optionArguments = context.OptionArguments;
-            var optionPort = context.OptionPort;
-            var optionProcessID = context.OptionProcessID;
-            var optionFormat = context.OptionFormat;
             var optionKey = context.OptionKey;
-            var optionValue = context.OptionValue;
-            var optionAppSettingFile = context.OptionAppSettingFile;
             var optionDirectory = context.OptionDirectory;
             var optionFile = context.OptionFile;
-            var optionFind = context.OptionFind;
-            var optionReplace = context.OptionReplace;
-            var optionReplaceExpressions = context.OptionReplaceExpressions;
-            var optionOptions = context.OptionOptions;
 
             var subCommandCompress = new Command("compress", "지정된 디렉터리에서 파일 및 디렉터리를 포함하는 Zip 파일을 만듭니다") {
                 optionDirectory, optionFile, optionKey
@@ -36,7 +25,6 @@ namespace handstack
             {
                 var directory = parseResult.GetValue(optionDirectory);
                 var file = parseResult.GetValue(optionFile);
-                var key = parseResult.GetValue(optionKey).ToStringSafe();
 
                 try
                 {

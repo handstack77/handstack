@@ -148,7 +148,6 @@ namespace wwwroot.Areas.wwwroot.Controllers
                 }
                 else if (GlobalConfiguration.UserSignExpire < 0)
                 {
-                    var addDay = DateTime.Now.Day == userAccount.LoginedAt.Day ? 1 : 0;
                     expiredAt = (DateTime.Now.AddDays(1).ToString("yyyy-MM-dd") + "T" + GlobalConfiguration.UserSignExpire.ToString().Replace("-", "").PadLeft(2, '0') + ":00:00").ToDateTimeSafe(DateTime.Now.AddDays(1));
                 }
 

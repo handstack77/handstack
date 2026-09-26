@@ -14,18 +14,7 @@ namespace handstack
         {
             var optionAckFile = context.OptionAckFile;
             var optionArguments = context.OptionArguments;
-            var optionPort = context.OptionPort;
-            var optionProcessID = context.OptionProcessID;
-            var optionFormat = context.OptionFormat;
-            var optionKey = context.OptionKey;
-            var optionValue = context.OptionValue;
             var optionAppSettingFile = context.OptionAppSettingFile;
-            var optionDirectory = context.OptionDirectory;
-            var optionFile = context.OptionFile;
-            var optionFind = context.OptionFind;
-            var optionReplace = context.OptionReplace;
-            var optionReplaceExpressions = context.OptionReplaceExpressions;
-            var optionOptions = context.OptionOptions;
 
             // startlog --ack=%HANDSTACK_HOME%/app/ack.exe --arguments="--debug --delay=1000000" --appsettings=ack.localhost.json
             var subCommandStartLog = new Command("startlog", "ack 프로그램을 시작하기 위한 명령어 로그를 출력합니다") {
@@ -40,7 +29,6 @@ namespace handstack
 
                 if (ackFile != null && ackFile.Exists == true)
                 {
-                    var targetBasePath = ackFile.DirectoryName.ToStringSafe();
                     if (settings != null && settings.Exists == true)
                     {
                         var settingFilePath = settings.FullName.Replace("\\", "/");
