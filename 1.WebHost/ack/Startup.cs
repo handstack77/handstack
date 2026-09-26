@@ -771,9 +771,8 @@ namespace ack
                                             var directory = new DirectoryInfo(moduleContractPath);
                                             if (directory.Exists == true)
                                             {
-                                                var ackHomePath = Directory.GetParent(GlobalConfiguration.EntryBasePath)?.FullName.Replace("\\", "/") ?? throw new DirectoryNotFoundException($"ack 의 부모 디렉터리를 찾을 수 없습니다: {GlobalConfiguration.EntryBasePath}");
                                                 var sourceContractDirectory = directory.FullName.Replace("\\", "/");
-                                                var targetContractDirectory = PathExtensions.Combine(ackHomePath, "contracts", module.ModuleID);
+                                                var targetContractDirectory = PathExtensions.Combine(GlobalConfiguration.LoadContractBasePath, module.ModuleID);
 
                                                 try
                                                 {

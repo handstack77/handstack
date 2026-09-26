@@ -772,10 +772,8 @@ namespace rdy
                                             var directory = new DirectoryInfo(moduleContractPath);
                                             if (ackFile != null && ackFile.Exists == true && directory != null && directory.Exists == true)
                                             {
-                                                var appBasePath = ackFile.DirectoryName.ToStringSafe();
-                                                var ackHomePath = (ackFile.Directory?.Parent?.FullName.Replace("\\", "/")).ToStringSafe();
                                                 var sourceContractDirectory = directory.FullName.Replace("\\", "/");
-                                                var targetContractDirectory = PathExtensions.Combine(ackHomePath, "contracts", module.ModuleID);
+                                                var targetContractDirectory = PathExtensions.Combine(GlobalConfiguration.LoadContractBasePath, module.ModuleID);
 
                                                 try
                                                 {
