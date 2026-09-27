@@ -12,7 +12,7 @@
         { helpType: 'I', selector: '#lstDataSource', subject: '연결 가능한 데이터 원본입니다.', sentence: '앱에서 데이터베이스 요청을 실행하는 dbclient 모듈의 계약 정보에 사용하는 DataSourceID 목록입니다.', sortingNo: 2 },
         { helpType: 'T', selector: 'span.badge.bg-primary', subject: '앱에서 사용하는 기본 데이터베이스 입니다.', sentence: '기본 데이터 원본 정보는 제공자와 연결 문자열을 편집할 수 없습니다.', applyDelay: 1000 },
         { helpType: 'P', selector: '#txtConnectionString', subject: '중요', sentence: '개발 및 테스트 목적의 데이터베이스 연결문자열을 입력해야 합니다.' },
-        { helpType: 'U', subject: '설치 가이드', sentence: 'https://handstack.kr/docs/startup/install/지원-운영체제', options: '{"contentType": "link"}' }
+        { helpType: 'U', subject: 'HandStack 공식 문서', sentence: 'https://handstack.kr', options: '{"contentType": "link"}' }
     ]
 }" syn-events="['complete', 'exit']"></syn_guide>
 ```

@@ -9,16 +9,16 @@ $IsWindowsPlatform = [System.Runtime.InteropServices.RuntimeInformation]::IsOSPl
 $IsMacOSPlatform = [System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::OSX)
 $IsLinuxPlatform = [System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::Linux)
 
-$NodeUrlWindows = 'https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#winget-을-이용한-nodejs-설치'
-$NodeUrlMac = 'https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#homebrew-를-이용한-nodejs-설치'
-$NodeUrlLinux = 'https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#apt-를-이용한-nodejs-설치'
-$CurlUrlWindows = 'https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#winget-을-이용한-curl-설치'
-$CurlUrlMac = 'https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#homebrew-를-이용한-curl-설치'
-$CurlUrlLinux = 'https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#apt-를-이용한-curl-설치'
-$GulpUrl = 'https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#gulp-설치하기'
-$DotNetUrlWindows = 'https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#winget-을-이용한-net-core-설치'
-$DotNetUrlMac = 'https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#homebrew-를-이용한-net-core-설치'
-$DotNetUrlLinux = 'https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#apt-를-이용한-net-core-설치'
+$NodeUrlWindows = 'https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#공식-설치-안내'
+$NodeUrlMac = 'https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#공식-설치-안내'
+$NodeUrlLinux = 'https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#공식-설치-안내'
+$CurlUrlWindows = 'https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#공식-설치-안내'
+$CurlUrlMac = 'https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#공식-설치-안내'
+$CurlUrlLinux = 'https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#공식-설치-안내'
+$GulpUrl = 'https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#공식-설치-안내'
+$DotNetUrlWindows = 'https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#공식-설치-안내'
+$DotNetUrlMac = 'https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#공식-설치-안내'
+$DotNetUrlLinux = 'https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#공식-설치-안내'
 $LibZipUrl = 'https://github.com/handstack77/handstack/raw/master/lib.zip'
 
 function Get-PlatformGuideUrl {
@@ -327,7 +327,7 @@ try {
         Copy-FileSafe -Source ([System.IO.Path]::Combine($currentPath, '1.WebHost', 'ack', 'wwwroot', 'assets', 'js', 'index.js')) `
             -Destination ([System.IO.Path]::Combine($handstackHome, 'node_modules', 'syn', 'index.js'))
 
-        Write-Host 'HandStack 개발 환경 설치가 완료되었습니다. Visual Studio 개발 도구로 handstack.sln 를 실행하세요. 자세한 정보는 https://handstack.kr 를 참고하세요.'
+        Write-Host 'HandStack 개발 환경 설치가 완료되었습니다. Visual Studio 개발 도구로 handstack.sln 를 실행하세요. 자세한 정보는 https://handstack.kr/docs/startup/install/개발-환경-설정하기#빌드와-확인 를 참고하세요.'
         exit 0
     }
 

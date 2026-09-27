@@ -84,8 +84,8 @@
                 items: [{
                     helpType: 'U',
                     selector: '',
-                    subject: '제목입니다.',
-                    sentence: 'https://handstack.kr/docs/startup/install/지원-운영체제',
+                    subject: 'HandStack 공식 문서.',
+                    sentence: 'https://handstack.kr',
                     options: '{&#34;contentType&#34;: &#34;link&#34;}',
                 },{
                     helpType: 'U',

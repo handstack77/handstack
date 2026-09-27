@@ -5,21 +5,21 @@ REM 필수 프로그램 설치 확인
 where node >nul 2>nul
 if %errorlevel% neq 0 (
 	echo Node.js v20.12.2 LTS 이상 버전을 설치 해야 합니다.
-	start "" "https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#winget-을-이용한-nodejs-설치"
+	start "" "https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#공식-설치-안내"
 	goto :EOF
 )
 
 where gulp >nul 2>nul
 if %errorlevel% neq 0 (
 	echo Node.js 기반 gulp CLI 도구를 설치 해야 합니다.
-	start "" "https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#gulp-설치하기"
+	start "" "https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#공식-설치-안내"
 	goto :EOF
 )
 
 where curl >nul 2>nul
 if %errorlevel% neq 0 (
 	echo curl CLI 를 설치 해야 합니다.
-	start "" "https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#winget-을-이용한-curl-설치"
+	start "" "https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#공식-설치-안내"
 	goto :EOF
 )
 
@@ -49,14 +49,14 @@ if exist %current_path%\1.WebHost\ack\ack.csproj (
 	where dotnet >nul 2>nul
 	if %errorlevel% neq 0 (
 		echo .NET Core 10.0 버전을 설치 해야 합니다.
-		start "" "https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#winget-을-이용한-net-core-설치"
+		start "" "https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#공식-설치-안내"
 		goto :EOF
 	)
 
 	dotnet --version | findstr /R "^10\." >nul 2>nul
 	if %errorlevel% neq 0 (
 		echo .NET Core 10.0 버전을 설치 해야 합니다.
-		start "" "https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#winget-을-이용한-net-core-설치"
+		start "" "https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#공식-설치-안내"
 		goto :EOF
 	)
 
@@ -116,7 +116,7 @@ if exist %current_path%\1.WebHost\ack\ack.csproj (
 	cd %current_path%
 	robocopy %current_path%\1.WebHost\ack\wwwroot\assets\js %HANDSTACK_HOME%\node_modules\syn index.js /copy:dat
 
-	echo HandStack 개발 환경 설치가 완료되었습니다. Visual Studio 개발 도구로 handstack.sln 를 실행하세요. 자세한 정보는 https://handstack.kr 를 참고하세요.
+	echo HandStack 개발 환경 설치가 완료되었습니다. Visual Studio 개발 도구로 handstack.sln 를 실행하세요. 자세한 정보는 https://handstack.kr/docs/startup/install/개발-환경-설정하기#빌드와-확인 를 참고하세요.
 )
 
 REM 실행 환경 설정 (ack.exe 존재 시)

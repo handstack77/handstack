@@ -5,13 +5,13 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
-readonly NODE_URL_MAC="https://handstack.kr/docs/startup/install/%ED%95%84%EC%88%98-%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%A8-%EC%84%A4%EC%B9%98%ED%95%98%EA%B8%B0#homebrew-%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%9C-nodejs-%EC%84%A4%EC%B9%98"
-readonly NODE_URL_LINUX="https://handstack.kr/docs/startup/install/%ED%95%84%EC%88%98-%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%A8-%EC%84%A4%EC%B9%98%ED%95%98%EA%B8%B0#apt-%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%9C-nodejs-%EC%84%A4%EC%B9%98"
-readonly CURL_URL_MAC="https://handstack.kr/docs/startup/install/%ED%95%84%EC%88%98-%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%A8-%EC%84%A4%EC%B9%98%ED%95%98%EA%B8%B0#homebrew-%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%9C-curl-%EC%84%A4%EC%B9%98"
-readonly CURL_URL_LINUX="https://handstack.kr/docs/startup/install/%ED%95%84%EC%88%98-%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%A8-%EC%84%A4%EC%B9%98%ED%95%98%EA%B8%B0#apt-%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%9C-curl-%EC%84%A4%EC%B9%98"
-readonly GULP_URL="https://handstack.kr/docs/startup/install/%ED%95%84%EC%88%98-%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%A8-%EC%84%A4%EC%B9%98%ED%95%98%EA%B8%B0#gulp-%EC%84%A4%EC%B9%98%ED%95%98%EA%B8%B0"
-readonly DOTNET_URL_MAC="https://handstack.kr/docs/startup/install/%ED%95%84%EC%88%98-%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%A8-%EC%84%A4%EC%B9%98%ED%95%98%EA%B8%B0#homebrew-%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%9C-net-core-%EC%84%A4%EC%B9%98"
-readonly DOTNET_URL_LINUX="https://handstack.kr/docs/startup/install/%ED%95%84%EC%88%98-%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%A8-%EC%84%A4%EC%B9%98%ED%95%98%EA%B8%B0#apt-%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%9C-net-core-%EC%84%A4%EC%B9%98"
+readonly NODE_URL_MAC="https://handstack.kr/docs/startup/install/%ED%95%84%EC%88%98-%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%A8-%EC%84%A4%EC%B9%98%ED%95%98%EA%B8%B0#%EA%B3%B5%EC%8B%9D-%EC%84%A4%EC%B9%98-%EC%95%88%EB%82%B4"
+readonly NODE_URL_LINUX="https://handstack.kr/docs/startup/install/%ED%95%84%EC%88%98-%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%A8-%EC%84%A4%EC%B9%98%ED%95%98%EA%B8%B0#%EA%B3%B5%EC%8B%9D-%EC%84%A4%EC%B9%98-%EC%95%88%EB%82%B4"
+readonly CURL_URL_MAC="https://handstack.kr/docs/startup/install/%ED%95%84%EC%88%98-%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%A8-%EC%84%A4%EC%B9%98%ED%95%98%EA%B8%B0#%EA%B3%B5%EC%8B%9D-%EC%84%A4%EC%B9%98-%EC%95%88%EB%82%B4"
+readonly CURL_URL_LINUX="https://handstack.kr/docs/startup/install/%ED%95%84%EC%88%98-%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%A8-%EC%84%A4%EC%B9%98%ED%95%98%EA%B8%B0#%EA%B3%B5%EC%8B%9D-%EC%84%A4%EC%B9%98-%EC%95%88%EB%82%B4"
+readonly GULP_URL="https://handstack.kr/docs/startup/install/%ED%95%84%EC%88%98-%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%A8-%EC%84%A4%EC%B9%98%ED%95%98%EA%B8%B0#%EA%B3%B5%EC%8B%9D-%EC%84%A4%EC%B9%98-%EC%95%88%EB%82%B4"
+readonly DOTNET_URL_MAC="https://handstack.kr/docs/startup/install/%ED%95%84%EC%88%98-%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%A8-%EC%84%A4%EC%B9%98%ED%95%98%EA%B8%B0#%EA%B3%B5%EC%8B%9D-%EC%84%A4%EC%B9%98-%EC%95%88%EB%82%B4"
+readonly DOTNET_URL_LINUX="https://handstack.kr/docs/startup/install/%ED%95%84%EC%88%98-%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%A8-%EC%84%A4%EC%B9%98%ED%95%98%EA%B8%B0#%EA%B3%B5%EC%8B%9D-%EC%84%A4%EC%B9%98-%EC%95%88%EB%82%B4"
 readonly LIB_ZIP_URL="https://github.com/handstack77/handstack/raw/master/lib.zip"
 
 is_macos() {
@@ -230,7 +230,7 @@ if [[ -f "$ACK_CSPROJ" ]]; then
 
     copy_if_exists "$CURRENT_PATH/1.WebHost/ack/wwwroot/assets/js/index.js" "$HANDSTACK_HOME/node_modules/syn/index.js"
 
-    echo "HandStack 개발 환경 설치가 완료되었습니다. Visual Studio Code 또는 터미널에서 소스를 계속 작업하세요. 자세한 정보는 https://handstack.kr 를 참고하세요."
+    echo "HandStack 개발 환경 설치가 완료되었습니다. Visual Studio Code 또는 터미널에서 소스를 계속 작업하세요. 자세한 정보는 https://handstack.kr/docs/startup/install/%EA%B0%9C%EB%B0%9C-%ED%99%98%EA%B2%BD-%EC%84%A4%EC%A0%95%ED%95%98%EA%B8%B0#%EB%B9%8C%EB%93%9C%EC%99%80-%ED%99%95%EC%9D%B8 를 참고하세요."
     exit 0
 fi
 
