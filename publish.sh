@@ -112,9 +112,9 @@ echo "os_mode: $os_mode, action_mode: $action_mode, configuration_mode: $configu
 remove_if_exists "$publish_path"
 
 if [[ "$action_mode" == "publish" ]]; then
-    dotnet_options=(-p:Optimize="$optimize_flag" "${symbol_options[@]}" --configuration "$configuration_mode" --runtime "$rid" --self-contained false -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true)
+    dotnet_options=(-p:Optimize="$optimize_flag" ${symbol_options[@]+"${symbol_options[@]}"} --configuration "$configuration_mode" --runtime "$rid" --self-contained false -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true)
 else
-    dotnet_options=(-p:Optimize="$optimize_flag" "${symbol_options[@]}" --configuration "$configuration_mode")
+    dotnet_options=(-p:Optimize="$optimize_flag" ${symbol_options[@]+"${symbol_options[@]}"} --configuration "$configuration_mode")
 fi
 
 invoke_dotnet "publish" "${dotnet_options[@]}" 1.WebHost/ack/ack.csproj --output "$publish_path/handstack/app"
@@ -140,7 +140,7 @@ for item in "${cli_projects[@]}"; do
     if [[ "$action_mode" == "publish" ]]; then
         invoke_dotnet "$action_mode" \
             -p:Optimize="$optimize_flag" \
-            "${symbol_options[@]}" \
+            ${symbol_options[@]+"${symbol_options[@]}"} \
             -p:PublishSingleFile=true \
             --configuration "$configuration_mode" \
             --runtime "$rid" \
@@ -150,7 +150,7 @@ for item in "${cli_projects[@]}"; do
     else
         invoke_dotnet "$action_mode" \
             -p:Optimize="$optimize_flag" \
-            "${symbol_options[@]}" \
+            ${symbol_options[@]+"${symbol_options[@]}"} \
             --configuration "$configuration_mode" \
             "$project_path" \
             --output "$publish_path/handstack/tools/$project_name"
@@ -180,7 +180,7 @@ for item in "${module_projects[@]}"; do
 
     invoke_dotnet build \
         -p:Optimize="$optimize_flag" \
-        "${symbol_options[@]}" \
+        ${symbol_options[@]+"${symbol_options[@]}"} \
         --configuration "$configuration_mode" \
         "$project_path" \
         --output "$publish_path/handstack/modules/$module_name"
