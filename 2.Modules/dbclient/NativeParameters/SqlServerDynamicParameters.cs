@@ -11,8 +11,8 @@ namespace dbclient.NativeParameters
 {
     public class SqlServerDynamicParameters : SqlMapper.IDynamicParameters
     {
-        public readonly DynamicParameters dynamicParameters = new DynamicParameters();
-        public readonly List<SqlParameter> sqlParameters = new List<SqlParameter>();
+        public readonly DynamicParameters dynamicParameters = new();
+        public readonly List<SqlParameter> sqlParameters = [];
 
         public void Add(string name, object? value = null, SqlDbType sqlDbType = SqlDbType.VarChar, ParameterDirection direction = ParameterDirection.Input, int? size = null)
         {
@@ -21,23 +21,29 @@ namespace dbclient.NativeParameters
             {
                 if (size.Value <= 0)
                 {
-                    sqlParameter = new SqlParameter(name, sqlDbType);
-                    sqlParameter.Value = value;
-                    sqlParameter.Direction = direction;
+                    sqlParameter = new SqlParameter(name, sqlDbType)
+                    {
+                        Value = value,
+                        Direction = direction
+                    };
                 }
                 else
                 {
-                    sqlParameter = new SqlParameter(name, sqlDbType);
-                    sqlParameter.Value = value;
-                    sqlParameter.Direction = direction;
-                    sqlParameter.Size = size.Value;
+                    sqlParameter = new SqlParameter(name, sqlDbType)
+                    {
+                        Value = value,
+                        Direction = direction,
+                        Size = size.Value
+                    };
                 }
             }
             else
             {
-                sqlParameter = new SqlParameter(name, sqlDbType);
-                sqlParameter.Value = value;
-                sqlParameter.Direction = direction;
+                sqlParameter = new SqlParameter(name, sqlDbType)
+                {
+                    Value = value,
+                    Direction = direction
+                };
             }
 
             sqlParameters.Add(sqlParameter);
@@ -48,15 +54,9 @@ namespace dbclient.NativeParameters
             ((SqlMapper.IDynamicParameters)dynamicParameters).AddParameters(command, identity);
 
             dynamic? dynamicCommand = command as SqlCommand;
-            if (dynamicCommand == null)
-            {
-                dynamicCommand = command as ProfilerDbCommand;
-            }
+            dynamicCommand ??= command as ProfilerDbCommand;
 
-            if (dynamicCommand != null)
-            {
-                dynamicCommand.Parameters.AddRange(sqlParameters.ToArray());
-            }
+            dynamicCommand?.Parameters.AddRange(sqlParameters.ToArray());
         }
     }
 }

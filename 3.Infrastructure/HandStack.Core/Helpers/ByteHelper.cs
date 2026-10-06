@@ -139,20 +139,19 @@ namespace HandStack.Core.Helpers
 
         public string ToString(string format, IFormatProvider provider)
         {
-            if (format.Contains("#") == false && format.Contains("0") == false)
+            ArgumentNullException.ThrowIfNull(format);
+
+            if (format.Contains('#') == false && format.Contains('0') == false)
             {
                 format = "0.## " + format;
             }
 
-            if (provider == null)
-            {
-                provider = CultureInfo.CurrentCulture;
-            }
+            provider ??= CultureInfo.CurrentCulture;
 
-            Func<string, bool> has = value => format.IndexOf(value, StringComparison.CurrentCultureIgnoreCase) != -1;
-            Func<double, string> output = n => n.ToString(format, provider);
+            bool has(string value) => format.Contains(value, StringComparison.CurrentCultureIgnoreCase);
+            string output(double n) => n.ToString(format, provider);
 
-            var result = "";
+            string? result;
             if (has("PB") == true)
             {
                 result = output(PetaBytes);
@@ -173,11 +172,11 @@ namespace HandStack.Core.Helpers
             {
                 result = output(KiloBytes);
             }
-            else if (format.IndexOf(ByteSymbol) != -1)
+            else if (format.Contains(ByteSymbol, StringComparison.CurrentCulture))
             {
                 result = output(Bytes);
             }
-            else if (format.IndexOf(BitSymbol) != -1)
+            else if (format.Contains(BitSymbol, StringComparison.CurrentCulture))
             {
                 result = output(Bits);
             }
@@ -327,16 +326,16 @@ namespace HandStack.Core.Helpers
         public static ByteSize Parse(string value)
         {
             if (string.IsNullOrWhiteSpace(value))
-                throw new ArgumentNullException("value", "String is null or whitespace");
+                throw new ArgumentNullException(nameof(value), "String is null or whitespace");
 
             value = value.TrimStart();
-
-            var num = 0;
             var found = false;
 
             var decimalSeparator = Convert.ToChar(NumberFormatInfo.CurrentInfo.NumberDecimalSeparator);
             var groupSeparator = Convert.ToChar(NumberFormatInfo.CurrentInfo.NumberGroupSeparator);
 
+
+            int num;
             for (num = 0; num < value.Length; num++)
                 if (!(char.IsDigit(value[num]) || value[num] == decimalSeparator || value[num] == groupSeparator))
                 {
@@ -352,8 +351,7 @@ namespace HandStack.Core.Helpers
             var numberPart = value.SubstringSafe(0, lastNumber).Trim();
             var sizePart = value.SubstringSafe(lastNumber, value.Length - lastNumber).Trim();
 
-            double number;
-            if (!double.TryParse(numberPart, NumberStyles.Float | NumberStyles.AllowThousands, NumberFormatInfo.CurrentInfo, out number))
+            if (!double.TryParse(numberPart, NumberStyles.Float | NumberStyles.AllowThousands, NumberFormatInfo.CurrentInfo, out var number))
                 throw new FormatException($"No number found in value '{value}'.");
 
             switch (sizePart)

@@ -30,20 +30,12 @@ namespace function.Areas.function.Controllers
     [Route("[area]/api/[controller]")]
     [ApiController]
     [EnableCors]
-    public class QueryController : BaseController
+    public class QueryController(Serilog.ILogger logger, FunctionLoggerClient loggerClient, IFunctionClient dataClient, IMediator mediator) : BaseController
     {
-        private readonly FunctionLoggerClient loggerClient;
-        private readonly Serilog.ILogger logger;
-        private readonly IFunctionClient dataClient;
-        private readonly IMediator mediator;
-
-        public QueryController(Serilog.ILogger logger, FunctionLoggerClient loggerClient, IFunctionClient dataClient, IMediator mediator)
-        {
-            this.logger = logger;
-            this.loggerClient = loggerClient;
-            this.dataClient = dataClient;
-            this.mediator = mediator;
-        }
+        private readonly FunctionLoggerClient loggerClient = loggerClient;
+        private readonly Serilog.ILogger logger = logger;
+        private readonly IFunctionClient dataClient = dataClient;
+        private readonly IMediator mediator = mediator;
 
         // http://localhost:8421/function/api/query/has
         [HttpGet("[action]")]
@@ -205,7 +197,7 @@ namespace function.Areas.function.Controllers
                 ? parameterName
                 : parameterName[0] switch
                 {
-                    '@' or ':' or '$' or '#' => parameterName.Substring(1),
+                    '@' or ':' or '$' or '#' => parameterName[1..],
                     _ => parameterName
                 };
         }

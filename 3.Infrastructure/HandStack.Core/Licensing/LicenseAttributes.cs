@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 
@@ -25,6 +26,8 @@ namespace HandStack.Core.Licensing
 
         public virtual void AddAll(IDictionary<string, string> features)
         {
+            ArgumentNullException.ThrowIfNull(features);
+
             foreach (var feature in features)
                 Add(feature.Key, feature.Value);
         }
@@ -35,8 +38,7 @@ namespace HandStack.Core.Licensing
                 xmlData.Elements(childName)
                     .FirstOrDefault(e => e.Attribute("name") != null && e.Attribute("name")?.Value == key);
 
-            if (element != null)
-                element.Remove();
+            element?.Remove();
         }
 
         public virtual void RemoveAll()
@@ -98,13 +100,13 @@ namespace HandStack.Core.Licensing
         protected virtual string? GetTag(string name)
         {
             var element = xmlData.Element(name);
-            return element != null ? element.Value : null;
+            return element?.Value;
         }
 
         protected virtual string? GetChildTag(string name)
         {
             var element = xmlData.Elements(childName).FirstOrDefault(e => e.Attribute("name") != null && e.Attribute("name").Value == name);
-            return element != null ? element.Value : null;
+            return element?.Value;
         }
     }
 #pragma warning restore CS8602

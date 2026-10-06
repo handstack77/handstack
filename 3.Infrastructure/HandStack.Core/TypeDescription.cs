@@ -2,15 +2,9 @@
 
 namespace HandStack.Core
 {
-    public class TypeDescription
+    public class TypeDescription(Type typeObject, object? classObject)
     {
-        public Type TypeObject;
-        public object? ClassObject;
-
-        public TypeDescription(Type typeObject, object? classObject)
-        {
-            TypeObject = typeObject;
-            ClassObject = classObject;
-        }
+        public Type TypeObject = typeObject;
+        public object? ClassObject = classObject;
     }
 }

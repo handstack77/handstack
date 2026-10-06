@@ -14,7 +14,7 @@ namespace prompter.Enumeration
 
     public static class LLMProvidersExtensions
     {
-        private static readonly Dictionary<LLMProviders, string> BaseLLMProviders = new Dictionary<LLMProviders, string>
+        private static readonly Dictionary<LLMProviders, string> BaseLLMProviders = new()
         {
             { LLMProviders.OpenAI, "OpenAI" },
             { LLMProviders.Claude, "Claude" },
@@ -26,13 +26,10 @@ namespace prompter.Enumeration
 
         public static string ToEnumString(this LLMProviders key, string category = "base")
         {
-            var result = string.Empty;
-            switch (category)
+            var result = category switch
             {
-                default:
-                    result = BaseLLMProviders[key];
-                    break;
-            }
+                _ => BaseLLMProviders[key],
+            };
 
             return result;
         }

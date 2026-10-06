@@ -120,10 +120,7 @@ namespace HandStack.Core.ExtensionMethod
         public static DateTime AdjustTimeZoneOffset(this DateTime @this, TimeZoneInfo? tzi = null)
         {
             var result = DateTime.UtcNow;
-            if (tzi == null)
-            {
-                tzi = TimeZoneInstance;
-            }
+            tzi ??= TimeZoneInstance;
 
             if (tzi != null)
             {
@@ -216,10 +213,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static string ToShortDate(this DateTime @this, CultureInfo culture)
         {
-            if (culture == null)
-            {
-                culture = CultureInfo.CurrentCulture;
-            }
+            culture ??= CultureInfo.CurrentCulture;
 
             return @this.ToString(culture.DateTimeFormat.ShortDatePattern, culture);
         }
@@ -236,10 +230,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static string ToLongDate(this DateTime @this, CultureInfo culture)
         {
-            if (culture == null)
-            {
-                culture = CultureInfo.CurrentCulture;
-            }
+            culture ??= CultureInfo.CurrentCulture;
 
             return @this.ToString(culture.DateTimeFormat.LongDatePattern, culture);
         }
@@ -256,10 +247,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static string ToShortTime(this DateTime @this, CultureInfo culture)
         {
-            if (culture == null)
-            {
-                culture = CultureInfo.CurrentCulture;
-            }
+            culture ??= CultureInfo.CurrentCulture;
 
             return @this.ToString(culture.DateTimeFormat.ShortTimePattern, culture);
         }
@@ -276,20 +264,16 @@ namespace HandStack.Core.ExtensionMethod
 
         public static string ToLongTime(this DateTime @this, CultureInfo culture)
         {
-            if (culture == null)
-            {
-                culture = CultureInfo.CurrentCulture;
-            }
+            culture ??= CultureInfo.CurrentCulture;
 
             return @this.ToString(culture.DateTimeFormat.LongTimePattern, culture);
         }
 
         public static double DateDiff(this DateTime @this, PartOfDateTime datePart, DateTime endDate)
         {
-            double Result = 0;
-
             var SubtractDateTime = new TimeSpan(endDate.Ticks - @this.Ticks);
 
+            double Result;
             switch (datePart)
             {
                 case PartOfDateTime.Year:
@@ -404,10 +388,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static int GetWeekOfYear(this DateTime @this, CultureInfo culture)
         {
-            if (culture == null)
-            {
-                culture = CultureInfo.CurrentCulture;
-            }
+            culture ??= CultureInfo.CurrentCulture;
 
             var weekRule = culture.DateTimeFormat.CalendarWeekRule;
             var firstDayOfWeek = culture.DateTimeFormat.FirstDayOfWeek;

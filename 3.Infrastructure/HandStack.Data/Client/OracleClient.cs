@@ -35,7 +35,7 @@ namespace HandStack.Data.Client
             set { connectionString = value; }
         }
 
-        private DatabaseFactory databaseFactory;
+        private readonly DatabaseFactory databaseFactory;
 
         public DatabaseFactory DbFactory
         {
@@ -101,7 +101,7 @@ namespace HandStack.Data.Client
 
             static void AppendParameter(StringBuilder builder, string parameterName, object? parameterValue)
             {
-                if (parameterName.IndexOf("@", StringComparison.Ordinal) < 0)
+                if (parameterName.IndexOf('@') < 0)
                 {
                     builder.Append('@');
                 }
@@ -323,7 +323,7 @@ namespace HandStack.Data.Client
                 }
                 else
                 {
-                    results = new List<T>();
+                    results = [];
                 }
             }
 
@@ -455,7 +455,7 @@ namespace HandStack.Data.Client
             }
         }
 
-        private bool SetDbParameterData(OracleParameter parameter, List<OracleParameter>? ListParameters)
+        private static bool SetDbParameterData(OracleParameter parameter, List<OracleParameter>? ListParameters)
         {
             if (ListParameters == null)
             {
@@ -469,7 +469,7 @@ namespace HandStack.Data.Client
                          where p.ParameterName.Equals(parameter.ParameterName, StringComparison.CurrentCultureIgnoreCase)
                          select p;
 
-            if (result.Count() > 0)
+            if (result.Any())
             {
                 OracleParameter? listParameter = null;
                 foreach (var nvp in result)
@@ -483,100 +483,39 @@ namespace HandStack.Data.Client
             }
             else
             {
-                switch (parameter.OracleDbType)
+                dbValue = parameter.OracleDbType switch
                 {
-                    case OracleDbType.BFile:
-                        dbValue = DBNull.Value;
-                        break;
-                    case OracleDbType.Blob:
-                        dbValue = DBNull.Value;
-                        break;
-                    case OracleDbType.Byte:
-                        dbValue = DBNull.Value;
-                        break;
-                    case OracleDbType.Char:
-                        dbValue = "";
-                        break;
-                    case OracleDbType.Clob:
-                        dbValue = "";
-                        break;
-                    case OracleDbType.Date:
-                        dbValue = DateTime.Now;
-                        break;
-                    case OracleDbType.Decimal:
-                        dbValue = 0;
-                        break;
-                    case OracleDbType.Double:
-                        dbValue = 0;
-                        break;
-                    case OracleDbType.Long:
-                        dbValue = "";
-                        break;
-                    case OracleDbType.LongRaw:
-                        dbValue = DBNull.Value;
-                        break;
-                    case OracleDbType.Int16:
-                        dbValue = 0;
-                        break;
-                    case OracleDbType.Int32:
-                        dbValue = 0;
-                        break;
-                    case OracleDbType.Int64:
-                        dbValue = 0;
-                        break;
-                    case OracleDbType.IntervalDS:
-                        dbValue = TimeSpan.MinValue;
-                        break;
-                    case OracleDbType.IntervalYM:
-                        dbValue = 0;
-                        break;
-                    case OracleDbType.NClob:
-                        dbValue = "";
-                        break;
-                    case OracleDbType.NChar:
-                        dbValue = "";
-                        break;
-                    case OracleDbType.NVarchar2:
-                        dbValue = "";
-                        break;
-                    case OracleDbType.Raw:
-                        dbValue = DBNull.Value;
-                        break;
-                    case OracleDbType.RefCursor:
-                        dbValue = DBNull.Value;
-                        break;
-                    case OracleDbType.Single:
-                        dbValue = 0;
-                        break;
-                    case OracleDbType.TimeStamp:
-                        dbValue = DateTime.Now;
-                        break;
-                    case OracleDbType.TimeStampLTZ:
-                        dbValue = DateTime.Now;
-                        break;
-                    case OracleDbType.TimeStampTZ:
-                        dbValue = DateTime.Now;
-                        break;
-                    case OracleDbType.Varchar2:
-                        dbValue = "";
-                        break;
-                    case OracleDbType.XmlType:
-                        dbValue = "";
-                        break;
-                    case OracleDbType.BinaryDouble:
-                        dbValue = DBNull.Value;
-                        break;
-                    case OracleDbType.BinaryFloat:
-                        dbValue = DBNull.Value;
-                        break;
-                    case OracleDbType.Boolean:
-                        dbValue = false;
-                        break;
-                    default:
-                        dbValue = DBNull.Value;
-                        break;
-                }
-
+                    OracleDbType.BFile => DBNull.Value,
+                    OracleDbType.Blob => DBNull.Value,
+                    OracleDbType.Byte => DBNull.Value,
+                    OracleDbType.Char => "",
+                    OracleDbType.Clob => "",
+                    OracleDbType.Date => DateTime.Now,
+                    OracleDbType.Decimal => 0,
+                    OracleDbType.Double => 0,
+                    OracleDbType.Long => "",
+                    OracleDbType.LongRaw => DBNull.Value,
+                    OracleDbType.Int16 => 0,
+                    OracleDbType.Int32 => 0,
+                    OracleDbType.Int64 => 0,
+                    OracleDbType.IntervalDS => TimeSpan.MinValue,
+                    OracleDbType.IntervalYM => 0,
+                    OracleDbType.NClob => "",
+                    OracleDbType.NChar => "",
+                    OracleDbType.NVarchar2 => "",
+                    OracleDbType.Raw => DBNull.Value,
+                    OracleDbType.RefCursor => DBNull.Value,
+                    OracleDbType.Single => 0,
+                    OracleDbType.TimeStamp => DateTime.Now,
+                    OracleDbType.TimeStampLTZ => DateTime.Now,
+                    OracleDbType.TimeStampTZ => DateTime.Now,
+                    OracleDbType.Varchar2 => "",
+                    OracleDbType.XmlType => "",
+                    OracleDbType.BinaryDouble => DBNull.Value,
+                    OracleDbType.BinaryFloat => DBNull.Value,
+                    OracleDbType.Boolean => false,
+                    _ => DBNull.Value,
+                };
                 isMatchingParameter = false;
             }
 
@@ -617,12 +556,8 @@ namespace HandStack.Data.Client
             {
                 if (isFromDispose)
                 {
-                    if (databaseFactory != null)
-                    {
-                        databaseFactory.Dispose();
-                    }
+                    databaseFactory?.Dispose();
 
-                    GC.SuppressFinalize(this);
                 }
 
                 isDisposedResources = true;

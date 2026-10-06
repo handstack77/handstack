@@ -25,7 +25,7 @@ namespace transact.Entity
             ReturnType = "";
             AutoCommit = false;
             ModifiedDate = DateTimeOffset.Now;
-            Inputs = new List<Input>();
+            Inputs = [];
         }
     }
 }

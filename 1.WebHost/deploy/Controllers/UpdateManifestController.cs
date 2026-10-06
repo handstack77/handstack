@@ -13,16 +13,10 @@ using Microsoft.Extensions.Logging;
 namespace deploy.Controllers
 {
     [ApiController]
-    public sealed class UpdateManifestController : DeployControllerBase
+    public sealed class UpdateManifestController(IUpdatePackageRepositoryService repositoryService, ILogger<UpdateManifestController> logger) : DeployControllerBase
     {
-        private readonly IUpdatePackageRepositoryService repositoryService;
-        private readonly ILogger<UpdateManifestController> logger;
-
-        public UpdateManifestController(IUpdatePackageRepositoryService repositoryService, ILogger<UpdateManifestController> logger)
-        {
-            this.repositoryService = repositoryService;
-            this.logger = logger;
-        }
+        private readonly IUpdatePackageRepositoryService repositoryService = repositoryService;
+        private readonly ILogger<UpdateManifestController> logger = logger;
 
         [HttpGet("/release/manifest.json")]
         public IActionResult GetManifest()

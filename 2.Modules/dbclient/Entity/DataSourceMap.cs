@@ -26,7 +26,7 @@ namespace dbclient.Entity
         public DataSourceMap()
         {
             ApplicationID = "";
-            ProjectListID = new List<string>();
+            ProjectListID = [];
             DataProvider = DataProviders.SqlServer;
             ConnectionString = "";
             TransactionIsolationLevel = "ReadCommitted";

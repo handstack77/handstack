@@ -29,7 +29,6 @@ namespace transact.Extensions
 
         public static string? GetLogDbConnectionString(string userWorkID, string applicationID, string? rollingID = "")
         {
-            string? result = null;
             var transactionAggregateBasePath = PathExtensions.Combine(ModuleConfiguration.TransactionAggregateBasePath, userWorkID, applicationID);
             if (Directory.Exists(transactionAggregateBasePath) == false)
             {
@@ -37,7 +36,7 @@ namespace transact.Extensions
             }
 
             var logDbFilePath = ResolveLogDbFilePath(userWorkID, applicationID, rollingID);
-            result = $"URI=file:{logDbFilePath};Journal Mode=Off;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;";
+            var result = $"URI=file:{logDbFilePath};Journal Mode=Off;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;";
 
             var fileInfo = new FileInfo(logDbFilePath);
             if (fileInfo.Directory != null && fileInfo.Directory.Exists == false)
@@ -284,6 +283,8 @@ WHERE StatusID = 1;", CommandType.Text);
             }
             else
             {
+                ArgumentNullException.ThrowIfNull(queryID);
+
                 var paths = queryID.Split(".");
                 if (paths.Length == 3)
                 {
@@ -334,6 +335,8 @@ WHERE StatusID = 1;", CommandType.Text);
             }
             else
             {
+                ArgumentNullException.ThrowIfNull(queryID);
+
                 var paths = queryID.Split(".");
                 if (paths.Length == 3)
                 {

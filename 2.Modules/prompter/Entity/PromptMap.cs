@@ -102,12 +102,12 @@ namespace prompter.Entity
             TopP = 1.0;
             PresencePenalty = 0.0;
             FrequencyPenalty = 0.0;
-            InputVariables = new List<InputVariableMap>();
-            MediaVariables = new List<PromptMediaVariable>();
-            OutputMetas = new List<string>();
+            InputVariables = [];
+            MediaVariables = [];
+            OutputMetas = [];
             Tools = new PromptToolSettings();
             Authorization = new PromptAuthorization();
-            Headers = new List<PromptHeader>();
+            Headers = [];
             Body = new PromptBody();
             Chidren = new HtmlDocument();
             ModifiedAt = DateTime.MinValue;

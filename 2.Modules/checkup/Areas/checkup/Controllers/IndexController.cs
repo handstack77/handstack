@@ -32,26 +32,15 @@ namespace checkup.Areas.checkup.Controllers
     [Area("checkup")]
     [Route("[area]/api/[controller]")]
     [ApiController]
-    public class IndexController : BaseController
+    public class IndexController(IMediator mediator, ILogger logger, IDataProtectionProvider dataProtectionProvider, IDistributedCache distributedCache, ISequentialIdGenerator sequentialIdGenerator, SqidsEncoder<int> sqids) : BaseController
     {
-        private readonly IMediator mediator;
-        private readonly ILogger logger;
-        private readonly IDataProtector dataProtector;
-        private readonly IDistributedCache distributedCache;
-        private readonly ISequentialIdGenerator sequentialIdGenerator;
-        private readonly TextInfo textInfo;
-        private readonly SqidsEncoder<int> sqids;
-
-        public IndexController(IMediator mediator, ILogger logger, IDataProtectionProvider dataProtectionProvider, IDistributedCache distributedCache, ISequentialIdGenerator sequentialIdGenerator, SqidsEncoder<int> sqids)
-        {
-            this.mediator = mediator;
-            this.logger = logger;
-            this.distributedCache = distributedCache;
-            dataProtector = dataProtectionProvider.CreateProtector(nameof(SessionMiddleware));
-            this.sequentialIdGenerator = sequentialIdGenerator;
-            textInfo = new CultureInfo("en-US", false).TextInfo;
-            this.sqids = sqids;
-        }
+        private readonly IMediator mediator = mediator;
+        private readonly ILogger logger = logger;
+        private readonly IDataProtector dataProtector = dataProtectionProvider.CreateProtector(nameof(SessionMiddleware));
+        private readonly IDistributedCache distributedCache = distributedCache;
+        private readonly ISequentialIdGenerator sequentialIdGenerator = sequentialIdGenerator;
+        private readonly TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
+        private readonly SqidsEncoder<int> sqids = sqids;
 
         [HttpGet]
         public string Get()
@@ -63,7 +52,8 @@ namespace checkup.Areas.checkup.Controllers
         [HttpGet("[action]")]
         public ActionResult HasKey(string cacheKey)
         {
-            ActionResult result = BadRequest();
+            _ = BadRequest();
+            ActionResult result;
             try
             {
                 var hasCache = false;
@@ -149,13 +139,15 @@ namespace checkup.Areas.checkup.Controllers
                 {
                     try
                     {
-                        var transactionObject = new TransactionClientObject();
-                        transactionObject.SystemID = TransactionConfig.Transaction.SystemID;
-                        transactionObject.ProgramID = applicationID;
-                        transactionObject.BusinessID = projectID;
-                        transactionObject.TransactionID = transactionID;
-                        transactionObject.FunctionID = serviceID;
-                        transactionObject.ScreenID = string.IsNullOrWhiteSpace(screenID) ? transactionID : screenID;
+                        var transactionObject = new TransactionClientObject
+                        {
+                            SystemID = TransactionConfig.Transaction.SystemID,
+                            ProgramID = applicationID,
+                            BusinessID = projectID,
+                            TransactionID = transactionID,
+                            FunctionID = serviceID,
+                            ScreenID = string.IsNullOrWhiteSpace(screenID) ? transactionID : screenID
+                        };
 
                         var requestID = GetRequestID(transactionObject, tokenID);
                         if (distributedCache.Get(requestID) == null)
@@ -181,7 +173,7 @@ namespace checkup.Areas.checkup.Controllers
             return result;
         }
 
-        private string GetRequestID(TransactionClientObject transactionObject, string? tokenID)
+        private static string GetRequestID(TransactionClientObject transactionObject, string? tokenID)
         {
             string requestID;
             var installType = TransactionConfig.Program.InstallType;
@@ -225,7 +217,7 @@ namespace checkup.Areas.checkup.Controllers
         [HttpGet("[action]")]
         public string SetSession(string key, string value)
         {
-            value = value + DateTime.Now.ToString();
+            value += DateTime.Now.ToString();
             HttpContext.Session.SetString(key, value);
             value = HttpContext.Session.Id + "|" + value;
             return value;
@@ -259,8 +251,8 @@ namespace checkup.Areas.checkup.Controllers
         [HttpGet("[action]")]
         public ActionResult ID(int? count, bool? hasSplits = false)
         {
-            ActionResult result = BadRequest();
-
+            _ = BadRequest();
+            ActionResult result;
             if (hasSplits == true)
             {
                 if (count != null && count > 0)
@@ -320,8 +312,8 @@ namespace checkup.Areas.checkup.Controllers
         [HttpGet("[action]")]
         public ActionResult EncodeNo([FromQuery] int[] numbers, string? key)
         {
-            ActionResult result = BadRequest();
-
+            _ = BadRequest();
+            ActionResult result;
             if (string.IsNullOrWhiteSpace(key))
             {
                 result = Content(sqids.Encode(numbers), "text/html");
@@ -342,7 +334,8 @@ namespace checkup.Areas.checkup.Controllers
         [HttpGet("[action]")]
         public ActionResult DecodeNo(string hash, string? key)
         {
-            ActionResult result = BadRequest();
+            _ = BadRequest();
+            ActionResult result;
             if (string.IsNullOrWhiteSpace(key))
             {
                 result = Content(string.Join(",", sqids.Decode(hash)), "text/html");

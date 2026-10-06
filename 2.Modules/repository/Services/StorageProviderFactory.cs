@@ -16,6 +16,8 @@ namespace repository.Services
     {
         public IStorageProvider? Create(Repository repository, string customPath1, string customPath2, string customPath3)
         {
+            ArgumentNullException.ThrowIfNull(repository);
+
             switch (repository.StorageType)
             {
                 case "AzureBlob":

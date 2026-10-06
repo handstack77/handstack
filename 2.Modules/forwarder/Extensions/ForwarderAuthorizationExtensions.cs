@@ -18,6 +18,7 @@ namespace forwarder.Extensions
         public static bool IsAllowAuthorization(this HttpContext httpContext)
         {
             var remoteIP = httpContext.GetRemoteIpAddress().ToStringSafe();
+            ArgumentNullException.ThrowIfNull(httpContext);
             var isLocalRequest = httpContext.Connection.RemoteIpAddress != null && IPAddress.IsLoopback(httpContext.Connection.RemoteIpAddress);
             var authorizationKey = isLocalRequest
                 ? httpContext.Request.GetContainValue("AuthorizationKey")
@@ -43,6 +44,7 @@ namespace forwarder.Extensions
                 return false;
             }
 
+            ArgumentNullException.ThrowIfNull(httpContext);
             var token = httpContext.Request.Headers["BearerToken"].ToString();
             if (string.IsNullOrWhiteSpace(token) == true)
             {

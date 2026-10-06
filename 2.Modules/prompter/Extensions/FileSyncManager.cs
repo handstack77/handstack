@@ -17,8 +17,8 @@ namespace prompter.Extensions
 
         private bool isDesposed;
         private readonly FileSystemWatcher fileSystemWatcher;
-        private readonly ConcurrentQueue<string> queue = new ConcurrentQueue<string>();
-        private ConcurrentDictionary<string, DateTime> lastEventTimes = new ConcurrentDictionary<string, DateTime>();
+        private readonly ConcurrentQueue<string> queue = new();
+        private readonly ConcurrentDictionary<string, DateTime> lastEventTimes = new();
 
         public FileSyncManager(string sourceRootDirectory, string filter)
         {
@@ -27,7 +27,7 @@ namespace prompter.Extensions
             if (string.IsNullOrEmpty(filter) == false)
             {
                 fileSystemWatcher.InternalBufferSize = 65536;
-                if (filter.IndexOf("|") > -1)
+                if (filter.IndexOf('|') > -1)
                 {
                     foreach (var item in filter.Split("|"))
                     {
@@ -129,7 +129,7 @@ namespace prompter.Extensions
         public void Dispose()
         {
             Dispose(true);
-            GC.SuppressFinalize(true);
+            GC.SuppressFinalize(this);
         }
 
         public virtual void Dispose(bool disposing)

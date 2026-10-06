@@ -14,22 +14,18 @@ using Microsoft.AspNetCore.Mvc.Filters;
 namespace HandStack.Web.Authorization
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
-    public class AuthorizeUserAttribute : Attribute, IAuthorizationFilter
+    public class AuthorizeUserAttribute(params Role[] roles) : Attribute, IAuthorizationFilter
     {
-        public readonly IList<Role> Roles;
-
-        public AuthorizeUserAttribute(params Role[] roles)
-        {
-            this.Roles = roles ?? new Role[] { };
-        }
+        public readonly IList<Role> Roles = roles ?? Array.Empty<Role>();
 
         public void OnAuthorization(AuthorizationFilterContext context)
         {
+            ArgumentNullException.ThrowIfNull(context);
+
             var allowAnonymous = context.ActionDescriptor.EndpointMetadata.OfType<AllowAnonymousAttribute>().Any();
             if (allowAnonymous == false)
             {
-                var account = context.HttpContext.Items["UserAccount"] as UserAccount;
-                if (account == null)
+                if (context.HttpContext.Items["UserAccount"] is not UserAccount account)
                 {
                     context.Result = new JsonResult(new { message = "Unauthorized" }) { StatusCode = StatusCodes.Status401Unauthorized };
                 }

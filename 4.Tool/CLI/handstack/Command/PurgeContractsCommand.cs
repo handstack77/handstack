@@ -10,6 +10,8 @@ namespace handstack
 {
     internal static class PurgeContractsCommand
     {
+        private static readonly string[] ContractSubDirectories = new[] { "dbclient", "transact", "wwwroot", "repository", "function" };
+
         public static void Register(RootCommand rootCommand, HandstackCommandContext context)
         {
             var optionAckFile = context.OptionAckFile;
@@ -33,7 +35,7 @@ namespace handstack
 
                     try
                     {
-                        string[] subDirs = { "dbclient", "transact", "wwwroot", "repository", "function" };
+                        var subDirs = ContractSubDirectories;
                         foreach (var subDir in subDirs)
                         {
                             var dirPath = PathExtensions.Combine(baseDir, subDir);

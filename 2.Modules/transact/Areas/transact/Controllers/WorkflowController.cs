@@ -37,27 +37,21 @@ namespace transact.Areas.transact.Controllers
     [Route("[area]/api/[controller]")]
     [ApiController]
     [EnableCors]
-    public partial class WorkflowController : BaseController
+    public partial class WorkflowController(IDistributedCache distributedCache, Serilog.ILogger logger, TransactLoggerClient loggerClient, TransactClient transactClient) : BaseController
     {
-        private readonly Serilog.ILogger logger;
-        private readonly IDistributedCache distributedCache;
-        private readonly TransactLoggerClient loggerClient;
-        private readonly TransactClient transactClient;
-
-        public WorkflowController(IDistributedCache distributedCache, Serilog.ILogger logger, TransactLoggerClient loggerClient, TransactClient transactClient)
-        {
-            this.logger = logger;
-            this.distributedCache = distributedCache;
-            this.loggerClient = loggerClient;
-            this.transactClient = transactClient;
-        }
+        private readonly Serilog.ILogger logger = logger;
+        private readonly IDistributedCache distributedCache = distributedCache;
+        private readonly TransactLoggerClient loggerClient = loggerClient;
+        private readonly TransactClient transactClient = transactClient;
 
         // http://localhost:8421/transact/api/workflow/execute
         [HttpPost("[action]")]
         public async Task<ActionResult> Execute(TransactionRequest request)
         {
-            var response = new TransactionResponse();
-            response.Acknowledge = AcknowledgeType.Failure;
+            var response = new TransactionResponse
+            {
+                Acknowledge = AcknowledgeType.Failure
+            };
 
             if (request == null)
             {
@@ -180,7 +174,7 @@ namespace transact.Areas.transact.Controllers
                 {
                     if (request.PayLoad.DataMapSet == null)
                     {
-                        request.PayLoad.DataMapSet = new List<List<DataMapItem>>();
+                        request.PayLoad.DataMapSet = [];
                     }
 
                     request.PayLoad.DataMapSet.Clear();
@@ -204,7 +198,7 @@ namespace transact.Areas.transact.Controllers
                     {
                         if (request.PayLoad.DataMapSet == null)
                         {
-                            request.PayLoad.DataMapSet = new List<List<DataMapItem>>();
+                            request.PayLoad.DataMapSet = [];
                         }
 
                         request.PayLoad.DataMapSet.Clear();
@@ -214,7 +208,7 @@ namespace transact.Areas.transact.Controllers
                             var decryptInputData = transactClient.DecryptInputData(dataMapSetRaw, request.Transaction.CompressionYN);
                             if (string.IsNullOrWhiteSpace(decryptInputData))
                             {
-                                request.PayLoad.DataMapSet.Add(new List<DataMapItem>());
+                                request.PayLoad.DataMapSet.Add([]);
                             }
                             else if (!TryDeserializeDataMapItems(decryptInputData, out var reqInput))
                             {
@@ -400,7 +394,7 @@ namespace transact.Areas.transact.Controllers
                                     if (user != null)
                                     {
                                         var userRoles = user.ApplicationRoleID.SplitComma();
-                                        if (userRoles.Any() == true)
+                                        if (userRoles.Count != 0 == true)
                                         {
                                             foreach (var permissionRole in permissionRoles.Where(x => x.RoleID != "Public"))
                                             {
@@ -542,7 +536,7 @@ namespace transact.Areas.transact.Controllers
                     }
                     else if (ModuleConfiguration.SystemID == requestSystemID && isBypassAuthorizeIP == true)
                     {
-                        if (!string.IsNullOrWhiteSpace(token) && token.IndexOf(".") > -1 && !string.IsNullOrWhiteSpace(request.Transaction.OperatorID))
+                        if (!string.IsNullOrWhiteSpace(token) && token.IndexOf('.') > -1 && !string.IsNullOrWhiteSpace(request.Transaction.OperatorID))
                         {
                             if (!TrySplitBearerToken(token, out _, out var encryptedToken, out var tokenHash))
                             {
@@ -730,7 +724,7 @@ namespace transact.Areas.transact.Controllers
                         {
                             if (!string.IsNullOrWhiteSpace(token))
                             {
-                                if (token.IndexOf(".") > -1)
+                                if (token.IndexOf('.') > -1)
                                 {
                                     if (!TrySplitBearerToken(token, out var userID, out var encryptedToken, out var tokenHash))
                                     {
@@ -771,9 +765,9 @@ namespace transact.Areas.transact.Controllers
 
                     foreach (var privillegeKey in privillegeKeys)
                     {
-                        if (claims.ContainsKey(privillegeKey))
+                        if (claims.TryGetValue(privillegeKey, out var value))
                         {
-                            privillegeTypes.Add(privillegeKey, claims[privillegeKey]);
+                            privillegeTypes.Add(privillegeKey, value);
                         }
                     }
 
@@ -842,7 +836,7 @@ namespace transact.Areas.transact.Controllers
                     }
                 }
 
-                if (string.IsNullOrWhiteSpace(oneTimeWorkflowContract) == false && ValidateOneTimeWorkflowPermission(bearerToken, businessContract, transactionInfo, out var workflowPermissionExceptionText) == false)
+                if (string.IsNullOrWhiteSpace(oneTimeWorkflowContract) == false && ValidateOneTimeWorkflowPermission(bearerToken, transactionInfo, out var workflowPermissionExceptionText) == false)
                 {
                     response.ExceptionText = $"동적 Workflow 권한 확인 필요 - {workflowPermissionExceptionText}";
                     return LoggingAndReturn(response, transactionWorkID, "N", transactionInfo);
@@ -851,7 +845,7 @@ namespace transact.Areas.transact.Controllers
                 request.Transaction.CommandType = transactionInfo.CommandType;
                 response.Transaction.CommandType = transactionInfo.CommandType;
 
-                var workflowResult = await ExecuteWorkflowAsync(request, businessContract, transactionInfo, new List<string>(), bearerToken);
+                var workflowResult = await ExecuteWorkflowAsync(request, businessContract, transactionInfo, [], bearerToken);
                 if (workflowResult.Success == false)
                 {
                     response.ExceptionText = workflowResult.ExceptionText;
@@ -898,7 +892,7 @@ namespace transact.Areas.transact.Controllers
             return LoggingAndReturn(response, transactionWorkID, "N", null);
         }
 
-        private static bool ValidateOneTimeWorkflowPermission(BearerToken? bearerToken, BusinessContract businessContract, TransactionInfo workflowInfo, out string exceptionText)
+        private static bool ValidateOneTimeWorkflowPermission(BearerToken? bearerToken, TransactionInfo workflowInfo, out string exceptionText)
         {
             exceptionText = "";
             if (bearerToken == null)
@@ -968,22 +962,22 @@ namespace transact.Areas.transact.Controllers
                     return false;
                 }
 
-                transactionInfo.Roles ??= new List<string>();
-                transactionInfo.Policys ??= new Dictionary<string, List<string>>();
-                transactionInfo.TransactionTokens ??= new List<string>();
-                transactionInfo.AuthorizeMethod ??= new List<string>();
-                transactionInfo.SequentialOptions ??= new List<SequentialOption>();
-                transactionInfo.AccessScreenID ??= new List<string>();
-                transactionInfo.Inputs ??= new List<ModelInputContract>();
-                transactionInfo.Outputs ??= new List<ModelOutputContract>();
-                transactionInfo.WorkflowSteps ??= new List<WorkflowStep>();
+                transactionInfo.Roles ??= [];
+                transactionInfo.Policys ??= [];
+                transactionInfo.TransactionTokens ??= [];
+                transactionInfo.AuthorizeMethod ??= [];
+                transactionInfo.SequentialOptions ??= [];
+                transactionInfo.AccessScreenID ??= [];
+                transactionInfo.Inputs ??= [];
+                transactionInfo.Outputs ??= [];
+                transactionInfo.WorkflowSteps ??= [];
 
                 foreach (var step in transactionInfo.WorkflowSteps)
                 {
-                    step.ServiceOutputs ??= new List<ModelOutputContract>();
-                    step.InputMappings ??= new List<WorkflowFieldMapping>();
-                    step.OutputMappings ??= new List<WorkflowFieldMapping>();
-                    step.Assertions ??= new List<WorkflowAssertion>();
+                    step.ServiceOutputs ??= [];
+                    step.InputMappings ??= [];
+                    step.OutputMappings ??= [];
+                    step.Assertions ??= [];
 
                     foreach (var assertion in step.Assertions)
                     {
@@ -1034,7 +1028,7 @@ namespace transact.Areas.transact.Controllers
             }
         }
 
-        private ActionResult LoggingAndReturn(TransactionResponse response, string transactionWorkID, string acknowledge, TransactionInfo? transactionInfo)
+        private ContentResult LoggingAndReturn(TransactionResponse response, string transactionWorkID, string acknowledge, TransactionInfo? transactionInfo)
         {
             if (ModuleConfiguration.IsTransactionLogging == true || (transactionInfo != null && transactionInfo.TransactionLog == true))
             {
@@ -1395,7 +1389,7 @@ namespace transact.Areas.transact.Controllers
                 return true;
             }
 
-            Dictionary<string, JToken>? sourceValues = null;
+            Dictionary<string, JToken>? sourceValues;
             if (source.Equals("Request", StringComparison.OrdinalIgnoreCase) == true)
             {
                 sourceValues = requestValues;
@@ -1517,10 +1511,10 @@ namespace transact.Areas.transact.Controllers
 
         private static bool TryDeserializeDataMapItems(string json, out List<DataMapItem> items)
         {
-            items = new List<DataMapItem>();
+            items = [];
             try
             {
-                items = JsonConvert.DeserializeObject<List<DataMapItem>>(json) ?? new List<DataMapItem>();
+                items = JsonConvert.DeserializeObject<List<DataMapItem>>(json) ?? [];
                 return true;
             }
             catch
@@ -1643,30 +1637,32 @@ namespace transact.Areas.transact.Controllers
                                         targetInfo.ReturnType = string.IsNullOrWhiteSpace(targetInfo.ReturnType) ? "Json" : targetInfo.ReturnType;
                                         targetInfo.TransactionScope = step.TransactionScope ?? targetInfo.TransactionScope;
 
-                                        var transactionObject = new TransactionObject();
-                                        transactionObject.LoadOptions = stepRequestForRoute.LoadOptions == null ? new Dictionary<string, string>() : new Dictionary<string, string>(stepRequestForRoute.LoadOptions);
-                                        transactionObject.RequestID = string.Concat(ModuleConfiguration.SystemID, GlobalConfiguration.HostName, stepRequestForRoute.Environment, stepRequestForRoute.Transaction.ScreenID, DateTime.Now.ToString("yyyyMMddHHmmddsss"));
-                                        transactionObject.GlobalID = stepRequestForRoute.Transaction.GlobalID;
-                                        transactionObject.TransactionID = string.Concat(
-                                            string.IsNullOrWhiteSpace(targetContract.TransactionApplicationID) ? targetContract.ApplicationID : targetContract.TransactionApplicationID,
-                                            "|",
-                                            string.IsNullOrWhiteSpace(targetContract.TransactionProjectID) ? targetContract.ProjectID : targetContract.TransactionProjectID,
-                                            "|",
-                                            stepRequestForRoute.Transaction.TransactionID);
-                                        transactionObject.ServiceID = stepRequestForRoute.Transaction.FunctionID;
-                                        transactionObject.TransactionScope = targetInfo.TransactionScope;
-                                        transactionObject.ReturnType = targetInfo.ReturnType;
-                                        transactionObject.ClientTag = stepRequestForRoute.ClientTag;
+                                        var transactionObject = new TransactionObject
+                                        {
+                                            LoadOptions = stepRequestForRoute.LoadOptions == null ? [] : new Dictionary<string, string>(stepRequestForRoute.LoadOptions),
+                                            RequestID = string.Concat(ModuleConfiguration.SystemID, GlobalConfiguration.HostName, stepRequestForRoute.Environment, stepRequestForRoute.Transaction.ScreenID, DateTime.Now.ToString("yyyyMMddHHmmddsss")),
+                                            GlobalID = stepRequestForRoute.Transaction.GlobalID,
+                                            TransactionID = string.Concat(
+                                                string.IsNullOrWhiteSpace(targetContract.TransactionApplicationID) ? targetContract.ApplicationID : targetContract.TransactionApplicationID,
+                                                "|",
+                                                string.IsNullOrWhiteSpace(targetContract.TransactionProjectID) ? targetContract.ProjectID : targetContract.TransactionProjectID,
+                                                "|",
+                                                stepRequestForRoute.Transaction.TransactionID),
+                                            ServiceID = stepRequestForRoute.Transaction.FunctionID,
+                                            TransactionScope = targetInfo.TransactionScope,
+                                            ReturnType = targetInfo.ReturnType,
+                                            ClientTag = stepRequestForRoute.ClientTag,
 
-                                        transactionObject.Inputs = CreateTransactionInputs(stepRequestForRoute.PayLoad, bearerToken);
+                                            Inputs = CreateTransactionInputs(stepRequestForRoute.PayLoad, bearerToken)
+                                        };
                                         transactionObject.InputsItemCount = stepRequestForRoute.PayLoad.DataMapCount.Count > 0
-                                            ? new List<int>(stepRequestForRoute.PayLoad.DataMapCount)
+                                            ? [.. stepRequestForRoute.PayLoad.DataMapCount]
                                             : CreateDefaultDataMapCount(transactionObject.Inputs.Count);
 
                                         var inputContracts = targetInfo.Inputs;
                                         if (inputContracts.Count == 0)
                                         {
-                                            inputContracts = new List<ModelInputContract>();
+                                            inputContracts = [];
                                             if (transactionObject.InputsItemCount.Any(item => item > 0) == true)
                                             {
                                                 for (var inputIndex = 0; inputIndex < transactionObject.InputsItemCount.Count; inputIndex++)
@@ -1674,9 +1670,9 @@ namespace transact.Areas.transact.Controllers
                                                     inputContracts.Add(new ModelInputContract()
                                                     {
                                                         ModelID = "Dynamic",
-                                                        Fields = new List<string>(),
+                                                        Fields = [],
                                                         Type = "Row",
-                                                        BaseFieldMappings = new List<BaseFieldMapping>(),
+                                                        BaseFieldMappings = [],
                                                         ParameterHandling = "Rejected"
                                                     });
                                                 }
@@ -1822,12 +1818,7 @@ namespace transact.Areas.transact.Controllers
 
         private static TransactionRequest CloneStepRequest(TransactionRequest request, string applicationID, string projectID, string transactionID, string serviceID, string commandType)
         {
-            var stepRequest = JsonConvert.DeserializeObject<TransactionRequest>(JsonConvert.SerializeObject(request));
-            if (stepRequest == null)
-            {
-                throw new InvalidOperationException("Workflow 단계 요청 생성 오류");
-            }
-
+            var stepRequest = JsonConvert.DeserializeObject<TransactionRequest>(JsonConvert.SerializeObject(request)) ?? throw new InvalidOperationException("Workflow 단계 요청 생성 오류");
             stepRequest.System.ProgramID = applicationID;
             stepRequest.Transaction.BusinessID = projectID;
             stepRequest.Transaction.TransactionID = transactionID;
@@ -1840,9 +1831,9 @@ namespace transact.Areas.transact.Controllers
         private static PayLoadType ClonePayLoad(PayLoadType payLoad)
         {
             var clone = JsonConvert.DeserializeObject<PayLoadType>(JsonConvert.SerializeObject(payLoad)) ?? new PayLoadType();
-            clone.DataMapCount ??= new List<int>();
-            clone.DataMapSet ??= new List<List<DataMapItem>>();
-            clone.DataMapSetRaw ??= new List<string>();
+            clone.DataMapCount ??= [];
+            clone.DataMapSet ??= [];
+            clone.DataMapSetRaw ??= [];
             return clone;
         }
 
@@ -1870,7 +1861,7 @@ namespace transact.Areas.transact.Controllers
             }
             else
             {
-                Dictionary<string, JToken>? sourceValues = null;
+                Dictionary<string, JToken>? sourceValues;
                 if (string.IsNullOrWhiteSpace(mapping.SourceStepID) == false)
                 {
                     stepValues.TryGetValue(mapping.SourceStepID, out sourceValues);
@@ -1923,7 +1914,7 @@ namespace transact.Areas.transact.Controllers
         {
             while (payLoad.DataMapSet.Count <= targetInputIndex)
             {
-                payLoad.DataMapSet.Add(new List<DataMapItem>());
+                payLoad.DataMapSet.Add([]);
             }
 
             while (payLoad.DataMapCount.Count <= targetInputIndex)
@@ -1996,12 +1987,7 @@ namespace transact.Areas.transact.Controllers
                     fields.RemoveAll(p => p.FieldID == fieldID);
                 }
 
-                var jToken = item.Value;
-                if (jToken == null)
-                {
-                    throw new InvalidOperationException($"{fieldID} Bearer 필드 확인 필요");
-                }
-
+                var jToken = item.Value ?? throw new InvalidOperationException($"{fieldID} Bearer 필드 확인 필요");
                 object? fieldValue = null;
                 if (jToken is JValue)
                 {
@@ -2130,7 +2116,7 @@ namespace transact.Areas.transact.Controllers
 
         private static List<int> CreateDefaultDataMapCount(int inputCount)
         {
-            return inputCount == 0 ? new List<int>() : new List<int>() { inputCount };
+            return inputCount == 0 ? [] : [inputCount];
         }
 
     }

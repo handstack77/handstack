@@ -37,6 +37,8 @@ namespace HandStack.Data.ExtensionMethod
 
         public static DataSet ExecuteDataSet(this OracleConnection @this, string cmdText, OracleParameter[]? parameters, CommandType commandType, OracleTransaction? transaction)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
             command.CommandText = cmdText;
             command.CommandType = commandType;
@@ -58,7 +60,10 @@ namespace HandStack.Data.ExtensionMethod
 
         public static DataSet ExecuteDataSet(this OracleConnection @this, Action<OracleCommand> commandFactory)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
+            ArgumentNullException.ThrowIfNull(commandFactory);
             commandFactory(command);
 
             var ds = new DataSet();
@@ -107,6 +112,8 @@ namespace HandStack.Data.ExtensionMethod
 
         public static DataTable ExecuteDataTable(this OracleConnection @this, string cmdText, OracleParameter[]? parameters, CommandType commandType, OracleTransaction? transaction)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
             command.CommandText = cmdText;
             command.CommandType = commandType;
@@ -128,7 +135,10 @@ namespace HandStack.Data.ExtensionMethod
 
         public static DataTable ExecuteDataTable(this OracleConnection @this, Action<OracleCommand> commandFactory)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
+            ArgumentNullException.ThrowIfNull(commandFactory);
             commandFactory(command);
 
             var ds = new DataSet();
@@ -177,6 +187,8 @@ namespace HandStack.Data.ExtensionMethod
 
         public static IEnumerable<T> ExecuteEntities<T>(this OracleConnection @this, string cmdText, OracleParameter[]? parameters, CommandType commandType, OracleTransaction? transaction) where T : new()
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
             command.CommandText = cmdText;
             command.CommandType = commandType;
@@ -193,7 +205,10 @@ namespace HandStack.Data.ExtensionMethod
 
         public static IEnumerable<T> ExecuteEntities<T>(this OracleConnection @this, Action<OracleCommand> commandFactory) where T : new()
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
+            ArgumentNullException.ThrowIfNull(commandFactory);
             commandFactory(command);
 
             using IDataReader reader = command.ExecuteReader();
@@ -237,6 +252,8 @@ namespace HandStack.Data.ExtensionMethod
 
         public static T ExecuteEntity<T>(this OracleConnection @this, string cmdText, OracleParameter[]? parameters, CommandType commandType, OracleTransaction? transaction) where T : new()
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
             command.CommandText = cmdText;
             command.CommandType = commandType;
@@ -247,17 +264,20 @@ namespace HandStack.Data.ExtensionMethod
                 command.Parameters.AddRange(parameters);
             }
 
-            using IDataReader reader = command.ExecuteReader();
+            using OracleDataReader reader = command.ExecuteReader();
             reader.Read();
             return reader.ToEntity<T>();
         }
 
         public static T ExecuteEntity<T>(this OracleConnection @this, Action<OracleCommand> commandFactory) where T : new()
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
+            ArgumentNullException.ThrowIfNull(commandFactory);
             commandFactory(command);
 
-            using IDataReader reader = command.ExecuteReader();
+            using OracleDataReader reader = command.ExecuteReader();
             reader.Read();
             return reader.ToEntity<T>();
         }
@@ -299,6 +319,8 @@ namespace HandStack.Data.ExtensionMethod
 
         public static dynamic ExecuteExpandoObject(this OracleConnection @this, string cmdText, OracleParameter[]? parameters, CommandType commandType, OracleTransaction? transaction)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
             command.CommandText = cmdText;
             command.CommandType = commandType;
@@ -309,17 +331,20 @@ namespace HandStack.Data.ExtensionMethod
                 command.Parameters.AddRange(parameters);
             }
 
-            using IDataReader reader = command.ExecuteReader();
+            using OracleDataReader reader = command.ExecuteReader();
             reader.Read();
             return reader.ToExpandoObject();
         }
 
         public static dynamic ExecuteExpandoObject(this OracleConnection @this, Action<OracleCommand> commandFactory)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
+            ArgumentNullException.ThrowIfNull(commandFactory);
             commandFactory(command);
 
-            using IDataReader reader = command.ExecuteReader();
+            using OracleDataReader reader = command.ExecuteReader();
             reader.Read();
             return reader.ToExpandoObject();
         }
@@ -361,6 +386,8 @@ namespace HandStack.Data.ExtensionMethod
 
         public static IEnumerable<dynamic> ExecuteExpandoObjects(this OracleConnection @this, string cmdText, OracleParameter[]? parameters, CommandType commandType, OracleTransaction? transaction)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
             command.CommandText = cmdText;
             command.CommandType = commandType;
@@ -377,7 +404,10 @@ namespace HandStack.Data.ExtensionMethod
 
         public static IEnumerable<dynamic> ExecuteExpandoObjects(this OracleConnection @this, Action<OracleCommand> commandFactory)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
+            ArgumentNullException.ThrowIfNull(commandFactory);
             commandFactory(command);
 
             using IDataReader reader = command.ExecuteReader();
@@ -426,6 +456,8 @@ namespace HandStack.Data.ExtensionMethod
 
         public static string ParameterValueForSQL(this OracleParameter @this)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             var paramValue = @this.Value;
 
             if (paramValue == null)
@@ -433,32 +465,20 @@ namespace HandStack.Data.ExtensionMethod
                 return "NULL";
             }
 
-            switch (@this.OracleDbType)
+            return @this.OracleDbType switch
             {
-                case OracleDbType.Char:
-                case OracleDbType.NChar:
-                case OracleDbType.NVarchar2:
-                case OracleDbType.Varchar2:
-                case OracleDbType.XmlType:
-                case OracleDbType.TimeStamp:
-                case OracleDbType.TimeStampLTZ:
-                case OracleDbType.TimeStampTZ:
-                case OracleDbType.Date:
-                    return $"'{paramValue.ToStringSafe().Replace("'", "''")}'";
-                case OracleDbType.Boolean:
-                    return (paramValue.ToBoolean(false)) ? "1" : "0";
-                case OracleDbType.Decimal:
-                case OracleDbType.Double:
-                    return ((double)paramValue).ToString(CultureInfo.InvariantCulture).Replace("'", "''");
-                default:
-                    return paramValue.ToStringSafe().Replace("'", "''");
-            }
+                OracleDbType.Char or OracleDbType.NChar or OracleDbType.NVarchar2 or OracleDbType.Varchar2 or OracleDbType.XmlType or OracleDbType.TimeStamp or OracleDbType.TimeStampLTZ or OracleDbType.TimeStampTZ or OracleDbType.Date => $"'{paramValue.ToStringSafe().Replace("'", "''")}'",
+                OracleDbType.Boolean => (paramValue.ToBoolean(false)) ? "1" : "0",
+                OracleDbType.Decimal or OracleDbType.Double => ((double)paramValue).ToString(CultureInfo.InvariantCulture).Replace("'", "''"),
+                _ => paramValue.ToStringSafe().Replace("'", "''"),
+            };
         }
 
         public static string CommandAsOracle(this OracleCommand @this)
         {
             var sql = new StringBuilder();
 
+            ArgumentNullException.ThrowIfNull(@this);
             switch (@this.CommandType)
             {
                 case CommandType.Text:
@@ -493,7 +513,7 @@ namespace HandStack.Data.ExtensionMethod
             {
                 if ((sp.Direction == ParameterDirection.InputOutput) || (sp.Direction == ParameterDirection.Output))
                 {
-                    sql.Append("declare ").Append(sp.ParameterName).Append("\t").Append(sp.OracleDbType.ToString()).Append("\t= ");
+                    sql.Append("declare ").Append(sp.ParameterName).Append('\t').Append(sp.OracleDbType.ToString()).Append("\t= ");
 
                     sql.Append((sp.Direction == ParameterDirection.Output) ? "null" : sp.ParameterValueForSQL()).AppendLine(";");
                 }

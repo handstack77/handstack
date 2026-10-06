@@ -11,19 +11,15 @@ using Serilog;
 
 namespace HandStack.Web.Extensions
 {
-    public class ErrorHandleMiddleware
+    public class ErrorHandleMiddleware(RequestDelegate next, ILogger logger)
     {
-        private readonly ILogger logger;
-        private readonly RequestDelegate next;
-
-        public ErrorHandleMiddleware(RequestDelegate next, ILogger logger)
-        {
-            this.logger = logger;
-            this.next = next;
-        }
+        private readonly ILogger logger = logger;
+        private readonly RequestDelegate next = next;
 
         public async Task InvokeAsync(HttpContext httpContext)
         {
+            ArgumentNullException.ThrowIfNull(httpContext);
+
             try
             {
                 await next(httpContext);
@@ -44,24 +40,19 @@ namespace HandStack.Web.Extensions
                 var httpResponse = httpContext.Response;
 
                 var statusCode = httpResponse.StatusCode;
-                if (!string.IsNullOrWhiteSpace(httpRequest.ContentType) && httpRequest.ContentType.ToLower().IndexOf("application/json") > -1)
+                if (!string.IsNullOrWhiteSpace(httpRequest.ContentType) && httpRequest.ContentType.IndexOf("application/json", StringComparison.CurrentCultureIgnoreCase) > -1)
                 {
                     httpResponse.ContentType = "application/json";
 
-                    switch (exception)
+                    httpResponse.StatusCode = exception switch
                     {
-                        case KeyNotFoundException:
-                            httpResponse.StatusCode = StatusCodes.Status400BadRequest;
-                            break;
-                        default:
-                            httpResponse.StatusCode = (int)HttpStatusCode.InternalServerError;
-                            break;
-                    }
-
+                        KeyNotFoundException => StatusCodes.Status400BadRequest,
+                        _ => (int)HttpStatusCode.InternalServerError,
+                    };
                     var result = JsonConvert.SerializeObject(new
                     {
                         StatusCode = statusCode,
-                        Message = exception.Message
+                        exception.Message
                     });
 
                     logger.Error(exception, "[{LogCategory}] " + $"ContentType: {httpResponse.ContentType}, Path: {httpRequest.Path}, StatusCode: {statusCode}", "ErrorHandleMiddleware/InvokeAsync");

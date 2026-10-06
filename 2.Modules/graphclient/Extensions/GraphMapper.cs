@@ -21,13 +21,13 @@ using Serilog;
 
 namespace graphclient.Extensions
 {
-    public static class GraphMapper
+    public static partial class GraphMapper
     {
-        private static readonly Regex cdataRegex = new Regex("(<!\\[CDATA\\[)([\\s\\S]*?)(\\]\\]>)", RegexOptions.Compiled);
+        private static readonly Regex cdataRegex = MyRegex();
 
-        public static ExpiringDictionary<string, GraphDataSourceMap> DataSourceMappings { get; } = new();
+        public static ExpiringDictionary<string, GraphDataSourceMap> DataSourceMappings { get; } = [];
 
-        public static ExpiringDictionary<string, GraphStatementMap> StatementMappings { get; } = new();
+        public static ExpiringDictionary<string, GraphStatementMap> StatementMappings { get; } = [];
 
         public static void LoadContract(string environmentName, ILogger logger, IConfiguration configuration)
         {
@@ -70,6 +70,8 @@ namespace graphclient.Extensions
             }
             catch (Exception exception)
             {
+                ArgumentNullException.ThrowIfNull(logger);
+
                 logger.Error("[{LogCategory}] " + $"LoadContract 오류 - {exception.ToMessage()}", "GraphMapper/LoadContract");
             }
         }
@@ -126,6 +128,9 @@ namespace graphclient.Extensions
 
         public static bool AddGraphDataSource(GraphDataSource graphDataSource, ILogger logger, bool overwrite)
         {
+            ArgumentNullException.ThrowIfNull(graphDataSource);
+            ArgumentNullException.ThrowIfNull(logger);
+
             if (string.IsNullOrWhiteSpace(graphDataSource.ApplicationID)
                 || string.IsNullOrWhiteSpace(graphDataSource.ProjectID)
                 || string.IsNullOrWhiteSpace(graphDataSource.DataSourceID))
@@ -230,6 +235,8 @@ namespace graphclient.Extensions
 
         public static bool AddStatementMap(string filePath, bool forceUpdate, ILogger logger)
         {
+            ArgumentNullException.ThrowIfNull(logger);
+
             var resolvedPath = ResolveContractFilePath(filePath);
             if (string.IsNullOrWhiteSpace(resolvedPath) || File.Exists(resolvedPath) == false)
             {
@@ -333,23 +340,13 @@ namespace graphclient.Extensions
             var fileInfo = new FileInfo(filePath);
             var document = XDocument.Parse(ReplaceCData(File.ReadAllText(filePath)));
             var mapperElement = document.Root ?? throw new InvalidOperationException("mapper 루트 노드 확인 필요");
-            var headerElement = mapperElement.Elements().FirstOrDefault(item => item.Name.LocalName == "header");
-            if (headerElement == null)
-            {
-                throw new InvalidOperationException("header 노드 확인 필요");
-            }
-
+            var headerElement = mapperElement.Elements().FirstOrDefault(item => item.Name.LocalName == "header") ?? throw new InvalidOperationException("header 노드 확인 필요");
             var commandsElement = mapperElement.Elements().FirstOrDefault(item => item.Name.LocalName == "commands");
             var signatureKey = GetElementValue(headerElement, "signaturekey");
             var encryptCommands = GetElementValue(headerElement, "encryptcommands");
             if (string.IsNullOrWhiteSpace(signatureKey) == false && string.IsNullOrWhiteSpace(encryptCommands) == false)
             {
-                var licenseItem = GlobalConfiguration.LoadModuleLicenses.Values.FirstOrDefault(item => item.AssemblyToken == signatureKey);
-                if (licenseItem == null)
-                {
-                    throw new InvalidOperationException($"{filePath} 서명키 불일치");
-                }
-
+                var licenseItem = GlobalConfiguration.LoadModuleLicenses.Values.FirstOrDefault(item => item.AssemblyToken == signatureKey) ?? throw new InvalidOperationException($"{filePath} 서명키 불일치");
                 var plain = LZStringHelper.DecompressFromUint8Array(encryptCommands.DecryptAESBytes(licenseItem.AssemblyKey.NormalizeKey())) ?? string.Empty;
                 commandsElement = XElement.Parse($"<commands>{plain}</commands>");
             }
@@ -365,7 +362,7 @@ namespace graphclient.Extensions
             var useContract = GetElementValue(headerElement, "use").ToBoolean(true);
             if (useContract == false)
             {
-                return new List<GraphStatementMap>();
+                return [];
             }
 
             var statementMaps = new List<GraphStatementMap>();
@@ -676,6 +673,9 @@ namespace graphclient.Extensions
             decryptKey = decryptKey.DecodeBase64().PadRight(32, '0').SubstringSafe(0, 32);
             return encrypt.DecryptAES(decryptKey);
         }
+
+        [GeneratedRegex("(<!\\[CDATA\\[)([\\s\\S]*?)(\\]\\]>)", RegexOptions.Compiled)]
+        private static partial Regex MyRegex();
     }
 }
 

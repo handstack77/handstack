@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -12,14 +13,9 @@ namespace forbes.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public sealed class DispatchController : ControllerBase
+    public sealed class DispatchController(IConfiguration configuration) : ControllerBase
     {
-        private readonly IConfiguration configuration;
-
-        public DispatchController(IConfiguration configuration)
-        {
-            this.configuration = configuration;
-        }
+        private readonly IConfiguration configuration = configuration;
 
         // curl -X POST "http://localhost:8420/api/dispatch/repository" -H "Content-Type: application/json" -d "{\"eventType\":\"sync_config\",\"clientPayload\":{\"source\":\"external\",\"changedBy\":\"erp\"}}"
         [HttpPost("repository")]
@@ -43,6 +39,7 @@ namespace forbes.Controllers
             }
 
             object? payload = null;
+            ArgumentNullException.ThrowIfNull(request);
             if (request.ClientPayload.HasValue && request.ClientPayload.Value.ValueKind != JsonValueKind.Undefined)
             {
                 payload = ConvertJsonElement(request.ClientPayload.Value);
@@ -86,6 +83,7 @@ namespace forbes.Controllers
             string owner = configuration["GitHubRepositoryOwner"] ?? string.Empty;
             string repositoryName = configuration["GitHubRepositoryName"] ?? string.Empty;
             string defaultBranch = configuration["GitHubRepositoryBranch"] ?? "main";
+            ArgumentNullException.ThrowIfNull(request);
             string gitReference = string.IsNullOrWhiteSpace(request.Ref) ? defaultBranch : request.Ref;
 
             if (string.IsNullOrWhiteSpace(owner) || string.IsNullOrWhiteSpace(repositoryName))

@@ -33,6 +33,7 @@ namespace checkup.Services
         public async Task<string?> GenerateJwtToken(UserAccount userAccount)
         {
             string? result = null;
+            ArgumentNullException.ThrowIfNull(userAccount);
             var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userAccount.ApplicationID);
             var settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
             if (File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(userAccount.ApplicationID) == false)
@@ -227,12 +228,14 @@ namespace checkup.Services
 
                         var jwtToken = (JwtSecurityToken)validatedToken;
 
-                        result = new UserAccount();
-                        result.UserAccountID = jwtToken.Claims.First(x => x.Type == "UserAccountID").Value;
-                        result.ApplicationID = jwtToken.Claims.First(x => x.Type == "ApplicationID").Value;
-                        result.UserID = jwtToken.Claims.First(x => x.Type == "UserID").Value;
-                        result.UserName = jwtToken.Claims.First(x => x.Type == "UserName").Value;
-                        result.Email = jwtToken.Claims.First(x => x.Type == "Email").Value;
+                        result = new UserAccount
+                        {
+                            UserAccountID = jwtToken.Claims.First(x => x.Type == "UserAccountID").Value,
+                            ApplicationID = jwtToken.Claims.First(x => x.Type == "ApplicationID").Value,
+                            UserID = jwtToken.Claims.First(x => x.Type == "UserID").Value,
+                            UserName = jwtToken.Claims.First(x => x.Type == "UserName").Value,
+                            Email = jwtToken.Claims.First(x => x.Type == "Email").Value
+                        };
 
                         if (DateTime.TryParse(jwtToken.Claims.First(x => x.Type == "LoginedAt").Value, out var loginedAt) == true)
                         {
@@ -258,7 +261,7 @@ namespace checkup.Services
                         var tokenClaims = JsonConvert.DeserializeObject<Dictionary<string, string>>(jwtToken.Claims.First(x => x.Type == "Claims").Value);
                         if (tokenClaims == null || tokenClaims.Count == 0)
                         {
-                            result.Claims = new Dictionary<string, string>();
+                            result.Claims = [];
                         }
                         else
                         {

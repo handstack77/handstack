@@ -12,8 +12,8 @@ namespace handstack.Extensions
 {
     public static class SequentialGuidExtensions
     {
-        private static readonly IReadOnlyDictionary<byte, byte> ToSqlGuidMap;
-        private static readonly IReadOnlyDictionary<byte, byte> ToGuidMap;
+        private static readonly ReadOnlyDictionary<byte, byte> ToSqlGuidMap;
+        private static readonly ReadOnlyDictionary<byte, byte> ToGuidMap;
 
         static SequentialGuidExtensions()
         {
@@ -113,13 +113,10 @@ namespace handstack.Extensions
         {
             _increment = new Random().Next(500000);
             _machinePid = new byte[5];
-            using (var algorithm = MD5.Create())
+            var hash = MD5.HashData(Encoding.UTF8.GetBytes(Environment.MachineName));
+            for (var i = 0; i < 3; i++)
             {
-                var hash = algorithm.ComputeHash(Encoding.UTF8.GetBytes(Environment.MachineName));
-                for (var i = 0; i < 3; i++)
-                {
-                    _machinePid[i] = hash[i];
-                }
+                _machinePid[i] = hash[i];
             }
 
             try

@@ -8,7 +8,7 @@ namespace handstack.Entity
         public string os = "";
         public string? basepath = "";
         public bool? ignoreExit = false;
-        public List<string> commands = new List<string>();
-        public Dictionary<string, string> environments = new Dictionary<string, string>();
+        public List<string> commands = [];
+        public Dictionary<string, string> environments = [];
     }
 }

@@ -2,22 +2,14 @@
 
 namespace HandStack.Data.SqlFormatter
 {
-    internal struct SqlFormatterOptions
+    internal struct SqlFormatterOptions(TextIndentation indentation, bool uppercase, int linesBetweenQueries = 1, IReadOnlyDictionary<string, string>? placeholderParameters = null)
     {
-        public TextIndentation Indentation { get; }
+        public TextIndentation Indentation { get; } = indentation;
 
-        public bool Uppercase { get; }
+        public bool Uppercase { get; } = uppercase;
 
-        public int LinesBetweenQueries { get; }
+        public int LinesBetweenQueries { get; } = linesBetweenQueries;
 
-        public IReadOnlyDictionary<string, string>? PlaceholderParameters { get; }
-
-        public SqlFormatterOptions(TextIndentation indentation, bool uppercase, int linesBetweenQueries = 1, IReadOnlyDictionary<string, string>? placeholderParameters = null)
-        {
-            Indentation = indentation;
-            Uppercase = uppercase;
-            LinesBetweenQueries = linesBetweenQueries;
-            PlaceholderParameters = placeholderParameters;
-        }
+        public IReadOnlyDictionary<string, string>? PlaceholderParameters { get; } = placeholderParameters;
     }
 }

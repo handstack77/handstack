@@ -14,6 +14,7 @@ namespace HandStack.Web
         public static string? Var(string key)
         {
             IConfiguration? configuration;
+            ArgumentNullException.ThrowIfNull(key);
             if (key.Contains("::") == true)
             {
                 var moduleID = key.Split("::")[0];
@@ -37,7 +38,7 @@ namespace HandStack.Web
                 return value;
             }
 
-            if (key.Contains(":") == false)
+            if (key.Contains(':') == false)
             {
                 value = Environment.GetEnvironmentVariable(key);
             }

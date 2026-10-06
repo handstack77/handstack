@@ -14,7 +14,7 @@ namespace agent.Options
 
         public string StateDirectoryPath { get; set; } = "state";
 
-        public List<TargetProcessOptions> Targets { get; set; } = new List<TargetProcessOptions>();
+        public List<TargetProcessOptions> Targets { get; set; } = [];
 
         public HostBridgeOptions HostBridge { get; set; } = new HostBridgeOptions();
 

@@ -38,38 +38,28 @@ namespace prompter.Events
         }
     }
     */
-    public class PrompterRequest : IRequest<object?>
+    public class PrompterRequest(object? request) : IRequest<object?>
     {
-        public object? Request { get; set; }
-
-        public PrompterRequest(object? request)
-        {
-            Request = request;
-        }
+        public object? Request { get; set; } = request;
     }
 
-    public class PrompterRequestHandler : IRequestHandler<PrompterRequest, object?>
+    public class PrompterRequestHandler(Serilog.ILogger logger, IPromptClient dataClient, PromptLoggerClient loggerClient) : IRequestHandler<PrompterRequest, object?>
     {
-        private PromptLoggerClient loggerClient { get; }
+        private PromptLoggerClient loggerClient { get; } = loggerClient;
 
-        private Serilog.ILogger logger { get; }
+        private Serilog.ILogger logger { get; } = logger;
 
-        private IPromptClient dataClient { get; }
-
-        public PrompterRequestHandler(Serilog.ILogger logger, IPromptClient dataClient, PromptLoggerClient loggerClient)
-        {
-            this.logger = logger;
-            this.loggerClient = loggerClient;
-            this.dataClient = dataClient;
-        }
+        private IPromptClient dataClient { get; } = dataClient;
 
         public async ValueTask<object?> Handle(PrompterRequest requestQueryData, CancellationToken cancellationToken)
         {
-            var request = requestQueryData.Request as DynamicRequest;
-            var response = new DynamicResponse();
-            response.Acknowledge = AcknowledgeType.Failure;
+            var response = new DynamicResponse
+            {
+                Acknowledge = AcknowledgeType.Failure
+            };
 
-            if (request == null)
+            ArgumentNullException.ThrowIfNull(requestQueryData);
+            if (requestQueryData.Request is not DynamicRequest request)
             {
                 response.ExceptionText = "빈 요청. 요청 정보 확인 필요";
                 return response;

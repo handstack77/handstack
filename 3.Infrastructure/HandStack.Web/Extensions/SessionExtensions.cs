@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System;
+using Microsoft.AspNetCore.Http;
 
 using Newtonsoft.Json;
 
@@ -20,11 +21,13 @@ namespace HandStack.Web.Extensions
         public static T? Get<T>(this ISession session, string key)
         {
             var value = session.GetString(key);
-            return value == null ? default(T) : JsonConvert.DeserializeObject<T>(value);
+            return value == null ? default : JsonConvert.DeserializeObject<T>(value);
         }
 
         public static string SessionDecryptPad(this string text)
         {
+            ArgumentNullException.ThrowIfNull(text);
+
             var padding = 3 - ((text.Length + 3) % 4);
             if (padding == 0)
             {

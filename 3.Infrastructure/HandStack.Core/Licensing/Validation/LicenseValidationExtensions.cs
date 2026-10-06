@@ -13,6 +13,8 @@ namespace HandStack.Core.Licensing.Validation
 
         public static IValidationChain ExpirationDate(this IStartValidationChain validationChain)
         {
+            ArgumentNullException.ThrowIfNull(validationChain);
+
             var validationChainBuilder = (ValidationChainBuilder)validationChain;
             var validator = validationChainBuilder.StartValidatorChain();
             validator.Validate = license => license.Expiration > DateTime.Now;
@@ -28,6 +30,8 @@ namespace HandStack.Core.Licensing.Validation
 
         public static IValidationChain ProductBuildDate(this IStartValidationChain validationChain, Assembly[] assemblies)
         {
+            ArgumentNullException.ThrowIfNull(validationChain);
+
             var validationChainBuilder = (ValidationChainBuilder)validationChain;
             var validator = validationChainBuilder.StartValidatorChain();
 
@@ -48,6 +52,8 @@ namespace HandStack.Core.Licensing.Validation
 
         public static IValidationChain AssertThat(this IStartValidationChain validationChain, Predicate<License> predicate, IValidationFailure failure)
         {
+            ArgumentNullException.ThrowIfNull(validationChain);
+
             var validationChainBuilder = (ValidationChainBuilder)validationChain;
             var validator = validationChainBuilder.StartValidatorChain();
 
@@ -59,6 +65,8 @@ namespace HandStack.Core.Licensing.Validation
 
         public static IValidationChain Signature(this IStartValidationChain validationChain, string publicKey)
         {
+            ArgumentNullException.ThrowIfNull(validationChain);
+
             var validationChainBuilder = (ValidationChainBuilder)validationChain;
             var validator = validationChainBuilder.StartValidatorChain();
             validator.Validate = license => license.VerifySignature(publicKey);

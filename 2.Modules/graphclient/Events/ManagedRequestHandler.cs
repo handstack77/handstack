@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,33 +16,24 @@ using Serilog;
 
 namespace graphclient.Events
 {
-    public class ManagedRequest : IRequest<object?>
+    public class ManagedRequest(MediatorRequest request) : IRequest<object?>
     {
-        public ManagedRequest(MediatorRequest request)
-        {
-            Method = request.Parameters.Get<string>("Method").ToStringSafe();
-            Arguments = request.Parameters.Get<Dictionary<string, object>>("Arguments");
-        }
+        public string Method { get; } = request.Parameters.Get<string>("Method").ToStringSafe();
 
-        public string Method { get; }
-
-        public Dictionary<string, object>? Arguments { get; }
+        public Dictionary<string, object>? Arguments { get; } = request.Parameters.Get<Dictionary<string, object>>("Arguments");
     }
 
-    public class ManagedRequestHandler : IRequestHandler<ManagedRequest, object?>
+    public class ManagedRequestHandler(ILogger logger) : IRequestHandler<ManagedRequest, object?>
     {
-        private readonly ILogger logger;
-
-        public ManagedRequestHandler(ILogger logger)
-        {
-            this.logger = logger;
-        }
+        private readonly ILogger logger = logger;
 
         public ValueTask<object?> Handle(ManagedRequest managedAction, CancellationToken cancellationToken)
         {
             object? response = null;
             try
             {
+                ArgumentNullException.ThrowIfNull(managedAction);
+
                 if (managedAction.Method == "AddModuleGraphDataSource" || managedAction.Method == "AddModuleDataSource")
                 {
                     if (managedAction.Arguments == null)

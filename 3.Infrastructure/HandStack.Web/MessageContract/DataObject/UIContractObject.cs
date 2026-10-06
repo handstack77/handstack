@@ -19,40 +19,40 @@ namespace HandStack.Web.MessageContract.DataObject
             Use = "";
             ModifiedDate = "";
             Comment = "";
-            DataSource = new Dictionary<string, JToken>();
-            Transactions = new List<Transaction>();
+            DataSource = [];
+            Transactions = [];
         }
 
-        [JsonProperty("ProgramID")]
+        [JsonProperty(nameof(ProgramID))]
         public string ProgramID { get; set; }
 
-        [JsonProperty("BusinessID")]
+        [JsonProperty(nameof(BusinessID))]
         public string BusinessID { get; set; }
 
-        [JsonProperty("SystemID")]
+        [JsonProperty(nameof(SystemID))]
         public string SystemID { get; set; }
 
-        [JsonProperty("TransactionID")]
+        [JsonProperty(nameof(TransactionID))]
         public string TransactionID { get; set; }
 
-        [JsonProperty("Use")]
+        [JsonProperty(nameof(Use))]
         public string Use { get; set; }
 
-        [JsonProperty("ModifiedDate")]
+        [JsonProperty(nameof(ModifiedDate))]
         public string ModifiedDate { get; set; }
 
-        [JsonProperty("Comment")]
+        [JsonProperty(nameof(Comment))]
         public string Comment { get; set; }
 
-        [JsonProperty("DataSource")]
+        [JsonProperty(nameof(DataSource))]
         public Dictionary<string, JToken> DataSource { get; set; }
 
-        [JsonProperty("Transactions")]
+        [JsonProperty(nameof(Transactions))]
         public List<Transaction> Transactions { get; set; }
 
         public static UIContractObject? FromJson(string json)
         {
-            UIContractObject? result = null;
+            UIContractObject? result;
             if (string.IsNullOrWhiteSpace(json))
             {
                 throw new Exception($"json 내용 확인 필요: {json}");
@@ -72,20 +72,20 @@ namespace HandStack.Web.MessageContract.DataObject
         {
             FunctionID = "";
             Comment = "";
-            Inputs = new List<UITransactionInput>();
-            Outputs = new List<UITransactionOutput>();
+            Inputs = [];
+            Outputs = [];
         }
 
-        [JsonProperty("FunctionID")]
+        [JsonProperty(nameof(FunctionID))]
         public string FunctionID { get; set; }
 
-        [JsonProperty("Comment")]
+        [JsonProperty(nameof(Comment))]
         public string Comment { get; set; }
 
-        [JsonProperty("Inputs")]
+        [JsonProperty(nameof(Inputs))]
         public List<UITransactionInput> Inputs { get; set; }
 
-        [JsonProperty("Outputs")]
+        [JsonProperty(nameof(Outputs))]
         public List<UITransactionOutput> Outputs { get; set; }
     }
 
@@ -95,16 +95,16 @@ namespace HandStack.Web.MessageContract.DataObject
         {
             RequestType = "";
             DataFieldID = "";
-            Items = new Dictionary<string, FieldItem>();
+            Items = [];
         }
 
-        [JsonProperty("RequestType")]
+        [JsonProperty(nameof(RequestType))]
         public string RequestType { get; set; }
 
-        [JsonProperty("DataFieldID")]
+        [JsonProperty(nameof(DataFieldID))]
         public string DataFieldID { get; set; }
 
-        [JsonProperty("Items")]
+        [JsonProperty(nameof(Items))]
         public Dictionary<string, FieldItem> Items { get; set; }
     }
 
@@ -116,10 +116,10 @@ namespace HandStack.Web.MessageContract.DataObject
             DataType = "";
         }
 
-        [JsonProperty("FieldID")]
+        [JsonProperty(nameof(FieldID))]
         public string FieldID { get; set; }
 
-        [JsonProperty("DataType")]
+        [JsonProperty(nameof(DataType))]
         public string DataType { get; set; }
     }
 
@@ -129,16 +129,16 @@ namespace HandStack.Web.MessageContract.DataObject
         {
             ResponseType = "";
             DataFieldID = "";
-            Items = new Dictionary<string, FieldItem>();
+            Items = [];
         }
 
-        [JsonProperty("ResponseType")]
+        [JsonProperty(nameof(ResponseType))]
         public string ResponseType { get; set; }
 
-        [JsonProperty("DataFieldID")]
+        [JsonProperty(nameof(DataFieldID))]
         public string DataFieldID { get; set; }
 
-        [JsonProperty("Items")]
+        [JsonProperty(nameof(Items))]
         public Dictionary<string, FieldItem> Items { get; set; }
     }
 
@@ -152,7 +152,7 @@ namespace HandStack.Web.MessageContract.DataObject
 
     internal static class UIContractObjectConverter
     {
-        public static readonly JsonSerializerSettings Settings = new JsonSerializerSettings
+        public static readonly JsonSerializerSettings Settings = new()
         {
             MetadataPropertyHandling = MetadataPropertyHandling.Ignore,
             DateParseHandling = DateParseHandling.None,

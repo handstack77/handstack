@@ -83,8 +83,8 @@ namespace dbclient.Entity
             BeforeTransactionCommand = "";
             AfterTransactionCommand = "";
             FallbackTransactionCommand = "";
-            DbParameters = new List<DbParameterMap>();
-            OutputMetas = new List<string>();
+            DbParameters = [];
+            OutputMetas = [];
             Chidren = new HtmlDocument();
             ModifiedAt = DateTime.MinValue;
         }

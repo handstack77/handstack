@@ -55,7 +55,7 @@ namespace wwwroot.Entity
             ModuleFilePath = "";
             IsModuleLogging = false;
             ModuleLogFilePath = "";
-            FileSyncTokens = new List<string>();
+            FileSyncTokens = [];
             CreateIDPolicy = new CreateIDPolicyConfig();
             SharedFileConfigPath = "";
             DevAutoSignIn = new DevAutoSignInConfig();
@@ -75,8 +75,8 @@ namespace wwwroot.Entity
         public CreateIDPolicyConfig()
         {
             Enabled = false;
-            AllowedScreens = new List<string>();
-            AuthorizationKeys = new List<CreateIDAuthorizationKeyConfig>();
+            AllowedScreens = [];
+            AuthorizationKeys = [];
         }
     }
 
@@ -89,7 +89,7 @@ namespace wwwroot.Entity
         public CreateIDAuthorizationKeyConfig()
         {
             Key = "";
-            AllowedIPs = new List<string>();
+            AllowedIPs = [];
         }
     }
 
@@ -128,7 +128,7 @@ namespace wwwroot.Entity
             UserID = "";
             UserName = "";
             Email = "";
-            Roles = new List<string>();
+            Roles = [];
             Celluar = "";
             PositionName = "";
             DepartmentName = "";

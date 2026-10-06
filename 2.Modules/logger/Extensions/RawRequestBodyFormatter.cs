@@ -53,10 +53,7 @@ namespace logger.Extensions
 
         public override bool CanRead(InputFormatterContext context)
         {
-            if (context == null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
+            ArgumentNullException.ThrowIfNull(context);
 
             var request = context.HttpContext.Request;
             var contentType = request.ContentType;
@@ -71,6 +68,8 @@ namespace logger.Extensions
 
         public override async Task<InputFormatterResult> ReadRequestBodyAsync(InputFormatterContext context)
         {
+            ArgumentNullException.ThrowIfNull(context);
+
             var request = context.HttpContext.Request;
             var contentType = request.ContentType;
 

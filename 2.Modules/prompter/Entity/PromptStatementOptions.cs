@@ -14,7 +14,7 @@ namespace prompter.Entity
         {
             Mode = "none";
             MaxRounds = 10;
-            Items = new List<PromptToolDeclaration>();
+            Items = [];
         }
     }
 
@@ -93,7 +93,7 @@ namespace prompter.Entity
         {
             Type = "";
             RawText = "";
-            Parts = new List<PromptBodyPart>();
+            Parts = [];
         }
     }
 

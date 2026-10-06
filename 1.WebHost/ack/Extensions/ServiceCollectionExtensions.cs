@@ -18,7 +18,7 @@ namespace ack.Extensions
 {
     public static class ServiceCollectionExtensions
     {
-        private static readonly IModuleConfigurationManager modulesConfig = new ModuleConfigurationManager();
+        private static readonly ModuleConfigurationManager modulesConfig = new();
         private static ModuleAssemblyLoader? moduleAssemblyLoader;
 
         public static IServiceCollection AddModules(this IServiceCollection services)

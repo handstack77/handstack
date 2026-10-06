@@ -18,9 +18,9 @@ namespace HandStack.Web.Entity
 
         public string Description { get; set; } = "";
 
-        public List<QueryReportParameter> Parameters { get; set; } = new List<QueryReportParameter>();
+        public List<QueryReportParameter> Parameters { get; set; } = [];
 
-        public List<string> OutputMetas { get; set; } = new List<string>();
+        public List<string> OutputMetas { get; set; } = [];
     }
 
     public record QueryReportParameter

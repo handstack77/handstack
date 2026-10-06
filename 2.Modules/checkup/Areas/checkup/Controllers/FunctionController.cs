@@ -30,18 +30,11 @@ namespace checkup.Areas.checkup.Controllers
     [Route("[area]/api/[controller]")]
     [ApiExplorerSettings(IgnoreApi = true)]
     [ApiController]
-    public class FunctionController : BaseController
+    public class FunctionController(ILogger logger, Extensions.ModuleApiClient moduleApiClient, IHttpContextAccessor httpContextAccessor) : BaseController
     {
-        protected ILogger logger { get; }
-        protected Extensions.ModuleApiClient moduleApiClient { get; }
-        protected readonly IHttpContextAccessor httpContextAccessor;
-
-        public FunctionController(ILogger logger, Extensions.ModuleApiClient moduleApiClient, IHttpContextAccessor httpContextAccessor)
-        {
-            this.logger = logger;
-            this.moduleApiClient = moduleApiClient;
-            this.httpContextAccessor = httpContextAccessor;
-        }
+        protected ILogger logger { get; } = logger;
+        protected Extensions.ModuleApiClient moduleApiClient { get; } = moduleApiClient;
+        protected readonly IHttpContextAccessor httpContextAccessor = httpContextAccessor;
 
         // http://localhost:8421/checkup/api/function/execute?functionID=HAC.HAC040.UF01&accessToken=test&loadOptions[option1]=value1&featureMeta.Timeout=0
         [Route("[action]")]
@@ -58,45 +51,41 @@ namespace checkup.Areas.checkup.Controllers
                 return result;
             }
 
-            if (dynamicParameters == null)
-            {
-                dynamicParameters = new List<DynamicParameter>();
-                dynamicParameters.Add(new DynamicParameter()
-                {
-                    ParameterName = "ApplicationID",
-                    Value = "9ysztou4",
-                    DbType = "String",
-                    Length = 0,
-                });
-
-                dynamicParameters.Add(new DynamicParameter()
-                {
-                    ParameterName = "UserWorkID",
-                    Value = "3qmbxyhc",
-                    DbType = "String",
-                    Length = 0,
-                });
-
-                dynamicParameters.Add(new DynamicParameter()
-                {
-                    ParameterName = "Prompt",
-                    Value = "아빠가 방에 들어가셨다.",
-                    DbType = "String",
-                    Length = 0,
-                });
-            }
+            dynamicParameters ??=
+                [
+                    new DynamicParameter()
+                    {
+                        ParameterName = "ApplicationID",
+                        Value = "9ysztou4",
+                        DbType = "String",
+                        Length = 0,
+                    },
+                    new DynamicParameter()
+                    {
+                        ParameterName = "UserWorkID",
+                        Value = "3qmbxyhc",
+                        DbType = "String",
+                        Length = 0,
+                    },
+                    new DynamicParameter()
+                    {
+                        ParameterName = "Prompt",
+                        Value = "아빠가 방에 들어가셨다.",
+                        DbType = "String",
+                        Length = 0,
+                    },
+                ];
 
             #region DataContext
 
             DateTime now = DateTime.Now;
-            if (dataContext == null)
-            {
-                dataContext = new DataContext();
-                dataContext.accessToken = null;
-                dataContext.loadOptions = null;
-                dataContext.dataProvider = null; // SQLite, SqlServer, MySql, Oracle, PostgreSql, MariaDB
-                dataContext.connectionString = null;
-            }
+            dataContext ??= new DataContext
+                {
+                    accessToken = null,
+                    loadOptions = null,
+                    dataProvider = null, // SQLite, SqlServer, MySql, Oracle, PostgreSql, MariaDB
+                    connectionString = null
+                };
 
             dataContext.globalID = !string.IsNullOrWhiteSpace(dataContext.globalID) ? dataContext.globalID : $"OD00000{GlobalConfiguration.ApplicationID}{functionID.Replace(".", "")}F{now.ToString("HHmmss").ToSHA256().SubstringSafe(0, 6) + now.ToString("HHmmss")}";
             dataContext.environment = !string.IsNullOrWhiteSpace(dataContext.environment) ? dataContext.environment : "D";
@@ -185,15 +174,17 @@ namespace checkup.Areas.checkup.Controllers
                     return result;
                 }
 
-                ModuleScriptMap moduleScriptMap = new ModuleScriptMap();
-                moduleScriptMap.ApplicationID = header.ApplicationID;
-                moduleScriptMap.ProjectID = header.ProjectID;
-                moduleScriptMap.TransactionID = header.TransactionID;
-                moduleScriptMap.ScriptID = item.ID + item.Seq.ToString().PadLeft(2, '0');
-                moduleScriptMap.ExportName = item.ID;
-                moduleScriptMap.Seq = item.Seq;
-                moduleScriptMap.IsHttpContext = header.IsHttpContext;
-                moduleScriptMap.ReferenceModuleID = header.ReferenceModuleID;
+                ModuleScriptMap moduleScriptMap = new ModuleScriptMap
+                {
+                    ApplicationID = header.ApplicationID,
+                    ProjectID = header.ProjectID,
+                    TransactionID = header.TransactionID,
+                    ScriptID = item.ID + item.Seq.ToString().PadLeft(2, '0'),
+                    ExportName = item.ID,
+                    Seq = item.Seq,
+                    IsHttpContext = header.IsHttpContext,
+                    ReferenceModuleID = header.ReferenceModuleID
+                };
 
                 if (string.IsNullOrWhiteSpace(item.EntryType))
                 {
@@ -224,7 +215,7 @@ namespace checkup.Areas.checkup.Controllers
                 moduleScriptMap.FallbackTransactionCommand = item.FallbackTransaction;
                 moduleScriptMap.Description = item.Description;
 
-                moduleScriptMap.ModuleParameters = new List<ModuleParameterMap>();
+                moduleScriptMap.ModuleParameters = [];
                 List<FunctionParam> functionParams = item.Params;
                 if (functionParams != null && functionParams.Count > 0)
                 {
@@ -320,6 +311,8 @@ namespace checkup.Areas.checkup.Controllers
 
                 try
                 {
+                    ArgumentNullException.ThrowIfNull(dataContext);
+
                     var logger = dataContext.logger;
                     logger?.Information($"Function: {typeMember} 작업 시작");
 
@@ -329,15 +322,17 @@ namespace checkup.Areas.checkup.Controllers
                         string searchPattern = "*.*";
                         string? sourceDirectoryPath = appBasePath;
 
-                        List<Menu> menus = new List<Menu>();
+                        List<Menu> menus = [];
                         if (!string.IsNullOrWhiteSpace(sourceDirectoryPath) && Directory.Exists(sourceDirectoryPath) == true)
                         {
                             DirectoryInfo directoryInfo = new DirectoryInfo(sourceDirectoryPath);
                             if (directoryInfo.Exists == true)
                             {
-                                Menu rootDirectory = new Menu();
-                                rootDirectory.menuID = applicationID;
-                                rootDirectory.menuName = string.IsNullOrWhiteSpace(applicationName) ? applicationID : applicationName;
+                                Menu rootDirectory = new Menu
+                                {
+                                    menuID = applicationID,
+                                    menuName = string.IsNullOrWhiteSpace(applicationName) ? applicationID : applicationName
+                                };
 
                                 string projectType = string.Empty;
 
@@ -420,6 +415,8 @@ TransactionException:
 
             try
             {
+                ArgumentNullException.ThrowIfNull(dataContext);
+
                 var logger = dataContext.logger;
                 logger?.Information($"Function: {typeMember} 작업 시작");
 
@@ -495,6 +492,8 @@ TransactionException:
 
             try
             {
+                ArgumentNullException.ThrowIfNull(dataContext);
+
                 var logger = dataContext.logger;
                 logger?.Information($"Function: {typeMember} 작업 시작");
 
@@ -530,34 +529,36 @@ TransactionException:
             return result;
         }
 
-        private void WWWRootFileMenu(string userWorkID, string applicationID, string projectType, string searchPattern, List<Menu> menus, DirectoryInfo directory, Menu rootDirectory, int level)
+        private static void WWWRootFileMenu(string userWorkID, string applicationID, string projectType, string searchPattern, List<Menu> menus, DirectoryInfo directory, Menu rootDirectory, int level)
         {
             string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID) + "/";
             var searchPatterns = searchPattern.Split('|').Where(x => !string.IsNullOrWhiteSpace(x)).ToArray();
             foreach (var file in directory.GetFileInfos(SearchOption.TopDirectoryOnly, searchPatterns))
             {
-                Menu menuItem = new Menu();
-                menuItem.menuID = file.FullName.Replace("\\", "/").Replace(appBasePath, "");
-                menuItem.menuName = file.Name;
-                menuItem.parentMenuID = rootDirectory.menuID;
-                menuItem.parentMenuName = rootDirectory.menuName;
-                menuItem.showYN = "Y";
-                menuItem.projectType = projectType;
-                menuItem.menuType = "F";
-                menuItem.directoryYN = "N";
-                menuItem.functions = "";
-                menuItem.projectID = "";
-                menuItem.fileID = "";
-                menuItem.sortingNo = 2;
-                menuItem.level = level;
-                menuItem.icon = "";
-                menuItem.badge = "";
-                menuItem.extension = file.Extension;
-                menuItem.lastWriteTime = file.LastWriteTime.ToString("yyyy-MM-dd HH:mm:ss");
-                menuItem.length = file.Length.ToString();
-                menuItem.md5 = file.ToMD5Hash();
+                Menu menuItem = new Menu
+                {
+                    menuID = file.FullName.Replace("\\", "/").Replace(appBasePath, ""),
+                    menuName = file.Name,
+                    parentMenuID = rootDirectory.menuID,
+                    parentMenuName = rootDirectory.menuName,
+                    showYN = "Y",
+                    projectType = projectType,
+                    menuType = "F",
+                    directoryYN = "N",
+                    functions = "",
+                    projectID = "",
+                    fileID = "",
+                    sortingNo = 2,
+                    level = level,
+                    icon = "",
+                    badge = "",
+                    extension = file.Extension,
+                    lastWriteTime = file.LastWriteTime.ToString("yyyy-MM-dd HH:mm:ss"),
+                    length = file.Length.ToString(),
+                    md5 = file.ToMD5Hash()
+                };
 
-                if (menuItem.fileID.StartsWith("/") == true)
+                if (menuItem.fileID.StartsWith('/') == true)
                 {
                     menuItem.fileID = menuItem.fileID.SubstringSafe(1);
                 }

@@ -16,21 +16,16 @@ using Serilog;
 
 namespace checkup.Services
 {
-    public class UserAccountService : IUserAccountService
+    public class UserAccountService(ILogger logger, ModuleApiClient moduleApiClient, IJwtManager jwtManager) : IUserAccountService
     {
-        private readonly ILogger logger;
-        private readonly ModuleApiClient moduleApiClient;
-        private readonly IJwtManager jwtManager;
-
-        public UserAccountService(ILogger logger, ModuleApiClient moduleApiClient, IJwtManager jwtManager)
-        {
-            this.logger = logger;
-            this.moduleApiClient = moduleApiClient;
-            this.jwtManager = jwtManager;
-        }
+        private readonly ILogger logger = logger;
+        private readonly ModuleApiClient moduleApiClient = moduleApiClient;
+        private readonly IJwtManager jwtManager = jwtManager;
 
         public async Task RevokeToken(RefreshToken refreshToken, string ipAddress)
         {
+            ArgumentNullException.ThrowIfNull(refreshToken);
+
             await RevokeRefreshToken(refreshToken, ipAddress);
         }
 
@@ -50,8 +45,8 @@ namespace checkup.Services
                         UserID = token["UserID"].ToStringSafe(),
                         UserName = token["UserName"].ToStringSafe(),
                         Email = token["Email"].ToStringSafe(),
-                        Roles = new List<string>(),
-                        Claims = new Dictionary<string, string>(),
+                        Roles = [],
+                        Claims = [],
                         LoginedAt = DateTime.Now
                     };
 
@@ -83,11 +78,11 @@ namespace checkup.Services
 
                     var claims = new List<Claim>
                     {
-                        new Claim("UserID", userAccount.UserID),
-                        new Claim("UserName", userAccount.UserName.ToStringSafe()),
-                        new Claim("UserNo", userAccount.UserNo),
-                        new Claim("Roles", string.Join(",", userAccount.Roles.ToArray())),
-                        new Claim("LoginedAt", userAccount.LoginedAt.ToString("yyyy-MM-dd HH:mm:ss.fff"))
+                        new("UserID", userAccount.UserID),
+                        new("UserName", userAccount.UserName.ToStringSafe()),
+                        new("UserNo", userAccount.UserNo),
+                        new("Roles", string.Join(",", userAccount.Roles.ToArray())),
+                        new("LoginedAt", userAccount.LoginedAt.ToString("yyyy-MM-dd HH:mm:ss.fff"))
                     };
 
                     Dictionary<string, string>? memberClaims = null;
@@ -145,9 +140,11 @@ namespace checkup.Services
         public async Task<JToken?> GetUserAccountByID(string applicationID, string userAccountID)
         {
             JToken? result = null;
-            var serviceParameters = new List<ServiceParameter>();
-            serviceParameters.Add("ApplicationID", applicationID);
-            serviceParameters.Add("UserAccountID", userAccountID);
+            var serviceParameters = new List<ServiceParameter>
+            {
+                { "ApplicationID", applicationID },
+                { "UserAccountID", userAccountID }
+            };
 
             var transactionResult = await moduleApiClient.TransactionDirect("HDS|JWT|JWT010|GD04", serviceParameters);
             if (transactionResult?.ContainsKey("HasException") == true)
@@ -166,8 +163,10 @@ namespace checkup.Services
         public async Task<JToken?> GetUserResultByRefreshToken(string token)
         {
             JToken? result = null;
-            var serviceParameters = new List<ServiceParameter>();
-            serviceParameters.Add("RefreshToken", token);
+            var serviceParameters = new List<ServiceParameter>
+            {
+                { "RefreshToken", token }
+            };
 
             var transactionResult = await moduleApiClient.TransactionDirect("HDS|JWT|JWT010|GD02", serviceParameters);
             if (transactionResult?.ContainsKey("HasException") == true)
@@ -186,14 +185,19 @@ namespace checkup.Services
         public async Task<RefreshToken> RotateRefreshToken(RefreshToken refreshToken, string ipAddress)
         {
             var newRefreshToken = jwtManager.GenerateRefreshToken(ipAddress);
+            ArgumentNullException.ThrowIfNull(refreshToken);
             await RevokeRefreshToken(refreshToken, ipAddress, newRefreshToken.Token);
             return newRefreshToken;
         }
 
         public async Task RemoveOldRefreshTokens(UserAccount userAccount)
         {
-            var serviceParameters = new List<ServiceParameter>();
-            serviceParameters.Add("UserAccountID", userAccount.UserAccountID);
+            ArgumentNullException.ThrowIfNull(userAccount);
+
+            var serviceParameters = new List<ServiceParameter>
+            {
+                { "UserAccountID", userAccount.UserAccountID }
+            };
             var transactionResult = await moduleApiClient.TransactionDirect($"HDS|JWT|JWT010|DD01", serviceParameters);
             if (transactionResult?.ContainsKey("HasException") == true)
             {
@@ -204,10 +208,14 @@ namespace checkup.Services
 
         public async Task RevokeDescendantRefreshTokens(RefreshToken refreshToken, UserAccount userAccount, string ipAddress)
         {
+            ArgumentNullException.ThrowIfNull(refreshToken);
+
             if (!string.IsNullOrWhiteSpace(refreshToken.ReplacedByToken))
             {
-                var serviceParameters = new List<ServiceParameter>();
-                serviceParameters.Add("RefreshToken", refreshToken.ReplacedByToken);
+                var serviceParameters = new List<ServiceParameter>
+                {
+                    { "RefreshToken", refreshToken.ReplacedByToken }
+                };
                 var transactionResult = await moduleApiClient.TransactionDirect("HDS|JWT|JWT010|GD03", serviceParameters);
                 if (transactionResult?.ContainsKey("HasException") == true)
                 {
@@ -238,11 +246,13 @@ namespace checkup.Services
             token.RevokedByIP = ipAddress;
             token.ReplacedByToken = replacedByToken;
 
-            var serviceParameters = new List<ServiceParameter>();
-            serviceParameters.Add("RefreshToken", token.Token);
-            serviceParameters.Add("RevokedAt", token.RevokedAt?.ToString("yyyy-MM-dd HH:mm:ss.fff"));
-            serviceParameters.Add("RevokedByIP", token.RevokedByIP);
-            serviceParameters.Add("ReplacedByToken", token.ReplacedByToken);
+            var serviceParameters = new List<ServiceParameter>
+            {
+                { "RefreshToken", token.Token },
+                { "RevokedAt", token.RevokedAt?.ToString("yyyy-MM-dd HH:mm:ss.fff") },
+                { "RevokedByIP", token.RevokedByIP },
+                { "ReplacedByToken", token.ReplacedByToken }
+            };
             var transactionResult = await moduleApiClient.TransactionDirect("HDS|JWT|JWT010|UD01", serviceParameters);
             if (transactionResult?.ContainsKey("HasException") == true)
             {

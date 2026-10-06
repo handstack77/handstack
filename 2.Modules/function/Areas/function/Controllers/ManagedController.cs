@@ -29,24 +29,18 @@ namespace function.Areas.function.Controllers
     [Route("[area]/api/[controller]")]
     [ApiController]
     [EnableCors]
-    public class ManagedController : BaseController
+    public class ManagedController(IWebHostEnvironment environment, ILogger logger, IConfiguration configuration) : BaseController
     {
-        private ILogger logger { get; }
-        private IConfiguration configuration { get; }
-        private IWebHostEnvironment environment { get; }
-
-        public ManagedController(IWebHostEnvironment environment, ILogger logger, IConfiguration configuration)
-        {
-            this.configuration = configuration;
-            this.logger = logger;
-            this.environment = environment;
-        }
+        private ILogger logger { get; } = logger;
+        private IConfiguration configuration { get; } = configuration;
+        private IWebHostEnvironment environment { get; } = environment;
 
         // http://localhost:8421/function/api/managed/reset-contract
         [HttpGet("[action]")]
         public ActionResult ResetContract()
         {
-            ActionResult result = BadRequest();
+            _ = BadRequest();
+            ActionResult result;
             if (HttpContext.IsAllowAuthorization() == false)
             {
                 result = BadRequest();
@@ -92,14 +86,14 @@ namespace function.Areas.function.Controllers
                         try
                         {
                             var functionSourceMappings = FunctionMapper.FunctionSourceMappings.Where(x => x.Key.IndexOf($"{applicationID}|") > -1).ToList();
-                            for (var i = functionSourceMappings.Count(); i > 0; i--)
+                            for (var i = functionSourceMappings.Count; i > 0; i--)
                             {
                                 var item = functionSourceMappings[i - 1].Key;
                                 FunctionMapper.FunctionSourceMappings.Remove(item);
                             }
 
                             var statementMappings = FunctionMapper.ScriptMappings.Where(x => x.Value.ApplicationID == applicationID).ToList();
-                            for (var i = statementMappings.Count(); i > 0; i--)
+                            for (var i = statementMappings.Count; i > 0; i--)
                             {
                                 var item = statementMappings[i - 1].Key;
                                 FunctionMapper.ScriptMappings.Remove(item);
@@ -225,15 +219,17 @@ namespace function.Areas.function.Controllers
                                         {
                                             if (header.Use == true)
                                             {
-                                                var moduleScriptMap = new ModuleScriptMap();
-                                                moduleScriptMap.ApplicationID = header.ApplicationID;
-                                                moduleScriptMap.ProjectID = header.ProjectID;
-                                                moduleScriptMap.TransactionID = header.TransactionID;
-                                                moduleScriptMap.ScriptID = item.ID + item.Seq.ToString().PadLeft(2, '0');
-                                                moduleScriptMap.ExportName = item.ID;
-                                                moduleScriptMap.Seq = item.Seq;
-                                                moduleScriptMap.IsHttpContext = header.IsHttpContext;
-                                                moduleScriptMap.ReferenceModuleID = header.ReferenceModuleID;
+                                                var moduleScriptMap = new ModuleScriptMap
+                                                {
+                                                    ApplicationID = header.ApplicationID,
+                                                    ProjectID = header.ProjectID,
+                                                    TransactionID = header.TransactionID,
+                                                    ScriptID = item.ID + item.Seq.ToString().PadLeft(2, '0'),
+                                                    ExportName = item.ID,
+                                                    Seq = item.Seq,
+                                                    IsHttpContext = header.IsHttpContext,
+                                                    ReferenceModuleID = header.ReferenceModuleID
+                                                };
 
                                                 if (string.IsNullOrWhiteSpace(item.EntryType))
                                                 {
@@ -261,9 +257,9 @@ namespace function.Areas.function.Controllers
                                                 moduleScriptMap.AfterTransactionCommand = item.AfterTransaction;
                                                 moduleScriptMap.FallbackTransactionCommand = item.FallbackTransaction;
                                                 moduleScriptMap.Description = item.Description;
-                                                moduleScriptMap.OutputMetas = new List<string>(item.OutputMetas);
+                                                moduleScriptMap.OutputMetas = [.. item.OutputMetas];
 
-                                                moduleScriptMap.ModuleParameters = new List<ModuleParameterMap>();
+                                                moduleScriptMap.ModuleParameters = [];
                                                 var functionParams = item.Params;
                                                 if (functionParams != null && functionParams.Count > 0)
                                                 {

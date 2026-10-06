@@ -13,7 +13,7 @@ namespace HandStack.Web.MessageContract.Message
             CorrelationID = "";
             ExceptionText = "";
             ResultDataSet = null;
-            ResultMeta = new List<string>();
+            ResultMeta = [];
             ResultJson = "";
             ResultObject = null;
             ResultInteger = 0;

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Globalization;
 
 using Microsoft.SemanticKernel;
@@ -8,19 +9,19 @@ namespace prompter.KernelPlugin
     public sealed class TextPlugin
     {
         [KernelFunction, Description("Trim whitespace from the start and end of a string.")]
-        public string Trim(string input) => input.Trim();
+        public string Trim(string input) => (input ?? throw new ArgumentNullException(nameof(input))).Trim();
 
         [KernelFunction, Description("Trim whitespace from the start of a string.")]
-        public string TrimStart(string input) => input.TrimStart();
+        public string TrimStart(string input) => (input ?? throw new ArgumentNullException(nameof(input))).TrimStart();
 
         [KernelFunction, Description("Trim whitespace from the end of a string.")]
-        public string TrimEnd(string input) => input.TrimEnd();
+        public string TrimEnd(string input) => (input ?? throw new ArgumentNullException(nameof(input))).TrimEnd();
 
         [KernelFunction, Description("Convert a string to uppercase.")]
-        public string Uppercase(string input, CultureInfo? cultureInfo = null) => input.ToUpper(cultureInfo);
+        public string Uppercase(string input, CultureInfo? cultureInfo = null) => (input ?? throw new ArgumentNullException(nameof(input))).ToUpper(cultureInfo);
 
         [KernelFunction, Description("Convert a string to lowercase.")]
-        public string Lowercase(string input, CultureInfo? cultureInfo = null) => input.ToLower(cultureInfo);
+        public string Lowercase(string input, CultureInfo? cultureInfo = null) => (input ?? throw new ArgumentNullException(nameof(input))).ToLower(cultureInfo);
 
         [KernelFunction, Description("Get the length of a string.")]
         public int Length(string input) => input?.Length ?? 0;

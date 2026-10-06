@@ -34,38 +34,31 @@ using Serilog;
 
 namespace prompter.DataClient
 {
-    public class PromptClient : IPromptClient
+    public partial class PromptClient(ILogger logger, TransactionClient businessApiClient, ModuleApiClient moduleApiClient, PromptLoggerClient loggerClient, LLMChatClientFactory llmChatClientFactory, PromptToolExecutor promptToolExecutor) : IPromptClient
     {
         private const string FallbackPromptResultFieldID = "PromptResult";
 
-        private ILogger logger { get; }
+        private ILogger logger { get; } = logger;
 
-        private PromptLoggerClient loggerClient { get; }
+        private PromptLoggerClient loggerClient { get; } = loggerClient;
 
-        private TransactionClient businessApiClient { get; }
+        private TransactionClient businessApiClient { get; } = businessApiClient;
 
-        private ModuleApiClient moduleApiClient { get; }
+        private ModuleApiClient moduleApiClient { get; } = moduleApiClient;
 
-        private LLMChatClientFactory llmChatClientFactory { get; }
+        private LLMChatClientFactory llmChatClientFactory { get; } = llmChatClientFactory;
 
-        private PromptToolExecutor promptToolExecutor { get; }
+        private PromptToolExecutor promptToolExecutor { get; } = promptToolExecutor;
 
         private DataProviders dataProvider { get; }
 
-        public PromptClient(ILogger logger, TransactionClient businessApiClient, ModuleApiClient moduleApiClient, PromptLoggerClient loggerClient, LLMChatClientFactory llmChatClientFactory, PromptToolExecutor promptToolExecutor)
-        {
-            this.logger = logger;
-            this.businessApiClient = businessApiClient;
-            this.moduleApiClient = moduleApiClient;
-            this.loggerClient = loggerClient;
-            this.llmChatClientFactory = llmChatClientFactory;
-            this.promptToolExecutor = promptToolExecutor;
-        }
-
         public async Task ExecuteDynamicPromptMap(DynamicRequest request, DynamicResponse response)
         {
+            ArgumentNullException.ThrowIfNull(response);
+
             var isCommandError = false;
-            request.RequestID = request.RequestID == null ? "NULL" : request.RequestID;
+            ArgumentNullException.ThrowIfNull(request);
+            request.RequestID ??= "NULL";
             var transactionDynamicObjects = new Dictionary<string, TransactionDynamicObjects>();
 
             try
@@ -114,7 +107,7 @@ namespace prompter.DataClient
                         ContextTokens = connectionInfo?.ContextTokens
                     });
 
-                    i = i + 1;
+                    i++;
                 }
 
                 if (logQuerys.Count > 0)
@@ -162,9 +155,9 @@ namespace prompter.DataClient
 
                     var dynamicParameters = new DynamicParameters();
 
-                    if (dynamicObject.Parameters.Count() > 0)
+                    if (dynamicObject.Parameters.Count > 0)
                     {
-                        if (dynamicObject.BaseFieldMappings != null && dynamicObject.BaseFieldMappings.Count() > 0)
+                        if (dynamicObject.BaseFieldMappings != null && dynamicObject.BaseFieldMappings.Count > 0)
                         {
                             var baseSequence = promptMap.Seq - 1;
                             DataRow? dataRow = null;
@@ -224,12 +217,12 @@ namespace prompter.DataClient
                     var executePromptID = dynamicObject.QueryID + "_" + i.ToString();
 
                     DataSet? dsTransactionResult = null;
-                    var transaction = PromptMapper.FindTransaction(promptMap, dynamicObject);
-                    if (transaction.Command != null && transaction.ResultType != null)
+                    var (Command, Parameters, ResultType, ArgumentMap) = PromptMapper.FindTransaction(promptMap, dynamicObject);
+                    if (Command != null && ResultType != null)
                     {
                         if (ModuleConfiguration.IsTransactionLogging == true || promptMap.TransactionLog == true)
                         {
-                            var logData = $"ExecutePromptID: {executePromptID + "_transaction"}, Parameters: {transaction.Parameters}";
+                            var logData = $"ExecutePromptID: {executePromptID + "_transaction"}, Parameters: {Parameters}";
                             loggerClient.TransactionMessageLogging(request.GlobalID, "Y", promptMap.ApplicationID, promptMap.ProjectID, promptMap.TransactionID, promptMap.StatementID, logData, "PromptClient/ExecuteDynamicPromptMap", (string error) =>
                             {
                                 logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "PromptClient/ExecuteDynamicPromptMap");
@@ -244,10 +237,10 @@ namespace prompter.DataClient
                             serviceParameters.Add(parameterName, value.ToStringSafe());
                         }
 
-                        if (string.IsNullOrEmpty(transaction.Parameters) == false)
+                        if (string.IsNullOrEmpty(Parameters) == false)
                         {
-                            var input = transaction.Parameters.Trim();
-                            if (input.StartsWith("{") == true && input.EndsWith("}") == true)
+                            var input = Parameters.Trim();
+                            if (input.StartsWith('{') == true && input.EndsWith('}') == true)
                             {
                                 var jToken = JToken.Parse(input);
                                 if (jToken is JObject)
@@ -274,13 +267,13 @@ namespace prompter.DataClient
                             }
                         }
 
-                        var transactionResult = await moduleApiClient.TransactionDirect(transaction.Command, serviceParameters);
+                        var transactionResult = await moduleApiClient.TransactionDirect(Command, serviceParameters);
                         if (transactionResult?.ContainsKey("HasException") == true)
                         {
                             var message = (transactionResult?["HasException"]?["ErrorMessage"]).ToStringSafe();
-                            logger.Error("[{LogCategory}] " + $"ExecutePromptID: {executePromptID}, Command: {transaction.Command}, parameters: {JsonConvert.SerializeObject(serviceParameters)}, ErrorMessage: {message}", "PromptClient/ExecuteDynamicPromptMap");
+                            logger.Error("[{LogCategory}] " + $"ExecutePromptID: {executePromptID}, Command: {Command}, parameters: {JsonConvert.SerializeObject(serviceParameters)}, ErrorMessage: {message}", "PromptClient/ExecuteDynamicPromptMap");
 
-                            response.ExceptionText = $"ExecutePromptID: {executePromptID}, Command: {transaction.Command} 거래 확인 필요 - {message}";
+                            response.ExceptionText = $"ExecutePromptID: {executePromptID}, Command: {Command} 거래 확인 필요 - {message}";
                             return;
                         }
                         else
@@ -288,10 +281,10 @@ namespace prompter.DataClient
                             try
                             {
                                 dsTransactionResult = transactionResult.ToDataSet();
-                                var resultTypes = transaction.ResultType.Split(",");
-                                var argumentMaps = transaction.ArgumentMap.Split(",");
+                                var resultTypes = ResultType.Split(",");
+                                var argumentMaps = ArgumentMap.Split(",");
                                 var resultCount = (dsTransactionResult == null ? 0 : dsTransactionResult.Tables.Count);
-                                if (resultTypes.Count() != argumentMaps.Count() || resultTypes.Count() != resultCount)
+                                if (resultTypes.Length != argumentMaps.Length || resultTypes.Length != resultCount)
                                 {
                                     response.ExceptionText = $"Pretransaction - 전처리 거래 설정 및 실행 결과 확인 필요, argumentMaps: {argumentMaps.Length}, resultTypes: {resultTypes.Length}, resultCount: {resultCount}";
                                     isCommandError = true;
@@ -322,11 +315,13 @@ namespace prompter.DataClient
 
                                                 if (dynamicParameter == null)
                                                 {
-                                                    dynamicParameter = new DynamicParameter();
-                                                    dynamicParameter.ParameterName = item.ColumnName;
-                                                    dynamicParameter.Length = item.MaxLength;
-                                                    dynamicParameter.DbType = GetProviderDbType(item);
-                                                    dynamicParameter.Value = rowItem[item.ColumnName];
+                                                    dynamicParameter = new DynamicParameter
+                                                    {
+                                                        ParameterName = item.ColumnName,
+                                                        Length = item.MaxLength,
+                                                        DbType = GetProviderDbType(item),
+                                                        Value = rowItem[item.ColumnName]
+                                                    };
                                                     dynamicObject.Parameters.Add(dynamicParameter);
                                                 }
                                                 else
@@ -356,11 +351,13 @@ namespace prompter.DataClient
 
                                                     if (dynamicParameter == null)
                                                     {
-                                                        dynamicParameter = new DynamicParameter();
-                                                        dynamicParameter.ParameterName = item.ColumnName;
-                                                        dynamicParameter.Length = item.MaxLength;
-                                                        dynamicParameter.DbType = GetProviderDbType(item);
-                                                        dynamicParameter.Value = parameters;
+                                                        dynamicParameter = new DynamicParameter
+                                                        {
+                                                            ParameterName = item.ColumnName,
+                                                            Length = item.MaxLength,
+                                                            DbType = GetProviderDbType(item),
+                                                            Value = parameters
+                                                        };
                                                         dynamicObject.Parameters.Add(dynamicParameter);
                                                     }
                                                     else
@@ -373,7 +370,7 @@ namespace prompter.DataClient
                                     }
                                 }
 
-                                var logData = $"ExecutePromptID: {executePromptID}, Command: {transaction.Command}";
+                                var logData = $"ExecutePromptID: {executePromptID}, Command: {Command}";
                                 if (ModuleConfiguration.IsTransactionLogging == true || promptMap.TransactionLog == true)
                                 {
                                     loggerClient.TransactionMessageLogging(request.GlobalID, "Y", promptMap.ApplicationID, promptMap.ProjectID, promptMap.TransactionID, promptMap.StatementID, logData, "PromptClient/ExecuteDynamicPromptMap", (string error) =>
@@ -384,7 +381,7 @@ namespace prompter.DataClient
                             }
                             catch (Exception exception)
                             {
-                                response.ExceptionText = $"ExecutePromptID: {executePromptID}, ExceptionText: {exception.ToMessage()}, Command: {transaction.Command}";
+                                response.ExceptionText = $"ExecutePromptID: {executePromptID}, ExceptionText: {exception.ToMessage()}, Command: {Command}";
                                 loggerClient.TransactionMessageLogging(request.GlobalID, "N", promptMap.ApplicationID, promptMap.ProjectID, promptMap.TransactionID, promptMap.StatementID, response.ExceptionText, "PromptClient/ExecuteDynamicPromptMap", (string error) =>
                                 {
                                     logger.Error("[{LogCategory}] " + "fallback error: " + error + ", " + response.ExceptionText, "PromptClient/ExecuteDynamicPromptMap");
@@ -484,7 +481,7 @@ namespace prompter.DataClient
                             using var dataTable = dsTransactionResult?.Tables["FormData0"];
                             if (dataTable?.Rows.Count > 0)
                             {
-                                dataRows[promptMap.Seq] = dataTable.Rows[dataTable.Rows.Count - 1];
+                                dataRows[promptMap.Seq] = dataTable.Rows[^1];
                             }
                             else
                             {
@@ -506,7 +503,7 @@ namespace prompter.DataClient
                                         continue;
                                     }
 
-                                    if (dynamicObject.BaseFieldRelations != null && dynamicObject.BaseFieldRelations.Count() > 0)
+                                    if (dynamicObject.BaseFieldRelations != null && dynamicObject.BaseFieldRelations.Count > 0)
                                     {
                                         var baseFieldRelation = dynamicObject.BaseFieldRelations[j];
                                         if (baseFieldRelation != null && baseFieldRelation.BaseSequence >= 0 && ((ds.Tables.Count - 1) >= baseFieldRelation.BaseSequence))
@@ -566,7 +563,7 @@ namespace prompter.DataClient
                                         continue;
                                     }
 
-                                    if (dynamicObject.BaseFieldRelations != null && dynamicObject.BaseFieldRelations.Count() > 0)
+                                    if (dynamicObject.BaseFieldRelations != null && dynamicObject.BaseFieldRelations.Count > 0)
                                     {
                                         var baseFieldRelation = dynamicObject.BaseFieldRelations[j];
                                         if (baseFieldRelation != null)
@@ -635,7 +632,7 @@ namespace prompter.DataClient
 
                                     if (table.Rows.Count > 0)
                                     {
-                                        dataRows[promptMap.Seq] = table.Rows[table.Rows.Count - 1];
+                                        dataRows[promptMap.Seq] = table.Rows[^1];
                                     }
                                     else
                                     {
@@ -650,7 +647,7 @@ namespace prompter.DataClient
                     catch (Exception exception)
                     {
                         response.ExceptionText = exception.ToMessage();
-                        var logData = $"ExecutePromptID: {executePromptID}, Command: {transaction.Command}, ExceptionText: {response.ExceptionText}";
+                        var logData = $"ExecutePromptID: {executePromptID}, Command: {Command}, ExceptionText: {response.ExceptionText}";
 
                         loggerClient.TransactionMessageLogging(request.GlobalID, "N", promptMap.ApplicationID, promptMap.ProjectID, promptMap.TransactionID, promptMap.StatementID, logData, "PromptClient/ExecuteDynamicPromptMap", (string error) =>
                         {
@@ -750,7 +747,7 @@ TransactionException:
         private static List<string> GetPromptResultFieldIDs(PromptMap promptMap)
         {
             var result = new List<string>();
-            var outputMetas = promptMap.OutputMetas ?? new List<string>();
+            var outputMetas = promptMap.OutputMetas ?? [];
             foreach (var outputMeta in outputMetas)
             {
                 foreach (var outputMetaPart in outputMeta.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
@@ -779,7 +776,7 @@ TransactionException:
             }
 
             var separatorIndex = outputMeta.IndexOf(':');
-            var fieldID = separatorIndex < 0 ? outputMeta : outputMeta.Substring(0, separatorIndex);
+            var fieldID = separatorIndex < 0 ? outputMeta : outputMeta[..separatorIndex];
             return fieldID.Trim();
         }
 
@@ -828,7 +825,7 @@ TransactionException:
             return "";
         }
 
-        private LLMChatRequest CreateLLMChatRequest(TransactionDynamicObjects transactionDynamicObject, PromptMap promptMap, QueryObject queryObject, List<LLMChatMessage> promptMessages, List<LLMToolDefinition> tools)
+        private static LLMChatRequest CreateLLMChatRequest(TransactionDynamicObjects transactionDynamicObject, PromptMap promptMap, QueryObject queryObject, List<LLMChatMessage> promptMessages, List<LLMToolDefinition> tools)
         {
             var parameters = PromptMapper.ExtractParameters(queryObject, promptMap.MediaVariables.Select(item => item.Name));
             var queryParameters = new Dictionary<string, string>();
@@ -858,7 +855,7 @@ TransactionException:
             };
         }
 
-        private Dictionary<string, string> CreateStatementHeaders(PromptMap promptMap, JObject parameters, Dictionary<string, string> queryParameters, LLMRequestBody body)
+        private static Dictionary<string, string> CreateStatementHeaders(PromptMap promptMap, JObject parameters, Dictionary<string, string> queryParameters, LLMRequestBody body)
         {
             var result = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             foreach (var item in promptMap.Headers)
@@ -917,7 +914,7 @@ TransactionException:
             return result;
         }
 
-        private LLMRequestBody CreateRequestBody(PromptBody promptBody, JObject parameters)
+        private static LLMRequestBody CreateRequestBody(PromptBody promptBody, JObject parameters)
         {
             var result = new LLMRequestBody
             {
@@ -970,7 +967,7 @@ TransactionException:
             JObject bodyObject;
             if (string.IsNullOrWhiteSpace(body.RawText) == true)
             {
-                bodyObject = new JObject();
+                bodyObject = [];
             }
             else
             {
@@ -1040,11 +1037,11 @@ TransactionException:
             var parameters = PromptMapper.ExtractParameters(queryObject, excludedParameterNames);
             var result = new StringBuilder();
             var currentIndex = 0;
-            foreach (var match in matches)
+            foreach (var (StartIndex, Length, Expression, Text) in matches)
             {
-                result.Append(value, currentIndex, match.StartIndex - currentIndex);
+                result.Append(value, currentIndex, StartIndex - currentIndex);
 
-                var items = match.Expression.Split(new[] { '|' }, 7).Select(item => item.Trim()).ToArray();
+                var items = Expression.Split('|', 7).Select(item => item.Trim()).ToArray();
                 var replacement = "";
 
                 if (items.Length == 6 || items.Length == 7)
@@ -1070,11 +1067,11 @@ TransactionException:
                 }
                 else
                 {
-                    logger.Warning("[{LogCategory}] " + $"코드도움 치환식 확인 필요: {match.Text}", "PromptClient/ReplaceCodeHelpTemplatesAsync");
+                    logger.Warning("[{LogCategory}] " + $"코드도움 치환식 확인 필요: {Text}", "PromptClient/ReplaceCodeHelpTemplatesAsync");
                 }
 
                 result.Append(replacement);
-                currentIndex = match.StartIndex + match.Length;
+                currentIndex = StartIndex + Length;
             }
 
             result.Append(value, currentIndex, value.Length - currentIndex);
@@ -1216,7 +1213,7 @@ TransactionException:
                 }
 
                 var length = endIndex - startIndex + 1;
-                var expression = value.Substring(expressionStartIndex, endIndex - expressionStartIndex);
+                var expression = value[expressionStartIndex..endIndex];
                 var text = value.Substring(startIndex, length);
                 result.Add((startIndex, length, expression, text));
                 searchIndex = endIndex + 1;
@@ -1245,7 +1242,7 @@ TransactionException:
                 if (value.IndexOf("${", index, StringComparison.Ordinal) == index
                     || value.IndexOf("#{", index, StringComparison.Ordinal) == index)
                 {
-                    var parameterEndIndex = value.IndexOf("}", index + 2, StringComparison.Ordinal);
+                    var parameterEndIndex = value.IndexOf('}', index + 2);
                     if (parameterEndIndex < 0)
                     {
                         return -1;
@@ -1301,13 +1298,13 @@ TransactionException:
             }
 
             var result = PromptMapper.ConvertParameterText(value, parameters);
-            result = Regex.Replace(result, "\\{@([^}]+)\\}", match =>
+            result = MyRegex().Replace(result, match =>
             {
                 var key = match.Groups[1].Value;
                 return parameters[key]?.ToStringSafe() ?? "";
             });
 
-            if (result.StartsWith("@") == true && result.IndexOf(" ", StringComparison.Ordinal) < 0)
+            if (result.StartsWith('@') == true && result.IndexOf(' ') < 0)
             {
                 var key = result.SubstringSafe(1);
                 result = parameters[key]?.ToStringSafe() ?? result;
@@ -1388,7 +1385,7 @@ TransactionException:
             return "";
         }
 
-        private void SetDynamicParameterMapping(QueryObject queryObject, PromptMap promptMap, DynamicParameters? dynamicParameters)
+        private static void SetDynamicParameterMapping(QueryObject queryObject, PromptMap promptMap, DynamicParameters? dynamicParameters)
         {
             if (dynamicParameters == null)
             {
@@ -1405,7 +1402,7 @@ TransactionException:
                     continue;
                 }
 
-                var dynamicDbType = (DbType)Enum.Parse(typeof(DbType), string.IsNullOrEmpty(inputVariableMap.DbType) == true ? dynamicParameter.DbType : inputVariableMap.DbType);
+                var dynamicDbType = Enum.Parse<DbType>(string.IsNullOrEmpty(inputVariableMap.DbType) == true ? dynamicParameter.DbType : inputVariableMap.DbType);
 
                 if (dynamicDbType == DbType.String)
                 {
@@ -1450,7 +1447,7 @@ TransactionException:
             }
         }
 
-        private DynamicParameter? GetInputVariableMap(string parameterName, List<DynamicParameter>? dynamicParameters)
+        private static DynamicParameter? GetInputVariableMap(string parameterName, List<DynamicParameter>? dynamicParameters)
         {
             DynamicParameter? result = null;
 
@@ -1460,7 +1457,7 @@ TransactionException:
                            where p.ParameterName == GetParameterName(parameterName)
                            select p;
 
-                if (maps.Count() > 0)
+                if (maps.Any())
                 {
                     foreach (var item in maps)
                     {
@@ -1473,7 +1470,7 @@ TransactionException:
             return result;
         }
 
-        private string GetParameterName(string parameterName)
+        private static string GetParameterName(string parameterName)
         {
             if (string.IsNullOrEmpty(parameterName))
             {
@@ -1482,19 +1479,19 @@ TransactionException:
 
             return parameterName[0] switch
             {
-                '@' or '#' or ':' => parameterName.Substring(1),
+                '@' or '#' or ':' => parameterName[1..],
                 _ => parameterName
             };
         }
 
-        private void PretransactionAddParameter(dynamic? dynamicParameters, DataRow rowItem, DataColumn item)
+        private static void PretransactionAddParameter(dynamic? dynamicParameters, DataRow rowItem, DataColumn item)
         {
             if (dynamicParameters == null)
             {
                 return;
             }
 
-            var dynamicDbType = (DbType)Enum.Parse(typeof(DbType), GetProviderDbType(item));
+            var dynamicDbType = Enum.Parse<DbType>(GetProviderDbType(item));
 
             dynamicParameters.Add(
                 item.ColumnName,
@@ -1505,7 +1502,7 @@ TransactionException:
             );
         }
 
-        private string GetProviderDbType(DataColumn column)
+        private static string GetProviderDbType(DataColumn column)
         {
             var result = "String";
             switch (column.DataType.Name)
@@ -1550,6 +1547,9 @@ TransactionException:
 
             return result;
         }
+
+        [GeneratedRegex("\\{@([^}]+)\\}")]
+        private static partial Regex MyRegex();
     }
 }
 

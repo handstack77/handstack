@@ -68,7 +68,7 @@ namespace handstack
                             var dateString = DateTime.Now.ToString(string.IsNullOrWhiteSpace(item.Value) == true ? "yyyy-MM-dd" : item.Value);
                             CommandHelper.EnvironmentVariables.Add(item.Key.SubstringSafe(1).ToUpper(), dateString);
                         }
-                        else if (item.Key.StartsWith("$") == true)
+                        else if (item.Key.StartsWith('$') == true)
                         {
                             CommandHelper.EnvironmentVariables.Add(item.Key.SubstringSafe(1).ToUpper(), item.Value);
                         }
@@ -81,7 +81,7 @@ namespace handstack
                     for (var i = 0; i < task.commands.Count; i++)
                     {
                         var command = task.commands[i];
-                        foreach (var item in task.environments.Where(p => p.Key.StartsWith("$") == true))
+                        foreach (var item in task.environments.Where(p => p.Key.StartsWith('$') == true))
                         {
                             task.commands[i] = command.Replace(item.Key, item.Value);
                             task.basepath = string.IsNullOrWhiteSpace(task.basepath) == true ? "" : task.basepath.Replace(item.Key, item.Value);
@@ -100,7 +100,7 @@ namespace handstack
                             Log.Error($"command: {commandIndex}, error: {item.Item3}");
                         }
 
-                        commandIndex = commandIndex + 1;
+                        commandIndex++;
                     }
                 }
             });

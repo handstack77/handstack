@@ -100,7 +100,7 @@ namespace function
 
                         ModuleConfiguration.FunctionFileSyncManager.Clear();
                         ModuleConfiguration.ContractBasePath.Clear();
-                        foreach (var basePath in moduleConfig.ContractBasePath ?? new List<string>())
+                        foreach (var basePath in moduleConfig.ContractBasePath ?? [])
                         {
                             var contractBasePath = GlobalConfiguration.GetBaseDirectoryPath(basePath);
                             if (string.IsNullOrWhiteSpace(contractBasePath) == false && ModuleConfiguration.ContractBasePath.Contains(contractBasePath) == false)
@@ -129,14 +129,14 @@ namespace function
                         ModuleConfiguration.EnvironmentVariables = nodeFunctionConfig.EnvironmentVariables;
 
                         ModuleConfiguration.WatchFileNamePatterns.Clear();
-                        ModuleConfiguration.WatchFileNamePatterns = (nodeFunctionConfig.WatchFileNamePatterns ?? new List<string>())
+                        ModuleConfiguration.WatchFileNamePatterns = (nodeFunctionConfig.WatchFileNamePatterns ?? [])
                             .Where(p => string.IsNullOrWhiteSpace(p) == false)
                             .Distinct(StringComparer.OrdinalIgnoreCase)
                             .ToList();
 
                         ModuleConfiguration.CSharpEnableFileWatching = csharpFunctionConfig.EnableFileWatching;
                         ModuleConfiguration.CSharpFunctionLogBasePath = GlobalConfiguration.GetBaseDirectoryPath(csharpFunctionConfig.FileLogBasePath);
-                        ModuleConfiguration.CSharpWatchFileNamePatterns = (csharpFunctionConfig.WatchFileNamePatterns ?? new List<string>())
+                        ModuleConfiguration.CSharpWatchFileNamePatterns = (csharpFunctionConfig.WatchFileNamePatterns ?? [])
                             .Where(p => string.IsNullOrWhiteSpace(p) == false)
                             .Distinct(StringComparer.OrdinalIgnoreCase)
                             .ToList();
@@ -145,7 +145,7 @@ namespace function
                         ModuleConfiguration.PythonDLLFilePath = GlobalConfiguration.GetBaseDirectoryPath(pythonFunctionConfig.PythonDLLFilePath);
                         ModuleConfiguration.PythonEnableFileWatching = pythonFunctionConfig.EnableFileWatching;
                         ModuleConfiguration.PythonFunctionLogBasePath = GlobalConfiguration.GetBaseDirectoryPath(pythonFunctionConfig.FileLogBasePath);
-                        ModuleConfiguration.PythonWatchFileNamePatterns = (pythonFunctionConfig.WatchFileNamePatterns ?? new List<string>())
+                        ModuleConfiguration.PythonWatchFileNamePatterns = (pythonFunctionConfig.WatchFileNamePatterns ?? [])
                             .Where(p => string.IsNullOrWhiteSpace(p) == false)
                             .Distinct(StringComparer.OrdinalIgnoreCase)
                             .ToList();
@@ -187,7 +187,7 @@ namespace function
                             }
                         }
 
-                        ModuleConfiguration.AllowClientIP = (moduleConfig.AllowClientIP ?? new List<string>() { "*" })
+                        ModuleConfiguration.AllowClientIP = (moduleConfig.AllowClientIP ?? ["*"])
                             .Where(p => string.IsNullOrWhiteSpace(p) == false)
                             .Select(p => p.Trim())
                             .Distinct(StringComparer.OrdinalIgnoreCase)
@@ -212,6 +212,7 @@ namespace function
                     throw new FileNotFoundException(message);
                 }
 
+                ArgumentNullException.ThrowIfNull(environment);
                 FunctionMapper.LoadContract(environment.EnvironmentName, Log.Logger, configuration);
 
                 services.AddNodeJS();
@@ -351,7 +352,7 @@ namespace function
                         options.EnableFileWatching = false;
                     }
 
-                    var watchPath = ModuleConfiguration.ContractBasePath.Count > 0 ? ModuleConfiguration.ContractBasePath[ModuleConfiguration.ContractBasePath.Count - 1] : "";
+                    var watchPath = ModuleConfiguration.ContractBasePath.Count > 0 ? ModuleConfiguration.ContractBasePath[^1] : "";
                     if (string.IsNullOrWhiteSpace(watchPath))
                     {
                         options.EnableFileWatching = false;
@@ -376,14 +377,17 @@ namespace function
 
         public bool CanHandleModuleConfigurationProperty(string propertyName)
         {
+            ArgumentNullException.ThrowIfNull(propertyName);
+
             return propertyName.Equals(nameof(ModuleConfig.FunctionSource), StringComparison.Ordinal);
         }
 
         public void ApplyModuleConfigurationProperty(ModuleInfo module, string propertyName, object? value, ModuleConfigurationReloadResult result)
         {
-            var functionSources = value as List<FunctionSource> ?? new List<FunctionSource>();
+            var functionSources = value as List<FunctionSource> ?? [];
             FunctionMapper.ReloadFunctionSourceMappings(functionSources, Log.Logger);
             ModuleConfiguration.FunctionSource = functionSources.Select(item => item with { }).ToList();
+            ArgumentNullException.ThrowIfNull(result);
             result.AppliedKeys.Add($"ModuleConfig:{propertyName}");
         }
 
@@ -466,6 +470,7 @@ namespace function
                 }
             }
 
+            ArgumentNullException.ThrowIfNull(app);
             var serviceScopeFactory = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>();
             foreach (var basePath in ModuleConfiguration.ContractBasePath)
             {
@@ -639,7 +644,7 @@ namespace function
             return result;
         }
 
-        static void Main(string[] args)
+        static void Main()
         {
             Console.WriteLine("function");
         }

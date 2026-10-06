@@ -29,7 +29,7 @@ namespace rdy.Services
 
     public sealed class ApiRequestMetricsCollector
     {
-        private readonly ConcurrentDictionary<ApiRequestMetricKey, ApiRequestMetricEntry> entries = new ConcurrentDictionary<ApiRequestMetricKey, ApiRequestMetricEntry>();
+        private readonly ConcurrentDictionary<ApiRequestMetricKey, ApiRequestMetricEntry> entries = new();
 
         public void Record(ApiRequestMetricKey key, int statusCode, long elapsedTicks)
         {
@@ -48,18 +48,13 @@ namespace rdy.Services
                 .ToArray();
         }
 
-        private sealed class ApiRequestMetricEntry
+        private sealed class ApiRequestMetricEntry(ApiRequestMetricKey key)
         {
-            private readonly ApiRequestMetricKey key;
-            private readonly ConcurrentDictionary<int, long> responseCounts = new ConcurrentDictionary<int, long>();
+            private readonly ApiRequestMetricKey key = key;
+            private readonly ConcurrentDictionary<int, long> responseCounts = new();
             private long requestCount;
             private long durationTotalTicks;
             private long durationMaxTicks;
-
-            public ApiRequestMetricEntry(ApiRequestMetricKey key)
-            {
-                this.key = key;
-            }
 
             public void Record(int statusCode, long elapsedTicks)
             {

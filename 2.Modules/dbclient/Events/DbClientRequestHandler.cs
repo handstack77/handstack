@@ -38,38 +38,28 @@ namespace dbclient.Events
         }
     }
     */
-    public class DbClientRequest : IRequest<object?>
+    public class DbClientRequest(object? request) : IRequest<object?>
     {
-        public object? Request { get; set; }
-
-        public DbClientRequest(object? request)
-        {
-            Request = request;
-        }
+        public object? Request { get; set; } = request;
     }
 
-    public class DbClientRequestHandler : IRequestHandler<DbClientRequest, object?>
+    public class DbClientRequestHandler(Serilog.ILogger logger, IQueryDataClient dataClient, DbClientLoggerClient loggerClient) : IRequestHandler<DbClientRequest, object?>
     {
-        private DbClientLoggerClient loggerClient { get; }
+        private DbClientLoggerClient loggerClient { get; } = loggerClient;
 
-        private Serilog.ILogger logger { get; }
+        private Serilog.ILogger logger { get; } = logger;
 
-        private IQueryDataClient dataClient { get; }
-
-        public DbClientRequestHandler(Serilog.ILogger logger, IQueryDataClient dataClient, DbClientLoggerClient loggerClient)
-        {
-            this.logger = logger;
-            this.loggerClient = loggerClient;
-            this.dataClient = dataClient;
-        }
+        private IQueryDataClient dataClient { get; } = dataClient;
 
         public async ValueTask<object?> Handle(DbClientRequest requestQueryData, CancellationToken cancellationToken)
         {
-            var request = requestQueryData.Request as DynamicRequest;
-            var response = new DynamicResponse();
-            response.Acknowledge = AcknowledgeType.Failure;
+            var response = new DynamicResponse
+            {
+                Acknowledge = AcknowledgeType.Failure
+            };
 
-            if (request == null)
+            ArgumentNullException.ThrowIfNull(requestQueryData);
+            if (requestQueryData.Request is not DynamicRequest request)
             {
                 response.ExceptionText = "빈 요청. 요청 정보 확인 필요";
                 return response;

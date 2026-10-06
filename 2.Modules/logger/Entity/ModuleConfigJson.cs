@@ -38,7 +38,7 @@ namespace logger.Entity
             BusinessServerUrl = "";
             LogDeleteRepeatSecond = 43200;
             CircuitBreakResetSecond = 30;
-            DataSource = new List<DataSource>();
+            DataSource = [];
         }
     }
 }

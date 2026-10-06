@@ -12,6 +12,7 @@ namespace HandStack.Core.ExtensionMethod
         {
             var result = new byte[@this.Sum(a => a.Length)];
             var offset = 0;
+            ArgumentNullException.ThrowIfNull(@this);
             foreach (var array in @this)
             {
                 Buffer.BlockCopy(array, 0, result, offset, array.Length);
@@ -22,6 +23,9 @@ namespace HandStack.Core.ExtensionMethod
 
         public static byte[] Combine(this byte[] @this, byte[] bind)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+            ArgumentNullException.ThrowIfNull(bind);
+
             var result = new byte[@this.Length + bind.Length];
             Buffer.BlockCopy(@this, 0, result, 0, @this.Length);
             Buffer.BlockCopy(bind, 0, result, @this.Length, bind.Length);
@@ -33,8 +37,11 @@ namespace HandStack.Core.ExtensionMethod
             var result = -1;
             var matchIndex = 0;
 
+            ArgumentNullException.ThrowIfNull(@this);
             for (var i = startIndex; i < @this.Length; i++)
             {
+                ArgumentNullException.ThrowIfNull(search);
+
                 if (@this[i] == search[matchIndex])
                 {
                     if (matchIndex == (search.Length - 1))
@@ -64,6 +71,10 @@ namespace HandStack.Core.ExtensionMethod
 
             if (index >= 0)
             {
+                ArgumentNullException.ThrowIfNull(@this);
+                ArgumentNullException.ThrowIfNull(search);
+                ArgumentNullException.ThrowIfNull(replace);
+
                 result = new byte[@this.Length - search.Length + replace.Length];
 
                 Buffer.BlockCopy(@this, 0, result, 0, index);
@@ -76,11 +87,15 @@ namespace HandStack.Core.ExtensionMethod
 
         public static string ToString(this byte[] @this, Encoding encoding)
         {
+            ArgumentNullException.ThrowIfNull(encoding);
+
             return encoding.GetString(@this);
         }
 
         public static string ToHex(this byte[] @this)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             return Convert.ToHexStringLower(@this.AsSpan(0, @this.Length));
         }
 
@@ -157,6 +172,8 @@ namespace HandStack.Core.ExtensionMethod
             using var ms = new MemoryStream();
             using (var cs = new CryptoStream(ms, encrypt, CryptoStreamMode.Write))
             {
+                ArgumentNullException.ThrowIfNull(@this);
+
                 cs.Write(@this, 0, @this.Length);
             }
 
@@ -177,6 +194,8 @@ namespace HandStack.Core.ExtensionMethod
             using var ms = new MemoryStream();
             using (var cs = new CryptoStream(ms, decrypt, CryptoStreamMode.Write))
             {
+                ArgumentNullException.ThrowIfNull(@this);
+
                 cs.Write(@this, 0, @this.Length);
             }
 
@@ -197,6 +216,8 @@ namespace HandStack.Core.ExtensionMethod
             using var ms = new MemoryStream();
             using (var cs = new CryptoStream(ms, decrypt, CryptoStreamMode.Write))
             {
+                ArgumentNullException.ThrowIfNull(@this);
+
                 cs.Write(@this, 0, @this.Length);
             }
 

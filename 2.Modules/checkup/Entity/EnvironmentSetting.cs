@@ -24,10 +24,10 @@ namespace checkup.Entity
 
     public record Definition
     {
-        public List<string> Styles { get; set; } = new List<string>();
+        public List<string> Styles { get; set; } = [];
 
-        public List<string> Scripts { get; set; } = new List<string>();
+        public List<string> Scripts { get; set; } = [];
 
-        public List<string> Controls { get; set; } = new List<string>();
+        public List<string> Controls { get; set; } = [];
     }
 }

@@ -22,37 +22,25 @@ using Serilog;
 
 namespace repository.Events
 {
-    public class StorageRefreshRequest : IRequest<bool>
+    public class StorageRefreshRequest(string changeType, string filePath, string? userWorkID, string? applicationID) : IRequest<bool>
     {
-        public string ChangeType { get; }
+        public string ChangeType { get; } = changeType;
 
-        public string FilePath { get; }
+        public string FilePath { get; } = filePath;
 
-        public string? UserWorkID { get; }
+        public string? UserWorkID { get; } = userWorkID;
 
-        public string? ApplicationID { get; }
-
-        public StorageRefreshRequest(string changeType, string filePath, string? userWorkID, string? applicationID)
-        {
-            ChangeType = changeType;
-            FilePath = filePath;
-            UserWorkID = userWorkID;
-            ApplicationID = applicationID;
-        }
+        public string? ApplicationID { get; } = applicationID;
     }
 
-    public class StorageRefreshRequestHandler : IRequestHandler<StorageRefreshRequest, bool>
+    public class StorageRefreshRequestHandler(ILogger logger) : IRequestHandler<StorageRefreshRequest, bool>
     {
-        private readonly ILogger logger;
-
-        public StorageRefreshRequestHandler(ILogger logger)
-        {
-            this.logger = logger;
-        }
+        private readonly ILogger logger = logger;
 
         public ValueTask<bool> Handle(StorageRefreshRequest request, CancellationToken cancellationToken)
         {
             var actionResult = false;
+            ArgumentNullException.ThrowIfNull(request);
             var filePath = request.FilePath;
 
             if (filePath.StartsWith(Path.DirectorySeparatorChar) == true)
@@ -70,7 +58,7 @@ namespace repository.Events
 
             lock (ModuleConfiguration.FileRepositorys)
             {
-                var watcherChangeTypes = (WatcherChangeTypes)Enum.Parse(typeof(WatcherChangeTypes), request.ChangeType);
+                var watcherChangeTypes = Enum.Parse<WatcherChangeTypes>(request.ChangeType);
                 switch (watcherChangeTypes)
                 {
                     case WatcherChangeTypes.Created:
@@ -99,7 +87,7 @@ namespace repository.Events
 
                                         foreach (var repository in repositorys)
                                         {
-                                            if (repository.PhysicalPath.IndexOf("{appBasePath}") == -1)
+                                            if (!repository.PhysicalPath.Contains("{appBasePath}", StringComparison.CurrentCulture))
                                             {
                                                 repository.PhysicalPath = GlobalConfiguration.GetBaseDirectoryPath(repository.PhysicalPath);
                                                 var repositoryDirectoryInfo = new DirectoryInfo(repository.PhysicalPath);

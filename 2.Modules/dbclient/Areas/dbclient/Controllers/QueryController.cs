@@ -34,22 +34,14 @@ namespace dbclient.Areas.dbclient.Controllers
     [Route("[area]/api/[controller]")]
     [ApiController]
     [EnableCors]
-    public class QueryController : BaseController
+    public class QueryController(Serilog.ILogger logger, IQueryDataClient dataClient, DbClientLoggerClient loggerClient, IMediator mediator) : BaseController
     {
-        private DbClientLoggerClient loggerClient { get; }
+        private DbClientLoggerClient loggerClient { get; } = loggerClient;
 
-        private Serilog.ILogger logger { get; }
+        private Serilog.ILogger logger { get; } = logger;
 
-        private IQueryDataClient dataClient { get; }
-        private readonly IMediator mediator;
-
-        public QueryController(Serilog.ILogger logger, IQueryDataClient dataClient, DbClientLoggerClient loggerClient, IMediator mediator)
-        {
-            this.logger = logger;
-            this.loggerClient = loggerClient;
-            this.dataClient = dataClient;
-            this.mediator = mediator;
-        }
+        private IQueryDataClient dataClient { get; } = dataClient;
+        private readonly IMediator mediator = mediator;
 
         // http://localhost:8421/dbclient/api/query/has
         [HttpGet("[action]")]
@@ -62,8 +54,8 @@ namespace dbclient.Areas.dbclient.Controllers
                 TransactionID = transactionID,
                 FunctionID = functionID
             };
-
-            ActionResult result = BadRequest();
+            _ = BadRequest();
+            ActionResult result;
             if (HttpContext.IsAllowAuthorization() == false)
             {
                 result = BadRequest();
@@ -89,7 +81,8 @@ namespace dbclient.Areas.dbclient.Controllers
         [HttpGet("[action]")]
         public async Task<ActionResult> Refresh(string changeType, string filePath, string? userWorkID, string? applicationID)
         {
-            ActionResult result = NotFound();
+            _ = NotFound();
+            ActionResult result;
             if (HttpContext.IsAllowAuthorization() == false)
             {
                 result = BadRequest();
@@ -233,7 +226,7 @@ namespace dbclient.Areas.dbclient.Controllers
                             ApplicationID = item.ApplicationID,
                             ProjectID = item.ProjectID,
                             TransactionID = item.TransactionID,
-                            ServiceID = item.StatementID.Substring(0, item.StatementID.Length - 2),
+                            ServiceID = item.StatementID[..^2],
                             Seq = item.Seq,
                             Description = item.Description,
                             Parameters = item.DbParameters.Select(dbParameterMap => new QueryReportParameter
@@ -266,7 +259,7 @@ namespace dbclient.Areas.dbclient.Controllers
                 ? parameterName
                 : parameterName[0] switch
                 {
-                    '@' or ':' or '$' or '#' => parameterName.Substring(1),
+                    '@' or ':' or '$' or '#' => parameterName[1..],
                     _ => parameterName
                 };
         }
@@ -297,8 +290,10 @@ namespace dbclient.Areas.dbclient.Controllers
         public async Task<ActionResult> Execute(DynamicRequest request)
         {
             ActionResult result = BadRequest();
-            var response = new DynamicResponse();
-            response.Acknowledge = AcknowledgeType.Failure;
+            var response = new DynamicResponse
+            {
+                Acknowledge = AcknowledgeType.Failure
+            };
 
             if (request == null)
             {

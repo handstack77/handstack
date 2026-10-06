@@ -18,17 +18,17 @@ namespace wwwroot.Entity
         public static string SystemVaultKey = "";
         public static bool IsModuleLogging = false;
         public static string ModuleLogFilePath = "";
-        public static List<string> FileSyncTokens = new List<string>();
-        public static CreateIDPolicyConfig CreateIDPolicy = new CreateIDPolicyConfig();
-        public static DevAutoSignInConfig DevAutoSignIn = new DevAutoSignInConfig();
-        public static List<SharedFileEntry> SharedFiles = new List<SharedFileEntry>();
+        public static List<string> FileSyncTokens = [];
+        public static CreateIDPolicyConfig CreateIDPolicy = new();
+        public static DevAutoSignInConfig DevAutoSignIn = new();
+        public static List<SharedFileEntry> SharedFiles = [];
         public static int CircuitBreakResetSecond = 60;
         public static bool IsLogServer = false;
         public static string LogServerUrl = "";
         public static bool IsExceptionDetailText = false;
         public static int DefaultCommandTimeout = 30;
-        public static Dictionary<string, List<string>> TenantAppOrigins = new Dictionary<string, List<string>>();
-        public static Dictionary<string, List<string>> TenantAppReferers = new Dictionary<string, List<string>>();
+        public static Dictionary<string, List<string>> TenantAppOrigins = [];
+        public static Dictionary<string, List<string>> TenantAppReferers = [];
 
         public static string MyStaticMethod(string parameter)
         {

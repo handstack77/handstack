@@ -15,9 +15,9 @@ namespace HandStack.Web.Extensions
     {
         private static readonly TimeSpan cacheLifetime = TimeSpan.FromMinutes(10);
         private readonly RequestDelegate next;
-        private readonly IFileProvider? fileProvider;
+        private readonly PhysicalFileProvider? fileProvider;
         private readonly MemoryCache? pathCache;
-        private readonly object cacheLock = new object();
+        private readonly object cacheLock = new();
         private readonly string directoryPath;
         private readonly CancellationTokenRegistration applicationStoppedRegistration;
         private int disposed;
@@ -26,6 +26,8 @@ namespace HandStack.Web.Extensions
         public CaseInsensitiveStaticFileMiddleware(RequestDelegate next, string directoryPath, IHostApplicationLifetime applicationLifetime)
             : this(next, directoryPath)
         {
+            ArgumentNullException.ThrowIfNull(applicationLifetime);
+
             applicationStoppedRegistration = applicationLifetime.ApplicationStopped.Register(
                 static state => ((CaseInsensitiveStaticFileMiddleware)state!).Dispose(), this);
         }
@@ -52,6 +54,8 @@ namespace HandStack.Web.Extensions
 
         public Task InvokeAsync(HttpContext context)
         {
+            ArgumentNullException.ThrowIfNull(context);
+
             var request = context.Request;
             var path = request.Path.Value;
             if (fileProvider != null && Volatile.Read(ref disposed) == 0 &&
@@ -72,7 +76,7 @@ namespace HandStack.Web.Extensions
 
         private static bool IsApiPath(string path)
         {
-            return path.IndexOf("/api/", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            return path.Contains("/api/", StringComparison.OrdinalIgnoreCase) ||
                 path.EndsWith("/api", StringComparison.OrdinalIgnoreCase);
         }
 
@@ -126,6 +130,7 @@ namespace HandStack.Web.Extensions
                     }
                 }
             }
+            GC.SuppressFinalize(this);
         }
     }
 }

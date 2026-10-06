@@ -66,7 +66,7 @@ internal static class Program
     }
 }
 
-internal sealed class DotnetInstaller(PackOptions options)
+internal sealed partial class DotnetInstaller(PackOptions options)
 {
     private readonly PackOptions _options = options;
 
@@ -463,7 +463,7 @@ internal sealed class DotnetInstaller(PackOptions options)
         static string Normalize(string value)
         {
             var lowered = value.ToLowerInvariant();
-            var normalized = Regex.Replace(lowered, "[^a-z0-9]+", ".");
+            var normalized = MyRegex().Replace(lowered, ".");
             normalized = normalized.Trim('.');
             return string.IsNullOrWhiteSpace(normalized) ? "app" : normalized;
         }
@@ -481,7 +481,7 @@ internal sealed class DotnetInstaller(PackOptions options)
     private static string SanitizeDebianPackageName(string value)
     {
         var lowered = value.ToLowerInvariant();
-        var normalized = Regex.Replace(lowered, "[^a-z0-9+.-]+", "-");
+        var normalized = MyRegex1().Replace(lowered, "-");
         normalized = normalized.Trim('-');
         if (string.IsNullOrWhiteSpace(normalized))
         {
@@ -498,7 +498,7 @@ internal sealed class DotnetInstaller(PackOptions options)
 
     private static string SanitizeDebianVersion(string value)
     {
-        var normalized = Regex.Replace(value, "[^A-Za-z0-9.+:~\\-]+", ".");
+        var normalized = MyRegex2().Replace(value, ".");
         normalized = normalized.Trim('.');
         return string.IsNullOrWhiteSpace(normalized) ? "1.0.0" : normalized;
     }
@@ -559,6 +559,13 @@ internal sealed class DotnetInstaller(PackOptions options)
             File.Copy(file, target, overwrite: true);
         }
     }
+
+    [GeneratedRegex("[^a-z0-9]+")]
+    private static partial Regex MyRegex();
+    [GeneratedRegex("[^a-z0-9+.-]+")]
+    private static partial Regex MyRegex1();
+    [GeneratedRegex("[^A-Za-z0-9.+:~\\-]+")]
+    private static partial Regex MyRegex2();
 }
 
 internal sealed record PackOptions(
@@ -744,7 +751,7 @@ dotnet-installer - 게시된 파일을 Windows, Ubuntu, macOS 설치 파일로 �
     {
         if (string.Equals(value, "all", StringComparison.OrdinalIgnoreCase))
         {
-            return new List<TargetPlatform> { TargetPlatform.Windows, TargetPlatform.Ubuntu, TargetPlatform.MacOs };
+            return [TargetPlatform.Windows, TargetPlatform.Ubuntu, TargetPlatform.MacOs];
         }
 
         var result = new List<TargetPlatform>();

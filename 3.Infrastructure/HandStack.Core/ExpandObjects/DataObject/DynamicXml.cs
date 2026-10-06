@@ -28,6 +28,7 @@ namespace HandStack.Core.ExpandObjects.DataObject
         public override bool TryGetMember(GetMemberBinder binder, out object? output)
         {
             var result = false;
+            ArgumentNullException.ThrowIfNull(binder);
             var nodes = this.root.Elements(binder.Name).ToArray();
             if (nodes.Length > 1)
             {
@@ -53,6 +54,8 @@ namespace HandStack.Core.ExpandObjects.DataObject
             var result = false;
             try
             {
+                ArgumentNullException.ThrowIfNull(binder);
+
                 output = Convert.ChangeType(this.root.Value, binder.Type);
                 result = true;
             }

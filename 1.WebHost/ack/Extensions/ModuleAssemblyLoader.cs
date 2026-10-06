@@ -28,10 +28,7 @@ namespace ack.Extensions
             var probe = probes.First(item => ReferenceEquals(item.Module, module));
             var assemblyName = new AssemblyName(module.ModuleID);
             var path = probe.FindDirectPath(assemblyName);
-            if (path == null)
-            {
-                path = probe.FindFallbackPaths(assemblyName.Name!).FirstOrDefault();
-            }
+            path ??= probe.FindFallbackPaths(assemblyName.Name!).FirstOrDefault();
 
             if (path == null)
             {
@@ -202,7 +199,7 @@ namespace ack.Extensions
                         var name = Path.GetFileNameWithoutExtension(path);
                         if (result.TryGetValue(name, out var paths) == false)
                         {
-                            paths = new List<string>();
+                            paths = [];
                             result.Add(name, paths);
                         }
                         paths.Add(path);

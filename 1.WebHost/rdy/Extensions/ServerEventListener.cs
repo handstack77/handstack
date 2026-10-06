@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.Tracing;
 using System.Threading;
 
@@ -102,10 +103,10 @@ namespace rdy.Extensions
     // https://docs.microsoft.com/ko-kr/dotnet/core/diagnostics/available-counters
     public class ServerEventListener : EventListener
     {
-        private SystemRuntimeCounter systemRuntimeCounter = new SystemRuntimeCounter();
-        private AspNetCoreHostingCounter aspNetCoreHostingCounter = new AspNetCoreHostingCounter();
-        private AspNetCoreServerKestrelCounter aspNetCoreServerKestrelCounter = new AspNetCoreServerKestrelCounter();
-        private SystemNetSocketCounter systemNetSocketCounter = new SystemNetSocketCounter();
+        private readonly SystemRuntimeCounter systemRuntimeCounter = new();
+        private readonly AspNetCoreHostingCounter aspNetCoreHostingCounter = new();
+        private readonly AspNetCoreServerKestrelCounter aspNetCoreServerKestrelCounter = new();
+        private readonly SystemNetSocketCounter systemNetSocketCounter = new();
 
         private const string collectionSystemRuntime = "System.Runtime";
         private const string collectionAspNetCoreHosting = "Microsoft.AspNetCore.Hosting";
@@ -181,6 +182,8 @@ namespace rdy.Extensions
 
         protected override void OnEventSourceCreated(EventSource source)
         {
+            ArgumentNullException.ThrowIfNull(source);
+
             if (source.Name == collectionSystemRuntime
                 || source.Name == collectionAspNetCoreHosting
                 || source.Name == collectionAspNetCoreServerKestrel
@@ -197,6 +200,8 @@ namespace rdy.Extensions
         // https://docs.microsoft.com/ko-kr/dotnet/core/diagnostics/available-counters
         protected override void OnEventWritten(EventWrittenEventArgs eventData)
         {
+            ArgumentNullException.ThrowIfNull(eventData);
+
             if (eventData.Payload != null && eventData.Payload.Count > 0 && eventData.Payload[0] is IDictionary<string, object> payload)
             {
                 var payloadName = (string)payload["Name"];
@@ -322,9 +327,10 @@ namespace rdy.Extensions
 
         protected dynamic GetRelevantMetric(IDictionary<string, object> eventPayload, string metricName = "Mean")
         {
-            object? result = null;
 
-            if (eventPayload.TryGetValue(metricName, out result) == false)
+            ArgumentNullException.ThrowIfNull(eventPayload);
+
+            if (eventPayload.TryGetValue(metricName, out var result) == false)
             {
                 result = null;
             }

@@ -47,9 +47,9 @@ namespace HandStack.Web.MessageContract.DataObject
         [JsonProperty]
         public string FallbackTransactionCommand { get; set; } = "";
         [JsonProperty]
-        public List<ModuleParameterMap> ModuleParameters { get; set; } = new List<ModuleParameterMap>();
+        public List<ModuleParameterMap> ModuleParameters { get; set; } = [];
         [JsonProperty]
-        public List<string> OutputMetas { get; set; } = new List<string>();
+        public List<string> OutputMetas { get; set; } = [];
         [JsonProperty]
         public DateTime? ModifiedAt { get; set; } = null;
     }

@@ -13,6 +13,8 @@ namespace deploy.Controllers
     {
         protected ActionResult ToOperationResult(OperationResult result)
         {
+            ArgumentNullException.ThrowIfNull(result);
+
             if (result.Success == true)
             {
                 return Ok(result);

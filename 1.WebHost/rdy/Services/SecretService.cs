@@ -24,13 +24,15 @@ namespace rdy.Services
     {
         public ManagementHostInfo ManagementHost { get; set; } = new("", "", "", "");
 
-        public Dictionary<string, List<KeyItem>> Secrets { get; set; } = new();
+        public Dictionary<string, List<KeyItem>> Secrets { get; set; } = [];
     }
 
     public record ClientInfo(string MachineID, string IpAddress, string HostName, string Environment)
     {
         public static bool TryGetFromHeaders(IHeaderDictionary headers, out ClientInfo? clientInfo)
         {
+            ArgumentNullException.ThrowIfNull(headers);
+
             var machineID = headers["HandStack-MachineID"].FirstOrDefault();
             var ipAddress = headers["HandStack-IP"].FirstOrDefault();
             var hostName = headers["HandStack-HostName"].FirstOrDefault();
@@ -121,6 +123,8 @@ namespace rdy.Services
                 await fileLock.WaitAsync();
                 try
                 {
+                    ArgumentNullException.ThrowIfNull(client);
+
                     var rule = FindMatchingRule(client);
                     if (rule == null)
                     {
@@ -183,12 +187,15 @@ namespace rdy.Services
             await fileLock.WaitAsync();
             try
             {
+                ArgumentNullException.ThrowIfNull(client);
+
                 var rule = FindMatchingRule(client);
                 if (rule == null)
                 {
                     return (false, "키를 추가할 일치하는 규칙을 찾을 수 없습니다.");
                 }
 
+                ArgumentNullException.ThrowIfNull(newKey);
                 newKey.CreatedAt = DateTime.Now;
 
                 if (secretData.Secrets.TryGetValue(rule, out var keyList) == false)
@@ -229,6 +236,8 @@ namespace rdy.Services
             await fileLock.WaitAsync();
             try
             {
+                ArgumentNullException.ThrowIfNull(client);
+
                 var rule = FindMatchingRule(client);
                 if (rule == null)
                 {
@@ -300,6 +309,7 @@ namespace rdy.Services
             }
 
             var managementHost = secretData.ManagementHost;
+            ArgumentNullException.ThrowIfNull(client);
             bool machineIDMatch = managementHost.MachineID == client.MachineID || managementHost.MachineID == "*";
             bool ipMatch = managementHost.IpAddress == client.IpAddress || managementHost.IpAddress == "*";
             bool hostNameMatch = managementHost.HostName == client.HostName || managementHost.HostName == "*";

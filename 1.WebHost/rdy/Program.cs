@@ -15,15 +15,11 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-
-using rdy.Updates;
-
 using HandStack.Core.ExtensionMethod;
 using HandStack.Core.Helpers;
 using HandStack.Web;
-
 using Microsoft.Extensions.Configuration;
-
+using rdy.Updates;
 using Serilog;
 
 namespace rdy
@@ -32,7 +28,7 @@ namespace rdy
     {
         private static volatile bool isLogFlushed;
         private static System.Timers.Timer? startupAwaitTimer;
-        private static readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        private static readonly CancellationTokenSource cancellationTokenSource = new();
 
         public static async Task<int> Main(string[] args)
         {
@@ -127,7 +123,7 @@ namespace rdy
                 var pname = parseResult.GetValue(optionProcessName);
                 var env = parseResult.GetValue(optionEnv);
 
-                await DebuggerAttach(args, debug, delay);
+                await DebuggerAttach(debug, delay);
 
                 try
                 {
@@ -400,8 +396,7 @@ namespace rdy
                 using (Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, 0))
                 {
                     socket.Connect("8.8.8.8", 65530);
-                    var endPoint = socket.LocalEndPoint as IPEndPoint;
-                    if (endPoint != null)
+                    if (socket.LocalEndPoint is IPEndPoint endPoint)
                     {
                         return endPoint.Address.ToString();
                     }
@@ -440,7 +435,7 @@ namespace rdy
             Console.WriteLine("처리 되지 않은 오류가 발생했습니다: " + exception.Message);
         }
 
-        private static async Task DebuggerAttach(string[] args, bool? debug, int? delay)
+        private static async Task DebuggerAttach(bool? debug, int? delay)
         {
             if (debug != null && debug == true)
             {

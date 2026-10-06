@@ -95,7 +95,7 @@ namespace checkup
                             GlobalConfiguration.ModuleConfigurationUrl.Add(moduleConfig.ModuleConfigurationUrl);
                         }
 
-                        ModuleConfiguration.AllowClientIP = (moduleConfig.AllowClientIP ?? new List<string>() { "*" })
+                        ModuleConfiguration.AllowClientIP = (moduleConfig.AllowClientIP ?? ["*"])
                             .Where(p => string.IsNullOrWhiteSpace(p) == false)
                             .Select(p => p.Trim())
                             .Distinct(StringComparer.OrdinalIgnoreCase)
@@ -450,7 +450,7 @@ namespace checkup
 
     internal class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
             Console.WriteLine("checkup");
         }

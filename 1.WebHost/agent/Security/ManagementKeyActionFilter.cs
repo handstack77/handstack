@@ -10,19 +10,15 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace agent.Security
 {
-    public sealed class ManagementKeyActionFilter : IAsyncActionFilter
+    public sealed class ManagementKeyActionFilter(ManagementKeyValidator validator, ITargetAuditLogger auditLogger) : IAsyncActionFilter
     {
-        private readonly ManagementKeyValidator validator;
-        private readonly ITargetAuditLogger auditLogger;
-
-        public ManagementKeyActionFilter(ManagementKeyValidator validator, ITargetAuditLogger auditLogger)
-        {
-            this.validator = validator;
-            this.auditLogger = auditLogger;
-        }
+        private readonly ManagementKeyValidator validator = validator;
+        private readonly ITargetAuditLogger auditLogger = auditLogger;
 
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
+            ArgumentNullException.ThrowIfNull(context);
+
             var request = context.HttpContext.Request;
             var headerName = validator.ManagementHeaderName;
 
@@ -41,6 +37,7 @@ namespace agent.Security
                 return;
             }
 
+            ArgumentNullException.ThrowIfNull(next);
             await next();
         }
 

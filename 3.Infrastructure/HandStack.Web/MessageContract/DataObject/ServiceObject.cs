@@ -11,7 +11,7 @@ namespace HandStack.Web.MessageContract.DataObject
             ReturnType = "";
             ClientTag = "";
             DateTimeTicks = "";
-            NameValues = new List<TransactField>();
+            NameValues = [];
         }
 
         public string RequestID { get; set; }

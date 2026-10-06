@@ -20,7 +20,7 @@ namespace logger.Entity
 {
     public static class ModuleConfiguration
     {
-        private static readonly object lockObject = new object();
+        private static readonly object lockObject = new();
         public static bool IsConfigure = false;
         public static string ModuleID = "logger";
         public static string Version = "";
@@ -32,8 +32,8 @@ namespace logger.Entity
         public static int LogDeleteRepeatSecond = 43200;
         public static int CircuitBreakResetSecond = 30;
         public static bool IsApiFindServer = false;
-        public static List<DataSource> DataSource = new List<DataSource>();
-        public static Dictionary<string, ApplicationCircuitBreakerPolicy> ApplicationIDCircuitBreakers = new Dictionary<string, ApplicationCircuitBreakerPolicy>();
+        public static List<DataSource> DataSource = [];
+        public static Dictionary<string, ApplicationCircuitBreakerPolicy> ApplicationIDCircuitBreakers = [];
 
         public static DataSource? CheckSQLiteCreate(string applicationID)
         {
@@ -100,21 +100,23 @@ namespace logger.Entity
 
                             if (ApplicationIDCircuitBreakers.ContainsKey(applicationID) == false)
                             {
-                                var applicationCircuitBreakerPolicy = new ApplicationCircuitBreakerPolicy();
-                                applicationCircuitBreakerPolicy.ApplicationCircuitBreaker = Policy
-                                    .Handle<SqlException>()
-                                    .Or<Exception>()
-                                    .CircuitBreaker(1, TimeSpan.FromSeconds(CircuitBreakResetSecond), onBreak: (exception, timespan, context) =>
-                                    {
-                                        Log.Error(exception, $"CircuitBreaker Reason: {exception.Message}");
-                                    },
-                                    onReset: (context) =>
-                                    {
-                                        Log.Information($"CircuitBreaker 복구, DateTime={DateTime.Now}");
-                                    });
+                                var applicationCircuitBreakerPolicy = new ApplicationCircuitBreakerPolicy
+                                {
+                                    ApplicationCircuitBreaker = Policy
+                                        .Handle<SqlException>()
+                                        .Or<Exception>()
+                                        .CircuitBreaker(1, TimeSpan.FromSeconds(CircuitBreakResetSecond), onBreak: (exception, timespan, context) =>
+                                        {
+                                            Log.Error(exception, $"CircuitBreaker Reason: {exception.Message}");
+                                        },
+                                        onReset: (context) =>
+                                        {
+                                            Log.Information($"CircuitBreaker 복구, DateTime={DateTime.Now}");
+                                        }),
 
-                                applicationCircuitBreakerPolicy.ApplicationCircuitState = CircuitState.Closed;
-                                applicationCircuitBreakerPolicy.BreakDateTime = null;
+                                    ApplicationCircuitState = CircuitState.Closed,
+                                    BreakDateTime = null
+                                };
 
                                 ApplicationIDCircuitBreakers.TryAdd(applicationID, applicationCircuitBreakerPolicy);
                             }
@@ -135,7 +137,7 @@ namespace logger.Entity
         private static bool CreateNotExistTable(string connectionString, string tableName)
         {
             var result = false;
-            var dataProvider = (DataProviders)Enum.Parse(typeof(DataProviders), "SQLite");
+            var dataProvider = Enum.Parse<DataProviders>("SQLite");
             var commandText = $"SELECT COUNT(*) AS IsExists FROM sqlite_master WHERE type='table' AND name ='{tableName}';";
             using (var databaseFactory = new DatabaseFactory(connectionString, dataProvider))
             {

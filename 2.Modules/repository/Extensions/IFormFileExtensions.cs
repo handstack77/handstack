@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Http;
@@ -10,12 +11,15 @@ namespace repository.Extensions
     {
         public static string GetFileName(this IFormFile file)
         {
+            ArgumentNullException.ThrowIfNull(file);
+
             return ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.ToString().Trim('"');
         }
 
         public static async Task<MemoryStream> GetFileStream(this IFormFile file)
         {
             using var filestream = new MemoryStream();
+            ArgumentNullException.ThrowIfNull(file);
             await file.CopyToAsync(filestream);
             return filestream;
         }
@@ -23,6 +27,7 @@ namespace repository.Extensions
         public static async Task<byte[]> GetFileArray(this IFormFile file)
         {
             using var filestream = new MemoryStream();
+            ArgumentNullException.ThrowIfNull(file);
             await file.CopyToAsync(filestream);
             return filestream.ToArray();
         }

@@ -1,4 +1,5 @@
-﻿using Org.BouncyCastle.Crypto;
+﻿using System;
+using Org.BouncyCastle.Crypto;
 
 namespace HandStack.Core.Licensing.Security.Cryptography
 {
@@ -14,6 +15,8 @@ namespace HandStack.Core.Licensing.Security.Cryptography
 
         public string ToEncryptedPrivateKeyString(string passPhrase)
         {
+            ArgumentNullException.ThrowIfNull(passPhrase);
+
             return KeyFactory.ToEncryptedPrivateKeyString(keyPair.Private, passPhrase);
         }
 

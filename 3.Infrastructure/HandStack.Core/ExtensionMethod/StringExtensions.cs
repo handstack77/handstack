@@ -14,19 +14,32 @@ using System.Xml.Serialization;
 
 namespace HandStack.Core.ExtensionMethod
 {
-    public static class StringExtensions
+    public static partial class StringExtensions
     {
         private const string BaseChars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-        private static class DefaultValuePatterns
+        private static partial class DefaultValuePatterns
         {
             private const string BearerPattern = @"(?<token>\$[\p{L}_][\p{L}\p{N}_.-]*)";
             private const string DefaultPattern = @"@(?<name>MinuteAdd|HourAdd|WeekAdd|MonthAdd|YearAdd|DateAdd|StartDateOfWeek|EndDateOfWeek|StartDateOfMonth|EndDateOfMonth|StartDateOfQuarter|EndDateOfQuarter|TimeSecond|Date|Now|Time|SUID|GUID)(?:\((?<args>[^)]*)\))?";
-            internal static readonly Regex Bearer = new(BearerPattern, RegexOptions.CultureInvariant);
-            internal static readonly Regex PrefixedBearer = new(@"(?<==)" + BearerPattern, RegexOptions.CultureInvariant);
-            internal static readonly Regex Default = new(DefaultPattern, RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-            internal static readonly Regex PrefixedDefault = new(@"(?<==)" + DefaultPattern, RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-            internal static readonly Regex Resolved = new(@"\$\{(?<name>[\p{L}_][\p{L}\p{N}_.-]*)\}", RegexOptions.CultureInvariant);
+            internal static readonly Regex Bearer = BearerRegex();
+            internal static readonly Regex PrefixedBearer = MyRegex();
+            internal static readonly Regex Default = MyRegex1();
+            internal static readonly Regex PrefixedDefault = PrefixedDefaultRegex();
+            internal static readonly Regex Resolved = ResolvedRegex();
+
+            [GeneratedRegex(@"\$\{(?<name>[\p{L}_][\p{L}\p{N}_.-]*)\}", RegexOptions.CultureInvariant)]
+            private static partial Regex ResolvedRegex();
+
+            [GeneratedRegex(@"(?<==)" + DefaultPattern, RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
+            private static partial Regex PrefixedDefaultRegex();
+
+            [GeneratedRegex(BearerPattern, RegexOptions.CultureInvariant)]
+            private static partial Regex BearerRegex();
+            [GeneratedRegex(@"(?<==)(?<token>\$[\p{L}_][\p{L}\p{N}_.-]*)", RegexOptions.CultureInvariant)]
+            private static partial Regex MyRegex();
+            [GeneratedRegex(DefaultPattern, RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
+            private static partial Regex MyRegex1();
         }
 
         public static string DateConvert(object inputValue, char operationType)
@@ -180,7 +193,7 @@ namespace HandStack.Core.ExtensionMethod
                 return @this;
             }
 
-            resolvedDefaultValues ??= new Dictionary<string, string>();
+            resolvedDefaultValues ??= [];
             var defaultValueTokenRegex = DefaultValuePatterns.Resolved;
             return defaultValueTokenRegex.Replace(@this, match => resolvedDefaultValues.TryGetValue(match.Groups["name"].Value, out var value) == true ? value : string.Empty);
         }
@@ -352,7 +365,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static byte[] ToByte(this string @this, Encoding encoding)
         {
-            encoding = (encoding ?? Encoding.UTF8);
+            encoding ??= Encoding.UTF8;
             return encoding.GetBytes(@this);
         }
 
@@ -386,6 +399,7 @@ namespace HandStack.Core.ExtensionMethod
         public static string ToBetween(this string @this, char startChar, char endChar)
         {
             var Result = "";
+            ArgumentNullException.ThrowIfNull(@this);
             var StartIndex = @this.IndexOf(startChar);
 
             if (StartIndex != -1)
@@ -394,7 +408,7 @@ namespace HandStack.Core.ExtensionMethod
                 var EndIndex = @this.IndexOf(endChar, StartIndex);
                 if (EndIndex != -1)
                 {
-                    Result = @this.Substring(StartIndex, EndIndex - StartIndex);
+                    Result = @this[StartIndex..EndIndex];
                 }
             }
 
@@ -404,6 +418,7 @@ namespace HandStack.Core.ExtensionMethod
         public static int Count(this string @this, char searchChar)
         {
             var Result = 0;
+            ArgumentNullException.ThrowIfNull(@this);
             foreach (var CharValue in @this)
             {
                 if (CharValue == searchChar)
@@ -449,7 +464,7 @@ namespace HandStack.Core.ExtensionMethod
 
             if (isText == false)
             {
-                return @this.Substring(0, length);
+                return @this[..length];
             }
             else
             {
@@ -474,7 +489,7 @@ namespace HandStack.Core.ExtensionMethod
                 return @this;
             }
 
-            return @this.Substring(@this.Length - length);
+            return @this[^length..];
         }
 
         public static bool IsMatch(this string @this, string regexPattern)
@@ -484,6 +499,9 @@ namespace HandStack.Core.ExtensionMethod
 
         public static string[] Split(this string @this, string separator)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+            ArgumentNullException.ThrowIfNull(separator);
+
             return @this.Split(separator.ToCharArray());
         }
 
@@ -494,12 +512,14 @@ namespace HandStack.Core.ExtensionMethod
 
         public static byte[] ToBytes(this string @this, Encoding encoding)
         {
-            encoding = (encoding ?? Encoding.UTF8);
+            encoding ??= Encoding.UTF8;
             return encoding.GetBytes(@this);
         }
 
         public static byte[] HexToBytes(this string hex)
         {
+            ArgumentNullException.ThrowIfNull(hex);
+
             var bytes = new byte[hex.Length / 2];
             for (var i = 0; i < hex.Length / 2; i++)
             {
@@ -513,6 +533,8 @@ namespace HandStack.Core.ExtensionMethod
         {
             var list = new List<string>();
 
+            ArgumentNullException.ThrowIfNull(@this);
+            ArgumentNullException.ThrowIfNull(separator);
             foreach (var value in @this.Split(separator.ToCharArray()))
             {
                 list.Add(value.Trim());
@@ -528,7 +550,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static string EncodeBase64(this string @this, Encoding encoding)
         {
-            encoding = (encoding ?? Encoding.UTF8);
+            encoding ??= Encoding.UTF8;
             return Convert.ToBase64String(@this.ToBytes(encoding));
         }
 
@@ -539,7 +561,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static string DecodeBase64(this string @this, Encoding encoding)
         {
-            encoding = (encoding ?? Encoding.UTF8);
+            encoding ??= Encoding.UTF8;
             return encoding.GetString(Convert.FromBase64String(@this));
         }
 
@@ -550,7 +572,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static string EncodeBase64Url(this string @this, Encoding encoding)
         {
-            encoding = (encoding ?? Encoding.UTF8);
+            encoding ??= Encoding.UTF8;
             return WebUtility.UrlEncode(Convert.ToBase64String(@this.ToBytes(encoding)));
         }
 
@@ -561,7 +583,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static string DecodeBase64Url(this string @this, Encoding encoding)
         {
-            encoding = (encoding ?? Encoding.UTF8);
+            encoding ??= Encoding.UTF8;
             return encoding.GetString(Convert.FromBase64String(WebUtility.UrlDecode(@this)));
         }
 
@@ -578,16 +600,14 @@ namespace HandStack.Core.ExtensionMethod
 
         public static DateTime? ParseDateTime(this string @this, DateTime? defaultValue = null, DateTimeStyles dateTimeStyles = DateTimeStyles.None)
         {
-            DateTime? result = null;
-
+            DateTime? result;
             if (string.IsNullOrWhiteSpace(@this))
             {
                 result = defaultValue;
             }
             else
             {
-                DateTime dateTime;
-                var isParse = DateTime.TryParse(@this, out dateTime);
+                var isParse = DateTime.TryParse(@this, out var dateTime);
                 if (isParse == true)
                 {
                     result = dateTime;
@@ -608,8 +628,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static int ParseInt(this string @this, int defaultValue, IFormatProvider numberFormat)
         {
-            var result = defaultValue;
-            return int.TryParse(@this, NumberStyles.Any, numberFormat, out result) == true ? result : defaultValue;
+            return int.TryParse(@this, NumberStyles.Any, numberFormat, out var result) == true ? result : defaultValue;
         }
 
         public static long ParseLong(this string @this, long defaultValue)
@@ -619,8 +638,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static long ParseLong(this string @this, long defaultValue, IFormatProvider numberFormat)
         {
-            var result = defaultValue;
-            return long.TryParse(@this, NumberStyles.Any, numberFormat, out result) == true ? result : defaultValue;
+            return long.TryParse(@this, NumberStyles.Any, numberFormat, out var result) == true ? result : defaultValue;
         }
 
         public static decimal ParseDecimal(this string @this, decimal defaultValue)
@@ -630,8 +648,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static decimal ParseDecimal(this string @this, decimal defaultValue, IFormatProvider numberFormat)
         {
-            var result = defaultValue;
-            return decimal.TryParse(@this, NumberStyles.Any, numberFormat, out result) == true ? result : defaultValue;
+            return decimal.TryParse(@this, NumberStyles.Any, numberFormat, out var result) == true ? result : defaultValue;
         }
 
         public static double ParseDouble(this string @this, double defaultValue)
@@ -641,8 +658,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static double ParseDouble(this string @this, double defaultValue, IFormatProvider numberFormat)
         {
-            var result = defaultValue;
-            return double.TryParse(@this, NumberStyles.Any, numberFormat, out result) == true ? result : defaultValue;
+            return double.TryParse(@this, NumberStyles.Any, numberFormat, out var result) == true ? result : defaultValue;
         }
 
         public static float ParseFloat(this string @this, float defaultValue)
@@ -652,8 +668,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static float ParseFloat(this string @this, float defaultValue, IFormatProvider numberFormat)
         {
-            var result = defaultValue;
-            return float.TryParse(@this, NumberStyles.Any, numberFormat, out result) == true ? result : defaultValue;
+            return float.TryParse(@this, NumberStyles.Any, numberFormat, out var result) == true ? result : defaultValue;
         }
 
         public static string ToNumeric(this string @this)
@@ -687,8 +702,11 @@ namespace HandStack.Core.ExtensionMethod
         {
             var count = 0;
             var i = 0;
+            ArgumentNullException.ThrowIfNull(@this);
             while ((i = @this.IndexOf(pattern, i)) != -1)
             {
+                ArgumentNullException.ThrowIfNull(pattern);
+
                 i += pattern.Length;
                 count++;
             }
@@ -760,9 +778,9 @@ namespace HandStack.Core.ExtensionMethod
         public static string Replace(this string @this, int index, int length, string replacement)
         {
             var builder = new StringBuilder();
-            builder.Append(@this.Substring(0, index));
+            builder.Append(@this[..index]);
             builder.Append(replacement);
-            builder.Append(@this.Substring(index + length));
+            builder.Append(@this[(index + length)..]);
             return builder.ToString();
         }
 
@@ -773,7 +791,7 @@ namespace HandStack.Core.ExtensionMethod
                 return @this;
             }
 
-            return char.ToLowerInvariant(@this[0]) + @this.Substring(1);
+            return char.ToLowerInvariant(@this[0]) + @this[1..];
         }
 
         public static string Format(this string format, object[] args)
@@ -803,16 +821,14 @@ namespace HandStack.Core.ExtensionMethod
 
         public static string ToSHA256(this string @this)
         {
-            using var sha256Hash = SHA256.Create();
-            var bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(@this));
+            var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(@this));
             return Convert.ToHexStringLower(bytes);
         }
 
         public static string ToSHA256(this string @this, Encoding encoding)
         {
-            encoding = (encoding ?? Encoding.UTF8);
-            using var sha256Hash = SHA256.Create();
-            var bytes = sha256Hash.ComputeHash(encoding.GetBytes(@this));
+            encoding ??= Encoding.UTF8;
+            var bytes = SHA256.HashData(encoding.GetBytes(@this));
             return Convert.ToHexStringLower(bytes);
         }
 
@@ -886,16 +902,23 @@ namespace HandStack.Core.ExtensionMethod
                 return @this;
             }
 
+            ArgumentNullException.ThrowIfNull(suffix);
             var strLength = maxLength - suffix.Length;
             return @this.SubstringSafe(0, strLength) + suffix;
         }
 
         public static StringBuilder AppendIf<T>(this StringBuilder @this, Func<T, bool> predicate, params T[] values)
         {
+            ArgumentNullException.ThrowIfNull(values);
+
             foreach (var item in values)
             {
+                ArgumentNullException.ThrowIfNull(predicate);
+
                 if (predicate(item))
                 {
+                    ArgumentNullException.ThrowIfNull(@this);
+
                     @this.Append(item);
                 }
             }
@@ -905,6 +928,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static StringBuilder AppendJoin<T>(this StringBuilder @this, string separator, IEnumerable<T> values)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             @this.Append(string.Join(separator, values));
 
             return @this;
@@ -912,6 +937,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static StringBuilder AppendJoin<T>(this StringBuilder @this, string separator, params T[] values)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             @this.Append(string.Join(separator, values));
 
             return @this;
@@ -919,6 +946,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static StringBuilder AppendLineFormat(this StringBuilder @this, string format, params object[] args)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             @this.AppendLine(string.Format(format, args));
 
             return @this;
@@ -926,6 +955,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static StringBuilder AppendLineFormat(this StringBuilder @this, string format, List<IEnumerable<object>> args)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             @this.AppendLine(string.Format(format, args));
 
             return @this;
@@ -933,6 +964,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static StringBuilder AppendLineJoin<T>(this StringBuilder @this, string separator, IEnumerable<T> values)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             @this.AppendLine(string.Join(separator, values));
 
             return @this;
@@ -940,6 +973,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static StringBuilder AppendLineJoin(this StringBuilder @this, string separator, params object[] values)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             @this.AppendLine(string.Join(separator, values));
 
             return @this;
@@ -947,11 +982,15 @@ namespace HandStack.Core.ExtensionMethod
 
         public static string Substring(this StringBuilder @this, int startIndex)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             return @this.ToString(startIndex, @this.Length - startIndex);
         }
 
         public static string Substring(this StringBuilder @this, int startIndex, int length)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             return @this.ToString(startIndex, length);
         }
 
@@ -967,6 +1006,7 @@ namespace HandStack.Core.ExtensionMethod
         {
             var serializer = new DataContractJsonSerializer(typeof(T));
 
+            ArgumentNullException.ThrowIfNull(encoding);
             using var stream = new MemoryStream(encoding.GetBytes(@this));
             return (T?)serializer.ReadObject(stream);
         }
@@ -1012,26 +1052,12 @@ namespace HandStack.Core.ExtensionMethod
                     }
                     else
                     {
-                        switch (value.ToLower())
+                        result = value.ToLower() switch
                         {
-                            case "yes":
-                            case "true":
-                            case "y":
-                            case "1":
-                                result = true;
-                                break;
-
-                            case "no":
-                            case "false":
-                            case "n":
-                            case "0":
-                                result = false;
-                                break;
-
-                            default:
-                                result = bool.Parse(value);
-                                break;
-                        }
+                            "yes" or "true" or "y" or "1" => true,
+                            "no" or "false" or "n" or "0" => false,
+                            _ => bool.Parse(value),
+                        };
                     }
                 }
                 catch
@@ -1044,6 +1070,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static bool HasEscapeChar(this string @this)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             return @this.Contains("\\n")
                 || @this.Contains("\\r")
                 || @this.Contains("\\\\")
@@ -1057,18 +1085,22 @@ namespace HandStack.Core.ExtensionMethod
         {
             if (string.IsNullOrWhiteSpace(@this))
             {
-                return new List<string>();
+                return [];
             }
 
-            return @this.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+            return @this.Split(',', StringSplitOptions.RemoveEmptyEntries)
                       .Select(s => s.Trim())
                       .ToList();
         }
 
         public static List<string> SplitAndTrim(this string @this, params char[] separators)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             return @this.Trim().Split(separators, StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).ToList();
         }
+
+        private static readonly char[] WordWrapBreakChars = new[] { ' ', ',', '.', '?', '!', ':', ';', '-', '\n', '\r', '\t' };
 
         public static string WordWrap(this string @this, int maxLineLength)
         {
@@ -1078,11 +1110,13 @@ namespace HandStack.Core.ExtensionMethod
             var space = new[] { ' ', '\r', '\n', '\t' };
             do
             {
+                ArgumentNullException.ThrowIfNull(@this);
+
                 i = last + maxLineLength > @this.Length
                     ? @this.Length
-                    : (@this.LastIndexOfAny(new[] { ' ', ',', '.', '?', '!', ':', ';', '-', '\n', '\r', '\t' }, Math.Min(@this.Length - 1, last + maxLineLength)) + 1);
+                    : (@this.LastIndexOfAny(WordWrapBreakChars, Math.Min(@this.Length - 1, last + maxLineLength)) + 1);
                 if (i <= last) i = Math.Min(last + maxLineLength, @this.Length);
-                result.AppendLine(@this.Substring(last, i - last).Trim(space));
+                result.AppendLine(@this[last..i].Trim(space));
                 last = i;
             } while (i < @this.Length);
 
@@ -1095,7 +1129,8 @@ namespace HandStack.Core.ExtensionMethod
             {
                 return @this;
             }
-            return @this.PadLeft(totalWidth, paddingChar).Substring(0, totalWidth);
+            ArgumentNullException.ThrowIfNull(@this);
+            return @this.PadLeft(totalWidth, paddingChar)[..totalWidth];
         }
 
         public static string PaddingRight(this string @this, int totalWidth, char paddingChar = ' ')
@@ -1104,15 +1139,18 @@ namespace HandStack.Core.ExtensionMethod
             {
                 return @this;
             }
-            return @this.PadRight(totalWidth, paddingChar).Substring(0, totalWidth);
+            ArgumentNullException.ThrowIfNull(@this);
+            return @this.PadRight(totalWidth, paddingChar)[..totalWidth];
         }
 
         public static string NormalizeKey(this string @this)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             if (@this.Length == 32) return @this;
-            if (@this.Length == 64 && Regex.IsMatch(@this, "^[0-9a-fA-F]{64}$"))
+            if (@this.Length == 64 && MyRegex().IsMatch(@this))
             {
-                return @this.Substring(0, 32);
+                return @this[..32];
             }
             if (@this.Length < 32)
             {
@@ -1120,7 +1158,7 @@ namespace HandStack.Core.ExtensionMethod
             }
 
             var hex = @this.ToSHA256();
-            return hex.Substring(0, 32);
+            return hex[..32];
         }
 
         public static string SubstringSafe(this string? @this, int startIndex)
@@ -1130,7 +1168,7 @@ namespace HandStack.Core.ExtensionMethod
                 return "";
             }
 
-            return @this.Substring(startIndex);
+            return @this[startIndex..];
         }
 
         public static string SubstringSafe(this string? @this, int startIndex, int length)
@@ -1147,6 +1185,9 @@ namespace HandStack.Core.ExtensionMethod
         {
             return DateTime.TryParse(@this, out var result) == true ? result : defaultValue;
         }
+
+        [GeneratedRegex("^[0-9a-fA-F]{64}$")]
+        private static partial Regex MyRegex();
     }
 }
 

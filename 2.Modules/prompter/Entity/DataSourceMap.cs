@@ -35,7 +35,7 @@ namespace prompter.Entity
         public DataSourceMap()
         {
             ApplicationID = "";
-            ProjectListID = new List<string>();
+            ProjectListID = [];
             LLMProvider = LLMProviders.OpenAI;
             ModelID = "";
             ApiKey = "";

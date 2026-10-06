@@ -16,6 +16,7 @@ namespace HandStack.Core.ExtensionMethod
                 fileInfo.Directory?.Create();
             }
 
+            ArgumentNullException.ThrowIfNull(@this);
             @this.WriteXmlSchema(schemaPath);
         }
 
@@ -27,6 +28,7 @@ namespace HandStack.Core.ExtensionMethod
                 fileInfo.Directory?.Create();
             }
 
+            ArgumentNullException.ThrowIfNull(@this);
             @this.WriteXml(filePath, XmlWriteMode.WriteSchema);
         }
 
@@ -38,6 +40,7 @@ namespace HandStack.Core.ExtensionMethod
                 fileInfo.Directory?.Create();
             }
 
+            ArgumentNullException.ThrowIfNull(@this);
             @this.ReadXmlSchema(schemaPath);
         }
 
@@ -49,11 +52,14 @@ namespace HandStack.Core.ExtensionMethod
                 fileInfo.Directory?.Create();
             }
 
+            ArgumentNullException.ThrowIfNull(@this);
             @this.ReadXml(filePath);
         }
 
         public static void BuildExceptionData(this DataSet @this, string error = "N", string level = "Information", string message = "", string? typeMember = "", string? stackTrace = "")
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             @this.Tables.Clear();
 
             var builder = new DataTableHelper("ExceptionData");
@@ -79,6 +85,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static void BuildExceptionData(this DataSet @this, Exception exception, string? typeMember = "")
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             @this.Tables.Clear();
 
             var builder = new DataTableHelper("ExceptionData");
@@ -91,6 +99,7 @@ namespace HandStack.Core.ExtensionMethod
             builder.NewRow();
             builder.SetValue(0, "Error", "Y");
             builder.SetValue(0, "Level", "Error");
+            ArgumentNullException.ThrowIfNull(exception);
             builder.SetValue(0, "Message", exception.Message);
             builder.SetValue(0, "StackTrace", exception.StackTrace.ToStringSafe());
             builder.SetValue(0, "TypeMember", $"{exception.GetType().ToStringSafe()}, typeMember: {typeMember}");

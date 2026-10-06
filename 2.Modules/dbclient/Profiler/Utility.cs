@@ -53,9 +53,8 @@ namespace dbclient.Profiler
                 providerFactories.GetField("_providerTable", BindingFlags.NonPublic | BindingFlags.Static);
             var registrations = providerField?.GetValue(providerFactories);
 
-            var set = registrations as DataSet;
 
-            return set != null ? set.Tables["DbProviderFactories"] : registrations as DataTable;
+            return registrations is DataSet set ? set.Tables["DbProviderFactories"] : registrations as DataTable;
         }
     }
 }

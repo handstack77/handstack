@@ -14,8 +14,8 @@
 
         public override bool Validate(EntityObject businessObject)
         {
-            var result = false;
             var value = GetPropertyValue(businessObject);
+            bool result;
             if (value == null)
             {
                 result = false;

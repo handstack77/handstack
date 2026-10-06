@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace HandStack.Data.SqlFormatter.Core
 {
-    internal sealed class Indentation
+    internal sealed class Indentation(TextIndentation indentation)
     {
         private enum IndentationType
         {
@@ -12,12 +12,7 @@ namespace HandStack.Data.SqlFormatter.Core
         }
 
         private readonly Stack<IndentationType> indentationTypes = new();
-        private readonly TextIndentation indentation;
-
-        public Indentation(TextIndentation indentation)
-        {
-            this.indentation = indentation;
-        }
+        private readonly TextIndentation indentation = indentation;
 
         internal string GetIndent()
         {

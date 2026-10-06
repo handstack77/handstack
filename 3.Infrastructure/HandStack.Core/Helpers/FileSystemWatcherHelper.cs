@@ -47,6 +47,8 @@ namespace HandStack.Core.Helpers
 
         public FileSystemWatcherHelper(Action<FileSystemWatcher> configure) : this(new FileSystemWatcher())
         {
+            ArgumentNullException.ThrowIfNull(configure);
+
             configure(Watcher);
         }
 
@@ -63,6 +65,7 @@ namespace HandStack.Core.Helpers
         public void Dispose()
         {
             Watcher.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }

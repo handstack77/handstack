@@ -42,7 +42,7 @@ namespace HandStack.Core.Helpers
             var type = typeof(T?);
             if (type.IsEnum == false)
             {
-                return default(T);
+                return default;
             }
 
             var fields = type.GetFields();
@@ -50,7 +50,7 @@ namespace HandStack.Core.Helpers
                 .Where(a => ((DescriptionAttribute)a.Att)
                 .Description == description).SingleOrDefault();
 
-            return field == null ? default(T) : (T?)field.Field.GetRawConstantValue();
+            return field == null ? default : (T?)field.Field.GetRawConstantValue();
         }
 
         public static string? GetEnumDescriptionFromInt<T>(int value)
@@ -70,7 +70,7 @@ namespace HandStack.Core.Helpers
             var type = typeof(T);
             if (type.IsEnum == false)
             {
-                return default(T);
+                return default;
             }
 
             return (T)Enum.ToObject(type, value);
@@ -81,7 +81,7 @@ namespace HandStack.Core.Helpers
             var type = typeof(T);
             if (type.IsEnum == false)
             {
-                return new List<T>();
+                return [];
             }
 
             var values = new List<T>();
@@ -98,7 +98,7 @@ namespace HandStack.Core.Helpers
             var type = typeof(T);
             if (type.IsEnum == false)
             {
-                return new List<string>();
+                return [];
             }
 
             var descriptions = new List<string>();

@@ -16,38 +16,26 @@ using Newtonsoft.Json;
 
 namespace graphclient.Events
 {
-    public class GraphClientRequest : IRequest<object?>
+    public class GraphClientRequest(object? request) : IRequest<object?>
     {
-        public GraphClientRequest(object? request)
-        {
-            Request = request;
-        }
-
-        public object? Request { get; }
+        public object? Request { get; } = request;
     }
 
-    public class GraphClientRequestHandler : IRequestHandler<GraphClientRequest, object?>
+    public class GraphClientRequestHandler(Serilog.ILogger logger, IGraphDataClient dataClient, GraphClientLoggerClient loggerClient) : IRequestHandler<GraphClientRequest, object?>
     {
-        private readonly GraphClientLoggerClient loggerClient;
-        private readonly Serilog.ILogger logger;
-        private readonly IGraphDataClient dataClient;
-
-        public GraphClientRequestHandler(Serilog.ILogger logger, IGraphDataClient dataClient, GraphClientLoggerClient loggerClient)
-        {
-            this.logger = logger;
-            this.dataClient = dataClient;
-            this.loggerClient = loggerClient;
-        }
+        private readonly GraphClientLoggerClient loggerClient = loggerClient;
+        private readonly Serilog.ILogger logger = logger;
+        private readonly IGraphDataClient dataClient = dataClient;
 
         public async ValueTask<object?> Handle(GraphClientRequest requestQueryData, CancellationToken cancellationToken)
         {
-            var request = requestQueryData.Request as DynamicRequest;
             var response = new DynamicResponse()
             {
                 Acknowledge = AcknowledgeType.Failure
             };
 
-            if (request == null)
+            ArgumentNullException.ThrowIfNull(requestQueryData);
+            if (requestQueryData.Request is not DynamicRequest request)
             {
                 response.ExceptionText = "빈 요청. 요청 정보 확인 필요";
                 return response;

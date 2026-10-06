@@ -28,8 +28,8 @@ namespace function.Extensions
 {
     public static class FunctionMapper
     {
-        public static ExpiringDictionary<string, ModuleSourceMap> FunctionSourceMappings = new ExpiringDictionary<string, ModuleSourceMap>();
-        public static ExpiringDictionary<string, ModuleScriptMap> ScriptMappings = new ExpiringDictionary<string, ModuleScriptMap>();
+        public static ExpiringDictionary<string, ModuleSourceMap> FunctionSourceMappings = [];
+        public static ExpiringDictionary<string, ModuleScriptMap> ScriptMappings = [];
 
         static FunctionMapper()
         {
@@ -85,11 +85,13 @@ namespace function.Extensions
                                         {
                                             if (FunctionSourceMappings.ContainsKey(functionSourceMappingsKey) == false)
                                             {
-                                                var moduleSourceMap = new ModuleSourceMap();
-                                                moduleSourceMap.ProjectListID = projects;
-                                                moduleSourceMap.DataSourceID = dataSourceID;
-                                                moduleSourceMap.DataProvider = (DataProviders)Enum.Parse(typeof(DataProviders), dataProvider);
-                                                moduleSourceMap.ConnectionString = connectionString;
+                                                var moduleSourceMap = new ModuleSourceMap
+                                                {
+                                                    ProjectListID = projects,
+                                                    DataSourceID = dataSourceID,
+                                                    DataProvider = Enum.Parse<DataProviders>(dataProvider),
+                                                    ConnectionString = connectionString
+                                                };
                                                 if (moduleSourceMap.IsEncryption.ParseBool() == true)
                                                 {
                                                     moduleSourceMap.ConnectionString = DecryptConnectionString(moduleSourceMap);
@@ -136,6 +138,8 @@ namespace function.Extensions
 
                 if (result == null)
                 {
+                    ArgumentNullException.ThrowIfNull(queryID);
+
                     var itemKeys = queryID.Split("|");
                     var applicationID = itemKeys[0];
                     var projectID = itemKeys[1];
@@ -351,15 +355,17 @@ namespace function.Extensions
                         {
                             if (header.Use == true)
                             {
-                                var moduleScriptMap = new ModuleScriptMap();
-                                moduleScriptMap.ApplicationID = header.ApplicationID;
-                                moduleScriptMap.ProjectID = header.ProjectID;
-                                moduleScriptMap.TransactionID = header.TransactionID;
-                                moduleScriptMap.ScriptID = item.ID + item.Seq.ToString().PadLeft(2, '0');
-                                moduleScriptMap.ExportName = item.ID;
-                                moduleScriptMap.Seq = item.Seq;
-                                moduleScriptMap.IsHttpContext = header.IsHttpContext;
-                                moduleScriptMap.ReferenceModuleID = header.ReferenceModuleID;
+                                var moduleScriptMap = new ModuleScriptMap
+                                {
+                                    ApplicationID = header.ApplicationID,
+                                    ProjectID = header.ProjectID,
+                                    TransactionID = header.TransactionID,
+                                    ScriptID = item.ID + item.Seq.ToString().PadLeft(2, '0'),
+                                    ExportName = item.ID,
+                                    Seq = item.Seq,
+                                    IsHttpContext = header.IsHttpContext,
+                                    ReferenceModuleID = header.ReferenceModuleID
+                                };
 
                                 if (string.IsNullOrWhiteSpace(item.EntryType))
                                 {
@@ -387,9 +393,9 @@ namespace function.Extensions
                                 moduleScriptMap.AfterTransactionCommand = item.AfterTransaction;
                                 moduleScriptMap.FallbackTransactionCommand = item.FallbackTransaction;
                                 moduleScriptMap.Description = item.Description;
-                                moduleScriptMap.OutputMetas = new List<string>(item.OutputMetas);
+                                moduleScriptMap.OutputMetas = [.. item.OutputMetas];
 
-                                moduleScriptMap.ModuleParameters = new List<ModuleParameterMap>();
+                                moduleScriptMap.ModuleParameters = [];
                                 var functionParams = item.Params;
                                 if (functionParams != null && functionParams.Count > 0)
                                 {
@@ -483,7 +489,6 @@ namespace function.Extensions
 
         public static bool HasScript(string applicationID, string projectID, string transactionID, string scriptID)
         {
-            var result = false;
             var queryID = string.Concat(
                 applicationID, "|",
                 projectID, "|",
@@ -491,13 +496,15 @@ namespace function.Extensions
                 scriptID
             );
 
-            result = ScriptMappings.ContainsKey(queryID);
+            var result = ScriptMappings.ContainsKey(queryID);
 
             return result;
         }
 
         public static bool AddScriptMap(string scriptFilePath, bool forceUpdate, ILogger logger)
         {
+            ArgumentNullException.ThrowIfNull(logger);
+
             var result = false;
 
             try
@@ -505,11 +512,13 @@ namespace function.Extensions
                 // Path.IsPathRooted 는 Windows 에서 드라이브 문자가 없는 "/HDS/.../*.fnc" 형태의 상대 경로도 true 를 반환하므로
                 // (File.Exists 가 현재 드라이브 루트 기준으로 조회되어 항상 실패함), 실제 절대 경로 여부는 IsPathFullyQualified 로 판별한다.
                 var scriptMapFiles = Path.IsPathFullyQualified(scriptFilePath) == true
-                    ? new List<string> { scriptFilePath }
+                    ? [scriptFilePath]
                     : ModuleConfiguration.ContractBasePath.Select(basePath => PathExtensions.Join(basePath, scriptFilePath)).ToList();
 
                 foreach (var scriptMapFile in scriptMapFiles)
                 {
+                    ArgumentNullException.ThrowIfNull(scriptFilePath);
+
                     if (scriptFilePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true && GlobalConfiguration.IsTenantFunction == false)
                     {
                         return result;
@@ -620,15 +629,17 @@ namespace function.Extensions
                             {
                                 if (header.Use == true)
                                 {
-                                    var moduleScriptMap = new ModuleScriptMap();
-                                    moduleScriptMap.ApplicationID = header.ApplicationID;
-                                    moduleScriptMap.ProjectID = header.ProjectID;
-                                    moduleScriptMap.TransactionID = header.TransactionID;
-                                    moduleScriptMap.ScriptID = item.ID + item.Seq.ToString().PadLeft(2, '0');
-                                    moduleScriptMap.ExportName = item.ID;
-                                    moduleScriptMap.Seq = item.Seq;
-                                    moduleScriptMap.IsHttpContext = header.IsHttpContext;
-                                    moduleScriptMap.ReferenceModuleID = header.ReferenceModuleID;
+                                    var moduleScriptMap = new ModuleScriptMap
+                                    {
+                                        ApplicationID = header.ApplicationID,
+                                        ProjectID = header.ProjectID,
+                                        TransactionID = header.TransactionID,
+                                        ScriptID = item.ID + item.Seq.ToString().PadLeft(2, '0'),
+                                        ExportName = item.ID,
+                                        Seq = item.Seq,
+                                        IsHttpContext = header.IsHttpContext,
+                                        ReferenceModuleID = header.ReferenceModuleID
+                                    };
 
                                     if (string.IsNullOrWhiteSpace(item.EntryType))
                                     {
@@ -656,9 +667,9 @@ namespace function.Extensions
                                     moduleScriptMap.AfterTransactionCommand = item.AfterTransaction;
                                     moduleScriptMap.FallbackTransactionCommand = item.FallbackTransaction;
                                     moduleScriptMap.Description = item.Description;
-                                    moduleScriptMap.OutputMetas = new List<string>(item.OutputMetas);
+                                    moduleScriptMap.OutputMetas = [.. item.OutputMetas];
 
-                                    moduleScriptMap.ModuleParameters = new List<ModuleParameterMap>();
+                                    moduleScriptMap.ModuleParameters = [];
                                     var functionParams = item.Params;
                                     if (functionParams != null && functionParams.Count > 0)
                                     {
@@ -834,17 +845,19 @@ namespace function.Extensions
             var commandsElement = XmlChild(root, "commands");
             foreach (var commandElement in XmlChildren(commandsElement, "command"))
             {
-                var command = new FunctionCommand();
-                command.ID = XmlAttributeValue(commandElement, "id");
-                command.Seq = XmlAttributeValue(commandElement, "seq").ParseInt(0);
-                command.Use = XmlAttributeValue(commandElement, "use").ToBoolean(true);
-                command.Timeout = XmlAttributeValue(commandElement, "timeout").ParseInt(0);
-                command.Description = XmlAttributeValue(commandElement, "desc");
-                command.EntryType = XmlElementValue(commandElement, "entryType");
-                command.EntryMethod = XmlElementValue(commandElement, "entryMethod");
-                command.BeforeTransaction = XmlElementValue(commandElement, "beforeTransaction");
-                command.AfterTransaction = XmlElementValue(commandElement, "afterTransaction");
-                command.FallbackTransaction = XmlElementValue(commandElement, "fallbackTransaction");
+                var command = new FunctionCommand
+                {
+                    ID = XmlAttributeValue(commandElement, "id"),
+                    Seq = XmlAttributeValue(commandElement, "seq").ParseInt(0),
+                    Use = XmlAttributeValue(commandElement, "use").ToBoolean(true),
+                    Timeout = XmlAttributeValue(commandElement, "timeout").ParseInt(0),
+                    Description = XmlAttributeValue(commandElement, "desc"),
+                    EntryType = XmlElementValue(commandElement, "entryType"),
+                    EntryMethod = XmlElementValue(commandElement, "entryMethod"),
+                    BeforeTransaction = XmlElementValue(commandElement, "beforeTransaction"),
+                    AfterTransaction = XmlElementValue(commandElement, "afterTransaction"),
+                    FallbackTransaction = XmlElementValue(commandElement, "fallbackTransaction")
+                };
 
                 foreach (var paramElement in XmlChildren(commandElement, "param"))
                 {
@@ -905,6 +918,8 @@ namespace function.Extensions
 
         public static bool MergeXmlContractFile(string xmlFilePath, bool forceUpdate, ILogger logger)
         {
+            ArgumentNullException.ThrowIfNull(logger);
+
             var result = false;
 
             try
@@ -915,6 +930,7 @@ namespace function.Extensions
                     return result;
                 }
 
+                ArgumentNullException.ThrowIfNull(xmlFilePath);
                 if (xmlFilePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true && GlobalConfiguration.IsTenantFunction == false)
                 {
                     return result;
@@ -976,28 +992,30 @@ namespace function.Extensions
                 {
                     if (header.Use == true)
                     {
-                        var moduleScriptMap = new ModuleScriptMap();
-                        moduleScriptMap.ApplicationID = header.ApplicationID;
-                        moduleScriptMap.ProjectID = header.ProjectID;
-                        moduleScriptMap.TransactionID = header.TransactionID;
-                        moduleScriptMap.ScriptID = item.ID + item.Seq.ToString().PadLeft(2, '0');
-                        moduleScriptMap.ExportName = item.ID;
-                        moduleScriptMap.Seq = item.Seq;
-                        moduleScriptMap.IsHttpContext = header.IsHttpContext;
-                        moduleScriptMap.ReferenceModuleID = header.ReferenceModuleID;
-                        moduleScriptMap.EntryType = string.IsNullOrWhiteSpace(item.EntryType) ? $"{header.ApplicationID}.Function.{header.ProjectID}.{header.TransactionID}" : item.EntryType;
-                        moduleScriptMap.EntryMethod = string.IsNullOrWhiteSpace(item.EntryMethod) ? item.ID : item.EntryMethod;
-                        moduleScriptMap.DataSourceID = !string.IsNullOrWhiteSpace(header.DataSourceID) ? header.DataSourceID : ModuleConfiguration.DefaultDataSourceID;
-                        moduleScriptMap.LanguageType = header.LanguageType;
-                        moduleScriptMap.ProgramPath = generatedFilePath;
-                        moduleScriptMap.Timeout = item.Timeout;
-                        moduleScriptMap.BeforeTransactionCommand = item.BeforeTransaction;
-                        moduleScriptMap.AfterTransactionCommand = item.AfterTransaction;
-                        moduleScriptMap.FallbackTransactionCommand = item.FallbackTransaction;
-                        moduleScriptMap.Description = item.Description;
-                        moduleScriptMap.OutputMetas = new List<string>(item.OutputMetas);
+                        var moduleScriptMap = new ModuleScriptMap
+                        {
+                            ApplicationID = header.ApplicationID,
+                            ProjectID = header.ProjectID,
+                            TransactionID = header.TransactionID,
+                            ScriptID = item.ID + item.Seq.ToString().PadLeft(2, '0'),
+                            ExportName = item.ID,
+                            Seq = item.Seq,
+                            IsHttpContext = header.IsHttpContext,
+                            ReferenceModuleID = header.ReferenceModuleID,
+                            EntryType = string.IsNullOrWhiteSpace(item.EntryType) ? $"{header.ApplicationID}.Function.{header.ProjectID}.{header.TransactionID}" : item.EntryType,
+                            EntryMethod = string.IsNullOrWhiteSpace(item.EntryMethod) ? item.ID : item.EntryMethod,
+                            DataSourceID = !string.IsNullOrWhiteSpace(header.DataSourceID) ? header.DataSourceID : ModuleConfiguration.DefaultDataSourceID,
+                            LanguageType = header.LanguageType,
+                            ProgramPath = generatedFilePath,
+                            Timeout = item.Timeout,
+                            BeforeTransactionCommand = item.BeforeTransaction,
+                            AfterTransactionCommand = item.AfterTransaction,
+                            FallbackTransactionCommand = item.FallbackTransaction,
+                            Description = item.Description,
+                            OutputMetas = [.. item.OutputMetas],
 
-                        moduleScriptMap.ModuleParameters = new List<ModuleParameterMap>();
+                            ModuleParameters = []
+                        };
                         var functionParams = item.Params;
                         if (functionParams != null && functionParams.Count > 0)
                         {
@@ -1076,6 +1094,8 @@ namespace function.Extensions
 
         public static void LoadContract(string environmentName, ILogger logger, IConfiguration configuration)
         {
+            ArgumentNullException.ThrowIfNull(logger);
+
             try
             {
                 if (ModuleConfiguration.ContractBasePath.Count == 0)
@@ -1192,15 +1212,17 @@ namespace function.Extensions
                                 {
                                     if (header.Use == true)
                                     {
-                                        var moduleScriptMap = new ModuleScriptMap();
-                                        moduleScriptMap.ApplicationID = header.ApplicationID;
-                                        moduleScriptMap.ProjectID = header.ProjectID;
-                                        moduleScriptMap.TransactionID = header.TransactionID;
-                                        moduleScriptMap.ScriptID = item.ID + item.Seq.ToString().PadLeft(2, '0');
-                                        moduleScriptMap.ExportName = item.ID;
-                                        moduleScriptMap.Seq = item.Seq;
-                                        moduleScriptMap.IsHttpContext = header.IsHttpContext;
-                                        moduleScriptMap.ReferenceModuleID = header.ReferenceModuleID;
+                                        var moduleScriptMap = new ModuleScriptMap
+                                        {
+                                            ApplicationID = header.ApplicationID,
+                                            ProjectID = header.ProjectID,
+                                            TransactionID = header.TransactionID,
+                                            ScriptID = item.ID + item.Seq.ToString().PadLeft(2, '0'),
+                                            ExportName = item.ID,
+                                            Seq = item.Seq,
+                                            IsHttpContext = header.IsHttpContext,
+                                            ReferenceModuleID = header.ReferenceModuleID
+                                        };
 
                                         if (string.IsNullOrWhiteSpace(item.EntryType))
                                         {
@@ -1228,9 +1250,9 @@ namespace function.Extensions
                                         moduleScriptMap.AfterTransactionCommand = item.AfterTransaction;
                                         moduleScriptMap.FallbackTransactionCommand = item.FallbackTransaction;
                                         moduleScriptMap.Description = item.Description;
-                                        moduleScriptMap.OutputMetas = new List<string>(item.OutputMetas);
+                                        moduleScriptMap.OutputMetas = [.. item.OutputMetas];
 
-                                        moduleScriptMap.ModuleParameters = new List<ModuleParameterMap>();
+                                        moduleScriptMap.ModuleParameters = [];
                                         var functionParams = item.Params;
                                         if (functionParams != null && functionParams.Count > 0)
                                         {
@@ -1320,11 +1342,13 @@ namespace function.Extensions
                 var dataSourceID = $"{item.ApplicationID}|{item.DataSourceID}";
                 if (candidates.ContainsKey(dataSourceID) == true)
                 {
+                    ArgumentNullException.ThrowIfNull(logger);
+
                     logger.Warning("[{LogCategory}] " + $"DataSourceID 중복 확인 필요 - {dataSourceID}", "FunctionMapper/ReloadFunctionSourceMappings");
                     continue;
                 }
 
-                var dataProvider = (DataProviders)Enum.Parse(typeof(DataProviders), item.DataProvider, true);
+                var dataProvider = Enum.Parse<DataProviders>(item.DataProvider, true);
                 var connectionString = item.IsEncryption.ParseBool() == true ? DecryptConnectionString(item) : item.ConnectionString;
                 if (item.IsEncryption.ParseBool() == true && string.IsNullOrWhiteSpace(item.ConnectionString) == false && string.IsNullOrWhiteSpace(connectionString) == true)
                 {

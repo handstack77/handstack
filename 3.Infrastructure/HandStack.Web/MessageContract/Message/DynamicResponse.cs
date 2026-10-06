@@ -17,7 +17,7 @@ namespace HandStack.Web.MessageContract.Message
             ResponseID = "";
             Environment = "";
             RowsAffected = 0;
-            ResultMeta = new List<string>();
+            ResultMeta = [];
             ResultJson = null;
             ResultObject = null;
             ResultInteger = 0;

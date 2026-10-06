@@ -12,8 +12,8 @@ namespace dbclient.Profiler
         private DbConnection connection;
         private DbTransaction? transaction;
         private readonly IAdoNetProfiler profiler;
-        private static readonly Hashtable bindByNameGetCache = new Hashtable();
-        private static readonly Hashtable bindByNameSetCache = new Hashtable();
+        private static readonly Hashtable bindByNameGetCache = [];
+        private static readonly Hashtable bindByNameSetCache = [];
 
         public override string CommandText
         {
@@ -53,8 +53,7 @@ namespace dbclient.Profiler
 #pragma warning restore CS8765
             {
                 connection = value;
-                var adoNetProfilerDbConnection = value as ProfilerDbConnection;
-                WrappedCommand.Connection = (adoNetProfilerDbConnection == null) ? value : adoNetProfilerDbConnection.WrappedConnection;
+                WrappedCommand.Connection = (value is not ProfilerDbConnection adoNetProfilerDbConnection) ? value : adoNetProfilerDbConnection.WrappedConnection;
             }
         }
 
@@ -73,8 +72,7 @@ namespace dbclient.Profiler
             {
                 transaction = value;
 
-                var adoNetProfilerDbTransaction = value as ProfilerDbTransaction;
-                WrappedCommand.Transaction = (adoNetProfilerDbTransaction == null) ? value : adoNetProfilerDbTransaction.WrappedTransaction;
+                WrappedCommand.Transaction = (value is not ProfilerDbTransaction adoNetProfilerDbTransaction) ? value : adoNetProfilerDbTransaction.WrappedTransaction;
             }
         }
 
@@ -98,29 +96,23 @@ namespace dbclient.Profiler
             {
                 var cache = GetBindByNameGetAction(WrappedCommand.GetType());
 
-                return cache != null ? cache.Invoke(WrappedCommand) : false;
+                return cache != null && cache.Invoke(WrappedCommand);
             }
             set
             {
                 var cache = GetBindByNameSetAction(WrappedCommand.GetType());
 
-                if (cache != null)
-                {
-                    cache.Invoke(WrappedCommand, value);
-                }
+                cache?.Invoke(WrappedCommand, value);
             }
         }
 
         internal ProfilerDbCommand(DbCommand? command, DbConnection? connection, IAdoNetProfiler? profiler)
         {
-            if (command == null)
-            {
-                throw new ArgumentNullException(nameof(command));
-            }
+            ArgumentNullException.ThrowIfNull(command);
 
             if (connection == null || profiler == null)
             {
-                throw new ArgumentNullException("DbConnection 또는 IAdoNetProfiler 확인 필요");
+                throw new ArgumentNullException(connection == null ? nameof(connection) : nameof(profiler), "DbConnection 또는 IAdoNetProfiler 확인 필요");
             }
 
             WrappedCommand = command;
@@ -232,7 +224,7 @@ namespace dbclient.Profiler
             base.Dispose(disposing);
         }
 
-        private Func<DbCommand, bool>? GetBindByNameGetAction(Type commandType)
+        private static Func<DbCommand, bool>? GetBindByNameGetAction(Type commandType)
         {
             lock (bindByNameGetCache)
             {
@@ -265,7 +257,7 @@ namespace dbclient.Profiler
             return null;
         }
 
-        private Action<DbCommand, bool>? GetBindByNameSetAction(Type commandType)
+        private static Action<DbCommand, bool>? GetBindByNameSetAction(Type commandType)
         {
             lock (bindByNameSetCache)
             {

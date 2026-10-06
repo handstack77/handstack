@@ -21,7 +21,7 @@ namespace forwarder.Entity
         public static bool IgnoreHTTPSErrors = false;
         public static int RequestTimeoutMS = 30000;
         public static int MaxRedirects = 10;
-        public static Dictionary<string, string> ForwardUrls = new Dictionary<string, string>();
-        public static List<string> AllowClientIP = new List<string>() { "*" };
+        public static Dictionary<string, string> ForwardUrls = [];
+        public static List<string> AllowClientIP = ["*"];
     }
 }

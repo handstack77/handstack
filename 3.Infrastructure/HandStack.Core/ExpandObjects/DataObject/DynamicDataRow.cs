@@ -30,19 +30,9 @@ namespace HandStack.Core.ExpandObjects.DataObject
     ///     Console.WriteLine("{0} {1}", item.FirstName, item.LastName);
     /// }
     /// </code>
-    public class DynamicDataRow : DynamicObject
+    public class DynamicDataRow(DataRow dataRow) : DynamicObject
     {
-        private DataRow dataRow;
-
-        public DynamicDataRow(DataRow dataRow)
-        {
-            if (dataRow == null)
-            {
-                throw new ArgumentNullException("DataRow 매개변수 확인 필요");
-            }
-
-            this.dataRow = dataRow;
-        }
+        private readonly DataRow dataRow = dataRow ?? throw new ArgumentNullException("DataRow 매개변수 확인 필요");
 
         public DataRow DataRow
         {
@@ -52,6 +42,7 @@ namespace HandStack.Core.ExpandObjects.DataObject
         public override bool TryGetMember(GetMemberBinder binder, out object? result)
         {
             result = null;
+            ArgumentNullException.ThrowIfNull(binder);
             if (dataRow.Table.Columns.Contains(binder.Name))
             {
                 result = dataRow[binder.Name];
@@ -62,6 +53,8 @@ namespace HandStack.Core.ExpandObjects.DataObject
 
         public override bool TrySetMember(SetMemberBinder binder, object? value)
         {
+            ArgumentNullException.ThrowIfNull(binder);
+
             if (dataRow.Table.Columns.Contains(binder.Name))
             {
                 dataRow[binder.Name] = value;

@@ -14,8 +14,8 @@ namespace HandStack.Web.MessageContract.DataObject
             ClientTag = "";
             DateTimeTicks = "";
             ReturnType = "";
-            InputsItemCount = new List<int>();
-            Inputs = new List<List<TransactField>>();
+            InputsItemCount = [];
+            Inputs = [];
         }
 
         public Dictionary<string, string>? LoadOptions { get; set; }

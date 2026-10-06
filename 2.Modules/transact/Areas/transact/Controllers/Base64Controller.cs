@@ -16,23 +16,16 @@ namespace transact.Areas.transact.Controllers
     [Route("[area]/api/[controller]")]
     [ApiController]
     [EnableCors]
-    public class Base64Controller : BaseController
+    public class Base64Controller(Serilog.ILogger logger, TransactLoggerClient loggerClient) : BaseController
     {
-        private TransactLoggerClient loggerClient { get; }
-        private Serilog.ILogger logger { get; }
-
-        public Base64Controller(Serilog.ILogger logger, TransactLoggerClient loggerClient)
-        {
-            this.logger = logger;
-            this.loggerClient = loggerClient;
-        }
+        private TransactLoggerClient loggerClient { get; } = loggerClient;
+        private Serilog.ILogger logger { get; } = logger;
 
         // http://localhost:8421/transact/api/base64/encode?value={"ProjectID":"SYN","BusinessID":"DSO","TransactionID":"0001","FunctionID":"R01"}
         [HttpGet("[action]")]
         public string Encode(string value)
         {
-            var result = "";
-
+            string? result;
             try
             {
                 value = WebUtility.UrlDecode(value);
@@ -52,8 +45,7 @@ namespace transact.Areas.transact.Controllers
         [HttpGet("[action]")]
         public string Decode(string value)
         {
-            var result = "";
-
+            string? result;
             try
             {
                 result = value.DecodeBase64();

@@ -59,14 +59,14 @@ namespace dbclient.Entity
             LocalStoragePath = "";
             LogServerUrl = "";
             IsContractFileWatching = false;
-            ContractBasePath = new List<string>();
+            ContractBasePath = [];
             IsTransactionLogging = false;
             ModuleLogFilePath = "";
             IsProfileLogging = false;
             ProfileLogFilePath = "";
             DefaultDataSourceID = "";
-            DataSource = new List<DataSource>();
-            AllowClientIP = new List<string>() { "*" };
+            DataSource = [];
+            AllowClientIP = ["*"];
         }
     }
 }

@@ -36,7 +36,7 @@ namespace HandStack.Web.Extensions
                 .Select(name => Enum.TryParse<Role>(name, out var role) ? (int)role : -1)
                 .ToList();
 
-            if (values.Count() == 0)
+            if (values.Count == 0)
             {
                 return -1;
             }

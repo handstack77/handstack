@@ -11,7 +11,7 @@ namespace dbclient.Profiler
     public class ProfilerProviderFactory<TProviderFactory> : ProfilerProviderFactory, IServiceProvider
         where TProviderFactory : DbProviderFactory
     {
-        public static readonly ProfilerProviderFactory<TProviderFactory> Instance = new ProfilerProviderFactory<TProviderFactory>();
+        public static readonly ProfilerProviderFactory<TProviderFactory> Instance = new();
 
         public TProviderFactory? WrappedProviderFactory { get; }
 
@@ -19,19 +19,13 @@ namespace dbclient.Profiler
         {
             get
             {
-                return WrappedProviderFactory == null ? false : WrappedProviderFactory.CanCreateDataSourceEnumerator;
+                return WrappedProviderFactory != null && WrappedProviderFactory.CanCreateDataSourceEnumerator;
             }
         }
 
         public ProfilerProviderFactory()
         {
-            var field = typeof(TProviderFactory).GetField("Instance", BindingFlags.Public | BindingFlags.Static);
-
-            if (field == null)
-            {
-                throw new NotSupportedException("Provider doesn't have Instance property.");
-            }
-
+            var field = typeof(TProviderFactory).GetField("Instance", BindingFlags.Public | BindingFlags.Static) ?? throw new NotSupportedException("Provider doesn't have Instance property.");
             WrappedProviderFactory = field.GetValue(null) as TProviderFactory;
         }
 

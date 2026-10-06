@@ -79,7 +79,7 @@ namespace forwarder
             ModuleConfiguration.RequestTimeoutMS = moduleConfig.RequestTimeoutMS;
             ModuleConfiguration.MaxRedirects = moduleConfig.MaxRedirects;
             ModuleConfiguration.ForwardUrls = BuildForwardUrls(moduleConfig.ForwardUrls);
-            ModuleConfiguration.AllowClientIP = (moduleConfig.AllowClientIP ?? new List<string>() { "*" })
+            ModuleConfiguration.AllowClientIP = (moduleConfig.AllowClientIP ?? ["*"])
                 .Where(p => string.IsNullOrWhiteSpace(p) == false)
                 .Select(p => p.Trim())
                 .Distinct(StringComparer.OrdinalIgnoreCase)
@@ -221,7 +221,7 @@ namespace forwarder
 
     internal class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
             Console.WriteLine("forwarder");
         }

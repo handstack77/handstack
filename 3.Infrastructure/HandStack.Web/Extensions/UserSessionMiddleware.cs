@@ -14,20 +14,16 @@ using Serilog;
 
 namespace HandStack.Web.Extensions
 {
-    public class UserSessionMiddleware
+    public class UserSessionMiddleware(RequestDelegate next, IDataProtectionProvider dataProtectionProvider)
     {
 
-        private readonly IDataProtector dataProtector;
-        private readonly RequestDelegate next;
-
-        public UserSessionMiddleware(RequestDelegate next, IDataProtectionProvider dataProtectionProvider)
-        {
-            this.next = next;
-            dataProtector = dataProtectionProvider.CreateProtector(nameof(SessionMiddleware));
-        }
+        private readonly IDataProtector dataProtector = dataProtectionProvider.CreateProtector(nameof(SessionMiddleware));
+        private readonly RequestDelegate next = next;
 
         public async Task InvokeAsync(HttpContext httpContext)
         {
+            ArgumentNullException.ThrowIfNull(httpContext);
+
             if (httpContext.Request.Path.Value != null && httpContext.Session.IsAvailable == true)
             {
                 var member = httpContext.Request.Cookies[$"{GlobalConfiguration.CookiePrefixName}.Member"];
@@ -64,9 +60,11 @@ namespace HandStack.Web.Extensions
                                     httpContext.Session.SetString($"{GlobalConfiguration.CookiePrefixName}.Member", jsonAcount);
                                 }
 
-                                var cookieOptions = new CookieOptions();
-                                cookieOptions.HttpOnly = false;
-                                cookieOptions.SameSite = SameSiteMode.Lax;
+                                var cookieOptions = new CookieOptions
+                                {
+                                    HttpOnly = false,
+                                    SameSite = SameSiteMode.Lax
+                                };
 
                                 if (GlobalConfiguration.UserSignExpire > 0)
                                 {

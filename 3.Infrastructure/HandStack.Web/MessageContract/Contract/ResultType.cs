@@ -29,9 +29,9 @@ namespace HandStack.Web.MessageContract.Contract
             ResponseType = "";
             Property = null;
             OutputAction = null;
-            DataSetMeta = new List<string>();
-            DataMapCount = new List<int>();
-            DataSet = new List<DataMapItem>();
+            DataSetMeta = [];
+            DataMapCount = [];
+            DataSet = [];
         }
     }
 }

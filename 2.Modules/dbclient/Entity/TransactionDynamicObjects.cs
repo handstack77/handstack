@@ -7,8 +7,8 @@ namespace dbclient.Entity
 {
     public record TransactionDynamicObjects
     {
-        public QueryObject DynamicTransaction = new QueryObject();
-        public StatementMap Statement = new StatementMap();
+        public QueryObject DynamicTransaction = new();
+        public StatementMap Statement = new();
         public string? ConnectionString;
         public string? TransactionIsolationLevel;
         public DataProviders DataProvider;

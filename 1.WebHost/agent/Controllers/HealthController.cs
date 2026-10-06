@@ -23,6 +23,8 @@ namespace agent.Controllers
         [HttpGet("validate/{key}")]
         public ActionResult Validate(string key, [FromServices] ManagementKeyValidator validator)
         {
+            ArgumentNullException.ThrowIfNull(validator);
+
             return Ok(new
             {
                 valid = validator.Validate(key),

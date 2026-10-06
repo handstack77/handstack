@@ -11,14 +11,12 @@ using Newtonsoft.Json.Linq;
 
 namespace prompter.DataClient
 {
-    public class LMStudioChatClient : HttpLLMChatClient
+    public class LMStudioChatClient(IHttpClientFactory httpClientFactory) : HttpLLMChatClient(httpClientFactory)
     {
-        public LMStudioChatClient(IHttpClientFactory httpClientFactory) : base(httpClientFactory)
-        {
-        }
-
         public override async Task<LLMChatResponse> ChatAsync(LLMChatRequest request, CancellationToken cancellationToken = default)
         {
+            ArgumentNullException.ThrowIfNull(request);
+
             Require(request.Endpoint, "LMStudio Endpoint 설정 필요");
             Require(request.ModelID, "LMStudio ModelID 설정 필요");
             ValidateMediaSupport(request, "LMStudio", true, false);

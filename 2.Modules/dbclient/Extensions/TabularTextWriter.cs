@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 namespace dbclient.Extensions
 {
@@ -38,11 +39,11 @@ namespace dbclient.Extensions
 
         public bool Trim { get; set; } = false;
 
-        char[] quoteRequiredChars;
-        bool checkDelimForQuote = false;
+        readonly char[] quoteRequiredChars;
+        readonly bool checkDelimForQuote = false;
         string quoteString = "\"";
         string doubleQuoteString = "\"\"";
-        TextWriter wr;
+        readonly TextWriter wr;
 
         public TabularTextWriter(TextWriter wr) : this(wr, ",") { }
 
@@ -50,6 +51,7 @@ namespace dbclient.Extensions
         {
             this.wr = wr;
             Delimiter = delimiter;
+            ArgumentNullException.ThrowIfNull(delimiter);
             checkDelimForQuote = delimiter.Length > 1;
             quoteRequiredChars = checkDelimForQuote ? new[] { '\r', '\n' } : new[] { '\r', '\n', delimiter[0] };
         }
@@ -60,7 +62,7 @@ namespace dbclient.Extensions
         {
             var shouldQuote = QuoteAllFields;
 
-            field = field ?? string.Empty;
+            field ??= string.Empty;
 
             if (field.Length > 0 && Trim)
             {
@@ -72,7 +74,7 @@ namespace dbclient.Extensions
                 if (shouldQuote
                     || field.Contains(quoteString)
                     || field[0] == ' '
-                    || field[field.Length - 1] == ' '
+                    || field[^1] == ' '
                     || field.IndexOfAny(quoteRequiredChars) > -1
                     || (checkDelimForQuote && field.Contains(Delimiter))
                 )

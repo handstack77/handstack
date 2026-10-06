@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Collections.Frozen;
-
+using System.Collections.Generic;
 using HandStack.Web.Extensions;
-
 using transact.Extensions;
 
 namespace transact.Entity
@@ -20,8 +18,8 @@ namespace transact.Entity
         public static bool IsContractFileWatching = true;
         public static readonly string[] ContractFileExtensions = { ".json", ".txn" };
         public static readonly string ContractFileWatcherFilter = "*.json|*.txn";
-        public static List<string> ContractBasePath = new List<string>();
-        public static Dictionary<string, FileSyncManager> BusinessFileSyncManager = new Dictionary<string, FileSyncManager>();
+        public static List<string> ContractBasePath = [];
+        public static Dictionary<string, FileSyncManager> BusinessFileSyncManager = [];
         public static string BusinessServerUrl = "";
         public static bool IsTransactionLogging = false;
         public static string TransactionAggregateBasePath = "";
@@ -52,13 +50,13 @@ namespace transact.Entity
         public static bool IsCodeDataCache = false;
         public static int CodeDataCacheTimeout = 20;
         public static FrozenDictionary<string, FrozenSet<string>> AllowRequestTransactions = FrozenDictionary<string, FrozenSet<string>>.Empty;
-        public static ExpiringDictionary<string, string> RoutingCommandUri = new ExpiringDictionary<string, string>();
-        public static ExpiringList<PublicTransaction>? PublicTransactions = new ExpiringList<PublicTransaction>();
-        public static ExpiringList<string> RequestGlobalIDList = new ExpiringList<string>(TimeSpan.FromMinutes(3), TimeSpan.FromMinutes(1));
-        public static ConcurrentDictionary<string, byte> CacheKeys = new ConcurrentDictionary<string, byte>();
+        public static ExpiringDictionary<string, string> RoutingCommandUri = [];
+        public static ExpiringList<PublicTransaction>? PublicTransactions = [];
+        public static ExpiringList<string> RequestGlobalIDList = new(TimeSpan.FromMinutes(3), TimeSpan.FromMinutes(1));
+        public static ConcurrentDictionary<string, byte> CacheKeys = new();
 
         // AI 자동화 공격 대응 서버측 하드닝 설정. 기본값은 레거시 동작과 동일(비활성).
-        public static SecurityHardeningConfig SecurityHardening = new SecurityHardeningConfig();
+        public static SecurityHardeningConfig SecurityHardening = new();
 
         public static bool IsContractFileExtension(string extension)
         {

@@ -34,18 +34,11 @@ namespace wwwroot.Areas.wwwroot.Controllers
     [Route("[area]/api/[controller]")]
     [ApiController]
     [AllowAnonymous]
-    public class DevAccountController : BaseController
+    public class DevAccountController(ILogger logger, IDataProtectionProvider dataProtectionProvider, ISequentialIdGenerator sequentialIdGenerator) : BaseController
     {
-        private readonly IDataProtector dataProtector;
-        private readonly ILogger logger;
-        private readonly ISequentialIdGenerator sequentialIdGenerator;
-
-        public DevAccountController(ILogger logger, IDataProtectionProvider dataProtectionProvider, ISequentialIdGenerator sequentialIdGenerator)
-        {
-            this.logger = logger;
-            this.dataProtector = dataProtectionProvider.CreateProtector(nameof(SessionMiddleware));
-            this.sequentialIdGenerator = sequentialIdGenerator;
-        }
+        private readonly IDataProtector dataProtector = dataProtectionProvider.CreateProtector(nameof(SessionMiddleware));
+        private readonly ILogger logger = logger;
+        private readonly ISequentialIdGenerator sequentialIdGenerator = sequentialIdGenerator;
 
         // http://localhost:8421/wwwroot/api/dev-account/sign-in?returnUrl=/
         [HttpGet("[action]")]
@@ -99,8 +92,8 @@ namespace wwwroot.Areas.wwwroot.Controllers
                     UserID = config.UserID,
                     UserName = string.IsNullOrWhiteSpace(config.UserName) ? config.UserID : config.UserName,
                     Email = config.Email,
-                    Roles = config.Roles == null ? new List<string>() : new List<string>(config.Roles),
-                    Claims = new Dictionary<string, string>(),
+                    Roles = config.Roles == null ? [] : [.. config.Roles],
+                    Claims = [],
                     LoginedAt = DateTime.Now,
                     Celluar = string.IsNullOrWhiteSpace(config.Celluar) ? null : config.Celluar,
                     PositionName = string.IsNullOrWhiteSpace(config.PositionName) ? null : config.PositionName,
@@ -114,17 +107,19 @@ namespace wwwroot.Areas.wwwroot.Controllers
 
                 var claims = new List<Claim>
                 {
-                    new Claim("UserID", userAccount.UserID),
-                    new Claim("UserName", userAccount.UserName.ToStringSafe()),
-                    new Claim("UserNo", userAccount.UserNo.ToStringSafe()),
-                    new Claim("Roles", string.Join(",", userAccount.Roles.ToArray())),
-                    new Claim("LoginedAt", userAccount.LoginedAt.ToString()),
-                    new Claim("IsDevAutoSignIn", "true")
+                    new("UserID", userAccount.UserID),
+                    new("UserName", userAccount.UserName.ToStringSafe()),
+                    new("UserNo", userAccount.UserNo.ToStringSafe()),
+                    new("Roles", string.Join(",", userAccount.Roles.ToArray())),
+                    new("LoginedAt", userAccount.LoginedAt.ToString()),
+                    new("IsDevAutoSignIn", "true")
                 };
                 userAccount.Claims.Add("IsDevAutoSignIn", "true");
 
-                var dictionary = new Dictionary<string, string>();
-                dictionary.Add("ClientIP", clientIP);
+                var dictionary = new Dictionary<string, string>
+                {
+                    { "ClientIP", clientIP }
+                };
 
                 var variable = JObject.FromObject(dictionary);
                 variable.Add("InstallType", GlobalConfiguration.InstallType);
@@ -137,9 +132,11 @@ namespace wwwroot.Areas.wwwroot.Controllers
                     IsPersistent = true
                 };
 
-                var cookieOptions = new CookieOptions();
-                cookieOptions.HttpOnly = false;
-                cookieOptions.SameSite = SameSiteMode.Lax;
+                var cookieOptions = new CookieOptions
+                {
+                    HttpOnly = false,
+                    SameSite = SameSiteMode.Lax
+                };
 
                 DateTimeOffset expiredAt = DateTime.Now.AddDays(1);
                 if (GlobalConfiguration.UserSignExpire > 0)
@@ -218,17 +215,19 @@ namespace wwwroot.Areas.wwwroot.Controllers
                 result.ExpiredAt = (DateTime.Now.AddDays(addDay).ToString("yyyy-MM-dd") + "T" + GlobalConfiguration.UserSignExpire.ToString().Replace("-", "").PadLeft(2, '0') + ":00:00").ToDateTimeSafe(DateTime.Now.AddDays(addDay));
             }
 
-            result.Policy = new Policy();
-            result.Policy.UserID = userAccount.UserID;
-            result.Policy.UserName = userAccount.UserName;
-            result.Policy.Email = userAccount.Email;
+            result.Policy = new Policy
+            {
+                UserID = userAccount.UserID,
+                UserName = userAccount.UserName,
+                Email = userAccount.Email
+            };
 
             foreach (var item in userAccount.Roles)
             {
                 result.Policy.Roles.Add(item.ToString());
             }
 
-            result.Policy.Claims = new Dictionary<string, string>();
+            result.Policy.Claims = [];
             foreach (var claim in claims)
             {
                 result.Policy.Claims.Add(claim.Type, claim.Value);
@@ -242,12 +241,11 @@ namespace wwwroot.Areas.wwwroot.Controllers
 
         private void WriteCookie(string key, string value, CookieOptions? cookieOptions = null)
         {
-            if (cookieOptions == null)
-            {
-                cookieOptions = new CookieOptions();
-                cookieOptions.HttpOnly = false;
-                cookieOptions.SameSite = SameSiteMode.Lax;
-            }
+            cookieOptions ??= new CookieOptions
+                {
+                    HttpOnly = false,
+                    SameSite = SameSiteMode.Lax
+                };
 
             Response.Cookies.Append(key, value, cookieOptions);
         }

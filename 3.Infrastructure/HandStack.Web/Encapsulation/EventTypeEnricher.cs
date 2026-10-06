@@ -18,16 +18,14 @@ namespace HandStack.Web.Encapsulation
     {
         public void Enrich(LogEvent logEvent, ILogEventPropertyFactory propertyFactory)
         {
-            if (logEvent is null)
-                throw new ArgumentNullException(nameof(logEvent));
+            ArgumentNullException.ThrowIfNull(logEvent);
 
-            if (propertyFactory is null)
-                throw new ArgumentNullException(nameof(propertyFactory));
+            ArgumentNullException.ThrowIfNull(propertyFactory);
 
             var murmur = MurmurHash.Create32();
             var bytes = Encoding.UTF8.GetBytes(logEvent.MessageTemplate.Text);
             var hash = murmur.ComputeHash(bytes);
-            var hexadecimalHash = BitConverter.ToString(hash).Replace("-", "");
+            var hexadecimalHash = Convert.ToHexString(hash);
             var eventId = propertyFactory.CreateProperty("EventType", hexadecimalHash);
             logEvent.AddPropertyIfAbsent(eventId);
         }

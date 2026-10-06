@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Text;
 
@@ -19,8 +20,8 @@ namespace dbclient.NativeParameters
      */
     public class OracleDynamicParameters : SqlMapper.IDynamicParameters
     {
-        public readonly DynamicParameters dynamicParameters = new DynamicParameters();
-        public readonly List<OracleParameter> oracleParameters = new List<OracleParameter>();
+        public readonly DynamicParameters dynamicParameters = new();
+        public readonly List<OracleParameter> oracleParameters = [];
 
         public void Add(string name, object? value = null, OracleDbType oracleDbType = OracleDbType.Varchar2, ParameterDirection direction = ParameterDirection.Input, int? size = null)
         {
@@ -49,30 +50,21 @@ namespace dbclient.NativeParameters
             ((SqlMapper.IDynamicParameters)dynamicParameters).AddParameters(command, identity);
 
             dynamic? dynamicCommand = command as OracleCommand;
-            if (dynamicCommand == null)
-            {
-                dynamicCommand = command as ProfilerDbCommand;
-            }
+            dynamicCommand ??= command as ProfilerDbCommand;
 
-            if (dynamicCommand != null)
-            {
-                dynamicCommand.Parameters.AddRange(oracleParameters.ToArray());
-            }
+            dynamicCommand?.Parameters.AddRange(oracleParameters.ToArray());
         }
     }
 
     // connection.Execute("INSERT INTO MESSAGES VALUES (:id, :text)", new {id = 1, text = new OracleClobParameter("my large text") });
-    public class OracleClobParameter : SqlMapper.ICustomQueryParameter
+    public class OracleClobParameter(object? value) : SqlMapper.ICustomQueryParameter
     {
-        private readonly string? value;
-
-        public OracleClobParameter(object? value)
-        {
-            this.value = value == null ? null : value.ToString();
-        }
+        private readonly string? value = value?.ToString();
 
         public void AddParameter(IDbCommand command, string name)
         {
+            ArgumentNullException.ThrowIfNull(command);
+
             var clob = new OracleClob(command.Connection as OracleConnection);
             var param = new OracleParameter(name, OracleDbType.Clob);
             if (!string.IsNullOrWhiteSpace(value))
@@ -85,7 +77,7 @@ namespace dbclient.NativeParameters
 
                 while (pos < length)
                 {
-                    chunkSize = chunkSize > (length - pos) ? chunkSize = length - pos : chunkSize;
+                    chunkSize = chunkSize > (length - pos) ? _ = length - pos : chunkSize;
                     clob.Write(bytes, pos, chunkSize);
                     pos += chunkSize;
                 }
@@ -109,7 +101,7 @@ namespace dbclient.NativeParameters
 
                 while (pos < length)
                 {
-                    chunkSize = chunkSize > (length - pos) ? chunkSize = length - pos : chunkSize;
+                    chunkSize = chunkSize > (length - pos) ? _ = length - pos : chunkSize;
                     clob.Write(bytes, pos, chunkSize);
                     pos += chunkSize;
                 }

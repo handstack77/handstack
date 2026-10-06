@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -6,17 +7,14 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace agent.Security
 {
-    public sealed class HostBridgeKeyActionFilter : IAsyncActionFilter
+    public sealed class HostBridgeKeyActionFilter(HostBridgeKeyValidator validator) : IAsyncActionFilter
     {
-        private readonly HostBridgeKeyValidator validator;
-
-        public HostBridgeKeyActionFilter(HostBridgeKeyValidator validator)
-        {
-            this.validator = validator;
-        }
+        private readonly HostBridgeKeyValidator validator = validator;
 
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
+            ArgumentNullException.ThrowIfNull(context);
+
             if (validator.Enabled == false)
             {
                 context.Result = new NotFoundResult();
@@ -38,6 +36,7 @@ namespace agent.Security
                 return;
             }
 
+            ArgumentNullException.ThrowIfNull(next);
             await next();
         }
     }

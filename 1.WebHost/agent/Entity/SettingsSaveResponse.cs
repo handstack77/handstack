@@ -11,14 +11,14 @@ namespace agent.Entity
 
         public bool Saved { get; set; }
 
-        public List<string> ChangedKeys { get; set; } = new List<string>();
+        public List<string> ChangedKeys { get; set; } = [];
 
-        public List<string> RemovedKeys { get; set; } = new List<string>();
+        public List<string> RemovedKeys { get; set; } = [];
 
         public bool RuntimeApplied { get; set; }
 
         public JsonNode? RuntimeApplyResult { get; set; }
 
-        public List<string> RestartRequiredKeys { get; set; } = new List<string>();
+        public List<string> RestartRequiredKeys { get; set; } = [];
     }
 }

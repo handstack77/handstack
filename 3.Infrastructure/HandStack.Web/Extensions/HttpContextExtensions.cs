@@ -30,7 +30,7 @@ namespace HandStack.Web.Extensions
             {
                 if (string.IsNullOrWhiteSpace(WebRootPath) || string.IsNullOrWhiteSpace(ContentRootPath))
                 {
-                    host ??= context.RequestServices.GetService(typeof(IWebHostEnvironment)) as IWebHostEnvironment;
+                    host ??= (context ?? throw new ArgumentNullException(nameof(context))).RequestServices.GetService(typeof(IWebHostEnvironment)) as IWebHostEnvironment;
                     WebRootPath = (host?.WebRootPath).ToStringSafe();
                     ContentRootPath = (host?.ContentRootPath).ToStringSafe();
                 }

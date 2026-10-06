@@ -10,17 +10,14 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace HandStack.Web.Extensions
 {
-    public class HtmxTokenInjectionMiddleware
+    public class HtmxTokenInjectionMiddleware(RequestDelegate next)
     {
-        private readonly RequestDelegate _next;
-
-        public HtmxTokenInjectionMiddleware(RequestDelegate next)
-        {
-            _next = next;
-        }
+        private readonly RequestDelegate _next = next;
 
         public async Task InvokeAsync(HttpContext context)
         {
+            ArgumentNullException.ThrowIfNull(context);
+
             var isHtmxRequest = context.Request.Headers.ContainsKey("HX-Request");
 
             if (isHtmxRequest)

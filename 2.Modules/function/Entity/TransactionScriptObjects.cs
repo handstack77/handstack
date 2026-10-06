@@ -4,7 +4,7 @@ namespace function.Entity
 {
     public record TransactionScriptObjects
     {
-        public QueryObject DynamicObject = new QueryObject();
-        public ModuleScriptMap ModuleScriptMap = new ModuleScriptMap();
+        public QueryObject DynamicObject = new();
+        public ModuleScriptMap ModuleScriptMap = new();
     }
 }

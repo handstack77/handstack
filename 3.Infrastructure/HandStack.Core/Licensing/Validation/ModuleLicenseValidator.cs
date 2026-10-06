@@ -9,10 +9,10 @@ using HandStack.Core.ExtensionMethod;
 
 namespace HandStack.Core.Licensing.Validation
 {
-    public class ModuleLicenseValidator
+    public partial class ModuleLicenseValidator
     {
         private string saltValue = "handstack-salt-value";
-        private readonly Dictionary<string, (ValidationResult result, DateTime timestamp)> cache = new();
+        private readonly Dictionary<string, (ValidationResult result, DateTime timestamp)> cache = [];
         private readonly TimeSpan cacheTtl = TimeSpan.FromHours(24);
         private int validationCount = 0;
         private readonly int maxValidationAttempts = 1000;
@@ -32,6 +32,7 @@ namespace HandStack.Core.Licensing.Validation
                     throw new InvalidOperationException("유효성 검사 시도 횟수가 너무 많습니다.");
                 }
 
+                ArgumentNullException.ThrowIfNull(entry);
                 string cacheKey = $"{moduleID}_{entry.ProductName}";
                 if (enableCache && cache.TryGetValue(cacheKey, out var cached))
                 {
@@ -42,16 +43,16 @@ namespace HandStack.Core.Licensing.Validation
                 }
 
                 string licenseString = $"{entry.Key}.{entry.SignKey}";
-                var parsed = ParseLicenseKey(licenseString);
-                if (!parsed.valid)
+                var (valid, encryptedKey, signKey, error) = ParseLicenseKey(licenseString);
+                if (!valid)
                 {
-                    throw new InvalidOperationException($"잘못된 라이선스 형식: {parsed.error}");
+                    throw new InvalidOperationException($"잘못된 라이선스 형식: {error}");
                 }
 
                 var validation = await PerformLicenseValidationAsync(
                     moduleID,
-                    parsed.encryptedKey!,
-                    parsed.signKey!);
+                    encryptedKey!,
+                    signKey!);
 
                 if (!validation.valid)
                 {
@@ -59,7 +60,7 @@ namespace HandStack.Core.Licensing.Validation
                     throw new InvalidOperationException(em);
                 }
 
-                List<string> matchTypes = new List<string>();
+                List<string> matchTypes = [];
                 var allowedHosts = entry.AuthorizedHost.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
                     .ToList();
 
@@ -131,13 +132,13 @@ namespace HandStack.Core.Licensing.Validation
             if (!IsValidBase64(encrypted))
                 return (false, null, null, "암호화된 키 Base64 형식 오류");
 
-            if (!System.Text.RegularExpressions.Regex.IsMatch(sign, "^[a-fA-F0-9]+$"))
+            if (!MyRegex().IsMatch(sign))
                 return (false, null, null, "잘못된 서명 형식");
 
             return (true, encrypted, sign.ToLowerInvariant(), null);
         }
 
-        private bool IsValidBase64(string s)
+        private static bool IsValidBase64(string s)
         {
             try
             {
@@ -219,7 +220,7 @@ namespace HandStack.Core.Licensing.Validation
             public string CreatedAt { get; init; } = "";
             public string? ExpiresAt { get; init; }
             public string Environment { get; init; } = "";
-            public List<string> AllowedHosts { get; init; } = new();
+            public List<string> AllowedHosts { get; init; } = [];
         }
 
         private async Task<byte[]> DeriveKeyAsync(string moduleID)
@@ -229,7 +230,7 @@ namespace HandStack.Core.Licensing.Validation
             return await Task.Run(() => Scrypt.DeriveKey(password, salt, 16384, 8, 1, 32));
         }
 
-        private string DecryptAesCbc(byte[] cipher, byte[] key, byte[] iv)
+        private static string DecryptAesCbc(byte[] cipher, byte[] key, byte[] iv)
         {
             using var aes = Aes.Create();
             aes.Mode = CipherMode.CBC;
@@ -244,7 +245,7 @@ namespace HandStack.Core.Licensing.Validation
             return Encoding.UTF8.GetString(plain);
         }
 
-        private byte[] HexToBytes(string hex)
+        private static byte[] HexToBytes(string hex)
         {
             if (hex.Length % 2 != 0) throw new ArgumentException("유효하지 않는 hex 길이 입니다.");
             byte[] r = new byte[hex.Length / 2];
@@ -253,7 +254,7 @@ namespace HandStack.Core.Licensing.Validation
             return r;
         }
 
-        private async Task<string> GenerateSignKeyAsync(string data, string salt)
+        private static async Task<string> GenerateSignKeyAsync(string data, string salt)
         {
             var combined = data + salt;
             var bytes = Encoding.UTF8.GetBytes(combined);
@@ -261,7 +262,7 @@ namespace HandStack.Core.Licensing.Validation
             return Convert.ToHexStringLower(hash);
         }
 
-        private (bool valid, string? matchType, string? reason) ValidateDomain(List<string> allowedHosts, string currentDomain)
+        private static (bool valid, string? matchType, string? reason) ValidateDomain(List<string> allowedHosts, string currentDomain)
         {
             if (string.IsNullOrWhiteSpace(currentDomain))
                 return (false, null, "현재 도메인을 확인할 수 없습니다.");
@@ -290,7 +291,7 @@ namespace HandStack.Core.Licensing.Validation
             return (false, null, $"도메인 '{currentDomain}' 은(는) 허용 목록에 없습니다: {string.Join(", ", allowedHosts)}");
         }
 
-        private (bool valid, string reason) ValidateExpiration(string? expiresAt)
+        private static (bool valid, string reason) ValidateExpiration(string? expiresAt)
         {
             if (string.IsNullOrWhiteSpace(expiresAt))
                 return (true, "만료일 없음");
@@ -303,8 +304,12 @@ namespace HandStack.Core.Licensing.Validation
             return (true, "만료되지 않음");
         }
 
+        private static readonly JsonSerializerOptions IndentedJsonOptions = new() { WriteIndented = true };
+
         public static string ToJson(object o)
-            => JsonSerializer.Serialize(o, new JsonSerializerOptions { WriteIndented = true });
+            => JsonSerializer.Serialize(o, IndentedJsonOptions);
+        [System.Text.RegularExpressions.GeneratedRegex("^[a-fA-F0-9]+$")]
+        private static partial System.Text.RegularExpressions.Regex MyRegex();
     }
 }
 

@@ -196,7 +196,8 @@ namespace prompter
                     throw new FileNotFoundException(message);
                 }
 
-                PromptMapper.LoadContract(environment.EnvironmentName, Log.Logger, configuration);
+                ArgumentNullException.ThrowIfNull(environment);
+                PromptMapper.LoadContract(Log.Logger);
 
                 services.AddScoped<ModuleApiClient>();
                 services.AddHttpClient();
@@ -218,14 +219,17 @@ namespace prompter
 
         public bool CanHandleModuleConfigurationProperty(string propertyName)
         {
+            ArgumentNullException.ThrowIfNull(propertyName);
+
             return propertyName.Equals(nameof(ModuleConfig.LLMSource), StringComparison.Ordinal);
         }
 
         public void ApplyModuleConfigurationProperty(ModuleInfo module, string propertyName, object? value, ModuleConfigurationReloadResult result)
         {
-            var llmSources = value as List<LLMSource> ?? new List<LLMSource>();
+            var llmSources = value as List<LLMSource> ?? [];
             PromptMapper.ReloadDataSourceMappings(llmSources, Log.Logger);
             ModuleConfiguration.LLMSource = llmSources.Select(item => item with { }).ToList();
+            ArgumentNullException.ThrowIfNull(result);
             result.AppliedKeys.Add($"ModuleConfig:{propertyName}");
         }
 
@@ -316,8 +320,10 @@ namespace prompter
                             var filePath = fileInfo.FullName.Replace("\\", "/").Replace(basePath, "");
                             var hostUrl = $"http://localhost:{GlobalConfiguration.OriginPort}/prompter/api/query/refresh?changeType={changeTypes}&filePath={filePath}";
 
-                            var request = new RestRequest(hostUrl, Method.Get);
-                            request.Timeout = TimeSpan.FromSeconds(3);
+                            var request = new RestRequest(hostUrl, Method.Get)
+                            {
+                                Timeout = TimeSpan.FromSeconds(3)
+                            };
                             request.AddHeader("AuthorizationKey", ModuleConfiguration.AuthorizationKey);
                             try
                             {
@@ -345,7 +351,7 @@ namespace prompter
 
     internal class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
             Console.WriteLine("prompter");
         }

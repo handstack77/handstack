@@ -52,12 +52,16 @@ namespace HandStack.Web.Messages
 
         public virtual bool ValidRequest(RequestBase request, ResponseBase response)
         {
+            ArgumentNullException.ThrowIfNull(request);
+
             if (string.IsNullOrWhiteSpace(request.RequestID)
                 || string.IsNullOrWhiteSpace(request.Action)
                 || string.IsNullOrWhiteSpace(request.Kind)
                 || string.IsNullOrWhiteSpace(request.Environment)
             )
             {
+                ArgumentNullException.ThrowIfNull(response);
+
                 response.Acknowledge = AcknowledgeType.Failure;
                 response.ExceptionText = "허가되지 않는 요청";
                 return false;

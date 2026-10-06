@@ -34,89 +34,61 @@ namespace logger.Events
 
     await mediatorClient.PublishAsync(mediatorRequest);
     */
-    public class LoggerRequest : INotification
+    public class LoggerRequest(MediatorRequest request) : INotification
     {
-        public long LogNo { get; set; }
+        public long LogNo { get; set; } = request.Parameters.Get<long>("LogNo");
 
-        public string ServerID { get; set; }
+        public string ServerID { get; set; } = request.Parameters.Get<string>("ServerID").ToStringSafe();
 
-        public string RunningEnvironment { get; set; }
+        public string RunningEnvironment { get; set; } = request.Parameters.Get<string>("RunningEnvironment").ToStringSafe();
 
-        public string ProgramName { get; set; }
+        public string ProgramName { get; set; } = request.Parameters.Get<string>("ProgramName").ToStringSafe();
 
-        public string GlobalID { get; set; }
+        public string GlobalID { get; set; } = request.Parameters.Get<string>("GlobalID").ToStringSafe();
 
-        public string Acknowledge { get; set; }
+        public string Acknowledge { get; set; } = request.Parameters.Get<string>("Acknowledge").ToStringSafe();
 
-        public string ApplicationID { get; set; }
+        public string ApplicationID { get; set; } = request.Parameters.Get<string>("ApplicationID").ToStringSafe();
 
-        public string ProjectID { get; set; }
+        public string ProjectID { get; set; } = request.Parameters.Get<string>("ProjectID").ToStringSafe();
 
-        public string TransactionID { get; set; }
+        public string TransactionID { get; set; } = request.Parameters.Get<string>("TransactionID").ToStringSafe();
 
-        public string ServiceID { get; set; }
+        public string ServiceID { get; set; } = request.Parameters.Get<string>("ServiceID").ToStringSafe();
 
-        public string Type { get; set; }
+        public string Type { get; set; } = request.Parameters.Get<string>("Type").ToStringSafe();
 
-        public string Flow { get; set; }
+        public string Flow { get; set; } = request.Parameters.Get<string>("Flow").ToStringSafe();
 
-        public string Level { get; set; }
+        public string Level { get; set; } = request.Parameters.Get<string>("Level").ToStringSafe();
 
-        public string Format { get; set; }
+        public string Format { get; set; } = request.Parameters.Get<string>("Format").ToStringSafe();
 
-        public string Message { get; set; }
+        public string Message { get; set; } = request.Parameters.Get<string>("Message").ToStringSafe();
 
-        public string Properties { get; set; }
+        public string Properties { get; set; } = request.Parameters.Get<string>("Properties").ToStringSafe();
 
-        public string UserID { get; set; }
+        public string UserID { get; set; } = request.Parameters.Get<string>("UserID").ToStringSafe();
 
-        public string CreatedAt { get; set; }
+        public string CreatedAt { get; set; } = request.Parameters.Get<string>("CreatedAt").ToStringSafe();
 
-        public string StartedAt { get; set; }
+        public string StartedAt { get; set; } = request.Parameters.Get<string>("StartedAt").ToStringSafe();
 
-        public string EndedAt { get; set; }
-
-        public LoggerRequest(MediatorRequest request)
-        {
-            LogNo = request.Parameters.Get<long>("LogNo");
-            ServerID = request.Parameters.Get<string>("ServerID").ToStringSafe();
-            RunningEnvironment = request.Parameters.Get<string>("RunningEnvironment").ToStringSafe();
-            ProgramName = request.Parameters.Get<string>("ProgramName").ToStringSafe();
-            GlobalID = request.Parameters.Get<string>("GlobalID").ToStringSafe();
-            Acknowledge = request.Parameters.Get<string>("Acknowledge").ToStringSafe();
-            ApplicationID = request.Parameters.Get<string>("ApplicationID").ToStringSafe();
-            ProjectID = request.Parameters.Get<string>("ProjectID").ToStringSafe();
-            TransactionID = request.Parameters.Get<string>("TransactionID").ToStringSafe();
-            ServiceID = request.Parameters.Get<string>("ServiceID").ToStringSafe();
-            Type = request.Parameters.Get<string>("Type").ToStringSafe();
-            Flow = request.Parameters.Get<string>("Flow").ToStringSafe();
-            Level = request.Parameters.Get<string>("Level").ToStringSafe();
-            Format = request.Parameters.Get<string>("Format").ToStringSafe();
-            Message = request.Parameters.Get<string>("Message").ToStringSafe();
-            Properties = request.Parameters.Get<string>("Properties").ToStringSafe();
-            UserID = request.Parameters.Get<string>("UserID").ToStringSafe();
-            CreatedAt = request.Parameters.Get<string>("CreatedAt").ToStringSafe();
-            StartedAt = request.Parameters.Get<string>("StartedAt").ToStringSafe();
-            EndedAt = request.Parameters.Get<string>("EndedAt").ToStringSafe();
-        }
+        public string EndedAt { get; set; } = request.Parameters.Get<string>("EndedAt").ToStringSafe();
     }
 
-    public class LoggerRequestHandler : INotificationHandler<LoggerRequest>
+    public class LoggerRequestHandler(ILogger logger, ILoggerClient loggerClient) : INotificationHandler<LoggerRequest>
     {
-        private ILogger logger { get; }
+        private ILogger logger { get; } = logger;
 
-        private ILoggerClient loggerClient { get; }
-
-        public LoggerRequestHandler(ILogger logger, ILoggerClient loggerClient)
-        {
-            this.logger = logger;
-            this.loggerClient = loggerClient;
-        }
+        private ILoggerClient loggerClient { get; } = loggerClient;
 
         public async ValueTask Handle(LoggerRequest loggerRequest, CancellationToken cancellationToken)
         {
             try
             {
+                ArgumentNullException.ThrowIfNull(loggerRequest);
+
                 if (string.IsNullOrWhiteSpace(loggerRequest.ApplicationID))
                 {
                     logger.Warning("필수 요청 항목 확인 필요: " + JsonConvert.SerializeObject(loggerRequest));
@@ -138,27 +110,29 @@ namespace logger.Events
                     return;
                 }
 
-                var logMessage = new LogMessage();
-                logMessage.LogNo = loggerRequest.LogNo;
-                logMessage.ServerID = loggerRequest.ServerID;
-                logMessage.RunningEnvironment = loggerRequest.RunningEnvironment;
-                logMessage.ProgramName = loggerRequest.ProgramName;
-                logMessage.GlobalID = loggerRequest.GlobalID;
-                logMessage.Acknowledge = loggerRequest.Acknowledge;
-                logMessage.ApplicationID = loggerRequest.ApplicationID;
-                logMessage.ProjectID = loggerRequest.ProjectID;
-                logMessage.TransactionID = loggerRequest.TransactionID;
-                logMessage.ServiceID = loggerRequest.ServiceID;
-                logMessage.Type = loggerRequest.Type;
-                logMessage.Flow = loggerRequest.Flow;
-                logMessage.Level = loggerRequest.Level;
-                logMessage.Format = loggerRequest.Format;
-                logMessage.Message = loggerRequest.Message;
-                logMessage.Properties = loggerRequest.Properties;
-                logMessage.UserID = loggerRequest.UserID;
-                logMessage.CreatedAt = loggerRequest.CreatedAt;
-                logMessage.StartedAt = loggerRequest.StartedAt;
-                logMessage.EndedAt = loggerRequest.EndedAt;
+                var logMessage = new LogMessage
+                {
+                    LogNo = loggerRequest.LogNo,
+                    ServerID = loggerRequest.ServerID,
+                    RunningEnvironment = loggerRequest.RunningEnvironment,
+                    ProgramName = loggerRequest.ProgramName,
+                    GlobalID = loggerRequest.GlobalID,
+                    Acknowledge = loggerRequest.Acknowledge,
+                    ApplicationID = loggerRequest.ApplicationID,
+                    ProjectID = loggerRequest.ProjectID,
+                    TransactionID = loggerRequest.TransactionID,
+                    ServiceID = loggerRequest.ServiceID,
+                    Type = loggerRequest.Type,
+                    Flow = loggerRequest.Flow,
+                    Level = loggerRequest.Level,
+                    Format = loggerRequest.Format,
+                    Message = loggerRequest.Message,
+                    Properties = loggerRequest.Properties,
+                    UserID = loggerRequest.UserID,
+                    CreatedAt = loggerRequest.CreatedAt,
+                    StartedAt = loggerRequest.StartedAt,
+                    EndedAt = loggerRequest.EndedAt
+                };
 
                 await loggerClient.InsertWithPolicy(logMessage);
             }

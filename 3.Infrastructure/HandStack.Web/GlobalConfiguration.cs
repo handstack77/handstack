@@ -55,7 +55,7 @@ namespace HandStack.Web
         }
     }
 
-    public static class GlobalConfiguration
+    public static partial class GlobalConfiguration
     {
         public static IConfigurationRoot? ConfigurationRoot = null;
         public static string InstallType = "L";
@@ -104,26 +104,26 @@ namespace HandStack.Web
         public static string ExternalIPAddress = "";
         public static bool IsApiFindServer = true;
         public static bool IsRunning = false;
-        public static List<string> PhysicalFileProviders = new List<string>();
-        public static List<string> DisposeTenantApps = new List<string>();
-        public static List<string> WithOrigins = new List<string>();
-        public static List<string> WithOnlyIPs = new List<string>();
+        public static List<string> PhysicalFileProviders = [];
+        public static List<string> DisposeTenantApps = [];
+        public static List<string> WithOrigins = [];
+        public static List<string> WithOnlyIPs = [];
         public static string FindGlobalIDServer = "";
-        public static List<Exception?> UnhandledExceptions = new List<Exception?>();
+        public static List<Exception?> UnhandledExceptions = [];
         public static JObject? DomainAPIServer = null;
-        public static List<string> ByPassBootstrappingLoggingKey = new List<string>();
-        public static FileExtensionContentTypeProvider ContentTypeProvider = new FileExtensionContentTypeProvider();
-        public static Dictionary<string, string> StaticFilesAllowRolePath = new Dictionary<string, string>();
-        public static List<string> ModuleConfigurationUrl = new List<string>();
-        public static Dictionary<string, ApplicationCodeSetting?> ApplicationCodes = new Dictionary<string, ApplicationCodeSetting?>();
+        public static List<string> ByPassBootstrappingLoggingKey = [];
+        public static FileExtensionContentTypeProvider ContentTypeProvider = new();
+        public static Dictionary<string, string> StaticFilesAllowRolePath = [];
+        public static List<string> ModuleConfigurationUrl = [];
+        public static Dictionary<string, ApplicationCodeSetting?> ApplicationCodes = [];
         public static string ApplicationRuntimeID = Guid.NewGuid().ToString("N");
         public static string SessionCookieName = "";
         public static string ContentSecurityPolicy = "";
-        public static List<string> ModuleNames { get; set; } = new List<string>();
-        public static List<ModuleInfo> Modules { get; set; } = new List<ModuleInfo>();
+        public static List<string> ModuleNames { get; set; } = [];
+        public static List<ModuleInfo> Modules { get; set; } = [];
         public static bool IsPermissionRoles = false;
-        public static List<PermissionRoles> PermissionRoles { get; set; } = new List<PermissionRoles>();
-        public static Dictionary<string, LicenseItem> LoadModuleLicenses { get; set; } = new Dictionary<string, LicenseItem>();
+        public static List<PermissionRoles> PermissionRoles { get; set; } = [];
+        public static Dictionary<string, LicenseItem> LoadModuleLicenses { get; set; } = [];
 
         public static string DefaultCulture => "ko-KR";
         public static string ProxyBasePath = "";
@@ -132,7 +132,7 @@ namespace HandStack.Web
         public static string GetBaseDirectoryPath(string? basePath, string? defaultPath = "")
         {
             basePath = Environment.ExpandEnvironmentVariables(basePath.ToStringSafe());
-            basePath = Regex.Replace(basePath, @"\$(\{(?<name>[A-Za-z_][A-Za-z0-9_]*)\}|(?<name>[A-Za-z_][A-Za-z0-9_]*))", match =>
+            basePath = MyRegex().Replace(basePath, match =>
             {
                 var variableName = match.Groups["name"].Value;
                 var value = Environment.GetEnvironmentVariable(variableName);
@@ -140,14 +140,14 @@ namespace HandStack.Web
             });
 
             defaultPath = Environment.ExpandEnvironmentVariables(defaultPath.ToStringSafe());
-            defaultPath = Regex.Replace(defaultPath, @"\$(\{(?<name>[A-Za-z_][A-Za-z0-9_]*)\}|(?<name>[A-Za-z_][A-Za-z0-9_]*))", match =>
+            defaultPath = MyRegex().Replace(defaultPath, match =>
             {
                 var variableName = match.Groups["name"].Value;
                 var value = Environment.GetEnvironmentVariable(variableName);
                 return string.IsNullOrEmpty(value) == true ? match.Value : value;
             });
 
-            basePath = string.IsNullOrWhiteSpace(basePath) ? "" : (basePath.StartsWith(".") == true ? Path.GetFullPath(basePath, EntryBasePath) : new DirectoryInfo(basePath).FullName.Replace("\\", "/"));
+            basePath = string.IsNullOrWhiteSpace(basePath) ? "" : (basePath.StartsWith('.') == true ? Path.GetFullPath(basePath, EntryBasePath) : new DirectoryInfo(basePath).FullName.Replace("\\", "/"));
             if (string.IsNullOrWhiteSpace(basePath) && !string.IsNullOrWhiteSpace(defaultPath))
             {
                 basePath = defaultPath;
@@ -176,7 +176,7 @@ namespace HandStack.Web
         public static string GetBaseFilePath(string? basePath, string? defaultPath = "")
         {
             basePath = Environment.ExpandEnvironmentVariables(basePath.ToStringSafe());
-            basePath = Regex.Replace(basePath, @"\$(\{(?<name>[A-Za-z_][A-Za-z0-9_]*)\}|(?<name>[A-Za-z_][A-Za-z0-9_]*))", match =>
+            basePath = MyRegex1().Replace(basePath, match =>
             {
                 var variableName = match.Groups["name"].Value;
                 var value = Environment.GetEnvironmentVariable(variableName);
@@ -184,14 +184,14 @@ namespace HandStack.Web
             });
 
             defaultPath = Environment.ExpandEnvironmentVariables(defaultPath.ToStringSafe());
-            defaultPath = Regex.Replace(defaultPath, @"\$(\{(?<name>[A-Za-z_][A-Za-z0-9_]*)\}|(?<name>[A-Za-z_][A-Za-z0-9_]*))", match =>
+            defaultPath = MyRegex1().Replace(defaultPath, match =>
             {
                 var variableName = match.Groups["name"].Value;
                 var value = Environment.GetEnvironmentVariable(variableName);
                 return string.IsNullOrEmpty(value) == true ? match.Value : value;
             });
 
-            basePath = string.IsNullOrWhiteSpace(basePath) ? "" : (basePath.StartsWith(".") == true ? Path.GetFullPath(basePath, EntryBasePath) : new FileInfo(basePath).FullName.Replace("\\", "/"));
+            basePath = string.IsNullOrWhiteSpace(basePath) ? "" : (basePath.StartsWith('.') == true ? Path.GetFullPath(basePath, EntryBasePath) : new FileInfo(basePath).FullName.Replace("\\", "/"));
             if (string.IsNullOrWhiteSpace(basePath) && !string.IsNullOrWhiteSpace(defaultPath))
             {
                 basePath = defaultPath;
@@ -220,6 +220,7 @@ namespace HandStack.Web
         public static bool InitailizeAppSetting(Dictionary<string, JToken> transactionResult)
         {
             var result = false;
+            ArgumentNullException.ThrowIfNull(transactionResult);
             if (transactionResult.Count > 0 && transactionResult.ContainsKey("HasException") == false)
             {
                 lock (ApplicationCodes)
@@ -268,11 +269,11 @@ namespace HandStack.Web
         {
             var result = false;
             var clearModuleAppSettings = ApplicationCodes.Where(x => x.Value != null && x.Value.Area == moduleID && x.Value.CommonYN == false).ToList();
-            if (clearModuleAppSettings.Any() == true)
+            if (clearModuleAppSettings.Count != 0 == true)
             {
                 lock (ApplicationCodes)
                 {
-                    for (var i = clearModuleAppSettings.Count(); 0 < i; --i)
+                    for (var i = clearModuleAppSettings.Count; 0 < i; --i)
                     {
                         var item = clearModuleAppSettings[i];
                         ApplicationCodes.Remove(item.Key);
@@ -288,6 +289,7 @@ namespace HandStack.Web
             var sb = new StringBuilder();
             var nl = Environment.NewLine;
 
+            ArgumentNullException.ThrowIfNull(environment);
             sb.Append($"ApplicationName: {environment.ApplicationName}{nl}");
             sb.Append($"ContentRootFileProvider: {environment.ContentRootFileProvider}{nl}");
             sb.Append($"ContentRootPath: {environment.ContentRootPath}{nl}");
@@ -329,6 +331,11 @@ namespace HandStack.Web
 
             return sb;
         }
+
+        [GeneratedRegex(@"\$(\{(?<name>[A-Za-z_][A-Za-z0-9_]*)\}|(?<name>[A-Za-z_][A-Za-z0-9_]*))")]
+        private static partial Regex MyRegex();
+        [GeneratedRegex(@"\$(\{(?<name>[A-Za-z_][A-Za-z0-9_]*)\}|(?<name>[A-Za-z_][A-Za-z0-9_]*))")]
+        private static partial Regex MyRegex1();
     }
 }
 

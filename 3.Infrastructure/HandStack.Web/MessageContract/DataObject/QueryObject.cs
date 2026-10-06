@@ -11,11 +11,11 @@ namespace HandStack.Web.MessageContract.DataObject
             QueryID = "";
             TenantID = "";
             JsonObject = JsonObjectType.FormJson;
-            JsonObjects = new List<JsonObjectType>();
-            Parameters = new List<DynamicParameter>();
-            DecryptParameters = new List<DecryptParameter>();
-            BaseFieldMappings = new List<BaseFieldMapping>();
-            BaseFieldRelations = new List<BaseFieldRelation?>();
+            JsonObjects = [];
+            Parameters = [];
+            DecryptParameters = [];
+            BaseFieldMappings = [];
+            BaseFieldRelations = [];
             IgnoreResult = false;
         }
 

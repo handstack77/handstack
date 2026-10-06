@@ -8,10 +8,10 @@ namespace HandStack.Core.Helpers
     {
         private const string keyStringBase64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
         private const string keyStringUriSafe = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-$";
-        private static readonly IDictionary<char, char> base64Dictionary = CreateBaseDictionary(keyStringBase64);
-        private static readonly IDictionary<char, char> uriSafeDictionary = CreateBaseDictionary(keyStringUriSafe);
+        private static readonly Dictionary<char, char> base64Dictionary = CreateBaseDictionary(keyStringBase64);
+        private static readonly Dictionary<char, char> uriSafeDictionary = CreateBaseDictionary(keyStringUriSafe);
 
-        private static IDictionary<char, char> CreateBaseDictionary(string alphabet)
+        private static Dictionary<char, char> CreateBaseDictionary(string alphabet)
         {
             var dict = new Dictionary<char, char>();
             for (var i = 0; i < alphabet.Length; i++)
@@ -23,22 +23,22 @@ namespace HandStack.Core.Helpers
 
         public static string CompressToBase64(string input)
         {
-            if (input == null) throw new ArgumentNullException(nameof(input));
+            ArgumentNullException.ThrowIfNull(input);
 
             var res = Compress(input, 6, code => keyStringBase64[code]);
-            switch (res.Length % 4)
+            return (res.Length % 4) switch
             {
-                default: throw new InvalidOperationException("알 수 없는 오류");
-                case 0: return res;
-                case 1: return res + "===";
-                case 2: return res + "==";
-                case 3: return res + "=";
-            }
+                0 => res,
+                1 => res + "===",
+                2 => res + "==",
+                3 => res + "=",
+                _ => throw new InvalidOperationException("알 수 없는 오류"),
+            };
         }
 
         public static string? DecompressFromBase64(string input)
         {
-            if (input == null) throw new ArgumentNullException(nameof(input));
+            ArgumentNullException.ThrowIfNull(input);
 
             return Decompress(input.Length, 32, index => base64Dictionary[input[index]]);
         }
@@ -50,7 +50,7 @@ namespace HandStack.Core.Helpers
 
         public static string? DecompressFromUTF16(string input)
         {
-            if (input == null) throw new ArgumentNullException(nameof(input));
+            ArgumentNullException.ThrowIfNull(input);
 
             return Decompress(input.Length, 16384, index => (char)(input[index] - 32));
         }
@@ -64,7 +64,7 @@ namespace HandStack.Core.Helpers
 
         public static string? DecompressFromEncodedURIComponent(string input)
         {
-            if (input == null) throw new ArgumentNullException(nameof(input));
+            ArgumentNullException.ThrowIfNull(input);
 
             input = input.Replace(" ", "+");
             return Decompress(input.Length, 32, index => uriSafeDictionary[input[index]]);
@@ -86,7 +86,7 @@ namespace HandStack.Core.Helpers
 
         public static string? DecompressFromUint8Array(byte[] compressed)
         {
-            if (compressed == null) throw new ArgumentNullException(nameof(compressed));
+            ArgumentNullException.ThrowIfNull(compressed);
 
             var result = new char[compressed.Length / 2];
             for (var i = 0; i < result.Length; i++)
@@ -104,12 +104,11 @@ namespace HandStack.Core.Helpers
 
         private static string Compress(string uncompressed, int bitsPerChar, Func<int, char> getCharFromInt)
         {
-            if (uncompressed == null) throw new ArgumentNullException(nameof(uncompressed));
+            ArgumentNullException.ThrowIfNull(uncompressed);
 
             int i, value;
             var context_dictionary = new Dictionary<string, int>();
             var context_dictionaryToCreate = new Dictionary<string, bool>();
-            var context_wc = "";
             var context_w = "";
             var context_enlargeIn = 2;
             var context_dictSize = 3;
@@ -126,7 +125,7 @@ namespace HandStack.Core.Helpers
                     context_dictionaryToCreate[context_c.ToString()] = true;
                 }
 
-                context_wc = context_w + context_c;
+                var context_wc = context_w + context_c;
                 if (context_dictionary.ContainsKey(context_wc))
                 {
                     context_w = context_wc;
@@ -139,7 +138,7 @@ namespace HandStack.Core.Helpers
                         {
                             for (i = 0; i < context_numBits; i++)
                             {
-                                context_data_val = (context_data_val << 1);
+                                context_data_val <<= 1;
                                 if (context_data_position == bitsPerChar - 1)
                                 {
                                     context_data_position = 0;
@@ -165,7 +164,7 @@ namespace HandStack.Core.Helpers
                                 {
                                     context_data_position++;
                                 }
-                                value = value >> 1;
+                                value >>= 1;
                             }
                         }
                         else
@@ -200,7 +199,7 @@ namespace HandStack.Core.Helpers
                                 {
                                     context_data_position++;
                                 }
-                                value = value >> 1;
+                                value >>= 1;
                             }
                         }
                         context_enlargeIn--;
@@ -227,7 +226,7 @@ namespace HandStack.Core.Helpers
                             {
                                 context_data_position++;
                             }
-                            value = value >> 1;
+                            value >>= 1;
                         }
 
 
@@ -252,7 +251,7 @@ namespace HandStack.Core.Helpers
                     {
                         for (i = 0; i < context_numBits; i++)
                         {
-                            context_data_val = (context_data_val << 1);
+                            context_data_val <<= 1;
                             if (context_data_position == bitsPerChar - 1)
                             {
                                 context_data_position = 0;
@@ -278,7 +277,7 @@ namespace HandStack.Core.Helpers
                             {
                                 context_data_position++;
                             }
-                            value = value >> 1;
+                            value >>= 1;
                         }
                     }
                     else
@@ -313,7 +312,7 @@ namespace HandStack.Core.Helpers
                             {
                                 context_data_position++;
                             }
-                            value = value >> 1;
+                            value >>= 1;
                         }
                     }
                     context_enlargeIn--;
@@ -340,7 +339,7 @@ namespace HandStack.Core.Helpers
                         {
                             context_data_position++;
                         }
-                        value = value >> 1;
+                        value >>= 1;
                     }
 
 
@@ -366,12 +365,12 @@ namespace HandStack.Core.Helpers
                 {
                     context_data_position++;
                 }
-                value = value >> 1;
+                value >>= 1;
             }
 
             while (true)
             {
-                context_data_val = (context_data_val << 1);
+                context_data_val <<= 1;
                 if (context_data_position == bitsPerChar - 1)
                 {
                     context_data.Append(getCharFromInt(context_data_val));
@@ -384,7 +383,7 @@ namespace HandStack.Core.Helpers
 
         public static string? Decompress(string compressed)
         {
-            if (compressed == null) throw new ArgumentNullException(nameof(compressed));
+            ArgumentNullException.ThrowIfNull(compressed);
 
             return Decompress(compressed.Length, 32768, index => compressed[index]);
         }
@@ -580,7 +579,7 @@ namespace HandStack.Core.Helpers
         {
             if (string.IsNullOrEmpty(value))
             {
-                return default(char);
+                return default;
             }
 
             return value[0];

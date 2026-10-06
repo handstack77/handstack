@@ -14,8 +14,8 @@ namespace transact.Entity
             Success = false;
             ExceptionText = "";
             ExceptionType = "";
-            DataSet = new List<DataMapItem>();
-            ResultMeta = new List<string>();
+            DataSet = [];
+            ResultMeta = [];
             Values = new Dictionary<string, JToken>(System.StringComparer.OrdinalIgnoreCase);
         }
 

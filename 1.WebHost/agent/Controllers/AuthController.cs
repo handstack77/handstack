@@ -15,17 +15,12 @@ namespace agent.Controllers
 {
     [ApiController]
     [Route("auth")]
-    public sealed class AuthController : ControllerBase
+    public sealed class AuthController(UserCredentialValidator userCredentialValidator) : ControllerBase
     {
         private const string CreatedAtClaimType = "handstack:created_at";
         private const string ExpiredAtClaimType = "handstack:expired_at";
 
-        private readonly UserCredentialValidator userCredentialValidator;
-
-        public AuthController(UserCredentialValidator userCredentialValidator)
-        {
-            this.userCredentialValidator = userCredentialValidator;
-        }
+        private readonly UserCredentialValidator userCredentialValidator = userCredentialValidator;
 
         [HttpPost("login")]
         public async Task<ActionResult> Login([FromBody] LoginRequest? request)
@@ -124,7 +119,7 @@ namespace agent.Controllers
             };
         }
 
-        private static IReadOnlyList<string> ParseRoles(string? roles)
+        private static string[] ParseRoles(string? roles)
         {
             if (string.IsNullOrWhiteSpace(roles) == true)
             {

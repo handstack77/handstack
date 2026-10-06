@@ -27,7 +27,7 @@ namespace HandStack.Web.MessageContract.Message
         {
             Result = false;
             Message = "";
-            FileUploadResults = new List<FileUploadResult>();
+            FileUploadResults = [];
             RemainingCount = 0;
         }
 

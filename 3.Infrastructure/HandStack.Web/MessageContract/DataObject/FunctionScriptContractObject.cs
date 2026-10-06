@@ -9,15 +9,15 @@ namespace HandStack.Web.MessageContract.DataObject
 {
     public partial class FunctionScriptContract
     {
-        [JsonProperty("Header")]
+        [JsonProperty(nameof(Header))]
         public FunctionHeader Header { get; set; }
 
-        [JsonProperty("Commands")]
+        [JsonProperty(nameof(Commands))]
         public List<FunctionCommand> Commands { get; set; }
 
         public static FunctionScriptContract? FromJson(string json)
         {
-            FunctionScriptContract? result = null;
+            FunctionScriptContract? result;
             if (string.IsNullOrWhiteSpace(json))
             {
                 throw new Exception($"json 내용 확인 필요: {json}");
@@ -33,22 +33,22 @@ namespace HandStack.Web.MessageContract.DataObject
         public FunctionScriptContract()
         {
             Header = new FunctionHeader();
-            Commands = new List<FunctionCommand>();
+            Commands = [];
         }
     }
 
     public partial class FunctionCommand
     {
-        [JsonProperty("ID")]
+        [JsonProperty(nameof(ID))]
         public string ID { get; set; }
 
-        [JsonProperty("Seq")]
+        [JsonProperty(nameof(Seq))]
         public int Seq { get; set; }
 
-        [JsonProperty("Use")]
+        [JsonProperty(nameof(Use))]
         public bool Use { get; set; }
 
-        [JsonProperty("Timeout")]
+        [JsonProperty(nameof(Timeout))]
         public int Timeout { get; set; }
 
         [JsonProperty]
@@ -66,16 +66,16 @@ namespace HandStack.Web.MessageContract.DataObject
         [JsonProperty]
         public string FallbackTransaction { get; set; }
 
-        [JsonProperty("Description")]
+        [JsonProperty(nameof(Description))]
         public string Description { get; set; }
 
-        [JsonProperty("ModifiedAt")]
+        [JsonProperty(nameof(ModifiedAt))]
         public DateTimeOffset ModifiedAt { get; set; }
 
-        [JsonProperty("Params")]
+        [JsonProperty(nameof(Params))]
         public List<FunctionParam> Params { get; set; }
 
-        [JsonProperty("OutputMetas")]
+        [JsonProperty(nameof(OutputMetas))]
         public List<string> OutputMetas { get; set; }
 
         public FunctionCommand()
@@ -89,8 +89,8 @@ namespace HandStack.Web.MessageContract.DataObject
             FallbackTransaction = "";
             Description = "";
             ModifiedAt = DateTimeOffset.Now;
-            Params = new List<FunctionParam>();
-            OutputMetas = new List<string>();
+            Params = [];
+            OutputMetas = [];
         }
     }
 
@@ -115,34 +115,34 @@ namespace HandStack.Web.MessageContract.DataObject
 
     public partial class FunctionHeader
     {
-        [JsonProperty("ApplicationID")]
+        [JsonProperty(nameof(ApplicationID))]
         public string ApplicationID { get; set; }
 
-        [JsonProperty("ProjectID")]
+        [JsonProperty(nameof(ProjectID))]
         public string ProjectID { get; set; }
 
-        [JsonProperty("TransactionID")]
+        [JsonProperty(nameof(TransactionID))]
         public string TransactionID { get; set; }
 
-        [JsonProperty("ReferenceModuleID")]
+        [JsonProperty(nameof(ReferenceModuleID))]
         public string ReferenceModuleID { get; set; }
 
-        [JsonProperty("IsHttpContext")]
+        [JsonProperty(nameof(IsHttpContext))]
         public bool IsHttpContext { get; set; }
 
-        [JsonProperty("Use")]
+        [JsonProperty(nameof(Use))]
         public bool Use { get; set; }
 
-        [JsonProperty("DataSourceID")]
+        [JsonProperty(nameof(DataSourceID))]
         public string DataSourceID { get; set; }
 
-        [JsonProperty("LanguageType")]
+        [JsonProperty(nameof(LanguageType))]
         public string LanguageType { get; set; }
 
-        [JsonProperty("Comment")]
+        [JsonProperty(nameof(Comment))]
         public string Comment { get; set; }
 
-        [JsonProperty("Configuration")]
+        [JsonProperty(nameof(Configuration))]
         public Dictionary<string, object>? Configuration { get; set; }
 
         public FunctionHeader()

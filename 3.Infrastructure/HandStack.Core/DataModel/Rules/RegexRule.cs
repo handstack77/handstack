@@ -2,14 +2,9 @@
 
 namespace HandStack.Core.DataModel.Rules
 {
-    public class RegexRule : BusinessRule
+    public class RegexRule(string propertyName, string pattern) : BusinessRule(propertyName)
     {
-        protected string Pattern { get; set; }
-
-        public RegexRule(string propertyName, string pattern) : base(propertyName)
-        {
-            Pattern = pattern;
-        }
+        protected string Pattern { get; set; } = pattern;
 
         public RegexRule(string propertyName, string errorMessage, string pattern) : this(propertyName, pattern)
         {
@@ -18,8 +13,8 @@ namespace HandStack.Core.DataModel.Rules
 
         public override bool Validate(EntityObject businessObject)
         {
-            var result = false;
             var value = GetPropertyValue(businessObject);
+            bool result;
             if (value == null)
             {
                 result = false;
@@ -33,7 +28,7 @@ namespace HandStack.Core.DataModel.Rules
                 }
                 else
                 {
-                    result = Regex.Match(text, Pattern).Success;
+                    result = Regex.IsMatch(text, Pattern);
                 }
             }
             return result;

@@ -11,14 +11,9 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace HandStack.Web.ApiClient
 {
-    public sealed class HandStackMediator : IMediator
+    public sealed class HandStackMediator(IServiceProvider serviceProvider) : IMediator
     {
-        private readonly IServiceProvider serviceProvider;
-
-        public HandStackMediator(IServiceProvider serviceProvider)
-        {
-            this.serviceProvider = serviceProvider;
-        }
+        private readonly IServiceProvider serviceProvider = serviceProvider;
 
         public async ValueTask<TResponse> Send<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken = default)
         {
@@ -43,20 +38,10 @@ namespace HandStack.Web.ApiClient
             ArgumentNullException.ThrowIfNull(message);
 
             var messageType = message.GetType();
-            var requestInterface = FindRequestInterface(messageType);
-            if (requestInterface == null)
-            {
-                throw new InvalidOperationException($"Mediator request interface 확인 필요: {messageType.FullName}");
-            }
-
+            var requestInterface = FindRequestInterface(messageType) ?? throw new InvalidOperationException($"Mediator request interface 확인 필요: {messageType.FullName}");
             var responseType = requestInterface.GetGenericArguments()[0];
             var handlerType = GetRequestHandlerType(requestInterface, messageType, responseType);
-            var handler = serviceProvider.GetService(handlerType);
-            if (handler == null)
-            {
-                throw new InvalidOperationException($"Mediator request handler 확인 필요: {handlerType.FullName}");
-            }
-
+            var handler = serviceProvider.GetService(handlerType) ?? throw new InvalidOperationException($"Mediator request handler 확인 필요: {handlerType.FullName}");
             return await InvokeHandleAsync(handler, message, cancellationToken);
         }
 

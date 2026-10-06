@@ -13,14 +13,9 @@ using Serilog;
 
 namespace rdy.Services
 {
-    internal class ModuleConfigurationService : IHostedService
+    internal class ModuleConfigurationService(ILogger logger) : IHostedService
     {
-        private readonly ILogger logger;
-
-        public ModuleConfigurationService(ILogger logger)
-        {
-            this.logger = logger;
-        }
+        private readonly ILogger logger = logger;
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {

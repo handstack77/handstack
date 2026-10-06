@@ -10,7 +10,7 @@ namespace repository.Extensions
         public static string GetPathRoot(string path)
         {
             var pathRoot = Path.GetPathRoot(path);
-            return pathRoot == null ? path : pathRoot;
+            return pathRoot ?? path;
         }
 
         public static string GetFullPath(string path)
@@ -76,7 +76,7 @@ namespace repository.Extensions
         public static string GetDirectoryName(string path)
         {
             var directoryName = Path.GetDirectoryName(path);
-            return directoryName == null ? path : directoryName;
+            return directoryName ?? path;
         }
 
         public static bool DirectoryExists(string path)

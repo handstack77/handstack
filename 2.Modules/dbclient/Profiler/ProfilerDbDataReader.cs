@@ -27,12 +27,7 @@ namespace dbclient.Profiler
 
         internal ProfilerDbDataReader(DbDataReader reader, IAdoNetProfiler profiler)
         {
-            if (reader == null)
-            {
-                throw new ArgumentNullException(nameof(reader));
-            }
-
-            WrappedDataReader = reader;
+            WrappedDataReader = reader ?? throw new ArgumentNullException(nameof(reader));
             this.profiler = profiler;
         }
 

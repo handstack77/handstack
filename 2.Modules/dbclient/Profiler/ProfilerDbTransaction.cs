@@ -6,7 +6,7 @@ namespace dbclient.Profiler
 {
     public class ProfilerDbTransaction : DbTransaction
     {
-        private DbConnection connection;
+        private readonly DbConnection connection;
         private readonly IAdoNetProfiler profiler;
 
         protected override DbConnection DbConnection => connection;
@@ -17,12 +17,9 @@ namespace dbclient.Profiler
 
         internal ProfilerDbTransaction(DbTransaction transaction, DbConnection connection, IAdoNetProfiler profiler)
         {
-            if (transaction == null) throw new ArgumentNullException(nameof(transaction));
-            if (connection == null) throw new ArgumentNullException(nameof(connection));
+            WrappedTransaction = transaction ?? throw new ArgumentNullException(nameof(transaction));
 
-            WrappedTransaction = transaction;
-
-            this.connection = connection;
+            this.connection = connection ?? throw new ArgumentNullException(nameof(connection));
             this.profiler = profiler;
         }
 

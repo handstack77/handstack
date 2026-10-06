@@ -5,44 +5,31 @@ namespace HandStack.Data
 {
     public sealed class DatabaseTransaction : IDisposable
     {
-        private TransactionScope transactionScope;
+        private readonly TransactionScope transactionScope;
 
-        private Transaction? transaction;
+        private readonly Transaction? transaction;
 
-        private TransactionScopeOption transactionScopeOption;
+        private readonly TransactionScopeOption transactionScopeOption;
 
-        private TimeSpan transactionScopeTimeout;
+        private readonly TimeSpan transactionScopeTimeout;
 
-        private TransactionOptions transactionOptions;
+        private readonly TransactionOptions transactionOptions;
 
-        private EnterpriseServicesInteropOption interopOption;
+        private readonly EnterpriseServicesInteropOption interopOption;
 
         private DataProviders dataProviders;
 
         private bool IsSupportTransaction(DataProviders providers)
         {
-            var result = false;
-            switch (providers)
+            var result = providers switch
             {
-                case DataProviders.SqlServer:
-                    result = true;
-                    break;
-                case DataProviders.Oracle:
-                    result = true;
-                    break;
-                case DataProviders.MySQL:
-                    result = true;
-                    break;
-                case DataProviders.PostgreSQL:
-                    result = true;
-                    break;
-                case DataProviders.SQLite:
-                    result = true;
-                    break;
-                default:
-                    result = false;
-                    break;
-            }
+                DataProviders.SqlServer => true,
+                DataProviders.Oracle => true,
+                DataProviders.MySQL => true,
+                DataProviders.PostgreSQL => true,
+                DataProviders.SQLite => true,
+                _ => false,
+            };
 
             dataProviders = providers;
             return result;
@@ -84,18 +71,12 @@ namespace HandStack.Data
 
         public void Complete()
         {
-            if (transactionScope != null)
-            {
-                transactionScope.Complete();
-            }
+            transactionScope?.Complete();
         }
 
         public void Dispose()
         {
-            if (transactionScope != null)
-            {
-                transactionScope.Dispose();
-            }
+            transactionScope?.Dispose();
         }
     }
 }

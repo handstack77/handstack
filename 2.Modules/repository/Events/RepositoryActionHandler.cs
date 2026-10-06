@@ -33,32 +33,23 @@ namespace repository.Events
 
     await mediatorClient.PublishAsync(mediatorRequest);
     */
-    public class RepositoryAction : INotification
+    public class RepositoryAction(MediatorRequest request) : INotification
     {
-        public string Method { get; set; }
+        public string Method { get; set; } = request.Parameters.Get<string>("Method").ToStringSafe();
 
-        public Dictionary<string, object>? Arguments { get; set; }
-
-        public RepositoryAction(MediatorRequest request)
-        {
-            Method = request.Parameters.Get<string>("Method").ToStringSafe();
-            Arguments = request.Parameters.Get<Dictionary<string, object>>("Arguments");
-        }
+        public Dictionary<string, object>? Arguments { get; set; } = request.Parameters.Get<Dictionary<string, object>>("Arguments");
     }
 
-    public class RepositoryActionHandler : INotificationHandler<RepositoryAction>
+    public class RepositoryActionHandler(ILogger logger) : INotificationHandler<RepositoryAction>
     {
-        private ILogger logger { get; }
-
-        public RepositoryActionHandler(ILogger logger)
-        {
-            this.logger = logger;
-        }
+        private ILogger logger { get; } = logger;
 
         public ValueTask Handle(RepositoryAction repositoryAction, CancellationToken cancellationToken)
         {
             try
             {
+                ArgumentNullException.ThrowIfNull(repositoryAction);
+
                 logger.Warning("[{LogCategory}] " + $"{repositoryAction.Method} Method 확인 필요", "RepositoryActionHandler/Handle");
             }
             catch (Exception exception)

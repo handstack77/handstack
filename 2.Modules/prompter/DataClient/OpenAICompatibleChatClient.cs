@@ -11,14 +11,12 @@ using Newtonsoft.Json.Linq;
 
 namespace prompter.DataClient
 {
-    public class OpenAICompatibleChatClient : HttpLLMChatClient
+    public class OpenAICompatibleChatClient(IHttpClientFactory httpClientFactory) : HttpLLMChatClient(httpClientFactory)
     {
-        public OpenAICompatibleChatClient(IHttpClientFactory httpClientFactory) : base(httpClientFactory)
-        {
-        }
-
         public override async Task<LLMChatResponse> ChatAsync(LLMChatRequest request, CancellationToken cancellationToken = default)
         {
+            ArgumentNullException.ThrowIfNull(request);
+
             Require(request.ModelID, "OpenAI ModelID 설정 필요");
             Require(request.ApiKey, "OpenAI ApiKey 설정 필요");
             ValidateMediaSupport(request, "OpenAI", true, true);

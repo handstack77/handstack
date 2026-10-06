@@ -4,42 +4,15 @@
     {
         public static string toMetaDataType(string dataType)
         {
-            var result = "string";
-
-            switch (dataType)
+            var result = dataType switch
             {
-                case "Boolean":
-                    result = "bool";
-                    break;
-                case "DateTime":
-                    result = "date";
-                    break;
-                case "Byte":
-                case "Guid":
-                case "Char":
-                case "String":
-                case "TimeSpan":
-                case "SByte":
-                    result = "string";
-                    break;
-                case "Decimal":
-                case "Double":
-                case "Single":
-                    result = "numeric";
-                    break;
-                case "Int16":
-                case "Int32":
-                case "Int64":
-                case "UInt16":
-                case "UInt32":
-                case "UInt64":
-                    result = "number";
-                    break;
-                default:
-                    result = "string";
-                    break;
-            }
-
+                "Boolean" => "bool",
+                "DateTime" => "date",
+                "Byte" or "Guid" or "Char" or "String" or "TimeSpan" or "SByte" => "string",
+                "Decimal" or "Double" or "Single" => "numeric",
+                "Int16" or "Int32" or "Int64" or "UInt16" or "UInt32" or "UInt64" => "number",
+                _ => "string",
+            };
             return result;
         }
     }

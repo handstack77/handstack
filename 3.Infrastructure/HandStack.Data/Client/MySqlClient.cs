@@ -35,7 +35,7 @@ namespace HandStack.Data.Client
             set { connectionString = value; }
         }
 
-        private DatabaseFactory databaseFactory;
+        private readonly DatabaseFactory databaseFactory;
 
         private bool isDisposedResources = false;
 
@@ -93,7 +93,7 @@ namespace HandStack.Data.Client
 
             static void AppendParameter(StringBuilder builder, string parameterName, object? parameterValue)
             {
-                if (parameterName.IndexOf("@", StringComparison.Ordinal) < 0)
+                if (parameterName.IndexOf('@') < 0)
                 {
                     builder.Append('@');
                 }
@@ -315,7 +315,7 @@ namespace HandStack.Data.Client
                 }
                 else
                 {
-                    results = new List<T>();
+                    results = [];
                 }
             }
 
@@ -447,7 +447,7 @@ namespace HandStack.Data.Client
             }
         }
 
-        private bool SetDbParameterData(MySqlParameter parameter, List<MySqlParameter>? ListParameters)
+        private static bool SetDbParameterData(MySqlParameter parameter, List<MySqlParameter>? ListParameters)
         {
             if (ListParameters == null)
             {
@@ -461,7 +461,7 @@ namespace HandStack.Data.Client
                          where p.ParameterName.Equals(parameter.ParameterName, StringComparison.CurrentCultureIgnoreCase)
                          select p;
 
-            if (result.Count() > 0)
+            if (result.Any())
             {
                 MySqlParameter? listParameter = null;
                 foreach (var nvp in result)
@@ -475,130 +475,49 @@ namespace HandStack.Data.Client
             }
             else
             {
-                switch (parameter.MySqlDbType)
+                dbValue = parameter.MySqlDbType switch
                 {
-                    case MySqlDbType.Decimal:
-                        dbValue = 0;
-                        break;
-                    case MySqlDbType.Byte:
-                        dbValue = DBNull.Value;
-                        break;
-                    case MySqlDbType.Int16:
-                        dbValue = 0;
-                        break;
-                    case MySqlDbType.Int24:
-                        dbValue = 0;
-                        break;
-                    case MySqlDbType.Int32:
-                        dbValue = 0;
-                        break;
-                    case MySqlDbType.Int64:
-                        dbValue = 0;
-                        break;
-                    case MySqlDbType.Float:
-                        dbValue = 0;
-                        break;
-                    case MySqlDbType.Double:
-                        dbValue = 0;
-                        break;
-                    case MySqlDbType.Timestamp:
-                        dbValue = DateTime.Now;
-                        break;
-                    case MySqlDbType.Date:
-                        dbValue = DateTime.Now;
-                        break;
-                    case MySqlDbType.Time:
-                        dbValue = DateTime.Now;
-                        break;
-                    case MySqlDbType.DateTime:
-                        dbValue = DateTime.Now;
-                        break;
-                    case MySqlDbType.Year:
-                        dbValue = 0;
-                        break;
-                    case MySqlDbType.Newdate:
-                        dbValue = DBNull.Value;
-                        break;
-                    case MySqlDbType.VarString:
-                        dbValue = "";
-                        break;
-                    case MySqlDbType.Bit:
-                        dbValue = false;
-                        break;
-                    case MySqlDbType.JSON:
-                        dbValue = "";
-                        break;
-                    case MySqlDbType.NewDecimal:
-                        dbValue = 0;
-                        break;
-                    case MySqlDbType.Enum:
-                        dbValue = "";
-                        break;
-                    case MySqlDbType.Set:
-                        dbValue = DBNull.Value;
-                        break;
-                    case MySqlDbType.TinyBlob:
-                        dbValue = DBNull.Value;
-                        break;
-                    case MySqlDbType.MediumBlob:
-                        dbValue = DBNull.Value;
-                        break;
-                    case MySqlDbType.LongBlob:
-                        dbValue = DBNull.Value;
-                        break;
-                    case MySqlDbType.Blob:
-                        dbValue = DBNull.Value;
-                        break;
-                    case MySqlDbType.VarChar:
-                        dbValue = "";
-                        break;
-                    case MySqlDbType.String:
-                        dbValue = "";
-                        break;
-                    case MySqlDbType.Geometry:
-                        dbValue = DBNull.Value;
-                        break;
-                    case MySqlDbType.UByte:
-                        dbValue = DBNull.Value;
-                        break;
-                    case MySqlDbType.UInt16:
-                        dbValue = 0;
-                        break;
-                    case MySqlDbType.UInt24:
-                        dbValue = 0;
-                        break;
-                    case MySqlDbType.UInt32:
-                        dbValue = 0;
-                        break;
-                    case MySqlDbType.UInt64:
-                        dbValue = 0;
-                        break;
-                    case MySqlDbType.Binary:
-                        dbValue = DBNull.Value;
-                        break;
-                    case MySqlDbType.VarBinary:
-                        dbValue = DBNull.Value;
-                        break;
-                    case MySqlDbType.TinyText:
-                        dbValue = "";
-                        break;
-                    case MySqlDbType.MediumText:
-                        dbValue = "";
-                        break;
-                    case MySqlDbType.LongText:
-                        dbValue = "";
-                        break;
-                    case MySqlDbType.Text:
-                        dbValue = "";
-                        break;
-                    case MySqlDbType.Guid:
-                        dbValue = "";
-                        break;
-                    default:
-                        dbValue = DBNull.Value;
-                        break;
-                }
-
+                    MySqlDbType.Decimal => 0,
+                    MySqlDbType.Byte => DBNull.Value,
+                    MySqlDbType.Int16 => 0,
+                    MySqlDbType.Int24 => 0,
+                    MySqlDbType.Int32 => 0,
+                    MySqlDbType.Int64 => 0,
+                    MySqlDbType.Float => 0,
+                    MySqlDbType.Double => 0,
+                    MySqlDbType.Timestamp => DateTime.Now,
+                    MySqlDbType.Date => DateTime.Now,
+                    MySqlDbType.Time => DateTime.Now,
+                    MySqlDbType.DateTime => DateTime.Now,
+                    MySqlDbType.Year => 0,
+                    MySqlDbType.Newdate => DBNull.Value,
+                    MySqlDbType.VarString => "",
+                    MySqlDbType.Bit => false,
+                    MySqlDbType.JSON => "",
+                    MySqlDbType.NewDecimal => 0,
+                    MySqlDbType.Enum => "",
+                    MySqlDbType.Set => DBNull.Value,
+                    MySqlDbType.TinyBlob => DBNull.Value,
+                    MySqlDbType.MediumBlob => DBNull.Value,
+                    MySqlDbType.LongBlob => DBNull.Value,
+                    MySqlDbType.Blob => DBNull.Value,
+                    MySqlDbType.VarChar => "",
+                    MySqlDbType.String => "",
+                    MySqlDbType.Geometry => DBNull.Value,
+                    MySqlDbType.UByte => DBNull.Value,
+                    MySqlDbType.UInt16 => 0,
+                    MySqlDbType.UInt24 => 0,
+                    MySqlDbType.UInt32 => 0,
+                    MySqlDbType.UInt64 => 0,
+                    MySqlDbType.Binary => DBNull.Value,
+                    MySqlDbType.VarBinary => DBNull.Value,
+                    MySqlDbType.TinyText => "",
+                    MySqlDbType.MediumText => "",
+                    MySqlDbType.LongText => "",
+                    MySqlDbType.Text => "",
+                    MySqlDbType.Guid => "",
+                    _ => DBNull.Value,
+                };
                 isMatchingParameter = false;
             }
 
@@ -639,12 +558,8 @@ namespace HandStack.Data.Client
             {
                 if (isFromDispose)
                 {
-                    if (databaseFactory != null)
-                    {
-                        databaseFactory.Dispose();
-                    }
+                    databaseFactory?.Dispose();
 
-                    GC.SuppressFinalize(this);
                 }
 
                 isDisposedResources = true;

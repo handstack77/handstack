@@ -107,7 +107,7 @@ namespace repository.Extensions
                 Log.Logger.Error(exception, "[{LogCategory}] Json Serialize 오류", "JsonConverter/Deserialize<T>");
             }
 
-            return default(T);
+            return default;
         }
 
         public static T? Deserialize<T>(string jsonString, T anonymousType)
@@ -121,7 +121,7 @@ namespace repository.Extensions
                 Log.Logger.Error(exception, "[{LogCategory}] Json Serialize 오류", "JsonConverter/Deserialize<T>");
             }
 
-            return default(T);
+            return default;
         }
 
         public static XmlDocument? Deserialize(string jsonString)
@@ -146,12 +146,16 @@ namespace repository.Extensions
             using var dataTable = value as DataTable;
             if (dataTable != null)
             {
+                ArgumentNullException.ThrowIfNull(writer);
+
                 writer.WriteStartArray();
                 foreach (DataRow row in dataTable.Rows)
                 {
                     writer.WriteStartObject();
                     foreach (DataColumn column in row.Table.Columns)
                     {
+                        ArgumentNullException.ThrowIfNull(serializer);
+
                         if (serializer.NullValueHandling != NullValueHandling.Ignore || row[column] != null && row[column] != DBNull.Value)
                         {
                             writer.WritePropertyName(column.ColumnName);
@@ -183,6 +187,7 @@ namespace repository.Extensions
             if (dataSet != null)
             {
                 var dataTableConverter = new DataTableConverter();
+                ArgumentNullException.ThrowIfNull(writer);
                 writer.WriteStartObject();
                 foreach (DataTable table in dataSet.Tables)
                 {

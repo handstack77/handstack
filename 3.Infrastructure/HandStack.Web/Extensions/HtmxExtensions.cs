@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Http;
@@ -13,83 +14,115 @@ namespace HandStack.Web.Extensions
     {
         public static bool IsHtmxRequest(this HttpRequest request)
         {
+            ArgumentNullException.ThrowIfNull(request);
+
             return request.Headers.ContainsKey("HX-Request");
         }
 
         public static bool IsHtmxRequest(this HttpContext context)
         {
+            ArgumentNullException.ThrowIfNull(context);
+
             return context.Request.IsHtmxRequest();
         }
 
         public static bool IsHtmxRequest(this ActionContext context)
         {
+            ArgumentNullException.ThrowIfNull(context);
+
             return context.HttpContext.Request.IsHtmxRequest();
         }
 
         public static bool IsHtmxRequest(this Controller controller)
         {
+            ArgumentNullException.ThrowIfNull(controller);
+
             return controller.HttpContext.Request.IsHtmxRequest();
         }
 
         public static bool IsHtmxRequest(this IHtmlHelper htmlHelper)
         {
+            ArgumentNullException.ThrowIfNull(htmlHelper);
+
             return htmlHelper.ViewContext.HttpContext.Request.IsHtmxRequest();
         }
 
         public static bool IsHtmxBoosted(this HttpRequest request)
         {
+            ArgumentNullException.ThrowIfNull(request);
+
             return request.Headers.ContainsKey("HX-Boosted");
         }
 
         public static string GetCurrentUrl(this HttpRequest request)
         {
+            ArgumentNullException.ThrowIfNull(request);
+
             return request.Headers.TryGetValue("HX-Current-URL", out var value)
                 ? value.ToString()
-                : request.Headers["Referer"].ToString();
+                : request.Headers.Referer.ToString();
         }
 
         public static bool IsHistoryRestoreRequest(this HttpRequest request)
         {
+            ArgumentNullException.ThrowIfNull(request);
+
             return request.Headers.TryGetValue("HX-History-Restore-Request", out var value) && value == "true";
         }
 
         public static string GetPromptResponse(this HttpRequest request)
         {
+            ArgumentNullException.ThrowIfNull(request);
+
             return request.Headers.TryGetValue("HX-Prompt", out var value) ? value.ToString() : string.Empty;
         }
 
         public static string GetTargetId(this HttpRequest request)
         {
+            ArgumentNullException.ThrowIfNull(request);
+
             return request.Headers.TryGetValue("HX-Target", out var value) ? value.ToString() : string.Empty;
         }
 
         public static string GetTriggerId(this HttpRequest request)
         {
+            ArgumentNullException.ThrowIfNull(request);
+
             return request.Headers.TryGetValue("HX-Trigger", out var value) ? value.ToString() : string.Empty;
         }
 
         public static string GetTriggerName(this HttpRequest request)
         {
+            ArgumentNullException.ThrowIfNull(request);
+
             return request.Headers.TryGetValue("HX-Trigger-Name", out var value) ? value.ToString() : string.Empty;
         }
 
         public static void HtmxPushUrl(this HttpResponse response, string url)
         {
+            ArgumentNullException.ThrowIfNull(response);
+
             response.Headers.Append("HX-Push-Url", url);
         }
 
         public static void HtmxReplaceUrl(this HttpResponse response, string url)
         {
+            ArgumentNullException.ThrowIfNull(response);
+
             response.Headers.Append("HX-Replace-Url", url);
         }
 
         public static void HtmxScroll(this HttpResponse response, string selector = "top")
         {
+            ArgumentNullException.ThrowIfNull(response);
+
             response.Headers.Append("HX-Scroll", selector);
         }
 
         public static void HtmxTriggerEvent(this HttpResponse response, string eventName)
         {
+            ArgumentNullException.ThrowIfNull(response);
+
             response.Headers.Append("HX-Trigger", eventName);
         }
 
@@ -99,36 +132,49 @@ namespace HandStack.Web.Extensions
             {
                 { eventName, value }
             };
+            ArgumentNullException.ThrowIfNull(response);
             response.Headers.Append("HX-Trigger", JsonConvert.SerializeObject(triggerData));
         }
 
         public static void HtmxTriggerEvents(this HttpResponse response, Dictionary<string, object> events)
         {
+            ArgumentNullException.ThrowIfNull(response);
+
             response.Headers.Append("HX-Trigger", JsonConvert.SerializeObject(events));
         }
 
         public static void HtmxTriggerAfterSwap(this HttpResponse response, string eventName)
         {
+            ArgumentNullException.ThrowIfNull(response);
+
             response.Headers.Append("HX-Trigger-After-Swap", eventName);
         }
 
         public static void HtmxTriggerAfterSwap(this HttpResponse response, Dictionary<string, object> events)
         {
+            ArgumentNullException.ThrowIfNull(response);
+
             response.Headers.Append("HX-Trigger-After-Swap", JsonConvert.SerializeObject(events));
         }
 
         public static void HtmxTriggerAfterSettle(this HttpResponse response, string eventName)
         {
+            ArgumentNullException.ThrowIfNull(response);
+
             response.Headers.Append("HX-Trigger-After-Settle", eventName);
         }
 
         public static void HtmxTriggerAfterSettle(this HttpResponse response, Dictionary<string, object> events)
         {
+            ArgumentNullException.ThrowIfNull(response);
+
             response.Headers.Append("HX-Trigger-After-Settle", JsonConvert.SerializeObject(events));
         }
 
         public static void HtmxRedirect(this HttpResponse response, string url, int delay = 0)
         {
+            ArgumentNullException.ThrowIfNull(response);
+
             response.Headers.Append("HX-Redirect", url);
             if (delay > 0)
             {
@@ -138,6 +184,8 @@ namespace HandStack.Web.Extensions
 
         public static void HtmxRefresh(this HttpResponse response)
         {
+            ArgumentNullException.ThrowIfNull(response);
+
             response.Headers.Append("HX-Refresh", "true");
         }
 
@@ -152,22 +200,29 @@ namespace HandStack.Web.Extensions
             if (values != null) locationData["values"] = values;
             if (headers != null) locationData["headers"] = headers;
 
+            ArgumentNullException.ThrowIfNull(response);
             response.Headers.Append("HX-Location", JsonConvert.SerializeObject(locationData));
         }
 
         // 교체 방식을 지정 (innerHTML, outerHTML, beforebegin, afterbegin, beforeend, afterend)
         public static void HtmxSwap(this HttpResponse response, string swapMode)
         {
+            ArgumentNullException.ThrowIfNull(response);
+
             response.Headers.Append("HX-Reswap", swapMode);
         }
 
         public static void HtmxRetarget(this HttpResponse response, string cssSelector)
         {
+            ArgumentNullException.ThrowIfNull(response);
+
             response.Headers.Append("HX-Retarget", cssSelector);
         }
 
         public static void HtmxReselect(this HttpResponse response, string cssSelector)
         {
+            ArgumentNullException.ThrowIfNull(response);
+
             response.Headers.Append("HX-Reselect", cssSelector);
         }
 
@@ -196,12 +251,14 @@ namespace HandStack.Web.Extensions
         public string ViewName { get; set; } = string.Empty;
         public object? Model { get; set; }
         public Controller Controller { get; set; } = null!;
-        private readonly Dictionary<string, string> headers = new Dictionary<string, string>();
+        private readonly Dictionary<string, string> headers = [];
 
         public async Task ExecuteResultAsync(ActionContext context)
         {
             foreach (var header in headers)
             {
+                ArgumentNullException.ThrowIfNull(context);
+
                 context.HttpContext.Response.Headers.Append(header.Key, header.Value);
             }
 

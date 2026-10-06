@@ -23,44 +23,55 @@ using Newtonsoft.Json.Linq;
 
 namespace graphclient.DataClient
 {
-    public class GraphDataClient : IGraphDataClient
+    public class GraphDataClient(Serilog.ILogger logger, GraphClientLoggerClient loggerClient) : IGraphDataClient
     {
-        private readonly Serilog.ILogger logger;
-        private readonly GraphClientLoggerClient loggerClient;
-
-        public GraphDataClient(Serilog.ILogger logger, GraphClientLoggerClient loggerClient)
-        {
-            this.logger = logger;
-            this.loggerClient = loggerClient;
-        }
+        private readonly Serilog.ILogger logger = logger;
+        private readonly GraphClientLoggerClient loggerClient = loggerClient;
 
         public Task ExecuteJsonAsync(DynamicRequest request, DynamicResponse response)
         {
+            ArgumentNullException.ThrowIfNull(request);
+            ArgumentNullException.ThrowIfNull(response);
+
             return ExecuteAsync(request, response, GraphExecutionMode.Json);
         }
 
         public Task ExecuteScalarAsync(DynamicRequest request, DynamicResponse response)
         {
+            ArgumentNullException.ThrowIfNull(request);
+            ArgumentNullException.ThrowIfNull(response);
+
             return ExecuteAsync(request, response, GraphExecutionMode.Scalar);
         }
 
         public Task ExecuteNonQueryAsync(DynamicRequest request, DynamicResponse response)
         {
+            ArgumentNullException.ThrowIfNull(request);
+            ArgumentNullException.ThrowIfNull(response);
+
             return ExecuteAsync(request, response, GraphExecutionMode.NonQuery);
         }
 
         public Task ExecuteSchemeOnlyAsync(DynamicRequest request, DynamicResponse response)
         {
+            ArgumentNullException.ThrowIfNull(request);
+            ArgumentNullException.ThrowIfNull(response);
+
             return ExecuteAsync(request, response, GraphExecutionMode.SchemeOnly);
         }
 
         public Task ExecuteCodeHelpAsync(DynamicRequest request, DynamicResponse response)
         {
+            ArgumentNullException.ThrowIfNull(request);
+            ArgumentNullException.ThrowIfNull(response);
+
             return ExecuteAsync(request, response, GraphExecutionMode.CodeHelp);
         }
 
         public Task ExecuteSqlTextAsync(DynamicRequest request, DynamicResponse response)
         {
+            ArgumentNullException.ThrowIfNull(response);
+
             response.ExceptionText = "ReturnType SQLText는 graphclient에서 지원하지 않습니다.";
             response.Acknowledge = AcknowledgeType.Failure;
             return Task.CompletedTask;
@@ -68,6 +79,8 @@ namespace graphclient.DataClient
 
         public Task ExecuteXmlAsync(DynamicRequest request, DynamicResponse response)
         {
+            ArgumentNullException.ThrowIfNull(response);
+
             response.ExceptionText = "ReturnType Xml은 graphclient에서 지원하지 않습니다.";
             response.Acknowledge = AcknowledgeType.Failure;
             return Task.CompletedTask;
@@ -75,9 +88,10 @@ namespace graphclient.DataClient
 
         public void Dispose()
         {
+            GC.SuppressFinalize(this);
         }
 
-        private async Task ExecuteAsync(DynamicRequest request, DynamicResponse response, GraphExecutionMode executionMode)
+        private static async Task ExecuteAsync(DynamicRequest request, DynamicResponse response, GraphExecutionMode executionMode)
         {
             try
             {
@@ -118,7 +132,7 @@ namespace graphclient.DataClient
             }
         }
 
-        private List<GraphQueryPlan> BuildExecutionPlans(DynamicRequest request, DynamicResponse response)
+        private static List<GraphQueryPlan> BuildExecutionPlans(DynamicRequest request, DynamicResponse response)
         {
             var result = new List<GraphQueryPlan>();
             foreach (var queryObject in request.DynamicObjects)
@@ -148,7 +162,7 @@ namespace graphclient.DataClient
             return result;
         }
 
-        private async Task ExecuteWithTransactionAsync(DynamicRequest request, DynamicResponse response, GraphExecutionMode executionMode, List<GraphQueryPlan> plans)
+        private static async Task ExecuteWithTransactionAsync(DynamicRequest request, DynamicResponse response, GraphExecutionMode executionMode, List<GraphQueryPlan> plans)
         {
             var firstPlan = plans[0];
             await using var driver = CreateDriver(firstPlan.DataSource);
@@ -187,7 +201,7 @@ namespace graphclient.DataClient
             }
         }
 
-        private async Task ExecuteWithoutTransactionAsync(DynamicRequest request, DynamicResponse response, GraphExecutionMode executionMode, List<GraphQueryPlan> plans)
+        private static async Task ExecuteWithoutTransactionAsync(DynamicRequest request, DynamicResponse response, GraphExecutionMode executionMode, List<GraphQueryPlan> plans)
         {
             var context = new GraphExecutionContext(request, response, executionMode);
             var runners = new Dictionary<string, GraphSessionContext>(StringComparer.OrdinalIgnoreCase);
@@ -230,7 +244,7 @@ namespace graphclient.DataClient
             }
         }
 
-        private bool ApplyBaseFieldMappings(GraphQueryPlan plan, GraphExecutionContext context, out string errorMessage)
+        private static bool ApplyBaseFieldMappings(GraphQueryPlan plan, GraphExecutionContext context, out string errorMessage)
         {
             errorMessage = string.Empty;
             if (plan.QueryObject.BaseFieldMappings == null || plan.QueryObject.BaseFieldMappings.Count == 0)
@@ -271,7 +285,7 @@ namespace graphclient.DataClient
             return true;
         }
 
-        private bool ApplyQueryResult(GraphQueryPlan plan, GraphExecutionContext context, GraphQueryResult queryResult, DynamicResponse response)
+        private static bool ApplyQueryResult(GraphQueryPlan plan, GraphExecutionContext context, GraphQueryResult queryResult, DynamicResponse response)
         {
             if (queryResult.LastRow != null)
             {
@@ -279,7 +293,7 @@ namespace graphclient.DataClient
             }
             else
             {
-                context.LastRows[plan.StatementMap.Seq] = new Dictionary<string, object?>();
+                context.LastRows[plan.StatementMap.Seq] = [];
             }
 
             switch (context.ExecutionMode)
@@ -312,7 +326,7 @@ namespace graphclient.DataClient
             return true;
         }
 
-        private void FinalizeResponse(GraphExecutionContext context, DynamicResponse response)
+        private static void FinalizeResponse(GraphExecutionContext context, DynamicResponse response)
         {
             if (context.ExecutionMode == GraphExecutionMode.Json)
             {
@@ -333,7 +347,7 @@ namespace graphclient.DataClient
             response.Acknowledge = AcknowledgeType.Success;
         }
 
-        private void AppendJsonResult(GraphQueryPlan plan, GraphExecutionContext context, GraphQueryResult queryResult)
+        private static void AppendJsonResult(GraphQueryPlan plan, GraphExecutionContext context, GraphQueryResult queryResult)
         {
             if (plan.QueryObject.IgnoreResult == true)
             {
@@ -371,7 +385,7 @@ namespace graphclient.DataClient
             context.OutputIndex++;
         }
 
-        private void AppendSchemaResult(GraphQueryPlan plan, GraphExecutionContext context, GraphQueryResult queryResult)
+        private static void AppendSchemaResult(GraphQueryPlan plan, GraphExecutionContext context, GraphQueryResult queryResult)
         {
             if (plan.QueryObject.IgnoreResult == true)
             {
@@ -415,7 +429,7 @@ namespace graphclient.DataClient
             return responseCodeObject;
         }
 
-        private async Task<GraphQueryResult> ExecuteQueryAsync(IAsyncQueryRunner queryRunner, GraphQueryPlan plan)
+        private static async Task<GraphQueryResult> ExecuteQueryAsync(IAsyncQueryRunner queryRunner, GraphQueryPlan plan)
         {
             var parameters = BuildParameters(plan.QueryObject.Parameters);
             IResultCursor cursor;
@@ -503,9 +517,9 @@ namespace graphclient.DataClient
                 result = result.SubstringSafe(2, result.Length - 3);
             }
 
-            if (result.StartsWith("$", StringComparison.Ordinal)
-                || result.StartsWith("@", StringComparison.Ordinal)
-                || result.StartsWith("#", StringComparison.Ordinal))
+            if (result.StartsWith('$')
+                || result.StartsWith('@')
+                || result.StartsWith('#'))
             {
                 result = result.SubstringSafe(1);
             }
@@ -748,7 +762,7 @@ namespace graphclient.DataClient
     {
         public IReadOnlyList<string> ColumnKeys { get; set; } = Array.Empty<string>();
 
-        public List<Dictionary<string, object?>> Rows { get; set; } = new();
+        public List<Dictionary<string, object?>> Rows { get; set; } = [];
 
         public Dictionary<string, object?>? LastRow { get; set; }
 
@@ -757,45 +771,32 @@ namespace graphclient.DataClient
         public int RowsAffected { get; set; }
     }
 
-    internal sealed class GraphExecutionContext
+    internal sealed class GraphExecutionContext(DynamicRequest request, DynamicResponse response, GraphExecutionMode executionMode)
     {
-        public GraphExecutionContext(DynamicRequest request, DynamicResponse response, GraphExecutionMode executionMode)
-        {
-            Request = request;
-            Response = response;
-            ExecutionMode = executionMode;
-        }
+        public DynamicRequest Request { get; } = request;
 
-        public DynamicRequest Request { get; }
+        public DynamicResponse Response { get; } = response;
 
-        public DynamicResponse Response { get; }
-
-        public GraphExecutionMode ExecutionMode { get; }
+        public GraphExecutionMode ExecutionMode { get; } = executionMode;
 
         public int OutputIndex { get; set; }
 
         public int RowsAffected { get; set; }
 
-        public List<string> MergeMetaDatas { get; } = new();
+        public List<string> MergeMetaDatas { get; } = [];
 
-        public List<object> MergeDatas { get; } = new();
+        public List<object> MergeDatas { get; } = [];
 
-        public Dictionary<int, Dictionary<string, object?>> LastRows { get; } = new();
+        public Dictionary<int, Dictionary<string, object?>> LastRows { get; } = [];
 
         public DataTable AdditionalTable { get; set; } = new DataTable("AdditionalData");
     }
 
-    internal sealed class GraphSessionContext : IAsyncDisposable
+    internal sealed class GraphSessionContext(IDriver driver, IAsyncSession session) : IAsyncDisposable
     {
-        public GraphSessionContext(IDriver driver, IAsyncSession session)
-        {
-            Driver = driver;
-            Session = session;
-        }
+        public IDriver Driver { get; } = driver;
 
-        public IDriver Driver { get; }
-
-        public IAsyncSession Session { get; }
+        public IAsyncSession Session { get; } = session;
 
         public async ValueTask DisposeAsync()
         {

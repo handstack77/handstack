@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
 
 namespace HandStack.Web.Entity
@@ -7,8 +8,11 @@ namespace HandStack.Web.Entity
     {
         public static GridJsonData ToJsonObject(string fieldID, DataTable source)
         {
-            var result = new GridJsonData();
-            result.ID = fieldID;
+            var result = new GridJsonData
+            {
+                ID = fieldID
+            };
+            ArgumentNullException.ThrowIfNull(source);
             result.Value.EnsureCapacity(source.Rows.Count);
 
             Dictionary<string, object> childRow;
@@ -31,7 +35,7 @@ namespace HandStack.Web.Entity
         public GridJsonData()
         {
             ID = "";
-            Value = new List<Dictionary<string, object>>();
+            Value = [];
         }
 
         public string ID { get; set; }

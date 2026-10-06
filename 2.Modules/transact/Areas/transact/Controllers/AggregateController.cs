@@ -20,16 +20,10 @@ namespace transact.Areas.transact.Controllers
     [Route("[area]/api/[controller]")]
     [ApiController]
     [EnableCors]
-    public class AggregateController : BaseController
+    public class AggregateController(Serilog.ILogger logger, TransactLoggerClient loggerClient) : BaseController
     {
-        private TransactLoggerClient loggerClient { get; }
-        private Serilog.ILogger logger { get; }
-
-        public AggregateController(Serilog.ILogger logger, TransactLoggerClient loggerClient)
-        {
-            this.logger = logger;
-            this.loggerClient = loggerClient;
-        }
+        private TransactLoggerClient loggerClient { get; } = loggerClient;
+        private Serilog.ILogger logger { get; } = logger;
 
         // http://localhost:8421/transact/api/aggregate/transaction-list?applicationID=HDS&year=2023&weekOfYear=39&resultType=L
         [HttpGet("[action]")]
@@ -47,13 +41,12 @@ namespace transact.Areas.transact.Controllers
                     {
                         // resultType - L: List, V: Valid, E: Error
                         var featureID = resultType == "L" ? "LD01" : resultType == "V" ? "LD02" : "LD03";
-                        var dsResult = ModuleExtensions.ExecuteMetaSQL(ReturnType.DataSet, connectionString, $"TAG.TAG010.{featureID}", new
+
+                        if (ModuleExtensions.ExecuteMetaSQL(ReturnType.DataSet, connectionString, $"TAG.TAG010.{featureID}", new
                         {
                             CreateDate = requestDate.ToStringSafe(),
                             CreateHour = requestHour.ToStringSafe()
-                        }) as DataSet;
-
-                        if (dsResult != null && dsResult.Tables.Count > 0)
+                        }) is DataSet dsResult && dsResult.Tables.Count > 0)
                         {
                             using var dataTable = dsResult.Tables[0];
                             result = Content(JsonConvert.SerializeObject(dataTable), "application/json");
@@ -92,8 +85,7 @@ namespace transact.Areas.transact.Controllers
                     if (!string.IsNullOrWhiteSpace(connectionString))
                     {
                         var format = "yyyyMMdd";
-                        DateTime dtRequestDate;
-                        if (DateTime.TryParseExact(requestDate, format, CultureInfo.InvariantCulture, DateTimeStyles.None, out dtRequestDate))
+                        if (DateTime.TryParseExact(requestDate, format, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dtRequestDate))
                         {
                             var cultureInfo = CultureInfo.InvariantCulture;
                             var dwFirst = cultureInfo.DateTimeFormat.FirstDayOfWeek;
@@ -103,14 +95,13 @@ namespace transact.Areas.transact.Controllers
                             var dtFirstDayOfWeek = dtRequestDate.AddDays(-iDiff + 1);
                             var dtLastDayOfWeek = dtFirstDayOfWeek.AddDays(4);
 
-                            var dsResult = ModuleExtensions.ExecuteMetaSQL(ReturnType.DataSet, connectionString, "TAG.TAG010.GD01", new
+
+                            if (ModuleExtensions.ExecuteMetaSQL(ReturnType.DataSet, connectionString, "TAG.TAG010.GD01", new
                             {
                                 RequestDate = requestDate,
                                 FirstDateOfWeek = dtFirstDayOfWeek.ToString("yyyyMMdd"),
                                 LastDateOfWeek = dtLastDayOfWeek.ToString("yyyyMMdd")
-                            }) as DataSet;
-
-                            if (dsResult != null && dsResult.Tables.Count > 0)
+                            }) is DataSet dsResult && dsResult.Tables.Count > 0)
                             {
                                 using var dataTable = dsResult.Tables[0];
                                 result = Content(JsonConvert.SerializeObject(dataTable), "application/json");
@@ -158,19 +149,18 @@ namespace transact.Areas.transact.Controllers
                             currentLastMovedId = 0;
                         }
 
-                        var dsResult = ModuleExtensions.ExecuteMetaSQL(ReturnType.DataSet, connectionString, "TAG.TAG010.LD04", new
+
+                        if (ModuleExtensions.ExecuteMetaSQL(ReturnType.DataSet, connectionString, "TAG.TAG010.LD04", new
                         {
                             LastMovedId = currentLastMovedId,
                             TakeCount = requestTakeCount
-                        }) as DataSet;
-
-                        if (dsResult != null && dsResult.Tables.Count > 0)
+                        }) is DataSet dsResult && dsResult.Tables.Count > 0)
                         {
                             using var dataTable = dsResult.Tables[0];
                             var response = new
                             {
                                 LastMovedId = currentLastMovedId,
-                                Count = dataTable.Rows.Count,
+                                dataTable.Rows.Count,
                                 Rows = dataTable
                             };
                             result = Content(JsonConvert.SerializeObject(response), "application/json");
@@ -243,6 +233,7 @@ namespace transact.Areas.transact.Controllers
         public ActionResult UpdateLastMovedId([FromBody] LastMovedIdRequest request)
         {
             ActionResult result = BadRequest();
+            ArgumentNullException.ThrowIfNull(request);
             if (request.LastMovedId < 0 || string.IsNullOrWhiteSpace(request.UserWorkID) || string.IsNullOrWhiteSpace(request.ApplicationID))
             {
                 return result;
@@ -258,13 +249,13 @@ namespace transact.Areas.transact.Controllers
                     {
                         ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, connectionString, "TAG.TAG010.UD03", new
                         {
-                            LastMovedId = request.LastMovedId
+                            request.LastMovedId
                         });
                     }
 
                     ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, connectionString, "TAG.TAG010.UD04", new
                     {
-                        LastMovedId = request.LastMovedId
+                        request.LastMovedId
                     });
 
                     var currentLastMovedId = GetLastMovedId(connectionString);

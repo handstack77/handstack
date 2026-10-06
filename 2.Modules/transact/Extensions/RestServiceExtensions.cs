@@ -22,6 +22,7 @@ namespace transact.Extensions
         public static bool IsAllowAuthorization(this HttpContext httpContext)
         {
             string remoteIP = httpContext.GetRemoteIpAddress().ToStringSafe();
+            ArgumentNullException.ThrowIfNull(httpContext);
             bool isLocalRequest = httpContext.Connection.RemoteIpAddress != null && IPAddress.IsLoopback(httpContext.Connection.RemoteIpAddress);
             string? authorizationKey;
             if (isLocalRequest == true)
@@ -49,6 +50,7 @@ namespace transact.Extensions
             }
 
             string remoteIP = httpContext.GetRemoteIpAddress().ToStringSafe();
+            ArgumentNullException.ThrowIfNull(httpContext);
             bool isLocalRequest = httpContext.Connection.RemoteIpAddress != null && IPAddress.IsLoopback(httpContext.Connection.RemoteIpAddress);
             string? authorizationKey;
             if (isLocalRequest == true)
@@ -80,6 +82,8 @@ namespace transact.Extensions
         //    (Workflow 는 localhost 우회가 없었으므로 false 로 호출)
         public static bool IsBypassAuthorizeIP(this HttpContext httpContext, string? requestSourceIP, bool allowLocalhostBypass)
         {
+            ArgumentNullException.ThrowIfNull(httpContext);
+
             if (ModuleConfiguration.BypassAuthorizeIP.Contains("*"))
             {
                 return true;
@@ -161,6 +165,8 @@ namespace transact.Extensions
         // #8 입력 크기 상한. 각 값 0 = 무제한(레거시).
         public static bool TryValidateInputLimits(TransactionRequest request, out string exceptionText)
         {
+            ArgumentNullException.ThrowIfNull(request);
+
             exceptionText = "";
             var hardening = ModuleConfiguration.SecurityHardening;
 
@@ -195,12 +201,15 @@ namespace transact.Extensions
 
         public static void Append(this List<DynamicParameter> parameters, string parameterName, DbType dbType, object? value)
         {
+            ArgumentNullException.ThrowIfNull(parameters);
+
             parameters.Add(new DynamicParameter() { ParameterName = parameterName, DbType = dbType.ToString(), Value = value });
         }
 
         public static object? Value(this List<TransactField> parameters, string prop)
         {
             object? val = null;
+            ArgumentNullException.ThrowIfNull(parameters);
             foreach (var item in parameters)
             {
                 if (item.FieldID == prop)
@@ -234,14 +243,14 @@ namespace transact.Extensions
                        where item.Name == columnName
                        select item;
 
-            return cols.Count() > 0 ? true : false;
+            return cols.Any();
         }
     }
 
     // 분당 고정 윈도우 카운터. 만료(2분)로 자동 정리되어 별도 스윕이 필요 없다.
     internal static class TransactRateLimiter
     {
-        private static readonly MemoryCache cache = new MemoryCache(new MemoryCacheOptions());
+        private static readonly MemoryCache cache = new(new MemoryCacheOptions());
 
         private sealed class Counter
         {

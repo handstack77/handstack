@@ -24,23 +24,19 @@ using Newtonsoft.Json;
 
 namespace command.DataClient
 {
-    public class CommandDataClient : ICommandDataClient
+    public partial class CommandDataClient(IHttpClientFactory httpClientFactory, Serilog.ILogger logger, CommandLoggerClient loggerClient) : ICommandDataClient
     {
-        private static readonly Regex parameterRegex = new Regex(@"\{(?<kind>[#@])(?<name>[^}]+)\}|(?<legacyKind>[$#])\{(?<legacyName>[^}]+)\}", RegexOptions.Compiled);
+        private static readonly Regex parameterRegex = MyRegex();
 
-        private readonly IHttpClientFactory httpClientFactory;
-        private readonly Serilog.ILogger logger;
-        private readonly CommandLoggerClient loggerClient;
-
-        public CommandDataClient(IHttpClientFactory httpClientFactory, Serilog.ILogger logger, CommandLoggerClient loggerClient)
-        {
-            this.httpClientFactory = httpClientFactory;
-            this.logger = logger;
-            this.loggerClient = loggerClient;
-        }
+        private readonly IHttpClientFactory httpClientFactory = httpClientFactory;
+        private readonly Serilog.ILogger logger = logger;
+        private readonly CommandLoggerClient loggerClient = loggerClient;
 
         public async Task ExecuteDynamicCommandMap(DynamicRequest request, DynamicResponse response)
         {
+            ArgumentNullException.ThrowIfNull(request);
+            ArgumentNullException.ThrowIfNull(response);
+
             if (request.DynamicObjects == null || request.DynamicObjects.Count == 0)
             {
                 response.ExceptionText = $"거래 요청 정보 확인 필요 request: {JsonConvert.SerializeObject(request)}";
@@ -136,7 +132,7 @@ namespace command.DataClient
                 }
 
                 response.Acknowledge = AcknowledgeType.Success;
-                response.ResultMeta = new List<string>() { "CommandID:String;Type:String;ExitCode:Int32;StatusCode:Int32;ElapsedMS:Int64;" };
+                response.ResultMeta = ["CommandID:String;Type:String;ExitCode:Int32;StatusCode:Int32;ElapsedMS:Int64;"];
                 response.ResultJson = results;
             }
             catch (Exception exception)
@@ -211,7 +207,7 @@ namespace command.DataClient
             return parameterName.Trim().TrimStart('@', '#', '$');
         }
 
-        private async Task<CommandExecutionResult> ExecuteCliAsync(CommandMap commandMap, Dictionary<string, object?> parameters)
+        private static async Task<CommandExecutionResult> ExecuteCliAsync(CommandMap commandMap, Dictionary<string, object?> parameters)
         {
             var stopwatch = Stopwatch.StartNew();
             var result = new CommandExecutionResult
@@ -405,7 +401,7 @@ namespace command.DataClient
             }
 
             var separator = url.Contains('?') == true
-                ? (url.EndsWith("?") == true || url.EndsWith("&") == true ? "" : "&")
+                ? (url.EndsWith('?') == true || url.EndsWith('&') == true ? "" : "&")
                 : "?";
             return url + separator + query;
         }
@@ -592,7 +588,7 @@ namespace command.DataClient
                 return "";
             }
 
-            if (executablePath.IndexOf('/') == -1 && executablePath.IndexOf('\\') == -1)
+            if (!executablePath.Contains('/') && !executablePath.Contains('\\'))
             {
                 return executablePath;
             }
@@ -712,6 +708,10 @@ namespace command.DataClient
 
         public void Dispose()
         {
+            GC.SuppressFinalize(this);
         }
+
+        [GeneratedRegex(@"\{(?<kind>[#@])(?<name>[^}]+)\}|(?<legacyKind>[$#])\{(?<legacyName>[^}]+)\}", RegexOptions.Compiled)]
+        private static partial Regex MyRegex();
     }
 }

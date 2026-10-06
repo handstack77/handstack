@@ -6,10 +6,8 @@ using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
-
 using HandStack.Core.ExtensionMethod;
 using HandStack.Data.Enumeration;
 using HandStack.Web;
@@ -18,24 +16,18 @@ using HandStack.Web.Entity;
 using HandStack.Web.Extensions;
 using HandStack.Web.Helper;
 using HandStack.Web.MessageContract.Message;
-
+using Mediator;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-
-using Mediator;
-
 using Newtonsoft.Json;
-
 using repository.Entity;
 using repository.Events;
 using repository.Extensions;
 using repository.Message;
 using repository.Services;
-
 using Serilog;
-
 using SkiaSharp;
 
 namespace repository.Controllers
@@ -44,26 +36,17 @@ namespace repository.Controllers
     [Route("[area]/api/[controller]")]
     [ApiController]
     [EnableCors]
-    public class StorageController : BaseController
+    public class StorageController(ModuleApiClient moduleApiClient, ISequentialIdGenerator sequentialIdGenerator, ILogger logger, IConfiguration configuration, IStorageProviderFactory storageProviderFactory, IMediator mediator) : BaseController
     {
-        private readonly ModuleApiClient moduleApiClient;
-        private readonly ISequentialIdGenerator sequentialIdGenerator;
-        private readonly IStorageProviderFactory storageProviderFactory;
-        private readonly IMediator mediator;
+        private static readonly System.Buffers.SearchValues<char> s_myChars = System.Buffers.SearchValues.Create("\r\n");
+        private readonly ModuleApiClient moduleApiClient = moduleApiClient;
+        private readonly ISequentialIdGenerator sequentialIdGenerator = sequentialIdGenerator;
+        private readonly IStorageProviderFactory storageProviderFactory = storageProviderFactory;
+        private readonly IMediator mediator = mediator;
 
-        private ILogger logger { get; }
+        private ILogger logger { get; } = logger;
 
-        private IConfiguration configuration { get; }
-
-        public StorageController(ModuleApiClient moduleApiClient, ISequentialIdGenerator sequentialIdGenerator, ILogger logger, IConfiguration configuration, IStorageProviderFactory storageProviderFactory, IMediator mediator)
-        {
-            this.moduleApiClient = moduleApiClient;
-            this.sequentialIdGenerator = sequentialIdGenerator;
-            this.logger = logger;
-            this.configuration = configuration;
-            this.storageProviderFactory = storageProviderFactory;
-            this.mediator = mediator;
-        }
+        private IConfiguration configuration { get; } = configuration;
 
         // http://localhost:8421/repository/api/storage/get-client-ip
         [HttpGet("[action]")]
@@ -76,7 +59,8 @@ namespace repository.Controllers
         [HttpGet("[action]")]
         public async Task<ActionResult> Refresh(string changeType, string filePath, string? userWorkID, string? applicationID)
         {
-            ActionResult result = NotFound();
+            _ = NotFound();
+            ActionResult result;
             if (HttpContext.IsAllowAuthorization() == false)
             {
                 result = BadRequest();
@@ -104,32 +88,23 @@ namespace repository.Controllers
         [HttpGet("[action]")]
         public async Task<ActionResult> ActionHandler()
         {
-            ActionResult result = Ok();
-            var jsonContentResult = new JsonContentResult();
-            jsonContentResult.Result = false;
+            _ = Ok();
+            var jsonContentResult = new JsonContentResult
+            {
+                Result = false
+            };
 
             var action = Request.Query["Action"].ToString();
 
-            switch (action)
+            var result = action switch
             {
-                case "GetItem":
-                    result = await GetItem(jsonContentResult);
-                    break;
-                case "GetItems":
-                    result = await GetItems(jsonContentResult);
-                    break;
-                case "UpdateDependencyID":
-                    result = await UpdateDependencyID(jsonContentResult);
-                    break;
-                case "UpdateFileName":
-                    result = await UpdateFileName(jsonContentResult);
-                    break;
-                default:
-                    result = NotFound();
-                    break;
-            }
-
-            Response.Headers["Access-Control-Expose-Headers"] = "FileModelType, FileResult";
+                "GetItem" => await GetItem(jsonContentResult),
+                "GetItems" => await GetItems(jsonContentResult),
+                "UpdateDependencyID" => await UpdateDependencyID(jsonContentResult),
+                "UpdateFileName" => await UpdateFileName(jsonContentResult),
+                _ => NotFound(),
+            };
+            Response.Headers.AccessControlExposeHeaders = "FileModelType, FileResult";
             Response.Headers["FileModelType"] = "JsonContentResult";
             Response.Headers["FileResult"] = Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(jsonContentResult)));
             return result;
@@ -137,7 +112,7 @@ namespace repository.Controllers
 
         private async Task<ActionResult> UpdateDependencyID(JsonContentResult jsonContentResult)
         {
-            ActionResult result = BadRequest();
+            _ = BadRequest();
             var applicationID = Request.Query["ApplicationID"].ToString();
             var repositoryID = Request.Query["RepositoryID"].ToString();
             var sourceDependencyID = Request.Query["SourceDependencyID"].ToString();
@@ -158,7 +133,7 @@ namespace repository.Controllers
                 return Content(JsonConvert.SerializeObject(jsonContentResult), "application/json");
             }
 
-            List<RepositoryItems>? items = null;
+            List<RepositoryItems>? items;
             if (repository.IsLocalDbFileManaged == true)
             {
                 items = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.SLT010.LD01", new
@@ -174,21 +149,22 @@ namespace repository.Controllers
                 items = await moduleApiClient.GetRepositoryItems(applicationID, repositoryID, sourceDependencyID, businessID);
             }
 
-            var isDataUpsert = false;
             if (items != null && items.Count > 0)
             {
                 for (var i = 0; i < items.Count; i++)
                 {
                     var item = items[i];
 
+
+                    bool isDataUpsert;
                     if (repository.IsLocalDbFileManaged == true)
                     {
                         isDataUpsert = ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, repository, "STR.SLT010.UD01", new
                         {
                             ApplicationID = applicationID,
-                            BusinessID = item.BusinessID,
+                            item.BusinessID,
                             RepositoryID = repositoryID,
-                            ItemID = item.ItemID,
+                            item.ItemID,
                             SourceDependencyID = item.DependencyID,
                             TargetDependencyID = targetDependencyID
                         }) > 0;
@@ -211,11 +187,11 @@ namespace repository.Controllers
             else
             {
                 jsonContentResult.Message = $"DependencyID: '{sourceDependencyID}' 파일 요청 정보 확인 필요";
-                result = Content(JsonConvert.SerializeObject(jsonContentResult), "application/json");
+                _ = Content(JsonConvert.SerializeObject(jsonContentResult), "application/json");
             }
 
             jsonContentResult.Result = true;
-            result = Content(JsonConvert.SerializeObject(jsonContentResult), "application/json");
+            ActionResult result = Content(JsonConvert.SerializeObject(jsonContentResult), "application/json");
 
             return result;
         }
@@ -223,7 +199,7 @@ namespace repository.Controllers
         // ItemID, FileName이 동일하게 관리되는 Profile 업로드 타입을 위한 기능 UD02 거래에서 변경 관리할 것인지 확인 필요
         private async Task<ActionResult> UpdateFileName(JsonContentResult jsonContentResult)
         {
-            ActionResult result = BadRequest();
+            _ = BadRequest();
             var applicationID = Request.Query["ApplicationID"].ToString();
             var repositoryID = Request.Query["RepositoryID"].ToString();
             var itemID = Request.Query["ItemID"].ToString();
@@ -264,7 +240,7 @@ namespace repository.Controllers
                 item = await moduleApiClient.GetRepositoryItem(applicationID, repositoryID, itemID, businessID);
             }
 
-            var isDataUpsert = false;
+            ActionResult result;
             if (item != null)
             {
                 if (item.FileName.Trim() == changeFileName.Trim())
@@ -282,9 +258,6 @@ namespace repository.Controllers
                 var relativeDirectoryPath = repositoryManager.GetRelativePath(repository, customPath1, customPath2, customPath3);
                 var relativeDirectoryUrlPath = string.IsNullOrWhiteSpace(relativeDirectoryPath) ? "" : relativeDirectoryPath;
                 relativeDirectoryUrlPath = relativeDirectoryUrlPath.Length <= 1 ? "" : relativeDirectoryUrlPath.SubstringSafe(relativeDirectoryUrlPath.Length - 1) == "/" ? relativeDirectoryUrlPath : relativeDirectoryUrlPath + "/";
-
-                var isExistFile = false;
-
                 var storageProvider = storageProviderFactory.Create(repository, item.CustomPath1, item.CustomPath2, item.CustomPath3);
                 if (storageProvider == null)
                 {
@@ -297,7 +270,7 @@ namespace repository.Controllers
                 var sourceFileName = repository.IsFileNameEncrypt ? item.ItemID : item.FileName;
                 var sourceBlobID = relativeDirectoryUrlPath + sourceFileName;
 
-                isExistFile = await storageProvider.FileExistsAsync(sourceBlobID);
+                var isExistFile = await storageProvider.FileExistsAsync(sourceBlobID);
                 if (isExistFile == true)
                 {
                     var newBlobID = relativeDirectoryUrlPath + changeFileName;
@@ -317,15 +290,17 @@ namespace repository.Controllers
                 item.AbsolutePath = item.AbsolutePath.Replace(item.FileName, changeFileName);
                 item.FileName = changeFileName;
 
+
+                bool isDataUpsert;
                 if (repository.IsLocalDbFileManaged == true)
                 {
                     isDataUpsert = ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, repository, "STR.SLT010.UD02", new
                     {
                         ApplicationID = applicationID,
-                        BusinessID = item.BusinessID,
+                        item.BusinessID,
                         RepositoryID = repositoryID,
-                        ItemID = item.ItemID,
-                        FileName = item.FileName,
+                        item.ItemID,
+                        item.FileName,
                     }) > 0;
                 }
                 else
@@ -353,7 +328,7 @@ namespace repository.Controllers
 
         private async Task<ActionResult> GetItem(JsonContentResult jsonContentResult)
         {
-            ActionResult result = BadRequest();
+            _ = BadRequest();
             var applicationID = Request.Query["ApplicationID"].ToString();
             var repositoryID = Request.Query["RepositoryID"].ToString();
             var itemID = Request.Query["ItemID"].ToString();
@@ -393,25 +368,26 @@ namespace repository.Controllers
                 item = await moduleApiClient.GetRepositoryItem(applicationID, repositoryID, itemID, businessID);
             }
 
+            ActionResult result;
             if (item != null)
             {
                 var entity = new
                 {
-                    ItemID = item.ItemID,
-                    RepositoryID = item.RepositoryID,
-                    DependencyID = item.DependencyID,
-                    FileName = item.FileName,
-                    SortingNo = item.SortingNo,
-                    AbsolutePath = item.AbsolutePath,
-                    RelativePath = item.RelativePath,
-                    Extension = item.Extension,
-                    Size = item.Size,
-                    MimeType = item.MimeType,
-                    CustomPath1 = item.CustomPath1,
-                    CustomPath2 = item.CustomPath2,
-                    CustomPath3 = item.CustomPath3,
-                    PolicyPath = item.PolicyPath,
-                    MD5 = item.MD5
+                    item.ItemID,
+                    item.RepositoryID,
+                    item.DependencyID,
+                    item.FileName,
+                    item.SortingNo,
+                    item.AbsolutePath,
+                    item.RelativePath,
+                    item.Extension,
+                    item.Size,
+                    item.MimeType,
+                    item.CustomPath1,
+                    item.CustomPath2,
+                    item.CustomPath3,
+                    item.PolicyPath,
+                    item.MD5
                 };
 
                 jsonContentResult.Result = true;
@@ -428,7 +404,7 @@ namespace repository.Controllers
 
         private async Task<ActionResult> GetItems(JsonContentResult jsonContentResult)
         {
-            ActionResult result = BadRequest();
+            _ = BadRequest();
             var applicationID = Request.Query["ApplicationID"].ToString();
             var repositoryID = Request.Query["RepositoryID"].ToString();
             var dependencyID = Request.Query["DependencyID"].ToString();
@@ -447,7 +423,7 @@ namespace repository.Controllers
                 return Content(JsonConvert.SerializeObject(jsonContentResult), "application/json");
             }
 
-            List<RepositoryItems>? items = null;
+            List<RepositoryItems>? items;
             if (repository.IsLocalDbFileManaged == true)
             {
                 items = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.SLT010.LD01", new
@@ -470,21 +446,21 @@ namespace repository.Controllers
                 {
                     entitys.Add(new
                     {
-                        ItemID = item.ItemID,
-                        RepositoryID = item.RepositoryID,
-                        DependencyID = item.DependencyID,
-                        FileName = item.FileName,
-                        SortingNo = item.SortingNo,
-                        AbsolutePath = item.AbsolutePath,
-                        RelativePath = item.RelativePath,
-                        Extension = item.Extension,
-                        Size = item.Size,
-                        MimeType = item.MimeType,
-                        CustomPath1 = item.CustomPath1,
-                        CustomPath2 = item.CustomPath2,
-                        CustomPath3 = item.CustomPath3,
-                        PolicyPath = item.PolicyPath,
-                        MD5 = item.MD5
+                        item.ItemID,
+                        item.RepositoryID,
+                        item.DependencyID,
+                        item.FileName,
+                        item.SortingNo,
+                        item.AbsolutePath,
+                        item.RelativePath,
+                        item.Extension,
+                        item.Size,
+                        item.MimeType,
+                        item.CustomPath1,
+                        item.CustomPath2,
+                        item.CustomPath3,
+                        item.PolicyPath,
+                        item.MD5
                     });
                 }
             }
@@ -495,7 +471,7 @@ namespace repository.Controllers
             }
 
             jsonContentResult.Result = true;
-            result = Content(JsonConvert.SerializeObject(entitys), "application/json");
+            ActionResult result = Content(JsonConvert.SerializeObject(entitys), "application/json");
 
             return result;
         }
@@ -514,16 +490,16 @@ namespace repository.Controllers
                 {
                     var entity = new
                     {
-                        RepositoryID = repository.RepositoryID,
-                        RepositoryName = repository.RepositoryName,
-                        StorageType = repository.StorageType,
-                        IsMultiUpload = repository.IsMultiUpload,
-                        IsAutoPath = repository.IsAutoPath,
-                        PolicyPathID = repository.PolicyPathID,
+                        repository.RepositoryID,
+                        repository.RepositoryName,
+                        repository.StorageType,
+                        repository.IsMultiUpload,
+                        repository.IsAutoPath,
+                        repository.PolicyPathID,
                         UploadType = repository.UploadTypeID,
-                        UploadExtensions = repository.UploadExtensions,
-                        UploadCount = repository.UploadCount,
-                        UploadSizeLimit = repository.UploadSizeLimit
+                        repository.UploadExtensions,
+                        repository.UploadCount,
+                        repository.UploadSizeLimit
                     };
                     result = JsonConvert.SerializeObject(entity);
                 }
@@ -536,8 +512,10 @@ namespace repository.Controllers
         [HttpPost("[action]")]
         public async Task<ActionResult> UploadFile([FromForm] IFormFile? file)
         {
-            var result = new FileUploadResult();
-            result.Result = false;
+            var result = new FileUploadResult
+            {
+                Result = false
+            };
             var applicationID = Request.Query["ApplicationID"].ToString();
             var repositoryID = Request.Query["RepositoryID"].ToString();
             var dependencyID = Request.Query["DependencyID"].ToString();
@@ -622,7 +600,7 @@ namespace repository.Controllers
                                     items = await moduleApiClient.GetRepositoryItems(applicationID, repositoryID, dependencyID, businessID);
                                 }
 
-                                if (items != null && items.Count() > 0)
+                                if (items != null && items.Count > 0)
                                 {
                                     if (items.Count > repository.UploadCount)
                                     {
@@ -658,7 +636,7 @@ namespace repository.Controllers
                                     items = await moduleApiClient.GetRepositoryItems(applicationID, repositoryID, dependencyID, businessID);
                                 }
 
-                                if (items != null && items.Count() > 0)
+                                if (items != null && items.Count > 0)
                                 {
                                     foreach (var item in items)
                                     {
@@ -679,9 +657,9 @@ namespace repository.Controllers
                                             ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, repository, "STR.SLT010.DD01", new
                                             {
                                                 ApplicationID = applicationID,
-                                                BusinessID = item.BusinessID,
+                                                item.BusinessID,
                                                 RepositoryID = repositoryID,
-                                                ItemID = item.ItemID
+                                                item.ItemID
                                             });
                                         }
                                         else
@@ -703,24 +681,26 @@ namespace repository.Controllers
                             extension = Path.GetExtension(file.FileName);
                         }
 
-                        repositoryItem = new RepositoryItems();
-                        repositoryItem.ItemID = repository.IsFileNameEncrypt == true ? sequentialIdGenerator.NewId().ToString("N") : fileName;
-                        repositoryItem.ApplicationID = applicationID;
-                        repositoryItem.BusinessID = businessID;
-                        repositoryItem.SortingNo = sortingNo;
-                        repositoryItem.Comment = comment;
-                        repositoryItem.FileName = fileName;
-                        repositoryItem.Extension = extension;
-                        repositoryItem.MimeType = GetMimeType(file.FileName);
-                        repositoryItem.Size = file.Length;
-                        repositoryItem.RepositoryID = repositoryID;
-                        repositoryItem.DependencyID = dependencyID;
-                        repositoryItem.CustomPath1 = customPath1;
-                        repositoryItem.CustomPath2 = customPath2;
-                        repositoryItem.CustomPath3 = customPath3;
-                        repositoryItem.PolicyPath = policyPath;
-                        repositoryItem.CreatedMemberNo = userID;
-                        repositoryItem.CreatedAt = DateTime.Now;
+                        repositoryItem = new RepositoryItems
+                        {
+                            ItemID = repository.IsFileNameEncrypt == true ? sequentialIdGenerator.NewId().ToString("N") : fileName,
+                            ApplicationID = applicationID,
+                            BusinessID = businessID,
+                            SortingNo = sortingNo,
+                            Comment = comment,
+                            FileName = fileName,
+                            Extension = extension,
+                            MimeType = GetMimeType(file.FileName),
+                            Size = file.Length,
+                            RepositoryID = repositoryID,
+                            DependencyID = dependencyID,
+                            CustomPath1 = customPath1,
+                            CustomPath2 = customPath2,
+                            CustomPath3 = customPath3,
+                            PolicyPath = policyPath,
+                            CreatedMemberNo = userID,
+                            CreatedAt = DateTime.Now
+                        };
 
                         Stream fileStream = file.OpenReadStream();
                         fileStream.CopyTo(streamToUpload);
@@ -793,7 +773,7 @@ namespace repository.Controllers
                                     if (string.IsNullOrWhiteSpace(repository.BlobItemUrl))
                                     {
                                         absolutePath = $"//{repository.RepositoryID}.blob.core.windows.net/{repository.BlobContainerID.ToLower()}/";
-                                        absolutePath = absolutePath + relativePath;
+                                        absolutePath += relativePath;
                                     }
                                     else
                                     {
@@ -832,7 +812,7 @@ namespace repository.Controllers
 
                                 if (repository.IsKeepFileExtension == true)
                                 {
-                                    itemPhysicalPath = itemPhysicalPath + extension;
+                                    itemPhysicalPath += extension;
                                     using var keepFileStream = new FileStream(itemPhysicalPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
                                     streamToUpload.Position = 0;
                                     await streamToUpload.CopyToAsync(keepFileStream);
@@ -974,7 +954,7 @@ namespace repository.Controllers
                                 items = await moduleApiClient.GetRepositoryItems(applicationID, repositoryID, dependencyID, businessID);
                             }
 
-                            if (items != null && items.Count() > 0)
+                            if (items != null && items.Count > 0)
                             {
                                 if (items.Count > repository.UploadCount)
                                 {
@@ -1003,7 +983,7 @@ namespace repository.Controllers
                                 items = await moduleApiClient.GetRepositoryItems(applicationID, repositoryID, dependencyID, businessID);
                             }
 
-                            if (items != null && items.Count() > 0)
+                            if (items != null && items.Count > 0)
                             {
                                 foreach (var item in items)
                                 {
@@ -1025,9 +1005,9 @@ namespace repository.Controllers
                                         ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, repository, "STR.SLT010.DD01", new
                                         {
                                             ApplicationID = applicationID,
-                                            BusinessID = item.BusinessID,
+                                            item.BusinessID,
                                             RepositoryID = repositoryID,
-                                            ItemID = item.ItemID
+                                            item.ItemID
                                         });
                                     }
                                     else
@@ -1047,24 +1027,26 @@ namespace repository.Controllers
                             extension = Path.GetExtension(xFileName);
                         }
 
-                        repositoryItem = new RepositoryItems();
-                        repositoryItem.ItemID = repository.IsFileNameEncrypt == true ? sequentialIdGenerator.NewId().ToString("N") : fileName;
-                        repositoryItem.ApplicationID = applicationID;
-                        repositoryItem.BusinessID = businessID;
-                        repositoryItem.SortingNo = sortingNo;
-                        repositoryItem.Comment = comment;
-                        repositoryItem.FileName = fileName;
-                        repositoryItem.Extension = extension;
-                        repositoryItem.MimeType = GetMimeType(xFileName);
-                        repositoryItem.Size = fileLength;
-                        repositoryItem.RepositoryID = repositoryID;
-                        repositoryItem.DependencyID = dependencyID;
-                        repositoryItem.CustomPath1 = customPath1;
-                        repositoryItem.CustomPath2 = customPath2;
-                        repositoryItem.CustomPath3 = customPath3;
-                        repositoryItem.PolicyPath = policyPath;
-                        repositoryItem.CreatedMemberNo = userID;
-                        repositoryItem.CreatedAt = DateTime.Now;
+                        repositoryItem = new RepositoryItems
+                        {
+                            ItemID = repository.IsFileNameEncrypt == true ? sequentialIdGenerator.NewId().ToString("N") : fileName,
+                            ApplicationID = applicationID,
+                            BusinessID = businessID,
+                            SortingNo = sortingNo,
+                            Comment = comment,
+                            FileName = fileName,
+                            Extension = extension,
+                            MimeType = GetMimeType(xFileName),
+                            Size = fileLength,
+                            RepositoryID = repositoryID,
+                            DependencyID = dependencyID,
+                            CustomPath1 = customPath1,
+                            CustomPath2 = customPath2,
+                            CustomPath3 = customPath3,
+                            PolicyPath = policyPath,
+                            CreatedMemberNo = userID,
+                            CreatedAt = DateTime.Now
+                        };
 
                         var fileStream = new MemoryStream();
                         await Request.BodyReader.CopyToAsync(fileStream);
@@ -1138,7 +1120,7 @@ namespace repository.Controllers
                                     if (string.IsNullOrWhiteSpace(repository.BlobItemUrl))
                                     {
                                         absolutePath = $"//{repository.RepositoryID}.blob.core.windows.net/{repository.BlobContainerID.ToLower()}/";
-                                        absolutePath = absolutePath + relativePath;
+                                        absolutePath += relativePath;
                                     }
                                     else
                                     {
@@ -1177,7 +1159,7 @@ namespace repository.Controllers
 
                                 if (repository.IsKeepFileExtension == true)
                                 {
-                                    itemPhysicalPath = itemPhysicalPath + extension;
+                                    itemPhysicalPath += extension;
                                     using var keepFileStream = new FileStream(itemPhysicalPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
                                     streamToUpload.Position = 0;
                                     await streamToUpload.CopyToAsync(keepFileStream);
@@ -1264,21 +1246,21 @@ namespace repository.Controllers
 
             var entity = new
             {
-                ItemID = repositoryItem.ItemID,
-                RepositoryID = repositoryItem.RepositoryID,
-                DependencyID = repositoryItem.DependencyID,
-                FileName = repositoryItem.FileName,
-                SortingNo = repositoryItem.SortingNo,
-                AbsolutePath = repositoryItem.AbsolutePath,
-                RelativePath = repositoryItem.RelativePath,
-                Extension = repositoryItem.Extension,
-                Size = repositoryItem.Size,
-                MimeType = repositoryItem.MimeType,
-                CustomPath1 = repositoryItem.CustomPath1,
-                CustomPath2 = repositoryItem.CustomPath2,
-                CustomPath3 = repositoryItem.CustomPath3,
-                PolicyPath = repositoryItem.PolicyPath,
-                MD5 = repositoryItem.MD5
+                repositoryItem.ItemID,
+                repositoryItem.RepositoryID,
+                repositoryItem.DependencyID,
+                repositoryItem.FileName,
+                repositoryItem.SortingNo,
+                repositoryItem.AbsolutePath,
+                repositoryItem.RelativePath,
+                repositoryItem.Extension,
+                repositoryItem.Size,
+                repositoryItem.MimeType,
+                repositoryItem.CustomPath1,
+                repositoryItem.CustomPath2,
+                repositoryItem.CustomPath3,
+                repositoryItem.PolicyPath,
+                repositoryItem.MD5
             };
 
             Response.Headers.Append("Access-Control-Expose-Headers", "FileModelType, FileResult");
@@ -1293,8 +1275,10 @@ namespace repository.Controllers
         [HttpPost("[action]")]
         public async Task<ActionResult> UploadFiles([FromForm] List<IFormFile> files)
         {
-            var result = new MultiFileUploadResult();
-            result.Result = false;
+            var result = new MultiFileUploadResult
+            {
+                Result = false
+            };
             var elementID = Request.Query["ElementID"].ToString();
             var applicationID = Request.Query["ApplicationID"].ToString();
             var repositoryID = Request.Query["RepositoryID"].ToString();
@@ -1322,15 +1306,14 @@ namespace repository.Controllers
             var responseType = string.IsNullOrWhiteSpace(Request.Query["responseType"]) ? "callback" : Request.Query["responseType"].ToString();
             var userID = string.IsNullOrWhiteSpace(Request.Query["UserID"]) ? "" : Request.Query["UserID"].ToString();
             var callback = string.IsNullOrWhiteSpace(Request.Query["Callback"]) ? "" : Request.Query["Callback"].ToString();
-
-            RepositoryItems? repositoryItem = null;
-
             var stringBuilder = new StringBuilder(512);
             var scriptStart = "<script type='text/javascript'>";
             var scriptEnd = "</script>";
 
             if (Request.HasFormContentType == true)
             {
+                ArgumentNullException.ThrowIfNull(files);
+
                 foreach (var file in files)
                 {
                     if (file == null || file.Length == 0)
@@ -1378,7 +1361,7 @@ namespace repository.Controllers
                     }
                     else
                     {
-                        List<RepositoryItems>? items = null;
+                        List<RepositoryItems>? items;
                         if (repository.IsLocalDbFileManaged == true)
                         {
                             items = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.SLT010.LD01", new
@@ -1417,7 +1400,7 @@ namespace repository.Controllers
                     }
                     else
                     {
-                        List<RepositoryItems>? items = null;
+                        List<RepositoryItems>? items;
                         if (repository.IsLocalDbFileManaged == true)
                         {
                             items = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.SLT010.LD01", new
@@ -1433,7 +1416,7 @@ namespace repository.Controllers
                             items = await moduleApiClient.GetRepositoryItems(applicationID, repositoryID, dependencyID, businessID);
                         }
 
-                        if (items != null && items.Count() > 0)
+                        if (items != null && items.Count > 0)
                         {
                             foreach (var item in items)
                             {
@@ -1469,9 +1452,9 @@ namespace repository.Controllers
                                     ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, repository, "STR.SLT010.DD01", new
                                     {
                                         ApplicationID = applicationID,
-                                        BusinessID = item.BusinessID,
+                                        item.BusinessID,
                                         RepositoryID = repositoryID,
-                                        ItemID = item.ItemID
+                                        item.ItemID
                                     });
                                 }
                                 else
@@ -1486,8 +1469,10 @@ namespace repository.Controllers
                 var sortingNo = 1;
                 foreach (var file in files)
                 {
-                    var fileUploadResult = new FileUploadResult();
-                    fileUploadResult.Result = false;
+                    var fileUploadResult = new FileUploadResult
+                    {
+                        Result = false
+                    };
                     if (file == null)
                     {
                         result.Message = "업로드 파일 정보 없음";
@@ -1506,25 +1491,26 @@ namespace repository.Controllers
                                 extension = Path.GetExtension(file.FileName);
                             }
 
-                            repositoryItem = new RepositoryItems();
-                            repositoryItem.ItemID = repository.IsFileNameEncrypt == true ? sequentialIdGenerator.NewId().ToString("N") : fileName;
-                            repositoryItem.ApplicationID = applicationID;
-                            repositoryItem.BusinessID = businessID;
-                            repositoryItem.SortingNo = sortingNo;
-                            repositoryItem.Comment = comment;
-                            repositoryItem.FileName = fileName;
-                            repositoryItem.Extension = extension;
-                            repositoryItem.MimeType = GetMimeType(fileName);
-                            repositoryItem.Size = file.Length;
-                            repositoryItem.RepositoryID = repositoryID;
-                            repositoryItem.DependencyID = dependencyID;
-                            repositoryItem.CustomPath1 = customPath1;
-                            repositoryItem.CustomPath2 = customPath2;
-                            repositoryItem.CustomPath3 = customPath3;
-                            repositoryItem.PolicyPath = policyPath;
-                            repositoryItem.CreatedMemberNo = userID;
-                            repositoryItem.CreatedAt = DateTime.Now;
-
+                            var repositoryItem = new RepositoryItems
+                            {
+                                ItemID = repository.IsFileNameEncrypt == true ? sequentialIdGenerator.NewId().ToString("N") : fileName,
+                                ApplicationID = applicationID,
+                                BusinessID = businessID,
+                                SortingNo = sortingNo,
+                                Comment = comment,
+                                FileName = fileName,
+                                Extension = extension,
+                                MimeType = GetMimeType(fileName),
+                                Size = file.Length,
+                                RepositoryID = repositoryID,
+                                DependencyID = dependencyID,
+                                CustomPath1 = customPath1,
+                                CustomPath2 = customPath2,
+                                CustomPath3 = customPath3,
+                                PolicyPath = policyPath,
+                                CreatedMemberNo = userID,
+                                CreatedAt = DateTime.Now
+                            };
                             Stream fileStream = file.OpenReadStream();
                             fileStream.CopyTo(streamToUpload);
 
@@ -1612,7 +1598,7 @@ namespace repository.Controllers
 
                                     if (repository.IsKeepFileExtension == true)
                                     {
-                                        itemPhysicalPath = itemPhysicalPath + extension;
+                                        itemPhysicalPath += extension;
                                         using var keepFileStream = new FileStream(itemPhysicalPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
                                         streamToUpload.Position = 0;
                                         await streamToUpload.CopyToAsync(keepFileStream);
@@ -1694,7 +1680,7 @@ namespace repository.Controllers
                     }
 
                     result.FileUploadResults.Add(fileUploadResult);
-                    sortingNo = sortingNo + 1;
+                    sortingNo++;
                 }
 
                 result.Result = true;
@@ -1740,7 +1726,7 @@ namespace repository.Controllers
             }
             else
             {
-                List<RepositoryItems>? repositoryItems = null;
+                List<RepositoryItems>? repositoryItems;
                 if (repository.IsLocalDbFileManaged == true)
                 {
                     repositoryItems = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.SLT010.LD01", new
@@ -1771,21 +1757,21 @@ namespace repository.Controllers
                             var item = repositoryItems[i];
                             var entity = new
                             {
-                                ItemID = item.ItemID,
-                                RepositoryID = item.RepositoryID,
-                                DependencyID = item.DependencyID,
-                                FileName = item.FileName,
-                                SortingNo = item.SortingNo,
-                                AbsolutePath = item.AbsolutePath,
-                                RelativePath = item.RelativePath,
-                                Extension = item.Extension,
-                                Size = item.Size,
-                                MimeType = item.MimeType,
-                                CustomPath1 = item.CustomPath1,
-                                CustomPath2 = item.CustomPath2,
-                                CustomPath3 = item.CustomPath3,
-                                PolicyPath = item.PolicyPath,
-                                MD5 = item.MD5
+                                item.ItemID,
+                                item.RepositoryID,
+                                item.DependencyID,
+                                item.FileName,
+                                item.SortingNo,
+                                item.AbsolutePath,
+                                item.RelativePath,
+                                item.Extension,
+                                item.Size,
+                                item.MimeType,
+                                item.CustomPath1,
+                                item.CustomPath2,
+                                item.CustomPath3,
+                                item.PolicyPath,
+                                item.MD5
                             };
 
                             stringBuilder.AppendLine("repositoryItems.push(" + Extensions.JsonConverter.Serialize(entity) + ");");
@@ -1805,21 +1791,21 @@ namespace repository.Controllers
                             var item = repositoryItems[i];
                             var entity = new
                             {
-                                ItemID = item.ItemID,
-                                RepositoryID = item.RepositoryID,
-                                DependencyID = item.DependencyID,
-                                FileName = item.FileName,
-                                SortingNo = item.SortingNo,
-                                AbsolutePath = item.AbsolutePath,
-                                RelativePath = item.RelativePath,
-                                Extension = item.Extension,
-                                Size = item.Size,
-                                MimeType = item.MimeType,
-                                CustomPath1 = item.CustomPath1,
-                                CustomPath2 = item.CustomPath2,
-                                CustomPath3 = item.CustomPath3,
-                                PolicyPath = item.PolicyPath,
-                                MD5 = item.MD5
+                                item.ItemID,
+                                item.RepositoryID,
+                                item.DependencyID,
+                                item.FileName,
+                                item.SortingNo,
+                                item.AbsolutePath,
+                                item.RelativePath,
+                                item.Extension,
+                                item.Size,
+                                item.MimeType,
+                                item.CustomPath1,
+                                item.CustomPath2,
+                                item.CustomPath3,
+                                item.PolicyPath,
+                                item.MD5
                             };
 
                             entitys.Add(entity);
@@ -1852,17 +1838,20 @@ namespace repository.Controllers
         [HttpPost("[action]")]
         public async Task<ActionResult> DownloadFile([FromBody] DownloadRequest downloadRequest)
         {
-            ActionResult result = NotFound();
+            _ = NotFound();
 
-            var downloadResult = new DownloadResult();
-            downloadResult.Result = false;
+            var downloadResult = new DownloadResult
+            {
+                Result = false
+            };
 
+            ArgumentNullException.ThrowIfNull(downloadRequest);
             var applicationID = downloadRequest.ApplicationID;
             var repositoryID = downloadRequest.RepositoryID;
             var itemID = downloadRequest.ItemID;
             var businessID = downloadRequest.BusinessID;
             var disposition = downloadRequest.Disposition;
-
+            ActionResult result;
             // 보안 검증 처리
 
             if (string.IsNullOrWhiteSpace(applicationID) || string.IsNullOrWhiteSpace(repositoryID) || string.IsNullOrWhiteSpace(itemID))
@@ -1904,7 +1893,7 @@ namespace repository.Controllers
 
             if (!string.IsNullOrWhiteSpace(safeDisposition))
             {
-                Response.Headers["Content-Disposition"] = safeDisposition;
+                Response.Headers.ContentDisposition = safeDisposition;
             }
 
             Response.Headers.Append("Access-Control-Expose-Headers", "FileModelType, FileResult");
@@ -1919,11 +1908,13 @@ namespace repository.Controllers
         [HttpGet("[action]")]
         public async Task<ActionResult> HttpDownloadFile(string applicationID, string repositoryID, string itemID, string? fileMD5, string? tokenID, string? businessID, string? disposition)
         {
-            ActionResult result = NotFound();
+            _ = NotFound();
 
-            var downloadResult = new DownloadResult();
-            downloadResult.Result = false;
-
+            var downloadResult = new DownloadResult
+            {
+                Result = false
+            };
+            ActionResult result;
             // 보안 검증 처리
 
             if (string.IsNullOrWhiteSpace(applicationID) || string.IsNullOrWhiteSpace(repositoryID) || string.IsNullOrWhiteSpace(itemID))
@@ -1977,7 +1968,7 @@ namespace repository.Controllers
 
             if (!string.IsNullOrWhiteSpace(safeDisposition))
             {
-                Response.Headers["Content-Disposition"] = safeDisposition;
+                Response.Headers.ContentDisposition = safeDisposition;
             }
 
             Response.Headers.Append("Access-Control-Expose-Headers", "FileModelType, FileResult");
@@ -1992,11 +1983,13 @@ namespace repository.Controllers
         [HttpGet("[action]")]
         public async Task<ActionResult> VirtualDownloadFile(string applicationID, string repositoryID, string fileName, string? subDirectory, string? disposition)
         {
-            ActionResult result = NotFound();
+            _ = NotFound();
 
-            var downloadResult = new DownloadResult();
-            downloadResult.Result = false;
-
+            var downloadResult = new DownloadResult
+            {
+                Result = false
+            };
+            ActionResult result;
             if (string.IsNullOrWhiteSpace(repositoryID) || string.IsNullOrWhiteSpace(fileName))
             {
                 downloadResult.Message = "VirtualDownloadFile RepositoryID 또는 fileName 필수 요청 정보 필요";
@@ -2034,7 +2027,7 @@ namespace repository.Controllers
 
             if (!string.IsNullOrWhiteSpace(disposition))
             {
-                Response.Headers["Content-Disposition"] = disposition;
+                Response.Headers.ContentDisposition = disposition;
             }
 
             Response.Headers.Append("Access-Control-Expose-Headers", "FileModelType, FileResult");
@@ -2051,8 +2044,10 @@ namespace repository.Controllers
         {
             ActionResult result = NotFound();
 
-            var deleteResult = new DeleteResult();
-            deleteResult.Result = false;
+            var deleteResult = new DeleteResult
+            {
+                Result = false
+            };
 
             if (string.IsNullOrWhiteSpace(repositoryID) || string.IsNullOrWhiteSpace(fileName))
             {
@@ -2183,8 +2178,10 @@ namespace repository.Controllers
         [HttpGet("[action]")]
         public async Task<ActionResult> RemoveItem(string applicationID, string repositoryID, string itemID, string businessID)
         {
-            var jsonContentResult = new JsonContentResult();
-            jsonContentResult.Result = false;
+            var jsonContentResult = new JsonContentResult
+            {
+                Result = false
+            };
 
             if (string.IsNullOrWhiteSpace(applicationID) || string.IsNullOrWhiteSpace(repositoryID) || string.IsNullOrWhiteSpace(itemID))
             {
@@ -2272,9 +2269,9 @@ namespace repository.Controllers
                         ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, repository, "STR.SLT010.DD01", new
                         {
                             ApplicationID = applicationID,
-                            BusinessID = repositoryItem.BusinessID,
+                            repositoryItem.BusinessID,
                             RepositoryID = repositoryID,
-                            ItemID = repositoryItem.ItemID
+                            repositoryItem.ItemID
                         });
                     }
                     else
@@ -2302,8 +2299,10 @@ namespace repository.Controllers
         [HttpGet("[action]")]
         public async Task<ActionResult> RemoveItems(string applicationID, string repositoryID, string dependencyID, string businessID)
         {
-            var jsonContentResult = new JsonContentResult();
-            jsonContentResult.Result = false;
+            var jsonContentResult = new JsonContentResult
+            {
+                Result = false
+            };
 
             if (string.IsNullOrWhiteSpace(repositoryID) || string.IsNullOrWhiteSpace(dependencyID))
             {
@@ -2391,9 +2390,9 @@ namespace repository.Controllers
                             ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, repository, "STR.SLT010.DD01", new
                             {
                                 ApplicationID = applicationID,
-                                BusinessID = repositoryItem.BusinessID,
+                                repositoryItem.BusinessID,
                                 RepositoryID = repositoryID,
-                                ItemID = repositoryItem.ItemID
+                                repositoryItem.ItemID
                             });
                         }
                         else
@@ -2531,8 +2530,8 @@ namespace repository.Controllers
 
         private async Task<ActionResult> ExecuteObjectFileDownload(DownloadResult downloadResult, string applicationID, string repositoryID, string itemID, string businessID, string? inlineYN = "")
         {
-            ActionResult result = NotFound();
-
+            _ = NotFound();
+            ActionResult result;
             if (string.IsNullOrWhiteSpace(applicationID) || string.IsNullOrWhiteSpace(repositoryID) || string.IsNullOrWhiteSpace(itemID))
             {
                 downloadResult.Message = "RepositoryID 또는 itemID 필수 요청 정보 필요";
@@ -2769,18 +2768,18 @@ namespace repository.Controllers
             return result;
         }
 
-        private string GetFileMD5Hash(string filePath)
+        private static string GetFileMD5Hash(string filePath)
         {
             using var md5 = MD5.Create();
             using var stream = System.IO.File.OpenRead(filePath);
-            return BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", string.Empty);
+            return Convert.ToHexString(md5.ComputeHash(stream));
         }
 
-        private string GetStreamMD5Hash(Stream fileStream)
+        private static string GetStreamMD5Hash(Stream fileStream)
         {
             fileStream.Position = 0;
             using var md5 = MD5.Create();
-            var hash = BitConverter.ToString(md5.ComputeHash(fileStream)).Replace("-", string.Empty);
+            var hash = Convert.ToHexString(md5.ComputeHash(fileStream));
             fileStream.Position = 0;
             return hash;
         }
@@ -2789,11 +2788,10 @@ namespace repository.Controllers
         [HttpGet("[action]")]
         public string GetMD5Hash(string value)
         {
-            using var md5 = MD5.Create();
-            return BitConverter.ToString(md5.ComputeHash(Encoding.UTF8.GetBytes(value))).Replace("-", string.Empty);
+            return Convert.ToHexString(MD5.HashData(Encoding.UTF8.GetBytes(value)));
         }
 
-        private Dictionary<string, int> ParseUploadOptions(string options)
+        private static Dictionary<string, int> ParseUploadOptions(string options)
         {
             var optionsDict = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
             if (string.IsNullOrWhiteSpace(options))
@@ -2861,7 +2859,7 @@ namespace repository.Controllers
             }
         }
 
-        private RepositoryItems DeepClone(RepositoryItems source)
+        private static RepositoryItems DeepClone(RepositoryItems source)
         {
             return new RepositoryItems
             {
@@ -2981,7 +2979,7 @@ namespace repository.Controllers
             }
 
             var value = disposition.Trim();
-            if (value.IndexOfAny(new[] { '\r', '\n' }) > -1)
+            if (value.AsSpan().IndexOfAny(s_myChars) > -1)
             {
                 return false;
             }
@@ -3001,6 +2999,8 @@ namespace repository.Controllers
             return false;
         }
 
+        private static readonly char[] RelativePathSeparators = new[] { '/', '\\' };
+
         private static bool IsSafeRelativePath(string? path)
         {
             if (string.IsNullOrWhiteSpace(path) == true)
@@ -3009,9 +3009,9 @@ namespace repository.Controllers
             }
 
             return Path.IsPathRooted(path) == false
-                && path.Split(new[] { '/', '\\' }, StringSplitOptions.RemoveEmptyEntries)
+                && path.Split(RelativePathSeparators, StringSplitOptions.RemoveEmptyEntries)
                     .Any(segment => segment == "..") == false
-                && path.IndexOfAny(new[] { '\r', '\n' }) == -1;
+                && path.AsSpan().IndexOfAny(s_myChars) == -1;
         }
 
         private static bool TryResolveChildPath(string basePath, string childPath, out string resolvedPath)

@@ -17,34 +17,24 @@ using Newtonsoft.Json.Linq;
 
 namespace logger.Entity
 {
-    public class DynamicLogValidationException : Exception
+    public class DynamicLogValidationException(string message) : Exception(message)
     {
-        public DynamicLogValidationException(string message)
-            : base(message)
-        {
-        }
     }
 
-    internal sealed class LogSchemaCommand
+    internal sealed class LogSchemaCommand(string commandText, DynamicParameters parameters)
     {
-        public LogSchemaCommand(string commandText, DynamicParameters parameters)
-        {
-            CommandText = commandText;
-            Parameters = parameters;
-        }
+        public string CommandText { get; } = commandText;
 
-        public string CommandText { get; }
-
-        public DynamicParameters Parameters { get; }
+        public DynamicParameters Parameters { get; } = parameters;
     }
 
-    internal static class LogDataSourceSchemaSqlBuilder
+    internal static partial class LogDataSourceSchemaSqlBuilder
     {
         private static readonly Dictionary<string, PropertyInfo> LogMessageProperties = typeof(LogMessage)
             .GetProperties(BindingFlags.Instance | BindingFlags.Public)
             .ToDictionary(property => property.Name, property => property, StringComparer.OrdinalIgnoreCase);
 
-        private static readonly Regex SafeNameRegex = new Regex("[^A-Za-z0-9_]+", RegexOptions.Compiled);
+        private static readonly Regex SafeNameRegex = MyRegex();
 
         public static LogSchemaCommand BuildInsert(DataSource dataSource, DataProviders dataProvider, LogMessage request, IReadOnlyDictionary<string, object?>? extraPayload)
         {
@@ -121,12 +111,7 @@ ORDER BY TL.{QuoteIdentifier(orderColumn.ColumnName, dataProvider)} DESC{limitCl
 
         public static LogSchemaCommand BuildDetail(DataSource dataSource, DataProviders dataProvider, string logNo)
         {
-            var primaryKeyColumn = FindRoleColumn(dataSource, dataSource.Schema?.Roles.PrimaryKey);
-            if (primaryKeyColumn == null)
-            {
-                throw new DynamicLogValidationException($"ApplicationID: {dataSource.ApplicationID} Schema.Roles.PrimaryKey 확인 필요");
-            }
-
+            var primaryKeyColumn = FindRoleColumn(dataSource, dataSource.Schema?.Roles.PrimaryKey) ?? throw new DynamicLogValidationException($"ApplicationID: {dataSource.ApplicationID} Schema.Roles.PrimaryKey 확인 필요");
             var parameters = new DynamicParameters();
             var parameterPrefix = GetParameterPrefix(dataProvider);
             var selectColumns = GetColumns(dataSource)
@@ -258,31 +243,19 @@ WHERE
         {
             var sourceKey = string.IsNullOrWhiteSpace(column.SourceKey) == true ? column.ColumnName : column.SourceKey;
             var sourceType = column.SourceType.Trim();
-            object? value;
-
             if (string.IsNullOrWhiteSpace(sourceType) == true)
             {
                 sourceType = LogMessageProperties.ContainsKey(sourceKey) == true ? "LogMessage" : "Payload";
             }
 
-            switch (sourceType.ToUpperInvariant())
+            var value = sourceType.ToUpperInvariant() switch
             {
-                case "LOGMESSAGE":
-                    value = GetLogMessageValue(request, sourceKey);
-                    break;
-                case "PAYLOAD":
-                    value = GetPayloadValue(extraPayload, sourceKey);
-                    break;
-                case "SYSTEM":
-                    value = GetSystemValue(sourceKey);
-                    break;
-                case "CONSTANT":
-                    value = column.DefaultValue ?? sourceKey;
-                    break;
-                default:
-                    throw new DynamicLogValidationException($"컬럼 '{column.ColumnName}' SourceType '{column.SourceType}' 확인 필요");
-            }
-
+                "LOGMESSAGE" => GetLogMessageValue(request, sourceKey),
+                "PAYLOAD" => GetPayloadValue(extraPayload, sourceKey),
+                "SYSTEM" => GetSystemValue(sourceKey),
+                "CONSTANT" => column.DefaultValue ?? sourceKey,
+                _ => throw new DynamicLogValidationException($"컬럼 '{column.ColumnName}' SourceType '{column.SourceType}' 확인 필요"),
+            };
             if (IsMissing(value) == true && column.DefaultValue != null && sourceType.Equals("CONSTANT", StringComparison.OrdinalIgnoreCase) == false)
             {
                 value = column.DefaultValue;
@@ -389,7 +362,7 @@ WHERE
             }
         }
 
-        private static object ConvertBoolean(object value, string? text)
+        private static bool ConvertBoolean(object value, string? text)
         {
             if (value is bool boolValue)
             {
@@ -499,7 +472,7 @@ WHERE
                 DataProviders.Oracle => MapOracleType(column, logicalType, isIdentity),
                 DataProviders.MySQL => MapMySqlType(column, logicalType, isIdentity),
                 DataProviders.PostgreSQL => MapPostgreSqlType(column, logicalType, isIdentity),
-                DataProviders.SQLite => MapSqliteType(column, logicalType),
+                DataProviders.SQLite => MapSqliteType(logicalType),
                 _ => "nvarchar(255)"
             };
         }
@@ -576,7 +549,7 @@ WHERE
             };
         }
 
-        private static string MapSqliteType(LogDataSourceColumn column, string logicalType)
+        private static string MapSqliteType(string logicalType)
         {
             return logicalType switch
             {
@@ -736,5 +709,8 @@ WHERE
                 _ => $"{Environment.NewLine}LIMIT 500"
             };
         }
+
+        [GeneratedRegex("[^A-Za-z0-9_]+", RegexOptions.Compiled)]
+        private static partial Regex MyRegex();
     }
 }

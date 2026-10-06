@@ -12,20 +12,17 @@ using wwwroot.Entity;
 
 namespace wwwroot.Extensions
 {
-    public class SharedFileServingMiddleware
+    public class SharedFileServingMiddleware(RequestDelegate next)
     {
         public const string ManifestRequestPath = "/shared-files/manifest";
 
-        private readonly RequestDelegate next;
-        private static readonly FileExtensionContentTypeProvider contentTypeProvider = new FileExtensionContentTypeProvider();
-
-        public SharedFileServingMiddleware(RequestDelegate next)
-        {
-            this.next = next;
-        }
+        private readonly RequestDelegate next = next;
+        private static readonly FileExtensionContentTypeProvider contentTypeProvider = new();
 
         public async Task InvokeAsync(HttpContext context)
         {
+            ArgumentNullException.ThrowIfNull(context);
+
             var requestPath = context.Request.Path.Value;
             if (string.IsNullOrWhiteSpace(requestPath) == false)
             {

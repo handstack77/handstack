@@ -39,10 +39,10 @@ namespace graphclient.Entity
         public string Cypher { get; set; } = string.Empty;
 
         [JsonProperty]
-        public List<GraphStatementParameter> Parameters { get; set; } = new();
+        public List<GraphStatementParameter> Parameters { get; set; } = [];
 
         [JsonProperty]
-        public List<string> OutputMetas { get; set; } = new();
+        public List<string> OutputMetas { get; set; } = [];
 
         [JsonProperty]
         public DateTime ModifiedAt { get; set; } = DateTime.MinValue;

@@ -17,6 +17,7 @@ namespace HandStack.Core.Licensing.Validation
             if (r > int.MaxValue / 128 / p) throw new ArgumentException("r too large");
 
             int Bsize = p * 128 * r;
+            ArgumentNullException.ThrowIfNull(salt);
             byte[] B = PBKDF2SHA256(password, salt, 1, Bsize);
 
             int blockLen = 128 * r;

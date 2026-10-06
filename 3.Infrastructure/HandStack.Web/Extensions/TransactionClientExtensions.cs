@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 
@@ -13,12 +14,16 @@ namespace HandStack.Web.Extensions
     {
         public static void Add(this IList<ServiceParameter> parameters, string parameterName, object? value)
         {
+            ArgumentNullException.ThrowIfNull(parameters);
+
             parameters.Add(new ServiceParameter() { prop = parameterName, val = value });
         }
 
 
         public static List<ServiceParameter> ToServiceParameters(this object parameters)
         {
+            ArgumentNullException.ThrowIfNull(parameters);
+
             var properties = parameters.GetType().GetProperties();
             return properties.Select(p => new ServiceParameter(p.Name, p.GetValue(parameters)?.ToString())).ToList();
         }

@@ -10,16 +10,10 @@ using repository.Entity;
 
 namespace repository.Extensions
 {
-    public class FileSystemStorageProvider : IStorageProvider
+    public class FileSystemStorageProvider(Repository repository, RepositoryManager repositoryManager) : IStorageProvider
     {
-        private readonly RepositoryManager repositoryManager;
-        private readonly Repository repository;
-
-        public FileSystemStorageProvider(Repository repository, RepositoryManager repositoryManager)
-        {
-            this.repository = repository;
-            this.repositoryManager = repositoryManager;
-        }
+        private readonly RepositoryManager repositoryManager = repositoryManager;
+        private readonly Repository repository = repository;
 
         public Task DeleteAsync(string blobID)
         {
@@ -74,6 +68,8 @@ namespace repository.Extensions
             var filePath = repositoryManager.GetSavePath(blobID);
             using (var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write))
             {
+                ArgumentNullException.ThrowIfNull(content);
+
                 content.Position = 0;
                 await content.CopyToAsync(fileStream);
             }
@@ -93,7 +89,9 @@ namespace repository.Extensions
 
                 if (!string.IsNullOrWhiteSpace(extension))
                 {
-                    fileName = fileName.Replace(extension, "");
+                    ArgumentNullException.ThrowIfNull(fileName);
+
+                    _ = fileName.Replace(extension, "");
                 }
 
                 FileInfo fileInfo;

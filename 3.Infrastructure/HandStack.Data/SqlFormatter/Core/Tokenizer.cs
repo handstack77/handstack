@@ -84,7 +84,7 @@ namespace HandStack.Data.SqlFormatter.Core
             return tokens;
         }
 
-        private int GetPrecedingWitespaceLenght(string input, int pointerIndex)
+        private static int GetPrecedingWitespaceLenght(string input, int pointerIndex)
         {
             var i = 0;
             var len = input.Length - pointerIndex;
@@ -122,7 +122,7 @@ namespace HandStack.Data.SqlFormatter.Core
             return GetTokenOnFirstMatch(input, pointerIndex, TokenType.LineComment, lineCommentRegex);
         }
 
-        private Token? GetBlockCommentToken(string input, int pointerIndex)
+        private static Token? GetBlockCommentToken(string input, int pointerIndex)
         {
             return GetTokenOnFirstMatch(input, pointerIndex, TokenType.BlockComment, BlockCommentRegex);
         }
@@ -158,12 +158,12 @@ namespace HandStack.Data.SqlFormatter.Core
             return GetPlaceholderTokenWithKey(input, pointerIndex, indexedPlaceholderRegex);
         }
 
-        private Token? GetPlaceholderTokenWithKey(string input, int pointerIndex, Regex? regex)
+        private static Token? GetPlaceholderTokenWithKey(string input, int pointerIndex, Regex? regex)
         {
             return GetTokenOnFirstMatch(input, pointerIndex, TokenType.PlaceHolder, regex);
         }
 
-        private Token? GetNumberToken(string input, int pointerIndex)
+        private static Token? GetNumberToken(string input, int pointerIndex)
         {
             return GetTokenOnFirstMatch(input, pointerIndex, TokenType.Number, NumberRegex);
         }
@@ -213,7 +213,7 @@ namespace HandStack.Data.SqlFormatter.Core
             return GetTokenOnFirstMatch(input, pointerIndex, TokenType.Reserved, reservedPlainRegex);
         }
 
-        private Token? GetTokenOnFirstMatch(string input, int pointerIndex, TokenType type, Regex? regex)
+        private static Token? GetTokenOnFirstMatch(string input, int pointerIndex, TokenType type, Regex? regex)
         {
             if (regex is null)
             {

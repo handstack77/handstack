@@ -9,9 +9,7 @@ using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-
 using ChoETL;
-
 using HandStack.Core.ExtensionMethod;
 using HandStack.Core.Helpers;
 using HandStack.Web;
@@ -22,7 +20,7 @@ using HandStack.Web.MessageContract.Contract;
 using HandStack.Web.MessageContract.DataObject;
 using HandStack.Web.MessageContract.Enumeration;
 using HandStack.Web.MessageContract.Message;
-
+using Mediator;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
@@ -30,14 +28,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
-
-using Mediator;
-
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-
 using RestSharp;
-
 using transact.Entity;
 using transact.Events;
 using transact.Extensions;
@@ -48,34 +41,24 @@ namespace transact.Areas.transact.Controllers
     [Route("[area]/api/[controller]")]
     [ApiController]
     [EnableCors]
-    public class TransactionController : BaseController
+    public class TransactionController(IDistributedCache distributedCache, IMemoryCache memoryCache, Serilog.ILogger logger, TransactLoggerClient loggerClient, TransactClient transactClient, IMediator mediator) : BaseController
     {
-        private TransactLoggerClient loggerClient { get; }
+        private TransactLoggerClient loggerClient { get; } = loggerClient;
 
-        private TransactClient transactClient { get; }
+        private TransactClient transactClient { get; } = transactClient;
 
-        private readonly IMemoryCache memoryCache;
+        private readonly IMemoryCache memoryCache = memoryCache;
 
-        private readonly IDistributedCache distributedCache;
+        private readonly IDistributedCache distributedCache = distributedCache;
 
-        private readonly IMediator mediator;
+        private readonly IMediator mediator = mediator;
 
-        private Serilog.ILogger logger { get; }
+        private Serilog.ILogger logger { get; } = logger;
 
         private int transactionRouteCount = 0;
 
         // #11 PSH(fire-and-forget) 동시 실행 태스크 수 추적
         private static int currentPushTaskCount = 0;
-
-        public TransactionController(IDistributedCache distributedCache, IMemoryCache memoryCache, Serilog.ILogger logger, TransactLoggerClient loggerClient, TransactClient transactClient, IMediator mediator)
-        {
-            this.distributedCache = distributedCache;
-            this.memoryCache = memoryCache;
-            this.logger = logger;
-            this.loggerClient = loggerClient;
-            this.transactClient = transactClient;
-            this.mediator = mediator;
-        }
 
         // http://localhost:8421/transact/api/transaction/test
         [HttpGet("[action]")]
@@ -89,7 +72,8 @@ namespace transact.Areas.transact.Controllers
         [HttpGet("[action]")]
         public ActionResult Has(string applicationID, string projectID, string transactionID)
         {
-            ActionResult result = BadRequest();
+            _ = BadRequest();
+            ActionResult result;
             if (HttpContext.IsAllowMetadataAuthorization() == false)
             {
                 result = BadRequest();
@@ -116,7 +100,8 @@ namespace transact.Areas.transact.Controllers
         [HttpGet("[action]")]
         public async Task<ActionResult> Refresh(string changeType, string filePath, string? userWorkID, string? applicationID)
         {
-            ActionResult result = NotFound();
+            _ = NotFound();
+            ActionResult result;
             if (HttpContext.IsAllowMetadataAuthorization() == false)
             {
                 result = BadRequest();
@@ -144,7 +129,8 @@ namespace transact.Areas.transact.Controllers
         [HttpGet("[action]")]
         public ActionResult CacheClear()
         {
-            ActionResult result = BadRequest();
+            _ = BadRequest();
+            ActionResult result;
             if (HttpContext.IsAllowMetadataAuthorization() == false)
             {
                 result = BadRequest();
@@ -184,7 +170,8 @@ namespace transact.Areas.transact.Controllers
         [HttpGet("[action]")]
         public ActionResult CacheKeys()
         {
-            ActionResult result = BadRequest();
+            _ = BadRequest();
+            ActionResult result;
             if (HttpContext.IsAllowMetadataAuthorization() == false)
             {
                 result = BadRequest();
@@ -207,7 +194,7 @@ namespace transact.Areas.transact.Controllers
             return result;
         }
 
-        private List<string> GetMemoryCacheKeys()
+        private static List<string> GetMemoryCacheKeys()
         {
             var result = new List<string>();
             foreach (var cacheKey in ModuleConfiguration.CacheKeys)
@@ -354,8 +341,10 @@ namespace transact.Areas.transact.Controllers
         public async Task<ActionResult> Execute(TransactionRequest request)
         {
             // 주요 구간 거래 명령 입력 횟수 및 명령 시간 기록
-            var response = new TransactionResponse();
-            response.Acknowledge = AcknowledgeType.Failure;
+            var response = new TransactionResponse
+            {
+                Acknowledge = AcknowledgeType.Failure
+            };
 
             if (request == null)
             {
@@ -499,7 +488,7 @@ namespace transact.Areas.transact.Controllers
                 {
                     if (request.PayLoad.DataMapSet == null)
                     {
-                        request.PayLoad.DataMapSet = new List<List<DataMapItem>>();
+                        request.PayLoad.DataMapSet = [];
                     }
 
                     request.PayLoad.DataMapSet.Clear();
@@ -532,7 +521,7 @@ namespace transact.Areas.transact.Controllers
                     {
                         if (request.PayLoad.DataMapSet == null)
                         {
-                            request.PayLoad.DataMapSet = new List<List<DataMapItem>>();
+                            request.PayLoad.DataMapSet = [];
                         }
 
                         request.PayLoad.DataMapSet.Clear();
@@ -542,7 +531,7 @@ namespace transact.Areas.transact.Controllers
                             var decryptInputData = transactClient.DecryptInputData(dataMapSetRaw, request.Transaction.CompressionYN);
                             if (decryptInputData == null)
                             {
-                                request.PayLoad.DataMapSet.Add(new List<DataMapItem>());
+                                request.PayLoad.DataMapSet.Add([]);
                             }
                             else
                             {
@@ -578,13 +567,10 @@ namespace transact.Areas.transact.Controllers
 
                         cacheKey = $"{ModuleConfiguration.ModuleID}|{cacheKeys.ToJoin(";")}";
 
-                        TransactionResponse? transactionResponse = null;
-                        if (memoryCache.TryGetValue(cacheKey, out transactionResponse) == true)
+                        if (memoryCache.TryGetValue(cacheKey, out
+                        TransactionResponse? transactionResponse) == true)
                         {
-                            if (transactionResponse == null)
-                            {
-                                transactionResponse = new TransactionResponse();
-                            }
+                            transactionResponse ??= new TransactionResponse();
 
                             transactionResponse.ResponseID = string.Concat(ModuleConfiguration.SystemID, GlobalConfiguration.HostName, request.Environment, DateTime.Now.ToString("yyyyMMddHHmmss"));
                             transactClient.DefaultResponseHeaderConfiguration(request, transactionResponse, transactionRouteCount);
@@ -652,14 +638,16 @@ namespace transact.Areas.transact.Controllers
                     var publicTransaction = TransactionMapper.GetPublicTransaction(request.System.ProgramID, request.Transaction.BusinessID, request.Transaction.TransactionID);
                     if (publicTransaction != null)
                     {
-                        businessContract = new BusinessContract();
-                        businessContract.TransactionApplicationID = request.System.ProgramID;
-                        businessContract.ApplicationID = request.System.ProgramID;
-                        businessContract.ProjectID = request.Transaction.BusinessID;
-                        businessContract.TransactionProjectID = request.Transaction.BusinessID;
-                        businessContract.TransactionID = request.Transaction.TransactionID;
-                        businessContract.Services = new List<TransactionInfo>();
-                        businessContract.Models = new List<Model>();
+                        businessContract = new BusinessContract
+                        {
+                            TransactionApplicationID = request.System.ProgramID,
+                            ApplicationID = request.System.ProgramID,
+                            ProjectID = request.Transaction.BusinessID,
+                            TransactionProjectID = request.Transaction.BusinessID,
+                            TransactionID = request.Transaction.TransactionID,
+                            Services = [],
+                            Models = []
+                        };
 
                         TransactionMapper.Upsert($"DYNAMIC|{request.System.ProgramID}|{request.Transaction.BusinessID}|{request.Transaction.TransactionID}", businessContract);
                     }
@@ -700,23 +688,25 @@ namespace transact.Areas.transact.Controllers
 
                 if (transactionInfo == null && dynamicContract == true)
                 {
-                    var dynamicAuthorize = request.LoadOptions == null ? false : request.LoadOptions.Get<string>("authorize").ToStringSafe().ParseBool();
+                    var dynamicAuthorize = request.LoadOptions != null && request.LoadOptions.Get<string>("authorize").ToStringSafe().ParseBool();
                     var dynamicCommandType = request.LoadOptions == null ? "" : request.LoadOptions.Get<string>("commandType").ToStringSafe();
                     var dynamicReturnType = request.LoadOptions == null ? "" : request.LoadOptions.Get<string>("returnType").ToStringSafe();
-                    var dynamicTransactionScope = request.LoadOptions == null ? false : request.LoadOptions.Get<string>("transactionScope").ToStringSafe().ParseBool();
-                    var dynamicTransactionLog = request.LoadOptions == null ? false : request.LoadOptions.Get<string>("transactionLog").ToStringSafe().ParseBool();
+                    var dynamicTransactionScope = request.LoadOptions != null && request.LoadOptions.Get<string>("transactionScope").ToStringSafe().ParseBool();
+                    var dynamicTransactionLog = request.LoadOptions != null && request.LoadOptions.Get<string>("transactionLog").ToStringSafe().ParseBool();
 
-                    transactionInfo = new TransactionInfo();
-                    transactionInfo.ServiceID = request.Transaction.FunctionID;
-                    transactionInfo.Authorize = dynamicAuthorize;
-                    transactionInfo.CommandType = dynamicCommandType;
-                    transactionInfo.TransactionScope = dynamicTransactionScope;
-                    transactionInfo.SequentialOptions = new List<SequentialOption>();
-                    transactionInfo.ReturnType = string.IsNullOrWhiteSpace(dynamicReturnType) ? "Json" : dynamicReturnType;
-                    transactionInfo.AccessScreenID = new List<string>() { request.Transaction.TransactionID };
-                    transactionInfo.TransactionLog = dynamicTransactionLog;
-                    transactionInfo.Inputs = new List<ModelInputContract>();
-                    transactionInfo.Outputs = new List<ModelOutputContract>();
+                    transactionInfo = new TransactionInfo
+                    {
+                        ServiceID = request.Transaction.FunctionID,
+                        Authorize = dynamicAuthorize,
+                        CommandType = dynamicCommandType,
+                        TransactionScope = dynamicTransactionScope,
+                        SequentialOptions = [],
+                        ReturnType = string.IsNullOrWhiteSpace(dynamicReturnType) ? "Json" : dynamicReturnType,
+                        AccessScreenID = [request.Transaction.TransactionID],
+                        TransactionLog = dynamicTransactionLog,
+                        Inputs = [],
+                        Outputs = []
+                    };
                 }
 
                 if (transactionInfo == null)
@@ -803,7 +793,7 @@ namespace transact.Areas.transact.Controllers
                                     if (user != null)
                                     {
                                         var userRoles = user.ApplicationRoleID.SplitComma();
-                                        if (userRoles.Any() == true)
+                                        if (userRoles.Count != 0 == true)
                                         {
                                             foreach (var permissionRole in permissionRoles.Where(x => x.RoleID != "Public"))
                                             {
@@ -944,7 +934,7 @@ namespace transact.Areas.transact.Controllers
                     }
                     else if (ModuleConfiguration.SystemID == requestSystemID && isBypassAuthorizeIP == true)
                     {
-                        if (!string.IsNullOrWhiteSpace(token) && token.IndexOf(".") > -1 && !string.IsNullOrWhiteSpace(request.Transaction.OperatorID))
+                        if (!string.IsNullOrWhiteSpace(token) && token.IndexOf('.') > -1 && !string.IsNullOrWhiteSpace(request.Transaction.OperatorID))
                         {
                             if (!TrySplitBearerToken(token, out _, out var encryptedToken, out var tokenHash))
                             {
@@ -1130,7 +1120,7 @@ namespace transact.Areas.transact.Controllers
                         {
                             if (!string.IsNullOrWhiteSpace(token))
                             {
-                                if (token.IndexOf(".") > -1)
+                                if (token.IndexOf('.') > -1)
                                 {
                                     if (!TrySplitBearerToken(token, out var userID, out var encryptedToken, out var tokenHash))
                                     {
@@ -1171,9 +1161,9 @@ namespace transact.Areas.transact.Controllers
 
                     foreach (var privillegeKey in privillegeKeys)
                     {
-                        if (claims.ContainsKey(privillegeKey))
+                        if (claims.TryGetValue(privillegeKey, out var value))
                         {
-                            privillegeTypes.Add(privillegeKey, claims[privillegeKey]);
+                            privillegeTypes.Add(privillegeKey, value);
                         }
                     }
 
@@ -1249,15 +1239,17 @@ namespace transact.Areas.transact.Controllers
                 var outputContracts = new List<ModelOutputContract>();
                 if (refererPath.StartsWith(tenantAppRequestPath) == false && string.IsNullOrWhiteSpace(transactionUserWorkID) && !string.IsNullOrWhiteSpace(transactionInfo.RoutingCommandUri))
                 {
-                    if (transactionInfo.RoutingCommandUri.IndexOf("http") == -1)
+                    if (!transactionInfo.RoutingCommandUri.Contains("http", StringComparison.CurrentCulture))
                     {
                         response.ExceptionText = $"거래 라우팅 경로 확인 필요";
                         return LoggingAndReturn(response, transactionWorkID, "N", transactionInfo);
                     }
 
-                    var route = new Route();
-                    route.SystemID = GlobalConfiguration.SystemID;
-                    route.RequestTick = DateTime.UtcNow.GetJavascriptTime();
+                    var route = new Route
+                    {
+                        SystemID = GlobalConfiguration.SystemID,
+                        RequestTick = DateTime.UtcNow.GetJavascriptTime()
+                    };
                     request.System.Routes.Add(route);
 
                     TransactionResponse? transactionResponse = null;
@@ -1332,11 +1324,11 @@ namespace transact.Areas.transact.Controllers
                                     transactionInfo.Inputs.Add(new ModelInputContract()
                                     {
                                         ModelID = "Dynamic",
-                                        Fields = new List<string>(),
-                                        TestValues = new List<TestValue>(),
-                                        DefaultValues = new List<DefaultValue>(),
+                                        Fields = [],
+                                        TestValues = [],
+                                        DefaultValues = [],
                                         Type = item,
-                                        BaseFieldMappings = new List<BaseFieldMapping>(),
+                                        BaseFieldMappings = [],
                                         ParameterHandling = item == "Row" ? "Rejected" : "ByPassing"
                                     });
                                 }
@@ -1354,7 +1346,7 @@ namespace transact.Areas.transact.Controllers
                                     transactionInfo.Outputs.Add(new ModelOutputContract()
                                     {
                                         ModelID = "Dynamic",
-                                        Fields = new List<string>(),
+                                        Fields = [],
                                         Type = item
                                     });
                                 }
@@ -1364,10 +1356,7 @@ namespace transact.Areas.transact.Controllers
 
                     transactionObject.LoadOptions = request.LoadOptions;
 
-                    if (transactionObject.LoadOptions == null)
-                    {
-                        transactionObject.LoadOptions = new Dictionary<string, string>();
-                    }
+                    transactionObject.LoadOptions ??= [];
 
                     foreach (var item in privillegeTypes)
                     {
@@ -1443,7 +1432,7 @@ namespace transact.Areas.transact.Controllers
                             request.PayLoad.DataMapCount[i] = 1;
                             transactionObject.InputsItemCount[i] = 1;
                             inputCount = 1;
-                            requestInput = new List<DataMapItem>();
+                            requestInput = [];
 
                             var fieldIndex = 0;
                             foreach (var fieldID in inputContract.Fields)
@@ -1467,14 +1456,16 @@ namespace transact.Areas.transact.Controllers
                                     column = model.Columns.FirstOrDefault(p => p.Name == fieldID);
                                 }
 
-                                var tempReqInput = new DataMapItem();
-                                tempReqInput.FieldID = fieldID;
+                                var tempReqInput = new DataMapItem
+                                {
+                                    FieldID = fieldID
+                                };
 
                                 transactClient.SetInputDefaultValue(defaultValue, column, tempReqInput);
 
                                 requestInput.Add(tempReqInput);
 
-                                fieldIndex = fieldIndex + 1;
+                                fieldIndex++;
                             }
 
                             requestInputs.Add(requestInput);
@@ -1503,7 +1494,7 @@ namespace transact.Areas.transact.Controllers
                         }
 
                         requestInputItems.Add(inputContract.ModelID + i.ToString(), requestInputs.Skip(inputOffset).Take(inputCount).ToList());
-                        inputOffset = inputOffset + inputCount;
+                        inputOffset += inputCount;
                     }
 
                     var transactInputs = new List<List<TransactField>>();
@@ -1555,10 +1546,12 @@ namespace transact.Areas.transact.Controllers
                                 }
                                 else
                                 {
-                                    var transactField = new TransactField();
-                                    transactField.FieldID = item.FieldID;
-                                    transactField.Length = column.Length;
-                                    transactField.DataType = column.DataType.ToString();
+                                    var transactField = new TransactField
+                                    {
+                                        FieldID = item.FieldID,
+                                        Length = column.Length,
+                                        DataType = column.DataType.ToString()
+                                    };
 
                                     if (item.Value == null)
                                     {
@@ -1601,7 +1594,7 @@ namespace transact.Areas.transact.Controllers
                             transactInputs.Add(transactInput);
                         }
 
-                        index = index + 1;
+                        index++;
                     }
 
                     var bearerFields = bearerToken == null ? null : bearerToken.Variable as JObject;
@@ -1609,7 +1602,7 @@ namespace transact.Areas.transact.Controllers
                     {
                         if (transactInputs.Count == 0)
                         {
-                            transactInputs.Add(new List<TransactField>());
+                            transactInputs.Add([]);
                         }
 
                         foreach (var transactInput in transactInputs)
@@ -1639,10 +1632,12 @@ namespace transact.Areas.transact.Controllers
                                     Require = false
                                 };
 
-                                var transactField = new TransactField();
-                                transactField.FieldID = fieldID;
-                                transactField.Length = column.Length;
-                                transactField.DataType = column.DataType.ToString();
+                                var transactField = new TransactField
+                                {
+                                    FieldID = fieldID,
+                                    Length = column.Length,
+                                    DataType = column.DataType.ToString()
+                                };
 
                                 object? fieldValue = null;
                                 if (jToken is JValue)
@@ -1841,7 +1836,7 @@ namespace transact.Areas.transact.Controllers
 
                         response.ResponseID = string.Concat(ModuleConfiguration.SystemID, GlobalConfiguration.HostName, request.Environment, DateTime.Now.ToString("yyyyMMddHHmmddsss"));
                         response.Acknowledge = AcknowledgeType.Success;
-                        var executeDynamicTypeObject = (ExecuteDynamicTypeObject)Enum.Parse(typeof(ExecuteDynamicTypeObject), transactionInfo.ReturnType);
+                        var executeDynamicTypeObject = Enum.Parse<ExecuteDynamicTypeObject>(transactionInfo.ReturnType);
                         response.Result.ResponseType = ((int)executeDynamicTypeObject).ToString();
 
                         if (response.Transaction.DataFormat == "T")
@@ -1850,8 +1845,7 @@ namespace transact.Areas.transact.Controllers
                             var i = 0;
                             foreach (var dataMapItem in response.Result.DataSet)
                             {
-                                var value = dataMapItem.Value as JToken;
-                                if (value != null)
+                                if (dataMapItem.Value is JToken value)
                                 {
                                     response.Result.DataMapCount.Add(value.Type == JTokenType.Array ? value.Count() : 1);
                                     response.Result.DataSetMeta.Add(resultMeta[i]);
@@ -1939,7 +1933,7 @@ namespace transact.Areas.transact.Controllers
                                     }
                                 }
 
-                                i = i + 1;
+                                i++;
                             }
                         }
                         else
@@ -1948,8 +1942,7 @@ namespace transact.Areas.transact.Controllers
                             var i = 0;
                             foreach (var dataMapItem in response.Result.DataSet)
                             {
-                                var value = dataMapItem.Value as JToken;
-                                if (value != null)
+                                if (dataMapItem.Value is JToken value)
                                 {
                                     response.Result.DataMapCount.Add(value.Type == JTokenType.Array ? value.Count() : 1);
                                     response.Result.DataSetMeta.Add(resultMeta[i]);
@@ -1960,7 +1953,7 @@ namespace transact.Areas.transact.Controllers
                                     }
                                 }
 
-                                i = i + 1;
+                                i++;
                             }
                         }
 
@@ -2005,7 +1998,7 @@ namespace transact.Areas.transact.Controllers
 
         private bool TryDeserializeDataMapItems(string? json, out List<DataMapItem> dataMapItems)
         {
-            dataMapItems = new List<DataMapItem>();
+            dataMapItems = [];
             if (string.IsNullOrWhiteSpace(json))
             {
                 return false;
@@ -2106,7 +2099,7 @@ namespace transact.Areas.transact.Controllers
             }
         }
 
-        private ActionResult LoggingAndReturn(TransactionResponse response, string transactionWorkID, string acknowledge, TransactionInfo? transactionInfo)
+        private ContentResult LoggingAndReturn(TransactionResponse response, string transactionWorkID, string acknowledge, TransactionInfo? transactionInfo)
         {
             if (ModuleConfiguration.IsTransactionLogging == true || (transactionInfo != null && transactionInfo.TransactionLog == true))
             {
@@ -2118,7 +2111,7 @@ namespace transact.Areas.transact.Controllers
 
             if (response.System.Routes.Count > 0)
             {
-                var route = response.System.Routes[response.System.Routes.Count - 1];
+                var route = response.System.Routes[^1];
                 route.ResponseTick = DateTime.UtcNow.GetJavascriptTime();
             }
 

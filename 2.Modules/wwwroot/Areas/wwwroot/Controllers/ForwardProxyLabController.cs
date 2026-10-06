@@ -5,34 +5,26 @@ using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-
+using HandStack.Core.ExtensionMethod;
 using HandStack.Web.Common;
 using HandStack.Web.Extensions;
-
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-
 using Serilog;
-using HandStack.Core.ExtensionMethod;
 
 namespace wwwroot.Areas.wwwroot.Controllers
 {
     [Area("wwwroot")]
     [Route("[area]/api/forward-proxy-lab")]
     [ApiController]
-    public class ForwardProxyLabController : BaseController
+    public class ForwardProxyLabController(ILogger logger) : BaseController
     {
-        private static readonly HttpClient ProgramClient = new HttpClient
+        private static readonly HttpClient ProgramClient = new()
         {
             Timeout = Timeout.InfiniteTimeSpan
         };
 
-        private readonly ILogger logger;
-
-        public ForwardProxyLabController(ILogger logger)
-        {
-            this.logger = logger;
-        }
+        private readonly ILogger logger = logger;
 
         [HttpGet]
         public string Get()
@@ -43,6 +35,8 @@ namespace wwwroot.Areas.wwwroot.Controllers
         [HttpPost("program-execute")]
         public async Task<IActionResult> ProgramExecute([FromBody] ProxyLabExecuteRequest request, CancellationToken cancellationToken)
         {
+            ArgumentNullException.ThrowIfNull(request);
+
             if (string.IsNullOrWhiteSpace(request.BearerToken) == true)
             {
                 return BadRequest("BearerToken required");
@@ -158,7 +152,7 @@ namespace wwwroot.Areas.wwwroot.Controllers
                             <dl class="lab-meta">
                                 <div><dt>Step</dt><dd>{{step ?? "entry"}}</dd></div>
                                 <div><dt>Cookie</dt><dd id="cookieValue">{{cookieValue}}</dd></div>
-                                <div><dt>User-Agent</dt><dd>{{Request.Headers.UserAgent.ToString()}}</dd></div>
+                                <div><dt>User-Agent</dt><dd>{{Request.Headers.UserAgent}}</dd></div>
                             </dl>
                         </article>
                         <article class="lab-panel">

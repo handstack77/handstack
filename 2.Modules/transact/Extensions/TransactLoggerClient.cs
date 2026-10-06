@@ -35,8 +35,8 @@ namespace transact.Extensions
         private readonly CancellationTokenSource cancellationTokenSource;
         private readonly Task[] backgroundWorkers;
 
-        private CircuitBreakerPolicy<RestResponse> circuitBreakerPolicy;
-        private readonly object circuitBreakerLock = new object();
+        private readonly CircuitBreakerPolicy<RestResponse> circuitBreakerPolicy;
+        private readonly object circuitBreakerLock = new();
         private DateTime? breakDateTime;
 
         private readonly ConcurrentBag<LogMessage> logMessagePool;
@@ -62,7 +62,7 @@ namespace transact.Extensions
 
             logQueue = new BlockingCollection<LogRequest>(MaxQueueSize);
 
-            logMessagePool = new ConcurrentBag<LogMessage>();
+            logMessagePool = [];
 
             circuitBreakerPolicy = Policy
                 .HandleResult<RestResponse>(x => x.IsSuccessStatusCode == false)
@@ -114,7 +114,7 @@ namespace transact.Extensions
             }
         }
 
-        private void ResetLogMessage(LogMessage logMessage)
+        private static void ResetLogMessage(LogMessage logMessage)
         {
             logMessage.ServerID = GlobalConfiguration.HostName;
             logMessage.RunningEnvironment = GlobalConfiguration.RunningEnvironment;
@@ -162,6 +162,7 @@ namespace transact.Extensions
                     return restResponse;
                 }
 
+                ArgumentNullException.ThrowIfNull(logMessage);
                 var restRequest = CreateRestRequest(httpVerb, hostUrl, logMessage, headers);
                 restResponse = await ExecuteWithRetryAndCircuitBreakerAsync(restRequest, fallbackFunction, cancellationToken);
             }
@@ -180,7 +181,7 @@ namespace transact.Extensions
             return restResponse;
         }
 
-        private RestRequest CreateRestRequest(Method httpVerb, string hostUrl, LogMessage logMessage, Dictionary<string, string>? headers)
+        private static RestRequest CreateRestRequest(Method httpVerb, string hostUrl, LogMessage logMessage, Dictionary<string, string>? headers)
         {
             var restRequest = new RestRequest(hostUrl, httpVerb);
             restRequest.AddHeader("cache-control", "no-cache");
@@ -304,7 +305,7 @@ namespace transact.Extensions
             };
         }
 
-        private bool IsRetryableError(RestResponse response)
+        private static bool IsRetryableError(RestResponse response)
         {
             return response.StatusCode == HttpStatusCode.RequestTimeout ||
                    response.StatusCode == HttpStatusCode.ServiceUnavailable ||
@@ -360,6 +361,7 @@ namespace transact.Extensions
         public void TransactionRequestLogging(TransactionRequest request, string userWorkID, string acknowledge, Action<string>? fallbackFunction = null)
         {
             var logMessage = GetLogMessage();
+            ArgumentNullException.ThrowIfNull(request);
             logMessage.GlobalID = request.Transaction.GlobalID;
             logMessage.Acknowledge = string.IsNullOrWhiteSpace(acknowledge) ? "N" : acknowledge;
             logMessage.ApplicationID = request.System.ProgramID;
@@ -383,6 +385,7 @@ namespace transact.Extensions
         public void TransactionResponseLogging(TransactionResponse response, string userWorkID, string acknowledge, Action<string>? fallbackFunction = null)
         {
             var logMessage = GetLogMessage();
+            ArgumentNullException.ThrowIfNull(response);
             logMessage.GlobalID = response.Transaction.GlobalID;
             logMessage.Acknowledge = string.IsNullOrWhiteSpace(acknowledge) ? "N" : acknowledge;
             logMessage.ApplicationID = response.System.ProgramID;
@@ -485,7 +488,7 @@ namespace transact.Extensions
                                 CreateDate = acceptDateTime.ToString("yyyyMMdd"),
                                 CreateHour = acceptDateTime.ToString("HH"),
                                 ProjectID = request.Transaction.BusinessID,
-                                TransactionID = request.Transaction.TransactionID,
+                                request.Transaction.TransactionID,
                                 FeatureID = request.Transaction.FunctionID,
                                 LatelyRequestAt = acceptDateTime.ToString("yyyy-MM-dd HH:mm:ss"),
                                 LatelyResponseAt = "",
@@ -526,7 +529,7 @@ namespace transact.Extensions
                                 CreateDate = acceptDateTime.ToString("yyyyMMdd"),
                                 CreateHour = acceptDateTime.ToString("HH"),
                                 ProjectID = response.Transaction.BusinessID,
-                                TransactionID = response.Transaction.TransactionID,
+                                response.Transaction.TransactionID,
                                 FeatureID = response.Transaction.FunctionID,
                                 LatelyResponseAt = currentDateTime,
                                 Acknowledge = ((int)response.Acknowledge).ToString()
@@ -537,9 +540,9 @@ namespace transact.Extensions
                                 ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, connectionString, "TAG.TAG010.ID01", new
                                 {
                                     ProjectID = response.Transaction.BusinessID,
-                                    TransactionID = response.Transaction.TransactionID,
+                                    response.Transaction.TransactionID,
                                     FeatureID = response.Transaction.FunctionID,
-                                    GlobalID = response.Transaction.GlobalID,
+                                    response.Transaction.GlobalID,
                                     UserID = response.Transaction.OperatorID,
                                     LogType = ModuleConfiguration.IsLogServer ? "S" : "F",
                                     CreatedAt = currentDateTime
@@ -742,6 +745,7 @@ namespace transact.Extensions
                 logQueue?.Dispose();
                 restClient?.Dispose();
             }
+            GC.SuppressFinalize(this);
         }
 
         #endregion

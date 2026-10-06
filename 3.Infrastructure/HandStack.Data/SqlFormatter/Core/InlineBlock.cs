@@ -35,7 +35,7 @@ namespace HandStack.Data.SqlFormatter.Core
             return level > 0;
         }
 
-        private bool IsInlineBlock(IReadOnlyList<Token> tokens, int index, ReadOnlySpan<char> valueSpan)
+        private static bool IsInlineBlock(IReadOnlyList<Token> tokens, int index, ReadOnlySpan<char> valueSpan)
         {
             var length = 0;
             var level = 0;
@@ -71,7 +71,7 @@ namespace HandStack.Data.SqlFormatter.Core
             return false;
         }
 
-        private bool IsForbiddenToken(Token token, ReadOnlySpan<char> valueSpan)
+        private static bool IsForbiddenToken(Token token, ReadOnlySpan<char> valueSpan)
         {
             return
                 token.Type == TokenType.ReservedTopLevel

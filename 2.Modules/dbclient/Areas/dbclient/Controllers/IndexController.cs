@@ -11,16 +11,10 @@ namespace dbclient.Areas.dbclient.Controllers
     [Area("dbclient")]
     [Route("[area]/api/[controller]")]
     [ApiController]
-    public class IndexController : BaseController
+    public class IndexController(IMediator mediator, ILogger logger) : BaseController
     {
-        private readonly IMediator mediator;
-        private readonly ILogger logger;
-
-        public IndexController(IMediator mediator, ILogger logger)
-        {
-            this.mediator = mediator;
-            this.logger = logger;
-        }
+        private readonly IMediator mediator = mediator;
+        private readonly ILogger logger = logger;
 
         // http://localhost:8421/dbclient/api/index
         [HttpGet]

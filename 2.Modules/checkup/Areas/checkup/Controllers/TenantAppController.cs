@@ -53,14 +53,14 @@ namespace checkup.Areas.checkup.Controllers
     [Route("[area]/api/[controller]")]
     [ApiExplorerSettings(IgnoreApi = true)]
     [ApiController]
-    public class TenantAppController : BaseController
+    public partial class TenantAppController : BaseController
     {
         private static readonly RestClient NpmPackageClient = new("https://www.npmjs.com");
         private static readonly RestClient NugetPackageClient = new("https://www.nuget.org");
         private static readonly RestClient ContractUpdateClient = new();
-        private static readonly Regex AnchorTargetBlankRegex = new(@"<a\s+([^>]*)(?<!target=""_blank"")([^>]*)>", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-        private static readonly Regex FormTargetBlankRegex = new(@"<form\s+([^>]*)(?<!target=""_blank"")([^>]*)>", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-        private readonly object balanceLock = new object();
+        private static readonly Regex AnchorTargetBlankRegex = MyRegex();
+        private static readonly Regex FormTargetBlankRegex = MyRegex1();
+        private readonly object balanceLock = new();
 
         private ILogger logger { get; }
 
@@ -84,7 +84,7 @@ namespace checkup.Areas.checkup.Controllers
 
         private readonly MediatorClient mediatorClient;
 
-        private string appDbConnectionString = "";
+        private readonly string appDbConnectionString = "";
 
         public TenantAppController(MediatorClient mediatorClient, ILogger logger, IMemoryCache memoryCache, IWebHostEnvironment environment, ISequentialIdGenerator sequentialIdGenerator, SqidsEncoder<int> sqids, IOptions<CorsOptions> corsOptions, ModuleApiClient moduleApiClient, IJwtManager jwtManager, IUserAccountService userTokenService)
         {
@@ -109,7 +109,7 @@ namespace checkup.Areas.checkup.Controllers
 
         public class QueryParams
         {
-            public Dictionary<string, string> KeyValues { get; set; } = new Dictionary<string, string>();
+            public Dictionary<string, string> KeyValues { get; set; } = [];
         }
 
         // http://localhost:8421/checkup/api/tenant-app/direct?commandID=HDS|JWT|JWT010|AD01&KeyValues[UserAccountID]=08db77a3cba70039ca91a82878021905
@@ -122,7 +122,7 @@ namespace checkup.Areas.checkup.Controllers
                 List<ServiceParameter>? serviceParameters = null;
                 if (queryParams != null)
                 {
-                    serviceParameters = new List<ServiceParameter>();
+                    serviceParameters = [];
                     foreach (var item in queryParams.KeyValues)
                     {
                         serviceParameters.Add(item.Key, item.Value);
@@ -158,8 +158,10 @@ namespace checkup.Areas.checkup.Controllers
                     var appSetting = ReadTenantAppSettings(settingFilePath, "TenantAppController/Authenticate");
                     if (appSetting != null && !string.IsNullOrWhiteSpace(appSetting.SignInID))
                     {
-                        var serviceParameters = new List<ServiceParameter>();
-                        serviceParameters.Add("AccountSignNo", accountSignNo);
+                        var serviceParameters = new List<ServiceParameter>
+                        {
+                            { "AccountSignNo", accountSignNo }
+                        };
                         var transactionAccount = await moduleApiClient.TransactionDirect($"{applicationID}|{appSetting.SignInID}", serviceParameters);
 
                         if (transactionAccount != null)
@@ -198,8 +200,10 @@ namespace checkup.Areas.checkup.Controllers
                                     // member에서 UserNo, UserID, UserName, Email, Roles를 제외한 추가 정보
                                     var excludeColumnNames = new string[] { "UserNo", "UserID", "UserName", "Email", "Roles" };
                                     var memberColumns = transactionAccount?["FormData0"]?.Value<JObject>()?.Properties().Select(p => p.Name).ToList();
-                                    var dictionary = new Dictionary<string, string>();
-                                    dictionary.Add("ClientIP", clientIP);
+                                    var dictionary = new Dictionary<string, string>
+                                    {
+                                        { "ClientIP", clientIP }
+                                    };
 
                                     if (memberColumns != null)
                                     {
@@ -220,24 +224,26 @@ namespace checkup.Areas.checkup.Controllers
 
                                     Dictionary<string, JToken>? transactionResult = null;
 
-                                    serviceParameters = new List<ServiceParameter>();
-                                    serviceParameters.Add("UserAccountID", userAccount.UserAccountID);
-                                    serviceParameters.Add("ApplicationID", applicationID);
-                                    serviceParameters.Add("UserID", userAccount.UserID);
-                                    serviceParameters.Add("UserName", userAccount.UserName);
-                                    serviceParameters.Add("Email", userAccount.Email);
-                                    serviceParameters.Add("Celluar", userAccount.Celluar);
-                                    serviceParameters.Add("PositionName", userAccount.PositionName);
-                                    serviceParameters.Add("DepartmentName", userAccount.DepartmentName);
-                                    serviceParameters.Add("CompanyName", userAccount.CompanyName);
-                                    serviceParameters.Add("BirthDate", userAccount.BirthDate);
-                                    serviceParameters.Add("Address", userAccount.Address);
-                                    serviceParameters.Add("Gender", userAccount.Gender);
-                                    serviceParameters.Add("IPAddress", clientIP);
-                                    serviceParameters.Add("Roles", JsonConvert.SerializeObject(userAccount.Roles));
-                                    serviceParameters.Add("Claims", JsonConvert.SerializeObject(userAccount.Claims));
-                                    serviceParameters.Add("ExtendOption", userAccount.ExtendOption);
-                                    serviceParameters.Add("CreatedMemberNo", userAccount.UserNo);
+                                    serviceParameters = new List<ServiceParameter>
+                                    {
+                                        { "UserAccountID", userAccount.UserAccountID },
+                                        { "ApplicationID", applicationID },
+                                        { "UserID", userAccount.UserID },
+                                        { "UserName", userAccount.UserName },
+                                        { "Email", userAccount.Email },
+                                        { "Celluar", userAccount.Celluar },
+                                        { "PositionName", userAccount.PositionName },
+                                        { "DepartmentName", userAccount.DepartmentName },
+                                        { "CompanyName", userAccount.CompanyName },
+                                        { "BirthDate", userAccount.BirthDate },
+                                        { "Address", userAccount.Address },
+                                        { "Gender", userAccount.Gender },
+                                        { "IPAddress", clientIP },
+                                        { "Roles", JsonConvert.SerializeObject(userAccount.Roles) },
+                                        { "Claims", JsonConvert.SerializeObject(userAccount.Claims) },
+                                        { "ExtendOption", userAccount.ExtendOption },
+                                        { "CreatedMemberNo", userAccount.UserNo }
+                                    };
                                     transactionResult = await moduleApiClient.TransactionDirect($"HDS|JWT|JWT010|ID01", serviceParameters);
                                     if (transactionResult?.ContainsKey("HasException") == true)
                                     {
@@ -247,12 +253,14 @@ namespace checkup.Areas.checkup.Controllers
                                         return Ok(result);
                                     }
 
-                                    serviceParameters = new List<ServiceParameter>();
-                                    serviceParameters.Add("UserAccountID", userAccount.UserAccountID);
-                                    serviceParameters.Add("Token", refreshToken.Token);
-                                    serviceParameters.Add("ExpiredAt", refreshToken.ExpiredAt.ToString("yyyy-MM-dd HH:mm:ss.fff"));
-                                    serviceParameters.Add("CreatedAt", refreshToken.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss.fff"));
-                                    serviceParameters.Add("CreatedByIP", refreshToken.CreatedByIP);
+                                    serviceParameters = new List<ServiceParameter>
+                                    {
+                                        { "UserAccountID", userAccount.UserAccountID },
+                                        { "Token", refreshToken.Token },
+                                        { "ExpiredAt", refreshToken.ExpiredAt.ToString("yyyy-MM-dd HH:mm:ss.fff") },
+                                        { "CreatedAt", refreshToken.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss.fff") },
+                                        { "CreatedByIP", refreshToken.CreatedByIP }
+                                    };
                                     transactionResult = await moduleApiClient.TransactionDirect($"HDS|JWT|JWT010|ID02", serviceParameters);
                                     if (transactionResult?.ContainsKey("HasException") == true)
                                     {
@@ -268,7 +276,7 @@ namespace checkup.Areas.checkup.Controllers
                                     result.AccessToken = jwtToken.ToStringSafe();
                                     result.RefreshToken = refreshToken.Token;
 
-                                    var cookieOptions = GetCookieOptions(userAccount);
+                                    var cookieOptions = GetCookieOptions();
                                     var bearerToken = CreateBearerToken(userAccount, claims, variable, cookieOptions.Expires);
 
                                     WriteCookie($"{applicationID}.RefreshToken", refreshToken.Token, cookieOptions);
@@ -328,8 +336,10 @@ namespace checkup.Areas.checkup.Controllers
                     }
 
                     var claims = tupleResult.Item2;
-                    var serviceParameters = new List<ServiceParameter>();
-                    serviceParameters.Add("RefreshToken", refreshToken);
+                    var serviceParameters = new List<ServiceParameter>
+                    {
+                        { "RefreshToken", refreshToken }
+                    };
                     var transactionResult = await moduleApiClient.TransactionDirect("HDS|JWT|JWT010|GD03", serviceParameters);
                     if (transactionResult?.ContainsKey("HasException") == true)
                     {
@@ -356,12 +366,14 @@ namespace checkup.Areas.checkup.Controllers
                             var newRefreshToken = await userTokenService.RotateRefreshToken(userRefreshToken, ipAddress);
                             if (newRefreshToken != null)
                             {
-                                serviceParameters = new List<ServiceParameter>();
-                                serviceParameters.Add("UserAccountID", userAccount.UserAccountID);
-                                serviceParameters.Add("Token", newRefreshToken.Token);
-                                serviceParameters.Add("ExpiredAt", newRefreshToken.ExpiredAt.ToString("yyyy-MM-dd HH:mm:ss.fff"));
-                                serviceParameters.Add("CreatedAt", newRefreshToken.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss.fff"));
-                                serviceParameters.Add("CreatedByIP", newRefreshToken.CreatedByIP);
+                                serviceParameters = new List<ServiceParameter>
+                                {
+                                    { "UserAccountID", userAccount.UserAccountID },
+                                    { "Token", newRefreshToken.Token },
+                                    { "ExpiredAt", newRefreshToken.ExpiredAt.ToString("yyyy-MM-dd HH:mm:ss.fff") },
+                                    { "CreatedAt", newRefreshToken.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss.fff") },
+                                    { "CreatedByIP", newRefreshToken.CreatedByIP }
+                                };
                                 transactionResult = await moduleApiClient.TransactionDirect($"HDS|JWT|JWT010|ID02", serviceParameters);
                                 if (transactionResult?.ContainsKey("HasException") == true)
                                 {
@@ -382,8 +394,10 @@ namespace checkup.Areas.checkup.Controllers
                                 // member에서 UserNo, UserID, UserName, Email, Roles를 제외한 추가 정보
                                 var excludeColumnNames = new string[] { "UserNo", "UserID", "UserName", "Email", "Roles" };
                                 var memberColumns = userTokenResult?.Value<JObject>()?.Properties().Select(p => p.Name).ToList();
-                                var dictionary = new Dictionary<string, string>();
-                                dictionary.Add("ClientIP", ipAddress);
+                                var dictionary = new Dictionary<string, string>
+                                {
+                                    { "ClientIP", ipAddress }
+                                };
 
                                 if (memberColumns != null)
                                 {
@@ -402,7 +416,7 @@ namespace checkup.Areas.checkup.Controllers
                                 var variable = JObject.FromObject(dictionary);
                                 variable.Add("InstallType", GlobalConfiguration.InstallType);
 
-                                var cookieOptions = GetCookieOptions(userAccount);
+                                var cookieOptions = GetCookieOptions();
                                 var bearerToken = CreateBearerToken(userAccount, claims, variable, cookieOptions.Expires);
 
                                 WriteCookie($"{applicationID}.RefreshToken", newRefreshToken.Token, cookieOptions);
@@ -473,8 +487,10 @@ namespace checkup.Areas.checkup.Controllers
                         return Ok(result);
                     }
 
-                    var serviceParameters = new List<ServiceParameter>();
-                    serviceParameters.Add("RefreshToken", refreshToken);
+                    var serviceParameters = new List<ServiceParameter>
+                    {
+                        { "RefreshToken", refreshToken }
+                    };
                     var transactionResult = await moduleApiClient.TransactionDirect("HDS|JWT|JWT010|GD03", serviceParameters);
                     if (transactionResult?.ContainsKey("HasException") == true)
                     {
@@ -520,17 +536,19 @@ namespace checkup.Areas.checkup.Controllers
                 result.ExpiredAt = ((DateTimeOffset)dateTimeOffset).DateTime;
             }
 
-            result.Policy = new Policy();
-            result.Policy.UserID = userAccount.UserID;
-            result.Policy.UserName = userAccount.UserName;
-            result.Policy.Email = userAccount.Email;
+            result.Policy = new Policy
+            {
+                UserID = userAccount.UserID,
+                UserName = userAccount.UserName,
+                Email = userAccount.Email
+            };
 
             foreach (var item in userAccount.Roles)
             {
                 result.Policy.Roles.Add(item.ToString());
             }
 
-            result.Policy.Claims = new Dictionary<string, string>();
+            result.Policy.Claims = [];
             if (claims != null)
             {
                 foreach (var claim in claims)
@@ -545,11 +563,13 @@ namespace checkup.Areas.checkup.Controllers
             return result;
         }
 
-        private CookieOptions GetCookieOptions(UserAccount userAccount)
+        private static CookieOptions GetCookieOptions()
         {
-            var cookieOptions = new CookieOptions();
-            cookieOptions.HttpOnly = false;
-            cookieOptions.SameSite = SameSiteMode.Lax;
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = false,
+                SameSite = SameSiteMode.Lax
+            };
 
             if (GlobalConfiguration.UserSignExpire > 0)
             {
@@ -569,17 +589,16 @@ namespace checkup.Areas.checkup.Controllers
 
         private void WriteCookie(string key, string value, CookieOptions? cookieOptions = null)
         {
-            if (cookieOptions == null)
-            {
-                cookieOptions = new CookieOptions();
-                cookieOptions.HttpOnly = false;
-                cookieOptions.SameSite = SameSiteMode.Lax;
-            }
+            cookieOptions ??= new CookieOptions
+                {
+                    HttpOnly = false,
+                    SameSite = SameSiteMode.Lax
+                };
 
             Response.Cookies.Append(key, value, cookieOptions);
         }
 
-        private long ToFileLength(long fileLength)
+        private static long ToFileLength(long fileLength)
         {
             long result = 0;
             if (fileLength < 0)
@@ -659,7 +678,8 @@ namespace checkup.Areas.checkup.Controllers
         [HttpGet("[action]")]
         public async Task<ActionResult> RefreshOriginApp(string userWorkID, string applicationID, string appSecret)
         {
-            ActionResult result = BadRequest();
+            _ = BadRequest();
+            ActionResult result;
             if (string.IsNullOrWhiteSpace(userWorkID) || string.IsNullOrWhiteSpace(applicationID) || string.IsNullOrWhiteSpace(appSecret))
             {
                 result = BadRequest();
@@ -714,7 +734,8 @@ namespace checkup.Areas.checkup.Controllers
         [HttpGet("[action]")]
         public async Task<ActionResult> RefreshRefererApp(string userWorkID, string applicationID, string appSecret)
         {
-            ActionResult result = BadRequest();
+            _ = BadRequest();
+            ActionResult result;
             if (string.IsNullOrWhiteSpace(userWorkID) || string.IsNullOrWhiteSpace(applicationID) || string.IsNullOrWhiteSpace(appSecret))
             {
                 result = BadRequest();
@@ -799,12 +820,14 @@ namespace checkup.Areas.checkup.Controllers
                                 {
                                     var sourceFile = definitionScripts[i];
 
-                                    var phisycalFilePaths = new List<string>();
-                                    phisycalFilePaths.Add(webRootPath);
+                                    var phisycalFilePaths = new List<string>
+                                    {
+                                        webRootPath
+                                    };
                                     phisycalFilePaths.AddRange(sourceFile.Split('/'));
 
                                     var phisycalSourceFilePath = PathExtensions.Combine(phisycalFilePaths.ToArray());
-                                    if (phisycalSourceFilePath.IndexOf("http") == -1 && System.IO.File.Exists(phisycalSourceFilePath) == true)
+                                    if (!phisycalSourceFilePath.Contains("http", StringComparison.CurrentCulture) && System.IO.File.Exists(phisycalSourceFilePath) == true)
                                     {
                                         phisycalSourceFilePaths.Add(phisycalSourceFilePath);
                                     }
@@ -822,7 +845,7 @@ namespace checkup.Areas.checkup.Controllers
                                 {
                                     var bundleFile = new
                                     {
-                                        fileType = fileType,
+                                        fileType,
                                         inputFileNames = phisycalSourceFilePaths,
                                         outputFileName = phisycalTargetFilePath
                                     };
@@ -838,12 +861,14 @@ namespace checkup.Areas.checkup.Controllers
                                 {
                                     var sourceFile = definitionScripts[i];
 
-                                    var phisycalFilePaths = new List<string>();
-                                    phisycalFilePaths.Add(webRootPath);
+                                    var phisycalFilePaths = new List<string>
+                                    {
+                                        webRootPath
+                                    };
                                     phisycalFilePaths.AddRange(sourceFile.Split('/'));
 
                                     var phisycalSourceFilePath = PathExtensions.Combine(phisycalFilePaths.ToArray());
-                                    if (phisycalSourceFilePath.IndexOf("http") == -1 && System.IO.File.Exists(phisycalSourceFilePath) == true)
+                                    if (!phisycalSourceFilePath.Contains("http", StringComparison.CurrentCulture) && System.IO.File.Exists(phisycalSourceFilePath) == true)
                                     {
                                         phisycalSourceFilePaths.Add(phisycalSourceFilePath);
                                     }
@@ -861,7 +886,7 @@ namespace checkup.Areas.checkup.Controllers
                                 {
                                     var bundleFile = new
                                     {
-                                        fileType = fileType,
+                                        fileType,
                                         inputFileNames = phisycalSourceFilePaths,
                                         outputFileName = phisycalTargetFilePath
                                     };
@@ -904,9 +929,9 @@ namespace checkup.Areas.checkup.Controllers
 
                 var bundleFile = new
                 {
-                    fileType = fileType,
-                    inputFileNames = inputFileNames,
-                    outputFileName = outputFileName
+                    fileType,
+                    inputFileNames,
+                    outputFileName
                 };
 
                 var base64BundleFile = JsonConvert.SerializeObject(bundleFile).EncodeBase64();
@@ -960,13 +985,11 @@ namespace checkup.Areas.checkup.Controllers
             {
                 try
                 {
-                    var dsMembers = ModuleExtensions.ExecuteMetaSQL(ReturnType.DataSet, "SYS.SYS010.GD01", new
+                    if (ModuleExtensions.ExecuteMetaSQL(ReturnType.DataSet, "SYS.SYS010.GD01", new
                     {
                         ApplicationNo = applicationNo,
                         MemberNo = memberNo
-                    }) as DataSet;
-
-                    if (dsMembers == null)
+                    }) is not DataSet dsMembers)
                     {
                         logger.Error("[{LogCategory}] " + $"{ModuleConfiguration.DatabaseContractPath}: $SYS.SYS010.GD01 확인 필요", "TenantAppController/Email");
                         return result;
@@ -977,9 +1000,11 @@ namespace checkup.Areas.checkup.Controllers
 
                         if (member != null)
                         {
-                            var cookieOptions = new CookieOptions();
-                            cookieOptions.HttpOnly = true;
-                            cookieOptions.SameSite = SameSiteMode.Lax;
+                            var cookieOptions = new CookieOptions
+                            {
+                                HttpOnly = true,
+                                SameSite = SameSiteMode.Lax
+                            };
 
                             var roleText = $"1{member.GetString("RoleDevelop")}{member.GetString("RoleBusiness")}{member.GetString("RoleOperation")}{member.GetString("RoleManaged")}";
                             var roleNo = int.TryParse(roleText, out var parsedRoleNo) == true ? parsedRoleNo : 10000;
@@ -1137,17 +1162,19 @@ namespace checkup.Areas.checkup.Controllers
 
                 var baseUrl = Request.GetBaseUrl();
                 var appSecret = Guid.NewGuid().ToString("N").Replace("-", "").SubstringSafe(0, 8).ToUpper();
-                var replaceKeyValues = new Dictionary<string, string>();
-                replaceKeyValues.Add("#{ApplicationNo}", applicationNo);
-                replaceKeyValues.Add("#{ApplicationID}", applicationID);
-                replaceKeyValues.Add("#{ApplicationName}", applicationName);
-                replaceKeyValues.Add("#{ApplicationBaseUrl}", baseUrl);
-                replaceKeyValues.Add("#{RandomID}", appSecret);
-                replaceKeyValues.Add("#{UserWorkID}", userWorkID);
-                replaceKeyValues.Add("#{TenantID}", tenantID);
-                replaceKeyValues.Add("#{MemberNo}", memberNo);
-                replaceKeyValues.Add("#{Comment}", comment.ToStringSafe().Replace(Environment.NewLine, " "));
-                replaceKeyValues.Add("#{CreatedAt}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                var replaceKeyValues = new Dictionary<string, string>
+                {
+                    { "#{ApplicationNo}", applicationNo },
+                    { "#{ApplicationID}", applicationID },
+                    { "#{ApplicationName}", applicationName },
+                    { "#{ApplicationBaseUrl}", baseUrl },
+                    { "#{RandomID}", appSecret },
+                    { "#{UserWorkID}", userWorkID },
+                    { "#{TenantID}", tenantID },
+                    { "#{MemberNo}", memberNo },
+                    { "#{Comment}", comment.ToStringSafe().Replace(Environment.NewLine, " ") },
+                    { "#{CreatedAt}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") }
+                };
 
                 // 디렉토리내 모든 파일에서 치환 변수 변경
                 ReplaceInFiles(appTempBasePath, replaceKeyValues);
@@ -1162,22 +1189,24 @@ namespace checkup.Areas.checkup.Controllers
                         SubscribeEventID = "repository.Events.RepositoryRequest",
                     };
 
-                    var templateParameters = new Dictionary<string, object>();
+                    var templateParameters = new Dictionary<string, object>
+                    {
+                        { "applicationID", GlobalConfiguration.ApplicationID },
+                        { "repositoryID", "CHECKUPLP01" },
+                        { "applicationNo", applicationNo },
+                        { "logoItemID", logoItemID }
+                    };
 
-                    templateParameters.Add("applicationID", GlobalConfiguration.ApplicationID);
-                    templateParameters.Add("repositoryID", "CHECKUPLP01");
-                    templateParameters.Add("applicationNo", applicationNo);
-                    templateParameters.Add("logoItemID", logoItemID);
-
-                    mediatorRequest.Parameters = new Dictionary<string, object?>();
-                    mediatorRequest.Parameters.Add("Method", "UpdateTenantAppDependencyID");
-                    mediatorRequest.Parameters.Add("Arguments", templateParameters);
+                    mediatorRequest.Parameters = new Dictionary<string, object?>
+                    {
+                        { "Method", "UpdateTenantAppDependencyID" },
+                        { "Arguments", templateParameters }
+                    };
 
                     var sendResponse = await mediatorClient.SendAsync(mediatorRequest);
                     if (sendResponse.Acknowledge == AcknowledgeType.Success)
                     {
-                        var data = sendResponse.Result as string;
-                        if (data != null)
+                        if (sendResponse.Result is string data)
                         {
                             logoPath = data;
                         }
@@ -1558,7 +1587,7 @@ namespace checkup.Areas.checkup.Controllers
             }
         }
 
-        private void DeleteDirectoryExceptManaged(string path)
+        private static void DeleteDirectoryExceptManaged(string path)
         {
             var files = Directory.GetFiles(path);
             var directories = Directory.GetDirectories(path);
@@ -1585,7 +1614,7 @@ namespace checkup.Areas.checkup.Controllers
             }
         }
 
-        private void BulkInsertData(string tableName, DataTable data, SQLiteConnection connection)
+        private static void BulkInsertData(string tableName, DataTable data, SQLiteConnection connection)
         {
             var columnNames = new List<string>();
             for (var i = 0; i < data.Columns.Count; i++)
@@ -1621,7 +1650,7 @@ namespace checkup.Areas.checkup.Controllers
             });
         }
 
-        private void ReplaceInFiles(string directoryPath, Dictionary<string, string> replaceKeyValues)
+        private static void ReplaceInFiles(string directoryPath, Dictionary<string, string> replaceKeyValues)
         {
             foreach (var file in Directory.GetFiles(directoryPath))
             {
@@ -1635,7 +1664,7 @@ namespace checkup.Areas.checkup.Controllers
                         var findText = replaceKeyValue.Key;
                         var replaceText = replaceKeyValue.Value;
 
-                        var count = Regex.Matches(fileText, findText, RegexOptions.None).Count;
+                        var count = Regex.Count(fileText, findText, RegexOptions.None);
 
                         if (count > 0)
                         {
@@ -1867,8 +1896,10 @@ namespace checkup.Areas.checkup.Controllers
                             var issueDateTime = (issueGuid.ToDateTime() ?? DateTime.UtcNow).ToLocalTime();
                             var backupAppDbFilePath = $"{appBasePath}/.managed/sqlite/app-backup.db";
 
-                            var physicalFileResult = new PhysicalFileResult(backupAppDbFilePath, MimeHelper.GetMimeType(backupAppDbFilePath).ToStringSafe());
-                            physicalFileResult.FileDownloadName = $"backup-{issueDateTime:yyyyMMddHHmmss}.db";
+                            var physicalFileResult = new PhysicalFileResult(backupAppDbFilePath, MimeHelper.GetMimeType(backupAppDbFilePath).ToStringSafe())
+                            {
+                                FileDownloadName = $"backup-{issueDateTime:yyyyMMddHHmmss}.db"
+                            };
 
                             System.IO.File.Delete(backupIssueDbFilePath);
                             result = physicalFileResult;
@@ -1929,14 +1960,14 @@ namespace checkup.Areas.checkup.Controllers
 
             if (string.IsNullOrWhiteSpace(applicationID) || string.IsNullOrWhiteSpace(userWorkID) || string.IsNullOrWhiteSpace(uploadTokenID))
             {
-                return result = BadRequest("필수 요청 정보 확인 필요");
+                return _ = BadRequest("필수 요청 정보 확인 필요");
             }
 
             if (Request.HasFormContentType == true)
             {
                 if (file == null)
                 {
-                    return result = BadRequest("업로드 파일 정보 확인 필요");
+                    return _ = BadRequest("업로드 파일 정보 확인 필요");
                 }
                 else
                 {
@@ -2071,7 +2102,7 @@ namespace checkup.Areas.checkup.Controllers
         [HttpPost("[action]")]
         public async Task<ActionResult> Publish([FromForm] IFormFile? file)
         {
-            ActionResult result = BadRequest();
+            _ = BadRequest();
             if (Request.Method == "GET")
             {
                 return Ok();
@@ -2145,9 +2176,9 @@ namespace checkup.Areas.checkup.Controllers
                 }
             }
 
+            ActionResult result;
 TransactionException:
             result = Content(outputBuilder.ToString(), "text/plain");
-            outputBuilder = null;
             return result;
         }
 
@@ -2155,7 +2186,7 @@ TransactionException:
         [HttpGet("[action]")]
         public async Task<ActionResult> ArchivesBackup(string userWorkID, string applicationID, string packageNo, string accessID, string signID)
         {
-            ActionResult result = BadRequest();
+            _ = BadRequest();
 
             var outputBuilder = new StringBuilder(65536);
             if (string.IsNullOrWhiteSpace(userWorkID)
@@ -2295,9 +2326,9 @@ TransactionException:
                 logger.Error("[{LogCategory}] " + $"{exception.Message}", "TenantAppController/ArchivesBackup");
             }
 
+            ActionResult result;
 TransactionException:
             result = Content(outputBuilder.ToString(), "text/plain");
-            outputBuilder = null;
             return result;
         }
 
@@ -2305,7 +2336,7 @@ TransactionException:
         [HttpGet("[action]")]
         public async Task<ActionResult> Progress(string userWorkID, string applicationID, string packageNo, string accessID, string signID)
         {
-            ActionResult result = BadRequest();
+            _ = BadRequest();
 
             var outputBuilder = new StringBuilder(65536);
             if (string.IsNullOrWhiteSpace(userWorkID)
@@ -2419,11 +2450,11 @@ TransactionException:
                                             case "S": // 쉘 스크립트
                                                 var runScript = "";
                                                 var scriptFileInfo = new FileInfo(sourceItemPath);
-                                                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == true && scriptFileInfo.Extension.ToLower() == ".bat")
+                                                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == true && scriptFileInfo.Extension.Equals(".bat", StringComparison.CurrentCultureIgnoreCase))
                                                 {
                                                     runScript = await System.IO.File.ReadAllTextAsync(sourceItemPath);
                                                 }
-                                                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) == true && scriptFileInfo.Extension.ToLower() == ".sh")
+                                                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) == true && scriptFileInfo.Extension.Equals(".sh", StringComparison.CurrentCultureIgnoreCase))
                                                 {
                                                     runScript = await System.IO.File.ReadAllTextAsync(sourceItemPath);
                                                 }
@@ -2518,9 +2549,9 @@ TransactionException:
                 logger.Error("[{LogCategory}] " + $"{exception.Message}", "TenantAppController/Progress");
             }
 
+            ActionResult result;
 TransactionException:
             result = Content(outputBuilder.ToString(), "text/plain");
-            outputBuilder = null;
             return result;
         }
 
@@ -2535,14 +2566,14 @@ TransactionException:
 
             if (string.IsNullOrWhiteSpace(userWorkID) || string.IsNullOrWhiteSpace(applicationID) || string.IsNullOrWhiteSpace(accessKey))
             {
-                return result = BadRequest("필수 요청 정보 확인 필요");
+                return _ = BadRequest("필수 요청 정보 확인 필요");
             }
 
             if (Request.HasFormContentType == true)
             {
                 if (file == null)
                 {
-                    return result = BadRequest("업로드 파일 정보 확인 필요");
+                    return _ = BadRequest("업로드 파일 정보 확인 필요");
                 }
                 else
                 {
@@ -2643,10 +2674,10 @@ TransactionException:
                         .Select((fsi, index) => new
                         {
                             no = index + 1,
-                            @class = fsi.@class,
-                            name = fsi.name,
-                            size = fsi.size,
-                            lastmodified = fsi.lastmodified
+                            fsi.@class,
+                            fsi.name,
+                            fsi.size,
+                            fsi.lastmodified
                         })
                         .ToList();
 
@@ -2877,7 +2908,7 @@ TransactionException:
                 var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                 if (Directory.Exists(appBasePath) == true)
                 {
-                    string? sourceFilePath = null;
+                    string? sourceFilePath;
                     if (projectType == "R")
                     {
                         sourceFilePath = PathExtensions.Combine(appBasePath, "wwwroot", itemPath);
@@ -2972,7 +3003,6 @@ TransactionException:
                 var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                 if (Directory.Exists(appBasePath) == true)
                 {
-                    var searchPattern = "*.*";
                     var sourceDirectoryPath = appBasePath;
 
                     var menus = new List<Menu>();
@@ -2981,13 +3011,15 @@ TransactionException:
                         var directoryInfo = new DirectoryInfo(sourceDirectoryPath);
                         if (directoryInfo.Exists == true)
                         {
-                            var rootDirectory = new Menu();
-                            rootDirectory.menuID = applicationID;
-                            rootDirectory.menuName = string.IsNullOrWhiteSpace(applicationName) ? applicationID : applicationName;
-                            rootDirectory.parentMenuID = null;
-                            rootDirectory.parentMenuName = null;
-                            rootDirectory.showYN = "Y";
-                            rootDirectory.menuType = "D";
+                            var rootDirectory = new Menu
+                            {
+                                menuID = applicationID,
+                                menuName = string.IsNullOrWhiteSpace(applicationName) ? applicationID : applicationName,
+                                parentMenuID = null,
+                                parentMenuName = null,
+                                showYN = "Y",
+                                menuType = "D"
+                            };
                             rootDirectory.directoryYN = (rootDirectory.menuType == "D" ? "Y" : "N");
                             rootDirectory.functions = "";
                             rootDirectory.projectID = "";
@@ -2997,10 +3029,8 @@ TransactionException:
                             rootDirectory.icon = "folder";
                             rootDirectory.badge = "";
                             menus.Add(rootDirectory);
-
-                            var projectType = string.Empty;
-                            projectType = "D";
-                            searchPattern = "*.xml";
+                            var projectType = "D";
+                            var searchPattern = "*.xml";
                             sourceDirectoryPath = PathExtensions.Combine(appBasePath, "dbclient");
                             FeatureBuildFileMenu(userWorkID, applicationID, searchPattern, sourceDirectoryPath, menus, directoryInfo, rootDirectory, projectType);
 
@@ -3076,13 +3106,15 @@ TransactionException:
                         {
                             foreach (var directory in directoryInfo.GetDirectories("*", SearchOption.TopDirectoryOnly))
                             {
-                                var menuDirectory = new Menu();
-                                menuDirectory.menuID = directory.FullName.Replace("\\", "/").Replace(appBasePath, "");
-                                menuDirectory.menuName = directory.Name;
-                                menuDirectory.parentMenuID = parentMenuID;
-                                menuDirectory.parentMenuName = parentMenuName;
-                                menuDirectory.showYN = "Y";
-                                menuDirectory.menuType = "D";
+                                var menuDirectory = new Menu
+                                {
+                                    menuID = directory.FullName.Replace("\\", "/").Replace(appBasePath, ""),
+                                    menuName = directory.Name,
+                                    parentMenuID = parentMenuID,
+                                    parentMenuName = parentMenuName,
+                                    showYN = "Y",
+                                    menuType = "D"
+                                };
                                 menuDirectory.directoryYN = (menuDirectory.menuType == "D" ? "Y" : "N");
                                 menuDirectory.functions = "";
                                 menuDirectory.projectID = "";
@@ -3093,7 +3125,7 @@ TransactionException:
                                 menuDirectory.badge = "";
                                 menus.Add(menuDirectory);
 
-                                BuildFileMenu(userWorkID, applicationID, projectType, searchPattern, sourceDirectoryPath, menus, menuDirectory, directory, 2);
+                                BuildFileMenu(userWorkID, applicationID, projectType, searchPattern, menus, directory, 2);
                             }
                         }
                         result = Content(JsonConvert.SerializeObject(menus), "application/json");
@@ -3106,82 +3138,75 @@ TransactionException:
 
         private static string GetHostItemPath(string appBasePath, string? projectType, string itemPath)
         {
-            var result = "";
-            if (itemPath.StartsWith("/") == true)
+            if (itemPath.StartsWith('/') == true)
             {
                 itemPath = itemPath.SubstringSafe(1);
             }
 
-            switch (projectType)
+            var result = projectType switch
             {
-                case "D":
-                    result = PathExtensions.Combine(appBasePath, "dbclient", itemPath);
-                    break;
-                case "F":
-                    result = PathExtensions.Combine(appBasePath, "function", itemPath);
-                    break;
-                case "B":
-                    result = PathExtensions.Combine(appBasePath, "transact", itemPath);
-                    break;
-                case "U":
-                    result = PathExtensions.Combine(appBasePath, "wwwroot", "view", itemPath);
-                    break;
-                default:
-                    result = PathExtensions.Combine(appBasePath, "wwwroot", itemPath);
-                    break;
-            }
+                "D" => PathExtensions.Combine(appBasePath, "dbclient", itemPath),
+                "F" => PathExtensions.Combine(appBasePath, "function", itemPath),
+                "B" => PathExtensions.Combine(appBasePath, "transact", itemPath),
+                "U" => PathExtensions.Combine(appBasePath, "wwwroot", "view", itemPath),
+                _ => PathExtensions.Combine(appBasePath, "wwwroot", itemPath),
+            };
 
             return result;
         }
 
-        private void FeatureBuildFileMenu(string userWorkID, string applicationID, string searchPattern, string sourceDirectoryPath, List<Menu> menus, DirectoryInfo directoryInfo, Menu rootDirectory, string projectType)
+        private static void FeatureBuildFileMenu(string userWorkID, string applicationID, string searchPattern, string sourceDirectoryPath, List<Menu> menus, DirectoryInfo directoryInfo, Menu rootDirectory, string projectType)
         {
             var featureDirectoryInfo = new DirectoryInfo(sourceDirectoryPath);
             if (directoryInfo.Exists == true)
             {
                 var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID) + "/";
-                var featureDirectory = new Menu();
-                featureDirectory.menuID = featureDirectoryInfo.FullName.Replace("\\", "/").Replace(appBasePath, "");
-                featureDirectory.menuName = featureDirectoryInfo.Name;
-                featureDirectory.parentMenuID = rootDirectory.menuID;
-                featureDirectory.parentMenuName = rootDirectory.menuName;
-                featureDirectory.showYN = "Y";
-                featureDirectory.menuType = "D";
-                featureDirectory.directoryYN = (rootDirectory.menuType == "D" ? "Y" : "N");
-                featureDirectory.functions = "";
-                featureDirectory.projectID = "";
-                featureDirectory.fileID = "";
-                featureDirectory.sortingNo = 1;
-                featureDirectory.level = 2;
-                featureDirectory.icon = "folder";
-                featureDirectory.badge = "";
+                var featureDirectory = new Menu
+                {
+                    menuID = featureDirectoryInfo.FullName.Replace("\\", "/").Replace(appBasePath, ""),
+                    menuName = featureDirectoryInfo.Name,
+                    parentMenuID = rootDirectory.menuID,
+                    parentMenuName = rootDirectory.menuName,
+                    showYN = "Y",
+                    menuType = "D",
+                    directoryYN = (rootDirectory.menuType == "D" ? "Y" : "N"),
+                    functions = "",
+                    projectID = "",
+                    fileID = "",
+                    sortingNo = 1,
+                    level = 2,
+                    icon = "folder",
+                    badge = ""
+                };
                 menus.Add(featureDirectory);
 
                 foreach (var directory in featureDirectoryInfo.GetDirectories("*", SearchOption.TopDirectoryOnly))
                 {
-                    var menuDirectory = new Menu();
-                    menuDirectory.menuID = directory.FullName.Replace("\\", "/").Replace(appBasePath, "");
-                    menuDirectory.menuName = directory.Name;
-                    menuDirectory.parentMenuID = featureDirectory.menuID;
-                    menuDirectory.parentMenuName = featureDirectory.menuName;
-                    menuDirectory.showYN = "Y";
-                    menuDirectory.menuType = "D";
-                    menuDirectory.directoryYN = (rootDirectory.menuType == "D" ? "Y" : "N");
-                    menuDirectory.functions = "";
-                    menuDirectory.projectID = "";
-                    menuDirectory.fileID = "";
-                    menuDirectory.sortingNo = 1;
-                    menuDirectory.level = 3;
-                    menuDirectory.icon = "folder";
-                    menuDirectory.badge = "";
+                    var menuDirectory = new Menu
+                    {
+                        menuID = directory.FullName.Replace("\\", "/").Replace(appBasePath, ""),
+                        menuName = directory.Name,
+                        parentMenuID = featureDirectory.menuID,
+                        parentMenuName = featureDirectory.menuName,
+                        showYN = "Y",
+                        menuType = "D",
+                        directoryYN = (rootDirectory.menuType == "D" ? "Y" : "N"),
+                        functions = "",
+                        projectID = "",
+                        fileID = "",
+                        sortingNo = 1,
+                        level = 3,
+                        icon = "folder",
+                        badge = ""
+                    };
                     menus.Add(menuDirectory);
 
-                    BuildFileMenu(userWorkID, applicationID, projectType, searchPattern, sourceDirectoryPath, menus, menuDirectory, directory, 4);
+                    BuildFileMenu(userWorkID, applicationID, projectType, searchPattern, menus, directory, 4);
                 }
             }
         }
 
-        private void BuildFileMenu(string userWorkID, string applicationID, string projectType, string searchPattern, string sourceDirectoryPath, List<Menu> menus, Menu parentMenu, DirectoryInfo directory, int level)
+        private static void BuildFileMenu(string userWorkID, string applicationID, string projectType, string searchPattern, List<Menu> menus, DirectoryInfo directory, int level)
         {
             var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID) + "/";
             var searchPatterns = searchPattern.Split('|').Where(x => !string.IsNullOrWhiteSpace(x)).ToArray();
@@ -3189,13 +3214,15 @@ TransactionException:
             {
                 foreach (var directoryInfo in directory.GetDirectories("*", SearchOption.TopDirectoryOnly))
                 {
-                    var menuDirectory = new Menu();
-                    menuDirectory.menuID = directoryInfo.FullName.Replace("\\", "/").Replace(appBasePath, "");
-                    menuDirectory.menuName = directoryInfo.Name;
-                    menuDirectory.parentMenuID = directory.FullName.Replace("\\", "/").Replace(appBasePath, "");
-                    menuDirectory.parentMenuName = directory.Name;
-                    menuDirectory.showYN = "Y";
-                    menuDirectory.menuType = "D";
+                    var menuDirectory = new Menu
+                    {
+                        menuID = directoryInfo.FullName.Replace("\\", "/").Replace(appBasePath, ""),
+                        menuName = directoryInfo.Name,
+                        parentMenuID = directory.FullName.Replace("\\", "/").Replace(appBasePath, ""),
+                        parentMenuName = directory.Name,
+                        showYN = "Y",
+                        menuType = "D"
+                    };
                     menuDirectory.directoryYN = (menuDirectory.menuType == "D" ? "Y" : "N");
                     menuDirectory.functions = "";
                     menuDirectory.projectID = "";
@@ -3208,13 +3235,15 @@ TransactionException:
 
                     foreach (var file in directoryInfo.GetFileInfos(SearchOption.AllDirectories, searchPatterns))
                     {
-                        var menuItem = new Menu();
-                        menuItem.menuID = file.FullName.Replace("\\", "/").Replace(appBasePath, "");
-                        menuItem.menuName = file.Directory?.Name + file.Extension;
-                        menuItem.parentMenuID = menuDirectory.menuID;
-                        menuItem.parentMenuName = menuDirectory.menuName;
-                        menuItem.showYN = "Y";
-                        menuItem.menuType = "F";
+                        var menuItem = new Menu
+                        {
+                            menuID = file.FullName.Replace("\\", "/").Replace(appBasePath, ""),
+                            menuName = file.Directory?.Name + file.Extension,
+                            parentMenuID = menuDirectory.menuID,
+                            parentMenuName = menuDirectory.menuName,
+                            showYN = "Y",
+                            menuType = "F"
+                        };
                         menuItem.directoryYN = (menuItem.menuType == "D" ? "Y" : "N");
                         menuItem.functions = "";
                         menuItem.projectID = projectType;
@@ -3224,7 +3253,7 @@ TransactionException:
                         menuItem.icon = "";
                         menuItem.badge = "";
 
-                        if (menuItem.fileID.StartsWith("/") == true)
+                        if (menuItem.fileID.StartsWith('/') == true)
                         {
                             menuItem.fileID = menuItem.fileID.SubstringSafe(1);
                         }
@@ -3237,13 +3266,15 @@ TransactionException:
             {
                 foreach (var file in directory.GetFileInfos(SearchOption.TopDirectoryOnly, searchPatterns))
                 {
-                    var menuItem = new Menu();
-                    menuItem.menuID = file.FullName.Replace("\\", "/").Replace(appBasePath, "");
-                    menuItem.menuName = file.Name;
-                    menuItem.parentMenuID = directory.FullName.Replace("\\", "/").Replace(appBasePath, "");
-                    menuItem.parentMenuName = directory.Name;
-                    menuItem.showYN = "Y";
-                    menuItem.menuType = "F";
+                    var menuItem = new Menu
+                    {
+                        menuID = file.FullName.Replace("\\", "/").Replace(appBasePath, ""),
+                        menuName = file.Name,
+                        parentMenuID = directory.FullName.Replace("\\", "/").Replace(appBasePath, ""),
+                        parentMenuName = directory.Name,
+                        showYN = "Y",
+                        menuType = "F"
+                    };
                     menuItem.directoryYN = (menuItem.menuType == "D" ? "Y" : "N");
                     menuItem.functions = "";
                     menuItem.projectID = projectType;
@@ -3253,7 +3284,7 @@ TransactionException:
                     menuItem.icon = "";
                     menuItem.badge = "";
 
-                    if (menuItem.fileID.StartsWith("/") == true)
+                    if (menuItem.fileID.StartsWith('/') == true)
                     {
                         menuItem.fileID = menuItem.fileID.SubstringSafe(1);
                     }
@@ -3262,6 +3293,11 @@ TransactionException:
                 }
             }
         }
+
+        [GeneratedRegex(@"<a\s+([^>]*)(?<!target=""_blank"")([^>]*)>", RegexOptions.IgnoreCase | RegexOptions.Compiled, "ko-KR")]
+        private static partial Regex MyRegex();
+        [GeneratedRegex(@"<form\s+([^>]*)(?<!target=""_blank"")([^>]*)>", RegexOptions.IgnoreCase | RegexOptions.Compiled, "ko-KR")]
+        private static partial Regex MyRegex1();
     }
 }
 

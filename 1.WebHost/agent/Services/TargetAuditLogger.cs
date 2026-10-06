@@ -15,25 +15,19 @@ using Serilog;
 
 namespace agent.Services
 {
-    public sealed class TargetAuditLogger : ITargetAuditLogger
+    public sealed class TargetAuditLogger(
+        IHttpClientFactory httpClientFactory,
+        IOptionsMonitor<AgentOptions> optionsMonitor) : ITargetAuditLogger
     {
         public const string HttpClientName = "logger-module";
 
-        private static readonly JsonSerializerOptions jsonSerializerOptions = new JsonSerializerOptions
+        private static readonly JsonSerializerOptions jsonSerializerOptions = new()
         {
             PropertyNamingPolicy = null
         };
 
-        private readonly IHttpClientFactory httpClientFactory;
-        private readonly IOptionsMonitor<AgentOptions> optionsMonitor;
-
-        public TargetAuditLogger(
-            IHttpClientFactory httpClientFactory,
-            IOptionsMonitor<AgentOptions> optionsMonitor)
-        {
-            this.httpClientFactory = httpClientFactory;
-            this.optionsMonitor = optionsMonitor;
-        }
+        private readonly IHttpClientFactory httpClientFactory = httpClientFactory;
+        private readonly IOptionsMonitor<AgentOptions> optionsMonitor = optionsMonitor;
 
         public Task WriteTargetsAuditAsync(
             HttpContext httpContext,
@@ -45,6 +39,8 @@ namespace agent.Services
             CancellationToken cancellationToken)
         {
             // /targets 계열 호출의 핵심 감사 정보를 logger 모듈 포맷으로 전달합니다.
+            ArgumentNullException.ThrowIfNull(httpContext);
+
             var properties = new
             {
                 RequestPath = httpContext.Request.Path.Value ?? "",
@@ -72,6 +68,7 @@ namespace agent.Services
         {
             var actionName = "targets.unauthorized";
             var statusCode = StatusCodes.Status401Unauthorized;
+            ArgumentNullException.ThrowIfNull(httpContext);
             var properties = new
             {
                 RequestPath = httpContext.Request.Path.Value ?? "",

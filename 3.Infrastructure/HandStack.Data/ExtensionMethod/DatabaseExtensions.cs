@@ -30,7 +30,7 @@ namespace HandStack.Data.ExtensionMethod
 {
     public static partial class DatabaseExtensions
     {
-        private static readonly Regex cdataRegex = new Regex("(<!\\[CDATA\\[)([\\s\\S]*?)(\\]\\]>)", RegexOptions.Compiled);
+        private static readonly Regex cdataRegex = MyRegex();
 
         private static string EncodeXmlEntities(string value)
         {
@@ -68,12 +68,12 @@ namespace HandStack.Data.ExtensionMethod
                             var name = parameter.Key;
                             var value = parameter.Value.ToStringSafe();
 
-                            if (name.StartsWith("$") == false)
+                            if (name.StartsWith('$') == false)
                             {
                                 value = value.Replace("\"", "\\\"").Replace("'", "''");
                             }
 
-                            convertString = convertString.Replace("#{" + name + "}", "'" + value + "'");
+                            convertString = (convertString ?? throw new ArgumentNullException(nameof(convertString))).Replace("#{" + name + "}", "'" + value + "'");
                             convertString = convertString.Replace("${" + name + "}", value);
                         }
                     }
@@ -82,7 +82,7 @@ namespace HandStack.Data.ExtensionMethod
 
             if (commaReplace == true)
             {
-                return convertString.Replace("''", "'");
+                return (convertString ?? throw new ArgumentNullException(nameof(convertString))).Replace("''", "'");
             }
             else
             {
@@ -93,6 +93,7 @@ namespace HandStack.Data.ExtensionMethod
         public static DataSet? ExecuteDataSet(this DbCommand @this, DatabaseFactory databaseFactory)
         {
             var result = new DataSet();
+            ArgumentNullException.ThrowIfNull(databaseFactory);
             if (databaseFactory.SqlFactory == null)
             {
                 result = null;
@@ -113,6 +114,7 @@ namespace HandStack.Data.ExtensionMethod
         public static DataTable? ExecuteDataTable(this DbCommand @this, DatabaseFactory databaseFactory)
         {
             var result = new DataTable();
+            ArgumentNullException.ThrowIfNull(databaseFactory);
             if (databaseFactory.SqlFactory == null)
             {
                 result = null;
@@ -133,6 +135,7 @@ namespace HandStack.Data.ExtensionMethod
         public static DataSet? ExecuteDataSet(this DatabaseFactory @this, string cmdText, DbParameter[]? parameters, CommandType commandType, DbTransaction? transaction = null)
         {
             var result = new DataSet();
+            ArgumentNullException.ThrowIfNull(@this);
             if (@this.Connection != null)
             {
                 using var command = @this.Connection.CreateCommand();
@@ -167,9 +170,11 @@ namespace HandStack.Data.ExtensionMethod
         public static DataSet? ExecuteDataSet(this DatabaseFactory @this, Action<DbCommand> commandFactory)
         {
             var result = new DataSet();
+            ArgumentNullException.ThrowIfNull(@this);
             if (@this.Connection != null)
             {
                 using var command = @this.Connection.CreateCommand();
+                ArgumentNullException.ThrowIfNull(commandFactory);
                 commandFactory(command);
 
                 var dataAdapter = @this.SqlFactory.CreateDataAdapter();
@@ -225,6 +230,7 @@ namespace HandStack.Data.ExtensionMethod
         public static DataTable? ExecuteDataTable(this DatabaseFactory @this, string cmdText, DbParameter[]? parameters, CommandType commandType, DbTransaction? transaction = null)
         {
             DataTable? result = null;
+            ArgumentNullException.ThrowIfNull(@this);
             if (@this.Connection != null)
             {
                 using var command = @this.Connection.CreateCommand();
@@ -258,9 +264,11 @@ namespace HandStack.Data.ExtensionMethod
         public static DataTable? ExecuteDataTable(this DatabaseFactory @this, Action<DbCommand> commandFactory)
         {
             DataTable? result = null;
+            ArgumentNullException.ThrowIfNull(@this);
             if (@this.Connection != null)
             {
                 using var command = @this.Connection.CreateCommand();
+                ArgumentNullException.ThrowIfNull(commandFactory);
                 commandFactory(command);
 
                 var ds = new DataSet();
@@ -314,6 +322,8 @@ namespace HandStack.Data.ExtensionMethod
 
         public static IEnumerable<T> ExecuteEntities<T>(this DbConnection @this, string cmdText, DbParameter[]? parameters, CommandType commandType, DbTransaction? transaction = null) where T : new()
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
             command.CommandText = cmdText;
             command.CommandType = commandType;
@@ -330,7 +340,10 @@ namespace HandStack.Data.ExtensionMethod
 
         public static IEnumerable<T> ExecuteEntities<T>(this DbConnection @this, Action<DbCommand> commandFactory) where T : new()
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
+            ArgumentNullException.ThrowIfNull(commandFactory);
             commandFactory(command);
 
             using IDataReader reader = command.ExecuteReader();
@@ -374,6 +387,8 @@ namespace HandStack.Data.ExtensionMethod
 
         public static T ExecuteEntity<T>(this DbConnection @this, string cmdText, DbParameter[]? parameters, CommandType commandType, DbTransaction? transaction = null) where T : new()
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
             command.CommandText = cmdText;
             command.CommandType = commandType;
@@ -384,17 +399,20 @@ namespace HandStack.Data.ExtensionMethod
                 command.Parameters.AddRange(parameters);
             }
 
-            using IDataReader reader = command.ExecuteReader();
+            using DbDataReader reader = command.ExecuteReader();
             reader.Read();
             return reader.ToEntity<T>();
         }
 
         public static T ExecuteEntity<T>(this DbConnection @this, Action<DbCommand> commandFactory) where T : new()
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
+            ArgumentNullException.ThrowIfNull(commandFactory);
             commandFactory(command);
 
-            using IDataReader reader = command.ExecuteReader();
+            using DbDataReader reader = command.ExecuteReader();
             reader.Read();
             return reader.ToEntity<T>();
         }
@@ -436,6 +454,8 @@ namespace HandStack.Data.ExtensionMethod
 
         public static dynamic ExecuteExpandoObject(this DbConnection @this, string cmdText, DbParameter[]? parameters, CommandType commandType, DbTransaction? transaction = null)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
             command.CommandText = cmdText;
             command.CommandType = commandType;
@@ -446,17 +466,20 @@ namespace HandStack.Data.ExtensionMethod
                 command.Parameters.AddRange(parameters);
             }
 
-            using IDataReader reader = command.ExecuteReader();
+            using DbDataReader reader = command.ExecuteReader();
             reader.Read();
             return reader.ToExpandoObject();
         }
 
         public static dynamic ExecuteExpandoObject(this DbConnection @this, Action<DbCommand> commandFactory)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
+            ArgumentNullException.ThrowIfNull(commandFactory);
             commandFactory(command);
 
-            using IDataReader reader = command.ExecuteReader();
+            using DbDataReader reader = command.ExecuteReader();
             reader.Read();
             return reader.ToExpandoObject();
         }
@@ -498,6 +521,8 @@ namespace HandStack.Data.ExtensionMethod
 
         public static IEnumerable<dynamic> ExecuteExpandoObjects(this DbConnection @this, string cmdText, DbParameter[]? parameters, CommandType commandType, DbTransaction? transaction = null)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
             command.CommandText = cmdText;
             command.CommandType = commandType;
@@ -514,7 +539,10 @@ namespace HandStack.Data.ExtensionMethod
 
         public static IEnumerable<dynamic> ExecuteExpandoObjects(this DbConnection @this, Action<DbCommand> commandFactory)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
+            ArgumentNullException.ThrowIfNull(commandFactory);
             commandFactory(command);
 
             using IDataReader reader = command.ExecuteReader();
@@ -558,6 +586,8 @@ namespace HandStack.Data.ExtensionMethod
 
         public static string ParameterValueForSQL(this DbParameter @this)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             var paramValue = @this.Value;
 
             if (paramValue == null)
@@ -599,8 +629,11 @@ namespace HandStack.Data.ExtensionMethod
 
         public static string CommandAsSQL(this DbCommand @this, string providerName = "")
         {
+            ArgumentNullException.ThrowIfNull(providerName);
+
             var sql = new StringBuilder();
 
+            ArgumentNullException.ThrowIfNull(@this);
             switch (@this.CommandType)
             {
                 case CommandType.Text:
@@ -618,8 +651,7 @@ namespace HandStack.Data.ExtensionMethod
         private static void CommandAsSQL_Text(this DbCommand @this, StringBuilder sql, string providerName)
         {
             var query = @this.CommandText;
-            var parameterFlag = "";
-
+            string? parameterFlag;
             if (providerName.IndexOf("MySql") > -1 || providerName.IndexOf("Oracle") > -1)
             {
                 parameterFlag = ":";
@@ -636,7 +668,7 @@ namespace HandStack.Data.ExtensionMethod
 
             foreach (DbParameter p in @this.Parameters)
             {
-                var parameterName = p.ParameterName.StartsWith("$") == true ? "\\" + p.ParameterName : p.ParameterName;
+                var parameterName = p.ParameterName.StartsWith('$') == true ? "\\" + p.ParameterName : p.ParameterName;
                 query = Regex.Replace(query, "\\B" + parameterFlag + parameterName + "\\b", p.ParameterValueForSQL()); //the first one is \B, the 2nd one is \b, since ParameterName starts with @ which is a non-word character in RegEx (see https://stackoverflow.com/a/2544661)
             }
 
@@ -653,7 +685,7 @@ namespace HandStack.Data.ExtensionMethod
                 {
                     if ((sp.Direction == ParameterDirection.InputOutput) || (sp.Direction == ParameterDirection.Output))
                     {
-                        sql.Append("declare ").Append(sp.ParameterName).Append("\t").Append(sp.DbType.ToString()).Append("\t= ");
+                        sql.Append("declare ").Append(sp.ParameterName).Append('\t').Append(sp.DbType.ToString()).Append("\t= ");
 
                         sql.Append((sp.Direction == ParameterDirection.Output) ? "null" : sp.ParameterValueForSQL()).AppendLine(";");
                     }
@@ -708,6 +740,7 @@ namespace HandStack.Data.ExtensionMethod
                 {
                     var cdataText = EncodeXmlEntities(match.Groups[2].Value);
 
+                    ArgumentNullException.ThrowIfNull(rawText);
                     rawText = rawText.Replace(match.Value, cdataText);
                 }
             }
@@ -765,8 +798,10 @@ namespace HandStack.Data.ExtensionMethod
                 return result;
             }
 
-            var htmlDocument = new HtmlDocument();
-            htmlDocument.OptionDefaultStreamEncoding = Encoding.UTF8;
+            var htmlDocument = new HtmlDocument
+            {
+                OptionDefaultStreamEncoding = Encoding.UTF8
+            };
 
             try
             {
@@ -781,35 +816,34 @@ namespace HandStack.Data.ExtensionMethod
                     {
                         var keyValueParameters = JObject.Parse(parameters);
 
-                        foreach (var paramNode in statement.SelectNodes("param"))
+                        foreach (var paramNode in htmlNodes)
                         {
-                            var sqlParameter = new SqlParameter();
-                            sqlParameter.ParameterName = paramNode.Attributes["id"].Value.ToString();
-                            sqlParameter.Direction = paramNode.Attributes["direction"] == null ? ParameterDirection.Input : ((ParameterDirection)Enum.Parse(typeof(ParameterDirection), paramNode.Attributes["direction"].Value.ToString()));
-                            if (paramNode.Attributes["length"] == null)
+                            var sqlParameter = new SqlParameter
                             {
-                                if (int.TryParse(paramNode.Attributes["length"].Value.ToString(), out var size) == true)
+                                ParameterName = paramNode.Attributes["id"]?.Value ?? string.Empty,
+                                Direction = paramNode.Attributes["direction"]?.Value is { Length: > 0 } directionText ? Enum.Parse<ParameterDirection>(directionText) : ParameterDirection.Input
+                            };
+                            var lengthText = paramNode.Attributes["length"]?.Value;
+                            if (lengthText != null && int.TryParse(lengthText, out var size) == true)
+                            {
+                                if (size > 0)
                                 {
-                                    if (size > 0)
-                                    {
-                                        sqlParameter.Size = size;
-                                    }
+                                    sqlParameter.Size = size;
                                 }
                             }
 
-                            var jValue = keyValueParameters[GetParameterName(sqlParameter.ParameterName)] as JValue;
-                            if (jValue != null)
+                            if (keyValueParameters[GetParameterName(sqlParameter.ParameterName)] is JValue jValue)
                             {
                                 var parameterValue = jValue.Value;
                                 sqlParameter.Value = parameterValue == null ? DBNull.Value : parameterValue.ToString();
-                                var parameterType = paramNode.Attributes["type"].Value.ToString();
-                                if (statement.Attributes["native"]?.Value.ParseBool() == true)
+                                var parameterType = paramNode.Attributes["type"]?.Value ?? string.Empty;
+                                if (statement.Attributes["native"]?.Value?.ParseBool() == true)
                                 {
-                                    sqlParameter.SqlDbType = (SqlDbType)Enum.Parse(typeof(SqlDbType), string.IsNullOrWhiteSpace(parameterType) ? "NVarChar" : parameterType);
+                                    sqlParameter.SqlDbType = Enum.Parse<SqlDbType>(string.IsNullOrWhiteSpace(parameterType) ? "NVarChar" : parameterType);
                                 }
                                 else
                                 {
-                                    sqlParameter.DbType = (DbType)Enum.Parse(typeof(DbType), string.IsNullOrWhiteSpace(parameterType) ? "String" : parameterType);
+                                    sqlParameter.DbType = Enum.Parse<DbType>(string.IsNullOrWhiteSpace(parameterType) ? "String" : parameterType);
                                 }
                                 sqlParameters.Add(sqlParameter);
                             }
@@ -840,8 +874,10 @@ namespace HandStack.Data.ExtensionMethod
                 return result;
             }
 
-            var htmlDocument = new HtmlDocument();
-            htmlDocument.OptionDefaultStreamEncoding = Encoding.UTF8;
+            var htmlDocument = new HtmlDocument
+            {
+                OptionDefaultStreamEncoding = Encoding.UTF8
+            };
 
             try
             {
@@ -856,29 +892,28 @@ namespace HandStack.Data.ExtensionMethod
                     {
                         var keyValueParameters = JObject.Parse(parameters);
 
-                        foreach (var paramNode in statement.SelectNodes("param"))
+                        foreach (var paramNode in htmlNodes)
                         {
-                            var sqlParameter = new SqlParameter();
-                            sqlParameter.ParameterName = paramNode.Attributes["id"].Value.ToString();
-                            sqlParameter.Direction = paramNode.Attributes["direction"] == null ? ParameterDirection.Input : ((ParameterDirection)Enum.Parse(typeof(ParameterDirection), paramNode.Attributes["direction"].Value.ToString()));
-                            if (paramNode.Attributes["length"] == null)
+                            var sqlParameter = new SqlParameter
                             {
-                                if (int.TryParse(paramNode.Attributes["length"].Value.ToString(), out var size) == true)
+                                ParameterName = paramNode.Attributes["id"]?.Value ?? string.Empty,
+                                Direction = paramNode.Attributes["direction"]?.Value is { Length: > 0 } directionText ? Enum.Parse<ParameterDirection>(directionText) : ParameterDirection.Input
+                            };
+                            var lengthText = paramNode.Attributes["length"]?.Value;
+                            if (lengthText != null && int.TryParse(lengthText, out var size) == true)
+                            {
+                                if (size > 0)
                                 {
-                                    if (size > 0)
-                                    {
-                                        sqlParameter.Size = size;
-                                    }
+                                    sqlParameter.Size = size;
                                 }
                             }
 
-                            var jValue = keyValueParameters[GetParameterName(sqlParameter.ParameterName)] as JValue;
-                            if (jValue != null)
+                            if (keyValueParameters[GetParameterName(sqlParameter.ParameterName)] is JValue jValue)
                             {
                                 var parameterValue = jValue.Value;
                                 sqlParameter.Value = parameterValue == null ? DBNull.Value : parameterValue.ToString();
-                                var parameterType = paramNode.Attributes["type"].Value.ToString();
-                                sqlParameter.SqlDbType = (SqlDbType)Enum.Parse(typeof(SqlDbType), string.IsNullOrWhiteSpace(parameterType) ? "NVarChar" : parameterType);
+                                var parameterType = paramNode.Attributes["type"]?.Value ?? string.Empty;
+                                sqlParameter.SqlDbType = Enum.Parse<SqlDbType>(string.IsNullOrWhiteSpace(parameterType) ? "NVarChar" : parameterType);
                                 sqlParameters.Add(sqlParameter);
                             }
                         }
@@ -949,8 +984,10 @@ namespace HandStack.Data.ExtensionMethod
                 return result;
             }
 
-            var htmlDocument = new HtmlDocument();
-            htmlDocument.OptionDefaultStreamEncoding = Encoding.UTF8;
+            var htmlDocument = new HtmlDocument
+            {
+                OptionDefaultStreamEncoding = Encoding.UTF8
+            };
 
             try
             {
@@ -965,35 +1002,34 @@ namespace HandStack.Data.ExtensionMethod
                     {
                         var keyValueParameters = JObject.Parse(parameters);
 
-                        foreach (var paramNode in statement.SelectNodes("param"))
+                        foreach (var paramNode in htmlNodes)
                         {
-                            var sqlParameter = new MySqlParameter();
-                            sqlParameter.ParameterName = paramNode.Attributes["id"].Value.ToString();
-                            sqlParameter.Direction = paramNode.Attributes["direction"] == null ? ParameterDirection.Input : ((ParameterDirection)Enum.Parse(typeof(ParameterDirection), paramNode.Attributes["direction"].Value.ToString()));
-                            if (paramNode.Attributes["length"] == null)
+                            var sqlParameter = new MySqlParameter
                             {
-                                if (int.TryParse(paramNode.Attributes["length"].Value.ToString(), out var size) == true)
+                                ParameterName = paramNode.Attributes["id"]?.Value ?? string.Empty,
+                                Direction = paramNode.Attributes["direction"]?.Value is { Length: > 0 } directionText ? Enum.Parse<ParameterDirection>(directionText) : ParameterDirection.Input
+                            };
+                            var lengthText = paramNode.Attributes["length"]?.Value;
+                            if (lengthText != null && int.TryParse(lengthText, out var size) == true)
+                            {
+                                if (size > 0)
                                 {
-                                    if (size > 0)
-                                    {
-                                        sqlParameter.Size = size;
-                                    }
+                                    sqlParameter.Size = size;
                                 }
                             }
 
-                            var jValue = keyValueParameters[GetParameterName(sqlParameter.ParameterName)] as JValue;
-                            if (jValue != null)
+                            if (keyValueParameters[GetParameterName(sqlParameter.ParameterName)] is JValue jValue)
                             {
                                 var parameterValue = jValue.Value;
                                 sqlParameter.Value = parameterValue == null ? DBNull.Value : parameterValue.ToString();
-                                var parameterType = paramNode.Attributes["type"].Value.ToString();
-                                if (statement.Attributes["native"]?.Value.ParseBool() == true)
+                                var parameterType = paramNode.Attributes["type"]?.Value ?? string.Empty;
+                                if (statement.Attributes["native"]?.Value?.ParseBool() == true)
                                 {
-                                    sqlParameter.MySqlDbType = (MySqlDbType)Enum.Parse(typeof(MySqlDbType), string.IsNullOrWhiteSpace(parameterType) ? "VarChar" : parameterType);
+                                    sqlParameter.MySqlDbType = Enum.Parse<MySqlDbType>(string.IsNullOrWhiteSpace(parameterType) ? "VarChar" : parameterType);
                                 }
                                 else
                                 {
-                                    sqlParameter.DbType = (DbType)Enum.Parse(typeof(DbType), string.IsNullOrWhiteSpace(parameterType) ? "String" : parameterType);
+                                    sqlParameter.DbType = Enum.Parse<DbType>(string.IsNullOrWhiteSpace(parameterType) ? "String" : parameterType);
                                 }
                                 sqlParameters.Add(sqlParameter);
                             }
@@ -1065,8 +1101,10 @@ namespace HandStack.Data.ExtensionMethod
                 return result;
             }
 
-            var htmlDocument = new HtmlDocument();
-            htmlDocument.OptionDefaultStreamEncoding = Encoding.UTF8;
+            var htmlDocument = new HtmlDocument
+            {
+                OptionDefaultStreamEncoding = Encoding.UTF8
+            };
 
             try
             {
@@ -1081,35 +1119,34 @@ namespace HandStack.Data.ExtensionMethod
                     {
                         var keyValueParameters = JObject.Parse(parameters);
 
-                        foreach (var paramNode in statement.SelectNodes("param"))
+                        foreach (var paramNode in htmlNodes)
                         {
-                            var sqlParameter = new OracleParameter();
-                            sqlParameter.ParameterName = paramNode.Attributes["id"].Value.ToString();
-                            sqlParameter.Direction = paramNode.Attributes["direction"] == null ? ParameterDirection.Input : ((ParameterDirection)Enum.Parse(typeof(ParameterDirection), paramNode.Attributes["direction"].Value.ToString()));
-                            if (paramNode.Attributes["length"] == null)
+                            var sqlParameter = new OracleParameter
                             {
-                                if (int.TryParse(paramNode.Attributes["length"].Value.ToString(), out var size) == true)
+                                ParameterName = paramNode.Attributes["id"]?.Value ?? string.Empty,
+                                Direction = paramNode.Attributes["direction"]?.Value is { Length: > 0 } directionText ? Enum.Parse<ParameterDirection>(directionText) : ParameterDirection.Input
+                            };
+                            var lengthText = paramNode.Attributes["length"]?.Value;
+                            if (lengthText != null && int.TryParse(lengthText, out var size) == true)
+                            {
+                                if (size > 0)
                                 {
-                                    if (size > 0)
-                                    {
-                                        sqlParameter.Size = size;
-                                    }
+                                    sqlParameter.Size = size;
                                 }
                             }
 
-                            var jValue = keyValueParameters[GetParameterName(sqlParameter.ParameterName)] as JValue;
-                            if (jValue != null)
+                            if (keyValueParameters[GetParameterName(sqlParameter.ParameterName)] is JValue jValue)
                             {
                                 var parameterValue = jValue.Value;
                                 sqlParameter.Value = parameterValue == null ? DBNull.Value : parameterValue.ToString();
-                                var parameterType = paramNode.Attributes["type"].Value.ToString();
-                                if (statement.Attributes["native"]?.Value.ParseBool() == true)
+                                var parameterType = paramNode.Attributes["type"]?.Value ?? string.Empty;
+                                if (statement.Attributes["native"]?.Value?.ParseBool() == true)
                                 {
-                                    sqlParameter.OracleDbType = (OracleDbType)Enum.Parse(typeof(OracleDbType), string.IsNullOrWhiteSpace(parameterType) ? "NVarchar2" : parameterType);
+                                    sqlParameter.OracleDbType = Enum.Parse<OracleDbType>(string.IsNullOrWhiteSpace(parameterType) ? "NVarchar2" : parameterType);
                                 }
                                 else
                                 {
-                                    sqlParameter.DbType = (DbType)Enum.Parse(typeof(DbType), string.IsNullOrWhiteSpace(parameterType) ? "String" : parameterType);
+                                    sqlParameter.DbType = Enum.Parse<DbType>(string.IsNullOrWhiteSpace(parameterType) ? "String" : parameterType);
                                 }
                                 sqlParameters.Add(sqlParameter);
                             }
@@ -1181,8 +1218,10 @@ namespace HandStack.Data.ExtensionMethod
                 return result;
             }
 
-            var htmlDocument = new HtmlDocument();
-            htmlDocument.OptionDefaultStreamEncoding = Encoding.UTF8;
+            var htmlDocument = new HtmlDocument
+            {
+                OptionDefaultStreamEncoding = Encoding.UTF8
+            };
 
             try
             {
@@ -1197,35 +1236,34 @@ namespace HandStack.Data.ExtensionMethod
                     {
                         var keyValueParameters = JObject.Parse(parameters);
 
-                        foreach (var paramNode in statement.SelectNodes("param"))
+                        foreach (var paramNode in htmlNodes)
                         {
-                            var sqlParameter = new NpgsqlParameter();
-                            sqlParameter.ParameterName = paramNode.Attributes["id"].Value.ToString();
-                            sqlParameter.Direction = paramNode.Attributes["direction"] == null ? ParameterDirection.Input : ((ParameterDirection)Enum.Parse(typeof(ParameterDirection), paramNode.Attributes["direction"].Value.ToString()));
-                            if (paramNode.Attributes["length"] == null)
+                            var sqlParameter = new NpgsqlParameter
                             {
-                                if (int.TryParse(paramNode.Attributes["length"].Value.ToString(), out var size) == true)
+                                ParameterName = paramNode.Attributes["id"]?.Value ?? string.Empty,
+                                Direction = paramNode.Attributes["direction"]?.Value is { Length: > 0 } directionText ? Enum.Parse<ParameterDirection>(directionText) : ParameterDirection.Input
+                            };
+                            var lengthText = paramNode.Attributes["length"]?.Value;
+                            if (lengthText != null && int.TryParse(lengthText, out var size) == true)
+                            {
+                                if (size > 0)
                                 {
-                                    if (size > 0)
-                                    {
-                                        sqlParameter.Size = size;
-                                    }
+                                    sqlParameter.Size = size;
                                 }
                             }
 
-                            var jValue = keyValueParameters[GetParameterName(sqlParameter.ParameterName)] as JValue;
-                            if (jValue != null)
+                            if (keyValueParameters[GetParameterName(sqlParameter.ParameterName)] is JValue jValue)
                             {
                                 var parameterValue = jValue.Value;
                                 sqlParameter.Value = parameterValue == null ? DBNull.Value : parameterValue.ToString();
-                                var parameterType = paramNode.Attributes["type"].Value.ToString();
-                                if (statement.Attributes["native"]?.Value.ParseBool() == true)
+                                var parameterType = paramNode.Attributes["type"]?.Value ?? string.Empty;
+                                if (statement.Attributes["native"]?.Value?.ParseBool() == true)
                                 {
-                                    sqlParameter.NpgsqlDbType = (NpgsqlDbType)Enum.Parse(typeof(NpgsqlDbType), string.IsNullOrWhiteSpace(parameterType) ? "Char" : parameterType);
+                                    sqlParameter.NpgsqlDbType = Enum.Parse<NpgsqlDbType>(string.IsNullOrWhiteSpace(parameterType) ? "Char" : parameterType);
                                 }
                                 else
                                 {
-                                    sqlParameter.DbType = (DbType)Enum.Parse(typeof(DbType), string.IsNullOrWhiteSpace(parameterType) ? "String" : parameterType);
+                                    sqlParameter.DbType = Enum.Parse<DbType>(string.IsNullOrWhiteSpace(parameterType) ? "String" : parameterType);
                                 }
                                 sqlParameters.Add(sqlParameter);
                             }
@@ -1311,8 +1349,10 @@ namespace HandStack.Data.ExtensionMethod
                 return result;
             }
 
-            var htmlDocument = new HtmlDocument();
-            htmlDocument.OptionDefaultStreamEncoding = Encoding.UTF8;
+            var htmlDocument = new HtmlDocument
+            {
+                OptionDefaultStreamEncoding = Encoding.UTF8
+            };
 
             try
             {
@@ -1327,29 +1367,28 @@ namespace HandStack.Data.ExtensionMethod
                     {
                         var keyValueParameters = JObject.Parse(parameters);
 
-                        foreach (var paramNode in statement.SelectNodes("param"))
+                        foreach (var paramNode in htmlNodes)
                         {
-                            var sqlParameter = new SQLiteParameter();
-                            sqlParameter.ParameterName = paramNode.Attributes["id"].Value.ToString();
-                            sqlParameter.Direction = paramNode.Attributes["direction"] == null ? ParameterDirection.Input : ((ParameterDirection)Enum.Parse(typeof(ParameterDirection), paramNode.Attributes["direction"].Value.ToString()));
-                            if (paramNode.Attributes["length"] == null)
+                            var sqlParameter = new SQLiteParameter
                             {
-                                if (int.TryParse(paramNode.Attributes["length"].Value.ToString(), out var size) == true)
+                                ParameterName = paramNode.Attributes["id"]?.Value ?? string.Empty,
+                                Direction = paramNode.Attributes["direction"]?.Value is { Length: > 0 } directionText ? Enum.Parse<ParameterDirection>(directionText) : ParameterDirection.Input
+                            };
+                            var lengthText = paramNode.Attributes["length"]?.Value;
+                            if (lengthText != null && int.TryParse(lengthText, out var size) == true)
+                            {
+                                if (size > 0)
                                 {
-                                    if (size > 0)
-                                    {
-                                        sqlParameter.Size = size;
-                                    }
+                                    sqlParameter.Size = size;
                                 }
                             }
 
-                            var jValue = keyValueParameters[GetParameterName(sqlParameter.ParameterName)] as JValue;
-                            if (jValue != null)
+                            if (keyValueParameters[GetParameterName(sqlParameter.ParameterName)] is JValue jValue)
                             {
                                 var parameterValue = jValue.Value;
                                 sqlParameter.Value = parameterValue == null ? DBNull.Value : parameterValue.ToString();
-                                var parameterType = paramNode.Attributes["type"].Value.ToString();
-                                sqlParameter.DbType = (DbType)Enum.Parse(typeof(DbType), string.IsNullOrWhiteSpace(parameterType) ? "String" : parameterType);
+                                var parameterType = paramNode.Attributes["type"]?.Value ?? string.Empty;
+                                sqlParameter.DbType = Enum.Parse<DbType>(string.IsNullOrWhiteSpace(parameterType) ? "String" : parameterType);
                                 sqlParameters.Add(sqlParameter);
                             }
                         }
@@ -1378,10 +1417,13 @@ namespace HandStack.Data.ExtensionMethod
 
             return parameterName[0] switch
             {
-                '@' or ':' or '$' or '#' => parameterName.Substring(1),
+                '@' or ':' or '$' or '#' => parameterName[1..],
                 _ => parameterName
             };
         }
+
+        [GeneratedRegex("(<!\\[CDATA\\[)([\\s\\S]*?)(\\]\\]>)", RegexOptions.Compiled)]
+        private static partial Regex MyRegex();
     }
 }
 

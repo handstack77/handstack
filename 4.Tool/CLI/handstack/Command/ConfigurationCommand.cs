@@ -51,13 +51,13 @@ namespace handstack
                         var settingText = File.ReadAllText(settingFilePath);
                         var setting = JObject.Parse(settingText);
                         var moduleBasePath = setting.SelectToken("AppSettings.LoadModuleBasePath").ToStringSafe();
-                        if (moduleBasePath.StartsWith(".") == true)
+                        if (moduleBasePath.StartsWith('.') == true)
                         {
                             moduleBasePath = PathExtensions.Combine(ackFileBasePath, moduleBasePath);
                         }
 
                         var loadModules = setting.SelectToken("AppSettings.LoadModules");
-                        if (string.IsNullOrWhiteSpace(moduleBasePath) == false && loadModules != null && loadModules.Count() > 0)
+                        if (string.IsNullOrWhiteSpace(moduleBasePath) == false && loadModules != null && loadModules.Any())
                         {
                             var wwwrootModuleBasePath = string.Empty;
                             var functionModuleBasePath = string.Empty;
@@ -80,11 +80,11 @@ namespace handstack
                                     var environment = splits[1];
 
                                     var sourceModuleSettingFilePath = string.Empty;
-                                    if (moduleID.IndexOf("|") > -1)
+                                    if (moduleID.IndexOf('|') > -1)
                                     {
                                         var moduleIndex = modules.IndexOf(module);
-                                        sourceModuleSettingFilePath = moduleID.SubstringSafe(moduleID.IndexOf("|") + 1);
-                                        moduleID = moduleID.SubstringSafe(0, moduleID.IndexOf("|"));
+                                        sourceModuleSettingFilePath = moduleID.SubstringSafe(moduleID.IndexOf('|') + 1);
+                                        moduleID = moduleID.SubstringSafe(0, moduleID.IndexOf('|'));
                                         if (moduleIndex > -1)
                                         {
                                             modules[moduleIndex] = moduleID;

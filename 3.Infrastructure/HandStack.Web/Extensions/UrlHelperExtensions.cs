@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System;
+using Microsoft.AspNetCore.Mvc;
 
 namespace HandStack.Web.Extensions
 {
@@ -6,6 +7,8 @@ namespace HandStack.Web.Extensions
     {
         public static string? GetLocalUrl(this IUrlHelper urlHelper, string localUrl)
         {
+            ArgumentNullException.ThrowIfNull(urlHelper);
+
             if (!urlHelper.IsLocalUrl(localUrl))
             {
                 return urlHelper.Page("/Index");

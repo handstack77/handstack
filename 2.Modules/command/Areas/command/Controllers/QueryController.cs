@@ -29,20 +29,12 @@ namespace command.Areas.command.Controllers
     [Route("[area]/api/[controller]")]
     [ApiController]
     [EnableCors]
-    public class QueryController : BaseController
+    public class QueryController(Serilog.ILogger logger, ICommandDataClient dataClient, CommandLoggerClient loggerClient, IMediator mediator) : BaseController
     {
-        private readonly CommandLoggerClient loggerClient;
-        private readonly Serilog.ILogger logger;
-        private readonly ICommandDataClient dataClient;
-        private readonly IMediator mediator;
-
-        public QueryController(Serilog.ILogger logger, ICommandDataClient dataClient, CommandLoggerClient loggerClient, IMediator mediator)
-        {
-            this.logger = logger;
-            this.dataClient = dataClient;
-            this.loggerClient = loggerClient;
-            this.mediator = mediator;
-        }
+        private readonly CommandLoggerClient loggerClient = loggerClient;
+        private readonly Serilog.ILogger logger = logger;
+        private readonly ICommandDataClient dataClient = dataClient;
+        private readonly IMediator mediator = mediator;
 
         // http://localhost:8421/command/api/query/has
         [HttpGet("[action]")]
@@ -175,7 +167,7 @@ namespace command.Areas.command.Controllers
                     ApplicationID = item.ApplicationID,
                     ProjectID = item.ProjectID,
                     TransactionID = item.TransactionID,
-                    ServiceID = item.CommandID.Substring(0, item.CommandID.Length - 2),
+                    ServiceID = item.CommandID[..^2],
                     Seq = item.Seq,
                     Description = item.Description,
                     Parameters = item.Parameters.Select(parameterMap => new QueryReportParameter
@@ -204,7 +196,7 @@ namespace command.Areas.command.Controllers
                 ? parameterName
                 : parameterName[0] switch
                 {
-                    '@' or ':' or '$' or '#' => parameterName.Substring(1),
+                    '@' or ':' or '$' or '#' => parameterName[1..],
                     _ => parameterName
                 };
         }

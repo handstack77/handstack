@@ -27,6 +27,9 @@ namespace HandStack.Web.Encapsulation
         {
             foreach (var prop in properties)
             {
+                ArgumentNullException.ThrowIfNull(logEvent);
+                ArgumentNullException.ThrowIfNull(propertyFactory);
+
                 logEvent.AddPropertyIfAbsent(propertyFactory.CreateProperty(prop.Key, prop.Value.Item1, prop.Value.Item2));
             }
         }

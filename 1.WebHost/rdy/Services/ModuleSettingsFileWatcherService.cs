@@ -20,25 +20,19 @@ using Serilog;
 
 namespace rdy.Services
 {
-    internal sealed class ModuleSettingsFileWatcherService : IHostedService, IDisposable
+    internal sealed class ModuleSettingsFileWatcherService(ILogger logger, IServiceProvider serviceProvider) : IHostedService, IDisposable
     {
         private static readonly TimeSpan debounceDelay = TimeSpan.FromMilliseconds(500);
         private static readonly TimeSpan retryDelay = TimeSpan.FromMilliseconds(200);
 
-        private readonly ILogger logger;
-        private readonly IServiceProvider serviceProvider;
-        private readonly SemaphoreSlim reloadLock = new SemaphoreSlim(1, 1);
-        private readonly object debounceSync = new object();
-        private readonly Dictionary<string, WatchedModuleSettings> watchedModules = new Dictionary<string, WatchedModuleSettings>(StringComparer.OrdinalIgnoreCase);
-        private readonly HashSet<string> pendingFilePaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        private readonly ILogger logger = logger;
+        private readonly IServiceProvider serviceProvider = serviceProvider;
+        private readonly SemaphoreSlim reloadLock = new(1, 1);
+        private readonly object debounceSync = new();
+        private readonly Dictionary<string, WatchedModuleSettings> watchedModules = new(StringComparer.OrdinalIgnoreCase);
+        private readonly HashSet<string> pendingFilePaths = new(StringComparer.OrdinalIgnoreCase);
 
         private Timer? debounceTimer;
-
-        public ModuleSettingsFileWatcherService(ILogger logger, IServiceProvider serviceProvider)
-        {
-            this.logger = logger;
-            this.serviceProvider = serviceProvider;
-        }
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
@@ -221,7 +215,7 @@ namespace rdy.Services
             return ReloadRuntimeConfigurationByReflection(module, configurationText, propertyHandler);
         }
 
-        private ModuleConfigurationReloadResult ReloadRuntimeConfigurationByReflection(ModuleInfo module, string configurationText, IModuleRuntimeConfigurationPropertyHandler? propertyHandler)
+        private static ModuleConfigurationReloadResult ReloadRuntimeConfigurationByReflection(ModuleInfo module, string configurationText, IModuleRuntimeConfigurationPropertyHandler? propertyHandler)
         {
             var result = new ModuleConfigurationReloadResult()
             {
@@ -335,7 +329,7 @@ namespace rdy.Services
                     module.SubscribeAction = NormalizeActions(subscribeActions);
                 }
 
-                ApplyStaticField(moduleConfigurationType, field, $"ModuleConfig:{property.Name}", value, result);
+                ApplyStaticField(field, $"ModuleConfig:{property.Name}", value, result);
             }
         }
 
@@ -347,10 +341,10 @@ namespace rdy.Services
                 return;
             }
 
-            ApplyStaticField(moduleConfigurationType, field, fieldName, value, result);
+            ApplyStaticField(field, fieldName, value, result);
         }
 
-        private static void ApplyStaticField(Type moduleConfigurationType, FieldInfo field, string key, object? value, ModuleConfigurationReloadResult result)
+        private static void ApplyStaticField(FieldInfo field, string key, object? value, ModuleConfigurationReloadResult result)
         {
             try
             {
@@ -482,23 +476,15 @@ namespace rdy.Services
             reloadLock.Dispose();
         }
 
-        private sealed class WatchedModuleSettings
+        private sealed class WatchedModuleSettings(ModuleInfo module, string filePath, FileSystemWatcher watcher, Dictionary<string, JToken> lastSnapshot)
         {
-            public WatchedModuleSettings(ModuleInfo module, string filePath, FileSystemWatcher watcher, Dictionary<string, JToken> lastSnapshot)
-            {
-                Module = module;
-                FilePath = filePath;
-                Watcher = watcher;
-                LastSnapshot = lastSnapshot;
-            }
+            public ModuleInfo Module { get; } = module;
 
-            public ModuleInfo Module { get; }
+            public string FilePath { get; } = filePath;
 
-            public string FilePath { get; }
+            public FileSystemWatcher Watcher { get; } = watcher;
 
-            public FileSystemWatcher Watcher { get; }
-
-            public Dictionary<string, JToken> LastSnapshot { get; set; }
+            public Dictionary<string, JToken> LastSnapshot { get; set; } = lastSnapshot;
         }
     }
 }

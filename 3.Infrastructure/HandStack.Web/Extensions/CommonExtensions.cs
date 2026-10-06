@@ -12,12 +12,14 @@ namespace HandStack.Web.Extensions
         public static void Add(this List<DynamicParameter> parameters, string parameterName, object value, string dbType = "String")
         {
             var dynamicParameter = new DynamicParameter() { ParameterName = parameterName, Value = value, DbType = dbType };
+            ArgumentNullException.ThrowIfNull(parameters);
             parameters.Add(dynamicParameter);
         }
 
         public static object? Value(this List<DynamicParameter> parameters, string parameterName)
         {
             object? result = null;
+            ArgumentNullException.ThrowIfNull(parameters);
             foreach (var item in parameters)
             {
                 if (item.ParameterName == parameterName)
@@ -53,8 +55,7 @@ namespace HandStack.Web.Extensions
 
             if (appSettings != null && appSettings.ContainsKey(settingID) == true)
             {
-                ApplicationCodeSetting? appSetting;
-                if (appSettings.TryGetValue(settingID, out appSetting) == true)
+                if (appSettings.TryGetValue(settingID, out var appSetting) == true)
                 {
                     if (appSetting == null)
                     {
@@ -78,7 +79,7 @@ namespace HandStack.Web.Extensions
         {
             if (string.IsNullOrWhiteSpace(csvList))
             {
-                return nullOrWhitespaceInputReturnsNull ? null : new List<string>();
+                return nullOrWhitespaceInputReturnsNull ? null : [];
             }
 
             return csvList
@@ -101,6 +102,8 @@ namespace HandStack.Web.Extensions
 
         public static Dictionary<string, object?> GetPropertyValuePairs(this object obj, string[]? hidden = null)
         {
+            ArgumentNullException.ThrowIfNull(obj);
+
             var type = obj.GetType();
             var pairs = hidden == null
                 ? type.GetProperties()
@@ -125,6 +128,8 @@ namespace HandStack.Web.Extensions
 
         public static string ToMessage(this Exception source)
         {
+            ArgumentNullException.ThrowIfNull(source);
+
             return GlobalConfiguration.IsExceptionDetailText == true ? source.ToString() : source.Message;
         }
     }

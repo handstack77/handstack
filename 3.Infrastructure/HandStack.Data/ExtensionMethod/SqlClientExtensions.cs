@@ -38,6 +38,8 @@ namespace HandStack.Data.ExtensionMethod
 
         public static DataSet ExecuteDataSet(this SqlConnection @this, string cmdText, SqlParameter[]? parameters, CommandType commandType, SqlTransaction? transaction)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
             command.CommandText = cmdText;
             command.CommandType = commandType;
@@ -59,7 +61,10 @@ namespace HandStack.Data.ExtensionMethod
 
         public static DataSet ExecuteDataSet(this SqlConnection @this, Action<SqlCommand> commandFactory)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
+            ArgumentNullException.ThrowIfNull(commandFactory);
             commandFactory(command);
 
             var ds = new DataSet();
@@ -108,6 +113,8 @@ namespace HandStack.Data.ExtensionMethod
 
         public static DataTable ExecuteDataTable(this SqlConnection @this, string cmdText, SqlParameter[]? parameters, CommandType commandType, SqlTransaction? transaction)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
             command.CommandText = cmdText;
             command.CommandType = commandType;
@@ -129,7 +136,10 @@ namespace HandStack.Data.ExtensionMethod
 
         public static DataTable ExecuteDataTable(this SqlConnection @this, Action<SqlCommand> commandFactory)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
+            ArgumentNullException.ThrowIfNull(commandFactory);
             commandFactory(command);
 
             var ds = new DataSet();
@@ -178,6 +188,8 @@ namespace HandStack.Data.ExtensionMethod
 
         public static IEnumerable<T> ExecuteEntities<T>(this SqlConnection @this, string cmdText, SqlParameter[]? parameters, CommandType commandType, SqlTransaction? transaction) where T : new()
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
             command.CommandText = cmdText;
             command.CommandType = commandType;
@@ -194,7 +206,10 @@ namespace HandStack.Data.ExtensionMethod
 
         public static IEnumerable<T> ExecuteEntities<T>(this SqlConnection @this, Action<SqlCommand> commandFactory) where T : new()
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
+            ArgumentNullException.ThrowIfNull(commandFactory);
             commandFactory(command);
 
             using IDataReader reader = command.ExecuteReader();
@@ -238,6 +253,8 @@ namespace HandStack.Data.ExtensionMethod
 
         public static T ExecuteEntity<T>(this SqlConnection @this, string cmdText, SqlParameter[]? parameters, CommandType commandType, SqlTransaction? transaction) where T : new()
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
             command.CommandText = cmdText;
             command.CommandType = commandType;
@@ -248,17 +265,20 @@ namespace HandStack.Data.ExtensionMethod
                 command.Parameters.AddRange(parameters);
             }
 
-            using IDataReader reader = command.ExecuteReader();
+            using SqlDataReader reader = command.ExecuteReader();
             reader.Read();
             return reader.ToEntity<T>();
         }
 
         public static T ExecuteEntity<T>(this SqlConnection @this, Action<SqlCommand> commandFactory) where T : new()
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
+            ArgumentNullException.ThrowIfNull(commandFactory);
             commandFactory(command);
 
-            using IDataReader reader = command.ExecuteReader();
+            using SqlDataReader reader = command.ExecuteReader();
             reader.Read();
             return reader.ToEntity<T>();
         }
@@ -300,6 +320,8 @@ namespace HandStack.Data.ExtensionMethod
 
         public static dynamic ExecuteExpandoObject(this SqlConnection @this, string cmdText, SqlParameter[]? parameters, CommandType commandType, SqlTransaction? transaction)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
             command.CommandText = cmdText;
             command.CommandType = commandType;
@@ -310,17 +332,20 @@ namespace HandStack.Data.ExtensionMethod
                 command.Parameters.AddRange(parameters);
             }
 
-            using IDataReader reader = command.ExecuteReader();
+            using SqlDataReader reader = command.ExecuteReader();
             reader.Read();
             return reader.ToExpandoObject();
         }
 
         public static dynamic ExecuteExpandoObject(this SqlConnection @this, Action<SqlCommand> commandFactory)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
+            ArgumentNullException.ThrowIfNull(commandFactory);
             commandFactory(command);
 
-            using IDataReader reader = command.ExecuteReader();
+            using SqlDataReader reader = command.ExecuteReader();
             reader.Read();
             return reader.ToExpandoObject();
         }
@@ -362,6 +387,8 @@ namespace HandStack.Data.ExtensionMethod
 
         public static IEnumerable<dynamic> ExecuteExpandoObjects(this SqlConnection @this, string cmdText, SqlParameter[]? parameters, CommandType commandType, SqlTransaction? transaction)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
             command.CommandText = cmdText;
             command.CommandType = commandType;
@@ -378,7 +405,10 @@ namespace HandStack.Data.ExtensionMethod
 
         public static IEnumerable<dynamic> ExecuteExpandoObjects(this SqlConnection @this, Action<SqlCommand> commandFactory)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
+            ArgumentNullException.ThrowIfNull(commandFactory);
             commandFactory(command);
 
             using IDataReader reader = command.ExecuteReader();
@@ -422,6 +452,8 @@ namespace HandStack.Data.ExtensionMethod
 
         public static XmlReader ExecuteXmlReader(this SqlConnection @this, string cmdText, SqlParameter[]? parameters, CommandType commandType, SqlTransaction? transaction)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
             command.CommandText = cmdText;
             command.CommandType = commandType;
@@ -437,7 +469,10 @@ namespace HandStack.Data.ExtensionMethod
 
         public static XmlReader ExecuteXmlReader(this SqlConnection @this, Action<SqlCommand> commandFactory)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
+            ArgumentNullException.ThrowIfNull(commandFactory);
             commandFactory(command);
 
             return command.ExecuteXmlReader();
@@ -480,14 +515,20 @@ namespace HandStack.Data.ExtensionMethod
 
         public static void AddRangeWithValue(this SqlParameterCollection @this, Dictionary<string, object> values)
         {
+            ArgumentNullException.ThrowIfNull(values);
+
             foreach (var keyValuePair in values)
             {
+                ArgumentNullException.ThrowIfNull(@this);
+
                 @this.AddWithValue(keyValuePair.Key, keyValuePair.Value);
             }
         }
 
         public static string ParameterValueForSQL(this SqlParameter @this)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             var paramValue = @this.Value;
 
             if (paramValue == null)
@@ -495,35 +536,20 @@ namespace HandStack.Data.ExtensionMethod
                 return "NULL";
             }
 
-            switch (@this.SqlDbType)
+            return @this.SqlDbType switch
             {
-                case SqlDbType.Char:
-                case SqlDbType.NChar:
-                case SqlDbType.NText:
-                case SqlDbType.NVarChar:
-                case SqlDbType.Text:
-                case SqlDbType.Time:
-                case SqlDbType.VarChar:
-                case SqlDbType.Xml:
-                case SqlDbType.Date:
-                case SqlDbType.DateTime:
-                case SqlDbType.DateTime2:
-                case SqlDbType.DateTimeOffset:
-                    return $"'{paramValue.ToStringSafe().Replace("'", "''")}'";
-                case SqlDbType.Bit:
-                    return (paramValue.ToBoolean(false)) ? "1" : "0";
-                case SqlDbType.Decimal:
-                case SqlDbType.Float:
-                    return ((double)paramValue).ToString(CultureInfo.InvariantCulture).Replace("'", "''");
-                default:
-                    return paramValue.ToStringSafe().Replace("'", "''");
-            }
+                SqlDbType.Char or SqlDbType.NChar or SqlDbType.NText or SqlDbType.NVarChar or SqlDbType.Text or SqlDbType.Time or SqlDbType.VarChar or SqlDbType.Xml or SqlDbType.Date or SqlDbType.DateTime or SqlDbType.DateTime2 or SqlDbType.DateTimeOffset => $"'{paramValue.ToStringSafe().Replace("'", "''")}'",
+                SqlDbType.Bit => (paramValue.ToBoolean(false)) ? "1" : "0",
+                SqlDbType.Decimal or SqlDbType.Float => ((double)paramValue).ToString(CultureInfo.InvariantCulture).Replace("'", "''"),
+                _ => paramValue.ToStringSafe().Replace("'", "''"),
+            };
         }
 
         public static string CommandAsTSql(this SqlCommand @this)
         {
             var sql = new StringBuilder();
 
+            ArgumentNullException.ThrowIfNull(@this);
             switch (@this.CommandType)
             {
                 case CommandType.Text:
@@ -558,7 +584,7 @@ namespace HandStack.Data.ExtensionMethod
             {
                 if ((sp.Direction == ParameterDirection.InputOutput) || (sp.Direction == ParameterDirection.Output))
                 {
-                    sql.Append("declare ").Append(sp.ParameterName).Append("\t").Append(sp.SqlDbType.ToString()).Append("\t= ");
+                    sql.Append("declare ").Append(sp.ParameterName).Append('\t').Append(sp.SqlDbType.ToString()).Append("\t= ");
 
                     sql.Append((sp.Direction == ParameterDirection.Output) ? "null" : sp.ParameterValueForSQL()).AppendLine(";");
                 }

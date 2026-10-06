@@ -52,7 +52,7 @@ namespace repository.Entity
             DatabaseContractPath = "";
             AuthorizationKey = "";
             BusinessServerUrl = "";
-            ContractBasePath = new List<string>();
+            ContractBasePath = [];
             ModuleBasePath = "";
             ModuleFilePath = "";
             IsModuleLogging = false;
@@ -60,7 +60,7 @@ namespace repository.Entity
             XFrameOptions = "";
             ContentSecurityPolicy = "";
             IsContractFileWatching = false;
-            AllowClientIP = new List<string>() { "*" };
+            AllowClientIP = ["*"];
         }
     }
 }

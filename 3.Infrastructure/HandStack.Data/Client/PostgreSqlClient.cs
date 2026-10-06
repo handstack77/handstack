@@ -37,7 +37,7 @@ namespace HandStack.Data.Client
             set { connectionString = value; }
         }
 
-        private DatabaseFactory databaseFactory;
+        private readonly DatabaseFactory databaseFactory;
 
         public DatabaseFactory DbFactory
         {
@@ -103,7 +103,7 @@ namespace HandStack.Data.Client
 
             static void AppendParameter(StringBuilder builder, string parameterName, object? parameterValue)
             {
-                if (parameterName.IndexOf("@", StringComparison.Ordinal) < 0)
+                if (parameterName.IndexOf('@') < 0)
                 {
                     builder.Append('@');
                 }
@@ -325,7 +325,7 @@ namespace HandStack.Data.Client
                 }
                 else
                 {
-                    results = new List<T>();
+                    results = [];
                 }
             }
 
@@ -457,7 +457,7 @@ namespace HandStack.Data.Client
             }
         }
 
-        private bool SetDbParameterData(NpgsqlParameter parameter, List<NpgsqlParameter>? ListParameters)
+        private static bool SetDbParameterData(NpgsqlParameter parameter, List<NpgsqlParameter>? ListParameters)
         {
             if (ListParameters == null)
             {
@@ -471,7 +471,7 @@ namespace HandStack.Data.Client
                          where p.ParameterName.Equals(parameter.ParameterName, StringComparison.CurrentCultureIgnoreCase)
                          select p;
 
-            if (result.Count() > 0)
+            if (result.Any())
             {
                 NpgsqlParameter? listParameter = null;
                 foreach (var nvp in result)
@@ -485,169 +485,62 @@ namespace HandStack.Data.Client
             }
             else
             {
-                switch (parameter.NpgsqlDbType)
+                dbValue = parameter.NpgsqlDbType switch
                 {
-                    case NpgsqlDbType.Bigint:
-                        dbValue = 0;
-                        break;
-                    case NpgsqlDbType.Double:
-                        dbValue = 0;
-                        break;
-                    case NpgsqlDbType.Integer:
-                        dbValue = 0;
-                        break;
-                    case NpgsqlDbType.Numeric:
-                        dbValue = 0;
-                        break;
-                    case NpgsqlDbType.Real:
-                        dbValue = 0;
-                        break;
-                    case NpgsqlDbType.Smallint:
-                        dbValue = 0;
-                        break;
-                    case NpgsqlDbType.Money:
-                        dbValue = 0;
-                        break;
-                    case NpgsqlDbType.Boolean:
-                        dbValue = false;
-                        break;
-                    case NpgsqlDbType.Box:
-                        dbValue = DBNull.Value;
-                        break;
-                    case NpgsqlDbType.Circle:
-                        dbValue = DBNull.Value;
-                        break;
-                    case NpgsqlDbType.Line:
-                        dbValue = DBNull.Value;
-                        break;
-                    case NpgsqlDbType.LSeg:
-                        dbValue = DBNull.Value;
-                        break;
-                    case NpgsqlDbType.Path:
-                        dbValue = DBNull.Value;
-                        break;
-                    case NpgsqlDbType.Point:
-                        dbValue = DBNull.Value;
-                        break;
-                    case NpgsqlDbType.Polygon:
-                        dbValue = DBNull.Value;
-                        break;
-                    case NpgsqlDbType.Char:
-                        dbValue = "";
-                        break;
-                    case NpgsqlDbType.Text:
-                        dbValue = "";
-                        break;
-                    case NpgsqlDbType.Varchar:
-                        dbValue = "";
-                        break;
-                    case NpgsqlDbType.Name:
-                        dbValue = "";
-                        break;
-                    case NpgsqlDbType.Citext:
-                        dbValue = "";
-                        break;
-                    case NpgsqlDbType.InternalChar:
-                        dbValue = "";
-                        break;
-                    case NpgsqlDbType.Bytea:
-                        dbValue = DBNull.Value;
-                        break;
-                    case NpgsqlDbType.Date:
-                        dbValue = DateTime.Now;
-                        break;
-                    case NpgsqlDbType.Time:
-                        dbValue = DateTime.Now;
-                        break;
-                    case NpgsqlDbType.Timestamp:
-                        dbValue = DateTime.Now;
-                        break;
-                    case NpgsqlDbType.Interval:
-                        dbValue = 0;
-                        break;
-                    case NpgsqlDbType.Inet:
-                        dbValue = DateTime.Now;
-                        break;
-                    case NpgsqlDbType.Cidr:
-                        dbValue = DateTime.Now;
-                        break;
-                    case NpgsqlDbType.MacAddr:
-                        dbValue = DateTime.Now;
-                        break;
-                    case NpgsqlDbType.MacAddr8:
-                        dbValue = DateTime.Now;
-                        break;
-                    case NpgsqlDbType.Bit:
-                        dbValue = false;
-                        break;
-                    case NpgsqlDbType.Varbit:
-                        dbValue = false;
-                        break;
-                    case NpgsqlDbType.TsVector:
-                        dbValue = "";
-                        break;
-                    case NpgsqlDbType.TsQuery:
-                        dbValue = "";
-                        break;
-                    case NpgsqlDbType.Uuid:
-                        dbValue = "";
-                        break;
-                    case NpgsqlDbType.Xml:
-                        dbValue = "";
-                        break;
-                    case NpgsqlDbType.Json:
-                        dbValue = "";
-                        break;
-                    case NpgsqlDbType.Jsonb:
-                        dbValue = DBNull.Value;
-                        break;
-                    case NpgsqlDbType.Hstore:
-                        dbValue = DBNull.Value;
-                        break;
-                    case NpgsqlDbType.Array:
-                        dbValue = DBNull.Value;
-                        break;
-                    case NpgsqlDbType.Range:
-                        dbValue = DBNull.Value;
-                        break;
-                    case NpgsqlDbType.Refcursor:
-                        dbValue = DBNull.Value;
-                        break;
-                    case NpgsqlDbType.Oidvector:
-                        dbValue = DBNull.Value;
-                        break;
-                    case NpgsqlDbType.Int2Vector:
-                        dbValue = DBNull.Value;
-                        break;
-                    case NpgsqlDbType.Oid:
-                        dbValue = DBNull.Value;
-                        break;
-                    case NpgsqlDbType.Xid:
-                        dbValue = DBNull.Value;
-                        break;
-                    case NpgsqlDbType.Cid:
-                        dbValue = DBNull.Value;
-                        break;
-                    case NpgsqlDbType.Regtype:
-                        dbValue = DBNull.Value;
-                        break;
-                    case NpgsqlDbType.Tid:
-                        dbValue = DBNull.Value;
-                        break;
-                    case NpgsqlDbType.Unknown:
-                        dbValue = DBNull.Value;
-                        break;
-                    case NpgsqlDbType.Geometry:
-                        dbValue = DBNull.Value;
-                        break;
-                    case NpgsqlDbType.Geography:
-                        dbValue = DBNull.Value;
-                        break;
-                    default:
-                        dbValue = DBNull.Value;
-                        break;
-                }
-
+                    NpgsqlDbType.Bigint => 0,
+                    NpgsqlDbType.Double => 0,
+                    NpgsqlDbType.Integer => 0,
+                    NpgsqlDbType.Numeric => 0,
+                    NpgsqlDbType.Real => 0,
+                    NpgsqlDbType.Smallint => 0,
+                    NpgsqlDbType.Money => 0,
+                    NpgsqlDbType.Boolean => false,
+                    NpgsqlDbType.Box => DBNull.Value,
+                    NpgsqlDbType.Circle => DBNull.Value,
+                    NpgsqlDbType.Line => DBNull.Value,
+                    NpgsqlDbType.LSeg => DBNull.Value,
+                    NpgsqlDbType.Path => DBNull.Value,
+                    NpgsqlDbType.Point => DBNull.Value,
+                    NpgsqlDbType.Polygon => DBNull.Value,
+                    NpgsqlDbType.Char => "",
+                    NpgsqlDbType.Text => "",
+                    NpgsqlDbType.Varchar => "",
+                    NpgsqlDbType.Name => "",
+                    NpgsqlDbType.Citext => "",
+                    NpgsqlDbType.InternalChar => "",
+                    NpgsqlDbType.Bytea => DBNull.Value,
+                    NpgsqlDbType.Date => DateTime.Now,
+                    NpgsqlDbType.Time => DateTime.Now,
+                    NpgsqlDbType.Timestamp => DateTime.Now,
+                    NpgsqlDbType.Interval => 0,
+                    NpgsqlDbType.Inet => DateTime.Now,
+                    NpgsqlDbType.Cidr => DateTime.Now,
+                    NpgsqlDbType.MacAddr => DateTime.Now,
+                    NpgsqlDbType.MacAddr8 => DateTime.Now,
+                    NpgsqlDbType.Bit => false,
+                    NpgsqlDbType.Varbit => false,
+                    NpgsqlDbType.TsVector => "",
+                    NpgsqlDbType.TsQuery => "",
+                    NpgsqlDbType.Uuid => "",
+                    NpgsqlDbType.Xml => "",
+                    NpgsqlDbType.Json => "",
+                    NpgsqlDbType.Jsonb => DBNull.Value,
+                    NpgsqlDbType.Hstore => DBNull.Value,
+                    NpgsqlDbType.Array => DBNull.Value,
+                    NpgsqlDbType.Range => DBNull.Value,
+                    NpgsqlDbType.Refcursor => DBNull.Value,
+                    NpgsqlDbType.Oidvector => DBNull.Value,
+                    NpgsqlDbType.Int2Vector => DBNull.Value,
+                    NpgsqlDbType.Oid => DBNull.Value,
+                    NpgsqlDbType.Xid => DBNull.Value,
+                    NpgsqlDbType.Cid => DBNull.Value,
+                    NpgsqlDbType.Regtype => DBNull.Value,
+                    NpgsqlDbType.Tid => DBNull.Value,
+                    NpgsqlDbType.Unknown => DBNull.Value,
+                    NpgsqlDbType.Geometry => DBNull.Value,
+                    NpgsqlDbType.Geography => DBNull.Value,
+                    _ => DBNull.Value,
+                };
                 isMatchingParameter = false;
             }
 
@@ -688,12 +581,8 @@ namespace HandStack.Data.Client
             {
                 if (isFromDispose)
                 {
-                    if (databaseFactory != null)
-                    {
-                        databaseFactory.Dispose();
-                    }
+                    databaseFactory?.Dispose();
 
-                    GC.SuppressFinalize(this);
                 }
 
                 isDisposedResources = true;

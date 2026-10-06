@@ -1,4 +1,5 @@
-﻿using System.Security.Cryptography;
+﻿using System;
+using System.Security.Cryptography;
 
 namespace HandStack.Web.Extensions
 {
@@ -17,7 +18,7 @@ namespace HandStack.Web.Extensions
     {
         private const uint CRC16_MASK = 0xffff;
 
-        private readonly static uint[] CRC16Table = new uint[] {
+        private static readonly uint[] CRC16Table = new uint[] {
             0x0000, 0x1189, 0x2312, 0x329b, 0x4624, 0x57ad, 0x6536, 0x74bf,
             0x8c48, 0x9dc1, 0xaf5a, 0xbed3, 0xca6c, 0xdbe5, 0xe97e, 0xf8f7,
             0x1081, 0x0108, 0x3393, 0x221a, 0x56a5, 0x472c, 0x75b7, 0x643e,
@@ -66,6 +67,8 @@ namespace HandStack.Web.Extensions
             {
                 while (--cbSize >= 0)
                 {
+                    ArgumentNullException.ThrowIfNull(array);
+
                     crcValue = CRC16Table[(crcValue ^ array[ibStart++]) & 0xFF] ^ (crcValue >> 8);
                 }
             }

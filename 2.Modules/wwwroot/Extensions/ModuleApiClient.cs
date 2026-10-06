@@ -15,16 +15,10 @@ using wwwroot.Entity;
 
 namespace wwwroot.Extensions
 {
-    public class ModuleApiClient
+    public class ModuleApiClient(ILogger logger, TransactionClient transactionClient)
     {
-        private readonly ILogger logger;
-        private readonly TransactionClient transactionClient;
-
-        public ModuleApiClient(ILogger logger, TransactionClient transactionClient)
-        {
-            this.logger = logger;
-            this.transactionClient = transactionClient;
-        }
+        private readonly ILogger logger = logger;
+        private readonly TransactionClient transactionClient = transactionClient;
 
         // var repositoryItems = result?["FormData0"]?.ToObject<RepositoryItems>();
         // var repositorys = result?["GridData0"]?.ToObject<List<Repository>>();
@@ -44,12 +38,14 @@ namespace wwwroot.Extensions
                         return result;
                     }
 
-                    var transactionObject = new TransactionClientObject();
-                    transactionObject.SystemID = TransactionConfig.Transaction.SystemID;
-                    transactionObject.ProgramID = transactionInfo[0];
-                    transactionObject.BusinessID = transactionInfo[1];
-                    transactionObject.TransactionID = transactionInfo[2];
-                    transactionObject.FunctionID = transactionInfo[3];
+                    var transactionObject = new TransactionClientObject
+                    {
+                        SystemID = TransactionConfig.Transaction.SystemID,
+                        ProgramID = transactionInfo[0],
+                        BusinessID = transactionInfo[1],
+                        TransactionID = transactionInfo[2],
+                        FunctionID = transactionInfo[3]
+                    };
                     transactionObject.ScreenID = transactionObject.TransactionID;
                     transactionObject.StartTraceID = string.IsNullOrWhiteSpace(startTraceID) ? nameof(ModuleApiClient) : startTraceID;
 

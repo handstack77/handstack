@@ -14,7 +14,7 @@ namespace HandStack.Core.ExtensionMethod
         {
             if (@this == null)
             {
-                throw new ArgumentNullException("@this", "@this은 null일 수 없습니다");
+                throw new ArgumentNullException(nameof(@this), "@this은 null일 수 없습니다");
             }
 
             if (@this.IsGenericType == false || @this.IsGenericParameter == false)
@@ -23,7 +23,7 @@ namespace HandStack.Core.ExtensionMethod
             }
 
             const StringComparison sc = StringComparison.Ordinal;
-            var name = @this.Name.SubstringSafe(0, @this.Name.IndexOf("`", sc));
+            var name = @this.Name.SubstringSafe(0, @this.Name.IndexOf('`', sc));
             var arguments = @this.GetGenericArguments()
                 .Select(arg => arg.GetFriendlyName())
                 .ToArray();
@@ -50,6 +50,7 @@ namespace HandStack.Core.ExtensionMethod
                 result.Columns.Add(field.Name, field.FieldType);
             }
 
+            ArgumentNullException.ThrowIfNull(@this);
             foreach (var item in @this)
             {
                 var dr = result.NewRow();
@@ -81,6 +82,7 @@ namespace HandStack.Core.ExtensionMethod
             }
 
             object?[] values = new object[props.Count];
+            ArgumentNullException.ThrowIfNull(data);
             foreach (var item in data)
             {
                 for (var i = 0; i < values.Length; i++)
@@ -125,6 +127,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static MethodInfo? GetPublicInstanceMethod(this Type @this, string name, Type[] types)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             return @this.GetMethod(name, BindingFlags.Instance | BindingFlags.Public, null, types, null);
         }
 
@@ -135,26 +139,36 @@ namespace HandStack.Core.ExtensionMethod
 
         public static bool IsEnum(this Type @this)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             return @this.IsEnum;
         }
 
         public static bool IsGenericType(this Type @this)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             return @this.IsGenericType;
         }
 
         public static bool IsInterface(this Type @this)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             return @this.IsInterface;
         }
 
         public static bool IsValueType(this Type @this)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             return @this.IsValueType;
         }
 
         public static string Name(this Type @this)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             return @this.Name;
         }
 

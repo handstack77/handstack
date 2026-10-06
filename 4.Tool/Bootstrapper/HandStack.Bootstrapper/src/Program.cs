@@ -1,7 +1,5 @@
-using HandStack.Bootstrapper.Platform;
-
 using System.Runtime.InteropServices;
-
+using HandStack.Bootstrapper.Platform;
 using Velopack;
 
 // 가장 먼저 실행되어야 함: Velopack의 설치/업데이트/제거 라이프사이클 훅

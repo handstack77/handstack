@@ -31,26 +31,19 @@ namespace transact.Areas.transact.Controllers
     [Route("[area]/api/[controller]")]
     [ApiController]
     [EnableCors]
-    public class ManagedController : BaseController
+    public class ManagedController(IWebHostEnvironment environment, IConfiguration configuration, ILogger logger, TransactLoggerClient loggerClient) : BaseController
     {
-        private TransactLoggerClient loggerClient { get; }
-        private ILogger logger { get; }
-        private IConfiguration configuration { get; }
-        private IWebHostEnvironment environment { get; }
-
-        public ManagedController(IWebHostEnvironment environment, IConfiguration configuration, ILogger logger, TransactLoggerClient loggerClient)
-        {
-            this.configuration = configuration;
-            this.environment = environment;
-            this.logger = logger;
-            this.loggerClient = loggerClient;
-        }
+        private TransactLoggerClient loggerClient { get; } = loggerClient;
+        private ILogger logger { get; } = logger;
+        private IConfiguration configuration { get; } = configuration;
+        private IWebHostEnvironment environment { get; } = environment;
 
         // http://localhost:8421/transact/api/managed/reset-contract
         [HttpGet("[action]")]
         public ActionResult ResetContract()
         {
-            ActionResult result = BadRequest();
+            _ = BadRequest();
+            ActionResult result;
             if (HttpContext.IsAllowAuthorization() == false)
             {
                 result = BadRequest();
@@ -94,7 +87,7 @@ namespace transact.Areas.transact.Controllers
                         try
                         {
                             var statementMappings = businessContracts.Where(x => x.Value.ApplicationID == applicationID).ToList();
-                            for (var i = statementMappings.Count(); i > 0; i--)
+                            for (var i = statementMappings.Count; i > 0; i--)
                             {
                                 var item = statementMappings[i - 1].Key;
                                 businessContracts.Remove(item);
@@ -277,17 +270,17 @@ namespace transact.Areas.transact.Controllers
 
                     var protections = new List<ProtectionState>
                     {
-                        new ProtectionState("EnforceRealClientIP", hardening.EnforceRealClientIP, hardening.EnforceRealClientIP, "실제 소켓/프록시 IP 신뢰(본문 SourceIP 무시)"),
-                        new ProtectionState("TrustedLocalhostBypass", hardening.TrustedLocalhostBypass, hardening.TrustedLocalhostBypass, "localhost 인가 우회 유지(true=레거시 우회 ON, 운영 false 권장)"),
-                        new ProtectionState("LockdownMetadataEndpoints", hardening.LockdownMetadataEndpoints, hardening.LockdownMetadataEndpoints, "열거/관리 엔드포인트 AuthorizationKey 강제"),
-                        new ProtectionState("RateLimit", rateLimit.Enabled, $"{rateLimit.Mode}, IP {rateLimit.PerIpPerMinute}/분, Token {rateLimit.PerTokenPerMinute}/분", "IP/토큰 분당 유량 제어"),
-                        new ProtectionState("MaxRoutes", hardening.MaxRoutes > 0, hardening.MaxRoutes, "경로 수 상한(0=무제한)"),
-                        new ProtectionState("MaxDataMapSetCount", hardening.MaxDataMapSetCount > 0, hardening.MaxDataMapSetCount, "데이터맵 세트 수 상한(0=무제한)"),
-                        new ProtectionState("MaxDecompressedBytes", hardening.MaxDecompressedBytes > 0, hardening.MaxDecompressedBytes, "압축 해제 크기 상한(0=무제한)"),
-                        new ProtectionState("SanitizeErrorText", hardening.SanitizeErrorText, hardening.SanitizeErrorText, "오류 메시지 코드화(차분 오라클 제거)"),
-                        new ProtectionState("RegexTimeoutMilliseconds", hardening.RegexTimeoutMilliseconds > 0, hardening.RegexTimeoutMilliseconds, "권한 정규식 타임아웃(0=무제한)"),
-                        new ProtectionState("MaxConcurrentPushTasks", hardening.MaxConcurrentPushTasks > 0, hardening.MaxConcurrentPushTasks, "PSH 동시 실행 상한(0=무제한)"),
-                        new ProtectionState("EnforceWorkflowContractGuard", hardening.EnforceWorkflowContractGuard, hardening.EnforceWorkflowContractGuard, "동적 Workflow 계약 사전 가드")
+                        new("EnforceRealClientIP", hardening.EnforceRealClientIP, hardening.EnforceRealClientIP, "실제 소켓/프록시 IP 신뢰(본문 SourceIP 무시)"),
+                        new("TrustedLocalhostBypass", hardening.TrustedLocalhostBypass, hardening.TrustedLocalhostBypass, "localhost 인가 우회 유지(true=레거시 우회 ON, 운영 false 권장)"),
+                        new("LockdownMetadataEndpoints", hardening.LockdownMetadataEndpoints, hardening.LockdownMetadataEndpoints, "열거/관리 엔드포인트 AuthorizationKey 강제"),
+                        new("RateLimit", rateLimit.Enabled, $"{rateLimit.Mode}, IP {rateLimit.PerIpPerMinute}/분, Token {rateLimit.PerTokenPerMinute}/분", "IP/토큰 분당 유량 제어"),
+                        new("MaxRoutes", hardening.MaxRoutes > 0, hardening.MaxRoutes, "경로 수 상한(0=무제한)"),
+                        new("MaxDataMapSetCount", hardening.MaxDataMapSetCount > 0, hardening.MaxDataMapSetCount, "데이터맵 세트 수 상한(0=무제한)"),
+                        new("MaxDecompressedBytes", hardening.MaxDecompressedBytes > 0, hardening.MaxDecompressedBytes, "압축 해제 크기 상한(0=무제한)"),
+                        new("SanitizeErrorText", hardening.SanitizeErrorText, hardening.SanitizeErrorText, "오류 메시지 코드화(차분 오라클 제거)"),
+                        new("RegexTimeoutMilliseconds", hardening.RegexTimeoutMilliseconds > 0, hardening.RegexTimeoutMilliseconds, "권한 정규식 타임아웃(0=무제한)"),
+                        new("MaxConcurrentPushTasks", hardening.MaxConcurrentPushTasks > 0, hardening.MaxConcurrentPushTasks, "PSH 동시 실행 상한(0=무제한)"),
+                        new("EnforceWorkflowContractGuard", hardening.EnforceWorkflowContractGuard, hardening.EnforceWorkflowContractGuard, "동적 Workflow 계약 사전 가드")
                     };
 
                     var verifyResult = new
@@ -323,7 +316,8 @@ namespace transact.Areas.transact.Controllers
         [HttpGet("[action]")]
         public ActionResult StringEncrypt(string value)
         {
-            ActionResult result = BadRequest();
+            _ = BadRequest();
+            ActionResult result;
             if (HttpContext.IsAllowAuthorization() == false)
             {
                 result = BadRequest();
@@ -350,7 +344,8 @@ namespace transact.Areas.transact.Controllers
         [HttpGet("[action]")]
         public ActionResult StringDecrypt(string value)
         {
-            ActionResult result = BadRequest();
+            _ = BadRequest();
+            ActionResult result;
             if (HttpContext.IsAllowAuthorization() == false)
             {
                 result = BadRequest();
@@ -373,20 +368,12 @@ namespace transact.Areas.transact.Controllers
             return result;
         }
 
-        private sealed class ProtectionState
+        private sealed class ProtectionState(string name, bool active, object value, string note)
         {
-            public ProtectionState(string name, bool active, object value, string note)
-            {
-                Name = name;
-                Active = active;
-                Value = value;
-                Note = note;
-            }
-
-            public string Name { get; }
-            public bool Active { get; }
-            public object Value { get; }
-            public string Note { get; }
+            public string Name { get; } = name;
+            public bool Active { get; } = active;
+            public object Value { get; } = value;
+            public string Note { get; } = note;
         }
     }
 }

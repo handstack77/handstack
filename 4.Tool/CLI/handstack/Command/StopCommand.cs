@@ -12,7 +12,7 @@ using Serilog;
 
 namespace handstack
 {
-    internal static class StopCommand
+    internal static partial class StopCommand
     {
         public static void Register(RootCommand rootCommand, HandstackCommandContext context)
         {
@@ -92,12 +92,12 @@ namespace handstack
                         MatchCollection? matches = null;
                         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == true)
                         {
-                            var regex = new Regex(@"TCP\s+(?<ip>\d+\.\d+\.\d+\.\d+|\[\:\:1\]):(?<port>\d+)\s+.*LISTENING\s+(?<pid>\d+)");
+                            var regex = MyRegex();
                             matches = regex.Matches(netstatOutput);
                         }
                         else
                         {
-                            var regex = new Regex(@"(\w+)\s+(?<pid>\d+)\s+\w+\s+\d+u\s+\w+\s+\w+\s+\d+t\d+\s+TCP\s+(?<ip>\d+\.\d+\.\d+\.\d+|\[\:\:1\]|\*):(?<port>\d+)\s+\(LISTEN\)");
+                            var regex = MyRegex1();
                             matches = regex.Matches(netstatOutput);
                         }
 
@@ -117,7 +117,7 @@ namespace handstack
                                     }
                                     else
                                     {
-                                        processPorts.Add(processID, new List<int> { portNumber });
+                                        processPorts.Add(processID, [portNumber]);
                                     }
                                 }
                             }
@@ -158,5 +158,10 @@ namespace handstack
 
             rootCommand.Add(subCommandStop);
         }
+
+        [GeneratedRegex(@"TCP\s+(?<ip>\d+\.\d+\.\d+\.\d+|\[\:\:1\]):(?<port>\d+)\s+.*LISTENING\s+(?<pid>\d+)")]
+        private static partial Regex MyRegex();
+        [GeneratedRegex(@"(\w+)\s+(?<pid>\d+)\s+\w+\s+\d+u\s+\w+\s+\w+\s+\d+t\d+\s+TCP\s+(?<ip>\d+\.\d+\.\d+\.\d+|\[\:\:1\]|\*):(?<port>\d+)\s+\(LISTEN\)")]
+        private static partial Regex MyRegex1();
     }
 }

@@ -27,11 +27,11 @@ using Serilog;
 
 namespace prompter.Extensions
 {
-    public static class PromptMapper
+    public static partial class PromptMapper
     {
-        private static Random random = new Random();
-        public static ExpiringDictionary<DataSourceTanantKey, DataSourceMap> DataSourceMappings = new ExpiringDictionary<DataSourceTanantKey, DataSourceMap>();
-        public static ExpiringDictionary<string, PromptMap> PromptMappings = new ExpiringDictionary<string, PromptMap>();
+        private static readonly Random random = new();
+        public static readonly ExpiringDictionary<DataSourceTanantKey, DataSourceMap> DataSourceMappings = [];
+        public static readonly ExpiringDictionary<string, PromptMap> PromptMappings = [];
 
         static PromptMapper()
         {
@@ -46,8 +46,10 @@ namespace prompter.Extensions
             }
 
             var fileInfo = new FileInfo(filePath);
-            var htmlDocument = new HtmlDocument();
-            htmlDocument.OptionDefaultStreamEncoding = Encoding.UTF8;
+            var htmlDocument = new HtmlDocument
+            {
+                OptionDefaultStreamEncoding = Encoding.UTF8
+            };
             htmlDocument.LoadHtml(ReplaceCData(File.ReadAllText(filePath)));
             result = CreatePromptMaps(htmlDocument, fileInfo, isTenantContractFile);
 
@@ -56,6 +58,8 @@ namespace prompter.Extensions
 
         public static string BuildQueryID(PromptMap promptMap)
         {
+            ArgumentNullException.ThrowIfNull(promptMap);
+
             return string.Concat(
                 promptMap.ApplicationID, "|",
                 promptMap.ProjectID, "|",
@@ -67,6 +71,7 @@ namespace prompter.Extensions
         public static bool AddPromptMapsToCache(List<PromptMap> promptMaps, bool forceUpdate, bool isTenantContractFile, string sourcePath, ILogger logger)
         {
             var result = false;
+            ArgumentNullException.ThrowIfNull(promptMaps);
             foreach (var promptMap in promptMaps)
             {
                 var queryID = BuildQueryID(promptMap);
@@ -99,6 +104,8 @@ namespace prompter.Extensions
                 }
                 else
                 {
+                    ArgumentNullException.ThrowIfNull(logger);
+
                     logger.Warning("[{LogCategory}] " + $"PromptMap 정보 중복 오류 - {sourcePath}, ApplicationID - {promptMap.ApplicationID}, ProjectID - {promptMap.ProjectID}, TransactionID - {promptMap.TransactionID}, StatementID - {promptMap.StatementID}", "PromptMapper/AddPromptMapsToCache");
                 }
             }
@@ -134,15 +141,17 @@ namespace prompter.Extensions
 
             foreach (var item in items)
             {
-                var promptMap = new PromptMap();
-                promptMap.ApplicationID = applicationID;
-                promptMap.ProjectID = projectID;
-                promptMap.TransactionID = transactionID;
-                promptMap.DataSourceID = item.Attributes["datasource"] == null ? (header.Element("datasource")?.InnerText).ToStringSafe() : item.Attributes["datasource"].Value;
-                promptMap.StatementID = GetAttributeValue(item, "id") + GetAttributeValue(item, "seq").PadLeft(2, '0');
-                promptMap.Seq = GetAttributeValue(item, "seq").ParseInt(0);
-                promptMap.Description = GetAttributeValue(item, "desc");
-                promptMap.Role = GetAttributeValue(item, "role").ToStringSafe();
+                var promptMap = new PromptMap
+                {
+                    ApplicationID = applicationID,
+                    ProjectID = projectID,
+                    TransactionID = transactionID,
+                    DataSourceID = item.Attributes["datasource"]?.Value ?? (header.Element("datasource")?.InnerText).ToStringSafe(),
+                    StatementID = GetAttributeValue(item, "id") + GetAttributeValue(item, "seq").PadLeft(2, '0'),
+                    Seq = GetAttributeValue(item, "seq").ParseInt(0),
+                    Description = GetAttributeValue(item, "desc"),
+                    Role = GetAttributeValue(item, "role").ToStringSafe()
+                };
                 if (string.IsNullOrWhiteSpace(promptMap.Role) == true)
                 {
                     promptMap.Role = "user";
@@ -172,8 +181,10 @@ namespace prompter.Extensions
                 promptMap.Headers = ParseHeaders(item);
                 promptMap.Body = ParseBody(item);
 
-                var children = new HtmlDocument();
-                children.OptionDefaultStreamEncoding = Encoding.UTF8;
+                var children = new HtmlDocument
+                {
+                    OptionDefaultStreamEncoding = Encoding.UTF8
+                };
                 children.LoadHtml(promptMap.Prompt);
                 promptMap.Chidren = children;
                 promptMap.ModifiedAt = fileInfo.Exists == true ? fileInfo.LastWriteTime : DateTime.Now;
@@ -249,7 +260,7 @@ namespace prompter.Extensions
                 if (string.IsNullOrWhiteSpace(mimeType) == true
                     || mimeType.EndsWith("/*", StringComparison.Ordinal) == true
                     || mimeType.StartsWith(expectedPrefix, StringComparison.Ordinal) == false
-                    || Regex.IsMatch(mimeType, "^(image|audio)/[a-z0-9][a-z0-9!#$&^_.+-]*$", RegexOptions.CultureInvariant) == false)
+                    || MyRegex().IsMatch(mimeType) == false)
                 {
                     throw new InvalidDataException($"media id '{name}'의 구체적인 {expectedPrefix} MIME 타입 설정 필요");
                 }
@@ -272,7 +283,7 @@ namespace prompter.Extensions
                 ? parameterName
                 : parameterName[0] switch
                 {
-                    '@' or ':' or '$' or '#' => parameterName.Substring(1),
+                    '@' or ':' or '$' or '#' => parameterName[1..],
                     _ => parameterName
                 };
         }
@@ -441,6 +452,8 @@ namespace prompter.Extensions
             DataSourceMap? result = null;
             lock (DataSourceMappings)
             {
+                ArgumentNullException.ThrowIfNull(queryObject);
+
                 result = FindDataSourceMap(queryObject, applicationID, projectID, dataSourceID);
 
                 if (result == null)
@@ -473,21 +486,25 @@ namespace prompter.Extensions
                             {
                                 foreach (var item in dataSourceJson)
                                 {
-                                    var tanantMap = new DataSourceTanantKey();
-                                    tanantMap.ApplicationID = item.ApplicationID;
-                                    tanantMap.DataSourceID = item.DataSourceID;
-                                    tanantMap.TanantPattern = item.TanantPattern;
-                                    tanantMap.TanantValue = item.TanantValue;
+                                    var tanantMap = new DataSourceTanantKey
+                                    {
+                                        ApplicationID = item.ApplicationID,
+                                        DataSourceID = item.DataSourceID,
+                                        TanantPattern = item.TanantPattern,
+                                        TanantValue = item.TanantValue
+                                    };
 
                                     if (DataSourceMappings.ContainsKey(tanantMap) == false)
                                     {
-                                        var dataSourceMap = new DataSourceMap();
-                                        dataSourceMap.ApplicationID = item.ApplicationID;
-                                        dataSourceMap.ProjectListID = item.ProjectID.Split(",").Where(s => string.IsNullOrWhiteSpace(s) == false).Distinct().ToList();
-                                        dataSourceMap.LLMProvider = ParseLLMProvider(string.IsNullOrWhiteSpace(item.LLMProvider) == true ? item.DataProvider : item.LLMProvider);
-                                        dataSourceMap.ApiKey = item.IsEncryption.ParseBool() == true ? DecryptApiKey(item) : item.ApiKey;
-                                        dataSourceMap.ModelID = item.ModelID;
-                                        dataSourceMap.Endpoint = item.Endpoint;
+                                        var dataSourceMap = new DataSourceMap
+                                        {
+                                            ApplicationID = item.ApplicationID,
+                                            ProjectListID = [.. item.ProjectID.Split(",").Where(s => string.IsNullOrWhiteSpace(s) == false).Distinct()],
+                                            LLMProvider = ParseLLMProvider(string.IsNullOrWhiteSpace(item.LLMProvider) == true ? item.DataProvider : item.LLMProvider),
+                                            ApiKey = item.IsEncryption.ParseBool() == true ? DecryptApiKey(item) : item.ApiKey,
+                                            ModelID = item.ModelID,
+                                            Endpoint = item.Endpoint
+                                        };
 
                                         if (DataSourceMappings.ContainsKey(tanantMap) == false)
                                         {
@@ -526,11 +543,11 @@ namespace prompter.Extensions
                 for (var j = 0; j < queryObject.Parameters.Count; j++)
                 {
                     var parameter = queryObject.Parameters[j];
-                    if (parameter.ParameterName.StartsWith("$") == true && parameter.Value != null)
+                    if (parameter.ParameterName.StartsWith('$') == true && parameter.Value != null)
                     {
                         tanantPattern = Regex.Replace(tanantPattern, "\\${" + parameter.ParameterName.SubstringSafe(1) + "}", parameter.Value.ToStringSafe());
                     }
-                    else if (parameter.ParameterName.StartsWith("#") == true && parameter.Value != null)
+                    else if (parameter.ParameterName.StartsWith('#') == true && parameter.Value != null)
                     {
                         tanantPattern = Regex.Replace(tanantPattern, "\\#{" + parameter.ParameterName.SubstringSafe(1) + "}", parameter.Value.ToStringSafe());
                     }
@@ -565,6 +582,8 @@ namespace prompter.Extensions
 
                 if (result == null)
                 {
+                    ArgumentNullException.ThrowIfNull(queryID);
+
                     var itemKeys = queryID.Split("|");
                     var applicationID = itemKeys[0];
                     var projectID = itemKeys[1];
@@ -712,7 +731,6 @@ namespace prompter.Extensions
 
         public static bool HasPrompt(string projectID, string businessID, string transactionID, string statementID)
         {
-            var result = false;
             var queryID = string.Concat(
                 projectID, "|",
                 businessID, "|",
@@ -720,7 +738,7 @@ namespace prompter.Extensions
                 statementID
             );
 
-            result = PromptMappings.ContainsKey(queryID);
+            var result = PromptMappings.ContainsKey(queryID);
 
             return result;
         }
@@ -752,6 +770,8 @@ namespace prompter.Extensions
                 }
                 catch (Exception exception)
                 {
+                    ArgumentNullException.ThrowIfNull(logger);
+
                     logger.Error("[{LogCategory}] " + $"{fileRelativePath} 업무 계약 파일 오류 - " + exception.ToMessage(), "PromptMapper/AddPromptMap");
                 }
             }
@@ -766,10 +786,13 @@ namespace prompter.Extensions
             var resultType = "Form";
             var argumentMap = "N";
 
+            ArgumentNullException.ThrowIfNull(promptMap);
             var parameters = extractParameters(queryObject, promptMap.MediaVariables.Select(item => item.Name));
 
-            var htmlDocument = new HtmlDocument();
-            htmlDocument.OptionDefaultStreamEncoding = Encoding.UTF8;
+            var htmlDocument = new HtmlDocument
+            {
+                OptionDefaultStreamEncoding = Encoding.UTF8
+            };
             htmlDocument.LoadHtml(promptMap.Prompt);
             var htmlNode = htmlDocument.DocumentNode.SelectSingleNode("//transaction");
             if (htmlNode != null)
@@ -792,20 +815,22 @@ namespace prompter.Extensions
                     argumentMap = attrArgumentMap.Value;
                 }
 
-                var children = new HtmlDocument();
-                children.OptionDefaultStreamEncoding = Encoding.UTF8;
+                var children = new HtmlDocument
+                {
+                    OptionDefaultStreamEncoding = Encoding.UTF8
+                };
                 children.LoadHtml(htmlNode.InnerHtml);
 
                 var childNodes = children.DocumentNode.ChildNodes;
                 foreach (var childNode in childNodes)
                 {
-                    arguments = arguments + ConvertChildren(childNode, parameters);
+                    arguments += ConvertChildren(childNode, parameters);
                 }
             }
 
             if (arguments != null)
             {
-                arguments = arguments + new string(' ', random.Next(1, 10));
+                arguments += new string(' ', random.Next(1, 10));
             }
 
             return (command, arguments, resultType, argumentMap);
@@ -815,6 +840,7 @@ namespace prompter.Extensions
         {
             var result = string.Empty;
 
+            ArgumentNullException.ThrowIfNull(promptMap);
             var parameters = extractParameters(queryObject, promptMap.MediaVariables.Select(item => item.Name));
 
             var children = promptMap.Chidren;
@@ -822,7 +848,7 @@ namespace prompter.Extensions
             var childNodes = children.DocumentNode.ChildNodes;
             foreach (var childNode in childNodes)
             {
-                result = result + ConvertChildren(childNode, parameters);
+                result += ConvertChildren(childNode, parameters);
             }
 
             if (string.IsNullOrEmpty(result) == true)
@@ -831,7 +857,7 @@ namespace prompter.Extensions
             }
             else
             {
-                result = result + new string(' ', random.Next(1, 10));
+                result += new string(' ', random.Next(1, 10));
             }
 
             return result;
@@ -844,8 +870,10 @@ namespace prompter.Extensions
 
         public static string ConvertParameterText(string text, JObject parameters)
         {
-            var htmlDocument = new HtmlDocument();
-            htmlDocument.OptionDefaultStreamEncoding = Encoding.UTF8;
+            var htmlDocument = new HtmlDocument
+            {
+                OptionDefaultStreamEncoding = Encoding.UTF8
+            };
             htmlDocument.LoadHtml(text);
 
             if (htmlDocument.DocumentNode.ChildNodes.Count == 0)
@@ -899,7 +927,7 @@ namespace prompter.Extensions
         private static JObject extractParameters(QueryObject? queryObject, IEnumerable<string>? excludedParameterNames = null)
         {
             var parameters = new JObject();
-            var excludedNames = new HashSet<string>((excludedParameterNames ?? Enumerable.Empty<string>()).Select(NormalizeParameterName), StringComparer.OrdinalIgnoreCase);
+            var excludedNames = new HashSet<string>((excludedParameterNames ?? []).Select(NormalizeParameterName), StringComparer.OrdinalIgnoreCase);
             if (queryObject != null)
             {
                 foreach (var item in queryObject.Parameters)
@@ -960,8 +988,7 @@ namespace prompter.Extensions
                         value = item.Value as DateTime?;
                         if (value == null && item.Value != null)
                         {
-                            DateTime dateTime;
-                            var isParse = DateTime.TryParse(item.Value.ToString(), out dateTime);
+                            var isParse = DateTime.TryParse(item.Value.ToString(), out var dateTime);
                             if (isParse == true)
                             {
                                 value = dateTime;
@@ -983,6 +1010,7 @@ namespace prompter.Extensions
         public static string ConvertChildren(HtmlNode htmlNode, JObject parameters)
         {
             var result = "";
+            ArgumentNullException.ThrowIfNull(htmlNode);
             var nodeType = htmlNode.NodeType.ToString();
             if (nodeType == "Text")
             {
@@ -997,7 +1025,7 @@ namespace prompter.Extensions
                     case "foreach":
                         return ConvertForeach(htmlNode, parameters);
                     case "bind":
-                        parameters = ConvertBind(htmlNode, parameters);
+                        _ = ConvertBind(htmlNode, parameters);
                         result = "";
                         break;
                     case "param":
@@ -1016,13 +1044,14 @@ namespace prompter.Extensions
         {
             var result = "";
             // JArray list = Eval.Execute<JArray>(htmlNode.Attributes["collection"].Value, parameters);
-            var list = parameters[htmlNode.Attributes["collection"].Value] as JArray;
-            if (list != null)
+            ArgumentNullException.ThrowIfNull(parameters);
+            ArgumentNullException.ThrowIfNull(htmlNode);
+            if (parameters[GetAttributeValue(htmlNode, "collection")] is JArray list)
             {
-                var item = htmlNode.Attributes["item"].Value;
-                var open = htmlNode.Attributes["open"] == null ? "" : htmlNode.Attributes["open"].Value;
-                var close = htmlNode.Attributes["close"] == null ? "" : htmlNode.Attributes["close"].Value;
-                var separator = htmlNode.Attributes["separator"] == null ? "" : htmlNode.Attributes["separator"].Value;
+                var item = GetAttributeValue(htmlNode, "item");
+                var open = GetAttributeValue(htmlNode, "open");
+                var close = GetAttributeValue(htmlNode, "close");
+                var separator = GetAttributeValue(htmlNode, "separator");
 
                 var foreachTexts = new List<string>();
                 foreach (var coll in list)
@@ -1034,11 +1063,11 @@ namespace prompter.Extensions
                     foreach (var childNode in htmlNode.ChildNodes)
                     {
                         var childrenText = ConvertChildren(childNode, foreachParam);
-                        childrenText = Regex.Replace(childrenText, "^\\s*$", "");
+                        childrenText = MyRegex1().Replace(childrenText, "");
 
                         if (string.IsNullOrEmpty(childrenText) == false)
                         {
-                            foreachText = foreachText + childrenText;
+                            foreachText += childrenText;
                         }
                     }
 
@@ -1056,7 +1085,9 @@ namespace prompter.Extensions
 
         public static string ConvertIf(HtmlNode htmlNode, JObject parameters)
         {
-            var evalString = htmlNode.Attributes["test"].Value;
+            ArgumentNullException.ThrowIfNull(htmlNode);
+
+            var evalString = GetAttributeValue(htmlNode, "test");
             evalString = ReplaceEvalString(evalString, parameters);
             evalString = evalString.Replace(" and ", " && ");
             evalString = evalString.Replace(" or ", " || ");
@@ -1071,7 +1102,7 @@ namespace prompter.Extensions
             {
                 foreach (var childNode in htmlNode.ChildNodes)
                 {
-                    convertString = convertString + ConvertChildren(childNode, parameters);
+                    convertString += ConvertChildren(childNode, parameters);
                 }
             }
 
@@ -1080,8 +1111,10 @@ namespace prompter.Extensions
 
         public static JObject ConvertBind(HtmlNode htmlNode, JObject parameters)
         {
-            var bindID = htmlNode.Attributes["name"].Value;
-            var evalString = htmlNode.Attributes["value"].Value;
+            ArgumentNullException.ThrowIfNull(htmlNode);
+
+            var bindID = GetAttributeValue(htmlNode, "name");
+            var evalString = GetAttributeValue(htmlNode, "value");
             evalString = ReplaceEvalString(evalString, parameters);
             var evalText = evalString.Replace("'", "\"");
             var evalResult = evalText;
@@ -1093,6 +1126,7 @@ namespace prompter.Extensions
                 evalResult = queryResult.First();
             }
 
+            ArgumentNullException.ThrowIfNull(parameters);
             parameters[bindID] = evalResult;
 
             return parameters;
@@ -1100,6 +1134,8 @@ namespace prompter.Extensions
 
         public static string ConvertParameter(HtmlNode htmlNode, JObject parameters)
         {
+            ArgumentNullException.ThrowIfNull(htmlNode);
+
             var convertString = htmlNode.InnerText;
             if (parameters != null && parameters.Count > 0)
             {
@@ -1109,10 +1145,10 @@ namespace prompter.Extensions
 
             try
             {
-                convertString = Regex.Replace(convertString, "&amp;", "&");
-                convertString = Regex.Replace(convertString, "&lt;", "<");
-                convertString = Regex.Replace(convertString, "&gt;", ">");
-                convertString = Regex.Replace(convertString, "&quot;", "\"");
+                convertString = MyRegex2().Replace(convertString, "&");
+                convertString = LessThanEntityRegex().Replace(convertString, "<");
+                convertString = GreaterThanEntityRegex().Replace(convertString, ">");
+                convertString = QuoteEntityRegex().Replace(convertString, "\"");
             }
             catch (Exception exception)
             {
@@ -1140,7 +1176,7 @@ namespace prompter.Extensions
                             var name = parameter.Key;
                             var value = parameter.Value.ToStringSafe();
 
-                            convertString = convertString.Replace("#{" + name + "}", "'" + value + "'");
+                            convertString = (convertString ?? throw new ArgumentNullException(nameof(convertString))).Replace("#{" + name + "}", "'" + value + "'");
                             convertString = convertString.Replace("${" + name + "}", value);
                         }
                     }
@@ -1152,6 +1188,8 @@ namespace prompter.Extensions
 
         public static string ReplaceEvalString(string evalString, JObject parameters)
         {
+            ArgumentNullException.ThrowIfNull(parameters);
+
             foreach (var parameter in parameters)
             {
                 if (parameter.Value != null)
@@ -1183,7 +1221,7 @@ namespace prompter.Extensions
 
         public static string ReplaceCData(string rawText)
         {
-            var matches = Regex.Matches(rawText, "(<!\\[CDATA\\[)([\\s\\S]*?)(\\]\\]>)");
+            var matches = CDataRegex().Matches(rawText);
 
             if (matches != null && matches.Count > 0)
             {
@@ -1195,14 +1233,17 @@ namespace prompter.Extensions
                     cdataText = cdataText.Replace(">", "&gt;");
                     cdataText = cdataText.Replace("\"", "&quot;");
 
+                    ArgumentNullException.ThrowIfNull(rawText);
                     rawText = rawText.Replace(match.Value, cdataText);
                 }
             }
             return rawText;
         }
 
-        public static void LoadContract(string environmentName, ILogger logger, IConfiguration configuration)
+        public static void LoadContract(ILogger logger)
         {
+            ArgumentNullException.ThrowIfNull(logger);
+
             try
             {
                 if (ModuleConfiguration.ContractBasePath.Count == 0)
@@ -1249,7 +1290,7 @@ namespace prompter.Extensions
         public static int ReloadDataSourceMappings(IEnumerable<LLMSource> llmSources, ILogger logger)
         {
             var candidates = new Dictionary<DataSourceTanantKey, DataSourceMap>();
-            foreach (var item in llmSources ?? Enumerable.Empty<LLMSource>())
+            foreach (var item in llmSources ?? [])
             {
                 if (Enum.TryParse(item.LLMProvider, true, out LLMProviders llmProvider) == false)
                 {
@@ -1271,13 +1312,15 @@ namespace prompter.Extensions
                 };
                 if (candidates.ContainsKey(tenantKey) == true)
                 {
+                    ArgumentNullException.ThrowIfNull(logger);
+
                     logger.Warning("[{LogCategory}] " + $"DataSourceMap 정보 중복 확인 필요 - ApplicationID - {item.ApplicationID}, ProjectID - {item.ProjectID}, DataSourceID - {item.DataSourceID}, LLMProvider - {item.LLMProvider}, TanantPattern - {item.TanantPattern}, TanantValue - {item.TanantValue}", "PromptMapper/ReloadDataSourceMappings");
                 }
 
                 candidates[tenantKey] = new DataSourceMap()
                 {
                     ApplicationID = item.ApplicationID,
-                    ProjectListID = item.ProjectID.Split(",").Where(value => string.IsNullOrWhiteSpace(value) == false).Distinct().ToList(),
+                    ProjectListID = [.. item.ProjectID.Split(",").Where(value => string.IsNullOrWhiteSpace(value) == false).Distinct()],
                     LLMProvider = llmProvider,
                     ApiKey = apiKey,
                     ModelID = item.ModelID,
@@ -1302,6 +1345,21 @@ namespace prompter.Extensions
 
             return candidates.Count;
         }
+
+        [GeneratedRegex("^(image|audio)/[a-z0-9][a-z0-9!#$&^_.+-]*$", RegexOptions.CultureInvariant)]
+        private static partial Regex MyRegex();
+        [GeneratedRegex("^\\s*$")]
+        private static partial Regex MyRegex1();
+        [GeneratedRegex("&amp;")]
+        private static partial Regex MyRegex2();
+        [GeneratedRegex("&lt;")]
+        private static partial Regex LessThanEntityRegex();
+        [GeneratedRegex("&gt;")]
+        private static partial Regex GreaterThanEntityRegex();
+        [GeneratedRegex("&quot;")]
+        private static partial Regex QuoteEntityRegex();
+        [GeneratedRegex("(<!\\[CDATA\\[)([\\s\\S]*?)(\\]\\]>)")]
+        private static partial Regex CDataRegex();
     }
 }
 

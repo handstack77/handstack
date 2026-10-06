@@ -2,8 +2,8 @@
 {
     public class LengthRule : BusinessRule
     {
-        private int minLength;
-        private int maxLength;
+        private readonly int minLength;
+        private readonly int maxLength;
 
         public LengthRule(string propertyName, int min, int max) : base(propertyName)
         {
@@ -21,7 +21,7 @@
         public override bool Validate(EntityObject businessObject)
         {
             var value = GetPropertyValue(businessObject);
-            var length = 0;
+            int length;
             if (value == null)
             {
                 return false;

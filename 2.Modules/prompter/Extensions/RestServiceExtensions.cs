@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Net;
 
 using HandStack.Core.ExtensionMethod;
@@ -15,6 +16,7 @@ namespace prompter.Extensions
         public static bool IsAllowAuthorization(this HttpContext httpContext)
         {
             string remoteIP = httpContext.GetRemoteIpAddress().ToStringSafe();
+            ArgumentNullException.ThrowIfNull(httpContext);
             bool isLocalRequest = httpContext.Connection.RemoteIpAddress != null && IPAddress.IsLoopback(httpContext.Connection.RemoteIpAddress);
             string? authorizationKey;
             if (isLocalRequest == true)

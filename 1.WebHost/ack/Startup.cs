@@ -67,7 +67,7 @@ namespace ack
     public class Startup
     {
         bool useContractSync = false;
-        string? startTime = null;
+        readonly string? startTime = null;
         bool useHttpLogging = false;
         bool useProxyForward = false;
         bool useResponseComression = false;
@@ -79,9 +79,9 @@ namespace ack
         long maxContractSyncFileBytes = 10485760;
         readonly IConfiguration configuration;
         readonly IWebHostEnvironment environment;
-        readonly SemaphoreSlim contentSecurityPolicyReloadLock = new SemaphoreSlim(1, 1);
-        readonly object contentSecurityPolicyReloadSync = new object();
-        static readonly ServerEventListener serverEventListener = new ServerEventListener();
+        readonly SemaphoreSlim contentSecurityPolicyReloadLock = new(1, 1);
+        readonly Lock contentSecurityPolicyReloadSync = new();
+        static readonly ServerEventListener serverEventListener = new();
         FileSystemWatcher? contentSecurityPolicyFileWatcher;
         Timer? contentSecurityPolicyReloadTimer;
 
@@ -142,22 +142,13 @@ namespace ack
             GlobalConfiguration.HardwareID = GetHardwareID();
             Console.WriteLine($"Current Hardware ID: {GlobalConfiguration.HardwareID}");
 
-            switch (GlobalConfiguration.RunningEnvironment)
+            environment.EnvironmentName = GlobalConfiguration.RunningEnvironment switch
             {
-                case "D":
-                    environment.EnvironmentName = "Development";
-                    break;
-                case "P":
-                    environment.EnvironmentName = "Production";
-                    break;
-                case "S":
-                    environment.EnvironmentName = "Staging";
-                    break;
-                default:
-                    environment.EnvironmentName = "Development";
-                    break;
-            }
-
+                "D" => "Development",
+                "P" => "Production",
+                "S" => "Staging",
+                _ => "Development",
+            };
             GlobalConfiguration.EnvironmentName = environment.EnvironmentName;
             GlobalConfiguration.RunningEnvironment = environment.EnvironmentName.SubstringSafe(0, 1);
 
@@ -290,7 +281,7 @@ namespace ack
             if (sectionPermissionRoles != null)
             {
                 var permissionRoles = sectionPermissionRoles.Get<List<PermissionRoles>>();
-                if (permissionRoles != null && permissionRoles.Any() == true)
+                if (permissionRoles != null && permissionRoles.Count != 0 == true)
                 {
                     foreach (var item in permissionRoles)
                     {
@@ -311,16 +302,18 @@ namespace ack
             GlobalConfiguration.WebRootPath = environment.WebRootPath;
             GlobalConfiguration.ContentRootPath = environment.ContentRootPath;
 
-            var domainAPIServer = new JObject();
-            domainAPIServer.Add("ExceptionText", null);
-            domainAPIServer.Add("RequestID", "");
-            domainAPIServer.Add("ServerID", appSettings["DomainAPIServer:ServerID"]);
-            domainAPIServer.Add("ServerType", appSettings["DomainAPIServer:ServerType"]);
-            domainAPIServer.Add("Protocol", appSettings["DomainAPIServer:Protocol"]);
-            domainAPIServer.Add("IP", appSettings["DomainAPIServer:IP"]);
-            domainAPIServer.Add("Port", appSettings["DomainAPIServer:Port"]);
-            domainAPIServer.Add("Path", appSettings["DomainAPIServer:Path"]);
-            domainAPIServer.Add("ClientIP", appSettings["DomainAPIServer:ClientIP"]);
+            var domainAPIServer = new JObject
+            {
+                { "ExceptionText", null },
+                { "RequestID", "" },
+                { "ServerID", appSettings["DomainAPIServer:ServerID"] },
+                { "ServerType", appSettings["DomainAPIServer:ServerType"] },
+                { "Protocol", appSettings["DomainAPIServer:Protocol"] },
+                { "IP", appSettings["DomainAPIServer:IP"] },
+                { "Port", appSettings["DomainAPIServer:Port"] },
+                { "Path", appSettings["DomainAPIServer:Path"] },
+                { "ClientIP", appSettings["DomainAPIServer:ClientIP"] }
+            };
             GlobalConfiguration.DomainAPIServer = domainAPIServer;
 
             if (useResponseComression == true)
@@ -461,7 +454,7 @@ namespace ack
                         .AllowAnyHeader()
                         .AllowAnyMethod()
                         .AllowCredentials()
-                        .WithOrigins(GlobalConfiguration.WithOrigins.ToArray())
+                        .WithOrigins([.. GlobalConfiguration.WithOrigins])
                         .SetIsOriginAllowedToAllowWildcardSubdomains()
                         .SetPreflightMaxAge(TimeSpan.FromSeconds(86400))
                         .WithHeaders(HeaderNames.CacheControl)
@@ -528,7 +521,7 @@ namespace ack
                                             builder => builder
                                                 .AllowAnyHeader()
                                                 .AllowAnyMethod()
-                                                .WithOrigins(withOriginUri.ToArray())
+                                                .WithOrigins([.. withOriginUri])
                                                 .SetIsOriginAllowedToAllowWildcardSubdomains()
                                                 .SetPreflightMaxAge(TimeSpan.FromSeconds(86400))
                                                 .WithHeaders(HeaderNames.CacheControl)
@@ -752,8 +745,7 @@ namespace ack
                         var instance = Activator.CreateInstance(moduleInitializerType);
                         if (instance != null)
                         {
-                            var moduleInitializer = instance as IModuleInitializer;
-                            if (moduleInitializer != null)
+                            if (instance is IModuleInitializer moduleInitializer)
                             {
                                 try
                                 {
@@ -804,14 +796,14 @@ namespace ack
                                         }
                                     }
 
-                                    services.AddSingleton(typeof(IModuleInitializer), moduleInitializer);
+                                    services.AddSingleton(moduleInitializer);
                                     if (moduleInitializer is IModuleRuntimeConfiguration moduleRuntimeConfiguration)
                                     {
-                                        services.AddSingleton(typeof(IModuleRuntimeConfiguration), moduleRuntimeConfiguration);
+                                        services.AddSingleton(moduleRuntimeConfiguration);
                                     }
                                     if (moduleInitializer is IModuleRuntimeConfigurationPropertyHandler moduleRuntimeConfigurationPropertyHandler)
                                     {
-                                        services.AddSingleton(typeof(IModuleRuntimeConfigurationPropertyHandler), moduleRuntimeConfigurationPropertyHandler);
+                                        services.AddSingleton(moduleRuntimeConfigurationPropertyHandler);
                                     }
 
                                     moduleInitializer.ConfigureServices(services, environment, configuration);
@@ -836,6 +828,8 @@ namespace ack
         {
             if (isEnabledCSP == true)
             {
+                ArgumentNullException.ThrowIfNull(applicationLifetime);
+
                 InitializeContentSecurityPolicyFileWatcher(applicationLifetime);
             }
 
@@ -927,17 +921,17 @@ namespace ack
                                 var pattern = "";
                                 if (string.IsNullOrWhiteSpace(publicRole.ApplicationID) == false)
                                 {
-                                    pattern = pattern + $"[\\/]{publicRole.ApplicationID}";
+                                    pattern += $"[\\/]{publicRole.ApplicationID}";
                                 }
 
                                 if (string.IsNullOrWhiteSpace(publicRole.ProjectID) == false)
                                 {
-                                    pattern = pattern + $"[\\/]{publicRole.ProjectID}";
+                                    pattern += $"[\\/]{publicRole.ProjectID}";
                                 }
 
                                 if (string.IsNullOrWhiteSpace(publicRole.TransactionID) == false)
                                 {
-                                    pattern = pattern + $"[\\/]{publicRole.TransactionID}";
+                                    pattern += $"[\\/]{publicRole.TransactionID}";
                                 }
 
                                 var allowTransactionPattern = new Regex(pattern);
@@ -958,7 +952,7 @@ namespace ack
                                 if (user != null)
                                 {
                                     var userRoles = user.ApplicationRoleID.SplitComma();
-                                    if (userRoles.Any() == true)
+                                    if (userRoles.Count != 0 == true)
                                     {
                                         foreach (var permissionRole in permissionRoles.Where(x => x.RoleID != "Public"))
                                         {
@@ -968,17 +962,17 @@ namespace ack
                                                 var pattern = "";
                                                 if (string.IsNullOrWhiteSpace(permissionRole.ApplicationID) == false)
                                                 {
-                                                    pattern = pattern + $"[\\/]{permissionRole.ApplicationID}";
+                                                    pattern += $"[\\/]{permissionRole.ApplicationID}";
                                                 }
 
                                                 if (string.IsNullOrWhiteSpace(permissionRole.ProjectID) == false)
                                                 {
-                                                    pattern = pattern + $"[\\/]{permissionRole.ProjectID}";
+                                                    pattern += $"[\\/]{permissionRole.ProjectID}";
                                                 }
 
                                                 if (string.IsNullOrWhiteSpace(permissionRole.TransactionID) == false)
                                                 {
-                                                    pattern = pattern + $"[\\/]{permissionRole.TransactionID}";
+                                                    pattern += $"[\\/]{permissionRole.TransactionID}";
                                                 }
 
                                                 var allowTransactionPattern = new Regex(pattern);
@@ -1140,9 +1134,11 @@ namespace ack
 
                     if (context.RequestServices.GetService<IProblemDetailsService>() is { } problemDetailsService)
                     {
-                        var problemDetails = new ProblemDetails();
-                        problemDetails.Status = StatusCodes.Status400BadRequest;
-                        problemDetails.Title = "유효하지 않는 요청입니다";
+                        var problemDetails = new ProblemDetails
+                        {
+                            Status = StatusCodes.Status400BadRequest,
+                            Title = "유효하지 않는 요청입니다"
+                        };
 
                         if (exceptionType != null)
                         {
@@ -1251,6 +1247,7 @@ namespace ack
                 }
             }
 
+            ArgumentNullException.ThrowIfNull(app);
             var moduleInitializers = app.ApplicationServices.GetServices<IModuleInitializer>();
             foreach (var moduleInitializer in moduleInitializers)
             {
@@ -1459,9 +1456,9 @@ namespace ack
                                 {
                                     ProcessID = Environment.ProcessId,
                                     StartTime = startTime,
-                                    ApplicationName = GlobalConfiguration.ApplicationName,
-                                    RunningEnvironment = GlobalConfiguration.RunningEnvironment,
-                                    HostName = GlobalConfiguration.HostName,
+                                    GlobalConfiguration.ApplicationName,
+                                    GlobalConfiguration.RunningEnvironment,
+                                    GlobalConfiguration.HostName,
                                     CoreVersion = Environment.Version.ToString()
                                 },
                                 SystemRuntime = systemRuntimeMetrics,
@@ -1519,7 +1516,7 @@ namespace ack
                     }
                 });
 
-                RequestDelegate getGlobalConfiguration = async context =>
+                async Task getGlobalConfiguration(HttpContext context)
                 {
                     try
                     {
@@ -1545,9 +1542,9 @@ namespace ack
                         Log.Error(exception, "[{LogCategory}] 런타임 전역 설정 조회 실패", "Startup/globalconfiguration");
                         context.Response.StatusCode = StatusCodes.Status500InternalServerError;
                     }
-                };
+                }
 
-                RequestDelegate getUpdateManifest = async context =>
+                async Task getUpdateManifest(HttpContext context)
                 {
                     try
                     {
@@ -1655,9 +1652,9 @@ namespace ack
                         Log.Error(exception, "[{LogCategory}] 로컬 manifest 조회 실패", "Startup/manifest");
                         context.Response.StatusCode = StatusCodes.Status500InternalServerError;
                     }
-                };
+                }
 
-                RequestDelegate applyGlobalConfiguration = async context =>
+                async Task applyGlobalConfiguration(HttpContext context)
                 {
                     try
                     {
@@ -1706,9 +1703,9 @@ namespace ack
                         Log.Error(exception, "[{LogCategory}] 런타임 전역 설정 반영 실패", "Startup/globalconfiguration/apply");
                         context.Response.StatusCode = StatusCodes.Status500InternalServerError;
                     }
-                };
+                }
 
-                RequestDelegate getModuleMediatorConfiguration = async context =>
+                async Task getModuleMediatorConfiguration(HttpContext context)
                 {
                     try
                     {
@@ -1734,9 +1731,9 @@ namespace ack
                         Log.Error(exception, "[{LogCategory}] 모듈 Mediator 설정 조회 실패", "Startup/moduleconfiguration/mediator");
                         context.Response.StatusCode = StatusCodes.Status500InternalServerError;
                     }
-                };
+                }
 
-                RequestDelegate applyModuleMediatorConfiguration = async context =>
+                async Task applyModuleMediatorConfiguration(HttpContext context, string moduleID)
                 {
                     try
                     {
@@ -1747,7 +1744,6 @@ namespace ack
                             return;
                         }
 
-                        var moduleID = context.Request.RouteValues["moduleID"]?.ToStringSafe();
                         if (string.IsNullOrWhiteSpace(moduleID) == true)
                         {
                             context.Response.StatusCode = StatusCodes.Status400BadRequest;
@@ -1797,7 +1793,7 @@ namespace ack
                         Log.Error(exception, "[{LogCategory}] 모듈 Mediator 설정 반영 실패", "Startup/moduleconfiguration/mediator/apply");
                         context.Response.StatusCode = StatusCodes.Status500InternalServerError;
                     }
-                };
+                }
 
                 endpoints.MapGet("/globalconfiguration", getGlobalConfiguration);
                 endpoints.MapGet("/globalconfigration", getGlobalConfiguration);
@@ -1812,7 +1808,7 @@ namespace ack
 
                 endpoints.MapGet("/checkip", async context =>
                 {
-                    context.Response.Headers["Content-Type"] = "text/html";
+                    context.Response.Headers.ContentType = "text/html";
                     await context.Response.WriteAsync(context.GetRemoteIpAddress().ToStringSafe());
                 });
 
@@ -1858,13 +1854,13 @@ namespace ack
                 });
 
                 // curl --location "http://localhost:8421/secrets/[name]" --header "HandStack-MachineID: [Current Hardware ID]" --header "HandStack-IP: [LocalIP]" --header "HandStack-HostName: [HostName]" --header "HandStack-Environment: [EnvironmentName]"
-                endpoints.MapGet("/secrets/{name}", async context =>
+                endpoints.MapGet("/secrets/{name}", async (HttpContext context, string name) =>
                 {
                     try
                     {
                         var secretService = context.RequestServices.GetRequiredService<SecretService>();
 
-                        var keyName = context.Request.RouteValues["name"]?.ToString();
+                        var keyName = name;
                         if (string.IsNullOrWhiteSpace(keyName))
                         {
                             context.Response.StatusCode = StatusCodes.Status400BadRequest;
@@ -1998,13 +1994,13 @@ namespace ack
                 });
 
                 // curl --location --request DELETE "http://localhost:8421/secrets/[name]" --header "HandStack-MachineID: [Current Hardware ID]" --header "HandStack-IP: [LocalIP]" --header "HandStack-HostName: [HostName]" --header "HandStack-Environment: [EnvironmentName]"
-                endpoints.MapDelete("/secrets/{name}", async context =>
+                endpoints.MapDelete("/secrets/{name}", async (HttpContext context, string name) =>
                 {
                     try
                     {
                         var secretService = context.RequestServices.GetRequiredService<SecretService>();
 
-                        var keyName = context.Request.RouteValues["name"]?.ToString();
+                        var keyName = name;
                         if (string.IsNullOrWhiteSpace(keyName))
                         {
                             context.Response.StatusCode = StatusCodes.Status400BadRequest;
@@ -2058,7 +2054,7 @@ namespace ack
             }
         }
 
-        private string BuildPrometheusMetricsPayload(ApiRequestMetricsCollector apiRequestMetricsCollector)
+        private static string BuildPrometheusMetricsPayload(ApiRequestMetricsCollector apiRequestMetricsCollector)
         {
             var systemRuntimeMetrics = serverEventListener.GetSystemRuntimeMetrics();
             var aspNetCoreHostingMetrics = serverEventListener.GetAspNetCoreHostingMetrics();
@@ -2340,6 +2336,8 @@ namespace ack
 
             try
             {
+                ArgumentNullException.ThrowIfNull(sourceStream);
+
                 sourceStream.Position = 0;
                 await sourceStream.CopyToAsync(destStream);
                 Log.Information("[{LogCategory}]" + $"{destFileName} 복사 완료", "Startup/contractsync");
@@ -2367,8 +2365,8 @@ namespace ack
 
             if (IsSensitiveManagementPath(context.Request.Path) == true)
             {
-                headers["Cache-Control"] = "no-store, no-cache, max-age=0";
-                headers["Pragma"] = "no-cache";
+                headers.CacheControl = "no-store, no-cache, max-age=0";
+                headers.Pragma = "no-cache";
             }
         }
 
@@ -2427,7 +2425,7 @@ namespace ack
             return string.IsNullOrWhiteSpace(hostAccessID) == false && GlobalConfiguration.HostAccessID == hostAccessID;
         }
 
-        private bool IsAllowOnlyClientIP(HttpContext context)
+        private static bool IsAllowOnlyClientIP(HttpContext context)
         {
             return WithOnlyIPFilter.IsAllowed(context);
         }
@@ -2482,7 +2480,7 @@ namespace ack
             return bool.TryParse(value, out var enabled) == true && enabled == true;
         }
 
-        private async Task WriteIPForbiddenResponse(HttpContext context)
+        private static async Task WriteIPForbiddenResponse(HttpContext context)
         {
             var clientIP = WithOnlyIPFilter.GetClientIPAddress(context);
             Log.Warning("[{LogCategory}] " + $"허용되지 않은 클라이언트 IP 접근 차단, Path: {context.Request.Path}, ClientIP: {clientIP}", "Startup/WithOnlyIPFilter");
@@ -2508,7 +2506,7 @@ namespace ack
                     string? hostID = string.Empty;
                     try
                     {
-                        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == true)
+                        if (OperatingSystem.IsWindows())
                         {
                             result = GetWindowsHardwareID();
                         }
@@ -2563,7 +2561,7 @@ namespace ack
                     string? hostID = string.Empty;
                     try
                     {
-                        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == true)
+                        if (OperatingSystem.IsWindows())
                         {
                             hostID = GetWindowsHardwareID();
                         }
@@ -2602,6 +2600,7 @@ namespace ack
             return result;
         }
 
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         protected string GetWindowsHardwareID()
         {
             using var key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Cryptography");
@@ -2610,7 +2609,7 @@ namespace ack
 
         protected string GetLinuxHardwareID()
         {
-            string[] paths = { "/etc/machine-id", "/var/lib/dbus/machine-id" };
+            string[] paths = ["/etc/machine-id", "/var/lib/dbus/machine-id"];
             foreach (var path in paths)
             {
                 if (File.Exists(path))

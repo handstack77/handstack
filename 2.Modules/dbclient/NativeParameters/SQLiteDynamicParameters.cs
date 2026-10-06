@@ -10,8 +10,8 @@ namespace dbclient.NativeParameters
 {
     public class SQLiteDynamicParameters : SqlMapper.IDynamicParameters
     {
-        public readonly DynamicParameters dynamicParameters = new DynamicParameters();
-        public readonly List<SQLiteParameter> sqlliteParameters = new List<SQLiteParameter>();
+        public readonly DynamicParameters dynamicParameters = new();
+        public readonly List<SQLiteParameter> sqlliteParameters = [];
 
         public void Add(string name, object? value = null, DbType sqlliteDbType = DbType.String, ParameterDirection direction = ParameterDirection.Input, int? size = null)
         {
@@ -20,23 +20,29 @@ namespace dbclient.NativeParameters
             {
                 if (size.Value <= 0)
                 {
-                    sqlliteParameter = new SQLiteParameter(name, sqlliteDbType);
-                    sqlliteParameter.Value = value;
-                    sqlliteParameter.Direction = direction;
+                    sqlliteParameter = new SQLiteParameter(name, sqlliteDbType)
+                    {
+                        Value = value,
+                        Direction = direction
+                    };
                 }
                 else
                 {
-                    sqlliteParameter = new SQLiteParameter(name, sqlliteDbType);
-                    sqlliteParameter.Value = value;
-                    sqlliteParameter.Direction = direction;
-                    sqlliteParameter.Size = size.Value;
+                    sqlliteParameter = new SQLiteParameter(name, sqlliteDbType)
+                    {
+                        Value = value,
+                        Direction = direction,
+                        Size = size.Value
+                    };
                 }
             }
             else
             {
-                sqlliteParameter = new SQLiteParameter(name, sqlliteDbType);
-                sqlliteParameter.Value = value;
-                sqlliteParameter.Direction = direction;
+                sqlliteParameter = new SQLiteParameter(name, sqlliteDbType)
+                {
+                    Value = value,
+                    Direction = direction
+                };
             }
 
             sqlliteParameters.Add(sqlliteParameter);
@@ -47,15 +53,9 @@ namespace dbclient.NativeParameters
             ((SqlMapper.IDynamicParameters)dynamicParameters).AddParameters(command, identity);
 
             dynamic? dynamicCommand = command as SQLiteCommand;
-            if (dynamicCommand == null)
-            {
-                dynamicCommand = command as ProfilerDbCommand;
-            }
+            dynamicCommand ??= command as ProfilerDbCommand;
 
-            if (dynamicCommand != null)
-            {
-                dynamicCommand.Parameters.AddRange(sqlliteParameters.ToArray());
-            }
+            dynamicCommand?.Parameters.AddRange(sqlliteParameters.ToArray());
         }
     }
 }

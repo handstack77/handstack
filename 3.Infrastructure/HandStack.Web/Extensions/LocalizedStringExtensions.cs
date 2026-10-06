@@ -9,6 +9,8 @@ namespace HandStack.Web.Extensions
     {
         public static Func<int, LocalizedHtmlString> GetTextPartsFunction(this LocalizedHtmlString localizedHtmlString, params string[] splitTokens)
         {
+            ArgumentNullException.ThrowIfNull(localizedHtmlString);
+
             var originalTextParts = localizedHtmlString.Name.Split(splitTokens, StringSplitOptions.None).ToList();
             var localizedTextParts = localizedHtmlString.Value.Split(splitTokens, StringSplitOptions.None).ToList();
 

@@ -61,10 +61,10 @@ namespace prompter.DataClient
             FrequencyPenalty = 0.0;
             Think = false;
             Stream = false;
-            ChatHistory = new List<LLMChatMessage>();
-            Tools = new List<LLMToolDefinition>();
-            Headers = new Dictionary<string, string>();
-            QueryParameters = new Dictionary<string, string>();
+            ChatHistory = [];
+            Tools = [];
+            Headers = [];
+            QueryParameters = [];
             Body = new LLMRequestBody();
             ToolMode = "none";
         }
@@ -90,8 +90,8 @@ namespace prompter.DataClient
             Content = "";
             Name = "";
             ToolCallID = "";
-            ToolCalls = new List<LLMToolCall>();
-            Media = new List<LLMChatMedia>();
+            ToolCalls = [];
+            Media = [];
         }
 
         public LLMChatMessage(string role, string content) : this()
@@ -137,7 +137,7 @@ namespace prompter.DataClient
             FunctionName = "";
             DisplayName = "";
             Description = "";
-            Parameters = new JObject();
+            Parameters = [];
             Source = null;
         }
     }
@@ -169,7 +169,7 @@ namespace prompter.DataClient
         public LLMChatResponse()
         {
             Content = "";
-            ToolCalls = new List<LLMToolCall>();
+            ToolCalls = [];
             Raw = null;
         }
     }
@@ -186,7 +186,7 @@ namespace prompter.DataClient
         {
             Type = "";
             RawText = "";
-            Parts = new List<LLMRequestBodyPart>();
+            Parts = [];
         }
     }
 

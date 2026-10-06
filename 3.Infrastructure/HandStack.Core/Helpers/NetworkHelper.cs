@@ -36,9 +36,10 @@ namespace HandStack.Core.Helpers
                 using (new TcpClient(addressFamily))
                 {
                     var pingSender = new Ping();
-                    var options = new PingOptions();
-
-                    options.DontFragment = true;
+                    var options = new PingOptions
+                    {
+                        DontFragment = true
+                    };
 
                     var buffer = Encoding.ASCII.GetBytes("");
                     var timeout = 120;

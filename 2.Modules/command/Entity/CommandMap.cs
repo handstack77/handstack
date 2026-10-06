@@ -109,7 +109,7 @@ namespace command.Entity
             Arguments = "";
             WorkingDirectory = "";
             EnvironmentVariables = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-            SuccessExitCodes = new List<int>() { 0 };
+            SuccessExitCodes = [0];
             Method = "GET";
             Url = "";
             QueryParameters = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
@@ -118,9 +118,9 @@ namespace command.Entity
             ContentType = "application/json";
             Body = "";
             BodyType = "raw";
-            BodyParts = new List<CommandBodyPartMap>();
-            Parameters = new List<CommandParameterMap>();
-            OutputMetas = new List<string>();
+            BodyParts = [];
+            Parameters = [];
+            OutputMetas = [];
             ModifiedAt = DateTime.MinValue;
         }
     }
@@ -138,8 +138,8 @@ namespace command.Entity
         public CommandContract()
         {
             Header = new CommandContractHeader();
-            Commands = new List<CommandContractCli>();
-            Requests = new List<CommandContractRequest>();
+            Commands = [];
+            Requests = [];
             ModifiedAt = DateTime.MinValue;
         }
     }
@@ -215,9 +215,9 @@ namespace command.Entity
             Arguments = "";
             WorkingDirectory = "";
             EnvironmentVariables = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-            SuccessExitCodes = new List<int>() { 0 };
-            Parameters = new List<CommandParameterMap>();
-            OutputMetas = new List<string>();
+            SuccessExitCodes = [0];
+            Parameters = [];
+            OutputMetas = [];
         }
     }
 
@@ -276,9 +276,9 @@ namespace command.Entity
             ContentType = "application/json";
             Body = "";
             BodyType = "raw";
-            BodyParts = new List<CommandBodyPartMap>();
-            Parameters = new List<CommandParameterMap>();
-            OutputMetas = new List<string>();
+            BodyParts = [];
+            Parameters = [];
+            OutputMetas = [];
         }
     }
 

@@ -75,7 +75,7 @@ namespace repository
                         ModuleConfiguration.ContractBasePath.Clear();
                         ModuleConfiguration.FileRepositorys.Clear();
                         ModuleConfiguration.IsContractFileWatching = moduleConfig.IsContractFileWatching;
-                        foreach (var basePath in moduleConfig.ContractBasePath ?? new List<string>())
+                        foreach (var basePath in moduleConfig.ContractBasePath ?? [])
                         {
                             var contractBasePath = GlobalConfiguration.GetBaseDirectoryPath(basePath);
                             if (string.IsNullOrWhiteSpace(contractBasePath) == false && ModuleConfiguration.ContractBasePath.Contains(contractBasePath) == false)
@@ -90,7 +90,7 @@ namespace repository
                         ModuleConfiguration.IsModuleLogging = !string.IsNullOrWhiteSpace(moduleConfig.ModuleLogFilePath);
                         ModuleConfiguration.ModuleFilePath = GlobalConfiguration.GetBaseDirectoryPath(moduleConfig.ModuleFilePath);
 
-                        ModuleConfiguration.AllowClientIP = (moduleConfig.AllowClientIP ?? new List<string>() { "*" })
+                        ModuleConfiguration.AllowClientIP = (moduleConfig.AllowClientIP ?? ["*"])
                             .Where(p => string.IsNullOrWhiteSpace(p) == false)
                             .Select(p => p.Trim())
                             .Distinct(StringComparer.OrdinalIgnoreCase)
@@ -115,6 +115,7 @@ namespace repository
                     throw new FileNotFoundException(message);
                 }
 
+                ArgumentNullException.ThrowIfNull(environment);
                 RepositoryMapper.LoadContract(environment.EnvironmentName, Log.Logger, configuration);
 
                 services.AddScoped<ModuleApiClient>();
@@ -215,7 +216,7 @@ namespace repository
                                             else
                                             {
                                                 var referer = httpContext.Context.Request.Headers.Referer.ToString();
-                                                if (referer.EndsWith("/") == true)
+                                                if (referer.EndsWith('/') == true)
                                                 {
                                                     referer = referer.SubstringSafe(0, referer.Length - 1);
                                                 }
@@ -398,6 +399,7 @@ namespace repository
                     }
                 }
 
+                ArgumentNullException.ThrowIfNull(app);
                 var serviceScopeFactory = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>();
                 foreach (var basePath in ModuleConfiguration.ContractBasePath)
                 {
@@ -443,7 +445,7 @@ namespace repository
 
     internal class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
             Console.WriteLine("repository");
         }

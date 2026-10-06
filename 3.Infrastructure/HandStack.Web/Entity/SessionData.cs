@@ -10,7 +10,7 @@ namespace HandStack.Web.Entity
             UserName = "";
             UserNo = "";
             ClientIP = "";
-            Roles = new List<string>();
+            Roles = [];
         }
 
         public string UserID { get; set; }

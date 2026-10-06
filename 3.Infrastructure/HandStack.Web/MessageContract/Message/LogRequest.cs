@@ -46,73 +46,73 @@ namespace HandStack.Web.MessageContract.Message
             ProgramID = "";
         }
 
-        [JsonProperty("LogNo")]
+        [JsonProperty(nameof(LogNo))]
         public long LogNo { get; set; }
 
-        [JsonProperty("ServerID")]
+        [JsonProperty(nameof(ServerID))]
         public string ServerID { get; set; }
 
-        [JsonProperty("RunningEnvironment")]
+        [JsonProperty(nameof(RunningEnvironment))]
         public string RunningEnvironment { get; set; }
 
-        [JsonProperty("ProgramName")]
+        [JsonProperty(nameof(ProgramName))]
         public string ProgramName { get; set; }
 
-        [JsonProperty("GlobalID")]
+        [JsonProperty(nameof(GlobalID))]
         public string GlobalID { get; set; }
 
-        [JsonProperty("Acknowledge")]
+        [JsonProperty(nameof(Acknowledge))]
         public string Acknowledge { get; set; }
 
-        [JsonProperty("ApplicationID")]
+        [JsonProperty(nameof(ApplicationID))]
         public string ApplicationID { get; set; }
 
-        [JsonProperty("ProjectID")]
+        [JsonProperty(nameof(ProjectID))]
         public string ProjectID { get; set; }
 
-        [JsonProperty("TransactionID")]
+        [JsonProperty(nameof(TransactionID))]
         public string TransactionID { get; set; }
 
-        [JsonProperty("ServiceID")]
+        [JsonProperty(nameof(ServiceID))]
         public string ServiceID { get; set; }
 
-        [JsonProperty("Type")]
+        [JsonProperty(nameof(Type))]
         public string Type { get; set; }
 
-        [JsonProperty("Flow")]
+        [JsonProperty(nameof(Flow))]
         public string Flow { get; set; }
 
-        [JsonProperty("Level")]
+        [JsonProperty(nameof(Level))]
         public string Level { get; set; }
 
-        [JsonProperty("Format")]
+        [JsonProperty(nameof(Format))]
         public string Format { get; set; }
 
-        [JsonProperty("Message")]
+        [JsonProperty(nameof(Message))]
         public string Message { get; set; }
 
-        [JsonProperty("Properties")]
+        [JsonProperty(nameof(Properties))]
         public string Properties { get; set; }
 
-        [JsonProperty("UserID")]
+        [JsonProperty(nameof(UserID))]
         public string UserID { get; set; }
 
-        [JsonProperty("CreatedAt")]
+        [JsonProperty(nameof(CreatedAt))]
         public string CreatedAt { get; set; }
 
-        [JsonProperty("StartedAt")]
+        [JsonProperty(nameof(StartedAt))]
         public string StartedAt { get; set; }
 
-        [JsonProperty("EndedAt")]
+        [JsonProperty(nameof(EndedAt))]
         public string EndedAt { get; set; }
 
-        [JsonProperty("IpAddress")]
+        [JsonProperty(nameof(IpAddress))]
         public string IpAddress { get; set; }
 
-        [JsonProperty("DeviceID")]
+        [JsonProperty(nameof(DeviceID))]
         public string DeviceID { get; set; }
 
-        [JsonProperty("ProgramID")]
+        [JsonProperty(nameof(ProgramID))]
         public string ProgramID { get; set; }
     }
 }

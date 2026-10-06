@@ -16,7 +16,7 @@ namespace HandStack.Web.MessageContract.Message
             ApplicationID = "";
             LocaleID = "";
             IsFmtOnly = false;
-            CodeHelpObjects = new List<CodeHelpObject>();
+            CodeHelpObjects = [];
         }
 
         public ExecuteCodeHelpTypeObject ReturnType { get; set; }

@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Text;
 
 namespace HandStack.Core.ExtensionMethod
@@ -7,6 +8,9 @@ namespace HandStack.Core.ExtensionMethod
     {
         public static string GetAsString(this MemoryStream @this, Encoding encoding)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+            ArgumentNullException.ThrowIfNull(encoding);
+
             if (@this.GetType() == typeof(MemoryStream) && @this.TryGetBuffer(out var buffer))
             {
                 return encoding.GetString(buffer.Array!, buffer.Offset, buffer.Count);
@@ -22,7 +26,10 @@ namespace HandStack.Core.ExtensionMethod
 
         public static void WriteString(this MemoryStream @this, string inputString, Encoding encoding)
         {
+            ArgumentNullException.ThrowIfNull(encoding);
+
             var buffer = encoding.GetBytes(inputString);
+            ArgumentNullException.ThrowIfNull(@this);
             @this.Write(buffer, 0, buffer.Length);
         }
 

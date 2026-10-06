@@ -14,26 +14,24 @@ using Serilog;
 
 namespace HandStack.Web.ApiClient
 {
-    public class MediatorClient : IDisposable
+    public class MediatorClient(ILogger logger, IMediator mediator) : IDisposable
     {
-        private readonly IMediator mediator;
-        private readonly ILogger logger;
+        private readonly IMediator mediator = mediator;
+        private readonly ILogger logger = logger;
 
-        private static Dictionary<string, JObject> apiServices = new Dictionary<string, JObject>();
-
-        public MediatorClient(ILogger logger, IMediator mediator)
-        {
-            this.logger = logger;
-            this.mediator = mediator;
-        }
+        private static readonly Dictionary<string, JObject> apiServices = [];
 
         public async Task<MediatorResponse> SendAsync(MediatorRequest mediatorRequest)
         {
-            var result = new MediatorResponse();
-            result.Acknowledge = AcknowledgeType.Failure;
-            result.ResponseID = string.Concat(GlobalConfiguration.SystemID, GlobalConfiguration.HostName, mediatorRequest.ReturnType, DateTime.Now.ToString("yyyyMMddHHmmss"));
-            result.CorrelationID = mediatorRequest.GlobalID;
-            result.Environment = GlobalConfiguration.EnvironmentName;
+            ArgumentNullException.ThrowIfNull(mediatorRequest);
+
+            var result = new MediatorResponse
+            {
+                Acknowledge = AcknowledgeType.Failure,
+                ResponseID = string.Concat(GlobalConfiguration.SystemID, GlobalConfiguration.HostName, mediatorRequest.ReturnType, DateTime.Now.ToString("yyyyMMddHHmmss")),
+                CorrelationID = mediatorRequest.GlobalID,
+                Environment = GlobalConfiguration.EnvironmentName
+            };
 
             var actionModuleID = mediatorRequest.ActionModuleID;
             var subscribeEventID = mediatorRequest.SubscribeEventID;
@@ -84,6 +82,8 @@ namespace HandStack.Web.ApiClient
 
         public async Task PublishAsync(MediatorRequest mediatorRequest)
         {
+            ArgumentNullException.ThrowIfNull(mediatorRequest);
+
             var actionModuleID = mediatorRequest.ActionModuleID;
             var subscribeEventID = mediatorRequest.SubscribeEventID;
 
@@ -117,7 +117,7 @@ namespace HandStack.Web.ApiClient
             }
         }
 
-        private bool CheckModuleEventAction(string actionModuleID, string subscribeEventID)
+        private static bool CheckModuleEventAction(string actionModuleID, string subscribeEventID)
         {
             var result = false;
             foreach (var module in GlobalConfiguration.Modules)
@@ -141,6 +141,7 @@ namespace HandStack.Web.ApiClient
 
         public void Dispose()
         {
+            GC.SuppressFinalize(this);
         }
     }
 }

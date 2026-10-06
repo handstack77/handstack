@@ -5,34 +5,26 @@ using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-
+using HandStack.Core.ExtensionMethod;
 using HandStack.Web.Common;
 using HandStack.Web.Extensions;
-
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-
 using Serilog;
-using HandStack.Core.ExtensionMethod;
 
 namespace forwarder.Areas.forwarder.Controllers
 {
     [Area("forwarder")]
     [Route("[area]/api/forward-proxy-lab")]
     [ApiController]
-    public class ForwardProxyLabController : BaseController
+    public class ForwardProxyLabController(ILogger logger) : BaseController
     {
-        private static readonly HttpClient ProxyClient = new HttpClient
+        private static readonly HttpClient ProxyClient = new()
         {
             Timeout = Timeout.InfiniteTimeSpan
         };
 
-        private readonly ILogger logger;
-
-        public ForwardProxyLabController(ILogger logger)
-        {
-            this.logger = logger;
-        }
+        private readonly ILogger logger = logger;
 
         [HttpGet]
         public string Get()
@@ -160,7 +152,7 @@ namespace forwarder.Areas.forwarder.Controllers
                             <dl class="lab-meta">
                                 <div><dt>단계</dt><dd>{{step ?? "entry"}}</dd></div>
                                 <div><dt>쿠키</dt><dd id="cookieValue">{{cookieValue}}</dd></div>
-                                <div><dt>User-Agent</dt><dd>{{Request.Headers.UserAgent.ToString()}}</dd></div>
+                                <div><dt>User-Agent</dt><dd>{{Request.Headers.UserAgent}}</dd></div>
                             </dl>
                         </article>
                         <article class="lab-panel">

@@ -78,6 +78,8 @@ namespace HandStack.Data
 
         public static void DeriveParameters(DbProviderFactory providerFactory, IDbCommand dbCommand)
         {
+            ArgumentNullException.ThrowIfNull(providerFactory);
+
             var commandBuilder = providerFactory.CreateCommandBuilder();
             if (commandBuilder != null)
             {

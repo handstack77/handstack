@@ -8,24 +8,20 @@ using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-
 using agent.Entity;
 using agent.Security;
-
-using Microsoft.AspNetCore.Mvc;
-
-using Serilog;
-
 using HandStack.Core.ExtensionMethod;
+using Microsoft.AspNetCore.Mvc;
+using Serilog;
 
 namespace agent.Controllers
 {
     [Route("")]
     [ServiceFilter(typeof(ManagementKeyActionFilter))]
-    public sealed class MonitoringController : AgentControllerBase
+    public sealed partial class MonitoringController : AgentControllerBase
     {
-        private static readonly Regex MemInfoRegex = new Regex(@"^(?<key>[A-Za-z_]+):\s+(?<value>\d+)\s+kB$", RegexOptions.Compiled);
-        private static readonly object syncRoot = new object();
+        private static readonly Regex MemInfoRegex = MyRegex();
+        private static readonly object syncRoot = new();
 
         private static DateTime? lastCpuSampleTime;
         private static TimeSpan? lastTotalCpuTime;
@@ -36,8 +32,8 @@ namespace agent.Controllers
             cancellationToken.ThrowIfCancellationRequested();
 
             var now = DateTime.Now;
-            var processSnapshot = CollectProcessSnapshot();
-            var cpuPercent = CalculateCpuPercent(now, processSnapshot.TotalProcessorTime);
+            var (ProcessCount, ThreadCount, WorkingSetBytes, TotalProcessorTime) = CollectProcessSnapshot();
+            var cpuPercent = CalculateCpuPercent(now, TotalProcessorTime);
 
             var (totalMemoryBytes, availableMemoryBytes) = GetMemoryStats();
             var usedMemoryBytes = (totalMemoryBytes.HasValue == true && availableMemoryBytes.HasValue == true)
@@ -48,20 +44,20 @@ namespace agent.Controllers
             var response = new
             {
                 Now = now,
-                MachineName = Environment.MachineName,
+                Environment.MachineName,
                 HostName = Dns.GetHostName(),
                 OsDescription = RuntimeInformation.OSDescription,
                 OsArchitecture = RuntimeInformation.OSArchitecture.ToString(),
                 ProcessArchitecture = RuntimeInformation.ProcessArchitecture.ToString(),
-                ProcessorCount = Environment.ProcessorCount,
+                Environment.ProcessorCount,
                 Uptime = TimeSpan.FromMilliseconds(Environment.TickCount64),
                 CpuPercent = cpuPercent,
                 TotalMemoryBytes = totalMemoryBytes,
                 AvailableMemoryBytes = availableMemoryBytes,
                 UsedMemoryBytes = usedMemoryBytes,
-                ProcessCount = processSnapshot.ProcessCount,
-                ThreadCount = processSnapshot.ThreadCount,
-                WorkingSetAllProcessesBytes = processSnapshot.WorkingSetBytes,
+                ProcessCount,
+                ThreadCount,
+                WorkingSetAllProcessesBytes = WorkingSetBytes,
                 NetworkBytesSent = networkStats.BytesSent,
                 NetworkBytesReceived = networkStats.BytesReceived,
                 Disks = GetDiskStats()
@@ -210,7 +206,7 @@ namespace agent.Controllers
             };
         }
 
-        private (long? TotalMemoryBytes, long? AvailableMemoryBytes) GetMemoryStats()
+        private static (long? TotalMemoryBytes, long? AvailableMemoryBytes) GetMemoryStats()
         {
             if (OperatingSystem.IsLinux() == true)
             {
@@ -350,6 +346,9 @@ namespace agent.Controllers
             public ulong AvailVirtual;
             public ulong AvailExtendedVirtual;
         }
+
+        [GeneratedRegex(@"^(?<key>[A-Za-z_]+):\s+(?<value>\d+)\s+kB$", RegexOptions.Compiled)]
+        private static partial Regex MyRegex();
     }
 }
 

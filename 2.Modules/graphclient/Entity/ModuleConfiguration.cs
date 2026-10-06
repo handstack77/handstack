@@ -13,13 +13,13 @@ namespace graphclient.Entity
         public static string ModuleID = "graphclient";
         public static string Version = "";
         public static string AuthorizationKey = "";
-        public static List<string> AllowClientIP = new() { "*" };
+        public static List<string> AllowClientIP = ["*"];
         public static bool IsBundledWithHost = false;
         public static bool IsContractFileWatching = true;
         public static readonly string[] ContractFileExtensions = { ".xml", ".cyp" };
         public static readonly string ContractFileWatcherFilter = "*.xml|*.cyp";
-        public static List<string> ContractBasePath = new();
-        public static Dictionary<string, FileSyncManager> GraphFileSyncManager = new();
+        public static List<string> ContractBasePath = [];
+        public static Dictionary<string, FileSyncManager> GraphFileSyncManager = [];
         public static string BusinessServerUrl = "";
         public static bool IsTransactionLogging = false;
         public static string ModuleLogFilePath = "";
@@ -31,8 +31,8 @@ namespace graphclient.Entity
         public static string DefaultDataSourceID = "";
         public static int DefaultCommandTimeout = 30;
         public static int MaxCommandTimeout = 300;
-        public static List<string> AllowedGraphHosts = new();
-        public static List<GraphDataSource> GraphDataSource = new();
+        public static List<string> AllowedGraphHosts = [];
+        public static List<GraphDataSource> GraphDataSource = [];
         public static ILogger? ModuleLogger = null;
         public static ILogger? ProfileLogger = null;
 

@@ -7,7 +7,7 @@ namespace HandStack.Web.MessageContract.Converter
 {
     public static class ConverterSetting
     {
-        public static readonly JsonSerializerSettings Settings = new JsonSerializerSettings
+        public static readonly JsonSerializerSettings Settings = new()
         {
             MetadataPropertyHandling = MetadataPropertyHandling.Ignore,
             DateParseHandling = DateParseHandling.None,

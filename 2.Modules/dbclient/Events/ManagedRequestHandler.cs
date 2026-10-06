@@ -46,33 +46,24 @@ namespace dbclient.Events
 
     var sendResponse = await mediatorClient.SendAsync(mediatorRequest);
     */
-    public class ManagedRequest : IRequest<object?>
+    public class ManagedRequest(MediatorRequest request) : IRequest<object?>
     {
-        public string Method { get; set; }
+        public string Method { get; set; } = request.Parameters.Get<string>("Method").ToStringSafe();
 
-        public Dictionary<string, object>? Arguments { get; set; }
-
-        public ManagedRequest(MediatorRequest request)
-        {
-            Method = request.Parameters.Get<string>("Method").ToStringSafe();
-            Arguments = request.Parameters.Get<Dictionary<string, object>>("Arguments");
-        }
+        public Dictionary<string, object>? Arguments { get; set; } = request.Parameters.Get<Dictionary<string, object>>("Arguments");
     }
 
-    public class ManagedRequestHandler : IRequestHandler<ManagedRequest, object?>
+    public class ManagedRequestHandler(ILogger logger) : IRequestHandler<ManagedRequest, object?>
     {
-        private ILogger logger { get; }
-
-        public ManagedRequestHandler(ILogger logger)
-        {
-            this.logger = logger;
-        }
+        private ILogger logger { get; } = logger;
 
         public ValueTask<object?> Handle(ManagedRequest managedAction, CancellationToken cancellationToken)
         {
             object? response = null;
             try
             {
+                ArgumentNullException.ThrowIfNull(managedAction);
+
                 if (managedAction.Method == "AddModuleDataSource")
                 {
                     if (managedAction.Arguments != null)
@@ -97,26 +88,30 @@ namespace dbclient.Events
                                 var dataSourceMappings = DatabaseMapper.DataSourceMappings.Where(x => x.Key.DataSourceID == item.DataSourceID
                                     && x.Value.ApplicationID == item.ApplicationID).ToList();
 
-                                for (var i = dataSourceMappings.Count(); i > 0; i--)
+                                for (var i = dataSourceMappings.Count; i > 0; i--)
                                 {
                                     var mappingItem = dataSourceMappings[i - 1].Key;
                                     DatabaseMapper.DataSourceMappings.Remove(mappingItem);
                                 }
 
-                                var tanantMap = new DataSourceTanantKey();
-                                tanantMap.ApplicationID = item.ApplicationID;
-                                tanantMap.DataSourceID = item.DataSourceID;
-                                tanantMap.TanantPattern = "";
-                                tanantMap.TanantValue = "";
+                                var tanantMap = new DataSourceTanantKey
+                                {
+                                    ApplicationID = item.ApplicationID,
+                                    DataSourceID = item.DataSourceID,
+                                    TanantPattern = "",
+                                    TanantValue = ""
+                                };
 
                                 if (DatabaseMapper.DataSourceMappings.ContainsKey(tanantMap) == false)
                                 {
-                                    var dataSourceMap = new DataSourceMap();
-                                    dataSourceMap.ApplicationID = item.ApplicationID;
-                                    dataSourceMap.ProjectListID = item.ProjectID.Split(",").Where(s => !string.IsNullOrWhiteSpace(s)).Distinct().ToList();
-                                    dataSourceMap.DataProvider = (DataProviders)Enum.Parse(typeof(DataProviders), item.DataProvider);
-                                    dataSourceMap.ConnectionString = item.ConnectionString;
-                                    dataSourceMap.TransactionIsolationLevel = string.IsNullOrWhiteSpace(item.TransactionIsolationLevel) ? "ReadCommitted" : item.TransactionIsolationLevel;
+                                    var dataSourceMap = new DataSourceMap
+                                    {
+                                        ApplicationID = item.ApplicationID,
+                                        ProjectListID = item.ProjectID.Split(",").Where(s => !string.IsNullOrWhiteSpace(s)).Distinct().ToList(),
+                                        DataProvider = Enum.Parse<DataProviders>(item.DataProvider),
+                                        ConnectionString = item.ConnectionString,
+                                        TransactionIsolationLevel = string.IsNullOrWhiteSpace(item.TransactionIsolationLevel) ? "ReadCommitted" : item.TransactionIsolationLevel
+                                    };
 
                                     if (item.IsEncryption.ParseBool() == true)
                                     {

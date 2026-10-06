@@ -23,21 +23,16 @@ using Serilog;
 
 namespace prompter.DataClient
 {
-    public class PromptToolExecutor
+    public class PromptToolExecutor(PromptBuiltinToolService builtinToolService)
     {
-        private readonly PromptBuiltinToolService builtinToolService;
+        private readonly PromptBuiltinToolService builtinToolService = builtinToolService;
 
-        private static readonly Dictionary<string, Type> KernelPlugins = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase)
+        private static readonly Dictionary<string, Type> KernelPlugins = new(StringComparer.OrdinalIgnoreCase)
         {
             ["math"] = typeof(MathPlugin),
             ["time"] = typeof(TimePlugin),
             ["text"] = typeof(TextPlugin)
         };
-
-        public PromptToolExecutor(PromptBuiltinToolService builtinToolService)
-        {
-            this.builtinToolService = builtinToolService;
-        }
 
         public List<LLMToolDefinition> BuildTools(PromptMap promptMap, ILogger logger)
         {
@@ -46,7 +41,10 @@ namespace prompter.DataClient
 
         public List<LLMToolDefinition> BuildTools(PromptMap promptMap, QueryObject? queryObject, ILogger logger)
         {
+            ArgumentNullException.ThrowIfNull(logger);
+
             var result = new List<LLMToolDefinition>();
+            ArgumentNullException.ThrowIfNull(promptMap);
             if (promptMap.Tools.Mode == "none" || promptMap.Tools.Items.Count == 0)
             {
                 return result;
@@ -77,25 +75,17 @@ namespace prompter.DataClient
 
         public async Task<string> ExecuteAsync(LLMToolCall toolCall, IReadOnlyList<LLMToolDefinition> tools, ILogger logger, CancellationToken cancellationToken)
         {
-            var tool = tools.FirstOrDefault(item => item.FunctionName == toolCall.FunctionName);
-            if (tool == null)
-            {
-                throw new InvalidOperationException($"허용되지 않은 tool 호출 차단: {toolCall.FunctionName}");
-            }
+            ArgumentNullException.ThrowIfNull(toolCall);
 
-            switch (tool.Source)
+            var tool = tools.FirstOrDefault(item => item.FunctionName == toolCall.FunctionName) ?? throw new InvalidOperationException($"허용되지 않은 tool 호출 차단: {toolCall.FunctionName}");
+            return tool.Source switch
             {
-                case KernelToolBinding kernelTool:
-                    return ExecuteKernelTool(kernelTool, toolCall.Arguments);
-                case ExternalToolBinding externalTool when externalTool.Kind == "cli":
-                    return await ExecuteCliToolAsync(externalTool, cancellationToken);
-                case ExternalToolBinding externalTool when externalTool.Kind == "mcp":
-                    return await ExecuteMcpToolAsync(externalTool, toolCall.Arguments, cancellationToken);
-                case BuiltinToolBinding builtinTool:
-                    return await builtinToolService.ExecuteAsync(builtinTool.Name, toolCall.Arguments, builtinTool.AgentOptions, cancellationToken);
-                default:
-                    throw new InvalidOperationException($"tool 실행 바인딩 확인 필요: {toolCall.FunctionName}");
-            }
+                KernelToolBinding kernelTool => ExecuteKernelTool(kernelTool, toolCall.Arguments),
+                ExternalToolBinding externalTool when externalTool.Kind == "cli" => await ExecuteCliToolAsync(externalTool, cancellationToken),
+                ExternalToolBinding externalTool when externalTool.Kind == "mcp" => await ExecuteMcpToolAsync(externalTool, toolCall.Arguments, cancellationToken),
+                BuiltinToolBinding builtinTool => await builtinToolService.ExecuteAsync(builtinTool.Name, toolCall.Arguments, builtinTool.AgentOptions, cancellationToken),
+                _ => throw new InvalidOperationException($"tool 실행 바인딩 확인 필요: {toolCall.FunctionName}"),
+            };
         }
 
         private static void AddKernelTools(PromptToolDeclaration declaration, List<LLMToolDefinition> tools, ILogger logger)
@@ -249,11 +239,11 @@ namespace prompter.DataClient
             JObject args;
             try
             {
-                args = string.IsNullOrWhiteSpace(arguments) == true ? new JObject() : JObject.Parse(arguments);
+                args = string.IsNullOrWhiteSpace(arguments) == true ? [] : JObject.Parse(arguments);
             }
             catch
             {
-                args = new JObject();
+                args = [];
             }
 
             var instance = Activator.CreateInstance(binding.PluginType);
@@ -347,11 +337,11 @@ namespace prompter.DataClient
             JObject args;
             try
             {
-                args = string.IsNullOrWhiteSpace(arguments) == true ? new JObject() : JObject.Parse(arguments);
+                args = string.IsNullOrWhiteSpace(arguments) == true ? [] : JObject.Parse(arguments);
             }
             catch
             {
-                args = new JObject();
+                args = [];
             }
 
             var toolName = args["tool"]?.ToStringSafe();
@@ -360,7 +350,7 @@ namespace prompter.DataClient
                 throw new InvalidOperationException($"MCP tool 호출에는 tool 인자가 필요합니다: {binding.Name}");
             }
 
-            var toolArguments = args["arguments"] as JObject ?? new JObject();
+            var toolArguments = args["arguments"] as JObject ?? [];
             return await ExecuteMcpJsonRpcAsync(binding, toolName, toolArguments, cancellationToken);
         }
 
@@ -485,12 +475,7 @@ namespace prompter.DataClient
                 headers.Add(line);
             }
 
-            var lengthHeader = headers.FirstOrDefault(item => item.StartsWith("Content-Length:", StringComparison.OrdinalIgnoreCase));
-            if (lengthHeader == null)
-            {
-                throw new InvalidOperationException("MCP response Content-Length 확인 필요");
-            }
-
+            var lengthHeader = headers.FirstOrDefault(item => item.StartsWith("Content-Length:", StringComparison.OrdinalIgnoreCase)) ?? throw new InvalidOperationException("MCP response Content-Length 확인 필요");
             if (int.TryParse(lengthHeader.SubstringSafe("Content-Length:".Length).Trim(), NumberStyles.None, CultureInfo.InvariantCulture, out var length) == false || length <= 0)
             {
                 throw new InvalidOperationException($"MCP response Content-Length 형식 확인 필요: {lengthHeader}");

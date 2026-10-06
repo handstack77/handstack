@@ -16,8 +16,8 @@ namespace HandStack.Core
 {
     public class Reflector
     {
-        public static Dictionary<string, Assembly> assemblyList = new Dictionary<string, Assembly>();
-        public static Dictionary<string, TypeDescription> typeList = new Dictionary<string, TypeDescription>();
+        public static Dictionary<string, Assembly> assemblyList = [];
+        public static Dictionary<string, TypeDescription> typeList = [];
         public const BindingFlags memberAccess = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance | BindingFlags.IgnoreCase;
         public const BindingFlags memberPublicInstanceAccess = BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase;
 
@@ -27,13 +27,12 @@ namespace HandStack.Core
             // LicenseValidator.AssertValidLicense();
             // ModuleConfiguration.HandleInvalidLicenseKey();
 
-            var method = targetType.GetMethod(methodName, BindingFlags.Static | BindingFlags.Public);
-            if (method == null)
-            {
-                throw new ArgumentException($"대상 {targetType.Name}에서 메서드 {methodName}을(를) 찾을 수 없습니다.");
-            }
 
+            ArgumentNullException.ThrowIfNull(targetType);
+
+            var method = targetType.GetMethod(methodName, BindingFlags.Static | BindingFlags.Public) ?? throw new ArgumentException($"대상 {targetType.Name}에서 메서드 {methodName}을(를) 찾을 수 없습니다.");
             var parameterInfos = method.GetParameters();
+            ArgumentNullException.ThrowIfNull(parameters);
             if (parameterInfos.Length != parameters.Length)
             {
                 throw new ArgumentException("매개변수 개수가 일치하지 않습니다.");
@@ -53,13 +52,12 @@ namespace HandStack.Core
         {
             // LicenseValidator.AssertValidLicense();
 
-            var method = targetType.GetMethod(methodName, BindingFlags.Static | BindingFlags.Public);
-            if (method == null)
-            {
-                throw new ArgumentException($"대상 {targetType.Name}에서 메서드 {methodName}을(를) 찾을 수 없습니다.");
-            }
 
+            ArgumentNullException.ThrowIfNull(targetType);
+
+            var method = targetType.GetMethod(methodName, BindingFlags.Static | BindingFlags.Public) ?? throw new ArgumentException($"대상 {targetType.Name}에서 메서드 {methodName}을(를) 찾을 수 없습니다.");
             var parameterInfos = method.GetParameters();
+            ArgumentNullException.ThrowIfNull(parameters);
             if (parameterInfos.Length != parameters.Length)
             {
                 throw new ArgumentException("매개변수 개수가 일치하지 않습니다.");
@@ -80,13 +78,12 @@ namespace HandStack.Core
         {
             // LicenseValidator.AssertValidLicense();
 
-            var method = target.GetType().GetMethod(methodName);
-            if (method == null)
-            {
-                throw new ArgumentException($"대상 {target.GetType().Name}에서 메서드 {methodName}을(를) 찾을 수 없습니다.");
-            }
 
+            ArgumentNullException.ThrowIfNull(target);
+
+            var method = target.GetType().GetMethod(methodName) ?? throw new ArgumentException($"대상 {target.GetType().Name}에서 메서드 {methodName}을(를) 찾을 수 없습니다.");
             var parameterInfos = method.GetParameters();
+            ArgumentNullException.ThrowIfNull(parameters);
             if (parameterInfos.Length != parameters.Length)
             {
                 throw new ArgumentException("매개변수 개수가 일치하지 않습니다.");
@@ -107,13 +104,12 @@ namespace HandStack.Core
         {
             // LicenseValidator.AssertValidLicense();
 
-            var method = target.GetType().GetMethod(methodName);
-            if (method == null)
-            {
-                throw new ArgumentException($"대상 {target.GetType().Name}에서 메서드 {methodName}을(를) 찾을 수 없습니다.");
-            }
 
+            ArgumentNullException.ThrowIfNull(target);
+
+            var method = target.GetType().GetMethod(methodName) ?? throw new ArgumentException($"대상 {target.GetType().Name}에서 메서드 {methodName}을(를) 찾을 수 없습니다.");
             var parameterInfos = method.GetParameters();
+            ArgumentNullException.ThrowIfNull(parameters);
             if (parameterInfos.Length != parameters.Length)
             {
                 throw new ArgumentException("매개변수 개수가 일치하지 않습니다.");
@@ -162,6 +158,7 @@ namespace HandStack.Core
         public static object? CreateInstance(Assembly targetAssembly, string typeName)
         {
             Type? type = null;
+            ArgumentNullException.ThrowIfNull(targetAssembly);
             foreach (var eachType in targetAssembly.GetTypes())
             {
                 if (eachType != null && eachType.FullName?.Replace("\\", "/") != null && eachType.FullName.Replace("\\", "/").Equals(typeName, StringComparison.OrdinalIgnoreCase))
@@ -181,6 +178,8 @@ namespace HandStack.Core
 
         public static string? GetAssemblyDirectory(Assembly targetAssembly)
         {
+            ArgumentNullException.ThrowIfNull(targetAssembly);
+
             var location = string.IsNullOrWhiteSpace(targetAssembly.Location) ? AppContext.BaseDirectory : targetAssembly.Location;
             return Path.GetDirectoryName(location);
         }
@@ -203,6 +202,8 @@ namespace HandStack.Core
 
         public static Type? FindType(Assembly targetAssembly, string typeName)
         {
+            ArgumentNullException.ThrowIfNull(targetAssembly);
+
             foreach (var type in targetAssembly.GetTypes())
             {
                 if (type != null && type.FullName?.Replace("\\", "/") != null && type.FullName.Replace("\\", "/").Equals(typeName, StringComparison.OrdinalIgnoreCase))
@@ -265,6 +266,8 @@ namespace HandStack.Core
         {
             if (typeList.ContainsKey(classKey) == false)
             {
+                ArgumentNullException.ThrowIfNull(loadAssembly);
+
                 foreach (var type in loadAssembly.GetTypes())
                 {
                     if (type != null && type.FullName?.Replace("\\", "/") != null && type.IsClass == true)
@@ -347,10 +350,10 @@ namespace HandStack.Core
             string? indexes = null;
             var isCollection = false;
 
-            if (propertyName.IndexOf("[") > -1)
+            if (propertyName.IndexOf('[') > -1)
             {
-                pureProperty = propertyName.SubstringSafe(0, propertyName.IndexOf("["));
-                indexes = propertyName.SubstringSafe(propertyName.IndexOf("["));
+                pureProperty = propertyName.SubstringSafe(0, propertyName.IndexOf('['));
+                indexes = propertyName.SubstringSafe(propertyName.IndexOf('['));
                 isCollection = true;
             }
 
@@ -391,7 +394,7 @@ namespace HandStack.Core
                     }
                     else if (result is ICollection)
                     {
-                        if (indexes.StartsWith("\""))
+                        if (indexes.StartsWith('"'))
                         {
                             indexes = indexes.Trim('\"');
                             result = CallMethod(result, "get_Item", indexes);
@@ -422,10 +425,10 @@ namespace HandStack.Core
             string? indexes = null;
             var isCollection = false;
 
-            if (propertyName.IndexOf("[") > -1)
+            if (propertyName.IndexOf('[') > -1)
             {
-                pureProperty = propertyName.SubstringSafe(0, propertyName.IndexOf("["));
-                indexes = propertyName.SubstringSafe(propertyName.IndexOf("["));
+                pureProperty = propertyName.SubstringSafe(0, propertyName.IndexOf('['));
+                indexes = propertyName.SubstringSafe(propertyName.IndexOf('['));
                 isCollection = true;
             }
 
@@ -490,7 +493,7 @@ namespace HandStack.Core
                     }
                     else
                     {
-                        if (indexes.StartsWith("\""))
+                        if (indexes.StartsWith('"'))
                         {
                             indexes = indexes.Trim('\"');
                             result = CallMethod(result, "set_Item", indexes, value);
@@ -517,7 +520,8 @@ namespace HandStack.Core
                 return null;
             }
 
-            var indexes = propertyName.IndexOf(".");
+            ArgumentNullException.ThrowIfNull(propertyName);
+            var indexes = propertyName.IndexOf('.');
             if (indexes < 0)
             {
                 return GetPropertyInternal(instance, propertyName);
@@ -533,7 +537,10 @@ namespace HandStack.Core
 
         public static object? SetPropertyEx(object instance, string propertyName, object value)
         {
-            var indexes = propertyName.IndexOf(".");
+            ArgumentNullException.ThrowIfNull(propertyName);
+            ArgumentNullException.ThrowIfNull(instance);
+
+            var indexes = propertyName.IndexOf('.');
 
             if (indexes < 0)
             {
@@ -555,9 +562,11 @@ namespace HandStack.Core
 
         public static object? CallMethod(object instance, string methodName, Type[]? parameterTypes, params object[]? methodParameters)
         {
+            ArgumentNullException.ThrowIfNull(instance);
+
             if (parameterTypes == null)
             {
-                if (methodParameters != null && methodParameters.Any() == true)
+                if (methodParameters != null && methodParameters.Length != 0 == true)
                 {
                     return instance.GetType().GetMethod(methodName, memberAccess | BindingFlags.InvokeMethod)?.Invoke(instance, methodParameters);
                 }
@@ -595,7 +604,9 @@ namespace HandStack.Core
 
         public static object? CallMethodEx(object instance, string methodName, params object[] methodParameters)
         {
-            var indexes = methodName.IndexOf(".");
+            ArgumentNullException.ThrowIfNull(methodName);
+
+            var indexes = methodName.IndexOf('.');
             if (indexes < 0)
             {
                 return CallMethod(instance, methodName, methodParameters);
@@ -604,6 +615,7 @@ namespace HandStack.Core
             var main = methodName.SubstringSafe(0, indexes);
             var subs = methodName.SubstringSafe(indexes + 1);
 
+            ArgumentNullException.ThrowIfNull(instance);
             var sub = GetPropertyInternal(instance, main);
             if (sub == null)
             {
@@ -620,6 +632,7 @@ namespace HandStack.Core
             if (arguments == null)
             {
                 var Params = Type.EmptyTypes;
+                ArgumentNullException.ThrowIfNull(typeToCreate);
                 return typeToCreate.GetConstructor(Params)?.Invoke(null);
             }
 
@@ -660,6 +673,9 @@ namespace HandStack.Core
 
         public static string? TypedValueToString(object rawValue, CultureInfo culture)
         {
+            ArgumentNullException.ThrowIfNull(rawValue);
+            ArgumentNullException.ThrowIfNull(culture);
+
             var type = rawValue.GetType();
             string? result;
 
@@ -722,6 +738,8 @@ namespace HandStack.Core
 
         public static object? StringToTypedValue(string value, Type targetType, CultureInfo culture)
         {
+            ArgumentNullException.ThrowIfNull(culture);
+
             object? result = null;
             var isEmpty = false;
 
@@ -730,6 +748,7 @@ namespace HandStack.Core
                 isEmpty = true;
             }
 
+            ArgumentNullException.ThrowIfNull(targetType);
             if (targetType == typeof(string))
             {
                 result = value;
@@ -824,7 +843,7 @@ namespace HandStack.Core
             }
             else if (targetType == typeof(bool))
             {
-                if (isEmpty == false && (value.ToLower() == "true" || value.ToLower() == "on" || value == "1" || value == "Y"))
+                if (isEmpty == false && (value.Equals("true", StringComparison.CurrentCultureIgnoreCase) || value.Equals("on", StringComparison.CurrentCultureIgnoreCase) || value == "1" || value == "Y"))
                 {
                     result = true;
                 }
@@ -854,7 +873,7 @@ namespace HandStack.Core
             }
             else if (targetType.Name.StartsWith("Nullable"))
             {
-                if (value.ToLower() == "null" || value == "")
+                if (value.Equals("null", StringComparison.CurrentCultureIgnoreCase) || value == "")
                 {
                     result = null;
                 }
@@ -896,7 +915,7 @@ namespace HandStack.Core
 
         public static T? StringToTypedValue<T>(string value)
         {
-            return (T?)StringToTypedValue(value, typeof(T), CultureInfo.CurrentCulture);
+            return StringToTypedValue<T>(value, CultureInfo.CurrentCulture);
         }
 
         public static Dictionary<string, string> GetEnumList(Type instance)
@@ -938,7 +957,7 @@ namespace HandStack.Core
             var result = default(T);
             if (string.IsNullOrWhiteSpace(xml))
             {
-                return default(T);
+                return default;
             }
 
             using (var reader = new StringReader(xml))
@@ -1022,9 +1041,10 @@ namespace HandStack.Core
             }
 
             var excluded = Array.Empty<string>();
+            ArgumentNullException.ThrowIfNull(excludedProperties);
             if (excludedProperties.Length > 0)
             {
-                excluded = excludedProperties.Split(new char[1] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                excluded = excludedProperties.Split(',', StringSplitOptions.RemoveEmptyEntries);
             }
 
             var memberInfoType = targetType.GetType().GetMembers(memberAccessFlags);

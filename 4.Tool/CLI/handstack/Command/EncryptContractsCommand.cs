@@ -57,14 +57,10 @@ namespace handstack
                             Log.Information($"어셈블리 파일 경로: {ddlFilePath}");
                             Log.Information($"어셈블리 이름: {asmName.Name}");
                             Log.Information($"어셈블리 버전: {asmName.Version}");
-
-                            using (SHA256 sha256 = SHA256.Create())
-                            {
-                                byte[] hash = sha256.ComputeHash(publicKey);
-                                assemblyKey = Program.ToHex(hash).ToLowerInvariant();
-                                Console.WriteLine();
-                                Log.Information($"공개 키 (SHA256): {assemblyKey}");
-                            }
+                            byte[] hash = SHA256.HashData(publicKey);
+                            assemblyKey = Program.ToHex(hash).ToLowerInvariant();
+                            Console.WriteLine();
+                            Log.Information($"공개 키 (SHA256): {assemblyKey}");
 
                             assemblyToken = Program.ToHex(publicKeyToken).ToLowerInvariant();
                             Log.Information($"공개 키 (Token): {assemblyToken}");

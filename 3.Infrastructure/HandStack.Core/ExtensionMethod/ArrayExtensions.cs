@@ -9,6 +9,8 @@ namespace HandStack.Core.ExtensionMethod
     {
         public static void Clear<T>(this T[] @this)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             Array.Clear(@this, 0, @this.Length);
         }
 
@@ -19,16 +21,20 @@ namespace HandStack.Core.ExtensionMethod
 
         public static bool WithinIndex(this Array @this, int index)
         {
-            return index >= 0 && index < @this.Length;
+            return index >= 0 && index < (@this ?? throw new ArgumentNullException(nameof(@this))).Length;
         }
 
         public static bool WithinIndex(this Array @this, int index, int dimension = 0)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             return index >= @this.GetLowerBound(dimension) && index <= @this.GetUpperBound(dimension);
         }
 
         public static void ClearAll(this Array @this)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             Array.Clear(@this, 0, @this.Length);
         }
 
@@ -91,6 +97,7 @@ namespace HandStack.Core.ExtensionMethod
                 dt.Columns.Add(field.Name, field.FieldType);
             }
 
+            ArgumentNullException.ThrowIfNull(@this);
             foreach (var item in @this)
             {
                 var dr = dt.NewRow();

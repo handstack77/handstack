@@ -33,7 +33,7 @@ namespace HandStack.Core.Licensing
         public string Environment { get; set; } = "";
         public string CreatedAt { get; set; } = "";
         public string? ExpiresAt { get; set; }
-        public List<string> AllowedHosts { get; set; } = new();
+        public List<string> AllowedHosts { get; set; } = [];
         public string CurrentDomain { get; set; } = "";
         public string DomainMatch { get; set; } = "";
         public DateTime ValidatedAt { get; set; }

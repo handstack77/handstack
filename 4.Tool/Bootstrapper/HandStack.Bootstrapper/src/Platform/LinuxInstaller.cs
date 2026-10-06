@@ -78,7 +78,7 @@ internal sealed class LinuxInstaller : IPlatformInstaller
         await AptGet("install -y curl");
     }
 
-    private static Task AptGet(string args) =>
+    private static System.Threading.Tasks.Task<int> AptGet(string args) =>
         ProcessRunner.RunAsync("bash", $"-c \"apt-get {args}\"", env: NonInteractiveApt);
 
     private static bool IsRoot()

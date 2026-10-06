@@ -8,17 +8,14 @@ using Microsoft.AspNetCore.Http;
 
 namespace HandStack.Web.Extensions
 {
-    public class HtmlProxyBasePathInjectionMiddleware
+    public partial class HtmlProxyBasePathInjectionMiddleware(RequestDelegate next)
     {
-        private readonly RequestDelegate _next;
-
-        public HtmlProxyBasePathInjectionMiddleware(RequestDelegate next)
-        {
-            _next = next;
-        }
+        private readonly RequestDelegate _next = next;
 
         public async Task InvokeAsync(HttpContext context)
         {
+            ArgumentNullException.ThrowIfNull(context);
+
             var requestPath = GetOriginalPath(context);
             if (requestPath.Contains("/api/", StringComparison.OrdinalIgnoreCase))
             {
@@ -120,7 +117,7 @@ namespace HandStack.Web.Extensions
             await _next(context);
         }
 
-        private string GetOriginalPath(HttpContext context)
+        private static string GetOriginalPath(HttpContext context)
         {
             if (context.Request.Headers.TryGetValue("X-Original-URL", out var originalUrl))
             {
@@ -173,7 +170,7 @@ namespace HandStack.Web.Extensions
             return context.Request.Path.Value ?? string.Empty;
         }
 
-        private string RewriteAbsolutePaths(string content, bool isHtml, bool isCss)
+        private static string RewriteAbsolutePaths(string content, bool isHtml, bool isCss)
         {
             if (string.IsNullOrWhiteSpace(content))
             {
@@ -182,35 +179,32 @@ namespace HandStack.Web.Extensions
 
             if (isHtml == true)
             {
-                content = Regex.Replace(
-                    content,
-                    @"(?<prefix>(?:src|href|action|data|poster|background|content)\s*=\s*)(?<quote>[""']?)(?<slash>/(?!/))",
-                    match =>
+                content = MyRegex().Replace(content, match =>
                     {
                         var prefix = match.Groups["prefix"].Value;
                         var quote = match.Groups["quote"].Value;
 
                         return $"{prefix}{quote}";
-                    },
-                    RegexOptions.IgnoreCase
-                );
+                    });
             }
 
             if (isHtml == true || isCss == true)
             {
-                content = Regex.Replace(
-                    content,
-                    @"(?<prefix>url\s*\(\s*)(?<quote>[""']?)(?<slash>/(?!/))",
-                    match =>
+                content = MyRegex1().Replace(content, match =>
                     {
                         return $"{match.Groups["prefix"].Value}{match.Groups["quote"].Value}";
-                    },
-                    RegexOptions.IgnoreCase
-                );
+                    });
             }
 
             return content;
         }
+
+        [GeneratedRegex(@"(?<prefix>(?:src|href|action|data|poster|background|content)\s*=\s*)(?<quote>[""']?)(?<slash>/(?!/))", RegexOptions.IgnoreCase
+        , "ko-KR")]
+        private static partial Regex MyRegex();
+        [GeneratedRegex(@"(?<prefix>url\s*\(\s*)(?<quote>[""']?)(?<slash>/(?!/))", RegexOptions.IgnoreCase
+        , "ko-KR")]
+        private static partial Regex MyRegex1();
     }
 }
 

@@ -55,13 +55,13 @@ namespace wwwroot
                             .Where(p => !string.IsNullOrWhiteSpace(p))
                             .Select(p => p.Trim())
                             .Distinct(StringComparer.Ordinal)
-                            .ToList() ?? new System.Collections.Generic.List<string>();
+                            .ToList() ?? [];
                         ModuleConfiguration.CreateIDPolicy = moduleConfig.CreateIDPolicy ?? new CreateIDPolicyConfig();
-                        ModuleConfiguration.CreateIDPolicy.AllowedScreens ??= new System.Collections.Generic.List<string>();
-                        ModuleConfiguration.CreateIDPolicy.AuthorizationKeys ??= new System.Collections.Generic.List<CreateIDAuthorizationKeyConfig>();
+                        ModuleConfiguration.CreateIDPolicy.AllowedScreens ??= [];
+                        ModuleConfiguration.CreateIDPolicy.AuthorizationKeys ??= [];
                         foreach (var authorizationKey in ModuleConfiguration.CreateIDPolicy.AuthorizationKeys)
                         {
-                            authorizationKey.AllowedIPs ??= new System.Collections.Generic.List<string>();
+                            authorizationKey.AllowedIPs ??= [];
                         }
                         ModuleConfiguration.IsBundledWithHost = moduleConfigJson.IsBundledWithHost;
                         ModuleConfiguration.BusinessServerUrl = moduleConfig.BusinessServerUrl;
@@ -179,7 +179,7 @@ namespace wwwroot
             {
                 var catalogText = File.ReadAllText(resolvedConfigPath);
                 var catalog = JsonConvert.DeserializeObject<SharedFileCatalog>(catalogText);
-                foreach (var item in catalog?.Items ?? new System.Collections.Generic.List<SharedFileEntry>())
+                foreach (var item in catalog?.Items ?? [])
                 {
                     var hostFilePath = ResolveExistingFilePath(item.HostFilePath);
                     if (string.IsNullOrWhiteSpace(item.RequestPath) == false && string.IsNullOrWhiteSpace(hostFilePath) == false)
@@ -342,7 +342,7 @@ namespace wwwroot
 
     internal class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
             Console.WriteLine("wwwroot");
         }

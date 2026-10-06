@@ -14,7 +14,7 @@ using Serilog;
 
 namespace handstack
 {
-    internal static class ContractPackCommand
+    internal static partial class ContractPackCommand
     {
         public static void Register(RootCommand rootCommand, HandstackCommandContext context)
         {
@@ -179,12 +179,7 @@ namespace handstack
             foreach (var featureMetaFilePath in Directory.EnumerateFiles(functionDirectoryPath, "featureMeta.json", SearchOption.AllDirectories))
             {
                 var featureMetaFileInfo = new FileInfo(featureMetaFilePath);
-                var sourceDirectoryInfo = featureMetaFileInfo.Directory;
-                if (sourceDirectoryInfo == null)
-                {
-                    throw new DirectoryNotFoundException($"featureMeta.json 디렉터리 확인 필요: {featureMetaFilePath}");
-                }
-
+                var sourceDirectoryInfo = featureMetaFileInfo.Directory ?? throw new DirectoryNotFoundException($"featureMeta.json 디렉터리 확인 필요: {featureMetaFilePath}");
                 var featureMainFiles = sourceDirectoryInfo.GetFiles("featureMain.*", SearchOption.TopDirectoryOnly)
                     .Where(fileInfo => fileInfo.Extension.Equals(".cs", StringComparison.OrdinalIgnoreCase) == true
                         || fileInfo.Extension.Equals(".js", StringComparison.OrdinalIgnoreCase) == true
@@ -252,7 +247,7 @@ namespace handstack
             if (File.Exists(featureSQLFilePath) == true)
             {
                 var featureSQLSource = File.ReadAllText(featureSQLFilePath);
-                featureSQLSource = Regex.Replace(featureSQLSource, @"^\s*<\?xml[^>]*\?>\s*", "");
+                featureSQLSource = MyRegex().Replace(featureSQLSource, "");
                 if (string.IsNullOrWhiteSpace(featureSQLSource) == false)
                 {
                     lines.Add("    <featureSQL>");
@@ -461,9 +456,14 @@ namespace handstack
             return value.Replace("]]>", "]]]]><![CDATA[>");
         }
 
+        private static readonly string[] LineSeparators = new[] { "\r\n", "\n" };
+
         private static string IndentLines(string value, string indent)
         {
-            return string.Join(Environment.NewLine, value.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None).Select(line => indent + line));
+            return string.Join(Environment.NewLine, value.Split(LineSeparators, StringSplitOptions.None).Select(line => indent + line));
         }
+
+        [GeneratedRegex(@"^\s*<\?xml[^>]*\?>\s*")]
+        private static partial Regex MyRegex();
     }
 }

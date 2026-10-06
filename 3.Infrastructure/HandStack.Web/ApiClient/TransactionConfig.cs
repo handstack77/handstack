@@ -48,11 +48,11 @@ namespace HandStack.Web.ApiClient
                     continue;
 
                 if (ni.NetworkInterfaceType == NetworkInterfaceType.Loopback ||
-                    ni.Description.ToLower().Contains("virtual") ||
-                    ni.Description.ToLower().Contains("docker") ||
-                    ni.Description.ToLower().Contains("vmware") ||
-                    ni.Name.ToLower().Contains("vethernet") ||
-                    ni.Description.ToLower().Contains("hyper-v"))
+                    ni.Description.Contains("virtual", System.StringComparison.CurrentCultureIgnoreCase) ||
+                    ni.Description.Contains("docker", System.StringComparison.CurrentCultureIgnoreCase) ||
+                    ni.Description.Contains("vmware", System.StringComparison.CurrentCultureIgnoreCase) ||
+                    ni.Name.Contains("vethernet", System.StringComparison.CurrentCultureIgnoreCase) ||
+                    ni.Description.Contains("hyper-v", System.StringComparison.CurrentCultureIgnoreCase))
                     continue;
 
                 var ipProps = ni.GetIPProperties();
@@ -76,11 +76,11 @@ namespace HandStack.Web.ApiClient
                     continue;
 
                 if (ni.NetworkInterfaceType == NetworkInterfaceType.Loopback ||
-                    ni.Description.ToLower().Contains("virtual") ||
-                    ni.Description.ToLower().Contains("docker") ||
-                    ni.Description.ToLower().Contains("vmware") ||
-                    ni.Name.ToLower().Contains("vethernet") ||
-                    ni.Description.ToLower().Contains("hyper-v"))
+                    ni.Description.Contains("virtual", System.StringComparison.CurrentCultureIgnoreCase) ||
+                    ni.Description.Contains("docker", System.StringComparison.CurrentCultureIgnoreCase) ||
+                    ni.Description.Contains("vmware", System.StringComparison.CurrentCultureIgnoreCase) ||
+                    ni.Name.Contains("vethernet", System.StringComparison.CurrentCultureIgnoreCase) ||
+                    ni.Description.Contains("hyper-v", System.StringComparison.CurrentCultureIgnoreCase))
                     continue;
 
                 return ni.GetPhysicalAddress().ToString();
@@ -97,11 +97,11 @@ namespace HandStack.Web.ApiClient
                     continue;
 
                 if (ni.NetworkInterfaceType == NetworkInterfaceType.Loopback ||
-                    ni.Description.ToLower().Contains("virtual") ||
-                    ni.Description.ToLower().Contains("docker") ||
-                    ni.Description.ToLower().Contains("vmware") ||
-                    ni.Name.ToLower().Contains("vethernet") ||
-                    ni.Description.ToLower().Contains("hyper-v"))
+                    ni.Description.Contains("virtual", System.StringComparison.CurrentCultureIgnoreCase) ||
+                    ni.Description.Contains("docker", System.StringComparison.CurrentCultureIgnoreCase) ||
+                    ni.Description.Contains("vmware", System.StringComparison.CurrentCultureIgnoreCase) ||
+                    ni.Name.Contains("vethernet", System.StringComparison.CurrentCultureIgnoreCase) ||
+                    ni.Description.Contains("hyper-v", System.StringComparison.CurrentCultureIgnoreCase))
                     continue;
 
                 return ((int)ni.NetworkInterfaceType).ToString().PadLeft(3, '0');

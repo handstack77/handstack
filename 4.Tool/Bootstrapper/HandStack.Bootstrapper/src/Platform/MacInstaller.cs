@@ -67,7 +67,7 @@ internal sealed class MacInstaller : IPlatformInstaller
         await Brew("install curl");
     }
 
-    private static Task Brew(string args) =>
+    private static System.Threading.Tasks.Task<int> Brew(string args) =>
         ProcessRunner.RunAsync(
             "brew",
             args,

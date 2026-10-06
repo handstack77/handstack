@@ -12,20 +12,15 @@ namespace forbes.Controllers
 {
     [ApiController]
     [Route("api/configuration/sync-secrets")]
-    public sealed class ConfigurationController : ControllerBase
+    public sealed class ConfigurationController(IHostEnvironment hostEnvironment) : ControllerBase
     {
-        private static readonly JsonSerializerOptions JsonSerializerOptions = new JsonSerializerOptions
+        private static readonly JsonSerializerOptions JsonSerializerOptions = new()
         {
             PropertyNameCaseInsensitive = true,
             WriteIndented = true
         };
 
-        private readonly IHostEnvironment hostEnvironment;
-
-        public ConfigurationController(IHostEnvironment hostEnvironment)
-        {
-            this.hostEnvironment = hostEnvironment;
-        }
+        private readonly IHostEnvironment hostEnvironment = hostEnvironment;
 
         [HttpGet]
         public IActionResult GetSyncSecrets()
@@ -138,7 +133,7 @@ namespace forbes.Controllers
             });
         }
 
-        private SyncSecretsFileSnapshot LoadSnapshot(string filePath)
+        private static SyncSecretsFileSnapshot LoadSnapshot(string filePath)
         {
             bool exists = System.IO.File.Exists(filePath);
             SyncSecretsConfig config = new SyncSecretsConfig();

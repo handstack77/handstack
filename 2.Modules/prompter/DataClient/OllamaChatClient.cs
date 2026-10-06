@@ -11,14 +11,12 @@ using Newtonsoft.Json.Linq;
 
 namespace prompter.DataClient
 {
-    public class OllamaChatClient : HttpLLMChatClient
+    public class OllamaChatClient(IHttpClientFactory httpClientFactory) : HttpLLMChatClient(httpClientFactory)
     {
-        public OllamaChatClient(IHttpClientFactory httpClientFactory) : base(httpClientFactory)
-        {
-        }
-
         public override async Task<LLMChatResponse> ChatAsync(LLMChatRequest request, CancellationToken cancellationToken = default)
         {
+            ArgumentNullException.ThrowIfNull(request);
+
             Require(request.Endpoint, "Ollama Endpoint 설정 필요");
             Require(request.ModelID, "Ollama ModelID 설정 필요");
             ValidateMediaSupport(request, "Ollama", true, false);
@@ -56,8 +54,7 @@ namespace prompter.DataClient
             var response = new LLMChatResponse { Raw = json };
             var message = json["message"];
             response.Content = message?["content"]?.ToStringSafe() ?? "";
-            var toolCalls = message?["tool_calls"] as JArray;
-            if (toolCalls != null)
+            if (message?["tool_calls"] is JArray toolCalls)
             {
                 foreach (var item in toolCalls)
                 {

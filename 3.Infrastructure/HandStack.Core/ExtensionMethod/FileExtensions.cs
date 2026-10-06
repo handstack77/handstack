@@ -123,7 +123,7 @@ namespace HandStack.Core.ExtensionMethod
                 {
                     using var md5 = MD5.Create();
                     using var stream = File.OpenRead(@this.FullName.Replace("\\", "/"));
-                    return BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", string.Empty);
+                    return Convert.ToHexString(md5.ComputeHash(stream));
                 }
             }
 
@@ -155,6 +155,8 @@ namespace HandStack.Core.ExtensionMethod
         /// </code>
         public static FileInfo RenameFileWithoutExtension(this FileInfo @this, string newName)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             var fileName = string.Concat(newName, @this.Extension);
             @this.Rename(fileName);
             return @this;
@@ -166,6 +168,8 @@ namespace HandStack.Core.ExtensionMethod
         /// </code>
         public static FileInfo ChangeExtension(this FileInfo @this, string newExtension)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             var fileName = string.Concat(Path.GetFileNameWithoutExtension(@this.FullName.Replace("\\", "/")), newExtension);
             @this.Rename(fileName);
             return @this;
@@ -187,6 +191,8 @@ namespace HandStack.Core.ExtensionMethod
         /// </code>
         public static void Delete(this FileInfo[] files)
         {
+            ArgumentNullException.ThrowIfNull(files);
+
             foreach (var @this in files)
             {
                 @this.Delete();
@@ -200,6 +206,7 @@ namespace HandStack.Core.ExtensionMethod
         public static FileInfo[] CopyTo(this FileInfo[] files, string targetPath)
         {
             var copiedfiles = new List<FileInfo>();
+            ArgumentNullException.ThrowIfNull(files);
             foreach (var @this in files)
             {
                 var fileName = PathExtensions.Combine(targetPath, @this.Name);
@@ -215,6 +222,8 @@ namespace HandStack.Core.ExtensionMethod
         /// </code>
         public static FileInfo[] MoveTo(this FileInfo[] files, string targetPath)
         {
+            ArgumentNullException.ThrowIfNull(files);
+
             foreach (var @this in files)
             {
                 var fileName = PathExtensions.Combine(targetPath, @this.Name);
@@ -230,6 +239,8 @@ namespace HandStack.Core.ExtensionMethod
         /// </code>
         public static void SetAttributes(this FileInfo[] files, FileAttributes attributes)
         {
+            ArgumentNullException.ThrowIfNull(files);
+
             foreach (var @this in files)
             {
                 @this.Attributes = attributes;
@@ -242,14 +253,18 @@ namespace HandStack.Core.ExtensionMethod
         /// </code>
         public static void SetAttributesAdditive(this FileInfo[] files, FileAttributes attributes)
         {
+            ArgumentNullException.ThrowIfNull(files);
+
             foreach (var @this in files)
             {
-                @this.Attributes = (@this.Attributes | attributes);
+                @this.Attributes |= attributes;
             }
         }
 
         public static bool IsBinary(this FileInfo file, int requiredConsecutiveNul = 1)
         {
+            ArgumentNullException.ThrowIfNull(file);
+
             if (file.Exists == false)
             {
                 return false;
@@ -283,36 +298,52 @@ namespace HandStack.Core.ExtensionMethod
 
         public static void ExtractZipFileToDirectory(this FileInfo @this, string destinationDirectoryName)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             ZipFile.ExtractToDirectory(@this.FullName.Replace("\\", "/"), destinationDirectoryName);
         }
 
         public static void ExtractZipFileToDirectory(this FileInfo @this, string destinationDirectoryName, Encoding entryNameEncoding)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             ZipFile.ExtractToDirectory(@this.FullName.Replace("\\", "/"), destinationDirectoryName, entryNameEncoding);
         }
 
         public static void ExtractZipFileToDirectory(this FileInfo @this, DirectoryInfo destinationDirectory)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+            ArgumentNullException.ThrowIfNull(destinationDirectory);
+
             ZipFile.ExtractToDirectory(@this.FullName.Replace("\\", "/"), destinationDirectory.FullName.Replace("\\", "/"));
         }
 
         public static void ExtractZipFileToDirectory(this FileInfo @this, DirectoryInfo destinationDirectory, Encoding entryNameEncoding)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+            ArgumentNullException.ThrowIfNull(destinationDirectory);
+
             ZipFile.ExtractToDirectory(@this.FullName.Replace("\\", "/"), destinationDirectory.FullName.Replace("\\", "/"), entryNameEncoding);
         }
 
         public static ZipArchive OpenReadZipFile(this FileInfo @this)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             return ZipFile.OpenRead(@this.FullName.Replace("\\", "/"));
         }
 
         public static ZipArchive OpenZipFile(this FileInfo @this, ZipArchiveMode mode)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             return ZipFile.Open(@this.FullName.Replace("\\", "/"), mode);
         }
 
         public static ZipArchive OpenZipFile(this FileInfo @this, ZipArchiveMode mode, Encoding entryNameEncoding)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             return ZipFile.Open(@this.FullName.Replace("\\", "/"), mode, entryNameEncoding);
         }
     }

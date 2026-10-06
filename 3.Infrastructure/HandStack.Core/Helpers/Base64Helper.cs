@@ -4,10 +4,10 @@ using System.Text.RegularExpressions;
 
 namespace HandStack.Core.Helpers
 {
-    public static class Base64Helper
+    public static partial class Base64Helper
     {
-        private static readonly Regex Base64FormatRegex = new Regex(@"[^A-Z0-9+/=]", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-        private static readonly UTF8Encoding StrictUtf8Encoding = new UTF8Encoding(false, true);
+        private static readonly Regex Base64FormatRegex = MyRegex();
+        private static readonly UTF8Encoding StrictUtf8Encoding = new(false, true);
 
         internal static bool IsBase64DataStrict(string? data)
         {
@@ -70,5 +70,8 @@ namespace HandStack.Core.Helpers
 
             return true;
         }
+
+        [GeneratedRegex(@"[^A-Z0-9+/=]", RegexOptions.IgnoreCase | RegexOptions.Compiled, "ko-KR")]
+        private static partial Regex MyRegex();
     }
 }

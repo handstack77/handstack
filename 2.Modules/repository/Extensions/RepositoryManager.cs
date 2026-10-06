@@ -17,7 +17,7 @@ namespace repository.Extensions
     public class RepositoryManager
     {
         private ILogger logger { get; }
-        private string directoryPathFlag = "/";
+        private readonly string directoryPathFlag = "/";
         private string persistenceDirectoryPath = "";
 
         public string PersistenceDirectoryPath
@@ -47,6 +47,7 @@ namespace repository.Extensions
         public string GetPolicyPath(Repository repository)
         {
             var result = "";
+            ArgumentNullException.ThrowIfNull(repository);
             if (repository.IsAutoPath == true)
             {
                 switch (repository.PolicyPathID)
@@ -68,25 +69,20 @@ namespace repository.Extensions
 
         public string GetPhysicalPath(Repository repository, string customPath1, string customPath2, string customPath3)
         {
-            var result = "";
+            string? result;
+            ArgumentNullException.ThrowIfNull(repository);
             if (repository.IsAutoPath == true)
             {
-                var dynamicPath = "";
-                switch (repository.PolicyPathID)
+                var dynamicPath = repository.PolicyPathID switch
                 {
-                    case "1": // 참조식별자+년도
-                        dynamicPath = GetCustomFileStoragePath(customPath1, customPath2, customPath3) + DateTime.Now.ToString("yyyy") + directoryPathFlag;
-                        break;
-                    case "2": // 참조식별자+년월
-                        dynamicPath = GetCustomFileStoragePath(customPath1, customPath2, customPath3) + DateTime.Now.ToString("yyyy-MM") + directoryPathFlag;
-                        break;
-                    case "3": // 참조식별자+년월일
-                        dynamicPath = GetCustomFileStoragePath(customPath1, customPath2, customPath3) + DateTime.Now.ToString("yyyy-MM-dd") + directoryPathFlag;
-                        break;
-                    default:
-                        dynamicPath = GetCustomFileStoragePath(customPath1, customPath2, customPath3);
-                        break;
-                }
+                    // 참조식별자+년도
+                    "1" => GetCustomFileStoragePath(customPath1, customPath2, customPath3) + DateTime.Now.ToString("yyyy") + directoryPathFlag,
+                    // 참조식별자+년월
+                    "2" => GetCustomFileStoragePath(customPath1, customPath2, customPath3) + DateTime.Now.ToString("yyyy-MM") + directoryPathFlag,
+                    // 참조식별자+년월일
+                    "3" => GetCustomFileStoragePath(customPath1, customPath2, customPath3) + DateTime.Now.ToString("yyyy-MM-dd") + directoryPathFlag,
+                    _ => GetCustomFileStoragePath(customPath1, customPath2, customPath3),
+                };
                 result = PathExtensions.Combine(repository.PhysicalPath, dynamicPath);
             }
             else
@@ -101,24 +97,19 @@ namespace repository.Extensions
         public string GetRelativePath(Repository repository, string customPath1, string customPath2, string customPath3)
         {
             string result;
+            ArgumentNullException.ThrowIfNull(repository);
             if (repository.IsAutoPath == true)
             {
-                string dynamicPath;
-                switch (repository.PolicyPathID)
+                var dynamicPath = repository.PolicyPathID switch
                 {
-                    case "1": // 참조식별자+년도
-                        dynamicPath = GetCustomFileStoragePath(customPath1, customPath2, customPath3) + DateTime.Now.ToString("yyyy") + directoryPathFlag;
-                        break;
-                    case "2": // 참조식별자+년월
-                        dynamicPath = GetCustomFileStoragePath(customPath1, customPath2, customPath3) + DateTime.Now.ToString("yyyy-MM") + directoryPathFlag;
-                        break;
-                    case "3": // 참조식별자+년월일
-                        dynamicPath = GetCustomFileStoragePath(customPath1, customPath2, customPath3) + DateTime.Now.ToString("yyyy-MM-dd") + directoryPathFlag;
-                        break;
-                    default:
-                        dynamicPath = GetCustomFileStoragePath(customPath1, customPath2, customPath3);
-                        break;
-                }
+                    // 참조식별자+년도
+                    "1" => GetCustomFileStoragePath(customPath1, customPath2, customPath3) + DateTime.Now.ToString("yyyy") + directoryPathFlag,
+                    // 참조식별자+년월
+                    "2" => GetCustomFileStoragePath(customPath1, customPath2, customPath3) + DateTime.Now.ToString("yyyy-MM") + directoryPathFlag,
+                    // 참조식별자+년월일
+                    "3" => GetCustomFileStoragePath(customPath1, customPath2, customPath3) + DateTime.Now.ToString("yyyy-MM-dd") + directoryPathFlag,
+                    _ => GetCustomFileStoragePath(customPath1, customPath2, customPath3),
+                };
                 result = dynamicPath;
             }
             else
@@ -131,8 +122,10 @@ namespace repository.Extensions
 
         public string GetRepositoryItemPath(Repository repository, RepositoryItems repositoryItem)
         {
-            var result = "";
+            ArgumentNullException.ThrowIfNull(repositoryItem);
 
+            string? result;
+            ArgumentNullException.ThrowIfNull(repository);
             if (repository.StorageType == "AzureBlob")
             {
                 if (repository.IsAutoPath == true)
@@ -289,7 +282,9 @@ namespace repository.Extensions
 
                 if (!string.IsNullOrWhiteSpace(extension))
                 {
-                    fileName = fileName.Replace(extension, "");
+                    ArgumentNullException.ThrowIfNull(fileName);
+
+                    _ = fileName.Replace(extension, "");
                 }
 
                 FileInfo fileInfo;
@@ -345,7 +340,7 @@ namespace repository.Extensions
             }
         }
 
-        private void getThumbnailSize(int originalWidth, int originalHeight, bool keepOriginalSizeRatio, int thumbnailMaxWidth, int thumbnailMaxHeight, out int thumbnailWidth, out int thumbnailHeight)
+        private static void getThumbnailSize(int originalWidth, int originalHeight, bool keepOriginalSizeRatio, int thumbnailMaxWidth, int thumbnailMaxHeight, out int thumbnailWidth, out int thumbnailHeight)
         {
             if (keepOriginalSizeRatio)
             {

@@ -30,14 +30,14 @@ namespace bundling
     public class BundleFile
     {
         public string fileType = string.Empty;
-        public List<string> inputFileNames = new List<string>();
+        public List<string> inputFileNames = [];
         public string outputFileName = string.Empty;
     }
 
-    internal class Program
+    internal partial class Program
     {
         private static System.Timers.Timer? startupAwaitTimer;
-        private static CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        private static readonly CancellationTokenSource cancellationTokenSource = new();
         private static ArgumentHelper? commandOptions = null;
 
         static async Task<int> Main(string[] args)
@@ -100,15 +100,9 @@ namespace bundling
                 var byPassMinFile = parseResult.GetValue(optionByPassMinFile);
                 var uglifyMode = NormalizeUglifyMode(parseResult.GetValue(optionUglify));
 
-                if (keepSourceFile == null)
-                {
-                    keepSourceFile = false;
-                }
+                keepSourceFile ??= false;
 
-                if (byPassMinFile == null)
-                {
-                    byPassMinFile = true;
-                }
+                byPassMinFile ??= true;
 
                 try
                 {
@@ -152,20 +146,11 @@ namespace bundling
                 var uglifyMode = NormalizeUglifyMode(parseResult.GetValue(optionUglify));
                 var excludeDirectories = parseResult.GetValue(optionExcludes);
 
-                if (keepSourceFile == null)
-                {
-                    keepSourceFile = false;
-                }
+                keepSourceFile ??= false;
 
-                if (byPassMinFile == null)
-                {
-                    byPassMinFile = true;
-                }
+                byPassMinFile ??= true;
 
-                if (excludeDirectories == null)
-                {
-                    excludeDirectories = "";
-                }
+                excludeDirectories ??= "";
 
                 try
                 {
@@ -201,10 +186,7 @@ namespace bundling
                 var file = parseResult.GetValue(optionFile);
                 var keepSourceFile = parseResult.GetValue(optionKeepSourceFile);
 
-                if (keepSourceFile == null)
-                {
-                    keepSourceFile = false;
-                }
+                keepSourceFile ??= false;
 
                 try
                 {
@@ -240,10 +222,7 @@ namespace bundling
                 var directory = parseResult.GetValue(optionDirectoryInfo);
                 var keepSourceFile = parseResult.GetValue(optionKeepSourceFile);
 
-                if (keepSourceFile == null)
-                {
-                    keepSourceFile = false;
-                }
+                keepSourceFile ??= false;
 
                 try
                 {
@@ -452,9 +431,11 @@ namespace bundling
             try
             {
                 // https://github.com/madskristensen/BundlerMinifier/wiki/bundleconfig.json-specs
-                var bundle = new Bundle();
-                bundle.SourceMap = false;
-                bundle.OutputFileName = outputFileName;
+                var bundle = new Bundle
+                {
+                    SourceMap = false,
+                    OutputFileName = outputFileName
+                };
 
                 for (var i = 0; i < inputFileNames.Count; i++)
                 {
@@ -539,14 +520,18 @@ namespace bundling
                             uglifyResult = Uglify.Html(code, settings: htmlSettings);
                             break;
                         case ".js":
-                            var codeSettings = new CodeSettings();
-                            codeSettings.PreserveImportantComments = false;
+                            var codeSettings = new CodeSettings
+                            {
+                                PreserveImportantComments = false
+                            };
                             code = code.Replace("use strict", "");
                             uglifyResult = Uglify.Js(code, codeSettings);
                             break;
                         case ".css":
-                            var cssSettings = new CssSettings();
-                            cssSettings.CommentMode = CssComment.None;
+                            var cssSettings = new CssSettings
+                            {
+                                CommentMode = CssComment.None
+                            };
                             uglifyResult = Uglify.Css(code, cssSettings);
                             break;
                         default:
@@ -566,7 +551,7 @@ namespace bundling
                                 File.Move(file.FullName.Replace("\\", "/"), Path.ChangeExtension(file.FullName.Replace("\\", "/"), ".src" + file.Extension), true);
                             }
 
-                            var uglifyCode = Regex.Replace(uglifyResult.Value.Code, @"\s{2,}", " ");
+                            var uglifyCode = MyRegex().Replace(uglifyResult.Value.Code, " ");
 
                             if (file.Extension == ".js")
                             {
@@ -755,5 +740,8 @@ namespace bundling
                 }
             }
         }
+
+        [GeneratedRegex(@"\s{2,}")]
+        private static partial Regex MyRegex();
     }
 }

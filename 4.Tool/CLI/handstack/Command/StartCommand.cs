@@ -46,15 +46,17 @@ namespace handstack
                     }
 
                     var ackFilePath = ackFile.FullName.Replace("\\", "/");
-                    var process = new Process();
-                    process.StartInfo = new ProcessStartInfo
+                    var process = new Process
                     {
-                        FileName = ackFile.Name == "ack.dll" ? "dotnet" : ackFilePath,
-                        Arguments = ackFile.Name == "ack.dll" ? $"ack.dll {arguments}".Trim() : arguments.ToStringSafe(),
-                        WorkingDirectory = Path.GetDirectoryName(ackFilePath),
-                        CreateNoWindow = true,
-                        UseShellExecute = false,
-                        WindowStyle = ProcessWindowStyle.Hidden
+                        StartInfo = new ProcessStartInfo
+                        {
+                            FileName = ackFile.Name == "ack.dll" ? "dotnet" : ackFilePath,
+                            Arguments = ackFile.Name == "ack.dll" ? $"ack.dll {arguments}".Trim() : arguments.ToStringSafe(),
+                            WorkingDirectory = Path.GetDirectoryName(ackFilePath),
+                            CreateNoWindow = true,
+                            UseShellExecute = false,
+                            WindowStyle = ProcessWindowStyle.Hidden
+                        }
                     };
                     process.Start();
                 }

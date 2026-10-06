@@ -88,21 +88,23 @@ namespace logger
 
                             foreach (var item in ModuleConfiguration.DataSource)
                             {
-                                var applicationCircuitBreakerPolicy = new ApplicationCircuitBreakerPolicy();
-                                applicationCircuitBreakerPolicy.ApplicationCircuitBreaker = Policy
-                                    .Handle<SqlException>()
-                                    .Or<Exception>()
-                                    .CircuitBreaker(1, TimeSpan.FromSeconds(ModuleConfiguration.CircuitBreakResetSecond), onBreak: (exception, timespan, context) =>
-                                    {
-                                        Log.Error(exception, $"CircuitBreaker Reason: {exception.Message}");
-                                    },
-                                    onReset: (context) =>
-                                    {
-                                        Log.Information($"CircuitBreaker 복구, DateTime={DateTime.Now}");
-                                    });
+                                var applicationCircuitBreakerPolicy = new ApplicationCircuitBreakerPolicy
+                                {
+                                    ApplicationCircuitBreaker = Policy
+                                        .Handle<SqlException>()
+                                        .Or<Exception>()
+                                        .CircuitBreaker(1, TimeSpan.FromSeconds(ModuleConfiguration.CircuitBreakResetSecond), onBreak: (exception, timespan, context) =>
+                                        {
+                                            Log.Error(exception, $"CircuitBreaker Reason: {exception.Message}");
+                                        },
+                                        onReset: (context) =>
+                                        {
+                                            Log.Information($"CircuitBreaker 복구, DateTime={DateTime.Now}");
+                                        }),
 
-                                applicationCircuitBreakerPolicy.ApplicationCircuitState = CircuitState.Closed;
-                                applicationCircuitBreakerPolicy.BreakDateTime = null;
+                                    ApplicationCircuitState = CircuitState.Closed,
+                                    BreakDateTime = null
+                                };
 
                                 ModuleConfiguration.ApplicationIDCircuitBreakers.TryAdd(item.ApplicationID, applicationCircuitBreakerPolicy);
 
@@ -181,13 +183,13 @@ namespace logger
             }
         }
 
-        private bool CreateNotExistTable(DataSource dataSource)
+        private static bool CreateNotExistTable(DataSource dataSource)
         {
             var result = false;
             var provider = dataSource.DataProvider;
             var connectionString = dataSource.ConnectionString;
             var tableName = dataSource.TableName;
-            var dataProvider = (DataProviders)Enum.Parse(typeof(DataProviders), provider);
+            var dataProvider = Enum.Parse<DataProviders>(provider);
             var commandText = string.Empty;
 
             switch (dataProvider)
@@ -270,7 +272,7 @@ namespace logger
 
     internal class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
             Console.WriteLine("logger");
         }

@@ -16,15 +16,15 @@ using Serilog;
 
 namespace rdy.Services
 {
-    internal class RuntimeConfigurationService
+    internal class RuntimeConfigurationService(ILogger logger)
     {
-        private readonly ILogger logger;
+        private readonly ILogger logger = logger;
 
-        private static readonly object syncRoot = new object();
+        private static readonly object syncRoot = new();
 
         private static readonly StringComparer keyComparer = StringComparer.OrdinalIgnoreCase;
 
-        private static readonly Dictionary<string, Action<JToken, ConfigurationApplyResult>> realtimeGlobalAppliers = new Dictionary<string, Action<JToken, ConfigurationApplyResult>>(keyComparer)
+        private static readonly Dictionary<string, Action<JToken, ConfigurationApplyResult>> realtimeGlobalAppliers = new(keyComparer)
         {
             ["AppSettings:BusinessServerUrl"] = (token, result) =>
             {
@@ -139,13 +139,13 @@ namespace rdy.Services
                     return;
                 }
 
-                var permissionRoles = token.ToObject<List<PermissionRoles>>() ?? new List<PermissionRoles>();
+                var permissionRoles = token.ToObject<List<PermissionRoles>>() ?? [];
                 GlobalConfiguration.PermissionRoles = permissionRoles;
             }
         };
 
-        private static readonly List<string> restartRequiredGlobalKeys = new List<string>
-        {
+        private static readonly List<string> restartRequiredGlobalKeys =
+        [
             "AppSettings:UseContractSync",
             "AppSettings:UseHttpLogging",
             "AppSettings:UseForwardProxy",
@@ -182,12 +182,7 @@ namespace rdy.Services
             "AppSettings:LicenseKey",
             "AppSettings:LicenseSignature",
             "AppSettings:WithOrigins"
-        };
-
-        public RuntimeConfigurationService(ILogger logger)
-        {
-            this.logger = logger;
-        }
+        ];
 
         public GlobalConfigurationSnapshot GetGlobalConfigurationSnapshot()
         {
@@ -431,7 +426,7 @@ namespace rdy.Services
                 var segment = segments[i];
                 if (current[segment] is not JObject child)
                 {
-                    child = new JObject();
+                    child = [];
                     current[segment] = child;
                 }
 
@@ -499,7 +494,7 @@ namespace rdy.Services
 
                 var moduleSettingText = File.ReadAllText(moduleSettingFilePath);
                 var root = JObject.Parse(moduleSettingText);
-                var moduleConfig = root["ModuleConfig"] as JObject ?? new JObject();
+                var moduleConfig = root["ModuleConfig"] as JObject ?? [];
                 if (request.EventAction != null)
                 {
                     moduleConfig["EventAction"] = JArray.FromObject(module.EventAction);
@@ -545,35 +540,35 @@ namespace rdy.Services
 
         public bool Persisted { get; set; }
 
-        public List<string> AppliedKeys { get; set; } = new List<string>();
+        public List<string> AppliedKeys { get; set; } = [];
 
-        public List<string> RestartRequiredKeys { get; set; } = new List<string>();
+        public List<string> RestartRequiredKeys { get; set; } = [];
 
-        public List<string> IgnoredKeys { get; set; } = new List<string>();
+        public List<string> IgnoredKeys { get; set; } = [];
 
-        public List<string> Errors { get; set; } = new List<string>();
+        public List<string> Errors { get; set; } = [];
     }
 
     internal class GlobalConfigurationSnapshot
     {
-        public Dictionary<string, object?> Values { get; set; } = new Dictionary<string, object?>();
+        public Dictionary<string, object?> Values { get; set; } = [];
 
-        public List<string> RealtimeApplicableKeys { get; set; } = new List<string>();
+        public List<string> RealtimeApplicableKeys { get; set; } = [];
 
-        public List<string> RestartRequiredKeys { get; set; } = new List<string>();
+        public List<string> RestartRequiredKeys { get; set; } = [];
     }
 
     internal class ModuleMediatorConfigurationSnapshot
     {
-        public List<ModuleMediatorConfigurationItem> Modules { get; set; } = new List<ModuleMediatorConfigurationItem>();
+        public List<ModuleMediatorConfigurationItem> Modules { get; set; } = [];
     }
 
     internal class ModuleMediatorConfigurationItem
     {
         public string ModuleID { get; set; } = "";
 
-        public List<string> EventAction { get; set; } = new List<string>();
+        public List<string> EventAction { get; set; } = [];
 
-        public List<string> SubscribeAction { get; set; } = new List<string>();
+        public List<string> SubscribeAction { get; set; } = [];
     }
 }

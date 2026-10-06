@@ -61,8 +61,8 @@ namespace forwarder.Entity
             IgnoreHTTPSErrors = false;
             RequestTimeoutMS = 30000;
             MaxRedirects = 10;
-            ForwardUrls = new Dictionary<string, string>();
-            AllowClientIP = new List<string>() { "*" };
+            ForwardUrls = [];
+            AllowClientIP = ["*"];
         }
     }
 }

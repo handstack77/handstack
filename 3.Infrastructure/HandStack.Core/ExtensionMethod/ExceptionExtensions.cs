@@ -8,6 +8,8 @@ namespace HandStack.Core.ExtensionMethod
     {
         public static Exception GetOriginalException(this Exception @this)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             if (@this.InnerException == null)
             {
                 return @this;
@@ -18,6 +20,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static string GetOriginalMessage(this Exception @this)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             if (@this.InnerException == null)
             {
                 return @this.Message;
@@ -31,18 +35,21 @@ namespace HandStack.Core.ExtensionMethod
         public static IEnumerable<string> GetAllMessages(this Exception @this)
         {
             var result = Enumerable.Empty<string>();
+            ArgumentNullException.ThrowIfNull(@this);
             if (@this.InnerException != null)
             {
-                result = new List<string>(@this.InnerException.GetAllMessages()) { @this.Message };
+                result = [.. @this.InnerException.GetAllMessages(), @this.Message];
             }
             return result;
         }
 
         public static string GetOriginalStackTrace(this Exception @this)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             if (@this.InnerException == null)
             {
-                return @this.StackTrace == null ? "" : @this.StackTrace;
+                return @this.StackTrace ?? "";
             }
             else
             {
@@ -52,9 +59,11 @@ namespace HandStack.Core.ExtensionMethod
 
         public static string GetOriginalSource(this Exception @this)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             if (@this.InnerException == null)
             {
-                return @this.Source == null ? "" : @this.Source;
+                return @this.Source ?? "";
             }
             else
             {

@@ -97,8 +97,7 @@ namespace HandStack.Web.Extensions
         {
             _increment = new Random().Next(500000);
             _machinePid = new byte[5];
-            using var algorithm = MD5.Create();
-            var hash = algorithm.ComputeHash(Encoding.UTF8.GetBytes(Environment.MachineName));
+            var hash = MD5.HashData(Encoding.UTF8.GetBytes(Environment.MachineName));
             hash.AsSpan(0, 3).CopyTo(_machinePid);
 
             try

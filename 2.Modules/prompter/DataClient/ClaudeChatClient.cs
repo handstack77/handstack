@@ -12,14 +12,12 @@ using Newtonsoft.Json.Linq;
 
 namespace prompter.DataClient
 {
-    public class ClaudeChatClient : HttpLLMChatClient
+    public class ClaudeChatClient(IHttpClientFactory httpClientFactory) : HttpLLMChatClient(httpClientFactory)
     {
-        public ClaudeChatClient(IHttpClientFactory httpClientFactory) : base(httpClientFactory)
-        {
-        }
-
         public override async Task<LLMChatResponse> ChatAsync(LLMChatRequest request, CancellationToken cancellationToken = default)
         {
+            ArgumentNullException.ThrowIfNull(request);
+
             Require(request.ApiKey, "Claude ApiKey 설정 필요");
             Require(request.ModelID, "Claude ModelID 설정 필요");
             ValidateMediaSupport(request, "Claude", true, false);
@@ -56,8 +54,7 @@ namespace prompter.DataClient
             }, cancellationToken);
 
             var response = new LLMChatResponse { Raw = json };
-            var content = json["content"] as JArray;
-            if (content != null)
+            if (json["content"] is JArray content)
             {
                 var texts = new List<string>();
                 foreach (var item in content)

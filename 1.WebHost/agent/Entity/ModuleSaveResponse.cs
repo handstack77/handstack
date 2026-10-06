@@ -17,10 +17,10 @@ namespace agent.Entity
 
         public JsonNode? RuntimeApplyResult { get; set; }
 
-        public List<string> ChangedPaths { get; set; } = new List<string>();
+        public List<string> ChangedPaths { get; set; } = [];
 
-        public List<string> RemovedPaths { get; set; } = new List<string>();
+        public List<string> RemovedPaths { get; set; } = [];
 
-        public List<string> RestartRequiredPaths { get; set; } = new List<string>();
+        public List<string> RestartRequiredPaths { get; set; } = [];
     }
 }

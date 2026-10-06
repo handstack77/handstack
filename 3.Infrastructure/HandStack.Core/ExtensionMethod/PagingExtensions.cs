@@ -59,6 +59,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public PagingExtensions(List<T> dataSource, int index, int pageSize)
         {
+            ArgumentNullException.ThrowIfNull(dataSource);
+
             var dataCount = dataSource.Count;
 
             this.TotalCount = dataCount;

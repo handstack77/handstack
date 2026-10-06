@@ -53,10 +53,10 @@ namespace command.Entity
             IsLogServer = false;
             LogServerUrl = "";
             IsContractFileWatching = false;
-            ContractBasePath = new List<string>();
+            ContractBasePath = [];
             IsTransactionLogging = false;
             ModuleLogFilePath = "";
-            AllowClientIP = new List<string>() { "*" };
+            AllowClientIP = ["*"];
             Security = new ModuleSecurityConfig();
         }
     }
@@ -69,8 +69,8 @@ namespace command.Entity
 
         public ModuleSecurityConfig()
         {
-            AllowedExecutableBasePaths = new List<string>();
-            BlockedForwardHeaders = new List<string>() { "Host", "Content-Length", "Transfer-Encoding", "Connection", "Upgrade", "Proxy-Authorization" };
+            AllowedExecutableBasePaths = [];
+            BlockedForwardHeaders = ["Host", "Content-Length", "Transfer-Encoding", "Connection", "Upgrade", "Proxy-Authorization"];
         }
     }
 }

@@ -6,63 +6,44 @@ using System.Xml.Serialization;
 namespace HandStack.Web.MessageContract.DataObject
 {
     [XmlRoot(ElementName = "header", Namespace = "contract.xsd")]
-    public class Header
+    public class Header(string application, string project, string transaction, string dataSource, string use, string desc, string modifiedDate)
     {
-        public Header(string application, string project, string transaction, string dataSource, string use, string desc, string modifiedDate)
-        {
-            Application = application;
-            Project = project;
-            Transaction = transaction;
-            DataSource = dataSource;
-            Use = use;
-            Desc = desc;
-            ModifiedDate = modifiedDate;
-        }
-
         [XmlElement(ElementName = "application", Namespace = "contract.xsd")]
-        public string Application { get; set; }
+        public string Application { get; set; } = application;
 
         [XmlElement(ElementName = "project", Namespace = "contract.xsd")]
-        public string Project { get; set; }
+        public string Project { get; set; } = project;
 
         [XmlElement(ElementName = "transaction", Namespace = "contract.xsd")]
-        public string Transaction { get; set; }
+        public string Transaction { get; set; } = transaction;
 
         [XmlElement(ElementName = "datasource", Namespace = "contract.xsd")]
-        public string DataSource { get; set; }
+        public string DataSource { get; set; } = dataSource;
 
         [XmlElement(ElementName = "use", Namespace = "contract.xsd")]
-        public string Use { get; set; }
+        public string Use { get; set; } = use;
 
         [XmlElement(ElementName = "desc", Namespace = "contract.xsd")]
-        public string Desc { get; set; }
+        public string Desc { get; set; } = desc;
 
         [XmlElement(ElementName = "modifieddate", Namespace = "contract.xsd")]
-        public string ModifiedDate { get; set; }
+        public string ModifiedDate { get; set; } = modifiedDate;
     }
 
     [XmlRoot(ElementName = "param", Namespace = "contract.xsd")]
-    public class Param
+    public class Param(string iD, string type, string length, string value)
     {
-        public Param(string iD, string type, string length, string value)
-        {
-            ID = iD;
-            Type = type;
-            Length = length;
-            Value = value;
-        }
-
         [XmlAttribute(AttributeName = "id")]
-        public string ID { get; set; }
+        public string ID { get; set; } = iD;
 
         [XmlAttribute(AttributeName = "type")]
-        public string Type { get; set; }
+        public string Type { get; set; } = type;
 
         [XmlAttribute(AttributeName = "length")]
-        public string Length { get; set; }
+        public string Length { get; set; } = length;
 
         [XmlAttribute(AttributeName = "value")]
-        public string Value { get; set; }
+        public string Value { get; set; } = value;
     }
 
     [XmlRoot(ElementName = "statement", Namespace = "contract.xsd")]
@@ -71,8 +52,8 @@ namespace HandStack.Web.MessageContract.DataObject
         public Statement()
         {
             Content = "";
-            CDataContent = new XmlNode[0];
-            Param = new List<Param>();
+            CDataContent = Array.Empty<XmlNode>();
+            Param = [];
             ID = "";
             Seq = "";
             Use = "";
@@ -106,8 +87,7 @@ namespace HandStack.Web.MessageContract.DataObject
                 }
 
                 var node0 = value[0];
-                var cdata = node0 as XmlCDataSection;
-                if (cdata == null)
+                if (node0 is not XmlCDataSection cdata)
                 {
                     throw new InvalidOperationException($"Invalid node type {node0.NodeType}");
                 }
@@ -139,15 +119,10 @@ namespace HandStack.Web.MessageContract.DataObject
     }
 
     [XmlRoot(ElementName = "commands", Namespace = "contract.xsd")]
-    public class Commands
+    public class Commands(List<Statement> statement)
     {
-        public Commands(List<Statement> statement)
-        {
-            Statement = statement;
-        }
-
         [XmlElement(ElementName = "statement", Namespace = "contract.xsd")]
-        public List<Statement> Statement { get; set; }
+        public List<Statement> Statement { get; set; } = statement;
     }
 
     [XmlRoot(ElementName = "mapper", Namespace = "contract.xsd")]

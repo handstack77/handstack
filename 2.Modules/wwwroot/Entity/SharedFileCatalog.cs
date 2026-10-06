@@ -9,7 +9,7 @@ namespace wwwroot.Entity
 
         public SharedFileCatalog()
         {
-            Items = new List<SharedFileEntry>();
+            Items = [];
         }
     }
 

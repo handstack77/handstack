@@ -6,21 +6,16 @@ using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Threading.Tasks;
-
-using prompter.Entity;
-
 using HandStack.Core.ExtensionMethod;
 using HandStack.Core.Helpers;
 using HandStack.Web;
 using HandStack.Web.Common;
 using HandStack.Web.Extensions;
 using HandStack.Web.MessageContract.DataObject;
-
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-
 using Newtonsoft.Json.Linq;
-
+using prompter.Entity;
 using Serilog;
 
 namespace prompter.Areas.prompter.Controllers
@@ -29,16 +24,10 @@ namespace prompter.Areas.prompter.Controllers
     [Route("[area]/api/[controller]")]
     [ApiExplorerSettings(IgnoreApi = true)]
     [ApiController]
-    public class FunctionController : BaseController
+    public class FunctionController(ILogger logger, IHttpContextAccessor httpContextAccessor) : BaseController
     {
-        private ILogger logger { get; }
-        private readonly IHttpContextAccessor httpContextAccessor;
-
-        public FunctionController(ILogger logger, IHttpContextAccessor httpContextAccessor)
-        {
-            this.logger = logger;
-            this.httpContextAccessor = httpContextAccessor;
-        }
+        private ILogger logger { get; } = logger;
+        private readonly IHttpContextAccessor httpContextAccessor = httpContextAccessor;
 
         // http://localhost:8421/prompter/api/prompter/execute?accessToken=test&loadOptions[option1]=value1&featureMeta.Timeout=0
         [Route("[action]")]
@@ -55,45 +44,41 @@ namespace prompter.Areas.prompter.Controllers
                 return result;
             }
 
-            if (dynamicParameters == null)
-            {
-                dynamicParameters = new List<DynamicParameter>();
-                dynamicParameters.Add(new DynamicParameter()
-                {
-                    ParameterName = "ApplicationID",
-                    Value = "9ysztou4",
-                    DbType = "String",
-                    Length = 0,
-                });
-
-                dynamicParameters.Add(new DynamicParameter()
-                {
-                    ParameterName = "UserWorkID",
-                    Value = "3qmbxyhc",
-                    DbType = "String",
-                    Length = 0,
-                });
-
-                dynamicParameters.Add(new DynamicParameter()
-                {
-                    ParameterName = "Prompt",
-                    Value = "아빠가 방에 들어가셨다.",
-                    DbType = "String",
-                    Length = 0,
-                });
-            }
+            dynamicParameters ??=
+                [
+                    new DynamicParameter()
+                    {
+                        ParameterName = "ApplicationID",
+                        Value = "9ysztou4",
+                        DbType = "String",
+                        Length = 0,
+                    },
+                    new DynamicParameter()
+                    {
+                        ParameterName = "UserWorkID",
+                        Value = "3qmbxyhc",
+                        DbType = "String",
+                        Length = 0,
+                    },
+                    new DynamicParameter()
+                    {
+                        ParameterName = "Prompt",
+                        Value = "아빠가 방에 들어가셨다.",
+                        DbType = "String",
+                        Length = 0,
+                    },
+                ];
 
             #region DataContext
 
             var now = DateTime.Now;
-            if (dataContext == null)
-            {
-                dataContext = new DataContext();
-                dataContext.accessToken = null;
-                dataContext.loadOptions = null;
-                dataContext.dataProvider = null; // SQLite, SqlServer, MySql, Oracle, PostgreSql, MariaDB
-                dataContext.connectionString = null;
-            }
+            dataContext ??= new DataContext
+                {
+                    accessToken = null,
+                    loadOptions = null,
+                    dataProvider = null, // SQLite, SqlServer, MySql, Oracle, PostgreSql, MariaDB
+                    connectionString = null
+                };
 
             dataContext.globalID = !string.IsNullOrWhiteSpace(dataContext.globalID) ? dataContext.globalID : $"OD00000{GlobalConfiguration.ApplicationID}{functionID.Replace(".", "")}F{now.ToString("HHmmss").ToSHA256().SubstringSafe(0, 6) + now.ToString("HHmmss")}";
             dataContext.environment = !string.IsNullOrWhiteSpace(dataContext.environment) ? dataContext.environment : "D";
@@ -182,15 +167,17 @@ namespace prompter.Areas.prompter.Controllers
                     return result;
                 }
 
-                var moduleScriptMap = new ModuleScriptMap();
-                moduleScriptMap.ApplicationID = header.ApplicationID;
-                moduleScriptMap.ProjectID = header.ProjectID;
-                moduleScriptMap.TransactionID = header.TransactionID;
-                moduleScriptMap.ScriptID = item.ID + item.Seq.ToString().PadLeft(2, '0');
-                moduleScriptMap.ExportName = item.ID;
-                moduleScriptMap.Seq = item.Seq;
-                moduleScriptMap.IsHttpContext = header.IsHttpContext;
-                moduleScriptMap.ReferenceModuleID = header.ReferenceModuleID;
+                var moduleScriptMap = new ModuleScriptMap
+                {
+                    ApplicationID = header.ApplicationID,
+                    ProjectID = header.ProjectID,
+                    TransactionID = header.TransactionID,
+                    ScriptID = item.ID + item.Seq.ToString().PadLeft(2, '0'),
+                    ExportName = item.ID,
+                    Seq = item.Seq,
+                    IsHttpContext = header.IsHttpContext,
+                    ReferenceModuleID = header.ReferenceModuleID
+                };
 
                 if (string.IsNullOrWhiteSpace(item.EntryType))
                 {
@@ -220,9 +207,9 @@ namespace prompter.Areas.prompter.Controllers
                 moduleScriptMap.AfterTransactionCommand = item.AfterTransaction;
                 moduleScriptMap.FallbackTransactionCommand = item.FallbackTransaction;
                 moduleScriptMap.Description = item.Description;
-                moduleScriptMap.OutputMetas = new List<string>(item.OutputMetas);
+                moduleScriptMap.OutputMetas = [.. item.OutputMetas];
 
-                moduleScriptMap.ModuleParameters = new List<ModuleParameterMap>();
+                moduleScriptMap.ModuleParameters = [];
                 var functionParams = item.Params;
                 if (functionParams != null && functionParams.Count > 0)
                 {

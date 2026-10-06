@@ -7,7 +7,7 @@ namespace rdy.Updates;
 
 public static class UpdateJson
 {
-    public static readonly JsonSerializerOptions DefaultSerializerOptions = new JsonSerializerOptions
+    public static readonly JsonSerializerOptions DefaultSerializerOptions = new()
     {
         PropertyNameCaseInsensitive = true,
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,

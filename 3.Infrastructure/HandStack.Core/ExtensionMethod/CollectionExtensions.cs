@@ -8,6 +8,8 @@ namespace HandStack.Core.ExtensionMethod
     {
         public static bool AddUnique<T>(this ICollection<T> @this, T value)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             if (@this.Contains(value) == false)
             {
                 @this.Add(value);
@@ -19,6 +21,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static bool AddUnique<T>(this IList<T> @this, int index, T item)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             if (@this.Contains(item) == false)
             {
                 @this.Insert(index, item);
@@ -31,6 +35,7 @@ namespace HandStack.Core.ExtensionMethod
         public static string CharArrayToString(this char[] @this)
         {
             Array.Sort(@this);
+            ArgumentNullException.ThrowIfNull(@this);
             var result = new StringBuilder(@this.Length);
             foreach (var c in @this)
             {
@@ -48,6 +53,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static bool IsContains(this char[] @this, char character)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             foreach (var c in @this)
             {
                 if (c.Equals(character))

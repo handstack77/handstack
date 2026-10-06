@@ -4,7 +4,7 @@ namespace HandStack.Core
 {
     public abstract class SingletonBase<T>
     {
-        private static readonly object lockObject = new object();
+        private static readonly object lockObject = new();
         private static T? singletonInstance;
         public delegate T CreateInstanceDelegate();
         protected static CreateInstanceDelegate? createInstanceDelegate;

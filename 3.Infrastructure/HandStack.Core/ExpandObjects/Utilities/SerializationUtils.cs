@@ -88,8 +88,7 @@ namespace HandStack.Core.ExpendObjects
 
         public static string? SerializeObjectToString(object instance, bool throwExceptions = false)
         {
-            string? result = null;
-            if (SerializeObject(instance, out result, throwExceptions) == false)
+            if (SerializeObject(instance, out var result, throwExceptions) == false)
             {
                 return null;
             }
@@ -146,7 +145,7 @@ namespace HandStack.Core.ExpendObjects
                 foreach (var property in instance.GetType().GetProperties())
                 {
                     var value = property.GetValue(instance, null);
-                    result += property.Name + ":" + (value == null ? "" : value).ToString() + separator;
+                    result += property.Name + ":" + (value ?? "").ToString() + separator;
                 }
             }
 
@@ -155,7 +154,7 @@ namespace HandStack.Core.ExpendObjects
                 foreach (var field in fi)
                 {
                     var value = field.GetValue(instance);
-                    result = result + field.Name + ": " + (value == null ? "" : value).ToString() + separator;
+                    result = result + field.Name + ": " + (value ?? "").ToString() + separator;
                 }
             }
             return result;

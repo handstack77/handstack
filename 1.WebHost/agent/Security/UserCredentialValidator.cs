@@ -11,14 +11,9 @@ using Microsoft.Extensions.Options;
 
 namespace agent.Security
 {
-    public sealed class UserCredentialValidator
+    public sealed class UserCredentialValidator(IOptionsMonitor<List<UserCredentialOptions>> usersOptionsMonitor)
     {
-        private readonly IOptionsMonitor<List<UserCredentialOptions>> usersOptionsMonitor;
-
-        public UserCredentialValidator(IOptionsMonitor<List<UserCredentialOptions>> usersOptionsMonitor)
-        {
-            this.usersOptionsMonitor = usersOptionsMonitor;
-        }
+        private readonly IOptionsMonitor<List<UserCredentialOptions>> usersOptionsMonitor = usersOptionsMonitor;
 
         public bool TryValidate(string? emailID, string? password, out UserCredentialOptions? user, out string errorCode)
         {
@@ -33,7 +28,7 @@ namespace agent.Security
 
             var normalizedEmail = emailID.Trim();
             var normalizedPassword = password.Trim();
-            var configuredUsers = usersOptionsMonitor.CurrentValue ?? new List<UserCredentialOptions>();
+            var configuredUsers = usersOptionsMonitor.CurrentValue ?? [];
             var matchedUser = configuredUsers.FirstOrDefault(candidate =>
                 string.Equals(candidate.EmailID?.Trim(), normalizedEmail, StringComparison.OrdinalIgnoreCase) == true);
 

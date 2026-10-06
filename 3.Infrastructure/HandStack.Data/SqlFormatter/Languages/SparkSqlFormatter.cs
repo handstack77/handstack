@@ -242,6 +242,15 @@ namespace HandStack.Data.SqlFormatter.Languages
                 "NATURAL RIGHT SEMI JOIN",
                 "NATURAL SEMI JOIN",
             };
+        internal static readonly string[] stringTypes = new[] { "\"\"", "''", "``", "{}" };
+
+        private static readonly string[] TokenizerOpenParens = new[] { "(", "CASE" };
+        private static readonly string[] TokenizerCloseParens = new[] { ")", "END" };
+        private static readonly char[] TokenizerIndexedPlaceholderTypes = new[] { '?' };
+        private static readonly char[] TokenizerNamedPlaceholderTypes = new[] { '$' };
+        private static readonly string[] TokenizerLineCommentTypes = new[] { "--" };
+
+        private static readonly string[] TokenizerOperators = new[] { "!=", "<=>", "&&", "||", "==" };
 
         protected override Tokenizer GetTokenizer()
         {
@@ -251,21 +260,14 @@ namespace HandStack.Data.SqlFormatter.Languages
                     ReservedTopLevelWords,
                     ReservedNewlineWords,
                     ReservedTopLevelWordsNoIndent,
-                    stringTypes: new[] { "\"\"", "''", "``", "{}" },
-                    openParens: new[] { "(", "CASE" },
-                    closeParens: new[] { ")", "END" },
-                    indexedPlaceholderTypes: new[] { '?' },
-                    namedPlaceholderTypes: new[] { '$' },
-                    lineCommentTypes: new[] { "--" },
+                    stringTypes: stringTypes,
+                    openParens: TokenizerOpenParens,
+                    closeParens: TokenizerCloseParens,
+                    indexedPlaceholderTypes: TokenizerIndexedPlaceholderTypes,
+                    namedPlaceholderTypes: TokenizerNamedPlaceholderTypes,
+                    lineCommentTypes: TokenizerLineCommentTypes,
                     specialWordChars: Array.Empty<string>(),
-                    operators: new[]
-                    {
-                        "!=",
-                        "<=>",
-                        "&&",
-                        "||",
-                        "=="
-                    });
+                    operators: TokenizerOperators);
         }
 
         protected override Token TokenOverride(Token token, ReadOnlySpan<char> querySpan)

@@ -10,14 +10,9 @@ namespace agent.Controllers
 {
     [Route("bridge/targets")]
     [ServiceFilter(typeof(HostBridgeKeyActionFilter))]
-    public sealed class BridgeTargetsController : AgentControllerBase
+    public sealed class BridgeTargetsController(ITargetProcessManager targetProcessManager) : AgentControllerBase
     {
-        private readonly ITargetProcessManager targetProcessManager;
-
-        public BridgeTargetsController(ITargetProcessManager targetProcessManager)
-        {
-            this.targetProcessManager = targetProcessManager;
-        }
+        private readonly ITargetProcessManager targetProcessManager = targetProcessManager;
 
         [HttpGet("{id}/status")]
         public async Task<ActionResult> GetStatus(string id, CancellationToken cancellationToken)

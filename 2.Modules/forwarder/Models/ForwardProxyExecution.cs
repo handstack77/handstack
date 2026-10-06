@@ -4,18 +4,12 @@ using System.Threading.Tasks;
 
 namespace forwarder.Models
 {
-    public sealed class ForwardProxyExecution : IAsyncDisposable
+    public sealed class ForwardProxyExecution(ForwardProxyResult result, Func<ValueTask>? disposeAsync = null) : IAsyncDisposable
     {
-        private readonly Func<ValueTask>? disposeAsync;
+        private readonly Func<ValueTask>? disposeAsync = disposeAsync;
         private int isDisposed;
 
-        public ForwardProxyResult Result { get; }
-
-        public ForwardProxyExecution(ForwardProxyResult result, Func<ValueTask>? disposeAsync = null)
-        {
-            Result = result;
-            this.disposeAsync = disposeAsync;
-        }
+        public ForwardProxyResult Result { get; } = result;
 
         public async ValueTask DisposeAsync()
         {

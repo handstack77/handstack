@@ -11,17 +11,11 @@ using Serilog;
 
 namespace logger.Services
 {
-    internal class LogDeleteService : BackgroundService
+    internal class LogDeleteService(ILogger logger, ILoggerClient loggerClient) : BackgroundService
     {
-        private readonly ILogger logger;
+        private readonly ILogger logger = logger;
 
-        private ILoggerClient loggerClient { get; }
-
-        public LogDeleteService(ILogger logger, ILoggerClient loggerClient)
-        {
-            this.logger = logger;
-            this.loggerClient = loggerClient;
-        }
+        private ILoggerClient loggerClient { get; } = loggerClient;
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {

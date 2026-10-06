@@ -45,57 +45,33 @@ namespace dbclient.Enumeration
     {
         public static DbType ToDbType(this DatabaseType DataType)
         {
-            switch (DataType)
+            return DataType switch
             {
-                case DatabaseType.Binary:
-                    return DbType.Binary;
-                case DatabaseType.Boolean:
-                    return DbType.Boolean;
-                case DatabaseType.Byte:
-                    return DbType.Byte;
-                case DatabaseType.Char:
-                    return DbType.AnsiStringFixedLength;
-                case DatabaseType.Date:
-                    return DbType.Date;
-                case DatabaseType.Time:
-                    return DbType.Time;
-                case DatabaseType.DateTime:
-                    return DbType.DateTime;
-                case DatabaseType.Decimal:
-                    return DbType.Decimal;
-                case DatabaseType.Float:
-                    return DbType.Single;
-                case DatabaseType.Int64:
-                    return DbType.Int64;
-                case DatabaseType.Int32:
-                    return DbType.Int32;
-                case DatabaseType.Int16:
-                    return DbType.Int16;
-                case DatabaseType.NChar:
-                    return DbType.StringFixedLength;
-                case DatabaseType.NText:
-                    return DbType.String;
-                case DatabaseType.NVarChar:
-                    return DbType.String;
-                case DatabaseType.Object:
-                    return DbType.Object;
-                case DatabaseType.Single:
-                    return DbType.Single;
-                case DatabaseType.Currency:
-                    return DbType.Currency;
-                case DatabaseType.Text:
-                    return DbType.AnsiString;
-                case DatabaseType.Timestamp:
-                    return DbType.Time;
-                case DatabaseType.Guid:
-                    return DbType.Guid;
-                case DatabaseType.VarBinary:
-                    return DbType.Binary;
-                case DatabaseType.VarChar:
-                    return DbType.String;
-                default:
-                    return DbType.String;
-            }
+                DatabaseType.Binary => DbType.Binary,
+                DatabaseType.Boolean => DbType.Boolean,
+                DatabaseType.Byte => DbType.Byte,
+                DatabaseType.Char => DbType.AnsiStringFixedLength,
+                DatabaseType.Date => DbType.Date,
+                DatabaseType.Time => DbType.Time,
+                DatabaseType.DateTime => DbType.DateTime,
+                DatabaseType.Decimal => DbType.Decimal,
+                DatabaseType.Float => DbType.Single,
+                DatabaseType.Int64 => DbType.Int64,
+                DatabaseType.Int32 => DbType.Int32,
+                DatabaseType.Int16 => DbType.Int16,
+                DatabaseType.NChar => DbType.StringFixedLength,
+                DatabaseType.NText => DbType.String,
+                DatabaseType.NVarChar => DbType.String,
+                DatabaseType.Object => DbType.Object,
+                DatabaseType.Single => DbType.Single,
+                DatabaseType.Currency => DbType.Currency,
+                DatabaseType.Text => DbType.AnsiString,
+                DatabaseType.Timestamp => DbType.Time,
+                DatabaseType.Guid => DbType.Guid,
+                DatabaseType.VarBinary => DbType.Binary,
+                DatabaseType.VarChar => DbType.String,
+                _ => DbType.String,
+            };
         }
     }
 

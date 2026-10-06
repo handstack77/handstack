@@ -2,45 +2,32 @@ using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-
 using graphclient.Entity;
 using graphclient.Extensions;
-
-using Mediator;
 using HandStack.Core.ExtensionMethod;
+using Mediator;
 
 namespace graphclient.Events
 {
-    public class QueryRefreshRequest : IRequest<bool>
+    public class QueryRefreshRequest(string changeType, string filePath, string? userWorkID, string? applicationID) : IRequest<bool>
     {
-        public QueryRefreshRequest(string changeType, string filePath, string? userWorkID, string? applicationID)
-        {
-            ChangeType = changeType;
-            FilePath = filePath;
-            UserWorkID = userWorkID;
-            ApplicationID = applicationID;
-        }
+        public string ChangeType { get; } = changeType;
 
-        public string ChangeType { get; }
+        public string FilePath { get; } = filePath;
 
-        public string FilePath { get; }
+        public string? UserWorkID { get; } = userWorkID;
 
-        public string? UserWorkID { get; }
-
-        public string? ApplicationID { get; }
+        public string? ApplicationID { get; } = applicationID;
     }
 
-    public class QueryRefreshRequestHandler : IRequestHandler<QueryRefreshRequest, bool>
+    public class QueryRefreshRequestHandler(Serilog.ILogger logger) : IRequestHandler<QueryRefreshRequest, bool>
     {
-        private readonly Serilog.ILogger logger;
-
-        public QueryRefreshRequestHandler(Serilog.ILogger logger)
-        {
-            this.logger = logger;
-        }
+        private readonly Serilog.ILogger logger = logger;
 
         public ValueTask<bool> Handle(QueryRefreshRequest request, CancellationToken cancellationToken)
         {
+            ArgumentNullException.ThrowIfNull(request);
+
             var filePath = request.FilePath;
             if (filePath.StartsWith(Path.DirectorySeparatorChar) == true)
             {
@@ -50,7 +37,7 @@ namespace graphclient.Events
             logger.Information("[{LogCategory}] " + $"WatcherChangeTypes: {request.ChangeType}, FilePath: {filePath}", "Query/Refresh");
 
             var fileInfo = new FileInfo(filePath);
-            var watcherChangeTypes = (WatcherChangeTypes)Enum.Parse(typeof(WatcherChangeTypes), request.ChangeType);
+            var watcherChangeTypes = Enum.Parse<WatcherChangeTypes>(request.ChangeType);
             var actionResult = false;
 
             switch (watcherChangeTypes)

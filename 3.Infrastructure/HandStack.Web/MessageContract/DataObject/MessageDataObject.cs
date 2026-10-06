@@ -9,7 +9,7 @@ namespace HandStack.Web.MessageContract.DataObject
             ResponseCode = "";
             ResultType = "";
             Message = "";
-            Additional = new List<string>();
+            Additional = [];
         }
 
         public string ResponseCode;

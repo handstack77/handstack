@@ -10,9 +10,9 @@ namespace HandStack.Web.MessageContract.Message
         {
             this.affect = 0;
             this.repositoryObject = new RepositoryObject();
-            this.repositorysObject = new List<RepositoryObject>();
+            this.repositorysObject = [];
             this.repositoryItemObject = new RepositoryItemsObject();
-            this.repositoryItemsObject = new List<RepositoryItemsObject>();
+            this.repositoryItemsObject = [];
         }
 
         public int affect { get; set; }

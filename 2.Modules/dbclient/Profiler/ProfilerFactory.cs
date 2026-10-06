@@ -11,14 +11,11 @@ namespace dbclient.Profiler
     {
         private static Func<IAdoNetProfiler>? constructor;
         private static bool initialized = false;
-        private static readonly ReaderWriterLockSlim readerWriterLockSlim = new ReaderWriterLockSlim();
+        private static readonly ReaderWriterLockSlim readerWriterLockSlim = new();
 
         public static void Initialize(Type profilerType)
         {
-            if (profilerType == null)
-            {
-                throw new ArgumentNullException(nameof(profilerType));
-            }
+            ArgumentNullException.ThrowIfNull(profilerType);
 
             if (profilerType.GetInterfaces().All(x => x != typeof(IAdoNetProfiler)))
             {

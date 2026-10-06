@@ -6,8 +6,8 @@ namespace prompter.Entity
 {
     public record TransactionDynamicObjects
     {
-        public QueryObject DynamicTransaction = new QueryObject();
-        public PromptMap Statement = new PromptMap();
+        public QueryObject DynamicTransaction = new();
+        public PromptMap Statement = new();
         public string ApiKey = string.Empty;
         public string ModelID = string.Empty;
         public string ServiceID = string.Empty;

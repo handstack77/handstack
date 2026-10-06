@@ -8,10 +8,10 @@ namespace HandStack.Web.Extensions
 {
     public class ExpiringList<T> : IList<T> where T : class
     {
-        private readonly List<(T Value, DateTime ExpiryTime)> list = new();
+        private readonly List<(T Value, DateTime ExpiryTime)> list = [];
         private readonly TimeSpan defaultExpiryDuration;
         private readonly Timer purgeTimer;
-        private readonly object defaultLock = new object();
+        private readonly object defaultLock = new();
 
         public ExpiringList()
         {
@@ -49,17 +49,17 @@ namespace HandStack.Web.Extensions
             {
                 if (index >= 0 && index < list.Count)
                 {
-                    var entry = list[index];
+                    var (Value, ExpiryTime) = list[index];
                     var now = DateTime.Now;
-                    if (entry.ExpiryTime > now)
+                    if (ExpiryTime > now)
                     {
-                        var remainingTime = entry.ExpiryTime - now;
+                        var remainingTime = ExpiryTime - now;
                         if (remainingTime < defaultExpiryDuration)
                         {
-                            list[index] = (entry.Value, DateTime.Now.Add(defaultExpiryDuration));
+                            list[index] = (Value, DateTime.Now.Add(defaultExpiryDuration));
                         }
 
-                        value = entry.Value;
+                        value = Value;
                         return true;
                     }
                     else
@@ -77,11 +77,11 @@ namespace HandStack.Web.Extensions
         {
             lock (defaultLock)
             {
-                foreach (var entry in list)
+                foreach (var (Value, ExpiryTime) in list)
                 {
-                    if (entry.ExpiryTime > DateTime.Now)
+                    if (ExpiryTime > DateTime.Now)
                     {
-                        yield return entry.Value;
+                        yield return Value;
                     }
                 }
             }
@@ -146,11 +146,13 @@ namespace HandStack.Web.Extensions
         {
             lock (defaultLock)
             {
-                foreach (var entry in list)
+                foreach (var (Value, ExpiryTime) in list)
                 {
-                    if (entry.ExpiryTime > DateTime.Now)
+                    if (ExpiryTime > DateTime.Now)
                     {
-                        array[arrayIndex++] = entry.Value;
+                        ArgumentNullException.ThrowIfNull(array);
+
+                        array[arrayIndex++] = Value;
                     }
                 }
             }
@@ -211,8 +213,8 @@ namespace HandStack.Web.Extensions
             {
                 for (var i = 0; i < list.Count; i++)
                 {
-                    var entry = list[i];
-                    list[i] = (entry.Value, dateTime);
+                    var (Value, ExpiryTime) = list[i];
+                    list[i] = (Value, dateTime);
                 }
             }
         }
@@ -222,11 +224,11 @@ namespace HandStack.Web.Extensions
             lock (defaultLock)
             {
                 var now = DateTime.Now;
-                foreach (var entry in list)
+                foreach (var (Value, ExpiryTime) in list)
                 {
-                    if (entry.ExpiryTime > now && predicate(entry.Value))
+                    if (ExpiryTime > now && (predicate ?? throw new ArgumentNullException(nameof(predicate)))(Value))
                     {
-                        return entry.Value;
+                        return Value;
                     }
                 }
                 return null;

@@ -12,6 +12,9 @@ namespace HandStack.Web.MessageContract.Converter
 
         public override object ReadJson(JsonReader reader, Type t, object? existingValue, JsonSerializer serializer)
         {
+            ArgumentNullException.ThrowIfNull(reader);
+            ArgumentNullException.ThrowIfNull(serializer);
+
             switch (reader.TokenType)
             {
                 case JsonToken.Integer:
@@ -30,6 +33,8 @@ namespace HandStack.Web.MessageContract.Converter
 
         public override void WriteJson(JsonWriter writer, object? untypedValue, JsonSerializer serializer)
         {
+            ArgumentNullException.ThrowIfNull(serializer);
+
             if (untypedValue != null)
             {
                 var value = (DefaultValue)untypedValue;
@@ -52,6 +57,6 @@ namespace HandStack.Web.MessageContract.Converter
             }
         }
 
-        public static readonly DefaultValueConverter Singleton = new DefaultValueConverter();
+        public static readonly DefaultValueConverter Singleton = new();
     }
 }

@@ -12,24 +12,21 @@ namespace HandStack.Core.Helpers
 	/// {
 	/// }
     /// </code>
-    public class DataTableHelper
+    public class DataTableHelper(string tableName)
     {
-        private DataTable resultTable;
+        private readonly DataTable resultTable = new(tableName);
 
         public DataTableHelper() : this(string.Empty)
         {
         }
 
-        public DataTableHelper(string tableName)
-        {
-            resultTable = new DataTable(tableName);
-        }
-
         public void AddColumn(string columnName, Type columnType)
         {
-            var Column = new DataColumn();
-            Column.DataType = columnType;
-            Column.ColumnName = columnName;
+            var Column = new DataColumn
+            {
+                DataType = columnType,
+                ColumnName = columnName
+            };
 
             resultTable.Columns.Add(Column);
         }
@@ -67,10 +64,7 @@ namespace HandStack.Core.Helpers
 
         public void Clear()
         {
-            if (resultTable != null)
-            {
-                resultTable.Dispose();
-            }
+            resultTable?.Dispose();
         }
 
         public static DataSet? DataReaderToDataSet(IDataReader? reader, string prefix = "dataTable", int dataTableIndex = 0)
@@ -89,8 +83,10 @@ namespace HandStack.Core.Helpers
                                 continue;
                             }
 
-                            var dataTable = new DataTable();
-                            dataTable.TableName = prefix + dataTableIndex.ToString();
+                            var dataTable = new DataTable
+                            {
+                                TableName = prefix + dataTableIndex.ToString()
+                            };
                             ds.Tables.Add(dataTable);
 
                             DataRow row;
@@ -131,7 +127,7 @@ namespace HandStack.Core.Helpers
                                 dataTable.EndLoadData();
                             }
                         }
-                        dataTableIndex = dataTableIndex + 1;
+                        dataTableIndex++;
                     } while (reader.NextResult() == true);
 
                     return ds;
@@ -153,6 +149,8 @@ namespace HandStack.Core.Helpers
         /// <param name="beforeRead">스키마 구성 후 첫 Read 직전에 실행할 작업입니다.</param>
         public static DataTable? DataReaderToSingleRowTable(IDataReader reader, bool retainFirstRow = false, Action? beforeRead = null)
         {
+            ArgumentNullException.ThrowIfNull(reader);
+
             using var schemaTable = reader.GetSchemaTable();
             if (schemaTable == null)
             {
@@ -215,6 +213,8 @@ namespace HandStack.Core.Helpers
             using var ds = new DataSet();
             do
             {
+                ArgumentNullException.ThrowIfNull(reader);
+
                 using (var schemaTable = reader.GetSchemaTable())
                 {
                     if (schemaTable == null)
@@ -226,7 +226,7 @@ namespace HandStack.Core.Helpers
                     addTable.TableName = prefix + dataTableIndex.ToString();
                     ds.Tables.Add(addTable);
                 }
-                dataTableIndex = dataTableIndex + 1;
+                dataTableIndex++;
             } while (reader.NextResult() == true);
 
             return ds;

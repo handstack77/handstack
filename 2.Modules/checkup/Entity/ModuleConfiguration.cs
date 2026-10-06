@@ -8,7 +8,7 @@ namespace checkup.Entity
         public static string ModuleID = "checkup";
         public static string Version = "";
         public static string AuthorizationKey = "";
-        public static List<string> AllowClientIP = new List<string>() { "*" };
+        public static List<string> AllowClientIP = ["*"];
         public static string ManagedAccessKey = "";
         public static string EncryptionAES256Key = "1234567890123456";
         public static bool IsBundledWithHost = false;
@@ -20,8 +20,8 @@ namespace checkup.Entity
         public static string BusinessServerUrl = "";
         public static bool IsModuleLogging = false;
         public static string ModuleLogFilePath = "";
-        public static Dictionary<string, List<string>> TenantAppOrigins = new Dictionary<string, List<string>>();
-        public static Dictionary<string, List<string>> TenantAppReferers = new Dictionary<string, List<string>>();
+        public static Dictionary<string, List<string>> TenantAppOrigins = [];
+        public static Dictionary<string, List<string>> TenantAppReferers = [];
         public static bool IsApiFindServer = false;
         public static bool IsMenuMemoryCache = true;
         public static string ConnectionString = "";

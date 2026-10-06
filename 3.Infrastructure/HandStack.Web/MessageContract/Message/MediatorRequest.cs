@@ -15,7 +15,7 @@ namespace HandStack.Web.MessageContract.Message
             ApplicationID = "";
             BusinessID = "";
             TransactionID = "";
-            Parameters = new Dictionary<string, object?>();
+            Parameters = [];
         }
 
         public ExecuteDynamicTypeObject ReturnType { get; set; }

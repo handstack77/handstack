@@ -39,8 +39,7 @@ namespace HandStack.Core.Licensing
             get
             {
                 return
-                    (LicenseType)
-                    Enum.Parse(typeof(LicenseType), GetTag("Type") ?? LicenseType.Trial.ToString(), false);
+                    Enum.Parse<LicenseType>(GetTag("Type") ?? LicenseType.Trial.ToString(), false);
             }
             set { if (!IsSigned) SetTag("Type", value.ToString()); }
         }
@@ -142,6 +141,7 @@ namespace HandStack.Core.Licensing
                     signTag.Remove();
                 }
 
+                ArgumentNullException.ThrowIfNull(passPhrase);
                 var privKey = KeyFactory.FromEncryptedPrivateKeyString(privateKey, passPhrase);
 
                 var documentToSign = Encoding.UTF8.GetBytes(xmlData.ToString(SaveOptions.DisableFormatting));
@@ -254,7 +254,7 @@ namespace HandStack.Core.Licensing
         private string? GetTag(string name)
         {
             var element = xmlData.Element(name);
-            return element != null ? element.Value : null;
+            return element?.Value;
         }
     }
 }

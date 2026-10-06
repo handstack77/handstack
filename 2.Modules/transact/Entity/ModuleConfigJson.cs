@@ -109,31 +109,31 @@ namespace transact.Entity
             IsDataMasking = false;
             IsValidationRequest = false;
             IsValidationGlobalID = false;
-            BypassGlobalIDTransactions = new List<string>();
+            BypassGlobalIDTransactions = [];
             IsAllowDynamicRequest = false;
-            AllowTenantTransactionCommands = new List<string>();
+            AllowTenantTransactionCommands = [];
             MaskingChar = "";
             MaskingMethod = "";
             ModuleBasePath = "";
             IsContractFileWatching = false;
-            ContractBasePath = new List<string>();
+            ContractBasePath = [];
             TrustedProxyIP = "";
             HasTrustedCheckIP = false;
             UseApiAuthorize = false;
             DynamicWorkflowTransaction = "";
             DynamicWorkflowServices = "";
-            BypassAuthorizeIP = new List<string>();
-            AvailableEnvironment = new List<string> { "D" };
+            BypassAuthorizeIP = [];
+            AvailableEnvironment = ["D"];
             LogServerUrl = "";
             IsCodeDataCache = true;
             CodeDataCacheTimeout = 20;
             DatabaseContractPath = "";
             IsTransactionLogging = false;
             TransactionAggregateBasePath = "";
-            PublicTransactions = new ExpiringList<PublicTransaction>();
-            RoutingCommandUri = new Dictionary<string, string>();
-            AllowRequestTransactions = new Dictionary<string, List<string>>();
-            AllowClientIP = new List<string>() { "*" };
+            PublicTransactions = [];
+            RoutingCommandUri = [];
+            AllowRequestTransactions = [];
+            AllowClientIP = ["*"];
             SecurityHardening = new SecurityHardeningConfig();
         }
     }
@@ -215,7 +215,7 @@ namespace transact.Entity
             return objectType == typeof(List<string>);
         }
 
-        public override object? ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
         {
             var token = JToken.Load(reader);
             if (token.Type == JTokenType.Array)
@@ -224,17 +224,18 @@ namespace transact.Entity
             }
             else if (token.Type == JTokenType.String)
             {
-                return token.ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                return token.ToString().Split(',', StringSplitOptions.RemoveEmptyEntries);
             }
 
             return new List<string>() { "D" };
         }
 
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
         {
-            var list = value as List<string>;
-            if (list != null)
+            if (value is List<string> list)
             {
+                ArgumentNullException.ThrowIfNull(writer);
+
                 writer.WriteValue(string.Join(",", list));
             }
         }

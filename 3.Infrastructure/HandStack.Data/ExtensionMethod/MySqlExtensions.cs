@@ -37,6 +37,8 @@ namespace HandStack.Data.ExtensionMethod
 
         public static DataSet ExecuteDataSet(this MySqlConnection @this, string cmdText, MySqlParameter[]? parameters, CommandType commandType, MySqlTransaction? transaction)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
             command.CommandText = cmdText;
             command.CommandType = commandType;
@@ -58,7 +60,10 @@ namespace HandStack.Data.ExtensionMethod
 
         public static DataSet ExecuteDataSet(this MySqlConnection @this, Action<MySqlCommand> commandFactory)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
+            ArgumentNullException.ThrowIfNull(commandFactory);
             commandFactory(command);
 
             var ds = new DataSet();
@@ -107,6 +112,8 @@ namespace HandStack.Data.ExtensionMethod
 
         public static DataTable ExecuteDataTable(this MySqlConnection @this, string cmdText, MySqlParameter[]? parameters, CommandType commandType, MySqlTransaction? transaction)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
             command.CommandText = cmdText;
             command.CommandType = commandType;
@@ -128,7 +135,10 @@ namespace HandStack.Data.ExtensionMethod
 
         public static DataTable ExecuteDataTable(this MySqlConnection @this, Action<MySqlCommand> commandFactory)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
+            ArgumentNullException.ThrowIfNull(commandFactory);
             commandFactory(command);
 
             var ds = new DataSet();
@@ -177,6 +187,8 @@ namespace HandStack.Data.ExtensionMethod
 
         public static IEnumerable<T> ExecuteEntities<T>(this MySqlConnection @this, string cmdText, MySqlParameter[]? parameters, CommandType commandType, MySqlTransaction? transaction) where T : new()
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
             command.CommandText = cmdText;
             command.CommandType = commandType;
@@ -193,7 +205,10 @@ namespace HandStack.Data.ExtensionMethod
 
         public static IEnumerable<T> ExecuteEntities<T>(this MySqlConnection @this, Action<MySqlCommand> commandFactory) where T : new()
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
+            ArgumentNullException.ThrowIfNull(commandFactory);
             commandFactory(command);
 
             using IDataReader reader = command.ExecuteReader();
@@ -237,6 +252,8 @@ namespace HandStack.Data.ExtensionMethod
 
         public static T ExecuteEntity<T>(this MySqlConnection @this, string cmdText, MySqlParameter[]? parameters, CommandType commandType, MySqlTransaction? transaction) where T : new()
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
             command.CommandText = cmdText;
             command.CommandType = commandType;
@@ -247,17 +264,20 @@ namespace HandStack.Data.ExtensionMethod
                 command.Parameters.AddRange(parameters);
             }
 
-            using IDataReader reader = command.ExecuteReader();
+            using MySqlDataReader reader = command.ExecuteReader();
             reader.Read();
             return reader.ToEntity<T>();
         }
 
         public static T ExecuteEntity<T>(this MySqlConnection @this, Action<MySqlCommand> commandFactory) where T : new()
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
+            ArgumentNullException.ThrowIfNull(commandFactory);
             commandFactory(command);
 
-            using IDataReader reader = command.ExecuteReader();
+            using MySqlDataReader reader = command.ExecuteReader();
             reader.Read();
             return reader.ToEntity<T>();
         }
@@ -299,6 +319,8 @@ namespace HandStack.Data.ExtensionMethod
 
         public static dynamic ExecuteExpandoObject(this MySqlConnection @this, string cmdText, MySqlParameter[]? parameters, CommandType commandType, MySqlTransaction? transaction)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
             command.CommandText = cmdText;
             command.CommandType = commandType;
@@ -309,17 +331,20 @@ namespace HandStack.Data.ExtensionMethod
                 command.Parameters.AddRange(parameters);
             }
 
-            using IDataReader reader = command.ExecuteReader();
+            using MySqlDataReader reader = command.ExecuteReader();
             reader.Read();
             return reader.ToExpandoObject();
         }
 
         public static dynamic ExecuteExpandoObject(this MySqlConnection @this, Action<MySqlCommand> commandFactory)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
+            ArgumentNullException.ThrowIfNull(commandFactory);
             commandFactory(command);
 
-            using IDataReader reader = command.ExecuteReader();
+            using MySqlDataReader reader = command.ExecuteReader();
             reader.Read();
             return reader.ToExpandoObject();
         }
@@ -361,6 +386,8 @@ namespace HandStack.Data.ExtensionMethod
 
         public static IEnumerable<dynamic> ExecuteExpandoObjects(this MySqlConnection @this, string cmdText, MySqlParameter[]? parameters, CommandType commandType, MySqlTransaction? transaction)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
             command.CommandText = cmdText;
             command.CommandType = commandType;
@@ -377,7 +404,10 @@ namespace HandStack.Data.ExtensionMethod
 
         public static IEnumerable<dynamic> ExecuteExpandoObjects(this MySqlConnection @this, Action<MySqlCommand> commandFactory)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
+            ArgumentNullException.ThrowIfNull(commandFactory);
             commandFactory(command);
 
             using IDataReader reader = command.ExecuteReader();
@@ -421,14 +451,20 @@ namespace HandStack.Data.ExtensionMethod
 
         public static void AddRangeWithValue(this MySqlParameterCollection @this, Dictionary<string, object> values)
         {
+            ArgumentNullException.ThrowIfNull(values);
+
             foreach (var keyValuePair in values)
             {
+                ArgumentNullException.ThrowIfNull(@this);
+
                 @this.AddWithValue(keyValuePair.Key, keyValuePair.Value);
             }
         }
 
         public static string ParameterValueForSQL(this MySqlParameter @this)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             var paramValue = @this.Value;
 
             if (paramValue == null)
@@ -436,36 +472,22 @@ namespace HandStack.Data.ExtensionMethod
                 return "NULL";
             }
 
-            switch (@this.MySqlDbType)
+            return @this.MySqlDbType switch
             {
-                case MySqlDbType.VarChar:
-                case MySqlDbType.MediumText:
-                case MySqlDbType.LongText:
-                case MySqlDbType.String:
-                case MySqlDbType.Text:
-                case MySqlDbType.Time:
-                case MySqlDbType.VarString:
-                case MySqlDbType.JSON:
-                case MySqlDbType.Date:
-                case MySqlDbType.DateTime:
-                    return $"'{paramValue.ToStringSafe().Replace("'", "''")}'";
-                case MySqlDbType.Bit:
-                    return (paramValue.ToBoolean(false)) ? "1" : "0";
-                case MySqlDbType.Decimal:
-                    return ((decimal)paramValue).ToString(CultureInfo.InvariantCulture).Replace("'", "''");
-                case MySqlDbType.Float:
-                    return ((float)paramValue).ToString(CultureInfo.InvariantCulture).Replace("'", "''");
-                case MySqlDbType.Double:
-                    return ((double)paramValue).ToString(CultureInfo.InvariantCulture).Replace("'", "''");
-                default:
-                    return paramValue.ToStringSafe().Replace("'", "''");
-            }
+                MySqlDbType.VarChar or MySqlDbType.MediumText or MySqlDbType.LongText or MySqlDbType.String or MySqlDbType.Text or MySqlDbType.Time or MySqlDbType.VarString or MySqlDbType.JSON or MySqlDbType.Date or MySqlDbType.DateTime => $"'{paramValue.ToStringSafe().Replace("'", "''")}'",
+                MySqlDbType.Bit => (paramValue.ToBoolean(false)) ? "1" : "0",
+                MySqlDbType.Decimal => ((decimal)paramValue).ToString(CultureInfo.InvariantCulture).Replace("'", "''"),
+                MySqlDbType.Float => ((float)paramValue).ToString(CultureInfo.InvariantCulture).Replace("'", "''"),
+                MySqlDbType.Double => ((double)paramValue).ToString(CultureInfo.InvariantCulture).Replace("'", "''"),
+                _ => paramValue.ToStringSafe().Replace("'", "''"),
+            };
         }
 
         public static string CommandAsMySql(this MySqlCommand @this)
         {
             var sql = new StringBuilder();
 
+            ArgumentNullException.ThrowIfNull(@this);
             switch (@this.CommandType)
             {
                 case CommandType.Text:
@@ -500,7 +522,7 @@ namespace HandStack.Data.ExtensionMethod
             {
                 if ((sp.Direction == ParameterDirection.InputOutput) || (sp.Direction == ParameterDirection.Output))
                 {
-                    sql.Append("declare ").Append(sp.ParameterName).Append("\t").Append(sp.MySqlDbType.ToString()).Append("\t= ");
+                    sql.Append("declare ").Append(sp.ParameterName).Append('\t').Append(sp.MySqlDbType.ToString()).Append("\t= ");
 
                     sql.Append((sp.Direction == ParameterDirection.Output) ? "null" : sp.ParameterValueForSQL()).AppendLine(";");
                 }

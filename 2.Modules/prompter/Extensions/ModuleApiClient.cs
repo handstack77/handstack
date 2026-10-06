@@ -24,21 +24,14 @@ using Stubble.Core.Builders;
 
 namespace prompter.Extensions
 {
-    public class ModuleApiClient
+    public class ModuleApiClient(ILogger logger, TransactionClient transactionClient, IMemoryCache memoryCache)
     {
         private const string CodeHelpTemplateDirectoryName = "CodeHelpTemplates";
         private const string CodeHelpTemplateExtension = ".tpl";
 
-        private readonly ILogger logger;
-        private readonly TransactionClient transactionClient;
-        private readonly IMemoryCache memoryCache;
-
-        public ModuleApiClient(ILogger logger, TransactionClient transactionClient, IMemoryCache memoryCache)
-        {
-            this.logger = logger;
-            this.transactionClient = transactionClient;
-            this.memoryCache = memoryCache;
-        }
+        private readonly ILogger logger = logger;
+        private readonly TransactionClient transactionClient = transactionClient;
+        private readonly IMemoryCache memoryCache = memoryCache;
 
         // var repositoryItems = result?["FormData0"]?.ToObject<RepositoryItems>();
         // var repositorys = result?["GridData0"]?.ToObject<List<Repository>>();
@@ -52,12 +45,14 @@ namespace prompter.Extensions
                 try
                 {
                     var transactionInfo = transactionCommandID.Split("|");
-                    var transactionObject = new TransactionClientObject();
-                    transactionObject.SystemID = TransactionConfig.Transaction.SystemID;
-                    transactionObject.ProgramID = transactionInfo[0];
-                    transactionObject.BusinessID = transactionInfo[1];
-                    transactionObject.TransactionID = transactionInfo[2];
-                    transactionObject.FunctionID = transactionInfo[3];
+                    var transactionObject = new TransactionClientObject
+                    {
+                        SystemID = TransactionConfig.Transaction.SystemID,
+                        ProgramID = transactionInfo[0],
+                        BusinessID = transactionInfo[1],
+                        TransactionID = transactionInfo[2],
+                        FunctionID = transactionInfo[3]
+                    };
                     transactionObject.ScreenID = transactionObject.TransactionID;
                     transactionObject.StartTraceID = string.IsNullOrEmpty(startTraceID) == true ? nameof(ModuleApiClient) : startTraceID;
 
@@ -99,9 +94,9 @@ namespace prompter.Extensions
 
             var serviceParameters = new List<ServiceParameter>
             {
-                new ServiceParameter("ApplicationID", applicationID),
-                new ServiceParameter("CodeHelpID", codeHelpID),
-                new ServiceParameter("Parameters", NormalizeCodeHelpParameters(parametersText))
+                new("ApplicationID", applicationID),
+                new("CodeHelpID", codeHelpID),
+                new("Parameters", NormalizeCodeHelpParameters(parametersText))
             };
 
             var transactionResult = await TransactionDirect(transactionCommandID, serviceParameters, "ModuleApiClient/GetCodeHelp");
@@ -243,13 +238,13 @@ namespace prompter.Extensions
             var fileName = templateID.Trim();
             if (fileName.EndsWith(CodeHelpTemplateExtension, StringComparison.OrdinalIgnoreCase) == true)
             {
-                fileName = fileName.Substring(0, fileName.Length - CodeHelpTemplateExtension.Length);
+                fileName = fileName[..^CodeHelpTemplateExtension.Length];
             }
 
             if (fileName.IndexOfAny(Path.GetInvalidFileNameChars()) > -1
                 || fileName.Contains("..", StringComparison.Ordinal)
-                || fileName.Contains("/", StringComparison.Ordinal)
-                || fileName.Contains("\\", StringComparison.Ordinal))
+                || fileName.Contains('/', StringComparison.Ordinal)
+                || fileName.Contains('\\', StringComparison.Ordinal))
             {
                 return "";
             }
@@ -269,7 +264,7 @@ namespace prompter.Extensions
                 return "";
             }
 
-            if (parametersText.StartsWith("@") == true || parametersText.Contains(":") == true || parametersText.Contains(";") == true)
+            if (parametersText.StartsWith('@') == true || parametersText.Contains(':') == true || parametersText.Contains(';') == true)
             {
                 return parametersText;
             }

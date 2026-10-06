@@ -10,7 +10,7 @@ namespace HandStack.Core.ExpendObjects
     [XmlRoot("properties")]
     public class PropertyBag : PropertyBag<object?>
     {
-        public new static PropertyBag CreateFromXml(string xml)
+        public static new PropertyBag CreateFromXml(string xml)
         {
             var bag = new PropertyBag();
             bag.FromXml(xml);
@@ -43,6 +43,7 @@ namespace HandStack.Core.ExpendObjects
                     continue;
                 }
 
+                ArgumentNullException.ThrowIfNull(writer);
                 writer.WriteStartElement("item");
 
                 writer.WriteStartElement("key");
@@ -106,6 +107,7 @@ namespace HandStack.Core.ExpendObjects
         public void ReadXml(XmlReader reader)
         {
             Clear();
+            ArgumentNullException.ThrowIfNull(reader);
             while (reader.Read())
             {
                 if (reader.NodeType == XmlNodeType.Element && reader.Name == "key")
@@ -130,7 +132,7 @@ namespace HandStack.Core.ExpendObjects
                     TValue? value;
                     if (xmlType == "nil")
                     {
-                        value = default(TValue);
+                        value = default;
                     }
 
                     else if (xmlType.StartsWith("___"))
@@ -141,7 +143,7 @@ namespace HandStack.Core.ExpendObjects
                         var type = Utilities.GetTypeFromName(xmlType.SubstringSafe(3));
                         if (type == null)
                         {
-                            value = default(TValue);
+                            value = default;
                         }
                         else
                         {
@@ -154,7 +156,7 @@ namespace HandStack.Core.ExpendObjects
                         var type = Utilities.MapXmlTypeToType(xmlType);
                         if (type == null)
                         {
-                            value = default(TValue);
+                            value = default;
                         }
                         else
                         {
@@ -171,8 +173,7 @@ namespace HandStack.Core.ExpendObjects
 
         public string ToXml()
         {
-            string? xml = null;
-            SerializationUtils.SerializeObject(this, out xml);
+            SerializationUtils.SerializeObject(this, out var xml);
             return xml;
         }
 
@@ -185,8 +186,7 @@ namespace HandStack.Core.ExpendObjects
                 return true;
             }
 
-            var result = SerializationUtils.DeSerializeObject(xml, this.GetType()) as PropertyBag<TValue>;
-            if (result != null)
+            if (SerializationUtils.DeSerializeObject(xml, this.GetType()) is PropertyBag<TValue> result)
             {
                 foreach (var item in result)
                 {

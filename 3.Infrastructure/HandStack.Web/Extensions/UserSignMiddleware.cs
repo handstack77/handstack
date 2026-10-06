@@ -23,20 +23,15 @@ using Serilog;
 
 namespace HandStack.Web.Extensions
 {
-    public class UserSignMiddleware
+    public class UserSignMiddleware(IDataProtectionProvider dataProtectionProvider, RequestDelegate next)
     {
-        private readonly IDataProtector dataProtector;
-        private readonly RequestDelegate next;
-
-        public UserSignMiddleware(IDataProtectionProvider dataProtectionProvider, RequestDelegate next)
-        {
-            dataProtector = dataProtectionProvider.CreateProtector(nameof(SessionMiddleware));
-            this.next = next;
-        }
+        private readonly IDataProtector dataProtector = dataProtectionProvider.CreateProtector(nameof(SessionMiddleware));
+        private readonly RequestDelegate next = next;
 
         public async Task InvokeAsync(HttpContext httpContext)
         {
             var endpoint = httpContext.GetEndpoint();
+            ArgumentNullException.ThrowIfNull(httpContext);
             if (string.IsNullOrWhiteSpace(Path.GetExtension(httpContext.Request.Path)) == false || endpoint?.Metadata?.GetMetadata<IAllowAnonymous>() is object)
             {
             }
@@ -54,12 +49,14 @@ namespace HandStack.Web.Extensions
                         else if (httpContext.User.Identity?.IsAuthenticated == true)
                         {
 
-                            var userAccount = new UserAccount();
-                            userAccount.ApplicationID = httpContext.User.Claims.First(x => x.Type == "ApplicationID").Value;
-                            userAccount.UserAccountID = httpContext.User.Claims.First(x => x.Type == "UserAccountID").Value;
-                            userAccount.UserID = httpContext.User.Claims.First(x => x.Type == "UserID").Value;
-                            userAccount.UserName = httpContext.User.Claims.First(x => x.Type == "UserName").Value;
-                            userAccount.Email = httpContext.User.Claims.First(x => x.Type == "Email").Value;
+                            var userAccount = new UserAccount
+                            {
+                                ApplicationID = httpContext.User.Claims.First(x => x.Type == "ApplicationID").Value,
+                                UserAccountID = httpContext.User.Claims.First(x => x.Type == "UserAccountID").Value,
+                                UserID = httpContext.User.Claims.First(x => x.Type == "UserID").Value,
+                                UserName = httpContext.User.Claims.First(x => x.Type == "UserName").Value,
+                                Email = httpContext.User.Claims.First(x => x.Type == "Email").Value
+                            };
 
                             if (DateTime.TryParse(httpContext.User.Claims.First(x => x.Type == "LoginedAt").Value, out var loginedAt) == true)
                             {
@@ -78,7 +75,7 @@ namespace HandStack.Web.Extensions
                             var tokenClaims = JsonConvert.DeserializeObject<Dictionary<string, string>>(httpContext.User.Claims.First(x => x.Type == "Claims").Value);
                             if (tokenClaims == null || tokenClaims.Count == 0)
                             {
-                                userAccount.Claims = new Dictionary<string, string>();
+                                userAccount.Claims = [];
                             }
                             else
                             {
@@ -108,7 +105,7 @@ namespace HandStack.Web.Extensions
                                     authorizeRoles.Add(item.ToString());
                                 }
 
-                                if (authorizeRoles.Any() == true && authorizeRoles.Any(accountRoles.Contains) == false)
+                                if (authorizeRoles.Count != 0 == true && authorizeRoles.Any(accountRoles.Contains) == false)
                                 {
                                     httpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
                                     await httpContext.Response.WriteAsync("401 Unauthorized");
@@ -144,7 +141,7 @@ namespace HandStack.Web.Extensions
                                             authorizeRoles.Add(item.ToString());
                                         }
 
-                                        if (authorizeRoles.Any() == true && authorizeRoles.Any(accountRoles.Contains) == false)
+                                        if (authorizeRoles.Count != 0 == true && authorizeRoles.Any(accountRoles.Contains) == false)
                                         {
                                             httpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
                                             await httpContext.Response.WriteAsync("401 Unauthorized");
@@ -226,10 +223,12 @@ namespace HandStack.Web.Extensions
                                                         httpContext.Session.SetString($"{GlobalConfiguration.CookiePrefixName}.Member", jsonAcount);
                                                     }
 
-                                                    var cookieOptions = new CookieOptions();
-                                                    cookieOptions.HttpOnly = false;
-                                                    cookieOptions.SameSite = SameSiteMode.Lax;
-                                                    cookieOptions.Expires = expiredAt;
+                                                    var cookieOptions = new CookieOptions
+                                                    {
+                                                        HttpOnly = false,
+                                                        SameSite = SameSiteMode.Lax,
+                                                        Expires = expiredAt
+                                                    };
                                                     httpContext.Response.Cookies.Append($"{GlobalConfiguration.CookiePrefixName}.Member", jsonAcount.EncodeBase64(), cookieOptions);
                                                 }
                                             }

@@ -29,7 +29,7 @@ namespace logger.Areas.logger.Controllers
     [Route("[area]/api/[controller]")]
     [ApiController]
     [EnableCors]
-    public class LogController : BaseController
+    public class LogController(ILogger logger, ILoggerClient loggerClient) : BaseController
     {
         private static readonly Dictionary<string, PropertyInfo> LogMessageProperties = typeof(LogMessage)
             .GetProperties(BindingFlags.Instance | BindingFlags.Public)
@@ -37,15 +37,9 @@ namespace logger.Areas.logger.Controllers
 
         private static readonly HashSet<string> LogMessagePropertyNames = CreateLogMessagePropertyNames();
 
-        private ILogger logger { get; }
+        private ILogger logger { get; } = logger;
 
-        private ILoggerClient loggerClient { get; }
-
-        public LogController(ILogger logger, ILoggerClient loggerClient)
-        {
-            this.logger = logger;
-            this.loggerClient = loggerClient;
-        }
+        private ILoggerClient loggerClient { get; } = loggerClient;
 
         // logMessage.ServerID = "WEB01";
         // logMessage.RunningEnvironment = "D";
@@ -179,7 +173,7 @@ namespace logger.Areas.logger.Controllers
             }
         }
 
-        private static IReadOnlyDictionary<string, object?> ExtractExtraPayload(JObject payload)
+        private static Dictionary<string, object?> ExtractExtraPayload(JObject payload)
         {
             var result = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase);
             foreach (var property in payload.Properties())

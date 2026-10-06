@@ -36,36 +36,26 @@ namespace repository.Events
 
     var sendResponse = await mediatorClient.SendAsync(mediatorRequest);
     */
-    public class RepositoryRequest : IRequest<object?>
+    public class RepositoryRequest(MediatorRequest request) : IRequest<object?>
     {
-        public string Method { get; set; }
+        public string Method { get; set; } = request.Parameters.Get<string>("Method").ToStringSafe();
 
-        public Dictionary<string, object>? Arguments { get; set; }
-
-        public RepositoryRequest(MediatorRequest request)
-        {
-            Method = request.Parameters.Get<string>("Method").ToStringSafe();
-            Arguments = request.Parameters.Get<Dictionary<string, object>>("Arguments");
-        }
+        public Dictionary<string, object>? Arguments { get; set; } = request.Parameters.Get<Dictionary<string, object>>("Arguments");
     }
 
-    public class RepositoryRequestHandler : IRequestHandler<RepositoryRequest, object?>
+    public class RepositoryRequestHandler(ILogger logger, ModuleApiClient moduleApiClient) : IRequestHandler<RepositoryRequest, object?>
     {
-        private ILogger logger { get; }
+        private ILogger logger { get; } = logger;
 
-        private readonly ModuleApiClient moduleApiClient;
-
-        public RepositoryRequestHandler(ILogger logger, ModuleApiClient moduleApiClient)
-        {
-            this.logger = logger;
-            this.moduleApiClient = moduleApiClient;
-        }
+        private readonly ModuleApiClient moduleApiClient = moduleApiClient;
 
         public ValueTask<object?> Handle(RepositoryRequest repositoryAction, CancellationToken cancellationToken)
         {
             object? response = null;
             try
             {
+                ArgumentNullException.ThrowIfNull(repositoryAction);
+
                 if (repositoryAction.Method == "UpdateTenantAppDependencyID")
                 {
                     if (repositoryAction.Arguments != null)

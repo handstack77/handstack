@@ -15,17 +15,12 @@ namespace agent.Controllers
 {
     [Route("")]
     [ServiceFilter(typeof(ManagementKeyActionFilter))]
-    public sealed class LogsController : AgentControllerBase
+    public sealed class LogsController(ITargetProcessManager targetProcessManager) : AgentControllerBase
     {
         private const int DefaultRows = 300;
         private const int MaxRows = 5000;
 
-        private readonly ITargetProcessManager targetProcessManager;
-
-        public LogsController(ITargetProcessManager targetProcessManager)
-        {
-            this.targetProcessManager = targetProcessManager;
-        }
+        private readonly ITargetProcessManager targetProcessManager = targetProcessManager;
 
         [HttpGet("logs/{targetAckId}")]
         public async Task<ActionResult> GetLogs(string targetAckId, [FromQuery(Name = "file")] string? requestedFileName, [FromQuery] int? rows, CancellationToken cancellationToken)
@@ -313,7 +308,7 @@ namespace agent.Controllers
 
             public DateTime? LastWriteTime { get; set; }
 
-            public List<LogTreeNode> Children { get; set; } = new List<LogTreeNode>();
+            public List<LogTreeNode> Children { get; set; } = [];
         }
     }
 }

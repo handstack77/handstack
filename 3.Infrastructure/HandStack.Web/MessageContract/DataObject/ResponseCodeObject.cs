@@ -11,7 +11,7 @@ namespace HandStack.Web.MessageContract.DataObject
             CodeColumnID = "";
             ValueColumnID = "";
             CreatedAt = "";
-            Scheme = new List<Scheme>();
+            Scheme = [];
             DataSource = null;
         }
 

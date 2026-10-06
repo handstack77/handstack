@@ -37,12 +37,15 @@ namespace repository.Extensions
         {
             dynamic? result = null;
 
+            ArgumentNullException.ThrowIfNull(repository);
             if (string.IsNullOrWhiteSpace(repository.SQLiteConnectionString))
             {
                 Log.Warning("[{LogCategory}] " + $"applicationID: {repository.ApplicationID}, repository: {repository.RepositoryID} SQLite 연결문자열 확인 필요", "ModuleExtensions/ExecuteMetaSQL");
             }
             else
             {
+                ArgumentNullException.ThrowIfNull(queryID);
+
                 var paths = queryID.Split(".");
                 if (paths.Length == 3)
                 {
@@ -94,12 +97,15 @@ namespace repository.Extensions
         {
             List<T>? result = null;
 
+            ArgumentNullException.ThrowIfNull(repository);
             if (string.IsNullOrWhiteSpace(repository.SQLiteConnectionString))
             {
                 Log.Warning("[{LogCategory}] " + $"applicationID: {repository.ApplicationID}, repository: {repository.RepositoryID} SQLite 연결문자열 확인 필요", "ModuleExtensions/ExecuteMetaSQL");
             }
             else
             {
+                ArgumentNullException.ThrowIfNull(queryID);
+
                 var paths = queryID.Split(".");
                 if (paths.Length == 3)
                 {

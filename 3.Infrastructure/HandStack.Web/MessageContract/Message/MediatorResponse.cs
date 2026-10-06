@@ -14,7 +14,7 @@ namespace HandStack.Web.MessageContract.Message
             Version = "";
             ResponseID = "";
             Environment = "";
-            ResultMeta = new List<string>();
+            ResultMeta = [];
             Result = null;
         }
 

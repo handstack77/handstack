@@ -6,229 +6,229 @@ namespace HandStack.Web.Entity
 {
     public partial record AppSettings
     {
-        [JsonProperty("ApplicationNo")]
+        [JsonProperty(nameof(ApplicationNo))]
         public string ApplicationNo { get; set; } = string.Empty;
 
-        [JsonProperty("ApplicationID")]
+        [JsonProperty(nameof(ApplicationID))]
         public string ApplicationID { get; set; } = string.Empty;
 
-        [JsonProperty("Version")]
+        [JsonProperty(nameof(Version))]
         public string Version { get; set; } = string.Empty;
 
-        [JsonProperty("UseForumYN")]
+        [JsonProperty(nameof(UseForumYN))]
         public string UseForumYN { get; set; } = "N";
 
-        [JsonProperty("ApplicationName")]
+        [JsonProperty(nameof(ApplicationName))]
         public string ApplicationName { get; set; } = string.Empty;
 
-        [JsonProperty("AppSecret")]
+        [JsonProperty(nameof(AppSecret))]
         public string AppSecret { get; set; } = string.Empty;
 
-        [JsonProperty("SignInID")]
+        [JsonProperty(nameof(SignInID))]
         public string SignInID { get; set; } = string.Empty;
 
-        [JsonProperty("Comment")]
+        [JsonProperty(nameof(Comment))]
         public string Comment { get; set; } = string.Empty;
 
-        [JsonProperty("CreatedMemberID")]
+        [JsonProperty(nameof(CreatedMemberID))]
         public string CreatedMemberID { get; set; } = string.Empty;
 
-        [JsonProperty("CreatedAt")]
+        [JsonProperty(nameof(CreatedAt))]
         public string CreatedAt { get; set; } = string.Empty;
 
-        [JsonProperty("ModifiedMemberID")]
+        [JsonProperty(nameof(ModifiedMemberID))]
         public string ModifiedMemberID { get; set; } = string.Empty;
 
-        [JsonProperty("ModifiedAt")]
+        [JsonProperty(nameof(ModifiedAt))]
         public string ModifiedAt { get; set; } = string.Empty;
 
-        [JsonProperty("AllowAnonymousPath", NullValueHandling = NullValueHandling.Ignore)]
-        public List<string>? AllowAnonymousPath { get; set; } = new List<string>();
+        [JsonProperty(nameof(AllowAnonymousPath), NullValueHandling = NullValueHandling.Ignore)]
+        public List<string>? AllowAnonymousPath { get; set; } = [];
 
-        [JsonProperty("WithOrigin", NullValueHandling = NullValueHandling.Ignore)]
-        public List<string>? WithOrigin { get; set; } = new List<string>();
+        [JsonProperty(nameof(WithOrigin), NullValueHandling = NullValueHandling.Ignore)]
+        public List<string>? WithOrigin { get; set; } = [];
 
-        [JsonProperty("WithReferer", NullValueHandling = NullValueHandling.Ignore)]
-        public List<string>? WithReferer { get; set; } = new List<string>();
+        [JsonProperty(nameof(WithReferer), NullValueHandling = NullValueHandling.Ignore)]
+        public List<string>? WithReferer { get; set; } = [];
 
-        [JsonProperty("DataSource", NullValueHandling = NullValueHandling.Ignore)]
-        public List<DataSource>? DataSource { get; set; } = new List<DataSource>();
+        [JsonProperty(nameof(DataSource), NullValueHandling = NullValueHandling.Ignore)]
+        public List<DataSource>? DataSource { get; set; } = [];
 
-        [JsonProperty("Storage", NullValueHandling = NullValueHandling.Ignore)]
-        public List<AppStorage>? Storage { get; set; } = new List<AppStorage>();
+        [JsonProperty(nameof(Storage), NullValueHandling = NullValueHandling.Ignore)]
+        public List<AppStorage>? Storage { get; set; } = [];
 
-        [JsonProperty("Public", NullValueHandling = NullValueHandling.Ignore)]
-        public List<AppPublic>? Public { get; set; } = new List<AppPublic>();
+        [JsonProperty(nameof(Public), NullValueHandling = NullValueHandling.Ignore)]
+        public List<AppPublic>? Public { get; set; } = [];
 
-        [JsonProperty("Routing", NullValueHandling = NullValueHandling.Ignore)]
-        public List<Routing>? Routing { get; set; } = new List<Routing>();
+        [JsonProperty(nameof(Routing), NullValueHandling = NullValueHandling.Ignore)]
+        public List<Routing>? Routing { get; set; } = [];
 
-        [JsonProperty("Receive", NullValueHandling = NullValueHandling.Ignore)]
-        public List<AppReceive>? Receive { get; set; } = new List<AppReceive>();
+        [JsonProperty(nameof(Receive), NullValueHandling = NullValueHandling.Ignore)]
+        public List<AppReceive>? Receive { get; set; } = [];
 
-        [JsonProperty("Publish", NullValueHandling = NullValueHandling.Ignore)]
-        public List<AppPublish>? Publish { get; set; } = new List<AppPublish>();
+        [JsonProperty(nameof(Publish), NullValueHandling = NullValueHandling.Ignore)]
+        public List<AppPublish>? Publish { get; set; } = [];
     }
 
     public partial record AppPublic
     {
-        [JsonProperty("ProjectID")]
+        [JsonProperty(nameof(ProjectID))]
         public string ProjectID { get; set; } = string.Empty;
 
-        [JsonProperty("TransactionID")]
+        [JsonProperty(nameof(TransactionID))]
         public string TransactionID { get; set; } = string.Empty;
 
-        [JsonProperty("Comment")]
+        [JsonProperty(nameof(Comment))]
         public string Comment { get; set; } = string.Empty;
     }
 
     public partial record AppPublish
     {
-        [JsonProperty("DeployID")]
+        [JsonProperty(nameof(DeployID))]
         public string DeployID { get; set; } = string.Empty;
 
-        [JsonProperty("Protocol")]
+        [JsonProperty(nameof(Protocol))]
         public string Protocol { get; set; } = string.Empty;
 
-        [JsonProperty("ProtocolName")]
+        [JsonProperty(nameof(ProtocolName))]
         public string ProtocolName { get; set; } = string.Empty;
 
-        [JsonProperty("Host")]
+        [JsonProperty(nameof(Host))]
         public string Host { get; set; } = string.Empty;
 
-        [JsonProperty("AccessID")]
+        [JsonProperty(nameof(AccessID))]
         public string AccessID { get; set; } = string.Empty;
 
-        [JsonProperty("ManagedKey")]
+        [JsonProperty(nameof(ManagedKey))]
         public string ManagedKey { get; set; } = string.Empty;
 
-        [JsonProperty("Comment")]
+        [JsonProperty(nameof(Comment))]
         public string Comment { get; set; } = string.Empty;
     }
 
     public partial record AppReceive
     {
-        [JsonProperty("DomainID")]
+        [JsonProperty(nameof(DomainID))]
         public string DomainID { get; set; } = string.Empty;
 
-        [JsonProperty("Protocol")]
+        [JsonProperty(nameof(Protocol))]
         public string Protocol { get; set; } = string.Empty;
 
-        [JsonProperty("AccessID")]
+        [JsonProperty(nameof(AccessID))]
         public string AccessID { get; set; } = string.Empty;
 
-        [JsonProperty("Comment")]
+        [JsonProperty(nameof(Comment))]
         public object Comment { get; set; } = string.Empty;
 
-        [JsonProperty("ProtocolName")]
+        [JsonProperty(nameof(ProtocolName))]
         public string ProtocolName { get; set; } = string.Empty;
     }
 
     public partial record AppStorage
     {
-        [JsonProperty("ApplicationID")]
+        [JsonProperty(nameof(ApplicationID))]
         public string ApplicationID { get; set; } = string.Empty;
 
-        [JsonProperty("AccessID")]
+        [JsonProperty(nameof(AccessID))]
         public string AccessID { get; set; } = string.Empty;
 
-        [JsonProperty("RepositoryID")]
+        [JsonProperty(nameof(RepositoryID))]
         public string RepositoryID { get; set; } = string.Empty;
 
-        [JsonProperty("RepositoryName")]
+        [JsonProperty(nameof(RepositoryName))]
         public string RepositoryName { get; set; } = string.Empty;
 
-        [JsonProperty("StorageType")]
+        [JsonProperty(nameof(StorageType))]
         public string StorageType { get; set; } = string.Empty;
 
-        [JsonProperty("PhysicalPath")]
+        [JsonProperty(nameof(PhysicalPath))]
         public string PhysicalPath { get; set; } = string.Empty;
 
-        [JsonProperty("BlobContainerID")]
+        [JsonProperty(nameof(BlobContainerID))]
         public string BlobContainerID { get; set; } = string.Empty;
 
-        [JsonProperty("BlobConnectionString")]
+        [JsonProperty(nameof(BlobConnectionString))]
         public string BlobConnectionString { get; set; } = string.Empty;
 
-        [JsonProperty("BlobItemUrl")]
+        [JsonProperty(nameof(BlobItemUrl))]
         public string BlobItemUrl { get; set; } = string.Empty;
 
-        [JsonProperty("IsVirtualPath")]
+        [JsonProperty(nameof(IsVirtualPath))]
         public bool IsVirtualPath { get; set; } = false;
 
-        [JsonProperty("AccessMethod")]
+        [JsonProperty(nameof(AccessMethod))]
         public string AccessMethod { get; set; } = string.Empty;
 
-        [JsonProperty("IsFileUploadDownloadOnly")]
+        [JsonProperty(nameof(IsFileUploadDownloadOnly))]
         public bool IsFileUploadDownloadOnly { get; set; } = false;
 
-        [JsonProperty("IsMultiUpload")]
+        [JsonProperty(nameof(IsMultiUpload))]
         public bool IsMultiUpload { get; set; } = false;
 
-        [JsonProperty("IsFileOverWrite")]
+        [JsonProperty(nameof(IsFileOverWrite))]
         public bool IsFileOverWrite { get; set; } = false;
 
-        [JsonProperty("IsFileNameEncrypt")]
+        [JsonProperty(nameof(IsFileNameEncrypt))]
         public bool IsFileNameEncrypt { get; set; } = false;
 
-        [JsonProperty("IsKeepFileExtension")]
+        [JsonProperty(nameof(IsKeepFileExtension))]
         public bool IsKeepFileExtension { get; set; } = false;
 
-        [JsonProperty("IsAutoPath")]
+        [JsonProperty(nameof(IsAutoPath))]
         public bool IsAutoPath { get; set; } = false;
 
-        [JsonProperty("PolicyPathID")]
+        [JsonProperty(nameof(PolicyPathID))]
         public string PolicyPathID { get; set; } = string.Empty;
 
-        [JsonProperty("UploadTypeID")]
+        [JsonProperty(nameof(UploadTypeID))]
         public string UploadTypeID { get; set; } = string.Empty;
 
-        [JsonProperty("UploadExtensions")]
+        [JsonProperty(nameof(UploadExtensions))]
         public string UploadExtensions { get; set; } = string.Empty;
 
-        [JsonProperty("UploadCount")]
+        [JsonProperty(nameof(UploadCount))]
         public int UploadCount { get; set; } = 0;
 
-        [JsonProperty("UploadSizeLimit")]
+        [JsonProperty(nameof(UploadSizeLimit))]
         public int UploadSizeLimit { get; set; } = 0;
 
-        [JsonProperty("IsLocalDbFileManaged")]
+        [JsonProperty(nameof(IsLocalDbFileManaged))]
         public bool IsLocalDbFileManaged { get; set; } = false;
 
-        [JsonProperty("SQLiteConnectionString")]
+        [JsonProperty(nameof(SQLiteConnectionString))]
         public string SQLiteConnectionString { get; set; } = string.Empty;
 
-        [JsonProperty("TransactionGetItem")]
+        [JsonProperty(nameof(TransactionGetItem))]
         public string TransactionGetItem { get; set; } = string.Empty;
 
-        [JsonProperty("TransactionGetItems")]
+        [JsonProperty(nameof(TransactionGetItems))]
         public string TransactionGetItems { get; set; } = string.Empty;
 
-        [JsonProperty("TransactionDeleteItem")]
+        [JsonProperty(nameof(TransactionDeleteItem))]
         public string TransactionDeleteItem { get; set; } = string.Empty;
 
-        [JsonProperty("TransactionUpsertItem")]
+        [JsonProperty(nameof(TransactionUpsertItem))]
         public string TransactionUpsertItem { get; set; } = string.Empty;
 
-        [JsonProperty("TransactionUpdateDependencyID")]
+        [JsonProperty(nameof(TransactionUpdateDependencyID))]
         public string TransactionUpdateDependencyID { get; set; } = string.Empty;
 
-        [JsonProperty("TransactionUpdateFileName")]
+        [JsonProperty(nameof(TransactionUpdateFileName))]
         public string TransactionUpdateFileName { get; set; } = string.Empty;
 
-        [JsonProperty("Comment")]
+        [JsonProperty(nameof(Comment))]
         public string Comment { get; set; } = string.Empty;
 
-        [JsonProperty("CreatedMemberID")]
+        [JsonProperty(nameof(CreatedMemberID))]
         public string CreatedMemberID { get; set; } = string.Empty;
 
-        [JsonProperty("CreateUserName")]
+        [JsonProperty(nameof(CreateUserName))]
         public string CreateUserName { get; set; } = string.Empty;
 
-        [JsonProperty("CreatedAt")]
+        [JsonProperty(nameof(CreatedAt))]
         public string CreatedAt { get; set; } = string.Empty;
 
-        [JsonProperty("ModifiedAt")]
+        [JsonProperty(nameof(ModifiedAt))]
         public string ModifiedAt { get; set; } = string.Empty;
     }
 }

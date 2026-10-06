@@ -28,7 +28,7 @@ namespace ack
         private CancellationTokenSource? cancellationTokenSource;
         private IHost? host;
         private bool isServiceRunning;
-        private bool isRestart;
+        private readonly bool isRestart;
 
         public bool IsRestarting => isRestart;
 
@@ -58,10 +58,7 @@ namespace ack
 
         public static ApplicationManager Load()
         {
-            if (applicationManager == null)
-            {
-                applicationManager = new ApplicationManager();
-            }
+            applicationManager ??= new ApplicationManager();
 
             return applicationManager;
         }
@@ -152,10 +149,7 @@ namespace ack
 
         public void Stop()
         {
-            if (cancellationTokenSource != null)
-            {
-                cancellationTokenSource.Cancel();
-            }
+            cancellationTokenSource?.Cancel();
             isServiceRunning = false;
             Log.Information($"ack Stop...");
             Log.CloseAndFlush();

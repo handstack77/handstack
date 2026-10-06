@@ -75,7 +75,7 @@ namespace graphclient
             ModuleConfiguration.CircuitBreakResetSecond = moduleConfig.CircuitBreakResetSecond;
             ModuleConfiguration.DefaultCommandTimeout = moduleConfig.DefaultCommandTimeout;
             ModuleConfiguration.MaxCommandTimeout = moduleConfig.Security?.MaxCommandTimeout > 0 ? moduleConfig.Security.MaxCommandTimeout : 300;
-            ModuleConfiguration.AllowedGraphHosts = (moduleConfig.Security?.AllowedGraphHosts ?? new List<string>())
+            ModuleConfiguration.AllowedGraphHosts = (moduleConfig.Security?.AllowedGraphHosts ?? [])
                 .Where(item => string.IsNullOrWhiteSpace(item) == false)
                 .Select(item => item.Trim())
                 .Distinct(StringComparer.OrdinalIgnoreCase)
@@ -91,7 +91,7 @@ namespace graphclient
             ModuleConfiguration.GraphFileSyncManager.Clear();
             ModuleConfiguration.ContractBasePath.Clear();
             ModuleConfiguration.IsContractFileWatching = moduleConfig.IsContractFileWatching;
-            foreach (var basePath in moduleConfig.ContractBasePath ?? new List<string>())
+            foreach (var basePath in moduleConfig.ContractBasePath ?? [])
             {
                 var contractBasePath = GlobalConfiguration.GetBaseDirectoryPath(basePath);
                 if (string.IsNullOrWhiteSpace(contractBasePath) == false && ModuleConfiguration.ContractBasePath.Contains(contractBasePath) == false)
@@ -117,8 +117,8 @@ namespace graphclient
                 : null;
 
             ModuleConfiguration.DefaultDataSourceID = moduleConfig.DefaultDataSourceID;
-            ModuleConfiguration.GraphDataSource = moduleConfig.GraphDataSource ?? new List<GraphDataSource>();
-            ModuleConfiguration.AllowClientIP = (moduleConfig.AllowClientIP ?? new List<string>() { "*" })
+            ModuleConfiguration.GraphDataSource = moduleConfig.GraphDataSource ?? [];
+            ModuleConfiguration.AllowClientIP = (moduleConfig.AllowClientIP ?? ["*"])
                 .Where(item => string.IsNullOrWhiteSpace(item) == false)
                 .Select(item => item.Trim())
                 .Distinct(StringComparer.OrdinalIgnoreCase)
@@ -130,6 +130,7 @@ namespace graphclient
 
             ModuleConfiguration.IsConfigure = true;
 
+            ArgumentNullException.ThrowIfNull(environment);
             GraphMapper.LoadContract(environment.EnvironmentName, Log.Logger, configuration);
 
             services.AddSingleton(new GraphClientLoggerClient(Log.Logger, ModuleConfiguration.ModuleLogger));
@@ -141,14 +142,17 @@ namespace graphclient
 
         public bool CanHandleModuleConfigurationProperty(string propertyName)
         {
+            ArgumentNullException.ThrowIfNull(propertyName);
+
             return propertyName.Equals(nameof(ModuleConfig.GraphDataSource), StringComparison.Ordinal);
         }
 
         public void ApplyModuleConfigurationProperty(ModuleInfo module, string propertyName, object? value, ModuleConfigurationReloadResult result)
         {
-            var graphDataSources = value as List<GraphDataSource> ?? new List<GraphDataSource>();
+            var graphDataSources = value as List<GraphDataSource> ?? [];
             GraphMapper.ReloadDataSourceMappings(graphDataSources);
             ModuleConfiguration.GraphDataSource = graphDataSources.Select(item => item with { }).ToList();
+            ArgumentNullException.ThrowIfNull(result);
             result.AppliedKeys.Add($"ModuleConfig:{propertyName}");
         }
 
@@ -196,6 +200,7 @@ namespace graphclient
                 }
             }
 
+            ArgumentNullException.ThrowIfNull(app);
             var serviceScopeFactory = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>();
             foreach (var basePath in ModuleConfiguration.ContractBasePath)
             {
@@ -280,7 +285,7 @@ namespace graphclient
 
     internal class Program
     {
-        private static void Main(string[] args)
+        private static void Main()
         {
             Console.WriteLine("graphclient");
         }

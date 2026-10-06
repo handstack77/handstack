@@ -46,11 +46,10 @@ namespace edgeproxy
             }
 
             var processes = Process.GetProcessesByName("ack");
-            if (processes.Any() == false)
+            if (processes.Length != 0 == false)
             {
-                var isAckProcessRun = true;
                 var ackProcessRun = args.FirstOrDefault(arg => arg.StartsWith("--ackrun="))?.Split('=')[1];
-                if (bool.TryParse(ackProcessRun, out isAckProcessRun) == false)
+                if (bool.TryParse(ackProcessRun, out var isAckProcessRun) == false)
                 {
                     isAckProcessRun = true;
                 }
@@ -61,13 +60,15 @@ namespace edgeproxy
 
                     var ackFilePath = ackFile.FullName.Replace("\\", "/");
 
-                    var processInfo = new ProcessStartInfo();
-                    processInfo.FileName = ackFilePath;
-                    processInfo.Arguments = arguments;
-                    processInfo.WorkingDirectory = Path.GetDirectoryName(ackFilePath);
-                    processInfo.CreateNoWindow = true;
-                    processInfo.UseShellExecute = false;
-                    processInfo.WindowStyle = ProcessWindowStyle.Hidden;
+                    var processInfo = new ProcessStartInfo
+                    {
+                        FileName = ackFilePath,
+                        Arguments = arguments,
+                        WorkingDirectory = Path.GetDirectoryName(ackFilePath),
+                        CreateNoWindow = true,
+                        UseShellExecute = false,
+                        WindowStyle = ProcessWindowStyle.Hidden
+                    };
 
                     ackProcess = Process.Start(processInfo);
                 }
@@ -77,9 +78,8 @@ namespace edgeproxy
                 ackProcess = processes.FirstOrDefault();
             }
 
-            var isAckProcessExit = true;
             var ackProcessExit = args.FirstOrDefault(arg => arg.StartsWith("--ackexit="))?.Split('=')[1];
-            if (bool.TryParse(ackProcessExit, out isAckProcessExit) == false)
+            if (bool.TryParse(ackProcessExit, out var isAckProcessExit) == false)
             {
                 isAckProcessExit = true;
             }

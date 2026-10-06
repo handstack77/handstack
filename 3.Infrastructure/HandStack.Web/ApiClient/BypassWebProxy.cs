@@ -17,7 +17,7 @@ namespace HandStack.Web.ApiClient
             return false;
         }
 
-        private static BypassWebProxy defaultProxy = new BypassWebProxy();
+        private static readonly BypassWebProxy defaultProxy = new();
         public static BypassWebProxy Default
         {
             get

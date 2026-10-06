@@ -1,4 +1,5 @@
-﻿using System.Collections.Specialized;
+﻿using System;
+using System.Collections.Specialized;
 using System.Text.RegularExpressions;
 
 namespace HandStack.Core.Helpers
@@ -18,18 +19,19 @@ namespace HandStack.Core.Helpers
     /// }
     /// 	</code>
     /// </example>
-    public class ArgumentHelper
+    public partial class ArgumentHelper
     {
-        private static readonly Regex Spliter = new Regex(@"^-{1,2}|^/|=|:", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-        private static readonly Regex Remover = new Regex(@"^['""]?(.*?)['""]?$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private static readonly Regex Spliter = MyRegex();
+        private static readonly Regex Remover = MyRegex1();
 
-        public StringDictionary parameters = new StringDictionary();
+        public StringDictionary parameters = [];
 
         public ArgumentHelper(string[] args)
         {
             string? parameter = null;
             string[] tokens;
 
+            ArgumentNullException.ThrowIfNull(args);
             foreach (var arg in args)
             {
                 tokens = Spliter.Split(arg, 3);
@@ -96,5 +98,10 @@ namespace HandStack.Core.Helpers
                 return parameters[Param];
             }
         }
+
+        [GeneratedRegex(@"^-{1,2}|^/|=|:", RegexOptions.IgnoreCase | RegexOptions.Compiled, "ko-KR")]
+        private static partial Regex MyRegex();
+        [GeneratedRegex(@"^['""]?(.*?)['""]?$", RegexOptions.IgnoreCase | RegexOptions.Compiled, "ko-KR")]
+        private static partial Regex MyRegex1();
     }
 }

@@ -98,7 +98,7 @@ namespace HandStack.Data.Client
         {
             static void AppendParameter(StringBuilder builder, string parameterName, object? parameterValue)
             {
-                if (!parameterName.StartsWith("@", StringComparison.Ordinal))
+                if (!parameterName.StartsWith('@'))
                 {
                     builder.Append('@');
                 }
@@ -319,7 +319,7 @@ namespace HandStack.Data.Client
                 }
                 else
                 {
-                    results = new List<T>();
+                    results = [];
                 }
             }
 
@@ -451,7 +451,7 @@ namespace HandStack.Data.Client
             }
         }
 
-        private bool SetDbParameterData(SQLiteParameter parameter, List<SQLiteParameter>? ListParameters)
+        private static bool SetDbParameterData(SQLiteParameter parameter, List<SQLiteParameter>? ListParameters)
         {
             if (ListParameters == null)
             {
@@ -465,7 +465,7 @@ namespace HandStack.Data.Client
                          where p.ParameterName.Equals(parameter.ParameterName, StringComparison.CurrentCultureIgnoreCase)
                          select p;
 
-            if (result.Count() > 0)
+            if (result.Any())
             {
                 SQLiteParameter? listParameter = null;
                 foreach (var nvp in result)
@@ -479,94 +479,37 @@ namespace HandStack.Data.Client
             }
             else
             {
-                switch (parameter.DbType)
+                dbValue = parameter.DbType switch
                 {
-                    case DbType.AnsiString:
-                        dbValue = "";
-                        break;
-                    case DbType.Binary:
-                        dbValue = DBNull.Value;
-                        break;
-                    case DbType.Byte:
-                        dbValue = DBNull.Value;
-                        break;
-                    case DbType.Boolean:
-                        dbValue = false;
-                        break;
-                    case DbType.Currency:
-                        dbValue = 0;
-                        break;
-                    case DbType.Date:
-                        dbValue = DateTime.Now;
-                        break;
-                    case DbType.DateTime:
-                        dbValue = DateTime.Now;
-                        break;
-                    case DbType.Decimal:
-                        dbValue = 0;
-                        break;
-                    case DbType.Double:
-                        dbValue = 0;
-                        break;
-                    case DbType.Guid:
-                        dbValue = DBNull.Value;
-                        break;
-                    case DbType.Int16:
-                        dbValue = 0;
-                        break;
-                    case DbType.Int32:
-                        dbValue = 0;
-                        break;
-                    case DbType.Int64:
-                        dbValue = 0;
-                        break;
-                    case DbType.Object:
-                        dbValue = DBNull.Value;
-                        break;
-                    case DbType.SByte:
-                        dbValue = DBNull.Value;
-                        break;
-                    case DbType.Single:
-                        dbValue = 0;
-                        break;
-                    case DbType.String:
-                        dbValue = "";
-                        break;
-                    case DbType.Time:
-                        dbValue = DateTime.Now;
-                        break;
-                    case DbType.UInt16:
-                        dbValue = 0;
-                        break;
-                    case DbType.UInt32:
-                        dbValue = 0;
-                        break;
-                    case DbType.UInt64:
-                        dbValue = 0;
-                        break;
-                    case DbType.VarNumeric:
-                        dbValue = 0;
-                        break;
-                    case DbType.AnsiStringFixedLength:
-                        dbValue = "";
-                        break;
-                    case DbType.StringFixedLength:
-                        dbValue = "";
-                        break;
-                    case DbType.Xml:
-                        dbValue = "";
-                        break;
-                    case DbType.DateTime2:
-                        dbValue = DateTime.Now;
-                        break;
-                    case DbType.DateTimeOffset:
-                        dbValue = DateTime.Now;
-                        break;
-                    default:
-                        dbValue = DBNull.Value;
-                        break;
-                }
-
+                    DbType.AnsiString => "",
+                    DbType.Binary => DBNull.Value,
+                    DbType.Byte => DBNull.Value,
+                    DbType.Boolean => false,
+                    DbType.Currency => 0,
+                    DbType.Date => DateTime.Now,
+                    DbType.DateTime => DateTime.Now,
+                    DbType.Decimal => 0,
+                    DbType.Double => 0,
+                    DbType.Guid => DBNull.Value,
+                    DbType.Int16 => 0,
+                    DbType.Int32 => 0,
+                    DbType.Int64 => 0,
+                    DbType.Object => DBNull.Value,
+                    DbType.SByte => DBNull.Value,
+                    DbType.Single => 0,
+                    DbType.String => "",
+                    DbType.Time => DateTime.Now,
+                    DbType.UInt16 => 0,
+                    DbType.UInt32 => 0,
+                    DbType.UInt64 => 0,
+                    DbType.VarNumeric => 0,
+                    DbType.AnsiStringFixedLength => "",
+                    DbType.StringFixedLength => "",
+                    DbType.Xml => "",
+                    DbType.DateTime2 => DateTime.Now,
+                    DbType.DateTimeOffset => DateTime.Now,
+                    _ => DBNull.Value,
+                };
                 isMatchingParameter = false;
             }
 
@@ -607,12 +550,8 @@ namespace HandStack.Data.Client
             {
                 if (isFromDispose)
                 {
-                    if (databaseFactory != null)
-                    {
-                        databaseFactory.Dispose();
-                    }
+                    databaseFactory?.Dispose();
 
-                    GC.SuppressFinalize(this);
                 }
 
                 isDisposedResources = true;

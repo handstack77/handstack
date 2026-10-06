@@ -9,56 +9,74 @@ namespace HandStack.Core.ExtensionMethod
     {
         public static void AddColumn(this DataTable @this, string columnName, Type columnType)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             @this.Columns.Add(new DataColumn() { DataType = columnType, ColumnName = columnName });
         }
 
         public static void RemoveColumn(this DataTable @this, string columnName)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             @this.Columns.Remove(columnName);
         }
 
         public static void NewRow(this DataTable @this)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             @this.Rows.Add(@this.NewRow());
         }
 
         public static void SetValue(this DataTable @this, int rowIndex, string columnName, object value)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             @this.Rows[rowIndex][columnName] = value;
         }
 
         public static void SetValue(this DataTable @this, int rowIndex, int columnIndex, object value)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             @this.Rows[rowIndex][columnIndex] = value;
         }
 
         public static object GetValue(this DataTable @this, int rowIndex, string columnName)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             return @this.Rows[rowIndex][columnName];
         }
 
         public static object GetValue(this DataTable @this, int rowIndex, int columnIndex)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             return @this.Rows[rowIndex][columnIndex];
         }
 
         public static DataTable CopyToDataTable<T>(this IEnumerable<T> source)
         {
+            ArgumentNullException.ThrowIfNull(source);
+
             return new ObjectShredder<T>().Shred(source, null, null);
         }
 
         public static DataTable CopyToDataTable<T>(this IEnumerable<T> source, DataTable table, LoadOption? options)
         {
+            ArgumentNullException.ThrowIfNull(source);
+
             return new ObjectShredder<T>().Shred(source, table, options);
         }
     }
 
     internal class ObjectShredder<T>
     {
-        private PropertyInfo[] properties;
-        private FieldInfo[] fields;
-        private Dictionary<string, int> dictionary;
-        private Type type;
+        private readonly PropertyInfo[] properties;
+        private readonly FieldInfo[] fields;
+        private readonly Dictionary<string, int> dictionary;
+        private readonly Type type;
         private Dictionary<Type, (FieldInfo[] Fields, PropertyInfo[] Properties)>? derivedMembers;
 
         public ObjectShredder()
@@ -66,7 +84,7 @@ namespace HandStack.Core.ExtensionMethod
             type = typeof(T);
             fields = type.GetFields();
             properties = type.GetProperties();
-            dictionary = new Dictionary<string, int>();
+            dictionary = [];
         }
 
         public DataTable Shred(IEnumerable<T> source, DataTable? table, LoadOption? options)
@@ -76,7 +94,7 @@ namespace HandStack.Core.ExtensionMethod
                 return ShredPrimitive(source, table, options);
             }
 
-            table = table == null ? new DataTable(typeof(T).Name) : table;
+            table ??= new DataTable(typeof(T).Name);
             table = ExtendTable(table, typeof(T));
             table.BeginLoadData();
             using (var e = source.GetEnumerator())
@@ -99,7 +117,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public DataTable ShredPrimitive(IEnumerable<T> source, DataTable? table, LoadOption? options)
         {
-            table = table == null ? new DataTable(typeof(T).Name) : table;
+            table ??= new DataTable(typeof(T).Name);
 
             if (!table.Columns.Contains("Value"))
             {
@@ -167,7 +185,7 @@ namespace HandStack.Core.ExtensionMethod
                 return (fields, properties);
             }
 
-            derivedMembers ??= new Dictionary<Type, (FieldInfo[], PropertyInfo[])>();
+            derivedMembers ??= [];
             if (!derivedMembers.TryGetValue(objectType, out var members))
             {
                 members = (objectType.GetFields(), objectType.GetProperties());

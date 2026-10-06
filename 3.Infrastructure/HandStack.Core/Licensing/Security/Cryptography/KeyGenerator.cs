@@ -6,7 +6,7 @@ namespace HandStack.Core.Licensing.Security.Cryptography
 {
     public class KeyGenerator
     {
-        private readonly IAsymmetricCipherKeyPairGenerator keyGenerator;
+        private readonly ECKeyPairGenerator keyGenerator;
 
         public KeyGenerator() : this(256)
         {

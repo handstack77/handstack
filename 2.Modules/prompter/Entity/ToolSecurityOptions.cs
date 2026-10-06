@@ -11,7 +11,7 @@ namespace prompter.Entity
         public AllowedKernelPlugin()
         {
             Name = "";
-            Functions = new List<string>();
+            Functions = [];
         }
     }
 

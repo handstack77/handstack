@@ -2,15 +2,12 @@ using System;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
-
 using Google;
 using Google.Apis.Auth.OAuth2;
 using Google.Cloud.Storage.V1;
-
-using HandStack.Web.Entity;
-
-using repository.Entity;
 using HandStack.Core.ExtensionMethod;
+using HandStack.Web.Entity;
+using repository.Entity;
 
 namespace repository.Extensions
 {
@@ -21,6 +18,8 @@ namespace repository.Extensions
 
         public GoogleCloudStorageProvider(Repository repository)
         {
+            ArgumentNullException.ThrowIfNull(repository);
+
             bucketName = repository.GcsBucketName;
             var credential = CredentialFactory.FromFile<GoogleCredential>(repository.GcsCredentialFile);
             storageClient = StorageClient.Create(credential);
@@ -78,6 +77,8 @@ namespace repository.Extensions
 
         public async Task<(DateTime?, DateTime?)> UploadAsync(string blobID, Stream content, string contentType)
         {
+            ArgumentNullException.ThrowIfNull(content);
+
             content.Position = 0;
 
             var uploadedObject = await storageClient.UploadObjectAsync(bucketName, blobID, contentType, content);
@@ -109,6 +110,7 @@ namespace repository.Extensions
             string newBlobID;
             var i = 1;
             var extension = Path.GetExtension(blobID);
+            ArgumentNullException.ThrowIfNull(blobID);
             var baseBlobID = blobID.SubstringSafe(0, blobID.Length - extension.Length);
 
             do

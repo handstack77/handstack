@@ -30,6 +30,7 @@ namespace HandStack.Core.Helpers
             var keyLabel = isPublic ? "PUBLIC" : "PRIVATE";
             var pemHeader = $"-----BEGIN {keyLabel} KEY-----";
             var pemFooter = $"-----END {keyLabel} KEY-----";
+            ArgumentNullException.ThrowIfNull(pem);
             var pemContents = pem.Replace(pemHeader, "").Replace(pemFooter, "").Replace("\n", "");
             var keyBytes = Convert.FromBase64String(pemContents);
 
@@ -83,7 +84,7 @@ namespace HandStack.Core.Helpers
 
             using var hmac = new HMACSHA256(keyBytes);
             var hashBytes = hmac.ComputeHash(messageBytes);
-            return BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
+            return Convert.ToHexStringLower(hashBytes);
         }
 
         public static bool VerifyHMAC(string key, string message, string signature)
@@ -94,7 +95,9 @@ namespace HandStack.Core.Helpers
 
         public static byte[] GenerateIV(string key, int ivLength = 16)
         {
-            if (key.ToUpper() == "$RANDOM$")
+            ArgumentNullException.ThrowIfNull(key);
+
+            if (key.Equals("$RANDOM$", StringComparison.CurrentCultureIgnoreCase))
             {
                 var iv = new byte[ivLength];
                 RandomNumberGenerator.Fill(iv);
@@ -164,7 +167,7 @@ namespace HandStack.Core.Helpers
             {
                 var data = Encoding.UTF8.GetBytes(message);
                 var hash = hashAlgorithm.ComputeHash(data);
-                result = BitConverter.ToString(hash).Replace("-", "").ToLower();
+                result = Convert.ToHexStringLower(hash);
             }
 
             return result;

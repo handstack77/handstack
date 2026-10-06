@@ -3,20 +3,17 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
-
+using HandStack.Core.ExtensionMethod;
 using HandStack.Web.MessageContract.Contract;
-
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-using HandStack.Core.ExtensionMethod;
-
 namespace transact.Extensions
 {
-    public class DataMapItemValidator
+    public partial class DataMapItemValidator
     {
-        private static readonly Regex FormDataPattern = new(@"^FormData\d+$", RegexOptions.Compiled);
-        private static readonly Regex GridDataPattern = new(@"^GridData\d+$", RegexOptions.Compiled);
+        private static readonly Regex FormDataPattern = MyRegex();
+        private static readonly Regex GridDataPattern = MyRegex1();
         public class ValidationResult
         {
             public bool IsValid { get; set; }
@@ -39,16 +36,16 @@ namespace transact.Extensions
                     result.IsValid = false;
                     result.Errors.Add($"잘못된 FieldID 패턴: {item.FieldID}");
                 }
-                var jsonValidation = ValidateJsonValue(item);
-                if (jsonValidation.isValid == false)
+                var (isValid, error) = ValidateJsonValue(item);
+                if (isValid == false)
                 {
                     result.IsValid = false;
-                    result.Errors.Add(jsonValidation.error);
+                    result.Errors.Add(error);
                 }
             }
             if (result.IsValid && !string.IsNullOrWhiteSpace(expressionRules))
             {
-                var rules = expressionRules.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+                var rules = expressionRules.Split(';', StringSplitOptions.RemoveEmptyEntries);
                 foreach (var rule in rules)
                 {
                     try
@@ -124,17 +121,11 @@ namespace transact.Extensions
             return new ExpressionEvaluator(expression, parameters).Evaluate() ?? false;
         }
 
-        private sealed class ExpressionEvaluator
+        private sealed class ExpressionEvaluator(string expression, Dictionary<string, object?> parameters)
         {
-            private readonly string expression;
-            private readonly Dictionary<string, object?> parameters;
+            private readonly string expression = expression;
+            private readonly Dictionary<string, object?> parameters = parameters;
             private int position;
-
-            public ExpressionEvaluator(string expression, Dictionary<string, object?> parameters)
-            {
-                this.expression = expression;
-                this.parameters = parameters;
-            }
 
             public object? Evaluate()
             {
@@ -373,7 +364,7 @@ namespace transact.Extensions
                     throw new FormatException($"알 수 없는 식별자입니다: {identifier}");
                 }
 
-                throw new FormatException($"표현식을 해석할 수 없습니다: {expression.Substring(position)}");
+                throw new FormatException($"표현식을 해석할 수 없습니다: {expression[position..]}");
             }
 
             private List<object?> ParseArguments()
@@ -398,7 +389,7 @@ namespace transact.Extensions
                 }
             }
 
-            private object? EvaluateFunction(string name, List<object?> arguments)
+            private static object? EvaluateFunction(string name, List<object?> arguments)
             {
                 switch (name)
                 {
@@ -517,7 +508,7 @@ namespace transact.Extensions
                     throw new FormatException("파라미터 닫힘 괄호가 없습니다.");
                 }
 
-                var name = expression.Substring(start, position - start).Trim();
+                var name = expression[start..position].Trim();
                 position++;
                 return parameters.TryGetValue(name, out var value) ? value : null;
             }
@@ -531,7 +522,7 @@ namespace transact.Extensions
                     position++;
                 }
 
-                return expression.Substring(start, position - start);
+                return expression[start..position];
             }
 
             private string ParseString()
@@ -583,7 +574,7 @@ namespace transact.Extensions
                     break;
                 }
 
-                var numberText = expression.Substring(start, position - start);
+                var numberText = expression[start..position];
                 if (!decimal.TryParse(numberText, NumberStyles.Number, CultureInfo.InvariantCulture, out var value))
                 {
                     throw new FormatException($"숫자 형식이 잘못되었습니다: {numberText}");
@@ -618,7 +609,7 @@ namespace transact.Extensions
             private bool Match(string value)
             {
                 SkipWhiteSpace();
-                if (!expression.Substring(position).StartsWith(value, StringComparison.Ordinal))
+                if (!expression[position..].StartsWith(value, StringComparison.Ordinal))
                 {
                     return false;
                 }
@@ -833,6 +824,13 @@ namespace transact.Extensions
             return true;
         }
 
+        private static readonly string[] SampleAssertRules = new[]
+        {
+            "HasProperty([FormData0], 'userName') == true | 'FormData0에는 userName 필드가 필수입니다.'",
+            "Count([GridData1]) > 0 | 'GridData1은 최소 1개 이상의 항목이 있어야 합니다.'",
+            "Count([GridData1]) <= 100 | 'GridData1의 항목은 최대 100개까지 허용됩니다.'"
+        };
+
         public static void ValidateAssertRules()
         {
             // 성공 케이스
@@ -896,12 +894,7 @@ namespace transact.Extensions
             };
 
             Console.WriteLine("--- 성공 케이스 검증 ---");
-            var combinedRules = string.Join(";", new[]
-{
-                "HasProperty([FormData0], 'userName') == true | 'FormData0에는 userName 필드가 필수입니다.'",
-                "Count([GridData1]) > 0 | 'GridData1은 최소 1개 이상의 항목이 있어야 합니다.'",
-                "Count([GridData1]) <= 100 | 'GridData1의 항목은 최대 100개까지 허용됩니다.'"
-            });
+            var combinedRules = string.Join(";", SampleAssertRules);
 
             var successOutputs = JsonConvert.DeserializeObject<List<DataMapItem>>(successResponse.ResultJson)!;
             var successResult = ValidateDataMapItems(successOutputs, combinedRules);
@@ -979,6 +972,11 @@ namespace transact.Extensions
                 foreach (var error in result.Errors) Console.WriteLine($"  - 오류: {error}");
             }
         }
+
+        [GeneratedRegex(@"^FormData\d+$", RegexOptions.Compiled)]
+        private static partial Regex MyRegex();
+        [GeneratedRegex(@"^GridData\d+$", RegexOptions.Compiled)]
+        private static partial Regex MyRegex1();
     }
 }
 

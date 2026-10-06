@@ -12,6 +12,8 @@ namespace HandStack.Core.ExtensionMethod
     {
         public static T Chain<T>(this T @this, Action<T> action)
         {
+            ArgumentNullException.ThrowIfNull(action);
+
             action(@this);
 
             return @this;
@@ -19,7 +21,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static T? ConvertTo<T>(this object @this)
         {
-            object? result = default(T);
+            object? result;
             if (typeof(T) == typeof(bool))
             {
                 result = Convert.ToBoolean(@this);
@@ -147,12 +149,16 @@ namespace HandStack.Core.ExtensionMethod
 
         public static bool IsAssignableFrom<T>(this object @this)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             var type = @this.GetType();
             return type.IsAssignableFrom(typeof(T));
         }
 
         public static bool IsAssignableFrom(this object @this, Type targetType)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             var type = @this.GetType();
             return type.IsAssignableFrom(targetType);
         }
@@ -182,6 +188,8 @@ namespace HandStack.Core.ExtensionMethod
             }
             catch (Exception)
             {
+                ArgumentNullException.ThrowIfNull(defaultValueFactory);
+
                 return defaultValueFactory();
             }
         }
@@ -194,6 +202,8 @@ namespace HandStack.Core.ExtensionMethod
             }
             catch (Exception)
             {
+                ArgumentNullException.ThrowIfNull(defaultValueFactory);
+
                 return defaultValueFactory(@this);
             }
         }
@@ -209,7 +219,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static string SerializeJson<T>(this T @this, Encoding encoding)
         {
-            encoding = (encoding ?? Encoding.UTF8);
+            encoding ??= Encoding.UTF8;
             var serializer = new DataContractJsonSerializer(typeof(T));
 
             using var memoryStream = new MemoryStream();
@@ -219,6 +229,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static string SerializeXml(this object @this)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             var xmlSerializer = new XmlSerializer(@this.GetType());
 
             using var stringWriter = new StringWriter();

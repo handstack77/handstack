@@ -31,22 +31,14 @@ namespace function.Areas.function.Controllers
     [Route("[area]/api/[controller]")]
     [ApiController]
     [EnableCors()]
-    public class ExecutionController : BaseController
+    public class ExecutionController(Serilog.ILogger logger, FunctionLoggerClient loggerClient, IFunctionClient dataClient, IMediator mediator) : BaseController
     {
-        private FunctionLoggerClient loggerClient { get; }
+        private FunctionLoggerClient loggerClient { get; } = loggerClient;
 
-        private Serilog.ILogger logger { get; }
+        private Serilog.ILogger logger { get; } = logger;
 
-        private IFunctionClient dataClient { get; }
-        private readonly IMediator mediator;
-
-        public ExecutionController(Serilog.ILogger logger, FunctionLoggerClient loggerClient, IFunctionClient dataClient, IMediator mediator)
-        {
-            this.logger = logger;
-            this.loggerClient = loggerClient;
-            this.dataClient = dataClient;
-            this.mediator = mediator;
-        }
+        private IFunctionClient dataClient { get; } = dataClient;
+        private readonly IMediator mediator = mediator;
 
         /// http://localhost:8421/api/execution/has
         [HttpGet("[action]")]
@@ -59,8 +51,8 @@ namespace function.Areas.function.Controllers
                 TransactionID = transactionID,
                 FunctionID = functionID
             };
-
-            ActionResult result = NotFound();
+            _ = NotFound();
+            ActionResult result;
             if (HttpContext.IsAllowAuthorization() == false)
             {
                 result = BadRequest();
@@ -86,7 +78,8 @@ namespace function.Areas.function.Controllers
         [HttpGet("[action]")]
         public async Task<ActionResult> Refresh(string changeType, string filePath, string? userWorkID, string? applicationID)
         {
-            ActionResult result = NotFound();
+            _ = NotFound();
+            ActionResult result;
             if (HttpContext.IsAllowAuthorization() == false)
             {
                 result = BadRequest();
@@ -208,8 +201,10 @@ namespace function.Areas.function.Controllers
         [HttpPost]
         public async Task<ActionResult> Execute(DynamicRequest request)
         {
-            var response = new DynamicResponse();
-            response.Acknowledge = AcknowledgeType.Failure;
+            var response = new DynamicResponse
+            {
+                Acknowledge = AcknowledgeType.Failure
+            };
 
             if (request == null)
             {

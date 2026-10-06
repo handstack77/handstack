@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 
 using HandStack.Core.ExtensionMethod;
 
@@ -17,6 +18,8 @@ namespace HandStack.Web.Extensions
         /// </summary>
         public static void EnrichFromRequest(IDiagnosticContext diagnosticContext, HttpContext httpContext)
         {
+            ArgumentNullException.ThrowIfNull(diagnosticContext);
+
             if (httpContext == null)
             {
                 return;
@@ -28,7 +31,7 @@ namespace HandStack.Web.Extensions
                 diagnosticContext.Set("ClientIP", ipAddress.ToString());
             }
 
-            var userAgent = httpContext.Request.Headers["User-Agent"].FirstOrDefault();
+            var userAgent = httpContext.Request.Headers.UserAgent.FirstOrDefault();
             if (userAgent != null)
             {
                 diagnosticContext.Set("UserAgent", userAgent);

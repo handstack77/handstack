@@ -12,14 +12,12 @@ using Newtonsoft.Json.Linq;
 
 namespace prompter.DataClient
 {
-    public class GeminiChatClient : HttpLLMChatClient
+    public class GeminiChatClient(IHttpClientFactory httpClientFactory) : HttpLLMChatClient(httpClientFactory)
     {
-        public GeminiChatClient(IHttpClientFactory httpClientFactory) : base(httpClientFactory)
-        {
-        }
-
         public override async Task<LLMChatResponse> ChatAsync(LLMChatRequest request, CancellationToken cancellationToken = default)
         {
+            ArgumentNullException.ThrowIfNull(request);
+
             Require(request.ApiKey, "Gemini ApiKey 설정 필요");
             Require(request.ModelID, "Gemini ModelID 설정 필요");
             ValidateMediaSupport(request, "Gemini", true, true);
@@ -57,10 +55,9 @@ namespace prompter.DataClient
                 });
             }
 
-            var json = await SendAsync(endpoint, payload, request, new Dictionary<string, string>(), cancellationToken);
+            var json = await SendAsync(endpoint, payload, request, [], cancellationToken);
             var response = new LLMChatResponse { Raw = json };
-            var parts = json["candidates"]?[0]?["content"]?["parts"] as JArray;
-            if (parts != null)
+            if (json["candidates"]?[0]?["content"]?["parts"] is JArray parts)
             {
                 var texts = new List<string>();
                 foreach (var part in parts)

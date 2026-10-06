@@ -2,25 +2,24 @@ using System;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
-
 using Amazon;
 using Amazon.S3;
 using Amazon.S3.Model;
-
-using HandStack.Web.Entity;
-
-using repository.Entity;
 using HandStack.Core.ExtensionMethod;
+using HandStack.Web.Entity;
+using repository.Entity;
 
 namespace repository.Extensions
 {
     public class AwsS3StorageProvider : IStorageProvider
     {
-        private readonly IAmazonS3 s3Client;
+        private readonly AmazonS3Client s3Client;
         private readonly string bucketName;
 
         public AwsS3StorageProvider(Repository repository)
         {
+            ArgumentNullException.ThrowIfNull(repository);
+
             bucketName = repository.AwsBucketName;
             var config = new AmazonS3Config
             {
@@ -134,6 +133,7 @@ namespace repository.Extensions
             string newBlobID;
             var i = 1;
             var extension = Path.GetExtension(blobID);
+            ArgumentNullException.ThrowIfNull(blobID);
             var baseBlobID = blobID.SubstringSafe(0, blobID.Length - extension.Length);
 
             do

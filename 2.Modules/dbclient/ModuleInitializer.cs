@@ -73,7 +73,7 @@ namespace dbclient
                         ModuleConfiguration.SQLFileSyncManager.Clear();
                         ModuleConfiguration.ContractBasePath.Clear();
                         ModuleConfiguration.IsContractFileWatching = moduleConfig.IsContractFileWatching;
-                        foreach (var basePath in moduleConfig.ContractBasePath ?? new List<string>())
+                        foreach (var basePath in moduleConfig.ContractBasePath ?? [])
                         {
                             var contractBasePath = GlobalConfiguration.GetBaseDirectoryPath(basePath);
                             if (string.IsNullOrWhiteSpace(contractBasePath) == false && ModuleConfiguration.ContractBasePath.Contains(contractBasePath) == false)
@@ -118,7 +118,7 @@ namespace dbclient
                             }
                         }
 
-                        ModuleConfiguration.AllowClientIP = (moduleConfig.AllowClientIP ?? new List<string>() { "*" })
+                        ModuleConfiguration.AllowClientIP = (moduleConfig.AllowClientIP ?? ["*"])
                             .Where(p => string.IsNullOrWhiteSpace(p) == false)
                             .Select(p => p.Trim())
                             .Distinct(StringComparer.OrdinalIgnoreCase)
@@ -143,6 +143,7 @@ namespace dbclient
                     throw new FileNotFoundException(message);
                 }
 
+                ArgumentNullException.ThrowIfNull(environment);
                 DatabaseMapper.LoadContract(environment.EnvironmentName, Log.Logger, configuration);
 
                 services.AddSingleton(new DbClientLoggerClient(Log.Logger, ModuleConfiguration.ModuleLogger));
@@ -156,14 +157,17 @@ namespace dbclient
 
         public bool CanHandleModuleConfigurationProperty(string propertyName)
         {
+            ArgumentNullException.ThrowIfNull(propertyName);
+
             return propertyName.Equals(nameof(ModuleConfig.DataSource), StringComparison.Ordinal);
         }
 
         public void ApplyModuleConfigurationProperty(ModuleInfo module, string propertyName, object? value, ModuleConfigurationReloadResult result)
         {
-            var dataSources = value as List<DataSource> ?? new List<DataSource>();
+            var dataSources = value as List<DataSource> ?? [];
             DatabaseMapper.ReloadDataSourceMappings(dataSources, Log.Logger);
             ModuleConfiguration.DataSource = dataSources.Select(item => item with { }).ToList();
+            ArgumentNullException.ThrowIfNull(result);
             result.AppliedKeys.Add($"ModuleConfig:{propertyName}");
         }
 
@@ -246,6 +250,7 @@ namespace dbclient
                 }
             }
 
+            ArgumentNullException.ThrowIfNull(app);
             var serviceScopeFactory = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>();
             foreach (var basePath in ModuleConfiguration.ContractBasePath)
             {
@@ -290,7 +295,7 @@ namespace dbclient
 
     internal class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
             Console.WriteLine("dbclient");
         }

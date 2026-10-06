@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
@@ -25,10 +26,12 @@ namespace HandStack.Core.ExtensionMethod
 
         public static T? Get<T>(this IDictionary @this, string key)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             var input = @this[key];
             if (input == null)
             {
-                return default(T);
+                return default;
             }
             return input.ConvertTo<T>();
         }
@@ -38,7 +41,7 @@ namespace HandStack.Core.ExtensionMethod
             var input = @this.Get(section, key);
             if (input == null)
             {
-                return default(T);
+                return default;
             }
             return input.ConvertTo<T>();
         }
@@ -46,13 +49,13 @@ namespace HandStack.Core.ExtensionMethod
         public static object? Get(this IDictionary @this, string sectionName, string key)
         {
             object? result = null;
+            ArgumentNullException.ThrowIfNull(@this);
             if (!@this.Contains(sectionName))
             {
                 return result;
             }
 
-            var newDictionary = @this[sectionName] as IDictionary;
-            if (newDictionary != null && newDictionary.Contains(key) == true)
+            if (@this[sectionName] is IDictionary newDictionary && newDictionary.Contains(key) == true)
             {
                 result = newDictionary[key];
             }
@@ -71,6 +74,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static T? GetOrDefault<T>(this IDictionary @this, string key, T defaultValue)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             if (!@this.Contains(key))
             {
                 return defaultValue;
@@ -81,6 +86,7 @@ namespace HandStack.Core.ExtensionMethod
         public static IDictionary? Section(this IDictionary @this, string section)
         {
             IDictionary? result = null;
+            ArgumentNullException.ThrowIfNull(@this);
             if (@this.Contains(section))
             {
                 result = (@this[section] as IDictionary);
@@ -92,6 +98,7 @@ namespace HandStack.Core.ExtensionMethod
         {
             var result = new Hashtable();
 
+            ArgumentNullException.ThrowIfNull(@this);
             foreach (var item in @this)
             {
                 if (item.Key != null)
@@ -116,6 +123,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static DbParameter[] ToDbParameters(this IDictionary<string, object> @this, DbConnection connection)
         {
+            ArgumentNullException.ThrowIfNull(connection);
+
             var command = connection.CreateCommand();
 
             return @this.Select(x =>
@@ -155,7 +164,7 @@ namespace HandStack.Core.ExtensionMethod
             }
 
             var queryStartIndex = url.IndexOf('?');
-            var queryString = queryStartIndex > -1 ? url.Substring(queryStartIndex + 1) : url;
+            var queryString = queryStartIndex > -1 ? url[(queryStartIndex + 1)..] : url;
             if (string.IsNullOrWhiteSpace(queryString) == true)
             {
                 return result;
@@ -169,7 +178,7 @@ namespace HandStack.Core.ExtensionMethod
                     continue;
                 }
 
-                result[item.Substring(0, separatorIndex)] = item.Substring(separatorIndex + 1);
+                result[item[..separatorIndex]] = item[(separatorIndex + 1)..];
             }
 
             return result;

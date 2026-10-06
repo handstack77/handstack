@@ -55,7 +55,7 @@ namespace repository.Extensions
                                     {
                                         if (ModuleConfiguration.FileRepositorys.Find(x => x.ApplicationID == repository.ApplicationID && x.RepositoryID == repository.RepositoryID) == null)
                                         {
-                                            if (repository.PhysicalPath.IndexOf("{appBasePath}") == -1)
+                                            if (!repository.PhysicalPath.Contains("{appBasePath}", StringComparison.CurrentCulture))
                                             {
                                                 repository.PhysicalPath = GlobalConfiguration.GetBaseDirectoryPath(repository.PhysicalPath);
                                                 var repositoryDirectoryInfo = new DirectoryInfo(repository.PhysicalPath);
@@ -96,6 +96,8 @@ namespace repository.Extensions
 
                     foreach (var duplicate in duplicates)
                     {
+                        ArgumentNullException.ThrowIfNull(logger);
+
                         logger.Warning("[{LogCategory}] " + $"중복 저장소 업무 계약 확인 필요. ApplicationID: {duplicate.ApplicationID}, RepositoryID: {duplicate.RepositoryID}, Count: {duplicate.Count}", "Storage/Refresh");
                     }
                 }

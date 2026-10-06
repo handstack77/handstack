@@ -31,10 +31,10 @@ namespace HandStack.Web.Modules
     {
         public string ModuleID { get; set; } = "";
 
-        public List<string> AppliedKeys { get; set; } = new List<string>();
+        public List<string> AppliedKeys { get; set; } = [];
 
-        public List<string> RestartRequiredKeys { get; set; } = new List<string>();
+        public List<string> RestartRequiredKeys { get; set; } = [];
 
-        public List<string> Errors { get; set; } = new List<string>();
+        public List<string> Errors { get; set; } = [];
     }
 }

@@ -38,37 +38,27 @@ namespace function.Events
         }
     }
     */
-    public class FunctionRequest : IRequest<object?>
+    public class FunctionRequest(object? request) : IRequest<object?>
     {
-        public object? Request { get; set; }
-
-        public FunctionRequest(object? request)
-        {
-            Request = request;
-        }
+        public object? Request { get; set; } = request;
     }
 
-    public class FunctionRequestHandler : IRequestHandler<FunctionRequest, object?>
+    public class FunctionRequestHandler(Serilog.ILogger logger, IFunctionClient nodeFunctionClient, FunctionLoggerClient loggerClient) : IRequestHandler<FunctionRequest, object?>
     {
-        private FunctionLoggerClient loggerClient { get; }
+        private FunctionLoggerClient loggerClient { get; } = loggerClient;
 
-        private Serilog.ILogger logger { get; }
-        private IFunctionClient functionClient { get; }
-
-        public FunctionRequestHandler(Serilog.ILogger logger, IFunctionClient nodeFunctionClient, FunctionLoggerClient loggerClient)
-        {
-            this.logger = logger;
-            this.loggerClient = loggerClient;
-            this.functionClient = nodeFunctionClient;
-        }
+        private Serilog.ILogger logger { get; } = logger;
+        private IFunctionClient functionClient { get; } = nodeFunctionClient;
 
         public async ValueTask<object?> Handle(FunctionRequest requestQueryData, CancellationToken cancellationToken)
         {
-            var request = requestQueryData.Request as DynamicRequest;
-            var response = new DynamicResponse();
-            response.Acknowledge = AcknowledgeType.Failure;
+            var response = new DynamicResponse
+            {
+                Acknowledge = AcknowledgeType.Failure
+            };
 
-            if (request == null)
+            ArgumentNullException.ThrowIfNull(requestQueryData);
+            if (requestQueryData.Request is not DynamicRequest request)
             {
                 response.ExceptionText = "빈 요청. 요청 정보 확인 필요";
                 return response;

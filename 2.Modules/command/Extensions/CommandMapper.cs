@@ -18,7 +18,7 @@ namespace command.Extensions
 {
     public static class CommandMapper
     {
-        public static ExpiringDictionary<string, CommandMap> CommandMappings = new ExpiringDictionary<string, CommandMap>();
+        public static ExpiringDictionary<string, CommandMap> CommandMappings = [];
 
         public static bool HasCommand(string applicationID, string projectID, string transactionID, string commandID)
         {
@@ -39,6 +39,7 @@ namespace command.Extensions
                 return result;
             }
 
+            ArgumentNullException.ThrowIfNull(queryID);
             var items = queryID.Split('|', StringSplitOptions.RemoveEmptyEntries);
             if (items.Length < 4)
             {
@@ -86,6 +87,7 @@ namespace command.Extensions
         public static bool AddCommandMap(string fileRelativePath, bool forceUpdate, ILogger logger)
         {
             var result = false;
+            ArgumentNullException.ThrowIfNull(fileRelativePath);
             var relativePath = NormalizeRelativePath(fileRelativePath);
             foreach (var basePath in ModuleConfiguration.ContractBasePath)
             {
@@ -105,6 +107,8 @@ namespace command.Extensions
 
         public static bool AddCommandMapFile(string filePath, bool forceUpdate, bool isTenantContractFile, ILogger logger)
         {
+            ArgumentNullException.ThrowIfNull(logger);
+
             var result = false;
             try
             {
@@ -185,12 +189,16 @@ namespace command.Extensions
             }
             catch (Exception exception)
             {
+                ArgumentNullException.ThrowIfNull(logger);
+
                 logger.Error(exception, "[{LogCategory}] LoadContract 오류", "CommandMapper/LoadContract");
             }
         }
 
         public static List<CommandMap> ParseCommandFile(string filePath, ILogger logger)
         {
+            ArgumentNullException.ThrowIfNull(logger);
+
             var result = new List<CommandMap>();
             var fileInfo = new FileInfo(filePath);
             var document = XDocument.Load(filePath, LoadOptions.PreserveWhitespace);
@@ -209,6 +217,7 @@ namespace command.Extensions
             var applicationID = contract.Header.ApplicationID;
             var projectID = contract.Header.ProjectID;
             var transactionID = contract.Header.TransactionID;
+            ArgumentNullException.ThrowIfNull(filePath);
             var normalizedFilePath = filePath.Replace("\\", "/");
             var tenantAppBasePath = GlobalConfiguration.TenantAppBasePath.Replace("\\", "/");
             if (normalizedFilePath.StartsWith(tenantAppBasePath, StringComparison.OrdinalIgnoreCase) == true)
@@ -250,9 +259,9 @@ namespace command.Extensions
                     Arguments = item.Arguments,
                     WorkingDirectory = item.WorkingDirectory,
                     EnvironmentVariables = new Dictionary<string, string>(item.EnvironmentVariables, StringComparer.OrdinalIgnoreCase),
-                    SuccessExitCodes = item.SuccessExitCodes.Count == 0 ? new List<int>() { 0 } : new List<int>(item.SuccessExitCodes),
+                    SuccessExitCodes = item.SuccessExitCodes.Count == 0 ? [0] : [.. item.SuccessExitCodes],
                     Parameters = CloneParameters(item.Parameters),
-                    OutputMetas = new List<string>(item.OutputMetas),
+                    OutputMetas = [.. item.OutputMetas],
                     ModifiedAt = contract.ModifiedAt
                 };
 
@@ -288,9 +297,9 @@ namespace command.Extensions
                     ContentType = string.IsNullOrWhiteSpace(item.ContentType) ? "application/json" : item.ContentType,
                     Body = item.Body,
                     BodyType = string.IsNullOrWhiteSpace(item.BodyType) ? "raw" : item.BodyType,
-                    BodyParts = new List<CommandBodyPartMap>(item.BodyParts),
+                    BodyParts = [.. item.BodyParts],
                     Parameters = CloneParameters(item.Parameters),
-                    OutputMetas = new List<string>(item.OutputMetas),
+                    OutputMetas = [.. item.OutputMetas],
                     ModifiedAt = contract.ModifiedAt
                 };
 
@@ -470,7 +479,7 @@ namespace command.Extensions
                 result.Add(successExitCode.ParseInt(0));
             }
 
-            return result.Count == 0 ? new List<int>() { 0 } : result;
+            return result.Count == 0 ? [0] : result;
         }
 
         private static Dictionary<string, string> ReadNameValueMap(XElement? container, string itemName)
@@ -577,7 +586,7 @@ namespace command.Extensions
         private static string NormalizeRelativePath(string fileRelativePath)
         {
             var result = fileRelativePath.Replace("\\", "/");
-            while (result.StartsWith("/") || result.StartsWith("\\"))
+            while (result.StartsWith('/') || result.StartsWith('\\'))
             {
                 result = result.SubstringSafe(1);
             }

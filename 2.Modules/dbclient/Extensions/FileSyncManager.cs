@@ -19,8 +19,8 @@ namespace dbclient.Extensions
 
         private bool isDesposed;
         private readonly FileSystemWatcher fileSystemWatcher;
-        private readonly ConcurrentQueue<string> queue = new ConcurrentQueue<string>();
-        private readonly ConcurrentDictionary<string, DateTime> lastEventTimes = new ConcurrentDictionary<string, DateTime>();
+        private readonly ConcurrentQueue<string> queue = new();
+        private readonly ConcurrentDictionary<string, DateTime> lastEventTimes = new();
 
         public FileSyncManager(string sourceRootDirectory, string filter)
         {
@@ -162,7 +162,7 @@ namespace dbclient.Extensions
         public void Dispose()
         {
             Dispose(true);
-            GC.SuppressFinalize(true);
+            GC.SuppressFinalize(this);
         }
 
         public virtual void Dispose(bool disposing)

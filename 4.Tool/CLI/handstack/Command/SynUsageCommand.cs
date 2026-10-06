@@ -31,8 +31,8 @@ namespace handstack
 
                 Dictionary<string, List<string>> scanTargets = new Dictionary<string, List<string>>
                 {
-                    ["functions"] = new List<string>
-                    {
+                    ["functions"] =
+                    [
                         "syn\\.\\$b\\.[a-zA-Z0-9_]+",
                         "syn\\.\\$m\\.[a-zA-Z0-9_]+",
                         "syn\\.\\$d\\.[a-zA-Z0-9_]+",
@@ -49,9 +49,9 @@ namespace handstack
                         "\\$string\\.[a-zA-Z0-9_]+",
                         "\\$number\\.[a-zA-Z0-9_]+",
                         "\\$object\\.[a-zA-Z0-9_]+"
-                    },
-                    ["uicontrols"] = new List<string>
-                    {
+                    ],
+                    ["uicontrols"] =
+                    [
                         "syn\\.uicontrols\\.\\$checkbox\\.[a-zA-Z0-9_]+",
                         "syn\\.uicontrols\\.\\$codepicker\\.[a-zA-Z0-9_]+",
                         "syn\\.uicontrols\\.\\$colorpicker\\.[a-zA-Z0-9_]+",
@@ -75,11 +75,11 @@ namespace handstack
                         "syn\\.uicontrols\\.\\$tree\\.[a-zA-Z0-9_]+",
                         "syn\\.uicontrols\\.\\$grid\\.[a-zA-Z0-9_]+",
                         "syn\\.uicontrols\\.\\$auigrid\\.[a-zA-Z0-9_]+"
-                    }
+                    ]
                 };
 
                 string? targetDir = directory?.FullName;
-                string scanType = value == null ? "functions" : value;
+                string scanType = value ?? "functions";
                 if (targetDir == null || directory == null || directory.Exists == false)
                 {
                     Log.Error("사용법: dotnet run \"<대상_디렉토리>\" [스캔_타입] > result.csv");
@@ -122,11 +122,13 @@ namespace handstack
                                     string funcName = match.Value;
                                     string relPath = Path.GetRelativePath(baseDir, fullPath);
 
-                                    if (!results.ContainsKey(funcName))
+                                    if (!results.TryGetValue(funcName, out var value1))
                                     {
-                                        results[funcName] = new List<string>();
+                                        value1 = [];
+                                        results[funcName] = value1;
                                     }
-                                    results[funcName].Add(relPath);
+
+                                    value1.Add(relPath);
                                 }
                             }
                             catch (Exception ex)

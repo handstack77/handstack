@@ -7,10 +7,14 @@ namespace HandStack.Data.ExtensionMethod
     {
         public static void ExecuteWithReadLock(this ReaderWriterLockSlim readerWriterLockSlim, Action action)
         {
+            ArgumentNullException.ThrowIfNull(readerWriterLockSlim);
+
             readerWriterLockSlim.EnterReadLock();
 
             try
             {
+                ArgumentNullException.ThrowIfNull(action);
+
                 action();
             }
             finally
@@ -21,10 +25,14 @@ namespace HandStack.Data.ExtensionMethod
 
         public static T ExecuteWithReadLock<T>(this ReaderWriterLockSlim readerWriterLockSlim, Func<T> action)
         {
+            ArgumentNullException.ThrowIfNull(readerWriterLockSlim);
+
             readerWriterLockSlim.EnterReadLock();
 
             try
             {
+                ArgumentNullException.ThrowIfNull(action);
+
                 return action();
             }
             finally
@@ -35,10 +43,14 @@ namespace HandStack.Data.ExtensionMethod
 
         public static void ExecuteWithWriteLock(this ReaderWriterLockSlim readerWriterLockSlim, Action action)
         {
+            ArgumentNullException.ThrowIfNull(readerWriterLockSlim);
+
             readerWriterLockSlim.EnterWriteLock();
 
             try
             {
+                ArgumentNullException.ThrowIfNull(action);
+
                 action();
             }
             finally
@@ -49,10 +61,14 @@ namespace HandStack.Data.ExtensionMethod
 
         public static T ExecuteWithWriteLock<T>(this ReaderWriterLockSlim readerWriterLockSlim, Func<T> action)
         {
+            ArgumentNullException.ThrowIfNull(readerWriterLockSlim);
+
             readerWriterLockSlim.EnterWriteLock();
 
             try
             {
+                ArgumentNullException.ThrowIfNull(action);
+
                 return action();
             }
             finally

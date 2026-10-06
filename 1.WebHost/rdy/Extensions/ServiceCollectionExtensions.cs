@@ -19,7 +19,7 @@ namespace rdy.Extensions
 {
     public static class ServiceCollectionExtensions
     {
-        private static readonly IModuleConfigurationManager modulesConfig = new ModuleConfigurationManager();
+        private static readonly ModuleConfigurationManager modulesConfig = new();
 
         // rdy에 ProjectReference로 포함된 모듈은 정적 어셈블리를 우선 사용한다.
         private static readonly Dictionary<string, Assembly> staticModuleAssemblies = new()
@@ -73,6 +73,7 @@ namespace rdy.Extensions
                 .AddModelBindingMessagesLocalizer(services)
                 .AddNewtonsoftJson();
 
+            ArgumentNullException.ThrowIfNull(modules);
             foreach (var module in modules)
             {
                 if (module.Assembly != null)

@@ -71,7 +71,7 @@ namespace handstack
                         }
                         break;
                     case "suid":
-                        ISequentialIdGenerator sequentialIdGenerator = new SequentialIdGenerator();
+                        SequentialIdGenerator sequentialIdGenerator = new SequentialIdGenerator();
                         var count = int.TryParse(options, out var parsedCount) == true && parsedCount > 0 ? parsedCount : 1;
                         var list = new List<string>();
                         for (var i = 0; i < count; i++)

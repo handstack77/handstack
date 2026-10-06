@@ -13,7 +13,7 @@ using Serilog;
 
 namespace handstack
 {
-    internal static class ListCommand
+    internal static partial class ListCommand
     {
         public static void Register(RootCommand rootCommand, HandstackCommandContext context)
         {
@@ -21,7 +21,7 @@ namespace handstack
             var subCommandList = new Command("list", "ack 프로세스 목록을 조회합니다");
             subCommandList.SetAction((parseResult) =>
             {
-                var currentId = Process.GetCurrentProcess().Id;
+                var currentId = Environment.ProcessId;
                 var processes = new List<Process>();
                 processes.AddRange(Process.GetProcessesByName("ack"));
                 processes.AddRange(Process.GetProcessesByName("dotnet"));
@@ -37,12 +37,12 @@ namespace handstack
                         MatchCollection? matches = null;
                         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == true)
                         {
-                            var regex = new Regex(@"TCP\s+(?<ip>\d+\.\d+\.\d+\.\d+|\[\:\:1\]):(?<port>\d+)\s+.*LISTENING\s+(?<pid>\d+)");
+                            var regex = MyRegex();
                             matches = regex.Matches(netstatOutput);
                         }
                         else
                         {
-                            var regex = new Regex(@"(\w+)\s+(?<pid>\d+)\s+\w+\s+\d+u\s+\w+\s+\w+\s+\d+t\d+\s+TCP\s+(?<ip>[\d\.]+|\[::1\]|\*):(?<port>\d+)\s+\(LISTEN\)");
+                            var regex = MyRegex1();
                             matches = regex.Matches(netstatOutput);
                         }
 
@@ -62,7 +62,7 @@ namespace handstack
                                     }
                                     else
                                     {
-                                        processPorts.Add(processID, new List<int> { portNumber });
+                                        processPorts.Add(processID, [portNumber]);
                                     }
                                 }
                             }
@@ -73,8 +73,10 @@ namespace handstack
                         Log.Error($"error: {netstatResult[0].Item3}");
                     }
 
-                    var strings = new List<string>();
-                    strings.Add($"pname|pid|port|startat|ram|cmd|path");
+                    var strings = new List<string>
+                    {
+                        $"pname|pid|port|startat|ram|cmd|path"
+                    };
                     foreach (var process in processes)
                     {
                         if (process.Id == currentId)
@@ -101,13 +103,12 @@ namespace handstack
                         var isProcessCollect = false;
                         if (commandLine.StartsWith("dotnet") == true)
                         {
-                            isProcessCollect = commandLine.IndexOf("ack.dll") > -1 ? true : false;
+                            isProcessCollect = commandLine.IndexOf("ack.dll") > -1;
                         }
                         else
                         {
                             isProcessCollect = commandLine.IndexOf("ack.exe") > -1
-                                || commandLine.IndexOf($"{Path.DirectorySeparatorChar}ack") > -1
-                                ? true : false;
+                                || commandLine.IndexOf($"{Path.DirectorySeparatorChar}ack") > -1;
                         }
 
                         if (isProcessCollect == true)
@@ -125,5 +126,10 @@ namespace handstack
             });
             rootCommand.Add(subCommandList);
         }
+
+        [GeneratedRegex(@"TCP\s+(?<ip>\d+\.\d+\.\d+\.\d+|\[\:\:1\]):(?<port>\d+)\s+.*LISTENING\s+(?<pid>\d+)")]
+        private static partial Regex MyRegex();
+        [GeneratedRegex(@"(\w+)\s+(?<pid>\d+)\s+\w+\s+\d+u\s+\w+\s+\w+\s+\d+t\d+\s+TCP\s+(?<ip>[\d\.]+|\[::1\]|\*):(?<port>\d+)\s+\(LISTEN\)")]
+        private static partial Regex MyRegex1();
     }
 }

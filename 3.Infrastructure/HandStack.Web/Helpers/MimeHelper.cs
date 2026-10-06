@@ -5,7 +5,7 @@ namespace HandStack.Web.Helper
 {
     public static class MimeHelper
     {
-        private static IDictionary<string, string?> mimes = new Dictionary<string, string?>(StringComparer.CurrentCultureIgnoreCase)
+        private static readonly Dictionary<string, string?> mimes = new(StringComparer.CurrentCultureIgnoreCase)
         {
           {".3g2", "video/3gpp2"},
           {".3gp", "video/3gpp"},
@@ -505,7 +505,7 @@ namespace HandStack.Web.Helper
 
             var extension = System.IO.Path.GetExtension(fileName).ToLower();
 
-            if (!extension.StartsWith("."))
+            if (!extension.StartsWith('.'))
             {
                 extension = "." + extension;
             }

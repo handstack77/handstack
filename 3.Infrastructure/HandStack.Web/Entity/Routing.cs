@@ -4,22 +4,22 @@ namespace HandStack.Web.Entity
 {
     public partial record Routing
     {
-        [JsonProperty("ApplicationID")]
+        [JsonProperty(nameof(ApplicationID))]
         public string ApplicationID { get; set; } = string.Empty;
 
-        [JsonProperty("ProjectID")]
+        [JsonProperty(nameof(ProjectID))]
         public string ProjectID { get; set; } = string.Empty;
 
-        [JsonProperty("CommandType")]
+        [JsonProperty(nameof(CommandType))]
         public string CommandType { get; set; } = string.Empty;
 
-        [JsonProperty("Environment")]
+        [JsonProperty(nameof(Environment))]
         public string Environment { get; set; } = string.Empty;
 
-        [JsonProperty("Uri")]
+        [JsonProperty(nameof(Uri))]
         public string Uri { get; set; } = string.Empty;
 
-        [JsonProperty("Comment")]
+        [JsonProperty(nameof(Comment))]
         public string Comment { get; set; } = string.Empty;
     }
 }

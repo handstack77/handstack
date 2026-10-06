@@ -10,6 +10,8 @@ namespace HandStack.Core.ExtensionMethod
     {
         public static void Initialize(this DataRow @this)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             if (@this.Table == null)
             {
                 return;
@@ -58,7 +60,9 @@ namespace HandStack.Core.ExtensionMethod
 
         public static void Copy(this DataRow @this, DataRow target)
         {
-            if (@this.Table == null || target.Table == null)
+            ArgumentNullException.ThrowIfNull(@this);
+
+            if (@this.Table == null || (target ?? throw new ArgumentNullException(nameof(target))).Table == null)
             {
                 return;
             }
@@ -74,11 +78,14 @@ namespace HandStack.Core.ExtensionMethod
 
         public static void CopyObjectFromDataRow(this DataRow @this, object target)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             if (@this.Table == null)
             {
                 return;
             }
 
+            ArgumentNullException.ThrowIfNull(target);
             var memberInfos = target.GetType().FindMembers(MemberTypes.Field | MemberTypes.Property, Reflector.memberAccess, null, null);
 
             foreach (var memberInfo in memberInfos)
@@ -120,6 +127,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static byte[]? GetBytes(this DataRow @this, string fieldName)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             return (@this[fieldName] as byte[]);
         }
 
@@ -130,6 +139,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static string GetStringSafe(this DataRow @this, string fieldName, string defaultValue)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             if (@this.Table.Columns.Contains(fieldName) == false)
             {
                 return defaultValue;
@@ -146,6 +157,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static string? GetString(this DataRow @this, string fieldName, string? defaultValue)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             if (@this.Table.Columns.Contains(fieldName) == false)
             {
                 return defaultValue;
@@ -157,6 +170,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static Guid GetGuid(this DataRow @this, string fieldName)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             if (@this.Table.Columns.Contains(fieldName) == false)
             {
                 return Guid.Empty;
@@ -173,6 +188,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static DateTime GetDateTime(this DataRow @this, string fieldName, DateTime defaultValue)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             if (@this.Table.Columns.Contains(fieldName) == false)
             {
                 return defaultValue;
@@ -184,6 +201,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static DateTime? GetDateTime(this DataRow @this, string fieldName, DateTime? defaultValue)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             if (@this.Table.Columns.Contains(fieldName) == false)
             {
                 return defaultValue;
@@ -211,6 +230,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static short GetInt16(this DataRow @this, string fieldName, short defaultValue)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             if (@this.Table.Columns.Contains(fieldName) == false)
             {
                 return defaultValue;
@@ -227,6 +248,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static ushort GetUInt16(this DataRow @this, string fieldName, ushort defaultValue)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             if (@this.Table.Columns.Contains(fieldName) == false)
             {
                 return defaultValue;
@@ -243,6 +266,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static int GetInt32(this DataRow @this, string fieldName, int defaultValue)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             if (@this.Table.Columns.Contains(fieldName) == false)
             {
                 return defaultValue;
@@ -259,6 +284,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static uint GetUInt32(this DataRow @this, string fieldName, uint defaultValue)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             if (@this.Table.Columns.Contains(fieldName) == false)
             {
                 return defaultValue;
@@ -275,6 +302,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static long GetInt64(this DataRow @this, string fieldName, long defaultValue)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             if (@this.Table.Columns.Contains(fieldName) == false)
             {
                 return defaultValue;
@@ -291,6 +320,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static ulong GetUInt64(this DataRow @this, string fieldName, ulong defaultValue)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             if (@this.Table.Columns.Contains(fieldName) == false)
             {
                 return defaultValue;
@@ -307,6 +338,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static decimal GetDecimal(this DataRow @this, string fieldName, decimal defaultValue)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             if (@this.Table.Columns.Contains(fieldName) == false)
             {
                 return defaultValue;
@@ -323,6 +356,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static double GetDouble(this DataRow @this, string fieldName, double defaultValue)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             if (@this.Table.Columns.Contains(fieldName) == false)
             {
                 return defaultValue;
@@ -339,6 +374,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static float GetSingle(this DataRow @this, string fieldName, float defaultValue)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             if (@this.Table.Columns.Contains(fieldName) == false)
             {
                 return defaultValue;
@@ -355,6 +392,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static bool GetBoolean(this DataRow @this, string fieldName, bool defaultValue)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             if (@this.Table.Columns.Contains(fieldName) == false)
             {
                 return defaultValue;
@@ -366,6 +405,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static bool IsDBNull(this DataRow @this, string fieldName)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             if (@this.Table.Columns.Contains(fieldName) == false)
             {
                 return false;
@@ -378,8 +419,11 @@ namespace HandStack.Core.ExtensionMethod
         public static DataRow AddDataRow(this DataRow @this, params string[] values)
         {
             var i = 0;
+            ArgumentNullException.ThrowIfNull(values);
             foreach (var value in values)
             {
+                ArgumentNullException.ThrowIfNull(@this);
+
                 @this[i] = value;
                 i++;
             }

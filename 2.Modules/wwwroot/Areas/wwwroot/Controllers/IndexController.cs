@@ -33,25 +33,15 @@ namespace wwwroot.Areas.wwwroot.Controllers
     [Area("wwwroot")]
     [Route("[area]/api/[controller]")]
     [ApiController]
-    public class IndexController : BaseController
+    public class IndexController(IMediator mediator, ILogger logger, IDistributedCache distributedCache, ISequentialIdGenerator sequentialIdGenerator, SqidsEncoder<int> sqids, IAntiforgery antiforgery) : BaseController
     {
         private static readonly HttpClient SecretHttpClient = new() { Timeout = TimeSpan.FromSeconds(3) };
-        private readonly IMediator mediator;
-        private readonly ILogger logger;
-        private readonly IDistributedCache distributedCache;
-        private readonly ISequentialIdGenerator sequentialIdGenerator;
-        private readonly SqidsEncoder<int> sqids;
-        private readonly IAntiforgery antiforgery;
-
-        public IndexController(IMediator mediator, ILogger logger, IDistributedCache distributedCache, ISequentialIdGenerator sequentialIdGenerator, SqidsEncoder<int> sqids, IAntiforgery antiforgery)
-        {
-            this.mediator = mediator;
-            this.logger = logger;
-            this.distributedCache = distributedCache;
-            this.sequentialIdGenerator = sequentialIdGenerator;
-            this.sqids = sqids;
-            this.antiforgery = antiforgery;
-        }
+        private readonly IMediator mediator = mediator;
+        private readonly ILogger logger = logger;
+        private readonly IDistributedCache distributedCache = distributedCache;
+        private readonly ISequentialIdGenerator sequentialIdGenerator = sequentialIdGenerator;
+        private readonly SqidsEncoder<int> sqids = sqids;
+        private readonly IAntiforgery antiforgery = antiforgery;
 
         // http://localhost:8421/wwwroot/api/index
         [HttpGet]
@@ -144,7 +134,7 @@ namespace wwwroot.Areas.wwwroot.Controllers
                 {
                     result = BadRequest();
                 }
-                else if (IsCreateIDAllowed(applicationID, string.IsNullOrWhiteSpace(screenID) ? transactionID : screenID) == false)
+                else if (IsCreateIDAllowed(string.IsNullOrWhiteSpace(screenID) ? transactionID : screenID) == false)
                 {
                     logger.Warning("[{LogCategory}] CreateID 발급 권한 없음. ApplicationID: {ApplicationID}, ScreenID: {ScreenID}, RemoteIP: {RemoteIP}", "Index/CreateID", applicationID, screenID, HttpContext.Connection.RemoteIpAddress?.ToString());
                     result = Unauthorized();
@@ -153,13 +143,15 @@ namespace wwwroot.Areas.wwwroot.Controllers
                 {
                     try
                     {
-                        var transactionObject = new TransactionClientObject();
-                        transactionObject.SystemID = TransactionConfig.Transaction.SystemID;
-                        transactionObject.ProgramID = applicationID;
-                        transactionObject.BusinessID = projectID;
-                        transactionObject.TransactionID = transactionID;
-                        transactionObject.FunctionID = serviceID;
-                        transactionObject.ScreenID = string.IsNullOrWhiteSpace(screenID) ? transactionID : screenID;
+                        var transactionObject = new TransactionClientObject
+                        {
+                            SystemID = TransactionConfig.Transaction.SystemID,
+                            ProgramID = applicationID,
+                            BusinessID = projectID,
+                            TransactionID = transactionID,
+                            FunctionID = serviceID,
+                            ScreenID = string.IsNullOrWhiteSpace(screenID) ? transactionID : screenID
+                        };
 
                         var requestID = GetRequestID(transactionObject, tokenID);
                         if (distributedCache.Get(requestID) != null)
@@ -197,7 +189,7 @@ namespace wwwroot.Areas.wwwroot.Controllers
             return result;
         }
 
-        private bool IsCreateIDAllowed(string applicationID, string? screenID)
+        private bool IsCreateIDAllowed(string? screenID)
         {
             var policy = ModuleConfiguration.CreateIDPolicy;
             if (policy.Enabled == false)
@@ -244,7 +236,7 @@ namespace wwwroot.Areas.wwwroot.Controllers
             return values != null && values.Any(item => item.Trim().Equals(value, StringComparison.OrdinalIgnoreCase));
         }
 
-        private string GetRequestID(TransactionClientObject transactionObject, string? tokenID)
+        private static string GetRequestID(TransactionClientObject transactionObject, string? tokenID)
         {
             string requestID;
             var installType = TransactionConfig.Program.InstallType;
@@ -274,8 +266,8 @@ namespace wwwroot.Areas.wwwroot.Controllers
         [HttpGet("[action]")]
         public ActionResult ID(int? count, bool? hasSplits = false)
         {
-            ActionResult result = BadRequest();
-
+            _ = BadRequest();
+            ActionResult result;
             if (hasSplits == true)
             {
                 if (count != null && count > 0)

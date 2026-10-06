@@ -18,16 +18,10 @@ using prompter.Enumeration;
 
 namespace prompter.DataClient
 {
-    public class LLMChatClientFactory
+    public class LLMChatClientFactory(IHttpClientFactory httpClientFactory, IServiceProvider serviceProvider)
     {
-        private readonly IHttpClientFactory httpClientFactory;
-        private readonly IServiceProvider serviceProvider;
-
-        public LLMChatClientFactory(IHttpClientFactory httpClientFactory, IServiceProvider serviceProvider)
-        {
-            this.httpClientFactory = httpClientFactory;
-            this.serviceProvider = serviceProvider;
-        }
+        private readonly IHttpClientFactory httpClientFactory = httpClientFactory;
+        private readonly IServiceProvider serviceProvider = serviceProvider;
 
         public ILLMChatClient Create(LLMProviders provider)
         {
@@ -44,14 +38,9 @@ namespace prompter.DataClient
         }
     }
 
-    public abstract class HttpLLMChatClient : ILLMChatClient
+    public abstract class HttpLLMChatClient(IHttpClientFactory httpClientFactory) : ILLMChatClient
     {
-        protected readonly IHttpClientFactory httpClientFactory;
-
-        protected HttpLLMChatClient(IHttpClientFactory httpClientFactory)
-        {
-            this.httpClientFactory = httpClientFactory;
-        }
+        protected readonly IHttpClientFactory httpClientFactory = httpClientFactory;
 
         public abstract Task<LLMChatResponse> ChatAsync(LLMChatRequest request, CancellationToken cancellationToken = default);
 
@@ -70,6 +59,8 @@ namespace prompter.DataClient
 
         protected static void AddHeaders(HttpRequestMessage message, Dictionary<string, string> headers)
         {
+            ArgumentNullException.ThrowIfNull(headers);
+
             foreach (var item in headers)
             {
                 if (string.IsNullOrWhiteSpace(item.Key) == true || item.Value == null)
@@ -77,6 +68,7 @@ namespace prompter.DataClient
                     continue;
                 }
 
+                ArgumentNullException.ThrowIfNull(message);
                 message.Headers.Remove(item.Key);
                 message.Headers.TryAddWithoutValidation(item.Key, item.Value);
             }
@@ -85,6 +77,7 @@ namespace prompter.DataClient
         protected static string AppendQueryParameters(string url, Dictionary<string, string> queryParameters)
         {
             var result = url;
+            ArgumentNullException.ThrowIfNull(queryParameters);
             foreach (var item in queryParameters)
             {
                 if (string.IsNullOrWhiteSpace(item.Key) == true || item.Value == null)
@@ -92,7 +85,7 @@ namespace prompter.DataClient
                     continue;
                 }
 
-                var separator = result.IndexOf("?", StringComparison.Ordinal) > -1 ? "&" : "?";
+                var separator = result.IndexOf('?') > -1 ? "&" : "?";
                 result = result + separator + Uri.EscapeDataString(item.Key) + "=" + Uri.EscapeDataString(item.Value);
             }
 
@@ -123,6 +116,7 @@ namespace prompter.DataClient
         protected static JArray BuildOpenAICompatibleMessages(IReadOnlyList<LLMChatMessage> messages, string prompt)
         {
             var result = new JArray();
+            ArgumentNullException.ThrowIfNull(messages);
             foreach (var message in messages)
             {
                 var role = string.IsNullOrWhiteSpace(message.Role) == true ? "user" : message.Role;
@@ -210,6 +204,7 @@ namespace prompter.DataClient
         protected static JArray BuildOllamaMessages(IReadOnlyList<LLMChatMessage> messages, string prompt)
         {
             var result = new JArray();
+            ArgumentNullException.ThrowIfNull(messages);
             foreach (var message in messages)
             {
                 var role = string.IsNullOrWhiteSpace(message.Role) == true ? "user" : message.Role;
@@ -271,11 +266,7 @@ namespace prompter.DataClient
                 .OfType<JObject>()
                 .LastOrDefault(item => string.Equals(item["role"]?.ToStringSafe(), "system", StringComparison.OrdinalIgnoreCase) == true
                     && (string.IsNullOrWhiteSpace(item["content"]?.ToStringSafe()) == false
-                        || item["images"] is JArray images && images.Count > 0));
-            if (fallbackMessage == null)
-            {
-                throw new InvalidOperationException("Ollama 요청에 비어 있지 않은 user 메시지가 필요합니다.");
-            }
+                        || item["images"] is JArray images && images.Count > 0)) ?? throw new InvalidOperationException("Ollama 요청에 비어 있지 않은 user 메시지가 필요합니다.");
 
             // qwen3 계열 Ollama 템플릿은 user role이 없는 legacy 단일 system 프롬프트를 거부합니다.
             fallbackMessage["role"] = "user";
@@ -283,6 +274,8 @@ namespace prompter.DataClient
 
         protected static void ValidateMediaSupport(LLMChatRequest request, string provider, bool supportsImage, bool supportsAudio)
         {
+            ArgumentNullException.ThrowIfNull(request);
+
             foreach (var message in request.ChatHistory)
             {
                 foreach (var media in message.Media)
@@ -317,6 +310,7 @@ namespace prompter.DataClient
         protected static JArray BuildOpenAIToolCalls(IReadOnlyList<LLMToolCall> toolCalls)
         {
             var result = new JArray();
+            ArgumentNullException.ThrowIfNull(toolCalls);
             foreach (var toolCall in toolCalls)
             {
                 result.Add(new JObject
@@ -337,6 +331,7 @@ namespace prompter.DataClient
         protected static JArray BuildOpenAITools(IReadOnlyList<LLMToolDefinition> tools)
         {
             var result = new JArray();
+            ArgumentNullException.ThrowIfNull(tools);
             foreach (var tool in tools)
             {
                 result.Add(new JObject
@@ -356,11 +351,14 @@ namespace prompter.DataClient
 
         protected static void ApplyOpenAITools(JObject payload, LLMChatRequest request)
         {
+            ArgumentNullException.ThrowIfNull(request);
+
             if (request.Tools.Count == 0 || request.ToolMode == "none")
             {
                 return;
             }
 
+            ArgumentNullException.ThrowIfNull(payload);
             payload["tools"] = BuildOpenAITools(request.Tools);
             if (request.ToolMode == "required")
             {
@@ -374,10 +372,15 @@ namespace prompter.DataClient
 
         protected static HttpContent CreateHttpContent(JObject payload, LLMRequestBody requestBody)
         {
+            ArgumentNullException.ThrowIfNull(requestBody);
+            ArgumentNullException.ThrowIfNull(payload);
+
             if (string.Equals(requestBody.Type, "form-data", StringComparison.OrdinalIgnoreCase) == true)
             {
-                var multipart = new MultipartFormDataContent();
-                multipart.Add(new StringContent(payload.ToString(Formatting.None), Encoding.UTF8, "application/json"), "payload");
+                var multipart = new MultipartFormDataContent
+                {
+                    { new StringContent(payload.ToString(Formatting.None), Encoding.UTF8, "application/json"), "payload" }
+                };
                 foreach (var part in requestBody.Parts)
                 {
                     if (part.Type == "file")
@@ -420,11 +423,13 @@ namespace prompter.DataClient
         protected async Task<JObject> SendAsync(string endpoint, JObject payload, LLMChatRequest request, Dictionary<string, string> providerHeaders, CancellationToken cancellationToken)
         {
             var headers = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            ArgumentNullException.ThrowIfNull(providerHeaders);
             foreach (var item in providerHeaders)
             {
                 headers[item.Key] = item.Value;
             }
 
+            ArgumentNullException.ThrowIfNull(request);
             foreach (var item in request.Headers)
             {
                 headers[item.Key] = item.Value;
@@ -444,7 +449,7 @@ namespace prompter.DataClient
 
             if (string.IsNullOrWhiteSpace(responseText) == true)
             {
-                return new JObject();
+                return [];
             }
 
             var token = JToken.Parse(responseText);
@@ -454,10 +459,10 @@ namespace prompter.DataClient
         protected static LLMChatResponse ParseOpenAICompatibleResponse(JObject json)
         {
             var response = new LLMChatResponse { Raw = json };
+            ArgumentNullException.ThrowIfNull(json);
             var message = json["choices"]?[0]?["message"];
             response.Content = message?["content"]?.ToStringSafe() ?? "";
-            var toolCalls = message?["tool_calls"] as JArray;
-            if (toolCalls != null)
+            if (message?["tool_calls"] is JArray toolCalls)
             {
                 foreach (var item in toolCalls)
                 {

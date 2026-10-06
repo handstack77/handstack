@@ -4,58 +4,58 @@ namespace prompter.Entity
 {
     public record LLMSource
     {
-        [JsonProperty("ApplicationID")]
+        [JsonProperty(nameof(ApplicationID))]
         public string ApplicationID { get; set; } = string.Empty;
 
-        [JsonProperty("ProjectID")]
+        [JsonProperty(nameof(ProjectID))]
         public string ProjectID { get; set; } = string.Empty;
 
-        [JsonProperty("DataSourceID")]
+        [JsonProperty(nameof(DataSourceID))]
         public string DataSourceID { get; set; } = string.Empty;
 
-        [JsonProperty("TanantPattern")]
+        [JsonProperty(nameof(TanantPattern))]
         public string TanantPattern { get; set; } = string.Empty;
 
-        [JsonProperty("TanantValue")]
+        [JsonProperty(nameof(TanantValue))]
         public string TanantValue { get; set; } = string.Empty;
 
-        [JsonProperty("DataProvider")]
+        [JsonProperty(nameof(DataProvider))]
         public string DataProvider { get; set; } = string.Empty;
 
-        [JsonProperty("LLMProvider")]
+        [JsonProperty(nameof(LLMProvider))]
         public string LLMProvider { get; set; } = string.Empty;
 
-        [JsonProperty("ApiKey")]
+        [JsonProperty(nameof(ApiKey))]
         public string ApiKey { get; set; } = string.Empty;
 
-        [JsonProperty("ModelID")]
+        [JsonProperty(nameof(ModelID))]
         public string ModelID { get; set; } = string.Empty;
 
-        [JsonProperty("Endpoint")]
+        [JsonProperty(nameof(Endpoint))]
         public string Endpoint { get; set; } = string.Empty;
 
-        [JsonProperty("Temperature")]
+        [JsonProperty(nameof(Temperature))]
         public double? Temperature { get; set; }
 
-        [JsonProperty("TopP")]
+        [JsonProperty(nameof(TopP))]
         public double? TopP { get; set; }
 
-        [JsonProperty("MaxOutputTokens")]
+        [JsonProperty(nameof(MaxOutputTokens))]
         public int? MaxOutputTokens { get; set; }
 
-        [JsonProperty("ContextTokens")]
+        [JsonProperty(nameof(ContextTokens))]
         public int? ContextTokens { get; set; }
 
-        [JsonProperty("Think")]
+        [JsonProperty(nameof(Think))]
         public bool Think { get; set; } = false;
 
-        [JsonProperty("Stream")]
+        [JsonProperty(nameof(Stream))]
         public bool Stream { get; set; } = false;
 
-        [JsonProperty("IsEncryption")]
+        [JsonProperty(nameof(IsEncryption))]
         public string IsEncryption { get; set; } = string.Empty;
 
-        [JsonProperty("Comment")]
+        [JsonProperty(nameof(Comment))]
         public string Comment { get; set; } = string.Empty;
     }
 }

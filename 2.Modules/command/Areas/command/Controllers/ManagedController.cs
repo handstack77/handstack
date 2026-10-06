@@ -25,18 +25,11 @@ namespace command.Areas.command.Controllers
     [Route("[area]/api/[controller]")]
     [ApiController]
     [EnableCors]
-    public class ManagedController : BaseController
+    public class ManagedController(IWebHostEnvironment environment, ILogger logger, IConfiguration configuration) : BaseController
     {
-        private readonly ILogger logger;
-        private readonly IConfiguration configuration;
-        private readonly IWebHostEnvironment environment;
-
-        public ManagedController(IWebHostEnvironment environment, ILogger logger, IConfiguration configuration)
-        {
-            this.environment = environment;
-            this.logger = logger;
-            this.configuration = configuration;
-        }
+        private readonly ILogger logger = logger;
+        private readonly IConfiguration configuration = configuration;
+        private readonly IWebHostEnvironment environment = environment;
 
         // http://localhost:8421/command/api/managed/reset-contract
         [HttpGet("[action]")]

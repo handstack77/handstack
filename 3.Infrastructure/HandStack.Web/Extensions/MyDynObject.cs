@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Dynamic;
 
 namespace HandStack.Web.Extensions
@@ -11,14 +12,9 @@ namespace HandStack.Web.Extensions
     /// 
     /// Console.WriteLine(dyn.prop1);
     /// </code>
-    public sealed class MyDynObject : DynamicObject
+    public sealed class MyDynObject(Dictionary<string, object?> properties) : DynamicObject
     {
-        private readonly Dictionary<string, object?> properties;
-
-        public MyDynObject(Dictionary<string, object?> properties)
-        {
-            this.properties = properties;
-        }
+        private readonly Dictionary<string, object?> properties = properties;
 
         public override IEnumerable<string> GetDynamicMemberNames()
         {
@@ -27,6 +23,8 @@ namespace HandStack.Web.Extensions
 
         public override bool TryGetMember(GetMemberBinder binder, out object? result)
         {
+            ArgumentNullException.ThrowIfNull(binder);
+
             if (properties.ContainsKey(binder.Name) == true)
             {
                 result = properties[binder.Name];
@@ -41,6 +39,8 @@ namespace HandStack.Web.Extensions
 
         public override bool TrySetMember(SetMemberBinder binder, object? value)
         {
+            ArgumentNullException.ThrowIfNull(binder);
+
             if (properties.ContainsKey(binder.Name) == true)
             {
                 properties[binder.Name] = value;

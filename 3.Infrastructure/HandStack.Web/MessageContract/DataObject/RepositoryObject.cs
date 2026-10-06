@@ -24,7 +24,7 @@ namespace HandStack.Web.MessageContract.DataObject
             Comment = "";
             CreatePersonID = "";
             CreateDate = DateTime.Now;
-            RepositoryItems = new List<RepositoryItemsObject>();
+            RepositoryItems = [];
         }
 
         public string RepositoryID { get; set; }

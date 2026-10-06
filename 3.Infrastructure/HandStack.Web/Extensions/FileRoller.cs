@@ -16,6 +16,7 @@ namespace HandStack.Web.Extensions
                 return connectionString;
             }
 
+            ArgumentNullException.ThrowIfNull(connectionString);
             var stringParser = ConnectionStringParser.Parse(connectionString);
             var fullpath = stringParser[fileID.ToStringSafe()];
 
@@ -67,9 +68,9 @@ namespace HandStack.Web.Extensions
 
         private static class ConnectionStringParser
         {
-            public static IDictionary<string, string> Parse(string str)
+            public static Dictionary<string, string> Parse(string str)
             {
-                if (str.IndexOf(";", StringComparison.Ordinal) == -1 && str.IndexOf("=", StringComparison.Ordinal) == -1)
+                if (!str.Contains(';') && !str.Contains('='))
                 {
                     return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                     {

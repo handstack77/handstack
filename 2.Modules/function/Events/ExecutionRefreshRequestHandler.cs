@@ -17,37 +17,25 @@ using Mediator;
 
 namespace function.Events
 {
-    public class ExecutionRefreshRequest : IRequest<bool>
+    public class ExecutionRefreshRequest(string changeType, string filePath, string? userWorkID, string? applicationID) : IRequest<bool>
     {
-        public string ChangeType { get; }
+        public string ChangeType { get; } = changeType;
 
-        public string FilePath { get; }
+        public string FilePath { get; } = filePath;
 
-        public string? UserWorkID { get; }
+        public string? UserWorkID { get; } = userWorkID;
 
-        public string? ApplicationID { get; }
-
-        public ExecutionRefreshRequest(string changeType, string filePath, string? userWorkID, string? applicationID)
-        {
-            ChangeType = changeType;
-            FilePath = filePath;
-            UserWorkID = userWorkID;
-            ApplicationID = applicationID;
-        }
+        public string? ApplicationID { get; } = applicationID;
     }
 
-    public class ExecutionRefreshRequestHandler : IRequestHandler<ExecutionRefreshRequest, bool>
+    public class ExecutionRefreshRequestHandler(Serilog.ILogger logger) : IRequestHandler<ExecutionRefreshRequest, bool>
     {
-        private readonly Serilog.ILogger logger;
-
-        public ExecutionRefreshRequestHandler(Serilog.ILogger logger)
-        {
-            this.logger = logger;
-        }
+        private readonly Serilog.ILogger logger = logger;
 
         public ValueTask<bool> Handle(ExecutionRefreshRequest request, CancellationToken cancellationToken)
         {
             var actionResult = false;
+            ArgumentNullException.ThrowIfNull(request);
             var filePath = request.FilePath;
 
             if (filePath.StartsWith(Path.DirectorySeparatorChar) == true)
@@ -62,7 +50,7 @@ namespace function.Events
             var businessContracts = FunctionMapper.ScriptMappings;
             lock (businessContracts)
             {
-                var watcherChangeTypes = (WatcherChangeTypes)Enum.Parse(typeof(WatcherChangeTypes), request.ChangeType);
+                var watcherChangeTypes = Enum.Parse<WatcherChangeTypes>(request.ChangeType);
                 switch (watcherChangeTypes)
                 {
                     case WatcherChangeTypes.Created:

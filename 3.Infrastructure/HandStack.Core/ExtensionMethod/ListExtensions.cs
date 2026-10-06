@@ -8,7 +8,7 @@ namespace HandStack.Core.ExtensionMethod
     {
         public static bool Add<T>(this List<T> @this, T? item)
         {
-            if (item != null && @this.Contains(item) == false)
+            if (item != null && (@this ?? throw new ArgumentNullException(nameof(@this))).Contains(item) == false)
             {
                 @this.Add(item);
                 return true;
@@ -18,6 +18,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static bool InsertUnqiue<T>(this List<T> @this, int index, T item)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             if (@this.Contains(item) == false)
             {
                 @this.Insert(index, item);
@@ -29,6 +31,7 @@ namespace HandStack.Core.ExtensionMethod
         public static int InsertRangeUnique<T>(this List<T> @this, int startIndex, IEnumerable<T> target)
         {
             var index = startIndex;
+            ArgumentNullException.ThrowIfNull(target);
             foreach (var item in target)
             {
                 if (@this.InsertUnqiue(startIndex, item)) index++;
@@ -38,8 +41,12 @@ namespace HandStack.Core.ExtensionMethod
 
         public static int IndexOf<T>(this List<T> @this, Func<T, bool> comparison)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             for (var i = 0; i < @this.Count; i++)
             {
+                ArgumentNullException.ThrowIfNull(comparison);
+
                 if (comparison(@this[i]) == true)
                 {
                     return i;
@@ -62,12 +69,12 @@ namespace HandStack.Core.ExtensionMethod
 
         public static bool IsNullOrEmpty<T>(List<T> @this)
         {
-            return @this == null || @this.Count<T>() == 0;
+            return @this == null || @this.Count == 0;
         }
 
         public static bool Add<T>(this IList<T> @this, T? item)
         {
-            if (item != null && @this.Contains(item) == false)
+            if (item != null && (@this ?? throw new ArgumentNullException(nameof(@this))).Contains(item) == false)
             {
                 @this.Add(item);
                 return true;
@@ -77,6 +84,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static bool InsertUnqiue<T>(this IList<T> @this, int index, T item)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             if (@this.Contains(item) == false)
             {
                 @this.Insert(index, item);
@@ -88,6 +97,7 @@ namespace HandStack.Core.ExtensionMethod
         public static int InsertRangeUnique<T>(this IList<T> @this, int startIndex, IEnumerable<T> target)
         {
             var index = startIndex;
+            ArgumentNullException.ThrowIfNull(target);
             foreach (var item in target)
             {
                 if (@this.InsertUnqiue(startIndex, item)) index++;
@@ -97,8 +107,12 @@ namespace HandStack.Core.ExtensionMethod
 
         public static int IndexOf<T>(this IList<T> @this, Func<T, bool> comparison)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             for (var i = 0; i < @this.Count; i++)
             {
+                ArgumentNullException.ThrowIfNull(comparison);
+
                 if (comparison(@this[i]) == true)
                 {
                     return i;
@@ -121,7 +135,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static bool IsNullOrEmpty<T>(IList<T> @this)
         {
-            return @this == null || @this.Count<T>() == 0;
+            return @this == null || @this.Count == 0;
         }
     }
 }

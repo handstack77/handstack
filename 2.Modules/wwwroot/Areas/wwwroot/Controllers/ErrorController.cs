@@ -14,16 +14,10 @@ namespace wwwroot.Areas.wwwroot.Controllers
     [Area("wwwroot")]
     [Route("[controller]")]
     [ApiController]
-    public class ErrorController : BaseController
+    public class ErrorController(IConfiguration configuration, ILogger logger) : BaseController
     {
-        private readonly IConfiguration configuration;
-        private readonly ILogger logger;
-
-        public ErrorController(IConfiguration configuration, ILogger logger)
-        {
-            this.configuration = configuration;
-            this.logger = logger;
-        }
+        private readonly IConfiguration configuration = configuration;
+        private readonly ILogger logger = logger;
 
         //[Route("{statusCode:int}")]
         //public IActionResult Error(int statusCode)

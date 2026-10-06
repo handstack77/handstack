@@ -3,17 +3,11 @@ using System.Collections.Generic;
 
 namespace HandStack.Core.Licensing.Validation
 {
-    internal class ValidationChainBuilder : IStartValidationChain, IValidationChain
+    internal class ValidationChainBuilder(License license) : IStartValidationChain, IValidationChain
     {
-        private readonly Queue<ILicenseValidator> validators;
-        private ILicenseValidator? currentValidatorChain;
-        private readonly License license;
-
-        public ValidationChainBuilder(License license)
-        {
-            this.license = license;
-            validators = new Queue<ILicenseValidator>();
-        }
+        private readonly Queue<ILicenseValidator> validators = new();
+        private LicenseValidator? currentValidatorChain;
+        private readonly License license = license;
 
         public ILicenseValidator StartValidatorChain()
         {
@@ -31,10 +25,7 @@ namespace HandStack.Core.Licensing.Validation
 
         public ICompleteValidationChain When(Predicate<License> predicate)
         {
-            if (currentValidatorChain != null)
-            {
-                currentValidatorChain.ValidateWhen = predicate;
-            }
+            currentValidatorChain?.ValidateWhen = predicate;
             return this;
         }
 

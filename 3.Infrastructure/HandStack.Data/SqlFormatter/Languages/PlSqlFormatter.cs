@@ -422,6 +422,15 @@ namespace HandStack.Data.SqlFormatter.Languages
                 "CROSS JOIN",
                 "NATURAL JOIN",
             };
+        internal static readonly string[] stringTypes = new[] { "\"\"", "N''", "''", "``" };
+
+        private static readonly string[] TokenizerOpenParens = new[] { "(", "CASE" };
+        private static readonly string[] TokenizerCloseParens = new[] { ")", "END" };
+        private static readonly char[] TokenizerIndexedPlaceholderTypes = new[] { '?' };
+        private static readonly char[] TokenizerNamedPlaceholderTypes = new[] { ':' };
+        private static readonly string[] TokenizerLineCommentTypes = new[] { "--" };
+        private static readonly string[] TokenizerSpecialWordChars = new[] { "_", "$", "#", ".", "@" };
+        private static readonly string[] TokenizerOperators = new[] { "||", "**", "!=", ":=" };
 
         protected override Tokenizer GetTokenizer()
         {
@@ -431,14 +440,14 @@ namespace HandStack.Data.SqlFormatter.Languages
                     ReservedTopLevelWords,
                     ReservedNewlineWords,
                     ReservedTopLevelWordsNoIndent,
-                    stringTypes: new[] { "\"\"", "N''", "''", "``" },
-                    openParens: new[] { "(", "CASE" },
-                    closeParens: new[] { ")", "END" },
-                    indexedPlaceholderTypes: new[] { '?' },
-                    namedPlaceholderTypes: new[] { ':' },
-                    lineCommentTypes: new[] { "--" },
-                    specialWordChars: new[] { "_", "$", "#", ".", "@" },
-                    operators: new[] { "||", "**", "!=", ":=" });
+                    stringTypes: stringTypes,
+                    openParens: TokenizerOpenParens,
+                    closeParens: TokenizerCloseParens,
+                    indexedPlaceholderTypes: TokenizerIndexedPlaceholderTypes,
+                    namedPlaceholderTypes: TokenizerNamedPlaceholderTypes,
+                    lineCommentTypes: TokenizerLineCommentTypes,
+                    specialWordChars: TokenizerSpecialWordChars,
+                    operators: TokenizerOperators);
         }
 
         protected override Token TokenOverride(Token token, ReadOnlySpan<char> querySpan)

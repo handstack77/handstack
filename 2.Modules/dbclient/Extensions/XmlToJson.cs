@@ -12,17 +12,13 @@ namespace dbclient.Extensions
         public static string JSONTransformer(string resultSetXML, string rootNodeName, string elementNodeName)
         {
             var result = new StringBuilder();
-            var recordCount = 0;
-            var currentIndex = 0;
-
             var reader = new XmlTextReader(new StringReader(resultSetXML));
             var xdoc = new XPathDocument(reader);
             var nav = xdoc.CreateNavigator();
             var iter = nav.Select(rootNodeName + "/" + elementNodeName);
 
-            recordCount = iter.Count;
-            currentIndex = 0;
-
+            var recordCount = iter.Count;
+            var currentIndex = 0;
             result.Append("{ \"recordcount\": \"" + recordCount.ToString() + "\", \"data\": [ ");
 
             while (iter.MoveNext())

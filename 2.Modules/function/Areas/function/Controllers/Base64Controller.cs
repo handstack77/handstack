@@ -17,17 +17,11 @@ namespace function.Areas.function.Controllers
     [Route("[area]/api/[controller]")]
     [ApiController]
     [EnableCors]
-    public class Base64Controller : BaseController
+    public class Base64Controller(Serilog.ILogger logger, FunctionLoggerClient loggerClient) : BaseController
     {
-        private FunctionLoggerClient loggerClient { get; }
+        private FunctionLoggerClient loggerClient { get; } = loggerClient;
 
-        private Serilog.ILogger logger { get; }
-
-        public Base64Controller(Serilog.ILogger logger, FunctionLoggerClient loggerClient)
-        {
-            this.logger = logger;
-            this.loggerClient = loggerClient;
-        }
+        private Serilog.ILogger logger { get; } = logger;
 
         // http://localhost:8421/function/api/base64/encode?value={"ProjectID":"SYN","BusinessID":"DSO","TransactionID":"0001","FunctionID":"R01"}
         [HttpGet("[action]")]

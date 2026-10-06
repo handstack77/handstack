@@ -46,12 +46,12 @@ namespace HandStack.Web.Modules
             IsBundledWithHost = false;
             IsCopyContract = true;
             IsPurgeContract = false;
-            ContractBasePath = new List<string>();
+            ContractBasePath = [];
             Version = Version.Parse("0.0.0");
             Assembly = null;
-            EventAction = new List<string>(); // ToModuleEventID
-            SubscribeAction = new List<string>(); // SubscribeEventID
-            LoadPassAssemblyPath = new List<string>(); // SubscribeEventID
+            EventAction = []; // ToModuleEventID
+            SubscribeAction = []; // SubscribeEventID
+            LoadPassAssemblyPath = []; // SubscribeEventID
         }
     }
 }

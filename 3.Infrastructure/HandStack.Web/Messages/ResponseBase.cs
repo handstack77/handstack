@@ -17,7 +17,7 @@ namespace HandStack.Web.Messages
             ExceptionText = "";
             Version = "0";
             ResponseID = "";
-            LoadOptions = new Dictionary<string, object>();
+            LoadOptions = [];
             Environment = "D";
             RowsAffected = 0;
         }

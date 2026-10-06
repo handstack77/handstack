@@ -17,8 +17,8 @@ namespace forbes.Extensions
         private readonly bool isSyncEnabled = true;
         private bool isDisposed;
         private readonly FileSystemWatcher fileSystemWatcher;
-        private readonly ConcurrentQueue<string> queue = new ConcurrentQueue<string>();
-        private readonly ConcurrentDictionary<string, DateTime> lastEventTimes = new ConcurrentDictionary<string, DateTime>();
+        private readonly ConcurrentQueue<string> queue = new();
+        private readonly ConcurrentDictionary<string, DateTime> lastEventTimes = new();
 
         public FileSyncManager(string sourceRootDirectory, string filter)
             : this(sourceRootDirectory, filter, null)

@@ -9,11 +9,11 @@ namespace HandStack.Web.Extensions
     public class ExpiringDictionary<TKey, TValue> : IDictionary<TKey, TValue> where TValue : class
     {
 #pragma warning disable CS8714
-        private readonly Dictionary<TKey, (TValue Value, DateTime ExpiryTime)> dictionary = new();
+        private readonly Dictionary<TKey, (TValue Value, DateTime ExpiryTime)> dictionary = [];
 #pragma warning restore CS8714
         private readonly TimeSpan defaultExpiryDuration;
         private readonly Timer purgeTimer;
-        private readonly object defaultLock = new object();
+        private readonly object defaultLock = new();
 
         public ExpiringDictionary()
         {
@@ -163,6 +163,8 @@ namespace HandStack.Web.Extensions
                 {
                     if (kvp.Value.ExpiryTime > DateTime.Now)
                     {
+                        ArgumentNullException.ThrowIfNull(array);
+
                         array[arrayIndex++] = new KeyValuePair<TKey, TValue>(kvp.Key, kvp.Value.Value);
                     }
                 }

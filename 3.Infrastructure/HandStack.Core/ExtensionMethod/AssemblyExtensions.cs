@@ -13,6 +13,7 @@ namespace HandStack.Core.ExtensionMethod
         public static Dictionary<string, ManifestResourceInfo?>? GetManifestResources(this Assembly @this)
         {
             var result = new Dictionary<string, ManifestResourceInfo?>();
+            ArgumentNullException.ThrowIfNull(@this);
             foreach (var resourceName in @this.GetManifestResourceNames())
             {
                 result.Add(resourceName, @this.GetManifestResourceInfo(resourceName));
@@ -21,7 +22,7 @@ namespace HandStack.Core.ExtensionMethod
             return result;
         }
 
-        public async static Task<string?> GetStringEmbeddedResource(this Assembly @this, string resourceName)
+        public static async Task<string?> GetStringEmbeddedResource(this Assembly @this, string resourceName)
         {
             string? result = null;
             using (var stream = @this.GetStreamEmbeddedResource(resourceName))
@@ -37,10 +38,12 @@ namespace HandStack.Core.ExtensionMethod
 
         public static Stream? GetStreamEmbeddedResource(this Assembly @this, string resourceName)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             return @this.GetManifestResourceStream(resourceName);
         }
 
-        public async static Task<ReadOnlyMemory<byte>>? GetByteEmbeddedResource(this Assembly @this, string resourceName)
+        public static async Task<ReadOnlyMemory<byte>>? GetByteEmbeddedResource(this Assembly @this, string resourceName)
         {
             await using var resourceStream = GetStreamEmbeddedResource(@this, resourceName);
             using var memoryStream = new MemoryStream();
@@ -85,17 +88,16 @@ namespace HandStack.Core.ExtensionMethod
 
             try
             {
+                ArgumentNullException.ThrowIfNull(@this);
+
                 var publicKey = @this.GetName().GetPublicKey();
                 if (publicKey == null || publicKey.Length == 0)
                 {
                     return result;
                 }
 
-                using (SHA256 sha256 = SHA256.Create())
-                {
-                    byte[] hash = sha256.ComputeHash(publicKey);
-                    result = hash.ToHex();
-                }
+                byte[] hash = SHA256.HashData(publicKey);
+                result = hash.ToHex();
             }
             catch (Exception exception)
             {
@@ -111,6 +113,8 @@ namespace HandStack.Core.ExtensionMethod
 
             try
             {
+                ArgumentNullException.ThrowIfNull(@this);
+
                 var publicKeyToken = @this.GetName().GetPublicKeyToken();
                 if (publicKeyToken == null || publicKeyToken.Length == 0)
                 {

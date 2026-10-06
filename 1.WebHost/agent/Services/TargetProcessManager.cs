@@ -6,29 +6,29 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Text.RegularExpressions;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-
 using agent.Entity;
 using agent.Options;
-
 using Microsoft.Extensions.Options;
-
 using Serilog;
 
 namespace agent.Services
 {
-    public sealed class TargetProcessManager : ITargetProcessManager
+    public sealed partial class TargetProcessManager : ITargetProcessManager
     {
+        private static readonly JsonSerializerOptions CaseInsensitiveJsonOptions = new() { PropertyNameCaseInsensitive = true };
+        private static readonly JsonSerializerOptions IndentedJsonOptions = new() { WriteIndented = true };
+
         private readonly IOptionsMonitor<AgentOptions> optionsMonitor;
         private readonly IHttpClientFactory httpClientFactory;
-        private static readonly SemaphoreSlim syncLock = new SemaphoreSlim(1, 1);
-        private static readonly ConcurrentDictionary<string, ManagedProcessState> states = new ConcurrentDictionary<string, ManagedProcessState>(StringComparer.OrdinalIgnoreCase);
-        private static readonly ConcurrentDictionary<int, string> pidMap = new ConcurrentDictionary<int, string>();
-        private static readonly ConcurrentDictionary<int, CpuUsageSample> cpuSamples = new ConcurrentDictionary<int, CpuUsageSample>();
-        private static readonly object loadSyncRoot = new object();
+        private static readonly SemaphoreSlim syncLock = new(1, 1);
+        private static readonly ConcurrentDictionary<string, ManagedProcessState> states = new(StringComparer.OrdinalIgnoreCase);
+        private static readonly ConcurrentDictionary<int, string> pidMap = new();
+        private static readonly ConcurrentDictionary<int, CpuUsageSample> cpuSamples = new();
+        private static readonly object loadSyncRoot = new();
         private static bool processStatesLoaded;
 
         public TargetProcessManager(
@@ -311,13 +311,13 @@ namespace agent.Services
 
                 var timeoutSeconds = target.StopTimeoutSeconds <= 0 ? 20 : target.StopTimeoutSeconds;
                 var timeout = TimeSpan.FromSeconds(timeoutSeconds);
-                var stopResult = await StopProcessAsync(process, timeout, target.KillEntireProcessTree, cancellationToken);
+                var (Stopped, ExitCode) = await StopProcessAsync(process, timeout, target.KillEntireProcessTree, cancellationToken);
 
                 lock (state.SyncRoot)
                 {
                     state.Process = null;
                     state.LastPid = process.Id;
-                    state.LastExitCode = stopResult.ExitCode;
+                    state.LastExitCode = ExitCode;
                     state.LastExitTime = DateTime.Now;
                     pidMap.TryRemove(process.Id, out _);
                     cpuSamples.TryRemove(process.Id, out _);
@@ -325,7 +325,7 @@ namespace agent.Services
 
                 SaveProcessState(target.TargetAckId, state);
 
-                if (stopResult.Stopped == true)
+                if (Stopped == true)
                 {
                     return new TargetCommandResult
                     {
@@ -602,7 +602,7 @@ namespace agent.Services
             }
         }
 
-        private bool TryCreateCommandBridgeRequest(
+        private static bool TryCreateCommandBridgeRequest(
             TargetProcessOptions target,
             HttpMethod method,
             string relativePath,
@@ -627,7 +627,7 @@ namespace agent.Services
                 return false;
             }
 
-            if (baseUri.AbsoluteUri.EndsWith("/", StringComparison.Ordinal) == false)
+            if (baseUri.AbsoluteUri.EndsWith('/') == false)
             {
                 baseUri = new Uri(baseUri.AbsoluteUri + "/", UriKind.Absolute);
             }
@@ -655,7 +655,7 @@ namespace agent.Services
             return true;
         }
 
-        private TargetCommandResult BuildBridgeNotConfiguredResult(TargetProcessOptions target, string message)
+        private static TargetCommandResult BuildBridgeNotConfiguredResult(TargetProcessOptions target, string message)
         {
             return new TargetCommandResult
             {
@@ -675,10 +675,7 @@ namespace agent.Services
 
             try
             {
-                return JsonSerializer.Deserialize<T>(payload, new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                });
+                return JsonSerializer.Deserialize<T>(payload, CaseInsensitiveJsonOptions);
             }
             catch
             {
@@ -691,7 +688,7 @@ namespace agent.Services
             return executablePath.Contains(Path.DirectorySeparatorChar)
                 || executablePath.Contains(Path.AltDirectorySeparatorChar)
                 || executablePath.Contains(':')
-                || executablePath.StartsWith(".", StringComparison.Ordinal);
+                || executablePath.StartsWith('.');
         }
 
         internal static string ResolvePath(string path)
@@ -713,7 +710,7 @@ namespace agent.Services
         internal static string ExpandPathVariables(string path)
         {
             var expandedPath = Environment.ExpandEnvironmentVariables(path ?? "");
-            return Regex.Replace(expandedPath, @"\$(\{(?<name>[A-Za-z_][A-Za-z0-9_]*)\}|(?<name>[A-Za-z_][A-Za-z0-9_]*))", match =>
+            return MyRegex().Replace(expandedPath, match =>
             {
                 var variableName = match.Groups["name"].Value;
                 var value = Environment.GetEnvironmentVariable(variableName);
@@ -721,7 +718,7 @@ namespace agent.Services
             });
         }
 
-        private ProcessStartInfo BuildProcessStartInfo(TargetProcessOptions target)
+        private static ProcessStartInfo BuildProcessStartInfo(TargetProcessOptions target)
         {
             if (string.IsNullOrWhiteSpace(target.ExecutablePath) == true)
             {
@@ -885,7 +882,7 @@ namespace agent.Services
             }
         }
 
-        private async Task<(bool Stopped, int? ExitCode)> StopProcessAsync(Process process, TimeSpan timeout, bool killEntireProcessTree, CancellationToken cancellationToken)
+        private static async Task<(bool Stopped, int? ExitCode)> StopProcessAsync(Process process, TimeSpan timeout, bool killEntireProcessTree, CancellationToken cancellationToken)
         {
             if (IsRunning(process) == false)
             {
@@ -1017,7 +1014,7 @@ namespace agent.Services
             }
         }
 
-        private void UpdateStateFromProcess(string targetAckId, ManagedProcessState state, Process process)
+        private static void UpdateStateFromProcess(string targetAckId, ManagedProcessState state, Process process)
         {
             state.TargetId = targetAckId;
             state.LastPid = process.Id;
@@ -1025,7 +1022,7 @@ namespace agent.Services
             pidMap[process.Id] = targetAckId;
         }
 
-        private double? CalculateCpuPercent(Process process)
+        private static double? CalculateCpuPercent(Process process)
         {
             try
             {
@@ -1161,10 +1158,7 @@ namespace agent.Services
                 };
 
                 var filePath = Path.Combine(stateDirectoryPath, $"{targetAckId}.json");
-                var payload = JsonSerializer.Serialize(snapshot, new JsonSerializerOptions
-                {
-                    WriteIndented = true
-                });
+                var payload = JsonSerializer.Serialize(snapshot, IndentedJsonOptions);
 
                 System.IO.File.WriteAllText(filePath, payload);
             }
@@ -1174,7 +1168,7 @@ namespace agent.Services
             }
         }
 
-        private ManagedProcessState GetOrCreateState(string targetAckId)
+        private static ManagedProcessState GetOrCreateState(string targetAckId)
         {
             return states.GetOrAdd(targetAckId, key => new ManagedProcessState
             {
@@ -1218,6 +1212,9 @@ namespace agent.Services
 
             public DateTime SampledAt { get; set; }
         }
+
+        [GeneratedRegex(@"\$(\{(?<name>[A-Za-z_][A-Za-z0-9_]*)\}|(?<name>[A-Za-z_][A-Za-z0-9_]*))")]
+        private static partial Regex MyRegex();
     }
 }
 

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
 
 using HandStack.Core.ExtensionMethod;
@@ -13,20 +14,23 @@ namespace dbclient.Extensions
         {
             var result = new List<MetaColumn>();
 
+            ArgumentNullException.ThrowIfNull(schemaTable);
             foreach (DataRow dataRow in schemaTable.Rows)
             {
-                var metaColumn = new MetaColumn();
-                metaColumn.ColumnName = dataRow.GetStringSafe("ColumnName");
-                metaColumn.BaseColumnName = dataRow.GetStringSafe("BaseColumnName");
-                metaColumn.ColumnOrdinal = dataRow.GetInt32("ColumnOrdinal");
-                metaColumn.ColumnSize = dataRow.GetInt32("ColumnSize");
-                metaColumn.NumericPrecision = dataRow.GetInt32("NumericPrecision");
-                metaColumn.NumericScale = dataRow.GetInt32("NumericScale");
-                metaColumn.DataType = dataRow.GetStringSafe("ColumnName").Replace("System.", "");
-                metaColumn.DataTypeName = dataRow.GetStringSafe("DataTypeName");
-                metaColumn.AllowDBNull = dataRow.GetBoolean("AllowDBNull");
-                metaColumn.IsReadOnly = dataRow.GetBoolean("IsReadOnly");
-                metaColumn.IsAutoIncrement = dataRow.GetBoolean("IsAutoIncrement");
+                var metaColumn = new MetaColumn
+                {
+                    ColumnName = dataRow.GetStringSafe("ColumnName"),
+                    BaseColumnName = dataRow.GetStringSafe("BaseColumnName"),
+                    ColumnOrdinal = dataRow.GetInt32("ColumnOrdinal"),
+                    ColumnSize = dataRow.GetInt32("ColumnSize"),
+                    NumericPrecision = dataRow.GetInt32("NumericPrecision"),
+                    NumericScale = dataRow.GetInt32("NumericScale"),
+                    DataType = dataRow.GetStringSafe("ColumnName").Replace("System.", ""),
+                    DataTypeName = dataRow.GetStringSafe("DataTypeName"),
+                    AllowDBNull = dataRow.GetBoolean("AllowDBNull"),
+                    IsReadOnly = dataRow.GetBoolean("IsReadOnly"),
+                    IsAutoIncrement = dataRow.GetBoolean("IsAutoIncrement")
+                };
                 metaColumn.IsReadOnly = dataRow.GetBoolean("IsReadOnly");
 
                 result.Add(metaColumn);
@@ -39,15 +43,18 @@ namespace dbclient.Extensions
         {
             var result = new List<DatabaseColumn>();
 
+            ArgumentNullException.ThrowIfNull(schemaTable);
             foreach (DataRow dataRow in schemaTable.Rows)
             {
-                var dbColumn = new DatabaseColumn();
-                dbColumn.Name = dataRow.GetStringSafe("ColumnName");
-                dbColumn.Comment = dataRow.GetStringSafe("BaseColumnName");
-                dbColumn.Length = dataRow.GetInt32("ColumnSize");
-                dbColumn.DataType = dataRow.GetStringSafe("DataType").Replace("System.", "");
-                dbColumn.Require = false;
-                dbColumn.Default = "";
+                var dbColumn = new DatabaseColumn
+                {
+                    Name = dataRow.GetStringSafe("ColumnName"),
+                    Comment = dataRow.GetStringSafe("BaseColumnName"),
+                    Length = dataRow.GetInt32("ColumnSize"),
+                    DataType = dataRow.GetStringSafe("DataType").Replace("System.", ""),
+                    Require = false,
+                    Default = ""
+                };
 
                 result.Add(dbColumn);
             }
@@ -57,42 +64,15 @@ namespace dbclient.Extensions
 
         public static string toMetaDataType(string dataType)
         {
-            var result = "string";
-
-            switch (dataType)
+            var result = dataType switch
             {
-                case "Boolean":
-                    result = "bool";
-                    break;
-                case "DateTime":
-                    result = "date";
-                    break;
-                case "Byte":
-                case "Guid":
-                case "Char":
-                case "String":
-                case "TimeSpan":
-                case "SByte":
-                    result = "string";
-                    break;
-                case "Decimal":
-                case "Double":
-                case "Single":
-                    result = "numeric";
-                    break;
-                case "Int16":
-                case "Int32":
-                case "Int64":
-                case "UInt16":
-                case "UInt32":
-                case "UInt64":
-                    result = "number";
-                    break;
-                default:
-                    result = dataType.ToLower();
-                    break;
-            }
-
+                "Boolean" => "bool",
+                "DateTime" => "date",
+                "Byte" or "Guid" or "Char" or "String" or "TimeSpan" or "SByte" => "string",
+                "Decimal" or "Double" or "Single" => "numeric",
+                "Int16" or "Int32" or "Int64" or "UInt16" or "UInt32" or "UInt64" => "number",
+                _ => dataType.ToLower(),
+            };
             return result;
         }
     }

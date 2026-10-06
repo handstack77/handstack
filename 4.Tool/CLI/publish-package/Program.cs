@@ -23,7 +23,7 @@ namespace publish_package
         public bool ShouldIncludeInPackage => char.ToUpperInvariant(Operation) != 'D';
     }
 
-    internal static class Program
+    internal static partial class Program
     {
         private const string DeployTargetName = "deploy";
         private const string RuntimesTargetName = "runtimes";
@@ -37,9 +37,9 @@ namespace publish_package
         private static readonly string[] DeployDirectories = [.. RuntimeDirectories, .. ModuleDirectories];
         private static string startupWorkingDirectory = Directory.GetCurrentDirectory();
         private static System.Timers.Timer? startupAwaitTimer;
-        private static CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        private static readonly CancellationTokenSource cancellationTokenSource = new();
         private static ArgumentHelper? commandOptions = null;
-        private static readonly object LogSyncRoot = new object();
+        private static readonly object LogSyncRoot = new();
         private static string? logFilePath;
         private static bool logFileConfigured;
 
@@ -575,7 +575,7 @@ namespace publish_package
             return fullPath;
         }
 
-        private static IReadOnlyList<string> ParseIncludes(string? value)
+        private static List<string> ParseIncludes(string? value)
         {
             if (string.IsNullOrWhiteSpace(value) == true)
             {
@@ -596,7 +596,7 @@ namespace publish_package
             return includes;
         }
 
-        private static IReadOnlyList<string> ParseExcludes(string? value)
+        private static List<string> ParseExcludes(string? value)
         {
             if (string.IsNullOrWhiteSpace(value) == true)
             {
@@ -670,14 +670,14 @@ namespace publish_package
             return string.Join("/", normalizedSegments);
         }
 
-        private static string FormatIncludes(IReadOnlyList<string> includes)
+        private static string FormatIncludes(List<string> includes)
         {
             return includes.Count == 0
                 ? "(all)"
                 : string.Join(",", includes);
         }
 
-        private static string FormatExcludes(IReadOnlyList<string> excludes)
+        private static string FormatExcludes(List<string> excludes)
         {
             return excludes.Count == 0
                 ? "(none)"
@@ -705,7 +705,7 @@ namespace publish_package
                 && Directory.Exists(Path.Combine(path, "hosts")) == true;
         }
 
-        private static IReadOnlyList<PackageFileEntry> EnumerateDeployFiles(string handstackRootPath, IReadOnlyList<string> includes, IReadOnlyList<Regex> excludeMatchers, Action<int, int>? reportProgress = null)
+        private static List<PackageFileEntry> EnumerateDeployFiles(string handstackRootPath, List<string> includes, IReadOnlyList<Regex> excludeMatchers, Action<int, int>? reportProgress = null)
         {
             var filePaths = new List<string>();
             foreach (var targetDirectoryPath in ResolveDeployDirectoryPaths(handstackRootPath, includes))
@@ -736,7 +736,7 @@ namespace publish_package
             return files;
         }
 
-        private static IReadOnlyList<PackageFileEntry> BuildDiffEntries(IReadOnlyList<PackageFileEntry> previousEntries, IReadOnlyList<PackageFileEntry> currentEntries)
+        private static List<PackageFileEntry> BuildDiffEntries(IReadOnlyList<PackageFileEntry> previousEntries, IReadOnlyList<PackageFileEntry> currentEntries)
         {
             var previousEntriesByPath = previousEntries.ToDictionary(entry => entry.RelativePath, StringComparer.OrdinalIgnoreCase);
             var currentEntriesByPath = currentEntries.ToDictionary(entry => entry.RelativePath, StringComparer.OrdinalIgnoreCase);
@@ -777,7 +777,7 @@ namespace publish_package
                 && string.Equals(previousEntry.Md5, currentEntry.Md5, StringComparison.OrdinalIgnoreCase) == true;
         }
 
-        private static IReadOnlyList<PackageFileEntry> LoadDeployFilesFromMakeFile(string handstackRootPath, string makeFilePath, IReadOnlyList<string> includes, IReadOnlyList<Regex> excludeMatchers)
+        private static List<PackageFileEntry> LoadDeployFilesFromMakeFile(string handstackRootPath, string makeFilePath, IReadOnlyList<string> includes, IReadOnlyList<Regex> excludeMatchers)
         {
             var resolvedMakeFilePath = ResolveInputFilePath(makeFilePath, startupWorkingDirectory, handstackRootPath, AppContext.BaseDirectory);
             if (File.Exists(resolvedMakeFilePath) == false)
@@ -798,13 +798,13 @@ namespace publish_package
             return entries;
         }
 
-        private static IReadOnlyList<PackageFileEntry> LoadFileListEntriesFromFile(string targetName, IReadOnlyList<string> targetDirectories, string filePath, IReadOnlyList<string>? includes = null, IReadOnlyList<Regex>? excludeMatchers = null)
+        private static List<PackageFileEntry> LoadFileListEntriesFromFile(string targetName, IReadOnlyList<string> targetDirectories, string filePath, IReadOnlyList<string>? includes = null, IReadOnlyList<Regex>? excludeMatchers = null)
         {
             var entriesByPath = new Dictionary<string, PackageFileEntry>(StringComparer.OrdinalIgnoreCase);
             foreach (var line in File.ReadAllLines(filePath))
             {
                 var rawValue = line.Trim();
-                if (string.IsNullOrWhiteSpace(rawValue) == true || rawValue.StartsWith("#", StringComparison.Ordinal) == true)
+                if (string.IsNullOrWhiteSpace(rawValue) == true || rawValue.StartsWith('#') == true)
                 {
                     continue;
                 }
@@ -971,7 +971,7 @@ namespace publish_package
                 : value + Path.DirectorySeparatorChar;
         }
 
-        private static IReadOnlyList<string> ResolveDeployDirectoryPaths(string handstackRootPath, IReadOnlyList<string> includes)
+        private static List<string> ResolveDeployDirectoryPaths(string handstackRootPath, List<string> includes)
         {
             if (includes.Count == 0)
             {
@@ -996,7 +996,7 @@ namespace publish_package
                 .ToList();
         }
 
-        private static IReadOnlyList<string> ResolveIncludeDirectoryRelativePaths(string handstackRootPath, IReadOnlyList<string> includes)
+        private static List<string> ResolveIncludeDirectoryRelativePaths(string handstackRootPath, List<string> includes)
         {
             if (includes.Count == 0)
             {
@@ -1071,7 +1071,7 @@ namespace publish_package
                 || normalizedRelativePath.StartsWith(include + "/", StringComparison.OrdinalIgnoreCase) == true);
         }
 
-        private static IReadOnlyList<Regex> BuildGlobMatchers(IReadOnlyList<string> patterns)
+        private static List<Regex> BuildGlobMatchers(IReadOnlyList<string> patterns)
         {
             return patterns
                 .Select(BuildGlobRegex)
@@ -1108,14 +1108,14 @@ namespace publish_package
 
                 if (currentCharacter == '/')
                 {
-                    expression.Append("/");
+                    expression.Append('/');
                     continue;
                 }
 
                 expression.Append(Regex.Escape(currentCharacter.ToString(CultureInfo.InvariantCulture)));
             }
 
-            expression.Append("$");
+            expression.Append('$');
             return new Regex(expression.ToString(), RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled);
         }
 
@@ -1175,7 +1175,7 @@ namespace publish_package
                 return string.Empty;
             }
 
-            if (Regex.IsMatch(md5, "^[0-9a-fA-F]{32}$", RegexOptions.CultureInvariant) == false)
+            if (MyRegex().IsMatch(md5) == false)
             {
                 throw new InvalidOperationException($"MD5 값 확인이 필요합니다. MD5={value}");
             }
@@ -1357,6 +1357,9 @@ namespace publish_package
                 }
             }
         }
+
+        [GeneratedRegex("^[0-9a-fA-F]{32}$", RegexOptions.CultureInvariant)]
+        private static partial Regex MyRegex();
     }
 }
 

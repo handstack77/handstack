@@ -55,10 +55,7 @@ namespace function.Builder
                 else
                 {
                     module = GlobalConfiguration.Modules.FirstOrDefault(p => p.ModuleID == moduleID);
-                    if (module == null)
-                    {
-                        module = GlobalConfiguration.Modules.FirstOrDefault(p => sourceFilePath.IndexOf(p.BasePath) > -1);
-                    }
+                    module ??= GlobalConfiguration.Modules.FirstOrDefault(p => sourceFilePath.IndexOf(p.BasePath) > -1);
                 }
 
                 var targetAssembly = module?.Assembly;

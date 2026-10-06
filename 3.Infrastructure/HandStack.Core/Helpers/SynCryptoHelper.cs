@@ -25,6 +25,7 @@ namespace HandStack.Core.Helpers
 
             key = key.ToSHA256().SubstringSafe(0, keyLength);
 
+            ArgumentNullException.ThrowIfNull(plainText);
             for (var i = 0; i < plainText.Length; i++)
             {
                 var passOffset = i % keyLength;
@@ -46,7 +47,7 @@ namespace HandStack.Core.Helpers
             {
                 cipherText = Encoding.UTF8.GetString(Convert.FromBase64String(HttpUtility.UrlDecode(cipherText)));
 
-                if (cipherText.IndexOf('.') == -1)
+                if (!cipherText.Contains('.'))
                 {
                     return result;
                 }

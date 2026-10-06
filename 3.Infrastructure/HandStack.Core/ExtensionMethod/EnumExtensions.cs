@@ -20,7 +20,7 @@ namespace HandStack.Core.ExtensionMethod
                 }
             }
 
-            return Enum.GetValues(typeof(TEnum)).Cast<TEnum>().First();
+            return Enum.GetValues<TEnum>().Cast<TEnum>().First();
         }
     }
 }

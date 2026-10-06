@@ -15,17 +15,14 @@ using Serilog;
 
 namespace checkup.Extensions
 {
-    public class TenantUserSignMiddleware
+    public class TenantUserSignMiddleware(RequestDelegate next)
     {
-        private readonly RequestDelegate _next;
-
-        public TenantUserSignMiddleware(RequestDelegate next)
-        {
-            _next = next;
-        }
+        private readonly RequestDelegate _next = next;
 
         public async Task InvokeAsync(HttpContext httpContext)
         {
+            ArgumentNullException.ThrowIfNull(httpContext);
+
             var requestPath = httpContext.Request.Path.ToString();
             var tenantAppRequestPath = $"/{GlobalConfiguration.TenantAppRequestPath}/";
             if (requestPath.StartsWith(tenantAppRequestPath) == true)

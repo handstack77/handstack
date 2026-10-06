@@ -6,7 +6,7 @@ namespace function.Entity
 {
     public record ModuleSourceMap
     {
-        public List<string> ProjectListID { get; set; } = new List<string>();
+        public List<string> ProjectListID { get; set; } = [];
 
         public string DataSourceID { get; set; } = "";
 

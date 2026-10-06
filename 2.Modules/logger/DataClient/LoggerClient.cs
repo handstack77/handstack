@@ -24,18 +24,13 @@ using Serilog;
 
 namespace logger.DataClient
 {
-    public class LoggerClient : ILoggerClient
+    public class LoggerClient(ILogger logger) : ILoggerClient
     {
-        private ILogger logger { get; }
+        private ILogger logger { get; } = logger;
 
         private static readonly ConcurrentDictionary<string, string> sqlScriptCache = new(StringComparer.Ordinal);
 
-        public LoggerClient(ILogger logger)
-        {
-            this.logger = logger;
-        }
-
-        private string GetSqlScript(string operation, string dataProvider, string tableName, int? removePeriod = null)
+        private static string GetSqlScript(string operation, string dataProvider, string tableName, int? removePeriod = null)
         {
             var cacheKey = $"{operation}_{dataProvider}_{tableName}";
             if (removePeriod.HasValue)
@@ -69,6 +64,8 @@ namespace logger.DataClient
 
             try
             {
+                ArgumentNullException.ThrowIfNull(request);
+
                 applicationCircuitBreakerPolicy = ModuleConfiguration.ApplicationIDCircuitBreakers[request.ApplicationID];
 
                 if (applicationCircuitBreakerPolicy.ApplicationCircuitBreaker != null &&
@@ -82,7 +79,7 @@ namespace logger.DataClient
                             var connectionString = dataSource.ConnectionString;
                             var provider = dataSource.DataProvider;
                             var tableName = dataSource.TableName;
-                            var dataProvider = (DataProviders)Enum.Parse(typeof(DataProviders), provider);
+                            var dataProvider = Enum.Parse<DataProviders>(provider);
 
                             using var databaseFactory = new DatabaseFactory(connectionString, dataProvider);
                             if (databaseFactory.Connection == null)
@@ -202,7 +199,7 @@ namespace logger.DataClient
                     var connectionString = dataSource.ConnectionString;
                     var provider = dataSource.DataProvider;
                     var tableName = dataSource.TableName;
-                    var dataProvider = (DataProviders)Enum.Parse(typeof(DataProviders), provider);
+                    var dataProvider = Enum.Parse<DataProviders>(provider);
 
                     using var databaseFactory = new DatabaseFactory(connectionString, dataProvider);
                     if (databaseFactory.Connection == null)
@@ -279,7 +276,7 @@ namespace logger.DataClient
                     var connectionString = dataSource.ConnectionString;
                     var provider = dataSource.DataProvider;
                     var tableName = dataSource.TableName;
-                    var dataProvider = (DataProviders)Enum.Parse(typeof(DataProviders), provider);
+                    var dataProvider = Enum.Parse<DataProviders>(provider);
 
                     using var databaseFactory = new DatabaseFactory(connectionString, dataProvider);
                     if (databaseFactory.Connection == null)
@@ -350,7 +347,7 @@ namespace logger.DataClient
                     var connectionString = dataSource.ConnectionString;
                     var provider = dataSource.DataProvider;
                     var tableName = dataSource.TableName;
-                    var dataProvider = (DataProviders)Enum.Parse(typeof(DataProviders), provider);
+                    var dataProvider = Enum.Parse<DataProviders>(provider);
 
                     using var databaseFactory = new DatabaseFactory(connectionString, dataProvider);
                     if (databaseFactory.Connection == null)

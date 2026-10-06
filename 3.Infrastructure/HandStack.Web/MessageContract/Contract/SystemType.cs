@@ -35,7 +35,7 @@ namespace HandStack.Web.MessageContract.Contract
             ProgramID = "";
             ModuleID = "";
             Version = "";
-            Routes = new List<Route>();
+            Routes = [];
             LocaleID = "";
             HostName = "";
             PathName = "";

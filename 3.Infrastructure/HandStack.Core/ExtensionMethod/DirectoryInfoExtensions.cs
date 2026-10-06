@@ -47,6 +47,7 @@ namespace HandStack.Core.ExtensionMethod
         public static FileInfo? FindFileRecursive(this DirectoryInfo @this, string searchPattern)
         {
             FileInfo? result = null;
+            ArgumentNullException.ThrowIfNull(@this);
             var files = @this.GetFiles(searchPattern);
             if (files.Length > 0) return files[0];
 
@@ -69,8 +70,11 @@ namespace HandStack.Core.ExtensionMethod
         public static FileInfo? FindFileRecursive(this DirectoryInfo @this, Func<FileInfo, bool> predicate)
         {
             FileInfo? result = null;
+            ArgumentNullException.ThrowIfNull(@this);
             foreach (var file in @this.GetFiles())
             {
+                ArgumentNullException.ThrowIfNull(predicate);
+
                 if (predicate(file)) return file;
             }
 
@@ -93,6 +97,7 @@ namespace HandStack.Core.ExtensionMethod
         public static FileInfo[] FindFilesRecursive(this DirectoryInfo @this, string pattern)
         {
             var foundFiles = new List<FileInfo>();
+            ArgumentNullException.ThrowIfNull(@this);
             FindFilesRecursive(@this, pattern, foundFiles);
             return foundFiles.ToArray();
         }
@@ -110,6 +115,7 @@ namespace HandStack.Core.ExtensionMethod
         public static FileInfo[] FindFilesRecursive(this DirectoryInfo @this, Func<FileInfo, bool> predicate)
         {
             var foundFiles = new List<FileInfo>();
+            ArgumentNullException.ThrowIfNull(@this);
             FindFilesRecursive(@this, predicate, foundFiles);
             return foundFiles.ToArray();
         }
@@ -122,14 +128,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static void CopyTo(this DirectoryInfo @this, string destination, bool recursive)
         {
-            if (@this == null)
-            {
-                throw new ArgumentNullException("source");
-            }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
+            ArgumentNullException.ThrowIfNull(@this);
+            ArgumentNullException.ThrowIfNull(destination);
 
             var target = new DirectoryInfo(destination);
             if (@this.Exists == false)
@@ -157,31 +157,46 @@ namespace HandStack.Core.ExtensionMethod
 
         public static void CreateZipFile(this DirectoryInfo @this, string destinationArchiveFileName)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             ZipFile.CreateFromDirectory(@this.FullName.Replace("\\", "/"), destinationArchiveFileName);
         }
 
         public static void CreateZipFile(this DirectoryInfo @this, string destinationArchiveFileName, CompressionLevel compressionLevel, bool includeBaseDirectory)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             ZipFile.CreateFromDirectory(@this.FullName.Replace("\\", "/"), destinationArchiveFileName, compressionLevel, includeBaseDirectory);
         }
 
         public static void CreateZipFile(this DirectoryInfo @this, string destinationArchiveFileName, CompressionLevel compressionLevel, bool includeBaseDirectory, Encoding entryNameEncoding)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             ZipFile.CreateFromDirectory(@this.FullName.Replace("\\", "/"), destinationArchiveFileName, compressionLevel, includeBaseDirectory, entryNameEncoding);
         }
 
         public static void CreateZipFile(this DirectoryInfo @this, FileInfo destinationArchiveFile)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+            ArgumentNullException.ThrowIfNull(destinationArchiveFile);
+
             ZipFile.CreateFromDirectory(@this.FullName.Replace("\\", "/"), destinationArchiveFile.FullName.Replace("\\", "/"));
         }
 
         public static void CreateZipFile(this DirectoryInfo @this, FileInfo destinationArchiveFile, CompressionLevel compressionLevel, bool includeBaseDirectory)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+            ArgumentNullException.ThrowIfNull(destinationArchiveFile);
+
             ZipFile.CreateFromDirectory(@this.FullName.Replace("\\", "/"), destinationArchiveFile.FullName.Replace("\\", "/"), compressionLevel, includeBaseDirectory);
         }
 
         public static void CreateZipFile(this DirectoryInfo @this, FileInfo destinationArchiveFile, CompressionLevel compressionLevel, bool includeBaseDirectory, Encoding entryNameEncoding)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+            ArgumentNullException.ThrowIfNull(destinationArchiveFile);
+
             ZipFile.CreateFromDirectory(@this.FullName.Replace("\\", "/"), destinationArchiveFile.FullName.Replace("\\", "/"), compressionLevel, includeBaseDirectory, entryNameEncoding);
         }
     }

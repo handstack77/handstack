@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Net;
 
@@ -31,6 +32,7 @@ namespace HandStack.Web
             }
 
             var clientIP = NormalizeIPAddress(context.GetRemoteIpAddress().ToStringSafe());
+            ArgumentNullException.ThrowIfNull(context);
             Log.Warning("[{LogCategory}] " + $"허용되지 않은 클라이언트 IP 접근 차단, Path: {context.Request.Path}, ClientIP: {clientIP}", logCategory);
 
             context.Response.StatusCode = StatusCodes.Status403Forbidden;

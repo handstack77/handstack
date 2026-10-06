@@ -1,3 +1,4 @@
+using System;
 using command.Entity;
 
 using HandStack.Web;
@@ -7,19 +8,15 @@ using Newtonsoft.Json;
 
 namespace command.Extensions
 {
-    public class CommandLoggerClient
+    public class CommandLoggerClient(Serilog.ILogger logger, Serilog.ILogger? transactionLogger = null)
     {
-        private readonly Serilog.ILogger logger;
-        private readonly Serilog.ILogger? transactionLogger;
-
-        public CommandLoggerClient(Serilog.ILogger logger, Serilog.ILogger? transactionLogger = null)
-        {
-            this.logger = logger;
-            this.transactionLogger = transactionLogger;
-        }
+        private readonly Serilog.ILogger logger = logger;
+        private readonly Serilog.ILogger? transactionLogger = transactionLogger;
 
         public void DynamicRequestLogging(DynamicRequest request, string acknowledge, string applicationID, System.Action<string>? fallbackFunction = null)
         {
+            ArgumentNullException.ThrowIfNull(request);
+
             Write("Request", request.GlobalID, acknowledge, applicationID, JsonConvert.SerializeObject(request), "Execution/Execute");
         }
 

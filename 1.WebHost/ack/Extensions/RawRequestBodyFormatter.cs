@@ -37,6 +37,8 @@ namespace ack.Extensions
 
         public override async Task<InputFormatterResult> ReadRequestBodyAsync(InputFormatterContext context)
         {
+            ArgumentNullException.ThrowIfNull(context);
+
             var request = context.HttpContext.Request;
             var contentType = context.HttpContext.Request.ContentType;
 

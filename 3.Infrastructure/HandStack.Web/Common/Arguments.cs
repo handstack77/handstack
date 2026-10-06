@@ -1,25 +1,27 @@
-﻿using System.Collections.Specialized;
+﻿using System;
+using System.Collections.Specialized;
 using System.Text.RegularExpressions;
 
 namespace HandStack.Web.Common
 {
-    public class Arguments
+    public partial class Arguments
     {
-        private static readonly Regex Spliter = new Regex(@"^-{1,2}|^/|=|:", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-        private static readonly Regex Remover = new Regex(@"^['""]?(.*?)['""]?$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private static readonly Regex Spliter = MyRegex();
+        private static readonly Regex Remover = MyRegex1();
 
-        private StringDictionary parameters;
+        private readonly StringDictionary parameters;
 
         /// <code>
         /// -size=100 /height:'400' -param1 "Nice stuff !" --debug
         /// </code>
         public Arguments(string[] Args)
         {
-            parameters = new StringDictionary();
+            parameters = [];
 
             string? parameter = null;
             string[] Parts;
 
+            ArgumentNullException.ThrowIfNull(Args);
             foreach (var Txt in Args)
             {
                 Parts = Spliter.Split(Txt, 3);
@@ -83,5 +85,10 @@ namespace HandStack.Web.Common
                 return (parameters[Param]);
             }
         }
+
+        [GeneratedRegex(@"^-{1,2}|^/|=|:", RegexOptions.IgnoreCase | RegexOptions.Compiled, "ko-KR")]
+        private static partial Regex MyRegex();
+        [GeneratedRegex(@"^['""]?(.*?)['""]?$", RegexOptions.IgnoreCase | RegexOptions.Compiled, "ko-KR")]
+        private static partial Regex MyRegex1();
     }
 }

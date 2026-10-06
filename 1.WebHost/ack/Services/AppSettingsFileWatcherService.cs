@@ -16,26 +16,20 @@ using Serilog;
 
 namespace ack.Services
 {
-    internal sealed class AppSettingsFileWatcherService : IHostedService, IDisposable
+    internal sealed class AppSettingsFileWatcherService(ILogger logger, RuntimeConfigurationService runtimeConfigurationService) : IHostedService, IDisposable
     {
         private static readonly TimeSpan debounceDelay = TimeSpan.FromMilliseconds(500);
         private static readonly TimeSpan retryDelay = TimeSpan.FromMilliseconds(200);
 
-        private readonly ILogger logger;
-        private readonly RuntimeConfigurationService runtimeConfigurationService;
-        private readonly SemaphoreSlim reloadLock = new SemaphoreSlim(1, 1);
-        private readonly object debounceSync = new object();
+        private readonly ILogger logger = logger;
+        private readonly RuntimeConfigurationService runtimeConfigurationService = runtimeConfigurationService;
+        private readonly SemaphoreSlim reloadLock = new(1, 1);
+        private readonly object debounceSync = new();
 
         private FileSystemWatcher? watcher;
         private Timer? debounceTimer;
         private string appSettingsFilePath = "";
-        private Dictionary<string, JToken> lastSnapshot = new Dictionary<string, JToken>(StringComparer.OrdinalIgnoreCase);
-
-        public AppSettingsFileWatcherService(ILogger logger, RuntimeConfigurationService runtimeConfigurationService)
-        {
-            this.logger = logger;
-            this.runtimeConfigurationService = runtimeConfigurationService;
-        }
+        private Dictionary<string, JToken> lastSnapshot = new(StringComparer.OrdinalIgnoreCase);
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
@@ -81,10 +75,7 @@ namespace ack.Services
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
-            if (watcher != null)
-            {
-                watcher.EnableRaisingEvents = false;
-            }
+            watcher?.EnableRaisingEvents = false;
 
             lock (debounceSync)
             {
@@ -196,10 +187,9 @@ namespace ack.Services
                     using var reader = new StreamReader(stream);
                     var json = await reader.ReadToEndAsync(cancellationToken);
                     var root = JObject.Parse(json);
-                    var appSettings = root["AppSettings"] as JObject;
 
                     var snapshot = new Dictionary<string, JToken>(StringComparer.OrdinalIgnoreCase);
-                    if (appSettings != null)
+                    if (root["AppSettings"] is JObject appSettings)
                     {
                         FlattenAppSettings(appSettings, "AppSettings", snapshot);
                     }

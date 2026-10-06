@@ -66,10 +66,7 @@ namespace HandStack.Core.Licensing
 
         public ILicenseBuilder WithProductFeatures(IDictionary<string, string> productFeatures)
         {
-            if (license.ProductFeatures != null)
-            {
-                license.ProductFeatures.AddAll(productFeatures);
-            }
+            license.ProductFeatures?.AddAll(productFeatures);
             return this;
         }
 
@@ -84,10 +81,7 @@ namespace HandStack.Core.Licensing
 
         public ILicenseBuilder WithAdditionalAttributes(IDictionary<string, string> additionalAttributes)
         {
-            if (license.AdditionalAttributes != null)
-            {
-                license.AdditionalAttributes.AddAll(additionalAttributes);
-            }
+            license.AdditionalAttributes?.AddAll(additionalAttributes);
             return this;
         }
 

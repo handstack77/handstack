@@ -8,7 +8,7 @@ namespace HandStack.Web.MessageContract.DataObject
         {
             QueryID = "";
             NameValues = "";
-            DecryptParameters = new List<DecryptParameter>();
+            DecryptParameters = [];
         }
 
         public string QueryID;

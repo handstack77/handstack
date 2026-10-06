@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
 
 namespace HandStack.Web.Entity
@@ -7,15 +8,18 @@ namespace HandStack.Web.Entity
     {
         public static ChartJsonData ToJsonObject(string fieldID, DataTable source)
         {
-            var result = new ChartJsonData();
-            result.ID = fieldID;
+            var result = new ChartJsonData
+            {
+                ID = fieldID
+            };
+            ArgumentNullException.ThrowIfNull(source);
             result.Value.EnsureCapacity(source.Rows.Count);
 
             foreach (DataRow dataRow in source.Rows)
             {
                 var row = new Dictionary<string, object>(2);
                 object? name = dataRow[0].ToString();
-                row["name"] = name == null ? "" : name;
+                row["name"] = name ?? "";
                 var count = source.Columns.Count;
                 var values = new List<object>(count - 1);
                 row["data"] = values;
@@ -40,7 +44,7 @@ namespace HandStack.Web.Entity
         public ChartJsonData()
         {
             ID = "";
-            Value = new List<object>();
+            Value = [];
         }
     }
 }

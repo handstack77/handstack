@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -11,17 +12,14 @@ using Microsoft.AspNetCore.Http;
 
 namespace checkup.Extensions
 {
-    public class JwtMiddleware
+    public class JwtMiddleware(RequestDelegate next)
     {
-        private readonly RequestDelegate _next;
-
-        public JwtMiddleware(RequestDelegate next)
-        {
-            _next = next;
-        }
+        private readonly RequestDelegate _next = next;
 
         public async Task InvokeAsync(HttpContext httpContext, IJwtManager jwtManager)
         {
+            ArgumentNullException.ThrowIfNull(httpContext);
+
             var requestPath = httpContext.Request.Path.ToString();
             var tenantAppRequestPath = $"/{GlobalConfiguration.TenantAppRequestPath}/";
             if (requestPath.StartsWith(tenantAppRequestPath) == true)
@@ -40,9 +38,11 @@ namespace checkup.Extensions
                     }
                     else
                     {
-                        var token = httpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(' ').Last();
+                        var token = httpContext.Request.Headers.Authorization.FirstOrDefault()?.Split(' ').Last();
                         if (token != null)
                         {
+                            ArgumentNullException.ThrowIfNull(jwtManager);
+
                             var isValidateToken = await jwtManager.ValidateJwtToken(token, userWorkID, applicationID);
                             if (isValidateToken == true)
                             {

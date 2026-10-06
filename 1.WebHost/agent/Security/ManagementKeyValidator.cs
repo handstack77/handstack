@@ -7,14 +7,9 @@ using Microsoft.Extensions.Options;
 
 namespace agent.Security
 {
-    public sealed class ManagementKeyValidator
+    public sealed class ManagementKeyValidator(IOptionsMonitor<AgentOptions> optionsMonitor)
     {
-        private readonly IOptionsMonitor<AgentOptions> optionsMonitor;
-
-        public ManagementKeyValidator(IOptionsMonitor<AgentOptions> optionsMonitor)
-        {
-            this.optionsMonitor = optionsMonitor;
-        }
+        private readonly IOptionsMonitor<AgentOptions> optionsMonitor = optionsMonitor;
 
         public string ManagementHeaderName
         {

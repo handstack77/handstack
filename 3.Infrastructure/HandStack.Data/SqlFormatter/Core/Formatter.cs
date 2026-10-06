@@ -185,7 +185,7 @@ namespace HandStack.Data.SqlFormatter.Core
             queryBuilder.Append(' ');
         }
 
-        private string EqualizeWhitespace(string input)
+        private static string EqualizeWhitespace(string input)
         {
             return WhitespacesRegex.Replace(input, " ");
         }
@@ -233,7 +233,7 @@ namespace HandStack.Data.SqlFormatter.Core
             var valueSpan = querySpan.Slice(token);
             if (valueSpan.Length != 0)
             {
-                value = parameters!.Get(valueSpan.Slice(0, 1).ToString());
+                value = parameters!.Get(valueSpan[..1].ToString());
             }
 
             queryBuilder.Append(value ?? querySpan.Slice(token).ToString());
@@ -316,7 +316,7 @@ namespace HandStack.Data.SqlFormatter.Core
         {
             queryBuilder.TrimSpaceEnd();
 
-            if (queryBuilder.Length != 0 && queryBuilder[queryBuilder.Length - 1] != '\n')
+            if (queryBuilder.Length != 0 && queryBuilder[^1] != '\n')
             {
                 queryBuilder.AppendLine();
             }

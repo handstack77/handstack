@@ -12,15 +12,10 @@ using Serilog;
 
 namespace handstack.Extensions
 {
-    public sealed class CryptoProcessor
+    public sealed class CryptoProcessor(string key, string token)
     {
-        private readonly string key;
-        private readonly string token;
-        public CryptoProcessor(string key, string token)
-        {
-            this.key = key;
-            this.token = token;
-        }
+        private readonly string key = key;
+        private readonly string token = token;
 
         public ProcessingReport Process(string root)
         {
@@ -183,17 +178,12 @@ namespace handstack.Extensions
             var nsMgr = new XmlNamespaceManager(xml.NameTable);
             nsMgr.AddNamespace("c", ContractNs);
 
-            var header = xml.SelectSingleNode("/c:mapper/c:header", nsMgr) as XmlElement;
-            var commands = xml.SelectSingleNode("/c:mapper/c:commands", nsMgr) as XmlElement;
-
-            if (header == null || commands == null)
+            if (xml.SelectSingleNode("/c:mapper/c:header", nsMgr) is not XmlElement header || xml.SelectSingleNode("/c:mapper/c:commands", nsMgr) is not XmlElement commands)
             {
                 return ProcessResult.Skipped;
             }
 
-            var encryptNode = header.SelectSingleNode("c:encryptcommands", nsMgr) as XmlElement;
-
-            if (encryptNode == null)
+            if (header.SelectSingleNode("c:encryptcommands", nsMgr) is not XmlElement)
             {
                 var inner = commands.InnerXml?.Trim() ?? string.Empty;
                 if (string.IsNullOrWhiteSpace(inner))

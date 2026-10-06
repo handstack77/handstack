@@ -27,7 +27,7 @@ namespace graphclient.Entity
 
         public bool IsContractFileWatching { get; set; }
 
-        public List<string> ContractBasePath { get; set; } = new();
+        public List<string> ContractBasePath { get; set; } = [];
 
         public bool IsTransactionLogging { get; set; }
 
@@ -39,18 +39,18 @@ namespace graphclient.Entity
 
         public string DefaultDataSourceID { get; set; } = "";
 
-        public List<GraphDataSource> GraphDataSource { get; set; } = new();
+        public List<GraphDataSource> GraphDataSource { get; set; } = [];
 
-        public List<string> AllowClientIP { get; set; } = new() { "*" };
+        public List<string> AllowClientIP { get; set; } = ["*"];
 
-        public List<string> EventAction { get; set; } = new();
+        public List<string> EventAction { get; set; } = [];
 
-        public List<string> SubscribeAction { get; set; } = new();
+        public List<string> SubscribeAction { get; set; } = [];
     }
 
     public record ModuleSecurityConfig
     {
-        public List<string> AllowedGraphHosts { get; set; } = new();
+        public List<string> AllowedGraphHosts { get; set; } = [];
 
         public int MaxCommandTimeout { get; set; } = 300;
     }

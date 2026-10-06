@@ -17,18 +17,11 @@ namespace dbclient.Areas.dbclient.Controllers
     [Route("[area]/api/[controller]")]
     [ApiController]
     [EnableCors]
-    public class Base64Controller : BaseController
+    public class Base64Controller(Serilog.ILogger logger, DbClientLoggerClient loggerClient) : BaseController
     {
-        private DbClientLoggerClient loggerClient { get; }
+        private DbClientLoggerClient loggerClient { get; } = loggerClient;
 
-        private Serilog.ILogger logger { get; }
-
-        public Base64Controller(Serilog.ILogger logger, DbClientLoggerClient loggerClient)
-        {
-
-            this.logger = logger;
-            this.loggerClient = loggerClient;
-        }
+        private Serilog.ILogger logger { get; } = logger;
 
         // http://localhost:8421/dbclient/api/base64/encode?value={"ProjectID":"SYN","BusinessID":"DSO","TransactionID":"0001","FunctionID":"R01"}
         [HttpGet("[action]")]

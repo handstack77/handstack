@@ -7,13 +7,7 @@ namespace HandStack.Core.ExtensionMethod
     {
         public static XmlNode CreateChildNode(this XmlNode @this, string nodeName)
         {
-            var document = @this is XmlDocument ? (XmlDocument)@this : @this.OwnerDocument;
-
-            if (document == null)
-            {
-                throw new ArgumentException("XmlNode 정보 확인 필요");
-            }
-
+            var document = (@this is XmlDocument ? (XmlDocument)@this : (@this ?? throw new ArgumentNullException(nameof(@this))).OwnerDocument) ?? throw new ArgumentException("XmlNode 정보 확인 필요");
             XmlNode node = document.CreateElement(nodeName);
             @this.AppendChild(node);
             return node;
@@ -21,13 +15,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static XmlNode CreateChildNode(this XmlNode @this, string nodeName, string namespaceUri)
         {
-            var document = @this is XmlDocument ? (XmlDocument)@this : @this.OwnerDocument;
-
-            if (document == null)
-            {
-                throw new ArgumentException("XmlNode 정보 확인 필요");
-            }
-
+            var document = (@this is XmlDocument ? (XmlDocument)@this : (@this ?? throw new ArgumentNullException(nameof(@this))).OwnerDocument) ?? throw new ArgumentException("XmlNode 정보 확인 필요");
             XmlNode node = document.CreateElement(nodeName, namespaceUri);
             @this.AppendChild(node);
             return node;
@@ -40,13 +28,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static XmlCDataSection CreateCDataSection(this XmlNode @this, string nodeData)
         {
-            var document = @this is XmlDocument ? (XmlDocument)@this : @this.OwnerDocument;
-
-            if (document == null)
-            {
-                throw new ArgumentException("XmlNode 정보 확인 필요");
-            }
-
+            var document = (@this is XmlDocument ? (XmlDocument)@this : (@this ?? throw new ArgumentNullException(nameof(@this))).OwnerDocument) ?? throw new ArgumentException("XmlNode 정보 확인 필요");
             var node = document.CreateCDataSection(nodeData);
             @this.AppendChild(node);
             return node;
@@ -54,6 +36,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static string? GetCDataSection(this XmlNode @this)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             foreach (var node in @this.ChildNodes)
             {
                 if (node is XmlCDataSection)
@@ -94,10 +78,7 @@ namespace HandStack.Core.ExtensionMethod
                     }
                 }
 
-                if (attribute != null)
-                {
-                    attribute.InnerText = value == null ? "" : value;
-                }
+                attribute?.InnerText = value ?? "";
             }
         }
     }

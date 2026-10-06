@@ -26,7 +26,7 @@ namespace transact.Extensions
 {
     public static class TransactionMapper
     {
-        public static ExpiringDictionary<string, BusinessContract> BusinessMappings = new ExpiringDictionary<string, BusinessContract>();
+        public static ExpiringDictionary<string, BusinessContract> BusinessMappings = [];
 
         public static BusinessContract? GetBusinessContract(string applicationID, string projectID, string transactionID)
         {
@@ -153,13 +153,13 @@ namespace transact.Extensions
 
         public static string? GetRoutingCommandUri(string routeSegmentID)
         {
-            string? result = null;
-            result = ModuleConfiguration.RoutingCommandUri[routeSegmentID];
+            var result = ModuleConfiguration.RoutingCommandUri[routeSegmentID];
 
             if (result == null)
             {
                 var applicationID = string.Empty;
                 var userWorkID = string.Empty;
+                ArgumentNullException.ThrowIfNull(routeSegmentID);
                 var itemKeys = routeSegmentID.Split("|");
                 if (itemKeys.Length == 4)
                 {
@@ -277,21 +277,20 @@ namespace transact.Extensions
                     if (appSetting != null)
                     {
                         var publicTransactions = appSetting.Public;
-                        if (ModuleConfiguration.PublicTransactions == null)
-                        {
-                            ModuleConfiguration.PublicTransactions = new ExpiringList<PublicTransaction>();
-                        }
+                        ModuleConfiguration.PublicTransactions ??= [];
 
-                        if (publicTransactions != null && publicTransactions.Count() > 0)
+                        if (publicTransactions != null && publicTransactions.Count > 0)
                         {
-                            for (var i = 0; i < publicTransactions.Count(); i++)
+                            for (var i = 0; i < publicTransactions.Count; i++)
                             {
                                 var publicTransaction = publicTransactions[i];
 
-                                var appPublicTransaction = new PublicTransaction();
-                                appPublicTransaction.ApplicationID = applicationID;
-                                appPublicTransaction.ProjectID = publicTransaction.ProjectID;
-                                appPublicTransaction.TransactionID = publicTransaction.TransactionID;
+                                var appPublicTransaction = new PublicTransaction
+                                {
+                                    ApplicationID = applicationID,
+                                    ProjectID = publicTransaction.ProjectID,
+                                    TransactionID = publicTransaction.TransactionID
+                                };
 
                                 var findPublicTransaction = ModuleConfiguration.PublicTransactions.FirstOrDefault(p => p.ApplicationID == appPublicTransaction.ApplicationID
                                     && p.ProjectID == appPublicTransaction.ProjectID
@@ -427,6 +426,8 @@ namespace transact.Extensions
 
         public static void LoadContract(string environmentName, ILogger logger, IConfiguration configuration)
         {
+            ArgumentNullException.ThrowIfNull(logger);
+
             try
             {
                 if (ModuleConfiguration.ContractBasePath.Count == 0)
@@ -544,7 +545,7 @@ namespace transact.Extensions
 
     internal static class Converter
     {
-        public static readonly JsonSerializerSettings Settings = new JsonSerializerSettings
+        public static readonly JsonSerializerSettings Settings = new()
         {
             MetadataPropertyHandling = MetadataPropertyHandling.Ignore,
             DateParseHandling = DateParseHandling.None,

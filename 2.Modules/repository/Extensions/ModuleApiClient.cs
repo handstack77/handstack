@@ -21,16 +21,10 @@ using Serilog;
 
 namespace repository.Extensions
 {
-    public class ModuleApiClient
+    public class ModuleApiClient(ILogger logger, TransactionClient transactionClient)
     {
-        private readonly ILogger logger;
-        private readonly TransactionClient transactionClient;
-
-        public ModuleApiClient(ILogger logger, TransactionClient transactionClient)
-        {
-            this.logger = logger;
-            this.transactionClient = transactionClient;
-        }
+        private readonly ILogger logger = logger;
+        private readonly TransactionClient transactionClient = transactionClient;
 
         public async Task<List<Repository>?> GetRepositorys(string applicationIDs = "")
         {
@@ -39,16 +33,20 @@ namespace repository.Extensions
             try
             {
                 var transactionInfo = ModuleConfiguration.TransactionFileRepositorys.Split("|");
-                var transactionObject = new TransactionClientObject();
-                transactionObject.SystemID = TransactionConfig.Transaction.SystemID;
-                transactionObject.ProgramID = transactionInfo[0];
-                transactionObject.BusinessID = transactionInfo[1];
-                transactionObject.TransactionID = transactionInfo[2];
-                transactionObject.FunctionID = transactionInfo[3];
+                var transactionObject = new TransactionClientObject
+                {
+                    SystemID = TransactionConfig.Transaction.SystemID,
+                    ProgramID = transactionInfo[0],
+                    BusinessID = transactionInfo[1],
+                    TransactionID = transactionInfo[2],
+                    FunctionID = transactionInfo[3]
+                };
                 transactionObject.ScreenID = transactionObject.TransactionID;
 
-                var inputs = new List<ServiceParameter>();
-                inputs.Add("ApplicationID", applicationIDs);
+                var inputs = new List<ServiceParameter>
+                {
+                    { "ApplicationID", applicationIDs }
+                };
                 transactionObject.Inputs.Add(inputs);
 
                 var transactionResult = await transactionClient.TransactionDirect(ModuleConfiguration.BusinessServerUrl, transactionObject, ModuleConfiguration.ModuleID);
@@ -110,40 +108,41 @@ namespace repository.Extensions
                                 {
                                     foreach (var storage in storages)
                                     {
-                                        var repository = new Repository();
-
-                                        repository.ApplicationID = storage.ApplicationID;
-                                        repository.RepositoryID = storage.RepositoryID;
-                                        repository.RepositoryName = storage.RepositoryName;
-                                        repository.AccessID = storage.AccessID;
-                                        repository.StorageType = storage.StorageType;
-                                        repository.PhysicalPath = storage.PhysicalPath;
-                                        repository.BlobContainerID = storage.BlobContainerID;
-                                        repository.BlobConnectionString = storage.BlobConnectionString;
-                                        repository.BlobItemUrl = storage.BlobItemUrl;
-                                        repository.IsVirtualPath = storage.IsVirtualPath;
-                                        repository.AccessMethod = storage.AccessMethod;
-                                        repository.IsFileUploadDownloadOnly = storage.IsFileUploadDownloadOnly;
-                                        repository.IsMultiUpload = storage.IsMultiUpload;
-                                        repository.IsFileOverWrite = storage.IsFileOverWrite;
-                                        repository.IsFileNameEncrypt = storage.IsFileNameEncrypt;
-                                        repository.IsKeepFileExtension = storage.IsKeepFileExtension;
-                                        repository.IsAutoPath = storage.IsAutoPath;
-                                        repository.PolicyPathID = storage.PolicyPathID;
-                                        repository.UploadTypeID = storage.UploadTypeID;
-                                        repository.UploadExtensions = storage.UploadExtensions;
-                                        repository.UploadCount = storage.UploadCount;
-                                        repository.UploadSizeLimit = storage.UploadSizeLimit;
-                                        repository.IsLocalDbFileManaged = storage.IsLocalDbFileManaged;
-                                        repository.SQLiteConnectionString = storage.SQLiteConnectionString;
-                                        repository.TransactionGetItem = storage.TransactionGetItem;
-                                        repository.TransactionDeleteItem = storage.TransactionDeleteItem;
-                                        repository.TransactionUpsertItem = storage.TransactionUpsertItem;
-                                        repository.TransactionUpdateDependencyID = storage.TransactionUpdateDependencyID;
-                                        repository.TransactionUpdateFileName = storage.TransactionUpdateFileName;
-                                        repository.Comment = storage.Comment;
-                                        repository.CreatedAt = storage.CreatedAt;
-                                        repository.ModifiedAt = storage.ModifiedAt;
+                                        var repository = new Repository
+                                        {
+                                            ApplicationID = storage.ApplicationID,
+                                            RepositoryID = storage.RepositoryID,
+                                            RepositoryName = storage.RepositoryName,
+                                            AccessID = storage.AccessID,
+                                            StorageType = storage.StorageType,
+                                            PhysicalPath = storage.PhysicalPath,
+                                            BlobContainerID = storage.BlobContainerID,
+                                            BlobConnectionString = storage.BlobConnectionString,
+                                            BlobItemUrl = storage.BlobItemUrl,
+                                            IsVirtualPath = storage.IsVirtualPath,
+                                            AccessMethod = storage.AccessMethod,
+                                            IsFileUploadDownloadOnly = storage.IsFileUploadDownloadOnly,
+                                            IsMultiUpload = storage.IsMultiUpload,
+                                            IsFileOverWrite = storage.IsFileOverWrite,
+                                            IsFileNameEncrypt = storage.IsFileNameEncrypt,
+                                            IsKeepFileExtension = storage.IsKeepFileExtension,
+                                            IsAutoPath = storage.IsAutoPath,
+                                            PolicyPathID = storage.PolicyPathID,
+                                            UploadTypeID = storage.UploadTypeID,
+                                            UploadExtensions = storage.UploadExtensions,
+                                            UploadCount = storage.UploadCount,
+                                            UploadSizeLimit = storage.UploadSizeLimit,
+                                            IsLocalDbFileManaged = storage.IsLocalDbFileManaged,
+                                            SQLiteConnectionString = storage.SQLiteConnectionString,
+                                            TransactionGetItem = storage.TransactionGetItem,
+                                            TransactionDeleteItem = storage.TransactionDeleteItem,
+                                            TransactionUpsertItem = storage.TransactionUpsertItem,
+                                            TransactionUpdateDependencyID = storage.TransactionUpdateDependencyID,
+                                            TransactionUpdateFileName = storage.TransactionUpdateFileName,
+                                            Comment = storage.Comment,
+                                            CreatedAt = storage.CreatedAt,
+                                            ModifiedAt = storage.ModifiedAt
+                                        };
 
                                         var findRepository = ModuleConfiguration.FileRepositorys.FirstOrDefault(p => p.ApplicationID == repository.ApplicationID
                                             && p.RepositoryID == repository.RepositoryID
@@ -189,8 +188,10 @@ namespace repository.Extensions
                 if (repository != null)
                 {
                     var transactionInfo = string.IsNullOrWhiteSpace(repository.TransactionGetItem) ? $"{GlobalConfiguration.ApplicationID}|STR|SLT010|GD01".Split("|") : repository.TransactionGetItem.Split("|");
-                    var transactionObject = new TransactionClientObject();
-                    transactionObject.SystemID = TransactionConfig.Transaction.SystemID;
+                    var transactionObject = new TransactionClientObject
+                    {
+                        SystemID = TransactionConfig.Transaction.SystemID
+                    };
                     if (transactionInfo.Length == 3)
                     {
                         transactionObject.ProgramID = applicationID;
@@ -212,11 +213,13 @@ namespace repository.Extensions
                     }
                     transactionObject.ScreenID = transactionObject.TransactionID;
 
-                    var inputs = new List<ServiceParameter>();
-                    inputs.Add("RepositoryID", repositoryID);
-                    inputs.Add("ItemID", itemID);
-                    inputs.Add("ApplicationID", applicationID);
-                    inputs.Add("BusinessID", businessID);
+                    var inputs = new List<ServiceParameter>
+                    {
+                        { "RepositoryID", repositoryID },
+                        { "ItemID", itemID },
+                        { "ApplicationID", applicationID },
+                        { "BusinessID", businessID }
+                    };
                     transactionObject.Inputs.Add(inputs);
 
                     var transactionResult = await transactionClient.TransactionDirect(ModuleConfiguration.BusinessServerUrl, transactionObject, ModuleConfiguration.ModuleID);
@@ -252,8 +255,10 @@ namespace repository.Extensions
                 if (repository != null)
                 {
                     var transactionInfo = string.IsNullOrWhiteSpace(repository.TransactionGetItems) ? $"{GlobalConfiguration.ApplicationID}|STR|SLT010|LD01".Split("|") : repository.TransactionGetItems.Split("|");
-                    var transactionObject = new TransactionClientObject();
-                    transactionObject.SystemID = TransactionConfig.Transaction.SystemID;
+                    var transactionObject = new TransactionClientObject
+                    {
+                        SystemID = TransactionConfig.Transaction.SystemID
+                    };
                     if (transactionInfo.Length == 3)
                     {
                         transactionObject.ProgramID = applicationID;
@@ -275,11 +280,13 @@ namespace repository.Extensions
                     }
                     transactionObject.ScreenID = transactionObject.TransactionID;
 
-                    var inputs = new List<ServiceParameter>();
-                    inputs.Add("RepositoryID", repositoryID);
-                    inputs.Add("DependencyID", dependencyID);
-                    inputs.Add("ApplicationID", applicationID);
-                    inputs.Add("BusinessID", businessID);
+                    var inputs = new List<ServiceParameter>
+                    {
+                        { "RepositoryID", repositoryID },
+                        { "DependencyID", dependencyID },
+                        { "ApplicationID", applicationID },
+                        { "BusinessID", businessID }
+                    };
                     transactionObject.Inputs.Add(inputs);
 
                     var transactionResult = await transactionClient.TransactionDirect(ModuleConfiguration.BusinessServerUrl, transactionObject, ModuleConfiguration.ModuleID);
@@ -312,8 +319,10 @@ namespace repository.Extensions
                 if (repository != null)
                 {
                     var transactionInfo = string.IsNullOrWhiteSpace(repository.TransactionDeleteItem) ? $"{GlobalConfiguration.ApplicationID}|STR|SLT010|DD01".Split("|") : repository.TransactionDeleteItem.Split("|");
-                    var transactionObject = new TransactionClientObject();
-                    transactionObject.SystemID = TransactionConfig.Transaction.SystemID;
+                    var transactionObject = new TransactionClientObject
+                    {
+                        SystemID = TransactionConfig.Transaction.SystemID
+                    };
                     if (transactionInfo.Length == 3)
                     {
                         transactionObject.ProgramID = applicationID;
@@ -335,11 +344,13 @@ namespace repository.Extensions
                     }
                     transactionObject.ScreenID = transactionObject.TransactionID;
 
-                    var inputs = new List<ServiceParameter>();
-                    inputs.Add("RepositoryID", repositoryID);
-                    inputs.Add("ItemID", itemID);
-                    inputs.Add("ApplicationID", applicationID);
-                    inputs.Add("BusinessID", businessID);
+                    var inputs = new List<ServiceParameter>
+                    {
+                        { "RepositoryID", repositoryID },
+                        { "ItemID", itemID },
+                        { "ApplicationID", applicationID },
+                        { "BusinessID", businessID }
+                    };
                     transactionObject.Inputs.Add(inputs);
 
                     var transactionResult = await transactionClient.TransactionDirect(ModuleConfiguration.BusinessServerUrl, transactionObject, ModuleConfiguration.ModuleID);
@@ -364,6 +375,8 @@ namespace repository.Extensions
 
         public async Task<bool> UpsertRepositoryItem(RepositoryItems repositoryItem)
         {
+            ArgumentNullException.ThrowIfNull(repositoryItem);
+
             var result = false;
 
             try
@@ -372,8 +385,10 @@ namespace repository.Extensions
                 if (repository != null)
                 {
                     var transactionInfo = string.IsNullOrWhiteSpace(repository.TransactionUpsertItem) ? $"{GlobalConfiguration.ApplicationID}|STR|SLT010|MD01".Split("|") : repository.TransactionUpsertItem.Split("|");
-                    var transactionObject = new TransactionClientObject();
-                    transactionObject.SystemID = TransactionConfig.Transaction.SystemID;
+                    var transactionObject = new TransactionClientObject
+                    {
+                        SystemID = TransactionConfig.Transaction.SystemID
+                    };
                     if (transactionInfo.Length == 3)
                     {
                         transactionObject.ProgramID = repositoryItem.ApplicationID;
@@ -395,29 +410,31 @@ namespace repository.Extensions
                     }
                     transactionObject.ScreenID = transactionObject.TransactionID;
 
-                    var inputs = new List<ServiceParameter>();
-                    inputs.Add("ItemID", repositoryItem.ItemID);
-                    inputs.Add("ApplicationID", repositoryItem.ApplicationID);
-                    inputs.Add("BusinessID", repositoryItem.BusinessID);
-                    inputs.Add("RepositoryID", repositoryItem.RepositoryID);
-                    inputs.Add("DependencyID", repositoryItem.DependencyID);
-                    inputs.Add("FileName", repositoryItem.FileName);
-                    inputs.Add("SortingNo", repositoryItem.SortingNo);
-                    inputs.Add("Comment", repositoryItem.Comment);
-                    inputs.Add("PhysicalPath", repositoryItem.PhysicalPath);
-                    inputs.Add("AbsolutePath", repositoryItem.AbsolutePath);
-                    inputs.Add("RelativePath", repositoryItem.RelativePath);
-                    inputs.Add("Extension", repositoryItem.Extension);
-                    inputs.Add("Size", repositoryItem.Size);
-                    inputs.Add("MD5", repositoryItem.MD5);
-                    inputs.Add("MimeType", repositoryItem.MimeType);
-                    inputs.Add("CreationTime", repositoryItem.CreationTime?.ToString("yyyy-MM-dd hh:mm:ss"));
-                    inputs.Add("LastWriteTime", repositoryItem.LastWriteTime?.ToString("yyyy-MM-dd hh:mm:ss"));
-                    inputs.Add("CustomPath1", repositoryItem.CustomPath1);
-                    inputs.Add("CustomPath2", repositoryItem.CustomPath2);
-                    inputs.Add("CustomPath3", repositoryItem.CustomPath3);
-                    inputs.Add("PolicyPath", repositoryItem.PolicyPath);
-                    inputs.Add("CreatedMemberNo", repositoryItem.CreatedMemberNo);
+                    var inputs = new List<ServiceParameter>
+                    {
+                        { "ItemID", repositoryItem.ItemID },
+                        { "ApplicationID", repositoryItem.ApplicationID },
+                        { "BusinessID", repositoryItem.BusinessID },
+                        { "RepositoryID", repositoryItem.RepositoryID },
+                        { "DependencyID", repositoryItem.DependencyID },
+                        { "FileName", repositoryItem.FileName },
+                        { "SortingNo", repositoryItem.SortingNo },
+                        { "Comment", repositoryItem.Comment },
+                        { "PhysicalPath", repositoryItem.PhysicalPath },
+                        { "AbsolutePath", repositoryItem.AbsolutePath },
+                        { "RelativePath", repositoryItem.RelativePath },
+                        { "Extension", repositoryItem.Extension },
+                        { "Size", repositoryItem.Size },
+                        { "MD5", repositoryItem.MD5 },
+                        { "MimeType", repositoryItem.MimeType },
+                        { "CreationTime", repositoryItem.CreationTime?.ToString("yyyy-MM-dd hh:mm:ss") },
+                        { "LastWriteTime", repositoryItem.LastWriteTime?.ToString("yyyy-MM-dd hh:mm:ss") },
+                        { "CustomPath1", repositoryItem.CustomPath1 },
+                        { "CustomPath2", repositoryItem.CustomPath2 },
+                        { "CustomPath3", repositoryItem.CustomPath3 },
+                        { "PolicyPath", repositoryItem.PolicyPath },
+                        { "CreatedMemberNo", repositoryItem.CreatedMemberNo }
+                    };
                     transactionObject.Inputs.Add(inputs);
 
                     var transactionResult = await transactionClient.TransactionDirect(ModuleConfiguration.BusinessServerUrl, transactionObject, ModuleConfiguration.ModuleID);
@@ -443,6 +460,8 @@ namespace repository.Extensions
 
         public async Task<bool> UpdateDependencyID(RepositoryItems repositoryItem, string targetDependencyID)
         {
+            ArgumentNullException.ThrowIfNull(repositoryItem);
+
             var result = false;
 
             try
@@ -451,8 +470,10 @@ namespace repository.Extensions
                 if (repository != null)
                 {
                     var transactionInfo = string.IsNullOrWhiteSpace(repository.TransactionUpdateDependencyID) ? $"{GlobalConfiguration.ApplicationID}|STR|SLT010|UD01".Split("|") : repository.TransactionUpdateDependencyID.Split("|");
-                    var transactionObject = new TransactionClientObject();
-                    transactionObject.SystemID = TransactionConfig.Transaction.SystemID;
+                    var transactionObject = new TransactionClientObject
+                    {
+                        SystemID = TransactionConfig.Transaction.SystemID
+                    };
                     if (transactionInfo.Length == 3)
                     {
                         transactionObject.ProgramID = repositoryItem.ApplicationID;
@@ -474,13 +495,15 @@ namespace repository.Extensions
                     }
                     transactionObject.ScreenID = transactionObject.TransactionID;
 
-                    var inputs = new List<ServiceParameter>();
-                    inputs.Add("RepositoryID", repositoryItem.RepositoryID);
-                    inputs.Add("ItemID", repositoryItem.ItemID);
-                    inputs.Add("BusinessID", repositoryItem.BusinessID);
-                    inputs.Add("ApplicationID", repositoryItem.ApplicationID);
-                    inputs.Add("SourceDependencyID", repositoryItem.DependencyID);
-                    inputs.Add("TargetDependencyID", targetDependencyID);
+                    var inputs = new List<ServiceParameter>
+                    {
+                        { "RepositoryID", repositoryItem.RepositoryID },
+                        { "ItemID", repositoryItem.ItemID },
+                        { "BusinessID", repositoryItem.BusinessID },
+                        { "ApplicationID", repositoryItem.ApplicationID },
+                        { "SourceDependencyID", repositoryItem.DependencyID },
+                        { "TargetDependencyID", targetDependencyID }
+                    };
                     transactionObject.Inputs.Add(inputs);
 
                     var transactionResult = await transactionClient.TransactionDirect(ModuleConfiguration.BusinessServerUrl, transactionObject, ModuleConfiguration.ModuleID);
@@ -505,6 +528,8 @@ namespace repository.Extensions
 
         public async Task<bool> UpdateFileName(RepositoryItems repositoryItem, string sourceItemID)
         {
+            ArgumentNullException.ThrowIfNull(repositoryItem);
+
             var result = false;
 
             try
@@ -513,8 +538,10 @@ namespace repository.Extensions
                 if (repository != null)
                 {
                     var transactionInfo = string.IsNullOrWhiteSpace(repository.TransactionUpdateFileName) ? $"{GlobalConfiguration.ApplicationID}|STR|SLT010|UD02".Split("|") : repository.TransactionUpdateFileName.Split("|");
-                    var transactionObject = new TransactionClientObject();
-                    transactionObject.SystemID = TransactionConfig.Transaction.SystemID;
+                    var transactionObject = new TransactionClientObject
+                    {
+                        SystemID = TransactionConfig.Transaction.SystemID
+                    };
                     if (transactionInfo.Length == 3)
                     {
                         transactionObject.ProgramID = repositoryItem.RepositoryID;
@@ -536,12 +563,14 @@ namespace repository.Extensions
                     }
                     transactionObject.ScreenID = transactionObject.TransactionID;
 
-                    var inputs = new List<ServiceParameter>();
-                    inputs.Add("ApplicationID", repositoryItem.ApplicationID);
-                    inputs.Add("RepositoryID", repositoryItem.RepositoryID);
-                    inputs.Add("ItemID", sourceItemID);
-                    inputs.Add("BusinessID", repositoryItem.BusinessID);
-                    inputs.Add("FileName", repositoryItem.FileName);
+                    var inputs = new List<ServiceParameter>
+                    {
+                        { "ApplicationID", repositoryItem.ApplicationID },
+                        { "RepositoryID", repositoryItem.RepositoryID },
+                        { "ItemID", sourceItemID },
+                        { "BusinessID", repositoryItem.BusinessID },
+                        { "FileName", repositoryItem.FileName }
+                    };
                     transactionObject.Inputs.Add(inputs);
 
                     var transactionResult = await transactionClient.TransactionDirect(ModuleConfiguration.BusinessServerUrl, transactionObject, ModuleConfiguration.ModuleID);

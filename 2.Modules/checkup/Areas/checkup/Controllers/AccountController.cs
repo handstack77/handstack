@@ -41,24 +41,14 @@ namespace checkup.Areas.checkup.Controllers
     [Area("checkup")]
     [Route("[area]/api/[controller]")]
     [ApiController]
-    public class AccountController : BaseController
+    public class AccountController(MediatorClient mediatorClient, ILogger logger, IMediator mediator, IDataProtectionProvider dataProtectionProvider, ISequentialIdGenerator sequentialIdGenerator, SqidsEncoder<int> sqids) : BaseController
     {
-        private readonly IDataProtector dataProtector;
-        private readonly MediatorClient mediatorClient;
-        private readonly IMediator mediator;
-        private readonly ILogger logger;
-        private readonly ISequentialIdGenerator sequentialIdGenerator;
-        private readonly SqidsEncoder<int> sqids;
-
-        public AccountController(MediatorClient mediatorClient, ILogger logger, IMediator mediator, IDataProtectionProvider dataProtectionProvider, ISequentialIdGenerator sequentialIdGenerator, SqidsEncoder<int> sqids)
-        {
-            this.mediatorClient = mediatorClient;
-            this.logger = logger;
-            this.mediator = mediator;
-            this.sequentialIdGenerator = sequentialIdGenerator;
-            this.dataProtector = dataProtectionProvider.CreateProtector(nameof(SessionMiddleware));
-            this.sqids = sqids;
-        }
+        private readonly IDataProtector dataProtector = dataProtectionProvider.CreateProtector(nameof(SessionMiddleware));
+        private readonly MediatorClient mediatorClient = mediatorClient;
+        private readonly IMediator mediator = mediator;
+        private readonly ILogger logger = logger;
+        private readonly ISequentialIdGenerator sequentialIdGenerator = sequentialIdGenerator;
+        private readonly SqidsEncoder<int> sqids = sqids;
 
         [HttpGet]
         public string Get()
@@ -162,11 +152,11 @@ namespace checkup.Areas.checkup.Controllers
         [HttpGet("[action]")]
         public ActionResult Login(string userID, string password, string clientIP)
         {
-            ActionResult result = BadRequest("요청 정보 확인이 필요합니다");
+            _ = BadRequest("요청 정보 확인이 필요합니다");
             var entityResult = new EntityResult();
 
             string? personNo = null;
-
+            ActionResult result;
             try
             {
                 var dynamicResults = ModuleExtensions.ExecuteMetaSQL(ReturnType.Dynamic, "SYS.USR010.GD02", new
@@ -200,7 +190,7 @@ namespace checkup.Areas.checkup.Controllers
                 var issueID = sequentialIdGenerator.NewId().ToString("N");
                 var signInUrl = Request.GetBaseUrl() + $"/checkup/api/account/sign-in?userID={userID}&issueID={issueID}&validID={issueID.EncryptAES(ModuleConfiguration.EncryptionAES256Key).EncodeBase64()}";
                 var signID = signInUrl.ToSHA256();
-                signInUrl = signInUrl + $"&signID={signID}";
+                signInUrl += $"&signID={signID}";
 
                 entityResult.Message = signInUrl;
                 result = Ok(entityResult);
@@ -271,14 +261,13 @@ namespace checkup.Areas.checkup.Controllers
                         var user = dynamicPersons[0];
                         string memberNo = user.MemberNo;
                         // 사용자 명, 프로그램 명 확인
-                        var dsMembers = ModuleExtensions.ExecuteMetaSQL(ReturnType.DataSet, "SYS.USR010.GD03", new
+
+                        if (ModuleExtensions.ExecuteMetaSQL(ReturnType.DataSet, "SYS.USR010.GD03", new
                         {
                             MemberNo = memberNo,
                             MemberName = user.PersonName,
                             EmailID = userID
-                        }) as DataSet;
-
-                        if (dsMembers == null)
+                        }) is not DataSet dsMembers)
                         {
                             errorText = "SYS.USR010.GD03 확인 필요";
                             logger.Error("[{LogCategory}] " + $"{ModuleConfiguration.DatabaseContractPath}: ${errorText}", "AccountController/Email");
@@ -327,8 +316,8 @@ namespace checkup.Areas.checkup.Controllers
                                     UserID = member.GetString("UserID").ToStringSafe(),
                                     UserName = member.GetString("UserName").ToStringSafe(),
                                     Email = member.GetString("Email").ToStringSafe(),
-                                    Roles = new List<string>(),
-                                    Claims = new Dictionary<string, string>(),
+                                    Roles = [],
+                                    Claims = [],
                                     LoginedAt = DateTime.Now
                                 };
 
@@ -350,11 +339,11 @@ namespace checkup.Areas.checkup.Controllers
 
                                 var claims = new List<Claim>
                                 {
-                                    new Claim("UserID", userAccount.UserID),
-                                    new Claim("UserName", userAccount.UserName.ToStringSafe()),
-                                    new Claim("UserNo", userAccount.UserNo),
-                                    new Claim("Roles", string.Join(",", userAccount.Roles.ToArray())),
-                                    new Claim("LoginedAt", userAccount.LoginedAt.ToString())
+                                    new("UserID", userAccount.UserID),
+                                    new("UserName", userAccount.UserName.ToStringSafe()),
+                                    new("UserNo", userAccount.UserNo),
+                                    new("Roles", string.Join(",", userAccount.Roles.ToArray())),
+                                    new("LoginedAt", userAccount.LoginedAt.ToString())
                                 };
 
                                 foreach (DataRow item in memberClaims)
@@ -385,8 +374,10 @@ namespace checkup.Areas.checkup.Controllers
 
                                 // applicationUser에서 UserNo, UserID, UserName, Email, Roles를 제외한 추가 정보
                                 var excludeColumnNames = new string[] { "UserNo", "UserID", "UserName", "Email", "Roles" };
-                                var dictionary = new Dictionary<string, string>();
-                                dictionary.Add("ClientIP", clientIP);
+                                var dictionary = new Dictionary<string, string>
+                                {
+                                    { "ClientIP", clientIP }
+                                };
 
                                 foreach (DataColumn item in columns)
                                 {
@@ -407,9 +398,11 @@ namespace checkup.Areas.checkup.Controllers
                                     IsPersistent = true
                                 };
 
-                                var cookieOptions = new CookieOptions();
-                                cookieOptions.HttpOnly = false;
-                                cookieOptions.SameSite = SameSiteMode.Lax;
+                                var cookieOptions = new CookieOptions
+                                {
+                                    HttpOnly = false,
+                                    SameSite = SameSiteMode.Lax
+                                };
 
                                 DateTimeOffset expiredAt = DateTime.Now.AddDays(1);
                                 if (GlobalConfiguration.UserSignExpire > 0)
@@ -496,17 +489,19 @@ namespace checkup.Areas.checkup.Controllers
                 result.ExpiredAt = (DateTime.Now.AddDays(addDay).ToString("yyyy-MM-dd") + "T" + GlobalConfiguration.UserSignExpire.ToString().Replace("-", "").PadLeft(2, '0') + ":00:00").ToDateTimeSafe(DateTime.Now.AddDays(addDay));
             }
 
-            result.Policy = new Policy();
-            result.Policy.UserID = userAccount.UserID;
-            result.Policy.UserName = userAccount.UserName;
-            result.Policy.Email = userAccount.Email;
+            result.Policy = new Policy
+            {
+                UserID = userAccount.UserID,
+                UserName = userAccount.UserName,
+                Email = userAccount.Email
+            };
 
             foreach (var item in userAccount.Roles)
             {
                 result.Policy.Roles.Add(item.ToString());
             }
 
-            result.Policy.Claims = new Dictionary<string, string>();
+            result.Policy.Claims = [];
             foreach (var claim in claims)
             {
                 result.Policy.Claims.Add(claim.Type, claim.Value);
@@ -520,12 +515,11 @@ namespace checkup.Areas.checkup.Controllers
 
         private void WriteCookie(string key, string value, CookieOptions? cookieOptions = null)
         {
-            if (cookieOptions == null)
-            {
-                cookieOptions = new CookieOptions();
-                cookieOptions.HttpOnly = false;
-                cookieOptions.SameSite = SameSiteMode.Lax;
-            }
+            cookieOptions ??= new CookieOptions
+                {
+                    HttpOnly = false,
+                    SameSite = SameSiteMode.Lax
+                };
 
             Response.Cookies.Append(key, value, cookieOptions);
         }
@@ -583,7 +577,7 @@ namespace checkup.Areas.checkup.Controllers
         [HttpGet("[action]")]
         public bool IsAuthenticated()
         {
-            return User.Identity == null ? false : User.Identity.IsAuthenticated;
+            return User.Identity != null && User.Identity.IsAuthenticated;
         }
 
         // http://localhost:8421/checkup/api/account/logout

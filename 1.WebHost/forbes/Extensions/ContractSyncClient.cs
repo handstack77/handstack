@@ -10,7 +10,7 @@ namespace forbes.Extensions
 {
     internal static class ContractSyncClient
     {
-        private static readonly HttpClient HttpClient = new HttpClient
+        private static readonly HttpClient HttpClient = new()
         {
             Timeout = TimeSpan.FromSeconds(10)
         };
@@ -85,10 +85,12 @@ namespace forbes.Extensions
 
         private static MultipartFormDataContent CreateFormData(string moduleName, string changeType, string filePath)
         {
-            var formData = new MultipartFormDataContent();
-            formData.Add(new StringContent(moduleName ?? ""), "moduleName");
-            formData.Add(new StringContent(changeType ?? ""), "changeType");
-            formData.Add(new StringContent(filePath ?? ""), "filePath");
+            var formData = new MultipartFormDataContent
+            {
+                { new StringContent(moduleName ?? ""), "moduleName" },
+                { new StringContent(changeType ?? ""), "changeType" },
+                { new StringContent(filePath ?? ""), "filePath" }
+            };
             return formData;
         }
 
@@ -109,15 +111,9 @@ namespace forbes.Extensions
         }
     }
 
-    internal sealed class ContractSyncResult
+    internal sealed class ContractSyncResult(bool success, string message)
     {
-        public bool Success { get; }
-        public string Message { get; }
-
-        public ContractSyncResult(bool success, string message)
-        {
-            Success = success;
-            Message = message;
-        }
+        public bool Success { get; } = success;
+        public string Message { get; } = message;
     }
 }

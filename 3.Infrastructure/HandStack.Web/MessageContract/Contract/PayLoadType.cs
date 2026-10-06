@@ -23,11 +23,11 @@ namespace HandStack.Web.MessageContract.Contract
 
         public PayLoadType()
         {
-            Property = new Dictionary<string, object>();
+            Property = [];
             DataMapInterface = "";
-            DataMapCount = new List<int>();
-            DataMapSet = new List<List<DataMapItem>>();
-            DataMapSetRaw = new List<string>();
+            DataMapCount = [];
+            DataMapSet = [];
+            DataMapSetRaw = [];
         }
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -10,6 +11,8 @@ namespace graphclient.Extensions
     {
         public static List<DatabaseColumn> GetDbColumns(this DataTable table)
         {
+            ArgumentNullException.ThrowIfNull(table);
+
             return table.Columns
                 .Cast<DataColumn>()
                 .Select(column => new DatabaseColumn()
@@ -26,6 +29,8 @@ namespace graphclient.Extensions
 
         public static string BuildMeta(this DataTable table)
         {
+            ArgumentNullException.ThrowIfNull(table);
+
             return string.Join(
                 ";",
                 table.Columns.Cast<DataColumn>().Select(column =>

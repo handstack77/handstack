@@ -32,8 +32,8 @@ namespace HandStack.Web.MessageContract.DataObject
 
         public string VerifyTokenID { get; set; } = string.Empty;
 
-        public List<string> Roles { get; set; } = new List<string>();
+        public List<string> Roles { get; set; } = [];
 
-        public Dictionary<string, string> Claims { get; set; } = new Dictionary<string, string>();
+        public Dictionary<string, string> Claims { get; set; } = [];
     }
 }

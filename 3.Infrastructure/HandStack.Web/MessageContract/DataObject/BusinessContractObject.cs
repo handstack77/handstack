@@ -10,36 +10,36 @@ namespace HandStack.Web.MessageContract.DataObject
 {
     public class BusinessContract
     {
-        [JsonProperty("ApplicationID")]
+        [JsonProperty(nameof(ApplicationID))]
         public string ApplicationID { get; set; }
 
-        [JsonProperty("ProjectID")]
+        [JsonProperty(nameof(ProjectID))]
         public string ProjectID { get; set; }
 
-        [JsonProperty("TransactionApplicationID")]
+        [JsonProperty(nameof(TransactionApplicationID))]
         public string? TransactionApplicationID { get; set; }
 
-        [JsonProperty("TransactionProjectID")]
+        [JsonProperty(nameof(TransactionProjectID))]
         public string TransactionProjectID { get; set; }
 
-        [JsonProperty("TransactionID")]
+        [JsonProperty(nameof(TransactionID))]
         public string TransactionID { get; set; }
 
-        [JsonProperty("Comment")]
+        [JsonProperty(nameof(Comment))]
         public string Comment { get; set; }
 
-        [JsonProperty("ModifiedDate")]
+        [JsonProperty(nameof(ModifiedDate))]
         public string ModifiedDate { get; set; }
 
-        [JsonProperty("Services")]
+        [JsonProperty(nameof(Services))]
         public List<TransactionInfo> Services { get; set; }
 
-        [JsonProperty("Models")]
+        [JsonProperty(nameof(Models))]
         public List<Model> Models { get; set; }
 
         public static BusinessContract? FromJson(string json)
         {
-            BusinessContract? result = null;
+            BusinessContract? result;
             if (string.IsNullOrWhiteSpace(json))
             {
                 throw new Exception($"json 내용 확인 필요: {json}");
@@ -55,16 +55,16 @@ namespace HandStack.Web.MessageContract.DataObject
 
         private void NormalizeWorkflowSteps()
         {
-            Services ??= new List<TransactionInfo>();
+            Services ??= [];
             foreach (var service in Services)
             {
-                service.WorkflowSteps ??= new List<WorkflowStep>();
+                service.WorkflowSteps ??= [];
                 foreach (var step in service.WorkflowSteps)
                 {
-                    step.ServiceOutputs ??= new List<ModelOutputContract>();
-                    step.InputMappings ??= new List<WorkflowFieldMapping>();
-                    step.OutputMappings ??= new List<WorkflowFieldMapping>();
-                    step.Assertions ??= new List<WorkflowAssertion>();
+                    step.ServiceOutputs ??= [];
+                    step.InputMappings ??= [];
+                    step.OutputMappings ??= [];
+                    step.Assertions ??= [];
                     foreach (var assertion in step.Assertions)
                     {
                         assertion.Expected ??= new WorkflowAssertionValue();
@@ -86,26 +86,26 @@ namespace HandStack.Web.MessageContract.DataObject
             TransactionID = "";
             Comment = "";
             ModifiedDate = "";
-            Services = new List<TransactionInfo>();
-            Models = new List<Model>();
+            Services = [];
+            Models = [];
         }
     }
 
     public class Model
     {
-        [JsonProperty("Name")]
+        [JsonProperty(nameof(Name))]
         public string Name { get; set; }
 
-        [JsonProperty("Owner")]
+        [JsonProperty(nameof(Owner))]
         public string Owner { get; set; }
 
-        [JsonProperty("Comment")]
+        [JsonProperty(nameof(Comment))]
         public string Comment { get; set; }
 
-        [JsonProperty("ModifiedDate")]
+        [JsonProperty(nameof(ModifiedDate))]
         public DateTimeOffset? ModifiedDate { get; set; }
 
-        [JsonProperty("Columns")]
+        [JsonProperty(nameof(Columns))]
         public List<DatabaseColumn> Columns { get; set; }
 
         public Model()
@@ -114,28 +114,28 @@ namespace HandStack.Web.MessageContract.DataObject
             Owner = "";
             Comment = "";
             ModifiedDate = null;
-            Columns = new List<DatabaseColumn>();
+            Columns = [];
         }
     }
 
     public class DatabaseColumn
     {
-        [JsonProperty("Name")]
+        [JsonProperty(nameof(Name))]
         public string Name { get; set; }
 
-        [JsonProperty("Comment")]
+        [JsonProperty(nameof(Comment))]
         public string Comment { get; set; }
 
-        [JsonProperty("DataType")]
+        [JsonProperty(nameof(DataType))]
         public string DataType { get; set; }
 
-        [JsonProperty("Length")]
+        [JsonProperty(nameof(Length))]
         public int Length { get; set; }
 
-        [JsonProperty("Require")]
+        [JsonProperty(nameof(Require))]
         public bool Require { get; set; }
 
-        [JsonProperty("Default")]
+        [JsonProperty(nameof(Default))]
         public string Default { get; set; }
 
         public DatabaseColumn()
@@ -151,55 +151,55 @@ namespace HandStack.Web.MessageContract.DataObject
 
     public class TransactionInfo
     {
-        [JsonProperty("ServiceID")]
+        [JsonProperty(nameof(ServiceID))]
         public string ServiceID { get; set; }
 
-        [JsonProperty("Authorize")]
+        [JsonProperty(nameof(Authorize))]
         public bool Authorize { get; set; }
 
-        [JsonProperty("Roles", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty(nameof(Roles), NullValueHandling = NullValueHandling.Ignore)]
         public List<string>? Roles { get; set; }
 
-        [JsonProperty("Policys", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty(nameof(Policys), NullValueHandling = NullValueHandling.Ignore)]
         public Dictionary<string, List<string>>? Policys { get; set; }
 
-        [JsonProperty("TransactionTokens", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty(nameof(TransactionTokens), NullValueHandling = NullValueHandling.Ignore)]
         public List<string>? TransactionTokens { get; set; }
 
-        [JsonProperty("AuthorizeMethod", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty(nameof(AuthorizeMethod), NullValueHandling = NullValueHandling.Ignore)]
         public List<string>? AuthorizeMethod { get; set; } // Empty(All), Role, Policy, TransactionToken, TransactionTokenOnly
 
-        [JsonProperty("CommandType")]
+        [JsonProperty(nameof(CommandType))]
         public string CommandType { get; set; }
 
-        [JsonProperty("TransactionScope")]
+        [JsonProperty(nameof(TransactionScope))]
         public bool TransactionScope { get; set; }
 
         [JsonProperty("SequentialOption")]
         public List<SequentialOption> SequentialOptions { get; set; }
 
-        [JsonProperty("ReturnType")]
+        [JsonProperty(nameof(ReturnType))]
         public string ReturnType { get; set; }
 
-        [JsonProperty("AccessScreenID")]
+        [JsonProperty(nameof(AccessScreenID))]
         public List<string> AccessScreenID { get; set; }
 
-        [JsonProperty("RoutingCommandUri")]
+        [JsonProperty(nameof(RoutingCommandUri))]
         public string RoutingCommandUri { get; set; }
 
-        [JsonProperty("Comment")]
+        [JsonProperty(nameof(Comment))]
         public string Comment { get; set; }
 
-        [JsonProperty("TransactionLog")]
+        [JsonProperty(nameof(TransactionLog))]
         public bool TransactionLog { get; set; }
 
-        [JsonProperty("Inputs")]
+        [JsonProperty(nameof(Inputs))]
         public List<ModelInputContract> Inputs { get; set; }
 
-        [JsonProperty("Outputs")]
+        [JsonProperty(nameof(Outputs))]
         public List<ModelOutputContract> Outputs { get; set; }
 
-        [JsonProperty("WorkflowSteps", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty(nameof(WorkflowSteps), NullValueHandling = NullValueHandling.Ignore)]
         public List<WorkflowStep> WorkflowSteps { get; set; }
 
         public TransactionInfo()
@@ -208,15 +208,15 @@ namespace HandStack.Web.MessageContract.DataObject
             Authorize = false;
             CommandType = "";
             TransactionScope = false;
-            SequentialOptions = new List<SequentialOption>();
+            SequentialOptions = [];
             ReturnType = "";
-            AccessScreenID = new List<string>();
+            AccessScreenID = [];
             RoutingCommandUri = "";
             Comment = "";
             TransactionLog = false;
-            Inputs = new List<ModelInputContract>();
-            Outputs = new List<ModelOutputContract>();
-            WorkflowSteps = new List<WorkflowStep>();
+            Inputs = [];
+            Outputs = [];
+            WorkflowSteps = [];
         }
 
         public bool ShouldSerializeWorkflowSteps()
@@ -227,43 +227,43 @@ namespace HandStack.Web.MessageContract.DataObject
 
     public class WorkflowStep
     {
-        [JsonProperty("StepID")]
+        [JsonProperty(nameof(StepID))]
         public string StepID { get; set; }
 
-        [JsonProperty("ApplicationID")]
+        [JsonProperty(nameof(ApplicationID))]
         public string ApplicationID { get; set; }
 
-        [JsonProperty("TransactionProjectID")]
+        [JsonProperty(nameof(TransactionProjectID))]
         public string TransactionProjectID { get; set; }
 
-        [JsonProperty("TransactionID")]
+        [JsonProperty(nameof(TransactionID))]
         public string TransactionID { get; set; }
 
-        [JsonProperty("ServiceID")]
+        [JsonProperty(nameof(ServiceID))]
         public string ServiceID { get; set; }
 
-        [JsonProperty("CommandType")]
+        [JsonProperty(nameof(CommandType))]
         public string CommandType { get; set; }
 
-        [JsonProperty("ReturnType")]
+        [JsonProperty(nameof(ReturnType))]
         public string ReturnType { get; set; }
 
-        [JsonProperty("TransactionScope")]
+        [JsonProperty(nameof(TransactionScope))]
         public bool? TransactionScope { get; set; }
 
-        [JsonProperty("IncludeResult")]
+        [JsonProperty(nameof(IncludeResult))]
         public bool IncludeResult { get; set; }
 
-        [JsonProperty("ServiceOutputs")]
+        [JsonProperty(nameof(ServiceOutputs))]
         public List<ModelOutputContract> ServiceOutputs { get; set; }
 
-        [JsonProperty("InputMappings")]
+        [JsonProperty(nameof(InputMappings))]
         public List<WorkflowFieldMapping> InputMappings { get; set; }
 
-        [JsonProperty("OutputMappings")]
+        [JsonProperty(nameof(OutputMappings))]
         public List<WorkflowFieldMapping> OutputMappings { get; set; }
 
-        [JsonProperty("Assertions")]
+        [JsonProperty(nameof(Assertions))]
         public List<WorkflowAssertion> Assertions { get; set; }
 
         public WorkflowStep()
@@ -277,43 +277,43 @@ namespace HandStack.Web.MessageContract.DataObject
             ReturnType = "";
             TransactionScope = null;
             IncludeResult = true;
-            ServiceOutputs = new List<ModelOutputContract>();
-            InputMappings = new List<WorkflowFieldMapping>();
-            OutputMappings = new List<WorkflowFieldMapping>();
-            Assertions = new List<WorkflowAssertion>();
+            ServiceOutputs = [];
+            InputMappings = [];
+            OutputMappings = [];
+            Assertions = [];
         }
     }
 
     public class WorkflowAssertion
     {
-        [JsonProperty("Assert")]
+        [JsonProperty(nameof(Assert))]
         public string Assert { get; set; }
 
-        [JsonProperty("Expected")]
+        [JsonProperty(nameof(Expected))]
         public WorkflowAssertionValue Expected { get; set; }
 
-        [JsonProperty("Actual")]
+        [JsonProperty(nameof(Actual))]
         public WorkflowAssertionValue Actual { get; set; }
 
-        [JsonProperty("Value")]
+        [JsonProperty(nameof(Value))]
         public WorkflowAssertionValue Value { get; set; }
 
-        [JsonProperty("Min")]
+        [JsonProperty(nameof(Min))]
         public WorkflowAssertionValue Min { get; set; }
 
-        [JsonProperty("Max")]
+        [JsonProperty(nameof(Max))]
         public WorkflowAssertionValue Max { get; set; }
 
-        [JsonProperty("Collection")]
+        [JsonProperty(nameof(Collection))]
         public WorkflowAssertionValue Collection { get; set; }
 
-        [JsonProperty("TypeName")]
+        [JsonProperty(nameof(TypeName))]
         public string TypeName { get; set; }
 
-        [JsonProperty("ExceptionType")]
+        [JsonProperty(nameof(ExceptionType))]
         public string ExceptionType { get; set; }
 
-        [JsonProperty("Message")]
+        [JsonProperty(nameof(Message))]
         public string Message { get; set; }
 
         public WorkflowAssertion()
@@ -333,16 +333,16 @@ namespace HandStack.Web.MessageContract.DataObject
 
     public class WorkflowAssertionValue
     {
-        [JsonProperty("Source")]
+        [JsonProperty(nameof(Source))]
         public string Source { get; set; }
 
-        [JsonProperty("SourceStepID")]
+        [JsonProperty(nameof(SourceStepID))]
         public string SourceStepID { get; set; }
 
-        [JsonProperty("FieldID")]
+        [JsonProperty(nameof(FieldID))]
         public string FieldID { get; set; }
 
-        [JsonProperty("Value")]
+        [JsonProperty(nameof(Value))]
         public object? Value { get; set; }
 
         public WorkflowAssertionValue()
@@ -356,28 +356,28 @@ namespace HandStack.Web.MessageContract.DataObject
 
     public class WorkflowFieldMapping
     {
-        [JsonProperty("SourceStepID")]
+        [JsonProperty(nameof(SourceStepID))]
         public string SourceStepID { get; set; }
 
-        [JsonProperty("SourceFieldID")]
+        [JsonProperty(nameof(SourceFieldID))]
         public string SourceFieldID { get; set; }
 
-        [JsonProperty("TargetFieldID")]
+        [JsonProperty(nameof(TargetFieldID))]
         public string TargetFieldID { get; set; }
 
-        [JsonProperty("TargetInputIndex")]
+        [JsonProperty(nameof(TargetInputIndex))]
         public int TargetInputIndex { get; set; }
 
-        [JsonProperty("DbType")]
+        [JsonProperty(nameof(DbType))]
         public string DbType { get; set; }
 
-        [JsonProperty("Length")]
+        [JsonProperty(nameof(Length))]
         public int Length { get; set; }
 
-        [JsonProperty("DefaultValue")]
+        [JsonProperty(nameof(DefaultValue))]
         public object? DefaultValue { get; set; }
 
-        [JsonProperty("Required")]
+        [JsonProperty(nameof(Required))]
         public bool Required { get; set; }
 
         public WorkflowFieldMapping()
@@ -395,31 +395,31 @@ namespace HandStack.Web.MessageContract.DataObject
 
     public partial class SequentialOption
     {
-        [JsonProperty("TransactionProjectID")]
+        [JsonProperty(nameof(TransactionProjectID))]
         public string TransactionProjectID { get; set; }
 
-        [JsonProperty("TransactionID")]
+        [JsonProperty(nameof(TransactionID))]
         public string TransactionID { get; set; }
 
-        [JsonProperty("ServiceID")]
+        [JsonProperty(nameof(ServiceID))]
         public string ServiceID { get; set; }
 
-        [JsonProperty("CommandType")]
+        [JsonProperty(nameof(CommandType))]
         public string CommandType { get; set; }
 
-        [JsonProperty("ServiceInputFields")]
+        [JsonProperty(nameof(ServiceInputFields))]
         public List<int> ServiceInputFields { get; set; }
 
-        [JsonProperty("ServiceOutputs")]
+        [JsonProperty(nameof(ServiceOutputs))]
         public List<ModelOutputContract> ServiceOutputs { get; set; }
 
-        [JsonProperty("ResultHandling")]
+        [JsonProperty(nameof(ResultHandling))]
         public string ResultHandling { get; set; }
 
-        [JsonProperty("TargetInputFields")]
+        [JsonProperty(nameof(TargetInputFields))]
         public List<int> TargetInputFields { get; set; }
 
-        [JsonProperty("ResultOutputFields")]
+        [JsonProperty(nameof(ResultOutputFields))]
         public List<int> ResultOutputFields { get; set; }
 
         public SequentialOption()
@@ -428,23 +428,23 @@ namespace HandStack.Web.MessageContract.DataObject
             TransactionID = "";
             ServiceID = "";
             CommandType = "";
-            ServiceInputFields = new List<int>();
-            ServiceOutputs = new List<ModelOutputContract>();
+            ServiceInputFields = [];
+            ServiceOutputs = [];
             ResultHandling = "";
-            TargetInputFields = new List<int>();
-            ResultOutputFields = new List<int>();
+            TargetInputFields = [];
+            ResultOutputFields = [];
         }
     }
 
     public class BaseFieldMapping
     {
-        [JsonProperty("BaseSequence")]
+        [JsonProperty(nameof(BaseSequence))]
         public string BaseSequence { get; set; }
 
-        [JsonProperty("SourceFieldID")]
+        [JsonProperty(nameof(SourceFieldID))]
         public string SourceFieldID { get; set; }
 
-        [JsonProperty("TargetFieldID")]
+        [JsonProperty(nameof(TargetFieldID))]
         public string TargetFieldID { get; set; }
 
         public BaseFieldMapping()
@@ -457,42 +457,42 @@ namespace HandStack.Web.MessageContract.DataObject
 
     public class ModelInputContract
     {
-        [JsonProperty("ModelID")]
+        [JsonProperty(nameof(ModelID))]
         public string ModelID { get; set; }
 
-        [JsonProperty("Fields")]
+        [JsonProperty(nameof(Fields))]
         public List<string> Fields { get; set; }
 
-        [JsonProperty("BearerFields")]
+        [JsonProperty(nameof(BearerFields))]
         public List<string> BearerFields { get; set; }
 
-        [JsonProperty("TestValues", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty(nameof(TestValues), NullValueHandling = NullValueHandling.Ignore)]
         public List<TestValue> TestValues { get; set; }
 
-        [JsonProperty("DefaultValues", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty(nameof(DefaultValues), NullValueHandling = NullValueHandling.Ignore)]
         public List<DefaultValue> DefaultValues { get; set; }
 
-        [JsonProperty("Type")]
+        [JsonProperty(nameof(Type))]
         public string Type { get; set; }
 
-        [JsonProperty("BaseFieldMappings", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty(nameof(BaseFieldMappings), NullValueHandling = NullValueHandling.Ignore)]
         public List<BaseFieldMapping> BaseFieldMappings { get; set; }
 
-        [JsonProperty("ParameterHandling")]
+        [JsonProperty(nameof(ParameterHandling))]
         public string ParameterHandling { get; set; } // Rejected, ByPassing, DefaultValue
 
-        [JsonProperty("IgnoreResult")]
+        [JsonProperty(nameof(IgnoreResult))]
         public bool IgnoreResult { get; set; }
 
         public ModelInputContract()
         {
             ModelID = "";
-            Fields = new List<string>();
-            BearerFields = new List<string>();
-            TestValues = new List<TestValue>();
-            DefaultValues = new List<DefaultValue>();
+            Fields = [];
+            BearerFields = [];
+            TestValues = [];
+            DefaultValues = [];
             Type = "";
-            BaseFieldMappings = new List<BaseFieldMapping>();
+            BaseFieldMappings = [];
             ParameterHandling = "";
             IgnoreResult = false;
         }
@@ -500,37 +500,37 @@ namespace HandStack.Web.MessageContract.DataObject
 
     public partial class BaseFieldRelation
     {
-        [JsonProperty("RelationFieldID")]
+        [JsonProperty(nameof(RelationFieldID))]
         public string RelationFieldID { get; set; }
 
-        [JsonProperty("BaseSequence")]
+        [JsonProperty(nameof(BaseSequence))]
         public int BaseSequence { get; set; }
 
-        [JsonProperty("RelationMappings")]
+        [JsonProperty(nameof(RelationMappings))]
         public List<RelationMapping> RelationMappings { get; set; }
 
-        [JsonProperty("ColumnNames", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty(nameof(ColumnNames), NullValueHandling = NullValueHandling.Ignore)]
         public List<string> ColumnNames { get; set; }
 
-        [JsonProperty("DisposeResult", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty(nameof(DisposeResult), NullValueHandling = NullValueHandling.Ignore)]
         public bool DisposeResult { get; set; }
 
         public BaseFieldRelation()
         {
             RelationFieldID = "";
             BaseSequence = 0;
-            RelationMappings = new List<RelationMapping>();
-            ColumnNames = new List<string>();
+            RelationMappings = [];
+            ColumnNames = [];
             DisposeResult = false;
         }
     }
 
     public partial class RelationMapping
     {
-        [JsonProperty("BaseFieldID")]
+        [JsonProperty(nameof(BaseFieldID))]
         public string BaseFieldID { get; set; }
 
-        [JsonProperty("ChildrenFieldID")]
+        [JsonProperty(nameof(ChildrenFieldID))]
         public string ChildrenFieldID { get; set; }
 
         public RelationMapping()
@@ -542,33 +542,33 @@ namespace HandStack.Web.MessageContract.DataObject
 
     public class ModelOutputContract
     {
-        [JsonProperty("ModelID")]
+        [JsonProperty(nameof(ModelID))]
         public string ModelID { get; set; }
 
-        [JsonProperty("Fields")]
+        [JsonProperty(nameof(Fields))]
         public List<string> Fields { get; set; }
 
-        [JsonProperty("Type")]
+        [JsonProperty(nameof(Type))]
         public string Type { get; set; }
 
-        [JsonProperty("Maskings")]
+        [JsonProperty(nameof(Maskings))]
         public List<Masking> Maskings { get; set; }
 
-        [JsonProperty("BaseFieldRelation", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty(nameof(BaseFieldRelation), NullValueHandling = NullValueHandling.Ignore)]
         public BaseFieldRelation? BaseFieldRelation { get; set; }
 
-        [JsonProperty("ValidateRules")]
+        [JsonProperty(nameof(ValidateRules))]
         public List<string>? ValidateRules { get; set; }
 
-        [JsonProperty("FallbackTransaction")]
+        [JsonProperty(nameof(FallbackTransaction))]
         public string? FallbackTransaction { get; set; }
 
         public ModelOutputContract()
         {
             ModelID = "";
-            Fields = new List<string>();
+            Fields = [];
             Type = "";
-            Maskings = new List<Masking>();
+            Maskings = [];
             BaseFieldRelation = null;
             ValidateRules = null;
             FallbackTransaction = null;
@@ -581,9 +581,9 @@ namespace HandStack.Web.MessageContract.DataObject
         public string? String;
         public bool? Boolean;
 
-        public static implicit operator TestValue(int Integer) => new TestValue { Integer = Integer };
-        public static implicit operator TestValue(string String) => new TestValue { String = String };
-        public static implicit operator TestValue(bool Boolean) => new TestValue { Boolean = Boolean };
+        public static implicit operator TestValue(int Integer) => new() { Integer = Integer };
+        public static implicit operator TestValue(string String) => new() { String = String };
+        public static implicit operator TestValue(bool Boolean) => new() { Boolean = Boolean };
         public bool IsNull => Integer == null && String == null && Boolean == null;
     }
 
@@ -593,9 +593,9 @@ namespace HandStack.Web.MessageContract.DataObject
         public string? String;
         public bool? Boolean;
 
-        public static implicit operator DefaultValue(int Integer) => new DefaultValue { Integer = Integer };
-        public static implicit operator DefaultValue(string String) => new DefaultValue { String = String };
-        public static implicit operator DefaultValue(bool Boolean) => new DefaultValue { Boolean = Boolean };
+        public static implicit operator DefaultValue(int Integer) => new() { Integer = Integer };
+        public static implicit operator DefaultValue(string String) => new() { String = String };
+        public static implicit operator DefaultValue(bool Boolean) => new() { Boolean = Boolean };
         public bool IsNull => Integer == null && String == null && Boolean == null;
     }
 

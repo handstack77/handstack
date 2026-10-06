@@ -306,6 +306,14 @@ namespace HandStack.Data.SqlFormatter.Languages
                 "NATURAL RIGHT JOIN",
                 "NATURAL RIGHT OUTER JOIN"
             };
+        internal static readonly string[] stringTypes = new[] { "\"\"", "''", "``" };
+
+        private static readonly string[] TokenizerOpenParens = new[] { "(", "CASE" };
+        private static readonly string[] TokenizerCloseParens = new[] { ")", "END" };
+        private static readonly char[] TokenizerIndexedPlaceholderTypes = new[] { '?' };
+        private static readonly string[] TokenizerLineCommentTypes = new[] { "#", "--" };
+        private static readonly string[] TokenizerSpecialWordChars = new[] { "@" };
+        private static readonly string[] TokenizerOperators = new[] { ":=", "<<", ">>", "!=", "<>", "<=>", "&&", "||" };
 
         protected override Tokenizer GetTokenizer()
         {
@@ -315,14 +323,14 @@ namespace HandStack.Data.SqlFormatter.Languages
                     ReservedTopLevelWords,
                     ReservedNewlineWords,
                     ReservedTopLevelWordsNoIndent,
-                    stringTypes: new[] { "\"\"", "''", "``" },
-                    openParens: new[] { "(", "CASE" },
-                    closeParens: new[] { ")", "END" },
-                    indexedPlaceholderTypes: new[] { '?' },
+                    stringTypes: stringTypes,
+                    openParens: TokenizerOpenParens,
+                    closeParens: TokenizerCloseParens,
+                    indexedPlaceholderTypes: TokenizerIndexedPlaceholderTypes,
                     namedPlaceholderTypes: Array.Empty<char>(),
-                    lineCommentTypes: new[] { "#", "--" },
-                    specialWordChars: new[] { "@" },
-                    operators: new[] { ":=", "<<", ">>", "!=", "<>", "<=>", "&&", "||" });
+                    lineCommentTypes: TokenizerLineCommentTypes,
+                    specialWordChars: TokenizerSpecialWordChars,
+                    operators: TokenizerOperators);
         }
     }
 }

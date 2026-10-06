@@ -3,13 +3,11 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
-using System.Net;
-
 using Microsoft.Extensions.Configuration;
-
 using Octokit;
 
 namespace forbes.Extensions
@@ -18,7 +16,7 @@ namespace forbes.Extensions
     {
         private readonly GitHubClient? gitHubClient;
         private readonly string logFilePath;
-        private readonly object logSync = new object();
+        private readonly object logSync = new();
 
         public GitHubSyncManager(string personalAccessToken, string productHeaderValue = "HandStack.Forbes", string? logDirectoryPath = null)
         {
@@ -548,7 +546,7 @@ namespace forbes.Extensions
             }
         }
 
-        private string InitializeLogFilePath(string? logDirectoryPath)
+        private static string InitializeLogFilePath(string? logDirectoryPath)
         {
             string resolvedDirectoryPath = logDirectoryPath ?? string.Empty;
             if (string.IsNullOrWhiteSpace(resolvedDirectoryPath))
@@ -596,49 +594,26 @@ namespace forbes.Extensions
         }
     }
 
-    public sealed class GitHubRepositoryInfo
+    public sealed class GitHubRepositoryInfo(string fullName, string defaultBranch, bool isPrivate, DateTimeOffset updatedAt)
     {
-        public string FullName { get; }
-        public string DefaultBranch { get; }
-        public bool IsPrivate { get; }
-        public DateTimeOffset UpdatedAt { get; }
-
-        public GitHubRepositoryInfo(string fullName, string defaultBranch, bool isPrivate, DateTimeOffset updatedAt)
-        {
-            FullName = fullName;
-            DefaultBranch = defaultBranch;
-            IsPrivate = isPrivate;
-            UpdatedAt = updatedAt;
-        }
+        public string FullName { get; } = fullName;
+        public string DefaultBranch { get; } = defaultBranch;
+        public bool IsPrivate { get; } = isPrivate;
+        public DateTimeOffset UpdatedAt { get; } = updatedAt;
     }
 
-    public sealed class GitHubPullFileResult
+    public sealed class GitHubPullFileResult(string commitSha, string fileSha, string content, string path, string branch)
     {
-        public string CommitSha { get; }
-        public string FileSha { get; }
-        public string Content { get; }
-        public string Path { get; }
-        public string Branch { get; }
-
-        public GitHubPullFileResult(string commitSha, string fileSha, string content, string path, string branch)
-        {
-            CommitSha = commitSha;
-            FileSha = fileSha;
-            Content = content;
-            Path = path;
-            Branch = branch;
-        }
+        public string CommitSha { get; } = commitSha;
+        public string FileSha { get; } = fileSha;
+        public string Content { get; } = content;
+        public string Path { get; } = path;
+        public string Branch { get; } = branch;
     }
 
-    public sealed class GitHubRepositoryTreeItem
+    public sealed class GitHubRepositoryTreeItem(string path, string sha)
     {
-        public string Path { get; }
-        public string Sha { get; }
-
-        public GitHubRepositoryTreeItem(string path, string sha)
-        {
-            Path = path;
-            Sha = sha;
-        }
+        public string Path { get; } = path;
+        public string Sha { get; } = sha;
     }
 }

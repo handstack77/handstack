@@ -53,7 +53,7 @@ namespace prompter.Extensions
             }
 
             strInput = strInput.Trim();
-            if ((!strInput.StartsWith("{") || !strInput.EndsWith("}")) && (!strInput.StartsWith("[") || !strInput.EndsWith("]")))
+            if ((!strInput.StartsWith('{') || !strInput.EndsWith('}')) && (!strInput.StartsWith('[') || !strInput.EndsWith(']')))
             {
                 return false;
             }
@@ -159,7 +159,7 @@ namespace prompter.Extensions
             }
 
             text.Append(string.Join(", ", items));
-            text.Append(")");
+            text.Append(')');
 
             if (!string.IsNullOrEmpty(propertyName))
             {

@@ -17,7 +17,7 @@ namespace HandStack.Core.Helpers
     /// </code>
     public static class CommandHelper
     {
-        public static Dictionary<string, string> EnvironmentVariables { get; set; } = new Dictionary<string, string>();
+        public static Dictionary<string, string> EnvironmentVariables { get; set; } = [];
 
         public static int SuccessExitCode { get; set; } = 0;
 
@@ -215,7 +215,7 @@ namespace HandStack.Core.Helpers
                     }
 
                     var logDirectory = PathExtensions.Combine(workingDirectory ?? Directory.GetCurrentDirectory(), "tasklogs");
-                    logFilePath = logFilePath ?? PathExtensions.Combine(logDirectory, (echoPrefix ?? DefaultPrefix.Value).ToStringSafe() + Guid.NewGuid().ToString("N") + ".log");
+                    logFilePath ??= PathExtensions.Combine(logDirectory, (echoPrefix ?? DefaultPrefix.Value).ToStringSafe() + Guid.NewGuid().ToString("N") + ".log");
                     var fileInfo = new FileInfo(logFilePath);
                     if (fileInfo.Directory?.Exists == false)
                     {

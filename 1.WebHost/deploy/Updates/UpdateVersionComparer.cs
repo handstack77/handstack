@@ -3,10 +3,10 @@ using System.Text.RegularExpressions;
 
 namespace deploy.Updates;
 
-public static class UpdateVersionComparer
+public static partial class UpdateVersionComparer
 {
-    private static readonly Regex VersionPattern = new Regex(@"^(?<major>\d+)\.(?<minor>\d+)\.(?<build>\d+)$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
-    private static readonly Regex PackageVersionPattern = new Regex(@"-(?<version>\d+\.\d+\.\d+)\.zip$", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.CultureInvariant);
+    private static readonly Regex VersionPattern = MyRegex();
+    private static readonly Regex PackageVersionPattern = MyRegex1();
 
     public static int Compare(string? left, string? right)
     {
@@ -72,4 +72,9 @@ public static class UpdateVersionComparer
         version = match.Groups["version"].Value;
         return true;
     }
+
+    [GeneratedRegex(@"^(?<major>\d+)\.(?<minor>\d+)\.(?<build>\d+)$", RegexOptions.Compiled | RegexOptions.CultureInvariant)]
+    private static partial Regex MyRegex();
+    [GeneratedRegex(@"-(?<version>\d+\.\d+\.\d+)\.zip$", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.CultureInvariant)]
+    private static partial Regex MyRegex1();
 }

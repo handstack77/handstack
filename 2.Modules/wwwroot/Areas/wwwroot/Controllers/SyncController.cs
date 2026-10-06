@@ -5,32 +5,23 @@ using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-
+using HandStack.Core.ExtensionMethod;
 using HandStack.Web;
 using HandStack.Web.Common;
-
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-
 using Serilog;
-
 using wwwroot.Entity;
-using HandStack.Core.ExtensionMethod;
 
 namespace wwwroot.Areas.wwwroot.Controllers
 {
     [Area("wwwroot")]
     [Route("[area]/api/[controller]")]
     [ApiController]
-    public class SyncController : BaseController
+    public class SyncController(IConfiguration configuration) : BaseController
     {
-        private readonly IConfiguration configuration;
-
-        public SyncController(IConfiguration configuration)
-        {
-            this.configuration = configuration;
-        }
+        private readonly IConfiguration configuration = configuration;
 
         [HttpPost("upload")]
         public async Task<IActionResult> Upload([FromForm] SyncUploadRequest request, IFormFile? file, CancellationToken cancellationToken)
@@ -42,6 +33,7 @@ namespace wwwroot.Areas.wwwroot.Controllers
                     return Unauthorized(authorizationError);
                 }
 
+                ArgumentNullException.ThrowIfNull(request);
                 if (!SyncRequest.TryCreate(request.ModuleName, request.ChangeType, request.FilePath, out SyncRequest syncRequest, out string errorMessage))
                 {
                     return BadRequest(errorMessage);
@@ -77,6 +69,7 @@ namespace wwwroot.Areas.wwwroot.Controllers
                     return Unauthorized(authorizationError);
                 }
 
+                ArgumentNullException.ThrowIfNull(request);
                 if (!SyncRequest.TryCreate(request.ModuleName, request.ChangeType, request.FilePath, out SyncRequest syncRequest, out string errorMessage))
                 {
                     return BadRequest(errorMessage);
@@ -114,7 +107,7 @@ namespace wwwroot.Areas.wwwroot.Controllers
                 return false;
             }
 
-            string authorizationHeader = Request.Headers["Authorization"].FirstOrDefault() ?? "";
+            string authorizationHeader = Request.Headers.Authorization.FirstOrDefault() ?? "";
             if (string.IsNullOrWhiteSpace(authorizationHeader))
             {
                 errorMessage = "Authorization 헤더 확인 필요.";
@@ -256,7 +249,7 @@ namespace wwwroot.Areas.wwwroot.Controllers
 
     internal static class SyncProcessor
     {
-        private static readonly HttpClient HttpClient = new HttpClient
+        private static readonly HttpClient HttpClient = new()
         {
             Timeout = TimeSpan.FromSeconds(10)
         };

@@ -7,7 +7,7 @@ using HandStack.Web.Enumeration;
 
 namespace HandStack.Web.Helpers
 {
-    public static class XmlHelper
+    public static partial class XmlHelper
     {
         public static bool IsValid(string? input)
         {
@@ -18,7 +18,7 @@ namespace HandStack.Web.Helpers
 
             input = input!.Trim();
 
-            if (!input.StartsWith("<") || !input.EndsWith(">"))
+            if (!input.StartsWith('<') || !input.EndsWith('>'))
             {
                 return false;
             }
@@ -58,7 +58,7 @@ namespace HandStack.Web.Helpers
                 var xmlWriterSettings = new XmlWriterSettings()
                 {
                     Async = true,
-                    OmitXmlDeclaration = xmlDocument.FirstChild == null ? false : xmlDocument.FirstChild.NodeType != XmlNodeType.XmlDeclaration,
+                    OmitXmlDeclaration = xmlDocument.FirstChild != null && xmlDocument.FirstChild.NodeType != XmlNodeType.XmlDeclaration,
                     NewLineOnAttributes = newLineOnAttributes,
                 };
 
@@ -91,7 +91,7 @@ namespace HandStack.Web.Helpers
 
                 if (xmlDocument.FirstChild != null && xmlDocument.FirstChild.NodeType == XmlNodeType.XmlDeclaration)
                 {
-                    var match = Regex.Match(xmlDocument.FirstChild.InnerText, @"(?<=encoding\s*=\s*"")[^""]*", RegexOptions.None);
+                    var match = MyRegex().Match(xmlDocument.FirstChild.InnerText);
                     if (match.Success)
                     {
                         stringBuilder = stringBuilder.Replace("utf-16", match.Value);
@@ -112,5 +112,8 @@ namespace HandStack.Web.Helpers
                 return exception.Message;
             }
         }
+
+        [GeneratedRegex(@"(?<=encoding\s*=\s*"")[^""]*", RegexOptions.None)]
+        private static partial Regex MyRegex();
     }
 }

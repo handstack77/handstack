@@ -47,7 +47,7 @@ namespace function.Entity
             IsSingleThread = true;
             WatchGracefulShutdown = false;
             EnableFileWatching = false;
-            WatchFileNamePatterns = new List<string>();
+            WatchFileNamePatterns = [];
             ExecutablePath = "";
             NodeAndV8Options = "";
             EnvironmentVariables = "";
@@ -66,7 +66,7 @@ namespace function.Entity
         {
             EnableFileWatching = false;
             FileLogBasePath = "";
-            WatchFileNamePatterns = new List<string>();
+            WatchFileNamePatterns = [];
         }
     }
 
@@ -88,7 +88,7 @@ namespace function.Entity
             PythonDLLFilePath = "";
             EnableFileWatching = false;
             FileLogBasePath = "";
-            WatchFileNamePatterns = new List<string>();
+            WatchFileNamePatterns = [];
         }
     }
 
@@ -169,7 +169,7 @@ namespace function.Entity
             CircuitBreakResetSecond = 60;
             IsLogServer = false;
             LogServerUrl = "";
-            ContractBasePath = new List<string>();
+            ContractBasePath = [];
             IsTransactionLogging = false;
             ModuleLogFilePath = "";
             ModuleBasePath = "";
@@ -179,8 +179,8 @@ namespace function.Entity
             NodeFunctionConfig = new NodeScriptConfig();
             PythonFunctionConfig = new PythonFunctionConfig();
             DefaultDataSourceID = "";
-            FunctionSource = new List<FunctionSource>();
-            AllowClientIP = new List<string>() { "*" };
+            FunctionSource = [];
+            AllowClientIP = ["*"];
         }
     }
 }

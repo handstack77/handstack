@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using HandStack.Web.Extensions;
@@ -12,13 +13,13 @@ namespace wwwroot.Areas.wwwroot.Controllers
     [ApiController]
     public class HtmxController : Controller
     {
-        private List<ContactModel> GetContacts() => new List<ContactModel>();
-        private ContactModel GetContactById(int id) => new ContactModel { Id = id, Name = "연락처 " + id };
-        private void DeleteContact(int id) { }
-        private void UpdateContact(int id, ContactModel model) { }
-        private List<ContactModel> GetContactsPage(int page) => new List<ContactModel>();
-        private ContactModel CreateContact(ContactModel model) => new ContactModel { Id = 999, Name = model.Name };
-        private bool HasMorePages(int page) => page < 5;
+        private static List<ContactModel> GetContacts() => [];
+        private static ContactModel GetContactById(int id) => new() { Id = id, Name = "연락처 " + id };
+        private static void DeleteContact() { }
+        private static void UpdateContact() { }
+        private static List<ContactModel> GetContactsPage() => [];
+        private static ContactModel CreateContact(ContactModel model) => new() { Id = 999, Name = model.Name };
+        private static bool HasMorePages(int page) => page < 5;
 
         [HttpGet]
         public IActionResult Index()
@@ -61,7 +62,7 @@ namespace wwwroot.Areas.wwwroot.Controllers
                 System.Console.WriteLine($"삭제 요청이 {triggerId} 요소에서 트리거됨");
             }
 
-            DeleteContact(id);
+            DeleteContact();
             Response.HtmxTriggerEvent("showNotification", "연락처가 삭제되었습니다.");
             return Content("<div id='notification' class='alert alert-success'>연락처가 삭제되었습니다.</div>");
 
@@ -70,6 +71,8 @@ namespace wwwroot.Areas.wwwroot.Controllers
         [HttpPut("contacts/{id}")]
         public IActionResult Update(int id, [FromForm] ContactModel model)
         {
+            ArgumentNullException.ThrowIfNull(model);
+
             var promptResponse = Request.GetPromptResponse();
 
             if (!string.IsNullOrWhiteSpace(promptResponse))
@@ -78,12 +81,12 @@ namespace wwwroot.Areas.wwwroot.Controllers
             }
 
 
-            UpdateContact(id, model);
+            UpdateContact();
 
             var events = new Dictionary<string, object>
             {
                 { "showMessage", "연락처가 업데이트되었습니다." },
-                { "contactUpdated", new { id = id, name = model.Name } }
+                { "contactUpdated", new { id, name = model.Name } }
             };
 
             return this.HtmxPartial("_ContactPartial", GetContactById(id))
@@ -100,7 +103,7 @@ namespace wwwroot.Areas.wwwroot.Controllers
 
             await Task.Delay(500);
 
-            var moreContacts = GetContactsPage(page);
+            var moreContacts = GetContactsPage();
 
             if (moreContacts.Count == 0)
             {
@@ -123,6 +126,7 @@ namespace wwwroot.Areas.wwwroot.Controllers
                     .WithTriggerEvent("showValidationErrors", "true");
             }
 
+            ArgumentNullException.ThrowIfNull(model);
             var newContact = CreateContact(model);
             var events = new Dictionary<string, object>
             {

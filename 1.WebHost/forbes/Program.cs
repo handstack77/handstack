@@ -9,19 +9,17 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-
 using forbes.Extensions;
-
+using HandStack.Core.ExtensionMethod;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
-using HandStack.Core.ExtensionMethod;
 
 namespace forbes
 {
-    internal sealed class Program
+    internal sealed partial class Program
     {
         public static async Task<int> Main(string[] args)
         {
@@ -175,10 +173,7 @@ namespace forbes
                             }
                         }
 
-                        if (httpContext.Context.Response.Headers.ContainsKey("p3p"))
-                        {
-                            httpContext.Context.Response.Headers.Remove("p3p");
-                        }
+                        httpContext.Context.Response.Headers.Remove("p3p");
 
                         httpContext.Context.Response.Headers.Append("p3p", "CP=\"ALL ADM DEV PSAi COM OUR OTRo STP IND ONL\"");
                     }
@@ -209,7 +204,7 @@ namespace forbes
             return 0;
         }
 
-        private static async Task StartCodeSynchronization(IConfiguration configuration, string entryDirectoryPath)
+        private static async Task StartCodeSynchronization(ConfigurationManager configuration, string entryDirectoryPath)
         {
             string codeMergeMethod = configuration["CodeMegerMethod"] ?? configuration["CodeMergeMethod"] ?? "Manual";
 
@@ -234,7 +229,7 @@ namespace forbes
             TraceLogger.Error($"알 수 없는 CodeMegerMethod 값입니다: {codeMergeMethod}. 코드 동기화를 수행하지 않습니다.");
         }
 
-        private static void StartContractFileMonitoringByFileSync(IConfiguration configuration, string entryDirectoryPath)
+        private static void StartContractFileMonitoringByFileSync(ConfigurationManager configuration, string entryDirectoryPath)
         {
             string fileSyncServer = configuration["FileSyncServer"] ?? "";
             string fileSyncAccessToken = configuration["FileSyncAccessToken"] ?? "";
@@ -251,42 +246,42 @@ namespace forbes
                 return;
             }
 
-            foreach (var monitorTarget in GetMonitorTargets())
+            foreach (var (ModuleName, RelativePath, Filter) in GetMonitorTargets())
             {
-                string watchBasePath = Path.Combine(contractsBasePath, monitorTarget.RelativePath);
+                string watchBasePath = Path.Combine(contractsBasePath, RelativePath);
                 if (!Directory.Exists(watchBasePath))
                 {
                     continue;
                 }
 
-                var fileSyncManager = new FileSyncManager(watchBasePath, monitorTarget.Filter, fileSyncAccessToken);
+                var fileSyncManager = new FileSyncManager(watchBasePath, Filter, fileSyncAccessToken);
                 fileSyncManager.MonitoringFile += async (WatcherChangeTypes changeTypes, FileInfo fileInfo) =>
                 {
-                    if (!IsTargetContractFile(monitorTarget.ModuleName, fileInfo) || changeTypes == WatcherChangeTypes.Deleted)
+                    if (!IsTargetContractFile(ModuleName, fileInfo) || changeTypes == WatcherChangeTypes.Deleted)
                     {
                         return;
                     }
 
                     string relativePath = GetRelativePath(fileInfo.FullName, watchBasePath);
 
-                    var syncResult = await ContractSyncClient.UploadAndRefreshFromFileAsync(fileSyncServer, fileSyncAccessToken, monitorTarget.ModuleName, changeTypes, relativePath, fileInfo.FullName);
+                    var syncResult = await ContractSyncClient.UploadAndRefreshFromFileAsync(fileSyncServer, fileSyncAccessToken, ModuleName, changeTypes, relativePath, fileInfo.FullName);
                     if (!syncResult.Success)
                     {
-                        TraceLogger.Error($"계약 동기화 실패. 모듈: {monitorTarget.ModuleName}, 경로: {relativePath}, 메시지: {syncResult.Message}");
+                        TraceLogger.Error($"계약 동기화 실패. 모듈: {ModuleName}, 경로: {relativePath}, 메시지: {syncResult.Message}");
                     }
                     else
                     {
-                        TraceLogger.Info($"계약 동기화 완료. 모듈: {monitorTarget.ModuleName}, 경로: {relativePath}, 변경 유형: {changeTypes}");
+                        TraceLogger.Info($"계약 동기화 완료. 모듈: {ModuleName}, 경로: {relativePath}, 변경 유형: {changeTypes}");
                     }
                 };
 
                 fileSyncManager.Start();
                 ForbesConfiguration.ContractFileSyncManagers.Add(fileSyncManager);
-                TraceLogger.Info($"FileSync 계약 파일 모니터링 시작. 모듈: {monitorTarget.ModuleName}, 경로: {watchBasePath}");
+                TraceLogger.Info($"FileSync 계약 파일 모니터링 시작. 모듈: {ModuleName}, 경로: {watchBasePath}");
             }
         }
 
-        private static async Task StartContractFileMonitoringByGitHub(IConfiguration configuration, string entryDirectoryPath)
+        private static async Task StartContractFileMonitoringByGitHub(ConfigurationManager configuration, string entryDirectoryPath)
         {
             string gitHubRepositoryOwner = configuration["GitHubRepositoryOwner"] ?? "";
             string gitHubRepositoryName = configuration["GitHubRepositoryName"] ?? "";
@@ -322,27 +317,27 @@ namespace forbes
                 userName,
                 userEmail);
 
-            foreach (var monitorTarget in monitorTargets)
+            foreach (var (ModuleName, RelativePath, Filter) in monitorTargets)
             {
-                string watchBasePath = Path.Combine(contractsBasePath, monitorTarget.RelativePath);
+                string watchBasePath = Path.Combine(contractsBasePath, RelativePath);
                 if (!Directory.Exists(watchBasePath))
                 {
                     continue;
                 }
 
-                var fileSyncManager = new FileSyncManager(watchBasePath, monitorTarget.Filter);
+                var fileSyncManager = new FileSyncManager(watchBasePath, Filter);
                 fileSyncManager.MonitoringFile += async (WatcherChangeTypes changeTypes, FileInfo fileInfo) =>
                 {
                     try
                     {
-                        if (!IsTargetContractFile(monitorTarget.ModuleName, fileInfo))
+                        if (!IsTargetContractFile(ModuleName, fileInfo))
                         {
                             return;
                         }
 
                         string relativePath = GetRelativePath(fileInfo.FullName, watchBasePath);
-                        string gitHubPath = BuildGitHubRepositoryPath(gitHubRepositoryBasePath, monitorTarget.ModuleName, relativePath);
-                        string commitMessage = BuildGitHubCommitMessage(monitorTarget.ModuleName, changeTypes.ToString(), relativePath, userName, userEmail);
+                        string gitHubPath = BuildGitHubRepositoryPath(gitHubRepositoryBasePath, ModuleName, relativePath);
+                        string commitMessage = BuildGitHubCommitMessage(ModuleName, changeTypes.ToString(), relativePath, userName, userEmail);
 
                         if (changeTypes == WatcherChangeTypes.Deleted)
                         {
@@ -353,7 +348,7 @@ namespace forbes
                                 gitHubPath,
                                 commitMessage);
 
-                            TraceLogger.Info($"GitHub 삭제 동기화 요청. 모듈: {monitorTarget.ModuleName}, 경로: {gitHubPath}");
+                            TraceLogger.Info($"GitHub 삭제 동기화 요청. 모듈: {ModuleName}, 경로: {gitHubPath}");
                             return;
                         }
 
@@ -371,17 +366,17 @@ namespace forbes
                             fileContent,
                             commitMessage);
 
-                        TraceLogger.Info($"GitHub 업로드 동기화 요청. 모듈: {monitorTarget.ModuleName}, 경로: {gitHubPath}, 변경 유형: {changeTypes}");
+                        TraceLogger.Info($"GitHub 업로드 동기화 요청. 모듈: {ModuleName}, 경로: {gitHubPath}, 변경 유형: {changeTypes}");
                     }
                     catch (Exception exception)
                     {
-                        TraceLogger.Error($"GitHub 동기화 처리 예외. 모듈: {monitorTarget.ModuleName}, 파일: {fileInfo.FullName}, 메시지: {exception.Message}");
+                        TraceLogger.Error($"GitHub 동기화 처리 예외. 모듈: {ModuleName}, 파일: {fileInfo.FullName}, 메시지: {exception.Message}");
                     }
                 };
 
                 fileSyncManager.Start();
                 ForbesConfiguration.ContractFileSyncManagers.Add(fileSyncManager);
-                TraceLogger.Info($"GitHub 계약 파일 모니터링 시작. 모듈: {monitorTarget.ModuleName}, 경로: {watchBasePath}");
+                TraceLogger.Info($"GitHub 계약 파일 모니터링 시작. 모듈: {ModuleName}, 경로: {watchBasePath}");
             }
         }
 
@@ -407,7 +402,7 @@ namespace forbes
             };
         }
 
-        private static string ResolveContractsBasePath(IConfiguration configuration, string entryDirectoryPath)
+        private static string ResolveContractsBasePath(ConfigurationManager configuration, string entryDirectoryPath)
         {
             string contractsBasePath = configuration["ContractsBasePath"] ?? "";
             contractsBasePath = ResolvePathSetting(contractsBasePath, entryDirectoryPath, "Contracts");
@@ -415,7 +410,7 @@ namespace forbes
             return contractsBasePath;
         }
 
-        private static string ResolveWWWRootBasePath(IConfiguration configuration, string entryDirectoryPath)
+        private static string ResolveWWWRootBasePath(ConfigurationManager configuration, string entryDirectoryPath)
         {
             string wwwRootBasePath = configuration["WWWRootBasePath"] ?? "";
             wwwRootBasePath = ResolvePathSetting(wwwRootBasePath, entryDirectoryPath, "wwwroot");
@@ -461,14 +456,14 @@ namespace forbes
                 return false;
             }
 
-            return Regex.IsMatch(path, @"\$(\{[A-Za-z_][A-Za-z0-9_]*\}|[A-Za-z_][A-Za-z0-9_]*)")
-                || Regex.IsMatch(path, @"%[A-Za-z_][A-Za-z0-9_]*%");
+            return MyRegex().IsMatch(path)
+                || MyRegex1().IsMatch(path);
         }
 
         private static string ExpandPathVariables(string path)
         {
             string expandedPath = Environment.ExpandEnvironmentVariables(path ?? "");
-            return Regex.Replace(expandedPath, @"\$(\{(?<name>[A-Za-z_][A-Za-z0-9_]*)\}|(?<name>[A-Za-z_][A-Za-z0-9_]*))", match =>
+            return MyRegex2().Replace(expandedPath, match =>
             {
                 string variableName = match.Groups["name"].Value;
                 string? variableValue = Environment.GetEnvironmentVariable(variableName);
@@ -479,7 +474,7 @@ namespace forbes
         private static string GetRelativePath(string fullFilePath, string basePath)
         {
             string relativePath = fullFilePath.Replace("\\", "/").Replace(basePath.Replace("\\", "/"), "");
-            if (!relativePath.StartsWith("/", StringComparison.Ordinal))
+            if (!relativePath.StartsWith('/'))
             {
                 relativePath = "/" + relativePath;
             }
@@ -522,7 +517,7 @@ namespace forbes
                 normalizedFilePath = normalizedFilePath.SubstringSafe(modulePrefix.Length);
             }
 
-            if (!normalizedFilePath.StartsWith("/", StringComparison.Ordinal))
+            if (!normalizedFilePath.StartsWith('/'))
             {
                 normalizedFilePath = "/" + normalizedFilePath;
             }
@@ -542,13 +537,12 @@ namespace forbes
             string userEmail)
         {
             TraceLogger.Info("GitHub 시작 동기화를 수행합니다.");
-
-            foreach (var monitorTarget in monitorTargets)
+            foreach (var (ModuleName, RelativePath, _) in monitorTargets)
             {
-                string localModulePath = Path.Combine(contractsBasePath, monitorTarget.RelativePath);
+                string localModulePath = Path.Combine(contractsBasePath, RelativePath);
                 Directory.CreateDirectory(localModulePath);
 
-                string gitHubModulePath = BuildGitHubModulePath(gitHubRepositoryBasePath, monitorTarget.ModuleName);
+                string gitHubModulePath = BuildGitHubModulePath(gitHubRepositoryBasePath, ModuleName);
                 IReadOnlyList<GitHubRepositoryTreeItem> repositoryFiles = await gitHubSyncManager.GetRepositoryContentsRecursiveAsync(
                     gitHubRepositoryOwner,
                     gitHubRepositoryName,
@@ -562,7 +556,7 @@ namespace forbes
                 foreach (GitHubRepositoryTreeItem repositoryFile in repositoryFiles)
                 {
                     var repositoryFileInfo = new FileInfo(repositoryFile.Path);
-                    if (!IsTargetContractFile(monitorTarget.ModuleName, repositoryFileInfo))
+                    if (!IsTargetContractFile(ModuleName, repositoryFileInfo))
                     {
                         continue;
                     }
@@ -611,21 +605,21 @@ namespace forbes
                 {
                     string defaultSubDirectoryPath = Path.Combine(localModulePath, "HDS");
                     Directory.CreateDirectory(defaultSubDirectoryPath);
-                    TraceLogger.Info($"원격 파일이 없어 기본 하위 디렉터리를 생성했습니다. 모듈: {monitorTarget.ModuleName}, 경로: {defaultSubDirectoryPath}");
+                    TraceLogger.Info($"원격 파일이 없어 기본 하위 디렉터리를 생성했습니다. 모듈: {ModuleName}, 경로: {defaultSubDirectoryPath}");
 
                     int pushedLocalFileCount = 0;
                     foreach (string localFilePath in Directory.GetFiles(localModulePath, "*", SearchOption.AllDirectories))
                     {
                         var localFileInfo = new FileInfo(localFilePath);
-                        if (!IsTargetContractFile(monitorTarget.ModuleName, localFileInfo))
+                        if (!IsTargetContractFile(ModuleName, localFileInfo))
                         {
                             continue;
                         }
 
                         string relativePath = GetRelativePath(localFilePath, localModulePath);
-                        string gitHubPath = BuildGitHubRepositoryPath(gitHubRepositoryBasePath, monitorTarget.ModuleName, relativePath);
+                        string gitHubPath = BuildGitHubRepositoryPath(gitHubRepositoryBasePath, ModuleName, relativePath);
                         string fileContent = await File.ReadAllTextAsync(localFilePath);
-                        string commitMessage = BuildGitHubCommitMessage(monitorTarget.ModuleName, "초기 동기화 업로드", relativePath, userName, userEmail);
+                        string commitMessage = BuildGitHubCommitMessage(ModuleName, "초기 동기화 업로드", relativePath, userName, userEmail);
 
                         await gitHubSyncManager.UpsertFileAsync(
                             gitHubRepositoryOwner,
@@ -638,16 +632,16 @@ namespace forbes
                         pushedLocalFileCount++;
                     }
 
-                    TraceLogger.Info($"원격 파일이 없어 로컬 파일 자동 업로드를 수행했습니다. 모듈: {monitorTarget.ModuleName}, 업로드 파일 수: {pushedLocalFileCount}");
-                    TraceLogger.Info($"GitHub 시작 동기화에서 원격 파일이 없어 삭제 단계는 건너뜁니다. 모듈: {monitorTarget.ModuleName}");
-                    TraceLogger.Info($"GitHub 시작 동기화 완료. 모듈: {monitorTarget.ModuleName}, 갱신 파일 수: {updatedFileCount}, 삭제 파일 수: {deletedFileCount}");
+                    TraceLogger.Info($"원격 파일이 없어 로컬 파일 자동 업로드를 수행했습니다. 모듈: {ModuleName}, 업로드 파일 수: {pushedLocalFileCount}");
+                    TraceLogger.Info($"GitHub 시작 동기화에서 원격 파일이 없어 삭제 단계는 건너뜁니다. 모듈: {ModuleName}");
+                    TraceLogger.Info($"GitHub 시작 동기화 완료. 모듈: {ModuleName}, 갱신 파일 수: {updatedFileCount}, 삭제 파일 수: {deletedFileCount}");
                     continue;
                 }
 
                 foreach (string localFilePath in Directory.GetFiles(localModulePath, "*", SearchOption.AllDirectories))
                 {
                     var localFileInfo = new FileInfo(localFilePath);
-                    if (!IsTargetContractFile(monitorTarget.ModuleName, localFileInfo))
+                    if (!IsTargetContractFile(ModuleName, localFileInfo))
                     {
                         continue;
                     }
@@ -662,7 +656,7 @@ namespace forbes
                     deletedFileCount++;
                 }
 
-                TraceLogger.Info($"GitHub 시작 동기화 완료. 모듈: {monitorTarget.ModuleName}, 갱신 파일 수: {updatedFileCount}, 삭제 파일 수: {deletedFileCount}");
+                TraceLogger.Info($"GitHub 시작 동기화 완료. 모듈: {ModuleName}, 갱신 파일 수: {updatedFileCount}, 삭제 파일 수: {deletedFileCount}");
             }
         }
 
@@ -732,11 +726,18 @@ namespace forbes
                 Console.WriteLine("디버거 없이 계속 진행합니다...");
             }
         }
+
+        [GeneratedRegex(@"\$(\{[A-Za-z_][A-Za-z0-9_]*\}|[A-Za-z_][A-Za-z0-9_]*)")]
+        private static partial Regex MyRegex();
+        [GeneratedRegex(@"%[A-Za-z_][A-Za-z0-9_]*%")]
+        private static partial Regex MyRegex1();
+        [GeneratedRegex(@"\$(\{(?<name>[A-Za-z_][A-Za-z0-9_]*)\}|(?<name>[A-Za-z_][A-Za-z0-9_]*))")]
+        private static partial Regex MyRegex2();
     }
 
     internal static class ForbesConfiguration
     {
-        public static List<IDisposable> ContractFileSyncManagers { get; } = new List<IDisposable>();
+        public static List<IDisposable> ContractFileSyncManagers { get; } = [];
     }
 
     internal static class TraceLogger

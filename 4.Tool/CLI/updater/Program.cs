@@ -23,7 +23,7 @@ namespace updater;
 
 internal static class Program
 {
-    private static readonly HttpClient HttpClient = new HttpClient
+    private static readonly HttpClient HttpClient = new()
     {
         Timeout = TimeSpan.FromMinutes(60)
     };
@@ -31,7 +31,7 @@ internal static class Program
     private static readonly IConfiguration Configuration = new ConfigurationBuilder()
         .AddJsonFile(Path.Combine(AppContext.BaseDirectory, "appsettings.json"), optional: true, reloadOnChange: false)
         .Build();
-    private static readonly object LogSyncRoot = new object();
+    private static readonly object LogSyncRoot = new();
     private static string? logFilePath;
     private static bool logFileConfigured;
 
@@ -424,7 +424,7 @@ internal static class Program
             ?? throw new InvalidOperationException("manifest 역직렬화에 실패했습니다.");
     }
 
-    private static IReadOnlyList<UpdatePackageDescriptor> NormalizePackages(UpdateManifestDocument manifest)
+    private static List<UpdatePackageDescriptor> NormalizePackages(UpdateManifestDocument manifest)
     {
         if (manifest.Packages.Count > 0)
         {
@@ -530,12 +530,7 @@ internal static class Program
         ZipFile.ExtractToDirectory(packageFilePath, packageExtractedPath, true);
         Log.Information("[CLI/updater]" + "패키지 압축 해제가 완료되었습니다. Version={0}, ExtractedPath={1}", package.Version, packageExtractedPath);
 
-        var entries = TryLoadPackageManifestEntries(packageExtractedPath, packageFilePath);
-        if (entries == null)
-        {
-            throw new FileNotFoundException("패키지 manifest 파일을 찾을 수 없습니다.", packageExtractedPath);
-        }
-
+        var entries = TryLoadPackageManifestEntries(packageExtractedPath, packageFilePath) ?? throw new FileNotFoundException("패키지 manifest 파일을 찾을 수 없습니다.", packageExtractedPath);
         return new PreparedPackageContext(package, packageExtractedPath, entries);
     }
 

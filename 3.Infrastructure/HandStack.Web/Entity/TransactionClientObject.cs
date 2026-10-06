@@ -40,11 +40,11 @@ namespace HandStack.Web.Entity
 
         public string TransactionToken { get; set; }
 
-        public List<Masking> Maskings = new List<Masking>();
+        public List<Masking> Maskings = [];
 
-        public List<int> InputsItemCount = new List<int>();
+        public List<int> InputsItemCount = [];
 
-        public List<List<ServiceParameter>> Inputs = new List<List<ServiceParameter>>();
+        public List<List<ServiceParameter>> Inputs = [];
 
         public TransactionClientObject()
         {

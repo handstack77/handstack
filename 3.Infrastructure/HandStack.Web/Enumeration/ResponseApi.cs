@@ -22,7 +22,7 @@ namespace HandStack.Web.Enumeration
 
     public static class ResponseApiExtensions
     {
-        private static readonly Dictionary<ResponseApi, string> StringValues = new Dictionary<ResponseApi, string>
+        private static readonly Dictionary<ResponseApi, string> StringValues = new()
         {
             { ResponseApi.E10, "E10: APPLICATION_ERROR, 애플리케이션 오류" },
             { ResponseApi.E11, "E11: CONFIGURATION_ERROR, 설정 오류" },

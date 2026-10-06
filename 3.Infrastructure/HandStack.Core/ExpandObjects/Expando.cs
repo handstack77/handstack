@@ -26,7 +26,7 @@ namespace HandStack.Core.ExpendObjects
             }
         }
 
-        public Dictionary<string, object?> Properties = new Dictionary<string, object?>();
+        public Dictionary<string, object?> Properties = [];
 
         public Expando()
         {
@@ -46,6 +46,7 @@ namespace HandStack.Core.ExpendObjects
 
             Properties = new PropertyBag();
 
+            ArgumentNullException.ThrowIfNull(dict);
             foreach (var kvp in dict)
             {
                 var kvpValue = kvp.Value;
@@ -59,8 +60,7 @@ namespace HandStack.Core.ExpendObjects
                     var objList = new List<object>();
                     foreach (var item in (ICollection)kvp.Value)
                     {
-                        var itemVals = item as IDictionary<string, object>;
-                        if (itemVals != null)
+                        if (item is IDictionary<string, object> itemVals)
                         {
                             var expandoItem = new Expando(itemVals);
                             objList.Add(expandoItem);
@@ -98,9 +98,11 @@ namespace HandStack.Core.ExpendObjects
 
         public override bool TryGetMember(GetMemberBinder binder, out object? output)
         {
-            if (Properties.Keys.Contains(binder.Name))
+            ArgumentNullException.ThrowIfNull(binder);
+
+            if (Properties.TryGetValue(binder.Name, out var value))
             {
-                output = Properties[binder.Name];
+                output = value;
                 return true;
             }
 
@@ -119,6 +121,8 @@ namespace HandStack.Core.ExpendObjects
 
         public override bool TrySetMember(SetMemberBinder binder, object? value)
         {
+            ArgumentNullException.ThrowIfNull(binder);
+
             if (instance != null)
             {
                 try
@@ -147,6 +151,8 @@ namespace HandStack.Core.ExpendObjects
             {
                 try
                 {
+                    ArgumentNullException.ThrowIfNull(binder);
+
                     if (InvokeMethod(instance, binder.Name, args, out output) == true)
                     {
                         return true;
@@ -161,10 +167,7 @@ namespace HandStack.Core.ExpendObjects
 
         protected bool GetProperty(object instance, string name, out object? output)
         {
-            if (instance == null)
-            {
-                instance = this;
-            }
+            instance ??= this;
 
             if (instanceType != null)
             {
@@ -186,10 +189,7 @@ namespace HandStack.Core.ExpendObjects
 
         protected bool SetProperty(object instance, string name, object? value)
         {
-            if (instance == null)
-            {
-                instance = this;
-            }
+            instance ??= this;
 
 
             if (instanceType != null)
@@ -211,10 +211,7 @@ namespace HandStack.Core.ExpendObjects
 
         protected bool InvokeMethod(object instance, string name, object[]? args, out object? output)
         {
-            if (instance == null)
-            {
-                instance = this;
-            }
+            instance ??= this;
 
             if (instanceType != null)
             {
@@ -321,10 +318,10 @@ namespace HandStack.Core.ExpendObjects
         public static Expando ToIndexableExpando(IDictionary<string, object> dict)
         {
             var expando = new Expando();
+            ArgumentNullException.ThrowIfNull(dict);
             foreach (var kvp in dict)
             {
-                var kvpValue = kvp.Value as IDictionary<string, object>;
-                if (kvpValue != null)
+                if (kvp.Value is IDictionary<string, object> kvpValue)
                 {
                     var expandoVal = ToIndexableExpando(kvpValue);
                     expando[kvp.Key] = expandoVal;
@@ -334,8 +331,7 @@ namespace HandStack.Core.ExpendObjects
                     var objList = new List<object>();
                     foreach (var item in (ICollection)kvp.Value)
                     {
-                        var itemVals = item as IDictionary<string, object>;
-                        if (itemVals != null)
+                        if (item is IDictionary<string, object> itemVals)
                         {
                             var expandoItem = ToIndexableExpando(itemVals);
                             objList.Add(expandoItem);

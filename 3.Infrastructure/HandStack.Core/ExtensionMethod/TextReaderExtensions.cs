@@ -16,7 +16,8 @@ namespace HandStack.Core.ExtensionMethod
         /// </example>
         public static IEnumerable<string> IterateLines(this TextReader @this)
         {
-            string? line = null;
+            string? line;
+            ArgumentNullException.ThrowIfNull(@this);
             while ((line = @this.ReadLine()) != null)
             {
                 yield return line;
@@ -34,6 +35,8 @@ namespace HandStack.Core.ExtensionMethod
         {
             foreach (var line in @this.IterateLines())
             {
+                ArgumentNullException.ThrowIfNull(action);
+
                 action(line);
             }
         }

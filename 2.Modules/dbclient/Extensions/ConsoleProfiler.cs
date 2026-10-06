@@ -22,8 +22,8 @@ namespace dbclient.Extensions
 {
     public class ConsoleProfiler : IAdoNetProfiler
     {
-        private string globalID = "";
-        private string queryID;
+        private readonly string globalID = "";
+        private readonly string queryID;
 
         private string? executeSQL;
 
@@ -35,7 +35,7 @@ namespace dbclient.Extensions
             }
             set
             {
-                executeSQL = value == null ? null : value.Trim();
+                executeSQL = value?.Trim();
             }
         }
 
@@ -49,7 +49,7 @@ namespace dbclient.Extensions
 
         private DbCommand? command;
 
-        private bool IsLogger = false;
+        private readonly bool IsLogger = false;
 
         public ConsoleProfiler(string globalID, string queryID = "", string? logFilePath = null)
         {
@@ -156,8 +156,8 @@ namespace dbclient.Extensions
         public void OnExecuteReaderStart(DbCommand command)
         {
             var providerName = "";
-            var connection = command.Connection as ProfilerDbConnection;
-            if (connection != null)
+            ArgumentNullException.ThrowIfNull(command);
+            if (command.Connection is ProfilerDbConnection connection)
             {
                 providerName = connection.WrappedConnection.ToString();
             }
@@ -213,11 +213,11 @@ namespace dbclient.Extensions
             if (ModuleConfiguration.IsProfileLogging == true && IsLogger == true)
             {
                 var errorDetails = ExtractDatabaseErrorInfo(exception);
-                ModuleConfiguration.ProfileLogger?.Error($"OnCommandError Request GlobalID: {globalID}, Command : {command.CommandText}, ErrorDetails: {errorDetails}, Exception: {exception.Message}");
+                ModuleConfiguration.ProfileLogger?.Error($"OnCommandError Request GlobalID: {globalID}, Command : {(command ?? throw new ArgumentNullException(nameof(command))).CommandText}, ErrorDetails: {errorDetails}, Exception: {(exception ?? throw new ArgumentNullException(nameof(exception))).Message}");
             }
         }
 
-        private string ExtractDatabaseErrorInfo(Exception exception)
+        private static string ExtractDatabaseErrorInfo(Exception exception)
         {
             var errorBuilder = new StringBuilder();
 

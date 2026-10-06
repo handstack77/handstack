@@ -33,25 +33,19 @@ namespace dbclient.Areas.dbclient.Controllers
     [Route("[area]/api/[controller]")]
     [ApiController]
     [EnableCors]
-    public class ManagedController : BaseController
+    public partial class ManagedController(IWebHostEnvironment environment, ILogger logger, IConfiguration configuration) : BaseController
     {
-        private static readonly Regex cdataRegex = new Regex("(<!\\[CDATA\\[)([\\s\\S]*?)(\\]\\]>)", RegexOptions.Compiled);
-        private ILogger logger { get; }
-        private IConfiguration configuration { get; }
-        private IWebHostEnvironment environment { get; }
-
-        public ManagedController(IWebHostEnvironment environment, ILogger logger, IConfiguration configuration)
-        {
-            this.configuration = configuration;
-            this.logger = logger;
-            this.environment = environment;
-        }
+        private static readonly Regex cdataRegex = MyRegex();
+        private ILogger logger { get; } = logger;
+        private IConfiguration configuration { get; } = configuration;
+        private IWebHostEnvironment environment { get; } = environment;
 
         // http://localhost:8421/dbclient/api/managed/reset-contract
         [HttpGet("[action]")]
         public ActionResult ResetContract()
         {
-            ActionResult result = BadRequest();
+            _ = BadRequest();
+            ActionResult result;
             if (HttpContext.IsAllowAuthorization() == false)
             {
                 result = BadRequest();
@@ -97,14 +91,14 @@ namespace dbclient.Areas.dbclient.Controllers
                         try
                         {
                             var dataSourceMappings = DatabaseMapper.DataSourceMappings.Where(x => x.Value.ApplicationID == applicationID).ToList();
-                            for (var i = dataSourceMappings.Count(); i > 0; i--)
+                            for (var i = dataSourceMappings.Count; i > 0; i--)
                             {
                                 var item = dataSourceMappings[i - 1].Key;
                                 DatabaseMapper.DataSourceMappings.Remove(item);
                             }
 
                             var statementMappings = DatabaseMapper.StatementMappings.Where(x => x.Value.ApplicationID == applicationID).ToList();
-                            for (var i = statementMappings.Count(); i > 0; i--)
+                            for (var i = statementMappings.Count; i > 0; i--)
                             {
                                 var item = statementMappings[i - 1].Key;
                                 DatabaseMapper.StatementMappings.Remove(item);
@@ -123,8 +117,10 @@ namespace dbclient.Areas.dbclient.Controllers
                                 try
                                 {
                                     var fileInfo = new FileInfo(filePath);
-                                    var htmlDocument = new HtmlDocument();
-                                    htmlDocument.OptionDefaultStreamEncoding = Encoding.UTF8;
+                                    var htmlDocument = new HtmlDocument
+                                    {
+                                        OptionDefaultStreamEncoding = Encoding.UTF8
+                                    };
                                     htmlDocument.LoadHtml(ReplaceCData(System.IO.File.ReadAllText(filePath)));
                                     var header = htmlDocument.DocumentNode.SelectSingleNode("//mapper/header");
 
@@ -151,22 +147,24 @@ namespace dbclient.Areas.dbclient.Controllers
                                         {
                                             if (header == null || $"{header?.Element("use")?.InnerText}".ToBoolean() == true)
                                             {
-                                                var statementMap = new StatementMap();
-                                                statementMap.ApplicationID = applicationID;
-                                                statementMap.ProjectID = projectID;
-                                                statementMap.TransactionID = transactionID;
-                                                statementMap.DataSourceID = item.Attributes["datasource"] == null ? (header?.Element("datasource")?.InnerText).ToStringSafe() : item.Attributes["datasource"].Value;
+                                                var statementMap = new StatementMap
+                                                {
+                                                    ApplicationID = applicationID,
+                                                    ProjectID = projectID,
+                                                    TransactionID = transactionID,
+                                                    DataSourceID = item.Attributes["datasource"]?.Value ?? (header?.Element("datasource")?.InnerText).ToStringSafe()
+                                                };
                                                 if (string.IsNullOrWhiteSpace(statementMap.DataSourceID))
                                                 {
                                                     statementMap.DataSourceID = ModuleConfiguration.DefaultDataSourceID;
                                                 }
 
                                                 statementMap.TransactionIsolationLevel = (header?.Element("isolation")?.InnerText).ToStringSafe();
-                                                statementMap.StatementID = item.Attributes["id"].Value + item.Attributes["seq"].Value.PadLeft(2, '0');
-                                                statementMap.Seq = item.Attributes["seq"].Value.ParseInt(0);
-                                                statementMap.Description = item.Attributes["desc"] == null ? "" : item.Attributes["desc"].Value;
-                                                statementMap.NativeDataClient = item.Attributes["native"] == null ? false : item.Attributes["native"].Value.ParseBool();
-                                                statementMap.Timeout = item.Attributes["timeout"] == null ? 0 : item.Attributes["timeout"].Value.ParseInt(0);
+                                                statementMap.StatementID = DatabaseMapper.GetAttributeValue(item, "id") + DatabaseMapper.GetAttributeValue(item, "seq").PadLeft(2, '0');
+                                                statementMap.Seq = DatabaseMapper.GetAttributeValue(item, "seq").ParseInt(0);
+                                                statementMap.Description = DatabaseMapper.GetAttributeValue(item, "desc");
+                                                statementMap.NativeDataClient = DatabaseMapper.GetAttributeValue(item, "native").ParseBool();
+                                                statementMap.Timeout = DatabaseMapper.GetAttributeValue(item, "timeout").ParseInt(0);
                                                 statementMap.SQL = item.InnerHtml;
 
                                                 var beforetransaction = item.Attributes["before"]?.Value;
@@ -187,27 +185,29 @@ namespace dbclient.Areas.dbclient.Controllers
                                                     statementMap.FallbackTransactionCommand = fallbacktransaction;
                                                 }
 
-                                                statementMap.DbParameters = new List<DbParameterMap>();
+                                                statementMap.DbParameters = [];
                                                 var htmlNodes = item.SelectNodes("param");
                                                 if (htmlNodes != null && htmlNodes.Count > 0)
                                                 {
-                                                    foreach (var paramNode in item.SelectNodes("param"))
+                                                    foreach (var paramNode in htmlNodes)
                                                     {
                                                         statementMap.DbParameters.Add(new DbParameterMap()
                                                         {
-                                                            Name = paramNode.Attributes["id"].Value.ToString(),
-                                                            DbType = paramNode.Attributes["type"].Value.ToString(),
-                                                            Length = (paramNode.Attributes["length"] == null ? "-1" : paramNode.Attributes["length"].Value.ToString()).ParseInt(-1),
-                                                            DefaultValue = paramNode.Attributes["value"] == null ? "" : paramNode.Attributes["value"].Value.ToString(),
-                                                            TestValue = paramNode.Attributes["test"] == null ? "" : paramNode.Attributes["test"].Value.ToString(),
-                                                            Direction = paramNode.Attributes["direction"] == null ? "Input" : paramNode.Attributes["direction"].Value.ToString(),
-                                                            Transform = paramNode.Attributes["transform"] == null ? "" : paramNode.Attributes["transform"].Value.ToString(),
+                                                            Name = DatabaseMapper.GetAttributeValue(paramNode, "id"),
+                                                            DbType = DatabaseMapper.GetAttributeValue(paramNode, "type"),
+                                                            Length = DatabaseMapper.GetAttributeValue(paramNode, "length", "-1").ParseInt(-1),
+                                                            DefaultValue = DatabaseMapper.GetAttributeValue(paramNode, "value"),
+                                                            TestValue = DatabaseMapper.GetAttributeValue(paramNode, "test"),
+                                                            Direction = DatabaseMapper.GetAttributeValue(paramNode, "direction", "Input"),
+                                                            Transform = DatabaseMapper.GetAttributeValue(paramNode, "transform"),
                                                         });
                                                     }
                                                 }
 
-                                                var children = new HtmlDocument();
-                                                children.OptionDefaultStreamEncoding = Encoding.UTF8;
+                                                var children = new HtmlDocument
+                                                {
+                                                    OptionDefaultStreamEncoding = Encoding.UTF8
+                                                };
                                                 children.LoadHtml(statementMap.SQL);
                                                 statementMap.Chidren = children;
 
@@ -258,20 +258,24 @@ namespace dbclient.Areas.dbclient.Controllers
                                                 ModuleConfiguration.DataSource.Add(item);
                                             }
 
-                                            var tanantMap = new DataSourceTanantKey();
-                                            tanantMap.ApplicationID = item.ApplicationID;
-                                            tanantMap.DataSourceID = item.DataSourceID;
-                                            tanantMap.TanantPattern = item.TanantPattern;
-                                            tanantMap.TanantValue = item.TanantValue;
+                                            var tanantMap = new DataSourceTanantKey
+                                            {
+                                                ApplicationID = item.ApplicationID,
+                                                DataSourceID = item.DataSourceID,
+                                                TanantPattern = item.TanantPattern,
+                                                TanantValue = item.TanantValue
+                                            };
 
                                             if (DatabaseMapper.DataSourceMappings.ContainsKey(tanantMap) == false)
                                             {
-                                                var dataSourceMap = new DataSourceMap();
-                                                dataSourceMap.ApplicationID = item.ApplicationID;
-                                                dataSourceMap.ProjectListID = item.ProjectID.Split(",").Where(s => !string.IsNullOrWhiteSpace(s)).Distinct().ToList();
-                                                dataSourceMap.DataProvider = (DataProviders)Enum.Parse(typeof(DataProviders), item.DataProvider);
-                                                dataSourceMap.ConnectionString = item.ConnectionString;
-                                                dataSourceMap.TransactionIsolationLevel = string.IsNullOrWhiteSpace(item.TransactionIsolationLevel) ? "ReadCommitted" : item.TransactionIsolationLevel;
+                                                var dataSourceMap = new DataSourceMap
+                                                {
+                                                    ApplicationID = item.ApplicationID,
+                                                    ProjectListID = item.ProjectID.Split(",").Where(s => !string.IsNullOrWhiteSpace(s)).Distinct().ToList(),
+                                                    DataProvider = Enum.Parse<DataProviders>(item.DataProvider),
+                                                    ConnectionString = item.ConnectionString,
+                                                    TransactionIsolationLevel = string.IsNullOrWhiteSpace(item.TransactionIsolationLevel) ? "ReadCommitted" : item.TransactionIsolationLevel
+                                                };
 
                                                 if (item.IsEncryption.ParseBool() == true)
                                                 {
@@ -379,11 +383,15 @@ namespace dbclient.Areas.dbclient.Controllers
                                          .Replace(">", "&gt;")
                                          .Replace("\"", "&quot;");
 
+                    ArgumentNullException.ThrowIfNull(rawText);
                     rawText = rawText.Replace(match.Value, cdataText);
                 }
             }
             return rawText;
         }
+
+        [GeneratedRegex("(<!\\[CDATA\\[)([\\s\\S]*?)(\\]\\]>)", RegexOptions.Compiled)]
+        private static partial Regex MyRegex();
     }
 }
 

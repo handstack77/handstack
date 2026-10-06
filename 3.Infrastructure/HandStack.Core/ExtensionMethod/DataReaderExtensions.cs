@@ -11,11 +11,15 @@ namespace HandStack.Core.ExtensionMethod
     {
         public static T Get<T>(this IDataReader @this, string fieldName)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             return (T)@this.GetValue(@this.GetOrdinal(fieldName));
         }
 
         public static T Get<T>(this IDataReader @this, int index)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             return (T)@this.GetValue(index);
         }
 
@@ -23,6 +27,8 @@ namespace HandStack.Core.ExtensionMethod
         {
             try
             {
+                ArgumentNullException.ThrowIfNull(@this);
+
                 return (T)@this.GetValue(@this.GetOrdinal(columnName));
             }
             catch
@@ -35,11 +41,13 @@ namespace HandStack.Core.ExtensionMethod
         {
             try
             {
+                ArgumentNullException.ThrowIfNull(@this);
+
                 return (T)@this.GetValue(@this.GetOrdinal(columnName));
             }
             catch
             {
-                return default(T);
+                return default;
             }
         }
 
@@ -47,6 +55,8 @@ namespace HandStack.Core.ExtensionMethod
         {
             try
             {
+                ArgumentNullException.ThrowIfNull(@this);
+
                 return (T)@this.GetValue(index);
             }
             catch
@@ -59,17 +69,21 @@ namespace HandStack.Core.ExtensionMethod
         {
             try
             {
+                ArgumentNullException.ThrowIfNull(@this);
+
                 return (T)@this.GetValue(index);
             }
             catch
             {
-                return default(T);
+                return default;
             }
         }
 
 
         public static byte[]? GetBytes(this IDataReader @this, string fieldName)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             return (@this[fieldName] as byte[]);
         }
 
@@ -80,12 +94,16 @@ namespace HandStack.Core.ExtensionMethod
 
         public static string? GetString(this IDataReader @this, string fieldName, string? defaultValue)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             var value = @this[fieldName];
             return (value is string ? (string)value : defaultValue);
         }
 
         public static Guid GetGuid(this IDataReader @this, string fieldName)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             var value = @this[fieldName];
             return (value is Guid ? (Guid)value : Guid.Empty);
         }
@@ -97,6 +115,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static DateTime GetDateTime(this IDataReader @this, string fieldName, DateTime defaultValue)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             var value = @this[fieldName];
             return (value is DateTime ? (DateTime)value : defaultValue);
         }
@@ -119,6 +139,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static short GetInt16(this IDataReader @this, string fieldName, short defaultValue)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             var value = @this[fieldName];
             return (value is short ? (short)value : defaultValue);
         }
@@ -130,6 +152,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static ushort GetUInt16(this IDataReader @this, string fieldName, ushort defaultValue)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             var value = @this[fieldName];
             return (value is ushort ? (ushort)value : defaultValue);
         }
@@ -141,6 +165,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static int GetInt32(this IDataReader @this, string fieldName, int defaultValue)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             var value = @this[fieldName];
             return (value is int ? (int)value : defaultValue);
         }
@@ -152,6 +178,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static uint GetUInt32(this IDataReader @this, string fieldName, uint defaultValue)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             var value = @this[fieldName];
             return (value is uint ? (uint)value : defaultValue);
         }
@@ -163,6 +191,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static long GetInt64(this IDataReader @this, string fieldName, long defaultValue)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             var value = @this[fieldName];
             return (value is long ? (long)value : defaultValue);
         }
@@ -174,6 +204,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static ulong GetUInt64(this IDataReader @this, string fieldName, ulong defaultValue)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             var value = @this[fieldName];
             return (value is ulong ? (ulong)value : defaultValue);
         }
@@ -185,6 +217,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static decimal GetDecimal(this IDataReader @this, string fieldName, decimal defaultValue)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             var value = @this[fieldName];
             return (value is decimal ? (decimal)value : defaultValue);
         }
@@ -196,6 +230,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static double GetDouble(this IDataReader @this, string fieldName, double defaultValue)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             var value = @this[fieldName];
             return (value is double ? (double)value : defaultValue);
         }
@@ -207,6 +243,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static float GetSingle(this IDataReader @this, string fieldName, float defaultValue)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             var value = @this[fieldName];
             return (value is float ? (float)value : defaultValue);
         }
@@ -218,6 +256,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static bool GetBoolean(this IDataReader @this, string fieldName, bool defaultValue)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             var value = @this[fieldName];
             return (value is bool ? (bool)value : defaultValue);
         }
@@ -279,14 +319,19 @@ namespace HandStack.Core.ExtensionMethod
 
         public static bool IsDBNull(this IDataReader @this, string fieldName)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             return @this.IsDBNull(@this.GetOrdinal(fieldName));
         }
 
         public static int ReadAll(this IDataReader @this, Action<IDataReader> action)
         {
             var count = 0;
+            ArgumentNullException.ThrowIfNull(@this);
             while (@this.Read())
             {
+                ArgumentNullException.ThrowIfNull(action);
+
                 action(@this);
                 count++;
             }
@@ -295,12 +340,18 @@ namespace HandStack.Core.ExtensionMethod
 
         public static void ToObject(this IDataReader @this, List<string> columnNames, object instance)
         {
+            ArgumentNullException.ThrowIfNull(columnNames);
+
             for (var i = 0; i < columnNames.Count; i++)
             {
+                ArgumentNullException.ThrowIfNull(instance);
+
                 var propertyInfo = instance.GetType().GetProperty(columnNames[i]);
 
                 if (propertyInfo != null)
                 {
+                    ArgumentNullException.ThrowIfNull(@this);
+
                     SetObjectValue(@this, instance, propertyInfo);
                 }
             }
@@ -308,6 +359,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static void ToObject(this IDataReader @this, object instance, params string[] fieldsToSkip)
         {
+            ArgumentNullException.ThrowIfNull(instance);
+
             var propertyInfos = instance.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public);
             foreach (var propertyInfo in propertyInfos)
             {
@@ -321,6 +374,7 @@ namespace HandStack.Core.ExtensionMethod
                     continue;
                 }
 
+                ArgumentNullException.ThrowIfNull(@this);
                 SetObjectValue(@this, instance, propertyInfo);
             }
         }
@@ -356,6 +410,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static bool ColumnExists(this IDataReader reader, string columnName)
         {
+            ArgumentNullException.ThrowIfNull(reader);
+
             for (var i = 0; i < reader.FieldCount; i++)
             {
                 if (reader.GetName(i).Equals(columnName, StringComparison.InvariantCultureIgnoreCase))
@@ -371,6 +427,7 @@ namespace HandStack.Core.ExtensionMethod
         {
             var result = new List<T>();
             var columnNames = new List<string>();
+            ArgumentNullException.ThrowIfNull(@this);
             for (var i = 0; i < @this.FieldCount; i++)
             {
                 columnNames.Add(@this.GetName(i));
@@ -407,6 +464,7 @@ namespace HandStack.Core.ExtensionMethod
         {
             var result = new List<T>();
             PropertyInfo[]? properties = null;
+            ArgumentNullException.ThrowIfNull(@this);
             while (@this.Read())
             {
                 var instance = Activator.CreateInstance<T>();
@@ -433,6 +491,8 @@ namespace HandStack.Core.ExtensionMethod
         {
             try
             {
+                ArgumentNullException.ThrowIfNull(@this);
+
                 return @this.FieldCount > columnIndex;
             }
             catch (Exception)
@@ -445,6 +505,8 @@ namespace HandStack.Core.ExtensionMethod
         {
             try
             {
+                ArgumentNullException.ThrowIfNull(@this);
+
                 return @this.GetOrdinal(columnName) != -1;
             }
             catch (Exception)
@@ -455,8 +517,12 @@ namespace HandStack.Core.ExtensionMethod
 
         public static IDataReader ForEach(this IDataReader @this, Action<IDataReader> action)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             while (@this.Read())
             {
+                ArgumentNullException.ThrowIfNull(action);
+
                 action(@this);
             }
 
@@ -465,6 +531,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static IEnumerable<string> GetColumnNames(this IDataRecord @this)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             var fieldCount = @this.FieldCount;
             var columnNames = new string[fieldCount];
             for (var i = 0; i < fieldCount; i++)
@@ -487,6 +555,7 @@ namespace HandStack.Core.ExtensionMethod
             var type = typeof(T);
             var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
             var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
+            ArgumentNullException.ThrowIfNull(@this);
             var fieldCount = @this.FieldCount;
             var list = new List<T>();
             var hash = new HashSet<string>();
@@ -529,6 +598,7 @@ namespace HandStack.Core.ExtensionMethod
             var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
             var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
             var entity = new T();
+            ArgumentNullException.ThrowIfNull(@this);
             var fieldCount = @this.FieldCount;
             var hash = new HashSet<string>();
             for (var i = 0; i < fieldCount; i++)
@@ -559,6 +629,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static dynamic ToExpandoObject(this IDataReader @this)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             var fieldCount = @this.FieldCount;
             var columnNames = new string[fieldCount];
             for (var i = 0; i < fieldCount; i++)
@@ -578,6 +650,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static IEnumerable<dynamic> ToExpandoObjects(this IDataReader @this)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             var fieldCount = @this.FieldCount;
             var columnNames = new string[fieldCount];
             for (var i = 0; i < fieldCount; i++)

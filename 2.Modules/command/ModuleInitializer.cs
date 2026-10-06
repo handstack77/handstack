@@ -61,7 +61,7 @@ namespace command
                         ModuleConfiguration.CircuitBreakResetSecond = moduleConfig.CircuitBreakResetSecond;
                         ModuleConfiguration.DefaultCommandTimeout = moduleConfig.DefaultCommandTimeout;
                         ModuleConfiguration.DefaultMaxOutputBytes = moduleConfig.DefaultMaxOutputBytes;
-                        ModuleConfiguration.AllowedExecutableBasePaths = (moduleConfig.Security?.AllowedExecutableBasePaths ?? new List<string>())
+                        ModuleConfiguration.AllowedExecutableBasePaths = (moduleConfig.Security?.AllowedExecutableBasePaths ?? [])
                             .Where(p => string.IsNullOrWhiteSpace(p) == false)
                             .Select(p => GlobalConfiguration.GetBaseDirectoryPath(p.Trim()).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar))
                             .Distinct(StringComparer.OrdinalIgnoreCase)
@@ -82,7 +82,7 @@ namespace command
                         ModuleConfiguration.CommandFileSyncManager.Clear();
                         ModuleConfiguration.ContractBasePath.Clear();
                         ModuleConfiguration.IsContractFileWatching = moduleConfig.IsContractFileWatching;
-                        foreach (var basePath in moduleConfig.ContractBasePath ?? new List<string>())
+                        foreach (var basePath in moduleConfig.ContractBasePath ?? [])
                         {
                             var contractBasePath = GlobalConfiguration.GetBaseDirectoryPath(basePath);
                             if (string.IsNullOrWhiteSpace(contractBasePath) == false && ModuleConfiguration.ContractBasePath.Contains(contractBasePath) == false)
@@ -99,7 +99,7 @@ namespace command
                             ModuleConfiguration.ModuleLogger = loggerConfiguration.CreateLogger();
                         }
 
-                        ModuleConfiguration.AllowClientIP = (moduleConfig.AllowClientIP ?? new List<string>() { "*" })
+                        ModuleConfiguration.AllowClientIP = (moduleConfig.AllowClientIP ?? ["*"])
                             .Where(p => string.IsNullOrWhiteSpace(p) == false)
                             .Select(p => p.Trim())
                             .Distinct(StringComparer.OrdinalIgnoreCase)
@@ -125,6 +125,7 @@ namespace command
                     throw new FileNotFoundException(message);
                 }
 
+                ArgumentNullException.ThrowIfNull(environment);
                 CommandMapper.LoadContract(environment.EnvironmentName, Log.Logger, configuration);
 
                 services.AddHttpClient(ModuleConfiguration.ModuleID);
@@ -213,6 +214,7 @@ namespace command
                 }
             }
 
+            ArgumentNullException.ThrowIfNull(app);
             var serviceScopeFactory = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>();
             foreach (var basePath in ModuleConfiguration.ContractBasePath)
             {
@@ -257,7 +259,7 @@ namespace command
 
     internal class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
             Console.WriteLine("command");
         }

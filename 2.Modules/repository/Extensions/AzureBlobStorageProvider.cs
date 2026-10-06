@@ -1,14 +1,11 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
-
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
-
-using HandStack.Web.Entity;
-
-using repository.Entity;
 using HandStack.Core.ExtensionMethod;
+using HandStack.Web.Entity;
+using repository.Entity;
 
 namespace repository.Extensions
 {
@@ -18,6 +15,8 @@ namespace repository.Extensions
 
         public AzureBlobStorageProvider(Repository repository)
         {
+            ArgumentNullException.ThrowIfNull(repository);
+
             containerClient = new BlobContainerClient(repository.BlobConnectionString, repository.BlobContainerID.ToLower());
             containerClient.CreateIfNotExists(PublicAccessType.Blob);
         }
@@ -66,6 +65,7 @@ namespace repository.Extensions
         {
             var blobClient = containerClient.GetBlobClient(blobID);
             var headers = new BlobHttpHeaders { ContentType = contentType };
+            ArgumentNullException.ThrowIfNull(content);
             content.Position = 0;
             await blobClient.UploadAsync(content, headers);
 
@@ -85,6 +85,7 @@ namespace repository.Extensions
             string newBlobID;
             var i = 1;
             var extension = Path.GetExtension(blobID);
+            ArgumentNullException.ThrowIfNull(blobID);
             var baseBlobID = blobID.SubstringSafe(0, blobID.Length - extension.Length);
 
             do

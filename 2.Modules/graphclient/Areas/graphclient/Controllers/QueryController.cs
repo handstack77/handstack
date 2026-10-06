@@ -30,20 +30,12 @@ namespace graphclient.Areas.graphclient.Controllers
     [Route("[area]/api/[controller]")]
     [ApiController]
     [EnableCors]
-    public class QueryController : BaseController
+    public class QueryController(Serilog.ILogger logger, IGraphDataClient dataClient, GraphClientLoggerClient loggerClient, IMediator mediator) : BaseController
     {
-        private readonly GraphClientLoggerClient loggerClient;
-        private readonly Serilog.ILogger logger;
-        private readonly IGraphDataClient dataClient;
-        private readonly IMediator mediator;
-
-        public QueryController(Serilog.ILogger logger, IGraphDataClient dataClient, GraphClientLoggerClient loggerClient, IMediator mediator)
-        {
-            this.logger = logger;
-            this.dataClient = dataClient;
-            this.loggerClient = loggerClient;
-            this.mediator = mediator;
-        }
+        private readonly GraphClientLoggerClient loggerClient = loggerClient;
+        private readonly Serilog.ILogger logger = logger;
+        private readonly IGraphDataClient dataClient = dataClient;
+        private readonly IMediator mediator = mediator;
 
         [HttpGet("[action]")]
         public ActionResult Has(string applicationID, string projectID, string transactionID, string functionID)
@@ -166,7 +158,7 @@ namespace graphclient.Areas.graphclient.Controllers
                     ApplicationID = item.ApplicationID,
                     ProjectID = item.ProjectID,
                     TransactionID = item.TransactionID,
-                    ServiceID = item.StatementID.Substring(0, item.StatementID.Length - 2),
+                    ServiceID = item.StatementID[..^2],
                     Seq = item.Seq,
                     Description = item.Description,
                     Parameters = item.Parameters.Select(parameterMap => new QueryReportParameter
@@ -195,7 +187,7 @@ namespace graphclient.Areas.graphclient.Controllers
                 ? parameterName
                 : parameterName[0] switch
                 {
-                    '@' or ':' or '$' or '#' => parameterName.Substring(1),
+                    '@' or ':' or '$' or '#' => parameterName[1..],
                     _ => parameterName
                 };
         }

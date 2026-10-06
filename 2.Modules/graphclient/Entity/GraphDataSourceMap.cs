@@ -6,7 +6,7 @@ namespace graphclient.Entity
     {
         public string ApplicationID { get; set; } = string.Empty;
 
-        public List<string> ProjectListID { get; set; } = new();
+        public List<string> ProjectListID { get; set; } = [];
 
         public string DataSourceID { get; set; } = string.Empty;
 

@@ -24,16 +24,14 @@ namespace function.Builder
 
         public object? ExecuteDynamicText(HttpContext? httpContext, string sourceText, string queryID, string typeName, string methodName, params object[] args)
         {
-            object? result = null;
-            result = ExecuteDynamicMethod(httpContext, false, sourceText, queryID, typeName, methodName, args);
+            var result = ExecuteDynamicMethod(httpContext, false, sourceText, queryID, typeName, methodName, args);
 
             return result;
         }
 
         public object? ExecuteDynamicFile(HttpContext? httpContext, string sourceFilePath, string queryID, string typeName, string methodName, params object[] args)
         {
-            object? result = null;
-            result = ExecuteDynamicMethod(httpContext, true, sourceFilePath, queryID, typeName, methodName, args);
+            var result = ExecuteDynamicMethod(httpContext, true, sourceFilePath, queryID, typeName, methodName, args);
 
             return result;
         }
@@ -42,6 +40,7 @@ namespace function.Builder
         {
             object? result = null;
 
+            ArgumentNullException.ThrowIfNull(moduleScriptMap);
             var typeName = moduleScriptMap.EntryType.ToStringSafe();
             var methodName = moduleScriptMap.EntryMethod.ToStringSafe();
             var referenceModuleID = moduleScriptMap.ReferenceModuleID.ToStringSafe();
@@ -78,7 +77,7 @@ namespace function.Builder
                 var myType = entryAssembly.GetType(typeName);
                 if (myType != null)
                 {
-                    object? myObject = null;
+                    object? myObject;
                     if (httpContext == null)
                     {
                         myObject = Activator.CreateInstance(myType);
@@ -149,7 +148,7 @@ namespace function.Builder
                 var myType = entryAssembly.GetType(typeName);
                 if (myType != null)
                 {
-                    object? myObject = null;
+                    object? myObject;
                     if (httpContext == null)
                     {
                         myObject = Activator.CreateInstance(myType);
@@ -206,7 +205,7 @@ namespace function.Builder
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
-        private Tuple<object?, WeakReference> LoadAndExecute(HttpContext? httpContext, byte[] compiledAssembly, string typeName, string methodName, params string[] args)
+        private static Tuple<object?, WeakReference> LoadAndExecute(HttpContext? httpContext, byte[] compiledAssembly, string typeName, string methodName, params string[] args)
         {
             Tuple<object?, WeakReference>? result = null;
             using (var asm = new MemoryStream(compiledAssembly))

@@ -7,6 +7,8 @@ namespace HandStack.Core.ExtensionMethod
     {
         public static byte[]? GetBytes(this DataRowView @this, string fieldName)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             return (@this[fieldName] as byte[]);
         }
 
@@ -17,12 +19,16 @@ namespace HandStack.Core.ExtensionMethod
 
         public static string? GetString(this DataRowView @this, string fieldName, string? defaultValue)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             var value = @this[fieldName];
             return (value is string ? (string)value : defaultValue);
         }
 
         public static Guid GetGuid(this DataRowView @this, string fieldName)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             var value = @this[fieldName];
             return (value is Guid ? (Guid)value : Guid.Empty);
         }
@@ -34,6 +40,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static DateTime GetDateTime(this DataRowView @this, string fieldName, DateTime defaultValue)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             var value = @this[fieldName];
             return (value is DateTime ? (DateTime)value : defaultValue);
         }
@@ -56,6 +64,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static short GetInt16(this DataRowView @this, string fieldName, short defaultValue)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             var value = @this[fieldName];
             return (value is short ? (short)value : defaultValue);
         }
@@ -67,6 +77,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static ushort GetUInt16(this DataRowView @this, string fieldName, ushort defaultValue)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             var value = @this[fieldName];
             return (value is ushort ? (ushort)value : defaultValue);
         }
@@ -78,6 +90,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static int GetInt32(this DataRowView @this, string fieldName, int defaultValue)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             var value = @this[fieldName];
             return (value is int ? (int)value : defaultValue);
         }
@@ -89,6 +103,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static uint GetUInt32(this DataRowView @this, string fieldName, uint defaultValue)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             var value = @this[fieldName];
             return (value is uint ? (uint)value : defaultValue);
         }
@@ -100,6 +116,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static long GetInt64(this DataRowView @this, string fieldName, long defaultValue)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             var value = @this[fieldName];
             return (value is long ? (long)value : defaultValue);
         }
@@ -111,6 +129,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static ulong GetUInt64(this DataRowView @this, string fieldName, ulong defaultValue)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             var value = @this[fieldName];
             return (value is ulong ? (ulong)value : defaultValue);
         }
@@ -122,6 +142,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static decimal GetDecimal(this DataRowView @this, string fieldName, decimal defaultValue)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             var value = @this[fieldName];
             return (value is decimal ? (decimal)value : defaultValue);
         }
@@ -133,6 +155,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static double GetDouble(this DataRowView @this, string fieldName, double defaultValue)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             var value = @this[fieldName];
             return (value is double ? (double)value : defaultValue);
         }
@@ -144,6 +168,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static float GetSingle(this DataRowView @this, string fieldName, float defaultValue)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             var value = @this[fieldName];
             return (value is float ? (float)value : defaultValue);
         }
@@ -155,12 +181,16 @@ namespace HandStack.Core.ExtensionMethod
 
         public static bool GetBoolean(this DataRowView @this, string fieldName, bool defaultValue)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             var value = @this[fieldName];
             return (value is bool ? (bool)value : defaultValue);
         }
 
         public static bool IsDBNull(this DataRowView @this, string fieldName)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             var value = @this[fieldName];
             return (value == DBNull.Value);
         }

@@ -23,7 +23,7 @@ namespace HandStack.Web.MessageContract.Contract
             ResponseStatus = "";
             MainCode = "";
             MainText = "";
-            Additions = new List<Addition>();
+            Additions = [];
         }
     }
 }

@@ -25,34 +25,28 @@ namespace agent.Controllers
 {
     [Route("modules")]
     [ServiceFilter(typeof(ManagementKeyActionFilter))]
-    public sealed class ModulesController : AgentControllerBase
+    public sealed partial class ModulesController(
+        ITargetProcessManager targetProcessManager,
+        IHttpClientFactory httpClientFactory) : AgentControllerBase
     {
         private const string HttpClientName = "ack-runtime";
 
-        private static readonly Regex portRegex = new Regex(@"--port(?:=|\s+)(?<port>\d{2,5})", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex portRegex = MyRegex();
 
-        private static readonly JsonSerializerOptions writeJsonOptions = new JsonSerializerOptions
+        private static readonly JsonSerializerOptions writeJsonOptions = new()
         {
             WriteIndented = true,
             PropertyNamingPolicy = null
         };
 
-        private static readonly JsonDocumentOptions readJsonOptions = new JsonDocumentOptions
+        private static readonly JsonDocumentOptions readJsonOptions = new()
         {
             AllowTrailingCommas = true,
             CommentHandling = JsonCommentHandling.Skip
         };
 
-        private readonly ITargetProcessManager targetProcessManager;
-        private readonly IHttpClientFactory httpClientFactory;
-
-        public ModulesController(
-            ITargetProcessManager targetProcessManager,
-            IHttpClientFactory httpClientFactory)
-        {
-            this.targetProcessManager = targetProcessManager;
-            this.httpClientFactory = httpClientFactory;
-        }
+        private readonly ITargetProcessManager targetProcessManager = targetProcessManager;
+        private readonly IHttpClientFactory httpClientFactory = httpClientFactory;
 
         [HttpGet("{targetAckId}/{moduleId}")]
         public async Task<ActionResult> GetModule(
@@ -71,6 +65,8 @@ namespace agent.Controllers
             [FromBody] JsonObject payload,
             CancellationToken cancellationToken)
         {
+            ArgumentNullException.ThrowIfNull(payload);
+
             var result = await SaveModuleResultAsync(moduleId, targetAckId, payload, cancellationToken);
             return ToOperationResult(result);
         }
@@ -485,8 +481,7 @@ namespace agent.Controllers
         private static List<string> ReadStringArray(JsonNode? node, string propertyName)
         {
             var result = new List<string>();
-            var array = node?[propertyName] as JsonArray;
-            if (array is null)
+            if (node?[propertyName] is not JsonArray array)
             {
                 return result;
             }
@@ -508,42 +503,26 @@ namespace agent.Controllers
             return path.StartsWith("ModuleConfig:", StringComparison.OrdinalIgnoreCase) == true;
         }
 
-        private sealed class TargetContext
+        private sealed class TargetContext(TargetProcessOptions target, string appSettingsPath, JsonObject appSettingsRoot)
         {
-            public TargetContext(TargetProcessOptions target, string appSettingsPath, JsonObject appSettingsRoot)
-            {
-                Target = target;
-                AppSettingsPath = appSettingsPath;
-                AppSettingsRoot = appSettingsRoot;
-            }
+            public TargetProcessOptions Target { get; } = target;
 
-            public TargetProcessOptions Target { get; }
+            public string AppSettingsPath { get; } = appSettingsPath;
 
-            public string AppSettingsPath { get; }
-
-            public JsonObject AppSettingsRoot { get; }
+            public JsonObject AppSettingsRoot { get; } = appSettingsRoot;
         }
 
-        private sealed class ModuleContext
+        private sealed class ModuleContext(ModulesController.TargetContext targetContext, string moduleId, string moduleFilePath, JsonObject moduleRoot)
         {
-            public ModuleContext(TargetContext targetContext, string moduleId, string moduleFilePath, JsonObject moduleRoot)
-            {
-                TargetContext = targetContext;
-                Target = targetContext.Target;
-                ModuleId = moduleId;
-                ModuleFilePath = moduleFilePath;
-                ModuleRoot = moduleRoot;
-            }
+            public TargetContext TargetContext { get; } = targetContext;
 
-            public TargetContext TargetContext { get; }
+            public TargetProcessOptions Target { get; } = targetContext.Target;
 
-            public TargetProcessOptions Target { get; }
+            public string ModuleId { get; } = moduleId;
 
-            public string ModuleId { get; }
+            public string ModuleFilePath { get; } = moduleFilePath;
 
-            public string ModuleFilePath { get; }
-
-            public JsonObject ModuleRoot { get; }
+            public JsonObject ModuleRoot { get; } = moduleRoot;
         }
 
         private sealed class RuntimeApplyResult
@@ -552,12 +531,15 @@ namespace agent.Controllers
 
             public JsonNode? ResultNode { get; set; }
 
-            public List<string> AppliedKeys { get; set; } = new List<string>();
+            public List<string> AppliedKeys { get; set; } = [];
 
-            public List<string> RestartRequiredKeys { get; set; } = new List<string>();
+            public List<string> RestartRequiredKeys { get; set; } = [];
 
-            public List<string> Errors { get; set; } = new List<string>();
+            public List<string> Errors { get; set; } = [];
         }
+
+        [GeneratedRegex(@"--port(?:=|\s+)(?<port>\d{2,5})", RegexOptions.IgnoreCase | RegexOptions.Compiled, "ko-KR")]
+        private static partial Regex MyRegex();
     }
 }
 

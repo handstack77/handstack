@@ -31,26 +31,17 @@ namespace prompter.Areas.prompter.Controllers
     [Route("[area]/api/[controller]")]
     [ApiController]
     [EnableCors]
-    public class ManagedController : BaseController
+    public partial class ManagedController(ILogger logger, PromptBuiltinToolService builtinToolService) : BaseController
     {
-        private ILogger logger { get; }
-        private IConfiguration configuration { get; }
-        private IWebHostEnvironment environment { get; }
-        private PromptBuiltinToolService builtinToolService { get; }
-
-        public ManagedController(IWebHostEnvironment environment, ILogger logger, IConfiguration configuration, PromptBuiltinToolService builtinToolService)
-        {
-            this.configuration = configuration;
-            this.environment = environment;
-            this.logger = logger;
-            this.builtinToolService = builtinToolService;
-        }
+        private ILogger logger { get; } = logger;
+        private PromptBuiltinToolService builtinToolService { get; } = builtinToolService;
 
         // http://localhost:8421/prompter/api/managed/reset-contract
         [HttpGet("[action]")]
         public ActionResult ResetContract()
         {
-            ActionResult result = BadRequest();
+            _ = BadRequest();
+            ActionResult result;
             if (HttpContext.IsAllowAuthorization() == false)
             {
                 result = BadRequest();
@@ -63,7 +54,7 @@ namespace prompter.Areas.prompter.Controllers
                     {
                         PromptMapper.DataSourceMappings.Clear();
                         PromptMapper.PromptMappings.Clear();
-                        PromptMapper.LoadContract(environment.EnvironmentName, Log.Logger, configuration);
+                        PromptMapper.LoadContract(Log.Logger);
                     }
 
                     result = Ok();
@@ -95,14 +86,14 @@ namespace prompter.Areas.prompter.Controllers
                         try
                         {
                             var dataSourceMappings = PromptMapper.DataSourceMappings.Where(x => x.Value.ApplicationID == applicationID).ToList();
-                            for (var i = dataSourceMappings.Count(); i > 0; i--)
+                            for (var i = dataSourceMappings.Count; i > 0; i--)
                             {
                                 var item = dataSourceMappings[i - 1].Key;
                                 PromptMapper.DataSourceMappings.Remove(item);
                             }
 
                             var promptMappings = PromptMapper.PromptMappings.Where(x => x.Value.ApplicationID == applicationID).ToList();
-                            for (var i = promptMappings.Count(); i > 0; i--)
+                            for (var i = promptMappings.Count; i > 0; i--)
                             {
                                 var item = promptMappings[i - 1].Key;
                                 PromptMapper.PromptMappings.Remove(item);
@@ -143,21 +134,25 @@ namespace prompter.Areas.prompter.Controllers
                                     {
                                         foreach (var item in dataSourceJson)
                                         {
-                                            var tanantMap = new DataSourceTanantKey();
-                                            tanantMap.ApplicationID = item.ApplicationID;
-                                            tanantMap.DataSourceID = item.DataSourceID;
-                                            tanantMap.TanantPattern = item.TanantPattern;
-                                            tanantMap.TanantValue = item.TanantValue;
+                                            var tanantMap = new DataSourceTanantKey
+                                            {
+                                                ApplicationID = item.ApplicationID,
+                                                DataSourceID = item.DataSourceID,
+                                                TanantPattern = item.TanantPattern,
+                                                TanantValue = item.TanantValue
+                                            };
 
                                             if (PromptMapper.DataSourceMappings.ContainsKey(tanantMap) == false)
                                             {
-                                                var dataSourceMap = new DataSourceMap();
-                                                dataSourceMap.ApplicationID = item.ApplicationID;
-                                                dataSourceMap.ProjectListID = item.ProjectID.Split(",").Where(s => string.IsNullOrWhiteSpace(s) == false).Distinct().ToList();
-                                                dataSourceMap.LLMProvider = PromptMapper.ParseLLMProvider(string.IsNullOrWhiteSpace(item.LLMProvider) == true ? item.DataProvider : item.LLMProvider);
-                                                dataSourceMap.ApiKey = item.IsEncryption.ParseBool() == true ? PromptMapper.DecryptApiKey(item) : item.ApiKey;
-                                                dataSourceMap.ModelID = item.ModelID;
-                                                dataSourceMap.Endpoint = item.Endpoint;
+                                                var dataSourceMap = new DataSourceMap
+                                                {
+                                                    ApplicationID = item.ApplicationID,
+                                                    ProjectListID = item.ProjectID.Split(",").Where(s => string.IsNullOrWhiteSpace(s) == false).Distinct().ToList(),
+                                                    LLMProvider = PromptMapper.ParseLLMProvider(string.IsNullOrWhiteSpace(item.LLMProvider) == true ? item.DataProvider : item.LLMProvider),
+                                                    ApiKey = item.IsEncryption.ParseBool() == true ? PromptMapper.DecryptApiKey(item) : item.ApiKey,
+                                                    ModelID = item.ModelID,
+                                                    Endpoint = item.Endpoint
+                                                };
 
                                                 if (PromptMapper.DataSourceMappings.ContainsKey(tanantMap) == false)
                                                 {
@@ -234,7 +229,8 @@ namespace prompter.Areas.prompter.Controllers
         [HttpGet("skill-search")]
         public async Task<ActionResult> SkillSearch(string query, int limit = 5)
         {
-            ActionResult result = BadRequest();
+            _ = BadRequest();
+            ActionResult result;
             if (HttpContext.IsAllowAuthorization() == false)
             {
                 result = BadRequest();
@@ -259,7 +255,8 @@ namespace prompter.Areas.prompter.Controllers
         [HttpPost("skill-install")]
         public async Task<ActionResult> SkillInstall([FromBody] SkillInstallRequest request)
         {
-            ActionResult result = BadRequest();
+            _ = BadRequest();
+            ActionResult result;
             if (HttpContext.IsAllowAuthorization() == false)
             {
                 result = BadRequest();
@@ -282,7 +279,7 @@ namespace prompter.Areas.prompter.Controllers
 
         public static string ReplaceCData(string rawText)
         {
-            var matches = Regex.Matches(rawText, "(<!\\[CDATA\\[)([\\s\\S]*?)(\\]\\]>)");
+            var matches = MyRegex().Matches(rawText);
 
             if (matches != null && matches.Count > 0)
             {
@@ -294,11 +291,15 @@ namespace prompter.Areas.prompter.Controllers
                     cdataText = cdataText.Replace(">", "&gt;");
                     cdataText = cdataText.Replace("\"", "&quot;");
 
+                    ArgumentNullException.ThrowIfNull(rawText);
                     rawText = rawText.Replace(match.Value, cdataText);
                 }
             }
             return rawText;
         }
+
+        [GeneratedRegex("(<!\\[CDATA\\[)([\\s\\S]*?)(\\]\\]>)")]
+        private static partial Regex MyRegex();
     }
 
     public record SkillInstallRequest

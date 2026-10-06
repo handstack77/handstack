@@ -27,20 +27,13 @@ namespace repository.Areas.repository.Controllers
     [Area("repository")]
     [Route("[area]/api/[controller]")]
     [ApiController]
-    public class ManagedController : BaseController
+    public class ManagedController(IWebHostEnvironment environment, IConfiguration configuration, ModuleApiClient moduleApiClient) : BaseController
     {
-        private IConfiguration configuration { get; }
+        private IConfiguration configuration { get; } = configuration;
 
-        private IWebHostEnvironment environment { get; }
+        private IWebHostEnvironment environment { get; } = environment;
 
-        private readonly ModuleApiClient moduleApiClient;
-
-        public ManagedController(IWebHostEnvironment environment, IConfiguration configuration, ModuleApiClient moduleApiClient)
-        {
-            this.configuration = configuration;
-            this.environment = environment;
-            this.moduleApiClient = moduleApiClient;
-        }
+        private readonly ModuleApiClient moduleApiClient = moduleApiClient;
 
         // http://localhost:8421/repository/api/managed/reset-app-contract?userWorkID=userWorkID&applicationID=helloworld
         [HttpGet("[action]")]
@@ -58,7 +51,7 @@ namespace repository.Areas.repository.Controllers
                     lock (ModuleConfiguration.FileRepositorys)
                     {
                         var appRepositorys = ModuleConfiguration.FileRepositorys.Where(x => x.UserWorkID == userWorkID && x.ApplicationID == applicationID).ToList();
-                        for (var i = appRepositorys.Count(); i > 0; i--)
+                        for (var i = appRepositorys.Count; i > 0; i--)
                         {
                             var item = appRepositorys[i - 1];
                             ModuleConfiguration.FileRepositorys.Remove(item);
@@ -79,40 +72,41 @@ namespace repository.Areas.repository.Controllers
                                     {
                                         foreach (var storage in storages)
                                         {
-                                            var repository = new Repository();
-
-                                            repository.ApplicationID = storage.ApplicationID;
-                                            repository.RepositoryID = storage.RepositoryID;
-                                            repository.RepositoryName = storage.RepositoryName;
-                                            repository.AccessID = storage.AccessID;
-                                            repository.StorageType = storage.StorageType;
-                                            repository.PhysicalPath = storage.PhysicalPath;
-                                            repository.BlobContainerID = storage.BlobContainerID;
-                                            repository.BlobConnectionString = storage.BlobConnectionString;
-                                            repository.BlobItemUrl = storage.BlobItemUrl;
-                                            repository.IsVirtualPath = storage.IsVirtualPath;
-                                            repository.AccessMethod = storage.AccessMethod;
-                                            repository.IsFileUploadDownloadOnly = storage.IsFileUploadDownloadOnly;
-                                            repository.IsMultiUpload = storage.IsMultiUpload;
-                                            repository.IsFileOverWrite = storage.IsFileOverWrite;
-                                            repository.IsFileNameEncrypt = storage.IsFileNameEncrypt;
-                                            repository.IsKeepFileExtension = storage.IsKeepFileExtension;
-                                            repository.IsAutoPath = storage.IsAutoPath;
-                                            repository.PolicyPathID = storage.PolicyPathID;
-                                            repository.UploadTypeID = storage.UploadTypeID;
-                                            repository.UploadExtensions = storage.UploadExtensions;
-                                            repository.UploadCount = storage.UploadCount;
-                                            repository.UploadSizeLimit = storage.UploadSizeLimit;
-                                            repository.IsLocalDbFileManaged = storage.IsLocalDbFileManaged;
-                                            repository.SQLiteConnectionString = storage.SQLiteConnectionString;
-                                            repository.TransactionGetItem = storage.TransactionGetItem;
-                                            repository.TransactionDeleteItem = storage.TransactionDeleteItem;
-                                            repository.TransactionUpsertItem = storage.TransactionUpsertItem;
-                                            repository.TransactionUpdateDependencyID = storage.TransactionUpdateDependencyID;
-                                            repository.TransactionUpdateFileName = storage.TransactionUpdateFileName;
-                                            repository.Comment = storage.Comment;
-                                            repository.CreatedAt = storage.CreatedAt;
-                                            repository.ModifiedAt = storage.ModifiedAt;
+                                            var repository = new Repository
+                                            {
+                                                ApplicationID = storage.ApplicationID,
+                                                RepositoryID = storage.RepositoryID,
+                                                RepositoryName = storage.RepositoryName,
+                                                AccessID = storage.AccessID,
+                                                StorageType = storage.StorageType,
+                                                PhysicalPath = storage.PhysicalPath,
+                                                BlobContainerID = storage.BlobContainerID,
+                                                BlobConnectionString = storage.BlobConnectionString,
+                                                BlobItemUrl = storage.BlobItemUrl,
+                                                IsVirtualPath = storage.IsVirtualPath,
+                                                AccessMethod = storage.AccessMethod,
+                                                IsFileUploadDownloadOnly = storage.IsFileUploadDownloadOnly,
+                                                IsMultiUpload = storage.IsMultiUpload,
+                                                IsFileOverWrite = storage.IsFileOverWrite,
+                                                IsFileNameEncrypt = storage.IsFileNameEncrypt,
+                                                IsKeepFileExtension = storage.IsKeepFileExtension,
+                                                IsAutoPath = storage.IsAutoPath,
+                                                PolicyPathID = storage.PolicyPathID,
+                                                UploadTypeID = storage.UploadTypeID,
+                                                UploadExtensions = storage.UploadExtensions,
+                                                UploadCount = storage.UploadCount,
+                                                UploadSizeLimit = storage.UploadSizeLimit,
+                                                IsLocalDbFileManaged = storage.IsLocalDbFileManaged,
+                                                SQLiteConnectionString = storage.SQLiteConnectionString,
+                                                TransactionGetItem = storage.TransactionGetItem,
+                                                TransactionDeleteItem = storage.TransactionDeleteItem,
+                                                TransactionUpsertItem = storage.TransactionUpsertItem,
+                                                TransactionUpdateDependencyID = storage.TransactionUpdateDependencyID,
+                                                TransactionUpdateFileName = storage.TransactionUpdateFileName,
+                                                Comment = storage.Comment,
+                                                CreatedAt = storage.CreatedAt,
+                                                ModifiedAt = storage.ModifiedAt
+                                            };
 
                                             var findRepository = ModuleConfiguration.FileRepositorys.FirstOrDefault(p => p.ApplicationID == repository.ApplicationID
                                                 && p.RepositoryID == repository.RepositoryID
@@ -150,7 +144,7 @@ namespace repository.Areas.repository.Controllers
                                 if (System.IO.File.Exists(repositoryFile) == true)
                                 {
                                     var repositoryText = System.IO.File.ReadAllText(repositoryFile);
-                                    if (repositoryText.StartsWith("{") == true)
+                                    if (repositoryText.StartsWith('{') == true)
                                     {
                                         var repository = JsonConvert.DeserializeObject<Repository>(repositoryText);
                                         if (repository != null)
@@ -182,7 +176,7 @@ namespace repository.Areas.repository.Controllers
                                             }
                                         }
                                     }
-                                    else if (repositoryText.StartsWith("[") == true)
+                                    else if (repositoryText.StartsWith('[') == true)
                                     {
                                         var repositorys = JsonConvert.DeserializeObject<List<Repository>>(repositoryText);
                                         if (repositorys != null)
@@ -253,7 +247,7 @@ namespace repository.Areas.repository.Controllers
                     lock (ModuleConfiguration.FileRepositorys)
                     {
                         var appRepositorys = ModuleConfiguration.FileRepositorys.Where(x => x.UserWorkID == userWorkID && x.ApplicationID == applicationID).ToList();
-                        for (var i = appRepositorys.Count(); i > 0; i--)
+                        for (var i = appRepositorys.Count; i > 0; i--)
                         {
                             var item = appRepositorys[i - 1];
                             ModuleConfiguration.FileRepositorys.Remove(item);
@@ -271,7 +265,7 @@ namespace repository.Areas.repository.Controllers
             return result;
         }
 
-        private AppSettings? TryReadTenantAppSettings(string settingFilePath, string logCategory)
+        private static AppSettings? TryReadTenantAppSettings(string settingFilePath, string logCategory)
         {
             try
             {

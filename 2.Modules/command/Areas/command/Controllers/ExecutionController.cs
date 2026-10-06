@@ -27,26 +27,19 @@ namespace command.Areas.command.Controllers
     [Route("[area]/api/[controller]")]
     [ApiController]
     [EnableCors]
-    public class ExecutionController : BaseController
+    public class ExecutionController(Serilog.ILogger logger, ICommandDataClient dataClient, CommandLoggerClient loggerClient, IMediator mediator) : BaseController
     {
-        private readonly CommandLoggerClient loggerClient;
-        private readonly Serilog.ILogger logger;
-        private readonly ICommandDataClient dataClient;
-        private readonly IMediator mediator;
-
-        public ExecutionController(Serilog.ILogger logger, ICommandDataClient dataClient, CommandLoggerClient loggerClient, IMediator mediator)
-        {
-            this.logger = logger;
-            this.dataClient = dataClient;
-            this.loggerClient = loggerClient;
-            this.mediator = mediator;
-        }
+        private readonly CommandLoggerClient loggerClient = loggerClient;
+        private readonly Serilog.ILogger logger = logger;
+        private readonly ICommandDataClient dataClient = dataClient;
+        private readonly IMediator mediator = mediator;
 
         // http://localhost:8421/command/api/execution/has
         [HttpGet("[action]")]
         public ActionResult Has(string applicationID, string projectID, string transactionID, string functionID)
         {
-            ActionResult result = BadRequest();
+            _ = BadRequest();
+            ActionResult result;
             if (HttpContext.IsAllowAuthorization() == false)
             {
                 result = BadRequest();
@@ -72,7 +65,8 @@ namespace command.Areas.command.Controllers
         [HttpGet("[action]")]
         public async Task<ActionResult> Refresh(string changeType, string filePath, string? userWorkID, string? applicationID)
         {
-            ActionResult result = NotFound();
+            _ = NotFound();
+            ActionResult result;
             if (HttpContext.IsAllowAuthorization() == false)
             {
                 result = BadRequest();
@@ -175,8 +169,10 @@ namespace command.Areas.command.Controllers
         public async Task<ActionResult> Execute(DynamicRequest request)
         {
             ActionResult result = BadRequest();
-            var response = new DynamicResponse();
-            response.Acknowledge = AcknowledgeType.Failure;
+            var response = new DynamicResponse
+            {
+                Acknowledge = AcknowledgeType.Failure
+            };
 
             if (request == null)
             {

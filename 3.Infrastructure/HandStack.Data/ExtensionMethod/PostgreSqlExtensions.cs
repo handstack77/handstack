@@ -39,6 +39,8 @@ namespace HandStack.Data.ExtensionMethod
 
         public static DataSet ExecuteDataSet(this NpgsqlConnection @this, string cmdText, NpgsqlParameter[]? parameters, CommandType commandType, NpgsqlTransaction? transaction)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
             command.CommandText = cmdText;
             command.CommandType = commandType;
@@ -60,7 +62,10 @@ namespace HandStack.Data.ExtensionMethod
 
         public static DataSet ExecuteDataSet(this NpgsqlConnection @this, Action<NpgsqlCommand> commandFactory)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
+            ArgumentNullException.ThrowIfNull(commandFactory);
             commandFactory(command);
 
             var ds = new DataSet();
@@ -109,6 +114,8 @@ namespace HandStack.Data.ExtensionMethod
 
         public static DataTable ExecuteDataTable(this NpgsqlConnection @this, string cmdText, NpgsqlParameter[]? parameters, CommandType commandType, NpgsqlTransaction? transaction)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
             command.CommandText = cmdText;
             command.CommandType = commandType;
@@ -130,7 +137,10 @@ namespace HandStack.Data.ExtensionMethod
 
         public static DataTable ExecuteDataTable(this NpgsqlConnection @this, Action<NpgsqlCommand> commandFactory)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
+            ArgumentNullException.ThrowIfNull(commandFactory);
             commandFactory(command);
 
             var ds = new DataSet();
@@ -179,6 +189,8 @@ namespace HandStack.Data.ExtensionMethod
 
         public static IEnumerable<T> ExecuteEntities<T>(this NpgsqlConnection @this, string cmdText, NpgsqlParameter[]? parameters, CommandType commandType, NpgsqlTransaction? transaction) where T : new()
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
             command.CommandText = cmdText;
             command.CommandType = commandType;
@@ -195,7 +207,10 @@ namespace HandStack.Data.ExtensionMethod
 
         public static IEnumerable<T> ExecuteEntities<T>(this NpgsqlConnection @this, Action<NpgsqlCommand> commandFactory) where T : new()
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
+            ArgumentNullException.ThrowIfNull(commandFactory);
             commandFactory(command);
 
             using IDataReader reader = command.ExecuteReader();
@@ -239,6 +254,8 @@ namespace HandStack.Data.ExtensionMethod
 
         public static T ExecuteEntity<T>(this NpgsqlConnection @this, string cmdText, NpgsqlParameter[]? parameters, CommandType commandType, NpgsqlTransaction? transaction) where T : new()
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
             command.CommandText = cmdText;
             command.CommandType = commandType;
@@ -249,17 +266,20 @@ namespace HandStack.Data.ExtensionMethod
                 command.Parameters.AddRange(parameters);
             }
 
-            using IDataReader reader = command.ExecuteReader();
+            using NpgsqlDataReader reader = command.ExecuteReader();
             reader.Read();
             return reader.ToEntity<T>();
         }
 
         public static T ExecuteEntity<T>(this NpgsqlConnection @this, Action<NpgsqlCommand> commandFactory) where T : new()
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
+            ArgumentNullException.ThrowIfNull(commandFactory);
             commandFactory(command);
 
-            using IDataReader reader = command.ExecuteReader();
+            using NpgsqlDataReader reader = command.ExecuteReader();
             reader.Read();
             return reader.ToEntity<T>();
         }
@@ -301,6 +321,8 @@ namespace HandStack.Data.ExtensionMethod
 
         public static dynamic ExecuteExpandoObject(this NpgsqlConnection @this, string cmdText, NpgsqlParameter[]? parameters, CommandType commandType, NpgsqlTransaction? transaction)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
             command.CommandText = cmdText;
             command.CommandType = commandType;
@@ -311,17 +333,20 @@ namespace HandStack.Data.ExtensionMethod
                 command.Parameters.AddRange(parameters);
             }
 
-            using IDataReader reader = command.ExecuteReader();
+            using NpgsqlDataReader reader = command.ExecuteReader();
             reader.Read();
             return reader.ToExpandoObject();
         }
 
         public static dynamic ExecuteExpandoObject(this NpgsqlConnection @this, Action<NpgsqlCommand> commandFactory)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
+            ArgumentNullException.ThrowIfNull(commandFactory);
             commandFactory(command);
 
-            using IDataReader reader = command.ExecuteReader();
+            using NpgsqlDataReader reader = command.ExecuteReader();
             reader.Read();
             return reader.ToExpandoObject();
         }
@@ -363,6 +388,8 @@ namespace HandStack.Data.ExtensionMethod
 
         public static IEnumerable<dynamic> ExecuteExpandoObjects(this NpgsqlConnection @this, string cmdText, NpgsqlParameter[]? parameters, CommandType commandType, NpgsqlTransaction? transaction)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
             command.CommandText = cmdText;
             command.CommandType = commandType;
@@ -379,7 +406,10 @@ namespace HandStack.Data.ExtensionMethod
 
         public static IEnumerable<dynamic> ExecuteExpandoObjects(this NpgsqlConnection @this, Action<NpgsqlCommand> commandFactory)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
+            ArgumentNullException.ThrowIfNull(commandFactory);
             commandFactory(command);
 
             using IDataReader reader = command.ExecuteReader();
@@ -423,14 +453,20 @@ namespace HandStack.Data.ExtensionMethod
 
         public static void AddRangeWithValue(this NpgsqlParameterCollection @this, Dictionary<string, object> values)
         {
+            ArgumentNullException.ThrowIfNull(values);
+
             foreach (var keyValuePair in values)
             {
+                ArgumentNullException.ThrowIfNull(@this);
+
                 @this.AddWithValue(keyValuePair.Key, keyValuePair.Value);
             }
         }
 
         public static string ParameterValueForSQL(this NpgsqlParameter @this)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             var paramValue = @this.Value;
 
             if (paramValue == null)
@@ -438,33 +474,21 @@ namespace HandStack.Data.ExtensionMethod
                 return "NULL";
             }
 
-            switch (@this.NpgsqlDbType)
+            return @this.NpgsqlDbType switch
             {
-                case NpgsqlDbType.Char:
-                case NpgsqlDbType.Json:
-                case NpgsqlDbType.Numeric:
-                case NpgsqlDbType.Text:
-                case NpgsqlDbType.Time:
-                case NpgsqlDbType.Xml:
-                case NpgsqlDbType.Date:
-                case NpgsqlDbType.Timestamp:
-                case NpgsqlDbType.TimestampTz:
-                    return $"'{paramValue.ToStringSafe().Replace("'", "''")}'";
-                case NpgsqlDbType.Boolean:
-                    return (paramValue.ToBoolean(false)) ? "1" : "0";
-                case NpgsqlDbType.Money:
-                    return ((decimal)paramValue).ToString(CultureInfo.InvariantCulture).Replace("'", "''");
-                case NpgsqlDbType.Double:
-                    return ((double)paramValue).ToString(CultureInfo.InvariantCulture).Replace("'", "''");
-                default:
-                    return paramValue.ToStringSafe().Replace("'", "''");
-            }
+                NpgsqlDbType.Char or NpgsqlDbType.Json or NpgsqlDbType.Numeric or NpgsqlDbType.Text or NpgsqlDbType.Time or NpgsqlDbType.Xml or NpgsqlDbType.Date or NpgsqlDbType.Timestamp or NpgsqlDbType.TimestampTz => $"'{paramValue.ToStringSafe().Replace("'", "''")}'",
+                NpgsqlDbType.Boolean => (paramValue.ToBoolean(false)) ? "1" : "0",
+                NpgsqlDbType.Money => ((decimal)paramValue).ToString(CultureInfo.InvariantCulture).Replace("'", "''"),
+                NpgsqlDbType.Double => ((double)paramValue).ToString(CultureInfo.InvariantCulture).Replace("'", "''"),
+                _ => paramValue.ToStringSafe().Replace("'", "''"),
+            };
         }
 
         public static string CommandAsNpgsql(this NpgsqlCommand @this)
         {
             var sql = new StringBuilder();
 
+            ArgumentNullException.ThrowIfNull(@this);
             switch (@this.CommandType)
             {
                 case CommandType.Text:
@@ -499,7 +523,7 @@ namespace HandStack.Data.ExtensionMethod
             {
                 if ((sp.Direction == ParameterDirection.InputOutput) || (sp.Direction == ParameterDirection.Output))
                 {
-                    sql.Append("declare ").Append(sp.ParameterName).Append("\t").Append(sp.NpgsqlDbType.ToString()).Append("\t= ");
+                    sql.Append("declare ").Append(sp.ParameterName).Append('\t').Append(sp.NpgsqlDbType.ToString()).Append("\t= ");
 
                     sql.Append((sp.Direction == ParameterDirection.Output) ? "null" : sp.ParameterValueForSQL()).AppendLine(";");
                 }

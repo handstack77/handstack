@@ -41,7 +41,7 @@ internal static class AdditionalTools
         return InstallChecks.IsCommandAvailableAsync(command);
     }
 
-    private static Task RunNpmAsync(string args)
+    private static System.Threading.Tasks.Task<int> RunNpmAsync(string args)
     {
         if (OperatingSystem.IsWindows())
         {

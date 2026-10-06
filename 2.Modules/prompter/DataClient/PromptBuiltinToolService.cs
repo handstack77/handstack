@@ -25,9 +25,9 @@ using UglyToad.PdfPig;
 
 namespace prompter.DataClient
 {
-    public class PromptBuiltinToolService
+    public partial class PromptBuiltinToolService(IHttpClientFactory httpClientFactory)
     {
-        private static readonly HashSet<string> SupportedToolNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        private static readonly HashSet<string> SupportedToolNames = new(StringComparer.OrdinalIgnoreCase)
         {
             "corpus_rag_search",
             "generate_image",
@@ -35,7 +35,7 @@ namespace prompter.DataClient
             "skill_install"
         };
 
-        private static readonly HashSet<string> CorpusExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        private static readonly HashSet<string> CorpusExtensions = new(StringComparer.OrdinalIgnoreCase)
         {
             ".docx",
             ".pptx",
@@ -45,13 +45,8 @@ namespace prompter.DataClient
             ".md"
         };
 
-        private readonly IHttpClientFactory httpClientFactory;
-        private readonly ConcurrentDictionary<string, CorpusDocumentCache> corpusCache = new ConcurrentDictionary<string, CorpusDocumentCache>(StringComparer.OrdinalIgnoreCase);
-
-        public PromptBuiltinToolService(IHttpClientFactory httpClientFactory)
-        {
-            this.httpClientFactory = httpClientFactory;
-        }
+        private readonly IHttpClientFactory httpClientFactory = httpClientFactory;
+        private readonly ConcurrentDictionary<string, CorpusDocumentCache> corpusCache = new(StringComparer.OrdinalIgnoreCase);
 
         public static bool IsSupported(string name)
         {
@@ -154,7 +149,7 @@ namespace prompter.DataClient
             var args = ParseArguments(arguments);
             var result = name switch
             {
-                "corpus_rag_search" => await SearchCorpusAsync(args, agentOptions, cancellationToken),
+                "corpus_rag_search" => await SearchCorpusAsync(args, (agentOptions ?? throw new ArgumentNullException(nameof(agentOptions))), cancellationToken),
                 "generate_image" => await GenerateImageAsync(args, cancellationToken),
                 "skill_search" => await SearchSkillsAsync(args.Value<string>("query").ToStringSafe(), args.Value<int?>("limit") ?? 5, cancellationToken),
                 "skill_install" => await InstallSkillAsync(args.Value<string>("id").ToStringSafe(), cancellationToken),
@@ -220,8 +215,7 @@ namespace prompter.DataClient
 
             var detailText = await detailResponse.Content.ReadAsStringAsync(cancellationToken);
             var detail = JObject.Parse(detailText);
-            var files = detail["files"] as JArray;
-            if (files == null || files.Count == 0)
+            if (detail["files"] is not JArray files || files.Count == 0)
             {
                 return JsonError("skills.sh detail 응답에 설치 가능한 files 정보가 없습니다.", detail);
             }
@@ -407,7 +401,7 @@ namespace prompter.DataClient
             return JsonError("OpenAI image 응답에서 b64_json 또는 url을 확인하지 못했습니다.", json);
         }
 
-        private IEnumerable<CorpusChunk> GetDocumentChunks(string filePath)
+        private List<CorpusChunk> GetDocumentChunks(string filePath)
         {
             var fileInfo = new FileInfo(filePath);
             var cacheKey = fileInfo.FullName;
@@ -548,21 +542,21 @@ namespace prompter.DataClient
 
         private static IEnumerable<string> Tokenize(string value)
         {
-            return Regex.Split(value.ToLowerInvariant(), @"[^\p{L}\p{Nd}]+")
+            return MyRegex().Split(value.ToLowerInvariant())
                 .Where(item => item.Length >= 2)
                 .Distinct();
         }
 
         private static string NormalizeWhitespace(string value)
         {
-            return Regex.Replace(value.ToStringSafe(), @"\s+", " ").Trim();
+            return MyRegex1().Replace(value.ToStringSafe(), " ").Trim();
         }
 
         private static JObject ParseArguments(string arguments)
         {
             if (string.IsNullOrWhiteSpace(arguments) == true)
             {
-                return new JObject();
+                return [];
             }
 
             try
@@ -571,11 +565,11 @@ namespace prompter.DataClient
             }
             catch
             {
-                return new JObject();
+                return [];
             }
         }
 
-        private LLMSource? ResolveImageSource()
+        private static LLMSource? ResolveImageSource()
         {
             if (string.IsNullOrWhiteSpace(ModuleConfiguration.ImageGenerationDataSourceID) == false)
             {
@@ -657,7 +651,7 @@ namespace prompter.DataClient
             }
 
             var audit = JObject.Parse(responseText);
-            var audits = audit["audits"] as JArray ?? new JArray();
+            var audits = audit["audits"] as JArray ?? [];
             foreach (var item in audits.OfType<JObject>())
             {
                 var status = item.Value<string>("status").ToStringSafe();
@@ -725,7 +719,7 @@ namespace prompter.DataClient
                 return value;
             }
 
-            return value.Substring(0, maxLength) + "\n...[truncated]";
+            return value[..maxLength] + "\n...[truncated]";
         }
 
         private static string SanitizeSkillPath(string id)
@@ -774,6 +768,11 @@ namespace prompter.DataClient
                 throw new InvalidOperationException($"허용되지 않은 {label} 경로: {path}");
             }
         }
+
+        [GeneratedRegex(@"[^\p{L}\p{Nd}]+")]
+        private static partial Regex MyRegex();
+        [GeneratedRegex(@"\s+")]
+        private static partial Regex MyRegex1();
     }
 
     public record PromptAgentOptions

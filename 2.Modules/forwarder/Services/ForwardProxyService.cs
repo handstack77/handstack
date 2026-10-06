@@ -15,7 +15,7 @@ namespace forwarder.Services
 {
     public class ForwardProxyService : IForwardProxyService
     {
-        private static readonly HashSet<string> IgnoredResponseContentHeaders = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        private static readonly HashSet<string> IgnoredResponseContentHeaders = new(StringComparer.OrdinalIgnoreCase)
         {
             "Content-Length"
         };
@@ -35,6 +35,7 @@ namespace forwarder.Services
             cancellationToken.ThrowIfCancellationRequested();
 
             using var timeoutCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            ArgumentNullException.ThrowIfNull(request);
             timeoutCancellationTokenSource.CancelAfter(TimeSpan.FromMilliseconds(request.TimeoutMS ?? ModuleConfiguration.RequestTimeoutMS));
 
             using var httpRequest = new HttpRequestMessage(new HttpMethod(request.Method), request.TargetUrl);

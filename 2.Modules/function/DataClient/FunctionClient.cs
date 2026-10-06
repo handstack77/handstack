@@ -35,29 +35,24 @@ using Serilog;
 
 namespace function.DataClient
 {
-    public class FunctionClient : IFunctionClient
+    public class FunctionClient(IHttpContextAccessor httpContextAccessor, INodeJSService nodeJSService, Serilog.ILogger logger, FunctionLoggerClient loggerClient, TransactionClient businessApiClient) : IFunctionClient
     {
-        private readonly IHttpContextAccessor httpContextAccessor;
+        private readonly IHttpContextAccessor httpContextAccessor = httpContextAccessor;
 
-        private INodeJSService nodeJSService { get; }
+        private INodeJSService nodeJSService { get; } = nodeJSService;
 
-        private FunctionLoggerClient loggerClient { get; }
+        private FunctionLoggerClient loggerClient { get; } = loggerClient;
 
-        private Serilog.ILogger logger { get; }
+        private Serilog.ILogger logger { get; } = logger;
 
-        private TransactionClient businessApiClient { get; }
-
-        public FunctionClient(IHttpContextAccessor httpContextAccessor, INodeJSService nodeJSService, Serilog.ILogger logger, FunctionLoggerClient loggerClient, TransactionClient businessApiClient)
-        {
-            this.httpContextAccessor = httpContextAccessor;
-            this.nodeJSService = nodeJSService;
-            this.logger = logger;
-            this.loggerClient = loggerClient;
-            this.businessApiClient = businessApiClient;
-        }
+        private TransactionClient businessApiClient { get; } = businessApiClient;
 
         public async Task ExecuteScriptMap(DynamicRequest request, DynamicResponse response)
         {
+            ArgumentNullException.ThrowIfNull(request);
+
+            ArgumentNullException.ThrowIfNull(response);
+
             var transactionDynamicObjects = new Dictionary<string, TransactionScriptObjects>();
             try
             {
@@ -86,7 +81,7 @@ namespace function.DataClient
                         ModuleScriptMap = moduleScriptMap
                     });
 
-                    i = i + 1;
+                    i++;
                 }
 
                 if (logQuerys.Count > 0)
@@ -123,10 +118,10 @@ namespace function.DataClient
                     var moduleScriptMap = transactionDynamicObject.Value.ModuleScriptMap;
 
                     var dynamicParameters = new List<DynamicParameter>();
-                    if (queryObject.Parameters.Count() > 0)
+                    if (queryObject.Parameters.Count > 0)
                     {
                         // 이전 실행 결과값으로 현재 요청 매개변수로 적용
-                        if (queryObject.BaseFieldMappings != null && queryObject.BaseFieldMappings.Count() > 0)
+                        if (queryObject.BaseFieldMappings != null && queryObject.BaseFieldMappings.Count > 0)
                         {
                             if (dataRow == null)
                             {
@@ -172,11 +167,13 @@ namespace function.DataClient
                             dynamicParameters.Add(dynamicParameter);
                         }
 
-                        var lastParameter = new DynamicParameter();
-                        lastParameter.ParameterName = "GlobalID";
-                        lastParameter.Value = request.GlobalID;
-                        lastParameter.DbType = "String";
-                        lastParameter.Length = -1;
+                        var lastParameter = new DynamicParameter
+                        {
+                            ParameterName = "GlobalID",
+                            Value = request.GlobalID,
+                            DbType = "String",
+                            Length = -1
+                        };
                         dynamicParameters.Add(lastParameter);
                     }
 
@@ -207,8 +204,10 @@ namespace function.DataClient
                         }
 
                         var transactionCommands = moduleScriptMap.BeforeTransactionCommand.Split("|");
-                        var serviceParameters = new List<ServiceParameter>();
-                        serviceParameters.Add(new ServiceParameter() { prop = "ProgramPath", val = programPath });
+                        var serviceParameters = new List<ServiceParameter>
+                        {
+                            new() { prop = "ProgramPath", val = programPath }
+                        };
                         var beforeCommandResult = await businessApiClient.OnewayTransactionCommandAsync(transactionCommands, request.GlobalID, queryObject.QueryID, dynamicParameters, serviceParameters);
                         if (!string.IsNullOrWhiteSpace(beforeCommandResult))
                         {
@@ -232,8 +231,10 @@ namespace function.DataClient
 
                     var jsonArguments = JsonConvert.SerializeObject(dynamicParameters);
 
-                    var listParams = new List<object>();
-                    listParams.Add(dynamicParameters);
+                    var listParams = new List<object>
+                    {
+                        dynamicParameters
+                    };
 
                     var dataContext = new DataContext();
 
@@ -552,8 +553,7 @@ namespace function.DataClient
 
                                 if (result is Task<DataSet?>)
                                 {
-                                    var task = result as Task<DataSet?>;
-                                    if (task != null)
+                                    if (result is Task<DataSet?> task)
                                     {
                                         if (task.IsCompleted == false)
                                         {
@@ -639,7 +639,7 @@ namespace function.DataClient
                             var fallbackCommandResult = businessApiClient.OnewayTransactionCommand(transactionCommands, request.GlobalID, queryObject.QueryID, dynamicParameters);
                             if (!string.IsNullOrWhiteSpace(fallbackCommandResult))
                             {
-                                response.ExceptionText = response.ExceptionText + $", ExecuteScriptMap.FallbackTransactionCommand Error: GlobalID={request.GlobalID}, QueryID={queryObject.QueryID}, CommandID={moduleScriptMap.FallbackTransactionCommand}, CommandResult={fallbackCommandResult}";
+                                response.ExceptionText += $", ExecuteScriptMap.FallbackTransactionCommand Error: GlobalID={request.GlobalID}, QueryID={queryObject.QueryID}, CommandID={moduleScriptMap.FallbackTransactionCommand}, CommandResult={fallbackCommandResult}";
 
                                 if (ModuleConfiguration.IsLogServer == true)
                                 {
@@ -674,8 +674,10 @@ namespace function.DataClient
                         }
 
                         var transactionCommands = moduleScriptMap.AfterTransactionCommand.Split("|");
-                        var serviceParameters = new List<ServiceParameter>();
-                        serviceParameters.Add(new ServiceParameter() { prop = "CommandResult", val = executeResult });
+                        var serviceParameters = new List<ServiceParameter>
+                        {
+                            new() { prop = "CommandResult", val = executeResult }
+                        };
                         var afterCommandResult = businessApiClient.OnewayTransactionCommand(transactionCommands, request.GlobalID, queryObject.QueryID, dynamicParameters, serviceParameters);
                         if (!string.IsNullOrWhiteSpace(afterCommandResult))
                         {
@@ -914,11 +916,11 @@ namespace function.DataClient
             return result;
         }
 
-        private DynamicParameter? GetDbParameterMap(string parameterName, List<DynamicParameter> dynamicParameters)
+        private static DynamicParameter? GetDbParameterMap(string parameterName, List<DynamicParameter> dynamicParameters)
         {
             if (!string.IsNullOrEmpty(parameterName) && (parameterName[0] == '@' || parameterName[0] == ':' || parameterName[0] == '$' || parameterName[0] == '#'))
             {
-                parameterName = parameterName.Substring(1);
+                parameterName = parameterName[1..];
             }
 
             return dynamicParameters.FirstOrDefault(p => p.ParameterName == parameterName);
@@ -926,6 +928,7 @@ namespace function.DataClient
 
         public void Dispose()
         {
+            GC.SuppressFinalize(this);
         }
     }
 }

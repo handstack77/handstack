@@ -58,32 +58,26 @@ namespace dbclient.DataClient
     ///	    }
     /// }
     /// </code>
-    public class QueryDataClient : IQueryDataClient
+    public class QueryDataClient(Serilog.ILogger logger, TransactionClient businessApiClient, DbClientLoggerClient loggerClient) : IQueryDataClient
     {
         public DbConnection? DbConnection { get; private set; } = null;
 
-        private Encoding encoding = Encoding.UTF8;
+        private readonly Encoding encoding = Encoding.UTF8;
 
-        private Serilog.ILogger logger { get; }
+        private Serilog.ILogger logger { get; } = logger;
 
-        private DbClientLoggerClient loggerClient { get; }
+        private DbClientLoggerClient loggerClient { get; } = loggerClient;
 
-        private TransactionClient businessApiClient { get; }
-
-        public QueryDataClient(Serilog.ILogger logger, TransactionClient businessApiClient, DbClientLoggerClient loggerClient)
-        {
-            this.logger = logger;
-            this.businessApiClient = businessApiClient;
-            this.loggerClient = loggerClient;
-        }
+        private TransactionClient businessApiClient { get; } = businessApiClient;
 
         public DynamicResult ExecuteDirectSQLMap(string queryID, List<DynamicParameter> parameters, bool paddingParameter = false)
         {
             var request = new DynamicRequest();
             var response = new DynamicResponse();
-            var dynamicObjects = new List<QueryObject>();
-
-            dynamicObjects.Add(new QueryObject() { QueryID = queryID, Parameters = parameters });
+            var dynamicObjects = new List<QueryObject>
+            {
+                new() { QueryID = queryID, Parameters = parameters }
+            };
 
             request.DynamicObjects = dynamicObjects;
 
@@ -125,7 +119,7 @@ namespace dbclient.DataClient
                         Statement = statementMap,
                     });
 
-                    i = i + 1;
+                    i++;
                 }
 
                 if (logQuerys.Count > 0)
@@ -195,16 +189,13 @@ namespace dbclient.DataClient
                                 }
                             }
 
-                            if (dynamicParameters != null)
-                            {
-                                dynamicParameters.Add(
+                            dynamicParameters?.Add(
                                     dynamicParameter.ParameterName,
                                     dynamicParameter.Value == null && dbParameterMap.DefaultValue != "NULL" ? dbParameterMap.DefaultValue : dynamicParameter.Value,
-                                    (DbType)Enum.Parse(typeof(DbType), string.IsNullOrWhiteSpace(dbParameterMap.DbType) ? dynamicParameter.DbType : dbParameterMap.DbType),
-                                    (ParameterDirection)Enum.Parse(typeof(ParameterDirection), dbParameterMap.Direction),
+                                    Enum.Parse<DbType>(string.IsNullOrWhiteSpace(dbParameterMap.DbType) ? dynamicParameter.DbType : dbParameterMap.DbType),
+                                    Enum.Parse<ParameterDirection>(dbParameterMap.Direction),
                                     dbParameterMap.Length <= 0 ? -1 : dbParameterMap.Length
                                 );
-                            }
                         }
                     }
 
@@ -224,8 +215,11 @@ namespace dbclient.DataClient
 
         public async Task ExecuteDynamicSQLMap(DynamicRequest request, DynamicResponse response)
         {
+            ArgumentNullException.ThrowIfNull(response);
+
             var isCommandError = false;
-            request.RequestID = request.RequestID == null ? "NULL" : request.RequestID;
+            ArgumentNullException.ThrowIfNull(request);
+            request.RequestID ??= "NULL";
             var transactionDynamicObjects = new Dictionary<string, TransactionDynamicObjects>();
             var databaseTransactionObjects = new List<DatabaseTransactionObjects>();
 
@@ -272,7 +266,7 @@ namespace dbclient.DataClient
                         TransactionIsolationLevel = connectionInfo == null ? "ReadCommitted" : connectionInfo.Item3
                     });
 
-                    i = i + 1;
+                    i++;
                 }
 
                 if (logQuerys.Count > 0)
@@ -327,9 +321,9 @@ namespace dbclient.DataClient
 
                     dynamic? dynamicParameters = CreateDynamicParameters(databaseProvider, statementMap);
 
-                    if (dynamicObject.Parameters.Count() > 0)
+                    if (dynamicObject.Parameters.Count > 0)
                     {
-                        if (dynamicObject.BaseFieldMappings != null && dynamicObject.BaseFieldMappings.Count() > 0)
+                        if (dynamicObject.BaseFieldMappings != null && dynamicObject.BaseFieldMappings.Count > 0)
                         {
                             var baseSequence = statementMap.Seq - 1;
                             DataRow? dataRow = null;
@@ -398,10 +392,10 @@ namespace dbclient.DataClient
                         });
                     }
 
-                    var pretreatment = DatabaseMapper.FindPretreatment(statementMap, dynamicObject);
-                    if (pretreatment.SQL != null && pretreatment.ResultType != null)
+                    var (SQL, ResultType) = DatabaseMapper.FindPretreatment(statementMap, dynamicObject);
+                    if (SQL != null && ResultType != null)
                     {
-                        if (pretreatment.SQL.Replace(Environment.NewLine, "").Replace("\t", "").Trim() != "")
+                        if (SQL.Replace(Environment.NewLine, "").Replace("\t", "").Trim() != "")
                         {
                             SQLID = executeDataID + "_pretreatment";
 
@@ -416,16 +410,16 @@ namespace dbclient.DataClient
 
                             var pretreatmentProfiler = new ConsoleProfiler(request.RequestID, SQLID, ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.ModuleLogFilePath : null);
                             var pretreatmentConnection = new ProfilerDbConnection(connectionFactory.Connection, pretreatmentProfiler);
-                            using (var pretreatmentReader = await pretreatmentConnection.ExecuteReaderAsync(pretreatment.SQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout))
+                            using (var pretreatmentReader = await pretreatmentConnection.ExecuteReaderAsync(SQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout))
                             {
                                 try
                                 {
                                     using (var ds = DataTableHelper.DataReaderToDataSet(pretreatmentReader))
                                     {
-                                        var resultTypes = pretreatment.ResultType.Split(",");
-                                        if (resultTypes.Count() != (ds == null ? 0 : ds.Tables.Count))
+                                        var resultTypes = ResultType.Split(",");
+                                        if (resultTypes.Length != (ds == null ? 0 : ds.Tables.Count))
                                         {
-                                            response.ExceptionText = $"Pretreatment - 전처리 쿼리 실행 결과와 {pretreatment.ResultType} 설정 확인 필요";
+                                            response.ExceptionText = $"Pretreatment - 전처리 쿼리 실행 결과와 {ResultType} 설정 확인 필요";
                                             isCommandError = true;
                                             goto TransactionException;
                                         }
@@ -459,11 +453,13 @@ namespace dbclient.DataClient
                                                                 dataProvider = databaseProvider;
                                                             }
 
-                                                            dynamicParameter = new DynamicParameter();
-                                                            dynamicParameter.ParameterName = item.ColumnName;
-                                                            dynamicParameter.Length = item.MaxLength;
-                                                            dynamicParameter.DbType = GetProviderDbType(item, dataProvider);
-                                                            dynamicParameter.Value = rowItem[item.ColumnName];
+                                                            dynamicParameter = new DynamicParameter
+                                                            {
+                                                                ParameterName = item.ColumnName,
+                                                                Length = item.MaxLength,
+                                                                DbType = GetProviderDbType(item, dataProvider),
+                                                                Value = rowItem[item.ColumnName]
+                                                            };
                                                             dynamicObject.Parameters.Add(dynamicParameter);
                                                         }
                                                         else
@@ -499,11 +495,13 @@ namespace dbclient.DataClient
                                                                     dataProvider = databaseProvider;
                                                                 }
 
-                                                                dynamicParameter = new DynamicParameter();
-                                                                dynamicParameter.ParameterName = item.ColumnName;
-                                                                dynamicParameter.Length = item.MaxLength;
-                                                                dynamicParameter.DbType = GetProviderDbType(item, dataProvider);
-                                                                dynamicParameter.Value = parameters;
+                                                                dynamicParameter = new DynamicParameter
+                                                                {
+                                                                    ParameterName = item.ColumnName,
+                                                                    Length = item.MaxLength,
+                                                                    DbType = GetProviderDbType(item, dataProvider),
+                                                                    Value = parameters
+                                                                };
                                                                 dynamicObject.Parameters.Add(dynamicParameter);
                                                             }
                                                             else
@@ -641,7 +639,7 @@ namespace dbclient.DataClient
 
                                     if (dataTable.Rows.Count > 0)
                                     {
-                                        dataRows[statementMap.Seq] = dataTable.Rows[dataTable.Rows.Count - 1];
+                                        dataRows[statementMap.Seq] = dataTable.Rows[^1];
                                     }
                                     else
                                     {
@@ -663,7 +661,7 @@ namespace dbclient.DataClient
                                                 continue;
                                             }
 
-                                            if (dynamicObject.BaseFieldRelations != null && dynamicObject.BaseFieldRelations.Count() > 0)
+                                            if (dynamicObject.BaseFieldRelations != null && dynamicObject.BaseFieldRelations.Count > 0)
                                             {
                                                 var baseFieldRelation = dynamicObject.BaseFieldRelations[j];
                                                 if (baseFieldRelation != null && baseFieldRelation.BaseSequence >= 0 && ((ds.Tables.Count - 1) >= baseFieldRelation.BaseSequence))
@@ -723,7 +721,7 @@ namespace dbclient.DataClient
                                                 continue;
                                             }
 
-                                            if (dynamicObject.BaseFieldRelations != null && dynamicObject.BaseFieldRelations.Count() > 0)
+                                            if (dynamicObject.BaseFieldRelations != null && dynamicObject.BaseFieldRelations.Count > 0)
                                             {
                                                 var baseFieldRelation = dynamicObject.BaseFieldRelations[j];
                                                 if (baseFieldRelation != null)
@@ -800,7 +798,7 @@ namespace dbclient.DataClient
 
                                             if (table.Rows.Count > 0)
                                             {
-                                                dataRows[statementMap.Seq] = table.Rows[table.Rows.Count - 1];
+                                                dataRows[statementMap.Seq] = table.Rows[^1];
                                             }
                                             else
                                             {
@@ -841,7 +839,7 @@ namespace dbclient.DataClient
                                     var fallbackCommandResult = businessApiClient.OnewayTransactionCommand(transactionCommands, request.GlobalID, dynamicObject.QueryID, dynamicParameters);
                                     if (!string.IsNullOrWhiteSpace(fallbackCommandResult))
                                     {
-                                        response.ExceptionText = response.ExceptionText + $", ExecuteDynamicSQLMap.FallbackTransactionCommand Error: {fallbackCommandResult}";
+                                        response.ExceptionText += $", ExecuteDynamicSQLMap.FallbackTransactionCommand Error: {fallbackCommandResult}";
 
                                         if (ModuleConfiguration.IsLogServer == true)
                                         {
@@ -901,7 +899,7 @@ namespace dbclient.DataClient
                             var fallbackCommandResult = businessApiClient.OnewayTransactionCommand(transactionCommands, request.GlobalID, dynamicObject.QueryID, dynamicParameters);
                             if (!string.IsNullOrWhiteSpace(fallbackCommandResult))
                             {
-                                response.ExceptionText = response.ExceptionText + $", ExecuteDynamicSQLMap.FallbackTransactionCommand Error: {fallbackCommandResult}";
+                                response.ExceptionText += $", ExecuteDynamicSQLMap.FallbackTransactionCommand Error: {fallbackCommandResult}";
 
                                 if (ModuleConfiguration.IsLogServer == true)
                                 {
@@ -1006,8 +1004,11 @@ TransactionException:
 
         public async Task ExecuteDynamicSQLMapToScalar(DynamicRequest request, DynamicResponse response)
         {
+            ArgumentNullException.ThrowIfNull(response);
+
             var isCommandError = false;
-            request.RequestID = request.RequestID == null ? "NULL" : request.RequestID;
+            ArgumentNullException.ThrowIfNull(request);
+            request.RequestID ??= "NULL";
             var transactionDynamicObjects = new Dictionary<string, TransactionDynamicObjects>();
             var databaseTransactionObjects = new List<DatabaseTransactionObjects>();
 
@@ -1052,7 +1053,7 @@ TransactionException:
                         ConnectionString = connectionInfo == null ? "" : (connectionInfo.Item2 == DataProviders.SQLite ? connectionInfo.Item1.Replace("\\", "/") : connectionInfo.Item1),
                         DataProvider = connectionInfo == null ? DataProviders.SQLite : connectionInfo.Item2
                     });
-                    i = i + 1;
+                    i++;
                 }
 
                 if (logQuerys.Count > 0)
@@ -1105,9 +1106,9 @@ TransactionException:
 
                     dynamic? dynamicParameters = CreateDynamicParameters(databaseProvider, statementMap);
 
-                    if (dynamicObject.Parameters.Count() > 0)
+                    if (dynamicObject.Parameters.Count > 0)
                     {
-                        if (dynamicObject.BaseFieldMappings != null && dynamicObject.BaseFieldMappings.Count() > 0)
+                        if (dynamicObject.BaseFieldMappings != null && dynamicObject.BaseFieldMappings.Count > 0)
                         {
                             var baseSequence = statementMap.Seq - 1;
                             DataRow? dataRow = null;
@@ -1176,10 +1177,10 @@ TransactionException:
                         });
                     }
 
-                    var pretreatment = DatabaseMapper.FindPretreatment(statementMap, dynamicObject);
-                    if (pretreatment.SQL != null && pretreatment.ResultType != null)
+                    var (SQL, ResultType) = DatabaseMapper.FindPretreatment(statementMap, dynamicObject);
+                    if (SQL != null && ResultType != null)
                     {
-                        if (pretreatment.SQL.Replace(Environment.NewLine, "").Replace("\t", "").Trim() != "")
+                        if (SQL.Replace(Environment.NewLine, "").Replace("\t", "").Trim() != "")
                         {
                             SQLID = executeDataID + "_pretreatment";
 
@@ -1194,16 +1195,16 @@ TransactionException:
 
                             var pretreatmentProfiler = new ConsoleProfiler(request.RequestID, SQLID, ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.ModuleLogFilePath : null);
                             var pretreatmentConnection = new ProfilerDbConnection(connectionFactory.Connection, pretreatmentProfiler);
-                            using (var pretreatmentReader = await pretreatmentConnection.ExecuteReaderAsync(pretreatment.SQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout))
+                            using (var pretreatmentReader = await pretreatmentConnection.ExecuteReaderAsync(SQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout))
                             {
                                 try
                                 {
                                     using (var ds = DataTableHelper.DataReaderToDataSet(pretreatmentReader))
                                     {
-                                        var resultTypes = pretreatment.ResultType.Split(",");
-                                        if (resultTypes.Count() != (ds == null ? 0 : ds.Tables.Count))
+                                        var resultTypes = ResultType.Split(",");
+                                        if (resultTypes.Length != (ds == null ? 0 : ds.Tables.Count))
                                         {
-                                            response.ExceptionText = $"Pretreatment - 전처리 쿼리 실행 결과와 {pretreatment.ResultType} 설정 확인 필요";
+                                            response.ExceptionText = $"Pretreatment - 전처리 쿼리 실행 결과와 {ResultType} 설정 확인 필요";
                                             isCommandError = true;
                                             goto TransactionException;
                                         }
@@ -1237,11 +1238,13 @@ TransactionException:
                                                                 dataProvider = databaseProvider;
                                                             }
 
-                                                            dynamicParameter = new DynamicParameter();
-                                                            dynamicParameter.ParameterName = item.ColumnName;
-                                                            dynamicParameter.Length = item.MaxLength;
-                                                            dynamicParameter.DbType = GetProviderDbType(item, dataProvider);
-                                                            dynamicParameter.Value = rowItem[item.ColumnName];
+                                                            dynamicParameter = new DynamicParameter
+                                                            {
+                                                                ParameterName = item.ColumnName,
+                                                                Length = item.MaxLength,
+                                                                DbType = GetProviderDbType(item, dataProvider),
+                                                                Value = rowItem[item.ColumnName]
+                                                            };
                                                             dynamicObject.Parameters.Add(dynamicParameter);
                                                         }
                                                         else
@@ -1277,11 +1280,13 @@ TransactionException:
                                                                     dataProvider = databaseProvider;
                                                                 }
 
-                                                                dynamicParameter = new DynamicParameter();
-                                                                dynamicParameter.ParameterName = item.ColumnName;
-                                                                dynamicParameter.Length = item.MaxLength;
-                                                                dynamicParameter.DbType = GetProviderDbType(item, dataProvider);
-                                                                dynamicParameter.Value = parameters;
+                                                                dynamicParameter = new DynamicParameter
+                                                                {
+                                                                    ParameterName = item.ColumnName,
+                                                                    Length = item.MaxLength,
+                                                                    DbType = GetProviderDbType(item, dataProvider),
+                                                                    Value = parameters
+                                                                };
                                                                 dynamicObject.Parameters.Add(dynamicParameter);
                                                             }
                                                             else
@@ -1418,7 +1423,7 @@ TransactionException:
 
                                     if (dataTable.Rows.Count > 0)
                                     {
-                                        dataRows[statementMap.Seq] = dataTable.Rows[dataTable.Rows.Count - 1];
+                                        dataRows[statementMap.Seq] = dataTable.Rows[^1];
                                     }
                                     else
                                     {
@@ -1438,7 +1443,7 @@ TransactionException:
                                         var table = ds.Tables[ds.Tables.Count - 1];
                                         if (table.Rows.Count > 0)
                                         {
-                                            dataRows[statementMap.Seq] = table.Rows[table.Rows.Count - 1];
+                                            dataRows[statementMap.Seq] = table.Rows[^1];
                                         }
                                         else
                                         {
@@ -1488,7 +1493,7 @@ TransactionException:
                                     var fallbackCommandResult = businessApiClient.OnewayTransactionCommand(transactionCommands, request.GlobalID, dynamicObject.QueryID, dynamicParameters);
                                     if (!string.IsNullOrWhiteSpace(fallbackCommandResult))
                                     {
-                                        response.ExceptionText = response.ExceptionText + $", ExecuteDynamicSQLMapToScalar.FallbackTransactionCommand Error: {fallbackCommandResult}";
+                                        response.ExceptionText += $", ExecuteDynamicSQLMapToScalar.FallbackTransactionCommand Error: {fallbackCommandResult}";
 
                                         if (ModuleConfiguration.IsLogServer == true)
                                         {
@@ -1538,7 +1543,7 @@ TransactionException:
                             var fallbackCommandResult = businessApiClient.OnewayTransactionCommand(transactionCommands, request.GlobalID, dynamicObject.QueryID, dynamicParameters);
                             if (!string.IsNullOrWhiteSpace(fallbackCommandResult))
                             {
-                                response.ExceptionText = response.ExceptionText + $", ExecuteDynamicSQLMapToScalar.FallbackTransactionCommand Error: {fallbackCommandResult}";
+                                response.ExceptionText += $", ExecuteDynamicSQLMapToScalar.FallbackTransactionCommand Error: {fallbackCommandResult}";
 
                                 if (ModuleConfiguration.IsLogServer == true)
                                 {
@@ -1638,8 +1643,11 @@ TransactionException:
 
         public async Task ExecuteDynamicSQLMapToNonQuery(DynamicRequest request, DynamicResponse response)
         {
+            ArgumentNullException.ThrowIfNull(response);
+
             var isCommandError = false;
-            request.RequestID = request.RequestID == null ? "NULL" : request.RequestID;
+            ArgumentNullException.ThrowIfNull(request);
+            request.RequestID ??= "NULL";
             var transactionDynamicObjects = new Dictionary<string, TransactionDynamicObjects>();
             var databaseTransactionObjects = new List<DatabaseTransactionObjects>();
 
@@ -1685,7 +1693,7 @@ TransactionException:
                         DataProvider = connectionInfo == null ? DataProviders.SQLite : connectionInfo.Item2
                     });
 
-                    i = i + 1;
+                    i++;
                 }
 
                 if (logQuerys.Count > 0)
@@ -1737,9 +1745,9 @@ TransactionException:
                     var databaseTransaction = databaseTransactionObject.DatabaseTransaction;
 
                     dynamic? dynamicParameters = CreateDynamicParameters(databaseProvider, statementMap);
-                    if (dynamicObject.Parameters.Count() > 0)
+                    if (dynamicObject.Parameters.Count > 0)
                     {
-                        if (dynamicObject.BaseFieldMappings != null && dynamicObject.BaseFieldMappings.Count() > 0)
+                        if (dynamicObject.BaseFieldMappings != null && dynamicObject.BaseFieldMappings.Count > 0)
                         {
                             var baseSequence = statementMap.Seq - 1;
                             DataRow? dataRow = null;
@@ -1808,10 +1816,10 @@ TransactionException:
                         });
                     }
 
-                    var pretreatment = DatabaseMapper.FindPretreatment(statementMap, dynamicObject);
-                    if (pretreatment.SQL != null && pretreatment.ResultType != null)
+                    var (SQL, ResultType) = DatabaseMapper.FindPretreatment(statementMap, dynamicObject);
+                    if (SQL != null && ResultType != null)
                     {
-                        if (pretreatment.SQL.Replace(Environment.NewLine, "").Replace("\t", "").Trim() != "")
+                        if (SQL.Replace(Environment.NewLine, "").Replace("\t", "").Trim() != "")
                         {
                             SQLID = executeDataID + "_pretreatment";
 
@@ -1826,16 +1834,16 @@ TransactionException:
 
                             var pretreatmentProfiler = new ConsoleProfiler(request.RequestID, SQLID, ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.ModuleLogFilePath : null);
                             var pretreatmentConnection = new ProfilerDbConnection(connectionFactory.Connection, pretreatmentProfiler);
-                            using (var pretreatmentReader = await pretreatmentConnection.ExecuteReaderAsync(pretreatment.SQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout))
+                            using (var pretreatmentReader = await pretreatmentConnection.ExecuteReaderAsync(SQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout))
                             {
                                 try
                                 {
                                     using (var ds = DataTableHelper.DataReaderToDataSet(pretreatmentReader))
                                     {
-                                        var resultTypes = pretreatment.ResultType.Split(",");
-                                        if (resultTypes.Count() != (ds == null ? 0 : ds.Tables.Count))
+                                        var resultTypes = ResultType.Split(",");
+                                        if (resultTypes.Length != (ds == null ? 0 : ds.Tables.Count))
                                         {
-                                            response.ExceptionText = $"Pretreatment - 전처리 쿼리 실행 결과와 {pretreatment.ResultType} 설정 확인 필요";
+                                            response.ExceptionText = $"Pretreatment - 전처리 쿼리 실행 결과와 {ResultType} 설정 확인 필요";
                                             isCommandError = true;
                                             goto TransactionException;
                                         }
@@ -1869,11 +1877,13 @@ TransactionException:
                                                                 dataProvider = databaseProvider;
                                                             }
 
-                                                            dynamicParameter = new DynamicParameter();
-                                                            dynamicParameter.ParameterName = item.ColumnName;
-                                                            dynamicParameter.Length = item.MaxLength;
-                                                            dynamicParameter.DbType = GetProviderDbType(item, dataProvider);
-                                                            dynamicParameter.Value = rowItem[item.ColumnName];
+                                                            dynamicParameter = new DynamicParameter
+                                                            {
+                                                                ParameterName = item.ColumnName,
+                                                                Length = item.MaxLength,
+                                                                DbType = GetProviderDbType(item, dataProvider),
+                                                                Value = rowItem[item.ColumnName]
+                                                            };
                                                             dynamicObject.Parameters.Add(dynamicParameter);
                                                         }
                                                         else
@@ -1909,11 +1919,13 @@ TransactionException:
                                                                     dataProvider = databaseProvider;
                                                                 }
 
-                                                                dynamicParameter = new DynamicParameter();
-                                                                dynamicParameter.ParameterName = item.ColumnName;
-                                                                dynamicParameter.Length = item.MaxLength;
-                                                                dynamicParameter.DbType = GetProviderDbType(item, dataProvider);
-                                                                dynamicParameter.Value = parameters;
+                                                                dynamicParameter = new DynamicParameter
+                                                                {
+                                                                    ParameterName = item.ColumnName,
+                                                                    Length = item.MaxLength,
+                                                                    DbType = GetProviderDbType(item, dataProvider),
+                                                                    Value = parameters
+                                                                };
                                                                 dynamicObject.Parameters.Add(dynamicParameter);
                                                             }
                                                             else
@@ -2042,7 +2054,7 @@ TransactionException:
                             {
                                 if (dynamicObject.IgnoreResult == true)
                                 {
-                                    using var dataTable = DataTableHelper.DataReaderToSingleRowTable(mainReader, beforeRead: () => result = result + mainReader.RecordsAffected);
+                                    using var dataTable = DataTableHelper.DataReaderToSingleRowTable(mainReader, beforeRead: () => result += mainReader.RecordsAffected);
                                     if (dataTable == null)
                                     {
                                         continue;
@@ -2050,7 +2062,7 @@ TransactionException:
 
                                     if (dataTable.Rows.Count > 0)
                                     {
-                                        dataRows[statementMap.Seq] = dataTable.Rows[dataTable.Rows.Count - 1];
+                                        dataRows[statementMap.Seq] = dataTable.Rows[^1];
                                     }
                                     else
                                     {
@@ -2071,7 +2083,7 @@ TransactionException:
                                             var table = ds.Tables[ds.Tables.Count - 1];
                                             if (table.Rows.Count > 0)
                                             {
-                                                dataRows[statementMap.Seq] = table.Rows[table.Rows.Count - 1];
+                                                dataRows[statementMap.Seq] = table.Rows[^1];
                                             }
                                             else
                                             {
@@ -2084,7 +2096,7 @@ TransactionException:
                                         }
                                     }
 
-                                    result = result + mainReader.RecordsAffected;
+                                    result += mainReader.RecordsAffected;
                                 }
 
                                 if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
@@ -2124,7 +2136,7 @@ TransactionException:
                                     var fallbackCommandResult = businessApiClient.OnewayTransactionCommand(transactionCommands, request.GlobalID, dynamicObject.QueryID, dynamicParameters);
                                     if (!string.IsNullOrWhiteSpace(fallbackCommandResult))
                                     {
-                                        response.ExceptionText = response.ExceptionText + $", ExecuteDynamicSQLMapToNonQuery.FallbackTransactionCommand Error: {fallbackCommandResult}";
+                                        response.ExceptionText += $", ExecuteDynamicSQLMapToNonQuery.FallbackTransactionCommand Error: {fallbackCommandResult}";
 
                                         if (ModuleConfiguration.IsLogServer == true)
                                         {
@@ -2174,7 +2186,7 @@ TransactionException:
                             var fallbackCommandResult = businessApiClient.OnewayTransactionCommand(transactionCommands, request.GlobalID, dynamicObject.QueryID, dynamicParameters);
                             if (!string.IsNullOrWhiteSpace(fallbackCommandResult))
                             {
-                                response.ExceptionText = response.ExceptionText + $", ExecuteDynamicSQLMapToNonQuery.FallbackTransactionCommand Error: {fallbackCommandResult}";
+                                response.ExceptionText += $", ExecuteDynamicSQLMapToNonQuery.FallbackTransactionCommand Error: {fallbackCommandResult}";
 
                                 if (ModuleConfiguration.IsLogServer == true)
                                 {
@@ -2273,8 +2285,11 @@ TransactionException:
 
         public async Task ExecuteDynamicSQLMapToXml(DynamicRequest request, DynamicResponse response)
         {
+            ArgumentNullException.ThrowIfNull(response);
+
             var isCommandError = false;
-            request.RequestID = request.RequestID == null ? "NULL" : request.RequestID;
+            ArgumentNullException.ThrowIfNull(request);
+            request.RequestID ??= "NULL";
             var transactionDynamicObjects = new Dictionary<string, TransactionDynamicObjects>();
             var databaseTransactionObjects = new List<DatabaseTransactionObjects>();
 
@@ -2320,7 +2335,7 @@ TransactionException:
                         DataProvider = connectionInfo == null ? DataProviders.SQLite : connectionInfo.Item2
                     });
 
-                    i = i + 1;
+                    i++;
                 }
 
                 if (logQuerys.Count > 0)
@@ -2369,9 +2384,9 @@ TransactionException:
                     var databaseTransaction = databaseTransactionObject.DatabaseTransaction;
 
                     dynamic? dynamicParameters = CreateDynamicParameters(databaseProvider, statementMap);
-                    if (dynamicObject.Parameters.Count() > 0)
+                    if (dynamicObject.Parameters.Count > 0)
                     {
-                        if (dynamicObject.BaseFieldMappings != null && dynamicObject.BaseFieldMappings.Count() > 0)
+                        if (dynamicObject.BaseFieldMappings != null && dynamicObject.BaseFieldMappings.Count > 0)
                         {
                             var baseSequence = statementMap.Seq - 1;
                             DataRow? dataRow = null;
@@ -2439,10 +2454,10 @@ TransactionException:
                         });
                     }
 
-                    var pretreatment = DatabaseMapper.FindPretreatment(statementMap, dynamicObject);
-                    if (pretreatment.SQL != null && pretreatment.ResultType != null)
+                    var (SQL, ResultType) = DatabaseMapper.FindPretreatment(statementMap, dynamicObject);
+                    if (SQL != null && ResultType != null)
                     {
-                        if (pretreatment.SQL.Replace(Environment.NewLine, "").Replace("\t", "").Trim() != "")
+                        if (SQL.Replace(Environment.NewLine, "").Replace("\t", "").Trim() != "")
                         {
                             SQLID = executeDataID + "_pretreatment";
 
@@ -2457,16 +2472,16 @@ TransactionException:
 
                             var pretreatmentProfiler = new ConsoleProfiler(request.RequestID, SQLID, ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.ModuleLogFilePath : null);
                             var pretreatmentConnection = new ProfilerDbConnection(connectionFactory.Connection, pretreatmentProfiler);
-                            using (var pretreatmentReader = await pretreatmentConnection.ExecuteReaderAsync(pretreatment.SQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout))
+                            using (var pretreatmentReader = await pretreatmentConnection.ExecuteReaderAsync(SQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout))
                             {
                                 try
                                 {
                                     using (var ds = DataTableHelper.DataReaderToDataSet(pretreatmentReader))
                                     {
-                                        var resultTypes = pretreatment.ResultType.Split(",");
-                                        if (resultTypes.Count() != (ds == null ? 0 : ds.Tables.Count))
+                                        var resultTypes = ResultType.Split(",");
+                                        if (resultTypes.Length != (ds == null ? 0 : ds.Tables.Count))
                                         {
-                                            response.ExceptionText = $"Pretreatment - 전처리 쿼리 실행 결과와 {pretreatment.ResultType} 설정 확인 필요";
+                                            response.ExceptionText = $"Pretreatment - 전처리 쿼리 실행 결과와 {ResultType} 설정 확인 필요";
                                             isCommandError = true;
                                             goto TransactionException;
                                         }
@@ -2500,11 +2515,13 @@ TransactionException:
                                                                 dataProvider = databaseProvider;
                                                             }
 
-                                                            dynamicParameter = new DynamicParameter();
-                                                            dynamicParameter.ParameterName = item.ColumnName;
-                                                            dynamicParameter.Length = item.MaxLength;
-                                                            dynamicParameter.DbType = GetProviderDbType(item, dataProvider);
-                                                            dynamicParameter.Value = rowItem[item.ColumnName];
+                                                            dynamicParameter = new DynamicParameter
+                                                            {
+                                                                ParameterName = item.ColumnName,
+                                                                Length = item.MaxLength,
+                                                                DbType = GetProviderDbType(item, dataProvider),
+                                                                Value = rowItem[item.ColumnName]
+                                                            };
                                                             dynamicObject.Parameters.Add(dynamicParameter);
                                                         }
                                                         else
@@ -2540,11 +2557,13 @@ TransactionException:
                                                                     dataProvider = databaseProvider;
                                                                 }
 
-                                                                dynamicParameter = new DynamicParameter();
-                                                                dynamicParameter.ParameterName = item.ColumnName;
-                                                                dynamicParameter.Length = item.MaxLength;
-                                                                dynamicParameter.DbType = GetProviderDbType(item, dataProvider);
-                                                                dynamicParameter.Value = parameters;
+                                                                dynamicParameter = new DynamicParameter
+                                                                {
+                                                                    ParameterName = item.ColumnName,
+                                                                    Length = item.MaxLength,
+                                                                    DbType = GetProviderDbType(item, dataProvider),
+                                                                    Value = parameters
+                                                                };
                                                                 dynamicObject.Parameters.Add(dynamicParameter);
                                                             }
                                                             else
@@ -2681,7 +2700,7 @@ TransactionException:
 
                                     if (dataTable.Rows.Count > 0)
                                     {
-                                        dataRows[statementMap.Seq] = dataTable.Rows[dataTable.Rows.Count - 1];
+                                        dataRows[statementMap.Seq] = dataTable.Rows[^1];
                                     }
                                     else
                                     {
@@ -2701,7 +2720,7 @@ TransactionException:
                                                 continue;
                                             }
 
-                                            if (dynamicObject.BaseFieldRelations != null && dynamicObject.BaseFieldRelations.Count() > 0)
+                                            if (dynamicObject.BaseFieldRelations != null && dynamicObject.BaseFieldRelations.Count > 0)
                                             {
                                                 var baseFieldRelation = dynamicObject.BaseFieldRelations[j];
                                                 if (baseFieldRelation != null && baseFieldRelation.BaseSequence >= 0 && ((ds.Tables.Count - 1) >= baseFieldRelation.BaseSequence))
@@ -2761,7 +2780,7 @@ TransactionException:
                                                 continue;
                                             }
 
-                                            if (dynamicObject.BaseFieldRelations != null && dynamicObject.BaseFieldRelations.Count() > 0)
+                                            if (dynamicObject.BaseFieldRelations != null && dynamicObject.BaseFieldRelations.Count > 0)
                                             {
                                                 var baseFieldRelation = dynamicObject.BaseFieldRelations[j];
                                                 if (baseFieldRelation != null)
@@ -2784,7 +2803,7 @@ TransactionException:
 
                                             if (table.Rows.Count > 0)
                                             {
-                                                dataRows[statementMap.Seq] = table.Rows[table.Rows.Count - 1];
+                                                dataRows[statementMap.Seq] = table.Rows[^1];
                                             }
                                             else
                                             {
@@ -2835,7 +2854,7 @@ TransactionException:
                                     var fallbackCommandResult = businessApiClient.OnewayTransactionCommand(transactionCommands, request.GlobalID, dynamicObject.QueryID, dynamicParameters);
                                     if (!string.IsNullOrWhiteSpace(fallbackCommandResult))
                                     {
-                                        response.ExceptionText = response.ExceptionText + $", ExecuteDynamicSQLMapToXml.FallbackTransactionCommand Error: {fallbackCommandResult}";
+                                        response.ExceptionText += $", ExecuteDynamicSQLMapToXml.FallbackTransactionCommand Error: {fallbackCommandResult}";
 
                                         if (ModuleConfiguration.IsLogServer == true)
                                         {
@@ -2885,7 +2904,7 @@ TransactionException:
                             var fallbackCommandResult = businessApiClient.OnewayTransactionCommand(transactionCommands, request.GlobalID, dynamicObject.QueryID, dynamicParameters);
                             if (!string.IsNullOrWhiteSpace(fallbackCommandResult))
                             {
-                                response.ExceptionText = response.ExceptionText + $", ExecuteDynamicSQLMapToXml.FallbackTransactionCommand Error: {fallbackCommandResult}";
+                                response.ExceptionText += $", ExecuteDynamicSQLMapToXml.FallbackTransactionCommand Error: {fallbackCommandResult}";
 
                                 if (ModuleConfiguration.IsLogServer == true)
                                 {
@@ -2994,8 +3013,11 @@ TransactionException:
 
         public async Task ExecuteCodeHelpSQLMap(DynamicRequest request, DynamicResponse response)
         {
+            ArgumentNullException.ThrowIfNull(response);
+
             var isCommandError = false;
-            request.RequestID = request.RequestID == null ? "NULL" : request.RequestID;
+            ArgumentNullException.ThrowIfNull(request);
+            request.RequestID ??= "NULL";
             var transactionDynamicObjects = new Dictionary<string, TransactionDynamicObjects>();
             var databaseTransactionObjects = new List<DatabaseTransactionObjects>();
 
@@ -3041,7 +3063,7 @@ TransactionException:
                         DataProvider = connectionInfo == null ? DataProviders.SQLite : connectionInfo.Item2
                     });
 
-                    i = i + 1;
+                    i++;
                 }
 
                 if (logQuerys.Count > 0)
@@ -3103,7 +3125,7 @@ TransactionException:
                         SetDbParameterMapping(connectionFactory, databaseProvider, queryObject, statementMap, dynamicParameters);
 
                         var connection = new ProfilerDbConnection(connectionFactory.Connection, profiler);
-                        using (IDataReader dataReader = await connection.ExecuteReaderAsync(parseSQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout))
+                        using (DbDataReader dataReader = await connection.ExecuteReaderAsync(parseSQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout))
                         {
                             try
                             {
@@ -3170,7 +3192,7 @@ TransactionException:
                                         responseCodeObject.CodeColumnID = item.GetStringSafe("CodeColumnID");
                                         responseCodeObject.ValueColumnID = item.GetStringSafe("ValueColumnID");
                                         responseCodeObject.CreatedAt = item.GetStringSafe("CreatedAt");
-                                        responseCodeObject.Scheme = new List<Scheme>();
+                                        responseCodeObject.Scheme = [];
 
                                         var schemeDataTable = ds.Tables[1];
                                         foreach (DataRow row in schemeDataTable.Rows)
@@ -3304,8 +3326,11 @@ TransactionException:
 
         public async Task ExecuteSchemeOnlySQLMap(DynamicRequest request, DynamicResponse response)
         {
+            ArgumentNullException.ThrowIfNull(response);
+
             var isCommandError = false;
-            request.RequestID = request.RequestID == null ? "NULL" : request.RequestID;
+            ArgumentNullException.ThrowIfNull(request);
+            request.RequestID ??= "NULL";
             var transactionDynamicObjects = new Dictionary<string, TransactionDynamicObjects>();
             var databaseTransactionObjects = new List<DatabaseTransactionObjects>();
 
@@ -3351,7 +3376,7 @@ TransactionException:
                         DataProvider = connectionInfo == null ? DataProviders.SQLite : connectionInfo.Item2
                     });
 
-                    i = i + 1;
+                    i++;
                 }
 
                 if (logQuerys.Count > 0)
@@ -3403,10 +3428,10 @@ TransactionException:
                     var databaseTransaction = databaseTransactionObject.DatabaseTransaction;
 
                     dynamic? dynamicParameters = CreateDynamicParameters(databaseProvider, statementMap);
-                    if (dynamicObject.Parameters.Count() > 0)
+                    if (dynamicObject.Parameters.Count > 0)
                     {
                         // 이전 실행 결과값으로 현재 요청 매개변수로 적용
-                        if (dynamicObject.BaseFieldMappings != null && dynamicObject.BaseFieldMappings.Count() > 0)
+                        if (dynamicObject.BaseFieldMappings != null && dynamicObject.BaseFieldMappings.Count > 0)
                         {
                             if (dataRow == null)
                             {
@@ -3457,10 +3482,10 @@ TransactionException:
                         });
                     }
 
-                    var pretreatment = DatabaseMapper.FindPretreatment(statementMap, dynamicObject);
-                    if (pretreatment.SQL != null && pretreatment.ResultType != null)
+                    var (SQL, ResultType) = DatabaseMapper.FindPretreatment(statementMap, dynamicObject);
+                    if (SQL != null && ResultType != null)
                     {
-                        if (pretreatment.SQL.Replace(Environment.NewLine, "").Replace("\t", "").Trim() != "")
+                        if (SQL.Replace(Environment.NewLine, "").Replace("\t", "").Trim() != "")
                         {
                             SQLID = executeDataID + "_pretreatment";
 
@@ -3475,16 +3500,16 @@ TransactionException:
 
                             var pretreatmentProfiler = new ConsoleProfiler(request.RequestID, SQLID, ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.ModuleLogFilePath : null);
                             var pretreatmentConnection = new ProfilerDbConnection(connectionFactory.Connection, pretreatmentProfiler);
-                            using (var pretreatmentReader = await pretreatmentConnection.ExecuteReaderAsync(pretreatment.SQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout))
+                            using (var pretreatmentReader = await pretreatmentConnection.ExecuteReaderAsync(SQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout))
                             {
                                 try
                                 {
                                     using (var ds = DataTableHelper.DataReaderToDataSet(pretreatmentReader))
                                     {
-                                        var resultTypes = pretreatment.ResultType.Split(",");
-                                        if (resultTypes.Count() != (ds == null ? 0 : ds.Tables.Count))
+                                        var resultTypes = ResultType.Split(",");
+                                        if (resultTypes.Length != (ds == null ? 0 : ds.Tables.Count))
                                         {
-                                            response.ExceptionText = $"Pretreatment - 전처리 쿼리 실행 결과와 {pretreatment.ResultType} 설정 확인 필요";
+                                            response.ExceptionText = $"Pretreatment - 전처리 쿼리 실행 결과와 {ResultType} 설정 확인 필요";
                                             isCommandError = true;
                                             goto TransactionException;
                                         }
@@ -3518,11 +3543,13 @@ TransactionException:
                                                                 dataProvider = databaseProvider;
                                                             }
 
-                                                            dynamicParameter = new DynamicParameter();
-                                                            dynamicParameter.ParameterName = item.ColumnName;
-                                                            dynamicParameter.Length = item.MaxLength;
-                                                            dynamicParameter.DbType = GetProviderDbType(item, dataProvider);
-                                                            dynamicParameter.Value = rowItem[item.ColumnName];
+                                                            dynamicParameter = new DynamicParameter
+                                                            {
+                                                                ParameterName = item.ColumnName,
+                                                                Length = item.MaxLength,
+                                                                DbType = GetProviderDbType(item, dataProvider),
+                                                                Value = rowItem[item.ColumnName]
+                                                            };
                                                             dynamicObject.Parameters.Add(dynamicParameter);
                                                         }
                                                         else
@@ -3558,11 +3585,13 @@ TransactionException:
                                                                     dataProvider = databaseProvider;
                                                                 }
 
-                                                                dynamicParameter = new DynamicParameter();
-                                                                dynamicParameter.ParameterName = item.ColumnName;
-                                                                dynamicParameter.Length = item.MaxLength;
-                                                                dynamicParameter.DbType = GetProviderDbType(item, dataProvider);
-                                                                dynamicParameter.Value = parameters;
+                                                                dynamicParameter = new DynamicParameter
+                                                                {
+                                                                    ParameterName = item.ColumnName,
+                                                                    Length = item.MaxLength,
+                                                                    DbType = GetProviderDbType(item, dataProvider),
+                                                                    Value = parameters
+                                                                };
                                                                 dynamicObject.Parameters.Add(dynamicParameter);
                                                             }
                                                             else
@@ -3782,9 +3811,12 @@ TransactionException:
 
         public async Task ExecuteDynamicSQLText(DynamicRequest request, DynamicResponse response)
         {
+            ArgumentNullException.ThrowIfNull(response);
+
             var result = new SQLMapMeta();
             var isCommandError = false;
-            request.RequestID = request.RequestID == null ? "NULL" : request.RequestID;
+            ArgumentNullException.ThrowIfNull(request);
+            request.RequestID ??= "NULL";
             var transactionDynamicObjects = new Dictionary<string, TransactionDynamicObjects>();
             var databaseTransactionObjects = new List<DatabaseTransactionObjects>();
 
@@ -3830,7 +3862,7 @@ TransactionException:
                         DataProvider = connectionInfo == null ? DataProviders.SQLite : connectionInfo.Item2
                     });
 
-                    i = i + 1;
+                    i++;
                 }
 
                 if (logQuerys.Count > 0)
@@ -3891,10 +3923,10 @@ TransactionException:
                     }
 
                     dynamic? dynamicParameters = CreateDynamicParameters(databaseProvider, statementMap);
-                    if (dynamicObject.Parameters.Count() > 0)
+                    if (dynamicObject.Parameters.Count > 0)
                     {
                         // 이전 실행 결과값으로 현재 요청 매개변수로 적용
-                        if (dynamicObject.BaseFieldMappings != null && dynamicObject.BaseFieldMappings.Count() > 0)
+                        if (dynamicObject.BaseFieldMappings != null && dynamicObject.BaseFieldMappings.Count > 0)
                         {
                             if (dataRow == null)
                             {
@@ -3945,13 +3977,13 @@ TransactionException:
                         });
                     }
 
-                    var pretreatment = DatabaseMapper.FindPretreatment(statementMap, dynamicObject);
-                    if (pretreatment.SQL != null && pretreatment.ResultType != null)
+                    var (SQL, ResultType) = DatabaseMapper.FindPretreatment(statementMap, dynamicObject);
+                    if (SQL != null && ResultType != null)
                     {
-                        if (pretreatment.SQL.Replace(Environment.NewLine, "").Replace("\t", "").Trim() != "")
+                        if (SQL.Replace(Environment.NewLine, "").Replace("\t", "").Trim() != "")
                         {
                             var pretreatmentSQLID = executeDataID + "_pretreatment";
-                            result.DefinedSQL.Add(pretreatmentSQLID, pretreatment.SQL.EncodeBase64());
+                            result.DefinedSQL.Add(pretreatmentSQLID, SQL.EncodeBase64());
 
                             Dictionary<string, object?>? pretreatmentParametersDictionary = null;
                             if (dynamicParameters is SqlServerDynamicParameters)
@@ -3983,16 +4015,16 @@ TransactionException:
 
                             var pretreatmentProfiler = new ConsoleProfiler(request.RequestID, pretreatmentSQLID, ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.ModuleLogFilePath : null);
                             var pretreatmentConnection = new ProfilerDbConnection(connectionFactory.Connection, pretreatmentProfiler);
-                            using (var pretreatmentReader = await pretreatmentConnection.ExecuteReaderAsync(pretreatment.SQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout))
+                            using (var pretreatmentReader = await pretreatmentConnection.ExecuteReaderAsync(SQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout))
                             {
                                 try
                                 {
                                     using (var ds = DataTableHelper.DataReaderToDataSet(pretreatmentReader))
                                     {
-                                        var resultTypes = pretreatment.ResultType.Split(",");
-                                        if (resultTypes.Count() != (ds == null ? 0 : ds.Tables.Count))
+                                        var resultTypes = ResultType.Split(",");
+                                        if (resultTypes.Length != (ds == null ? 0 : ds.Tables.Count))
                                         {
-                                            response.ExceptionText = $"Pretreatment - 전처리 쿼리 실행 결과와 {pretreatment.ResultType} 설정 확인 필요";
+                                            response.ExceptionText = $"Pretreatment - 전처리 쿼리 실행 결과와 {ResultType} 설정 확인 필요";
                                             isCommandError = true;
                                             goto TransactionException;
                                         }
@@ -4026,11 +4058,13 @@ TransactionException:
                                                                 dataProvider = databaseProvider;
                                                             }
 
-                                                            dynamicParameter = new DynamicParameter();
-                                                            dynamicParameter.ParameterName = item.ColumnName;
-                                                            dynamicParameter.Length = item.MaxLength;
-                                                            dynamicParameter.DbType = GetProviderDbType(item, dataProvider);
-                                                            dynamicParameter.Value = rowItem[item.ColumnName];
+                                                            dynamicParameter = new DynamicParameter
+                                                            {
+                                                                ParameterName = item.ColumnName,
+                                                                Length = item.MaxLength,
+                                                                DbType = GetProviderDbType(item, dataProvider),
+                                                                Value = rowItem[item.ColumnName]
+                                                            };
                                                             dynamicObject.Parameters.Add(dynamicParameter);
                                                         }
                                                         else
@@ -4066,11 +4100,13 @@ TransactionException:
                                                                     dataProvider = databaseProvider;
                                                                 }
 
-                                                                dynamicParameter = new DynamicParameter();
-                                                                dynamicParameter.ParameterName = item.ColumnName;
-                                                                dynamicParameter.Length = item.MaxLength;
-                                                                dynamicParameter.DbType = GetProviderDbType(item, dataProvider);
-                                                                dynamicParameter.Value = parameters;
+                                                                dynamicParameter = new DynamicParameter
+                                                                {
+                                                                    ParameterName = item.ColumnName,
+                                                                    Length = item.MaxLength,
+                                                                    DbType = GetProviderDbType(item, dataProvider),
+                                                                    Value = parameters
+                                                                };
                                                                 dynamicObject.Parameters.Add(dynamicParameter);
                                                             }
                                                             else
@@ -4264,7 +4300,7 @@ TransactionException:
             }
         }
 
-        private string GetProviderDbType(DataColumn column, DataProviders? databaseProvider = null)
+        private static string GetProviderDbType(DataColumn column, DataProviders? databaseProvider = null)
         {
             var result = "";
 
@@ -4488,6 +4524,8 @@ TransactionException:
 
         public static string ReplaceEvalString(string evalString, JObject parameters)
         {
+            ArgumentNullException.ThrowIfNull(parameters);
+
             foreach (var parameter in parameters)
             {
                 if (parameter.Value != null)
@@ -4517,7 +4555,7 @@ TransactionException:
             return evalString;
         }
 
-        private DynamicParameter? GetDbParameterMap(string parameterName, List<DynamicParameter>? dynamicParameters)
+        private static DynamicParameter? GetDbParameterMap(string parameterName, List<DynamicParameter>? dynamicParameters)
         {
             DynamicParameter? result = null;
 
@@ -4527,7 +4565,7 @@ TransactionException:
                            where p.ParameterName == GetParameterName(parameterName)
                            select p;
 
-                if (maps.Count() > 0)
+                if (maps.Any())
                 {
                     foreach (var item in maps)
                     {
@@ -4540,7 +4578,7 @@ TransactionException:
             return result;
         }
 
-        private string GetParameterName(string parameterName)
+        private static string GetParameterName(string parameterName)
         {
             if (string.IsNullOrEmpty(parameterName))
             {
@@ -4549,12 +4587,12 @@ TransactionException:
 
             return parameterName[0] switch
             {
-                '@' or '#' or ':' => parameterName.Substring(1),
+                '@' or '#' or ':' => parameterName[1..],
                 _ => parameterName
             };
         }
 
-        private dynamic? CreateDynamicParameters(DataProviders databaseProvider, StatementMap statementMap)
+        private static dynamic? CreateDynamicParameters(DataProviders databaseProvider, StatementMap statementMap)
         {
             dynamic? dynamicParameters = null;
             if (statementMap.NativeDataClient == true)
@@ -4593,58 +4631,39 @@ TransactionException:
                 return;
             }
 
-            ISequentialIdGenerator sequentialIdGenerator = new SequentialIdGenerator();
+            SequentialIdGenerator sequentialIdGenerator = new SequentialIdGenerator();
             var dbParameterMaps = statementMap.DbParameters;
             foreach (var dbParameterMap in dbParameterMaps)
             {
                 if (dbParameterMap.Direction.IndexOf("Input") > -1)
                 {
                     var dynamicParameter = GetDbParameterMap(dbParameterMap.Name, queryObject.Parameters);
-                    if (dynamicParameter == null && dbParameterMap.DefaultValue.ToUpper() == "NULL")
+                    if (dynamicParameter == null && dbParameterMap.DefaultValue.Equals("NULL", StringComparison.CurrentCultureIgnoreCase))
                     {
                         continue;
                     }
 
                     if (dynamicParameter == null || string.IsNullOrWhiteSpace(dynamicParameter.Value.ToStringSafe()) == true)
                     {
-                        if (dynamicParameter == null)
+                        dynamicParameter ??= new DynamicParameter
                         {
-                            dynamicParameter = new DynamicParameter();
-                            dynamicParameter.ParameterName = GetParameterName(dbParameterMap.Name);
-                            dynamicParameter.Length = dbParameterMap.Length;
-                            dynamicParameter.DbType = dbParameterMap.DbType;
-                        }
+                            ParameterName = GetParameterName(dbParameterMap.Name),
+                            Length = dbParameterMap.Length,
+                            DbType = dbParameterMap.DbType
+                        };
 
-                        switch (dbParameterMap.DefaultValue)
+                        dynamicParameter.Value = dbParameterMap.DefaultValue switch
                         {
-                            case "@SUID":
-                                dynamicParameter.Value = sequentialIdGenerator.NewId().ToString("N");
-                                break;
-                            case "@GUID":
-                                dynamicParameter.Value = Guid.NewGuid();
-                                break;
-                            case "@NOW":
-                                dynamicParameter.Value = DateTime.Now;
-                                break;
-                            case "@UTCNOW":
-                                dynamicParameter.Value = DateTime.UtcNow;
-                                break;
-                            case "@TRUE":
-                                dynamicParameter.Value = true;
-                                break;
-                            case "@FALSE":
-                                dynamicParameter.Value = false;
-                                break;
-                            case "@DBNULL":
-                                dynamicParameter.Value = DBNull.Value;
-                                break;
-                            case "NULL":
-                                dynamicParameter.Value = "";
-                                break;
-                            default:
-                                dynamicParameter.Value = dbParameterMap.DefaultValue;
-                                break;
-                        }
+                            "@SUID" => sequentialIdGenerator.NewId().ToString("N"),
+                            "@GUID" => Guid.NewGuid(),
+                            "@NOW" => DateTime.Now,
+                            "@UTCNOW" => DateTime.UtcNow,
+                            "@TRUE" => true,
+                            "@FALSE" => false,
+                            "@DBNULL" => DBNull.Value,
+                            "NULL" => "",
+                            _ => dbParameterMap.DefaultValue,
+                        };
                     }
 
                     if (statementMap.NativeDataClient == true)
@@ -4654,11 +4673,11 @@ TransactionException:
                         switch (databaseProvider)
                         {
                             case DataProviders.SqlServer:
-                                dynamicDbType = (SqlDbType)Enum.Parse(typeof(SqlDbType), string.IsNullOrWhiteSpace(dbParameterMap.DbType) ? dynamicParameter.DbType : dbParameterMap.DbType);
+                                dynamicDbType = Enum.Parse<SqlDbType>(string.IsNullOrWhiteSpace(dbParameterMap.DbType) ? dynamicParameter.DbType : dbParameterMap.DbType);
                                 dynamicValue = dynamicParameter.Value;
                                 break;
                             case DataProviders.Oracle:
-                                dynamicDbType = (OracleDbType)Enum.Parse(typeof(OracleDbType), string.IsNullOrWhiteSpace(dbParameterMap.DbType) ? dynamicParameter.DbType : dbParameterMap.DbType);
+                                dynamicDbType = Enum.Parse<OracleDbType>(string.IsNullOrWhiteSpace(dbParameterMap.DbType) ? dynamicParameter.DbType : dbParameterMap.DbType);
                                 if (dynamicDbType == OracleDbType.Clob)
                                 {
                                     var oracleClobParameter = new OracleClobParameter(dynamicParameter.Value);
@@ -4674,30 +4693,30 @@ TransactionException:
                                 }
                                 break;
                             case DataProviders.MySQL:
-                                dynamicDbType = (MySqlDbType)Enum.Parse(typeof(MySqlDbType), string.IsNullOrWhiteSpace(dbParameterMap.DbType) ? dynamicParameter.DbType : dbParameterMap.DbType);
+                                dynamicDbType = Enum.Parse<MySqlDbType>(string.IsNullOrWhiteSpace(dbParameterMap.DbType) ? dynamicParameter.DbType : dbParameterMap.DbType);
                                 dynamicValue = dynamicParameter.Value;
                                 break;
                             case DataProviders.PostgreSQL:
-                                dynamicDbType = (NpgsqlDbType)Enum.Parse(typeof(NpgsqlDbType), string.IsNullOrWhiteSpace(dbParameterMap.DbType) ? dynamicParameter.DbType : dbParameterMap.DbType);
+                                dynamicDbType = Enum.Parse<NpgsqlDbType>(string.IsNullOrWhiteSpace(dbParameterMap.DbType) ? dynamicParameter.DbType : dbParameterMap.DbType);
                                 dynamicValue = dynamicParameter.Value;
                                 break;
                             case DataProviders.SQLite:
-                                dynamicDbType = (DbType)Enum.Parse(typeof(DbType), string.IsNullOrWhiteSpace(dbParameterMap.DbType) ? dynamicParameter.DbType : dbParameterMap.DbType);
+                                dynamicDbType = Enum.Parse<DbType>(string.IsNullOrWhiteSpace(dbParameterMap.DbType) ? dynamicParameter.DbType : dbParameterMap.DbType);
                                 dynamicValue = dynamicParameter.Value;
                                 break;
                         }
 
                         dynamicParameters.Add(
                             dynamicParameter.ParameterName,
-                            dynamicValue == null ? DBNull.Value : dynamicValue,
+                            dynamicValue ?? DBNull.Value,
                             dynamicDbType,
-                            (ParameterDirection)Enum.Parse(typeof(ParameterDirection), dbParameterMap.Direction),
+                            Enum.Parse<ParameterDirection>(dbParameterMap.Direction),
                             dbParameterMap.Length <= 0 ? -1 : dbParameterMap.Length
                         );
                     }
                     else
                     {
-                        var dynamicDbType = (DbType)Enum.Parse(typeof(DbType), string.IsNullOrWhiteSpace(dbParameterMap.DbType) ? dynamicParameter.DbType : dbParameterMap.DbType);
+                        var dynamicDbType = Enum.Parse<DbType>(string.IsNullOrWhiteSpace(dbParameterMap.DbType) ? dynamicParameter.DbType : dbParameterMap.DbType);
 
                         if (dynamicDbType == DbType.String)
                         {
@@ -4732,14 +4751,14 @@ TransactionException:
                             }
                         }
 
-                        var isTransformed = TransformValue(dbParameterMap, dynamicParameter, dbParameterMaps);
+                        var isTransformed = TransformValue(dbParameterMap, dynamicParameter);
                         if (isTransformed == false)
                         {
                             dynamicParameters.Add(
                                 dynamicParameter.ParameterName,
                                 dynamicParameter.Value,
                                 dynamicDbType,
-                                (ParameterDirection)Enum.Parse(typeof(ParameterDirection), dbParameterMap.Direction),
+                                Enum.Parse<ParameterDirection>(dbParameterMap.Direction),
                                 dbParameterMap.Length <= 0 ? -1 : dbParameterMap.Length
                             );
                         }
@@ -4753,19 +4772,19 @@ TransactionException:
                         switch (databaseProvider)
                         {
                             case DataProviders.SqlServer:
-                                dynamicDbType = (SqlDbType)Enum.Parse(typeof(SqlDbType), dbParameterMap.DbType);
+                                dynamicDbType = Enum.Parse<SqlDbType>(dbParameterMap.DbType);
                                 break;
                             case DataProviders.Oracle:
-                                dynamicDbType = (OracleDbType)Enum.Parse(typeof(OracleDbType), dbParameterMap.DbType);
+                                dynamicDbType = Enum.Parse<OracleDbType>(dbParameterMap.DbType);
                                 break;
                             case DataProviders.MySQL:
-                                dynamicDbType = (MySqlDbType)Enum.Parse(typeof(MySqlDbType), dbParameterMap.DbType);
+                                dynamicDbType = Enum.Parse<MySqlDbType>(dbParameterMap.DbType);
                                 break;
                             case DataProviders.PostgreSQL:
-                                dynamicDbType = (NpgsqlDbType)Enum.Parse(typeof(NpgsqlDbType), dbParameterMap.DbType);
+                                dynamicDbType = Enum.Parse<NpgsqlDbType>(dbParameterMap.DbType);
                                 break;
                             case DataProviders.SQLite:
-                                dynamicDbType = (DbType)Enum.Parse(typeof(DbType), dbParameterMap.DbType);
+                                dynamicDbType = Enum.Parse<DbType>(dbParameterMap.DbType);
                                 break;
                         }
 
@@ -4773,19 +4792,19 @@ TransactionException:
                             GetParameterName(dbParameterMap.Name),
                             null,
                             dynamicDbType,
-                            (ParameterDirection)Enum.Parse(typeof(ParameterDirection), dbParameterMap.Direction),
+                            Enum.Parse<ParameterDirection>(dbParameterMap.Direction),
                             dbParameterMap.Length <= 0 ? -1 : dbParameterMap.Length
                         );
                     }
                     else
                     {
-                        var dynamicDbType = (DbType)Enum.Parse(typeof(DbType), dbParameterMap.DbType);
+                        var dynamicDbType = Enum.Parse<DbType>(dbParameterMap.DbType);
 
                         dynamicParameters.Add(
                             GetParameterName(dbParameterMap.Name),
                             null,
                             dynamicDbType,
-                            (ParameterDirection)Enum.Parse(typeof(ParameterDirection), dbParameterMap.Direction),
+                            Enum.Parse<ParameterDirection>(dbParameterMap.Direction),
                             dbParameterMap.Length <= 0 ? -1 : dbParameterMap.Length
                         );
                     }
@@ -4793,7 +4812,7 @@ TransactionException:
             }
         }
 
-        private bool TransformValue(DbParameterMap dbParameterMap, DynamicParameter dynamicParameter, List<DbParameterMap> dbParameterMaps)
+        private bool TransformValue(DbParameterMap dbParameterMap, DynamicParameter dynamicParameter)
         {
             var isTransformed = false;
             var transformParts = dbParameterMap.Transform.Split('|');
@@ -4978,7 +4997,7 @@ TransactionException:
                         if (transformParts.Length >= 2)
                         {
                             var defaultValue = transformParts[1];
-                            dynamicParameter.Value = dynamicParameter.Value ?? defaultValue;
+                            dynamicParameter.Value ??= defaultValue;
                         }
                         break;
 
@@ -5237,7 +5256,7 @@ TransactionException:
             return isTransformed;
         }
 
-        private void PretreatmentAddParameter(DataProviders databaseProvider, StatementMap statementMap, dynamic? dynamicParameters, DataRow rowItem, DataColumn item)
+        private static void PretreatmentAddParameter(DataProviders databaseProvider, StatementMap statementMap, dynamic? dynamicParameters, DataRow rowItem, DataColumn item)
         {
             if (dynamicParameters == null)
             {
@@ -5250,19 +5269,19 @@ TransactionException:
                 switch (databaseProvider)
                 {
                     case DataProviders.SqlServer:
-                        dynamicDbType = (SqlDbType)Enum.Parse(typeof(SqlDbType), GetProviderDbType(item, databaseProvider));
+                        dynamicDbType = Enum.Parse<SqlDbType>(GetProviderDbType(item, databaseProvider));
                         break;
                     case DataProviders.Oracle:
-                        dynamicDbType = (OracleDbType)Enum.Parse(typeof(OracleDbType), GetProviderDbType(item, databaseProvider));
+                        dynamicDbType = Enum.Parse<OracleDbType>(GetProviderDbType(item, databaseProvider));
                         break;
                     case DataProviders.MySQL:
-                        dynamicDbType = (MySqlDbType)Enum.Parse(typeof(MySqlDbType), GetProviderDbType(item, databaseProvider));
+                        dynamicDbType = Enum.Parse<MySqlDbType>(GetProviderDbType(item, databaseProvider));
                         break;
                     case DataProviders.PostgreSQL:
-                        dynamicDbType = (NpgsqlDbType)Enum.Parse(typeof(NpgsqlDbType), GetProviderDbType(item, databaseProvider));
+                        dynamicDbType = Enum.Parse<NpgsqlDbType>(GetProviderDbType(item, databaseProvider));
                         break;
                     case DataProviders.SQLite:
-                        dynamicDbType = (DbType)Enum.Parse(typeof(DbType), GetProviderDbType(item, databaseProvider));
+                        dynamicDbType = Enum.Parse<DbType>(GetProviderDbType(item, databaseProvider));
                         break;
                 }
 
@@ -5276,7 +5295,7 @@ TransactionException:
             }
             else
             {
-                var dynamicDbType = (DbType)Enum.Parse(typeof(DbType), GetProviderDbType(item));
+                var dynamicDbType = Enum.Parse<DbType>(GetProviderDbType(item));
 
                 dynamicParameters.Add(
                     item.ColumnName,
@@ -5303,7 +5322,7 @@ TransactionException:
             return result;
         }
 
-        private void CloseDatabaseFactory(DatabaseFactory? databaseFactory, bool isTransaction)
+        private static void CloseDatabaseFactory(DatabaseFactory? databaseFactory, bool isTransaction)
         {
             if (databaseFactory != null)
             {
@@ -5423,6 +5442,7 @@ TransactionException:
                     this.DbConnection = null;
                 }
             }
+            GC.SuppressFinalize(this);
         }
     }
 }

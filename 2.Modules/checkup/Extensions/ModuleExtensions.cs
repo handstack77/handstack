@@ -35,11 +35,15 @@ namespace checkup.Extensions
         */
         public static dynamic? ExecuteMetaSQL(ReturnType returnType, string queryID, object? parameters = null)
         {
+            ArgumentNullException.ThrowIfNull(queryID);
+
             return ExecuteMetaSQLCore(ModuleConfiguration.ConnectionString, returnType, queryID, parameters);
         }
 
         public static dynamic? TenantAppExecuteMetaSQL(string connectionString, ReturnType returnType, string queryID, object? parameters = null)
         {
+            ArgumentNullException.ThrowIfNull(queryID);
+
             return ExecuteMetaSQLCore(connectionString, returnType, queryID, parameters);
         }
 

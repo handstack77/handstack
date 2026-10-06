@@ -13,8 +13,12 @@ namespace HandStack.Core.ExtensionMethod
         /// </code>
         public static void ForEach<T>(this IEnumerable<T> @this, Action<T> action)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             foreach (var value in @this)
             {
+                ArgumentNullException.ThrowIfNull(action);
+
                 action(value);
             }
         }
@@ -26,8 +30,11 @@ namespace HandStack.Core.ExtensionMethod
         public static IEnumerable<TSource> Distinct<TSource, TKey>(this IEnumerable<TSource> @this, Func<TSource, TKey> keySelector)
         {
             var seenKeys = new HashSet<TKey>();
+            ArgumentNullException.ThrowIfNull(@this);
             foreach (var element in @this)
             {
+                ArgumentNullException.ThrowIfNull(keySelector);
+
                 if (seenKeys.Add(keySelector(element)))
                 {
                     yield return element;

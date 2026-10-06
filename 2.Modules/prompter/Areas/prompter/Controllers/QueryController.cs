@@ -31,23 +31,15 @@ namespace prompter.Areas.prompter.Controllers
     [Route("[area]/api/[controller]")]
     [ApiController]
     [EnableCors]
-    public class QueryController : BaseController
+    public class QueryController(Serilog.ILogger logger, IPromptClient dataClient, PromptLoggerClient loggerClient, IMemoryCache memoryCache) : BaseController
     {
-        private PromptLoggerClient loggerClient { get; }
+        private PromptLoggerClient loggerClient { get; } = loggerClient;
 
-        private Serilog.ILogger logger { get; }
+        private Serilog.ILogger logger { get; } = logger;
 
-        private IPromptClient dataClient { get; }
+        private IPromptClient dataClient { get; } = dataClient;
 
-        private readonly IMemoryCache memoryCache;
-
-        public QueryController(Serilog.ILogger logger, IPromptClient dataClient, PromptLoggerClient loggerClient, IMemoryCache memoryCache)
-        {
-            this.logger = logger;
-            this.loggerClient = loggerClient;
-            this.dataClient = dataClient;
-            this.memoryCache = memoryCache;
-        }
+        private readonly IMemoryCache memoryCache = memoryCache;
 
         // http://localhost:8421/prompter/api/query/has
         [HttpGet("[action]")]
@@ -60,8 +52,8 @@ namespace prompter.Areas.prompter.Controllers
                 TransactionID = transactionID,
                 FunctionID = functionID
             };
-
-            ActionResult result = BadRequest();
+            _ = BadRequest();
+            ActionResult result;
             if (HttpContext.IsAllowAuthorization() == false)
             {
                 result = BadRequest();
@@ -100,6 +92,8 @@ namespace prompter.Areas.prompter.Controllers
 
                 try
                 {
+                    ArgumentNullException.ThrowIfNull(filePath);
+
                     if (filePath.StartsWith(Path.DirectorySeparatorChar) == true)
                     {
                         filePath = filePath.SubstringSafe(1);
@@ -112,7 +106,7 @@ namespace prompter.Areas.prompter.Controllers
                     var businessContracts = PromptMapper.PromptMappings;
                     lock (businessContracts)
                     {
-                        var watcherChangeTypes = (WatcherChangeTypes)Enum.Parse(typeof(WatcherChangeTypes), changeType);
+                        var watcherChangeTypes = Enum.Parse<WatcherChangeTypes>(changeType);
                         switch (watcherChangeTypes)
                         {
                             case WatcherChangeTypes.Created:
@@ -266,7 +260,8 @@ namespace prompter.Areas.prompter.Controllers
         [HttpGet("[action]")]
         public ActionResult CacheClear()
         {
-            ActionResult result = BadRequest();
+            _ = BadRequest();
+            ActionResult result;
             if (HttpContext.IsAllowAuthorization() == false)
             {
                 result = BadRequest();
@@ -304,7 +299,7 @@ namespace prompter.Areas.prompter.Controllers
             return result;
         }
 
-        private List<string> GetMemoryCacheKeys()
+        private static List<string> GetMemoryCacheKeys()
         {
             var result = new List<string>();
             foreach (var cacheKey in ModuleConfiguration.CacheKeys)
@@ -379,7 +374,7 @@ namespace prompter.Areas.prompter.Controllers
                             ApplicationID = item.ApplicationID,
                             ProjectID = item.ProjectID,
                             TransactionID = item.TransactionID,
-                            ServiceID = item.StatementID.Substring(0, item.StatementID.Length - 2),
+                            ServiceID = item.StatementID[..^2],
                             Seq = item.Seq,
                             Description = item.Description,
                             Parameters = item.InputVariables.Select(inputVariableMap => new QueryReportParameter
@@ -421,7 +416,7 @@ namespace prompter.Areas.prompter.Controllers
                 ? parameterName
                 : parameterName[0] switch
                 {
-                    '@' or ':' or '$' or '#' => parameterName.Substring(1),
+                    '@' or ':' or '$' or '#' => parameterName[1..],
                     _ => parameterName
                 };
         }
@@ -452,8 +447,10 @@ namespace prompter.Areas.prompter.Controllers
         public async Task<ActionResult> Execute(DynamicRequest request)
         {
             ActionResult result = BadRequest();
-            var response = new DynamicResponse();
-            response.Acknowledge = AcknowledgeType.Failure;
+            var response = new DynamicResponse
+            {
+                Acknowledge = AcknowledgeType.Failure
+            };
 
             if (request == null)
             {

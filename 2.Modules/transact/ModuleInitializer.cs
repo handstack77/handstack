@@ -98,10 +98,10 @@ namespace transact
                         ModuleConfiguration.BusinessFileSyncManager.Clear();
                         ModuleConfiguration.ContractBasePath.Clear();
                         ModuleConfiguration.RoutingCommandUri.Clear();
-                        ModuleConfiguration.PublicTransactions ??= new HandStack.Web.Extensions.ExpiringList<PublicTransaction>();
+                        ModuleConfiguration.PublicTransactions ??= [];
                         ModuleConfiguration.PublicTransactions.Clear();
                         ModuleConfiguration.IsContractFileWatching = moduleConfig.IsContractFileWatching;
-                        foreach (var basePath in moduleConfig.ContractBasePath ?? new List<string>())
+                        foreach (var basePath in moduleConfig.ContractBasePath ?? [])
                         {
                             var contractBasePath = GlobalConfiguration.GetBaseDirectoryPath(basePath);
                             if (string.IsNullOrWhiteSpace(contractBasePath) == false && ModuleConfiguration.ContractBasePath.Contains(contractBasePath) == false)
@@ -114,10 +114,10 @@ namespace transact
                         ModuleConfiguration.DatabaseContractPath = GlobalConfiguration.GetBaseDirectoryPath(moduleConfig.DatabaseContractPath, PathExtensions.Combine(ModuleConfiguration.ModuleBasePath, "Contracts", "dbclient"));
                         ModuleConfiguration.TransactionAggregateBasePath = GlobalConfiguration.GetBaseDirectoryPath(moduleConfig.TransactionAggregateBasePath);
 
-                        ModuleConfiguration.PublicTransactions = moduleConfig.PublicTransactions ?? new HandStack.Web.Extensions.ExpiringList<PublicTransaction>();
+                        ModuleConfiguration.PublicTransactions = moduleConfig.PublicTransactions ?? [];
                         ModuleConfiguration.PublicTransactions.ExtendExpiryTime(DateTime.Now.AddYears(10));
 
-                        foreach (var item in (moduleConfig.RoutingCommandUri ?? new Dictionary<string, string>()).AsEnumerable())
+                        foreach (var item in (moduleConfig.RoutingCommandUri ?? []).AsEnumerable())
                         {
                             if (string.IsNullOrWhiteSpace(item.Key) == false && string.IsNullOrWhiteSpace(item.Value) == false)
                             {
@@ -126,14 +126,14 @@ namespace transact
                         }
 
                         var allowRequestTransactions = new Dictionary<string, FrozenSet<string>>();
-                        foreach (var item in (moduleConfig.AllowRequestTransactions ?? new Dictionary<string, List<string>>()).AsEnumerable())
+                        foreach (var item in (moduleConfig.AllowRequestTransactions ?? []).AsEnumerable())
                         {
                             if (string.IsNullOrWhiteSpace(item.Key) == true)
                             {
                                 continue;
                             }
 
-                            allowRequestTransactions[item.Key] = (item.Value ?? new List<string>())
+                            allowRequestTransactions[item.Key] = (item.Value ?? [])
                                 .Where(p => string.IsNullOrWhiteSpace(p) == false)
                                 .Select(p => p.Trim())
                                 .Distinct(StringComparer.OrdinalIgnoreCase)
@@ -141,23 +141,23 @@ namespace transact
                         }
                         ModuleConfiguration.AllowRequestTransactions = allowRequestTransactions.ToFrozenDictionary();
 
-                        ModuleConfiguration.BypassGlobalIDTransactions = (moduleConfig.BypassGlobalIDTransactions ?? new List<string>())
+                        ModuleConfiguration.BypassGlobalIDTransactions = (moduleConfig.BypassGlobalIDTransactions ?? [])
                             .Where(p => string.IsNullOrWhiteSpace(p) == false)
                             .Select(p => p.Trim())
                             .Distinct(StringComparer.OrdinalIgnoreCase)
                             .ToFrozenSet();
-                        ModuleConfiguration.AllowTenantTransactionCommands = (moduleConfig.AllowTenantTransactionCommands ?? new List<string>())
+                        ModuleConfiguration.AllowTenantTransactionCommands = (moduleConfig.AllowTenantTransactionCommands ?? [])
                             .Where(p => string.IsNullOrWhiteSpace(p) == false)
                             .Select(p => p.Trim())
                             .Distinct(StringComparer.OrdinalIgnoreCase)
                             .ToFrozenSet();
-                        ModuleConfiguration.BypassAuthorizeIP = (moduleConfig.BypassAuthorizeIP ?? new List<string>())
+                        ModuleConfiguration.BypassAuthorizeIP = (moduleConfig.BypassAuthorizeIP ?? [])
                             .Where(p => string.IsNullOrWhiteSpace(p) == false)
                             .Select(p => p.Trim())
                             .Distinct(StringComparer.OrdinalIgnoreCase)
                             .ToFrozenSet();
 
-                        var availableEnvironment = (moduleConfig.AvailableEnvironment ?? new List<string>())
+                        var availableEnvironment = (moduleConfig.AvailableEnvironment ?? [])
                             .Where(p => string.IsNullOrWhiteSpace(p) == false)
                             .Select(p => p.Trim())
                             .Distinct(StringComparer.OrdinalIgnoreCase)
@@ -168,7 +168,7 @@ namespace transact
                         }
                         ModuleConfiguration.AvailableEnvironment = availableEnvironment.ToFrozenSet();
 
-                        var allowClientIP = (moduleConfig.AllowClientIP ?? new List<string>() { "*" })
+                        var allowClientIP = (moduleConfig.AllowClientIP ?? ["*"])
                             .Where(p => string.IsNullOrWhiteSpace(p) == false)
                             .Select(p => p.Trim())
                             .Distinct(StringComparer.OrdinalIgnoreCase)
@@ -194,6 +194,7 @@ namespace transact
                     throw new FileNotFoundException(message);
                 }
 
+                ArgumentNullException.ThrowIfNull(environment);
                 TransactionMapper.LoadContract(environment.EnvironmentName, Log.Logger, configuration);
 
                 services.AddSingleton(new TransactLoggerClient(Log.Logger));
@@ -284,6 +285,7 @@ namespace transact
                 }
             }
 
+            ArgumentNullException.ThrowIfNull(app);
             var serviceScopeFactory = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>();
             foreach (var basePath in ModuleConfiguration.ContractBasePath)
             {
@@ -328,7 +330,7 @@ namespace transact
 
     internal class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
             Console.WriteLine("transact");
         }

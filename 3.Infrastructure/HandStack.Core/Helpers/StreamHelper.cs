@@ -4,19 +4,13 @@ using System.Text;
 
 namespace HandStack.Core.Helpers
 {
-    public class StreamHelper
+    public class StreamHelper(Stream ioStream)
     {
-        private Stream ioStream;
-
-        public StreamHelper(Stream ioStream)
-        {
-            this.ioStream = ioStream;
-        }
+        private readonly Stream ioStream = ioStream;
 
         public string ReadString()
         {
-            var len = 0;
-            len = ioStream.ReadByte() * 256;
+            var len = ioStream.ReadByte() * 256;
             len += ioStream.ReadByte();
             var inBuffer = new byte[len];
             ioStream.ReadExactly(inBuffer, 0, len);

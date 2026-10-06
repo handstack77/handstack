@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
 
 namespace HandStack.Web.Entity
@@ -7,6 +8,8 @@ namespace HandStack.Web.Entity
     {
         public static List<FormJsonData> ToJsonObject(string fieldID, DataSet source)
         {
+            ArgumentNullException.ThrowIfNull(source);
+
             var formControls = new List<FormJsonData>(source.Tables.Count);
 
             int colIndex;
@@ -44,6 +47,7 @@ namespace HandStack.Web.Entity
         {
             int colIndex;
             var formData = new FormJsonData();
+            ArgumentNullException.ThrowIfNull(source);
             foreach (DataRow dataRow in source.Rows)
             {
                 // 값은 첫 행에서 채우며, 삭제된 행의 기존 접근 오류는 유지합니다.
@@ -85,6 +89,7 @@ namespace HandStack.Web.Entity
                     NextResult = false;
                 }
 
+                ArgumentNullException.ThrowIfNull(source);
                 while (source.Read())
                 {
                     for (var i = 0; i < source.FieldCount; i++)
@@ -114,7 +119,7 @@ namespace HandStack.Web.Entity
         public FormJsonData()
         {
             ID = "";
-            Value = new Dictionary<string, object?>();
+            Value = [];
         }
     }
 }

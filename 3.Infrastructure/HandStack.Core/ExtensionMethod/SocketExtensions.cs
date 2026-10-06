@@ -1,4 +1,5 @@
-﻿using System.Net.NetworkInformation;
+﻿using System;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
 
 namespace HandStack.Core.ExtensionMethod
@@ -10,6 +11,8 @@ namespace HandStack.Core.ExtensionMethod
             var result = false;
             try
             {
+                ArgumentNullException.ThrowIfNull(@this);
+
                 result = @this.Poll(latencyWait, SelectMode.SelectRead) == true && @this.Available > 0;
             }
             catch

@@ -8,21 +8,13 @@ using Microsoft.Extensions.Logging;
 
 namespace HandStack.Web.Extensions
 {
-    public class InvariantDecimalModelBinder : IModelBinder
+    public class InvariantDecimalModelBinder(Type modelType, ILoggerFactory loggerFactory) : IModelBinder
     {
-        private readonly SimpleTypeModelBinder _baseBinder;
-
-        public InvariantDecimalModelBinder(Type modelType, ILoggerFactory loggerFactory)
-        {
-            _baseBinder = new SimpleTypeModelBinder(modelType, loggerFactory);
-        }
+        private readonly SimpleTypeModelBinder _baseBinder = new(modelType, loggerFactory);
 
         public Task BindModelAsync(ModelBindingContext bindingContext)
         {
-            if (bindingContext == null)
-            {
-                throw new ArgumentNullException(nameof(bindingContext));
-            }
+            ArgumentNullException.ThrowIfNull(bindingContext);
 
             var valueProviderResult = bindingContext.ValueProvider.GetValue(bindingContext.ModelName);
 
@@ -31,9 +23,8 @@ namespace HandStack.Web.Extensions
                 bindingContext.ModelState.SetModelValue(bindingContext.ModelName, valueProviderResult);
 
                 var valueAsString = valueProviderResult.FirstValue;
-                decimal result;
 
-                if (decimal.TryParse(valueAsString, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out result))
+                if (decimal.TryParse(valueAsString, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out var result))
                 {
                     bindingContext.Result = ModelBindingResult.Success(result);
                     return Task.CompletedTask;

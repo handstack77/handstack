@@ -9,16 +9,22 @@ namespace HandStack.Core.ExtensionMethod
     {
         public static bool IsConnectionOpen(this DbConnection @this)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             return @this.State == ConnectionState.Open;
         }
 
         public static bool IsConnectionOpen(this IDbConnection @this)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             return @this.State == ConnectionState.Open;
         }
 
         public static void EnsureOpen(this DbConnection @this)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             if (@this.State == ConnectionState.Closed)
             {
                 @this.Open();
@@ -27,6 +33,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static void EnsureOpen(this IDbConnection @this)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             if (@this.State == ConnectionState.Closed)
             {
                 @this.Open();
@@ -35,6 +43,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static IEnumerable<T> ExecuteEntities<T>(this DbConnection @this, string commandText, DbParameter[]? parameters, CommandType commandType, DbTransaction? transaction) where T : new()
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
             command.CommandText = commandText;
             command.CommandType = commandType;
@@ -51,7 +61,10 @@ namespace HandStack.Core.ExtensionMethod
 
         public static IEnumerable<T> ExecuteEntities<T>(this DbConnection @this, Action<DbCommand> commandFactory) where T : new()
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
+            ArgumentNullException.ThrowIfNull(commandFactory);
             commandFactory(command);
 
             using IDataReader reader = command.ExecuteReader();
@@ -95,6 +108,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static IEnumerable<T> ExecuteEntities<T>(this IDbConnection @this, string commandText, IDataParameter[]? parameters, CommandType commandType, IDbTransaction? transaction) where T : new()
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
             command.CommandText = commandText;
             command.CommandType = commandType;
@@ -114,7 +129,10 @@ namespace HandStack.Core.ExtensionMethod
 
         public static IEnumerable<T> ExecuteEntities<T>(this IDbConnection @this, Action<IDbCommand> commandFactory) where T : new()
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
+            ArgumentNullException.ThrowIfNull(commandFactory);
             commandFactory(command);
 
             using var reader = command.ExecuteReader();
@@ -158,6 +176,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static T ExecuteEntity<T>(this DbConnection @this, string commandText, DbParameter[]? parameters, CommandType commandType, DbTransaction? transaction) where T : new()
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
             command.CommandText = commandText;
             command.CommandType = commandType;
@@ -168,17 +188,20 @@ namespace HandStack.Core.ExtensionMethod
                 command.Parameters.AddRange(parameters);
             }
 
-            using IDataReader reader = command.ExecuteReader();
+            using DbDataReader reader = command.ExecuteReader();
             reader.Read();
             return reader.ToEntity<T>();
         }
 
         public static T ExecuteEntity<T>(this DbConnection @this, Action<DbCommand> commandFactory) where T : new()
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
+            ArgumentNullException.ThrowIfNull(commandFactory);
             commandFactory(command);
 
-            using IDataReader reader = command.ExecuteReader();
+            using DbDataReader reader = command.ExecuteReader();
             reader.Read();
             return reader.ToEntity<T>();
         }
@@ -220,6 +243,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static T ExecuteEntity<T>(this IDbConnection @this, string commandText, IDataParameter[]? parameters, CommandType commandType, IDbTransaction? transaction) where T : new()
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
             command.CommandText = commandText;
             command.CommandType = commandType;
@@ -240,7 +265,10 @@ namespace HandStack.Core.ExtensionMethod
 
         public static T ExecuteEntity<T>(this IDbConnection @this, Action<IDbCommand> commandFactory) where T : new()
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
+            ArgumentNullException.ThrowIfNull(commandFactory);
             commandFactory(command);
 
             using var reader = command.ExecuteReader();
@@ -285,6 +313,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static dynamic ExecuteExpandoObject(this DbConnection @this, string commandText, DbParameter[]? parameters, CommandType commandType, DbTransaction? transaction)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
             command.CommandText = commandText;
             command.CommandType = commandType;
@@ -295,17 +325,20 @@ namespace HandStack.Core.ExtensionMethod
                 command.Parameters.AddRange(parameters);
             }
 
-            using IDataReader reader = command.ExecuteReader();
+            using DbDataReader reader = command.ExecuteReader();
             reader.Read();
             return reader.ToExpandoObject();
         }
 
         public static dynamic ExecuteExpandoObject(this DbConnection @this, Action<DbCommand> commandFactory)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
+            ArgumentNullException.ThrowIfNull(commandFactory);
             commandFactory(command);
 
-            using IDataReader reader = command.ExecuteReader();
+            using DbDataReader reader = command.ExecuteReader();
             reader.Read();
             return reader.ToExpandoObject();
         }
@@ -347,6 +380,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static dynamic ExecuteExpandoObject(this IDbConnection @this, string commandText, IDataParameter[]? parameters, CommandType commandType, IDbTransaction? transaction)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
             command.CommandText = commandText;
             command.CommandType = commandType;
@@ -367,7 +402,10 @@ namespace HandStack.Core.ExtensionMethod
 
         public static dynamic ExecuteExpandoObject(this IDbConnection @this, Action<IDbCommand> commandFactory)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
+            ArgumentNullException.ThrowIfNull(commandFactory);
             commandFactory(command);
 
             using var reader = command.ExecuteReader();
@@ -412,6 +450,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static IEnumerable<dynamic> ExecuteExpandoObjects(this DbConnection @this, string commandText, DbParameter[]? parameters, CommandType commandType, DbTransaction? transaction)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
             command.CommandText = commandText;
             command.CommandType = commandType;
@@ -428,7 +468,10 @@ namespace HandStack.Core.ExtensionMethod
 
         public static IEnumerable<dynamic> ExecuteExpandoObjects(this DbConnection @this, Action<DbCommand> commandFactory)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
+            ArgumentNullException.ThrowIfNull(commandFactory);
             commandFactory(command);
 
             using IDataReader reader = command.ExecuteReader();
@@ -472,6 +515,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static IEnumerable<dynamic> ExecuteExpandoObjects(this IDbConnection @this, string commandText, IDataParameter[]? parameters, CommandType commandType, IDbTransaction? transaction)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
             command.CommandText = commandText;
             command.CommandType = commandType;
@@ -491,7 +536,10 @@ namespace HandStack.Core.ExtensionMethod
 
         public static IEnumerable<dynamic> ExecuteExpandoObjects(this IDbConnection @this, Action<IDbCommand> commandFactory)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
+            ArgumentNullException.ThrowIfNull(commandFactory);
             commandFactory(command);
 
             using var reader = command.ExecuteReader();

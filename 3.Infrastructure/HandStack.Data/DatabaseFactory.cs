@@ -4,17 +4,12 @@ using System.Data;
 using System.Data.Common;
 using System.Data.SQLite;
 using System.IO;
-
-using Microsoft.Data.SqlClient;
-
-using MySqlConnector;
-
-using Npgsql;
-
-using Oracle.ManagedDataAccess.Client;
-
-using Serilog;
 using HandStack.Core.ExtensionMethod;
+using Microsoft.Data.SqlClient;
+using MySqlConnector;
+using Npgsql;
+using Oracle.ManagedDataAccess.Client;
+using Serilog;
 
 namespace HandStack.Data
 {
@@ -239,10 +234,7 @@ namespace HandStack.Data
         {
             if (databaseConnection != null && databaseCommand != null)
             {
-                if (databaseCommand.Transaction != null)
-                {
-                    databaseCommand.Transaction.Commit();
-                }
+                databaseCommand.Transaction?.Commit();
                 databaseConnection.Close();
             }
         }
@@ -251,10 +243,7 @@ namespace HandStack.Data
         {
             if (databaseConnection != null && databaseCommand != null)
             {
-                if (databaseCommand.Transaction != null)
-                {
-                    databaseCommand.Transaction.Rollback();
-                }
+                databaseCommand.Transaction?.Rollback();
 
                 databaseConnection.Close();
             }
@@ -613,15 +602,9 @@ namespace HandStack.Data
             {
                 if (isFromDispose == true)
                 {
-                    if (outputCommand != null)
-                    {
-                        outputCommand.Dispose();
-                    }
+                    outputCommand?.Dispose();
 
-                    if (databaseCommand != null)
-                    {
-                        databaseCommand.Dispose();
-                    }
+                    databaseCommand?.Dispose();
 
                     if (databaseConnection != null)
                     {

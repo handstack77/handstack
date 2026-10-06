@@ -40,6 +40,7 @@ namespace agent
             Console.OutputEncoding = Encoding.UTF8;
             Console.InputEncoding = Encoding.UTF8;
 
+            ArgumentNullException.ThrowIfNull(args);
             if (HasConfiguredUrls(args, builder.Configuration["urls"], Environment.GetEnvironmentVariable("ASPNETCORE_URLS")) == false)
             {
                 builder.WebHost.UseUrls("http://0.0.0.0:8422");

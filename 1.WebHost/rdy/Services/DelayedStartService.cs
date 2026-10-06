@@ -6,18 +6,11 @@ using Microsoft.Extensions.Logging;
 
 namespace rdy.Services
 {
-    internal class DelayedStartService : IHostedService
+    internal class DelayedStartService(IHostApplicationLifetime appLifetime, ILogger<DelayedStartService> logger, ModuleConfigurationService moduleConfigurationService) : IHostedService
     {
-        private readonly IHostApplicationLifetime appLifetime;
-        private readonly ILogger<DelayedStartService> logger;
-        private readonly ModuleConfigurationService moduleConfigurationService;
-
-        public DelayedStartService(IHostApplicationLifetime appLifetime, ILogger<DelayedStartService> logger, ModuleConfigurationService moduleConfigurationService)
-        {
-            this.appLifetime = appLifetime;
-            this.logger = logger;
-            this.moduleConfigurationService = moduleConfigurationService;
-        }
+        private readonly IHostApplicationLifetime appLifetime = appLifetime;
+        private readonly ILogger<DelayedStartService> logger = logger;
+        private readonly ModuleConfigurationService moduleConfigurationService = moduleConfigurationService;
 
         public Task StartAsync(CancellationToken cancellationToken)
         {

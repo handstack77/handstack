@@ -25,18 +25,12 @@ using Serilog;
 
 namespace HandStack.Web.ApiClient
 {
-    public class TransactionClient
+    public class TransactionClient(ILogger logger, IMediator? mediator = null)
     {
-        private readonly ILogger logger;
-        private readonly IMediator? mediator;
+        private readonly ILogger logger = logger;
+        private readonly IMediator? mediator = mediator;
 
         private static readonly ConcurrentDictionary<string, JObject> apiServices = new(StringComparer.Ordinal);
-
-        public TransactionClient(ILogger logger, IMediator? mediator = null)
-        {
-            this.logger = logger;
-            this.mediator = mediator;
-        }
 
         public bool AddFindService(string systemID, string serverType)
         {
@@ -120,10 +114,10 @@ namespace HandStack.Web.ApiClient
         {
             dynamic hasException = new ExpandoObject();
             var result = new Dictionary<string, JToken>();
-            var requestID = string.Empty;
-
             try
             {
+                ArgumentNullException.ThrowIfNull(transactionObject);
+
                 transactionObject.ReturnType = string.IsNullOrWhiteSpace(transactionObject.ReturnType) ? "Json" : transactionObject.ReturnType;
 
                 if (transactionObject.InputsItemCount.Count == 0)
@@ -131,7 +125,7 @@ namespace HandStack.Web.ApiClient
                     transactionObject.InputsItemCount.Add(transactionObject.Inputs.Count);
                 }
 
-                requestID = GetRequestID(transactionObject);
+                var requestID = GetRequestID(transactionObject);
                 transactionObject.RequestID = requestID;
 
                 var transactionRequest = CreateTransactionRequest("SYN", transactionObject, moduleID, pathName);
@@ -159,6 +153,7 @@ namespace HandStack.Web.ApiClient
                     }
                 }
 
+                ArgumentNullException.ThrowIfNull(businessServerUrl);
                 if (businessServerUrl.IndexOf("event://") > -1)
                 {
                     TransactionResponse? transactionResponse = null;
@@ -169,8 +164,10 @@ namespace HandStack.Web.ApiClient
                         var instance = Activator.CreateInstance(type, transactionRequest);
                         if (instance == null)
                         {
-                            transactionResponse = new TransactionResponse();
-                            transactionResponse.ExceptionText = $"moduleEventName: {moduleEventName} 확인 필요";
+                            transactionResponse = new TransactionResponse
+                            {
+                                ExceptionText = $"moduleEventName: {moduleEventName} 확인 필요"
+                            };
                         }
                         else
                         {
@@ -181,15 +178,19 @@ namespace HandStack.Web.ApiClient
                             }
                             else
                             {
-                                transactionResponse = new TransactionResponse();
-                                transactionResponse.ExceptionText = $"moduleEventName: {moduleEventName} 확인 필요";
+                                transactionResponse = new TransactionResponse
+                                {
+                                    ExceptionText = $"moduleEventName: {moduleEventName} 확인 필요"
+                                };
                             }
                         }
                     }
                     else
                     {
-                        transactionResponse = new TransactionResponse();
-                        transactionResponse.ExceptionText = $"moduleEventName: {moduleEventName} 확인 필요";
+                        transactionResponse = new TransactionResponse
+                        {
+                            ExceptionText = $"moduleEventName: {moduleEventName} 확인 필요"
+                        };
                     }
 
                     if (transactionResponse != null && transactionResponse.Acknowledge == AcknowledgeType.Success)
@@ -318,10 +319,10 @@ namespace HandStack.Web.ApiClient
         {
             dynamic hasException = new ExpandoObject();
             var result = new Dictionary<string, JToken>();
-            var requestID = string.Empty;
-
             try
             {
+                ArgumentNullException.ThrowIfNull(transactionObject);
+
                 transactionObject.ReturnType = string.IsNullOrWhiteSpace(transactionObject.ReturnType) ? "Json" : transactionObject.ReturnType;
 
                 if (transactionObject.InputsItemCount.Count == 0)
@@ -329,11 +330,12 @@ namespace HandStack.Web.ApiClient
                     transactionObject.InputsItemCount.Add(transactionObject.Inputs.Count);
                 }
 
-                requestID = GetRequestID(transactionObject);
+                var requestID = GetRequestID(transactionObject);
                 transactionObject.RequestID = requestID;
 
                 var transactionRequest = CreateTransactionRequest("SYN", transactionObject);
 
+                ArgumentNullException.ThrowIfNull(requestAction);
                 requestAction.Invoke(transactionRequest);
                 var client = new RestClient();
 
@@ -359,6 +361,7 @@ namespace HandStack.Web.ApiClient
                     }
                 }
 
+                ArgumentNullException.ThrowIfNull(businessServerUrl);
                 if (businessServerUrl.IndexOf("event://") > -1)
                 {
                     TransactionResponse? transactionResponse = null;
@@ -369,8 +372,10 @@ namespace HandStack.Web.ApiClient
                         var instance = Activator.CreateInstance(type, transactionRequest);
                         if (instance == null)
                         {
-                            transactionResponse = new TransactionResponse();
-                            transactionResponse.ExceptionText = $"moduleEventName: {moduleEventName} 확인 필요";
+                            transactionResponse = new TransactionResponse
+                            {
+                                ExceptionText = $"moduleEventName: {moduleEventName} 확인 필요"
+                            };
                         }
                         else
                         {
@@ -381,15 +386,19 @@ namespace HandStack.Web.ApiClient
                             }
                             else
                             {
-                                transactionResponse = new TransactionResponse();
-                                transactionResponse.ExceptionText = $"moduleEventName: {moduleEventName} 확인 필요";
+                                transactionResponse = new TransactionResponse
+                                {
+                                    ExceptionText = $"moduleEventName: {moduleEventName} 확인 필요"
+                                };
                             }
                         }
                     }
                     else
                     {
-                        transactionResponse = new TransactionResponse();
-                        transactionResponse.ExceptionText = $"moduleEventName: {moduleEventName} 확인 필요";
+                        transactionResponse = new TransactionResponse
+                        {
+                            ExceptionText = $"moduleEventName: {moduleEventName} 확인 필요"
+                        };
                     }
 
                     if (transactionResponse != null && transactionResponse.Acknowledge == AcknowledgeType.Success)
@@ -549,14 +558,16 @@ namespace HandStack.Web.ApiClient
             return requestID;
         }
 
-        private TransactionRequest CreateTransactionRequest(string action, TransactionClientObject transactionObject, string moduleID = "", string pathName = "")
+        private static TransactionRequest CreateTransactionRequest(string action, TransactionClientObject transactionObject, string moduleID = "", string pathName = "")
         {
-            var transactionRequest = new TransactionRequest();
-            transactionRequest.AccessToken = "";
-            transactionRequest.Action = action;
-            transactionRequest.Kind = transactionObject.Kind;
-            transactionRequest.ClientTag = string.Concat(TransactionConfig.Transaction.SystemID, "|", TransactionConfig.Transaction.MachineName, "|", TransactionConfig.Program.ProgramName, "|", TransactionConfig.Transaction.RunningEnvironment);
-            transactionRequest.LoadOptions = new Dictionary<string, string>();
+            var transactionRequest = new TransactionRequest
+            {
+                AccessToken = "",
+                Action = action,
+                Kind = transactionObject.Kind,
+                ClientTag = string.Concat(TransactionConfig.Transaction.SystemID, "|", TransactionConfig.Transaction.MachineName, "|", TransactionConfig.Program.ProgramName, "|", TransactionConfig.Transaction.RunningEnvironment),
+                LoadOptions = []
+            };
             transactionRequest.LoadOptions.Add("encryptionType", TransactionConfig.Transaction.EncryptionType);
             transactionRequest.LoadOptions.Add("encryptionKey", TransactionConfig.Transaction.EncryptionKey);
             transactionRequest.LoadOptions.Add("platform", Environment.OSVersion.Platform.ToString());
@@ -598,7 +609,7 @@ namespace HandStack.Web.ApiClient
 
             transactionRequest.PayLoad.DataMapInterface = transactionObject.DataMapInterface;
             transactionRequest.PayLoad.DataMapCount = transactionObject.InputsItemCount;
-            transactionRequest.PayLoad.DataMapSet = new List<List<DataMapItem>>();
+            transactionRequest.PayLoad.DataMapSet = [];
 
             foreach (var inputs in transactionObject.Inputs)
             {
@@ -620,22 +631,28 @@ namespace HandStack.Web.ApiClient
             {
                 if (dynamicParameters is List<DynamicParameter>)
                 {
+                    ArgumentNullException.ThrowIfNull(transactionCommands);
+
                     var applicationID = transactionCommands[0];
                     var projectID = transactionCommands[1];
                     var transactionID = transactionCommands[2];
                     var serviceID = transactionCommands[3];
 
-                    var transactionObject = new TransactionClientObject();
-                    transactionObject.SystemID = TransactionConfig.Transaction.SystemID;
-                    transactionObject.ProgramID = applicationID;
-                    transactionObject.BusinessID = projectID;
-                    transactionObject.TransactionID = transactionID;
-                    transactionObject.FunctionID = serviceID;
-                    transactionObject.ScreenID = "MessageServer";
+                    var transactionObject = new TransactionClientObject
+                    {
+                        SystemID = TransactionConfig.Transaction.SystemID,
+                        ProgramID = applicationID,
+                        BusinessID = projectID,
+                        TransactionID = transactionID,
+                        FunctionID = serviceID,
+                        ScreenID = "MessageServer"
+                    };
 
-                    var inputs = new List<ServiceParameter>();
-                    inputs.Add("GlobalID", globalID);
-                    inputs.Add("QueryID", queryID);
+                    var inputs = new List<ServiceParameter>
+                    {
+                        { "GlobalID", globalID },
+                        { "QueryID", queryID }
+                    };
 
                     if (serviceParameters != null)
                     {
@@ -678,22 +695,28 @@ namespace HandStack.Web.ApiClient
             {
                 if (dynamicParameters is List<DynamicParameter>)
                 {
+                    ArgumentNullException.ThrowIfNull(transactionCommands);
+
                     var applicationID = transactionCommands[0];
                     var projectID = transactionCommands[1];
                     var transactionID = transactionCommands[2];
                     var serviceID = transactionCommands[3];
 
-                    var transactionObject = new TransactionClientObject();
-                    transactionObject.SystemID = TransactionConfig.Transaction.SystemID;
-                    transactionObject.ProgramID = applicationID;
-                    transactionObject.BusinessID = projectID;
-                    transactionObject.TransactionID = transactionID;
-                    transactionObject.FunctionID = serviceID;
-                    transactionObject.ScreenID = "MessageServer";
+                    var transactionObject = new TransactionClientObject
+                    {
+                        SystemID = TransactionConfig.Transaction.SystemID,
+                        ProgramID = applicationID,
+                        BusinessID = projectID,
+                        TransactionID = transactionID,
+                        FunctionID = serviceID,
+                        ScreenID = "MessageServer"
+                    };
 
-                    var inputs = new List<ServiceParameter>();
-                    inputs.Add("GlobalID", globalID);
-                    inputs.Add("QueryID", queryID);
+                    var inputs = new List<ServiceParameter>
+                    {
+                        { "GlobalID", globalID },
+                        { "QueryID", queryID }
+                    };
 
                     if (serviceParameters != null)
                     {
@@ -746,22 +769,28 @@ namespace HandStack.Web.ApiClient
             {
                 if (dynamicParameters is List<DynamicParameter>)
                 {
+                    ArgumentNullException.ThrowIfNull(transactionCommands);
+
                     var applicationID = transactionCommands[0];
                     var projectID = transactionCommands[1];
                     var transactionID = transactionCommands[2];
                     var serviceID = transactionCommands[3];
 
-                    var transactionObject = new TransactionClientObject();
-                    transactionObject.SystemID = TransactionConfig.Transaction.SystemID;
-                    transactionObject.ProgramID = applicationID;
-                    transactionObject.BusinessID = projectID;
-                    transactionObject.TransactionID = transactionID;
-                    transactionObject.FunctionID = serviceID;
-                    transactionObject.ScreenID = "MessageServer";
+                    var transactionObject = new TransactionClientObject
+                    {
+                        SystemID = TransactionConfig.Transaction.SystemID,
+                        ProgramID = applicationID,
+                        BusinessID = projectID,
+                        TransactionID = transactionID,
+                        FunctionID = serviceID,
+                        ScreenID = "MessageServer"
+                    };
 
-                    var inputs = new List<ServiceParameter>();
-                    inputs.Add("GlobalID", globalID);
-                    inputs.Add("QueryID", queryID);
+                    var inputs = new List<ServiceParameter>
+                    {
+                        { "GlobalID", globalID },
+                        { "QueryID", queryID }
+                    };
 
                     foreach (var item in dynamicParameters)
                     {

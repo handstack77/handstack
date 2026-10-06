@@ -15,8 +15,7 @@ namespace prompter.Extensions
         public static string SerializeRequest(DynamicRequest request)
         {
             var token = JObject.FromObject(request);
-            var dynamicObjects = token["DynamicObjects"] as JArray;
-            if (dynamicObjects != null && request.DynamicObjects != null)
+            if (token["DynamicObjects"] is JArray dynamicObjects && (request ?? throw new ArgumentNullException(nameof(request))).DynamicObjects != null)
             {
                 for (var i = 0; i < request.DynamicObjects.Count && i < dynamicObjects.Count; i++)
                 {
@@ -33,6 +32,7 @@ namespace prompter.Extensions
         public static string SerializeQueryObject(QueryObject queryObject)
         {
             var token = JObject.FromObject(queryObject);
+            ArgumentNullException.ThrowIfNull(queryObject);
             RedactMedia(token, queryObject);
             return token.ToString(Formatting.None);
         }
@@ -56,8 +56,7 @@ namespace prompter.Extensions
                 mediaVariables[PromptMapper.NormalizeParameterName(mediaVariable.Name)] = mediaVariable;
             }
 
-            var parameters = queryToken["Parameters"] as JArray;
-            if (parameters == null)
+            if (queryToken["Parameters"] is not JArray parameters)
             {
                 return;
             }

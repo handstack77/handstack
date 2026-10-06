@@ -17,24 +17,15 @@ using RestSharp;
 
 namespace prompter.Extensions
 {
-    public class PromptLoggerClient
+    public class PromptLoggerClient(Serilog.ILogger logger, Serilog.ILogger? transactionLogger = null)
     {
-        private readonly RestClient restClient = new RestClient();
+        private readonly RestClient restClient = new();
 
-        private Serilog.ILogger logger { get; }
+        private Serilog.ILogger logger { get; } = logger;
 
-        private Serilog.ILogger? transactionLogger { get; }
+        private Serilog.ILogger? transactionLogger { get; } = transactionLogger;
 
-        public CircuitBreakerPolicy<RestResponse>? circuitBreakerPolicy = null;
-
-        public DateTime? BreakDateTime = DateTime.Now;
-
-        public PromptLoggerClient(Serilog.ILogger logger, Serilog.ILogger? transactionLogger = null)
-        {
-            this.logger = logger;
-            this.transactionLogger = transactionLogger;
-
-            circuitBreakerPolicy = Policy
+        public CircuitBreakerPolicy<RestResponse>? circuitBreakerPolicy = Policy
                 .HandleResult<RestResponse>(x =>
                 {
                     return x.IsSuccessStatusCode == false;
@@ -48,10 +39,13 @@ namespace prompter.Extensions
                 {
                     logger.Information("[{LogCategory}] " + $"OpenApiLoggerClient CircuitBreaker Reset, DateTime={DateTime.Now}", "CircuitBreaker/onReset");
                 });
-        }
+
+        public DateTime? BreakDateTime = DateTime.Now;
 
         public RestResponse Send(Method httpVerb, string hostUrl, LogMessage logMessage, Action<string> fallbackFunction, Dictionary<string, string>? headers = null)
         {
+            ArgumentNullException.ThrowIfNull(fallbackFunction);
+
             var restResponse = new RestResponse
             {
                 Content = "",
@@ -87,6 +81,7 @@ namespace prompter.Extensions
                     restRequest.AddHeader("Content-Type", "application/json");
                 }
 
+                ArgumentNullException.ThrowIfNull(logMessage);
                 logMessage.CreatedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
 
                 var json = JsonConvert.SerializeObject(logMessage);
@@ -150,29 +145,33 @@ namespace prompter.Extensions
 
         public void ProgramMessageLogging(string globalID, string acknowledge, string applicationID, string message, string properties, Action<string> fallbackFunction)
         {
-            var logMessage = new LogMessage();
-            logMessage.ServerID = GlobalConfiguration.HostName;
-            logMessage.RunningEnvironment = GlobalConfiguration.RunningEnvironment;
-            logMessage.ProgramName = ModuleConfiguration.ModuleID;
-            logMessage.GlobalID = globalID;
-            logMessage.Acknowledge = string.IsNullOrEmpty(acknowledge) == true ? "N" : acknowledge;
-            logMessage.ApplicationID = applicationID;
-            logMessage.ProjectID = "";
-            logMessage.TransactionID = "";
-            logMessage.ServiceID = "";
-            logMessage.Type = "A";
-            logMessage.Flow = "N";
-            logMessage.Level = "V";
-            logMessage.Format = "P";
-            logMessage.Message = message;
-            logMessage.Properties = properties;
-            logMessage.UserID = "";
+            var logMessage = new LogMessage
+            {
+                ServerID = GlobalConfiguration.HostName,
+                RunningEnvironment = GlobalConfiguration.RunningEnvironment,
+                ProgramName = ModuleConfiguration.ModuleID,
+                GlobalID = globalID,
+                Acknowledge = string.IsNullOrEmpty(acknowledge) == true ? "N" : acknowledge,
+                ApplicationID = applicationID,
+                ProjectID = "",
+                TransactionID = "",
+                ServiceID = "",
+                Type = "A",
+                Flow = "N",
+                Level = "V",
+                Format = "P",
+                Message = message,
+                Properties = properties,
+                UserID = ""
+            };
 
             if (ModuleConfiguration.IsLogServer == true)
             {
-                var logRequest = new LogRequest();
-                logRequest.LogMessage = logMessage;
-                logRequest.FallbackFunction = fallbackFunction;
+                var logRequest = new LogRequest
+                {
+                    LogMessage = logMessage,
+                    FallbackFunction = fallbackFunction
+                };
 
                 Task.Run(() => { BackgroundTask(logRequest); });
             }
@@ -186,29 +185,33 @@ namespace prompter.Extensions
 
         public void TransactionMessageLogging(string globalID, string acknowledge, string applicationID, string projectID, string transactionID, string serviceID, string message, string properties, Action<string> fallbackFunction)
         {
-            var logMessage = new LogMessage();
-            logMessage.ServerID = GlobalConfiguration.HostName;
-            logMessage.RunningEnvironment = GlobalConfiguration.RunningEnvironment;
-            logMessage.ProgramName = ModuleConfiguration.ModuleID;
-            logMessage.GlobalID = globalID;
-            logMessage.Acknowledge = string.IsNullOrEmpty(acknowledge) == true ? "N" : acknowledge;
-            logMessage.ApplicationID = applicationID;
-            logMessage.ProjectID = projectID;
-            logMessage.TransactionID = transactionID;
-            logMessage.ServiceID = serviceID;
-            logMessage.Type = "A";
-            logMessage.Flow = "N";
-            logMessage.Level = "V";
-            logMessage.Format = "P";
-            logMessage.Message = message;
-            logMessage.Properties = properties;
-            logMessage.UserID = "";
+            var logMessage = new LogMessage
+            {
+                ServerID = GlobalConfiguration.HostName,
+                RunningEnvironment = GlobalConfiguration.RunningEnvironment,
+                ProgramName = ModuleConfiguration.ModuleID,
+                GlobalID = globalID,
+                Acknowledge = string.IsNullOrEmpty(acknowledge) == true ? "N" : acknowledge,
+                ApplicationID = applicationID,
+                ProjectID = projectID,
+                TransactionID = transactionID,
+                ServiceID = serviceID,
+                Type = "A",
+                Flow = "N",
+                Level = "V",
+                Format = "P",
+                Message = message,
+                Properties = properties,
+                UserID = ""
+            };
 
             if (ModuleConfiguration.IsLogServer == true)
             {
-                var logRequest = new LogRequest();
-                logRequest.LogMessage = logMessage;
-                logRequest.FallbackFunction = fallbackFunction;
+                var logRequest = new LogRequest
+                {
+                    LogMessage = logMessage,
+                    FallbackFunction = fallbackFunction
+                };
 
                 Task.Run(() => { BackgroundTask(logRequest); });
             }
@@ -222,29 +225,33 @@ namespace prompter.Extensions
 
         public void DynamicResponseLogging(string globalID, string acknowledge, string applicationID, string message, string properties, Action<string> fallbackFunction)
         {
-            var logMessage = new LogMessage();
-            logMessage.ServerID = GlobalConfiguration.HostName;
-            logMessage.RunningEnvironment = GlobalConfiguration.RunningEnvironment;
-            logMessage.ProgramName = ModuleConfiguration.ModuleID;
-            logMessage.GlobalID = globalID;
-            logMessage.Acknowledge = string.IsNullOrEmpty(acknowledge) == true ? "N" : acknowledge;
-            logMessage.ApplicationID = applicationID;
-            logMessage.ProjectID = "";
-            logMessage.TransactionID = "";
-            logMessage.ServiceID = "";
-            logMessage.Type = "T";
-            logMessage.Flow = "O";
-            logMessage.Level = "V";
-            logMessage.Format = "J";
-            logMessage.Message = message;
-            logMessage.Properties = properties;
-            logMessage.UserID = "";
+            var logMessage = new LogMessage
+            {
+                ServerID = GlobalConfiguration.HostName,
+                RunningEnvironment = GlobalConfiguration.RunningEnvironment,
+                ProgramName = ModuleConfiguration.ModuleID,
+                GlobalID = globalID,
+                Acknowledge = string.IsNullOrEmpty(acknowledge) == true ? "N" : acknowledge,
+                ApplicationID = applicationID,
+                ProjectID = "",
+                TransactionID = "",
+                ServiceID = "",
+                Type = "T",
+                Flow = "O",
+                Level = "V",
+                Format = "J",
+                Message = message,
+                Properties = properties,
+                UserID = ""
+            };
 
             if (ModuleConfiguration.IsLogServer == true)
             {
-                var logRequest = new LogRequest();
-                logRequest.LogMessage = logMessage;
-                logRequest.FallbackFunction = fallbackFunction;
+                var logRequest = new LogRequest
+                {
+                    LogMessage = logMessage,
+                    FallbackFunction = fallbackFunction
+                };
 
                 Task.Run(() => { BackgroundTask(logRequest); });
             }
@@ -256,29 +263,35 @@ namespace prompter.Extensions
 
         public void DynamicRequestLogging(DynamicRequest request, string acknowledge, string applicationID, Action<string> fallbackFunction)
         {
-            var logMessage = new LogMessage();
-            logMessage.ServerID = GlobalConfiguration.HostName;
-            logMessage.RunningEnvironment = GlobalConfiguration.RunningEnvironment;
-            logMessage.ProgramName = ModuleConfiguration.ModuleID;
-            logMessage.GlobalID = request.GlobalID;
-            logMessage.Acknowledge = string.IsNullOrEmpty(acknowledge) == true ? "N" : acknowledge;
-            logMessage.ApplicationID = applicationID;
-            logMessage.ProjectID = "";
-            logMessage.TransactionID = "";
-            logMessage.ServiceID = "";
-            logMessage.Type = "T";
-            logMessage.Flow = "I";
-            logMessage.Level = "V";
-            logMessage.Format = "J";
-            logMessage.Message = PromptLogSanitizer.SerializeRequest(request);
-            logMessage.Properties = "";
-            logMessage.UserID = "";
+            ArgumentNullException.ThrowIfNull(request);
+
+            var logMessage = new LogMessage
+            {
+                ServerID = GlobalConfiguration.HostName,
+                RunningEnvironment = GlobalConfiguration.RunningEnvironment,
+                ProgramName = ModuleConfiguration.ModuleID,
+                GlobalID = request.GlobalID,
+                Acknowledge = string.IsNullOrEmpty(acknowledge) == true ? "N" : acknowledge,
+                ApplicationID = applicationID,
+                ProjectID = "",
+                TransactionID = "",
+                ServiceID = "",
+                Type = "T",
+                Flow = "I",
+                Level = "V",
+                Format = "J",
+                Message = PromptLogSanitizer.SerializeRequest(request),
+                Properties = "",
+                UserID = ""
+            };
 
             if (ModuleConfiguration.IsLogServer == true)
             {
-                var logRequest = new LogRequest();
-                logRequest.LogMessage = logMessage;
-                logRequest.FallbackFunction = fallbackFunction;
+                var logRequest = new LogRequest
+                {
+                    LogMessage = logMessage,
+                    FallbackFunction = fallbackFunction
+                };
 
                 Task.Run(() => { BackgroundTask(logRequest); });
             }
@@ -292,9 +305,7 @@ namespace prompter.Extensions
         {
             if (state != null)
             {
-                var logRequest = state as LogRequest;
-
-                if (circuitBreakerPolicy != null && logRequest != null)
+                if (circuitBreakerPolicy != null && state is LogRequest logRequest)
                 {
                     try
                     {
@@ -310,10 +321,7 @@ namespace prompter.Extensions
                                 logger.Error("BackgroundTask CircuitBreaker 오류: " + error);
                                 Console.WriteLine(error);
 
-                                if (logRequest.FallbackFunction != null)
-                                {
-                                    logRequest.FallbackFunction(error);
-                                }
+                                logRequest.FallbackFunction?.Invoke(error);
                             });
                         }
                         else
@@ -324,10 +332,7 @@ namespace prompter.Extensions
                                 circuitBreakerPolicy.Reset();
                             }
 
-                            if (logRequest.FallbackFunction != null)
-                            {
-                                logRequest.FallbackFunction("CircuitBreaker CircuitState" + circuitState.ToString());
-                            }
+                            logRequest.FallbackFunction?.Invoke("CircuitBreaker CircuitState" + circuitState.ToString());
                         }
                     }
                     catch (Exception exception)

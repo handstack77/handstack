@@ -36,6 +36,8 @@ namespace HandStack.Data.ExtensionMethod
 
         public static DataSet ExecuteDataSet(this SQLiteConnection @this, string cmdText, SQLiteParameter[]? parameters, CommandType commandType, SQLiteTransaction? transaction)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
             command.CommandText = cmdText;
             command.CommandType = commandType;
@@ -57,7 +59,10 @@ namespace HandStack.Data.ExtensionMethod
 
         public static DataSet ExecuteDataSet(this SQLiteConnection @this, Action<SQLiteCommand> commandFactory)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
+            ArgumentNullException.ThrowIfNull(commandFactory);
             commandFactory(command);
 
             var ds = new DataSet();
@@ -106,6 +111,8 @@ namespace HandStack.Data.ExtensionMethod
 
         public static DataTable ExecuteDataTable(this SQLiteConnection @this, string cmdText, SQLiteParameter[]? parameters, CommandType commandType, SQLiteTransaction? transaction)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
             command.CommandText = cmdText;
             command.CommandType = commandType;
@@ -127,7 +134,10 @@ namespace HandStack.Data.ExtensionMethod
 
         public static DataTable ExecuteDataTable(this SQLiteConnection @this, Action<SQLiteCommand> commandFactory)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
+            ArgumentNullException.ThrowIfNull(commandFactory);
             commandFactory(command);
 
             var ds = new DataSet();
@@ -176,6 +186,8 @@ namespace HandStack.Data.ExtensionMethod
 
         public static IEnumerable<T> ExecuteEntities<T>(this SQLiteConnection @this, string cmdText, SQLiteParameter[]? parameters, CommandType commandType, SQLiteTransaction? transaction) where T : new()
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
             command.CommandText = cmdText;
             command.CommandType = commandType;
@@ -192,7 +204,10 @@ namespace HandStack.Data.ExtensionMethod
 
         public static IEnumerable<T> ExecuteEntities<T>(this SQLiteConnection @this, Action<SQLiteCommand> commandFactory) where T : new()
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
+            ArgumentNullException.ThrowIfNull(commandFactory);
             commandFactory(command);
 
             using IDataReader reader = command.ExecuteReader();
@@ -236,6 +251,8 @@ namespace HandStack.Data.ExtensionMethod
 
         public static T ExecuteEntity<T>(this SQLiteConnection @this, string cmdText, SQLiteParameter[]? parameters, CommandType commandType, SQLiteTransaction? transaction) where T : new()
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
             command.CommandText = cmdText;
             command.CommandType = commandType;
@@ -246,17 +263,20 @@ namespace HandStack.Data.ExtensionMethod
                 command.Parameters.AddRange(parameters);
             }
 
-            using IDataReader reader = command.ExecuteReader();
+            using SQLiteDataReader reader = command.ExecuteReader();
             reader.Read();
             return reader.ToEntity<T>();
         }
 
         public static T ExecuteEntity<T>(this SQLiteConnection @this, Action<SQLiteCommand> commandFactory) where T : new()
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
+            ArgumentNullException.ThrowIfNull(commandFactory);
             commandFactory(command);
 
-            using IDataReader reader = command.ExecuteReader();
+            using SQLiteDataReader reader = command.ExecuteReader();
             reader.Read();
             return reader.ToEntity<T>();
         }
@@ -298,6 +318,8 @@ namespace HandStack.Data.ExtensionMethod
 
         public static dynamic ExecuteExpandoObject(this SQLiteConnection @this, string cmdText, SQLiteParameter[]? parameters, CommandType commandType, SQLiteTransaction? transaction)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
             command.CommandText = cmdText;
             command.CommandType = commandType;
@@ -308,17 +330,20 @@ namespace HandStack.Data.ExtensionMethod
                 command.Parameters.AddRange(parameters);
             }
 
-            using IDataReader reader = command.ExecuteReader();
+            using SQLiteDataReader reader = command.ExecuteReader();
             reader.Read();
             return reader.ToExpandoObject();
         }
 
         public static dynamic ExecuteExpandoObject(this SQLiteConnection @this, Action<SQLiteCommand> commandFactory)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
+            ArgumentNullException.ThrowIfNull(commandFactory);
             commandFactory(command);
 
-            using IDataReader reader = command.ExecuteReader();
+            using SQLiteDataReader reader = command.ExecuteReader();
             reader.Read();
             return reader.ToExpandoObject();
         }
@@ -360,6 +385,8 @@ namespace HandStack.Data.ExtensionMethod
 
         public static IEnumerable<dynamic> ExecuteExpandoObjects(this SQLiteConnection @this, string cmdText, SQLiteParameter[]? parameters, CommandType commandType, SQLiteTransaction? transaction)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
             command.CommandText = cmdText;
             command.CommandType = commandType;
@@ -376,7 +403,10 @@ namespace HandStack.Data.ExtensionMethod
 
         public static IEnumerable<dynamic> ExecuteExpandoObjects(this SQLiteConnection @this, Action<SQLiteCommand> commandFactory)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             using var command = @this.CreateCommand();
+            ArgumentNullException.ThrowIfNull(commandFactory);
             commandFactory(command);
 
             using IDataReader reader = command.ExecuteReader();
@@ -420,14 +450,20 @@ namespace HandStack.Data.ExtensionMethod
 
         public static void AddRangeWithValue(this SQLiteParameterCollection @this, Dictionary<string, object> values)
         {
+            ArgumentNullException.ThrowIfNull(values);
+
             foreach (var keyValuePair in values)
             {
+                ArgumentNullException.ThrowIfNull(@this);
+
                 @this.AddWithValue(keyValuePair.Key, keyValuePair.Value);
             }
         }
 
         public static string ParameterValueForSQL(this SQLiteParameter @this)
         {
+            ArgumentNullException.ThrowIfNull(@this);
+
             var paramValue = @this.Value;
 
             if (paramValue == null)
@@ -435,34 +471,21 @@ namespace HandStack.Data.ExtensionMethod
                 return "NULL";
             }
 
-            switch (@this.DbType)
+            return @this.DbType switch
             {
-                case DbType.String:
-                case DbType.StringFixedLength:
-                case DbType.AnsiString:
-                case DbType.AnsiStringFixedLength:
-                case DbType.Time:
-                case DbType.Xml:
-                case DbType.Date:
-                case DbType.DateTime:
-                case DbType.DateTime2:
-                case DbType.DateTimeOffset:
-                    return $"'{paramValue.ToStringSafe().Replace("'", "''")}'";
-                case DbType.Boolean:
-                    return (paramValue.ToBoolean(false)) ? "1" : "0";
-                case DbType.Decimal:
-                    return ((decimal)paramValue).ToString(CultureInfo.InvariantCulture).Replace("'", "''");
-                case DbType.Double:
-                    return ((double)paramValue).ToString(CultureInfo.InvariantCulture).Replace("'", "''");
-                default:
-                    return paramValue.ToStringSafe().Replace("'", "''");
-            }
+                DbType.String or DbType.StringFixedLength or DbType.AnsiString or DbType.AnsiStringFixedLength or DbType.Time or DbType.Xml or DbType.Date or DbType.DateTime or DbType.DateTime2 or DbType.DateTimeOffset => $"'{paramValue.ToStringSafe().Replace("'", "''")}'",
+                DbType.Boolean => (paramValue.ToBoolean(false)) ? "1" : "0",
+                DbType.Decimal => ((decimal)paramValue).ToString(CultureInfo.InvariantCulture).Replace("'", "''"),
+                DbType.Double => ((double)paramValue).ToString(CultureInfo.InvariantCulture).Replace("'", "''"),
+                _ => paramValue.ToStringSafe().Replace("'", "''"),
+            };
         }
 
         public static string CommandAsSQLite(this SQLiteCommand @this)
         {
             var sql = new StringBuilder();
 
+            ArgumentNullException.ThrowIfNull(@this);
             switch (@this.CommandType)
             {
                 case CommandType.Text:
@@ -497,7 +520,7 @@ namespace HandStack.Data.ExtensionMethod
             {
                 if ((sp.Direction == ParameterDirection.InputOutput) || (sp.Direction == ParameterDirection.Output))
                 {
-                    sql.Append("declare ").Append(sp.ParameterName).Append("\t").Append(sp.DbType.ToString()).Append("\t= ");
+                    sql.Append("declare ").Append(sp.ParameterName).Append('\t').Append(sp.DbType.ToString()).Append("\t= ");
 
                     sql.Append((sp.Direction == ParameterDirection.Output) ? "null" : sp.ParameterValueForSQL()).AppendLine(";");
                 }

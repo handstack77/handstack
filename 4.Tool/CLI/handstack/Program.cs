@@ -25,12 +25,12 @@ namespace handstack
 {
     public class Program
     {
-        private static string[] ignoredDirectoryNames = { ".vs", ".git", ".svn" };
+        private static readonly string[] ignoredDirectoryNames = { ".vs", ".git", ".svn" };
         private static int replaceInFilesCount;
         private static int replaceInFileNamesCount;
         private static int replaceInDirectoryNamesCount;
         private static System.Timers.Timer? startupAwaitTimer;
-        private static CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        private static readonly CancellationTokenSource cancellationTokenSource = new();
         public static async Task<int> Main(string[] args)
         {
             var exitCode = 0;
@@ -142,6 +142,8 @@ namespace handstack
 
         public static string ToHex(byte[] data, bool upper = true)
         {
+            ArgumentNullException.ThrowIfNull(data);
+
             if (data.Length == 0) return "";
             var sb = new StringBuilder(data.Length * 2);
             var format = upper ? "X2" : "x2";
@@ -349,6 +351,7 @@ namespace handstack
                 var taskMetas = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, List<Entity.Tasks>>>(taskJson);
 
                 var os = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == true ? "windows" : RuntimeInformation.IsOSPlatform(OSPlatform.OSX) == true ? "osx" : "linux";
+                ArgumentNullException.ThrowIfNull(key);
                 var taskID = key.Split(":")[1];
 
                 if (taskMetas == null)
@@ -386,6 +389,7 @@ namespace handstack
                 var taskMetas = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, List<Entity.Tasks>>>(taskJson);
 
                 var os = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == true ? "windows" : RuntimeInformation.IsOSPlatform(OSPlatform.OSX) == true ? "osx" : "linux";
+                ArgumentNullException.ThrowIfNull(key);
                 var moduleID = key.Split(":")[0];
                 var taskID = key.Split(":")[1];
 
@@ -419,10 +423,12 @@ namespace handstack
 
         public static void ReplaceInFile(FileInfo fileInfo, string findText, string replaceText)
         {
+            ArgumentNullException.ThrowIfNull(fileInfo);
+
             if (fileInfo.Exists == true && fileInfo.IsBinary() == false)
             {
                 var fileText = File.ReadAllText(fileInfo.FullName.Replace("\\", "/"));
-                var count = Regex.Matches(fileText, findText, RegexOptions.None).Count;
+                var count = Regex.Count(fileText, findText, RegexOptions.None);
                 if (count > 0)
                 {
                     File.WriteAllText(fileInfo.FullName.Replace("\\", "/"), fileText.Replace(findText, replaceText));
@@ -486,7 +492,7 @@ namespace handstack
                 if (fileInfo.IsBinary() == false)
                 {
                     var fileText = File.ReadAllText(file);
-                    var count = Regex.Matches(fileText, findText, RegexOptions.None).Count;
+                    var count = Regex.Count(fileText, findText, RegexOptions.None);
                     if (count > 0)
                     {
                         File.WriteAllText(file, fileText.Replace(findText, replaceText));
@@ -512,7 +518,7 @@ namespace handstack
             foreach (var file in Directory.GetFiles(directoryPath))
             {
                 var fileInfo = new FileInfo(file);
-                var count = Regex.Matches(fileInfo.Name, findText, RegexOptions.None).Count;
+                var count = Regex.Count(fileInfo.Name, findText, RegexOptions.None);
                 if (count > 0)
                 {
                     var newFileName = fileInfo.Name.Replace(findText, replaceText);
@@ -550,7 +556,7 @@ namespace handstack
                 return;
             }
 
-            var count = Regex.Matches(directoryInfo.Name, findText, RegexOptions.None).Count;
+            var count = Regex.Count(directoryInfo.Name, findText, RegexOptions.None);
             var directoryInfoFullName = directoryInfo.FullName.Replace("\\", "/");
 
             if (count > 0)

@@ -10,16 +10,10 @@ namespace wwwroot.Areas.wwwroot.Pages.StatusCode
 {
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     [IgnoreAntiforgeryToken]
-    public class _500Model : PageModel
+    public class _500Model(ILogger logger) : PageModel
     {
-        public string ExceptionMessage { get; set; }
-        private readonly ILogger logger;
-
-        public _500Model(ILogger logger)
-        {
-            this.logger = logger;
-            ExceptionMessage = "";
-        }
+        public string ExceptionMessage { get; set; } = "";
+        private readonly ILogger logger = logger;
 
         public IActionResult OnGet()
         {

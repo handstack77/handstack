@@ -9,7 +9,7 @@ namespace HandStack.Web.Extensions
     {
         public IModelBinder? GetBinder(ModelBinderProviderContext context)
         {
-            if (context == null) throw new ArgumentNullException(nameof(context));
+            ArgumentNullException.ThrowIfNull(context);
 
             if (!context.Metadata.IsComplexType && (context.Metadata.ModelType == typeof(decimal) || context.Metadata.ModelType == typeof(decimal?)))
             {

@@ -33,12 +33,12 @@ using Serilog;
 
 namespace dbclient.Extensions
 {
-    public static class DatabaseMapper
+    public static partial class DatabaseMapper
     {
-        private static readonly Regex cdataRegex = new Regex("(<!\\[CDATA\\[)([\\s\\S]*?)(\\]\\]>)", RegexOptions.Compiled);
-        private static Random random = new Random();
-        public static ExpiringDictionary<DataSourceTanantKey, DataSourceMap> DataSourceMappings = new ExpiringDictionary<DataSourceTanantKey, DataSourceMap>();
-        public static ExpiringDictionary<string, StatementMap> StatementMappings = new ExpiringDictionary<string, StatementMap>();
+        private static readonly Regex cdataRegex = MyRegex();
+        private static readonly Random random = new();
+        public static ExpiringDictionary<DataSourceTanantKey, DataSourceMap> DataSourceMappings = [];
+        public static ExpiringDictionary<string, StatementMap> StatementMappings = [];
 
         static DatabaseMapper()
         {
@@ -68,6 +68,7 @@ namespace dbclient.Extensions
             {
                 DataSourceMap? result = null;
                 var applicationID = requestApplicationID;
+                ArgumentNullException.ThrowIfNull(queryObject);
                 result = FindDataSourceMap(queryObject, applicationID, projectID, dataSourceID);
 
                 if (result == null)
@@ -120,20 +121,24 @@ namespace dbclient.Extensions
                                         ModuleConfiguration.DataSource.Add(item);
                                     }
 
-                                    var tanantMap = new DataSourceTanantKey();
-                                    tanantMap.ApplicationID = item.ApplicationID;
-                                    tanantMap.DataSourceID = item.DataSourceID;
-                                    tanantMap.TanantPattern = item.TanantPattern;
-                                    tanantMap.TanantValue = item.TanantValue;
+                                    var tanantMap = new DataSourceTanantKey
+                                    {
+                                        ApplicationID = item.ApplicationID,
+                                        DataSourceID = item.DataSourceID,
+                                        TanantPattern = item.TanantPattern,
+                                        TanantValue = item.TanantValue
+                                    };
 
                                     if (DataSourceMappings.ContainsKey(tanantMap) == false)
                                     {
-                                        var dataSourceMap = new DataSourceMap();
-                                        dataSourceMap.ApplicationID = item.ApplicationID;
-                                        dataSourceMap.ProjectListID = item.ProjectID.Split(",").Where(s => !string.IsNullOrWhiteSpace(s)).Distinct().ToList();
-                                        dataSourceMap.DataProvider = (DataProviders)Enum.Parse(typeof(DataProviders), item.DataProvider);
-                                        dataSourceMap.ConnectionString = item.ConnectionString;
-                                        dataSourceMap.TransactionIsolationLevel = string.IsNullOrWhiteSpace(item.TransactionIsolationLevel) ? "ReadCommitted" : item.TransactionIsolationLevel;
+                                        var dataSourceMap = new DataSourceMap
+                                        {
+                                            ApplicationID = item.ApplicationID,
+                                            ProjectListID = item.ProjectID.Split(",").Where(s => !string.IsNullOrWhiteSpace(s)).Distinct().ToList(),
+                                            DataProvider = Enum.Parse<DataProviders>(item.DataProvider),
+                                            ConnectionString = item.ConnectionString,
+                                            TransactionIsolationLevel = string.IsNullOrWhiteSpace(item.TransactionIsolationLevel) ? "ReadCommitted" : item.TransactionIsolationLevel
+                                        };
 
                                         if (item.IsEncryption.ParseBool() == true)
                                         {
@@ -181,11 +186,11 @@ namespace dbclient.Extensions
                 for (var j = 0; j < queryObject.Parameters.Count; j++)
                 {
                     var parameter = queryObject.Parameters[j];
-                    if (parameter.ParameterName.StartsWith("$") == true && parameter.Value != null)
+                    if (parameter.ParameterName.StartsWith('$') == true && parameter.Value != null)
                     {
                         tanantPattern = Regex.Replace(tanantPattern, "\\${" + parameter.ParameterName.SubstringSafe(1) + "}", parameter.Value.ToStringSafe());
                     }
-                    else if (parameter.ParameterName.StartsWith("#") == true && parameter.Value != null)
+                    else if (parameter.ParameterName.StartsWith('#') == true && parameter.Value != null)
                     {
                         tanantPattern = Regex.Replace(tanantPattern, "\\#{" + parameter.ParameterName.SubstringSafe(1) + "}", parameter.Value.ToStringSafe());
                     }
@@ -220,6 +225,8 @@ namespace dbclient.Extensions
 
                 if (result == null)
                 {
+                    ArgumentNullException.ThrowIfNull(queryID);
+
                     var itemKeys = queryID.Split("|");
                     var applicationID = itemKeys[0];
                     var projectID = itemKeys[1];
@@ -255,8 +262,10 @@ namespace dbclient.Extensions
                             if (string.IsNullOrWhiteSpace(filePath) == false && File.Exists(filePath) == true)
                             {
                                 var fileInfo = new FileInfo(filePath);
-                                var htmlDocument = new HtmlDocument();
-                                htmlDocument.OptionDefaultStreamEncoding = Encoding.UTF8;
+                                var htmlDocument = new HtmlDocument
+                                {
+                                    OptionDefaultStreamEncoding = Encoding.UTF8
+                                };
                                 htmlDocument.LoadHtml(ReplaceCData(File.ReadAllText(filePath)));
                                 var header = htmlDocument.DocumentNode.SelectSingleNode("//mapper/header");
                                 var signatureKey = (header?.Element("signaturekey")?.InnerText).ToStringSafe();
@@ -274,7 +283,7 @@ namespace dbclient.Extensions
                                     var plain = LZStringHelper.DecompressFromUint8Array(encryptCommands.DecryptAESBytes(licenseItem.AssemblyKey.NormalizeKey())) ?? string.Empty;
 
                                     var commands = htmlDocument.DocumentNode.SelectSingleNode("//mapper/commands");
-                                    commands.InnerHtml = plain;
+                                    commands?.InnerHtml = plain;
                                 }
 
                                 applicationID = (header?.Element("application")?.InnerText).ToStringSafe();
@@ -300,22 +309,24 @@ namespace dbclient.Extensions
                                     {
                                         if (header == null || $"{header?.Element("use")?.InnerText}".ToBoolean() == true)
                                         {
-                                            var statementMap = new StatementMap();
-                                            statementMap.ApplicationID = applicationID;
-                                            statementMap.ProjectID = projectID;
-                                            statementMap.TransactionID = transactionID;
-                                            statementMap.DataSourceID = item.Attributes["datasource"] == null ? (header?.Element("datasource")?.InnerText).ToStringSafe() : item.Attributes["datasource"].Value;
+                                            var statementMap = new StatementMap
+                                            {
+                                                ApplicationID = applicationID,
+                                                ProjectID = projectID,
+                                                TransactionID = transactionID,
+                                                DataSourceID = item.Attributes["datasource"]?.Value ?? (header?.Element("datasource")?.InnerText).ToStringSafe()
+                                            };
                                             if (string.IsNullOrWhiteSpace(statementMap.DataSourceID))
                                             {
                                                 statementMap.DataSourceID = ModuleConfiguration.DefaultDataSourceID;
                                             }
 
                                             statementMap.TransactionIsolationLevel = (header?.Element("isolation")?.InnerText).ToStringSafe();
-                                            statementMap.StatementID = item.Attributes["id"].Value + item.Attributes["seq"].Value.PadLeft(2, '0');
-                                            statementMap.Seq = item.Attributes["seq"].Value.ParseInt(0);
-                                            statementMap.Description = item.Attributes["desc"] == null ? "" : item.Attributes["desc"].Value;
-                                            statementMap.NativeDataClient = item.Attributes["native"] == null ? false : item.Attributes["native"].Value.ParseBool();
-                                            statementMap.Timeout = item.Attributes["timeout"] == null ? 0 : item.Attributes["timeout"].Value.ParseInt(0);
+                                            statementMap.StatementID = GetAttributeValue(item, "id") + GetAttributeValue(item, "seq").PadLeft(2, '0');
+                                            statementMap.Seq = GetAttributeValue(item, "seq").ParseInt(0);
+                                            statementMap.Description = GetAttributeValue(item, "desc");
+                                            statementMap.NativeDataClient = GetAttributeValue(item, "native").ParseBool();
+                                            statementMap.Timeout = GetAttributeValue(item, "timeout").ParseInt(0);
                                             statementMap.SQL = item.InnerHtml;
 
                                             var beforetransaction = item.Attributes["before"]?.Value;
@@ -336,30 +347,32 @@ namespace dbclient.Extensions
                                                 statementMap.FallbackTransactionCommand = fallbacktransaction;
                                             }
 
-                                            statementMap.DbParameters = new List<DbParameterMap>();
+                                            statementMap.DbParameters = [];
                                             var htmlNodes = item.SelectNodes("param");
                                             if (htmlNodes != null && htmlNodes.Count > 0)
                                             {
-                                                foreach (var paramNode in item.SelectNodes("param"))
+                                                foreach (var paramNode in htmlNodes)
                                                 {
                                                     statementMap.DbParameters.Add(new DbParameterMap()
                                                     {
-                                                        Name = paramNode.Attributes["id"].Value.ToString(),
-                                                        DbType = paramNode.Attributes["type"].Value.ToString(),
-                                                        Length = (paramNode.Attributes["length"] == null ? "-1" : paramNode.Attributes["length"].Value.ToString()).ParseInt(-1),
-                                                        DefaultValue = paramNode.Attributes["value"] == null ? "" : paramNode.Attributes["value"].Value.ToString(),
-                                                        TestValue = paramNode.Attributes["test"] == null ? "" : paramNode.Attributes["test"].Value.ToString(),
-                                                        IsRequired = (paramNode.Attributes["required"] == null ? "" : paramNode.Attributes["required"].Value.ToString()).ToBoolean(),
-                                                        Direction = paramNode.Attributes["direction"] == null ? "Input" : paramNode.Attributes["direction"].Value.ToString(),
-                                                        Transform = paramNode.Attributes["transform"] == null ? "" : paramNode.Attributes["transform"].Value.ToString(),
+                                                        Name = GetAttributeValue(paramNode, "id"),
+                                                        DbType = GetAttributeValue(paramNode, "type"),
+                                                        Length = GetAttributeValue(paramNode, "length", "-1").ParseInt(-1),
+                                                        DefaultValue = GetAttributeValue(paramNode, "value"),
+                                                        TestValue = GetAttributeValue(paramNode, "test"),
+                                                        IsRequired = GetAttributeValue(paramNode, "required").ToBoolean(),
+                                                        Direction = GetAttributeValue(paramNode, "direction", "Input"),
+                                                        Transform = GetAttributeValue(paramNode, "transform"),
                                                     });
                                                 }
                                             }
 
                                             statementMap.OutputMetas = ReadOutputMetas(item);
 
-                                            var children = new HtmlDocument();
-                                            children.OptionDefaultStreamEncoding = Encoding.UTF8;
+                                            var children = new HtmlDocument
+                                            {
+                                                OptionDefaultStreamEncoding = Encoding.UTF8
+                                            };
                                             children.LoadHtml(statementMap.SQL);
                                             statementMap.Chidren = children;
 
@@ -462,7 +475,6 @@ namespace dbclient.Extensions
 
         public static bool HasStatement(string projectID, string businessID, string transactionID, string statementID)
         {
-            var result = false;
             var queryID = string.Concat(
                 projectID, "|",
                 businessID, "|",
@@ -470,13 +482,15 @@ namespace dbclient.Extensions
                 statementID
             );
 
-            result = StatementMappings.ContainsKey(queryID);
+            var result = StatementMappings.ContainsKey(queryID);
 
             return result;
         }
 
         public static bool AddStatementMap(string fileRelativePath, bool forceUpdate, ILogger logger)
         {
+            ArgumentNullException.ThrowIfNull(logger);
+
             var result = false;
             lock (StatementMappings)
             {
@@ -489,8 +503,10 @@ namespace dbclient.Extensions
                         if (File.Exists(filePath) == true)
                         {
                             var fileInfo = new FileInfo(filePath);
-                            var htmlDocument = new HtmlDocument();
-                            htmlDocument.OptionDefaultStreamEncoding = Encoding.UTF8;
+                            var htmlDocument = new HtmlDocument
+                            {
+                                OptionDefaultStreamEncoding = Encoding.UTF8
+                            };
                             htmlDocument.LoadHtml(ReplaceCData(File.ReadAllText(filePath)));
                             var header = htmlDocument.DocumentNode.SelectSingleNode("//mapper/header");
                             var signatureKey = (header?.Element("signaturekey")?.InnerText).ToStringSafe();
@@ -508,7 +524,7 @@ namespace dbclient.Extensions
                                 var plain = LZStringHelper.DecompressFromUint8Array(encryptCommands.DecryptAESBytes(licenseItem.AssemblyKey.NormalizeKey())) ?? string.Empty;
 
                                 var commands = htmlDocument.DocumentNode.SelectSingleNode("//mapper/commands");
-                                commands.InnerHtml = plain;
+                                commands?.InnerHtml = plain;
                             }
 
                             var isTenantContractFile = false;
@@ -536,22 +552,24 @@ namespace dbclient.Extensions
                                 {
                                     if (header == null || $"{header?.Element("use")?.InnerText}".ToBoolean() == true)
                                     {
-                                        var statementMap = new StatementMap();
-                                        statementMap.ApplicationID = applicationID;
-                                        statementMap.ProjectID = projectID;
-                                        statementMap.TransactionID = transactionID;
-                                        statementMap.DataSourceID = item.Attributes["datasource"] == null ? (header?.Element("datasource")?.InnerText).ToStringSafe() : item.Attributes["datasource"].Value;
+                                        var statementMap = new StatementMap
+                                        {
+                                            ApplicationID = applicationID,
+                                            ProjectID = projectID,
+                                            TransactionID = transactionID,
+                                            DataSourceID = item.Attributes["datasource"]?.Value ?? (header?.Element("datasource")?.InnerText).ToStringSafe()
+                                        };
                                         if (string.IsNullOrWhiteSpace(statementMap.DataSourceID))
                                         {
                                             statementMap.DataSourceID = ModuleConfiguration.DefaultDataSourceID;
                                         }
 
                                         statementMap.TransactionIsolationLevel = (header?.Element("isolation")?.InnerText).ToStringSafe();
-                                        statementMap.StatementID = item.Attributes["id"].Value + item.Attributes["seq"].Value.PadLeft(2, '0');
-                                        statementMap.Seq = item.Attributes["seq"].Value.ParseInt(0);
-                                        statementMap.Description = item.Attributes["desc"] == null ? "" : item.Attributes["desc"].Value;
-                                        statementMap.NativeDataClient = item.Attributes["native"] == null ? false : item.Attributes["native"].Value.ParseBool();
-                                        statementMap.Timeout = item.Attributes["timeout"] == null ? 0 : item.Attributes["timeout"].Value.ParseInt(0);
+                                        statementMap.StatementID = GetAttributeValue(item, "id") + GetAttributeValue(item, "seq").PadLeft(2, '0');
+                                        statementMap.Seq = GetAttributeValue(item, "seq").ParseInt(0);
+                                        statementMap.Description = GetAttributeValue(item, "desc");
+                                        statementMap.NativeDataClient = GetAttributeValue(item, "native").ParseBool();
+                                        statementMap.Timeout = GetAttributeValue(item, "timeout").ParseInt(0);
                                         statementMap.SQL = item.InnerHtml;
 
                                         var beforetransaction = item.Attributes["before"]?.Value;
@@ -572,30 +590,32 @@ namespace dbclient.Extensions
                                             statementMap.FallbackTransactionCommand = fallbacktransaction;
                                         }
 
-                                        statementMap.DbParameters = new List<DbParameterMap>();
+                                        statementMap.DbParameters = [];
                                         var htmlNodes = item.SelectNodes("param");
                                         if (htmlNodes != null && htmlNodes.Count > 0)
                                         {
-                                            foreach (var paramNode in item.SelectNodes("param"))
+                                            foreach (var paramNode in htmlNodes)
                                             {
                                                 statementMap.DbParameters.Add(new DbParameterMap()
                                                 {
-                                                    Name = paramNode.Attributes["id"].Value.ToString(),
-                                                    DbType = paramNode.Attributes["type"].Value.ToString(),
-                                                    Length = (paramNode.Attributes["length"] == null ? "-1" : paramNode.Attributes["length"].Value.ToString()).ParseInt(-1),
-                                                    DefaultValue = paramNode.Attributes["value"] == null ? "" : paramNode.Attributes["value"].Value.ToString(),
-                                                    TestValue = paramNode.Attributes["test"] == null ? "" : paramNode.Attributes["test"].Value.ToString(),
-                                                    IsRequired = (paramNode.Attributes["required"] == null ? "" : paramNode.Attributes["required"].Value.ToString()).ToBoolean(),
-                                                    Direction = paramNode.Attributes["direction"] == null ? "Input" : paramNode.Attributes["direction"].Value.ToString(),
-                                                    Transform = paramNode.Attributes["transform"] == null ? "" : paramNode.Attributes["transform"].Value.ToString(),
+                                                    Name = GetAttributeValue(paramNode, "id"),
+                                                    DbType = GetAttributeValue(paramNode, "type"),
+                                                    Length = GetAttributeValue(paramNode, "length", "-1").ParseInt(-1),
+                                                    DefaultValue = GetAttributeValue(paramNode, "value"),
+                                                    TestValue = GetAttributeValue(paramNode, "test"),
+                                                    IsRequired = GetAttributeValue(paramNode, "required").ToBoolean(),
+                                                    Direction = GetAttributeValue(paramNode, "direction", "Input"),
+                                                    Transform = GetAttributeValue(paramNode, "transform"),
                                                 });
                                             }
                                         }
 
                                         statementMap.OutputMetas = ReadOutputMetas(item);
 
-                                        var children = new HtmlDocument();
-                                        children.OptionDefaultStreamEncoding = Encoding.UTF8;
+                                        var children = new HtmlDocument
+                                        {
+                                            OptionDefaultStreamEncoding = Encoding.UTF8
+                                        };
                                         children.LoadHtml(statementMap.SQL);
                                         statementMap.Chidren = children;
 
@@ -675,6 +695,13 @@ namespace dbclient.Extensions
             return result;
         }
 
+        public static string GetAttributeValue(HtmlNode node, string name, string defaultValue = "")
+        {
+            ArgumentNullException.ThrowIfNull(node);
+
+            return node.Attributes[name]?.Value ?? defaultValue;
+        }
+
         public static (string? SQL, string ResultType) FindPretreatment(StatementMap statementMap, QueryObject? queryObject)
         {
             string? pretreatmentSQL = null;
@@ -682,8 +709,11 @@ namespace dbclient.Extensions
 
             var parameters = extractParameters(queryObject);
 
-            var htmlDocument = new HtmlDocument();
-            htmlDocument.OptionDefaultStreamEncoding = Encoding.UTF8;
+            var htmlDocument = new HtmlDocument
+            {
+                OptionDefaultStreamEncoding = Encoding.UTF8
+            };
+            ArgumentNullException.ThrowIfNull(statementMap);
             htmlDocument.LoadHtml(statementMap.SQL);
             var pretreatment = htmlDocument.DocumentNode.SelectSingleNode("//pretreatment");
             if (pretreatment != null)
@@ -691,22 +721,24 @@ namespace dbclient.Extensions
                 var htmlResultType = pretreatment.Attributes["resultType"];
                 if (htmlResultType != null)
                 {
-                    resultType = htmlResultType.Value;
+                    resultType = htmlResultType.Value ?? "";
                 }
-                var children = new HtmlDocument();
-                children.OptionDefaultStreamEncoding = Encoding.UTF8;
+                var children = new HtmlDocument
+                {
+                    OptionDefaultStreamEncoding = Encoding.UTF8
+                };
                 children.LoadHtml(pretreatment.InnerHtml);
 
                 var childNodes = children.DocumentNode.ChildNodes;
                 foreach (var childNode in childNodes)
                 {
-                    pretreatmentSQL = pretreatmentSQL + ConvertChildren(childNode, parameters);
+                    pretreatmentSQL += ConvertChildren(childNode, parameters);
                 }
             }
 
             if (pretreatmentSQL != null)
             {
-                pretreatmentSQL = pretreatmentSQL + new string(' ', random.Next(1, 10));
+                pretreatmentSQL += new string(' ', random.Next(1, 10));
             }
 
             return (pretreatmentSQL, resultType);
@@ -718,12 +750,13 @@ namespace dbclient.Extensions
 
             var parameters = extractParameters(queryObject);
 
+            ArgumentNullException.ThrowIfNull(statementMap);
             var children = statementMap.Chidren;
 
             var childNodes = children.DocumentNode.ChildNodes;
             foreach (var childNode in childNodes)
             {
-                result = result + ConvertChildren(childNode, parameters);
+                result += ConvertChildren(childNode, parameters);
             }
 
             if (string.IsNullOrWhiteSpace(result))
@@ -732,7 +765,7 @@ namespace dbclient.Extensions
             }
             else
             {
-                result = result + new string(' ', random.Next(1, 10));
+                result += new string(' ', random.Next(1, 10));
             }
 
             return result;
@@ -746,7 +779,7 @@ namespace dbclient.Extensions
             {
                 foreach (var item in queryObject.Parameters)
                 {
-                    object? value = null;
+                    object? value;
                     if (item.DbType == "String")
                     {
                         value = item.Value == null ? "" : item.Value.ToString();
@@ -797,8 +830,7 @@ namespace dbclient.Extensions
                         value = item.Value as DateTime?;
                         if (value == null && item.Value != null)
                         {
-                            DateTime dateTime;
-                            var isParse = DateTime.TryParse(item.Value.ToString(), out dateTime);
+                            var isParse = DateTime.TryParse(item.Value.ToString(), out var dateTime);
                             if (isParse == true)
                             {
                                 value = dateTime;
@@ -820,6 +852,7 @@ namespace dbclient.Extensions
         public static string ConvertChildren(HtmlNode htmlNode, JObject parameters)
         {
             var result = "";
+            ArgumentNullException.ThrowIfNull(htmlNode);
             var nodeType = htmlNode.NodeType.ToString();
             if (nodeType == "Text")
             {
@@ -834,7 +867,7 @@ namespace dbclient.Extensions
                     case "foreach":
                         return ConvertForeach(htmlNode, parameters);
                     case "bind":
-                        parameters = ConvertBind(htmlNode, parameters);
+                        _ = ConvertBind(htmlNode, parameters);
                         result = "";
                         break;
                     case "param":
@@ -851,22 +884,23 @@ namespace dbclient.Extensions
         public static string ConvertForeach(HtmlNode htmlNode, JObject parameters)
         {
             var result = "";
+            ArgumentNullException.ThrowIfNull(htmlNode);
             var collectionName = htmlNode.Attributes["collection"]?.Value;
             if (string.IsNullOrWhiteSpace(collectionName))
             {
                 return "";
             }
 
-            var value = parameters[collectionName] as JValue;
-            if (value != null)
+            ArgumentNullException.ThrowIfNull(parameters);
+            if (parameters[collectionName] is JValue value)
             {
                 var list = JArray.Parse(value.ToString());
                 if (list != null)
                 {
-                    var item = htmlNode.Attributes["item"].Value;
-                    var open = htmlNode.Attributes["open"] == null ? "" : htmlNode.Attributes["open"].Value;
-                    var close = htmlNode.Attributes["close"] == null ? "" : htmlNode.Attributes["close"].Value;
-                    var separator = htmlNode.Attributes["separator"] == null ? "" : htmlNode.Attributes["separator"].Value;
+                    var item = GetAttributeValue(htmlNode, "item");
+                    var open = GetAttributeValue(htmlNode, "open");
+                    var close = GetAttributeValue(htmlNode, "close");
+                    var separator = GetAttributeValue(htmlNode, "separator");
 
                     var foreachTexts = new List<string>();
                     foreach (var coll in list)
@@ -878,11 +912,11 @@ namespace dbclient.Extensions
                         foreach (var childNode in htmlNode.ChildNodes)
                         {
                             var childrenText = ConvertChildren(childNode, foreachParam);
-                            childrenText = Regex.Replace(childrenText, "^\\s*$", "");
+                            childrenText = MyRegex1().Replace(childrenText, "");
 
                             if (!string.IsNullOrWhiteSpace(childrenText))
                             {
-                                foreachText = foreachText + childrenText;
+                                foreachText += childrenText;
                             }
                         }
 
@@ -903,7 +937,7 @@ namespace dbclient.Extensions
 
         public static string ConvertIf(HtmlNode htmlNode, JObject parameters)
         {
-            var evalString = htmlNode.Attributes["test"].Value;
+            var evalString = GetAttributeValue(htmlNode, "test");
             evalString = ReplaceEvalString(evalString, parameters);
             evalString = evalString.Replace(" and ", " && ");
             evalString = evalString.Replace(" or ", " || ");
@@ -916,9 +950,11 @@ namespace dbclient.Extensions
             var convertString = "";
             if (evalResult == true)
             {
+                ArgumentNullException.ThrowIfNull(htmlNode);
+
                 foreach (var childNode in htmlNode.ChildNodes)
                 {
-                    convertString = convertString + ConvertChildren(childNode, parameters);
+                    convertString += ConvertChildren(childNode, parameters);
                 }
             }
 
@@ -927,8 +963,8 @@ namespace dbclient.Extensions
 
         public static JObject ConvertBind(HtmlNode htmlNode, JObject parameters)
         {
-            var bindID = htmlNode.Attributes["name"].Value;
-            var evalString = htmlNode.Attributes["value"].Value;
+            var bindID = GetAttributeValue(htmlNode, "name");
+            var evalString = GetAttributeValue(htmlNode, "value");
             evalString = ReplaceEvalString(evalString, parameters);
             var evalText = evalString.Replace("'", "\"").Replace("#", "$");
 
@@ -941,6 +977,7 @@ namespace dbclient.Extensions
                 evalResult = queryResult.First();
             }
 
+            ArgumentNullException.ThrowIfNull(parameters);
             parameters[bindID] = evalResult;
 
             return parameters;
@@ -948,6 +985,8 @@ namespace dbclient.Extensions
 
         public static string ConvertParameter(HtmlNode htmlNode, JObject parameters)
         {
+            ArgumentNullException.ThrowIfNull(htmlNode);
+
             var convertString = htmlNode.InnerText;
             if (parameters != null && parameters.Count > 0)
             {
@@ -985,12 +1024,12 @@ namespace dbclient.Extensions
                             var name = parameter.Key;
                             var value = parameter.Value.ToStringSafe();
 
-                            if (name.StartsWith("$") == false)
+                            if (name.StartsWith('$') == false)
                             {
                                 value = value.Replace("\"", "\\\"").Replace("'", "''");
                             }
 
-                            convertString = convertString.Replace("#{" + name + "}", "'" + value + "'");
+                            convertString = (convertString ?? throw new ArgumentNullException(nameof(convertString))).Replace("#{" + name + "}", "'" + value + "'");
                             convertString = convertString.Replace("${" + name + "}", value);
                         }
                     }
@@ -1002,6 +1041,8 @@ namespace dbclient.Extensions
 
         public static string ReplaceEvalString(string evalString, JObject parameters)
         {
+            ArgumentNullException.ThrowIfNull(parameters);
+
             foreach (var parameter in parameters)
             {
                 if (parameter.Value != null)
@@ -1041,6 +1082,7 @@ namespace dbclient.Extensions
                 {
                     var cdataText = EncodeXmlEntities(match.Groups[2].Value);
 
+                    ArgumentNullException.ThrowIfNull(rawText);
                     rawText = rawText.Replace(match.Value, cdataText);
                 }
             }
@@ -1049,6 +1091,8 @@ namespace dbclient.Extensions
 
         public static void LoadContract(string environmentName, ILogger logger, IConfiguration configuration)
         {
+            ArgumentNullException.ThrowIfNull(logger);
+
             try
             {
                 if (ModuleConfiguration.ContractBasePath.Count == 0)
@@ -1070,8 +1114,10 @@ namespace dbclient.Extensions
                         try
                         {
                             var fileInfo = new FileInfo(sqlMapFile);
-                            var htmlDocument = new HtmlDocument();
-                            htmlDocument.OptionDefaultStreamEncoding = Encoding.UTF8;
+                            var htmlDocument = new HtmlDocument
+                            {
+                                OptionDefaultStreamEncoding = Encoding.UTF8
+                            };
                             htmlDocument.LoadHtml(ReplaceCData(File.ReadAllText(sqlMapFile)));
                             var header = htmlDocument.DocumentNode.SelectSingleNode("//mapper/header");
                             var signatureKey = (header?.Element("signaturekey")?.InnerText).ToStringSafe();
@@ -1089,7 +1135,7 @@ namespace dbclient.Extensions
                                 var plain = LZStringHelper.DecompressFromUint8Array(encryptCommands.DecryptAESBytes(licenseItem.AssemblyKey.NormalizeKey())) ?? string.Empty;
 
                                 var commands = htmlDocument.DocumentNode.SelectSingleNode("//mapper/commands");
-                                commands.InnerHtml = plain;
+                                commands?.InnerHtml = plain;
                             }
 
                             var applicationID = (header?.Element("application")?.InnerText).ToStringSafe();
@@ -1115,22 +1161,24 @@ namespace dbclient.Extensions
                                 {
                                     if (header == null || $"{header?.Element("use")?.InnerText}".ToBoolean() == true)
                                     {
-                                        var statementMap = new StatementMap();
-                                        statementMap.ApplicationID = applicationID;
-                                        statementMap.ProjectID = projectID;
-                                        statementMap.TransactionID = transactionID;
-                                        statementMap.DataSourceID = item.Attributes["datasource"] == null ? (header?.Element("datasource")?.InnerText).ToStringSafe() : item.Attributes["datasource"].Value;
+                                        var statementMap = new StatementMap
+                                        {
+                                            ApplicationID = applicationID,
+                                            ProjectID = projectID,
+                                            TransactionID = transactionID,
+                                            DataSourceID = item.Attributes["datasource"]?.Value ?? (header?.Element("datasource")?.InnerText).ToStringSafe()
+                                        };
                                         if (string.IsNullOrWhiteSpace(statementMap.DataSourceID))
                                         {
                                             statementMap.DataSourceID = ModuleConfiguration.DefaultDataSourceID;
                                         }
 
                                         statementMap.TransactionIsolationLevel = (header?.Element("isolation")?.InnerText).ToStringSafe();
-                                        statementMap.StatementID = item.Attributes["id"].Value + item.Attributes["seq"].Value.PadLeft(2, '0');
-                                        statementMap.Seq = item.Attributes["seq"].Value.ParseInt(0);
-                                        statementMap.Description = item.Attributes["desc"] == null ? "" : item.Attributes["desc"].Value;
-                                        statementMap.NativeDataClient = item.Attributes["native"] == null ? false : item.Attributes["native"].Value.ParseBool();
-                                        statementMap.Timeout = item.Attributes["timeout"] == null ? 0 : item.Attributes["timeout"].Value.ParseInt(0);
+                                        statementMap.StatementID = GetAttributeValue(item, "id") + GetAttributeValue(item, "seq").PadLeft(2, '0');
+                                        statementMap.Seq = GetAttributeValue(item, "seq").ParseInt(0);
+                                        statementMap.Description = GetAttributeValue(item, "desc");
+                                        statementMap.NativeDataClient = GetAttributeValue(item, "native").ParseBool();
+                                        statementMap.Timeout = GetAttributeValue(item, "timeout").ParseInt(0);
                                         statementMap.SQL = item.InnerHtml;
 
                                         var beforetransaction = item.Attributes["before"]?.Value;
@@ -1151,30 +1199,32 @@ namespace dbclient.Extensions
                                             statementMap.FallbackTransactionCommand = fallbacktransaction;
                                         }
 
-                                        statementMap.DbParameters = new List<DbParameterMap>();
+                                        statementMap.DbParameters = [];
                                         var htmlNodes = item.SelectNodes("param");
                                         if (htmlNodes != null && htmlNodes.Count > 0)
                                         {
-                                            foreach (var paramNode in item.SelectNodes("param"))
+                                            foreach (var paramNode in htmlNodes)
                                             {
                                                 statementMap.DbParameters.Add(new DbParameterMap()
                                                 {
-                                                    Name = paramNode.Attributes["id"].Value.ToString(),
-                                                    DbType = paramNode.Attributes["type"].Value.ToString(),
-                                                    Length = (paramNode.Attributes["length"] == null ? "-1" : paramNode.Attributes["length"].Value.ToString()).ParseInt(-1),
-                                                    DefaultValue = paramNode.Attributes["value"] == null ? "" : paramNode.Attributes["value"].Value.ToString(),
-                                                    TestValue = paramNode.Attributes["test"] == null ? "" : paramNode.Attributes["test"].Value.ToString(),
-                                                    IsRequired = (paramNode.Attributes["required"] == null ? "" : paramNode.Attributes["required"].Value.ToString()).ToBoolean(),
-                                                    Direction = paramNode.Attributes["direction"] == null ? "Input" : paramNode.Attributes["direction"].Value.ToString(),
-                                                    Transform = paramNode.Attributes["transform"] == null ? "" : paramNode.Attributes["transform"].Value.ToString(),
+                                                    Name = GetAttributeValue(paramNode, "id"),
+                                                    DbType = GetAttributeValue(paramNode, "type"),
+                                                    Length = GetAttributeValue(paramNode, "length", "-1").ParseInt(-1),
+                                                    DefaultValue = GetAttributeValue(paramNode, "value"),
+                                                    TestValue = GetAttributeValue(paramNode, "test"),
+                                                    IsRequired = GetAttributeValue(paramNode, "required").ToBoolean(),
+                                                    Direction = GetAttributeValue(paramNode, "direction", "Input"),
+                                                    Transform = GetAttributeValue(paramNode, "transform"),
                                                 });
                                             }
                                         }
 
                                         statementMap.OutputMetas = ReadOutputMetas(item);
 
-                                        var children = new HtmlDocument();
-                                        children.OptionDefaultStreamEncoding = Encoding.UTF8;
+                                        var children = new HtmlDocument
+                                        {
+                                            OptionDefaultStreamEncoding = Encoding.UTF8
+                                        };
                                         children.LoadHtml(statementMap.SQL);
                                         statementMap.Chidren = children;
 
@@ -1220,7 +1270,7 @@ namespace dbclient.Extensions
             var candidates = new Dictionary<DataSourceTanantKey, DataSourceMap>();
             foreach (var item in dataSources ?? Enumerable.Empty<DataSource>())
             {
-                var dataProvider = (DataProviders)Enum.Parse(typeof(DataProviders), item.DataProvider, true);
+                var dataProvider = Enum.Parse<DataProviders>(item.DataProvider, true);
                 var connectionString = item.IsEncryption.ParseBool() == true ? DecryptConnectionString(item) : item.ConnectionString;
                 if (item.IsEncryption.ParseBool() == true && string.IsNullOrWhiteSpace(item.ConnectionString) == false && string.IsNullOrWhiteSpace(connectionString) == true)
                 {
@@ -1236,6 +1286,8 @@ namespace dbclient.Extensions
                 };
                 if (candidates.ContainsKey(tenantKey) == true)
                 {
+                    ArgumentNullException.ThrowIfNull(logger);
+
                     logger.Warning("[{LogCategory}] " + $"DataSourceMap 정보 중복 확인 필요 - ApplicationID - {item.ApplicationID}, ProjectID - {item.ProjectID}, DataSourceID - {item.DataSourceID}, DataProvider - {item.DataProvider}, TanantPattern - {item.TanantPattern}, TanantValue - {item.TanantValue}", "DatabaseMapper/ReloadDataSourceMappings");
                 }
 
@@ -1266,6 +1318,7 @@ namespace dbclient.Extensions
             var result = new Dictionary<string, object?>();
             var iLookup = (SqlMapper.IParameterLookup)dynamicParams;
 
+            ArgumentNullException.ThrowIfNull(dynamicParams);
             foreach (var paramName in dynamicParams.ParameterNames)
             {
                 var value = iLookup[paramName];
@@ -1275,8 +1328,7 @@ namespace dbclient.Extensions
             var templates = dynamicParams.GetType().GetField("templates", BindingFlags.NonPublic | BindingFlags.Instance);
             if (templates != null)
             {
-                var list = templates.GetValue(dynamicParams) as List<Object>;
-                if (list != null)
+                if (templates.GetValue(dynamicParams) is List<Object> list)
                 {
                     foreach (var props in list.Select(obj => obj.GetPropertyValuePairs().ToList()))
                     {
@@ -1290,6 +1342,7 @@ namespace dbclient.Extensions
         public static Dictionary<string, object?> ToParametersDictionary(this SqlServerDynamicParameters dynamicParams)
         {
             var result = new Dictionary<string, object?>();
+            ArgumentNullException.ThrowIfNull(dynamicParams);
             var parameters = dynamicParams.sqlParameters;
             foreach (var item in parameters)
             {
@@ -1301,6 +1354,7 @@ namespace dbclient.Extensions
         public static Dictionary<string, object?> ToParametersDictionary(this OracleDynamicParameters dynamicParams)
         {
             var result = new Dictionary<string, object?>();
+            ArgumentNullException.ThrowIfNull(dynamicParams);
             var parameters = dynamicParams.oracleParameters;
             foreach (var item in parameters)
             {
@@ -1312,6 +1366,7 @@ namespace dbclient.Extensions
         public static Dictionary<string, object?> ToParametersDictionary(this MySqlDynamicParameters dynamicParams)
         {
             var result = new Dictionary<string, object?>();
+            ArgumentNullException.ThrowIfNull(dynamicParams);
             var parameters = dynamicParams.mysqlParameters;
             foreach (var item in parameters)
             {
@@ -1323,6 +1378,7 @@ namespace dbclient.Extensions
         public static Dictionary<string, object?> ToParametersDictionary(this NpgsqlDynamicParameters dynamicParams)
         {
             var result = new Dictionary<string, object?>();
+            ArgumentNullException.ThrowIfNull(dynamicParams);
             var parameters = dynamicParams.npgsqlParameters;
             foreach (var item in parameters)
             {
@@ -1334,6 +1390,7 @@ namespace dbclient.Extensions
         public static Dictionary<string, object?> ToParametersDictionary(this SQLiteDynamicParameters dynamicParams)
         {
             var result = new Dictionary<string, object?>();
+            ArgumentNullException.ThrowIfNull(dynamicParams);
             var parameters = dynamicParams.sqlliteParameters;
             foreach (var item in parameters)
             {
@@ -1341,6 +1398,11 @@ namespace dbclient.Extensions
             }
             return result;
         }
+
+        [GeneratedRegex("(<!\\[CDATA\\[)([\\s\\S]*?)(\\]\\]>)", RegexOptions.Compiled)]
+        private static partial Regex MyRegex();
+        [GeneratedRegex("^\\s*$")]
+        private static partial Regex MyRegex1();
     }
 }
 

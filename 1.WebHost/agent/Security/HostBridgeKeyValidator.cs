@@ -7,14 +7,9 @@ using Microsoft.Extensions.Options;
 
 namespace agent.Security
 {
-    public sealed class HostBridgeKeyValidator
+    public sealed class HostBridgeKeyValidator(IOptionsMonitor<AgentOptions> optionsMonitor)
     {
-        private readonly IOptionsMonitor<AgentOptions> optionsMonitor;
-
-        public HostBridgeKeyValidator(IOptionsMonitor<AgentOptions> optionsMonitor)
-        {
-            this.optionsMonitor = optionsMonitor;
-        }
+        private readonly IOptionsMonitor<AgentOptions> optionsMonitor = optionsMonitor;
 
         public bool Enabled => optionsMonitor.CurrentValue.HostBridge.Enabled;
 

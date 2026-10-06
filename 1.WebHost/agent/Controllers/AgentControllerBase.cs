@@ -13,6 +13,8 @@ namespace agent.Controllers
     {
         protected ActionResult ToCommandResult(TargetCommandResult result)
         {
+            ArgumentNullException.ThrowIfNull(result);
+
             if (result.Success == true)
             {
                 return Ok(result);
@@ -38,6 +40,8 @@ namespace agent.Controllers
 
         protected int ToCommandStatusCode(TargetCommandResult result)
         {
+            ArgumentNullException.ThrowIfNull(result);
+
             if (result.Success == true)
             {
                 return StatusCodes.Status200OK;
@@ -63,6 +67,8 @@ namespace agent.Controllers
 
         protected ActionResult ToOperationResult(OperationResult result)
         {
+            ArgumentNullException.ThrowIfNull(result);
+
             if (result.Success == true)
             {
                 return Ok(result);

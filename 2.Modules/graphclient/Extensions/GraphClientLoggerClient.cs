@@ -29,8 +29,8 @@ namespace graphclient.Extensions
         private readonly CancellationTokenSource cancellationTokenSource;
         private readonly Task[] backgroundWorkers;
 
-        private CircuitBreakerPolicy<RestResponse> circuitBreakerPolicy;
-        private readonly object circuitBreakerLock = new object();
+        private readonly CircuitBreakerPolicy<RestResponse> circuitBreakerPolicy;
+        private readonly object circuitBreakerLock = new();
         private DateTime? breakDateTime;
 
         private readonly ConcurrentBag<LogMessage> logMessagePool;
@@ -54,7 +54,7 @@ namespace graphclient.Extensions
 
             restClient = new RestClient();
             logQueue = new BlockingCollection<LogRequest>(MaxQueueSize);
-            logMessagePool = new ConcurrentBag<LogMessage>();
+            logMessagePool = [];
 
             circuitBreakerPolicy = Policy
               .HandleResult<RestResponse>(x => x.IsSuccessStatusCode == false)
@@ -104,7 +104,7 @@ namespace graphclient.Extensions
             }
         }
 
-        private void ResetLogMessage(LogMessage logMessage)
+        private static void ResetLogMessage(LogMessage logMessage)
         {
             logMessage.ServerID = GlobalConfiguration.HostName;
             logMessage.RunningEnvironment = GlobalConfiguration.RunningEnvironment;
@@ -148,6 +148,7 @@ namespace graphclient.Extensions
                     return restResponse;
                 }
 
+                ArgumentNullException.ThrowIfNull(logMessage);
                 var restRequest = CreateRestRequest(httpVerb, hostUrl, logMessage, headers);
                 restResponse = await ExecuteWithRetryAndCircuitBreakerAsync(restRequest, fallbackFunction, cancellationToken);
             }
@@ -166,7 +167,7 @@ namespace graphclient.Extensions
             return restResponse;
         }
 
-        private RestRequest CreateRestRequest(Method httpVerb, string hostUrl, LogMessage logMessage, Dictionary<string, string>? headers)
+        private static RestRequest CreateRestRequest(Method httpVerb, string hostUrl, LogMessage logMessage, Dictionary<string, string>? headers)
         {
             var restRequest = new RestRequest(hostUrl, httpVerb);
             restRequest.AddHeader("cache-control", "no-cache");
@@ -290,7 +291,7 @@ namespace graphclient.Extensions
             };
         }
 
-        private bool IsRetryableError(RestResponse response)
+        private static bool IsRetryableError(RestResponse response)
         {
             return response.StatusCode == HttpStatusCode.RequestTimeout ||
                    response.StatusCode == HttpStatusCode.ServiceUnavailable ||
@@ -334,13 +335,14 @@ namespace graphclient.Extensions
         {
             var logMessage = GetLogMessage();
             var message = JsonConvert.SerializeObject(request);
+            ArgumentNullException.ThrowIfNull(request);
             ConfigureLogMessage(logMessage, request.GlobalID, acknowledge, applicationID, "", "", "",
                 "T", "I", "V", "J", message, "");
 
             EnqueueLog(logMessage, fallbackFunction, "Request");
         }
 
-        private void ConfigureLogMessage(LogMessage logMessage, string globalID, string acknowledge,
+        private static void ConfigureLogMessage(LogMessage logMessage, string globalID, string acknowledge,
             string applicationID, string projectID, string transactionID, string serviceID,
             string type, string flow, string level, string format, string message, string properties)
         {
@@ -517,6 +519,7 @@ namespace graphclient.Extensions
                 logQueue?.Dispose();
                 restClient?.Dispose();
             }
+            GC.SuppressFinalize(this);
         }
     }
 

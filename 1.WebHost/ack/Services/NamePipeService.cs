@@ -12,18 +12,13 @@ using Serilog;
 
 namespace ack.Services
 {
-    internal class NamePipeService : BackgroundService
+    internal class NamePipeService(ILogger logger) : BackgroundService
     {
-        private readonly ILogger logger;
-
-        public NamePipeService(ILogger logger)
-        {
-            this.logger = logger;
-        }
+        private readonly ILogger logger = logger;
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            var currentId = Process.GetCurrentProcess().Id;
+            var currentId = Environment.ProcessId;
             while (!stoppingToken.IsCancellationRequested)
             {
                 using var pipeServer = new NamedPipeServerStream(currentId.ToString(), PipeDirection.InOut, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous);

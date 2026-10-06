@@ -7,14 +7,9 @@ using Microsoft.Extensions.Options;
 
 namespace deploy.Security
 {
-    public sealed class ManagementKeyValidator
+    public sealed class ManagementKeyValidator(IOptionsMonitor<DeployOptions> optionsMonitor)
     {
-        private readonly IOptionsMonitor<DeployOptions> optionsMonitor;
-
-        public ManagementKeyValidator(IOptionsMonitor<DeployOptions> optionsMonitor)
-        {
-            this.optionsMonitor = optionsMonitor;
-        }
+        private readonly IOptionsMonitor<DeployOptions> optionsMonitor = optionsMonitor;
 
         public string ManagementHeaderName
         {

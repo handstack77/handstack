@@ -23,28 +23,21 @@ namespace agent.Controllers
 {
     [Route("targets")]
     [ServiceFilter(typeof(ManagementKeyActionFilter))]
-    public sealed class TargetsController : AgentControllerBase
+    public sealed partial class TargetsController(
+        ITargetProcessManager targetProcessManager,
+        IOptionsMonitor<AgentOptions> optionsMonitor,
+        IHttpClientFactory httpClientFactory) : AgentControllerBase
     {
         private const string AuditHttpClientName = "logger-module";
 
-        private static readonly JsonSerializerOptions jsonSerializerOptions = new JsonSerializerOptions
+        private static readonly JsonSerializerOptions jsonSerializerOptions = new()
         {
             PropertyNamingPolicy = null
         };
 
-        private readonly IHttpClientFactory httpClientFactory;
-        private readonly ITargetProcessManager targetProcessManager;
-        private readonly IOptionsMonitor<AgentOptions> optionsMonitor;
-
-        public TargetsController(
-            ITargetProcessManager targetProcessManager,
-            IOptionsMonitor<AgentOptions> optionsMonitor,
-            IHttpClientFactory httpClientFactory)
-        {
-            this.targetProcessManager = targetProcessManager;
-            this.httpClientFactory = httpClientFactory;
-            this.optionsMonitor = optionsMonitor;
-        }
+        private readonly IHttpClientFactory httpClientFactory = httpClientFactory;
+        private readonly ITargetProcessManager targetProcessManager = targetProcessManager;
+        private readonly IOptionsMonitor<AgentOptions> optionsMonitor = optionsMonitor;
 
         [HttpGet("")]
         public async Task<ActionResult> GetTargets(CancellationToken cancellationToken)
@@ -97,13 +90,13 @@ namespace agent.Controllers
 
             var workingDirectory = TargetProcessManager.ResolveWorkingDirectory(target);
             var expandedCommand = TargetProcessManager.ExpandPathVariables(target.PackageMakeCommand.Trim());
-            var commandResult = await ExecuteShellCommandAsync(expandedCommand, workingDirectory, cancellationToken);
-            if (commandResult.ExitCode != 0)
+            var (ExitCode, _, StandardError) = await ExecuteShellCommandAsync(expandedCommand, workingDirectory, cancellationToken);
+            if (ExitCode != 0)
             {
-                var errorMessage = string.IsNullOrWhiteSpace(commandResult.StandardError) == true
-                    ? $"manifest 생성 명령이 실패했습니다. ExitCode={commandResult.ExitCode}"
-                    : commandResult.StandardError.Trim();
-                Log.Warning("manifest 생성 명령 실패. 대상ID={TargetId}, ExitCode={ExitCode}, Command={Command}, WorkingDirectory={WorkingDirectory}", targetAckId, commandResult.ExitCode, expandedCommand, workingDirectory);
+                var errorMessage = string.IsNullOrWhiteSpace(StandardError) == true
+                    ? $"manifest 생성 명령이 실패했습니다. ExitCode={ExitCode}"
+                    : StandardError.Trim();
+                Log.Warning("manifest 생성 명령 실패. 대상ID={TargetId}, ExitCode={ExitCode}, Command={Command}, WorkingDirectory={WorkingDirectory}", targetAckId, ExitCode, expandedCommand, workingDirectory);
                 await WriteTargetsAuditAsync(HttpContext, "targets.manifest", targetAckId, false, StatusCodes.Status500InternalServerError, errorMessage, cancellationToken);
                 return StatusCode(StatusCodes.Status500InternalServerError, new
                 {
@@ -355,7 +348,7 @@ namespace agent.Controllers
 
         private static string? TryResolveOutputOptionPath(string command, string workingDirectory)
         {
-            var match = Regex.Match(command, @"--output(?::|=|\s+)(?:""(?<value>[^""]+)""|(?<value>[^\s]+))", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+            var match = MyRegex().Match(command);
             if (match.Success == false)
             {
                 return null;
@@ -415,6 +408,9 @@ namespace agent.Controllers
 
             public string ProgramID { get; set; } = "";
         }
+
+        [GeneratedRegex(@"--output(?::|=|\s+)(?:""(?<value>[^""]+)""|(?<value>[^\s]+))", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
+        private static partial Regex MyRegex();
     }
 }
 

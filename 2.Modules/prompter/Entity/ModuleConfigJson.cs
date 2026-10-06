@@ -84,17 +84,17 @@ namespace prompter.Entity
             IsLogServer = false;
             LogServerUrl = "";
             IsContractFileWatching = false;
-            ContractBasePath = new List<string>();
+            ContractBasePath = [];
             CircuitBreakResetSecond = 30;
             IsChatHistoryConsoleShow = false;
             DefaultPromptResultFieldID = "PromptResult";
-            LLMSource = new List<LLMSource>();
-            AllowedKernelPlugins = new List<AllowedKernelPlugin>();
-            AllowedMcpServers = new List<AllowedExternalTool>();
-            AllowedCliTools = new List<AllowedExternalTool>();
-            AllowedBuiltinTools = new List<string>();
-            AllowedBodyFileBasePaths = new List<string>();
-            DriveBasePaths = new List<string>();
+            LLMSource = [];
+            AllowedKernelPlugins = [];
+            AllowedMcpServers = [];
+            AllowedCliTools = [];
+            AllowedBuiltinTools = [];
+            AllowedBodyFileBasePaths = [];
+            DriveBasePaths = [];
             ImageGenerationDataSourceID = "";
             ImageGenerationModelID = "gpt-image-1";
             GeneratedImageBasePath = "";
@@ -103,7 +103,7 @@ namespace prompter.Entity
             SkillsApiBearerToken = "";
             EnableSkillSearch = false;
             EnableSkillInstall = false;
-            AllowClientIP = new List<string>() { "*" };
+            AllowClientIP = ["*"];
         }
     }
 }

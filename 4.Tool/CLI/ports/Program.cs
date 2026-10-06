@@ -8,9 +8,11 @@ using System.Text.RegularExpressions;
 
 namespace ports
 {
-    internal class Program
+    internal partial class Program
     {
         private const string Version = "1.0.0";
+        private static readonly char[] NewLineChars = new[] { '\r', '\n' };
+
         private static bool userOnly = false;
 
         static void Main(string[] args)
@@ -46,7 +48,7 @@ namespace ports
                     break;
 
                 default:
-                    if (args[0].StartsWith("-"))
+                    if (args[0].StartsWith('-'))
                     {
                         Console.WriteLine($"알 수 없는 옵션: {args[0]}");
                         Environment.Exit(1);
@@ -121,7 +123,7 @@ namespace ports
                             try
                             {
                                 string content = File.ReadAllText(pkgPath);
-                                var match = Regex.Match(content, "\"name\"\\s*:\\s*\"([^\"]+)\"");
+                                var match = MyRegex().Match(content);
                                 if (match.Success)
                                 {
                                     displayName = match.Groups[1].Value;
@@ -177,17 +179,17 @@ namespace ports
         {
             var list = new List<PortInfo>();
             var output = RunCommand("netstat", "-ano");
-            var lines = output.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            var lines = output.Split(NewLineChars, StringSplitOptions.RemoveEmptyEntries);
 
             foreach (var line in lines)
             {
                 if (!line.Contains("TCP") || !line.Contains("LISTENING")) continue;
 
-                var parts = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                var parts = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
                 if (parts.Length < 5) continue;
 
                 string localAddr = parts[1];
-                string pidStr = parts[parts.Length - 1];
+                string pidStr = parts[^1];
 
                 int lastColon = localAddr.LastIndexOf(':');
                 if (lastColon == -1) continue;
@@ -225,12 +227,12 @@ namespace ports
             try
             {
                 var output = RunCommand("lsof", "-iTCP -sTCP:LISTEN -n -P");
-                var lines = output.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+                var lines = output.Split(NewLineChars, StringSplitOptions.RemoveEmptyEntries);
 
                 foreach (var line in lines)
                 {
                     if (line.StartsWith("COMMAND")) continue;
-                    var parts = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                    var parts = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
                     if (parts.Length < 9) continue;
 
                     string cmd = parts[0];
@@ -269,10 +271,10 @@ namespace ports
                     var lines = output.Split('\n');
                     foreach (var line in lines)
                     {
-                        var parts = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                        var parts = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
                         if (parts.Length >= 9 && parts[3] == "cwd")
                         {
-                            int slashIndex = line.IndexOf("/", StringComparison.Ordinal);
+                            int slashIndex = line.IndexOf('/');
                             if (slashIndex >= 0)
                             {
                                 return SubstringSafe(line, slashIndex).Trim();
@@ -316,7 +318,7 @@ namespace ports
                 return "";
             }
 
-            return value.Substring(startIndex);
+            return value[startIndex..];
         }
 
         class PortInfo
@@ -326,6 +328,9 @@ namespace ports
             public string ProcessName { get; set; } = string.Empty;
             public string Path { get; set; } = "-";
         }
+
+        [GeneratedRegex("\"name\"\\s*:\\s*\"([^\"]+)\"")]
+        private static partial Regex MyRegex();
     }
 }
 

@@ -13,8 +13,8 @@ namespace dbclient.NativeParameters
 {
     public class NpgsqlDynamicParameters : SqlMapper.IDynamicParameters
     {
-        public readonly DynamicParameters dynamicParameters = new DynamicParameters();
-        public readonly List<NpgsqlParameter> npgsqlParameters = new List<NpgsqlParameter>();
+        public readonly DynamicParameters dynamicParameters = new();
+        public readonly List<NpgsqlParameter> npgsqlParameters = [];
 
         public void Add(string name, object? value = null, NpgsqlDbType npgsqlDbType = NpgsqlDbType.Varchar, ParameterDirection direction = ParameterDirection.Input, int? size = null)
         {
@@ -23,23 +23,29 @@ namespace dbclient.NativeParameters
             {
                 if (size.Value <= 0)
                 {
-                    npgsqlParameter = new NpgsqlParameter(name, npgsqlDbType);
-                    npgsqlParameter.Value = value;
-                    npgsqlParameter.Direction = direction;
+                    npgsqlParameter = new NpgsqlParameter(name, npgsqlDbType)
+                    {
+                        Value = value,
+                        Direction = direction
+                    };
                 }
                 else
                 {
-                    npgsqlParameter = new NpgsqlParameter(name, npgsqlDbType);
-                    npgsqlParameter.Value = value;
-                    npgsqlParameter.Direction = direction;
-                    npgsqlParameter.Size = size.Value;
+                    npgsqlParameter = new NpgsqlParameter(name, npgsqlDbType)
+                    {
+                        Value = value,
+                        Direction = direction,
+                        Size = size.Value
+                    };
                 }
             }
             else
             {
-                npgsqlParameter = new NpgsqlParameter(name, npgsqlDbType);
-                npgsqlParameter.Value = value;
-                npgsqlParameter.Direction = direction;
+                npgsqlParameter = new NpgsqlParameter(name, npgsqlDbType)
+                {
+                    Value = value,
+                    Direction = direction
+                };
             }
 
             npgsqlParameters.Add(npgsqlParameter);
@@ -50,15 +56,9 @@ namespace dbclient.NativeParameters
             ((SqlMapper.IDynamicParameters)dynamicParameters).AddParameters(command, identity);
 
             dynamic? dynamicCommand = command as NpgsqlCommand;
-            if (dynamicCommand == null)
-            {
-                dynamicCommand = command as ProfilerDbCommand;
-            }
+            dynamicCommand ??= command as ProfilerDbCommand;
 
-            if (dynamicCommand != null)
-            {
-                dynamicCommand.Parameters.AddRange(npgsqlParameters.ToArray());
-            }
+            dynamicCommand?.Parameters.AddRange(npgsqlParameters.ToArray());
         }
     }
 }

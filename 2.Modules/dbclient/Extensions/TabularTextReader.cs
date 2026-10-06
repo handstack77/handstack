@@ -46,11 +46,11 @@ namespace dbclient.Extensions
     public class TabularTextReader
     {
         public string Delimiter { get; private set; }
-        int delimLength;
+        readonly int delimLength;
         public int BufferSize { get; set; } = 8192;
         public bool TrimFields { get; set; } = true;
 
-        TextReader rdr;
+        readonly TextReader rdr;
 
         public TabularTextReader(TextReader rdr) : this(rdr, ",")
         {
@@ -60,6 +60,7 @@ namespace dbclient.Extensions
         {
             this.rdr = rdr;
             Delimiter = delimiter;
+            ArgumentNullException.ThrowIfNull(delimiter);
             delimLength = delimiter.Length;
 
             if (delimLength == 0)
@@ -71,7 +72,7 @@ namespace dbclient.Extensions
         int bufferLoadThreshold;
         int lineStartPos = 0;
         int actualBufferLen = 0;
-        List<Field> fields = new List<Field>();
+        List<Field> fields = [];
         int fieldsCount = 0;
         int linesRead = 0;
 
@@ -199,6 +200,8 @@ namespace dbclient.Extensions
 
         public void ProcessValueInBuffer(int idx, Action<char[], int, int> handler)
         {
+            ArgumentNullException.ThrowIfNull(handler);
+
             if (idx < fieldsCount)
             {
                 var f = fields[idx];
@@ -222,7 +225,7 @@ namespace dbclient.Extensions
         {
             if (fields == null)
             {
-                fields = new List<Field>();
+                fields = [];
                 fieldsCount = 0;
             }
             if (buffer == null)
@@ -360,10 +363,7 @@ LineEnded:
 
             internal string GetValue(char[] buf)
             {
-                if (cachedValue == null)
-                {
-                    cachedValue = GetValueInternal(buf);
-                }
+                cachedValue ??= GetValueInternal(buf);
                 return cachedValue;
             }
 
@@ -382,7 +382,7 @@ LineEnded:
                 return len > 0 ? GetString(buf, Start, len) : String.Empty;
             }
 
-            private string GetString(char[] buf, int start, int len)
+            private static string GetString(char[] buf, int start, int len)
             {
                 var bufLen = buf.Length;
                 start = start < bufLen ? start : start % bufLen;

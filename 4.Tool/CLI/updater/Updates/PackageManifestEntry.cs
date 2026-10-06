@@ -19,7 +19,7 @@ public static class PackageManifestParser
         foreach (var rawLine in File.ReadAllLines(filePath))
         {
             var line = rawLine.Trim();
-            if (string.IsNullOrWhiteSpace(line) == true || line.StartsWith("#", StringComparison.Ordinal) == true)
+            if (string.IsNullOrWhiteSpace(line) == true || line.StartsWith('#') == true)
             {
                 continue;
             }
@@ -35,6 +35,8 @@ public static class PackageManifestParser
 
     public static PackageManifestEntry Parse(string rawValue)
     {
+        ArgumentNullException.ThrowIfNull(rawValue);
+
         var columns = rawValue.Split('|');
         if (columns.Length == 1)
         {
@@ -92,6 +94,8 @@ public static class PackageManifestParser
 
     public static string NormalizeRelativePath(string value)
     {
+        ArgumentNullException.ThrowIfNull(value);
+
         var normalized = value.Trim().Trim('"').Replace('\\', '/');
         while (normalized.StartsWith("./", StringComparison.Ordinal) == true)
         {

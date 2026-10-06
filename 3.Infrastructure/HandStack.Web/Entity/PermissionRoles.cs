@@ -4,19 +4,19 @@ namespace HandStack.Web.Entity
 {
     public partial record PermissionRoles
     {
-        [JsonProperty("RoleID")]
+        [JsonProperty(nameof(RoleID))]
         public string RoleID { get; set; } = string.Empty;
 
-        [JsonProperty("ModuleID")]
+        [JsonProperty(nameof(ModuleID))]
         public string ModuleID { get; set; } = string.Empty;
 
-        [JsonProperty("ApplicationID")]
+        [JsonProperty(nameof(ApplicationID))]
         public string ApplicationID { get; set; } = string.Empty;
 
-        [JsonProperty("ProjectID")]
+        [JsonProperty(nameof(ProjectID))]
         public string ProjectID { get; set; } = string.Empty;
 
-        [JsonProperty("TransactionID")]
+        [JsonProperty(nameof(TransactionID))]
         public string TransactionID { get; set; } = string.Empty;
     }
 }

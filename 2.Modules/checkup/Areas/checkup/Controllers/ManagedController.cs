@@ -21,24 +21,18 @@ namespace checkup.Areas.checkup.Controllers
     [Route("[area]/api/[controller]")]
     [ApiController]
     [EnableCors]
-    public class ManagedController : BaseController
+    public class ManagedController(ILogger logger, ModuleApiClient businessApiClient, ISequentialIdGenerator sequentialIdGenerator) : BaseController
     {
-        private ILogger logger { get; }
-        private readonly ISequentialIdGenerator sequentialIdGenerator;
-        private readonly ModuleApiClient businessApiClient;
-
-        public ManagedController(ILogger logger, ModuleApiClient businessApiClient, ISequentialIdGenerator sequentialIdGenerator)
-        {
-            this.logger = logger;
-            this.businessApiClient = businessApiClient;
-            this.sequentialIdGenerator = sequentialIdGenerator;
-        }
+        private ILogger logger { get; } = logger;
+        private readonly ISequentialIdGenerator sequentialIdGenerator = sequentialIdGenerator;
+        private readonly ModuleApiClient businessApiClient = businessApiClient;
 
         // http://localhost:8421/checkup/api/managed/initialize-settings
         [HttpGet("[action]")]
         public ActionResult InitializeSettings()
         {
-            ActionResult result = BadRequest();
+            _ = BadRequest();
+            ActionResult result;
             if (HttpContext.IsAllowAuthorization() == false)
             {
                 result = BadRequest();
@@ -110,7 +104,8 @@ namespace checkup.Areas.checkup.Controllers
         [HttpGet("[action]")]
         public ActionResult ResetAdministratorKey(string? oldPasswordKey = "")
         {
-            ActionResult result = BadRequest();
+            _ = BadRequest();
+            ActionResult result;
             if (string.IsNullOrWhiteSpace(oldPasswordKey))
             {
                 result = BadRequest();

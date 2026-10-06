@@ -18,7 +18,7 @@ namespace HandStack.Web.MessageContract.Message
             ReturnType = ExecuteDynamicTypeObject.Json;
             GlobalID = "";
             IsTransaction = false;
-            DynamicObjects = new List<QueryObject>();
+            DynamicObjects = [];
         }
 
         public string ClientTag;

@@ -3,15 +3,10 @@ using System.Linq;
 
 namespace HandStack.Data.SqlFormatter.Core
 {
-    internal sealed class Params
+    internal sealed class Params(IReadOnlyDictionary<string, string>? parameters)
     {
-        private readonly IReadOnlyDictionary<string, string>? parameters;
+        private readonly IReadOnlyDictionary<string, string>? parameters = parameters;
         private int index;
-
-        public Params(IReadOnlyDictionary<string, string>? parameters)
-        {
-            this.parameters = parameters;
-        }
 
         internal string? Get(string key)
         {

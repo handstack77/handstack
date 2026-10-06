@@ -59,7 +59,7 @@ namespace checkup.Entity
             IsModuleLogging = false;
             ModuleLogFilePath = "";
             ConnectionString = "";
-            AllowClientIP = new List<string>() { "*" };
+            AllowClientIP = ["*"];
         }
     }
 }

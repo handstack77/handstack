@@ -12,6 +12,8 @@ namespace HandStack.Core.ExtensionMethod
         // GetResultAsync().WhenFaulted(errorHandler => Console.WriteLine(errorHandler.Message));
         public static void WhenFaulted(this Task task, Action<Exception>? errorHandler = null)
         {
+            ArgumentNullException.ThrowIfNull(task);
+
             task.ContinueWith(t =>
             {
                 if (t.IsFaulted == true && errorHandler != null)
@@ -28,6 +30,8 @@ namespace HandStack.Core.ExtensionMethod
             {
                 try
                 {
+                    ArgumentNullException.ThrowIfNull(taskFactory);
+
                     return await taskFactory().ConfigureAwait(false);
                 }
                 catch (Exception exception)
@@ -40,7 +44,7 @@ namespace HandStack.Core.ExtensionMethod
                 }
             }
 
-            return default(TResult);
+            return default;
         }
 
         // await GetResultAsync().OnFailure(ex => Console.WriteLine(ex.Message));
@@ -48,10 +52,14 @@ namespace HandStack.Core.ExtensionMethod
         {
             try
             {
+                ArgumentNullException.ThrowIfNull(task);
+
                 await task.ConfigureAwait(false);
             }
             catch (Exception exception)
             {
+                ArgumentNullException.ThrowIfNull(errorHandler);
+
                 errorHandler(exception);
             }
         }
@@ -75,6 +83,7 @@ namespace HandStack.Core.ExtensionMethod
             if (task == await Task.WhenAny(task, Task.Delay(timeout, cts.Token)).ConfigureAwait(false))
             {
                 cts.Cancel();
+                ArgumentNullException.ThrowIfNull(task);
                 return await task.ConfigureAwait(false);
             }
             else
@@ -86,6 +95,7 @@ namespace HandStack.Core.ExtensionMethod
         public static async Task WithTimeout(this Task[] tasks, TimeSpan timeout)
         {
             var cts = new CancellationTokenSource();
+            ArgumentNullException.ThrowIfNull(tasks);
             var task = tasks.WhenAllOrAnyFailed();
             if (task == await Task.WhenAny(task, Task.Delay(timeout, cts.Token)).ConfigureAwait(false))
             {
@@ -139,7 +149,7 @@ namespace HandStack.Core.ExtensionMethod
             }
         }
 
-        private static Task WhenAllOrAnyFailedCore(this Task[] tasks)
+        private static Task<bool> WhenAllOrAnyFailedCore(this Task[] tasks)
         {
             var remaining = tasks.Length;
             var tcs = new TaskCompletionSource<bool>();
@@ -171,6 +181,8 @@ namespace HandStack.Core.ExtensionMethod
         {
             try
             {
+                ArgumentNullException.ThrowIfNull(task);
+
                 return await task.ConfigureAwait(false);
             }
             catch

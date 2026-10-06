@@ -8,12 +8,15 @@ namespace HandStack.Core.ExtensionMethod
     {
         public static void Run(this Process process, bool isShowCommand, string echoPrefix)
         {
+            ArgumentNullException.ThrowIfNull(process);
+
             process.EchoAndStart(isShowCommand, echoPrefix);
         }
 
         public static Task RunAsync(this Process process, bool isShowCommand, string echoPrefix)
         {
             var tcs = new TaskCompletionSource<object>();
+            ArgumentNullException.ThrowIfNull(process);
             process.Exited += (s, e) => tcs.SetResult(new());
             process.EnableRaisingEvents = true;
             process.EchoAndStart(isShowCommand, echoPrefix);

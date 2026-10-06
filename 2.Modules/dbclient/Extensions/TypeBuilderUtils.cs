@@ -9,7 +9,7 @@ namespace dbclient.Extensions
     internal static class TypeBuilderUtils
     {
         private static readonly ConcurrentDictionary<IDictionary<string, Type>, Type> Types = new(new PropertyMapComparer());
-        private static readonly object typeCreationLock = new object();
+        private static readonly object typeCreationLock = new();
 
         private static readonly ModuleBuilder ModuleBuilder = AssemblyBuilder
                 .DefineDynamicAssembly(new AssemblyName("HandStack.Dynamic.Reflection"), AssemblyBuilderAccess.Run)

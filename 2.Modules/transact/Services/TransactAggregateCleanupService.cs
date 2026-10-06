@@ -12,20 +12,15 @@ using transact.Extensions;
 
 namespace transact.Services
 {
-    internal class TransactAggregateCleanupService : BackgroundService
+    internal class TransactAggregateCleanupService(Serilog.ILogger logger) : BackgroundService
     {
         private const string DefaultCronExpression = "0 1 * * *";
 
-        private readonly Serilog.ILogger logger;
+        private readonly Serilog.ILogger logger = logger;
 
         private DateTime lastRunMinute = DateTime.MinValue;
 
         private string lastWarnedInvalidCronExpression = string.Empty;
-
-        public TransactAggregateCleanupService(Serilog.ILogger logger)
-        {
-            this.logger = logger;
-        }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {

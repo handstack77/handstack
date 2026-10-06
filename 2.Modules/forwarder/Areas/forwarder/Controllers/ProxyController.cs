@@ -30,9 +30,9 @@ namespace forwarder.Areas.forwarder.Controllers
     [Route("[area]/api/[controller]")]
     [ApiController]
     [EnableCors]
-    public class ProxyController : BaseController
+    public partial class ProxyController(ILogger logger, IForwardProxyService forwardProxyService) : BaseController
     {
-        private static readonly HashSet<string> IgnoredRequestHeaders = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        private static readonly HashSet<string> IgnoredRequestHeaders = new(StringComparer.OrdinalIgnoreCase)
         {
             "BearerToken",
             "AuthorizationKey",
@@ -42,7 +42,7 @@ namespace forwarder.Areas.forwarder.Controllers
             "Transfer-Encoding"
         };
 
-        private static readonly HashSet<string> IgnoredResponseHeaders = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        private static readonly HashSet<string> IgnoredResponseHeaders = new(StringComparer.OrdinalIgnoreCase)
         {
             "Connection",
             "Content-Encoding",
@@ -51,14 +51,8 @@ namespace forwarder.Areas.forwarder.Controllers
             "Transfer-Encoding"
         };
 
-        private readonly ILogger logger;
-        private readonly IForwardProxyService forwardProxyService;
-
-        public ProxyController(ILogger logger, IForwardProxyService forwardProxyService)
-        {
-            this.logger = logger;
-            this.forwardProxyService = forwardProxyService;
-        }
+        private readonly ILogger logger = logger;
+        private readonly IForwardProxyService forwardProxyService = forwardProxyService;
 
         [HttpGet("[action]")]
         public string? GetClientIP()
@@ -141,14 +135,14 @@ namespace forwarder.Areas.forwarder.Controllers
 
             var encoding = ResolveEncoding(response);
             var html = encoding.GetString(response.Body);
-            if (Regex.IsMatch(html, "<base\\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant) == true)
+            if (MyRegex().IsMatch(html) == true)
             {
                 return;
             }
 
             var baseTag = $"<base href=\"{responseUri.AbsoluteUri}\" />";
             string updatedHtml;
-            if (Regex.IsMatch(html, "<head\\b[^>]*>", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant) == true)
+            if (MyRegex1().IsMatch(html) == true)
             {
                 updatedHtml = Regex.Replace(
                     html,
@@ -157,7 +151,7 @@ namespace forwarder.Areas.forwarder.Controllers
                     RegexOptions.IgnoreCase | RegexOptions.CultureInvariant,
                     TimeSpan.FromSeconds(1));
             }
-            else if (Regex.IsMatch(html, "<html\\b[^>]*>", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant) == true)
+            else if (MyRegex2().IsMatch(html) == true)
             {
                 updatedHtml = Regex.Replace(
                     html,
@@ -359,6 +353,13 @@ namespace forwarder.Areas.forwarder.Controllers
                 await httpResponse.Body.WriteAsync(response.Body, cancellationToken);
             }
         }
+
+        [GeneratedRegex("<base\\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
+        private static partial Regex MyRegex();
+        [GeneratedRegex("<head\\b[^>]*>", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
+        private static partial Regex MyRegex1();
+        [GeneratedRegex("<html\\b[^>]*>", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
+        private static partial Regex MyRegex2();
     }
 }
 

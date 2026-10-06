@@ -11,8 +11,11 @@ namespace HandStack.Core.ExtensionMethod
         {
             var buffer = new byte[bufferSize];
             int read;
+            ArgumentNullException.ThrowIfNull(@this);
             while ((read = @this.Read(buffer, 0, buffer.Length)) > 0)
             {
+                ArgumentNullException.ThrowIfNull(destnationStream);
+
                 destnationStream.Write(buffer, 0, read);
             }
         }
@@ -21,6 +24,8 @@ namespace HandStack.Core.ExtensionMethod
         {
             if (append == true)
             {
+                ArgumentNullException.ThrowIfNull(destnationStream);
+
                 destnationStream.Seek(0, SeekOrigin.End);
             }
 
@@ -34,12 +39,14 @@ namespace HandStack.Core.ExtensionMethod
 
         public static StreamReader GetReader(this Stream stream, Encoding encoding)
         {
+            ArgumentNullException.ThrowIfNull(stream);
+
             if (stream.CanRead == false)
             {
                 throw new InvalidOperationException("Stream 객체가 CanRead를 지원하지 않음");
             }
 
-            encoding = (encoding ?? Encoding.UTF8);
+            encoding ??= Encoding.UTF8;
             return new StreamReader(stream, encoding);
         }
 
@@ -50,12 +57,14 @@ namespace HandStack.Core.ExtensionMethod
 
         public static StreamWriter GetWriter(this Stream stream, Encoding encoding)
         {
+            ArgumentNullException.ThrowIfNull(stream);
+
             if (stream.CanWrite == false)
             {
                 throw new InvalidOperationException("Stream 객체가 CanWrite을 지원하지 않음");
             }
 
-            encoding = (encoding ?? Encoding.UTF8);
+            encoding ??= Encoding.UTF8;
             return new StreamWriter(stream, encoding);
         }
 
@@ -72,6 +81,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static Stream SeekToBegin(this Stream stream)
         {
+            ArgumentNullException.ThrowIfNull(stream);
+
             if (stream.CanSeek == false)
             {
                 throw new InvalidOperationException("Stream 객체가 CanSeek를 지원하지 않음");
@@ -83,6 +94,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static Stream SeekToEnd(this Stream stream)
         {
+            ArgumentNullException.ThrowIfNull(stream);
+
             if (stream.CanSeek == false)
             {
                 throw new InvalidOperationException("Stream 객체가 CanSeek를 지원하지 않음");
@@ -99,11 +112,14 @@ namespace HandStack.Core.ExtensionMethod
 
         public static Stream CopyTo(this Stream stream, Stream destnationStream, int bufferSize)
         {
+            ArgumentNullException.ThrowIfNull(stream);
+
             if (stream.CanRead == false)
             {
                 throw new InvalidOperationException("Stream 객체가 CanRead를 지원하지 않음");
             }
 
+            ArgumentNullException.ThrowIfNull(destnationStream);
             if (destnationStream.CanWrite == false)
             {
                 throw new InvalidOperationException("Stream 객체가 CanSeek를 지원하지 않음");
@@ -121,6 +137,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static MemoryStream CopyToMemory(this Stream stream)
         {
+            ArgumentNullException.ThrowIfNull(stream);
+
             var memoryStream = new MemoryStream((int)stream.Length);
             stream.CopyTo(memoryStream);
             return memoryStream;
@@ -138,6 +156,8 @@ namespace HandStack.Core.ExtensionMethod
             int offset = 0, cnt;
             do
             {
+                ArgumentNullException.ThrowIfNull(stream);
+
                 cnt = stream.Read(buf, offset, bufsize - offset);
                 if (cnt == 0)
                 {
@@ -152,12 +172,16 @@ namespace HandStack.Core.ExtensionMethod
 
         public static void Write(this Stream stream, byte[] bytes)
         {
+            ArgumentNullException.ThrowIfNull(stream);
+            ArgumentNullException.ThrowIfNull(bytes);
+
             stream.Write(bytes, 0, bytes.Length);
         }
 
         public static byte[] ToByteArray(this Stream stream)
         {
             using var ms = new MemoryStream();
+            ArgumentNullException.ThrowIfNull(stream);
             stream.CopyTo(ms);
             return ms.ToArray();
         }

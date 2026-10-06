@@ -21,16 +21,10 @@ namespace HandStack.Web.Extensions
     {
         public static async Task<string> GetRawBodyStringAsync(this HttpRequest request, Encoding? encoding = null, Stream? inputStream = null)
         {
-            if (encoding == null)
-            {
-                encoding = Encoding.UTF8;
-            }
+            encoding ??= Encoding.UTF8;
 
             request.EnableBuffering();
-            if (inputStream == null)
-            {
-                inputStream = request.Body;
-            }
+            inputStream ??= (request ?? throw new ArgumentNullException(nameof(request))).Body;
 
             if (inputStream.CanSeek == true)
             {
@@ -51,10 +45,7 @@ namespace HandStack.Web.Extensions
         public static async Task<byte[]> GetRawBodyBytesAsync(this HttpRequest request, Stream? inputStream = null)
         {
             request.EnableBuffering();
-            if (inputStream == null)
-            {
-                inputStream = request.Body;
-            }
+            inputStream ??= (request ?? throw new ArgumentNullException(nameof(request))).Body;
 
             if (inputStream.CanSeek == true)
             {
@@ -107,8 +98,7 @@ namespace HandStack.Web.Extensions
 
         public static int GetInt(this string value)
         {
-            int result;
-            if (int.TryParse(value, out result) == true)
+            if (int.TryParse(value, out var result) == true)
             {
                 return result;
             }
@@ -120,8 +110,7 @@ namespace HandStack.Web.Extensions
 
         public static long GetLong(this string value)
         {
-            long result;
-            if (long.TryParse(value, out result) == true)
+            if (long.TryParse(value, out var result) == true)
             {
                 return result;
             }
@@ -143,6 +132,7 @@ namespace HandStack.Web.Extensions
         public static string GetQueryValue(this HttpRequest request, string requestKey, string defaultValue = "")
         {
             var result = "";
+            ArgumentNullException.ThrowIfNull(request);
             if (request.Query.ContainsKey(requestKey) == true)
             {
                 result = request.Query[requestKey].ToString();
@@ -159,6 +149,7 @@ namespace HandStack.Web.Extensions
         public static string GetFormValue(this HttpRequest request, string requestKey, string defaultValue = "")
         {
             var result = "";
+            ArgumentNullException.ThrowIfNull(request);
             if (request.HasFormContentType == true && request.Form.ContainsKey(requestKey) == true)
             {
                 result = request.Form[requestKey].ToString();
@@ -175,6 +166,7 @@ namespace HandStack.Web.Extensions
         public static string GetRouteValue(this HttpRequest request, string requestKey, string defaultValue = "")
         {
             var result = "";
+            ArgumentNullException.ThrowIfNull(request);
             if (request.RouteValues.ContainsKey(requestKey) == true)
             {
                 result = (request.RouteValues[requestKey]?.ToString()).ToStringSafe();
@@ -191,6 +183,7 @@ namespace HandStack.Web.Extensions
         public static string GetHeaderValue(this HttpRequest request, string requestKey, string defaultValue = "")
         {
             var result = "";
+            ArgumentNullException.ThrowIfNull(request);
             if (request.Headers.ContainsKey(requestKey) == true)
             {
                 result = request.Headers[requestKey].ToString();
@@ -207,6 +200,7 @@ namespace HandStack.Web.Extensions
         public static string GetContainValue(this HttpRequest request, string requestKey, string defaultValue = "")
         {
             var result = "";
+            ArgumentNullException.ThrowIfNull(request);
             if (request.Query.ContainsKey(requestKey) == true)
             {
                 result = request.Query[requestKey].ToString();
@@ -236,6 +230,7 @@ namespace HandStack.Web.Extensions
         {
             ControllerActionDescriptor? result = null;
 
+            ArgumentNullException.ThrowIfNull(httpContext);
             var isApiPath = httpContext.Request.Path.ToString().Contains("/api/");
             var areaName = httpContext.Request.RouteValues["area"].ToStringSafe();
             var controllerName = httpContext.Request.RouteValues["controller"].ToStringSafe();
@@ -255,7 +250,7 @@ namespace HandStack.Web.Extensions
                             && (bb.ActionConstraints == null
                                 || (bb.ActionConstraints != null
                                     && bb.ActionConstraints.Any(x => x is HttpMethodActionConstraint cc
-                                    && cc.HttpMethods.Any(m => m.ToLower() == httpContext.Request.Method.ToLower())))))
+                                    && cc.HttpMethods.Any(m => m.Equals(httpContext.Request.Method, StringComparison.CurrentCultureIgnoreCase))))))
                 .Select(s => s as ControllerActionDescriptor)
                 .FirstOrDefault();
             }
@@ -269,6 +264,8 @@ namespace HandStack.Web.Extensions
 
             if (tryUseXForwardHeader == true)
             {
+                ArgumentNullException.ThrowIfNull(httpContext);
+
                 ip = httpContext.Request.GetHeaderValueAs<string>("X-Forwarded-For")?.SplitCsv()?.FirstOrDefault();
             }
 
@@ -318,6 +315,8 @@ namespace HandStack.Web.Extensions
 
             if (tryUseXForwardHeader == true)
             {
+                ArgumentNullException.ThrowIfNull(httpContext);
+
                 ip = httpContext.Request.GetHeaderValueAs<string>("X-Forwarded-For")?.SplitCsv()?.FirstOrDefault();
             }
 
@@ -373,7 +372,7 @@ namespace HandStack.Web.Extensions
             {
                 Console.WriteLine("[HttpRequestExtensions/GetHeaderValueAs] " + $"오류: {exception.Message}");
             }
-            return default(T);
+            return default;
         }
     }
 }

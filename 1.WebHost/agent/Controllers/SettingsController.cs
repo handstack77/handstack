@@ -23,34 +23,28 @@ namespace agent.Controllers
 {
     [Route("settings")]
     [ServiceFilter(typeof(ManagementKeyActionFilter))]
-    public sealed class SettingsController : AgentControllerBase
+    public sealed partial class SettingsController(
+        ITargetProcessManager targetProcessManager,
+        IHttpClientFactory httpClientFactory) : AgentControllerBase
     {
         private const string HttpClientName = "ack-runtime";
 
-        private static readonly Regex portRegex = new Regex(@"--port(?:=|\s+)(?<port>\d{2,5})", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex portRegex = MyRegex();
 
-        private static readonly JsonSerializerOptions writeJsonOptions = new JsonSerializerOptions
+        private static readonly JsonSerializerOptions writeJsonOptions = new()
         {
             WriteIndented = true,
             PropertyNamingPolicy = null
         };
 
-        private static readonly JsonDocumentOptions readJsonOptions = new JsonDocumentOptions
+        private static readonly JsonDocumentOptions readJsonOptions = new()
         {
             AllowTrailingCommas = true,
             CommentHandling = JsonCommentHandling.Skip
         };
 
-        private readonly ITargetProcessManager targetProcessManager;
-        private readonly IHttpClientFactory httpClientFactory;
-
-        public SettingsController(
-            ITargetProcessManager targetProcessManager,
-            IHttpClientFactory httpClientFactory)
-        {
-            this.targetProcessManager = targetProcessManager;
-            this.httpClientFactory = httpClientFactory;
-        }
+        private readonly ITargetProcessManager targetProcessManager = targetProcessManager;
+        private readonly IHttpClientFactory httpClientFactory = httpClientFactory;
 
         [HttpGet("{targetAckId}/diagnostics")]
         public async Task<ActionResult> GetDiagnostics(string targetAckId, CancellationToken cancellationToken)
@@ -69,6 +63,8 @@ namespace agent.Controllers
         [HttpPost("{targetAckId}")]
         public async Task<ActionResult> SaveAppSettings(string targetAckId, [FromBody] JsonObject payload, CancellationToken cancellationToken)
         {
+            ArgumentNullException.ThrowIfNull(payload);
+
             var result = await SaveAppSettingsResultAsync(targetAckId, payload, cancellationToken);
             return ToOperationResult(result);
         }
@@ -147,7 +143,7 @@ namespace agent.Controllers
                 return result;
             }
 
-            var oldAppSettings = context.AppSettingsRoot["AppSettings"] as JsonObject ?? new JsonObject();
+            var oldAppSettings = context.AppSettingsRoot["AppSettings"] as JsonObject ?? [];
             var changedValues = new Dictionary<string, JsonNode>(StringComparer.OrdinalIgnoreCase);
             var removedKeys = new List<string>();
             CollectJsonChanges(oldAppSettings, newAppSettings, "AppSettings", changedValues, removedKeys);
@@ -506,8 +502,7 @@ namespace agent.Controllers
         private static List<string> ReadStringArray(JsonNode? node, string propertyName)
         {
             var result = new List<string>();
-            var array = node?[propertyName] as JsonArray;
-            if (array is null)
+            if (node?[propertyName] is not JsonArray array)
             {
                 return result;
             }
@@ -524,20 +519,13 @@ namespace agent.Controllers
             return result;
         }
 
-        private sealed class TargetContext
+        private sealed class TargetContext(TargetProcessOptions target, string appSettingsPath, JsonObject appSettingsRoot)
         {
-            public TargetContext(TargetProcessOptions target, string appSettingsPath, JsonObject appSettingsRoot)
-            {
-                Target = target;
-                AppSettingsPath = appSettingsPath;
-                AppSettingsRoot = appSettingsRoot;
-            }
+            public TargetProcessOptions Target { get; } = target;
 
-            public TargetProcessOptions Target { get; }
+            public string AppSettingsPath { get; } = appSettingsPath;
 
-            public string AppSettingsPath { get; }
-
-            public JsonObject AppSettingsRoot { get; }
+            public JsonObject AppSettingsRoot { get; } = appSettingsRoot;
         }
 
         private sealed class DiagnosticsReadResult
@@ -553,12 +541,15 @@ namespace agent.Controllers
 
             public JsonNode? ResultNode { get; set; }
 
-            public List<string> AppliedKeys { get; set; } = new List<string>();
+            public List<string> AppliedKeys { get; set; } = [];
 
-            public List<string> RestartRequiredKeys { get; set; } = new List<string>();
+            public List<string> RestartRequiredKeys { get; set; } = [];
 
-            public List<string> Errors { get; set; } = new List<string>();
+            public List<string> Errors { get; set; } = [];
         }
+
+        [GeneratedRegex(@"--port(?:=|\s+)(?<port>\d{2,5})", RegexOptions.IgnoreCase | RegexOptions.Compiled, "ko-KR")]
+        private static partial Regex MyRegex();
     }
 }
 

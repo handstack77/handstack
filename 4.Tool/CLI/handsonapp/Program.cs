@@ -19,7 +19,7 @@ namespace handsonapp
     public class Program
     {
         public static FileSyncManager? WWWFileSyncManager = null;
-        public static readonly List<FileSyncManager> ContractFileSyncManagers = new List<FileSyncManager>();
+        public static readonly List<FileSyncManager> ContractFileSyncManagers = [];
         private static readonly (string ContractType, string Filter)[] ContractSyncTargets =
         {
             ("dbclient", "*.xml|*.dbc"),
@@ -48,6 +48,7 @@ namespace handsonapp
 
             var port = 0;
 
+            ArgumentNullException.ThrowIfNull(args);
             for (var i = 0; i < args.Length; i++)
             {
                 switch (args[i])
@@ -328,17 +329,17 @@ namespace handsonapp
 
         static void StartContractFileSyncManagers(string entryBasePath, bool enableFileSync)
         {
-            foreach (var target in ContractSyncTargets)
+            foreach (var (ContractType, Filter) in ContractSyncTargets)
             {
-                var sourceBasePath = PathExtensions.Combine(entryBasePath, "contracts", target.ContractType);
+                var sourceBasePath = PathExtensions.Combine(entryBasePath, "contracts", ContractType);
                 if (Directory.Exists(sourceBasePath) == false)
                 {
                     continue;
                 }
 
-                var destModuleBasePath = PathExtensions.Combine(handstackHomePath, "modules", moduleID, "Contracts", target.ContractType);
-                var destContractBasePath = PathExtensions.Combine(handstackHomePath, "contracts", target.ContractType);
-                var fileSyncManager = new FileSyncManager(sourceBasePath, target.Filter);
+                var destModuleBasePath = PathExtensions.Combine(handstackHomePath, "modules", moduleID, "Contracts", ContractType);
+                var destContractBasePath = PathExtensions.Combine(handstackHomePath, "contracts", ContractType);
+                var fileSyncManager = new FileSyncManager(sourceBasePath, Filter);
                 fileSyncManager.MonitoringFile += async (WatcherChangeTypes changeTypes, FileInfo fileInfo) =>
                 {
                     var sourceFilePath = fileInfo.FullName.Replace("\\", "/");
@@ -362,7 +363,7 @@ namespace handsonapp
 
                     if (string.IsNullOrWhiteSpace(handstackUrl) == false)
                     {
-                        await UploadFileAsync(moduleID, target.ContractType, sourceFilePath, destFilePath, changeTypes.ToString());
+                        await UploadFileAsync(moduleID, ContractType, sourceFilePath, destFilePath, changeTypes.ToString());
                     }
                 };
 

@@ -16,21 +16,14 @@ using Microsoft.Extensions.Options;
 
 namespace deploy.Services
 {
-    public sealed class UpdatePackageRepositoryService : IUpdatePackageRepositoryService
+    public sealed class UpdatePackageRepositoryService(
+        IOptionsMonitor<DeployOptions> optionsMonitor,
+        ILogger<UpdatePackageRepositoryService> logger) : IUpdatePackageRepositoryService
     {
-        private readonly object syncRoot = new object();
-        private readonly IOptionsMonitor<DeployOptions> optionsMonitor;
-        private readonly string executableBasePath;
-        private readonly ILogger<UpdatePackageRepositoryService> logger;
-
-        public UpdatePackageRepositoryService(
-            IOptionsMonitor<DeployOptions> optionsMonitor,
-            ILogger<UpdatePackageRepositoryService> logger)
-        {
-            this.optionsMonitor = optionsMonitor;
-            executableBasePath = Path.GetFullPath(AppContext.BaseDirectory);
-            this.logger = logger;
-        }
+        private readonly object syncRoot = new();
+        private readonly IOptionsMonitor<DeployOptions> optionsMonitor = optionsMonitor;
+        private readonly string executableBasePath = Path.GetFullPath(AppContext.BaseDirectory);
+        private readonly ILogger<UpdatePackageRepositoryService> logger = logger;
 
         private DeployOptions CurrentOptions => optionsMonitor.CurrentValue;
 
@@ -139,12 +132,15 @@ namespace deploy.Services
                 var json = JsonSerializer.Serialize(catalog, UpdateJson.DefaultSerializerOptions);
                 File.WriteAllText(CatalogFilePath, json + Environment.NewLine);
 
-                logger.LogInformation(
-                    "Update package saved. Version={Version}, FileName={FileName}, Size={Size}, Sha256={Sha256}",
-                    package.Version,
-                    package.FileName,
-                    package.Size,
-                    package.Sha256);
+                if (logger.IsEnabled(LogLevel.Information))
+                {
+                    logger.LogInformation(
+                        "Update package saved. Version={Version}, FileName={FileName}, Size={Size}, Sha256={Sha256}",
+                        package.Version,
+                        package.FileName,
+                        package.Size,
+                        package.Sha256);
+                }
 
                 return package;
             }
@@ -165,6 +161,7 @@ namespace deploy.Services
                 }
 
                 var latestPackage = packages[^1];
+                ArgumentNullException.ThrowIfNull(publicBaseUri);
                 return new UpdateManifestDocument
                 {
                     Version = latestPackage.Version,

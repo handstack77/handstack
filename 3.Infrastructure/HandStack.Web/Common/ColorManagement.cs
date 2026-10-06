@@ -9,7 +9,7 @@ namespace HandStack.Web.Common
 {
     public static class ColorManagement
     {
-        private static List<Color?> webColors = new List<Color?>();
+        private static List<Color?> webColors = [];
 
         public static Color HexColorTransform(string hexColor)
         {
@@ -18,7 +18,7 @@ namespace HandStack.Web.Common
                 hexColor = "#000000";
             }
 
-            if (hexColor.IndexOf('#') != -1)
+            if (hexColor.Contains('#'))
             {
                 hexColor = hexColor.Replace("#", "");
             }
@@ -50,7 +50,7 @@ namespace HandStack.Web.Common
                 return false;
             }
 
-            var value = hexColor.StartsWith("#", StringComparison.Ordinal) == true ? hexColor.SubstringSafe(1) : hexColor;
+            var value = hexColor.StartsWith('#') == true ? hexColor.SubstringSafe(1) : hexColor;
             if (value.Length != 6 && value.Length != 3)
             {
                 return false;
@@ -64,7 +64,7 @@ namespace HandStack.Web.Common
                 }
             }
 
-            if (hexColor.StartsWith("#"))
+            if (hexColor.StartsWith('#'))
             {
                 return hexColor.Length == 7 || hexColor.Length == 4;
             }

@@ -11,16 +11,10 @@ namespace deploy.Controllers
 {
     [ApiController]
     [Route("api/update-packages")]
-    public sealed class UpdatePackagesController : DeployControllerBase
+    public sealed class UpdatePackagesController(IUpdatePackageRepositoryService repositoryService, ILogger<UpdatePackagesController> logger) : DeployControllerBase
     {
-        private readonly IUpdatePackageRepositoryService repositoryService;
-        private readonly ILogger<UpdatePackagesController> logger;
-
-        public UpdatePackagesController(IUpdatePackageRepositoryService repositoryService, ILogger<UpdatePackagesController> logger)
-        {
-            this.repositoryService = repositoryService;
-            this.logger = logger;
-        }
+        private readonly IUpdatePackageRepositoryService repositoryService = repositoryService;
+        private readonly ILogger<UpdatePackagesController> logger = logger;
 
         [HttpGet]
         public IActionResult GetPackages()

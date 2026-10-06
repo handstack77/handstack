@@ -15,7 +15,7 @@ namespace HandStack.Web.MessageContract.Message
             ItemID = "";
             EnabledYN = false;
             this.repositoryObject = new RepositoryObject();
-            this.repositoryItemsObject = new List<RepositoryItemsObject>();
+            this.repositoryItemsObject = [];
         }
 
         public string GlobalID { get; set; }

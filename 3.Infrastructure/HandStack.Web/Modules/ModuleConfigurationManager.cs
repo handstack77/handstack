@@ -45,7 +45,7 @@ namespace HandStack.Web.Modules
                 {
                     DefaultModuleConfigJson? module = null;
                     var moduleSettingFilePath = PathExtensions.Combine(moduleBasePath, moduleSettingFile);
-                    if (moduleID.IndexOf("|") > -1)
+                    if (moduleID.IndexOf('|') > -1)
                     {
                         var parts = moduleID.Split('|', StringSplitOptions.RemoveEmptyEntries);
                         if (parts.Length < 2)
@@ -94,15 +94,17 @@ namespace HandStack.Web.Modules
 
                     if (module != null)
                     {
-                        var moduleInfo = new ModuleInfo();
-                        moduleInfo.ModuleID = moduleID;
-                        moduleInfo.BasePath = moduleBasePath;
-                        moduleInfo.ModuleSettingFilePath = moduleSettingFilePath;
-                        moduleInfo.Name = moduleID;
-                        moduleInfo.Version = Version.Parse(module.Version.ToString());
-                        moduleInfo.IsBundledWithHost = module.IsBundledWithHost;
-                        moduleInfo.IsCopyContract = module.IsCopyContract;
-                        moduleInfo.IsPurgeContract = module.IsPurgeContract;
+                        var moduleInfo = new ModuleInfo
+                        {
+                            ModuleID = moduleID,
+                            BasePath = moduleBasePath,
+                            ModuleSettingFilePath = moduleSettingFilePath,
+                            Name = moduleID,
+                            Version = Version.Parse(module.Version.ToString()),
+                            IsBundledWithHost = module.IsBundledWithHost,
+                            IsCopyContract = module.IsCopyContract,
+                            IsPurgeContract = module.IsPurgeContract
+                        };
 
                         if (module.ModuleConfig?.ContractBasePath != null)
                         {
@@ -196,6 +198,9 @@ namespace HandStack.Web.Modules
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
 #pragma warning restore CS8765
         {
+            ArgumentNullException.ThrowIfNull(value);
+            ArgumentNullException.ThrowIfNull(writer);
+
             var list = (List<string>)value;
             if (list.Count == 1)
             {

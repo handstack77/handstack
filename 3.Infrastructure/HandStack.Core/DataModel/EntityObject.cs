@@ -6,8 +6,8 @@ namespace HandStack.Core.DataModel
     {
         protected static readonly string versionDefault = "NotSet";
 
-        private List<BusinessRule> businessRules = new List<BusinessRule>();
-        private List<string> validationErrors = new List<string>();
+        private List<BusinessRule> businessRules = [];
+        private readonly List<string> validationErrors = [];
 
         public List<BusinessRule> BusinessRules
         {

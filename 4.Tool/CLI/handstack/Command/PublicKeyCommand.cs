@@ -52,14 +52,10 @@ namespace handstack
                         Console.WriteLine();
                         Console.WriteLine("공개 키 (Base64):");
                         Console.WriteLine(Convert.ToBase64String(publicKey));
-
-                        using (SHA256 sha256 = SHA256.Create())
-                        {
-                            byte[] hash = sha256.ComputeHash(publicKey);
-                            Console.WriteLine();
-                            Console.WriteLine("공개 키 (SHA256):");
-                            Console.WriteLine(Program.ToHex(hash).ToLowerInvariant());
-                        }
+                        byte[] hash = SHA256.HashData(publicKey);
+                        Console.WriteLine();
+                        Console.WriteLine("공개 키 (SHA256):");
+                        Console.WriteLine(Program.ToHex(hash).ToLowerInvariant());
 
                         Console.WriteLine();
                         Console.WriteLine("공개 키 (Token):");
