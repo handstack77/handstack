@@ -39,7 +39,7 @@ namespace ack.Extensions
             }
 
             var assembly = LoadAssembly(path);
-            return Path.GetFileNameWithoutExtension(assembly.ManifestModule.Name) == module.ModuleID ? assembly : null;
+            return assembly.GetName().Name == module.ModuleID ? assembly : null;
         }
 
         private Assembly? ResolveAssembly(AssemblyLoadContext context, AssemblyName assemblyName)
@@ -125,13 +125,13 @@ namespace ack.Extensions
                     throw;
                 }
 
-                var loadedPath = string.IsNullOrWhiteSpace(assembly.Location) ? path : assembly.Location;
-                var loadedVersion = FileVersionInfo.GetVersionInfo(loadedPath).FileVersion;
+                // 단일 파일 게시에서는 Assembly.Location 이 빈 문자열이므로, 로드된 어셈블리의 파일 버전은 특성에서 읽는다.
+                var loadedVersion = assembly.GetCustomAttribute<AssemblyFileVersionAttribute>()?.Version;
                 var candidateVersion = FileVersionInfo.GetVersionInfo(path).FileVersion;
                 if (candidateVersion != loadedVersion)
                 {
-                    Log.Logger.Warning("파일 {AssemblyPath} {CandidateVersion}을(를) 로드할 수 없습니다. 이미 {LoadedPath} {LoadedVersion}이(가) 로드되었습니다.",
-                        path, candidateVersion, loadedPath, loadedVersion);
+                    Log.Logger.Warning("파일 {AssemblyPath} {CandidateVersion}을(를) 로드할 수 없습니다. 이미 {LoadedAssembly} {LoadedVersion}이(가) 로드되었습니다.",
+                        path, candidateVersion, assembly.FullName, loadedVersion);
                 }
 
                 return assembly;
