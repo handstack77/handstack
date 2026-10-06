@@ -745,9 +745,9 @@ namespace HandStack.Data.ExtensionMethod
                 }
             }
          */
-        public static Tuple<string, List<SqlParameter>>? GetSqlClientMetaSQL(string baseDirectoryPath, string applicationID, string projectID, string fileID, string queryID, string? parameters)
+        public static Tuple<string, List<SqlParameter>?>? GetSqlClientMetaSQL(string baseDirectoryPath, string applicationID, string projectID, string fileID, string queryID, string? parameters)
         {
-            Tuple<string, List<SqlParameter>>? result = null;
+            Tuple<string, List<SqlParameter>?>? result = null;
 
             if (string.IsNullOrWhiteSpace(applicationID) || string.IsNullOrWhiteSpace(projectID) || string.IsNullOrWhiteSpace(fileID) || string.IsNullOrWhiteSpace(queryID))
             {
@@ -818,7 +818,7 @@ namespace HandStack.Data.ExtensionMethod
 
                     var convertString = statement.InnerText;
                     convertString = DecodeXmlEntities(convertString);
-                    result = new Tuple<string, List<SqlParameter>>(convertString, sqlParameters);
+                    result = new Tuple<string, List<SqlParameter>?>(convertString, sqlParameters);
                 }
             }
             catch (Exception exception)
@@ -830,9 +830,9 @@ namespace HandStack.Data.ExtensionMethod
             return result;
         }
 
-        public static Tuple<string, List<SqlParameter>>? GetSqlClientTuple(string filePath, string queryID, string? parameters)
+        public static Tuple<string, List<SqlParameter>?>? GetSqlClientTuple(string filePath, string queryID, string? parameters)
         {
-            Tuple<string, List<SqlParameter>>? result = null;
+            Tuple<string, List<SqlParameter>?>? result = null;
 
             if (File.Exists(filePath) == false)
             {
@@ -886,7 +886,7 @@ namespace HandStack.Data.ExtensionMethod
 
                     var convertString = statement.InnerText;
                     convertString = DecodeXmlEntities(convertString);
-                    result = new Tuple<string, List<SqlParameter>>(convertString, sqlParameters);
+                    result = new Tuple<string, List<SqlParameter>?>(convertString, sqlParameters);
                 }
             }
             catch (Exception exception)
@@ -929,9 +929,9 @@ namespace HandStack.Data.ExtensionMethod
                 }
             }
         */
-        public static Tuple<string, List<MySqlParameter>>? GetMySqlMetaSQL(string baseDirectoryPath, string applicationID, string projectID, string fileID, string queryID, string? parameters)
+        public static Tuple<string, List<MySqlParameter>?>? GetMySqlMetaSQL(string baseDirectoryPath, string applicationID, string projectID, string fileID, string queryID, string? parameters)
         {
-            Tuple<string, List<MySqlParameter>>? result = null;
+            Tuple<string, List<MySqlParameter>?>? result = null;
 
             if (string.IsNullOrWhiteSpace(applicationID) || string.IsNullOrWhiteSpace(projectID) || string.IsNullOrWhiteSpace(fileID) || string.IsNullOrWhiteSpace(queryID))
             {
@@ -1002,7 +1002,7 @@ namespace HandStack.Data.ExtensionMethod
 
                     var convertString = statement.InnerText;
                     convertString = DecodeXmlEntities(convertString);
-                    result = new Tuple<string, List<MySqlParameter>>(convertString, sqlParameters);
+                    result = new Tuple<string, List<MySqlParameter>?>(convertString, sqlParameters);
                 }
             }
             catch (Exception exception)
@@ -1045,9 +1045,9 @@ namespace HandStack.Data.ExtensionMethod
                 }
             }
         */
-        public static Tuple<string, List<OracleParameter>>? GetOracleMetaSQL(string baseDirectoryPath, string applicationID, string projectID, string fileID, string queryID, string? parameters)
+        public static Tuple<string, List<OracleParameter>?>? GetOracleMetaSQL(string baseDirectoryPath, string applicationID, string projectID, string fileID, string queryID, string? parameters)
         {
-            Tuple<string, List<OracleParameter>>? result = null;
+            Tuple<string, List<OracleParameter>?>? result = null;
 
             if (string.IsNullOrWhiteSpace(applicationID) || string.IsNullOrWhiteSpace(projectID) || string.IsNullOrWhiteSpace(fileID) || string.IsNullOrWhiteSpace(queryID))
             {
@@ -1118,7 +1118,7 @@ namespace HandStack.Data.ExtensionMethod
 
                     var convertString = statement.InnerText;
                     convertString = DecodeXmlEntities(convertString);
-                    result = new Tuple<string, List<OracleParameter>>(convertString, sqlParameters);
+                    result = new Tuple<string, List<OracleParameter>?>(convertString, sqlParameters);
                 }
             }
             catch (Exception exception)
@@ -1161,9 +1161,9 @@ namespace HandStack.Data.ExtensionMethod
                 }
             }
         */
-        public static Tuple<string, List<NpgsqlParameter>>? GetPostreSqlMetaSQL(string baseDirectoryPath, string applicationID, string projectID, string fileID, string queryID, string? parameters)
+        public static Tuple<string, List<NpgsqlParameter>?>? GetPostreSqlMetaSQL(string baseDirectoryPath, string applicationID, string projectID, string fileID, string queryID, string? parameters)
         {
-            Tuple<string, List<NpgsqlParameter>>? result = null;
+            Tuple<string, List<NpgsqlParameter>?>? result = null;
 
             if (string.IsNullOrWhiteSpace(applicationID) || string.IsNullOrWhiteSpace(projectID) || string.IsNullOrWhiteSpace(fileID) || string.IsNullOrWhiteSpace(queryID))
             {
@@ -1234,7 +1234,7 @@ namespace HandStack.Data.ExtensionMethod
 
                     var convertString = statement.InnerText;
                     convertString = DecodeXmlEntities(convertString);
-                    result = new Tuple<string, List<NpgsqlParameter>>(convertString, sqlParameters);
+                    result = new Tuple<string, List<NpgsqlParameter>?>(convertString, sqlParameters);
                 }
             }
             catch (Exception exception)
@@ -1277,9 +1277,9 @@ namespace HandStack.Data.ExtensionMethod
                 }
             }
         */
-        public static Tuple<string, List<SQLiteParameter>>? GetSQLiteMetaSQL(string baseDirectoryPath, string applicationID, string projectID, string fileID, string queryID, string? parameters)
+        public static Tuple<string, List<SQLiteParameter>?>? GetSQLiteMetaSQL(string baseDirectoryPath, string applicationID, string projectID, string fileID, string queryID, string? parameters)
         {
-            Tuple<string, List<SQLiteParameter>>? result = null;
+            Tuple<string, List<SQLiteParameter>?>? result = null;
 
             if (string.IsNullOrWhiteSpace(applicationID) || string.IsNullOrWhiteSpace(projectID) || string.IsNullOrWhiteSpace(fileID) || string.IsNullOrWhiteSpace(queryID))
             {
@@ -1302,9 +1302,9 @@ namespace HandStack.Data.ExtensionMethod
             return result;
         }
 
-        public static Tuple<string, List<SQLiteParameter>>? GetSQLiteMetaSQL(string filePath, string queryID, string? parameters)
+        public static Tuple<string, List<SQLiteParameter>?>? GetSQLiteMetaSQL(string filePath, string queryID, string? parameters)
         {
-            Tuple<string, List<SQLiteParameter>>? result = null;
+            Tuple<string, List<SQLiteParameter>?>? result = null;
 
             if (File.Exists(filePath) == false || string.IsNullOrWhiteSpace(queryID))
             {
@@ -1357,7 +1357,7 @@ namespace HandStack.Data.ExtensionMethod
 
                     var convertString = statement.InnerText;
                     convertString = DecodeXmlEntities(convertString);
-                    result = new Tuple<string, List<SQLiteParameter>>(convertString, sqlParameters);
+                    result = new Tuple<string, List<SQLiteParameter>?>(convertString, sqlParameters);
                 }
             }
             catch (Exception exception)
