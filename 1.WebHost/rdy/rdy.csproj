@@ -19,7 +19,6 @@
         <AssemblyName>rdy</AssemblyName>
         <RootNamespace>rdy</RootNamespace>
         <Description>기본 모듈은 정적으로 결합하고 추가 모듈은 런타임에 동적으로 로드하는 단일 실행 프로젝트</Description>
-        <NoWarn>IL3000;IL3002;NU1903;ASP0023;NU1608;NU1510;CA1416;</NoWarn>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -39,40 +38,40 @@
     </PropertyGroup>
 
     <ItemGroup Label="modules, HandStack Library">
-        <PackageReference Include="Dapper" Version="2.1.79" />
+        <PackageReference Include="Dapper" Version="2.1.89" />
         <PackageReference Include="DotNetEnv" Version="3.2.0" />
-        <PackageReference Include="HtmlAgilityPack" Version="1.12.4" />
+        <PackageReference Include="HtmlAgilityPack" Version="1.13.0" />
         <PackageReference Include="Mediator.Abstractions" Version="3.0.2" />
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="10.0.9" />
-        <PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.1" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.9" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.9" />
-        <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="10.0.9" />
-        <PackageReference Include="Microsoft.Extensions.Hosting.Systemd" Version="10.0.9" />
-        <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="10.0.9" />
-        <PackageReference Include="Microsoft.Win32.SystemEvents" Version="10.0.9" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="10.0.12" />
+        <PackageReference Include="Microsoft.Data.SqlClient" Version="7.1.1" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.12" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.12" />
+        <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="10.0.12" />
+        <PackageReference Include="Microsoft.Extensions.Hosting.Systemd" Version="10.0.12" />
+        <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="10.0.12" />
+        <PackageReference Include="Microsoft.Win32.SystemEvents" Version="10.0.12" />
         <PackageReference Include="MySqlConnector" Version="2.6.2" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
         <PackageReference Include="Npgsql" Version="10.0.3" />
-        <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="23.26.200" />
+        <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="23.26.301" />
         <PackageReference Include="RestSharp" Version="114.0.0" />
-        <PackageReference Include="Serilog" Version="4.3.1" />
+        <PackageReference Include="Serilog" Version="4.4.0" />
         <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
         <PackageReference Include="Serilog.Extensions.Hosting" Version="10.0.0" />
         <PackageReference Include="Serilog.Extensions.Logging" Version="10.0.0" />
         <PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
         <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
-        <PackageReference Include="SkiaSharp" Version="4.148.0" />
-        <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="4.148.0" />
-        <PackageReference Include="SourceGear.sqlite3" Version="3.50.4.5" />
+        <PackageReference Include="SkiaSharp" Version="4.153.1" />
+        <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="4.153.1" />
+        <PackageReference Include="SourceGear.sqlite3" Version="3.53.4" />
         <PackageReference Include="Sqids" Version="3.2.1" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="10.2.3" />
-        <PackageReference Include="System.CommandLine" Version="2.0.9" />
-        <PackageReference Include="System.Configuration.ConfigurationManager" Version="10.0.9" />
-        <PackageReference Include="System.Data.SQLite" Version="2.0.3" />
-        <PackageReference Include="System.Drawing.Common" Version="10.0.9" />
-        <PackageReference Include="System.Runtime.Caching" Version="10.0.9" />
-        <PackageReference Include="System.Windows.Extensions" Version="10.0.9" />
+        <PackageReference Include="System.CommandLine" Version="2.0.12" />
+        <PackageReference Include="System.Configuration.ConfigurationManager" Version="10.0.12" />
+        <PackageReference Include="System.Data.SQLite" Version="2.0.4" />
+        <PackageReference Include="System.Drawing.Common" Version="10.0.12" />
+        <PackageReference Include="System.Runtime.Caching" Version="10.0.12" />
+        <PackageReference Include="System.Windows.Extensions" Version="10.0.12" />
     </ItemGroup>
 
     <ItemGroup Label="static modules">
@@ -130,9 +129,7 @@
         </None>
     </ItemGroup>
 
-    <UsingTask TaskName="ReplaceRdyFileText"
-               TaskFactory="RoslynCodeTaskFactory"
-               AssemblyFile="$(MSBuildToolsPath)/Microsoft.Build.Tasks.Core.dll">
+    <UsingTask TaskName="ReplaceRdyFileText" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)/Microsoft.Build.Tasks.Core.dll">
         <ParameterGroup>
             <FilePath ParameterType="System.String" Required="true" />
             <Pattern ParameterType="System.String" Required="true" />
@@ -155,90 +152,47 @@
         </Task>
     </UsingTask>
 
-    <Target Name="SyncRdyWwwroot"
-            AfterTargets="Build"
-            Condition="'$(DesignTimeBuild)' != 'true'">
+    <Target Name="SyncRdyWwwroot" AfterTargets="Build" Condition="'$(DesignTimeBuild)' != 'true'">
         <PropertyGroup>
             <RdyWwwrootOutputDir Condition="'$(RdyWwwrootOutputDir)' == '' and '$(PublishSingleFile)' == 'true' and '$(PublishDir)' != ''">$(PublishDir)modules/wwwroot/wwwroot</RdyWwwrootOutputDir>
             <RdyWwwrootOutputDir Condition="'$(RdyWwwrootOutputDir)' == ''">$(TargetDir)modules/wwwroot/wwwroot</RdyWwwrootOutputDir>
             <RdySynConfigPath>$(RdyWwwrootOutputDir)/syn.config.json</RdySynConfigPath>
         </PropertyGroup>
 
-        <Error Condition="!Exists('$(RdyWwwrootSourceDir)')"
-               Text="wwwroot 원본 디렉터리를 찾을 수 없습니다: $(RdyWwwrootSourceDir)" />
+        <Error Condition="!Exists('$(RdyWwwrootSourceDir)')" Text="wwwroot 원본 디렉터리를 찾을 수 없습니다: $(RdyWwwrootSourceDir)" />
 
-        <RemoveDir Directories="$(RdyWwwrootOutputDir)"
-                   Condition="Exists('$(RdyWwwrootOutputDir)')" />
+        <RemoveDir Directories="$(RdyWwwrootOutputDir)" Condition="Exists('$(RdyWwwrootOutputDir)')" />
 
         <ItemGroup>
-            <_RdyWwwrootSourceFiles Include="$(RdyWwwrootSourceDir)/**/*"
-                                    Exclude="$(RdyWwwrootSourceDir)/**/node_modules/**/*;$(RdyWwwrootSourceDir)/**/.github/**/*" />
+            <_RdyWwwrootSourceFiles Include="$(RdyWwwrootSourceDir)/**/*" Exclude="$(RdyWwwrootSourceDir)/**/node_modules/**/*;$(RdyWwwrootSourceDir)/**/.github/**/*" />
         </ItemGroup>
 
         <MakeDir Directories="$(RdyWwwrootOutputDir)" />
-        <Copy SourceFiles="@(_RdyWwwrootSourceFiles)"
-              DestinationFiles="@(_RdyWwwrootSourceFiles->'$(RdyWwwrootOutputDir)/%(RecursiveDir)%(Filename)%(Extension)')" />
+        <Copy SourceFiles="@(_RdyWwwrootSourceFiles)" DestinationFiles="@(_RdyWwwrootSourceFiles->'$(RdyWwwrootOutputDir)/%(RecursiveDir)%(Filename)%(Extension)')" />
 
-        <Error Condition="!Exists('$(RdySynConfigPath)')"
-               Text="복사된 syn.config.json을 찾을 수 없습니다: $(RdySynConfigPath)" />
+        <Error Condition="!Exists('$(RdySynConfigPath)')" Text="복사된 syn.config.json을 찾을 수 없습니다: $(RdySynConfigPath)" />
 
-        <ReplaceRdyFileText FilePath="$(RdySynConfigPath)"
-                            Pattern="(?&lt;![0-9])8421(?![0-9])"
-                            Replacement="$(RdyServerPort)" />
+        <ReplaceRdyFileText FilePath="$(RdySynConfigPath)" Pattern="(?&lt;![0-9])8421(?![0-9])" Replacement="$(RdyServerPort)" />
     </Target>
 
-    <Target Name="PruneModuleTransitiveContent"
-            AfterTargets="GetCopyToOutputDirectoryItems"
-            BeforeTargets="_CopyOutOfDateSourceItemsToOutputDirectory;_CopyOutOfDateSourceItemsToOutputDirectoryAlways">
+    <Target Name="PruneModuleTransitiveContent" AfterTargets="GetCopyToOutputDirectoryItems" BeforeTargets="_CopyOutOfDateSourceItemsToOutputDirectory;_CopyOutOfDateSourceItemsToOutputDirectoryAlways">
         <ItemGroup>
-            <_SourceItemsToCopyToOutputDirectory
-                Remove="@(_SourceItemsToCopyToOutputDirectory)"
-                Condition="$([System.String]::Copy('%(FullPath)').Replace('\','/').Contains('/2.Modules/'))" />
-            <_SourceItemsToCopyToOutputDirectoryAlways
-                Remove="@(_SourceItemsToCopyToOutputDirectoryAlways)"
-                Condition="$([System.String]::Copy('%(FullPath)').Replace('\','/').Contains('/2.Modules/'))" />
+            <_SourceItemsToCopyToOutputDirectory Remove="@(_SourceItemsToCopyToOutputDirectory)" Condition="$([System.String]::Copy('%(FullPath)').Replace('\','/').Contains('/2.Modules/'))" />
+            <_SourceItemsToCopyToOutputDirectoryAlways Remove="@(_SourceItemsToCopyToOutputDirectoryAlways)" Condition="$([System.String]::Copy('%(FullPath)').Replace('\','/').Contains('/2.Modules/'))" />
         </ItemGroup>
     </Target>
 
-    <Target Name="PruneModuleTransitivePublishContent"
-            AfterTargets="ComputeResolvedFilesToPublishList">
+    <Target Name="PruneModuleTransitivePublishContent" AfterTargets="ComputeResolvedFilesToPublishList">
         <ItemGroup>
-            <ResolvedFileToPublish
-                Remove="@(ResolvedFileToPublish)"
-                Condition="$([System.String]::Copy('%(FullPath)').Replace('\','/').Contains('/2.Modules/'))
-                           and ('%(Filename)%(Extension)' == 'module.json'
-                                 or '%(Filename)%(Extension)' == 'package.json'
-                                 or '%(Filename)%(Extension)' == 'package-lock.json'
-                                 or $([System.String]::Copy('%(RelativePath)').Replace('\','/').StartsWith('Contracts/'))
-                                 or $([System.String]::Copy('%(RelativePath)').Replace('\','/').StartsWith('Prompts/'))
-                                 or $([System.String]::Copy('%(RelativePath)').Replace('\','/').StartsWith('Settings/'))
-                                 or $([System.String]::Copy('%(RelativePath)').Replace('\','/').StartsWith('SQL/')))" />
-            <ResolvedFileToPublish
-                Remove="@(ResolvedFileToPublish)"
-                Condition="'%(Filename)%(Extension)' == 'libSkiaSharp.pdb'" />
-            <ResolvedFileToPublish
-                Remove="@(ResolvedFileToPublish)"
-                Condition="$([System.String]::Copy('%(RelativePath)').Replace('\','/')) == 'gulpfile.js'
-                           or $([System.String]::Copy('%(RelativePath)').Replace('\','/')) == 'libman.json'
-                           or $([System.String]::Copy('%(RelativePath)').Replace('\','/')) == 'node.config.json'
-                           or $([System.String]::Copy('%(RelativePath)').Replace('\','/')) == 'featureTest.js'
-                           or $([System.String]::Copy('%(RelativePath)').Replace('\','/')) == 'featureTest.json'
-                           or $([System.String]::Copy('%(RelativePath)').Replace('\','/')) == 'function.dll.config'" />
-            <ResolvedFileToPublish
-                Remove="@(ResolvedFileToPublish)"
-                Condition="$([System.String]::Copy('%(RelativePath)').Replace('\','/').StartsWith('wwwroot/_content/'))
-                           or $([System.String]::Copy('%(RelativePath)').EndsWith('.br'))
-                           or $([System.String]::Copy('%(RelativePath)').EndsWith('.gz'))" />
-            <ResolvedFileToPublish
-                Remove="@(ResolvedFileToPublish)"
-                Condition="$([System.String]::Copy('%(RelativePath)').Replace('\','/').StartsWith('.github/'))
-                           or $([System.String]::Copy('%(RelativePath)').Replace('\','/').Contains('/.github/'))" />
+            <ResolvedFileToPublish Remove="@(ResolvedFileToPublish)" Condition="$([System.String]::Copy('%(FullPath)').Replace('\','/').Contains('/2.Modules/'))&#xD;&#xA;                           and ('%(Filename)%(Extension)' == 'module.json'&#xD;&#xA;                                 or '%(Filename)%(Extension)' == 'package.json'&#xD;&#xA;                                 or '%(Filename)%(Extension)' == 'package-lock.json'&#xD;&#xA;                                 or $([System.String]::Copy('%(RelativePath)').Replace('\','/').StartsWith('Contracts/'))&#xD;&#xA;                                 or $([System.String]::Copy('%(RelativePath)').Replace('\','/').StartsWith('Prompts/'))&#xD;&#xA;                                 or $([System.String]::Copy('%(RelativePath)').Replace('\','/').StartsWith('Settings/'))&#xD;&#xA;                                 or $([System.String]::Copy('%(RelativePath)').Replace('\','/').StartsWith('SQL/')))" />
+            <ResolvedFileToPublish Remove="@(ResolvedFileToPublish)" Condition="'%(Filename)%(Extension)' == 'libSkiaSharp.pdb'" />
+            <ResolvedFileToPublish Remove="@(ResolvedFileToPublish)" Condition="$([System.String]::Copy('%(RelativePath)').Replace('\','/')) == 'gulpfile.js'&#xD;&#xA;                           or $([System.String]::Copy('%(RelativePath)').Replace('\','/')) == 'libman.json'&#xD;&#xA;                           or $([System.String]::Copy('%(RelativePath)').Replace('\','/')) == 'node.config.json'&#xD;&#xA;                           or $([System.String]::Copy('%(RelativePath)').Replace('\','/')) == 'featureTest.js'&#xD;&#xA;                           or $([System.String]::Copy('%(RelativePath)').Replace('\','/')) == 'featureTest.json'&#xD;&#xA;                           or $([System.String]::Copy('%(RelativePath)').Replace('\','/')) == 'function.dll.config'" />
+            <ResolvedFileToPublish Remove="@(ResolvedFileToPublish)" Condition="$([System.String]::Copy('%(RelativePath)').Replace('\','/').StartsWith('wwwroot/_content/'))&#xD;&#xA;                           or $([System.String]::Copy('%(RelativePath)').EndsWith('.br'))&#xD;&#xA;                           or $([System.String]::Copy('%(RelativePath)').EndsWith('.gz'))" />
+            <ResolvedFileToPublish Remove="@(ResolvedFileToPublish)" Condition="$([System.String]::Copy('%(RelativePath)').Replace('\','/').StartsWith('.github/'))&#xD;&#xA;                           or $([System.String]::Copy('%(RelativePath)').Replace('\','/').Contains('/.github/'))" />
         </ItemGroup>
     </Target>
 
-    <Target Name="PruneModuleTransitivePublishDirectories"
-            AfterTargets="Publish"
-            Condition="'$(DesignTimeBuild)' != 'true' and '$(PublishDir)' != ''">
+    <Target Name="PruneModuleTransitivePublishDirectories" AfterTargets="Publish" Condition="'$(DesignTimeBuild)' != 'true' and '$(PublishDir)' != ''">
         <PropertyGroup>
             <_RdyPublishRoot>$([System.IO.Path]::GetFullPath('$(PublishDir)'))</_RdyPublishRoot>
         </PropertyGroup>
@@ -256,8 +210,7 @@
             <_RdyPublishFileToRemove Include="$(_RdyPublishRoot)/featureTest.json" Condition="Exists('$(_RdyPublishRoot)/featureTest.json')" />
             <_RdyPublishFileToRemove Include="$(_RdyPublishRoot)/function.dll.config" Condition="Exists('$(_RdyPublishRoot)/function.dll.config')" />
             <_RdyCompressedPublishFile Include="$(_RdyPublishRoot)/**/*.br;$(_RdyPublishRoot)/**/*.gz" />
-            <_RdyHiddenPublishDirectory Include="$([System.IO.Directory]::GetDirectories('$(_RdyPublishRoot)', '.github', System.IO.SearchOption.AllDirectories))"
-                                        Condition="Exists('$(_RdyPublishRoot)')" />
+            <_RdyHiddenPublishDirectory Include="$([System.IO.Directory]::GetDirectories('$(_RdyPublishRoot)', '.github', System.IO.SearchOption.AllDirectories))" Condition="Exists('$(_RdyPublishRoot)')" />
         </ItemGroup>
         <Delete Files="@(_RdyCompressedPublishFile)" />
         <RemoveDir Directories="@(_RdyHiddenPublishDirectory)" />
@@ -265,9 +218,7 @@
         <Delete Files="@(_RdyPublishFileToRemove)" />
     </Target>
 
-    <Target Name="PruneLibSkiaSharpPdb"
-            AfterTargets="Build;Publish"
-            Condition="'$(DesignTimeBuild)' != 'true'">
+    <Target Name="PruneLibSkiaSharpPdb" AfterTargets="Build;Publish" Condition="'$(DesignTimeBuild)' != 'true'">
         <ItemGroup>
             <_RdyLibSkiaSharpPdb Include="$(TargetDir)**/libSkiaSharp.pdb" />
         </ItemGroup>

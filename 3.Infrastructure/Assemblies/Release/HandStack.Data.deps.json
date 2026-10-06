@@ -9,61 +9,62 @@
       "HandStack.Data/1.0.0": {
         "dependencies": {
           "HandStack.Core": "1.0.0",
-          "HtmlAgilityPack": "1.12.4",
-          "Microsoft.Data.SqlClient": "7.0.1",
+          "HtmlAgilityPack": "1.13.0",
+          "Microsoft.Data.SqlClient": "7.1.1",
           "MySqlConnector": "2.6.2",
           "Newtonsoft.Json": "13.0.4",
           "Npgsql": "10.0.3",
-          "Oracle.ManagedDataAccess.Core": "23.26.200",
-          "Serilog": "4.3.1",
-          "SourceGear.sqlite3": "3.50.4.5",
-          "System.Data.SQLite": "2.0.3"
+          "Oracle.ManagedDataAccess.Core": "23.26.301",
+          "Serilog": "4.4.0",
+          "SourceGear.sqlite3": "3.53.4",
+          "System.Data.SQLite": "2.0.4"
         },
         "runtime": {
           "HandStack.Data.dll": {}
         }
       },
-      "BouncyCastle.Cryptography/2.6.2": {
+      "BouncyCastle.Cryptography/2.7.0": {
         "runtime": {
           "lib/net6.0/BouncyCastle.Cryptography.dll": {
             "assemblyVersion": "2.0.0.0",
-            "fileVersion": "2.6.2.46322"
+            "fileVersion": "2.7.0.16391"
           }
         }
       },
-      "HtmlAgilityPack/1.12.4": {
+      "HtmlAgilityPack/1.13.0": {
         "runtime": {
-          "lib/net7.0/HtmlAgilityPack.dll": {
-            "assemblyVersion": "1.12.4.0",
-            "fileVersion": "1.12.4.0"
+          "lib/net8.0/HtmlAgilityPack.dll": {
+            "assemblyVersion": "1.13.0.0",
+            "fileVersion": "1.13.0.0"
           }
         }
       },
-      "Microsoft.Bcl.Cryptography/9.0.13": {
+      "Microsoft.Bcl.Cryptography/9.0.18": {
         "runtime": {
           "lib/net9.0/Microsoft.Bcl.Cryptography.dll": {
-            "assemblyVersion": "9.0.0.13",
-            "fileVersion": "9.0.1326.6317"
+            "assemblyVersion": "9.0.0.18",
+            "fileVersion": "9.0.1826.31522"
           }
         }
       },
-      "Microsoft.Data.SqlClient/7.0.1": {
+      "Microsoft.Data.SqlClient/7.1.1": {
         "dependencies": {
-          "Microsoft.Bcl.Cryptography": "9.0.13",
-          "Microsoft.Data.SqlClient.Extensions.Abstractions": "1.0.0",
-          "Microsoft.Data.SqlClient.Internal.Logging": "1.0.0",
-          "Microsoft.Data.SqlClient.SNI.runtime": "6.0.2",
-          "Microsoft.Extensions.Caching.Memory": "9.0.13",
+          "Microsoft.Bcl.Cryptography": "9.0.18",
+          "Microsoft.Data.SqlClient.Extensions.Abstractions": "7.1.1",
+          "Microsoft.Data.SqlClient.Internal.Logging": "7.1.1",
+          "Microsoft.Data.SqlClient.SNI.runtime": "7.1.0",
+          "Microsoft.Extensions.Caching.Memory": "9.0.18",
           "Microsoft.IdentityModel.JsonWebTokens": "8.16.0",
           "Microsoft.IdentityModel.Protocols.OpenIdConnect": "8.16.0",
           "Microsoft.SqlServer.Server": "1.0.0",
-          "System.Configuration.ConfigurationManager": "9.0.13",
-          "System.Security.Cryptography.Pkcs": "9.0.13"
+          "System.Configuration.ConfigurationManager": "9.0.18",
+          "System.Security.Cryptography.Pkcs": "9.0.18",
+          "System.Threading.RateLimiting": "9.0.18"
         },
         "runtime": {
           "lib/net9.0/Microsoft.Data.SqlClient.dll": {
             "assemblyVersion": "7.0.0.0",
-            "fileVersion": "7.0.1.26114"
+            "fileVersion": "7.1.1.26272"
           }
         },
         "runtimeTargets": {
@@ -71,77 +72,77 @@
             "rid": "unix",
             "assetType": "runtime",
             "assemblyVersion": "7.0.0.0",
-            "fileVersion": "7.0.1.26114"
+            "fileVersion": "7.1.1.26272"
           },
           "runtimes/win/lib/net9.0/Microsoft.Data.SqlClient.dll": {
             "rid": "win",
             "assetType": "runtime",
             "assemblyVersion": "7.0.0.0",
-            "fileVersion": "7.0.1.26114"
+            "fileVersion": "7.1.1.26272"
           }
         }
       },
-      "Microsoft.Data.SqlClient.Extensions.Abstractions/1.0.0": {
+      "Microsoft.Data.SqlClient.Extensions.Abstractions/7.1.1": {
         "dependencies": {
-          "Microsoft.Data.SqlClient.Internal.Logging": "1.0.0"
+          "Microsoft.Data.SqlClient.Internal.Logging": "7.1.1"
         },
         "runtime": {
           "lib/netstandard2.0/Microsoft.Data.SqlClient.Extensions.Abstractions.dll": {
-            "assemblyVersion": "1.0.0.0",
-            "fileVersion": "1.0.0.26076"
+            "assemblyVersion": "7.0.0.0",
+            "fileVersion": "7.1.1.26272"
           }
         }
       },
-      "Microsoft.Data.SqlClient.Internal.Logging/1.0.0": {
+      "Microsoft.Data.SqlClient.Internal.Logging/7.1.1": {
         "runtime": {
           "lib/netstandard2.0/Microsoft.Data.SqlClient.Internal.Logging.dll": {
-            "assemblyVersion": "1.0.0.0",
-            "fileVersion": "1.0.0.26076"
+            "assemblyVersion": "7.0.0.0",
+            "fileVersion": "7.1.1.26272"
           }
         }
       },
-      "Microsoft.Data.SqlClient.SNI.runtime/6.0.2": {
+      "Microsoft.Data.SqlClient.SNI.runtime/7.1.0": {
         "runtimeTargets": {
           "runtimes/win-arm64/native/Microsoft.Data.SqlClient.SNI.dll": {
             "rid": "win-arm64",
             "assetType": "native",
-            "fileVersion": "6.2.0.0"
+            "fileVersion": "7.1.0.0"
           },
           "runtimes/win-x64/native/Microsoft.Data.SqlClient.SNI.dll": {
             "rid": "win-x64",
             "assetType": "native",
-            "fileVersion": "6.2.0.0"
+            "fileVersion": "7.1.0.0"
           },
           "runtimes/win-x86/native/Microsoft.Data.SqlClient.SNI.dll": {
             "rid": "win-x86",
             "assetType": "native",
-            "fileVersion": "6.2.0.0"
+            "fileVersion": "7.1.0.0"
           }
         }
       },
-      "Microsoft.Extensions.Caching.Abstractions/9.0.13": {
+      "Microsoft.Extensions.Caching.Abstractions/9.0.18": {
         "dependencies": {
-          "Microsoft.Extensions.Primitives": "9.0.13"
+          "Microsoft.Extensions.Primitives": "9.0.18"
         },
         "runtime": {
           "lib/net9.0/Microsoft.Extensions.Caching.Abstractions.dll": {
             "assemblyVersion": "9.0.0.0",
-            "fileVersion": "9.0.1326.6317"
+            "fileVersion": "9.0.1826.31522"
           }
         }
       },
-      "Microsoft.Extensions.Caching.Memory/9.0.13": {
+      "Microsoft.Extensions.Caching.Memory/9.0.18": {
         "dependencies": {
-          "Microsoft.Extensions.Caching.Abstractions": "9.0.13",
+          "Microsoft.Extensions.Caching.Abstractions": "9.0.18",
           "Microsoft.Extensions.DependencyInjection.Abstractions": "10.0.0",
           "Microsoft.Extensions.Logging.Abstractions": "10.0.0",
-          "Microsoft.Extensions.Options": "9.0.13",
-          "Microsoft.Extensions.Primitives": "9.0.13"
+          "Microsoft.Extensions.Options": "9.0.18",
+          "Microsoft.Extensions.Primitives": "9.0.18"
         },
         "runtime": {
           "lib/net9.0/Microsoft.Extensions.Caching.Memory.dll": {
             "assemblyVersion": "9.0.0.0",
-            "fileVersion": "9.0.1326.6317"
+            "fileVersion": "9.0.1826.31522"
           }
         }
       },
@@ -164,23 +165,23 @@
           }
         }
       },
-      "Microsoft.Extensions.Options/9.0.13": {
+      "Microsoft.Extensions.Options/9.0.18": {
         "dependencies": {
           "Microsoft.Extensions.DependencyInjection.Abstractions": "10.0.0",
-          "Microsoft.Extensions.Primitives": "9.0.13"
+          "Microsoft.Extensions.Primitives": "9.0.18"
         },
         "runtime": {
           "lib/net9.0/Microsoft.Extensions.Options.dll": {
             "assemblyVersion": "9.0.0.0",
-            "fileVersion": "9.0.1326.6317"
+            "fileVersion": "9.0.1826.31522"
           }
         }
       },
-      "Microsoft.Extensions.Primitives/9.0.13": {
+      "Microsoft.Extensions.Primitives/9.0.18": {
         "runtime": {
           "lib/net9.0/Microsoft.Extensions.Primitives.dll": {
             "assemblyVersion": "9.0.0.0",
-            "fileVersion": "9.0.1326.6317"
+            "fileVersion": "9.0.1826.31522"
           }
         }
       },
@@ -288,11 +289,11 @@
           }
         }
       },
-      "Oracle.ManagedDataAccess.Core/23.26.200": {
+      "Oracle.ManagedDataAccess.Core/23.26.301": {
         "dependencies": {
           "System.Diagnostics.PerformanceCounter": "8.0.0",
           "System.DirectoryServices.Protocols": "8.0.2",
-          "System.Security.Cryptography.Pkcs": "9.0.13"
+          "System.Security.Cryptography.Pkcs": "9.0.18"
         },
         "runtime": {
           "lib/net8.0/Oracle.ManagedDataAccess.dll": {
@@ -301,15 +302,15 @@
           }
         }
       },
-      "Serilog/4.3.1": {
+      "Serilog/4.4.0": {
         "runtime": {
           "lib/net10.0/Serilog.dll": {
-            "assemblyVersion": "4.3.0.0",
-            "fileVersion": "4.3.0.0"
+            "assemblyVersion": "4.4.0.0",
+            "fileVersion": "4.4.0.0"
           }
         }
       },
-      "SourceGear.sqlite3/3.50.4.5": {
+      "SourceGear.sqlite3/3.53.4": {
         "runtimeTargets": {
           "runtimes/android-arm/native/libe_sqlite3.so": {
             "rid": "android-arm",
@@ -353,11 +354,6 @@
           },
           "runtimes/iossimulator-x64/native/e_sqlite3.a": {
             "rid": "iossimulator-x64",
-            "assetType": "native",
-            "fileVersion": "0.0.0.0"
-          },
-          "runtimes/iossimulator-x86/native/e_sqlite3.a": {
-            "rid": "iossimulator-x86",
             "assetType": "native",
             "fileVersion": "0.0.0.0"
           },
@@ -454,45 +450,45 @@
           "runtimes/win-arm64/native/e_sqlite3.dll": {
             "rid": "win-arm64",
             "assetType": "native",
-            "fileVersion": "3.50.4.5"
+            "fileVersion": "3.53.4.0"
           },
           "runtimes/win-x64/native/e_sqlite3.dll": {
             "rid": "win-x64",
             "assetType": "native",
-            "fileVersion": "3.50.4.5"
+            "fileVersion": "3.53.4.0"
           },
           "runtimes/win-x86/native/e_sqlite3.dll": {
             "rid": "win-x86",
             "assetType": "native",
-            "fileVersion": "3.50.4.5"
+            "fileVersion": "3.53.4.0"
           }
         }
       },
-      "System.Configuration.ConfigurationManager/9.0.13": {
+      "System.Configuration.ConfigurationManager/9.0.18": {
         "dependencies": {
-          "System.Diagnostics.EventLog": "9.0.13",
-          "System.Security.Cryptography.ProtectedData": "9.0.13"
+          "System.Diagnostics.EventLog": "9.0.18",
+          "System.Security.Cryptography.ProtectedData": "9.0.18"
         },
         "runtime": {
           "lib/net9.0/System.Configuration.ConfigurationManager.dll": {
             "assemblyVersion": "9.0.0.0",
-            "fileVersion": "9.0.1326.6317"
+            "fileVersion": "9.0.1826.31522"
           }
         }
       },
-      "System.Data.SQLite/2.0.3": {
+      "System.Data.SQLite/2.0.4": {
         "runtime": {
           "lib/netstandard2.1/System.Data.SQLite.dll": {
-            "assemblyVersion": "2.0.3.0",
-            "fileVersion": "2.0.3.0"
+            "assemblyVersion": "2.0.4.0",
+            "fileVersion": "2.0.4.0"
           }
         }
       },
-      "System.Diagnostics.EventLog/9.0.13": {
+      "System.Diagnostics.EventLog/9.0.18": {
         "runtime": {
           "lib/net9.0/System.Diagnostics.EventLog.dll": {
             "assemblyVersion": "9.0.0.0",
-            "fileVersion": "9.0.1326.6317"
+            "fileVersion": "9.0.1826.31522"
           }
         },
         "runtimeTargets": {
@@ -506,13 +502,13 @@
             "rid": "win",
             "assetType": "runtime",
             "assemblyVersion": "9.0.0.0",
-            "fileVersion": "9.0.1326.6317"
+            "fileVersion": "9.0.1826.31522"
           }
         }
       },
       "System.Diagnostics.PerformanceCounter/8.0.0": {
         "dependencies": {
-          "System.Configuration.ConfigurationManager": "9.0.13"
+          "System.Configuration.ConfigurationManager": "9.0.18"
         },
         "runtime": {
           "lib/net8.0/System.Diagnostics.PerformanceCounter.dll": {
@@ -569,19 +565,19 @@
           }
         }
       },
-      "System.Reactive/6.1.0": {
+      "System.Reactive/7.0.0": {
         "runtime": {
-          "lib/net6.0/System.Reactive.dll": {
-            "assemblyVersion": "6.1.0.0",
-            "fileVersion": "6.1.0.62682"
+          "lib/net8.0/System.Reactive.dll": {
+            "assemblyVersion": "7.0.0.0",
+            "fileVersion": "7.0.0.53081"
           }
         }
       },
-      "System.Security.Cryptography.Pkcs/9.0.13": {
+      "System.Security.Cryptography.Pkcs/9.0.18": {
         "runtime": {
           "lib/net9.0/System.Security.Cryptography.Pkcs.dll": {
             "assemblyVersion": "9.0.0.0",
-            "fileVersion": "9.0.1326.6317"
+            "fileVersion": "9.0.1826.31522"
           }
         },
         "runtimeTargets": {
@@ -589,22 +585,30 @@
             "rid": "win",
             "assetType": "runtime",
             "assemblyVersion": "9.0.0.0",
-            "fileVersion": "9.0.1326.6317"
+            "fileVersion": "9.0.1826.31522"
           }
         }
       },
-      "System.Security.Cryptography.ProtectedData/9.0.13": {
+      "System.Security.Cryptography.ProtectedData/9.0.18": {
         "runtime": {
           "lib/net9.0/System.Security.Cryptography.ProtectedData.dll": {
             "assemblyVersion": "9.0.0.0",
-            "fileVersion": "9.0.1326.6317"
+            "fileVersion": "9.0.1826.31522"
+          }
+        }
+      },
+      "System.Threading.RateLimiting/9.0.18": {
+        "runtime": {
+          "lib/net9.0/System.Threading.RateLimiting.dll": {
+            "assemblyVersion": "9.0.0.0",
+            "fileVersion": "9.0.1826.31522"
           }
         }
       },
       "HandStack.Core/1.0.0": {
         "dependencies": {
-          "BouncyCastle.Cryptography": "2.6.2",
-          "System.Reactive": "6.1.0"
+          "BouncyCastle.Cryptography": "2.7.0",
+          "System.Reactive": "7.0.0"
         },
         "runtime": {
           "HandStack.Core.dll": {
@@ -621,68 +625,68 @@
       "serviceable": false,
       "sha512": ""
     },
-    "BouncyCastle.Cryptography/2.6.2": {
+    "BouncyCastle.Cryptography/2.7.0": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-7oWOcvnntmMKNzDLsdxAYqApt+AjpRpP2CShjMfIa3umZ42UQMvH0tl1qAliYPNYO6vTdcGMqnRrCPmsfzTI1w==",
-      "path": "bouncycastle.cryptography/2.6.2",
-      "hashPath": "bouncycastle.cryptography.2.6.2.nupkg.sha512"
+      "sha512": "sha512-U+12df8UEWHgBi04YVf/Lgi2dy3SItlIYvHjjEVa/BngCQIzDCDRBk50DDByCfDvSbe5pRNFr3b7UrVK2kMcLw==",
+      "path": "bouncycastle.cryptography/2.7.0",
+      "hashPath": "bouncycastle.cryptography.2.7.0.nupkg.sha512"
     },
-    "HtmlAgilityPack/1.12.4": {
+    "HtmlAgilityPack/1.13.0": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-ljqvBabvFwKoLniuoQKO8b5bJfJweKLs4fUNS/V5dsvpo0A8MlJqxxn9XVmP2DaskbUXty6IYaWAi1SArGIMeQ==",
-      "path": "htmlagilitypack/1.12.4",
-      "hashPath": "htmlagilitypack.1.12.4.nupkg.sha512"
+      "sha512": "sha512-nWZtz9WjSbq6V7TjjYBCmW+D8+BrWs15O6MlPxh55SH4zmenkWHXwu6gYeIarHL3KoHgDyZzTdOM50EdTnR8Xw==",
+      "path": "htmlagilitypack/1.13.0",
+      "hashPath": "htmlagilitypack.1.13.0.nupkg.sha512"
     },
-    "Microsoft.Bcl.Cryptography/9.0.13": {
+    "Microsoft.Bcl.Cryptography/9.0.18": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-5T+bH3Lb1nEe8Hf/ixMxLmhlrx5wRi53wv7OhVwG2F1ZviW1ejFRS1NHur3uqPpJRGtkQwUchtY6zhVK2R+v+w==",
-      "path": "microsoft.bcl.cryptography/9.0.13",
-      "hashPath": "microsoft.bcl.cryptography.9.0.13.nupkg.sha512"
+      "sha512": "sha512-42XcqOGj0jTNW6FphUEuhNLCdVQsYbYCf2pPlkWdz1uDyxxirpcxyjg7pWIBgPCjzk6rv/irgLya/2tDJKIpYg==",
+      "path": "microsoft.bcl.cryptography/9.0.18",
+      "hashPath": "microsoft.bcl.cryptography.9.0.18.nupkg.sha512"
     },
-    "Microsoft.Data.SqlClient/7.0.1": {
+    "Microsoft.Data.SqlClient/7.1.1": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-9jZFXAJ2ThNYK7lhj2RhH7klXVNaWSvZpQncq3bPIOjmHBrdjwgeO4c8wucUVxQwFT8rAA13Z2F2jzoYR7ICDw==",
-      "path": "microsoft.data.sqlclient/7.0.1",
-      "hashPath": "microsoft.data.sqlclient.7.0.1.nupkg.sha512"
+      "sha512": "sha512-Moz4+bba/OdEM9I4jXWggduJ4sqoNcgVAQyXG/dNnGGvnS/YDr2fTjP83fg5YX3drgRki6fRAhR94P8dAZgZtQ==",
+      "path": "microsoft.data.sqlclient/7.1.1",
+      "hashPath": "microsoft.data.sqlclient.7.1.1.nupkg.sha512"
     },
-    "Microsoft.Data.SqlClient.Extensions.Abstractions/1.0.0": {
+    "Microsoft.Data.SqlClient.Extensions.Abstractions/7.1.1": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-rlnxc0KfwDSbE8ZHntFnl8SCgOa9QtJZblMv2zXLhRwl1Je7fsdsVzxSjzzC4JMsfAK+jXJWyezRB8SxUY4BdA==",
-      "path": "microsoft.data.sqlclient.extensions.abstractions/1.0.0",
-      "hashPath": "microsoft.data.sqlclient.extensions.abstractions.1.0.0.nupkg.sha512"
+      "sha512": "sha512-qP/zUOCJwfKqWNC9o+TWqltfNbLnZi1APNpJZgj0yeEJhoI+h+eoQLX+331yZHNOlDxdafZLP5arW/yrS1jAAw==",
+      "path": "microsoft.data.sqlclient.extensions.abstractions/7.1.1",
+      "hashPath": "microsoft.data.sqlclient.extensions.abstractions.7.1.1.nupkg.sha512"
     },
-    "Microsoft.Data.SqlClient.Internal.Logging/1.0.0": {
+    "Microsoft.Data.SqlClient.Internal.Logging/7.1.1": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-Kue/7CF8KNT9zozfr30C94dMZVZml3atqWZvQemSXvTau76tRdypzeKiBKXadqgbOME0UiQIyVTNo5WxCRNVNg==",
-      "path": "microsoft.data.sqlclient.internal.logging/1.0.0",
-      "hashPath": "microsoft.data.sqlclient.internal.logging.1.0.0.nupkg.sha512"
+      "sha512": "sha512-bVqbATLnHQngue7U9K7GRnzvfdDa7IyiBU2vijfU2vBMBSZrAnQp/wXqNSfaVonckSaMXUk07wfujTqy9IVMdw==",
+      "path": "microsoft.data.sqlclient.internal.logging/7.1.1",
+      "hashPath": "microsoft.data.sqlclient.internal.logging.7.1.1.nupkg.sha512"
     },
-    "Microsoft.Data.SqlClient.SNI.runtime/6.0.2": {
+    "Microsoft.Data.SqlClient.SNI.runtime/7.1.0": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-f+pRODTWX7Y67jXO3T5S2dIPZ9qMJNySjlZT/TKmWVNWe19N8jcWmHaqHnnchaq3gxEKv1SWVY5EFzOD06l41w==",
-      "path": "microsoft.data.sqlclient.sni.runtime/6.0.2",
-      "hashPath": "microsoft.data.sqlclient.sni.runtime.6.0.2.nupkg.sha512"
+      "sha512": "sha512-rWunOb6Dby0lcI82PohARcRbF+4x4wNKxnKRSHXhuwZMu8/cCS68DCfhceq4bv1gUEfoL5dWXHYnfxVvLQUN+Q==",
+      "path": "microsoft.data.sqlclient.sni.runtime/7.1.0",
+      "hashPath": "microsoft.data.sqlclient.sni.runtime.7.1.0.nupkg.sha512"
     },
-    "Microsoft.Extensions.Caching.Abstractions/9.0.13": {
+    "Microsoft.Extensions.Caching.Abstractions/9.0.18": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-nTT90JYIpcXEy6fcU8LPVycONkO6wipROgP9pyC4uxBif4fazu2rDzlWSntqtzr5p8GbQL2EopsYuTZR3yoeag==",
-      "path": "microsoft.extensions.caching.abstractions/9.0.13",
-      "hashPath": "microsoft.extensions.caching.abstractions.9.0.13.nupkg.sha512"
+      "sha512": "sha512-Y8PnPKq+ASBazn0QA5d98/dWT0MAfv9CJYV6zPZ/TisZpAUe5zWgKldJLXkrmUuIzvUpQS7/SF7+1dld3OP/EQ==",
+      "path": "microsoft.extensions.caching.abstractions/9.0.18",
+      "hashPath": "microsoft.extensions.caching.abstractions.9.0.18.nupkg.sha512"
     },
-    "Microsoft.Extensions.Caching.Memory/9.0.13": {
+    "Microsoft.Extensions.Caching.Memory/9.0.18": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-OdQmN8LYcUEu20Fxii9mk68nHJGL+JPXF3w0+hxenf0oDDdDBA+ZV/S92FmIgAWAElowIiFA/g0x+8YB1g80Hg==",
-      "path": "microsoft.extensions.caching.memory/9.0.13",
-      "hashPath": "microsoft.extensions.caching.memory.9.0.13.nupkg.sha512"
+      "sha512": "sha512-ZQ+x93CRR8DOGT+YPP4YXvwTAJ0MfvAghs5cwCSvtZFiORSfprAw9f67d0QDhf6PCIYyFsMKFB+PI3p9lpiMUQ==",
+      "path": "microsoft.extensions.caching.memory/9.0.18",
+      "hashPath": "microsoft.extensions.caching.memory.9.0.18.nupkg.sha512"
     },
     "Microsoft.Extensions.DependencyInjection.Abstractions/10.0.0": {
       "type": "package",
@@ -698,19 +702,19 @@
       "path": "microsoft.extensions.logging.abstractions/10.0.0",
       "hashPath": "microsoft.extensions.logging.abstractions.10.0.0.nupkg.sha512"
     },
-    "Microsoft.Extensions.Options/9.0.13": {
+    "Microsoft.Extensions.Options/9.0.18": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-MJ0afZ8YTPr+TQ0qN+vp4U1yqgj3ccIhq/sFkznMX/V/sPadIQuQJRNK9gWXUoJ03AQmAt31TXtSMuRX3IvaUw==",
-      "path": "microsoft.extensions.options/9.0.13",
-      "hashPath": "microsoft.extensions.options.9.0.13.nupkg.sha512"
+      "sha512": "sha512-HiA/R0jGR10TGuR6coM8KMUdJ5YlP3bhGxqEdGLkxFdBV1EFNdZMAajSEZHwkex4X/iMQwRCQVotqpElcxOImg==",
+      "path": "microsoft.extensions.options/9.0.18",
+      "hashPath": "microsoft.extensions.options.9.0.18.nupkg.sha512"
     },
-    "Microsoft.Extensions.Primitives/9.0.13": {
+    "Microsoft.Extensions.Primitives/9.0.18": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-cqzLFZ6rIEX/N1mJAGN8HLqWhlks2G3eYO+9pCShMLqxeBLN7ndS+MbmxiuQiQ0Tj/Q3tVHRWx91n17yLczjmg==",
-      "path": "microsoft.extensions.primitives/9.0.13",
-      "hashPath": "microsoft.extensions.primitives.9.0.13.nupkg.sha512"
+      "sha512": "sha512-hfHudMC5zDlwMrC0HiHOJesSHMvM+CdqjomjcV/YVzFq5dfSpBRvyRLm1n1Bfh41ZpQnyJzqX+YEo95BAmcDAQ==",
+      "path": "microsoft.extensions.primitives/9.0.18",
+      "hashPath": "microsoft.extensions.primitives.9.0.18.nupkg.sha512"
     },
     "Microsoft.IdentityModel.Abstractions/8.16.0": {
       "type": "package",
@@ -782,47 +786,47 @@
       "path": "npgsql/10.0.3",
       "hashPath": "npgsql.10.0.3.nupkg.sha512"
     },
-    "Oracle.ManagedDataAccess.Core/23.26.200": {
+    "Oracle.ManagedDataAccess.Core/23.26.301": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-l+k3UOpWfv7g2F4/FnenQlwMMvVk8LLlVgAn1qdl3Seyna2kkyogSHS0ceBGMKNT7KjC79rpIyFmt8Q0QveB3A==",
-      "path": "oracle.manageddataaccess.core/23.26.200",
-      "hashPath": "oracle.manageddataaccess.core.23.26.200.nupkg.sha512"
+      "sha512": "sha512-hhl6m5sam9vWNXt4Xad+bAcB+VBMBxya16/P+R3xRMKzNVl/6ssF6HuNZNeofD+5qDaTRqhWbKjdFn65rD5KYw==",
+      "path": "oracle.manageddataaccess.core/23.26.301",
+      "hashPath": "oracle.manageddataaccess.core.23.26.301.nupkg.sha512"
     },
-    "Serilog/4.3.1": {
+    "Serilog/4.4.0": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-savYe7h5yRlkqBVOwP8cIRDOdqKiPmYCU4W87JH38sBmcKD5EBoXvQIw6bNEvZ/pTe1gsiye3VFCzBsoppGkXQ==",
-      "path": "serilog/4.3.1",
-      "hashPath": "serilog.4.3.1.nupkg.sha512"
+      "sha512": "sha512-ZC6Le3rr4TVJJjS4KsQAesxeF1EhW9qcZmmG7eP5Y2G3+gTGkJEUXkq4+tZNPtyp05I0wWOxnIjwtxFweJsObw==",
+      "path": "serilog/4.4.0",
+      "hashPath": "serilog.4.4.0.nupkg.sha512"
     },
-    "SourceGear.sqlite3/3.50.4.5": {
+    "SourceGear.sqlite3/3.53.4": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-UtnipXhJYZKQOQIfpws/msLK7IRhMplE1CZCaZLIQXRnGD474QVpO/J9nMlQQY8NZueGz1aidjoxDRnrC1NT3Q==",
-      "path": "sourcegear.sqlite3/3.50.4.5",
-      "hashPath": "sourcegear.sqlite3.3.50.4.5.nupkg.sha512"
+      "sha512": "sha512-aXPX39R0Vgivhi95Z82TRenG56bSOs+Hnt8h1GV0nmfuRaANObd3LC44eoZwszmQqALjaV3ZnBQRej8m5E0L4Q==",
+      "path": "sourcegear.sqlite3/3.53.4",
+      "hashPath": "sourcegear.sqlite3.3.53.4.nupkg.sha512"
     },
-    "System.Configuration.ConfigurationManager/9.0.13": {
+    "System.Configuration.ConfigurationManager/9.0.18": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-GbBrJq9S/gYpHzm7Pxx6Y5tDyfSfyxW6tlP5oiKJV38uf19Wp+GIIAnWfyL1zmNiz1+EjwVapw2WkBFvvqKQzg==",
-      "path": "system.configuration.configurationmanager/9.0.13",
-      "hashPath": "system.configuration.configurationmanager.9.0.13.nupkg.sha512"
+      "sha512": "sha512-/1q0MHB2xKyTFRC5tk+oL3Ahi+QK0UPI6Qk6Xc5z5BW6otR2T9wwWmEW/LZX98cq7UOmu+7sZ5HNwuq61zrNtg==",
+      "path": "system.configuration.configurationmanager/9.0.18",
+      "hashPath": "system.configuration.configurationmanager.9.0.18.nupkg.sha512"
     },
-    "System.Data.SQLite/2.0.3": {
+    "System.Data.SQLite/2.0.4": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-5I9dVqmHp1v0dhco21btIRkUE47zHSy4t6bRLwIO6nGZ1mxGIL1f1yp1zWI/AAZFfdUz7n6RrH1hyi/6EhlIeQ==",
-      "path": "system.data.sqlite/2.0.3",
-      "hashPath": "system.data.sqlite.2.0.3.nupkg.sha512"
+      "sha512": "sha512-iiawN8l6QBzLZTK2BQRyq/1XmvDONghjvXoDhkkQgPTG8bRIsmIxJV1+Lc75fviNgMnjAE3wxReVJAF7P1hkoQ==",
+      "path": "system.data.sqlite/2.0.4",
+      "hashPath": "system.data.sqlite.2.0.4.nupkg.sha512"
     },
-    "System.Diagnostics.EventLog/9.0.13": {
+    "System.Diagnostics.EventLog/9.0.18": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-675Rk4RwaVrWo09wrR2rpDVKixtgtnhd5NhPrn6O21uj92JvE61KTGupn76M2N6Ff/xJjY3SHSfSg0MIanEzGw==",
-      "path": "system.diagnostics.eventlog/9.0.13",
-      "hashPath": "system.diagnostics.eventlog.9.0.13.nupkg.sha512"
+      "sha512": "sha512-4f3CBS22A2Y+M+shvdYzeWaEPYycZ3IaouaH+NxGLW6xoFahR1+L+YM8bt8NI3TQRZbqPBp/myt+6+JXc+IhRg==",
+      "path": "system.diagnostics.eventlog/9.0.18",
+      "hashPath": "system.diagnostics.eventlog.9.0.18.nupkg.sha512"
     },
     "System.Diagnostics.PerformanceCounter/8.0.0": {
       "type": "package",
@@ -845,26 +849,33 @@
       "path": "system.identitymodel.tokens.jwt/8.16.0",
       "hashPath": "system.identitymodel.tokens.jwt.8.16.0.nupkg.sha512"
     },
-    "System.Reactive/6.1.0": {
+    "System.Reactive/7.0.0": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-M5cCC1ZMkZr9jbSQGTHnVkb5TDN67qWCV7AP8TAHdGkvDlu0puT5NzemESNn9+HkYIDpWpocP68/i+/ame2/2w==",
-      "path": "system.reactive/6.1.0",
-      "hashPath": "system.reactive.6.1.0.nupkg.sha512"
+      "sha512": "sha512-VYaSP2Kt+45GFnr3q7c/b4awT48VvueOJV4jPjdUXi5MxC9mSUy+HkJYtm8rGZ6fC3tNHG9gBu/YwNAR/FYqhg==",
+      "path": "system.reactive/7.0.0",
+      "hashPath": "system.reactive.7.0.0.nupkg.sha512"
     },
-    "System.Security.Cryptography.Pkcs/9.0.13": {
+    "System.Security.Cryptography.Pkcs/9.0.18": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-dxJhkuoaelvWy588wPXjShNks+ZMiSgXnN75/u+DPbER5PqKrLPDftE0BvGM7nDK/scQAVlD+gRXlCAAjWi58Q==",
-      "path": "system.security.cryptography.pkcs/9.0.13",
-      "hashPath": "system.security.cryptography.pkcs.9.0.13.nupkg.sha512"
+      "sha512": "sha512-NKMKhUdLGNZryY9GXXTF5dXyP6S37EYXhiA2JYvwshJbd4DRq07IOS9it8Opi9atadvv5rlNkD76Mio+5Oo2aQ==",
+      "path": "system.security.cryptography.pkcs/9.0.18",
+      "hashPath": "system.security.cryptography.pkcs.9.0.18.nupkg.sha512"
     },
-    "System.Security.Cryptography.ProtectedData/9.0.13": {
+    "System.Security.Cryptography.ProtectedData/9.0.18": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-t8S9IDpjJKsLpLkeBdW8cWtcPyYqrGu93Dej1RO6WwuL/lkFSqWlan3rMJfortqz1mRIh+sys2AFsSA6jWJ3Jg==",
-      "path": "system.security.cryptography.protecteddata/9.0.13",
-      "hashPath": "system.security.cryptography.protecteddata.9.0.13.nupkg.sha512"
+      "sha512": "sha512-1/iz9Eex1TBMYdAk+m3igaMvL+nk+rY1EqL6u93an/j1ghxmB24vGOKXkVFy3NSPA39s1H/+SNoK257tHoXoLA==",
+      "path": "system.security.cryptography.protecteddata/9.0.18",
+      "hashPath": "system.security.cryptography.protecteddata.9.0.18.nupkg.sha512"
+    },
+    "System.Threading.RateLimiting/9.0.18": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-pxuHw/tQXaHMRXEaKzzgpoGO8VeTPIzHbnp0KclXp6js5wPHn7VaqSCa8yRTAsZDcZ2XuIEnXGM2MbRDJFLBog==",
+      "path": "system.threading.ratelimiting/9.0.18",
+      "hashPath": "system.threading.ratelimiting.9.0.18.nupkg.sha512"
     },
     "HandStack.Core/1.0.0": {
       "type": "project",

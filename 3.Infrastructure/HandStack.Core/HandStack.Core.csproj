@@ -8,7 +8,6 @@
         <PlatformTarget>AnyCPU</PlatformTarget>
         <SignAssembly>False</SignAssembly>
         <AssemblyOriginatorKeyFile>../../../secrets/HandStack.Core.snk</AssemblyOriginatorKeyFile>
-        <NoWarn>CS8002;IL3000;IL3002</NoWarn>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -23,8 +22,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="BouncyCastle.Cryptography" Version="2.6.2" />
-        <PackageReference Include="System.Reactive" Version="6.1.0" />
+        <PackageReference Include="BouncyCastle.Cryptography" Version="2.7.0" />
+        <PackageReference Include="System.Reactive" Version="7.0.0" />
     </ItemGroup>
     <Target Name="CleanupRuntimes" AfterTargets="Build">
         <PropertyGroup>

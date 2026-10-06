@@ -11,7 +11,6 @@
         <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
         <CompressionEnabled>false</CompressionEnabled>
         <OutputType>Library</OutputType>
-        <NoWarn>NU1903;ASP0023;NU1608;</NoWarn>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -30,37 +29,37 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Anthropic" Version="12.30.0" />
-        <PackageReference Include="Azure.Core" Version="1.59.0" />
+        <PackageReference Include="Anthropic" Version="12.53.0" />
+        <PackageReference Include="Azure.Core" Version="1.63.0" />
         <PackageReference Include="ChoETL.JSON.NETStandard" Version="1.2.1.72" />
-        <PackageReference Include="Dapper" Version="2.1.79" />
-        <PackageReference Include="Google.Apis" Version="1.75.0" />
-        <PackageReference Include="Google.Apis.Auth" Version="1.75.0" />
-        <PackageReference Include="Google.GenAI" Version="1.12.0" />
-        <PackageReference Include="HtmlAgilityPack" Version="1.12.4" />
+        <PackageReference Include="Dapper" Version="2.1.89" />
+        <PackageReference Include="Google.Apis" Version="1.77.0" />
+        <PackageReference Include="Google.Apis.Auth" Version="1.77.0" />
+        <PackageReference Include="Google.GenAI" Version="1.24.0" />
+        <PackageReference Include="HtmlAgilityPack" Version="1.13.0" />
         <PackageReference Include="Mediator.Abstractions" Version="3.0.2" />
-        <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="10.0.9" />
-        <PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.1" />
-        <PackageReference Include="Microsoft.SemanticKernel" Version="1.77.0" />
-        <PackageReference Include="Microsoft.SemanticKernel.Core" Version="1.77.0" />
+        <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="10.0.12" />
+        <PackageReference Include="Microsoft.Data.SqlClient" Version="7.1.1" />
+        <PackageReference Include="Microsoft.SemanticKernel" Version="1.80.1" />
+        <PackageReference Include="Microsoft.SemanticKernel.Core" Version="1.80.1" />
         <PackageReference Include="MySqlConnector" Version="2.6.2" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
         <PackageReference Include="Npgsql" Version="10.0.3" />
-        <PackageReference Include="OpenAI" Version="2.11.0" />
-        <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="23.26.200" />
-        <PackageReference Include="PdfPig" Version="0.1.14" />
-        <PackageReference Include="Polly" Version="8.7.0" />
+        <PackageReference Include="OpenAI" Version="2.14.0" />
+        <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="23.26.301" />
+        <PackageReference Include="PdfPig" Version="0.1.16" />
+        <PackageReference Include="Polly" Version="8.8.0" />
         <PackageReference Include="RestSharp" Version="114.0.0" />
-        <PackageReference Include="Serilog" Version="4.3.1" />
+        <PackageReference Include="Serilog" Version="4.4.0" />
         <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
         <PackageReference Include="Serilog.Extensions.Logging" Version="10.0.0" />
-        <PackageReference Include="SourceGear.sqlite3" Version="3.50.4.5" />
+        <PackageReference Include="SourceGear.sqlite3" Version="3.53.4" />
         <PackageReference Include="Stubble.Core" Version="1.10.8" />
-        <PackageReference Include="System.ClientModel" Version="1.14.0" />
-        <PackageReference Include="System.CodeDom" Version="10.0.9" />
-        <PackageReference Include="System.Data.SQLite" Version="2.0.3" />
-        <PackageReference Include="System.Linq.Dynamic.Core" Version="1.7.2" />
-        <PackageReference Include="System.Runtime.Caching" Version="10.0.9" />
+        <PackageReference Include="System.ClientModel" Version="1.16.0" />
+        <PackageReference Include="System.CodeDom" Version="10.0.12" />
+        <PackageReference Include="System.Data.SQLite" Version="2.0.4" />
+        <PackageReference Include="System.Linq.Dynamic.Core" Version="1.7.4" />
+        <PackageReference Include="System.Runtime.Caching" Version="10.0.12" />
     </ItemGroup>
 
     <ItemGroup>

@@ -8,26 +8,26 @@
     ".NETCoreApp,Version=v10.0": {
       "HandStack.Core/1.0.0": {
         "dependencies": {
-          "BouncyCastle.Cryptography": "2.6.2",
-          "System.Reactive": "6.1.0"
+          "BouncyCastle.Cryptography": "2.7.0",
+          "System.Reactive": "7.0.0"
         },
         "runtime": {
           "HandStack.Core.dll": {}
         }
       },
-      "BouncyCastle.Cryptography/2.6.2": {
+      "BouncyCastle.Cryptography/2.7.0": {
         "runtime": {
           "lib/net6.0/BouncyCastle.Cryptography.dll": {
             "assemblyVersion": "2.0.0.0",
-            "fileVersion": "2.6.2.46322"
+            "fileVersion": "2.7.0.16391"
           }
         }
       },
-      "System.Reactive/6.1.0": {
+      "System.Reactive/7.0.0": {
         "runtime": {
-          "lib/net6.0/System.Reactive.dll": {
-            "assemblyVersion": "6.1.0.0",
-            "fileVersion": "6.1.0.62682"
+          "lib/net8.0/System.Reactive.dll": {
+            "assemblyVersion": "7.0.0.0",
+            "fileVersion": "7.0.0.53081"
           }
         }
       }
@@ -39,19 +39,19 @@
       "serviceable": false,
       "sha512": ""
     },
-    "BouncyCastle.Cryptography/2.6.2": {
+    "BouncyCastle.Cryptography/2.7.0": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-7oWOcvnntmMKNzDLsdxAYqApt+AjpRpP2CShjMfIa3umZ42UQMvH0tl1qAliYPNYO6vTdcGMqnRrCPmsfzTI1w==",
-      "path": "bouncycastle.cryptography/2.6.2",
-      "hashPath": "bouncycastle.cryptography.2.6.2.nupkg.sha512"
+      "sha512": "sha512-U+12df8UEWHgBi04YVf/Lgi2dy3SItlIYvHjjEVa/BngCQIzDCDRBk50DDByCfDvSbe5pRNFr3b7UrVK2kMcLw==",
+      "path": "bouncycastle.cryptography/2.7.0",
+      "hashPath": "bouncycastle.cryptography.2.7.0.nupkg.sha512"
     },
-    "System.Reactive/6.1.0": {
+    "System.Reactive/7.0.0": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-M5cCC1ZMkZr9jbSQGTHnVkb5TDN67qWCV7AP8TAHdGkvDlu0puT5NzemESNn9+HkYIDpWpocP68/i+/ame2/2w==",
-      "path": "system.reactive/6.1.0",
-      "hashPath": "system.reactive.6.1.0.nupkg.sha512"
+      "sha512": "sha512-VYaSP2Kt+45GFnr3q7c/b4awT48VvueOJV4jPjdUXi5MxC9mSUy+HkJYtm8rGZ6fC3tNHG9gBu/YwNAR/FYqhg==",
+      "path": "system.reactive/7.0.0",
+      "hashPath": "system.reactive.7.0.0.nupkg.sha512"
     }
   }
 }

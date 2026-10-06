@@ -10,11 +10,10 @@
         <PublishSingleFile>true</PublishSingleFile>
         <PlatformTarget>AnyCPU</PlatformTarget>
         <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
-        <NoWarn>ASP0023;NETSDK1206</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="System.CommandLine" Version="2.0.9" />
+        <PackageReference Include="System.CommandLine" Version="2.0.12" />
     </ItemGroup>
 
     <Target Name="PreBuild" BeforeTargets="PreBuildEvent">

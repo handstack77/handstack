@@ -13,13 +13,11 @@
 		<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
 		<CompressionEnabled>false</CompressionEnabled>
 		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-		<NoWarn>ASP0023;NETSDK1206</NoWarn>
-		<AssemblyTitle></AssemblyTitle>
 		<AssemblyName>dbp</AssemblyName>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="System.CommandLine" Version="2.0.9" />
+		<PackageReference Include="System.CommandLine" Version="2.0.12" />
 	</ItemGroup>
 
 	<ItemGroup>

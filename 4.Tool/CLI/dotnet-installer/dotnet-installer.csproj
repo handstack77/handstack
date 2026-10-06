@@ -10,7 +10,6 @@
         <PublishSingleFile>true</PublishSingleFile>
         <PlatformTarget>AnyCPU</PlatformTarget>
         <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
-        <NoWarn>ASP0023;NETSDK1206</NoWarn>
     </PropertyGroup>
 
     <Target Name="PreBuild" BeforeTargets="PreBuildEvent">

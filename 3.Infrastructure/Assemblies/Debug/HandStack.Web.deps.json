@@ -8,12 +8,12 @@
     ".NETCoreApp,Version=v10.0": {
       "HandStack.Web/1.0.0": {
         "dependencies": {
-          "Dapper": "2.1.79",
+          "Dapper": "2.1.89",
           "HandStack.Core": "1.0.0",
           "Mediator.Abstractions": "3.0.2",
           "Newtonsoft.Json": "13.0.4",
           "RestSharp": "114.0.0",
-          "Serilog": "4.3.1",
+          "Serilog": "4.4.0",
           "Serilog.AspNetCore": "10.0.0",
           "murmurhash": "1.0.3"
         },
@@ -21,19 +21,19 @@
           "HandStack.Web.dll": {}
         }
       },
-      "BouncyCastle.Cryptography/2.6.2": {
+      "BouncyCastle.Cryptography/2.7.0": {
         "runtime": {
           "lib/net6.0/BouncyCastle.Cryptography.dll": {
             "assemblyVersion": "2.0.0.0",
-            "fileVersion": "2.6.2.46322"
+            "fileVersion": "2.7.0.16391"
           }
         }
       },
-      "Dapper/2.1.79": {
+      "Dapper/2.1.89": {
         "runtime": {
           "lib/net10.0/Dapper.dll": {
             "assemblyVersion": "2.0.0.0",
-            "fileVersion": "2.1.79.29349"
+            "fileVersion": "2.1.89.60231"
           }
         }
       },
@@ -77,17 +77,17 @@
           }
         }
       },
-      "Serilog/4.3.1": {
+      "Serilog/4.4.0": {
         "runtime": {
           "lib/net10.0/Serilog.dll": {
-            "assemblyVersion": "4.3.0.0",
-            "fileVersion": "4.3.0.0"
+            "assemblyVersion": "4.4.0.0",
+            "fileVersion": "4.4.0.0"
           }
         }
       },
       "Serilog.AspNetCore/10.0.0": {
         "dependencies": {
-          "Serilog": "4.3.1",
+          "Serilog": "4.4.0",
           "Serilog.Extensions.Hosting": "10.0.0",
           "Serilog.Formatting.Compact": "3.0.0",
           "Serilog.Settings.Configuration": "10.0.0",
@@ -104,7 +104,7 @@
       },
       "Serilog.Extensions.Hosting/10.0.0": {
         "dependencies": {
-          "Serilog": "4.3.1",
+          "Serilog": "4.4.0",
           "Serilog.Extensions.Logging": "10.0.0"
         },
         "runtime": {
@@ -116,7 +116,7 @@
       },
       "Serilog.Extensions.Logging/10.0.0": {
         "dependencies": {
-          "Serilog": "4.3.1"
+          "Serilog": "4.4.0"
         },
         "runtime": {
           "lib/net10.0/Serilog.Extensions.Logging.dll": {
@@ -127,7 +127,7 @@
       },
       "Serilog.Formatting.Compact/3.0.0": {
         "dependencies": {
-          "Serilog": "4.3.1"
+          "Serilog": "4.4.0"
         },
         "runtime": {
           "lib/net8.0/Serilog.Formatting.Compact.dll": {
@@ -139,7 +139,7 @@
       "Serilog.Settings.Configuration/10.0.0": {
         "dependencies": {
           "Microsoft.Extensions.DependencyModel": "10.0.0",
-          "Serilog": "4.3.1"
+          "Serilog": "4.4.0"
         },
         "runtime": {
           "lib/net10.0/Serilog.Settings.Configuration.dll": {
@@ -150,7 +150,7 @@
       },
       "Serilog.Sinks.Console/6.1.1": {
         "dependencies": {
-          "Serilog": "4.3.1"
+          "Serilog": "4.4.0"
         },
         "runtime": {
           "lib/net8.0/Serilog.Sinks.Console.dll": {
@@ -161,7 +161,7 @@
       },
       "Serilog.Sinks.Debug/3.0.0": {
         "dependencies": {
-          "Serilog": "4.3.1"
+          "Serilog": "4.4.0"
         },
         "runtime": {
           "lib/net8.0/Serilog.Sinks.Debug.dll": {
@@ -172,7 +172,7 @@
       },
       "Serilog.Sinks.File/7.0.0": {
         "dependencies": {
-          "Serilog": "4.3.1"
+          "Serilog": "4.4.0"
         },
         "runtime": {
           "lib/net9.0/Serilog.Sinks.File.dll": {
@@ -181,18 +181,18 @@
           }
         }
       },
-      "System.Reactive/6.1.0": {
+      "System.Reactive/7.0.0": {
         "runtime": {
-          "lib/net6.0/System.Reactive.dll": {
-            "assemblyVersion": "6.1.0.0",
-            "fileVersion": "6.1.0.62682"
+          "lib/net8.0/System.Reactive.dll": {
+            "assemblyVersion": "7.0.0.0",
+            "fileVersion": "7.0.0.53081"
           }
         }
       },
       "HandStack.Core/1.0.0": {
         "dependencies": {
-          "BouncyCastle.Cryptography": "2.6.2",
-          "System.Reactive": "6.1.0"
+          "BouncyCastle.Cryptography": "2.7.0",
+          "System.Reactive": "7.0.0"
         },
         "runtime": {
           "HandStack.Core.dll": {
@@ -209,19 +209,19 @@
       "serviceable": false,
       "sha512": ""
     },
-    "BouncyCastle.Cryptography/2.6.2": {
+    "BouncyCastle.Cryptography/2.7.0": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-7oWOcvnntmMKNzDLsdxAYqApt+AjpRpP2CShjMfIa3umZ42UQMvH0tl1qAliYPNYO6vTdcGMqnRrCPmsfzTI1w==",
-      "path": "bouncycastle.cryptography/2.6.2",
-      "hashPath": "bouncycastle.cryptography.2.6.2.nupkg.sha512"
+      "sha512": "sha512-U+12df8UEWHgBi04YVf/Lgi2dy3SItlIYvHjjEVa/BngCQIzDCDRBk50DDByCfDvSbe5pRNFr3b7UrVK2kMcLw==",
+      "path": "bouncycastle.cryptography/2.7.0",
+      "hashPath": "bouncycastle.cryptography.2.7.0.nupkg.sha512"
     },
-    "Dapper/2.1.79": {
+    "Dapper/2.1.89": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-8YijbzgTfmqmQOnVNorYM6K++pxqnW3nJ4aC1sRHzxUA2CcuoJ9gsTem3kgBnPRMc38zZHl4Esb6hAezXIEEuw==",
-      "path": "dapper/2.1.79",
-      "hashPath": "dapper.2.1.79.nupkg.sha512"
+      "sha512": "sha512-1VjFE664wnxvuhlgP8kS4PeFFF4jqD3VkbIHW6Zlc52zuibgcz5ICnIHcQXlTp6pURpPNGLV0ZpNe5x9KePJnA==",
+      "path": "dapper/2.1.89",
+      "hashPath": "dapper.2.1.89.nupkg.sha512"
     },
     "Mediator.Abstractions/3.0.2": {
       "type": "package",
@@ -258,12 +258,12 @@
       "path": "restsharp/114.0.0",
       "hashPath": "restsharp.114.0.0.nupkg.sha512"
     },
-    "Serilog/4.3.1": {
+    "Serilog/4.4.0": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-savYe7h5yRlkqBVOwP8cIRDOdqKiPmYCU4W87JH38sBmcKD5EBoXvQIw6bNEvZ/pTe1gsiye3VFCzBsoppGkXQ==",
-      "path": "serilog/4.3.1",
-      "hashPath": "serilog.4.3.1.nupkg.sha512"
+      "sha512": "sha512-ZC6Le3rr4TVJJjS4KsQAesxeF1EhW9qcZmmG7eP5Y2G3+gTGkJEUXkq4+tZNPtyp05I0wWOxnIjwtxFweJsObw==",
+      "path": "serilog/4.4.0",
+      "hashPath": "serilog.4.4.0.nupkg.sha512"
     },
     "Serilog.AspNetCore/10.0.0": {
       "type": "package",
@@ -321,12 +321,12 @@
       "path": "serilog.sinks.file/7.0.0",
       "hashPath": "serilog.sinks.file.7.0.0.nupkg.sha512"
     },
-    "System.Reactive/6.1.0": {
+    "System.Reactive/7.0.0": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-M5cCC1ZMkZr9jbSQGTHnVkb5TDN67qWCV7AP8TAHdGkvDlu0puT5NzemESNn9+HkYIDpWpocP68/i+/ame2/2w==",
-      "path": "system.reactive/6.1.0",
-      "hashPath": "system.reactive.6.1.0.nupkg.sha512"
+      "sha512": "sha512-VYaSP2Kt+45GFnr3q7c/b4awT48VvueOJV4jPjdUXi5MxC9mSUy+HkJYtm8rGZ6fC3tNHG9gBu/YwNAR/FYqhg==",
+      "path": "system.reactive/7.0.0",
+      "hashPath": "system.reactive.7.0.0.nupkg.sha512"
     },
     "HandStack.Core/1.0.0": {
       "type": "project",

@@ -14,7 +14,6 @@
         <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
         <CompressionEnabled>false</CompressionEnabled>
         <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-        <NoWarn>NU1903;ASP0023;NU1608;</NoWarn>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -36,7 +35,7 @@
 
     <ItemGroup>
         <PackageReference Include="Octokit" Version="14.0.0" />
-        <PackageReference Include="System.CommandLine" Version="2.0.9" />
+        <PackageReference Include="System.CommandLine" Version="2.0.12" />
     </ItemGroup>
 
     <ItemGroup>

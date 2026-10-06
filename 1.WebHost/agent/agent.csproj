@@ -13,7 +13,6 @@
         <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
         <CompressionEnabled>false</CompressionEnabled>
         <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-        <NoWarn>ASP0023;NETSDK1206</NoWarn>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -29,13 +28,13 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Hangfire.AspNetCore" Version="1.8.23" />
-        <PackageReference Include="Hangfire.Core" Version="1.8.23" />
-        <PackageReference Include="Microsoft.Extensions.Hosting.Systemd" Version="10.0.9" />
-        <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="10.0.9" />
+        <PackageReference Include="Hangfire.AspNetCore" Version="1.8.25" />
+        <PackageReference Include="Hangfire.Core" Version="1.8.25" />
+        <PackageReference Include="Microsoft.Extensions.Hosting.Systemd" Version="10.0.12" />
+        <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="10.0.12" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
         <PackageReference Include="RestSharp" Version="114.0.0" />
-        <PackageReference Include="Serilog" Version="4.3.1" />
+        <PackageReference Include="Serilog" Version="4.4.0" />
         <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
         <PackageReference Include="Serilog.Extensions.Hosting" Version="10.0.0" />
         <PackageReference Include="Serilog.Extensions.Logging" Version="10.0.0" />

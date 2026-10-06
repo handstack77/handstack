@@ -17,7 +17,6 @@
         <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
         <CompressionEnabled>false</CompressionEnabled>
         <OutputType>Library</OutputType>
-        <NoWarn>IL3000;NU1903;ASP0023;NU1608;NU1510;</NoWarn>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -38,25 +37,25 @@
     <ItemGroup>
         <PackageReference Include="Jering.Javascript.NodeJS" Version="7.0.0" />
         <PackageReference Include="Mediator.Abstractions" Version="3.0.2" />
-        <PackageReference Include="Microsoft.CodeAnalysis.Compilers" Version="5.3.0" />
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.3.0" />
-        <PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.1" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.9" />
+        <PackageReference Include="Microsoft.CodeAnalysis.Compilers" Version="5.9.0" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.9.0" />
+        <PackageReference Include="Microsoft.Data.SqlClient" Version="7.1.1" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.12" />
+        <PackageReference Include="MySql.EntityFrameworkCore" Version="10.0.9" />
         <PackageReference Include="MySqlConnector" Version="2.6.2" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
         <PackageReference Include="Npgsql" Version="10.0.3" />
-        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.2" />
-        <PackageReference Include="Oracle.EntityFrameworkCore" Version="10.23.26200" />
-        <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="23.26.200" />
-        <PackageReference Include="Polly" Version="8.7.0" />
-        <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="9.0.0" />
-        <PackageReference Include="pythonnet" Version="3.1.0" />
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3" />
+        <PackageReference Include="Oracle.EntityFrameworkCore" Version="10.23.26301" />
+        <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="23.26.301" />
+        <PackageReference Include="Polly" Version="8.8.0" />
+        <PackageReference Include="pythonnet" Version="3.2.0" />
         <PackageReference Include="RestSharp" Version="114.0.0" />
-        <PackageReference Include="Serilog" Version="4.3.1" />
+        <PackageReference Include="Serilog" Version="4.4.0" />
         <PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
         <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
-        <PackageReference Include="SourceGear.sqlite3" Version="3.50.4.5" />
-        <PackageReference Include="System.Data.SQLite" Version="2.0.3" />
+        <PackageReference Include="SourceGear.sqlite3" Version="3.53.4" />
+        <PackageReference Include="System.Data.SQLite" Version="2.0.4" />
     </ItemGroup>
 
     <ItemGroup>
