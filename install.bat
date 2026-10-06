@@ -3,21 +3,21 @@ chcp 65001
 
 REM 필수 프로그램 설치 확인
 where node >nul 2>nul
-if %errorlevel% neq 0 (
+if errorlevel 1 (
 	echo Node.js v20.12.2 LTS 이상 버전을 설치 해야 합니다.
 	start "" "https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#공식-설치-안내"
 	goto :EOF
 )
 
 where gulp >nul 2>nul
-if %errorlevel% neq 0 (
+if errorlevel 1 (
 	echo Node.js 기반 gulp CLI 도구를 설치 해야 합니다.
 	start "" "https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#공식-설치-안내"
 	goto :EOF
 )
 
 where curl >nul 2>nul
-if %errorlevel% neq 0 (
+if errorlevel 1 (
 	echo curl CLI 를 설치 해야 합니다.
 	start "" "https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#공식-설치-안내"
 	goto :EOF
@@ -32,12 +32,20 @@ REM 환경 변수 설정
 setx DOTNET_CLI_TELEMETRY_OPTOUT 1
 set DOTNET_CLI_TELEMETRY_OPTOUT=1
 
+REM 실행 모드 판별과 환경 변수 정의는 괄호 블록 밖의 한 줄 if 로 처리합니다.
+REM 블록 안에서 set 한 변수를 같은 블록에서 %VAR% 로 읽으면 파싱 시점 값(클린 설치에서는 빈 값)으로 치환됩니다.
+set "IS_DEV="
+set "IS_RUN="
+if exist "%current_path%\1.WebHost\ack\ack.csproj" set "IS_DEV=1"
+if exist "%current_path%\app\ack.exe" set "IS_RUN=1"
+
+if defined IS_DEV set "HANDSTACK_SRC=%current_path%"
+if defined IS_DEV set "HANDSTACK_HOME=%PARENT_DIR%\build\handstack"
+if defined IS_RUN set "HANDSTACK_HOME=%current_path%"
+
 REM 개발 환경 설정 (ack.csproj 존재 시)
-if exist %current_path%\1.WebHost\ack\ack.csproj (
-    set "HANDSTACK_SRC=%current_path%"
+if defined IS_DEV (
     echo HANDSTACK_SRC: %HANDSTACK_SRC%
-    
-    set "HANDSTACK_HOME=%PARENT_DIR%\build\handstack"
     echo HANDSTACK_HOME: %HANDSTACK_HOME%
 
 	setx HANDSTACK_SRC "%HANDSTACK_SRC%" >nul
@@ -47,14 +55,14 @@ if exist %current_path%\1.WebHost\ack\ack.csproj (
 
 	REM .NET Core 10.0 확인
 	where dotnet >nul 2>nul
-	if %errorlevel% neq 0 (
+	if errorlevel 1 (
 		echo .NET Core 10.0 버전을 설치 해야 합니다.
 		start "" "https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#공식-설치-안내"
 		goto :EOF
 	)
 
 	dotnet --version | findstr /R "^10\." >nul 2>nul
-	if %errorlevel% neq 0 (
+	if errorlevel 1 (
 		echo .NET Core 10.0 버전을 설치 해야 합니다.
 		start "" "https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#공식-설치-안내"
 		goto :EOF
@@ -64,7 +72,7 @@ if exist %current_path%\1.WebHost\ack\ack.csproj (
 	echo syn.js 번들링 %current_path%\package.json 설치를 시작합니다...
 	cd %current_path%\1.WebHost\ack
 	call npm install
-	gulp
+	call gulp
 
 	REM 솔루션 빌드
 	cd %current_path%
@@ -87,7 +95,7 @@ if exist %current_path%\1.WebHost\ack\ack.csproj (
 	REM libman 명령어가 PATH에 있는지 확인합니다.
 	where libman >nul 2>nul
 	REM %errorlevel%가 0이 아니면 libman이 설치되지 않은 것입니다.
-	if %errorlevel% neq 0 (
+	if errorlevel 1 (
 		echo libman CLI 도구가 설치되어 있지 않습니다. 지금 .NET 전역 도구로 설치합니다...
 		REM dotnet tool install 명령을 실행하여 libman을 전역으로 설치합니다.
 		call dotnet tool install --global Microsoft.Web.LibraryManager.Cli
@@ -103,7 +111,7 @@ if exist %current_path%\1.WebHost\ack\ack.csproj (
 	call npm install
 	robocopy wwwroot\lib %HANDSTACK_HOME%\modules\wwwroot\wwwroot\lib /MIR
 	echo syn.controls, syn.scripts, syn.bundle 번들링을 시작합니다...
-	gulp
+	call gulp
 
 	cd %current_path%
 	robocopy %current_path%\2.Modules\function %HANDSTACK_HOME% package*.* /copy:dat
@@ -120,10 +128,9 @@ if exist %current_path%\1.WebHost\ack\ack.csproj (
 )
 
 REM 실행 환경 설정 (ack.exe 존재 시)
-if exist %current_path%\app\ack.exe (
+if defined IS_RUN (
 	echo current_path: %current_path% ack 실행 환경 설치 확인 중...
-	
-    set "HANDSTACK_HOME=%current_path%"
+
 	echo HANDSTACK_HOME: %HANDSTACK_HOME%
 	setx HANDSTACK_HOME "%HANDSTACK_HOME%" >nul
 
@@ -154,7 +161,7 @@ if exist %current_path%\app\ack.exe (
 	REM libman 명령어가 PATH에 있는지 확인합니다.
 	where libman >nul 2>nul
 	REM %errorlevel%가 0이 아니면 libman이 설치되지 않은 것입니다.
-	if %errorlevel% neq 0 (
+	if errorlevel 1 (
 		echo libman CLI 도구가 설치되어 있지 않습니다. 지금 .NET 전역 도구로 설치합니다...
 		REM dotnet tool install 명령을 실행하여 libman을 전역으로 설치합니다.
 		call dotnet tool install --global Microsoft.Web.LibraryManager.Cli
@@ -168,7 +175,7 @@ if exist %current_path%\app\ack.exe (
 	echo syn.bundle.js 모듈 %current_path%\modules\wwwroot\package.json 설치를 시작합니다...
 	cd %current_path%\modules\wwwroot
 	call npm install
-	gulp
+	call gulp
 
 	REM 완료 메시지
 	cd %current_path%
