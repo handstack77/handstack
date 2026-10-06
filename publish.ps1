@@ -316,6 +316,7 @@ try {
     }
 
     Copy-FileSet -SourceDirectory $scriptRoot -Pattern 'install.*' -DestinationDirectory ([System.IO.Path]::Combine($PublishPath, 'handstack'))
+    Copy-FileSet -SourceDirectory $scriptRoot -Pattern 'THIRD-PARTY-NOTICES.md' -DestinationDirectory ([System.IO.Path]::Combine($PublishPath, 'handstack'))
     Copy-FileSet -SourceDirectory ([System.IO.Path]::Combine($scriptRoot, '2.Modules', 'function')) -Pattern 'package*.*' -DestinationDirectory ([System.IO.Path]::Combine($PublishPath, 'handstack'))
 
     $wwwrootJsPath = [System.IO.Path]::Combine($PublishPath, 'handstack', 'modules', 'wwwroot', 'wwwroot')

@@ -79,6 +79,7 @@
 - OS별 스크립트 목록은 현재 완전히 같지 않다. `build.sh`는 `forwarder`를 포함하지만 `publish-package`를 제외하고, `build.bat`은 둘 다 제외한다. 스크립트를 수정할 때 `.ps1/.bat/.sh`의 의도된 동등성을 함께 검토한다.
 - `publish.ps1`은 `ack`, 11개 모듈 전체, `bundling/dotnet-installer/edgeproxy/dbplatform/handsonapp/updater/handstack/ports/publish-package`를 패키징한다. `agent`, `deploy`, `forbes` 구문은 주석 상태이며 `rdy`, `excludedportrange`, `node-cli`도 포함하지 않는다.
 - `publish.bat`/`publish.sh`는 현재 `publish-package`를 포함하지 않는다. 배포 검증은 실제 대상 OS의 스크립트를 기준으로 하고, 다른 변형과 차이가 의도된 것인지 기록한다.
+- `publish.*`는 루트 `THIRD-PARTY-NOTICES.md`를 `handstack/` 루트로 복사한다. 이 파일은 `node third-party-notices.js`(NuGet csproj·npm package.json 직접 의존성·libman 조회, 네트워크와 `dotnet restore` 필요)로 생성하며 publish 중에는 재생성되지 않으므로, 의존성(csproj/package.json/libman.json)을 바꾸면 먼저 다시 생성해 커밋한다.
 - `publish.*`는 대상 publish 디렉터리를 먼저 지우고, 빌드 과정은 `HANDSTACK_HOME/contracts`와 모듈/도구 출력에도 영향을 줄 수 있다. 실행 전 절대 경로와 사용자 변경 유무를 확인하고, 사용자에게 실행 사실을 알린다.
 
 ## 테스트 기대치

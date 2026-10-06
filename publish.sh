@@ -192,6 +192,7 @@ if [[ -d "$HANDSTACK_HOME/contracts" ]]; then
 fi
 
 copy_glob_if_exists "$publish_path/handstack" "$SCRIPT_DIR"/install.*
+copy_glob_if_exists "$publish_path/handstack" "$SCRIPT_DIR/THIRD-PARTY-NOTICES.md"
 copy_glob_if_exists "$publish_path/handstack" "$SCRIPT_DIR"/2.Modules/function/package*.*
 
 wwwroot_js_path="$publish_path/handstack/modules/wwwroot/wwwroot"

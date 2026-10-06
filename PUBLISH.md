@@ -77,7 +77,8 @@ handstack/
 │  ├─ ports/
 │  └─ publish-package/
 ├─ contracts/
-└─ install.*
+├─ install.*
+└─ THIRD-PARTY-NOTICES.md
 ```
 
 코드상 추가로 수행하는 일:
@@ -87,14 +88,14 @@ handstack/
 - 모듈은 `publish` 모드에서도 개별 `dotnet build` 결과를 `handstack/modules/*` 아래에 복사한다.
 - `3.Infrastructure/Assemblies`는 `handstack/assemblies`로 미러링된다.
 - `HANDSTACK_HOME/contracts`는 `handstack/contracts`로 복사된다.
-- `install.*`, `2.Modules/function/package*.*` 파일도 루트에 복사된다.
+- `install.*`, `THIRD-PARTY-NOTICES.md`, `2.Modules/function/package*.*` 파일도 루트에 복사된다. `THIRD-PARTY-NOTICES.md`는 `node third-party-notices.js`(NuGet csproj·npm package.json 직접 의존성·libman 조회, 네트워크와 `dotnet restore` 필요)로 생성해 커밋해 둔 파일이며 publish 단계에서는 재생성하지 않으므로 의존성을 바꾼 뒤에는 먼저 다시 생성한다. 파일이 없으면 복사만 건너뛴다.
 - `*.staticwebassets.*.json`과 현재 RID가 아닌 `runtimes/*` 하위는 정리된다.
 - `assemblies` 미러링 이후, `4.Tool/CLI/node-cli/obfuscator`의 `publish-optimize` 명령이 `handstack/app`, `handstack/modules` 하위의 모든 `wwwroot` 디렉토리를 찾아 **같은 경로에(source=output)** HTML/CSS 압축과 JS 난독화를 적용한다(`os_mode`/`action_mode`와 무관하게 항상 실행). Node.js 18+가 설치돼 있어야 하며, HTML/JS 파일에 템플릿 문법 등으로 파싱에 실패하는 파일은 원본 그대로 복사되고 경고만 출력된다. 자세한 옵션은 `4.Tool/CLI/node-cli/obfuscator/README.md` 참고.
 
 주의:
 
 - `publish-package` 표준 스캔 대상은 `app`, `assemblies`, `hosts`, `tools`, `modules` 다섯 영역뿐이다.
-- 따라서 `publish.ps1`가 만들어 둔 `handstack/contracts`, 루트 `install.*`, 기타 루트 파일은 현재 자동 업데이트 ZIP에 포함되지 않는다.
+- 따라서 `publish.ps1`가 만들어 둔 `handstack/contracts`, 루트 `install.*`, `THIRD-PARTY-NOTICES.md`, 기타 루트 파일은 현재 자동 업데이트 ZIP에 포함되지 않는다.
 
 ## 2. `publish-package`로 파일 목록과 ZIP 생성
 

@@ -107,6 +107,7 @@ if exist "%HANDSTACK_HOME%\contracts" (
     robocopy %HANDSTACK_HOME%\contracts %publish_path%\handstack\contracts /s /e /copy:dat
 )
 robocopy . %publish_path%\handstack install.* /copy:dat
+robocopy . %publish_path%\handstack THIRD-PARTY-NOTICES.md /copy:dat
 robocopy 2.Modules\function %publish_path%\handstack package*.* /copy:dat
 
 REM wwwroot 정리
