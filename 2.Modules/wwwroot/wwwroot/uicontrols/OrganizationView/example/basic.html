@@ -7,11 +7,10 @@
     <form autocomplete="off" id="form1" syn-datafield="MainForm">
         <div>
             <div>기본 사용법 - 계층 데이터를 조직도로 표시하기</div>
-            <p>기본 `reduceMap`(key/title/parentID)에 `nodeTitle: 'name'`, `nodeContent: 'title'`을 지정한 가장 단순한 예제입니다.</p>
+            <p>기본 `reduceMap`(key/title/parentID)에 `nodeTemplate`으로 노드를 직접 그리도록 지정한 가장 단순한 예제입니다.</p>
             <syn_organization id="orgChartView" syn-options="{
                 height: '320px',
-                nodeTitle: 'name',
-                nodeContent: 'title'
+                nodeTemplate: '$this.event.orgChartView_nodeTemplate'
             }" syn-events="['select', 'click']"></syn_organization>
         </div>
         <hr />

@@ -7,8 +7,10 @@
 
     $datepicker.extend({
         name: 'syn.uicontrols.$datepicker',
-        version: 'v2025.10.1',
+        version: 'v2026.10.1',
         dateControls: [],
+        dateTimeFormat: 'YYYY-MM-DD HH:mm',
+        dateTimeParseFormats: ['YYYY-MM-DD HH:mm', 'YYYY-MM-DD HH:mm:ss', 'YYYY-MM-DDTHH:mm', 'YYYY-MM-DDTHH:mm:ss', 'YYYY-MM-DD', 'YYYYMMDDHHmm', 'YYYYMMDD'],
         defaultSetting: {
             elID: '',
             width: '100%',
@@ -20,6 +22,8 @@
             maxDate: null,
             bound: true,
             format: 'YYYY-MM-DD',
+            useTime: false,
+            minuteStep: 1,
             ariaLabel: '날짜를 선택 하세요',
             i18n: {
                 previousMonth: '이전 달',
@@ -107,15 +111,16 @@
             el.removeAttribute('syn-datafield');
             el.style.display = 'none';
 
+            var editOptions = setting.useTime === true ? `editType: 'text', maskPattern: '9999-99-99 99:99'` : `editType: 'date', maskPattern: '9999-99-99'`;
             if ($string.isNullOrEmpty(setting.belongID) == true) {
-                textbox.setAttribute('syn-options', `{editType: 'date', maskPattern: '9999-99-99', dataType: 'string'}`);
+                textbox.setAttribute('syn-options', `{${editOptions}, dataType: 'string'}`);
             }
             else {
                 if ($object.isArray(setting.belongID) == true) {
-                    textbox.setAttribute('syn-options', `{editType: 'date', maskPattern: '9999-99-99', dataType: 'string', belongID: ${JSON.stringify(setting.belongID)}}`);
+                    textbox.setAttribute('syn-options', `{${editOptions}, dataType: 'string', belongID: ${JSON.stringify(setting.belongID)}}`);
                 }
                 else {
-                    textbox.setAttribute('syn-options', `{editType: 'date', maskPattern: '9999-99-99', dataType: 'string', belongID: '${setting.belongID}'}`);
+                    textbox.setAttribute('syn-options', `{${editOptions}, dataType: 'string', belongID: '${setting.belongID}'}`);
                 }
             }
 
@@ -137,6 +142,20 @@
 
             setting.field = syn.$l.get(elID);
 
+            if (setting.useTime === true) {
+                syn.$l.addEvent(setting.field, 'blur', function (evt) {
+                    var textbox = evt.currentTarget;
+                    var value = textbox.value.trim();
+                    if (value.length > 0) {
+                        textbox.setAttribute('placeholder', '');
+                        if (moment(value, $datepicker.dateTimeFormat, true).isValid() == false) {
+                            textbox.setAttribute('placeholder', '일시 확인 필요');
+                            textbox.value = '';
+                        }
+                    }
+                });
+            }
+
             setting = syn.$w.argumentsExtend({
                 onOpen() {
                     var elID = this._o.elID;
@@ -146,7 +165,7 @@
                     var mod = window[syn.$w.pageScript];
                     var selectFunction = '{0}_onselect'.format(elID);
                     if (mod && mod.event[selectFunction]) {
-                        mod.event[selectFunction](elID, date);
+                        mod.event[selectFunction](elID, $datepicker.withTime(this, date));
                     }
                 },
                 onClose() {
@@ -157,7 +176,7 @@
                     var mod = window[syn.$w.pageScript];
                     var selectFunction = '{0}_onselect'.format(elID);
                     if (mod && mod.event[selectFunction]) {
-                        mod.event[selectFunction](elID, date);
+                        mod.event[selectFunction](elID, $datepicker.withTime(this, date));
                     }
 
                     const el = syn.$l.get(elID);
@@ -177,10 +196,32 @@
                     var mod = window[syn.$w.pageScript];
                     var selectFunction = '{0}_onselect'.format(elID);
                     if (mod && mod.event[selectFunction]) {
-                        mod.event[selectFunction](elID, date);
+                        mod.event[selectFunction](elID, $datepicker.withTime(this, date));
                     }
                 }
             }, setting);
+
+            if (setting.useTime === true) {
+                setting.format = $datepicker.dateTimeFormat;
+                setting.timeHour = 0;
+                setting.timeMinute = 0;
+                setting.toString = function (date, format) {
+                    return moment(date).hour(this.timeHour || 0).minute(this.timeMinute || 0).format(format);
+                };
+                setting.parse = function (value, format) {
+                    var parsed = moment(value, $datepicker.dateTimeParseFormats, true);
+                    if (parsed.isValid() == false) {
+                        return null;
+                    }
+
+                    this.timeHour = parsed.hour();
+                    this.timeMinute = parsed.minute();
+                    return parsed.toDate();
+                };
+                setting.onDraw = function (picker) {
+                    $datepicker.drawTime(picker);
+                };
+            }
 
             if (moment && moment.locale() != 'ko') {
                 moment.locale('ko', {
@@ -254,7 +295,22 @@
             }
 
             var picker = new Pikaday(setting);
-            
+
+            if (setting.useTime === true && setting.bound === true) {
+                var keepOpen = function (evt) {
+                    var target = evt.target;
+                    if (target && picker.el.contains(target) == true && syn.$m.hasClass(target, 'pika-button') == true) {
+                        picker._o.bound = false;
+                        setTimeout(function () {
+                            picker._o.bound = true;
+                        }, 0);
+                    }
+                };
+
+                document.addEventListener('mousedown', keepOpen, true);
+                document.addEventListener('touchend', keepOpen, true);
+            }
+
             if ($string.isNullOrEmpty(setting.value) == false) {
                 var value = setting.value;
                 var date = null;
@@ -275,6 +331,11 @@
                 }
 
                 if (date) {
+                    if (setting.useTime === true) {
+                        picker._o.timeHour = date.getHours();
+                        picker._o.timeMinute = date.getMinutes();
+                    }
+
                     picker.setDate($date.toString(date, 'd'));
                 }
             }
@@ -308,14 +369,107 @@
         setValue(elID, value, meta) {
             var dateControl = $datepicker.getControl(elID);
             if (dateControl) {
-                dateControl.picker.setDate(value);
+                var picker = dateControl.picker;
+                if (picker._o.useTime === true && $string.isNullOrEmpty(value) == false) {
+                    var parsed = $object.isDate(value) == true ? moment(value) : moment(value, $datepicker.dateTimeParseFormats, true);
+                    if (parsed.isValid() == true) {
+                        picker._o.timeHour = parsed.hour();
+                        picker._o.timeMinute = parsed.minute();
+                        picker.setDate(parsed.toDate());
+                    }
+                    return;
+                }
+
+                picker.setDate(value);
             }
         },
 
         clear(elID, isControlLoad) {
             var dateControl = $datepicker.getControl(elID);
             if (dateControl) {
+                dateControl.picker._o.timeHour = 0;
+                dateControl.picker._o.timeMinute = 0;
                 dateControl.picker.clear();
+            }
+        },
+
+        withTime(picker, date) {
+            if ($object.isNullOrUndefined(date) == true || picker._o.useTime !== true) {
+                return date;
+            }
+
+            var result = new Date(date.getTime());
+            result.setHours(picker._o.timeHour || 0, picker._o.timeMinute || 0, 0, 0);
+            return result;
+        },
+
+        drawTime(picker) {
+            var options = picker._o;
+            var step = Math.max(1, parseInt(options.minuteStep, 10) || 1);
+            var hour = options.timeHour || 0;
+            var minute = options.timeMinute || 0;
+
+            var hourOptions = [];
+            for (var i = 0; i < 24; i++) {
+                hourOptions.push(`<option value="${i}"${i == hour ? ' selected="selected"' : ''}>${String(i).padStart(2, '0')}</option>`);
+            }
+
+            var minuteOptions = [];
+            for (var i = 0; i < 60; i += step) {
+                minuteOptions.push(i);
+            }
+
+            if (minuteOptions.includes(minute) == false) {
+                minuteOptions.push(minute);
+                minuteOptions.sort(function (a, b) { return a - b; });
+            }
+
+            var minuteHtml = minuteOptions.map(function (i) {
+                return `<option value="${i}"${i == minute ? ' selected="selected"' : ''}>${String(i).padStart(2, '0')}</option>`;
+            });
+
+            var wrapper = document.createElement('div');
+            wrapper.className = 'pika-time';
+            wrapper.innerHTML = `<select class="pika-select pika-time-hour" tabindex="-1" aria-label="시">${hourOptions.join('')}</select><span class="pika-time-separator">:</span><select class="pika-select pika-time-minute" tabindex="-1" aria-label="분">${minuteHtml.join('')}</select><button type="button" class="btn w-100 btn-primary pika-time-confirm">확인</button>`;
+            picker.el.appendChild(wrapper);
+
+            var hourSelect = wrapper.querySelector('.pika-time-hour');
+            var minuteSelect = wrapper.querySelector('.pika-time-minute');
+            var changeTime = function () {
+                $datepicker.changeTime(picker, parseInt(hourSelect.value, 10), parseInt(minuteSelect.value, 10));
+            };
+
+            hourSelect.addEventListener('change', changeTime);
+            minuteSelect.addEventListener('change', changeTime);
+            hourSelect.addEventListener('keydown', function (evt) { evt.stopPropagation(); });
+            minuteSelect.addEventListener('keydown', function (evt) { evt.stopPropagation(); });
+            wrapper.querySelector('.pika-time-confirm').addEventListener('click', function () {
+                picker.hide();
+            });
+        },
+
+        changeTime(picker, hour, minute) {
+            picker._o.timeHour = hour;
+            picker._o.timeMinute = minute;
+
+            if (picker.getDate() == null) {
+                picker.setDate(new Date());
+                return;
+            }
+
+            var field = picker._o.field;
+            field.value = picker.toString();
+
+            var changeEvent = document.createEvent('HTMLEvents');
+            changeEvent.initEvent('change', true, false);
+            changeEvent.firedBy = picker;
+            field.dispatchEvent(changeEvent);
+
+            var elID = picker._o.elID;
+            var mod = window[syn.$w.pageScript];
+            var selectFunction = '{0}_onselect'.format(elID);
+            if (mod && mod.event[selectFunction]) {
+                mod.event[selectFunction](elID, $datepicker.withTime(picker, picker.getDate()));
             }
         },
 

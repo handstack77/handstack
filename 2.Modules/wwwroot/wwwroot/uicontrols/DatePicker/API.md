@@ -36,7 +36,9 @@
 | `minDate` | Date/null | `null` | 선택 가능한 최소 날짜 |
 | `maxDate` | Date/null | `null` | 선택 가능한 최대 날짜 |
 | `bound` | boolean | `true` | 입력 필드에 종속되어 포커스/클릭 시 달력을 여닫을지 여부(Pikaday 옵션) |
-| `format` | string | `'YYYY-MM-DD'` | 표시 날짜 포맷(moment.js 포맷 문자열) |
+| `format` | string | `'YYYY-MM-DD'` | 표시 날짜 포맷(moment.js 포맷 문자열). `useTime: true`이면 `'YYYY-MM-DD HH:mm'`로 고정됨 |
+| `useTime` | boolean | `false` | `true`로 설정하면 날짜와 함께 시간(`HH:mm`)까지 관리. 달력 아래에 시/분 선택 영역과 "확인" 버튼이 표시되고, 입력창은 `YYYY-MM-DD HH:mm` 형식(마스크 `9999-99-99 99:99`)이 됨. 날짜를 클릭해도 팝업이 닫히지 않으므로 시간을 고른 뒤 "확인" 버튼이나 바깥 영역 클릭으로 닫음 |
+| `minuteStep` | number | `1` | `useTime: true`일 때 분 선택 간격(예: `5`, `10`, `30`). 직접 입력하거나 `setValue`로 지정한 분은 간격과 달라도 그대로 유지됨 |
 | `ariaLabel` | string | `'날짜를 선택 하세요'` | 접근성 라벨 |
 | `i18n` | object | 한국어 월/요일 명 세트 | 달력에 표시할 월/요일 이름(직접 바꿀 일은 거의 없음) |
 | `showWeekNumber` | boolean | `false` | 주차 번호 표시 여부 |
@@ -65,13 +67,19 @@
 > ```
 > 시작일을 선택하면 종료일의 `minDate`가 자동으로 갱신되고, 종료일을 선택하면 시작일의 `maxDate`가 자동으로 갱신됩니다.
 
+> `useTime` 사용 예:
+> ```html
+> <syn_datepicker id="dtpDateTime" syn-options="{useTime: true, minuteStep: 5, value: 'now'}"></syn_datepicker>
+> ```
+> `getValue`는 `'2026-10-15 14:30'`처럼 시간이 포함된 문자열을 반환합니다. 시간을 고르지 않고 날짜만 선택하면 `00:00`이 사용되며, `useTime`을 켠 상태에서 `useRangeSelect`를 함께 쓰면 연동 범위(`minDate`/`maxDate`)는 날짜 단위로만 적용됩니다(같은 날짜의 시각 선후 검증은 하지 않음).
+
 ## 메서드
 
 | 메서드 | 시그니처 | 설명 |
 |---|---|---|
 | `getValue` | `getValue(elID, meta)` | 입력창(실제 `input`)에 표시된 현재 값을 문자열로 반환 |
-| `setValue` | `setValue(elID, value, meta)` | 지정한 값으로 날짜를 설정(Pikaday `setDate` 사용). `value`는 `Date` 객체 또는 파싱 가능한 날짜 문자열 |
-| `clear` | `clear(elID, isControlLoad)` | 선택값을 초기화(Pikaday `clear` 사용) |
+| `setValue` | `setValue(elID, value, meta)` | 지정한 값으로 날짜를 설정(Pikaday `setDate` 사용). `value`는 `Date` 객체 또는 파싱 가능한 날짜 문자열. `useTime: true`이면 `'2026-10-15 14:30'`, `'2026-10-15'` 형식 문자열이나 `Date`의 시/분까지 반영 |
+| `clear` | `clear(elID, isControlLoad)` | 선택값을 초기화(Pikaday `clear` 사용). `useTime: true`이면 시간도 `00:00`으로 되돌림 |
 | `getControl` | `getControl(elID)` | `{ id, picker, setting }` 형태의 내부 컨트롤 객체 반환. `picker`는 Pikaday 인스턴스([Pikaday 메서드 문서](https://github.com/Pikaday/Pikaday) 참고: `getDate()`, `setDate()`, `show()`, `hide()`, `setMinDate()`, `setMaxDate()` 등) |
 | `updateRangeDate` | `updateRangeDate(elID, date)` | `useRangeSelect` 연동 컨트롤 간 날짜 갱신(내부용, 직접 호출할 일 거의 없음) |
 | `setLocale` | `setLocale(elID, translations, control, options)` | 로케일 훅(현재 구현은 비어 있음 — 다국어 전환 시 확장 지점) |
@@ -82,7 +90,7 @@ DatePicker는 다른 컨트롤처럼 `syn-events` 속성에 이벤트 이름을 
 
 | 이벤트(관례 함수명) | 호출 시점 | 콜백 인자 |
 |---|---|---|
-| `{elID}_onselect(elID, date)` | 달력이 열릴 때(`onOpen`), 닫힐 때(`onClose`), 날짜를 클릭해 선택할 때(`onSelect`) 모두 동일하게 호출됨 | `elID` : 컨트롤 id(string), `date` : 현재 Pikaday `getDate()` 결과(Date 객체, 선택 안 됐으면 `null`일 수 있음) |
+| `{elID}_onselect(elID, date)` | 달력이 열릴 때(`onOpen`), 닫힐 때(`onClose`), 날짜를 클릭해 선택할 때(`onSelect`) 모두 동일하게 호출됨 | `elID` : 컨트롤 id(string), `date` : 현재 Pikaday `getDate()` 결과(Date 객체, 선택 안 됐으면 `null`일 수 있음). `useTime: true`이면 선택한 시/분이 반영된 Date이며, 시/분을 바꿀 때도 호출됨 |
 
 예:
 
@@ -102,4 +110,4 @@ let $mypage = {
 
 - 내부적으로 [Pikaday](https://github.com/Pikaday/Pikaday)와 [moment.js](https://momentjs.com/)를 사용합니다.
 - 기간(시작~종료) 개념 자체를 컨트롤 하나로 다루려면 형제 컨트롤 `DatePeriodPicker`(`syn.uicontrols.$dateperiodpicker`)를 사용하세요.
-- 예제: `example/basic.html`, `example/format.html`, `example/events.html`
+- 예제: `example/basic.html`, `example/format.html`, `example/events.html`, `example/datetime.html`

@@ -7,7 +7,7 @@
 <body>
 	<form autocomplete="off" id="form1" syn-datafield="MainForm">
 		<h3>DataSource(storeType: Grid) - 레코드 목록 바인딩과 Flag 확인</h3>
-		<p><code>srcGrid</code> DataSource는 <code>bindingID: 'GridStore'</code>로 그리드 컨트롤과 연결됩니다. 조회 직후에는 각 행의 <code>Flag</code>가 <code>'R'</code>(Read)이며, 행을 추가/수정하면 <code>'C'</code>/<code>'U'</code>로 바뀝니다.</p>
+		<p><code>srcGrid</code> DataSource는 <code>bindingID: 'GridStore'</code>로 그리드 컨트롤과 연결되는 이름이지만, 현재 그리드는 자동 연결되지 않아 예제 스크립트가 저장소를 함께 채웁니다. 조회 직후에는 각 행의 <code>Flag</code>가 <code>'R'</code>(Read)이며, 행을 추가/수정하면 <code>'C'</code>/<code>'U'</code>로 바뀝니다.</p>
 
 		<syn_data id="srcGrid" syn-options="{
 			dataSourceID: 'GridStore',

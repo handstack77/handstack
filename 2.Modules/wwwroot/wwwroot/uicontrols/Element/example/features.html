@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Element - 전체 기능 확인</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <h3>Element 전체 기능 확인</h3>
+        <p>
+            전용 컨트롤이 없는 임의의 태그(<code>div</code>/<code>span</code>/<code>td</code>/<code>p</code>/<code>a</code> 등)를 값 컨트롤로 다룹니다. <code>content</code>(<code>innerText</code> 기본/<code>content</code>/<code>html</code>/<code>value</code>),
+            <code>dataType</code>(<code>string</code>/<code>number</code>/<code>bool</code> 과 <code>checkedValue</code>/<code>uncheckedValue</code>), <code>getValue</code>/<code>setValue</code>/<code>clear</code>, <code>click</code>/<code>dblclick</code> 이벤트를 확인합니다. <code>content</code> 를 지정하지 않은 요소에서 <code>clear</code> 는 <code>el.value</code> 만 비우므로 화면 텍스트는 그대로 남습니다.
+        </p>
+
+        <table class="table table-sm" style="max-width: 900px;">
+            <thead><tr><th style="width: 330px;">옵션 조합</th><th>요소</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td>기본(<code>innerText</code>) - <code>span</code></td>
+                    <td><span id="spnText" syn-datafield="TextValue" syn-options="{}" syn-events="['click', 'dblclick']">클릭 / 더블클릭 해 보세요</span></td>
+                </tr>
+                <tr>
+                    <td><code>content: 'html'</code> - <code>div</code> (HTML 그대로 반영)</td>
+                    <td><div id="divHtml" syn-datafield="HtmlValue" syn-options="{content: 'html'}"><strong>굵은 글씨</strong>와 <em>기울임</em></div></td>
+                </tr>
+                <tr>
+                    <td><code>content: 'content'</code> - <code>p</code> (textContent)</td>
+                    <td><p id="pContent" syn-datafield="ContentValue" syn-options="{content: 'content'}" class="mb-0">textContent 로 읽고 씁니다</p></td>
+                </tr>
+                <tr>
+                    <td><code>dataType: 'number'</code> - <code>td</code> (통화 서식 표시, 읽을 때는 숫자 문자열)</td>
+                    <td><span id="spnAmount" syn-datafield="Amount" syn-options="{dataType: 'number'}">0</span> 원</td>
+                </tr>
+                <tr>
+                    <td><code>dataType: 'bool'</code> + <code>checkedValue: 'Y'</code>/<code>uncheckedValue: 'N'</code></td>
+                    <td><span id="spnFlag" syn-datafield="UseYN" syn-options="{dataType: 'bool', checkedValue: 'Y', uncheckedValue: 'N'}">true</span></td>
+                </tr>
+                <tr>
+                    <td><code>content: 'value'</code> - <code>output</code> 요소(value 속성 사용)</td>
+                    <td><output id="outValue" syn-datafield="OutValue" syn-options="{content: 'value'}">초기 출력값</output></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="mb-2">
+            <input type="button" id="btnGetValue" value="getValue (전체)" syn-events="['click']">
+            <input type="button" id="btnSetText" value="setValue (텍스트)" syn-events="['click']">
+            <input type="button" id="btnSetHtml" value="setValue (HTML)" syn-events="['click']">
+            <input type="button" id="btnSetAmount" value="setValue (금액 1234567)" syn-events="['click']">
+            <input type="button" id="btnSetFlag" value="setValue (bool: false)" syn-events="['click']">
+            <input type="button" id="btnClear" value="clear (content 지정 요소만 화면이 비워짐)" syn-events="['click']">
+        </div>
+        <pre id="preLog" class="p-2 border" style="max-height: 160px; overflow: auto;">(결과)</pre>
+    </form>
+
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

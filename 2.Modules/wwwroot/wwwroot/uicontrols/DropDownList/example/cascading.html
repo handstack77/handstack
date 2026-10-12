@@ -16,13 +16,13 @@
             <div>
                 <label>회사</label>
                 <select id="ddlCompanyNo" syn-events="['change']" syn-options="{
-                    dataSourceID: 'BDLCHP004', local: false, toSynControl: false, required: true
+                    dataSourceID: 'CHP_COMPANY', local: false, toSynControl: false, required: true
                 }" style="width: 220px;"></select>
             </div>
             <div>
                 <label>부서</label>
                 <select id="ddlDepartmentNo" syn-datafield="DepartmentNo" syn-events="['change']" syn-options="{
-                    dataSourceID: 'BDLCHP007', parameters: '@CompanyNo:;', local: false, toSynControl: false,
+                    dataSourceID: 'CHP_DEPARTMENT', parameters: '@CompanyNo:;', local: false, toSynControl: false,
                     required: true, validators: ['require'], controlText: '부서'
                 }" style="width: 220px;"></select>
             </div>

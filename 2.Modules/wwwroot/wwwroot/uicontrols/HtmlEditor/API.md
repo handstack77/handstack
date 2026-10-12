@@ -6,7 +6,7 @@
 
 ```html
 <syn_htmleditor id="edtComment" syn-datafield="Comment" style="width:100%; height:300px" syn-options="{
-    repositoryID: 'BDLLE01', controlText: '메모', belongID: ['MD01'],
+    repositoryID: 'TSTLE01', controlText: '메모', belongID: ['MD01'],
     plugins: ['autolink link image lists print hr anchor pagebreak searchreplace visualblocks visualchars code insertdatetime media nonbreaking table preview powerpaste advcode help'],
     toolbar: 'styleselect | bold forecolor backcolor table | alignleft aligncenter alignright | pagebreak link image | preview code help',
     resize: false

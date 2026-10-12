@@ -57,3 +57,8 @@ let $btnSave = {
 
 - API 상세(옵션/메서드/이벤트 표)는 같은 폴더의 `API.md`를 참고하세요.
 - 이 컨트롤은 기존 샘플(`/sample/uicontrol/`)이나 실사용 예시가 발견되지 않아, `TextButton.js` 소스코드만을 근거로 문서화되었습니다. 실제 프로젝트에 적용하기 전에 `TextButton.js`, `TextButton.css` 원본을 함께 확인하는 것을 권장합니다.
+
+## 추가 예제
+
+- `example/features.html` : 전체 기능 확인 - 모든 옵션/메서드/이벤트를 한 화면에서 확인하는 예제
+- `example/practical.html` : 공지사항 관리 화면(실무형) - 실무 화면 패턴(조회 조건/목록/검증/저장)을 반영한 예제

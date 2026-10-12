@@ -102,3 +102,8 @@ syn.uicontrols.$propertypanel.clear('ppBasic');
 ## 더 알아보기
 
 옵션, `meta`/`customTypes` 세부 규칙, 메서드, 콜백 시그니처의 전체 목록은 [API.md](./API.md)를 참고하세요.
+
+## 추가 예제
+
+- `example/features.html` : 전체 기능 확인 - 모든 옵션/메서드/이벤트를 한 화면에서 확인하는 예제
+- `example/practical.html` : 알림 환경 설정 화면(실무형) - 실무 화면 패턴(조회 조건/목록/검증/저장)을 반영한 예제

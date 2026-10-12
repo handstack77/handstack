@@ -33,7 +33,7 @@
 
 ```html
 <syn_htmleditor id="edtComment" syn-datafield="Comment" style="width:100%; height:300px" syn-options="{
-    repositoryID: 'BDLLE01', controlText: '메모', belongID: ['MD01'],
+    repositoryID: 'TSTLE01', controlText: '메모', belongID: ['MD01'],
     plugins: ['autolink link image lists print hr anchor pagebreak searchreplace visualblocks visualchars code insertdatetime media nonbreaking table preview powerpaste advcode help'],
     toolbar: 'styleselect | bold forecolor backcolor table | alignleft aligncenter alignright | pagebreak link image | preview code help',
     resize: false
@@ -68,7 +68,7 @@ syn.uicontrols.$htmleditor.clear('edtComment');
 이 폴더의 `example` 디렉토리에 초보자용 실행 예제가 있습니다. 웹 서버를 통해 `/uicontrols/HtmlEditor/example/*.html` 경로로 접속해서 바로 확인할 수 있습니다.
 
 - `basic.html`: 기본(default) 옵션 그대로 에디터를 배치하고 `getValue`/`setValue`/`clear` 버튼으로 값을 다루는 가장 단순한 예제
-- `custom-toolbar.html`: `plugins`/`toolbar` 옵션을 직접 지정해 툴바를 목적에 맞게 구성하는 예제(실무 예시와 동일하게 표/미리보기/도움말 등을 추가)
+- `customtoolbar.html`: `plugins`/`toolbar` 옵션을 직접 지정해 툴바를 목적에 맞게 구성하는 예제(실무 예시와 동일하게 표/미리보기/도움말 등을 추가)
 - `events.html`: `{elID}_documentReady`, `{elID}_imageResized` 같은 컨트롤 고유 이벤트와 `isDirty`/`getValue`/`setValue`/`clear`를 함께 보여주는 예제
 - `document.html`: 실무 전자결재/공지사항 본문의 흔한 패턴 - `validators:['require']` + 저장 시 `getValue() == ''` 재검증, 상신 후 `setMode(elID, 'readonly')`로 조회 전용 전환, 반려 시 다시 `'design'`으로 복귀
 
@@ -79,3 +79,8 @@ syn.uicontrols.$htmleditor.clear('edtComment');
 - 전체 옵션(Options), 메서드, 이벤트 목록은 같은 폴더의 [API.md](./API.md) 문서를 참고하세요.
 - 실제 소스 코드는 `HtmlEditor.js`, `HtmlEditor.css` 파일에서 확인할 수 있습니다.
 - `syn-options`에 지정한 값은 TinyMCE의 `tinymce.init(setting)`에 그대로 전달되므로, API.md에 표로 정리한 옵션 외에도 [TinyMCE 공식 설정 옵션](https://www.tiny.cloud/docs/tinymce/6/)을 함께 사용할 수 있습니다.
+
+## 추가 예제
+
+- `example/features.html` : 전체 기능 확인 - 모든 옵션/메서드/이벤트를 한 화면에서 확인하는 예제
+- `example/practical.html` : 안내 메일 작성 화면(실무형) - 실무 화면 패턴(조회 조건/목록/검증/저장)을 반영한 예제

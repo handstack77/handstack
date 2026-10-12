@@ -60,7 +60,7 @@ let $samplePage = {
 `example/` 폴더의 각 HTML 파일을 handstack의 wwwroot 정적 서버(예: rdy 프로젝트) 경로 아래에 두고 브라우저로 열면 바로 동작을 확인할 수 있습니다.
 
 - `basic.html` : 일반 `div`에 우클릭 메뉴를 붙이는 가장 단순한 예제
-- `nested-menu.html` : `children`으로 하위 메뉴(서브 메뉴)를 구성하는 예제
+- `nestedmenu.html` : `children`으로 하위 메뉴(서브 메뉴)를 구성하는 예제
 - `events.html` : `beforeOpen`/`select` 등 이벤트를 로그로 확인하는 예제
 
 각 예제는 화면 하단 로그 영역(`syn.$l.eventLog` 출력)에서 이벤트 발생 순서와 전달값을 확인할 수 있습니다.
@@ -72,3 +72,8 @@ let $samplePage = {
 - 기존 샘플: `wwwroot/sample/uicontrol/contextmenu.html`, `wwwroot/sample/uicontrol/treeview.html` (TreeView와 함께 쓰는 예)
 - jquery-ui-contextmenu 원본 문서: https://github.com/mar10/jquery-ui-contextmenu
 - 아이콘 클래스 목록(`uiIcon`): https://api.jqueryui.com/theming/icons/
+
+## 추가 예제
+
+- `example/features.html` : 전체 기능 확인 - 모든 옵션/메서드/이벤트를 한 화면에서 확인하는 예제
+- `example/practical.html` : 문서함 관리 화면(실무형) - 실무 화면 패턴(조회 조건/목록/검증/저장)을 반영한 예제

@@ -125,6 +125,13 @@
 
             picker.self.appendChild(code);
 
+            // CP 는 '#' 접두가 있는 값만 색상으로 인식하므로, defaultColor 를 '#RRGGBB' 로 지정하고 change 를 발생시켜 입력창에도 반영한다.
+            if ($object.isString(setting.defaultColor) == true && setting.defaultColor.length > 0) {
+                var defaultHex = setting.defaultColor.replace('#', '');
+                picker.set('#' + defaultHex);
+                picker.fire('change', [defaultHex]);
+            }
+
             function update() {
                 if (this.value.length) {
                     picker.set(this.value);
@@ -173,7 +180,8 @@
         clear(elID, isControlLoad) {
             var dateControl = $colorpicker.getControl(elID);
             if (dateControl) {
-                dateControl.picker.clear();
+                // CP 라이브러리에는 clear 가 없으므로 입력창 값을 직접 비운다.
+                dateControl.picker.source.value = '';
             }
         },
 

@@ -76,5 +76,10 @@ let $samplePage = {
 - API 상세는 같은 폴더의 `API.md`를 참고하세요.
 - 실제 소스: `wwwroot/uicontrols/Calendar/Calendar.js`, `Calendar.css`
 - FullCalendar 에셋 위치: `wwwroot/lib/fullcalendar/`(`index.global.min.js`, `core/locales/ko.global.min.js` 등)
-- 실사용 예: qcn.groupware 매장 스케줄 화면의 `syn_calendar` 사용 패턴(월간 일정을 그리고, `datesSet`으로 조회 기간이 바뀔 때마다 서버에서 다시 데이터를 받아오는 흐름) — `eventMapping`으로 `ShopDailyTaskID`/`EventName`/`StartDate`/`EndDate` 등 실제 컬럼명을 매핑하고, `eventDidMount`로 이벤트 DOM을 커스터마이징합니다.
+- 실사용 패턴: 팀 일정 화면의 `syn_calendar` 사용 패턴(월간 일정을 그리고, `datesSet`으로 조회 기간이 바뀔 때마다 서버에서 다시 데이터를 받아오는 흐름) — `eventMapping`으로 `ScheduleID`/`Title`/`StartDate`/`EndDate` 등 실제 컬럼명을 매핑하고, `eventDidMount`로 이벤트 DOM을 커스터마이징합니다.
 - FullCalendar 원본 문서: https://fullcalendar.io/docs
+
+## 추가 예제
+
+- `example/features.html` : 전체 기능 확인 - 모든 옵션/메서드/이벤트를 한 화면에서 확인하는 예제
+- `example/practical.html` : 팀 일정 관리 화면(실무형) - 실무 화면 패턴(조회 조건/목록/검증/저장)을 반영한 예제

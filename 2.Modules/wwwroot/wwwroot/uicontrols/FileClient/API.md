@@ -6,7 +6,7 @@
 
 ```html
 <syn_fileclient id="sfcCompanyImage" syn-datafield="CompanyImage" syn-options="{
-    repositoryID: 'BDLLP01',
+    repositoryID: 'TSTLP01',
     dialogTitle: '회사 이미지 업로드'
 }"></syn_fileclient>
 ```
@@ -87,7 +87,7 @@
 | `fileUpload` | `fileUpload(el, repositoryID, dependencyID, callback, uploadUrl)` | `<input type="file">` 엘리먼트(또는 그 id)의 선택된 파일들을 팝업 없이 즉시 업로드(저수준 API) |
 | `getTemporaryDependencyID` | `getTemporaryDependencyID(prefix)` | 신규 등록 화면 등에서 실제 PK가 없을 때 사용할 임시 `dependencyID`를 생성(GUID 또는 `prefix + 랜덤값`) |
 | `getRepositoryID` / `getDependencyID` / `setDependencyID` | `(elID)` / `(elID, dependencyID)` | `init`/`addFileUI` 기반의 구형 다중 첨부 UI(`fileManagers`)에서 저장소/소속 키를 조회·변경하는 내부 헬퍼 |
-| `toFileLengthString` | `toFileLengthString(fileLength)` | 바이트 크기를 `'123 KB'`/`'1.2 MB'` 형태 문자열로 변환 |
+| `toFileLengthString` | `toFileLengthString(fileLength)` | 바이트 크기를 1MB 미만은 `"12.3 KB"`, 1GB 미만은 `"5.4 MB"`, 그 이상은 `"3.0 GB"` 형태(소수 첫째 자리)로 변환합니다. |
 | `setLocale` | `setLocale(elID, translations, control, options)` | 다국어 텍스트 적용(현재 구현은 빈 함수) |
 
 > `callback` 인자를 받는 메서드(`getItem`, `getItems`, `deleteItem`, `deleteItems`, `updateDependencyID`, `updateFileName`, `uploadBlob`, `uploadDataUri`, `uploadBlobUri`, `fileUpload`, `getFileAction`, `executeProxy`)는 **`callback`을 생략하면 동일한 결과로 resolve되는 `Promise`를 반환**합니다(`await` 사용 가능). 요청 실패·검증 실패 시 Promise 는 `null` 로 resolve 됩니다.
@@ -114,7 +114,7 @@ syn.uicontrols.$fileclient.uploadUI(uploadOptions);
 ```js
 {
     elID: 'sfcCompanyImage',       // 업로드를 요청한 컨트롤의 엘리먼트 ID
-    repositoryID: 'BDLLP01',       // 업로드된 저장소 ID
+    repositoryID: 'TSTLP01',       // 업로드된 저장소 ID
     items: [                       // 업로드된 파일 목록(다중 업로드면 여러 건)
         {
             ItemID: 'e9259ffe12534c83957906bdb2ff7d6b',

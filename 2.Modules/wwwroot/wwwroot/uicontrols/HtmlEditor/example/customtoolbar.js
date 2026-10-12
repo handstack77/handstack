@@ -1,5 +1,5 @@
 'use strict';
-let $customToolbar = {
+let $customtoolbar = {
     event: {
         btnGetValue_click() {
             var value = syn.uicontrols.$htmleditor.getValue('edtCustom');

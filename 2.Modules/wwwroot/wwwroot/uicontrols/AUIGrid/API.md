@@ -8,7 +8,7 @@
 소스 파일: `wwwroot/uicontrols/AUIGrid/AUIGrid.js`, `wwwroot/uicontrols/AUIGrid/AUIGrid.css`
 내부 라이브러리: [AUIGrid](https://www.auisoft.net/documentation/auigrid/) (상용, `/lib/auigrid/dist/AUIGrid.js` + `AUIGridLicense.js`)
 
-qcn.groupware 실사용 기준 300회 이상 쓰이는, 이 저장소의 실무 표준 그리드 엔진입니다.
+이 저장소의 실무 업무 화면에서 가장 많이 쓰이는 표준 그리드 엔진입니다.
 
 ### 마크업
 

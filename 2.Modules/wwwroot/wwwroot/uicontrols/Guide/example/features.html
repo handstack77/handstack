@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Guide - 전체 기능 확인</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <h3>Guide 전체 기능 확인</h3>
+        <p>
+            안내 방식 4가지(<code>I</code> 단계별 투어 · <code>T</code> 툴팁 · <code>P</code> 입력창 안내 문구 애니메이션 · <code>U</code> 도움말 링크/팝업), 정렬(<code>sortingNo</code>), 항목별 <code>options</code>,
+            <code>introOptions</code> 지정, 투어 이벤트(<code>change</code>/<code>beforechange</code>/<code>afterchange</code>/<code>beforeexit</code>/<code>exit</code>/<code>complete</code>), <code>introStart</code>/<code>openUIHelp</code>/<code>getGuideControl</code>/<code>dataRefresh</code>/<code>clear</code> 를 확인합니다.
+        </p>
+
+        <div class="p-3 mb-3 border">
+            <div class="row g-2">
+                <div class="col-4">
+                    <label class="form-label">고객명 (툴팁: 마우스를 올려 보세요)</label>
+                    <input id="txtCustomer" type="text" class="form-control">
+                </div>
+                <div class="col-4">
+                    <label class="form-label">상품 검색 (입력창 안내 문구)</label>
+                    <input id="txtSearch" type="text" class="form-control">
+                </div>
+                <div class="col-4">
+                    <label class="form-label">조회 기간</label>
+                    <div id="divPeriod" class="form-control">2026-10-01 ~ 2026-10-31</div>
+                </div>
+            </div>
+            <div class="mt-2">
+                <button type="button" id="btnQuery" class="btn btn-primary">조회</button>
+                <button type="button" id="btnExport" class="btn">엑셀</button>
+            </div>
+        </div>
+
+        <syn_guide id="hlpMain" syn-options="{
+            introOptions: { showBullets: true, showStepNumbers: false, doneLabel: '끝', nextLabel: '다음', prevLabel: '이전' },
+            items: [
+                { helpType: 'I', selector: '#btnExport', subject: '내려받기', sentence: '조회 결과를 엑셀 파일로 저장합니다.', sortingNo: 3 },
+                { helpType: 'I', selector: '#txtCustomer', subject: '고객 조건', sentence: '고객명을 입력하면 해당 고객의 주문만 조회합니다.', sortingNo: 1 },
+                { helpType: 'I', selector: '#btnQuery', subject: '조회', sentence: '입력한 조건으로 목록을 다시 조회합니다.', sortingNo: 2, options: '{&quot;tooltipPosition&quot;: &quot;bottom&quot;}' },
+                { helpType: 'T', selector: '#txtCustomer', subject: '고객명 입력', sentence: '2자 이상 입력하세요.<br>예: <code>김민</code>', options: '{&quot;placement&quot;: &quot;bottom-start&quot;}' },
+                { helpType: 'T', selector: '#divPeriod', subject: '조회 기간', sentence: '기간은 최대 6개월까지 선택할 수 있습니다.' },
+                { helpType: 'P', selector: '#txtSearch', subject: '검색', sentence: ['상품명을 입력하세요', '예: 무선 이어폰', '상품 코드로도 검색됩니다'] },
+                { helpType: 'U', subject: '화면 도움말', sentence: '<p>이 화면에서는 고객과 기간 조건으로 주문을 조회합니다.</p><ul><li>고객명은 2자 이상 입력</li><li>기간은 최대 6개월</li></ul>', options: '{&quot;contentType&quot;: &quot;html&quot;}' }
+            ]
+        }" syn-events="['change', 'beforechange', 'afterchange', 'beforeexit', 'exit', 'complete']"></syn_guide>
+
+        <div class="mb-2">
+            <input type="button" id="btnStart" value="introStart (투어 시작)" syn-events="['click']">
+            <input type="button" id="btnHelp" value="openUIHelp (도움말 팝업)" syn-events="['click']">
+            <input type="button" id="btnControl" value="getGuideControl" syn-events="['click']">
+            <input type="button" id="btnRefresh" value="dataRefresh (항목 교체)" syn-events="['click']">
+            <input type="button" id="btnClear" value="clear (모두 해제)" syn-events="['click']">
+        </div>
+        <pre id="preLog" class="p-2 border" style="max-height: 160px; overflow: auto;">(결과)</pre>
+    </form>
+
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

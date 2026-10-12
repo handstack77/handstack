@@ -17,7 +17,7 @@
                 <label>업체 명</label>
                 <syn_codepicker id="chpCompanyID" syn-datafield="CompanyID" syn-events="['change']" syn-options="{
                     belongID: 'MD01',
-                    dataSourceID: 'BDLCHP029',
+                    dataSourceID: 'CHP_COMPANY',
                     local: false,
                     isMultiSelect: false,
                     textDataFieldID: 'CompanyName',
@@ -28,7 +28,7 @@
                 <label>업체 담당자 명</label>
                 <syn_codepicker id="chpPartnerID" syn-datafield="PartnerID" syn-events="['change']" syn-options="{
                     belongID: 'MD01',
-                    dataSourceID: 'BDLCHP013',
+                    dataSourceID: 'CHP_PARTNER',
                     local: false,
                     isMultiSelect: false,
                     textDataFieldID: 'PartnerName',
@@ -42,6 +42,14 @@
             <input type="button" id="btnSave" value="저장(필수값 검증)" syn-events="['click']" />
         </div>
     </form>
+    <script>
+        // CodePicker 는 내부 입력창을 TextBox 컨트롤로 만들기 때문에, 페이지에 TextBox 가 없으면 필요한 파일을 직접 추가합니다.
+        function pageLoadFiles(jsFiles, styleFiles, templateFiles) {
+            styleFiles.push('/uicontrols/TextBox/TextBox.css');
+            jsFiles.push('/lib/vanilla-masker/vanilla-masker.min.js');
+            jsFiles.push('/uicontrols/TextBox/TextBox.js');
+        }
+    </script>
     <script src="/js/syn.loader.js"></script>
 </body>
 </html>

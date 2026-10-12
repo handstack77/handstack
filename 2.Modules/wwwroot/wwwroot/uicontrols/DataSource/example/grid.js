@@ -11,12 +11,15 @@ let $grid = {
         btnLoadRows_click() {
             // 그리드에 데이터를 채우면(setValue), 그리드가 바인딩된 srcGrid 저장소에도 같은 값이 반영됩니다.
             syn.uicontrols.$auigrid.setValue('grdGrid', $this.prop.dataSet);
+            // 그리드 컨트롤은 bindingID 로 저장소에 자동 연결되지 않으므로 같은 데이터를 저장소에도 채웁니다.
+            syn.uicontrols.$data.setValue('srcGrid', $this.prop.dataSet.map((row) => { return Object.assign({}, row); }));
             syn.$l.eventLog('btnLoadRows_click', '샘플 데이터 2건 로드 (Flag: R)');
         },
 
         btnInsertRow_click() {
             // 새로 추가한 행은 Flag가 'C'(Create)로 표시됩니다.
-            syn.uicontrols.$auigrid.insertRow('grdGrid', { GroupCode: 'LD01', GroupName: '노선 분류' });
+            syn.uicontrols.$auigrid.insertRow('grdGrid', { values: { GroupCode: 'LD01', GroupName: '노선 분류' } });
+            $this.store.GridStore.push({ Flag: 'C', GroupCode: 'LD01', GroupName: '노선 분류' });
             syn.$l.eventLog('btnInsertRow_click', '행 추가 (Flag: C)');
         },
 

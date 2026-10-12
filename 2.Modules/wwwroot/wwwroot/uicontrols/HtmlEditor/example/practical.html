@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <title>HtmlEditor - 안내 메일 작성 화면(실무형)</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div class="page">
+            <div class="page-wrapper">
+                <div class="page-header mt-2">
+                    <div class="container-fluid">
+                        <div class="row g-2 align-items-center">
+                            <div class="col">
+                                <div class="page-pretitle f:12!">고객 지원 / 안내 메일</div>
+                                <h2 class="page-title">안내 메일 작성</h2>
+                            </div>
+                            <div class="col-auto">
+                                <div class="btn-list">
+                                    <button type="button" id="btnPreview" class="btn" syn-events="['click']"><i class="f:20 ti ti-eye mr-2"></i> 미리보기</button>
+                                    <button type="button" id="btnNew" class="btn" syn-events="['click']"><i class="f:20 ti ti-file-plus mr-2"></i> 새 메일</button>
+                                    <button type="button" id="btnSave" class="btn btn-primary" syn-events="['click']"><i class="f:20 ti ti-send mr-2"></i> 발송 요청</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="page-body m-3">
+                    <div class="container-fluid max-width:1000!">
+                        <div class="card overflow-auto mb-3">
+                            <div class="card-status-top bg-dark-overlay"></div>
+                            <div class="card-header p-2 bg-primary-lt">
+                                <h3 class="card-title">메일 내용</h3>
+                                <div class="card-actions">
+                                    <span id="spnState" class="mr-2">작성 중</span>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="row mb-2">
+                                    <label class="col-2 col-form-label required">받는 사람</label>
+                                    <div class="col">
+                                        <input id="txtTo" type="text" class="form-control" maxlength="100" syn-options="{editType: 'email', controlText: '받는 사람'}" placeholder="example@company.com">
+                                    </div>
+                                </div>
+                                <div class="row mb-2">
+                                    <label class="col-2 col-form-label required">제목</label>
+                                    <div class="col">
+                                        <input id="txtSubject" type="text" class="form-control" maxlengthB="100" syn-options="{editType: 'text', controlText: '제목'}">
+                                    </div>
+                                </div>
+                                <div class="row mb-2">
+                                    <label class="col-2 col-form-label">문구 삽입</label>
+                                    <div class="col">
+                                        <button type="button" id="btnGreeting" class="btn btn-sm" syn-events="['click']">인사말</button>
+                                        <button type="button" id="btnNotice" class="btn btn-sm" syn-events="['click']">점검 안내 표</button>
+                                        <button type="button" id="btnSignature" class="btn btn-sm" syn-events="['click']">서명</button>
+                                    </div>
+                                </div>
+                                <div class="row mb-2">
+                                    <label class="col-2 col-form-label required">본문</label>
+                                    <div class="col">
+                                        <syn_htmleditor id="edtBody" syn-datafield="Body" style="width: 100%; height: 320px;" syn-options="{
+                                            repositoryID: 'TSTLE01',
+                                            controlText: '본문',
+                                            toolbar: 'undo redo | styleselect | bold italic forecolor backcolor | alignleft aligncenter alignright | bullist numlist | table link image | code',
+                                            limitTableWidth: '100%'
+                                        }"></syn_htmleditor>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="cardPreview" class="card overflow-auto mb-3 hidden">
+                            <div class="card-header p-2 bg-primary-lt">
+                                <h3 class="card-title">미리보기</h3>
+                            </div>
+                            <div class="card-body">
+                                <div id="divPreview"></div>
+                            </div>
+                        </div>
+
+                        <div class="card overflow-auto">
+                            <div class="card-header p-2 bg-primary-lt">
+                                <h3 class="card-title">발송 요청 결과 (서버 전송 대신 화면에 표시)</h3>
+                            </div>
+                            <div class="card-body">
+                                <pre id="preResult" class="mb-0" style="white-space: pre-wrap;">발송 요청 버튼을 누르면 메일 정보가 표시됩니다.</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <script src="/lib/tinymce/tinymce.min.js"></script>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

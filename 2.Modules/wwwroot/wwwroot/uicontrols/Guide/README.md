@@ -67,7 +67,7 @@ let $samplePage = {
 `example/` 폴더의 각 HTML 파일을 handstack의 wwwroot 정적 서버(예: rdy 프로젝트) 경로 아래에 두고 브라우저로 열면 바로 동작을 확인할 수 있습니다.
 
 - `basic.html` : 화면 요소 3개를 순서대로 안내하는 intro.js 투어(`helpType: 'I'`) 예제. 버튼을 눌러 투어를 시작하고, `complete`/`exit` 이벤트를 로그로 확인합니다.
-- `help-types.html` : 툴팁(`T`), 입력창 placeholder 애니메이션(`P`), 도움말 링크/팝업(`U`)까지 나머지 3가지 `helpType`을 한 화면에서 비교하는 예제.
+- `helptypes.html` : 툴팁(`T`), 입력창 placeholder 애니메이션(`P`), 도움말 링크/팝업(`U`)까지 나머지 3가지 `helpType`을 한 화면에서 비교하는 예제.
 
 각 예제는 화면 하단 로그 영역(`syn.$l.eventLog` 출력)에서 이벤트 발생 순서와 전달값을 확인할 수 있습니다.
 
@@ -75,7 +75,12 @@ let $samplePage = {
 
 - API 상세는 같은 폴더의 `API.md`를 참고하세요.
 - 실제 소스: `wwwroot/uicontrols/Guide/Guide.js`, `Guide.css`
-- 이 컨트롤은 `wwwroot/sample/uicontrol/` 에 별도 샘플 페이지가 없습니다. 이 문서의 API 내용은 `Guide.js` 소스 코드를 직접 읽고 확정한 것이며, 마크업 형태는 qcn.groupware 프로젝트의 실사용 코드를 참고했습니다.
+- 이 컨트롤은 `wwwroot/sample/uicontrol/` 에 별도 샘플 페이지가 없습니다. 이 문서의 API 내용은 `Guide.js` 소스 코드를 직접 읽고 확정한 것이며, 마크업 형태는 실제 업무 화면의 사용 패턴을 참고했습니다.
 - intro.js 옵션/API 원본 문서: https://introjs.com/docs/intro/api
 - tippy.js 옵션 원본 문서: https://atomiks.github.io/tippyjs/v6/all-props/
 - superplaceholder 옵션 원본 문서: https://github.com/fabiospampinato/superplaceholder.js
+
+## 추가 예제
+
+- `example/features.html` : 전체 기능 확인 - 모든 옵션/메서드/이벤트를 한 화면에서 확인하는 예제
+- `example/practical.html` : 주문 화면 사용 안내(실무형) - 실무 화면 패턴(조회 조건/목록/검증/저장)을 반영한 예제

@@ -70,4 +70,4 @@ TextButton 자체는 자신만의 전용 이벤트를 정의하지 않습니다.
 
 ## 참고
 
-이 문서는 `/sample/uicontrol/` 폴더와 `qcn.groupware` 등 실사용 코드베이스를 조사했으나 TextButton(`type="button"` 인핸스) 전용 샘플이나 실사용 예시를 찾지 못해, 오직 `TextButton.js`, `TextButton.css` 소스코드 정독만을 근거로 작성되었습니다. 다른 컨트롤 샘플(`checkbox.html`/`checkbox.js` 등)에서 반복적으로 등장하는 `<input type="button" ... syn-events="['click']" />` 패턴을 교차 확인하여 마크업 형태의 신뢰도를 보강했습니다.
+이 문서는 `/sample/uicontrol/` 폴더와 실사용 화면 코드를 조사했으나 TextButton(`type="button"` 인핸스) 전용 샘플이나 실사용 예시를 찾지 못해, 오직 `TextButton.js`, `TextButton.css` 소스코드 정독만을 근거로 작성되었습니다. 다른 컨트롤 샘플(`checkbox.html`/`checkbox.js` 등)에서 반복적으로 등장하는 `<input type="button" ... syn-events="['click']" />` 패턴을 교차 확인하여 마크업 형태의 신뢰도를 보강했습니다.

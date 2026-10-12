@@ -10,8 +10,7 @@
             <p>조직도 노드를 마우스 오른쪽 버튼으로 클릭하면 "조직 구성원 보기 / 하위조직 생성" 메뉴가 뜹니다.</p>
             <syn_organization id="orgChartView" syn-options="{
                 height: '320px',
-                nodeTitle: 'name',
-                nodeContent: 'title'
+                nodeTemplate: '$this.event.orgChartView_nodeTemplate'
             }" syn-events="['click']"></syn_organization>
             <syn_contextmenu id="ctxTreeItem" syn-options="{
                 target: '#orgChartView',

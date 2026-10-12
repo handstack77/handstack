@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>DatePeriodPicker - 날짜+시간(useTime) 예제</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div>
+            <p><code>useTime: true</code>를 지정하면 시작/종료 일시를 <code>YYYY-MM-DD HH:mm</code> 형식으로 관리합니다. 팝업의 각 달력 아래에서 시/분을 고른 뒤 "확인"을 누르면 입력창에 반영됩니다. 시간을 지정하지 않으면 시작은 00:00, 종료는 23:59가 기본값입니다.</p>
+            <div>
+                <label>조회 일시</label>
+                <syn_dateperiodpicker id="dtpSearchPeriod" syn-datafield="SearchPeriod" syn-options="{useTime: true, minuteStep: 5, value: 'day:-7'}" syn-events="['onselect', 'onconfirm', 'onreset']"></syn_dateperiodpicker>
+            </div>
+        </div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

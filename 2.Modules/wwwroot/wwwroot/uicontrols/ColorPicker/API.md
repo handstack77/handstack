@@ -54,6 +54,8 @@ ColorPicker는 다른 컨트롤들과 달리 `eventHooks` 목록을 정의하지
 
 ## 참고
 
+
+
 - 팔레트 팝업은 CP 라이브러리(`/js/color-picker/color-picker.js`, 로더가 자동 주입)가 그리며, `defineColors`에 지정한 색상 스와치 20개가 그 아래에 표시됩니다.
 - `getValue`/`setValue` 내부 코드의 지역 변수명이 `dateControl`로 되어 있는데, 이는 다른 날짜류 컨트롤 코드를 복사하면서 남은 이름으로 보이며 실제 동작(색상 값 읽기/쓰기)에는 영향이 없습니다.
 - `belongID`를 지정하면 내부 텍스트 입력창(`<elID>`)에도 동일하게 전달되어 트랜잭션 전송 시 값이 포함됩니다.

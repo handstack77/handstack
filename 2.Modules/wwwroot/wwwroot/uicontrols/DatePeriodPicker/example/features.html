@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>DatePeriodPicker - 전체 기능 확인</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <h3>DatePeriodPicker 전체 기능 확인</h3>
+        <p>
+            <code>value</code> 축약 표기(음수/양수), <code>startDataFieldID</code>/<code>endDataFieldID</code>, <code>startClassName</code>/<code>endClassName</code>,
+            <code>useTime</code>/<code>minuteStep</code>, 팝업의 빠른 선택 버튼(올해/오늘/주간/분기/반기/월 체크), 이벤트(<code>onselect</code>/<code>onreset</code>/<code>onconfirm</code>),
+            <code>getValue</code>/<code>setValue</code>/<code>clear</code>/<code>showPopup</code>/<code>hidePopup</code> 을 한 화면에서 확인합니다. 달력 버튼을 눌러 팝업을 열어 보세요.
+        </p>
+
+        <h4>1. 이벤트 / 메서드 (페이지의 첫 컨트롤이 팝업을 공유하므로 이벤트 확인용 컨트롤을 맨 앞에 둡니다)</h4>
+        <div class="mb-2">
+            <label>이벤트 확인용 조회 기간</label>
+            <syn_dateperiodpicker id="dtpEvents" syn-options="{value: 'month:-1'}" syn-events="['onselect', 'onreset', 'onconfirm']"></syn_dateperiodpicker>
+        </div>
+        <div class="mb-2">
+            <input type="button" id="btnGetValue" value="getValue" syn-events="['click']">
+            <input type="button" id="btnSetValue" value="setValue('2026-01-01,2026-01-31')" syn-events="['click']">
+            <input type="button" id="btnSetSingle" value="setValue('2026-06-15') 단일 날짜" syn-events="['click']">
+            <input type="button" id="btnClear" value="clear" syn-events="['click']">
+            <input type="button" id="btnShowPopup" value="showPopup" syn-events="['click']">
+            <input type="button" id="btnHidePopup" value="hidePopup" syn-events="['click']">
+            <input type="button" id="btnGetControl" value="getControl" syn-events="['click']">
+            <input type="button" id="btnFieldValues" value="입력창 값 직접 조회 (_StartedAt/_EndedAt)" syn-events="['click']">
+        </div>
+
+        <h4>2. value 축약 표기</h4>
+        <table class="table table-sm" style="max-width: 980px;">
+            <thead><tr><th style="width: 380px;">옵션</th><th>컨트롤</th></tr></thead>
+            <tbody>
+                <tr><td><code>value: 'day:-7'</code> (7일 전 ~ 오늘)</td><td><syn_dateperiodpicker id="dtpDayMinus" syn-options="{value: 'day:-7'}"></syn_dateperiodpicker></td></tr>
+                <tr><td><code>value: 'day:7'</code> (오늘 ~ 7일 후)</td><td><syn_dateperiodpicker id="dtpDayPlus" syn-options="{value: 'day:7'}"></syn_dateperiodpicker></td></tr>
+                <tr><td><code>value: 'week:-2'</code> (2주 전 ~ 오늘)</td><td><syn_dateperiodpicker id="dtpWeek" syn-options="{value: 'week:-2'}"></syn_dateperiodpicker></td></tr>
+                <tr><td><code>value: 'month:-3'</code> (3개월 전 ~ 오늘)</td><td><syn_dateperiodpicker id="dtpMonth" syn-options="{value: 'month:-3'}"></syn_dateperiodpicker></td></tr>
+                <tr><td><code>value: 'year:-1'</code> (1년 전 ~ 오늘)</td><td><syn_dateperiodpicker id="dtpYear" syn-options="{value: 'year:-1'}"></syn_dateperiodpicker></td></tr>
+            </tbody>
+        </table>
+
+        <h4>3. 입력창 구성 / 날짜 + 시간</h4>
+        <table class="table table-sm" style="max-width: 980px;">
+            <thead><tr><th style="width: 380px;">옵션</th><th>컨트롤</th></tr></thead>
+            <tbody>
+                <tr><td><code>startDataFieldID</code>/<code>endDataFieldID</code> 와 입력창 CSS class</td><td><syn_dateperiodpicker id="dtpFields" syn-options="{value: 'month:-1', startDataFieldID: 'FromDate', endDataFieldID: 'ToDate', startClassName: 'form-control text-center', endClassName: 'form-control text-center'}"></syn_dateperiodpicker></td></tr>
+                <tr><td><code>useTime: true</code> + <code>minuteStep: 15</code></td><td><syn_dateperiodpicker id="dtpTime" syn-options="{useTime: true, minuteStep: 15, value: 'day:-1'}"></syn_dateperiodpicker></td></tr>
+            </tbody>
+        </table>
+
+    </form>
+
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

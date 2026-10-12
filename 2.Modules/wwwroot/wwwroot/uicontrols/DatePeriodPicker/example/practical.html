@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <title>DatePeriodPicker - 매출 현황 조회 화면(실무형)</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div class="page">
+            <div class="page-wrapper">
+                <div class="page-header mt-2">
+                    <div class="container-fluid">
+                        <div class="row g-2 align-items-center">
+                            <div class="col">
+                                <div class="page-pretitle f:12!">영업 관리 / 매출 현황</div>
+                                <h2 class="page-title">기간별 매출 현황</h2>
+                            </div>
+                            <div class="col-auto">
+                                <div class="btn-list">
+                                    <button type="button" id="btnReset" class="btn" syn-events="['click']"><i class="f:20 ti ti-refresh mr-2"></i> 초기화</button>
+                                    <button type="button" id="btnSearch" class="btn btn-primary" syn-events="['click']"><i class="f:20 ti ti-search mr-2"></i> 조회</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="page-body m-3">
+                    <div class="container-fluid">
+                        <div class="card mb-3">
+                            <div class="card-body p-2">
+                                <div class="row">
+                                    <div class="col-6 pl-0">
+                                        <div class="input-group">
+                                            <label class="w:100 col-form-label px-2">조회 기간</label>
+                                            <syn_dateperiodpicker id="dtpSalesDate" syn-options="{value: 'month:-1', controlText: '조회 기간'}" syn-events="['onconfirm', 'onreset']"></syn_dateperiodpicker>
+                                        </div>
+                                    </div>
+                                    <div class="col-3 pl-0">
+                                        <div class="input-group">
+                                            <label class="w:100 col-form-label px-2">영업 채널</label>
+                                            <select id="ddlChannel" class="form-select">
+                                                <option value="">전체</option>
+                                                <option value="ONL">온라인</option>
+                                                <option value="OFF">오프라인</option>
+                                                <option value="PHN">전화 주문</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-3 pl-0">
+                                        <div class="input-group">
+                                            <label class="w:100 col-form-label px-2">고객명</label>
+                                            <input id="txtCustomerName" type="text" class="form-control" maxlengthB="40" syn-options="{editType: 'text'}">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row mt-2">
+                                    <div class="col pl-0">
+                                        <span class="px-2 text-muted">조회 기간은 최대 6개월까지 선택할 수 있습니다.</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card overflow-auto">
+                            <div class="card-status-top bg-dark-overlay"></div>
+                            <div class="card-header p-2 bg-primary-lt">
+                                <h3 class="card-title">매출 내역</h3>
+                                <div class="card-actions">
+                                    <span id="spnSummary" class="mr-2">0건</span>
+                                </div>
+                            </div>
+                            <div class="card-body p-2">
+                                <table class="table table-sm table-hover mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 110px;">매출 일자</th>
+                                            <th>고객명</th>
+                                            <th>영업 채널</th>
+                                            <th>상품</th>
+                                            <th class="text-end">금액</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbodySales"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

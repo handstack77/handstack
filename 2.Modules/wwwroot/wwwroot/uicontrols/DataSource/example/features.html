@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>DataSource - 전체 기능 확인</title>
+</head>
+<body style="visibility: hidden;">
+	<form autocomplete="off" id="form1" syn-datafield="MainForm">
+		<h3>DataSource 전체 기능 확인</h3>
+		<p>
+			<code>storeType</code>(Form/Grid), <code>columns</code>(<code>dataType</code> 별 기본값), <code>bindingSourceAsync</code> 로 연결하는 양방향 바인딩(TextBox/DropDownList/CheckBox/TextArea),
+			<code>getValue</code>(<code>isAll</code>)/<code>setValue</code>/<code>clear</code>/<code>getMetaStore</code>, 그리드 저장소의 <code>Flag</code>(R/C/U/D) 를 확인합니다.
+			입력 컨트롤을 수정하면 오른쪽 저장소 내용이 바뀌고, 버튼으로 저장소를 바꾸면 화면 컨트롤에 반영됩니다.
+		</p>
+		<p class="text-muted">
+			참고: 현재 입력 컨트롤들은 <code>bindingID</code> 옵션만으로 자동 연결되지 않습니다. 이 예제는 <code>pageLoad</code> 에서
+			<code>syn.uicontrols.$data.bindingSourceAsync(컨트롤ID, dataSourceID)</code> 를 호출해 연결합니다.
+		</p>
+
+		<syn_data id="srcCustomer" syn-options="{
+			dataSourceID: 'CustomerStore',
+			storeType: 'Form',
+			columns: [
+				{ data: 'CustomerName', dataType: 'string' },
+				{ data: 'Age', dataType: 'number' },
+				{ data: 'GradeCode', dataType: 'string' },
+				{ data: 'UseYN', dataType: 'string' },
+				{ data: 'Memo', dataType: 'string' }
+			]
+		}"></syn_data>
+
+		<syn_data id="srcOrders" syn-options="{
+			dataSourceID: 'OrderStore',
+			storeType: 'Grid',
+			columns: [
+				{ data: 'OrderNo', dataType: 'string' },
+				{ data: 'ProductName', dataType: 'string' },
+				{ data: 'Quantity', dataType: 'number' }
+			]
+		}"></syn_data>
+
+		<div class="row">
+			<div class="col-6">
+				<h4>1. Form 저장소 (CustomerStore) 와 입력 컨트롤</h4>
+				<div class="mb-2">
+					<label for="txtCustomerName">고객명 (CustomerName: string)</label><br>
+					<input type="text" id="txtCustomerName" syn-datafield="CustomerName" syn-options="{editType: 'text'}" syn-events="['change']">
+				</div>
+				<div class="mb-2">
+					<label for="txtAge">나이 (Age: number)</label><br>
+					<input type="text" id="txtAge" syn-datafield="Age" syn-options="{editType: 'number'}" syn-events="['change']">
+				</div>
+				<div class="mb-2">
+					<label for="ddlGradeCode">등급 (GradeCode: string)</label><br>
+					<select id="ddlGradeCode" syn-datafield="GradeCode" syn-options="{toSynControl: true}" syn-events="['change']" style="width: 200px;">
+						<option value="">선택</option>
+						<option value="A">A 등급</option>
+						<option value="B">B 등급</option>
+						<option value="C">C 등급</option>
+					</select>
+				</div>
+				<div class="mb-2">
+					<input type="checkbox" id="chkUseYN" syn-datafield="UseYN" syn-options="{toSynControl: true, checkedValue: 'Y', uncheckedValue: 'N', textContent: '사용 여부 (UseYN: Y/N)'}" syn-events="['change']">
+				</div>
+				<div class="mb-2">
+					<label for="txtMemo">메모 (Memo: string)</label><br>
+					<textarea id="txtMemo" syn-datafield="Memo" syn-options="{toSynControl: false}" style="width: 100%; height: 70px;"></textarea>
+				</div>
+				<div class="mb-2">
+					<input type="button" id="btnSetValue" value="setValue (저장소 -> 화면)" syn-events="['click']">
+					<input type="button" id="btnSetUndeclared" value="setValue (선언 안 된 필드 포함)" syn-events="['click']">
+					<input type="button" id="btnClear" value="clear (저장소 + 화면 초기화)" syn-events="['click']">
+				</div>
+			</div>
+			<div class="col-6">
+				<h4>2. 저장소 조회</h4>
+				<div class="mb-2">
+					<input type="button" id="btnGetAll" value="getValue(srcCustomer, true)" syn-events="['click']">
+					<input type="button" id="btnGetDefault" value="getValue(srcCustomer) - isAll 생략" syn-events="['click']">
+					<input type="button" id="btnMeta" value="getMetaStore" syn-events="['click']">
+					<input type="button" id="btnStore" value="$this.store 직접 확인" syn-events="['click']">
+				</div>
+				<pre id="preForm" class="p-2 border" style="min-height: 150px;">(버튼을 눌러 저장소 내용을 확인하세요)</pre>
+			</div>
+		</div>
+
+		<h4 class="mt-3">3. Grid 저장소 (OrderStore) 와 Flag</h4>
+		<p>
+			Grid 저장소는 행마다 <code>Flag</code> 를 가집니다. <code>setValue</code> 로 채운 행은 <code>R</code>(조회 그대로)이고, <code>getValue</code> 기본 호출은 <code>R</code> 이 아닌 행(<code>C</code>/<code>U</code>/<code>D</code>)만 돌려줍니다.
+			그리드 컨트롤 없이 저장소 배열만 다루는 업무 데이터(결재선, 첨부 목록 등)에 자주 쓰는 방식입니다.
+		</p>
+		<table class="table table-sm" style="max-width: 700px;">
+			<thead><tr><th style="width: 70px;">Flag</th><th>주문번호</th><th>상품명</th><th class="text-end">수량</th></tr></thead>
+			<tbody id="tbodyOrders"></tbody>
+		</table>
+		<div class="mb-2">
+			<input type="button" id="btnLoadRows" value="조회 흉내 (setValue, Flag: R)" syn-events="['click']">
+			<input type="button" id="btnInsertRow" value="행 추가 (Flag: C)" syn-events="['click']">
+			<input type="button" id="btnUpdateRow" value="첫 행 수정 (Flag: U)" syn-events="['click']">
+			<input type="button" id="btnDeleteRow" value="마지막 행 삭제 표시 (Flag: D)" syn-events="['click']">
+			<input type="button" id="btnGridChanged" value="getValue(srcOrders) - 변경분만" syn-events="['click']">
+			<input type="button" id="btnGridAll" value="getValue(srcOrders, true) - 전체" syn-events="['click']">
+			<input type="button" id="btnGridClear" value="clear(srcOrders)" syn-events="['click']">
+		</div>
+		<pre id="preGrid" class="p-2 border" style="min-height: 100px;">(그리드 저장소 결과)</pre>
+	</form>
+
+	<script src="/js/syn.loader.js"></script>
+</body>
+</html>

@@ -1,5 +1,5 @@
 'use strict';
-let $nestedMenu = {
+let $nestedmenu = {
     event: {
         ctxNested_beforeOpen(evt, ui) {
             // 우클릭한 li 요소마다 다르게 메뉴를 제어하고 싶다면 evt.currentTarget / ui.target을 확인합니다.

@@ -38,6 +38,8 @@ body {
 .is-disabled .pika-button{color:#999;opacity:.3}
 .pika-button:hover{color:#fff!important;background:#ff8000!important}
 .pika-title select {background-color:rgba(0,0,0,0.7);}
+.pika-time{border-top-color:#666}
+.pika-time .pika-select{color:#fff;background-color:#1f2225;border-color:#666;background-image:url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23aaa' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m4 6 4 4 4-4'/%3e%3c/svg%3e")}
 
 .of_scroll table td {background-color:transparent !important;}
 

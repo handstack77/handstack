@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>TextButton - 전체 기능 확인</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <h3>TextButton 전체 기능 확인</h3>
+        <p>
+            <code>type</code>(button/submit/reset), <code>toSynControl</code>/<code>color</code> 스타일, 일반 Tabler 버튼 마크업, 비활성화(<code>disabled</code>),
+            <code>getValue</code>/<code>setValue</code>/<code>clear</code>, <code>click</code> 이벤트와 다른 DOM 이벤트(<code>mouseover</code> 등)를 확인합니다.
+        </p>
+
+        <h4>1. color 별 스타일 (toSynControl: true)</h4>
+        <div class="btn-list mb-3">
+            <input type="button" id="btnDefault" value="default" syn-options="{toSynControl: true}" syn-events="['click']">
+            <input type="button" id="btnPrimary" value="primary" syn-options="{toSynControl: true, color: 'primary'}" syn-events="['click']">
+            <input type="button" id="btnSecondary" value="secondary" syn-options="{toSynControl: true, color: 'secondary'}" syn-events="['click']">
+            <input type="button" id="btnSuccess" value="success" syn-options="{toSynControl: true, color: 'success'}" syn-events="['click']">
+            <input type="button" id="btnWarning" value="warning" syn-options="{toSynControl: true, color: 'warning'}" syn-events="['click']">
+            <input type="button" id="btnDanger" value="danger" syn-options="{toSynControl: true, color: 'danger'}" syn-events="['click']">
+            <input type="button" id="btnInfo" value="info" syn-options="{toSynControl: true, color: 'info'}" syn-events="['click']">
+        </div>
+
+        <h4>2. type / 마크업 방식</h4>
+        <div class="btn-list mb-3">
+            <input type="button" id="btnTypeButton" value="type=button" syn-options="{toSynControl: true, color: 'primary'}" syn-events="['click']">
+            <input type="reset" id="btnTypeReset" value="type=reset" syn-options="{toSynControl: true}" syn-events="['click']">
+            <input type="submit" id="btnTypeSubmit" value="type=submit (제출 방지)" syn-options="{toSynControl: true, color: 'success'}" syn-events="['click']">
+            <button type="button" id="btnTabler" class="btn btn-primary" syn-events="['click']"><i class="f:20 ti ti-device-floppy mr-1"></i> Tabler 버튼 + 아이콘</button>
+            <button type="button" id="btnIcon" class="btn btn-icon" syn-events="['click']"><i class="f:18 ti ti-plus"></i></button>
+            <div class="btn-group">
+                <button type="button" id="btnGroup1" class="btn" syn-events="['click']">일간</button>
+                <button type="button" id="btnGroup2" class="btn" syn-events="['click']">주간</button>
+                <button type="button" id="btnGroup3" class="btn" syn-events="['click']">월간</button>
+            </div>
+        </div>
+
+        <h4>3. 메서드 / 상태</h4>
+        <div class="mb-2">
+            <input type="button" id="btnTarget" value="대상 버튼" syn-options="{toSynControl: true, color: 'primary'}" syn-events="['click', 'mouseover']">
+        </div>
+        <div class="btn-list">
+            <input type="button" id="btnGetValue" value="getValue" syn-events="['click']">
+            <input type="button" id="btnSetValue" value="setValue (라벨 변경)" syn-events="['click']">
+            <input type="button" id="btnClear" value="clear (라벨 지움)" syn-events="['click']">
+            <input type="button" id="btnDisable" value="대상 비활성화" syn-events="['click']">
+            <input type="button" id="btnEnable" value="대상 활성화" syn-events="['click']">
+            <input type="button" id="btnClasses" value="대상 클래스 확인" syn-events="['click']">
+        </div>
+    </form>
+
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

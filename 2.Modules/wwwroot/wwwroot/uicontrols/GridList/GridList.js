@@ -231,7 +231,8 @@
 
             if (gridHookEvents) {
                 for (var i = 0; i < gridHookEvents.length; i++) {
-                    var hook = gridHookEvents[i];
+                    // let 으로 선언해야 각 이벤트 핸들러가 반복마다 자기 hook 이름을 기억한다(var 이면 모두 마지막 이름으로 덮인다).
+                    let hook = gridHookEvents[i];
 
                     var mod = window[syn.$w.pageScript];
                     if (mod) {

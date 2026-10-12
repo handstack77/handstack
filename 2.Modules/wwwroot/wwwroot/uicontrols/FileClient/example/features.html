@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>FileClient - 전체 기능 확인</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <h3>FileClient 전체 기능 확인</h3>
+        <p>
+            저장소 유형별(단일/프로필/다중/에디터 이미지) 업로드 컨트롤, <code>getFileSetting</code>/<code>uploadUI</code>, 업로드 결과 콜백(<code>fileUpdateCallback</code>),
+            파일 정보 조회/삭제(<code>getItem</code>/<code>getItems</code>/<code>deleteItem</code>/<code>deleteItems</code>), <code>updateDependencyID</code>/<code>updateFileName</code>,
+            팝업 없는 업로드(<code>uploadDataUri</code>/<code>uploadBlob</code>), 다운로드(<code>fileDownload</code>), 유틸(<code>getTemporaryDependencyID</code>/<code>toFileLengthString</code>)을 확인합니다.
+        </p>
+        <p class="text-muted">
+            업로드/조회/삭제/다운로드는 <code>repository</code> 모듈(기본 <code>/repository/api/storage</code>)이 실행 중이고 샘플 저장소
+            <code>TSTLS01</code>(단일), <code>TSTLP01</code>(프로필), <code>TSTLM01</code>(다중), <code>TSTLE01</code>(에디터 이미지)가 등록된 환경에서 동작합니다.
+            서버가 없으면 저장소 조회 경고가 표시되며, 서버가 필요 없는 유틸 메서드는 그대로 확인할 수 있습니다.
+        </p>
+
+        <h4>1. 저장소 유형별 컨트롤</h4>
+        <table class="table table-sm" style="max-width: 980px;">
+            <thead><tr><th style="width: 380px;">저장소 / 설명</th><th>컨트롤</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td><code>TSTLS01</code> 단일 첨부파일 (1개, 10MB)</td>
+                    <td><syn_fileclient id="sfcSingle" syn-datafield="SingleFile" syn-options="{repositoryID: 'TSTLS01', dialogTitle: '단일 파일 업로드', fileUpdateCallback: 'singleUpdated'}"></syn_fileclient></td>
+                </tr>
+                <tr>
+                    <td><code>TSTLP01</code> 프로필 이미지 (이미지 1개)</td>
+                    <td><syn_fileclient id="sfcProfile" syn-datafield="ProfileImage" syn-options="{repositoryID: 'TSTLP01', dialogTitle: '프로필 사진 업로드'}"></syn_fileclient></td>
+                </tr>
+                <tr>
+                    <td><code>TSTLM01</code> 다중 첨부파일 (3개, 10MB)</td>
+                    <td><syn_fileclient id="sfcMulti" syn-datafield="MultiFiles" syn-options="{repositoryID: 'TSTLM01', dialogTitle: '다중 파일 업로드', dependencyID: 'FEATURES-DOC-001'}"></syn_fileclient></td>
+                </tr>
+                <tr>
+                    <td><code>TSTLE01</code> 에디터 내 이미지 (이미지 30개, 20MB)</td>
+                    <td><syn_fileclient id="sfcEditor" syn-datafield="EditorImages" syn-options="{repositoryID: 'TSTLE01'}"></syn_fileclient></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h4>2. 업로드 / 설정</h4>
+        <div class="mb-2">
+            <input type="button" id="btnUploadUI" value="getFileSetting + uploadUI (단일)" syn-events="['click']">
+            <input type="button" id="btnUploadMulti" value="uploadUI (다중, dependencyID 지정)" syn-events="['click']">
+            <input type="button" id="btnGetFileSetting" value="getFileSetting 조회" syn-events="['click']">
+            <input type="button" id="btnUploadDataUri" value="uploadDataUri (팝업 없이 텍스트 파일 업로드)" syn-events="['click']">
+            <input type="button" id="btnUploadBlob" value="uploadBlob" syn-events="['click']">
+        </div>
+
+        <h4>3. 값 / 파일 정보 조회 · 변경 · 삭제 · 다운로드</h4>
+        <div class="mb-2">
+            조회할 ItemID: <input type="text" id="txtItemID" placeholder="업로드 후 getValue 로 확인한 ItemID" style="width: 320px;">
+        </div>
+        <div class="mb-2">
+            <input type="button" id="btnGetValue" value="getValue (ItemID)" syn-events="['click']">
+            <input type="button" id="btnSetValue" value="setValue(txtItemID)" syn-events="['click']">
+            <input type="button" id="btnClear" value="clear" syn-events="['click']">
+            <input type="button" id="btnGetItem" value="getItem" syn-events="['click']">
+            <input type="button" id="btnGetItems" value="getItems (dependencyID)" syn-events="['click']">
+            <input type="button" id="btnUpdateFileName" value="updateFileName" syn-events="['click']">
+            <input type="button" id="btnUpdateDependency" value="updateDependencyID" syn-events="['click']">
+            <input type="button" id="btnDownload" value="fileDownload" syn-events="['click']">
+            <input type="button" id="btnDeleteItem" value="deleteItem" syn-events="['click']">
+            <input type="button" id="btnDeleteItems" value="deleteItems (dependencyID)" syn-events="['click']">
+        </div>
+
+        <h4>4. 서버 없이 확인 가능한 유틸 (임시 소속 키 생성 / 파일 크기 표시)</h4>
+        <div class="mb-2">
+            <input type="button" id="btnTempID" value="getTemporaryDependencyID('BOARD_')" syn-events="['click']">
+            <input type="button" id="btnFileLength" value="toFileLengthString (1234, 5678901, 3221225472)" syn-events="['click']">
+        </div>
+    </form>
+
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

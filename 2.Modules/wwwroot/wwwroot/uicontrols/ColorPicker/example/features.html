@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>ColorPicker - 전체 기능 확인</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <h3>ColorPicker 전체 기능 확인</h3>
+        <p>
+            <code>defaultColor</code>, <code>defineColors</code>(팔레트 지정), 직접 입력(<code>#RRGGBB</code> 마스크), <code>getValue</code>/<code>setValue</code>/<code>clear</code>/<code>getControl</code>/<code>colorConvert</code>,
+            값 변경 감지(<code>change</code>)를 확인합니다. 스와치 버튼을 눌러 팔레트를 열거나 코드를 직접 입력해 보세요.
+        </p>
+
+        <table class="table table-sm" style="max-width: 760px;">
+            <thead><tr><th style="width: 330px;">옵션 조합</th><th>컨트롤</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td>기본값 지정 (<code>defaultColor: 'FF0000'</code>)</td>
+                    <td><syn_colorpicker id="clpBasic" syn-datafield="BasicColor" syn-options="{defaultColor: 'FF0000'}"></syn_colorpicker></td>
+                </tr>
+                <tr>
+                    <td>사용자 정의 팔레트 (<code>defineColors</code>)</td>
+                    <td><syn_colorpicker id="clpPalette" syn-datafield="PaletteColor" syn-options="{defaultColor: '0080FF', defineColors: ['206BC4', '2FB344', 'F76707', 'AE3EC9', 'D63939', '4263EB', '000000', 'FFFFFF']}"></syn_colorpicker></td>
+                </tr>
+                <tr>
+                    <td>기본값 없음</td>
+                    <td><syn_colorpicker id="clpEmpty" syn-datafield="EmptyColor" syn-options="{}"></syn_colorpicker></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div id="divPreview" class="p-3 mb-3 border" style="max-width: 760px;">선택한 색상으로 배경이 바뀌는 미리보기 영역입니다.</div>
+
+        <div class="mb-2">
+            <input type="button" id="btnGetValue" value="getValue" syn-events="['click']">
+            <input type="button" id="btnSetValue" value="setValue('#2FB344')" syn-events="['click']">
+            <input type="button" id="btnClear" value="clear" syn-events="['click']">
+            <input type="button" id="btnGetControl" value="getControl" syn-events="['click']">
+            <input type="button" id="btnConvert" value="colorConvert (HEX → RGB 계산)" syn-events="['click']">
+        </div>
+    </form>
+
+    <script>
+        // ColorPicker 는 내부 입력창을 TextBox 컨트롤로 만들기 때문에, 페이지에 TextBox 가 없으면 필요한 파일을 직접 추가합니다.
+        function pageLoadFiles(jsFiles, styleFiles, templateFiles) {
+            styleFiles.push('/uicontrols/TextBox/TextBox.css');
+            jsFiles.push('/lib/vanilla-masker/vanilla-masker.min.js');
+            jsFiles.push('/uicontrols/TextBox/TextBox.js');
+        }
+    </script>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

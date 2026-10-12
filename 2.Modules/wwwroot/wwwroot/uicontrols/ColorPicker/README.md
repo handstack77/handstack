@@ -32,6 +32,8 @@ ColorPicker는 색상 값을 `#RRGGBB` 형태의 16진수 문자열로 입력받
 
 - `example/basic.html` — 기본 색상 선택기, 미리 정의된 색상(`defaultColor`) 지정
 - `example/getset.html` — `getValue`/`setValue`/`clear` 메서드로 값을 읽고 쓰는 방법
+- `example/features.html` : 전체 기능 확인 - 모든 옵션/메서드/이벤트를 한 화면에서 확인하는 예제
+- `example/practical.html` : 화면 테마 설정(실무형) - 실무 화면 패턴(조회 조건/목록/검증/저장)을 반영한 예제
 
 ## 더 알아보기
 

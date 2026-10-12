@@ -6,7 +6,7 @@
 
 이 폴더는 원래 `WebGrid` 폴더 안에 다른 그리드 엔진들과 함께 있었으나, 별도 디렉토리로 분리되었습니다. 다른 엔진은 [WebGrid](../WebGrid/README.md)(`$grid`), [AUIPivot](../AUIPivot/README.md)(`$auipivot`), [OpenGrid](../OpenGrid)(`$opengrid`)를 참고하세요.
 
-실무(qcn.groupware 기준)에서는 `$auigrid`가 압도적으로 많이 쓰입니다(300회 이상 실사용). 컬럼 병합, 그룹핑, 고정 컬럼/행, 코드헬프 팝업, 스파크라인 등 업무 화면에 필요한 기능이 가장 폭넓게 내장되어 있습니다. 상용 라이선스 벤더 라이브러리(`/lib/auigrid/`)가 필요합니다.
+실무 업무 화면에서는 `$auigrid`가 가장 많이 쓰입니다. 컬럼 병합, 그룹핑, 고정 컬럼/행, 코드헬프 팝업, 스파크라인 등 업무 화면에 필요한 기능이 가장 폭넓게 내장되어 있습니다. 상용 라이선스 벤더 라이브러리(`/lib/auigrid/`)가 필요합니다.
 
 신규 화면에서 CRUD 그리드가 필요할 때 우선적으로 고려하는 실무 표준 엔진입니다(상용 라이선스 포함, 기능이 가장 풍부).
 
@@ -46,3 +46,8 @@ syn.uicontrols.$auigrid.setValue('grdMain', [
 - 실제 소스: `wwwroot/uicontrols/AUIGrid/AUIGrid.js`, `AUIGrid.css`
 - 로더 자동주입 정의: `wwwroot/js/syn.loader.js`의 `'auigrid'` case
 - AUIGrid 벤더 공식 문서: https://www.auisoft.net/documentation/auigrid/
+
+## 추가 예제
+
+- `example/features.html` : 전체 기능 확인 - 모든 옵션/메서드/이벤트를 한 화면에서 확인하는 예제
+- `example/practical.html` : 상품 관리 화면(실무형) - 실무 화면 패턴(조회 조건/목록/검증/저장)을 반영한 예제

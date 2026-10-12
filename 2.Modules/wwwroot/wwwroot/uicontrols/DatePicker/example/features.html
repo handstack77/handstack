@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>DatePicker - 전체 기능 확인</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <h3>DatePicker 전체 기능 확인</h3>
+        <p>
+            초기값 축약 표기(<code>value</code>), <code>format</code>, <code>minDate</code>/<code>maxDate</code>, <code>defaultDate</code>/<code>setDefaultDate</code>,
+            <code>firstDay</code>/<code>showWeekNumber</code>/<code>numberOfMonths</code>/<code>yearSuffix</code>, 이전/다음 달 날짜 표시, <code>useRangeSelect</code>,
+            <code>useTime</code>/<code>minuteStep</code>, <code>getValue</code>/<code>setValue</code>/<code>clear</code>/<code>getControl</code> 과 선택 이벤트를 한 화면에서 확인합니다.
+        </p>
+
+        <h4>1. 초기값 / 포맷</h4>
+        <table class="table table-sm" style="max-width: 980px;">
+            <thead><tr><th style="width: 380px;">옵션 조합</th><th>컨트롤</th></tr></thead>
+            <tbody>
+                <tr><td><code>value: 'now'</code> (오늘)</td><td><syn_datepicker id="dtpNow" syn-options="{value: 'now'}"></syn_datepicker></td></tr>
+                <tr><td><code>value: 'day:-7'</code> (7일 전)</td><td><syn_datepicker id="dtpDay" syn-options="{value: 'day:-7'}"></syn_datepicker></td></tr>
+                <tr><td><code>value: 'week:2'</code> (2주 후)</td><td><syn_datepicker id="dtpWeek" syn-options="{value: 'week:2'}"></syn_datepicker></td></tr>
+                <tr><td><code>value: 'month:-1'</code> (1개월 전)</td><td><syn_datepicker id="dtpMonth" syn-options="{value: 'month:-1'}"></syn_datepicker></td></tr>
+                <tr><td><code>value: 'year:1'</code> (1년 후)</td><td><syn_datepicker id="dtpYear" syn-options="{value: 'year:1'}"></syn_datepicker></td></tr>
+                <tr><td><code>format: 'YYYY.MM.DD'</code></td><td><syn_datepicker id="dtpFormat" syn-options="{format: 'YYYY.MM.DD', value: 'now'}"></syn_datepicker></td></tr>
+                <tr><td><code>placeholder</code> 안내 문구</td><td><syn_datepicker id="dtpPlaceholder" syn-options="{placeholder: '날짜를 선택하세요'}"></syn_datepicker></td></tr>
+            </tbody>
+        </table>
+
+        <h4>2. 달력 모양 / 선택 범위</h4>
+        <table class="table table-sm" style="max-width: 980px;">
+            <thead><tr><th style="width: 380px;">옵션 조합</th><th>컨트롤</th></tr></thead>
+            <tbody>
+                <tr><td><code>minDate</code>(오늘) ~ <code>maxDate</code>(+30일) 만 선택 가능</td><td><syn_datepicker id="dtpLimited" syn-options="{minDate: new Date(), maxDate: new Date(new Date().getTime() + 30 * 86400000)}"></syn_datepicker></td></tr>
+                <tr><td><code>defaultDate</code> + <code>setDefaultDate: true</code> (2026-12-25)</td><td><syn_datepicker id="dtpDefault" syn-options="{defaultDate: new Date(2026, 11, 25), setDefaultDate: true}"></syn_datepicker></td></tr>
+                <tr><td><code>numberOfMonths: 2</code> + <code>showWeekNumber</code> + <code>firstDay: 1</code>(월요일 시작)</td><td><syn_datepicker id="dtpTwoMonths" syn-options="{numberOfMonths: 2, showWeekNumber: true, firstDay: 1}"></syn_datepicker></td></tr>
+                <tr><td>이전/다음 달 날짜 숨김 (<code>showDaysInNextAndPreviousMonths: false</code>)</td><td><syn_datepicker id="dtpNoAdjacent" syn-options="{showDaysInNextAndPreviousMonths: false}"></syn_datepicker></td></tr>
+                <tr><td>이전/다음 달 날짜 선택 불가 (<code>enableSelectionDaysInNextAndPreviousMonths: false</code>)</td><td><syn_datepicker id="dtpNoAdjacentSelect" syn-options="{enableSelectionDaysInNextAndPreviousMonths: false}"></syn_datepicker></td></tr>
+                <tr><td>헤더 순서 변경 (<code>showMonthAfterYear: false</code>, <code>yearSuffix: ' 년'</code>)</td><td><syn_datepicker id="dtpHeader" syn-options="{showMonthAfterYear: false, yearSuffix: ' 년'}"></syn_datepicker></td></tr>
+            </tbody>
+        </table>
+
+        <h4>3. 시작일 / 종료일 연동 (useRangeSelect) · 날짜+시간 (useTime)</h4>
+        <table class="table table-sm" style="max-width: 980px;">
+            <tbody>
+                <tr>
+                    <td style="width: 380px;">시작일을 고르면 종료일의 선택 범위가 좁혀집니다</td>
+                    <td>
+                        <syn_datepicker id="dtpRangeStart" syn-options="{useRangeSelect: true, rangeEndControlID: 'dtpRangeEnd', value: 'now'}"></syn_datepicker>
+                        <syn_datepicker id="dtpRangeEnd" syn-options="{useRangeSelect: true, rangeStartControlID: 'dtpRangeStart', value: 'day:7'}"></syn_datepicker>
+                    </td>
+                </tr>
+                <tr><td>날짜 + 시간 (<code>useTime: true</code>, <code>minuteStep: 10</code>)</td><td><syn_datepicker id="dtpTime" syn-options="{useTime: true, minuteStep: 10, value: 'now'}"></syn_datepicker></td></tr>
+            </tbody>
+        </table>
+
+        <h4>4. 메서드 / 이벤트</h4>
+        <div class="mb-2">
+            <input type="button" id="btnGetValue" value="getValue (dtpNow)" syn-events="['click']">
+            <input type="button" id="btnSetValue" value="setValue('2026-12-31')" syn-events="['click']">
+            <input type="button" id="btnSetDate" value="picker.setDate(Date)" syn-events="['click']">
+            <input type="button" id="btnClear" value="clear" syn-events="['click']">
+            <input type="button" id="btnSetMin" value="picker.setMinDate(내일)" syn-events="['click']">
+            <input type="button" id="btnShow" value="picker.show()" syn-events="['click']">
+            <input type="button" id="btnGetControl" value="getControl" syn-events="['click']">
+            <input type="button" id="btnTimeSet" value="setValue(dtpTime, '2026-12-31 18:30')" syn-events="['click']">
+        </div>
+    </form>
+
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

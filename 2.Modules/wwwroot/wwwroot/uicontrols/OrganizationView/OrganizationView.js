@@ -174,7 +174,7 @@
             if (orgchart) {
                 var setting = $organization.getControl(elID).config;
                 var map = setting.reduceMap;
-                var jsonRoot = orgchart.getHierarchy();
+                var jsonRoot = orgchart.getHierarchy(true);
                 var flatValue = syn.$l.nested2Flat(jsonRoot, setting.itemID, setting.parentItemID, setting.childrenID);
 
                 var reduceSource = [];

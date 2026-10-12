@@ -1,5 +1,5 @@
 'use strict';
-let $validation = {
+let $lengthvalidation = {
     event: {
         btnGetMaxlength_click() {
             var value = syn.uicontrols.$textarea.getValue('txtMaxlength');

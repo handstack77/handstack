@@ -53,7 +53,10 @@ syn.uicontrols.$datepicker.clear('dtpBirthday');
 
 - `example/basic.html` : 가장 단순한 날짜 1개 선택 예제
 - `example/format.html` : `format`, `minDate`, `maxDate` 등 옵션 예제
+- `example/datetime.html` : `useTime`, `minuteStep` 으로 날짜와 시간(`HH:mm`)을 함께 선택하는 예제
 - `example/events.html` : 선택(`onselect`) 이벤트, `getValue`/`setValue`/`clear` 버튼 데모
+- `example/features.html` : 전체 기능 확인 - 모든 옵션/메서드/이벤트를 한 화면에서 확인하는 예제
+- `example/practical.html` : 회의실 예약 화면(실무형) - 실무 화면 패턴(조회 조건/목록/검증/저장)을 반영한 예제
 
 각 HTML은 같은 이름의 `.js` 파일과 짝을 이루며, 화면 하단 로그 영역에 `syn.$l.eventLog`로 동작 로그가 출력됩니다.
 

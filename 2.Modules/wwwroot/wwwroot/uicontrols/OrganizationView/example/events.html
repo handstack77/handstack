@@ -11,8 +11,7 @@
             <syn_organization id="orgChartView" syn-options="{
                 height: '320px',
                 draggable: true,
-                nodeTitle: 'name',
-                nodeContent: 'title'
+                nodeTemplate: '$this.event.orgChartView_nodeTemplate'
             }" syn-events="['nodedrop', 'select', 'click']"></syn_organization>
         </div>
         <hr />

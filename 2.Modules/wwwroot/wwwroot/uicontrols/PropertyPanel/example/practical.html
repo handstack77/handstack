@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <title>PropertyPanel - 알림 환경 설정 화면(실무형)</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div class="page">
+            <div class="page-wrapper">
+                <div class="page-header mt-2">
+                    <div class="container-fluid">
+                        <div class="row g-2 align-items-center">
+                            <div class="col">
+                                <div class="page-pretitle f:12!">시스템 관리 / 환경 설정</div>
+                                <h2 class="page-title">알림 환경 설정</h2>
+                            </div>
+                            <div class="col-auto">
+                                <div class="btn-list">
+                                    <button type="button" id="btnDefault" class="btn" syn-events="['click']"><i class="f:20 ti ti-arrow-back-up mr-2"></i> 기본값 복원</button>
+                                    <button type="button" id="btnSave" class="btn btn-primary" syn-events="['click']"><i class="f:20 ti ti-device-floppy mr-2"></i> 저장</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="page-body m-3">
+                    <div class="container-fluid max-width:1000!">
+                        <div class="row">
+                            <div class="col-7">
+                                <div class="card overflow-auto mb-3">
+                                    <div class="card-status-top bg-dark-overlay"></div>
+                                    <div class="card-header p-2 bg-primary-lt">
+                                        <h3 class="card-title">설정 항목</h3>
+                                        <div class="card-actions"><span id="spnDirty" class="mr-2">변경 없음</span></div>
+                                    </div>
+                                    <div class="card-body p-2">
+                                        <syn_propertypanel id="ppSetting" syn-options="{
+                                            height: '440px',
+                                            isCollapsible: true,
+                                            keyColumnWidth: '38%',
+                                            data: {
+                                                UseNotify: true,
+                                                Channel: 'EMAIL',
+                                                Email: 'admin@example.com',
+                                                DailyLimit: 50,
+                                                QuietStart: '22:00',
+                                                QuietEnd: '07:00',
+                                                Priority: 3,
+                                                BadgeColor: '#d63939',
+                                                Keywords: ['긴급', '결제']
+                                            },
+                                            meta: {
+                                                UseNotify: { name: '알림 사용', group: '기본', description: '끄면 모든 알림이 중지됩니다.' },
+                                                Channel: { name: '수신 채널', group: '기본', type: 'options', options: [{ value: 'EMAIL', text: '이메일' }, { value: 'SMS', text: '문자' }, { value: 'PUSH', text: '앱 푸시' }] },
+                                                Email: { name: '수신 이메일', group: '기본', placeholder: 'name@company.com' },
+                                                DailyLimit: { name: '일일 최대 건수', group: '제한', type: 'number', options: { min: 1, max: 500, step: 1 } },
+                                                QuietStart: { name: '방해 금지 시작', group: '제한' },
+                                                QuietEnd: { name: '방해 금지 종료', group: '제한' },
+                                                Priority: { name: '우선순위(1~5)', group: '표시', type: 'number', options: { min: 1, max: 5, step: 1 } },
+                                                BadgeColor: { name: '배지 색상', group: '표시', type: 'color' },
+                                                Keywords: { name: '강조 키워드(JSON)', group: '표시', type: 'json', rows: 3 }
+                                            },
+                                            callback: '$this.event.ppSetting_change'
+                                        }"></syn_propertypanel>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-5">
+                                <div class="card overflow-auto mb-3">
+                                    <div class="card-header p-2 bg-primary-lt"><h3 class="card-title">변경된 항목</h3></div>
+                                    <div class="card-body">
+                                        <pre id="preChanges" class="mb-0" style="max-height: 200px; overflow: auto;">변경된 항목이 없습니다.</pre>
+                                    </div>
+                                </div>
+                                <div class="card overflow-auto">
+                                    <div class="card-header p-2 bg-primary-lt"><h3 class="card-title">저장 결과 (서버 전송 대신 화면에 표시)</h3></div>
+                                    <div class="card-body">
+                                        <pre id="preResult" class="mb-0" style="max-height: 220px; overflow: auto;">저장 버튼을 누르면 설정이 JSON 으로 표시됩니다.</pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

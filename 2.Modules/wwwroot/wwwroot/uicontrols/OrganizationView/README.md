@@ -77,6 +77,11 @@ syn.uicontrols.$organization.setValue('orgChartView', [
 - API 상세는 같은 폴더의 `API.md`를 참고하세요.
 - 실제 소스: `wwwroot/uicontrols/OrganizationView/OrganizationView.js`, `OrganizationView.css`
 - 기존 샘플: `wwwroot/sample/uicontrol/organization.html`, `organization.js`
-- 실사용 예: qcn.groupware의 조직도 화면 — `nodeTemplate`/`createNode`로 노드 안에 아이콘을 추가하고, 그 아이콘 클릭 시 `syn.uicontrols.$contextmenu.open(...)`으로 메뉴를 여는 패턴, `nodedrop` 이벤트에서 `getRelatedNodes(elID, dropZone, 'children')`로 드롭된 노드의 하위 조직을 다시 조회하는 흐름을 참고할 수 있습니다.
+- 실사용 패턴: 조직도 화면 — `nodeTemplate`/`createNode`로 노드 안에 아이콘을 추가하고, 그 아이콘 클릭 시 `syn.uicontrols.$contextmenu.open(...)`으로 메뉴를 여는 패턴, `nodedrop` 이벤트에서 `getRelatedNodes(elID, dropZone, 'children')`로 드롭된 노드의 하위 조직을 다시 조회하는 흐름을 참고할 수 있습니다.
 - ContextMenu와 함께 쓰는 방법: `../ContextMenu/README.md`, `../ContextMenu/API.md`
 - OrgChart 원본 문서: https://github.com/dabeng/OrgChart
+
+## 추가 예제
+
+- `example/features.html` : 전체 기능 확인 - 모든 옵션/메서드/이벤트를 한 화면에서 확인하는 예제
+- `example/practical.html` : 조직 개편 화면(실무형) - 실무 화면 패턴(조회 조건/목록/검증/저장)을 반영한 예제

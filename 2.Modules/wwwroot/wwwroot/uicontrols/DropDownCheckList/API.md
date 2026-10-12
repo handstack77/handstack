@@ -55,10 +55,10 @@ DropDownCheckList는 네이티브 `<select multiple>` 태그를 [tail.select](ht
 | `dataRefresh(elID, setting, callback)` | 데이터소스를 다시 조회해서 옵션을 갱신합니다. `setting.deleteCache`가 `true`(기본값)면 기존 캐시를 지우고 새로 조회합니다. `callback`을 생략하면 `Promise`(갱신 완료 시 resolve)를 반환합니다. |
 | `controlReload(elID)` | tail.select picker의 화면(UI)만 다시 그립니다. 값이나 옵션 자체를 바꾸지는 않습니다. |
 | `getValue(elID, meta)` | 선택된 옵션들의 value를 콤마(`,`)로 연결한 문자열을 반환합니다(예: `"01,03"`). 선택된 항목이 없으면 빈 문자열입니다. |
-| `setValue(elID, value, selected)` | 콤마 문자열 또는 배열로 넘긴 값과 일치하는 옵션들을 선택 상태로 만듭니다. `selected`를 `false`로 넘기면 해당 값들을 선택 해제할 수 있습니다. 참고: 현재 구현에서 기존 선택을 먼저 지우는 루프가 값을 실제로 변경하지 않는 부분이 있어(비교 연산자만 사용), `setValue`는 항상 완전히 초기화 후 다시 선택하기보다는 기존 선택에 값을 "추가"하는 것처럼 동작할 수 있습니다. 완전히 새로 선택하려면 `clear(elID)`를 먼저 호출한 뒤 `setValue`를 호출하세요. |
+| `setValue(elID, value, selected)` | 콤마 문자열 또는 배열로 넘긴 값과 일치하는 옵션들만 선택 상태로 만듭니다. 호출할 때마다 기존 선택을 먼저 모두 해제한 뒤 지정한 값을 선택하므로 "추가 선택"이 아니라 "교체"로 동작합니다. `selected`를 `false`로 넘기면 일치하는 옵션을 선택하지 않으므로 결과적으로 모든 선택이 해제됩니다. |
 | `clear(elID, isControlLoad)` | 모든 옵션의 선택을 해제합니다. |
 | `getSelectedIndex(elID)` | 현재 선택된 옵션들의 인덱스 배열을 반환합니다. |
-| `setSelectedIndex(elID, value)` | 인덱스(숫자) 또는 인덱스 배열로 옵션을 선택합니다. |
+| `setSelectedIndex(elID, value)` | 인덱스(숫자) 또는 인덱스 배열로 지정한 옵션만 선택하고 나머지는 해제합니다. |
 | `getSelectedValue(elID)` | 선택된 옵션들의 value 배열을 반환합니다(`getValue`와 달리 콤마 문자열이 아닌 배열). |
 | `setSelectedValue(elID, value)` | 문자열(단일 값) 또는 배열과 일치하는 옵션들을 선택합니다. 배열/문자열에 없는 옵션은 선택 해제됩니다. |
 | `getSelectedText(elID)` | 선택된 옵션들의 표시 텍스트 배열을 반환합니다. |

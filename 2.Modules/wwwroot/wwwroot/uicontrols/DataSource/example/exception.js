@@ -30,7 +30,7 @@ let $exception = {
             $this.store.Exception.Error = true;
             $this.store.Exception.Level = 'Error';
             $this.store.Exception.Message = '그룹코드가 이미 사용 중입니다 (unique 제약 위반)';
-            $this.store.Exception.StackTrace = 'at BDL.MD01.Execute()';
+            $this.store.Exception.StackTrace = 'at Order.Save.Execute()';
 
             $this.method.afterTransaction();
         }

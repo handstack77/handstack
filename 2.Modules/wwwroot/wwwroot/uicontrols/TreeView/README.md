@@ -71,3 +71,8 @@ syn.uicontrols.$tree.setValue('tvlTreeView', [
 - 기존 샘플: `wwwroot/sample/uicontrol/treeview.html`
 - ContextMenu와 함께 쓰는 방법: `../ContextMenu/README.md`, `../ContextMenu/API.md`
 - FancyTree 원본 문서: https://github.com/mar10/fancytree/wiki
+
+## 추가 예제
+
+- `example/features.html` : 전체 기능 확인 - 모든 옵션/메서드/이벤트를 한 화면에서 확인하는 예제
+- `example/practical.html` : 부서 관리 화면(실무형) - 실무 화면 패턴(조회 조건/목록/검증/저장)을 반영한 예제

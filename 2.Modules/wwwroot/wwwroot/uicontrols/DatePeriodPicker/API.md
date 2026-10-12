@@ -31,7 +31,9 @@
 | `defaultDate` / `setDefaultDate` | Pikaday 옵션 그대로 전달 | 달력을 처음 열 때 표시할 기본 날짜 |
 | `minDate` / `maxDate` | Date, 기본 `null` | 선택 가능한 최소/최대 날짜(Pikaday에 그대로 전달) |
 | `bound` | boolean, 기본 `false` | Pikaday 옵션. 이 컨트롤은 팝업 표시/숨김을 자체 로직(`showPopup`/`hidePopup`)으로 제어하므로 기본값 `false` 사용 |
-| `format` | string, 기본 `'YYYY-MM-DD'` | Pikaday에 전달되는 날짜 포맷(moment 포맷 문자열) |
+| `format` | string, 기본 `'YYYY-MM-DD'` | Pikaday에 전달되는 날짜 포맷(moment 포맷 문자열). 시작/종료 입력창에 표시되는 값 형식은 이 옵션이 아니라 `useTime` 으로 결정됨 |
+| `useTime` | boolean, 기본 `false` | `true`면 시작/종료 일시를 `YYYY-MM-DD HH:mm` 형식(마스크 `9999-99-99 99:99`)으로 관리. 팝업의 시작/종료 달력 아래에 시/분 선택이 나타나며 "확인"을 눌러야 입력창에 반영됨 |
+| `minuteStep` | number, 기본 `1` | `useTime: true`일 때 분 선택 간격(예: `5`, `10`, `30`). 입력창에 직접 입력해 둔 분은 간격과 달라도 팝업을 다시 열 때 그대로 표시됨 |
 | `ariaLabel` | string, 기본 `'날짜를 선택 하세요'` | 달력 접근성 라벨 |
 | `i18n` | object | 월/요일 이름 등 한글 로케일 텍스트(기본값이 이미 한글로 설정되어 있어 보통 그대로 사용) |
 | `showWeekNumber` | boolean, 기본 `false` | 주차 번호 표시 여부 |
@@ -116,6 +118,10 @@ let $sample = {
 
 추가로 알아둘 점:
 
+- `useTime: true`일 때 시간을 지정하지 않으면 시작은 `00:00`, 종료는 `23:59`가 기본값입니다(`value` 축약 표기로 채운 초기값과 팝업을 처음 열 때 모두 동일). 팝업 상단의 빠른 선택 버튼(올해/오늘/당월 등)은 날짜만 바꾸고 선택해 둔 시간은 유지합니다.
+- `useTime: true`일 때 "확인" 버튼에서 시작일과 종료일이 같은 날이고 시작 시간이 종료 시간보다 늦으면 `syn.$w.alert('시작일시가 종료일시 보다 클 수 없습니다.')`가 표시되고 팝업이 닫히지 않습니다. 입력창에 직접 입력한 값은 `YYYY-MM-DD HH:mm` 형식이 아니면 blur 시 비워지며 "일시 확인 필요" placeholder가 표시됩니다.
+- `useTime: true`이면 `getValue`는 `'2026-10-02 00:00 ~ 2026-10-09 23:59'`처럼 시간이 포함된 문자열을 반환하고, `onconfirm`의 시작/종료 값과 `onselect`의 `date`(시/분 반영)도 시간을 포함합니다. 팝업은 페이지의 첫 컨트롤 기준으로 공유되므로 한 페이지에서 `useTime` 사용 여부가 다른 컨트롤을 섞으면 `onselect`의 `date` 시간 반영 여부는 첫 컨트롤의 설정을 따릅니다.
+
 - "확인" 버튼 클릭 시 시작일이 종료일보다 크면 `syn.$w.alert('시작일자가 종료일자 보다 클 수 없습니다.')`가 표시되고 팝업이 닫히지 않으며, `onconfirm`도 호출되지 않습니다.
 - 시작일/종료일 입력창에 키보드로 직접 값을 입력한 뒤 포커스를 벗어나면(blur), 시작일 > 종료일인 경우 자동으로 값이 서로 맞춰집니다(별도 이벤트 없음).
 - 페이지에 `<syn_dateperiodpicker>`가 여러 개 있는 경우 팝업과 Pikaday 인스턴스가 공유되므로, `onselect` 콜백에 전달되는 `elID`는 내부 구현상 페이지에서 가장 먼저 로드된 컨트롤의 id로 고정됩니다(공유 팝업 생성 시점의 클로저를 그대로 사용하기 때문). 반면 `onreset`/`onconfirm`의 `elID`는 팝업을 실제로 열었던 컨트롤 id를 정확히 사용합니다. 페이지에 컨트롤이 1개뿐이라면 이 차이는 드러나지 않습니다.
@@ -123,5 +129,5 @@ let $sample = {
 ## 참고
 
 - 소스: `DatePeriodPicker.js`, `DatePeriodPicker.css`
-- 시작일/종료일 입력창 자체의 문자 입력 마스크·형식 검증 동작은 `TextBox` 컨트롤(`editType: 'date'`)과 동일합니다.
-- 예제는 [example](./example) 폴더, 사용 개요는 [README.md](./README.md)를 참고하세요.
+- 시작일/종료일 입력창 자체의 문자 입력 마스크·형식 검증 동작은 `TextBox` 컨트롤(`editType: 'date'`)과 동일합니다. 단 `useTime: true`이면 `editType: 'text'` + 마스크 `9999-99-99 99:99` 로 생성되고, 형식 검증은 이 컨트롤이 `moment`로 직접 수행합니다.
+- 예제(시간 포함 선택은 `example/datetime.html`)는 [example](./example) 폴더, 사용 개요는 [README.md](./README.md)를 참고하세요.

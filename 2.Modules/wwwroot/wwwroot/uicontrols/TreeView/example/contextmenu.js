@@ -1,7 +1,7 @@
 'use strict';
 let $contextmenu = {
     prop: {
-        // ATM020(qcn.groupware 소속조직 트리)과 동일하게 ProgramID 계열 컬럼명을 사용하는 예제
+        // ProgramID 계열 컬럼명을 reduceMap 으로 연결하는 예제
         dataSet: [
             { ProgramID: 'ROOT', ProgramName: '전체 조직', ParentID: null, FolderYN: 'Y' },
             { ProgramID: 'C01', ProgramName: '인사팀', ParentID: 'ROOT', FolderYN: 'Y' },

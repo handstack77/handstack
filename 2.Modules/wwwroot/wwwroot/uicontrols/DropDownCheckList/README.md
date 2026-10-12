@@ -64,3 +64,8 @@ syn.uicontrols.$multiselect.setValue('ddlFileExtension', ['01', '03']);
 - 전체 옵션(Options), 메서드, 이벤트 목록은 같은 폴더의 [API.md](./API.md) 문서를 참고하세요.
 - 실제 소스 코드는 `DropDownCheckList.js`, `DropDownCheckList.css` 파일에서 확인할 수 있습니다(내부 파일명은 유지되지만 실제 등록 이름은 `syn.uicontrols.$multiselect` 입니다).
 - tail.select 플러그인 자체의 세부 동작(예: `getControl`로 얻은 picker 객체의 메서드)은 [tail.select GitHub Wiki](https://github.com/pytesNET/tail.select/wiki)를 참고하세요.
+
+## 추가 예제
+
+- `example/features.html` : 전체 기능 확인 - 모든 옵션/메서드/이벤트를 한 화면에서 확인하는 예제
+- `example/practical.html` : 상품 다중 조건 조회(실무형) - 실무 화면 패턴(조회 조건/목록/검증/저장)을 반영한 예제

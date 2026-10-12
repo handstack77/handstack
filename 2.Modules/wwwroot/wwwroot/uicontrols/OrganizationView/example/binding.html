@@ -14,7 +14,7 @@
 
             <section class="binding-panel">
                 <h2>컨트롤에서 변경</h2>
-                <syn_organization id="orgBinding" syn-options="{height: '300px'}" syn-events="['select']"></syn_organization>
+                <syn_organization id="orgBinding" syn-options="{height: '300px', nodeTemplate: '$this.event.orgBinding_nodeTemplate'}" syn-events="['select']"></syn_organization>
                 <p>선택 노드: <strong id="spnOrganizationNode"></strong></p>
             </section>
 

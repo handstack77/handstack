@@ -61,3 +61,8 @@ syn.uicontrols.$textbox.clear('txtAmount');
 
 - 자세한 옵션/메서드/이벤트 목록은 같은 폴더의 [API.md](./API.md)를 참고하세요.
 - 실제 소스는 `TextBox.js`, `TextBox.css` 파일을 참고하세요.
+
+## 추가 예제
+
+- `example/features.html` : 전체 기능 확인 - 모든 옵션/메서드/이벤트를 한 화면에서 확인하는 예제
+- `example/practical.html` : 고객 등록 화면(실무형) - 실무 화면 패턴(조회 조건/목록/검증/저장)을 반영한 예제

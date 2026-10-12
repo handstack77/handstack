@@ -18,7 +18,7 @@ FileClient는 파일을 업로드/다운로드하는 컨트롤입니다. 화면�
 ## 빠른 시작
 
 ```html
-<syn_fileclient id="sfcCompanyImage" syn-datafield="CompanyImage" syn-options="{repositoryID: 'BDLLP01'}"></syn_fileclient>
+<syn_fileclient id="sfcCompanyImage" syn-datafield="CompanyImage" syn-options="{repositoryID: 'TSTLP01'}"></syn_fileclient>
 <input type="button" id="btnUploadCompanyImage" value="이미지 업로드" syn-events="['click']" />
 ```
 
@@ -60,6 +60,8 @@ let $mypage = {
 - `example/settings.html` — `dependencyID`, `custom1`~`custom3`, `minHeight` 등 업로드 옵션을 상황에 맞게 커스터마이징하는 방법 (다중 파일 저장소 기준)
 - `example/methods.html` — `getValue`/`setValue`/`clear`와 `getItem`/`getItems`/`deleteItem` 등 값 조회·관리 메서드 데모
 - `example/attachments.html` — 게시판/전자결재처럼 여러 건을 첨부하는 실무 패턴: 그리드 없이 `Flag`(R/C/D) 배열을 직접 관리하고, 업무 키(문서 번호)가 있어야만 첨부 가능, 첨부 개수 상한 검증, 저장 트랜잭션에 `type: 'List'`로 함께 전송
+- `example/features.html` : 전체 기능 확인 - 모든 옵션/메서드/이벤트를 한 화면에서 확인하는 예제
+- `example/practical.html` : 게시글 작성과 첨부파일(실무형) - 실무 화면 패턴(조회 조건/목록/검증/저장)을 반영한 예제
 
 ## 더 알아보기
 

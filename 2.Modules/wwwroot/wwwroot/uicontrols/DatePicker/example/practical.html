@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <title>DatePicker - 회의실 예약 화면(실무형)</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div class="page">
+            <div class="page-wrapper">
+                <div class="page-header mt-2">
+                    <div class="container-fluid">
+                        <div class="row g-2 align-items-center">
+                            <div class="col">
+                                <div class="page-pretitle f:12!">시설 관리 / 회의실 예약</div>
+                                <h2 class="page-title">회의실 예약 신청</h2>
+                            </div>
+                            <div class="col-auto">
+                                <div class="btn-list">
+                                    <button type="button" id="btnReset" class="btn" syn-events="['click']"><i class="f:20 ti ti-refresh mr-2"></i> 초기화</button>
+                                    <button type="button" id="btnSave" class="btn btn-primary" syn-events="['click']"><i class="f:20 ti ti-calendar-plus mr-2"></i> 예약 신청</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="page-body m-3">
+                    <div class="container-fluid max-width:1000!">
+                        <div class="card overflow-auto mb-3">
+                            <div class="card-status-top bg-dark-overlay"></div>
+                            <div class="card-header p-2 bg-primary-lt">
+                                <h3 class="card-title">예약 정보</h3>
+                                <div class="card-actions">
+                                    <span id="spnDuration" class="mr-2">이용 시간을 선택하세요</span>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="row mb-2">
+                                    <label class="col-2 col-form-label required">회의 제목</label>
+                                    <div class="col">
+                                        <input id="txtTitle" type="text" class="form-control" maxlengthB="100" syn-options="{editType: 'text', controlText: '회의 제목'}">
+                                    </div>
+                                </div>
+                                <div class="row mb-2">
+                                    <label class="col-2 col-form-label required">시작 일시</label>
+                                    <div class="col">
+                                        <syn_datepicker id="dtpStartedAt" syn-options="{useTime: true, minuteStep: 30, minDate: new Date(), useRangeSelect: true, rangeEndControlID: 'dtpEndedAt', controlText: '시작 일시'}" syn-events="['change']"></syn_datepicker>
+                                    </div>
+                                    <label class="col-2 col-form-label required">종료 일시</label>
+                                    <div class="col">
+                                        <syn_datepicker id="dtpEndedAt" syn-options="{useTime: true, minuteStep: 30, minDate: new Date(), useRangeSelect: true, rangeStartControlID: 'dtpStartedAt', controlText: '종료 일시'}" syn-events="['change']"></syn_datepicker>
+                                    </div>
+                                </div>
+                                <div class="row mb-2">
+                                    <label class="col-2 col-form-label">이용 인원</label>
+                                    <div class="col">
+                                        <input id="txtPersonCount" type="text" class="form-control text-end" syn-options="{editType: 'numeric', formatNumber: false, minCount: 1, maxCount: 30}" value="2">
+                                    </div>
+                                    <label class="col-2 col-form-label">반복 종료일</label>
+                                    <div class="col">
+                                        <syn_datepicker id="dtpRepeatUntil" syn-options="{minDate: new Date(), maxDate: new Date(new Date().getTime() + 90 * 86400000), placeholder: '반복 없음'}"></syn_datepicker>
+                                    </div>
+                                </div>
+                                <div class="row mb-2">
+                                    <label class="col-2 col-form-label">빠른 선택</label>
+                                    <div class="col">
+                                        <button type="button" id="btnQuick1" class="btn btn-sm" syn-events="['click']">오늘 오후 2시~3시</button>
+                                        <button type="button" id="btnQuick2" class="btn btn-sm" syn-events="['click']">내일 오전 10시~12시</button>
+                                        <button type="button" id="btnQuick3" class="btn btn-sm" syn-events="['click']">다음 주 같은 요일 오전 9시~10시</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card overflow-auto">
+                            <div class="card-header p-2 bg-primary-lt">
+                                <h3 class="card-title">신청 결과 (서버 전송 대신 화면에 표시)</h3>
+                            </div>
+                            <div class="card-body">
+                                <pre id="preResult" class="mb-0">예약 신청 버튼을 누르면 입력 내용이 JSON 으로 표시됩니다.</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

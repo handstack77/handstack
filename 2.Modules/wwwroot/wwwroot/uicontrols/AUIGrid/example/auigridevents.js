@@ -66,7 +66,9 @@ let $auigridevents = {
         },
 
         btnGetValue_click() {
-            var rows = syn.uicontrols.$auigrid.getValue('grdDetail', 'List');
+            // metaColumns 를 넘겨야 변경된 행이 [{prop, val}, ...] 형식으로 변환됩니다(없으면 빈 배열).
+            var metaColumns = { GroupCode: { fieldID: 'GroupCode', dataType: 'string' }, CodeID: { fieldID: 'CodeID', dataType: 'string' }, CodeValue: { fieldID: 'CodeValue', dataType: 'string' }, CategoryID: { fieldID: 'CategoryID', dataType: 'string' }, SortingNo: { fieldID: 'SortingNo', dataType: 'number' } };
+            var rows = syn.uicontrols.$auigrid.getValue('grdDetail', 'List', metaColumns);
             syn.$l.eventLog('btnGetValue_click', JSON.stringify(rows));
         }
     }

@@ -21,6 +21,12 @@ let $basic = {
     },
 
     event: {
+        // setValue 로 채운 노드는 원본 컬럼(name/title)이 data 아래에 있으므로 nodeTemplate 으로 직접 그린다.
+        orgChartView_nodeTemplate(data) {
+            let item = data.data || data;
+            return `<div class="title">${item.name || ''}</div><div class="content">${item.title || ''}</div>`;
+        },
+
         orgChartView_select(evt, node) {
             syn.$l.eventLog('orgChartView_select', node.find('.title').text());
         },

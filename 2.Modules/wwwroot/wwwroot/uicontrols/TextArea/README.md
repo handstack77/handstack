@@ -49,9 +49,11 @@ syn.uicontrols.$textarea.clear('txtMemo');
 아래 예제는 `/uicontrols/TextArea/example/` 경로에서 직접 열어 확인할 수 있습니다.
 
 - `example/basic.html` — 기본 사용법, getValue/setValue/clear 버튼 데모
-- `example/validation.html` — `maxlength` / `maxlengthB`를 이용한 글자 수(바이트 수) 제한 데모
+- `example/lengthvalidation.html` — `maxlength` / `maxlengthB`를 이용한 글자 수(바이트 수) 제한 데모
 - `example/events.html` — `syn-events`로 CodeMirror 이벤트(change 등)를 연결하는 데모
 - `example/memo.html` — 실무 메모/설명 필드 관례: CodeMirror 모드 대신 순수 textarea(`toSynControl: false`) + `belongID` + 실제 서비스에서 흔한 `maxlength`(4000) 범위
+- `example/features.html` : 전체 기능 확인 - 모든 옵션/메서드/이벤트를 한 화면에서 확인하는 예제
+- `example/practical.html` : 고객 문의 접수 화면(실무형) - 실무 화면 패턴(조회 조건/목록/검증/저장)을 반영한 예제
 
 각 예제 html은 `<script src="/js/syn.loader.js"></script>` 한 줄만 있으면 되며, 나머지 CSS/JS는 로더가 자동으로 주입합니다.
 

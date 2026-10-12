@@ -1,5 +1,14 @@
 'use strict';
 let $form = {
+    hook: {
+        // bindingID 옵션만으로는 현재 입력 컨트롤이 자동 연결되지 않으므로, pageLoad 에서 명시적으로 연결합니다.
+        async pageLoad() {
+            await syn.uicontrols.$data.bindingSourceAsync('txtName', 'FormStore');
+            await syn.uicontrols.$data.bindingSourceAsync('txtAge', 'FormStore');
+            await syn.uicontrols.$data.bindingSourceAsync('chkEnabledYN', 'FormStore');
+        }
+    },
+
     event: {
         btnGetValue_click() {
             // storeType: 'Form'은 isAll을 true로 줘야 필드 값이 모두 채워진 전체 레코드를 돌려받습니다.

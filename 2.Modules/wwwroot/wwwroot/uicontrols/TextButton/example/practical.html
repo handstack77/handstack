@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <title>TextButton - 공지사항 관리 화면(실무형)</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div class="page">
+            <div class="page-wrapper">
+                <div class="page-header mt-2">
+                    <div class="container-fluid">
+                        <div class="row g-2 align-items-center">
+                            <div class="col">
+                                <div class="page-pretitle f:12!">시스템 관리 / 공지사항</div>
+                                <h2 class="page-title">공지사항 관리</h2>
+                            </div>
+                            <div class="col-auto">
+                                <div class="btn-list">
+                                    <button type="button" id="btnNew" class="btn" syn-events="['click']"><i class="f:20 ti ti-plus mr-1"></i> 신규</button>
+                                    <button type="button" id="btnSave" class="btn btn-primary" syn-events="['click']"><i class="f:20 ti ti-device-floppy mr-1"></i> 저장</button>
+                                    <button type="button" id="btnDelete" class="btn btn-danger" syn-events="['click']" disabled><i class="f:20 ti ti-trash mr-1"></i> 삭제</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="page-body m-3">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-5">
+                                <div class="card overflow-auto mb-3">
+                                    <div class="card-status-top bg-dark-overlay"></div>
+                                    <div class="card-header p-2 bg-primary-lt">
+                                        <h3 class="card-title">공지 목록</h3>
+                                        <div class="card-actions">
+                                            <div class="btn-group mx-2">
+                                                <button type="button" id="btnFilterAll" class="btn btn-sm active" syn-events="['click']">전체</button>
+                                                <button type="button" id="btnFilterOn" class="btn btn-sm" syn-events="['click']">게시 중</button>
+                                                <button type="button" id="btnFilterOff" class="btn btn-sm" syn-events="['click']">게시 종료</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-body p-2">
+                                        <table class="table table-sm table-hover mb-0">
+                                            <thead><tr><th style="width: 60px;">번호</th><th>제목</th><th style="width: 80px;">상태</th></tr></thead>
+                                            <tbody id="tbodyNotices"></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-7">
+                                <div class="card overflow-auto mb-3">
+                                    <div class="card-status-top bg-dark-overlay"></div>
+                                    <div class="card-header p-2 bg-primary-lt">
+                                        <h3 class="card-title">공지 상세</h3>
+                                        <div class="card-actions">
+                                            <span id="spnMode" class="mr-2">신규 작성</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row mb-2">
+                                            <label class="col-2 col-form-label">공지 번호</label>
+                                            <div class="col">
+                                                <input id="txtNoticeNo" type="text" class="form-control" readonly syn-options="{editType: 'text'}">
+                                            </div>
+                                            <label class="col-2 col-form-label">게시 상태</label>
+                                            <div class="col">
+                                                <select id="ddlStatus" class="form-select">
+                                                    <option value="ON">게시 중</option>
+                                                    <option value="OFF">게시 종료</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="row mb-2">
+                                            <label class="col-2 col-form-label required">제목</label>
+                                            <div class="col">
+                                                <input id="txtTitle" type="text" class="form-control" maxlengthB="100" syn-options="{editType: 'text', controlText: '제목'}">
+                                            </div>
+                                        </div>
+                                        <div class="row mb-2">
+                                            <label class="col-2 col-form-label required">내용</label>
+                                            <div class="col">
+                                                <textarea id="txtContent" class="form-control" syn-options="{toSynControl: false}" maxlength="1000" style="height: 120px;"></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

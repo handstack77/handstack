@@ -1,0 +1,13 @@
+{
+    "Comment": "상품 분류 코드 (DropDownCheckList 예제용 로컬 데이터소스)",
+    "CodeColumnID": "CodeID",
+    "ValueColumnID": "CodeValue",
+    "DataSource": [
+        { "CodeID": "FOD", "CodeValue": "식품" },
+        { "CodeID": "BEV", "CodeValue": "음료" },
+        { "CodeID": "HOM", "CodeValue": "생활용품" },
+        { "CodeID": "ELE", "CodeValue": "전자기기" },
+        { "CodeID": "BKS", "CodeValue": "도서" },
+        { "CodeID": "SPT", "CodeValue": "스포츠" }
+    ]
+}

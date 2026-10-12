@@ -59,7 +59,7 @@
 | `color` | `'Color'` | 배경/테두리를 한 번에 지정하는 색상 컬럼명 |
 | `classNames` | `'ClassNames'` | 이벤트 DOM에 추가할 CSS 클래스 컬럼명 |
 
-매핑에 없는 나머지 컬럼(예: `ShopDailyTaskID`, `Memo` 등 업무 데이터 고유 컬럼)은 자동으로 FullCalendar 이벤트의 `extendedProps`에 들어갑니다. 즉 `event.extendedProps.Memo`처럼 접근합니다.
+매핑에 없는 나머지 컬럼(예: `TaskCode`, `Memo` 등 업무 데이터 고유 컬럼)은 자동으로 FullCalendar 이벤트의 `extendedProps`에 들어갑니다. 즉 `event.extendedProps.Memo`처럼 접근합니다.
 
 ## 메서드
 

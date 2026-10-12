@@ -49,7 +49,7 @@ syn.uicontrols.$dateperiodpicker.setValue('dtpSearchPeriod', '2026-01-01,2026-01
 syn.uicontrols.$dateperiodpicker.clear('dtpSearchPeriod');
 ```
 
-시작일/종료일을 서로 다른 데이터필드에 매핑하고, 기본값을 "오늘부터 3개월 후까지"로 지정하고 싶다면 다음처럼 사용할 수 있습니다(실사용 예: qcn.groupware의 공지 게시 기간).
+시작일/종료일을 서로 다른 데이터필드에 매핑하고, 기본값을 "오늘부터 3개월 후까지"로 지정하고 싶다면 다음처럼 사용할 수 있습니다(실사용 예: 공지 게시 기간).
 
 ```html
 <syn_dateperiodpicker id="dtpAlertPeriod" syn-datafield="AlertPeriod" syn-events="['onselect']" syn-options="{
@@ -63,8 +63,12 @@ syn.uicontrols.$dateperiodpicker.clear('dtpSearchPeriod');
 
 - `example/basic.html` : 가장 단순한 기간 선택 예제(팝업의 빠른 선택 버튼 포함)
 - `example/shorthand.html` : `value` 축약 표기(`'day:-7'`, `'month:3'` 등)로 초기값을 지정하는 예제
+- `example/datetime.html` : `useTime`, `minuteStep` 으로 시작/종료 일시(`HH:mm`)까지 선택하는 예제
 - `example/events.html` : `onselect`/`onreset`/`onconfirm` 이벤트, `getValue`/`setValue`/`clear` 버튼 데모
+- `example/datetime.html` : `useTime`, `minuteStep` 으로 시작/종료 일시(`HH:mm`)까지 선택하는 예제
 - `example/search.html` : 목록 화면 조회 기간 실무 패턴 - 기본 기간(`month:-3`)으로 `pageLoad` 시 즉시 조회, `_StartedAt`/`_EndedAt` 문자열 비교로 시작일 > 종료일 검증
+- `example/features.html` : 전체 기능 확인 - 모든 옵션/메서드/이벤트를 한 화면에서 확인하는 예제
+- `example/practical.html` : 매출 현황 조회 화면(실무형) - 실무 화면 패턴(조회 조건/목록/검증/저장)을 반영한 예제
 
 각 HTML은 같은 이름의 `.js` 파일과 짝을 이루며, 화면 하단 로그 영역에 `syn.$l.eventLog`로 동작 로그가 출력됩니다.
 

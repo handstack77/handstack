@@ -12,7 +12,7 @@ let $cascading = {
 
             // 부서 드롭다운을 서버에서 다시 조회한다. parameters 문자열에 방금 고른 회사 코드를 실어 보낸다.
             syn.uicontrols.$select.dataRefresh('ddlDepartmentNo', {
-                dataSourceID: 'BDLCHP007',
+                dataSourceID: 'CHP_DEPARTMENT',
                 parameters: '@CompanyNo:{0};'.format(companyNo),
                 local: false,
                 toSynControl: false,

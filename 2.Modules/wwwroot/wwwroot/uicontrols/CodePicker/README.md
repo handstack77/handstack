@@ -26,7 +26,7 @@ CodePicker는 "코드값 검색 팝업" 패턴을 구현한 UI 컨트롤입니�
 ```html
 <syn_codepicker id="chpCompanyID" syn-datafield="CompanyID" syn-options="{
     belongID: 'LD01',
-    dataSourceID: 'BDLCHP011',
+    dataSourceID: 'CHP_COMPANY',
     local: false,
     isMultiSelect: false,
     textBelongID: ['LD01'],
@@ -70,3 +70,8 @@ syn.uicontrols.$codepicker.open('chpCompanyID');
 - 전체 옵션(Options), 메서드, 이벤트 목록은 같은 폴더의 [API.md](./API.md) 문서를 참고하세요.
 - 실제 소스 코드는 `CodePicker.js` 파일에서 확인할 수 있습니다.
 - 팝업 검색 화면 자체(코드도움 다이얼로그, `index2.html`)의 동작은 이 컨트롤의 범위 밖이며, 서버 쪽 데이터소스(`dataSourceID`) 설정과 함께 별도로 관리됩니다.
+
+## 추가 예제
+
+- `example/features.html` : 전체 기능 확인 - 모든 옵션/메서드/이벤트를 한 화면에서 확인하는 예제
+- `example/practical.html` : 주문 입력 화면(실무형) - 실무 화면 패턴(조회 조건/목록/검증/저장)을 반영한 예제

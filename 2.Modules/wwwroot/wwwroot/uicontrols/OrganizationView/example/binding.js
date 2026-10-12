@@ -70,6 +70,11 @@
             },
 
             event: {
+                orgBinding_nodeTemplate: function (data) {
+                    var item = data.data || data;
+                    return '<div class="title">' + (item.name || '') + '</div><div class="content">' + (item.title || '') + '</div>';
+                },
+
                 btnModelChange_click: function () {
                     if (!page.prop.mounted) {
                         return;

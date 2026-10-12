@@ -63,7 +63,7 @@ syn.uicontrols.$sourceeditor.clear('txtEditor1');
 이 폴더의 `example` 디렉토리에 초보자용 실행 예제가 있습니다. 웹 서버를 통해 `/uicontrols/SourceEditor/example/*.html` 경로로 접속해서 바로 확인할 수 있습니다.
 
 - `basic.html`: JavaScript 모드 기본 에디터를 배치하고 `getValue`/`setValue`/`clear` 버튼으로 값을 다루는 가장 단순한 예제
-- `language-mode.html`: `language` 옵션을 JSON/HTML 등으로 바꿔가며 같은 컨트롤이 언어별로 어떻게 강조되는지 비교하는 예제
+- `languagemode.html`: `language` 옵션을 JSON/HTML 등으로 바꿔가며 같은 컨트롤이 언어별로 어떻게 강조되는지 비교하는 예제
 - `events.html`: Monaco 자체 이벤트 API(`getControl().editor.onDidChangeModelContent`)로 변경 이벤트를 감지하고, `getValue`/`setValue`/`clear`도 함께 보여주는 예제
 
 각 예제는 `<script src="/js/syn.loader.js"></script>` 한 줄만으로 동작하도록 만들어졌습니다.
@@ -73,3 +73,8 @@ syn.uicontrols.$sourceeditor.clear('txtEditor1');
 - 전체 옵션(Options), 메서드, 이벤트(및 알려진 제약사항) 목록은 같은 폴더의 [API.md](./API.md) 문서를 참고하세요.
 - 실제 소스 코드는 `SourceEditor.js`, `SourceEditor.css` 파일에서 확인할 수 있습니다.
 - Monaco 에디터 자체의 옵션/API는 [Monaco Editor 공식 문서](https://microsoft.github.io/monaco-editor/docs.html)를 참고하세요. `syn-options`에 지정한 값은 `monaco.editor.create(container, setting)`에 그대로 전달되므로, 이 문서에 표로 정리한 옵션 외에도 Monaco가 지원하는 모든 생성 옵션(`IStandaloneEditorConstructionOptions`)을 사용할 수 있습니다.
+
+## 추가 예제
+
+- `example/features.html` : 전체 기능 확인 - 모든 옵션/메서드/이벤트를 한 화면에서 확인하는 예제
+- `example/practical.html` : 서비스 설정 편집 화면(실무형) - 실무 화면 패턴(조회 조건/목록/검증/저장)을 반영한 예제

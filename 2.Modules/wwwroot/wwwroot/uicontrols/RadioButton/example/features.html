@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>RadioButton - 전체 기능 확인</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <h3>RadioButton 전체 기능 확인</h3>
+        <p>
+            <code>toSynControl</code>(<code>textContent</code> 라벨), 일반 마크업(<code>form-check</code>) 방식, <code>name</code> 그룹,
+            <code>getValue</code>/<code>setValue</code>/<code>clear</code>, 그룹 단위 <code>getSelectedByValue</code>/<code>getSelectedByText</code>/<code>getSelectedByID</code>/<code>selectedValue</code>,
+            <code>getGroupNames</code> 와 <code>change</code> 이벤트를 확인합니다.
+        </p>
+
+        <h4>1. toSynControl: true (라벨 자동 생성)</h4>
+        <div class="mb-2">
+            <input id="rdoUseYn1" name="rdoUseYn" type="radio" syn-datafield="UseYn" value="Y" checked="checked" syn-events="['change']" syn-options="{textContent: '사용', toSynControl: true}">
+            <input id="rdoUseYn2" name="rdoUseYn" type="radio" syn-datafield="UseYn" value="N" syn-events="['change']" syn-options="{textContent: '미사용', toSynControl: true}">
+        </div>
+
+        <h4>2. 일반 마크업 (form-check) - 그룹이 3개 이상</h4>
+        <div class="mb-2">
+            <label class="form-check form-check-inline m-0 pr-2">
+                <input class="form-check-input" type="radio" id="rdoGrade1" name="rdoGrade" value="A" syn-events="['change']" checked>
+                <span class="form-check-label ml--1">A 등급</span>
+            </label>
+            <label class="form-check form-check-inline m-0 pr-2">
+                <input class="form-check-input" type="radio" id="rdoGrade2" name="rdoGrade" value="B" syn-events="['change']">
+                <span class="form-check-label ml--1">B 등급</span>
+            </label>
+            <label class="form-check form-check-inline m-0 pr-2">
+                <input class="form-check-input" type="radio" id="rdoGrade3" name="rdoGrade" value="C" syn-events="['change']">
+                <span class="form-check-label ml--1">C 등급</span>
+            </label>
+        </div>
+
+        <h4>3. 선택 상태에 따라 영역 전환</h4>
+        <div class="mb-2">
+            <label class="form-check form-check-inline m-0 pr-2">
+                <input class="form-check-input" type="radio" id="rdoView1" name="rdoView" value="LIST" syn-events="['change']" checked>
+                <span class="form-check-label ml--1">목록 보기</span>
+            </label>
+            <label class="form-check form-check-inline m-0 pr-2">
+                <input class="form-check-input" type="radio" id="rdoView2" name="rdoView" value="CARD" syn-events="['change']">
+                <span class="form-check-label ml--1">카드 보기</span>
+            </label>
+        </div>
+        <div id="divListView" class="p-2 border mb-2">목록 형태로 표시되는 영역입니다.</div>
+        <div id="divCardView" class="p-2 border mb-2 hidden">카드 형태로 표시되는 영역입니다.</div>
+
+        <h4>4. 메서드</h4>
+        <div class="mb-2">
+            <input type="button" id="btnGetValue" value="getValue (rdoUseYn1)" syn-events="['click']">
+            <input type="button" id="btnSetValue" value="setValue (rdoUseYn2 = true)" syn-events="['click']">
+            <input type="button" id="btnClear" value="clear (rdoUseYn2)" syn-events="['click']">
+            <input type="button" id="btnGroupNames" value="getGroupNames" syn-events="['click']">
+        </div>
+        <div class="mb-2">
+            <input type="button" id="btnSelectedByValue" value="getSelectedByValue (rdoGrade)" syn-events="['click']">
+            <input type="button" id="btnSelectedByText" value="getSelectedByText (rdoGrade)" syn-events="['click']">
+            <input type="button" id="btnSelectedByID" value="getSelectedByID (rdoGrade)" syn-events="['click']">
+            <input type="button" id="btnSelectedValue" value="selectedValue (rdoGrade = 'C')" syn-events="['click']">
+        </div>
+    </form>
+
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

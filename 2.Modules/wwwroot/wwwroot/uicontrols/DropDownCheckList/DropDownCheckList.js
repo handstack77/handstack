@@ -377,18 +377,11 @@
         setSelectedIndex(elID, value) {
             var el = syn.$l.get(elID);
             if ($object.isNullOrUndefined(el) == false) {
+                // 지정한 인덱스(숫자 또는 숫자 배열)의 옵션만 선택하고 나머지는 해제한다.
+                var indexes = $object.isArray(value) == true ? value : ($object.isNullOrUndefined(value) == true ? [] : [value]);
                 var length = el.options.length;
                 for (var i = 0; i < length; i++) {
-                    if ($object.isNumber(value) == true) {
-                        if (i == value) {
-                            item.selected = true;
-                        }
-                    }
-                    else if ($object.isArray(value) == true) {
-                        if (value.includes(i) > -1) {
-                            item.selected = true;
-                        }
-                    }
+                    el.options[i].selected = indexes.includes(i);
                 }
                 $multiselect.controlReload(elID);
             }

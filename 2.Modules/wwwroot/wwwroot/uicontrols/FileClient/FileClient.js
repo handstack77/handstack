@@ -1347,19 +1347,21 @@
         },
 
         toFileLengthString(fileLength) {
-            var val = '0 KB';
-            if (fileLength < 0) {
+            fileLength = Number(fileLength);
+            if (isNaN(fileLength) == true || fileLength < 0) {
                 fileLength = 0;
             }
 
+            // 1MB 미만은 KB, 1GB 미만은 MB, 그 이상은 GB 로 소수 첫째 자리까지 표시한다.
             if (fileLength < 1048576.0) {
-                val = (fileLength / 1024.0).toString() + ' KB';
-            }
-            if (fileLength < 1073741824.0) {
-                val = ((fileLength / 1024.0) / 1024.0).toString() + ' MB';
+                return (fileLength / 1024.0).toFixed(1) + ' KB';
             }
 
-            return val;
+            if (fileLength < 1073741824.0) {
+                return (fileLength / 1048576.0).toFixed(1) + ' MB';
+            }
+
+            return (fileLength / 1073741824.0).toFixed(1) + ' GB';
         },
 
         executeProxy(url, callback) {

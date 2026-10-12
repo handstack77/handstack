@@ -9,7 +9,7 @@ CodePicker는 코드값 검색 팝업 패턴을 구현한 컨트롤입니다. �
 ```html
 <syn_codepicker id="chpCompanyID" syn-datafield="CompanyID" syn-options="{
     belongID: 'LD01',
-    dataSourceID: 'BDLCHP011',
+    dataSourceID: 'CHP_COMPANY',
     local: false,
     codeElementClass: 'hidden',
     isMultiSelect: false,

@@ -71,3 +71,8 @@ var checked = syn.uicontrols.$list.getControl('lstDataTable').table.column(0).ch
 - 실제 소스 코드는 `GridList.js`, `GridList.css` 파일에서 확인할 수 있습니다(내부 파일명은 유지되지만 실제 등록 이름은 `syn.uicontrols.$list` 입니다).
 - GridList는 내부적으로 [DataTables](https://datatables.net/)를 그대로 사용하므로, `getControl(elID).table`로 얻은 객체를 통해 [DataTables API](https://datatables.net/reference/api/)를 직접 호출할 수도 있습니다.
 - 체크박스 다중 선택은 [DataTables Checkboxes 확장](https://github.com/gyrocode/jquery-datatables-checkboxes) 플러그인을 사용합니다.
+
+## 추가 예제
+
+- `example/features.html` : 전체 기능 확인 - 모든 옵션/메서드/이벤트를 한 화면에서 확인하는 예제
+- `example/practical.html` : 주문 접수 처리 화면(실무형) - 실무 화면 패턴(조회 조건/목록/검증/저장)을 반영한 예제
