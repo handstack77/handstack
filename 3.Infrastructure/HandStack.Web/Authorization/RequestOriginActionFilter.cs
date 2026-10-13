@@ -14,7 +14,7 @@ namespace HandStack.Web.Authorization
     /// <summary>
     /// 브라우저 요청은 Referer(없으면 Origin)가 동일 도메인일 때 허용하고,
     /// 그 외 프로그램 요청은 헤더 인증키(X-Api-Key 또는 Authorization: Bearer)를 검증한다.
-    /// 설정: AppSettings:Security:ApiAccess. 사용: [TypeFilter(typeof(RequestOriginActionFilter))]
+    /// 설정: AppSettings:Security:RequestOriginApiAccess. 사용: [TypeFilter(typeof(RequestOriginActionFilter))]
     /// </summary>
     public class RequestOriginActionFilter(IConfiguration configuration) : IActionFilter
     {
@@ -75,9 +75,9 @@ namespace HandStack.Web.Authorization
                 return false;
             }
 
-            var sourceAuthority = NormalizeAuthority(sourceUri.Host, sourceUri.Port);
+            var sourceAuthority = NormalizeAuthority(sourceUri.Host, sourceUri.Port, options.IsPortComparison == false);
             var requestPort = request.Host.Port ?? (string.Equals(request.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase) == true ? 443 : 80);
-            if (string.Equals(sourceAuthority, NormalizeAuthority(request.Host.Host, requestPort), StringComparison.Ordinal) == true)
+            if (string.Equals(sourceAuthority, NormalizeAuthority(request.Host.Host, requestPort, options.IsPortComparison == false), StringComparison.Ordinal) == true)
             {
                 return true;
             }
@@ -85,7 +85,7 @@ namespace HandStack.Web.Authorization
             foreach (var allowed in options.AllowedReferers)
             {
                 if (Uri.TryCreate(allowed?.Trim(), UriKind.Absolute, out var allowedUri) == true
-                    && string.Equals(sourceAuthority, NormalizeAuthority(allowedUri.Host, allowedUri.Port), StringComparison.Ordinal) == true)
+                    && string.Equals(sourceAuthority, NormalizeAuthority(allowedUri.Host, allowedUri.Port, options.IsPortComparison == false), StringComparison.Ordinal) == true)
                 {
                     return true;
                 }
@@ -94,9 +94,9 @@ namespace HandStack.Web.Authorization
             return false;
         }
 
-        private static string NormalizeAuthority(string host, int port)
+        private static string NormalizeAuthority(string host, int port, bool skipPort)
         {
-            return $"{host.ToLowerInvariant()}:{port}";
+            return skipPort == true ? host.ToLowerInvariant() : $"{host.ToLowerInvariant()}:{port}";
         }
 
         private static bool IsValidApiKey(HttpRequest request, RequestOriginOptions options)
