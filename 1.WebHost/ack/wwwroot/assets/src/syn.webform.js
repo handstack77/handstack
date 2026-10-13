@@ -3843,8 +3843,7 @@
                 cache: 'default',
                 credentials: 'same-origin',
                 headers: { 'Content-Type': 'text/plain' },
-                redirect: 'follow',
-                referrerPolicy: 'no-referrer-when-downgrade'
+                redirect: 'follow'
             };
             const fetchOptions = syn.$w.getFetchClientOptions ? syn.$w.getFetchClientOptions(defaultOptions) : defaultOptions;
             const cacheBust = (syn.Config?.IsClientCaching === false) ? `${url.includes('?') ? '&' : '?'} tick = ${Date.now()}` : '';
@@ -3871,8 +3870,7 @@
                 cache: 'default',
                 credentials: 'same-origin',
                 headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                redirect: 'follow',
-                referrerPolicy: 'no-referrer-when-downgrade'
+                redirect: 'follow'
             };
             const fetchOptions = syn.$w.getFetchClientOptions ? syn.$w.getFetchClientOptions(defaultOptions) : defaultOptions;
             const cacheBust = (syn.Config?.IsClientCaching === false) ? `${url.includes('?') ? '&' : '?'} tick = ${Date.now()}` : '';

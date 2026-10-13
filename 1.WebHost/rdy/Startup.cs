@@ -2352,7 +2352,6 @@ namespace rdy
         {
             var headers = context.Response.Headers;
             headers.TryAdd("X-Content-Type-Options", "nosniff");
-            headers.TryAdd("Referrer-Policy", "no-referrer");
             if (string.Equals(xFrameOptions, "ALLOW", StringComparison.OrdinalIgnoreCase) == false)
             {
                 headers.TryAdd("X-Frame-Options", xFrameOptions);

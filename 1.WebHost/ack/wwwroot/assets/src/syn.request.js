@@ -165,8 +165,7 @@
                             cache: 'default',
                             credentials: 'same-origin',
                             headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                            redirect: 'follow',
-                            referrerPolicy: 'no-referrer-when-downgrade'
+                            redirect: 'follow'
                         };
                         const fetchOptions = syn.$w.getFetchClientOptions ? syn.$w.getFetchClientOptions(defaultOptions) : defaultOptions;
                         options = syn.$w.argumentsExtend(fetchOptions, options);

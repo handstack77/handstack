@@ -469,7 +469,6 @@
                     'Content-Type': 'text/plain', // text/plain, application/json, application/x-www-form-urlencoded, multipart/form-data
                 },
                 redirect: 'follow', // manual, *follow, error
-                referrerPolicy: 'no-referrer-when-downgrade', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
             };
 
             result = syn.$w.argumentsExtend(defaultSetting, options);

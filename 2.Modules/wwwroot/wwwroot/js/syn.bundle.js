@@ -36868,8 +36868,7 @@ if (typeof module !== 'undefined' && module.exports) {
                             cache: 'default',
                             credentials: 'same-origin',
                             headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                            redirect: 'follow',
-                            referrerPolicy: 'no-referrer-when-downgrade'
+                            redirect: 'follow'
                         };
                         const fetchOptions = syn.$w.getFetchClientOptions ? syn.$w.getFetchClientOptions(defaultOptions) : defaultOptions;
                         options = syn.$w.argumentsExtend(fetchOptions, options);
@@ -41941,8 +41940,7 @@ if (typeof module !== 'undefined' && module.exports) {
                 cache: 'default',
                 credentials: 'same-origin',
                 headers: { 'Content-Type': 'text/plain' },
-                redirect: 'follow',
-                referrerPolicy: 'no-referrer-when-downgrade'
+                redirect: 'follow'
             };
             const fetchOptions = syn.$w.getFetchClientOptions ? syn.$w.getFetchClientOptions(defaultOptions) : defaultOptions;
             const cacheBust = (syn.Config?.IsClientCaching === false) ? `${url.includes('?') ? '&' : '?'} tick = ${Date.now()}` : '';
@@ -41969,8 +41967,7 @@ if (typeof module !== 'undefined' && module.exports) {
                 cache: 'default',
                 credentials: 'same-origin',
                 headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                redirect: 'follow',
-                referrerPolicy: 'no-referrer-when-downgrade'
+                redirect: 'follow'
             };
             const fetchOptions = syn.$w.getFetchClientOptions ? syn.$w.getFetchClientOptions(defaultOptions) : defaultOptions;
             const cacheBust = (syn.Config?.IsClientCaching === false) ? `${url.includes('?') ? '&' : '?'} tick = ${Date.now()}` : '';
