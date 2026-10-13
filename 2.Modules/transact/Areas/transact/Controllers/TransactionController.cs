@@ -13,6 +13,7 @@ using ChoETL;
 using HandStack.Core.ExtensionMethod;
 using HandStack.Core.Helpers;
 using HandStack.Web;
+using HandStack.Web.Authorization;
 using HandStack.Web.Common;
 using HandStack.Web.Entity;
 using HandStack.Web.Extensions;
@@ -338,6 +339,7 @@ namespace transact.Areas.transact.Controllers
 
         // http://localhost:8421/transact/api/transaction/execute
         [HttpPost("[action]")]
+        [TypeFilter(typeof(RequestOriginActionFilter))]
         public async Task<ActionResult> Execute(TransactionRequest request)
         {
             // 주요 구간 거래 명령 입력 횟수 및 명령 시간 기록

@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using HandStack.Core.ExtensionMethod;
 using HandStack.Core.Helpers;
 using HandStack.Web;
+using HandStack.Web.Authorization;
 using HandStack.Web.Common;
 using HandStack.Web.Entity;
 using HandStack.Web.Extensions;
@@ -46,6 +47,7 @@ namespace transact.Areas.transact.Controllers
 
         // http://localhost:8421/transact/api/workflow/execute
         [HttpPost("[action]")]
+        [TypeFilter(typeof(RequestOriginActionFilter))]
         public async Task<ActionResult> Execute(TransactionRequest request)
         {
             var response = new TransactionResponse
