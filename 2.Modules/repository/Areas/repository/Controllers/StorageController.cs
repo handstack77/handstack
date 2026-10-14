@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -6,8 +6,10 @@ using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
+
 using HandStack.Core.ExtensionMethod;
 using HandStack.Data.Enumeration;
 using HandStack.Web;
@@ -16,18 +18,24 @@ using HandStack.Web.Entity;
 using HandStack.Web.Extensions;
 using HandStack.Web.Helper;
 using HandStack.Web.MessageContract.Message;
+
 using Mediator;
+
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+
 using Newtonsoft.Json;
+
 using repository.Entity;
 using repository.Events;
 using repository.Extensions;
 using repository.Message;
 using repository.Services;
+
 using Serilog;
+
 using SkiaSharp;
 
 namespace repository.Controllers
@@ -209,6 +217,13 @@ namespace repository.Controllers
             if (string.IsNullOrWhiteSpace(repositoryID) || string.IsNullOrWhiteSpace(itemID) || string.IsNullOrWhiteSpace(changeFileName))
             {
                 jsonContentResult.Message = $"UpdateFileName 요청 정보가 유효하지 않습니다, repositoryID: {repositoryID}, itemID: {itemID}, fileName: {changeFileName}";
+                return BadRequest(jsonContentResult.Message);
+            }
+
+            // 변경할 파일명은 저장 디렉터리 안에서 이동 대상 경로를 만드는 데 쓰이므로 경로 구분자나 상위 경로가 없는 파일명만 허용한다.
+            if (IsSafeFileName(changeFileName) == false)
+            {
+                jsonContentResult.Message = "UpdateFileName 변경할 파일명 확인 필요";
                 return BadRequest(jsonContentResult.Message);
             }
 
@@ -541,6 +556,12 @@ namespace repository.Controllers
             var customPath2 = string.IsNullOrWhiteSpace(Request.Query["CustomPath2"]) ? "" : Request.Query["CustomPath2"].ToString();
             var customPath3 = string.IsNullOrWhiteSpace(Request.Query["CustomPath3"]) ? "" : Request.Query["CustomPath3"].ToString();
             var userID = string.IsNullOrWhiteSpace(Request.Query["UserID"]) ? "" : Request.Query["UserID"].ToString();
+
+            if (IsSafeRelativePath(customPath1) == false || IsSafeRelativePath(customPath2) == false || IsSafeRelativePath(customPath3) == false)
+            {
+                result.Message = "UploadFile CustomPath 요청 정보 확인 필요";
+                return Content(JsonConvert.SerializeObject(result), "application/json");
+            }
 
             RepositoryItems? repositoryItem = null;
             if (Request.HasFormContentType == true)
@@ -1309,6 +1330,12 @@ namespace repository.Controllers
             var stringBuilder = new StringBuilder(512);
             var scriptStart = "<script type='text/javascript'>";
             var scriptEnd = "</script>";
+
+            if (IsSafeRelativePath(customPath1) == false || IsSafeRelativePath(customPath2) == false || IsSafeRelativePath(customPath3) == false)
+            {
+                result.Message = "UploadFiles CustomPath 요청 정보 확인 필요";
+                return Content(JsonConvert.SerializeObject(result), "application/json");
+            }
 
             if (Request.HasFormContentType == true)
             {
@@ -2692,10 +2719,28 @@ namespace repository.Controllers
 
             try
             {
+                // 업로드는 PhysicalPath/{CustomPath1}/{CustomPath2}/{CustomPath3}/{정책경로} 에 저장하므로
+                // 허용 기준 디렉터리도 저장소 경로에 항목의 CustomPath1~3 을 이어서 계산한다.
                 var filePath = repositoryItem.PhysicalPath;
-                var persistenceDirectoryPath = string.IsNullOrWhiteSpace(applicationID) == true
-                    ? repository.PhysicalPath
-                    : PathExtensions.Combine(repository.PhysicalPath, applicationID);
+                var persistenceDirectoryPath = repository.PhysicalPath;
+                if (IsSafeRelativePath(repositoryItem.CustomPath1) == false || IsSafeRelativePath(repositoryItem.CustomPath2) == false || IsSafeRelativePath(repositoryItem.CustomPath3) == false)
+                {
+                    downloadResult.Message = "ExecuteFileDownload CustomPath 요청 정보 확인 필요";
+                    return BadRequest(downloadResult.Message);
+                }
+
+                var customStoragePath = new RepositoryManager().GetCustomFileStoragePath(repositoryItem.CustomPath1, repositoryItem.CustomPath2, repositoryItem.CustomPath3);
+                if (string.IsNullOrWhiteSpace(customStoragePath) == false)
+                {
+                    if (TryResolveChildPath(repository.PhysicalPath, customStoragePath, out var customDirectoryPath) == false)
+                    {
+                        downloadResult.Message = "파일 경로 확인 필요";
+                        return BadRequest(downloadResult.Message);
+                    }
+
+                    persistenceDirectoryPath = customDirectoryPath;
+                }
+
                 if (TryResolveChildPath(persistenceDirectoryPath, Path.GetRelativePath(persistenceDirectoryPath, filePath), out var safeFilePath) == false)
                 {
                     downloadResult.Message = "파일 경로 확인 필요";
@@ -3000,6 +3045,18 @@ namespace repository.Controllers
         }
 
         private static readonly char[] RelativePathSeparators = new[] { '/', '\\' };
+
+        private static bool IsSafeFileName(string? fileName)
+        {
+            if (string.IsNullOrWhiteSpace(fileName) == true)
+            {
+                return false;
+            }
+
+            return fileName.Trim() is not ("." or "..")
+                && fileName.AsSpan().IndexOfAny(RelativePathSeparators) == -1
+                && fileName.AsSpan().IndexOfAny(Path.GetInvalidFileNameChars()) == -1;
+        }
 
         private static bool IsSafeRelativePath(string? path)
         {
