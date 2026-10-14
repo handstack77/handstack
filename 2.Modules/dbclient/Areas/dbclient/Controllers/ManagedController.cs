@@ -11,6 +11,7 @@ using dbclient.Extensions;
 using HandStack.Core.ExtensionMethod;
 using HandStack.Data;
 using HandStack.Web;
+using HandStack.Web.Authorization;
 using HandStack.Web.Common;
 using HandStack.Web.Entity;
 using HandStack.Web.Extensions;
@@ -33,6 +34,7 @@ namespace dbclient.Areas.dbclient.Controllers
     [Route("[area]/api/[controller]")]
     [ApiController]
     [EnableCors]
+    [TypeFilter(typeof(RequestOriginActionFilter))]
     public partial class ManagedController(IWebHostEnvironment environment, ILogger logger, IConfiguration configuration) : BaseController
     {
         private static readonly Regex cdataRegex = MyRegex();

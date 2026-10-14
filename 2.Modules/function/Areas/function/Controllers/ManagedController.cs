@@ -11,6 +11,7 @@ using function.Extensions;
 using HandStack.Core.ExtensionMethod;
 using HandStack.Core.Helpers;
 using HandStack.Web;
+using HandStack.Web.Authorization;
 using HandStack.Web.Common;
 using HandStack.Web.Extensions;
 using HandStack.Web.MessageContract.DataObject;
@@ -29,6 +30,7 @@ namespace function.Areas.function.Controllers
     [Route("[area]/api/[controller]")]
     [ApiController]
     [EnableCors]
+    [TypeFilter(typeof(RequestOriginActionFilter))]
     public class ManagedController(IWebHostEnvironment environment, ILogger logger, IConfiguration configuration) : BaseController
     {
         private ILogger logger { get; } = logger;

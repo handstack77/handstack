@@ -6,6 +6,7 @@ using checkup.Extensions;
 using HandStack.Core.ExtensionMethod;
 using HandStack.Data.Enumeration;
 using HandStack.Web;
+using HandStack.Web.Authorization;
 using HandStack.Web.Common;
 using HandStack.Web.Extensions;
 
@@ -102,6 +103,7 @@ namespace checkup.Areas.checkup.Controllers
 
         // http://localhost:8421/checkup/api/managed/reset-administrator-key
         [HttpGet("[action]")]
+        [TypeFilter(typeof(RequestOriginActionFilter))]
         public ActionResult ResetAdministratorKey(string? oldPasswordKey = "")
         {
             _ = BadRequest();

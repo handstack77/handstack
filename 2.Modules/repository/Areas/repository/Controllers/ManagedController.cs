@@ -6,6 +6,7 @@ using System.Linq;
 using HandStack.Core.ExtensionMethod;
 using HandStack.Data.Enumeration;
 using HandStack.Web;
+using HandStack.Web.Authorization;
 using HandStack.Web.Common;
 using HandStack.Web.Entity;
 using HandStack.Web.Extensions;
@@ -27,6 +28,7 @@ namespace repository.Areas.repository.Controllers
     [Area("repository")]
     [Route("[area]/api/[controller]")]
     [ApiController]
+    [TypeFilter(typeof(RequestOriginActionFilter))]
     public class ManagedController(IWebHostEnvironment environment, IConfiguration configuration, ModuleApiClient moduleApiClient) : BaseController
     {
         private IConfiguration configuration { get; } = configuration;

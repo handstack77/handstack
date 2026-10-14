@@ -7,6 +7,7 @@ using graphclient.Extensions;
 
 using HandStack.Core.ExtensionMethod;
 using HandStack.Web;
+using HandStack.Web.Authorization;
 using HandStack.Web.Common;
 using HandStack.Web.Extensions;
 
@@ -24,6 +25,7 @@ namespace graphclient.Areas.graphclient.Controllers
     [Route("[area]/api/[controller]")]
     [ApiController]
     [EnableCors]
+    [TypeFilter(typeof(RequestOriginActionFilter))]
     public class ManagedController(IWebHostEnvironment environment, ILogger logger, IConfiguration configuration) : BaseController
     {
         private readonly ILogger logger = logger;

@@ -8,6 +8,7 @@ using System.Text.Json.Nodes;
 using HandStack.Core.ExtensionMethod;
 using HandStack.Core.Helpers;
 using HandStack.Web;
+using HandStack.Web.Authorization;
 using HandStack.Web.Common;
 using HandStack.Web.Extensions;
 using HandStack.Web.MessageContract.DataObject;
@@ -31,6 +32,7 @@ namespace transact.Areas.transact.Controllers
     [Route("[area]/api/[controller]")]
     [ApiController]
     [EnableCors]
+    [TypeFilter(typeof(RequestOriginActionFilter))]
     public class ManagedController(IWebHostEnvironment environment, IConfiguration configuration, ILogger logger, TransactLoggerClient loggerClient) : BaseController
     {
         private TransactLoggerClient loggerClient { get; } = loggerClient;

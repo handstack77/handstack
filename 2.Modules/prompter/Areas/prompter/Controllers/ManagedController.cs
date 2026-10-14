@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 using HandStack.Core.ExtensionMethod;
 using HandStack.Web;
+using HandStack.Web.Authorization;
 using HandStack.Web.Common;
 using HandStack.Web.Entity;
 using HandStack.Web.Extensions;
@@ -31,6 +32,7 @@ namespace prompter.Areas.prompter.Controllers
     [Route("[area]/api/[controller]")]
     [ApiController]
     [EnableCors]
+    [TypeFilter(typeof(RequestOriginActionFilter))]
     public partial class ManagedController(ILogger logger, PromptBuiltinToolService builtinToolService) : BaseController
     {
         private ILogger logger { get; } = logger;
