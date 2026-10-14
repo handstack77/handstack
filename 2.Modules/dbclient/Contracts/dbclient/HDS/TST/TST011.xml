@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapper xmlns="contract.xsd">
+    <header>
+        <application>HDS</application>
+        <project>TST</project>
+        <transaction>TST011</transaction>
+        <datasource>DB01</datasource>
+        <use>Y</use>
+        <desc>Filters 공급자별 호환성 확인. 상수 데이터만 조회하며 테이블을 생성하거나 변경하지 않음</desc>
+    </header>
+    <commands>
+        <statement id="GD01" seq="0" datasource="DB02" use="Y" timeout="30" desc="SQL Server Filters 호환성 검증">
+            <![CDATA[
+SELECT M.userid, M.content, M.score
+FROM (
+    SELECT 'user001' AS userid,
+           N'HandStack 100%_! [x] 한글' AS content,
+           90 AS score,
+           0 AS isdeleted,
+           CAST('2026-10-14' AS date) AS businessdate,
+           CAST('2026-10-14T12:34:56.123456' AS datetime2(6)) AS createdat,
+           CAST('2026-10-14T12:34:56.123456+00:00' AS datetimeoffset(6)) AS occurredat,
+           CAST(1 AS bit) AS enabled,
+           CAST('00112233-4455-6677-8899-aabbccddeeff' AS uniqueidentifier) AS itemguid
+    UNION ALL
+    SELECT 'user002' AS userid,
+           N'Filter sample' AS content,
+           70 AS score,
+           0 AS isdeleted,
+           CAST('2026-10-13' AS date) AS businessdate,
+           CAST('2026-10-13T12:34:56.123456' AS datetime2(6)) AS createdat,
+           CAST('2026-10-13T12:34:56.123456+00:00' AS datetimeoffset(6)) AS occurredat,
+           CAST(0 AS bit) AS enabled,
+           CAST('11112233-4455-6677-8899-aabbccddeeff' AS uniqueidentifier) AS itemguid
+    UNION ALL
+    SELECT 'user003' AS userid,
+           N'Filter sample' AS content,
+           100 AS score,
+           1 AS isdeleted,
+           CAST('2026-10-14' AS date) AS businessdate,
+           CAST('2026-10-14T12:34:56.123456' AS datetime2(6)) AS createdat,
+           CAST('2026-10-14T12:34:56.123456+00:00' AS datetimeoffset(6)) AS occurredat,
+           CAST(0 AS bit) AS enabled,
+           CAST('11112233-4455-6677-8899-aabbccddeeff' AS uniqueidentifier) AS itemguid
+) M
+WHERE M.isdeleted = 0
+            ]]>
+            <filters parameter="Filters" groupLogic="AND">
+                <field groupID="user" column="M.userid" type="String" operators="eq,ne,lte,gte,startsWith,endsWith,contains" />
+                <field groupID="content" column="M.content" type="String" operators="eq,ne,startsWith,endsWith,contains" />
+                <field groupID="score" column="M.score" type="Int32" operators="eq,ne,lte,gte" />
+                <field groupID="date" column="M.businessdate" type="Date" operators="eq,ne,lte,gte" />
+                <field groupID="createdAt" column="M.createdat" type="DateTime" operators="eq,ne,lte,gte" />
+                <field groupID="occurredAt" column="M.occurredat" type="DateTimeOffset" operators="eq,ne,lte,gte" />
+                <field groupID="enabled" column="M.enabled" type="Boolean" operators="eq,ne" />
+                <field groupID="guid" column="M.itemguid" type="Guid" operators="eq,ne" />
+            </filters>
+            <![CDATA[
+ORDER BY M.userid;
+            ]]>
+            <param id="@Filters" type="String" length="-1" value="NULL" />
+            <outputmeta value="userid:string;content:string;score:int;" />
+        </statement>
+        <statement id="GD02" seq="0" datasource="DB03" use="Y" timeout="30" desc="Oracle Filters 호환성 검증">
+            <![CDATA[
+SELECT M.userid, M.content, M.score
+FROM (
+    SELECT 'user001' AS userid,
+           N'HandStack 100%_! [x] 한글' AS content,
+           90 AS score,
+           0 AS isdeleted,
+           DATE '2026-10-14' AS businessdate,
+           TIMESTAMP '2026-10-14 12:34:56.123456' AS createdat,
+           TO_TIMESTAMP_TZ('2026-10-14 12:34:56.123456 +00:00', 'YYYY-MM-DD HH24:MI:SS.FF6 TZH:TZM') AS occurredat,
+           1 AS enabled,
+           HEXTORAW('33221100554477668899aabbccddeeff') AS itemguid FROM dual
+    UNION ALL
+    SELECT 'user002' AS userid,
+           N'Filter sample' AS content,
+           70 AS score,
+           0 AS isdeleted,
+           DATE '2026-10-13' AS businessdate,
+           TIMESTAMP '2026-10-13 12:34:56.123456' AS createdat,
+           TO_TIMESTAMP_TZ('2026-10-13 12:34:56.123456 +00:00', 'YYYY-MM-DD HH24:MI:SS.FF6 TZH:TZM') AS occurredat,
+           0 AS enabled,
+           HEXTORAW('33221111554477668899aabbccddeeff') AS itemguid FROM dual
+    UNION ALL
+    SELECT 'user003' AS userid,
+           N'Filter sample' AS content,
+           100 AS score,
+           1 AS isdeleted,
+           DATE '2026-10-14' AS businessdate,
+           TIMESTAMP '2026-10-14 12:34:56.123456' AS createdat,
+           TO_TIMESTAMP_TZ('2026-10-14 12:34:56.123456 +00:00', 'YYYY-MM-DD HH24:MI:SS.FF6 TZH:TZM') AS occurredat,
+           0 AS enabled,
+           HEXTORAW('33221111554477668899aabbccddeeff') AS itemguid FROM dual
+) M
+WHERE M.isdeleted = 0
+            ]]>
+            <filters parameter="Filters" groupLogic="AND">
+                <field groupID="user" column="M.userid" type="String" operators="eq,ne,lte,gte,startsWith,endsWith,contains" />
+                <field groupID="content" column="M.content" type="String" operators="eq,ne,startsWith,endsWith,contains" />
+                <field groupID="score" column="M.score" type="Int32" operators="eq,ne,lte,gte" />
+                <field groupID="date" column="M.businessdate" type="Date" operators="eq,ne,lte,gte" />
+                <field groupID="createdAt" column="M.createdat" type="DateTime" operators="eq,ne,lte,gte" />
+                <field groupID="occurredAt" column="M.occurredat" type="DateTimeOffset" operators="eq,ne,lte,gte" />
+                <field groupID="enabled" column="M.enabled" type="Boolean" operators="eq,ne" />
+                <field groupID="guid" column="M.itemguid" type="Guid" operators="eq,ne" />
+            </filters>
+            <![CDATA[
+ORDER BY M.userid;
+            ]]>
+            <param id="@Filters" type="String" length="-1" value="NULL" />
+            <outputmeta value="userid:string;content:string;score:int;" />
+        </statement>
+        <statement id="GD03" seq="0" datasource="DB04" use="Y" timeout="30" desc="MySQL/MariaDB Filters 호환성 검증">
+            <![CDATA[
+SELECT M.userid, M.content, M.score
+FROM (
+    SELECT 'user001' AS userid,
+           'HandStack 100%_! [x] 한글' AS content,
+           90 AS score,
+           0 AS isdeleted,
+           CAST('2026-10-14' AS DATE) AS businessdate,
+           CAST('2026-10-14 12:34:56.123456' AS DATETIME(6)) AS createdat,
+           CAST('2026-10-14 12:34:56.123456' AS DATETIME(6)) AS occurredat,
+           1 AS enabled,
+           CAST('00112233-4455-6677-8899-aabbccddeeff' AS CHAR(36)) AS itemguid
+    UNION ALL
+    SELECT 'user002' AS userid,
+           'Filter sample' AS content,
+           70 AS score,
+           0 AS isdeleted,
+           CAST('2026-10-13' AS DATE) AS businessdate,
+           CAST('2026-10-13 12:34:56.123456' AS DATETIME(6)) AS createdat,
+           CAST('2026-10-13 12:34:56.123456' AS DATETIME(6)) AS occurredat,
+           0 AS enabled,
+           CAST('11112233-4455-6677-8899-aabbccddeeff' AS CHAR(36)) AS itemguid
+    UNION ALL
+    SELECT 'user003' AS userid,
+           'Filter sample' AS content,
+           100 AS score,
+           1 AS isdeleted,
+           CAST('2026-10-14' AS DATE) AS businessdate,
+           CAST('2026-10-14 12:34:56.123456' AS DATETIME(6)) AS createdat,
+           CAST('2026-10-14 12:34:56.123456' AS DATETIME(6)) AS occurredat,
+           0 AS enabled,
+           CAST('11112233-4455-6677-8899-aabbccddeeff' AS CHAR(36)) AS itemguid
+) M
+WHERE M.isdeleted = 0
+            ]]>
+            <filters parameter="Filters" groupLogic="AND">
+                <field groupID="user" column="M.userid" type="String" operators="eq,ne,lte,gte,startsWith,endsWith,contains" />
+                <field groupID="content" column="M.content" type="String" operators="eq,ne,startsWith,endsWith,contains" />
+                <field groupID="score" column="M.score" type="Int32" operators="eq,ne,lte,gte" />
+                <field groupID="date" column="M.businessdate" type="Date" operators="eq,ne,lte,gte" />
+                <field groupID="createdAt" column="M.createdat" type="DateTime" operators="eq,ne,lte,gte" />
+                <field groupID="occurredAt" column="M.occurredat" type="DateTimeOffset" operators="eq,ne,lte,gte" />
+                <field groupID="enabled" column="M.enabled" type="Boolean" operators="eq,ne" />
+                <field groupID="guid" column="M.itemguid" type="Guid" operators="eq,ne" />
+            </filters>
+            <![CDATA[
+ORDER BY M.userid;
+            ]]>
+            <param id="@Filters" type="String" length="-1" value="NULL" />
+            <outputmeta value="userid:string;content:string;score:int;" />
+        </statement>
+        <statement id="GD04" seq="0" datasource="DB05" use="Y" timeout="30" desc="PostgreSQL Filters 호환성 검증">
+            <![CDATA[
+SELECT M.userid, M.content, M.score
+FROM (
+    SELECT 'user001' AS userid,
+           'HandStack 100%_! [x] 한글' AS content,
+           90 AS score,
+           0 AS isdeleted,
+           DATE '2026-10-14' AS businessdate,
+           TIMESTAMP '2026-10-14 12:34:56.123456' AS createdat,
+           TIMESTAMPTZ '2026-10-14 12:34:56.123456+00:00' AS occurredat,
+           TRUE AS enabled,
+           '00112233-4455-6677-8899-aabbccddeeff'::uuid AS itemguid
+    UNION ALL
+    SELECT 'user002' AS userid,
+           'Filter sample' AS content,
+           70 AS score,
+           0 AS isdeleted,
+           DATE '2026-10-13' AS businessdate,
+           TIMESTAMP '2026-10-13 12:34:56.123456' AS createdat,
+           TIMESTAMPTZ '2026-10-13 12:34:56.123456+00:00' AS occurredat,
+           FALSE AS enabled,
+           '11112233-4455-6677-8899-aabbccddeeff'::uuid AS itemguid
+    UNION ALL
+    SELECT 'user003' AS userid,
+           'Filter sample' AS content,
+           100 AS score,
+           1 AS isdeleted,
+           DATE '2026-10-14' AS businessdate,
+           TIMESTAMP '2026-10-14 12:34:56.123456' AS createdat,
+           TIMESTAMPTZ '2026-10-14 12:34:56.123456+00:00' AS occurredat,
+           FALSE AS enabled,
+           '11112233-4455-6677-8899-aabbccddeeff'::uuid AS itemguid
+) M
+WHERE M.isdeleted = 0
+            ]]>
+            <filters parameter="Filters" groupLogic="AND">
+                <field groupID="user" column="M.userid" type="String" operators="eq,ne,lte,gte,startsWith,endsWith,contains" />
+                <field groupID="content" column="M.content" type="String" operators="eq,ne,startsWith,endsWith,contains" />
+                <field groupID="score" column="M.score" type="Int32" operators="eq,ne,lte,gte" />
+                <field groupID="date" column="M.businessdate" type="Date" operators="eq,ne,lte,gte" />
+                <field groupID="createdAt" column="M.createdat" type="DateTime" operators="eq,ne,lte,gte" />
+                <field groupID="occurredAt" column="M.occurredat" type="DateTimeOffset" operators="eq,ne,lte,gte" />
+                <field groupID="enabled" column="M.enabled" type="Boolean" operators="eq,ne" />
+                <field groupID="guid" column="M.itemguid" type="Guid" operators="eq,ne" />
+            </filters>
+            <![CDATA[
+ORDER BY M.userid;
+            ]]>
+            <param id="@Filters" type="String" length="-1" value="NULL" />
+            <outputmeta value="userid:string;content:string;score:int;" />
+        </statement>
+        <statement id="GD05" seq="0" datasource="DB01" use="Y" timeout="30" desc="SQLite Filters 호환성 검증">
+            <![CDATA[
+SELECT M.userid, M.content, M.score
+FROM (
+    SELECT 'user001' AS userid,
+           'HandStack 100%_! [x] 한글' AS content,
+           90 AS score,
+           0 AS isdeleted,
+           '2026-10-14 00:00:00' AS businessdate,
+           '2026-10-14 12:34:56.123456' AS createdat,
+           '2026-10-14 12:34:56.123456' AS occurredat,
+           1 AS enabled,
+           '00112233-4455-6677-8899-aabbccddeeff' AS itemguid
+    UNION ALL
+    SELECT 'user002' AS userid,
+           'Filter sample' AS content,
+           70 AS score,
+           0 AS isdeleted,
+           '2026-10-13 00:00:00' AS businessdate,
+           '2026-10-13 12:34:56.123456' AS createdat,
+           '2026-10-13 12:34:56.123456' AS occurredat,
+           0 AS enabled,
+           '11112233-4455-6677-8899-aabbccddeeff' AS itemguid
+    UNION ALL
+    SELECT 'user003' AS userid,
+           'Filter sample' AS content,
+           100 AS score,
+           1 AS isdeleted,
+           '2026-10-14 00:00:00' AS businessdate,
+           '2026-10-14 12:34:56.123456' AS createdat,
+           '2026-10-14 12:34:56.123456' AS occurredat,
+           0 AS enabled,
+           '11112233-4455-6677-8899-aabbccddeeff' AS itemguid
+) M
+WHERE M.isdeleted = 0
+            ]]>
+            <filters parameter="Filters" groupLogic="AND">
+                <field groupID="user" column="M.userid" type="String" operators="eq,ne,lte,gte,startsWith,endsWith,contains" />
+                <field groupID="content" column="M.content" type="String" operators="eq,ne,startsWith,endsWith,contains" />
+                <field groupID="score" column="M.score" type="Int32" operators="eq,ne,lte,gte" />
+                <field groupID="date" column="M.businessdate" type="Date" operators="eq,ne,lte,gte" />
+                <field groupID="createdAt" column="M.createdat" type="DateTime" operators="eq,ne,lte,gte" />
+                <field groupID="occurredAt" column="M.occurredat" type="DateTimeOffset" operators="eq,ne,lte,gte" />
+                <field groupID="enabled" column="M.enabled" type="Boolean" operators="eq,ne" />
+                <field groupID="guid" column="M.itemguid" type="Guid" guidFormat="String36" operators="eq,ne" />
+            </filters>
+            <![CDATA[
+ORDER BY M.userid;
+            ]]>
+            <param id="@Filters" type="String" length="-1" value="NULL" />
+            <outputmeta value="userid:string;content:string;score:int;" />
+        </statement>
+    </commands>
+</mapper>

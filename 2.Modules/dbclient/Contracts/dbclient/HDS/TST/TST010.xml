@@ -106,6 +106,13 @@ WHERE M.IsDeleted = 0
 			    ]]>
             </if>
 
+            <filters parameter="Filters" groupLogic="AND">
+                <field groupID="user" column="M.UserID" type="String" operators="eq,ne" />
+                <field groupID="content" column="M.MarkdownText" type="String" operators="eq,ne,startsWith,endsWith,contains" />
+                <field groupID="createdAt" column="M.CreatedAt" type="DateTime" operators="eq,ne,lte,gte" />
+                <field groupID="conversation" column="M.ConversationID" type="String" operators="eq,ne" />
+            </filters>
+
             <![CDATA[
 SELECT *
 FROM RoleUser AS RU
@@ -120,6 +127,31 @@ WHERE 1<2 AND
             <param id="@UserID" type="String" length="255" value="NULL" />
             <param id="@RoleID" type="String" length="100" value="NULL" />
             <param id="@TransformRoles" type="String" length="100" value="NULL" transform="@FOREACH" />
+            <param id="@Filters" type="String" length="-1" value="NULL" />
+        </statement>
+
+        <statement id="GD08" seq="0" use="Y" timeout="0" desc="SQLite JSON 필터 SQL 검증 예제">
+            <![CDATA[
+WITH SearchData (UserID, Content, Score, IsDeleted) AS (
+    SELECT 'user001', 'HandStack guide', 90, 0
+    UNION ALL SELECT 'user002', 'Filter sample', 70, 0
+    UNION ALL SELECT 'user003', '100% literal_value!', 50, 0
+    UNION ALL SELECT 'user004', 'Deleted message', 100, 1
+)
+SELECT M.UserID, M.Content, M.Score
+FROM SearchData AS M
+WHERE M.IsDeleted = 0
+            ]]>
+            <filters parameter="Filters" groupLogic="AND">
+                <field groupID="user" column="M.UserID" type="String" operators="eq,ne,startsWith,endsWith,contains" />
+                <field groupID="content" column="M.Content" type="String" operators="eq,ne,startsWith,endsWith,contains" />
+                <field groupID="score" column="M.Score" type="Int32" operators="eq,ne,lte,gte" />
+            </filters>
+            <![CDATA[
+ORDER BY M.UserID;
+            ]]>
+            <param id="@Filters" type="String" length="-1" value="NULL" />
+            <outputmeta value="UserID:string;Content:string;Score:int;" />
         </statement>
     </commands>
 </mapper>

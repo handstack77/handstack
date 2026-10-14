@@ -161,14 +161,17 @@ namespace dbclient.DataClient
                         return result;
                     }
 
-                    var parseSQL = DatabaseMapper.Find(statementMap, queryObject);
-
                     dynamic? dynamicParameters = CreateDynamicParameters(databaseProvider, statementMap);
+                    var parseSQL = DatabaseMapper.Find(statementMap, queryObject, (object?)dynamicParameters, databaseProvider);
                     if (dynamicParameters != null && queryObject.Parameters != null)
                     {
                         var dbParameterMaps = statementMap.DbParameters;
                         foreach (var dbParameterMap in dbParameterMaps)
                         {
+                            if (DatabaseMapper.IsFilterParameter(statementMap, dbParameterMap.Name))
+                            {
+                                continue;
+                            }
                             var dynamicParameter = GetDbParameterMap(dbParameterMap.Name, queryObject.Parameters);
 
                             if (dynamicParameter == null)
@@ -392,7 +395,7 @@ namespace dbclient.DataClient
                         });
                     }
 
-                    var (SQL, ResultType) = DatabaseMapper.FindPretreatment(statementMap, dynamicObject);
+                    var (SQL, ResultType) = DatabaseMapper.FindPretreatment(statementMap, dynamicObject, (object?)dynamicParameters, databaseProvider);
                     if (SQL != null && ResultType != null)
                     {
                         if (SQL.Replace(Environment.NewLine, "").Replace("\t", "").Trim() != "")
@@ -600,7 +603,7 @@ namespace dbclient.DataClient
                             });
                         }
 
-                        var parseSQL = DatabaseMapper.Find(statementMap, dynamicObject);
+                        var parseSQL = DatabaseMapper.Find(statementMap, dynamicObject, (object?)dynamicParameters, databaseProvider);
                         if (IsEmptySql(parseSQL))
                         {
                             if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
@@ -1177,7 +1180,7 @@ TransactionException:
                         });
                     }
 
-                    var (SQL, ResultType) = DatabaseMapper.FindPretreatment(statementMap, dynamicObject);
+                    var (SQL, ResultType) = DatabaseMapper.FindPretreatment(statementMap, dynamicObject, (object?)dynamicParameters, databaseProvider);
                     if (SQL != null && ResultType != null)
                     {
                         if (SQL.Replace(Environment.NewLine, "").Replace("\t", "").Trim() != "")
@@ -1384,7 +1387,7 @@ TransactionException:
                             });
                         }
 
-                        var parseSQL = DatabaseMapper.Find(statementMap, dynamicObject);
+                        var parseSQL = DatabaseMapper.Find(statementMap, dynamicObject, (object?)dynamicParameters, databaseProvider);
                         if (IsEmptySql(parseSQL))
                         {
                             if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
@@ -1816,7 +1819,7 @@ TransactionException:
                         });
                     }
 
-                    var (SQL, ResultType) = DatabaseMapper.FindPretreatment(statementMap, dynamicObject);
+                    var (SQL, ResultType) = DatabaseMapper.FindPretreatment(statementMap, dynamicObject, (object?)dynamicParameters, databaseProvider);
                     if (SQL != null && ResultType != null)
                     {
                         if (SQL.Replace(Environment.NewLine, "").Replace("\t", "").Trim() != "")
@@ -2023,7 +2026,7 @@ TransactionException:
                             });
                         }
 
-                        var parseSQL = DatabaseMapper.Find(statementMap, dynamicObject);
+                        var parseSQL = DatabaseMapper.Find(statementMap, dynamicObject, (object?)dynamicParameters, databaseProvider);
                         if (IsEmptySql(parseSQL))
                         {
                             if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
@@ -2454,7 +2457,7 @@ TransactionException:
                         });
                     }
 
-                    var (SQL, ResultType) = DatabaseMapper.FindPretreatment(statementMap, dynamicObject);
+                    var (SQL, ResultType) = DatabaseMapper.FindPretreatment(statementMap, dynamicObject, (object?)dynamicParameters, databaseProvider);
                     if (SQL != null && ResultType != null)
                     {
                         if (SQL.Replace(Environment.NewLine, "").Replace("\t", "").Trim() != "")
@@ -2661,7 +2664,7 @@ TransactionException:
                             });
                         }
 
-                        var parseSQL = DatabaseMapper.Find(statementMap, dynamicObject);
+                        var parseSQL = DatabaseMapper.Find(statementMap, dynamicObject, (object?)dynamicParameters, databaseProvider);
                         if (IsEmptySql(parseSQL))
                         {
                             if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
@@ -3120,8 +3123,8 @@ TransactionException:
                             });
                         }
 
-                        var parseSQL = DatabaseMapper.Find(statementMap, queryObject);
                         dynamic? dynamicParameters = CreateDynamicParameters(databaseProvider, statementMap);
+                        var parseSQL = DatabaseMapper.Find(statementMap, queryObject, (object?)dynamicParameters, databaseProvider);
                         SetDbParameterMapping(connectionFactory, databaseProvider, queryObject, statementMap, dynamicParameters);
 
                         var connection = new ProfilerDbConnection(connectionFactory.Connection, profiler);
@@ -3482,7 +3485,7 @@ TransactionException:
                         });
                     }
 
-                    var (SQL, ResultType) = DatabaseMapper.FindPretreatment(statementMap, dynamicObject);
+                    var (SQL, ResultType) = DatabaseMapper.FindPretreatment(statementMap, dynamicObject, (object?)dynamicParameters, databaseProvider);
                     if (SQL != null && ResultType != null)
                     {
                         if (SQL.Replace(Environment.NewLine, "").Replace("\t", "").Trim() != "")
@@ -3646,7 +3649,7 @@ TransactionException:
                         });
                     }
 
-                    var parseSQL = DatabaseMapper.Find(statementMap, dynamicObject);
+                    var parseSQL = DatabaseMapper.Find(statementMap, dynamicObject, (object?)dynamicParameters, databaseProvider);
 
                     var connection = new ProfilerDbConnection(connectionFactory.Connection, profiler);
                     using (var mainReader = connection.ExecuteReader(parseSQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout))
@@ -3977,7 +3980,7 @@ TransactionException:
                         });
                     }
 
-                    var (SQL, ResultType) = DatabaseMapper.FindPretreatment(statementMap, dynamicObject);
+                    var (SQL, ResultType) = DatabaseMapper.FindPretreatment(statementMap, dynamicObject, (object?)dynamicParameters, databaseProvider);
                     if (SQL != null && ResultType != null)
                     {
                         if (SQL.Replace(Environment.NewLine, "").Replace("\t", "").Trim() != "")
@@ -4160,7 +4163,7 @@ TransactionException:
                             });
                         }
 
-                        var parseSQL = DatabaseMapper.Find(statementMap, dynamicObject);
+                        var parseSQL = DatabaseMapper.Find(statementMap, dynamicObject, (object?)dynamicParameters, databaseProvider);
                         result.DefinedSQL.Add(SQLID, parseSQL.EncodeBase64());
 
                         Dictionary<string, object?>? parametersDictionary = null;
@@ -4635,6 +4638,11 @@ TransactionException:
             var dbParameterMaps = statementMap.DbParameters;
             foreach (var dbParameterMap in dbParameterMaps)
             {
+                // filters 입력은 SQL 조립에만 사용한다. 원본 JSON을 DB 매개변수로 바인딩하지 않는다.
+                if (DatabaseMapper.IsFilterParameter(statementMap, dbParameterMap.Name))
+                {
+                    continue;
+                }
                 if (dbParameterMap.Direction.IndexOf("Input") > -1)
                 {
                     var dynamicParameter = GetDbParameterMap(dbParameterMap.Name, queryObject.Parameters);

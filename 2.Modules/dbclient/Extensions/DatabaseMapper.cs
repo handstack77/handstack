@@ -702,7 +702,19 @@ namespace dbclient.Extensions
             return node.Attributes[name]?.Value ?? defaultValue;
         }
 
+        internal static bool IsFilterParameter(StatementMap statementMap, string parameterName)
+        {
+            var name = parameterName.TrimStart('@', ':', '#');
+            return statementMap.Chidren.DocumentNode.Descendants("filters").Any(node =>
+                GetAttributeValue(node, "parameter", "Filters").TrimStart('@', ':', '#') == name);
+        }
+
         public static (string? SQL, string ResultType) FindPretreatment(StatementMap statementMap, QueryObject? queryObject)
+        {
+            return FindPretreatment(statementMap, queryObject, null, DataProviders.SqlServer);
+        }
+
+        public static (string? SQL, string ResultType) FindPretreatment(StatementMap statementMap, QueryObject? queryObject, object? dynamicParameters, DataProviders databaseProvider)
         {
             string? pretreatmentSQL = null;
             var resultType = "";
@@ -714,6 +726,7 @@ namespace dbclient.Extensions
                 OptionDefaultStreamEncoding = Encoding.UTF8
             };
             ArgumentNullException.ThrowIfNull(statementMap);
+            var filters = new SqlFilterBuilder(statementMap, queryObject, dynamicParameters, databaseProvider, "pre");
             htmlDocument.LoadHtml(statementMap.SQL);
             var pretreatment = htmlDocument.DocumentNode.SelectSingleNode("//pretreatment");
             if (pretreatment != null)
@@ -732,7 +745,7 @@ namespace dbclient.Extensions
                 var childNodes = children.DocumentNode.ChildNodes;
                 foreach (var childNode in childNodes)
                 {
-                    pretreatmentSQL += ConvertChildren(childNode, parameters);
+                    pretreatmentSQL += ConvertChildren(childNode, parameters, filters);
                 }
             }
 
@@ -741,22 +754,29 @@ namespace dbclient.Extensions
                 pretreatmentSQL += new string(' ', random.Next(1, 10));
             }
 
+            filters.Bind();
             return (pretreatmentSQL, resultType);
         }
 
         public static string Find(StatementMap statementMap, QueryObject? queryObject)
+        {
+            return Find(statementMap, queryObject, null, DataProviders.SqlServer);
+        }
+
+        public static string Find(StatementMap statementMap, QueryObject? queryObject, object? dynamicParameters, DataProviders databaseProvider)
         {
             var result = string.Empty;
 
             var parameters = extractParameters(queryObject);
 
             ArgumentNullException.ThrowIfNull(statementMap);
+            var filters = new SqlFilterBuilder(statementMap, queryObject, dynamicParameters, databaseProvider, "main");
             var children = statementMap.Chidren;
 
             var childNodes = children.DocumentNode.ChildNodes;
             foreach (var childNode in childNodes)
             {
-                result += ConvertChildren(childNode, parameters);
+                result += ConvertChildren(childNode, parameters, filters);
             }
 
             if (string.IsNullOrWhiteSpace(result))
@@ -768,6 +788,7 @@ namespace dbclient.Extensions
                 result += new string(' ', random.Next(1, 10));
             }
 
+            filters.Bind();
             return result;
         }
 
@@ -851,6 +872,11 @@ namespace dbclient.Extensions
 
         public static string ConvertChildren(HtmlNode htmlNode, JObject parameters)
         {
+            return ConvertChildren(htmlNode, parameters, null);
+        }
+
+        private static string ConvertChildren(HtmlNode htmlNode, JObject parameters, SqlFilterBuilder? filters)
+        {
             var result = "";
             ArgumentNullException.ThrowIfNull(htmlNode);
             var nodeType = htmlNode.NodeType.ToString();
@@ -863,9 +889,11 @@ namespace dbclient.Extensions
                 switch (htmlNode.Name.ToString().ToLower())
                 {
                     case "if":
-                        return ConvertIf(htmlNode, parameters);
+                        return ConvertIf(htmlNode, parameters, filters);
                     case "foreach":
-                        return ConvertForeach(htmlNode, parameters);
+                        return ConvertForeach(htmlNode, parameters, filters);
+                    case "filters":
+                        return (filters ?? throw new InvalidOperationException("filters: DatabaseMapper.Find에 DB 매개변수 객체를 전달해야 합니다.")).Build(htmlNode, parameters);
                     case "bind":
                         _ = ConvertBind(htmlNode, parameters);
                         result = "";
@@ -882,6 +910,11 @@ namespace dbclient.Extensions
         }
 
         public static string ConvertForeach(HtmlNode htmlNode, JObject parameters)
+        {
+            return ConvertForeach(htmlNode, parameters, null);
+        }
+
+        private static string ConvertForeach(HtmlNode htmlNode, JObject parameters, SqlFilterBuilder? filters)
         {
             var result = "";
             ArgumentNullException.ThrowIfNull(htmlNode);
@@ -911,7 +944,7 @@ namespace dbclient.Extensions
                         var foreachText = "";
                         foreach (var childNode in htmlNode.ChildNodes)
                         {
-                            var childrenText = ConvertChildren(childNode, foreachParam);
+                            var childrenText = ConvertChildren(childNode, foreachParam, filters);
                             childrenText = MyRegex1().Replace(childrenText, "");
 
                             if (!string.IsNullOrWhiteSpace(childrenText))
@@ -937,6 +970,11 @@ namespace dbclient.Extensions
 
         public static string ConvertIf(HtmlNode htmlNode, JObject parameters)
         {
+            return ConvertIf(htmlNode, parameters, null);
+        }
+
+        private static string ConvertIf(HtmlNode htmlNode, JObject parameters, SqlFilterBuilder? filters)
+        {
             var evalString = GetAttributeValue(htmlNode, "test");
             evalString = ReplaceEvalString(evalString, parameters);
             evalString = evalString.Replace(" and ", " && ");
@@ -954,7 +992,7 @@ namespace dbclient.Extensions
 
                 foreach (var childNode in htmlNode.ChildNodes)
                 {
-                    convertString += ConvertChildren(childNode, parameters);
+                    convertString += ConvertChildren(childNode, parameters, filters);
                 }
             }
 
@@ -1322,7 +1360,7 @@ namespace dbclient.Extensions
             foreach (var paramName in dynamicParams.ParameterNames)
             {
                 var value = iLookup[paramName];
-                result.Add(paramName, value);
+                result.Add(paramName, value is SqlFilterParameter filter ? filter.Value : value);
             }
 
             var templates = dynamicParams.GetType().GetField("templates", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -1341,8 +1379,8 @@ namespace dbclient.Extensions
 
         public static Dictionary<string, object?> ToParametersDictionary(this SqlServerDynamicParameters dynamicParams)
         {
-            var result = new Dictionary<string, object?>();
             ArgumentNullException.ThrowIfNull(dynamicParams);
+            var result = dynamicParams.dynamicParameters.ToParametersDictionary();
             var parameters = dynamicParams.sqlParameters;
             foreach (var item in parameters)
             {
@@ -1353,8 +1391,8 @@ namespace dbclient.Extensions
 
         public static Dictionary<string, object?> ToParametersDictionary(this OracleDynamicParameters dynamicParams)
         {
-            var result = new Dictionary<string, object?>();
             ArgumentNullException.ThrowIfNull(dynamicParams);
+            var result = dynamicParams.dynamicParameters.ToParametersDictionary();
             var parameters = dynamicParams.oracleParameters;
             foreach (var item in parameters)
             {
@@ -1365,8 +1403,8 @@ namespace dbclient.Extensions
 
         public static Dictionary<string, object?> ToParametersDictionary(this MySqlDynamicParameters dynamicParams)
         {
-            var result = new Dictionary<string, object?>();
             ArgumentNullException.ThrowIfNull(dynamicParams);
+            var result = dynamicParams.dynamicParameters.ToParametersDictionary();
             var parameters = dynamicParams.mysqlParameters;
             foreach (var item in parameters)
             {
@@ -1377,8 +1415,8 @@ namespace dbclient.Extensions
 
         public static Dictionary<string, object?> ToParametersDictionary(this NpgsqlDynamicParameters dynamicParams)
         {
-            var result = new Dictionary<string, object?>();
             ArgumentNullException.ThrowIfNull(dynamicParams);
+            var result = dynamicParams.dynamicParameters.ToParametersDictionary();
             var parameters = dynamicParams.npgsqlParameters;
             foreach (var item in parameters)
             {
@@ -1389,8 +1427,8 @@ namespace dbclient.Extensions
 
         public static Dictionary<string, object?> ToParametersDictionary(this SQLiteDynamicParameters dynamicParams)
         {
-            var result = new Dictionary<string, object?>();
             ArgumentNullException.ThrowIfNull(dynamicParams);
+            var result = dynamicParams.dynamicParameters.ToParametersDictionary();
             var parameters = dynamicParams.sqlliteParameters;
             foreach (var item in parameters)
             {
