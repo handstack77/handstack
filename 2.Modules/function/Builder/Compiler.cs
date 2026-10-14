@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Metadata;
+using System.Runtime.InteropServices;
 
 using HandStack.Core.ExtensionMethod;
 using HandStack.Web;
@@ -93,7 +95,7 @@ namespace function.Builder
             var file = Path.GetFullPath(assemblyFilePath);
             if (File.Exists(file) == false)
             {
-                var path = Path.GetDirectoryName(typeof(object).Assembly.Location);
+                var path = RuntimeEnvironment.GetRuntimeDirectory();
                 if (path != null)
                 {
                     file = PathExtensions.Combine(path, assemblyFilePath);
@@ -126,23 +128,41 @@ namespace function.Builder
             return true;
         }
 
+        private static unsafe PortableExecutableReference CreateAssemblyReference(Assembly assembly)
+        {
+            if (assembly.TryGetRawMetadata(out var metadata, out var length) == false)
+            {
+                throw new InvalidOperationException($"컴파일 참조 메타데이터를 읽을 수 없습니다: {assembly.FullName}");
+            }
+
+            var module = ModuleMetadata.CreateFromMetadata((IntPtr)metadata, length, () => GC.KeepAlive(assembly));
+            return AssemblyMetadata.Create(module).GetReference();
+        }
+
         private static CSharpCompilation GenerateCode(string sourceCode, Assembly? assembly = null)
         {
             var codeString = SourceText.From(sourceCode);
             var options = CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.CSharp10);
             var parsedSyntaxTree = SyntaxFactory.ParseSyntaxTree(codeString, options);
-            var references = new List<MetadataReference>()
+            var references = new List<MetadataReference>();
+            var referencedAssemblies = new HashSet<Assembly>();
+            void AddAssemblyReference(Assembly target)
             {
-                MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-                MetadataReference.CreateFromFile(typeof(RuntimeBinderException).Assembly.Location)
-            };
+                if (referencedAssemblies.Add(target))
+                {
+                    references.Add(CreateAssemblyReference(target));
+                }
+            }
+
+            AddAssemblyReference(typeof(object).Assembly);
+            AddAssemblyReference(typeof(RuntimeBinderException).Assembly);
 
             var assemblyPaths = new List<string>();
             var functionAssembly = typeof(ModuleInitializer).Assembly;
             functionAssembly.GetReferencedAssemblies().ToList()
                 .ForEach((AssemblyName assemblyName) =>
                 {
-                    AddReferenceAssemblyFilePath(assemblyPaths, Assembly.Load(assemblyName).Location);
+                    AddAssemblyReference(Assembly.Load(assemblyName));
                 });
 
             if (assembly != null)
@@ -150,13 +170,13 @@ namespace function.Builder
                 assembly.GetReferencedAssemblies().ToList()
                     .ForEach((AssemblyName assemblyName) =>
                     {
-                        AddReferenceAssemblyFilePath(assemblyPaths, Assembly.Load(assemblyName).Location);
+                        AddAssemblyReference(Assembly.Load(assemblyName));
                     });
 
-                AddReferenceAssemblyFilePath(assemblyPaths, assembly.Location);
+                AddAssemblyReference(assembly);
             }
 
-            var baseAssemblyPath = Path.GetDirectoryName(typeof(object).Assembly.Location) + Path.DirectorySeparatorChar;
+            var baseAssemblyPath = RuntimeEnvironment.GetRuntimeDirectory() + Path.DirectorySeparatorChar;
             AddReferenceAssemblyFilePath(assemblyPaths, baseAssemblyPath + "netstandard.dll");
             AddReferenceAssemblyFilePath(assemblyPaths, baseAssemblyPath + "Microsoft.CSharp.dll");
             AddReferenceAssemblyFilePath(assemblyPaths, baseAssemblyPath + "System.Core.dll");
@@ -184,7 +204,7 @@ namespace function.Builder
             AddReferenceAssemblyFilePath(assemblyPaths, baseAssemblyPath + "System.Xml.ReaderWriter.dll");
             AddReferenceAssemblyFilePath(assemblyPaths, baseAssemblyPath + "System.Private.Xml.dll");
 
-            assemblyPaths.Add(functionAssembly.Location);
+            AddAssemblyReference(functionAssembly);
             assemblyPaths = assemblyPaths.Distinct().ToList();
 
             assemblyPaths.ForEach((string path) =>

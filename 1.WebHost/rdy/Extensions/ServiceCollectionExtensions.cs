@@ -149,17 +149,17 @@ namespace rdy.Extensions
                             throw;
                         }
 
-                        var assemblyFilePath = string.IsNullOrWhiteSpace(assembly.Location) == true ? file.FullName.Replace("\\", "/") : assembly.Location;
-                        var loadedAssemblyVersion = FileVersionInfo.GetVersionInfo(assemblyFilePath).FileVersion;
+                        var assemblyName = assembly.GetName().Name;
+                        var loadedAssemblyVersion = assembly.GetCustomAttribute<AssemblyFileVersionAttribute>()?.Version;
                         var tryToLoadAssemblyVersion = FileVersionInfo.GetVersionInfo(file.FullName.Replace("\\", "/")).FileVersion;
 
                         if (tryToLoadAssemblyVersion != loadedAssemblyVersion)
                         {
-                            Log.Logger.Warning($"파일 {file.FullName.Replace("\\", "/")} {tryToLoadAssemblyVersion}을(를) 로드할 수 없습니다. 이미 {assembly.Location} {loadedAssemblyVersion}이(가) 로드되었습니다.");
+                            Log.Logger.Warning($"파일 {file.FullName.Replace("\\", "/")} {tryToLoadAssemblyVersion}을(를) 로드할 수 없습니다. 이미 {assemblyName} {loadedAssemblyVersion}이(가) 로드되었습니다.");
                         }
                     }
 
-                    if (assembly != null && Path.GetFileNameWithoutExtension(assembly.ManifestModule.Name) == module.ModuleID)
+                    if (assembly != null && assembly.GetName().Name == module.ModuleID)
                     {
                         module.Assembly = assembly;
                     }

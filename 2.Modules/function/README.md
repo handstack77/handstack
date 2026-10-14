@@ -10,6 +10,9 @@
 - 계약 파일 변경을 감시해 캐시를 갱신합니다.
 - 함수 내부에서 전/후처리 거래와 외부 HTTP 호출을 조합할 수 있게 합니다.
 
+
+C# 함수 컴파일은 로드된 어셈블리의 메모리 메타데이터와 설치된 .NET 런타임 DLL을 참조합니다. 따라서 `rdy`를 단일 파일로 게시해도 포함된 모듈의 DLL 경로에 의존하지 않습니다.
+
 ## 주요 진입점
 - `GET /function/api/execution/has`
 - `GET /function/api/execution/refresh`
