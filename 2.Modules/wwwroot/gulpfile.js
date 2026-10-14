@@ -1,4 +1,4 @@
-var gulp = require(`gulp`);
+﻿var gulp = require(`gulp`);
 var concat = require(`gulp-concat`);
 var uglify = require(`gulp-uglify`);
 let stripCssComments;
@@ -14,6 +14,13 @@ async function getStripCssComments() {
 var uglifycss = require(`gulp-uglifycss`);
 var rename = require(`gulp-rename`);
 var javascriptObfuscator = require(`gulp-javascript-obfuscator`);
+
+gulp.task('loader', function () {
+    return gulp.src('wwwroot/js/syn.loader.js')
+        .pipe(uglify({ mangle: true, compress: true, output: { comments: false } }))
+        .pipe(rename({ basename: 'syn.loader.min', extname: '.js' }))
+        .pipe(gulp.dest('wwwroot/js'));
+});
 
 gulp.task('scripts', function () {
     return gulp.src([
@@ -41,6 +48,9 @@ gulp.task('scripts', function () {
         `wwwroot/lib/vanilla-masker/vanilla-masker.min.js`,
         `wwwroot/lib/codemirror/codemirror.min.js`,
         `wwwroot/lib/tail.select.js/js/tail.select.min.js`,
+        `wwwroot/lib/dropzone/dist/dropzone-min.js`,
+        `wwwroot/lib/signature_pad/dist/signature_pad.umd.min.js`,
+        `wwwroot/lib/tom-select/dist/js/tom-select.complete.min.js`,
         `wwwroot/lib/highcharts/highcharts.min.js`,
         `wwwroot/lib/chart.js/chart.umd.min.js`,
         `wwwroot/lib/echarts/echarts.min.js`,
@@ -101,10 +111,13 @@ gulp.task('controls', function () {
         'wwwroot/uicontrols/DatePeriodPicker/DatePeriodPicker.js',
         'wwwroot/uicontrols/DropDownCheckList/DropDownCheckList.js',
         'wwwroot/uicontrols/DropDownList/DropDownList.js',
+        'wwwroot/uicontrols/DropDownTextList/DropDownTextList.js',
         'wwwroot/uicontrols/FileClient/FileClient.js',
+        'wwwroot/uicontrols/FileDropZone/FileDropZone.js',
         'wwwroot/uicontrols/GridList/GridList.js',
         'wwwroot/uicontrols/Guide/Guide.js',
         'wwwroot/uicontrols/RadioButton/RadioButton.js',
+        'wwwroot/uicontrols/SignaturePad/SignaturePad.js',
         'wwwroot/uicontrols/TextArea/TextArea.js',
         'wwwroot/uicontrols/TextBox/TextBox.js',
         'wwwroot/uicontrols/SourceEditor/SourceEditor.js',
@@ -186,6 +199,8 @@ gulp.task('styles', async function () {
         'wwwroot/css/uicontrols/Control.css',
 
         // syn.controls.js
+        'wwwroot/lib/tom-select/dist/css/tom-select.bootstrap5.css',
+        'wwwroot/lib/dropzone/dist/dropzone.css',
         'wwwroot/uicontrols/Calendar/Calendar.css',
         'wwwroot/uicontrols/HighChart/HighChart.css',
         'wwwroot/uicontrols/ChartJS/ChartJS.css',
@@ -202,10 +217,13 @@ gulp.task('styles', async function () {
         'wwwroot/uicontrols/DatePeriodPicker/DatePeriodPicker.css',
         'wwwroot/uicontrols/DropDownCheckList/DropDownCheckList.css',
         'wwwroot/uicontrols/DropDownList/DropDownList.css',
+        'wwwroot/uicontrols/DropDownTextList/DropDownTextList.css',
         'wwwroot/uicontrols/FileClient/FileClient.css',
+        'wwwroot/uicontrols/FileDropZone/FileDropZone.css',
         'wwwroot/uicontrols/GridList/GridList.css',
         'wwwroot/uicontrols/Guide/Guide.css',
         'wwwroot/uicontrols/RadioButton/RadioButton.css',
+        'wwwroot/uicontrols/SignaturePad/SignaturePad.css',
         'wwwroot/uicontrols/TextArea/TextArea.css',
         'wwwroot/uicontrols/TextBox/TextBox.css',
         'wwwroot/uicontrols/SourceEditor/SourceEditor.css',
@@ -237,6 +255,6 @@ gulp.task('watch', async function () {
     gulp.watch(files, gulp.series(['controls']));
 });
 
-gulp.task('default', gulp.series(['controls', 'scripts', 'styles', 'bundle']));
+gulp.task('default', gulp.series(['loader', 'controls', 'scripts', 'styles', 'bundle']));
 
 gulp.task('base', gulp.series(['controls']));

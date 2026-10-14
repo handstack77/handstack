@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <title>SignaturePad - 기본</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div style="max-width: 640px;">
+            <div>서명</div>
+            <syn_signaturepad id="sigBasic" syn-datafield="Signature" syn-options="{
+                height: '200px'
+            }"></syn_signaturepad>
+        </div>
+        <div style="margin-top: 8px;">
+            <input type="button" id="btnGetValue" value="getValue" syn-events="['click']" />
+            <input type="button" id="btnClear" value="clear" syn-events="['click']" />
+        </div>
+        <img id="imgPreview" alt="" style="margin-top: 8px; max-width: 320px; border: 1px dashed #cbd5e1;" hidden />
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

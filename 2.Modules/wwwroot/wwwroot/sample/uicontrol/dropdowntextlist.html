@@ -1,0 +1,76 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>DropDownTextList · 조건 태그</title>
+    <style>
+        body { padding: 32px; max-width: 1080px; margin: auto; }
+        h1 { margin-bottom: 12px; } .demo-actions { display: flex; gap: 8px; flex-wrap: wrap; margin: 20px 0; }
+        .demo-actions button { padding: 7px 12px; border: 1px solid #cbd5e1; border-radius: 5px; background: white; }
+        pre { padding: 16px; background: #f1f5f9; border-radius: 6px; white-space: pre-wrap; max-height: 300px; overflow: auto; }
+        .demo-section { margin-top: 36px; }
+    </style>
+</head>
+<body style="visibility: hidden;">
+    <form id="form1" syn-datafield="MainForm" autocomplete="off" onsubmit="return false">
+        <h1>조건 태그 선택</h1>
+        <p>동물을 검색하여 선택하세요. 그룹 이름이나 항목 이름을 클릭하면 해당 태그 근처의 편집창에서 조건을 바꿀 수 있습니다. AND/OR는 상단 배지, 비교 조건은 왼쪽 테두리 색상으로 구분합니다.</p>
+        <syn_dropdowntextlist id="animals" syn-datafield="Conditions" syn-events="['initialize','change']" syn-options="{
+            optgroups: [
+                {value:'mammal',label:'Mammal'},
+                {value:'bird',label:'Bird'},
+                {value:'reptile',label:'Reptile'}
+            ],
+            optgroupField:'class',
+            valueField:'value',
+            labelField:'name',
+            placeholder:'동물 검색...'
+        }"></syn_dropdowntextlist>
+        <div class="demo-actions">
+            <button type="button" id="btnSource" syn-events="['click']">후보 데이터 설정</button>
+            <button type="button" id="btnSelect" syn-events="['click']">Dog 선택 / 중복 확인</button>
+            <button type="button" id="btnSave" syn-events="['click']">선택 저장</button>
+            <button type="button" id="btnRestore" syn-events="['click']">선택 복원</button>
+            <button type="button" id="btnClear" syn-events="['click']">선택 해제</button>
+            <button type="button" id="btnUpdate" syn-events="['click']">Dog 표시값 갱신</button>
+            <button type="button" id="btnLock" syn-events="['click']">잠금 전환</button>
+            <button type="button" id="btnDisable" syn-events="['click']">비활성화 전환</button>
+        </div>
+        <h2>getValue()</h2>
+        <pre id="result">[]</pre>
+        <div class="demo-section">
+            <h2>사용자 항목 생성</h2>
+            <p>새 이름을 입력하고 Enter를 누르세요. 선택 해제 시 생성한 후보도 제거됩니다.</p>
+            <syn_dropdowntextlist id="custom" syn-options="{
+                create:true,
+                persist:false,
+                defaultGroupID:'custom',
+                placeholder:'새 이름 입력...'
+            }"></syn_dropdowntextlist>
+        </div>
+        <div class="demo-section">
+            <h2>비동기 검색 예제</h2>
+            <p>로컬 콜백으로 원격 데이터 제공자 연결 방식을 보여줍니다.</p>
+            <syn_dropdowntextlist id="remote" syn-options="{
+                loadThrottle:150,
+                placeholder:'Dog 또는 Cat 검색...'
+            }"></syn_dropdowntextlist>
+        </div>
+        <div class="demo-section">
+            <h2>드롭다운 크기</h2>
+            <p>자동 너비는 검색된 목록의 길이에 맞춥니다. 고정 크기는 목록 개수와 관계없이 지정한 픽셀값을 사용합니다.</p>
+            <p>기본값: 자동 너비 · 기본 높이</p>
+            <syn_dropdowntextlist id="autoSize" syn-options="{
+                placeholder:'목록에 맞춘 자동 너비...'
+            }"></syn_dropdowntextlist>
+            <p>고정 너비 320px · 고정 높이 180px</p>
+            <syn_dropdowntextlist id="fixedSize" syn-options="{
+                dropdownWidth:320, dropdownHeight:180, placeholder:'320 × 180px 드롭다운...'
+            }"></syn_dropdowntextlist>
+        </div>
+        <div class="demo-section"><h2>이벤트 기록</h2><pre id="events"></pre></div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

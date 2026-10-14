@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <title>SignaturePad - 전체 기능 확인</title>
+    <style>
+        .demo-row { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
+        .demo-row > div { flex: 1; min-width: 260px; max-width: 420px; }
+        pre { padding: 12px; background: #f1f5f9; border-radius: 6px; white-space: pre-wrap; word-break: break-all; max-height: 200px; overflow: auto; }
+    </style>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <h3>SignaturePad 전체 기능 확인</h3>
+        <p>
+            펜 옵션(<code>penColor</code>, <code>minWidth</code>/<code>maxWidth</code>), 배경색, 이미지 형식(<code>imageType</code>, <code>imageQuality</code>), 안내 문구(<code>placeholder</code>), <code>readOnly</code>,
+            <code>getValue</code>/<code>getBase64</code>/<code>setValue</code>/<code>clear</code>/<code>undo</code>/<code>isEmpty</code>/<code>setPenColor</code>/<code>setReadOnly</code>/<code>setDisabled</code>/<code>resize</code>/<code>destroy</code>,
+            이벤트(<code>beginStroke</code>, <code>endStroke</code>, <code>change</code>)를 확인합니다.
+        </p>
+
+        <div class="demo-row">
+            <div>
+                <div>기본 (png, 투명 배경)</div>
+                <syn_signaturepad id="sigBasic" syn-datafield="Basic" syn-events="['beginStroke','endStroke','change']" syn-options="{height: '140px'}"></syn_signaturepad>
+            </div>
+            <div>
+                <div>빨간 굵은 펜 + 연한 배경 (<code>penColor</code>, <code>minWidth</code>, <code>maxWidth</code>, <code>backgroundColor</code>)</div>
+                <syn_signaturepad id="sigBold" syn-datafield="Bold" syn-options="{height: '140px', penColor: '#b91c1c', minWidth: 1.5, maxWidth: 5, backgroundColor: '#fffbeb', placeholder: '굵은 펜으로 서명'}"></syn_signaturepad>
+            </div>
+            <div>
+                <div>JPEG 저장 (<code>imageType: 'image/jpeg'</code>, 흰 배경으로 자동 보정)</div>
+                <syn_signaturepad id="sigJpeg" syn-datafield="Jpeg" syn-options="{height: '140px', imageType: 'image/jpeg', imageQuality: 0.8}"></syn_signaturepad>
+            </div>
+            <div>
+                <div>읽기 전용 (<code>readOnly: true</code>)</div>
+                <syn_signaturepad id="sigReadOnly" syn-datafield="ReadOnly" syn-options="{height: '140px', readOnly: true, placeholder: '읽기 전용 - 값은 setValue 로만 변경'}"></syn_signaturepad>
+            </div>
+        </div>
+
+        <div style="margin-bottom: 8px;">
+            <input type="button" id="btnGetValue" value="getValue (기본)" syn-events="['click']" />
+            <input type="button" id="btnGetJpeg" value="getValue (JPEG)" syn-events="['click']" />
+            <input type="button" id="btnGetBase64" value="getBase64 (기본)" syn-events="['click']" />
+            <input type="button" id="btnIsEmpty" value="isEmpty (기본)" syn-events="['click']" />
+            <input type="button" id="btnCopyToReadOnly" value="기본 → 읽기 전용 setValue" syn-events="['click']" />
+            <input type="button" id="btnUndo" value="undo (기본)" syn-events="['click']" />
+            <input type="button" id="btnClear" value="clear (기본)" syn-events="['click']" />
+            <input type="button" id="btnPenColor" value="setPenColor 전환 (기본)" syn-events="['click']" />
+            <input type="button" id="btnReadOnly" value="setReadOnly 전환 (기본)" syn-events="['click']" />
+            <input type="button" id="btnDisabled" value="setDisabled 전환 (기본)" syn-events="['click']" />
+            <input type="button" id="btnNarrow" value="영역 크기 변경 + 내용 유지 (resize)" syn-events="['click']" />
+            <input type="button" id="btnDestroy" value="destroy (JPEG)" syn-events="['click']" />
+        </div>
+
+        <h4>결과 / 이벤트 기록</h4>
+        <pre id="preLog"></pre>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

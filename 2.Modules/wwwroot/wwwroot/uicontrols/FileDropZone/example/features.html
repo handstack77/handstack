@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <title>FileDropZone - 전체 기능 확인</title>
+    <style>
+        .demo-row { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
+        .demo-row > div { flex: 1; min-width: 300px; max-width: 520px; }
+        pre { padding: 12px; background: #f1f5f9; border-radius: 6px; white-space: pre-wrap; word-break: break-all; max-height: 220px; overflow: auto; }
+    </style>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <h3>FileDropZone 전체 기능 확인</h3>
+        <p>
+            저장소 정책(<code>get-repository</code>)에서 파생되는 제한(확장자/크기/개수), 단일 파일 교체, <code>thumbnails</code>, <code>showDownload</code>, <code>readOnly</code>, <code>confirmRemove</code>, <code>deleteOnRemove</code>,
+            <code>getValue</code>/<code>setValue</code>/<code>load</code>/<code>upload</code>/<code>removeItem</code>/<code>removeAll</code>/<code>download</code>/<code>updateDependencyID</code>/<code>setReadOnly</code>/<code>setDisabled</code>/<code>destroy</code>,
+            이벤트(<code>ready</code>, <code>fileAdded</code>, <code>fileRejected</code>, <code>uploadProgress</code>, <code>uploadSuccess</code>, <code>uploadError</code>, <code>queueComplete</code>, <code>fileRemoved</code>, <code>fileDownload</code>, <code>change</code>)를 확인합니다.
+        </p>
+
+        <div class="demo-row">
+            <div>
+                <div>다중 파일 (TSTLM01: 최대 3개, 10MB)</div>
+                <syn_filedropzone id="fdzMulti" syn-datafield="Multi" syn-events="['ready','fileAdded','fileRejected','uploadProgress','uploadSuccess','uploadError','queueComplete','fileRemoved','fileDownload','change']" syn-options="{
+                    repositoryID: 'TSTLM01', applicationID: 'HDS', dependencyID: 'EXAMPLE_FILEDROPZONE_FEATURES', customPath1: 'HDS', height: '200px'
+                }"></syn_filedropzone>
+            </div>
+            <div>
+                <div>이미지 저장소 (TSTLE01: 이미지 확장자만)</div>
+                <syn_filedropzone id="fdzImage" syn-datafield="Images" syn-options="{
+                    repositoryID: 'TSTLE01', applicationID: 'HDS', dependencyID: 'EXAMPLE_FILEDROPZONE_FEATURES_IMG', customPath1: 'HDS', height: '200px', placeholder: '이미지를 끌어다 놓으세요'
+                }"></syn_filedropzone>
+            </div>
+        </div>
+        <div class="demo-row">
+            <div>
+                <div>단일 파일 (TSTLS01: 새 파일이 이전 파일을 교체)</div>
+                <syn_filedropzone id="fdzSingle" syn-datafield="Single" syn-options="{
+                    repositoryID: 'TSTLS01', applicationID: 'HDS', dependencyID: 'EXAMPLE_FILEDROPZONE_FEATURES_ONE', customPath1: 'HDS', height: '160px'
+                }"></syn_filedropzone>
+            </div>
+            <div>
+                <div>옵션 조합 (썸네일 끔, 다운로드 숨김, 삭제 확인, 서버 삭제 안 함, 최대 2개/1MB)</div>
+                <syn_filedropzone id="fdzOptions" syn-datafield="Options" syn-options="{
+                    repositoryID: 'TSTLM01', applicationID: 'HDS', dependencyID: 'EXAMPLE_FILEDROPZONE_FEATURES_OPT', customPath1: 'HDS', height: '160px',
+                    thumbnails: false, showDownload: false, confirmRemove: true, deleteOnRemove: false, maxFiles: 2, maxFilesize: 1, acceptedFiles: '.txt,.pdf,.png'
+                }"></syn_filedropzone>
+            </div>
+        </div>
+
+        <div style="margin-bottom: 8px;">
+            <input type="button" id="btnGetValue" value="getValue" syn-events="['click']" />
+            <input type="button" id="btnLoad" value="load" syn-events="['click']" />
+            <input type="button" id="btnUpload" value="upload(코드로 파일 추가)" syn-events="['click']" />
+            <input type="button" id="btnDownload" value="download(첫 파일)" syn-events="['click']" />
+            <input type="button" id="btnRemoveItem" value="removeItem(첫 파일)" syn-events="['click']" />
+            <input type="button" id="btnRemoveAll" value="removeAll" syn-events="['click']" />
+            <input type="button" id="btnClear" value="clear(화면만)" syn-events="['click']" />
+            <input type="button" id="btnUpdateKey" value="updateDependencyID" syn-events="['click']" />
+            <input type="button" id="btnReadOnly" value="setReadOnly 전환" syn-events="['click']" />
+            <input type="button" id="btnDisabled" value="setDisabled 전환" syn-events="['click']" />
+            <input type="button" id="btnDestroy" value="destroy(옵션 조합)" syn-events="['click']" />
+        </div>
+
+        <h4>결과 / 이벤트 기록</h4>
+        <pre id="preLog"></pre>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

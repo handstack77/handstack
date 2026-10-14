@@ -12047,6 +12047,1596 @@
 })(window);
 
 /// <reference path="/js/syn.js" />
+
+(function (window) {
+    'use strict';
+
+    syn.uicontrols = syn.uicontrols || new syn.module();
+    var $dropdowntextlist = syn.uicontrols.$dropdowntextlist || new syn.module();
+
+    $dropdowntextlist.extend({
+        name: 'syn.uicontrols.$dropdowntextlist',
+        version: 'v2026.10.14',
+        textListControls: [],
+        defaultSetting: {
+            optgroups: [],
+            optgroupField: 'class',
+            valueField: 'value',
+            labelField: 'name',
+            options: [],
+            items: [],
+            placeholder: '검색하여 선택...',
+            width: '100%',
+            dropdownWidth: 'auto',
+            dropdownHeight: 'auto',
+            maxItems: null,
+            hideSelected: true,
+            clearAfterSelect: true,
+            persist: true,
+            create: false,
+            defaultGroupID: '',
+            load: null,
+            loadThrottle: 300,
+            preload: false,
+            dataType: 'object',
+            belongID: null,
+            getter: false,
+            setter: false,
+            controlText: null,
+            validators: null,
+            transactConfig: null,
+            triggerConfig: null
+        },
+
+        operators: Object.freeze({
+            eq: '같음',
+            lte: '같거나작게',
+            gte: '같거나크게',
+            ne: '다름',
+            startsWith: '시작함',
+            endsWith: '끝남',
+            contains: '포함'
+        }),
+        eventCallbacks: {
+            initialize: 'onInitialize',
+            change: 'onChange',
+            focus: 'onFocus',
+            blur: 'onBlur',
+            item_add: 'onItemAdd',
+            item_remove: 'onItemRemove',
+            item_select: 'onItemSelect',
+            clear: 'onClear',
+            option_add: 'onOptionAdd',
+            option_remove: 'onOptionRemove',
+            option_clear: 'onOptionClear',
+            optgroup_add: 'onOptionGroupAdd',
+            optgroup_remove: 'onOptionGroupRemove',
+            optgroup_clear: 'onOptionGroupClear',
+            dropdown_open: 'onDropdownOpen',
+            dropdown_close: 'onDropdownClose',
+            type: 'onType',
+            load: 'onLoad',
+            destroy: 'onDestroy'
+        },
+
+        addModuleList(el, moduleList, setting, controlType) {
+            var elementID = el.getAttribute('id');
+            var dataField = el.getAttribute('syn-datafield');
+            var formDataField = el.closest('form') ? el.closest('form').getAttribute('syn-datafield') : '';
+            moduleList.push({
+                id: elementID,
+                formDataFieldID: formDataField,
+                field: dataField,
+                module: $dropdowntextlist.name,
+                type: controlType
+            });
+        },
+
+        controlLoad(elID, setting) {
+            var control = $dropdowntextlist.getControl(elID);
+            if (control) {
+                return control;
+            }
+            var el = syn.$l.get(elID);
+            if (!el) {
+                throw new Error('DropDownTextList: element not found: ' + elID);
+            }
+            if (typeof TomSelect === 'undefined') {
+                throw new Error('DropDownTextList: Tom Select must be loaded first');
+            }
+            setting = syn.$w.argumentsExtend($dropdowntextlist.defaultSetting, setting || {});
+            var mod = window[syn.$w.pageScript];
+            if (mod && mod.hook && mod.hook.controlInit) {
+                var moduleSettings = mod.hook.controlInit(elID, setting);
+                setting = syn.$w.argumentsExtend(setting, moduleSettings);
+            }
+            setting.elID = elID;
+            $dropdowntextlist.normalizeDropdownSize(setting.dropdownWidth, 'dropdownWidth');
+            $dropdowntextlist.normalizeDropdownSize(setting.dropdownHeight, 'dropdownHeight');
+            el.setAttribute('syn-options', JSON.stringify(setting));
+            try {
+                control = $dropdowntextlist.addControlSetting(el, setting);
+            } catch (error) {
+                $dropdowntextlist.textListControls = $dropdowntextlist.textListControls.filter(function (item) {
+                    return item.id !== elID;
+                });
+                throw error;
+            }
+            $dropdowntextlist.initialize(elID);
+            return control;
+        },
+
+        addControlSetting(el, setting) {
+            var control = {
+                id: el.id,
+                host: el,
+                settings: setting,
+                handlers: new Map(),
+                conditions: new Map(),
+                cleanups: [],
+                revision: 0,
+                loadSequence: 0,
+                destroyed: false,
+                ready: false,
+                originalEvents: el.getAttribute('syn-events'),
+                originalDisplay: el.style.display,
+                dispose: function () {
+                    $dropdowntextlist.textListControls = $dropdowntextlist.textListControls.filter(function (item) {
+                        return item.id !== control.id;
+                    });
+                },
+
+                on(event, handler) {
+                    return $dropdowntextlist.on(control.id, event, handler);
+                },
+
+                off(event, handler) {
+                    return $dropdowntextlist.off(control.id, event, handler);
+                },
+
+                trigger(event, ...args) {
+                    return $dropdowntextlist.trigger(control.id, event, ...args);
+                },
+
+                getValue() {
+                    return $dropdowntextlist.getValue(control.id);
+                },
+
+                setValue(value, silent) {
+                    return $dropdowntextlist.setValue(control.id, value, silent);
+                },
+
+                addOption(data, user_created) {
+                    return $dropdowntextlist.addOption(control.id, data, user_created);
+                },
+
+                addOptions(data, user_created) {
+                    return $dropdowntextlist.addOptions(control.id, data, user_created);
+                },
+
+                updateOption(value, data) {
+                    return $dropdowntextlist.updateOption(control.id, value, data);
+                },
+
+                removeOption(value) {
+                    return $dropdowntextlist.removeOption(control.id, value);
+                },
+
+                getOption(value, create) {
+                    return $dropdowntextlist.getOption(control.id, value, create);
+                },
+
+                clearFilter(option, value) {
+                    return $dropdowntextlist.clearFilter(control.id, option, value);
+                },
+
+                clearOptions(filter) {
+                    return $dropdowntextlist.clearOptions(control.id, filter);
+                },
+
+                clear(silent) {
+                    return $dropdowntextlist.clear(control.id, silent);
+                },
+
+                getItem(value) {
+                    return $dropdowntextlist.getItem(control.id, value);
+                },
+
+                addItem(value, silent) {
+                    return $dropdowntextlist.addItem(control.id, value, silent);
+                },
+
+                removeItem(value, silent) {
+                    return $dropdowntextlist.removeItem(control.id, value, silent);
+                },
+
+                refreshItems() {
+                    return $dropdowntextlist.refreshItems(control.id);
+                },
+
+                createItem(value, callback) {
+                    return $dropdowntextlist.createItem(control.id, value, callback);
+                },
+
+                load(query) {
+                    return $dropdowntextlist.load(control.id, query);
+                },
+
+                addOptionGroup(id, data) {
+                    return $dropdowntextlist.addOptionGroup(control.id, id, data);
+                },
+
+                removeOptionGroup(id) {
+                    return $dropdowntextlist.removeOptionGroup(control.id, id);
+                },
+
+                clearOptionGroups() {
+                    return $dropdowntextlist.clearOptionGroups(control.id);
+                },
+
+                lock() {
+                    return $dropdowntextlist.lock(control.id);
+                },
+
+                unlock() {
+                    return $dropdowntextlist.unlock(control.id);
+                },
+
+                disable() {
+                    return $dropdowntextlist.disable(control.id);
+                },
+
+                enable() {
+                    return $dropdowntextlist.enable(control.id);
+                },
+
+                sync() {
+                    return $dropdowntextlist.sync(control.id);
+                },
+
+                destroy() {
+                    if (control.destroyed) {
+                        return;
+                    }
+                    return $dropdowntextlist.destroy(control.id);
+                },
+
+                getAdjacent(element, direction) {
+                    return $dropdowntextlist.getAdjacent(control.id, element, direction);
+                },
+
+                refreshOptions(triggerDropdown) {
+                    return $dropdowntextlist.refreshOptions(control.id, triggerDropdown);
+                },
+
+                open() {
+                    return $dropdowntextlist.open(control.id);
+                },
+
+                close() {
+                    return $dropdowntextlist.close(control.id);
+                },
+
+                positionDropdown() {
+                    return $dropdowntextlist.positionDropdown(control.id);
+                },
+
+                focus() {
+                    return $dropdowntextlist.focus(control.id);
+                },
+
+                blur() {
+                    return $dropdowntextlist.blur(control.id);
+                },
+
+                setCaret(index) {
+                    return $dropdowntextlist.setCaret(control.id, index);
+                },
+
+                isFull() {
+                    return $dropdowntextlist.isFull(control.id);
+                },
+
+                clearCache() {
+                    return $dropdowntextlist.clearCache(control.id);
+                },
+
+                setTextboxValue(str) {
+                    return $dropdowntextlist.setTextboxValue(control.id, str);
+                }
+            };
+            $dropdowntextlist.textListControls.push(control);
+            var mod = window[syn.$w.pageScript];
+            var events = control.originalEvents ? $object.parseJsonValue(control.originalEvents, 'json') : [];
+            Object.keys($dropdowntextlist.eventCallbacks).forEach(function (event) {
+                if (typeof setting[$dropdowntextlist.eventCallbacks[event]] === 'function') {
+                    $dropdowntextlist.on(control.id, event, setting[$dropdowntextlist.eventCallbacks[event]]);
+                }
+                if (events.includes(event) && mod && mod.event && typeof mod.event[control.id + '_' + event] === 'function') {
+                    $dropdowntextlist.on(control.id, event, mod.event[control.id + '_' + event]);
+                }
+            });
+            // 컨트롤 이벤트는 직접 연결하여 공통 로더의 DOM 이벤트와 중복 호출되지 않게 한다.
+            if (control.originalEvents !== null) {
+                el.setAttribute('syn-events', JSON.stringify(events.filter(function (event) {
+                    return !$dropdowntextlist.hasProperty($dropdowntextlist.eventCallbacks, event);
+                })));
+            }
+            control.container = document.createElement('div');
+            control.container.className = 'syn-dropdowntextlist';
+            control.container.style.width = setting.width;
+            control.source = document.createElement('select');
+            control.source.multiple = true;
+            control.source.id = control.id + '_select';
+            control.source.setAttribute('aria-label', setting.controlText || setting.placeholder);
+            control.container.append(control.source);
+            if (/^(INPUT|SELECT)$/.test(el.tagName)) {
+                el.style.display = 'none';
+                el.insertAdjacentElement('afterend', control.container);
+            }
+            else {
+                el.append(control.container);
+            }
+            $dropdowntextlist.listen(control.id, control.source, 'change', function (event) {
+                return event.stopPropagation();
+            });
+            $dropdowntextlist.listen(control.id, control.source, 'input', function (event) {
+                return event.stopPropagation();
+            });
+            var options = (setting.options || []).map(function (data) {
+                return $dropdowntextlist.normalize(control.id, data);
+            });
+            var selectSetting = Object.assign({}, setting, {
+                options: options,
+                items: [],
+                preload: false,
+                mode: 'multi',
+                duplicates: false,
+                valueField: '_dttlID',
+                labelField: '_dttlLabel',
+                optgroupField: '_dttlGroup',
+                searchField: ['_dttlKey', '_dttlLabel'],
+                optgroupValueField: 'value',
+                optgroupLabelField: 'label',
+                plugins: ['caret_position'],
+                loadThrottle: null,
+                create: setting.create ? true : false,
+                render: {
+                    item: function (data, escape) {
+                        var condition = control.conditions.get(data._dttlID) || {
+                            logic: 'AND',
+                            operator: 'eq'
+                        };
+                        var group = control.picker ? control.picker.optgroups[data._dttlGroup] : null;
+                        var groupLabel = group && group.label != null ? String(group.label) : data._dttlGroup || '기타';
+                        var summary = groupLabel + ' · ' + data._dttlLabel + ' · ' + condition.logic + ' · ' + $dropdowntextlist.operators[condition.operator];
+
+                        return '<div class="dttl-item" data-dttl-logic="' + condition.logic + '" data-dttl-operator="' + condition.operator + '" title="' + escape(summary) + '">' +
+                            '<span class="dttl-logic-badge" aria-hidden="true">' + condition.logic + '</span>' +
+                            '<span class="dttl-group" role="button" tabindex="0" aria-label="' + escape(summary + ' 조건 편집') + '">' + escape(groupLabel) + '</span>' +
+                            '<button type="button" class="dttl-edit" aria-label="' + escape(summary + ' 조건 편집') + '"><span class="dttl-label">' + escape(data._dttlLabel) + '</span></button>' +
+                            '<button type="button" class="dttl-remove" aria-label="' + escape(data._dttlLabel + ' 삭제') + '">×</button></div>';
+                    },
+                    option: function (data, escape) {
+                        return '<div>' + escape(data._dttlLabel) + '</div>';
+                    },
+                    no_results: function () {
+                        return '<div class="no-results">검색 결과가 없습니다.</div>';
+                    }
+                }
+            });
+            Object.keys($dropdowntextlist.eventCallbacks).forEach(function (event) {
+                selectSetting[$dropdowntextlist.eventCallbacks[event]] = function (...args) {
+                    control.picker = this;
+                    $dropdowntextlist.relay(control.id, event, args);
+                };
+            });
+            control.picker = new TomSelect(control.source, selectSetting);
+            var originalPositionDropdown = control.picker.positionDropdown;
+            control.picker.positionDropdown = function () {
+                var result = originalPositionDropdown.call(control.picker);
+                if (!control.destroyed) {
+                    $dropdowntextlist.sizeDropdown(control.id);
+                }
+                return result;
+            };
+            var originalRefreshOptions = control.picker.refreshOptions;
+            control.picker.refreshOptions = function (triggerDropdown) {
+                var result = originalRefreshOptions.call(control.picker, triggerDropdown);
+                if (control.picker.isOpen && !control.destroyed) {
+                    $dropdowntextlist.sizeDropdown(control.id);
+                }
+                return result;
+            };
+            // 콜백과 Promise 방식 모두 같은 생성·조회 처리와 파괴 여부 검사를 사용한다.
+            control.picker.createItem = function (value, callback) {
+                return $dropdowntextlist.createItem(control.id, value, callback);
+            };
+            control.picker.load = function (query) {
+                return $dropdowntextlist.load(control.id, query);
+            };
+            $dropdowntextlist.listen(control.id, control.picker.control, 'click', function (event) {
+                return $dropdowntextlist.onTagClick(control.id, event);
+            }, true);
+            $dropdowntextlist.listen(control.id, control.picker.control, 'keydown', function (event) {
+                var target = event.target.closest('.dttl-group,.dttl-edit');
+                if (target && (event.key === 'Enter' || event.key === ' ' || event.key === 'F2')) {
+                    event.preventDefault();
+                    event.stopImmediatePropagation();
+                    $dropdowntextlist.editCondition(control.id, target.closest('[data-value]'));
+                    return;
+                }
+                if ((event.key === 'Enter' || event.key === 'F2') && control.picker.activeItems.length) {
+                    event.preventDefault();
+                    event.stopImmediatePropagation();
+                    $dropdowntextlist.editCondition(control.id, control.picker.activeItems[0]);
+                }
+            }, true);
+            $dropdowntextlist.listen(control.id, control.picker.control_input, 'compositionstart', function () {
+                control.composing = true;
+            });
+            $dropdowntextlist.listen(control.id, control.picker.control_input, 'compositionend', function () {
+                control.composing = false;
+            });
+            $dropdowntextlist.listen(control.id, control.picker.control_input, 'keydown', function (event) {
+                if (control.composing || event.isComposing) {
+                    event.stopImmediatePropagation();
+                }
+            }, true);
+            $dropdowntextlist.listen(control.id, document, 'pointerdown', function (event) {
+                if (control.editor && !control.editor.contains(event.target) && !control.picker.control.contains(event.target)) {
+                    $dropdowntextlist.closeEditor(control.id, false);
+                }
+            });
+            $dropdowntextlist.listen(control.id, window, 'resize', function () {
+                if (control.picker.isOpen) {
+                    control.picker.positionDropdown();
+                }
+                if (control.editor) {
+                    $dropdowntextlist.positionEditor(control.id);
+                }
+            });
+            $dropdowntextlist.listen(control.id, document, 'scroll', function (event) {
+                if (control.editor && !control.editor.contains(event.target)) {
+                    $dropdowntextlist.positionEditor(control.id);
+                }
+            }, true);
+            if (setting.items && setting.items.length) {
+                $dropdowntextlist.setValue(control.id, setting.items, true);
+            }
+            if (setting.disabled || el.disabled) {
+                $dropdowntextlist.disable(control.id);
+            }
+            if (setting.locked || el.readOnly) {
+                $dropdowntextlist.lock(control.id);
+            }
+            control.ready = true;
+            $dropdowntextlist.writeValue(control.id);
+            return control;
+        },
+
+        on(elID, event, handler) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            if (typeof handler !== 'function') {
+                throw new TypeError('DropDownTextList: handler must be a function');
+            }
+            event.split(/\s+/).forEach(function (name) {
+                if (!control.handlers.has(name)) {
+                    control.handlers.set(name, new Set());
+                }
+                control.handlers.get(name).add(handler);
+            });
+            return control;
+        },
+
+        off(elID, event, handler) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            if (!event) {
+                control.handlers.clear();
+            }
+            else {
+                event.split(/\s+/).forEach(function (name) {
+                    if (handler) {
+                        var handlers = control.handlers.get(name);
+                        if (handlers) {
+                            handlers.delete(handler);
+                        }
+                    }
+                    else {
+                        control.handlers.delete(name);
+                    }
+                });
+            }
+            return control;
+        },
+
+        trigger(elID, event, ...args) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            Array.from(control.handlers.get(event) || []).forEach(function (handler) {
+                return handler.apply(control, args);
+            });
+            return control;
+        },
+
+        getValue(elID) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            return control.picker.items.filter(function (id) {
+                return $dropdowntextlist.hasProperty(control.picker.options, id);
+            }).map(function (id) {
+                var data = control.picker.options[id];
+                var condition = control.conditions.get(id) || {
+                    logic: 'AND',
+                    operator: 'eq'
+                };
+                return {
+                    groupID: data._dttlGroup,
+                    logic: condition.logic,
+                    operator: condition.operator,
+                    key: data._dttlKey,
+                    value: data._dttlLabel
+                };
+            });
+        },
+
+        setValue(elID, value, silent = false) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            // 거래 setter의 세 번째 인자는 메타데이터일 수 있으므로 true일 때만 change를 생략한다.
+            silent = silent === true;
+            var values = Array.isArray(value) ? value : [value];
+            var kind = values.length ? $dropdowntextlist.getValueType(values[0]) : 'key';
+            if (values.some(function (item) {
+                return $dropdowntextlist.getValueType(item) !== kind;
+            })) {
+                throw new TypeError('DropDownTextList: mixed arrays are not supported');
+            }
+            var prepared = [];
+            if (kind === 'condition') {
+                prepared = values.map(function (item) {
+                    return $dropdowntextlist.condition(control.id, item);
+                });
+            }
+            else if (kind === 'option') {
+                prepared = values.map(function (item) {
+                    return $dropdowntextlist.normalize(control.id, item);
+                });
+            }
+            else {
+                prepared = values.map(function (item) {
+                    var id = $dropdowntextlist.resolve(control.id, item);
+                    if (!id) {
+                        throw new Error('DropDownTextList: unknown key ' + item);
+                    }
+                    return id;
+                });
+            }
+
+            var before = JSON.stringify($dropdowntextlist.getValue(control.id));
+            var userOptions = Object.assign({}, control.picker.userOptions);
+            $dropdowntextlist.cancelPending(control.id);
+            $dropdowntextlist.closeEditor(control.id, false);
+            if (kind === 'option') {
+                var incoming = new Map(prepared.map(function (data) {
+                    return [data._dttlID, data];
+                }));
+                Object.keys(control.picker.options).forEach(function (id) {
+                    if (!incoming.has(id)) {
+                        control.picker.removeOption(id, true);
+                    }
+                });
+                incoming.forEach(function (data, id) {
+                    if ($dropdowntextlist.hasProperty(control.picker.options, id)) {
+                        control.picker.updateOption(id, data);
+                    }
+                    else {
+                        control.picker.addOption(data);
+                    }
+                });
+            }
+            else {
+                // 선택을 재설정할 때 persist=false로 제거되는 사용자 생성 후보도 보존한다.
+                var selectedOptions = kind === 'key' ? prepared.map(function (id) {
+                    return control.picker.options[id];
+                }) : [];
+                control.picker.clear(true);
+                control.conditions.clear();
+                var ids = [];
+                prepared.forEach(function (data, index) {
+                    var id = kind === 'condition' ? $dropdowntextlist.getOptionID(data.groupID, data.key) : data;
+                    if (ids.includes(id)) {
+                        return;
+                    }
+                    ids.push(id);
+                    if (kind === 'condition') {
+                        control.conditions.set(id, {
+                            logic: data.logic,
+                            operator: data.operator
+                        });
+                        var option = $dropdowntextlist.fromCondition(control.id, data);
+                        if ($dropdowntextlist.hasProperty(control.picker.options, id)) {
+                            control.picker.updateOption(id, option);
+                        }
+                        else {
+                            control.picker.addOption(option, $dropdowntextlist.hasProperty(userOptions, id));
+                        }
+                    }
+                    else if (!$dropdowntextlist.hasProperty(control.picker.options, id)) {
+                        control.picker.addOption(selectedOptions[index], $dropdowntextlist.hasProperty(userOptions, id));
+                    }
+                });
+                control.picker.addItems(ids, true);
+            }
+            $dropdowntextlist.refreshItems(control.id);
+            control.picker.refreshOptions(false);
+            $dropdowntextlist.notify(control.id, before, silent);
+        },
+
+        addOption(elID, data, user_created = false) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            control.picker.addOption($dropdowntextlist.normalize(control.id, data), user_created);
+        },
+
+        addOptions(elID, data, user_created = false) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            var options = data.map(function (item) {
+                return $dropdowntextlist.normalize(control.id, item);
+            });
+            options.forEach(function (item) {
+                return control.picker.addOption(item, user_created);
+            });
+        },
+
+        updateOption(elID, value, data) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            var id = $dropdowntextlist.resolve(control.id, value);
+            var option = $dropdowntextlist.normalize(control.id, data);
+            if (!id || !$dropdowntextlist.hasProperty(control.picker.options, id)) {
+                return;
+            }
+            if (id !== option._dttlID && $dropdowntextlist.hasProperty(control.picker.options, option._dttlID)) {
+                throw new Error('DropDownTextList: duplicate groupID + key');
+            }
+            var before = JSON.stringify($dropdowntextlist.getValue(control.id));
+            var condition = control.conditions.get(id);
+            control.conditions.delete(id);
+            if (condition) {
+                control.conditions.set(option._dttlID, condition);
+            }
+            var userCreated = $dropdowntextlist.hasProperty(control.picker.userOptions, id);
+            control.picker.updateOption(id, option);
+            if (userCreated) {
+                delete control.picker.userOptions[id];
+                control.picker.userOptions[option._dttlID] = true;
+            }
+            control.picker.updateOriginalInput({
+                silent: true
+            });
+            $dropdowntextlist.closeEditor(control.id, false);
+            $dropdowntextlist.notify(control.id, before, false);
+            if (control.picker.isOpen) {
+                control.picker.positionDropdown();
+            }
+        },
+
+        removeOption(elID, value) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            var id = $dropdowntextlist.resolve(control.id, value);
+            if (id) {
+                control.picker.removeOption(id);
+            }
+        },
+
+        getOption(elID, value, create = false) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            var id = $dropdowntextlist.resolve(control.id, value);
+            return id ? control.picker.getOption(id, create) : null;
+        },
+
+        clearFilter(elID, option, value) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            var id = $dropdowntextlist.resolve(control.id, value);
+            return control.picker.items.includes(id);
+        },
+
+        clearOptions(elID, filter) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            var users = Object.assign({}, control.picker.userOptions);
+            $dropdowntextlist.cancelPending(control.id);
+            control.picker.clearOptions(function (data, id) {
+                return control.picker.items.includes(id) || (filter ? filter.call(control, Object.assign({}, data._dttlRaw), $dropdowntextlist.getOptionReference(id)) === true : false);
+            });
+            Object.keys(users).forEach(function (id) {
+                if ($dropdowntextlist.hasProperty(control.picker.options, id)) {
+                    control.picker.userOptions[id] = true;
+                }
+            });
+        },
+
+        clear(elID, silent = false) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            $dropdowntextlist.cancelPending(control.id);
+            control.picker.clear(silent === true);
+            control.conditions.clear();
+            $dropdowntextlist.closeEditor(control.id, false);
+            $dropdowntextlist.writeValue(control.id);
+        },
+
+        getItem(elID, value) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            var id = $dropdowntextlist.resolve(control.id, value);
+            return id ? control.picker.getItem(id) : null;
+        },
+
+        addItem(elID, value, silent = false) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            var id = $dropdowntextlist.resolve(control.id, value);
+            if (id) {
+                control.picker.addItem(id, silent === true);
+            }
+            $dropdowntextlist.writeValue(control.id);
+        },
+
+        removeItem(elID, value, silent = false) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            var id = $dropdowntextlist.resolve(control.id, value);
+            if (id) {
+                control.picker.removeItem(id, silent === true);
+            }
+            $dropdowntextlist.writeValue(control.id);
+        },
+
+        refreshItems(elID) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            // Tom Select가 기존 태그를 재사용하는 경우에도 조건 요약을 다시 렌더링한다.
+            control.picker.items.forEach(function (id) {
+                var old = control.picker.getItem(id);
+                var node = control.picker._render('item', control.picker.options[id]);
+                if (old) {
+                    old.replaceWith(node);
+                }
+            });
+            control.picker.clearActiveItems();
+            control.picker.updateOriginalInput({
+                silent: true
+            });
+            control.picker.refreshState();
+            $dropdowntextlist.updateButtons(control.id);
+            $dropdowntextlist.writeValue(control.id);
+        },
+
+        createItem(elID, value, callback) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            value = value == null ? control.picker.control_input.value : String(value);
+            if (!value || !control.settings.create || control.destroyed || control.picker.isLocked || !control.picker.canCreate(value)) {
+                if (callback) {
+                    callback();
+                }
+                return false;
+            }
+            var revision = control.revision;
+            var caret = control.picker.caretPos;
+            control.creating = true;
+            control.picker.lock();
+            var completed = false;
+            var done = function (data) {
+                if (completed || control.destroyed || revision !== control.revision) {
+                    return;
+                }
+                completed = true;
+                control.creating = false;
+                if (!control.explicitLock && !control.picker.isDisabled) {
+                    control.picker.unlock();
+                }
+                if (!data) {
+                    if (callback) {
+                        callback();
+                    }
+                    return;
+                }
+                var option;
+                try {
+                    option = $dropdowntextlist.normalize(control.id, data);
+                } catch (error) {
+                    console.warn(error);
+                    if (callback) {
+                        callback();
+                    }
+                    return;
+                }
+                control.picker.addOption(option, true);
+                control.picker.setCaret(caret);
+                control.picker.addItem(option._dttlID);
+                control.picker.setTextboxValue('');
+                if (callback) {
+                    callback(Object.assign({}, data));
+                }
+            };
+            try {
+                var result = typeof control.settings.create === 'function' ? control.settings.create.call(control, value, done) : {
+                    [control.settings.optgroupField]: control.settings.defaultGroupID,
+                    [control.settings.valueField]: value,
+                    [control.settings.labelField]: value
+                };
+                if (result && typeof result.then === 'function') {
+                    result.then(done, function (error) {
+                        console.warn(error);
+                        done();
+                    });
+                }
+                else if (result !== undefined) {
+                    done(result);
+                }
+            } catch (error) {
+                console.warn(error);
+                done();
+            }
+            return true;
+        },
+
+        load(elID, query) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            if (control.destroyed || typeof control.settings.load !== 'function') {
+                return;
+            }
+            query = String(query || '');
+            var sequence = ++control.loadSequence;
+            clearTimeout(control.loadTimer);
+            control.picker.loading = 1;
+            control.picker.wrapper.classList.add(control.picker.settings.loadingClass);
+            control.loadTimer = setTimeout(function () {
+                if (control.destroyed || sequence !== control.loadSequence) {
+                    return;
+                }
+                var completed = false;
+                var done = function (data = [], groups = []) {
+                    if (completed || control.destroyed || sequence !== control.loadSequence) {
+                        return;
+                    }
+                    completed = true;
+                    control.picker.loading = 0;
+                    control.picker.wrapper.classList.remove(control.picker.settings.loadingClass);
+                    try {
+                        var normalized = data.map(function (item) {
+                            return $dropdowntextlist.normalize(control.id, item);
+                        });
+                        groups.forEach(function (group) {
+                            return $dropdowntextlist.addOptionGroup(control.id, group.value, group);
+                        });
+                        normalized.forEach(function (option) {
+                            return control.picker.addOption(option);
+                        });
+                        control.picker.refreshOptions(control.picker.isFocused);
+                        $dropdowntextlist.trigger(control.id, 'load', data.map(function (item) {
+                            return Object.assign({}, item);
+                        }));
+                    } catch (error) {
+                        console.warn(error);
+                    }
+                };
+                try {
+                    var result = control.settings.load.call(control, query, done);
+                    if (result && typeof result.then === 'function') {
+                        result.then(function (data) {
+                            return done(data);
+                        }, function (error) {
+                            console.warn(error);
+                            done();
+                        });
+                    }
+                    else if (Array.isArray(result)) {
+                        done(result);
+                    }
+                } catch (error) {
+                    console.warn(error);
+                    done();
+                }
+            }, control.settings.loadThrottle || 0);
+        },
+
+        addOptionGroup(elID, id, data) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            control.picker.addOptionGroup(String(id), Object.assign({}, data, {
+                value: String(id)
+            }));
+            $dropdowntextlist.refreshItems(elID);
+        },
+
+        removeOptionGroup(elID, id) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            control.picker.removeOptionGroup(String(id));
+            $dropdowntextlist.refreshItems(elID);
+        },
+
+        clearOptionGroups(elID) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            control.picker.clearOptionGroups();
+            $dropdowntextlist.refreshItems(elID);
+        },
+
+        lock(elID) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            control.explicitLock = true;
+            $dropdowntextlist.closeEditor(control.id, false);
+            control.picker.lock();
+            $dropdowntextlist.updateButtons(control.id);
+        },
+
+        unlock(elID) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            control.explicitLock = false;
+            if (!control.creating && !control.picker.isDisabled) {
+                control.picker.unlock();
+            }
+            $dropdowntextlist.updateButtons(control.id);
+        },
+
+        disable(elID) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            $dropdowntextlist.closeEditor(control.id, false);
+            control.picker.disable();
+            $dropdowntextlist.updateButtons(control.id);
+        },
+
+        enable(elID) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            control.picker.enable();
+            if (control.explicitLock || control.creating) {
+                control.picker.lock();
+            }
+            $dropdowntextlist.updateButtons(control.id);
+        },
+
+        sync(elID) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            var before = JSON.stringify($dropdowntextlist.getValue(control.id));
+            var records = Array.from(control.source.options).map(function (option) {
+                var ref = $dropdowntextlist.getOptionReference(option.value);
+                var currentOption = control.picker.options[option.value];
+                var raw = Object.assign({}, currentOption ? currentOption._dttlRaw : undefined, {
+                    [control.settings.optgroupField]: ref.groupID,
+                    [control.settings.valueField]: ref.key,
+                    [control.settings.labelField]: option.text
+                });
+                return {
+                    data: $dropdowntextlist.normalize(control.id, raw),
+                    selected: option.selected
+                };
+            });
+            var conditions = new Map(control.conditions);
+            $dropdowntextlist.setValue(control.id, records.map(function (record) {
+                return record.data._dttlRaw;
+            }), true);
+            control.picker.clear(true);
+            control.conditions = conditions;
+            control.picker.addItems(records.filter(function (record) {
+                return record.selected;
+            }).map(function (record) {
+                return record.data._dttlID;
+            }), true);
+            $dropdowntextlist.refreshItems(control.id);
+            if (control.source.disabled) {
+                $dropdowntextlist.disable(control.id);
+            }
+            else {
+                $dropdowntextlist.enable(control.id);
+            }
+            $dropdowntextlist.notify(control.id, before, false);
+        },
+
+        destroy(elID) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            if (control.destroyed) {
+                return;
+            }
+            $dropdowntextlist.trigger(control.id, 'destroy');
+            $dropdowntextlist.cancelPending(control.id);
+            control.destroyed = true;
+            clearTimeout(control.picker.refreshTimeout);
+            $dropdowntextlist.closeEditor(control.id, false);
+            control.cleanups.forEach(function (cleanup) {
+                return cleanup();
+            });
+            control.cleanups = [];
+            control.picker.destroy();
+            control.container.remove();
+            control.host.style.display = control.originalDisplay;
+            if (control.originalEvents !== null) {
+                control.host.setAttribute('syn-events', control.originalEvents);
+            }
+            control.handlers.clear();
+            control.conditions.clear();
+            control.dispose();
+        },
+
+        getAdjacent(elID, element, direction) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            return control.picker.getAdjacent(element, direction);
+        },
+
+        refreshOptions(elID, triggerDropdown) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            return control.picker.refreshOptions(triggerDropdown);
+        },
+
+        open(elID) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            return control.picker.open();
+        },
+
+        close(elID) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            return control.picker.close();
+        },
+
+        positionDropdown(elID) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            control.picker.positionDropdown();
+            if (control.editor) {
+                $dropdowntextlist.positionEditor(elID);
+            }
+        },
+
+        focus(elID) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            return control.picker.focus();
+        },
+
+        blur(elID) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            return control.picker.blur();
+        },
+
+        setCaret(elID, index) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            return control.picker.setCaret(index);
+        },
+
+        isFull(elID) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            return control.picker.isFull();
+        },
+
+        clearCache(elID) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            return control.picker.clearCache();
+        },
+
+        setTextboxValue(elID, str) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            return control.picker.setTextboxValue(str);
+        },
+
+        getControl(elID) {
+            var result = null;
+            for (var i = 0, length = $dropdowntextlist.textListControls.length; i < length; i++) {
+                var control = $dropdowntextlist.textListControls[i];
+                if (control.id === elID) {
+                    result = control;
+                    break;
+                }
+            }
+            return result;
+        },
+
+        requireControl(elID) {
+            var control = $dropdowntextlist.getControl(elID);
+            if (!control) {
+                throw new Error('DropDownTextList: control not initialized: ' + elID);
+            }
+            return control;
+        },
+
+        hasProperty(object, key) {
+            return Object.prototype.hasOwnProperty.call(object, key);
+        },
+
+        getOptionID(groupID, key) {
+            return JSON.stringify([groupID, key]);
+        },
+
+        getOptionReference(id) {
+            var pair = JSON.parse(id);
+            return {
+                groupID: pair[0],
+                key: pair[1]
+            };
+        },
+
+        normalizeScalar(value, field, empty) {
+            if (typeof value !== 'string' && typeof value !== 'number' || !empty && String(value) === '') {
+                throw new TypeError('DropDownTextList: ' + field + ' must be a ' + (empty ? '' : 'nonempty ') + 'string or number');
+            }
+            return String(value);
+        },
+
+        initialize(elID) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            $dropdowntextlist.trigger(control.id, 'initialize');
+            if (control.settings.preload === true && control.destroyed !== true) {
+                $dropdowntextlist.load(control.id, '');
+            }
+        },
+
+        listen(elID, element, event, handler, capture = false) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            element.addEventListener(event, handler, capture);
+            control.cleanups.push(function () {
+                return element.removeEventListener(event, handler, capture);
+            });
+        },
+
+        getValueType(value) {
+            var result = 'option';
+            if (typeof value === 'string' || typeof value === 'number') {
+                result = 'key';
+            }
+            else if (value && typeof value === 'object') {
+                var isCondition = ['groupID', 'logic', 'operator', 'key'].every(function (key) {
+                    return $dropdowntextlist.hasProperty(value, key);
+                });
+                if (isCondition) {
+                    result = 'condition';
+                }
+            }
+
+            return result;
+        },
+
+        normalize(elID, data) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            if (!data || typeof data !== 'object' || Array.isArray(data)) {
+                throw new TypeError('DropDownTextList: option must be an object');
+            }
+            var key = $dropdowntextlist.normalizeScalar(data[control.settings.valueField], 'key', false);
+            var groupID = $dropdowntextlist.normalizeScalar(data[control.settings.optgroupField] == null ? '' : data[control.settings.optgroupField], 'groupID', true);
+            var value = $dropdowntextlist.normalizeScalar(data[control.settings.labelField], 'value', true);
+            return {
+                _dttlID: $dropdowntextlist.getOptionID(groupID, key),
+                _dttlKey: key,
+                _dttlGroup: groupID,
+                _dttlLabel: value,
+                _dttlRaw: Object.assign({}, data)
+            };
+        },
+
+        condition(elID, data) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            var groupID = $dropdowntextlist.normalizeScalar(data.groupID, 'groupID', true);
+            var key = $dropdowntextlist.normalizeScalar(data.key, 'key', false);
+            var value = $dropdowntextlist.normalizeScalar(data.value, 'value', true);
+            if (!['AND', 'OR'].includes(data.logic) || !$dropdowntextlist.hasProperty($dropdowntextlist.operators, data.operator)) {
+                throw new TypeError('DropDownTextList: invalid logic or operator');
+            }
+            return {
+                groupID: groupID,
+                logic: data.logic,
+                operator: data.operator,
+                key: key,
+                value: value
+            };
+        },
+
+        fromCondition(elID, data) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            return $dropdowntextlist.normalize(control.id, {
+                [control.settings.optgroupField]: data.groupID,
+                [control.settings.valueField]: data.key,
+                [control.settings.labelField]: data.value
+            });
+        },
+
+        resolve(elID, value) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            if (value instanceof HTMLElement) {
+                return value.dataset.value;
+            }
+            if (value && typeof value === 'object') {
+                return $dropdowntextlist.getOptionID($dropdowntextlist.normalizeScalar(value.groupID, 'groupID', true), $dropdowntextlist.normalizeScalar(value.key, 'key', false));
+            }
+            var key = $dropdowntextlist.normalizeScalar(value, 'key', false);
+            var matches = Object.keys(control.picker.options).filter(function (id) {
+                return control.picker.options[id]._dttlKey === key;
+            });
+            if (matches.length > 1) {
+                throw new Error('DropDownTextList: ambiguous key; use {groupID, key}');
+            }
+            return matches[0];
+        },
+
+        relay(elID, event, args) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            if (event === 'initialize' || event === 'destroy' || !control.ready || control.destroyed) {
+                return;
+            }
+            if (event === 'change') {
+                $dropdowntextlist.writeValue(control.id);
+                args = [$dropdowntextlist.getValue(control.id)];
+            }
+            else if (event === 'item_add' || event === 'item_remove' || event === 'option_add' || event === 'option_remove') {
+                if (event === 'item_remove') {
+                    control.conditions.delete(args[0]);
+                    $dropdowntextlist.closeEditor(control.id, false);
+                }
+                args = args.slice();
+                args[0] = $dropdowntextlist.getOptionReference(args[0]);
+                if (event === 'option_add') {
+                    args[1] = Object.assign({}, args[1]._dttlRaw);
+                }
+            }
+            else if (event === 'clear') {
+                control.conditions.clear();
+                $dropdowntextlist.closeEditor(control.id, false);
+            }
+            $dropdowntextlist.writeValue(control.id);
+            $dropdowntextlist.trigger(control.id, event, ...args);
+            if (event === 'focus' && control.settings.preload === 'focus' && !control.preloaded && control.destroyed !== true) {
+                control.preloaded = true;
+                $dropdowntextlist.load(control.id, '');
+            }
+        },
+
+        writeValue(elID) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            control.host.value = JSON.stringify($dropdowntextlist.getValue(control.id));
+            // 선택하지 않은 후보와 변경한 표시명도 기반 select에 반영하여 sync()에 사용한다.
+            Array.from(control.source.options).forEach(function (option) {
+                if (!$dropdowntextlist.hasProperty(control.picker.options, option.value)) {
+                    option.remove();
+                }
+            });
+            var nodes = new Map(Array.from(control.source.options).map(function (option) {
+                return [option.value, option];
+            }));
+            Object.keys(control.picker.options).forEach(function (id) {
+                var data = control.picker.options[id];
+                var option = nodes.get(id) || new Option(data._dttlLabel, id);
+                option.text = data._dttlLabel;
+                option.selected = control.picker.items.includes(id);
+                if (!option.parentElement) {
+                    control.source.add(option);
+                }
+                data.$option = option;
+            });
+            $dropdowntextlist.updateButtons(control.id);
+        },
+
+        notify(elID, before, silent) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            $dropdowntextlist.writeValue(control.id);
+            if (!silent && before !== JSON.stringify($dropdowntextlist.getValue(control.id))) {
+                control.picker.trigger('change', control.picker.getValue());
+            }
+        },
+
+        cancelPending(elID) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            control.revision++;
+            control.loadSequence++;
+            clearTimeout(control.loadTimer);
+            control.picker.loading = 0;
+            control.picker.wrapper.classList.remove(control.picker.settings.loadingClass);
+            if (control.creating) {
+                control.creating = false;
+                if (!control.explicitLock && !control.picker.isDisabled) {
+                    control.picker.unlock();
+                }
+            }
+        },
+
+        updateButtons(elID) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            control.picker.control.querySelectorAll('button').forEach(function (button) {
+                button.disabled = control.picker.isLocked || control.picker.isDisabled;
+            });
+            control.picker.control.querySelectorAll('.dttl-group').forEach(function (group) {
+                var disabled = control.picker.isLocked || control.picker.isDisabled;
+                group.tabIndex = disabled ? -1 : 0;
+                group.setAttribute('aria-disabled', String(disabled));
+            });
+        },
+
+        onTagClick(elID, event) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            var target = event.target.closest('.dttl-group,.dttl-edit,.dttl-remove');
+            if (!target || !control.picker.control.contains(target)) {
+                if (control.editor) {
+                    $dropdowntextlist.closeEditor(elID, false);
+                }
+                return;
+            }
+            event.preventDefault();
+            event.stopPropagation();
+            if (control.picker.isLocked || control.picker.isDisabled) {
+                return;
+            }
+            var item = target.closest('[data-value]');
+            if (target.classList.contains('dttl-remove')) {
+                $dropdowntextlist.removeItem(control.id, item);
+                $dropdowntextlist.focus(control.id);
+            }
+            else {
+                $dropdowntextlist.editCondition(control.id, item);
+            }
+        },
+
+        editCondition(elID, item) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            if (control.picker.isLocked || control.picker.isDisabled) {
+                return;
+            }
+            $dropdowntextlist.closeEditor(control.id, false);
+            var id = item.dataset.value;
+            var current = control.conditions.get(id) || {
+                logic: 'AND',
+                operator: 'eq'
+            };
+            control.picker.close();
+            var editor = document.createElement('div');
+            editor.className = 'dttl-editor';
+            editor.setAttribute('role', 'dialog');
+            editor.setAttribute('aria-label', control.picker.options[id]._dttlLabel + ' 조건 편집');
+            var field = function (label, values, value, colorAttribute) {
+                var wrapper = document.createElement('label');
+                wrapper.append(document.createTextNode(label));
+                var select = document.createElement('select');
+                Object.keys(values).forEach(function (key) {
+                    var option = new Option(values[key], key);
+                    option.setAttribute(colorAttribute, key);
+                    select.add(option);
+                });
+                select.value = value;
+                select.setAttribute(colorAttribute, value);
+                select.addEventListener('change', function () {
+                    select.setAttribute(colorAttribute, select.value);
+                });
+                wrapper.append(select);
+                editor.append(wrapper);
+                return select;
+            };
+            var logic = field('연결', {
+                AND: 'AND',
+                OR: 'OR'
+            }, current.logic, 'data-dttl-logic');
+            var operator = field('비교', $dropdowntextlist.operators, current.operator, 'data-dttl-operator');
+            var apply = document.createElement('button');
+            apply.type = 'button';
+            apply.textContent = '적용';
+            apply.className = 'dttl-apply';
+            var cancel = document.createElement('button');
+            cancel.type = 'button';
+            cancel.textContent = '취소';
+            editor.append(apply, cancel);
+            apply.addEventListener('click', function () {
+                if (control.picker.isLocked || control.picker.isDisabled) {
+                    return;
+                }
+                var before = JSON.stringify($dropdowntextlist.getValue(control.id));
+                control.conditions.set(id, {
+                    logic: logic.value,
+                    operator: operator.value
+                });
+                $dropdowntextlist.refreshItems(control.id);
+                $dropdowntextlist.closeEditor(control.id, true);
+                $dropdowntextlist.notify(control.id, before, false);
+            });
+            cancel.addEventListener('click', function () {
+                return $dropdowntextlist.closeEditor(control.id, true);
+            });
+            editor.addEventListener('keydown', function (event) {
+                if (event.key === 'Escape') {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    $dropdowntextlist.closeEditor(control.id, true);
+                }
+                if (event.key === 'Tab') {
+                    if (event.shiftKey && event.target === logic) {
+                        event.preventDefault();
+                        cancel.focus();
+                    }
+                    else if (!event.shiftKey && event.target === cancel) {
+                        event.preventDefault();
+                        logic.focus();
+                    }
+                }
+            });
+            control.editor = editor;
+            control.editingID = id;
+            control.container.append(editor);
+            $dropdowntextlist.positionEditor(elID);
+            logic.focus({ preventScroll: true });
+            control.picker.clearActiveItems();
+            control.picker.setActiveItemClass(item);
+        },
+
+        normalizeDropdownSize(value, name) {
+            var defaultValue = 'auto';
+            if (value == null || value === '') {
+                return defaultValue;
+            }
+            if (value === defaultValue || (name === 'dropdownWidth' && value === '100%')) {
+                return value;
+            }
+            if (typeof value === 'number' && Number.isFinite(value) && value > 0) {
+                return value + 'px';
+            }
+            if (typeof value === 'string' && /^\d+(?:\.\d+)?px$/.test(value) && parseFloat(value) > 0) {
+                return value;
+            }
+
+            throw new TypeError('DropDownTextList: ' + name + ' must be ' + defaultValue +
+                (name === 'dropdownWidth' ? ', 100%, or' : ' or') + ' a positive pixel value');
+        },
+
+        sizeDropdown(elID) {
+            var control = $dropdowntextlist.requireControl(elID);
+            var picker = control.picker;
+            var dropdown = picker.dropdown;
+            var content = picker.dropdown_content;
+            var width = $dropdowntextlist.normalizeDropdownSize(control.settings.dropdownWidth, 'dropdownWidth');
+            var height = $dropdowntextlist.normalizeDropdownSize(control.settings.dropdownHeight, 'dropdownHeight');
+
+            // 기본 높이는 Tom Select의 최대 높이 정책을 그대로 사용한다.
+            if (height === 'auto') {
+                dropdown.style.height = '';
+                content.style.height = '';
+                content.style.maxHeight = '';
+                content.style.boxSizing = '';
+            }
+            else {
+                dropdown.style.height = height;
+                content.style.height = '100%';
+                content.style.maxHeight = 'none';
+                content.style.boxSizing = 'border-box';
+            }
+
+            dropdown.style.maxWidth = '';
+            dropdown.style.overflowWrap = '';
+            if (width === '100%') {
+                if (picker.settings.dropdownParent !== 'body') {
+                    dropdown.style.width = '';
+                }
+            }
+            else if (width === 'auto') {
+                dropdown.style.width = 'max-content';
+                dropdown.style.overflowWrap = 'anywhere';
+                var left = picker.control.getBoundingClientRect().left;
+                var availableWidth = Math.max(1, document.documentElement.clientWidth - Math.max(0, left) - 8);
+                dropdown.style.maxWidth = availableWidth + 'px';
+                if (dropdown.getClientRects().length > 0) {
+                    var scrollbarWidth = content.offsetWidth - content.clientWidth;
+                    dropdown.style.width = Math.min(availableWidth, Math.ceil(dropdown.getBoundingClientRect().width) + scrollbarWidth) + 'px';
+                }
+            }
+            else {
+                dropdown.style.width = width;
+            }
+        },
+
+        positionEditor(elID) {
+            var control = $dropdowntextlist.requireControl(elID);
+            var editor = control.editor;
+            if (!editor) {
+                return;
+            }
+
+            var item = control.picker.getItem(control.editingID);
+            if (!item) {
+                $dropdowntextlist.closeEditor(elID, false);
+                return;
+            }
+
+            var itemRect = item.getBoundingClientRect();
+            var containerRect = control.container.getBoundingClientRect();
+            var viewportWidth = document.documentElement.clientWidth;
+            var viewportHeight = window.innerHeight;
+            var padding = 8;
+            var gap = 6;
+            if (itemRect.bottom < 0 || itemRect.top > viewportHeight || itemRect.right < 0 || itemRect.left > viewportWidth) {
+                $dropdowntextlist.closeEditor(elID, false);
+                return;
+            }
+
+            // 태그 바로 아래를 우선 사용하고, 화면 가장자리에서는 위치와 높이를 조정한다.
+            var spaceBelow = Math.max(0, viewportHeight - padding - itemRect.bottom - gap);
+            var spaceAbove = Math.max(0, itemRect.top - padding - gap);
+            editor.style.left = '0px';
+            editor.style.top = '0px';
+            editor.style.width = '';
+            editor.style.maxWidth = Math.max(0, Math.min(control.container.clientWidth, viewportWidth - padding * 2)) + 'px';
+            editor.style.maxHeight = Math.max(spaceBelow, spaceAbove) + 'px';
+            editor.style.width = Math.ceil(editor.getBoundingClientRect().width) + 'px';
+            var editorWidth = editor.offsetWidth;
+            var editorHeight = editor.offsetHeight;
+            var left = Math.max(padding, Math.min(itemRect.left, viewportWidth - padding - editorWidth));
+            var top = itemRect.bottom + gap;
+            if (editorHeight > spaceBelow && spaceAbove > spaceBelow) {
+                top = itemRect.top - gap - editorHeight;
+            }
+            top = Math.max(padding, Math.min(top, viewportHeight - padding - editorHeight));
+            editor.style.left = Math.round(left - containerRect.left - control.container.clientLeft + control.container.scrollLeft) + 'px';
+            editor.style.top = Math.round(top - containerRect.top - control.container.clientTop + control.container.scrollTop) + 'px';
+        },
+
+        closeEditor(elID, restoreFocus) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            if (!control.editor) {
+                return;
+            }
+            var id = control.editingID;
+            control.editor.remove();
+            control.editor = null;
+            control.editingID = null;
+            control.picker.clearActiveItems();
+            if (restoreFocus) {
+                var item = control.picker.getItem(id);
+                var button = item ? item.querySelector('.dttl-edit') : null;
+                if (button) {
+                    item.classList.add('active', 'last-active');
+                    control.picker.activeItems.push(item);
+                    button.focus({ preventScroll: true });
+                }
+            }
+        },
+
+        setLocale() {}
+    });
+
+    syn.uicontrols.$dropdowntextlist = $dropdowntextlist;
+})(window);
+
+/// <reference path="/js/syn.js" />
 /// <reference path="/js/syn.domain.js" />
 
 (function (window) {
@@ -13461,6 +15051,998 @@
 
 (function (window) {
     'use strict';
+
+    const imageExtensions = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'svg'];
+    const previewTemplate = '<div class="dz-preview dz-file-preview fdz-item">' +
+        '<div class="dz-image"><img data-dz-thumbnail draggable="false" alt="" /><span class="fdz-ext"></span></div>' +
+        '<div class="dz-details"><div class="dz-size"><span data-dz-size></span></div><div class="dz-filename"><span data-dz-name></span></div></div>' +
+        '<div class="dz-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span class="dz-upload" data-dz-uploadprogress></span></div>' +
+        '<div class="dz-error-message"><span data-dz-errormessage></span></div>' +
+        '<div class="dz-success-mark"><svg width="54" height="54" viewBox="0 0 54 54" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M10.2071 29.7929L14.2929 25.7071C14.6834 25.3166 15.3166 25.3166 15.7071 25.7071L21.2929 31.2929C21.6834 31.6834 22.3166 31.6834 22.7071 31.2929L38.2929 15.7071C38.6834 15.3166 39.3166 15.3166 39.7071 15.7071L43.7929 19.7929C44.1834 20.1834 44.1834 20.8166 43.7929 21.2071L22.7071 42.2929C22.3166 42.6834 21.6834 42.6834 21.2929 42.2929L10.2071 31.2071C9.81658 30.8166 9.81658 30.1834 10.2071 29.7929Z" /></svg></div>' +
+        '<div class="dz-error-mark"><svg width="54" height="54" viewBox="0 0 54 54" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M26.2929 20.2929L19.2071 13.2071C18.8166 12.8166 18.1834 12.8166 17.7929 13.2071L13.2071 17.7929C12.8166 18.1834 12.8166 18.8166 13.2071 19.2071L20.2929 26.2929C20.6834 26.6834 20.6834 27.3166 20.2929 27.7071L13.2071 34.7929C12.8166 35.1834 12.8166 35.8166 13.2071 36.2071L17.7929 40.7929C18.1834 41.1834 18.8166 41.1834 19.2071 40.7929L26.2929 33.7071C26.6834 33.3166 27.3166 33.3166 27.7071 33.7071L34.7929 40.7929C35.1834 41.1834 35.8166 41.1834 36.2071 40.7929L40.7929 36.2071C41.1834 35.8166 41.1834 35.1834 40.7929 34.7929L33.7071 27.7071C33.3166 27.3166 33.3166 26.6834 33.7071 26.2929L40.7929 19.2071C41.1834 18.8166 41.1834 18.1834 40.7929 17.7929L36.2071 13.2071C35.8166 12.8166 35.1834 12.8166 34.7929 13.2071L27.7071 20.2929C27.3166 20.6834 26.6834 20.6834 26.2929 20.2929Z" /></svg></div>' +
+        '<div class="fdz-actions"><button type="button" class="fdz-download">다운로드</button><button type="button" class="fdz-remove">삭제</button></div>' +
+        '</div>';
+
+    const extensionOf = name => {
+        const text = String(name || '');
+        const index = text.lastIndexOf('.');
+        return index > -1 ? text.substring(index + 1).toLowerCase() : '';
+    };
+
+    const isImageItem = item => imageExtensions.includes(String(item.Extension || extensionOf(item.FileName)).replace('.', '').toLowerCase());
+
+    // FileClient.toFileLengthString 과 같은 규칙: 1MiB 미만 KB, 1GiB 미만 MB, 그 이상 GB (0 은 '0.0 KB')
+    const toFileLengthString = bytes => {
+        const size = typeof bytes === 'number' && bytes > 0 ? bytes : 0;
+        if (size < 1048576) {
+            return (size / 1024).toFixed(1) + ' KB';
+        }
+
+        if (size < 1073741824) {
+            return (size / 1048576).toFixed(1) + ' MB';
+        }
+
+        return (size / 1073741824).toFixed(1) + ' GB';
+    };
+
+    const createTemporaryDependencyID = () => 'TEMP_' + Array.from(window.crypto.getRandomValues(new Uint8Array(12)), byte => byte.toString(16).padStart(2, '0')).join('');
+
+    const decodeFileResult = value => {
+        try {
+            const binary = window.atob(value);
+            return JSON.parse(new TextDecoder('utf-8').decode(Uint8Array.from(binary, char => char.charCodeAt(0))));
+        } catch (error) {
+            return null;
+        }
+    };
+
+    // FileClient.controlLoad 와 같은 규칙으로 ApplicationID / BusinessID 를 결정한다(컨트롤별로 보관, 전역 공유 없음).
+    const resolveContext = setting => {
+        let applicationID = setting.applicationID;
+        if (!applicationID) {
+            const tenantPath = syn.Config.TenantAppRequestPath ? `/${syn.Config.TenantAppRequestPath}/` : '/app/';
+            if (location.pathname.startsWith(tenantPath) == true) {
+                applicationID = syn.$w.ManagedApp && syn.$w.ManagedApp.ApplicationID;
+            }
+            else {
+                applicationID = (syn.$w.Variable && syn.$w.Variable.ApplicationID) || (syn.$w.User && syn.$w.User.ApplicationID) || syn.Config.ApplicationID;
+            }
+        }
+
+        let businessID = setting.businessID;
+        if (!businessID && syn.Config.FileBusinessIDSource && syn.Config.FileBusinessIDSource != 'None') {
+            if (syn.Config.FileBusinessIDSource == 'Cookie') {
+                businessID = syn.$r.getCookie('FileBusinessID');
+            }
+            else if (syn.Config.FileBusinessIDSource == 'SessionStorage') {
+                businessID = syn.$w.getStorage('FileBusinessID');
+            }
+        }
+
+        businessID = businessID || (syn.$w.User && syn.$w.User.WorkCompanyNo) || '0';
+        return { applicationID: applicationID, businessID: String(businessID) };
+    };
+
+    const apiUrl = (control, page, params) => {
+        const setting = control.setting;
+        const query = new URLSearchParams();
+        Object.keys(params || {}).forEach(key => {
+            if (params[key] !== null && params[key] !== undefined) {
+                query.set(key, String(params[key]));
+            }
+        });
+
+        const queryText = query.toString();
+        return setting.fileManagerServer.replace(/\/+$/, '') + setting.fileManagerPath + '/' + page + (queryText ? '?' + queryText : '');
+    };
+
+    // 저장 하위 경로(CustomPath1~3). 값이 있을 때만 업로드 요청에 포함한다.
+    const customPathParams = setting => {
+        const params = {};
+        ['customPath1', 'customPath2', 'customPath3'].forEach((key, index) => {
+            if (setting[key]) {
+                params['CustomPath' + (index + 1)] = setting[key];
+            }
+        });
+
+        return params;
+    };
+
+    const baseParams = control => ({ applicationID: control.context.applicationID, repositoryID: control.setting.repositoryID, businessID: control.context.businessID });
+
+    const requestInit = (control, init) => Object.assign({
+        headers: control.setting.headers || undefined,
+        credentials: control.setting.withCredentials === true ? 'include' : 'same-origin',
+        cache: 'no-store'
+    }, init);
+
+    const requestJson = async (control, page, params) => {
+        const response = await fetch(apiUrl(control, page, params), requestInit(control, { method: 'GET' }));
+        if (response.ok == false) {
+            throw new Error('HTTP ' + response.status);
+        }
+
+        return response.json();
+    };
+
+    const notify = (control, type, detail) => syn.$l.triggerEvent(control.host, type, detail);
+
+    const clone = value => JSON.parse(JSON.stringify(value));
+
+    const errorText = message => {
+        if (typeof message === 'string') {
+            return message;
+        }
+
+        if (message && typeof message === 'object') {
+            return message.Message || message.message || message.error || message.title || '업로드 오류';
+        }
+
+        return '업로드 오류';
+    };
+
+    const revokeThumbnail = file => {
+        if (file.fdzObjectUrl) {
+            URL.revokeObjectURL(file.fdzObjectUrl);
+            file.fdzObjectUrl = null;
+        }
+    };
+
+    const markItem = (file, item) => {
+        file.fdzItem = item;
+        const preview = file.previewElement;
+        if (preview) {
+            preview.classList.add('fdz-has-item');
+            const ext = preview.querySelector('.fdz-ext');
+            if (ext) {
+                ext.textContent = String(item.Extension || extensionOf(item.FileName)).replace('.', '').toUpperCase();
+            }
+        }
+    };
+
+    const showStatus = (control, message, isError) => {
+        let status = control.host.querySelector('.fdz-status');
+        if (!status) {
+            status = document.createElement('div');
+            status.className = 'fdz-status';
+            control.host.prepend(status);
+        }
+
+        status.textContent = message;
+        status.classList.toggle('fdz-status-error', isError === true);
+    };
+
+    const applyState = control => {
+        const locked = control.readOnly || control.disabled;
+        if (control.dz) {
+            if (locked && !control.dz.disabled) {
+                control.dz.disable();
+            }
+            else if (!locked && control.dz.disabled) {
+                control.dz.enable();
+            }
+        }
+
+        control.host.classList.toggle('fdz-readonly', control.readOnly);
+        control.host.classList.toggle('fdz-disabled', control.disabled);
+        control.host.setAttribute('aria-readonly', control.readOnly ? 'true' : 'false');
+        control.host.setAttribute('aria-disabled', control.disabled ? 'true' : 'false');
+    };
+
+    const setCardError = (file, message) => {
+        if (file.previewElement) {
+            file.previewElement.classList.add('dz-error');
+            const target = file.previewElement.querySelector('[data-dz-errormessage]');
+            if (target) {
+                target.textContent = message;
+            }
+        }
+    };
+
+    // 업로드 성공 응답이어도 Result 가 false 이면 실패로 처리한다(서버는 논리 오류를 HTTP 200 으로 반환).
+    const failUpload = (control, file, message) => {
+        file.status = Dropzone.ERROR;
+        file.accepted = false;
+        if (file.previewElement) {
+            file.previewElement.classList.remove('dz-success');
+        }
+
+        setCardError(file, message);
+        notify(control, 'uploadError', { file: file, message: message });
+    };
+
+    const fetchItem = async (control, itemID) => {
+        const item = await requestJson(control, 'action-handler', Object.assign(baseParams(control), { Action: 'GetItem', itemID: itemID }));
+        return item && item.ItemID ? item : null;
+    };
+
+    // 업로드 직후 항목 정보: FileResult 헤더(base64 JSON)를 우선 사용하고, 없으면 GetItem 으로 조회한다.
+    const resolveUploadedItem = async (control, file, response) => {
+        let item = null;
+        if (file.xhr && file.xhr.getResponseHeader('FileResult')) {
+            item = decodeFileResult(file.xhr.getResponseHeader('FileResult'));
+        }
+
+        if ((!item || !item.ItemID) && response && response.ItemID) {
+            try {
+                item = await fetchItem(control, response.ItemID);
+            } catch (error) {
+                item = null;
+            }
+        }
+
+        return item && item.ItemID ? item : null;
+    };
+
+    // 업로드 정책(저장소 설정) 중 서버가 강제하지 않는 확장자를 클라이언트에서 검사한다.
+    const policyExtensions = policy => {
+        const text = String(policy.UploadExtensions || '').trim();
+        if (text === '' || text === '*/*' || text === '*') {
+            return null;
+        }
+
+        return text.split(/[;,]/).map(item => item.trim().replace(/^\./, '').toLowerCase()).filter(item => item !== '');
+    };
+
+    const loadThumbnail = async (control, file) => {
+        if (control.setting.thumbnails !== true || !file.fdzItem || isImageItem(file.fdzItem) == false || file.size > 10 * 1024 * 1024) {
+            return;
+        }
+
+        try {
+            const blob = await downloadBlob(control, file.fdzItem);
+            if (blob && control.dz && control.dz.files.includes(file)) {
+                file.fdzObjectUrl = URL.createObjectURL(blob.blob);
+                control.dz.emit('thumbnail', file, file.fdzObjectUrl);
+            }
+        } catch (error) {
+            // 썸네일 실패는 무시한다(파일 카드는 그대로 표시).
+        }
+    };
+
+    const downloadBlob = async (control, item) => {
+        const response = await fetch(apiUrl(control, 'download-file'), requestInit(control, {
+            method: 'POST',
+            headers: Object.assign({ 'Content-Type': 'application/json' }, control.setting.headers || {}),
+            body: JSON.stringify({
+                ApplicationID: control.context.applicationID,
+                RepositoryID: control.setting.repositoryID,
+                ItemID: item.ItemID,
+                BusinessID: control.context.businessID,
+                FileMD5: '',
+                TokenID: control.setting.tokenID || '',
+                Disposition: 'attachment'
+            })
+        }));
+
+        if (response.ok == false) {
+            throw new Error('HTTP ' + response.status);
+        }
+
+        const result = response.headers.get('FileResult') ? decodeFileResult(response.headers.get('FileResult')) : null;
+        if (result && result.Result === false) {
+            throw new Error(result.Message || '다운로드 실패');
+        }
+
+        return { blob: await response.blob(), fileName: (result && result.FileName) || item.FileName };
+    };
+
+    // 서버에 이미 있는 항목을 목록에 표시한다(업로드 없음).
+    const addExisting = (control, item) => {
+        const dz = control.dz;
+        const name = item.FileName || item.ItemID;
+        const size = typeof item.Size === 'number' ? item.Size : Number(item.Size || item.SizeLength || 0);
+        const file = {
+            name: name,
+            size: size,
+            type: item.MimeType || '',
+            accepted: true,
+            status: Dropzone.SUCCESS,
+            upload: { progress: 100, total: size, bytesSent: size },
+            fdzItem: clone(item)
+        };
+
+        dz.emit('addedfile', file);
+        dz.emit('complete', file);
+        dz.files.push(file);
+        markItem(file, file.fdzItem);
+        file.previewElement.classList.add('dz-success', 'dz-complete');
+        dz._updateMaxFilesReachedClass();
+        loadThumbnail(control, file);
+        return file;
+    };
+
+    const clearList = control => {
+        if (control.dz) {
+            control.dz.files.slice().forEach(file => revokeThumbnail(file));
+            control.dz.removeAllFiles(true);
+        }
+    };
+
+    const findFile = (control, itemID) => (control.dz ? control.dz.files.find(file => file.fdzItem && file.fdzItem.ItemID === itemID) : null) || null;
+
+    const normalizeItems = async (control, values) => {
+        if (typeof values === 'string') {
+            const text = values.trim();
+            values = text === '' ? [] : (text.startsWith('[') ? JSON.parse(text) : text.split(',').map(item => item.trim()).filter(item => item !== ''));
+        }
+
+        if (Array.isArray(values) == false) {
+            values = values === null || values === undefined ? [] : [values];
+        }
+
+        const items = [];
+        items.skipped = 0;
+        for (const value of values) {
+            const itemID = typeof value === 'string' ? value : (value && value.ItemID);
+            if (!itemID) {
+                items.skipped++;
+                syn.$l.eventLog('$filedropzone.setValue', 'elID: "{0}" ItemID 가 없는 항목은 무시합니다.'.format(control.id), 'Warning');
+                continue;
+            }
+
+            if (typeof value === 'object' && value.FileName) {
+                items.push(value);
+            }
+            else {
+                const item = await fetchItem(control, itemID);
+                if (item) {
+                    items.push(item);
+                }
+                else {
+                    items.skipped++;
+                    syn.$l.eventLog('$filedropzone.setValue', 'elID: "{0}" ItemID "{1}" 정보를 찾을 수 없습니다.'.format(control.id, itemID), 'Warning');
+                }
+            }
+        }
+
+        return items;
+    };
+
+    const createDropzone = control => {
+        const setting = control.setting;
+        const policy = control.policy;
+        const extensions = policyExtensions(policy);
+        const isSingle = policy.IsMultiUpload === false;
+
+        let maxFilesize = policy.UploadSizeLimit > 0 ? policy.UploadSizeLimit / 1048576 : null;
+        if (setting.maxFilesize > 0 && (maxFilesize === null || setting.maxFilesize < maxFilesize)) {
+            maxFilesize = setting.maxFilesize;
+        }
+
+        let maxFiles = null;
+        if (isSingle == false) {
+            maxFiles = policy.UploadCount > 0 ? policy.UploadCount : null;
+            if (setting.maxFiles > 0 && (maxFiles === null || setting.maxFiles < maxFiles)) {
+                maxFiles = setting.maxFiles;
+            }
+        }
+
+        const dz = new Dropzone(control.host, {
+            url: () => apiUrl(control, 'upload-file', Object.assign(baseParams(control), { dependencyID: control.dependencyID }, customPathParams(setting))),
+            method: 'post',
+            paramName: 'file',
+            parallelUploads: isSingle ? 1 : setting.parallelUploads,
+            uploadMultiple: false,
+            maxFilesize: maxFilesize,
+            maxFiles: maxFiles,
+            acceptedFiles: setting.acceptedFiles || null,
+            timeout: setting.timeout > 0 ? setting.timeout : null,
+            headers: setting.headers,
+            withCredentials: setting.withCredentials === true,
+            createImageThumbnails: setting.thumbnails === true,
+            thumbnailWidth: 120,
+            thumbnailHeight: 120,
+            hiddenInputContainer: control.host,
+            previewTemplate: previewTemplate,
+            dictDefaultMessage: setting.placeholder,
+            dictFileTooBig: '파일이 너무 큽니다({{filesize}}MB). 최대 {{maxFilesize}}MB 까지 업로드할 수 있습니다.',
+            dictInvalidFileType: '허용되지 않는 파일 형식입니다.',
+            dictResponseError: '서버 오류가 발생했습니다(상태 코드 {{statusCode}}).',
+            dictCancelUpload: '업로드 취소',
+            dictMaxFilesExceeded: '더 이상 파일을 올릴 수 없습니다. (최대 {{maxFiles}}개)',
+            accept(file, done) {
+                if (extensions && file.fdzItem == null && extensions.includes(extensionOf(file.name)) == false) {
+                    done('허용되지 않는 확장자입니다. (허용: ' + extensions.join(', ') + ')');
+                    return;
+                }
+
+                done();
+            }
+        });
+
+        dz.filesize = size => toFileLengthString(size);
+
+        dz.on('addedfile', file => {
+            if (file.previewElement) {
+                file.previewElement.fdzFile = file;
+                file.previewElement.setAttribute('title', file.name);
+                const ext = file.previewElement.querySelector('.fdz-ext');
+                if (ext) {
+                    ext.textContent = extensionOf(file.name).toUpperCase();
+                }
+
+                if (setting.showDownload !== true) {
+                    file.previewElement.classList.add('fdz-no-download');
+                }
+            }
+
+            if (file.fdzItem) {
+                return;
+            }
+
+            // 단일 파일 저장소는 마지막으로 추가한 파일만 업로드한다.
+            if (isSingle == true) {
+                dz.files.filter(other => other !== file && other.fdzItem == null && (other.status === Dropzone.ADDED || other.status === Dropzone.QUEUED || other.status === Dropzone.UPLOADING)).forEach(other => dz.removeFile(other));
+            }
+
+            notify(control, 'fileAdded', { file: file });
+        });
+
+        dz.on('uploadprogress', (file, progress) => {
+            if (file.previewElement) {
+                const bar = file.previewElement.querySelector('.dz-progress');
+                if (bar) {
+                    bar.setAttribute('aria-valuenow', String(Math.round(progress)));
+                }
+            }
+
+            notify(control, 'uploadProgress', { file: file, progress: progress });
+        });
+
+        dz.on('success', async (file, response) => {
+            if (file.fdzItem) {
+                return;
+            }
+
+            if (!response || typeof response !== 'object' || response.Result !== true) {
+                failUpload(control, file, (response && response.Message) || '업로드에 실패했습니다.');
+                return;
+            }
+
+            const item = await resolveUploadedItem(control, file, response);
+            if (item == null) {
+                failUpload(control, file, '업로드한 파일 정보를 확인할 수 없습니다.');
+                return;
+            }
+
+            if (control.dz == null || dz.files.includes(file) == false) {
+                return;
+            }
+
+            markItem(file, item);
+            if (isSingle == true) {
+                dz.files.filter(other => other !== file && other.fdzItem).forEach(other => {
+                    revokeThumbnail(other);
+                    dz.removeFile(other);
+                });
+            }
+
+            notify(control, 'uploadSuccess', { file: file, item: clone(item) });
+            notify(control, 'change', { value: module.getValue(control.id) });
+        });
+
+        dz.on('error', (file, message) => {
+            const text = errorText(message);
+            file.accepted = false;
+            if (file.previewElement) {
+                const target = file.previewElement.querySelector('[data-dz-errormessage]');
+                if (target) {
+                    target.textContent = text;
+                }
+            }
+
+            if (file.xhr) {
+                notify(control, 'uploadError', { file: file, message: text });
+                return;
+            }
+
+            // 업로드 전에 거부된 파일(크기/확장자/개수 초과)
+            notify(control, 'fileRejected', { file: file, reason: text });
+            if (setting.rejectedDisplayMs > 0) {
+                setTimeout(() => {
+                    if (control.dz && dz.files.includes(file)) {
+                        dz.removeFile(file);
+                    }
+                }, setting.rejectedDisplayMs);
+            }
+        });
+
+        dz.on('queuecomplete', () => notify(control, 'queueComplete', {}));
+
+        control.onClick = event => {
+            const button = event.target.closest('.fdz-download, .fdz-remove');
+            if (!button || !control.host.contains(button)) {
+                return;
+            }
+
+            const preview = button.closest('.fdz-item');
+            const file = preview && preview.fdzFile;
+            if (!file) {
+                return;
+            }
+
+            event.preventDefault();
+            event.stopPropagation();
+            if (button.classList.contains('fdz-download')) {
+                if (file.fdzItem) {
+                    module.download(control.id, file.fdzItem.ItemID);
+                }
+            }
+            else {
+                removeFileEntry(control, file);
+            }
+        };
+        control.host.addEventListener('click', control.onClick);
+
+        return dz;
+    };
+
+    // 파일 카드의 삭제 버튼/removeItem 이 공통으로 사용한다. 반환: 성공 여부.
+    const removeFileEntry = async (control, file) => {
+        const dz = control.dz;
+        if (!dz) {
+            return false;
+        }
+
+        if (control.readOnly || control.disabled) {
+            return false;
+        }
+
+        const item = file.fdzItem;
+        if (item && control.setting.confirmRemove === true && window.confirm('"{0}" 파일을 삭제하시겠습니까?'.format(item.FileName)) == false) {
+            return false;
+        }
+
+        if (item && control.setting.deleteOnRemove === true) {
+            try {
+                const result = await requestJson(control, 'remove-item', Object.assign(baseParams(control), { itemID: item.ItemID }));
+                if (!result || result.Result !== true) {
+                    setCardError(file, (result && result.Message) || '파일을 삭제하지 못했습니다.');
+                    return false;
+                }
+            } catch (error) {
+                syn.$l.eventLog('$filedropzone.remove', 'elID: "{0}" 삭제 요청 오류: {1}'.format(control.id, error.message), 'Warning');
+                setCardError(file, '파일을 삭제하지 못했습니다.');
+                return false;
+            }
+        }
+
+        revokeThumbnail(file);
+        dz.removeFile(file);
+        dz._updateMaxFilesReachedClass();
+        if (item) {
+            notify(control, 'fileRemoved', { item: clone(item) });
+            notify(control, 'change', { value: module.getValue(control.id) });
+        }
+
+        return true;
+    };
+
+    syn.uicontrols = syn.uicontrols || new syn.module();
+    const module = syn.uicontrols.$filedropzone || new syn.module();
+
+    module.extend({
+        name: 'syn.uicontrols.$filedropzone',
+        version: 'v2026.10.14',
+        fileDropZoneControls: [],
+        defaultSetting: {
+            repositoryID: '',
+            applicationID: '',
+            businessID: '',
+            dependencyID: '',
+            tokenID: '',
+            customPath1: '',
+            customPath2: '',
+            customPath3: '',
+            fileManagerServer: '',
+            fileManagerPath: '/repository/api/storage',
+            width: '100%',
+            height: null,
+            placeholder: '파일을 끌어다 놓거나 클릭하여 선택하세요',
+            autoLoad: true,
+            deleteOnRemove: true,
+            confirmRemove: false,
+            readOnly: false,
+            showDownload: true,
+            thumbnails: true,
+            acceptedFiles: null,
+            maxFilesize: null,
+            maxFiles: null,
+            parallelUploads: 2,
+            timeout: 0,
+            headers: null,
+            withCredentials: false,
+            rejectedDisplayMs: 3000,
+            dataType: 'object',
+            belongID: null,
+            getter: false,
+            setter: false,
+            controlText: null,
+            validators: null,
+            transactConfig: null,
+            triggerConfig: null
+        },
+
+        addModuleList(el, moduleList, setting, controlType) {
+            moduleList.push({
+                id: el.getAttribute('id'),
+                formDataFieldID: el.closest('form') ? el.closest('form').getAttribute('syn-datafield') : '',
+                field: el.getAttribute('syn-datafield'),
+                module: this.name,
+                type: controlType
+            });
+        },
+
+        // 컨트롤은 저장소 정책 조회가 끝나야 사용할 수 있다. 준비 완료 시 'ready' 이벤트가 발생하며 whenReady(elID) 로도 기다릴 수 있다.
+        controlLoad(elID, setting) {
+            const existing = this.getControl(elID);
+            if (existing) {
+                return existing;
+            }
+
+            const el = syn.$l.get(elID);
+            if (!el) {
+                throw new Error('FileDropZone: element not found: ' + elID);
+            }
+
+            if (typeof Dropzone === 'undefined') {
+                throw new Error('FileDropZone: Dropzone library must be loaded first');
+            }
+
+            Dropzone.autoDiscover = false;
+            setting = syn.$w.argumentsExtend(this.defaultSetting, setting || {});
+
+            const mod = window[syn.$w.pageScript];
+            if (mod && mod.hook && mod.hook.controlInit) {
+                setting = syn.$w.argumentsExtend(setting, mod.hook.controlInit(elID, setting));
+            }
+
+            if ($string.isNullOrEmpty(setting.fileManagerServer) == true && syn.Config && syn.Config.FileManagerServer) {
+                setting.fileManagerServer = syn.Config.FileManagerServer;
+            }
+
+            setting.elID = elID;
+            el.setAttribute('syn-options', JSON.stringify(setting));
+            el.classList.add('syn-filedropzone', 'dropzone');
+            el.style.width = setting.width;
+            if (setting.height) {
+                el.style.minHeight = setting.height;
+            }
+
+            el.replaceChildren();
+
+            const control = {
+                id: elID,
+                host: el,
+                setting: $object.clone(setting),
+                context: null,
+                policy: null,
+                dz: null,
+                dependencyID: setting.dependencyID || createTemporaryDependencyID(),
+                isTemporary: !setting.dependencyID,
+                readOnly: setting.readOnly === true,
+                disabled: false,
+                state: 'loading',
+                ready: null
+            };
+
+            this.fileDropZoneControls.push(control);
+            applyState(control);
+
+            control.ready = (async () => {
+                if ($string.isNullOrEmpty(control.setting.fileManagerServer) == true || $string.isNullOrEmpty(control.setting.repositoryID) == true) {
+                    throw new Error('파일 서버(fileManagerServer) 또는 repositoryID 정보 확인 필요');
+                }
+
+                control.context = resolveContext(control.setting);
+                if ($string.isNullOrEmpty(control.context.applicationID) == true) {
+                    throw new Error('ApplicationID 정보 확인 필요');
+                }
+
+                showStatus(control, '저장소 정보를 확인하는 중입니다...', false);
+                const policy = await requestJson(control, 'get-repository', { applicationID: control.context.applicationID, repositoryID: control.setting.repositoryID });
+                if (!policy || Object.keys(policy).length === 0) {
+                    throw new Error('저장소 "{0}" 정보를 찾을 수 없습니다'.format(control.setting.repositoryID));
+                }
+
+                control.policy = policy;
+                control.host.querySelector('.fdz-status') && control.host.querySelector('.fdz-status').remove();
+                control.dz = createDropzone(control);
+                applyState(control);
+                control.state = 'ready';
+
+                if (control.setting.autoLoad === true && control.isTemporary == false) {
+                    await module.load(elID);
+                }
+
+                notify(control, 'ready', { policy: clone(policy) });
+                return control;
+            })().catch(error => {
+                control.state = 'error';
+                showStatus(control, '파일 컨트롤을 초기화하지 못했습니다: ' + error.message, true);
+                syn.$l.eventLog('$filedropzone.controlLoad', 'elID: "{0}" 초기화 오류: {1}'.format(elID, error.message), 'Error');
+                return control;
+            });
+
+            return control;
+        },
+
+        // 컨트롤이 준비(정책 조회, 기존 파일 표시)될 때까지 기다린다.
+        whenReady(elID) {
+            const control = this.getControl(elID);
+            return control ? control.ready : Promise.resolve(null);
+        },
+
+        // 업로드가 끝난 파일 항목(repository 항목 JSON)의 복제 배열을 반환한다. 없으면 [].
+        getValue(elID, meta) {
+            const control = this.getControl(elID);
+            if (!control || !control.dz) {
+                return [];
+            }
+
+            return control.dz.files.filter(file => file.fdzItem && file.status === Dropzone.SUCCESS).map(file => clone(file.fdzItem));
+        },
+
+        // 항목 배열(또는 ItemID 문자열/CSV/JSON 문자열)로 목록을 교체한다. 서버에 업로드/삭제하지 않으며 change 이벤트는 발생하지 않는다.
+        // ItemID 만 있는 항목은 서버에서 조회한다. Promise<boolean> 을 반환한다(해석하지 못한 항목이 있으면 false, 나머지 항목은 표시).
+        async setValue(elID, value, meta) {
+            const control = this.getControl(elID);
+            if (!control) {
+                return false;
+            }
+
+            await control.ready;
+            if (!control.dz) {
+                return false;
+            }
+
+            try {
+                const items = await normalizeItems(control, value);
+                clearList(control);
+                items.forEach(item => addExisting(control, item));
+                return items.skipped === 0;
+            } catch (error) {
+                syn.$l.eventLog('$filedropzone.setValue', 'elID: "{0}" 값을 설정하지 못했습니다: {1}'.format(elID, error.message), 'Warning');
+                return false;
+            }
+        },
+
+        // 서버 목록을 비우지 않고 화면 목록만 비운다. change 이벤트는 발생하지 않는다.
+        clear(elID, isControlLoad) {
+            const control = this.getControl(elID);
+            if (control) {
+                clearList(control);
+            }
+        },
+
+        // dependencyID(생략하면 현재 값)의 항목을 서버에서 다시 조회해 목록을 교체한다. 조회한 항목 배열을 반환한다.
+        async load(elID, dependencyID) {
+            const control = this.getControl(elID);
+            if (!control) {
+                return [];
+            }
+
+            if (control.dz == null && control.state === 'loading') {
+                await control.ready;
+            }
+
+            if (!control.dz) {
+                return [];
+            }
+
+            if (dependencyID) {
+                control.dependencyID = dependencyID;
+                control.isTemporary = false;
+            }
+
+            try {
+                const result = await requestJson(control, 'action-handler', Object.assign(baseParams(control), { Action: 'GetItems', dependencyID: control.dependencyID }));
+                const items = Array.isArray(result) ? result : (result && (result.Items || result.items)) || [];
+                clearList(control);
+                items.forEach(item => addExisting(control, item));
+                return clone(items);
+            } catch (error) {
+                syn.$l.eventLog('$filedropzone.load', 'elID: "{0}" 목록 조회 오류: {1}'.format(elID, error.message), 'Warning');
+                return [];
+            }
+        },
+
+        // 코드에서 파일(File 객체 또는 배열)을 추가해 업로드한다.
+        upload(elID, files) {
+            const control = this.getControl(elID);
+            if (!control || !control.dz || control.readOnly || control.disabled) {
+                return false;
+            }
+
+            (Array.isArray(files) ? files : (files instanceof FileList ? Array.from(files) : [files])).forEach(file => control.dz.addFile(file));
+            return true;
+        },
+
+        // 서버에서 항목을 삭제하고 목록에서도 제거한다(deleteOnRemove 와 무관). Promise<boolean>.
+        async removeItem(elID, itemID) {
+            const control = this.getControl(elID);
+            const file = control ? findFile(control, itemID) : null;
+            if (!control || !file) {
+                return false;
+            }
+
+            const original = control.setting.deleteOnRemove;
+            control.setting.deleteOnRemove = true;
+            try {
+                return await removeFileEntry(control, file);
+            } finally {
+                control.setting.deleteOnRemove = original;
+            }
+        },
+
+        // 현재 dependencyID 의 모든 파일을 서버에서 삭제하고 목록을 비운다. Promise<boolean>.
+        async removeAll(elID) {
+            const control = this.getControl(elID);
+            if (!control || !control.dz || control.readOnly || control.disabled) {
+                return false;
+            }
+
+            try {
+                const result = await requestJson(control, 'remove-items', Object.assign(baseParams(control), { dependencyID: control.dependencyID }));
+                if (!result || result.Result !== true) {
+                    return false;
+                }
+
+                clearList(control);
+                notify(control, 'change', { value: [] });
+                return true;
+            } catch (error) {
+                syn.$l.eventLog('$filedropzone.removeAll', 'elID: "{0}" 삭제 요청 오류: {1}'.format(elID, error.message), 'Warning');
+                return false;
+            }
+        },
+
+        // itemID(또는 항목 객체)의 파일을 내려받는다. Promise<boolean>.
+        async download(elID, itemID) {
+            const control = this.getControl(elID);
+            const id = itemID && typeof itemID === 'object' ? itemID.ItemID : itemID;
+            if (!control || !id) {
+                return false;
+            }
+
+            const file = findFile(control, id);
+            const item = file ? file.fdzItem : (typeof itemID === 'object' ? itemID : { ItemID: id, FileName: id });
+            try {
+                const result = await downloadBlob(control, item);
+                syn.$l.blobToDownload(result.blob, result.fileName);
+                notify(control, 'fileDownload', { item: clone(item) });
+                return true;
+            } catch (error) {
+                syn.$l.eventLog('$filedropzone.download', 'elID: "{0}" 다운로드 오류: {1}'.format(elID, error.message), 'Warning');
+                if (file && file.previewElement) {
+                    const target = file.previewElement.querySelector('[data-dz-errormessage]');
+                    if (target) {
+                        target.textContent = '파일을 내려받지 못했습니다.';
+                    }
+                }
+
+                return false;
+            }
+        },
+
+        // http-download-file 주소를 반환한다(보호된 저장소는 같은 사이트의 Referer 가 필요하다). disposition: 'attachment' | 'inline'
+        getDownloadUrl(elID, itemID, disposition) {
+            const control = this.getControl(elID);
+            if (!control || !itemID) {
+                return null;
+            }
+
+            return apiUrl(control, 'http-download-file', Object.assign(baseParams(control), { itemID: itemID, disposition: disposition || 'attachment' }));
+        },
+
+        getDependencyID(elID) {
+            const control = this.getControl(elID);
+            return control ? control.dependencyID : null;
+        },
+
+        // 이후 업로드/조회가 사용할 dependencyID 를 바꾼다(목록은 그대로). 서버 항목의 키까지 바꾸려면 updateDependencyID 를 사용한다.
+        setDependencyID(elID, dependencyID) {
+            const control = this.getControl(elID);
+            if (control && dependencyID) {
+                control.dependencyID = dependencyID;
+                control.isTemporary = false;
+            }
+        },
+
+        // 서버 항목의 dependencyID 를 현재 값에서 targetDependencyID 로 바꾼다(임시 키 → 실제 업무 키 저장 흐름). Promise<boolean>.
+        async updateDependencyID(elID, targetDependencyID) {
+            const control = this.getControl(elID);
+            if (!control || !targetDependencyID) {
+                return false;
+            }
+
+            try {
+                const result = await requestJson(control, 'action-handler', Object.assign(baseParams(control), { Action: 'UpdateDependencyID', sourceDependencyID: control.dependencyID, targetDependencyID: targetDependencyID }));
+                if (!result || result.Result !== true) {
+                    syn.$l.eventLog('$filedropzone.updateDependencyID', 'elID: "{0}" {1}'.format(elID, (result && result.Message) || '실패'), 'Warning');
+                    return false;
+                }
+
+                control.dependencyID = targetDependencyID;
+                control.isTemporary = false;
+                if (control.dz) {
+                    control.dz.files.forEach(file => {
+                        if (file.fdzItem) {
+                            file.fdzItem.DependencyID = targetDependencyID;
+                        }
+                    });
+                }
+
+                return true;
+            } catch (error) {
+                syn.$l.eventLog('$filedropzone.updateDependencyID', 'elID: "{0}" 요청 오류: {1}'.format(elID, error.message), 'Warning');
+                return false;
+            }
+        },
+
+        isEmpty(elID) {
+            return this.getValue(elID).length === 0;
+        },
+
+        isUploading(elID) {
+            const control = this.getControl(elID);
+            return control && control.dz ? control.dz.getUploadingFiles().length + control.dz.getQueuedFiles().length > 0 : false;
+        },
+
+        setReadOnly(elID, isReadOnly) {
+            const control = this.getControl(elID);
+            if (control) {
+                control.readOnly = isReadOnly !== false;
+                applyState(control);
+            }
+        },
+
+        setDisabled(elID, isDisabled) {
+            const control = this.getControl(elID);
+            if (control) {
+                control.disabled = isDisabled !== false;
+                applyState(control);
+            }
+        },
+
+        toFileLengthString: toFileLengthString,
+
+        destroy(elID) {
+            const control = this.getControl(elID);
+            if (!control) {
+                return;
+            }
+
+            if (control.onClick) {
+                control.host.removeEventListener('click', control.onClick);
+            }
+
+            if (control.dz) {
+                control.dz.files.slice().forEach(file => revokeThumbnail(file));
+                control.dz.destroy();
+                control.dz = null;
+            }
+
+            control.host.classList.remove('syn-filedropzone', 'dropzone', 'fdz-readonly', 'fdz-disabled');
+            control.host.replaceChildren();
+            this.fileDropZoneControls = this.fileDropZoneControls.filter(item => item.id !== elID);
+        },
+
+        getControl(elID) {
+            return this.fileDropZoneControls.find(item => item.id === elID) || null;
+        },
+
+        setLocale(elID, translations, control, options) {
+        }
+    });
+    syn.uicontrols.$filedropzone = module;
+})(window);
+
+/// <reference path="/js/syn.js" />
+
+(function (window) {
+    'use strict';
     syn.uicontrols = syn.uicontrols || new syn.module();
     var $list = syn.uicontrols.$list || new syn.module();
 
@@ -14473,6 +17055,392 @@
         }
     });
     syn.uicontrols.$radio = $radio;
+})(window);
+
+/// <reference path="/js/syn.js" />
+
+(function (window) {
+    'use strict';
+
+    // 값은 항상 data URL 전체('data:image/png;base64,....')로 주고받는다. setValue 는 접두사 없는 순수 base64 도 허용한다.
+    const dataUrlPattern = /^data:image\/[a-z0-9.+-]+(;[a-z0-9=.+-]+)*;base64,/i;
+    const base64Pattern = /^[A-Za-z0-9+/]+={0,2}$/;
+    const mimeSignatures = [['iVBOR', 'image/png'], ['/9j/', 'image/jpeg'], ['R0lGOD', 'image/gif'], ['UklGR', 'image/webp'], ['PHN2Zy', 'image/svg+xml'], ['PD94bW', 'image/svg+xml']];
+    const padOptionNames = ['dotSize', 'minWidth', 'maxWidth', 'penColor', 'minDistance', 'velocityFilterWeight', 'compositeOperation', 'backgroundColor', 'throttle'];
+    const padEvents = ['beginStroke', 'endStroke'];
+
+    const isTransparent = color => typeof color !== 'string' || color === '' || color === 'transparent' || /^rgba?\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*0(\.0+)?\s*\)$/i.test(color);
+
+    // 반환: '' = 빈 값, null = 해석 불가, 그 외 = data URL
+    const normalize = value => {
+        if (value === null || value === undefined) return '';
+        if (typeof value !== 'string') return null;
+        value = value.trim();
+        if (value === '') return '';
+        if (dataUrlPattern.test(value)) return value;
+        if (value.startsWith('data:')) return null;
+        const compact = value.replace(/\s+/g, '');
+        if (!base64Pattern.test(compact)) return null;
+        const signature = mimeSignatures.find(item => compact.startsWith(item[0]));
+        return 'data:' + (signature ? signature[1] : 'image/png') + ';base64,' + compact;
+    };
+
+    const notify = (control, type, detail) => syn.$l.triggerEvent(control.host, type, detail);
+
+    // 비어 있을 때만 안내 문구를 보여준다.
+    const refresh = control => {
+        const empty = control.pad.isEmpty();
+        control.placeholder.hidden = !empty;
+        control.host.classList.toggle('syn-signaturepad-empty', empty);
+    };
+
+    // 캔버스를 초기화하고 기준 이미지(setValue)와 획(strokes)을 다시 그린다. 이미지 로딩이 비동기이므로 Promise<boolean> 을 반환한다.
+    const repaint = (control, strokes) => {
+        const pad = control.pad;
+        const token = ++control.paintToken;
+        control.loading = false;
+        pad.clear();
+
+        if (control.baseValue) {
+            control.loading = true;
+            return pad.fromDataURL(control.baseValue, { ratio: control.ratio }).then(() => true, error => {
+                syn.$l.eventLog('$signaturepad.setValue', 'elID: "{0}" 이미지를 불러오지 못했습니다.'.format(control.id), 'Warning');
+                return false;
+            }).then(success => {
+                if (token !== control.paintToken) return success;
+
+                control.loading = false;
+                if (success === false) {
+                    control.baseValue = null;
+                    pad.clear();
+                }
+                pad.fromData(strokes, { clear: false });
+                refresh(control);
+                return success;
+            });
+        }
+
+        pad.fromData(strokes, { clear: false });
+        refresh(control);
+        return Promise.resolve(true);
+    };
+
+    // 호스트 크기에 맞춰 캔버스 해상도를 맞춘다(devicePixelRatio 반영). 크기가 바뀌어도 그려진 내용은 유지한다.
+    const layout = (control, force) => {
+        const host = control.host;
+        const canvas = control.canvas;
+        const width = host.clientWidth;
+        const height = host.clientHeight;
+        if (width === 0 || height === 0) return;
+
+        const ratio = Math.max(window.devicePixelRatio || 1, 1);
+        const pixelWidth = Math.round(width * ratio);
+        const pixelHeight = Math.round(height * ratio);
+        if (force !== true && canvas.width === pixelWidth && canvas.height === pixelHeight) return;
+
+        const strokes = control.pad.toData().slice();
+        canvas.width = pixelWidth;
+        canvas.height = pixelHeight;
+        canvas.getContext('2d').scale(ratio, ratio);
+        control.ratio = ratio;
+        repaint(control, strokes);
+    };
+
+    const applyState = control => {
+        const locked = control.readOnly || control.disabled;
+        if (locked) {
+            control.pad.off();
+        }
+        else {
+            control.pad.on();
+        }
+
+        control.host.classList.toggle('syn-signaturepad-readonly', control.readOnly);
+        control.host.classList.toggle('syn-signaturepad-disabled', control.disabled);
+        control.host.setAttribute('aria-readonly', control.readOnly ? 'true' : 'false');
+        control.host.setAttribute('aria-disabled', control.disabled ? 'true' : 'false');
+    };
+
+    syn.uicontrols = syn.uicontrols || new syn.module();
+    const module = syn.uicontrols.$signaturepad || new syn.module();
+
+    module.extend({
+        name: 'syn.uicontrols.$signaturepad',
+        version: 'v2026.10.14',
+        signatureControls: [],
+        defaultSetting: {
+            width: '100%',
+            height: '200px',
+            placeholder: '여기에 서명해 주세요',
+            penColor: '#000000',
+            backgroundColor: 'rgba(0,0,0,0)',
+            minWidth: 0.5,
+            maxWidth: 2.5,
+            dotSize: null,
+            minDistance: 5,
+            velocityFilterWeight: 0.7,
+            throttle: 16,
+            compositeOperation: 'source-over',
+            imageType: 'image/png',
+            imageQuality: null,
+            readOnly: false,
+            dataType: 'string',
+            belongID: null,
+            getter: false,
+            setter: false,
+            controlText: null,
+            validators: null,
+            transactConfig: null,
+            triggerConfig: null
+        },
+
+        addModuleList(el, moduleList, setting, controlType) {
+            moduleList.push({
+                id: el.getAttribute('id'),
+                formDataFieldID: el.closest('form') ? el.closest('form').getAttribute('syn-datafield') : '',
+                field: el.getAttribute('syn-datafield'),
+                module: this.name,
+                type: controlType
+            });
+        },
+
+        controlLoad(elID, setting) {
+            const existing = this.getControl(elID);
+            if (existing) {
+                return existing;
+            }
+
+            const el = syn.$l.get(elID);
+            if (!el) {
+                throw new Error('SignaturePad: element not found: ' + elID);
+            }
+
+            if (typeof SignaturePad === 'undefined') {
+                throw new Error('SignaturePad: signature_pad library must be loaded first');
+            }
+
+            setting = syn.$w.argumentsExtend(this.defaultSetting, setting || {});
+
+            const mod = window[syn.$w.pageScript];
+            if (mod && mod.hook && mod.hook.controlInit) {
+                setting = syn.$w.argumentsExtend(setting, mod.hook.controlInit(elID, setting));
+            }
+
+            // JPEG 는 투명도를 지원하지 않아 투명 배경이 검은색으로 저장되므로 흰색 배경으로 바꾼다.
+            if (setting.imageType === 'image/jpeg' && isTransparent(setting.backgroundColor) == true) {
+                setting.backgroundColor = '#ffffff';
+            }
+
+            setting.elID = elID;
+            el.setAttribute('syn-options', JSON.stringify(setting));
+
+            el.classList.add('syn-signaturepad');
+            el.style.width = setting.width;
+            el.style.height = setting.height;
+            el.replaceChildren();
+
+            const canvas = document.createElement('canvas');
+            canvas.className = 'syn-signaturepad-canvas';
+            canvas.setAttribute('role', 'img');
+            canvas.setAttribute('aria-label', setting.controlText || '서명 입력');
+
+            const placeholder = document.createElement('div');
+            placeholder.className = 'syn-signaturepad-placeholder';
+            placeholder.textContent = setting.placeholder || '';
+
+            el.append(canvas, placeholder);
+
+            const padOptions = {};
+            padOptionNames.forEach(name => {
+                if (setting[name] !== null && setting[name] !== undefined) {
+                    padOptions[name] = setting[name];
+                }
+            });
+
+            const control = {
+                id: elID,
+                host: el,
+                canvas: canvas,
+                pad: new SignaturePad(canvas, padOptions),
+                placeholder: placeholder,
+                setting: $object.clone(setting),
+                ratio: 1,
+                baseValue: null,
+                loading: false,
+                paintToken: 0,
+                readOnly: setting.readOnly === true,
+                disabled: false,
+                observer: null,
+                onWindowResize: null
+            };
+
+            padEvents.forEach(type => {
+                control.pad.addEventListener(type, evt => {
+                    if (type === 'beginStroke') {
+                        control.placeholder.hidden = true;
+                        notify(control, type, { originalEvent: evt.detail });
+                    }
+                    else {
+                        refresh(control);
+                        notify(control, type, { originalEvent: evt.detail });
+                        notify(control, 'change', { value: module.getValue(elID) });
+                    }
+                });
+            });
+
+            this.signatureControls.push(control);
+
+            applyState(control);
+            layout(control, true);
+            refresh(control);
+
+            if (typeof ResizeObserver === 'function') {
+                control.observer = new ResizeObserver(() => layout(control));
+                control.observer.observe(el);
+            }
+            else {
+                control.onWindowResize = () => layout(control);
+                window.addEventListener('resize', control.onWindowResize);
+            }
+
+            return control;
+        },
+
+        // data URL 전체를 반환한다. 서명이 없으면 빈 문자열이다.
+        getValue(elID, meta) {
+            const control = this.getControl(elID);
+            if (!control) {
+                return null;
+            }
+
+            // setValue 이미지 로딩이 끝나기 전에는 캔버스가 비어 있으므로 요청받은 값을 그대로 돌려준다.
+            if (control.loading) {
+                return control.baseValue;
+            }
+
+            if (control.pad.isEmpty()) {
+                return '';
+            }
+
+            const quality = $object.isNumber(control.setting.imageQuality) ? control.setting.imageQuality : undefined;
+            return control.pad.toDataURL(control.setting.imageType, quality);
+        },
+
+        // 접두사('data:image/...;base64,')를 제외한 순수 base64 문자열을 반환한다.
+        getBase64(elID) {
+            const value = this.getValue(elID);
+            return $object.isString(value) ? value.substring(value.indexOf(',') + 1) : value;
+        },
+
+        // data URL 또는 순수 base64 를 그린다(기존 내용은 교체). 빈 값이면 지운다. change 이벤트는 발생하지 않는다.
+        // 이미지 로딩이 비동기이므로 Promise<boolean> 을 반환한다.
+        setValue(elID, value, meta) {
+            const control = this.getControl(elID);
+            if (!control) {
+                return Promise.resolve(false);
+            }
+
+            const dataUrl = normalize(value);
+            if (dataUrl === null) {
+                syn.$l.eventLog('$signaturepad.setValue', 'elID: "{0}" data URL 또는 base64 문자열이 아닌 값은 설정할 수 없습니다.'.format(elID), 'Warning');
+                return Promise.resolve(false);
+            }
+
+            control.baseValue = dataUrl === '' ? null : dataUrl;
+            return repaint(control, []);
+        },
+
+        clear(elID, isControlLoad) {
+            const control = this.getControl(elID);
+            if (control) {
+                control.baseValue = null;
+                repaint(control, []);
+            }
+        },
+
+        isEmpty(elID) {
+            const control = this.getControl(elID);
+            return control ? control.pad.isEmpty() : true;
+        },
+
+        // 마지막 획을 취소한다. setValue 로 불러온 이미지는 취소 대상이 아니다. 취소하면 change 이벤트가 발생한다.
+        undo(elID) {
+            const control = this.getControl(elID);
+            if (!control) {
+                return false;
+            }
+
+            const strokes = control.pad.toData().slice();
+            if (strokes.length === 0) {
+                return false;
+            }
+
+            strokes.pop();
+            repaint(control, strokes).then(() => notify(control, 'change', { value: module.getValue(elID) }));
+            return true;
+        },
+
+        setPenColor(elID, color) {
+            const control = this.getControl(elID);
+            if (control) {
+                control.pad.penColor = color;
+                control.setting.penColor = color;
+            }
+        },
+
+        setReadOnly(elID, isReadOnly) {
+            const control = this.getControl(elID);
+            if (control) {
+                control.readOnly = isReadOnly !== false;
+                applyState(control);
+            }
+        },
+
+        setDisabled(elID, isDisabled) {
+            const control = this.getControl(elID);
+            if (control) {
+                control.disabled = isDisabled !== false;
+                applyState(control);
+            }
+        },
+
+        // 표시 영역 크기가 바뀐 뒤 직접 맞춰야 할 때 호출한다(보통 자동 감지된다).
+        resize(elID) {
+            const control = this.getControl(elID);
+            if (control) {
+                layout(control, true);
+            }
+        },
+
+        destroy(elID) {
+            const control = this.getControl(elID);
+            if (!control) {
+                return;
+            }
+
+            control.pad.off();
+            if (control.observer) {
+                control.observer.disconnect();
+            }
+
+            if (control.onWindowResize) {
+                window.removeEventListener('resize', control.onWindowResize);
+            }
+
+            control.canvas.remove();
+            control.placeholder.remove();
+            control.host.classList.remove('syn-signaturepad', 'syn-signaturepad-empty', 'syn-signaturepad-readonly', 'syn-signaturepad-disabled');
+            this.signatureControls = this.signatureControls.filter(item => item.id !== elID);
+        },
+
+        getControl(elID) {
+            return this.signatureControls.find(item => item.id === elID) || null;
+        },
+
+        setLocale(elID, translations, control, options) {
+        }
+    });
+    syn.uicontrols.$signaturepad = module;
 })(window);
 
 /// <reference path="/js/syn.js" />

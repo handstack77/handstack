@@ -1,0 +1,60 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>FileDropZone · 파일 드래그 앤 드롭</title>
+    <style>
+        body { padding: 32px; max-width: 1080px; margin: auto; }
+        h1 { margin-bottom: 12px; }
+        .demo-actions { display: flex; gap: 8px; flex-wrap: wrap; margin: 16px 0; }
+        .demo-actions button { padding: 7px 12px; border: 1px solid #cbd5e1; border-radius: 5px; background: white; }
+        .demo-section { margin-top: 32px; }
+        pre { padding: 16px; background: #f1f5f9; border-radius: 6px; white-space: pre-wrap; word-break: break-all; max-height: 260px; overflow: auto; }
+    </style>
+</head>
+<body style="visibility: hidden;">
+    <form id="form1" syn-datafield="MainForm" autocomplete="off" onsubmit="return false">
+        <h1>파일 드래그 앤 드롭</h1>
+        <p>파일을 영역에 끌어다 놓거나 클릭해서 선택하세요. 업로드한 파일은 repository 모듈(저장소 <code>TSTLM01</code>)에 저장됩니다.</p>
+
+        <!-- customPath1 : 업로드 저장 하위 경로(PhysicalPath/{customPath1}/...). 지정하지 않아도 다운로드되며, 이전 버전 repository 모듈은 ApplicationID 를 지정해야 다운로드됩니다. -->
+        <syn_filedropzone id="fdzMulti" syn-datafield="Attachments" syn-events="['ready','fileAdded','fileRejected','uploadSuccess','uploadError','fileRemoved','fileDownload','queueComplete','change']" syn-options="{
+            repositoryID: 'TSTLM01', 
+            applicationID: 'HDS', 
+            dependencyID: 'SAMPLE_FILEDROPZONE', 
+            customPath1: 'HDS', 
+            controlText: '첨부파일'
+        }"></syn_filedropzone>
+
+        <div class="demo-actions">
+            <button type="button" id="btnGetValue" syn-events="['click']">getValue</button>
+            <button type="button" id="btnReload" syn-events="['click']">서버에서 다시 조회(load)</button>
+            <button type="button" id="btnDownloadFirst" syn-events="['click']">첫 파일 다운로드</button>
+            <button type="button" id="btnClear" syn-events="['click']">화면 목록 비우기(clear)</button>
+            <button type="button" id="btnRestore" syn-events="['click']">저장한 값 복원(setValue)</button>
+            <button type="button" id="btnRemoveAll" syn-events="['click']">서버 파일 모두 삭제</button>
+            <button type="button" id="btnReadOnly" syn-events="['click']">읽기 전용 전환</button>
+            <button type="button" id="btnDisabled" syn-events="['click']">비활성화 전환</button>
+        </div>
+
+        <div class="demo-section">
+            <h2>단일 파일 저장소 (<code>TSTLS01</code>)</h2>
+            <p>새 파일을 올리면 이전 파일이 교체됩니다.</p>
+            <syn_filedropzone id="fdzSingle" syn-datafield="Contract" syn-options="{
+                repositoryID: 'TSTLS01', 
+                applicationID: 'HDS', 
+                dependencyID: 'SAMPLE_FILEDROPZONE_SINGLE', 
+                customPath1: 'HDS', 
+                height: '180px'
+            }"></syn_filedropzone>
+        </div>
+
+        <h2>getValue()</h2>
+        <pre id="result">[]</pre>
+        <h2>이벤트 기록</h2>
+        <pre id="events"></pre>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

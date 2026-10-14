@@ -1,0 +1,45 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SignaturePad · 서명 입력</title>
+    <style>
+        body { padding: 32px; max-width: 1080px; margin: auto; }
+        h1 { margin-bottom: 12px; }
+        .demo-actions { display: flex; gap: 8px; flex-wrap: wrap; margin: 20px 0; }
+        .demo-actions button { padding: 7px 12px; border: 1px solid #cbd5e1; border-radius: 5px; background: white; }
+        .demo-preview { display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; }
+        .demo-preview img { width: 240px; height: 120px; border: 1px dashed #cbd5e1; border-radius: 6px; background: #f8fafc; object-fit: contain; }
+        pre { padding: 16px; background: #f1f5f9; border-radius: 6px; white-space: pre-wrap; word-break: break-all; max-height: 240px; overflow: auto; }
+    </style>
+</head>
+<body style="visibility: hidden;">
+    <form id="form1" syn-datafield="MainForm" autocomplete="off" onsubmit="return false">
+        <h1>서명 입력</h1>
+        <p>마우스나 터치로 아래 영역에 서명하세요. 값은 base64 data URL 문자열로 읽고 씁니다.</p>
+        <syn_signaturepad id="sigMain" syn-datafield="Signature" syn-events="['beginStroke','endStroke','change']" syn-options="{
+            height: '220px', 
+            penColor: '#1e3a8a', 
+            controlText: '서명'
+        }"></syn_signaturepad>
+        <div class="demo-actions">
+            <button type="button" id="btnGetValue" syn-events="['click']">getValue</button>
+            <button type="button" id="btnSave" syn-events="['click']">값 저장</button>
+            <button type="button" id="btnRestore" syn-events="['click']">저장값 복원</button>
+            <button type="button" id="btnUndo" syn-events="['click']">마지막 획 취소</button>
+            <button type="button" id="btnClear" syn-events="['click']">지우기</button>
+            <button type="button" id="btnColor" syn-events="['click']">펜 색 전환</button>
+            <button type="button" id="btnReadOnly" syn-events="['click']">읽기 전용 전환</button>
+            <button type="button" id="btnDisabled" syn-events="['click']">비활성화 전환</button>
+        </div>
+        <div class="demo-preview">
+            <div><h2>미리보기</h2><img id="preview" alt="서명 미리보기"></div>
+            <div style="flex: 1; min-width: 280px;"><h2>getValue()</h2><pre id="result"></pre></div>
+        </div>
+        <h2>이벤트 기록</h2>
+        <pre id="events"></pre>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

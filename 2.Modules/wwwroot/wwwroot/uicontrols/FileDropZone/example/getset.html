@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <title>FileDropZone - getValue / setValue</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 320px; max-width: 520px;">
+                <div>입력 (업로드)</div>
+                <syn_filedropzone id="fdzSource" syn-datafield="Source" syn-options="{
+                    repositoryID: 'TSTLM01', applicationID: 'HDS', dependencyID: 'EXAMPLE_FILEDROPZONE_GETSET', customPath1: 'HDS', height: '200px'
+                }"></syn_filedropzone>
+            </div>
+            <div style="flex: 1; min-width: 320px; max-width: 520px;">
+                <div>복사본 (setValue 로 채움, 읽기 전용)</div>
+                <syn_filedropzone id="fdzTarget" syn-datafield="Target" syn-options="{
+                    repositoryID: 'TSTLM01', applicationID: 'HDS', dependencyID: 'EXAMPLE_FILEDROPZONE_GETSET_VIEW', customPath1: 'HDS', height: '200px', readOnly: true, autoLoad: false
+                }"></syn_filedropzone>
+            </div>
+        </div>
+        <div style="margin-top: 8px;">
+            <input type="button" id="btnCopy" value="getValue → setValue (항목 배열)" syn-events="['click']" />
+            <input type="button" id="btnSetIds" value="setValue(ItemID 문자열 배열)" syn-events="['click']" />
+            <input type="button" id="btnClearTarget" value="clear (복사본)" syn-events="['click']" />
+            <input type="button" id="btnLoad" value="load (서버에서 다시 조회)" syn-events="['click']" />
+            <input type="button" id="btnBad" value="setValue(잘못된 값)" syn-events="['click']" />
+        </div>
+        <pre id="preLog" style="white-space: pre-wrap; word-break: break-all;"></pre>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

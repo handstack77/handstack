@@ -1,0 +1,230 @@
+syn_dropdowntextlist {
+    display: block;
+}
+
+.syn-dropdowntextlist {
+    position: relative;
+    min-width: 0;
+    color: #334155;
+}
+
+    .syn-dropdowntextlist .ts-wrapper {
+        width: 100%;
+    }
+
+    .syn-dropdowntextlist .ts-control {
+        min-height: 40px;
+        padding: 6px 9px;
+        gap: 5px;
+        row-gap: 9px;
+        align-items: center;
+        overflow: visible;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+    }
+
+    .syn-dropdowntextlist .focus .ts-control {
+        border-color: #86b7fe;
+        box-shadow: 0 0 0 3px #0d6efd30;
+    }
+
+    .syn-dropdowntextlist .ts-wrapper .ts-control > .dttl-item {
+        position: relative;
+        overflow: visible;
+        display: inline-flex;
+        align-items: stretch;
+        margin: 7px 0 0;
+        padding: 0;
+        background: #f1f5f9;
+        border: 1px solid #e2e8f0;
+        border-left: 4px solid var(--dttl-operator-color, var(--tblr-blue, #066fd1));
+        border-radius: 4px;
+        color: #334155;
+    }
+
+    .syn-dropdowntextlist .ts-wrapper .ts-control > .dttl-item.active {
+        background-color: var(--tblr-blue-lt, #e6f1fb);
+        border: 1px solid var(--tblr-blue, #066fd1);
+        border-left: 4px solid var(--dttl-operator-color, var(--tblr-blue, #066fd1));
+        color: #334155;
+        box-shadow: 0 0 0 2px var(--tblr-blue-lt, #e6f1fb);
+    }
+
+    .syn-dropdowntextlist .dttl-item button {
+        border: 0;
+        background: transparent;
+        color: inherit;
+        cursor: pointer;
+    }
+
+    .syn-dropdowntextlist .dttl-edit {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 5px 7px;
+    }
+
+    .syn-dropdowntextlist .dttl-group {
+        display: inline-flex;
+        align-items: center;
+        max-width: 10rem;
+        padding: 5px 7px;
+        border-right: 1px solid var(--tblr-border-color, #e2e8f0);
+        background-color: var(--tblr-bg-surface-secondary, #f6f8fb);
+        color: var(--tblr-secondary, #667382);
+        font-size: 11px;
+        overflow-wrap: anywhere;
+        cursor: pointer;
+    }
+
+    .syn-dropdowntextlist .dttl-logic-badge {
+        position: absolute;
+        top: -8px;
+        left: -1px;
+        z-index: 1;
+        padding: 1px 4px;
+        border-radius: 3px;
+        background-color: var(--dttl-logic-color, var(--tblr-blue, #066fd1));
+        color: var(--tblr-white, #fff);
+        font-size: 9px;
+        font-weight: 600;
+        line-height: 13px;
+        pointer-events: none;
+    }
+
+    .syn-dropdowntextlist [data-dttl-logic="AND"] {
+        --dttl-logic-color: var(--tblr-blue, #066fd1);
+    }
+
+    .syn-dropdowntextlist [data-dttl-logic="OR"] {
+        --dttl-logic-color: var(--tblr-red, #d63939);
+    }
+
+    .syn-dropdowntextlist [data-dttl-operator="eq"] {
+        --dttl-operator-color: var(--tblr-blue, #066fd1);
+        --dttl-operator-text: var(--tblr-white, #fff);
+    }
+
+    .syn-dropdowntextlist [data-dttl-operator="lte"] {
+        --dttl-operator-color: var(--tblr-cyan, #17a2b8);
+        --dttl-operator-text: var(--tblr-white, #fff);
+    }
+
+    .syn-dropdowntextlist [data-dttl-operator="gte"] {
+        --dttl-operator-color: var(--tblr-orange, #f76707);
+        --dttl-operator-text: var(--tblr-white, #fff);
+    }
+
+    .syn-dropdowntextlist [data-dttl-operator="ne"] {
+        --dttl-operator-color: var(--tblr-red, #d63939);
+        --dttl-operator-text: var(--tblr-white, #fff);
+    }
+
+    .syn-dropdowntextlist [data-dttl-operator="startsWith"] {
+        --dttl-operator-color: var(--tblr-gray-600, #4b5563);
+        --dttl-operator-text: var(--tblr-white, #fff);
+    }
+
+    .syn-dropdowntextlist [data-dttl-operator="endsWith"] {
+        --dttl-operator-color: var(--tblr-purple, #ae3ec9);
+        --dttl-operator-text: var(--tblr-white, #fff);
+    }
+
+    .syn-dropdowntextlist [data-dttl-operator="contains"] {
+        --dttl-operator-color: var(--tblr-teal, #0ca678);
+        --dttl-operator-text: var(--tblr-white, #fff);
+    }
+
+    .syn-dropdowntextlist .dttl-remove {
+        padding: 0 6px;
+        border-left: 1px solid #e2e8f0 !important;
+    }
+
+    .syn-dropdowntextlist button:focus-visible,
+    .syn-dropdowntextlist .dttl-group:focus-visible {
+        outline: 2px solid #2563eb;
+        outline-offset: 1px;
+    }
+
+    .syn-dropdowntextlist .ts-dropdown {
+        z-index: 1100;
+        background-color: #fff;
+        border-color: #cbd5e1;
+    }
+
+        .syn-dropdowntextlist .ts-dropdown .optgroup-header {
+            font-size: 12px;
+            color: #64748b;
+            background: #fafbfc;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .syn-dropdowntextlist .ts-dropdown .active {
+            color: #334155;
+            background: #eff6ff;
+        }
+
+    .syn-dropdowntextlist .locked .dttl-item button {
+        pointer-events: none;
+    }
+
+    .syn-dropdowntextlist .locked .dttl-group {
+        cursor: default;
+    }
+
+    .syn-dropdowntextlist .disabled {
+        opacity: .6;
+    }
+
+    .syn-dropdowntextlist .dttl-editor {
+        position: absolute;
+        box-sizing: border-box;
+        top: 0;
+        left: 0;
+        z-index: 1100;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        gap: 10px;
+        padding: 14px;
+        margin: 0;
+        max-width: 100%;
+        overflow: auto;
+        background: #fff;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        box-shadow: 0 8px 24px #0f172a26;
+    }
+
+        .syn-dropdowntextlist .dttl-editor label {
+            display: grid;
+            gap: 5px;
+            font-size: 12px;
+        }
+
+        .syn-dropdowntextlist .dttl-editor select, .syn-dropdowntextlist .dttl-editor button {
+            min-height: 34px;
+            padding: 5px 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            background: #fff;
+            color: #334155;
+        }
+
+        .syn-dropdowntextlist .dttl-editor .dttl-apply {
+            background: #2563eb;
+            color: #fff;
+            border-color: #2563eb;
+        }
+
+        .syn-dropdowntextlist .dttl-editor select[data-dttl-logic],
+        .syn-dropdowntextlist .dttl-editor option[data-dttl-logic] {
+            background-color: var(--dttl-logic-color);
+            color: var(--tblr-white, #fff);
+        }
+
+        .syn-dropdowntextlist .dttl-editor select[data-dttl-operator],
+        .syn-dropdowntextlist .dttl-editor option[data-dttl-operator] {
+            background-color: var(--dttl-operator-color);
+            color: var(--dttl-operator-text);
+        }

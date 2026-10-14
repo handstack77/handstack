@@ -312,13 +312,13 @@
 		}
 	});
 /**
- * Minified by jsDelivr using UglifyJS v3.4.4.
+ * Minified by jsDelivr using Terser v5.37.0.
  * Original file: /npm/jquery-simplemodal@1.0.0/src/jquery.simplemodal.js
- * 
+ *
  * Do NOT use SRI with dynamically generated files! More information: https://www.jsdelivr.com/using-sri-with-dynamic-files
  */
-!function(e){"function"==typeof define&&define.amd?define(["jquery"],e):"object"==typeof module&&module.exports?module.exports=e(require("jQuery")):e(jQuery)}(function(n){var t=[],i=n(document),e=navigator.userAgent.toLowerCase(),s=n(window),m=[],u={ieQuirks:null,msie:/msie/.test(e)&&!/opera/.test(e),opera:/opera/.test(e)};u.ie6=u.msie&&/msie 6./.test(e)&&"object"!=typeof window.XMLHttpRequest,u.ie7=u.msie&&/msie 7.0/.test(e),u.boxModel="CSS1Compat"===document.compatMode,n.modal=function(e,o){return n.modal.impl.init(e,o)},n.modal.close=function(){n.modal.impl.close()},n.modal.focus=function(e){n.modal.impl.focus(e)},n.modal.setContainerDimensions=function(){n.modal.impl.setContainerDimensions()},n.modal.setPosition=function(){n.modal.impl.setPosition()},n.modal.update=function(e,o){n.modal.impl.update(e,o)},n.fn.modal=function(e){return n.modal.impl.init(this,e)},n.modal.defaults={appendTo:"body",focus:!0,opacity:50,overlayId:"simplemodal-overlay",overlayCss:{},containerId:"simplemodal-container",containerCss:{},dataId:"simplemodal-data",dataCss:{},minHeight:null,minWidth:null,maxHeight:null,maxWidth:null,autoResize:!1,autoPosition:!0,zIndex:1e3,close:!0,closeHTML:'<a class="modalCloseImg" title="Close"></a>',closeClass:"simplemodal-close",escClose:!0,overlayClose:!1,fixed:!0,position:null,persist:!1,modal:!0,onOpen:null,onShow:null,onClose:null},n.modal.impl={d:{},init:function(e,o){var t=this;if(t.d.data)return!1;if(u.ieQuirks=u.msie&&!u.boxModel,t.o=n.extend({},n.modal.defaults,o),t.zIndex=t.o.zIndex,t.occb=!1,"object"==typeof e)e=e instanceof n?e:n(e),t.d.placeholder=!1,0<e.parent().parent().length&&(e.before(n("<span></span>").attr("id","simplemodal-placeholder").css({display:"none"})),t.d.placeholder=!0,t.display=e.css("display"),t.o.persist||(t.d.orig=e.clone(!0)));else{if("string"!=typeof e&&"number"!=typeof e)return alert("SimpleModal Error: Unsupported data type: "+typeof e),t;e=n("<div></div>").html(e)}return t.create(e),e=null,t.open(),n.isFunction(t.o.onShow)&&t.o.onShow.apply(t,[t.d]),t},create:function(e){var o=this;o.getDimensions(),o.o.modal&&u.ie6&&(o.d.iframe=n('<iframe src="javascript:false;"></iframe>').css(n.extend(o.o.iframeCss,{display:"none",opacity:0,position:"fixed",height:m[0],width:m[1],zIndex:o.o.zIndex,top:0,left:0})).appendTo(o.o.appendTo)),o.d.overlay=n("<div></div>").attr("id",o.o.overlayId).addClass("simplemodal-overlay").css(n.extend(o.o.overlayCss,{display:"none",opacity:o.o.opacity/100,height:o.o.modal?t[0]:0,width:o.o.modal?t[1]:0,position:"fixed",left:0,top:0,zIndex:o.o.zIndex+1})).appendTo(o.o.appendTo),o.d.container=n("<div></div>").attr("id",o.o.containerId).attr("role","dialog").addClass("simplemodal-container").css(n.extend({position:o.o.fixed?"fixed":"absolute"},o.o.containerCss,{display:"none",zIndex:o.o.zIndex+2})).append(o.o.close&&o.o.closeHTML?n(o.o.closeHTML).addClass(o.o.closeClass):"").appendTo(o.o.appendTo),o.d.wrap=n("<div></div>").attr("tabIndex",-1).addClass("simplemodal-wrap").css({height:"100%",outline:0,width:"100%"}).appendTo(o.d.container),o.d.data=e.attr("id",e.attr("id")||o.o.dataId).addClass("simplemodal-data").css(n.extend(o.o.dataCss,{display:"none"})).appendTo("body"),e=null,o.setContainerDimensions(),o.d.data.appendTo(o.d.wrap),(u.ie6||u.ieQuirks)&&o.fixIE()},bindEvents:function(){var o=this;n("."+o.o.closeClass).bind("click.simplemodal",function(e){e.preventDefault(),o.close()}),o.o.modal&&o.o.close&&o.o.overlayClose&&o.d.overlay.bind("click.simplemodal",function(e){e.preventDefault(),o.close()}),i.bind("keydown.simplemodal",function(e){o.o.modal&&9===e.keyCode?o.watchTab(e):o.o.close&&o.o.escClose&&27===e.keyCode&&(e.preventDefault(),o.close())}),s.bind("resize.simplemodal orientationchange.simplemodal",function(){o.getDimensions(),o.o.autoResize?o.setContainerDimensions():o.o.autoPosition&&o.setPosition(),u.ie6||u.ieQuirks?o.fixIE():o.o.modal&&(o.d.iframe&&o.d.iframe.css({height:m[0],width:m[1]}),o.d.overlay.css({height:t[0],width:t[1]}))})},unbindEvents:function(){n("."+this.o.closeClass).unbind("click.simplemodal"),i.unbind("keydown.simplemodal"),s.unbind(".simplemodal"),this.d.overlay.unbind("click.simplemodal")},fixIE:function(){var e=this,v=e.o.position;n.each([e.d.iframe||null,e.o.modal?e.d.overlay:null,"fixed"===e.d.container.css("position")?e.d.container:null],function(e,o){if(o){var t="document.body.clientHeight",i="document.body.clientWidth",n="document.body.scrollHeight",a="document.body.scrollLeft",s="document.body.scrollTop",d="document.body.scrollWidth",l="document.documentElement.clientHeight",r="document.documentElement.clientWidth",p="document.documentElement.scrollLeft",c="document.documentElement.scrollTop",m=o[0].style;if(m.position="absolute",e<2)m.removeExpression("height"),m.removeExpression("width"),m.setExpression("height",n+" > "+t+" ? "+n+" : "+t+' + "px"'),m.setExpression("width",d+" > "+i+" ? "+d+" : "+i+' + "px"');else{var u,h;if(v&&v.constructor===Array){var f=v[0]?"number"==typeof v[0]?v[0].toString():v[0].replace(/px/,""):o.css("top").replace(/px/,"");if(u=-1===f.indexOf("%")?f+" + (t = "+c+" ? "+c+" : "+s+') + "px"':parseInt(f.replace(/%/,""))+" * (("+l+" || "+t+") / 100) + (t = "+c+" ? "+c+" : "+s+') + "px"',v[1]){var g="number"==typeof v[1]?v[1].toString():v[1].replace(/px/,"");h=-1===g.indexOf("%")?g+" + (t = "+p+" ? "+p+" : "+a+') + "px"':parseInt(g.replace(/%/,""))+" * (("+r+" || "+i+") / 100) + (t = "+p+" ? "+p+" : "+a+') + "px"'}}else u="("+l+" || "+t+") / 2 - (this.offsetHeight / 2) + (t = "+c+" ? "+c+" : "+s+') + "px"',h="("+r+" || "+i+") / 2 - (this.offsetWidth / 2) + (t = "+p+" ? "+p+" : "+a+') + "px"';m.removeExpression("top"),m.removeExpression("left"),m.setExpression("top",u),m.setExpression("left",h)}}})},focus:function(e){var o=this,t=e&&-1!==n.inArray(e,["first","last"])?e:"first",i=n(":input:enabled:visible:"+t,o.d.wrap);setTimeout(function(){0<i.length?i.focus():o.d.wrap.focus()},10)},getDimensions:function(){var e=void 0===window.innerHeight?s.height():window.innerHeight;t=[i.height(),i.width()],m=[e,s.width()]},getVal:function(e,o){return e?"number"==typeof e?e:"auto"===e?0:0<e.indexOf("%")?parseInt(e.replace(/%/,""))/100*("h"===o?m[0]:m[1]):parseInt(e.replace(/px/,"")):null},update:function(e,o){var t=this;if(!t.d.data)return!1;t.d.origHeight=t.getVal(e,"h"),t.d.origWidth=t.getVal(o,"w"),t.d.data.hide(),e&&t.d.container.css("height",e),o&&t.d.container.css("width",o),t.setContainerDimensions(),t.d.data.show(),t.o.focus&&t.focus(),t.unbindEvents(),t.bindEvents()},setContainerDimensions:function(){var e=this,o=u.ie6||u.ie7,t=e.d.origHeight?e.d.origHeight:u.opera?e.d.container.height():e.getVal(o?e.d.container[0].currentStyle.height:e.d.container.css("height"),"h"),i=e.d.origWidth?e.d.origWidth:u.opera?e.d.container.width():e.getVal(o?e.d.container[0].currentStyle.width:e.d.container.css("width"),"w"),n=e.d.data.outerHeight(!0),a=e.d.data.outerWidth(!0);e.d.origHeight=e.d.origHeight||t,e.d.origWidth=e.d.origWidth||i;var s=e.o.maxHeight?e.getVal(e.o.maxHeight,"h"):null,d=e.o.maxWidth?e.getVal(e.o.maxWidth,"w"):null,l=s&&s<m[0]?s:m[0],r=d&&d<m[1]?d:m[1],p=e.o.minHeight?e.getVal(e.o.minHeight,"h"):"auto";t=t?e.o.autoResize&&l<t?l:t<p?p:t:n?l<n?l:e.o.minHeight&&"auto"!==p&&n<p?p:n:p;var c=e.o.minWidth?e.getVal(e.o.minWidth,"w"):"auto";i=i?e.o.autoResize&&r<i?r:i<c?c:i:a?r<a?r:e.o.minWidth&&"auto"!==c&&a<c?c:a:c,e.d.container.css({height:t,width:i}),e.d.wrap.css({overflow:t<n||i<a?"auto":"visible"}),e.o.autoPosition&&e.setPosition()},setPosition:function(){var e,o,t=this,i=m[0]/2-t.d.container.outerHeight(!0)/2,n=m[1]/2-t.d.container.outerWidth(!0)/2,a="fixed"!==t.d.container.css("position")?s.scrollTop():0;t.o.position&&"[object Array]"===Object.prototype.toString.call(t.o.position)?(e=parseFloat(a)+parseFloat(t.o.position[0]||i),o=t.o.position[1]||n):(e=a+i,o=n),t.d.container.css({left:o,top:e})},watchTab:function(e){var o=this;if(0<n(e.target).parents(".simplemodal-container").length){if(o.inputs=n(":input:enabled:visible:first, :input:enabled:visible:last",o.d.data[0]),!e.shiftKey&&e.target===o.inputs[o.inputs.length-1]||e.shiftKey&&e.target===o.inputs[0]||0===o.inputs.length){e.preventDefault();var t=e.shiftKey?"last":"first";o.focus(t)}}else e.preventDefault(),o.focus()},open:function(){var e=this;e.d.iframe&&e.d.iframe.show(),n.isFunction(e.o.onOpen)?e.o.onOpen.apply(e,[e.d]):(e.d.overlay.show(),e.d.container.show(),e.d.data.show()),e.o.focus&&e.focus(),e.bindEvents()},close:function(){var e=this;if(!e.d.data)return!1;if(e.unbindEvents(),n.isFunction(e.o.onClose)&&!e.occb)e.occb=!0,e.o.onClose.apply(e,[e.d]);else{if(e.d.placeholder){var o=n("#simplemodal-placeholder");e.o.persist?o.replaceWith(e.d.data.removeClass("simplemodal-data").css("display",e.display)):(e.d.data.hide().remove(),o.replaceWith(e.d.orig))}else e.d.data.hide().remove();e.d.container.hide().remove(),e.d.overlay.hide(),e.d.iframe&&e.d.iframe.hide().remove(),e.d.overlay.remove(),e.d={}}}}});
-//# sourceMappingURL=/sm/7816617f5289c720a50d78b7fd55718e526f6c35a8f5e83f13a5f956aaeb0cf9.map
+!function(e){"function"==typeof define&&define.amd?define(["jquery"],e):"object"==typeof module&&module.exports?module.exports=e(require("jQuery")):e(jQuery)}((function(e){var o=[],t=e(document),i=navigator.userAgent.toLowerCase(),n=e(window),a=[],s={ieQuirks:null,msie:/msie/.test(i)&&!/opera/.test(i),opera:/opera/.test(i)};s.ie6=s.msie&&/msie 6./.test(i)&&"object"!=typeof window.XMLHttpRequest,s.ie7=s.msie&&/msie 7.0/.test(i),s.boxModel="CSS1Compat"===document.compatMode,e.modal=function(o,t){return e.modal.impl.init(o,t)},e.modal.close=function(){e.modal.impl.close()},e.modal.focus=function(o){e.modal.impl.focus(o)},e.modal.setContainerDimensions=function(){e.modal.impl.setContainerDimensions()},e.modal.setPosition=function(){e.modal.impl.setPosition()},e.modal.update=function(o,t){e.modal.impl.update(o,t)},e.fn.modal=function(o){return e.modal.impl.init(this,o)},e.modal.defaults={appendTo:"body",focus:!0,opacity:50,overlayId:"simplemodal-overlay",overlayCss:{},containerId:"simplemodal-container",containerCss:{},dataId:"simplemodal-data",dataCss:{},minHeight:null,minWidth:null,maxHeight:null,maxWidth:null,autoResize:!1,autoPosition:!0,zIndex:1e3,close:!0,closeHTML:'<a class="modalCloseImg" title="Close"></a>',closeClass:"simplemodal-close",escClose:!0,overlayClose:!1,fixed:!0,position:null,persist:!1,modal:!0,onOpen:null,onShow:null,onClose:null},e.modal.impl={d:{},init:function(o,t){var i=this;if(i.d.data)return!1;if(s.ieQuirks=s.msie&&!s.boxModel,i.o=e.extend({},e.modal.defaults,t),i.zIndex=i.o.zIndex,i.occb=!1,"object"==typeof o)o=o instanceof e?o:e(o),i.d.placeholder=!1,o.parent().parent().length>0&&(o.before(e("<span></span>").attr("id","simplemodal-placeholder").css({display:"none"})),i.d.placeholder=!0,i.display=o.css("display"),i.o.persist||(i.d.orig=o.clone(!0)));else{if("string"!=typeof o&&"number"!=typeof o)return alert("SimpleModal Error: Unsupported data type: "+typeof o),i;o=e("<div></div>").html(o)}return i.create(o),o=null,i.open(),e.isFunction(i.o.onShow)&&i.o.onShow.apply(i,[i.d]),i},create:function(t){var i=this;i.getDimensions(),i.o.modal&&s.ie6&&(i.d.iframe=e('<iframe src="javascript:false;"></iframe>').css(e.extend(i.o.iframeCss,{display:"none",opacity:0,position:"fixed",height:a[0],width:a[1],zIndex:i.o.zIndex,top:0,left:0})).appendTo(i.o.appendTo)),i.d.overlay=e("<div></div>").attr("id",i.o.overlayId).addClass("simplemodal-overlay").css(e.extend(i.o.overlayCss,{display:"none",opacity:i.o.opacity/100,height:i.o.modal?o[0]:0,width:i.o.modal?o[1]:0,position:"fixed",left:0,top:0,zIndex:i.o.zIndex+1})).appendTo(i.o.appendTo),i.d.container=e("<div></div>").attr("id",i.o.containerId).attr("role","dialog").addClass("simplemodal-container").css(e.extend({position:i.o.fixed?"fixed":"absolute"},i.o.containerCss,{display:"none",zIndex:i.o.zIndex+2})).append(i.o.close&&i.o.closeHTML?e(i.o.closeHTML).addClass(i.o.closeClass):"").appendTo(i.o.appendTo),i.d.wrap=e("<div></div>").attr("tabIndex",-1).addClass("simplemodal-wrap").css({height:"100%",outline:0,width:"100%"}).appendTo(i.d.container),i.d.data=t.attr("id",t.attr("id")||i.o.dataId).addClass("simplemodal-data").css(e.extend(i.o.dataCss,{display:"none"})).appendTo("body"),t=null,i.setContainerDimensions(),i.d.data.appendTo(i.d.wrap),(s.ie6||s.ieQuirks)&&i.fixIE()},bindEvents:function(){var i=this;e("."+i.o.closeClass).bind("click.simplemodal",(function(e){e.preventDefault(),i.close()})),i.o.modal&&i.o.close&&i.o.overlayClose&&i.d.overlay.bind("click.simplemodal",(function(e){e.preventDefault(),i.close()})),t.bind("keydown.simplemodal",(function(e){i.o.modal&&9===e.keyCode?i.watchTab(e):i.o.close&&i.o.escClose&&27===e.keyCode&&(e.preventDefault(),i.close())})),n.bind("resize.simplemodal orientationchange.simplemodal",(function(){i.getDimensions(),i.o.autoResize?i.setContainerDimensions():i.o.autoPosition&&i.setPosition(),s.ie6||s.ieQuirks?i.fixIE():i.o.modal&&(i.d.iframe&&i.d.iframe.css({height:a[0],width:a[1]}),i.d.overlay.css({height:o[0],width:o[1]}))}))},unbindEvents:function(){e("."+this.o.closeClass).unbind("click.simplemodal"),t.unbind("keydown.simplemodal"),n.unbind(".simplemodal"),this.d.overlay.unbind("click.simplemodal")},fixIE:function(){var o=this,t=o.o.position;e.each([o.d.iframe||null,o.o.modal?o.d.overlay:null,"fixed"===o.d.container.css("position")?o.d.container:null],(function(e,o){if(o){var i="document.body.clientHeight",n="document.body.clientWidth",a="document.body.scrollHeight",s="document.body.scrollLeft",d="document.body.scrollTop",l="document.body.scrollWidth",r="document.documentElement.clientHeight",p="document.documentElement.clientWidth",c="document.documentElement.scrollLeft",m="document.documentElement.scrollTop",u=o[0].style;if(u.position="absolute",e<2)u.removeExpression("height"),u.removeExpression("width"),u.setExpression("height",a+" > "+i+" ? "+a+" : "+i+' + "px"'),u.setExpression("width",l+" > "+n+" ? "+l+" : "+n+' + "px"');else{var h,f;if(t&&t.constructor===Array){var g=t[0]?"number"==typeof t[0]?t[0].toString():t[0].replace(/px/,""):o.css("top").replace(/px/,"");if(h=-1===g.indexOf("%")?g+" + (t = "+m+" ? "+m+" : "+d+') + "px"':parseInt(g.replace(/%/,""))+" * (("+r+" || "+i+") / 100) + (t = "+m+" ? "+m+" : "+d+') + "px"',t[1]){var v="number"==typeof t[1]?t[1].toString():t[1].replace(/px/,"");f=-1===v.indexOf("%")?v+" + (t = "+c+" ? "+c+" : "+s+') + "px"':parseInt(v.replace(/%/,""))+" * (("+p+" || "+n+") / 100) + (t = "+c+" ? "+c+" : "+s+') + "px"'}}else h="("+r+" || "+i+") / 2 - (this.offsetHeight / 2) + (t = "+m+" ? "+m+" : "+d+') + "px"',f="("+p+" || "+n+") / 2 - (this.offsetWidth / 2) + (t = "+c+" ? "+c+" : "+s+') + "px"';u.removeExpression("top"),u.removeExpression("left"),u.setExpression("top",h),u.setExpression("left",f)}}}))},focus:function(o){var t=this,i=o&&-1!==e.inArray(o,["first","last"])?o:"first",n=e(":input:enabled:visible:"+i,t.d.wrap);setTimeout((function(){n.length>0?n.focus():t.d.wrap.focus()}),10)},getDimensions:function(){var e=void 0===window.innerHeight?n.height():window.innerHeight;o=[t.height(),t.width()],a=[e,n.width()]},getVal:function(e,o){return e?"number"==typeof e?e:"auto"===e?0:e.indexOf("%")>0?parseInt(e.replace(/%/,""))/100*("h"===o?a[0]:a[1]):parseInt(e.replace(/px/,"")):null},update:function(e,o){var t=this;if(!t.d.data)return!1;t.d.origHeight=t.getVal(e,"h"),t.d.origWidth=t.getVal(o,"w"),t.d.data.hide(),e&&t.d.container.css("height",e),o&&t.d.container.css("width",o),t.setContainerDimensions(),t.d.data.show(),t.o.focus&&t.focus(),t.unbindEvents(),t.bindEvents()},setContainerDimensions:function(){var e=this,o=s.ie6||s.ie7,t=e.d.origHeight?e.d.origHeight:s.opera?e.d.container.height():e.getVal(o?e.d.container[0].currentStyle.height:e.d.container.css("height"),"h"),i=e.d.origWidth?e.d.origWidth:s.opera?e.d.container.width():e.getVal(o?e.d.container[0].currentStyle.width:e.d.container.css("width"),"w"),n=e.d.data.outerHeight(!0),d=e.d.data.outerWidth(!0);e.d.origHeight=e.d.origHeight||t,e.d.origWidth=e.d.origWidth||i;var l=e.o.maxHeight?e.getVal(e.o.maxHeight,"h"):null,r=e.o.maxWidth?e.getVal(e.o.maxWidth,"w"):null,p=l&&l<a[0]?l:a[0],c=r&&r<a[1]?r:a[1],m=e.o.minHeight?e.getVal(e.o.minHeight,"h"):"auto";t=t?e.o.autoResize&&t>p?p:t<m?m:t:n?n>p?p:e.o.minHeight&&"auto"!==m&&n<m?m:n:m;var u=e.o.minWidth?e.getVal(e.o.minWidth,"w"):"auto";i=i?e.o.autoResize&&i>c?c:i<u?u:i:d?d>c?c:e.o.minWidth&&"auto"!==u&&d<u?u:d:u,e.d.container.css({height:t,width:i}),e.d.wrap.css({overflow:n>t||d>i?"auto":"visible"}),e.o.autoPosition&&e.setPosition()},setPosition:function(){var e,o,t=this,i=a[0]/2-t.d.container.outerHeight(!0)/2,s=a[1]/2-t.d.container.outerWidth(!0)/2,d="fixed"!==t.d.container.css("position")?n.scrollTop():0;t.o.position&&"[object Array]"===Object.prototype.toString.call(t.o.position)?(e=parseFloat(d)+parseFloat(t.o.position[0]||i),o=t.o.position[1]||s):(e=d+i,o=s),t.d.container.css({left:o,top:e})},watchTab:function(o){var t=this;if(e(o.target).parents(".simplemodal-container").length>0){if(t.inputs=e(":input:enabled:visible:first, :input:enabled:visible:last",t.d.data[0]),!o.shiftKey&&o.target===t.inputs[t.inputs.length-1]||o.shiftKey&&o.target===t.inputs[0]||0===t.inputs.length){o.preventDefault();var i=o.shiftKey?"last":"first";t.focus(i)}}else o.preventDefault(),t.focus()},open:function(){var o=this;o.d.iframe&&o.d.iframe.show(),e.isFunction(o.o.onOpen)?o.o.onOpen.apply(o,[o.d]):(o.d.overlay.show(),o.d.container.show(),o.d.data.show()),o.o.focus&&o.focus(),o.bindEvents()},close:function(){var o=this;if(!o.d.data)return!1;if(o.unbindEvents(),e.isFunction(o.o.onClose)&&!o.occb)o.occb=!0,o.o.onClose.apply(o,[o.d]);else{if(o.d.placeholder){var t=e("#simplemodal-placeholder");o.o.persist?t.replaceWith(o.d.data.removeClass("simplemodal-data").css("display",o.display)):(o.d.data.hide().remove(),t.replaceWith(o.d.orig))}else o.d.data.hide().remove();o.d.container.hide().remove(),o.d.overlay.hide(),o.d.iframe&&o.d.iframe.hide().remove(),o.d.overlay.remove(),o.d={}}}}}));
+//# sourceMappingURL=/sm/f508df7215daf1cc8e0317aee9f1a36bdb4dd2b17ea00a7ccdf075a75b82b146.map
 (function ($) {
     var winJQ, lastMouseX, lastMouseY, zIndex = 10000, minH, minW = 160, newWinOffset = 50,
         isIE = navigator.userAgent.match(/MSIE/),
@@ -3764,6 +3764,500 @@ eval(function(p,a,c,k,e,d){e=function(c){return(c<a?'':e(parseInt(c/a)))+((c=c%a
  |  @copyright  Copyright © 2014 - 2019 SamBrishes, pytesNET <info@pytes.net>
  */
 !function(root,factory){"function"==typeof define&&define.amd?define((function(){return factory(root)})):"object"==typeof module&&module.exports?module.exports=factory(root):(void 0===root.tail&&(root.tail={}),root.tail.select=factory(root),"undefined"!=typeof jQuery&&(jQuery.fn.tailselect=function(o){var r=[],i;return this.each((function(){!1!==(i=tail.select(this,o))&&r.push(i)})),1===r.length?r[0]:0!==r.length&&r}),"undefined"!=typeof MooTools&&Element.implement({tailselect:function(o){return new tail.select(this,o)}}))}(window,(function(root){"use strict";var w=root,d=root.document;function cHAS(el,name){return!!(el&&"classList"in el)&&el.classList.contains(name)}function cADD(el,name){return el&&"classList"in el?el.classList.add(name):void 0}function cREM(el,name){return el&&"classList"in el?el.classList.remove(name):void 0}function trigger(el,event,opt){var ev;if(CustomEvent&&CustomEvent.name)var ev=new CustomEvent(event,opt);else(ev=d.createEvent("CustomEvent")).initCustomEvent(event,!!opt.bubbles,!!opt.cancelable,opt.detail);return el.dispatchEvent(ev)}function clone(obj,rep){if("function"==typeof Object.assign)return Object.assign({},obj,rep||{});var clone=Object.constructor();for(var key in obj)clone[key]=key in rep?rep[key]:obj[key];return clone}function create(tag,classes){var r=d.createElement(tag);return r.className=classes&&classes.join?classes.join(" "):classes||"",r}var select=function(el,config){if((el="string"==typeof el?d.querySelectorAll(el):el)instanceof NodeList||el instanceof HTMLCollection||el instanceof Array){for(var _r=[],l=el.length,i=0;i<l;i++)_r.push(new select(el[i],clone(config,{})));return 1===_r.length?_r[0]:0!==_r.length&&_r}if(!(el instanceof Element&&this instanceof select))return el instanceof Element&&new select(el,config);if(select.inst[el.getAttribute("data-tail-select")])return select.inst[el.getAttribute("data-tail-select")];if(el.getAttribute("data-select")){var test=JSON.parse(el.getAttribute("data-select").replace(/\'/g,'"'));test instanceof Object&&(config=clone(config,test))}var placeholder=el.getAttribute("placeholder")||el.getAttribute("data-placeholder"),fb1="bindSourceSelect",fb2="sourceHide",ret;return(config="object"==typeof config?config:{}).multiple="multiple"in config?config.multiple:el.multiple,config.disabled="disabled"in config?config.disabled:el.disabled,config.placeholder=placeholder||config.placeholder||null,config.width="auto"===config.width?el.offsetWidth+50:config.width,config.sourceBind=fb1 in config?config[fb1]:config.sourceBind||!1,config.sourceHide=fb2 in config?config[fb2]:config.sourceHide||!0,config.multiLimit=config.multiLimit>=0?config.multiLimit:1/0,this.e=el,this.id=++select.count,this.con=clone(select.defaults,config),this.events={},select.inst["tail-"+this.id]=this,this.init().bind()},options;return select.count=0,select.inst={},select.defaults={animate:!0,classNames:null,csvOutput:!1,csvSeparator:",",descriptions:!1,deselect:!1,disabled:!1,height:350,hideDisabled:!1,hideSelected:!1,items:{},locale:"en",linguisticRules:{"е":"ё",a:"ä",o:"ö",u:"ü",ss:"ß"},multiple:!1,multiLimit:1/0,multiPinSelected:!1,multiContainer:!1,multiShowCount:!0,multiShowLimit:!1,multiSelectAll:!1,multiSelectGroup:!0,openAbove:null,placeholder:null,search:!1,searchConfig:["text","value"],searchFocus:!0,searchMarked:!0,searchMinLength:1,searchDisabled:!0,sortItems:!1,sortGroups:!1,sourceBind:!1,sourceHide:!0,startOpen:!1,stayOpen:!1,width:null,cbComplete:void 0,cbEmpty:void 0,cbLoopItem:void 0,cbLoopGroup:void 0},select.strings={en:{all:"All",none:"None",empty:"No Options available",emptySearch:"No Options found",limit:"You can't select more Options",placeholder:"Select an Option...",placeholderMulti:"Select up to :limit Options...",search:"Type in to search...",disabled:"This Field is disabled"},modify:function(locale,id,string){if(!(locale in this))return!1;if(id instanceof Object)for(var key in id)this.modify(locale,key,id[key]);else this[locale][id]="string"==typeof string?string:this[locale][id];return!0},register:function(locale,object){return"string"==typeof locale&&object instanceof Object&&(this[locale]=object,!0)}},select.prototype={_e:function(string,replace,def){if(!(string in this.__))return def||string;var string;if("function"==typeof(string=this.__[string])&&(string=string.call(this,replace)),"object"==typeof replace)for(var key in replace)string=string.replace(key,replace[key]);return string},init:function(){var self=this,classes=["tail-select"],con=this.con,regexp=/^[0-9.]+(?:cm|mm|in|px|pt|pc|em|ex|ch|rem|vw|vh|vmin|vmax|\%)$/i,c=!0===con.classNames?this.e.className:con.classNames;classes.push(c&&c.push?c.join(" "):c&&c.split?c:"no-classes"),con.hideSelected&&classes.push("hide-selected"),con.hideDisabled&&classes.push("hide-disabled"),0==con.multiLimit&&classes.push("disabled"),con.multiple&&classes.push("multiple"),con.deselect&&classes.push("deselect"),con.disabled&&classes.push("disabled"),this.__=clone(select.strings.en,select.strings[con.locale]||{}),this._init=!0,this._query=!1,this.select=create("DIV",classes),this.label=create("DIV","select-label"),this.dropdown=create("DIV","select-dropdown"),this.search=create("DIV","dropdown-search"),this.csvInput=create("INPUT","select-search"),null!==this.e.getAttribute("tabindex")?this.select.setAttribute("tabindex",this.e.getAttribute("tabindex")):this.select.setAttribute("tabindex",0),con.width&&regexp.test(con.width)?this.select.style.width=con.width:con.width&&!isNaN(parseFloat(con.width,10))&&(this.select.style.width=con.width+"px"),this.label.addEventListener("click",(function(event){self.toggle.call(self,self.con.animate)})),this.select.appendChild(this.label),isNaN(parseInt(con.height,10))||(this.dropdown.style.maxHeight=parseInt(con.height,10)+"px"),con.search&&(this.search.innerHTML='<input type="text" class="search-input" />',this.search.children[0].placeholder=this._e("search"),this.search.children[0].addEventListener("input",(function(event){self.query.call(self,this.value.length>con.searchMinLength?this.value:void 0)})),this.dropdown.appendChild(this.search)),this.select.appendChild(this.dropdown),this.csvInput.type="hidden",con.csvOutput&&(this.csvInput.name=this.e.name,this.e.removeAttribute("name"),this.select.appendChild(this.csvInput)),con.multiple&&con.multiContainer&&(d.querySelector(con.multiContainer)?(this.container=d.querySelector(con.multiContainer),this.container.className+=" tail-select-container"):!0===con.multiContainer&&(this.container=this.label,this.container.className+=" tail-select-container")),this.options=new options(this.e,this);for(var l=this.e.options.length,i=0;i<l;i++)this.options.set(this.e.options[i],!1);for(var key in con.items)"string"==typeof con.items[key]&&(con.items[key]={value:con.items[key]}),this.options.add(con.items[key].key||key,con.items[key].value,con.items[key].group,con.items[key].selected,con.items[key].disabled,con.items[key].description);return this.query(),this.e.nextElementSibling?this.e.parentElement.insertBefore(this.select,this.e.nextElementSibling):this.e.parentElement.appendChild(this.select),con.sourceHide&&("none"==this.e.style.display?(this.select.style.display="none",this.e.setAttribute("data-select-hidden","display")):"hidden"==this.e.style.visibility?(this.select.style.visibiltiy="hidden",this.e.setAttribute("data-select-hidden","visibility")):(this.e.style.display="none",this.e.setAttribute("data-select-hidden","0"))),this.e.setAttribute("data-tail-select","tail-"+this.id),self.con.startOpen&&this.open(con.animate),(con.cbComplete||function(){}).call(this,this.select),this._init=!1,this},bind:function(){var self=this;if(void 0===this.options_initial){for(var init_selected=[],idx=0;idx<this.options.selected.length;++idx)init_selected.push(this.options.selected[idx]);this.options_initial={selected:init_selected}}return d.addEventListener("keydown",(function(event){var key=event.keyCode||event.which,opt,inner,e,temp,tmp,space;if(!(32==key&&self.select===document.activeElement)&&(!cHAS(self.select,"active")||[13,27,38,40].indexOf(key)<0))return!1;if(event.preventDefault(),event.stopPropagation(),32===key)return self.open(self.con.animate);if(13==key&&(opt=self.dropdown.querySelector(".dropdown-option.hover:not(.disabled)"))&&(opt.classList.contains("selected")?self.options.unselect.call(self.options,opt):self.options.select.call(self.options,opt)),27==key||13==key)return self.close(self.con.animate);if(opt=self.dropdown.querySelector(".dropdown-option.hover:not(.disabled)"))for(cREM(opt,"hover"),e=[(40==key?"next":"previous")+"ElementSibling"];(opt=null!==(temp=opt[e])&&"LI"==opt.tagName?temp:null!==(temp=opt.parentElement[e])&&temp.children.length>0&&"UL"==temp.tagName&&temp.children[40==key?0:temp.children.length-1])&&(!cHAS(opt,"dropdown-option")||cHAS(opt,"disabled")););if(opt||40!=key?opt||38!=key||(opt=(tmp=self.dropdown.querySelectorAll(".dropdown-option:not(.disabled)"))[tmp.length-1]):opt=self.dropdown.querySelector(".dropdown-option:not(.disabled)"),opt&&(inner=self.dropdown.querySelector(".dropdown-inner"))){var pos=function(el){for(var _r={top:el.offsetTop,height:el.offsetHeight};(el=el.parentElement)!=inner;)_r.top+=el.offsetTop;return _r}(opt);cADD(opt,"hover"),inner.scrollTop=Math.max(0,pos.top-2*pos.height)}return!0})),d.addEventListener("click",(function(ev){if(!cHAS(self.select,"active")||cHAS(self.select,"idle"))return!1;if(!0===self.con.stayOpen)return!1;for(var targets=[self.e,self.select,self.container],l=targets.length,i=0;i<l;i++){if(targets[i]&&(targets[i].contains(ev.target)||targets[i]==ev.target))return!1;if(!ev.target.parentElement)return!1}return self.close.call(self,self.con.animate)})),!this.con.sourceBind||(this.e.addEventListener("change",(function(event){if(null!=event.detail)return!1;if(event.preventDefault(),event.stopPropagation(),!this.multiple&&this.selectedIndex)self.options.select.call(self.options,this.options[this.selectedIndex]);else{var u=[].concat(self.options.selected),s=[].filter.call(this.querySelectorAll("option:checked"),(function(item){return!(u.indexOf(item)>=0)||(u.splice(u.indexOf(item),1),!1)}));self.options.walk.call(self.options,"unselect",u),self.options.walk.call(self.options,"select",s)}})),!0)},callback:function(item,state,_force){var rkey,rgrp,rsel="[data-key='"+item.key.replace(/('|\\)/g,"\\$1")+"'][data-group='"+item.group.replace(/('|\\)/g,"\\$1")+"']";if("rebuild"==state)return this.query();var element=this.dropdown.querySelector(rsel);return element&&["select","disable"].indexOf(state)>=0?cADD(element,"select"==state?"selected":"disabled"):element&&["unselect","enable"].indexOf(state)>=0&&cREM(element,"unselect"==state?"selected":"disabled"),this.update(item),!0===_force||this.trigger("change",item,state)},trigger:function(event){if(this._init)return!1;var obj={bubbles:!1,cancelable:!0,detail:{args:arguments,self:this}};"change"==event&&arguments[2]&&arguments[2].indexOf("select")>=0&&(trigger(this.e,"input",obj),trigger(this.e,"change",obj)),trigger(this.select,"tail::"+event,obj);var args=[],pass;return Array.prototype.map.call(arguments,(function(item,i){i>0&&args.push(item)})),(this.events[event]||[]).forEach((function(item){(pass=[].concat(args)).push(item.args||null),(item.cb||function(){}).apply(obj.detail.self,pass)})),!0},calc:function(){var clone=this.dropdown.cloneNode(!0),height=this.con.height,search=0,inner=this.dropdown.querySelector(".dropdown-inner");(clone=this.dropdown.cloneNode(!0)).style.cssText="height:auto;min-height:auto;max-height:none;opacity:0;display:block;visibility:hidden;",clone.style.maxHeight=this.con.height+"px",clone.className+=" cloned",this.dropdown.parentElement.appendChild(clone),height=height>clone.clientHeight?clone.clientHeight:height,this.con.search&&(search=clone.querySelector(".dropdown-search").clientHeight),this.dropdown.parentElement.removeChild(clone);var pos=this.select.getBoundingClientRect(),bottom=w.innerHeight-(pos.top+pos.height),view=height+search>bottom&&pos.top>bottom;return!0===this.con.openAbove||!1!==this.con.openAbove&&view?(view=!0,height=Math.min(height,pos.top-10),cADD(this.select,"open-top")):(view=!1,height=Math.min(height,bottom-10),cREM(this.select,"open-top")),inner&&(this.dropdown.style.maxHeight=height+"px",inner.style.maxHeight=height-search+"px"),this},query:function(search,conf){var item,tp,ul,li,a1,a2,self=this,con=this.con,g="getAttribute",root=create("DIV","dropdown-inner"),func=search?"finder":"walker",args=search?[search,conf]:[con.sortItems,con.sortGroups];for(this._query="string"==typeof search&&search;item=this.options[func].apply(this.options,args);){if(!ul||ul&&ul[g]("data-group")!==item.group){if(!((tp=(con.cbLoopGroup||this.cbGroup).call(this,item.group,search,root))instanceof Element))break;(ul=tp).setAttribute("data-group",item.group),root.appendChild(ul)}if(null!==(li=(con.cbLoopItem||this.cbItem).call(this,item,ul,search,root))){if(!1===li)break;li.setAttribute("data-key",item.key),li.setAttribute("data-group",item.group),li.addEventListener("click",(function(event){if(!this.hasAttribute("data-key"))return!1;var key=this[g]("data-key"),group=this[g]("data-group")||"#";self.options.toggle.call(self.options,key,group)&&(!1!==self.con.stayOpen||self.con.multiple||self.close.call(self,self.con.animate))})),ul.appendChild(li)}}var count=root.querySelectorAll("*[data-key]").length;0==count&&(this.con.cbEmpty||function(element){var li=create("SPAN","dropdown-empty");li.innerText=this._e("empty"),element.appendChild(li)}).call(this,root,search),count>0&&con.multiple&&con.multiLimit==1/0&&con.multiSelectAll&&(a1=create("BUTTON","tail-all"),a2=create("BUTTON","tail-none"),a1.innerText=this._e("all"),a1.addEventListener("click",(function(event){event.preventDefault();var options=self.dropdown.querySelectorAll(".dropdown-inner .dropdown-option");self.options.walk.call(self.options,"select",options)})),a2.innerText=this._e("none"),a2.addEventListener("click",(function(event){event.preventDefault();var options=self.dropdown.querySelectorAll(".dropdown-inner .dropdown-option");self.options.walk.call(self.options,"unselect",options)})),(li=create("SPAN","dropdown-action")).appendChild(a1),li.appendChild(a2),root.insertBefore(li,root.children[0]));var data=this.dropdown.querySelector(".dropdown-inner");return this.dropdown[(data?"replace":"append")+"Child"](root,data),cHAS(this.select,"active")&&this.calc(),this.updateCSV().updateLabel()},cbGroup:function(group,search){var ul=create("UL","dropdown-optgroup"),self=this,a1,a2;return"#"==group?ul:(ul.innerHTML='<li class="optgroup-title"><b>'+group+"</b></li>",this.con.multiple&&this.con.multiLimit==1/0&&this.con.multiSelectAll&&(a1=create("BUTTON","tail-none"),a2=create("BUTTON","tail-all"),a1.innerText=this._e("none"),a1.addEventListener("click",(function(event){event.preventDefault();var grp=this.parentElement.parentElement.getAttribute("data-group");self.options.all.call(self.options,"unselect",grp)})),a2.innerText=this._e("all"),a2.addEventListener("click",(function(event){event.preventDefault();var grp=this.parentElement.parentElement.getAttribute("data-group");self.options.all.call(self.options,"select",grp)})),ul.children[0].appendChild(a1),ul.children[0].appendChild(a2)),ul)},cbItem:function(item,optgroup,search){var li=create("LI","dropdown-option"+(item.selected?" selected":"")+(item.disabled?" disabled":""));return li.title=item.option.title,search&&search.length>0&&this.con.searchMarked?(search=this.options.applyLinguisticRules(search),li.innerHTML=item.value.replace(new RegExp("("+search+")","i"),"<mark>$1</mark>")):li.innerText=item.value,this.con.descriptions&&item.description&&(li.innerHTML+='<span class="option-description">'+item.description+"</span>"),li},update:function(item){return this.updateLabel().updateContainer(item).updatePin(item).updateCSV(item)},updateLabel:function(label){if(this.container==this.label&&this.options.selected.length>0)return this.label.querySelector(".label-inner")&&this.label.removeChild(this.label.querySelector(".label-inner")),this.label.querySelector(".label-count")&&this.label.removeChild(this.label.querySelector(".label-count")),this;var c=this.con,len=this.options.selected.length,limit,selected_class;("string"!=typeof label&&(label=c.disabled?"disabled":0==this.dropdown.querySelectorAll("*[data-key]").length?"empty"+(cHAS(this.select,"in-search")?"Search":""):c.multiLimit<=len?"limit":!c.multiple&&this.options.selected.length>0?this.options.selected[0].innerText:"string"==typeof c.placeholder?c.placeholder:"placeholder"+(c.multiple&&c.multiLimit<1/0?"Multi":"")),label='<span class="label-inner">'+(label=this._e(label,{":limit":c.multiLimit},label))+"</span>",limit=c.multiShowLimit&&c.multiLimit<1/0,c.multiple&&c.multiShowCount)&&(label=(label='<span class="label-count '+(len?"label-count--selected":"")+'">:c</span>'+label).replace(":c",len+(limit?" / "+c.multiLimit:"")));return this.label.innerHTML=label,this},updateContainer:function(item){if(!this.container||!this.con.multiContainer)return this;var s="[data-group='"+item.group+"'][data-key='"+item.key+"']";if(this.container.querySelector(s))return item.selected||this.container.removeChild(this.container.querySelector(s)),this;if(item.selected){var self=this,hndl=create("DIV","select-handle");hndl.innerText=item.value,hndl.setAttribute("data-key",item.key),hndl.setAttribute("data-group",item.group),hndl.addEventListener("click",(function(event){event.preventDefault(),event.stopPropagation();var key=this.getAttribute("data-key"),grp=this.getAttribute("data-group");self.options.unselect.call(self.options,key,grp)})),this.container.appendChild(hndl)}return this},updatePin:function(item){var inner=this.dropdown.querySelector(".dropdown-inner ul"),option="li[data-key='"+item.key+"'][data-group='"+item.group+"']";if(!this.con.multiPinSelected||!inner||!1!==this._query)return this;if(option=this.dropdown.querySelector(option),item.selected)inner.insertBefore(option,inner.children[0]);else{for(var grp=this.dropdown.querySelector("ul[data-group='"+item.group+"']"),prev=this.options[item.index-1],found=!1;prev&&prev.group==item.group&&!(found=grp.querySelector("li[data-key='"+prev.key+"']"));)prev=this.options[prev.index-1];found&&found.nextElementSibling?grp.insertBefore(option,found.nextElementSibling):grp.appendChild(option)}return this},updateCSV:function(item){if(!this.csvInput||!this.con.csvOutput)return this;for(var selected=[],l=this.options.selected.length,i=0;i<l;i++)selected.push(this.options.selected[i].value);return this.csvInput.value=selected.join(this.con.csvSeparator||","),this},open:function(animate){if(cHAS(this.select,"active")||cHAS(this.select,"idle")||this.con.disabled)return!1;this.calc();var final=function(){cADD(self.select,"active"),cREM(self.select,"idle"),this.dropdown.style.height="auto",this.dropdown.style.overflow="visible",this.label.removeAttribute("style"),this.con.search&&this.con.searchFocus&&this.dropdown.querySelector("input").focus(),this.trigger.call(this,"open")},self=this,e=this.dropdown.style;return!1!==animate?(this.label.style.zIndex=25,this.dropdown.style.cssText+="height:0;display:block;overflow:hidden;",cADD(self.select,"idle"),function animate(){var h=parseInt(e.height,10),m=parseInt(e.maxHeight,10);if(h>=m)return final.call(self);e.height=(h+50>m?m:h+50)+"px",setTimeout(animate,20)}()):(e.cssText="height:"+e.maxHeight+";display:block;overflow:hidden;",final.call(this)),this},close:function(animate){if(!cHAS(this.select,"active")||cHAS(this.select,"idle"))return!1;var final=function(){cREM(this.select,"active"),cREM(this.select,"idle"),this.dropdown.removeAttribute("style"),this.dropdown.querySelector(".dropdown-inner").removeAttribute("style"),this.trigger.call(this,"close")},self=this,e=this.dropdown;return!1!==animate?(cADD(this.select,"idle"),this.dropdown.style.overflow="hidden",function animate(){if(parseInt(e.offsetHeight,10)-50<=0)return final.call(self);e.style.height=parseInt(e.offsetHeight,10)-50+"px",setTimeout(animate,20)}()):final.call(this),this},toggle:function(animate){return cHAS(this.select,"active")?this.close(animate):cHAS(this.select,"idle")?this:this.open(animate)},remove:function(){if(this.e.removeAttribute("data-tail-select"),this.e.hasAttribute("data-select-hidden")&&("0"==this.e.getAttribute("data-select-hidden")&&this.e.style.removeProperty("display"),this.e.removeAttribute("data-select-hidden")),Array.prototype.map.call(this.e.querySelectorAll("[data-select-option='add']"),(function(item){item.parentElement.removeChild(item)})),Array.prototype.map.call(this.e.querySelectorAll("[data-select-optgroup='add']"),(function(item){item.parentElement.removeChild(item)})),this.e.name=this.csvInput.hasAttribute("name")?this.csvInput.name:this.e.name,this.select.parentElement&&this.select.parentElement.removeChild(this.select),this.container)for(var handles=this.container.querySelectorAll(".select-handle"),l=handles.length,i=0;i<l;i++)this.container.removeChild(handles[i]);return this},reload:function(){return this.remove().init()},reset:function(){for(var idx=0;idx<this.options.element.length;++idx)this.options.element[idx].selected=!1,this.options.unselect(this.options.element[idx].value,"#",!0);for(var idx=0;idx<this.options_initial.selected.length;++idx)this.options_initial.selected[idx].selected=!0,this.options.select(this.options_initial.selected[idx].value,"#",!0);this.dropdown.querySelector("input").value="",this.query.call(this,"")},config:function(key,value,rebuild){if(key instanceof Object){for(var k in key)this.config(k,key[k],!1);return this.reload(),this.con}return void 0===key?this.con:key in this.con&&(void 0===value?this.con[key]:(this.con[key]=value,!1!==rebuild&&this.reload(),this))},enable:function(update){return cREM(this.select,"disabled"),this.e.disabled=!1,this.con.disabled=!1,!1===update?this:this.reload()},disable:function(update){return cADD(this.select,"disabled"),this.e.disabled=!0,this.con.disabled=!0,!1===update?this:this.reload()},on:function(event,callback,args){return!(["open","close","change"].indexOf(event)<0||"function"!=typeof callback)&&(event in this.events||(this.events[event]=[]),this.events[event].push({cb:callback,args:args instanceof Array?args:[]}),this)},value:function(){return 0==this.options.selected.length?null:this.con.multiple?this.options.selected.map((function(opt){return opt.value})):this.options.selected[0].value}},(options=select.options=function(select,parent){return this instanceof options?(this.self=parent,this.element=select,this.length=0,this.selected=[],this.disabled=[],this.items={"#":{}},this.groups={},this):new options(select,parent)}).prototype={_r:function(state){return state.replace("disabled","disable").replace("enabled","enable").replace("selected","select").replace("unselected","unselect")},get:function(key,grp){var g="getAttribute";if("object"==typeof key&&key.key&&key.group)grp=key.group||grp,key=key.key;else if(key instanceof Element)"OPTION"==key.tagName?(grp=key.parentElement.label||"#",key=key.value||key.innerText):key.hasAttribute("data-key")&&(grp=key[g]("data-group")||key.parentElement[g]("data-group")||"#",key=key[g]("data-key"));else if("string"!=typeof key)return!1;return key=/^[0-9]+$/.test(key)?"_"+key:key,grp in this.items&&this.items[grp][key]},set:function(opt,rebuild){var key=opt.value||opt.innerText,grp=opt.parentElement.label||"#";if(grp in this.items||(this.items[grp]={},this.groups[grp]=opt.parentElement),key in this.items[grp])return!1;var id=/^[0-9]+$/.test(key)?"_"+key:key,con=this.self.con;if(con.multiple&&this.selected.length>=con.multiLimit&&(opt.selected=!1),!opt.selected||!con.deselect||opt.hasAttribute("selected")&&0!=con.multiLimit||(opt.selected=!1,opt.parentElement.selectedIndex=-1),opt.hasAttribute("data-description")){var span=create("SPAN");span.innerHTML=opt.getAttribute("data-description"),opt.setAttribute("data-description",span.innerHTML)}return this.items[grp][id]={key:key,value:opt.text,description:opt.getAttribute("data-description")||null,group:grp,option:opt,optgroup:"#"!=grp?this.groups[grp]:void 0,selected:opt.selected,disabled:opt.disabled,hidden:opt.hidden||!1},this.length++,opt.selected&&this.select(this.items[grp][id]),opt.disabled&&this.disable(this.items[grp][id]),!rebuild||this.self.callback(this.items[grp][key],"rebuild")},add:function(key,value,group,selected,disabled,description,rebuild){if(key instanceof Object){for(var k in key)this.add(key[k].key||k,key[k].value,key[k].group,key[k].selected,key[k].disabled,key[k].description,!1);return this.self.query()}if(this.get(key,group))return!1;if("#"!==(group="string"==typeof group?group:"#")&&!(group in this.groups)){var optgroup=create("OPTGROUP");optgroup.label=group,optgroup.setAttribute("data-select-optgroup","add"),this.element.appendChild(optgroup),this.items[group]={},this.groups[group]=optgroup}this.self.con.multiple&&this.selected.length>=this.self.con.multiLimit&&(selected=!1),disabled=!!disabled;var option=d.createElement("OPTION");return option.value=key,option.selected=selected,option.disabled=disabled,option.innerText=value,option.setAttribute("data-select-option","add"),description&&description.length>0&&option.setAttribute("data-description",description),("#"==group?this.element:this.groups[group]).appendChild(option),this.set(option,rebuild)},move:function(item,group,new_group,rebuild){if(!(item=this.get(item,group)))return!1;if("#"!==new_group&&!(new_group in this.groups)){var optgroup=create("OPTGROUP");optgroup.label=new_group,this.element.appendChild(optgroup),this.items[new_group]={},this.groups[new_group]=optgroup,this.groups[new_group].appendChild(item.option)}return delete this.items[item.group][item.key],item.group=new_group,item.optgroup=this.groups[new_group]||void 0,this.items[new_group][item.key]=item,!rebuild||this.self.query()},remove:function(item,group,rebuild){if(!(item=this.get(item,group)))return!1;item.selected&&this.unselect(item),item.disabled&&this.enable(item),item.option.parentElement.removeChild(item.option);var id=/^[0-9]+$/.test(item.key)?"_"+item.key:item.key;return delete this.items[item.group][id],this.length--,0===Object.keys(this.items[item.group]).length&&(delete this.items[item.group],delete this.groups[item.group]),!rebuild||this.self.query()},is:function(state,key,group){var state=this._r(state),item=this.get(key,group);return!item||["select","unselect","disable","enable"].indexOf(state)<0?null:"disable"==state||"enable"==state?"disable"==state?item.disabled:!item.disabled:("select"==state||"unselect"==state)&&("select"==state?item.selected:!item.selected)},handle:function(state,key,group,_force){var item=this.get(key,group),state=this._r(state);if(!item||["select","unselect","disable","enable"].indexOf(state)<0)return null;if("disable"==state||"enable"==state)return item.option in this.disabled||"disable"!=state?item.option in this.disabled&&"enable"==state&&this.disabled.splice(this.disabled.indexOf(item.option),1):this.disabled.push(item.option),item.disabled="disable"==state,item.option.disabled="disable"==state,this.self.callback.call(this.self,item,state);var dis=cHAS(this.self.select,"disabled")||item.disabled||item.option.disabled,lmt=this.self.con.multiple&&this.self.con.multiLimit<=this.selected.length,sgl=!this.self.con.multiple&&this.selected.indexOf(item.option)>0,del=0==this.self.con.multiLimit&&1==this.self.con.deselect,uns=!this.self.con.multiple&&!this.self.con.deselect&&!0!==_force;if("select"==state){if(dis||lmt||del||sgl)return!1;if(!this.self.con.multiple)for(var i in this.selected)this.unselect(this.selected[i],void 0,!0);this.selected.indexOf(item.option)<0&&this.selected.push(item.option)}else if("unselect"==state){if(dis||uns)return!1;this.selected.splice(this.selected.indexOf(item.option),1)}return item.selected="select"==state,item.option.selected="select"==state,item.option[(state.length>6?"remove":"set")+"Attribute"]("selected","selected"),this.self.callback.call(this.self,item,state,_force)},enable:function(key,group){return this.handle("enable",key,group,!1)},disable:function(key,group){return this.handle("disable",key,group,!1)},select:function(key,group){return this.handle("select",key,group,!1)},unselect:function(key,group,_force){return this.handle("unselect",key,group,_force)},toggle:function(item,group){return!!(item=this.get(item,group))&&this.handle(item.selected?"unselect":"select",item,group,!1)},invert:function(state){if(state=this._r(state),["enable","disable"].indexOf(state)>=0)var invert=this.disabled,action="enable"==state?"disable":"enable";else if(["select","unselect"].indexOf(state)>=0)var invert=this.selected,action="select"==state?"unselect":"select";var convert=Array.prototype.filter.call(this,(function(element){return!(element in invert)})),self=this;return[].concat(invert).forEach((function(item){self.handle.call(self,action,item)})),[].concat(convert).forEach((function(item){self.handle.call(self,state,item)})),!0},all:function(state,group){var self=this,list=this;return group in this.items?list=Object.keys(this.items[group]):["unselect","enable"].indexOf(state)>=0&&(list=[].concat("unselect"==state?this.selected:this.disabled)),Array.prototype.forEach.call(list,(function(item){self.handle.call(self,state,item,group,!1)})),!0},walk:function(state,items,args){if(items instanceof Array||items.length)for(var l=items.length,i=0;i<l;i++)this.handle.apply(this,[state,items[i],null].concat(args));else if(items instanceof Object){var self=this;if(items.forEach)items.forEach((function(value){self.handle.apply(self,[state,value,null].concat(args))}));else for(var key in items)("string"==typeof items[key]||"number"==typeof items[key]||items[key]instanceof Element)&&this.handle.apply(this,[state,items[key],key in this.items?key:null]).concat(args)}return this},applyLinguisticRules:function(search,casesensitive){var rules=this.self.con.linguisticRules,values=[];return Object.keys(rules).forEach((function(key){values.push("("+key+"|["+rules[key]+"])")})),casesensitive&&(values=values.concat(values.map((function(s){return s.toUpperCase()})))),search.replace(new RegExp(values.join("|"),casesensitive?"g":"ig"),(function(m){return values[[].indexOf.call(arguments,m,1)-1]}))},find:function(search,config){var self=this,matches,has={};if(config||(config=this.self.con.searchConfig),"function"==typeof config)matches=config.bind(this,search);else{(config=config instanceof Array?config:[config]).forEach((function(c){"string"==typeof c&&(has[c]=!0)})),has.any=has.any?has.any:has.attributes&&has.value,has.regex&&!has.text||(search=search.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")),has.exactglyphes||(search=this.self.options.applyLinguisticRules(search,has.case)),has.word&&(search="\\b"+search+"\\b");var regex=new RegExp(search,has.case?"m":"mi"),sfunc=function(opt){return regex.test(opt.text||opt.value)};if(matches=has.any?function(opt){return sfunc(opt)||[].some.call(opt.attributes,sfunc)}:has.attributes?function(opt){return[].some.call(opt.attributes,sfunc)}:sfunc,!this.self.con.searchDisabled){var temp=matches;matches=function(opt){return!opt.disabled&&temp(opt)}}}return[].filter.call(this.self.e.options,matches).map((function(opt){return!opt.hidden&&self.get(opt)}))},finder:function(search,config){var item;for(void 0===this._finderLoop&&(this._finderLoop=this.find(search,config));void 0!==(item=this._finderLoop.shift());)return item;return delete this._finderLoop,!1},walker:function(orderi,orderg){if(void 0!==this._inLoop&&this._inLoop){if(this._inItems.length>0){do{var temp=this.items[this._inGroup][this._inItems.shift()]}while(!0===temp.hidden);return temp}if(this._inGroups.length>0){for(;this._inGroups.length>0;){var group=this._inGroups.shift();if(!(group in this.items))return!1;var keys=Object.keys(this.items[group]);if(keys.length>0)break}return"ASC"==orderi?keys.sort():"DESC"==orderi?keys.sort().reverse():"function"==typeof orderi&&(keys=orderi.call(this,keys)),this._inItems=keys,this._inGroup=group,this.walker(null,null)}return delete this._inLoop,delete this._inItems,delete this._inGroup,delete this._inGroups,!1}var groups=Object.keys(this.groups)||[];return"ASC"==orderg?groups.sort():"DESC"==orderg?groups.sort().reverse():"function"==typeof orderg&&(groups=orderg.call(this,groups)),groups.unshift("#"),this._inLoop=!0,this._inItems=[],this._inGroups=groups,this.walker(orderi,null)}},select}));
+(function(){var e=`6.3.5`;function t(...e){var i=!1;typeof e[0]==`boolean`&&(i=e.shift());var a=e[0];if(r(a))throw Error(`extendee must be an object`);for(var o=e.slice(1),s=o.length,c=0;c<s;c++){var l=o[c];for(var u in l)if(Object.prototype.hasOwnProperty.call(l,u)){var d=l[u];if(i&&n(d)){var f=Array.isArray(d)?[]:{};a[u]=t(!0,Object.prototype.hasOwnProperty.call(a,u)&&!r(a[u])?a[u]:f,d)}else a[u]=d}}return a}function n(e){return Array.isArray(e)||{}.toString.call(e)==`[object Object]`}function r(e){return!e||typeof e!=`object`&&typeof e!=`function`}var i=class{on(e,t){return this._callbacks=this._callbacks||{},this._callbacks[e]||(this._callbacks[e]=[]),this._callbacks[e].push(t),this}emit(e,...t){this._callbacks=this._callbacks||{};let n=this._callbacks[e];if(n)for(let e of n.slice())e.apply(this,t);return this.element&&this.element.dispatchEvent(this.makeEvent(`dropzone:`+e,{args:t})),this}makeEvent(e,t){let n={bubbles:!0,cancelable:!0,detail:t};if(typeof window.CustomEvent==`function`)return new CustomEvent(e,n);var r=document.createEvent(`CustomEvent`);return r.initCustomEvent(e,n.bubbles,n.cancelable,n.detail),r}off(e,t){if(!this._callbacks||arguments.length===0)return this._callbacks={},this;let n=this._callbacks[e];if(!n)return this;if(arguments.length===1)return delete this._callbacks[e],this;for(let e=0;e<n.length;e++)if(n[e]===t){n.splice(e,1);break}return this}},a={url:null,method:`post`,withCredentials:!1,timeout:null,parallelUploads:2,uploadMultiple:!1,chunking:!1,forceChunking:!1,chunkSize:2097152,parallelChunkUploads:!1,retryChunks:!1,retryChunksLimit:3,maxFilesize:256,paramName:`file`,createImageThumbnails:!0,maxThumbnailFilesize:10,thumbnailWidth:120,thumbnailHeight:120,thumbnailMethod:`crop`,resizeWidth:null,resizeHeight:null,resizeMimeType:null,resizeQuality:.8,resizeMethod:`contain`,resizeTransparencyFill:null,filesizeBase:1e3,maxFiles:null,headers:null,defaultHeaders:!0,clickable:!0,ignoreHiddenFiles:!0,acceptedFiles:null,acceptedMimeTypes:null,autoProcessQueue:!0,autoQueue:!0,addRemoveLinks:!1,previewsContainer:null,disablePreviews:!1,hiddenInputContainer:`body`,capture:null,renameFilename:null,renameFile:null,forceFallback:!1,dictDefaultMessage:`Drop files here to upload`,dictFallbackMessage:`Your browser does not support drag'n'drop file uploads.`,dictFallbackText:`Please use the fallback form below to upload your files like in the olden days.`,dictFileTooBig:`File is too big ({{filesize}}MiB). Max filesize: {{maxFilesize}}MiB.`,dictInvalidFileType:`You can't upload files of this type.`,dictThumbnailError:`Failed to load the image. The file may be corrupted.`,dictResponseError:`Server responded with {{statusCode}} code.`,dictCancelUpload:`Cancel upload`,dictUploadCanceled:`Upload canceled.`,dictCancelUploadConfirmation:`Are you sure you want to cancel this upload?`,dictRemoveFile:`Remove file`,dictRemoveFileConfirmation:null,dictMaxFilesExceeded:`You cannot upload any more files.`,dictFileSizeUnits:{tb:`TB`,gb:`GB`,mb:`MB`,kb:`KB`,b:`b`},init(){},params(e,t,n){if(n)return{dzuuid:n.file.upload.uuid,dzchunkindex:n.index,dztotalfilesize:n.file.size,dzchunksize:this.options.chunkSize,dztotalchunkcount:n.file.upload.totalChunkCount,dzchunkbyteoffset:n.index*this.options.chunkSize}},accept(e,t){return t()},chunksUploaded:function(e,t){t()},binaryBody:!1,fallback(){let e;this.element.className=`${this.element.className} dz-browser-not-supported`;for(let t of this.element.getElementsByTagName(`div`))if(/(^| )dz-message($| )/.test(t.className)){e=t,t.className=`dz-message`;break}e||(e=c.createElement(`<div class="dz-message"><span></span></div>`),this.element.appendChild(e));let t=e.getElementsByTagName(`span`)[0];return t&&(t.textContent==null?t.innerText!=null&&(t.innerText=this.options.dictFallbackMessage):t.textContent=this.options.dictFallbackMessage),this.element.appendChild(this.getFallbackForm())},resize(e,t,n,r){let i={srcX:0,srcY:0,srcWidth:e.width,srcHeight:e.height},a=e.width/e.height;t==null&&n==null?(t=i.srcWidth,n=i.srcHeight):t==null?t=n*a:n==null&&(n=t/a),t=Math.min(t,i.srcWidth),n=Math.min(n,i.srcHeight);let o=t/n;if(i.srcWidth>t||i.srcHeight>n){if(r===`crop`)a>o?(i.srcHeight=e.height,i.srcWidth=i.srcHeight*o):(i.srcWidth=e.width,i.srcHeight=i.srcWidth/o);else if(r===`contain`)a>o?n=t/a:t=n*a;else throw Error(`Unknown resizeMethod '${r}'`)}return i.srcX=(e.width-i.srcWidth)/2,i.srcY=(e.height-i.srcHeight)/2,i.trgWidth=t,i.trgHeight=n,i},transformFile(e,t){return(this.options.resizeWidth||this.options.resizeHeight)&&e.type.match(/image.*/)?this.resizeImage(e,this.options.resizeWidth,this.options.resizeHeight,this.options.resizeMethod,t):t(e)},previewTemplate:`<div class="dz-preview dz-file-preview">
+  <div class="dz-image"><img data-dz-thumbnail draggable="false" /></div>
+  <div class="dz-details">
+    <div class="dz-size"><span data-dz-size></span></div>
+    <div class="dz-filename"><span data-dz-name></span></div>
+  </div>
+  <div class="dz-progress">
+    <span class="dz-upload" data-dz-uploadprogress></span>
+  </div>
+  <div class="dz-error-message"><span data-dz-errormessage></span></div>
+  <div class="dz-success-mark">
+    <svg width="54" height="54" viewBox="0 0 54 54" fill="white" xmlns="http://www.w3.org/2000/svg">
+      <path
+        d="M10.2071 29.7929L14.2929 25.7071C14.6834 25.3166 15.3166 25.3166 15.7071 25.7071L21.2929 31.2929C21.6834 31.6834 22.3166 31.6834 22.7071 31.2929L38.2929 15.7071C38.6834 15.3166 39.3166 15.3166 39.7071 15.7071L43.7929 19.7929C44.1834 20.1834 44.1834 20.8166 43.7929 21.2071L22.7071 42.2929C22.3166 42.6834 21.6834 42.6834 21.2929 42.2929L10.2071 31.2071C9.81658 30.8166 9.81658 30.1834 10.2071 29.7929Z"
+      />
+    </svg>
+  </div>
+  <div class="dz-error-mark">
+    <svg width="54" height="54" viewBox="0 0 54 54" fill="white" xmlns="http://www.w3.org/2000/svg">
+      <path
+        d="M26.2929 20.2929L19.2071 13.2071C18.8166 12.8166 18.1834 12.8166 17.7929 13.2071L13.2071 17.7929C12.8166 18.1834 12.8166 18.8166 13.2071 19.2071L20.2929 26.2929C20.6834 26.6834 20.6834 27.3166 20.2929 27.7071L13.2071 34.7929C12.8166 35.1834 12.8166 35.8166 13.2071 36.2071L17.7929 40.7929C18.1834 41.1834 18.8166 41.1834 19.2071 40.7929L26.2929 33.7071C26.6834 33.3166 27.3166 33.3166 27.7071 33.7071L34.7929 40.7929C35.1834 41.1834 35.8166 41.1834 36.2071 40.7929L40.7929 36.2071C41.1834 35.8166 41.1834 35.1834 40.7929 34.7929L33.7071 27.7071C33.3166 27.3166 33.3166 26.6834 33.7071 26.2929L40.7929 19.2071C41.1834 18.8166 41.1834 18.1834 40.7929 17.7929L36.2071 13.2071C35.8166 12.8166 35.1834 12.8166 34.7929 13.2071L27.7071 20.2929C27.3166 20.6834 26.6834 20.6834 26.2929 20.2929Z"
+      />
+    </svg>
+  </div>
+</div>
+`,drop(e){return this.element.classList.remove(`dz-drag-hover`)},dragstart(e){},dragend(e){return this.element.classList.remove(`dz-drag-hover`)},dragenter(e){return this.element.classList.add(`dz-drag-hover`)},dragover(e){return this.element.classList.add(`dz-drag-hover`)},dragleave(e){return this.element.classList.remove(`dz-drag-hover`)},paste(e){},reset(){return this.element.classList.remove(`dz-started`)},addedfile(e){if(this.element===this.previewsContainer&&this.element.classList.add(`dz-started`),this.previewsContainer&&!this.options.disablePreviews){e.previewElement=c.createElement(this.options.previewTemplate.trim()),e.previewTemplate=e.previewElement,this.previewsContainer.appendChild(e.previewElement);for(var t of e.previewElement.querySelectorAll(`[data-dz-name]`))t.textContent=e.name;for(t of e.previewElement.querySelectorAll(`[data-dz-size]`))t.innerHTML=this.filesize(e.size);this.options.addRemoveLinks&&(e._removeLink=c.createElement(`<a class="dz-remove" href="javascript:undefined;" data-dz-remove>${this.options.dictRemoveFile}</a>`),e.previewElement.appendChild(e._removeLink));let n=t=>(t.preventDefault(),t.stopPropagation(),e.status===c.UPLOADING?c.confirm(this.options.dictCancelUploadConfirmation,()=>this.removeFile(e)):this.options.dictRemoveFileConfirmation?c.confirm(this.options.dictRemoveFileConfirmation,()=>this.removeFile(e)):this.removeFile(e));for(let t of e.previewElement.querySelectorAll(`[data-dz-remove]`))t.addEventListener(`click`,n)}},removedfile(e){return e.previewElement!=null&&e.previewElement.parentNode!=null&&e.previewElement.parentNode.removeChild(e.previewElement),this._updateMaxFilesReachedClass()},thumbnail(e,t){if(e.previewElement){e.previewElement.classList.remove(`dz-file-preview`);for(let n of e.previewElement.querySelectorAll(`[data-dz-thumbnail]`))n.alt=e.name,n.src=t;return setTimeout(()=>e.previewElement.classList.add(`dz-image-preview`),1)}},error(e,t){if(e.previewElement){e.previewElement.classList.add(`dz-error`),typeof t!=`string`&&t.error&&(t=t.error);for(let n of e.previewElement.querySelectorAll(`[data-dz-errormessage]`))n.textContent=t}},errormultiple(){},processing(e){if(e.previewElement&&(e.previewElement.classList.add(`dz-processing`),e._removeLink))return e._removeLink.innerHTML=this.options.dictCancelUpload},processingmultiple(){},uploadprogress(e,t,n){if(e.previewElement)for(let n of e.previewElement.querySelectorAll(`[data-dz-uploadprogress]`))n.nodeName===`PROGRESS`?n.value=t:n.style.width=`${t}%`},totaluploadprogress(){},sending(){},sendingmultiple(){},success(e){if(e.previewElement)return e.previewElement.classList.add(`dz-success`)},successmultiple(){},canceled(e){return this.emit(`error`,e,this.options.dictUploadCanceled)},canceledmultiple(){},complete(e){if(e._removeLink&&(e._removeLink.innerHTML=this.options.dictRemoveFile),e.previewElement)return e.previewElement.classList.add(`dz-complete`)},completemultiple(){},maxfilesexceeded(){},maxfilesreached(){},queuecomplete(){},addedfiles(){},emptyfolder(){}},o,s=`drop.dragstart.dragend.dragenter.dragover.dragleave.addedfile.addedfiles.removedfile.thumbnail.error.errormultiple.processing.processingmultiple.uploadprogress.totaluploadprogress.sending.sendingmultiple.success.successmultiple.canceled.canceledmultiple.complete.completemultiple.reset.maxfilesexceeded.maxfilesreached.queuecomplete.emptyfolder`.split(`.`),c=class e extends i{on(e,t){return super.on(e,t)}emit(e,...t){return super.emit(e,...t)}constructor(n,r){super(),this.events=[...s],this._thumbnailQueue=[],this._processingThumbnail=!1;let i,o;if(this.element=n,this.clickableElements=[],this.listeners=[],this.files=[],typeof this.element==`string`&&(this.element=document.querySelector(this.element)),!this.element||this.element.nodeType==null)throw Error(`Invalid dropzone element.`);if(this.element.dropzone)throw Error(`Dropzone already attached.`);e.instances.push(this),this.element.dropzone=this;let c=(o=e.optionsForElement(this.element))==null?{}:o;if(this.options=t(!0,{},a,c,r==null?{}:r),this.options.previewTemplate=this.options.previewTemplate.replace(/\n*/g,``),this.options.forceFallback||!e.isBrowserSupported())return this.options.fallback.call(this);if(this.options.url==null&&(this.options.url=this.element.getAttribute(`action`)),!this.options.url)throw Error(`No URL provided.`);if(this.options.acceptedFiles&&this.options.acceptedMimeTypes)throw Error(`You can't provide both 'acceptedFiles' and 'acceptedMimeTypes'. 'acceptedMimeTypes' is deprecated.`);if(this.options.uploadMultiple&&this.options.chunking)throw Error(`You cannot set both: uploadMultiple and chunking.`);if(this.options.binaryBody&&this.options.uploadMultiple)throw Error(`You cannot set both: binaryBody and uploadMultiple.`);if(this.options.acceptedMimeTypes&&(this.options.acceptedFiles=this.options.acceptedMimeTypes,delete this.options.acceptedMimeTypes),this.options.renameFilename!=null){let e=this.options.renameFilename;this.options.renameFile=t=>e.call(this,t.name,t)}typeof this.options.method==`string`&&(this.options.method=this.options.method.toUpperCase()),(i=this.getExistingFallback())&&i.parentNode&&i.parentNode.removeChild(i),this.options.previewsContainer!==!1&&(this.previewsContainer=this.options.previewsContainer?e.getElement(this.options.previewsContainer,`previewsContainer`):this.element),this.options.clickable&&(this.clickableElements=this.options.clickable===!0?[this.element]:e.getElements(this.options.clickable,`clickable`)),this.init()}getAcceptedFiles(){return this.files.filter(e=>e.accepted).map(e=>e)}getRejectedFiles(){return this.files.filter(e=>!e.accepted).map(e=>e)}getFilesWithStatus(e){return this.files.filter(t=>t.status===e).map(e=>e)}getQueuedFiles(){return this.getFilesWithStatus(e.QUEUED)}getUploadingFiles(){return this.getFilesWithStatus(e.UPLOADING)}getAddedFiles(){return this.getFilesWithStatus(e.ADDED)}getActiveFiles(){return this.files.filter(t=>t.status===e.UPLOADING||t.status===e.QUEUED).map(e=>e)}init(){if(this.element.tagName===`FORM`&&this.element.setAttribute(`enctype`,`multipart/form-data`),this.element.classList.contains(`dropzone`)&&!this.element.querySelector(`.dz-message`)&&this.element.appendChild(e.createElement(`<div class="dz-default dz-message"><button class="dz-button" type="button">${this.options.dictDefaultMessage}</button></div>`)),this.clickableElements.length){let t=()=>{this.hiddenFileInput&&this.hiddenFileInput.parentNode.removeChild(this.hiddenFileInput),this.hiddenFileInput=document.createElement(`input`),this.hiddenFileInput.setAttribute(`type`,`file`),(this.options.maxFiles===null||this.options.maxFiles>1)&&this.hiddenFileInput.setAttribute(`multiple`,`multiple`),this.hiddenFileInput.className=`dz-hidden-input`,this.options.acceptedFiles!==null&&this.hiddenFileInput.setAttribute(`accept`,this.options.acceptedFiles),this.options.capture!==null&&this.hiddenFileInput.setAttribute(`capture`,this.options.capture),this.hiddenFileInput.setAttribute(`tabindex`,`-1`),this.hiddenFileInput.setAttribute(`aria-label`,`hidden file upload`),this.hiddenFileInput.style.visibility=`hidden`,this.hiddenFileInput.style.position=`absolute`,this.hiddenFileInput.style.top=`0`,this.hiddenFileInput.style.left=`0`,this.hiddenFileInput.style.height=`0`,this.hiddenFileInput.style.width=`0`;let n=this.element.closest(`form`);n&&n.id&&this.hiddenFileInput.setAttribute(`form`,n.id),e.getElement(this.options.hiddenInputContainer,`hiddenInputContainer`).appendChild(this.hiddenFileInput),this.hiddenFileInput.addEventListener(`change`,()=>{let{files:e}=this.hiddenFileInput;if(e&&e.length)for(let t of e)this.addFile(t);this.emit(`addedfiles`,e),t()})};t()}this.URL=window.URL===null?window.webkitURL:window.URL;for(let e of this.events)this.on(e,this.options[e]);this.on(`uploadprogress`,()=>this.updateTotalUploadProgress()),this.on(`removedfile`,()=>this.updateTotalUploadProgress()),this.on(`canceled`,e=>this.emit(`complete`,e)),this.on(`complete`,e=>{if(this.getAddedFiles().length===0&&this.getUploadingFiles().length===0&&this.getQueuedFiles().length===0)return setTimeout(()=>this.emit(`queuecomplete`),0)});let t=function(e){if(e.dataTransfer.types){for(var t=0;t<e.dataTransfer.types.length;t++)if(e.dataTransfer.types[t]===`Files`)return!0}return!1},n=function(e){if(t(e))return e.stopPropagation(),e.preventDefault?e.preventDefault():e.returnValue=!1};return this.listeners=[{element:this.element,events:{dragstart:e=>this.emit(`dragstart`,e),dragenter:e=>(n(e),this.emit(`dragenter`,e)),dragover:e=>{let t;try{t=e.dataTransfer.effectAllowed}catch(e){}return e.dataTransfer.dropEffect=t===`move`||t===`linkMove`?`move`:`copy`,n(e),this.emit(`dragover`,e)},dragleave:e=>this.emit(`dragleave`,e),drop:e=>(n(e),this.drop(e)),dragend:e=>this.emit(`dragend`,e)}}],this.clickableElements.forEach(t=>this.listeners.push({element:t,events:{click:n=>((t!==this.element||n.target===this.element||e.elementInside(n.target,this.element.querySelector(`.dz-message`)))&&this.hiddenFileInput.click(),!0)}})),this.enable(),this.options.init.call(this)}destroy(){this.disable(),this.removeAllFiles(!0),this.hiddenFileInput!=null&&this.hiddenFileInput.parentNode&&(this.hiddenFileInput.parentNode.removeChild(this.hiddenFileInput),this.hiddenFileInput=null),delete this.element.dropzone;let t=e.instances.indexOf(this);return t===-1?[]:e.instances.splice(t,1)}updateTotalUploadProgress(){let e,t=0,n=0;if(this.getActiveFiles().length){for(let e of this.getActiveFiles())t+=e.upload.bytesSent,n+=e.upload.total;e=100*t/n}else e=100;return this.emit(`totaluploadprogress`,e,n,t)}_getParamName(e){return typeof this.options.paramName==`function`?this.options.paramName(e):`${this.options.paramName}${this.options.uploadMultiple?`[${e}]`:``}`}_renameFile(e){return typeof this.options.renameFile==`function`?this.options.renameFile(e):e.name}getFallbackForm(){let t,n;if(t=this.getExistingFallback())return t;let r=`<div class="dz-fallback">`;this.options.dictFallbackText&&(r+=`<p>${this.options.dictFallbackText}</p>`),r+=`<input type="file" name="${this._getParamName(0)}" ${this.options.uploadMultiple?`multiple="multiple"`:void 0} /><input type="submit" value="Upload!"></div>`;let i=e.createElement(r);return this.element.tagName===`FORM`?(this.element.setAttribute(`enctype`,`multipart/form-data`),this.element.setAttribute(`method`,this.options.method)):(n=e.createElement(`<form action="${this.options.url}" enctype="multipart/form-data" method="${this.options.method}"></form>`),n.appendChild(i)),n==null?i:n}getExistingFallback(){let e=function(e){for(let t of e)if(/(^| )fallback($| )/.test(t.className))return t};for(let n of[`div`,`form`]){var t;if(t=e([...this.element.getElementsByTagName(n)]))return t}}setupEventListeners(){return this.listeners.map(e=>(()=>{let t=[];for(let n in e.events){let r=e.events[n];t.push(e.element.addEventListener(n,r,!1))}return t})())}removeEventListeners(){return this.listeners.map(e=>(()=>{let t=[];for(let n in e.events){let r=e.events[n];t.push(e.element.removeEventListener(n,r,!1))}return t})())}disable(){return this.clickableElements.forEach(e=>e.classList.remove(`dz-clickable`)),this.removeEventListeners(),this.disabled=!0,this.files.map(e=>this.cancelUpload(e))}enable(){return delete this.disabled,this.clickableElements.forEach(e=>e.classList.add(`dz-clickable`)),this.setupEventListeners()}filesize(e){let t=0,n=`b`;if(e>0){let r=[`tb`,`gb`,`mb`,`kb`,`b`];for(let i=0;i<r.length;i++){let a=r[i];if(e>=this.options.filesizeBase**(4-i)/10){t=e/this.options.filesizeBase**(4-i),n=a;break}}t=Math.round(10*t)/10}return`<strong>${t}</strong> ${this.options.dictFileSizeUnits[n]}`}_updateMaxFilesReachedClass(){return this.options.maxFiles!=null&&this.getAcceptedFiles().length>=this.options.maxFiles?(this.getAcceptedFiles().length===this.options.maxFiles&&this.emit(`maxfilesreached`,this.files),this.element.classList.add(`dz-max-files-reached`)):this.element.classList.remove(`dz-max-files-reached`)}drop(e){if(!e.dataTransfer)return;this.emit(`drop`,e);let t=[];for(let n=0;n<e.dataTransfer.files.length;n++)t[n]=e.dataTransfer.files[n];if(t&&t.length){let{items:n}=e.dataTransfer;if(n&&n.length&&n[0].webkitGetAsEntry!=null){this._addFilesFromItems(n).then(e=>{this.emit(`addedfiles`,e)});return}this.handleFiles(t)}this.emit(`addedfiles`,t)}paste(e){if(m(e==null?void 0:e.clipboardData,e=>e.items)==null)return;this.emit(`paste`,e);let{items:t}=e.clipboardData;if(t.length)return this._addFilesFromItems(t)}handleFiles(e){for(let t of e)this.addFile(t)}_addFilesFromItems(e){let t=[],n=[];for(let r of e){let e=r.webkitGetAsEntry==null?null:r.webkitGetAsEntry();if(e){if(e.isFile){let e=r.getAsFile();this.addFile(e),t.push(e)}else e.isDirectory&&n.push(this._addFilesFromDirectory(e,e.name))}else if(r.getAsFile!=null&&(r.kind==null||r.kind===`file`)){let e=r.getAsFile();this.addFile(e),t.push(e)}}return Promise.all(n).then(e=>t.concat(...e))}_addFilesFromDirectory(e,t){let n=e.createReader();return new Promise(e=>{let r=[],i=0,a=()=>Promise.all(r).then(t=>e([].concat(...t))),o=e=>{h(console,`log`,t=>t.log(e)),a()},s=()=>n.readEntries(e=>{if(e.length>0){i+=e.length;for(let n of e)n.isFile?r.push(new Promise(e=>n.file(n=>{if(this.options.ignoreHiddenFiles&&n.name.substring(0,1)===`.`){e([]);return}n.fullPath=`${t}/${n.name}`,this.addFile(n),e([n])},()=>e([])))):n.isDirectory&&r.push(this._addFilesFromDirectory(n,`${t}/${n.name}`));return s(),null}return i===0&&this.emit(`emptyfolder`,t),a(),null},o);s()})}accept(t,n){this.options.maxFilesize&&t.size>this.options.maxFilesize*1024*1024?n(this.options.dictFileTooBig.replace(`{{filesize}}`,String(Math.round(t.size/1024/10.24)/100)).replace(`{{maxFilesize}}`,String(this.options.maxFilesize))):e.isValidFile(t,this.options.acceptedFiles)?this.options.maxFiles!=null&&this.getAcceptedFiles().length>=this.options.maxFiles?(n(this.options.dictMaxFilesExceeded.replace(`{{maxFiles}}`,String(this.options.maxFiles))),this.emit(`maxfilesexceeded`,t)):this.options.accept.call(this,t,n):n(this.options.dictInvalidFileType)}addFile(t){t.upload={uuid:e.uuidv4(),progress:0,total:t.size,bytesSent:0,filename:this._renameFile(t)},this.files.push(t),t.status=e.ADDED,this.emit(`addedfile`,t),this._enqueueThumbnail(t),this.accept(t,e=>{e?(t.accepted=!1,this._errorProcessing([t],e)):(t.accepted=!0,this.options.autoQueue&&this.enqueueFile(t)),this._updateMaxFilesReachedClass()})}enqueueFiles(e){for(let t of e)this.enqueueFile(t);return null}enqueueFile(t){if(t.status===e.ADDED&&t.accepted===!0){if(t.status=e.QUEUED,this.options.autoProcessQueue)return setTimeout(()=>this.processQueue(),0)}else throw Error(`This file can't be queued because it has already been processed or was rejected.`)}_enqueueThumbnail(e){if(this.options.createImageThumbnails&&e.type.match(/image.*/)&&e.size<=this.options.maxThumbnailFilesize*1024*1024)return this._thumbnailQueue.push(e),setTimeout(()=>this._processThumbnailQueue(),0)}_processThumbnailQueue(){if(this._processingThumbnail||this._thumbnailQueue.length===0)return;this._processingThumbnail=!0;let e=this._thumbnailQueue.shift();return this.createThumbnail(e,this.options.thumbnailWidth,this.options.thumbnailHeight,this.options.thumbnailMethod,!0,t=>(typeof t==`string`?this.emit(`thumbnail`,e,t):this.emit(`error`,e,this.options.dictThumbnailError),this._processingThumbnail=!1,this._processThumbnailQueue()))}removeFile(t){if(t.status===e.UPLOADING&&this.cancelUpload(t),this.files=l(this.files,t),this.emit(`removedfile`,t),this.files.length===0)return this.emit(`reset`)}removeAllFiles(t){t==null&&(t=!1);for(let n of this.files.slice())(n.status!==e.UPLOADING||t)&&this.removeFile(n);return null}resizeImage(t,n,r,i,a){return this.createThumbnail(t,n,r,i,!0,(n,r)=>{if(r==null)return a(t);{let{resizeMimeType:n}=this.options;if(n==null&&(n=t.type),this.options.resizeTransparencyFill!=null){let e=r.getContext(`2d`);e.globalCompositeOperation=`destination-over`,e.fillStyle=this.options.resizeTransparencyFill,e.fillRect(0,0,r.width,r.height)}let i=r.toDataURL(n,this.options.resizeQuality);return(n===`image/jpeg`||n===`image/jpg`)&&(i=p.restore(t.dataURL,i)),a(e.dataURItoBlob(i))}})}createThumbnail(e,t,n,r,i,a){let o=new FileReader;o.onload=()=>{if(e.dataURL=o.result,e.type===`image/svg+xml`){a!=null&&a(o.result);return}this.createThumbnailFromUrl(e,t,n,r,i,a)},o.onerror=e=>{a!=null&&a(e)},o.readAsDataURL(e)}displayExistingFile(e,t,n,r,i=!0){this.emit(`addedfile`,e),this.emit(`complete`,e),i?(e.dataURL=t,this.createThumbnailFromUrl(e,this.options.thumbnailWidth,this.options.thumbnailHeight,this.options.thumbnailMethod,!1,t=>{typeof t==`string`&&this.emit(`thumbnail`,e,t),n&&n()},r)):(this.emit(`thumbnail`,e,t),n&&n())}createThumbnailFromUrl(e,t,n,r,i,a,o){let s=document.createElement(`img`);return o&&(s.crossOrigin=o),i=getComputedStyle(document.body).imageOrientation!=`from-image`&&i,s.onload=()=>{let o=e=>e(1);return typeof EXIF<`u`&&EXIF!==null&&i&&(o=e=>EXIF.getData(s,function(){return e(EXIF.getTag(this,`Orientation`))})),o(i=>{e.width=s.width,e.height=s.height;let o=this.options.resize.call(this,e,t,n,r),c=document.createElement(`canvas`),l=c.getContext(`2d`);switch(c.width=o.trgWidth,c.height=o.trgHeight,i>4&&(c.width=o.trgHeight,c.height=o.trgWidth),i){case 2:l.translate(c.width,0),l.scale(-1,1);break;case 3:l.translate(c.width,c.height),l.rotate(Math.PI);break;case 4:l.translate(0,c.height),l.scale(1,-1);break;case 5:l.rotate(.5*Math.PI),l.scale(1,-1);break;case 6:l.rotate(.5*Math.PI),l.translate(0,-c.width);break;case 7:l.rotate(.5*Math.PI),l.translate(c.height,-c.width),l.scale(-1,1);break;case 8:l.rotate(-.5*Math.PI),l.translate(-c.height,0)}f(l,s,o.srcX==null?0:o.srcX,o.srcY==null?0:o.srcY,o.srcWidth,o.srcHeight,o.trgX==null?0:o.trgX,o.trgY==null?0:o.trgY,o.trgWidth,o.trgHeight);let u=c.toDataURL(`image/png`);if(a!=null)return a(u,c)})},a!=null&&(s.onerror=e=>a(e)),s.src=e.dataURL}processQueue(){let{parallelUploads:e}=this.options,t=this.getUploadingFiles().length,n=t;if(t>=e)return;let r=this.getQueuedFiles();if(r.length>0){if(this.options.uploadMultiple)return this.processFiles(r.slice(0,e-t));for(;n<e;){if(!r.length)return;this.processFile(r.shift()),n++}}}processFile(e){return this.processFiles([e])}processFiles(t){for(let n of t)n.processing=!0,n.status=e.UPLOADING,this.emit(`processing`,n);return this.options.uploadMultiple&&this.emit(`processingmultiple`,t),this.uploadFiles(t)}_getFilesWithXhr(e){return this.files.filter(t=>t.xhr===e).map(e=>e)}cancelUpload(t){if(t.status===e.UPLOADING){let n=t.xhr?this._getFilesWithXhr(t.xhr):[t];for(let t of n)t.status=e.CANCELED;if(t.upload.chunked&&t.upload.chunks)for(let n of t.upload.chunks)n&&n.xhr&&n.status===e.UPLOADING&&(n.status=e.CANCELED,n.xhr.abort());else t.xhr!==void 0&&t.xhr.abort();for(let e of n)this.emit(`canceled`,e);this.options.uploadMultiple&&this.emit(`canceledmultiple`,n)}else(t.status===e.ADDED||t.status===e.QUEUED)&&(t.status=e.CANCELED,this.emit(`canceled`,t),this.options.uploadMultiple&&this.emit(`canceledmultiple`,[t]));if(this.options.autoProcessQueue)return this.processQueue()}resolveOption(e,...t){return typeof e==`function`?e.apply(this,t):e}uploadFile(e){return this.uploadFiles([e])}uploadFiles(t){this._transformFiles(t,n=>{if(t.every(t=>t.status===e.CANCELED))return;let r=Number(this.options.chunkSize);if(this.options.chunking){let e=n[0];t[0].upload.chunked=this.options.chunking&&(this.options.forceChunking||e.size>r),t[0].upload.totalChunkCount=Math.max(1,Math.ceil(e.size/r))}if(t[0].upload.chunked){let i=t[0],a=n[0];i.upload.chunks=[];let o=()=>{let n=0;for(;i.upload.chunks[n]!==void 0;)n++;if(n>=i.upload.totalChunkCount)return;let o=n*r,s=Math.min(o+r,a.size),c={name:this._getParamName(0),data:a.webkitSlice?a.webkitSlice(o,s):a.slice(o,s),filename:i.upload.filename,chunkIndex:n};i.upload.chunks[n]={file:i,index:n,dataBlock:c,status:e.UPLOADING,progress:0,retries:0},this._uploadData(t,[c])};if(i.upload.finishedChunkUpload=(n,r)=>{let a=!0;n.status=e.SUCCESS,n.dataBlock=null,n.response=n.xhr.responseText,n.responseHeaders=n.xhr.getAllResponseHeaders(),n.xhr=null;for(let t=0;t<i.upload.totalChunkCount;t++){if(i.upload.chunks[t]===void 0)return o();i.upload.chunks[t].status!==e.SUCCESS&&(a=!1)}a&&this.options.chunksUploaded(i,()=>{this._finished(t,r,null)})},this.options.parallelChunkUploads){let e=this.options.parallelChunkUploads===!0?this.options.parallelUploads:this.options.parallelChunkUploads,t=Math.max(1,Math.min(e,i.upload.totalChunkCount));for(let e=0;e<t;e++)o()}else o()}else{let e=[];for(let r=0;r<t.length;r++)e[r]={name:this._getParamName(r),data:n[r],filename:t[r].upload.filename};this._uploadData(t,e)}})}_getChunk(e,t){for(let n=0;n<e.upload.totalChunkCount;n++)if(e.upload.chunks[n]!==void 0&&e.upload.chunks[n].xhr===t)return e.upload.chunks[n]}_uploadData(e,n){let r=new XMLHttpRequest;for(let t of e)t.xhr=r;e[0].upload.chunked&&(e[0].upload.chunks[n[0].chunkIndex].xhr=r);let i=this.resolveOption(this.options.method,e,n),a=this.resolveOption(this.options.url,e,n);r.open(i,a,!0),this.resolveOption(this.options.timeout,e)&&(r.timeout=this.resolveOption(this.options.timeout,e)),r.withCredentials=!!this.options.withCredentials,r.onload=t=>{this._finishedUploading(e,r,t)},r.ontimeout=()=>{this._handleUploadError(e,r,`Request timedout after ${this.options.timeout/1e3} seconds`)},r.onerror=()=>{this._handleUploadError(e,r)};let o=r.upload==null?r:r.upload;o.onprogress=t=>this._updateFilesUploadProgress(e,r,t);let s=this.options.defaultHeaders?{Accept:`application/json`,"Cache-Control":`no-cache`,"X-Requested-With":`XMLHttpRequest`}:{};this.options.binaryBody&&(s[`Content-Type`]=e[0].type),this.options.headers&&t(s,this.options.headers);for(let e in s){let t=s[e];t&&r.setRequestHeader(e,t)}if(this.options.binaryBody){for(let t of e)this.emit(`sending`,t,r);this.options.uploadMultiple&&this.emit(`sendingmultiple`,e,r),this.submitRequest(r,null,e,n)}else{let t=new FormData;if(this.options.params){let n=this.options.params;typeof n==`function`&&(n=n.call(this,e,r,e[0].upload.chunked?this._getChunk(e[0],r):null));for(let e in n){let r=n[e];if(Array.isArray(r))for(let n=0;n<r.length;n++)t.append(e,r[n]);else t.append(e,r)}}for(let n of e)this.emit(`sending`,n,r,t);this.options.uploadMultiple&&this.emit(`sendingmultiple`,e,r,t),this._addFormElementData(t);for(let e=0;e<n.length;e++){let r=n[e];t.append(r.name,r.data,r.filename)}this.submitRequest(r,t,e,n)}}_transformFiles(e,t){let n=[],r=0;for(let i=0;i<e.length;i++)this.options.transformFile.call(this,e[i],a=>{n[i]=a,++r===e.length&&t(n)})}_addFormElementData(e){if(this.element.tagName===`FORM`)for(let t of this.element.querySelectorAll(`input, textarea, select, button`)){let n=t.getAttribute(`name`),r=t.getAttribute(`type`);if(r&&(r=r.toLowerCase()),n!=null){if(t.tagName===`SELECT`&&t.hasAttribute(`multiple`))for(let r of t.options)r.selected&&e.append(n,r.value);else(!r||r!==`checkbox`&&r!==`radio`||t.checked)&&e.append(n,t.value)}}}_updateFilesUploadProgress(e,t,n){if(e[0].upload.chunked){let r=e[0],i=this._getChunk(r,t);n?(i.progress=100*n.loaded/n.total,i.total=n.total,i.bytesSent=n.loaded):(i.progress=100,i.bytesSent=i.total),r.upload.progress=0,r.upload.total=0,r.upload.bytesSent=0;for(let e=0;e<r.upload.totalChunkCount;e++)r.upload.chunks[e]&&r.upload.chunks[e].progress!==void 0&&(r.upload.progress+=r.upload.chunks[e].progress,r.upload.total+=r.upload.chunks[e].total,r.upload.bytesSent+=r.upload.chunks[e].bytesSent);r.upload.progress=r.upload.progress/r.upload.totalChunkCount,this.emit(`uploadprogress`,r,r.upload.progress,r.upload.bytesSent)}else for(let t of e)t.upload.total&&t.upload.bytesSent&&t.upload.bytesSent==t.upload.total||(n?(t.upload.progress=100*n.loaded/n.total,t.upload.total=n.total,t.upload.bytesSent=n.loaded):(t.upload.progress=100,t.upload.bytesSent=t.upload.total),this.emit(`uploadprogress`,t,t.upload.progress,t.upload.bytesSent))}_finishedUploading(t,n,r){let i;if(t[0].status!==e.CANCELED&&n.readyState===4){if(n.responseType!==`arraybuffer`&&n.responseType!==`blob`&&(i=n.responseText,n.getResponseHeader(`content-type`)&&~n.getResponseHeader(`content-type`).indexOf(`application/json`)))try{i=JSON.parse(i)}catch(e){r=e,i=`Invalid JSON response from server.`}this._updateFilesUploadProgress(t,n),200<=n.status&&n.status<300?t[0].upload.chunked?t[0].upload.finishedChunkUpload(this._getChunk(t[0],n),i):this._finished(t,i,r):this._handleUploadError(t,n,i)}}_handleUploadError(t,n,r){if(t[0].status!==e.CANCELED){if(t[0].upload.chunked&&this.options.retryChunks){let e=this._getChunk(t[0],n);if(e.retries++<this.options.retryChunksLimit){this._uploadData(t,[e.dataBlock]);return}console.warn(`Retried this chunk too often. Giving up.`)}this._errorProcessing(t,r||this.options.dictResponseError.replace(`{{statusCode}}`,String(n.status)),n)}}submitRequest(e,t,n,r){if(e.readyState!=1){console.warn(`Cannot send this request because the XMLHttpRequest.readyState is not OPENED.`);return}if(this.options.binaryBody){if(n[0].upload.chunked){let t=this._getChunk(n[0],e);e.send(t.dataBlock.data)}else e.send(r?r[0].data:n[0])}else e.send(t)}_finished(t,n,r){for(let i of t)i.status=e.SUCCESS,this.emit(`success`,i,n,r),this.emit(`complete`,i);if(this.options.uploadMultiple&&(this.emit(`successmultiple`,t,n,r),this.emit(`completemultiple`,t)),this.options.autoProcessQueue)return this.processQueue()}_errorProcessing(t,n,r){for(let i of t)i.status=e.ERROR,this.emit(`error`,i,n,r),this.emit(`complete`,i);if(this.options.uploadMultiple&&(this.emit(`errormultiple`,t,n,r),this.emit(`completemultiple`,t)),this.options.autoProcessQueue)return this.processQueue()}static uuidv4(){return`xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx`.replace(/[xy]/g,function(e){let t=Math.random()*16|0;return(e===`x`?t:t&3|8).toString(16)})}static optionsForElement(t){if(t.getAttribute(`id`))return e.options[u(t.getAttribute(`id`))]}static forElement(e){if(typeof e==`string`&&(e=document.querySelector(e)),(e==null?void 0:e.dropzone)==null)throw Error("No Dropzone found for given element. This is probably because you're trying to access it before Dropzone had the time to initialize. Use the `init` option to setup any additional observers on your Dropzone.");return e.dropzone}static discover(){let t;if(document.querySelectorAll)t=document.querySelectorAll(`.dropzone`);else{t=[];let e=e=>(()=>{let n=[];for(let r of e)/(^| )dropzone($| )/.test(r.className)?n.push(t.push(r)):n.push(void 0);return n})();e([...document.getElementsByTagName(`div`)]),e([...document.getElementsByTagName(`form`)])}return(()=>{let n=[];for(let r of t)e.optionsForElement(r)===!1?n.push(void 0):n.push(new e(r));return n})()}static isBrowserSupported(){let t=!0;if(window.File&&window.FileReader&&window.FileList&&window.Blob&&window.FormData&&document.querySelector){if(!(`classList`in document.createElement(`a`)))t=!1;else{e.blacklistedBrowsers!==void 0&&(e.blockedBrowsers=e.blacklistedBrowsers);for(let n of e.blockedBrowsers)if(n.test(navigator.userAgent)){t=!1;continue}}}else t=!1;return t}static dataURItoBlob(e){let t=atob(e.split(`,`)[1]),n=e.split(`,`)[0].split(`:`)[1].split(`;`)[0],r=new ArrayBuffer(t.length),i=new Uint8Array(r);for(let e=0,n=t.length,r=0<=n;r?e<=n:e>=n;r?e++:e--)i[e]=t.charCodeAt(e);return new Blob([r],{type:n})}static createElement(e){let t=document.createElement(`div`);return t.innerHTML=e,t.childNodes[0]}static elementInside(e,t){if(e===t)return!0;for(;e=e.parentNode;)if(e===t)return!0;return!1}static getElement(e,t){let n;if(typeof e==`string`?n=document.querySelector(e):e.nodeType!=null&&(n=e),n==null)throw Error(`Invalid \`${t}\` option provided. Please provide a CSS selector or a plain HTML element.`);return n}static getElements(e,t){let n,r;if(e instanceof Array){r=[];try{for(n of e)r.push(this.getElement(n,t))}catch(e){r=null}}else if(typeof e==`string`){r=[];for(n of document.querySelectorAll(e))r.push(n)}else e.nodeType!=null&&(r=[e]);if(r==null||!r.length)throw Error(`Invalid \`${t}\` option provided. Please provide a CSS selector, a plain HTML element or a list of those.`);return r}static confirm(e,t,n){if(window.confirm(e))return t();if(n!=null)return n()}static isValidFile(e,t){if(!t)return!0;t=typeof t==`string`?t.split(`,`):t;let n=e.type,r=n.replace(/\/.*$/,``);for(let i of t)if(i=i.trim(),i.charAt(0)===`.`){if(e.name.toLowerCase().indexOf(i.toLowerCase(),e.name.length-i.length)!==-1)return!0}else if(i.endsWith(`/*`)){if(r===i.replace(/\/.*$/,``))return!0}else if(n===i)return!0;return!1}};o=c,o.version=e,o.Emitter=i,o.options={},o.instances=[],o.blockedBrowsers=[/opera.*(Macintosh|Windows Phone).*version\/12/i],o.ADDED=`added`,o.QUEUED=`queued`,o.ACCEPTED=o.QUEUED,o.UPLOADING=`uploading`,o.PROCESSING=o.UPLOADING,o.CANCELED=`canceled`,o.ERROR=`error`,o.SUCCESS=`success`;var l=(e,t)=>e.filter(e=>e!==t).map(e=>e),u=e=>e.replace(/[-_](\w)/g,e=>e.charAt(1).toUpperCase());typeof jQuery<`u`&&jQuery!==null&&(jQuery.fn.dropzone=function(e){return this.each(function(){return new c(this,e)})});var d=function(e){let t=e.naturalHeight,n=document.createElement(`canvas`);n.width=1,n.height=t;let r=n.getContext(`2d`);r.drawImage(e,0,0);let{data:i}=r.getImageData(1,0,1,t),a=0,o=t,s=t;for(;s>a;)i[(s-1)*4+3]===0?o=s:a=s,s=o+a>>1;let c=s/t;return c===0?1:c},f=function(e,t,n,r,i,a,o,s,c,l){let u=d(t);return e.drawImage(t,n,r,i,a,o,s,c,l/u)},p=class{static initClass(){this.KEY_STR=`ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=`}static encode64(e){let t=``,n,r,i=``,a,o,s,c=``,l=0;for(;n=e[l++],r=e[l++],i=e[l++],a=n>>2,o=(n&3)<<4|r>>4,s=(r&15)<<2|i>>6,c=i&63,isNaN(r)?s=c=64:isNaN(i)&&(c=64),t=t+this.KEY_STR.charAt(a)+this.KEY_STR.charAt(o)+this.KEY_STR.charAt(s)+this.KEY_STR.charAt(c),n=r=i=``,a=o=s=c=``,l<e.length;);return t}static restore(e,t){if(!e.match(`data:image/jpeg;base64,`))return t;let n=this.decode64(e.replace(`data:image/jpeg;base64,`,``)),r=this.slice2Segments(n),i=this.exifManipulation(t,r);return`data:image/jpeg;base64,${this.encode64(i)}`}static exifManipulation(e,t){let n=this.getExifArray(t),r=this.insertExif(e,n);return new Uint8Array(r)}static getExifArray(e){let t,n=0;for(;n<e.length;){if(t=e[n],t[0]===255&&t[1]===225)return t;n++}return[]}static insertExif(e,t){let n=e.replace(`data:image/jpeg;base64,`,``),r=this.decode64(n),i=r.indexOf(255,3),a=r.slice(0,i),o=r.slice(i),s=a;return s=s.concat(t),s=s.concat(o),s}static slice2Segments(e){let t=0,n=[];for(;;){var r;if(e[t]===255&&e[t+1]===218)break;if(e[t]===255&&e[t+1]===216)t+=2;else{r=e[t+2]*256+e[t+3];let i=t+r+2,a=e.slice(t,i);n.push(a),t=i}if(t>e.length)break}return n}static decode64(e){let t,n,r=``,i,a,o,s=``,c=0,l=[];for(/[^A-Za-z0-9+/=]/g.exec(e)&&console.warn(`There were invalid base64 characters in the input text.
+Valid base64 characters are A-Z, a-z, 0-9, '+', '/',and '='
+Expect errors in decoding.`),e=e.replace(/[^A-Za-z0-9+/=]/g,``);i=this.KEY_STR.indexOf(e.charAt(c++)),a=this.KEY_STR.indexOf(e.charAt(c++)),o=this.KEY_STR.indexOf(e.charAt(c++)),s=this.KEY_STR.indexOf(e.charAt(c++)),t=i<<2|a>>4,n=(a&15)<<4|o>>2,r=(o&3)<<6|s,l.push(t),o!==64&&l.push(n),s!==64&&l.push(r),t=n=r=``,i=a=o=s=``,c<e.length;);return l}};p.initClass();function m(e,t){return e==null?void 0:t(e)}function h(e,t,n){if(e!=null&&typeof e[t]==`function`)return n(e,t)}window.Dropzone=c})();
+//# sourceMappingURL=dropzone-min.js.map
+/*!
+ * Signature Pad v5.1.4 | https://github.com/szimek/signature_pad
+ * (c) 2026 Szymon Nowak | Released under the MIT license
+ */
+(function(g,f){if(typeof exports=="object"&&typeof module<"u"){module.exports=f()}else if("function"==typeof define && define.amd){define("SignaturePad",f)}else {g["SignaturePad"]=f()}}(typeof globalThis < "u" ? globalThis : typeof self < "u" ? self : this,function(){var exports={};var __exports=exports;var module={exports};
+var y=Object.defineProperty;var M=Object.getOwnPropertyDescriptor;var U=Object.getOwnPropertyNames;var W=Object.prototype.hasOwnProperty;var f=(u,n,t)=>()=>{if(t)throw t[0];try{return u&&(n=u(u=0)),n}catch(e){throw t=[e],e}};var L=(u,n)=>{for(var t in n)y(u,t,{get:n[t],enumerable:!0})},A=(u,n,t,e)=>{if(n&&typeof n=="object"||typeof n=="function")for(let i of U(n))!W.call(u,i)&&i!==t&&y(u,i,{get:()=>n[i],enumerable:!(e=M(n,i))||e.enumerable});return u};var G=u=>A(y({},"__esModule",{value:!0}),u);var b,P=f(()=>{"use strict";b=class{x;y;pressure;time;constructor(n,t,e,i){if(isNaN(n)||isNaN(t))throw new Error(`Point is invalid: (${n}, ${t})`);this.x=+n,this.y=+t,this.pressure=e||0,this.time=i||Date.now()}distanceTo(n){return Math.sqrt(Math.pow(this.x-n.x,2)+Math.pow(this.y-n.y,2))}equals(n){return this.x===n.x&&this.y===n.y&&this.pressure===n.pressure&&this.time===n.time}velocityFrom(n){return this.time!==n.time?this.distanceTo(n)/(this.time-n.time):0}}});var x,S=f(()=>{"use strict";P();x=class u{constructor(n,t,e,i,o,r){this.startPoint=n;this.control2=t;this.control1=e;this.endPoint=i;this.startWidth=o;this.endWidth=r}startPoint;control2;control1;endPoint;startWidth;endWidth;static fromPoints(n,t){let e=this.calculateControlPoints(n[0],n[1],n[2]).c2,i=this.calculateControlPoints(n[1],n[2],n[3]).c1;return new u(n[1],e,i,n[2],t.start,t.end)}static calculateControlPoints(n,t,e){let i=n.x-t.x,o=n.y-t.y,r=t.x-e.x,l=t.y-e.y,a={x:(n.x+t.x)/2,y:(n.y+t.y)/2},c={x:(t.x+e.x)/2,y:(t.y+e.y)/2},h=Math.sqrt(i*i+o*o),s=Math.sqrt(r*r+l*l),p=a.x-c.x,v=a.y-c.y,d=h+s==0?0:s/(h+s),_={x:c.x+p*d,y:c.y+v*d},m=t.x-_.x,g=t.y-_.y;return{c1:new b(a.x+m,a.y+g),c2:new b(c.x+m,c.y+g)}}length(){let t=0,e,i;for(let o=0;o<=10;o+=1){let r=o/10,l=this.point(r,this.startPoint.x,this.control1.x,this.control2.x,this.endPoint.x),a=this.point(r,this.startPoint.y,this.control1.y,this.control2.y,this.endPoint.y);if(o>0){let c=l-e,h=a-i;t+=Math.sqrt(c*c+h*h)}e=l,i=a}return t}point(n,t,e,i,o){return t*(1-n)*(1-n)*(1-n)+3*e*(1-n)*(1-n)*n+3*i*(1-n)*n*n+o*n*n*n}}});var w,C=f(()=>{"use strict";w=class{_et;constructor(){try{this._et=new EventTarget}catch{this._et=document}}addEventListener(n,t,e){this._et.addEventListener(n,t,e)}dispatchEvent(n){return this._et.dispatchEvent(n)}removeEventListener(n,t,e){this._et.removeEventListener(n,t,e)}}});function O(u,n=250){let t=0,e=null,i,o,r,l=()=>{t=Date.now(),e=null,i=u.apply(o,r),e||(o=null,r=[])};return function(...c){let h=Date.now(),s=n-(h-t);return o=this,r=c,s<=0||s>n?(e&&(clearTimeout(e),e=null),t=h,i=u.apply(o,r),e||(o=null,r=[])):e||(e=window.setTimeout(l,s)),i}}var k=f(()=>{"use strict"});var T={};L(T,{default:()=>E});var E,D=f(()=>{"use strict";S();P();C();k();P();E=class u extends w{constructor(t,e={}){super();this.canvas=t;this.velocityFilterWeight=e.velocityFilterWeight||.7,this.minWidth=e.minWidth||.5,this.maxWidth=e.maxWidth||2.5,this.throttle=e.throttle??16,this.minDistance=e.minDistance??5,this.dotSize=e.dotSize||0,this.penColor=e.penColor||"black",this.backgroundColor=e.backgroundColor||"rgba(0,0,0,0)",this.compositeOperation=e.compositeOperation||"source-over",this.canvasContextOptions=e.canvasContextOptions??{},this._strokeMoveUpdate=this.throttle?O(u.prototype._strokeUpdate,this.throttle):u.prototype._strokeUpdate,this._handleMouseDown=this._handleMouseDown.bind(this),this._handleMouseMove=this._handleMouseMove.bind(this),this._handleMouseUp=this._handleMouseUp.bind(this),this._handleTouchStart=this._handleTouchStart.bind(this),this._handleTouchMove=this._handleTouchMove.bind(this),this._handleTouchEnd=this._handleTouchEnd.bind(this),this._handlePointerDown=this._handlePointerDown.bind(this),this._handlePointerMove=this._handlePointerMove.bind(this),this._handlePointerUp=this._handlePointerUp.bind(this),this._handlePointerCancel=this._handlePointerCancel.bind(this),this._handleTouchCancel=this._handleTouchCancel.bind(this),this._ctx=t.getContext("2d",this.canvasContextOptions),this.clear(),this.on()}canvas;dotSize;minWidth;maxWidth;penColor;minDistance;velocityFilterWeight;compositeOperation;backgroundColor;throttle;canvasContextOptions;_ctx;_drawingStroke=!1;_isEmpty=!0;_dataUrl;_dataUrlOptions;_lastPoints=[];_data=[];_lastVelocity=0;_lastWidth=0;_strokeMoveUpdate;_strokePointerId;clear(){let{_ctx:t,canvas:e}=this;t.fillStyle=this.backgroundColor,t.clearRect(0,0,e.width,e.height),t.fillRect(0,0,e.width,e.height),this._data=[],this._reset(this._getPointGroupOptions()),this._isEmpty=!0,this._dataUrl=void 0,this._dataUrlOptions=void 0,this._strokePointerId=void 0}redraw(){let t=this._data,e=this._dataUrl,i=this._dataUrlOptions;this.clear(),e&&this.fromDataURL(e,i),this.fromData(t,{clear:!1})}fromDataURL(t,e={}){return new Promise((i,o)=>{let r=new Image,l=e.ratio||window.devicePixelRatio||1,a=e.width||this.canvas.width/l,c=e.height||this.canvas.height/l,h=e.xOffset||0,s=e.yOffset||0;this._reset(this._getPointGroupOptions()),r.onload=()=>{this._ctx.drawImage(r,h,s,a,c),i()},r.onerror=p=>{o(p)},r.crossOrigin="anonymous",r.src=t,this._isEmpty=!1,this._dataUrl=t,this._dataUrlOptions={...e}})}toDataURL(t="image/png",e){return t==="image/svg+xml"?(typeof e!="object"&&(e=void 0),`data:image/svg+xml;base64,${btoa(this.toSVG(e))}`):(typeof e!="number"&&(e=void 0),this.canvas.toDataURL(t,e))}on(){this.canvas.style.touchAction="none",this.canvas.style.msTouchAction="none",this.canvas.style.userSelect="none",this.canvas.style.webkitUserSelect="none";let t=/Macintosh/.test(navigator.userAgent)&&"ontouchstart"in document;window.PointerEvent&&!t?this._handlePointerEvents():(this._handleMouseEvents(),"ontouchstart"in window&&this._handleTouchEvents())}off(){this.canvas.style.touchAction="auto",this.canvas.style.msTouchAction="auto",this.canvas.style.userSelect="auto",this.canvas.style.webkitUserSelect="auto",this.canvas.removeEventListener("pointerdown",this._handlePointerDown),this.canvas.removeEventListener("mousedown",this._handleMouseDown),this.canvas.removeEventListener("touchstart",this._handleTouchStart),this._removeMoveUpEventListeners()}_getListenerFunctions(){let t=window.document===this.canvas.ownerDocument?window:this.canvas.ownerDocument.defaultView??this.canvas.ownerDocument;return{addEventListener:t.addEventListener.bind(t),removeEventListener:t.removeEventListener.bind(t)}}_removeMoveUpEventListeners(){let{removeEventListener:t}=this._getListenerFunctions();t("pointermove",this._handlePointerMove),t("pointerup",this._handlePointerUp),t("pointercancel",this._handlePointerCancel),t("mousemove",this._handleMouseMove),t("mouseup",this._handleMouseUp),t("touchmove",this._handleTouchMove),t("touchend",this._handleTouchEnd),t("touchcancel",this._handleTouchCancel)}isEmpty(){return this._isEmpty}fromData(t,{clear:e=!0}={}){e&&this.clear(),this._fromData(t,this._drawCurve.bind(this),this._drawDot.bind(this),this._drawLine.bind(this)),this._data=this._data.concat(t)}toData(){return this._data}_isLeftButtonPressed(t,e){return e?t.buttons===1:(t.buttons&1)===1}_pointerEventToSignatureEvent(t){return{event:t,type:t.type,x:t.clientX,y:t.clientY,pressure:"pressure"in t?t.pressure:0}}_touchEventToSignatureEvent(t){let e=t.changedTouches[0];return{event:t,type:t.type,x:e.clientX,y:e.clientY,pressure:e.force}}_handleMouseDown(t){!this._isLeftButtonPressed(t,!0)||this._drawingStroke||this._strokeBegin(this._pointerEventToSignatureEvent(t))}_handleMouseMove(t){if(!this._isLeftButtonPressed(t,!0)||!this._drawingStroke){this._strokeEnd(this._pointerEventToSignatureEvent(t),!1);return}this._strokeMoveUpdate(this._pointerEventToSignatureEvent(t))}_handleMouseUp(t){this._isLeftButtonPressed(t)||this._strokeEnd(this._pointerEventToSignatureEvent(t))}_handleTouchStart(t){t.targetTouches.length!==1||this._drawingStroke||(t.cancelable&&t.preventDefault(),this._strokeBegin(this._touchEventToSignatureEvent(t)))}_handleTouchMove(t){if(t.targetTouches.length===1){if(t.cancelable&&t.preventDefault(),!this._drawingStroke){this._strokeEnd(this._touchEventToSignatureEvent(t),!1);return}this._strokeMoveUpdate(this._touchEventToSignatureEvent(t))}}_handleTouchEnd(t){t.targetTouches.length===0&&(t.cancelable&&t.preventDefault(),this._strokeEnd(this._touchEventToSignatureEvent(t)))}_handlePointerCancel(t){this._allowPointerId(t)&&(t.preventDefault(),this._strokeEnd(this._pointerEventToSignatureEvent(t),!1))}_handleTouchCancel(t){t.cancelable&&t.preventDefault(),this._strokeEnd(this._touchEventToSignatureEvent(t),!1)}_getPointerId(t){return t.persistentDeviceId||t.pointerId}_allowPointerId(t,e=!1){return typeof this._strokePointerId>"u"?e:this._getPointerId(t)===this._strokePointerId}_handlePointerDown(t){this._drawingStroke||!this._isLeftButtonPressed(t)||!this._allowPointerId(t,!0)||(this._strokePointerId=this._getPointerId(t),t.preventDefault(),this._strokeBegin(this._pointerEventToSignatureEvent(t)))}_handlePointerMove(t){if(this._allowPointerId(t)){if(!this._isLeftButtonPressed(t,!0)||!this._drawingStroke){this._strokeEnd(this._pointerEventToSignatureEvent(t),!1);return}t.preventDefault(),this._strokeMoveUpdate(this._pointerEventToSignatureEvent(t))}}_handlePointerUp(t){this._isLeftButtonPressed(t)||!this._allowPointerId(t)||(t.preventDefault(),this._strokeEnd(this._pointerEventToSignatureEvent(t)))}_getPointGroupOptions(t){return{penColor:t&&"penColor"in t?t.penColor:this.penColor,dotSize:t&&"dotSize"in t?t.dotSize:this.dotSize,minWidth:t&&"minWidth"in t?t.minWidth:this.minWidth,maxWidth:t&&"maxWidth"in t?t.maxWidth:this.maxWidth,velocityFilterWeight:t&&"velocityFilterWeight"in t?t.velocityFilterWeight:this.velocityFilterWeight,compositeOperation:t&&"compositeOperation"in t?t.compositeOperation:this.compositeOperation}}_strokeBegin(t){if(!this.dispatchEvent(new CustomEvent("beginStroke",{detail:t,cancelable:!0})))return;let{addEventListener:i}=this._getListenerFunctions();switch(t.event.type){case"mousedown":i("mousemove",this._handleMouseMove,{passive:!1}),i("mouseup",this._handleMouseUp,{passive:!1});break;case"touchstart":i("touchmove",this._handleTouchMove,{passive:!1}),i("touchend",this._handleTouchEnd,{passive:!1}),i("touchcancel",this._handleTouchCancel,{passive:!1});break;case"pointerdown":i("pointermove",this._handlePointerMove,{passive:!1}),i("pointerup",this._handlePointerUp,{passive:!1}),i("pointercancel",this._handlePointerCancel,{passive:!1});break;default:}this._drawingStroke=!0;let o=this._getPointGroupOptions(),r={...o,points:[]};this._data.push(r),this._reset(o),this._strokeUpdate(t)}_strokeUpdate(t){if(!this._drawingStroke)return;if(this._data.length===0){this._strokeBegin(t);return}this.dispatchEvent(new CustomEvent("beforeUpdateStroke",{detail:t}));let e=this._createPoint(t.x,t.y,t.pressure),i=this._data[this._data.length-1],o=i.points,r=o.length>0&&o[o.length-1],l=r?e.distanceTo(r)<=this.minDistance:!1,a=this._getPointGroupOptions(i);if(!r||!(r&&l)){let c=this._addPoint(e,a);r?c&&this._drawCurve(c,a):this._drawDot(e,a),o.push({time:e.time,x:e.x,y:e.y,pressure:e.pressure})}this.dispatchEvent(new CustomEvent("afterUpdateStroke",{detail:t}))}_strokeEnd(t,e=!0){this._removeMoveUpEventListeners(),this._drawingStroke&&(e&&this._strokeUpdate(t),this._drawingStroke=!1,this._strokePointerId=void 0,this.dispatchEvent(new CustomEvent("endStroke",{detail:t})))}_handlePointerEvents(){this._drawingStroke=!1,this.canvas.addEventListener("pointerdown",this._handlePointerDown,{passive:!1})}_handleMouseEvents(){this._drawingStroke=!1,this.canvas.addEventListener("mousedown",this._handleMouseDown,{passive:!1})}_handleTouchEvents(){this.canvas.addEventListener("touchstart",this._handleTouchStart,{passive:!1})}_reset(t){this._lastPoints=[],this._lastVelocity=0,this._lastWidth=(t.minWidth+t.maxWidth)/2,this._ctx.fillStyle=t.penColor,this._ctx.globalCompositeOperation=t.compositeOperation}_createPoint(t,e,i){let o=this.canvas.getBoundingClientRect();return new b(t-o.left,e-o.top,i,new Date().getTime())}_addPoint(t,e){let{_lastPoints:i}=this;if(i.push(t),i.length>2){i.length===3&&i.unshift(i[0]);let o=this._calculateCurveWidths(i[1],i[2],e),r=x.fromPoints(i,o);return i.shift(),r}return null}_calculateCurveWidths(t,e,i){let o=i.velocityFilterWeight*e.velocityFrom(t)+(1-i.velocityFilterWeight)*this._lastVelocity,r=this._strokeWidth(o,i),l={end:r,start:this._lastWidth};return this._lastVelocity=o,this._lastWidth=r,l}_strokeWidth(t,e){return Math.max(e.maxWidth/(t+1),e.minWidth)}_drawCurveSegment(t,e,i){let o=this._ctx;o.moveTo(t,e),o.arc(t,e,i,0,2*Math.PI,!1),this._isEmpty=!1}_drawCurve(t,e){let i=this._ctx,o=t.endWidth-t.startWidth,r=Math.ceil(t.length())*2;i.beginPath(),i.fillStyle=e.penColor;for(let l=0;l<r;l+=1){let a=l/r,c=a*a,h=c*a,s=1-a,p=s*s,v=p*s,d=v*t.startPoint.x;d+=3*p*a*t.control1.x,d+=3*s*c*t.control2.x,d+=h*t.endPoint.x;let _=v*t.startPoint.y;_+=3*p*a*t.control1.y,_+=3*s*c*t.control2.y,_+=h*t.endPoint.y;let m=Math.min(t.startWidth+h*o,e.maxWidth);this._drawCurveSegment(d,_,m)}i.closePath(),i.fill()}_getDotSize(t){return t.dotSize>0?t.dotSize:(t.minWidth+t.maxWidth)/2}_drawDot(t,e){let i=this._ctx,o=this._getDotSize(e);i.beginPath(),this._drawCurveSegment(t.x,t.y,o),i.closePath(),i.fillStyle=e.penColor,i.fill()}_drawLine(t,e,i){let o=this._ctx;o.save(),o.beginPath(),o.moveTo(t.x,t.y),o.lineTo(e.x,e.y),o.lineWidth=this._getDotSize(i)*2,o.lineCap="round",o.strokeStyle=i.penColor,o.stroke(),o.restore(),this._isEmpty=!1}_fromData(t,e,i,o){for(let r of t){let{points:l}=r,a=this._getPointGroupOptions(r);if(l.length>2)for(let c=0;c<l.length;c+=1){let h=l[c],s=new b(h.x,h.y,h.pressure,h.time);c===0&&this._reset(a);let p=this._addPoint(s,a);p&&e(p,a)}else l.length===2?(this._reset(a),o(l[0],l[1],a)):(this._reset(a),i(l[0],a))}}toSVG({includeBackgroundColor:t=!1,includeDataUrl:e=!1}={}){let i=this._data,o=Math.max(window.devicePixelRatio||1,1),r=0,l=0,a=this.canvas.width/o,c=this.canvas.height/o,h=document.createElementNS("http://www.w3.org/2000/svg","svg");if(h.setAttribute("xmlns","http://www.w3.org/2000/svg"),h.setAttribute("xmlns:xlink","http://www.w3.org/1999/xlink"),h.setAttribute("viewBox",`${r} ${l} ${a} ${c}`),h.setAttribute("width",a.toString()),h.setAttribute("height",c.toString()),t&&this.backgroundColor){let s=document.createElement("rect");s.setAttribute("width","100%"),s.setAttribute("height","100%"),s.setAttribute("fill",this.backgroundColor),h.appendChild(s)}if(e&&this._dataUrl){let s=this._dataUrlOptions?.ratio||window.devicePixelRatio||1,p=this._dataUrlOptions?.width||this.canvas.width/s,v=this._dataUrlOptions?.height||this.canvas.height/s,d=this._dataUrlOptions?.xOffset||0,_=this._dataUrlOptions?.yOffset||0,m=document.createElement("image");m.setAttribute("x",d.toString()),m.setAttribute("y",_.toString()),m.setAttribute("width",p.toString()),m.setAttribute("height",v.toString()),m.setAttribute("preserveAspectRatio","none"),m.setAttribute("href",this._dataUrl),h.appendChild(m)}return this._fromData(i,(s,{penColor:p})=>{let v=document.createElement("path");if(!isNaN(s.control1.x)&&!isNaN(s.control1.y)&&!isNaN(s.control2.x)&&!isNaN(s.control2.y)){let d=`M ${s.startPoint.x.toFixed(3)},${s.startPoint.y.toFixed(3)} C ${s.control1.x.toFixed(3)},${s.control1.y.toFixed(3)} ${s.control2.x.toFixed(3)},${s.control2.y.toFixed(3)} ${s.endPoint.x.toFixed(3)},${s.endPoint.y.toFixed(3)}`;v.setAttribute("d",d),v.setAttribute("stroke-width",(s.endWidth*2.25).toFixed(3)),v.setAttribute("stroke",p),v.setAttribute("fill","none"),v.setAttribute("stroke-linecap","round"),h.appendChild(v)}},(s,{penColor:p,dotSize:v,minWidth:d,maxWidth:_})=>{let m=document.createElement("circle"),g=v>0?v:(d+_)/2;m.setAttribute("r",g.toString()),m.setAttribute("cx",s.x.toString()),m.setAttribute("cy",s.y.toString()),m.setAttribute("fill",p),h.appendChild(m)},(s,p,v)=>{let d=document.createElement("line");d.setAttribute("x1",s.x.toString()),d.setAttribute("y1",s.y.toString()),d.setAttribute("x2",p.x.toString()),d.setAttribute("y2",p.y.toString()),d.setAttribute("stroke",v.penColor),d.setAttribute("stroke-width",(this._getDotSize(v)*2).toString()),d.setAttribute("stroke-linecap","round"),h.appendChild(d)}),h.outerHTML}}});module.exports=(D(),G(T)).default;
+
+if(__exports != exports)module.exports = exports;return module.exports}));
+//# sourceMappingURL=signature_pad.umd.min.js.map
+
+/**
+* Tom Select v2.6.2
+* Licensed under the Apache License, Version 2.0 (the "License");
+*/
+!function(e,t){"object"==typeof exports&&"undefined"!=typeof module?module.exports=t():"function"==typeof define&&define.amd?define(t):(e="undefined"!=typeof globalThis?globalThis:e||self).TomSelect=t()}(this,function(){"use strict"
+function e(e,t){e.split(/\s+/).forEach(e=>{t(e)})}class t{constructor(){this._events={}}on(t,i){e(t,e=>{const t=this._events[e]||[]
+t.push(i),this._events[e]=t})}off(t,i){var s=arguments.length
+0!==s?e(t,e=>{if(1===s)return void delete this._events[e]
+const t=this._events[e]
+void 0!==t&&(t.splice(t.indexOf(i),1),this._events[e]=t)}):this._events={}}trigger(t,...i){var s=this
+e(t,e=>{const t=s._events[e]
+void 0!==t&&t.forEach(e=>{e.apply(s,i)})})}}const i=e=>(e=e.filter(Boolean)).length<2?e[0]||"":1==l(e)?"["+e.join("")+"]":"(?:"+e.join("|")+")",s=e=>{if(!o(e))return e.join("")
+let t="",i=0
+const s=()=>{i>1&&(t+="{"+i+"}")}
+return e.forEach((n,o)=>{n!==e[o-1]?(s(),t+=n,i=1):i++}),s(),t},n=e=>{let t=Array.from(e)
+return i(t)},o=e=>new Set(e).size!==e.length,r=e=>(e+"").replace(/([\$\(\)\*\+\.\?\[\]\^\{\|\}\\])/gu,"\\$1"),l=e=>e.reduce((e,t)=>Math.max(e,a(t)),0),a=e=>Array.from(e).length,c=e=>{if(1===e.length)return[[e]]
+let t=[]
+const i=e.substring(1)
+return c(i).forEach(function(i){let s=i.slice(0)
+s[0]=e.charAt(0)+s[0],t.push(s),s=i.slice(0),s.unshift(e.charAt(0)),t.push(s)}),t},d=[[0,65535]]
+let u,p
+const h={},g={"/":"⁄∕",0:"߀",a:"ⱥɐɑ",aa:"ꜳ",ae:"æǽǣ",ao:"ꜵ",au:"ꜷ",av:"ꜹꜻ",ay:"ꜽ",b:"ƀɓƃ",c:"ꜿƈȼↄ",d:"đɗɖᴅƌꮷԁɦ",e:"ɛǝᴇɇ",f:"ꝼƒ",g:"ǥɠꞡᵹꝿɢ",h:"ħⱨⱶɥ",i:"ɨı",j:"ɉȷ",k:"ƙⱪꝁꝃꝅꞣ",l:"łƚɫⱡꝉꝇꞁɭ",m:"ɱɯϻ",n:"ꞥƞɲꞑᴎлԉ",o:"øǿɔɵꝋꝍᴑ",oe:"œ",oi:"ƣ",oo:"ꝏ",ou:"ȣ",p:"ƥᵽꝑꝓꝕρ",q:"ꝗꝙɋ",r:"ɍɽꝛꞧꞃ",s:"ßȿꞩꞅʂ",t:"ŧƭʈⱦꞇ",th:"þ",tz:"ꜩ",u:"ʉ",v:"ʋꝟʌ",vy:"ꝡ",w:"ⱳ",y:"ƴɏỿ",z:"ƶȥɀⱬꝣ",hv:"ƕ"}
+for(let e in g){let t=g[e]||""
+for(let i=0;i<t.length;i++){let s=t.substring(i,i+1)
+h[s]=e}}const f=new RegExp(Object.keys(h).join("|")+"|[̀-ͯ·ʾʼ]","gu"),m=(e,t="NFKD")=>e.normalize(t),v=e=>Array.from(e).reduce((e,t)=>e+O(t),""),O=e=>(e=m(e).toLowerCase().replace(f,e=>h[e]||""),m(e,"NFC"))
+const b=e=>{const t={},i=(e,i)=>{const s=t[e]||new Set,o=new RegExp("^"+n(s)+"$","iu")
+i.match(o)||(s.add(r(i)),t[e]=s)}
+for(let t of function*(e){for(const[t,i]of e)for(let e=t;e<=i;e++){let t=String.fromCharCode(e),i=v(t)
+i!=t.toLowerCase()&&(i.length>3||0!=i.length&&(yield{folded:i,composed:t,code_point:e}))}}(e))i(t.folded,t.folded),i(t.folded,t.composed)
+return t},y=e=>{const t=b(e),s={}
+let o=[]
+for(let e in t){let i=t[e]
+i&&(s[e]=n(i)),e.length>1&&o.push(r(e))}o.sort((e,t)=>t.length-e.length)
+const l=i(o)
+return p=new RegExp("^"+l,"u"),s},w=(e,t=1)=>(t=Math.max(t,e.length-1),i(c(e).map(e=>((e,t=1)=>{let i=0
+return e=e.map(e=>(u[e]&&(i+=e.length),u[e]||e)),i>=t?s(e):""})(e,t)))),S=(e,t=!0)=>{let n=e.length>1?1:0
+return i(e.map(e=>{let i=[]
+const o=t?e.length():e.length()-1
+for(let t=0;t<o;t++)i.push(w(e.substrs[t]||"",n))
+return s(i)}))},_=(e,t)=>{for(const i of t){if(i.start!=e.start||i.end!=e.end)continue
+if(i.substrs.join("")!==e.substrs.join(""))continue
+let t=e.parts
+const s=e=>{for(const i of t){if(i.start===e.start&&i.substr===e.substr)return!1
+if(1!=e.length&&1!=i.length){if(e.start<i.start&&e.end>i.start)return!0
+if(i.start<e.start&&i.end>e.start)return!0}}return!1}
+if(!(i.parts.filter(s).length>0))return!0}return!1}
+class C{parts
+substrs
+start
+end
+constructor(){this.parts=[],this.substrs=[],this.start=0,this.end=0}add(e){e&&(this.parts.push(e),this.substrs.push(e.substr),this.start=Math.min(e.start,this.start),this.end=Math.max(e.end,this.end))}last(){return this.parts[this.parts.length-1]}length(){return this.parts.length}clone(e,t){let i=new C,s=JSON.parse(JSON.stringify(this.parts)),n=s.pop()
+for(const e of s)i.add(e)
+let o=t.substr.substring(0,e-n.start),r=o.length
+return i.add({start:n.start,end:n.start+r,length:r,substr:o}),i}}const x=e=>{void 0===u&&(u=y(d)),e=v(e)
+let t="",i=[new C]
+for(let s=0;s<e.length;s++){let n=e.substring(s).match(p)
+const o=e.substring(s,s+1),r=n?n[0]:null
+let l=[],a=new Set
+for(const e of i){const t=e.last()
+if(!t||1==t.length||t.end<=s)if(r){const t=r.length
+e.add({start:s,end:s+t,length:t,substr:r}),a.add("1")}else e.add({start:s,end:s+1,length:1,substr:o}),a.add("2")
+else if(r){let i=e.clone(s,t)
+const n=r.length
+i.add({start:s,end:s+n,length:n,substr:r}),l.push(i)}else a.add("3")}if(l.length>0){l=l.sort((e,t)=>e.length()-t.length())
+for(let e of l)_(e,i)||i.push(e)}else if(s>0&&1==a.size&&!a.has("3")){t+=S(i,!1)
+let e=new C
+const s=i[0]
+s&&e.add(s.last()),i=[e]}}return t+=S(i,!0),t},A=(e,t)=>{if(e)return e[t]},I=(e,t)=>{if(e){for(var i,s=t.split(".");(i=s.shift())&&(e=e[i]););return e}},k=(e,t,i)=>{var s,n
+return e?(e+="",null==t.regex||-1===(n=e.search(t.regex))?0:(s=t.string.length/e.length,0===n&&(s+=.5),s*i)):0},F=(e,t)=>{var i=e[t]
+if("function"==typeof i)return i
+i&&!Array.isArray(i)&&(e[t]=[i])},L=(e,t)=>{if(Array.isArray(e))e.forEach(t)
+else for(var i in e)e.hasOwnProperty(i)&&t(e[i],i)},E=(e,t)=>"number"==typeof e&&"number"==typeof t?e>t?1:e<t?-1:0:(e=v(e+"").toLowerCase())>(t=v(t+"").toLowerCase())?1:t>e?-1:0
+class T{items
+settings
+constructor(e,t){this.items=e,this.settings=t||{diacritics:!0}}tokenize(e,t,i){if(!e||!e.length)return[]
+const s=[],n=e.split(/\s+/)
+var o
+return i&&(o=new RegExp("^("+Object.keys(i).map(r).join("|")+"):(.*)$")),n.forEach(e=>{let i,n=null,l=null
+o&&(i=e.match(o))&&(n=i[1],e=i[2]),e.length>0&&(l=this.settings.diacritics?x(e)||null:r(e),l&&t&&(l="\\b"+l)),s.push({string:e,regex:l?new RegExp(l,"iu"):null,field:n})}),s}getScoreFunction(e,t){var i=this.prepareSearch(e,t)
+return this._getScoreFunction(i)}_getScoreFunction(e){const t=e.tokens,i=t.length
+if(!i)return function(){return 0}
+const s=e.options.fields,n=e.weights,o=s.length,r=e.getAttrFn
+if(!o)return function(){return 1}
+const l=1===o?function(e,t){const i=s[0].field
+return k(r(t,i),e,n[i]||1)}:function(e,t){var i=0
+if(e.field){const s=r(t,e.field)
+!e.regex&&s?i+=1/o:i+=k(s,e,1)}else L(n,(s,n)=>{i+=k(r(t,n),e,s)})
+return i/o}
+return 1===i?function(e){return l(t[0],e)}:"and"===e.options.conjunction?function(e){var s,n=0
+for(let i of t){if((s=l(i,e))<=0)return 0
+n+=s}return n/i}:function(e){var s=0
+return L(t,t=>{s+=l(t,e)}),s/i}}getSortFunction(e,t){var i=this.prepareSearch(e,t)
+return this._getSortFunction(i)}_getSortFunction(e){var t,i=[]
+const s=this,n=e.options,o=!e.query&&n.sort_empty?n.sort_empty:n.sort
+if("function"==typeof o)return o.bind(this)
+const r=function(t,i){return"$score"===t?i.score:e.getAttrFn(s.items[i.id],t)}
+if(o)for(let t of o)(e.query||"$score"!==t.field)&&i.push(t)
+if(e.query){t=!0
+for(let e of i)if("$score"===e.field){t=!1
+break}t&&i.unshift({field:"$score",direction:"desc"})}else i=i.filter(e=>"$score"!==e.field)
+return i.length?function(e,t){var s,n
+for(let o of i){if(n=o.field,s=("desc"===o.direction?-1:1)*E(r(n,e),r(n,t)))return s}return 0}:null}prepareSearch(e,t){const i={}
+var s=Object.assign({},t)
+if(F(s,"sort"),F(s,"sort_empty"),s.fields){F(s,"fields")
+const e=[]
+s.fields.forEach(t=>{"string"==typeof t&&(t={field:t,weight:1}),e.push(t),i[t.field]="weight"in t?t.weight:1}),s.fields=e}return{options:s,query:e.toLowerCase().trim(),tokens:this.tokenize(e,s.respect_word_boundaries,i),total:0,items:[],weights:i,getAttrFn:s.nesting?I:A}}search(e,t){var i,s,n=this
+s=this.prepareSearch(e,t),t=s.options,e=s.query
+const o=t.score||n._getScoreFunction(s)
+e.length?L(n.items,(e,n)=>{i=o(e),(!1===t.filter||i>0)&&s.items.push({score:i,id:n})}):L(n.items,(e,t)=>{s.items.push({score:1,id:t})})
+const r=n._getSortFunction(s)
+return r&&s.items.sort(r),s.total=s.items.length,"number"==typeof t.limit&&(s.items=s.items.slice(0,t.limit)),s}}const P=e=>null==e?null:N(e),N=e=>"boolean"==typeof e?e?"1":"0":e+"",D=e=>(e+"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"),V=(e,t)=>{var i
+return function(s,n){var o=this
+i&&(o.loading=Math.max(o.loading-1,0),clearTimeout(i)),i=setTimeout(function(){i=null,o.loadedSearches[s]=!0,e.call(o,s,n)},t)}},j=(e,t,i)=>{var s,n=e.trigger,o={}
+for(s of(e.trigger=function(){var i=arguments[0]
+if(-1===t.indexOf(i))return n.apply(e,arguments)
+o[i]=arguments},i.apply(e,[]),e.trigger=n,t))s in o&&n.apply(e,o[s])},$=(e,t=!1)=>{e&&(e.preventDefault(),t&&e.stopPropagation())},q=(e,t,i,s)=>{e.addEventListener(t,i,s)},R=(e,t)=>!!t&&(!!t[e]&&1===(t.altKey?1:0)+(t.ctrlKey?1:0)+(t.shiftKey?1:0)+(t.metaKey?1:0)),H=(e,t)=>{const i=e.getAttribute("id")
+return i||(e.setAttribute("id",t),t)},M=e=>e.replace(/[\\"']/g,"\\$&"),z=(e,t)=>{t&&e.append(t)},B=(e,t)=>{if(Array.isArray(e))e.forEach(t)
+else for(var i in e)e.hasOwnProperty(i)&&t(e[i],i)},K=e=>{if(e.jquery)return e[0]
+if(e instanceof HTMLElement)return e
+if(G(e)){var t=document.createElement("template")
+return t.innerHTML=e.trim(),t.content.firstChild}return document.querySelector(e)},G=e=>"string"==typeof e&&e.indexOf("<")>-1,U=(e,t)=>{var i=document.createEvent("HTMLEvents")
+i.initEvent(t,!0,!1),e.dispatchEvent(i)},W=(e,t)=>{Object.assign(e.style,t)},Q=(e,...t)=>{var i=X(t);(e=Y(e)).map(e=>{i.map(t=>{e.classList.add(t)})})},J=(e,...t)=>{var i=X(t);(e=Y(e)).map(e=>{i.map(t=>{e.classList.remove(t)})})},X=e=>{var t=[]
+return B(e,e=>{"string"==typeof e&&(e=e.trim().split(/[\t\n\f\r\s]/)),Array.isArray(e)&&(t=t.concat(e))}),t.filter(Boolean)},Y=e=>(Array.isArray(e)||(e=[e]),e),Z=(e,t,i)=>{if(!i||i.contains(e))for(;e&&e.matches;){if(e.matches(t))return e
+e=e.parentNode}},ee=(e,t=0)=>t>0?e[e.length-1]:e[0],te=(e,t)=>{if(!e)return-1
+t=t||e.nodeName
+for(var i=0;e=e.previousElementSibling;)e.matches(t)&&i++
+return i},ie=(e,t)=>{B(t,(t,i)=>{null==t?e.removeAttribute(i):e.setAttribute(i,""+t)})},se=(e,t)=>{e.parentNode&&e.parentNode.replaceChild(t,e)},ne=(e,t)=>{if(null===t)return
+if("string"==typeof t){if(!t.length)return
+t=new RegExp(t,"i")}const i=e=>3===e.nodeType?(e=>{var i=e.data.match(t)
+if(i&&e.data.length>0){var s=document.createElement("span")
+s.className="highlight"
+var n=e.splitText(i.index)
+n.splitText(i[0].length)
+var o=n.cloneNode(!0)
+return s.appendChild(o),se(n,s),1}return 0})(e):((e=>{1!==e.nodeType||!e.childNodes||/(script|style)/i.test(e.tagName)||"highlight"===e.className&&"SPAN"===e.tagName||Array.from(e.childNodes).forEach(e=>{i(e)})})(e),0)
+i(e)},oe="undefined"!=typeof navigator&&/Mac/.test(navigator.userAgent)?"metaKey":"ctrlKey"
+var re={options:[],optgroups:[],plugins:[],delimiter:",",splitOn:null,persist:!0,diacritics:!0,create:null,createOnBlur:!1,createFilter:null,clearAfterSelect:!1,highlight:!0,openOnFocus:!0,shouldOpen:null,maxOptions:50,maxItems:null,hideSelected:null,duplicates:!1,addPrecedence:!1,selectOnTab:!1,preload:null,allowEmptyOption:!1,refreshThrottle:300,loadThrottle:300,loadingClass:"loading",dataAttr:null,optgroupField:"optgroup",valueField:"value",labelField:"text",disabledField:"disabled",optgroupLabelField:"label",optgroupValueField:"value",lockOptgroupOrder:!1,sortField:"$order",searchField:["text"],searchConjunction:"and",mode:null,wrapperClass:"ts-wrapper",controlClass:"ts-control",dropdownClass:"ts-dropdown",dropdownContentClass:"ts-dropdown-content",itemClass:"item",optionClass:"option",dropdownParent:null,controlInput:'<input type="text" autocomplete="off" size="1" />',copyClassesToDropdown:!1,placeholder:null,hidePlaceholder:null,shouldLoad:function(e){return e.length>0},render:{}}
+function le(e,t){var i=Object.assign({},re,t),s=i.dataAttr,n=i.labelField,o=i.valueField,r=i.disabledField,l=i.optgroupField,a=i.optgroupLabelField,c=i.optgroupValueField,d=e.tagName.toLowerCase(),u=e.getAttribute("placeholder")||e.getAttribute("data-placeholder")
+if(!u&&!i.allowEmptyOption){let t=e.querySelector('option[value=""]')
+t&&(u=t.textContent)}var p={placeholder:u,options:[],optgroups:[],items:[],maxItems:null}
+return"select"===d?(()=>{var t,d=p.options,u={},h=1
+let g=0
+var f=e=>{var t=Object.assign({},e.dataset),i=s&&t[s]
+return"string"==typeof i&&i.length&&(t=Object.assign(t,JSON.parse(i))),t},m=(e,t)=>{var s=P(e.value)
+if(null!=s&&(s||i.allowEmptyOption)){if(u.hasOwnProperty(s)){if(t){var a=u[s][l]
+a?Array.isArray(a)?a.push(t):u[s][l]=[a,t]:u[s][l]=t}}else{var c=f(e)
+c[n]=c[n]||e.textContent,c[o]=c[o]||s,c[r]=c[r]||e.disabled,c[l]=c[l]||t,c.$option=e,c.$order=c.$order||++g,u[s]=c,d.push(c)}e.selected&&p.items.push(s)}}
+p.maxItems=e.hasAttribute("multiple")?null:1,B(e.children,e=>{var i,s,n
+"optgroup"===(t=e.tagName.toLowerCase())?((n=f(i=e))[a]=n[a]||i.getAttribute("label")||"",n[c]=n[c]||h++,n[r]=n[r]||i.disabled,n.$order=n.$order||++g,p.optgroups.push(n),s=n[c],B(i.children,e=>{m(e,s)})):"option"===t&&m(e)})})():(()=>{const t=e.getAttribute(s)
+if(t)p.options=JSON.parse(t),B(p.options,e=>{p.items.push(e[o])})
+else{var r,l,a=null!=(r=null==e||null==(l=e.value)?void 0:l.trim())?r:""
+if(!i.allowEmptyOption&&!a.length)return
+const t=a.split(i.delimiter)
+B(t,e=>{const t={}
+t[n]=e,t[o]=e,p.options.push(t)}),p.items=t}})(),Object.assign({},re,p,t)}var ae=0
+class ce extends(function(e){return e.plugins={},class extends e{constructor(...e){super(...e),this.plugins={names:[],settings:{},requested:{},loaded:{}}}static define(t,i){e.plugins[t]={name:t,fn:i}}initializePlugins(e){var t,i
+const s=this,n=[]
+if(Array.isArray(e))e.forEach(e=>{"string"==typeof e?n.push(e):(s.plugins.settings[e.name]=e.options,n.push(e.name))})
+else if(e)for(t in e)e.hasOwnProperty(t)&&(s.plugins.settings[t]=e[t],n.push(t))
+for(;i=n.shift();)s.require(i)}loadPlugin(t){var i=this,s=i.plugins,n=e.plugins[t]
+if(!e.plugins.hasOwnProperty(t))throw new Error('Unable to find "'+t+'" plugin')
+s.requested[t]=!0,s.loaded[t]=n.fn.apply(i,[i.plugins.settings[t]||{}]),s.names.push(t)}require(e){var t=this,i=t.plugins
+if(!t.plugins.loaded.hasOwnProperty(e)){if(i.requested[e])throw new Error('Plugin has circular dependency ("'+e+'")')
+t.loadPlugin(e)}return i.loaded[e]}}}(t)){constructor(e,t){var i
+super(),this.order=0,this.isOpen=!1,this.isDisabled=!1,this.isReadOnly=!1,this.isInvalid=!1,this.isValid=!0,this.isLocked=!1,this.isFocused=!1,this.isInputHidden=!1,this.isSetup=!1,this.isDropdownContentStale=!0,this.ignoreFocus=!1,this.ignoreHover=!1,this.hasOptions=!1,this.lastValue="",this.caretPos=0,this.loading=0,this.loadedSearches={},this.activeOption=null,this.activeItems=[],this.optgroups={},this.options={},this.userOptions={},this.items=[],this.refreshTimeout=null,ae++
+var s=K(e)
+if(s.tomselect)throw new Error("Tom Select already initialized on this element")
+s.tomselect=this,i=(window.getComputedStyle&&window.getComputedStyle(s,null)).getPropertyValue("direction")
+const n=le(s,t)
+this.settings=n,this.input=s,this.tabIndex=s.tabIndex||0,this.is_select_tag="select"===s.tagName.toLowerCase(),this.rtl=/rtl/i.test(i),this.inputId=H(s,"tomselect-"+ae),this.isRequired=s.required,this.sifter=new T(this.options,{diacritics:n.diacritics}),n.mode=n.mode||(1===n.maxItems?"single":"multi"),"boolean"!=typeof n.hideSelected&&(n.hideSelected="multi"===n.mode),"boolean"!=typeof n.hidePlaceholder&&(n.hidePlaceholder="multi"!==n.mode)
+var o=n.createFilter
+"function"!=typeof o&&("string"==typeof o&&(o=new RegExp(o)),o instanceof RegExp?n.createFilter=e=>o.test(e):n.createFilter=e=>this.settings.duplicates||!this.options[e]),this.initializePlugins(n.plugins),this.setupCallbacks(),this.setupTemplates()
+const r=K("<div>"),l=K("<div>"),a=this._render("dropdown"),c=K('<div role="listbox" tabindex="-1">'),d=this.input.getAttribute("class")||"",u=n.mode
+var p
+if(Q(r,n.wrapperClass,d,u),Q(l,n.controlClass),z(r,l),Q(a,n.dropdownClass,u),n.copyClassesToDropdown&&Q(a,d),Q(c,n.dropdownContentClass),z(a,c),K(n.dropdownParent||r).appendChild(a),G(n.controlInput)){p=K(n.controlInput)
+B(["autocorrect","autocapitalize","autocomplete","spellcheck","aria-label"],e=>{s.getAttribute(e)&&ie(p,{[e]:s.getAttribute(e)})}),p.tabIndex=-1,l.appendChild(p),this.focus_node=p}else n.controlInput?(p=K(n.controlInput),this.focus_node=p):(p=K("<input/>"),this.focus_node=l)
+this.wrapper=r,this.dropdown=a,this.dropdown_content=c,this.control=l,this.control_input=p,this.setup()}setup(){const e=this,t=e.settings,i=e.control_input,s=e.dropdown,n=e.dropdown_content,o=e.wrapper,l=e.control,a=e.input,c=e.focus_node,d={passive:!0},u=e.inputId+"-ts-dropdown"
+ie(n,{id:u}),ie(c,{role:"combobox","aria-haspopup":"listbox","aria-expanded":"false","aria-controls":u})
+const p=H(c,e.inputId+"-ts-control"),h="label[for='"+(e=>e.replace(/['"\\]/g,"\\$&"))(e.inputId)+"']",g=document.querySelector(h),f=e.focus.bind(e)
+if(g){q(g,"click",f),ie(g,{for:p})
+const t=H(g,e.inputId+"-ts-label")
+ie(c,{"aria-labelledby":t}),ie(n,{"aria-labelledby":t})}if(o.style.width=a.style.width,o.style.minWidth=a.style.minWidth,o.style.maxWidth=a.style.maxWidth,e.plugins.names.length){const t="plugin-"+e.plugins.names.join(" plugin-")
+Q([o,s],t)}(null===t.maxItems||t.maxItems>1)&&e.is_select_tag&&ie(a,{multiple:"multiple"}),t.placeholder&&ie(i,{placeholder:t.placeholder}),!t.splitOn&&t.delimiter&&(t.splitOn=new RegExp("\\s*"+r(t.delimiter)+"+\\s*")),t.load&&t.loadThrottle&&(t.load=V(t.load,t.loadThrottle)),q(s,"mousemove",()=>{e.ignoreHover=!1}),q(s,"mouseenter",t=>{var i=Z(t.target,"[data-selectable]",s)
+i&&e.onOptionHover(t,i)},{capture:!0}),q(s,"click",t=>{const i=Z(t.target,"[data-selectable]")
+i&&(e.onOptionSelect(t,i),$(t,!0))}),q(l,"click",t=>{var s=Z(t.target,"[data-ts-item]",l)
+s&&e.onItemSelect(t,s)?$(t,!0):""==i.value&&(e.onClick(),$(t,!0))}),q(c,"keydown",t=>e.onKeyDown(t)),q(i,"keypress",t=>e.onKeyPress(t)),q(i,"input",t=>e.onInput(t)),q(c,"blur",t=>e.onBlur(t)),q(c,"focus",t=>e.onFocus(t)),q(i,"paste",t=>e.onPaste(t))
+const m=t=>{const n=t.composedPath()[0]
+if(!o.contains(n)&&!s.contains(n))return e.isFocused&&e.blur(),void e.inputState()
+n==i&&e.isOpen?t.stopPropagation():$(t,!0)},v=()=>{e.isOpen&&e.positionDropdown()},O=()=>{e.isValid&&(e.isValid=!1,e.isInvalid=!0,e.refreshState())}
+q(a,"invalid",O),q(document,"mousedown",m),q(window,"scroll",v,d),q(window,"resize",v,d),this._destroy=()=>{a.removeEventListener("invalid",O),document.removeEventListener("mousedown",m),window.removeEventListener("scroll",v),window.removeEventListener("resize",v),g&&g.removeEventListener("click",f)},this.revertSettings={innerHTML:a.innerHTML,tabIndex:a.tabIndex},a.tabIndex=-1,a.insertAdjacentElement("afterend",e.wrapper),e.sync(!1),t.items=[],delete t.optgroups,delete t.options,e.refreshItems(),e.close(!1),e.inputState(),e.isSetup=!0,e.on("change",this.onChange),Q(a,"tomselected","ts-hidden-accessible"),e.trigger("initialize"),!0===t.preload&&e.preload()}setupOptions(e=[],t=[]){this.addOptions(e),B(t,e=>{this.registerOptionGroup(e)})}setupTemplates(){var e=this,t=e.settings.labelField,i=e.settings.optgroupLabelField,s={optgroup:e=>{let t=document.createElement("div")
+return t.className="optgroup",t.appendChild(e.options),t},optgroup_header:(e,t)=>'<div class="optgroup-header">'+t(e[i])+"</div>",option:(e,i)=>"<div>"+i(e[t])+"</div>",item:(e,i)=>"<div>"+i(e[t])+"</div>",option_create:(e,t)=>'<div class="create">Add <strong>'+t(e.input)+"</strong>&hellip;</div>",no_results:()=>'<div class="no-results">No results found</div>',loading:()=>'<div class="spinner"></div>',not_loading:()=>{},dropdown:()=>"<div></div>"}
+e.settings.render=Object.assign({},s,e.settings.render)}setupCallbacks(){var e,t,i={initialize:"onInitialize",change:"onChange",item_add:"onItemAdd",item_remove:"onItemRemove",item_select:"onItemSelect",clear:"onClear",option_add:"onOptionAdd",option_remove:"onOptionRemove",option_clear:"onOptionClear",optgroup_add:"onOptionGroupAdd",optgroup_remove:"onOptionGroupRemove",optgroup_clear:"onOptionGroupClear",dropdown_open:"onDropdownOpen",dropdown_close:"onDropdownClose",type:"onType",load:"onLoad",focus:"onFocus",blur:"onBlur"}
+for(e in i)(t=this.settings[i[e]])&&this.on(e,t)}sync(e=!0){const t=this,i=e?le(t.input,{delimiter:t.settings.delimiter,allowEmptyOption:t.settings.allowEmptyOption}):t.settings
+t.setupOptions(i.options,i.optgroups),t.setValue(i.items||[],!0),t.input.disabled?t.disable():t.input.readOnly?t.setReadOnly(!0):t.enable(),t.lastQuery=null}onClick(){var e=this
+if(e.activeItems.length>0)return e.clearActiveItems(),void e.focus()
+e.isFocused&&e.isOpen?e.blur():e.focus()}onMouseDown(){}onChange(){U(this.input,"input"),U(this.input,"change")}onPaste(e){var t=this
+t.isInputHidden||t.isLocked?$(e):t.settings.splitOn&&setTimeout(()=>{var e=t.inputValue()
+if(e.match(t.settings.splitOn)){var i=e.trim().split(t.settings.splitOn)
+B(i,e=>{P(e)&&(this.options[e]?t.addItem(e):t.createItem(e))})}},0)}onKeyPress(e){var t=this
+if(!t.isLocked){var i=String.fromCharCode(e.keyCode||e.which)
+return t.settings.create&&"multi"===t.settings.mode&&i===t.settings.delimiter?(t.createItem(),void $(e)):void 0}$(e)}onKeyDown(e){var t=this
+if(t.ignoreHover=!0,t.isLocked)9!==e.keyCode&&$(e)
+else{switch(e.keyCode){case 65:if(R(oe,e)&&""==t.control_input.value)return $(e),void t.selectAll()
+break
+case 27:return t.isOpen&&($(e,!0),t.close()),void t.clearActiveItems()
+case 40:if(!t.isOpen&&t.hasOptions)t.open()
+else if(t.activeOption){let e=t.getAdjacent(t.activeOption,1)
+e&&t.setActiveOption(e)}return void $(e)
+case 38:if(t.activeOption){let e=t.getAdjacent(t.activeOption,-1)
+e&&t.setActiveOption(e)}return void $(e)
+case 13:return void(t.canSelect(t.activeOption)?(t.onOptionSelect(e,t.activeOption),$(e)):(t.settings.create&&t.createItem()||document.activeElement==t.control_input&&t.isOpen)&&$(e))
+case 37:return void t.advanceSelection(-1,e)
+case 39:return void t.advanceSelection(1,e)
+case 9:return void(t.settings.selectOnTab&&(t.canSelect(t.activeOption)?(t.onOptionSelect(e,t.activeOption),$(e)):t.settings.create&&t.createItem()&&$(e)))
+case 8:case 46:return void t.deleteSelection(e)}t.isInputHidden&&!R(oe,e)&&$(e)}}onInput(e){if(this.isLocked)return
+const t=this.inputValue()
+this.lastValue!==t&&(this.lastValue=t,""!=t?(this.refreshTimeout&&window.clearTimeout(this.refreshTimeout),this.refreshTimeout=((e,t)=>t>0?window.setTimeout(e,t):(e.call(null),null))(()=>{this.refreshTimeout=null,this._onInput()},this.settings.refreshThrottle)):this._onInput())}_onInput(){const e=this.lastValue
+this.settings.shouldLoad.call(this,e)&&this.load(e),this.refreshOptions(),this.trigger("type",e)}onOptionHover(e,t){this.ignoreHover||this.setActiveOption(t,!1)}onFocus(e){var t=this,i=t.isFocused
+if(t.isDisabled||t.isReadOnly)return t.blur(),void $(e)
+t.ignoreFocus||(t.isFocused=!0,"focus"===t.settings.preload&&t.preload(),i||t.trigger("focus"),t.activeItems.length||(t.inputState(),t.refreshOptions(!!t.settings.openOnFocus)),t.refreshState())}onBlur(e){if(!1!==document.hasFocus()){var t=this
+if(t.isFocused){t.isFocused=!1,t.ignoreFocus=!1
+var i=()=>{t.close(),t.setActiveItem(),t.setCaret(t.items.length),t.trigger("blur")}
+t.settings.create&&t.settings.createOnBlur?t.createItem(null,i):i()}}}onOptionSelect(e,t){var i,s=this
+t.parentElement&&t.parentElement.matches("[data-disabled]")||(t.classList.contains("create")?s.createItem(null,()=>{s.settings.closeAfterSelect?s.close():s.settings.clearAfterSelect&&s.setTextboxValue()}):void 0!==(i=t.dataset.value)&&(s.isDropdownContentStale=s.settings.hideSelected,s.addItem(i),s.settings.closeAfterSelect?s.close():s.settings.clearAfterSelect&&s.setTextboxValue(),!s.settings.hideSelected&&e.type&&/click/.test(e.type)&&s.setActiveOption(t)))}canSelect(e){return!!(this.isOpen&&e&&this.dropdown_content.contains(e))}onItemSelect(e,t){var i=this
+return!i.isLocked&&"multi"===i.settings.mode&&($(e),i.setActiveItem(t,e),!0)}canLoad(e){return!!this.settings.load&&!this.loadedSearches.hasOwnProperty(e)}load(e){const t=this
+if(!t.canLoad(e))return
+Q(t.wrapper,t.settings.loadingClass),t.loading++
+const i=t.loadCallback.bind(t)
+t.settings.load.call(t,e,i)}loadCallback(e,t){const i=this
+i.loading=Math.max(i.loading-1,0),i.isDropdownContentStale=!0,i.clearActiveOption(),i.setupOptions(e,t),i.refreshOptions(i.isFocused&&!i.isInputHidden),i.loading||J(i.wrapper,i.settings.loadingClass),i.trigger("load",e,t)}preload(){var e=this.wrapper.classList
+e.contains("preloaded")||(e.add("preloaded"),this.load(""))}setTextboxValue(e=""){var t=this.control_input
+t.value!==e&&(t.value=e,U(t,"update"),this.lastValue=e)}getValue(){return this.is_select_tag&&this.input.hasAttribute("multiple")?this.items:this.items.join(this.settings.delimiter)}setValue(e,t){j(this,t?[]:["change"],()=>{this.clear(t),this.addItems(e,t)})}setMaxItems(e){0===e&&(e=null),this.settings.maxItems=e,this.refreshState()}setActiveItem(e,t){var i,s,n,o,r,l,a=this
+if("single"!==a.settings.mode){if(!e)return a.clearActiveItems(),void(a.isFocused&&a.inputState())
+if("click"===(i=t&&t.type.toLowerCase())&&R("shiftKey",t)&&a.activeItems.length){for(l=a.getLastActive(),(n=Array.prototype.indexOf.call(a.control.children,l))>(o=Array.prototype.indexOf.call(a.control.children,e))&&(r=n,n=o,o=r),s=n;s<=o;s++)e=a.control.children[s],-1===a.activeItems.indexOf(e)&&a.setActiveItemClass(e)
+$(t)}else"click"===i&&R(oe,t)||"keydown"===i&&R("shiftKey",t)?e.classList.contains("active")?a.removeActiveItem(e):a.setActiveItemClass(e):(a.clearActiveItems(),a.setActiveItemClass(e))
+a.inputState(),a.isFocused||a.focus()}}setActiveItemClass(e){const t=this,i=t.control.querySelector(".last-active")
+i&&J(i,"last-active"),Q(e,"active last-active"),t.trigger("item_select",e),-1==t.activeItems.indexOf(e)&&t.activeItems.push(e)}removeActiveItem(e){var t=this.activeItems.indexOf(e)
+this.activeItems.splice(t,1),J(e,"active")}clearActiveItems(){J(this.activeItems,"active"),this.activeItems=[]}setActiveOption(e,t=!0){e!==this.activeOption&&(this.clearActiveOption(),e&&(this.activeOption=e,ie(this.focus_node,{"aria-activedescendant":e.getAttribute("id")}),ie(e,{"aria-selected":"true"}),Q(e,"active"),t&&this.scrollToOption(e)))}scrollToOption(e,t){if(!e)return
+const i=this.dropdown_content,s=i.clientHeight,n=i.scrollTop||0,o=e.offsetHeight,r=e.getBoundingClientRect().top-i.getBoundingClientRect().top+n
+r+o>s+n?this.scroll(r-s+o,t):r<n&&this.scroll(r,t)}scroll(e,t){const i=this.dropdown_content
+t&&(i.style.scrollBehavior=t),i.scrollTop=e,i.style.scrollBehavior=""}clearActiveOption(){this.activeOption&&(J(this.activeOption,"active"),ie(this.activeOption,{"aria-selected":null})),this.activeOption=null,ie(this.focus_node,{"aria-activedescendant":null})}selectAll(){const e=this
+if("single"===e.settings.mode)return
+const t=e.controlChildren()
+t.length&&(e.inputState(),e.close(),e.activeItems=t,B(t,t=>{e.setActiveItemClass(t)}))}inputState(){var e=this
+e.control.contains(e.control_input)&&(ie(e.control_input,{placeholder:e.settings.placeholder}),e.activeItems.length>0||!e.isFocused&&e.settings.hidePlaceholder&&e.items.length>0?(e.setTextboxValue(),e.isInputHidden=!0):(e.settings.hidePlaceholder&&e.items.length>0&&ie(e.control_input,{placeholder:""}),e.isInputHidden=!1),e.wrapper.classList.toggle("input-hidden",e.isInputHidden))}inputValue(){return this.control_input.value.trim()}focus(){var e=this
+if(e.isDisabled||e.isReadOnly)return
+e.ignoreFocus=!0
+const t=this.control_input.offsetWidth?this.control_input:this.focus_node
+t.focus(),setTimeout(()=>{e.ignoreFocus=!1
+t.getRootNode().activeElement===t&&this.onFocus()},0)}blur(){this.focus_node.blur(),this.onBlur()}getScoreFunction(e){return this.sifter.getScoreFunction(e,this.getSearchOptions())}getSearchOptions(){var e=this.settings,t=e.sortField
+return"string"==typeof e.sortField&&(t=[{field:e.sortField}]),{fields:e.searchField,conjunction:e.searchConjunction,sort:t,nesting:e.nesting}}search(e){var t,i,s=this,n=this.getSearchOptions()
+if(s.settings.score&&"function"!=typeof(i=s.settings.score.call(s,e)))throw new Error('Tom Select "score" setting must be a function that returns a function')
+return s.isDropdownContentStale||e!==s.lastQuery?(s.lastQuery=e,/(.)\1{15,}/.test(e)&&(e=""),t=s.sifter.search(e,Object.assign(n,{score:i})),s.currentResults=t):t=Object.assign({},s.currentResults),s.settings.hideSelected&&(t.items=t.items.filter(e=>{let t=P(e.id)
+return!(null!==t&&-1!==s.items.indexOf(t))})),t}refreshOptions(e=!0){var t,i,s,n,o,r,l,a,c,d
+const u={},p=[]
+var h=this,g=h.inputValue()
+const f=g===h.lastQuery||""==g&&null==h.lastQuery
+var m=h.search(g),v=null,O=h.settings.shouldOpen||!1,b=h.dropdown_content
+f&&(v=h.activeOption)&&(c=v.closest("[data-group]")),n=m.items.length,"number"==typeof h.settings.maxOptions&&(n=Math.min(n,h.settings.maxOptions)),n>0&&(O=!0)
+const y=(e,t)=>{let i=u[e]
+if(void 0!==i){let e=p[i]
+if(void 0!==e)return[i,e.fragment]}let s=document.createDocumentFragment()
+return i=p.length,p.push({fragment:s,order:t,optgroup:e}),[i,s]}
+for(t=0;t<n;t++){let e=m.items[t]
+if(!e)continue
+let n=e.id,l=h.options[n]
+if(void 0===l)continue
+let a=N(n),d=h.getOption(a,!0)
+for(h.settings.hideSelected||d.classList.toggle("selected",h.items.includes(a)),o=l[h.settings.optgroupField]||"",i=0,s=(r=Array.isArray(o)?o:[o])&&r.length;i<s;i++){o=r[i]
+let e=l.$order,t=h.optgroups[o]
+var w
+if(void 0===t&&"function"==typeof h.settings.optionGroupRegister)(w=h.settings.optionGroupRegister.apply(h,[o]))&&h.registerOptionGroup(w)
+t=h.optgroups[o],void 0===t?o="":e=t.$order
+const[s,a]=y(o,e)
+i>0&&(d=d.cloneNode(!0),ie(d,{id:l.$id+"-clone-"+i,"aria-selected":null}),d.classList.add("ts-cloned"),J(d,"active"),h.activeOption&&h.activeOption.dataset.value==n&&c&&c.dataset.group===o.toString()&&(v=d)),a.appendChild(d),""!=o&&(u[o]=s)}}var S
+h.settings.lockOptgroupOrder&&p.sort((e,t)=>e.order-t.order),l=document.createDocumentFragment(),B(p,e=>{let t=e.fragment,i=e.optgroup
+if(!t||!t.children.length)return
+let s=h.optgroups[i]
+if(void 0!==s){let e=document.createDocumentFragment(),i=h.render("optgroup_header",s)
+z(e,i),z(e,t)
+let n=h.render("optgroup",{group:s,options:e})
+z(l,n)}else z(l,t)}),b.innerHTML="",z(b,l),h.isDropdownContentStale=!1,h.settings.highlight&&(S=b.querySelectorAll("span.highlight"),Array.prototype.forEach.call(S,function(e){var t=e.parentNode
+t.replaceChild(e.firstChild,e),t.normalize()}),m.query.length&&m.tokens.length&&B(m.tokens,e=>{ne(b,e.regex)}))
+var _=e=>{let t=h.render(e,{input:g})
+return t&&(O=!0,b.insertBefore(t,b.firstChild)),t}
+if(h.loading?_("loading"):h.settings.shouldLoad.call(h,g)?0===m.items.length&&_("no_results"):_("not_loading"),(a=h.canCreate(g))&&(d=_("option_create")),h.hasOptions=m.items.length>0||a,O){if(m.items.length>0){if(v||"single"!==h.settings.mode||null==h.items[0]||(v=h.getOption(h.items[0])),!b.contains(v)){let e=0
+d&&!h.settings.addPrecedence&&(e=1),v=h.selectable()[e]}}else d&&(v=d)
+e&&!h.isOpen&&(h.open(),h.scrollToOption(v,"auto")),h.setActiveOption(v)}else h.clearActiveOption(),e&&h.isOpen&&h.close(!1)}selectable(){return this.dropdown_content.querySelectorAll("[data-selectable]")}addOption(e,t=!1){const i=this
+if(Array.isArray(e))return i.addOptions(e,t),!1
+const s=P(e[i.settings.valueField])
+return null===s||i.options.hasOwnProperty(s)?(i.updateOption(e[i.settings.valueField],e),!1):(e.$order=e.$order||++i.order,e.$id=i.inputId+"-opt-"+e.$order,i.options[s]=e,i.isDropdownContentStale=!0,t&&(i.userOptions[s]=t,i.trigger("option_add",s,e)),s)}addOptions(e,t=!1){B(e,e=>{this.addOption(e,t)})}registerOption(e){return this.addOption(e)}registerOptionGroup(e){var t=P(e[this.settings.optgroupValueField])
+return null!==t&&(e.$order=e.$order||++this.order,this.optgroups[t]=e,t)}addOptionGroup(e,t){var i
+t[this.settings.optgroupValueField]=e,(i=this.registerOptionGroup(t))&&this.trigger("optgroup_add",i,t)}removeOptionGroup(e){this.optgroups.hasOwnProperty(e)&&(delete this.optgroups[e],this.clearCache(),this.trigger("optgroup_remove",e))}clearOptionGroups(){this.optgroups={},this.clearCache(),this.trigger("optgroup_clear")}updateOption(e,t){const i=this
+var s,n
+const o=P(e),r=P(t[i.settings.valueField])
+if(null===o)return
+const l=i.options[o]
+if(null==l)return
+if("string"!=typeof r)throw new Error("Value must be set in option data")
+const a=i.getOption(o),c=i.getItem(o)
+if(t.$order=t.$order||l.$order,delete i.options[o],i.uncacheValue(r),i.options[r]=t,a){if(i.dropdown_content.contains(a)){const e=i._render("option",t)
+se(a,e),i.activeOption===a&&i.setActiveOption(e)}a.remove()}c&&(-1!==(n=i.items.indexOf(o))&&i.items.splice(n,1,r),s=i._render("item",t),c.classList.contains("active")&&Q(s,"active"),se(c,s)),i.isDropdownContentStale=!0}removeOption(e,t){const i=this
+e=N(e),i.uncacheValue(e),delete i.userOptions[e],delete i.options[e],i.isDropdownContentStale=!0,i.trigger("option_remove",e),i.removeItem(e,t)}clearOptions(e){const t=(e||this.clearFilter).bind(this)
+this.loadedSearches={},this.userOptions={},this.clearCache()
+const i={}
+B(this.options,(e,s)=>{t(e,s)&&(i[s]=e)}),this.options=this.sifter.items=i,this.isDropdownContentStale=!0,this.trigger("option_clear")}clearFilter(e,t){return this.items.indexOf(t)>=0}getOption(e,t=!1){const i=P(e)
+if(null===i)return null
+const s=this.options[i]
+if(null!=s){if(s.$div)return s.$div
+if(t)return this._render("option",s)}return null}getAdjacent(e,t,i="option"){var s
+if(!e)return null
+s="item"==i?this.controlChildren():this.dropdown_content.querySelectorAll("[data-selectable]")
+for(let i=0;i<s.length;i++)if(s[i]==e)return t>0?s[i+1]:s[i-1]
+return null}getItem(e){if("object"==typeof e)return e
+var t=P(e)
+return null!==t?this.control.querySelector(`[data-value="${M(t)}"]`):null}addItems(e,t){var i=this,s=Array.isArray(e)?e:[e]
+const n=(s=s.filter(e=>-1===i.items.indexOf(e)))[s.length-1]
+s.forEach(e=>{i.isPending=e!==n,i.addItem(e,t)})}addItem(e,t){j(this,t?[]:["change","dropdown_close"],()=>{var i,s
+const n=this,o=n.settings.mode,r=P(e)
+if((!r||-1===n.items.indexOf(r)||("single"===o&&n.close(),"single"!==o&&n.settings.duplicates))&&null!==r&&n.options.hasOwnProperty(r)&&("single"===o&&n.clear(t),"multi"!==o||!n.isFull())){if(i=n._render("item",n.options[r]),n.control.contains(i)&&(i=i.cloneNode(!0)),s=n.isFull(),n.items.splice(n.caretPos,0,r),n.insertAtCaret(i),n.isSetup){if(!n.isPending&&n.settings.hideSelected){let e=n.getOption(r),t=n.getAdjacent(e,1)
+t&&n.setActiveOption(t)}n.settings.clearAfterSelect&&n.setTextboxValue(),n.isPending||n.settings.closeAfterSelect||n.refreshOptions(n.isFocused&&"single"!==o),0!=n.settings.closeAfterSelect&&n.isFull()?n.close():n.isPending||n.positionDropdown(),n.trigger("item_add",r,i),n.isPending||n.updateOriginalInput({silent:t})}(!n.isPending||!s&&n.isFull())&&(n.inputState(),n.refreshState())}})}removeItem(e=null,t){const i=this
+if(!(e=i.getItem(e)))return
+var s,n
+const o=e.dataset.value
+s=te(e),e.remove(),e.classList.contains("active")&&(n=i.activeItems.indexOf(e),i.activeItems.splice(n,1),J(e,"active")),i.items.splice(s,1),i.isDropdownContentStale=!0,!i.settings.persist&&i.userOptions.hasOwnProperty(o)&&i.removeOption(o,t),s<i.caretPos&&i.setCaret(i.caretPos-1),i.updateOriginalInput({silent:t}),i.refreshState(),i.positionDropdown(),i.trigger("item_remove",o,e)}createItem(e=null,t=()=>{}){3===arguments.length&&(t=arguments[2]),"function"!=typeof t&&(t=()=>{})
+var i,s=this,n=s.caretPos
+if(e=e||s.inputValue(),!s.canCreate(e)){return P(e)&&this.options[e]&&s.addItem(e),t(),!1}s.lock()
+var o=!1,r=e=>{if(s.unlock(),!e||"object"!=typeof e)return t()
+var i=P(e[s.settings.valueField])
+if("string"!=typeof i)return t()
+s.setTextboxValue(),s.addOption(e,!0),s.setCaret(n),s.addItem(i),t(e),o=!0}
+return i="function"==typeof s.settings.create?s.settings.create.call(this,e,r):{[s.settings.labelField]:e,[s.settings.valueField]:e},o||r(i),!0}refreshItems(){var e=this
+e.isDropdownContentStale=!0,e.isSetup&&e.addItems(e.items),e.updateOriginalInput(),e.refreshState()}refreshState(){const e=this
+e.refreshValidityState()
+const t=e.isFull(),i=e.isLocked
+e.wrapper.classList.toggle("rtl",e.rtl)
+const s=e.wrapper.classList
+var n
+s.toggle("focus",e.isFocused),s.toggle("disabled",e.isDisabled),s.toggle("readonly",e.isReadOnly),s.toggle("required",e.isRequired),s.toggle("invalid",!e.isValid),s.toggle("locked",i),s.toggle("full",t),s.toggle("input-active",e.isFocused&&!e.isInputHidden),s.toggle("dropdown-active",e.isOpen),s.toggle("has-options",(n=e.options,0===Object.keys(n).length)),s.toggle("has-items",e.items.length>0)}refreshValidityState(){var e=this
+e.input.validity&&(e.isValid=e.input.validity.valid,e.isInvalid=!e.isValid)}isFull(){return null!==this.settings.maxItems&&this.items.length>=this.settings.maxItems}updateOriginalInput(e={}){const t=this
+var i,s
+const n=t.input.querySelector('option[value=""]')
+if(t.is_select_tag){const o=[],r=t.input.querySelectorAll("option:checked").length
+function l(e,i,s){return e||(e=K('<option value="'+D(i)+'">'+D(s)+"</option>")),e!=n&&t.input.append(e),o.push(e),(e!=n||r>0||"multi"==t.settings.mode)&&(e.selected=!0),e}t.input.querySelectorAll("option:checked").forEach(e=>{e.selected=!1}),0==t.items.length&&"single"==t.settings.mode?l(n,"",""):t.items.forEach(e=>{if(i=t.options[e],s=i[t.settings.labelField]||"",o.includes(i.$option)){l(t.input.querySelector(`option[value="${M(e)}"]:not(:checked)`),e,s)}else i.$option=l(i.$option,e,s)})}else t.input.value=t.getValue()
+t.isSetup&&(e.silent||t.trigger("change",t.getValue()))}open(){var e=this
+e.isLocked||e.isOpen||"multi"===e.settings.mode&&e.isFull()||(e.isOpen=!0,ie(e.focus_node,{"aria-expanded":"true"}),e.refreshState(),W(e.dropdown,{visibility:"hidden",display:"block"}),e.positionDropdown(),W(e.dropdown,{visibility:"visible",display:"block"}),e.focus(),e.trigger("dropdown_open",e.dropdown))}close(e=!0){var t=this,i=t.isOpen
+e&&(t.setTextboxValue(),"single"===t.settings.mode&&t.items.length&&t.inputState()),t.isOpen=!1,ie(t.focus_node,{"aria-expanded":"false"}),W(t.dropdown,{display:"none"}),t.settings.hideSelected&&t.clearActiveOption(),t.refreshState(),i&&t.trigger("dropdown_close",t.dropdown)}positionDropdown(){if("body"===this.settings.dropdownParent){var e=this.control,t=e.getBoundingClientRect(),i=e.offsetHeight+t.top+window.scrollY,s=t.left+window.scrollX
+W(this.dropdown,{width:t.width+"px",top:i+"px",left:s+"px"})}}clear(e){var t=this
+if(t.items.length){var i=t.controlChildren()
+B(i,e=>{t.removeItem(e,!0)}),t.inputState(),e||t.updateOriginalInput(),t.trigger("clear")}}insertAtCaret(e){const t=this,i=t.caretPos,s=t.control
+s.insertBefore(e,s.children[i]||null),t.setCaret(i+1)}deleteSelection(e){var t,i,s,n,o,r=this
+t=e&&8===e.keyCode?-1:1,i={start:(o=r.control_input).selectionStart||0,length:(o.selectionEnd||0)-(o.selectionStart||0)}
+const l=[]
+if(r.activeItems.length)n=ee(r.activeItems,t),s=te(n),t>0&&s++,B(r.activeItems,e=>l.push(e))
+else if((r.isFocused||"single"===r.settings.mode)&&r.items.length){const e=r.controlChildren()
+let s
+t<0&&0===i.start&&0===i.length?s=e[r.caretPos-1]:t>0&&i.start===r.inputValue().length&&(s=e[r.caretPos]),void 0!==s&&l.push(s)}if(!r.shouldDelete(l,e))return!1
+for($(e,!0),void 0!==s&&r.setCaret(s);l.length;)r.removeItem(l.pop())
+return r.inputState(),r.positionDropdown(),r.refreshOptions(!1),!0}shouldDelete(e,t){const i=e.map(e=>e.dataset.value)
+return!(!i.length||"function"==typeof this.settings.onDelete&&!1===this.settings.onDelete.call(this,i,t))}advanceSelection(e,t){var i,s,n=this
+n.rtl&&(e*=-1),n.inputValue().length||(R(oe,t)||R("shiftKey",t)?(s=(i=n.getLastActive(e))?i.classList.contains("active")?n.getAdjacent(i,e,"item"):i:e>0?n.control_input.nextElementSibling:n.control_input.previousElementSibling)&&(s.classList.contains("active")&&n.removeActiveItem(i),n.setActiveItemClass(s)):n.moveCaret(e))}moveCaret(e){}getLastActive(e){let t=this.control.querySelector(".last-active")
+if(t)return t
+var i=this.control.querySelectorAll(".active")
+return i?ee(i,e):void 0}setCaret(e){this.caretPos=this.items.length}controlChildren(){return Array.from(this.control.querySelectorAll("[data-ts-item]"))}lock(){this.setLocked(!0)}unlock(){this.setLocked(!1)}setLocked(e=this.isReadOnly||this.isDisabled){this.isLocked=e,this.refreshState()}disable(){this.setDisabled(!0),this.close()}enable(){this.setDisabled(!1)}setDisabled(e){this.focus_node.tabIndex=e?-1:this.tabIndex,this.isDisabled=e,this.input.disabled=e,this.control_input.disabled=e,this.setLocked()}setReadOnly(e){this.isReadOnly=e,this.input.readOnly=e,this.control_input.readOnly=e,this.setLocked()}destroy(){var e=this,t=e.revertSettings
+e.trigger("destroy"),e.off(),e.wrapper.remove(),e.dropdown.remove(),e.input.innerHTML=t.innerHTML,e.input.tabIndex=t.tabIndex,J(e.input,"tomselected","ts-hidden-accessible"),e._destroy(),delete e.input.tomselect}render(e,t){var i,s
+const n=this
+if("function"!=typeof this.settings.render[e])return null
+if(!(s=n.settings.render[e].call(this,t,D)))return null
+if(s=K(s),"option"===e||"option_create"===e?t[n.settings.disabledField]?ie(s,{"aria-disabled":"true"}):ie(s,{"data-selectable":""}):"optgroup"===e&&(i=t.group[n.settings.optgroupValueField],ie(s,{"data-group":i}),t.group[n.settings.disabledField]&&ie(s,{"data-disabled":""})),"option"===e||"item"===e){const i=N(t[n.settings.valueField])
+ie(s,{"data-value":i}),"item"===e?(Q(s,n.settings.itemClass),ie(s,{"data-ts-item":""})):(Q(s,n.settings.optionClass),ie(s,{role:"option",id:t.$id}),t.$div=s,n.options[i]=t)}return s}_render(e,t){const i=this.render(e,t)
+if(null==i)throw"HTMLElement expected"
+return i}clearCache(){B(this.options,e=>{e.$div&&(e.$div.remove(),delete e.$div)})}uncacheValue(e){const t=this.getOption(e)
+t&&t.remove()}canCreate(e){return this.settings.create&&e.length>0&&this.settings.createFilter.call(this,e)}hook(e,t,i){var s=this,n=s[t]
+s[t]=function(){var t,o
+return"after"===e&&(t=n.apply(s,arguments)),o=i.apply(s,arguments),"instead"===e?o:("before"===e&&(t=n.apply(s,arguments)),t)}}}return ce.define("change_listener",function(){q(this.input,"change",()=>{this.sync()})}),ce.define("checkbox_options",function(e){var t=this,i=t.onOptionSelect
+t.settings.hideSelected=!1
+const s=Object.assign({className:"tomselect-checkbox",checkedClassNames:void 0,uncheckedClassNames:void 0},e)
+var n=function(e,t){t?(e.checked=!0,s.uncheckedClassNames&&e.classList.remove(...s.uncheckedClassNames),s.checkedClassNames&&e.classList.add(...s.checkedClassNames)):(e.checked=!1,s.checkedClassNames&&e.classList.remove(...s.checkedClassNames),s.uncheckedClassNames&&e.classList.add(...s.uncheckedClassNames))},o=function(e){setTimeout(()=>{var t=e.querySelector("input."+s.className)
+t instanceof HTMLInputElement&&n(t,e.classList.contains("selected"))},1)}
+t.hook("after","setupTemplates",()=>{var e=t.settings.render.option
+t.settings.render.option=(i,o)=>{var r=K(e.call(t,i,o)),l=document.createElement("input")
+s.className&&l.classList.add(s.className),l.addEventListener("click",function(e){$(e)}),l.type="checkbox"
+const a=P(i[t.settings.valueField])
+return n(l,!!(a&&t.items.indexOf(a)>-1)),r.prepend(l),r}}),t.on("item_remove",e=>{var i=t.getOption(e)
+i&&(i.classList.remove("selected"),o(i))}),t.on("item_add",e=>{var i=t.getOption(e)
+i&&o(i)}),t.hook("instead","onOptionSelect",(e,s)=>{if(s.classList.contains("selected"))return s.classList.remove("selected"),t.removeItem(s.dataset.value),t.refreshOptions(),void $(e,!0)
+i.call(t,e,s),o(s)})}),ce.define("clear_button",function(e){const t=this,i=Object.assign({className:"clear-button",title:"Clear All",role:"button",tabindex:0,html:e=>`<div class="${e.className}" title="${e.title}" role="${e.role}" tabindex="${e.tabindex}">&times;</div>`},e)
+t.on("initialize",()=>{var e=K(i.html(i))
+e.addEventListener("click",e=>{t.isLocked||(t.clear(),"single"===t.settings.mode&&t.settings.allowEmptyOption&&t.addItem(""),t.refreshOptions(!1),e.preventDefault(),e.stopPropagation())}),t.control.appendChild(e)})}),ce.define("drag_drop",function(){var e=this
+if("multi"!==e.settings.mode)return
+var t=e.lock,i=e.unlock
+let s,n=!0
+e.hook("after","setupTemplates",()=>{var t=e.settings.render.item
+e.settings.render.item=(i,o)=>{const r=K(t.call(e,i,o))
+ie(r,{draggable:"true"})
+const l=e=>{e.preventDefault(),r.classList.add("ts-drag-over"),a(r,s)},a=(e,t)=>{var i,s,n
+void 0!==t&&(((e,t)=>{do{var i
+if(e==(t=null==(i=t)?void 0:i.previousElementSibling))return!0}while(t&&t.previousElementSibling)
+return!1})(t,r)?(s=t,null==(n=(i=e).parentNode)||n.insertBefore(s,i.nextSibling)):((e,t)=>{var i
+null==(i=e.parentNode)||i.insertBefore(t,e)})(e,t))}
+return q(r,"mousedown",e=>{n||$(e),e.stopPropagation()}),q(r,"dragstart",e=>{s=r,setTimeout(()=>{r.classList.add("ts-dragging")},0)}),q(r,"dragenter",l),q(r,"dragover",l),q(r,"dragleave",()=>{r.classList.remove("ts-drag-over")}),q(r,"dragend",()=>{var t
+document.querySelectorAll(".ts-drag-over").forEach(e=>e.classList.remove("ts-drag-over")),null==(t=s)||t.classList.remove("ts-dragging"),s=void 0
+var i=[]
+e.control.querySelectorAll("[data-value]").forEach(e=>{if(e.dataset.value){let t=e.dataset.value
+t&&i.push(t)}}),e.setValue(i)}),r}}),e.hook("instead","lock",()=>(n=!1,t.call(e))),e.hook("instead","unlock",()=>(n=!0,i.call(e)))}),ce.define("dropdown_header",function(e){const t=this,i=Object.assign({title:"Untitled",headerClass:"dropdown-header",titleRowClass:"dropdown-header-title",labelClass:"dropdown-header-label",closeClass:"dropdown-header-close",html:e=>'<div class="'+e.headerClass+'"><div class="'+e.titleRowClass+'"><span class="'+e.labelClass+'">'+e.title+'</span><a class="'+e.closeClass+'">&times;</a></div></div>'},e)
+t.on("initialize",()=>{var e=K(i.html(i)),s=e.querySelector("."+i.closeClass)
+s&&s.addEventListener("click",e=>{$(e,!0),t.close()}),t.dropdown.insertBefore(e,t.dropdown.firstChild)})}),ce.define("caret_position",function(){var e=this
+e.hook("instead","setCaret",t=>{"single"!==e.settings.mode&&e.control.contains(e.control_input)?(t=Math.max(0,Math.min(e.items.length,t)))==e.caretPos||e.isPending||e.controlChildren().forEach((i,s)=>{s<t?e.control_input.insertAdjacentElement("beforebegin",i):e.control.appendChild(i)}):t=e.items.length,e.caretPos=t}),e.hook("instead","moveCaret",t=>{if(!e.isFocused)return
+const i=e.getLastActive(t)
+if(i){const s=te(i)
+e.setCaret(t>0?s+1:s),e.setActiveItem(),J(i,"last-active")}else e.setCaret(e.caretPos+t)})}),ce.define("dropdown_input",function(){const e=this
+e.settings.shouldOpen=!0,e.hook("before","setup",()=>{var t
+e.focus_node=e.control,Q(e.control_input,"dropdown-input")
+const i=K('<div class="dropdown-input-wrap">')
+i.append(e.control_input),e.dropdown.insertBefore(i,e.dropdown.firstChild)
+const s=K('<input class="items-placeholder" tabindex="-1" />')
+s.placeholder=e.settings.placeholder||"",e.control.append(s)
+const n=null==(t=e.input)?void 0:t.getAttribute("aria-label")
+n&&s.setAttribute("aria-label",n)}),e.on("initialize",()=>{e.control_input.addEventListener("keydown",t=>{switch(t.keyCode){case 27:return e.isOpen&&($(t,!0),e.close()),void e.clearActiveItems()
+case 9:e.focus_node.tabIndex=-1}return e.onKeyDown.call(e,t)}),e.on("blur",()=>{e.focus_node.tabIndex=e.isDisabled?-1:e.tabIndex}),e.on("dropdown_open",()=>{e.control_input.focus()})
+const t=e.onBlur
+e.hook("instead","onBlur",i=>{if(!i||i.relatedTarget!=e.control_input)return t.call(e)}),q(e.control_input,"blur",()=>e.onBlur()),e.hook("before","close",()=>{e.isOpen&&e.focus_node.focus({preventScroll:!0})})})}),ce.define("input_autogrow",function(){var e=this
+e.on("initialize",()=>{var t=document.createElement("span"),i=e.control_input
+t.style.cssText="position:absolute; top:-99999px; left:-99999px; width:auto; padding:0; white-space:pre; ",e.wrapper.appendChild(t)
+for(const e of["letterSpacing","fontSize","fontFamily","fontWeight","textTransform"])t.style[e]=i.style[e]
+var s=()=>{t.textContent=i.value,i.style.width=t.clientWidth+"px"}
+s(),e.on("update item_add item_remove",s),q(i,"input",s),q(i,"keyup",s),q(i,"blur",s),q(i,"update",s)})}),ce.define("no_backspace_delete",function(){var e=this,t=e.deleteSelection
+this.hook("instead","deleteSelection",i=>!!e.activeItems.length&&t.call(e,i))}),ce.define("no_active_items",function(){this.hook("instead","setActiveItem",()=>{}),this.hook("instead","selectAll",()=>{})}),ce.define("optgroup_columns",function(){var e=this,t=e.onKeyDown
+e.hook("instead","onKeyDown",i=>{var s,n,o,r
+if(!e.isOpen||37!==i.keyCode&&39!==i.keyCode)return t.call(e,i)
+e.ignoreHover=!0,r=Z(e.activeOption,"[data-group]"),s=te(e.activeOption,"[data-selectable]"),r&&(r=37===i.keyCode?r.previousSibling:r.nextSibling)&&(n=(o=r.querySelectorAll("[data-selectable]"))[Math.min(o.length-1,s)])&&e.setActiveOption(n)})}),ce.define("remove_button",function(e){const t=this,i=Object.assign({label:"×",title:"Remove",className:"remove",tabindex:-1,role:"button",html:e=>{var t
+const i=document.createElement("div")
+return i.className=e.className||"",i.title=e.title||"",i.setAttribute("role",e.role||"button"),i.tabIndex=null!=(t=e.tabindex)?t:-1,i.textContent=e.label||"",i}},e)
+t.hook("after","setupTemplates",()=>{var e=t.settings.render.item
+t.settings.render.item=(s,n)=>{var o=K(e.call(t,s,n)),r=K(i.html(i))
+return o.appendChild(r),q(r,"mousedown",e=>{$(e,!0)}),q(r,"click",e=>{t.isLocked||($(e,!0),t.isLocked||t.shouldDelete([o],e)&&(t.removeItem(o),t.refreshOptions(!1),t.inputState()))}),o}})}),ce.define("restore_on_backspace",function(e){const t=this,i=Object.assign({text:e=>e[t.settings.labelField]},e)
+t.on("item_remove",function(e){if(t.isFocused&&""===t.control_input.value.trim()){var s=t.options[e]
+s&&t.setTextboxValue(i.text.call(t,s))}})}),ce.define("virtual_scroll",function(){const e=this,t=e.canLoad,i=e.clearActiveOption,s=e.loadCallback
+var n,o,r,l={},a=!1,c=[],d=!1,u=[],p=[]
+if(e.settings.shouldLoadMore||(e.settings.shouldLoadMore=()=>{if(n.clientHeight/(n.scrollHeight-n.scrollTop)>.9)return!0
+if(e.activeOption){var t=e.selectable()
+if(Array.from(t).indexOf(e.activeOption)>=t.length-2)return!0}return!1}),!e.settings.firstUrl)throw"virtual_scroll plugin requires a firstUrl() method"
+e.settings.sortField=[{field:"$order"},{field:"$score"}]
+const h=t=>!(null!==e.settings.maxOptions&&"number"==typeof e.settings.maxOptions&&n.children.length>=e.settings.maxOptions)&&!(!(t in l)||!l[t]),g=(t,i)=>e.items.indexOf(i)>=0||c.indexOf(i)>=0
+e.setNextUrl=(e,t)=>{l[e]=t},e.getUrl=t=>{if(t in l){const e=l[t]
+return l[t]=!1,e}return e.clearPagination(),e.settings.firstUrl.call(e,t)},e.clearPagination=()=>{l={}},e.hook("instead","clearActiveOption",()=>{if(!a)return i.call(e)}),e.hook("instead","canLoad",i=>i in l?h(i):t.call(e,i)),e.hook("instead","loadCallback",(t,i)=>{if(a){if(o){const i=t[0]
+void 0!==i&&(o.dataset.value=i[e.settings.valueField])}}else{const t=""!==e.lastValue?(t,i)=>e.items.indexOf(i)>=0||p.indexOf(i)>=0:g
+e.clearOptions(t)}s.call(e,t,i),a||d||(d=!0,""===e.lastValue&&(c=Object.keys(e.options),r=l[""],u=Object.values(e.options))),a=!1}),e.hook("before","refreshOptions",()=>{e.activeOption&&"option"!==e.activeOption.getAttribute("role")&&e.setActiveOption(e.activeOption.previousElementSibling)}),e.hook("after","refreshOptions",()=>{const t=e.lastValue
+var i
+h(t)?(i=e.render("loading_more",{query:t}))&&(i.setAttribute("data-selectable",""),o=i):t in l&&!n.querySelector(".no-results")&&(i=e.render("no_more_results",{query:t})),i&&(Q(i,e.settings.optionClass),n.append(i))})
+const f=()=>{d&&(e.addOptions(u),e.clearOptions(g),r&&(l[""]=r))}
+e.on("type",t=>{""===t&&(f(),e.refreshOptions(!1))}),e.on("dropdown_close",f),e.on("initialize",()=>{p=Object.keys(e.options),c=Object.keys(e.options),n=e.dropdown_content,e.settings.render=Object.assign({},{loading_more:()=>'<div class="loading-more-results">Loading more results ... </div>',no_more_results:()=>'<div class="no-more-results">No more results</div>'},e.settings.render),n.addEventListener("scroll",()=>{e.settings.shouldLoadMore.call(e)&&h(e.lastValue)&&(a||(a=!0,e.load.call(e,e.lastValue)))})})}),ce})
+var tomSelect=function(e,t){return new TomSelect(e,t)}
+//# sourceMappingURL=tom-select.complete.min.js.map
+
 /**
  * Skipped minification because the original files appears to be already minified.
  * Original file: /npm/highcharts@11.4.8/highcharts.js
@@ -56317,6 +56811,1596 @@ if (typeof module !== 'undefined' && module.exports) {
 })(window);
 
 /// <reference path="/js/syn.js" />
+
+(function (window) {
+    'use strict';
+
+    syn.uicontrols = syn.uicontrols || new syn.module();
+    var $dropdowntextlist = syn.uicontrols.$dropdowntextlist || new syn.module();
+
+    $dropdowntextlist.extend({
+        name: 'syn.uicontrols.$dropdowntextlist',
+        version: 'v2026.10.14',
+        textListControls: [],
+        defaultSetting: {
+            optgroups: [],
+            optgroupField: 'class',
+            valueField: 'value',
+            labelField: 'name',
+            options: [],
+            items: [],
+            placeholder: '검색하여 선택...',
+            width: '100%',
+            dropdownWidth: 'auto',
+            dropdownHeight: 'auto',
+            maxItems: null,
+            hideSelected: true,
+            clearAfterSelect: true,
+            persist: true,
+            create: false,
+            defaultGroupID: '',
+            load: null,
+            loadThrottle: 300,
+            preload: false,
+            dataType: 'object',
+            belongID: null,
+            getter: false,
+            setter: false,
+            controlText: null,
+            validators: null,
+            transactConfig: null,
+            triggerConfig: null
+        },
+
+        operators: Object.freeze({
+            eq: '같음',
+            lte: '같거나작게',
+            gte: '같거나크게',
+            ne: '다름',
+            startsWith: '시작함',
+            endsWith: '끝남',
+            contains: '포함'
+        }),
+        eventCallbacks: {
+            initialize: 'onInitialize',
+            change: 'onChange',
+            focus: 'onFocus',
+            blur: 'onBlur',
+            item_add: 'onItemAdd',
+            item_remove: 'onItemRemove',
+            item_select: 'onItemSelect',
+            clear: 'onClear',
+            option_add: 'onOptionAdd',
+            option_remove: 'onOptionRemove',
+            option_clear: 'onOptionClear',
+            optgroup_add: 'onOptionGroupAdd',
+            optgroup_remove: 'onOptionGroupRemove',
+            optgroup_clear: 'onOptionGroupClear',
+            dropdown_open: 'onDropdownOpen',
+            dropdown_close: 'onDropdownClose',
+            type: 'onType',
+            load: 'onLoad',
+            destroy: 'onDestroy'
+        },
+
+        addModuleList(el, moduleList, setting, controlType) {
+            var elementID = el.getAttribute('id');
+            var dataField = el.getAttribute('syn-datafield');
+            var formDataField = el.closest('form') ? el.closest('form').getAttribute('syn-datafield') : '';
+            moduleList.push({
+                id: elementID,
+                formDataFieldID: formDataField,
+                field: dataField,
+                module: $dropdowntextlist.name,
+                type: controlType
+            });
+        },
+
+        controlLoad(elID, setting) {
+            var control = $dropdowntextlist.getControl(elID);
+            if (control) {
+                return control;
+            }
+            var el = syn.$l.get(elID);
+            if (!el) {
+                throw new Error('DropDownTextList: element not found: ' + elID);
+            }
+            if (typeof TomSelect === 'undefined') {
+                throw new Error('DropDownTextList: Tom Select must be loaded first');
+            }
+            setting = syn.$w.argumentsExtend($dropdowntextlist.defaultSetting, setting || {});
+            var mod = window[syn.$w.pageScript];
+            if (mod && mod.hook && mod.hook.controlInit) {
+                var moduleSettings = mod.hook.controlInit(elID, setting);
+                setting = syn.$w.argumentsExtend(setting, moduleSettings);
+            }
+            setting.elID = elID;
+            $dropdowntextlist.normalizeDropdownSize(setting.dropdownWidth, 'dropdownWidth');
+            $dropdowntextlist.normalizeDropdownSize(setting.dropdownHeight, 'dropdownHeight');
+            el.setAttribute('syn-options', JSON.stringify(setting));
+            try {
+                control = $dropdowntextlist.addControlSetting(el, setting);
+            } catch (error) {
+                $dropdowntextlist.textListControls = $dropdowntextlist.textListControls.filter(function (item) {
+                    return item.id !== elID;
+                });
+                throw error;
+            }
+            $dropdowntextlist.initialize(elID);
+            return control;
+        },
+
+        addControlSetting(el, setting) {
+            var control = {
+                id: el.id,
+                host: el,
+                settings: setting,
+                handlers: new Map(),
+                conditions: new Map(),
+                cleanups: [],
+                revision: 0,
+                loadSequence: 0,
+                destroyed: false,
+                ready: false,
+                originalEvents: el.getAttribute('syn-events'),
+                originalDisplay: el.style.display,
+                dispose: function () {
+                    $dropdowntextlist.textListControls = $dropdowntextlist.textListControls.filter(function (item) {
+                        return item.id !== control.id;
+                    });
+                },
+
+                on(event, handler) {
+                    return $dropdowntextlist.on(control.id, event, handler);
+                },
+
+                off(event, handler) {
+                    return $dropdowntextlist.off(control.id, event, handler);
+                },
+
+                trigger(event, ...args) {
+                    return $dropdowntextlist.trigger(control.id, event, ...args);
+                },
+
+                getValue() {
+                    return $dropdowntextlist.getValue(control.id);
+                },
+
+                setValue(value, silent) {
+                    return $dropdowntextlist.setValue(control.id, value, silent);
+                },
+
+                addOption(data, user_created) {
+                    return $dropdowntextlist.addOption(control.id, data, user_created);
+                },
+
+                addOptions(data, user_created) {
+                    return $dropdowntextlist.addOptions(control.id, data, user_created);
+                },
+
+                updateOption(value, data) {
+                    return $dropdowntextlist.updateOption(control.id, value, data);
+                },
+
+                removeOption(value) {
+                    return $dropdowntextlist.removeOption(control.id, value);
+                },
+
+                getOption(value, create) {
+                    return $dropdowntextlist.getOption(control.id, value, create);
+                },
+
+                clearFilter(option, value) {
+                    return $dropdowntextlist.clearFilter(control.id, option, value);
+                },
+
+                clearOptions(filter) {
+                    return $dropdowntextlist.clearOptions(control.id, filter);
+                },
+
+                clear(silent) {
+                    return $dropdowntextlist.clear(control.id, silent);
+                },
+
+                getItem(value) {
+                    return $dropdowntextlist.getItem(control.id, value);
+                },
+
+                addItem(value, silent) {
+                    return $dropdowntextlist.addItem(control.id, value, silent);
+                },
+
+                removeItem(value, silent) {
+                    return $dropdowntextlist.removeItem(control.id, value, silent);
+                },
+
+                refreshItems() {
+                    return $dropdowntextlist.refreshItems(control.id);
+                },
+
+                createItem(value, callback) {
+                    return $dropdowntextlist.createItem(control.id, value, callback);
+                },
+
+                load(query) {
+                    return $dropdowntextlist.load(control.id, query);
+                },
+
+                addOptionGroup(id, data) {
+                    return $dropdowntextlist.addOptionGroup(control.id, id, data);
+                },
+
+                removeOptionGroup(id) {
+                    return $dropdowntextlist.removeOptionGroup(control.id, id);
+                },
+
+                clearOptionGroups() {
+                    return $dropdowntextlist.clearOptionGroups(control.id);
+                },
+
+                lock() {
+                    return $dropdowntextlist.lock(control.id);
+                },
+
+                unlock() {
+                    return $dropdowntextlist.unlock(control.id);
+                },
+
+                disable() {
+                    return $dropdowntextlist.disable(control.id);
+                },
+
+                enable() {
+                    return $dropdowntextlist.enable(control.id);
+                },
+
+                sync() {
+                    return $dropdowntextlist.sync(control.id);
+                },
+
+                destroy() {
+                    if (control.destroyed) {
+                        return;
+                    }
+                    return $dropdowntextlist.destroy(control.id);
+                },
+
+                getAdjacent(element, direction) {
+                    return $dropdowntextlist.getAdjacent(control.id, element, direction);
+                },
+
+                refreshOptions(triggerDropdown) {
+                    return $dropdowntextlist.refreshOptions(control.id, triggerDropdown);
+                },
+
+                open() {
+                    return $dropdowntextlist.open(control.id);
+                },
+
+                close() {
+                    return $dropdowntextlist.close(control.id);
+                },
+
+                positionDropdown() {
+                    return $dropdowntextlist.positionDropdown(control.id);
+                },
+
+                focus() {
+                    return $dropdowntextlist.focus(control.id);
+                },
+
+                blur() {
+                    return $dropdowntextlist.blur(control.id);
+                },
+
+                setCaret(index) {
+                    return $dropdowntextlist.setCaret(control.id, index);
+                },
+
+                isFull() {
+                    return $dropdowntextlist.isFull(control.id);
+                },
+
+                clearCache() {
+                    return $dropdowntextlist.clearCache(control.id);
+                },
+
+                setTextboxValue(str) {
+                    return $dropdowntextlist.setTextboxValue(control.id, str);
+                }
+            };
+            $dropdowntextlist.textListControls.push(control);
+            var mod = window[syn.$w.pageScript];
+            var events = control.originalEvents ? $object.parseJsonValue(control.originalEvents, 'json') : [];
+            Object.keys($dropdowntextlist.eventCallbacks).forEach(function (event) {
+                if (typeof setting[$dropdowntextlist.eventCallbacks[event]] === 'function') {
+                    $dropdowntextlist.on(control.id, event, setting[$dropdowntextlist.eventCallbacks[event]]);
+                }
+                if (events.includes(event) && mod && mod.event && typeof mod.event[control.id + '_' + event] === 'function') {
+                    $dropdowntextlist.on(control.id, event, mod.event[control.id + '_' + event]);
+                }
+            });
+            // 컨트롤 이벤트는 직접 연결하여 공통 로더의 DOM 이벤트와 중복 호출되지 않게 한다.
+            if (control.originalEvents !== null) {
+                el.setAttribute('syn-events', JSON.stringify(events.filter(function (event) {
+                    return !$dropdowntextlist.hasProperty($dropdowntextlist.eventCallbacks, event);
+                })));
+            }
+            control.container = document.createElement('div');
+            control.container.className = 'syn-dropdowntextlist';
+            control.container.style.width = setting.width;
+            control.source = document.createElement('select');
+            control.source.multiple = true;
+            control.source.id = control.id + '_select';
+            control.source.setAttribute('aria-label', setting.controlText || setting.placeholder);
+            control.container.append(control.source);
+            if (/^(INPUT|SELECT)$/.test(el.tagName)) {
+                el.style.display = 'none';
+                el.insertAdjacentElement('afterend', control.container);
+            }
+            else {
+                el.append(control.container);
+            }
+            $dropdowntextlist.listen(control.id, control.source, 'change', function (event) {
+                return event.stopPropagation();
+            });
+            $dropdowntextlist.listen(control.id, control.source, 'input', function (event) {
+                return event.stopPropagation();
+            });
+            var options = (setting.options || []).map(function (data) {
+                return $dropdowntextlist.normalize(control.id, data);
+            });
+            var selectSetting = Object.assign({}, setting, {
+                options: options,
+                items: [],
+                preload: false,
+                mode: 'multi',
+                duplicates: false,
+                valueField: '_dttlID',
+                labelField: '_dttlLabel',
+                optgroupField: '_dttlGroup',
+                searchField: ['_dttlKey', '_dttlLabel'],
+                optgroupValueField: 'value',
+                optgroupLabelField: 'label',
+                plugins: ['caret_position'],
+                loadThrottle: null,
+                create: setting.create ? true : false,
+                render: {
+                    item: function (data, escape) {
+                        var condition = control.conditions.get(data._dttlID) || {
+                            logic: 'AND',
+                            operator: 'eq'
+                        };
+                        var group = control.picker ? control.picker.optgroups[data._dttlGroup] : null;
+                        var groupLabel = group && group.label != null ? String(group.label) : data._dttlGroup || '기타';
+                        var summary = groupLabel + ' · ' + data._dttlLabel + ' · ' + condition.logic + ' · ' + $dropdowntextlist.operators[condition.operator];
+
+                        return '<div class="dttl-item" data-dttl-logic="' + condition.logic + '" data-dttl-operator="' + condition.operator + '" title="' + escape(summary) + '">' +
+                            '<span class="dttl-logic-badge" aria-hidden="true">' + condition.logic + '</span>' +
+                            '<span class="dttl-group" role="button" tabindex="0" aria-label="' + escape(summary + ' 조건 편집') + '">' + escape(groupLabel) + '</span>' +
+                            '<button type="button" class="dttl-edit" aria-label="' + escape(summary + ' 조건 편집') + '"><span class="dttl-label">' + escape(data._dttlLabel) + '</span></button>' +
+                            '<button type="button" class="dttl-remove" aria-label="' + escape(data._dttlLabel + ' 삭제') + '">×</button></div>';
+                    },
+                    option: function (data, escape) {
+                        return '<div>' + escape(data._dttlLabel) + '</div>';
+                    },
+                    no_results: function () {
+                        return '<div class="no-results">검색 결과가 없습니다.</div>';
+                    }
+                }
+            });
+            Object.keys($dropdowntextlist.eventCallbacks).forEach(function (event) {
+                selectSetting[$dropdowntextlist.eventCallbacks[event]] = function (...args) {
+                    control.picker = this;
+                    $dropdowntextlist.relay(control.id, event, args);
+                };
+            });
+            control.picker = new TomSelect(control.source, selectSetting);
+            var originalPositionDropdown = control.picker.positionDropdown;
+            control.picker.positionDropdown = function () {
+                var result = originalPositionDropdown.call(control.picker);
+                if (!control.destroyed) {
+                    $dropdowntextlist.sizeDropdown(control.id);
+                }
+                return result;
+            };
+            var originalRefreshOptions = control.picker.refreshOptions;
+            control.picker.refreshOptions = function (triggerDropdown) {
+                var result = originalRefreshOptions.call(control.picker, triggerDropdown);
+                if (control.picker.isOpen && !control.destroyed) {
+                    $dropdowntextlist.sizeDropdown(control.id);
+                }
+                return result;
+            };
+            // 콜백과 Promise 방식 모두 같은 생성·조회 처리와 파괴 여부 검사를 사용한다.
+            control.picker.createItem = function (value, callback) {
+                return $dropdowntextlist.createItem(control.id, value, callback);
+            };
+            control.picker.load = function (query) {
+                return $dropdowntextlist.load(control.id, query);
+            };
+            $dropdowntextlist.listen(control.id, control.picker.control, 'click', function (event) {
+                return $dropdowntextlist.onTagClick(control.id, event);
+            }, true);
+            $dropdowntextlist.listen(control.id, control.picker.control, 'keydown', function (event) {
+                var target = event.target.closest('.dttl-group,.dttl-edit');
+                if (target && (event.key === 'Enter' || event.key === ' ' || event.key === 'F2')) {
+                    event.preventDefault();
+                    event.stopImmediatePropagation();
+                    $dropdowntextlist.editCondition(control.id, target.closest('[data-value]'));
+                    return;
+                }
+                if ((event.key === 'Enter' || event.key === 'F2') && control.picker.activeItems.length) {
+                    event.preventDefault();
+                    event.stopImmediatePropagation();
+                    $dropdowntextlist.editCondition(control.id, control.picker.activeItems[0]);
+                }
+            }, true);
+            $dropdowntextlist.listen(control.id, control.picker.control_input, 'compositionstart', function () {
+                control.composing = true;
+            });
+            $dropdowntextlist.listen(control.id, control.picker.control_input, 'compositionend', function () {
+                control.composing = false;
+            });
+            $dropdowntextlist.listen(control.id, control.picker.control_input, 'keydown', function (event) {
+                if (control.composing || event.isComposing) {
+                    event.stopImmediatePropagation();
+                }
+            }, true);
+            $dropdowntextlist.listen(control.id, document, 'pointerdown', function (event) {
+                if (control.editor && !control.editor.contains(event.target) && !control.picker.control.contains(event.target)) {
+                    $dropdowntextlist.closeEditor(control.id, false);
+                }
+            });
+            $dropdowntextlist.listen(control.id, window, 'resize', function () {
+                if (control.picker.isOpen) {
+                    control.picker.positionDropdown();
+                }
+                if (control.editor) {
+                    $dropdowntextlist.positionEditor(control.id);
+                }
+            });
+            $dropdowntextlist.listen(control.id, document, 'scroll', function (event) {
+                if (control.editor && !control.editor.contains(event.target)) {
+                    $dropdowntextlist.positionEditor(control.id);
+                }
+            }, true);
+            if (setting.items && setting.items.length) {
+                $dropdowntextlist.setValue(control.id, setting.items, true);
+            }
+            if (setting.disabled || el.disabled) {
+                $dropdowntextlist.disable(control.id);
+            }
+            if (setting.locked || el.readOnly) {
+                $dropdowntextlist.lock(control.id);
+            }
+            control.ready = true;
+            $dropdowntextlist.writeValue(control.id);
+            return control;
+        },
+
+        on(elID, event, handler) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            if (typeof handler !== 'function') {
+                throw new TypeError('DropDownTextList: handler must be a function');
+            }
+            event.split(/\s+/).forEach(function (name) {
+                if (!control.handlers.has(name)) {
+                    control.handlers.set(name, new Set());
+                }
+                control.handlers.get(name).add(handler);
+            });
+            return control;
+        },
+
+        off(elID, event, handler) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            if (!event) {
+                control.handlers.clear();
+            }
+            else {
+                event.split(/\s+/).forEach(function (name) {
+                    if (handler) {
+                        var handlers = control.handlers.get(name);
+                        if (handlers) {
+                            handlers.delete(handler);
+                        }
+                    }
+                    else {
+                        control.handlers.delete(name);
+                    }
+                });
+            }
+            return control;
+        },
+
+        trigger(elID, event, ...args) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            Array.from(control.handlers.get(event) || []).forEach(function (handler) {
+                return handler.apply(control, args);
+            });
+            return control;
+        },
+
+        getValue(elID) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            return control.picker.items.filter(function (id) {
+                return $dropdowntextlist.hasProperty(control.picker.options, id);
+            }).map(function (id) {
+                var data = control.picker.options[id];
+                var condition = control.conditions.get(id) || {
+                    logic: 'AND',
+                    operator: 'eq'
+                };
+                return {
+                    groupID: data._dttlGroup,
+                    logic: condition.logic,
+                    operator: condition.operator,
+                    key: data._dttlKey,
+                    value: data._dttlLabel
+                };
+            });
+        },
+
+        setValue(elID, value, silent = false) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            // 거래 setter의 세 번째 인자는 메타데이터일 수 있으므로 true일 때만 change를 생략한다.
+            silent = silent === true;
+            var values = Array.isArray(value) ? value : [value];
+            var kind = values.length ? $dropdowntextlist.getValueType(values[0]) : 'key';
+            if (values.some(function (item) {
+                return $dropdowntextlist.getValueType(item) !== kind;
+            })) {
+                throw new TypeError('DropDownTextList: mixed arrays are not supported');
+            }
+            var prepared = [];
+            if (kind === 'condition') {
+                prepared = values.map(function (item) {
+                    return $dropdowntextlist.condition(control.id, item);
+                });
+            }
+            else if (kind === 'option') {
+                prepared = values.map(function (item) {
+                    return $dropdowntextlist.normalize(control.id, item);
+                });
+            }
+            else {
+                prepared = values.map(function (item) {
+                    var id = $dropdowntextlist.resolve(control.id, item);
+                    if (!id) {
+                        throw new Error('DropDownTextList: unknown key ' + item);
+                    }
+                    return id;
+                });
+            }
+
+            var before = JSON.stringify($dropdowntextlist.getValue(control.id));
+            var userOptions = Object.assign({}, control.picker.userOptions);
+            $dropdowntextlist.cancelPending(control.id);
+            $dropdowntextlist.closeEditor(control.id, false);
+            if (kind === 'option') {
+                var incoming = new Map(prepared.map(function (data) {
+                    return [data._dttlID, data];
+                }));
+                Object.keys(control.picker.options).forEach(function (id) {
+                    if (!incoming.has(id)) {
+                        control.picker.removeOption(id, true);
+                    }
+                });
+                incoming.forEach(function (data, id) {
+                    if ($dropdowntextlist.hasProperty(control.picker.options, id)) {
+                        control.picker.updateOption(id, data);
+                    }
+                    else {
+                        control.picker.addOption(data);
+                    }
+                });
+            }
+            else {
+                // 선택을 재설정할 때 persist=false로 제거되는 사용자 생성 후보도 보존한다.
+                var selectedOptions = kind === 'key' ? prepared.map(function (id) {
+                    return control.picker.options[id];
+                }) : [];
+                control.picker.clear(true);
+                control.conditions.clear();
+                var ids = [];
+                prepared.forEach(function (data, index) {
+                    var id = kind === 'condition' ? $dropdowntextlist.getOptionID(data.groupID, data.key) : data;
+                    if (ids.includes(id)) {
+                        return;
+                    }
+                    ids.push(id);
+                    if (kind === 'condition') {
+                        control.conditions.set(id, {
+                            logic: data.logic,
+                            operator: data.operator
+                        });
+                        var option = $dropdowntextlist.fromCondition(control.id, data);
+                        if ($dropdowntextlist.hasProperty(control.picker.options, id)) {
+                            control.picker.updateOption(id, option);
+                        }
+                        else {
+                            control.picker.addOption(option, $dropdowntextlist.hasProperty(userOptions, id));
+                        }
+                    }
+                    else if (!$dropdowntextlist.hasProperty(control.picker.options, id)) {
+                        control.picker.addOption(selectedOptions[index], $dropdowntextlist.hasProperty(userOptions, id));
+                    }
+                });
+                control.picker.addItems(ids, true);
+            }
+            $dropdowntextlist.refreshItems(control.id);
+            control.picker.refreshOptions(false);
+            $dropdowntextlist.notify(control.id, before, silent);
+        },
+
+        addOption(elID, data, user_created = false) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            control.picker.addOption($dropdowntextlist.normalize(control.id, data), user_created);
+        },
+
+        addOptions(elID, data, user_created = false) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            var options = data.map(function (item) {
+                return $dropdowntextlist.normalize(control.id, item);
+            });
+            options.forEach(function (item) {
+                return control.picker.addOption(item, user_created);
+            });
+        },
+
+        updateOption(elID, value, data) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            var id = $dropdowntextlist.resolve(control.id, value);
+            var option = $dropdowntextlist.normalize(control.id, data);
+            if (!id || !$dropdowntextlist.hasProperty(control.picker.options, id)) {
+                return;
+            }
+            if (id !== option._dttlID && $dropdowntextlist.hasProperty(control.picker.options, option._dttlID)) {
+                throw new Error('DropDownTextList: duplicate groupID + key');
+            }
+            var before = JSON.stringify($dropdowntextlist.getValue(control.id));
+            var condition = control.conditions.get(id);
+            control.conditions.delete(id);
+            if (condition) {
+                control.conditions.set(option._dttlID, condition);
+            }
+            var userCreated = $dropdowntextlist.hasProperty(control.picker.userOptions, id);
+            control.picker.updateOption(id, option);
+            if (userCreated) {
+                delete control.picker.userOptions[id];
+                control.picker.userOptions[option._dttlID] = true;
+            }
+            control.picker.updateOriginalInput({
+                silent: true
+            });
+            $dropdowntextlist.closeEditor(control.id, false);
+            $dropdowntextlist.notify(control.id, before, false);
+            if (control.picker.isOpen) {
+                control.picker.positionDropdown();
+            }
+        },
+
+        removeOption(elID, value) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            var id = $dropdowntextlist.resolve(control.id, value);
+            if (id) {
+                control.picker.removeOption(id);
+            }
+        },
+
+        getOption(elID, value, create = false) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            var id = $dropdowntextlist.resolve(control.id, value);
+            return id ? control.picker.getOption(id, create) : null;
+        },
+
+        clearFilter(elID, option, value) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            var id = $dropdowntextlist.resolve(control.id, value);
+            return control.picker.items.includes(id);
+        },
+
+        clearOptions(elID, filter) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            var users = Object.assign({}, control.picker.userOptions);
+            $dropdowntextlist.cancelPending(control.id);
+            control.picker.clearOptions(function (data, id) {
+                return control.picker.items.includes(id) || (filter ? filter.call(control, Object.assign({}, data._dttlRaw), $dropdowntextlist.getOptionReference(id)) === true : false);
+            });
+            Object.keys(users).forEach(function (id) {
+                if ($dropdowntextlist.hasProperty(control.picker.options, id)) {
+                    control.picker.userOptions[id] = true;
+                }
+            });
+        },
+
+        clear(elID, silent = false) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            $dropdowntextlist.cancelPending(control.id);
+            control.picker.clear(silent === true);
+            control.conditions.clear();
+            $dropdowntextlist.closeEditor(control.id, false);
+            $dropdowntextlist.writeValue(control.id);
+        },
+
+        getItem(elID, value) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            var id = $dropdowntextlist.resolve(control.id, value);
+            return id ? control.picker.getItem(id) : null;
+        },
+
+        addItem(elID, value, silent = false) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            var id = $dropdowntextlist.resolve(control.id, value);
+            if (id) {
+                control.picker.addItem(id, silent === true);
+            }
+            $dropdowntextlist.writeValue(control.id);
+        },
+
+        removeItem(elID, value, silent = false) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            var id = $dropdowntextlist.resolve(control.id, value);
+            if (id) {
+                control.picker.removeItem(id, silent === true);
+            }
+            $dropdowntextlist.writeValue(control.id);
+        },
+
+        refreshItems(elID) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            // Tom Select가 기존 태그를 재사용하는 경우에도 조건 요약을 다시 렌더링한다.
+            control.picker.items.forEach(function (id) {
+                var old = control.picker.getItem(id);
+                var node = control.picker._render('item', control.picker.options[id]);
+                if (old) {
+                    old.replaceWith(node);
+                }
+            });
+            control.picker.clearActiveItems();
+            control.picker.updateOriginalInput({
+                silent: true
+            });
+            control.picker.refreshState();
+            $dropdowntextlist.updateButtons(control.id);
+            $dropdowntextlist.writeValue(control.id);
+        },
+
+        createItem(elID, value, callback) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            value = value == null ? control.picker.control_input.value : String(value);
+            if (!value || !control.settings.create || control.destroyed || control.picker.isLocked || !control.picker.canCreate(value)) {
+                if (callback) {
+                    callback();
+                }
+                return false;
+            }
+            var revision = control.revision;
+            var caret = control.picker.caretPos;
+            control.creating = true;
+            control.picker.lock();
+            var completed = false;
+            var done = function (data) {
+                if (completed || control.destroyed || revision !== control.revision) {
+                    return;
+                }
+                completed = true;
+                control.creating = false;
+                if (!control.explicitLock && !control.picker.isDisabled) {
+                    control.picker.unlock();
+                }
+                if (!data) {
+                    if (callback) {
+                        callback();
+                    }
+                    return;
+                }
+                var option;
+                try {
+                    option = $dropdowntextlist.normalize(control.id, data);
+                } catch (error) {
+                    console.warn(error);
+                    if (callback) {
+                        callback();
+                    }
+                    return;
+                }
+                control.picker.addOption(option, true);
+                control.picker.setCaret(caret);
+                control.picker.addItem(option._dttlID);
+                control.picker.setTextboxValue('');
+                if (callback) {
+                    callback(Object.assign({}, data));
+                }
+            };
+            try {
+                var result = typeof control.settings.create === 'function' ? control.settings.create.call(control, value, done) : {
+                    [control.settings.optgroupField]: control.settings.defaultGroupID,
+                    [control.settings.valueField]: value,
+                    [control.settings.labelField]: value
+                };
+                if (result && typeof result.then === 'function') {
+                    result.then(done, function (error) {
+                        console.warn(error);
+                        done();
+                    });
+                }
+                else if (result !== undefined) {
+                    done(result);
+                }
+            } catch (error) {
+                console.warn(error);
+                done();
+            }
+            return true;
+        },
+
+        load(elID, query) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            if (control.destroyed || typeof control.settings.load !== 'function') {
+                return;
+            }
+            query = String(query || '');
+            var sequence = ++control.loadSequence;
+            clearTimeout(control.loadTimer);
+            control.picker.loading = 1;
+            control.picker.wrapper.classList.add(control.picker.settings.loadingClass);
+            control.loadTimer = setTimeout(function () {
+                if (control.destroyed || sequence !== control.loadSequence) {
+                    return;
+                }
+                var completed = false;
+                var done = function (data = [], groups = []) {
+                    if (completed || control.destroyed || sequence !== control.loadSequence) {
+                        return;
+                    }
+                    completed = true;
+                    control.picker.loading = 0;
+                    control.picker.wrapper.classList.remove(control.picker.settings.loadingClass);
+                    try {
+                        var normalized = data.map(function (item) {
+                            return $dropdowntextlist.normalize(control.id, item);
+                        });
+                        groups.forEach(function (group) {
+                            return $dropdowntextlist.addOptionGroup(control.id, group.value, group);
+                        });
+                        normalized.forEach(function (option) {
+                            return control.picker.addOption(option);
+                        });
+                        control.picker.refreshOptions(control.picker.isFocused);
+                        $dropdowntextlist.trigger(control.id, 'load', data.map(function (item) {
+                            return Object.assign({}, item);
+                        }));
+                    } catch (error) {
+                        console.warn(error);
+                    }
+                };
+                try {
+                    var result = control.settings.load.call(control, query, done);
+                    if (result && typeof result.then === 'function') {
+                        result.then(function (data) {
+                            return done(data);
+                        }, function (error) {
+                            console.warn(error);
+                            done();
+                        });
+                    }
+                    else if (Array.isArray(result)) {
+                        done(result);
+                    }
+                } catch (error) {
+                    console.warn(error);
+                    done();
+                }
+            }, control.settings.loadThrottle || 0);
+        },
+
+        addOptionGroup(elID, id, data) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            control.picker.addOptionGroup(String(id), Object.assign({}, data, {
+                value: String(id)
+            }));
+            $dropdowntextlist.refreshItems(elID);
+        },
+
+        removeOptionGroup(elID, id) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            control.picker.removeOptionGroup(String(id));
+            $dropdowntextlist.refreshItems(elID);
+        },
+
+        clearOptionGroups(elID) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            control.picker.clearOptionGroups();
+            $dropdowntextlist.refreshItems(elID);
+        },
+
+        lock(elID) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            control.explicitLock = true;
+            $dropdowntextlist.closeEditor(control.id, false);
+            control.picker.lock();
+            $dropdowntextlist.updateButtons(control.id);
+        },
+
+        unlock(elID) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            control.explicitLock = false;
+            if (!control.creating && !control.picker.isDisabled) {
+                control.picker.unlock();
+            }
+            $dropdowntextlist.updateButtons(control.id);
+        },
+
+        disable(elID) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            $dropdowntextlist.closeEditor(control.id, false);
+            control.picker.disable();
+            $dropdowntextlist.updateButtons(control.id);
+        },
+
+        enable(elID) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            control.picker.enable();
+            if (control.explicitLock || control.creating) {
+                control.picker.lock();
+            }
+            $dropdowntextlist.updateButtons(control.id);
+        },
+
+        sync(elID) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            var before = JSON.stringify($dropdowntextlist.getValue(control.id));
+            var records = Array.from(control.source.options).map(function (option) {
+                var ref = $dropdowntextlist.getOptionReference(option.value);
+                var currentOption = control.picker.options[option.value];
+                var raw = Object.assign({}, currentOption ? currentOption._dttlRaw : undefined, {
+                    [control.settings.optgroupField]: ref.groupID,
+                    [control.settings.valueField]: ref.key,
+                    [control.settings.labelField]: option.text
+                });
+                return {
+                    data: $dropdowntextlist.normalize(control.id, raw),
+                    selected: option.selected
+                };
+            });
+            var conditions = new Map(control.conditions);
+            $dropdowntextlist.setValue(control.id, records.map(function (record) {
+                return record.data._dttlRaw;
+            }), true);
+            control.picker.clear(true);
+            control.conditions = conditions;
+            control.picker.addItems(records.filter(function (record) {
+                return record.selected;
+            }).map(function (record) {
+                return record.data._dttlID;
+            }), true);
+            $dropdowntextlist.refreshItems(control.id);
+            if (control.source.disabled) {
+                $dropdowntextlist.disable(control.id);
+            }
+            else {
+                $dropdowntextlist.enable(control.id);
+            }
+            $dropdowntextlist.notify(control.id, before, false);
+        },
+
+        destroy(elID) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            if (control.destroyed) {
+                return;
+            }
+            $dropdowntextlist.trigger(control.id, 'destroy');
+            $dropdowntextlist.cancelPending(control.id);
+            control.destroyed = true;
+            clearTimeout(control.picker.refreshTimeout);
+            $dropdowntextlist.closeEditor(control.id, false);
+            control.cleanups.forEach(function (cleanup) {
+                return cleanup();
+            });
+            control.cleanups = [];
+            control.picker.destroy();
+            control.container.remove();
+            control.host.style.display = control.originalDisplay;
+            if (control.originalEvents !== null) {
+                control.host.setAttribute('syn-events', control.originalEvents);
+            }
+            control.handlers.clear();
+            control.conditions.clear();
+            control.dispose();
+        },
+
+        getAdjacent(elID, element, direction) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            return control.picker.getAdjacent(element, direction);
+        },
+
+        refreshOptions(elID, triggerDropdown) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            return control.picker.refreshOptions(triggerDropdown);
+        },
+
+        open(elID) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            return control.picker.open();
+        },
+
+        close(elID) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            return control.picker.close();
+        },
+
+        positionDropdown(elID) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            control.picker.positionDropdown();
+            if (control.editor) {
+                $dropdowntextlist.positionEditor(elID);
+            }
+        },
+
+        focus(elID) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            return control.picker.focus();
+        },
+
+        blur(elID) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            return control.picker.blur();
+        },
+
+        setCaret(elID, index) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            return control.picker.setCaret(index);
+        },
+
+        isFull(elID) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            return control.picker.isFull();
+        },
+
+        clearCache(elID) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            return control.picker.clearCache();
+        },
+
+        setTextboxValue(elID, str) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            return control.picker.setTextboxValue(str);
+        },
+
+        getControl(elID) {
+            var result = null;
+            for (var i = 0, length = $dropdowntextlist.textListControls.length; i < length; i++) {
+                var control = $dropdowntextlist.textListControls[i];
+                if (control.id === elID) {
+                    result = control;
+                    break;
+                }
+            }
+            return result;
+        },
+
+        requireControl(elID) {
+            var control = $dropdowntextlist.getControl(elID);
+            if (!control) {
+                throw new Error('DropDownTextList: control not initialized: ' + elID);
+            }
+            return control;
+        },
+
+        hasProperty(object, key) {
+            return Object.prototype.hasOwnProperty.call(object, key);
+        },
+
+        getOptionID(groupID, key) {
+            return JSON.stringify([groupID, key]);
+        },
+
+        getOptionReference(id) {
+            var pair = JSON.parse(id);
+            return {
+                groupID: pair[0],
+                key: pair[1]
+            };
+        },
+
+        normalizeScalar(value, field, empty) {
+            if (typeof value !== 'string' && typeof value !== 'number' || !empty && String(value) === '') {
+                throw new TypeError('DropDownTextList: ' + field + ' must be a ' + (empty ? '' : 'nonempty ') + 'string or number');
+            }
+            return String(value);
+        },
+
+        initialize(elID) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            $dropdowntextlist.trigger(control.id, 'initialize');
+            if (control.settings.preload === true && control.destroyed !== true) {
+                $dropdowntextlist.load(control.id, '');
+            }
+        },
+
+        listen(elID, element, event, handler, capture = false) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            element.addEventListener(event, handler, capture);
+            control.cleanups.push(function () {
+                return element.removeEventListener(event, handler, capture);
+            });
+        },
+
+        getValueType(value) {
+            var result = 'option';
+            if (typeof value === 'string' || typeof value === 'number') {
+                result = 'key';
+            }
+            else if (value && typeof value === 'object') {
+                var isCondition = ['groupID', 'logic', 'operator', 'key'].every(function (key) {
+                    return $dropdowntextlist.hasProperty(value, key);
+                });
+                if (isCondition) {
+                    result = 'condition';
+                }
+            }
+
+            return result;
+        },
+
+        normalize(elID, data) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            if (!data || typeof data !== 'object' || Array.isArray(data)) {
+                throw new TypeError('DropDownTextList: option must be an object');
+            }
+            var key = $dropdowntextlist.normalizeScalar(data[control.settings.valueField], 'key', false);
+            var groupID = $dropdowntextlist.normalizeScalar(data[control.settings.optgroupField] == null ? '' : data[control.settings.optgroupField], 'groupID', true);
+            var value = $dropdowntextlist.normalizeScalar(data[control.settings.labelField], 'value', true);
+            return {
+                _dttlID: $dropdowntextlist.getOptionID(groupID, key),
+                _dttlKey: key,
+                _dttlGroup: groupID,
+                _dttlLabel: value,
+                _dttlRaw: Object.assign({}, data)
+            };
+        },
+
+        condition(elID, data) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            var groupID = $dropdowntextlist.normalizeScalar(data.groupID, 'groupID', true);
+            var key = $dropdowntextlist.normalizeScalar(data.key, 'key', false);
+            var value = $dropdowntextlist.normalizeScalar(data.value, 'value', true);
+            if (!['AND', 'OR'].includes(data.logic) || !$dropdowntextlist.hasProperty($dropdowntextlist.operators, data.operator)) {
+                throw new TypeError('DropDownTextList: invalid logic or operator');
+            }
+            return {
+                groupID: groupID,
+                logic: data.logic,
+                operator: data.operator,
+                key: key,
+                value: value
+            };
+        },
+
+        fromCondition(elID, data) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            return $dropdowntextlist.normalize(control.id, {
+                [control.settings.optgroupField]: data.groupID,
+                [control.settings.valueField]: data.key,
+                [control.settings.labelField]: data.value
+            });
+        },
+
+        resolve(elID, value) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            if (value instanceof HTMLElement) {
+                return value.dataset.value;
+            }
+            if (value && typeof value === 'object') {
+                return $dropdowntextlist.getOptionID($dropdowntextlist.normalizeScalar(value.groupID, 'groupID', true), $dropdowntextlist.normalizeScalar(value.key, 'key', false));
+            }
+            var key = $dropdowntextlist.normalizeScalar(value, 'key', false);
+            var matches = Object.keys(control.picker.options).filter(function (id) {
+                return control.picker.options[id]._dttlKey === key;
+            });
+            if (matches.length > 1) {
+                throw new Error('DropDownTextList: ambiguous key; use {groupID, key}');
+            }
+            return matches[0];
+        },
+
+        relay(elID, event, args) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            if (event === 'initialize' || event === 'destroy' || !control.ready || control.destroyed) {
+                return;
+            }
+            if (event === 'change') {
+                $dropdowntextlist.writeValue(control.id);
+                args = [$dropdowntextlist.getValue(control.id)];
+            }
+            else if (event === 'item_add' || event === 'item_remove' || event === 'option_add' || event === 'option_remove') {
+                if (event === 'item_remove') {
+                    control.conditions.delete(args[0]);
+                    $dropdowntextlist.closeEditor(control.id, false);
+                }
+                args = args.slice();
+                args[0] = $dropdowntextlist.getOptionReference(args[0]);
+                if (event === 'option_add') {
+                    args[1] = Object.assign({}, args[1]._dttlRaw);
+                }
+            }
+            else if (event === 'clear') {
+                control.conditions.clear();
+                $dropdowntextlist.closeEditor(control.id, false);
+            }
+            $dropdowntextlist.writeValue(control.id);
+            $dropdowntextlist.trigger(control.id, event, ...args);
+            if (event === 'focus' && control.settings.preload === 'focus' && !control.preloaded && control.destroyed !== true) {
+                control.preloaded = true;
+                $dropdowntextlist.load(control.id, '');
+            }
+        },
+
+        writeValue(elID) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            control.host.value = JSON.stringify($dropdowntextlist.getValue(control.id));
+            // 선택하지 않은 후보와 변경한 표시명도 기반 select에 반영하여 sync()에 사용한다.
+            Array.from(control.source.options).forEach(function (option) {
+                if (!$dropdowntextlist.hasProperty(control.picker.options, option.value)) {
+                    option.remove();
+                }
+            });
+            var nodes = new Map(Array.from(control.source.options).map(function (option) {
+                return [option.value, option];
+            }));
+            Object.keys(control.picker.options).forEach(function (id) {
+                var data = control.picker.options[id];
+                var option = nodes.get(id) || new Option(data._dttlLabel, id);
+                option.text = data._dttlLabel;
+                option.selected = control.picker.items.includes(id);
+                if (!option.parentElement) {
+                    control.source.add(option);
+                }
+                data.$option = option;
+            });
+            $dropdowntextlist.updateButtons(control.id);
+        },
+
+        notify(elID, before, silent) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            $dropdowntextlist.writeValue(control.id);
+            if (!silent && before !== JSON.stringify($dropdowntextlist.getValue(control.id))) {
+                control.picker.trigger('change', control.picker.getValue());
+            }
+        },
+
+        cancelPending(elID) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            control.revision++;
+            control.loadSequence++;
+            clearTimeout(control.loadTimer);
+            control.picker.loading = 0;
+            control.picker.wrapper.classList.remove(control.picker.settings.loadingClass);
+            if (control.creating) {
+                control.creating = false;
+                if (!control.explicitLock && !control.picker.isDisabled) {
+                    control.picker.unlock();
+                }
+            }
+        },
+
+        updateButtons(elID) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            control.picker.control.querySelectorAll('button').forEach(function (button) {
+                button.disabled = control.picker.isLocked || control.picker.isDisabled;
+            });
+            control.picker.control.querySelectorAll('.dttl-group').forEach(function (group) {
+                var disabled = control.picker.isLocked || control.picker.isDisabled;
+                group.tabIndex = disabled ? -1 : 0;
+                group.setAttribute('aria-disabled', String(disabled));
+            });
+        },
+
+        onTagClick(elID, event) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            var target = event.target.closest('.dttl-group,.dttl-edit,.dttl-remove');
+            if (!target || !control.picker.control.contains(target)) {
+                if (control.editor) {
+                    $dropdowntextlist.closeEditor(elID, false);
+                }
+                return;
+            }
+            event.preventDefault();
+            event.stopPropagation();
+            if (control.picker.isLocked || control.picker.isDisabled) {
+                return;
+            }
+            var item = target.closest('[data-value]');
+            if (target.classList.contains('dttl-remove')) {
+                $dropdowntextlist.removeItem(control.id, item);
+                $dropdowntextlist.focus(control.id);
+            }
+            else {
+                $dropdowntextlist.editCondition(control.id, item);
+            }
+        },
+
+        editCondition(elID, item) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            if (control.picker.isLocked || control.picker.isDisabled) {
+                return;
+            }
+            $dropdowntextlist.closeEditor(control.id, false);
+            var id = item.dataset.value;
+            var current = control.conditions.get(id) || {
+                logic: 'AND',
+                operator: 'eq'
+            };
+            control.picker.close();
+            var editor = document.createElement('div');
+            editor.className = 'dttl-editor';
+            editor.setAttribute('role', 'dialog');
+            editor.setAttribute('aria-label', control.picker.options[id]._dttlLabel + ' 조건 편집');
+            var field = function (label, values, value, colorAttribute) {
+                var wrapper = document.createElement('label');
+                wrapper.append(document.createTextNode(label));
+                var select = document.createElement('select');
+                Object.keys(values).forEach(function (key) {
+                    var option = new Option(values[key], key);
+                    option.setAttribute(colorAttribute, key);
+                    select.add(option);
+                });
+                select.value = value;
+                select.setAttribute(colorAttribute, value);
+                select.addEventListener('change', function () {
+                    select.setAttribute(colorAttribute, select.value);
+                });
+                wrapper.append(select);
+                editor.append(wrapper);
+                return select;
+            };
+            var logic = field('연결', {
+                AND: 'AND',
+                OR: 'OR'
+            }, current.logic, 'data-dttl-logic');
+            var operator = field('비교', $dropdowntextlist.operators, current.operator, 'data-dttl-operator');
+            var apply = document.createElement('button');
+            apply.type = 'button';
+            apply.textContent = '적용';
+            apply.className = 'dttl-apply';
+            var cancel = document.createElement('button');
+            cancel.type = 'button';
+            cancel.textContent = '취소';
+            editor.append(apply, cancel);
+            apply.addEventListener('click', function () {
+                if (control.picker.isLocked || control.picker.isDisabled) {
+                    return;
+                }
+                var before = JSON.stringify($dropdowntextlist.getValue(control.id));
+                control.conditions.set(id, {
+                    logic: logic.value,
+                    operator: operator.value
+                });
+                $dropdowntextlist.refreshItems(control.id);
+                $dropdowntextlist.closeEditor(control.id, true);
+                $dropdowntextlist.notify(control.id, before, false);
+            });
+            cancel.addEventListener('click', function () {
+                return $dropdowntextlist.closeEditor(control.id, true);
+            });
+            editor.addEventListener('keydown', function (event) {
+                if (event.key === 'Escape') {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    $dropdowntextlist.closeEditor(control.id, true);
+                }
+                if (event.key === 'Tab') {
+                    if (event.shiftKey && event.target === logic) {
+                        event.preventDefault();
+                        cancel.focus();
+                    }
+                    else if (!event.shiftKey && event.target === cancel) {
+                        event.preventDefault();
+                        logic.focus();
+                    }
+                }
+            });
+            control.editor = editor;
+            control.editingID = id;
+            control.container.append(editor);
+            $dropdowntextlist.positionEditor(elID);
+            logic.focus({ preventScroll: true });
+            control.picker.clearActiveItems();
+            control.picker.setActiveItemClass(item);
+        },
+
+        normalizeDropdownSize(value, name) {
+            var defaultValue = 'auto';
+            if (value == null || value === '') {
+                return defaultValue;
+            }
+            if (value === defaultValue || (name === 'dropdownWidth' && value === '100%')) {
+                return value;
+            }
+            if (typeof value === 'number' && Number.isFinite(value) && value > 0) {
+                return value + 'px';
+            }
+            if (typeof value === 'string' && /^\d+(?:\.\d+)?px$/.test(value) && parseFloat(value) > 0) {
+                return value;
+            }
+
+            throw new TypeError('DropDownTextList: ' + name + ' must be ' + defaultValue +
+                (name === 'dropdownWidth' ? ', 100%, or' : ' or') + ' a positive pixel value');
+        },
+
+        sizeDropdown(elID) {
+            var control = $dropdowntextlist.requireControl(elID);
+            var picker = control.picker;
+            var dropdown = picker.dropdown;
+            var content = picker.dropdown_content;
+            var width = $dropdowntextlist.normalizeDropdownSize(control.settings.dropdownWidth, 'dropdownWidth');
+            var height = $dropdowntextlist.normalizeDropdownSize(control.settings.dropdownHeight, 'dropdownHeight');
+
+            // 기본 높이는 Tom Select의 최대 높이 정책을 그대로 사용한다.
+            if (height === 'auto') {
+                dropdown.style.height = '';
+                content.style.height = '';
+                content.style.maxHeight = '';
+                content.style.boxSizing = '';
+            }
+            else {
+                dropdown.style.height = height;
+                content.style.height = '100%';
+                content.style.maxHeight = 'none';
+                content.style.boxSizing = 'border-box';
+            }
+
+            dropdown.style.maxWidth = '';
+            dropdown.style.overflowWrap = '';
+            if (width === '100%') {
+                if (picker.settings.dropdownParent !== 'body') {
+                    dropdown.style.width = '';
+                }
+            }
+            else if (width === 'auto') {
+                dropdown.style.width = 'max-content';
+                dropdown.style.overflowWrap = 'anywhere';
+                var left = picker.control.getBoundingClientRect().left;
+                var availableWidth = Math.max(1, document.documentElement.clientWidth - Math.max(0, left) - 8);
+                dropdown.style.maxWidth = availableWidth + 'px';
+                if (dropdown.getClientRects().length > 0) {
+                    var scrollbarWidth = content.offsetWidth - content.clientWidth;
+                    dropdown.style.width = Math.min(availableWidth, Math.ceil(dropdown.getBoundingClientRect().width) + scrollbarWidth) + 'px';
+                }
+            }
+            else {
+                dropdown.style.width = width;
+            }
+        },
+
+        positionEditor(elID) {
+            var control = $dropdowntextlist.requireControl(elID);
+            var editor = control.editor;
+            if (!editor) {
+                return;
+            }
+
+            var item = control.picker.getItem(control.editingID);
+            if (!item) {
+                $dropdowntextlist.closeEditor(elID, false);
+                return;
+            }
+
+            var itemRect = item.getBoundingClientRect();
+            var containerRect = control.container.getBoundingClientRect();
+            var viewportWidth = document.documentElement.clientWidth;
+            var viewportHeight = window.innerHeight;
+            var padding = 8;
+            var gap = 6;
+            if (itemRect.bottom < 0 || itemRect.top > viewportHeight || itemRect.right < 0 || itemRect.left > viewportWidth) {
+                $dropdowntextlist.closeEditor(elID, false);
+                return;
+            }
+
+            // 태그 바로 아래를 우선 사용하고, 화면 가장자리에서는 위치와 높이를 조정한다.
+            var spaceBelow = Math.max(0, viewportHeight - padding - itemRect.bottom - gap);
+            var spaceAbove = Math.max(0, itemRect.top - padding - gap);
+            editor.style.left = '0px';
+            editor.style.top = '0px';
+            editor.style.width = '';
+            editor.style.maxWidth = Math.max(0, Math.min(control.container.clientWidth, viewportWidth - padding * 2)) + 'px';
+            editor.style.maxHeight = Math.max(spaceBelow, spaceAbove) + 'px';
+            editor.style.width = Math.ceil(editor.getBoundingClientRect().width) + 'px';
+            var editorWidth = editor.offsetWidth;
+            var editorHeight = editor.offsetHeight;
+            var left = Math.max(padding, Math.min(itemRect.left, viewportWidth - padding - editorWidth));
+            var top = itemRect.bottom + gap;
+            if (editorHeight > spaceBelow && spaceAbove > spaceBelow) {
+                top = itemRect.top - gap - editorHeight;
+            }
+            top = Math.max(padding, Math.min(top, viewportHeight - padding - editorHeight));
+            editor.style.left = Math.round(left - containerRect.left - control.container.clientLeft + control.container.scrollLeft) + 'px';
+            editor.style.top = Math.round(top - containerRect.top - control.container.clientTop + control.container.scrollTop) + 'px';
+        },
+
+        closeEditor(elID, restoreFocus) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            if (!control.editor) {
+                return;
+            }
+            var id = control.editingID;
+            control.editor.remove();
+            control.editor = null;
+            control.editingID = null;
+            control.picker.clearActiveItems();
+            if (restoreFocus) {
+                var item = control.picker.getItem(id);
+                var button = item ? item.querySelector('.dttl-edit') : null;
+                if (button) {
+                    item.classList.add('active', 'last-active');
+                    control.picker.activeItems.push(item);
+                    button.focus({ preventScroll: true });
+                }
+            }
+        },
+
+        setLocale() {}
+    });
+
+    syn.uicontrols.$dropdowntextlist = $dropdowntextlist;
+})(window);
+
+/// <reference path="/js/syn.js" />
 /// <reference path="/js/syn.domain.js" />
 
 (function (window) {
@@ -57731,6 +59815,998 @@ if (typeof module !== 'undefined' && module.exports) {
 
 (function (window) {
     'use strict';
+
+    const imageExtensions = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'svg'];
+    const previewTemplate = '<div class="dz-preview dz-file-preview fdz-item">' +
+        '<div class="dz-image"><img data-dz-thumbnail draggable="false" alt="" /><span class="fdz-ext"></span></div>' +
+        '<div class="dz-details"><div class="dz-size"><span data-dz-size></span></div><div class="dz-filename"><span data-dz-name></span></div></div>' +
+        '<div class="dz-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span class="dz-upload" data-dz-uploadprogress></span></div>' +
+        '<div class="dz-error-message"><span data-dz-errormessage></span></div>' +
+        '<div class="dz-success-mark"><svg width="54" height="54" viewBox="0 0 54 54" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M10.2071 29.7929L14.2929 25.7071C14.6834 25.3166 15.3166 25.3166 15.7071 25.7071L21.2929 31.2929C21.6834 31.6834 22.3166 31.6834 22.7071 31.2929L38.2929 15.7071C38.6834 15.3166 39.3166 15.3166 39.7071 15.7071L43.7929 19.7929C44.1834 20.1834 44.1834 20.8166 43.7929 21.2071L22.7071 42.2929C22.3166 42.6834 21.6834 42.6834 21.2929 42.2929L10.2071 31.2071C9.81658 30.8166 9.81658 30.1834 10.2071 29.7929Z" /></svg></div>' +
+        '<div class="dz-error-mark"><svg width="54" height="54" viewBox="0 0 54 54" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M26.2929 20.2929L19.2071 13.2071C18.8166 12.8166 18.1834 12.8166 17.7929 13.2071L13.2071 17.7929C12.8166 18.1834 12.8166 18.8166 13.2071 19.2071L20.2929 26.2929C20.6834 26.6834 20.6834 27.3166 20.2929 27.7071L13.2071 34.7929C12.8166 35.1834 12.8166 35.8166 13.2071 36.2071L17.7929 40.7929C18.1834 41.1834 18.8166 41.1834 19.2071 40.7929L26.2929 33.7071C26.6834 33.3166 27.3166 33.3166 27.7071 33.7071L34.7929 40.7929C35.1834 41.1834 35.8166 41.1834 36.2071 40.7929L40.7929 36.2071C41.1834 35.8166 41.1834 35.1834 40.7929 34.7929L33.7071 27.7071C33.3166 27.3166 33.3166 26.6834 33.7071 26.2929L40.7929 19.2071C41.1834 18.8166 41.1834 18.1834 40.7929 17.7929L36.2071 13.2071C35.8166 12.8166 35.1834 12.8166 34.7929 13.2071L27.7071 20.2929C27.3166 20.6834 26.6834 20.6834 26.2929 20.2929Z" /></svg></div>' +
+        '<div class="fdz-actions"><button type="button" class="fdz-download">다운로드</button><button type="button" class="fdz-remove">삭제</button></div>' +
+        '</div>';
+
+    const extensionOf = name => {
+        const text = String(name || '');
+        const index = text.lastIndexOf('.');
+        return index > -1 ? text.substring(index + 1).toLowerCase() : '';
+    };
+
+    const isImageItem = item => imageExtensions.includes(String(item.Extension || extensionOf(item.FileName)).replace('.', '').toLowerCase());
+
+    // FileClient.toFileLengthString 과 같은 규칙: 1MiB 미만 KB, 1GiB 미만 MB, 그 이상 GB (0 은 '0.0 KB')
+    const toFileLengthString = bytes => {
+        const size = typeof bytes === 'number' && bytes > 0 ? bytes : 0;
+        if (size < 1048576) {
+            return (size / 1024).toFixed(1) + ' KB';
+        }
+
+        if (size < 1073741824) {
+            return (size / 1048576).toFixed(1) + ' MB';
+        }
+
+        return (size / 1073741824).toFixed(1) + ' GB';
+    };
+
+    const createTemporaryDependencyID = () => 'TEMP_' + Array.from(window.crypto.getRandomValues(new Uint8Array(12)), byte => byte.toString(16).padStart(2, '0')).join('');
+
+    const decodeFileResult = value => {
+        try {
+            const binary = window.atob(value);
+            return JSON.parse(new TextDecoder('utf-8').decode(Uint8Array.from(binary, char => char.charCodeAt(0))));
+        } catch (error) {
+            return null;
+        }
+    };
+
+    // FileClient.controlLoad 와 같은 규칙으로 ApplicationID / BusinessID 를 결정한다(컨트롤별로 보관, 전역 공유 없음).
+    const resolveContext = setting => {
+        let applicationID = setting.applicationID;
+        if (!applicationID) {
+            const tenantPath = syn.Config.TenantAppRequestPath ? `/${syn.Config.TenantAppRequestPath}/` : '/app/';
+            if (location.pathname.startsWith(tenantPath) == true) {
+                applicationID = syn.$w.ManagedApp && syn.$w.ManagedApp.ApplicationID;
+            }
+            else {
+                applicationID = (syn.$w.Variable && syn.$w.Variable.ApplicationID) || (syn.$w.User && syn.$w.User.ApplicationID) || syn.Config.ApplicationID;
+            }
+        }
+
+        let businessID = setting.businessID;
+        if (!businessID && syn.Config.FileBusinessIDSource && syn.Config.FileBusinessIDSource != 'None') {
+            if (syn.Config.FileBusinessIDSource == 'Cookie') {
+                businessID = syn.$r.getCookie('FileBusinessID');
+            }
+            else if (syn.Config.FileBusinessIDSource == 'SessionStorage') {
+                businessID = syn.$w.getStorage('FileBusinessID');
+            }
+        }
+
+        businessID = businessID || (syn.$w.User && syn.$w.User.WorkCompanyNo) || '0';
+        return { applicationID: applicationID, businessID: String(businessID) };
+    };
+
+    const apiUrl = (control, page, params) => {
+        const setting = control.setting;
+        const query = new URLSearchParams();
+        Object.keys(params || {}).forEach(key => {
+            if (params[key] !== null && params[key] !== undefined) {
+                query.set(key, String(params[key]));
+            }
+        });
+
+        const queryText = query.toString();
+        return setting.fileManagerServer.replace(/\/+$/, '') + setting.fileManagerPath + '/' + page + (queryText ? '?' + queryText : '');
+    };
+
+    // 저장 하위 경로(CustomPath1~3). 값이 있을 때만 업로드 요청에 포함한다.
+    const customPathParams = setting => {
+        const params = {};
+        ['customPath1', 'customPath2', 'customPath3'].forEach((key, index) => {
+            if (setting[key]) {
+                params['CustomPath' + (index + 1)] = setting[key];
+            }
+        });
+
+        return params;
+    };
+
+    const baseParams = control => ({ applicationID: control.context.applicationID, repositoryID: control.setting.repositoryID, businessID: control.context.businessID });
+
+    const requestInit = (control, init) => Object.assign({
+        headers: control.setting.headers || undefined,
+        credentials: control.setting.withCredentials === true ? 'include' : 'same-origin',
+        cache: 'no-store'
+    }, init);
+
+    const requestJson = async (control, page, params) => {
+        const response = await fetch(apiUrl(control, page, params), requestInit(control, { method: 'GET' }));
+        if (response.ok == false) {
+            throw new Error('HTTP ' + response.status);
+        }
+
+        return response.json();
+    };
+
+    const notify = (control, type, detail) => syn.$l.triggerEvent(control.host, type, detail);
+
+    const clone = value => JSON.parse(JSON.stringify(value));
+
+    const errorText = message => {
+        if (typeof message === 'string') {
+            return message;
+        }
+
+        if (message && typeof message === 'object') {
+            return message.Message || message.message || message.error || message.title || '업로드 오류';
+        }
+
+        return '업로드 오류';
+    };
+
+    const revokeThumbnail = file => {
+        if (file.fdzObjectUrl) {
+            URL.revokeObjectURL(file.fdzObjectUrl);
+            file.fdzObjectUrl = null;
+        }
+    };
+
+    const markItem = (file, item) => {
+        file.fdzItem = item;
+        const preview = file.previewElement;
+        if (preview) {
+            preview.classList.add('fdz-has-item');
+            const ext = preview.querySelector('.fdz-ext');
+            if (ext) {
+                ext.textContent = String(item.Extension || extensionOf(item.FileName)).replace('.', '').toUpperCase();
+            }
+        }
+    };
+
+    const showStatus = (control, message, isError) => {
+        let status = control.host.querySelector('.fdz-status');
+        if (!status) {
+            status = document.createElement('div');
+            status.className = 'fdz-status';
+            control.host.prepend(status);
+        }
+
+        status.textContent = message;
+        status.classList.toggle('fdz-status-error', isError === true);
+    };
+
+    const applyState = control => {
+        const locked = control.readOnly || control.disabled;
+        if (control.dz) {
+            if (locked && !control.dz.disabled) {
+                control.dz.disable();
+            }
+            else if (!locked && control.dz.disabled) {
+                control.dz.enable();
+            }
+        }
+
+        control.host.classList.toggle('fdz-readonly', control.readOnly);
+        control.host.classList.toggle('fdz-disabled', control.disabled);
+        control.host.setAttribute('aria-readonly', control.readOnly ? 'true' : 'false');
+        control.host.setAttribute('aria-disabled', control.disabled ? 'true' : 'false');
+    };
+
+    const setCardError = (file, message) => {
+        if (file.previewElement) {
+            file.previewElement.classList.add('dz-error');
+            const target = file.previewElement.querySelector('[data-dz-errormessage]');
+            if (target) {
+                target.textContent = message;
+            }
+        }
+    };
+
+    // 업로드 성공 응답이어도 Result 가 false 이면 실패로 처리한다(서버는 논리 오류를 HTTP 200 으로 반환).
+    const failUpload = (control, file, message) => {
+        file.status = Dropzone.ERROR;
+        file.accepted = false;
+        if (file.previewElement) {
+            file.previewElement.classList.remove('dz-success');
+        }
+
+        setCardError(file, message);
+        notify(control, 'uploadError', { file: file, message: message });
+    };
+
+    const fetchItem = async (control, itemID) => {
+        const item = await requestJson(control, 'action-handler', Object.assign(baseParams(control), { Action: 'GetItem', itemID: itemID }));
+        return item && item.ItemID ? item : null;
+    };
+
+    // 업로드 직후 항목 정보: FileResult 헤더(base64 JSON)를 우선 사용하고, 없으면 GetItem 으로 조회한다.
+    const resolveUploadedItem = async (control, file, response) => {
+        let item = null;
+        if (file.xhr && file.xhr.getResponseHeader('FileResult')) {
+            item = decodeFileResult(file.xhr.getResponseHeader('FileResult'));
+        }
+
+        if ((!item || !item.ItemID) && response && response.ItemID) {
+            try {
+                item = await fetchItem(control, response.ItemID);
+            } catch (error) {
+                item = null;
+            }
+        }
+
+        return item && item.ItemID ? item : null;
+    };
+
+    // 업로드 정책(저장소 설정) 중 서버가 강제하지 않는 확장자를 클라이언트에서 검사한다.
+    const policyExtensions = policy => {
+        const text = String(policy.UploadExtensions || '').trim();
+        if (text === '' || text === '*/*' || text === '*') {
+            return null;
+        }
+
+        return text.split(/[;,]/).map(item => item.trim().replace(/^\./, '').toLowerCase()).filter(item => item !== '');
+    };
+
+    const loadThumbnail = async (control, file) => {
+        if (control.setting.thumbnails !== true || !file.fdzItem || isImageItem(file.fdzItem) == false || file.size > 10 * 1024 * 1024) {
+            return;
+        }
+
+        try {
+            const blob = await downloadBlob(control, file.fdzItem);
+            if (blob && control.dz && control.dz.files.includes(file)) {
+                file.fdzObjectUrl = URL.createObjectURL(blob.blob);
+                control.dz.emit('thumbnail', file, file.fdzObjectUrl);
+            }
+        } catch (error) {
+            // 썸네일 실패는 무시한다(파일 카드는 그대로 표시).
+        }
+    };
+
+    const downloadBlob = async (control, item) => {
+        const response = await fetch(apiUrl(control, 'download-file'), requestInit(control, {
+            method: 'POST',
+            headers: Object.assign({ 'Content-Type': 'application/json' }, control.setting.headers || {}),
+            body: JSON.stringify({
+                ApplicationID: control.context.applicationID,
+                RepositoryID: control.setting.repositoryID,
+                ItemID: item.ItemID,
+                BusinessID: control.context.businessID,
+                FileMD5: '',
+                TokenID: control.setting.tokenID || '',
+                Disposition: 'attachment'
+            })
+        }));
+
+        if (response.ok == false) {
+            throw new Error('HTTP ' + response.status);
+        }
+
+        const result = response.headers.get('FileResult') ? decodeFileResult(response.headers.get('FileResult')) : null;
+        if (result && result.Result === false) {
+            throw new Error(result.Message || '다운로드 실패');
+        }
+
+        return { blob: await response.blob(), fileName: (result && result.FileName) || item.FileName };
+    };
+
+    // 서버에 이미 있는 항목을 목록에 표시한다(업로드 없음).
+    const addExisting = (control, item) => {
+        const dz = control.dz;
+        const name = item.FileName || item.ItemID;
+        const size = typeof item.Size === 'number' ? item.Size : Number(item.Size || item.SizeLength || 0);
+        const file = {
+            name: name,
+            size: size,
+            type: item.MimeType || '',
+            accepted: true,
+            status: Dropzone.SUCCESS,
+            upload: { progress: 100, total: size, bytesSent: size },
+            fdzItem: clone(item)
+        };
+
+        dz.emit('addedfile', file);
+        dz.emit('complete', file);
+        dz.files.push(file);
+        markItem(file, file.fdzItem);
+        file.previewElement.classList.add('dz-success', 'dz-complete');
+        dz._updateMaxFilesReachedClass();
+        loadThumbnail(control, file);
+        return file;
+    };
+
+    const clearList = control => {
+        if (control.dz) {
+            control.dz.files.slice().forEach(file => revokeThumbnail(file));
+            control.dz.removeAllFiles(true);
+        }
+    };
+
+    const findFile = (control, itemID) => (control.dz ? control.dz.files.find(file => file.fdzItem && file.fdzItem.ItemID === itemID) : null) || null;
+
+    const normalizeItems = async (control, values) => {
+        if (typeof values === 'string') {
+            const text = values.trim();
+            values = text === '' ? [] : (text.startsWith('[') ? JSON.parse(text) : text.split(',').map(item => item.trim()).filter(item => item !== ''));
+        }
+
+        if (Array.isArray(values) == false) {
+            values = values === null || values === undefined ? [] : [values];
+        }
+
+        const items = [];
+        items.skipped = 0;
+        for (const value of values) {
+            const itemID = typeof value === 'string' ? value : (value && value.ItemID);
+            if (!itemID) {
+                items.skipped++;
+                syn.$l.eventLog('$filedropzone.setValue', 'elID: "{0}" ItemID 가 없는 항목은 무시합니다.'.format(control.id), 'Warning');
+                continue;
+            }
+
+            if (typeof value === 'object' && value.FileName) {
+                items.push(value);
+            }
+            else {
+                const item = await fetchItem(control, itemID);
+                if (item) {
+                    items.push(item);
+                }
+                else {
+                    items.skipped++;
+                    syn.$l.eventLog('$filedropzone.setValue', 'elID: "{0}" ItemID "{1}" 정보를 찾을 수 없습니다.'.format(control.id, itemID), 'Warning');
+                }
+            }
+        }
+
+        return items;
+    };
+
+    const createDropzone = control => {
+        const setting = control.setting;
+        const policy = control.policy;
+        const extensions = policyExtensions(policy);
+        const isSingle = policy.IsMultiUpload === false;
+
+        let maxFilesize = policy.UploadSizeLimit > 0 ? policy.UploadSizeLimit / 1048576 : null;
+        if (setting.maxFilesize > 0 && (maxFilesize === null || setting.maxFilesize < maxFilesize)) {
+            maxFilesize = setting.maxFilesize;
+        }
+
+        let maxFiles = null;
+        if (isSingle == false) {
+            maxFiles = policy.UploadCount > 0 ? policy.UploadCount : null;
+            if (setting.maxFiles > 0 && (maxFiles === null || setting.maxFiles < maxFiles)) {
+                maxFiles = setting.maxFiles;
+            }
+        }
+
+        const dz = new Dropzone(control.host, {
+            url: () => apiUrl(control, 'upload-file', Object.assign(baseParams(control), { dependencyID: control.dependencyID }, customPathParams(setting))),
+            method: 'post',
+            paramName: 'file',
+            parallelUploads: isSingle ? 1 : setting.parallelUploads,
+            uploadMultiple: false,
+            maxFilesize: maxFilesize,
+            maxFiles: maxFiles,
+            acceptedFiles: setting.acceptedFiles || null,
+            timeout: setting.timeout > 0 ? setting.timeout : null,
+            headers: setting.headers,
+            withCredentials: setting.withCredentials === true,
+            createImageThumbnails: setting.thumbnails === true,
+            thumbnailWidth: 120,
+            thumbnailHeight: 120,
+            hiddenInputContainer: control.host,
+            previewTemplate: previewTemplate,
+            dictDefaultMessage: setting.placeholder,
+            dictFileTooBig: '파일이 너무 큽니다({{filesize}}MB). 최대 {{maxFilesize}}MB 까지 업로드할 수 있습니다.',
+            dictInvalidFileType: '허용되지 않는 파일 형식입니다.',
+            dictResponseError: '서버 오류가 발생했습니다(상태 코드 {{statusCode}}).',
+            dictCancelUpload: '업로드 취소',
+            dictMaxFilesExceeded: '더 이상 파일을 올릴 수 없습니다. (최대 {{maxFiles}}개)',
+            accept(file, done) {
+                if (extensions && file.fdzItem == null && extensions.includes(extensionOf(file.name)) == false) {
+                    done('허용되지 않는 확장자입니다. (허용: ' + extensions.join(', ') + ')');
+                    return;
+                }
+
+                done();
+            }
+        });
+
+        dz.filesize = size => toFileLengthString(size);
+
+        dz.on('addedfile', file => {
+            if (file.previewElement) {
+                file.previewElement.fdzFile = file;
+                file.previewElement.setAttribute('title', file.name);
+                const ext = file.previewElement.querySelector('.fdz-ext');
+                if (ext) {
+                    ext.textContent = extensionOf(file.name).toUpperCase();
+                }
+
+                if (setting.showDownload !== true) {
+                    file.previewElement.classList.add('fdz-no-download');
+                }
+            }
+
+            if (file.fdzItem) {
+                return;
+            }
+
+            // 단일 파일 저장소는 마지막으로 추가한 파일만 업로드한다.
+            if (isSingle == true) {
+                dz.files.filter(other => other !== file && other.fdzItem == null && (other.status === Dropzone.ADDED || other.status === Dropzone.QUEUED || other.status === Dropzone.UPLOADING)).forEach(other => dz.removeFile(other));
+            }
+
+            notify(control, 'fileAdded', { file: file });
+        });
+
+        dz.on('uploadprogress', (file, progress) => {
+            if (file.previewElement) {
+                const bar = file.previewElement.querySelector('.dz-progress');
+                if (bar) {
+                    bar.setAttribute('aria-valuenow', String(Math.round(progress)));
+                }
+            }
+
+            notify(control, 'uploadProgress', { file: file, progress: progress });
+        });
+
+        dz.on('success', async (file, response) => {
+            if (file.fdzItem) {
+                return;
+            }
+
+            if (!response || typeof response !== 'object' || response.Result !== true) {
+                failUpload(control, file, (response && response.Message) || '업로드에 실패했습니다.');
+                return;
+            }
+
+            const item = await resolveUploadedItem(control, file, response);
+            if (item == null) {
+                failUpload(control, file, '업로드한 파일 정보를 확인할 수 없습니다.');
+                return;
+            }
+
+            if (control.dz == null || dz.files.includes(file) == false) {
+                return;
+            }
+
+            markItem(file, item);
+            if (isSingle == true) {
+                dz.files.filter(other => other !== file && other.fdzItem).forEach(other => {
+                    revokeThumbnail(other);
+                    dz.removeFile(other);
+                });
+            }
+
+            notify(control, 'uploadSuccess', { file: file, item: clone(item) });
+            notify(control, 'change', { value: module.getValue(control.id) });
+        });
+
+        dz.on('error', (file, message) => {
+            const text = errorText(message);
+            file.accepted = false;
+            if (file.previewElement) {
+                const target = file.previewElement.querySelector('[data-dz-errormessage]');
+                if (target) {
+                    target.textContent = text;
+                }
+            }
+
+            if (file.xhr) {
+                notify(control, 'uploadError', { file: file, message: text });
+                return;
+            }
+
+            // 업로드 전에 거부된 파일(크기/확장자/개수 초과)
+            notify(control, 'fileRejected', { file: file, reason: text });
+            if (setting.rejectedDisplayMs > 0) {
+                setTimeout(() => {
+                    if (control.dz && dz.files.includes(file)) {
+                        dz.removeFile(file);
+                    }
+                }, setting.rejectedDisplayMs);
+            }
+        });
+
+        dz.on('queuecomplete', () => notify(control, 'queueComplete', {}));
+
+        control.onClick = event => {
+            const button = event.target.closest('.fdz-download, .fdz-remove');
+            if (!button || !control.host.contains(button)) {
+                return;
+            }
+
+            const preview = button.closest('.fdz-item');
+            const file = preview && preview.fdzFile;
+            if (!file) {
+                return;
+            }
+
+            event.preventDefault();
+            event.stopPropagation();
+            if (button.classList.contains('fdz-download')) {
+                if (file.fdzItem) {
+                    module.download(control.id, file.fdzItem.ItemID);
+                }
+            }
+            else {
+                removeFileEntry(control, file);
+            }
+        };
+        control.host.addEventListener('click', control.onClick);
+
+        return dz;
+    };
+
+    // 파일 카드의 삭제 버튼/removeItem 이 공통으로 사용한다. 반환: 성공 여부.
+    const removeFileEntry = async (control, file) => {
+        const dz = control.dz;
+        if (!dz) {
+            return false;
+        }
+
+        if (control.readOnly || control.disabled) {
+            return false;
+        }
+
+        const item = file.fdzItem;
+        if (item && control.setting.confirmRemove === true && window.confirm('"{0}" 파일을 삭제하시겠습니까?'.format(item.FileName)) == false) {
+            return false;
+        }
+
+        if (item && control.setting.deleteOnRemove === true) {
+            try {
+                const result = await requestJson(control, 'remove-item', Object.assign(baseParams(control), { itemID: item.ItemID }));
+                if (!result || result.Result !== true) {
+                    setCardError(file, (result && result.Message) || '파일을 삭제하지 못했습니다.');
+                    return false;
+                }
+            } catch (error) {
+                syn.$l.eventLog('$filedropzone.remove', 'elID: "{0}" 삭제 요청 오류: {1}'.format(control.id, error.message), 'Warning');
+                setCardError(file, '파일을 삭제하지 못했습니다.');
+                return false;
+            }
+        }
+
+        revokeThumbnail(file);
+        dz.removeFile(file);
+        dz._updateMaxFilesReachedClass();
+        if (item) {
+            notify(control, 'fileRemoved', { item: clone(item) });
+            notify(control, 'change', { value: module.getValue(control.id) });
+        }
+
+        return true;
+    };
+
+    syn.uicontrols = syn.uicontrols || new syn.module();
+    const module = syn.uicontrols.$filedropzone || new syn.module();
+
+    module.extend({
+        name: 'syn.uicontrols.$filedropzone',
+        version: 'v2026.10.14',
+        fileDropZoneControls: [],
+        defaultSetting: {
+            repositoryID: '',
+            applicationID: '',
+            businessID: '',
+            dependencyID: '',
+            tokenID: '',
+            customPath1: '',
+            customPath2: '',
+            customPath3: '',
+            fileManagerServer: '',
+            fileManagerPath: '/repository/api/storage',
+            width: '100%',
+            height: null,
+            placeholder: '파일을 끌어다 놓거나 클릭하여 선택하세요',
+            autoLoad: true,
+            deleteOnRemove: true,
+            confirmRemove: false,
+            readOnly: false,
+            showDownload: true,
+            thumbnails: true,
+            acceptedFiles: null,
+            maxFilesize: null,
+            maxFiles: null,
+            parallelUploads: 2,
+            timeout: 0,
+            headers: null,
+            withCredentials: false,
+            rejectedDisplayMs: 3000,
+            dataType: 'object',
+            belongID: null,
+            getter: false,
+            setter: false,
+            controlText: null,
+            validators: null,
+            transactConfig: null,
+            triggerConfig: null
+        },
+
+        addModuleList(el, moduleList, setting, controlType) {
+            moduleList.push({
+                id: el.getAttribute('id'),
+                formDataFieldID: el.closest('form') ? el.closest('form').getAttribute('syn-datafield') : '',
+                field: el.getAttribute('syn-datafield'),
+                module: this.name,
+                type: controlType
+            });
+        },
+
+        // 컨트롤은 저장소 정책 조회가 끝나야 사용할 수 있다. 준비 완료 시 'ready' 이벤트가 발생하며 whenReady(elID) 로도 기다릴 수 있다.
+        controlLoad(elID, setting) {
+            const existing = this.getControl(elID);
+            if (existing) {
+                return existing;
+            }
+
+            const el = syn.$l.get(elID);
+            if (!el) {
+                throw new Error('FileDropZone: element not found: ' + elID);
+            }
+
+            if (typeof Dropzone === 'undefined') {
+                throw new Error('FileDropZone: Dropzone library must be loaded first');
+            }
+
+            Dropzone.autoDiscover = false;
+            setting = syn.$w.argumentsExtend(this.defaultSetting, setting || {});
+
+            const mod = window[syn.$w.pageScript];
+            if (mod && mod.hook && mod.hook.controlInit) {
+                setting = syn.$w.argumentsExtend(setting, mod.hook.controlInit(elID, setting));
+            }
+
+            if ($string.isNullOrEmpty(setting.fileManagerServer) == true && syn.Config && syn.Config.FileManagerServer) {
+                setting.fileManagerServer = syn.Config.FileManagerServer;
+            }
+
+            setting.elID = elID;
+            el.setAttribute('syn-options', JSON.stringify(setting));
+            el.classList.add('syn-filedropzone', 'dropzone');
+            el.style.width = setting.width;
+            if (setting.height) {
+                el.style.minHeight = setting.height;
+            }
+
+            el.replaceChildren();
+
+            const control = {
+                id: elID,
+                host: el,
+                setting: $object.clone(setting),
+                context: null,
+                policy: null,
+                dz: null,
+                dependencyID: setting.dependencyID || createTemporaryDependencyID(),
+                isTemporary: !setting.dependencyID,
+                readOnly: setting.readOnly === true,
+                disabled: false,
+                state: 'loading',
+                ready: null
+            };
+
+            this.fileDropZoneControls.push(control);
+            applyState(control);
+
+            control.ready = (async () => {
+                if ($string.isNullOrEmpty(control.setting.fileManagerServer) == true || $string.isNullOrEmpty(control.setting.repositoryID) == true) {
+                    throw new Error('파일 서버(fileManagerServer) 또는 repositoryID 정보 확인 필요');
+                }
+
+                control.context = resolveContext(control.setting);
+                if ($string.isNullOrEmpty(control.context.applicationID) == true) {
+                    throw new Error('ApplicationID 정보 확인 필요');
+                }
+
+                showStatus(control, '저장소 정보를 확인하는 중입니다...', false);
+                const policy = await requestJson(control, 'get-repository', { applicationID: control.context.applicationID, repositoryID: control.setting.repositoryID });
+                if (!policy || Object.keys(policy).length === 0) {
+                    throw new Error('저장소 "{0}" 정보를 찾을 수 없습니다'.format(control.setting.repositoryID));
+                }
+
+                control.policy = policy;
+                control.host.querySelector('.fdz-status') && control.host.querySelector('.fdz-status').remove();
+                control.dz = createDropzone(control);
+                applyState(control);
+                control.state = 'ready';
+
+                if (control.setting.autoLoad === true && control.isTemporary == false) {
+                    await module.load(elID);
+                }
+
+                notify(control, 'ready', { policy: clone(policy) });
+                return control;
+            })().catch(error => {
+                control.state = 'error';
+                showStatus(control, '파일 컨트롤을 초기화하지 못했습니다: ' + error.message, true);
+                syn.$l.eventLog('$filedropzone.controlLoad', 'elID: "{0}" 초기화 오류: {1}'.format(elID, error.message), 'Error');
+                return control;
+            });
+
+            return control;
+        },
+
+        // 컨트롤이 준비(정책 조회, 기존 파일 표시)될 때까지 기다린다.
+        whenReady(elID) {
+            const control = this.getControl(elID);
+            return control ? control.ready : Promise.resolve(null);
+        },
+
+        // 업로드가 끝난 파일 항목(repository 항목 JSON)의 복제 배열을 반환한다. 없으면 [].
+        getValue(elID, meta) {
+            const control = this.getControl(elID);
+            if (!control || !control.dz) {
+                return [];
+            }
+
+            return control.dz.files.filter(file => file.fdzItem && file.status === Dropzone.SUCCESS).map(file => clone(file.fdzItem));
+        },
+
+        // 항목 배열(또는 ItemID 문자열/CSV/JSON 문자열)로 목록을 교체한다. 서버에 업로드/삭제하지 않으며 change 이벤트는 발생하지 않는다.
+        // ItemID 만 있는 항목은 서버에서 조회한다. Promise<boolean> 을 반환한다(해석하지 못한 항목이 있으면 false, 나머지 항목은 표시).
+        async setValue(elID, value, meta) {
+            const control = this.getControl(elID);
+            if (!control) {
+                return false;
+            }
+
+            await control.ready;
+            if (!control.dz) {
+                return false;
+            }
+
+            try {
+                const items = await normalizeItems(control, value);
+                clearList(control);
+                items.forEach(item => addExisting(control, item));
+                return items.skipped === 0;
+            } catch (error) {
+                syn.$l.eventLog('$filedropzone.setValue', 'elID: "{0}" 값을 설정하지 못했습니다: {1}'.format(elID, error.message), 'Warning');
+                return false;
+            }
+        },
+
+        // 서버 목록을 비우지 않고 화면 목록만 비운다. change 이벤트는 발생하지 않는다.
+        clear(elID, isControlLoad) {
+            const control = this.getControl(elID);
+            if (control) {
+                clearList(control);
+            }
+        },
+
+        // dependencyID(생략하면 현재 값)의 항목을 서버에서 다시 조회해 목록을 교체한다. 조회한 항목 배열을 반환한다.
+        async load(elID, dependencyID) {
+            const control = this.getControl(elID);
+            if (!control) {
+                return [];
+            }
+
+            if (control.dz == null && control.state === 'loading') {
+                await control.ready;
+            }
+
+            if (!control.dz) {
+                return [];
+            }
+
+            if (dependencyID) {
+                control.dependencyID = dependencyID;
+                control.isTemporary = false;
+            }
+
+            try {
+                const result = await requestJson(control, 'action-handler', Object.assign(baseParams(control), { Action: 'GetItems', dependencyID: control.dependencyID }));
+                const items = Array.isArray(result) ? result : (result && (result.Items || result.items)) || [];
+                clearList(control);
+                items.forEach(item => addExisting(control, item));
+                return clone(items);
+            } catch (error) {
+                syn.$l.eventLog('$filedropzone.load', 'elID: "{0}" 목록 조회 오류: {1}'.format(elID, error.message), 'Warning');
+                return [];
+            }
+        },
+
+        // 코드에서 파일(File 객체 또는 배열)을 추가해 업로드한다.
+        upload(elID, files) {
+            const control = this.getControl(elID);
+            if (!control || !control.dz || control.readOnly || control.disabled) {
+                return false;
+            }
+
+            (Array.isArray(files) ? files : (files instanceof FileList ? Array.from(files) : [files])).forEach(file => control.dz.addFile(file));
+            return true;
+        },
+
+        // 서버에서 항목을 삭제하고 목록에서도 제거한다(deleteOnRemove 와 무관). Promise<boolean>.
+        async removeItem(elID, itemID) {
+            const control = this.getControl(elID);
+            const file = control ? findFile(control, itemID) : null;
+            if (!control || !file) {
+                return false;
+            }
+
+            const original = control.setting.deleteOnRemove;
+            control.setting.deleteOnRemove = true;
+            try {
+                return await removeFileEntry(control, file);
+            } finally {
+                control.setting.deleteOnRemove = original;
+            }
+        },
+
+        // 현재 dependencyID 의 모든 파일을 서버에서 삭제하고 목록을 비운다. Promise<boolean>.
+        async removeAll(elID) {
+            const control = this.getControl(elID);
+            if (!control || !control.dz || control.readOnly || control.disabled) {
+                return false;
+            }
+
+            try {
+                const result = await requestJson(control, 'remove-items', Object.assign(baseParams(control), { dependencyID: control.dependencyID }));
+                if (!result || result.Result !== true) {
+                    return false;
+                }
+
+                clearList(control);
+                notify(control, 'change', { value: [] });
+                return true;
+            } catch (error) {
+                syn.$l.eventLog('$filedropzone.removeAll', 'elID: "{0}" 삭제 요청 오류: {1}'.format(elID, error.message), 'Warning');
+                return false;
+            }
+        },
+
+        // itemID(또는 항목 객체)의 파일을 내려받는다. Promise<boolean>.
+        async download(elID, itemID) {
+            const control = this.getControl(elID);
+            const id = itemID && typeof itemID === 'object' ? itemID.ItemID : itemID;
+            if (!control || !id) {
+                return false;
+            }
+
+            const file = findFile(control, id);
+            const item = file ? file.fdzItem : (typeof itemID === 'object' ? itemID : { ItemID: id, FileName: id });
+            try {
+                const result = await downloadBlob(control, item);
+                syn.$l.blobToDownload(result.blob, result.fileName);
+                notify(control, 'fileDownload', { item: clone(item) });
+                return true;
+            } catch (error) {
+                syn.$l.eventLog('$filedropzone.download', 'elID: "{0}" 다운로드 오류: {1}'.format(elID, error.message), 'Warning');
+                if (file && file.previewElement) {
+                    const target = file.previewElement.querySelector('[data-dz-errormessage]');
+                    if (target) {
+                        target.textContent = '파일을 내려받지 못했습니다.';
+                    }
+                }
+
+                return false;
+            }
+        },
+
+        // http-download-file 주소를 반환한다(보호된 저장소는 같은 사이트의 Referer 가 필요하다). disposition: 'attachment' | 'inline'
+        getDownloadUrl(elID, itemID, disposition) {
+            const control = this.getControl(elID);
+            if (!control || !itemID) {
+                return null;
+            }
+
+            return apiUrl(control, 'http-download-file', Object.assign(baseParams(control), { itemID: itemID, disposition: disposition || 'attachment' }));
+        },
+
+        getDependencyID(elID) {
+            const control = this.getControl(elID);
+            return control ? control.dependencyID : null;
+        },
+
+        // 이후 업로드/조회가 사용할 dependencyID 를 바꾼다(목록은 그대로). 서버 항목의 키까지 바꾸려면 updateDependencyID 를 사용한다.
+        setDependencyID(elID, dependencyID) {
+            const control = this.getControl(elID);
+            if (control && dependencyID) {
+                control.dependencyID = dependencyID;
+                control.isTemporary = false;
+            }
+        },
+
+        // 서버 항목의 dependencyID 를 현재 값에서 targetDependencyID 로 바꾼다(임시 키 → 실제 업무 키 저장 흐름). Promise<boolean>.
+        async updateDependencyID(elID, targetDependencyID) {
+            const control = this.getControl(elID);
+            if (!control || !targetDependencyID) {
+                return false;
+            }
+
+            try {
+                const result = await requestJson(control, 'action-handler', Object.assign(baseParams(control), { Action: 'UpdateDependencyID', sourceDependencyID: control.dependencyID, targetDependencyID: targetDependencyID }));
+                if (!result || result.Result !== true) {
+                    syn.$l.eventLog('$filedropzone.updateDependencyID', 'elID: "{0}" {1}'.format(elID, (result && result.Message) || '실패'), 'Warning');
+                    return false;
+                }
+
+                control.dependencyID = targetDependencyID;
+                control.isTemporary = false;
+                if (control.dz) {
+                    control.dz.files.forEach(file => {
+                        if (file.fdzItem) {
+                            file.fdzItem.DependencyID = targetDependencyID;
+                        }
+                    });
+                }
+
+                return true;
+            } catch (error) {
+                syn.$l.eventLog('$filedropzone.updateDependencyID', 'elID: "{0}" 요청 오류: {1}'.format(elID, error.message), 'Warning');
+                return false;
+            }
+        },
+
+        isEmpty(elID) {
+            return this.getValue(elID).length === 0;
+        },
+
+        isUploading(elID) {
+            const control = this.getControl(elID);
+            return control && control.dz ? control.dz.getUploadingFiles().length + control.dz.getQueuedFiles().length > 0 : false;
+        },
+
+        setReadOnly(elID, isReadOnly) {
+            const control = this.getControl(elID);
+            if (control) {
+                control.readOnly = isReadOnly !== false;
+                applyState(control);
+            }
+        },
+
+        setDisabled(elID, isDisabled) {
+            const control = this.getControl(elID);
+            if (control) {
+                control.disabled = isDisabled !== false;
+                applyState(control);
+            }
+        },
+
+        toFileLengthString: toFileLengthString,
+
+        destroy(elID) {
+            const control = this.getControl(elID);
+            if (!control) {
+                return;
+            }
+
+            if (control.onClick) {
+                control.host.removeEventListener('click', control.onClick);
+            }
+
+            if (control.dz) {
+                control.dz.files.slice().forEach(file => revokeThumbnail(file));
+                control.dz.destroy();
+                control.dz = null;
+            }
+
+            control.host.classList.remove('syn-filedropzone', 'dropzone', 'fdz-readonly', 'fdz-disabled');
+            control.host.replaceChildren();
+            this.fileDropZoneControls = this.fileDropZoneControls.filter(item => item.id !== elID);
+        },
+
+        getControl(elID) {
+            return this.fileDropZoneControls.find(item => item.id === elID) || null;
+        },
+
+        setLocale(elID, translations, control, options) {
+        }
+    });
+    syn.uicontrols.$filedropzone = module;
+})(window);
+
+/// <reference path="/js/syn.js" />
+
+(function (window) {
+    'use strict';
     syn.uicontrols = syn.uicontrols || new syn.module();
     var $list = syn.uicontrols.$list || new syn.module();
 
@@ -58743,6 +61819,392 @@ if (typeof module !== 'undefined' && module.exports) {
         }
     });
     syn.uicontrols.$radio = $radio;
+})(window);
+
+/// <reference path="/js/syn.js" />
+
+(function (window) {
+    'use strict';
+
+    // 값은 항상 data URL 전체('data:image/png;base64,....')로 주고받는다. setValue 는 접두사 없는 순수 base64 도 허용한다.
+    const dataUrlPattern = /^data:image\/[a-z0-9.+-]+(;[a-z0-9=.+-]+)*;base64,/i;
+    const base64Pattern = /^[A-Za-z0-9+/]+={0,2}$/;
+    const mimeSignatures = [['iVBOR', 'image/png'], ['/9j/', 'image/jpeg'], ['R0lGOD', 'image/gif'], ['UklGR', 'image/webp'], ['PHN2Zy', 'image/svg+xml'], ['PD94bW', 'image/svg+xml']];
+    const padOptionNames = ['dotSize', 'minWidth', 'maxWidth', 'penColor', 'minDistance', 'velocityFilterWeight', 'compositeOperation', 'backgroundColor', 'throttle'];
+    const padEvents = ['beginStroke', 'endStroke'];
+
+    const isTransparent = color => typeof color !== 'string' || color === '' || color === 'transparent' || /^rgba?\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*0(\.0+)?\s*\)$/i.test(color);
+
+    // 반환: '' = 빈 값, null = 해석 불가, 그 외 = data URL
+    const normalize = value => {
+        if (value === null || value === undefined) return '';
+        if (typeof value !== 'string') return null;
+        value = value.trim();
+        if (value === '') return '';
+        if (dataUrlPattern.test(value)) return value;
+        if (value.startsWith('data:')) return null;
+        const compact = value.replace(/\s+/g, '');
+        if (!base64Pattern.test(compact)) return null;
+        const signature = mimeSignatures.find(item => compact.startsWith(item[0]));
+        return 'data:' + (signature ? signature[1] : 'image/png') + ';base64,' + compact;
+    };
+
+    const notify = (control, type, detail) => syn.$l.triggerEvent(control.host, type, detail);
+
+    // 비어 있을 때만 안내 문구를 보여준다.
+    const refresh = control => {
+        const empty = control.pad.isEmpty();
+        control.placeholder.hidden = !empty;
+        control.host.classList.toggle('syn-signaturepad-empty', empty);
+    };
+
+    // 캔버스를 초기화하고 기준 이미지(setValue)와 획(strokes)을 다시 그린다. 이미지 로딩이 비동기이므로 Promise<boolean> 을 반환한다.
+    const repaint = (control, strokes) => {
+        const pad = control.pad;
+        const token = ++control.paintToken;
+        control.loading = false;
+        pad.clear();
+
+        if (control.baseValue) {
+            control.loading = true;
+            return pad.fromDataURL(control.baseValue, { ratio: control.ratio }).then(() => true, error => {
+                syn.$l.eventLog('$signaturepad.setValue', 'elID: "{0}" 이미지를 불러오지 못했습니다.'.format(control.id), 'Warning');
+                return false;
+            }).then(success => {
+                if (token !== control.paintToken) return success;
+
+                control.loading = false;
+                if (success === false) {
+                    control.baseValue = null;
+                    pad.clear();
+                }
+                pad.fromData(strokes, { clear: false });
+                refresh(control);
+                return success;
+            });
+        }
+
+        pad.fromData(strokes, { clear: false });
+        refresh(control);
+        return Promise.resolve(true);
+    };
+
+    // 호스트 크기에 맞춰 캔버스 해상도를 맞춘다(devicePixelRatio 반영). 크기가 바뀌어도 그려진 내용은 유지한다.
+    const layout = (control, force) => {
+        const host = control.host;
+        const canvas = control.canvas;
+        const width = host.clientWidth;
+        const height = host.clientHeight;
+        if (width === 0 || height === 0) return;
+
+        const ratio = Math.max(window.devicePixelRatio || 1, 1);
+        const pixelWidth = Math.round(width * ratio);
+        const pixelHeight = Math.round(height * ratio);
+        if (force !== true && canvas.width === pixelWidth && canvas.height === pixelHeight) return;
+
+        const strokes = control.pad.toData().slice();
+        canvas.width = pixelWidth;
+        canvas.height = pixelHeight;
+        canvas.getContext('2d').scale(ratio, ratio);
+        control.ratio = ratio;
+        repaint(control, strokes);
+    };
+
+    const applyState = control => {
+        const locked = control.readOnly || control.disabled;
+        if (locked) {
+            control.pad.off();
+        }
+        else {
+            control.pad.on();
+        }
+
+        control.host.classList.toggle('syn-signaturepad-readonly', control.readOnly);
+        control.host.classList.toggle('syn-signaturepad-disabled', control.disabled);
+        control.host.setAttribute('aria-readonly', control.readOnly ? 'true' : 'false');
+        control.host.setAttribute('aria-disabled', control.disabled ? 'true' : 'false');
+    };
+
+    syn.uicontrols = syn.uicontrols || new syn.module();
+    const module = syn.uicontrols.$signaturepad || new syn.module();
+
+    module.extend({
+        name: 'syn.uicontrols.$signaturepad',
+        version: 'v2026.10.14',
+        signatureControls: [],
+        defaultSetting: {
+            width: '100%',
+            height: '200px',
+            placeholder: '여기에 서명해 주세요',
+            penColor: '#000000',
+            backgroundColor: 'rgba(0,0,0,0)',
+            minWidth: 0.5,
+            maxWidth: 2.5,
+            dotSize: null,
+            minDistance: 5,
+            velocityFilterWeight: 0.7,
+            throttle: 16,
+            compositeOperation: 'source-over',
+            imageType: 'image/png',
+            imageQuality: null,
+            readOnly: false,
+            dataType: 'string',
+            belongID: null,
+            getter: false,
+            setter: false,
+            controlText: null,
+            validators: null,
+            transactConfig: null,
+            triggerConfig: null
+        },
+
+        addModuleList(el, moduleList, setting, controlType) {
+            moduleList.push({
+                id: el.getAttribute('id'),
+                formDataFieldID: el.closest('form') ? el.closest('form').getAttribute('syn-datafield') : '',
+                field: el.getAttribute('syn-datafield'),
+                module: this.name,
+                type: controlType
+            });
+        },
+
+        controlLoad(elID, setting) {
+            const existing = this.getControl(elID);
+            if (existing) {
+                return existing;
+            }
+
+            const el = syn.$l.get(elID);
+            if (!el) {
+                throw new Error('SignaturePad: element not found: ' + elID);
+            }
+
+            if (typeof SignaturePad === 'undefined') {
+                throw new Error('SignaturePad: signature_pad library must be loaded first');
+            }
+
+            setting = syn.$w.argumentsExtend(this.defaultSetting, setting || {});
+
+            const mod = window[syn.$w.pageScript];
+            if (mod && mod.hook && mod.hook.controlInit) {
+                setting = syn.$w.argumentsExtend(setting, mod.hook.controlInit(elID, setting));
+            }
+
+            // JPEG 는 투명도를 지원하지 않아 투명 배경이 검은색으로 저장되므로 흰색 배경으로 바꾼다.
+            if (setting.imageType === 'image/jpeg' && isTransparent(setting.backgroundColor) == true) {
+                setting.backgroundColor = '#ffffff';
+            }
+
+            setting.elID = elID;
+            el.setAttribute('syn-options', JSON.stringify(setting));
+
+            el.classList.add('syn-signaturepad');
+            el.style.width = setting.width;
+            el.style.height = setting.height;
+            el.replaceChildren();
+
+            const canvas = document.createElement('canvas');
+            canvas.className = 'syn-signaturepad-canvas';
+            canvas.setAttribute('role', 'img');
+            canvas.setAttribute('aria-label', setting.controlText || '서명 입력');
+
+            const placeholder = document.createElement('div');
+            placeholder.className = 'syn-signaturepad-placeholder';
+            placeholder.textContent = setting.placeholder || '';
+
+            el.append(canvas, placeholder);
+
+            const padOptions = {};
+            padOptionNames.forEach(name => {
+                if (setting[name] !== null && setting[name] !== undefined) {
+                    padOptions[name] = setting[name];
+                }
+            });
+
+            const control = {
+                id: elID,
+                host: el,
+                canvas: canvas,
+                pad: new SignaturePad(canvas, padOptions),
+                placeholder: placeholder,
+                setting: $object.clone(setting),
+                ratio: 1,
+                baseValue: null,
+                loading: false,
+                paintToken: 0,
+                readOnly: setting.readOnly === true,
+                disabled: false,
+                observer: null,
+                onWindowResize: null
+            };
+
+            padEvents.forEach(type => {
+                control.pad.addEventListener(type, evt => {
+                    if (type === 'beginStroke') {
+                        control.placeholder.hidden = true;
+                        notify(control, type, { originalEvent: evt.detail });
+                    }
+                    else {
+                        refresh(control);
+                        notify(control, type, { originalEvent: evt.detail });
+                        notify(control, 'change', { value: module.getValue(elID) });
+                    }
+                });
+            });
+
+            this.signatureControls.push(control);
+
+            applyState(control);
+            layout(control, true);
+            refresh(control);
+
+            if (typeof ResizeObserver === 'function') {
+                control.observer = new ResizeObserver(() => layout(control));
+                control.observer.observe(el);
+            }
+            else {
+                control.onWindowResize = () => layout(control);
+                window.addEventListener('resize', control.onWindowResize);
+            }
+
+            return control;
+        },
+
+        // data URL 전체를 반환한다. 서명이 없으면 빈 문자열이다.
+        getValue(elID, meta) {
+            const control = this.getControl(elID);
+            if (!control) {
+                return null;
+            }
+
+            // setValue 이미지 로딩이 끝나기 전에는 캔버스가 비어 있으므로 요청받은 값을 그대로 돌려준다.
+            if (control.loading) {
+                return control.baseValue;
+            }
+
+            if (control.pad.isEmpty()) {
+                return '';
+            }
+
+            const quality = $object.isNumber(control.setting.imageQuality) ? control.setting.imageQuality : undefined;
+            return control.pad.toDataURL(control.setting.imageType, quality);
+        },
+
+        // 접두사('data:image/...;base64,')를 제외한 순수 base64 문자열을 반환한다.
+        getBase64(elID) {
+            const value = this.getValue(elID);
+            return $object.isString(value) ? value.substring(value.indexOf(',') + 1) : value;
+        },
+
+        // data URL 또는 순수 base64 를 그린다(기존 내용은 교체). 빈 값이면 지운다. change 이벤트는 발생하지 않는다.
+        // 이미지 로딩이 비동기이므로 Promise<boolean> 을 반환한다.
+        setValue(elID, value, meta) {
+            const control = this.getControl(elID);
+            if (!control) {
+                return Promise.resolve(false);
+            }
+
+            const dataUrl = normalize(value);
+            if (dataUrl === null) {
+                syn.$l.eventLog('$signaturepad.setValue', 'elID: "{0}" data URL 또는 base64 문자열이 아닌 값은 설정할 수 없습니다.'.format(elID), 'Warning');
+                return Promise.resolve(false);
+            }
+
+            control.baseValue = dataUrl === '' ? null : dataUrl;
+            return repaint(control, []);
+        },
+
+        clear(elID, isControlLoad) {
+            const control = this.getControl(elID);
+            if (control) {
+                control.baseValue = null;
+                repaint(control, []);
+            }
+        },
+
+        isEmpty(elID) {
+            const control = this.getControl(elID);
+            return control ? control.pad.isEmpty() : true;
+        },
+
+        // 마지막 획을 취소한다. setValue 로 불러온 이미지는 취소 대상이 아니다. 취소하면 change 이벤트가 발생한다.
+        undo(elID) {
+            const control = this.getControl(elID);
+            if (!control) {
+                return false;
+            }
+
+            const strokes = control.pad.toData().slice();
+            if (strokes.length === 0) {
+                return false;
+            }
+
+            strokes.pop();
+            repaint(control, strokes).then(() => notify(control, 'change', { value: module.getValue(elID) }));
+            return true;
+        },
+
+        setPenColor(elID, color) {
+            const control = this.getControl(elID);
+            if (control) {
+                control.pad.penColor = color;
+                control.setting.penColor = color;
+            }
+        },
+
+        setReadOnly(elID, isReadOnly) {
+            const control = this.getControl(elID);
+            if (control) {
+                control.readOnly = isReadOnly !== false;
+                applyState(control);
+            }
+        },
+
+        setDisabled(elID, isDisabled) {
+            const control = this.getControl(elID);
+            if (control) {
+                control.disabled = isDisabled !== false;
+                applyState(control);
+            }
+        },
+
+        // 표시 영역 크기가 바뀐 뒤 직접 맞춰야 할 때 호출한다(보통 자동 감지된다).
+        resize(elID) {
+            const control = this.getControl(elID);
+            if (control) {
+                layout(control, true);
+            }
+        },
+
+        destroy(elID) {
+            const control = this.getControl(elID);
+            if (!control) {
+                return;
+            }
+
+            control.pad.off();
+            if (control.observer) {
+                control.observer.disconnect();
+            }
+
+            if (control.onWindowResize) {
+                window.removeEventListener('resize', control.onWindowResize);
+            }
+
+            control.canvas.remove();
+            control.placeholder.remove();
+            control.host.classList.remove('syn-signaturepad', 'syn-signaturepad-empty', 'syn-signaturepad-readonly', 'syn-signaturepad-disabled');
+            this.signatureControls = this.signatureControls.filter(item => item.id !== elID);
+        },
+
+        getControl(elID) {
+            return this.signatureControls.find(item => item.id === elID) || null;
+        },
+
+        setLocale(elID, translations, control, options) {
+        }
+    });
+    syn.uicontrols.$signaturepad = module;
 })(window);
 
 /// <reference path="/js/syn.js" />
