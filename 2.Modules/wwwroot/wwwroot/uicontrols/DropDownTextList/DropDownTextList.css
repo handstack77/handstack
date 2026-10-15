@@ -36,7 +36,7 @@ syn_dropdowntextlist {
         margin: 7px 0 0;
         padding: 0;
         background: #f1f5f9;
-        border: 1px solid #e2e8f0;
+        border: 1px solid #cbd5e1;
         border-left: 4px solid var(--dttl-operator-color, var(--tblr-blue, #066fd1));
         border-radius: 4px;
         color: #334155;
@@ -72,22 +72,22 @@ syn_dropdowntextlist {
         border-right: 1px solid var(--tblr-border-color, #e2e8f0);
         background-color: var(--tblr-bg-surface-secondary, #f6f8fb);
         color: var(--tblr-secondary, #667382);
-        font-size: 11px;
+        font-size: 12px;
         overflow-wrap: anywhere;
         cursor: pointer;
+        font-weight: 600;
     }
 
     .syn-dropdowntextlist .dttl-logic-badge {
         position: absolute;
         top: -8px;
-        left: -1px;
+        left: -4px;
         z-index: 1;
         padding: 1px 4px;
         border-radius: 3px;
         background-color: var(--dttl-logic-color, var(--tblr-blue, #066fd1));
         color: var(--tblr-white, #fff);
         font-size: 9px;
-        font-weight: 600;
         line-height: 13px;
         pointer-events: none;
     }
