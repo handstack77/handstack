@@ -193,6 +193,15 @@
         </ItemGroup>
     </Target>
 
+    <!-- Keep large dependencies beside the executable; preserve normal runtime resolution. -->
+    <Target Name="ExcludeLargeDependenciesFromSingleFile" AfterTargets="ComputeResolvedFilesToPublishList" BeforeTargets="_ComputeFilesToBundle" Condition="'$(PublishSingleFile)' == 'true'">
+        <ItemGroup>
+            <ResolvedFileToPublish Condition="'%(ResolvedFileToPublish.Filename)%(ResolvedFileToPublish.Extension)' == 'libSkiaSharp.dll' or '%(ResolvedFileToPublish.Filename)%(ResolvedFileToPublish.Extension)' == 'Anthropic.dll' or '%(ResolvedFileToPublish.Filename)%(ResolvedFileToPublish.Extension)' == 'Microsoft.CodeAnalysis.CSharp.dll' or '%(ResolvedFileToPublish.Filename)%(ResolvedFileToPublish.Extension)' == 'Oracle.ManagedDataAccess.dll' or '%(ResolvedFileToPublish.Filename)%(ResolvedFileToPublish.Extension)' == 'OpenAI.dll' or '%(ResolvedFileToPublish.Filename)%(ResolvedFileToPublish.Extension)' == 'BouncyCastle.Cryptography.dll' or '%(ResolvedFileToPublish.Filename)%(ResolvedFileToPublish.Extension)' == 'Microsoft.CodeAnalysis.VisualBasic.dll' or '%(ResolvedFileToPublish.Filename)%(ResolvedFileToPublish.Extension)' == 'UglyToad.PdfPig.dll' or '%(ResolvedFileToPublish.Filename)%(ResolvedFileToPublish.Extension)' == 'Google.GenAI.dll' or '%(ResolvedFileToPublish.Filename)%(ResolvedFileToPublish.Extension)' == 'Microsoft.CodeAnalysis.dll'">
+                <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+            </ResolvedFileToPublish>
+        </ItemGroup>
+    </Target>
+
     <Target Name="PruneModuleTransitivePublishDirectories" AfterTargets="Publish" Condition="'$(DesignTimeBuild)' != 'true' and '$(PublishDir)' != ''">
         <PropertyGroup>
             <_RdyPublishRoot>$([System.IO.Path]::GetFullPath('$(PublishDir)'))</_RdyPublishRoot>

@@ -17,7 +17,8 @@
           "Oracle.ManagedDataAccess.Core": "23.26.301",
           "Serilog": "4.4.0",
           "SourceGear.sqlite3": "3.53.4",
-          "System.Data.SQLite": "2.0.4"
+          "System.Data.SQLite": "2.0.4",
+          "System.Security.Cryptography.Pkcs": "10.0.13"
         },
         "runtime": {
           "HandStack.Data.dll": {}
@@ -58,7 +59,7 @@
           "Microsoft.IdentityModel.Protocols.OpenIdConnect": "8.16.0",
           "Microsoft.SqlServer.Server": "1.0.0",
           "System.Configuration.ConfigurationManager": "9.0.18",
-          "System.Security.Cryptography.Pkcs": "9.0.18",
+          "System.Security.Cryptography.Pkcs": "10.0.13",
           "System.Threading.RateLimiting": "9.0.18"
         },
         "runtime": {
@@ -293,7 +294,7 @@
         "dependencies": {
           "System.Diagnostics.PerformanceCounter": "8.0.0",
           "System.DirectoryServices.Protocols": "8.0.2",
-          "System.Security.Cryptography.Pkcs": "9.0.18"
+          "System.Security.Cryptography.Pkcs": "10.0.13"
         },
         "runtime": {
           "lib/net8.0/Oracle.ManagedDataAccess.dll": {
@@ -573,19 +574,19 @@
           }
         }
       },
-      "System.Security.Cryptography.Pkcs/9.0.18": {
+      "System.Security.Cryptography.Pkcs/10.0.13": {
         "runtime": {
-          "lib/net9.0/System.Security.Cryptography.Pkcs.dll": {
-            "assemblyVersion": "9.0.0.0",
-            "fileVersion": "9.0.1826.31522"
+          "lib/net10.0/System.Security.Cryptography.Pkcs.dll": {
+            "assemblyVersion": "10.0.0.0",
+            "fileVersion": "10.0.1326.50504"
           }
         },
         "runtimeTargets": {
-          "runtimes/win/lib/net9.0/System.Security.Cryptography.Pkcs.dll": {
+          "runtimes/win/lib/net10.0/System.Security.Cryptography.Pkcs.dll": {
             "rid": "win",
             "assetType": "runtime",
-            "assemblyVersion": "9.0.0.0",
-            "fileVersion": "9.0.1826.31522"
+            "assemblyVersion": "10.0.0.0",
+            "fileVersion": "10.0.1326.50504"
           }
         }
       },
@@ -856,12 +857,12 @@
       "path": "system.reactive/7.0.0",
       "hashPath": "system.reactive.7.0.0.nupkg.sha512"
     },
-    "System.Security.Cryptography.Pkcs/9.0.18": {
+    "System.Security.Cryptography.Pkcs/10.0.13": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-NKMKhUdLGNZryY9GXXTF5dXyP6S37EYXhiA2JYvwshJbd4DRq07IOS9it8Opi9atadvv5rlNkD76Mio+5Oo2aQ==",
-      "path": "system.security.cryptography.pkcs/9.0.18",
-      "hashPath": "system.security.cryptography.pkcs.9.0.18.nupkg.sha512"
+      "sha512": "sha512-a+EovgC1fBnwdlQ6cn3j4JFBfKqiFaFvoAhjisOoSvazLAcIznaBzPQP0oYnvccmeXfqUH1KebVZOxSeH6rMaw==",
+      "path": "system.security.cryptography.pkcs/10.0.13",
+      "hashPath": "system.security.cryptography.pkcs.10.0.13.nupkg.sha512"
     },
     "System.Security.Cryptography.ProtectedData/9.0.18": {
       "type": "package",
