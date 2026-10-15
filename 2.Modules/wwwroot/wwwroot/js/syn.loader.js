@@ -777,6 +777,10 @@
                         item.css = ['/lib/tom-select/dist/css/tom-select.bootstrap5.css', '/uicontrols/DropDownTextList/DropDownTextList.css'];
                         item.js = ['/lib/tom-select/dist/js/tom-select.complete.min.js', '/uicontrols/DropDownTextList/DropDownTextList.js'];
                         break;
+                    case 'barcalender':
+                        item.css = ['/uicontrols/BarCalender/BarCalender.css'];
+                        item.js = ['/uicontrols/BarCalender/BarCalender.js'];
+                        break;
                     case 'signaturepad':
                         item.css = ['/uicontrols/SignaturePad/SignaturePad.css'];
                         item.js = ['/lib/signature_pad/dist/signature_pad.umd.min.js', '/uicontrols/SignaturePad/SignaturePad.js'];
@@ -1021,6 +1025,7 @@
                         '/uicontrols/ContextMenu/ContextMenu.css',
                         '/uicontrols/DataSource/DataSource.css',
                         '/uicontrols/DatePicker/DatePicker.css',
+                        '/uicontrols/BarCalender/BarCalender.css',
                         '/uicontrols/DropDownCheckList/DropDownCheckList.css',
                         '/uicontrols/DropDownList/DropDownList.css',
                         '/uicontrols/DropDownTextList/DropDownTextList.css',

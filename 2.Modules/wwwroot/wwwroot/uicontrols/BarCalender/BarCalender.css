@@ -1,0 +1,31 @@
+/* One row, with overflow confined to the date/month strip. */
+.syn-barcalender {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    min-width: 0;
+    max-width: 100%;
+    padding: .5rem;
+    border: 1px solid var(--tblr-border-color, #dce1e7);
+    border-radius: var(--tblr-border-radius, 4px);
+    background: var(--tblr-bg-surface, #fff);
+    box-sizing: border-box;
+}
+.syn-barcalender-navigation { display: flex; align-items: center; gap: .25rem; flex: 0 0 auto; }
+.syn-barcalender-navigation .btn { padding: .4rem .6rem; font-size: 1.25rem; }
+.syn-barcalender-navigation .form-select { width: auto; padding-left: .5rem; }
+.syn-barcalender-month[hidden] { display: none; }
+.syn-barcalender-items { display: flex; flex: 1 1 0; gap: .25rem; min-width: 0; overflow-x: auto; padding: .25rem; position: relative; }
+.syn-barcalender-item { flex: 0 0 auto; min-width: 36px; padding: .5rem; }
+.syn-barcalender-weekend { color: var(--tblr-danger, #d63939); }
+.syn-barcalender-today { text-decoration: underline; text-underline-offset: .3rem; font-weight: 700; }
+.syn-barcalender-selected { outline: 2px solid var(--tblr-primary, #206bc4); outline-offset: -2px; box-shadow: inset 0 0 0 3px var(--tblr-primary-lt, #e9f0f9); }
+.syn-barcalender .btn:focus-visible, .syn-barcalender .form-select:focus-visible { outline: 2px solid var(--tblr-primary, #206bc4); outline-offset: -2px; }
+.syn-barcalender-disabled { opacity: .55; }
+.syn-barcalender-readonly { background: var(--tblr-bg-surface-secondary, #f6f8fb); }
+@media (max-width: 480px) {
+    .syn-barcalender { gap: .25rem; padding: .25rem; }
+    .syn-barcalender-navigation { gap: .125rem; }
+    .syn-barcalender-navigation .btn { padding: .4rem; }
+    .syn-barcalender-navigation .form-select { padding-left: .25rem; padding-right: 1.25rem; background-position: right .25rem center; font-size: .8rem; }
+}

@@ -96,6 +96,7 @@ gulp.task('scripts', function () {
 gulp.task('controls', function () {
     return gulp.src([
         'wwwroot/uicontrols/Calendar/Calendar.js',
+        'wwwroot/uicontrols/BarCalender/BarCalender.js',
         'wwwroot/uicontrols/HighChart/HighChart.js',
         'wwwroot/uicontrols/ChartJS/ChartJS.js',
         'wwwroot/uicontrols/ECharts/ECharts.js',
@@ -202,6 +203,7 @@ gulp.task('styles', async function () {
         'wwwroot/lib/tom-select/dist/css/tom-select.bootstrap5.css',
         'wwwroot/lib/dropzone/dist/dropzone.css',
         'wwwroot/uicontrols/Calendar/Calendar.css',
+        'wwwroot/uicontrols/BarCalender/BarCalender.css',
         'wwwroot/uicontrols/HighChart/HighChart.css',
         'wwwroot/uicontrols/ChartJS/ChartJS.css',
         'wwwroot/uicontrols/ECharts/ECharts.css',

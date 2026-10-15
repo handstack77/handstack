@@ -1,0 +1,82 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>BarCalender · 한 줄 달력</title>
+    <style>
+        .barcalender-demo {
+            padding: 24px;
+            max-width: 1160px;
+            margin: auto;
+        }
+
+        h2 {
+            margin-top: 28px;
+        }
+
+        .demo-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 16px 0;
+        }
+
+        pre {
+            padding: 16px;
+            border-radius: 4px;
+            background: #f1f5f9;
+            white-space: pre-wrap;
+            max-height: 200px;
+            overflow: auto;
+        }
+
+        @media (max-width: 480px) {
+            .barcalender-demo {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body style="visibility: hidden;">
+    <form class="barcalender-demo" id="form1" syn-datafield="MainForm" autocomplete="off" onsubmit="return false">
+        <h1>한 줄 달력</h1>
+        <p>초기 선택값은 비어 있습니다. 밑줄은 오늘·이번 달, 테두리는 선택값입니다. 좁은 화면에서는 버튼 영역을 가로로 스크롤하세요.</p>
+        <h2>날짜 선택</h2>
+        <syn_barcalender id="calDay" syn-datafield="SelectedDate" syn-events="['change','viewChange']" syn-options="{
+            mode:'day',
+            belongID:['LD01'],
+            controlText:'예약 날짜'
+        }"></syn_barcalender>
+        <h2>월 선택</h2>
+        <syn_barcalender id="calMonth" syn-datafield="SelectedMonth" syn-events="['change','viewChange']" syn-options="{
+            mode:'month',
+            belongID:['LD01'],
+            controlText:'조회 월'
+        }"></syn_barcalender>
+        <div class="demo-actions">
+            <button type="button" id="btnGetValue" class="btn" syn-events="['click']">값 읽기</button>
+            <button type="button" id="btnSetValue" class="btn" syn-events="['click']">윤년 값·강조 예제</button>
+            <button type="button" id="btnClear" class="btn" syn-events="['click']">선택 지우기</button>
+            <button type="button" id="btnDisabled" class="btn" syn-events="['click']">비활성화 전환</button>
+            <button type="button" id="btnReadOnly" class="btn" syn-events="['click']">읽기 전용 전환</button>
+            <button type="button" id="btnReadBinding" class="btn" syn-events="['click']">폼 바인딩 읽기</button>
+            <button type="button" id="btnWriteBinding" class="btn" syn-events="['click']">폼 바인딩 쓰기</button>
+        </div>
+        <pre id="result" aria-live="polite"></pre>
+        <h2>독립 인스턴스·고정 강조</h2>
+        <syn_barcalender id="calHighlight" syn-options="{
+            mode:'day',
+            value:'2024-02-29',
+            highlights:{
+                '2024-02-12':'bg-azure-lt',
+                '2024-02-19':'bg-green-lt',
+                '2024-02-29':'bg-orange-lt'
+            }
+        }"></syn_barcalender>
+        <h2>이벤트</h2>
+        <pre id="events" aria-live="polite"></pre>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>
