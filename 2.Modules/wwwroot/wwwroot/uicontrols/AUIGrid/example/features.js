@@ -230,6 +230,44 @@ let $features = {
             syn.uicontrols.$auigrid.clearConditions('grdProduct');
         },
 
+        btnFilterContains_click() {
+            syn.uicontrols.$auigrid.addCondition('grdProduct', 'ProductName', 'contains', ['이어폰', '배터리']);
+        },
+
+        btnFilterNotContains_click() {
+            syn.uicontrols.$auigrid.addCondition('grdProduct', 'ProductName', 'not_contains', ['이어폰', '배터리']);
+        },
+
+        btnFilterRanges_click() {
+            syn.uicontrols.$auigrid.addCondition('grdProduct', 'Price', 'between', [0, 80000], [20000, 100000]);
+        },
+
+        btnFilterValues_click() {
+            syn.uicontrols.$auigrid.addCondition('grdProduct', 'CategoryID', 'by_value', ['ELE', 'HOM']);
+        },
+
+        btnFilterEmpty_click() {
+            syn.uicontrols.$auigrid.addCondition('grdProduct', 'Memo', 'empty');
+        },
+
+        btnMultiFilter_click() {
+            syn.uicontrols.$auigrid.addMultiCondition('grdProduct', 'ProductName', [
+                { name: 'contains', args: ['이어폰', '배터리'] },
+                { name: 'not_contains', args: [' 2', '중고'] }
+            ], 'AND');
+        },
+
+        btnMultiFilterOr_click() {
+            syn.uicontrols.$auigrid.addMultiCondition('grdProduct', 'ProductName', [
+                { name: 'begins_with', args: ['무선', '보조'] },
+                { name: 'contains', args: '세트', logic: 'OR' }
+            ], 'AND');
+        },
+
+        btnRemoveNameFilter_click() {
+            syn.uicontrols.$auigrid.removeCondition('grdProduct', 'ProductName');
+        },
+
         btnSort_click() {
             syn.uicontrols.$auigrid.setSorting('grdProduct', [{ dataField: 'Price', sortType: -1 }]);
         },

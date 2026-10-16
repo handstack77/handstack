@@ -1,4 +1,4 @@
-/// <reference path="/js/syn.js" />
+﻿/// <reference path="/js/syn.js" />
 
 (function (window) {
     'use strict';
@@ -8,7 +8,7 @@
 
     $dropdowntextlist.extend({
         name: 'syn.uicontrols.$dropdowntextlist',
-        version: 'v2026.10.14',
+        version: 'v2026.10.15',
         textListControls: [],
         defaultSetting: {
             optgroups: [],
@@ -19,7 +19,7 @@
             items: [],
             placeholder: '검색하여 선택...',
             width: '100%',
-            dropdownWidth: 'auto',
+            dropdownWidth: '100%',
             dropdownHeight: 'auto',
             maxItems: null,
             hideSelected: true,
@@ -27,8 +27,11 @@
             persist: true,
             create: false,
             defaultGroupID: '',
+            groupDisplay: 'tooltip',
+            groupNav: true,
+            hideLogicBadge: true,
             load: null,
-            loadThrottle: 300,
+            loadThrottle: 200,
             preload: false,
             dataType: 'object',
             belongID: null,
@@ -42,12 +45,23 @@
 
         operators: Object.freeze({
             eq: '같음',
+            neq: '다름',
+            contains: '포함',
+            not_contains: '미포함',
+            lt: '작게',
             lte: '같거나작게',
+            gt: '크게',
             gte: '같거나크게',
-            ne: '다름',
-            startsWith: '시작함',
-            endsWith: '끝남',
-            contains: '포함'
+            begins_with: '시작함',
+            ends_with: '끝남'
+        }),
+        // options에 없는 입력(일반 텍스트)이 사용하는 내부 전용 그룹. 후보 데이터에서는 사용할 수 없다.
+        normalGroup: '__dttl_normal__',
+        // optgroups의 range 옵션 값. 입력 형식은 서버 dbclient 필터의 Date/DateTime(yyyy-MM-dd, yyyy-MM)과 Time(HH:mm) 형식과 같다.
+        ranges: Object.freeze({
+            date: { label: '년월일', type: 'date', placeholder: 'yyyy-MM-dd', pattern: /^\d{4}-\d{2}-\d{2}$/ },
+            month: { label: '년월', type: 'month', placeholder: 'yyyy-MM', pattern: /^\d{4}-\d{2}$/ },
+            time: { label: '시간', type: 'time', placeholder: 'HH:mm', pattern: /^\d{2}:\d{2}$/ }
         }),
         eventCallbacks: {
             initialize: 'onInitialize',
@@ -60,6 +74,7 @@
             clear: 'onClear',
             option_add: 'onOptionAdd',
             option_remove: 'onOptionRemove',
+            option_change: 'onOptionChange',
             option_clear: 'onOptionClear',
             optgroup_add: 'onOptionGroupAdd',
             optgroup_remove: 'onOptionGroupRemove',
@@ -119,6 +134,9 @@
         },
 
         addControlSetting(el, setting) {
+            (setting.optgroups || []).forEach(function (group) {
+                return $dropdowntextlist.checkRangeGroup(group);
+            });
             var control = {
                 id: el.id,
                 host: el,
@@ -156,6 +174,22 @@
 
                 setValue(value, silent) {
                     return $dropdowntextlist.setValue(control.id, value, silent);
+                },
+
+                getSummaryText(options) {
+                    return $dropdowntextlist.getSummaryText(control.id, options);
+                },
+
+                getGroupConditions(list) {
+                    return $dropdowntextlist.getGroupConditions(list);
+                },
+
+                getNormalText() {
+                    return $dropdowntextlist.getNormalText(control.id);
+                },
+
+                setNormalText(items, silent) {
+                    return $dropdowntextlist.setNormalText(control.id, items, silent);
                 },
 
                 addOption(data, user_created) {
@@ -295,6 +329,14 @@
 
                 setTextboxValue(str) {
                     return $dropdowntextlist.setTextboxValue(control.id, str);
+                },
+
+                setRange(groupID, start, end) {
+                    return $dropdowntextlist.setRange(control.id, groupID, start, end);
+                },
+
+                getRange(groupID) {
+                    return $dropdowntextlist.getRange(control.id, groupID);
                 }
             };
             $dropdowntextlist.textListControls.push(control);
@@ -315,13 +357,18 @@
                 })));
             }
             control.container = document.createElement('div');
-            control.container.className = 'syn-dropdowntextlist';
+            // AND/OR 배지를 숨기면(hideLogicBadge:true) 배지가 튀어나올 자리로 둔 태그 위쪽 여백과 줄 간격을 없앤다. 초기화 때 한 번만 정한다.
+            control.container.className = 'syn-dropdowntextlist' + (setting.hideLogicBadge === false ? '' : ' dttl-hide-badge');
             control.container.style.width = setting.width;
             control.source = document.createElement('select');
             control.source.multiple = true;
             control.source.id = control.id + '_select';
             control.source.setAttribute('aria-label', setting.controlText || setting.placeholder);
             control.container.append(control.source);
+            control.ranges = document.createElement('div');
+            control.ranges.className = 'dttl-ranges';
+            control.ranges.hidden = true;
+            control.container.append(control.ranges);
             if (/^(INPUT|SELECT)$/.test(el.tagName)) {
                 el.style.display = 'none';
                 el.insertAdjacentElement('afterend', control.container);
@@ -357,20 +404,40 @@
                     item: function (data, escape) {
                         var condition = control.conditions.get(data._dttlID) || {
                             logic: 'AND',
-                            operator: 'eq'
+                            operator: 'contains'
                         };
-                        var group = control.picker ? control.picker.optgroups[data._dttlGroup] : null;
-                        var groupLabel = group && group.label != null ? String(group.label) : data._dttlGroup || '기타';
-                        var summary = groupLabel + ' · ' + data._dttlLabel + ' · ' + condition.logic + ' · ' + $dropdowntextlist.operators[condition.operator];
+                        var normal = data._dttlGroup === $dropdowntextlist.normalGroup;
+                        var group = control.picker && !normal ? control.picker.optgroups[data._dttlGroup] : null;
+                        var groupLabel = normal ? $dropdowntextlist.getNormalParts(data).key || '텍스트' : group && group.label != null ? String(group.label) : data._dttlGroup || '기타';
+                        var summary = (normal ? '일반 텍스트 · ' : '') + groupLabel + ' · ' + data._dttlLabel + ' · ' + condition.logic + ' · ' + $dropdowntextlist.operators[condition.operator];
 
-                        return '<div class="dttl-item" data-dttl-logic="' + condition.logic + '" data-dttl-operator="' + condition.operator + '" title="' + escape(summary) + '">' +
-                            '<span class="dttl-logic-badge" aria-hidden="true">' + condition.logic + '</span>' +
+                        // AND/OR 배지는 hideLogicBadge:false일 때만 만든다(기본값 true는 만들지 않는다).
+                        var showBadge = setting.hideLogicBadge === false;
+                        // 그룹 이름은 기본적으로(groupDisplay:'tooltip') 툴팁(title)으로만 보여주고 'inline'이면 태그 안에, 'badge'이면 AND/OR 배지 뒤에 보여준다.
+                        // range 그룹의 태그는 groupDisplay 값과 관계없이 값만 보여준다. 'badge'는 배지를 숨기면(hideLogicBadge:true) 그룹 이름을 보여주지 않는다.
+                        var isRange = !normal && $dropdowntextlist.getRangeKind(control.id, data._dttlGroup) !== '';
+                        var normalKey = normal ? $dropdowntextlist.getNormalParts(data).key : '';
+                        // 일반 텍스트의 key는 배지가 있으면 배지 뒤에 보여주고, 배지를 숨겼으면 후보의 그룹 이름처럼 groupDisplay:'inline'일 때만 그룹 이름 영역에 보여준다(key가 없으면 표시하지 않는다).
+                        var hideGroup = normal ? showBadge || setting.groupDisplay !== 'inline' || !normalKey : setting.groupDisplay !== 'inline' || isRange;
+                        // 배지는 AND/OR를 보여주며 뒤에 이어서 일반 텍스트는 key, groupDisplay:'badge'인 후보는 그룹 이름을 보여준다(없으면 AND/OR만).
+                        // 그룹 ID가 비어 있는 후보와 range 태그는 이어 붙이지 않는다.
+                        var badgeKey = !showBadge ? '' : normal ? normalKey : setting.groupDisplay === 'badge' && !isRange && data._dttlGroup ? groupLabel : '';
+                        // 이어 붙인 텍스트가 길면 그 부분만 줄임표로 자르므로 태그가 배지 폭만큼 넓어지도록 최소 폭을 준다(최대 8.5rem).
+                        var badge = showBadge ? '<span class="dttl-logic-badge" aria-hidden="true">' + condition.logic +
+                            (badgeKey ? '<span class="dttl-badge-key"> · ' + escape(badgeKey) + '</span>' : '') + '</span>' : '';
+                        var minWidth = badgeKey ? ' style="min-width:' + Math.min(136, Array.from(badgeKey).length * 9 + 34) + 'px"' : '';
+
+                        return '<div class="dttl-item' + (normal ? ' dttl-normal' : '') + (hideGroup ? ' dttl-group-tooltip' : '') + '" data-dttl-logic="' + condition.logic + '" data-dttl-operator="' + condition.operator + '" title="' + escape(summary) + '"' + minWidth + '>' +
+                            badge +
                             '<span class="dttl-group" role="button" tabindex="0" aria-label="' + escape(summary + ' 조건 편집') + '">' + escape(groupLabel) + '</span>' +
                             '<button type="button" class="dttl-edit" aria-label="' + escape(summary + ' 조건 편집') + '"><span class="dttl-label">' + escape(data._dttlLabel) + '</span></button>' +
                             '<button type="button" class="dttl-remove" aria-label="' + escape(data._dttlLabel + ' 삭제') + '">×</button></div>';
                     },
                     option: function (data, escape) {
                         return '<div>' + escape(data._dttlLabel) + '</div>';
+                    },
+                    option_create: function (data, escape) {
+                        return '<div class="create">일반 텍스트 추가 <strong>' + escape(data.input) + '</strong>&hellip;</div>';
                     },
                     no_results: function () {
                         return '<div class="no-results">검색 결과가 없습니다.</div>';
@@ -384,6 +451,44 @@
                 };
             });
             control.picker = new TomSelect(control.source, selectSetting);
+            // range 그룹의 등록·제거를 범위 버튼에 반영한다.
+            ['addOptionGroup', 'removeOptionGroup', 'clearOptionGroups'].forEach(function (name) {
+                var original = control.picker[name];
+                control.picker[name] = function () {
+                    if (name === 'addOptionGroup') {
+                        $dropdowntextlist.checkRangeGroup(arguments[1]);
+                    }
+                    var result = original.apply(control.picker, arguments);
+                    if (!control.destroyed) {
+                        $dropdowntextlist.renderRanges(control.id);
+                    }
+                    return result;
+                };
+            });
+            $dropdowntextlist.renderRanges(control.id);
+            if (typeof ResizeObserver === 'function') {
+                var rangeObserver = new ResizeObserver(function () {
+                    if (!control.destroyed) {
+                        $dropdowntextlist.layoutRanges(control.id);
+                    }
+                });
+                rangeObserver.observe(control.container);
+                control.cleanups.push(function () {
+                    return rangeObserver.disconnect();
+                });
+            }
+            $dropdowntextlist.listen(control.id, control.ranges, 'click', function (event) {
+                var button = event.target.closest('.dttl-range-open');
+                if (!button || !control.ranges.contains(button) || control.picker.isLocked || control.picker.isDisabled) {
+                    return;
+                }
+                if (control.editor && control.editorAnchor === button) {
+                    $dropdowntextlist.closeEditor(control.id, true);
+                }
+                else {
+                    $dropdowntextlist.openRange(control.id, button.dataset.group, button);
+                }
+            });
             var originalPositionDropdown = control.picker.positionDropdown;
             control.picker.positionDropdown = function () {
                 var result = originalPositionDropdown.call(control.picker);
@@ -395,11 +500,17 @@
             var originalRefreshOptions = control.picker.refreshOptions;
             control.picker.refreshOptions = function (triggerDropdown) {
                 var result = originalRefreshOptions.call(control.picker, triggerDropdown);
+                if (!control.destroyed) {
+                    $dropdowntextlist.updateGroupNav(control.id);
+                }
                 if (control.picker.isOpen && !control.destroyed) {
                     $dropdowntextlist.sizeDropdown(control.id);
                 }
                 return result;
             };
+            if (setting.groupNav !== false) {
+                $dropdowntextlist.createGroupNav(control.id);
+            }
             // 콜백과 Promise 방식 모두 같은 생성·조회 처리와 파괴 여부 검사를 사용한다.
             control.picker.createItem = function (value, callback) {
                 return $dropdowntextlist.createItem(control.id, value, callback);
@@ -436,7 +547,7 @@
                 }
             }, true);
             $dropdowntextlist.listen(control.id, document, 'pointerdown', function (event) {
-                if (control.editor && !control.editor.contains(event.target) && !control.picker.control.contains(event.target)) {
+                if (control.editor && !control.editor.contains(event.target) && !control.picker.control.contains(event.target) && !control.ranges.contains(event.target)) {
                     $dropdowntextlist.closeEditor(control.id, false);
                 }
             });
@@ -517,12 +628,12 @@
             var control = $dropdowntextlist.requireControl(elID);
 
             return control.picker.items.filter(function (id) {
-                return $dropdowntextlist.hasProperty(control.picker.options, id);
+                return $dropdowntextlist.hasProperty(control.picker.options, id) && control.picker.options[id]._dttlGroup !== $dropdowntextlist.normalGroup;
             }).map(function (id) {
                 var data = control.picker.options[id];
                 var condition = control.conditions.get(id) || {
                     logic: 'AND',
-                    operator: 'eq'
+                    operator: 'contains'
                 };
                 return {
                     groupID: data._dttlGroup,
@@ -534,15 +645,299 @@
             });
         },
 
+        // 현재 선택한 조건을 사용자에게 보여줄 한 줄 텍스트로 반환한다. 같은 그룹의 조건은 각 항목의 logic으로, 그룹 사이는 options.groupLogic으로 연결한다.
+        // 예: (이름 같음 "홍길동" 또는 이름 포함 "김") 그리고 작성일 2026-10-01 ~ 2026-10-31
+        // options: {groupLogic:'AND', logicLabels:{AND:'그리고', OR:'또는'}, includeNormalText:true, normalTextLabel:'텍스트', parentheses:true}
+        getSummaryText(elID, options) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            options = options || {};
+            var groupLogic = options.groupLogic == null ? 'AND' : options.groupLogic;
+            if (!['AND', 'OR'].includes(groupLogic)) {
+                throw new TypeError('DropDownTextList: groupLogic must be AND or OR');
+            }
+            var labels = Object.assign({
+                AND: '그리고',
+                OR: '또는'
+            }, options.logicLabels);
+            var includeNormalText = options.includeNormalText !== false;
+            // key가 있는 일반 텍스트는 같은 이름의 후보 그룹과 구분되도록 값 앞에 이 문구를 붙인다. key가 없으면 그룹 이름 자리의 '텍스트'가 그 역할을 한다.
+            var normalTextLabel = options.normalTextLabel == null ? '텍스트' : String(options.normalTextLabel);
+            var parentheses = options.parentheses !== false;
+            var quote = function (text) {
+                return '"' + String(text).replace(/"/g, '\\"') + '"';
+            };
+            var groups = new Map();
+            control.picker.items.forEach(function (id) {
+                if (!$dropdowntextlist.hasProperty(control.picker.options, id)) {
+                    return;
+                }
+                var item = $dropdowntextlist.getConditionItem(control.id, id);
+                if (item.normal && !includeNormalText) {
+                    return;
+                }
+                // 일반 텍스트는 key가 같은 것끼리, 후보와 범위는 groupID가 같은 것끼리 묶는다.
+                var groupKey = item.normal ? 'n:' + item.key : 'g:' + item.groupID;
+                var group = groups.get(groupKey);
+                if (!group) {
+                    var groupOption = item.normal ? null : control.picker.optgroups[item.groupID];
+                    group = {
+                        label: item.normal ? item.key || '텍스트' : groupOption && groupOption.label != null ? String(groupOption.label) : item.groupID || '기타',
+                        entries: [],
+                        range: null
+                    };
+                    groups.set(groupKey, group);
+                }
+                var side = item.normal ? '' : $dropdowntextlist.getRangeSide(control.id, id);
+                if (side) {
+                    // setRange로 만든 시작·끝 조건은 한 항목으로 합친다.
+                    if (!group.range) {
+                        group.range = {
+                            logic: item.logic,
+                            start: '',
+                            end: ''
+                        };
+                        group.entries.push(group.range);
+                    }
+                    group.range[side] = /^(.+) (?:부터|까지)$/.exec(item.value)[1];
+                    return;
+                }
+                group.entries.push({
+                    logic: item.logic,
+                    text: group.label + ' ' + $dropdowntextlist.operators[item.operator] + ' ' + (item.normal && item.key && normalTextLabel ? normalTextLabel + ' ' : '') + quote(item.value)
+                });
+            });
+            var wrap = parentheses && groups.size > 1;
+            return Array.from(groups.values()).map(function (group) {
+                var text = group.entries.map(function (entry, index) {
+                    var body = entry.text;
+                    if (body === undefined) {
+                        body = group.label + ' ' + (entry.start && entry.end ? entry.start + ' ~ ' + entry.end : entry.start ? entry.start + ' 부터' : entry.end + ' 까지');
+                    }
+                    return (index > 0 ? labels[entry.logic] + ' ' : '') + body;
+                }).join(' ');
+                return wrap && group.entries.length > 1 ? '(' + text + ')' : text;
+            }).join(' ' + labels[groupLogic] + ' ');
+        },
+
+        // {operator, value, logic} 목록을 operator와 logic이 같은 것끼리 묶어 [{name, args, logic}]로 반환한다. 묶는 순서는 처음 나타난 순서이고 args는 value의 순서를 유지한다.
+        // 예: getNormalText() 결과를 AUIGrid addMultiCondition 같은 다중 조건 형식으로 바꿀 때 사용한다. operator 이름은 변환하지 않는다.
+        getGroupConditions(list) {
+            var groups = new Map();
+
+            list.forEach(function (item) {
+                var groupKey = JSON.stringify([item.operator, item.logic]);
+                if (!groups.has(groupKey)) {
+                    groups.set(groupKey, {
+                        name: item.operator,
+                        args: [],
+                        logic: item.logic
+                    });
+                }
+                groups.get(groupKey).args.push(item.value);
+            });
+
+            return Array.from(groups.values());
+        },
+
+        // options에 없는 입력(일반 텍스트)만 선택한 순서대로 반환한다. getValue()에는 포함되지 않는다.
+        getNormalText(elID) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            return control.picker.items.filter(function (id) {
+                return $dropdowntextlist.hasProperty(control.picker.options, id) && control.picker.options[id]._dttlGroup === $dropdowntextlist.normalGroup;
+            }).map(function (id) {
+                var parts = $dropdowntextlist.getNormalParts(control.picker.options[id]);
+                var condition = control.conditions.get(id) || {
+                    logic: 'AND',
+                    operator: 'contains'
+                };
+                return {
+                    logic: condition.logic,
+                    operator: condition.operator,
+                    key: parts.key,
+                    value: parts.value
+                };
+            });
+        },
+
+        // item_add·item_remove·option_change에 전달할 항목 하나의 정보를 반환한다. 일반 텍스트는 groupID 대신 normal: true를 가진다.
+        // 조건 정보가 없으면 기본값 AND, contains를 사용하며 후보가 이미 제거된 경우 id에서 groupID와 key를 얻고 value는 생략한다.
+        getConditionItem(elID, id) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            var data = control.picker.options[id];
+            var reference = $dropdowntextlist.getOptionReference(id);
+            var condition = control.conditions.get(id) || {
+                logic: 'AND',
+                operator: 'contains'
+            };
+            if (reference.groupID === $dropdowntextlist.normalGroup) {
+                var parts = $dropdowntextlist.getNormalParts(data || { _dttlKey: reference.key });
+                return {
+                    normal: true,
+                    logic: condition.logic,
+                    operator: condition.operator,
+                    key: parts.key,
+                    value: parts.value
+                };
+            }
+            var item = {
+                groupID: reference.groupID,
+                logic: condition.logic,
+                operator: condition.operator,
+                key: reference.key
+            };
+            if (data) {
+                item.value = data._dttlLabel;
+            }
+            return item;
+        },
+
+        // 일반 텍스트 선택을 교체한다. 항목은 {logic?, operator?, key?, value} 객체이거나 `value` 또는 `key:value` 문자열이다.
+        setNormalText(elID, items, silent = false) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            silent = silent === true;
+            if (items == null) {
+                items = [];
+            }
+            if (!Array.isArray(items)) {
+                throw new TypeError('DropDownTextList: normal text must be an array');
+            }
+            var prepared = items.map(function (item) {
+                var parts = typeof item === 'string' || typeof item === 'number' ? $dropdowntextlist.parseNormalText(item) : null;
+                var logic = 'AND';
+                var operator = 'contains';
+                if (item && typeof item === 'object') {
+                    var key = item.key == null ? '' : $dropdowntextlist.normalizeScalar(item.key, 'key', true).trim();
+                    var value = $dropdowntextlist.normalizeScalar(item.value, 'value', false).trim();
+                    parts = value === '' || key.indexOf('\u0000') >= 0 ? null : { key: key, value: value };
+                    logic = item.logic == null ? logic : item.logic;
+                    operator = item.operator == null ? operator : item.operator;
+                    if (!['AND', 'OR'].includes(logic) || !$dropdowntextlist.hasProperty($dropdowntextlist.operators, operator)) {
+                        throw new TypeError('DropDownTextList: invalid logic or operator');
+                    }
+                }
+                if (!parts) {
+                    throw new TypeError('DropDownTextList: invalid normal text');
+                }
+                return { option: $dropdowntextlist.normalOption(parts.key, parts.value), logic: logic, operator: operator };
+            });
+            var maxItems = control.picker.settings.maxItems;
+            var others = control.picker.items.filter(function (id) {
+                return !$dropdowntextlist.isNormalID(id);
+            }).length;
+            if (maxItems != null && others + prepared.length > maxItems) {
+                throw new Error('DropDownTextList: maxItems exceeded');
+            }
+
+            var before = $dropdowntextlist.snapshot(control.id);
+            $dropdowntextlist.cancelPending(control.id);
+            $dropdowntextlist.closeEditor(control.id, false);
+            $dropdowntextlist.clearItems(control.id, true);
+            var ids = [];
+            prepared.forEach(function (item) {
+                var id = item.option._dttlID;
+                if (ids.includes(id)) {
+                    return;
+                }
+                ids.push(id);
+                control.conditions.set(id, { logic: item.logic, operator: item.operator });
+                if (!$dropdowntextlist.hasProperty(control.picker.options, id)) {
+                    control.picker.addOption(item.option, true);
+                }
+            });
+            control.picker.addItems(ids, true);
+            $dropdowntextlist.refreshItems(control.id);
+            control.picker.refreshOptions(false);
+            $dropdowntextlist.notify(control.id, before, silent);
+        },
+
+        // getValue()와 getNormalText()를 함께 비교하여 일반 텍스트만 바뀌어도 변경으로 판단한다.
+        snapshot(elID) {
+            return JSON.stringify([$dropdowntextlist.getValue(elID), $dropdowntextlist.getNormalText(elID)]);
+        },
+
+        isNormalID(id) {
+            var pair;
+            try {
+                pair = JSON.parse(id);
+            } catch (error) {
+                return false;
+            }
+            return Array.isArray(pair) && pair[0] === $dropdowntextlist.normalGroup;
+        },
+
+        // 입력 텍스트를 일반 텍스트로 해석한다. 첫 ':' 앞은 key, 뒤는 value이며 ':'가 없으면 value만 사용한다. value가 비면 null이다.
+        parseNormalText(text) {
+            text = String(text == null ? '' : text).trim();
+            var index = text.indexOf(':');
+            var key = index < 0 ? '' : text.slice(0, index).trim();
+            var value = index < 0 ? text : text.slice(index + 1).trim();
+            return value === '' ? null : { key: key, value: value };
+        },
+
+        // 내부 키는 key와 value를 NUL로 이어 붙인다. 입력 텍스트에는 NUL을 넣을 수 없으므로 같은 key·value만 같은 항목이 된다.
+        getNormalParts(option) {
+            var index = option._dttlKey.indexOf('\u0000');
+            return { key: option._dttlKey.slice(0, index), value: option._dttlKey.slice(index + 1) };
+        },
+
+        normalOption(key, value) {
+            if (key.indexOf('\u0000') >= 0) {
+                throw new TypeError('DropDownTextList: invalid normal text');
+            }
+            var internal = key + '\u0000' + value;
+            return {
+                _dttlID: $dropdowntextlist.getOptionID($dropdowntextlist.normalGroup, internal),
+                _dttlKey: internal,
+                _dttlGroup: $dropdowntextlist.normalGroup,
+                _dttlLabel: value,
+                _dttlRaw: { normal: true, key: key, value: value }
+            };
+        },
+
+        // 선택된 후보 중 일반 텍스트(normal=true) 또는 일반 후보(normal=false)만 조용히 해제한다.
+        clearItems(elID, normal) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            var targets = control.picker.items.filter(function (id) {
+                return $dropdowntextlist.isNormalID(id) === normal;
+            });
+            if (targets.length === control.picker.items.length) {
+                control.picker.clear(true);
+                control.conditions.clear();
+                return;
+            }
+            targets.forEach(function (id) {
+                control.picker.removeItem(id, true);
+                control.conditions.delete(id);
+            });
+        },
+
+        // 입력이 일반 후보의 키 또는 표시값과 정확히 같으면 그 후보 ID를 반환한다. 여러 개면 아직 선택하지 않은 첫 후보를 우선한다.
+        findOptionByText(elID, text) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            var ids = Object.keys(control.picker.options).filter(function (id) {
+                var option = control.picker.options[id];
+                return option._dttlGroup !== $dropdowntextlist.normalGroup && (option._dttlKey === text || option._dttlLabel === text) && !$dropdowntextlist.getRangeSide(control.id, id);
+            });
+            return ids.find(function (id) {
+                return !control.picker.items.includes(id);
+            }) || ids[0] || '';
+        },
+
         setValue(elID, value, silent = false) {
             var control = $dropdowntextlist.requireControl(elID);
 
             // 거래 setter의 세 번째 인자는 메타데이터일 수 있으므로 true일 때만 change를 생략한다.
             silent = silent === true;
             var values = Array.isArray(value) ? value : [value];
-            var kind = values.length ? $dropdowntextlist.getValueType(values[0]) : 'key';
+            var kind = values.length ? $dropdowntextlist.getValueType(values[0], control.settings) : 'key';
             if (values.some(function (item) {
-                return $dropdowntextlist.getValueType(item) !== kind;
+                return $dropdowntextlist.getValueType(item, control.settings) !== kind;
             })) {
                 throw new TypeError('DropDownTextList: mixed arrays are not supported');
             }
@@ -567,7 +962,7 @@
                 });
             }
 
-            var before = JSON.stringify($dropdowntextlist.getValue(control.id));
+            var before = $dropdowntextlist.snapshot(control.id);
             var userOptions = Object.assign({}, control.picker.userOptions);
             $dropdowntextlist.cancelPending(control.id);
             $dropdowntextlist.closeEditor(control.id, false);
@@ -576,7 +971,8 @@
                     return [data._dttlID, data];
                 }));
                 Object.keys(control.picker.options).forEach(function (id) {
-                    if (!incoming.has(id)) {
+                    // 일반 텍스트는 후보 데이터가 아니므로 후보를 교체해도 유지한다.
+                    if (!incoming.has(id) && !$dropdowntextlist.isNormalID(id)) {
                         control.picker.removeOption(id, true);
                     }
                 });
@@ -594,8 +990,9 @@
                 var selectedOptions = kind === 'key' ? prepared.map(function (id) {
                     return control.picker.options[id];
                 }) : [];
-                control.picker.clear(true);
-                control.conditions.clear();
+                // 일반 텍스트 선택은 setNormalText로 따로 교체하므로 일반 후보만 해제한다.
+                $dropdowntextlist.clearItems(control.id, false);
+                $dropdowntextlist.purgeRangeOptions(control.id);
                 var ids = [];
                 prepared.forEach(function (data, index) {
                     var id = kind === 'condition' ? $dropdowntextlist.getOptionID(data.groupID, data.key) : data;
@@ -652,10 +1049,13 @@
             if (!id || !$dropdowntextlist.hasProperty(control.picker.options, id)) {
                 return;
             }
+            if ($dropdowntextlist.isNormalID(id)) {
+                throw new Error('DropDownTextList: normal text cannot be updated; use setNormalText');
+            }
             if (id !== option._dttlID && $dropdowntextlist.hasProperty(control.picker.options, option._dttlID)) {
                 throw new Error('DropDownTextList: duplicate groupID + key');
             }
-            var before = JSON.stringify($dropdowntextlist.getValue(control.id));
+            var before = $dropdowntextlist.snapshot(control.id);
             var condition = control.conditions.get(id);
             control.conditions.delete(id);
             if (condition) {
@@ -739,6 +1139,10 @@
             if (id) {
                 control.picker.addItem(id, silent === true);
             }
+            else if (control.settings.create && (typeof value === 'string' || typeof value === 'number')) {
+                // 후보에 없는 텍스트는 createItem과 같은 규칙으로 일반 텍스트가 된다. 잠금 상태에서도 코드로는 추가할 수 있다.
+                $dropdowntextlist.createItem(control.id, String(value), undefined, { silent: silent === true, force: true });
+            }
             $dropdowntextlist.writeValue(control.id);
         },
 
@@ -772,22 +1176,37 @@
             $dropdowntextlist.writeValue(control.id);
         },
 
-        createItem(elID, value, callback) {
+        // 후보에 없는 입력은 모두 일반 텍스트가 된다. 입력이 후보의 키·표시값과 같으면 그 후보를 선택한다.
+        // internal: addItem이 사용하는 { silent, force }. force는 잠금 상태 검사를 건너뛰고 입력창을 지우지 않는다.
+        createItem(elID, value, callback, internal) {
             var control = $dropdowntextlist.requireControl(elID);
 
-            value = value == null ? control.picker.control_input.value : String(value);
-            if (!value || !control.settings.create || control.destroyed || control.picker.isLocked || !control.picker.canCreate(value)) {
+            internal = internal || {};
+            value = (value == null ? control.picker.control_input.value : String(value)).trim();
+            if (!value || !control.settings.create || control.destroyed || (!internal.force && control.picker.isLocked) || !control.picker.canCreate(value)) {
                 if (callback) {
                     callback();
                 }
                 return false;
+            }
+            var existing = $dropdowntextlist.findOptionByText(control.id, value);
+            if (existing) {
+                var existingData = Object.assign({}, control.picker.options[existing]._dttlRaw);
+                control.picker.addItem(existing, internal.silent === true);
+                if (!internal.force) {
+                    control.picker.setTextboxValue('');
+                }
+                if (callback) {
+                    callback(existingData);
+                }
+                return true;
             }
             var revision = control.revision;
             var caret = control.picker.caretPos;
             control.creating = true;
             control.picker.lock();
             var completed = false;
-            var done = function (data) {
+            var done = function (parts) {
                 if (completed || control.destroyed || revision !== control.revision) {
                     return;
                 }
@@ -796,7 +1215,7 @@
                 if (!control.explicitLock && !control.picker.isDisabled) {
                     control.picker.unlock();
                 }
-                if (!data) {
+                if (!parts) {
                     if (callback) {
                         callback();
                     }
@@ -804,7 +1223,7 @@
                 }
                 var option;
                 try {
-                    option = $dropdowntextlist.normalize(control.id, data);
+                    option = $dropdowntextlist.normalOption(parts.key, parts.value);
                 } catch (error) {
                     console.warn(error);
                     if (callback) {
@@ -812,34 +1231,60 @@
                     }
                     return;
                 }
-                control.picker.addOption(option, true);
+                if (!$dropdowntextlist.hasProperty(control.picker.options, option._dttlID)) {
+                    control.picker.addOption(option, true);
+                }
                 control.picker.setCaret(caret);
-                control.picker.addItem(option._dttlID);
-                control.picker.setTextboxValue('');
+                control.picker.addItem(option._dttlID, internal.silent === true);
+                if (!internal.force) {
+                    control.picker.setTextboxValue('');
+                }
                 if (callback) {
-                    callback(Object.assign({}, data));
+                    callback({ logic: 'AND', operator: 'contains', key: parts.key, value: parts.value });
                 }
             };
             try {
-                var result = typeof control.settings.create === 'function' ? control.settings.create.call(control, value, done) : {
-                    [control.settings.optgroupField]: control.settings.defaultGroupID,
-                    [control.settings.valueField]: value,
-                    [control.settings.labelField]: value
-                };
-                if (result && typeof result.then === 'function') {
-                    result.then(done, function (error) {
-                        console.warn(error);
-                        done();
-                    });
+                if (typeof control.settings.create === 'function') {
+                    // 함수가 돌려준 데이터는 그룹을 무시하고 valueField를 key, labelField를 value로 사용한다.
+                    var finish = function (data) {
+                        done($dropdowntextlist.fromCreateResult(control.id, data));
+                    };
+                    var result = control.settings.create.call(control, value, finish);
+                    if (result && typeof result.then === 'function') {
+                        result.then(finish, function (error) {
+                            console.warn(error);
+                            done();
+                        });
+                    }
+                    else if (result !== undefined) {
+                        finish(result);
+                    }
                 }
-                else if (result !== undefined) {
-                    done(result);
+                else {
+                    done($dropdowntextlist.parseNormalText(value));
                 }
             } catch (error) {
                 console.warn(error);
                 done();
             }
             return true;
+        },
+
+        // create 함수가 돌려준 데이터를 일반 텍스트의 key·value로 바꾼다. labelField가 없거나 valueField와 같으면 key 없이 value만 사용한다.
+        fromCreateResult(elID, data) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            if (!data || typeof data !== 'object') {
+                return null;
+            }
+            var raw = data[control.settings.valueField];
+            var label = data[control.settings.labelField];
+            var key = raw == null ? '' : String(raw).trim();
+            var value = label == null ? key : String(label).trim();
+            if (value === '') {
+                return null;
+            }
+            return { key: label == null || key === value ? '' : key, value: value };
         },
 
         load(elID, query) {
@@ -966,7 +1411,7 @@
         sync(elID) {
             var control = $dropdowntextlist.requireControl(elID);
 
-            var before = JSON.stringify($dropdowntextlist.getValue(control.id));
+            var before = $dropdowntextlist.snapshot(control.id);
             var records = Array.from(control.source.options).map(function (option) {
                 var ref = $dropdowntextlist.getOptionReference(option.value);
                 var currentOption = control.picker.options[option.value];
@@ -986,6 +1431,12 @@
             }), true);
             control.picker.clear(true);
             control.conditions = conditions;
+            // 해제 과정에서 정리된 범위·일반 텍스트 후보를 선택 항목으로 되살린다.
+            records.forEach(function (record) {
+                if (record.selected && !$dropdowntextlist.hasProperty(control.picker.options, record.data._dttlID)) {
+                    control.picker.addOption(record.data, true);
+                }
+            });
             control.picker.addItems(records.filter(function (record) {
                 return record.selected;
             }).map(function (record) {
@@ -1157,16 +1608,22 @@
             });
         },
 
-        getValueType(value) {
+        // 조건 객체는 groupID와 key가 있고 logic·operator는 생략할 수 있다. 다만 후보 스키마가 groupID·key 필드명을 쓰는 컨트롤(optgroupField:'groupID' 또는
+        // valueField:'key')에서는 후보와 구분할 수 없으므로 logic 또는 operator가 있을 때만 조건 객체로 본다.
+        getValueType(value, settings) {
             var result = 'option';
             if (typeof value === 'string' || typeof value === 'number') {
                 result = 'key';
             }
             else if (value && typeof value === 'object') {
-                var isCondition = ['groupID', 'logic', 'operator', 'key'].every(function (key) {
+                var hasCore = ['groupID', 'key'].every(function (key) {
                     return $dropdowntextlist.hasProperty(value, key);
                 });
-                if (isCondition) {
+                var explicit = ['logic', 'operator'].some(function (key) {
+                    return $dropdowntextlist.hasProperty(value, key);
+                });
+                var collision = !!settings && (settings.optgroupField === 'groupID' || settings.valueField === 'key');
+                if (hasCore && (explicit || !collision)) {
                     result = 'condition';
                 }
             }
@@ -1183,6 +1640,13 @@
             var key = $dropdowntextlist.normalizeScalar(data[control.settings.valueField], 'key', false);
             var groupID = $dropdowntextlist.normalizeScalar(data[control.settings.optgroupField] == null ? '' : data[control.settings.optgroupField], 'groupID', true);
             var value = $dropdowntextlist.normalizeScalar(data[control.settings.labelField], 'value', true);
+            if (groupID === $dropdowntextlist.normalGroup) {
+                // 일반 텍스트 전용 그룹은 내부 키(key NUL value)로만 만들 수 있다. 표시값은 내부 키의 value를 사용한다.
+                if (key.indexOf('\u0000') < 0) {
+                    throw new TypeError('DropDownTextList: reserved groupID: ' + groupID);
+                }
+                value = $dropdowntextlist.getNormalParts({ _dttlKey: key }).value;
+            }
             return {
                 _dttlID: $dropdowntextlist.getOptionID(groupID, key),
                 _dttlKey: key,
@@ -1198,13 +1662,16 @@
             var groupID = $dropdowntextlist.normalizeScalar(data.groupID, 'groupID', true);
             var key = $dropdowntextlist.normalizeScalar(data.key, 'key', false);
             var value = $dropdowntextlist.normalizeScalar(data.value, 'value', true);
-            if (!['AND', 'OR'].includes(data.logic) || !$dropdowntextlist.hasProperty($dropdowntextlist.operators, data.operator)) {
+            // logic, operator를 생략하면 AND, contains를 사용한다.
+            var logic = data.logic == null ? 'AND' : data.logic;
+            var operator = data.operator == null ? 'contains' : data.operator;
+            if (!['AND', 'OR'].includes(logic) || !$dropdowntextlist.hasProperty($dropdowntextlist.operators, operator)) {
                 throw new TypeError('DropDownTextList: invalid logic or operator');
             }
             return {
                 groupID: groupID,
-                logic: data.logic,
-                operator: data.operator,
+                logic: logic,
+                operator: operator,
                 key: key,
                 value: value
             };
@@ -1247,22 +1714,39 @@
             }
             if (event === 'change') {
                 $dropdowntextlist.writeValue(control.id);
-                args = [$dropdowntextlist.getValue(control.id)];
+                args = [$dropdowntextlist.getValue(control.id), $dropdowntextlist.getNormalText(control.id)];
             }
             else if (event === 'item_add' || event === 'item_remove' || event === 'option_add' || event === 'option_remove') {
+                var id = args[0];
+                // 조건은 제거·정리 전에 읽는다. 일반 텍스트의 option 이벤트도 logic, operator 기본값을 포함한다.
+                var conditionItem = event === 'item_add' || event === 'item_remove' || $dropdowntextlist.isNormalID(id) ? $dropdowntextlist.getConditionItem(control.id, id) : null;
                 if (event === 'item_remove') {
-                    control.conditions.delete(args[0]);
                     $dropdowntextlist.closeEditor(control.id, false);
+                    // 범위 입력과 일반 텍스트로 만든 후보는 해제 후 후보 목록에 남기지 않는다.
+                    // 이때 발생하는 option_remove가 조건을 읽을 수 있도록 조건은 정리한 뒤에 지운다.
+                    if (($dropdowntextlist.getRangeSide(control.id, args[0]) || $dropdowntextlist.isNormalID(args[0])) && $dropdowntextlist.hasProperty(control.picker.options, args[0])) {
+                        control.picker.removeOption(args[0], true);
+                    }
+                    control.conditions.delete(args[0]);
                 }
                 args = args.slice();
                 args[0] = $dropdowntextlist.getOptionReference(args[0]);
-                if (event === 'option_add') {
+                if (conditionItem) {
+                    // 일반 텍스트의 내부 식별자는 노출하지 않고 {normal, logic, operator, key, value}로 전달한다.
+                    args[0] = conditionItem;
+                    if (event === 'option_add' && conditionItem.normal) {
+                        args[1] = Object.assign({}, conditionItem);
+                    }
+                }
+                if (event === 'option_add' && !conditionItem) {
                     args[1] = Object.assign({}, args[1]._dttlRaw);
                 }
             }
             else if (event === 'clear') {
                 control.conditions.clear();
                 $dropdowntextlist.closeEditor(control.id, false);
+                $dropdowntextlist.purgeRangeOptions(control.id);
+                $dropdowntextlist.purgeNormalOptions(control.id);
             }
             $dropdowntextlist.writeValue(control.id);
             $dropdowntextlist.trigger(control.id, event, ...args);
@@ -1302,7 +1786,7 @@
             var control = $dropdowntextlist.requireControl(elID);
 
             $dropdowntextlist.writeValue(control.id);
-            if (!silent && before !== JSON.stringify($dropdowntextlist.getValue(control.id))) {
+            if (!silent && before !== $dropdowntextlist.snapshot(control.id)) {
                 control.picker.trigger('change', control.picker.getValue());
             }
         },
@@ -1334,6 +1818,15 @@
                 group.tabIndex = disabled ? -1 : 0;
                 group.setAttribute('aria-disabled', String(disabled));
             });
+            if (control.ranges) {
+                control.ranges.querySelectorAll('button').forEach(function (button) {
+                    var range = $dropdowntextlist.getRange(control.id, button.dataset.group);
+                    var active = range.start !== '' || range.end !== '';
+                    button.disabled = control.picker.isLocked || control.picker.isDisabled;
+                    button.classList.toggle('dttl-range-active', active);
+                    button.setAttribute('aria-pressed', String(active));
+                });
+            }
         },
 
         onTagClick(elID, event) {
@@ -1367,11 +1860,15 @@
             if (control.picker.isLocked || control.picker.isDisabled) {
                 return;
             }
-            $dropdowntextlist.closeEditor(control.id, false);
             var id = item.dataset.value;
+            // 범위 입력으로 만든 시작·끝 조건은 시작과 끝을 함께 편집한다.
+            if ($dropdowntextlist.getRangeSide(control.id, id)) {
+                return $dropdowntextlist.openRange(control.id, $dropdowntextlist.getOptionReference(id).groupID, item);
+            }
+            $dropdowntextlist.closeEditor(control.id, false);
             var current = control.conditions.get(id) || {
                 logic: 'AND',
-                operator: 'eq'
+                operator: 'contains'
             };
             control.picker.close();
             var editor = document.createElement('div');
@@ -1401,19 +1898,29 @@
                 OR: 'OR'
             }, current.logic, 'data-dttl-logic');
             var operator = field('비교', $dropdowntextlist.operators, current.operator, 'data-dttl-operator');
+            // 적용·취소는 Tabler btn-group으로 묶는다. 높이는 CSS에서 콤보박스와 같게 맞춘다.
+            var buttons = document.createElement('div');
+            buttons.className = 'btn-group';
+            buttons.setAttribute('role', 'group');
             var apply = document.createElement('button');
             apply.type = 'button';
             apply.textContent = '적용';
-            apply.className = 'dttl-apply';
+            apply.className = 'btn btn-primary dttl-apply';
             var cancel = document.createElement('button');
             cancel.type = 'button';
             cancel.textContent = '취소';
-            editor.append(apply, cancel);
+            cancel.className = 'btn';
+            buttons.append(apply, cancel);
+            editor.append(buttons);
             apply.addEventListener('click', function () {
                 if (control.picker.isLocked || control.picker.isDisabled) {
                     return;
                 }
-                var before = JSON.stringify($dropdowntextlist.getValue(control.id));
+                var before = $dropdowntextlist.snapshot(control.id);
+                var previous = {
+                    logic: current.logic,
+                    operator: current.operator
+                };
                 control.conditions.set(id, {
                     logic: logic.value,
                     operator: operator.value
@@ -1421,6 +1928,10 @@
                 $dropdowntextlist.refreshItems(control.id);
                 $dropdowntextlist.closeEditor(control.id, true);
                 $dropdowntextlist.notify(control.id, before, false);
+                // change 다음에 변경된 항목 하나만 option_change로 전달한다.
+                if (!control.destroyed && (previous.logic !== logic.value || previous.operator !== operator.value) && $dropdowntextlist.hasProperty(control.picker.options, id)) {
+                    $dropdowntextlist.trigger(control.id, 'option_change', $dropdowntextlist.getConditionItem(control.id, id), previous);
+                }
             });
             cancel.addEventListener('click', function () {
                 return $dropdowntextlist.closeEditor(control.id, true);
@@ -1452,11 +1963,12 @@
         },
 
         normalizeDropdownSize(value, name) {
-            var defaultValue = 'auto';
+            // 너비 기본값은 컨트롤 폭('100%'), 높이 기본값은 내용에 맞춤('auto')이다.
+            var defaultValue = name === 'dropdownWidth' ? '100%' : 'auto';
             if (value == null || value === '') {
                 return defaultValue;
             }
-            if (value === defaultValue || (name === 'dropdownWidth' && value === '100%')) {
+            if (value === 'auto' || (name === 'dropdownWidth' && value === '100%')) {
                 return value;
             }
             if (typeof value === 'number' && Number.isFinite(value) && value > 0) {
@@ -1466,8 +1978,176 @@
                 return value;
             }
 
-            throw new TypeError('DropDownTextList: ' + name + ' must be ' + defaultValue +
+            throw new TypeError('DropDownTextList: ' + name + ' must be auto' +
                 (name === 'dropdownWidth' ? ', 100%, or' : ' or') + ' a positive pixel value');
+        },
+
+        // 드롭다운 목록 위쪽에 optgroup으로 바로 이동하는 버튼 그룹을 만든다. 보이는 그룹이 둘 이상일 때만 표시한다(groupNav:false이면 만들지 않는다).
+        createGroupNav(elID) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            var nav = document.createElement('div');
+            nav.className = 'dttl-group-nav';
+            nav.setAttribute('role', 'group');
+            nav.setAttribute('aria-label', '그룹 이동');
+            nav.hidden = true;
+            control.nav = nav;
+            control.navSignature = '';
+            control.navActive = '';
+            control.navUntil = 0;
+            control.picker.dropdown.insertBefore(nav, control.picker.dropdown_content);
+            // 버튼을 눌러도 입력 영역의 포커스를 유지하여 드롭다운이 닫히지 않게 한다.
+            $dropdowntextlist.listen(control.id, nav, 'mousedown', function (event) {
+                event.preventDefault();
+            });
+            $dropdowntextlist.listen(control.id, nav, 'click', function (event) {
+                var button = event.target.closest('button[data-group]');
+                if (button && nav.contains(button)) {
+                    $dropdowntextlist.scrollToGroup(control.id, button.dataset.group);
+                }
+            });
+            var frame = 0;
+            $dropdowntextlist.listen(control.id, control.picker.dropdown_content, 'scroll', function () {
+                if (frame || Date.now() < control.navUntil) {
+                    return;
+                }
+                frame = requestAnimationFrame(function () {
+                    frame = 0;
+                    if (!control.destroyed) {
+                        $dropdowntextlist.syncGroupNav(control.id);
+                    }
+                });
+            });
+            control.cleanups.push(function () {
+                if (frame) {
+                    cancelAnimationFrame(frame);
+                }
+            });
+        },
+
+        // 현재 목록에 그려진 optgroup(헤더가 있는 것)을 반환한다. 범위 그룹처럼 후보가 없는 그룹은 포함되지 않는다.
+        getRenderedGroups(elID) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            return Array.from(control.picker.dropdown_content.querySelectorAll('.optgroup[data-group]')).filter(function (group) {
+                return group.querySelector('.optgroup-header') !== null;
+            });
+        },
+
+        updateGroupNav(elID) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            if (!control.nav) {
+                return;
+            }
+            var groups = $dropdowntextlist.getRenderedGroups(control.id);
+            var signature = groups.map(function (group) {
+                return group.dataset.group + '\u0000' + group.querySelector('.optgroup-header').textContent;
+            }).join('\u0001');
+            var visible = groups.length >= 2;
+            if (signature !== control.navSignature) {
+                control.navSignature = signature;
+                control.navActive = '';
+                control.nav.textContent = '';
+                var buttons = document.createElement('div');
+                buttons.className = 'btn-group';
+                buttons.setAttribute('role', 'group');
+                groups.forEach(function (group) {
+                    var button = document.createElement('button');
+                    button.type = 'button';
+                    button.className = 'btn btn-sm';
+                    button.tabIndex = -1;
+                    button.dataset.group = group.dataset.group;
+                    button.textContent = group.querySelector('.optgroup-header').textContent;
+                    buttons.append(button);
+                });
+                control.nav.append(buttons);
+            }
+            control.nav.hidden = !visible;
+            control.picker.dropdown.classList.toggle('dttl-has-nav', visible);
+            if (visible) {
+                $dropdowntextlist.syncGroupNav(control.id);
+            }
+        },
+
+        // 상단에 닿은 헤더의 그룹 버튼을 활성으로 표시한다.
+        syncGroupNav(elID) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            if (!control.nav || control.nav.hidden) {
+                return;
+            }
+            var content = control.picker.dropdown_content;
+            var groups = $dropdowntextlist.getRenderedGroups(control.id);
+            var active = groups.length ? groups[0].dataset.group : '';
+            groups.forEach(function (group) {
+                if ($dropdowntextlist.getGroupScrollTop(content, group) <= content.scrollTop + 1) {
+                    active = group.dataset.group;
+                }
+            });
+            // 끝까지 스크롤하면 짧은 마지막 그룹도 활성으로 표시한다.
+            if (groups.length && content.scrollHeight > content.clientHeight && content.scrollTop + content.clientHeight >= content.scrollHeight - 1) {
+                active = groups[groups.length - 1].dataset.group;
+            }
+            $dropdowntextlist.setGroupNavActive(control.id, active);
+        },
+
+        setGroupNavActive(elID, groupID) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            if (!control.nav || control.navActive === groupID) {
+                return;
+            }
+            control.navActive = groupID;
+            Array.from(control.nav.querySelectorAll('button[data-group]')).forEach(function (button) {
+                var active = button.dataset.group === groupID;
+                button.classList.toggle('active', active);
+                button.setAttribute('aria-pressed', String(active));
+                if (active) {
+                    var left = button.offsetLeft;
+                    var right = left + button.offsetWidth;
+                    if (left < control.nav.scrollLeft) {
+                        control.nav.scrollLeft = left;
+                    }
+                    else if (right > control.nav.scrollLeft + control.nav.clientWidth) {
+                        control.nav.scrollLeft = right - control.nav.clientWidth;
+                    }
+                }
+            });
+        },
+
+        // 그룹 헤더가 목록 상단(고정 위치)에 닿는 scrollTop을 반환한다. 헤더는 sticky여서 위치가 바뀌므로 optgroup 위쪽의 구분선 높이는
+        // 첫 옵션의 위치에서 헤더 높이를 빼서 구한다.
+        getGroupScrollTop(content, group) {
+            var groupTop = group.getBoundingClientRect().top;
+            var header = group.querySelector('.optgroup-header');
+            var option = group.querySelector('.option');
+            var offset = header && option ? Math.max(0, option.getBoundingClientRect().top - groupTop - header.getBoundingClientRect().height) : 0;
+            return groupTop - content.getBoundingClientRect().top + content.scrollTop + offset;
+        },
+
+        scrollToGroup(elID, groupID) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            var group = $dropdowntextlist.getRenderedGroups(control.id).find(function (item) {
+                return item.dataset.group === String(groupID);
+            });
+            if (!group) {
+                return;
+            }
+            var content = control.picker.dropdown_content;
+            // 이동하는 동안에는 스크롤 이벤트로 활성 버튼을 다시 계산하지 않는다.
+            control.navUntil = Date.now() + 700;
+            $dropdowntextlist.setGroupNavActive(control.id, String(groupID));
+            content.scrollTo({
+                top: $dropdowntextlist.getGroupScrollTop(content, group),
+                behavior: window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'
+            });
+            window.setTimeout(function () {
+                if (!control.destroyed) {
+                    $dropdowntextlist.syncGroupNav(control.id);
+                }
+            }, 750);
         },
 
         sizeDropdown(elID) {
@@ -1487,7 +2167,7 @@
             }
             else {
                 dropdown.style.height = height;
-                content.style.height = '100%';
+                content.style.height = control.nav && !control.nav.hidden ? 'calc(100% - ' + control.nav.offsetHeight + 'px)' : '100%';
                 content.style.maxHeight = 'none';
                 content.style.boxSizing = 'border-box';
             }
@@ -1522,8 +2202,8 @@
                 return;
             }
 
-            var item = control.picker.getItem(control.editingID);
-            if (!item) {
+            var item = control.editorAnchor || control.picker.getItem(control.editingID);
+            if (!item || !item.isConnected) {
                 $dropdowntextlist.closeEditor(elID, false);
                 return;
             }
@@ -1567,11 +2247,17 @@
                 return;
             }
             var id = control.editingID;
+            var focusTarget = control.editorFocus;
             control.editor.remove();
             control.editor = null;
             control.editingID = null;
+            control.editorAnchor = null;
+            control.editorFocus = null;
             control.picker.clearActiveItems();
-            if (restoreFocus) {
+            if (restoreFocus && focusTarget && focusTarget.isConnected) {
+                focusTarget.focus({ preventScroll: true });
+            }
+            else if (restoreFocus) {
                 var item = control.picker.getItem(id);
                 var button = item ? item.querySelector('.dttl-edit') : null;
                 if (button) {
@@ -1580,6 +2266,440 @@
                     button.focus({ preventScroll: true });
                 }
             }
+        },
+
+        checkRangeGroup(group) {
+            if (!group || group.range == null || group.range === '') {
+                return;
+            }
+            if (!$dropdowntextlist.hasProperty($dropdowntextlist.ranges, group.range)) {
+                throw new TypeError('DropDownTextList: range must be date, month or time');
+            }
+            var min = $dropdowntextlist.parseRangeValue(group.range, group.min);
+            var max = $dropdowntextlist.parseRangeValue(group.range, group.max);
+            if (min && max && min > max) {
+                throw new TypeError('DropDownTextList: min must not be later than max');
+            }
+        },
+
+        // 그룹의 min·max 옵션. 지정하지 않으면 제한이 없다(빈 문자열).
+        getRangeLimit(elID, groupID) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            var group = control.picker.optgroups[groupID];
+            var kind = $dropdowntextlist.getRangeKind(control.id, groupID);
+            return {
+                min: kind ? $dropdowntextlist.parseRangeValue(kind, group.min) : '',
+                max: kind ? $dropdowntextlist.parseRangeValue(kind, group.max) : ''
+            };
+        },
+
+        // 범위 편집창의 기본값으로 사용할 현재 날짜·월·시각(브라우저 로컬 시간)
+        getRangeNow(kind, limits) {
+            var pad = $dropdowntextlist.pad;
+            var now = new Date();
+            var date = pad(now.getFullYear(), 4) + '-' + pad(now.getMonth() + 1, 2);
+            var value = kind === 'time' ? pad(now.getHours(), 2) + ':' + pad(now.getMinutes(), 2) : kind === 'month' ? date : date + '-' + pad(now.getDate(), 2);
+            if (limits.min && value < limits.min) {
+                value = limits.min;
+            }
+            if (limits.max && value > limits.max) {
+                value = limits.max;
+            }
+            return value;
+        },
+
+        rangeError(message, userMessage) {
+            var error = new TypeError('DropDownTextList: ' + message);
+            error.userMessage = userMessage;
+            return error;
+        },
+
+        daysInMonth(year, month) {
+            var leap = (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+            return [31, leap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month - 1];
+        },
+
+        pad(value, length) {
+            return String(value).padStart(length, '0');
+        },
+
+        // 범위 입력은 optgroups의 range('date'|'month'|'time')가 지정된 그룹에서만 사용한다. 지정하지 않은 그룹은 빈 문자열이다.
+        getRangeKind(elID, groupID) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            var group = control.picker ? control.picker.optgroups[groupID] : null;
+            return group && $dropdowntextlist.hasProperty($dropdowntextlist.ranges, group.range) ? group.range : '';
+        },
+
+        // setRange로 만든 조건이면 'start'(gte) 또는 'end'(lt, lte)를 반환한다. 표시명의 '부터'·'까지' 접미사와 연산자로 판단한다.
+        getRangeSide(elID, id) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            var option = control.picker ? control.picker.options[id] : null;
+            if (!option) {
+                return '';
+            }
+            var kind = $dropdowntextlist.getRangeKind(control.id, option._dttlGroup);
+            var match = kind ? /^(.+) (부터|까지)$/.exec(option._dttlLabel) : null;
+            if (!match || !$dropdowntextlist.ranges[kind].pattern.test(match[1])) {
+                return '';
+            }
+            var side = match[2] === '부터' ? 'start' : 'end';
+            var condition = control.conditions.get(id);
+            if (condition && (side === 'start' ? condition.operator !== 'gte' : condition.operator !== 'lt' && condition.operator !== 'lte')) {
+                return '';
+            }
+            return side;
+        },
+
+        parseRangeValue(kind, text) {
+            var spec = $dropdowntextlist.ranges[kind];
+            text = text == null ? '' : String(text).trim();
+            if (text === '') {
+                return '';
+            }
+            var valid = spec.pattern.test(text);
+            if (valid) {
+                var parts = text.split(/[-:]/).map(Number);
+                if (kind === 'time') {
+                    valid = parts[0] <= 23 && parts[1] <= 59;
+                }
+                else {
+                    valid = parts[0] >= 1 && parts[1] >= 1 && parts[1] <= 12;
+                    if (valid && kind === 'date') {
+                        valid = parts[2] >= 1 && parts[2] <= $dropdowntextlist.daysInMonth(parts[0], parts[1]);
+                    }
+                }
+            }
+            if (!valid) {
+                throw $dropdowntextlist.rangeError('invalid ' + kind + ' value: ' + text, spec.label + ' 형식이 올바르지 않습니다. (' + spec.placeholder + ')');
+            }
+            return text;
+        },
+
+        // 끝 값은 서버의 lt 비교에 맞춰 입력한 끝의 다음 날·다음 달·다음 분으로 변환한다. 23:59만 lte로 보낸다.
+        rangeEnd(kind, text) {
+            var pad = $dropdowntextlist.pad;
+            var parts = text.split(/[-:]/).map(Number);
+            var overflow = $dropdowntextlist.rangeError('range end is too large: ' + text, '끝 값이 지원 범위를 벗어났습니다.');
+            if (kind === 'time') {
+                if (parts[0] === 23 && parts[1] === 59) {
+                    return { operator: 'lte', key: '23:59:59.9999999' };
+                }
+                var minutes = parts[0] * 60 + parts[1] + 1;
+                return { operator: 'lt', key: pad(Math.floor(minutes / 60), 2) + ':' + pad(minutes % 60, 2) };
+            }
+            var year = parts[0];
+            var month = parts[1];
+            if (kind === 'month') {
+                month++;
+                if (month > 12) {
+                    month = 1;
+                    year++;
+                }
+                if (year > 9999) {
+                    throw overflow;
+                }
+                return { operator: 'lt', key: pad(year, 4) + '-' + pad(month, 2) };
+            }
+            var day = parts[2] + 1;
+            if (day > $dropdowntextlist.daysInMonth(year, month)) {
+                day = 1;
+                month++;
+                if (month > 12) {
+                    month = 1;
+                    year++;
+                }
+            }
+            if (year > 9999) {
+                throw overflow;
+            }
+            return { operator: 'lt', key: pad(year, 4) + '-' + pad(month, 2) + '-' + pad(day, 2) };
+        },
+
+        buildRange(kind, start, end, limits) {
+            limits = limits || { min: '', max: '' };
+            start = $dropdowntextlist.parseRangeValue(kind, start);
+            end = $dropdowntextlist.parseRangeValue(kind, end);
+            if (start && end && start > end) {
+                throw $dropdowntextlist.rangeError('range start must not be later than end', '시작은 끝보다 늦을 수 없습니다.');
+            }
+            [start, end].forEach(function (value) {
+                if (value && ((limits.min && value < limits.min) || (limits.max && value > limits.max))) {
+                    throw $dropdowntextlist.rangeError('range is out of min/max: ' + value, $dropdowntextlist.ranges[kind].label + ' 범위는 ' +
+                        (limits.min || '제한 없음') + ' ~ ' + (limits.max || '제한 없음') + ' 사이여야 합니다.');
+                }
+            });
+            var result = [];
+            if (start) {
+                result.push({ operator: 'gte', key: start, value: start + ' 부터' });
+            }
+            if (end) {
+                result.push(Object.assign($dropdowntextlist.rangeEnd(kind, end), { value: end + ' 까지' }));
+            }
+            return result;
+        },
+
+        // 그룹에 선택된 범위 조건에서 사용자가 입력한 시작·끝 값을 반환한다. 없으면 빈 문자열이다.
+        getRange(elID, groupID) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            var result = { start: '', end: '' };
+            control.picker.items.forEach(function (id) {
+                var side = $dropdowntextlist.getRangeSide(control.id, id);
+                if (side && control.picker.options[id]._dttlGroup === groupID) {
+                    result[side] = control.picker.options[id]._dttlLabel.replace(/ (부터|까지)$/, '');
+                }
+            });
+            return result;
+        },
+
+        // 시작은 gte, 끝은 lt(23:59는 lte) 조건으로 선택하고 기존 범위 조건은 교체한다. 둘 다 비우면 범위를 해제한다.
+        setRange(elID, groupID, start, end) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            groupID = String(groupID);
+            var kind = $dropdowntextlist.getRangeKind(control.id, groupID);
+            if (!kind) {
+                throw new Error('DropDownTextList: not a range group: ' + groupID);
+            }
+            var conditions = $dropdowntextlist.buildRange(kind, start, end, $dropdowntextlist.getRangeLimit(control.id, groupID));
+            var previous = control.picker.items.filter(function (id) {
+                return $dropdowntextlist.getRangeSide(control.id, id) && control.picker.options[id]._dttlGroup === groupID;
+            });
+            var maxItems = control.picker.settings.maxItems;
+            if (maxItems != null && control.picker.items.length - previous.length + conditions.length > maxItems) {
+                throw new Error('DropDownTextList: maxItems exceeded');
+            }
+
+            var before = $dropdowntextlist.snapshot(control.id);
+            $dropdowntextlist.cancelPending(control.id);
+            $dropdowntextlist.closeEditor(control.id, false);
+            previous.forEach(function (id) {
+                // item_remove 처리에서 조건과 범위 후보도 함께 제거한다.
+                control.picker.removeItem(id, true);
+            });
+            var ids = conditions.map(function (condition) {
+                var id = $dropdowntextlist.getOptionID(groupID, condition.key);
+                var option = $dropdowntextlist.fromCondition(control.id, {
+                    groupID: groupID,
+                    key: condition.key,
+                    value: condition.value
+                });
+                if ($dropdowntextlist.hasProperty(control.picker.options, id)) {
+                    control.picker.updateOption(id, option);
+                }
+                else {
+                    control.picker.addOption(option, true);
+                }
+                control.conditions.set(id, {
+                    logic: 'AND',
+                    operator: condition.operator
+                });
+                return id;
+            });
+            control.picker.addItems(ids, true);
+            $dropdowntextlist.refreshItems(control.id);
+            control.picker.refreshOptions(false);
+            $dropdowntextlist.notify(control.id, before, false);
+        },
+
+        // 선택되지 않은 범위 후보를 제거하여 일반 후보 목록에 노출되지 않게 한다.
+        purgeRangeOptions(elID) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            Object.keys(control.picker.options).forEach(function (id) {
+                if (!control.picker.items.includes(id) && $dropdowntextlist.getRangeSide(control.id, id)) {
+                    control.picker.removeOption(id, true);
+                }
+            });
+        },
+
+        // 선택되지 않은 일반 텍스트 후보를 제거한다. 일반 텍스트는 후보 목록에 남지 않는다.
+        purgeNormalOptions(elID) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            Object.keys(control.picker.options).forEach(function (id) {
+                if (!control.picker.items.includes(id) && $dropdowntextlist.isNormalID(id)) {
+                    control.picker.removeOption(id, true);
+                }
+            });
+        },
+
+        renderRanges(elID) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            var count = 0;
+            control.ranges.textContent = '';
+            Object.keys(control.picker.optgroups).forEach(function (groupID) {
+                var kind = $dropdowntextlist.getRangeKind(control.id, groupID);
+                if (!kind) {
+                    return;
+                }
+                var group = control.picker.optgroups[groupID];
+                var label = group.label != null ? String(group.label) : groupID || '기타';
+                var button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'dttl-range-open';
+                button.dataset.group = groupID;
+                button.dataset.range = kind;
+                button.textContent = label + ' · ' + $dropdowntextlist.ranges[kind].label;
+                button.setAttribute('aria-label', label + ' ' + $dropdowntextlist.ranges[kind].label + ' 범위 입력');
+                control.ranges.append(button);
+                count++;
+            });
+            control.ranges.hidden = count === 0;
+            $dropdowntextlist.layoutRanges(control.id);
+            $dropdowntextlist.updateButtons(control.id);
+        },
+
+        // 범위 버튼을 입력 영역 오른쪽 안에 겹쳐 배치한다. 폭이 좁으면 입력 영역 아래로 내린다.
+        layoutRanges(elID) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            var container = control.container;
+            if (control.ranges.hidden) {
+                container.classList.remove('dttl-ranges-inline');
+                container.style.removeProperty('--dttl-ranges-width');
+                return;
+            }
+            container.classList.add('dttl-ranges-inline');
+            var width = Math.ceil(control.ranges.getBoundingClientRect().width);
+            var inline = container.clientWidth >= width + 220;
+            container.classList.toggle('dttl-ranges-inline', inline);
+            if (inline) {
+                container.style.setProperty('--dttl-ranges-width', (width + 16) + 'px');
+            }
+            else {
+                container.style.removeProperty('--dttl-ranges-width');
+            }
+            if (control.editor) {
+                $dropdowntextlist.positionEditor(control.id);
+            }
+        },
+
+        openRange(elID, groupID, anchor) {
+            var control = $dropdowntextlist.requireControl(elID);
+
+            var kind = $dropdowntextlist.getRangeKind(control.id, groupID);
+            if (!kind || control.picker.isLocked || control.picker.isDisabled) {
+                return;
+            }
+            $dropdowntextlist.closeEditor(control.id, false);
+            control.picker.close();
+            var spec = $dropdowntextlist.ranges[kind];
+            var group = control.picker.optgroups[groupID];
+            var groupLabel = group.label != null ? String(group.label) : groupID || '기타';
+            var current = $dropdowntextlist.getRange(control.id, groupID);
+            var limits = $dropdowntextlist.getRangeLimit(control.id, groupID);
+            // 선택한 범위가 없으면 시작·끝 모두 현재 값(min·max 안으로 보정)을 기본값으로 보여준다.
+            if (current.start === '' && current.end === '') {
+                current.start = current.end = $dropdowntextlist.getRangeNow(kind, limits);
+            }
+            // 끝은 다음 날·다음 달로 변환해 서버에 보내므로 마지막 날·달은 선택할 수 없다.
+            var endCap = kind === 'date' ? '9999-12-30' : kind === 'month' ? '9999-11' : '';
+            var endMax = limits.max && (!endCap || limits.max < endCap) ? limits.max : endCap;
+            var editor = document.createElement('div');
+            editor.className = 'dttl-editor dttl-range-editor';
+            editor.setAttribute('role', 'dialog');
+            editor.setAttribute('aria-label', groupLabel + ' ' + spec.label + ' 범위 편집');
+            var field = function (label, value, min, max) {
+                var wrapper = document.createElement('label');
+                wrapper.append(document.createTextNode(label));
+                var input = document.createElement('input');
+                input.type = spec.type;
+                input.placeholder = spec.placeholder;
+                input.value = value;
+                if (min) {
+                    input.min = min;
+                }
+                if (max) {
+                    input.max = max;
+                }
+                wrapper.append(input);
+                editor.append(wrapper);
+                return input;
+            };
+            var start = field('시작', current.start, limits.min, limits.max);
+            var end = field('끝', current.end, limits.min, endMax);
+            var message = document.createElement('div');
+            message.className = 'dttl-range-error';
+            message.setAttribute('role', 'alert');
+            message.hidden = true;
+            // 적용·해제·취소는 조건 편집창과 같은 Tabler btn-group으로 묶는다. 높이는 CSS에서 입력 상자와 같게 맞춘다.
+            var buttons = document.createElement('div');
+            buttons.className = 'btn-group';
+            buttons.setAttribute('role', 'group');
+            var apply = document.createElement('button');
+            apply.type = 'button';
+            apply.textContent = '적용';
+            apply.className = 'btn btn-primary dttl-apply';
+            var clear = document.createElement('button');
+            clear.type = 'button';
+            clear.textContent = '해제';
+            clear.className = 'btn';
+            var cancel = document.createElement('button');
+            cancel.type = 'button';
+            cancel.textContent = '취소';
+            cancel.className = 'btn';
+            buttons.append(apply, clear, cancel);
+            editor.append(buttons, message);
+            var submit = function (startValue, endValue) {
+                if (control.picker.isLocked || control.picker.isDisabled) {
+                    return;
+                }
+                try {
+                    $dropdowntextlist.setRange(control.id, groupID, startValue, endValue);
+                } catch (error) {
+                    if (error.userMessage) {
+                        message.textContent = error.userMessage;
+                        message.hidden = false;
+                        return;
+                    }
+                    throw error;
+                }
+                $dropdowntextlist.closeEditor(control.id, true);
+            };
+            apply.addEventListener('click', function () {
+                submit(start.value, end.value);
+            });
+            clear.addEventListener('click', function () {
+                submit('', '');
+            });
+            cancel.addEventListener('click', function () {
+                return $dropdowntextlist.closeEditor(control.id, true);
+            });
+            editor.addEventListener('keydown', function (event) {
+                if (event.key === 'Escape') {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    $dropdowntextlist.closeEditor(control.id, true);
+                }
+                else if (event.key === 'Enter' && (event.target === start || event.target === end)) {
+                    event.preventDefault();
+                    submit(start.value, end.value);
+                }
+                else if (event.key === 'Tab') {
+                    if (event.shiftKey && event.target === start) {
+                        event.preventDefault();
+                        cancel.focus();
+                    }
+                    else if (!event.shiftKey && event.target === cancel) {
+                        event.preventDefault();
+                        start.focus();
+                    }
+                }
+            });
+            control.editor = editor;
+            control.editingID = null;
+            control.editorAnchor = anchor;
+            control.editorFocus = Array.from(control.ranges.querySelectorAll('button')).find(function (button) {
+                return button.dataset.group === groupID;
+            });
+            control.container.append(editor);
+            $dropdowntextlist.positionEditor(control.id);
+            start.focus({ preventScroll: true });
         },
 
         setLocale() {}

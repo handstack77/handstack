@@ -1702,19 +1702,22 @@
         name에 들어갈수 있는 조건
         begins_with: 로 시작
         between: 사이
-        by_value: 값
+        by_value: 값 일치 (args가 배열이면 목록 중 하나와 일치)
         contains: 포함
-        empty: 비우기
+        empty: 빈 값 (null, undefined, '')
         ends_with: 로 끝나다
         eq: 같음
         gt:  보다 큰
         gte: 크거나 같음
-        lt: 이하
-        lte: 이하거나 같음
+        lt: 보다 작음
+        lte: 작거나 같음
         not_between: 사이가 아님
         not_contains: 포함하지 않음
-        not_empty: 비우지 않음
+        not_empty: 빈 값이 아님 (0, false 포함)
         neq: 같지 않다
+        args: 단일 값 또는 배열. 포함 조건은 OR, 제외 조건은 AND.
+        between/not_between: args[i]와 args2[i]가 한 범위. 한쪽이 단일 값이면 공통 적용.
+        양쪽이 배열이면 길이가 같아야 하며, empty/not_empty는 args와 args2를 사용하지 않는다.
          */
         addCondition(elID, dataField, name, args, args2) {
             var gridID = $auigrid.getGridID(elID);
@@ -1724,60 +1727,167 @@
                 }
 
                 if ($string.isNullOrEmpty(dataField) == false) {
-                    AUIGrid.setFilter(gridID, dataField, (dataField, value, item) => {
-                        var result = false;
-                        if (value) {
-                            switch (name) {
-                                case 'begins_with':
-                                    result = value.startsWith(args);
-                                    break;
-                                case 'between':
-                                    result = (args <= value && value <= args2);
-                                    break;
-                                case 'ends_with':
-                                    result = value.endsWith(args);
-                                    break;
-                                case 'contains':
-                                case 'by_value':
-                                case 'eq':
-                                    result = value == args;
-                                    break;
-                                case 'not_contains':
-                                case 'neq':
-                                    result = value != args;
-                                    break;
-                                case 'gt':
-                                    result = value > args;
-                                    break;
-                                case 'gte':
-                                    result = value >= args;
-                                    break;
-                                case 'lt':
-                                    result = value < args;
-                                    break;
-                                case 'lte':
-                                    result = value <= args;
-                                    break;
-                                case 'not_between':
-                                    result = !(args <= value && value <= args2);
-                                    break;
-                                case 'not_empty':
-                                    result = $string.isNullOrEmpty(value) == false;
-                                    break;
-                                default:
-                                    result = value == args;
-                                    break;
-                            }
-                        }
-                        else {
-                            if (name == 'empty') {
-                                result = true;
-                            }
-                        }
-                        return result;
-                    });
+                    var filter = $auigrid._createConditionFilter(name, args, args2);
+                    if (filter === null) {
+                        syn.$l.eventLog('$auigrid.addCondition', '범위 조건의 args와 args2 배열 길이가 같아야 합니다(elID: ' + elID + ', dataField: ' + dataField + ')', 'Warning');
+                        return;
+                    }
+                    AUIGrid.setFilter(gridID, dataField, filter);
                 }
             }
+        },
+
+        // 조건별 logic을 우선하여 앞에서부터 결합하며, 각 조건 내부 배열의 OR/AND와 구분한다.
+        addMultiCondition(elID, dataField, conditions, logic = 'OR') {
+            var gridID = $auigrid.getGridID(elID);
+            if (!gridID) {
+                return;
+            }
+            if ($object.isNumber(dataField) == true) {
+                dataField = AUIGrid.getDataFieldByColumnIndex(gridID, dataField);
+            }
+            if ($string.isNullOrEmpty(dataField) == true) {
+                return;
+            }
+
+            logic = typeof logic === 'string' ? logic.toUpperCase() : logic;
+            if (Array.isArray(conditions) == false || (logic !== 'AND' && logic !== 'OR')) {
+                syn.$l.eventLog('$auigrid.addMultiCondition', 'conditions 배열과 AND/OR 결합 방식이 필요합니다(elID: ' + elID + ', dataField: ' + dataField + ')', 'Warning');
+                return;
+            }
+            if (conditions.length == 0) {
+                AUIGrid.clearFilter(gridID, dataField);
+                return;
+            }
+
+            var conditionNames = ['begins_with', 'between', 'by_value', 'contains', 'empty', 'ends_with', 'eq', 'gt', 'gte', 'lt', 'lte', 'not_between', 'not_contains', 'not_empty', 'neq'];
+            var filters = [];
+            var conditionLogics = [];
+            for (var i = 0; i < conditions.length; i++) {
+                var condition = conditions[i];
+                if (!condition || typeof condition !== 'object' || Array.isArray(condition)
+                    || conditionNames.indexOf(condition.name) < 0
+                    || (condition.name !== 'empty' && condition.name !== 'not_empty' && Object.prototype.hasOwnProperty.call(condition, 'args') == false)
+                    || ((condition.name === 'between' || condition.name === 'not_between') && Object.prototype.hasOwnProperty.call(condition, 'args2') == false)) {
+                    syn.$l.eventLog('$auigrid.addMultiCondition', '필터 조건 형식을 확인하세요(index: ' + i + ', elID: ' + elID + ', dataField: ' + dataField + ')', 'Warning');
+                    return;
+                }
+                // 첫 조건은 시작값이므로 logic을 사용하지 않는다. 이후에는 생략한 경우에만 기본값을 쓴다.
+                var conditionLogic = logic;
+                if (i > 0 && condition.logic !== undefined) {
+                    conditionLogic = typeof condition.logic === 'string' ? condition.logic.toUpperCase() : condition.logic;
+                    if (conditionLogic !== 'AND' && conditionLogic !== 'OR') {
+                        syn.$l.eventLog('$auigrid.addMultiCondition', '조건의 logic은 AND/OR여야 합니다(index: ' + i + ', elID: ' + elID + ', dataField: ' + dataField + ')', 'Warning');
+                        return;
+                    }
+                }
+                var filter = $auigrid._createConditionFilter(condition.name, condition.args, condition.args2);
+                if (filter === null) {
+                    syn.$l.eventLog('$auigrid.addMultiCondition', '범위 조건의 args와 args2 배열 길이가 같아야 합니다(index: ' + i + ', elID: ' + elID + ', dataField: ' + dataField + ')', 'Warning');
+                    return;
+                }
+                filters.push(filter);
+                conditionLogics.push(conditionLogic);
+            }
+
+            // 전체 검증이 끝난 뒤 한 번만 등록하여 기존 필터를 부분적으로 덮어쓰지 않는다.
+            AUIGrid.setFilter(gridID, dataField, (field, value, item) => {
+                var result = filters[0](field, value, item);
+                for (var i = 1; i < filters.length; i++) {
+                    result = conditionLogics[i] === 'OR'
+                        ? result || filters[i](field, value, item)
+                        : result && filters[i](field, value, item);
+                }
+                return result;
+            });
+        },
+
+        _createConditionFilter(name, args, args2) {
+            var isRange = name == 'between' || name == 'not_between';
+            var isArgsArray = Array.isArray(args);
+            var isArgs2Array = Array.isArray(args2);
+            if (isRange && isArgsArray && isArgs2Array && args.length != args2.length) {
+                return null;
+            }
+
+            // 배열은 인덱스별로 짝짓고, 단일 값은 모든 쌍에 공통 적용한다.
+            var count = isArgsArray ? args.length : (isRange && isArgs2Array ? args2.length : 1);
+            var conditions = Array.from({ length: count }, (_, index) => [
+                isArgsArray ? args[index] : args,
+                isRange && isArgs2Array ? args2[index] : args2
+            ]);
+            var isExclusion = name == 'neq' || name == 'not_contains' || name == 'not_between';
+            var matches = (value, args, args2) => {
+                var isEmpty = value === undefined || value === null || value === '';
+                var canCompare = isEmpty == false && args !== undefined && args !== null && args !== '';
+
+                switch (name) {
+                    case 'empty':
+                        return isEmpty;
+                    case 'not_empty':
+                        return isEmpty == false;
+                    case 'begins_with':
+                    case 'ends_with':
+                    case 'contains':
+                    case 'not_contains':
+                        // 숫자/불리언도 검색할 수 있지만 null/undefined는 문자열로 바꾸지 않는다.
+                        if (value === undefined || value === null || args === undefined || args === null) {
+                            return false;
+                        }
+                        var text = String(value);
+                        var searchText = String(args);
+                        if (name == 'begins_with') {
+                            return text.startsWith(searchText);
+                        }
+                        if (name == 'ends_with') {
+                            return text.endsWith(searchText);
+                        }
+                        return name == 'contains' ? text.includes(searchText) : text.includes(searchText) == false;
+                    case 'by_value':
+                    case 'eq':
+                        return value == args;
+                    case 'neq':
+                        return value != args;
+                    case 'gt':
+                        return canCompare && value > args;
+                    case 'gte':
+                        return canCompare && value >= args;
+                    case 'lt':
+                        return canCompare && value < args;
+                    case 'lte':
+                        return canCompare && value <= args;
+                    case 'between':
+                    case 'not_between':
+                        if (canCompare == false || args2 === undefined || args2 === null || args2 === '') {
+                            return false;
+                        }
+                        // 양쪽 경계와 모두 비교할 수 있어야 한다. 부정 조건에서도 NaN 등을 제외한다.
+                        var aboveLower = args <= value;
+                        var belowUpper = value <= args2;
+                        if ((aboveLower == false && (value < args) == false)
+                            || (belowUpper == false && (value > args2) == false)) {
+                            return false;
+                        }
+                        return name == 'between' ? aboveLower && belowUpper : aboveLower == false || belowUpper == false;
+                    default:
+                        // 기존에 정의되지 않은 이름을 동등 비교로 처리하던 동작을 유지한다.
+                        return value == args;
+                }
+            };
+
+            return (dataField, value, item) => {
+                if (name == 'empty' || name == 'not_empty') {
+                    return matches(value);
+                }
+                // 빈 배열의 every()도 기존의 빈 셀/비교 불가 값 제외 규칙을 따른다.
+                if ((name == 'not_contains' && (value === undefined || value === null))
+                    || (isRange && (value === undefined || value === null || value === '' || Number.isNaN(value)))) {
+                    return false;
+                }
+                return isExclusion
+                    ? conditions.every(condition => matches(value, condition[0], condition[1]))
+                    : conditions.some(condition => matches(value, condition[0], condition[1]));
+            };
         },
 
         removeCondition(elID, dataField) {

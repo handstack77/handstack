@@ -68,6 +68,14 @@
         <div class="mb-2">
             <div class="mb-1"><strong>화면 제어</strong></div>
             <input type="button" id="btnFilter" value="addCondition (판매가 >= 50000)" syn-events="['click']">
+            <input type="button" id="btnFilterContains" value="contains (이어폰 또는 배터리)" syn-events="['click']">
+            <input type="button" id="btnFilterNotContains" value="not_contains (이어폰/배터리 제외)" syn-events="['click']">
+            <input type="button" id="btnFilterRanges" value="between (판매가 0~20000 또는 80000~100000)" syn-events="['click']">
+            <input type="button" id="btnFilterValues" value="by_value (전자기기/생활용품)" syn-events="['click']">
+            <input type="button" id="btnFilterEmpty" value="empty (메모 없음)" syn-events="['click']">
+            <input type="button" id="btnMultiFilter" value="다중 AND (이어폰/배터리 포함, 2/중고 제외)" syn-events="['click']">
+            <input type="button" id="btnMultiFilterOr" value="조건별 OR 우선 (무선/보조로 시작 또는 세트 포함)" syn-events="['click']">
+            <input type="button" id="btnRemoveNameFilter" value="상품명 필터 해제" syn-events="['click']">
             <input type="button" id="btnClearFilter" value="clearConditions" syn-events="['click']">
             <input type="button" id="btnSort" value="setSorting (판매가 내림차순)" syn-events="['click']">
             <input type="button" id="btnClearSort" value="clearSorting" syn-events="['click']">

@@ -15,8 +15,8 @@
 <body style="visibility: hidden;">
     <form id="form1" syn-datafield="MainForm" autocomplete="off" onsubmit="return false">
         <h1>조건 태그 선택</h1>
-        <p>동물을 검색하여 선택하세요. 그룹 이름이나 항목 이름을 클릭하면 해당 태그 근처의 편집창에서 조건을 바꿀 수 있습니다. AND/OR는 상단 배지, 비교 조건은 왼쪽 테두리 색상으로 구분합니다.</p>
-        <syn_dropdowntextlist id="animals" syn-datafield="Conditions" syn-events="['initialize','change']" syn-options="{
+        <p>동물을 검색하여 선택하세요. 목록에 그룹이 둘 이상이면 드롭다운 위쪽의 그룹 버튼으로 해당 그룹 위치로 바로 이동할 수 있습니다. 태그를 클릭하면 해당 태그 근처의 편집창에서 조건을 바꿀 수 있고, 이 컨트롤은 <code>hideLogicBadge:false</code>라서 AND/OR 배지가 보이고 <code>groupDisplay:'badge'</code>라서 그룹 이름이 배지 뒤에 표시됩니다(<code>hideLogicBadge</code> 기본값 <code>true</code>는 배지를 숨기고, <code>groupDisplay</code> 기본값 <code>'tooltip'</code>은 마우스를 올리면 툴팁으로 보입니다). AND/OR는 상단 배지, 비교 조건은 왼쪽 테두리 색상으로 구분합니다.</p>
+        <syn_dropdowntextlist id="animals" syn-datafield="Conditions" syn-events="['initialize','change','option_change']" syn-options="{
             optgroups: [
                 {value:'mammal',label:'Mammal'},
                 {value:'bird',label:'Bird'},
@@ -25,6 +25,8 @@
             optgroupField:'class',
             valueField:'value',
             labelField:'name',
+            hideLogicBadge:false,
+            groupDisplay:'badge',
             placeholder:'동물 검색...'
         }"></syn_dropdowntextlist>
         <div class="demo-actions">
@@ -39,6 +41,8 @@
         </div>
         <h2>getValue()</h2>
         <pre id="result">[]</pre>
+        <h2>getSummaryText()</h2>
+        <pre id="summary"></pre>
         <div class="demo-section">
             <h2>사용자 항목 생성</h2>
             <p>새 이름을 입력하고 Enter를 누르세요. 선택 해제 시 생성한 후보도 제거됩니다.</p>
@@ -59,15 +63,76 @@
         </div>
         <div class="demo-section">
             <h2>드롭다운 크기</h2>
-            <p>자동 너비는 검색된 목록의 길이에 맞춥니다. 고정 크기는 목록 개수와 관계없이 지정한 픽셀값을 사용합니다.</p>
-            <p>기본값: 자동 너비 · 기본 높이</p>
+            <p>기본 너비는 컨트롤 폭(<code>dropdownWidth:'100%'</code>)입니다. 자동 너비(<code>'auto'</code>)는 검색된 목록의 길이에 맞춥니다. 고정 크기는 목록 개수와 관계없이 지정한 픽셀값을 사용합니다.</p>
+            <p>기본값: 컨트롤 폭 · 기본 높이</p>
+            <syn_dropdowntextlist id="defaultSize" syn-options="{
+                placeholder:'컨트롤 폭에 맞춘 기본 너비...'
+            }"></syn_dropdowntextlist>
+            <p>자동 너비 (dropdownWidth:'auto')</p>
             <syn_dropdowntextlist id="autoSize" syn-options="{
-                placeholder:'목록에 맞춘 자동 너비...'
+                dropdownWidth:'auto', placeholder:'목록에 맞춘 자동 너비...'
             }"></syn_dropdowntextlist>
             <p>고정 너비 320px · 고정 높이 180px</p>
             <syn_dropdowntextlist id="fixedSize" syn-options="{
                 dropdownWidth:320, dropdownHeight:180, placeholder:'320 × 180px 드롭다운...'
             }"></syn_dropdowntextlist>
+        </div>
+        <div class="demo-section">
+            <h2>기간 범위 (년월일 · 년월 · 시간)</h2>
+            <p>optgroups에 <code>range:'date'|'month'|'time'</code>를 지정하면 입력 영역 오른쪽에 그룹별 범위 버튼이 나타납니다. <code>min</code>·<code>max</code>로 선택 범위를 제한할 수 있고, 선택한 범위가 없으면 편집창은 현재 값을 기본값으로 보여줍니다. 버튼이나 범위 태그를 눌러 시작·끝을 입력하면 시작은 <code>gte</code>, 끝은 다음 날·다음 달·다음 분 <code>lt</code>(23:59는 <code>lte</code>) 조건으로 선택됩니다.</p>
+            <syn_dropdowntextlist id="periods" syn-datafield="Periods" syn-events="['change']" syn-options="{
+                optgroups: [
+                    {value:'createdAt',label:'작성일',range:'date',min:'2026-01-01',max:'2026-12-31'},
+                    {value:'closingMonth',label:'마감월',range:'month',min:'2026-01',max:'2026-12'},
+                    {value:'workTime',label:'근무시간',range:'time',min:'00:00',max:'23:59'},
+                    {value:'status',label:'상태'}
+                ],
+                optgroupField:'class',
+                valueField:'value',
+                labelField:'name',
+                placeholder:'상태 검색 또는 아래 범위 선택...'
+            }"></syn_dropdowntextlist>
+            <div class="demo-actions">
+                <button type="button" id="btnRangeSet" syn-events="['click']">범위 설정(2026-10-01 ~ 2026-10-31)</button>
+                <button type="button" id="btnRangeSingle" syn-events="['click']">하루 범위(2026-10-15)</button>
+                <button type="button" id="btnRangeMonth" syn-events="['click']">마감월 2026-10 ~ 2026-12</button>
+                <button type="button" id="btnRangeTime" syn-events="['click']">근무시간 09:30 ~ 23:59</button>
+                <button type="button" id="btnRangeClear" syn-events="['click']">작성일 범위 해제</button>
+                <button type="button" id="btnRangeRestore" syn-events="['click']">getValue 저장 후 복원</button>
+            </div>
+            <pre id="periodResult">[]</pre>
+            <h3>getSummaryText()</h3>
+            <pre id="periodSummary"></pre>
+        </div>
+        <div class="demo-section">
+            <h2>일반 텍스트 (options에 없는 입력)</h2>
+            <p><code>create:true</code>일 때 후보에 없는 텍스트를 입력하고 Enter를 누르면 <b>일반 텍스트</b>가 됩니다. <code>블라블라</code>는 value, <code>키 이름:블라블라</code>는 첫 <code>:</code> 기준으로 key·value가 됩니다. 일반 텍스트는 <code>getValue()</code>에 포함되지 않고 <code>getNormalText()</code>로 <code>[{logic, operator, key, value}]</code>를 받습니다. 태그 왼쪽 위 배지에는 AND/OR와 key가 함께 표시됩니다. 후보의 키나 표시값과 같게 입력하면 그 후보가 선택됩니다. 점선 테두리 태그가 일반 텍스트입니다.</p>
+            <p>이 컨트롤은 <code>hideLogicBadge:false</code>라서 AND/OR 배지에 일반 텍스트의 key가 함께 보이고 <code>groupDisplay:'inline'</code>이라 후보의 그룹 이름이 태그 안에 표시됩니다. 기본값 <code>'tooltip'</code>인 위쪽 컨트롤들은 항목 이름만 보이고 그룹 이름은 마우스를 올리면 툴팁으로 나타납니다.</p>
+            <syn_dropdowntextlist id="texts" syn-datafield="Texts" syn-events="['change']" syn-options="{
+                create:true,
+                hideLogicBadge:false,
+                groupDisplay:'inline',
+                optgroups: [
+                    {value:'user',label:'사용자'},
+                    {value:'dept',label:'부서'}
+                ],
+                optgroupField:'class',
+                valueField:'value',
+                labelField:'name',
+                placeholder:'후보 선택 또는 텍스트 입력 후 Enter...'
+            }"></syn_dropdowntextlist>
+            <div class="demo-actions">
+                <button type="button" id="btnTextAdd" syn-events="['click']">addItem('작업실') / addItem('이름:홍길동')</button>
+                <button type="button" id="btnTextSet" syn-events="['click']">setNormalText 설정</button>
+                <button type="button" id="btnTextRestore" syn-events="['click']">getNormalText 저장 후 복원</button>
+                <button type="button" id="btnTextClear" syn-events="['click']">일반 텍스트 해제</button>
+            </div>
+            <h3>getValue()</h3>
+            <pre id="textValue">[]</pre>
+            <h3>getNormalText()</h3>
+            <pre id="textResult">[]</pre>
+            <h3>getSummaryText()</h3>
+            <pre id="textSummary"></pre>
         </div>
         <div class="demo-section"><h2>이벤트 기록</h2><pre id="events"></pre></div>
     </form>

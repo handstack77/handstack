@@ -103,6 +103,7 @@
 | `propToCol(elID, dataField)` / `colToProp(elID, colIndex)` | 컬럼ID ↔ 컬럼 인덱스 변환 |
 | `visibleColumns(elID, columns, isShow)` / `unHiddenColumns(elID)` / `isColumnHidden` | 컬럼 숨김/표시 |
 | `addFilterCache` / `addCondition(elID, dataField, name, args, args2)` / `removeCondition` / `clearConditions` | 필터 조건 조작 |
+| `addMultiCondition(elID, dataField, conditions, logic = 'OR')` | 한 컬럼에 여러 조건을 AND/OR로 결합하여 한 번에 등록 |
 | `setFilter(elID, dataField, func)` | 커스텀 필터 함수 지정 |
 | `setSorting(elID, sortInfos)` / `clearSorting(elID)` | 정렬 적용/해제 |
 | `setCellMerge(elID, isMerged)` / `getMergeItems` / `hasMerge` | 셀 병합 |
@@ -115,6 +116,84 @@
 | `setControlSize(elID, size)` / `setColumnWidth` / `setColumnWidths` / `getColumnWidth(s)` | 크기 조정 |
 | `render(elID)` | 강제 리렌더링 |
 | `search(elID, dataField, term, options)` / `searchAll(elID, term, options)` | 텍스트 검색/하이라이트 |
+
+### addCondition 조건
+
+`addCondition(elID, dataField, name, args, args2)`는 해당 컬럼의 기존 필터를 교체합니다. 다른 컬럼의 필터는 유지하며, `dataField`에 숫자를 전달하면 컬럼 인덱스로 해석합니다.
+
+| `name` | 동작 |
+|---|---|
+| `begins_with` / `ends_with` | `args`로 시작 / 끝나는 문자열 |
+| `contains` / `not_contains` | `args`가 부분 문자열로 포함됨 / 포함되지 않음 |
+| `eq` / `neq` | `args`와 같음 / 다름 |
+| `by_value` | 단일 `args`와 같음. 배열이면 목록 중 하나와 같음(빈 배열은 모두 제외) |
+| `empty` / `not_empty` | `null`, `undefined`, `''`임 / 아님. `0`, `false`, 공백 문자열은 빈 값이 아님 |
+| `gt` / `gte` / `lt` / `lte` | `args`보다 큼 / 크거나 같음 / 작음 / 작거나 같음 |
+| `between` / `not_between` | `args <= value <= args2` / 두 경계 밖. 경계값은 `between`에 포함 |
+
+- 문자열 조건은 숫자·불리언을 문자열로 변환하며 대소문자를 구분합니다. 셀 값 또는 `args`가 `null`/`undefined`이면 `not_contains`도 일치하지 않습니다. 빈 검색어는 모든 문자열에 포함됩니다.
+- `eq`, `neq`, `by_value`는 기존 호환성을 위해 JavaScript의 `==`/`!=` 비교를 유지합니다(예: `1`과 `'1'`은 같음). 미정의 조건 이름도 기존처럼 동등 비교합니다.
+- 순서·범위 조건은 빈 셀 값이나 빈 경계(`null`, `undefined`, `''`)를 제외합니다. 범위는 양쪽 경계와 비교할 수 있는 값만 포함하며, `NaN` 등 비교 불가 값은 `not_between`에서도 제외합니다. 경계는 작은 값, 큰 값 순서로 전달합니다.
+- 순서 비교는 JavaScript 비교 규칙을 유지합니다. 수치 비교는 경계를 숫자로 전달하고, 날짜 문자열은 동일한 ISO 형식(예: `yyyy-MM-dd`)으로 맞춥니다. 문자열끼리는 사전순으로 비교합니다.
+
+#### 배열 인수
+
+- `args`는 단일 값 또는 1차원 배열입니다. `eq`, `by_value`, `begins_with`, `ends_with`, `contains`, `gt`, `gte`, `lt`, `lte`는 하나라도 일치하면 통과(OR)합니다. `neq`, `not_contains`는 모든 값에 대한 제외 조건이 참이어야 통과(AND)합니다. 미정의 조건 이름의 동등 비교도 OR로 처리합니다.
+- `between`/`not_between`은 `args`와 `args2` 모두 배열을 지원하며, `args[i]`와 `args2[i]`를 하나의 범위로 묶습니다. 한쪽만 단일 값이면 모든 범위에 공통 적용합니다. 배열끼리의 모든 조합으로 범위를 만들지는 않습니다.
+- `between`은 범위 중 하나에 포함되면 통과하고, `not_between`은 모든 범위 밖일 때 통과합니다. 두 배열의 길이가 다르면 경고를 기록하고 해당 호출을 적용하지 않아 기존 필터를 유지합니다. 길이 1인 배열도 다른 배열과 길이가 같아야 합니다.
+- 빈 배열은 포함 조건에서 불일치, 제외 조건에서 일치로 처리합니다. 단, `not_contains`의 `null`/`undefined` 셀 제외와 `not_between`의 빈 셀·`NaN` 제외는 그대로 적용합니다. 문자열 조건의 `null`/`undefined` 검색어와 범위 조건의 빈 경계·비교 불가 경계는 불일치하므로, 해당 제외 조건에서도 통과하지 않습니다.
+- `empty`/`not_empty`는 인수를 사용하지 않습니다. 범위 조건 외에는 `args2`를 무시합니다.
+
+```js
+syn.uicontrols.$auigrid.addCondition('grdProduct', 'ProductName', 'contains', '이어폰');
+syn.uicontrols.$auigrid.addCondition('grdProduct', 'ProductName', 'contains', ['이어폰', '배터리']);
+syn.uicontrols.$auigrid.addCondition('grdProduct', 'ProductName', 'not_contains', ['이어폰', '배터리']);
+syn.uicontrols.$auigrid.addCondition('grdProduct', 'CategoryID', 'by_value', ['ELE', 'HOM']);
+syn.uicontrols.$auigrid.addCondition('grdProduct', 'Price', 'between', 0, 50000);
+// 0~20000 또는 80000~100000 (양쪽 경계 포함)
+syn.uicontrols.$auigrid.addCondition('grdProduct', 'Price', 'between', [0, 80000], [20000, 100000]);
+// 0~20000, 0~50000에 공통 하한 0 적용
+syn.uicontrols.$auigrid.addCondition('grdProduct', 'Price', 'between', 0, [20000, 50000]);
+syn.uicontrols.$auigrid.addCondition('grdProduct', 'Memo', 'empty');
+```
+
+### addMultiCondition 조건
+
+`addMultiCondition(elID, dataField, conditions, logic = 'OR')`는 하나의 컬럼에 `[{ name, args, args2, logic }]` 조건 목록을 적용합니다. 각 조건의 `logic`은 선택 사항입니다. 내부적으로 모든 조건을 검증하고 공통 판정 함수를 조합한 뒤 `AUIGrid.setFilter`를 한 번만 호출합니다.
+
+- 마지막 인수 `logic`은 기본 결합 방식이며 생략하면 OR입니다. 두 번째 조건부터 각 조건의 `logic`이 있으면 이를 우선하여 앞까지 계산한 결과와 현재 조건을 연결합니다. 해당 값이 생략되거나 `undefined`이면 기본 결합 방식을 적용합니다. 각 조건 내부의 배열 결합은 위 `addCondition` 규칙을 유지합니다.
+- 첫 번째 조건은 시작값이므로 해당 조건의 `logic`을 사용하지 않습니다. 이후에는 항상 왼쪽부터 순서대로 결합합니다. 예를 들어 A, B(`logic: 'OR'`), C(`logic: 'AND'`)는 `(A OR B) AND C`입니다. 모든 조건의 `logic`이 생략되면 기존처럼 마지막 인수로 전체 조건을 결합합니다.
+- 기본 `logic`과 두 번째 이후 조건의 `logic`은 대소문자를 구분하지 않으며 AND/OR만 허용합니다. 두 번째 이후 조건에 `null`, 빈 문자열 또는 다른 값을 전달하면 경고를 기록하고 전체 호출을 적용하지 않아 기존 필터를 유지합니다.
+- `name`은 위 표에 있는 조건 이름이어야 합니다. `empty`/`not_empty` 외에는 `args` 키가 필요하며, `between`/`not_between`은 `args2` 키도 필요합니다. 명시적으로 전달한 `null`/`undefined` 등의 값은 `addCondition`의 비교 규칙을 따릅니다.
+- 조건 목록·항목·이름·필수 키·결합 방식이 잘못되거나 범위 배열 길이가 다르면 경고를 기록하고 전체 호출을 적용하지 않습니다. 기존 컬럼 필터는 유지합니다. `addCondition`의 미정의 이름에 대한 동등 비교는 기존 호환 동작으로 유지하지만, 새 함수는 미정의 이름을 거부합니다.
+- 빈 조건 목록 `[]`는 해당 컬럼의 필터를 해제합니다. 조건 안의 `args: []`는 조건 목록 `[]`와 다르며, 기존의 빈 배열 비교 규칙을 따릅니다.
+- 같은 컬럼에 재호출하면 기존 필터를 새 조건 목록으로 교체합니다. `addCondition`과도 서로 교체하며, 다른 컬럼의 필터는 유지합니다. `dataField`에는 컬럼 ID 또는 숫자 인덱스를 전달할 수 있습니다.
+- `removeCondition(elID, dataField)`는 해당 컬럼의 다중 조건 전체를 삭제합니다. `clearConditions(elID)`는 전체 컬럼 필터를 해제합니다. 개별 조건 하나를 바꾸거나 삭제하려면 수정한 조건 목록으로 다시 호출합니다.
+
+```js
+// (이어폰 또는 배터리 포함) AND (중고와 불량 모두 미포함)
+syn.uicontrols.$auigrid.addMultiCondition('grdProduct', 'ProductName', [
+    { name: 'contains', args: ['이어폰', '배터리'] },
+    { name: 'not_contains', args: ['중고', '불량'] }
+], 'AND');
+
+// (0~20000 또는 80000~100000) OR (판매가가 50000)
+syn.uicontrols.$auigrid.addMultiCondition('grdProduct', 'Price', [
+    { name: 'between', args: [0, 80000], args2: [20000, 100000] },
+    { name: 'eq', args: 50000 }
+], 'OR');
+
+// 조건별 OR가 명시한 AND보다 우선:
+// (홍 또는 김 포함) OR (테스트와 임시 모두 미포함)
+syn.uicontrols.$auigrid.addMultiCondition('grdGrid', 'Name', [
+    { name: 'contains', args: ['홍', '김'] },
+    { name: 'not_contains', args: ['테스트', '임시'], logic: 'OR' }
+], 'AND');
+
+syn.uicontrols.$auigrid.removeCondition('grdProduct', 'ProductName');
+// 빈 목록으로도 동일하게 해당 컬럼 필터 해제
+syn.uicontrols.$auigrid.addMultiCondition('grdProduct', 'Price', []);
+```
 
 ### 이벤트 (syn-events)
 
