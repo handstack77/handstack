@@ -57277,7 +57277,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
     $dropdowntextlist.extend({
         name: 'syn.uicontrols.$dropdowntextlist',
-        version: 'v2026.10.15',
+        version: 'v2026.10.16',
         textListControls: [],
         defaultSetting: {
             optgroups: [],
@@ -59324,7 +59324,7 @@ if (typeof module !== 'undefined' && module.exports) {
                 groups.forEach(function (group) {
                     var button = document.createElement('button');
                     button.type = 'button';
-                    button.className = 'btn btn-sm';
+                    button.className = 'btn';
                     button.tabIndex = -1;
                     button.dataset.group = group.dataset.group;
                     button.textContent = group.querySelector('.optgroup-header').textContent;
@@ -68676,7 +68676,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
     $auigrid.extend({
         name: 'syn.uicontrols.$auigrid',
-        version: 'v2026.7.23',
+        version: 'v2026.10.16',
 
         gridControls: [],
         gridCodeDatas: [],

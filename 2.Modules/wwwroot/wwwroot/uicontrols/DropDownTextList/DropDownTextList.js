@@ -8,7 +8,7 @@
 
     $dropdowntextlist.extend({
         name: 'syn.uicontrols.$dropdowntextlist',
-        version: 'v2026.10.15',
+        version: 'v2026.10.16',
         textListControls: [],
         defaultSetting: {
             optgroups: [],
@@ -2055,7 +2055,7 @@
                 groups.forEach(function (group) {
                     var button = document.createElement('button');
                     button.type = 'button';
-                    button.className = 'btn btn-sm';
+                    button.className = 'btn';
                     button.tabIndex = -1;
                     button.dataset.group = group.dataset.group;
                     button.textContent = group.querySelector('.optgroup-header').textContent;
