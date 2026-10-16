@@ -25,6 +25,11 @@ namespace dbclient.Extensions
         Default, Native, Numeric
     }
 
+    internal enum FilterTimeFormat
+    {
+        Default, Native, String
+    }
+
     // 일반/NativeDataClient 모두 같은 공급자별 매개변수를 생성한다.
     internal sealed class SqlFilterParameter : SqlMapper.ICustomQueryParameter
     {
@@ -32,8 +37,21 @@ namespace dbclient.Extensions
 
         internal object Value { get; }
 
-        internal SqlFilterParameter(object value, DbType type, DataProviders provider, FilterGuidFormat guidFormat, FilterBooleanFormat booleanFormat)
+        internal SqlFilterParameter(object value, DbType type, DataProviders provider, FilterGuidFormat guidFormat, FilterBooleanFormat booleanFormat, FilterTimeFormat timeFormat = FilterTimeFormat.Default)
         {
+            if (type == DbType.Time)
+            {
+                // Oracle에는 시각만 저장하는 타입이 없고 SQLite는 시각을 텍스트로 저장한다. 두 공급자는 HH:mm:ss 문자열로 비교한다.
+                if (timeFormat == FilterTimeFormat.String || (timeFormat == FilterTimeFormat.Default && provider == DataProviders.SQLite))
+                {
+                    value = FormatTime((TimeSpan)value);
+                    type = DbType.AnsiString;
+                }
+                else if (provider == DataProviders.Oracle)
+                {
+                    throw new InvalidOperationException("filters: Oracle의 Time 필드에는 timeFormat=\"String\"이 필요합니다.");
+                }
+            }
             if (type == DbType.Guid)
             {
                 var guid = (Guid)value;
@@ -140,6 +158,14 @@ namespace dbclient.Extensions
                 parameter.Size = bytes.Length;
             }
             actual.Parameters.Add(parameter);
+        }
+
+        // 소수 초가 있을 때만 끝의 0을 제외한 소수부를 붙여, 고정 폭 HH:mm:ss 저장값과 문자열 순서가 같도록 한다.
+        private static string FormatTime(TimeSpan value)
+        {
+            var fraction = value.Ticks % TimeSpan.TicksPerSecond;
+            var text = value.ToString(@"hh\:mm\:ss");
+            return fraction == 0 ? text : text + "." + fraction.ToString("0000000").TrimEnd('0');
         }
 
         private static int OracleNationalByteCount(string value)

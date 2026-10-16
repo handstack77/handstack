@@ -46,14 +46,14 @@ FROM (
 WHERE M.isdeleted = 0
             ]]>
             <filters parameter="Filters" groupLogic="AND">
-                <field groupID="user" column="M.userid" type="String" operators="eq,ne,lte,gte,startsWith,endsWith,contains" />
-                <field groupID="content" column="M.content" type="String" operators="eq,ne,startsWith,endsWith,contains" />
-                <field groupID="score" column="M.score" type="Int32" operators="eq,ne,lte,gte" />
-                <field groupID="date" column="M.businessdate" type="Date" operators="eq,ne,lte,gte" />
-                <field groupID="createdAt" column="M.createdat" type="DateTime" operators="eq,ne,lte,gte" />
-                <field groupID="occurredAt" column="M.occurredat" type="DateTimeOffset" operators="eq,ne,lte,gte" />
-                <field groupID="enabled" column="M.enabled" type="Boolean" operators="eq,ne" />
-                <field groupID="guid" column="M.itemguid" type="Guid" operators="eq,ne" />
+                <field groupID="user" column="M.userid" type="String" operators="eq,neq,lte,gte,begins_with,ends_with,contains,not_contains" />
+                <field groupID="content" column="M.content" type="String" operators="eq,neq,begins_with,ends_with,contains,not_contains" />
+                <field groupID="score" column="M.score" type="Int32" operators="eq,neq,lte,gte" />
+                <field groupID="date" column="M.businessdate" type="Date" operators="eq,neq,lte,gte" />
+                <field groupID="createdAt" column="M.createdat" type="DateTime" operators="eq,neq,lte,gte" />
+                <field groupID="occurredAt" column="M.occurredat" type="DateTimeOffset" operators="eq,neq,lte,gte" />
+                <field groupID="enabled" column="M.enabled" type="Boolean" operators="eq,neq" />
+                <field groupID="guid" column="M.itemguid" type="Guid" operators="eq,neq" />
             </filters>
             <![CDATA[
 ORDER BY M.userid;
@@ -98,14 +98,14 @@ FROM (
 WHERE M.isdeleted = 0
             ]]>
             <filters parameter="Filters" groupLogic="AND">
-                <field groupID="user" column="M.userid" type="String" operators="eq,ne,lte,gte,startsWith,endsWith,contains" />
-                <field groupID="content" column="M.content" type="String" operators="eq,ne,startsWith,endsWith,contains" />
-                <field groupID="score" column="M.score" type="Int32" operators="eq,ne,lte,gte" />
-                <field groupID="date" column="M.businessdate" type="Date" operators="eq,ne,lte,gte" />
-                <field groupID="createdAt" column="M.createdat" type="DateTime" operators="eq,ne,lte,gte" />
-                <field groupID="occurredAt" column="M.occurredat" type="DateTimeOffset" operators="eq,ne,lte,gte" />
-                <field groupID="enabled" column="M.enabled" type="Boolean" operators="eq,ne" />
-                <field groupID="guid" column="M.itemguid" type="Guid" operators="eq,ne" />
+                <field groupID="user" column="M.userid" type="String" operators="eq,neq,lte,gte,begins_with,ends_with,contains,not_contains" />
+                <field groupID="content" column="M.content" type="String" operators="eq,neq,begins_with,ends_with,contains,not_contains" />
+                <field groupID="score" column="M.score" type="Int32" operators="eq,neq,lte,gte" />
+                <field groupID="date" column="M.businessdate" type="Date" operators="eq,neq,lte,gte" />
+                <field groupID="createdAt" column="M.createdat" type="DateTime" operators="eq,neq,lte,gte" />
+                <field groupID="occurredAt" column="M.occurredat" type="DateTimeOffset" operators="eq,neq,lte,gte" />
+                <field groupID="enabled" column="M.enabled" type="Boolean" operators="eq,neq" />
+                <field groupID="guid" column="M.itemguid" type="Guid" operators="eq,neq" />
             </filters>
             <![CDATA[
 ORDER BY M.userid;
@@ -150,14 +150,14 @@ FROM (
 WHERE M.isdeleted = 0
             ]]>
             <filters parameter="Filters" groupLogic="AND">
-                <field groupID="user" column="M.userid" type="String" operators="eq,ne,lte,gte,startsWith,endsWith,contains" />
-                <field groupID="content" column="M.content" type="String" operators="eq,ne,startsWith,endsWith,contains" />
-                <field groupID="score" column="M.score" type="Int32" operators="eq,ne,lte,gte" />
-                <field groupID="date" column="M.businessdate" type="Date" operators="eq,ne,lte,gte" />
-                <field groupID="createdAt" column="M.createdat" type="DateTime" operators="eq,ne,lte,gte" />
-                <field groupID="occurredAt" column="M.occurredat" type="DateTimeOffset" operators="eq,ne,lte,gte" />
-                <field groupID="enabled" column="M.enabled" type="Boolean" operators="eq,ne" />
-                <field groupID="guid" column="M.itemguid" type="Guid" operators="eq,ne" />
+                <field groupID="user" column="M.userid" type="String" operators="eq,neq,lte,gte,begins_with,ends_with,contains,not_contains" />
+                <field groupID="content" column="M.content" type="String" operators="eq,neq,begins_with,ends_with,contains,not_contains" />
+                <field groupID="score" column="M.score" type="Int32" operators="eq,neq,lte,gte" />
+                <field groupID="date" column="M.businessdate" type="Date" operators="eq,neq,lte,gte" />
+                <field groupID="createdAt" column="M.createdat" type="DateTime" operators="eq,neq,lte,gte" />
+                <field groupID="occurredAt" column="M.occurredat" type="DateTimeOffset" operators="eq,neq,lte,gte" />
+                <field groupID="enabled" column="M.enabled" type="Boolean" operators="eq,neq" />
+                <field groupID="guid" column="M.itemguid" type="Guid" operators="eq,neq" />
             </filters>
             <![CDATA[
 ORDER BY M.userid;
@@ -202,14 +202,14 @@ FROM (
 WHERE M.isdeleted = 0
             ]]>
             <filters parameter="Filters" groupLogic="AND">
-                <field groupID="user" column="M.userid" type="String" operators="eq,ne,lte,gte,startsWith,endsWith,contains" />
-                <field groupID="content" column="M.content" type="String" operators="eq,ne,startsWith,endsWith,contains" />
-                <field groupID="score" column="M.score" type="Int32" operators="eq,ne,lte,gte" />
-                <field groupID="date" column="M.businessdate" type="Date" operators="eq,ne,lte,gte" />
-                <field groupID="createdAt" column="M.createdat" type="DateTime" operators="eq,ne,lte,gte" />
-                <field groupID="occurredAt" column="M.occurredat" type="DateTimeOffset" operators="eq,ne,lte,gte" />
-                <field groupID="enabled" column="M.enabled" type="Boolean" operators="eq,ne" />
-                <field groupID="guid" column="M.itemguid" type="Guid" operators="eq,ne" />
+                <field groupID="user" column="M.userid" type="String" operators="eq,neq,lte,gte,begins_with,ends_with,contains,not_contains" />
+                <field groupID="content" column="M.content" type="String" operators="eq,neq,begins_with,ends_with,contains,not_contains" />
+                <field groupID="score" column="M.score" type="Int32" operators="eq,neq,lte,gte" />
+                <field groupID="date" column="M.businessdate" type="Date" operators="eq,neq,lte,gte" />
+                <field groupID="createdAt" column="M.createdat" type="DateTime" operators="eq,neq,lte,gte" />
+                <field groupID="occurredAt" column="M.occurredat" type="DateTimeOffset" operators="eq,neq,lte,gte" />
+                <field groupID="enabled" column="M.enabled" type="Boolean" operators="eq,neq" />
+                <field groupID="guid" column="M.itemguid" type="Guid" operators="eq,neq" />
             </filters>
             <![CDATA[
 ORDER BY M.userid;
@@ -254,14 +254,14 @@ FROM (
 WHERE M.isdeleted = 0
             ]]>
             <filters parameter="Filters" groupLogic="AND">
-                <field groupID="user" column="M.userid" type="String" operators="eq,ne,lte,gte,startsWith,endsWith,contains" />
-                <field groupID="content" column="M.content" type="String" operators="eq,ne,startsWith,endsWith,contains" />
-                <field groupID="score" column="M.score" type="Int32" operators="eq,ne,lte,gte" />
-                <field groupID="date" column="M.businessdate" type="Date" operators="eq,ne,lte,gte" />
-                <field groupID="createdAt" column="M.createdat" type="DateTime" operators="eq,ne,lte,gte" />
-                <field groupID="occurredAt" column="M.occurredat" type="DateTimeOffset" operators="eq,ne,lte,gte" />
-                <field groupID="enabled" column="M.enabled" type="Boolean" operators="eq,ne" />
-                <field groupID="guid" column="M.itemguid" type="Guid" guidFormat="String36" operators="eq,ne" />
+                <field groupID="user" column="M.userid" type="String" operators="eq,neq,lte,gte,begins_with,ends_with,contains,not_contains" />
+                <field groupID="content" column="M.content" type="String" operators="eq,neq,begins_with,ends_with,contains,not_contains" />
+                <field groupID="score" column="M.score" type="Int32" operators="eq,neq,lte,gte" />
+                <field groupID="date" column="M.businessdate" type="Date" operators="eq,neq,lte,gte" />
+                <field groupID="createdAt" column="M.createdat" type="DateTime" operators="eq,neq,lte,gte" />
+                <field groupID="occurredAt" column="M.occurredat" type="DateTimeOffset" operators="eq,neq,lte,gte" />
+                <field groupID="enabled" column="M.enabled" type="Boolean" operators="eq,neq" />
+                <field groupID="guid" column="M.itemguid" type="Guid" guidFormat="String36" operators="eq,neq" />
             </filters>
             <![CDATA[
 ORDER BY M.userid;

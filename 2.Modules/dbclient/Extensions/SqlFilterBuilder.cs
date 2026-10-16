@@ -24,12 +24,14 @@ namespace dbclient.Extensions
     // 요청별로 생성한다. 캐시된 StatementMap이나 QueryObject에는 생성한 매개변수를 기록하지 않는다.
     internal sealed class SqlFilterBuilder
     {
-        private static readonly HashSet<string> operators = ["eq", "ne", "lte", "gte", "startsWith", "endsWith", "contains"];
+        private static readonly HashSet<string> operators = ["eq", "neq", "lt", "lte", "gt", "gte", "begins_with", "ends_with", "contains", "not_contains"];
         private static readonly HashSet<DbType> types = [DbType.String, DbType.AnsiString, DbType.Int16, DbType.Int32, DbType.Int64,
-            DbType.Decimal, DbType.Double, DbType.Single, DbType.Boolean, DbType.Date, DbType.DateTime, DbType.DateTime2, DbType.DateTimeOffset, DbType.Guid];
+            DbType.Decimal, DbType.Double, DbType.Single, DbType.Boolean, DbType.Date, DbType.DateTime, DbType.DateTime2, DbType.DateTimeOffset, DbType.Time, DbType.Guid];
         private const string identifier = "(?:[A-Za-z_][A-Za-z0-9_]*|\\[(?:[^\\]\\r\\n]|\\]\\])+\\]|\"(?:[^\"\\r\\n]|\"\")+\"|`(?:[^`\\r\\n]|``)+`)";
         private static readonly Regex columnPattern = new("\\A(?<part>" + identifier + ")(?:\\.(?<part>" + identifier + "))*\\z", RegexOptions.CultureInvariant);
         private static readonly Regex localDatePattern = new(@"\A\d{4}-\d{2}-\d{2}(?:[T ]\d{2}:\d{2}:\d{2}(?:\.\d{1,7})?)?\z", RegexOptions.CultureInvariant);
+        private static readonly Regex monthPattern = new(@"\A\d{4}-(?:0[1-9]|1[0-2])\z", RegexOptions.CultureInvariant);
+        private static readonly Regex timePattern = new(@"\A(?<h>[01]\d|2[0-3]):(?<m>[0-5]\d)(?::(?<s>[0-5]\d)(?:\.(?<f>\d{1,7}))?)?\z", RegexOptions.CultureInvariant);
         private static readonly Regex offsetDatePattern = new(@"\A\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,7})?(?:Z|[+-]\d{2}:\d{2})\z", RegexOptions.CultureInvariant);
 
         private readonly DynamicParameters? target;
@@ -163,16 +165,26 @@ namespace dbclient.Extensions
                     throw Error($"필터 그룹 {group}에 중복된 key가 있습니다.");
                 }
 
+                if (operation is "eq" or "neq" && field.Type is DbType.Date or DbType.DateTime or DbType.DateTime2 && monthPattern.IsMatch(operand))
+                {
+                    // yyyy-MM은 해당 월 1일 00:00으로 해석하므로 월 전체 일치로 오해하지 않도록 범위 비교만 허용한다.
+                    throw Error($"필터 그룹 {group}의 yyyy-MM 값에는 lt, lte, gt, gte 연산자만 사용할 수 있습니다.");
+                }
+
                 var value = ConvertValue(operand, field.Type, group);
+                var isLike = operation is "begins_with" or "ends_with" or "contains" or "not_contains";
                 var comparison = operation switch
                 {
                     "eq" => "=",
-                    "ne" => "<>",
+                    "neq" => "<>",
+                    "lt" => "<",
                     "lte" => "<=",
+                    "gt" => ">",
                     "gte" => ">=",
+                    "not_contains" => "NOT LIKE",
                     _ => "LIKE"
                 };
-                if (comparison == "LIKE")
+                if (isLike)
                 {
                     if (field.Type is not (DbType.String or DbType.AnsiString))
                     {
@@ -185,21 +197,21 @@ namespace dbclient.Extensions
                     }
                     value = operation switch
                     {
-                        "startsWith" => escaped + "%",
-                        "endsWith" => "%" + escaped,
+                        "begins_with" => escaped + "%",
+                        "ends_with" => "%" + escaped,
                         _ => "%" + escaped + "%"
                     };
                 }
 
                 string expression;
-                if (provider == DataProviders.Oracle && operand.Length == 0 && field.Type is DbType.String or DbType.AnsiString && comparison != "LIKE")
+                if (provider == DataProviders.Oracle && operand.Length == 0 && field.Type is DbType.String or DbType.AnsiString && !isLike)
                 {
                     // Oracle은 빈 문자열을 NULL로 저장한다. = :empty 조건은 참이 되지 않는다.
                     expression = operation switch
                     {
                         "eq" => field.Column + " IS NULL",
-                        "ne" => field.Column + " IS NOT NULL",
-                        _ => throw Error("Oracle의 빈 문자열에는 eq 또는 ne 비교만 사용할 수 있습니다.")
+                        "neq" => field.Column + " IS NOT NULL",
+                        _ => throw Error("Oracle의 빈 문자열에는 eq 또는 neq 비교만 사용할 수 있습니다.")
                     };
                 }
                 else
@@ -210,14 +222,19 @@ namespace dbclient.Extensions
                     {
                         throw Error($"생성할 필터 매개변수 이름이 기존 매개변수와 충돌합니다: {name}");
                     }
-                    if (provider == DataProviders.SqlServer && comparison == "LIKE" && value is string pattern &&
+                    if (provider == DataProviders.SqlServer && isLike && value is string pattern &&
                         (field.Type == DbType.String ? pattern.Length > 4000 : System.Text.Encoding.UTF8.GetByteCount(pattern) > 8000))
                     {
                         throw Error("SQL Server의 LIKE 패턴은 Unicode 4000자 또는 ANSI UTF-8 8000바이트 범위여야 합니다.");
                     }
-                    bindings.Add((name, new SqlFilterParameter(value, field.Type, provider, field.GuidFormat, field.BooleanFormat)));
+                    bindings.Add((name, new SqlFilterParameter(value, field.Type, provider, field.GuidFormat, field.BooleanFormat, field.TimeFormat)));
                     var marker = provider == DataProviders.Oracle ? ":" : "@";
-                    expression = $"{field.Column} {comparison} {marker}{name}" + (comparison == "LIKE" ? " ESCAPE '!'" : "");
+                    expression = $"{field.Column} {comparison} {marker}{name}" + (isLike ? " ESCAPE '!'" : "");
+                    if (operation == "not_contains")
+                    {
+                        // NOT LIKE는 NULL 컬럼에서 참이 되지 않으므로 NULL은 포함하지 않는 것으로 보아 미포함 행에 넣는다(neq의 <> 와 다르다).
+                        expression = $"({field.Column} IS NULL OR {expression})";
+                    }
                 }
                 if (groups.TryGetValue(group, out var previous))
                 {
@@ -231,7 +248,19 @@ namespace dbclient.Extensions
                 }
             }
 
-            return " AND (" + string.Join(" " + groupLogic + " ", order.Select(group => "(" + groups[group] + ")")) + ") ";
+            // field의 logic은 해당 그룹을 앞 그룹과 잇는 연결자이며 groupLogic보다 우선한다. 첫 그룹의 logic은 사용하지 않는다.
+            // AND/OR 우선순위가 결과를 바꾸지 않도록 결합할 때마다 괄호로 묶어 요청 순서대로 해석한다.
+            if (order.All(group => fields[group].Logic == null))
+            {
+                return " AND (" + string.Join(" " + groupLogic + " ", order.Select(group => "(" + groups[group] + ")")) + ") ";
+            }
+
+            var combined = "(" + groups[order[0]] + ")";
+            foreach (var group in order.Skip(1))
+            {
+                combined = "(" + combined + " " + (fields[group].Logic ?? groupLogic) + " (" + groups[group] + "))";
+            }
+            return " AND " + combined + " ";
         }
 
         internal void Bind()
@@ -279,7 +308,18 @@ namespace dbclient.Extensions
                 {
                     throw Error($"필터 그룹 {group}의 booleanFormat이 올바르지 않습니다.");
                 }
-                if (!fields.TryAdd(group, new FilterField(FormatColumn(column), type, new HashSet<string>(allowed, StringComparer.Ordinal), guidFormat, booleanFormat)))
+                var timeFormatName = Attribute(child, "timeFormat", "Default");
+                if (!Enum.TryParse<FilterTimeFormat>(timeFormatName, out var timeFormat) || timeFormat.ToString() != timeFormatName ||
+                    !Enum.IsDefined(timeFormat) || (type != DbType.Time && timeFormat != FilterTimeFormat.Default))
+                {
+                    throw Error($"필터 그룹 {group}의 timeFormat이 올바르지 않습니다.");
+                }
+                if (type == DbType.Time && provider == DataProviders.Oracle && timeFormat != FilterTimeFormat.String)
+                {
+                    throw Error($"필터 그룹 {group}: Oracle의 Time 필드에는 timeFormat=\"String\"이 필요합니다.");
+                }
+                var logic = Attribute(child, "logic");
+                if (!fields.TryAdd(group, new FilterField(FormatColumn(column), type, new HashSet<string>(allowed, StringComparer.Ordinal), guidFormat, booleanFormat, logic.Length == 0 ? null : Logic(logic), timeFormat)))
                 {
                     throw Error($"필터 그룹 정의가 중복되었습니다: {group}");
                 }
@@ -307,17 +347,31 @@ namespace dbclient.Extensions
                     DbType.Date => ParseLocalDate(value).Date,
                     DbType.DateTime or DbType.DateTime2 => ParseLocalDate(value),
                     DbType.DateTimeOffset => offsetDatePattern.IsMatch(value) ? DateTimeOffset.Parse(value, culture, DateTimeStyles.None).ToUniversalTime() : throw new FormatException(),
+                    DbType.Time => ParseTime(value),
                     _ => throw new FormatException()
                 };
             }
-            catch (Exception exception) when (exception is FormatException or OverflowException)
+            catch (Exception exception) when (exception is FormatException or OverflowException or ArgumentOutOfRangeException)
             {
                 throw Error($"필터 그룹 {group}의 key를 {type} 타입으로 변환할 수 없습니다.");
             }
         }
 
+        private static TimeSpan ParseTime(string value)
+        {
+            var match = timePattern.Match(value);
+            if (!match.Success) throw new FormatException();
+            var fraction = match.Groups["f"].Success ? long.Parse(match.Groups["f"].Value.PadRight(7, '0'), CultureInfo.InvariantCulture) : 0;
+            return new TimeSpan(
+                int.Parse(match.Groups["h"].Value, CultureInfo.InvariantCulture) * TimeSpan.TicksPerHour +
+                int.Parse(match.Groups["m"].Value, CultureInfo.InvariantCulture) * TimeSpan.TicksPerMinute +
+                (match.Groups["s"].Success ? int.Parse(match.Groups["s"].Value, CultureInfo.InvariantCulture) * TimeSpan.TicksPerSecond : 0) +
+                fraction);
+        }
+
         private static DateTime ParseLocalDate(string value)
         {
+            if (monthPattern.IsMatch(value)) return DateTime.SpecifyKind(new DateTime(int.Parse(value[..4], CultureInfo.InvariantCulture), int.Parse(value[5..], CultureInfo.InvariantCulture), 1), DateTimeKind.Unspecified);
             if (!localDatePattern.IsMatch(value)) throw new FormatException();
             return DateTime.SpecifyKind(DateTime.Parse(value, CultureInfo.InvariantCulture, DateTimeStyles.None), DateTimeKind.Unspecified);
         }
@@ -356,6 +410,6 @@ namespace dbclient.Extensions
 
         private static InvalidOperationException Error(string message) => new("filters: " + message);
 
-        private sealed record FilterField(string Column, DbType Type, HashSet<string> Operators, FilterGuidFormat GuidFormat, FilterBooleanFormat BooleanFormat);
+        private sealed record FilterField(string Column, DbType Type, HashSet<string> Operators, FilterGuidFormat GuidFormat, FilterBooleanFormat BooleanFormat, string? Logic, FilterTimeFormat TimeFormat);
     }
 }

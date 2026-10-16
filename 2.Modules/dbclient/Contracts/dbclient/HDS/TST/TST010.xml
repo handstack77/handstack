@@ -107,10 +107,10 @@ WHERE M.IsDeleted = 0
             </if>
 
             <filters parameter="Filters" groupLogic="AND">
-                <field groupID="user" column="M.UserID" type="String" operators="eq,ne" />
-                <field groupID="content" column="M.MarkdownText" type="String" operators="eq,ne,startsWith,endsWith,contains" />
-                <field groupID="createdAt" column="M.CreatedAt" type="DateTime" operators="eq,ne,lte,gte" />
-                <field groupID="conversation" column="M.ConversationID" type="String" operators="eq,ne" />
+                <field groupID="user" column="M.UserID" type="String" operators="eq,neq" />
+                <field groupID="content" column="M.MarkdownText" type="String" operators="eq,neq,begins_with,ends_with,contains,not_contains" />
+                <field groupID="createdAt" column="M.CreatedAt" type="DateTime" operators="eq,neq,lte,gte" />
+                <field groupID="conversation" column="M.ConversationID" type="String" operators="eq,neq" />
             </filters>
 
             <![CDATA[
@@ -143,15 +143,41 @@ FROM SearchData AS M
 WHERE M.IsDeleted = 0
             ]]>
             <filters parameter="Filters" groupLogic="AND">
-                <field groupID="user" column="M.UserID" type="String" operators="eq,ne,startsWith,endsWith,contains" />
-                <field groupID="content" column="M.Content" type="String" operators="eq,ne,startsWith,endsWith,contains" />
-                <field groupID="score" column="M.Score" type="Int32" operators="eq,ne,lte,gte" />
+                <field groupID="user" column="M.UserID" type="String" operators="eq,neq,begins_with,ends_with,contains,not_contains" />
+                <field groupID="content" column="M.Content" type="String" operators="eq,neq,begins_with,ends_with,contains,not_contains" />
+                <field groupID="score" column="M.Score" type="Int32" operators="eq,neq,lte,gte" />
             </filters>
             <![CDATA[
 ORDER BY M.UserID;
             ]]>
             <param id="@Filters" type="String" length="-1" value="NULL" />
             <outputmeta value="UserID:string;Content:string;Score:int;" />
+        </statement>
+
+        <statement id="GD09" seq="0" use="Y" timeout="0" desc="SQLite 기간 필터(년월일·년월·시간) 검증 예제">
+            <![CDATA[
+WITH SearchData (Id, CreatedAt, ClosingMonth, WorkTime) AS (
+    SELECT 1, '2026-09-30 23:59:59', '2026-09-01 00:00:00', '08:59:59'
+    UNION ALL SELECT 2, '2026-10-01 00:00:00', '2026-10-01 00:00:00', '09:30:00'
+    UNION ALL SELECT 3, '2026-10-15 13:00:00', '2026-11-01 00:00:00', '09:30:30'
+    UNION ALL SELECT 4, '2026-10-31 23:59:59', '2026-12-01 00:00:00', '10:00:59'
+    UNION ALL SELECT 5, '2026-11-01 00:00:00', '2027-01-01 00:00:00', '10:01:00'
+    UNION ALL SELECT 6, '2026-12-31 08:00:00', '2026-12-01 00:00:00', '23:59:59.5'
+)
+SELECT M.Id, M.CreatedAt, M.ClosingMonth, M.WorkTime
+FROM SearchData AS M
+WHERE 1 = 1
+            ]]>
+            <filters parameter="Filters" groupLogic="AND">
+                <field groupID="createdAt" column="M.CreatedAt" type="DateTime" operators="gte,lt,lte" />
+                <field groupID="closingMonth" column="M.ClosingMonth" type="DateTime" operators="gte,lt" />
+                <field groupID="workTime" column="M.WorkTime" type="Time" operators="gte,lt,lte" />
+            </filters>
+            <![CDATA[
+ORDER BY M.Id;
+            ]]>
+            <param id="@Filters" type="String" length="-1" value="NULL" />
+            <outputmeta value="Id:int;CreatedAt:string;ClosingMonth:string;WorkTime:string;" />
         </statement>
     </commands>
 </mapper>

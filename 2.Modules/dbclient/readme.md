@@ -46,10 +46,10 @@ SQL의 `WHERE` 필수 조건 뒤에 `<filters>`를 선언하면 해당 위치에
 SELECT M.* FROM [Message] M WHERE M.IsDeleted = 0
 
 <filters parameter="Filters" groupLogic="AND">
-    <field groupID="user" column="M.UserID" type="String" operators="eq,ne" />
+    <field groupID="user" column="M.UserID" type="String" operators="eq,neq" />
     <field groupID="content" column="M.MarkdownText" type="String"
-           operators="eq,ne,startsWith,endsWith,contains" />
-    <field groupID="createdAt" column="M.CreatedAt" type="DateTime" operators="eq,ne,lte,gte" />
+           operators="eq,neq,begins_with,ends_with,contains,not_contains" />
+    <field groupID="createdAt" column="M.CreatedAt" type="DateTime" operators="eq,neq,lte,gte" />
 </filters>
 <param id="@Filters" type="String" length="-1" value="NULL" />
 ```
@@ -85,34 +85,40 @@ AND (
 | --- | --- |
 | `parameter` | 입력 매개변수 이름. 기본값 `Filters`. `@Filters`와 같이 접두사를 붙인 입력 이름도 인식 |
 | `groupLogic` | 그룹 사이 연결. `AND`(기본) 또는 `OR` |
+| `field.logic` | 해당 그룹을 앞 그룹과 잇는 연결자. `AND` 또는 `OR`이며 지정하면 `groupLogic`보다 우선. 생략하면 `groupLogic`을 따름 |
 | `field.groupID` | 요청 조건의 `groupID`와 일치하는 고유한 그룹 이름. 대소문자 구분 |
 | `field.column` | 서버 계약에서 허용하는 실제 컬럼 |
 | `field.type` | 비교할 `key`의 DB 타입. 기본값 `String` |
 | `field.operators` | 쉼표로 구분한 허용 연산자. 기본값 `eq` |
 | `field.guidFormat` | `Guid` 타입의 물리 저장 형식. `Default`(기본), `String36`, `String32`, `Binary16`, `Binary16BigEndian` |
 | `field.booleanFormat` | `Boolean` 타입의 물리 저장 형식. `Default`(기본), `Native`, `Numeric` |
+| `field.timeFormat` | `Time` 타입의 물리 저장 형식. `Default`(기본), `Native`, `String`. Oracle은 `String`이 필요 |
 
-지원 타입은 `String`, `AnsiString`, `Int16`, `Int32`, `Int64`, `Decimal`, `Double`, `Single`, `Boolean`, `Date`, `DateTime`, `DateTime2`, `DateTimeOffset`, `Guid`입니다. 숫자는 소수점 `.`을 쓰는 invariant 형식입니다. `Date`·`DateTime`·`DateTime2`는 `yyyy-MM-dd` 또는 시간대 없는 `yyyy-MM-ddTHH:mm:ss[.fffffff]` 형식이며 `Date`는 시간 부분을 제거합니다. `DateTimeOffset`은 `2026-10-14T21:34:56.123456+09:00`처럼 명시적인 오프셋이나 `Z`가 필요하며 UTC로 정규화합니다. 서버의 로컬 시간대에 의존하는 날짜 변환은 하지 않습니다. `Boolean`은 `true`/`false` 또는 `1`/`0`을 받습니다.
+지원 타입은 `String`, `AnsiString`, `Int16`, `Int32`, `Int64`, `Decimal`, `Double`, `Single`, `Boolean`, `Date`, `DateTime`, `DateTime2`, `DateTimeOffset`, `Time`, `Guid`입니다. 숫자는 소수점 `.`을 쓰는 invariant 형식입니다. `Date`·`DateTime`·`DateTime2`는 `yyyy-MM-dd`, `yyyy-MM` 또는 시간대 없는 `yyyy-MM-ddTHH:mm:ss[.fffffff]` 형식이며 `Date`는 시간 부분을 제거합니다. `yyyy-MM`은 해당 월 1일 00:00으로 해석하므로 월 전체 일치로 오해하지 않도록 `eq`·`neq`에는 사용할 수 없고 `lt`·`lte`·`gt`·`gte`에서만 허용합니다. `Time`은 날짜와 시간대가 없는 하루 중 시각이며 `HH:mm[:ss[.fffffff]]`(00:00 이상 24:00 미만) 형식을 받습니다. `DateTimeOffset`은 `2026-10-14T21:34:56.123456+09:00`처럼 명시적인 오프셋이나 `Z`가 필요하며 UTC로 정규화합니다. 서버의 로컬 시간대에 의존하는 날짜 변환은 하지 않습니다. `Boolean`은 `true`/`false` 또는 `1`/`0`을 받습니다.
 
 | 연산자 | 생성 조건 |
 | --- | --- |
-| `eq`, `ne` | `=`, `<>` |
-| `lte`, `gte` | `<=`, `>=` |
-| `startsWith` | `LIKE '값%'`에 해당하는 매개변수 |
-| `endsWith` | `LIKE '%값'`에 해당하는 매개변수 |
+| `eq`, `neq` | `=`, `<>` |
+| `lt`, `lte` | `<`, `<=` |
+| `gt`, `gte` | `>`, `>=` |
+| `begins_with` | `LIKE '값%'`에 해당하는 매개변수 |
+| `ends_with` | `LIKE '%값'`에 해당하는 매개변수 |
 | `contains` | `LIKE '%값%'`에 해당하는 매개변수 |
+| `not_contains` | `NOT LIKE '%값%'`에 해당하는 매개변수. 컬럼이 NULL인 행도 포함하며(`(컬럼 IS NULL OR 컬럼 NOT LIKE ...)`) `neq`(`<>`)가 NULL 행을 제외하는 것과 다릅니다 |
 
 문자열 검색은 `String`·`AnsiString` 타입에서 지원합니다. `%`, `_`, `!`는 실제 문자로 검색하도록 이스케이프하며, SQL Server의 `[`도 처리합니다. `contains`는 `FREETEXT` 검색과 다릅니다. 값의 작은따옴표는 SQL에 치환하지 않고 그대로 바인딩합니다.
 
 - 매개변수 누락, 실제 `null`, 빈 문자열, 공백 문자열, JSON `null`, `[]`는 조건을 추가하지 않습니다.
 - 잘못된 JSON, 배열이 아닌 값, 미등록 그룹, 허용되지 않은 연산자, 타입 변환 실패, 같은 그룹·키의 중복 조건은 오류입니다. SQL 하나에서 생성할 수 있는 필터 조건은 최대 1000개입니다.
 - 같은 그룹은 배열에 나타난 순서대로 결합하고 첫 항목의 `logic`은 사용하지 않습니다. `A OR B AND C`는 선택 순서에 따라 `((A OR B) AND C)`로 처리합니다. 그룹 전체를 다시 괄호로 묶으므로 `OR`로 기존 필수 조건을 우회하지 않습니다.
+- 그룹 사이는 `groupLogic`으로 결합합니다. `field`에 `logic`을 지정하면 그 그룹을 앞 그룹과 잇는 연결자로 `groupLogic`보다 우선 적용합니다. 그룹 순서는 `field` 선언 순서가 아니라 요청 배열에서 그룹이 처음 나타난 순서이며, 첫 그룹의 `field.logic`은 사용하지 않습니다. 하나라도 `field.logic`이 적용되면 결합할 때마다 괄호로 묶어 `(((A) OR (B)) AND (C))`처럼 요청 순서대로 해석합니다. 그룹 안의 결합은 `field.logic`과 무관하게 요청 조건의 `logic`을 따르며, `AND`/`OR` 외의 값은 오류입니다.
 - `key`가 비교값입니다. DropDownTextList의 `value`는 표시명이므로 SQL 생성에 사용하지 않습니다. `groupID`는 UI 분류를 자동으로 SQL 컬럼으로 바꾸는 값이 아니라, 계약에서 등록한 검색 필드의 식별자입니다.
+- 기간은 같은 그룹에 시작 `gte`와 끝 `lt`를 `AND`로 보내 표현합니다. 끝을 포함하려면 끝 날짜·월·분의 다음 값을 `lt`로 보냅니다(예: 10월 전체는 `gte 2026-10`과 `lt 2026-11`). 시각만 비교하는 `Time`의 끝이 `23:59`이면 다음 분이 없으므로 `lte 23:59:59.9999999`를 사용합니다. DropDownTextList의 `range` 옵션이 이 조건 쌍을 만듭니다.
 - 원본 `Filters` JSON은 DB로 바인딩하지 않습니다. 생성한 매개변수는 요청별로 관리하고 기존 `StatementMap`·`QueryObject`는 변경하지 않습니다. 생성 이름 `Filter_main_*`, `Filter_pre_*`를 업무 매개변수로 사용하면 충돌 오류가 발생합니다.
 - `<if>`·`<foreach>` 내부와 `<pretreatment>`에서도 사용할 수 있습니다. 선언 위치가 실제로 렌더링될 때만 해당 필터를 처리합니다.
 - 기존 코드에서 `DatabaseMapper.Find`를 직접 호출하면서 활성 필터를 사용한다면 `(statementMap, queryObject, dynamicParameters, databaseProvider)` 오버로드를 사용합니다. `FindPretreatment`도 같은 추가 인자를 받습니다.
 
-예제는 `Contracts/dbclient/HDS/TST/TST010.xml`의 `GD06`과 `GD08`입니다. `GD06`은 기존 SQL Server 업무 쿼리를 유지하며, `GD08`은 SQLite의 상수 데이터만 조회하므로 테이블 생성이나 데이터 변경 없이 실행할 수 있습니다.
+예제는 `Contracts/dbclient/HDS/TST/TST010.xml`의 `GD06`, `GD08`, `GD09`입니다. `GD06`은 기존 SQL Server 업무 쿼리를 유지하며, `GD08`은 SQLite의 상수 데이터만 조회하므로 테이블 생성이나 데이터 변경 없이 실행할 수 있습니다. `GD09`도 SQLite 상수 데이터로 `createdAt`(`DateTime`), `closingMonth`, `workTime`(`Time`) 기간 조건(`gte`, `lt`, `lte`)을 검증합니다. 예를 들어 `[{"groupID":"createdAt","logic":"AND","operator":"gte","key":"2026-10","value":"2026-10 부터"},{"groupID":"createdAt","logic":"AND","operator":"lt","key":"2026-11","value":"2026-10 까지"}]`는 `Id` 2, 3, 4를 반환합니다.
 
 ### 공급자별 SQL·바인딩 규칙
 
@@ -127,6 +133,7 @@ AND (
 | `Boolean` | `bit` | `NUMBER(1)`에 0/1 | Boolean/tinyint | `boolean` | 0/1 |
 | `Date` | `date` | `DATE` | `DATE` | `date` | 연결의 날짜 저장 형식 |
 | `DateTime` / `DateTime2` | `datetime2` | `TIMESTAMP` | `DATETIME` | `timestamp without time zone` | 연결의 날짜 저장 형식 |
+| `Time` | `time` | 지원 안 함(`timeFormat="String"` 필요) | `TIME` | `time` | `HH:mm:ss` 문자열 |
 | `DateTimeOffset` | UTC `datetimeoffset` | UTC `TIMESTAMP WITH TIME ZONE` | UTC 시각의 `DATETIME` | UTC `timestamptz` | UTC 시각, 연결의 날짜 저장 형식 |
 | 기본 `Guid` | `uniqueidentifier` | `RAW(16)`, .NET 바이트 순서 | 연결의 `GuidFormat` | `uuid` | 연결의 `BinaryGUID` 설정 |
 | `Double` / `Single` | `Float` / `Real` | `BINARY_DOUBLE` / `BINARY_FLOAT` | `Double` / `Float` | `double precision` / `real` | `Double` / `Single` |
@@ -136,7 +143,7 @@ AND (
 GUID 컬럼의 물리 형식이 기본값과 다르면 계약에서 지정합니다.
 
 ```xml
-<field groupID="id" column="M.ItemID" type="Guid" guidFormat="String36" operators="eq,ne" />
+<field groupID="id" column="M.ItemID" type="Guid" guidFormat="String36" operators="eq,neq" />
 ```
 
 - `String36`: 하이픈을 포함한 소문자 UUID 문자열, 예: `00112233-4455-6677-8899-aabbccddeeff`.
@@ -144,19 +151,29 @@ GUID 컬럼의 물리 형식이 기본값과 다르면 계약에서 지정합니
 - `Binary16`: `Guid.ToByteArray()`의 .NET 바이트 순서. 위 UUID는 `33221100554477668899AABBCCDDEEFF`.
 - `Binary16BigEndian`: RFC UUID 바이트 순서. 위 UUID는 `00112233445566778899AABBCCDDEEFF`. Oracle `HEXTORAW`로 이 순서를 저장했다면 이 형식을 지정합니다.
 
-Oracle의 빈 문자열 `key`는 `eq`일 때 `IS NULL`, `ne`일 때 `IS NOT NULL`로 변환하며 DB 매개변수를 추가하지 않습니다. 빈 문자열의 `lte`·`gte`는 오류이고 문자열 검색은 `%` 패턴 규칙을 따릅니다. **Filters 매개변수 자체가 비어 조건을 무시하는 동작과는 별개입니다.**
+`Time` 컬럼의 물리 형식이 기본값과 다르면 계약에서 지정합니다.
+
+```xml
+<field groupID="workTime" column="M.WorkTime" type="Time" timeFormat="String" operators="gte,lt,lte" />
+```
+
+- `Default`: SQL Server·MySQL/MariaDB·PostgreSQL은 `time` 컬럼과 직접 비교하는 `TimeSpan` 매개변수, SQLite는 `HH:mm:ss` 문자열 매개변수. Oracle은 시각만 저장하는 타입이 없으므로 `Default`와 `Native`를 오류로 처리합니다.
+- `Native`: `TimeSpan` 매개변수를 `time` 타입으로 바인딩합니다. Oracle에서는 사용할 수 없습니다.
+- `String`: 고정 폭 `HH:mm:ss` 문자열(소수 초가 있으면 `.fffffff`의 끝 0을 제외해 이어 붙임)로 바인딩해 `VARCHAR2`·`TEXT` 컬럼의 문자열 순서로 비교합니다. 저장 값이 `HH:mm:ss` 형식이어야 정확히 비교됩니다.
+
+Oracle의 빈 문자열 `key`는 `eq`일 때 `IS NULL`, `neq`일 때 `IS NOT NULL`로 변환하며 DB 매개변수를 추가하지 않습니다. 빈 문자열의 `lt`·`lte`·`gt`·`gte`는 오류이고 문자열 검색은 `%` 패턴 규칙을 따릅니다. **Filters 매개변수 자체가 비어 조건을 무시하는 동작과는 별개입니다.**
 
 Oracle의 기본 `MAX_STRING_SIZE=STANDARD`와 두 국가 문자셋을 함께 고려해 `String`은 2000 UTF-16 코드 단위 및 CESU-8 4000바이트 이내, `AnsiString`은 UTF-8 4000바이트 이내로 제한합니다. SQL Server의 `LIKE` 패턴은 이스케이프·와일드카드를 포함해 Unicode 4000자 또는 ANSI UTF-8 8000바이트 이내입니다. 이보다 긴 검색은 오류로 처리하며 자동으로 잘라내거나 LOB로 바꾸지 않습니다. NUL 문자는 모든 공급자에서 거부합니다. Unicode 검색에는 `String`을 사용하고 MySQL/MariaDB 연결·컬럼의 문자셋도 UTF-8에 맞춥니다.
 
 서버 실행 결과의 대소문자·악센트 비교는 컬럼 collation, 날짜의 정밀도는 실제 컬럼 precision, NULL 비교는 DB 규칙을 따릅니다. MySQL/MariaDB·SQLite에서 `DateTimeOffset`을 검색하는 컬럼은 UTC 시각을 저장해야 합니다. SQLite의 `DateTimeFormat`·`BinaryGUID`, MySQL/MariaDB의 `GuidFormat`은 기존 데이터 저장 형식과 일치해야 합니다. Oracle의 기본 `Boolean`은 19c/21c와도 호환되는 숫자 컬럼을 기준으로 합니다. 23c 이상 SQL BOOLEAN 컬럼은 `booleanFormat="Native"`로 지정합니다. 다른 공급자의 기본값은 네이티브 Boolean이며, 정수 0/1 컬럼을 사용한다면 `booleanFormat="Numeric"`을 지정합니다. 전체 업무 SQL을 다른 DB 문법으로 번역하거나 collation·저장 형식을 자동 변경하는 기능은 아닙니다.
 
-Boolean 컬럼에 맞춘 선언 예시는 다음과 같습니다. 허용 연산자는 업무 의미에 맞게 `eq,ne`로 제한할 수 있습니다.
+Boolean 컬럼에 맞춘 선언 예시는 다음과 같습니다. 허용 연산자는 업무 의미에 맞게 `eq,neq`로 제한할 수 있습니다.
 
 ```xml
 <!-- Oracle 23c 이상 SQL BOOLEAN 컬럼 -->
-<field groupID="enabled" column="M.Enabled" type="Boolean" booleanFormat="Native" operators="eq,ne" />
+<field groupID="enabled" column="M.Enabled" type="Boolean" booleanFormat="Native" operators="eq,neq" />
 <!-- 숫자 0/1 컬럼 -->
-<field groupID="enabled" column="M.Enabled" type="Boolean" booleanFormat="Numeric" operators="eq,ne" />
+<field groupID="enabled" column="M.Enabled" type="Boolean" booleanFormat="Numeric" operators="eq,neq" />
 ```
 
 ### 공급자별 실행 예제
