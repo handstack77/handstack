@@ -15240,10 +15240,24 @@
             hideSelected: true,
             clearAfterSelect: true,
             persist: true,
-            create: false,
+            create: true,
+            openOnFocus: false,
             defaultGroupID: '',
-            groupDisplay: 'tooltip',
+            groupDisplay: 'badge',
             groupNav: true,
+            groupNavMode: 'menu',
+            selectedDisplay: 'text',
+            groupSelectAll: true,
+            groupChangeClearsText: true,
+            dropdownByButtonOnly: true,
+            useParam: false,
+            rangeLayout: 'nav',
+            suggest: null,
+            suggestLevel: 1,
+            suggestEnterFirst: true,
+            defaultLogic: 'OR',
+            defaultOperator: 'contains',
+            conditionEditable: false,
             hideLogicBadge: true,
             load: null,
             loadThrottle: 200,
@@ -15297,6 +15311,7 @@
             dropdown_open: 'onDropdownOpen',
             dropdown_close: 'onDropdownClose',
             type: 'onType',
+            suggest_select: 'onSuggestSelect',
             load: 'onLoad',
             destroy: 'onDestroy'
         },
@@ -15305,6 +15320,21 @@
             var elementID = el.getAttribute('id');
             var dataField = el.getAttribute('syn-datafield');
             var formDataField = el.closest('form') ? el.closest('form').getAttribute('syn-datafield') : '';
+            // useParam:true이면 거래 요청에 Conditions 하나가 아니라 optgroups의 value마다 요청 항목(dataMapSet의 id)을 하나씩 등록한다.
+            // range 그룹은 value + 'Start', value + 'End' 두 개다. 프레임워크가 컨트롤 하나에서 항목 하나만 읽으므로 등록 단계에서 필드를 나눈다.
+            var names = $filtertagtextlist.getParamFields(setting);
+            if (dataField && names.length > 0) {
+                names.forEach(function (name) {
+                    moduleList.push({
+                        id: elementID,
+                        formDataFieldID: formDataField,
+                        field: name,
+                        module: $filtertagtextlist.name,
+                        type: controlType
+                    });
+                });
+                return;
+            }
             moduleList.push({
                 id: elementID,
                 formDataFieldID: formDataField,
@@ -15314,6 +15344,60 @@
             });
         },
 
+        // useParam:true일 때 서버 param으로 보낼 필드 이름 목록. optgroups의 value(범위 그룹은 value + 'Start'·'End')이며 syn-options에 직접 쓴 optgroups만 대상이다.
+        getParamFields(setting) {
+            if (!setting || setting.useParam !== true || !Array.isArray(setting.optgroups)) {
+                return [];
+            }
+            var names = [];
+            setting.optgroups.forEach(function (group) {
+                if (!group || group.value == null || String(group.value) === '') {
+                    return;
+                }
+                var name = String(group.value);
+                if ($filtertagtextlist.hasProperty($filtertagtextlist.ranges, group.range)) {
+                    names.push(name + 'Start', name + 'End');
+                }
+                else {
+                    names.push(name);
+                }
+            });
+            return names;
+        },
+
+        // 요청 필드 하나의 값. 후보 그룹은 선택한 key를 쉼표로 이어 붙이고(빈 key '전체'를 선택했거나 선택이 없으면 빈 문자열), 범위 그룹은 사용자가 입력한 시작·끝 값이다.
+        getParamValue(elID, fieldID) {
+            var control = $filtertagtextlist.requireControl(elID);
+
+            var picker = control.picker;
+            fieldID = String(fieldID);
+            var side = '';
+            var groupID = fieldID;
+            var match = /^(.+)(Start|End)$/.exec(fieldID);
+            if (match && !$filtertagtextlist.hasProperty(picker.optgroups, fieldID) && $filtertagtextlist.getRangeKind(control.id, match[1]) !== '') {
+                groupID = match[1];
+                side = match[2] === 'Start' ? 'start' : 'end';
+            }
+            if (side) {
+                return $filtertagtextlist.getRange(control.id, groupID)[side];
+            }
+            var keys = [];
+            var all = false;
+            picker.items.forEach(function (id) {
+                var option = picker.options[id];
+                if (!option || option._dttlGroup !== groupID) {
+                    return;
+                }
+                if (option._dttlKey === '') {
+                    all = true;
+                }
+                else {
+                    keys.push(option._dttlKey);
+                }
+            });
+            return all ? '' : keys.join(',');
+        },
+
         controlLoad(elID, setting) {
             var control = $filtertagtextlist.getControl(elID);
             if (control) {
@@ -15321,10 +15405,10 @@
             }
             var el = syn.$l.get(elID);
             if (!el) {
-                throw new Error('FilterTagTextList: element not found: ' + elID);
+                throw new Error('FilterTagTextList: 요소를 찾을 수 없습니다: ' + elID);
             }
             if (typeof TomSelect === 'undefined') {
-                throw new Error('FilterTagTextList: Tom Select must be loaded first');
+                throw new Error('FilterTagTextList: Tom Select를 먼저 불러와야 합니다');
             }
             setting = syn.$w.argumentsExtend($filtertagtextlist.defaultSetting, setting || {});
             var mod = window[syn.$w.pageScript];
@@ -15349,6 +15433,55 @@
         },
 
         addControlSetting(el, setting) {
+            if (setting.rangeLayout !== 'inline' && setting.rangeLayout !== 'nav') {
+                throw new TypeError('FilterTagTextList: rangeLayout은 inline 또는 nav여야 합니다');
+            }
+            if (setting.groupNavMode !== 'scroll' && setting.groupNavMode !== 'menu') {
+                throw new TypeError('FilterTagTextList: groupNavMode는 scroll 또는 menu여야 합니다');
+            }
+            if (setting.selectedDisplay !== 'tag' && setting.selectedDisplay !== 'text') {
+                throw new TypeError('FilterTagTextList: selectedDisplay는 tag 또는 text여야 합니다');
+            }
+            if (typeof setting.useParam !== 'boolean') {
+                throw new TypeError('FilterTagTextList: useParam은 boolean이어야 합니다');
+            }
+            if (typeof setting.groupChangeClearsText !== 'boolean') {
+                throw new TypeError('FilterTagTextList: groupChangeClearsText는 boolean이어야 합니다');
+            }
+            if (typeof setting.dropdownByButtonOnly !== 'boolean') {
+                throw new TypeError('FilterTagTextList: dropdownByButtonOnly는 boolean이어야 합니다');
+            }
+            if (setting.suggestLevel !== 1 && setting.suggestLevel !== 2) {
+                throw new TypeError('FilterTagTextList: suggestLevel은 1 또는 2여야 합니다');
+            }
+            if (typeof setting.suggestEnterFirst !== 'boolean') {
+                throw new TypeError('FilterTagTextList: suggestEnterFirst는 boolean이어야 합니다');
+            }
+            if (typeof setting.groupSelectAll !== 'boolean') {
+                throw new TypeError('FilterTagTextList: groupSelectAll은 boolean이어야 합니다');
+            }
+            // 기본값이 menu 모드 기준이므로, 선행 옵션(groupNavMode:'menu', selectedDisplay:'text', suggestLevel:1)을 쓰지 않는 컨트롤에서는
+            // 이에 의존하는 옵션을 오류 대신 꺼서 기존 방식(scroll·tag·2단 팝업)으로 동작하게 한다.
+            if (setting.groupNavMode !== 'menu') {
+                setting.dropdownByButtonOnly = false;
+                setting.groupChangeClearsText = false;
+                setting.selectedDisplay = 'tag';
+            }
+            if (setting.groupNav === false) {
+                setting.selectedDisplay = 'tag';
+            }
+            if (setting.selectedDisplay !== 'text') {
+                setting.groupSelectAll = false;
+            }
+            if (setting.suggestLevel !== 1) {
+                setting.suggestEnterFirst = false;
+            }
+            if (setting.suggest != null && setting.suggest !== false && typeof setting.suggest !== 'function') {
+                throw new TypeError('FilterTagTextList: suggest는 함수여야 합니다');
+            }
+            if (!['AND', 'OR'].includes(setting.defaultLogic) || !$filtertagtextlist.hasProperty($filtertagtextlist.operators, setting.defaultOperator)) {
+                throw new TypeError('FilterTagTextList: defaultLogic 또는 defaultOperator가 올바르지 않습니다');
+            }
             (setting.optgroups || []).forEach(function (group) {
                 return $filtertagtextlist.checkRangeGroup(group);
             });
@@ -15573,7 +15706,7 @@
             }
             control.container = document.createElement('div');
             // AND/OR 배지를 숨기면(hideLogicBadge:true) 배지가 튀어나올 자리로 둔 태그 위쪽 여백과 줄 간격을 없앤다. 초기화 때 한 번만 정한다.
-            control.container.className = 'syn-filtertagtextlist' + (setting.hideLogicBadge === false ? '' : ' dttl-hide-badge');
+            control.container.className = 'syn-filtertagtextlist' + (setting.hideLogicBadge === false ? '' : ' dttl-hide-badge') + (setting.selectedDisplay === 'text' ? ' dttl-select-text' : '');
             control.container.style.width = setting.width;
             control.source = document.createElement('select');
             control.source.multiple = true;
@@ -15606,6 +15739,8 @@
                 preload: false,
                 mode: 'multi',
                 duplicates: false,
+                // selectedDisplay:'text'는 선택한 후보를 목록에 남겨 다시 눌러 해제하므로 선택한 후보를 숨기지 않는다.
+                hideSelected: setting.selectedDisplay === 'text' ? false : setting.hideSelected,
                 valueField: '_dttlID',
                 labelField: '_dttlLabel',
                 optgroupField: '_dttlGroup',
@@ -15617,10 +15752,7 @@
                 create: setting.create ? true : false,
                 render: {
                     item: function (data, escape) {
-                        var condition = control.conditions.get(data._dttlID) || {
-                            logic: 'AND',
-                            operator: 'contains'
-                        };
+                        var condition = control.conditions.get(data._dttlID) || $filtertagtextlist.getDefaultCondition(control.id);
                         var normal = data._dttlGroup === $filtertagtextlist.normalGroup;
                         var group = control.picker && !normal ? control.picker.optgroups[data._dttlGroup] : null;
                         var groupLabel = normal ? $filtertagtextlist.getNormalParts(data).key || '텍스트' : group && group.label != null ? String(group.label) : data._dttlGroup || '기타';
@@ -15641,11 +15773,15 @@
                         var badge = showBadge ? '<span class="dttl-logic-badge" aria-hidden="true">' + condition.logic +
                             (badgeKey ? '<span class="dttl-badge-key"> · ' + escape(badgeKey) + '</span>' : '') + '</span>' : '';
                         var minWidth = badgeKey ? ' style="min-width:' + Math.min(136, Array.from(badgeKey).length * 9 + 34) + 'px"' : '';
+                        // conditionEditable:false이면 조건 편집창을 열 수 없으므로 편집 동작을 알리는 role·이름을 붙이지 않는다. range 태그는 범위 편집창이 열리므로 제외한다.
+                        var fixed = setting.conditionEditable === false && !isRange;
+                        // selectedDisplay:'text'이면 그룹 버튼이 있는 후보와 범위 조건은 태그를 숨기고 그룹 버튼의 글자로 보여준다(일반 텍스트는 태그).
+                        var inButton = setting.selectedDisplay === 'text' && !normal && !!group && group.label != null;
 
-                        return '<div class="dttl-item' + (normal ? ' dttl-normal' : '') + (hideGroup ? ' dttl-group-tooltip' : '') + '" data-dttl-logic="' + condition.logic + '" data-dttl-operator="' + condition.operator + '" title="' + escape(summary) + '"' + minWidth + '>' +
+                        return '<div class="dttl-item' + (normal ? ' dttl-normal' : '') + (hideGroup ? ' dttl-group-tooltip' : '') + (fixed ? ' dttl-fixed' : '') + (inButton ? ' dttl-item-hidden' : '') + '" data-dttl-logic="' + condition.logic + '" data-dttl-operator="' + condition.operator + '" title="' + escape(summary) + '"' + minWidth + '>' +
                             badge +
-                            '<span class="dttl-group" role="button" tabindex="0" aria-label="' + escape(summary + ' 조건 편집') + '">' + escape(groupLabel) + '</span>' +
-                            '<button type="button" class="dttl-edit" aria-label="' + escape(summary + ' 조건 편집') + '"><span class="dttl-label">' + escape(data._dttlLabel) + '</span></button>' +
+                            '<span class="dttl-group"' + (fixed ? '' : ' role="button" tabindex="0" aria-label="' + escape(summary + ' 조건 편집') + '"') + '>' + escape(groupLabel) + '</span>' +
+                            '<button type="button" class="dttl-edit" aria-label="' + escape(fixed ? summary : summary + ' 조건 편집') + '"><span class="dttl-label">' + escape(data._dttlLabel) + '</span></button>' +
                             '<button type="button" class="dttl-remove" aria-label="' + escape(data._dttlLabel + ' 삭제') + '">×</button></div>';
                     },
                     option: function (data, escape) {
@@ -15723,7 +15859,105 @@
                 }
                 return result;
             };
-            if (setting.groupNav !== false) {
+            // groupNavMode:'menu'이면 그룹 버튼이 연 목록에 고른 그룹의 후보만 남기도록 검색 결과를 거른다(빈 입력일 때도 적용되도록 search 결과에서 거른다).
+            control.navFilter = '';
+            control.menuAnchor = null;
+            control.menuAligned = false;
+            var originalSearch = control.picker.search;
+            control.picker.search = function () {
+                var results = originalSearch.apply(control.picker, arguments);
+                var text = control.settings.selectedDisplay === 'text';
+                if ((control.navFilter || text) && !control.destroyed) {
+                    // TomSelect가 마지막 검색 결과(currentResults)를 재사용하므로 원본은 고치지 않고 거른 복사본을 돌려준다.
+                    // text 모드는 선택한 후보를 숨기지 않으므로 선택한 일반 텍스트와 범위 조건은 후보 목록에서 뺀다.
+                    var items = results.items.filter(function (item) {
+                        var option = control.picker.options[item.id];
+                        if (!option) {
+                            return false;
+                        }
+                        if (text && (option._dttlGroup === $filtertagtextlist.normalGroup || $filtertagtextlist.getRangeKind(control.id, option._dttlGroup) !== '')) {
+                            return false;
+                        }
+                        return !control.navFilter || option._dttlGroup === control.navFilter;
+                    });
+                    return Object.assign({}, results, { items: items, total: items.length });
+                }
+                return results;
+            };
+            if (setting.dropdownByButtonOnly === true) {
+                // 후보 드롭다운은 그룹 버튼(navFilter)이 연 목록일 때만 열린다. 입력·포커스·↓ 키·태그 생성 후에는 열지 않는다.
+                var openByButton = control.picker.open;
+                control.picker.open = function () {
+                    if (!control.navFilter && !control.destroyed) {
+                        return;
+                    }
+                    return openByButton.apply(control.picker, arguments);
+                };
+            }
+            if (setting.selectedDisplay === 'text') {
+                // 선택한 후보는 목록에 남겨 두므로 다시 누르면(클릭·Enter) 선택을 해제한다.
+                var toggleOption = function (option) {
+                    var value = option && option.dataset ? option.dataset.value : undefined;
+                    if (value === undefined) {
+                        return false;
+                    }
+                    var data = control.picker.options[value];
+                    if (control.settings.groupSelectAll === true && data && data._dttlKey === '' && data._dttlGroup !== $filtertagtextlist.normalGroup) {
+                        // 그룹의 빈 key 후보('전체')는 그 그룹의 모든 후보를 선택하거나(하나라도 선택되지 않았으면) 모두 해제한다(모두 선택되어 있으면).
+                        $filtertagtextlist.toggleGroupAll(control.id, data._dttlGroup);
+                        return true;
+                    }
+                    if (!control.picker.items.includes(value)) {
+                        return false;
+                    }
+                    if (!control.picker.isLocked && !control.destroyed) {
+                        control.picker.removeItem(value);
+                        control.picker.lastQuery = null;
+                        control.picker.refreshOptions(false);
+                    }
+                    return true;
+                };
+                // 마우스 클릭은 TomSelect가 내부에서 묶은 처리를 쓰므로 목록의 클릭을 캡처 단계에서 먼저 받는다.
+                $filtertagtextlist.listen(control.id, control.picker.dropdown, 'click', function (event) {
+                    var option = event.target.closest('.option[data-value]');
+                    if (option && control.picker.dropdown.contains(option) && toggleOption(option)) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        event.stopImmediatePropagation();
+                    }
+                }, true);
+                // Enter로 고르는 경우는 TomSelect가 self.onOptionSelect를 호출한다.
+                var originalOptionSelect = control.picker.onOptionSelect;
+                control.picker.onOptionSelect = function (event, option) {
+                    if (toggleOption(option)) {
+                        return;
+                    }
+                    return originalOptionSelect.apply(control.picker, arguments);
+                };
+                // 숨겨진 태그가 Backspace·방향키·Ctrl+A로 보이지 않게 지워지거나 선택되지 않도록, 입력창이 비었을 때는 보이는 일반 텍스트 태그만 다룬다.
+                $filtertagtextlist.listen(control.id, control.picker.control_input, 'keydown', function (event) {
+                    var input = control.picker.control_input;
+                    if (control.composing || event.isComposing || control.picker.activeItems.length || input.selectionStart !== 0 || input.selectionEnd !== 0) {
+                        return;
+                    }
+                    var select = (event.ctrlKey || event.metaKey) && String(event.key).toLowerCase() === 'a';
+                    if (event.key !== 'Backspace' && event.key !== 'Delete' && event.key !== 'ArrowLeft' && event.key !== 'ArrowRight' && !select) {
+                        return;
+                    }
+                    event.preventDefault();
+                    event.stopImmediatePropagation();
+                    if (event.key === 'Backspace' && !control.picker.isLocked) {
+                        var normals = control.picker.items.filter(function (id) {
+                            return $filtertagtextlist.isNormalID(id);
+                        });
+                        if (normals.length) {
+                            control.picker.removeItem(normals[normals.length - 1]);
+                        }
+                    }
+                }, true);
+            }
+            // rangeLayout:'nav'이면 groupNav:false여도 범위 버튼을 담기 위해 버튼 줄을 만든다.
+            if (setting.groupNav !== false || setting.rangeLayout === 'nav') {
                 $filtertagtextlist.createGroupNav(control.id);
             }
             // 콜백과 Promise 방식 모두 같은 생성·조회 처리와 파괴 여부 검사를 사용한다.
@@ -15762,6 +15996,9 @@
                 }
             }, true);
             $filtertagtextlist.listen(control.id, document, 'pointerdown', function (event) {
+                if (control.suggest && control.suggest.visible && !control.container.contains(event.target)) {
+                    $filtertagtextlist.hideSuggest(control.id);
+                }
                 if (control.editor && !control.editor.contains(event.target) && !control.picker.control.contains(event.target) && !control.ranges.contains(event.target)) {
                     $filtertagtextlist.closeEditor(control.id, false);
                 }
@@ -15770,17 +16007,34 @@
                 if (control.picker.isOpen) {
                     control.picker.positionDropdown();
                 }
+                if (control.suggest && control.suggest.visible) {
+                    $filtertagtextlist.positionSuggest(control.id);
+                }
                 if (control.editor) {
                     $filtertagtextlist.positionEditor(control.id);
                 }
             });
             $filtertagtextlist.listen(control.id, document, 'scroll', function (event) {
+                if (control.suggest && control.suggest.visible && !control.suggest.root.contains(event.target)) {
+                    $filtertagtextlist.positionSuggest(control.id);
+                }
                 if (control.editor && !control.editor.contains(event.target)) {
                     $filtertagtextlist.positionEditor(control.id);
                 }
             }, true);
+            if (typeof setting.suggest === 'function') {
+                $filtertagtextlist.createSuggest(control.id);
+            }
             if (setting.items && setting.items.length) {
                 $filtertagtextlist.setValue(control.id, setting.items, true);
+            }
+            else {
+                // options의 selected:true 후보는 처음부터 선택한다. items를 지정하면 items가 우선하며 selected는 무시한다.
+                options.forEach(function (option) {
+                    if (option._dttlRaw.selected === true || option._dttlRaw.selected === 'true') {
+                        control.picker.addItem(option._dttlID, true);
+                    }
+                });
             }
             if (setting.disabled || el.disabled) {
                 $filtertagtextlist.disable(control.id);
@@ -15797,7 +16051,7 @@
             var control = $filtertagtextlist.requireControl(elID);
 
             if (typeof handler !== 'function') {
-                throw new TypeError('FilterTagTextList: handler must be a function');
+                throw new TypeError('FilterTagTextList: handler는 함수여야 합니다');
             }
             event.split(/\s+/).forEach(function (name) {
                 if (!control.handlers.has(name)) {
@@ -15839,17 +16093,19 @@
             return control;
         },
 
-        getValue(elID) {
+        // meta: 프레임워크가 거래 요청을 만들 때 넘기는 {fieldID, dataType}. useParam:true이면 fieldID에 해당하는 그룹의 param 값(문자열)을 반환하고,
+        // 그 밖에는(meta 없음 포함) 선택한 조건 배열을 반환한다.
+        getValue(elID, meta) {
             var control = $filtertagtextlist.requireControl(elID);
 
+            if (control.settings.useParam === true && meta && typeof meta === 'object' && typeof meta.fieldID === 'string') {
+                return $filtertagtextlist.getParamValue(control.id, meta.fieldID);
+            }
             return control.picker.items.filter(function (id) {
                 return $filtertagtextlist.hasProperty(control.picker.options, id) && control.picker.options[id]._dttlGroup !== $filtertagtextlist.normalGroup;
             }).map(function (id) {
                 var data = control.picker.options[id];
-                var condition = control.conditions.get(id) || {
-                    logic: 'AND',
-                    operator: 'contains'
-                };
+                var condition = control.conditions.get(id) || $filtertagtextlist.getDefaultCondition(control.id);
                 return {
                     groupID: data._dttlGroup,
                     logic: condition.logic,
@@ -15869,7 +16125,7 @@
             options = options || {};
             var groupLogic = options.groupLogic == null ? 'AND' : options.groupLogic;
             if (!['AND', 'OR'].includes(groupLogic)) {
-                throw new TypeError('FilterTagTextList: groupLogic must be AND or OR');
+                throw new TypeError('FilterTagTextList: groupLogic은 AND 또는 OR여야 합니다');
             }
             var labels = Object.assign({
                 AND: '그리고',
@@ -15963,10 +16219,7 @@
                 return $filtertagtextlist.hasProperty(control.picker.options, id) && control.picker.options[id]._dttlGroup === $filtertagtextlist.normalGroup;
             }).map(function (id) {
                 var parts = $filtertagtextlist.getNormalParts(control.picker.options[id]);
-                var condition = control.conditions.get(id) || {
-                    logic: 'AND',
-                    operator: 'contains'
-                };
+                var condition = control.conditions.get(id) || $filtertagtextlist.getDefaultCondition(control.id);
                 return {
                     logic: condition.logic,
                     operator: condition.operator,
@@ -15977,16 +16230,13 @@
         },
 
         // item_add·item_remove·option_change에 전달할 항목 하나의 정보를 반환한다. 일반 텍스트는 groupID 대신 normal: true를 가진다.
-        // 조건 정보가 없으면 기본값 AND, contains를 사용하며 후보가 이미 제거된 경우 id에서 groupID와 key를 얻고 value는 생략한다.
+        // 조건 정보가 없으면 기본값(defaultLogic, defaultOperator. 기본 OR, contains)을 사용하며 후보가 이미 제거된 경우 id에서 groupID와 key를 얻고 value는 생략한다.
         getConditionItem(elID, id) {
             var control = $filtertagtextlist.requireControl(elID);
 
             var data = control.picker.options[id];
             var reference = $filtertagtextlist.getOptionReference(id);
-            var condition = control.conditions.get(id) || {
-                logic: 'AND',
-                operator: 'contains'
-            };
+            var condition = control.conditions.get(id) || $filtertagtextlist.getDefaultCondition(control.id);
             if (reference.groupID === $filtertagtextlist.normalGroup) {
                 var parts = $filtertagtextlist.getNormalParts(data || { _dttlKey: reference.key });
                 return {
@@ -16018,12 +16268,12 @@
                 items = [];
             }
             if (!Array.isArray(items)) {
-                throw new TypeError('FilterTagTextList: normal text must be an array');
+                throw new TypeError('FilterTagTextList: 일반 텍스트는 배열이어야 합니다');
             }
             var prepared = items.map(function (item) {
                 var parts = typeof item === 'string' || typeof item === 'number' ? $filtertagtextlist.parseNormalText(item) : null;
-                var logic = 'AND';
-                var operator = 'contains';
+                var logic = control.settings.defaultLogic;
+                var operator = control.settings.defaultOperator;
                 if (item && typeof item === 'object') {
                     var key = item.key == null ? '' : $filtertagtextlist.normalizeScalar(item.key, 'key', true).trim();
                     var value = $filtertagtextlist.normalizeScalar(item.value, 'value', false).trim();
@@ -16031,11 +16281,11 @@
                     logic = item.logic == null ? logic : item.logic;
                     operator = item.operator == null ? operator : item.operator;
                     if (!['AND', 'OR'].includes(logic) || !$filtertagtextlist.hasProperty($filtertagtextlist.operators, operator)) {
-                        throw new TypeError('FilterTagTextList: invalid logic or operator');
+                        throw new TypeError('FilterTagTextList: logic 또는 operator가 올바르지 않습니다');
                     }
                 }
                 if (!parts) {
-                    throw new TypeError('FilterTagTextList: invalid normal text');
+                    throw new TypeError('FilterTagTextList: 일반 텍스트가 올바르지 않습니다');
                 }
                 return { option: $filtertagtextlist.normalOption(parts.key, parts.value), logic: logic, operator: operator };
             });
@@ -16044,7 +16294,7 @@
                 return !$filtertagtextlist.isNormalID(id);
             }).length;
             if (maxItems != null && others + prepared.length > maxItems) {
-                throw new Error('FilterTagTextList: maxItems exceeded');
+                throw new Error('FilterTagTextList: maxItems를 초과했습니다');
             }
 
             var before = $filtertagtextlist.snapshot(control.id);
@@ -16101,7 +16351,7 @@
 
         normalOption(key, value) {
             if (key.indexOf('\u0000') >= 0) {
-                throw new TypeError('FilterTagTextList: invalid normal text');
+                throw new TypeError('FilterTagTextList: 일반 텍스트가 올바르지 않습니다');
             }
             var internal = key + '\u0000' + value;
             return {
@@ -16154,7 +16404,7 @@
             if (values.some(function (item) {
                 return $filtertagtextlist.getValueType(item, control.settings) !== kind;
             })) {
-                throw new TypeError('FilterTagTextList: mixed arrays are not supported');
+                throw new TypeError('FilterTagTextList: 후보와 일반 텍스트를 섞은 배열은 지원하지 않습니다');
             }
             var prepared = [];
             if (kind === 'condition') {
@@ -16171,7 +16421,7 @@
                 prepared = values.map(function (item) {
                     var id = $filtertagtextlist.resolve(control.id, item);
                     if (!id) {
-                        throw new Error('FilterTagTextList: unknown key ' + item);
+                        throw new Error('FilterTagTextList: 알 수 없는 key입니다: ' + item);
                     }
                     return id;
                 });
@@ -16265,10 +16515,10 @@
                 return;
             }
             if ($filtertagtextlist.isNormalID(id)) {
-                throw new Error('FilterTagTextList: normal text cannot be updated; use setNormalText');
+                throw new Error('FilterTagTextList: 일반 텍스트는 수정할 수 없습니다. setNormalText를 사용하세요');
             }
             if (id !== option._dttlID && $filtertagtextlist.hasProperty(control.picker.options, option._dttlID)) {
-                throw new Error('FilterTagTextList: duplicate groupID + key');
+                throw new Error('FilterTagTextList: groupID와 key가 중복되었습니다');
             }
             var before = $filtertagtextlist.snapshot(control.id);
             var condition = control.conditions.get(id);
@@ -16455,7 +16705,7 @@
                     control.picker.setTextboxValue('');
                 }
                 if (callback) {
-                    callback({ logic: 'AND', operator: 'contains', key: parts.key, value: parts.value });
+                    callback({ logic: control.settings.defaultLogic, operator: control.settings.defaultOperator, key: parts.key, value: parts.value });
                 }
             };
             try {
@@ -16777,7 +17027,7 @@
         requireControl(elID) {
             var control = $filtertagtextlist.getControl(elID);
             if (!control) {
-                throw new Error('FilterTagTextList: control not initialized: ' + elID);
+                throw new Error('FilterTagTextList: 컨트롤이 초기화되지 않았습니다: ' + elID);
             }
             return control;
         },
@@ -16800,7 +17050,7 @@
 
         normalizeScalar(value, field, empty) {
             if (typeof value !== 'string' && typeof value !== 'number' || !empty && String(value) === '') {
-                throw new TypeError('FilterTagTextList: ' + field + ' must be a ' + (empty ? '' : 'nonempty ') + 'string or number');
+                throw new TypeError('FilterTagTextList: ' + field + '은(는) ' + (empty ? '' : '비어 있지 않은 ') + '문자열 또는 숫자여야 합니다');
             }
             return String(value);
         },
@@ -16821,6 +17071,16 @@
             control.cleanups.push(function () {
                 return element.removeEventListener(event, handler, capture);
             });
+        },
+
+        // 조건 정보가 없는 항목의 기본 연결·비교. defaultLogic, defaultOperator 설정(기본 OR, contains)을 반환한다.
+        getDefaultCondition(elID) {
+            var control = $filtertagtextlist.requireControl(elID);
+
+            return {
+                logic: control.settings.defaultLogic,
+                operator: control.settings.defaultOperator
+            };
         },
 
         // 조건 객체는 groupID와 key가 있고 logic·operator는 생략할 수 있다. 다만 후보 스키마가 groupID·key 필드명을 쓰는 컨트롤(optgroupField:'groupID' 또는
@@ -16850,15 +17110,16 @@
             var control = $filtertagtextlist.requireControl(elID);
 
             if (!data || typeof data !== 'object' || Array.isArray(data)) {
-                throw new TypeError('FilterTagTextList: option must be an object');
+                throw new TypeError('FilterTagTextList: option은 객체여야 합니다');
             }
-            var key = $filtertagtextlist.normalizeScalar(data[control.settings.valueField], 'key', false);
+            // key는 빈 문자열도 허용한다('전체'처럼 값이 없는 후보). 내부 ID에 groupID가 들어가므로 그룹이 다르면 같은 빈 key도 충돌하지 않는다.
+            var key = $filtertagtextlist.normalizeScalar(data[control.settings.valueField], 'key', true);
             var groupID = $filtertagtextlist.normalizeScalar(data[control.settings.optgroupField] == null ? '' : data[control.settings.optgroupField], 'groupID', true);
             var value = $filtertagtextlist.normalizeScalar(data[control.settings.labelField], 'value', true);
             if (groupID === $filtertagtextlist.normalGroup) {
                 // 일반 텍스트 전용 그룹은 내부 키(key NUL value)로만 만들 수 있다. 표시값은 내부 키의 value를 사용한다.
                 if (key.indexOf('\u0000') < 0) {
-                    throw new TypeError('FilterTagTextList: reserved groupID: ' + groupID);
+                    throw new TypeError('FilterTagTextList: 예약된 groupID입니다: ' + groupID);
                 }
                 value = $filtertagtextlist.getNormalParts({ _dttlKey: key }).value;
             }
@@ -16875,13 +17136,13 @@
             var control = $filtertagtextlist.requireControl(elID);
 
             var groupID = $filtertagtextlist.normalizeScalar(data.groupID, 'groupID', true);
-            var key = $filtertagtextlist.normalizeScalar(data.key, 'key', false);
+            var key = $filtertagtextlist.normalizeScalar(data.key, 'key', true);
             var value = $filtertagtextlist.normalizeScalar(data.value, 'value', true);
-            // logic, operator를 생략하면 AND, contains를 사용한다.
-            var logic = data.logic == null ? 'AND' : data.logic;
-            var operator = data.operator == null ? 'contains' : data.operator;
+            // logic, operator를 생략하면 defaultLogic, defaultOperator(기본 OR, contains)를 사용한다.
+            var logic = data.logic == null ? control.settings.defaultLogic : data.logic;
+            var operator = data.operator == null ? control.settings.defaultOperator : data.operator;
             if (!['AND', 'OR'].includes(logic) || !$filtertagtextlist.hasProperty($filtertagtextlist.operators, operator)) {
-                throw new TypeError('FilterTagTextList: invalid logic or operator');
+                throw new TypeError('FilterTagTextList: logic 또는 operator가 올바르지 않습니다');
             }
             return {
                 groupID: groupID,
@@ -16909,14 +17170,15 @@
                 return value.dataset.value;
             }
             if (value && typeof value === 'object') {
-                return $filtertagtextlist.getOptionID($filtertagtextlist.normalizeScalar(value.groupID, 'groupID', true), $filtertagtextlist.normalizeScalar(value.key, 'key', false));
+                return $filtertagtextlist.getOptionID($filtertagtextlist.normalizeScalar(value.groupID, 'groupID', true), $filtertagtextlist.normalizeScalar(value.key, 'key', true));
             }
-            var key = $filtertagtextlist.normalizeScalar(value, 'key', false);
+            // 빈 문자열('')은 빈 key를 가진 후보를 찾는다. 여러 그룹에 있으면 모호하므로 {groupID, key}를 사용해야 한다.
+            var key = $filtertagtextlist.normalizeScalar(value, 'key', true);
             var matches = Object.keys(control.picker.options).filter(function (id) {
                 return control.picker.options[id]._dttlKey === key;
             });
             if (matches.length > 1) {
-                throw new Error('FilterTagTextList: ambiguous key; use {groupID, key}');
+                throw new Error('FilterTagTextList: key가 모호합니다. {groupID, key}를 사용하세요');
             }
             return matches[0];
         },
@@ -16926,6 +17188,13 @@
 
             if (event === 'initialize' || event === 'destroy' || !control.ready || control.destroyed) {
                 return;
+            }
+            // groupChangeClearsText:true이면 그룹 버튼의 목록이 열린 동안 후보 그룹의 선택이 바뀔 때(선택·해제·전체 토글) 일반 텍스트를 지운다.
+            // 범위 조건과 일반 텍스트 자신의 변경은 제외하며, 옵션이 정리되기 전에 판단한다.
+            var groupChange = false;
+            if (control.settings.groupChangeClearsText === true && control.navFilter && (event === 'item_add' || event === 'item_remove')) {
+                var changed = control.picker.options[args[0]];
+                groupChange = !!changed && changed._dttlGroup !== $filtertagtextlist.normalGroup && $filtertagtextlist.getRangeKind(control.id, changed._dttlGroup) === '';
             }
             if (event === 'change') {
                 $filtertagtextlist.writeValue(control.id);
@@ -16963,12 +17232,45 @@
                 $filtertagtextlist.purgeRangeOptions(control.id);
                 $filtertagtextlist.purgeNormalOptions(control.id);
             }
+            if (event === 'item_add' || event === 'clear' || event === 'blur') {
+                $filtertagtextlist.hideSuggest(control.id);
+            }
+            if (control.settings.groupNavMode === 'menu' && control.nav) {
+                if (event === 'dropdown_close' && control.navFilter) {
+                    // 목록이 닫히면 다음에 여는 목록(포커스·입력)은 모든 그룹을 보여준다.
+                    control.navFilter = '';
+                    control.menuAnchor = null;
+                    control.picker.refreshOptions(false);
+                }
+                if (event === 'dropdown_open' || event === 'dropdown_close' || event === 'change' || event === 'item_add' || event === 'item_remove' || event === 'clear' || event === 'option_add' || event === 'option_remove') {
+                    // 그룹 버튼의 열림 표시와 선택할 후보가 없는 그룹의 비활성 상태, 새로 생기거나 없어진 그룹 버튼을 반영한다.
+                    $filtertagtextlist.updateGroupNav(control.id);
+                }
+            }
             $filtertagtextlist.writeValue(control.id);
             $filtertagtextlist.trigger(control.id, event, ...args);
+            if (groupChange) {
+                $filtertagtextlist.clearNormalItems(control.id);
+            }
             if (event === 'focus' && control.settings.preload === 'focus' && !control.preloaded && control.destroyed !== true) {
                 control.preloaded = true;
                 $filtertagtextlist.load(control.id, '');
             }
+        },
+
+        // 일반 텍스트 태그를 모두 지운다(후보·범위 조건은 지우지 않는다). 태그마다 item_remove 이벤트가 발생한다. groupChangeClearsText에서 사용한다.
+        clearNormalItems(elID) {
+            var control = $filtertagtextlist.requireControl(elID);
+
+            var picker = control.picker;
+            if (picker.isLocked || picker.isDisabled || control.destroyed) {
+                return;
+            }
+            picker.items.filter(function (id) {
+                return $filtertagtextlist.isNormalID(id);
+            }).forEach(function (id) {
+                picker.removeItem(id);
+            });
         },
 
         writeValue(elID) {
@@ -17030,12 +17332,27 @@
             });
             control.picker.control.querySelectorAll('.dttl-group').forEach(function (group) {
                 var disabled = control.picker.isLocked || control.picker.isDisabled;
+                if (group.closest('.dttl-fixed')) {
+                    return;
+                }
                 group.tabIndex = disabled ? -1 : 0;
                 group.setAttribute('aria-disabled', String(disabled));
+            });
+            control.picker.control.querySelectorAll('.dttl-fixed .dttl-edit').forEach(function (button) {
+                button.tabIndex = -1;
             });
             if (control.ranges) {
                 control.ranges.querySelectorAll('button').forEach(function (button) {
                     var range = $filtertagtextlist.getRange(control.id, button.dataset.group);
+                    var active = range.start !== '' || range.end !== '';
+                    button.disabled = control.picker.isLocked || control.picker.isDisabled;
+                    button.classList.toggle('dttl-range-active', active);
+                    button.setAttribute('aria-pressed', String(active));
+                });
+            }
+            if (control.nav) {
+                control.nav.querySelectorAll('button[data-range-group]').forEach(function (button) {
+                    var range = $filtertagtextlist.getRange(control.id, button.dataset.rangeGroup);
                     var active = range.start !== '' || range.end !== '';
                     button.disabled = control.picker.isLocked || control.picker.isDisabled;
                     button.classList.toggle('dttl-range-active', active);
@@ -17080,11 +17397,13 @@
             if ($filtertagtextlist.getRangeSide(control.id, id)) {
                 return $filtertagtextlist.openRange(control.id, $filtertagtextlist.getOptionReference(id).groupID, item);
             }
+            // conditionEditable:false이면 연결·비교 편집창을 열지 않는다(range 태그의 범위 편집창은 위에서 열린다).
+            if (control.settings.conditionEditable === false) {
+                return;
+            }
+            $filtertagtextlist.hideSuggest(control.id);
             $filtertagtextlist.closeEditor(control.id, false);
-            var current = control.conditions.get(id) || {
-                logic: 'AND',
-                operator: 'contains'
-            };
+            var current = control.conditions.get(id) || $filtertagtextlist.getDefaultCondition(control.id);
             control.picker.close();
             var editor = document.createElement('div');
             editor.className = 'dttl-editor';
@@ -17193,11 +17512,12 @@
                 return value;
             }
 
-            throw new TypeError('FilterTagTextList: ' + name + ' must be auto' +
-                (name === 'dropdownWidth' ? ', 100%, or' : ' or') + ' a positive pixel value');
+            throw new TypeError('FilterTagTextList: ' + name + '은(는) auto' +
+                (name === 'dropdownWidth' ? ', 100% 또는' : ' 또는') + ' 양의 픽셀 값이어야 합니다');
         },
 
         // 드롭다운 목록 위쪽에 optgroup으로 바로 이동하는 버튼 그룹을 만든다. 보이는 그룹이 둘 이상일 때만 표시한다(groupNav:false이면 만들지 않는다).
+        // rangeLayout:'nav'이면 같은 버튼 그룹 끝에 range 그룹의 범위 버튼(년월일·년월·시간)도 넣으며, 누르면 범위 편집창을 연다.
         createGroupNav(elID) {
             var control = $filtertagtextlist.requireControl(elID);
 
@@ -17210,15 +17530,43 @@
             control.navSignature = '';
             control.navActive = '';
             control.navUntil = 0;
-            control.picker.dropdown.insertBefore(nav, control.picker.dropdown_content);
-            // 버튼을 눌러도 입력 영역의 포커스를 유지하여 드롭다운이 닫히지 않게 한다.
+            var menu = control.settings.groupNavMode === 'menu';
+            if (menu) {
+                // 입력 영역 안쪽 왼쪽에 버튼을 고정하고, 버튼을 누르면 그 버튼 아래에 해당 그룹의 목록을 연다.
+                nav.classList.add('dttl-nav-inline');
+                // TomSelect는 입력 영역 안에서 앞쪽 형제 요소의 개수로 항목 위치(삭제·캐럿)를 계산하므로 항목보다 앞에 DOM을 두면 위치가 어긋난다.
+                // 버튼 줄은 DOM 맨 뒤에 붙이고 CSS order로 화면의 맨 앞에 보여준다.
+                control.picker.control.append(nav);
+            }
+            else {
+                control.picker.dropdown.insertBefore(nav, control.picker.dropdown_content);
+            }
+            // 버튼을 눌러도 입력 영역의 포커스를 유지하여 드롭다운이 닫히지 않게 한다. 입력 영역 안의 버튼은 TomSelect의 입력 영역 mousedown 처리도 막는다.
             $filtertagtextlist.listen(control.id, nav, 'mousedown', function (event) {
                 event.preventDefault();
+                if (menu) {
+                    event.stopPropagation();
+                }
             });
             $filtertagtextlist.listen(control.id, nav, 'click', function (event) {
+                if (menu) {
+                    // 열려 있는 목록에서 입력 영역을 누르면 TomSelect가 blur하여 닫으므로 click도 전파하지 않는다.
+                    event.stopPropagation();
+                }
+                var rangeButton = event.target.closest('button[data-range-group]');
+                if (rangeButton && nav.contains(rangeButton)) {
+                    // 드롭다운이 닫히므로 편집창은 menu 모드에서는 누른 버튼 아래에, 그 밖에는 입력 영역 아래에 표시한다.
+                    $filtertagtextlist.openRange(control.id, rangeButton.dataset.rangeGroup, menu ? rangeButton : control.picker.control);
+                    return;
+                }
                 var button = event.target.closest('button[data-group]');
                 if (button && nav.contains(button)) {
-                    $filtertagtextlist.scrollToGroup(control.id, button.dataset.group);
+                    if (menu) {
+                        $filtertagtextlist.toggleGroupMenu(control.id, button.dataset.group, button);
+                    }
+                    else {
+                        $filtertagtextlist.scrollToGroup(control.id, button.dataset.group);
+                    }
                 }
             });
             var frame = 0;
@@ -17238,6 +17586,7 @@
                     cancelAnimationFrame(frame);
                 }
             });
+            $filtertagtextlist.updateGroupNav(control.id);
         },
 
         // 현재 목록에 그려진 optgroup(헤더가 있는 것)을 반환한다. 범위 그룹처럼 후보가 없는 그룹은 포함되지 않는다.
@@ -17255,11 +17604,31 @@
             if (!control.nav) {
                 return;
             }
-            var groups = $filtertagtextlist.getRenderedGroups(control.id);
+            // 그룹 버튼은 groupNav:false이거나 (scroll 모드에서) 그룹이 하나뿐이면 만들지 않는다. 범위 버튼(rangeLayout:'nav')은 range 그룹이 있으면 항상 만든다.
+            // menu 모드는 누른 그룹만 목록에 그려지므로 후보 데이터에서 그룹을 구하며 그룹이 하나여도 버튼을 만든다.
+            var menuMode = control.settings.groupNavMode === 'menu';
+            var groups = control.settings.groupNav === false ? [] : menuMode ? $filtertagtextlist.getFilterGroups(control.id) : $filtertagtextlist.getRenderedGroups(control.id).map(function (group) {
+                return { id: group.dataset.group, label: group.querySelector('.optgroup-header').textContent };
+            });
+            if (groups.length < 2 && !menuMode) {
+                groups = [];
+            }
+            if (control.navFilter && !groups.some(function (group) { return group.id === control.navFilter; })) {
+                // 고른 그룹의 후보가 없어졌으면 전체 목록으로 되돌리고 다시 그린다(refreshOptions가 이 함수를 다시 부르므로 무한 반복하지 않는다).
+                control.navFilter = '';
+                control.menuAnchor = null;
+                control.picker.refreshOptions(false);
+                return;
+            }
+            var ranges = control.settings.rangeLayout === 'nav' ? Object.keys(control.picker.optgroups).filter(function (groupID) {
+                return $filtertagtextlist.getRangeKind(control.id, groupID) !== '';
+            }) : [];
             var signature = groups.map(function (group) {
-                return group.dataset.group + '\u0000' + group.querySelector('.optgroup-header').textContent;
-            }).join('\u0001');
-            var visible = groups.length >= 2;
+                return group.id + '\u0000' + group.label;
+            }).concat(ranges.map(function (groupID) {
+                return 'range\u0000' + groupID + '\u0000' + $filtertagtextlist.getRangeLabel(control.id, groupID);
+            })).join('\u0001');
+            var visible = groups.length > 0 || ranges.length > 0;
             if (signature !== control.navSignature) {
                 control.navSignature = signature;
                 control.navActive = '';
@@ -17267,29 +17636,262 @@
                 var buttons = document.createElement('div');
                 buttons.className = 'btn-group';
                 buttons.setAttribute('role', 'group');
+                var size = menuMode ? ' btn-sm' : '';
                 groups.forEach(function (group) {
                     var button = document.createElement('button');
                     button.type = 'button';
-                    button.className = 'btn';
+                    button.className = 'btn' + size;
                     button.tabIndex = -1;
-                    button.dataset.group = group.dataset.group;
-                    button.textContent = group.querySelector('.optgroup-header').textContent;
+                    button.dataset.group = group.id;
+                    if (menuMode) {
+                        // 선택한 값을 이어 붙이면 길어지므로 글자만 줄임표로 자르고 목록을 여는 화살표(::after)는 항상 보이게 한다.
+                        var text = document.createElement('span');
+                        text.className = 'dttl-nav-text';
+                        text.textContent = group.label;
+                        button.append(text);
+                        button.setAttribute('aria-haspopup', 'listbox');
+                        button.setAttribute('aria-expanded', 'false');
+                    }
+                    else {
+                        button.textContent = group.label;
+                    }
+                    buttons.append(button);
+                });
+                ranges.forEach(function (groupID) {
+                    var label = $filtertagtextlist.getRangeLabel(control.id, groupID);
+                    var button = document.createElement('button');
+                    button.type = 'button';
+                    button.className = 'btn dttl-nav-range' + size;
+                    button.tabIndex = -1;
+                    button.dataset.rangeGroup = groupID;
+                    button.dataset.range = $filtertagtextlist.getRangeKind(control.id, groupID);
+                    if (menuMode) {
+                        var rangeText = document.createElement('span');
+                        rangeText.className = 'dttl-nav-text';
+                        rangeText.textContent = label;
+                        button.append(rangeText);
+                    }
+                    else {
+                        button.textContent = label;
+                    }
+                    button.setAttribute('aria-label', label.replace(' · ', ' ') + ' 범위 입력');
                     buttons.append(button);
                 });
                 control.nav.append(buttons);
+                $filtertagtextlist.updateButtons(control.id);
+                if (control.navFilter) {
+                    // 버튼을 다시 만들었으면 열려 있는 목록의 기준 버튼도 새 버튼으로 바꾼다.
+                    control.menuAnchor = Array.from(control.nav.querySelectorAll('button[data-group]')).find(function (button) {
+                        return button.dataset.group === control.navFilter;
+                    }) || null;
+                }
             }
             control.nav.hidden = !visible;
-            control.picker.dropdown.classList.toggle('dttl-has-nav', visible);
-            if (visible) {
-                $filtertagtextlist.syncGroupNav(control.id);
+            if (menuMode) {
+                $filtertagtextlist.updateNavLabels(control.id);
+                $filtertagtextlist.markGroupMenu(control.id);
+                // 글자가 바뀌어 버튼 폭이 달라지면 열려 있는 목록의 최소 폭도 다시 맞춘다.
+                $filtertagtextlist.alignGroupMenu(control.id);
             }
+            else {
+                control.picker.dropdown.classList.toggle('dttl-has-nav', visible);
+                if (visible) {
+                    $filtertagtextlist.syncGroupNav(control.id);
+                }
+            }
+        },
+
+        // menu 모드에서 그룹 버튼에 표시할 그룹을 후보 데이터에서 구한다(범위·일반 텍스트 그룹과 후보가 없는 그룹은 제외).
+        getFilterGroups(elID) {
+            var control = $filtertagtextlist.requireControl(elID);
+
+            var picker = control.picker;
+            var present = {};
+            Object.keys(picker.options).forEach(function (id) {
+                present[picker.options[id]._dttlGroup] = true;
+            });
+            return Object.keys(picker.optgroups).filter(function (groupID) {
+                return groupID !== $filtertagtextlist.normalGroup && present[groupID] === true && picker.optgroups[groupID].label != null &&
+                    $filtertagtextlist.getRangeKind(control.id, groupID) === '';
+            }).map(function (groupID) {
+                return { id: groupID, label: String(picker.optgroups[groupID].label) };
+            });
+        },
+
+        // groupSelectAll:true일 때 그룹의 빈 key 후보('전체')를 누르면 호출한다. 그 그룹의 후보(빈 key 후보 포함)가 모두 선택되어 있으면 모두 해제하고,
+        // 하나라도 선택되지 않았으면 모두 선택한다. 선택·해제는 후보를 하나씩 선택·해제할 때와 같은 이벤트를 발생시킨다.
+        toggleGroupAll(elID, groupID) {
+            var control = $filtertagtextlist.requireControl(elID);
+
+            var picker = control.picker;
+            if (picker.isLocked || picker.isDisabled || control.destroyed) {
+                return;
+            }
+            var ids = Object.keys(picker.options).filter(function (id) {
+                return picker.options[id]._dttlGroup === groupID;
+            });
+            var all = ids.length > 0 && ids.every(function (id) {
+                return picker.items.includes(id);
+            });
+            ids.forEach(function (id) {
+                if (all) {
+                    picker.removeItem(id);
+                }
+                else if (!picker.items.includes(id)) {
+                    picker.addItem(id);
+                }
+            });
+            picker.lastQuery = null;
+            picker.refreshOptions(false);
+        },
+
+        // menu 모드: 그룹 버튼을 누르면 그 버튼 아래에 해당 그룹의 후보만 목록으로 연다. 열려 있는 같은 버튼을 다시 누르면 닫고,
+        // 다른 버튼을 누르면 목록을 그 그룹으로 바꾼다. 입력창의 텍스트와 포커스는 그대로 두며 검색어는 그 그룹 안에서만 찾는다.
+        toggleGroupMenu(elID, groupID, anchor) {
+            var control = $filtertagtextlist.requireControl(elID);
+
+            var picker = control.picker;
+            if (picker.isLocked || picker.isDisabled || control.destroyed) {
+                return;
+            }
+            groupID = String(groupID);
+            $filtertagtextlist.hideSuggest(control.id);
+            $filtertagtextlist.closeEditor(control.id, false);
+            if (picker.isOpen && control.navFilter === groupID) {
+                picker.close();
+                return;
+            }
+            control.navFilter = groupID;
+            control.menuAnchor = anchor || null;
+            if (!picker.isFocused) {
+                picker.focus();
+            }
+            picker.refreshOptions(false);
+            if (!picker.isOpen) {
+                picker.open();
+            }
+            picker.dropdown_content.scrollTop = 0;
+            picker.positionDropdown();
+            $filtertagtextlist.markGroupMenu(control.id);
+        },
+
+        // selectedDisplay:'text'이면 그룹 버튼 글자에 선택한 값을 콤마로 이어 붙이고(예: 직위 명: 팀장, 부장) 범위 버튼에는 선택한 범위를 보여준다.
+        // 선택한 값이 있는 버튼은 dttl-has-value로 표시하며 전체 글자는 title로도 제공한다. 'tag'이면 항상 기본 이름이다.
+        updateNavLabels(elID) {
+            var control = $filtertagtextlist.requireControl(elID);
+
+            if (!control.nav) {
+                return;
+            }
+            var picker = control.picker;
+            var text = control.settings.selectedDisplay === 'text';
+            var values = {};
+            if (text) {
+                picker.items.forEach(function (id) {
+                    var option = picker.options[id];
+                    if (!option || option._dttlGroup === $filtertagtextlist.normalGroup || $filtertagtextlist.getRangeKind(control.id, option._dttlGroup) !== '') {
+                        return;
+                    }
+                    (values[option._dttlGroup] = values[option._dttlGroup] || []).push(String(option._dttlLabel));
+                });
+            }
+            Array.from(control.nav.querySelectorAll('button[data-group]')).forEach(function (button) {
+                var group = picker.optgroups[button.dataset.group];
+                var base = group && group.label != null ? String(group.label) : button.dataset.group;
+                var names = values[button.dataset.group] || [];
+                var full = names.length ? base + ': ' + names.join(', ') : base;
+                // 선택한 값이 있으면 버튼에는 값만(예: 부장, 팀장) 보이고 그룹 이름을 포함한 전체 글자는 툴팁(title)과 접근성 이름으로 제공한다.
+                var shown = names.length ? names.join(', ') : base;
+                var target = button.querySelector('.dttl-nav-text') || button;
+                if (target.textContent !== shown) {
+                    target.textContent = shown;
+                }
+                button.title = names.length ? full : '';
+                button.setAttribute('aria-label', full);
+                button.classList.toggle('dttl-has-value', names.length > 0);
+            });
+            Array.from(control.nav.querySelectorAll('button[data-range-group]')).forEach(function (button) {
+                var groupID = button.dataset.rangeGroup;
+                var base = $filtertagtextlist.getRangeLabel(control.id, groupID);
+                var range = text ? $filtertagtextlist.getRange(control.id, groupID) : { start: '', end: '' };
+                var group = picker.optgroups[groupID];
+                var groupLabel = group && group.label != null ? String(group.label) : groupID || '기타';
+                var set = range.start !== '' || range.end !== '';
+                var value = [range.start !== '' ? range.start : '', '~', range.end].filter(Boolean).join(' ');
+                var full = set ? groupLabel + ': ' + value : base;
+                // 범위를 선택했으면 버튼에는 값만(예: 2026-01-01 ~ 2026-01-31) 보이고 그룹 이름을 포함한 전체 글자는 title과 접근성 이름으로 제공한다.
+                var shown = set ? value : base;
+                var target = button.querySelector('.dttl-nav-text') || button;
+                if (target.textContent !== shown) {
+                    target.textContent = shown;
+                }
+                button.title = set ? full : '';
+                button.setAttribute('aria-label', set ? full : base.replace(' · ', ' ') + ' 범위 입력');
+            });
+        },
+
+        // 열린 그룹 버튼을 활성으로 표시하고, 선택하지 않은 후보가 없는 그룹의 버튼은 비활성으로 한다(열려 있는 버튼은 닫을 수 있도록 유지).
+        markGroupMenu(elID) {
+            var control = $filtertagtextlist.requireControl(elID);
+
+            if (!control.nav) {
+                return;
+            }
+            var picker = control.picker;
+            var available = {};
+            Object.keys(picker.options).forEach(function (id) {
+                var option = picker.options[id];
+                if (!picker.settings.hideSelected || !picker.items.includes(id)) {
+                    available[option._dttlGroup] = true;
+                }
+            });
+            Array.from(control.nav.querySelectorAll('button[data-group]')).forEach(function (button) {
+                var active = picker.isOpen && button.dataset.group === control.navFilter;
+                button.classList.toggle('active', active);
+                button.setAttribute('aria-expanded', String(active));
+                button.disabled = !active && available[button.dataset.group] !== true;
+            });
+        },
+
+        // 메뉴(목록)를 연 그룹 버튼 아래로 드롭다운을 옮긴다. 버튼 폭과 내용에 맞추되 입력 영역 오른쪽을 넘지 않게 하고, 메뉴가 아니면 원래 위치로 되돌린다.
+        alignGroupMenu(elID) {
+            var control = $filtertagtextlist.requireControl(elID);
+
+            var picker = control.picker;
+            var dropdown = picker.dropdown;
+            var anchor = control.menuAnchor;
+            if (!anchor || !control.navFilter || !anchor.isConnected || !picker.isOpen) {
+                if (control.menuAligned) {
+                    control.menuAligned = false;
+                    dropdown.classList.remove('dttl-group-menu');
+                    dropdown.style.left = '';
+                    dropdown.style.top = '';
+                    dropdown.style.minWidth = '';
+                }
+                return;
+            }
+            dropdown.classList.add('dttl-group-menu');
+            var body = picker.settings.dropdownParent === 'body';
+            var wrapper = picker.wrapper.getBoundingClientRect();
+            var rect = anchor.getBoundingClientRect();
+            var limit = body ? document.documentElement.clientWidth : wrapper.width;
+            control.menuAligned = true;
+            dropdown.style.minWidth = Math.max(Math.ceil(rect.width), 140) + 'px';
+            dropdown.style.maxWidth = Math.max(1, limit) + 'px';
+            dropdown.style.width = 'max-content';
+            var left = body ? rect.left + window.scrollX : rect.left - wrapper.left;
+            var top = body ? rect.bottom + window.scrollY : rect.bottom - wrapper.top;
+            var offset = body ? window.scrollX : 0;
+            left = Math.max(offset, Math.min(left, offset + limit - dropdown.offsetWidth));
+            dropdown.style.left = left + 'px';
+            dropdown.style.top = top + 'px';
         },
 
         // 상단에 닿은 헤더의 그룹 버튼을 활성으로 표시한다.
         syncGroupNav(elID) {
             var control = $filtertagtextlist.requireControl(elID);
 
-            if (!control.nav || control.nav.hidden) {
+            if (!control.nav || control.nav.hidden || control.settings.groupNavMode === 'menu') {
                 return;
             }
             var content = control.picker.dropdown_content;
@@ -17382,7 +17984,7 @@
             }
             else {
                 dropdown.style.height = height;
-                content.style.height = control.nav && !control.nav.hidden ? 'calc(100% - ' + control.nav.offsetHeight + 'px)' : '100%';
+                content.style.height = control.nav && !control.nav.hidden && control.nav.parentNode === dropdown ? 'calc(100% - ' + control.nav.offsetHeight + 'px)' : '100%';
                 content.style.maxHeight = 'none';
                 content.style.boxSizing = 'border-box';
             }
@@ -17408,6 +18010,7 @@
             else {
                 dropdown.style.width = width;
             }
+            $filtertagtextlist.alignGroupMenu(control.id);
         },
 
         positionEditor(elID) {
@@ -17488,12 +18091,12 @@
                 return;
             }
             if (!$filtertagtextlist.hasProperty($filtertagtextlist.ranges, group.range)) {
-                throw new TypeError('FilterTagTextList: range must be date, month or time');
+                throw new TypeError('FilterTagTextList: range는 date, month 또는 time이어야 합니다');
             }
             var min = $filtertagtextlist.parseRangeValue(group.range, group.min);
             var max = $filtertagtextlist.parseRangeValue(group.range, group.max);
             if (min && max && min > max) {
-                throw new TypeError('FilterTagTextList: min must not be later than max');
+                throw new TypeError('FilterTagTextList: min은 max보다 늦을 수 없습니다');
             }
         },
 
@@ -17677,7 +18280,7 @@
             groupID = String(groupID);
             var kind = $filtertagtextlist.getRangeKind(control.id, groupID);
             if (!kind) {
-                throw new Error('FilterTagTextList: not a range group: ' + groupID);
+                throw new Error('FilterTagTextList: 범위 그룹이 아닙니다: ' + groupID);
             }
             var conditions = $filtertagtextlist.buildRange(kind, start, end, $filtertagtextlist.getRangeLimit(control.id, groupID));
             var previous = control.picker.items.filter(function (id) {
@@ -17685,7 +18288,7 @@
             });
             var maxItems = control.picker.settings.maxItems;
             if (maxItems != null && control.picker.items.length - previous.length + conditions.length > maxItems) {
-                throw new Error('FilterTagTextList: maxItems exceeded');
+                throw new Error('FilterTagTextList: maxItems를 초과했습니다');
             }
 
             var before = $filtertagtextlist.snapshot(control.id);
@@ -17742,10 +18345,495 @@
             });
         },
 
+        // suggest 옵션(함수)을 제공하면 입력한 텍스트를 제공자에게 넘겨 [{label, key?, count?, items:[값|{value}]}]를 받아 2단 팝업으로 보여준다.
+        // 1차 팝업은 그룹(예: 그리드 컬럼)과 일치 개수, 2차 팝업은 선택한 그룹의 값 목록이다. 값을 고르면 key(생략하면 label)와 value의 일반 텍스트로 추가한다.
+        // 제공자가 그룹을 하나도 돌려주지 않으면 기존 후보 드롭다운을 그대로 사용하고, 그룹이 있으면 팝업이 떠 있는 동안 후보 드롭다운은 열지 않는다.
+        createSuggest(elID) {
+            var control = $filtertagtextlist.requireControl(elID);
+
+            var root = document.createElement('div');
+            // suggestLevel:1이면 1차 팝업(그룹 목록)만 입력 중인 글자 아래에 보여주고, 선택하면 입력한 텍스트가 그 그룹(key)의 일반 텍스트가 된다.
+            var single = control.settings.suggestLevel === 1;
+            root.className = 'dttl-suggest' + (single ? ' dttl-suggest-single' : '');
+            root.hidden = true;
+            var groupMenu = document.createElement('div');
+            groupMenu.className = 'dttl-suggest-menu dttl-suggest-groups';
+            groupMenu.setAttribute('role', 'listbox');
+            groupMenu.setAttribute('aria-label', '일치하는 항목 그룹');
+            var itemMenu = document.createElement('div');
+            itemMenu.className = 'dttl-suggest-menu dttl-suggest-items';
+            itemMenu.setAttribute('role', 'listbox');
+            itemMenu.setAttribute('aria-label', '일치하는 값');
+            root.append(groupMenu, itemMenu);
+            control.container.append(root);
+            control.suggest = {
+                root: root,
+                groupMenu: groupMenu,
+                itemMenu: itemMenu,
+                groups: [],
+                query: '',
+                sequence: 0,
+                groupIndex: 0,
+                itemIndex: 0,
+                level: 0,
+                visible: false
+            };
+            var input = control.picker.control_input;
+            var originalOpen = control.picker.open;
+            // 팝업이 떠 있는 동안에는 후보 드롭다운이 같은 자리를 가리지 않도록 열지 않는다.
+            control.picker.open = function () {
+                if (control.suggest.visible && !control.destroyed) {
+                    return;
+                }
+                return originalOpen.apply(control.picker, arguments);
+            };
+            // 팝업을 눌러도 입력 영역의 포커스를 유지한다. TomSelect는 자신의 래퍼·드롭다운 밖의 mousedown을 문서에서 받아 blur하므로 전파도 막는다.
+            $filtertagtextlist.listen(control.id, root, 'mousedown', function (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            });
+            $filtertagtextlist.listen(control.id, root, 'click', function (event) {
+                var row = event.target.closest('.dttl-suggest-row');
+                if (!row || !root.contains(row)) {
+                    return;
+                }
+                if (row.parentElement === groupMenu) {
+                    if (single) {
+                        if (row.getAttribute('aria-disabled') !== 'true') {
+                            $filtertagtextlist.selectSuggest(control.id, Number(row.dataset.index), 0);
+                        }
+                        return;
+                    }
+                    $filtertagtextlist.setSuggestGroup(control.id, Number(row.dataset.index), 1);
+                }
+                else if (row.getAttribute('aria-disabled') !== 'true') {
+                    $filtertagtextlist.selectSuggest(control.id, control.suggest.groupIndex, Number(row.dataset.index));
+                }
+            });
+            $filtertagtextlist.listen(control.id, groupMenu, 'mouseover', function (event) {
+                var row = event.target.closest('.dttl-suggest-row');
+                if (!single && row && groupMenu.contains(row) && Number(row.dataset.index) !== control.suggest.groupIndex) {
+                    $filtertagtextlist.setSuggestGroup(control.id, Number(row.dataset.index), 0);
+                }
+            });
+            $filtertagtextlist.listen(control.id, input, 'input', function () {
+                $filtertagtextlist.updateSuggest(control.id);
+            });
+            $filtertagtextlist.listen(control.id, input, 'blur', function () {
+                $filtertagtextlist.hideSuggest(control.id);
+            });
+            // 한글 조합 중에는 TomSelect의 방향키·Enter 처리와 같이 건너뛴다(조합 검사 핸들러가 먼저 등록되어 있다).
+            $filtertagtextlist.listen(control.id, input, 'keydown', function (event) {
+                $filtertagtextlist.onSuggestKey(control.id, event);
+            }, true);
+        },
+
+        updateSuggest(elID) {
+            var control = $filtertagtextlist.requireControl(elID);
+
+            var state = control.suggest;
+            var query = control.picker.control_input.value.trim();
+            var sequence = ++state.sequence;
+            // 그룹 버튼으로 연 목록(menu 모드)이 있으면 입력한 글자는 그 목록 안에서 찾으므로 추천 팝업은 띄우지 않는다.
+            if (!query || control.navFilter || control.picker.isLocked || control.picker.isDisabled) {
+                $filtertagtextlist.hideSuggest(control.id);
+                return;
+            }
+            var finish = function (result) {
+                if (control.destroyed || sequence !== state.sequence) {
+                    return;
+                }
+                var groups = $filtertagtextlist.normalizeSuggest(result, control.settings.suggestLevel === 1);
+                if (!groups.length) {
+                    $filtertagtextlist.hideSuggest(control.id);
+                    return;
+                }
+                state.query = query;
+                state.groups = groups;
+                state.groupIndex = 0;
+                state.itemIndex = 0;
+                state.level = 0;
+                state.visible = true;
+                // TomSelect.close()는 입력창을 비운다. 한글 조합 중에 값을 지우거나 다시 쓰면 조합이 깨지므로(예: 신 → 시신)
+                // 닫는 동안만 setTextboxValue를 무력화해 입력창 값을 건드리지 않는다.
+                if (control.picker.isOpen) {
+                    var picker = control.picker;
+                    picker.setTextboxValue = function () { };
+                    try {
+                        picker.close();
+                    }
+                    finally {
+                        delete picker.setTextboxValue;
+                    }
+                }
+                $filtertagtextlist.renderSuggest(control.id);
+            };
+            try {
+                var result = control.settings.suggest.call(control, query);
+                if (result && typeof result.then === 'function') {
+                    result.then(finish, function (error) {
+                        console.warn(error);
+                        finish([]);
+                    });
+                }
+                else {
+                    finish(result);
+                }
+            } catch (error) {
+                console.warn(error);
+                finish([]);
+            }
+        },
+
+        // 제공자의 결과를 {id, label, key, count, items:[{value}]}로 정리한다. 값이 없는 항목과 항목이 없는 그룹은 버린다.
+        // 1단 모드(single, suggestLevel:1)는 입력한 텍스트가 값이 되므로 items가 없어도 이름(label 또는 key)이 있는 그룹을 유지한다.
+        normalizeSuggest(result, single) {
+            if (!Array.isArray(result)) {
+                return [];
+            }
+            var groups = [];
+            result.forEach(function (group, index) {
+                if (!group || (!single && !Array.isArray(group.items))) {
+                    return;
+                }
+                var items = [];
+                (Array.isArray(group.items) ? group.items : []).forEach(function (item) {
+                    var value = item && typeof item === 'object' ? item.value : item;
+                    if ((typeof value === 'string' || typeof value === 'number') && String(value).trim() !== '') {
+                        items.push({ value: String(value).trim() });
+                    }
+                });
+                var label = group.label == null ? (group.key == null ? '' : String(group.key)) : String(group.label);
+                if ((!single && !items.length) || label === '') {
+                    return;
+                }
+                groups.push({
+                    id: String(group.id == null ? index : group.id),
+                    label: label,
+                    key: group.key == null ? label : String(group.key),
+                    count: Number.isFinite(group.count) ? group.count : items.length,
+                    items: items
+                });
+            });
+            return groups;
+        },
+
+        // 일치한 글자를 <mark>로 강조하여 요소에 채운다(텍스트 노드만 사용하므로 HTML 이스케이프가 필요 없다).
+        fillMarked(element, text, query) {
+            element.textContent = '';
+            var lower = text.toLowerCase();
+            var needle = query.toLowerCase();
+            var from = 0;
+            var index = needle ? lower.indexOf(needle) : -1;
+            while (index >= 0) {
+                if (index > from) {
+                    element.append(document.createTextNode(text.slice(from, index)));
+                }
+                var mark = document.createElement('mark');
+                mark.textContent = text.slice(index, index + needle.length);
+                element.append(mark);
+                from = index + needle.length;
+                index = lower.indexOf(needle, from);
+            }
+            if (from < text.length) {
+                element.append(document.createTextNode(text.slice(from)));
+            }
+        },
+
+        renderSuggest(elID) {
+            var control = $filtertagtextlist.requireControl(elID);
+
+            var state = control.suggest;
+            var single = control.settings.suggestLevel === 1;
+            state.groupMenu.textContent = '';
+            state.groups.forEach(function (group, index) {
+                var row = document.createElement('div');
+                row.className = 'dttl-suggest-row';
+                row.id = control.id + '_sg_' + index;
+                row.dataset.index = String(index);
+                row.setAttribute('role', 'option');
+                var label = document.createElement('span');
+                label.className = 'dttl-suggest-label';
+                label.textContent = group.label;
+                row.append(label);
+                if (single) {
+                    // 1단 모드: 그룹 이름만 보여주며 이미 같은 그룹·텍스트를 선택했으면 비활성으로 표시한다.
+                    if (control.picker.items.includes($filtertagtextlist.getSuggestID(group, { value: state.query }))) {
+                        row.setAttribute('aria-disabled', 'true');
+                        row.title = '이미 선택한 항목';
+                    }
+                }
+                else {
+                    var count = document.createElement('span');
+                    count.className = 'dttl-suggest-count';
+                    count.textContent = String(group.count);
+                    row.append(count);
+                }
+                state.groupMenu.append(row);
+            });
+            if (!single) {
+                $filtertagtextlist.renderSuggestItems(control.id);
+            }
+            state.root.hidden = false;
+            $filtertagtextlist.positionSuggest(control.id);
+        },
+
+        // 선택한 그룹의 값 목록(2차 팝업)을 그린다. 이미 선택한 일반 텍스트는 비활성으로 표시한다.
+        renderSuggestItems(elID) {
+            var control = $filtertagtextlist.requireControl(elID);
+
+            var state = control.suggest;
+            var group = state.groups[state.groupIndex];
+            state.itemMenu.textContent = '';
+            state.itemMenu.setAttribute('aria-label', group.label + ' 일치하는 값');
+            group.items.forEach(function (item, index) {
+                var row = document.createElement('div');
+                row.className = 'dttl-suggest-row';
+                row.id = control.id + '_si_' + index;
+                row.dataset.index = String(index);
+                row.setAttribute('role', 'option');
+                if (control.picker.items.includes($filtertagtextlist.getSuggestID(group, item))) {
+                    row.setAttribute('aria-disabled', 'true');
+                    row.title = '이미 선택한 항목';
+                }
+                var text = document.createElement('span');
+                text.className = 'dttl-suggest-text';
+                $filtertagtextlist.fillMarked(text, item.value, state.query);
+                row.append(text);
+                state.itemMenu.append(row);
+            });
+            $filtertagtextlist.markSuggest(control.id);
+        },
+
+        getSuggestID(group, item) {
+            return $filtertagtextlist.getOptionID($filtertagtextlist.normalGroup, group.key + '\u0000' + item.value);
+        },
+
+        // 현재 단계(level 1: 그룹, 2: 값)의 활성 행과 표시 중인 그룹 행(current)을 갱신하고 접근성 속성을 맞춘다.
+        markSuggest(elID) {
+            var control = $filtertagtextlist.requireControl(elID);
+
+            var state = control.suggest;
+            var input = control.picker.control_input;
+            var active = null;
+            Array.from(state.groupMenu.children).forEach(function (row) {
+                var index = Number(row.dataset.index);
+                row.classList.toggle('dttl-suggest-current', index === state.groupIndex);
+                var isActive = state.level === 1 && index === state.groupIndex;
+                row.classList.toggle('active', isActive);
+                row.setAttribute('aria-selected', String(index === state.groupIndex));
+                if (isActive) {
+                    active = row;
+                }
+            });
+            Array.from(state.itemMenu.children).forEach(function (row) {
+                var isActive = state.level === 2 && Number(row.dataset.index) === state.itemIndex;
+                row.classList.toggle('active', isActive);
+                row.setAttribute('aria-selected', String(isActive));
+                if (isActive) {
+                    active = row;
+                }
+            });
+            if (active) {
+                input.setAttribute('aria-activedescendant', active.id);
+                active.scrollIntoView({ block: 'nearest' });
+            }
+            else {
+                input.removeAttribute('aria-activedescendant');
+            }
+        },
+
+        // 그룹을 바꾸어 2차 팝업을 갱신한다. level은 이후 키보드 단계(0: 입력창, 1: 그룹 목록)이다.
+        setSuggestGroup(elID, index, level) {
+            var control = $filtertagtextlist.requireControl(elID);
+
+            var state = control.suggest;
+            if (!state.visible || !state.groups[index]) {
+                return;
+            }
+            if (index !== state.groupIndex) {
+                state.groupIndex = index;
+                state.itemIndex = 0;
+                $filtertagtextlist.renderSuggestItems(control.id);
+            }
+            state.level = level;
+            $filtertagtextlist.markSuggest(control.id);
+            $filtertagtextlist.positionSuggest(control.id);
+        },
+
+        // 입력 영역 아래(공간이 부족하면 위)에 1차 팝업을 두고 2차 팝업은 오른쪽에 이어 붙인다. 화면 오른쪽을 넘으면 왼쪽으로 당긴다.
+        positionSuggest(elID) {
+            var control = $filtertagtextlist.requireControl(elID);
+
+            var state = control.suggest;
+            if (!state.visible) {
+                return;
+            }
+            var root = state.root;
+            // 1단 모드는 입력 중인 글자가 시작되는 입력창의 왼쪽 아래에, 2단 모드는 입력 영역의 왼쪽 아래에 둔다.
+            var anchor = (control.settings.suggestLevel === 1 ? control.picker.control_input : control.picker.control).getBoundingClientRect();
+            var containerRect = control.container.getBoundingClientRect();
+            var viewportWidth = document.documentElement.clientWidth;
+            var viewportHeight = window.innerHeight;
+            var padding = 8;
+            var gap = 2;
+            if (anchor.bottom < 0 || anchor.top > viewportHeight) {
+                $filtertagtextlist.hideSuggest(control.id);
+                return;
+            }
+            root.style.left = '0px';
+            root.style.top = '0px';
+            root.style.maxWidth = Math.max(0, viewportWidth - padding * 2) + 'px';
+            var width = root.offsetWidth;
+            var height = root.offsetHeight;
+            var left = Math.max(padding, Math.min(anchor.left, viewportWidth - padding - width));
+            var spaceBelow = viewportHeight - padding - anchor.bottom - gap;
+            var spaceAbove = anchor.top - padding - gap;
+            var top = height > spaceBelow && spaceAbove > spaceBelow ? anchor.top - gap - height : anchor.bottom + gap;
+            root.style.left = Math.round(left - containerRect.left - control.container.clientLeft + control.container.scrollLeft) + 'px';
+            root.style.top = Math.round(top - containerRect.top - control.container.clientTop + control.container.scrollTop) + 'px';
+        },
+
+        hideSuggest(elID) {
+            var control = $filtertagtextlist.getControl(elID);
+
+            if (!control || !control.suggest) {
+                return;
+            }
+            var state = control.suggest;
+            state.sequence++;
+            if (!state.visible) {
+                return;
+            }
+            state.visible = false;
+            state.level = 0;
+            state.root.hidden = true;
+            control.picker.control_input.removeAttribute('aria-activedescendant');
+        },
+
+        // 팝업이 떠 있을 때의 키 처리. 입력창(level 0) ↓: 그룹 목록, 그룹 목록 →·Enter: 값 목록, 값 목록 ←: 그룹 목록, Enter: 선택, Esc: 닫기.
+        // 처리하지 않는 키(글자·Backspace 등)는 TomSelect로 넘기고 입력창 Enter는 일반 텍스트 추가가 된다.
+        onSuggestKey(elID, event) {
+            var control = $filtertagtextlist.requireControl(elID);
+
+            var state = control.suggest;
+            if (!state.visible || control.composing || event.isComposing || event.altKey || event.ctrlKey || event.metaKey) {
+                return;
+            }
+            var handled = true;
+            var key = event.key;
+            var group = state.groups[state.groupIndex];
+            if (key === 'Escape') {
+                $filtertagtextlist.hideSuggest(control.id);
+            }
+            else if (key === 'Tab') {
+                $filtertagtextlist.hideSuggest(control.id);
+                handled = false;
+            }
+            else if (key === 'ArrowDown' || key === 'ArrowUp') {
+                var step = key === 'ArrowDown' ? 1 : -1;
+                if (state.level === 0) {
+                    state.level = 1;
+                }
+                else if (state.level === 1) {
+                    var next = Math.max(0, Math.min(state.groups.length - 1, state.groupIndex + step));
+                    if (next !== state.groupIndex) {
+                        state.groupIndex = next;
+                        state.itemIndex = 0;
+                        if (control.settings.suggestLevel !== 1) {
+                            $filtertagtextlist.renderSuggestItems(control.id);
+                        }
+                    }
+                }
+                else {
+                    state.itemIndex = Math.max(0, Math.min(group.items.length - 1, state.itemIndex + step));
+                }
+                $filtertagtextlist.markSuggest(control.id);
+            }
+            else if (control.settings.suggestLevel === 1) {
+                // 1단 모드: 그룹 목록(level 1)에서 Enter로 선택한다. →·←는 처리하지 않는다.
+                if (key === 'Enter' && state.level === 1) {
+                    $filtertagtextlist.selectSuggest(control.id, state.groupIndex, 0);
+                }
+                else if (key === 'Enter' && state.level === 0 && control.settings.suggestEnterFirst === true) {
+                    // 행을 고르지 않고 입력창에서 Enter를 누르면 이미 선택한 행(비활성)을 건너뛴 첫 번째 행을 선택한다. 선택할 행이 없으면 아무것도 하지 않는다.
+                    var first = Array.from(state.groupMenu.children).find(function (row) {
+                        return row.getAttribute('aria-disabled') !== 'true';
+                    });
+                    if (first) {
+                        $filtertagtextlist.selectSuggest(control.id, Number(first.dataset.index), 0);
+                    }
+                }
+                else {
+                    handled = false;
+                }
+            }
+            else if (key === 'ArrowRight' && state.level === 1 || key === 'Enter' && state.level === 1) {
+                state.level = 2;
+                state.itemIndex = 0;
+                $filtertagtextlist.markSuggest(control.id);
+            }
+            else if (key === 'ArrowLeft' && state.level === 2) {
+                state.level = 1;
+                $filtertagtextlist.markSuggest(control.id);
+            }
+            else if (key === 'Enter' && state.level === 2) {
+                $filtertagtextlist.selectSuggest(control.id, state.groupIndex, state.itemIndex);
+            }
+            else {
+                handled = false;
+            }
+            if (handled) {
+                event.preventDefault();
+                event.stopImmediatePropagation();
+            }
+        },
+
+        // 값을 고르면 key(그룹의 key)와 value의 일반 텍스트로 추가하고 입력창을 비운다. 이미 선택했거나 maxItems에 도달했으면 무시한다.
+        selectSuggest(elID, groupIndex, itemIndex) {
+            var control = $filtertagtextlist.requireControl(elID);
+
+            var state = control.suggest;
+            var group = state.groups[groupIndex];
+            // 1단 모드는 입력한 텍스트가 값이 된다.
+            var item = group ? (control.settings.suggestLevel === 1 ? { value: state.query } : group.items[itemIndex]) : null;
+            if (!item || control.picker.isLocked || control.picker.isDisabled) {
+                return;
+            }
+            var option;
+            try {
+                option = $filtertagtextlist.normalOption(group.key, item.value);
+            } catch (error) {
+                console.warn(error);
+                return;
+            }
+            if (control.picker.items.includes(option._dttlID) || control.picker.isFull()) {
+                return;
+            }
+            if (!$filtertagtextlist.hasProperty(control.picker.options, option._dttlID)) {
+                control.picker.addOption(option, true);
+            }
+            control.picker.addItem(option._dttlID);
+            control.picker.setTextboxValue('');
+            $filtertagtextlist.hideSuggest(control.id);
+            $filtertagtextlist.trigger(control.id, 'suggest_select', { groupID: group.id, key: group.key, value: item.value });
+        },
+
+        // 범위 버튼에 표시할 이름. 예: 작성일 · 년월일
+        getRangeLabel(elID, groupID) {
+            var control = $filtertagtextlist.requireControl(elID);
+
+            var group = control.picker.optgroups[groupID];
+            var label = group.label != null ? String(group.label) : groupID || '기타';
+            return label + ' · ' + $filtertagtextlist.ranges[$filtertagtextlist.getRangeKind(control.id, groupID)].label;
+        },
+
         renderRanges(elID) {
             var control = $filtertagtextlist.requireControl(elID);
 
             var count = 0;
+            // rangeLayout:'nav'이면 범위 버튼을 입력 영역이 아니라 드롭다운의 그룹 이동 버튼 줄(updateGroupNav)에 배치한다.
+            var nav = control.settings.rangeLayout === 'nav';
             control.ranges.textContent = '';
             Object.keys(control.picker.optgroups).forEach(function (groupID) {
                 var kind = $filtertagtextlist.getRangeKind(control.id, groupID);
@@ -17761,11 +18849,14 @@
                 button.dataset.range = kind;
                 button.textContent = label + ' · ' + $filtertagtextlist.ranges[kind].label;
                 button.setAttribute('aria-label', label + ' ' + $filtertagtextlist.ranges[kind].label + ' 범위 입력');
-                control.ranges.append(button);
+                if (!nav) {
+                    control.ranges.append(button);
+                }
                 count++;
             });
-            control.ranges.hidden = count === 0;
+            control.ranges.hidden = nav || count === 0;
             $filtertagtextlist.layoutRanges(control.id);
+            $filtertagtextlist.updateGroupNav(control.id);
             $filtertagtextlist.updateButtons(control.id);
         },
 
@@ -17801,6 +18892,7 @@
             if (!kind || control.picker.isLocked || control.picker.isDisabled) {
                 return;
             }
+            $filtertagtextlist.hideSuggest(control.id);
             $filtertagtextlist.closeEditor(control.id, false);
             control.picker.close();
             var spec = $filtertagtextlist.ranges[kind];
@@ -17864,6 +18956,8 @@
                 if (control.picker.isLocked || control.picker.isDisabled) {
                     return;
                 }
+                // setRange가 편집창을 먼저 닫으므로 돌려줄 포커스 대상을 미리 보관한다.
+                var focusTarget = control.editorFocus;
                 try {
                     $filtertagtextlist.setRange(control.id, groupID, startValue, endValue);
                 } catch (error) {
@@ -17874,7 +18968,16 @@
                     }
                     throw error;
                 }
-                $filtertagtextlist.closeEditor(control.id, true);
+                // groupChangeClearsText:true이면 범위를 적용하거나 해제할 때도 일반 텍스트를 지운다.
+                if (control.settings.groupChangeClearsText === true) {
+                    $filtertagtextlist.clearNormalItems(control.id);
+                }
+                if (control.editor === editor) {
+                    $filtertagtextlist.closeEditor(control.id, true);
+                }
+                else if (!control.destroyed && focusTarget && focusTarget.isConnected) {
+                    focusTarget.focus({ preventScroll: true });
+                }
             };
             apply.addEventListener('click', function () {
                 submit(start.value, end.value);
@@ -17909,7 +19012,7 @@
             control.editor = editor;
             control.editingID = null;
             control.editorAnchor = anchor;
-            control.editorFocus = Array.from(control.ranges.querySelectorAll('button')).find(function (button) {
+            control.editorFocus = control.settings.rangeLayout === 'nav' ? control.picker.control_input : Array.from(control.ranges.querySelectorAll('button')).find(function (button) {
                 return button.dataset.group === groupID;
             });
             control.container.append(editor);

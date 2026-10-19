@@ -7827,13 +7827,13 @@ syn_filtertagtextlist {
     }
 
     .syn-filtertagtextlist .ts-control {
-        min-height: 40px;
-        padding: 6px 9px;
+        
+        min-height: calc(1.4285714286em + 0.875rem + 2px);
+        padding: 2px 0.4rem 2px !important;
         gap: 5px;
         row-gap: 9px;
         align-items: center;
         overflow: visible;
-        padding-bottom: calc(0.75rem - 6px) !important;
         border: 1px solid #cbd5e1;
         border-radius: 6px;
     }
@@ -7878,14 +7878,14 @@ syn_filtertagtextlist {
     .syn-filtertagtextlist .ts-wrapper .ts-control > .dttl-item.dttl-normal {
         background: #fff;
         border-style: dashed;
-        border-left-style: solid;
+        border-left: 1px dashed #cbd5e1;
         background-color: var(--tblr-danger-bg-subtle)!important;
     }
 
     .syn-filtertagtextlist .ts-wrapper .ts-control > .dttl-item.dttl-normal.active {
         background-color: var(--tblr-blue-lt, #e6f1fb);
         border-style: dashed;
-        border-left-style: solid;
+        border-left: 1px dashed var(--tblr-blue, #066fd1);
     }
 
     .syn-filtertagtextlist .dttl-normal .dttl-group {
@@ -7899,18 +7899,24 @@ syn_filtertagtextlist {
         cursor: pointer;
     }
 
+    
+    .syn-filtertagtextlist .dttl-fixed .dttl-group,
+    .syn-filtertagtextlist .dttl-fixed .dttl-edit {
+        cursor: default;
+    }
+
     .syn-filtertagtextlist .dttl-edit {
         display: inline-flex;
         align-items: center;
         gap: 7px;
-        padding: 5px 7px;
+        padding: 3px 7px;
     }
 
     .syn-filtertagtextlist .dttl-group {
         display: inline-flex;
         align-items: center;
         max-width: 10rem;
-        padding: 5px 7px;
+        padding: 3px 7px;
         border-right: 1px solid var(--tblr-border-color, #e2e8f0);
         background-color: var(--tblr-bg-surface-secondary, #f6f8fb);
         color: var(--tblr-secondary, #667382);
@@ -8052,6 +8058,138 @@ syn_filtertagtextlist {
             .syn-filtertagtextlist .ts-dropdown .dttl-group-nav .btn {
                 white-space: nowrap;
             }
+
+            
+            .syn-filtertagtextlist .ts-dropdown .dttl-group-nav .dttl-nav-range.dttl-range-active {
+                border-color: var(--tblr-blue, #066fd1);
+                background: var(--tblr-blue-lt, #e6f1fb);
+                color: var(--tblr-blue, #066fd1);
+            }
+
+        
+        .syn-filtertagtextlist .ts-control > .dttl-group-nav.dttl-nav-inline {
+            order: -1;
+            display: flex;
+            flex: 0 0 auto;
+            align-items: center;
+            margin: 0;
+            padding: 0;
+        }
+
+            .syn-filtertagtextlist .ts-control > .dttl-group-nav.dttl-nav-inline[hidden] {
+                display: none;
+            }
+
+            .syn-filtertagtextlist .ts-control > .dttl-group-nav.dttl-nav-inline {
+                min-width: 0;
+                max-width: 100%;
+            }
+
+            .syn-filtertagtextlist .dttl-nav-inline .btn-group {
+                flex: 0 1 auto;
+                min-width: 0;
+                max-width: 100%;
+            }
+
+            
+            .syn-filtertagtextlist .dttl-nav-inline .btn {
+                display: inline-flex;
+                flex: 0 1 auto;
+                align-items: center;
+                box-sizing: border-box;
+                min-width: 3rem;
+                max-width: 18rem;
+                height: 28px;
+                min-height: 28px;
+                padding-top: 0;
+                padding-bottom: 0;
+                white-space: nowrap;
+            }
+
+            .syn-filtertagtextlist .dttl-nav-inline .dttl-nav-text {
+                min-width: 0;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            
+            .syn-filtertagtextlist .dttl-nav-inline .btn.dttl-has-value {
+                border-color: var(--tblr-blue, #066fd1);
+                background: var(--tblr-blue-lt, #e6f1fb);
+                color: var(--tblr-blue, #066fd1);
+            }
+
+            
+            .syn-filtertagtextlist .dttl-nav-inline button[data-group]::after {
+                content: '';
+                display: inline-block;
+                margin-left: .4em;
+                border: 4px solid transparent;
+                border-top-color: currentColor;
+                border-bottom-width: 0;
+                vertical-align: middle;
+                flex: 0 0 auto;
+                transition: transform .15s;
+            }
+
+            .syn-filtertagtextlist .dttl-nav-inline button[data-group].active::after {
+                transform: rotate(180deg);
+            }
+
+            .syn-filtertagtextlist .dttl-nav-inline .btn.active {
+                border-color: var(--tblr-blue, #066fd1);
+                background: var(--tblr-blue-lt, #e6f1fb);
+                color: var(--tblr-blue, #066fd1);
+            }
+
+            
+            .syn-filtertagtextlist .dttl-nav-inline .btn.dttl-has-value,
+            .syn-filtertagtextlist .dttl-nav-inline .btn.active,
+            .syn-filtertagtextlist .dttl-nav-inline .dttl-nav-range.dttl-range-active {
+                position: relative;
+                z-index: 3;
+            }
+
+            .syn-filtertagtextlist .dttl-nav-inline .btn:disabled {
+                opacity: .5;
+                cursor: default;
+            }
+
+            .syn-filtertagtextlist .dttl-nav-inline .dttl-nav-range.dttl-range-active {
+                border-color: var(--tblr-blue, #066fd1);
+                background: var(--tblr-blue-lt, #e6f1fb);
+                color: var(--tblr-blue, #066fd1);
+            }
+
+        
+        .syn-filtertagtextlist .ts-wrapper .ts-control > .dttl-item.dttl-item-hidden {
+            display: none;
+        }
+
+        
+        .syn-filtertagtextlist.dttl-select-text .ts-dropdown .option.selected {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-weight: 600;
+        }
+
+            
+            .syn-filtertagtextlist.dttl-select-text .ts-dropdown .option.selected::after {
+                content: '';
+                flex: 0 0 auto;
+                width: 1.125rem;
+                height: 1.125rem;
+                margin-left: 12px;
+                background-color: var(--tblr-blue, #066fd1);
+                -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12l5 5l10 -10'/%3E%3C/svg%3E") center / contain no-repeat;
+                mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12l5 5l10 -10'/%3E%3C/svg%3E") center / contain no-repeat;
+            }
+
+        
+        .syn-filtertagtextlist .ts-dropdown.dttl-group-menu .optgroup-header {
+            display: none;
+        }
 
         .syn-filtertagtextlist .ts-dropdown .optgroup-header {
             font-size: 12px;
@@ -8224,6 +8362,99 @@ syn_filtertagtextlist {
 
         .syn-filtertagtextlist .dttl-editor .dttl-range-error[hidden] {
             display: none;
+        }
+
+    
+    .syn-filtertagtextlist .dttl-suggest {
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 1100;
+        display: flex;
+        align-items: flex-start;
+        gap: 4px;
+        width: max-content;
+        pointer-events: none;
+    }
+
+        .syn-filtertagtextlist .dttl-suggest[hidden] {
+            display: none;
+        }
+
+        
+        .syn-filtertagtextlist .dttl-suggest-single .dttl-suggest-items {
+            display: none;
+        }
+
+        .syn-filtertagtextlist .dttl-suggest .dttl-suggest-menu {
+            box-sizing: border-box;
+            min-width: 140px;
+            max-width: 320px;
+            max-height: 260px;
+            padding: 4px;
+            overflow-y: auto;
+            background: #fff;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            box-shadow: 0 8px 24px #0f172a26;
+            pointer-events: auto;
+            scrollbar-width: thin;
+        }
+
+        .syn-filtertagtextlist .dttl-suggest .dttl-suggest-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 5px 8px;
+            border-radius: 4px;
+            color: #334155;
+            font-size: 13px;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+
+            .syn-filtertagtextlist .dttl-suggest .dttl-suggest-row:hover,
+            .syn-filtertagtextlist .dttl-suggest .dttl-suggest-row.active {
+                background: #eff6ff;
+            }
+
+            .syn-filtertagtextlist .dttl-suggest .dttl-suggest-row.active {
+                outline: 2px solid var(--tblr-blue, #066fd1);
+                outline-offset: -2px;
+            }
+
+            
+            .syn-filtertagtextlist .dttl-suggest .dttl-suggest-current {
+                background: var(--tblr-blue-lt, #e6f1fb);
+                font-weight: 600;
+            }
+
+            .syn-filtertagtextlist .dttl-suggest .dttl-suggest-row[aria-disabled="true"] {
+                cursor: default;
+                opacity: .5;
+            }
+
+            
+            .syn-filtertagtextlist .dttl-suggest .dttl-suggest-text {
+                flex: 1 1 auto;
+                min-width: 0;
+                text-align: left;
+            }
+
+            .syn-filtertagtextlist .dttl-suggest .dttl-suggest-row mark {
+                padding: 0;
+                background: #ffec99;
+                color: inherit;
+            }
+
+        .syn-filtertagtextlist .dttl-suggest .dttl-suggest-count {
+            padding: 0 6px;
+            border-radius: 8px;
+            background: #e2e8f0;
+            color: #64748b;
+            font-size: 11px;
+            line-height: 16px;
         }
 
 .attachFileWrap {
