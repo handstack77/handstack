@@ -1,0 +1,416 @@
+syn_filtertagtextlist {
+	display: block;
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.syn-filtertagtextlist {
+    position: relative;
+    min-width: 0;
+    color: #334155;
+}
+
+    .syn-filtertagtextlist .ts-wrapper {
+        width: 100%;
+    }
+
+    .syn-filtertagtextlist .ts-control {
+        min-height: 40px;
+        padding: 6px 9px;
+        gap: 5px;
+        row-gap: 9px;
+        align-items: center;
+        overflow: visible;
+        padding-bottom: calc(0.75rem - 6px) !important;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+    }
+
+    /* 배지를 숨긴 컨트롤(hideLogicBadge:true, 기본값)은 배지가 튀어나올 자리인 태그 위쪽 여백을 없애고 줄 간격을 일반 간격(5px)으로 줄인다. */
+    .syn-filtertagtextlist.dttl-hide-badge .ts-control {
+        row-gap: 5px;
+    }
+
+    .syn-filtertagtextlist.dttl-hide-badge .ts-wrapper .ts-control > .dttl-item {
+        margin-top: 0;
+    }
+
+    .syn-filtertagtextlist .focus .ts-control {
+        border-color: #86b7fe;
+        box-shadow: 0 0 0 3px #0d6efd30;
+    }
+
+    .syn-filtertagtextlist .ts-wrapper .ts-control > .dttl-item {
+        position: relative;
+        overflow: visible;
+        display: inline-flex;
+        align-items: stretch;
+        margin: 7px 0 0;
+        padding: 0;
+        background: #f1f5f9;
+        border: 1px solid #cbd5e1;
+        border-left: 4px solid var(--dttl-operator-color, var(--tblr-blue, #066fd1));
+        border-radius: 4px;
+        color: #334155;
+    }
+
+    .syn-filtertagtextlist .ts-wrapper .ts-control > .dttl-item.active {
+        background-color: var(--tblr-blue-lt, #e6f1fb);
+        border: 1px solid var(--tblr-blue, #066fd1);
+        border-left: 4px solid var(--dttl-operator-color, var(--tblr-blue, #066fd1));
+        color: #334155;
+        box-shadow: 0 0 0 2px var(--tblr-blue-lt, #e6f1fb);
+    }
+
+    /* options에 없는 입력(일반 텍스트): 점선 테두리와 흰 배경, 기울인 이름표(key 또는 '텍스트')로 일반 후보와 구분한다. */
+    .syn-filtertagtextlist .ts-wrapper .ts-control > .dttl-item.dttl-normal {
+        background: #fff;
+        border-style: dashed;
+        border-left-style: solid;
+        background-color: var(--tblr-danger-bg-subtle)!important;
+    }
+
+    .syn-filtertagtextlist .ts-wrapper .ts-control > .dttl-item.dttl-normal.active {
+        background-color: var(--tblr-blue-lt, #e6f1fb);
+        border-style: dashed;
+        border-left-style: solid;
+    }
+
+    .syn-filtertagtextlist .dttl-normal .dttl-group {
+        background-color: transparent;
+    }
+
+    .syn-filtertagtextlist .dttl-item button {
+        border: 0;
+        background: transparent;
+        color: inherit;
+        cursor: pointer;
+    }
+
+    .syn-filtertagtextlist .dttl-edit {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 5px 7px;
+    }
+
+    .syn-filtertagtextlist .dttl-group {
+        display: inline-flex;
+        align-items: center;
+        max-width: 10rem;
+        padding: 5px 7px;
+        border-right: 1px solid var(--tblr-border-color, #e2e8f0);
+        background-color: var(--tblr-bg-surface-secondary, #f6f8fb);
+        color: var(--tblr-secondary, #667382);
+        font-size: 12px;
+        overflow-wrap: anywhere;
+        cursor: pointer;
+        font-weight: 600;
+    }
+
+    /* groupDisplay 기본값('tooltip')과 range 그룹의 태그는 그룹 이름을 숨기고 태그의 title 툴팁으로만 보여준다. */
+    .syn-filtertagtextlist .dttl-item.dttl-group-tooltip > .dttl-group {
+        display: none;
+    }
+
+    .syn-filtertagtextlist .dttl-logic-badge {
+        position: absolute;
+        top: -8px;
+        left: -4px;
+        z-index: 1;
+        padding: 1px 4px;
+        border-radius: 3px;
+        background-color: var(--dttl-logic-color, var(--tblr-blue, #066fd1));
+        color: var(--tblr-white, #fff);
+        font-size: 9px;
+        line-height: 13px;
+        pointer-events: none;
+    }
+
+    /* 배지는 AND/OR 뒤에 일반 텍스트의 key 또는 groupDisplay:'badge'인 후보의 그룹 이름을 이어서 보여준다. 길면 그 부분만 줄임표로 자르며 전체는 태그의 title 툴팁으로 확인한다. */
+    .syn-filtertagtextlist .dttl-item .dttl-logic-badge {
+        display: flex;
+        max-width: calc(100% + 4px);
+        white-space: nowrap;
+    }
+
+    .syn-filtertagtextlist .dttl-logic-badge .dttl-badge-key {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: pre;
+    }
+
+    .syn-filtertagtextlist [data-dttl-logic="AND"] {
+        --dttl-logic-color: var(--tblr-blue, #066fd1);
+    }
+
+    .syn-filtertagtextlist [data-dttl-logic="OR"] {
+        --dttl-logic-color: var(--tblr-red, #d63939);
+    }
+
+    .syn-filtertagtextlist [data-dttl-operator="eq"] {
+        --dttl-operator-color: var(--tblr-blue, #066fd1);
+        --dttl-operator-text: var(--tblr-white, #fff);
+    }
+
+    .syn-filtertagtextlist [data-dttl-operator="lt"] {
+        --dttl-operator-color: var(--tblr-green, #2fb344);
+        --dttl-operator-text: var(--tblr-white, #fff);
+    }
+
+    .syn-filtertagtextlist [data-dttl-operator="gt"] {
+        --dttl-operator-color: var(--tblr-pink, #d6336c);
+        --dttl-operator-text: var(--tblr-white, #fff);
+    }
+
+    .syn-filtertagtextlist [data-dttl-operator="lte"] {
+        --dttl-operator-color: var(--tblr-cyan, #17a2b8);
+        --dttl-operator-text: var(--tblr-white, #fff);
+    }
+
+    .syn-filtertagtextlist [data-dttl-operator="gte"] {
+        --dttl-operator-color: var(--tblr-orange, #f76707);
+        --dttl-operator-text: var(--tblr-white, #fff);
+    }
+
+    .syn-filtertagtextlist [data-dttl-operator="neq"] {
+        --dttl-operator-color: var(--tblr-red, #d63939);
+        --dttl-operator-text: var(--tblr-white, #fff);
+    }
+
+    .syn-filtertagtextlist [data-dttl-operator="begins_with"] {
+        --dttl-operator-color: var(--tblr-gray-600, #4b5563);
+        --dttl-operator-text: var(--tblr-white, #fff);
+    }
+
+    .syn-filtertagtextlist [data-dttl-operator="ends_with"] {
+        --dttl-operator-color: var(--tblr-purple, #ae3ec9);
+        --dttl-operator-text: var(--tblr-white, #fff);
+    }
+
+    .syn-filtertagtextlist [data-dttl-operator="contains"] {
+        --dttl-operator-color: var(--tblr-teal, #0ca678);
+        --dttl-operator-text: var(--tblr-white, #fff);
+    }
+
+    .syn-filtertagtextlist [data-dttl-operator="not_contains"] {
+        --dttl-operator-color: var(--tblr-indigo, #4263eb);
+        --dttl-operator-text: var(--tblr-white, #fff);
+    }
+
+    .syn-filtertagtextlist .dttl-remove {
+        padding: 0 6px;
+        border-left: 1px solid #e2e8f0 !important;
+    }
+
+    .syn-filtertagtextlist button:focus-visible,
+    .syn-filtertagtextlist .dttl-group:focus-visible {
+        outline: 2px solid #2563eb;
+        outline-offset: 1px;
+    }
+
+    .syn-filtertagtextlist .ts-dropdown {
+        z-index: 1100;
+        background-color: #fff;
+        border-color: #cbd5e1;
+    }
+
+        /* 목록 위쪽의 그룹 이동 버튼 줄. width:0, min-width:100%로 버튼 폭이 드롭다운의 자동 너비 계산에 영향을 주지 않게 하고 넘치면 가로로 스크롤한다. */
+        .syn-filtertagtextlist .ts-dropdown .dttl-group-nav {
+            display: flex;
+            box-sizing: border-box;
+            width: 0;
+            min-width: 100%;
+            padding: 6px 8px;
+            overflow-x: auto;
+            background: #fff;
+            border-bottom: 1px solid #e2e8f0;
+            scrollbar-width: thin;
+        }
+
+            .syn-filtertagtextlist .ts-dropdown .dttl-group-nav[hidden] {
+                display: none;
+            }
+
+            .syn-filtertagtextlist .ts-dropdown .dttl-group-nav .btn-group {
+                flex: 0 0 auto;
+            }
+
+            .syn-filtertagtextlist .ts-dropdown .dttl-group-nav .btn {
+                white-space: nowrap;
+            }
+
+        .syn-filtertagtextlist .ts-dropdown .optgroup-header {
+            font-size: 12px;
+            color: #64748b;
+            background: #fafbfc;
+            border-top: 1px solid #e2e8f0;
+            /* 목록이 세로로 스크롤될 때 현재 그룹의 헤더를 상단에 고정한다. 다음 그룹의 헤더가 올라오면 밀려난다.
+               .ts-dropdown-content의 위쪽 여백(5px)만큼 올려 헤더 위로 옵션이 비치지 않게 한다. */
+            position: sticky;
+            top: -5px;
+            z-index: 1;
+        }
+
+        .syn-filtertagtextlist .ts-dropdown .active {
+            color: #334155;
+            background: #eff6ff;
+        }
+
+    .syn-filtertagtextlist .locked .dttl-item button {
+        pointer-events: none;
+    }
+
+    .syn-filtertagtextlist .locked .dttl-group {
+        cursor: default;
+    }
+
+    .syn-filtertagtextlist .disabled {
+        opacity: .6;
+    }
+
+    .syn-filtertagtextlist .dttl-editor {
+        position: absolute;
+        box-sizing: border-box;
+        top: 0;
+        left: 0;
+        z-index: 1100;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        gap: 10px;
+        padding: 14px;
+        margin: 0;
+        max-width: 100%;
+        overflow: auto;
+        background: #fff;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        box-shadow: 0 8px 24px #0f172a26;
+    }
+
+        .syn-filtertagtextlist .dttl-editor label {
+            display: grid;
+            gap: 5px;
+            font-size: 12px;
+        }
+
+        .syn-filtertagtextlist .dttl-editor select, .syn-filtertagtextlist .dttl-editor button:not(.btn) {
+            min-height: 34px;
+            padding: 5px 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            background: #fff;
+            color: #334155;
+        }
+
+        .syn-filtertagtextlist .dttl-editor button.dttl-apply:not(.btn) {
+            background: #2563eb;
+            color: #fff;
+            border-color: #2563eb;
+        }
+
+        /* 조건 편집창의 적용·취소는 Tabler btn-group이며 높이를 콤보박스(34px)와 같게 맞춘다. */
+        .syn-filtertagtextlist .dttl-editor select,
+        .syn-filtertagtextlist .dttl-editor .btn-group > .btn {
+            box-sizing: border-box;
+            height: 34px;
+        }
+
+        .syn-filtertagtextlist .dttl-editor .btn-group > .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding-top: 0;
+            padding-bottom: 0;
+            line-height: 1;
+            white-space: nowrap;
+        }
+
+        .syn-filtertagtextlist .dttl-editor select[data-dttl-logic],
+        .syn-filtertagtextlist .dttl-editor option[data-dttl-logic] {
+            background-color: var(--dttl-logic-color);
+            color: var(--tblr-white, #fff);
+        }
+
+        .syn-filtertagtextlist .dttl-editor select[data-dttl-operator],
+        .syn-filtertagtextlist .dttl-editor option[data-dttl-operator] {
+            background-color: var(--dttl-operator-color);
+            color: var(--dttl-operator-text);
+        }
+
+    .syn-filtertagtextlist .dttl-ranges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 6px;
+    }
+
+        .syn-filtertagtextlist .dttl-ranges[hidden] {
+            display: none;
+        }
+
+        .syn-filtertagtextlist .dttl-ranges button {
+            min-height: 30px;
+            padding: 4px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            background: #fff;
+            color: #334155;
+            font-size: 13px;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+
+            .syn-filtertagtextlist .dttl-ranges button:disabled {
+                cursor: default;
+                opacity: .6;
+            }
+
+            .syn-filtertagtextlist .dttl-ranges button.dttl-range-active {
+                border-color: var(--tblr-blue, #066fd1);
+                background: var(--tblr-blue-lt, #e6f1fb);
+            }
+
+    /* 입력 영역 오른쪽 안에 범위 버튼을 겹쳐 배치한다. 폭이 좁으면 입력 영역 아래에 배치한다. */
+    .syn-filtertagtextlist.dttl-ranges-inline .dttl-ranges {
+        position: absolute;
+        top: 0;
+        right: 8px;
+        z-index: 2;
+        align-items: center;
+        height: 40px;
+        margin: 0;
+        flex-wrap: nowrap;
+        pointer-events: none;
+    }
+
+        .syn-filtertagtextlist.dttl-ranges-inline .dttl-ranges button {
+            pointer-events: auto;
+        }
+
+    .syn-filtertagtextlist.dttl-ranges-inline .ts-control {
+        padding-right: var(--dttl-ranges-width, 9px) !important;
+    }
+
+    .syn-filtertagtextlist .dttl-editor input {
+        box-sizing: border-box;
+        height: 34px;
+        min-height: 34px;
+        padding: 5px 10px;
+        border: 1px solid #cbd5e1;
+        border-radius: 4px;
+        background: #fff;
+        color: #334155;
+    }
+
+    .syn-filtertagtextlist .dttl-editor .dttl-range-error {
+        flex-basis: 100%;
+        color: var(--tblr-red, #d63939);
+        font-size: 12px;
+    }
+
+        .syn-filtertagtextlist .dttl-editor .dttl-range-error[hidden] {
+            display: none;
+        }

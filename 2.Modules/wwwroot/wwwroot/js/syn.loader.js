@@ -777,6 +777,10 @@
                         item.css = ['/lib/tom-select/dist/css/tom-select.bootstrap5.css', '/uicontrols/DropDownTextList/DropDownTextList.css'];
                         item.js = ['/lib/tom-select/dist/js/tom-select.complete.min.js', '/uicontrols/DropDownTextList/DropDownTextList.js'];
                         break;
+                    case 'filtertagtextlist':
+                        item.css = ['/lib/tom-select/dist/css/tom-select.bootstrap5.css', '/uicontrols/FilterTagTextList/FilterTagTextList.css'];
+                        item.js = ['/lib/tom-select/dist/js/tom-select.complete.min.js', '/uicontrols/FilterTagTextList/FilterTagTextList.js'];
+                        break;
                     case 'barcalender':
                         item.css = ['/uicontrols/BarCalender/BarCalender.css'];
                         item.js = ['/uicontrols/BarCalender/BarCalender.js'];
@@ -1029,6 +1033,7 @@
                         '/uicontrols/DropDownCheckList/DropDownCheckList.css',
                         '/uicontrols/DropDownList/DropDownList.css',
                         '/uicontrols/DropDownTextList/DropDownTextList.css',
+                        '/uicontrols/FilterTagTextList/FilterTagTextList.css',
                         '/uicontrols/FileClient/FileClient.css',
                         '/uicontrols/FileDropZone/FileDropZone.css',
                         '/uicontrols/GridList/GridList.css',
