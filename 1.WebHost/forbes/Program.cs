@@ -13,6 +13,7 @@ using forbes.Extensions;
 using HandStack.Core.ExtensionMethod;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
@@ -88,7 +89,35 @@ namespace forbes
             builder.Services.AddControllers();
             builder.Services.AddDirectoryBrowser();
 
+            bool useProxyForward = builder.Configuration.GetValue<bool>("UseForwardProxy");
+            if (useProxyForward == true)
+            {
+                builder.Services.Configure<ForwardedHeadersOptions>(options =>
+                {
+                    options.ForwardedHeaders = ForwardedHeaders.All;
+                    options.ForwardLimit = null;
+                    foreach (var forwardProxyIP in builder.Configuration.GetSection("ForwardProxyIP").Get<string[]>() ?? [])
+                    {
+                        if (string.IsNullOrWhiteSpace(forwardProxyIP) == false)
+                        {
+                            if (forwardProxyIP.Contains('/') == true)
+                            {
+                                options.KnownIPNetworks.Add(System.Net.IPNetwork.Parse(forwardProxyIP));
+                            }
+                            else
+                            {
+                                options.KnownProxies.Add(System.Net.IPAddress.Parse(forwardProxyIP));
+                            }
+                        }
+                    }
+                });
+            }
+
             var app = builder.Build();
+            if (useProxyForward == true)
+            {
+                app.UseForwardedHeaders();
+            }
 
             string entryDirectoryPath = ExpandPathVariables(builder.Configuration["EntryDirectoryPath"] as string ?? "");
             if (string.IsNullOrWhiteSpace(entryDirectoryPath) || !Directory.Exists(entryDirectoryPath))

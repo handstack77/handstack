@@ -7,6 +7,8 @@ using deploy.Services;
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
@@ -59,7 +61,36 @@ namespace deploy
                 builder.Host.UseSystemd();
             }
 
+            bool useProxyForward = builder.Configuration.GetValue<bool>("UseForwardProxy");
+            if (useProxyForward == true)
+            {
+                builder.Services.Configure<ForwardedHeadersOptions>(options =>
+                {
+                    options.ForwardedHeaders = ForwardedHeaders.All;
+                    options.ForwardLimit = null;
+                    foreach (var forwardProxyIP in builder.Configuration.GetSection("ForwardProxyIP").Get<string[]>() ?? [])
+                    {
+                        if (string.IsNullOrWhiteSpace(forwardProxyIP) == false)
+                        {
+                            if (forwardProxyIP.Contains('/') == true)
+                            {
+                                options.KnownIPNetworks.Add(System.Net.IPNetwork.Parse(forwardProxyIP));
+                            }
+                            else
+                            {
+                                options.KnownProxies.Add(System.Net.IPAddress.Parse(forwardProxyIP));
+                            }
+                        }
+                    }
+                });
+            }
+
             var app = builder.Build();
+            if (useProxyForward == true)
+            {
+                app.UseForwardedHeaders();
+            }
+
             var repositoryService = app.Services.GetRequiredService<IUpdatePackageRepositoryService>();
 
             Log.Information(

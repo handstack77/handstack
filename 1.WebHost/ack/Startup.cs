@@ -604,12 +604,20 @@ namespace ack
                 services.Configure<ForwardedHeadersOptions>(options =>
                 {
                     options.ForwardedHeaders = ForwardedHeaders.All;
+                    options.ForwardLimit = null;
                     var forwards = appSettings.GetSection("ForwardProxyIP").AsEnumerable();
                     foreach (var item in forwards)
                     {
                         if (string.IsNullOrWhiteSpace(item.Value) == false)
                         {
-                            options.KnownProxies.Add(IPAddress.Parse(item.Value));
+                            if (item.Value.Contains('/') == true)
+                            {
+                                options.KnownIPNetworks.Add(System.Net.IPNetwork.Parse(item.Value));
+                            }
+                            else
+                            {
+                                options.KnownProxies.Add(IPAddress.Parse(item.Value));
+                            }
                         }
                     }
 
@@ -840,10 +848,7 @@ namespace ack
 
             if (useProxyForward == true)
             {
-                app.UseForwardedHeaders(new ForwardedHeadersOptions
-                {
-                    ForwardedHeaders = ForwardedHeaders.All
-                });
+                app.UseForwardedHeaders();
             }
 
             if (useHttpLogging == true)
