@@ -162,6 +162,7 @@ namespace ack
         {
             return Host.CreateDefaultBuilder(args)
                 .UseContentRoot(GlobalConfiguration.EntryBasePath)
+                .ConfigureAppConfiguration((context, config) => config.UsePlatformSettings(GlobalConfiguration.EntryBasePath))
                 .UseSerilog((context, config) =>
                 {
                     config.ReadFrom.Configuration(context.Configuration);

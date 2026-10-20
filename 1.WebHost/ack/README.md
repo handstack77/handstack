@@ -183,6 +183,51 @@ $env:AppSettings__RunningEnvironment='P'
 
 네트워크 공유나 컨테이너 파일 시스템에서 변경 알림이 불안정하면 `DOTNET_USE_POLLING_FILE_WATCHER=1`을 설정하여 재시작할 수 있습니다. 폴링 환경에서는 파일 변경 반영에 지연이 생길 수 있습니다.
 
+### 5.5 OS별 설정 파일
+
+실행 중인 OS에 맞는 설정 파일이 있으면 기본 설정 위에 덮어씁니다. 같은 키를 Windows, Ubuntu, macOS에서 다르게 써야 할 때(경로, 인증서, 외부 주소 등) 사용합니다. 파일이 없으면 기본 설정을 그대로 사용합니다.
+
+| 대상 | 기본 파일 | OS별 파일 (실행 OS의 파일 하나만 사용) |
+| ---- | --------- | -------------------------------------- |
+| 호스트(`ack`, `rdy`) | `appsettings.json` | `appsettings.windows.json`, `appsettings.linux.json`, `appsettings.macos.json` |
+| 모듈 | `module.json` | 같은 폴더의 `module.windows.json`, `module.linux.json`, `module.macos.json` |
+
+- OS별 파일은 프로그램이 시작할 때 **한 번만** 읽습니다. 실행 중에 파일을 바꾸거나 새로 만들어도 반영하지 않으며 재시작이 필요합니다.
+- 객체는 키 단위로 병합하고, 값과 **배열은 OS별 파일의 값으로 교체**합니다. 배열은 인덱스별 병합이 아니라 통째로 바뀌므로 `LoadModules`, `WithOrigins`, `Serilog:WriteTo`, `ContractBasePath`, `DataSource` 같은 배열은 OS별 파일에 전체 항목을 적습니다. 키 이름의 대소문자는 구분하지 않고, `null`도 덮어씁니다.
+- 호스트는 `appsettings.json` 바로 뒤에 적용하므로 `appsettings.{ACK_ENVIRONMENT}.json`, 환경 변수, 명령행 값이 있으면 그 값이 우선합니다. `ack`와 `rdy`는 설정을 두 번(시작 설정, 호스트 설정) 만들며 둘 다 같은 규칙을 적용합니다.
+- OS별 파일이 있는 호스트는 `appsettings.json`의 파일 변경 자동 다시 읽기(호스트 구성)가 동작하지 않습니다. `AppSettings:IsConfigurationWatching`과 모듈 설정 감시는 병합된 값으로 비교하고 반영하므로, OS별 파일이 덮어쓴 키는 기본 파일에서 값을 바꿔도 OS별 파일의 값이 유지됩니다.
+- 런타임 설정 저장과 `agent`의 설정 편집은 기본 파일(`appsettings.json`, `module.json`)에만 기록하고 OS별 파일은 수정하지 않습니다. OS별 파일이 덮어쓰는 키는 저장한 값과 실제 적용 값이 다를 수 있습니다.
+- 원격 설정(`ModuleConfigurationUrl`로 받는 `module.json`)에는 적용하지 않습니다.
+- OS별 파일의 JSON 형식이 잘못되면 시작할 때 오류로 중단합니다.
+- 빌드 출력에는 기본 파일과 같은 규칙으로 포함되고, `rdy` 게시에서는 정적 모듈의 `module.{os}.json`을 `module.json`과 같이 제외합니다. `rdy/task.ps1`의 포트 일괄 변경은 OS별 파일도 함께 치환합니다.
+- 현재 `agent`, `deploy`, `forbes`는 `HandStack.Web`을 참조하지 않아 적용하지 않았습니다.
+
+예) Ubuntu에서만 로그 경로와 로드 모듈을 바꾸는 `appsettings.linux.json`
+
+```json
+{
+    "AppSettings": {
+        "LoadModules": ["wwwroot", "transact", "dbclient"]
+    },
+    "Serilog": {
+        "WriteTo": [
+            { "Name": "Console" },
+            { "Name": "File", "Args": { "path": "/var/log/handstack/app.log", "rollingInterval": "Day" } }
+        ]
+    }
+}
+```
+
+예) Ubuntu에서만 계약 경로를 바꾸는 `module.linux.json` (배열이므로 `ContractBasePath` 항목 전체를 적습니다)
+
+```json
+{
+    "ModuleConfig": {
+        "ContractBasePath": ["/var/handstack/contracts/dbclient"]
+    }
+}
+```
+
 ## 6) 헬스체크 및 운영 API
 
 기본 점검:

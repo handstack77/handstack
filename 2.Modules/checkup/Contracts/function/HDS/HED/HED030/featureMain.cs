@@ -86,7 +86,7 @@ namespace HDS.Function.HED
                                 if (module != null)
                                 {
                                     string moduleConfigFilePath = PathExtensions.Combine(module.BasePath, "module.json");
-                                    string configurationText = System.IO.File.ReadAllText(moduleConfigFilePath);
+                                    string configurationText = PlatformSettings.ReadAllText(moduleConfigFilePath);
                                     ModuleConfigJson? moduleConfigJson = JsonConvert.DeserializeObject<ModuleConfigJson>(configurationText);
 
                                     protocol = httpContext?.Request.Scheme;
@@ -211,7 +211,7 @@ TransactionException:
                                 if (module != null)
                                 {
                                     string moduleConfigFilePath = PathExtensions.Combine(module.BasePath, "module.json");
-                                    string configurationText = System.IO.File.ReadAllText(moduleConfigFilePath);
+                                    string configurationText = PlatformSettings.ReadAllText(moduleConfigFilePath);
                                     ModuleConfigJson? moduleConfigJson = JsonConvert.DeserializeObject<ModuleConfigJson>(configurationText);
 
                                     protocol = httpContext?.Request.Scheme;
@@ -337,7 +337,7 @@ TransactionException:
                                 if (module != null)
                                 {
                                     string moduleConfigFilePath = PathExtensions.Combine(module.BasePath, "module.json");
-                                    string configurationText = System.IO.File.ReadAllText(moduleConfigFilePath);
+                                    string configurationText = PlatformSettings.ReadAllText(moduleConfigFilePath);
                                     ModuleConfigJson? moduleConfigJson = JsonConvert.DeserializeObject<ModuleConfigJson>(configurationText);
 
                                     protocol = httpContext?.Request.Scheme;
@@ -461,7 +461,7 @@ TransactionException:
                                 if (module != null)
                                 {
                                     string moduleConfigFilePath = PathExtensions.Combine(module.BasePath, "module.json");
-                                    string configurationText = System.IO.File.ReadAllText(moduleConfigFilePath);
+                                    string configurationText = PlatformSettings.ReadAllText(moduleConfigFilePath);
                                     ModuleConfigJson? moduleConfigJson = JsonConvert.DeserializeObject<ModuleConfigJson>(configurationText);
 
                                     protocol = httpContext?.Request.Scheme;
@@ -593,7 +593,7 @@ TransactionException:
                                 if (module != null)
                                 {
                                     string moduleConfigFilePath = PathExtensions.Combine(module.BasePath, "module.json");
-                                    string configurationText = System.IO.File.ReadAllText(moduleConfigFilePath);
+                                    string configurationText = PlatformSettings.ReadAllText(moduleConfigFilePath);
                                     ModuleConfigJson? moduleConfigJson = JsonConvert.DeserializeObject<ModuleConfigJson>(configurationText);
 
                                     protocol = httpContext?.Request.Scheme;
@@ -727,7 +727,7 @@ TransactionException:
                                 if (module != null)
                                 {
                                     string moduleConfigFilePath = PathExtensions.Combine(module.BasePath, "module.json");
-                                    string configurationText = System.IO.File.ReadAllText(moduleConfigFilePath);
+                                    string configurationText = PlatformSettings.ReadAllText(moduleConfigFilePath);
                                     ModuleConfigJson? moduleConfigJson = JsonConvert.DeserializeObject<ModuleConfigJson>(configurationText);
 
                                     protocol = httpContext?.Request.Scheme;

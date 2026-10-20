@@ -44,7 +44,7 @@ namespace checkup
                 var moduleConfigFilePath = PathExtensions.Combine(module.BasePath, "module.json");
                 if (File.Exists(moduleConfigFilePath) == true)
                 {
-                    var configurationText = File.ReadAllText(moduleConfigFilePath);
+                    var configurationText = PlatformSettings.ReadAllText(moduleConfigFilePath);
                     var moduleConfigJson = JsonConvert.DeserializeObject<ModuleConfigJson>(configurationText);
 
                     if (moduleConfigJson != null)

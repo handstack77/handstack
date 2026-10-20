@@ -145,6 +145,7 @@ namespace ack
                     var appSettingsFilePath = PathExtensions.Combine(GlobalConfiguration.EntryBasePath, "appsettings.json");
                     Console.WriteLine($"appSettings.json FilePath {appSettingsFilePath}");
                     var configurationBuilder = new ConfigurationBuilder().AddJsonFile(appSettingsFilePath);
+                    configurationBuilder.UsePlatformSettings(GlobalConfiguration.EntryBasePath);
                     configurationBuilder.AddEnvironmentVariables();
 
                     if (string.IsNullOrWhiteSpace(key) == false && string.IsNullOrWhiteSpace(settings) == false)

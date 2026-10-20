@@ -50,7 +50,7 @@ namespace forwarder
                 throw new FileNotFoundException(message);
             }
 
-            var configurationText = File.ReadAllText(moduleSettingFilePath);
+            var configurationText = PlatformSettings.ReadAllText(moduleSettingFilePath);
             var moduleConfigJson = JsonConvert.DeserializeObject<ModuleConfigJson>(configurationText);
             if (moduleConfigJson == null)
             {

@@ -64,7 +64,7 @@
 		<None Update="SQL/**">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
-        <Content Update="module.json">
+        <Content Update="module.json;module.*.json">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
         <Compile Remove="Contracts/function/**" />

@@ -40,7 +40,7 @@
 - `4.Tool/CLI`: `handstack`, `handsonapp`, `bundling`, `edgeproxy`, `dbplatform`, `dotnet-installer`, `ports`, `updater`, `publish-package` 등 개발·운영·배포 도구를 포함한다.
 
 ## 핵심 아키텍처
-- `ack/Program.cs`는 기본 `appsettings.json`, `ACK_ENVIRONMENT`에 따른 환경별 JSON, 환경 변수를 합치고 `--modules` 또는 `AppSettings:LoadModules`로 로드 대상을 결정한다. `--modules`를 주면 기본 목록을 대체한다.
+- `ack/Program.cs`는 기본 `appsettings.json`, `ACK_ENVIRONMENT`에 따른 환경별 JSON, 환경 변수를 합치고 `--modules` 또는 `AppSettings:LoadModules`로 로드 대상을 결정한다. `--modules`를 주면 기본 목록을 대체한다. 실행 OS에 맞는 `appsettings.{windows|linux|macos}.json`은 기본 파일 직후에 시작할 때 한 번만 병합하며(배열은 교체), 모듈은 `module.{os}.json`을 `ModuleConfigurationManager`와 각 `ModuleInitializer`가 같은 규칙으로 병합한다. 병합 함수는 `HandStack.Web/PlatformSettings.cs`다.
 - `Startup.ConfigureServices`가 `LoadModuleBasePath`를 해석하고 `ServiceCollectionExtensions.AddModules()`를 호출한다. `ModuleConfigurationManager`는 선택된 이름과 일치하는 `../modules/<module>/module.json`을 읽고, `ack`는 해당 폴더의 DLL을 `AssemblyLoadContext`로 로드한다.
 - 각 DLL에서 `IModuleInitializer` 구현을 찾아 `ConfigureServices`를 호출하고 DI에 등록한 뒤, `Startup.Configure`에서 각 모듈의 `Configure`를 호출한다. MVC 컨트롤러는 ApplicationPart로 합성된다. 런타임 설정 반영을 지원하는 모듈은 `IModuleRuntimeConfiguration`도 구현할 수 있다.
 - `rdy`도 `module.json`을 읽고 `command`, `dbclient`, `function`, `graphclient`, `logger`, `prompter`, `repository`, `transact`, `wwwroot`의 정적 어셈블리를 우선 연결한다. `AppSettings:LoadModules`에 있으나 정적 사전에 없는 모듈은 `ack`와 같이 모듈 디렉터리의 DLL을 `AssemblyLoadContext.Default`로 동적 로드한다.

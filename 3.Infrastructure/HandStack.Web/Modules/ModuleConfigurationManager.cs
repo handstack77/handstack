@@ -81,14 +81,14 @@ namespace HandStack.Web.Modules
 
                             if (File.Exists(moduleSettingFilePath) == true)
                             {
-                                var content = File.ReadAllText(moduleSettingFilePath);
+                                var content = PlatformSettings.ReadAllText(moduleSettingFilePath);
                                 module = JsonConvert.DeserializeObject<DefaultModuleConfigJson>(content, ModuleJsonSerializerSettings);
                             }
                         }
                     }
                     else if (File.Exists(moduleSettingFilePath) == true)
                     {
-                        var content = File.ReadAllText(moduleSettingFilePath);
+                        var content = PlatformSettings.ReadAllText(moduleSettingFilePath);
                         module = JsonConvert.DeserializeObject<DefaultModuleConfigJson>(content, ModuleJsonSerializerSettings);
                     }
 

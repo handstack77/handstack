@@ -4,7 +4,7 @@
     rdy 프로젝트의 설정 파일에 사용된 포트 값을 한 번에 변경합니다.
 
 .DESCRIPTION
-    appsettings.json과 modules 하위의 모든 module.json에서 현재 포트를
+    appsettings.json·appsettings.{os}.json과 modules 하위의 모든 module.json·module.{os}.json에서 현재 포트를
     새 포트로 치환합니다. 소스 디렉터리에서는 rdy.csproj의 RdyServerPort를
     함께 변경하고, 빌드 산출물에서는 생성된 syn.config.json을 변경합니다.
     포트는 다른 숫자의 일부가 아닌 독립된 값일 때만 변경합니다.
@@ -93,7 +93,8 @@ try {
     }
 
     $moduleFiles = @(
-        Get-ChildItem -LiteralPath $moduleRoot -Recurse -File -Filter 'module.json' |
+        Get-ChildItem -LiteralPath $moduleRoot -Recurse -File |
+            Where-Object { $_.Name -match '^module(\.(windows|linux|macos))?\.json$' } |
             Select-Object -ExpandProperty FullName
     )
 
@@ -101,7 +102,12 @@ try {
         throw "다음 경로에서 module.json 파일을 찾을 수 없습니다: ${moduleRoot}"
     }
 
-    $files = @($appSettings) + $moduleFiles
+    $platformAppSettings = @(
+        Get-ChildItem -LiteralPath $root -File |
+            Where-Object { $_.Name -match '^appsettings\.(windows|linux|macos)\.json$' } |
+            Select-Object -ExpandProperty FullName
+    )
+    $files = @($appSettings) + $platformAppSettings + $moduleFiles
     if ($hasSynConfig) {
         $files += $synConfig
     }

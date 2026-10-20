@@ -186,7 +186,7 @@ namespace rdy.Services
                     using var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
                     using var reader = new StreamReader(stream);
                     var json = await reader.ReadToEndAsync(cancellationToken);
-                    var root = JObject.Parse(json);
+                    var root = JObject.Parse(PlatformSettings.Merge(filePath, json));
 
                     var snapshot = new Dictionary<string, JToken>(StringComparer.OrdinalIgnoreCase);
                     if (root["AppSettings"] is JObject appSettings)

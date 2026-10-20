@@ -1,6 +1,8 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 
 using Microsoft.Extensions.Configuration;
 
@@ -83,7 +85,7 @@ namespace HandStack.Web
                 if (module.Configuration == null)
                 {
                     result = new ConfigurationBuilder()
-                        .AddJsonFile(module.ModuleSettingFilePath)
+                        .AddJsonStream(new MemoryStream(Encoding.UTF8.GetBytes(PlatformSettings.ReadAllText(module.ModuleSettingFilePath))))
                         .AddUserSecrets(module.Assembly ?? Assembly.GetEntryAssembly() ?? Assembly.GetCallingAssembly())
                         .Build();
 

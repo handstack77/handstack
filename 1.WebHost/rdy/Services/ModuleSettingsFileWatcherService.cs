@@ -184,7 +184,7 @@ namespace rdy.Services
                 return;
             }
 
-            var result = ReloadRuntimeConfiguration(watchedModule.Module, configurationText);
+            var result = ReloadRuntimeConfiguration(watchedModule.Module, PlatformSettings.Merge(watchedModule.FilePath, configurationText));
             watchedModule.LastSnapshot = currentSnapshot;
 
             if (result.AppliedKeys.Count > 0)
@@ -400,7 +400,7 @@ namespace rdy.Services
 
             try
             {
-                var root = JObject.Parse(json);
+                var root = JObject.Parse(PlatformSettings.Merge(filePath, json));
                 var snapshot = new Dictionary<string, JToken>(StringComparer.OrdinalIgnoreCase);
                 FlattenModuleSettings(root, "", snapshot);
                 return snapshot;

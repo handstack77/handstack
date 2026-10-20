@@ -50,7 +50,7 @@ namespace logger
                 var moduleSettingFilePath = module.ModuleSettingFilePath;
                 if (File.Exists(moduleSettingFilePath) == true)
                 {
-                    var configurationText = File.ReadAllText(moduleSettingFilePath);
+                    var configurationText = PlatformSettings.ReadAllText(moduleSettingFilePath);
                     var moduleConfigJson = JsonConvert.DeserializeObject<ModuleConfigJson>(configurationText);
 
                     if (moduleConfigJson != null)
