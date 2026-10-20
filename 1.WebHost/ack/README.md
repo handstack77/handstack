@@ -94,6 +94,7 @@ curl "http://localhost:8421/stop?hostAccessID=<HOST_ACCESS_ID_HASH>"
 - `AppSettings:WebHostRootPath`: 정적 파일(`wwwroot`) 제공 경로 재정의(선택, 기본값은 `EntryBasePath/wwwroot`)
 - `AppSettings:IsEnabledCSP`: `content-security-policy.txt` 기반 CSP 적용 여부(기본값 `false`)
 - `AppSettings:Security:XFrameOptions`: `X-Frame-Options` 응답 헤더 값(기본값 `SAMEORIGIN`)
+- `AppSettings:CookieSameSite`: 인증 쿠키의 `SameSite` 값(`Lax` | `Strict` | `None` | `Unspecified`, 기본값 `Lax`). 잘못된 값은 `Lax`로 처리하며 프로세스 재시작 후 반영한다. `None`은 교차 사이트 요청에도 쿠키를 보내므로 HTTPS(`Secure`)와 CSRF 방어를 함께 구성해야 한다.
 - `Serilog:WriteTo`: 로그 출력 경로/형식
 
 주요 환경 변수:

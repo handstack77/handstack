@@ -408,7 +408,7 @@ namespace ack
                 {
                     options.Cookie.HttpOnly = true;
                     options.Cookie.SecurePolicy = environment.IsProduction() == true ? CookieSecurePolicy.Always : CookieSecurePolicy.SameAsRequest;
-                    options.Cookie.SameSite = environment.IsProduction() == true ? Microsoft.AspNetCore.Http.SameSiteMode.Lax : Microsoft.AspNetCore.Http.SameSiteMode.None;
+                    options.Cookie.SameSite = Enum.TryParse<Microsoft.AspNetCore.Http.SameSiteMode>(appSettings["CookieSameSite"].ToStringSafe("Lax"), true, out var cookieSameSite) == true ? cookieSameSite : Microsoft.AspNetCore.Http.SameSiteMode.Lax;
                     options.Cookie.Expiration = TimeSpan.FromSeconds(GlobalConfiguration.UserSignExpire);
 
                     options.SlidingExpiration = true;
