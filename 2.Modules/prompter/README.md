@@ -2,6 +2,11 @@
 
 prompts 계약을 기반으로 LLM 프롬프트 실행을 Open API로 제공하는 모듈입니다.
 
+`<decision>` 계약으로 TypeSafe Jev와 로컬 Ollama의 nimble, clef-flash, clef, tev1 판단 모델을 실행할 수 있습니다.
+로컬 판단 모델과 태그의 허용 목록은 `module.json`의 `ModuleConfig.AllowedOllamaDecisionModels`에서 관리합니다.
+`<decision>`과 `<media type="Image">`를 함께 선언하면 PNG·JPEG 이미지를 첨부해 판단할 수 있으며(JEV010 GP06·GP07), 이미지를 지원하는 Ollama 모델은 `AllowedOllamaImageDecisionModels`에서 관리합니다.
+설정, `JEV010` 예제, QueryID와 `PromptResult` 응답은 [판단 계약 안내](DECISION.md)를 참고합니다.
+
 ```json
 {
     "ModuleID": "prompter",
@@ -225,6 +230,16 @@ prompter 모듈의 Contract 파일에서 사용하는 LLM 데이터 원본 목�
 Ollama endpoint는 `http://localhost:11434`처럼 base URL을 입력하면 내부에서 `/api/chat`을 붙여 호출합니다. LMStudio endpoint는 `http://localhost:1234` 또는 `http://localhost:1234/v1`을 입력하면 `/v1/chat/completions`로 정규화합니다.
 
 Ollama의 일부 qwen3 계열 채팅 템플릿은 메시지 목록에 비어 있지 않은 `user` role이 없으면 `no user query found in messages` 오류를 반환합니다. `<message>` 없이 작성된 기존 statement가 `system` role 하나만 생성하는 경우 prompter는 Ollama 요청에 한해 마지막 유효한 `system` 메시지를 `user`로 정규화합니다. 메시지 내용을 복제하지 않으므로 입력 토큰 수는 늘어나지 않습니다.
+
+#### 로컬 판단 모델 허용 목록
+
+`AllowedOllamaDecisionModels`는 Ollama 판단 계약에서 호출할 수 있는 모델명·태그의 배열입니다.
+실제 실행할 모델은 `LLMSource.ModelID`로 선택하며, 허용 목록에도 동일한 문자열을 등록해야 합니다.
+대소문자와 태그를 정확히 비교하고, 누락·null·빈 배열은 Ollama 판단 호출을 차단합니다. 코드에 모델별 기본 목록을 두지 않습니다.
+호스트의 `AppSettings:IsConfigurationWatching=true`이면 실행 중 목록 교체를 지원합니다. 일반 Ollama 채팅과 TypeSafe 판단에는 적용하지 않습니다.
+전체 기본 목록과 설정 예시는 [판단 계약 안내](DECISION.md)를 참고합니다.
+
+`AllowedOllamaImageDecisionModels`는 그중 이미지 입력을 지원하는 모델(기본 `clef`, `clef-flash`와 `:latest` 태그)의 배열입니다. 같은 방식으로 정확히 비교하며, 이 목록에 없는 모델에 이미지를 보내면 호출 전에 `decision_image_model_unsupported`로 차단합니다. nimble과 tev1은 텍스트 전용이라 등록하지 않습니다.
 
 #### Tool 보안 설정
 

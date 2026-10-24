@@ -33,6 +33,7 @@ namespace prompter.DataClient
                 LLMProviders.Gemini => serviceProvider.GetRequiredService<GeminiChatClient>(),
                 LLMProviders.Ollama => serviceProvider.GetRequiredService<OllamaChatClient>(),
                 LLMProviders.AzureOpenAI => serviceProvider.GetRequiredService<OpenAICompatibleChatClient>(),
+                LLMProviders.TypeSafe => throw new NotSupportedException("TypeSafe는 decision 계약으로 실행해야 합니다."),
                 _ => new OpenAICompatibleChatClient(httpClientFactory)
             };
         }

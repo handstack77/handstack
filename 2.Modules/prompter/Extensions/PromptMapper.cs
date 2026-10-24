@@ -180,6 +180,7 @@ namespace prompter.Extensions
                 promptMap.Authorization = ParseAuthorization(item);
                 promptMap.Headers = ParseHeaders(item);
                 promptMap.Body = ParseBody(item);
+                promptMap.Decision = DecisionContract.Parse(item, promptMap);
 
                 var children = new HtmlDocument
                 {

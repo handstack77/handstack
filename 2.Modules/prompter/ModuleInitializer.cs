@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -109,6 +109,9 @@ namespace prompter
                             }
                         }
 
+                        ApplyAllowedOllamaDecisionModels(moduleConfig.AllowedOllamaDecisionModels);
+                        ApplyAllowedOllamaImageDecisionModels(moduleConfig.AllowedOllamaImageDecisionModels);
+
                         ModuleConfiguration.AllowedKernelPlugins.Clear();
                         if (moduleConfig.AllowedKernelPlugins != null && moduleConfig.AllowedKernelPlugins.Count > 0)
                         {
@@ -201,6 +204,12 @@ namespace prompter
 
                 services.AddScoped<ModuleApiClient>();
                 services.AddHttpClient();
+                services.AddHttpClient("prompter.decision", client =>
+                {
+                    client.Timeout = System.Threading.Timeout.InfiniteTimeSpan;
+                    client.MaxResponseContentBufferSize = 1024 * 1024;
+                }).ConfigurePrimaryHttpMessageHandler(() => new System.Net.Http.HttpClientHandler { AllowAutoRedirect = false });
+                services.AddTransient<SystemOneClient>();
 
                 services.AddSingleton(new PromptLoggerClient(Log.Logger, ModuleConfiguration.ModuleLogger));
                 services.AddTransient<OpenAICompatibleChatClient>();
@@ -221,16 +230,49 @@ namespace prompter
         {
             ArgumentNullException.ThrowIfNull(propertyName);
 
-            return propertyName.Equals(nameof(ModuleConfig.LLMSource), StringComparison.Ordinal);
+            return propertyName.Equals(nameof(ModuleConfig.LLMSource), StringComparison.Ordinal)
+                || propertyName.Equals(nameof(ModuleConfig.AllowedOllamaDecisionModels), StringComparison.Ordinal)
+                || propertyName.Equals(nameof(ModuleConfig.AllowedOllamaImageDecisionModels), StringComparison.Ordinal);
         }
 
         public void ApplyModuleConfigurationProperty(ModuleInfo module, string propertyName, object? value, ModuleConfigurationReloadResult result)
         {
-            var llmSources = value as List<LLMSource> ?? [];
-            PromptMapper.ReloadDataSourceMappings(llmSources, Log.Logger);
-            ModuleConfiguration.LLMSource = llmSources.Select(item => item with { }).ToList();
+            if (propertyName.Equals(nameof(ModuleConfig.AllowedOllamaDecisionModels), StringComparison.Ordinal) == true)
+            {
+                ApplyAllowedOllamaDecisionModels(value as List<string>);
+            }
+            else if (propertyName.Equals(nameof(ModuleConfig.AllowedOllamaImageDecisionModels), StringComparison.Ordinal) == true)
+            {
+                ApplyAllowedOllamaImageDecisionModels(value as List<string>);
+            }
+            else
+            {
+                var llmSources = value as List<LLMSource> ?? [];
+                PromptMapper.ReloadDataSourceMappings(llmSources, Log.Logger);
+                ModuleConfiguration.LLMSource = llmSources.Select(item => item with { }).ToList();
+            }
+
             ArgumentNullException.ThrowIfNull(result);
             result.AppliedKeys.Add($"ModuleConfig:{propertyName}");
+        }
+
+        private static void ApplyAllowedOllamaDecisionModels(IEnumerable<string>? models)
+        {
+            // 진행 중인 요청이 참조하는 목록은 변경하지 않고 새 목록으로 교체합니다.
+            ModuleConfiguration.AllowedOllamaDecisionModels = (models ?? [])
+                .Where(model => string.IsNullOrWhiteSpace(model) == false)
+                .Select(model => model.Trim())
+                .Distinct(StringComparer.Ordinal)
+                .ToList();
+        }
+
+        private static void ApplyAllowedOllamaImageDecisionModels(IEnumerable<string>? models)
+        {
+            ModuleConfiguration.AllowedOllamaImageDecisionModels = (models ?? [])
+                .Where(model => string.IsNullOrWhiteSpace(model) == false)
+                .Select(model => model.Trim())
+                .Distinct(StringComparer.Ordinal)
+                .ToList();
         }
 
         private static LoggerConfiguration CreateLoggerConfiguration(string logFilePath)

@@ -45,7 +45,7 @@ namespace prompter.Extensions
             }
 
             var promptMap = PromptMapper.GetPromptMap(queryObject.QueryID);
-            if (promptMap == null || promptMap.MediaVariables.Count == 0)
+            if (promptMap == null || (promptMap.MediaVariables.Count == 0 && promptMap.Decision == null))
             {
                 return;
             }
@@ -65,6 +65,11 @@ namespace prompter.Extensions
             {
                 var source = queryObject.Parameters[i];
                 var parameterName = PromptMapper.NormalizeParameterName(source.ParameterName);
+                if (promptMap.Decision != null && string.Equals(parameterName, promptMap.Decision.StateParameter, StringComparison.OrdinalIgnoreCase))
+                {
+                    if (parameters[i] is JObject stateToken) stateToken["Value"] = "[decision-state]";
+                    continue;
+                }
                 if (mediaVariables.TryGetValue(parameterName, out var mediaVariable) == false
                     || parameters[i] is not JObject parameterToken)
                 {

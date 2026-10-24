@@ -34,7 +34,7 @@ using Serilog;
 
 namespace prompter.DataClient
 {
-    public partial class PromptClient(ILogger logger, TransactionClient businessApiClient, ModuleApiClient moduleApiClient, PromptLoggerClient loggerClient, LLMChatClientFactory llmChatClientFactory, PromptToolExecutor promptToolExecutor) : IPromptClient
+    public partial class PromptClient(ILogger logger, TransactionClient businessApiClient, ModuleApiClient moduleApiClient, PromptLoggerClient loggerClient, LLMChatClientFactory llmChatClientFactory, PromptToolExecutor promptToolExecutor, SystemOneClient systemOneClient) : IPromptClient
     {
         private const string FallbackPromptResultFieldID = "PromptResult";
 
@@ -404,49 +404,60 @@ namespace prompter.DataClient
                             });
                         }
 
-                        AddOrUpdateRuntimeParameter(dynamicObject, "ChatHistory", string.Join("\n", chatHistory.Select(x => x.Role + ": " + x.Content)));
-                        var promptMessages = await CreatePromptMessagesAsync(promptMap, dynamicObject, chatHistory);
-                        var parsePrompt = string.Join(Environment.NewLine, promptMessages.Skip(chatHistory.Count).Select(item => item.Content));
-                        var hasCurrentMedia = promptMessages.Skip(chatHistory.Count).Any(item => item.Media.Count > 0);
-                        if (hasCurrentMedia == false && (string.IsNullOrEmpty(parsePrompt) == true || parsePrompt.Replace(Environment.NewLine, "").Replace("\t", "").Trim() == ""))
+                        string assistantMessage;
+                        var promptResultFieldIDs = GetPromptResultFieldIDs(promptMap);
+                        if (promptMap.Decision != null)
                         {
+                            var stateParameter = dynamicObject.Parameters.FirstOrDefault(p =>
+                                string.Equals(PromptMapper.NormalizeParameterName(p.ParameterName), promptMap.Decision.StateParameter, StringComparison.OrdinalIgnoreCase));
+                            var decisionImages = CreateMediaInputs(promptMap, dynamicObject);
+                            assistantMessage = await systemOneClient.EvaluateAsync(transactionDynamicObject.Value, stateParameter?.Value.ToStringSafe() ?? "", decisionImages);
+                        }
+                        else
+                        {
+                            AddOrUpdateRuntimeParameter(dynamicObject, "ChatHistory", string.Join("\n", chatHistory.Select(x => x.Role + ": " + x.Content)));
+                            var promptMessages = await CreatePromptMessagesAsync(promptMap, dynamicObject, chatHistory);
+                            var parsePrompt = string.Join(Environment.NewLine, promptMessages.Skip(chatHistory.Count).Select(item => item.Content));
+                            var hasCurrentMedia = promptMessages.Skip(chatHistory.Count).Any(item => item.Media.Count > 0);
+                            if (hasCurrentMedia == false && (string.IsNullOrEmpty(parsePrompt) == true || parsePrompt.Replace(Environment.NewLine, "").Replace("\t", "").Trim() == ""))
+                            {
+                                if (ModuleConfiguration.IsTransactionLogging == true || promptMap.TransactionLog == true)
+                                {
+                                    var logData = $"ExecutePromptID: {executePromptID}, Parameters: {JsonConvert.SerializeObject(dynamicParameters)}";
+                                    loggerClient.TransactionMessageLogging(request.GlobalID, "Y", promptMap.ApplicationID, promptMap.ProjectID, promptMap.TransactionID, promptMap.StatementID, logData, "PromptClient/ExecuteDynamicPromptMap", (string error) =>
+                                    {
+                                        logger.Information("[{LogCategory}] " + "fallback error: " + error + ", empty Prompt passing" + logData, "PromptClient/ExecuteDynamicPromptMap");
+                                    });
+                                }
+
+                                continue;
+                            }
+
                             if (ModuleConfiguration.IsTransactionLogging == true || promptMap.TransactionLog == true)
                             {
                                 var logData = $"ExecutePromptID: {executePromptID}, Parameters: {JsonConvert.SerializeObject(dynamicParameters)}";
                                 loggerClient.TransactionMessageLogging(request.GlobalID, "Y", promptMap.ApplicationID, promptMap.ProjectID, promptMap.TransactionID, promptMap.StatementID, logData, "PromptClient/ExecuteDynamicPromptMap", (string error) =>
                                 {
-                                    logger.Information("[{LogCategory}] " + "fallback error: " + error + ", empty Prompt passing" + logData, "PromptClient/ExecuteDynamicPromptMap");
+                                    logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "PromptClient/ExecuteDynamicPromptMap");
                                 });
                             }
 
-                            continue;
-                        }
+                            var userMessage = GetUserMessage(dynamicObject, parsePrompt);
+                            var tools = promptToolExecutor.BuildTools(promptMap, dynamicObject, logger);
 
-                        if (ModuleConfiguration.IsTransactionLogging == true || promptMap.TransactionLog == true)
-                        {
-                            var logData = $"ExecutePromptID: {executePromptID}, Parameters: {JsonConvert.SerializeObject(dynamicParameters)}";
-                            loggerClient.TransactionMessageLogging(request.GlobalID, "Y", promptMap.ApplicationID, promptMap.ProjectID, promptMap.TransactionID, promptMap.StatementID, logData, "PromptClient/ExecuteDynamicPromptMap", (string error) =>
+                            var llmRequest = CreateLLMChatRequest(transactionDynamicObject.Value, promptMap, dynamicObject, promptMessages, tools);
+                            assistantMessage = await ExecuteLLMChatAsync(llmRequest, promptMap.Tools.MaxRounds, tools);
+
+                            chatHistory.Add(new LLMChatMessage("user", userMessage));
+                            chatHistory.Add(new LLMChatMessage("assistant", assistantMessage));
+
+                            if (ModuleConfiguration.IsChatHistoryConsoleShow == true)
                             {
-                                logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "PromptClient/ExecuteDynamicPromptMap");
-                            });
-                        }
-
-                        var userMessage = GetUserMessage(dynamicObject, parsePrompt);
-                        var tools = promptToolExecutor.BuildTools(promptMap, dynamicObject, logger);
-
-                        var llmRequest = CreateLLMChatRequest(transactionDynamicObject.Value, promptMap, dynamicObject, promptMessages, tools);
-                        var assistantMessage = await ExecuteLLMChatAsync(llmRequest, promptMap.Tools.MaxRounds, tools);
-                        var promptResultFieldIDs = GetPromptResultFieldIDs(promptMap);
-
-                        chatHistory.Add(new LLMChatMessage("user", userMessage));
-                        chatHistory.Add(new LLMChatMessage("assistant", assistantMessage));
-
-                        if (ModuleConfiguration.IsChatHistoryConsoleShow == true)
-                        {
-                            Console.WriteLine();
-                            Console.WriteLine("".PadLeft(20, '-') + " ChatHistory " + "".PadLeft(20, '-'));
-                            Console.WriteLine(string.Join(Environment.NewLine, $"prompt: {parsePrompt}"));
-                            Console.WriteLine(string.Join(Environment.NewLine, chatHistory.Select(item => $"{item.Role}: {item.Content}")));
+                                Console.WriteLine();
+                                Console.WriteLine("".PadLeft(20, '-') + " ChatHistory " + "".PadLeft(20, '-'));
+                                Console.WriteLine(string.Join(Environment.NewLine, $"prompt: {parsePrompt}"));
+                                Console.WriteLine(string.Join(Environment.NewLine, chatHistory.Select(item => $"{item.Role}: {item.Content}")));
+                            }
                         }
 
                         if (dsTransactionResult == null)
@@ -1342,6 +1353,12 @@ TransactionException:
 
         private static string ValidateLLMConnection(TransactionDynamicObjects transactionDynamicObject)
         {
+            if (transactionDynamicObject.Statement.Decision != null)
+            {
+                if (transactionDynamicObject.LLMProvider is not (LLMProviders.TypeSafe or LLMProviders.Ollama)) return "decision_provider_unsupported";
+                return string.IsNullOrWhiteSpace(transactionDynamicObject.ModelID) ? "decision_model_required" : "";
+            }
+            if (transactionDynamicObject.LLMProvider == LLMProviders.TypeSafe) return "decision_contract_required";
             switch (transactionDynamicObject.LLMProvider)
             {
                 case LLMProviders.OpenAI:

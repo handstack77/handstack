@@ -43,6 +43,10 @@ namespace prompter.Entity
 
         public List<LLMSource> LLMSource { get; set; }
 
+        public List<string> AllowedOllamaDecisionModels { get; set; }
+
+        public List<string> AllowedOllamaImageDecisionModels { get; set; }
+
         public List<AllowedKernelPlugin> AllowedKernelPlugins { get; set; }
 
         public List<AllowedExternalTool> AllowedMcpServers { get; set; }
@@ -89,6 +93,8 @@ namespace prompter.Entity
             IsChatHistoryConsoleShow = false;
             DefaultPromptResultFieldID = "PromptResult";
             LLMSource = [];
+            AllowedOllamaDecisionModels = [];
+            AllowedOllamaImageDecisionModels = [];
             AllowedKernelPlugins = [];
             AllowedMcpServers = [];
             AllowedCliTools = [];

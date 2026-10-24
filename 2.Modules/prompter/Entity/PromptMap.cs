@@ -79,6 +79,9 @@ namespace prompter.Entity
         [JsonProperty]
         public PromptBody Body { get; set; }
 
+        [JsonProperty]
+        public PromptDecision? Decision { get; set; }
+
         public HtmlDocument Chidren { get; set; }
 
         [JsonProperty]

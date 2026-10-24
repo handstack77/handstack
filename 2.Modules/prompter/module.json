@@ -21,7 +21,85 @@
             "prompter.Events.ManagedRequest"
         ],
         "SubscribeAction": [],
+        "AllowedOllamaDecisionModels": [
+            "nimble",
+            "nimble:latest",
+            "clef-flash",
+            "clef-flash:latest",
+            "clef",
+            "clef:latest",
+            "tev1",
+            "tev1:latest",
+            "tev1:4b",
+            "tev1:0.8b"
+        ],
+        "AllowedOllamaImageDecisionModels": [
+            "clef-flash",
+            "clef-flash:latest",
+            "clef",
+            "clef:latest"
+        ],
         "LLMSource": [
+            {
+                "ApplicationID": "HDS",
+                "ProjectID": "LLM",
+                "DataSourceID": "DECISION_JEV",
+                "LLMProvider": "TypeSafe",
+                "ApiKey": "",
+                "ModelID": "jev-latest",
+                "Endpoint": "https://api.typesafe.ai",
+                "Think": false,
+                "Stream": false,
+                "Comment": "JEV010 System One 판단 계약"
+            },
+            {
+                "ApplicationID": "HDS",
+                "ProjectID": "LLM",
+                "DataSourceID": "DECISION_NIMBLE",
+                "LLMProvider": "Ollama",
+                "ApiKey": "",
+                "ModelID": "nimble",
+                "Endpoint": "http://127.0.0.1:11434",
+                "Think": false,
+                "Stream": false,
+                "Comment": "JEV010 System One 판단 계약"
+            },
+            {
+                "ApplicationID": "HDS",
+                "ProjectID": "LLM",
+                "DataSourceID": "DECISION_CLEF_FLASH",
+                "LLMProvider": "Ollama",
+                "ApiKey": "",
+                "ModelID": "clef-flash",
+                "Endpoint": "http://127.0.0.1:11434",
+                "Think": false,
+                "Stream": false,
+                "Comment": "JEV010 System One 판단 계약"
+            },
+            {
+                "ApplicationID": "HDS",
+                "ProjectID": "LLM",
+                "DataSourceID": "DECISION_CLEF",
+                "LLMProvider": "Ollama",
+                "ApiKey": "",
+                "ModelID": "clef",
+                "Endpoint": "http://127.0.0.1:11434",
+                "Think": false,
+                "Stream": false,
+                "Comment": "JEV010 System One 판단 계약"
+            },
+            {
+                "ApplicationID": "HDS",
+                "ProjectID": "LLM",
+                "DataSourceID": "DECISION_TEV1",
+                "LLMProvider": "Ollama",
+                "ApiKey": "",
+                "ModelID": "tev1",
+                "Endpoint": "http://127.0.0.1:11434",
+                "Think": false,
+                "Stream": false,
+                "Comment": "JEV010 System One 판단 계약"
+            },
             {
                 "ApplicationID": "HDS",
                 "ProjectID": "*",

@@ -22,6 +22,8 @@ let $module_settings = {
                     "prompter.Events.ManagedRequest"
                 ],
                 "SubscribeAction": [],
+                "AllowedOllamaDecisionModels": [],
+                "AllowedOllamaImageDecisionModels": [],
                 "LLMSource": [
                     {
                         "ApplicationID": "HDS",
@@ -108,6 +110,8 @@ let $module_settings = {
                 syn.$l.get('txtModuleLogFilePath').value = $this.prop.moduleConfig.ModuleConfig.ModuleLogFilePath;
                 syn.$l.get('chkIsLogServer').checked = $string.toBoolean($this.prop.moduleConfig.ModuleConfig.IsLogServer);
                 syn.$l.get('txtLogServerUrl').value = $this.prop.moduleConfig.ModuleConfig.LogServerUrl;
+                syn.$l.get('txtAllowedOllamaDecisionModels').value = JSON.stringify($this.prop.moduleConfig.ModuleConfig.AllowedOllamaDecisionModels || [], null, 4);
+                syn.$l.get('txtAllowedOllamaImageDecisionModels').value = JSON.stringify($this.prop.moduleConfig.ModuleConfig.AllowedOllamaImageDecisionModels || [], null, 4);
                 syn.$l.get('txtToolSecurityJson').value = JSON.stringify({
                     AllowedKernelPlugins: $this.prop.moduleConfig.ModuleConfig.AllowedKernelPlugins || [],
                     AllowedMcpServers: $this.prop.moduleConfig.ModuleConfig.AllowedMcpServers || [],
@@ -137,6 +141,21 @@ let $module_settings = {
         btnJsonView_click() {
             if ($object.isNullOrUndefined($this.prop.moduleConfig) == false) {
                 try {
+                    var allowedDecisionModels = JSON.parse(syn.$l.get('txtAllowedOllamaDecisionModels').value || '[]');
+                    if (Array.isArray(allowedDecisionModels) == false || allowedDecisionModels.some(model => typeof model != 'string' || model.trim() == '') == true) {
+                        syn.$w.alert('판단 모델 허용 목록은 비어 있지 않은 모델명 문자열의 JSON 배열이어야 합니다.');
+                        return;
+                    }
+
+                    $this.prop.moduleConfig.ModuleConfig.AllowedOllamaDecisionModels = [...new Set(allowedDecisionModels.map(model => model.trim()))];
+
+                    var allowedImageDecisionModels = JSON.parse(syn.$l.get('txtAllowedOllamaImageDecisionModels').value || '[]');
+                    if (Array.isArray(allowedImageDecisionModels) == false || allowedImageDecisionModels.some(model => typeof model != 'string' || model.trim() == '') == true) {
+                        syn.$w.alert('이미지 판단 모델 허용 목록은 비어 있지 않은 모델명 문자열의 JSON 배열이어야 합니다.');
+                        return;
+                    }
+
+                    $this.prop.moduleConfig.ModuleConfig.AllowedOllamaImageDecisionModels = [...new Set(allowedImageDecisionModels.map(model => model.trim()))];
                     $this.prop.moduleConfig.ModuleID = syn.$l.get('txtModuleID').value;
                     $this.prop.moduleConfig.Name = syn.$l.get('txtName').value;
                     $this.prop.moduleConfig.IsBundledWithHost = syn.$l.get('chkIsBundledWithHost').checked;

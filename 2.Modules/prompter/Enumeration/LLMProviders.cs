@@ -10,6 +10,7 @@ namespace prompter.Enumeration
         Ollama,
         LMStudio,
         AzureOpenAI,
+        TypeSafe,
     }
 
     public static class LLMProvidersExtensions
@@ -22,6 +23,7 @@ namespace prompter.Enumeration
             { LLMProviders.Ollama, "Ollama" },
             { LLMProviders.LMStudio, "LMStudio" },
             { LLMProviders.AzureOpenAI, "AzureOpenAI" },
+            { LLMProviders.TypeSafe, "TypeSafe" },
         };
 
         public static string ToEnumString(this LLMProviders key, string category = "base")

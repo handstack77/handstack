@@ -3,6 +3,58 @@ let $LLM010 = {
     prop: {
         focusFeature: null,
         promptFeatures: [
+            { type: 'header', title: 'Decision: Jev / Ollama 판단 계약' },
+            {
+                type: 'item',
+                value: 'LLM.JEV010.GP01',
+                title: 'TypeSafe jev-latest 고객문의 판단',
+                description: 'Choice·Score·Noul로 부서, 긴급도, 민감정보를 판단하고 JSON 결과를 반환합니다.',
+                placeholder: '이번 달 구독이 두 번 결제되었습니다. 환불해 주세요.'
+            },
+            {
+                type: 'item',
+                value: 'LLM.JEV010.GP02',
+                title: 'Ollama nimble 고객문의 판단',
+                description: 'Choice·Score·Noul로 부서, 긴급도, 민감정보를 판단하고 JSON 결과를 반환합니다.',
+                placeholder: '이번 달 구독이 두 번 결제되었습니다. 환불해 주세요.'
+            },
+            {
+                type: 'item',
+                value: 'LLM.JEV010.GP03',
+                title: 'Ollama clef-flash 고객문의 판단',
+                description: 'Choice·Score·Noul로 부서, 긴급도, 민감정보를 판단하고 JSON 결과를 반환합니다.',
+                placeholder: '이번 달 구독이 두 번 결제되었습니다. 환불해 주세요.'
+            },
+            {
+                type: 'item',
+                value: 'LLM.JEV010.GP04',
+                title: 'Ollama clef 고객문의 판단',
+                description: 'Choice·Score·Noul로 부서, 긴급도, 민감정보를 판단하고 JSON 결과를 반환합니다.',
+                placeholder: '이번 달 구독이 두 번 결제되었습니다. 환불해 주세요.'
+            },
+            {
+                type: 'item',
+                value: 'LLM.JEV010.GP05',
+                title: 'Ollama tev1 고객문의 판단',
+                description: 'Choice·Score·Noul로 부서, 긴급도, 민감정보를 판단하고 JSON 결과를 반환합니다.',
+                placeholder: '이번 달 구독이 두 번 결제되었습니다. 환불해 주세요.'
+            },
+            {
+                type: 'item',
+                value: 'LLM.JEV010.GP06',
+                title: 'Ollama clef-flash 고객문의 이미지 판단',
+                description: '메시지와 첨부 이미지(PNG, JPEG)를 함께 보고 부서, 긴급도, 민감정보를 판단합니다.',
+                placeholder: '첨부한 화면의 오류 때문에 결제가 진행되지 않습니다. 확인해 주세요.',
+                image: true
+            },
+            {
+                type: 'item',
+                value: 'LLM.JEV010.GP07',
+                title: 'TypeSafe jev-latest 고객문의 이미지 판단',
+                description: '외부 TypeSafe API로 이미지를 전송합니다. 개인정보가 포함된 이미지는 로컬 Ollama(GP06)를 사용하세요.',
+                placeholder: '첨부한 화면의 오류 때문에 결제가 진행되지 않습니다. 확인해 주세요.',
+                image: true
+            },
             {
                 type: 'header',
                 title: 'Classification (CLS): 분류, 의도 파악을 확인하는 프롬프트',
@@ -308,6 +360,8 @@ ModifiedAt,DateTime,0,8`
 
                 syn.$l.get('lblFeatureID').innerText = `${$this.prop.focusFeature.value}: ${$this.prop.focusFeature.title}`;
                 syn.$l.get('txtUserMessage').value = $this.prop.focusFeature.placeholder;
+                syn.$l.get('fileImage').value = '';
+                syn.$l.get('divImageFile').style.display = $this.prop.focusFeature.image == true ? '' : 'none';
 
                 var variables = $this.prop.focusFeature.variables || [];
                 var values = [];
@@ -353,31 +407,37 @@ ModifiedAt,DateTime,0,8`
 
             syn.$l.get('txtPromptResult').value = '';
 
-            var directObject = {
-                programID: syn.Config.ApplicationID,
-                businessID: businessID,
-                transactionID: transactionID,
-                functionID: functionID,
-                inputObjects: [
-                    { prop: 'UserMessage', val: syn.$l.get('txtUserMessage').value.trim() },
-                ]
-            };
+            $this.method.readImageInput(function (imageInput) {
+                var directObject = {
+                    programID: syn.Config.ApplicationID,
+                    businessID: businessID,
+                    transactionID: transactionID,
+                    functionID: functionID,
+                    inputObjects: [
+                        { prop: 'UserMessage', val: syn.$l.get('txtUserMessage').value.trim() },
+                    ]
+                };
 
-            $this.method.setFunctionArguments(directObject.inputObjects);
+                if (imageInput != null) {
+                    directObject.inputObjects.push(imageInput);
+                }
 
-            syn.$w.transactionDirect(directObject, function (responseData, addtionalData) {
-                if (responseData && responseData.length > 0) {
-                    var response = responseData[0].value;
-                    if ($string.isNullOrEmpty(response.PromptResult) == false) {
-                        syn.$l.get('txtPromptResult').value = response.PromptResult;
+                $this.method.setFunctionArguments(directObject.inputObjects);
+
+                syn.$w.transactionDirect(directObject, function (responseData, addtionalData) {
+                    if (responseData && responseData.length > 0) {
+                        var response = responseData[0].value;
+                        if ($string.isNullOrEmpty(response.PromptResult) == false) {
+                            syn.$l.get('txtPromptResult').value = response.PromptResult;
+                        }
+                        else {
+                            syn.$l.get('txtPromptResult').value = JSON.stringify(responseData, null, 2);
+                        }
                     }
                     else {
-                        syn.$l.get('txtPromptResult').value = JSON.stringify(responseData, null, 2);
+                        syn.$w.alert(`${serverFunctionID} 거래 확인 필요.`);
                     }
-                }
-                else {
-                    syn.$w.alert(`${serverFunctionID} 거래 확인 필요.`);
-                }
+                });
             });
         },
 
@@ -394,6 +454,34 @@ ModifiedAt,DateTime,0,8`
     },
 
     method: {
+        // 이미지 판단 거래에서 선택한 파일을 Base64 원문으로 읽어 Image1(PNG) 또는 Image2(JPEG) 입력으로 반환합니다.
+        readImageInput(callback) {
+            var file = $this.prop.focusFeature.image == true ? syn.$l.get('fileImage').files[0] : null;
+            if (file == null) {
+                callback(null);
+                return;
+            }
+
+            if (file.type != 'image/png' && file.type != 'image/jpeg') {
+                syn.$w.alert('이미지는 PNG 또는 JPEG 파일만 첨부할 수 있습니다.');
+                return;
+            }
+
+            if (file.size > 16 * 1024 * 1024) {
+                syn.$w.alert('이미지는 16MB 이하만 첨부할 수 있습니다.');
+                return;
+            }
+
+            var reader = new FileReader();
+            reader.onload = function () {
+                callback({ prop: file.type == 'image/png' ? 'Image1' : 'Image2', val: String(reader.result).split(',')[1] });
+            };
+            reader.onerror = function () {
+                syn.$w.alert('이미지 파일을 읽을 수 없습니다.');
+            };
+            reader.readAsDataURL(file);
+        },
+
         setFunctionArguments(inputObjects) {
             var items = syn.uicontrols.$grid.getSettings('grdParameters').data;
             for (var i = 0, length = items.length; i < length; i++) {

@@ -31,6 +31,8 @@ namespace prompter.Entity
         public static bool IsLogServer = false;
         public static string LogServerUrl = "";
         public static List<LLMSource> LLMSource = [];
+        public static List<string> AllowedOllamaDecisionModels = [];
+        public static List<string> AllowedOllamaImageDecisionModels = [];
         public static List<AllowedKernelPlugin> AllowedKernelPlugins = [];
         public static List<AllowedExternalTool> AllowedMcpServers = [];
         public static List<AllowedExternalTool> AllowedCliTools = [];

@@ -267,6 +267,24 @@
                                                 </td>
                                             </tr>
                                             <tr>
+                                                <td class="bg-body">AllowedOllamaDecisionModels</td>
+                                                <td>
+                                                    <textarea id="txtAllowedOllamaDecisionModels" rows="6" class="form-control resize:none white-space:nowrap"></textarea>
+                                                    <small class="form-hint mt-2">
+                                                        로컬 Ollama 판단 모델의 이름과 태그를 JSON 배열로 관리합니다. 대소문자를 구분하여 정확히 일치하는 모델만 허용하며, 빈 목록은 Ollama 판단 호출을 차단합니다. LLMSource의 ModelID도 같은 값으로 설정하세요.
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">AllowedOllamaImageDecisionModels</td>
+                                                <td>
+                                                    <textarea id="txtAllowedOllamaImageDecisionModels" rows="4" class="form-control resize:none white-space:nowrap"></textarea>
+                                                    <small class="form-hint mt-2">
+                                                        이미지 입력을 지원하는 로컬 Ollama 판단 모델(clef, clef-flash 등)의 이름과 태그를 JSON 배열로 관리합니다. 이 목록에 없는 모델에 이미지를 보내면 호출 전에 차단되며, AllowedOllamaDecisionModels에도 등록되어 있어야 합니다.
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
                                                 <td class="bg-body">ToolSecurity</td>
                                                 <td>
                                                     <textarea id="txtToolSecurityJson" rows="16" class="form-control resize:none white-space:nowrap"></textarea>
@@ -393,6 +411,7 @@
                                 <option value="Claude">Claude</option>
                                 <option value="Gemini">Gemini</option>
                                 <option value="Ollama">Ollama</option>
+                                <option value="TypeSafe">TypeSafe (Jev 판단)</option>
                                 <option value="LMStudio">LMStudio</option>
                             </select>
                         </div>
