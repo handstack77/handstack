@@ -22,15 +22,11 @@ using Serilog;
 
 namespace repository.Events
 {
-    public class StorageRefreshRequest(string changeType, string filePath, string? userWorkID, string? applicationID) : IRequest<bool>
+    public class StorageRefreshRequest(string changeType, string filePath) : IRequest<bool>
     {
         public string ChangeType { get; } = changeType;
 
         public string FilePath { get; } = filePath;
-
-        public string? UserWorkID { get; } = userWorkID;
-
-        public string? ApplicationID { get; } = applicationID;
     }
 
     public class StorageRefreshRequestHandler(ILogger logger) : IRequestHandler<StorageRefreshRequest, bool>
@@ -68,7 +64,7 @@ namespace repository.Events
                             var repositoryFile = PathExtensions.Join(basePath, filePath);
                             try
                             {
-                                if (System.IO.File.Exists(repositoryFile) == true && (repositoryFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == false))
+                                if (System.IO.File.Exists(repositoryFile) == true)
                                 {
                                     var repositoryText = System.IO.File.ReadAllText(repositoryFile);
                                     var repositorys = JsonConvert.DeserializeObject<List<Repository>>(repositoryText);
@@ -96,8 +92,6 @@ namespace repository.Events
                                                     repositoryDirectoryInfo.Create();
                                                 }
                                             }
-
-                                            repository.UserWorkID = "";
                                             repository.SettingFilePath = repositoryFile;
 
                                             if (repository.IsLocalDbFileManaged == true)
@@ -132,7 +126,7 @@ namespace repository.Events
                         foreach (var basePath in ModuleConfiguration.ContractBasePath)
                         {
                             var repositoryFile = PathExtensions.Join(basePath, filePath);
-                            if (System.IO.File.Exists(repositoryFile) == true && (repositoryFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == false))
+                            if (System.IO.File.Exists(repositoryFile) == true)
                             {
                                 logger.Information("[{LogCategory}] " + $"Delete Contract FilePath: {repositoryFile}", "Storage/Refresh");
 

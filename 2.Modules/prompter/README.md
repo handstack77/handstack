@@ -280,7 +280,7 @@ ${UserMessage}
         </tools>
         <authorization type="Bearer" value="@Token" />
         <headers>
-            <header name="X-Tenant" value="@TenantID" />
+            <header name="X-Company" value="@CompanyID" />
         </headers>
         <body type="form-data">
             <part type="file" name="uploadByPath" path="@UploadFilePath" fileName="@FileName" contentType="application/octet-stream" />
@@ -288,7 +288,7 @@ ${UserMessage}
         </body>
         <param id="@UserMessage" type="String" length="-1" value="" />
         <param id="@Token" type="String" length="4000" value="NULL" />
-        <param id="@TenantID" type="String" length="-1" value="" />
+        <param id="@CompanyID" type="String" length="-1" value="" />
         <param id="@UploadFilePath" type="String" length="-1" value="" />
         <param id="@FileName" type="String" length="-1" value="" />
         <param id="@PayloadBase64" type="String" length="-1" value="" />

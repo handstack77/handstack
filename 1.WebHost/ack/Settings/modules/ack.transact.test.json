@@ -9,7 +9,6 @@
         "CircuitBreakResetSecond": 60,
         "IsValidationRequest": false,
         "IsAllowDynamicRequest": false,
-        "AllowTenantTransactionCommands": [ "D", "G" ],
         "IsLogServer": true,
         "LogServerUrl": "https://test.example-domain.com/logger/api/log/insert",
         "IsTransactionLogging": true,

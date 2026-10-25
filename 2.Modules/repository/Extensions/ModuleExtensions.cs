@@ -56,11 +56,6 @@ namespace repository.Extensions
                         if (sqlMeta != null)
                         {
                             var connectionString = repository.SQLiteConnectionString;
-                            if (connectionString.IndexOf("{appBasePath}") > -1)
-                            {
-                                var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, repository.UserWorkID.ToStringSafe(), repository.ApplicationID);
-                                connectionString = connectionString.Replace("{appBasePath}", appBasePath);
-                            }
 
                             using var sqliteClient = new SQLiteClient(connectionString);
                             switch (returnType)
@@ -116,11 +111,6 @@ namespace repository.Extensions
                         if (sqlMeta != null)
                         {
                             var connectionString = repository.SQLiteConnectionString;
-                            if (connectionString.IndexOf("{appBasePath}") > -1)
-                            {
-                                var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, repository.UserWorkID.ToStringSafe(), repository.ApplicationID);
-                                connectionString = connectionString.Replace("{appBasePath}", appBasePath);
-                            }
 
                             using var sqliteClient = new SQLiteClient(connectionString);
                             result = sqliteClient.ExecutePocoMappings<T>(sqlMeta.Item1, sqlMeta.Item2);

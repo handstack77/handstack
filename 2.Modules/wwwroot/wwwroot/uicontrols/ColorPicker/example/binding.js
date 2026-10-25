@@ -331,7 +331,7 @@ var $binding = createControlBindingExample({
     },
     business: {
         title: '브랜드 테마 저장',
-        description: '관리자가 선택한 대표 색상을 테넌트 UI 설정으로 저장합니다.',
+        description: '관리자가 선택한 대표 색상을 앱 UI 설정으로 저장합니다.',
         rules: ['색상은 #RRGGBB 6자리 HEX 형식이어야 합니다.'],
         validate: function (value) {
             return /^#[0-9a-f]{6}$/i.test(value) ? true : '#RRGGBB 형식의 색상을 선택하세요.';

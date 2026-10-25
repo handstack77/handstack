@@ -24,7 +24,7 @@
 | 옵션명 | 타입 | 기본값 | 설명 |
 |---|---|---|---|
 | `repositoryID` | string | `''` | **필수.** 저장소 ID(서버 정책 키) |
-| `applicationID` | string | `''` | 생략하면 FileClient 와 같은 규칙으로 결정(`syn.$w.Variable`/`User`/`syn.Config.ApplicationID`, 테넌트 앱 경로에서는 `ManagedApp`) |
+| `applicationID` | string | `''` | 생략하면 FileClient 와 같은 규칙으로 결정(`syn.$w.Variable`/`User`/`syn.Config.ApplicationID`) |
 | `businessID` | string | `''` | 생략하면 `syn.Config.FileBusinessIDSource`(Cookie/SessionStorage) → `syn.$w.User.WorkCompanyNo` → `'0'` |
 | `dependencyID` | string | `''` | 파일을 묶는 키. 지정하면 로드 시 해당 파일을 조회해 표시. 생략하면 임시 키(`TEMP_` + 24자리 16진수)를 만들고 조회하지 않음 |
 | `tokenID` | string | `''` | 다운로드 요청의 `TokenID` |

@@ -79,7 +79,7 @@ namespace prompter.Areas.prompter.Controllers
 
         // http://localhost:8421/prompter/api/query/refresh?changeType=Created&filePath=HDS/ZZD/TST010.xml
         [HttpGet("[action]")]
-        public ActionResult Refresh(string changeType, string filePath, string? userWorkID, string? applicationID)
+        public ActionResult Refresh(string changeType, string filePath)
         {
             ActionResult result = NotFound();
             if (HttpContext.IsAllowAuthorization() == false)
@@ -111,53 +111,24 @@ namespace prompter.Areas.prompter.Controllers
                         {
                             case WatcherChangeTypes.Created:
                             case WatcherChangeTypes.Changed:
-                                if (string.IsNullOrEmpty(userWorkID) == false && string.IsNullOrEmpty(applicationID) == false)
+                                foreach (var basePath in ModuleConfiguration.ContractBasePath)
                                 {
-                                    var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
-                                    var itemPath = PathExtensions.Join(appBasePath, filePath);
-                                    var directoryInfo = new DirectoryInfo(appBasePath);
+                                    var itemPath = PathExtensions.Join(basePath, filePath);
+                                    var directoryInfo = new DirectoryInfo(basePath);
                                     if (directoryInfo.Exists == true && System.IO.File.Exists(itemPath) == true && ModuleConfiguration.IsContractFileExtension(fileInfo.Extension) == true)
                                     {
-                                        logger.Information("[{LogCategory}] " + $"Add TenantApp PromptMap FilePath: {filePath}", "Query/Refresh");
+                                        logger.Information("[{LogCategory}] " + $"Add PromptMap FilePath: {filePath}", "Query/Refresh");
                                         actionResult = PromptMapper.AddPromptMap(filePath, true, logger);
-                                    }
-                                }
-                                else
-                                {
-                                    foreach (var basePath in ModuleConfiguration.ContractBasePath)
-                                    {
-                                        var itemPath = PathExtensions.Join(basePath, filePath);
-                                        var directoryInfo = new DirectoryInfo(basePath);
-                                        if (directoryInfo.Exists == true && System.IO.File.Exists(itemPath) == true && ModuleConfiguration.IsContractFileExtension(fileInfo.Extension) == true)
-                                        {
-                                            logger.Information("[{LogCategory}] " + $"Add PromptMap FilePath: {filePath}", "Query/Refresh");
-                                            actionResult = PromptMapper.AddPromptMap(filePath, true, logger);
-                                            break;
-                                        }
+                                        break;
                                     }
                                 }
                                 break;
                             case WatcherChangeTypes.Deleted:
                                 var existPromptMaps = new List<PromptMap>();
-                                if (string.IsNullOrEmpty(userWorkID) == false && string.IsNullOrEmpty(applicationID) == false)
-                                {
-                                    var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
-                                    var directoryInfo = new DirectoryInfo(appBasePath);
-                                    if (directoryInfo.Exists == true)
-                                    {
-                                        existPromptMaps = PromptMapper.PromptMappings.Select(p => p.Value).Where(p =>
-                                            p.ApplicationID == applicationID &&
-                                            p.ProjectID == fileInfo.Directory?.Name &&
-                                            p.TransactionID == fileInfo.Name.Replace(fileInfo.Extension, "")).ToList();
-                                    }
-                                }
-                                else
-                                {
-                                    existPromptMaps = PromptMapper.PromptMappings.Select(p => p.Value).Where(p =>
-                                        p.ApplicationID == fileInfo.Directory?.Parent?.Name &&
-                                        p.ProjectID == fileInfo.Directory?.Name &&
-                                        p.TransactionID == fileInfo.Name.Replace(fileInfo.Extension, "")).ToList();
-                                }
+                                existPromptMaps = PromptMapper.PromptMappings.Select(p => p.Value).Where(p =>
+                                    p.ApplicationID == fileInfo.Directory?.Parent?.Name &&
+                                    p.ProjectID == fileInfo.Directory?.Name &&
+                                    p.TransactionID == fileInfo.Name.Replace(fileInfo.Extension, "")).ToList();
 
                                 if (existPromptMaps.Count > 0)
                                 {

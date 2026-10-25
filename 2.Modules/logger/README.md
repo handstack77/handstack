@@ -6,7 +6,7 @@
 ## 책임 범위
 - 로그 적재, 목록 조회, 상세 조회 API를 제공합니다.
 - MediatR 알림 이벤트를 `LogMessage`로 변환해 저장합니다.
-- 애플리케이션별 로그 데이터 소스를 선택하거나 필요 시 자동 생성합니다.
+- 명시적으로 등록한 애플리케이션별 로그 데이터 소스를 선택합니다.
 - 오래된 로그를 주기적으로 정리합니다.
 - 운영 중 장애 추적을 위한 공통 조회 창구를 제공합니다.
 
@@ -31,7 +31,6 @@
 - 다른 모듈이 `LogServerUrl`로 이 모듈을 호출하는 구조이므로 사실상 공용 로그 수집 엔드포인트입니다.
 
 ## 설정 포인트
-- `IsSQLiteCreateOnNotSettingRequest`: 없는 애플리케이션 저장소 자동 생성 여부
 - `DataSource`: 애플리케이션별 로그 저장소와 보관 기간
 - `DataSource.Schema`: 설정 시 고정 SQL 템플릿 대신 컬럼 정의와 역할 매핑으로 insert/list/detail 쿼리와 최초 DDL을 생성
 - `LogDeleteRepeatSecond`: 백그라운드 삭제 주기
@@ -74,7 +73,7 @@
 ## 실행 흐름
 1. `dbclient`, `function`, `transact` 같은 모듈이 `/logger/api/log/insert`로 로그를 보냅니다.
 2. `logger`는 `ApplicationID` 기준 데이터 소스를 결정합니다.
-3. 필요하면 SQLite 저장소를 생성한 뒤 로그를 적재합니다.
+3. 등록된 데이터 소스에 로그를 적재합니다.
 4. `LogDeleteService`가 주기적으로 오래된 로그를 삭제합니다.
 
 ## 운영 메모

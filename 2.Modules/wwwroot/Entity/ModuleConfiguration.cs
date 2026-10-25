@@ -27,8 +27,6 @@ namespace wwwroot.Entity
         public static string LogServerUrl = "";
         public static bool IsExceptionDetailText = false;
         public static int DefaultCommandTimeout = 30;
-        public static Dictionary<string, List<string>> TenantAppOrigins = [];
-        public static Dictionary<string, List<string>> TenantAppReferers = [];
 
         public static string MyStaticMethod(string parameter)
         {

@@ -18,14 +18,8 @@
             "ClientIP": "127.0.0.1"
         },
         "ForwardProxyIP": [],
-        "IsTenantFunction": true,
         "IsExceptionDetailText": true,
         "ContractRequestPath": "view",
-        "TenantAppRequestPath": "app",
-        "TenantAppBasePath": "../tenants",
-        "BatchProgramBasePath": "../batchs",
-        "CreateAppTempPath": "../tmp/create_apps",
-        "ForbesBasePath": "../forbes",
         "LoadModuleBasePath": "../modules",
         "LoadModules": [
             "wwwroot",
@@ -35,8 +29,7 @@
             "command",
             "prompter",
             "repository",
-            "logger",
-            "checkup"
+            "logger"
         ],
         "ModuleConfigurationUrl": [],
         "RunningEnvironment": "D",

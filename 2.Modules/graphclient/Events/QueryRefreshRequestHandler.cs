@@ -9,15 +9,11 @@ using Mediator;
 
 namespace graphclient.Events
 {
-    public class QueryRefreshRequest(string changeType, string filePath, string? userWorkID, string? applicationID) : IRequest<bool>
+    public class QueryRefreshRequest(string changeType, string filePath) : IRequest<bool>
     {
         public string ChangeType { get; } = changeType;
 
         public string FilePath { get; } = filePath;
-
-        public string? UserWorkID { get; } = userWorkID;
-
-        public string? ApplicationID { get; } = applicationID;
     }
 
     public class QueryRefreshRequestHandler(Serilog.ILogger logger) : IRequestHandler<QueryRefreshRequest, bool>

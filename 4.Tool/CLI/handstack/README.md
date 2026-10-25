@@ -99,7 +99,7 @@ handstack contractpack --directory=C:/projects/myapp/modules/myapp/Contracts --o
 handstack create --file=C:/tmp/template.zip --directory=C:/tmp/newapp --find=handstack --replace=myapp
 handstack replacetext --file=C:/tmp/appsettings.json --find=localhost --replace=prod-host
 
-handstack task --file=task.json --value=checkup:run
+handstack task --file=task.json --value=wwwroot:run
 handstack task --file=task.json --value=*:copy
 
 handstack synusage --directory="%HANDSTACK_HOME%/modules/wwwroot/wwwroot/view" --value=uicontrols > result.csv

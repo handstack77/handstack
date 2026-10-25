@@ -19,15 +19,8 @@ let $ProfilePicture = {
         },
 
         pageLoad() {
-            if (location.pathname.startsWith((syn.Config.TenantAppRequestPath ? `/${syn.Config.TenantAppRequestPath}/` : '/app/')) == true) {
-                if ($string.isNullOrEmpty(syn.uicontrols.$fileclient.applicationID) == true) {
-                    syn.uicontrols.$fileclient.applicationID = syn.$w.ManagedApp.ApplicationID;
-                }
-            }
-            else {
-                if ($string.isNullOrEmpty(syn.uicontrols.$fileclient.applicationID) == true) {
-                    syn.uicontrols.$fileclient.applicationID = syn.$w.Variable.ApplicationID || syn.$w.User.ApplicationID || syn.Config.ApplicationID;
-                }
+            if ($string.isNullOrEmpty(syn.uicontrols.$fileclient.applicationID) == true) {
+                syn.uicontrols.$fileclient.applicationID = syn.$w.Variable.ApplicationID || syn.$w.User.ApplicationID || syn.Config.ApplicationID;
             }
 
             if ($string.isNullOrEmpty(syn.uicontrols.$fileclient.applicationID) == true) {

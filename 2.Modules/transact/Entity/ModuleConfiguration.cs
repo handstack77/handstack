@@ -30,7 +30,6 @@ namespace transact.Entity
         public static bool IsValidationGlobalID = false;
         public static FrozenSet<string> BypassGlobalIDTransactions = FrozenSet<string>.Empty;
         public static bool IsAllowDynamicRequest = false;
-        public static FrozenSet<string> AllowTenantTransactionCommands = FrozenSet<string>.Empty;
         public static bool IsLogServer = false;
         public static bool IsTransactAggregate = false;
         public static bool IsTransactAggregateRolling = false;

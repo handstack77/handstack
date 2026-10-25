@@ -37,7 +37,7 @@ namespace prompter.Extensions
         {
         }
 
-        public static List<PromptMap> LoadPromptMapsFromFile(string filePath, bool isTenantContractFile)
+        public static List<PromptMap> LoadPromptMapsFromFile(string filePath)
         {
             var result = new List<PromptMap>();
             if (File.Exists(filePath) == false)
@@ -51,7 +51,7 @@ namespace prompter.Extensions
                 OptionDefaultStreamEncoding = Encoding.UTF8
             };
             htmlDocument.LoadHtml(ReplaceCData(File.ReadAllText(filePath)));
-            result = CreatePromptMaps(htmlDocument, fileInfo, isTenantContractFile);
+            result = CreatePromptMaps(htmlDocument, fileInfo);
 
             return result;
         }
@@ -68,7 +68,7 @@ namespace prompter.Extensions
             );
         }
 
-        public static bool AddPromptMapsToCache(List<PromptMap> promptMaps, bool forceUpdate, bool isTenantContractFile, string sourcePath, ILogger logger)
+        public static bool AddPromptMapsToCache(List<PromptMap> promptMaps, bool forceUpdate, string sourcePath, ILogger logger)
         {
             var result = false;
             ArgumentNullException.ThrowIfNull(promptMaps);
@@ -77,28 +77,14 @@ namespace prompter.Extensions
                 var queryID = BuildQueryID(promptMap);
                 if (PromptMappings.ContainsKey(queryID) == false)
                 {
-                    if (isTenantContractFile == true)
-                    {
-                        PromptMappings.Add(queryID, promptMap);
-                    }
-                    else
-                    {
-                        PromptMappings.Add(queryID, promptMap, TimeSpan.FromDays(36500));
-                    }
+                    PromptMappings.Add(queryID, promptMap, TimeSpan.FromDays(36500));
 
                     result = true;
                 }
                 else if (forceUpdate == true)
                 {
                     PromptMappings.Remove(queryID);
-                    if (isTenantContractFile == true)
-                    {
-                        PromptMappings.Add(queryID, promptMap);
-                    }
-                    else
-                    {
-                        PromptMappings.Add(queryID, promptMap, TimeSpan.FromDays(36500));
-                    }
+                    PromptMappings.Add(queryID, promptMap, TimeSpan.FromDays(36500));
 
                     result = true;
                 }
@@ -113,7 +99,7 @@ namespace prompter.Extensions
             return result;
         }
 
-        private static List<PromptMap> CreatePromptMaps(HtmlDocument htmlDocument, FileInfo fileInfo, bool isTenantContractFile)
+        private static List<PromptMap> CreatePromptMaps(HtmlDocument htmlDocument, FileInfo fileInfo)
         {
             var result = new List<PromptMap>();
             var header = htmlDocument.DocumentNode.SelectSingleNode("//mapper/header");
@@ -125,13 +111,6 @@ namespace prompter.Extensions
             var applicationID = (header.Element("application")?.InnerText).ToStringSafe();
             var projectID = (header.Element("project")?.InnerText).ToStringSafe();
             var transactionID = (header.Element("transaction")?.InnerText).ToStringSafe();
-
-            if (isTenantContractFile == true)
-            {
-                applicationID = string.IsNullOrEmpty(applicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : applicationID;
-                projectID = string.IsNullOrEmpty(projectID) == true ? (fileInfo.Directory?.Name).ToStringSafe() : projectID;
-                transactionID = string.IsNullOrEmpty(transactionID) == true ? fileInfo.Name.Replace(fileInfo.Extension, "") : transactionID;
-            }
 
             var items = htmlDocument.DocumentNode.SelectNodes("//prompts/statement");
             if (items == null)
@@ -456,69 +435,6 @@ namespace prompter.Extensions
                 ArgumentNullException.ThrowIfNull(queryObject);
 
                 result = FindDataSourceMap(queryObject, applicationID, projectID, dataSourceID);
-
-                if (result == null)
-                {
-                    var userWorkID = string.Empty;
-                    var appBasePath = string.Empty;
-                    var baseDirectoryInfo = new DirectoryInfo(GlobalConfiguration.TenantAppBasePath);
-                    var directories = Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath, applicationID, SearchOption.AllDirectories);
-                    foreach (var directory in directories)
-                    {
-                        var directoryInfo = new DirectoryInfo(directory);
-                        if (baseDirectoryInfo.Name == directoryInfo.Parent?.Parent?.Name)
-                        {
-                            appBasePath = directoryInfo.FullName.Replace("\\", "/");
-                            userWorkID = (directoryInfo.Parent?.Name).ToStringSafe();
-                            break;
-                        }
-                    }
-
-                    var tenantID = $"{userWorkID}|{applicationID}";
-                    var settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
-                    if (string.IsNullOrEmpty(appBasePath) == false && File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
-                    {
-                        var appSettingText = File.ReadAllText(settingFilePath);
-                        var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
-                        if (appSetting != null)
-                        {
-                            var dataSourceJson = appSetting.DataSource;
-                            if (dataSourceJson != null)
-                            {
-                                foreach (var item in dataSourceJson)
-                                {
-                                    var tanantMap = new DataSourceTanantKey
-                                    {
-                                        ApplicationID = item.ApplicationID,
-                                        DataSourceID = item.DataSourceID,
-                                        TanantPattern = item.TanantPattern,
-                                        TanantValue = item.TanantValue
-                                    };
-
-                                    if (DataSourceMappings.ContainsKey(tanantMap) == false)
-                                    {
-                                        var dataSourceMap = new DataSourceMap
-                                        {
-                                            ApplicationID = item.ApplicationID,
-                                            ProjectListID = [.. item.ProjectID.Split(",").Where(s => string.IsNullOrWhiteSpace(s) == false).Distinct()],
-                                            LLMProvider = ParseLLMProvider(string.IsNullOrWhiteSpace(item.LLMProvider) == true ? item.DataProvider : item.LLMProvider),
-                                            ApiKey = item.IsEncryption.ParseBool() == true ? DecryptApiKey(item) : item.ApiKey,
-                                            ModelID = item.ModelID,
-                                            Endpoint = item.Endpoint
-                                        };
-
-                                        if (DataSourceMappings.ContainsKey(tanantMap) == false)
-                                        {
-                                            DataSourceMappings.Add(tanantMap, dataSourceMap);
-                                        }
-                                    }
-                                }
-
-                                result = FindDataSourceMap(queryObject, applicationID, projectID, dataSourceID);
-                            }
-                        }
-                    }
-                }
             }
 
             return result;
@@ -580,56 +496,6 @@ namespace prompter.Extensions
             lock (PromptMappings)
             {
                 result = PromptMappings.FirstOrDefault(item => item.Key == queryID).Value;
-
-                if (result == null)
-                {
-                    ArgumentNullException.ThrowIfNull(queryID);
-
-                    var itemKeys = queryID.Split("|");
-                    var applicationID = itemKeys[0];
-                    var projectID = itemKeys[1];
-                    var transactionID = itemKeys[2];
-
-                    var appBasePath = string.Empty;
-                    var baseDirectoryInfo = new DirectoryInfo(GlobalConfiguration.TenantAppBasePath);
-                    var directories = Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath, applicationID, SearchOption.AllDirectories);
-                    foreach (var directory in directories)
-                    {
-                        var directoryInfo = new DirectoryInfo(directory);
-                        if (baseDirectoryInfo.Name == directoryInfo.Parent?.Parent?.Name)
-                        {
-                            appBasePath = directoryInfo.FullName.Replace("\\", "/");
-                            break;
-                        }
-                    }
-
-                    if (string.IsNullOrEmpty(appBasePath) == false && Directory.Exists(appBasePath) == true)
-                    {
-                        var filePath = string.Empty;
-                        foreach (var extension in ModuleConfiguration.ContractFileExtensions)
-                        {
-                            var candidatePath = PathExtensions.Combine(appBasePath, "prompter", projectID, transactionID + extension);
-                            if (File.Exists(candidatePath) == true)
-                            {
-                                filePath = candidatePath;
-                                break;
-                            }
-                        }
-                        try
-                        {
-                            if (string.IsNullOrWhiteSpace(filePath) == false && File.Exists(filePath) == true)
-                            {
-                                var promptMaps = LoadPromptMapsFromFile(filePath, true);
-                                AddPromptMapsToCache(promptMaps, true, true, filePath, Log.Logger);
-                                result = PromptMappings.FirstOrDefault(item => item.Key == queryID).Value;
-                            }
-                        }
-                        catch (Exception exception)
-                        {
-                            Log.Logger.Error(exception, "[{LogCategory}] " + $"{filePath} 업무 계약 파일 오류 - " + exception.ToMessage(), "PromptMapper/GetPromptMap");
-                        }
-                    }
-                }
             }
 
             return result;
@@ -757,14 +623,9 @@ namespace prompter.Extensions
 
                         if (File.Exists(filePath) == true)
                         {
-                            var isTenantContractFile = false;
-                            if (filePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
-                            {
-                                isTenantContractFile = true;
-                            }
 
-                            var promptMaps = LoadPromptMapsFromFile(filePath, isTenantContractFile);
-                            result = AddPromptMapsToCache(promptMaps, forceUpdate, isTenantContractFile, filePath, logger);
+                            var promptMaps = LoadPromptMapsFromFile(filePath);
+                            result = AddPromptMapsToCache(promptMaps, forceUpdate, filePath, logger);
                             break;
                         }
                     }
@@ -1254,7 +1115,7 @@ namespace prompter.Extensions
 
                 foreach (var basePath in ModuleConfiguration.ContractBasePath)
                 {
-                    if (Directory.Exists(basePath) == false || basePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
+                    if (Directory.Exists(basePath) == false)
                     {
                         continue;
                     }
@@ -1267,10 +1128,10 @@ namespace prompter.Extensions
                     {
                         try
                         {
-                            var promptMaps = LoadPromptMapsFromFile(promptMapFile, false);
+                            var promptMaps = LoadPromptMapsFromFile(promptMapFile);
                             lock (PromptMappings)
                             {
-                                AddPromptMapsToCache(promptMaps, false, false, promptMapFile, logger);
+                                AddPromptMapsToCache(promptMaps, false, promptMapFile, logger);
                             }
                         }
                         catch (Exception exception)
@@ -1304,21 +1165,21 @@ namespace prompter.Extensions
                     throw new InvalidOperationException($"DataSourceID '{item.DataSourceID}' API Key 복호화 실패");
                 }
 
-                var tenantKey = new DataSourceTanantKey()
+                var dataSourceKey = new DataSourceTanantKey()
                 {
                     ApplicationID = item.ApplicationID,
                     DataSourceID = item.DataSourceID,
                     TanantPattern = item.TanantPattern,
                     TanantValue = item.TanantValue
                 };
-                if (candidates.ContainsKey(tenantKey) == true)
+                if (candidates.ContainsKey(dataSourceKey) == true)
                 {
                     ArgumentNullException.ThrowIfNull(logger);
 
                     logger.Warning("[{LogCategory}] " + $"DataSourceMap 정보 중복 확인 필요 - ApplicationID - {item.ApplicationID}, ProjectID - {item.ProjectID}, DataSourceID - {item.DataSourceID}, LLMProvider - {item.LLMProvider}, TanantPattern - {item.TanantPattern}, TanantValue - {item.TanantValue}", "PromptMapper/ReloadDataSourceMappings");
                 }
 
-                candidates[tenantKey] = new DataSourceMap()
+                candidates[dataSourceKey] = new DataSourceMap()
                 {
                     ApplicationID = item.ApplicationID,
                     ProjectListID = [.. item.ProjectID.Split(",").Where(value => string.IsNullOrWhiteSpace(value) == false).Distinct()],

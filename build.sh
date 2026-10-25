@@ -6,7 +6,6 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
 PROJECTS=(
-  "2.Modules/checkup/checkup.csproj"
   "2.Modules/command/command.csproj"
   "2.Modules/prompter/prompter.csproj"
   "2.Modules/dbclient/dbclient.csproj"

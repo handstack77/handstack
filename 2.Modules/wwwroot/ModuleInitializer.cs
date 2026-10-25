@@ -71,8 +71,6 @@ namespace wwwroot
                         ModuleConfiguration.ModuleLogFilePath = GlobalConfiguration.GetBaseFilePath(moduleConfig.ModuleLogFilePath);
                         ModuleConfiguration.IsModuleLogging = !string.IsNullOrWhiteSpace(moduleConfig.ModuleLogFilePath);
                         ModuleConfiguration.ModuleFilePath = GlobalConfiguration.GetBaseDirectoryPath(moduleConfig.ModuleFilePath);
-                        ModuleConfiguration.TenantAppOrigins.Clear();
-                        ModuleConfiguration.TenantAppReferers.Clear();
                         GlobalConfiguration.ContractRequestPath = string.IsNullOrWhiteSpace(moduleConfig.ContractRequestPath) ? "view" : moduleConfig.ContractRequestPath;
                         ModuleConfiguration.SharedFiles = LoadSharedFiles(moduleConfig.SharedFileConfigPath);
                         ModuleConfiguration.DevAutoSignIn = moduleConfig.DevAutoSignIn ?? new DevAutoSignInConfig();
@@ -91,67 +89,6 @@ namespace wwwroot
                     var message = $"module.json 파일 확인 필요: {moduleSettingFilePath}";
                     Log.Logger.Error("[{LogCategory}] " + message, $"{ModuleConfiguration.ModuleID} ModuleInitializer/ConfigureServices");
                     throw new FileNotFoundException(message);
-                }
-
-                if (Directory.Exists(GlobalConfiguration.TenantAppBasePath) == true)
-                {
-                    foreach (var userWorkPath in Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath))
-                    {
-                        var workDirectoryInfo = new DirectoryInfo(userWorkPath);
-                        var userWorkID = workDirectoryInfo.Name;
-                        foreach (var appBasePath in Directory.GetDirectories(userWorkPath))
-                        {
-                            var directoryInfo = new DirectoryInfo(appBasePath);
-                            if (directoryInfo.Exists == true)
-                            {
-                                var applicationID = directoryInfo.Name;
-                                var tenantID = $"{userWorkID}|{applicationID}";
-                                var settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
-                                if (File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
-                                {
-                                    try
-                                    {
-                                        var appSettingText = File.ReadAllText(settingFilePath);
-                                        var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
-                                        if (appSetting != null)
-                                        {
-                                            var withOriginUris = appSetting.WithOrigin;
-
-                                            if (withOriginUris != null)
-                                            {
-                                                if (ModuleConfiguration.TenantAppOrigins.ContainsKey(tenantID) == true)
-                                                {
-                                                    Log.Logger.Warning("[{LogCategory}] " + $"'{applicationID}' WithOrigin 중복 확인 필요 ", $"{ModuleConfiguration.ModuleID} ModuleInitializer/ConfigureServices");
-                                                }
-                                                else
-                                                {
-                                                    ModuleConfiguration.TenantAppOrigins.Add(tenantID, withOriginUris);
-                                                }
-                                            }
-
-                                            var withRefererUris = appSetting.WithReferer;
-
-                                            if (withRefererUris != null)
-                                            {
-                                                if (ModuleConfiguration.TenantAppReferers.ContainsKey(tenantID) == true)
-                                                {
-                                                    Log.Logger.Warning("[{LogCategory}] " + $"'{applicationID}' WithReferer 중복 확인 필요 ", $"{ModuleConfiguration.ModuleID} ModuleInitializer/ConfigureServices");
-                                                }
-                                                else
-                                                {
-                                                    ModuleConfiguration.TenantAppReferers.Add(tenantID, withRefererUris);
-                                                }
-                                            }
-                                        }
-                                    }
-                                    catch (Exception exception)
-                                    {
-                                        Log.Logger.Warning("[{LogCategory}] " + $"Tenant settings 확인 필요: {settingFilePath}, {exception.Message}", $"{ModuleConfiguration.ModuleID} ModuleInitializer/ConfigureServices");
-                                    }
-                                }
-                            }
-                        }
-                    }
                 }
 
                 services.AddScoped<ModuleApiClient>();

@@ -60,7 +60,7 @@ namespace function.Areas.function.Controllers
 
         // http://localhost:8421/function/api/query/refresh?changeType=Created&filePath=EWP/ZZD/TST010/featureMain.js
         [HttpGet("[action]")]
-        public async Task<ActionResult> Refresh(string changeType, string filePath, string? userWorkID, string? applicationID)
+        public async Task<ActionResult> Refresh(string changeType, string filePath)
         {
             if (HttpContext.IsAllowAuthorization() == false)
             {
@@ -69,7 +69,7 @@ namespace function.Areas.function.Controllers
 
             try
             {
-                var actionResult = await mediator.Send(new ExecutionRefreshRequest(changeType, filePath, userWorkID, applicationID));
+                var actionResult = await mediator.Send(new ExecutionRefreshRequest(changeType, filePath));
                 return Content(JsonConvert.SerializeObject(actionResult), "application/json");
             }
             catch (Exception exception)

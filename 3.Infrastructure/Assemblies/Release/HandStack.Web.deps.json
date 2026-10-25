@@ -12,7 +12,7 @@
           "HandStack.Core": "1.0.0",
           "Mediator.Abstractions": "3.0.2",
           "Newtonsoft.Json": "13.0.4",
-          "RestSharp": "114.0.0",
+          "RestSharp": "114.1.0",
           "Serilog": "4.4.0",
           "Serilog.AspNetCore": "10.0.0",
           "murmurhash": "1.0.3"
@@ -69,11 +69,11 @@
           }
         }
       },
-      "RestSharp/114.0.0": {
+      "RestSharp/114.1.0": {
         "runtime": {
           "lib/net10.0/RestSharp.dll": {
-            "assemblyVersion": "114.0.0.0",
-            "fileVersion": "114.0.0.0"
+            "assemblyVersion": "114.1.0.0",
+            "fileVersion": "114.1.0.0"
           }
         }
       },
@@ -251,12 +251,12 @@
       "path": "newtonsoft.json/13.0.4",
       "hashPath": "newtonsoft.json.13.0.4.nupkg.sha512"
     },
-    "RestSharp/114.0.0": {
+    "RestSharp/114.1.0": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-8pDO4q+K8nIqXbvGCb9ciKcngj36pCXGRDzOYPEPoS2IvBIL+mejmUMAtSNALt/NkDc9LQmHvM95kdniLSbGtg==",
-      "path": "restsharp/114.0.0",
-      "hashPath": "restsharp.114.0.0.nupkg.sha512"
+      "sha512": "sha512-QXpO6o0lKmbzBPhLZ1nBiZj9Vdb/3qRTyo0s0Vllm9HRLzpD2X+I9tkhGE4WWno6WyUkRsVP1jnyvDyQ5SakGg==",
+      "path": "restsharp/114.1.0",
+      "hashPath": "restsharp.114.1.0.nupkg.sha512"
     },
     "Serilog/4.4.0": {
       "type": "package",

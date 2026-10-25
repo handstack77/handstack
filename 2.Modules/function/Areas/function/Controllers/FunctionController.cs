@@ -54,14 +54,7 @@ namespace function.Areas.function.Controllers
                     new DynamicParameter()
                     {
                         ParameterName = "ApplicationID",
-                        Value = "9ysztou4",
-                        DbType = "String",
-                        Length = 0,
-                    },
-                    new DynamicParameter()
-                    {
-                        ParameterName = "UserWorkID",
-                        Value = "3qmbxyhc",
+                        Value = GlobalConfiguration.ApplicationID,
                         DbType = "String",
                         Length = 0,
                     },

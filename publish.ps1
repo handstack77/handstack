@@ -285,7 +285,6 @@ try {
     Remove-IfExists -Path $contractsPath
 
     $modules = @(
-        @{ Project = '2.Modules/checkup/checkup.csproj'; Name = 'checkup' }
         @{ Project = '2.Modules/command/command.csproj'; Name = 'command' }
         @{ Project = '2.Modules/prompter/prompter.csproj'; Name = 'prompter' }
         @{ Project = '2.Modules/dbclient/dbclient.csproj'; Name = 'dbclient' }

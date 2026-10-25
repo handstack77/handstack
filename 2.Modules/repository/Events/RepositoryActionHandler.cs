@@ -13,26 +13,6 @@ using Serilog;
 
 namespace repository.Events
 {
-    /*
-    MediatorRequest mediatorRequest = new MediatorRequest()
-    {
-        ActionModuleID = ModuleConfiguration.ModuleID,
-        SubscribeEventID = "repository.Events.RepositoryAction",
-    };
-
-    Dictionary<string, object> templateParameters = new Dictionary<string, object>();
-
-    templateParameters.Add("applicationID", "");
-    templateParameters.Add("repositoryID", "");
-    templateParameters.Add("applictionNo", "");
-    templateParameters.Add("itemID", "");
-
-    mediatorRequest.Parameters = new Dictionary<string, object?>();
-    mediatorRequest.Parameters.Add("Method", "UpdateTenantAppDependencyID");
-    mediatorRequest.Parameters.Add("Arguments", templateParameters);
-
-    await mediatorClient.PublishAsync(mediatorRequest);
-    */
     public class RepositoryAction(MediatorRequest request) : INotification
     {
         public string Method { get; set; } = request.Parameters.Get<string>("Method").ToStringSafe();

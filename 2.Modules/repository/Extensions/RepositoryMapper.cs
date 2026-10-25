@@ -45,7 +45,7 @@ namespace repository.Extensions
                     {
                         try
                         {
-                            if (File.Exists(repositoryFile) == true && (repositoryFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == false))
+                            if (File.Exists(repositoryFile) == true)
                             {
                                 var repositoryText = File.ReadAllText(repositoryFile);
                                 var repositorys = JsonConvert.DeserializeObject<List<Repository>>(repositoryText);
@@ -64,8 +64,6 @@ namespace repository.Extensions
                                                     repositoryDirectoryInfo.Create();
                                                 }
                                             }
-
-                                            repository.UserWorkID = "";
                                             repository.SettingFilePath = repositoryFile;
 
                                             if (repository.IsLocalDbFileManaged == true)

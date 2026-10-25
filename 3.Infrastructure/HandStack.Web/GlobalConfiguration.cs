@@ -80,17 +80,11 @@ namespace HandStack.Web
         public static string WebHostRootPath = "";
         public static string BusinessServerUrl = "";
         public static int StaticFileCacheMaxAge = 0;
-        public static bool IsTenantFunction = false;
         public static bool IsExceptionDetailText = false;
         public static bool IsEnabledDevAutoSignIn = false;
         public static bool IsConfigurationWatching = false;
         public static bool IsSwaggerUI = false;
         public static bool IsModulePurgeContract = true;
-        public static string TenantAppRequestPath = "";
-        public static string TenantAppBasePath = "";
-        public static string BatchProgramBasePath = "";
-        public static string CreateAppTempPath = "";
-        public static string ForbesBasePath = "";
         public static string LoadModuleBasePath = "";
         public static string LoadContractBasePath = "";
         public static int UserSignExpire = 720;
@@ -105,7 +99,6 @@ namespace HandStack.Web
         public static bool IsApiFindServer = true;
         public static bool IsRunning = false;
         public static List<string> PhysicalFileProviders = [];
-        public static List<string> DisposeTenantApps = [];
         public static List<string> WithOrigins = [];
         public static List<string> WithOnlyIPs = [];
         public static string FindGlobalIDServer = "";

@@ -16,15 +16,11 @@ using Mediator;
 
 namespace dbclient.Events
 {
-    public class QueryRefreshRequest(string changeType, string filePath, string? userWorkID, string? applicationID) : IRequest<bool>
+    public class QueryRefreshRequest(string changeType, string filePath) : IRequest<bool>
     {
         public string ChangeType { get; } = changeType;
 
         public string FilePath { get; } = filePath;
-
-        public string? UserWorkID { get; } = userWorkID;
-
-        public string? ApplicationID { get; } = applicationID;
     }
 
     public class QueryRefreshRequestHandler(Serilog.ILogger logger) : IRequestHandler<QueryRefreshRequest, bool>
@@ -54,53 +50,24 @@ namespace dbclient.Events
                 {
                     case WatcherChangeTypes.Created:
                     case WatcherChangeTypes.Changed:
-                        if (!string.IsNullOrWhiteSpace(request.UserWorkID) && !string.IsNullOrWhiteSpace(request.ApplicationID))
+                        foreach (var basePath in ModuleConfiguration.ContractBasePath)
                         {
-                            var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, request.UserWorkID, request.ApplicationID);
-                            var itemPath = PathExtensions.Join(appBasePath, filePath);
-                            var directoryInfo = new DirectoryInfo(appBasePath);
+                            var itemPath = PathExtensions.Join(basePath, filePath);
+                            var directoryInfo = new DirectoryInfo(basePath);
                             if (directoryInfo.Exists == true && System.IO.File.Exists(itemPath) == true && ModuleConfiguration.IsContractFileExtension(fileInfo.Extension) == true)
                             {
-                                logger.Information("[{LogCategory}] " + $"Add TenantApp StatementMap FilePath: {filePath}", "Query/Refresh");
+                                logger.Information("[{LogCategory}] " + $"Add StatementMap FilePath: {filePath}", "Query/Refresh");
                                 actionResult = DatabaseMapper.AddStatementMap(filePath, true, logger);
-                            }
-                        }
-                        else
-                        {
-                            foreach (var basePath in ModuleConfiguration.ContractBasePath)
-                            {
-                                var itemPath = PathExtensions.Join(basePath, filePath);
-                                var directoryInfo = new DirectoryInfo(basePath);
-                                if (directoryInfo.Exists == true && System.IO.File.Exists(itemPath) == true && ModuleConfiguration.IsContractFileExtension(fileInfo.Extension) == true)
-                                {
-                                    logger.Information("[{LogCategory}] " + $"Add StatementMap FilePath: {filePath}", "Query/Refresh");
-                                    actionResult = DatabaseMapper.AddStatementMap(filePath, true, logger);
-                                    break;
-                                }
+                                break;
                             }
                         }
                         break;
                     case WatcherChangeTypes.Deleted:
                         var existStatementMaps = new List<StatementMap>();
-                        if (!string.IsNullOrWhiteSpace(request.UserWorkID) && !string.IsNullOrWhiteSpace(request.ApplicationID))
-                        {
-                            var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, request.UserWorkID, request.ApplicationID);
-                            var directoryInfo = new DirectoryInfo(appBasePath);
-                            if (directoryInfo.Exists == true)
-                            {
-                                existStatementMaps = DatabaseMapper.StatementMappings.Select(p => p.Value).Where(p =>
-                                    p.ApplicationID == request.ApplicationID &&
-                                    p.ProjectID == fileInfo.Directory?.Name &&
-                                    p.TransactionID == fileInfo.Name.Replace(fileInfo.Extension, "")).ToList();
-                            }
-                        }
-                        else
-                        {
-                            existStatementMaps = DatabaseMapper.StatementMappings.Select(p => p.Value).Where(p =>
-                                p.ApplicationID == fileInfo.Directory?.Parent?.Name &&
-                                p.ProjectID == fileInfo.Directory?.Name &&
-                                p.TransactionID == fileInfo.Name.Replace(fileInfo.Extension, "")).ToList();
-                        }
+                        existStatementMaps = DatabaseMapper.StatementMappings.Select(p => p.Value).Where(p =>
+                            p.ApplicationID == fileInfo.Directory?.Parent?.Name &&
+                            p.ProjectID == fileInfo.Directory?.Name &&
+                            p.TransactionID == fileInfo.Name.Replace(fileInfo.Extension, "")).ToList();
 
                         if (existStatementMaps.Count > 0)
                         {

@@ -1,31 +1,4 @@
 {
-    "checkup": [
-        {
-            "key": "copy",
-            "os": "windows",
-            "basepath": "C:/projects/handstack77/handstack/2.Modules/checkup",
-            "commands": [
-                "C:/projects/handstack77/handstack/2.Modules/checkup/task.bat copy"
-            ],
-            "ignoreExit": false,
-            "environments": {
-                "TASK_SETTING": "development",
-                "$DATE_STRING": "yyyy-MM-dd"
-            }
-        },
-        {
-            "key": "run",
-            "os": "windows",
-            "basepath": "C:/projects/handstack77/handstack/2.Modules/checkup",
-            "commands": [
-                "C:/projects/handstack77/handstack/2.Modules/checkup/task.bat run"
-            ],
-            "environments": {
-                "TASK_SETTING": "development",
-                "$DATE_STRING": "yyyy-MM-dd"
-            }
-        }
-    ],
     "dbclient": [
         {
             "key": "copy",

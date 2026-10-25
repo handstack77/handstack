@@ -14,15 +14,11 @@ using Mediator;
 
 namespace command.Events
 {
-    public class CommandRefreshRequest(string changeType, string filePath, string? userWorkID, string? applicationID) : IRequest<bool>
+    public class CommandRefreshRequest(string changeType, string filePath) : IRequest<bool>
     {
         public string ChangeType { get; } = changeType;
 
         public string FilePath { get; } = filePath;
-
-        public string? UserWorkID { get; } = userWorkID;
-
-        public string? ApplicationID { get; } = applicationID;
     }
 
     public class CommandRefreshRequestHandler(Serilog.ILogger logger) : IRequestHandler<CommandRefreshRequest, bool>

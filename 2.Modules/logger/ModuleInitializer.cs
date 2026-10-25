@@ -58,7 +58,6 @@ namespace logger
                         var moduleConfig = moduleConfigJson.ModuleConfig;
                         ModuleConfiguration.ModuleID = moduleConfigJson.ModuleID;
                         ModuleConfiguration.Version = moduleConfigJson.Version;
-                        ModuleConfiguration.IsSQLiteCreateOnNotSettingRequest = moduleConfig.IsSQLiteCreateOnNotSettingRequest;
                         ModuleConfiguration.ModuleBasePath = GlobalConfiguration.GetBaseDirectoryPath(moduleConfig.ModuleBasePath, module.BasePath);
                         ModuleConfiguration.AuthorizationKey = !string.IsNullOrWhiteSpace(moduleConfig.AuthorizationKey) ? moduleConfig.AuthorizationKey : GlobalConfiguration.SystemID + GlobalConfiguration.RunningEnvironment + GlobalConfiguration.HostName;
                         ModuleConfiguration.IsBundledWithHost = moduleConfigJson.IsBundledWithHost;

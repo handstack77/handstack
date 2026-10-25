@@ -76,8 +76,6 @@
 
         public string TransactionUpdateFileName { get; set; } = "";
 
-        public string? UserWorkID { get; set; } = "";
-
         public string? SettingFilePath { get; set; } = "";
 
         public string? UploadOptions { get; set; } = "";

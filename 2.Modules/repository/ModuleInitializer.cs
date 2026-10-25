@@ -120,7 +120,6 @@ namespace repository
 
                 services.AddScoped<ModuleApiClient>();
                 services.AddSingleton<IStorageProviderFactory, StorageProviderFactory>();
-                services.AddTransient<IRequestHandler<RepositoryRequest, object?>, RepositoryRequestHandler>();
                 services.AddTransient<IRequestHandler<StorageRefreshRequest, bool>, StorageRefreshRequestHandler>();
             }
         }
@@ -175,7 +174,7 @@ namespace repository
                 {
                     if (item.StorageType == "FileSystem" && item.IsVirtualPath == true)
                     {
-                        if (string.IsNullOrWhiteSpace(item.PhysicalPath) || (item.SettingFilePath.ToStringSafe().StartsWith(GlobalConfiguration.TenantAppBasePath) == true))
+                        if (string.IsNullOrWhiteSpace(item.PhysicalPath))
                         {
                             continue;
                         }
@@ -403,7 +402,7 @@ namespace repository
                 var serviceScopeFactory = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>();
                 foreach (var basePath in ModuleConfiguration.ContractBasePath)
                 {
-                    if (Directory.Exists(basePath) == true && basePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == false && ModuleConfiguration.IsContractFileWatching == true)
+                    if (Directory.Exists(basePath) == true && ModuleConfiguration.IsContractFileWatching == true)
                     {
                         var fileSyncManager = new FileSyncManager(basePath, ModuleConfiguration.ContractFileWatcherFilter);
                         fileSyncManager.MonitoringFile += async (WatcherChangeTypes changeTypes, FileInfo fileInfo) =>
@@ -415,7 +414,7 @@ namespace repository
                                 {
                                     using var scope = serviceScopeFactory.CreateScope();
                                     var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                                    var actionResult = await mediator.Send(new StorageRefreshRequest(changeTypes.ToString(), filePath, null, null));
+                                    var actionResult = await mediator.Send(new StorageRefreshRequest(changeTypes.ToString(), filePath));
                                     if (actionResult == false && changeTypes != WatcherChangeTypes.Deleted)
                                     {
                                         Log.Warning("[{LogCategory}] " + $"{filePath} 파일 갱신 확인 필요.", $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure");

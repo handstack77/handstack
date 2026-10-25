@@ -43,87 +43,6 @@ namespace function.Extensions
                 var functionSourceMappingsKey = $"{applicationID}|{dataSourceID}";
                 result = FunctionSourceMappings.FirstOrDefault(item => item.Key == functionSourceMappingsKey
                     && (item.Value.ProjectListID.IndexOf(projectID) > -1 || item.Value.ProjectListID.IndexOf("*") > -1)).Value;
-
-                if (result == null)
-                {
-                    var userWorkID = string.Empty;
-                    var appBasePath = string.Empty;
-                    var baseDirectoryInfo = new DirectoryInfo(GlobalConfiguration.TenantAppBasePath);
-                    var directories = Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath, applicationID, SearchOption.AllDirectories);
-                    foreach (var directory in directories)
-                    {
-                        var directoryInfo = new DirectoryInfo(directory);
-                        if (baseDirectoryInfo.Name == directoryInfo.Parent?.Parent?.Name)
-                        {
-                            appBasePath = directoryInfo.FullName.Replace("\\", "/");
-                            userWorkID = (directoryInfo.Parent?.Name).ToStringSafe();
-                            break;
-                        }
-                    }
-
-                    var tenantID = $"{userWorkID}|{applicationID}";
-                    if (Directory.Exists(appBasePath) == true)
-                    {
-                        var settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
-                        if (File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
-                        {
-                            var appSettingText = File.ReadAllText(settingFilePath);
-                            var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
-                            if (appSetting != null)
-                            {
-                                var dataTable = JsonConvert.DeserializeObject<DataTable>(JsonConvert.SerializeObject(appSetting.DataSource == null ? "[]" : appSetting.DataSource));
-                                if (dataTable != null)
-                                {
-                                    var items = dataTable.Select($"ApplicationID = '{applicationID}' AND DataSourceID = '{dataSourceID}'");
-                                    if (items != null && items.Length > 0)
-                                    {
-                                        var item = items[0];
-                                        var projects = item.GetStringSafe("ProjectID").SplitComma();
-                                        var dataProvider = item.GetStringSafe("DataProvider");
-                                        var connectionString = item.GetStringSafe("ConnectionString");
-                                        if (projects.IndexOf(projectID) > -1 || projects.IndexOf("*") > -1)
-                                        {
-                                            if (FunctionSourceMappings.ContainsKey(functionSourceMappingsKey) == false)
-                                            {
-                                                var moduleSourceMap = new ModuleSourceMap
-                                                {
-                                                    ProjectListID = projects,
-                                                    DataSourceID = dataSourceID,
-                                                    DataProvider = Enum.Parse<DataProviders>(dataProvider),
-                                                    ConnectionString = connectionString
-                                                };
-                                                if (moduleSourceMap.IsEncryption.ParseBool() == true)
-                                                {
-                                                    moduleSourceMap.ConnectionString = DecryptConnectionString(moduleSourceMap);
-                                                }
-
-                                                if (moduleSourceMap.DataProvider == DataProviders.SQLite)
-                                                {
-                                                    if (moduleSourceMap.ConnectionString.IndexOf("#{ContentRootPath}") > -1)
-                                                    {
-                                                        moduleSourceMap.ConnectionString = moduleSourceMap.ConnectionString.Replace("#{ContentRootPath}", GlobalConfiguration.ContentRootPath);
-                                                    }
-                                                }
-
-                                                var workingDirectoryPath = PathExtensions.Combine(appBasePath, "function", "working", projectID, transactionID);
-                                                if (Directory.Exists(workingDirectoryPath) == false)
-                                                {
-                                                    Directory.CreateDirectory(workingDirectoryPath);
-                                                }
-                                                moduleSourceMap.WorkingDirectoryPath = workingDirectoryPath;
-
-                                                FunctionSourceMappings.Add(functionSourceMappingsKey, moduleSourceMap);
-                                            }
-
-                                            result = FunctionSourceMappings.FirstOrDefault(item => item.Key == functionSourceMappingsKey
-                                                && (item.Value.ProjectListID.IndexOf(projectID) > -1 || item.Value.ProjectListID.IndexOf("*") > -1)).Value;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
             }
 
             return result;
@@ -184,55 +103,6 @@ namespace function.Extensions
                             break;
                         }
                     }
-
-                    if (result == null)
-                    {
-                        var appBasePath = string.Empty;
-                        var baseDirectoryInfo = new DirectoryInfo(GlobalConfiguration.TenantAppBasePath);
-                        var directories = Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath, applicationID, SearchOption.AllDirectories);
-                        foreach (var directory in directories)
-                        {
-                            var directoryInfo = new DirectoryInfo(directory);
-                            if (baseDirectoryInfo.Name == directoryInfo.Parent?.Parent?.Name)
-                            {
-                                appBasePath = directoryInfo.FullName.Replace("\\", "/");
-                                break;
-                            }
-                        }
-
-                        if (!string.IsNullOrWhiteSpace(appBasePath))
-                        {
-                            var scriptMapFile = PathExtensions.Combine(appBasePath, "function", projectID, transactionID, "featureMeta.json");
-                            if (File.Exists(scriptMapFile) == true)
-                            {
-                                filePath = scriptMapFile;
-                            }
-
-                            if (File.Exists(filePath) == true)
-                            {
-                                MergeContractFile(filePath);
-                            }
-
-                            ScriptMappings.TryGetValue(queryID, out result);
-
-                            if (result == null)
-                            {
-                                foreach (var extension in ModuleConfiguration.ContractFileExtensions)
-                                {
-                                    var tenantXmlFilePath = PathExtensions.Combine(appBasePath, "function", projectID, transactionID + extension);
-                                    if (File.Exists(tenantXmlFilePath) == true)
-                                    {
-                                        MergeXmlContractFile(tenantXmlFilePath, false, Log.Logger);
-                                        ScriptMappings.TryGetValue(queryID, out result);
-                                        if (result != null)
-                                        {
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
                 }
             }
 
@@ -245,11 +115,6 @@ namespace function.Extensions
                     if (File.Exists(scriptMapFile) == false)
                     {
                         Log.Logger.Information("[{LogCategory}] " + $"{scriptMapFile} 대응 functionFilePath 파일 없음", "FunctionMapper/MergeContractFile");
-                        return;
-                    }
-
-                    if (scriptMapFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true && GlobalConfiguration.IsTenantFunction == false)
-                    {
                         return;
                     }
 
@@ -335,20 +200,9 @@ namespace function.Extensions
                     {
                         var fileInfo = new FileInfo(scriptMapFile);
                         var header = functionScriptContract.Header;
-                        var isTenantContractFile = false;
-                        if (scriptMapFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
-                        {
-                            isTenantContractFile = true;
-                            header.ApplicationID = string.IsNullOrWhiteSpace(header.ApplicationID) ? (fileInfo.Directory?.Parent?.Parent?.Parent?.Parent?.Name).ToStringSafe() : header.ApplicationID;
-                            header.ProjectID = string.IsNullOrWhiteSpace(header.ProjectID) ? (fileInfo.Directory?.Parent?.Name).ToStringSafe() : header.ProjectID;
-                            header.TransactionID = string.IsNullOrWhiteSpace(header.TransactionID) ? (fileInfo.Directory?.Name).ToStringSafe().Replace(fileInfo.Extension, "") : header.TransactionID;
-                        }
-                        else
-                        {
-                            header.ApplicationID = string.IsNullOrWhiteSpace(header.ApplicationID) ? (fileInfo.Directory?.Parent?.Name).ToStringSafe() : header.ApplicationID;
-                            header.ProjectID = string.IsNullOrWhiteSpace(header.ProjectID) ? (fileInfo.Directory?.Name).ToStringSafe() : header.ProjectID;
-                            header.TransactionID = string.IsNullOrWhiteSpace(header.TransactionID) ? fileInfo.Name.Replace(fileInfo.Extension, "") : header.TransactionID;
-                        }
+                        header.ApplicationID = string.IsNullOrWhiteSpace(header.ApplicationID) ? (fileInfo.Directory?.Parent?.Name).ToStringSafe() : header.ApplicationID;
+                        header.ProjectID = string.IsNullOrWhiteSpace(header.ProjectID) ? (fileInfo.Directory?.Name).ToStringSafe() : header.ProjectID;
+                        header.TransactionID = string.IsNullOrWhiteSpace(header.TransactionID) ? fileInfo.Name.Replace(fileInfo.Extension, "") : header.TransactionID;
 
                         var items = functionScriptContract.Commands;
                         foreach (var item in items)
@@ -421,14 +275,7 @@ namespace function.Extensions
 
                                 if (ScriptMappings.ContainsKey(mappingQueryID) == false)
                                 {
-                                    if (isTenantContractFile == true)
-                                    {
-                                        ScriptMappings.Add(mappingQueryID, moduleScriptMap);
-                                    }
-                                    else
-                                    {
-                                        ScriptMappings.Add(mappingQueryID, moduleScriptMap, TimeSpan.FromDays(36500));
-                                    }
+                                    ScriptMappings.Add(mappingQueryID, moduleScriptMap, TimeSpan.FromDays(36500));
                                 }
                                 else
                                 {
@@ -518,11 +365,6 @@ namespace function.Extensions
                 foreach (var scriptMapFile in scriptMapFiles)
                 {
                     ArgumentNullException.ThrowIfNull(scriptFilePath);
-
-                    if (scriptFilePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true && GlobalConfiguration.IsTenantFunction == false)
-                    {
-                        return result;
-                    }
 
                     if (File.Exists(scriptMapFile) == true)
                     {
@@ -614,15 +456,6 @@ namespace function.Extensions
                         if (File.Exists(functionScriptFile) == true)
                         {
                             var header = functionScriptContract.Header;
-                            var isTenantContractFile = false;
-                            if (scriptMapFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
-                            {
-                                isTenantContractFile = true;
-                                var fileInfo = new FileInfo(scriptMapFile);
-                                header.ApplicationID = string.IsNullOrWhiteSpace(header.ApplicationID) ? (fileInfo.Directory?.Parent?.Parent?.Parent?.Parent?.Name).ToStringSafe() : header.ApplicationID;
-                                header.ProjectID = string.IsNullOrWhiteSpace(header.ProjectID) ? (fileInfo.Directory?.Parent?.Name).ToStringSafe() : header.ProjectID;
-                                header.TransactionID = string.IsNullOrWhiteSpace(header.TransactionID) ? (fileInfo.Directory?.Name).ToStringSafe().Replace(fileInfo.Extension, "") : header.TransactionID;
-                            }
 
                             var items = functionScriptContract.Commands;
                             foreach (var item in items)
@@ -707,26 +540,12 @@ namespace function.Extensions
 
                                         if (ScriptMappings.ContainsKey(queryID) == false)
                                         {
-                                            if (isTenantContractFile == true)
-                                            {
-                                                ScriptMappings.Add(queryID, moduleScriptMap);
-                                            }
-                                            else
-                                            {
-                                                ScriptMappings.Add(queryID, moduleScriptMap, TimeSpan.FromDays(36500));
-                                            }
+                                            ScriptMappings.Add(queryID, moduleScriptMap, TimeSpan.FromDays(36500));
                                         }
                                         else if (forceUpdate == true)
                                         {
                                             ScriptMappings.Remove(queryID);
-                                            if (isTenantContractFile == true)
-                                            {
-                                                ScriptMappings.Add(queryID, moduleScriptMap);
-                                            }
-                                            else
-                                            {
-                                                ScriptMappings.Add(queryID, moduleScriptMap, TimeSpan.FromDays(36500));
-                                            }
+                                            ScriptMappings.Add(queryID, moduleScriptMap, TimeSpan.FromDays(36500));
                                         }
                                         else
                                         {
@@ -931,10 +750,6 @@ namespace function.Extensions
                 }
 
                 ArgumentNullException.ThrowIfNull(xmlFilePath);
-                if (xmlFilePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true && GlobalConfiguration.IsTenantFunction == false)
-                {
-                    return result;
-                }
 
                 var (contract, scriptSource, featureSQLSource) = ParseXmlContract(xmlFilePath);
 
@@ -960,21 +775,10 @@ namespace function.Extensions
 
                 var header = contract.Header;
                 var fileInfo = new FileInfo(xmlFilePath);
-                var isTenantContractFile = xmlFilePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true;
-                if (isTenantContractFile == true)
-                {
-                    // 테넌트 경로: {appBasePath:.../applicationID}/function/{projectID}/{transactionID}.xml|.fnc
-                    header.ApplicationID = string.IsNullOrWhiteSpace(header.ApplicationID) ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : header.ApplicationID;
-                    header.ProjectID = string.IsNullOrWhiteSpace(header.ProjectID) ? (fileInfo.Directory?.Name).ToStringSafe() : header.ProjectID;
-                    header.TransactionID = string.IsNullOrWhiteSpace(header.TransactionID) ? fileInfo.Name.Replace(fileInfo.Extension, "") : header.TransactionID;
-                }
-                else
-                {
-                    // 일반 경로: {ContractBasePath}/{applicationID}/{projectID}/{transactionID}.xml|.fnc
-                    header.ApplicationID = string.IsNullOrWhiteSpace(header.ApplicationID) ? (fileInfo.Directory?.Parent?.Name).ToStringSafe() : header.ApplicationID;
-                    header.ProjectID = string.IsNullOrWhiteSpace(header.ProjectID) ? (fileInfo.Directory?.Name).ToStringSafe() : header.ProjectID;
-                    header.TransactionID = string.IsNullOrWhiteSpace(header.TransactionID) ? fileInfo.Name.Replace(fileInfo.Extension, "") : header.TransactionID;
-                }
+                // 일반 경로: {ContractBasePath}/{applicationID}/{projectID}/{transactionID}.xml|.fnc
+                header.ApplicationID = string.IsNullOrWhiteSpace(header.ApplicationID) ? (fileInfo.Directory?.Parent?.Name).ToStringSafe() : header.ApplicationID;
+                header.ProjectID = string.IsNullOrWhiteSpace(header.ProjectID) ? (fileInfo.Directory?.Name).ToStringSafe() : header.ProjectID;
+                header.TransactionID = string.IsNullOrWhiteSpace(header.TransactionID) ? fileInfo.Name.Replace(fileInfo.Extension, "") : header.TransactionID;
 
                 var generatedFilePath = MaterializeScriptFile(xmlFilePath, header.TransactionID, scriptSource, fileExtension);
                 if (string.IsNullOrWhiteSpace(featureSQLSource) == false)
@@ -1053,26 +857,12 @@ namespace function.Extensions
 
                             if (ScriptMappings.ContainsKey(queryID) == false)
                             {
-                                if (isTenantContractFile == true)
-                                {
-                                    ScriptMappings.Add(queryID, moduleScriptMap);
-                                }
-                                else
-                                {
-                                    ScriptMappings.Add(queryID, moduleScriptMap, TimeSpan.FromDays(36500));
-                                }
+                                ScriptMappings.Add(queryID, moduleScriptMap, TimeSpan.FromDays(36500));
                             }
                             else if (forceUpdate == true)
                             {
                                 ScriptMappings.Remove(queryID);
-                                if (isTenantContractFile == true)
-                                {
-                                    ScriptMappings.Add(queryID, moduleScriptMap);
-                                }
-                                else
-                                {
-                                    ScriptMappings.Add(queryID, moduleScriptMap, TimeSpan.FromDays(36500));
-                                }
+                                ScriptMappings.Add(queryID, moduleScriptMap, TimeSpan.FromDays(36500));
                             }
                             else
                             {
@@ -1105,10 +895,6 @@ namespace function.Extensions
 
                 foreach (var basePath in ModuleConfiguration.ContractBasePath)
                 {
-                    if (Directory.Exists(basePath) == false || basePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
-                    {
-                        continue;
-                    }
 
                     logger.Information("[{LogCategory}] ContractBasePath: " + basePath, "FunctionMapper/LoadContract");
 

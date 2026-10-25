@@ -254,7 +254,7 @@ namespace dbclient
             var serviceScopeFactory = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>();
             foreach (var basePath in ModuleConfiguration.ContractBasePath)
             {
-                if (Directory.Exists(basePath) == true && basePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == false && ModuleConfiguration.IsContractFileWatching == true)
+                if (Directory.Exists(basePath) == true && ModuleConfiguration.IsContractFileWatching == true)
                 {
                     var fileSyncManager = new FileSyncManager(basePath, ModuleConfiguration.ContractFileWatcherFilter);
                     fileSyncManager.MonitoringFile += async (WatcherChangeTypes changeTypes, FileInfo fileInfo) =>
@@ -266,7 +266,7 @@ namespace dbclient
                             {
                                 using var scope = serviceScopeFactory.CreateScope();
                                 var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                                var actionResult = await mediator.Send(new QueryRefreshRequest(changeTypes.ToString(), filePath, null, null));
+                                var actionResult = await mediator.Send(new QueryRefreshRequest(changeTypes.ToString(), filePath));
                                 if (actionResult == false && changeTypes != WatcherChangeTypes.Deleted)
                                 {
                                     Log.Warning("[{LogCategory}] " + $"{filePath} 파일 갱신 확인 필요.", $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure");

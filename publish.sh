@@ -161,7 +161,6 @@ contracts_path="$HANDSTACK_HOME/contracts"
 remove_if_exists "$contracts_path"
 
 module_projects=(
-    "2.Modules/checkup/checkup.csproj:checkup"
     "2.Modules/command/command.csproj:command"
     "2.Modules/prompter/prompter.csproj:prompter"
     "2.Modules/dbclient/dbclient.csproj:dbclient"

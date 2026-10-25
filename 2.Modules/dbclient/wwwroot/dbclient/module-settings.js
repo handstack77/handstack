@@ -29,15 +29,6 @@ let $module_settings = {
                     {
                         "ApplicationID": "HDS",
                         "ProjectID": "*",
-                        "DataSourceID": "CHECKUPDB",
-                        "DataProvider": "SQLite",
-                        "ConnectionString": "URI=file:../sqlite/HDS/dbclient/checkup.db;Journal Mode=Off;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;",
-                        "IsEncryption": "N",
-                        "Comment": "SQLite 기본 데이터베이스"
-                    },
-                    {
-                        "ApplicationID": "HDS",
-                        "ProjectID": "*",
                         "DataSourceID": "DB01",
                         "DataProvider": "SQLite",
                         "ConnectionString": "URI=file:../sqlite/HDS/dbclient/HDS.db;Journal Mode=Off;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;",

@@ -17,7 +17,7 @@ let $module_settings = {
                 "DatabaseContractPath": "../contracts/dbclient",
                 "ModuleBasePath": "../modules/repository",
                 "EventAction": [],
-                "SubscribeAction": ["repository.Events.RepositoryRequest"],
+                "SubscribeAction": [],
                 "XFrameOptions": "ALLOW-FROM http://127.0.0.1:8421,http://localhost:8421",
                 "ContentSecurityPolicy": "frame-ancestors 'self' http://127.0.0.1:8421 http://localhost:8421;"
             }

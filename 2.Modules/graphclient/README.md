@@ -122,7 +122,6 @@ Invoke-RestMethod -Method Post -Uri "http://localhost:8421/graphclient/api/query
 ## 운영 메모
 - 계약 파일 감시는 `IsContractFileWatching`으로 제어합니다.
 - `SubscribeAction` 기본값은 `graphclient.Events.GraphClientRequest`, `graphclient.Events.ManagedRequest`입니다.
-- 테넌트 앱은 `settings.json`의 `GraphDataSource` 배열로 추가 데이터소스를 주입할 수 있습니다.
 - `GraphMapper`는 SQL 전용 DbType/방향성 처리 없이 named parameter(`$name`) 바인딩만 사용합니다.
 
 ## 빌드 명령

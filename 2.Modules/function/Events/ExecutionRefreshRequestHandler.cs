@@ -17,15 +17,11 @@ using Mediator;
 
 namespace function.Events
 {
-    public class ExecutionRefreshRequest(string changeType, string filePath, string? userWorkID, string? applicationID) : IRequest<bool>
+    public class ExecutionRefreshRequest(string changeType, string filePath) : IRequest<bool>
     {
         public string ChangeType { get; } = changeType;
 
         public string FilePath { get; } = filePath;
-
-        public string? UserWorkID { get; } = userWorkID;
-
-        public string? ApplicationID { get; } = applicationID;
     }
 
     public class ExecutionRefreshRequestHandler(Serilog.ILogger logger) : IRequestHandler<ExecutionRefreshRequest, bool>
@@ -55,11 +51,10 @@ namespace function.Events
                 {
                     case WatcherChangeTypes.Created:
                     case WatcherChangeTypes.Changed:
-                        if (!string.IsNullOrWhiteSpace(request.UserWorkID) && !string.IsNullOrWhiteSpace(request.ApplicationID))
+                        foreach (var basePath in ModuleConfiguration.ContractBasePath)
                         {
-                            var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, request.UserWorkID, request.ApplicationID);
-                            var itemPath = PathExtensions.Join(appBasePath, filePath);
-                            var directoryInfo = new DirectoryInfo(appBasePath);
+                            var itemPath = PathExtensions.Join(basePath, filePath);
+                            var directoryInfo = new DirectoryInfo(basePath);
                             var isFlatContractFile = ModuleConfiguration.IsContractFileExtension(fileInfo.Extension) == true && fileInfo.Name.Equals("featureSQL.xml", StringComparison.OrdinalIgnoreCase) == false;
                             if (directoryInfo.Exists == true && System.IO.File.Exists(itemPath) == true && (fileInfo.Name.StartsWith("featureMain.") == true || fileInfo.Name == "featureMeta.json" || fileInfo.Name == "featureSQL.xml" || isFlatContractFile == true) == true)
                             {
@@ -68,28 +63,9 @@ namespace function.Events
                                     filePath = filePath.Replace(fileInfo.Name, "featureMeta.json");
                                 }
 
-                                logger.Information("[{LogCategory}] " + $"Add TenantApp ModuleScriptMap FilePath: {filePath}", "Query/Refresh");
-                                actionResult = FunctionMapper.AddScriptMap(isFlatContractFile == true ? itemPath : filePath, true, logger);
-                            }
-                        }
-                        else
-                        {
-                            foreach (var basePath in ModuleConfiguration.ContractBasePath)
-                            {
-                                var itemPath = PathExtensions.Join(basePath, filePath);
-                                var directoryInfo = new DirectoryInfo(basePath);
-                                var isFlatContractFile = ModuleConfiguration.IsContractFileExtension(fileInfo.Extension) == true && fileInfo.Name.Equals("featureSQL.xml", StringComparison.OrdinalIgnoreCase) == false;
-                                if (directoryInfo.Exists == true && System.IO.File.Exists(itemPath) == true && (fileInfo.Name.StartsWith("featureMain.") == true || fileInfo.Name == "featureMeta.json" || fileInfo.Name == "featureSQL.xml" || isFlatContractFile == true) == true)
-                                {
-                                    if (fileInfo.Extension != ".json" && isFlatContractFile == false)
-                                    {
-                                        filePath = filePath.Replace(fileInfo.Name, "featureMeta.json");
-                                    }
-
-                                    logger.Information("[{LogCategory}] " + $"Add ModuleScriptMap FilePath: {filePath}", "Query/Refresh");
-                                    actionResult = FunctionMapper.AddScriptMap(filePath, true, logger);
-                                    break;
-                                }
+                                logger.Information("[{LogCategory}] " + $"Add ModuleScriptMap FilePath: {filePath}", "Query/Refresh");
+                                actionResult = FunctionMapper.AddScriptMap(filePath, true, logger);
+                                break;
                             }
                         }
                         break;
@@ -100,25 +76,10 @@ namespace function.Events
                         var isDeletedFlatContractFile = ModuleConfiguration.IsContractFileExtension(fileInfo.Extension) == true && fileInfo.Name.Equals("featureSQL.xml", StringComparison.OrdinalIgnoreCase) == false;
                         var deletedProjectID = isDeletedFlatContractFile == true ? fileInfo.Directory?.Name : fileInfo.Directory?.Parent?.Name;
                         var deletedTransactionID = isDeletedFlatContractFile == true ? fileInfo.Name.Replace(fileInfo.Extension, "") : fileInfo.Directory?.Name;
-                        if (!string.IsNullOrWhiteSpace(request.UserWorkID) && !string.IsNullOrWhiteSpace(request.ApplicationID))
-                        {
-                            var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, request.UserWorkID, request.ApplicationID);
-                            var directoryInfo = new DirectoryInfo(appBasePath);
-                            if (directoryInfo.Exists == true)
-                            {
-                                existStatementMaps = FunctionMapper.ScriptMappings.Select(p => p.Value).Where(p =>
-                                    p.ApplicationID == request.ApplicationID &&
-                                    p.ProjectID == deletedProjectID &&
-                                    p.TransactionID == deletedTransactionID).ToList();
-                            }
-                        }
-                        else
-                        {
-                            existStatementMaps = FunctionMapper.ScriptMappings.Select(p => p.Value).Where(p =>
-                                p.ApplicationID == GlobalConfiguration.ApplicationID &&
-                                p.ProjectID == deletedProjectID &&
-                                p.TransactionID == deletedTransactionID).ToList();
-                        }
+                        existStatementMaps = FunctionMapper.ScriptMappings.Select(p => p.Value).Where(p =>
+                            p.ApplicationID == GlobalConfiguration.ApplicationID &&
+                            p.ProjectID == deletedProjectID &&
+                            p.TransactionID == deletedTransactionID).ToList();
 
                         if (existStatementMaps.Count > 0)
                         {

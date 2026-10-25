@@ -32,8 +32,7 @@ RUN mkdir -p /opt/seed/handstack/app \
     && dotnet build -p:Optimize=$OPTIMIZE_FLAG --configuration "$CONFIGURATION_MODE" "2.Modules/logger/logger.csproj" --output /opt/seed/handstack/modules/logger \
     && dotnet build -p:Optimize=$OPTIMIZE_FLAG --configuration "$CONFIGURATION_MODE" "2.Modules/repository/repository.csproj" --output /opt/seed/handstack/modules/repository \
     && dotnet build -p:Optimize=$OPTIMIZE_FLAG --configuration "$CONFIGURATION_MODE" "2.Modules/transact/transact.csproj" --output /opt/seed/handstack/modules/transact \
-    && dotnet build -p:Optimize=$OPTIMIZE_FLAG --configuration "$CONFIGURATION_MODE" "2.Modules/wwwroot/wwwroot.csproj" --output /opt/seed/handstack/modules/wwwroot \
-    && dotnet build -p:Optimize=$OPTIMIZE_FLAG --configuration "$CONFIGURATION_MODE" "2.Modules/checkup/checkup.csproj" --output /opt/seed/handstack/modules/checkup
+    && dotnet build -p:Optimize=$OPTIMIZE_FLAG --configuration "$CONFIGURATION_MODE" "2.Modules/wwwroot/wwwroot.csproj" --output /opt/seed/handstack/modules/wwwroot
 
 RUN mkdir -p /opt/seed/handstack/contracts \
     && if [ -d /src/contracts ]; then cp -a /src/contracts/. /opt/seed/handstack/contracts/; fi \

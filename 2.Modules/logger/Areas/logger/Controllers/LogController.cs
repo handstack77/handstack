@@ -79,15 +79,6 @@ namespace logger.Areas.logger.Controllers
                     return result;
                 }
 
-                if (ModuleConfiguration.IsSQLiteCreateOnNotSettingRequest == true)
-                {
-                    if (ModuleConfiguration.CheckSQLiteCreate(logMessage.ApplicationID) == null)
-                    {
-                        logger.Warning("데이터 소스 생성 기능 확인 필요: " + JsonConvert.SerializeObject(logMessage));
-                        return result;
-                    }
-                }
-
                 if (ModuleConfiguration.ApplicationIDCircuitBreakers.ContainsKey(logMessage.ApplicationID) == false)
                 {
                     logger.Warning($"ApplicationID: {logMessage.ApplicationID} 데이터 소스 확인 필요: " + JsonConvert.SerializeObject(logMessage));
@@ -240,26 +231,6 @@ namespace logger.Areas.logger.Controllers
                     return result;
                 }
 
-                if (ModuleConfiguration.IsSQLiteCreateOnNotSettingRequest == true)
-                {
-                    if (ModuleConfiguration.CheckSQLiteCreate(applicationID) == null)
-                    {
-                        logger.Warning("데이터 소스 생성 기능 확인 필요: " + JsonConvert.SerializeObject(new
-                        {
-                            ApplicationID = applicationID,
-                            ServerID = serverID,
-                            GlobalID = globalID,
-                            Environment = environment,
-                            ProjectID = projectID,
-                            ServiceID = serviceID,
-                            TransactionID = transactionID,
-                            StartedAt = startedAt,
-                            EndedAt = endedAt
-                        }));
-                        return result;
-                    }
-                }
-
                 if (ModuleConfiguration.ApplicationIDCircuitBreakers.ContainsKey(applicationID) == false)
                 {
                     logger.Warning($"ApplicationID: {applicationID} 데이터 소스 확인 필요");
@@ -293,19 +264,6 @@ namespace logger.Areas.logger.Controllers
                         LogNo = logNo
                     }));
                     return result;
-                }
-
-                if (ModuleConfiguration.IsSQLiteCreateOnNotSettingRequest == true)
-                {
-                    if (ModuleConfiguration.CheckSQLiteCreate(applicationID) == null)
-                    {
-                        logger.Warning("데이터 소스 생성 기능 확인 필요: " + JsonConvert.SerializeObject(new
-                        {
-                            ApplicationID = applicationID,
-                            LogNo = logNo
-                        }));
-                        return result;
-                    }
                 }
 
                 if (ModuleConfiguration.ApplicationIDCircuitBreakers.ContainsKey(applicationID) == false)

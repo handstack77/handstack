@@ -20,8 +20,6 @@ namespace logger.Entity
 
         public string ModuleBasePath { get; set; }
 
-        public bool IsSQLiteCreateOnNotSettingRequest { get; set; }
-
         public string BusinessServerUrl { get; set; }
 
         public int LogDeleteRepeatSecond { get; set; }
@@ -34,7 +32,6 @@ namespace logger.Entity
         {
             AuthorizationKey = "";
             ModuleBasePath = "";
-            IsSQLiteCreateOnNotSettingRequest = false;
             BusinessServerUrl = "";
             LogDeleteRepeatSecond = 43200;
             CircuitBreakResetSecond = 30;

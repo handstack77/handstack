@@ -9,7 +9,7 @@ HandStack 은 [MIT 라이선스](LICENSE.md)로 배포됩니다. 이 문서는 H
 | NuGet | 75 | 모든 `*.csproj` 의 PackageReference |
 | npm (런타임) | 20 | `1.WebHost/ack/package.json`, `2.Modules/function/package.json`, `2.Modules/wwwroot/package.json` 의 dependencies (직접 의존성, 하위 의존성 제외) |
 | npm (빌드 도구) | 9 | 같은 package.json 의 devDependencies (직접 의존성) |
-| libman | 47 | `2.Modules/wwwroot/libman.json` |
+| libman | 50 | `2.Modules/wwwroot/libman.json` |
 
 ## 검토가 필요한 구성요소
 
@@ -19,9 +19,9 @@ HandStack 은 [MIT 라이선스](LICENSE.md)로 배포됩니다. 이 문서는 H
 | --- | --- | --- | --- |
 | NuGet | Hangfire.AspNetCore 1.8.25 | 파일 라이선스 (LICENSE.md) |  |
 | NuGet | Hangfire.Core 1.8.25 | 파일 라이선스 (LICENSE.md) |  |
-| NuGet | MySql.EntityFrameworkCore 10.0.9 | GPL-2.0-only WITH Universal-FOSS-exception-1.0 |  |
-| NuGet | Oracle.EntityFrameworkCore 10.23.26301 | 파일 라이선스 (LICENSE.txt) |  |
-| NuGet | Oracle.ManagedDataAccess.Core 23.26.301 | 파일 라이선스 (LICENSE.txt) |  |
+| NuGet | MySql.EntityFrameworkCore 10.0.12 | GPL-2.0-only WITH Universal-FOSS-exception-1.0 |  |
+| NuGet | Oracle.EntityFrameworkCore 10.23.26400 | 파일 라이선스 (LICENSE.txt) |  |
+| NuGet | Oracle.ManagedDataAccess.Core 23.26.400 | 파일 라이선스 (LICENSE.txt) |  |
 | libman | superplaceholder 1.0.0 | CC-BY-ND-4.0 |  |
 | libman | tinymce 5.10.9 | LGPL-2.0 |  |
 | libman | highcharts 11.4.8 | https://www.highcharts.com/license |  |
@@ -31,10 +31,10 @@ HandStack 은 [MIT 라이선스](LICENSE.md)로 배포됩니다. 이 문서는 H
 
 | 패키지 | 버전 | 라이선스 | 링크 | 비고 |
 | --- | --- | --- | --- | --- |
-| Anthropic | 12.53.0 | MIT | https://docs.anthropic.com/claude/reference/ |  |
-| AWSSDK.S3 | 4.0.104.1 | Apache-2.0 | https://github.com/aws/aws-sdk-net/ |  |
+| Anthropic | 13.1.0 | Apache-2.0 | https://docs.anthropic.com/claude/reference/ |  |
+| AWSSDK.S3 | 4.0.104.6 | Apache-2.0 | https://github.com/aws/aws-sdk-net/ |  |
 | Azure.Core | 1.63.0 | MIT | https://github.com/Azure/azure-sdk-for-net/blob/Azure.Core_1.63.0/sdk/core/Azure.Core/README.md |  |
-| Azure.Storage.Blobs | 12.30.0 | MIT | https://github.com/Azure/azure-sdk-for-net/blob/Azure.Storage.Blobs_12.30.0/sdk/storage/Azure.Storage.Blobs/README.md |  |
+| Azure.Storage.Blobs | 12.30.1 | MIT | https://github.com/Azure/azure-sdk-for-net/blob/Azure.Storage.Blobs_12.30.1/sdk/storage/Azure.Storage.Blobs/README.md |  |
 | BouncyCastle.Cryptography | 2.7.0 | MIT | https://www.bouncycastle.org/stable/nuget/csharp/website |  |
 | BundlerMinifier.Core | 3.2.449 | Apache-2.0 | https://www.nuget.org/packages/BundlerMinifier.Core/3.2.449 | licenseUrl 본문 기준 (https://github.com/madskristensen/BundlerMinifier/blob/master/LICENSE) |
 | ChoETL.JSON.NETStandard | 1.2.1.72 | MIT | https://github.com/Cinchoo/ChoETL | licenseUrl 본문 기준 (https://github.com/Cinchoo/ChoETL/blob/master/LICENSE) |
@@ -43,43 +43,43 @@ HandStack 은 [MIT 라이선스](LICENSE.md)로 배포됩니다. 이 문서는 H
 | Google.Apis | 1.77.0 | Apache-2.0 | https://github.com/googleapis/google-api-dotnet-client |  |
 | Google.Apis.Auth | 1.77.0 | Apache-2.0 | https://github.com/googleapis/google-api-dotnet-client |  |
 | Google.Cloud.Storage.V1 | 5.0.0 | Apache-2.0 | https://github.com/googleapis/google-cloud-dotnet |  |
-| Google.GenAI | 1.24.0 | Apache-2.0 | https://github.com/googleapis/dotnet-genai |  |
+| Google.GenAI | 1.26.1 | Apache-2.0 | https://github.com/googleapis/dotnet-genai |  |
 | Hangfire.AspNetCore | 1.8.25 | 파일 라이선스 (LICENSE.md) | https://www.hangfire.io/ |  |
 | Hangfire.Core | 1.8.25 | 파일 라이선스 (LICENSE.md) | https://www.hangfire.io/ |  |
-| HtmlAgilityPack | 1.13.0 | MIT | http://html-agility-pack.net/ |  |
+| HtmlAgilityPack | 1.13.1 | MIT | http://html-agility-pack.net/ |  |
 | Jering.Javascript.NodeJS | 7.0.0 | Apache-2.0 | https://www.jering.tech/utilities/jering.javascript.nodejs/index | licenseUrl 본문 기준 (https://github.com/JeringTech/Javascript.NodeJS/blob/master/License.md) |
 | Mediator.Abstractions | 3.0.2 | MIT | https://github.com/martinothamar/Mediator | 라이선스 파일(LICENSE) 본문 기준 |
-| Microsoft.AspNetCore.Mvc.NewtonsoftJson | 10.0.12 | MIT | https://asp.net/ |  |
-| Microsoft.Bcl.AsyncInterfaces | 10.0.12 | MIT | https://dot.net/ |  |
+| Microsoft.AspNetCore.Mvc.NewtonsoftJson | 10.0.13 | MIT | https://asp.net/ |  |
+| Microsoft.Bcl.AsyncInterfaces | 10.0.13 | MIT | https://dot.net/ |  |
 | Microsoft.CodeAnalysis.Compilers | 5.9.0 | MIT | https://github.com/dotnet/roslyn |  |
 | Microsoft.CodeAnalysis.CSharp | 5.9.0 | MIT | https://github.com/dotnet/roslyn |  |
 | Microsoft.Data.SqlClient | 7.1.1 | MIT | https://aka.ms/sqlclientproject |  |
-| Microsoft.EntityFrameworkCore | 10.0.12 | MIT | https://docs.microsoft.com/ef/core/ |  |
-| Microsoft.EntityFrameworkCore.Relational | 10.0.12 | MIT | https://docs.microsoft.com/ef/core/ |  |
-| Microsoft.Extensions.Caching.StackExchangeRedis | 10.0.12 | MIT | https://asp.net/ |  |
-| Microsoft.Extensions.Configuration | 10.0.12 | MIT | https://dot.net/ |  |
-| Microsoft.Extensions.Configuration.Json | 10.0.12 | MIT | https://dot.net/ |  |
-| Microsoft.Extensions.Hosting.Systemd | 10.0.12 | MIT | https://dot.net/ |  |
-| Microsoft.Extensions.Hosting.WindowsServices | 10.0.12 | MIT | https://dot.net/ |  |
-| Microsoft.SemanticKernel | 1.80.1 | MIT | https://aka.ms/semantic-kernel |  |
-| Microsoft.SemanticKernel.Core | 1.80.1 | MIT | https://aka.ms/semantic-kernel |  |
-| Microsoft.Win32.SystemEvents | 10.0.12 | MIT | https://dot.net/ |  |
+| Microsoft.EntityFrameworkCore | 10.0.13 | MIT | https://docs.microsoft.com/ef/core/ |  |
+| Microsoft.EntityFrameworkCore.Relational | 10.0.13 | MIT | https://docs.microsoft.com/ef/core/ |  |
+| Microsoft.Extensions.Caching.StackExchangeRedis | 10.0.13 | MIT | https://asp.net/ |  |
+| Microsoft.Extensions.Configuration | 10.0.13 | MIT | https://dot.net/ |  |
+| Microsoft.Extensions.Configuration.Json | 10.0.13 | MIT | https://dot.net/ |  |
+| Microsoft.Extensions.Hosting.Systemd | 10.0.13 | MIT | https://dot.net/ |  |
+| Microsoft.Extensions.Hosting.WindowsServices | 10.0.13 | MIT | https://dot.net/ |  |
+| Microsoft.SemanticKernel | 1.81.0 | MIT | https://aka.ms/semantic-kernel |  |
+| Microsoft.SemanticKernel.Core | 1.81.0 | MIT | https://aka.ms/semantic-kernel |  |
+| Microsoft.Win32.SystemEvents | 10.0.13 | MIT | https://dot.net/ |  |
 | murmurhash | 1.0.3 | Apache-2.0 | https://github.com/darrenkopp/murmurhash-net | licenseUrl 본문 기준 (https://github.com/darrenkopp/murmurhash-net/blob/master/LICENSE.md) |
-| MySql.EntityFrameworkCore | 10.0.9 | GPL-2.0-only WITH Universal-FOSS-exception-1.0 | https://github.com/mysql/mysql-connector-net |  |
+| MySql.EntityFrameworkCore | 10.0.12 | GPL-2.0-only WITH Universal-FOSS-exception-1.0 | https://github.com/mysql/mysql-connector-net |  |
 | MySqlConnector | 2.6.2 | MIT | https://mysqlconnector.net/ |  |
-| Neo4j.Driver | 6.3.0 | Apache-2.0 | https://github.com/neo4j/neo4j-dotnet-driver |  |
+| Neo4j.Driver | 6.4.0 | Apache-2.0 | https://github.com/neo4j/neo4j-dotnet-driver |  |
 | Newtonsoft.Json | 13.0.4 | MIT | https://www.newtonsoft.com/json |  |
 | Npgsql | 10.0.3 | PostgreSQL | https://github.com/npgsql/npgsql |  |
 | Npgsql.EntityFrameworkCore.PostgreSQL | 10.0.3 | PostgreSQL | https://github.com/npgsql/efcore.pg |  |
-| NUglify | 1.23.3 | Apache-2.0 | https://github.com/jbest84/NUglify | 라이선스 파일(license.txt) 본문 기준 |
+| NUglify | 1.23.4 | Apache-2.0 | https://github.com/jbest84/NUglify | 라이선스 파일(license.txt) 본문 기준 |
 | Octokit | 14.0.0 | MIT | https://github.com/octokit/octokit.net |  |
 | OpenAI | 2.14.0 | MIT | https://github.com/openai/openai-dotnet/tree/OpenAI_2.14.0 |  |
-| Oracle.EntityFrameworkCore | 10.23.26301 | 파일 라이선스 (LICENSE.txt) | https://www.oracle.com/database/technologies/appdev/dotnet.html |  |
-| Oracle.ManagedDataAccess.Core | 23.26.301 | 파일 라이선스 (LICENSE.txt) | https://www.oracle.com/database/technologies/appdev/dotnet.html |  |
+| Oracle.EntityFrameworkCore | 10.23.26400 | 파일 라이선스 (LICENSE.txt) | https://www.oracle.com/database/technologies/appdev/dotnet.html |  |
+| Oracle.ManagedDataAccess.Core | 23.26.400 | 파일 라이선스 (LICENSE.txt) | https://www.oracle.com/database/technologies/appdev/dotnet.html |  |
 | PdfPig | 0.1.16 | Apache-2.0 | https://github.com/UglyToad/PdfPig |  |
 | Polly | 8.8.0 | BSD-3-Clause | https://github.com/App-vNext/Polly |  |
-| pythonnet | 3.2.0 | MIT | https://pythonnet.github.io/ | 라이선스 파일(LICENSE) 본문 기준 |
-| RestSharp | 114.0.0 | Apache-2.0 | https://restsharp.dev/ |  |
+| pythonnet | 3.2.1 | MIT | https://pythonnet.github.io/ | 라이선스 파일(LICENSE) 본문 기준 |
+| RestSharp | 114.1.0 | Apache-2.0 | https://restsharp.dev/ |  |
 | Serilog | 4.4.0 | Apache-2.0 | https://serilog.net/ |  |
 | Serilog.AspNetCore | 10.0.0 | Apache-2.0 | https://github.com/serilog/serilog-aspnetcore |  |
 | Serilog.Extensions.Hosting | 10.0.0 | Apache-2.0 | https://github.com/serilog/serilog-extensions-hosting |  |
@@ -92,18 +92,18 @@ HandStack 은 [MIT 라이선스](LICENSE.md)로 배포됩니다. 이 문서는 H
 | SourceGear.sqlite3 | 3.53.4 | Public Domain | https://sqlite.org/ | 라이선스 파일(LICENSE.txt) 본문 기준 |
 | Sqids | 3.2.1 | MIT | https://sqids.org/dotnet |  |
 | Stubble.Core | 1.10.8 | MIT | https://github.com/stubbleorg/stubble | 라이선스 파일(licence.md) 본문 기준 |
-| Swashbuckle.AspNetCore | 10.2.3 | MIT | https://github.com/domaindrivendev/Swashbuckle.AspNetCore |  |
+| Swashbuckle.AspNetCore | 10.3.1 | MIT | https://github.com/domaindrivendev/Swashbuckle.AspNetCore |  |
 | System.ClientModel | 1.16.0 | MIT | https://github.com/Azure/azure-sdk-for-net/blob/System.ClientModel_1.16.0/sdk/core/System.ClientModel/README.md |  |
-| System.CodeDom | 10.0.12 | MIT | https://dot.net/ |  |
-| System.CommandLine | 2.0.12 | MIT | https://github.com/dotnet/command-line-api |  |
-| System.Configuration.ConfigurationManager | 10.0.12 | MIT | https://dot.net/ |  |
+| System.CodeDom | 10.0.13 | MIT | https://dot.net/ |  |
+| System.CommandLine | 2.0.13 | MIT | https://github.com/dotnet/command-line-api |  |
+| System.Configuration.ConfigurationManager | 10.0.13 | MIT | https://dot.net/ |  |
 | System.Data.SQLite | 2.0.4 | Public Domain | https://www.nuget.org/packages/System.Data.SQLite/2.0.4 | nuspec copyright 기준 |
-| System.Drawing.Common | 10.0.12 | MIT | https://github.com/dotnet/winforms |  |
-| System.IdentityModel.Tokens.Jwt | 8.23.0 | MIT | https://github.com/AzureAD/azure-activedirectory-identitymodel-extensions-for-dotnet |  |
+| System.Drawing.Common | 10.0.13 | MIT | https://github.com/dotnet/winforms |  |
 | System.Linq.Dynamic.Core | 1.7.4 | Apache-2.0 | https://dynamic-linq.net/ |  |
 | System.Reactive | 7.0.0 | MIT | https://github.com/dotnet/reactive |  |
-| System.Runtime.Caching | 10.0.12 | MIT | https://dot.net/ |  |
-| System.Windows.Extensions | 10.0.12 | MIT | https://dot.net/ |  |
+| System.Runtime.Caching | 10.0.13 | MIT | https://dot.net/ |  |
+| System.Security.Cryptography.Pkcs | 10.0.13 | MIT | https://dot.net/ |  |
+| System.Windows.Extensions | 10.0.13 | MIT | https://dot.net/ |  |
 | Velopack | 1.2.161 | MIT | https://github.com/velopack/velopack | 프로젝트가 부동 버전(*)을 사용하며 로컬 캐시의 최신 버전을 기준으로 함 |
 | Yarp.ReverseProxy | 2.3.0 | MIT | https://github.com/dotnet/yarp |  |
 
@@ -156,6 +156,9 @@ HandStack 은 [MIT 라이선스](LICENSE.md)로 배포됩니다. 이 문서는 H
 
 | 라이브러리 | 버전 | 제공자 | 라이선스 | 링크 | 비고 |
 | --- | --- | --- | --- | --- | --- |
+| tom-select | 2.6.2 | jsdelivr | Apache-2.0 | https://www.npmjs.com/package/tom-select/v/2.6.2 |  |
+| dropzone | 6.3.5 | jsdelivr | MIT | https://www.npmjs.com/package/dropzone/v/6.3.5 |  |
+| signature_pad | 5.1.4 | jsdelivr | MIT | https://www.npmjs.com/package/signature_pad/v/5.1.4 |  |
 | clipboard.js | 2.0.11 | cdnjs | MIT | https://clipboardjs.com |  |
 | Chart.js | 4.4.1 | cdnjs | MIT | http://www.chartjs.org |  |
 | echarts | 6.1.0 | cdnjs | Apache-2.0 | https://echarts.apache.org |  |
@@ -285,7 +288,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
 
-### NUglify 1.23.3
+### NUglify 1.23.4
 
 ```text
 Copyright (c) 2016, Alexandre Mutel
@@ -331,7 +334,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ```
 
-### Oracle.EntityFrameworkCore 10.23.26301, Oracle.ManagedDataAccess.Core 23.26.301
+### Oracle.EntityFrameworkCore 10.23.26400, Oracle.ManagedDataAccess.Core 23.26.400
 
 ```text
 Your use of this Program is governed by the Oracle Free Distribution, Hosting, and Use Terms and Conditions set forth below, unless you have received this Program (alone or as part of another Oracle product) under an Oracle license agreement (including but not limited to the Oracle Master Agreement), in which case your use of this Program is governed solely by such license agreement with Oracle.
@@ -378,7 +381,7 @@ Version 1.0
 Last updated:  28 June 2022
 ```
 
-### pythonnet 3.2.0
+### pythonnet 3.2.1
 
 ```text
 MIT License

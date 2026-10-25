@@ -71,97 +71,6 @@ namespace dbclient.Extensions
                 ArgumentNullException.ThrowIfNull(queryObject);
                 result = FindDataSourceMap(queryObject, applicationID, projectID, dataSourceID);
 
-                if (result == null)
-                {
-                    var userWorkID = string.Empty;
-                    var appBasePath = string.Empty;
-                    if (!string.IsNullOrWhiteSpace(queryObject.TenantID))
-                    {
-                        var items = queryObject.TenantID.SplitAndTrim('|');
-                        userWorkID = items[0];
-                        applicationID = items[1];
-                        appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
-                    }
-                    else
-                    {
-                        var baseDirectoryInfo = new DirectoryInfo(GlobalConfiguration.TenantAppBasePath);
-                        var directories = Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath, applicationID, SearchOption.AllDirectories);
-                        foreach (var directory in directories)
-                        {
-                            var directoryInfo = new DirectoryInfo(directory);
-                            if (baseDirectoryInfo.Name == directoryInfo.Parent?.Parent?.Name)
-                            {
-                                appBasePath = directoryInfo.FullName.Replace("\\", "/");
-                                userWorkID = (directoryInfo.Parent?.Name).ToStringSafe();
-                                break;
-                            }
-                        }
-                    }
-
-                    var tenantID = $"{userWorkID}|{applicationID}";
-                    var settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
-                    if (!string.IsNullOrWhiteSpace(appBasePath) && File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
-                    {
-                        var appSettingText = File.ReadAllText(settingFilePath);
-                        var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
-                        if (appSetting != null)
-                        {
-                            var dataSourceJson = appSetting.DataSource;
-                            if (dataSourceJson != null)
-                            {
-                                foreach (var item in dataSourceJson)
-                                {
-                                    if (ModuleConfiguration.DataSource.FindIndex(p =>
-                                        p.ApplicationID == item.ApplicationID
-                                        && p.ProjectID == item.ProjectID
-                                        && p.DataSourceID == item.DataSourceID
-                                    ) == -1)
-                                    {
-                                        item.ConnectionString = item.ConnectionString.Replace("{appBasePath}", appBasePath);
-                                        ModuleConfiguration.DataSource.Add(item);
-                                    }
-
-                                    var tanantMap = new DataSourceTanantKey
-                                    {
-                                        ApplicationID = item.ApplicationID,
-                                        DataSourceID = item.DataSourceID,
-                                        TanantPattern = item.TanantPattern,
-                                        TanantValue = item.TanantValue
-                                    };
-
-                                    if (DataSourceMappings.ContainsKey(tanantMap) == false)
-                                    {
-                                        var dataSourceMap = new DataSourceMap
-                                        {
-                                            ApplicationID = item.ApplicationID,
-                                            ProjectListID = item.ProjectID.Split(",").Where(s => !string.IsNullOrWhiteSpace(s)).Distinct().ToList(),
-                                            DataProvider = Enum.Parse<DataProviders>(item.DataProvider),
-                                            ConnectionString = item.ConnectionString,
-                                            TransactionIsolationLevel = string.IsNullOrWhiteSpace(item.TransactionIsolationLevel) ? "ReadCommitted" : item.TransactionIsolationLevel
-                                        };
-
-                                        if (item.IsEncryption.ParseBool() == true)
-                                        {
-                                            dataSourceMap.ConnectionString = DecryptConnectionString(item);
-                                        }
-
-                                        if (DataSourceMappings.ContainsKey(tanantMap) == false)
-                                        {
-                                            DataSourceMappings.Add(tanantMap, dataSourceMap);
-                                        }
-                                    }
-                                }
-
-                                result = FindDataSourceMap(queryObject, applicationID, projectID, dataSourceID);
-                                if (result == null && applicationID != requestApplicationID)
-                                {
-                                    result = FindDataSourceMap(queryObject, requestApplicationID, projectID, dataSourceID);
-                                }
-                            }
-                        }
-                    }
-                }
-
                 return result;
             }
         }
@@ -222,186 +131,6 @@ namespace dbclient.Extensions
             lock (StatementMappings)
             {
                 StatementMappings.TryGetValue(queryID, out result);
-
-                if (result == null)
-                {
-                    ArgumentNullException.ThrowIfNull(queryID);
-
-                    var itemKeys = queryID.Split("|");
-                    var applicationID = itemKeys[0];
-                    var projectID = itemKeys[1];
-                    var transactionID = itemKeys[2];
-
-                    var appBasePath = string.Empty;
-                    var baseDirectoryInfo = new DirectoryInfo(GlobalConfiguration.TenantAppBasePath);
-                    var directories = Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath, applicationID, SearchOption.AllDirectories);
-                    foreach (var directory in directories)
-                    {
-                        var directoryInfo = new DirectoryInfo(directory);
-                        if (baseDirectoryInfo.Name == directoryInfo.Parent?.Parent?.Name)
-                        {
-                            appBasePath = directoryInfo.FullName.Replace("\\", "/");
-                            break;
-                        }
-                    }
-
-                    if (!string.IsNullOrWhiteSpace(appBasePath) && Directory.Exists(appBasePath) == true)
-                    {
-                        var filePath = string.Empty;
-                        foreach (var extension in ModuleConfiguration.ContractFileExtensions)
-                        {
-                            var candidatePath = PathExtensions.Combine(appBasePath, "dbclient", projectID, transactionID + extension);
-                            if (File.Exists(candidatePath) == true)
-                            {
-                                filePath = candidatePath;
-                                break;
-                            }
-                        }
-                        try
-                        {
-                            if (string.IsNullOrWhiteSpace(filePath) == false && File.Exists(filePath) == true)
-                            {
-                                var fileInfo = new FileInfo(filePath);
-                                var htmlDocument = new HtmlDocument
-                                {
-                                    OptionDefaultStreamEncoding = Encoding.UTF8
-                                };
-                                htmlDocument.LoadHtml(ReplaceCData(File.ReadAllText(filePath)));
-                                var header = htmlDocument.DocumentNode.SelectSingleNode("//mapper/header");
-                                var signatureKey = (header?.Element("signaturekey")?.InnerText).ToStringSafe();
-                                var encryptCommands = (header?.Element("encryptcommands")?.InnerText).ToStringSafe();
-
-                                if (!string.IsNullOrWhiteSpace(signatureKey) && !string.IsNullOrWhiteSpace(encryptCommands))
-                                {
-                                    var licenseItem = GlobalConfiguration.LoadModuleLicenses.Values.FirstOrDefault(li => li.AssemblyToken == signatureKey);
-                                    if (licenseItem == null)
-                                    {
-                                        Log.Logger.Error("[{LogCategory}] " + $"{filePath} 업무 계약 파일 오류 - 서명키 불일치", "DatabaseMapper/GetStatementMap");
-                                        return null;
-                                    }
-
-                                    var plain = LZStringHelper.DecompressFromUint8Array(encryptCommands.DecryptAESBytes(licenseItem.AssemblyKey.NormalizeKey())) ?? string.Empty;
-
-                                    var commands = htmlDocument.DocumentNode.SelectSingleNode("//mapper/commands");
-                                    commands?.InnerHtml = plain;
-                                }
-
-                                applicationID = (header?.Element("application")?.InnerText).ToStringSafe();
-                                projectID = (header?.Element("project")?.InnerText).ToStringSafe();
-                                transactionID = (header?.Element("transaction")?.InnerText).ToStringSafe();
-                                if (filePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
-                                {
-                                    applicationID = string.IsNullOrWhiteSpace(applicationID) ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : applicationID;
-                                    projectID = string.IsNullOrWhiteSpace(projectID) ? (fileInfo.Directory?.Name).ToStringSafe() : projectID;
-                                    transactionID = string.IsNullOrWhiteSpace(transactionID) ? fileInfo.Name.Replace(fileInfo.Extension, "") : transactionID;
-                                }
-                                else
-                                {
-                                    applicationID = string.IsNullOrWhiteSpace(applicationID) ? (fileInfo.Directory?.Parent?.Name).ToStringSafe() : applicationID;
-                                    projectID = string.IsNullOrWhiteSpace(projectID) ? (fileInfo.Directory?.Name).ToStringSafe() : projectID;
-                                    transactionID = string.IsNullOrWhiteSpace(transactionID) ? fileInfo.Name.Replace(fileInfo.Extension, "") : transactionID;
-                                }
-
-                                var items = htmlDocument.DocumentNode.SelectNodes("//commands/statement");
-                                if (items != null)
-                                {
-                                    foreach (var item in items)
-                                    {
-                                        if (header == null || $"{header?.Element("use")?.InnerText}".ToBoolean() == true)
-                                        {
-                                            var statementMap = new StatementMap
-                                            {
-                                                ApplicationID = applicationID,
-                                                ProjectID = projectID,
-                                                TransactionID = transactionID,
-                                                DataSourceID = item.Attributes["datasource"]?.Value ?? (header?.Element("datasource")?.InnerText).ToStringSafe()
-                                            };
-                                            if (string.IsNullOrWhiteSpace(statementMap.DataSourceID))
-                                            {
-                                                statementMap.DataSourceID = ModuleConfiguration.DefaultDataSourceID;
-                                            }
-
-                                            statementMap.TransactionIsolationLevel = (header?.Element("isolation")?.InnerText).ToStringSafe();
-                                            statementMap.StatementID = GetAttributeValue(item, "id") + GetAttributeValue(item, "seq").PadLeft(2, '0');
-                                            statementMap.Seq = GetAttributeValue(item, "seq").ParseInt(0);
-                                            statementMap.Description = GetAttributeValue(item, "desc");
-                                            statementMap.NativeDataClient = GetAttributeValue(item, "native").ParseBool();
-                                            statementMap.Timeout = GetAttributeValue(item, "timeout").ParseInt(0);
-                                            statementMap.SQL = item.InnerHtml;
-
-                                            var beforetransaction = item.Attributes["before"]?.Value;
-                                            if (!string.IsNullOrWhiteSpace(beforetransaction))
-                                            {
-                                                statementMap.BeforeTransactionCommand = beforetransaction;
-                                            }
-
-                                            var aftertransaction = item.Attributes["after"]?.Value;
-                                            if (!string.IsNullOrWhiteSpace(aftertransaction))
-                                            {
-                                                statementMap.AfterTransactionCommand = aftertransaction;
-                                            }
-
-                                            var fallbacktransaction = item.Attributes["fallback"]?.Value;
-                                            if (!string.IsNullOrWhiteSpace(fallbacktransaction))
-                                            {
-                                                statementMap.FallbackTransactionCommand = fallbacktransaction;
-                                            }
-
-                                            statementMap.DbParameters = [];
-                                            var htmlNodes = item.SelectNodes("param");
-                                            if (htmlNodes != null && htmlNodes.Count > 0)
-                                            {
-                                                foreach (var paramNode in htmlNodes)
-                                                {
-                                                    statementMap.DbParameters.Add(new DbParameterMap()
-                                                    {
-                                                        Name = GetAttributeValue(paramNode, "id"),
-                                                        DbType = GetAttributeValue(paramNode, "type"),
-                                                        Length = GetAttributeValue(paramNode, "length", "-1").ParseInt(-1),
-                                                        DefaultValue = GetAttributeValue(paramNode, "value"),
-                                                        TestValue = GetAttributeValue(paramNode, "test"),
-                                                        IsRequired = GetAttributeValue(paramNode, "required").ToBoolean(),
-                                                        Direction = GetAttributeValue(paramNode, "direction", "Input"),
-                                                        Transform = GetAttributeValue(paramNode, "transform"),
-                                                    });
-                                                }
-                                            }
-
-                                            statementMap.OutputMetas = ReadOutputMetas(item);
-
-                                            var children = new HtmlDocument
-                                            {
-                                                OptionDefaultStreamEncoding = Encoding.UTF8
-                                            };
-                                            children.LoadHtml(statementMap.SQL);
-                                            statementMap.Chidren = children;
-
-                                            var mappingQueryID = string.Concat(
-                                                statementMap.ApplicationID, "|",
-                                                statementMap.ProjectID, "|",
-                                                statementMap.TransactionID, "|",
-                                                statementMap.StatementID
-                                            );
-
-                                            if (StatementMappings.ContainsKey(mappingQueryID) == true)
-                                            {
-                                                StatementMappings.Remove(mappingQueryID);
-                                            }
-
-                                            StatementMappings.Add(mappingQueryID, statementMap);
-                                        }
-                                    }
-
-                                    StatementMappings.TryGetValue(queryID, out result);
-                                }
-                            }
-                        }
-                        catch (Exception exception)
-                        {
-                            Log.Logger.Error(exception, "[{LogCategory}] " + $"{filePath} 업무 계약 파일 오류 - " + exception.ToMessage(), "DatabaseMapper/GetStatementMap");
-                        }
-                    }
-                }
             }
 
             return result;
@@ -526,24 +255,12 @@ namespace dbclient.Extensions
                                 var commands = htmlDocument.DocumentNode.SelectSingleNode("//mapper/commands");
                                 commands?.InnerHtml = plain;
                             }
-
-                            var isTenantContractFile = false;
                             var applicationID = (header?.Element("application")?.InnerText).ToStringSafe();
                             var projectID = (header?.Element("project")?.InnerText).ToStringSafe();
                             var transactionID = (header?.Element("transaction")?.InnerText).ToStringSafe();
-                            if (filePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
-                            {
-                                isTenantContractFile = true;
-                                applicationID = string.IsNullOrWhiteSpace(applicationID) ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : applicationID;
-                                projectID = string.IsNullOrWhiteSpace(projectID) ? (fileInfo.Directory?.Name).ToStringSafe() : projectID;
-                                transactionID = string.IsNullOrWhiteSpace(transactionID) ? fileInfo.Name.Replace(fileInfo.Extension, "") : transactionID;
-                            }
-                            else
-                            {
-                                applicationID = string.IsNullOrWhiteSpace(applicationID) ? (fileInfo.Directory?.Parent?.Name).ToStringSafe() : applicationID;
-                                projectID = string.IsNullOrWhiteSpace(projectID) ? (fileInfo.Directory?.Name).ToStringSafe() : projectID;
-                                transactionID = string.IsNullOrWhiteSpace(transactionID) ? fileInfo.Name.Replace(fileInfo.Extension, "") : transactionID;
-                            }
+                            applicationID = string.IsNullOrWhiteSpace(applicationID) ? (fileInfo.Directory?.Parent?.Name).ToStringSafe() : applicationID;
+                            projectID = string.IsNullOrWhiteSpace(projectID) ? (fileInfo.Directory?.Name).ToStringSafe() : projectID;
+                            transactionID = string.IsNullOrWhiteSpace(transactionID) ? fileInfo.Name.Replace(fileInfo.Extension, "") : transactionID;
 
                             var items = htmlDocument.DocumentNode.SelectNodes("//commands/statement");
                             if (items != null)
@@ -628,28 +345,14 @@ namespace dbclient.Extensions
 
                                         if (StatementMappings.ContainsKey(queryID) == false)
                                         {
-                                            if (isTenantContractFile == true)
-                                            {
-                                                StatementMappings.Add(queryID, statementMap);
-                                            }
-                                            else
-                                            {
-                                                StatementMappings.Add(queryID, statementMap, TimeSpan.FromDays(36500));
-                                            }
+                                            StatementMappings.Add(queryID, statementMap, TimeSpan.FromDays(36500));
                                         }
                                         else
                                         {
                                             if (forceUpdate == true)
                                             {
                                                 StatementMappings.Remove(queryID);
-                                                if (isTenantContractFile == true)
-                                                {
-                                                    StatementMappings.Add(queryID, statementMap);
-                                                }
-                                                else
-                                                {
-                                                    StatementMappings.Add(queryID, statementMap, TimeSpan.FromDays(36500));
-                                                }
+                                                StatementMappings.Add(queryID, statementMap, TimeSpan.FromDays(36500));
                                             }
                                             else
                                             {
@@ -1140,10 +843,6 @@ namespace dbclient.Extensions
 
                 foreach (var basePath in ModuleConfiguration.ContractBasePath)
                 {
-                    if (Directory.Exists(basePath) == false || basePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
-                    {
-                        continue;
-                    }
 
                     var sqlMapFiles = ModuleConfiguration.ContractFileExtensions
                         .SelectMany(extension => Directory.GetFiles(basePath, "*" + extension, SearchOption.AllDirectories));
@@ -1179,18 +878,9 @@ namespace dbclient.Extensions
                             var applicationID = (header?.Element("application")?.InnerText).ToStringSafe();
                             var projectID = (header?.Element("project")?.InnerText).ToStringSafe();
                             var transactionID = (header?.Element("transaction")?.InnerText).ToStringSafe();
-                            if (sqlMapFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
-                            {
-                                applicationID = string.IsNullOrWhiteSpace(applicationID) ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : applicationID;
-                                projectID = string.IsNullOrWhiteSpace(projectID) ? (fileInfo.Directory?.Name).ToStringSafe() : projectID;
-                                transactionID = string.IsNullOrWhiteSpace(transactionID) ? fileInfo.Name.Replace(fileInfo.Extension, "") : transactionID;
-                            }
-                            else
-                            {
-                                applicationID = string.IsNullOrWhiteSpace(applicationID) ? (fileInfo.Directory?.Parent?.Name).ToStringSafe() : applicationID;
-                                projectID = string.IsNullOrWhiteSpace(projectID) ? (fileInfo.Directory?.Name).ToStringSafe() : projectID;
-                                transactionID = string.IsNullOrWhiteSpace(transactionID) ? fileInfo.Name.Replace(fileInfo.Extension, "") : transactionID;
-                            }
+                            applicationID = string.IsNullOrWhiteSpace(applicationID) ? (fileInfo.Directory?.Parent?.Name).ToStringSafe() : applicationID;
+                            projectID = string.IsNullOrWhiteSpace(projectID) ? (fileInfo.Directory?.Name).ToStringSafe() : projectID;
+                            transactionID = string.IsNullOrWhiteSpace(transactionID) ? fileInfo.Name.Replace(fileInfo.Extension, "") : transactionID;
 
                             var items = htmlDocument.DocumentNode.SelectNodes("//commands/statement");
                             if (items != null)
@@ -1315,21 +1005,21 @@ namespace dbclient.Extensions
                     throw new InvalidOperationException($"DataSourceID '{item.DataSourceID}' 연결 문자열 복호화 실패");
                 }
 
-                var tenantKey = new DataSourceTanantKey()
+                var dataSourceKey = new DataSourceTanantKey()
                 {
                     ApplicationID = item.ApplicationID,
                     DataSourceID = item.DataSourceID,
                     TanantPattern = item.TanantPattern,
                     TanantValue = item.TanantValue
                 };
-                if (candidates.ContainsKey(tenantKey) == true)
+                if (candidates.ContainsKey(dataSourceKey) == true)
                 {
                     ArgumentNullException.ThrowIfNull(logger);
 
                     logger.Warning("[{LogCategory}] " + $"DataSourceMap 정보 중복 확인 필요 - ApplicationID - {item.ApplicationID}, ProjectID - {item.ProjectID}, DataSourceID - {item.DataSourceID}, DataProvider - {item.DataProvider}, TanantPattern - {item.TanantPattern}, TanantValue - {item.TanantValue}", "DatabaseMapper/ReloadDataSourceMappings");
                 }
 
-                candidates[tenantKey] = new DataSourceMap()
+                candidates[dataSourceKey] = new DataSourceMap()
                 {
                     ApplicationID = item.ApplicationID,
                     ProjectListID = item.ProjectID.Split(",").Where(value => string.IsNullOrWhiteSpace(value) == false).Distinct().ToList(),

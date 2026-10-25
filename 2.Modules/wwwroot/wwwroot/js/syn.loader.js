@@ -888,67 +888,31 @@
     }
 
     var urlOptions = synLoader.toUrlObject(location.href);
-    if (location.pathname.startsWith((synConfig.TenantAppRequestPath ? `/${synConfig.TenantAppRequestPath}/` : '/app/')) == true) {
-        var workUserID = location.pathname.split('/')[2];
-        var applicationID = location.pathname.split('/')[3];
-        var tenantID = `${workUserID}|${applicationID}`;
-        var cacheAppConfig = sessionStorage.getItem(`${tenantID}Config`);
-        if (cacheAppConfig) {
-            window.Configuration = JSON.parse(cacheAppConfig);
-            if (window.Configuration.CreatedAt) {
-                var diffHours = Math.abs(new Date() - new Date(window.Configuration.CreatedAt)) / 3600000;
-                if (diffHours >= 1) {
-                    window.Configuration = null;
-                    sessionStorage.removeItem(`${tenantID}Config`);
-                }
-            }
-            else {
-                window.Configuration = null;
-                sessionStorage.removeItem(`${tenantID}Config`);
-            }
-        }
-
-        if (window.Configuration == null || window.Configuration == undefined) {
-            var appConfigName = `/app/${workUserID}/${applicationID}/wwwroot/app.environment.json`;
-            var response = await fetch(appConfigName, { cache: 'no-cache' });
+    if (window.synConfig && synConfig.LoadModuleConfig && synConfig.LoadModuleConfig.length > 0) {
+        var loadModuleID = synConfig.LoadModuleConfig.find((item) => { return location.pathname.startsWith('/' + item) == true; });
+        if (loadModuleID) {
+            var modConfigName = '/' + loadModuleID + '/mod.config.json';
+            var response = await fetch(modConfigName, { cache: 'no-cache' });
             if (response.status === 200) {
-                window.Configuration = await response.json();
-                window.Configuration.CreatedAt = new Date();
-            }
-            else {
-                window.Configuration = { Application: {}, Cookie: {}, Header: {}, Definition: { BindingAction: 'Replace', Scripts: [], Styles: [], Controls: [] } };
-            }
-
-            sessionStorage.setItem(`${tenantID}Config`, JSON.stringify(window.Configuration));
-        }
-    }
-    else {
-        if (window.synConfig && synConfig.LoadModuleConfig && synConfig.LoadModuleConfig.length > 0) {
-            var loadModuleID = synConfig.LoadModuleConfig.find((item) => { return location.pathname.startsWith('/' + item) == true; });
-            if (loadModuleID) {
-                var modConfigName = '/' + loadModuleID + '/mod.config.json';
-                var response = await fetch(modConfigName, { cache: 'no-cache' });
-                if (response.status === 200) {
-                    let configText = await response.text();
-                    const tempConfig = JSON.parse(configText);
-                    proxyPathName = (tempConfig.IsProxyServe == true && tempConfig.ProxyPathName.length > 0) ? tempConfig.ProxyPathName : '';
-                    configText = configText.replaceAll('{ProxyPathName}', (proxyPathName ? `/${proxyPathName}` : ''));
-                    window.modConfig = JSON.parse(configText);
-                    if (window.modConfig.SynConfigPath) {
-                        window.modConfig.SynConfigPath = window.modConfig.SynConfigPath.indexOf('{hostname}') > -1 ? window.modConfig.SynConfigPath.replace('{hostname}', `${location.hostname}${location.port}`) : window.modConfig.SynConfigPath;
-                        var configResponse = await fetch(window.modConfig.SynConfigPath, { cache: 'no-cache' });
-                        if (configResponse.status === 200) {
-                            window.synConfig = await configResponse.json();
-                            window.synConfig.LoadModuleID = loadModuleID;
-                        }
+                let configText = await response.text();
+                const tempConfig = JSON.parse(configText);
+                proxyPathName = (tempConfig.IsProxyServe == true && tempConfig.ProxyPathName.length > 0) ? tempConfig.ProxyPathName : '';
+                configText = configText.replaceAll('{ProxyPathName}', (proxyPathName ? `/${proxyPathName}` : ''));
+                window.modConfig = JSON.parse(configText);
+                if (window.modConfig.SynConfigPath) {
+                    window.modConfig.SynConfigPath = window.modConfig.SynConfigPath.indexOf('{hostname}') > -1 ? window.modConfig.SynConfigPath.replace('{hostname}', `${location.hostname}${location.port}`) : window.modConfig.SynConfigPath;
+                    var configResponse = await fetch(window.modConfig.SynConfigPath, { cache: 'no-cache' });
+                    if (configResponse.status === 200) {
+                        window.synConfig = await configResponse.json();
+                        window.synConfig.LoadModuleID = loadModuleID;
                     }
                 }
             }
         }
+    }
 
-        if (synConfig.EnvironmentSetting) {
-            window.Configuration = synConfig.EnvironmentSetting;
-        }
+    if (synConfig.EnvironmentSetting) {
+        window.Configuration = synConfig.EnvironmentSetting;
     }
 
     var loaderRequest = async function () {

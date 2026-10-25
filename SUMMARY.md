@@ -36,7 +36,6 @@ HandStack 솔루션은 단순한 ASP.NET Core 단일 웹앱이 아니라, 호스
   graphclient  : Neo4j/Memgraph Cypher 질의 실행
   logger       : 로그 수집
   repository   : 파일/리포지토리 기능
-  checkup      : 운영/관리 기능
   forwarder    : 프록시/전달 기능
 
 3.Infrastructure
@@ -73,7 +72,6 @@ $projects = @(
     "2.Modules/logger/logger.csproj"
     "2.Modules/repository/repository.csproj"
     "2.Modules/transact/transact.csproj"
-    "2.Modules/checkup/checkup.csproj"
     "1.WebHost/ack/ack.csproj"
     "1.WebHost/agent/agent.csproj"
     "1.WebHost/deploy/deploy.csproj"
@@ -145,7 +143,6 @@ GlobalConfiguration.ExternalIPAddress = await GetExternalIPAddress();
   "prompter",
   "repository",
   "logger",
-  "checkup",
   "forwarder"
 ]
 ```
@@ -159,11 +156,10 @@ GlobalConfiguration.IsRunning = true;
 await host.RunAsync(cancellationTokenSource.Token);
 ```
 
-[`1.WebHost/ack/Startup.cs`](1.WebHost/ack/Startup.cs)는 여기서 한 단계 더 들어가 실제 운영 환경을 구성합니다. `HostAccessID`, `TenantAppBasePath`, `LoadModuleBasePath`, 세션, CORS, IP 허용 목록, 로그, antiforgery, 계약 동기화 같은 운영 관련 설정이 모두 여기서 `GlobalConfiguration`으로 정리됩니다.
+[`1.WebHost/ack/Startup.cs`](1.WebHost/ack/Startup.cs)는 여기서 한 단계 더 들어가 실제 운영 환경을 구성합니다. `HostAccessID`, `LoadModuleBasePath`, 세션, CORS, IP 허용 목록, 로그, antiforgery, 계약 동기화 같은 운영 관련 설정이 모두 여기서 `GlobalConfiguration`으로 정리됩니다.
 
 ```csharp
 GlobalConfiguration.HostAccessID = GetHostAccessID(appSettings["HostAccessID"].ToStringSafe());
-GlobalConfiguration.TenantAppBasePath = GlobalConfiguration.GetBaseDirectoryPath(appSettings["TenantAppBasePath"], $"{handstackHomePath}\\tenants");
 GlobalConfiguration.LoadModuleBasePath = GlobalConfiguration.GetBaseDirectoryPath(appSettings["LoadModuleBasePath"]);
 GlobalConfiguration.LoadContractBasePath = GlobalConfiguration.GetBaseDirectoryPath(
     PathExtensions.Combine(GlobalConfiguration.EntryBasePath, "..", "contracts"));
@@ -412,25 +408,15 @@ switch (request.ReturnType)
 - 실제 구현: `featureMain.js` 또는 `featureMain.cs` 또는 `featureMain.py`
 - 변경 감지: 파일 감시를 통해 자동으로 리프레시합니다.
 
-예를 들어 [`2.Modules/checkup/Contracts/function/HDS/HAC/HAC000/featureMeta.json`](2.Modules/checkup/Contracts/function/HDS/HAC/HAC000/featureMeta.json)은 "이 기능이 어떤 파라미터를 받고 어떤 명령을 제공하는지"를 선언하고, [`2.Modules/checkup/Contracts/function/HDS/HAC/HAC000/featureMain.cs`](2.Modules/checkup/Contracts/function/HDS/HAC/HAC000/featureMain.cs)은 실제 C# 구현을 제공합니다.
+예를 들어 [`2.Modules/function/Contracts/function/HDS/TST/CSF010/featureMeta.json`](2.Modules/function/Contracts/function/HDS/TST/CSF010/featureMeta.json)은 함수의 입력과 명령을 선언하고, [`featureMain.cs`](2.Modules/function/Contracts/function/HDS/TST/CSF010/featureMain.cs)는 `ServerDate`, `ServerName`을 받아 결과를 만드는 C# 구현을 제공합니다.
 
-```csharp
-string url = $"{transactServerUrl}/summary?userWorkID={userWorkID}&applicationID={applicationID}&year={year}&weekOfYear={weekOfYear}&requestDate={currentDate}";
-var client = new RestClient();
-var request = new RestRequest(url, Method.Get);
-
-request.AddHeader("AuthorizationKey", ModuleConfiguration.AuthorizationKey);
-RestResponse response = client.Execute(request);
-```
-
-이 예제는 특히 의미가 큽니다. `checkup`의 C# 함수가 다시 `transact` 집계 API를 호출해 운영 대시보드를 만들고 있기 때문입니다. 즉 모듈은 고정된 계층이 아니라, 계약과 API를 통해 서로를 다시 조합하는 구조입니다.
+화면과 거래 계약은 함수의 식별자로 연결되며, 구현은 함수 모듈이 로드하고 실행합니다.
 
 요약하면 4장의 핵심은 다음과 같습니다.
 
 - `wwwroot`는 화면과 요청 토큰을 담당합니다.
 - `transact`는 계약 해석, 검증, 라우팅, 응답 조립을 담당합니다.
 - `function`은 계약 기반 서버 기능을 Node/C#/Python 런타임에서 실행합니다.
-- `checkup` 같은 상위 모듈은 이 흐름 위에서 관리 기능을 다시 구성합니다.
 
 ---
 

@@ -66,9 +66,9 @@ handsonapp [options]
 ## 실행 예시
 
 ```powershell
-handsonapp --workingDirectory C:/projects/mymodule --moduleID checkup --port 8090
-handsonapp --moduleID checkup --contractFileSync true --handstackPath C:/build/handstack
-handsonapp --moduleID checkup --contractUrlSync true --handstackUrl http://localhost:8421/contractsync --hostAccessID HANDSTACK_HOSTACCESSID
+handsonapp --workingDirectory C:/projects/mymodule --moduleID wwwroot --port 8090
+handsonapp --moduleID wwwroot --contractFileSync true --handstackPath C:/build/handstack
+handsonapp --moduleID wwwroot --contractUrlSync true --handstackUrl http://localhost:8421/contractsync --hostAccessID HANDSTACK_HOSTACCESSID
 ```
 
 ## 동기화 대상 파일 패턴

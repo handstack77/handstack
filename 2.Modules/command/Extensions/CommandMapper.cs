@@ -97,7 +97,7 @@ namespace command.Extensions
                     continue;
                 }
 
-                result = AddCommandMapFile(filePath, forceUpdate, false, logger);
+                result = AddCommandMapFile(filePath, forceUpdate, logger);
 
                 break;
             }
@@ -105,7 +105,7 @@ namespace command.Extensions
             return result;
         }
 
-        public static bool AddCommandMapFile(string filePath, bool forceUpdate, bool isTenantContractFile, ILogger logger)
+        public static bool AddCommandMapFile(string filePath, bool forceUpdate, ILogger logger)
         {
             ArgumentNullException.ThrowIfNull(logger);
 
@@ -135,14 +135,7 @@ namespace command.Extensions
 
                         if (CommandMappings.ContainsKey(queryID) == false)
                         {
-                            if (isTenantContractFile == true)
-                            {
-                                CommandMappings.Add(queryID, commandMap);
-                            }
-                            else
-                            {
-                                CommandMappings.Add(queryID, commandMap, TimeSpan.FromDays(36500));
-                            }
+                            CommandMappings.Add(queryID, commandMap, TimeSpan.FromDays(36500));
 
                             result = true;
                         }
@@ -172,7 +165,7 @@ namespace command.Extensions
 
                 foreach (var basePath in ModuleConfiguration.ContractBasePath)
                 {
-                    if (Directory.Exists(basePath) == false || basePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
+                    if (Directory.Exists(basePath) == false)
                     {
                         continue;
                     }
@@ -218,16 +211,7 @@ namespace command.Extensions
             var projectID = contract.Header.ProjectID;
             var transactionID = contract.Header.TransactionID;
             ArgumentNullException.ThrowIfNull(filePath);
-            var normalizedFilePath = filePath.Replace("\\", "/");
-            var tenantAppBasePath = GlobalConfiguration.TenantAppBasePath.Replace("\\", "/");
-            if (normalizedFilePath.StartsWith(tenantAppBasePath, StringComparison.OrdinalIgnoreCase) == true)
-            {
-                applicationID = string.IsNullOrWhiteSpace(applicationID) ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : applicationID;
-            }
-            else
-            {
-                applicationID = string.IsNullOrWhiteSpace(applicationID) ? (fileInfo.Directory?.Parent?.Name).ToStringSafe() : applicationID;
-            }
+            applicationID = string.IsNullOrWhiteSpace(applicationID) ? (fileInfo.Directory?.Parent?.Name).ToStringSafe() : applicationID;
 
             projectID = string.IsNullOrWhiteSpace(projectID) ? (fileInfo.Directory?.Name).ToStringSafe() : projectID;
             transactionID = string.IsNullOrWhiteSpace(transactionID) ? fileInfo.Name.Replace(fileInfo.Extension, "") : transactionID;

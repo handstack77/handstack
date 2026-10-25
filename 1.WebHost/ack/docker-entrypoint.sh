@@ -41,8 +41,5 @@ done
 mkdir -p "${HANDSTACK_HOME}/log"
 mkdir -p "${MODULES_DIR}"
 mkdir -p "${CONTRACTS_DIR}"
-mkdir -p "${HANDSTACK_HOME}/tenants"
-mkdir -p "${HANDSTACK_HOME}/batchs"
-mkdir -p "${HANDSTACK_HOME}/tmp/create_apps"
 
 exec dotnet "${APP_DIR}/ack.dll" "$@"

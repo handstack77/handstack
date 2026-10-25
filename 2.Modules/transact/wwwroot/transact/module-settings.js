@@ -12,7 +12,6 @@ let $module_settings = {
                 "CircuitBreakResetSecond": 60,
                 "IsValidationRequest": false,
                 "IsAllowDynamicRequest": false,
-                "AllowTenantTransactionCommands": ["D", "G"],
                 "IsLogServer": true,
                 "IsTransactAggregate": true,
                 "IsTransactAggregateRolling": false,
@@ -123,7 +122,6 @@ let $module_settings = {
                 syn.$l.get('txtCircuitBreakResetSecond').value = $string.isNumber($this.prop.moduleConfig.ModuleConfig.CircuitBreakResetSecond) == true ? $string.toNumber($this.prop.moduleConfig.ModuleConfig.CircuitBreakResetSecond) : 60;
                 syn.$l.get('chkIsValidationRequest').checked = $string.toBoolean($this.prop.moduleConfig.ModuleConfig.IsValidationRequest);
                 syn.$l.get('chkIsAllowDynamicRequest').checked = $string.toBoolean($this.prop.moduleConfig.ModuleConfig.IsAllowDynamicRequest);
-                syn.uicontrols.$multiselect.setSelectedValue('ddlAllowTenantTransactionCommands', $this.prop.moduleConfig.ModuleConfig.AllowTenantTransactionCommands);
                 syn.$l.get('chkIsLogServer').checked = $string.toBoolean($this.prop.moduleConfig.ModuleConfig.IsLogServer);
                 syn.$l.get('chkIsTransactAggregate').checked = $string.toBoolean($this.prop.moduleConfig.ModuleConfig.IsTransactAggregate);
                 syn.$l.get('chkIsTransactAggregateRolling').checked = $string.toBoolean($this.prop.moduleConfig.ModuleConfig.IsTransactAggregateRolling);
@@ -183,7 +181,6 @@ let $module_settings = {
 
                     $this.prop.moduleConfig.ModuleConfig.IsValidationRequest = syn.$l.get('chkIsValidationRequest').checked;
                     $this.prop.moduleConfig.ModuleConfig.IsAllowDynamicRequest = syn.$l.get('chkIsAllowDynamicRequest').checked;
-                    $this.prop.moduleConfig.ModuleConfig.AllowTenantTransactionCommands = syn.uicontrols.$multiselect.getSelectedValue('ddlAllowTenantTransactionCommands');
                     $this.prop.moduleConfig.ModuleConfig.IsLogServer = syn.$l.get('chkIsLogServer').checked;
                     $this.prop.moduleConfig.ModuleConfig.IsTransactAggregate = syn.$l.get('chkIsTransactAggregate').checked;
                     $this.prop.moduleConfig.ModuleConfig.IsTransactAggregateRolling = syn.$l.get('chkIsTransactAggregateRolling').checked;

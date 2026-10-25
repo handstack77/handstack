@@ -91,10 +91,6 @@ namespace dbclient.DataClient
                 var i = 0;
                 foreach (var queryObject in request.DynamicObjects)
                 {
-                    if (request.LoadOptions?.TryGetValue("$tenantID", out var tenantID) == true)
-                    {
-                        queryObject.TenantID = tenantID;
-                    }
 
                     var statementMap = DatabaseMapper.GetStatementMap(queryObject.QueryID);
                     if (statementMap == null)
@@ -238,10 +234,6 @@ namespace dbclient.DataClient
                 var i = 0;
                 foreach (var queryObject in request.DynamicObjects)
                 {
-                    if (request.LoadOptions?.TryGetValue("$tenantID", out var tenantID) == true)
-                    {
-                        queryObject.TenantID = tenantID;
-                    }
 
                     var statementMap = DatabaseMapper.GetStatementMap(queryObject.QueryID);
                     if (statementMap == null)
@@ -1027,10 +1019,6 @@ TransactionException:
                 var i = 0;
                 foreach (var queryObject in request.DynamicObjects)
                 {
-                    if (request.LoadOptions?.TryGetValue("$tenantID", out var tenantID) == true)
-                    {
-                        queryObject.TenantID = tenantID;
-                    }
 
                     var statementMap = DatabaseMapper.GetStatementMap(queryObject.QueryID);
                     if (statementMap == null)
@@ -1666,10 +1654,6 @@ TransactionException:
                 var i = 0;
                 foreach (var queryObject in request.DynamicObjects)
                 {
-                    if (request.LoadOptions?.TryGetValue("$tenantID", out var tenantID) == true)
-                    {
-                        queryObject.TenantID = tenantID;
-                    }
 
                     var statementMap = DatabaseMapper.GetStatementMap(queryObject.QueryID);
                     if (statementMap == null)
@@ -2308,10 +2292,6 @@ TransactionException:
                 var i = 0;
                 foreach (var queryObject in request.DynamicObjects)
                 {
-                    if (request.LoadOptions?.TryGetValue("$tenantID", out var tenantID) == true)
-                    {
-                        queryObject.TenantID = tenantID;
-                    }
 
                     var statementMap = DatabaseMapper.GetStatementMap(queryObject.QueryID);
                     if (statementMap == null)
@@ -3036,10 +3016,6 @@ TransactionException:
                 var i = 0;
                 foreach (var queryObject in request.DynamicObjects)
                 {
-                    if (request.LoadOptions?.TryGetValue("$tenantID", out var tenantID) == true)
-                    {
-                        queryObject.TenantID = tenantID;
-                    }
 
                     var statementMap = DatabaseMapper.GetStatementMap(queryObject.QueryID);
                     if (statementMap == null)
@@ -3349,10 +3325,6 @@ TransactionException:
                 var i = 0;
                 foreach (var queryObject in request.DynamicObjects)
                 {
-                    if (request.LoadOptions?.TryGetValue("$tenantID", out var tenantID) == true)
-                    {
-                        queryObject.TenantID = tenantID;
-                    }
 
                     var statementMap = DatabaseMapper.GetStatementMap(queryObject.QueryID);
                     if (statementMap == null)
@@ -3835,10 +3807,6 @@ TransactionException:
                 var i = 0;
                 foreach (var queryObject in request.DynamicObjects)
                 {
-                    if (request.LoadOptions?.TryGetValue("$tenantID", out var tenantID) == true)
-                    {
-                        queryObject.TenantID = tenantID;
-                    }
 
                     var statementMap = DatabaseMapper.GetStatementMap(queryObject.QueryID);
                     if (statementMap == null)

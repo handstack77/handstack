@@ -295,7 +295,6 @@ namespace function
                             "IsBundleLoad": false,
                             "BaseDirectory": "/",
                             "ContractRequestPath": "view",
-                            "TenantAppRequestPath": "app",
                             "SharedAssetUrl": "/assets/shared/",
                             "IsApiFindServer": false,
                             "DiscoveryApiServerUrl": "",
@@ -474,7 +473,7 @@ namespace function
             var serviceScopeFactory = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>();
             foreach (var basePath in ModuleConfiguration.ContractBasePath)
             {
-                if (Directory.Exists(basePath) == true && basePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == false && (ModuleConfiguration.EnableFileWatching == true || ModuleConfiguration.CSharpEnableFileWatching == true || ModuleConfiguration.PythonEnableFileWatching == true))
+                if (Directory.Exists(basePath) == true && (ModuleConfiguration.EnableFileWatching == true || ModuleConfiguration.CSharpEnableFileWatching == true || ModuleConfiguration.PythonEnableFileWatching == true))
                 {
                     var functionContractBasePath = PathExtensions.Combine(basePath);
                     if (Directory.Exists(functionContractBasePath) == true)
@@ -519,7 +518,7 @@ namespace function
                                 {
                                     using var scope = serviceScopeFactory.CreateScope();
                                     var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                                    var actionResult = await mediator.Send(new ExecutionRefreshRequest(changeTypes.ToString(), filePath, null, null));
+                                    var actionResult = await mediator.Send(new ExecutionRefreshRequest(changeTypes.ToString(), filePath));
                                     if (actionResult == false && changeTypes != WatcherChangeTypes.Deleted)
                                     {
                                         Log.Warning("[{LogCategory}] " + $"{filePath} 파일 갱신 확인 필요.", $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure");

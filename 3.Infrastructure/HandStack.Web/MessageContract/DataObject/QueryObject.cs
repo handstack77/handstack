@@ -9,7 +9,6 @@ namespace HandStack.Web.MessageContract.DataObject
         public QueryObject()
         {
             QueryID = "";
-            TenantID = "";
             JsonObject = JsonObjectType.FormJson;
             JsonObjects = [];
             Parameters = [];
@@ -20,8 +19,6 @@ namespace HandStack.Web.MessageContract.DataObject
         }
 
         public string QueryID { get; set; }
-
-        public string TenantID { get; set; }
 
         public JsonObjectType JsonObject { get; set; }
 

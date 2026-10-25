@@ -562,32 +562,6 @@ namespace transact.Extensions
             }
         }
 
-        public DataSet? ReadAggregate(string userWorkID, string applicationID, string rollingID, string SQL)
-        {
-            DataSet? result = null;
-            try
-            {
-                if (ModuleConfiguration.IsTransactAggregate && Directory.Exists(PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID)))
-                {
-                    var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
-                    var logDbFilePath = PathExtensions.Combine(appBasePath, ".managed", "sqlite", "transact", $"log-{rollingID}.db");
-                    if (Directory.Exists(appBasePath) && File.Exists(logDbFilePath))
-                    {
-                        var connectionString = $"URI=file:{logDbFilePath};Journal Mode=WAL;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;Busy Timeout=5000;";
-                        using var dbClient = new SQLiteClient(connectionString);
-                        using var dataSet = dbClient.ExecuteDataSet(SQL, CommandType.Text);
-                        result = dataSet;
-                    }
-                }
-            }
-            catch (Exception exception)
-            {
-                logger.Error(exception, $"[{{LogCategory}}] 로그 집계 쿼리 오류 applicationID: {applicationID}, rollingID: {rollingID}", "TransactLoggerClient/ReadAggregate");
-            }
-
-            return result;
-        }
-
         #endregion
 
         #region Background Processing

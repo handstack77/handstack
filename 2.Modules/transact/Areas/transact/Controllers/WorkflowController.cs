@@ -66,7 +66,6 @@ namespace transact.Areas.transact.Controllers
             {
                 var baseUrl = HttpContext.Request.GetBaseUrl();
                 var refererPath = HttpContext.Request.Headers.Referer.ToString();
-                var tenantAppRequestPath = $"{baseUrl}/{GlobalConfiguration.TenantAppRequestPath}/";
                 var transactionUserWorkID = request.LoadOptions?.Get<string>("work-id").ToStringSafe();
                 var transactionApplicationID = request.LoadOptions?.Get<string>("app-id").ToStringSafe();
                 request.System.ProgramID = !string.IsNullOrWhiteSpace(transactionApplicationID) ? transactionApplicationID : request.System.ProgramID;
@@ -253,12 +252,6 @@ namespace transact.Areas.transact.Controllers
                         isAllowWorkflowRequestTransaction = true;
                     }
                 }
-                else
-                {
-                    isAllowWorkflowRequestTransaction = refererPath.StartsWith(tenantAppRequestPath) &&
-                        !string.IsNullOrWhiteSpace(transactionUserWorkID) &&
-                        !string.IsNullOrWhiteSpace(transactionApplicationID);
-                }
 
                 if (isAllowWorkflowRequestTransaction == false)
                 {
@@ -428,24 +421,6 @@ namespace transact.Areas.transact.Controllers
                         requestSystemID = route.SystemID;
                     }
 
-                    // Referer 실행 경로가 Forbes 앱이고 요청 헤더에 Authorization가 있으면 인증 검증
-                    UserAccount? userAccount = null;
-                    if (refererPath.StartsWith(tenantAppRequestPath) == true)
-                    {
-                        var splits = refererPath.Replace(baseUrl, "").Split('/');
-                        var userWorkID = splits.Length > 3 ? splits[2] : "";
-                        var applicationID = splits.Length > 3 ? splits[3] : "";
-                        if (!string.IsNullOrWhiteSpace(userWorkID) && !string.IsNullOrWhiteSpace(applicationID))
-                        {
-                            var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
-                            var directoryInfo = new DirectoryInfo(appBasePath);
-                            if (directoryInfo.Exists == true)
-                            {
-                                userAccount = HttpContext.Items["JwtAccount"] as UserAccount;
-                            }
-                        }
-                    }
-
                     var isTransactionTokenOnly = transactionInfo.AuthorizeMethod?.Contains("TransactionTokenOnly") == true;
                     if (isTransactionTokenOnly == true)
                     {
@@ -459,78 +434,6 @@ namespace transact.Areas.transact.Controllers
                         {
                             response.ExceptionText = "TransactionToken 확인 필요";
                             return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
-                        }
-                    }
-                    else if (string.IsNullOrWhiteSpace(token) && userAccount != null)
-                    {
-                        if (ModuleConfiguration.SystemID == requestSystemID && isBypassAuthorizeIP == true)
-                        {
-                        }
-                        else if (transactionInfo.Authorize == true)
-                        {
-                            var isRoleYN = true;
-                            if (transactionInfo.AuthorizeMethod == null || transactionInfo.AuthorizeMethod?.Contains("Role") == true)
-                            {
-                                if (transactionInfo.Roles != null && transactionInfo.Roles.Count > 0)
-                                {
-                                    isRoleYN = false;
-                                    var transactionMinRoleValue = Role.User.GetRoleValue(transactionInfo.Roles, true);
-                                    foreach (var userRole in userAccount.Roles)
-                                    {
-                                        if (Enum.TryParse<Role>(userRole, out var parsedUserRole) == true)
-                                        {
-                                            var userRoleValue = (int)parsedUserRole;
-                                            if (userRoleValue <= transactionMinRoleValue)
-                                            {
-                                                isRoleYN = true;
-                                                break;
-                                            }
-                                        }
-
-                                        if (isRoleYN == false && transactionInfo.Roles.Contains(userRole) == true)
-                                        {
-                                            isRoleYN = true;
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-
-                            var isClaimYN = true;
-                            if (transactionInfo.AuthorizeMethod == null || transactionInfo.AuthorizeMethod?.Contains("Policy") == true)
-                            {
-                                if (transactionInfo.Policys != null && transactionInfo.Policys.Count > 0)
-                                {
-                                    isClaimYN = false;
-                                    foreach (var claim in userAccount.Claims)
-                                    {
-                                        if (transactionInfo.Policys.ContainsKey(claim.Key) == true)
-                                        {
-                                            var allowClaims = transactionInfo.Policys[claim.Key];
-                                            if (allowClaims == null || allowClaims.IndexOf(claim.Value) > -1)
-                                            {
-                                                isClaimYN = true;
-                                                break;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
-                            var isTransactionTokenYN = false;
-                            if (transactionInfo.AuthorizeMethod == null || transactionInfo.AuthorizeMethod?.Contains("TransactionToken") == true)
-                            {
-                                if (!string.IsNullOrWhiteSpace(request.Transaction.TransactionToken) && transactionInfo.TransactionTokens?.Contains(request.Transaction.TransactionToken) == true)
-                                {
-                                    isTransactionTokenYN = true;
-                                }
-                            }
-
-                            if (isRoleYN == false && isClaimYN == false && isTransactionTokenYN == false)
-                            {
-                                response.ExceptionText = "앱 사용자 역할 또는 정책 권한 확인 필요";
-                                return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
-                            }
                         }
                     }
                     else if (ModuleConfiguration.SystemID == requestSystemID && isBypassAuthorizeIP == true)
@@ -625,7 +528,7 @@ namespace transact.Areas.transact.Controllers
                                 return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                             }
                         }
-                        else if (refererPath.StartsWith(tenantAppRequestPath) == false && ModuleConfiguration.UseApiAuthorize == true)
+                        else if (ModuleConfiguration.UseApiAuthorize == true)
                         {
                             if (!TrySplitBearerToken(token, out var userID, out var encryptedToken, out var tokenHash))
                             {
@@ -745,15 +648,7 @@ namespace transact.Areas.transact.Controllers
                     // PrivillegeDatabaseDDL, PrivillegeDatabaseDML, PrivillegeDatabaseDCL, PrivillegePermissionEXE, PrivillegeFeatureRUN
                     var privillegeKeys = new List<string>();
                     var claims = new Dictionary<string, string>();
-                    if (userAccount != null)
-                    {
-                        if (userAccount.Claims.ContainsKey("PrivillegeKeys") == true)
-                        {
-                            privillegeKeys = userAccount.Claims["PrivillegeKeys"].SplitAndTrim(',');
-                            claims = userAccount.Claims;
-                        }
-                    }
-                    else if (bearerToken != null)
+                    if (bearerToken != null)
                     {
                         if (bearerToken.Policy.Claims.ContainsKey("PrivillegeKeys") == true)
                         {
@@ -772,11 +667,7 @@ namespace transact.Areas.transact.Controllers
 
                     // 개발 목적 테스트 계정 자동 로그인(wwwroot DevAccountController) 요청 감지. 클레임 위조 대비로 호스트 설정과 교차 확인한다.
                     var isDevAutoSignIn = false;
-                    if (userAccount != null && userAccount.Claims.ContainsKey("IsDevAutoSignIn") == true)
-                    {
-                        isDevAutoSignIn = userAccount.Claims["IsDevAutoSignIn"].ToBoolean();
-                    }
-                    else if (bearerToken != null && bearerToken.Policy.Claims.ContainsKey("IsDevAutoSignIn") == true)
+                    if (bearerToken != null && bearerToken.Policy.Claims.ContainsKey("IsDevAutoSignIn") == true)
                     {
                         isDevAutoSignIn = bearerToken.Policy.Claims["IsDevAutoSignIn"].ToBoolean();
                     }

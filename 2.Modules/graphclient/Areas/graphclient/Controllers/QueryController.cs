@@ -58,7 +58,7 @@ namespace graphclient.Areas.graphclient.Controllers
         }
 
         [HttpGet("[action]")]
-        public async Task<ActionResult> Refresh(string changeType, string filePath, string? userWorkID, string? applicationID)
+        public async Task<ActionResult> Refresh(string changeType, string filePath)
         {
             if (HttpContext.IsAllowAuthorization() == false)
             {
@@ -67,7 +67,7 @@ namespace graphclient.Areas.graphclient.Controllers
 
             try
             {
-                var actionResult = await mediator.Send(new QueryRefreshRequest(changeType, filePath, userWorkID, applicationID));
+                var actionResult = await mediator.Send(new QueryRefreshRequest(changeType, filePath));
                 return Content(JsonConvert.SerializeObject(actionResult), "application/json");
             }
             catch (Exception exception)

@@ -65,7 +65,7 @@ namespace repository.Controllers
 
         // http://localhost:8421/repository/api/storage/refresh?changeType=Created&filePath=HDS/ZZW/TST010.json
         [HttpGet("[action]")]
-        public async Task<ActionResult> Refresh(string changeType, string filePath, string? userWorkID, string? applicationID)
+        public async Task<ActionResult> Refresh(string changeType, string filePath)
         {
             _ = NotFound();
             ActionResult result;
@@ -77,7 +77,7 @@ namespace repository.Controllers
             {
                 try
                 {
-                    var actionResult = await mediator.Send(new StorageRefreshRequest(changeType, filePath, userWorkID, applicationID));
+                    var actionResult = await mediator.Send(new StorageRefreshRequest(changeType, filePath));
                     result = Content(JsonConvert.SerializeObject(actionResult), "application/json");
                 }
                 catch (Exception exception)
@@ -847,15 +847,8 @@ namespace repository.Controllers
 
                                 if (repository.IsVirtualPath == true)
                                 {
-                                    if (string.IsNullOrWhiteSpace(repository.UserWorkID))
-                                    {
-                                        relativePath = $"/{ModuleConfiguration.ModuleID}/{repository.ApplicationID}/{repository.RepositoryID}/";
-                                        relativePath = relativePath + relativeDirectoryUrlPath + repositoryItem.ItemID;
-                                    }
-                                    else
-                                    {
-                                        relativePath = $"/{ModuleConfiguration.ModuleID}/api/storage/virtual-download-file?applicationID={repository.ApplicationID}&repositoryID={repository.RepositoryID}&subDirectory={repositoryItem.CustomPath1}&fileName={repositoryItem.ItemID}";
-                                    }
+                                    relativePath = $"/{ModuleConfiguration.ModuleID}/{repository.ApplicationID}/{repository.RepositoryID}/";
+                                    relativePath = relativePath + relativeDirectoryUrlPath + repositoryItem.ItemID;
 
                                     absolutePath = ModuleConfiguration.FileServerUrl + relativePath;
                                 }
@@ -1194,15 +1187,8 @@ namespace repository.Controllers
 
                                 if (repository.IsVirtualPath == true)
                                 {
-                                    if (string.IsNullOrWhiteSpace(repository.UserWorkID))
-                                    {
-                                        relativePath = $"/{ModuleConfiguration.ModuleID}/{repository.ApplicationID}/{repository.RepositoryID}/";
-                                        relativePath = relativePath + relativeDirectoryUrlPath + repositoryItem.ItemID;
-                                    }
-                                    else
-                                    {
-                                        relativePath = $"/{ModuleConfiguration.ModuleID}/api/storage/virtual-download-file?applicationID={repository.ApplicationID}&repositoryID={repository.RepositoryID}&subDirectory={repositoryItem.CustomPath1}&fileName={repositoryItem.ItemID}";
-                                    }
+                                    relativePath = $"/{ModuleConfiguration.ModuleID}/{repository.ApplicationID}/{repository.RepositoryID}/";
+                                    relativePath = relativePath + relativeDirectoryUrlPath + repositoryItem.ItemID;
 
                                     absolutePath = ModuleConfiguration.FileServerUrl + relativePath;
                                 }
@@ -1639,15 +1625,8 @@ namespace repository.Controllers
 
                                     if (repository.IsVirtualPath == true)
                                     {
-                                        if (string.IsNullOrWhiteSpace(repository.UserWorkID))
-                                        {
-                                            relativePath = $"/{ModuleConfiguration.ModuleID}/{repository.ApplicationID}/{repository.RepositoryID}/";
-                                            relativePath = relativePath + relativeDirectoryUrlPath + repositoryItem.ItemID;
-                                        }
-                                        else
-                                        {
-                                            relativePath = $"/{ModuleConfiguration.ModuleID}/api/storage/virtual-download-file?applicationID={repository.ApplicationID}&repositoryID={repository.RepositoryID}&subDirectory={repositoryItem.CustomPath1}&fileName={repositoryItem.ItemID}";
-                                        }
+                                        relativePath = $"/{ModuleConfiguration.ModuleID}/{repository.ApplicationID}/{repository.RepositoryID}/";
+                                        relativePath = relativePath + relativeDirectoryUrlPath + repositoryItem.ItemID;
 
                                         absolutePath = ModuleConfiguration.FileServerUrl + relativePath;
                                     }
@@ -2944,52 +2923,12 @@ namespace repository.Controllers
 
             try
             {
-                var tenantAppRequestPath = $"/{GlobalConfiguration.TenantAppRequestPath}/";
-                if (requestRefererUrl.IndexOf(tenantAppRequestPath) > -1)
+                for (var i = 0; i < GlobalConfiguration.WithOrigins.Count; i++)
                 {
-                    var appBasePath = string.Empty;
-                    var baseDirectoryInfo = new DirectoryInfo(GlobalConfiguration.TenantAppBasePath);
-                    var directories = Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath, applicationID, SearchOption.AllDirectories);
-                    foreach (var directory in directories)
+                    var origin = GlobalConfiguration.WithOrigins[i];
+                    if (requestRefererUrl.IndexOf(origin) > -1)
                     {
-                        var directoryInfo = new DirectoryInfo(directory);
-                        if (baseDirectoryInfo.Name == directoryInfo.Parent?.Parent?.Name)
-                        {
-                            appBasePath = directoryInfo.FullName.Replace("\\", "/");
-                            break;
-                        }
-                    }
-
-                    if (Directory.Exists(appBasePath) == true)
-                    {
-                        var settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
-                        if (System.IO.File.Exists(settingFilePath) == true)
-                        {
-                            var appSetting = TryReadTenantAppSettings(settingFilePath, logCategory);
-                            var withRefererUris = appSetting?.WithReferer;
-                            if (withRefererUris != null)
-                            {
-                                for (var i = 0; i < withRefererUris.Count; i++)
-                                {
-                                    var withRefererUri = withRefererUris[i];
-                                    if (requestRefererUrl.IndexOf(withRefererUri) > -1)
-                                    {
-                                        return true;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    for (var i = 0; i < GlobalConfiguration.WithOrigins.Count; i++)
-                    {
-                        var origin = GlobalConfiguration.WithOrigins[i];
-                        if (requestRefererUrl.IndexOf(origin) > -1)
-                        {
-                            return true;
-                        }
+                        return true;
                     }
                 }
             }
@@ -2999,20 +2938,6 @@ namespace repository.Controllers
             }
 
             return false;
-        }
-
-        private AppSettings? TryReadTenantAppSettings(string settingFilePath, string logCategory)
-        {
-            try
-            {
-                var appSettingText = System.IO.File.ReadAllText(settingFilePath);
-                return JsonConvert.DeserializeObject<AppSettings>(appSettingText);
-            }
-            catch (Exception exception)
-            {
-                logger.Warning(exception, "[{LogCategory}] settings.json 역직렬화 오류 - {SettingFilePath}", logCategory, settingFilePath);
-                return null;
-            }
         }
 
         private static bool TryNormalizeDisposition(string? disposition, out string safeDisposition)

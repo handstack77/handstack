@@ -22,15 +22,9 @@ let $app_settings = {
                     "ClientIP": "127.0.0.1"
                 },
                 "ForwardProxyIP": [],
-                "IsTenantFunction": false,
                 "IsExceptionDetailText": true,
                 "IsEnabledDevAutoSignIn": false,
                 "ContractRequestPath": "view",
-                "TenantAppRequestPath": "app",
-                "TenantAppBasePath": "../tenants",
-                "BatchProgramBasePath": "../batchs",
-                "CreateAppTempPath": "../tmp/create_apps",
-                "ForbesBasePath": "../forbes",
                 "IsModulePurgeContract": true,
                 "IsEnabledCSP": false,
                 "LoadModuleBasePath": "../modules",
@@ -170,15 +164,9 @@ let $app_settings = {
                 syn.$l.get('txtDomClientIP').value = appSettings.DomainAPIServer.ClientIP;
 
                 syn.$l.get('txtForwardProxyIP').value = appSettings.ForwardProxyIP.join(', ');
-                syn.$l.get('chkIsTenantFunction').checked = $string.toBoolean(appSettings.IsTenantFunction);
                 syn.$l.get('chkIsExceptionDetailText').checked = $string.toBoolean(appSettings.IsExceptionDetailText);
                 syn.$l.get('chkIsEnabledDevAutoSignIn').checked = $string.toBoolean(appSettings.IsEnabledDevAutoSignIn);
                 syn.$l.get('txtContractRequestPath').value = appSettings.ContractRequestPath;
-                syn.$l.get('txtTenantAppRequestPath').value = appSettings.TenantAppRequestPath;
-                syn.$l.get('txtTenantAppBasePath').value = appSettings.TenantAppBasePath;
-                syn.$l.get('txtBatchProgramBasePath').value = appSettings.BatchProgramBasePath;
-                syn.$l.get('txtCreateAppTempPath').value = appSettings.CreateAppTempPath;
-                syn.$l.get('txtForbesBasePath').value = appSettings.ForbesBasePath;
                 syn.$l.get('chkIsModulePurgeContract').checked = $string.toBoolean(appSettings.IsModulePurgeContract);
                 syn.$l.get('chkIsEnabledCSP').checked = $string.toBoolean(appSettings.IsEnabledCSP);
                 syn.$l.get('txtLoadModuleBasePath').value = appSettings.LoadModuleBasePath;
@@ -261,15 +249,9 @@ let $app_settings = {
                     appSettings.DomainAPIServer.ClientIP = syn.$l.get('txtDomClientIP').value;
 
                     appSettings.ForwardProxyIP = $array.split(syn.$l.get('txtForwardProxyIP').value);
-                    appSettings.IsTenantFunction = syn.$l.get('chkIsTenantFunction').checked;
                     appSettings.IsExceptionDetailText = syn.$l.get('chkIsExceptionDetailText').checked;
                     appSettings.IsEnabledDevAutoSignIn = syn.$l.get('chkIsEnabledDevAutoSignIn').checked;
                     appSettings.ContractRequestPath = syn.$l.get('txtContractRequestPath').value;
-                    appSettings.TenantAppRequestPath = syn.$l.get('txtTenantAppRequestPath').value;
-                    appSettings.TenantAppBasePath = syn.$l.get('txtTenantAppBasePath').value;
-                    appSettings.BatchProgramBasePath = syn.$l.get('txtBatchProgramBasePath').value;
-                    appSettings.CreateAppTempPath = syn.$l.get('txtCreateAppTempPath').value;
-                    appSettings.ForbesBasePath = syn.$l.get('txtForbesBasePath').value;
                     appSettings.IsModulePurgeContract = syn.$l.get('chkIsModulePurgeContract').checked;
                     appSettings.IsEnabledCSP = syn.$l.get('chkIsEnabledCSP').checked;
                     appSettings.LoadModuleBasePath = syn.$l.get('txtLoadModuleBasePath').value;

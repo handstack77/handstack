@@ -128,7 +128,6 @@ namespace ack
             GlobalConfiguration.SystemID = appSettings["SystemID"].ToStringSafe();
             GlobalConfiguration.FindGlobalIDServer = appSettings["FindGlobalIDServer"].ToStringSafe();
             GlobalConfiguration.IsConfigurationWatching = appSettings["IsConfigurationWatching"].ToStringSafe("false").ToBoolean();
-            GlobalConfiguration.IsTenantFunction = appSettings["IsTenantFunction"].ToStringSafe("false").ToBoolean();
             GlobalConfiguration.IsExceptionDetailText = appSettings["IsExceptionDetailText"].ToStringSafe("false").ToBoolean();
             GlobalConfiguration.IsEnabledDevAutoSignIn = appSettings["IsEnabledDevAutoSignIn"].ToStringSafe("false").ToBoolean();
             GlobalConfiguration.IsSwaggerUI = appSettings["IsSwaggerUI"].ToStringSafe("false").ToBoolean();
@@ -171,13 +170,7 @@ namespace ack
 
             GlobalConfiguration.ContentRootPath = environment.ContentRootPath;
             GlobalConfiguration.WebRootPath = environment.WebRootPath;
-
-            GlobalConfiguration.TenantAppRequestPath = appSettings["TenantAppRequestPath"].ToStringSafe();
             string handstackHomePath = Path.Combine(GlobalConfiguration.EntryBasePath, "..");
-            GlobalConfiguration.TenantAppBasePath = GlobalConfiguration.GetBaseDirectoryPath(appSettings["TenantAppBasePath"], $"{handstackHomePath}{Path.DirectorySeparatorChar}tenants");
-            GlobalConfiguration.BatchProgramBasePath = GlobalConfiguration.GetBaseDirectoryPath(appSettings["BatchProgramBasePath"]);
-            GlobalConfiguration.CreateAppTempPath = GlobalConfiguration.GetBaseDirectoryPath(appSettings["CreateAppTempPath"]);
-            GlobalConfiguration.ForbesBasePath = GlobalConfiguration.GetBaseDirectoryPath(appSettings["ForbesBasePath"]);
             GlobalConfiguration.LoadModuleBasePath = GlobalConfiguration.GetBaseDirectoryPath(appSettings["LoadModuleBasePath"]);
             GlobalConfiguration.LoadContractBasePath = GlobalConfiguration.GetBaseDirectoryPath(PathExtensions.Combine(GlobalConfiguration.EntryBasePath, "..", "contracts"));
             GlobalConfiguration.WebHostRootPath = string.IsNullOrWhiteSpace(appSettings["WebHostRootPath"]) == true ? "" : GlobalConfiguration.GetBaseDirectoryPath(appSettings["WebHostRootPath"]);
@@ -192,46 +185,6 @@ namespace ack
             if (section.Exists() == true)
             {
                 GlobalConfiguration.LoadModuleLicenses = configuration.GetDictionarySection<LicenseItem>("AppSettings:LoadModuleLicenses");
-            }
-
-            var disposeTenantAppsFilePath = PathExtensions.Combine(GlobalConfiguration.EntryBasePath, "dispose-tenantapps.log");
-            if (File.Exists(disposeTenantAppsFilePath) == true)
-            {
-                using (var file = new StreamReader(disposeTenantAppsFilePath))
-                {
-                    string? line;
-                    while ((line = file.ReadLine()) != null)
-                    {
-                        var parts = line.Split('|', 3, StringSplitOptions.None);
-                        if (parts.Length != 3)
-                        {
-                            Log.Warning("[{LogCategory}] " + $"DisposeTenantApps 로그 형식 확인 필요: {line}", "Startup/ConfigureServices");
-                            continue;
-                        }
-
-                        var userWorkID = parts[0];
-                        var tenantID = parts[1];
-                        var path = parts[2];
-                        try
-                        {
-                            if (Directory.Exists(path) == true && path.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
-                            {
-                                Log.Information("[{LogCategory}] " + $"DisposeTenantApps userWorkID: {userWorkID}, tenantID: {tenantID}", "Startup/ConfigureServices");
-                                Directory.Delete(path, true);
-                            }
-                            else
-                            {
-                                Log.Warning("[{LogCategory}] " + $"DisposeTenantApps 디렉토리 확인 필요: {path}", "Startup/ConfigureServices");
-                            }
-                        }
-                        catch (Exception exception)
-                        {
-                            Log.Error(exception, "[{LogCategory}] " + $"DisposeTenantApps 디렉토리 삭제 오류: {path}", "Startup/ConfigureServices");
-                        }
-                    }
-                }
-
-                File.Delete(disposeTenantAppsFilePath);
             }
 
             var withOrigins = appSettings.GetSection("WithOrigins")?.AsEnumerable();
@@ -489,50 +442,6 @@ namespace ack
                         );
                     }
                 });
-            }
-
-            if (Directory.Exists(GlobalConfiguration.TenantAppBasePath) == true)
-            {
-                foreach (var userWorkPath in Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath))
-                {
-                    var workDirectoryInfo = new DirectoryInfo(userWorkPath);
-                    var userWorkID = workDirectoryInfo.Name;
-                    foreach (var appBasePath in Directory.GetDirectories(userWorkPath))
-                    {
-                        var directoryInfo = new DirectoryInfo(appBasePath);
-                        if (directoryInfo.Exists == true)
-                        {
-                            var applicationID = directoryInfo.Name;
-                            var tenantID = $"{userWorkID}|{applicationID}";
-
-                            var settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
-                            if (File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
-                            {
-                                var appSettingText = File.ReadAllText(settingFilePath);
-                                var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
-                                if (appSetting != null)
-                                {
-                                    var withOriginUri = appSetting.WithOrigin;
-                                    if (withOriginUri != null)
-                                    {
-                                        services.AddCors(options =>
-                                        {
-                                            options.AddPolicy(name: tenantID,
-                                            builder => builder
-                                                .AllowAnyHeader()
-                                                .AllowAnyMethod()
-                                                .WithOrigins([.. withOriginUri])
-                                                .SetIsOriginAllowedToAllowWildcardSubdomains()
-                                                .SetPreflightMaxAge(TimeSpan.FromSeconds(86400))
-                                                .WithHeaders(HeaderNames.CacheControl)
-                                            );
-                                        });
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
             }
 
             services.AddMvc().AddMvcOptions(options =>

@@ -79,7 +79,7 @@ namespace dbclient.Areas.dbclient.Controllers
 
         // http://localhost:8421/dbclient/api/query/refresh?changeType=Created&filePath=HDS/ZZD/TST010.xml
         [HttpGet("[action]")]
-        public async Task<ActionResult> Refresh(string changeType, string filePath, string? userWorkID, string? applicationID)
+        public async Task<ActionResult> Refresh(string changeType, string filePath)
         {
             _ = NotFound();
             ActionResult result;
@@ -91,7 +91,7 @@ namespace dbclient.Areas.dbclient.Controllers
             {
                 try
                 {
-                    var actionResult = await mediator.Send(new QueryRefreshRequest(changeType, filePath, userWorkID, applicationID));
+                    var actionResult = await mediator.Send(new QueryRefreshRequest(changeType, filePath));
                     result = Content(JsonConvert.SerializeObject(actionResult), "application/json");
                 }
                 catch (Exception exception)

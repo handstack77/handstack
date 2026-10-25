@@ -101,7 +101,7 @@ let $AGD010 = {
             syn.uicontrols.$auigrid.insertRow('grdDataList', {
                 amount: 1,
                 values: {
-                    ApplicationNo: syn.$w.ManagedApp.ApplicationNo,
+                    ApplicationNo: syn.$w.Variable.ApplicationNo,
                     MemberNo: '',
                     MemberStatus: 'R',
                     ProName: '요청',

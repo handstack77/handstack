@@ -55,10 +55,6 @@ namespace command.DataClient
                 var logQuerys = new List<string>();
                 foreach (var queryObject in request.DynamicObjects)
                 {
-                    if (request.LoadOptions?.TryGetValue("$tenantID", out var tenantID) == true)
-                    {
-                        queryObject.TenantID = tenantID;
-                    }
 
                     var commandMap = CommandMapper.GetCommandMap(queryObject.QueryID);
                     if (commandMap == null)

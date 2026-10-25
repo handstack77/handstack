@@ -51,8 +51,6 @@ namespace transact.Entity
 
         public bool IsAllowDynamicRequest { get; set; }
 
-        public List<string> AllowTenantTransactionCommands { get; set; }
-
         public string ModuleBasePath { get; set; }
 
         public bool IsContractFileWatching { get; set; }
@@ -111,7 +109,6 @@ namespace transact.Entity
             IsValidationGlobalID = false;
             BypassGlobalIDTransactions = [];
             IsAllowDynamicRequest = false;
-            AllowTenantTransactionCommands = [];
             MaskingChar = "";
             MaskingMethod = "";
             ModuleBasePath = "";

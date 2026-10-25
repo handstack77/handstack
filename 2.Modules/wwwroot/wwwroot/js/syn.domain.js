@@ -857,12 +857,7 @@
 
         transactionLoadOptions(loadOptions) {
             try {
-                if (location.pathname.startsWith((syn.Config.TenantAppRequestPath ? `/${syn.Config.TenantAppRequestPath}/` : '/app/')) == true) {
-                    var paths = location.pathname.split('/');
-                    loadOptions['work-id'] = paths[2];
-                    loadOptions['app-id'] = paths[3];
-                }
-                else if (syn.$r.query('app-id') == true) {
+                if (syn.$r.query('app-id') == true) {
                     loadOptions['app-id'] = syn.$r.query('app-id');
                     if (syn.$r.query('work-id') == true) {
                         loadOptions['work-id'] = syn.$r.query('work-id');
@@ -2165,7 +2160,7 @@
                     if ($string.isNullOrEmpty(codeHelpID) == false) {
                         var items = codeHelpID.split('|');
                         if (items.length == 3) {
-                            applicationID = (location.pathname.startsWith((syn.Config.TenantAppRequestPath ? `/${syn.Config.TenantAppRequestPath}/` : '/app/')) == true) ? syn.$w.ManagedApp.ApplicationID : syn.Config.ApplicationID;
+                            applicationID = syn.Config.ApplicationID;
                             businessID = items[0];
                             transactionID = items[1];
                             featureID = items[2];
@@ -2219,10 +2214,6 @@
                         parameters = parameters.replaceAll('${syn.$w.Variable.ApplicationNo}', syn.$w.Variable.ApplicationNo);
                     }
 
-                    if (parameters.indexOf('${syn.$w.ManagedApp.ApplicationNo}') > -1) {
-                        parameters = parameters.replaceAll('${syn.$w.ManagedApp.ApplicationNo}', syn.$w.ManagedApp.ApplicationNo);
-                    }
-
                     var inputObjects = [];
                     inputObjects.push({ prop: 'ApplicationID', val: transactionObject.programID });
                     inputObjects.push({ prop: 'CodeHelpID', val: dataSourceID });
@@ -2232,9 +2223,6 @@
                         inputObjects.push({ prop: 'CompanyNo', val: syn.$w.User.WorkCompanyNo });
                     }
 
-                    if (parameters.indexOf('#TenantID') > -1 && parameters.indexOf(`${syn.$w.ManagedApp.UserWorkID}|${syn.$w.ManagedApp.ApplicationID}`) > -1) {
-                        inputObjects.push({ prop: '#TenantID', val: `${syn.$w.ManagedApp.UserWorkID}|${syn.$w.ManagedApp.ApplicationID}` });
-                    }
 
                     transactionObject.inputs.push(inputObjects);
                     transactionObject.inputsItemCount.push(1);
@@ -2692,12 +2680,6 @@ async function domainLibraryLoad() {
         syn.$w.cookiePrefixName = syn.Config.CookiePrefixName;
     }
 
-    if (location.pathname.startsWith((syn.Config.TenantAppRequestPath ? `/${syn.Config.TenantAppRequestPath}/` : '/app/')) == true) {
-        var paths = location.pathname.split('/');
-        syn.$w.tenantUserWorkID = paths[2];
-        syn.$w.tenantApplicationID = paths[3];
-        syn.$w.cookiePrefixName = `${syn.$w.tenantUserWorkID}.${syn.$w.tenantApplicationID}`;
-    }
 
     if (syn.Config.Environment == 'Production') {
         syn.$l.addEvent(document, 'selectstart', (evt) => { if (evt.preventDefault) { evt.preventDefault(); } if (evt.stopPropagation) { evt.stopPropagation(); } return false; });
@@ -2744,8 +2726,6 @@ async function domainLibraryLoad() {
     };
 
     syn.$w.User.Claims = syn.$w.User.Claims || {};
-    syn.$w.User.Claims.UserWorkID = syn.$w.User.Claims.UserWorkID || '';
-    syn.$w.User.Claims.TenantAppRequestPath = syn.$w.User.Claims.TenantAppRequestPath || 'app';
     syn.$w.User.WorkCompanyNo = (syn.$r.query('companyNo') || syn.$r.query('CompanyNo') || syn.$r.query('companyNO') || syn.$r.query('CompanyNO') || syn.$r.query('COMPANYNO') || syn.$r.query('companyno')) || syn.$w.User.CompanyNo;
     syn.$w.User.WorkUserNo = (syn.$r.query('employeeNo') || syn.$r.query('EmployeeNo') || syn.$r.query('employeeNO') || syn.$r.query('EmployeeNO') || syn.$r.query('EMPLOYEENO') || syn.$r.query('employeeno')) || null;
 
@@ -2757,16 +2737,6 @@ async function domainLibraryLoad() {
         ClientIP: '0.0.0.1'
     };
 
-    syn.$w.ManagedApp = syn.$w.getStorage('handstack_managedapp', true) || {
-        ApplicationNo: '',
-        ApplicationID: '',
-        ApplicationName: '',
-        MemberNo: '',
-        UserWorkID: '',
-        ExpiredAt: new Date()
-    };
-    syn.$w.ManagedApp.ExpiredAt = new Date(syn.$w.ManagedApp.ExpiredAt);
-    syn.$l.deepFreeze(syn.$w.ManagedApp);
 
     var mod = window[syn.$w.pageScript];
     if (mod && mod.hook.pageInit) {

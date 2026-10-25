@@ -57,7 +57,6 @@ handstack/
 │  ├─ deploy/
 │  └─ forbes/
 ├─ modules/
-│  ├─ checkup/
 │  ├─ dbclient/
 │  ├─ forwarder/
 │  ├─ function/

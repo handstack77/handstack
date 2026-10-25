@@ -266,27 +266,6 @@ namespace HandStack.Web.Extensions
                     {
                         var unAuthorizedPath = string.Empty;
                         var requestPath = httpContext.Request.Path.ToString();
-                        var tenantAppRequestPath = $"/{GlobalConfiguration.TenantAppRequestPath}/";
-                        if (requestPath.StartsWith(tenantAppRequestPath) == true)
-                        {
-                            var splits = requestPath.Split('/');
-                            var userWorkID = splits.Length > 3 ? splits[2] : "";
-                            var applicationID = splits.Length > 3 ? splits[3] : "";
-                            if (!string.IsNullOrWhiteSpace(applicationID))
-                            {
-                                var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
-                                var directoryInfo = new DirectoryInfo(appBasePath);
-                                if (directoryInfo.Exists == true)
-                                {
-                                    var tenantAppBasePath = $"/{GlobalConfiguration.TenantAppRequestPath}/{userWorkID}/{applicationID}/wwwroot";
-                                    unAuthorizedPath = $"{tenantAppBasePath}/unauthorized.html";
-                                }
-                            }
-                        }
-                        else
-                        {
-                            unAuthorizedPath = $"/unauthorized.html";
-                        }
 
                         if (File.Exists(httpContext.MapPath(unAuthorizedPath)) == true)
                         {

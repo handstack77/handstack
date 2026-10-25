@@ -36,7 +36,7 @@
 - XML 헤더에는 `application`, `project`, `transaction`, `datasource`가 들어갑니다.
 - `statement id`는 보통 `GD01`, `LD01`, `MD01`, `DD01`처럼 서비스 단위로 분리됩니다.
 - 각 statement는 `param` 정의를 통해 입력을 선언하고 `DatabaseMapper`가 런타임에 파라미터를 매핑합니다.
-- 현재 모듈 루트의 `Contracts/dbclient`는 샘플이고, 실제 업무 계약은 보통 `../contracts/dbclient` 또는 테넌트 앱 계약 디렉터리에 위치합니다.
+- 현재 모듈 루트의 `Contracts/dbclient`는 샘플이고, 실제 업무 계약은 보통 `../contracts/dbclient`에 위치합니다.
 
 ## JSON 배열 필터 SQL
 
@@ -243,7 +243,7 @@ Native 실행은 테스트 계약 statement의 `native="true"` 설정을 적용�
 
 ## 운영 메모
 - `SubscribeAction`에 `dbclient.Events.DbClientRequest`, `dbclient.Events.ManagedRequest`가 등록되어 있어 다른 모듈이 Mediator로 DB 실행을 위임할 수 있습니다.
-- 기본 `DataSource`에는 `CHECKUPDB`, `DB01~DB05`가 포함되어 있어 멀티 DB 샘플 환경을 바로 띄울 수 있습니다.
+- 기본 `DataSource`에는 `DB01~DB05`가 포함되어 있어 멀티 DB 샘플 환경을 바로 띄울 수 있습니다.
 
 ### 개발용 DB 컨테이너 예시
 ```powershell

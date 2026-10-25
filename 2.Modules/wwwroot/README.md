@@ -162,7 +162,6 @@ CSS/JS 분기 비교는 대소문자를 구분하므로 파일 확장자는 소�
 - 공통 파일 카탈로그 항목 변경은 자동 재적재되지 않으므로 ack 재시작 절차에 포함합니다. 이미 등록된 대상 파일의 내용 변경은 다음 요청부터 반영됩니다.
 - `ContractRequestPath`와 `WWWRootBasePath`는 충돌 없이 분리해야 합니다.
 - 정적 파일 캐시 전략은 `syn.loader`만 예외 처리하고 나머지는 일반 캐시 정책을 따릅니다.
-- 테넌트 앱의 `WithOrigin`, `WithReferer`는 `ModuleInitializer`가 메모리에 적재해 CORS 응답에 반영합니다.
 
 ## 빌드 및 작업 명령
 ```powershell

@@ -8,7 +8,6 @@ let $module_settings = {
             "Version": "1.0.0",
             "ModuleConfig": {
                 "SystemID": "HANDSTACK",
-                "IsSQLiteCreateOnNotSettingRequest": true,
                 "LogDeleteRepeatSecond": 43200,
                 "ModuleBasePath": "../modules/logger",
                 "BusinessServerUrl": "http://localhost:8421/transact/api/transaction/execute",
@@ -60,7 +59,6 @@ let $module_settings = {
                 syn.$l.get('txtBusinessServerUrl').value = $this.prop.moduleConfig.ModuleConfig.BusinessServerUrl;
                 syn.$l.get('txtLogDeleteRepeatSecond').value = $string.isNumber($this.prop.moduleConfig.ModuleConfig.LogDeleteRepeatSecond) == true ? $string.toNumber($this.prop.moduleConfig.ModuleConfig.LogDeleteRepeatSecond) : 60;
                 syn.$l.get('txtModuleBasePath').value = $this.prop.moduleConfig.ModuleConfig.ModuleBasePath;
-                syn.$l.get('chkIsSQLiteCreateOnNotSettingRequest').checked = $string.toBoolean($this.prop.moduleConfig.ModuleConfig.IsSQLiteCreateOnNotSettingRequest);
 
                 $this.method.sectionRender('MediatorAction');
                 $this.method.sectionRender('DataSource');
@@ -82,7 +80,6 @@ let $module_settings = {
                     $this.prop.moduleConfig.ModuleConfig.BusinessServerUrl = syn.$l.get('txtBusinessServerUrl').value;
                     $this.prop.moduleConfig.ModuleConfig.LogDeleteRepeatSecond = $string.isNumber(syn.$l.get('txtLogDeleteRepeatSecond').value) ? $string.toNumber(syn.$l.get('txtLogDeleteRepeatSecond').value) : -1;
                     $this.prop.moduleConfig.ModuleConfig.ModuleBasePath = syn.$l.get('txtModuleBasePath').value;
-                    $this.prop.moduleConfig.ModuleConfig.IsSQLiteCreateOnNotSettingRequest = syn.$l.get('chkIsSQLiteCreateOnNotSettingRequest').checked;
 
                     syn.$l.get('txtJsonView').value = JSON.stringify($this.prop.moduleConfig, null, 4);
                 } catch (error) {

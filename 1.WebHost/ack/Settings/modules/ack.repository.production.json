@@ -15,7 +15,7 @@
         "DatabaseContractPath": "../contracts/dbclient",
         "ModuleBasePath": "../modules/repository",
         "EventAction": [],
-        "SubscribeAction": [ "repository.Events.RepositoryRequest" ],
+        "SubscribeAction": [  ],
         "XFrameOptions": "ALLOW-FROM https://app.example-domain.com",
         "ContentSecurityPolicy": "frame-ancestors 'self' https://app.example-domain.com;"
     },

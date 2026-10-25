@@ -26,7 +26,6 @@ $projects = @(
     "2.Modules/logger/logger.csproj"
     "2.Modules/repository/repository.csproj"
     "2.Modules/transact/transact.csproj"
-    "2.Modules/checkup/checkup.csproj"
     "1.WebHost/ack/ack.csproj"
     "1.WebHost/agent/agent.csproj"
     "1.WebHost/deploy/deploy.csproj"

@@ -45,16 +45,6 @@ namespace ack.Services
 
                 GlobalConfiguration.HostAccessID = value;
             },
-            ["AppSettings:IsTenantFunction"] = (token, result) =>
-            {
-                if (TryReadBoolean(token, out var value) == false)
-                {
-                    result.Errors.Add("AppSettings:IsTenantFunction 값은 boolean 이어야 합니다.");
-                    return;
-                }
-
-                GlobalConfiguration.IsTenantFunction = value;
-            },
             ["AppSettings:IsExceptionDetailText"] = (token, result) =>
             {
                 if (TryReadBoolean(token, out var value) == false)
@@ -68,10 +58,6 @@ namespace ack.Services
             ["AppSettings:ContractRequestPath"] = (token, result) =>
             {
                 GlobalConfiguration.ContractRequestPath = token.ToString().Trim();
-            },
-            ["AppSettings:TenantAppRequestPath"] = (token, result) =>
-            {
-                GlobalConfiguration.TenantAppRequestPath = token.ToString().Trim();
             },
             ["AppSettings:CookiePrefixName"] = (token, result) =>
             {
@@ -162,10 +148,6 @@ namespace ack.Services
             "AppSettings:SessionState",
             "AppSettings:ProxyBasePath",
             "AppSettings:IsAntiforgeryToken",
-            "AppSettings:TenantAppBasePath",
-            "AppSettings:BatchProgramBasePath",
-            "AppSettings:CreateAppTempPath",
-            "AppSettings:ForbesBasePath",
             "AppSettings:LoadModuleBasePath",
             "AppSettings:LoadModules",
             "AppSettings:LoadModuleLicenses",
@@ -191,10 +173,8 @@ namespace ack.Services
                 ["AppSettings:BusinessServerUrl"] = GlobalConfiguration.BusinessServerUrl,
                 ["AppSettings:FindGlobalIDServer"] = GlobalConfiguration.FindGlobalIDServer,
                 ["AppSettings:HostAccessID"] = GlobalConfiguration.HostAccessID,
-                ["AppSettings:IsTenantFunction"] = GlobalConfiguration.IsTenantFunction,
                 ["AppSettings:IsExceptionDetailText"] = GlobalConfiguration.IsExceptionDetailText,
                 ["AppSettings:ContractRequestPath"] = GlobalConfiguration.ContractRequestPath,
-                ["AppSettings:TenantAppRequestPath"] = GlobalConfiguration.TenantAppRequestPath,
                 ["AppSettings:CookiePrefixName"] = GlobalConfiguration.CookiePrefixName,
                 ["AppSettings:UserSignExpire"] = GlobalConfiguration.UserSignExpire,
                 ["AppSettings:StaticFileCacheMaxAge"] = GlobalConfiguration.StaticFileCacheMaxAge,

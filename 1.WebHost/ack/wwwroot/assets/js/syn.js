@@ -193,7 +193,6 @@ syn.Config = {
     IsDebugMode: false,
     IsBundleLoad: false,
     ContractRequestPath: 'view',
-    TenantAppRequestPath: 'app',
     SharedAssetUrl: '/assets/shared/',
     IsApiFindServer: false,
     DiscoveryApiServerUrl: '',

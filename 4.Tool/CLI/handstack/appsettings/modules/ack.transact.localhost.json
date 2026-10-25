@@ -9,7 +9,6 @@
         "CircuitBreakResetSecond": 60,
         "IsValidationRequest": false,
         "IsAllowDynamicRequest": true,
-        "AllowTenantTransactionCommands": [ "D" ],
         "IsLogServer": true,
         "IsTransactAggregate": true,
         "IsDataMasking": false,

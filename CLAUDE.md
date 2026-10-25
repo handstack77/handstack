@@ -37,7 +37,7 @@
 - `2.Modules/transact`: 거래 계약 해석, 요청 검증, 라우팅, 워크플로, 응답 조립을 담당한다.
 - `2.Modules/dbclient`, `graphclient`: 각각 SQL DB와 Neo4j/Memgraph Cypher 계약을 실행한다.
 - `2.Modules/function`, `command`, `prompter`: 각각 Node/C#/Python 함수, CLI/Web 명령, LLM 프롬프트 계약을 실행한다.
-- `2.Modules/repository`, `logger`, `checkup`: 파일 저장소, 공통 로그 수집, 운영 관리 기능을 제공한다.
+- `2.Modules/repository`, `logger`: 파일 저장소와 공통 로그 수집 기능을 제공한다.
 - `2.Modules/forwarder`: 화이트리스트 기반 HTTP 포워드 프록시다.
 - `3.Infrastructure/HandStack.Core|Data|Web`: 공통 확장, 데이터 접근, `GlobalConfiguration`과 모듈 계약을 제공한다. 소비 프로젝트는 기본적으로 `3.Infrastructure/Assemblies/{Debug|Release}`의 DLL을 참조한다.
 - `4.Tool/CLI`: `handstack`, `handsonapp`, `bundling`, `edgeproxy`, `dbplatform`, `dotnet-installer`, `ports`, `updater`, `publish-package` 등 개발·운영·배포 도구를 포함한다.
@@ -49,7 +49,7 @@
 - `rdy`도 `module.json`을 읽지만 지원 모듈 어셈블리는 `rdy/Extensions/ServiceCollectionExtensions.cs`의 정적 사전에 연결한다. 새 모듈을 `rdy`에 넣으려면 csproj ProjectReference와 정적 사전을 모두 수정한다.
 - 기본 업무 흐름은 `브라우저/화면 -> wwwroot -> /transact/api/transaction/execute -> 실행 모듈`이다. `transact/module.json`의 기본 라우팅은 `D -> dbclient`, `G -> graphclient`, `F -> function`, `C -> command`, `P -> prompter`이며 `W`는 `WorkflowController` 내부 오케스트레이션이다.
 - 계약 자산은 소스에서 주로 `2.Modules/*/Contracts`에 있고 빌드 결과의 모듈 폴더에 포함된다. 실행 시 모듈 설정과 `IsCopyContract`/`IsPurgeContract` 정책에 따라 `%HANDSTACK_HOME%/contracts`와 `%HANDSTACK_HOME%/modules/*`를 사용한다.
-- 기본 `ack/appsettings.json`의 로드 모듈은 `wwwroot`, `transact`, `dbclient`, `graphclient`, `function`, `command`, `prompter`, `repository`, `logger`, `checkup`, `forwarder`다.
+- 기본 `ack/appsettings.json`의 로드 모듈은 `wwwroot`, `transact`, `dbclient`, `graphclient`, `function`, `command`, `prompter`, `repository`, `logger`, `forwarder`다.
 
 ## 권장 읽기 순서
 1. `README.md`, `SUMMARY.md`, `handstack.sln`
@@ -75,9 +75,9 @@
 - 이 저장소의 셸은 Windows이므로 명령 실행에는 PowerShell 도구를 우선 사용하고, POSIX 전용 스크립트(`.sh`) 검증이 필요할 때만 Bash 도구를 사용한다.
 
 ## 빌드·배포 스크립트의 현재 범위
-- `build.ps1`은 10개 모듈(`forwarder` 제외), `ack/agent/deploy/forbes`, 9개 CLI를 빌드한다. `rdy`, `forwarder`, `excludedportrange`, `node-cli`는 별도 검증이 필요하다.
+- `build.ps1`은 9개 모듈(`forwarder` 제외), `ack/agent/deploy/forbes`, 9개 CLI를 빌드한다. `rdy`, `forwarder`, `excludedportrange`, `node-cli`는 별도 검증이 필요하다.
 - OS별 스크립트 목록은 현재 완전히 같지 않다. `build.sh`는 `forwarder`를 포함하지만 `publish-package`를 제외하고, `build.bat`은 둘 다 제외한다. 스크립트를 수정할 때 `.ps1/.bat/.sh`의 의도된 동등성을 함께 검토한다.
-- `publish.ps1`은 `ack`, 11개 모듈 전체, `bundling/dotnet-installer/edgeproxy/dbplatform/handsonapp/updater/handstack/ports/publish-package`를 패키징한다. `agent`, `deploy`, `forbes` 구문은 주석 상태이며 `rdy`, `excludedportrange`, `node-cli`도 포함하지 않는다.
+- `publish.ps1`은 `ack`, 10개 모듈 전체, `bundling/dotnet-installer/edgeproxy/dbplatform/handsonapp/updater/handstack/ports/publish-package`를 패키징한다. `agent`, `deploy`, `forbes` 구문은 주석 상태이며 `rdy`, `excludedportrange`, `node-cli`도 포함하지 않는다.
 - `publish.bat`/`publish.sh`는 현재 `publish-package`를 포함하지 않는다. 배포 검증은 실제 대상 OS의 스크립트를 기준으로 하고, 다른 변형과 차이가 의도된 것인지 기록한다.
 - `publish.*`는 루트 `THIRD-PARTY-NOTICES.md`를 `handstack/` 루트로 복사한다. 이 파일은 `node third-party-notices.js`(NuGet csproj·npm package.json 직접 의존성·libman 조회, 네트워크와 `dotnet restore` 필요)로 생성하며 publish 중에는 재생성되지 않으므로, 의존성(csproj/package.json/libman.json)을 바꾸면 먼저 다시 생성해 커밋한다.
 - `publish.*`는 대상 publish 디렉터리를 먼저 지우고, 빌드 과정은 `HANDSTACK_HOME/contracts`와 모듈/도구 출력에도 영향을 줄 수 있다. 실행 전 절대 경로와 사용자 변경 유무를 확인하고, 사용자에게 실행 사실을 알린다.

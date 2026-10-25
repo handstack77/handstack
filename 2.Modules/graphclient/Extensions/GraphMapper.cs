@@ -55,7 +55,7 @@ namespace graphclient.Extensions
 
                 foreach (var basePath in ModuleConfiguration.ContractBasePath)
                 {
-                    if (Directory.Exists(basePath) == false || basePath.StartsWith(GlobalConfiguration.TenantAppBasePath, StringComparison.OrdinalIgnoreCase))
+                    if (Directory.Exists(basePath) == false)
                     {
                         continue;
                     }
@@ -105,7 +105,6 @@ namespace graphclient.Extensions
             var applicationID = queryParts[0];
             var projectID = queryParts[1];
             var transactionID = queryParts[2];
-            TryLoadTenantContract(applicationID, projectID, transactionID, Log.Logger);
 
             lock (StatementMappings)
             {
@@ -121,8 +120,6 @@ namespace graphclient.Extensions
             {
                 return result;
             }
-
-            TryLoadTenantGraphDataSources(queryObject, requestApplicationID, Log.Logger);
             return FindDataSourceMap(requestApplicationID, projectID, dataSourceID);
         }
 
@@ -283,43 +280,6 @@ namespace graphclient.Extensions
             }
         }
 
-        public static void LoadTenantGraphDataSources(string appBasePath, ILogger logger)
-        {
-            if (string.IsNullOrWhiteSpace(appBasePath) == true)
-            {
-                return;
-            }
-
-            var settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
-            if (File.Exists(settingFilePath) == false)
-            {
-                return;
-            }
-
-            var appSetting = JObject.Parse(File.ReadAllText(settingFilePath));
-            var graphDataSourceToken = appSetting["GraphDataSource"];
-            if (graphDataSourceToken is not JArray graphDataSourceArray)
-            {
-                return;
-            }
-
-            foreach (var item in graphDataSourceArray)
-            {
-                var graphDataSource = item.ToObject<GraphDataSource>();
-                if (graphDataSource == null)
-                {
-                    continue;
-                }
-
-                if (string.IsNullOrWhiteSpace(graphDataSource.ConnectionString) == false)
-                {
-                    graphDataSource.ConnectionString = graphDataSource.ConnectionString.Replace("{appBasePath}", appBasePath);
-                }
-
-                AddGraphDataSource(graphDataSource, logger, false);
-            }
-        }
-
         public static void RemoveByTransaction(string applicationID, string projectID, string transactionID)
         {
             lock (StatementMappings)
@@ -437,53 +397,6 @@ namespace graphclient.Extensions
             return statementMaps;
         }
 
-        private static void TryLoadTenantContract(string applicationID, string projectID, string transactionID, ILogger logger)
-        {
-            var baseDirectory = new DirectoryInfo(GlobalConfiguration.TenantAppBasePath);
-            if (baseDirectory.Exists == false)
-            {
-                return;
-            }
-
-            var directories = Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath, applicationID, SearchOption.AllDirectories);
-            foreach (var directory in directories)
-            {
-                var directoryInfo = new DirectoryInfo(directory);
-                if (baseDirectory.Name != directoryInfo.Parent?.Parent?.Name)
-                {
-                    continue;
-                }
-
-                var isLoaded = false;
-                foreach (var extension in ModuleConfiguration.ContractFileExtensions)
-                {
-                    var contractFilePath = PathExtensions.Combine(directoryInfo.FullName.Replace("\\", "/"), "graphclient", projectID, transactionID + extension);
-                    if (File.Exists(contractFilePath) == true)
-                    {
-                        AddStatementMap(contractFilePath, true, logger);
-                        isLoaded = true;
-                        break;
-                    }
-                }
-
-                if (isLoaded == true)
-                {
-                    break;
-                }
-            }
-        }
-
-        private static void TryLoadTenantGraphDataSources(QueryObject queryObject, string applicationID, ILogger logger)
-        {
-            var appBasePath = ResolveTenantAppBasePath(queryObject, applicationID);
-            if (string.IsNullOrWhiteSpace(appBasePath))
-            {
-                return;
-            }
-
-            LoadTenantGraphDataSources(appBasePath, logger);
-        }
-
         private static GraphDataSourceMap? FindDataSourceMap(string applicationID, string projectID, string dataSourceID)
         {
             lock (DataSourceMappings)
@@ -494,36 +407,6 @@ namespace graphclient.Extensions
                     && (item.ProjectListID.Contains(projectID, StringComparer.OrdinalIgnoreCase)
                         || item.ProjectListID.Contains("*", StringComparer.OrdinalIgnoreCase)));
             }
-        }
-
-        private static string ResolveTenantAppBasePath(QueryObject queryObject, string applicationID)
-        {
-            if (string.IsNullOrWhiteSpace(queryObject.TenantID) == false)
-            {
-                var tenantItems = queryObject.TenantID.SplitAndTrim('|');
-                if (tenantItems.Count >= 2)
-                {
-                    return PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, tenantItems[0], tenantItems[1]);
-                }
-            }
-
-            var baseDirectory = new DirectoryInfo(GlobalConfiguration.TenantAppBasePath);
-            if (baseDirectory.Exists == false)
-            {
-                return string.Empty;
-            }
-
-            var directories = Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath, applicationID, SearchOption.AllDirectories);
-            foreach (var directory in directories)
-            {
-                var directoryInfo = new DirectoryInfo(directory);
-                if (baseDirectory.Name == directoryInfo.Parent?.Parent?.Name)
-                {
-                    return directoryInfo.FullName.Replace("\\", "/");
-                }
-            }
-
-            return string.Empty;
         }
 
         private static string ResolveContractFilePath(string filePath)
@@ -580,14 +463,7 @@ namespace graphclient.Extensions
             string applicationID = GetElementValue(headerElement, "application");
             if (string.IsNullOrWhiteSpace(applicationID))
             {
-                if (fileInfo.FullName.Replace("\\", "/").StartsWith(GlobalConfiguration.TenantAppBasePath, StringComparison.OrdinalIgnoreCase))
-                {
-                    applicationID = fileInfo.Directory?.Parent?.Parent?.Name ?? string.Empty;
-                }
-                else
-                {
-                    applicationID = fileInfo.Directory?.Parent?.Name ?? string.Empty;
-                }
+                applicationID = fileInfo.Directory?.Parent?.Name ?? string.Empty;
             }
 
             return applicationID;

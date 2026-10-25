@@ -37,7 +37,7 @@ HandStack은 화면, 데이터, 업무 로직을 계약으로 연결하는 오�
 | 2. [내 PC에서 실행하기](https://handstack.kr/docs/startup/빠른-시작) | OS·CPU에 맞는 배포본 다운로드 → 설치 스크립트 실행 → `ack` 시작 | 관리 화면 접속 |
 | 3. [게시판 실습](https://handstack.kr/docs/startup/handsonlab/게시판-프로젝트-시작하기) | 예제 목록을 조회하고 검색 조건 변경 | 조건에 맞는 조회 결과 확인 |
 
-기본 접속 주소는 `http://localhost:8421/checkup/account/signin.html`입니다. 최초 관리 계정은 서버 실행 로그에서 확인하세요. 실행이 막히면 [ack 운영 가이드](1.WebHost/ack/README.md)의 점검·장애 대응 절차를 참고하세요.
+기본 기동 확인 주소는 `http://localhost:8421/checkip`입니다. 업무 화면은 `/view/{ProjectID}/{화면ID}.html` 경로로 접속합니다. 실행이 막히면 [ack 운영 가이드](1.WebHost/ack/README.md)의 점검·장애 대응 절차를 참고하세요.
 
 ## 소스에서 실행
 
@@ -105,7 +105,7 @@ handstack/
 | 거래·워크플로 | [transact](2.Modules/transact/README.md) |
 | SQL·그래프 데이터 | [dbclient](2.Modules/dbclient/readme.md) · [graphclient](2.Modules/graphclient/README.md) |
 | 함수·명령·AI 실행 | [function](2.Modules/function/README.md) · [command](2.Modules/command/README.md) · [prompter](https://handstack.kr/docs/reference/api/modules/prompter) |
-| 파일·로그·관리 | [repository](2.Modules/repository/README.md) · [logger](2.Modules/logger/README.md) · [checkup](2.Modules/checkup/README.md) |
+| 파일·로그 | [repository](2.Modules/repository/README.md) · [logger](2.Modules/logger/README.md) |
 | HTTP 포워드 프록시 | [forwarder](2.Modules/forwarder/README.md) |
 
 운영 도구는 [handstack CLI](4.Tool/CLI/handstack/README.md), 호스트별 역할은 [ack](1.WebHost/ack/README.md) · [agent](1.WebHost/agent/README.md) · [deploy](1.WebHost/deploy/README.md) · [forbes](1.WebHost/forbes/README.md)에 정리되어 있습니다.

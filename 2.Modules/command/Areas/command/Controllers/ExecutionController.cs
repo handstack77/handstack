@@ -63,7 +63,7 @@ namespace command.Areas.command.Controllers
 
         // http://localhost:8421/command/api/execution/refresh?changeType=Created&filePath=HDS/TST/TST010.xml
         [HttpGet("[action]")]
-        public async Task<ActionResult> Refresh(string changeType, string filePath, string? userWorkID, string? applicationID)
+        public async Task<ActionResult> Refresh(string changeType, string filePath)
         {
             _ = NotFound();
             ActionResult result;
@@ -75,7 +75,7 @@ namespace command.Areas.command.Controllers
             {
                 try
                 {
-                    var actionResult = await mediator.Send(new CommandRefreshRequest(changeType, filePath, userWorkID, applicationID));
+                    var actionResult = await mediator.Send(new CommandRefreshRequest(changeType, filePath));
                     result = Content(JsonConvert.SerializeObject(actionResult), "application/json");
                 }
                 catch (Exception exception)

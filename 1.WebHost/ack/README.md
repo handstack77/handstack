@@ -80,7 +80,7 @@ curl "http://localhost:8421/stop?hostAccessID=<HOST_ACCESS_ID_HASH>"
 
 포트와 경로는 유지하며 데이터베이스 호스트처럼 웹 URL이 아닌 값은 바꾸지 않습니다. ack 런타임은 `D`, `S`, `P`만 지원하므로 별도 test 런타임 코드 대신 test 프리셋은 `D`를 사용합니다.
 
-모듈 프리셋은 현재 솔루션의 `checkup`, `command`, `dbclient`, `forwarder`, `function`, `graphclient`, `logger`, `prompter`, `repository`, `transact`, `wwwroot`만 제공합니다. 솔루션에 프로젝트와 `module.json`이 없는 모듈은 모든 환경 프리셋에서 제외합니다.
+모듈 프리셋은 현재 솔루션의 `command`, `dbclient`, `forwarder`, `function`, `graphclient`, `logger`, `prompter`, `repository`, `transact`, `wwwroot`만 제공합니다. 솔루션에 프로젝트와 `module.json`이 없는 모듈은 모든 환경 프리셋에서 제외합니다.
 
 주요 설정 항목:
 
@@ -88,9 +88,6 @@ curl "http://localhost:8421/stop?hostAccessID=<HOST_ACCESS_ID_HASH>"
 - `AppSettings:LoadModules`: 초기 로드 모듈
 - `AppSettings:LoadModuleBasePath`: 모듈 기본 경로
 - `AppSettings:ContractRequestPath`: 계약 파일 요청 경로
-- `AppSettings:TenantAppBasePath`
-- `AppSettings:BatchProgramBasePath`
-- `AppSettings:ForbesBasePath`
 - `AppSettings:WebHostRootPath`: 정적 파일(`wwwroot`) 제공 경로 재정의(선택, 기본값은 `EntryBasePath/wwwroot`)
 - `AppSettings:IsEnabledCSP`: `content-security-policy.txt` 기반 CSP 적용 여부(기본값 `false`)
 - `AppSettings:Security:XFrameOptions`: `X-Frame-Options` 응답 헤더 값(기본값 `SAMEORIGIN`)
@@ -119,10 +116,8 @@ $env:AppSettings__RunningEnvironment='P'
 - `AppSettings:BusinessServerUrl`
 - `AppSettings:FindGlobalIDServer`
 - `AppSettings:HostAccessID`
-- `AppSettings:IsTenantFunction`
 - `AppSettings:IsExceptionDetailText`
 - `AppSettings:ContractRequestPath`
-- `AppSettings:TenantAppRequestPath`
 - `AppSettings:CookiePrefixName`
 - `AppSettings:UserSignExpire`
 - `AppSettings:StaticFileCacheMaxAge`

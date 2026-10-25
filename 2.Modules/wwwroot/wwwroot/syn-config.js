@@ -17,7 +17,6 @@ let $syn_config = {
             "IsBundleLoad": false,
             "IsReportifyModule": false,
             "ContractRequestPath": "view",
-            "TenantAppRequestPath": "app",
             "SharedAssetUrl": "/assets/shared/",
             "IsApiFindServer": false,
             "DiscoveryApiServerUrl": "",
@@ -107,7 +106,6 @@ let $syn_config = {
                 syn.$l.get('chkIsBundleLoad').checked = $string.toBoolean($this.prop.synConfig.IsBundleLoad);
                 syn.$l.get('chkIsReportifyModule').checked = $string.toBoolean($this.prop.synConfig.IsReportifyModule);
                 syn.$l.get('txtContractRequestPath').value = $this.prop.synConfig.ContractRequestPath;
-                syn.$l.get('txtTenantAppRequestPath').value = $this.prop.synConfig.TenantAppRequestPath;
                 syn.$l.get('txtSharedAssetUrl').value = $this.prop.synConfig.SharedAssetUrl;
                 syn.$l.get('chkIsApiFindServer').checked = $string.toBoolean($this.prop.synConfig.IsApiFindServer);
                 syn.$l.get('txtDiscoveryApiServerUrl').value = $this.prop.synConfig.DiscoveryApiServerUrl;
@@ -176,7 +174,6 @@ let $syn_config = {
                     $this.prop.synConfig.IsBundleLoad = syn.$l.get('chkIsBundleLoad').checked;
                     $this.prop.synConfig.IsReportifyModule = syn.$l.get('chkIsReportifyModule').checked;
                     $this.prop.synConfig.ContractRequestPath = syn.$l.get('txtContractRequestPath').value;
-                    $this.prop.synConfig.TenantAppRequestPath = syn.$l.get('txtTenantAppRequestPath').value;
                     $this.prop.synConfig.SharedAssetUrl = syn.$l.get('txtSharedAssetUrl').value;
                     $this.prop.synConfig.IsApiFindServer = syn.$l.get('chkIsApiFindServer').checked;
                     $this.prop.synConfig.DiscoveryApiServerUrl = syn.$l.get('txtDiscoveryApiServerUrl').value;

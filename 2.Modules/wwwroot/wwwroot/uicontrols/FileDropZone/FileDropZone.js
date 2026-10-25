@@ -51,13 +51,7 @@
     const resolveContext = setting => {
         let applicationID = setting.applicationID;
         if (!applicationID) {
-            const tenantPath = syn.Config.TenantAppRequestPath ? `/${syn.Config.TenantAppRequestPath}/` : '/app/';
-            if (location.pathname.startsWith(tenantPath) == true) {
-                applicationID = syn.$w.ManagedApp && syn.$w.ManagedApp.ApplicationID;
-            }
-            else {
-                applicationID = (syn.$w.Variable && syn.$w.Variable.ApplicationID) || (syn.$w.User && syn.$w.User.ApplicationID) || syn.Config.ApplicationID;
-            }
+            applicationID = (syn.$w.Variable && syn.$w.Variable.ApplicationID) || (syn.$w.User && syn.$w.User.ApplicationID) || syn.Config.ApplicationID;
         }
 
         let businessID = setting.businessID;

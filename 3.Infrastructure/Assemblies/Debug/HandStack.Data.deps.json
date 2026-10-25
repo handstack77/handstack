@@ -9,12 +9,12 @@
       "HandStack.Data/1.0.0": {
         "dependencies": {
           "HandStack.Core": "1.0.0",
-          "HtmlAgilityPack": "1.13.0",
+          "HtmlAgilityPack": "1.13.1",
           "Microsoft.Data.SqlClient": "7.1.1",
           "MySqlConnector": "2.6.2",
           "Newtonsoft.Json": "13.0.4",
           "Npgsql": "10.0.3",
-          "Oracle.ManagedDataAccess.Core": "23.26.301",
+          "Oracle.ManagedDataAccess.Core": "23.26.400",
           "Serilog": "4.4.0",
           "SourceGear.sqlite3": "3.53.4",
           "System.Data.SQLite": "2.0.4",
@@ -32,11 +32,11 @@
           }
         }
       },
-      "HtmlAgilityPack/1.13.0": {
+      "HtmlAgilityPack/1.13.1": {
         "runtime": {
           "lib/net8.0/HtmlAgilityPack.dll": {
-            "assemblyVersion": "1.13.0.0",
-            "fileVersion": "1.13.0.0"
+            "assemblyVersion": "1.13.1.0",
+            "fileVersion": "1.13.1.0"
           }
         }
       },
@@ -290,7 +290,7 @@
           }
         }
       },
-      "Oracle.ManagedDataAccess.Core/23.26.301": {
+      "Oracle.ManagedDataAccess.Core/23.26.400": {
         "dependencies": {
           "System.Diagnostics.PerformanceCounter": "8.0.0",
           "System.DirectoryServices.Protocols": "8.0.2",
@@ -633,12 +633,12 @@
       "path": "bouncycastle.cryptography/2.7.0",
       "hashPath": "bouncycastle.cryptography.2.7.0.nupkg.sha512"
     },
-    "HtmlAgilityPack/1.13.0": {
+    "HtmlAgilityPack/1.13.1": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-nWZtz9WjSbq6V7TjjYBCmW+D8+BrWs15O6MlPxh55SH4zmenkWHXwu6gYeIarHL3KoHgDyZzTdOM50EdTnR8Xw==",
-      "path": "htmlagilitypack/1.13.0",
-      "hashPath": "htmlagilitypack.1.13.0.nupkg.sha512"
+      "sha512": "sha512-wkKKu0oltLJQRBf862+O0yqBAvo+RVisLXFFTlThWCuw1gjATkna1ZKQBcwHUyJUUZhkPUvyxFJcyqXSAvNkag==",
+      "path": "htmlagilitypack/1.13.1",
+      "hashPath": "htmlagilitypack.1.13.1.nupkg.sha512"
     },
     "Microsoft.Bcl.Cryptography/9.0.18": {
       "type": "package",
@@ -787,12 +787,12 @@
       "path": "npgsql/10.0.3",
       "hashPath": "npgsql.10.0.3.nupkg.sha512"
     },
-    "Oracle.ManagedDataAccess.Core/23.26.301": {
+    "Oracle.ManagedDataAccess.Core/23.26.400": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-hhl6m5sam9vWNXt4Xad+bAcB+VBMBxya16/P+R3xRMKzNVl/6ssF6HuNZNeofD+5qDaTRqhWbKjdFn65rD5KYw==",
-      "path": "oracle.manageddataaccess.core/23.26.301",
-      "hashPath": "oracle.manageddataaccess.core.23.26.301.nupkg.sha512"
+      "sha512": "sha512-PWVJunbl2LVcdFBluW5R3678MvrTLlTrQBdXe9wR4YCauISa4zCceJ7fLHVFFiGog8/ZPxo2cY4adpVQCJf+YQ==",
+      "path": "oracle.manageddataaccess.core/23.26.400",
+      "hashPath": "oracle.manageddataaccess.core.23.26.400.nupkg.sha512"
     },
     "Serilog/4.4.0": {
       "type": "package",

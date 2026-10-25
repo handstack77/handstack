@@ -20,15 +20,9 @@
         "ForwardProxyIP": [],
         "IsAutoUpdate": false,
         "IsConfigurationWatching": false,
-        "IsTenantFunction": true,
         "IsExceptionDetailText": true,
         "IsEnabledDevAutoSignIn": true,
         "ContractRequestPath": "view",
-        "TenantAppRequestPath": "app",
-        "TenantAppBasePath": "../tenants",
-        "BatchProgramBasePath": "../batchs",
-        "CreateAppTempPath": "../tmp/create_apps",
-        "ForbesBasePath": "../forbes",
         "IsModulePurgeContract": true,
         "IsEnabledCSP": false,
         "LoadModuleBasePath": "../modules",
@@ -42,7 +36,6 @@
             "prompter",
             "repository",
             "logger",
-            "checkup",
             "forwarder"
         ],
         "ModuleConfigurationUrl": [

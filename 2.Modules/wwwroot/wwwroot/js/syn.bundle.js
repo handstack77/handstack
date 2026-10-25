@@ -31771,7 +31771,6 @@ syn.Config = {
     IsDebugMode: false,
     IsBundleLoad: false,
     ContractRequestPath: 'view',
-    TenantAppRequestPath: 'app',
     SharedAssetUrl: '/assets/shared/',
     IsApiFindServer: false,
     DiscoveryApiServerUrl: '',
@@ -63927,15 +63926,8 @@ if (typeof module !== 'undefined' && module.exports) {
                 return;
             }
 
-            if (location.pathname.startsWith((syn.Config.TenantAppRequestPath ? `/${syn.Config.TenantAppRequestPath}/` : '/app/')) == true) {
-                if ($string.isNullOrEmpty($fileclient.applicationID) == true) {
-                    $fileclient.applicationID = syn.$w.ManagedApp.ApplicationID;
-                }
-            }
-            else {
-                if ($string.isNullOrEmpty($fileclient.applicationID) == true) {
-                    $fileclient.applicationID = syn.$w.Variable.ApplicationID || syn.$w.User.ApplicationID || syn.Config.ApplicationID;
-                }
+            if ($string.isNullOrEmpty($fileclient.applicationID) == true) {
+                $fileclient.applicationID = syn.$w.Variable.ApplicationID || syn.$w.User.ApplicationID || syn.Config.ApplicationID;
             }
 
             if ($string.isNullOrEmpty($fileclient.applicationID) == true) {
@@ -65254,13 +65246,7 @@ if (typeof module !== 'undefined' && module.exports) {
     const resolveContext = setting => {
         let applicationID = setting.applicationID;
         if (!applicationID) {
-            const tenantPath = syn.Config.TenantAppRequestPath ? `/${syn.Config.TenantAppRequestPath}/` : '/app/';
-            if (location.pathname.startsWith(tenantPath) == true) {
-                applicationID = syn.$w.ManagedApp && syn.$w.ManagedApp.ApplicationID;
-            }
-            else {
-                applicationID = (syn.$w.Variable && syn.$w.Variable.ApplicationID) || (syn.$w.User && syn.$w.User.ApplicationID) || syn.Config.ApplicationID;
-            }
+            applicationID = (syn.$w.Variable && syn.$w.Variable.ApplicationID) || (syn.$w.User && syn.$w.User.ApplicationID) || syn.Config.ApplicationID;
         }
 
         let businessID = setting.businessID;
@@ -69752,15 +69738,8 @@ if (typeof module !== 'undefined' && module.exports) {
             }
 
             if ($string.isNullOrEmpty(setting.repositoryID) == false) {
-                if (location.pathname.startsWith((syn.Config.TenantAppRequestPath ? `/${syn.Config.TenantAppRequestPath}/` : '/app/')) == true) {
-                    if ($string.isNullOrEmpty($htmleditor.applicationID) == true) {
-                        $htmleditor.applicationID = syn.$w.ManagedApp.ApplicationID;
-                    }
-                }
-                else {
-                    if ($string.isNullOrEmpty($htmleditor.applicationID) == true) {
-                        $htmleditor.applicationID = syn.$w.Variable.ApplicationID || syn.$w.User.ApplicationID || syn.Config.ApplicationID;
-                    }
+                if ($string.isNullOrEmpty($htmleditor.applicationID) == true) {
+                    $htmleditor.applicationID = syn.$w.Variable.ApplicationID || syn.$w.User.ApplicationID || syn.Config.ApplicationID;
                 }
 
                 if ($string.isNullOrEmpty($htmleditor.applicationID) == true) {

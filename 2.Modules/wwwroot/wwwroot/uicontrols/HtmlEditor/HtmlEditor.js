@@ -223,15 +223,8 @@
             }
 
             if ($string.isNullOrEmpty(setting.repositoryID) == false) {
-                if (location.pathname.startsWith((syn.Config.TenantAppRequestPath ? `/${syn.Config.TenantAppRequestPath}/` : '/app/')) == true) {
-                    if ($string.isNullOrEmpty($htmleditor.applicationID) == true) {
-                        $htmleditor.applicationID = syn.$w.ManagedApp.ApplicationID;
-                    }
-                }
-                else {
-                    if ($string.isNullOrEmpty($htmleditor.applicationID) == true) {
-                        $htmleditor.applicationID = syn.$w.Variable.ApplicationID || syn.$w.User.ApplicationID || syn.Config.ApplicationID;
-                    }
+                if ($string.isNullOrEmpty($htmleditor.applicationID) == true) {
+                    $htmleditor.applicationID = syn.$w.Variable.ApplicationID || syn.$w.User.ApplicationID || syn.Config.ApplicationID;
                 }
 
                 if ($string.isNullOrEmpty($htmleditor.applicationID) == true) {

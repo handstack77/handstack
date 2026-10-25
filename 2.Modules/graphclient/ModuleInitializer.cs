@@ -205,7 +205,6 @@ namespace graphclient
             foreach (var basePath in ModuleConfiguration.ContractBasePath)
             {
                 if (Directory.Exists(basePath) == false
-                    || basePath.StartsWith(GlobalConfiguration.TenantAppBasePath, StringComparison.OrdinalIgnoreCase)
                     || ModuleConfiguration.IsContractFileWatching == false)
                 {
                     continue;
@@ -226,7 +225,7 @@ namespace graphclient
                     {
                         using var scope = serviceScopeFactory.CreateScope();
                         var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                        var actionResult = await mediator.Send(new QueryRefreshRequest(changeTypes.ToString(), filePath, null, null));
+                        var actionResult = await mediator.Send(new QueryRefreshRequest(changeTypes.ToString(), filePath));
                         if (actionResult == false && changeTypes != WatcherChangeTypes.Deleted)
                         {
                             Log.Warning("[{LogCategory}] " + $"{filePath} 파일 갱신 확인 필요.", $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure");
