@@ -1,0 +1,84 @@
+{
+    "ApplicationID": "HDS",
+    "ProjectID": "LLM",
+    "TransactionID": "DOC040",
+    "Comment": "Jev / Ollama AI 생성 HandStack 코드의 문서 규칙 일치 검사",
+    "Services": [
+        {
+            "ServiceID": "GP01",
+            "Authorize": false,
+            "ReturnType": "Json",
+            "CommandType": "P",
+            "TransactionScope": false,
+            "Inputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [],
+                    "TestValues": [],
+                    "DefaultValues": [],
+                    "Type": "Row",
+                    "BaseFieldMappings": [],
+                    "ParameterHandling": "Rejected"
+                }
+            ],
+            "Outputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [],
+                    "Type": "Form"
+                }
+            ]
+        },
+        {
+            "ServiceID": "GP02",
+            "Authorize": false,
+            "ReturnType": "Json",
+            "CommandType": "P",
+            "TransactionScope": false,
+            "Inputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [],
+                    "TestValues": [],
+                    "DefaultValues": [],
+                    "Type": "Row",
+                    "BaseFieldMappings": [],
+                    "ParameterHandling": "Rejected"
+                }
+            ],
+            "Outputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [],
+                    "Type": "Form"
+                }
+            ]
+        },
+        {
+            "ServiceID": "GP03",
+            "Authorize": false,
+            "ReturnType": "Json",
+            "CommandType": "P",
+            "TransactionScope": false,
+            "Inputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [],
+                    "TestValues": [],
+                    "DefaultValues": [],
+                    "Type": "Row",
+                    "BaseFieldMappings": [],
+                    "ParameterHandling": "Rejected"
+                }
+            ],
+            "Outputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [],
+                    "Type": "Form"
+                }
+            ]
+        }
+    ],
+    "Models": []
+}

@@ -1,0 +1,84 @@
+{
+    "ApplicationID": "HDS",
+    "ProjectID": "LLM",
+    "TransactionID": "DOC010",
+    "Comment": "Jev / Ollama HandStack 문서 질문 사전 판단: 영역·모호성·최신성",
+    "Services": [
+        {
+            "ServiceID": "GP01",
+            "Authorize": false,
+            "ReturnType": "Json",
+            "CommandType": "P",
+            "TransactionScope": false,
+            "Inputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [],
+                    "TestValues": [],
+                    "DefaultValues": [],
+                    "Type": "Row",
+                    "BaseFieldMappings": [],
+                    "ParameterHandling": "Rejected"
+                }
+            ],
+            "Outputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [],
+                    "Type": "Form"
+                }
+            ]
+        },
+        {
+            "ServiceID": "GP02",
+            "Authorize": false,
+            "ReturnType": "Json",
+            "CommandType": "P",
+            "TransactionScope": false,
+            "Inputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [],
+                    "TestValues": [],
+                    "DefaultValues": [],
+                    "Type": "Row",
+                    "BaseFieldMappings": [],
+                    "ParameterHandling": "Rejected"
+                }
+            ],
+            "Outputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [],
+                    "Type": "Form"
+                }
+            ]
+        },
+        {
+            "ServiceID": "GP03",
+            "Authorize": false,
+            "ReturnType": "Json",
+            "CommandType": "P",
+            "TransactionScope": false,
+            "Inputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [],
+                    "TestValues": [],
+                    "DefaultValues": [],
+                    "Type": "Row",
+                    "BaseFieldMappings": [],
+                    "ParameterHandling": "Rejected"
+                }
+            ],
+            "Outputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [],
+                    "Type": "Form"
+                }
+            ]
+        }
+    ],
+    "Models": []
+}

@@ -13,6 +13,18 @@
 | JEV010.GP06 | HDS\|LLM\|JEV010\|GP0600 | DECISION_CLEF_FLASH | clef-flash (이미지 판단) |
 | JEV010.GP07 | HDS\|LLM\|JEV010\|GP0700 | DECISION_JEV | jev-latest (이미지 판단) |
 
+문서 질의응답용 판단 계약 DOC010~DOC050은 같은 모델 셋으로 GP01(DECISION_JEV) · GP02(DECISION_NIMBLE) · GP03(DECISION_TEV1)을 제공한다.
+
+| 거래 | 입력 구역 | 질문(type) |
+| --- | --- | --- |
+| DOC010 | 사용자 질문 | area(choice), ambiguous(noul), freshness(noul) |
+| DOC020 | `### 질문`, `### 문서 조각` | relevance(score 0~3) |
+| DOC030 | `### 질문`, `### 근거` | grounded(noul), conflict(noul) |
+| DOC040 | `### 규칙`, `### 코드` | unsupported(noul), violation(noul) |
+| DOC050 | 지원 문의 본문 | category(choice), privacy(noul) |
+
+입력은 `@UserMessage` 하나이며 구역 머리글(`###`)로 나눈다. 기준 JSON 안에는 꺾쇠 태그를 쓰지 않는다. XML 로더가 요소로 해석해 지시문이 바뀔 수 있다. 질문 기준은 실제 모델로 평가하지 않았다.
+
 소스 `module.json`의 DECISION_* 항목을 실행 모듈 설정에도 반영한다. Ollama는 선택한 모델을 미리 `ollama pull nimble` 등으로 설치한다.
 TypeSafe는 LLMSource.ApiKey(기존 IsEncryption 지원) 또는 호스트 프로세스의 `TYPESAFE_API_KEY` 환경변수를 사용한다. 환경변수는 ApiKey가 비어 있을 때만 참조한다.
 Ollama 판단은 인증 헤더 없이 루프백 HTTP/HTTPS로 연결한다. 허용할 모델명과 태그는 `module.json`의 `ModuleConfig.AllowedOllamaDecisionModels`에서 관리한다. 제공되는 기본 목록은 다음과 같다.
