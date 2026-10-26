@@ -41,6 +41,7 @@ namespace transact.Entity
         public static string TrustedProxyIP = "";
         public static bool HasTrustedCheckIP = false;
         public static bool UseApiAuthorize = false;
+        public static McpDelegationOptions McpDelegation = new();
         public static string DynamicWorkflowTransaction = "";
         public static string DynamicWorkflowServices = "";
         public static FrozenSet<string> BypassAuthorizeIP = FrozenSet<string>.Empty;

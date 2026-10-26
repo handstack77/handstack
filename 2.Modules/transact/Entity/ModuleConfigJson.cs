@@ -92,6 +92,8 @@ namespace transact.Entity
 
         public List<string> AllowClientIP { get; set; }
 
+        public McpDelegationOptions McpDelegation { get; set; } = new();
+
         public SecurityHardeningConfig SecurityHardening { get; set; }
 
         public ModuleConfig()

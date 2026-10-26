@@ -107,4 +107,7 @@
         <MakeDir Directories="$(ModuleLibDestinationDir)" Condition="Exists('$(MSBuildProjectDirectory)\wwwroot\lib') and !Exists('$(ModuleLibDestinationDir)')" />
         <Copy Condition="'@(SourceModuleLibFiles)' != ''" SourceFiles="@(SourceModuleLibFiles)" DestinationFiles="@(SourceModuleLibFiles->'$(ModuleLibDestinationDir)/%(RecursiveDir)%(Filename)%(Extension)')" />
     </Target>
+    <ItemGroup>
+        <InternalsVisibleTo Include="Wwwroot.Tests" />
+    </ItemGroup>
 </Project>

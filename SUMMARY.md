@@ -55,6 +55,13 @@ HandStack 솔루션은 단순한 ASP.NET Core 단일 웹앱이 아니라, 호스
   updater
   publish-package
   node-cli
+
+5.Test
+  1.WebHost        : 호스트 테스트 5개
+  2.Modules        : 모듈 테스트 10개
+  3.Infrastructure : Core.Tests, Data.Tests, Web.Tests
+  솔루션 폴더와 실제 디스크 구조가 동일하며 테스트 프로젝트는 HandStack. 접두어를 생략
+  실행: ./5.Test/Test.ps1
 ```
 
 `rdy`의 단일 파일 게시에서는 큰 의존 DLL 10개(`libSkiaSharp.dll`, `Anthropic.dll`, `Microsoft.CodeAnalysis.CSharp.dll`, `Oracle.ManagedDataAccess.dll`, `OpenAI.dll`, `BouncyCastle.Cryptography.dll`, `Microsoft.CodeAnalysis.VisualBasic.dll`, `UglyToad.PdfPig.dll`, `Google.GenAI.dll`, `Microsoft.CodeAnalysis.dll`)를 번들에서 제외하고 실행 파일 옆에 게시합니다. 실행 파일과 외부 DLL을 함께 배포해야 하며, 전체 배포 용량은 거의 동일합니다. 기존 모듈 참조와 런타임 로딩 방식은 유지합니다.

@@ -30,6 +30,21 @@
         "TrustedProxyIP": "1.1.1.1",
         "HasTrustedCheckIP": false,
         "UseApiAuthorize": false,
+        "McpDelegation": {
+            "Enabled": false,
+            "RequireForExecute": false,
+            "Issuer": "https://localhost:8423",
+            "Audience": "handstack-transact",
+            "PublicKeyPath": "",
+            "ContractRoots": {
+                "transact": [ "../contracts/transact" ],
+                "dbclient": [ "../contracts/dbclient" ],
+                "graphclient": [ "../contracts/graphclient" ],
+                "function": [ "../contracts/function" ],
+                "command": [ "../contracts/command" ],
+                "prompter": [ "../contracts/prompter" ]
+            }
+        },
         "DynamicWorkflowTransaction": "MOD|MOD010",
         "DynamicWorkflowServices": "GP01,GP02",
         "BypassAuthorizeIP": [

@@ -38,6 +38,7 @@
 - `2.Modules/forwarder`: 화이트리스트 기반 HTTP 포워드 프록시다.
 - `3.Infrastructure/HandStack.Core|Data|Web`: 공통 확장, 데이터 접근, `GlobalConfiguration`과 모듈 계약을 제공한다. 소비 프로젝트는 기본적으로 `3.Infrastructure/Assemblies/{Debug|Release}`의 DLL을 참조한다.
 - `4.Tool/CLI`: `handstack`, `handsonapp`, `bundling`, `edgeproxy`, `dbplatform`, `dotnet-installer`, `ports`, `updater`, `publish-package` 등 개발·운영·배포 도구를 포함한다.
+- `5.Test`: 호스트 5개·모듈 10개·인프라 3개에 대응하는 xUnit 테스트 프로젝트. 전체 실행은 `./5.Test/Test.ps1`, 범위와 환경 의존성은 `5.Test/README.md`에서 확인한다.
 
 ## 핵심 아키텍처
 - `ack/Program.cs`는 기본 `appsettings.json`, `ACK_ENVIRONMENT`에 따른 환경별 JSON, 환경 변수를 합치고 `--modules` 또는 `AppSettings:LoadModules`로 로드 대상을 결정한다. `--modules`를 주면 기본 목록을 대체한다. 실행 OS에 맞는 `appsettings.{windows|linux|macos}.json`은 기본 파일 직후에 시작할 때 한 번만 병합하며(배열은 교체), 모듈은 `module.{os}.json`을 `ModuleConfigurationManager`와 각 `ModuleInitializer`가 같은 규칙으로 병합한다. 병합 함수는 `HandStack.Web/PlatformSettings.cs`다.
@@ -78,7 +79,7 @@
 - `publish.*`는 대상 publish 디렉터리를 먼저 지우고, 빌드 과정은 `HANDSTACK_HOME/contracts`와 모듈/도구 출력에도 영향을 줄 수 있다. 실행 전 절대 경로와 사용자 변경 유무를 확인한다.
 
 ## 테스트 기대치
-- 전용 .NET 테스트 프로젝트는 현재 없다. 최소 기준은 관련 프로젝트 빌드 성공, 정적 검사, 수동 재현 또는 스모크 테스트 절차 기록이다.
+- 전체 기본 회귀 테스트는 `./5.Test/Test.ps1`로 실행한다. 특정 프로젝트는 `-Project DbClient.Tests`처럼 선택한다. 스크립트는 임시 HANDSTACK_HOME에서 순서대로 빌드하고 TRX 결과를 보존한다. 개별 테스트의 ProjectReference도 `5.Test/Directory.Build.props`의 격리 출력 기본값을 사용한다.
 - 일반 C# 변경은 우선 `dotnet build <관련 csproj> -c Debug`로 검증한다. 여러 모듈/호스트에 걸치면 `./build.ps1`로 확장한다.
 - `3.Infrastructure` 변경은 `./assemblies.ps1`로 Debug/Release 공통 DLL을 재생성한 뒤 영향받는 모듈과 호스트를 다시 빌드한다. 생성된 DLL/서명 상태와 의도하지 않은 바이너리 변경을 확인한다.
 - `rdy`, `forwarder`, `excludedportrange`, `node-cli` 또는 스크립트 기본 목록에서 빠진 프로젝트를 수정하면 해당 프로젝트/도구를 직접 빌드하거나 실행한다.

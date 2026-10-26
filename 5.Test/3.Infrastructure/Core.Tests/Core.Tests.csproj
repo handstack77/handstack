@@ -1,0 +1,5 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <ItemGroup>
+        <ProjectReference Include="../../../3.Infrastructure/HandStack.Core/HandStack.Core.csproj" />
+    </ItemGroup>
+</Project>

@@ -100,4 +100,7 @@
         </ItemGroup>
         <Copy SourceFiles="@(SourceFilesForMirroring)" DestinationFiles="@(SourceFilesForMirroring->'$(ModuleDestinationDir)/%(RecursiveDir)%(Filename)%(Extension)')" />
     </Target>
+    <ItemGroup>
+        <InternalsVisibleTo Include="Logger.Tests" />
+    </ItemGroup>
 </Project>

@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <ItemGroup>
+        <ProjectReference Include="../../../1.WebHost/rdy/rdy.csproj" />
+        <Reference Include="HandStack.Core">
+            <HintPath>../../../3.Infrastructure/Assemblies/$(Configuration)/HandStack.Core.dll</HintPath>
+        </Reference>
+        <Reference Include="HandStack.Data">
+            <HintPath>../../../3.Infrastructure/Assemblies/$(Configuration)/HandStack.Data.dll</HintPath>
+        </Reference>
+        <Reference Include="HandStack.Web">
+            <HintPath>../../../3.Infrastructure/Assemblies/$(Configuration)/HandStack.Web.dll</HintPath>
+        </Reference>
+    </ItemGroup>
+</Project>

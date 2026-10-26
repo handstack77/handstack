@@ -344,6 +344,7 @@ namespace transact.Areas.transact.Controllers
         // http://localhost:8421/transact/api/transaction/execute
         [HttpPost("[action]")]
         [TypeFilter(typeof(RequestOriginActionFilter))]
+        [TypeFilter(typeof(McpDelegationFilter))]
         public async Task<ActionResult> Execute(TransactionRequest request)
         {
             // 주요 구간 거래 명령 입력 횟수 및 명령 시간 기록
@@ -394,7 +395,7 @@ namespace transact.Areas.transact.Controllers
                     return Content(JsonConvert.SerializeObject(response), "application/json");
                 }
 
-                if (ModuleConfiguration.IsValidationRequest == true)
+                if (ModuleConfiguration.IsValidationRequest == true && McpDelegationFilter.GetUser(HttpContext) == null)
                 {
                     if (ModuleConfiguration.BypassGlobalIDTransactions.Contains(request.Transaction.TransactionID) == false && (request.System.Routes.Count == 0 || distributedCache.Get(request.Transaction.GlobalID) == null))
                     {
@@ -758,155 +759,58 @@ namespace transact.Areas.transact.Controllers
                 var privillegeTypes = new Dictionary<string, string>();
                 var requestSystemID = "";
                 BearerToken? bearerToken = null;
-                var token = request.AccessToken;
-                try
+                var delegatedUser = McpDelegationFilter.GetUser(HttpContext);
+                if (delegatedUser != null)
                 {
-                    var isBypassAuthorizeIP = HttpContext.IsBypassAuthorizeIP(request.Interface.SourceIP, allowLocalhostBypass: true);
-
-                    if (GlobalConfiguration.IsPermissionRoles == true && isBypassAuthorizeIP == false)
+                    bearerToken = delegatedUser;
+                }
+                else
+                {
+                    var token = request.AccessToken;
+                    try
                     {
-                        var isAuthorized = false;
-                        var permissionRoles = GlobalConfiguration.PermissionRoles.Where(x => x.ModuleID == "transact");
-                        if (permissionRoles.Any() == true)
+                        var isBypassAuthorizeIP = HttpContext.IsBypassAuthorizeIP(request.Interface.SourceIP, allowLocalhostBypass: true);
+
+                        if (GlobalConfiguration.IsPermissionRoles == true && isBypassAuthorizeIP == false)
                         {
-                            var queryID = $"/{request.System.ProgramID}/{request.Transaction.BusinessID}/{request.Transaction.TransactionID}";
-
-                            var publicRoles = permissionRoles.Where(x => x.RoleID == "Public");
-                            for (var i = 0; i < publicRoles.Count(); i++)
+                            var isAuthorized = false;
+                            var permissionRoles = GlobalConfiguration.PermissionRoles.Where(x => x.ModuleID == "transact");
+                            if (permissionRoles.Any() == true)
                             {
-                                var publicRole = publicRoles.ElementAt(i);
-                                if (publicRole != null)
-                                {
-                                    var allowTransactionPattern = RestServiceExtensions.CreatePermissionRegex($"[\\/]{publicRole.ApplicationID}[\\/]{publicRole.ProjectID}[\\/]{publicRole.TransactionID}");
-                                    isAuthorized = allowTransactionPattern.IsMatch(queryID);
-                                    if (isAuthorized == true)
-                                    {
-                                        break;
-                                    }
-                                }
-                            }
+                                var queryID = $"/{request.System.ProgramID}/{request.Transaction.BusinessID}/{request.Transaction.TransactionID}";
 
-                            if (isAuthorized == false)
-                            {
-                                var member = HttpContext.Request.Cookies[$"{GlobalConfiguration.CookiePrefixName}.Member"];
-                                if (!string.IsNullOrWhiteSpace(member) && TryReadCookieUserAccount(member, out var user))
+                                var publicRoles = permissionRoles.Where(x => x.RoleID == "Public");
+                                for (var i = 0; i < publicRoles.Count(); i++)
                                 {
-                                    if (user != null)
+                                    var publicRole = publicRoles.ElementAt(i);
+                                    if (publicRole != null)
                                     {
-                                        var userRoles = user.ApplicationRoleID.SplitComma();
-                                        if (userRoles.Count != 0 == true)
+                                        var allowTransactionPattern = RestServiceExtensions.CreatePermissionRegex($"[\\/]{publicRole.ApplicationID}[\\/]{publicRole.ProjectID}[\\/]{publicRole.TransactionID}");
+                                        isAuthorized = allowTransactionPattern.IsMatch(queryID);
+                                        if (isAuthorized == true)
                                         {
-                                            foreach (var permissionRole in permissionRoles.Where(x => x.RoleID != "Public"))
-                                            {
-                                                var roles = permissionRole.RoleID.SplitComma();
-                                                if (roles.Intersect(userRoles).Any() == true)
-                                                {
-                                                    var allowTransactionPattern = RestServiceExtensions.CreatePermissionRegex($"[\\/]{permissionRole.ApplicationID}[\\/]{permissionRole.ProjectID}[\\/]{permissionRole.TransactionID}");
-                                                    isAuthorized = allowTransactionPattern.IsMatch(queryID);
-                                                    break;
-                                                }
-                                            }
+                                            break;
                                         }
                                     }
                                 }
-                            }
-                        }
-                        else
-                        {
-                            isAuthorized = true;
-                        }
 
-                        if (isAuthorized == false)
-                        {
-                            response.ExceptionText = "인증 자격 증명 확인 필요";
-                            return Content(JsonConvert.SerializeObject(response), "application/json");
-                        }
-                    }
-
-                    if (request.System.Routes.Count > 0)
-                    {
-                        var route = request.System.Routes[transactionRouteCount];
-                        requestSystemID = route.SystemID;
-                    }
-
-                    var isTransactionTokenOnly = transactionInfo.AuthorizeMethod?.Contains("TransactionTokenOnly") == true;
-                    if (isTransactionTokenOnly == true)
-                    {
-                        var isTransactionTokenYN = false;
-                        if (!string.IsNullOrWhiteSpace(request.Transaction.TransactionToken) && transactionInfo.TransactionTokens?.Contains(request.Transaction.TransactionToken) == true)
-                        {
-                            isTransactionTokenYN = true;
-                        }
-
-                        if (isTransactionTokenYN == false)
-                        {
-                            response.ExceptionText = "TransactionToken 확인 필요";
-                            return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
-                        }
-                    }
-                    else if (ModuleConfiguration.SystemID == requestSystemID && isBypassAuthorizeIP == true)
-                    {
-                        if (!string.IsNullOrWhiteSpace(token) && token.IndexOf('.') > -1 && !string.IsNullOrWhiteSpace(request.Transaction.OperatorID))
-                        {
-                            if (!TrySplitBearerToken(token, out _, out var encryptedToken, out var tokenHash))
-                            {
-                                response.ExceptionText = $"{request.Transaction.OperatorID}: BearerToken 정보 확인 필요.";
-                                logger.Warning("[{LogCategory}] " + response.ExceptionText + $"Request JSON: {JsonConvert.SerializeObject(request)}", "Transaction/Execute");
-                                return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
-                            }
-
-                            var signature = string.IsNullOrWhiteSpace(tokenHash) == false ? (tokenHash == GlobalConfiguration.HostAccessID.ToSHA256() ? (GlobalConfiguration.HostAccessID + request.Transaction.OperatorID).ToSHA256().PaddingRight(32) : "") : (GlobalConfiguration.HostAccessID + request.Transaction.OperatorID).ToSHA256().PaddingRight(32);
-                            if (!TryReadBearerToken(encryptedToken, signature, out bearerToken))
-                            {
-                                response.ExceptionText = $"{request.Transaction.OperatorID}: BearerToken 정보 확인 필요.";
-                                logger.Warning("[{LogCategory}] " + response.ExceptionText + $"Request JSON: {JsonConvert.SerializeObject(request)}", "Transaction/Execute");
-                                return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (ModuleConfiguration.SystemID != requestSystemID)
-                        {
-                            response.ExceptionText = $"SystemID: {requestSystemID} 확인 필요";
-                            return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
-                        }
-                        else if (string.IsNullOrWhiteSpace(token))
-                        {
-                            var moduleScheme = $"{GlobalConfiguration.CookiePrefixName}.{request.System.ModuleID}.AuthenticationScheme";
-                            var isRoleYN = false;
-
-                            try
-                            {
-                                var schemeProvider = HttpContext.RequestServices.GetRequiredService<IAuthenticationSchemeProvider>();
-                                var scheme = await schemeProvider.GetSchemeAsync(moduleScheme);
-                                if (scheme != null)
+                                if (isAuthorized == false)
                                 {
-                                    var authenticateResult = await HttpContext.AuthenticateAsync(moduleScheme);
-                                    if (authenticateResult.Succeeded == true)
+                                    var member = HttpContext.Request.Cookies[$"{GlobalConfiguration.CookiePrefixName}.Member"];
+                                    if (!string.IsNullOrWhiteSpace(member) && TryReadCookieUserAccount(member, out var user))
                                     {
-                                        var principal = authenticateResult.Principal;
-                                        if (principal?.Identity?.IsAuthenticated == true)
+                                        if (user != null)
                                         {
-                                            var roles = principal.FindFirst("Roles")?.Value;
-                                            if (roles != null && transactionInfo.Roles != null && transactionInfo.Roles.Count > 0)
+                                            var userRoles = user.ApplicationRoleID.SplitComma();
+                                            if (userRoles.Count != 0 == true)
                                             {
-                                                var transactionMinRoleValue = Role.User.GetRoleValue(transactionInfo.Roles, true);
-                                                foreach (var userRole in roles.SplitComma())
+                                                foreach (var permissionRole in permissionRoles.Where(x => x.RoleID != "Public"))
                                                 {
-                                                    if (Enum.TryParse<Role>(userRole, out var parsedUserRole) == true)
+                                                    var roles = permissionRole.RoleID.SplitComma();
+                                                    if (roles.Intersect(userRoles).Any() == true)
                                                     {
-                                                        var userRoleValue = (int)parsedUserRole;
-                                                        if (userRoleValue <= transactionMinRoleValue)
-                                                        {
-                                                            isRoleYN = true;
-                                                            break;
-                                                        }
-                                                    }
-
-                                                    if (isRoleYN == false && transactionInfo.Roles.Contains(userRole) == true)
-                                                    {
-                                                        isRoleYN = true;
+                                                        var allowTransactionPattern = RestServiceExtensions.CreatePermissionRegex($"[\\/]{permissionRole.ApplicationID}[\\/]{permissionRole.ProjectID}[\\/]{permissionRole.TransactionID}");
+                                                        isAuthorized = allowTransactionPattern.IsMatch(queryID);
                                                         break;
                                                     }
                                                 }
@@ -915,190 +819,295 @@ namespace transact.Areas.transact.Controllers
                                     }
                                 }
                             }
-                            catch
+                            else
                             {
-                                isRoleYN = false;
+                                isAuthorized = true;
                             }
 
-                            if (isRoleYN == false && transactionInfo.AuthorizeMethod == null || transactionInfo.AuthorizeMethod?.Contains("TransactionToken") == true)
+                            if (isAuthorized == false)
                             {
-                                if (!string.IsNullOrWhiteSpace(request.Transaction.TransactionToken) && transactionInfo.TransactionTokens?.Contains(request.Transaction.TransactionToken) == true)
-                                {
-                                    isRoleYN = true;
-                                }
+                                response.ExceptionText = "인증 자격 증명 확인 필요";
+                                return Content(JsonConvert.SerializeObject(response), "application/json");
+                            }
+                        }
+
+                        if (request.System.Routes.Count > 0)
+                        {
+                            var route = request.System.Routes[transactionRouteCount];
+                            requestSystemID = route.SystemID;
+                        }
+
+                        var isTransactionTokenOnly = transactionInfo.AuthorizeMethod?.Contains("TransactionTokenOnly") == true;
+                        if (isTransactionTokenOnly == true)
+                        {
+                            var isTransactionTokenYN = false;
+                            if (!string.IsNullOrWhiteSpace(request.Transaction.TransactionToken) && transactionInfo.TransactionTokens?.Contains(request.Transaction.TransactionToken) == true)
+                            {
+                                isTransactionTokenYN = true;
                             }
 
-                            if (isRoleYN == false && ModuleConfiguration.UseApiAuthorize == true && transactionInfo.Authorize == true)
+                            if (isTransactionTokenYN == false)
                             {
-                                response.ExceptionText = $"'{businessContract.ApplicationID}' 애플리케이션, '{businessContract.ProjectID}' 프로젝트 또는 {moduleScheme} 역할 권한 확인 필요";
+                                response.ExceptionText = "TransactionToken 확인 필요";
                                 return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                             }
                         }
-                        else if (ModuleConfiguration.UseApiAuthorize == true)
+                        else if (ModuleConfiguration.SystemID == requestSystemID && isBypassAuthorizeIP == true)
                         {
-                            if (!TrySplitBearerToken(token, out var userID, out var encryptedToken, out var tokenHash))
+                            if (!string.IsNullOrWhiteSpace(token) && token.IndexOf('.') > -1 && !string.IsNullOrWhiteSpace(request.Transaction.OperatorID))
                             {
-                                response.ExceptionText = "BearerToken 기본 무결성 확인 필요";
-                                return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
-                            }
-
-                            if (userID != request.Transaction.OperatorID)
-                            {
-                                response.ExceptionText = "BearerToken 사용자 무결성 확인 필요";
-                                return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
-                            }
-
-                            var signature = string.IsNullOrWhiteSpace(tokenHash) == false ? (tokenHash == GlobalConfiguration.HostAccessID.ToSHA256() ? (GlobalConfiguration.HostAccessID + userID).ToSHA256().PaddingRight(32) : "") : (GlobalConfiguration.HostAccessID + userID).ToSHA256().PaddingRight(32);
-                            if (!TryReadBearerToken(encryptedToken, signature, out bearerToken))
-                            {
-                                response.ExceptionText = $"{request.Transaction.OperatorID}: BearerToken 정보가 훼손되거나 확인 할 수 없습니다. 다시 로그인 해야 합니다.";
-                                return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
-                            }
-
-                            if (bearerToken == null)
-                            {
-                                response.ExceptionText = "BearerToken 정보 무결성 확인 필요";
-                                return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
-                            }
-
-                            if (transactionInfo.Authorize == true)
-                            {
-                                var isRoleYN = true;
-                                if (transactionInfo.AuthorizeMethod == null || transactionInfo.AuthorizeMethod?.Contains("Role") == true)
+                                if (!TrySplitBearerToken(token, out _, out var encryptedToken, out var tokenHash))
                                 {
-                                    if (transactionInfo.Roles != null && transactionInfo.Roles.Count > 0)
-                                    {
-                                        isRoleYN = false;
-                                        var transactionMinRoleValue = Role.User.GetRoleValue(transactionInfo.Roles, true);
-                                        foreach (var userRole in bearerToken.Policy.Roles)
-                                        {
-                                            if (Enum.TryParse<Role>(userRole, out var parsedUserRole) == true)
-                                            {
-                                                var userRoleValue = (int)parsedUserRole;
-                                                if (userRoleValue <= transactionMinRoleValue)
-                                                {
-                                                    isRoleYN = true;
-                                                    break;
-                                                }
-                                            }
-
-                                            if (isRoleYN == false && transactionInfo.Roles.Contains(userRole) == true)
-                                            {
-                                                isRoleYN = true;
-                                                break;
-                                            }
-                                        }
-                                    }
+                                    response.ExceptionText = $"{request.Transaction.OperatorID}: BearerToken 정보 확인 필요.";
+                                    logger.Warning("[{LogCategory}] " + response.ExceptionText + $"Request JSON: {JsonConvert.SerializeObject(request)}", "Transaction/Execute");
+                                    return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                                 }
 
-                                var isClaimYN = true;
-                                if (transactionInfo.AuthorizeMethod == null || transactionInfo.AuthorizeMethod?.Contains("Policy") == true)
+                                var signature = string.IsNullOrWhiteSpace(tokenHash) == false ? (tokenHash == GlobalConfiguration.HostAccessID.ToSHA256() ? (GlobalConfiguration.HostAccessID + request.Transaction.OperatorID).ToSHA256().PaddingRight(32) : "") : (GlobalConfiguration.HostAccessID + request.Transaction.OperatorID).ToSHA256().PaddingRight(32);
+                                if (!TryReadBearerToken(encryptedToken, signature, out bearerToken))
                                 {
-                                    if (transactionInfo.Policys != null && transactionInfo.Policys.Count > 0)
-                                    {
-                                        isClaimYN = false;
-                                        foreach (var claim in bearerToken.Policy.Claims)
-                                        {
-                                            if (transactionInfo.Policys.ContainsKey(claim.Key) == true)
-                                            {
-                                                var allowClaims = transactionInfo.Policys[claim.Key];
-                                                if (allowClaims == null || allowClaims.IndexOf(claim.Value) > -1)
-                                                {
-                                                    isClaimYN = true;
-                                                    break;
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-                                var isTransactionTokenYN = false;
-                                if (transactionInfo.AuthorizeMethod == null || transactionInfo.AuthorizeMethod?.Contains("TransactionToken") == true)
-                                {
-                                    if (!string.IsNullOrWhiteSpace(request.Transaction.TransactionToken) && transactionInfo.TransactionTokens?.Contains(request.Transaction.TransactionToken) == true)
-                                    {
-                                        isTransactionTokenYN = true;
-                                    }
-                                }
-
-                                if (isRoleYN == false && isClaimYN == false && isTransactionTokenYN == false)
-                                {
-                                    response.ExceptionText = "BearerToken 역할 또는 정책 권한 확인 필요";
+                                    response.ExceptionText = $"{request.Transaction.OperatorID}: BearerToken 정보 확인 필요.";
+                                    logger.Warning("[{LogCategory}] " + response.ExceptionText + $"Request JSON: {JsonConvert.SerializeObject(request)}", "Transaction/Execute");
                                     return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                                 }
                             }
                         }
                         else
                         {
-                            if (!string.IsNullOrWhiteSpace(token))
+                            if (ModuleConfiguration.SystemID != requestSystemID)
                             {
-                                if (token.IndexOf('.') > -1)
+                                response.ExceptionText = $"SystemID: {requestSystemID} 확인 필요";
+                                return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
+                            }
+                            else if (string.IsNullOrWhiteSpace(token))
+                            {
+                                var moduleScheme = $"{GlobalConfiguration.CookiePrefixName}.{request.System.ModuleID}.AuthenticationScheme";
+                                var isRoleYN = false;
+
+                                try
                                 {
-                                    if (!TrySplitBearerToken(token, out var userID, out var encryptedToken, out var tokenHash))
+                                    var schemeProvider = HttpContext.RequestServices.GetRequiredService<IAuthenticationSchemeProvider>();
+                                    var scheme = await schemeProvider.GetSchemeAsync(moduleScheme);
+                                    if (scheme != null)
                                     {
-                                        response.ExceptionText = "BearerToken 기본 무결성 확인 필요";
-                                        return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
+                                        var authenticateResult = await HttpContext.AuthenticateAsync(moduleScheme);
+                                        if (authenticateResult.Succeeded == true)
+                                        {
+                                            var principal = authenticateResult.Principal;
+                                            if (principal?.Identity?.IsAuthenticated == true)
+                                            {
+                                                var roles = principal.FindFirst("Roles")?.Value;
+                                                if (roles != null && transactionInfo.Roles != null && transactionInfo.Roles.Count > 0)
+                                                {
+                                                    var transactionMinRoleValue = Role.User.GetRoleValue(transactionInfo.Roles, true);
+                                                    foreach (var userRole in roles.SplitComma())
+                                                    {
+                                                        if (Enum.TryParse<Role>(userRole, out var parsedUserRole) == true)
+                                                        {
+                                                            var userRoleValue = (int)parsedUserRole;
+                                                            if (userRoleValue <= transactionMinRoleValue)
+                                                            {
+                                                                isRoleYN = true;
+                                                                break;
+                                                            }
+                                                        }
+
+                                                        if (isRoleYN == false && transactionInfo.Roles.Contains(userRole) == true)
+                                                        {
+                                                            isRoleYN = true;
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                catch
+                                {
+                                    isRoleYN = false;
+                                }
+
+                                if (isRoleYN == false && transactionInfo.AuthorizeMethod == null || transactionInfo.AuthorizeMethod?.Contains("TransactionToken") == true)
+                                {
+                                    if (!string.IsNullOrWhiteSpace(request.Transaction.TransactionToken) && transactionInfo.TransactionTokens?.Contains(request.Transaction.TransactionToken) == true)
+                                    {
+                                        isRoleYN = true;
+                                    }
+                                }
+
+                                if (isRoleYN == false && ModuleConfiguration.UseApiAuthorize == true && transactionInfo.Authorize == true)
+                                {
+                                    response.ExceptionText = $"'{businessContract.ApplicationID}' 애플리케이션, '{businessContract.ProjectID}' 프로젝트 또는 {moduleScheme} 역할 권한 확인 필요";
+                                    return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
+                                }
+                            }
+                            else if (ModuleConfiguration.UseApiAuthorize == true)
+                            {
+                                if (!TrySplitBearerToken(token, out var userID, out var encryptedToken, out var tokenHash))
+                                {
+                                    response.ExceptionText = "BearerToken 기본 무결성 확인 필요";
+                                    return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
+                                }
+
+                                if (userID != request.Transaction.OperatorID)
+                                {
+                                    response.ExceptionText = "BearerToken 사용자 무결성 확인 필요";
+                                    return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
+                                }
+
+                                var signature = string.IsNullOrWhiteSpace(tokenHash) == false ? (tokenHash == GlobalConfiguration.HostAccessID.ToSHA256() ? (GlobalConfiguration.HostAccessID + userID).ToSHA256().PaddingRight(32) : "") : (GlobalConfiguration.HostAccessID + userID).ToSHA256().PaddingRight(32);
+                                if (!TryReadBearerToken(encryptedToken, signature, out bearerToken))
+                                {
+                                    response.ExceptionText = $"{request.Transaction.OperatorID}: BearerToken 정보가 훼손되거나 확인 할 수 없습니다. 다시 로그인 해야 합니다.";
+                                    return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
+                                }
+
+                                if (bearerToken == null)
+                                {
+                                    response.ExceptionText = "BearerToken 정보 무결성 확인 필요";
+                                    return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
+                                }
+
+                                if (transactionInfo.Authorize == true)
+                                {
+                                    var isRoleYN = true;
+                                    if (transactionInfo.AuthorizeMethod == null || transactionInfo.AuthorizeMethod?.Contains("Role") == true)
+                                    {
+                                        if (transactionInfo.Roles != null && transactionInfo.Roles.Count > 0)
+                                        {
+                                            isRoleYN = false;
+                                            var transactionMinRoleValue = Role.User.GetRoleValue(transactionInfo.Roles, true);
+                                            foreach (var userRole in bearerToken.Policy.Roles)
+                                            {
+                                                if (Enum.TryParse<Role>(userRole, out var parsedUserRole) == true)
+                                                {
+                                                    var userRoleValue = (int)parsedUserRole;
+                                                    if (userRoleValue <= transactionMinRoleValue)
+                                                    {
+                                                        isRoleYN = true;
+                                                        break;
+                                                    }
+                                                }
+
+                                                if (isRoleYN == false && transactionInfo.Roles.Contains(userRole) == true)
+                                                {
+                                                    isRoleYN = true;
+                                                    break;
+                                                }
+                                            }
+                                        }
                                     }
 
-                                    var signature = string.IsNullOrWhiteSpace(tokenHash) == false ? (tokenHash == GlobalConfiguration.HostAccessID.ToSHA256() ? (GlobalConfiguration.HostAccessID + userID).ToSHA256().PaddingRight(32) : "") : (GlobalConfiguration.HostAccessID + userID).ToSHA256().PaddingRight(32);
-                                    if (!TryReadBearerToken(encryptedToken, signature, out bearerToken))
+                                    var isClaimYN = true;
+                                    if (transactionInfo.AuthorizeMethod == null || transactionInfo.AuthorizeMethod?.Contains("Policy") == true)
                                     {
-                                        response.ExceptionText = $"{userID}: BearerToken 정보가 훼손되거나 확인 할 수 없습니다.";
+                                        if (transactionInfo.Policys != null && transactionInfo.Policys.Count > 0)
+                                        {
+                                            isClaimYN = false;
+                                            foreach (var claim in bearerToken.Policy.Claims)
+                                            {
+                                                if (transactionInfo.Policys.ContainsKey(claim.Key) == true)
+                                                {
+                                                    var allowClaims = transactionInfo.Policys[claim.Key];
+                                                    if (allowClaims == null || allowClaims.IndexOf(claim.Value) > -1)
+                                                    {
+                                                        isClaimYN = true;
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    var isTransactionTokenYN = false;
+                                    if (transactionInfo.AuthorizeMethod == null || transactionInfo.AuthorizeMethod?.Contains("TransactionToken") == true)
+                                    {
+                                        if (!string.IsNullOrWhiteSpace(request.Transaction.TransactionToken) && transactionInfo.TransactionTokens?.Contains(request.Transaction.TransactionToken) == true)
+                                        {
+                                            isTransactionTokenYN = true;
+                                        }
+                                    }
+
+                                    if (isRoleYN == false && isClaimYN == false && isTransactionTokenYN == false)
+                                    {
+                                        response.ExceptionText = "BearerToken 역할 또는 정책 권한 확인 필요";
                                         return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                                     }
                                 }
                             }
-                        }
-                    }
+                            else
+                            {
+                                if (!string.IsNullOrWhiteSpace(token))
+                                {
+                                    if (token.IndexOf('.') > -1)
+                                    {
+                                        if (!TrySplitBearerToken(token, out var userID, out var encryptedToken, out var tokenHash))
+                                        {
+                                            response.ExceptionText = "BearerToken 기본 무결성 확인 필요";
+                                            return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
+                                        }
 
-                    // PrivillegeDatabaseDDL, PrivillegeDatabaseDML, PrivillegeDatabaseDCL, PrivillegePermissionEXE, PrivillegeFeatureRUN
-                    var privillegeKeys = new List<string>();
-                    var claims = new Dictionary<string, string>();
-                    if (bearerToken != null)
-                    {
-                        if (bearerToken.Policy.Claims.ContainsKey("PrivillegeKeys") == true)
+                                        var signature = string.IsNullOrWhiteSpace(tokenHash) == false ? (tokenHash == GlobalConfiguration.HostAccessID.ToSHA256() ? (GlobalConfiguration.HostAccessID + userID).ToSHA256().PaddingRight(32) : "") : (GlobalConfiguration.HostAccessID + userID).ToSHA256().PaddingRight(32);
+                                        if (!TryReadBearerToken(encryptedToken, signature, out bearerToken))
+                                        {
+                                            response.ExceptionText = $"{userID}: BearerToken 정보가 훼손되거나 확인 할 수 없습니다.";
+                                            return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        // PrivillegeDatabaseDDL, PrivillegeDatabaseDML, PrivillegeDatabaseDCL, PrivillegePermissionEXE, PrivillegeFeatureRUN
+                        var privillegeKeys = new List<string>();
+                        var claims = new Dictionary<string, string>();
+                        if (bearerToken != null)
                         {
-                            privillegeKeys = bearerToken.Policy.Claims["PrivillegeKeys"].SplitAndTrim(',');
-                            claims = bearerToken.Policy.Claims;
+                            if (bearerToken.Policy.Claims.ContainsKey("PrivillegeKeys") == true)
+                            {
+                                privillegeKeys = bearerToken.Policy.Claims["PrivillegeKeys"].SplitAndTrim(',');
+                                claims = bearerToken.Policy.Claims;
+                            }
                         }
-                    }
 
-                    foreach (var privillegeKey in privillegeKeys)
-                    {
-                        if (claims.TryGetValue(privillegeKey, out var value))
+                        foreach (var privillegeKey in privillegeKeys)
                         {
-                            privillegeTypes.Add(privillegeKey, value);
+                            if (claims.TryGetValue(privillegeKey, out var value))
+                            {
+                                privillegeTypes.Add(privillegeKey, value);
+                            }
                         }
-                    }
 
-                    // 개발 목적 테스트 계정 자동 로그인(wwwroot DevAccountController) 요청 감지. 클레임 위조 대비로 호스트 설정과 교차 확인한다.
-                    var isDevAutoSignIn = false;
-                    if (bearerToken != null && bearerToken.Policy.Claims.ContainsKey("IsDevAutoSignIn") == true)
-                    {
-                        isDevAutoSignIn = bearerToken.Policy.Claims["IsDevAutoSignIn"].ToBoolean();
-                    }
-
-                    if (isDevAutoSignIn == true)
-                    {
-                        if (GlobalConfiguration.IsEnabledDevAutoSignIn == false || GlobalConfiguration.RunningEnvironment != "D")
+                        // 개발 목적 테스트 계정 자동 로그인(wwwroot DevAccountController) 요청 감지. 클레임 위조 대비로 호스트 설정과 교차 확인한다.
+                        var isDevAutoSignIn = false;
+                        if (bearerToken != null && bearerToken.Policy.Claims.ContainsKey("IsDevAutoSignIn") == true)
                         {
-                            response.ExceptionText = "개발 테스트 계정 자동 로그인 클레임이 비정상 요청에 포함되어 있습니다.";
-                            logger.Warning("[{LogCategory}] " + $"{request.Transaction.OperatorID}: IsDevAutoSignIn 클레임이 있으나 AppSettings:IsEnabledDevAutoSignIn=false 이거나 RunningEnvironment가 D가 아닙니다. TransactionID: {request.Transaction.TransactionID}", "Transaction/Execute");
-                            return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
+                            isDevAutoSignIn = bearerToken.Policy.Claims["IsDevAutoSignIn"].ToBoolean();
                         }
 
-                        logger.Information("[{LogCategory}] " + $"{request.Transaction.OperatorID}: 개발 테스트 계정 요청. GlobalID: {request.Transaction.GlobalID}", "Transaction/Execute");
+                        if (isDevAutoSignIn == true)
+                        {
+                            if (GlobalConfiguration.IsEnabledDevAutoSignIn == false || GlobalConfiguration.RunningEnvironment != "D")
+                            {
+                                response.ExceptionText = "개발 테스트 계정 자동 로그인 클레임이 비정상 요청에 포함되어 있습니다.";
+                                logger.Warning("[{LogCategory}] " + $"{request.Transaction.OperatorID}: IsDevAutoSignIn 클레임이 있으나 AppSettings:IsEnabledDevAutoSignIn=false 이거나 RunningEnvironment가 D가 아닙니다. TransactionID: {request.Transaction.TransactionID}", "Transaction/Execute");
+                                return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
+                            }
+
+                            logger.Information("[{LogCategory}] " + $"{request.Transaction.OperatorID}: 개발 테스트 계정 요청. GlobalID: {request.Transaction.GlobalID}", "Transaction/Execute");
+                        }
                     }
-                }
-                catch (Exception exception)
-                {
-                    response.ExceptionText = $"인증 또는 권한 확인 오류 - {exception.ToMessage()}";
-                    return LoggingAndReturn(response, transactionWorkID, "N", transactionInfo);
+                    catch (Exception exception)
+                    {
+                        response.ExceptionText = $"인증 또는 권한 확인 오류 - {exception.ToMessage()}";
+                        return LoggingAndReturn(response, transactionWorkID, "N", transactionInfo);
+                    }
                 }
 
                 if (bearerToken != null)
                 {
-                    if (ModuleConfiguration.HasTrustedCheckIP == true)
+                    if (ModuleConfiguration.HasTrustedCheckIP == true && delegatedUser == null)
                     {
                         var clientIP = HttpContext.GetRemoteIpAddress(bearerToken.ClientIP, ModuleConfiguration.TrustedProxyIP).ToStringSafe();
                         var verifyTokenID = bearerToken.Policy.VerifyTokenID;

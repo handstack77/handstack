@@ -93,6 +93,7 @@ handstack/
 ├── 2.Modules/         # 업무 실행 모듈, 계약, 정적 자산
 ├── 3.Infrastructure/  # HandStack.Core · Data · Web 공통 라이브러리
 ├── 4.Tool/            # 개발·운영·배포 CLI와 도구
+├── 5.Test/            # 1.WebHost·2.Modules·3.Infrastructure로 분류한 xUnit 테스트
 ├── handstack.sln      # .NET 솔루션
 └── env.* · install.* · build.* · publish.*
 ```
@@ -109,6 +110,8 @@ handstack/
 | HTTP 포워드 프록시 | [forwarder](2.Modules/forwarder/README.md) |
 
 운영 도구는 [handstack CLI](4.Tool/CLI/handstack/README.md), 호스트별 역할은 [ack](1.WebHost/ack/README.md) · [agent](1.WebHost/agent/README.md) · [deploy](1.WebHost/deploy/README.md) · [forbes](1.WebHost/forbes/README.md)에 정리되어 있습니다.
+
+프로젝트별 기본 회귀 테스트는 [5.Test 실행 가이드](5.Test/README.md)를 따라 `./5.Test/Test.ps1`로 실행합니다.
 
 ## 문서와 학습
 

@@ -1,12 +1,12 @@
-using System;
+﻿using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
 
 using HandStack.Core.ExtensionMethod;
 using HandStack.Web;
+using HandStack.Web.Extensions;
 using HandStack.Web.Modules;
 
 using Mediator;
@@ -62,6 +62,7 @@ namespace transact
                         ModuleConfiguration.CircuitBreakResetSecond = moduleConfig.CircuitBreakResetSecond;
                         ModuleConfiguration.SystemID = moduleConfig.SystemID;
                         ModuleConfiguration.UseApiAuthorize = moduleConfig.UseApiAuthorize;
+                        ModuleConfiguration.McpDelegation = moduleConfig.McpDelegation ?? new();
                         ModuleConfiguration.TrustedProxyIP = string.IsNullOrWhiteSpace(moduleConfig.TrustedProxyIP) ? "1.1.1.1" : moduleConfig.TrustedProxyIP;
                         ModuleConfiguration.HasTrustedCheckIP = moduleConfig.HasTrustedCheckIP;
                         ModuleConfiguration.DynamicWorkflowTransaction = moduleConfig.DynamicWorkflowTransaction.ToStringSafe().Trim();
@@ -195,6 +196,7 @@ namespace transact
                 services.AddSingleton(new TransactLoggerClient(Log.Logger));
                 services.AddSingleton<RestSharp.RestClient>(_ => new RestSharp.RestClient());
                 services.AddScoped<TransactClient>();
+                services.AddSingleton<IMcpDelegationContext, McpDelegationContext>();
                 services.AddTransient<IRequestHandler<TransactRequest, object?>, TransactRequestHandler>();
                 services.AddTransient<IRequestHandler<TransactionRefreshRequest, bool>, TransactionRefreshRequestHandler>();
                 services.AddHostedService<TransactAggregateCleanupService>();

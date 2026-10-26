@@ -136,4 +136,7 @@
         </ItemGroup>
         <Copy SourceFiles="@(SourceFilesForMirroring)" DestinationFiles="@(SourceFilesForMirroring->'$(ModuleDestinationDir)/%(RecursiveDir)%(Filename)%(Extension)')" />
     </Target>
+    <ItemGroup>
+        <InternalsVisibleTo Include="Function.Tests" />
+    </ItemGroup>
 </Project>
