@@ -11,4 +11,8 @@
             <HintPath>../../../3.Infrastructure/Assemblies/$(Configuration)/HandStack.Web.dll</HintPath>
         </Reference>
     </ItemGroup>
+    <ItemGroup>
+      <PackageReference Update="Microsoft.NET.Test.Sdk" Version="18.11.0" />
+      <PackageReference Update="xunit.runner.visualstudio" Version="4.0.1" />
+    </ItemGroup>
 </Project>

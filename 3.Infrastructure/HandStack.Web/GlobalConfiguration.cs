@@ -103,7 +103,6 @@ namespace HandStack.Web
         public static List<string> WithOnlyIPs = [];
         public static string FindGlobalIDServer = "";
         public static List<Exception?> UnhandledExceptions = [];
-        public static JObject? DomainAPIServer = null;
         public static List<string> ByPassBootstrappingLoggingKey = [];
         public static FileExtensionContentTypeProvider ContentTypeProvider = new();
         public static Dictionary<string, string> StaticFilesAllowRolePath = [];

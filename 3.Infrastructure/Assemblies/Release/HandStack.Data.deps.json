@@ -18,7 +18,7 @@
           "Serilog": "4.4.0",
           "SourceGear.sqlite3": "3.53.4",
           "System.Data.SQLite": "2.0.4",
-          "System.Security.Cryptography.Pkcs": "10.0.13"
+          "System.Security.Cryptography.Pkcs": "10.0.14"
         },
         "runtime": {
           "HandStack.Data.dll": {}
@@ -59,7 +59,7 @@
           "Microsoft.IdentityModel.Protocols.OpenIdConnect": "8.16.0",
           "Microsoft.SqlServer.Server": "1.0.0",
           "System.Configuration.ConfigurationManager": "9.0.18",
-          "System.Security.Cryptography.Pkcs": "10.0.13",
+          "System.Security.Cryptography.Pkcs": "10.0.14",
           "System.Threading.RateLimiting": "9.0.18"
         },
         "runtime": {
@@ -294,7 +294,7 @@
         "dependencies": {
           "System.Diagnostics.PerformanceCounter": "8.0.0",
           "System.DirectoryServices.Protocols": "8.0.2",
-          "System.Security.Cryptography.Pkcs": "10.0.13"
+          "System.Security.Cryptography.Pkcs": "10.0.14"
         },
         "runtime": {
           "lib/net8.0/Oracle.ManagedDataAccess.dll": {
@@ -574,11 +574,11 @@
           }
         }
       },
-      "System.Security.Cryptography.Pkcs/10.0.13": {
+      "System.Security.Cryptography.Pkcs/10.0.14": {
         "runtime": {
           "lib/net10.0/System.Security.Cryptography.Pkcs.dll": {
             "assemblyVersion": "10.0.0.0",
-            "fileVersion": "10.0.1326.50504"
+            "fileVersion": "10.0.1426.52326"
           }
         },
         "runtimeTargets": {
@@ -586,7 +586,7 @@
             "rid": "win",
             "assetType": "runtime",
             "assemblyVersion": "10.0.0.0",
-            "fileVersion": "10.0.1326.50504"
+            "fileVersion": "10.0.1426.52326"
           }
         }
       },
@@ -857,12 +857,12 @@
       "path": "system.reactive/7.0.0",
       "hashPath": "system.reactive.7.0.0.nupkg.sha512"
     },
-    "System.Security.Cryptography.Pkcs/10.0.13": {
+    "System.Security.Cryptography.Pkcs/10.0.14": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-a+EovgC1fBnwdlQ6cn3j4JFBfKqiFaFvoAhjisOoSvazLAcIznaBzPQP0oYnvccmeXfqUH1KebVZOxSeH6rMaw==",
-      "path": "system.security.cryptography.pkcs/10.0.13",
-      "hashPath": "system.security.cryptography.pkcs.10.0.13.nupkg.sha512"
+      "sha512": "sha512-Wz+IgL2xpg8KJ4i2VWj6uz1PmZNu4Q0Ljlwd73P9Vze5NcOBtctLii3itV0PB2MpOqwqDEGfB6RCdv94A4E5yQ==",
+      "path": "system.security.cryptography.pkcs/10.0.14",
+      "hashPath": "system.security.cryptography.pkcs.10.0.14.nupkg.sha512"
     },
     "System.Security.Cryptography.ProtectedData/9.0.18": {
       "type": "package",

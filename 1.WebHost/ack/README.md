@@ -269,6 +269,11 @@ $hash = [System.Security.Cryptography.SHA256]::Create().ComputeHash($bytes)
 
 ## 7) 로그 확인
 
+`ack`와 `rdy`는 수신 시작 후 시작 완료 요약을 기록합니다. Serilog가 수집한 시작 시점까지의 경고·오류(치명 오류 포함) 건수, 실제 수신 주소 및 와일드카드 수신의 로컬·네트워크 접속 후보를 표시합니다. 초기 로거 구성 전의 콘솔 출력과 별도 로깅 공급자의 이벤트는 집계하지 않으며, 요약 후에도 로그가 이어질 수 있습니다. 네트워크 후보의 외부 접근은 방화벽과 네트워크 설정에 따라 달라집니다.
+
+`AppSettings:UseForwardProxy`가 켜져 있으면 설정된 `ForwardProxyIP` 목록을 표시하고, `WithOrigins`와 `WithOnlyIPs`는 적용 목록이 있을 때 표시합니다. 프록시 IP는 접속 주소가 아니라 신뢰할 프록시 설정입니다. 이 요약은 시작 시점의 스냅샷입니다.
+
+
 기본 로그 경로:
 
 - `appsettings.json` 기준 `../log/app.log` (일 단위 롤링)

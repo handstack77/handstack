@@ -53,7 +53,6 @@ using Microsoft.Net.Http.Headers;
 using Microsoft.Win32;
 
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 
 using Serilog;
@@ -254,20 +253,6 @@ namespace ack
 
             GlobalConfiguration.WebRootPath = environment.WebRootPath;
             GlobalConfiguration.ContentRootPath = environment.ContentRootPath;
-
-            var domainAPIServer = new JObject
-            {
-                { "ExceptionText", null },
-                { "RequestID", "" },
-                { "ServerID", appSettings["DomainAPIServer:ServerID"] },
-                { "ServerType", appSettings["DomainAPIServer:ServerType"] },
-                { "Protocol", appSettings["DomainAPIServer:Protocol"] },
-                { "IP", appSettings["DomainAPIServer:IP"] },
-                { "Port", appSettings["DomainAPIServer:Port"] },
-                { "Path", appSettings["DomainAPIServer:Path"] },
-                { "ClientIP", appSettings["DomainAPIServer:ClientIP"] }
-            };
-            GlobalConfiguration.DomainAPIServer = domainAPIServer;
 
             if (useResponseComression == true)
             {

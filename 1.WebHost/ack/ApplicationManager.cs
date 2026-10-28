@@ -85,6 +85,7 @@ namespace ack
             }
 
             host = CreateWebHostBuilder(port, args).Build();
+            host.Services.GetRequiredService<IHostApplicationLifetime>().ApplicationStarted.Register(() => StartupSummary.Write(host.Services));
 
             using (var scope = host.Services.CreateScope())
             {
@@ -165,7 +166,8 @@ namespace ack
                 .ConfigureAppConfiguration((context, config) => config.UsePlatformSettings(GlobalConfiguration.EntryBasePath))
                 .UseSerilog((context, config) =>
                 {
-                    config.ReadFrom.Configuration(context.Configuration);
+                    config.ReadFrom.Configuration(context.Configuration)
+                        .WriteTo.Sink(StartupSummary.Counter);
                 })
                 .ConfigureServices((context, services) =>
                 {

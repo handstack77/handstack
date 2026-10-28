@@ -153,7 +153,6 @@ namespace ack.Services
             "AppSettings:LoadModuleLicenses",
             "AppSettings:ModuleConfigurationUrl",
             "AppSettings:DiscoveryApiServerUrl",
-            "AppSettings:DomainAPIServer",
             "AppSettings:ComressionEnableForHttps",
             "AppSettings:ComressionMimeTypes",
             "AppSettings:ForwardProxyIP",

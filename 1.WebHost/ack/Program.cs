@@ -209,7 +209,8 @@ namespace ack
                     }
 
                     var loggerConfiguration = new LoggerConfiguration()
-                        .ReadFrom.Configuration(configuration);
+                        .ReadFrom.Configuration(configuration)
+                        .WriteTo.Sink(StartupSummary.Counter);
 
                     Log.Logger = loggerConfiguration.CreateLogger();
 

@@ -8,15 +8,6 @@
         "InstallType": "L",
         "BusinessServerUrl": "http://dev.example-domain.com/transact/api/transaction/execute",
         "FindGlobalIDServer": "",
-        "DomainAPIServer": {
-            "ServerID": "SERVERD01",
-            "ServerType": "D",
-            "Protocol": "http",
-            "IP": "dev.example-domain.com",
-            "Port": "",
-            "Path": "/transact/api/transaction/execute",
-            "ClientIP": "127.0.0.1"
-        },
         "ForwardProxyIP": [],
         "IsAutoUpdate": false,
         "IsConfigurationWatching": false,

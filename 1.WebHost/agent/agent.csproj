@@ -30,8 +30,8 @@
     <ItemGroup>
         <PackageReference Include="Hangfire.AspNetCore" Version="1.8.25" />
         <PackageReference Include="Hangfire.Core" Version="1.8.25" />
-        <PackageReference Include="Microsoft.Extensions.Hosting.Systemd" Version="10.0.13" />
-        <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="10.0.13" />
+        <PackageReference Include="Microsoft.Extensions.Hosting.Systemd" Version="10.0.14" />
+        <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="10.0.14" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
         <PackageReference Include="RestSharp" Version="114.1.0" />
         <PackageReference Include="Serilog" Version="4.4.0" />
