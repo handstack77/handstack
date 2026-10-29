@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
@@ -51,6 +51,7 @@ namespace rdy
         internal static void Write(IServiceProvider services)
         {
             var counts = Counter.Stop();
+            Log.Information($"호스트 하드웨어 ID: {GlobalConfiguration.HardwareID}");
             Log.Information("서버 시작 완료. 시작 로그: 경고 {Warning}건, 오류 {Error}건", counts.Warning, counts.Error);
 
             var addresses = services.GetRequiredService<IServer>().Features.Get<IServerAddressesFeature>()?.Addresses;

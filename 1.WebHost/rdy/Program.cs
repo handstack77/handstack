@@ -139,7 +139,7 @@ namespace rdy
 
                     IConfigurationRoot configuration;
                     var appSettingsFilePath = PathExtensions.Combine(GlobalConfiguration.EntryBasePath, "appsettings.json");
-                    Console.WriteLine($"appSettings.json FilePath {appSettingsFilePath}");
+                    Console.WriteLine($"appSettings.json FilePath: {appSettingsFilePath}");
                     var configurationBuilder = new ConfigurationBuilder().AddJsonFile(appSettingsFilePath);
                     configurationBuilder.UsePlatformSettings(GlobalConfiguration.EntryBasePath);
                     configurationBuilder.AddEnvironmentVariables();
@@ -149,7 +149,7 @@ namespace rdy
                         var buffer = Encoding.UTF8.GetBytes(settings.DecryptAES(key));
                         using var stream = new MemoryStream(buffer);
                         configurationBuilder = configurationBuilder.AddJsonStream(stream);
-
+                        Console.WriteLine($"appSettings.json JsonStream Key: {key}");
                         configuration = configurationBuilder.Build();
                     }
                     else
@@ -157,6 +157,7 @@ namespace rdy
                         var environmentFileName = $"appsettings.{environmentName}.json";
                         if (File.Exists(PathExtensions.Combine(GlobalConfiguration.EntryBasePath, environmentFileName)) == true)
                         {
+                            Console.WriteLine($"appSettings.json AddJsonFile: {environmentFileName}");
                             configuration = configurationBuilder.AddJsonFile(environmentFileName).Build();
                         }
                         else

@@ -130,7 +130,6 @@ namespace rdy
             GlobalConfiguration.IsAntiforgeryToken = appSettings["IsAntiforgeryToken"].ToStringSafe("false").ToBoolean();
 
             GlobalConfiguration.HardwareID = GetHardwareID();
-            Console.WriteLine($"Current Hardware ID: {GlobalConfiguration.HardwareID}");
 
             environment.EnvironmentName = GlobalConfiguration.RunningEnvironment switch
             {
