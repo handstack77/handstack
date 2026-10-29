@@ -824,13 +824,7 @@ namespace HandStack.Data.ExtensionMethod
                                 Direction = paramNode.Attributes["direction"]?.Value is { Length: > 0 } directionText ? Enum.Parse<ParameterDirection>(directionText) : ParameterDirection.Input
                             };
                             var lengthText = paramNode.Attributes["length"]?.Value;
-                            if (lengthText != null && int.TryParse(lengthText, out var size) == true)
-                            {
-                                if (size > 0)
-                                {
-                                    sqlParameter.Size = size;
-                                }
-                            }
+                            int? parameterSize = int.TryParse(lengthText, out var size) ? size : null;
 
                             if (keyValueParameters[GetParameterName(sqlParameter.ParameterName)] is JValue jValue)
                             {
@@ -845,6 +839,7 @@ namespace HandStack.Data.ExtensionMethod
                                 {
                                     sqlParameter.DbType = Enum.Parse<DbType>(string.IsNullOrWhiteSpace(parameterType) ? "String" : parameterType);
                                 }
+                                sqlParameter.SetParameterSize(parameterSize);
                                 sqlParameters.Add(sqlParameter);
                             }
                         }
@@ -900,13 +895,7 @@ namespace HandStack.Data.ExtensionMethod
                                 Direction = paramNode.Attributes["direction"]?.Value is { Length: > 0 } directionText ? Enum.Parse<ParameterDirection>(directionText) : ParameterDirection.Input
                             };
                             var lengthText = paramNode.Attributes["length"]?.Value;
-                            if (lengthText != null && int.TryParse(lengthText, out var size) == true)
-                            {
-                                if (size > 0)
-                                {
-                                    sqlParameter.Size = size;
-                                }
-                            }
+                            int? parameterSize = int.TryParse(lengthText, out var size) ? size : null;
 
                             if (keyValueParameters[GetParameterName(sqlParameter.ParameterName)] is JValue jValue)
                             {
@@ -914,6 +903,7 @@ namespace HandStack.Data.ExtensionMethod
                                 sqlParameter.Value = parameterValue == null ? DBNull.Value : parameterValue.ToString();
                                 var parameterType = paramNode.Attributes["type"]?.Value ?? string.Empty;
                                 sqlParameter.SqlDbType = Enum.Parse<SqlDbType>(string.IsNullOrWhiteSpace(parameterType) ? "NVarChar" : parameterType);
+                                sqlParameter.SetParameterSize(parameterSize);
                                 sqlParameters.Add(sqlParameter);
                             }
                         }
@@ -1010,13 +1000,7 @@ namespace HandStack.Data.ExtensionMethod
                                 Direction = paramNode.Attributes["direction"]?.Value is { Length: > 0 } directionText ? Enum.Parse<ParameterDirection>(directionText) : ParameterDirection.Input
                             };
                             var lengthText = paramNode.Attributes["length"]?.Value;
-                            if (lengthText != null && int.TryParse(lengthText, out var size) == true)
-                            {
-                                if (size > 0)
-                                {
-                                    sqlParameter.Size = size;
-                                }
-                            }
+                            int? parameterSize = int.TryParse(lengthText, out var size) ? size : null;
 
                             if (keyValueParameters[GetParameterName(sqlParameter.ParameterName)] is JValue jValue)
                             {
@@ -1031,6 +1015,7 @@ namespace HandStack.Data.ExtensionMethod
                                 {
                                     sqlParameter.DbType = Enum.Parse<DbType>(string.IsNullOrWhiteSpace(parameterType) ? "String" : parameterType);
                                 }
+                                sqlParameter.SetParameterSize(parameterSize);
                                 sqlParameters.Add(sqlParameter);
                             }
                         }
@@ -1127,13 +1112,7 @@ namespace HandStack.Data.ExtensionMethod
                                 Direction = paramNode.Attributes["direction"]?.Value is { Length: > 0 } directionText ? Enum.Parse<ParameterDirection>(directionText) : ParameterDirection.Input
                             };
                             var lengthText = paramNode.Attributes["length"]?.Value;
-                            if (lengthText != null && int.TryParse(lengthText, out var size) == true)
-                            {
-                                if (size > 0)
-                                {
-                                    sqlParameter.Size = size;
-                                }
-                            }
+                            int? parameterSize = int.TryParse(lengthText, out var size) ? size : null;
 
                             if (keyValueParameters[GetParameterName(sqlParameter.ParameterName)] is JValue jValue)
                             {
@@ -1148,6 +1127,7 @@ namespace HandStack.Data.ExtensionMethod
                                 {
                                     sqlParameter.DbType = Enum.Parse<DbType>(string.IsNullOrWhiteSpace(parameterType) ? "String" : parameterType);
                                 }
+                                sqlParameter.SetParameterSize(parameterSize);
                                 sqlParameters.Add(sqlParameter);
                             }
                         }
@@ -1244,13 +1224,7 @@ namespace HandStack.Data.ExtensionMethod
                                 Direction = paramNode.Attributes["direction"]?.Value is { Length: > 0 } directionText ? Enum.Parse<ParameterDirection>(directionText) : ParameterDirection.Input
                             };
                             var lengthText = paramNode.Attributes["length"]?.Value;
-                            if (lengthText != null && int.TryParse(lengthText, out var size) == true)
-                            {
-                                if (size > 0)
-                                {
-                                    sqlParameter.Size = size;
-                                }
-                            }
+                            int? parameterSize = int.TryParse(lengthText, out var size) ? size : null;
 
                             if (keyValueParameters[GetParameterName(sqlParameter.ParameterName)] is JValue jValue)
                             {
@@ -1265,6 +1239,7 @@ namespace HandStack.Data.ExtensionMethod
                                 {
                                     sqlParameter.DbType = Enum.Parse<DbType>(string.IsNullOrWhiteSpace(parameterType) ? "String" : parameterType);
                                 }
+                                sqlParameter.SetParameterSize(parameterSize);
                                 sqlParameters.Add(sqlParameter);
                             }
                         }
@@ -1375,13 +1350,7 @@ namespace HandStack.Data.ExtensionMethod
                                 Direction = paramNode.Attributes["direction"]?.Value is { Length: > 0 } directionText ? Enum.Parse<ParameterDirection>(directionText) : ParameterDirection.Input
                             };
                             var lengthText = paramNode.Attributes["length"]?.Value;
-                            if (lengthText != null && int.TryParse(lengthText, out var size) == true)
-                            {
-                                if (size > 0)
-                                {
-                                    sqlParameter.Size = size;
-                                }
-                            }
+                            int? parameterSize = int.TryParse(lengthText, out var size) ? size : null;
 
                             if (keyValueParameters[GetParameterName(sqlParameter.ParameterName)] is JValue jValue)
                             {
@@ -1389,6 +1358,7 @@ namespace HandStack.Data.ExtensionMethod
                                 sqlParameter.Value = parameterValue == null ? DBNull.Value : parameterValue.ToString();
                                 var parameterType = paramNode.Attributes["type"]?.Value ?? string.Empty;
                                 sqlParameter.DbType = Enum.Parse<DbType>(string.IsNullOrWhiteSpace(parameterType) ? "String" : parameterType);
+                                sqlParameter.SetParameterSize(parameterSize);
                                 sqlParameters.Add(sqlParameter);
                             }
                         }

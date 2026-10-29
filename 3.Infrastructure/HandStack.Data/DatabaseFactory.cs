@@ -5,6 +5,7 @@ using System.Data.Common;
 using System.Data.SQLite;
 using System.IO;
 using HandStack.Core.ExtensionMethod;
+using HandStack.Data.ExtensionMethod;
 using Microsoft.Data.SqlClient;
 using MySqlConnector;
 using Npgsql;
@@ -163,6 +164,7 @@ namespace HandStack.Data
             var result = -1;
             if (databaseCommand != null && parameter != null)
             {
+                parameter.SetParameterSize(parameter.Size == -1 ? -1 : null);
                 result = databaseCommand.Parameters.Add(parameter);
             }
 

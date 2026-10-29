@@ -1053,7 +1053,7 @@ namespace dbclient.Extensions
                 result.Add(paramName, value is SqlFilterParameter filter ? filter.Value : value);
             }
 
-            var templates = dynamicParams.GetType().GetField("templates", BindingFlags.NonPublic | BindingFlags.Instance);
+            var templates = typeof(DynamicParameters).GetField("templates", BindingFlags.NonPublic | BindingFlags.Instance);
             if (templates != null)
             {
                 if (templates.GetValue(dynamicParams) is List<Object> list)

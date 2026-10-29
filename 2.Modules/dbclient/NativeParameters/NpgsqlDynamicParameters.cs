@@ -5,6 +5,8 @@ using Dapper;
 
 using dbclient.Profiler;
 
+using HandStack.Data.ExtensionMethod;
+
 using Npgsql;
 
 using NpgsqlTypes;
@@ -18,36 +20,12 @@ namespace dbclient.NativeParameters
 
         public void Add(string name, object? value = null, NpgsqlDbType npgsqlDbType = NpgsqlDbType.Varchar, ParameterDirection direction = ParameterDirection.Input, int? size = null)
         {
-            NpgsqlParameter npgsqlParameter;
-            if (size.HasValue)
+            var npgsqlParameter = new NpgsqlParameter(name, npgsqlDbType)
             {
-                if (size.Value <= 0)
-                {
-                    npgsqlParameter = new NpgsqlParameter(name, npgsqlDbType)
-                    {
-                        Value = value,
-                        Direction = direction
-                    };
-                }
-                else
-                {
-                    npgsqlParameter = new NpgsqlParameter(name, npgsqlDbType)
-                    {
-                        Value = value,
-                        Direction = direction,
-                        Size = size.Value
-                    };
-                }
-            }
-            else
-            {
-                npgsqlParameter = new NpgsqlParameter(name, npgsqlDbType)
-                {
-                    Value = value,
-                    Direction = direction
-                };
-            }
-
+                Value = value,
+                Direction = direction
+            };
+            npgsqlParameter.SetParameterSize(size);
             npgsqlParameters.Add(npgsqlParameter);
         }
 

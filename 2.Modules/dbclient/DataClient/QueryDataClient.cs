@@ -3141,7 +3141,7 @@ TransactionException:
                                         var commandText = item["CommandText"]?.ToStringSafe();
                                         var parameters = queryObject.Parameters[2]?.Value == null ? "" : queryObject.Parameters[2]?.Value?.ToStringSafe();
 
-                                        var businessParameters = new DynamicParameters();
+                                        var businessParameters = new ProviderDynamicParameters();
                                         var adHocParameters = new JObject();
 
                                         if (parameters != null)
@@ -3154,6 +3154,7 @@ TransactionException:
                                                     var parameterName = codeHelpParameter.Split(':')[0].Trim();
                                                     var parameterValue = codeHelpParameter.Split(':')[1].Trim();
 
+                                                    // -1은 실제 데이터베이스 공급자의 MAX 크기 정책으로 변환한다.
                                                     businessParameters.Add(
                                                         parameterName,
                                                         parameterValue,
@@ -4589,7 +4590,7 @@ TransactionException:
             }
             else
             {
-                dynamicParameters = new DynamicParameters();
+                dynamicParameters = new ProviderDynamicParameters();
             }
 
             return dynamicParameters;

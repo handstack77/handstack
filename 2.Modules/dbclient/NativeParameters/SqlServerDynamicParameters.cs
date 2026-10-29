@@ -5,6 +5,8 @@ using Dapper;
 
 using dbclient.Profiler;
 
+using HandStack.Data.ExtensionMethod;
+
 using Microsoft.Data.SqlClient;
 
 namespace dbclient.NativeParameters
@@ -16,36 +18,12 @@ namespace dbclient.NativeParameters
 
         public void Add(string name, object? value = null, SqlDbType sqlDbType = SqlDbType.VarChar, ParameterDirection direction = ParameterDirection.Input, int? size = null)
         {
-            SqlParameter sqlParameter;
-            if (size.HasValue)
+            var sqlParameter = new SqlParameter(name, sqlDbType)
             {
-                if (size.Value <= 0)
-                {
-                    sqlParameter = new SqlParameter(name, sqlDbType)
-                    {
-                        Value = value,
-                        Direction = direction
-                    };
-                }
-                else
-                {
-                    sqlParameter = new SqlParameter(name, sqlDbType)
-                    {
-                        Value = value,
-                        Direction = direction,
-                        Size = size.Value
-                    };
-                }
-            }
-            else
-            {
-                sqlParameter = new SqlParameter(name, sqlDbType)
-                {
-                    Value = value,
-                    Direction = direction
-                };
-            }
-
+                Value = value,
+                Direction = direction
+            };
+            sqlParameter.SetParameterSize(size);
             sqlParameters.Add(sqlParameter);
         }
 

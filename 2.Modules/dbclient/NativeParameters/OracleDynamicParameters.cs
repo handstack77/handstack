@@ -7,6 +7,8 @@ using Dapper;
 
 using dbclient.Profiler;
 
+using HandStack.Data.ExtensionMethod;
+
 using Oracle.ManagedDataAccess.Client;
 using Oracle.ManagedDataAccess.Types;
 
@@ -25,23 +27,12 @@ namespace dbclient.NativeParameters
 
         public void Add(string name, object? value = null, OracleDbType oracleDbType = OracleDbType.Varchar2, ParameterDirection direction = ParameterDirection.Input, int? size = null)
         {
-            OracleParameter oracleParameter;
-            if (size.HasValue)
+            var oracleParameter = new OracleParameter(name, oracleDbType)
             {
-                if (size.Value <= 0)
-                {
-                    oracleParameter = new OracleParameter(name, oracleDbType, value, direction);
-                }
-                else
-                {
-                    oracleParameter = new OracleParameter(name, oracleDbType, size.Value, value, direction);
-                }
-            }
-            else
-            {
-                oracleParameter = new OracleParameter(name, oracleDbType, value, direction);
-            }
-
+                Value = value,
+                Direction = direction
+            };
+            oracleParameter.SetParameterSize(size);
             oracleParameters.Add(oracleParameter);
         }
 

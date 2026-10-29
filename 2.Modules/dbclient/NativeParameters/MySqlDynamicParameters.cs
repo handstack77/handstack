@@ -5,6 +5,8 @@ using Dapper;
 
 using dbclient.Profiler;
 
+using HandStack.Data.ExtensionMethod;
+
 using MySqlConnector;
 
 namespace dbclient.NativeParameters
@@ -16,36 +18,12 @@ namespace dbclient.NativeParameters
 
         public void Add(string name, object? value = null, MySqlDbType mysqlDbType = MySqlDbType.VarChar, ParameterDirection direction = ParameterDirection.Input, int? size = null)
         {
-            MySqlParameter mysqlParameter;
-            if (size.HasValue)
+            var mysqlParameter = new MySqlParameter(name, mysqlDbType)
             {
-                if (size.Value <= 0)
-                {
-                    mysqlParameter = new MySqlParameter(name, mysqlDbType)
-                    {
-                        Value = value,
-                        Direction = direction
-                    };
-                }
-                else
-                {
-                    mysqlParameter = new MySqlParameter(name, mysqlDbType)
-                    {
-                        Value = value,
-                        Direction = direction,
-                        Size = size.Value
-                    };
-                }
-            }
-            else
-            {
-                mysqlParameter = new MySqlParameter(name, mysqlDbType)
-                {
-                    Value = value,
-                    Direction = direction
-                };
-            }
-
+                Value = value,
+                Direction = direction
+            };
+            mysqlParameter.SetParameterSize(size);
             mysqlParameters.Add(mysqlParameter);
         }
 

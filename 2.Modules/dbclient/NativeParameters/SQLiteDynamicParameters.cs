@@ -6,6 +6,8 @@ using Dapper;
 
 using dbclient.Profiler;
 
+using HandStack.Data.ExtensionMethod;
+
 namespace dbclient.NativeParameters
 {
     public class SQLiteDynamicParameters : SqlMapper.IDynamicParameters
@@ -15,36 +17,12 @@ namespace dbclient.NativeParameters
 
         public void Add(string name, object? value = null, DbType sqlliteDbType = DbType.String, ParameterDirection direction = ParameterDirection.Input, int? size = null)
         {
-            SQLiteParameter sqlliteParameter;
-            if (size.HasValue)
+            var sqlliteParameter = new SQLiteParameter(name, sqlliteDbType)
             {
-                if (size.Value <= 0)
-                {
-                    sqlliteParameter = new SQLiteParameter(name, sqlliteDbType)
-                    {
-                        Value = value,
-                        Direction = direction
-                    };
-                }
-                else
-                {
-                    sqlliteParameter = new SQLiteParameter(name, sqlliteDbType)
-                    {
-                        Value = value,
-                        Direction = direction,
-                        Size = size.Value
-                    };
-                }
-            }
-            else
-            {
-                sqlliteParameter = new SQLiteParameter(name, sqlliteDbType)
-                {
-                    Value = value,
-                    Direction = direction
-                };
-            }
-
+                Value = value,
+                Direction = direction
+            };
+            sqlliteParameter.SetParameterSize(size);
             sqlliteParameters.Add(sqlliteParameter);
         }
 
