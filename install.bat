@@ -1,29 +1,28 @@
 @echo off
 chcp 65001
 
-REM 필수 프로그램 설치 확인
-where node >nul 2>nul
-if errorlevel 1 (
-	echo Node.js v20.12.2 LTS 이상 버전을 설치 해야 합니다.
-	start "" "https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#공식-설치-안내"
-	goto :EOF
-)
-
-where gulp >nul 2>nul
-if errorlevel 1 (
-	echo Node.js 기반 gulp CLI 도구를 설치 해야 합니다.
-	start "" "https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#공식-설치-안내"
-	goto :EOF
-)
-
-where curl >nul 2>nul
-if errorlevel 1 (
-	echo curl CLI 를 설치 해야 합니다.
-	start "" "https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#공식-설치-안내"
-	goto :EOF
-)
-
 set current_path=%cd%
+
+REM 필수 프로그램 확인 및 자동 설치
+REM 누락된 Node.js, gulp-cli, curl, .NET SDK 10 은 install.ps1 -PrerequisitesOnly 가 설치하며,
+REM 관리자 권한이 필요한 설치는 UAC 확인을 한 번만 요청합니다. --check-only 를 주면 필수 프로그램을 자동 설치하지 않고 확인만 합니다.
+set "PREREQUISITE_OPTIONS=-PrerequisitesOnly"
+if /i "%~1"=="--check-only" set "PREREQUISITE_OPTIONS=-PrerequisitesOnly -CheckOnly"
+
+if not exist "%current_path%\install.ps1" (
+	echo install.ps1 파일을 찾을 수 없습니다. install.bat 이 있는 디렉토리에서 실행하세요.
+	start "" "https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#공식-설치-안내"
+	exit /b 1
+)
+
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%current_path%\install.ps1" %PREREQUISITE_OPTIONS%
+if errorlevel 1 (
+	echo 필수 프로그램 설치를 완료하지 못했습니다. 출력된 오류를 확인한 뒤 다시 실행하세요.
+	exit /b 1
+)
+
+REM 방금 설치한 프로그램을 이 cmd 세션에서 바로 사용하도록 레지스트리의 PATH 를 다시 읽어 현재 PATH 와 합칩니다.
+for /f "usebackq delims=" %%p in (`powershell.exe -NoProfile -Command "$e=New-Object System.Collections.Generic.List[string]; foreach($v in @([Environment]::GetEnvironmentVariable('Path','Machine'),[Environment]::GetEnvironmentVariable('Path','User'),$env:Path)){ if($v){ foreach($i in $v.Split(';')){ $t=$i.Trim(); if($t -and -not $e.Contains($t)){ $e.Add($t) } } } }; [string]::Join(';',$e)"`) do set "PATH=%%p"
 
 for %%i in ("%current_path%") do set "PARENT_DIR=%%~dpi"
 set "PARENT_DIR=%PARENT_DIR:~0,-1%"
@@ -52,21 +51,6 @@ if defined IS_DEV (
 	setx HANDSTACK_HOME "%HANDSTACK_HOME%" >nul
 
 	if not exist "%HANDSTACK_HOME%" mkdir "%HANDSTACK_HOME%"
-
-	REM .NET Core 10.0 확인
-	where dotnet >nul 2>nul
-	if errorlevel 1 (
-		echo .NET Core 10.0 버전을 설치 해야 합니다.
-		start "" "https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#공식-설치-안내"
-		goto :EOF
-	)
-
-	dotnet --version | findstr /R "^10\." >nul 2>nul
-	if errorlevel 1 (
-		echo .NET Core 10.0 버전을 설치 해야 합니다.
-		start "" "https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#공식-설치-안내"
-		goto :EOF
-	)
 
 	REM ack 프로젝트 node_modules 설치 및 gulp 실행
 	echo syn.js 번들링 %current_path%\package.json 설치를 시작합니다...

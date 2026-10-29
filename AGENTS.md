@@ -59,7 +59,7 @@
 7. `build.*`, `publish.*`, `4.Tool/CLI/handstack/Command/HandstackCommandRegistry.cs`
 
 ## 실행 명령
-- 전제 도구: Node.js `20.12.2+`, `gulp-cli`, `curl`, .NET SDK `10.0+`. `install.ps1`는 필요하면 `Microsoft.Web.LibraryManager.Cli`를 전역 설치한다.
+- 전제 도구: Node.js `20.12.2+`, `gulp-cli`, `curl`, .NET SDK `10.0.x`(배포본은 ASP.NET Core Runtime 10), `install.sh` 개발 모드는 `rsync`. `install.*`는 구성 전에 없는 도구를 자동 설치하고(`install.bat`은 `install.ps1 -PrerequisitesOnly`에 위임, Windows는 UAC 1회), 기존 Node.js가 24 미만이면 영향을 안내한 뒤 24 LTS 최신 패치 설치를 시도하고 실행 버전을 확인한다(nvm/nvm-windows가 관리하면 nvm으로 설치·전환). `--check-only`/`-CheckOnly`/`HANDSTACK_SKIP_PREREQUISITES=1`은 자동 설치를 끈다. `Microsoft.Web.LibraryManager.Cli` 설치 실패는 경고만 남긴다.
 - 환경 설정/설치: `./env.ps1`, `./install.ps1` (`.bat`, `.sh` 대응). 기본값은 `HANDSTACK_SRC=<저장소>`, `HANDSTACK_HOME=../build/handstack`다.
 - 공통 인프라 DLL 재생성: `./assemblies.ps1`. `HandStack.Core`, `Data`, `Web`을 Debug/Release로 다시 만들고 `3.Infrastructure/Assemblies`를 교체하므로 인프라 변경 시에만 실행하고 diff를 확인한다.
 - PowerShell 기본 빌드: `./build.ps1`. 솔루션 전체 restore/clean 후 명시된 프로젝트를 Debug로 빌드한다.
