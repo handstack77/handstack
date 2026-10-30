@@ -67,7 +67,7 @@ namespace logger.Entity
 VALUES
 (
     {string.Join($",{Environment.NewLine}    ", insertParameters)}
-);";
+){GetStatementTerminator(dataProvider)}";
 
             return new LogSchemaCommand(commandText, parameters);
         }
@@ -104,7 +104,7 @@ VALUES
     {string.Join($",{Environment.NewLine}    ", selectColumns)}
 FROM
     {QuoteTableName(dataSource.TableName, dataProvider)} TL{whereClause}
-ORDER BY TL.{QuoteIdentifier(orderColumn.ColumnName, dataProvider)} DESC{limitClause};";
+ORDER BY TL.{QuoteIdentifier(orderColumn.ColumnName, dataProvider)} DESC{limitClause}{GetStatementTerminator(dataProvider)}";
 
             return new LogSchemaCommand(commandText, parameters);
         }
@@ -126,7 +126,7 @@ ORDER BY TL.{QuoteIdentifier(orderColumn.ColumnName, dataProvider)} DESC{limitCl
 FROM
     {QuoteTableName(dataSource.TableName, dataProvider)} TL
 WHERE
-    TL.{QuoteIdentifier(primaryKeyColumn.ColumnName, dataProvider)} = {parameterPrefix}LogNo;";
+    TL.{QuoteIdentifier(primaryKeyColumn.ColumnName, dataProvider)} = {parameterPrefix}LogNo{GetStatementTerminator(dataProvider)}";
 
             return new LogSchemaCommand(commandText, parameters);
         }
@@ -698,6 +698,12 @@ WHERE
         private static string GetParameterPrefix(DataProviders dataProvider)
         {
             return dataProvider == DataProviders.Oracle ? ":" : "@";
+        }
+
+        // ODP.NET은 단일 SQL 문 끝의 세미콜론을 ORA-00911로 거부한다.
+        private static string GetStatementTerminator(DataProviders dataProvider)
+        {
+            return dataProvider == DataProviders.Oracle ? string.Empty : ";";
         }
 
         private static string GetLimitClause(DataProviders dataProvider)

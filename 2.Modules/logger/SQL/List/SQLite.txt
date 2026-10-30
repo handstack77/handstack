@@ -13,7 +13,7 @@ SELECT TL.LogNo
     , TL.Level
     , TL.Format
     , TL.UserID
-    , strftime('%Y-%m-%d %H:%M:%S', TL.CreatedAt) AS CreatedAt,
+    , strftime('%Y-%m-%d %H:%M:%S', TL.CreatedAt) AS CreatedAt
 	, TL.IpAddress
 	, TL.DeviceID
 	, TL.ProgramID

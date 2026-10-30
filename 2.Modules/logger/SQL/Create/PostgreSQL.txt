@@ -19,12 +19,12 @@ CREATE TABLE {TableName} (
     "CreatedAt" timestamp without time zone NULL,
     "IpAddress" character varying(50) NULL,
     "DeviceID" character varying(64) NULL,
-    "ProgramID" character varying(32) NULL,
+    "ProgramID" character varying(50) NULL,
     CONSTRAINT "PK_{TableName}" PRIMARY KEY ("LogNo")
 );
 
 COMMENT ON COLUMN {TableName}."LogNo" IS '로그 순번';
-COMMENT ON COLUMN {TableName}."Acknowledge" IS '거래구 분';
+COMMENT ON COLUMN {TableName}."Acknowledge" IS '거래 구분';
 COMMENT ON COLUMN {TableName}."ApplicationID" IS '애플리케이션 ID';
 COMMENT ON COLUMN {TableName}."Flow" IS '업무 흐름';
 COMMENT ON COLUMN {TableName}."Format" IS '데이터 포맷';
@@ -46,7 +46,7 @@ COMMENT ON COLUMN {TableName}."DeviceID" IS '단말 ID';
 COMMENT ON COLUMN {TableName}."ProgramID" IS '프로그램 ID';
 
 CREATE INDEX IX_{TableName}_GlobalID
-ON {TableName} (GlobalID);
+ON {TableName} ("GlobalID");
 
 CREATE INDEX IX_{TableName}_CreatedAt
-ON {TableName} (CreatedAt DESC);
+ON {TableName} ("CreatedAt" DESC);

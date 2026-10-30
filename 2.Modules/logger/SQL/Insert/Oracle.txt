@@ -1,46 +1,46 @@
-INSERT INTO {TableName}
+INSERT INTO "{TableName}"
 (
-	Acknowledge
-	, ApplicationID
-	, Flow
-	, Format
-	, GlobalID
-	, Level
-	, Message
-	, ProgramName
-	, ProjectID
-	, Properties
-	, RunningEnvironment
-	, ServerID
-	, ServiceID
-	, TransactionID
-	, Type
-	, UserID
-	, CreatedAt
-	, IpAddress
-	, DeviceID
-	, ProgramID
+	"Acknowledge"
+	, "ApplicationID"
+	, "Flow"
+	, "Format"
+	, "GlobalID"
+	, "Level"
+	, "Message"
+	, "ProgramName"
+	, "ProjectID"
+	, "Properties"
+	, "RunningEnvironment"
+	, "ServerID"
+	, "ServiceID"
+	, "TransactionID"
+	, "Type"
+	, "UserID"
+	, "CreatedAt"
+	, "IpAddress"
+	, "DeviceID"
+	, "ProgramID"
 )
 VALUES
 (
-	@Acknowledge
-	, @ApplicationID
-	, @Flow
-	, @Format
-	, @GlobalID
-	, @Level
-	, @Message
-	, @ProgramName
-	, @ProjectID
-	, @Properties
-	, @RunningEnvironment
-	, @ServerID
-	, @ServiceID
-	, @TransactionID
-	, @Type
-	, @UserID
-	, @CreatedAt
-	, @IpAddress
-	, @DeviceID
-	, @ProgramID
-);
+	:Acknowledge
+	, :ApplicationID
+	, :Flow
+	, :Format
+	, :GlobalID
+	, :LogLevel
+	, :Message
+	, :ProgramName
+	, :ProjectID
+	, :Properties
+	, :RunningEnvironment
+	, :ServerID
+	, :ServiceID
+	, :TransactionID
+	, :Type
+	, :UserID
+	, TO_TIMESTAMP(CASE WHEN INSTR(:CreatedAt, '.') > 0 THEN :CreatedAt ELSE :CreatedAt || '.000' END, 'YYYY-MM-DD HH24:MI:SS.FF')
+	, :IpAddress
+	, :DeviceID
+	, :ProgramID
+)

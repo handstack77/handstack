@@ -13,7 +13,7 @@ SELECT TOP 500 TL.LogNo
     , TL.Level
     , TL.Format
     , TL.UserID
-    , CONVERT(VARCHAR(19), TL.CreatedAt) AS CreatedAt,
+    , CONVERT(VARCHAR(19), TL.CreatedAt) AS CreatedAt
 	, TL.IpAddress
 	, TL.DeviceID
 	, TL.ProgramID

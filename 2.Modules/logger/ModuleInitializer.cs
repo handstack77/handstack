@@ -197,7 +197,7 @@ namespace logger
                     commandText = $"SELECT COUNT(*) AS IsExists FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '{tableName}'";
                     break;
                 case DataProviders.Oracle:
-                    commandText = $"SELECT COUNT(*) AS IsExists FROM user_tables WHERE table_name = '{tableName}';";
+                    commandText = $"SELECT COUNT(*) AS IsExists FROM user_tables WHERE table_name = '{tableName}'";
                     break;
                 case DataProviders.MySQL:
                     commandText = $"SELECT COUNT(*) AS IsExists FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '{tableName}';";

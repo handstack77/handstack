@@ -1,1 +1,1 @@
-DELETE FROM {TableName} WHERE current_timestamp - interval '{RemovePeriod} days' > CreatedAt;
+DELETE FROM {TableName} WHERE (current_timestamp + interval '{RemovePeriod} days') > "CreatedAt";

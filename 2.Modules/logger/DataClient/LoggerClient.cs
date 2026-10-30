@@ -114,7 +114,8 @@ namespace logger.DataClient
                                     dynamicParameters.Add("@ServiceID", request.ServiceID, DbType.String, ParameterDirection.Input);
                                     dynamicParameters.Add("@Type", request.Type, DbType.String, ParameterDirection.Input);
                                     dynamicParameters.Add("@Flow", request.Flow, DbType.String, ParameterDirection.Input);
-                                    dynamicParameters.Add("@Level", request.Level, DbType.String, ParameterDirection.Input);
+                                    // Oracle은 LEVEL이 예약어라 바인드 변수명으로 쓸 수 없어 Insert/Oracle.txt에서 :LogLevel을 사용한다.
+                                    dynamicParameters.Add(dataProvider == DataProviders.Oracle ? "@LogLevel" : "@Level", request.Level, DbType.String, ParameterDirection.Input);
                                     dynamicParameters.Add("@Format", request.Format, DbType.String, ParameterDirection.Input);
                                     dynamicParameters.Add("@Message", string.IsNullOrWhiteSpace(request.Message) ? "" : request.Message, DbType.String, ParameterDirection.Input);
                                     dynamicParameters.Add("@Properties", request.Properties, DbType.String, ParameterDirection.Input);

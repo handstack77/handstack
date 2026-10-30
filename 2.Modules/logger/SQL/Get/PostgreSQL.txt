@@ -1,6 +1,6 @@
-SELECT TL.Message
-    , TL.Properties
+SELECT TL."Message"
+    , TL."Properties"
 FROM 
     {TableName} TL
 WHERE 
-	LogNo = @LogNo;
+	TL."LogNo" = @LogNo;

@@ -13,7 +13,7 @@ SELECT TL.LogNo
     , TL.Level
     , TL.Format
     , TL.UserID
-    , DATE_FORMAT(TL.CreatedAt, '%Y-%m-%d %H:%i:%s') AS CreatedAt,
+    , DATE_FORMAT(TL.CreatedAt, '%Y-%m-%d %H:%i:%s') AS CreatedAt
 	, TL.IpAddress
 	, TL.DeviceID
 	, TL.ProgramID

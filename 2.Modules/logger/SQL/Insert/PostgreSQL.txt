@@ -1,25 +1,25 @@
 INSERT INTO {TableName}
 (
-	Acknowledge
-	, ApplicationID
-	, Flow
-	, Format
-	, GlobalID
-	, Level
-	, Message
-	, ProgramName
-	, ProjectID
-	, Properties
-	, RunningEnvironment
-	, ServerID
-	, ServiceID
-	, TransactionID
-	, Type
-	, UserID
-	, CreatedAt
-	, IpAddress
-	, DeviceID
-	, ProgramID
+	"Acknowledge"
+	, "ApplicationID"
+	, "Flow"
+	, "Format"
+	, "GlobalID"
+	, "Level"
+	, "Message"
+	, "ProgramName"
+	, "ProjectID"
+	, "Properties"
+	, "RunningEnvironment"
+	, "ServerID"
+	, "ServiceID"
+	, "TransactionID"
+	, "Type"
+	, "UserID"
+	, "CreatedAt"
+	, "IpAddress"
+	, "DeviceID"
+	, "ProgramID"
 )
 VALUES
 (
@@ -39,7 +39,7 @@ VALUES
 	, @TransactionID
 	, @Type
 	, @UserID
-	, @CreatedAt
+	, CAST(@CreatedAt AS timestamp)
 	, @IpAddress
 	, @DeviceID
 	, @ProgramID

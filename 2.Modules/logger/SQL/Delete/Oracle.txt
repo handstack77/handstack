@@ -1,1 +1,1 @@
-DELETE FROM {TableName} WHERE SYSDATE {RemovePeriod} > CreatedAt;
+DELETE FROM "{TableName}" WHERE (SYSDATE + ({RemovePeriod})) > "CreatedAt"
