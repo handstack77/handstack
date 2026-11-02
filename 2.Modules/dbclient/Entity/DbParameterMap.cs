@@ -8,6 +8,9 @@
 
         public string Transform { get; set; }
 
+        /// <summary>Bearer 토큰 값을 가리키는 입력 이름(예: $AgencyNo). 값이 있으면 요청의 같은 이름 값 대신 쓴다.</summary>
+        public string Source { get; set; }
+
         public string TestValue { get; set; }
 
         public bool IsRequired { get; set; }
@@ -23,6 +26,7 @@
             Name = "";
             DefaultValue = "";
             Transform = "";
+            Source = "";
             TestValue = "";
             IsRequired = false;
             DbType = "";

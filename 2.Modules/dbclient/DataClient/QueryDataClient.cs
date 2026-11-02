@@ -169,6 +169,7 @@ namespace dbclient.DataClient
                                 continue;
                             }
                             var dynamicParameter = GetDbParameterMap(dbParameterMap.Name, queryObject.Parameters);
+                            dynamicParameter = ApplySourceParameter(dbParameterMap, dynamicParameter, queryObject.Parameters);
 
                             if (dynamicParameter == null)
                             {
@@ -4527,6 +4528,33 @@ TransactionException:
             return evalString;
         }
 
+        /// <summary>
+        /// 파라미터 선언에 source(예: $AgencyNo)가 있고 요청에 그 이름의 값(Bearer 토큰 Variable 필드)이 있으면,
+        /// 요청이 보낸 같은 이름 값 대신 그 값을 쓴다. 토큰 값은 서버가 주입하므로 클라이언트가 덮어쓸 수 없다.
+        /// 토큰 값이 비어 있으면 아무것도 바꾸지 않아 기존 요청 값·기본값 규칙을 따른다(예: 본사 관리자가 센터를 직접 고르는 경우).
+        /// </summary>
+        private static DynamicParameter? ApplySourceParameter(DbParameterMap dbParameterMap, DynamicParameter? dynamicParameter, List<DynamicParameter>? dynamicParameters)
+        {
+            if (string.IsNullOrWhiteSpace(dbParameterMap.Source) == true || dbParameterMap.Direction.IndexOf("Input") < 0)
+            {
+                return dynamicParameter;
+            }
+
+            var sourceParameter = GetDbParameterMap(dbParameterMap.Source, dynamicParameters);
+            if (sourceParameter == null || string.IsNullOrWhiteSpace(sourceParameter.Value.ToStringSafe()) == true)
+            {
+                return dynamicParameter;
+            }
+
+            return new DynamicParameter
+            {
+                ParameterName = GetParameterName(dbParameterMap.Name),
+                DbType = string.IsNullOrWhiteSpace(dbParameterMap.DbType) == true ? sourceParameter.DbType : dbParameterMap.DbType,
+                Length = dbParameterMap.Length,
+                Value = sourceParameter.Value
+            };
+        }
+
         private static DynamicParameter? GetDbParameterMap(string parameterName, List<DynamicParameter>? dynamicParameters)
         {
             DynamicParameter? result = null;
@@ -4615,6 +4643,7 @@ TransactionException:
                 if (dbParameterMap.Direction.IndexOf("Input") > -1)
                 {
                     var dynamicParameter = GetDbParameterMap(dbParameterMap.Name, queryObject.Parameters);
+                    dynamicParameter = ApplySourceParameter(dbParameterMap, dynamicParameter, queryObject.Parameters);
                     if (dynamicParameter == null && dbParameterMap.DefaultValue.Equals("NULL", StringComparison.CurrentCultureIgnoreCase))
                     {
                         continue;

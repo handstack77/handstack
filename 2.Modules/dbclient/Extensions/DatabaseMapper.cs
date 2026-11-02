@@ -323,6 +323,7 @@ namespace dbclient.Extensions
                                                     IsRequired = GetAttributeValue(paramNode, "required").ToBoolean(),
                                                     Direction = GetAttributeValue(paramNode, "direction", "Input"),
                                                     Transform = GetAttributeValue(paramNode, "transform"),
+                                                    Source = GetAttributeValue(paramNode, "source"),
                                                 });
                                             }
                                         }
@@ -943,6 +944,7 @@ namespace dbclient.Extensions
                                                     IsRequired = GetAttributeValue(paramNode, "required").ToBoolean(),
                                                     Direction = GetAttributeValue(paramNode, "direction", "Input"),
                                                     Transform = GetAttributeValue(paramNode, "transform"),
+                                                    Source = GetAttributeValue(paramNode, "source"),
                                                 });
                                             }
                                         }

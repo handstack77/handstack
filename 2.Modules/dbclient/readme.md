@@ -38,6 +38,18 @@
 - 각 statement는 `param` 정의를 통해 입력을 선언하고 `DatabaseMapper`가 런타임에 파라미터를 매핑합니다.
 - 현재 모듈 루트의 `Contracts/dbclient`는 샘플이고, 실제 업무 계약은 보통 `../contracts/dbclient`에 위치합니다.
 
+## 토큰 값으로 채우는 입력 파라미터 (`source`)
+
+`param`에 `source`를 선언하면 Bearer 토큰 `Variable`의 필드로 입력을 채웁니다. transact는 `Variable`의 각 항목을 `$` 접두사 입력 필드(예: `$AgencyNo`)로 거래 입력에 추가하므로, 계약에서 그 필드를 바인드 이름으로 바꿔 받을 수 있습니다.
+
+```xml
+<param id=":I_AGENCY_NO" type="Decimal" direction="Input" source="$AgencyNo" length="-1" value="NULL" />
+```
+
+- `source` 이름의 입력 값이 있으면 요청이 보낸 `I_AGENCY_NO`가 있어도 토큰 값을 씁니다. 토큰 값은 서버가 주입하므로 클라이언트가 바꿀 수 없습니다.
+- 토큰 값이 없거나 비어 있으면 아무것도 바꾸지 않고 요청 값과 `value` 기본값 규칙을 그대로 따릅니다. 소속이 없는 사용자(예: 본사 관리자)가 화면에서 값을 직접 고르는 경우에 쓰입니다.
+- `direction`에 `Input`이 포함된 파라미터에만 적용합니다. 이름은 `$`나 `#` 접두사까지 포함해 씁니다.
+
 ## JSON 배열 필터 SQL
 
 SQL의 `WHERE` 필수 조건 뒤에 `<filters>`를 선언하면 해당 위치에 `AND (...)` 조건을 생성합니다. 요청의 `Filters`는 객체 배열을 JSON으로 직렬화한 문자열입니다. SQL을 직접 전달하지 않습니다.
