@@ -107,6 +107,11 @@ $env:AppSettings__HostAccessID='CHANGE-ME'
 $env:AppSettings__RunningEnvironment='P'
 ```
 
+경로 값의 환경 변수 치환:
+
+- `appsettings.json`의 `LoadModuleBasePath`, `WebHostRootPath`와 `module.json`의 계약·로그·저장소 경로(예: `ContractBasePath`, `ModuleBasePath`, `ModuleLogFilePath`)는 `GlobalConfiguration.GetBaseDirectoryPath`/`GetBaseFilePath`에서 `%NAME%`, `$NAME`, `${NAME}` 표기를 환경 변수 값으로 치환합니다. 예: `%HANDSTACK_SRC%/modules/academy/Contracts/repository`
+- 변수가 없거나 값이 비어 있으면 표기를 치환하지 않고 그대로 두며 `[GlobalConfiguration/ExpandPathVariables] 환경변수 치환 실패` 경고 로그를 남깁니다. 이때 값은 `.`으로 시작하지 않는 상대경로로 취급되어 `ack` 작업 디렉터리(`app`) 아래에 `%NAME%` 이름의 폴더가 만들어질 수 있으므로, 이 경고가 보이면 변수가 `ack.exe` 프로세스 환경에 전달됐는지 먼저 확인하세요. 변수는 부모 프로세스(agent, 서비스, 작업 스케줄러, 터미널)가 시작될 때의 환경을 상속하므로 변수를 등록한 뒤 부모부터 재시작해야 합니다.
+
 ### 5.1 설정 파일 실시간 반영
 
 `AppSettings:IsConfigurationWatching=true`이면 `ack`는 실행 중 기본 `appsettings.json` 파일 변경을 감시합니다. 파일이 변경되면 `AppSettings` 하위 설정 중 런타임 반영이 안전한 항목만 즉시 적용하고, 재시작이 필요한 항목은 적용하지 않고 로그에 남깁니다. 기본값은 `false`입니다.

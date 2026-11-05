@@ -136,7 +136,7 @@ namespace wwwroot
         // 환경변수를 확장하고, 상대경로면 모듈 실행 기준 경로와 결합한다. 로그 파일 경로 등과 달리 존재 여부만 확인하는 읽기 전용 경로이므로 디렉토리를 새로 만들지 않는다.
         private static string ResolveExistingFilePath(string? path)
         {
-            var resolved = Environment.ExpandEnvironmentVariables((path ?? "").Trim());
+            var resolved = GlobalConfiguration.ExpandPathVariables((path ?? "").Trim());
             if (string.IsNullOrWhiteSpace(resolved) == true)
             {
                 return "";

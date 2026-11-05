@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using forbes.Extensions;
 using HandStack.Core.ExtensionMethod;
+using HandStack.Core.Helpers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -491,13 +492,14 @@ namespace forbes
 
         private static string ExpandPathVariables(string path)
         {
-            string expandedPath = Environment.ExpandEnvironmentVariables(path ?? "");
-            return MyRegex2().Replace(expandedPath, match =>
+            List<string> unresolvedNames = [];
+            string expandedPath = EnvironmentVariableHelper.Expand(path, unresolvedNames);
+            if (unresolvedNames.Count > 0)
             {
-                string variableName = match.Groups["name"].Value;
-                string? variableValue = Environment.GetEnvironmentVariable(variableName);
-                return string.IsNullOrEmpty(variableValue) == true ? match.Value : variableValue;
-            });
+                TraceLogger.Warning($"환경변수 치환 실패: {string.Join(", ", unresolvedNames)} 값이 없거나 비어 있어 원문을 유지합니다. 원본 경로: {path}");
+            }
+
+            return expandedPath;
         }
 
         private static string GetRelativePath(string fullFilePath, string basePath)
@@ -760,8 +762,6 @@ namespace forbes
         private static partial Regex MyRegex();
         [GeneratedRegex(@"%[A-Za-z_][A-Za-z0-9_]*%")]
         private static partial Regex MyRegex1();
-        [GeneratedRegex(@"\$(\{(?<name>[A-Za-z_][A-Za-z0-9_]*)\}|(?<name>[A-Za-z_][A-Za-z0-9_]*))")]
-        private static partial Regex MyRegex2();
     }
 
     internal static class ForbesConfiguration
@@ -797,6 +797,7 @@ namespace forbes
         }
 
         public static void Info(string message) => LogMessage("INFO", message);
+        public static void Warning(string message) => LogMessage("WARN", message);
         public static void Debug(string message) => LogMessage("DEBUG", message);
         public static void Error(string message) => LogMessage("ERROR", message);
     }

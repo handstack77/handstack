@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 
 using HandStack.Core.ExtensionMethod;
+using HandStack.Core.Helpers;
 using HandStack.Core.Licensing;
 using HandStack.Web.Entity;
 using HandStack.Web.Model;
@@ -121,23 +121,26 @@ namespace HandStack.Web
         public static string ProxyBasePath = "";
         public static bool IsAntiforgeryToken = false;
 
+        /// <summary>
+        /// 경로 문자열의 %NAME%, ${NAME}, $NAME 환경변수 표기를 치환한다.
+        /// 값이 없는 변수는 원문 표기를 유지하고 경고 로그를 남긴다.
+        /// </summary>
+        public static string ExpandPathVariables(string? path)
+        {
+            var unresolvedNames = new List<string>();
+            var expandedPath = EnvironmentVariableHelper.Expand(path, unresolvedNames);
+            if (unresolvedNames.Count > 0)
+            {
+                Log.Logger.Warning("[{LogCategory}] 환경변수 치환 실패: {UnresolvedNames} 값이 없거나 비어 있어 원문을 유지합니다. 원본 경로: {OriginalPath}", "GlobalConfiguration/ExpandPathVariables", string.Join(", ", unresolvedNames), path);
+            }
+
+            return expandedPath;
+        }
+
         public static string GetBaseDirectoryPath(string? basePath, string? defaultPath = "")
         {
-            basePath = Environment.ExpandEnvironmentVariables(basePath.ToStringSafe());
-            basePath = MyRegex().Replace(basePath, match =>
-            {
-                var variableName = match.Groups["name"].Value;
-                var value = Environment.GetEnvironmentVariable(variableName);
-                return string.IsNullOrEmpty(value) == true ? match.Value : value;
-            });
-
-            defaultPath = Environment.ExpandEnvironmentVariables(defaultPath.ToStringSafe());
-            defaultPath = MyRegex().Replace(defaultPath, match =>
-            {
-                var variableName = match.Groups["name"].Value;
-                var value = Environment.GetEnvironmentVariable(variableName);
-                return string.IsNullOrEmpty(value) == true ? match.Value : value;
-            });
+            basePath = ExpandPathVariables(basePath);
+            defaultPath = ExpandPathVariables(defaultPath);
 
             basePath = string.IsNullOrWhiteSpace(basePath) ? "" : (basePath.StartsWith('.') == true ? Path.GetFullPath(basePath, EntryBasePath) : new DirectoryInfo(basePath).FullName.Replace("\\", "/"));
             if (string.IsNullOrWhiteSpace(basePath) && !string.IsNullOrWhiteSpace(defaultPath))
@@ -167,21 +170,8 @@ namespace HandStack.Web
 
         public static string GetBaseFilePath(string? basePath, string? defaultPath = "")
         {
-            basePath = Environment.ExpandEnvironmentVariables(basePath.ToStringSafe());
-            basePath = MyRegex1().Replace(basePath, match =>
-            {
-                var variableName = match.Groups["name"].Value;
-                var value = Environment.GetEnvironmentVariable(variableName);
-                return string.IsNullOrEmpty(value) == true ? match.Value : value;
-            });
-
-            defaultPath = Environment.ExpandEnvironmentVariables(defaultPath.ToStringSafe());
-            defaultPath = MyRegex1().Replace(defaultPath, match =>
-            {
-                var variableName = match.Groups["name"].Value;
-                var value = Environment.GetEnvironmentVariable(variableName);
-                return string.IsNullOrEmpty(value) == true ? match.Value : value;
-            });
+            basePath = ExpandPathVariables(basePath);
+            defaultPath = ExpandPathVariables(defaultPath);
 
             basePath = string.IsNullOrWhiteSpace(basePath) ? "" : (basePath.StartsWith('.') == true ? Path.GetFullPath(basePath, EntryBasePath) : new FileInfo(basePath).FullName.Replace("\\", "/"));
             if (string.IsNullOrWhiteSpace(basePath) && !string.IsNullOrWhiteSpace(defaultPath))
@@ -323,11 +313,6 @@ namespace HandStack.Web
 
             return sb;
         }
-
-        [GeneratedRegex(@"\$(\{(?<name>[A-Za-z_][A-Za-z0-9_]*)\}|(?<name>[A-Za-z_][A-Za-z0-9_]*))")]
-        private static partial Regex MyRegex();
-        [GeneratedRegex(@"\$(\{(?<name>[A-Za-z_][A-Za-z0-9_]*)\}|(?<name>[A-Za-z_][A-Za-z0-9_]*))")]
-        private static partial Regex MyRegex1();
     }
 }
 

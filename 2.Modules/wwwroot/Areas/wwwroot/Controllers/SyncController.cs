@@ -403,7 +403,7 @@ namespace wwwroot.Areas.wwwroot.Controllers
 
         private static string ResolveBasePath(string basePath)
         {
-            string expandedPath = Environment.ExpandEnvironmentVariables(basePath ?? "");
+            string expandedPath = GlobalConfiguration.ExpandPathVariables(basePath);
             if (string.IsNullOrWhiteSpace(expandedPath))
             {
                 return "";

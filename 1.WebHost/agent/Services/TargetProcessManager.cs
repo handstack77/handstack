@@ -7,11 +7,11 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text.Json;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using agent.Entity;
 using agent.Options;
+using HandStack.Core.Helpers;
 using Microsoft.Extensions.Options;
 using Serilog;
 
@@ -709,13 +709,14 @@ namespace agent.Services
 
         internal static string ExpandPathVariables(string path)
         {
-            var expandedPath = Environment.ExpandEnvironmentVariables(path ?? "");
-            return MyRegex().Replace(expandedPath, match =>
+            List<string> unresolvedNames = [];
+            var expandedPath = EnvironmentVariableHelper.Expand(path, unresolvedNames);
+            if (unresolvedNames.Count > 0)
             {
-                var variableName = match.Groups["name"].Value;
-                var value = Environment.GetEnvironmentVariable(variableName);
-                return string.IsNullOrEmpty(value) == true ? match.Value : value;
-            });
+                Log.Warning("환경변수 치환 실패: {UnresolvedNames} 값이 없거나 비어 있어 원문을 유지합니다. 원본 경로: {OriginalPath}", string.Join(", ", unresolvedNames), path);
+            }
+
+            return expandedPath;
         }
 
         private static ProcessStartInfo BuildProcessStartInfo(TargetProcessOptions target)
@@ -1212,9 +1213,6 @@ namespace agent.Services
 
             public DateTime SampledAt { get; set; }
         }
-
-        [GeneratedRegex(@"\$(\{(?<name>[A-Za-z_][A-Za-z0-9_]*)\}|(?<name>[A-Za-z_][A-Za-z0-9_]*))")]
-        private static partial Regex MyRegex();
     }
 }
 
