@@ -29,13 +29,13 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Anthropic" Version="13.3.0" />
+        <PackageReference Include="Anthropic" Version="13.5.0" />
         <PackageReference Include="Azure.Core" Version="1.64.0" />
         <PackageReference Include="ChoETL.JSON.NETStandard" Version="1.2.1.72" />
         <PackageReference Include="Dapper" Version="2.1.89" />
-        <PackageReference Include="Google.Apis" Version="1.77.0" />
-        <PackageReference Include="Google.Apis.Auth" Version="1.77.0" />
-        <PackageReference Include="Google.GenAI" Version="1.27.0" />
+        <PackageReference Include="Google.Apis" Version="1.78.0" />
+        <PackageReference Include="Google.Apis.Auth" Version="1.78.0" />
+        <PackageReference Include="Google.GenAI" Version="1.28.0" />
         <PackageReference Include="HtmlAgilityPack" Version="1.13.1" />
         <PackageReference Include="Mediator.Abstractions" Version="3.0.2" />
         <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="10.0.14" />
