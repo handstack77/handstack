@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -83,14 +83,11 @@ namespace repository.Events
 
                                         foreach (var repository in repositorys)
                                         {
-                                            if (!repository.PhysicalPath.Contains("{appBasePath}", StringComparison.CurrentCulture))
+                                            repository.PhysicalPath = GlobalConfiguration.GetBaseDirectoryPath(repository.PhysicalPath);
+                                            var repositoryDirectoryInfo = new DirectoryInfo(repository.PhysicalPath);
+                                            if (repositoryDirectoryInfo.Exists == false)
                                             {
-                                                repository.PhysicalPath = GlobalConfiguration.GetBaseDirectoryPath(repository.PhysicalPath);
-                                                var repositoryDirectoryInfo = new DirectoryInfo(repository.PhysicalPath);
-                                                if (repositoryDirectoryInfo.Exists == false)
-                                                {
-                                                    repositoryDirectoryInfo.Create();
-                                                }
+                                                repositoryDirectoryInfo.Create();
                                             }
                                             repository.SettingFilePath = repositoryFile;
 

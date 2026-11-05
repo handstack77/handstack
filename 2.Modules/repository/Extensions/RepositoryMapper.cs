@@ -55,14 +55,11 @@ namespace repository.Extensions
                                     {
                                         if (ModuleConfiguration.FileRepositorys.Find(x => x.ApplicationID == repository.ApplicationID && x.RepositoryID == repository.RepositoryID) == null)
                                         {
-                                            if (!repository.PhysicalPath.Contains("{appBasePath}", StringComparison.CurrentCulture))
+                                            repository.PhysicalPath = GlobalConfiguration.GetBaseDirectoryPath(repository.PhysicalPath);
+                                            var repositoryDirectoryInfo = new DirectoryInfo(repository.PhysicalPath);
+                                            if (repositoryDirectoryInfo.Exists == false)
                                             {
-                                                repository.PhysicalPath = GlobalConfiguration.GetBaseDirectoryPath(repository.PhysicalPath);
-                                                var repositoryDirectoryInfo = new DirectoryInfo(repository.PhysicalPath);
-                                                if (repositoryDirectoryInfo.Exists == false)
-                                                {
-                                                    repositoryDirectoryInfo.Create();
-                                                }
+                                                repositoryDirectoryInfo.Create();
                                             }
                                             repository.SettingFilePath = repositoryFile;
 
