@@ -182,32 +182,7 @@ namespace ack
                         Log.Information("[Program] AppSettings:IsAutoUpdate=false로 updater 자동 실행을 건너뜁니다.");
                     }
 
-                    if (string.IsNullOrWhiteSpace(GlobalConfiguration.ProcessName) == false)
-                    {
-                        var writeToSection = configuration.GetSection("Serilog:WriteTo");
-                        foreach (var childSection in writeToSection.GetChildren())
-                        {
-                            var sinkName = childSection.GetValue<string>("Name");
-                            if (sinkName == "File")
-                            {
-                                var sinkFilePath = childSection.GetValue<string>("Args:path");
-                                if (string.IsNullOrWhiteSpace(sinkFilePath) == false)
-                                {
-                                    var fileInfo = new FileInfo(sinkFilePath);
-                                    if (string.IsNullOrWhiteSpace(fileInfo.DirectoryName) == false)
-                                    {
-                                        if (fileInfo.Directory?.Exists == false)
-                                        {
-                                            Directory.CreateDirectory(fileInfo.DirectoryName);
-                                        }
-
-                                        var newPath = PathExtensions.Combine(fileInfo.DirectoryName, $"{GlobalConfiguration.ProcessName}_{fileInfo.Name}");
-                                        configuration[$"Serilog:WriteTo:{childSection.Key}:Args:path"] = newPath;
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    ApplicationManager.ApplyProcessNameToLogPath(configuration);
 
                     var loggerConfiguration = new LoggerConfiguration()
                         .ReadFrom.Configuration(configuration)

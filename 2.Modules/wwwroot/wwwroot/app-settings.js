@@ -98,7 +98,7 @@ let $app_settings = {
                             "path": "../log/app.log",
                             "rollingInterval": "Day",
                             "rollOnFileSizeLimit": true,
-                            "buffered": true,
+                            "shared": true,
                             "fileSizeLimitBytes": 104857600,
                             "flushToDiskInterval": "00:00:05",
                             "outputTemplate": "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}"

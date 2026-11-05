@@ -159,6 +159,43 @@ namespace ack
             currentProcess.Kill();
         }
 
+        /// <summary>
+        /// GlobalConfiguration.ProcessName이 지정된 경우 Serilog File 싱크의 path 파일명 앞에 "{ProcessName}_"를 붙입니다.
+        /// 부트스트랩 로거(Program)와 호스트 로거(UseSerilog)가 같은 로그 파일을 사용하도록 두 설정 모두에 호출합니다.
+        /// 한 설정 인스턴스에는 한 번만 호출해야 접두사가 중복되지 않습니다.
+        /// </summary>
+        public static void ApplyProcessNameToLogPath(IConfiguration configuration)
+        {
+            if (string.IsNullOrWhiteSpace(GlobalConfiguration.ProcessName) == true)
+            {
+                return;
+            }
+
+            var writeToSection = configuration.GetSection("Serilog:WriteTo");
+            foreach (var childSection in writeToSection.GetChildren())
+            {
+                var sinkName = childSection.GetValue<string>("Name");
+                if (sinkName == "File")
+                {
+                    var sinkFilePath = childSection.GetValue<string>("Args:path");
+                    if (string.IsNullOrWhiteSpace(sinkFilePath) == false)
+                    {
+                        var fileInfo = new FileInfo(sinkFilePath);
+                        if (string.IsNullOrWhiteSpace(fileInfo.DirectoryName) == false)
+                        {
+                            if (fileInfo.Directory?.Exists == false)
+                            {
+                                Directory.CreateDirectory(fileInfo.DirectoryName);
+                            }
+
+                            var newPath = PathExtensions.Combine(fileInfo.DirectoryName, $"{GlobalConfiguration.ProcessName}_{fileInfo.Name}");
+                            configuration[$"Serilog:WriteTo:{childSection.Key}:Args:path"] = newPath;
+                        }
+                    }
+                }
+            }
+        }
+
         public static IHostBuilder CreateWebHostBuilder(int port, string[] args)
         {
             return Host.CreateDefaultBuilder(args)
@@ -166,6 +203,7 @@ namespace ack
                 .ConfigureAppConfiguration((context, config) => config.UsePlatformSettings(GlobalConfiguration.EntryBasePath))
                 .UseSerilog((context, config) =>
                 {
+                    ApplyProcessNameToLogPath(context.Configuration);
                     config.ReadFrom.Configuration(context.Configuration)
                         .WriteTo.Sink(StartupSummary.Counter);
                 })
