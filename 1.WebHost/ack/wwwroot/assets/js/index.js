@@ -253,6 +253,9 @@ if (typeof module !== 'undefined' && module.exports) {
     $cryptography.extend({
         base64Encode(val) {
             if (globalRoot.devicePlatform === 'node') {
+                if (typeof val !== 'string' && Buffer.isBuffer(val) == false) {
+                    val = String(val);
+                }
                 return Buffer.from(val, 'utf8').toString('base64');
             } else {
                 try {
@@ -4340,23 +4343,20 @@ if (typeof module !== 'undefined' && module.exports) {
                 data = {};
             }
 
-            const xhr = syn.$w.xmlHttp();
-            xhr.open(method, url, true);
-            xhr.timeout = options.timeout;
-            xhr.responseType = options.responseType;
-            xhr.setRequestHeader('OffsetMinutes', syn.$w.timezoneOffsetMinutes);
-
+            // GET 쿼리 문자열은 xhr.open 이전에 URL 에 반영해야 요청에 포함된다
             let formData = null;
-            if (context.$object.isNullOrUndefined(data.body) == false) {
+            const hasBody = context.$object.isNullOrUndefined(data.body) == false;
+            if (hasBody == true) {
                 const params = data.body;
                 if (method.toUpperCase() == 'GET') {
-                    let paramUrl = url + ((url.split('?').length > 1) ? '&' : '?');
-
+                    const queries = [];
                     for (const key in params) {
-                        paramUrl += key + '=' + params[key].toString() + '&';
+                        queries.push(encodeURIComponent(key) + '=' + encodeURIComponent(String(params[key])));
                     }
 
-                    url = encodeURI(paramUrl.substring(0, paramUrl.length - 1));
+                    if (queries.length > 0) {
+                        url = url + ((url.indexOf('?') > -1) ? '&' : '?') + queries.join('&');
+                    }
                 }
                 else {
                     formData = new FormData();
@@ -4366,7 +4366,14 @@ if (typeof module !== 'undefined' && module.exports) {
                     }
                 }
             }
-            else {
+
+            const xhr = syn.$w.xmlHttp();
+            xhr.open(method, url, true);
+            xhr.timeout = options.timeout;
+            xhr.responseType = options.responseType;
+            xhr.setRequestHeader('OffsetMinutes', syn.$w.timezoneOffsetMinutes);
+
+            if (hasBody == false) {
                 xhr.setRequestHeader('Content-Type', options.contentType || 'application/json');
             }
 
@@ -4397,11 +4404,7 @@ if (typeof module !== 'undefined' && module.exports) {
                 }
 
                 if (formData == null) {
-                    if (data != {}) {
-                        xhr.send(JSON.stringify(data));
-                    } else {
-                        xhr.send();
-                    }
+                    xhr.send(JSON.stringify(data));
                 }
                 else {
                     xhr.send(formData);
@@ -4409,25 +4412,23 @@ if (typeof module !== 'undefined' && module.exports) {
             }
             else if (globalRoot.Promise) {
                 return new Promise(function (resolve) {
-                    xhr.onload = function () {
-                        return resolve({
-                            status: xhr.status,
-                            response: xhr.response
-                        });
-                    };
-                    xhr.onerror = function () {
+                    const settle = function () {
                         return resolve({
                             status: xhr.status,
                             response: xhr.response
                         });
                     };
 
+                    xhr.onload = settle;
+                    xhr.onerror = settle;
+                    xhr.ontimeout = function () {
+                        syn.$l.eventLog('$r.httpRequest', 'request timeout - {0}'.format(url), 'Error');
+                        return settle();
+                    };
+                    xhr.onabort = settle;
+
                     if (formData == null) {
-                        if (data != {}) {
-                            xhr.send(JSON.stringify(data));
-                        } else {
-                            xhr.send();
-                        }
+                        xhr.send(JSON.stringify(data));
                     }
                     else {
                         xhr.send(formData);
@@ -4499,18 +4500,20 @@ if (typeof module !== 'undefined' && module.exports) {
             }
             else if (globalThis.Promise) {
                 return new Promise(function (resolve) {
-                    xhr.onload = function () {
+                    const settle = function () {
                         return resolve({
                             status: xhr.status,
                             response: xhr.response
                         });
                     };
-                    xhr.onerror = function () {
-                        return resolve({
-                            status: xhr.status,
-                            response: xhr.response
-                        });
+
+                    xhr.onload = settle;
+                    xhr.onerror = settle;
+                    xhr.ontimeout = function () {
+                        syn.$l.eventLog('$r.httpDataSubmit', 'request timeout - {0}'.format(url), 'Error');
+                        return settle();
                     };
+                    xhr.onabort = settle;
 
                     xhr.send(formData);
                 });
@@ -8078,13 +8081,12 @@ if (typeof module !== 'undefined' && module.exports) {
             }
 
             var promise = new Promise(function (resolve, reject) {
-                var heads = document.getElementsByTagName('head');
-                if (heads && heads.length > 0) {
-                    return heads[0];
+                var head = document.getElementsByTagName('head')[0];
+                if (!head) {
+                    head = document.createElement('head');
+                    document.documentElement.insertBefore(head, document.documentElement.firstChild);
                 }
 
-                document.documentElement.insertBefore(document.createElement('head'), document.documentElement.firstChild);
-                var head = document.getElementsByTagName('head')[0];
                 var el = document.createElement(isStyle == true ? 'link' : 'script');
                 var timeoutID = null;
 
@@ -9944,8 +9946,10 @@ if (typeof module !== 'undefined' && module.exports) {
                     var hash = values[3];
 
                     if (syn.$c.sha256(`${encrypt}.${decryptKey}.${hostName}`) === hash) {
+                        // 서버(C# DecryptAES)와 동일한 형식: AES-256-CBC, PKCS7, IV 0(16바이트), 암호문은 base64
                         var processedKey = syn.$c.base64Decode(decryptKey).padEnd(32, '0').substring(0, 32);
-                        result = syn.$c.aesDecode(encrypt, processedKey);
+                        var decipher = require('crypto').createDecipheriv('aes-256-cbc', Buffer.from(processedKey, 'utf8'), Buffer.alloc(16, 0));
+                        result = Buffer.concat([decipher.update(Buffer.from(encrypt, 'base64')), decipher.final()]).toString('utf8');
                     }
                 } catch (exception) {
                     syn.$l.eventLog('decryptConnectionString', `${JSON.stringify(dataSource)} 확인 필요`, 'Error');
@@ -10015,33 +10019,29 @@ if (typeof module !== 'undefined' && module.exports) {
                                 }
                                 else {
                                     var sql = '';
+                                    var sqlError = null;
 
                                     try {
                                         sql = syn.$s.getStatement(moduleID, statementID, parameters);
                                         if (sql == null) {
-                                            var message = 'moduleID: {0}, statementID: {1}- 쿼리 매핑 확인 필요'.format(moduleID, statementID);
-                                            syn.$l.eventLog('getStatement', message, 'Error');
-                                            if (callback) {
-                                                callback(message, null);
+                                            sqlError = 'moduleID: {0}, statementID: {1}- 쿼리 매핑 확인 필요'.format(moduleID, statementID);
+                                        }
+                                        else {
+                                            sql = sql.replace(/\\\"/g, '"');
+
+                                            if (context.$string.isNullOrEmpty(sql.trim()) == true) {
+                                                sqlError = 'moduleID: {0}, statementID: {1}- SQL 내용 없음'.format(moduleID, statementID);
                                             }
                                         }
+                                    } catch (exception) {
+                                        sqlError = 'moduleID: {0}, statementID: {1}- {2}'.format(moduleID, statementID, exception.message);
+                                    }
 
-                                        sql = sql.replace(/\\\"/g, '"');
-
-                                        if (context.$string.isNullOrEmpty(sql.trim()) == true) {
-                                            var message = 'moduleID: {0}, statementID: {1}- SQL 내용 없음'.format(moduleID, statementID, error.message);
-                                            syn.$l.eventLog('getStatement', message, 'Error');
-                                            if (callback) {
-                                                callback(message, null);
-                                            }
-                                        }
-                                    } catch (error) {
+                                    if (sqlError != null) {
                                         db.close();
-                                        var message = 'moduleID: {0}, statementID: {1}- {2}'.format(moduleID, statementID, error.message);
-                                        syn.$l.eventLog('getStatement', message, 'Error');
-                                        if (callback) {
-                                            callback(message, null);
-                                        }
+                                        syn.$l.eventLog('getStatement', sqlError, 'Error');
+                                        callback(sqlError, null);
+                                        return;
                                     }
 
                                     if (callback) {
@@ -10124,25 +10124,29 @@ if (typeof module !== 'undefined' && module.exports) {
                                 }
                                 else {
                                     var sql = '';
+                                    var sqlError = null;
 
                                     try {
                                         sql = syn.$s.getStatement(moduleID, statementID, parameters);
-                                        sql = sql.replace(/\\\"/g, '"');
+                                        if (sql == null) {
+                                            sqlError = 'moduleID: {0}, statementID: {1}- 쿼리 매핑 확인 필요'.format(moduleID, statementID);
+                                        }
+                                        else {
+                                            sql = sql.replace(/\\\"/g, '"');
 
-                                        if (context.$string.isNullOrEmpty(sql.trim()) == true) {
-                                            var message = 'moduleID: {0}, statementID: {1}- SQL 내용 없음'.format(moduleID, statementID, error.message);
-                                            syn.$l.eventLog('getStatement', message, 'Error');
-                                            if (callback) {
-                                                callback(message, null);
+                                            if (context.$string.isNullOrEmpty(sql.trim()) == true) {
+                                                sqlError = 'moduleID: {0}, statementID: {1}- SQL 내용 없음'.format(moduleID, statementID);
                                             }
                                         }
-                                    } catch (error) {
+                                    } catch (exception) {
+                                        sqlError = 'moduleID: {0}, statementID: {1}- {2}'.format(moduleID, statementID, exception.message);
+                                    }
+
+                                    if (sqlError != null) {
                                         db.end();
-                                        var message = 'moduleID: {0}, statementID: {1}- {2}'.format(moduleID, statementID, error.message);
-                                        syn.$l.eventLog('getStatement', message, 'Error');
-                                        if (callback) {
-                                            callback(message, null);
-                                        }
+                                        syn.$l.eventLog('getStatement', sqlError, 'Error');
+                                        callback(sqlError, null);
+                                        return;
                                     }
 
                                     if (callback) {
@@ -10207,25 +10211,29 @@ if (typeof module !== 'undefined' && module.exports) {
                                 }
                                 else {
                                     var sql = '';
+                                    var sqlError = null;
 
                                     try {
                                         sql = syn.$s.getStatement(moduleID, statementID, parameters);
-                                        sql = sql.replace(/\\\"/g, '"');
+                                        if (sql == null) {
+                                            sqlError = 'moduleID: {0}, statementID: {1}- 쿼리 매핑 확인 필요'.format(moduleID, statementID);
+                                        }
+                                        else {
+                                            sql = sql.replace(/\\\"/g, '"');
 
-                                        if (context.$string.isNullOrEmpty(sql.trim()) == true) {
-                                            var message = 'moduleID: {0}, statementID: {1}- SQL 내용 없음'.format(moduleID, statementID, error.message);
-                                            syn.$l.eventLog('getStatement', message, 'Error');
-                                            if (callback) {
-                                                callback(message, null);
+                                            if (context.$string.isNullOrEmpty(sql.trim()) == true) {
+                                                sqlError = 'moduleID: {0}, statementID: {1}- SQL 내용 없음'.format(moduleID, statementID);
                                             }
                                         }
-                                    } catch (error) {
+                                    } catch (exception) {
+                                        sqlError = 'moduleID: {0}, statementID: {1}- {2}'.format(moduleID, statementID, exception.message);
+                                    }
+
+                                    if (sqlError != null) {
                                         db.close();
-                                        var message = 'moduleID: {0}, statementID: {1}- {2}'.format(moduleID, statementID, error.message);
-                                        syn.$l.eventLog('getStatement', message, 'Error');
-                                        if (callback) {
-                                            callback(message, null);
-                                        }
+                                        syn.$l.eventLog('getStatement', sqlError, 'Error');
+                                        callback(sqlError, null);
+                                        return;
                                     }
 
                                     if (callback) {
@@ -10357,7 +10365,7 @@ if (globalRoot.devicePlatform === 'node') {
     if (syn && !syn.getModuleLibrary) {
         syn.getModuleLibrary = function (moduleID, moduleFileName) {
             var result = syn.functionModules[moduleID];
-            if (context.$object.isNullOrUndefined(result) == true && moduleFileName) {
+            if (globalRoot.$object.isNullOrUndefined(result) == true && moduleFileName) {
                 syn.initializeModuleScript(moduleID, moduleFileName);
                 result = syn.functionModules[moduleID];
             }

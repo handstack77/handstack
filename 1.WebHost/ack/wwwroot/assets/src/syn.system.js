@@ -97,8 +97,10 @@
                     var hash = values[3];
 
                     if (syn.$c.sha256(`${encrypt}.${decryptKey}.${hostName}`) === hash) {
+                        // 서버(C# DecryptAES)와 동일한 형식: AES-256-CBC, PKCS7, IV 0(16바이트), 암호문은 base64
                         var processedKey = syn.$c.base64Decode(decryptKey).padEnd(32, '0').substring(0, 32);
-                        result = syn.$c.aesDecode(encrypt, processedKey);
+                        var decipher = require('crypto').createDecipheriv('aes-256-cbc', Buffer.from(processedKey, 'utf8'), Buffer.alloc(16, 0));
+                        result = Buffer.concat([decipher.update(Buffer.from(encrypt, 'base64')), decipher.final()]).toString('utf8');
                     }
                 } catch (exception) {
                     syn.$l.eventLog('decryptConnectionString', `${JSON.stringify(dataSource)} 확인 필요`, 'Error');
@@ -168,33 +170,29 @@
                                 }
                                 else {
                                     var sql = '';
+                                    var sqlError = null;
 
                                     try {
                                         sql = syn.$s.getStatement(moduleID, statementID, parameters);
                                         if (sql == null) {
-                                            var message = 'moduleID: {0}, statementID: {1}- 쿼리 매핑 확인 필요'.format(moduleID, statementID);
-                                            syn.$l.eventLog('getStatement', message, 'Error');
-                                            if (callback) {
-                                                callback(message, null);
+                                            sqlError = 'moduleID: {0}, statementID: {1}- 쿼리 매핑 확인 필요'.format(moduleID, statementID);
+                                        }
+                                        else {
+                                            sql = sql.replace(/\\\"/g, '"');
+
+                                            if (context.$string.isNullOrEmpty(sql.trim()) == true) {
+                                                sqlError = 'moduleID: {0}, statementID: {1}- SQL 내용 없음'.format(moduleID, statementID);
                                             }
                                         }
+                                    } catch (exception) {
+                                        sqlError = 'moduleID: {0}, statementID: {1}- {2}'.format(moduleID, statementID, exception.message);
+                                    }
 
-                                        sql = sql.replace(/\\\"/g, '"');
-
-                                        if (context.$string.isNullOrEmpty(sql.trim()) == true) {
-                                            var message = 'moduleID: {0}, statementID: {1}- SQL 내용 없음'.format(moduleID, statementID, error.message);
-                                            syn.$l.eventLog('getStatement', message, 'Error');
-                                            if (callback) {
-                                                callback(message, null);
-                                            }
-                                        }
-                                    } catch (error) {
+                                    if (sqlError != null) {
                                         db.close();
-                                        var message = 'moduleID: {0}, statementID: {1}- {2}'.format(moduleID, statementID, error.message);
-                                        syn.$l.eventLog('getStatement', message, 'Error');
-                                        if (callback) {
-                                            callback(message, null);
-                                        }
+                                        syn.$l.eventLog('getStatement', sqlError, 'Error');
+                                        callback(sqlError, null);
+                                        return;
                                     }
 
                                     if (callback) {
@@ -277,25 +275,29 @@
                                 }
                                 else {
                                     var sql = '';
+                                    var sqlError = null;
 
                                     try {
                                         sql = syn.$s.getStatement(moduleID, statementID, parameters);
-                                        sql = sql.replace(/\\\"/g, '"');
+                                        if (sql == null) {
+                                            sqlError = 'moduleID: {0}, statementID: {1}- 쿼리 매핑 확인 필요'.format(moduleID, statementID);
+                                        }
+                                        else {
+                                            sql = sql.replace(/\\\"/g, '"');
 
-                                        if (context.$string.isNullOrEmpty(sql.trim()) == true) {
-                                            var message = 'moduleID: {0}, statementID: {1}- SQL 내용 없음'.format(moduleID, statementID, error.message);
-                                            syn.$l.eventLog('getStatement', message, 'Error');
-                                            if (callback) {
-                                                callback(message, null);
+                                            if (context.$string.isNullOrEmpty(sql.trim()) == true) {
+                                                sqlError = 'moduleID: {0}, statementID: {1}- SQL 내용 없음'.format(moduleID, statementID);
                                             }
                                         }
-                                    } catch (error) {
+                                    } catch (exception) {
+                                        sqlError = 'moduleID: {0}, statementID: {1}- {2}'.format(moduleID, statementID, exception.message);
+                                    }
+
+                                    if (sqlError != null) {
                                         db.end();
-                                        var message = 'moduleID: {0}, statementID: {1}- {2}'.format(moduleID, statementID, error.message);
-                                        syn.$l.eventLog('getStatement', message, 'Error');
-                                        if (callback) {
-                                            callback(message, null);
-                                        }
+                                        syn.$l.eventLog('getStatement', sqlError, 'Error');
+                                        callback(sqlError, null);
+                                        return;
                                     }
 
                                     if (callback) {
@@ -360,25 +362,29 @@
                                 }
                                 else {
                                     var sql = '';
+                                    var sqlError = null;
 
                                     try {
                                         sql = syn.$s.getStatement(moduleID, statementID, parameters);
-                                        sql = sql.replace(/\\\"/g, '"');
+                                        if (sql == null) {
+                                            sqlError = 'moduleID: {0}, statementID: {1}- 쿼리 매핑 확인 필요'.format(moduleID, statementID);
+                                        }
+                                        else {
+                                            sql = sql.replace(/\\\"/g, '"');
 
-                                        if (context.$string.isNullOrEmpty(sql.trim()) == true) {
-                                            var message = 'moduleID: {0}, statementID: {1}- SQL 내용 없음'.format(moduleID, statementID, error.message);
-                                            syn.$l.eventLog('getStatement', message, 'Error');
-                                            if (callback) {
-                                                callback(message, null);
+                                            if (context.$string.isNullOrEmpty(sql.trim()) == true) {
+                                                sqlError = 'moduleID: {0}, statementID: {1}- SQL 내용 없음'.format(moduleID, statementID);
                                             }
                                         }
-                                    } catch (error) {
+                                    } catch (exception) {
+                                        sqlError = 'moduleID: {0}, statementID: {1}- {2}'.format(moduleID, statementID, exception.message);
+                                    }
+
+                                    if (sqlError != null) {
                                         db.close();
-                                        var message = 'moduleID: {0}, statementID: {1}- {2}'.format(moduleID, statementID, error.message);
-                                        syn.$l.eventLog('getStatement', message, 'Error');
-                                        if (callback) {
-                                            callback(message, null);
-                                        }
+                                        syn.$l.eventLog('getStatement', sqlError, 'Error');
+                                        callback(sqlError, null);
+                                        return;
                                     }
 
                                     if (callback) {

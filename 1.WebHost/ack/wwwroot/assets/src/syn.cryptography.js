@@ -7,6 +7,9 @@
     $cryptography.extend({
         base64Encode(val) {
             if (globalRoot.devicePlatform === 'node') {
+                if (typeof val !== 'string' && Buffer.isBuffer(val) == false) {
+                    val = String(val);
+                }
                 return Buffer.from(val, 'utf8').toString('base64');
             } else {
                 try {

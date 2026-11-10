@@ -3525,13 +3525,12 @@
             }
 
             var promise = new Promise(function (resolve, reject) {
-                var heads = document.getElementsByTagName('head');
-                if (heads && heads.length > 0) {
-                    return heads[0];
+                var head = document.getElementsByTagName('head')[0];
+                if (!head) {
+                    head = document.createElement('head');
+                    document.documentElement.insertBefore(head, document.documentElement.firstChild);
                 }
 
-                document.documentElement.insertBefore(document.createElement('head'), document.documentElement.firstChild);
-                var head = document.getElementsByTagName('head')[0];
                 var el = document.createElement(isStyle == true ? 'link' : 'script');
                 var timeoutID = null;
 

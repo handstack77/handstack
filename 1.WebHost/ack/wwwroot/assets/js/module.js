@@ -1299,6 +1299,9 @@ if (typeof module !== 'undefined' && module.exports) {
     $cryptography.extend({
         base64Encode(val) {
             if (globalRoot.devicePlatform === 'node') {
+                if (typeof val !== 'string' && Buffer.isBuffer(val) == false) {
+                    val = String(val);
+                }
                 return Buffer.from(val, 'utf8').toString('base64');
             } else {
                 try {
@@ -2379,7 +2382,6 @@ if (typeof module !== 'undefined' && module.exports) {
 (function (context) {
     'use strict';
     const $validation = context.$validation || new syn.module();
-    const $this = context.$this;
 
     $validation.extend({
         isContinue: true,
@@ -2590,6 +2592,8 @@ if (typeof module !== 'undefined' && module.exports) {
                 delete parameters.message;
 
                 try {
+                    // $this 는 페이지 초기화 시점에 생성되므로 호출 시점에 참조
+                    const $this = context.$this;
                     let funcToCall = null;
                     if ($this?.method && typeof $this.method[functionName] === 'function') {
                         funcToCall = $this.method[functionName];
@@ -5914,23 +5918,20 @@ if (typeof module !== 'undefined' && module.exports) {
                 data = {};
             }
 
-            const xhr = syn.$w.xmlHttp();
-            xhr.open(method, url, true);
-            xhr.timeout = options.timeout;
-            xhr.responseType = options.responseType;
-            xhr.setRequestHeader('OffsetMinutes', syn.$w.timezoneOffsetMinutes);
-
+            // GET 쿼리 문자열은 xhr.open 이전에 URL 에 반영해야 요청에 포함된다
             let formData = null;
-            if (context.$object.isNullOrUndefined(data.body) == false) {
+            const hasBody = context.$object.isNullOrUndefined(data.body) == false;
+            if (hasBody == true) {
                 const params = data.body;
                 if (method.toUpperCase() == 'GET') {
-                    let paramUrl = url + ((url.split('?').length > 1) ? '&' : '?');
-
+                    const queries = [];
                     for (const key in params) {
-                        paramUrl += key + '=' + params[key].toString() + '&';
+                        queries.push(encodeURIComponent(key) + '=' + encodeURIComponent(String(params[key])));
                     }
 
-                    url = encodeURI(paramUrl.substring(0, paramUrl.length - 1));
+                    if (queries.length > 0) {
+                        url = url + ((url.indexOf('?') > -1) ? '&' : '?') + queries.join('&');
+                    }
                 }
                 else {
                     formData = new FormData();
@@ -5940,7 +5941,14 @@ if (typeof module !== 'undefined' && module.exports) {
                     }
                 }
             }
-            else {
+
+            const xhr = syn.$w.xmlHttp();
+            xhr.open(method, url, true);
+            xhr.timeout = options.timeout;
+            xhr.responseType = options.responseType;
+            xhr.setRequestHeader('OffsetMinutes', syn.$w.timezoneOffsetMinutes);
+
+            if (hasBody == false) {
                 xhr.setRequestHeader('Content-Type', options.contentType || 'application/json');
             }
 
@@ -5971,11 +5979,7 @@ if (typeof module !== 'undefined' && module.exports) {
                 }
 
                 if (formData == null) {
-                    if (data != {}) {
-                        xhr.send(JSON.stringify(data));
-                    } else {
-                        xhr.send();
-                    }
+                    xhr.send(JSON.stringify(data));
                 }
                 else {
                     xhr.send(formData);
@@ -5983,25 +5987,23 @@ if (typeof module !== 'undefined' && module.exports) {
             }
             else if (globalRoot.Promise) {
                 return new Promise(function (resolve) {
-                    xhr.onload = function () {
-                        return resolve({
-                            status: xhr.status,
-                            response: xhr.response
-                        });
-                    };
-                    xhr.onerror = function () {
+                    const settle = function () {
                         return resolve({
                             status: xhr.status,
                             response: xhr.response
                         });
                     };
 
+                    xhr.onload = settle;
+                    xhr.onerror = settle;
+                    xhr.ontimeout = function () {
+                        syn.$l.eventLog('$r.httpRequest', 'request timeout - {0}'.format(url), 'Error');
+                        return settle();
+                    };
+                    xhr.onabort = settle;
+
                     if (formData == null) {
-                        if (data != {}) {
-                            xhr.send(JSON.stringify(data));
-                        } else {
-                            xhr.send();
-                        }
+                        xhr.send(JSON.stringify(data));
                     }
                     else {
                         xhr.send(formData);
@@ -6073,18 +6075,20 @@ if (typeof module !== 'undefined' && module.exports) {
             }
             else if (globalThis.Promise) {
                 return new Promise(function (resolve) {
-                    xhr.onload = function () {
+                    const settle = function () {
                         return resolve({
                             status: xhr.status,
                             response: xhr.response
                         });
                     };
-                    xhr.onerror = function () {
-                        return resolve({
-                            status: xhr.status,
-                            response: xhr.response
-                        });
+
+                    xhr.onload = settle;
+                    xhr.onerror = settle;
+                    xhr.ontimeout = function () {
+                        syn.$l.eventLog('$r.httpDataSubmit', 'request timeout - {0}'.format(url), 'Error');
+                        return settle();
                     };
+                    xhr.onabort = settle;
 
                     xhr.send(formData);
                 });
@@ -10537,13 +10541,12 @@ if (typeof module !== 'undefined' && module.exports) {
             }
 
             var promise = new Promise(function (resolve, reject) {
-                var heads = document.getElementsByTagName('head');
-                if (heads && heads.length > 0) {
-                    return heads[0];
+                var head = document.getElementsByTagName('head')[0];
+                if (!head) {
+                    head = document.createElement('head');
+                    document.documentElement.insertBefore(head, document.documentElement.firstChild);
                 }
 
-                document.documentElement.insertBefore(document.createElement('head'), document.documentElement.firstChild);
-                var head = document.getElementsByTagName('head')[0];
                 var el = document.createElement(isStyle == true ? 'link' : 'script');
                 var timeoutID = null;
 

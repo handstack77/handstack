@@ -85,7 +85,7 @@ if (globalRoot.devicePlatform === 'node') {
     if (syn && !syn.getModuleLibrary) {
         syn.getModuleLibrary = function (moduleID, moduleFileName) {
             var result = syn.functionModules[moduleID];
-            if (context.$object.isNullOrUndefined(result) == true && moduleFileName) {
+            if (globalRoot.$object.isNullOrUndefined(result) == true && moduleFileName) {
                 syn.initializeModuleScript(moduleID, moduleFileName);
                 result = syn.functionModules[moduleID];
             }

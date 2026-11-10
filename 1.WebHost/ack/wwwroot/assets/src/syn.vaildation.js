@@ -1,7 +1,6 @@
 ﻿(function (context) {
     'use strict';
     const $validation = context.$validation || new syn.module();
-    const $this = context.$this;
 
     $validation.extend({
         isContinue: true,
@@ -212,6 +211,8 @@
                 delete parameters.message;
 
                 try {
+                    // $this 는 페이지 초기화 시점에 생성되므로 호출 시점에 참조
+                    const $this = context.$this;
                     let funcToCall = null;
                     if ($this?.method && typeof $this.method[functionName] === 'function') {
                         funcToCall = $this.method[functionName];

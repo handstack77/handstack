@@ -296,23 +296,20 @@
                 data = {};
             }
 
-            const xhr = syn.$w.xmlHttp();
-            xhr.open(method, url, true);
-            xhr.timeout = options.timeout;
-            xhr.responseType = options.responseType;
-            xhr.setRequestHeader('OffsetMinutes', syn.$w.timezoneOffsetMinutes);
-
+            // GET 쿼리 문자열은 xhr.open 이전에 URL 에 반영해야 요청에 포함된다
             let formData = null;
-            if (context.$object.isNullOrUndefined(data.body) == false) {
+            const hasBody = context.$object.isNullOrUndefined(data.body) == false;
+            if (hasBody == true) {
                 const params = data.body;
                 if (method.toUpperCase() == 'GET') {
-                    let paramUrl = url + ((url.split('?').length > 1) ? '&' : '?');
-
+                    const queries = [];
                     for (const key in params) {
-                        paramUrl += key + '=' + params[key].toString() + '&';
+                        queries.push(encodeURIComponent(key) + '=' + encodeURIComponent(String(params[key])));
                     }
 
-                    url = encodeURI(paramUrl.substring(0, paramUrl.length - 1));
+                    if (queries.length > 0) {
+                        url = url + ((url.indexOf('?') > -1) ? '&' : '?') + queries.join('&');
+                    }
                 }
                 else {
                     formData = new FormData();
@@ -322,7 +319,14 @@
                     }
                 }
             }
-            else {
+
+            const xhr = syn.$w.xmlHttp();
+            xhr.open(method, url, true);
+            xhr.timeout = options.timeout;
+            xhr.responseType = options.responseType;
+            xhr.setRequestHeader('OffsetMinutes', syn.$w.timezoneOffsetMinutes);
+
+            if (hasBody == false) {
                 xhr.setRequestHeader('Content-Type', options.contentType || 'application/json');
             }
 
@@ -353,11 +357,7 @@
                 }
 
                 if (formData == null) {
-                    if (data != {}) {
-                        xhr.send(JSON.stringify(data));
-                    } else {
-                        xhr.send();
-                    }
+                    xhr.send(JSON.stringify(data));
                 }
                 else {
                     xhr.send(formData);
@@ -365,25 +365,23 @@
             }
             else if (globalRoot.Promise) {
                 return new Promise(function (resolve) {
-                    xhr.onload = function () {
-                        return resolve({
-                            status: xhr.status,
-                            response: xhr.response
-                        });
-                    };
-                    xhr.onerror = function () {
+                    const settle = function () {
                         return resolve({
                             status: xhr.status,
                             response: xhr.response
                         });
                     };
 
+                    xhr.onload = settle;
+                    xhr.onerror = settle;
+                    xhr.ontimeout = function () {
+                        syn.$l.eventLog('$r.httpRequest', 'request timeout - {0}'.format(url), 'Error');
+                        return settle();
+                    };
+                    xhr.onabort = settle;
+
                     if (formData == null) {
-                        if (data != {}) {
-                            xhr.send(JSON.stringify(data));
-                        } else {
-                            xhr.send();
-                        }
+                        xhr.send(JSON.stringify(data));
                     }
                     else {
                         xhr.send(formData);
@@ -455,18 +453,20 @@
             }
             else if (globalThis.Promise) {
                 return new Promise(function (resolve) {
-                    xhr.onload = function () {
+                    const settle = function () {
                         return resolve({
                             status: xhr.status,
                             response: xhr.response
                         });
                     };
-                    xhr.onerror = function () {
-                        return resolve({
-                            status: xhr.status,
-                            response: xhr.response
-                        });
+
+                    xhr.onload = settle;
+                    xhr.onerror = settle;
+                    xhr.ontimeout = function () {
+                        syn.$l.eventLog('$r.httpDataSubmit', 'request timeout - {0}'.format(url), 'Error');
+                        return settle();
                     };
+                    xhr.onabort = settle;
 
                     xhr.send(formData);
                 });
