@@ -2,6 +2,58 @@
 	color: #000;
 }
 
+/* singleBox: 바깥 테두리 하나 안에 시작·종료 입력, '~', 달력 버튼을 둔다 */
+.syn-dateperiod-single {
+	display: flex;
+	align-items: center;
+	gap: 0;
+	padding: 0 0 0 .25rem;
+	min-width: 0;
+	overflow: hidden;
+}
+
+.syn-dateperiod-single:focus-within {
+	border-color: #90b5e2;
+	box-shadow: 0 0 0 .25rem rgba(32, 107, 196, .25);
+}
+
+.syn-dateperiod-single .syn-dateperiod-input {
+	flex: 1 1 0;
+	width: 0;
+	min-width: 0;
+	height: auto;
+	padding: 0 .25rem;
+	text-align: center;
+	border: 0 !important;
+	border-radius: 0 !important;
+	box-shadow: none !important;
+	background: transparent !important;
+}
+
+.syn-dateperiod-single .syn-dateperiod-separator {
+	flex: 0 0 auto;
+	padding: 0 .125rem;
+	color: #999;
+}
+
+.syn-dateperiod-single .syn-dateperiod-button {
+	flex: 0 0 auto;
+	align-self: stretch;
+	height: auto;
+	padding: 0 .5rem;
+	font-size: 20px;
+	color: var(--tblr-secondary, #667382);
+	border: 0;
+	border-radius: 0;
+	box-shadow: none;
+	background: transparent;
+}
+
+.syn-dateperiod-single .syn-dateperiod-button:hover {
+	color: var(--tblr-primary, #206bc4);
+	background: transparent;
+}
+
 .pika-table th {
 	color: #999;
 }
